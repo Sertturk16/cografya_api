@@ -1,0 +1,296 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Liveness probe — returns ok when the API is up.",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/api/provinces": {
+      "get": {
+        "operationId": "ProvinceController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProvinceListItemDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List all provinces (lean payload for the il-hub + map).",
+        "tags": [
+          "provinces"
+        ]
+      }
+    },
+    "/api/provinces/{slug}": {
+      "get": {
+        "operationId": "ProvinceController_findBySlug",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "description": "TR or EN slug of the province.",
+            "schema": {
+              "example": "istanbul",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProvinceDetailDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No province matches the given slug."
+          }
+        },
+        "summary": "Get one province by its TR or EN slug (full detail).",
+        "tags": [
+          "provinces"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Coğrafya API",
+    "description": "Backend API for the Coğrafya education platform.",
+    "version": "0.0.1",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "HealthResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok",
+            "description": "Liveness status of the API. Always \"ok\" when the service responds."
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "ProvinceListItemDto": {
+        "type": "object",
+        "properties": {
+          "plateCode": {
+            "type": "string",
+            "example": "34",
+            "description": "Plaka kodu (stable, unique)."
+          },
+          "nameTr": {
+            "type": "string",
+            "example": "İstanbul",
+            "description": "İl adı (TR)."
+          },
+          "region": {
+            "enum": [
+              "MARMARA",
+              "EGE",
+              "AKDENIZ",
+              "IC_ANADOLU",
+              "KARADENIZ",
+              "DOGU_ANADOLU",
+              "GUNEYDOGU_ANADOLU"
+            ],
+            "type": "string",
+            "description": "Coğrafi bölge."
+          },
+          "slugTr": {
+            "type": "string",
+            "example": "istanbul",
+            "description": "TR slug (routing key)."
+          },
+          "slugEn": {
+            "type": "string",
+            "example": "istanbul",
+            "description": "EN slug (routing key)."
+          }
+        },
+        "required": [
+          "plateCode",
+          "nameTr",
+          "region",
+          "slugTr",
+          "slugEn"
+        ]
+      },
+      "ProvinceDetailDto": {
+        "type": "object",
+        "properties": {
+          "plateCode": {
+            "type": "string",
+            "example": "34",
+            "description": "Plaka kodu."
+          },
+          "nameTr": {
+            "type": "string",
+            "example": "İstanbul",
+            "description": "İl adı (TR)."
+          },
+          "slugTr": {
+            "type": "string",
+            "example": "istanbul",
+            "description": "TR slug (routing key)."
+          },
+          "slugEn": {
+            "type": "string",
+            "example": "istanbul",
+            "description": "EN slug (routing key)."
+          },
+          "region": {
+            "enum": [
+              "MARMARA",
+              "EGE",
+              "AKDENIZ",
+              "IC_ANADOLU",
+              "KARADENIZ",
+              "DOGU_ANADOLU",
+              "GUNEYDOGU_ANADOLU"
+            ],
+            "type": "string",
+            "description": "Coğrafi bölge."
+          },
+          "population": {
+            "type": "number",
+            "nullable": true,
+            "example": 15754053,
+            "description": "Nüfus (TÜİK ADNKS). Null until fact-checked."
+          },
+          "populationYear": {
+            "type": "number",
+            "nullable": true,
+            "example": 2025,
+            "description": "Nüfus referans yılı."
+          },
+          "areaKm2": {
+            "type": "number",
+            "nullable": true,
+            "example": 5461,
+            "description": "Yüzölçümü (km², HGM)."
+          },
+          "districtCount": {
+            "type": "number",
+            "nullable": true,
+            "example": 39,
+            "description": "İlçe sayısı."
+          },
+          "elevationM": {
+            "type": "number",
+            "nullable": true,
+            "example": 40,
+            "description": "İl merkezi rakımı (m)."
+          },
+          "latitude": {
+            "type": "number",
+            "nullable": true,
+            "example": 41.0136,
+            "description": "İl merkezi enlemi (decimal degrees)."
+          },
+          "longitude": {
+            "type": "number",
+            "nullable": true,
+            "example": 28.955,
+            "description": "İl merkezi boylamı (decimal degrees)."
+          },
+          "neighborPlateCodes": {
+            "example": [
+              "59",
+              "41"
+            ],
+            "description": "Komşu illerin plaka kodları (hub-and-spoke için).",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "climateKoppen": {
+            "type": "string",
+            "nullable": true,
+            "example": "Cfa",
+            "description": "Köppen iklim kısa kodu."
+          },
+          "climateClassTr": {
+            "type": "string",
+            "nullable": true,
+            "example": "Nemli ılıman iklim",
+            "description": "MGM Türkçe iklim sınıf adı."
+          },
+          "landformNoteTr": {
+            "type": "string",
+            "nullable": true,
+            "description": "Öne çıkan yer şekilleri / jeoloji notu (TR)."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Kayıt oluşturulma zamanı."
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Son güncelleme zamanı (SEO dateModified / sitemap lastmod)."
+          }
+        },
+        "required": [
+          "plateCode",
+          "nameTr",
+          "slugTr",
+          "slugEn",
+          "region",
+          "population",
+          "populationYear",
+          "areaKm2",
+          "districtCount",
+          "elevationM",
+          "latitude",
+          "longitude",
+          "neighborPlateCodes",
+          "climateKoppen",
+          "climateClassTr",
+          "landformNoteTr",
+          "createdAt",
+          "updatedAt"
+        ]
+      }
+    }
+  }
+}

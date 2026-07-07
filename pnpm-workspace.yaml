@@ -1,5 +1,18 @@
 # Supply-chain guard: dependencies may NOT run install/build (postinstall)
 # scripts unless explicitly allowed here. Keep this list tight and reviewed.
-# @scarf/scarf is a transitive telemetry package — its build script is denied.
+# Everything is denied by default; entries below are explicit, reviewed rulings.
+#
+# - @scarf/scarf: transitive telemetry package — build script denied.
+# - cpu-features / ssh2: pulled transitively by testcontainers (dockerode → ssh2).
+#   ssh2 works via its pure-JS path; cpu-features is an optional native accelerator.
+#   Testcontainers talks to the local Docker socket (not SSH), so neither native
+#   build is needed — denied.
+# - protobufjs: its postinstall only generates CLI helpers we do not use — denied.
+# - unrs-resolver: napi resolver that ships prebuilt platform binaries via optional
+#   deps; the postinstall is a no-op fallback we do not need — denied.
 allowBuilds:
   '@scarf/scarf': false
+  cpu-features: false
+  protobufjs: false
+  ssh2: false
+  unrs-resolver: false

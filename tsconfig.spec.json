@@ -1,0 +1,11 @@
+{
+  // Test-only compiler config for ts-jest. Extends the strict base but emits
+  // CommonJS (Jest runs on CJS). `strict` + `noUncheckedIndexedAccess` are
+  // inherited — tests keep the same type rigor as production code.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "types": ["node"]
+  }
+}

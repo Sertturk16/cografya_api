@@ -1,8 +1,10 @@
 # Local development infrastructure for the Coğrafya API.
 #
-# NOTE: not wired into the app yet — the TypeORM/Redis connection lands in
-# PR-1a. This file just gives a startable Postgres + Redis for local work:
 #   docker compose up -d
+#
+# Postgres is wired into the app from PR-1a: point DATABASE_URL (see
+# .env.example) at this instance, then run `pnpm migration:run`. Redis is up for
+# the caching layer that lands in a later PR (not yet read by the app).
 #
 # Credentials below are dev-only defaults (see .env.example); they are NOT
 # secrets and are overridable via a local .env.

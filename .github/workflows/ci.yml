@@ -44,6 +44,38 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
 
+  # OpenAPI drift gate: regenerate the spec and fail if the committed artifact is
+  # stale. This is the mechanism the web repo's codegen depends on (CONVENTIONS
+  # §3 / SPEC.md Bölüm B) — a DTO change that isn't reflected in openapi.json is
+  # a contract break and must not merge.
+  openapi-check:
+    name: OpenAPI spec drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run openapi:check
+
+  # e2e tests on a real Postgres via Testcontainers (the team's single test gate).
+  # GitHub-hosted runners ship Docker, so Testcontainers manages its own Postgres
+  # container — no `services:` block needed.
+  test:
+    name: Test (e2e)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run test:e2e
+
 # NOTE: no deploy job — hosting is undecided (CONVENTIONS §2/§7). A deploy
 # pipeline is added in a separate PR once the hosting target is chosen.
-# The test job (Jest + @testcontainers/postgresql) lands in PR-1a with the DB layer.
