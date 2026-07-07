@@ -34,40 +34,83 @@ docker compose up -d
 pnpm start:dev
 ```
 
-The API listens on `PORT` (default `3000`). Verify it is up:
+The API listens on `PORT` (default `3001` — the web app's Next.js dev server owns
+`3000`, so both run locally with defaults untouched). Verify it is up:
 
 ```bash
-curl http://localhost:3000/health
+curl http://localhost:3001/health
 # -> {"status":"ok"}
 ```
 
-Interactive OpenAPI docs are served at <http://localhost:3000/docs>.
+Interactive OpenAPI docs are served at <http://localhost:3001/docs>.
 
 ## Configuration
 
 Environment variables are validated at boot by a zod schema
 (`src/config/env.schema.ts`, wired into `ConfigModule.forRoot({ validate })`). An
 **invalid** value — or a **missing** value for any variable that has no default — **aborts
-startup**, so the app never runs with an invalid config. (The two current vars, `NODE_ENV`
-and `PORT`, carry safe defaults, so today only invalid values abort; the first no-default
-var, e.g. `DATABASE_URL` in PR-1a, makes the missing-value case bite too.) Add every new
-variable the app reads to that schema, and give it a default only when a safe one exists.
+startup**, so the app never runs with an invalid config. `DATABASE_URL` has **no default**,
+so leaving it unset kills boot (fail-fast); `NODE_ENV`, `PORT` and `WEB_ORIGIN` carry safe
+defaults. Add every new variable the app reads to that schema, and give it a default only
+when a safe one exists.
+
+## Database & migrations
+
+Postgres is accessed through TypeORM. The connection is built once in
+`src/database/data-source-options.ts` (`synchronize` is always off — schema changes ship
+as reviewed migrations) and reused by the app, the tests, and the migration CLI.
+
+```bash
+docker compose up -d          # start local Postgres (+ Redis)
+pnpm migration:run            # apply migrations (builds, then runs against DATABASE_URL)
+```
+
+Migrations live in `src/database/migrations/` and are listed explicitly in
+`data-source-options.ts` (no globs — every migration is added on purpose and hand-reviewed).
+The CLI runs against the compiled build (`dist/database/data-source.js`) on plain Node.
+
+| Script                 | Purpose                                          |
+| ---------------------- | ------------------------------------------------ |
+| `pnpm migration:run`   | Apply pending migrations                         |
+| `pnpm migration:revert`| Revert the last migration                        |
+| `pnpm migration:show`  | Show applied/pending migrations                  |
+| `pnpm migration:generate <path>` | Generate a migration from entity diffs |
+| `pnpm migration:create <path>`   | Scaffold an empty migration            |
+
+> After generating a migration, **add it to the `migrations` array** in
+> `data-source-options.ts` and hand-review the SQL before committing.
+
+## OpenAPI contract
+
+The api owns the shared DTO/type contract. `openapi/openapi.json` is a **committed
+artifact** the web repo codegens its types from. Regenerate it after any DTO/route change:
+
+```bash
+pnpm openapi:generate   # boots the app in preview mode (no DB) and writes the spec
+```
+
+CI runs `pnpm openapi:check` (regenerate + `git diff --exit-code`) — a stale committed spec
+fails the build. Prettier ignores `openapi/`; the generator is its sole authority.
 
 ## Scripts
 
-| Script            | Purpose                                 |
-| ----------------- | --------------------------------------- |
-| `pnpm start:dev`  | Run in watch mode                       |
-| `pnpm build`      | Compile to `dist/`                      |
-| `pnpm start:prod` | Run the compiled build                  |
-| `pnpm typecheck`  | `tsc --noEmit` (type gate)              |
-| `pnpm lint`       | ESLint (flat config; includes Prettier) |
-| `pnpm format`     | Prettier write                          |
+| Script                 | Purpose                                        |
+| ---------------------- | ---------------------------------------------- |
+| `pnpm start:dev`       | Run in watch mode                              |
+| `pnpm build`           | Compile to `dist/`                             |
+| `pnpm start:prod`      | Run the compiled build                         |
+| `pnpm typecheck`       | `tsc --noEmit` (type gate)                     |
+| `pnpm lint`            | ESLint (flat config; includes Prettier)        |
+| `pnpm format`          | Prettier write                                 |
+| `pnpm test:e2e`        | Jest + Testcontainers e2e (needs Docker; CI)   |
+| `pnpm migration:run`   | Apply DB migrations (see Database & migrations) |
+| `pnpm openapi:generate`| Regenerate the committed OpenAPI spec          |
 
 ## Quality gates
 
 - **CI is the only test gate.** Locally, run `pnpm typecheck` + `pnpm lint` on your
-  changes; the authoritative check is CI on the PR.
+  changes; the authoritative check is CI on the PR (typecheck+lint, build, e2e tests on a
+  real Postgres via Testcontainers, and the OpenAPI drift check).
 - Commits follow **Conventional Commits** (enforced by commitlint via a git hook).
 - `pre-commit` runs `lint-staged` (ESLint `--fix` + a project-wide typecheck) on staged
   TypeScript.

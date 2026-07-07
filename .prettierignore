@@ -2,3 +2,7 @@ dist
 node_modules
 coverage
 pnpm-lock.yaml
+# Generated artifact — the openapi:generate script is its sole authority.
+# Prettier must not reformat it, or it would drift from the generator output
+# and trip the CI drift gate.
+openapi

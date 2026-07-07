@@ -40,4 +40,19 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-argument': 'error',
     },
   },
+  {
+    // Test files only. Test tooling surfaces `any` at its boundaries
+    // (supertest's `res.body`, `app.getHttpServer()`, jest matchers), so relax
+    // the unsafe-any family for specs. Production code keeps the full strict
+    // boundary. `no-explicit-any` stays ON — we still never WRITE an explicit
+    // any, we only tolerate any flowing in from typed-as-any library surfaces.
+    files: ['**/*.spec.ts', '**/*.e2e-spec.ts'],
+    rules: {
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+    },
+  },
 );
