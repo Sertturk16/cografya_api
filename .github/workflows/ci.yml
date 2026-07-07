@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+# Cancel superseded runs on the same ref (e.g. rapid pushes to a PR branch).
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Least-privilege GITHUB_TOKEN: nothing in this workflow writes to the repo.
+# Widen per-job only when a future step genuinely needs it (e.g. a deploy job).
+permissions:
+  contents: read
+
+jobs:
+  typecheck-and-lint:
+    name: Typecheck & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run typecheck
+      - run: pnpm run lint
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+
+# NOTE: no deploy job — hosting is undecided (CONVENTIONS §2/§7). A deploy
+# pipeline is added in a separate PR once the hosting target is chosen.
+# The test job (Jest + @testcontainers/postgresql) lands in PR-1a with the DB layer.

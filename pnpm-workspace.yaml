@@ -1,0 +1,5 @@
+# Supply-chain guard: dependencies may NOT run install/build (postinstall)
+# scripts unless explicitly allowed here. Keep this list tight and reviewed.
+# @scarf/scarf is a transitive telemetry package — its build script is denied.
+allowBuilds:
+  '@scarf/scarf': false

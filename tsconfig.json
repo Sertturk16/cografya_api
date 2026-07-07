@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    // `nodenext` emits CommonJS *because* package.json has no `"type": "module"`.
+    // Adding `"type": "module"` would flip this to ESM and require an explicit
+    // `.js` extension on every relative import — change both together, never one.
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "target": "ES2023",
+    "outDir": "./dist",
+    "declaration": true,
+    "removeComments": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    // `esModuleInterop` already implies `allowSyntheticDefaultImports`.
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true
+  }
+}

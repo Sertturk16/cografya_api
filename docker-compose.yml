@@ -1,0 +1,44 @@
+# Local development infrastructure for the Coğrafya API.
+#
+# NOTE: not wired into the app yet — the TypeORM/Redis connection lands in
+# PR-1a. This file just gives a startable Postgres + Redis for local work:
+#   docker compose up -d
+#
+# Credentials below are dev-only defaults (see .env.example); they are NOT
+# secrets and are overridable via a local .env.
+
+name: cografya-api
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: cografya-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-cografya}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cografya_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-cografya}
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-cografya} -d ${POSTGRES_DB:-cografya}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: cografya-redis
+    restart: unless-stopped
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
