@@ -47,7 +47,14 @@ export class Province {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  /** Plaka kodu — stable, unique, never changes (e.g. "34"). */
+  /**
+   * Plaka kodu — stable, unique, never changes (e.g. "34").
+   *
+   * SEED DISCIPLINE: always ZERO-PAD to 2 chars ("01"…"09", never "1"…"9").
+   * This is a string column, so `ORDER BY plate_code` sorts lexically — an
+   * unpadded "1" would sort after "09" and scramble plate order. The
+   * `db:seed:geography` seed MUST emit padded codes for all 81 provinces.
+   */
   @Column({ name: 'plate_code', type: 'varchar', length: 2, unique: true })
   plateCode!: string;
 

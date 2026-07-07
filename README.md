@@ -34,14 +34,15 @@ docker compose up -d
 pnpm start:dev
 ```
 
-The API listens on `PORT` (default `3000`). Verify it is up:
+The API listens on `PORT` (default `3001` — the web app's Next.js dev server owns
+`3000`, so both run locally with defaults untouched). Verify it is up:
 
 ```bash
-curl http://localhost:3000/health
+curl http://localhost:3001/health
 # -> {"status":"ok"}
 ```
 
-Interactive OpenAPI docs are served at <http://localhost:3000/docs>.
+Interactive OpenAPI docs are served at <http://localhost:3001/docs>.
 
 ## Configuration
 

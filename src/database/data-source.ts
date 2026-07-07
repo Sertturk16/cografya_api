@@ -7,7 +7,7 @@ import { buildDataSourceOptions } from './data-source-options';
  *
  *   pnpm build && pnpm typeorm migration:run -d dist/database/data-source.js
  *
- * (the `db:*` package scripts wrap this). Running compiled JS keeps the CLI on
+ * (the `migration:*` package scripts wrap this). Running compiled JS keeps the CLI on
  * plain Node — no ts-node — which is the robust path on bleeding-edge TS.
  *
  * `DATABASE_URL` is read straight from the environment here (the CLI runs
