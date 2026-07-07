@@ -1,0 +1,35 @@
+# Dependencies
+/node_modules
+
+# Build output
+/dist
+/build
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment (secrets — never commit; .env.example IS committed)
+.env
+.env.local
+.env.*.local
+
+# Test / coverage
+/coverage
+/.nyc_output
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Husky internals (generated on install)
+.husky/_
+
+# Editor / OS
+.DS_Store
+.idea
+*.swp
+.vscode/*
+!.vscode/extensions.json
