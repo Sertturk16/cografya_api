@@ -26,6 +26,10 @@ async function bootstrap(): Promise<void> {
     .setVersion('0.0.1')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
+  // TODO(first-deploy): gate `/docs` (Swagger UI + OpenAPI JSON) behind a
+  // non-production check before the first real deployment — the full API
+  // surface must not be publicly browsable in prod. Left ungated for now so the
+  // web repo can codegen its types against a local/dev instance.
   SwaggerModule.setup('docs', app, document);
 
   const configService = app.get(ConfigService);

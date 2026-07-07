@@ -11,6 +11,11 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Least-privilege GITHUB_TOKEN: nothing in this workflow writes to the repo.
+# Widen per-job only when a future step genuinely needs it (e.g. a deploy job).
+permissions:
+  contents: read
+
 jobs:
   typecheck-and-lint:
     name: Typecheck & Lint

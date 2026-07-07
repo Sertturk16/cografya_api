@@ -46,9 +46,12 @@ Interactive OpenAPI docs are served at <http://localhost:3000/docs>.
 ## Configuration
 
 Environment variables are validated at boot by a zod schema
-(`src/config/env.schema.ts`, wired into `ConfigModule.forRoot({ validate })`). A missing
-or mistyped variable **aborts startup** — the app never runs with an invalid config. Add
-every new variable the app reads to that schema.
+(`src/config/env.schema.ts`, wired into `ConfigModule.forRoot({ validate })`). An
+**invalid** value — or a **missing** value for any variable that has no default — **aborts
+startup**, so the app never runs with an invalid config. (The two current vars, `NODE_ENV`
+and `PORT`, carry safe defaults, so today only invalid values abort; the first no-default
+var, e.g. `DATABASE_URL` in PR-1a, makes the missing-value case bite too.) Add every new
+variable the app reads to that schema, and give it a default only when a safe one exists.
 
 ## Scripts
 
