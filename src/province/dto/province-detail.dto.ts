@@ -54,24 +54,24 @@ export class ProvinceDetailDto {
   @ApiProperty({
     type: Number,
     nullable: true,
-    example: 40,
-    description: 'İl merkezi rakımı (m).',
+    example: 33,
+    description: 'İl merkezi rakımı (m) — MGM il-merkez istasyonu referansı.',
   })
   elevationM!: number | null;
 
   @ApiProperty({
     type: Number,
     nullable: true,
-    example: 41.0136,
-    description: 'İl merkezi enlemi (decimal degrees).',
+    example: 40.9819,
+    description: 'İl merkezi enlemi (decimal degrees) — MGM il-merkez istasyonu.',
   })
   latitude!: number | null;
 
   @ApiProperty({
     type: Number,
     nullable: true,
-    example: 28.955,
-    description: 'İl merkezi boylamı (decimal degrees).',
+    example: 28.8208,
+    description: 'İl merkezi boylamı (decimal degrees) — MGM il-merkez istasyonu.',
   })
   longitude!: number | null;
 
@@ -85,18 +85,28 @@ export class ProvinceDetailDto {
   @ApiProperty({
     type: String,
     nullable: true,
-    example: 'Cfa',
-    description: 'Köppen iklim kısa kodu.',
+    example: 'Csa',
+    description: 'Köppen iklim kısa kodu (MGM 2023).',
   })
   climateKoppen!: string | null;
 
   @ApiProperty({
     type: String,
     nullable: true,
-    example: 'Nemli ılıman iklim',
+    example: 'Akdeniz iklimi',
     description: 'MGM Türkçe iklim sınıf adı.',
   })
   climateClassTr!: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example:
+      "MGM'nin 2023 Köppen sınıflandırması bu ili Csa (Akdeniz iklimi) olarak verir; ancak MGM'nin kendi raporu bu basitleştirilmiş yöntemin bölgesel ayırt ediciliğinin sınırlı olduğunu not düşer.",
+    description:
+      "MGM Köppen metodolojik uyarı notu — Köppen değeriyle birlikte ZORUNLU olarak sunulur (bare bir 'Csa' yayınlanmaz).",
+  })
+  climateNoteTr!: string | null;
 
   @ApiProperty({
     type: String,

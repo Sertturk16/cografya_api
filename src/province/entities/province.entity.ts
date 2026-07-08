@@ -140,6 +140,19 @@ export class Province {
   @Column({ name: 'climate_class_tr', type: 'varchar', length: 80, nullable: true })
   climateClassTr!: string | null;
 
+  /**
+   * MGM'nin Köppen değeriyle ZORUNLU olarak birlikte sunulan metodolojik uyarı
+   * notu (il-data-dictionary §2.1). MGM'nin kendi 2023 raporu, basitleştirilmiş
+   * üçüncü-harf kuralının Türkiye istasyonlarının ~%65'ini "Cs" (Akdeniz-tipi)
+   * çıkardığını ve İç/Doğu Anadolu gibi bölgelerde ayırt ediciliğinin sınırlı
+   * kaldığını itiraf eder. Bu yüzden "Csa" hiçbir il sayfasında bu not olmadan
+   * TEK BAŞINA yayınlanmamalı — not, değere eşlik eden bir veri alanıdır (bare
+   * bir Köppen kodu, özellikle Ankara/Van için, yaygın müfredat bilgisiyle
+   * çelişen bağlamsız bir cümle üretir).
+   */
+  @Column({ name: 'climate_note_tr', type: 'text', nullable: true })
+  climateNoteTr!: string | null;
+
   /** Öne çıkan yer şekilleri / jeoloji notu — short free text (TR). */
   @Column({ name: 'landform_note_tr', type: 'text', nullable: true })
   landformNoteTr!: string | null;
