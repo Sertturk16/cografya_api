@@ -21,6 +21,11 @@ yarn-error.log*
 /coverage
 /.nyc_output
 
+# PR-review run workspace — reviewers write pr-reviews/{PR#}-{role}.md here per run;
+# Atlas archives the consolidated file to Owner's Inbox/pr-review-archive/. Transient,
+# never committed (see .claude/reviewers/README.md).
+/pr-reviews/
+
 # TypeScript build info
 *.tsbuildinfo
 
