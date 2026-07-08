@@ -25,10 +25,18 @@ async function main(): Promise<void> {
   try {
     const result = await seedGeography(dataSource);
     console.log(
-      `[db:seed:geography] done — inserted=${result.inserted} updated=${result.updated} total=${result.total}`,
+      `[db:seed:geography] done — inserted=${result.inserted} updated=${result.updated} ` +
+        `unchanged=${result.unchanged} total=${result.total}`,
     );
   } finally {
-    await dataSource.destroy();
+    // Nested try so a teardown failure is logged but never MASKS the original
+    // seed error (which keeps propagating out of `main`). The process still
+    // exits non-zero on either failure.
+    try {
+      await dataSource.destroy();
+    } catch (destroyError) {
+      console.error('[db:seed:geography] failed to close the data source:', destroyError);
+    }
   }
 }
 
