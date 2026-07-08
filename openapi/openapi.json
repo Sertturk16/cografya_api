@@ -216,20 +216,20 @@
           "elevationM": {
             "type": "number",
             "nullable": true,
-            "example": 40,
-            "description": "İl merkezi rakımı (m)."
+            "example": 33,
+            "description": "İl merkezi rakımı (m) — MGM il-merkez istasyonu referansı."
           },
           "latitude": {
             "type": "number",
             "nullable": true,
-            "example": 41.0136,
-            "description": "İl merkezi enlemi (decimal degrees)."
+            "example": 40.9819,
+            "description": "İl merkezi enlemi (decimal degrees) — MGM il-merkez istasyonu."
           },
           "longitude": {
             "type": "number",
             "nullable": true,
-            "example": 28.955,
-            "description": "İl merkezi boylamı (decimal degrees)."
+            "example": 28.8208,
+            "description": "İl merkezi boylamı (decimal degrees) — MGM il-merkez istasyonu."
           },
           "neighborPlateCodes": {
             "example": [
@@ -245,14 +245,20 @@
           "climateKoppen": {
             "type": "string",
             "nullable": true,
-            "example": "Cfa",
-            "description": "Köppen iklim kısa kodu."
+            "example": "Csa",
+            "description": "Köppen iklim kısa kodu (MGM 2023)."
           },
           "climateClassTr": {
             "type": "string",
             "nullable": true,
-            "example": "Nemli ılıman iklim",
+            "example": "Akdeniz iklimi",
             "description": "MGM Türkçe iklim sınıf adı."
+          },
+          "climateNoteTr": {
+            "type": "string",
+            "nullable": true,
+            "example": "MGM'nin 2023 Köppen sınıflandırması bu ili Csa (Akdeniz iklimi) olarak verir; ancak MGM'nin kendi raporu bu basitleştirilmiş yöntemin bölgesel ayırt ediciliğinin sınırlı olduğunu not düşer.",
+            "description": "MGM Köppen metodolojik uyarı notu — Köppen değeriyle birlikte ZORUNLU olarak sunulur (bare bir 'Csa' yayınlanmaz)."
           },
           "landformNoteTr": {
             "type": "string",
@@ -286,6 +292,7 @@
           "neighborPlateCodes",
           "climateKoppen",
           "climateClassTr",
+          "climateNoteTr",
           "landformNoteTr",
           "createdAt",
           "updatedAt"

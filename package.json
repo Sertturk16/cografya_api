@@ -27,6 +27,7 @@
     "migration:show": "pnpm build && typeorm migration:show -d dist/database/data-source.js",
     "migration:generate": "pnpm build && typeorm migration:generate -d dist/database/data-source.js",
     "migration:create": "typeorm migration:create",
+    "db:seed:geography": "pnpm build && node dist/database/seeds/geography.cli.js",
     "openapi:generate": "pnpm build && node dist/openapi/generate-openapi.js",
     "openapi:check": "pnpm run openapi:generate && git diff --exit-code -- openapi/openapi.json",
     "prepare": "husky"

@@ -73,6 +73,7 @@ export class ProvinceService {
       neighborPlateCodes: row.neighborPlateCodes,
       climateKoppen: row.climateKoppen,
       climateClassTr: row.climateClassTr,
+      climateNoteTr: row.climateNoteTr,
       landformNoteTr: row.landformNoteTr,
       createdAt: row.createdAt.toISOString(),
       updatedAt: row.updatedAt.toISOString(),
