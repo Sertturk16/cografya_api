@@ -50,10 +50,13 @@ export interface ProvinceSeed {
   landformNoteTr: string | null;
 }
 
-/** TÜİK ADNKS reference date for every pilot population value below. */
+/**
+ * TÜİK ADNKS reference date shared by EVERY seeded province below (pilot-5 +
+ * Batch 2 wave-1). All population values are the 31.12.2025 ADNKS figures.
+ */
 const POPULATION_YEAR = 2025;
 
-/** Köppen short code shared by all 5 pilot provinces (MGM 2023 report, s.11-15). */
+/** Köppen short code shared by all seeded provinces so far (MGM 2023 report, s.11-15). */
 const KOPPEN_CSA = 'Csa';
 /** MGM's Turkish class name for Csa (dictionary §2.1: "Csa (Akdeniz iklimi)"). */
 const CLIMATE_CLASS_TR = 'Akdeniz iklimi';
@@ -188,4 +191,243 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
     landformNoteTr: null,
   },
+];
+
+/**
+ * BATCH 2 — WAVE 1 il seed data — Güneydoğu Anadolu (9 il): Adıyaman, Batman,
+ * Diyarbakır, Gaziantep, Kilis, Mardin, Siirt, Şanlıurfa, Şırnak.
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * PROVENANCE (traceability — CONVENTIONS §4: no sourceless facts)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * SOURCE OF RECORD: NOVA's researched draft, INDEPENDENTLY fact-checked by a
+ *   different actor — verdict "SEED-READY, ZERO corrections needed" (every value
+ *   below was re-derived from its Tier-1 source and matched the draft exactly).
+ *   • Draft:       Owner's Inbox/data-source-groundwork/batch2-wave1-guneydogu-anadolu.md
+ *   • Fact-check:  Owner's Inbox/data-source-groundwork/batch2-wave1-factcheck.md
+ *   • Ledger:      data-provenance.md (root) — Batch 2 — Dalga 1
+ *   • Repo snapshot: docs/data-provenance-batch2-wave1.md
+ * Per-field Tier-1 authorities (same as pilot-5):
+ *   • Nüfus (31.12.2025)          → TÜİK ADNKS 2025, bülten 53899 (VERIFIED, 9/9)
+ *   • Yüzölçümü (km²)             → Harita Genel Müdürlüğü (VERIFIED, 9/9)
+ *   • İlçe sayısı                 → İçişleri Bakanlığı e-İçişleri (VERIFIED, 9/9)
+ *   • Rakım + koordinat (il mrk.) → MGM il-merkez istasyonu (kanonik referans, 9/9)
+ *   • Köppen iklim                → MGM 2023 Köppen raporu, s.11-15 (9/9 = Csa)
+ *   • Komşu iller                 → Tier-2 statik coğrafi olgu (fact-check onaylı)
+ *
+ * MGM default-station note (fact-check §A.4 — the most sensitive check): for
+ *   Diyarbakır, Gaziantep, Mardin and Şanlıurfa the MGM il-merkezi station the
+ *   canonical reference resolves to is NOT "Merkez" (Bağlar / Oğuzeli / Artuklu /
+ *   Eyyübiye respectively — same category as the pilot's İstanbul→Yeşilköy and
+ *   Van→Edremit). Recorded as an inline comment on each `elevationM` below, exactly
+ *   as the pilot did. The il-detail page footnote for these is Vera's concern.
+ *
+ * KÖPPEN CAVEAT: all 9 reuse the shared MGM_KOPPEN_CAVEAT_TR verbatim — the same
+ *   generic note the pilot attaches to its own non-İç/Doğu provinces (İstanbul,
+ *   İzmir, Antalya). NO province-specific Thornthwaite/Erinç divergence is
+ *   appended: the source DELIBERATELY did not research that alternative
+ *   classification for these 9 (draft Bölüm 2 / fact-check §A.5), so inventing one
+ *   would be a sourceless fact.
+ *
+ * DELIBERATELY NULL — same as pilot-5: `landformNoteTr` AND every PR-5a detail-page
+ *   field (introTr / hydrography* / urbanizationRate / netMigrationRate /
+ *   settlementNoteTr / economyIndicator) stay null. This wave is BASE DATA ONLY
+ *   (owner priority ruling, DEC 2026-07-10); those fields are filled in a later
+ *   fact-checked content batch, never invented here.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
+  {
+    plateCode: '02',
+    nameTr: 'Adıyaman',
+    slugTr: 'adiyaman',
+    slugEn: 'adiyaman',
+    region: GeographicRegion.GuneydoguAnadolu,
+    population: 617_821,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 7337,
+    districtCount: 9,
+    elevationM: 672, // MGM Merkez istasyonu
+    latitude: 37.7553,
+    longitude: 38.2775,
+    // Malatya=44, Diyarbakır=21, Şanlıurfa=63, Gaziantep=27, Kahramanmaraş=46
+    neighborPlateCodes: ['44', '21', '63', '27', '46'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '72',
+    nameTr: 'Batman',
+    slugTr: 'batman',
+    slugEn: 'batman',
+    region: GeographicRegion.GuneydoguAnadolu,
+    population: 662_626,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 4477,
+    districtCount: 6,
+    elevationM: 610, // MGM Merkez istasyonu
+    latitude: 37.8636,
+    longitude: 41.1562,
+    // Diyarbakır=21, Muş=49, Bitlis=13, Siirt=56, Mardin=47
+    neighborPlateCodes: ['21', '49', '13', '56', '47'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '21',
+    nameTr: 'Diyarbakır',
+    slugTr: 'diyarbakir',
+    slugEn: 'diyarbakir',
+    region: GeographicRegion.GuneydoguAnadolu,
+    population: 1_852_356,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 15_101,
+    districtCount: 17,
+    elevationM: 674, // MGM Bağlar istasyonu (büyükşehir — ayrı "Merkez" ilçesi yok)
+    latitude: 37.9094,
+    longitude: 40.2133,
+    // Adıyaman=02, Batman=72, Bingöl=12, Elazığ=23, Mardin=47, Muş=49, Malatya=44, Şanlıurfa=63
+    neighborPlateCodes: ['02', '72', '12', '23', '47', '49', '44', '63'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '27',
+    nameTr: 'Gaziantep',
+    slugTr: 'gaziantep',
+    slugEn: 'gaziantep',
+    region: GeographicRegion.GuneydoguAnadolu,
+    population: 2_222_415,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 6803,
+    districtCount: 9,
+    elevationM: 700, // MGM Oğuzeli istasyonu (şehir merkezinden ~25 km, havalimanı bölgesi)
+    latitude: 36.9468,
+    longitude: 37.4617,
+    // Kilis=79, Şanlıurfa=63, Adıyaman=02, Kahramanmaraş=46, Osmaniye=80, Hatay=31 (+ Suriye — ülke, hariç)
+    neighborPlateCodes: ['79', '63', '02', '46', '80', '31'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '79',
+    nameTr: 'Kilis',
+    slugTr: 'kilis',
+    slugEn: 'kilis',
+    region: GeographicRegion.GuneydoguAnadolu,
+    population: 157_363,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 1412,
+    districtCount: 4,
+    elevationM: 640, // MGM Merkez istasyonu
+    latitude: 36.7085,
+    longitude: 37.1123,
+    // Gaziantep=27 (Türkiye içindeki TEK komşu il) (+ Suriye — ülke, hariç)
+    neighborPlateCodes: ['27'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '47',
+    nameTr: 'Mardin',
+    slugTr: 'mardin',
+    slugEn: 'mardin',
+    region: GeographicRegion.GuneydoguAnadolu,
+    population: 903_576,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 8780,
+    districtCount: 10,
+    elevationM: 1040, // MGM Artuklu istasyonu (Artuklu = resmî merkez ilçe adı, 2012'den beri)
+    latitude: 37.3103,
+    longitude: 40.7284,
+    // Şanlıurfa=63, Diyarbakır=21, Batman=72, Siirt=56, Şırnak=73 (+ Suriye — ülke, hariç)
+    neighborPlateCodes: ['63', '21', '72', '56', '73'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '56',
+    nameTr: 'Siirt',
+    slugTr: 'siirt',
+    slugEn: 'siirt',
+    region: GeographicRegion.GuneydoguAnadolu,
+    population: 332_369,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 5717,
+    districtCount: 7,
+    elevationM: 895, // MGM Merkez istasyonu
+    latitude: 37.9319,
+    longitude: 41.9354,
+    // Batman=72, Bitlis=13, Van=65, Şırnak=73, Mardin=47
+    neighborPlateCodes: ['72', '13', '65', '73', '47'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '63',
+    nameTr: 'Şanlıurfa',
+    // Slug LOCKED to the official-name ASCII fold "sanliurfa" — never "urfa" (→ DEC 2026-07-10).
+    slugTr: 'sanliurfa',
+    slugEn: 'sanliurfa',
+    region: GeographicRegion.GuneydoguAnadolu,
+    population: 2_265_800,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 19_242,
+    districtCount: 13,
+    elevationM: 550, // MGM Eyyübiye istasyonu (büyükşehir merkez metropol ilçelerinden)
+    latitude: 37.1608,
+    longitude: 38.7863,
+    // Mardin=47, Gaziantep=27, Adıyaman=02, Diyarbakır=21 (+ Suriye — ülke, hariç)
+    neighborPlateCodes: ['47', '27', '02', '21'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '73',
+    nameTr: 'Şırnak',
+    slugTr: 'sirnak',
+    slugEn: 'sirnak',
+    region: GeographicRegion.GuneydoguAnadolu,
+    population: 573_666,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 7078,
+    districtCount: 7,
+    elevationM: 1350, // MGM Merkez istasyonu
+    latitude: 37.5209,
+    longitude: 42.4523,
+    // Hakkâri=30, Mardin=47, Siirt=56, Van=65 (+ Irak, Suriye — ülke, hariç)
+    neighborPlateCodes: ['30', '47', '56', '65'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+];
+
+/**
+ * Every fact-checked province the geography seed loads, in batch order (pilot-5
+ * first, then Batch 2 wave-1). This is the single list `seedGeography` iterates —
+ * the seed is keyed on the unique `plate_code`, so array order is cosmetic (the
+ * public list endpoint re-orders by plate code). Grows batch-by-batch toward the
+ * full 81 as each wave clears an independent fact-check.
+ */
+export const SEED_PROVINCES: readonly ProvinceSeed[] = [
+  ...PILOT_PROVINCES,
+  ...BATCH2_WAVE1_PROVINCES,
 ];

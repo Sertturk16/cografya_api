@@ -1,6 +1,6 @@
 import type { DataSource } from 'typeorm';
 import { Province } from '../../province/entities/province.entity';
-import { PILOT_PROVINCES, type ProvinceSeed } from './province.seed-data';
+import { SEED_PROVINCES, type ProvinceSeed } from './province.seed-data';
 
 /** Outcome of a geography seed run (for logging + idempotency assertions). */
 export interface SeedGeographyResult {
@@ -66,8 +66,8 @@ function rowMatchesSeed(row: Province, seed: ProvinceSeed): boolean {
 
 /**
  * Seeds the geography base data (the platform's most critical seed — CLAUDE.md
- * §5). Currently the PILOT-5 provinces; scales to 81 once the remaining batches
- * clear fact-check.
+ * §5). Currently the 14 fact-checked provinces (pilot-5 + Batch 2 wave-1,
+ * Güneydoğu Anadolu); scales to 81 once the remaining batches clear fact-check.
  *
  * IDEMPOTENT by design: keyed on the unique `plate_code`, each province is
  * inserted if absent, refreshed if its data drifted, or LEFT UNTOUCHED if it
@@ -78,7 +78,7 @@ function rowMatchesSeed(row: Province, seed: ProvinceSeed): boolean {
  * the table untouched rather than half-seeded.
  */
 export async function seedGeography(dataSource: DataSource): Promise<SeedGeographyResult> {
-  assertKoppenCaveatInvariant(PILOT_PROVINCES);
+  assertKoppenCaveatInvariant(SEED_PROVINCES);
 
   let inserted = 0;
   let updated = 0;
@@ -87,7 +87,7 @@ export async function seedGeography(dataSource: DataSource): Promise<SeedGeograp
   await dataSource.transaction(async (manager) => {
     const repo = manager.getRepository(Province);
 
-    for (const seed of PILOT_PROVINCES) {
+    for (const seed of SEED_PROVINCES) {
       const existing = await repo.findOne({ where: { plateCode: seed.plateCode } });
 
       if (!existing) {
@@ -103,5 +103,5 @@ export async function seedGeography(dataSource: DataSource): Promise<SeedGeograp
     }
   });
 
-  return { inserted, updated, unchanged, total: PILOT_PROVINCES.length };
+  return { inserted, updated, unchanged, total: SEED_PROVINCES.length };
 }
