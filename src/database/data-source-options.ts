@@ -2,6 +2,7 @@ import type { DataSourceOptions } from 'typeorm';
 import { Province } from '../province/entities/province.entity';
 import { InitProvince1783382400000 } from './migrations/1783382400000-InitProvince';
 import { AddProvinceClimateNote1783513986800 } from './migrations/1783513986800-AddProvinceClimateNote';
+import { AddProvinceDetailSections1783701664849 } from './migrations/1783701664849-AddProvinceDetailSections';
 
 /**
  * Single source of truth for the TypeORM connection shape. Consumed by:
@@ -22,7 +23,11 @@ export function buildDataSourceOptions(url: string): DataSourceOptions {
     type: 'postgres',
     url,
     entities: [Province],
-    migrations: [InitProvince1783382400000, AddProvinceClimateNote1783513986800],
+    migrations: [
+      InitProvince1783382400000,
+      AddProvinceClimateNote1783513986800,
+      AddProvinceDetailSections1783701664849,
+    ],
     synchronize: false,
     migrationsRun: false,
   };

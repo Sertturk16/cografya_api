@@ -8,6 +8,7 @@ import {
 } from '@nestjs/swagger';
 import { ProvinceDetailDto } from './dto/province-detail.dto';
 import { ProvinceListItemDto } from './dto/province-list-item.dto';
+import { ProvinceMapSummaryDto } from './dto/province-map-summary.dto';
 import { ProvinceService } from './province.service';
 
 /**
@@ -29,6 +30,19 @@ export class ProvinceController {
   @ApiOkResponse({ type: ProvinceListItemDto, isArray: true })
   findAll(): Promise<ProvinceListItemDto[]> {
     return this.provinceService.findAll();
+  }
+
+  // ROUTE ORDER: this static path MUST stay declared BEFORE `@Get(':slug')` — Express
+  // matches in declaration order, so a `:slug` route above would capture
+  // `/provinces/map-summary` as slug="map-summary" and 404. Do not reorder.
+  @Get('map-summary')
+  @Header('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400')
+  @ApiOperation({
+    summary: 'Bulk hover-card summary for all provinces (homepage SVG map, build-time embed).',
+  })
+  @ApiOkResponse({ type: ProvinceMapSummaryDto, isArray: true })
+  findMapSummary(): Promise<ProvinceMapSummaryDto[]> {
+    return this.provinceService.findMapSummary();
   }
 
   @Get(':slug')

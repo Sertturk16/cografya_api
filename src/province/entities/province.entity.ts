@@ -8,6 +8,7 @@ import {
   type ValueTransformer,
 } from 'typeorm';
 import { GEOGRAPHIC_REGION_DB_ENUM, GeographicRegion } from '../../common/geographic-region.enum';
+import type { EconomyIndicator, HydrographyFeature } from '../province.types';
 
 /**
  * Postgres `numeric`/`decimal` values come back from the driver as strings (to
@@ -156,6 +157,64 @@ export class Province {
   /** Öne çıkan yer şekilleri / jeoloji notu — short free text (TR). */
   @Column({ name: 'landform_note_tr', type: 'text', nullable: true })
   landformNoteTr!: string | null;
+
+  /**
+   * Yazılı açılış cümlesi (il detay sayfası girişi) — replaces the old templated
+   * "{name}, {region} Bölgesi'nde yer alan bir ildir" i18n copula (SPEC §3.3). A
+   * real per-il opening; null until authored, and the web composes a data-driven
+   * fallback sentence in that case (a frontend concern).
+   */
+  @Column({ name: 'intro_tr', type: 'text', nullable: true })
+  introTr!: string | null;
+
+  /** Hidrografya — kısa düzyazı not (nehir/göl/baraj anlatısı, TR). */
+  @Column({ name: 'hydrography_note_tr', type: 'text', nullable: true })
+  hydrographyNoteTr!: string | null;
+
+  /**
+   * Hidrografya — yapısal özellik listesi (baraj/nehir/göl). Stored as `jsonb`:
+   * a small, always-fetched-with-the-province, never-queried authored list — a
+   * separate table would be over-normalization (CLAUDE §2 "keep it as simple as
+   * the data allows"). NULL = not yet researched; `[]` would be a deliberate
+   * "no notable feature" statement — the two are kept distinguishable, so this is
+   * nullable with no default (unlike `neighborPlateCodes`).
+   */
+  @Column({ name: 'hydrography_features', type: 'jsonb', nullable: true })
+  hydrographyFeatures!: HydrographyFeature[] | null;
+
+  /** Şehirleşme oranı (%) — TÜİK ADNKS (il/ilçe merkezi nüfusu / toplam). */
+  @Column({
+    name: 'urbanization_rate',
+    type: 'numeric',
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    transformer: decimalTransformer,
+  })
+  urbanizationRate!: number | null;
+
+  /** Net göç hızı (‰) — TÜİK Göç İstatistikleri; signed (net göç ± olabilir). */
+  @Column({
+    name: 'net_migration_rate',
+    type: 'numeric',
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    transformer: decimalTransformer,
+  })
+  netMigrationRate!: number | null;
+
+  /** Nüfus ve yerleşme — kısa düzyazı not (TR). */
+  @Column({ name: 'settlement_note_tr', type: 'text', nullable: true })
+  settlementNoteTr!: string | null;
+
+  /**
+   * Ekonomik coğrafya — TEK, TÜİK-çıpalı yapısal istatistik (serbest metin DEĞİL;
+   * CONVENTIONS §4 / NOVA content-research §1.4). `jsonb`, whole object null until
+   * a verified stat fills it.
+   */
+  @Column({ name: 'economy_indicator', type: 'jsonb', nullable: true })
+  economyIndicator!: EconomyIndicator | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;

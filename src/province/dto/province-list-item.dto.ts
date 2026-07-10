@@ -2,11 +2,14 @@ import { ApiProperty } from '@nestjs/swagger';
 import { GeographicRegion } from '../../common/geographic-region.enum';
 
 /**
- * Lean list payload for the il-hub index + the light SVG map navigation.
+ * Lean list payload for the il-hub index.
  *
- * DTO tiers for this entity are List + Detail (see ProvinceDetailDto). A third
- * "Response" tier is intentionally NOT introduced: the API is public read-only
- * with no write endpoints echoing input back, so it would be speculative today.
+ * Read-DTO tiers for this entity are List + Detail (ProvinceDetailDto) + MapSummary
+ * (ProvinceMapSummaryDto) — the last a purpose-sized bulk read for the homepage map
+ * hover-card. Each has a concrete consumer, so none is speculative (CLAUDE §2 "keep
+ * DTO tiers minimal" — consciously ratified: three READ shapes, no more). A write/
+ * "Response" tier is still intentionally NOT introduced: the API is public read-only
+ * with no write endpoint echoing input back, so it would be speculative today.
  */
 export class ProvinceListItemDto {
   @ApiProperty({ example: '34', description: 'Plaka kodu (stable, unique).' })

@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { GeographicRegion } from '../../common/geographic-region.enum';
+import { EconomyIndicatorDto } from './economy-indicator.dto';
+import { HydrographyFeatureDto } from './hydrography-feature.dto';
 
 /**
  * Full detail payload for an il detay sayfası (SSG source).
@@ -23,6 +25,16 @@ export class ProvinceDetailDto {
 
   @ApiProperty({ enum: GeographicRegion, description: 'Coğrafi bölge.' })
   region!: GeographicRegion;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example:
+      "İstanbul, Karadeniz ile Marmara Denizi'ni birbirine bağlayan Boğaz'ın iki yakasına kurulmuştur.",
+    description:
+      'Yazılı açılış cümlesi (il girişi). Null ise web veri-tabanlı bir cümle kurar (fallback).',
+  })
+  introTr!: string | null;
 
   @ApiProperty({
     type: Number,
@@ -50,6 +62,17 @@ export class ProvinceDetailDto {
 
   @ApiProperty({ type: Number, nullable: true, example: 39, description: 'İlçe sayısı.' })
   districtCount!: number | null;
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    example: 2885,
+    description:
+      'Nüfus yoğunluğu (kişi/km²) — SERVER-COMPUTED, not stored: round(nüfus / yüzölçümü). ' +
+      'Null when population or area is null. Consume this rather than recomputing, so the ' +
+      'rounding/null rule stays single-sourced.',
+  })
+  populationDensity!: number | null;
 
   @ApiProperty({
     type: Number,
@@ -114,6 +137,52 @@ export class ProvinceDetailDto {
     description: 'Öne çıkan yer şekilleri / jeoloji notu (TR).',
   })
   landformNoteTr!: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Hidrografya — kısa düzyazı not (nehir/göl/baraj anlatısı, TR).',
+  })
+  hydrographyNoteTr!: string | null;
+
+  @ApiProperty({
+    type: [HydrographyFeatureDto],
+    nullable: true,
+    description:
+      'Hidrografya — yapısal özellik listesi (baraj/nehir/göl). Null = araştırılmadı; ' +
+      'boş dizi = "belirgin özellik yok" (bilinçli ifade).',
+  })
+  hydrographyFeatures!: HydrographyFeatureDto[] | null;
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    example: 93.5,
+    description: 'Şehirleşme oranı (%) — TÜİK ADNKS (il/ilçe merkezi nüfusu / toplam).',
+  })
+  urbanizationRate!: number | null;
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    example: 19.6,
+    description: 'Net göç hızı (‰) — TÜİK Göç İstatistikleri; işaretli (net göç ± olabilir).',
+  })
+  netMigrationRate!: number | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Nüfus ve yerleşme — kısa düzyazı not (TR).',
+  })
+  settlementNoteTr!: string | null;
+
+  @ApiProperty({
+    type: EconomyIndicatorDto,
+    nullable: true,
+    description: 'Ekonomik coğrafya — TEK, TÜİK-çıpalı yapısal istatistik (serbest metin değil).',
+  })
+  economyIndicator!: EconomyIndicatorDto | null;
 
   @ApiProperty({ type: String, format: 'date-time', description: 'Kayıt oluşturulma zamanı.' })
   createdAt!: string;
