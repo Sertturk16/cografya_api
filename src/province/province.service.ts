@@ -13,7 +13,7 @@ import { ProvinceMapSummaryDto } from './dto/province-map-summary.dto';
  * (guards against a divide-by-zero producing Infinity — no real province has a
  * zero area, but the mapper never emits a non-finite number).
  *
- * The null/zero branch is the NORMAL state of every not-yet-seeded province (76
+ * The null/zero branch is the NORMAL state of every not-yet-seeded province (50
  * of 81), so it is unit-tested directly (province.e2e-spec) — exported for that.
  */
 export function computePopulationDensity(

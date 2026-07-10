@@ -58,8 +58,9 @@ const POPULATION_YEAR = 2025;
 
 /**
  * Köppen short code for the MEDITERRANEAN class (MGM 2023 report, s.11-15) — the
- * common case: all of pilot-5 + wave-1 + 8/10 of wave-2. NOT universal since wave-2:
- * Kocaeli/Sakarya are Cfa (see KOPPEN_CFA below).
+ * common case: all of pilot-5 + wave-1, 8/10 of wave-2, and 5/7 of wave-3. NOT
+ * universal since wave-2: Kocaeli/Sakarya are Cfa (see KOPPEN_CFA below); wave-3
+ * adds Afyonkarahisar=Cfa AND the platform's third class Kütahya=Csb (KOPPEN_CSB).
  */
 const KOPPEN_CSA = 'Csa';
 /** MGM's Turkish class name for Csa (dictionary §2.1: "Csa (Akdeniz iklimi)"). */
@@ -120,6 +121,55 @@ const CLIMATE_CLASS_CFA_TR = 'Karadeniz iklimi';
  */
 const MGM_KOPPEN_CAVEAT_CFA_TR =
   "MGM'nin 2023 Köppen sınıflandırması bu ili Cfa (Karadeniz iklimi, her mevsim yağışlı) " +
+  'olarak verir. ' +
+  "Ancak MGM'nin kendi raporu, bu basitleştirilmiş yöntemin (üçüncü-harf kuralı) " +
+  "Türkiye'deki 254 istasyonun yaklaşık %65'ini 'Cs' (Akdeniz tipi) çıkardığını ve " +
+  'İç Anadolu ile Doğu Anadolu gibi bölgelerde ayırt ediciliğinin sınırlı kaldığını ' +
+  'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
+  'bu iller farklı iklim tiplerine ayrışabilir.';
+
+/**
+ * ── Csb (Batch 2 wave-3, Kütahya ONLY) ────────────────────────────────────────
+ * Ege wave-3 introduces the platform's THIRD Köppen class: MGM's own 2023 table
+ * classifies Kütahya as **Csb** ("b" = yazı sıcak / warm-summer, one step milder
+ * than Csa's "a" = yazı çok sıcak / hot-summer), while its 6 wave-mates are 5×Csa +
+ * 1×Cfa — independently fact-checked (batch2-wave3-factcheck §A.5, VERIFIED per
+ * `koppen.pdf` s.14: "KÜTAHYA Csb Kışı ılık, yazı sıcak ve kurak iklim", read on
+ * its own row, NOT copied from a neighbour). Csb is still a "Cs" (dry-summer /
+ * Mediterranean-type) climate, so — unlike Cfa — it shares the Csa methodological
+ * body verbatim (the ~65%-"Cs" over-classification MGM warns about applies to it
+ * literally); only the opening class clause changes.
+ */
+const KOPPEN_CSB = 'Csb';
+/**
+ * Turkish curriculum-register class name for Köppen Csb — **PROVISIONAL, surfaced to
+ * the owner for a ruling (NOT invented).** Unlike Cfa — which maps cleanly onto a
+ * DISTINCT curriculum type ("Karadeniz iklimi", via its "her mevsim yağışlı"
+ * definition) — Csb has no distinct TYT/AYT-curriculum name of its own: it is a
+ * warm-summer SUBTYPE of the same dry-summer Mediterranean family as Csa, and the
+ * source explicitly places it there (batch2-wave3-ege §2: still in the "kurak yaz /
+ * Akdeniz-tipi" family, only "yaz sıcaklığı Csa'ya göre bir kademe daha ılıman").
+ * So rather than coin a NEW label (the exact thing the task forbids), Csb reuses the
+ * EXISTING curriculum name "Akdeniz iklimi"; the distinct Köppen code (Csb) in the
+ * same field, plus the "yazı sıcak ve kurak" caveat below, carry the warm-summer
+ * nuance the class name elides. This mirrors the Cfa flow (ship a defensible,
+ * source-grounded value + surface for an owner ruling — as the initially-seeded Cfa
+ * value was later ruled to "Karadeniz iklimi"). If the owner rules a distinct
+ * sub-label for Csb, change THIS one constant.
+ */
+const CLIMATE_CLASS_CSB_TR = 'Akdeniz iklimi';
+/**
+ * Csb variant of the mandatory MGM Köppen caveat (see MGM_KOPPEN_CAVEAT_TR). The
+ * opening clause names Csb + MGM's own row descriptor ("yazı sıcak ve kurak",
+ * batch2-wave3-factcheck §A.5); the methodological tail is identical to the Csa/Cfa
+ * caveats (climate-code-agnostic) so the mandatory note reads consistently across
+ * the whole seed. Names its own code ("…bu ili Csb…"), so the seed-time
+ * Köppen⇒caveat correspondence invariant (`seed-geography.ts`) is satisfied
+ * self-maintainingly: the full 3-letter code "Csb" is absent from the Csa and Cfa
+ * caveats and vice versa — the 3rd class needs ZERO change to the invariant.
+ */
+const MGM_KOPPEN_CAVEAT_CSB_TR =
+  "MGM'nin 2023 Köppen sınıflandırması bu ili Csb (Akdeniz iklimi, yazı sıcak ve kurak) " +
   'olarak verir. ' +
   "Ancak MGM'nin kendi raporu, bu basitleştirilmiş yöntemin (üçüncü-harf kuralı) " +
   "Türkiye'deki 254 istasyonun yaklaşık %65'ini 'Cs' (Akdeniz tipi) çıkardığını ve " +
@@ -734,15 +784,218 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
 ];
 
 /**
+ * BATCH 2 — WAVE 3 il seed data — Ege Bölgesi (7 il, İzmir hariç): Afyonkarahisar,
+ * Aydın, Denizli, Kütahya, Manisa, Muğla, Uşak. (İzmir is Ege's 8th province but is
+ * already seeded in PILOT_PROVINCES, so it is not repeated here.)
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * PROVENANCE (traceability — CONVENTIONS §4: no sourceless facts)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * SOURCE OF RECORD: NOVA's researched draft, INDEPENDENTLY fact-checked by a
+ *   different actor — verdict "7/7 VERIFIED, ZERO deviations, the cleanest wave
+ *   yet" (population/area/district/elevation-coordinate/Köppen/MGM-station/neighbours
+ *   each re-derived from its Tier-1 source in a second session and matched exactly).
+ *   • Draft:       Owner's Inbox/data-source-groundwork/batch2-wave3-ege.md
+ *   • Fact-check:  Owner's Inbox/data-source-groundwork/batch2-wave3-factcheck.md
+ *   • Ledger:      data-provenance.md (root) — Batch 2 — Dalga 3
+ *   • Repo snapshot: docs/data-provenance-batch2-wave3.md
+ * Per-field Tier-1 authorities (same as pilot-5 / wave-1 / wave-2):
+ *   • Nüfus (31.12.2025)          → TÜİK ADNKS 2025, bülten 53899 (VERIFIED, 7/7)
+ *   • Yüzölçümü (km²)             → Harita Genel Müdürlüğü (VERIFIED, 7/7)
+ *   • İlçe sayısı                 → İçişleri Bakanlığı e-İçişleri (VERIFIED, 7/7)
+ *   • Rakım + koordinat (il mrk.) → MGM il-merkez istasyonu (VERIFIED, 7/7)
+ *   • Köppen iklim                → MGM 2023 Köppen raporu, s.11-15 (5 Csa + 1 Cfa + 1 Csb)
+ *   • Komşu iller                 → Tier-2, full 81-il GeoJSON adjacency scan (7/7 VERIFIED)
+ *
+ * KÖPPEN — MIXED, THREE CLASSES THIS WAVE (fact-check §A.5, the batch's highest-risk
+ *   check): 5/7 are Csa, **Afyonkarahisar is Cfa** (KOPPEN_CFA constants, same as
+ *   wave-2's Kocaeli/Sakarya), and **Kütahya is Csb** — the platform's THIRD Köppen
+ *   class, carrying the new KOPPEN_CSB constants above. Each was read on its own MGM
+ *   `koppen.pdf` row (s.11 / s.14), not copied from a neighbour. No province-specific
+ *   Thornthwaite/Erinç divergence is appended for any of the 7 — the source
+ *   deliberately did not research that alternative for this wave.
+ *
+ * MGM default-station note (fact-check §A.4): for Aydın, Denizli and Manisa the
+ *   canonical MGM il-merkezi station is NOT a plain "Merkez" record —
+ *   Aydın→"Merkez" is a confirmed ALIAS of Efeler (same station, identical
+ *   elevation/coordinate — no data conflict), Denizli→Pamukkale and Manisa→Yunusemre
+ *   are the page-load defaults for those büyükşehir provinces (which no longer have a
+ *   district named "Merkez"; Manisa's separate legacy "Merkez" record carries a
+ *   different, unresolved longitude and is NOT the default). Muğla→Menteşe is simply
+ *   the official merkez-district name since 2012. Recorded inline on each `elevationM`.
+ *
+ * NEIGHBOURS — the fact-check ran a full 81-province GeoJSON adjacency scan (not just
+ *   spot-checks) and confirmed every list exactly as drafted. Two non-obvious results
+ *   verified: Denizli does NOT border Isparta (Burdur intrudes, ~17.5 km gap — Isparta
+ *   EXCLUDED), and Manisa DOES border Denizli (0.00 km shared border via Sarıgöl/Çivril,
+ *   despite looking separated on a coarse map).
+ *
+ * DELIBERATELY NULL — same as pilot-5 / wave-1 / wave-2: `landformNoteTr` AND every
+ *   PR-5a detail-page field (introTr / hydrography* / urbanizationRate /
+ *   netMigrationRate / settlementNoteTr / economyIndicator) stay null. BASE DATA ONLY
+ *   (owner priority ruling, DEC 2026-07-10); those fields are filled in a later
+ *   fact-checked content batch, never invented here.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
+  {
+    plateCode: '03',
+    nameTr: 'Afyonkarahisar',
+    slugTr: 'afyonkarahisar',
+    slugEn: 'afyonkarahisar',
+    region: GeographicRegion.Ege,
+    population: 751_808,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 14_016,
+    districtCount: 18,
+    elevationM: 1034, // MGM Merkez istasyonu
+    latitude: 38.738,
+    longitude: 30.5604,
+    // Eskişehir=26, Kütahya=43, Uşak=64, Denizli=20, Burdur=15, Isparta=32, Konya=42
+    // (7 komşu — bu dalganın Kütahya ile birlikte en çok komşulu ili)
+    neighborPlateCodes: ['26', '43', '64', '20', '15', '32', '42'],
+    // Cfa — MGM'nin kendi tablosunda Csa DEĞİL (fact-check §A.5 VERIFIED, s.11)
+    climateKoppen: KOPPEN_CFA,
+    climateClassTr: CLIMATE_CLASS_CFA_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '09',
+    nameTr: 'Aydın',
+    slugTr: 'aydin',
+    slugEn: 'aydin',
+    region: GeographicRegion.Ege,
+    population: 1_172_107,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 8116,
+    districtCount: 17,
+    elevationM: 56, // MGM "Merkez" istasyonu = Efeler ile birebir aynı kayıt (idari ilçe adı Efeler; "Merkez" MGM arayüzünde eski/takma ad)
+    latitude: 37.8402,
+    longitude: 27.8379,
+    // İzmir=35, Manisa=45, Denizli=20, Muğla=48 (+ Ege Denizi kıyısı, batı — hariç)
+    neighborPlateCodes: ['35', '45', '20', '48'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '20',
+    nameTr: 'Denizli',
+    slugTr: 'denizli',
+    slugEn: 'denizli',
+    region: GeographicRegion.Ege,
+    population: 1_060_975,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 12_134,
+    districtCount: 19,
+    elevationM: 425, // MGM Pamukkale istasyonu (büyükşehir — ayrı "Merkez" ilçesi yok; kent Merkezefendi+Pamukkale)
+    latitude: 37.762,
+    longitude: 29.0921,
+    // Uşak=64, Afyonkarahisar=03, Burdur=15, Muğla=48, Aydın=09, Manisa=45 —
+    // Isparta(32) EXCLUDED: Burdur araya giriyor, ~17,5 km boşluk (fact-check §A.6.1)
+    neighborPlateCodes: ['64', '03', '15', '48', '09', '45'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '43',
+    nameTr: 'Kütahya',
+    slugTr: 'kutahya',
+    slugEn: 'kutahya',
+    region: GeographicRegion.Ege,
+    population: 570_478,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 11_634,
+    districtCount: 13,
+    elevationM: 969, // MGM Merkez istasyonu
+    latitude: 39.4171,
+    longitude: 29.9891,
+    // Bursa=16, Bilecik=11, Eskişehir=26, Afyonkarahisar=03, Uşak=64, Manisa=45, Balıkesir=10 (7 komşu)
+    neighborPlateCodes: ['16', '11', '26', '03', '64', '45', '10'],
+    // Csb — platformun ÜÇÜNCÜ Köppen sınıfı; MGM tablosunda kendi satırında (fact-check §A.5 VERIFIED, s.14)
+    climateKoppen: KOPPEN_CSB,
+    climateClassTr: CLIMATE_CLASS_CSB_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_CSB_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '45',
+    nameTr: 'Manisa',
+    slugTr: 'manisa',
+    slugEn: 'manisa',
+    region: GeographicRegion.Ege,
+    population: 1_477_756,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 13_339,
+    districtCount: 17,
+    elevationM: 71, // MGM Yunusemre istasyonu (büyükşehir — ayrı "Merkez" ilçesi yok; sayfa-yükleme varsayılanı Yunusemre, ayrı legacy "Merkez" kaydı farklı boylam verir ama varsayılan değil)
+    latitude: 38.6153,
+    longitude: 27.4049,
+    // Balıkesir=10, İzmir=35, Kütahya=43, Uşak=64, Aydın=09, Denizli=20 —
+    // Manisa-Denizli komşuluğu 0,00 km ortak sınırla GeoJSON'da DOĞRULANDI (fact-check §A.6.2)
+    neighborPlateCodes: ['10', '35', '43', '64', '09', '20'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '48',
+    nameTr: 'Muğla',
+    slugTr: 'mugla',
+    slugEn: 'mugla',
+    region: GeographicRegion.Ege,
+    population: 1_099_547,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 12_654,
+    districtCount: 13,
+    elevationM: 646, // MGM Menteşe istasyonu (2012'den beri resmî merkez ilçe adı)
+    latitude: 37.2095,
+    longitude: 28.3668,
+    // Aydın=09, Denizli=20, Burdur=15, Antalya=07 (+ Ege/Akdeniz kıyısı — hariç)
+    neighborPlateCodes: ['09', '20', '15', '07'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '64',
+    nameTr: 'Uşak',
+    slugTr: 'usak',
+    slugEn: 'usak',
+    region: GeographicRegion.Ege,
+    population: 374_405,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 5555,
+    districtCount: 6,
+    elevationM: 919, // MGM Merkez istasyonu
+    latitude: 38.6712,
+    longitude: 29.404,
+    // Kütahya=43, Afyonkarahisar=03, Denizli=20, Manisa=45 (4 komşu — bu dalganın en az komşulu ili)
+    neighborPlateCodes: ['43', '03', '20', '45'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+];
+
+/**
  * Every fact-checked province the geography seed loads, in batch order (pilot-5
- * first, then Batch 2 wave-1, then Batch 2 wave-2). This is the single list
+ * first, then Batch 2 wave-1, wave-2, wave-3). This is the single list
  * `seedGeography` iterates — the seed is keyed on the unique `plate_code`, so array
  * order is cosmetic (the public list endpoint re-orders by plate code). Grows
  * batch-by-batch toward the full 81 as each wave clears an independent fact-check.
- * Currently 24 provinces: 5 pilot + 9 wave-1 + 10 wave-2.
+ * Currently 31 provinces: 5 pilot + 9 wave-1 + 10 wave-2 + 7 wave-3.
  */
 export const SEED_PROVINCES: readonly ProvinceSeed[] = [
   ...PILOT_PROVINCES,
   ...BATCH2_WAVE1_PROVINCES,
   ...BATCH2_WAVE2_PROVINCES,
+  ...BATCH2_WAVE3_PROVINCES,
 ];
