@@ -79,6 +79,50 @@ const MGM_KOPPEN_CAVEAT_TR =
   'bu iller farklı iklim tiplerine ayrışabilir.';
 
 /**
+ * ── Cfa (Batch 2 wave-2, Kocaeli + Sakarya ONLY) ──────────────────────────────
+ * Marmara wave-2 is the FIRST batch that is not uniformly Csa: MGM's own 2023
+ * Köppen table classifies Kocaeli and Sakarya as **Cfa** ("f" = her mevsim yağışlı
+ * / no dry season), distinct from the 8 Csa provinces of the same wave — an
+ * independently fact-checked reading (batch2-wave2-factcheck §A.5, VERIFIED per
+ * `koppen.pdf` s.13-14, NOT a copy-paste from neighbouring Bursa's Csa).
+ *
+ * Because the shared `KOPPEN_CSA` / `CLIMATE_CLASS_TR` / `MGM_KOPPEN_CAVEAT_TR`
+ * constants above hard-code "Csa (Akdeniz iklimi)" in their text, they cannot be
+ * reused verbatim for a Cfa province. These Cfa siblings mirror their structure —
+ * only the opening class clause changes; the methodological tail (MGM's own %65-Cs
+ * admission + the Thornthwaite/Erinç divergence) is climate-code-agnostic and is
+ * kept identical so the mandatory caveat reads consistently across the whole seed.
+ */
+const KOPPEN_CFA = 'Cfa';
+/**
+ * Turkish class name for Köppen Cfa. This is the standard translation of the Cfa
+ * class (parallel in kind to Csa→"Akdeniz iklimi"), NOT a MEB regional-climate
+ * interpretation. SURFACED to Atlas (closing-summary): the exact verbatim Turkish
+ * label MGM's koppen.pdf legend uses for Cfa was not re-extracted this wave, and a
+ * YKS/KPSS-facing page might prefer the regional register ("Karadeniz iklimi") —
+ * NOVA/Vera to confirm the preferred user-facing register before il pages ship.
+ * A one-line change here if a different label is chosen.
+ */
+const CLIMATE_CLASS_CFA_TR = 'Nemli subtropikal iklim';
+
+/**
+ * Cfa variant of the mandatory MGM Köppen caveat (see MGM_KOPPEN_CAVEAT_TR). Same
+ * methodological body; the descriptor "her mevsim yağışlı" is the source brief's
+ * own characterisation of the "f" class (batch2-wave2-marmara §1). No unverified
+ * "real Black-Sea-climate distinction" claim is appended — the brief flags that
+ * hypothesis as explicitly NOT verified this batch (§2), so asserting it would be a
+ * sourceless fact.
+ */
+const MGM_KOPPEN_CAVEAT_CFA_TR =
+  "MGM'nin 2023 Köppen sınıflandırması bu ili Cfa (nemli subtropikal, her mevsim yağışlı " +
+  'iklim) olarak verir. ' +
+  "Ancak MGM'nin kendi raporu, bu basitleştirilmiş yöntemin (üçüncü-harf kuralı) " +
+  "Türkiye'deki 254 istasyonun yaklaşık %65'ini 'Cs' (Akdeniz tipi) çıkardığını ve " +
+  'İç Anadolu ile Doğu Anadolu gibi bölgelerde ayırt ediciliğinin sınırlı kaldığını ' +
+  'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
+  'bu iller farklı iklim tiplerine ayrışabilir.';
+
+/**
  * Pilot 5 provinces. Neighbour names come from the dictionary (§2.1); they are
  * converted here to their IMMUTABLE İçişleri plaka codes (schema field #2, a
  * fixed Tier-1 registry) — the name→code map is spelled out inline so the
@@ -421,13 +465,279 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
 ];
 
 /**
+ * BATCH 2 — WAVE 2 il seed data — Marmara Bölgesi (10 il, İstanbul hariç):
+ * Balıkesir, Bilecik, Bursa, Çanakkale, Edirne, Kırklareli, Kocaeli, Sakarya,
+ * Tekirdağ, Yalova. (İstanbul is Marmara's 11th province but is already seeded in
+ * PILOT_PROVINCES, so it is not repeated here.)
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * PROVENANCE (traceability — CONVENTIONS §4: no sourceless facts)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * SOURCE OF RECORD: NOVA's researched draft, INDEPENDENTLY fact-checked by a
+ *   different actor — the core data fields verdict was "10/10 VERIFIED, ZERO
+ *   deviations" (population/area/district/elevation-coordinate/Köppen/MGM-station
+ *   each re-derived from its Tier-1 source in a second session and matched exactly).
+ *   • Draft:       Owner's Inbox/data-source-groundwork/batch2-wave2-marmara.md
+ *   • Fact-check:  Owner's Inbox/data-source-groundwork/batch2-wave2-factcheck.md
+ *   • Ledger:      data-provenance.md (root) — Batch 2 — Dalga 2
+ *   • Repo snapshot: docs/data-provenance-batch2-wave2.md
+ * Per-field Tier-1 authorities (same as pilot-5 / wave-1):
+ *   • Nüfus (31.12.2025)          → TÜİK ADNKS 2025, bülten 53899 (VERIFIED, 10/10)
+ *   • Yüzölçümü (km²)             → Harita Genel Müdürlüğü (VERIFIED, 10/10)
+ *   • İlçe sayısı                 → İçişleri Bakanlığı e-İçişleri (VERIFIED, 10/10)
+ *   • Rakım + koordinat (il mrk.) → MGM il-merkez istasyonu (VERIFIED, 10/10)
+ *   • Köppen iklim                → MGM 2023 Köppen raporu, s.11-15 (8 Csa + 2 Cfa)
+ *   • Komşu iller                 → Tier-2 statik coğrafi olgu (bkz. Kırklareli notu)
+ *
+ * KÖPPEN — MIXED THIS WAVE (fact-check §A.5, the batch's highest-risk check): 8/10
+ *   are Csa, but **Kocaeli and Sakarya are Cfa** ("her mevsim yağışlı"), NOT Csa —
+ *   independently re-verified against MGM's own `koppen.pdf` (their own rows, not a
+ *   copy from neighbouring Bursa's Csa). They carry the Cfa constants above; the 8
+ *   Csa provinces reuse the shared MGM_KOPPEN_CAVEAT_TR verbatim (as pilot/wave-1).
+ *   No province-specific Thornthwaite/Erinç divergence is appended for any of the
+ *   10 — the source deliberately did not research that alternative for this wave.
+ *
+ * MGM default-station note (fact-check §A.4): for Bursa, Kocaeli, Sakarya and
+ *   Tekirdağ the canonical MGM il-merkezi station is NOT "Merkez" (Osmangazi / İzmit
+ *   / Adapazarı / Süleymanpaşa respectively — none of these provinces has a district
+ *   named "Merkez" anymore; same category as the pilot's İstanbul→Yeşilköy and
+ *   wave-1's Diyarbakır→Bağlar). Recorded inline on each `elevationM`.
+ *
+ * KIRKLARELİ NEIGHBOURS — a resolved Tier-1-vs-Tier-1 conflict (fact-check §A.6.1 +
+ *   Atlas's geometric addendum): two official state pages (İl Özel İdaresi + Bakanlık
+ *   İl Müdürlüğü) list İstanbul (34) as a neighbour, while Wikipedia + a district-level
+ *   check say only Edirne+Tekirdağ. Atlas resolved it against the real vendored
+ *   boundary GeoJSON (cografya_web/data/tr-il-boundaries.geojson): known-adjacent pairs
+ *   measure 0.00 km of separation, but Kırklareli↔İstanbul measures ~6.5 km — they do
+ *   NOT share a border. Per Atlas's evidence-based default, İstanbul is EXCLUDED from
+ *   Kırklareli's neighbours here (Edirne+Tekirdağ only). Definitive closure waits on
+ *   the 81-il İçişleri/HGM boundary pass; Vera must not write a HARD "only Edirne+
+ *   Tekirdağ" sentence on the il page in the interim (per fact-check §A.6.1).
+ *
+ * DELIBERATELY NULL — same as pilot-5 / wave-1: `landformNoteTr` AND every PR-5a
+ *   detail-page field (introTr / hydrography* / urbanizationRate / netMigrationRate /
+ *   settlementNoteTr / economyIndicator) stay null. BASE DATA ONLY (owner priority
+ *   ruling, DEC 2026-07-10); those fields are filled in a later fact-checked content
+ *   batch, never invented here.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
+  {
+    plateCode: '10',
+    nameTr: 'Balıkesir',
+    slugTr: 'balikesir',
+    slugEn: 'balikesir',
+    region: GeographicRegion.Marmara,
+    population: 1_284_517,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 14_583,
+    districtCount: 20,
+    elevationM: 110, // MGM Merkez istasyonu
+    latitude: 39.6551,
+    longitude: 27.9207,
+    // Bursa=16, Kütahya=43, Manisa=45, İzmir=35, Çanakkale=17 (+ Midilli/Yunanistan — deniz-aşırı, hariç)
+    neighborPlateCodes: ['16', '43', '45', '35', '17'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '11',
+    nameTr: 'Bilecik',
+    slugTr: 'bilecik',
+    slugEn: 'bilecik',
+    region: GeographicRegion.Marmara,
+    population: 228_995,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 4179,
+    districtCount: 8,
+    elevationM: 539, // MGM Merkez istasyonu
+    latitude: 40.1414,
+    longitude: 29.9772,
+    // Sakarya=54, Bolu=14, Eskişehir=26, Kütahya=43, Bursa=16
+    neighborPlateCodes: ['54', '14', '26', '43', '16'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '16',
+    nameTr: 'Bursa',
+    slugTr: 'bursa',
+    slugEn: 'bursa',
+    region: GeographicRegion.Marmara,
+    population: 3_263_011,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 10_813,
+    districtCount: 17,
+    elevationM: 100, // MGM Osmangazi istasyonu (büyükşehir — ayrı "Merkez" ilçesi yok)
+    latitude: 40.2308,
+    longitude: 29.0133,
+    // Yalova=77, Kocaeli=41, Sakarya=54, Bilecik=11, Kütahya=43, Balıkesir=10 (bu dalganın en çok komşulu ili, 6)
+    neighborPlateCodes: ['77', '41', '54', '11', '43', '10'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '17',
+    nameTr: 'Çanakkale',
+    slugTr: 'canakkale',
+    slugEn: 'canakkale',
+    region: GeographicRegion.Marmara,
+    population: 573_976,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 9817,
+    districtCount: 12,
+    elevationM: 6, // MGM Merkez istasyonu
+    latitude: 40.141,
+    longitude: 26.3993,
+    // Edirne=22 (Saros Körfezi kıyı şeridiyle kara sınırı, fact-check §A.6.2 VERIFIED), Tekirdağ=59, Balıkesir=10
+    neighborPlateCodes: ['22', '59', '10'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '22',
+    nameTr: 'Edirne',
+    slugTr: 'edirne',
+    slugEn: 'edirne',
+    region: GeographicRegion.Marmara,
+    population: 422_438,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 6145,
+    districtCount: 9,
+    elevationM: 51, // MGM Merkez istasyonu
+    latitude: 41.6767,
+    longitude: 26.5508,
+    // Kırklareli=39, Tekirdağ=59, Çanakkale=17 (fact-check §A.6.2) (+ Yunanistan, Bulgaristan — ülke, hariç)
+    neighborPlateCodes: ['39', '59', '17'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '39',
+    nameTr: 'Kırklareli',
+    slugTr: 'kirklareli',
+    slugEn: 'kirklareli',
+    region: GeographicRegion.Marmara,
+    population: 379_595,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 6459,
+    districtCount: 8,
+    elevationM: 232, // MGM Merkez istasyonu
+    latitude: 41.7382,
+    longitude: 27.2178,
+    // Edirne=22, Tekirdağ=59 ONLY — İstanbul(34) EXCLUDED per Atlas's boundary-GeoJSON
+    // resolution (~6.5 km apart, not adjacent) despite 2 official pages listing it;
+    // fact-check §A.6.1 [TEYİT GEREK]. (+ Bulgaristan, Karadeniz — hariç)
+    neighborPlateCodes: ['22', '59'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '41',
+    nameTr: 'Kocaeli',
+    slugTr: 'kocaeli',
+    slugEn: 'kocaeli',
+    region: GeographicRegion.Marmara,
+    population: 2_161_171,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 3397,
+    districtCount: 12,
+    elevationM: 0, // MGM İzmit istasyonu (ilin hiç "Merkez" adlı ilçesi olmadı; 0 m = İzmit Körfezi kıyısı)
+    latitude: 40.7663,
+    longitude: 29.9173,
+    // İstanbul=34, Bursa=16, Sakarya=54, Yalova=77 (+ Karadeniz kıyısı — hariç)
+    neighborPlateCodes: ['34', '16', '54', '77'],
+    // Cfa — MGM'nin kendi tablosunda Csa DEĞİL (fact-check §A.5 VERIFIED, s.13)
+    climateKoppen: KOPPEN_CFA,
+    climateClassTr: CLIMATE_CLASS_CFA_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '54',
+    nameTr: 'Sakarya',
+    slugTr: 'sakarya',
+    slugEn: 'sakarya',
+    region: GeographicRegion.Marmara,
+    population: 1_123_693,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 4824,
+    districtCount: 16,
+    elevationM: 30, // MGM Adapazarı istasyonu (ilin hiç "Merkez" adlı ilçesi olmadı)
+    latitude: 40.7676,
+    longitude: 30.3934,
+    // Kocaeli=41, Bursa=16, Bilecik=11, Bolu=14, Düzce=81 (+ Karadeniz kıyısı — hariç)
+    neighborPlateCodes: ['41', '16', '11', '14', '81'],
+    // Cfa — MGM'nin kendi tablosunda Csa DEĞİL (fact-check §A.5 VERIFIED, s.14)
+    climateKoppen: KOPPEN_CFA,
+    climateClassTr: CLIMATE_CLASS_CFA_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '59',
+    nameTr: 'Tekirdağ',
+    slugTr: 'tekirdag',
+    slugEn: 'tekirdag',
+    region: GeographicRegion.Marmara,
+    population: 1_208_441,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 6190,
+    districtCount: 11,
+    elevationM: 4, // MGM Süleymanpaşa istasyonu (2012'den beri resmî merkez ilçe adı, eski "Merkez")
+    latitude: 40.9585,
+    longitude: 27.4965,
+    // İstanbul=34, Kırklareli=39, Edirne=22, Çanakkale=17 (+ Marmara Denizi, Karadeniz kıyısı — hariç)
+    neighborPlateCodes: ['34', '39', '22', '17'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '77',
+    nameTr: 'Yalova',
+    slugTr: 'yalova',
+    slugEn: 'yalova',
+    region: GeographicRegion.Marmara,
+    population: 311_635,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 798,
+    districtCount: 6,
+    elevationM: 4, // MGM Merkez istasyonu
+    latitude: 40.6589,
+    longitude: 29.2796,
+    // Kocaeli=41, Bursa=16 (Türkiye'nin en az kara-komşulu 2. ili, Kilis'ten sonra) (+ Marmara Denizi — hariç)
+    neighborPlateCodes: ['41', '16'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+];
+
+/**
  * Every fact-checked province the geography seed loads, in batch order (pilot-5
- * first, then Batch 2 wave-1). This is the single list `seedGeography` iterates —
- * the seed is keyed on the unique `plate_code`, so array order is cosmetic (the
- * public list endpoint re-orders by plate code). Grows batch-by-batch toward the
- * full 81 as each wave clears an independent fact-check.
+ * first, then Batch 2 wave-1, then Batch 2 wave-2). This is the single list
+ * `seedGeography` iterates — the seed is keyed on the unique `plate_code`, so array
+ * order is cosmetic (the public list endpoint re-orders by plate code). Grows
+ * batch-by-batch toward the full 81 as each wave clears an independent fact-check.
+ * Currently 24 provinces: 5 pilot + 9 wave-1 + 10 wave-2.
  */
 export const SEED_PROVINCES: readonly ProvinceSeed[] = [
   ...PILOT_PROVINCES,
   ...BATCH2_WAVE1_PROVINCES,
+  ...BATCH2_WAVE2_PROVINCES,
 ];
