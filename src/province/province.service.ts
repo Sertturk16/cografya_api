@@ -12,8 +12,11 @@ import { ProvinceMapSummaryDto } from './dto/province-map-summary.dto';
  * compute it differently. Null when either input is null, or if the area is 0
  * (guards against a divide-by-zero producing Infinity — no real province has a
  * zero area, but the mapper never emits a non-finite number).
+ *
+ * The null/zero branch is the NORMAL state of every not-yet-seeded province (76
+ * of 81), so it is unit-tested directly (province.e2e-spec) — exported for that.
  */
-function computePopulationDensity(
+export function computePopulationDensity(
   population: number | null,
   areaKm2: number | null,
 ): number | null {
@@ -49,8 +52,12 @@ export class ProvinceService {
    * Purpose-sized bulk payload for the homepage SVG map hover-card: all provinces
    * with the identity fields + the 4 hover-card summary numbers, plate-ordered.
    * A bounded set (81) the map pre-embeds at build/ISR time — returned as a plain
-   * array (no envelope), same rationale as `findAll`. Kept lean on purpose: the
-   * hover-card shows no detail-only field, so none is fetched here.
+   * array (no envelope), same rationale as `findAll`.
+   *
+   * The RESPONSE is lean, not the query: `toMapSummary` narrows each row to the
+   * hover-card fields, while the query fetches full rows — mirroring `findAll` on
+   * a bounded, cached 81-row read (a column projection would only diverge from
+   * `findAll` for no measurable gain).
    */
   async findMapSummary(): Promise<ProvinceMapSummaryDto[]> {
     const rows = await this.provinces.find({ order: { plateCode: 'ASC' } });

@@ -14,6 +14,8 @@ import {
 import type { ProvinceSeed } from '../src/database/seeds/province.seed-data';
 import { GeographicRegion } from '../src/common/geographic-region.enum';
 import { Province } from '../src/province/entities/province.entity';
+import { computePopulationDensity } from '../src/province/province.service';
+import { HydrographyFeatureType } from '../src/province/province.types';
 // NOTE: AppModule is imported dynamically inside beforeAll — NOT at the top —
 // because ConfigModule.forRoot validates the env eagerly at module-load time, so
 // AppModule must not load until DATABASE_URL has been set to the container URL.
@@ -258,24 +260,84 @@ describe('Province (e2e)', () => {
     // same plate order as the list endpoint: 06, 07, 34, 35, 65
     expect(body.map((p) => p.plateCode)).toEqual(['06', '07', '34', '35', '65']);
 
-    const istanbul = body.find((p) => p.plateCode === '34');
-    expect(istanbul).toMatchObject({
-      plateCode: '34',
-      nameTr: 'İstanbul',
-      region: 'MARMARA',
-      slugTr: 'istanbul',
-      slugEn: 'istanbul',
-      population: 15_754_053,
-      populationYear: 2025,
-      areaKm2: 5461,
-      districtCount: 39,
-    });
+    // every province's summary numbers must round-trip (not just İstanbul) — guards
+    // the pass-through `toMapSummary` mapper against a silent per-row field swap.
+    for (const expected of EXPECTED_PROVINCES) {
+      const row = body.find((p) => p.plateCode === expected.plateCode);
+      expect(row).toMatchObject({
+        nameTr: expected.nameTr,
+        region: expected.region,
+        slugTr: expected.slug,
+        slugEn: expected.slug,
+        population: expected.population,
+        populationYear: expected.populationYear,
+        areaKm2: expected.areaKm2,
+        districtCount: expected.districtCount,
+      });
+    }
+
     // purpose-sized payload: identity + the 4 summary numbers ONLY — no detail leak,
     // and NO derived density (density is a detail-page concern, not the hover-card).
+    const istanbul = body.find((p) => p.plateCode === '34');
     expect(istanbul).not.toHaveProperty('latitude');
     expect(istanbul).not.toHaveProperty('climateNoteTr');
     expect(istanbul).not.toHaveProperty('neighborPlateCodes');
     expect(istanbul).not.toHaveProperty('populationDensity');
+  });
+
+  // Mechanism proof for the jsonb columns + the numeric-rate transformer: this PR
+  // ships those columns but every pilot row leaves them null, so nothing else
+  // exercises a NON-null jsonb round-trip through Postgres. A throwaway fixture row
+  // (plate '00', not a real province) is inserted, read back through the API, then
+  // deleted in `finally` so the other tests still see exactly the 5 pilot rows.
+  it('round-trips non-null jsonb + numeric-rate fields through the DB and API', async () => {
+    const repo = dataSource.getRepository(Province);
+    const fixture = repo.create({
+      plateCode: '00',
+      nameTr: 'Test İli',
+      slugTr: 'jsonb-roundtrip-fixture',
+      slugEn: 'jsonb-roundtrip-fixture-en',
+      region: GeographicRegion.Marmara,
+      population: 1000,
+      areaKm2: 4,
+      hydrographyFeatures: [
+        { name: 'Test Barajı', type: HydrographyFeatureType.Baraj },
+        { name: 'Test Nehri', type: HydrographyFeatureType.Nehir },
+      ],
+      economyIndicator: { label: 'Test payı', value: '%1,5', year: 2024, source: 'TÜİK Test' },
+      urbanizationRate: 93.5,
+      netMigrationRate: -12.34,
+    });
+    await repo.save(fixture);
+
+    try {
+      const res = await request(app.getHttpServer())
+        .get('/api/provinces/jsonb-roundtrip-fixture')
+        .expect(200);
+      const body = res.body as Record<string, unknown>;
+
+      // jsonb array + nested objects survive the Postgres round-trip intact (order,
+      // nested keys, ASCII enum value) — the exact shape the web codegen relies on.
+      expect(body.hydrographyFeatures).toEqual([
+        { name: 'Test Barajı', type: 'baraj' },
+        { name: 'Test Nehri', type: 'nehir' },
+      ]);
+      expect(body.economyIndicator).toEqual({
+        label: 'Test payı',
+        value: '%1,5',
+        year: 2024,
+        source: 'TÜİK Test',
+      });
+      // numeric(5,2) comes back through decimalTransformer as a real, signed number
+      expect(body.urbanizationRate).toBe(93.5);
+      expect(body.netMigrationRate).toBe(-12.34);
+      // computed density on real inputs: round(1000 / 4) = 250
+      expect(body.populationDensity).toBe(250);
+    } finally {
+      // Clean up unconditionally so the 5-row count assumed by the other tests holds
+      // even if an assertion above throws.
+      await repo.delete({ plateCode: '00' });
+    }
   });
 
   // I1/M4: assert EVERY pilot province's key fact-checked fields (not just
@@ -380,5 +442,37 @@ describe('assertKoppenCaveatInvariant', () => {
     expect(() =>
       assertKoppenCaveatInvariant([{ ...VALID_SEED, climateKoppen: '', climateNoteTr: '' }]),
     ).not.toThrow();
+  });
+});
+
+/**
+ * Pure, DB-free coverage of the density derivation — critically the NULL/zero
+ * branch, which is the NORMAL state of every not-yet-seeded province (76 of 81).
+ * The e2e above only exercises the value branch (all 5 pilots have population +
+ * area), so without this a regression in the guard (dropped null-check, removed
+ * `areaKm2 === 0` guard) could serve a wrong "0" or a non-finite number on a public
+ * SEO page with CI staying green. Mirrors the `assertKoppenCaveatInvariant` block.
+ */
+describe('computePopulationDensity', () => {
+  it('rounds population / area to the nearest integer (kişi/km²)', () => {
+    expect(computePopulationDensity(15_754_053, 5461)).toBe(2885);
+    expect(computePopulationDensity(1000, 3)).toBe(333); // 333.33… → 333
+    expect(computePopulationDensity(1000, 8)).toBe(125); // exact
+  });
+
+  it('returns null when population is null (an unseeded province — never 0)', () => {
+    expect(computePopulationDensity(null, 5461)).toBeNull();
+  });
+
+  it('returns null when area is null', () => {
+    expect(computePopulationDensity(15_754_053, null)).toBeNull();
+  });
+
+  it('returns null when both inputs are null', () => {
+    expect(computePopulationDensity(null, null)).toBeNull();
+  });
+
+  it('returns null — never Infinity — when area is 0', () => {
+    expect(computePopulationDensity(1000, 0)).toBeNull();
   });
 });
