@@ -48,6 +48,31 @@
         ]
       }
     },
+    "/api/provinces/map-summary": {
+      "get": {
+        "operationId": "ProvinceController_findMapSummary",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProvinceMapSummaryDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Bulk hover-card summary for all provinces (homepage SVG map, build-time embed).",
+        "tags": [
+          "provinces"
+        ]
+      }
+    },
     "/api/provinces/{slug}": {
       "get": {
         "operationId": "ProvinceController_findBySlug",
@@ -153,6 +178,134 @@
           "slugEn"
         ]
       },
+      "ProvinceMapSummaryDto": {
+        "type": "object",
+        "properties": {
+          "plateCode": {
+            "type": "string",
+            "example": "34",
+            "description": "Plaka kodu (stable, unique)."
+          },
+          "nameTr": {
+            "type": "string",
+            "example": "İstanbul",
+            "description": "İl adı (TR)."
+          },
+          "region": {
+            "enum": [
+              "MARMARA",
+              "EGE",
+              "AKDENIZ",
+              "IC_ANADOLU",
+              "KARADENIZ",
+              "DOGU_ANADOLU",
+              "GUNEYDOGU_ANADOLU"
+            ],
+            "type": "string",
+            "description": "Coğrafi bölge."
+          },
+          "slugTr": {
+            "type": "string",
+            "example": "istanbul",
+            "description": "TR slug (routing key — kart tıklaması)."
+          },
+          "slugEn": {
+            "type": "string",
+            "example": "istanbul",
+            "description": "EN slug (routing key)."
+          },
+          "population": {
+            "type": "number",
+            "nullable": true,
+            "example": 15754053,
+            "description": "Nüfus (TÜİK ADNKS). Null until fact-checked."
+          },
+          "populationYear": {
+            "type": "number",
+            "nullable": true,
+            "example": 2025,
+            "description": "Nüfus referans yılı."
+          },
+          "areaKm2": {
+            "type": "number",
+            "nullable": true,
+            "example": 5461,
+            "description": "Yüzölçümü (km², HGM)."
+          },
+          "districtCount": {
+            "type": "number",
+            "nullable": true,
+            "example": 39,
+            "description": "İlçe sayısı."
+          }
+        },
+        "required": [
+          "plateCode",
+          "nameTr",
+          "region",
+          "slugTr",
+          "slugEn",
+          "population",
+          "populationYear",
+          "areaKm2",
+          "districtCount"
+        ]
+      },
+      "HydrographyFeatureDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Ömerli Barajı",
+            "description": "Öz ad."
+          },
+          "type": {
+            "enum": [
+              "baraj",
+              "nehir",
+              "gol"
+            ],
+            "type": "string",
+            "example": "baraj",
+            "description": "Özellik türü (baraj/nehir/göl) — ASCII değer; TR etiketi web tarafında."
+          }
+        },
+        "required": [
+          "name",
+          "type"
+        ]
+      },
+      "EconomyIndicatorDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "example": "GSYH'de Türkiye payı",
+            "description": "İstatistiğin ölçtüğü büyüklük."
+          },
+          "value": {
+            "type": "string",
+            "example": "%30,2",
+            "description": "Değer, string — pay/sıra/ürün adı olabildiği için (heterojen)."
+          },
+          "year": {
+            "type": "number",
+            "example": 2024,
+            "description": "İstatistiğin referans yılı."
+          },
+          "source": {
+            "type": "string",
+            "example": "TÜİK Bölgesel GSYH",
+            "description": "Otoriter kaynak."
+          }
+        },
+        "required": [
+          "label",
+          "value",
+          "year",
+          "source"
+        ]
+      },
       "ProvinceDetailDto": {
         "type": "object",
         "properties": {
@@ -189,6 +342,12 @@
             "type": "string",
             "description": "Coğrafi bölge."
           },
+          "introTr": {
+            "type": "string",
+            "nullable": true,
+            "example": "İstanbul, Karadeniz ile Marmara Denizi'ni birbirine bağlayan Boğaz'ın iki yakasına kurulmuştur.",
+            "description": "Yazılı açılış cümlesi (il girişi). Null ise web veri-tabanlı bir cümle kurar (fallback)."
+          },
           "population": {
             "type": "number",
             "nullable": true,
@@ -212,6 +371,12 @@
             "nullable": true,
             "example": 39,
             "description": "İlçe sayısı."
+          },
+          "populationDensity": {
+            "type": "number",
+            "nullable": true,
+            "example": 2885,
+            "description": "Nüfus yoğunluğu (kişi/km²) — SERVER-COMPUTED, not stored: round(nüfus / yüzölçümü). Null when population or area is null. Consume this rather than recomputing, so the rounding/null rule stays single-sourced."
           },
           "elevationM": {
             "type": "number",
@@ -265,6 +430,46 @@
             "nullable": true,
             "description": "Öne çıkan yer şekilleri / jeoloji notu (TR)."
           },
+          "hydrographyNoteTr": {
+            "type": "string",
+            "nullable": true,
+            "description": "Hidrografya — kısa düzyazı not (nehir/göl/baraj anlatısı, TR)."
+          },
+          "hydrographyFeatures": {
+            "nullable": true,
+            "description": "Hidrografya — yapısal özellik listesi (baraj/nehir/göl). Null = araştırılmadı; boş dizi = \"belirgin özellik yok\" (bilinçli ifade).",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HydrographyFeatureDto"
+            }
+          },
+          "urbanizationRate": {
+            "type": "number",
+            "nullable": true,
+            "example": 93.5,
+            "description": "Şehirleşme oranı (%) — TÜİK ADNKS (il/ilçe merkezi nüfusu / toplam)."
+          },
+          "netMigrationRate": {
+            "type": "number",
+            "nullable": true,
+            "example": 19.6,
+            "description": "Net göç hızı (‰) — TÜİK Göç İstatistikleri; işaretli (net göç ± olabilir)."
+          },
+          "settlementNoteTr": {
+            "type": "string",
+            "nullable": true,
+            "description": "Nüfus ve yerleşme — kısa düzyazı not (TR)."
+          },
+          "economyIndicator": {
+            "nullable": true,
+            "description": "Ekonomik coğrafya — TEK, TÜİK-çıpalı yapısal istatistik (serbest metin değil).",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EconomyIndicatorDto"
+              }
+            ]
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time",
@@ -282,10 +487,12 @@
           "slugTr",
           "slugEn",
           "region",
+          "introTr",
           "population",
           "populationYear",
           "areaKm2",
           "districtCount",
+          "populationDensity",
           "elevationM",
           "latitude",
           "longitude",
@@ -294,6 +501,12 @@
           "climateClassTr",
           "climateNoteTr",
           "landformNoteTr",
+          "hydrographyNoteTr",
+          "hydrographyFeatures",
+          "urbanizationRate",
+          "netMigrationRate",
+          "settlementNoteTr",
+          "economyIndicator",
           "createdAt",
           "updatedAt"
         ]

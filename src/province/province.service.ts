@@ -4,6 +4,24 @@ import { Repository } from 'typeorm';
 import { Province } from './entities/province.entity';
 import { ProvinceDetailDto } from './dto/province-detail.dto';
 import { ProvinceListItemDto } from './dto/province-list-item.dto';
+import { ProvinceMapSummaryDto } from './dto/province-map-summary.dto';
+
+/**
+ * Nüfus yoğunluğu (kişi/km²) from two verified values. A single source of truth
+ * for the rounding + null rule so no two consumers (hover vs detail, TR vs EN)
+ * compute it differently. Null when either input is null, or if the area is 0
+ * (guards against a divide-by-zero producing Infinity — no real province has a
+ * zero area, but the mapper never emits a non-finite number).
+ */
+function computePopulationDensity(
+  population: number | null,
+  areaKm2: number | null,
+): number | null {
+  if (population === null || areaKm2 === null || areaKm2 === 0) {
+    return null;
+  }
+  return Math.round(population / areaKm2);
+}
 
 @Injectable()
 export class ProvinceService {
@@ -25,6 +43,18 @@ export class ProvinceService {
   async findAll(): Promise<ProvinceListItemDto[]> {
     const rows = await this.provinces.find({ order: { plateCode: 'ASC' } });
     return rows.map((row) => this.toListItem(row));
+  }
+
+  /**
+   * Purpose-sized bulk payload for the homepage SVG map hover-card: all provinces
+   * with the identity fields + the 4 hover-card summary numbers, plate-ordered.
+   * A bounded set (81) the map pre-embeds at build/ISR time — returned as a plain
+   * array (no envelope), same rationale as `findAll`. Kept lean on purpose: the
+   * hover-card shows no detail-only field, so none is fetched here.
+   */
+  async findMapSummary(): Promise<ProvinceMapSummaryDto[]> {
+    const rows = await this.provinces.find({ order: { plateCode: 'ASC' } });
+    return rows.map((row) => this.toMapSummary(row));
   }
 
   /**
@@ -56,6 +86,20 @@ export class ProvinceService {
     };
   }
 
+  private toMapSummary(row: Province): ProvinceMapSummaryDto {
+    return {
+      plateCode: row.plateCode,
+      nameTr: row.nameTr,
+      region: row.region,
+      slugTr: row.slugTr,
+      slugEn: row.slugEn,
+      population: row.population,
+      populationYear: row.populationYear,
+      areaKm2: row.areaKm2,
+      districtCount: row.districtCount,
+    };
+  }
+
   private toDetail(row: Province): ProvinceDetailDto {
     return {
       plateCode: row.plateCode,
@@ -63,10 +107,12 @@ export class ProvinceService {
       slugTr: row.slugTr,
       slugEn: row.slugEn,
       region: row.region,
+      introTr: row.introTr,
       population: row.population,
       populationYear: row.populationYear,
       areaKm2: row.areaKm2,
       districtCount: row.districtCount,
+      populationDensity: computePopulationDensity(row.population, row.areaKm2),
       elevationM: row.elevationM,
       latitude: row.latitude,
       longitude: row.longitude,
@@ -75,6 +121,12 @@ export class ProvinceService {
       climateClassTr: row.climateClassTr,
       climateNoteTr: row.climateNoteTr,
       landformNoteTr: row.landformNoteTr,
+      hydrographyNoteTr: row.hydrographyNoteTr,
+      hydrographyFeatures: row.hydrographyFeatures,
+      urbanizationRate: row.urbanizationRate,
+      netMigrationRate: row.netMigrationRate,
+      settlementNoteTr: row.settlementNoteTr,
+      economyIndicator: row.economyIndicator,
       createdAt: row.createdAt.toISOString(),
       updatedAt: row.updatedAt.toISOString(),
     };

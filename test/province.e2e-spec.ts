@@ -34,6 +34,8 @@ const EXPECTED_PROVINCES = [
     populationYear: 2025,
     areaKm2: 5461,
     districtCount: 39,
+    // populationDensity = round(15_754_053 / 5461) — server-computed, not stored.
+    populationDensity: 2885,
     elevationM: 33,
     latitude: 40.9819,
     longitude: 28.8208,
@@ -51,6 +53,7 @@ const EXPECTED_PROVINCES = [
     populationYear: 2025,
     areaKm2: 25_632,
     districtCount: 25,
+    populationDensity: 231, // round(5_910_320 / 25_632)
     elevationM: 891,
     latitude: 39.9727,
     longitude: 32.8637,
@@ -68,6 +71,7 @@ const EXPECTED_PROVINCES = [
     populationYear: 2025,
     areaKm2: 11_891,
     districtCount: 30,
+    populationDensity: 379, // round(4_504_185 / 11_891)
     elevationM: 29,
     latitude: 38.4049,
     longitude: 27.1895,
@@ -85,6 +89,7 @@ const EXPECTED_PROVINCES = [
     populationYear: 2025,
     areaKm2: 20_921,
     districtCount: 13,
+    populationDensity: 53, // round(1_112_013 / 20_921)
     elevationM: 1675,
     latitude: 38.4693,
     longitude: 43.346,
@@ -102,6 +107,7 @@ const EXPECTED_PROVINCES = [
     populationYear: 2025,
     areaKm2: 20_177,
     districtCount: 19,
+    populationDensity: 138, // round(2_777_677 / 20_177)
     elevationM: 47,
     latitude: 36.8851,
     longitude: 30.6828,
@@ -177,10 +183,11 @@ describe('Province (e2e)', () => {
     await container?.stop();
   });
 
-  it('runs both migrations clean, in order', () => {
+  it('runs all migrations clean, in order', () => {
     expect(appliedMigrationNames).toEqual([
       'InitProvince1783382400000',
       'AddProvinceClimateNote1783513986800',
+      'AddProvinceDetailSections1783701664849',
     ]);
   });
 
@@ -210,6 +217,15 @@ describe('Province (e2e)', () => {
     expect(istanbul.climateNoteTr).toContain('MGM');
     // unseeded research field stays null (never invented for the pilot)
     expect(istanbul.landformNoteTr).toBeNull();
+    // NEW detail-section fields ship as SCHEMA ONLY — no content this PR, so every
+    // one stays null for the pilot (deliberately unpopulated, never invented).
+    expect(istanbul.introTr).toBeNull();
+    expect(istanbul.hydrographyNoteTr).toBeNull();
+    expect(istanbul.hydrographyFeatures).toBeNull();
+    expect(istanbul.urbanizationRate).toBeNull();
+    expect(istanbul.netMigrationRate).toBeNull();
+    expect(istanbul.settlementNoteTr).toBeNull();
+    expect(istanbul.economyIndicator).toBeNull();
   });
 
   it('GET /api/provinces returns all 5, plate-ordered, lean (no detail leak)', async () => {
@@ -232,6 +248,36 @@ describe('Province (e2e)', () => {
     expect(body[0]).not.toHaveProperty('climateNoteTr');
   });
 
+  it('GET /api/provinces/map-summary returns hover-card data for all provinces', async () => {
+    // The static `map-summary` path must resolve to this endpoint, NOT be captured
+    // by the `:slug` route (which would 404) — a 200 array proves the route order.
+    const res = await request(app.getHttpServer()).get('/api/provinces/map-summary').expect(200);
+    const body = res.body as Array<Record<string, unknown>>;
+    expect(Array.isArray(body)).toBe(true);
+    expect(body).toHaveLength(5);
+    // same plate order as the list endpoint: 06, 07, 34, 35, 65
+    expect(body.map((p) => p.plateCode)).toEqual(['06', '07', '34', '35', '65']);
+
+    const istanbul = body.find((p) => p.plateCode === '34');
+    expect(istanbul).toMatchObject({
+      plateCode: '34',
+      nameTr: 'İstanbul',
+      region: 'MARMARA',
+      slugTr: 'istanbul',
+      slugEn: 'istanbul',
+      population: 15_754_053,
+      populationYear: 2025,
+      areaKm2: 5461,
+      districtCount: 39,
+    });
+    // purpose-sized payload: identity + the 4 summary numbers ONLY — no detail leak,
+    // and NO derived density (density is a detail-page concern, not the hover-card).
+    expect(istanbul).not.toHaveProperty('latitude');
+    expect(istanbul).not.toHaveProperty('climateNoteTr');
+    expect(istanbul).not.toHaveProperty('neighborPlateCodes');
+    expect(istanbul).not.toHaveProperty('populationDensity');
+  });
+
   // I1/M4: assert EVERY pilot province's key fact-checked fields (not just
   // İstanbul) so a transcription regression in any row fails CI. The
   // province-specific MGM caveat (Ankara/Van divergence) is asserted here too.
@@ -251,12 +297,22 @@ describe('Province (e2e)', () => {
         populationYear: expected.populationYear,
         areaKm2: expected.areaKm2,
         districtCount: expected.districtCount,
+        // server-computed derived field: round(population / areaKm2), single-sourced
+        populationDensity: expected.populationDensity,
         elevationM: expected.elevationM,
         neighborPlateCodes: expected.neighborPlateCodes,
         climateKoppen: expected.climateKoppen,
         climateClassTr: expected.climateClassTr,
-        // landform note is deferred for the pilot — must be null, never invented
+        // deferred/unpopulated fields — schema ships this PR, content later; every
+        // one must be null for the pilot (never invented).
         landformNoteTr: null,
+        introTr: null,
+        hydrographyNoteTr: null,
+        hydrographyFeatures: null,
+        urbanizationRate: null,
+        netMigrationRate: null,
+        settlementNoteTr: null,
+        economyIndicator: null,
       });
       expect(body.latitude).toBe(expected.latitude);
       expect(body.longitude).toBe(expected.longitude);
