@@ -69,16 +69,29 @@ function rowMatchesSeed(row: Province, seed: ProvinceSeed): boolean {
  * §5). Currently the 14 fact-checked provinces (pilot-5 + Batch 2 wave-1,
  * Güneydoğu Anadolu); scales to 81 once the remaining batches clear fact-check.
  *
- * IDEMPOTENT by design: keyed on the unique `plate_code`, each province is
- * inserted if absent, refreshed if its data drifted, or LEFT UNTOUCHED if it
- * already matches — so a routine re-seed never duplicates a row AND never bumps
- * `updated_at` on a no-op. That keeps the SEO `lastmod`/dateModified signal
- * honest (CONVENTIONS §6): a province's timestamp changes only when its data
- * genuinely changes. The whole run is one transaction — a mid-run failure leaves
- * the table untouched rather than half-seeded.
+ * IDEMPOTENT by design, PER ROW: keyed on the unique `plate_code`, each province
+ * is INDEPENDENTLY inserted if absent, refreshed if its data drifted, or LEFT
+ * UNTOUCHED if it already matches — so a routine re-seed never duplicates a row
+ * AND never bumps `updated_at` on a no-op. That keeps the SEO `lastmod`/
+ * dateModified signal honest (CONVENTIONS §6): a province's timestamp changes only
+ * when its data genuinely changes. The whole run is one transaction — a mid-run
+ * failure leaves the table untouched rather than half-seeded.
+ *
+ * The per-row independence is what makes an INCREMENTAL rollout correct: adding a
+ * batch means re-seeding the SAME DB with a longer list, so a real run is a MIXED
+ * batch — the already-present rows are no-ops while only the new rows insert (e.g.
+ * pilot-5 present + the full 14-list → `{inserted:9, unchanged:5}`). That mixed
+ * path is regression-tested in `province.e2e-spec`.
+ *
+ * `provinces` defaults to the full `SEED_PROVINCES` set (what the CLI runs);
+ * accepting the list as a parameter lets tests drive the exact rollout phases
+ * (seed pilot-only, then the full set) through this real code path.
  */
-export async function seedGeography(dataSource: DataSource): Promise<SeedGeographyResult> {
-  assertKoppenCaveatInvariant(SEED_PROVINCES);
+export async function seedGeography(
+  dataSource: DataSource,
+  provinces: readonly ProvinceSeed[] = SEED_PROVINCES,
+): Promise<SeedGeographyResult> {
+  assertKoppenCaveatInvariant(provinces);
 
   let inserted = 0;
   let updated = 0;
@@ -87,21 +100,32 @@ export async function seedGeography(dataSource: DataSource): Promise<SeedGeograp
   await dataSource.transaction(async (manager) => {
     const repo = manager.getRepository(Province);
 
-    for (const seed of SEED_PROVINCES) {
-      const existing = await repo.findOne({ where: { plateCode: seed.plateCode } });
+    for (const seed of provinces) {
+      try {
+        const existing = await repo.findOne({ where: { plateCode: seed.plateCode } });
 
-      if (!existing) {
-        await repo.save(repo.create(seed));
-        inserted += 1;
-      } else if (rowMatchesSeed(existing, seed)) {
-        unchanged += 1;
-      } else {
-        repo.merge(existing, seed);
-        await repo.save(existing);
-        updated += 1;
+        if (!existing) {
+          await repo.save(repo.create(seed));
+          inserted += 1;
+        } else if (rowMatchesSeed(existing, seed)) {
+          unchanged += 1;
+        } else {
+          repo.merge(existing, seed);
+          await repo.save(existing);
+          updated += 1;
+        }
+      } catch (cause) {
+        // Name the offending row so a failure mid-batch (e.g. a constraint
+        // violation once the seed scales to 81) is diagnosable. The transaction
+        // still rolls the WHOLE run back and the error propagates to a non-zero
+        // exit — this only adds row-level context, mirroring the plate-code
+        // context `assertKoppenCaveatInvariant` already gives.
+        throw new Error(`Seeding province [${seed.plateCode}] ${seed.nameTr} failed — see cause.`, {
+          cause,
+        });
       }
     }
   });
 
-  return { inserted, updated, unchanged, total: SEED_PROVINCES.length };
+  return { inserted, updated, unchanged, total: provinces.length };
 }

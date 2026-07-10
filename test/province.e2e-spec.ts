@@ -11,7 +11,14 @@ import {
   seedGeography,
   type SeedGeographyResult,
 } from '../src/database/seeds/seed-geography';
-import type { ProvinceSeed } from '../src/database/seeds/province.seed-data';
+// PILOT_PROVINCES / SEED_PROVINCES are imported ONLY to drive the seed-rollout
+// phases below (a code-path input) — NOT as the oracle for the value assertions,
+// which stay independent in EXPECTED_PROVINCES.
+import {
+  PILOT_PROVINCES,
+  SEED_PROVINCES,
+  type ProvinceSeed,
+} from '../src/database/seeds/province.seed-data';
 import { GeographicRegion } from '../src/common/geographic-region.enum';
 import { Province } from '../src/province/entities/province.entity';
 import { computePopulationDensity } from '../src/province/province.service';
@@ -299,12 +306,15 @@ describe('Province (e2e)', () => {
   let app: INestApplication;
 
   // Captured in beforeAll (setup MUST run there), asserted in named it() blocks
-  // so a red run points at the exact failed check.
+  // so a red run points at the exact failed check. Three seed phases model the
+  // real incremental rollout (empty → pilot-5 → full-14 → re-run).
   let appliedMigrationNames: string[];
-  let firstSeed: SeedGeographyResult;
-  let secondSeed: SeedGeographyResult;
-  let istanbulUpdatedAtAfterFirst: string;
-  let istanbulUpdatedAtAfterSecond: string;
+  let pilotOnlySeed: SeedGeographyResult;
+  let mixedSeed: SeedGeographyResult;
+  let reSeed: SeedGeographyResult;
+  let istanbulUpdatedAtAfterPilotInsert: string;
+  let istanbulUpdatedAtAfterMixed: string;
+  let istanbulUpdatedAtAfterReseed: string;
 
   beforeAll(async () => {
     container = await new PostgreSqlContainer('postgres:16-alpine').start();
@@ -320,16 +330,30 @@ describe('Province (e2e)', () => {
     const applied = await dataSource.runMigrations();
     appliedMigrationNames = applied.map((m) => m.name);
 
-    // 2) Seed once, snapshot İstanbul's updated_at, then seed AGAIN. The second
-    //    run must be a pure no-op (data identical) — proving idempotency AND that
-    //    it does not churn updated_at (SEO lastmod honesty, CONVENTIONS §6).
+    // 2) Seed in the REAL rollout order so the mixed insert/no-op path this PR
+    //    actually ships is exercised — not just the two homogeneous extremes:
+    //      Phase 1 — empty DB seeded with the pilot-5 ONLY: the state the previous
+    //        deploy left (all-insert). Snapshot İstanbul's updated_at.
+    //      Phase 2 — THIS PR's rollout: re-seed the SAME DB with the full 14-list.
+    //        The 5 pilot rows already match (no-op) and the 9 wave-1 rows are new
+    //        (insert) → a genuine MIXED batch. İstanbul's updated_at must be
+    //        UNCHANGED from phase 1 (a mixed batch must not touch the rows it
+    //        leaves alone).
+    //      Phase 3 — a routine re-run over the complete 14: pure no-op, proving
+    //        idempotency AND no updated_at churn (SEO lastmod honesty, §6).
+    //    PILOT_PROVINCES/SEED_PROVINCES drive the phases here; value correctness is
+    //    asserted independently from EXPECTED_PROVINCES.
     const repo = dataSource.getRepository(Province);
-    firstSeed = await seedGeography(dataSource);
-    istanbulUpdatedAtAfterFirst = (
+    pilotOnlySeed = await seedGeography(dataSource, PILOT_PROVINCES);
+    istanbulUpdatedAtAfterPilotInsert = (
       await repo.findOneByOrFail({ plateCode: '34' })
     ).updatedAt.toISOString();
-    secondSeed = await seedGeography(dataSource);
-    istanbulUpdatedAtAfterSecond = (
+    mixedSeed = await seedGeography(dataSource, SEED_PROVINCES);
+    istanbulUpdatedAtAfterMixed = (
+      await repo.findOneByOrFail({ plateCode: '34' })
+    ).updatedAt.toISOString();
+    reSeed = await seedGeography(dataSource);
+    istanbulUpdatedAtAfterReseed = (
       await repo.findOneByOrFail({ plateCode: '34' })
     ).updatedAt.toISOString();
 
@@ -359,18 +383,29 @@ describe('Province (e2e)', () => {
     ]);
   });
 
-  it('first seed inserts all 14 provinces (5 pilot + 9 wave-1)', () => {
-    expect(firstSeed).toEqual({ inserted: 14, updated: 0, unchanged: 0, total: 14 });
+  it('phase 1 — seeding the pilot-5 into an empty DB inserts exactly those 5', () => {
+    expect(pilotOnlySeed).toEqual({ inserted: 5, updated: 0, unchanged: 0, total: 5 });
   });
 
-  it('re-seed is a no-op: no duplicates, no writes, no updated_at churn', async () => {
+  it('phase 2 — re-seeding the full 14-list over the pilot-5 is a MIXED batch', () => {
+    // The realistic rollout this PR ships: the 5 pilot rows are already present
+    // (no-ops) and the 9 wave-1 rows are new (inserts). This is the ONLY case that
+    // guards per-row independence — a regression that broke it (e.g. shared-state
+    // parallelism) would mis-count HERE while the homogeneous all-insert/all-no-op
+    // cases stayed green.
+    expect(mixedSeed).toEqual({ inserted: 9, updated: 0, unchanged: 5, total: 14 });
+    // A mixed batch must NOT touch the updated_at of the rows it leaves alone.
+    expect(istanbulUpdatedAtAfterMixed).toBe(istanbulUpdatedAtAfterPilotInsert);
+  });
+
+  it('phase 3 — re-seed is a no-op: no duplicates, no writes, no updated_at churn', async () => {
     // Every row already matches → all 14 unchanged, none updated/inserted.
-    expect(secondSeed).toEqual({ inserted: 0, updated: 0, unchanged: 14, total: 14 });
+    expect(reSeed).toEqual({ inserted: 0, updated: 0, unchanged: 14, total: 14 });
     // Still exactly 14 rows.
     const count = await dataSource.getRepository(Province).count();
     expect(count).toBe(14);
     // updated_at was NOT bumped by the no-op re-seed.
-    expect(istanbulUpdatedAtAfterSecond).toBe(istanbulUpdatedAtAfterFirst);
+    expect(istanbulUpdatedAtAfterReseed).toBe(istanbulUpdatedAtAfterMixed);
   });
 
   it('round-trips a seeded Province (transformer + array + deliberate nulls)', async () => {
@@ -482,11 +517,11 @@ describe('Province (e2e)', () => {
     expect(istanbul).not.toHaveProperty('populationDensity');
   });
 
-  // Mechanism proof for the jsonb columns + the numeric-rate transformer: this PR
-  // ships those columns but every pilot row leaves them null, so nothing else
-  // exercises a NON-null jsonb round-trip through Postgres. A throwaway fixture row
-  // (plate '00', not a real province) is inserted, read back through the API, then
-  // deleted in `finally` so the other tests still see exactly the 5 pilot rows.
+  // Mechanism proof for the jsonb columns + the numeric-rate transformer: every
+  // seeded row leaves them null (base data only), so nothing else exercises a
+  // NON-null jsonb round-trip through Postgres. A throwaway fixture row (plate '00',
+  // not a real province) is inserted, read back through the API, then deleted in
+  // `finally` so the other tests still see exactly the 14 seeded rows.
   it('round-trips non-null jsonb + numeric-rate fields through the DB and API', async () => {
     const repo = dataSource.getRepository(Province);
     const fixture = repo.create({
@@ -531,15 +566,15 @@ describe('Province (e2e)', () => {
       // computed density on real inputs: round(1000 / 4) = 250
       expect(body.populationDensity).toBe(250);
     } finally {
-      // Clean up unconditionally so the 5-row count assumed by the other tests holds
-      // even if an assertion above throws.
+      // Clean up unconditionally so the 14-row count assumed by the other tests
+      // holds even if an assertion above throws.
       await repo.delete({ plateCode: '00' });
     }
   });
 
-  // I1/M4: assert EVERY pilot province's key fact-checked fields (not just
-  // İstanbul) so a transcription regression in any row fails CI. The
-  // province-specific MGM caveat (Ankara/Van divergence) is asserted here too.
+  // I1/M4: assert EVERY seeded province's key fact-checked fields (all 14, both
+  // batches — not just İstanbul) so a transcription regression in any row fails CI.
+  // The province-specific MGM caveat (Ankara/Van divergence) is asserted here too.
   it.each(EXPECTED_PROVINCES)(
     'GET /api/provinces/$slug returns the full, fact-checked detail',
     async (expected) => {
@@ -644,11 +679,12 @@ describe('assertKoppenCaveatInvariant', () => {
 
 /**
  * Pure, DB-free coverage of the density derivation — critically the NULL/zero
- * branch, which is the NORMAL state of every not-yet-seeded province (76 of 81).
- * The e2e above only exercises the value branch (all 5 pilots have population +
- * area), so without this a regression in the guard (dropped null-check, removed
- * `areaKm2 === 0` guard) could serve a wrong "0" or a non-finite number on a public
- * SEO page with CI staying green. Mirrors the `assertKoppenCaveatInvariant` block.
+ * branch, which is the NORMAL state of every not-yet-seeded province (67 of 81).
+ * The e2e above only exercises the value branch (all 14 seeded provinces have
+ * population + area), so without this a regression in the guard (dropped
+ * null-check, removed `areaKm2 === 0` guard) could serve a wrong "0" or a
+ * non-finite number on a public SEO page with CI staying green. Mirrors the
+ * `assertKoppenCaveatInvariant` block.
  */
 describe('computePopulationDensity', () => {
   it('rounds population / area to the nearest integer (kişi/km²)', () => {
