@@ -74,13 +74,14 @@ reuse the shared `MGM_KOPPEN_CAVEAT_TR`; Kocaeli/Sakarya carry a Cfa-variant cav
 (`MGM_KOPPEN_CAVEAT_CFA_TR`). No province-specific Thornthwaite/Erinç divergence is appended
 for any of the 10 — the source deliberately did not research that alternative for this wave.
 
-**Open (surfaced, not blocking the seed):** the Cfa Turkish class label seeded is
-`Nemli subtropikal iklim` (`climate_class_tr`) — the standard translation of the Köppen Cfa
-class (parallel to Csa→"Akdeniz iklimi"), NOT a MEB regional-climate interpretation. The
-exact verbatim Turkish label MGM's `koppen.pdf` legend uses for Cfa was not re-extracted this
-wave, and a YKS/KPSS-facing page might prefer the regional register ("Karadeniz iklimi").
-NOVA/Vera to confirm the preferred user-facing register before il pages ship; a one-line seed
-change if a different label is chosen.
+**Cfa Turkish class label — RESOLVED (owner ruling + NOVA confirmation, 2026-07-11):** the
+Cfa `climate_class_tr` is **`Karadeniz iklimi`** (superseding the initially-seeded "Nemli
+subtropikal iklim"). Chosen as the TYT/AYT-curriculum name for the class (same register as
+Csa→"Akdeniz iklimi") AND on a definitional match, not just pedagogy: "Karadeniz iklimi"'s
+standard definition ("her mevsim yağışlı") maps directly onto Köppen's "f" (no dry season)
+that defines Cfa. NOVA sanity-checked Kocaeli/Sakarya specifically — their sourced
+regional-climate descriptions at the exact MGM stations used are consistent with Karadeniz
+influence (no geographic-accuracy red flag).
 
 ## Slug decisions
 
@@ -123,7 +124,7 @@ cautious phrasing (per fact-check §A.6.1) since two official pages still say ot
 
 - **All PR-5a detail-page fields + `landform_note_tr` are `null` for all 10** — base-data
   wave by owner ruling (DEC 2026-07-10). Not invented to satisfy a column.
-- **Cfa Turkish-label register** (see Köppen section) — NOVA/Vera confirmation, trivial change.
+- **Cfa Turkish-label register** — RESOLVED to `Karadeniz iklimi` (see Köppen section).
 - **Kırklareli–İstanbul neighbour** — `[TEYİT GEREK]`, closed by the 81-il boundary pass.
 - **Tekirdağ Karadeniz coastline** — fact-check upgraded this to VERIFIED (§A.6.3); it does
   not change any seeded field (sea adjacency is not stored), only informs future il-page copy.

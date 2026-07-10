@@ -58,7 +58,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['59', '41'],
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
-    caveatContains: 'MGM',
+    caveatContains: 'Csa',
   },
   {
     slug: 'ankara',
@@ -94,7 +94,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['10', '45', '09'],
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
-    caveatContains: 'MGM',
+    caveatContains: 'Csa',
   },
   {
     slug: 'van',
@@ -130,7 +130,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['48', '15', '32', '42', '70', '33'],
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
-    caveatContains: 'MGM',
+    caveatContains: 'Csa',
   },
   // ── Batch 2 — wave 1 (Güneydoğu Anadolu, 9 il), alphabetical by nameTr ──
   {
@@ -149,7 +149,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['44', '21', '63', '27', '46'],
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
-    caveatContains: 'MGM',
+    caveatContains: 'Csa',
   },
   {
     slug: 'batman',
@@ -167,7 +167,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['21', '49', '13', '56', '47'],
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
-    caveatContains: 'MGM',
+    caveatContains: 'Csa',
   },
   {
     slug: 'diyarbakir',
@@ -185,7 +185,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['02', '72', '12', '23', '47', '49', '44', '63'],
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
-    caveatContains: 'MGM',
+    caveatContains: 'Csa',
   },
   {
     slug: 'gaziantep',
@@ -203,7 +203,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['79', '63', '02', '46', '80', '31'],
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
-    caveatContains: 'MGM',
+    caveatContains: 'Csa',
   },
   {
     slug: 'kilis',
@@ -221,7 +221,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['27'],
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
-    caveatContains: 'MGM',
+    caveatContains: 'Csa',
   },
   {
     slug: 'mardin',
@@ -239,7 +239,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['63', '21', '72', '56', '73'],
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
-    caveatContains: 'MGM',
+    caveatContains: 'Csa',
   },
   {
     slug: 'siirt',
@@ -257,7 +257,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['72', '13', '65', '73', '47'],
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
-    caveatContains: 'MGM',
+    caveatContains: 'Csa',
   },
   {
     slug: 'sanliurfa',
@@ -275,7 +275,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['47', '27', '02', '21'],
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
-    caveatContains: 'MGM',
+    caveatContains: 'Csa',
   },
   {
     slug: 'sirnak',
@@ -293,7 +293,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['30', '47', '56', '65'],
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
-    caveatContains: 'MGM',
+    caveatContains: 'Csa',
   },
   // ── Batch 2 — wave 2 (Marmara, 10 il, İstanbul hariç), alphabetical by nameTr ──
   {
@@ -312,7 +312,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['16', '43', '45', '35', '17'],
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
-    caveatContains: 'MGM',
+    caveatContains: 'Csa',
   },
   {
     slug: 'bilecik',
@@ -330,7 +330,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['54', '14', '26', '43', '16'],
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
-    caveatContains: 'MGM',
+    caveatContains: 'Csa',
   },
   {
     slug: 'bursa',
@@ -348,7 +348,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['77', '41', '54', '11', '43', '10'],
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
-    caveatContains: 'MGM',
+    caveatContains: 'Csa',
   },
   {
     slug: 'canakkale',
@@ -366,7 +366,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['22', '59', '10'],
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
-    caveatContains: 'MGM',
+    caveatContains: 'Csa',
   },
   {
     slug: 'edirne',
@@ -384,7 +384,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['39', '59', '17'],
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
-    caveatContains: 'MGM',
+    caveatContains: 'Csa',
   },
   {
     slug: 'kirklareli',
@@ -403,7 +403,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['22', '59'],
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
-    caveatContains: 'MGM',
+    caveatContains: 'Csa',
   },
   {
     slug: 'kocaeli',
@@ -421,7 +421,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['34', '16', '54', '77'],
     // Cfa this wave — NOT Csa; the caveat must be the Cfa variant.
     climateKoppen: 'Cfa',
-    climateClassTr: 'Nemli subtropikal iklim',
+    climateClassTr: 'Karadeniz iklimi',
     caveatContains: 'Cfa',
   },
   {
@@ -440,7 +440,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['41', '16', '11', '14', '81'],
     // Cfa this wave — NOT Csa; the caveat must be the Cfa variant.
     climateKoppen: 'Cfa',
-    climateClassTr: 'Nemli subtropikal iklim',
+    climateClassTr: 'Karadeniz iklimi',
     caveatContains: 'Cfa',
   },
   {
@@ -459,7 +459,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['34', '39', '22', '17'],
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
-    caveatContains: 'MGM',
+    caveatContains: 'Csa',
   },
   {
     slug: 'yalova',
@@ -477,7 +477,7 @@ const EXPECTED_PROVINCES = [
     neighborPlateCodes: ['41', '16'],
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
-    caveatContains: 'MGM',
+    caveatContains: 'Csa',
   },
 ] as const;
 
@@ -842,7 +842,10 @@ describe('Province (e2e)', () => {
       expect(body.longitude).toBe(expected.longitude);
 
       // Köppen⇒caveat invariant at the API boundary: a present Köppen code must
-      // carry a non-empty MGM note, and it must contain the expected divergence.
+      // carry a non-empty caveat that CORRESPONDS to the province's class —
+      // `caveatContains` is the class code itself ('Csa'/'Cfa', fully discriminating
+      // since the Cfa caveat contains no 'Csa' and vice versa), or Ankara/Van's
+      // province-specific divergence phrase.
       expect(typeof body.climateNoteTr).toBe('string');
       expect((body.climateNoteTr as string).length).toBeGreaterThan(0);
       expect(body.climateNoteTr).toContain(expected.caveatContains);
@@ -864,8 +867,11 @@ describe('Province (e2e)', () => {
 
 /**
  * M1: the Köppen⇒caveat invariant must actually FIRE on a violation, not just be
- * satisfied by the (currently-clean) pilot data — this is what stops batch 2 (81
- * provinces) from silently shipping a bare Köppen code. Pure function, no DB.
+ * satisfied by the (currently-clean) pilot data — this is what stops the 81-province
+ * scale-up from silently shipping a bare OR mismatched Köppen caveat. Pure function,
+ * no DB. Since wave-2 the invariant also asserts CORRESPONDENCE (the caveat must name
+ * its own code), so a Csa-flavoured caveat on a Cfa row fails — the copy-paste class
+ * of bug the mixed-climate waves make possible.
  */
 describe('assertKoppenCaveatInvariant', () => {
   const VALID_SEED: ProvinceSeed = {
@@ -884,12 +890,27 @@ describe('assertKoppenCaveatInvariant', () => {
     neighborPlateCodes: [],
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
-    climateNoteTr: 'MGM metodolojik uyarı notu.',
+    // The caveat must NAME its own code (correspondence check) — a real caveat always
+    // does ("…bu ili Csa …"), so the fixture mirrors that, not a code-free stub.
+    climateNoteTr: "MGM'nin 2023 Köppen sınıflandırması bu ili Csa olarak verir (uyarı).",
     landformNoteTr: null,
   };
 
-  it('passes when a Köppen code carries a caveat', () => {
+  it('passes when a Köppen code carries a corresponding caveat', () => {
     expect(() => assertKoppenCaveatInvariant([VALID_SEED])).not.toThrow();
+  });
+
+  it('passes for a Cfa row whose caveat names Cfa (the wave-2 second class)', () => {
+    expect(() =>
+      assertKoppenCaveatInvariant([
+        {
+          ...VALID_SEED,
+          climateKoppen: 'Cfa',
+          climateClassTr: 'Karadeniz iklimi',
+          climateNoteTr: "MGM'nin 2023 Köppen sınıflandırması bu ili Cfa olarak verir (uyarı).",
+        },
+      ]),
+    ).not.toThrow();
   });
 
   it('throws when a Köppen code has an empty caveat (bare code)', () => {
@@ -900,6 +921,20 @@ describe('assertKoppenCaveatInvariant', () => {
 
   it('throws when the caveat is whitespace-only', () => {
     expect(() => assertKoppenCaveatInvariant([{ ...VALID_SEED, climateNoteTr: '   ' }])).toThrow();
+  });
+
+  it('throws when the caveat does NOT name its code (Csa caveat on a Cfa row)', () => {
+    // The copy-paste bug the mixed-climate waves make possible: a Cfa province that
+    // kept a Csa-flavoured caveat. Presence alone would pass; correspondence must fail.
+    expect(() =>
+      assertKoppenCaveatInvariant([
+        {
+          ...VALID_SEED,
+          climateKoppen: 'Cfa',
+          climateNoteTr: "MGM'nin 2023 Köppen sınıflandırması bu ili Csa olarak verir (uyarı).",
+        },
+      ]),
+    ).toThrow(/Köppen⇒caveat invariant violated/);
   });
 
   it('does not require a caveat when there is no Köppen code', () => {

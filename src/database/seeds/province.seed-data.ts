@@ -51,12 +51,16 @@ export interface ProvinceSeed {
 }
 
 /**
- * TÜİK ADNKS reference date shared by EVERY seeded province below (pilot-5 +
- * Batch 2 wave-1). All population values are the 31.12.2025 ADNKS figures.
+ * TÜİK ADNKS reference date shared by EVERY seeded province below (pilot-5 + Batch 2
+ * wave-1 + wave-2). All population values are the 31.12.2025 ADNKS figures.
  */
 const POPULATION_YEAR = 2025;
 
-/** Köppen short code shared by all seeded provinces so far (MGM 2023 report, s.11-15). */
+/**
+ * Köppen short code for the MEDITERRANEAN class (MGM 2023 report, s.11-15) — the
+ * common case: all of pilot-5 + wave-1 + 8/10 of wave-2. NOT universal since wave-2:
+ * Kocaeli/Sakarya are Cfa (see KOPPEN_CFA below).
+ */
 const KOPPEN_CSA = 'Csa';
 /** MGM's Turkish class name for Csa (dictionary §2.1: "Csa (Akdeniz iklimi)"). */
 const CLIMATE_CLASS_TR = 'Akdeniz iklimi';
@@ -95,15 +99,16 @@ const MGM_KOPPEN_CAVEAT_TR =
  */
 const KOPPEN_CFA = 'Cfa';
 /**
- * Turkish class name for Köppen Cfa. This is the standard translation of the Cfa
- * class (parallel in kind to Csa→"Akdeniz iklimi"), NOT a MEB regional-climate
- * interpretation. SURFACED to Atlas (closing-summary): the exact verbatim Turkish
- * label MGM's koppen.pdf legend uses for Cfa was not re-extracted this wave, and a
- * YKS/KPSS-facing page might prefer the regional register ("Karadeniz iklimi") —
- * NOVA/Vera to confirm the preferred user-facing register before il pages ship.
- * A one-line change here if a different label is chosen.
+ * Turkish class name for Köppen Cfa: "Karadeniz iklimi" (owner ruling + NOVA
+ * confirmation, 2026-07-11). Chosen as the TYT/AYT-curriculum name for the class
+ * (same register as Csa→"Akdeniz iklimi"), AND on a definitional match, not just
+ * pedagogy: "Karadeniz iklimi"'s standard definition ("her mevsim yağışlı") maps
+ * directly onto Köppen's "f" (no dry season) that defines Cfa. NOVA sanity-checked
+ * Kocaeli/Sakarya specifically — their sourced regional-climate descriptions at the
+ * exact MGM stations used are consistent with Karadeniz influence (no geographic
+ * red flag). Supersedes the initially-seeded "Nemli subtropikal iklim".
  */
-const CLIMATE_CLASS_CFA_TR = 'Nemli subtropikal iklim';
+const CLIMATE_CLASS_CFA_TR = 'Karadeniz iklimi';
 
 /**
  * Cfa variant of the mandatory MGM Köppen caveat (see MGM_KOPPEN_CAVEAT_TR). Same
@@ -114,8 +119,8 @@ const CLIMATE_CLASS_CFA_TR = 'Nemli subtropikal iklim';
  * sourceless fact.
  */
 const MGM_KOPPEN_CAVEAT_CFA_TR =
-  "MGM'nin 2023 Köppen sınıflandırması bu ili Cfa (nemli subtropikal, her mevsim yağışlı " +
-  'iklim) olarak verir. ' +
+  "MGM'nin 2023 Köppen sınıflandırması bu ili Cfa (Karadeniz iklimi, her mevsim yağışlı) " +
+  'olarak verir. ' +
   "Ancak MGM'nin kendi raporu, bu basitleştirilmiş yöntemin (üçüncü-harf kuralı) " +
   "Türkiye'deki 254 istasyonun yaklaşık %65'ini 'Cs' (Akdeniz tipi) çıkardığını ve " +
   'İç Anadolu ile Doğu Anadolu gibi bölgelerde ayırt ediciliğinin sınırlı kaldığını ' +

@@ -12,23 +12,40 @@ export interface SeedGeographyResult {
 }
 
 /**
- * Köppen⇒caveat invariant (il-data-dictionary §2.1): a province with a Köppen
- * code MUST carry the mandatory MGM methodological note — a bare "Csa" must
- * never ship (esp. Ankara/Van). Enforced at seed time so the 81-province scale-up
- * (batch 2+) cannot silently violate it: a missing note aborts the seed loudly
- * instead of publishing a context-free climate code.
+ * Köppen⇒caveat invariant (il-data-dictionary §2.1): a province with a Köppen code
+ * MUST carry the mandatory MGM methodological note, AND that note must CORRESPOND to
+ * the province's own code — a bare "Csa" must never ship (esp. Ankara/Van), and a
+ * Csa-flavoured caveat must never sit on a Cfa row (or vice versa).
+ *
+ * The correspondence check (note must contain its own code substring) matters from
+ * Batch 2 wave-2 on: that wave introduced the platform's SECOND climate class (Cfa,
+ * via sibling caveat constants), so a copy-paste that pairs the wrong caveat with a
+ * code became structurally possible for the first time. Wave-3 (Ege) adds still more
+ * classes (Csb…), so this guard is enforced at seed time to keep the 81-province
+ * scale-up honest: a missing OR mismatched note aborts the seed loudly instead of
+ * publishing a context-free / wrong-context climate code. Each caveat constant names
+ * its own code in its opening clause ("…bu ili Csa …" / "…bu ili Cfa …"), so the
+ * substring test is self-maintaining — a new class passes as soon as its caveat names
+ * its code, and a mismatch fails. (Full 3-letter codes don't cross-match: "Csa" is
+ * absent from the Cfa caveat and vice versa.)
  */
 export function assertKoppenCaveatInvariant(seeds: readonly ProvinceSeed[]): void {
-  const offenders = seeds.filter(
-    (seed) => seed.climateKoppen.trim() !== '' && seed.climateNoteTr.trim() === '',
-  );
+  const offenders = seeds.filter((seed) => {
+    const code = seed.climateKoppen.trim();
+    if (code === '') return false; // no code → no caveat required
+    const note = seed.climateNoteTr.trim();
+    // Violation if the caveat is absent (bare code) OR does not name its own code
+    // (a mismatched / copy-pasted caveat from a different climate class).
+    return note === '' || !note.includes(code);
+  });
 
   if (offenders.length > 0) {
-    const codes = offenders.map((seed) => seed.plateCode).join(', ');
+    const codes = offenders.map((seed) => `${seed.plateCode} (${seed.climateKoppen})`).join(', ');
     throw new Error(
-      `Köppen⇒caveat invariant violated: province(s) [${codes}] have a Köppen code but no ` +
-        'climate note. Per il-data-dictionary §2.1 the MGM methodological caveat is mandatory ' +
-        '— a bare Köppen code must not ship.',
+      `Köppen⇒caveat invariant violated: province(s) [${codes}] have a Köppen code with a ` +
+        'missing OR mismatched climate note. Per il-data-dictionary §2.1 the MGM methodological ' +
+        'caveat is mandatory AND must correspond to the province’s own Köppen code — a bare ' +
+        'or wrong-class caveat must not ship.',
     );
   }
 }
