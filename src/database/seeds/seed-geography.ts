@@ -12,23 +12,40 @@ export interface SeedGeographyResult {
 }
 
 /**
- * Köppen⇒caveat invariant (il-data-dictionary §2.1): a province with a Köppen
- * code MUST carry the mandatory MGM methodological note — a bare "Csa" must
- * never ship (esp. Ankara/Van). Enforced at seed time so the 81-province scale-up
- * (batch 2+) cannot silently violate it: a missing note aborts the seed loudly
- * instead of publishing a context-free climate code.
+ * Köppen⇒caveat invariant (il-data-dictionary §2.1): a province with a Köppen code
+ * MUST carry the mandatory MGM methodological note, AND that note must CORRESPOND to
+ * the province's own code — a bare "Csa" must never ship (esp. Ankara/Van), and a
+ * Csa-flavoured caveat must never sit on a Cfa row (or vice versa).
+ *
+ * The correspondence check (note must contain its own code substring) matters from
+ * Batch 2 wave-2 on: that wave introduced the platform's SECOND climate class (Cfa,
+ * via sibling caveat constants), so a copy-paste that pairs the wrong caveat with a
+ * code became structurally possible for the first time. Wave-3 (Ege) adds still more
+ * classes (Csb…), so this guard is enforced at seed time to keep the 81-province
+ * scale-up honest: a missing OR mismatched note aborts the seed loudly instead of
+ * publishing a context-free / wrong-context climate code. Each caveat constant names
+ * its own code in its opening clause ("…bu ili Csa …" / "…bu ili Cfa …"), so the
+ * substring test is self-maintaining — a new class passes as soon as its caveat names
+ * its code, and a mismatch fails. (Full 3-letter codes don't cross-match: "Csa" is
+ * absent from the Cfa caveat and vice versa.)
  */
 export function assertKoppenCaveatInvariant(seeds: readonly ProvinceSeed[]): void {
-  const offenders = seeds.filter(
-    (seed) => seed.climateKoppen.trim() !== '' && seed.climateNoteTr.trim() === '',
-  );
+  const offenders = seeds.filter((seed) => {
+    const code = seed.climateKoppen.trim();
+    if (code === '') return false; // no code → no caveat required
+    const note = seed.climateNoteTr.trim();
+    // Violation if the caveat is absent (bare code) OR does not name its own code
+    // (a mismatched / copy-pasted caveat from a different climate class).
+    return note === '' || !note.includes(code);
+  });
 
   if (offenders.length > 0) {
-    const codes = offenders.map((seed) => seed.plateCode).join(', ');
+    const codes = offenders.map((seed) => `${seed.plateCode} (${seed.climateKoppen})`).join(', ');
     throw new Error(
-      `Köppen⇒caveat invariant violated: province(s) [${codes}] have a Köppen code but no ` +
-        'climate note. Per il-data-dictionary §2.1 the MGM methodological caveat is mandatory ' +
-        '— a bare Köppen code must not ship.',
+      `Köppen⇒caveat invariant violated: province(s) [${codes}] have a Köppen code with a ` +
+        'missing OR mismatched climate note. Per il-data-dictionary §2.1 the MGM methodological ' +
+        'caveat is mandatory AND must correspond to the province’s own Köppen code — a bare ' +
+        'or wrong-class caveat must not ship.',
     );
   }
 }
@@ -66,8 +83,9 @@ function rowMatchesSeed(row: Province, seed: ProvinceSeed): boolean {
 
 /**
  * Seeds the geography base data (the platform's most critical seed — CLAUDE.md
- * §5). Currently the 14 fact-checked provinces (pilot-5 + Batch 2 wave-1,
- * Güneydoğu Anadolu); scales to 81 once the remaining batches clear fact-check.
+ * §5). Currently the 24 fact-checked provinces (pilot-5 + Batch 2 wave-1 Güneydoğu
+ * Anadolu + Batch 2 wave-2 Marmara); scales to 81 as the remaining batches clear
+ * an independent fact-check.
  *
  * IDEMPOTENT by design, PER ROW: keyed on the unique `plate_code`, each province
  * is INDEPENDENTLY inserted if absent, refreshed if its data drifted, or LEFT
@@ -80,8 +98,8 @@ function rowMatchesSeed(row: Province, seed: ProvinceSeed): boolean {
  * The per-row independence is what makes an INCREMENTAL rollout correct: adding a
  * batch means re-seeding the SAME DB with a longer list, so a real run is a MIXED
  * batch — the already-present rows are no-ops while only the new rows insert (e.g.
- * pilot-5 present + the full 14-list → `{inserted:9, unchanged:5}`). That mixed
- * path is regression-tested in `province.e2e-spec`.
+ * the 14 pilot+wave-1 rows present + the full 24-list → `{inserted:10, unchanged:14}`).
+ * That mixed path is regression-tested in `province.e2e-spec`.
  *
  * `provinces` defaults to the full `SEED_PROVINCES` set (what the CLI runs);
  * accepting the list as a parameter lets tests drive the exact rollout phases
