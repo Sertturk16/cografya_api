@@ -1189,6 +1189,11 @@ describe('Province (e2e)', () => {
     expect(body.landformNoteTr).toContain('Aydos');
     expect(body.landformNoteTr).toContain('538');
     expect(body.landformNoteTr).toContain('Kuzey Anadolu Fayı');
+    // The style-only prose rewrite landed (owner feedback: the draft read as AI-generated):
+    // the old ALL-CAPS emphasis "DEĞİL" is gone (CONTENT-STYLE.md §2 forbids ALL CAPS in
+    // shipped prose). The distinctive fact tokens above survive BOTH the old and rewritten
+    // prose, so this negative assertion is what actually proves the rewrite was applied.
+    expect(body.landformNoteTr).not.toContain('DEĞİL');
     // hydrography: İSKİ live-data narrative; the "Alibey" (NOT "Alibeyköy") dam-name fix is
     // the fact-check's specific correction — the corrected form is present in the structured
     // list and the old form is absent.
