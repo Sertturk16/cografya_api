@@ -46,10 +46,27 @@ import {
  *   `populationDensity` is untouched — still SERVER-COMPUTED from our locked population÷area
  *   (2885), deliberately NOT overridden to TÜİK's own 2943 (a known Batch-1 area-source
  *   delta; our shown density must stay consistent with our shown population and area).
- * DELIBERATELY NULL (not invented — dictionary defers these to the production batch): the
- *   OTHER four pilots (Ankara/İzmir/Van/Antalya) and every Batch 2 province keep
- *   landformNoteTr AND all PR-5a detail-section fields null until their own fact-checked
- *   content batch — an unverified fact stays absent, never invented.
+ * WAVE-1 DEEP CONTENT (plates 06/35/65/07 — Ankara, İzmir, Van, Antalya): the four OTHER
+ *   pilots now carry the SAME full PR-5a detail-section field set as İstanbul, from NOVA's
+ *   independently fact-checked "Dalga 1" deep-content draft (verdict SEED-READY WITH
+ *   CORRECTIONS — all six corrections applied before seeding, incl. the Antalya
+ *   Kızlarsivrisi 3.070→3.086 m factual fix). Each il is written to its OWN geographic
+ *   character (Ankara: plato/karasal + Tuz Gölü closed basin; İzmir: graben-horst/seismic +
+ *   2020 Sisam quake; Van: volkanik set gölü/kapalı havza + 2011 quakes; Antalya: karstic/
+ *   Akdeniz coast), NOT a palette-swapped copy of İstanbul. Same load-bearing framings as
+ *   the pilot: urbanizationRate=100.00 is the 6360-Kanun büyükşehir legal artifact (all four
+ *   büyükşehir since 2014), shipped WITH its methodological note in settlementNoteTr;
+ *   economyIndicator is the 2024 TÜİK GSYH-share bulletin; netMigrationRate is the signed
+ *   2024 TÜİK İç Göç value (Van the sole negative, -20.02 ‰). No schema/DTO/OpenAPI change
+ *   (every field exists since the İstanbul pilot).
+ *   • Content:     Owner's Inbox/il-detay-genisletme/wave1-pilot-deep-content-draft.md
+ *   • Style rules: CONTENT-STYLE.md (orchestrator root — binding for shipped prose)
+ *   • Fact-check:  Owner's Inbox/il-detay-genisletme/wave1-pilot-deep-content-factcheck.md
+ *   • Ledger:      data-provenance.md (root) — "İl Detay Sayfası — Derinlik İçerik Dalga 1"
+ * DELIBERATELY NULL (not invented — deferred to a later fact-checked content batch): every
+ *   Batch 2 province keeps landformNoteTr AND all PR-5a detail-section fields null until its
+ *   own content batch clears an independent fact-check — an unverified fact stays absent,
+ *   never invented.
  * DERIVED, NOT STORED HERE: centroid / bounding-box (from boundary GeoJSON at
  *   build time, dictionary field #9) — see the entity's header note.
  * ─────────────────────────────────────────────────────────────────────────────
@@ -349,7 +366,71 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     climateNoteTr:
       MGM_KOPPEN_CAVEAT_TR +
       ' Ankara, bu alternatif sınıflandırmalarda yarı-kurak step iklimi olarak ayrışır.',
-    landformNoteTr: null,
+    // ── Ankara deep content (wave-1 — see the WAVE-1 DEEP CONTENT note above). Seven detail
+    //    fields transcribed from NOVA's fact-checked "Dalga 1" draft. İç Anadolu / karasal
+    //    framing: plato character + Tuz Gölü closed basin (landform); Sakarya/Kızılırmak +
+    //    ASKİ dams (hydrography). urbanizationRate=100 is the 6360 legal artifact framed in
+    //    settlementNoteTr; economyIndicator is the 2024 TÜİK GSYH share (%10,5).
+    landformNoteTr:
+      "Ankara, İç Anadolu Bölgesi'nin genel karakterine uygun biçimde dağlardan çok " +
+      'platolarla kaplıdır; il topraklarının büyük bölümü ortalama 900-1.000 metre ' +
+      'yükseklikteki Anadolu Platosu üzerinde yer alır. Ovalar sınırlıdır — başlıcaları ' +
+      "Ankara Ovası ve Haymana Ovası'dır.\n\n" +
+      'İlin kuzeyinde, Kızılcahamam ve Çamlıdere ilçeleri çevresinde Köroğlu-Işık Dağları ' +
+      'volkanik kütlesi yükselir; bu kesim ilin en engebeli bölümüdür ve Tersiyer dönemi ' +
+      'volkanizmasının izlerini taşır. Güneydoğuda Elmadağ, doğuda İdris Dağı ilin diğer ' +
+      'önemli yükseltileridir.\n\n' +
+      "İlin en güneydoğu ucunda, Şereflikoçhisar ilçesi sınırları içinde Tuz Gölü'nün kuzey " +
+      "kıyısı yer alır. Göl büyük ölçüde komşu Aksaray ve Konya illerinde kalır; Ankara'nın " +
+      "bu en güneydeki ilçesi Türkiye'nin ikinci büyük gölünü oluşturan kapalı havzanın bir " +
+      'parçasıdır.',
+    introTr:
+      "Ankara, Türkiye'nin başkenti ve nüfus bakımından İstanbul'dan sonra ikinci büyük " +
+      "ilidir. İç Anadolu Bölgesi'nin kuzeybatısında, Anadolu Platosu üzerinde kuruludur. " +
+      "Şehir, 13 Ekim 1923'te başkent ilan edilmesinin ardından küçük bir Anadolu " +
+      'kasabasından bugünkü büyüklüğüne ulaşmıştır.',
+    hydrographyNoteTr:
+      "Ankara'nın su ağı, kuzeybatısında doğan Sakarya Nehri ile ilin güneydoğusundan geçen " +
+      "Kızılırmak'a dayanır. Sakarya Nehri'nin kaynağı Çamlıdere ilçesindedir; nehir buradan " +
+      'kuzeybatıya akarak Sakarya iline geçer. Kızılırmak ise ilin güneydoğu kesiminden ' +
+      'yaklaşık 256 kilometre boyunca geçer. Şehir merkezinden geçen Çubuk, İncesu ve Ova ' +
+      "çayları birleşerek Ankara Çayı'nı oluşturur; bu çay da Sakarya Nehri'ne katılır.\n\n" +
+      'İlin içme suyu ihtiyacı ASKİ tarafından işletilen barajlardan karşılanır: Çamlıdere, ' +
+      'Kurtboğazı, Bayındır ile Çubuk I ve Çubuk II. Çamlıdere Barajı, yaklaşık 1,2 milyar ' +
+      "m³ kapasitesiyle bu barajların en büyüğüdür. Çubuk I, 1936'da tamamlanan Cumhuriyet " +
+      'döneminin ilk barajıdır. Kesikköprü ve Sarıyar barajları Kızılırmak ve Sakarya ' +
+      'üzerinde enerji üretimi amacıyla işletilir.\n\n' +
+      'İlin güneyinde, Gölbaşı ilçesinde yer alan Mogan ve Eymir gölleri başlıca doğal ' +
+      'gölleridir. Mogan Gölü yaklaşık 5 km uzunluğunda, 4 metreyi geçmeyen bir derinliğe ' +
+      "sahiptir. Eymir Gölü, Mogan Gölü'nden beslenir.",
+    hydrographyFeatures: [
+      { name: 'Çamlıdere Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Kurtboğazı Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Bayındır Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Çubuk I Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Çubuk II Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Kesikköprü Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Sarıyar Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Sakarya Nehri', type: HydrographyFeatureType.Nehir },
+      { name: 'Kızılırmak', type: HydrographyFeatureType.Nehir },
+      { name: 'Mogan Gölü', type: HydrographyFeatureType.Gol },
+      { name: 'Eymir Gölü', type: HydrographyFeatureType.Gol },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: 8.91,
+    settlementNoteTr:
+      "Ankara'da da TÜİK'in il/ilçe merkezi nüfus oranı %100 çıkıyor — büyükşehir " +
+      'statüsündeki illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 ' +
+      'sayılı Kanun) bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor. Ankara ' +
+      '2024 yılında 202.402 kişi aldı, 150.373 kişi verdi; net göç hızı binde +8,91 ile ' +
+      "İstanbul'un ardından Türkiye'nin en yüksek pozitif değerlerinden birine ulaştı.",
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%10,5',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '35',
@@ -369,7 +450,64 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── İzmir deep content (wave-1 — see the WAVE-1 DEEP CONTENT note above). Ege / graben-
+    //    horst framing: horst-graben relief + the 30 Ekim 2020 Sisam quake (landform, dual
+    //    Kandilli 6,9 / AFAD 6,6 magnitudes preserved as sourced); Gediz delta + İZSU dams
+    //    (hydrography). economyIndicator is the 2024 TÜİK GSYH share (%5,7).
+    landformNoteTr:
+      "İzmir, Ege Bölgesi'nin karakteristik graben-horst yapısı üzerinde kuruludur. Kentin " +
+      'çevresini oluşturan çöküntü alanının kuzeyinde Yamanlar Dağı, doğusunda Nif Dağı, ' +
+      'güneyinde Bozdağlar yükselir. Bu dağlar arasında kalan Gediz, Küçük Menderes ve ' +
+      'Bakırçay grabenleri ilin tarım ovalarını oluşturur.\n\n' +
+      "İlin en yüksek noktası, Bozdağlar'ın Ödemiş yakınlarındaki 2.159 metrelik zirvesidir; " +
+      'bu nokta aynı zamanda bir kayak turizmi merkezidir. Kuzeyde Bergama ve Dikili ' +
+      'çevresini Madra Dağı ve Yunt Dağı kütleleri kaplar.\n\n' +
+      "Bu graben-horst yapısı, İzmir'i Türkiye'nin en aktif deprem bölgelerinden birine " +
+      'dönüştürür: dağları oluşturan horst blokları ile ovaları oluşturan graben ' +
+      'çöküntülerinin sınırındaki fay hatları bölgenin sismik hareketliliğinin ana ' +
+      "kaynağıdır. 30 Ekim 2020'de merkez üssü Sisam (Yunanistan) açıkları olan bir deprem " +
+      "oldu; büyüklüğü Kandilli Rasathanesi'ne göre 6,9, AFAD'a göre 6,6 idi. Depremin en " +
+      "ağır hasarı, merkez üssüne 70 km uzaklıktaki İzmir'in Bayraklı ilçesinde görüldü.",
+    introTr:
+      'İzmir, Ege Denizi kıyısındaki İzmir Körfezi çevresinde kurulu, nüfus bakımından ' +
+      "Türkiye'nin üçüncü büyük ilidir. Kentin kökeni, Bayraklı Höyüğü'nde ortaya çıkarılan " +
+      'antik Smyrna yerleşimine, MÖ 3. binyıla kadar uzanır. Bugün Türkiye gayrisafi yurt ' +
+      "içi hasılasının %5,7'sini tek başına üretir.",
+    hydrographyNoteTr:
+      "İlin en büyük akarsuyu, Ege Bölgesi'nde Büyük Menderes'ten sonra ikinci sırada yer " +
+      "alan Gediz Nehri'dir. Nehir, Karşıyaka, Çiğli, Menemen ve Foça ilçeleri sınırları " +
+      "içinde Türkiye'nin dördüncü büyük deltasını oluşturarak Ege Denizi'ne dökülür; bu " +
+      "delta 1998'de Ramsar Sözleşmesi kapsamına alınmıştır. İlin güneyinde Küçük Menderes " +
+      'Nehri, Selçuk yakınlarında denize ulaşır; kuzeyde ise Bakırçay, Bergama ile Dikili ' +
+      'arasında kendi deltasını oluşturur.\n\n' +
+      'İlin içme suyu ihtiyacı İZSU tarafından işletilen barajlardan karşılanır: Tahtalı, ' +
+      'Balçova, Gördes, Ürkmez ve Çeşme yarımadasındaki Alaçatı Kutlu Aktaş. Bunlardan ' +
+      'Tahtalı ve Gördes kentin su ihtiyacının büyük bölümünü karşılar.',
+    hydrographyFeatures: [
+      { name: 'Tahtalı Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Balçova Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Gördes Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Ürkmez Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Alaçatı Kutlu Aktaş Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Gediz Nehri', type: HydrographyFeatureType.Nehir },
+      { name: 'Küçük Menderes Nehri', type: HydrographyFeatureType.Nehir },
+      { name: 'Bakırçay', type: HydrographyFeatureType.Nehir },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: 3.53,
+    settlementNoteTr:
+      "Büyükşehir statüsündeki illerde olduğu gibi İzmir'in de TÜİK il/ilçe merkezi nüfus " +
+      'oranı %100 görünür; belde ve köylerin idari tüzel kişiliğinin kaldırılması (6360 ' +
+      'sayılı Kanun) bu rakamın kaynağıdır, ilin fiilen tamamen kentleştiği anlamına gelmez. ' +
+      'İzmir 2024 yılında 117.889 kişi aldı, 102.040 kişi verdi; net göç hızı binde +3,53 ' +
+      "ile pozitif ama Ankara ve Antalya'nın gerisinde kaldı.",
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%5,7',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '65',
@@ -391,7 +529,71 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     climateNoteTr:
       MGM_KOPPEN_CAVEAT_TR +
       ' Van, bu alternatif sınıflandırmalarda karasal/göl-etkili iklim olarak ayrışır.',
-    landformNoteTr: null,
+    // ── Van deep content (wave-1 — see the WAVE-1 DEEP CONTENT note above). Doğu Anadolu /
+    //    volkanik + kapalı havza framing: Van Gölü as a Nemrut volcanic-dam lake + the 2011
+    //    Erçiş/Edremit quakes (landform); the göl's sodalı physical properties + DSİ dams
+    //    (hydrography). netMigrationRate is the sole NEGATIVE of the four (-20.02 ‰);
+    //    economyIndicator is the 2024 TÜİK GSYH share (%0,5, Atlas-ruled metric choice).
+    landformNoteTr:
+      'Van, jeolojik olarak genç bir volkanik ve tektonik bölgede yer alır. İlin batısındaki ' +
+      "Van Gölü, yaklaşık 200 bin yıl önce Nemrut Dağı'nın patlayıp lav akıntılarıyla " +
+      'bölgenin drenajını tıkaması sonucu oluşmuş bir volkanik set gölüdür. Nemrut Dağı, ' +
+      'tepesinde 6 kilometre çapında bir kalderası olan, 2.935 metre yükseklikte sönmüş bir ' +
+      'yanardağdır.\n\n' +
+      "Gölün kuzeyinde yükselen Süphan Dağı ise 4.058 metreyle Ağrı Dağı ve Cilo Dağı'nın " +
+      "ardından Anadolu'nun üçüncü yüksek zirvesidir; tepesi yıl boyunca buzulla kaplıdır. Bu " +
+      "iki volkanik kütle, Van Gölü Kapalı Havzası'nı çevreleyen dağ sınırının bir parçasını " +
+      'oluşturur; havza güneyden Bitlis Masifi, doğu ve kuzeyden Tendürek ve diğer volkanik ' +
+      'kütlelerle çevrilidir.\n\n' +
+      "İl, karmaşık bir fay sistemi üzerinde bulunur. 23 Ekim 2011'de merkez üssü Erçiş " +
+      'ilçesine bağlı Tabanlı köyü olan, büyüklüğü 7,2 olarak ölçülen bir deprem meydana ' +
+      "geldi; 604 kişi hayatını kaybetti. Aynı yılın 9 Kasım'ında Edremit'te 5,6 büyüklüğünde " +
+      'ikinci bir deprem oldu.',
+    introTr:
+      "Van, Doğu Anadolu Bölgesi'nin en doğusunda, Türkiye'nin en büyük gölü olan Van " +
+      "Gölü'nün doğu kıyısında kuruludur. İl toprakları, denize akışı olmayan bir kapalı " +
+      'havzanın parçasıdır. 2011 yılındaki iki büyük depremin ardından kent merkezi büyük ' +
+      'ölçüde yeniden inşa edilmiştir.',
+    hydrographyNoteTr:
+      "Van Gölü, 3.713 km² yüzölçümüyle Türkiye'nin en büyük gölü ve dünyanın en büyük " +
+      'sodalı gölüdür. Ortalama derinliği 171 metre, en derin noktası 451 metredir; deniz ' +
+      'seviyesinden yüksekliği yaklaşık 1.646 metredir. Suyu tuzlu ve sodalıdır (binde 19 ' +
+      'tuzluluk, pH 9,8); bu yüksek alkalinite, yüksek rakımına ve sert kış iklimine rağmen ' +
+      'gölün donmasını engeller.\n\n' +
+      "Van Gölü'nün bir çıkışı yoktur — havzaya giren tüm sular buharlaşma dışında bir yolla " +
+      'denize ulaşamaz. Gölü besleyen başlıca akarsular Bendimahi, Karasu, Zilan, Deliçay ve ' +
+      'Engil çaylarıdır; bunlardan Bendimahi, debisi bakımından en büyük koldur. Havzada Van ' +
+      'Gölü dışında Erçek, Nazik ve Nemrut (Nemrut Dağı kalderası içinde) gölleri de yer ' +
+      'alır.\n\n' +
+      'DSİ tarafından işletilen Koçköprü, Sarımehmet, Morgedik ve Zernek barajları ilin ' +
+      'sulama suyu ihtiyacının büyük bölümünü karşılar; Sarımehmet Barajı, Erciş ilçesinde ' +
+      "Karasu Çayı üzerinde 1991'de tamamlanmıştır.",
+    hydrographyFeatures: [
+      { name: 'Van Gölü', type: HydrographyFeatureType.Gol },
+      { name: 'Erçek Gölü', type: HydrographyFeatureType.Gol },
+      { name: 'Sarımehmet Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Zernek Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Koçköprü Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Morgedik Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Bendimahi Çayı', type: HydrographyFeatureType.Nehir },
+      { name: 'Karasu Çayı', type: HydrographyFeatureType.Nehir },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: -20.02,
+    settlementNoteTr:
+      "Van'ın TÜİK il/ilçe merkezi nüfus oranı da, diğer büyükşehirlerde olduğu gibi, " +
+      "%100'dür — belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı " +
+      'Kanun) bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor. Van, 2024 ' +
+      'yılında 31.418 kişi aldı, 54.023 kişi verdi; net göç hızı binde -20,02 ile dört pilot ' +
+      'il arasında tek negatif değere sahip oldu ve aldığından yaklaşık 1,7 kat fazla göç ' +
+      'verdi.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,5',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '07',
@@ -411,7 +613,72 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Antalya deep content (wave-1 — see the WAVE-1 DEEP CONTENT note above). Akdeniz /
+    //    karstic framing: the Toros/Bey Dağları coastal squeeze + karst forms (düden/obruk/
+    //    polye) and Kızlarsivrisi=3.086 m (the fact-check factual correction from 3.070 m);
+    //    Manavgat/Aksu rivers + Avlan polje lake (hydrography). netMigrationRate=+9.09 ‰ is
+    //    the HIGHEST of the four; economyIndicator is the 2024 TÜİK GSYH share (%3,4).
+    landformNoteTr:
+      "Antalya, Batı Toroslar'ın Akdeniz'e paralel uzanan Bey Dağları kesimiyle kıyı " +
+      'arasında sıkışmış dar bir kıyı ovasından ibarettir; dağlar çoğu yerde denize 20-30 ' +
+      "kilometre mesafede yükselir. İlin en yüksek noktası, Bey Dağları'nda yer alan 3.086 " +
+      "metrelik Kızlarsivrisi'dir.\n\n" +
+      'İl, kireçtaşı ana kayasının hâkim olduğu geniş bir karstik arazidir. Yağmur suyu, ' +
+      'yüzeyde akmak yerine büyük ölçüde yer altına sızar; bu süreç düden, obruk ve polye ' +
+      'gibi şekiller üretir. Düden, suyun yer altına daldığı kuyulardır; obruk, mağara tavanı ' +
+      'çökmesiyle oluşan derin çukurlardır; polye ise geniş bir karstik ovadır. ' +
+      'Antalya-Burdur arasındaki Kestel Polyesi ile ilin batısındaki Elmalı ve Akseki ' +
+      'polyeleri bunların en büyükleridir.\n\n' +
+      "Karstik yapı, ilin bilinen şelalelerinin de kaynağıdır: Düden Çayı, Toroslar'dan gelen " +
+      'suyunu önce şehir merkezinde, sonra Lara kıyısında iki ayrı şelaleyle denize ' +
+      "boşaltır. Manavgat Nehri'nin şelalesi ise yüksekten dökülmez; geniş bir alana yayılan " +
+      'güçlü bir debiyle akar.',
+    introTr:
+      "Antalya, Akdeniz kıyısında, Toros Dağları'nın denize en dik indiği kesimlerden " +
+      "birinde kuruludur. Nüfus bakımından Türkiye'nin beşinci büyük ilidir. Kentin kıyı " +
+      "şeridi, MÖ 2. yüzyılda Bergama Kralı II. Attalos tarafından kurulan Attaleia'ya kadar " +
+      'uzanan bir liman kentleri zincirine ev sahipliği yapar.',
+    hydrographyNoteTr:
+      'İlin en düzenli akışlı akarsuyu, Dumanlı kaynağından doğan ve dar kanyonlardan ' +
+      "geçerek Akdeniz'e ulaşan 93 kilometre uzunluğundaki Manavgat Nehri'dir; üzerindeki " +
+      "Oymapınar ve Manavgat barajları enerji üretiminde kullanılır. Isparta'nın Sütçüler " +
+      "ilçesi yakınından doğan Köprüçay ise Toroslar'daki dar kanyonlardan akar ve rafting " +
+      'sporu için tercih edilir. Aksu Nehri, ilin doğusunda tarım arazilerini sular.\n\n' +
+      'İlin içme ve sulama suyu, DSİ tarafından işletilen Karacaören I ve II barajlarından ' +
+      'karşılanır; bu barajlar Aksu Çayı üzerinde yer alır. Kentin büyüyen su ihtiyacı ' +
+      "nedeniyle Manavgat'taki Oymapınar Barajı'ndan cazibeyle su aktarımı da " +
+      'planlanmaktadır.\n\n' +
+      'İlin batısında, Elmalı ilçesindeki Avlan Gölü karstik bir polye gölüdür; 1.030 metre ' +
+      'rakımda, yaklaşık 850 hektarlık bir alana yayılır. 1975-1980 arasında açılan bir ' +
+      "kanalla tamamen kurutulmuş, bölge halkının girişimiyle 2001'de kapaklar kapatılarak " +
+      'yeniden su tutmaya başlamıştır.',
+    hydrographyFeatures: [
+      { name: 'Oymapınar Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Manavgat Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Karacaören I Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Karacaören II Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Manavgat Nehri', type: HydrographyFeatureType.Nehir },
+      { name: 'Aksu Nehri', type: HydrographyFeatureType.Nehir },
+      { name: 'Köprüçay', type: HydrographyFeatureType.Nehir },
+      { name: 'Düden Çayı', type: HydrographyFeatureType.Nehir },
+      { name: 'Avlan Gölü', type: HydrographyFeatureType.Gol },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: 9.09,
+    settlementNoteTr:
+      "Antalya için de aynı yapısal desen geçerli: TÜİK'in il/ilçe merkezi nüfus oranı " +
+      "%100'dür, çünkü büyükşehir statüsündeki illerde belde ve köylerin idari tüzel kişiliği " +
+      "6360 sayılı Kanun'la kaldırılmıştır — ilin fiilen tamamen kentleştiği anlamına gelmez. " +
+      'Antalya 2024 yılında 96.618 kişi aldı, 71.999 kişi verdi; net göç hızı binde +9,09 ile ' +
+      "dört pilot il arasında en yüksek pozitif değere ulaştı ve başkent Ankara'yı bile " +
+      'geride bıraktı.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%3,4',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
 ];
 
