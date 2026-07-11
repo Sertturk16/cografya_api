@@ -64,6 +64,33 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
     caveatContains: 'Csa',
+    // ── İstanbul deep-content pilot (this PR): the FIRST province with the PR-5a
+    //    detail-section fields populated. Restated INDEPENDENTLY here (NOT imported from
+    //    the seed) from the fact-checked draft (istanbul-deep-content-{draft,factcheck}.md,
+    //    zero corrections). Structured/scalar fields asserted EXACTLY; the four prose fields
+    //    are asserted by distinctive-token `toContain` in the dedicated İstanbul detail test
+    //    below — the same discipline the climate caveat uses (no brittle full-prose match).
+    urbanizationRate: 100,
+    netMigrationRate: 1.66,
+    hydrographyFeatures: [
+      { name: 'Ömerli Barajı', type: 'baraj' },
+      { name: 'Terkos Barajı', type: 'baraj' },
+      { name: 'Büyükçekmece Barajı', type: 'baraj' },
+      { name: 'Darlık Barajı', type: 'baraj' },
+      { name: 'Sazlıdere Barajı', type: 'baraj' },
+      { name: 'Pabuçdere Barajı', type: 'baraj' },
+      { name: 'Alibey Barajı', type: 'baraj' },
+      { name: 'Kazandere Barajı', type: 'baraj' },
+      { name: 'Elmalı Barajı', type: 'baraj' },
+      { name: 'Istrancalar Barajı', type: 'baraj' },
+    ],
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%29,2',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     slug: 'ankara',
@@ -785,8 +812,45 @@ describe('Province (e2e)', () => {
     expect(istanbulUpdatedAtAfterReseed).toBe(istanbulUpdatedAtAfterWave3);
   });
 
-  it('round-trips a seeded Province (transformer + array + deliberate nulls)', async () => {
-    const istanbul = await dataSource.getRepository(Province).findOneByOrFail({ plateCode: '34' });
+  it('re-seed UPDATES İstanbul when its detail fields drifted (not skipped as unchanged)', async () => {
+    // Simulates the REAL production transition this PR ships: an İstanbul row that predates
+    // the deep-content fields (all seven null) must be recognised as DRIFTED and refreshed —
+    // proving `rowMatchesSeed` compares the detail fields, so the update is neither skipped
+    // (mis-counted `unchanged`) nor duplicated (`inserted`). The re-seed restores the correct
+    // content, leaving the DB in the same 31-row state the later tests assume.
+    const repo = dataSource.getRepository(Province);
+    await repo.update(
+      { plateCode: '34' },
+      {
+        introTr: null,
+        landformNoteTr: null,
+        hydrographyNoteTr: null,
+        hydrographyFeatures: null,
+        urbanizationRate: null,
+        netMigrationRate: null,
+        settlementNoteTr: null,
+        economyIndicator: null,
+      },
+    );
+
+    const result = await seedGeography(dataSource);
+    // Exactly İstanbul drifted → 1 updated, the other 30 untouched, nothing inserted.
+    expect(result).toEqual({ inserted: 0, updated: 1, unchanged: 30, total: 31 });
+
+    // The seven fields are restored from the seed (the update actually wrote content).
+    const istanbul = await repo.findOneByOrFail({ plateCode: '34' });
+    expect(istanbul.urbanizationRate).toBe(100);
+    expect(istanbul.netMigrationRate).toBe(1.66);
+    expect(istanbul.hydrographyFeatures).toHaveLength(10);
+    expect(istanbul.economyIndicator).not.toBeNull();
+    expect(istanbul.introTr).toContain('Avrupa');
+    // Still exactly 31 rows — an UPDATE, never an insert/delete.
+    expect(await repo.count()).toBe(31);
+  });
+
+  it('round-trips a seeded Province (transformer + array + İstanbul deep-content jsonb)', async () => {
+    const repo = dataSource.getRepository(Province);
+    const istanbul = await repo.findOneByOrFail({ plateCode: '34' });
     // numeric(9,6) comes back through the transformer as a real number
     expect(istanbul.latitude).toBe(40.9819);
     expect(istanbul.longitude).toBe(28.8208);
@@ -795,17 +859,46 @@ describe('Province (e2e)', () => {
     // the MGM caveat travels with the Köppen value (never a bare code)
     expect(istanbul.climateKoppen).toBe('Csa');
     expect(istanbul.climateNoteTr).toContain('MGM');
-    // unseeded research field stays null (never invented for the pilot)
-    expect(istanbul.landformNoteTr).toBeNull();
-    // NEW detail-section fields ship as SCHEMA ONLY — no content this PR, so every
-    // one stays null for the pilot (deliberately unpopulated, never invented).
-    expect(istanbul.introTr).toBeNull();
-    expect(istanbul.hydrographyNoteTr).toBeNull();
-    expect(istanbul.hydrographyFeatures).toBeNull();
-    expect(istanbul.urbanizationRate).toBeNull();
-    expect(istanbul.netMigrationRate).toBeNull();
-    expect(istanbul.settlementNoteTr).toBeNull();
-    expect(istanbul.economyIndicator).toBeNull();
+    // İstanbul is the deep-content pilot — every detail-section field is populated and
+    // survives the DB round-trip: prose (text), the numeric-rate transformer, the jsonb
+    // array and the jsonb object all come back intact.
+    expect(istanbul.introTr).toContain('Avrupa');
+    expect(istanbul.landformNoteTr).toContain('Aydos');
+    expect(istanbul.hydrographyNoteTr).toContain('İSKİ');
+    expect(istanbul.settlementNoteTr).toContain('6360');
+    expect(istanbul.urbanizationRate).toBe(100);
+    expect(istanbul.netMigrationRate).toBe(1.66);
+    expect(istanbul.hydrographyFeatures).toEqual([
+      { name: 'Ömerli Barajı', type: 'baraj' },
+      { name: 'Terkos Barajı', type: 'baraj' },
+      { name: 'Büyükçekmece Barajı', type: 'baraj' },
+      { name: 'Darlık Barajı', type: 'baraj' },
+      { name: 'Sazlıdere Barajı', type: 'baraj' },
+      { name: 'Pabuçdere Barajı', type: 'baraj' },
+      { name: 'Alibey Barajı', type: 'baraj' },
+      { name: 'Kazandere Barajı', type: 'baraj' },
+      { name: 'Elmalı Barajı', type: 'baraj' },
+      { name: 'Istrancalar Barajı', type: 'baraj' },
+    ]);
+    expect(istanbul.economyIndicator).toEqual({
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%29,2',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    });
+
+    // A base-data-only province (Ankara) keeps EVERY detail field null — the İstanbul
+    // deep-content update is surgical and must NOT leak into sibling rows.
+    const ankara = await repo.findOneByOrFail({ plateCode: '06' });
+    expect(ankara.introTr).toBeNull();
+    expect(ankara.landformNoteTr).toBeNull();
+    expect(ankara.hydrographyNoteTr).toBeNull();
+    expect(ankara.hydrographyFeatures).toBeNull();
+    expect(ankara.urbanizationRate).toBeNull();
+    expect(ankara.netMigrationRate).toBeNull();
+    expect(ankara.settlementNoteTr).toBeNull();
+    expect(ankara.economyIndicator).toBeNull();
   });
 
   it('GET /api/provinces returns all 31, plate-ordered, lean (no detail leak)', async () => {
@@ -1010,19 +1103,42 @@ describe('Province (e2e)', () => {
         neighborPlateCodes: expected.neighborPlateCodes,
         climateKoppen: expected.climateKoppen,
         climateClassTr: expected.climateClassTr,
-        // deferred/unpopulated fields — schema ships this PR, content later; every
-        // one must be null for the pilot (never invented).
-        landformNoteTr: null,
-        introTr: null,
-        hydrographyNoteTr: null,
-        hydrographyFeatures: null,
-        urbanizationRate: null,
-        netMigrationRate: null,
-        settlementNoteTr: null,
-        economyIndicator: null,
       });
       expect(body.latitude).toBe(expected.latitude);
       expect(body.longitude).toBe(expected.longitude);
+
+      // Detail-section fields. İstanbul is the deep-content pilot (this PR) — its
+      // structured fields are asserted EXACTLY here (prose fields get token checks in the
+      // dedicated İstanbul detail test); every OTHER province is base-data-only and must
+      // keep all seven null, so the İstanbul update never leaks into a sibling row.
+      if (expected.plateCode === '34') {
+        expect(body).toMatchObject({
+          urbanizationRate: expected.urbanizationRate,
+          netMigrationRate: expected.netMigrationRate,
+          hydrographyFeatures: expected.hydrographyFeatures,
+          economyIndicator: expected.economyIndicator,
+        });
+        for (const prose of [
+          body.introTr,
+          body.landformNoteTr,
+          body.hydrographyNoteTr,
+          body.settlementNoteTr,
+        ]) {
+          expect(typeof prose).toBe('string');
+          expect((prose as string).length).toBeGreaterThan(0);
+        }
+      } else {
+        expect(body).toMatchObject({
+          landformNoteTr: null,
+          introTr: null,
+          hydrographyNoteTr: null,
+          hydrographyFeatures: null,
+          urbanizationRate: null,
+          netMigrationRate: null,
+          settlementNoteTr: null,
+          economyIndicator: null,
+        });
+      }
 
       // Köppen⇒caveat invariant at the API boundary: a present Köppen code must
       // carry a non-empty caveat that CORRESPONDS to the province's class —
@@ -1034,6 +1150,48 @@ describe('Province (e2e)', () => {
       expect(body.climateNoteTr).toContain(expected.caveatContains);
     },
   );
+
+  it('GET /api/provinces/istanbul serves the deep-content pilot fields with the fact-checked corrections', async () => {
+    const res = await request(app.getHttpServer()).get('/api/provinces/istanbul').expect(200);
+    const body = res.body as Record<string, unknown>;
+
+    // Prose fields carry the load-bearing, fact-checked facts — asserted by distinctive
+    // token (the same discipline the climate caveat uses), not a brittle full-prose match.
+    expect(body.introTr).toContain('Avrupa');
+    expect(body.introTr).toContain('Asya');
+    // landform: the CORRECTED Aydos altitude (537 → 538) + the AFAD-İRAP-anchored KAF /
+    // seismic context Atlas called out explicitly.
+    expect(body.landformNoteTr).toContain('Aydos');
+    expect(body.landformNoteTr).toContain('538');
+    expect(body.landformNoteTr).toContain('Kuzey Anadolu Fayı');
+    // hydrography: İSKİ live-data narrative; the "Alibey" (NOT "Alibeyköy") dam-name fix is
+    // the fact-check's specific correction — the corrected form is present in the structured
+    // list and the old form is absent.
+    expect(body.hydrographyNoteTr).toContain('İSKİ');
+    const damNames = (body.hydrographyFeatures as Array<{ name: string }>).map((f) => f.name);
+    expect(damNames).toHaveLength(10);
+    expect(damNames).toContain('Alibey Barajı');
+    expect(damNames).not.toContain('Alibeyköy Barajı');
+    // settlement: %100 urbanization is a legal artifact of 6360 and MUST ship WITH its
+    // methodological framing; the signed net-migration value is positive.
+    expect(body.settlementNoteTr).toContain('6360');
+    expect(body.settlementNoteTr).toContain('%100');
+    expect(body.urbanizationRate).toBe(100);
+    expect(body.netMigrationRate).toBe(1.66);
+    // economy: a single TÜİK-anchored structured stat (2024 GSYH share); `value` is the
+    // Turkish percent string the EconomyIndicator contract requires (value: string).
+    expect(body.economyIndicator).toEqual({
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%29,2',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    });
+    // populationDensity stays SERVER-COMPUTED from our locked population÷area (2885), NOT
+    // overridden to TÜİK's own published 2943 (a known Batch-1 area-source delta; our shown
+    // density must stay consistent with the population and area we actually display).
+    expect(body.populationDensity).toBe(2885);
+  });
 
   it('GET /api/provinces/:slug returns 404 for an unseeded slug', async () => {
     // A real, valid province NOT in the seeded 24 → 404 (web renders notFound()).

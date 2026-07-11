@@ -1,3 +1,4 @@
+import { isDeepStrictEqual } from 'node:util';
 import type { DataSource } from 'typeorm';
 import { Province } from '../../province/entities/province.entity';
 import { SEED_PROVINCES, type ProvinceSeed } from './province.seed-data';
@@ -66,6 +67,21 @@ function plateArraysEqual(a: readonly string[], b: readonly string[]): boolean {
  * True when the persisted row already equals the seed across every seeded
  * column, so a re-seed can skip the write. Kept exhaustive (not a hash) so it is
  * obvious which fields participate — add a column to `ProvinceSeed`, add it here.
+ *
+ * The PR-5a detail-section fields (introTr … economyIndicator) are OPTIONAL on the seed:
+ * base-data provinces omit them (undefined), while the İstanbul deep-content pilot sets
+ * them. Two rules keep the comparison honest:
+ *   1. NULL-NORMALISE each optional field (`?? null`) before comparing — an absent-in-seed
+ *      value vs the null the DB stores must read as EQUAL, so a routine base-data re-seed is
+ *      a genuine no-op and never bumps `updated_at` (SEO lastmod honesty, §6). Without this,
+ *      `undefined !== null` would mark all 30 base-data rows as drifted on every re-seed.
+ *   2. The two jsonb fields (`hydrographyFeatures`, `economyIndicator`) use a DEEP,
+ *      key-order-insensitive compare (`isDeepStrictEqual`) because Postgres jsonb re-orders
+ *      object keys on round-trip — a stringify/`===` compare would report a false difference
+ *      and mis-count a steady row as `updated` on every re-seed.
+ * Together these make İstanbul's transition correct BOTH ways: a stale row whose detail
+ * fields are still null is detected as drifted → UPDATED (not skipped as unchanged), and
+ * once populated it re-reads as unchanged → no `updated_at` churn.
  */
 function rowMatchesSeed(row: Province, seed: ProvinceSeed): boolean {
   return (
@@ -84,7 +100,14 @@ function rowMatchesSeed(row: Province, seed: ProvinceSeed): boolean {
     row.climateKoppen === seed.climateKoppen &&
     row.climateClassTr === seed.climateClassTr &&
     row.climateNoteTr === seed.climateNoteTr &&
-    row.landformNoteTr === seed.landformNoteTr
+    row.landformNoteTr === seed.landformNoteTr &&
+    (row.introTr ?? null) === (seed.introTr ?? null) &&
+    (row.hydrographyNoteTr ?? null) === (seed.hydrographyNoteTr ?? null) &&
+    isDeepStrictEqual(row.hydrographyFeatures ?? null, seed.hydrographyFeatures ?? null) &&
+    (row.urbanizationRate ?? null) === (seed.urbanizationRate ?? null) &&
+    (row.netMigrationRate ?? null) === (seed.netMigrationRate ?? null) &&
+    (row.settlementNoteTr ?? null) === (seed.settlementNoteTr ?? null) &&
+    isDeepStrictEqual(row.economyIndicator ?? null, seed.economyIndicator ?? null)
   );
 }
 
