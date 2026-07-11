@@ -635,11 +635,12 @@ describe('Province (e2e)', () => {
   // incremental rollout history (empty → pilot-5 → +wave-1 → +wave-2 → +wave-3 →
   // re-run), so ALL THREE mixed transitions — including THIS PR's real one (24
   // present → +7) — are exercised, not just the homogeneous all-insert/all-no-op
-  // extremes. NOTE (next engineer): this per-wave chain is deliberately kept for
-  // now, but it should NOT grow one phase per remaining wave forever — once a couple
-  // more waves land, collapse it to a representative set (empty→first all-insert,
-  // ONE multi-batch mixed, full no-op), since per-row independence doesn't actually
-  // care how many prior batches the no-op set spans.
+  // extremes. NOTE (next engineer): this per-wave chain is deliberately kept through
+  // wave-3, but it must NOT grow one phase per remaining wave forever. CONCRETE
+  // TRIGGER — at wave-4, stop adding per-wave phases and collapse to a representative
+  // set (empty→first all-insert + ONE multi-batch mixed [the latest transition] +
+  // full no-op), since per-row independence doesn't actually care how many prior
+  // batches the no-op set spans.
   let appliedMigrationNames: string[];
   let pilotOnlySeed: SeedGeographyResult;
   let wave1MixedSeed: SeedGeographyResult;
@@ -931,7 +932,7 @@ describe('Province (e2e)', () => {
   // seeded row leaves them null (base data only), so nothing else exercises a
   // NON-null jsonb round-trip through Postgres. A throwaway fixture row (plate '00',
   // not a real province) is inserted, read back through the API, then deleted in
-  // `finally` so the other tests still see exactly the 24 seeded rows.
+  // `finally` so the other tests still see exactly the 31 seeded rows.
   it('round-trips non-null jsonb + numeric-rate fields through the DB and API', async () => {
     const repo = dataSource.getRepository(Province);
     const fixture = repo.create({
@@ -976,7 +977,7 @@ describe('Province (e2e)', () => {
       // computed density on real inputs: round(1000 / 4) = 250
       expect(body.populationDensity).toBe(250);
     } finally {
-      // Clean up unconditionally so the 24-row count assumed by the other tests
+      // Clean up unconditionally so the 31-row count assumed by the other tests
       // holds even if an assertion above throws.
       await repo.delete({ plateCode: '00' });
     }

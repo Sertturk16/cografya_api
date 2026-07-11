@@ -28,6 +28,13 @@ export interface SeedGeographyResult {
  * substring test is self-maintaining — a new class passes as soon as its caveat names
  * its code, and a mismatch fails. (Full 3-letter codes don't cross-match: "Csa" is
  * absent from the Cfa caveat and vice versa.)
+ *
+ * PRECONDITION when adding the NEXT class: this correspondence check is only sound
+ * while no full Köppen code is a substring of another (holds for Csa/Cfa/Csb — all
+ * 3 chars, pairwise non-substring). If a future class's code IS a substring of an
+ * existing one (or vice versa), `note.includes(code)` could false-positive — switch
+ * to a word-boundary / equality match at that point. Verify this the moment a new
+ * code is introduced.
  */
 export function assertKoppenCaveatInvariant(seeds: readonly ProvinceSeed[]): void {
   const offenders = seeds.filter((seed) => {

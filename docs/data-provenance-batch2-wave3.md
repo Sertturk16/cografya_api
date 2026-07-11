@@ -88,18 +88,16 @@ as soon as its caveat names "Csb" and fails a mismatched (e.g. Csa-flavoured) ca
 row. Proven in `province.e2e-spec` (`assertKoppenCaveatInvariant` block: a Csb-names-Csb
 positive + a Csa-caveat-on-Csb-row negative).
 
-**Csb Turkish class label — `Akdeniz iklimi` (PROVISIONAL, surfaced for an owner ruling —
-NOT invented).** Unlike Cfa (which mapped cleanly onto the distinct curriculum type
-"Karadeniz iklimi" via its "her mevsim yağışlı" definition, RESOLVED at wave-2), Csb has **no
-distinct TYT/AYT-curriculum name of its own**: it is a warm-summer SUBTYPE of the same
-dry-summer Mediterranean family as Csa, and the source explicitly places it there
-(batch2-wave3-ege §2: still in the "kurak yaz / Akdeniz-tipi" family, only "yaz sıcaklığı
-Csa'ya göre bir kademe daha ılıman"). So rather than coin a new label, Csb's
-`climate_class_tr` reuses the existing **`Akdeniz iklimi`**; the distinct Köppen code (`Csb`)
-plus the "yazı sıcak ve kurak" caveat carry the warm-summer nuance. This mirrors the Cfa flow
-(ship a defensible, source-grounded value + surface for a ruling). **Open for the owner:**
-confirm `Akdeniz iklimi` for Csb, or rule a distinct sub-label — a one-constant change
-(`CLIMATE_CLASS_CSB_TR`) either way.
+**Csb Turkish class label — `Akdeniz iklimi` (owner ruling, 2026-07-11 — FINAL).** Unlike Cfa
+(which mapped cleanly onto the distinct curriculum type "Karadeniz iklimi" via its "her mevsim
+yağışlı" definition, RESOLVED at wave-2), Csb has **no distinct TYT/AYT-curriculum name of its
+own**: it is a warm-summer SUBTYPE of the same dry-summer Mediterranean family as Csa, and the
+source explicitly places it there (batch2-wave3-ege §2: still in the "kurak yaz / Akdeniz-tipi"
+family, only "yaz sıcaklığı Csa'ya göre bir kademe daha ılıman" — a distinction the TR lise
+curriculum does not make). So rather than coin a new label, Csb's `climate_class_tr` reuses the
+existing **`Akdeniz iklimi`**; the distinct Köppen code (`Csb`) plus the "yazı sıcak ve kurak"
+caveat carry the warm-summer nuance. Same reasoning that resolved Cfa→"Karadeniz iklimi": match
+the Köppen letter-group's real meaning to the right curriculum category, don't invent one.
 
 ## Slug decisions
 
@@ -141,8 +139,8 @@ TR32 plan + MEB İBBS report (fact-check §A.7).
 
 - **All PR-5a detail-page fields + `landform_note_tr` are `null` for all 7** — base-data wave
   by owner ruling (DEC 2026-07-10). Not invented to satisfy a column.
-- **Csb Turkish-label register** — PROVISIONAL `Akdeniz iklimi`, surfaced for an owner ruling
-  (see Köppen section). A one-constant change if overruled.
+- **Csb Turkish-label register** — RESOLVED to `Akdeniz iklimi` (owner ruling, 2026-07-11 —
+  see Köppen section).
 - **Manisa legacy "Merkez" MGM record origin** — `[TEYİT GEREK]`, low priority, does not affect
   the seeded value (Yunusemre is the confirmed default).
 - **Afyonkarahisar's Cfa vs. Kütahya's Csb outlier** — whether it reflects a real micro-climate

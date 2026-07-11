@@ -142,20 +142,18 @@ const MGM_KOPPEN_CAVEAT_CFA_TR =
  */
 const KOPPEN_CSB = 'Csb';
 /**
- * Turkish curriculum-register class name for Köppen Csb — **PROVISIONAL, surfaced to
- * the owner for a ruling (NOT invented).** Unlike Cfa — which maps cleanly onto a
- * DISTINCT curriculum type ("Karadeniz iklimi", via its "her mevsim yağışlı"
- * definition) — Csb has no distinct TYT/AYT-curriculum name of its own: it is a
- * warm-summer SUBTYPE of the same dry-summer Mediterranean family as Csa, and the
- * source explicitly places it there (batch2-wave3-ege §2: still in the "kurak yaz /
- * Akdeniz-tipi" family, only "yaz sıcaklığı Csa'ya göre bir kademe daha ılıman").
- * So rather than coin a NEW label (the exact thing the task forbids), Csb reuses the
- * EXISTING curriculum name "Akdeniz iklimi"; the distinct Köppen code (Csb) in the
- * same field, plus the "yazı sıcak ve kurak" caveat below, carry the warm-summer
- * nuance the class name elides. This mirrors the Cfa flow (ship a defensible,
- * source-grounded value + surface for an owner ruling — as the initially-seeded Cfa
- * value was later ruled to "Karadeniz iklimi"). If the owner rules a distinct
- * sub-label for Csb, change THIS one constant.
+ * Turkish curriculum-register class name for Köppen Csb — **`Akdeniz iklimi` (owner
+ * ruling, 2026-07-11 — FINAL).** Csb has no distinct TYT/AYT-curriculum name of its
+ * own: unlike Cfa — which maps cleanly onto the DISTINCT type "Karadeniz iklimi" via
+ * its "her mevsim yağışlı" definition — Csb is a warm-summer SUBTYPE of the same
+ * dry-summer Mediterranean family as Csa, and the source explicitly places it there
+ * (batch2-wave3-ege §2: still in the "kurak yaz / Akdeniz-tipi" family, only "yaz
+ * sıcaklığı Csa'ya göre bir kademe daha ılıman" — a distinction the TR lise
+ * curriculum does not make). So rather than coin a new label, Csb reuses the EXISTING
+ * curriculum name "Akdeniz iklimi"; the distinct Köppen code (Csb) in the same field,
+ * plus the "yazı sıcak ve kurak" caveat below, carry the warm-summer nuance the class
+ * name elides. Same reasoning that resolved Cfa→"Karadeniz iklimi": match the Köppen
+ * letter-group's real meaning to the right curriculum category, don't invent one.
  */
 const CLIMATE_CLASS_CSB_TR = 'Akdeniz iklimi';
 /**
