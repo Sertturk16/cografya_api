@@ -1,4 +1,9 @@
 import { GeographicRegion } from '../../common/geographic-region.enum';
+import {
+  HydrographyFeatureType,
+  type EconomyIndicator,
+  type HydrographyFeature,
+} from '../../province/province.types';
 
 /**
  * PILOT-5 il seed data — İstanbul, Ankara, İzmir, Van, Antalya.
@@ -21,9 +26,26 @@ import { GeographicRegion } from '../../common/geographic-region.enum';
  *   • Köppen iklim                → MGM 2023 Köppen raporu, s.11-15 (5/5 = Csa)
  *   • Komşu iller                 → Tier-2 statik coğrafi olgu (fact-check onaylı)
  *
- * DELIBERATELY NULL (not invented — dictionary defers these to the production batch):
- *   • landformNoteTr → yer şekli/jeoloji notu is only PARTIAL in the pilot
- *     (dictionary Bölüm 1 note on field 12); left null until fact-checked.
+ * İSTANBUL DEEP-CONTENT PILOT (plate 34): İstanbul is the FIRST province to carry the
+ *   full PR-5a detail-section field set (introTr, landformNoteTr, hydrographyNoteTr +
+ *   hydrographyFeatures, urbanizationRate, netMigrationRate, settlementNoteTr,
+ *   economyIndicator). These were researched by NOVA and INDEPENDENTLY fact-checked with
+ *   ZERO corrections — the calibration bar for the 81-il rollout.
+ *   • Content:     Owner's Inbox/il-detay-genisletme/istanbul-deep-content-draft.md
+ *   • Fact-check:  Owner's Inbox/il-detay-genisletme/istanbul-deep-content-factcheck.md
+ *   Load-bearing, fact-check-anchored specifics: Aydos Dağı = 538 m (Tier-1 academic,
+ *   corrects an older 537 m); the KAF/seismic context is AFAD-İRAP-sourced; the 10-dam
+ *   list + "Alibey" (NOT "Alibeyköy") come from İSKİ's live API; urbanizationRate = 100.00
+ *   is a real TÜİK-verified LEGAL ARTIFACT of büyükşehir status (6360 sayılı Kanun), not an
+ *   error — it ships WITH its methodological framing in settlementNoteTr; economyIndicator
+ *   is the 2024 TÜİK GSYH-share bulletin (supersedes the older 2023 figure).
+ *   `populationDensity` is untouched — still SERVER-COMPUTED from our locked population÷area
+ *   (2885), deliberately NOT overridden to TÜİK's own 2943 (a known Batch-1 area-source
+ *   delta; our shown density must stay consistent with our shown population and area).
+ * DELIBERATELY NULL (not invented — dictionary defers these to the production batch): the
+ *   OTHER four pilots (Ankara/İzmir/Van/Antalya) and every Batch 2 province keep
+ *   landformNoteTr AND all PR-5a detail-section fields null until their own fact-checked
+ *   content batch — an unverified fact stays absent, never invented.
  * DERIVED, NOT STORED HERE: centroid / bounding-box (from boundary GeoJSON at
  *   build time, dictionary field #9) — see the entity's header note.
  * ─────────────────────────────────────────────────────────────────────────────
@@ -48,6 +70,23 @@ export interface ProvinceSeed {
   climateClassTr: string;
   climateNoteTr: string;
   landformNoteTr: string | null;
+  /**
+   * PR-5a il-detay-sayfası detail-section fields. OPTIONAL on the seed by design: the
+   * base-data waves (pilot base + Batch 2) DELIBERATELY leave them absent (an unverified
+   * fact stays absent, never invented — CLAUDE §5), and a later, independently
+   * fact-checked content batch fills them per il. İstanbul is the first province to carry
+   * them (the deep-content pilot). Absent (undefined) on a seed reads as "not authored yet"
+   * and is normalised to null against the DB in `rowMatchesSeed` (seed-geography.ts), so an
+   * absent-in-seed vs null-in-DB pair is a no-op — the whole base-data set keeps its
+   * `updated_at` frozen on re-seed (SEO lastmod honesty).
+   */
+  introTr?: string | null;
+  hydrographyNoteTr?: string | null;
+  hydrographyFeatures?: HydrographyFeature[] | null;
+  urbanizationRate?: number | null;
+  netMigrationRate?: number | null;
+  settlementNoteTr?: string | null;
+  economyIndicator?: EconomyIndicator | null;
 }
 
 /**
@@ -202,7 +241,79 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── İstanbul deep-content pilot (see the İSTANBUL DEEP-CONTENT PILOT note above).
+    //    All seven values transcribed from the fact-checked draft (zero corrections).
+    landformNoteTr:
+      "İstanbul, jeomorfolojik olarak Çatalca-Kocaeli Bölümü'nde yer alır; il topraklarının " +
+      'büyük bölümünü — dağ ve ovadan çok — aşınım yüzeyleri üzerinde gelişmiş bir plato ' +
+      "(Kocaeli Platosu'nun bir parçası) oluşturur. İlin en yüksek noktası 538 m ile Aydos " +
+      "Dağı'dır (Kartal-Pendik-Sultanbeyli-Sancaktepe sınırında); onu 438 m ile Kayış Dağı ve " +
+      "409 m ile Alem Dağı izler. Karadeniz'i Marmara Denizi'ne bağlayan İstanbul Boğazı 17 " +
+      'deniz mili (yaklaşık 31,5 km) uzunluğundadır ve üzerinde, güneyden kuzeye, üç asma köprü ' +
+      '(15 Temmuz Şehitler Köprüsü, 1973; Fatih Sultan Mehmet Köprüsü, 1988; Yavuz Sultan Selim ' +
+      'Köprüsü, 2016) iki yakayı birbirine bağlar. Boğazın Avrupa ile Asya yakasını ayırdığı ' +
+      'Haliç ise Kağıthane ve Alibeyköy derelerinin birleşip deniz tarafından istila edilmiş bir ' +
+      'vadi ağzı olarak ("ria" tipi kıyı) oluşmuştur. Tarihi yarımadada (bugünkü Fatih ilçesi ' +
+      'sınırları içinde) şehrin en eski yerleşim çekirdeği geleneksel olarak "yedi tepe" üzerine ' +
+      "kurulu kabul edilir — bu tanım yalnızca surlariçi bölgeyi kapsar, ilin 5.461 km²'lik " +
+      'bütününü DEĞİL. İl, dünyanın en aktif fay sistemlerinden biri olan ve toplam 1.500 km ' +
+      "uzunluğunda sağ yanal doğrultu atımlı bir fay olan Kuzey Anadolu Fayı'nın (KAF) yaklaşık " +
+      "20 km güneyinden geçtiği bir kuşaktadır; KAF'ın Marmara Denizi içindeki (Adalar-Silivri-" +
+      'Marmaraereğlisi-Tekirdağ) segmenti yüksek deprem üretme potansiyeli taşıyan bir kuşak ' +
+      'olarak izlenmektedir.',
+    introTr:
+      "İstanbul, Karadeniz'i Marmara Denizi'ne bağlayan İstanbul Boğazı'nın iki yakasında, hem " +
+      'Avrupa hem Asya kıtası üzerinde kurulmuş; tarih boyunca Roma, Bizans ve Osmanlı ' +
+      "imparatorluklarına başkentlik yapmış ve bugün nüfusuyla Türkiye'nin en kalabalık ilidir.",
+    hydrographyNoteTr:
+      "İstanbul'un içme suyu ihtiyacı, İSKİ tarafından işletilen 10 barajdan karşılanır: Asya " +
+      'yakasında Ömerli, Darlık ve Elmalı; Avrupa yakasında Terkos, Büyükçekmece, Sazlıdere, ' +
+      'Pabuçdere, Alibey, Kazandere ve Istrancalar. Bu barajların toplam aktif biriktirme hacmi ' +
+      "yaklaşık 868 milyon m³, yıllık ortalama su verimi ise yaklaşık 905 milyon m³'tür; ayrıca " +
+      "Melen Sistemi üzerinden Düzce'den de trans-havza su aktarımı yapılmaktadır. Karadeniz'i " +
+      "Marmara Denizi'ne bağlayan İstanbul Boğazı, dünyada nadir görülen bir özelliğe sahiptir: " +
+      "yüzeyde Karadeniz kökenli az tuzlu suyun Marmara'ya, dipte ise Marmara/Akdeniz kökenli " +
+      "daha tuzlu ve yoğun suyun Karadeniz'e doğru aktığı iki katmanlı bir akıntı sistemi " +
+      "görülür. Boğaz'ın Avrupa yakasında, Kağıthane ve Alibeyköy derelerinin birleşip denizin " +
+      'istila ettiği bir vadi ağzı olan Haliç yer alır; ilin batı kesiminde ise Küçükçekmece ve ' +
+      'Büyükçekmece adlarını taşıyan iki kıyı gölü (lagün) bulunur — bunlardan Büyükçekmece aynı ' +
+      'zamanda bir İSKİ barajı olarak da işletilirken, Küçükçekmece denizle bağlantısı nedeniyle ' +
+      'tuzlu su içerir ve içme suyu kaynağı olarak kullanılmaz.',
+    hydrographyFeatures: [
+      { name: 'Ömerli Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Terkos Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Büyükçekmece Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Darlık Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Sazlıdere Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Pabuçdere Barajı', type: HydrographyFeatureType.Baraj },
+      // "Alibey" (NOT "Alibeyköy") — the İSKİ live-API official spelling (fact-check A.3).
+      { name: 'Alibey Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Kazandere Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Elmalı Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Istrancalar Barajı', type: HydrographyFeatureType.Baraj },
+    ],
+    // %100 = a legal artifact of büyükşehir status (6360 sayılı Kanun), TÜİK-verified —
+    // NOT an error. Ships WITH its methodological framing in settlementNoteTr (never bare).
+    urbanizationRate: 100.0,
+    // Signed net-göç hızı (‰), TÜİK 2024 İç Göç bülteni (net +26.032 kişi → +1,66 ‰).
+    netMigrationRate: 1.66,
+    settlementNoteTr:
+      "Nüfus yoğunluğu (≈2.885 kişi/km², türetilmiş) ile Türkiye'nin en yoğun nüfuslu ilidir. " +
+      "TÜİK'in il/ilçe merkezi nüfus oranı İstanbul için %100'dür — ancak bu, ilin fiilen " +
+      'tamamen kentleşmiş olmasından çok, büyükşehir illerinde belde ve köylerin idari tüzel ' +
+      'kişiliğinin kaldırılmış olmasının (6360 sayılı Kanun) bir sonucudur. İstanbul 2024 ' +
+      'yılında hem en çok göç alan (395.485 kişi) hem de en çok göç veren (369.453 kişi) il ' +
+      'olmuş, buna karşın net göç hızı +1,66 ‰ ile pozitif kalmıştır.',
+    // A single TÜİK-anchored structured stat (never free prose — CONVENTIONS §4). `value` is
+    // a string per the EconomyIndicator contract → the Turkish percent form "%29,2" (same
+    // register as the EconomyIndicatorDto example "%30,2").
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%29,2',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '06',
