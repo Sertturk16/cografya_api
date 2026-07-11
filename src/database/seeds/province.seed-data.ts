@@ -30,8 +30,12 @@ import {
  *   full PR-5a detail-section field set (introTr, landformNoteTr, hydrographyNoteTr +
  *   hydrographyFeatures, urbanizationRate, netMigrationRate, settlementNoteTr,
  *   economyIndicator). These were researched by NOVA and INDEPENDENTLY fact-checked with
- *   ZERO corrections — the calibration bar for the 81-il rollout.
+ *   ZERO corrections — the calibration bar for the 81-il rollout. The four PROSE fields
+ *   later got a style-only rewrite (owner feedback: read as AI-generated) — facts/numbers
+ *   preserved, verified by an independent before/after diff; plus one small Haliç-sentence
+ *   internal-consistency fix (see CONTENT-STYLE.md + the draft's "Prose revizyon notu").
  *   • Content:     Owner's Inbox/il-detay-genisletme/istanbul-deep-content-draft.md
+ *   • Style rules: CONTENT-STYLE.md (orchestrator root — binding for shipped prose)
  *   • Fact-check:  Owner's Inbox/il-detay-genisletme/istanbul-deep-content-factcheck.md
  *   Load-bearing, fact-check-anchored specifics: Aydos Dağı = 538 m (Tier-1 academic,
  *   corrects an older 537 m); the KAF/seismic context is AFAD-İRAP-sourced; the 10-dam
@@ -242,43 +246,52 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
     // ── İstanbul deep-content pilot (see the İSTANBUL DEEP-CONTENT PILOT note above).
-    //    All seven values transcribed from the fact-checked draft (zero corrections).
+    //    Seven values transcribed from the fact-checked draft. The four prose fields
+    //    (introTr, landformNoteTr, hydrographyNoteTr, settlementNoteTr) carry NOVA's
+    //    2026-07-11 style-only rewrite (CONTENT-STYLE.md) — facts/numbers unchanged, plus
+    //    one internal-consistency fix to the Haliç sentence (aligns landform with the
+    //    hydrography framing, same fact-checked source). The structured/numeric detail
+    //    fields (hydrographyFeatures, urbanizationRate, netMigrationRate, economyIndicator)
+    //    are UNCHANGED from the fact-checked pilot.
     landformNoteTr:
-      "İstanbul, jeomorfolojik olarak Çatalca-Kocaeli Bölümü'nde yer alır; il topraklarının " +
-      'büyük bölümünü — dağ ve ovadan çok — aşınım yüzeyleri üzerinde gelişmiş bir plato ' +
-      "(Kocaeli Platosu'nun bir parçası) oluşturur. İlin en yüksek noktası 538 m ile Aydos " +
-      "Dağı'dır (Kartal-Pendik-Sultanbeyli-Sancaktepe sınırında); onu 438 m ile Kayış Dağı ve " +
-      "409 m ile Alem Dağı izler. Karadeniz'i Marmara Denizi'ne bağlayan İstanbul Boğazı 17 " +
-      'deniz mili (yaklaşık 31,5 km) uzunluğundadır ve üzerinde, güneyden kuzeye, üç asma köprü ' +
-      '(15 Temmuz Şehitler Köprüsü, 1973; Fatih Sultan Mehmet Köprüsü, 1988; Yavuz Sultan Selim ' +
-      'Köprüsü, 2016) iki yakayı birbirine bağlar. Boğazın Avrupa ile Asya yakasını ayırdığı ' +
-      'Haliç ise Kağıthane ve Alibeyköy derelerinin birleşip deniz tarafından istila edilmiş bir ' +
-      'vadi ağzı olarak ("ria" tipi kıyı) oluşmuştur. Tarihi yarımadada (bugünkü Fatih ilçesi ' +
-      'sınırları içinde) şehrin en eski yerleşim çekirdeği geleneksel olarak "yedi tepe" üzerine ' +
-      "kurulu kabul edilir — bu tanım yalnızca surlariçi bölgeyi kapsar, ilin 5.461 km²'lik " +
-      'bütününü DEĞİL. İl, dünyanın en aktif fay sistemlerinden biri olan ve toplam 1.500 km ' +
-      "uzunluğunda sağ yanal doğrultu atımlı bir fay olan Kuzey Anadolu Fayı'nın (KAF) yaklaşık " +
-      "20 km güneyinden geçtiği bir kuşaktadır; KAF'ın Marmara Denizi içindeki (Adalar-Silivri-" +
-      'Marmaraereğlisi-Tekirdağ) segmenti yüksek deprem üretme potansiyeli taşıyan bir kuşak ' +
-      'olarak izlenmektedir.',
+      "İstanbul, jeomorfolojik olarak Çatalca-Kocaeli Bölümü'nde yer alır. İlin büyük bölümünü " +
+      'dağlar ya da ovalar değil, aşınım yüzeyleri üzerinde gelişmiş bir plato oluşturur; bu ' +
+      "plato Kocaeli Platosu'nun bir parçasıdır. İlin en yüksek noktası, Kartal, Pendik, " +
+      "Sultanbeyli ve Sancaktepe sınırında yer alan 538 metrelik Aydos Dağı'dır. Onu 438 " +
+      'metreyle Kayış Dağı ve 409 metreyle Alem Dağı izler. ' +
+      "Karadeniz'i Marmara Denizi'ne bağlayan İstanbul Boğazı, 17 deniz mili (yaklaşık 31,5 km) " +
+      'uzunluğundadır. Üzerinde, güneyden kuzeye doğru üç asma köprü iki yakayı birbirine ' +
+      "bağlar: 1973'te açılan 15 Temmuz Şehitler Köprüsü, 1988'de açılan Fatih Sultan Mehmet " +
+      "Köprüsü ve 2016'da açılan Yavuz Sultan Selim Köprüsü. " +
+      'Boğazın Avrupa yakasında yer alan Haliç, Kağıthane ve Alibeyköy derelerinin birleşip ' +
+      'denizin istila ettiği bir vadi ağzından oluşmuştur. Coğrafyada bu tip kıyılara "ria" ' +
+      'denir. ' +
+      'Tarihi yarımada — bugünkü Fatih ilçesi — şehrin en eski yerleşim çekirdeğidir ve ' +
+      'geleneksel olarak yedi tepe üzerine kurulu kabul edilir. Bu tanım surlariçi bölgeyi ' +
+      "kapsar; ilin toplam yüzölçümü 5.461 km²'dir. " +
+      "İstanbul'un yaklaşık 20 km güneyinden Kuzey Anadolu Fayı (KAF) geçer. Dünyanın en aktif " +
+      'fay sistemlerinden biri olan KAF, toplam 1.500 km uzunluğunda, sağ yanal doğrultu atımlı ' +
+      'bir kırık hattıdır. Fayın Marmara Denizi içinden geçen kolu — Adalar, Silivri, ' +
+      'Marmaraereğlisi ve Tekirdağ arasındaki segment — yüksek deprem üretme potansiyeli taşıyan ' +
+      'bir kuşak olarak izleniyor.',
     introTr:
       "İstanbul, Karadeniz'i Marmara Denizi'ne bağlayan İstanbul Boğazı'nın iki yakasında, hem " +
-      'Avrupa hem Asya kıtası üzerinde kurulmuş; tarih boyunca Roma, Bizans ve Osmanlı ' +
-      "imparatorluklarına başkentlik yapmış ve bugün nüfusuyla Türkiye'nin en kalabalık ilidir.",
+      'Avrupa hem de Asya kıtası üzerinde kuruludur. Roma, Bizans ve Osmanlı imparatorluklarına ' +
+      "başkentlik yapmıştır. Bugün nüfusuyla Türkiye'nin en kalabalık ilidir.",
     hydrographyNoteTr:
       "İstanbul'un içme suyu ihtiyacı, İSKİ tarafından işletilen 10 barajdan karşılanır: Asya " +
       'yakasında Ömerli, Darlık ve Elmalı; Avrupa yakasında Terkos, Büyükçekmece, Sazlıdere, ' +
       'Pabuçdere, Alibey, Kazandere ve Istrancalar. Bu barajların toplam aktif biriktirme hacmi ' +
-      "yaklaşık 868 milyon m³, yıllık ortalama su verimi ise yaklaşık 905 milyon m³'tür; ayrıca " +
-      "Melen Sistemi üzerinden Düzce'den de trans-havza su aktarımı yapılmaktadır. Karadeniz'i " +
-      "Marmara Denizi'ne bağlayan İstanbul Boğazı, dünyada nadir görülen bir özelliğe sahiptir: " +
-      "yüzeyde Karadeniz kökenli az tuzlu suyun Marmara'ya, dipte ise Marmara/Akdeniz kökenli " +
-      "daha tuzlu ve yoğun suyun Karadeniz'e doğru aktığı iki katmanlı bir akıntı sistemi " +
-      "görülür. Boğaz'ın Avrupa yakasında, Kağıthane ve Alibeyköy derelerinin birleşip denizin " +
-      'istila ettiği bir vadi ağzı olan Haliç yer alır; ilin batı kesiminde ise Küçükçekmece ve ' +
-      'Büyükçekmece adlarını taşıyan iki kıyı gölü (lagün) bulunur — bunlardan Büyükçekmece aynı ' +
-      'zamanda bir İSKİ barajı olarak da işletilirken, Küçükçekmece denizle bağlantısı nedeniyle ' +
-      'tuzlu su içerir ve içme suyu kaynağı olarak kullanılmaz.',
+      "yaklaşık 868 milyon m³, yıllık ortalama su verimi ise yaklaşık 905 milyon m³'tür. Ayrıca " +
+      "Melen Sistemi üzerinden Düzce'den de trans-havza su aktarımı yapılır. " +
+      "Karadeniz'i Marmara Denizi'ne bağlayan İstanbul Boğazı'nda, dünyada nadir görülen iki " +
+      'katmanlı bir akıntı sistemi vardır: yüzeyde Karadeniz kökenli az tuzlu su ' +
+      "Marmara'ya doğru, dipte ise Marmara ve Akdeniz kökenli daha tuzlu ve yoğun su " +
+      "Karadeniz'e doğru akar. Boğazın Avrupa yakasında, Kağıthane ve Alibeyköy derelerinin " +
+      'birleşip denizin istila ettiği bir vadi ağzı olan Haliç yer alır. ' +
+      'İlin batı kesiminde, Küçükçekmece ve Büyükçekmece adlarını taşıyan iki kıyı gölü (lagün) ' +
+      'bulunur. Büyükçekmece aynı zamanda bir İSKİ barajı olarak işletilir. Küçükçekmece ise ' +
+      'denizle bağlantısı nedeniyle tuzlu su içerir ve içme suyu kaynağı olarak kullanılmaz.',
     hydrographyFeatures: [
       { name: 'Ömerli Barajı', type: HydrographyFeatureType.Baraj },
       { name: 'Terkos Barajı', type: HydrographyFeatureType.Baraj },
@@ -299,11 +312,11 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     netMigrationRate: 1.66,
     settlementNoteTr:
       "Nüfus yoğunluğu (≈2.885 kişi/km², türetilmiş) ile Türkiye'nin en yoğun nüfuslu ilidir. " +
-      "TÜİK'in il/ilçe merkezi nüfus oranı İstanbul için %100'dür — ancak bu, ilin fiilen " +
-      'tamamen kentleşmiş olmasından çok, büyükşehir illerinde belde ve köylerin idari tüzel ' +
-      'kişiliğinin kaldırılmış olmasının (6360 sayılı Kanun) bir sonucudur. İstanbul 2024 ' +
+      "TÜİK'in il/ilçe merkezi nüfus oranı İstanbul için %100'dür. Bu rakam ilin fiilen tamamen " +
+      'kentleştiği anlamına gelmez; büyükşehir statüsündeki illerde belde ve köylerin idari ' +
+      'tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir sonucudur. İstanbul 2024 ' +
       'yılında hem en çok göç alan (395.485 kişi) hem de en çok göç veren (369.453 kişi) il ' +
-      'olmuş, buna karşın net göç hızı +1,66 ‰ ile pozitif kalmıştır.',
+      'oldu; buna karşın net göç hızı +1,66 ‰ ile pozitif kaldı.',
     // A single TÜİK-anchored structured stat (never free prose — CONVENTIONS §4). `value` is
     // a string per the EconomyIndicator contract → the Turkish percent form "%29,2" (same
     // register as the EconomyIndicatorDto example "%30,2").
