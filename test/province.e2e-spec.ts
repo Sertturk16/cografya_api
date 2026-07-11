@@ -812,39 +812,64 @@ describe('Province (e2e)', () => {
     expect(istanbulUpdatedAtAfterReseed).toBe(istanbulUpdatedAtAfterWave3);
   });
 
-  it('re-seed UPDATES İstanbul when its detail fields drifted (not skipped as unchanged)', async () => {
-    // Simulates the REAL production transition this PR ships: an İstanbul row that predates
-    // the deep-content fields (all seven null) must be recognised as DRIFTED and refreshed —
-    // proving `rowMatchesSeed` compares the detail fields, so the update is neither skipped
-    // (mis-counted `unchanged`) nor duplicated (`inserted`). The re-seed restores the correct
-    // content, leaving the DB in the same 31-row state the later tests assume.
+  it('re-seed detects a DETAIL-ONLY drift and UPDATES (isolates the new comparison lines)', async () => {
+    // ISOLATION (review PR#9 IMPORTANT-2): drift EXACTLY ONE new detail field —
+    // `economyIndicator` — and leave `landformNoteTr` (which was ALREADY in the comparator
+    // before this PR) untouched. So the ONLY thing that can flag drift here is one of the 7
+    // comparison lines this PR added: with the old comparator (base + landform only) landform
+    // still matches → the row would be mis-counted `unchanged` and the stale null never
+    // refreshed. This is the forward-looking case the fix actually guards (a detail-only
+    // correction to a province whose landform is already populated), not İstanbul's own
+    // null→content landform flip (which drifts under the old code too). Restores at the end.
     const repo = dataSource.getRepository(Province);
-    await repo.update(
-      { plateCode: '34' },
-      {
-        introTr: null,
-        landformNoteTr: null,
-        hydrographyNoteTr: null,
-        hydrographyFeatures: null,
-        urbanizationRate: null,
-        netMigrationRate: null,
-        settlementNoteTr: null,
-        economyIndicator: null,
-      },
-    );
+    await repo.update({ plateCode: '34' }, { economyIndicator: null });
 
     const result = await seedGeography(dataSource);
-    // Exactly İstanbul drifted → 1 updated, the other 30 untouched, nothing inserted.
+    // Only İstanbul drifted (via the economyIndicator comparison) → 1 updated, 30 untouched.
     expect(result).toEqual({ inserted: 0, updated: 1, unchanged: 30, total: 31 });
 
-    // The seven fields are restored from the seed (the update actually wrote content).
+    // The drifted field was actually re-written from the seed.
     const istanbul = await repo.findOneByOrFail({ plateCode: '34' });
-    expect(istanbul.urbanizationRate).toBe(100);
-    expect(istanbul.netMigrationRate).toBe(1.66);
-    expect(istanbul.hydrographyFeatures).toHaveLength(10);
-    expect(istanbul.economyIndicator).not.toBeNull();
-    expect(istanbul.introTr).toContain('Avrupa');
+    expect(istanbul.economyIndicator).toEqual({
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%29,2',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    });
     // Still exactly 31 rows — an UPDATE, never an insert/delete.
+    expect(await repo.count()).toBe(31);
+  });
+
+  it('re-seed CLEARS a retracted optional field (merge/compare stay coherent)', async () => {
+    // RETRACTION (review PR#9 IMPORTANT-1): a future seed that DROPS a previously-published
+    // optional key (to clear a stale value, not replace it) must actually null the column —
+    // not just re-flag the row as drifted forever. `withExplicitDetailNulls` makes the omit
+    // write an explicit null so `merge` clears it; without that fix `merge` would leave the
+    // stale value and the row would churn `updated` on every re-seed. Uses a real seed list
+    // with İstanbul's `economyIndicator` key removed, then restores.
+    const repo = dataSource.getRepository(Province);
+    const istanbulSeed = SEED_PROVINCES.find((p) => p.plateCode === '34');
+    if (!istanbulSeed) throw new Error('İstanbul seed (plate 34) not found');
+    const istanbulRetracted: ProvinceSeed = { ...istanbulSeed };
+    delete istanbulRetracted.economyIndicator; // omit the key entirely (a retraction)
+    const retractedList = SEED_PROVINCES.map((p) => (p.plateCode === '34' ? istanbulRetracted : p));
+
+    const result = await seedGeography(dataSource, retractedList);
+    // İstanbul drifts (economyIndicator retracted → null) → 1 updated, 30 unchanged.
+    expect(result).toEqual({ inserted: 0, updated: 1, unchanged: 30, total: 31 });
+
+    // The retracted field is actually CLEARED in the DB (the coherence fix works).
+    const istanbul = await repo.findOneByOrFail({ plateCode: '34' });
+    expect(istanbul.economyIndicator).toBeNull();
+    // The retraction is a genuine no-op on re-run (does not churn `updated` forever).
+    const rerun = await seedGeography(dataSource, retractedList);
+    expect(rerun).toEqual({ inserted: 0, updated: 0, unchanged: 31, total: 31 });
+
+    // Restore the canonical, fully-populated İstanbul for the later tests.
+    const restore = await seedGeography(dataSource);
+    expect(restore).toEqual({ inserted: 0, updated: 1, unchanged: 30, total: 31 });
+    expect((await repo.findOneByOrFail({ plateCode: '34' })).economyIndicator).not.toBeNull();
     expect(await repo.count()).toBe(31);
   });
 

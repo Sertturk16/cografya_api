@@ -75,13 +75,21 @@ function plateArraysEqual(a: readonly string[], b: readonly string[]): boolean {
  *      value vs the null the DB stores must read as EQUAL, so a routine base-data re-seed is
  *      a genuine no-op and never bumps `updated_at` (SEO lastmod honesty, §6). Without this,
  *      `undefined !== null` would mark all 30 base-data rows as drifted on every re-seed.
+ *      (This function receives the seed ALREADY normalised by `withExplicitDetailNulls`, so
+ *      the `?? null` here is belt-and-braces — it keeps the comparator correct even if a
+ *      caller ever passes a raw seed.)
  *   2. The two jsonb fields (`hydrographyFeatures`, `economyIndicator`) use a DEEP,
  *      key-order-insensitive compare (`isDeepStrictEqual`) because Postgres jsonb re-orders
  *      object keys on round-trip — a stringify/`===` compare would report a false difference
  *      and mis-count a steady row as `updated` on every re-seed.
- * Together these make İstanbul's transition correct BOTH ways: a stale row whose detail
- * fields are still null is detected as drifted → UPDATED (not skipped as unchanged), and
- * once populated it re-reads as unchanged → no `updated_at` churn.
+ *
+ * WHY the fields must participate (they don't currently change İstanbul's OWN outcome —
+ * `landformNoteTr` was already compared here, and İstanbul flips it null→content, so the
+ * row already drifts regardless): the guard is FORWARD-LOOKING. Once a province has
+ * `landformNoteTr` populated, a later detail-ONLY correction (e.g. a new economyIndicator,
+ * landform unchanged) would NOT be seen by the base-field comparison alone → silently
+ * skipped as `unchanged`. Comparing all seven closes that gap: any detail field drifting is
+ * detected → UPDATED; nothing drifting → unchanged, no churn.
  */
 function rowMatchesSeed(row: Province, seed: ProvinceSeed): boolean {
   return (
@@ -112,6 +120,39 @@ function rowMatchesSeed(row: Province, seed: ProvinceSeed): boolean {
 }
 
 /**
+ * Returns the seed with every OPTIONAL detail field made EXPLICIT (`undefined → null`), so
+ * the whole pipeline — drift detection, INSERT and UPDATE — agrees on one meaning of "the
+ * seed does not set this field": null.
+ *
+ * This closes a latent RETRACTION bug. `rowMatchesSeed` already treats an omitted key as
+ * null for drift detection, but TypeORM's `repo.merge(existing, seed)` treats an `undefined`
+ * value as "leave this column alone" — it does NOT write null. So if a future correction
+ * ever RETRACTS a previously-published field (drops the key to clear a stale value, rather
+ * than replacing it), the row is correctly flagged as drifted → routed to `updated`, but the
+ * merge would silently fail to clear the DB value: the row would then re-flag as `updated`
+ * on EVERY future re-seed forever, churning `updated_at` with no error signal and breaking
+ * the SEO lastmod-honesty invariant. Normalising here makes the retraction write an explicit
+ * null, so the stale value is actually cleared and the row settles to `unchanged`. The seed
+ * is authoritative: after a run, the DB matches the seed exactly, omitted-optional included.
+ *
+ * No behaviour change for the shipped data (İstanbul sets all seven; the other 30 omit all
+ * seven and their columns are already null) — this only makes the omit⇒null contract
+ * enforced rather than incidental.
+ */
+function withExplicitDetailNulls(seed: ProvinceSeed): ProvinceSeed {
+  return {
+    ...seed,
+    introTr: seed.introTr ?? null,
+    hydrographyNoteTr: seed.hydrographyNoteTr ?? null,
+    hydrographyFeatures: seed.hydrographyFeatures ?? null,
+    urbanizationRate: seed.urbanizationRate ?? null,
+    netMigrationRate: seed.netMigrationRate ?? null,
+    settlementNoteTr: seed.settlementNoteTr ?? null,
+    economyIndicator: seed.economyIndicator ?? null,
+  };
+}
+
+/**
  * Seeds the geography base data (the platform's most critical seed — CLAUDE.md
  * §5). Currently the 31 fact-checked provinces (pilot-5 + Batch 2 wave-1 Güneydoğu
  * Anadolu + Batch 2 wave-2 Marmara + Batch 2 wave-3 Ege); scales to 81 as the
@@ -124,6 +165,10 @@ function rowMatchesSeed(row: Province, seed: ProvinceSeed): boolean {
  * dateModified signal honest (CONVENTIONS §6): a province's timestamp changes only
  * when its data genuinely changes. The whole run is one transaction — a mid-run
  * failure leaves the table untouched rather than half-seeded.
+ *
+ * The SEED IS AUTHORITATIVE: each seed is normalised (`withExplicitDetailNulls`) before
+ * compare/insert/update, so after a run the DB matches the seed exactly — an omitted
+ * optional field means null, and a retracted field is actually cleared (not left stale).
  *
  * The per-row independence is what makes an INCREMENTAL rollout correct: adding a
  * batch means re-seeding the SAME DB with a longer list, so a real run is a MIXED
@@ -150,15 +195,20 @@ export async function seedGeography(
 
     for (const seed of provinces) {
       try {
-        const existing = await repo.findOne({ where: { plateCode: seed.plateCode } });
+        // Normalise omitted optional detail fields to explicit null BEFORE both the
+        // comparison and the write, so drift detection, INSERT and UPDATE share one
+        // meaning of "unset" and a future field retraction actually clears the column
+        // (see `withExplicitDetailNulls`).
+        const normalized = withExplicitDetailNulls(seed);
+        const existing = await repo.findOne({ where: { plateCode: normalized.plateCode } });
 
         if (!existing) {
-          await repo.save(repo.create(seed));
+          await repo.save(repo.create(normalized));
           inserted += 1;
-        } else if (rowMatchesSeed(existing, seed)) {
+        } else if (rowMatchesSeed(existing, normalized)) {
           unchanged += 1;
         } else {
-          repo.merge(existing, seed);
+          repo.merge(existing, normalized);
           await repo.save(existing);
           updated += 1;
         }
