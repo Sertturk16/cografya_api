@@ -258,17 +258,17 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
       'dağlar ya da ovalar değil, aşınım yüzeyleri üzerinde gelişmiş bir plato oluşturur; bu ' +
       "plato Kocaeli Platosu'nun bir parçasıdır. İlin en yüksek noktası, Kartal, Pendik, " +
       "Sultanbeyli ve Sancaktepe sınırında yer alan 538 metrelik Aydos Dağı'dır. Onu 438 " +
-      'metreyle Kayış Dağı ve 409 metreyle Alem Dağı izler. ' +
+      'metreyle Kayış Dağı ve 409 metreyle Alem Dağı izler.\n\n' +
       "Karadeniz'i Marmara Denizi'ne bağlayan İstanbul Boğazı, 17 deniz mili (yaklaşık 31,5 km) " +
       'uzunluğundadır. Üzerinde, güneyden kuzeye doğru üç asma köprü iki yakayı birbirine ' +
       "bağlar: 1973'te açılan 15 Temmuz Şehitler Köprüsü, 1988'de açılan Fatih Sultan Mehmet " +
-      "Köprüsü ve 2016'da açılan Yavuz Sultan Selim Köprüsü. " +
+      "Köprüsü ve 2016'da açılan Yavuz Sultan Selim Köprüsü.\n\n" +
       'Boğazın Avrupa yakasında yer alan Haliç, Kağıthane ve Alibeyköy derelerinin birleşip ' +
       'denizin istila ettiği bir vadi ağzından oluşmuştur. Coğrafyada bu tip kıyılara "ria" ' +
-      'denir. ' +
+      'denir.\n\n' +
       'Tarihi yarımada — bugünkü Fatih ilçesi — şehrin en eski yerleşim çekirdeğidir ve ' +
       'geleneksel olarak yedi tepe üzerine kurulu kabul edilir. Bu tanım surlariçi bölgeyi ' +
-      "kapsar; ilin toplam yüzölçümü 5.461 km²'dir. " +
+      "kapsar; ilin toplam yüzölçümü 5.461 km²'dir.\n\n" +
       "İstanbul'un yaklaşık 20 km güneyinden Kuzey Anadolu Fayı (KAF) geçer. Dünyanın en aktif " +
       'fay sistemlerinden biri olan KAF, toplam 1.500 km uzunluğunda, sağ yanal doğrultu atımlı ' +
       'bir kırık hattıdır. Fayın Marmara Denizi içinden geçen kolu — Adalar, Silivri, ' +
