@@ -101,9 +101,10 @@ const POPULATION_YEAR = 2025;
 
 /**
  * Köppen short code for the MEDITERRANEAN class (MGM 2023 report, s.11-15) — the
- * common case: all of pilot-5 + wave-1, 8/10 of wave-2, and 5/7 of wave-3. NOT
- * universal since wave-2: Kocaeli/Sakarya are Cfa (see KOPPEN_CFA below); wave-3
- * adds Afyonkarahisar=Cfa AND the platform's third class Kütahya=Csb (KOPPEN_CSB).
+ * common case: all of pilot-5 + wave-1, 8/10 of wave-2, 5/7 of wave-3, and all 7 of
+ * wave-4 (Akdeniz, uniformly Csa). NOT universal since wave-2: Kocaeli/Sakarya are Cfa
+ * (see KOPPEN_CFA below); wave-3 adds Afyonkarahisar=Cfa AND the platform's third class
+ * Kütahya=Csb (KOPPEN_CSB). Wave-4 introduces no new class.
  */
 const KOPPEN_CSA = 'Csa';
 /** MGM's Turkish class name for Csa (dictionary §2.1: "Csa (Akdeniz iklimi)"). */
@@ -1108,16 +1109,237 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
 ];
 
 /**
+ * BATCH 2 — WAVE 4 il seed data — Akdeniz Bölgesi (7 il, Antalya hariç): Adana,
+ * Burdur, Hatay, Isparta, Kahramanmaraş, Mersin, Osmaniye. (Antalya is Akdeniz's 8th
+ * province but is already seeded in PILOT_PROVINCES, so it is not repeated here.)
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * PROVENANCE (traceability — CONVENTIONS §4: no sourceless facts)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * SOURCE OF RECORD: NOVA's researched draft, INDEPENDENTLY fact-checked by a
+ *   different actor — verdict "7/7 VERIFIED, ZERO numeric deviations" (population/
+ *   area/district/elevation-coordinate/Köppen/MGM-station/neighbours each re-derived
+ *   from its Tier-1 source in a second session and matched the draft exactly).
+ *   • Draft:       Owner's Inbox/data-source-groundwork/batch2-wave4-akdeniz.md
+ *   • Fact-check:  Owner's Inbox/data-source-groundwork/batch2-wave4-factcheck.md
+ *   • Ledger:      data-provenance.md (root) — Batch 2 — Dalga 4
+ *   • Repo snapshot: docs/data-provenance-batch2-wave4.md
+ * Per-field Tier-1 authorities (same as pilot-5 / wave-1 / wave-2 / wave-3):
+ *   • Nüfus (31.12.2025)          → TÜİK ADNKS 2025, bülten 53899 (VERIFIED, 7/7)
+ *   • Yüzölçümü (km²)             → Harita Genel Müdürlüğü (VERIFIED, 7/7)
+ *   • İlçe sayısı                 → İçişleri Bakanlığı e-İçişleri (VERIFIED, 7/7)
+ *   • Rakım + koordinat (il mrk.) → MGM il-merkez istasyonu (VERIFIED, 7/7)
+ *   • Köppen iklim                → MGM 2023 Köppen raporu, s.11-14 (7/7 = Csa)
+ *   • Komşu iller                 → Tier-2, full 81-il GeoJSON scan + Vikipedi (7/7)
+ *
+ * KÖPPEN — UNIFORM Csa THIS WAVE (fact-check §A.5): 7/7 resolve to Csa, read on each
+ *   il's own MGM `koppen.pdf` row (Hatay is represented by its default-station row
+ *   "ANTAKYA", s.11 — MGM's table has no "HATAY" line, consistent with MGM's own il/
+ *   ilçe tool). No new climate class this wave; all 7 reuse the shared
+ *   MGM_KOPPEN_CAVEAT_TR verbatim. No province-specific Thornthwaite/Erinç divergence
+ *   is appended — the source deliberately did not research that alternative here.
+ *
+ * MGM default-station note (fact-check §A.4): for Adana, Hatay and Mersin the
+ *   canonical MGM il-merkezi station is NOT "Merkez" (Seyhan / Antakya / Akdeniz —
+ *   all three are büyükşehir provinces with no district named "Merkez"; same category
+ *   as the pilot's İstanbul→Yeşilköy and wave-2's Bursa→Osmangazi). Burdur, Isparta
+ *   and Osmaniye default to "Merkez". Recorded inline on each `elevationM`.
+ *
+ * KAHRAMANMARAŞ ELEVATION — GLOSSARY §1 EXCEPTION (locked, → Atlas kararı 2026-07-11):
+ *   MGM's literal default "Merkez" record for Kahramanmaraş returns elevation = 0 m,
+ *   which is physically impossible for this inland/highland province (broken/
+ *   unrepresentative reading, verified by NOVA AND the independent fact-check via
+ *   direct MGM navigation). Per the GLOSSARY §1 same-coordinate exception, the seeded
+ *   value uses MGM's OWN coordinate-identical "Onikişubat" record instead: **572 m**
+ *   (latitude/longitude are IDENTICAL to the "Merkez" record — 37.576 / 36.915). This
+ *   is NOT an invented value: it is the same authoritative source's working record for
+ *   the identical physical location, independently TRIPLE-verified (Onikişubat
+ *   Kaymakamlığı's official page confirms ~568 m, consistent). A separate "Dulkadiroğlu"
+ *   record (525 m, DIFFERENT coordinate) is a genuinely distinct station and is NOT
+ *   used. Vera's il page needs a STRONGER footnote here than the plain rename notes
+ *   (Adana/Hatay/Mersin): the shown elevation/coordinate is the Onikişubat record's,
+ *   not the literal "Merkez" record's (fact-check §A.4.1 / draft Bölüm 3).
+ *
+ * NEIGHBOURS — Tier-2, cross-checked (fact-check §A.6, 7/7 VERIFIED via a full 81-il
+ *   GeoJSON adjacency scan AND independent Vikipedi text extraction). Non-obvious
+ *   results that survived double-verification: Hatay does NOT border Kahramanmaraş
+ *   (~0.35° gap; a self-contradicting haberturk article was wrong), Isparta does NOT
+ *   border Denizli (Burdur intrudes — mirrors wave-3's Denizli-side finding), and
+ *   Adana DOES border both Kayseri and Hatay (a source list had omitted them).
+ *   Country/sea adjacencies (Hatay→Suriye, Adana/Mersin/Hatay→Akdeniz kıyısı) are NOT
+ *   provinces and are excluded from `neighborPlateCodes`.
+ *
+ * DELIBERATELY NULL — same as pilot-5 / wave-1 / wave-2 / wave-3: `landformNoteTr` AND
+ *   every PR-5a detail-page field (introTr / hydrography* / urbanizationRate /
+ *   netMigrationRate / settlementNoteTr / economyIndicator) stay null. BASE DATA ONLY
+ *   (owner priority ruling, DEC 2026-07-10); those fields are filled in a later
+ *   fact-checked content batch, never invented here.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
+  {
+    plateCode: '01',
+    nameTr: 'Adana',
+    slugTr: 'adana',
+    slugEn: 'adana',
+    region: GeographicRegion.Akdeniz,
+    population: 2_283_609,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 13_844,
+    districtCount: 15,
+    elevationM: 20, // MGM Seyhan istasyonu (büyükşehir — ayrı "Merkez" ilçesi yok; tarihi kent çekirdeği Seyhan)
+    latitude: 36.9838,
+    longitude: 35.298,
+    // Kayseri=38, Kahramanmaraş=46, Osmaniye=80, Hatay=31, Mersin=33, Niğde=51
+    // (6 komşu — bu dalganın Kahramanmaraş ile birlikte en çok kara-komşulu ili) (+ Akdeniz kıyısı, güney — hariç)
+    neighborPlateCodes: ['38', '46', '80', '31', '33', '51'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '15',
+    nameTr: 'Burdur',
+    slugTr: 'burdur',
+    slugEn: 'burdur',
+    region: GeographicRegion.Akdeniz,
+    population: 277_226,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 7175,
+    districtCount: 11,
+    elevationM: 957, // MGM Merkez istasyonu
+    latitude: 37.722,
+    longitude: 30.294,
+    // Antalya=07, Denizli=20, Muğla=48, Afyonkarahisar=03, Isparta=32
+    neighborPlateCodes: ['07', '20', '48', '03', '32'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '31',
+    nameTr: 'Hatay',
+    slugTr: 'hatay',
+    slugEn: 'hatay',
+    region: GeographicRegion.Akdeniz,
+    population: 1_577_531,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 5524,
+    districtCount: 15,
+    elevationM: 82, // MGM Antakya istasyonu (büyükşehir — "Merkez" ilçesi yok; resmî merkez ilçe Antakya; MGM Köppen tablosunda da ANTAKYA satırıyla temsil edilir)
+    latitude: 36.3615,
+    longitude: 36.2829,
+    // Osmaniye=80, Adana=01, Gaziantep=27 — Kahramanmaraş KOMŞU DEĞİL (~0,35° boşluk, fact-check §A.6.1)
+    // (+ Suriye — ülke; Akdeniz kıyısı, batı — hariç)
+    neighborPlateCodes: ['80', '01', '27'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '32',
+    nameTr: 'Isparta',
+    slugTr: 'isparta',
+    slugEn: 'isparta',
+    region: GeographicRegion.Akdeniz,
+    population: 445_303,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 8946,
+    districtCount: 13,
+    elevationM: 997, // MGM Merkez istasyonu
+    latitude: 37.7848,
+    longitude: 30.7679,
+    // Burdur=15, Afyonkarahisar=03, Konya=42, Antalya=07 — Denizli(20) KOMŞU DEĞİL
+    // (Burdur araya giriyor; wave-3'ün Denizli tarafı bulgusunu Isparta tarafı da doğruluyor, fact-check §A.6.1)
+    neighborPlateCodes: ['15', '03', '42', '07'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '46',
+    nameTr: 'Kahramanmaraş',
+    slugTr: 'kahramanmaras',
+    slugEn: 'kahramanmaras',
+    region: GeographicRegion.Akdeniz,
+    population: 1_146_278,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 14_520,
+    districtCount: 11,
+    // GLOSSARY §1 EXCEPTION (locked, Atlas kararı 2026-07-11): MGM'nin literal varsayılan "Merkez"
+    // kaydı rakım=0 döndürür (iç/yayla şehri için fiziksel olarak imkânsız/bozuk). Koordinat-özdeş
+    // Onikişubat kaydının 572 m değeri kullanıldı (enlem/boylam "Merkez" ile birebir aynı); üçüncü
+    // kaynakla teyitli (Onikişubat Kaymakamlığı ~568 m). Uydurma DEĞİL — aynı otoriter MGM kaynağının
+    // kendi çalışan kaydı. Ayrı "Dulkadiroğlu" kaydı (525 m, FARKLI koordinat) kullanılmadı. Bkz. header PROVENANCE.
+    elevationM: 572,
+    latitude: 37.576,
+    longitude: 36.915,
+    // Kayseri=38, Malatya=44, Adıyaman=02, Sivas=58, Gaziantep=27, Osmaniye=80, Adana=01
+    // (7 komşu — bu dalganın en çok kara-komşulu ili; deniz kıyısı yok)
+    neighborPlateCodes: ['38', '44', '02', '58', '27', '80', '01'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '33',
+    nameTr: 'Mersin',
+    slugTr: 'mersin',
+    slugEn: 'mersin',
+    region: GeographicRegion.Akdeniz,
+    population: 1_956_428,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 16_010,
+    districtCount: 13,
+    elevationM: 7, // MGM Akdeniz istasyonu (büyükşehir — ayrı "Merkez" ilçesi yok; tarihi kent çekirdeği/liman bölgesi Akdeniz)
+    latitude: 36.812,
+    longitude: 34.6411,
+    // Adana=01, Niğde=51, Konya=42, Karaman=70, Antalya=07 (+ Akdeniz kıyısı — hariç)
+    neighborPlateCodes: ['01', '51', '42', '70', '07'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+  {
+    plateCode: '80',
+    nameTr: 'Osmaniye',
+    slugTr: 'osmaniye',
+    slugEn: 'osmaniye',
+    region: GeographicRegion.Akdeniz,
+    population: 564_123,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 3320,
+    districtCount: 7,
+    elevationM: 94, // MGM Merkez istasyonu
+    latitude: 37.1021,
+    longitude: 36.2539,
+    // Gaziantep=27, Hatay=31, Adana=01, Kahramanmaraş=46 (4 komşu — bu dalganın en az kara-komşulu ili)
+    neighborPlateCodes: ['27', '31', '01', '46'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    landformNoteTr: null,
+  },
+];
+
+/**
  * Every fact-checked province the geography seed loads, in batch order (pilot-5
- * first, then Batch 2 wave-1, wave-2, wave-3). This is the single list
+ * first, then Batch 2 wave-1, wave-2, wave-3, wave-4). This is the single list
  * `seedGeography` iterates — the seed is keyed on the unique `plate_code`, so array
  * order is cosmetic (the public list endpoint re-orders by plate code). Grows
  * batch-by-batch toward the full 81 as each wave clears an independent fact-check.
- * Currently 31 provinces: 5 pilot + 9 wave-1 + 10 wave-2 + 7 wave-3.
+ * Currently 38 provinces: 5 pilot + 9 wave-1 + 10 wave-2 + 7 wave-3 + 7 wave-4.
  */
 export const SEED_PROVINCES: readonly ProvinceSeed[] = [
   ...PILOT_PROVINCES,
   ...BATCH2_WAVE1_PROVINCES,
   ...BATCH2_WAVE2_PROVINCES,
   ...BATCH2_WAVE3_PROVINCES,
+  ...BATCH2_WAVE4_PROVINCES,
 ];

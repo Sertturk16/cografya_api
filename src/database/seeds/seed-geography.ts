@@ -154,9 +154,9 @@ function withExplicitDetailNulls(seed: ProvinceSeed): ProvinceSeed {
 
 /**
  * Seeds the geography base data (the platform's most critical seed — CLAUDE.md
- * §5). Currently the 31 fact-checked provinces (pilot-5 + Batch 2 wave-1 Güneydoğu
- * Anadolu + Batch 2 wave-2 Marmara + Batch 2 wave-3 Ege); scales to 81 as the
- * remaining batches clear an independent fact-check.
+ * §5). Currently the 38 fact-checked provinces (pilot-5 + Batch 2 wave-1 Güneydoğu
+ * Anadolu + Batch 2 wave-2 Marmara + Batch 2 wave-3 Ege + Batch 2 wave-4 Akdeniz);
+ * scales to 81 as the remaining batches clear an independent fact-check.
  *
  * IDEMPOTENT by design, PER ROW: keyed on the unique `plate_code`, each province
  * is INDEPENDENTLY inserted if absent, refreshed if its data drifted, or LEFT
@@ -173,8 +173,11 @@ function withExplicitDetailNulls(seed: ProvinceSeed): ProvinceSeed {
  * The per-row independence is what makes an INCREMENTAL rollout correct: adding a
  * batch means re-seeding the SAME DB with a longer list, so a real run is a MIXED
  * batch — the already-present rows are no-ops while only the new rows insert (e.g.
- * the 24 pilot+wave-1+wave-2 rows present + the full 31-list → `{inserted:7, unchanged:24}`).
- * That mixed path is regression-tested in `province.e2e-spec`.
+ * the 31 prior rows present + the full 38-list → `{inserted:7, unchanged:31}`).
+ * That mixed path is regression-tested in `province.e2e-spec` (which, from wave-4 on,
+ * proves it with a single representative mixed transition rather than one phase per
+ * historical wave — per-row independence does not depend on how many prior batches
+ * the no-op set spans).
  *
  * `provinces` defaults to the full `SEED_PROVINCES` set (what the CLI runs);
  * accepting the list as a parameter lets tests drive the exact rollout phases
