@@ -16,6 +16,7 @@ import {
 // which stay independent in EXPECTED_PROVINCES.
 import {
   BATCH2_WAVE1_PROVINCES,
+  BATCH2_WAVE2_PROVINCES,
   PILOT_PROVINCES,
   SEED_PROVINCES,
   type ProvinceSeed,
@@ -30,15 +31,19 @@ import { HydrographyFeatureType } from '../src/province/province.types';
 
 /**
  * Expected, fact-checked values for every seeded province (5 pilot + 9 Batch 2
- * wave-1 + 10 Batch 2 wave-2 = 24), restated INDEPENDENTLY of the seed source (NOT
- * imported from the seed arrays) so a transcription regression in the seed is caught
- * rather than tautologically passed. Pilot values trace to il-data-dictionary §2.1
- * (fact-checked 2026-07-08); wave-1 values trace to batch2-wave1-factcheck.md
- * (2026-07-10); wave-2 values trace to batch2-wave2-factcheck.md (2026-07-10, core
- * fields 10/10 VERIFIED, zero deviations). `populationDensity` is round(population /
- * areaKm2) — the server derives it, so it is computed here by hand to catch a broken
- * derivation too. Köppen is MIXED in wave-2: Kocaeli+Sakarya are Cfa (not Csa), and
- * `caveatContains: 'Cfa'` asserts each got the Cfa caveat, not the Csa one.
+ * wave-1 + 10 Batch 2 wave-2 + 7 Batch 2 wave-3 = 31), restated INDEPENDENTLY of the
+ * seed source (NOT imported from the seed arrays) so a transcription regression in the
+ * seed is caught rather than tautologically passed. Pilot values trace to
+ * il-data-dictionary §2.1 (fact-checked 2026-07-08); wave-1 values trace to
+ * batch2-wave1-factcheck.md (2026-07-10); wave-2 values trace to
+ * batch2-wave2-factcheck.md (2026-07-10); wave-3 values trace to
+ * batch2-wave3-factcheck.md (2026-07-11, core fields 7/7 VERIFIED, zero deviations —
+ * the cleanest wave yet). `populationDensity` is round(population / areaKm2) — the
+ * server derives it, so it is computed here by hand to catch a broken derivation too.
+ * Köppen is MIXED across three classes now: wave-2 Kocaeli+Sakarya and wave-3
+ * Afyonkarahisar are Cfa; wave-3 Kütahya is Csb (the third class); the rest are Csa.
+ * `caveatContains` is the province's OWN class code, asserting each row got the caveat
+ * that names its code (Cfa/Csb caveat, not the Csa one) — the copy-paste guard.
  */
 const EXPECTED_PROVINCES = [
   {
@@ -479,14 +484,146 @@ const EXPECTED_PROVINCES = [
     climateClassTr: 'Akdeniz iklimi',
     caveatContains: 'Csa',
   },
+  // ── Batch 2 — wave 3 (Ege, 7 il, İzmir hariç), alphabetical by nameTr ──
+  {
+    slug: 'afyonkarahisar',
+    plateCode: '03',
+    nameTr: 'Afyonkarahisar',
+    region: 'EGE',
+    population: 751_808,
+    populationYear: 2025,
+    areaKm2: 14_016,
+    districtCount: 18,
+    populationDensity: 54, // round(751_808 / 14_016) = 53.64
+    elevationM: 1034,
+    latitude: 38.738,
+    longitude: 30.5604,
+    neighborPlateCodes: ['26', '43', '64', '20', '15', '32', '42'],
+    // Cfa this wave (like wave-2 Kocaeli/Sakarya) — NOT Csa; caveat must be the Cfa variant.
+    climateKoppen: 'Cfa',
+    climateClassTr: 'Karadeniz iklimi',
+    caveatContains: 'Cfa',
+  },
+  {
+    slug: 'aydin',
+    plateCode: '09',
+    nameTr: 'Aydın',
+    region: 'EGE',
+    population: 1_172_107,
+    populationYear: 2025,
+    areaKm2: 8116,
+    districtCount: 17,
+    populationDensity: 144, // round(1_172_107 / 8116)
+    elevationM: 56,
+    latitude: 37.8402,
+    longitude: 27.8379,
+    neighborPlateCodes: ['35', '45', '20', '48'],
+    climateKoppen: 'Csa',
+    climateClassTr: 'Akdeniz iklimi',
+    caveatContains: 'Csa',
+  },
+  {
+    slug: 'denizli',
+    plateCode: '20',
+    nameTr: 'Denizli',
+    region: 'EGE',
+    population: 1_060_975,
+    populationYear: 2025,
+    areaKm2: 12_134,
+    districtCount: 19,
+    populationDensity: 87, // round(1_060_975 / 12_134)
+    elevationM: 425,
+    latitude: 37.762,
+    longitude: 29.0921,
+    // Isparta(32) deliberately EXCLUDED — Burdur intrudes, ~17.5 km gap (fact-check §A.6.1).
+    neighborPlateCodes: ['64', '03', '15', '48', '09', '45'],
+    climateKoppen: 'Csa',
+    climateClassTr: 'Akdeniz iklimi',
+    caveatContains: 'Csa',
+  },
+  {
+    slug: 'kutahya',
+    plateCode: '43',
+    nameTr: 'Kütahya',
+    region: 'EGE',
+    population: 570_478,
+    populationYear: 2025,
+    areaKm2: 11_634,
+    districtCount: 13,
+    populationDensity: 49, // round(570_478 / 11_634)
+    elevationM: 969,
+    latitude: 39.4171,
+    longitude: 29.9891,
+    neighborPlateCodes: ['16', '11', '26', '03', '64', '45', '10'],
+    // Csb — the platform's THIRD climate class; caveat must name Csb (not Csa/Cfa).
+    climateKoppen: 'Csb',
+    climateClassTr: 'Akdeniz iklimi',
+    caveatContains: 'Csb',
+  },
+  {
+    slug: 'manisa',
+    plateCode: '45',
+    nameTr: 'Manisa',
+    region: 'EGE',
+    population: 1_477_756,
+    populationYear: 2025,
+    areaKm2: 13_339,
+    districtCount: 17,
+    populationDensity: 111, // round(1_477_756 / 13_339)
+    elevationM: 71,
+    latitude: 38.6153,
+    longitude: 27.4049,
+    // Denizli(20) DOES border Manisa (0.00 km via Sarıgöl/Çivril, fact-check §A.6.2).
+    neighborPlateCodes: ['10', '35', '43', '64', '09', '20'],
+    climateKoppen: 'Csa',
+    climateClassTr: 'Akdeniz iklimi',
+    caveatContains: 'Csa',
+  },
+  {
+    slug: 'mugla',
+    plateCode: '48',
+    nameTr: 'Muğla',
+    region: 'EGE',
+    population: 1_099_547,
+    populationYear: 2025,
+    areaKm2: 12_654,
+    districtCount: 13,
+    populationDensity: 87, // round(1_099_547 / 12_654)
+    elevationM: 646,
+    latitude: 37.2095,
+    longitude: 28.3668,
+    neighborPlateCodes: ['09', '20', '15', '07'],
+    climateKoppen: 'Csa',
+    climateClassTr: 'Akdeniz iklimi',
+    caveatContains: 'Csa',
+  },
+  {
+    slug: 'usak',
+    plateCode: '64',
+    nameTr: 'Uşak',
+    region: 'EGE',
+    population: 374_405,
+    populationYear: 2025,
+    areaKm2: 5555,
+    districtCount: 6,
+    populationDensity: 67, // round(374_405 / 5555)
+    elevationM: 919,
+    latitude: 38.6712,
+    longitude: 29.404,
+    neighborPlateCodes: ['43', '03', '20', '45'],
+    climateKoppen: 'Csa',
+    climateClassTr: 'Akdeniz iklimi',
+    caveatContains: 'Csa',
+  },
 ] as const;
 
 /**
  * Real-Postgres e2e (Testcontainers): proves the migrations run clean, the
- * `db:seed:geography` seed lands ALL 24 fact-checked provinces (5 pilot + 9 Batch 2
- * wave-1 + 10 Batch 2 wave-2) IDEMPOTENTLY (no duplicate rows, no `updated_at` bump
- * on a no-op re-seed), and the public read endpoints serve that data under the `/api`
- * prefix. Runs on CI only (needs Docker); locally we run tsc + eslint per CONVENTIONS §2.
+ * `db:seed:geography` seed lands ALL 31 fact-checked provinces (5 pilot + 9 Batch 2
+ * wave-1 + 10 Batch 2 wave-2 + 7 Batch 2 wave-3) IDEMPOTENTLY (no duplicate rows, no
+ * `updated_at` bump on a no-op re-seed), and the public read endpoints serve that data
+ * under the `/api` prefix. Runs on CI only (needs Docker); locally we run tsc + eslint
+ * per CONVENTIONS §2.
  */
 describe('Province (e2e)', () => {
   let container: StartedPostgreSqlContainer;
@@ -494,18 +631,26 @@ describe('Province (e2e)', () => {
   let app: INestApplication;
 
   // Captured in beforeAll (setup MUST run there), asserted in named it() blocks
-  // so a red run points at the exact failed check. FOUR seed phases model the FULL
-  // incremental rollout history (empty → pilot-5 → +wave-1 → +wave-2 → re-run), so
-  // BOTH mixed transitions — including THIS PR's real one (14 present → +10) — are
-  // exercised, not just the homogeneous all-insert/all-no-op extremes.
+  // so a red run points at the exact failed check. FIVE seed phases model the FULL
+  // incremental rollout history (empty → pilot-5 → +wave-1 → +wave-2 → +wave-3 →
+  // re-run), so ALL THREE mixed transitions — including THIS PR's real one (24
+  // present → +7) — are exercised, not just the homogeneous all-insert/all-no-op
+  // extremes. NOTE (next engineer): this per-wave chain is deliberately kept through
+  // wave-3, but it must NOT grow one phase per remaining wave forever. CONCRETE
+  // TRIGGER — at wave-4, stop adding per-wave phases and collapse to a representative
+  // set (empty→first all-insert + ONE multi-batch mixed [the latest transition] +
+  // full no-op), since per-row independence doesn't actually care how many prior
+  // batches the no-op set spans.
   let appliedMigrationNames: string[];
   let pilotOnlySeed: SeedGeographyResult;
   let wave1MixedSeed: SeedGeographyResult;
   let wave2MixedSeed: SeedGeographyResult;
+  let wave3MixedSeed: SeedGeographyResult;
   let reSeed: SeedGeographyResult;
   let istanbulUpdatedAtAfterPilotInsert: string;
   let istanbulUpdatedAtAfterWave1: string;
   let istanbulUpdatedAtAfterWave2: string;
+  let istanbulUpdatedAtAfterWave3: string;
   let istanbulUpdatedAtAfterReseed: string;
 
   beforeAll(async () => {
@@ -529,16 +674,26 @@ describe('Province (e2e)', () => {
     //      Phase 2 — wave-1's shipped rollout: re-seed the SAME DB with pilot+wave-1
     //        (14). The 5 pilot rows already match (no-op) and the 9 wave-1 rows are
     //        new (insert) → a MIXED batch. İstanbul's updated_at must be UNCHANGED.
-    //      Phase 3 — THIS PR's shipped rollout: re-seed with the full 24-list
-    //        (SEED_PROVINCES). The 14 already-present rows are no-ops and the 10
-    //        wave-2 rows are new (insert) → the second, larger MIXED batch. İstanbul's
-    //        updated_at must STILL be unchanged (a mixed batch never touches the rows
-    //        it leaves alone, at any scale).
-    //      Phase 4 — a routine re-run over the complete 24: pure no-op, proving
+    //      Phase 3 — wave-2's shipped rollout: re-seed with pilot+wave-1+wave-2 (24).
+    //        The 14 already-present rows are no-ops and the 10 wave-2 rows are new
+    //        (insert) → the second MIXED batch. İstanbul's updated_at STILL unchanged.
+    //      Phase 4 — THIS PR's shipped rollout: re-seed with the full 31-list
+    //        (SEED_PROVINCES). The 24 already-present rows (spanning THREE prior
+    //        batches) are no-ops and the 7 wave-3 rows are new (insert) → the third,
+    //        largest MIXED batch. İstanbul's updated_at must STILL be unchanged (a
+    //        mixed batch never touches the rows it leaves alone, at any scale, no
+    //        matter how many prior batches the no-op set spans).
+    //      Phase 5 — a routine re-run over the complete 31: pure no-op, proving
     //        idempotency AND no updated_at churn (SEO lastmod honesty, §6).
-    //    PILOT_PROVINCES / PILOT_PLUS_WAVE1 / SEED_PROVINCES drive the phases here;
-    //    value correctness is asserted independently from EXPECTED_PROVINCES.
+    //    PILOT_PROVINCES / PILOT_PLUS_WAVE1 / PILOT_PLUS_WAVE1_WAVE2 / SEED_PROVINCES
+    //    drive the phases here; value correctness is asserted independently from
+    //    EXPECTED_PROVINCES.
     const PILOT_PLUS_WAVE1 = [...PILOT_PROVINCES, ...BATCH2_WAVE1_PROVINCES];
+    const PILOT_PLUS_WAVE1_WAVE2 = [
+      ...PILOT_PROVINCES,
+      ...BATCH2_WAVE1_PROVINCES,
+      ...BATCH2_WAVE2_PROVINCES,
+    ];
     const repo = dataSource.getRepository(Province);
     pilotOnlySeed = await seedGeography(dataSource, PILOT_PROVINCES);
     istanbulUpdatedAtAfterPilotInsert = (
@@ -548,8 +703,12 @@ describe('Province (e2e)', () => {
     istanbulUpdatedAtAfterWave1 = (
       await repo.findOneByOrFail({ plateCode: '34' })
     ).updatedAt.toISOString();
-    wave2MixedSeed = await seedGeography(dataSource, SEED_PROVINCES);
+    wave2MixedSeed = await seedGeography(dataSource, PILOT_PLUS_WAVE1_WAVE2);
     istanbulUpdatedAtAfterWave2 = (
+      await repo.findOneByOrFail({ plateCode: '34' })
+    ).updatedAt.toISOString();
+    wave3MixedSeed = await seedGeography(dataSource, SEED_PROVINCES);
+    istanbulUpdatedAtAfterWave3 = (
       await repo.findOneByOrFail({ plateCode: '34' })
     ).updatedAt.toISOString();
     reSeed = await seedGeography(dataSource);
@@ -597,24 +756,33 @@ describe('Province (e2e)', () => {
     expect(istanbulUpdatedAtAfterWave1).toBe(istanbulUpdatedAtAfterPilotInsert);
   });
 
-  it("phase 3 — re-seeding the full 24 over the 14 is THIS PR's MIXED batch", () => {
-    // The realistic rollout THIS PR ships: 14 rows already present (5 pilot + 9
-    // wave-1, all no-ops) and the 10 wave-2 rows are new (inserts). The larger,
-    // second mixed transition — proves per-row independence still holds when the
-    // no-op set spans TWO prior batches, not just the pilots.
+  it('phase 3 — re-seeding pilot+wave-1+wave-2 (24) over the 14 is a MIXED batch', () => {
+    // Wave-2's shipped rollout: 14 rows already present (5 pilot + 9 wave-1, all
+    // no-ops) and the 10 wave-2 rows are new (inserts) — the second mixed transition,
+    // proving per-row independence when the no-op set spans TWO prior batches.
     expect(wave2MixedSeed).toEqual({ inserted: 10, updated: 0, unchanged: 14, total: 24 });
-    // Still frozen: a mixed batch never touches the rows it leaves alone, at any scale.
+    // Still frozen: a mixed batch never touches the rows it leaves alone.
     expect(istanbulUpdatedAtAfterWave2).toBe(istanbulUpdatedAtAfterWave1);
   });
 
-  it('phase 4 — re-seed is a no-op: no duplicates, no writes, no updated_at churn', async () => {
-    // Every row already matches → all 24 unchanged, none updated/inserted.
-    expect(reSeed).toEqual({ inserted: 0, updated: 0, unchanged: 24, total: 24 });
-    // Still exactly 24 rows.
+  it("phase 4 — re-seeding the full 31 over the 24 is THIS PR's MIXED batch", () => {
+    // The realistic rollout THIS PR ships: 24 rows already present (5 pilot + 9 wave-1
+    // + 10 wave-2, all no-ops) and the 7 wave-3 rows are new (inserts). The largest,
+    // third mixed transition — proves per-row independence still holds when the no-op
+    // set spans THREE prior batches, not just one or two.
+    expect(wave3MixedSeed).toEqual({ inserted: 7, updated: 0, unchanged: 24, total: 31 });
+    // Still frozen: a mixed batch never touches the rows it leaves alone, at any scale.
+    expect(istanbulUpdatedAtAfterWave3).toBe(istanbulUpdatedAtAfterWave2);
+  });
+
+  it('phase 5 — re-seed is a no-op: no duplicates, no writes, no updated_at churn', async () => {
+    // Every row already matches → all 31 unchanged, none updated/inserted.
+    expect(reSeed).toEqual({ inserted: 0, updated: 0, unchanged: 31, total: 31 });
+    // Still exactly 31 rows.
     const count = await dataSource.getRepository(Province).count();
-    expect(count).toBe(24);
+    expect(count).toBe(31);
     // updated_at was NOT bumped by the no-op re-seed.
-    expect(istanbulUpdatedAtAfterReseed).toBe(istanbulUpdatedAtAfterWave2);
+    expect(istanbulUpdatedAtAfterReseed).toBe(istanbulUpdatedAtAfterWave3);
   });
 
   it('round-trips a seeded Province (transformer + array + deliberate nulls)', async () => {
@@ -640,20 +808,23 @@ describe('Province (e2e)', () => {
     expect(istanbul.economyIndicator).toBeNull();
   });
 
-  it('GET /api/provinces returns all 24, plate-ordered, lean (no detail leak)', async () => {
+  it('GET /api/provinces returns all 31, plate-ordered, lean (no detail leak)', async () => {
     const res = await request(app.getHttpServer()).get('/api/provinces').expect(200);
     const body = res.body as Array<Record<string, unknown>>;
     expect(Array.isArray(body)).toBe(true);
-    expect(body).toHaveLength(24);
-    // lexical plate order across all three batches (pilot + wave-1 + wave-2).
+    expect(body).toHaveLength(31);
+    // lexical plate order across all four batches (pilot + wave-1 + wave-2 + wave-3).
     expect(body.map((p) => p.plateCode)).toEqual([
       '02',
+      '03',
       '06',
       '07',
+      '09',
       '10',
       '11',
       '16',
       '17',
+      '20',
       '21',
       '22',
       '27',
@@ -661,11 +832,15 @@ describe('Province (e2e)', () => {
       '35',
       '39',
       '41',
+      '43',
+      '45',
       '47',
+      '48',
       '54',
       '56',
       '59',
       '63',
+      '64',
       '65',
       '72',
       '73',
@@ -692,16 +867,19 @@ describe('Province (e2e)', () => {
     const res = await request(app.getHttpServer()).get('/api/provinces/map-summary').expect(200);
     const body = res.body as Array<Record<string, unknown>>;
     expect(Array.isArray(body)).toBe(true);
-    expect(body).toHaveLength(24);
-    // same plate order as the list endpoint (all 24, three batches)
+    expect(body).toHaveLength(31);
+    // same plate order as the list endpoint (all 31, four batches)
     expect(body.map((p) => p.plateCode)).toEqual([
       '02',
+      '03',
       '06',
       '07',
+      '09',
       '10',
       '11',
       '16',
       '17',
+      '20',
       '21',
       '22',
       '27',
@@ -709,11 +887,15 @@ describe('Province (e2e)', () => {
       '35',
       '39',
       '41',
+      '43',
+      '45',
       '47',
+      '48',
       '54',
       '56',
       '59',
       '63',
+      '64',
       '65',
       '72',
       '73',
@@ -750,7 +932,7 @@ describe('Province (e2e)', () => {
   // seeded row leaves them null (base data only), so nothing else exercises a
   // NON-null jsonb round-trip through Postgres. A throwaway fixture row (plate '00',
   // not a real province) is inserted, read back through the API, then deleted in
-  // `finally` so the other tests still see exactly the 24 seeded rows.
+  // `finally` so the other tests still see exactly the 31 seeded rows.
   it('round-trips non-null jsonb + numeric-rate fields through the DB and API', async () => {
     const repo = dataSource.getRepository(Province);
     const fixture = repo.create({
@@ -795,16 +977,17 @@ describe('Province (e2e)', () => {
       // computed density on real inputs: round(1000 / 4) = 250
       expect(body.populationDensity).toBe(250);
     } finally {
-      // Clean up unconditionally so the 24-row count assumed by the other tests
+      // Clean up unconditionally so the 31-row count assumed by the other tests
       // holds even if an assertion above throws.
       await repo.delete({ plateCode: '00' });
     }
   });
 
-  // I1/M4: assert EVERY seeded province's key fact-checked fields (all 24, three
+  // I1/M4: assert EVERY seeded province's key fact-checked fields (all 31, four
   // batches — not just İstanbul) so a transcription regression in any row fails CI.
-  // The province-specific MGM caveat (Ankara/Van divergence) and the wave-2 Cfa
-  // caveat (Kocaeli/Sakarya, via caveatContains: 'Cfa') are asserted here too.
+  // The province-specific MGM caveat (Ankara/Van divergence), the Cfa caveat
+  // (Kocaeli/Sakarya/Afyonkarahisar, caveatContains: 'Cfa') and the wave-3 Csb caveat
+  // (Kütahya, caveatContains: 'Csb') are asserted here too.
   it.each(EXPECTED_PROVINCES)(
     'GET /api/provinces/$slug returns the full, fact-checked detail',
     async (expected) => {
@@ -871,7 +1054,9 @@ describe('Province (e2e)', () => {
  * scale-up from silently shipping a bare OR mismatched Köppen caveat. Pure function,
  * no DB. Since wave-2 the invariant also asserts CORRESPONDENCE (the caveat must name
  * its own code), so a Csa-flavoured caveat on a Cfa row fails — the copy-paste class
- * of bug the mixed-climate waves make possible.
+ * of bug the mixed-climate waves make possible. Wave-3 adds a THIRD code (Csb): the
+ * self-maintaining substring check handles it with zero changes (Csb is absent from
+ * the Csa/Cfa caveats and vice versa — no 3-letter code cross-matches), proven below.
  */
 describe('assertKoppenCaveatInvariant', () => {
   const VALID_SEED: ProvinceSeed = {
@@ -913,6 +1098,21 @@ describe('assertKoppenCaveatInvariant', () => {
     ).not.toThrow();
   });
 
+  it('passes for a Csb row whose caveat names Csb (the wave-3 third class)', () => {
+    // Proves the self-maintaining substring check accepts a 3rd code with zero extra
+    // work — its caveat names "Csb" and that alone satisfies correspondence.
+    expect(() =>
+      assertKoppenCaveatInvariant([
+        {
+          ...VALID_SEED,
+          climateKoppen: 'Csb',
+          climateClassTr: 'Akdeniz iklimi',
+          climateNoteTr: "MGM'nin 2023 Köppen sınıflandırması bu ili Csb olarak verir (uyarı).",
+        },
+      ]),
+    ).not.toThrow();
+  });
+
   it('throws when a Köppen code has an empty caveat (bare code)', () => {
     expect(() => assertKoppenCaveatInvariant([{ ...VALID_SEED, climateNoteTr: '' }])).toThrow(
       /Köppen⇒caveat invariant violated/,
@@ -937,6 +1137,21 @@ describe('assertKoppenCaveatInvariant', () => {
     ).toThrow(/Köppen⇒caveat invariant violated/);
   });
 
+  it('throws when the caveat does NOT name its code (Csa caveat on a Csb row)', () => {
+    // Same copy-paste bug for the wave-3 third class: a Csb province that kept a
+    // Csa-flavoured caveat. Proves "Csa" does NOT substring-satisfy a "Csb" row —
+    // the 3rd code is discriminated correctly, not accidentally waved through.
+    expect(() =>
+      assertKoppenCaveatInvariant([
+        {
+          ...VALID_SEED,
+          climateKoppen: 'Csb',
+          climateNoteTr: "MGM'nin 2023 Köppen sınıflandırması bu ili Csa olarak verir (uyarı).",
+        },
+      ]),
+    ).toThrow(/Köppen⇒caveat invariant violated/);
+  });
+
   it('does not require a caveat when there is no Köppen code', () => {
     expect(() =>
       assertKoppenCaveatInvariant([{ ...VALID_SEED, climateKoppen: '', climateNoteTr: '' }]),
@@ -946,8 +1161,8 @@ describe('assertKoppenCaveatInvariant', () => {
 
 /**
  * Pure, DB-free coverage of the density derivation — critically the NULL/zero
- * branch, which is the NORMAL state of every not-yet-seeded province (67 of 81).
- * The e2e above only exercises the value branch (all 14 seeded provinces have
+ * branch, which is the NORMAL state of every not-yet-seeded province (50 of 81).
+ * The e2e above only exercises the value branch (all 31 seeded provinces have
  * population + area), so without this a regression in the guard (dropped
  * null-check, removed `areaKm2 === 0` guard) could serve a wrong "0" or a
  * non-finite number on a public SEO page with CI staying green. Mirrors the
