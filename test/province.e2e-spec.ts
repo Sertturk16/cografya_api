@@ -113,6 +113,31 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
     caveatContains: 'yarı-kurak step',
+    // ── Ankara wave-1 deep content — restated INDEPENDENTLY from the fact-checked draft
+    //    (wave1-pilot-deep-content-{draft,factcheck}.md). Structured fields asserted EXACTLY
+    //    in the it.each below; prose gets distinctive-token checks in the wave-1 detail test.
+    urbanizationRate: 100,
+    netMigrationRate: 8.91,
+    hydrographyFeatures: [
+      { name: 'Çamlıdere Barajı', type: 'baraj' },
+      { name: 'Kurtboğazı Barajı', type: 'baraj' },
+      { name: 'Bayındır Barajı', type: 'baraj' },
+      { name: 'Çubuk I Barajı', type: 'baraj' },
+      { name: 'Çubuk II Barajı', type: 'baraj' },
+      { name: 'Kesikköprü Barajı', type: 'baraj' },
+      { name: 'Sarıyar Barajı', type: 'baraj' },
+      { name: 'Sakarya Nehri', type: 'nehir' },
+      { name: 'Kızılırmak', type: 'nehir' },
+      { name: 'Mogan Gölü', type: 'gol' },
+      { name: 'Eymir Gölü', type: 'gol' },
+    ],
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%10,5',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     slug: 'izmir',
@@ -131,6 +156,26 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
     caveatContains: 'Csa',
+    // ── İzmir wave-1 deep content — independent restatement of the fact-checked draft.
+    urbanizationRate: 100,
+    netMigrationRate: 3.53,
+    hydrographyFeatures: [
+      { name: 'Tahtalı Barajı', type: 'baraj' },
+      { name: 'Balçova Barajı', type: 'baraj' },
+      { name: 'Gördes Barajı', type: 'baraj' },
+      { name: 'Ürkmez Barajı', type: 'baraj' },
+      { name: 'Alaçatı Kutlu Aktaş Barajı', type: 'baraj' },
+      { name: 'Gediz Nehri', type: 'nehir' },
+      { name: 'Küçük Menderes Nehri', type: 'nehir' },
+      { name: 'Bakırçay', type: 'nehir' },
+    ],
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%5,7',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     slug: 'van',
@@ -149,6 +194,27 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
     caveatContains: 'karasal/göl-etkili',
+    // ── Van wave-1 deep content — independent restatement. netMigrationRate is the sole
+    //    NEGATIVE of the four pilots; economyIndicator is the Atlas-ruled GSYH-share metric.
+    urbanizationRate: 100,
+    netMigrationRate: -20.02,
+    hydrographyFeatures: [
+      { name: 'Van Gölü', type: 'gol' },
+      { name: 'Erçek Gölü', type: 'gol' },
+      { name: 'Sarımehmet Barajı', type: 'baraj' },
+      { name: 'Zernek Barajı', type: 'baraj' },
+      { name: 'Koçköprü Barajı', type: 'baraj' },
+      { name: 'Morgedik Barajı', type: 'baraj' },
+      { name: 'Bendimahi Çayı', type: 'nehir' },
+      { name: 'Karasu Çayı', type: 'nehir' },
+    ],
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,5',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     slug: 'antalya',
@@ -167,6 +233,28 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
     caveatContains: 'Csa',
+    // ── Antalya wave-1 deep content — independent restatement. netMigrationRate is the
+    //    HIGHEST positive of the four pilots (+9.09 ‰, ahead of Ankara).
+    urbanizationRate: 100,
+    netMigrationRate: 9.09,
+    hydrographyFeatures: [
+      { name: 'Oymapınar Barajı', type: 'baraj' },
+      { name: 'Manavgat Barajı', type: 'baraj' },
+      { name: 'Karacaören I Barajı', type: 'baraj' },
+      { name: 'Karacaören II Barajı', type: 'baraj' },
+      { name: 'Manavgat Nehri', type: 'nehir' },
+      { name: 'Aksu Nehri', type: 'nehir' },
+      { name: 'Köprüçay', type: 'nehir' },
+      { name: 'Düden Çayı', type: 'nehir' },
+      { name: 'Avlan Gölü', type: 'gol' },
+    ],
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%3,4',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   // ── Batch 2 — wave 1 (Güneydoğu Anadolu, 9 il), alphabetical by nameTr ──
   {
@@ -1007,17 +1095,18 @@ describe('Province (e2e)', () => {
         'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
     });
 
-    // A base-data-only province (Ankara) keeps EVERY detail field null — the İstanbul
-    // deep-content update is surgical and must NOT leak into sibling rows.
-    const ankara = await repo.findOneByOrFail({ plateCode: '06' });
-    expect(ankara.introTr).toBeNull();
-    expect(ankara.landformNoteTr).toBeNull();
-    expect(ankara.hydrographyNoteTr).toBeNull();
-    expect(ankara.hydrographyFeatures).toBeNull();
-    expect(ankara.urbanizationRate).toBeNull();
-    expect(ankara.netMigrationRate).toBeNull();
-    expect(ankara.settlementNoteTr).toBeNull();
-    expect(ankara.economyIndicator).toBeNull();
+    // A base-data-only province (Bursa, a wave-2 il — Ankara now carries wave-1 deep
+    // content) keeps EVERY detail field null: the deep-content updates are surgical and
+    // must NOT leak into sibling rows.
+    const bursa = await repo.findOneByOrFail({ plateCode: '16' });
+    expect(bursa.introTr).toBeNull();
+    expect(bursa.landformNoteTr).toBeNull();
+    expect(bursa.hydrographyNoteTr).toBeNull();
+    expect(bursa.hydrographyFeatures).toBeNull();
+    expect(bursa.urbanizationRate).toBeNull();
+    expect(bursa.netMigrationRate).toBeNull();
+    expect(bursa.settlementNoteTr).toBeNull();
+    expect(bursa.economyIndicator).toBeNull();
   });
 
   it('GET /api/provinces returns all 38, plate-ordered, lean (no detail leak)', async () => {
@@ -1241,11 +1330,18 @@ describe('Province (e2e)', () => {
       expect(body.latitude).toBe(expected.latitude);
       expect(body.longitude).toBe(expected.longitude);
 
-      // Detail-section fields. İstanbul is the deep-content pilot (this PR) — its
-      // structured fields are asserted EXACTLY here (prose fields get token checks in the
-      // dedicated İstanbul detail test); every OTHER province is base-data-only and must
-      // keep all seven null, so the İstanbul update never leaks into a sibling row.
-      if (expected.plateCode === '34') {
+      // Detail-section fields. FIVE provinces now carry the deep-content set: İstanbul (the
+      // original pilot) + the wave-1 four (Ankara 06, İzmir 35, Van 65, Antalya 07). Their
+      // structured fields are asserted EXACTLY here (prose fields get distinctive-token checks
+      // in the dedicated detail tests below); every OTHER province is base-data-only and must
+      // keep all seven null, so no deep-content update leaks into a sibling row.
+      if (
+        expected.plateCode === '34' ||
+        expected.plateCode === '06' ||
+        expected.plateCode === '35' ||
+        expected.plateCode === '65' ||
+        expected.plateCode === '07'
+      ) {
         expect(body).toMatchObject({
           urbanizationRate: expected.urbanizationRate,
           netMigrationRate: expected.netMigrationRate,
@@ -1330,6 +1426,65 @@ describe('Province (e2e)', () => {
     // overridden to TÜİK's own published 2943 (a known Batch-1 area-source delta; our shown
     // density must stay consistent with the population and area we actually display).
     expect(body.populationDensity).toBe(2885);
+  });
+
+  // Wave-1 deep content (Ankara/İzmir/Van/Antalya): each prose field carries the
+  // load-bearing, fact-checked facts, asserted by distinctive token (the same discipline the
+  // İstanbul detail test uses) — not a brittle full-prose match. The tokens are deliberately
+  // distinct because each il is written to its OWN geographic character (İç Anadolu plato /
+  // Ege graben-horst / Doğu Anadolu volkanik-kapalı havza / Akdeniz karstic).
+  it.each([
+    {
+      slug: 'ankara',
+      intro: ['başkent', '13 Ekim 1923'],
+      landform: ['Anadolu Platosu', 'Tuz Gölü'],
+      hydrography: ['Sakarya Nehri', 'ASKİ', 'Çamlıdere'],
+      settlement: ['6360', '%100', '+8,91'],
+    },
+    {
+      slug: 'izmir',
+      intro: ['Smyrna', '%5,7'],
+      landform: ['graben-horst', 'Bayraklı', '2020'],
+      hydrography: ['Gediz', 'İZSU', 'Ramsar'],
+      settlement: ['6360', '+3,53'],
+    },
+    {
+      slug: 'van',
+      intro: ['Van Gölü', '2011'],
+      landform: ['Nemrut', 'Süphan', 'volkanik set'],
+      hydrography: ['sodalı', '3.713', 'Bendimahi'],
+      settlement: ['6360', '-20,02'],
+    },
+    {
+      slug: 'antalya',
+      intro: ['Attaleia', 'II. Attalos'],
+      landform: ['karstik', 'Kızlarsivrisi', '3.086'],
+      hydrography: ['Manavgat', 'Avlan', 'Karacaören'],
+      settlement: ['6360', '+9,09'],
+    },
+  ])(
+    'GET /api/provinces/$slug serves the wave-1 deep-content prose (fact-checked tokens)',
+    async ({ slug, intro, landform, hydrography, settlement }) => {
+      const res = await request(app.getHttpServer()).get(`/api/provinces/${slug}`).expect(200);
+      const body = res.body as Record<string, string>;
+      for (const token of intro) expect(body.introTr).toContain(token);
+      for (const token of landform) expect(body.landformNoteTr).toContain(token);
+      for (const token of hydrography) expect(body.hydrographyNoteTr).toContain(token);
+      for (const token of settlement) expect(body.settlementNoteTr).toContain(token);
+      // No ALL-CAPS emphasis in shipped prose (CONTENT-STYLE.md §2) — the same negative guard
+      // the İstanbul detail test applies to prove the house style holds across the wave.
+      expect(body.landformNoteTr).not.toContain('DEĞİL');
+    },
+  );
+
+  it('GET /api/provinces/antalya carries the fact-check altitude CORRECTION (3.086, not 3.070)', async () => {
+    // The independent fact-check's single factual fix: Kızlarsivrisi 3.070 → 3.086 m. The
+    // corrected value must be present and the superseded one absent — mirrors İstanbul's
+    // Alibey/Alibeyköy correction assertion (the corrected form in, the old form out).
+    const res = await request(app.getHttpServer()).get('/api/provinces/antalya').expect(200);
+    const body = res.body as Record<string, string>;
+    expect(body.landformNoteTr).toContain('3.086');
+    expect(body.landformNoteTr).not.toContain('3.070');
   });
 
   it('GET /api/provinces/:slug returns 404 for an unseeded slug', async () => {
