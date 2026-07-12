@@ -302,6 +302,82 @@ const MGM_KOPPEN_CAVEAT_CFB_TR =
   'bu iller farklı iklim tiplerine ayrışabilir.';
 
 /**
+ * ── D-group + BSk (Batch 2 wave-6b, Doğu Anadolu) ─────────────────────────────
+ * Wave-6b (the 13 remaining Doğu Anadolu il) introduces the platform's FIRST
+ * non-"C"-group Köppen classes: FOUR new codes at once (all previously-seeded 44 il
+ * were Csa/Cfa/Csb). MGM's own 2023 table (koppen.pdf s.11-15) reads, per il:
+ *   • Dfb — Erzurum 25, Kars 36             ("Kışı Şiddetli, her mevsim yağışlı, Yazı Serin")
+ *   • Dsb — Ağrı 04, Ardahan 75             ("Kışı Şiddetli, Yazı Kurak ve Serin")
+ *   • Dsa — Bitlis 13, Hakkari 30, Muş 49   ("Kışı Şiddetli, Yazı Kurak ve sıcak")
+ *   • BSk — Elazığ 23, Iğdır 76, Malatya 44 ("Yarı Kurak Step İklimi(soğuk)")
+ * (Bingöl 12, Erzincan 24, Tunceli 62 are Csa — they reuse the shared Csa constants.)
+ *
+ * TURKISH CLASS NAMES ARE LOCKED (→ DEC 2026-07-12, Atlas/owner ruling, same
+ * mechanism as Cfa→"Karadeniz iklimi" / Csb→"Akdeniz iklimi", 2026-07-11):
+ *   • ALL THREE D-group codes (Dfb/Dsb/Dsa) → the SINGLE family name **"Karasal
+ *     iklim"** — DELIBERATE, unlike the C-group's Akdeniz/Karadeniz split. Köppen's D
+ *     group ("kışı şiddetli/sert") maps definitionally onto the MEB curriculum's
+ *     "karasal iklim" family; the sub-letter (f/s/a/b) nuance rides in each code's own
+ *     climateNoteTr (as Csa vs Csb do), not in the class name. (The taiga label
+ *     "Kar-orman iklimi" was considered and REJECTED — it belongs to the colder Dfc/Dfd
+ *     subtypes, misleading for the milder Dfb.)
+ *   • BSk → **"Yarı Kurak Step İklimi"** (MGM's own row wording carries "Step İklimi").
+ *
+ * Same structure as the Cfa/Csb siblings: the shared Csa constants hard-code
+ * "Csa (Akdeniz iklimi)" so they cannot be reused; each code below mirrors the
+ * MGM_KOPPEN_CAVEAT_TR body verbatim (the code-agnostic ~65%-"Cs" admission +
+ * Thornthwaite/Erinç divergence — which explicitly names Doğu Anadolu, apt here), only
+ * the opening class clause changes. Each caveat NAMES its own 3-letter code, so the
+ * Köppen⇒caveat correspondence invariant (`assertKoppenCaveatInvariant`, seed-geography.ts)
+ * is satisfied self-maintainingly — "Dfb"/"Dsb"/"Dsa"/"BSk" cross-match none of the
+ * existing Csa/Cfa/Csb caveats and vice versa.
+ */
+const KOPPEN_DFB = 'Dfb';
+const KOPPEN_DSB = 'Dsb';
+const KOPPEN_DSA = 'Dsa';
+const KOPPEN_BSK = 'BSk';
+/** Shared Turkish curriculum-register name for the whole Köppen D group (→ DEC 2026-07-12). */
+const CLIMATE_CLASS_D_GROUP_TR = 'Karasal iklim';
+/** Turkish class name for Köppen BSk (→ DEC 2026-07-12). */
+const CLIMATE_CLASS_BSK_TR = 'Yarı Kurak Step İklimi';
+
+const MGM_KOPPEN_CAVEAT_DFB_TR =
+  "MGM'nin 2023 Köppen sınıflandırması bu ili Dfb (Karasal iklim, kışı şiddetli, her mevsim " +
+  'yağışlı, yazı serin) olarak verir. ' +
+  "Ancak MGM'nin kendi raporu, bu basitleştirilmiş yöntemin (üçüncü-harf kuralı) " +
+  "Türkiye'deki 254 istasyonun yaklaşık %65'ini 'Cs' (Akdeniz tipi) çıkardığını ve " +
+  'İç Anadolu ile Doğu Anadolu gibi bölgelerde ayırt ediciliğinin sınırlı kaldığını ' +
+  'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
+  'bu iller farklı iklim tiplerine ayrışabilir.';
+
+const MGM_KOPPEN_CAVEAT_DSB_TR =
+  "MGM'nin 2023 Köppen sınıflandırması bu ili Dsb (Karasal iklim, kışı şiddetli, yazı kurak " +
+  've serin) olarak verir. ' +
+  "Ancak MGM'nin kendi raporu, bu basitleştirilmiş yöntemin (üçüncü-harf kuralı) " +
+  "Türkiye'deki 254 istasyonun yaklaşık %65'ini 'Cs' (Akdeniz tipi) çıkardığını ve " +
+  'İç Anadolu ile Doğu Anadolu gibi bölgelerde ayırt ediciliğinin sınırlı kaldığını ' +
+  'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
+  'bu iller farklı iklim tiplerine ayrışabilir.';
+
+const MGM_KOPPEN_CAVEAT_DSA_TR =
+  "MGM'nin 2023 Köppen sınıflandırması bu ili Dsa (Karasal iklim, kışı şiddetli, yazı kurak " +
+  've sıcak) olarak verir. ' +
+  "Ancak MGM'nin kendi raporu, bu basitleştirilmiş yöntemin (üçüncü-harf kuralı) " +
+  "Türkiye'deki 254 istasyonun yaklaşık %65'ini 'Cs' (Akdeniz tipi) çıkardığını ve " +
+  'İç Anadolu ile Doğu Anadolu gibi bölgelerde ayırt ediciliğinin sınırlı kaldığını ' +
+  'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
+  'bu iller farklı iklim tiplerine ayrışabilir.';
+
+const MGM_KOPPEN_CAVEAT_BSK_TR =
+  "MGM'nin 2023 Köppen sınıflandırması bu ili BSk (Yarı Kurak Step İklimi, soğuk alt-tipi) " +
+  'olarak verir. ' +
+  "Ancak MGM'nin kendi raporu, bu basitleştirilmiş yöntemin (üçüncü-harf kuralı) " +
+  "Türkiye'deki 254 istasyonun yaklaşık %65'ini 'Cs' (Akdeniz tipi) çıkardığını ve " +
+  'İç Anadolu ile Doğu Anadolu gibi bölgelerde ayırt ediciliğinin sınırlı kaldığını ' +
+  'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
+  'bu iller farklı iklim tiplerine ayrışabilir.';
+
+/**
  * Pilot 5 provinces. Neighbour names come from the dictionary (§2.1); they are
  * converted here to their IMMUTABLE İçişleri plaka codes (schema field #2, a
  * fixed Tier-1 registry) — the name→code map is spelled out inline so the
@@ -3644,13 +3720,670 @@ export const WAVE6D_KARADENIZ_B_PROVINCES: readonly ProvinceSeed[] = [
 ];
 
 /**
+ * BATCH 2 — WAVE 6b il seed data — Doğu Anadolu (13 il, Van hariç): Ağrı, Ardahan,
+ * Bingöl, Bitlis, Elazığ, Erzincan, Erzurum, Hakkari, Iğdır, Kars, Malatya, Muş, Tunceli.
+ * (Van is Doğu Anadolu's 14th province but is already seeded in PILOT_PROVINCES with its
+ * wave-1 deep content, so it is not repeated here.) This batch COMPLETES the Doğu Anadolu
+ * region and — landing alongside its three wave-6 siblings (6a/6c/6d, disjoint provinces) —
+ * brings the platform to all 81 il.
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * PROVENANCE (traceability — CONVENTIONS §4: no sourceless facts)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * SOURCE OF RECORD: NOVA's researched draft, INDEPENDENTLY fact-checked — verdict
+ *   "SEED-READY WITH CORRECTIONS" (all three applied before seeding): (1) Malatya introTr
+ *   kayısı stat reframed to "dünya kuru kayısı üretiminin yaklaşık %85'i" (the source says
+ *   "dünya", not "Türkiye"); (2) Tunceli neighbor Sivas 58 REMOVED (geojson + both il's own
+ *   Wikipedia pages disagree — Erzincan/Elazığ sit between); (3) Elazığ Keban Barajı figures
+ *   corrected to 1.330 MW installed / 6,6 milyar kWh annual (EÜAŞ + TR Wikipedia — the
+ *   Belediye source's 134 MW / 7,5 milyar kWh were both wrong).
+ *   • Draft:      Owner's Inbox/data-source-groundwork/wave6b-dogu-anadolu-draft.md
+ *   • Fact-check: Owner's Inbox/data-source-groundwork/wave6b-dogu-anadolu-factcheck.md
+ *   • Ledger:     data-provenance.md (root) — wave-6b
+ * Per-field Tier-1 authorities (same as every prior batch): Nüfus 31.12.2025 → TÜİK ADNKS
+ *   2025 (bülten 53899); Yüzölçümü → HGM; İlçe sayısı → e-İçişleri; Rakım+koordinat →
+ *   MGM il-merkez istasyonu; Köppen → MGM 2023 raporu; Komşu iller → Tier-2, SYMMETRICALLY
+ *   cross-validated against the already-locked neighborPlateCodes of Van (04/13/30), Batman
+ *   (49/13), Diyarbakır (12/23/44/49), Siirt (13), Şırnak (30), Adıyaman (44), Kahramanmaraş
+ *   (44) — every wave-6b↔seeded and wave-6b↔wave-6b adjacency confirmed bidirectional.
+ *
+ * MGM default-station notes: Erzurum → Yakutiye (no "Merkez" ilçe since 2012; the city is
+ *   split into Aziziye/Palandöken/Yakutiye metropol ilçeler — same category as Diyarbakır/
+ *   Bağlar). Malatya → the MGM service still labels its station "Merkez" although Malatya has
+ *   no "Merkez" ilçe (real merkez ilçeler Battalgazi/Yeşilyurt) — a historical MGM label
+ *   remnant, NOT a broken-record case (the 950 m elevation is physically sound, so the
+ *   GLOSSARY §1 exception does NOT fire). Recorded inline on each elevationM.
+ *
+ * KÖPPEN — FOUR new codes this batch (see the D-group/BSk constants above): Dfb/Dsb/Dsa →
+ *   "Karasal iklim" (a single family name — deliberate, unlike the C-group split), BSk →
+ *   "Yarı Kurak Step İklimi", all LOCKED (→ DEC 2026-07-12). Bingöl/Erzincan/Tunceli are Csa
+ *   and reuse the shared Csa constants. Each row's climateNoteTr names its own code, so the
+ *   Köppen⇒caveat invariant holds (assertKoppenCaveatInvariant, seed-geography.ts).
+ *
+ * DEPTH — ALL 13 are Tier-B (every il <1M pop): the 6-field set (introTr, shortened landform/
+ *   hydrography, urbanizationRate, netMigrationRate, economyIndicator); hydrographyFeatures is
+ *   OMITTED for all (→ null via withExplicitDetailNulls). TWO carry the büyükşehir-exception
+ *   settlementNoteTr (→ DEC 2026-07-12, Mardin precedent): Erzurum 25 and Malatya 44 are legal
+ *   büyükşehir despite <1M pop, so their urbanizationRate=100 is the 6360-Kanun artifact and
+ *   each gets ONLY the single 6360 caveat sentence (no migration narrative — that number lives
+ *   in netMigrationRate). The other 11 have a REAL (<100) urbanizationRate and NO
+ *   settlementNoteTr. Malatya is the wave's SOLE positive net migration (+6.88 ‰); Ağrı's
+ *   -32.59 ‰ is among the wave's most negative. No factual value invented; every number/name
+ *   transcribed from the fact-checked draft. No schema/DTO/OpenAPI change (every field exists
+ *   since the İstanbul pilot).
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
+  {
+    plateCode: '04',
+    nameTr: 'Ağrı',
+    slugTr: 'agri',
+    slugEn: 'agri',
+    region: GeographicRegion.DoguAnadolu,
+    population: 491_489,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 11_099,
+    districtCount: 8,
+    elevationM: 1646, // MGM Merkez istasyonu
+    latitude: 39.7253,
+    longitude: 43.0522,
+    // Kars=36, Iğdır=76, Erzurum=25, Muş=49, Bitlis=13, Van=65 (+ İran — ülke, hariç)
+    neighborPlateCodes: ['36', '76', '25', '49', '13', '65'],
+    climateKoppen: KOPPEN_DSB,
+    climateClassTr: CLIMATE_CLASS_D_GROUP_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_DSB_TR,
+    // ── Ağrı deep content (wave-6b Tier-B). 6-field set (hydrographyFeatures + settlementNoteTr
+    //    OMITTED). urbanizationRate=62.76 is a REAL rate (non-büyükşehir). netMigrationRate
+    //    -32.59 is among the wave's most-negative (near Siirt's -33.96 record). GSYH share %0,2.
+    landformNoteTr:
+      'Ağrı Dağı, ana zirve Büyük Ağrı ile güneydoğusundaki 3.896 metrelik Küçük ' +
+      "Ağrı'dan oluşan bir volkanik kütledir. Zirvede yaklaşık 10 km²'lik bir buzul örtüsü " +
+      'bulunur; kalıcı kar sınırı 4.300 metre civarındadır. İlin batısında Aras vadisine ' +
+      'açılan düzlükler, doğusunda ise Tendürek volkanik kütlesinin uzantıları yer alır.',
+    introTr:
+      "Türkiye'nin en yüksek zirvesi olan 5.137 metrelik Ağrı Dağı, ilin kuzeydoğusunda " +
+      'yükselir. Bileşik bir stratovolkan olan dağ, ülkenin sürekli buzul örtüsü bulunan tek ' +
+      "zirvesidir. İl, Murat ve Aras nehir havzaları arasında, Doğu Anadolu Bölgesi'nin " +
+      'doğusunda yer alır.',
+    hydrographyNoteTr:
+      "Murat Nehri'nin kaynak kollarından biri, ilin Diyadin ilçesi yakınlarından doğar; " +
+      'nehir buradan batıya, Muş yönüne akar. İlin kuzeyinde Aras Nehri, Doğubayazıt ve ' +
+      "Tuzluca arasındaki vadiyi izleyerek Iğdır'a geçer.",
+    urbanizationRate: 62.76,
+    netMigrationRate: -32.59,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,2',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '75',
+    nameTr: 'Ardahan',
+    slugTr: 'ardahan',
+    slugEn: 'ardahan',
+    region: GeographicRegion.DoguAnadolu,
+    population: 90_392,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 4934,
+    districtCount: 6,
+    elevationM: 1827, // MGM Merkez istasyonu
+    latitude: 41.1061,
+    longitude: 42.7055,
+    // Artvin=08, Erzurum=25, Kars=36 (+ Gürcistan, Ermenistan — ülke, hariç)
+    neighborPlateCodes: ['08', '25', '36'],
+    climateKoppen: KOPPEN_DSB,
+    climateClassTr: CLIMATE_CLASS_D_GROUP_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_DSB_TR,
+    // ── Ardahan deep content (wave-6b Tier-B). 6-field set. urbanizationRate=45.19 is the
+    //    wave's LOWEST — a REAL (non-büyükşehir) rate, not a legal artifact. GSYH share %0,1.
+    landformNoteTr:
+      "İlin en yüksek noktası, Çıldır Gölü'nün güneybatısında yer alan 3.197 metrelik Kısır " +
+      "Dağı'dır. Gölün kuzeydoğusunda 3.033 metrelik Keldağ, doğusunda ise 3.026 metrelik " +
+      'Akbaba Dağı yükselir. Çıldır Gölü, bir lav akıntısı ile moloz konisinin birlikte ' +
+      'oluşturduğu doğal bir set gölüdür; en derin noktası 42 metredir.',
+    introTr:
+      "Ardahan, 90.392 kişilik nüfusuyla Türkiye'nin en az nüfuslu üçüncü ilidir. İlin " +
+      "doğusunda yer alan Çıldır Gölü, 123 km² yüzölçümüyle Doğu Anadolu Bölgesi'nin en büyük " +
+      'tatlı su gölüdür. İl, Gürcistan ve Ermenistan sınırına yakın, yüksek bir plato üzerinde ' +
+      'kuruludur.',
+    hydrographyNoteTr:
+      "İl toprakları, kuzeyde Kura, güneyde Aras nehir havzaları arasında kalır. Çıldır Gölü'nü " +
+      "besleyen sular, Arpaçayı aracılığıyla Aras Irmağı'na ulaşır.",
+    urbanizationRate: 45.19,
+    netMigrationRate: -20.27,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,1',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '12',
+    nameTr: 'Bingöl',
+    slugTr: 'bingol',
+    slugEn: 'bingol',
+    region: GeographicRegion.DoguAnadolu,
+    population: 282_299,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 8003,
+    districtCount: 8,
+    elevationM: 1139, // MGM Merkez istasyonu
+    latitude: 38.8847,
+    longitude: 40.5007,
+    // Muş=49, Erzincan=24, Erzurum=25, Tunceli=62, Elazığ=23, Diyarbakır=21
+    neighborPlateCodes: ['49', '24', '25', '62', '23', '21'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    // ── Bingöl deep content (wave-6b Tier-B). 6-field set. Karlıova is the KAF-DAF fault
+    //    junction, framed strictly as geology (Erzincan/İzmir/Kocaeli precedent). urbanizationRate
+    //    70.55 is a REAL rate (non-büyükşehir). GSYH share %0,2.
+    landformNoteTr:
+      'İlin doğusunda Bingöl Dağları, batısında Şerafettin Dağları yükselir. Karlıova Havzası, ' +
+      'Kuzey Anadolu, Doğu Anadolu ve Varto fay zonlarının kesiştiği bölgede, yoğun tektonik ' +
+      'hareketlilikle oluşmuş yükselti ve çöküntü alanlarından oluşur.',
+    introTr:
+      "Bingöl'ün Karlıova ilçesi, Türkiye'nin en aktif iki fay hattı olan Kuzey Anadolu Fayı " +
+      "ile Doğu Anadolu Fayı'nın kesiştiği noktada yer alır; dünyada benzerine az rastlanan bir " +
+      "tektonik kavşaktır. İl, Doğu Anadolu Bölgesi'nin batısında, Bingöl ve Şerafettin dağları " +
+      'arasında kuruludur.',
+    hydrographyNoteTr:
+      'Peri Suyu, Karagöl ve Bingöl dağlarındaki kaynak sularının ' +
+      "Karlıova'nın kuzeybatısında birleşmesiyle oluşur; vadisi, Bingöl ile Tunceli arasındaki " +
+      'doğal sınırı çizer. Karlıova çevresindeki göllerin en büyüğü, Kargapazar köyü ' +
+      "yakınındaki Gölbahri Gölü'dür.",
+    urbanizationRate: 70.55,
+    netMigrationRate: -13.2,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,2',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '13',
+    nameTr: 'Bitlis',
+    slugTr: 'bitlis',
+    slugEn: 'bitlis',
+    region: GeographicRegion.DoguAnadolu,
+    population: 360_423,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 8294,
+    districtCount: 7,
+    elevationM: 1789, // MGM Merkez istasyonu
+    latitude: 38.475,
+    longitude: 42.1625,
+    // Muş=49, Ağrı=04, Van=65, Siirt=56, Batman=72
+    neighborPlateCodes: ['49', '04', '65', '56', '72'],
+    climateKoppen: KOPPEN_DSA,
+    climateClassTr: CLIMATE_CLASS_D_GROUP_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_DSA_TR,
+    // ── Bitlis deep content (wave-6b Tier-B). 6-field set. The Nemrut Dağı here is the Bitlis
+    //    crater-lake volcano — a DIFFERENT, homonymous mountain from Adıyaman's UNESCO Nemrut
+    //    (wave-5). urbanizationRate 66.88 is a REAL rate. GSYH share %0,2.
+    landformNoteTr:
+      'İl toprakları dört coğrafi bölüme ayrılır: kuzeyde Ahlat Düzlüğü, onun güneyinde Nemrut ' +
+      'Stratovolkanı, ortada Van-Muş havzasının bir kesimi ve güneyde Bitlis Masifi. ' +
+      "Nemrut'un krater gölü ile kuzeyindeki Nazik Gölü, bu volkanik kütlenin iki gölüdür.",
+    introTr:
+      "Nemrut Dağı'nın krater gölü, Ahlat, Güroymak ve Tatvan ilçe sınırları içinde, Van " +
+      "Gölü'nün batısında yer alır. Uykuda bir yanardağ olan Nemrut, son olarak 1441'de lav " +
+      "çıkarmıştır. İl, Van Gölü'nün güneybatı kıyısından güneye, Bitlis Masifi'ne uzanan " +
+      'dağlık bir arazi üzerinde kuruludur.',
+    hydrographyNoteTr:
+      "İlin kuzeyinde Van Gölü'nün bir kesimi yer alır; göl suyu tuzlu ve sodalıdır. Bitlis " +
+      'kent merkezinden geçen Bitlis Çayı ise güneye akarak Dicle Nehri sistemine katılır. İl ' +
+      "toprakları böylece hem Van'ın kapalı havzasına hem Dicle'nin açık havzasına su verir.",
+    urbanizationRate: 66.88,
+    netMigrationRate: -12.42,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,2',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '23',
+    nameTr: 'Elazığ',
+    slugTr: 'elazig',
+    slugEn: 'elazig',
+    region: GeographicRegion.DoguAnadolu,
+    population: 605_678,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 9383,
+    districtCount: 11,
+    elevationM: 881, // MGM Merkez istasyonu
+    latitude: 38.6058,
+    longitude: 39.2973,
+    // Bingöl=12, Tunceli=62, Erzincan=24, Malatya=44, Diyarbakır=21
+    neighborPlateCodes: ['12', '62', '24', '44', '21'],
+    climateKoppen: KOPPEN_BSK,
+    climateClassTr: CLIMATE_CLASS_BSK_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_BSK_TR,
+    // ── Elazığ deep content (wave-6b Tier-B). 6-field set. Keban Barajı figures are the
+    //    fact-check CORRECTION (1.330 MW / 6,6 milyar kWh per EÜAŞ — the Belediye source's
+    //    134 MW / 7,5 milyar kWh were both wrong). urbanizationRate 80.09 is a REAL rate. GSYH %0,5.
+    landformNoteTr:
+      'İl merkezinin güneydoğusunda, yaklaşık 25 kilometre uzaklıktaki Hazar Gölü, tektonik ' +
+      "kökenli bir göldür. Gölün güneydoğusundan süzülen sular, Behremaz Deresi'yle " +
+      "birleşerek Dicle Nehri'nin kaynak kollarından birini oluşturur — Elazığ toprakları " +
+      'böylece hem Fırat hem Dicle havzalarına su verir.',
+    introTr:
+      "Keban Baraj Gölü, Murat vadisi boyunca 125 kilometre uzunluğuyla Türkiye'nin en büyük " +
+      "yapay gölüdür. İlin güney kesimi dışında tamamı Fırat Havzası'nda kalan Elazığ, " +
+      "Doğu Anadolu Bölgesi'nin batı ucunda kuruludur.",
+    hydrographyNoteTr:
+      "Fırat Nehri, ilk kaynaklarını Van Gölü'nün kuzeyindeki Aladağ'ın kuzey eteklerinden alır " +
+      "ve batıya akarak Palu ilçesinden geçtikten sonra Keban Baraj Gölü'ne dökülür. " +
+      "1965'te inşasına başlanan Keban Barajı, 1974-1981 arasında kademeli olarak devreye " +
+      "girmiş; kurulu gücü 1.330 MW, yıllık ortalama enerji üretimi 6,6 milyar kWh'tir.",
+    urbanizationRate: 80.09,
+    netMigrationRate: -5.42,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,5',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '24',
+    nameTr: 'Erzincan',
+    slugTr: 'erzincan',
+    slugEn: 'erzincan',
+    region: GeographicRegion.DoguAnadolu,
+    population: 239_625,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 11_815,
+    districtCount: 9,
+    elevationM: 1216, // MGM Merkez istasyonu
+    latitude: 39.7523,
+    longitude: 39.4868,
+    // Erzurum=25, Sivas=58, Tunceli=62, Bingöl=12, Elazığ=23, Malatya=44, Gümüşhane=29, Bayburt=69, Giresun=28
+    neighborPlateCodes: ['25', '58', '62', '12', '23', '44', '29', '69', '28'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    // ── Erzincan deep content (wave-6b Tier-B). 6-field set. The 1939 quake is handled factual/
+    //    short (Kandilli/AFAD-sourced, KAF context — Kocaeli/İzmir precedent). urbanizationRate
+    //    75.99 is a REAL rate (non-büyükşehir). GSYH share %0,2.
+    landformNoteTr:
+      'Erzincan, Kuzey Anadolu Fay Hattı üzerinde yer alan tektonik bir çöküntü ovasında ' +
+      'kuruludur; ova, deniz seviyesinden yaklaşık 1.200 metre yükseklikte, kuzeyde ve güneyde ' +
+      "yüksek dağ sıralarıyla çevrilidir. Batıda Munzur Dağları, güneyde Bingöl Dağları'nın " +
+      'uzantıları ilin dağlık kesimlerini oluşturur.',
+    introTr:
+      "27 Aralık 1939'da merkez üssü Erzincan olan, Kandilli Rasathanesi kayıtlarına göre 7,9 " +
+      "büyüklüğündeki deprem, Türkiye'nin 20. yüzyılda yaşadığı en yıkıcı doğal afetlerden " +
+      'biridir; resmi kayıtlara göre 32.968 kişi hayatını kaybetmiştir. İl, Kuzey Anadolu Fay ' +
+      "Hattı'nın doğu ucuna yakın bir tektonik çöküntü ovasında kuruludur. TÜİK'in 2025 " +
+      "verilerine göre kilometrekareye 21 kişi düşen Erzincan, Türkiye'nin en düşük nüfus " +
+      'yoğunluğuna sahip illerinden biridir.',
+    hydrographyNoteTr:
+      "İlin ortasından geçen Karasu, Fırat Nehri'nin iki ana kaynak kolundan biridir; Erzincan " +
+      'Ovası boyunca batıya akar.',
+    urbanizationRate: 75.99,
+    netMigrationRate: -11.95,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,2',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '25',
+    nameTr: 'Erzurum',
+    slugTr: 'erzurum',
+    slugEn: 'erzurum',
+    region: GeographicRegion.DoguAnadolu,
+    population: 736_877,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 25_006,
+    districtCount: 20,
+    elevationM: 1860, // MGM Yakutiye istasyonu (büyükşehir — ayrı "Merkez" ilçesi yok, 3 metropol ilçe)
+    latitude: 39.9058,
+    longitude: 41.2544,
+    // Bayburt=69, Erzincan=24, Bingöl=12, Muş=49, Ağrı=04, Kars=36, Ardahan=75, Artvin=08, Rize=53
+    neighborPlateCodes: ['69', '24', '12', '49', '04', '36', '75', '08', '53'],
+    climateKoppen: KOPPEN_DFB,
+    climateClassTr: CLIMATE_CLASS_D_GROUP_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_DFB_TR,
+    // ── Erzurum deep content (wave-6b Tier-B + büyükşehir EXCEPTION → DEC 2026-07-12, Mardin
+    //    precedent). Tier-B depth (hydrographyFeatures OMITTED), BUT büyükşehir, so
+    //    urbanizationRate=100 is the 6360 legal artifact carrying ONLY the single-sentence
+    //    settlementNoteTr (no migration narrative). Türkiye's most-neighboured il (9). GSYH %0,5.
+    landformNoteTr:
+      'Erzurum, ortalama yüksekliği 2.000 metreyi bulan geniş platolar üzerinde yer alır; bu ' +
+      'platoların üzerinde yükselen dağların çoğu 3.000 metreyi aşar. Kentin güneyinde uzanan ' +
+      'Palandöken Dağları, 3.176 metrelik Büyük Ejder Tepesi ile ilin en yüksek noktalarından ' +
+      'birini oluşturur; doğu-batı doğrultusunda yaklaşık 70 kilometre uzanır. İlin ' +
+      'kuzeydoğusunda Allahuekber Dağları, doğusunda Kargapazarı Dağı yükselir; bu dağlık ' +
+      'çevrenin ortasında Erzurum ve Pasinler ovaları kalır.',
+    introTr:
+      "Erzurum kent merkezi, 1.860 metre rakımıyla Türkiye'nin en yüksek rakımlı büyük " +
+      "şehirlerinden biridir. İl, Doğu Anadolu Bölgesi'nin kuzeydoğusunda, geniş platolar " +
+      'üzerinde kuruludur. Dokuz ayrı ille sınır komşusu olan Erzurum, bu özelliğiyle ' +
+      "Türkiye'nin en çok komşuya sahip ilidir.",
+    hydrographyNoteTr:
+      "Aras Nehri'nin başlıca kaynak kollarından biri, ilin Tekman ilçesi yaylalarından doğar; " +
+      "nehir buradan Pasinler Ovası'nı geçerek kuzeydoğuya, Kars-Erzurum platosuna yönelir. " +
+      'İlin kuzeyinde, İspir ve Tortum ilçeleri çevresinde doğan Çoruh Nehri ise ' +
+      "Karadeniz'e ulaşan ayrı bir akarsu sistemidir.",
+    urbanizationRate: 100.0,
+    netMigrationRate: -15.86,
+    settlementNoteTr:
+      "Erzurum'un TÜİK il/ilçe merkezi nüfus oranı, büyükşehir statüsündeki illerde olduğu gibi " +
+      "%100'dür — belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) " +
+      'bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,5',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '30',
+    nameTr: 'Hakkari',
+    slugTr: 'hakkari',
+    slugEn: 'hakkari',
+    region: GeographicRegion.DoguAnadolu,
+    population: 279_681,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 7095,
+    districtCount: 5,
+    elevationM: 1727, // MGM Merkez istasyonu
+    latitude: 37.5744,
+    longitude: 43.7388,
+    // Van=65, Şırnak=73 (+ İran, Irak — ülke, hariç)
+    neighborPlateCodes: ['65', '73'],
+    climateKoppen: KOPPEN_DSA,
+    climateClassTr: CLIMATE_CLASS_D_GROUP_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_DSA_TR,
+    // ── Hakkari deep content (wave-6b Tier-B). 6-field set. Türkiye içinde SADECE 2 komşu (Van,
+    //    Şırnak — both symmetric). Cilo-Sat is stated as "one of the highest massifs", no exact
+    //    ranking claim (deliberate). urbanizationRate 66.55 is a REAL rate. GSYH share %0,2.
+    landformNoteTr:
+      'Cilo kütlesinin güneybatısına doğru uzanan engebeli arazide 3.000 metreyi aşan çok ' +
+      'sayıda doruk yer alır; bunların başlıcaları 3.250 metrelik Beridalo ve Yekboy dağları ' +
+      "ile 3.460 metrelik Gare Dağı'dır. Sat Dağları kütlesinde ise 3.540 metrelik Sat Dağı ve " +
+      '3.356 metrelik Gevaroki Dağı öne çıkar.',
+    introTr:
+      "Hakkari, il geneli ortalama yükseklik bakımından Türkiye'nin en yüksek rakımlı ilidir; " +
+      'toprakların neredeyse tamamı 1.500 metrenin üzerindedir. İlin kuzeyindeki Cilo-Sat ' +
+      "Dağları, 4.168 metreye ulaşan zirveleriyle Türkiye'nin en yüksek dağ kütlelerinden " +
+      "biridir. İl, Güneydoğu Toroslar'ın en sarp bölümünde, Irak ve İran sınırına bitişik " +
+      'kuruludur.',
+    hydrographyNoteTr:
+      "İlin akarsuları, Dicle Nehri'nin önemli bir kolu olan Büyük Zap'ı besler; bu akarsular " +
+      'Cilo-Sat kütlesinin buzul ve kar sularıyla beslenir, güneye Irak topraklarına doğru akar.',
+    urbanizationRate: 66.55,
+    netMigrationRate: -19.77,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,2',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '76',
+    nameTr: 'Iğdır',
+    slugTr: 'igdir',
+    slugEn: 'igdir',
+    region: GeographicRegion.DoguAnadolu,
+    population: 205_071,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 3664,
+    districtCount: 4,
+    elevationM: 856, // MGM Merkez istasyonu
+    latitude: 39.9227,
+    longitude: 44.0523,
+    // Ağrı=04, Kars=36 (+ Ermenistan, Nahçıvan-Azerbaycan — ülke, hariç) — Türkiye içinde SADECE 2 komşu
+    neighborPlateCodes: ['04', '36'],
+    climateKoppen: KOPPEN_BSK,
+    climateClassTr: CLIMATE_CLASS_BSK_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_BSK_TR,
+    // ── Iğdır deep content (wave-6b Tier-B). 6-field set. Türkiye içinde SADECE 2 komşu (both
+    //    symmetric). The Iğdır Ovası microclimate makes it Doğu Anadolu's lowest plain.
+    //    urbanizationRate 59.56 is a REAL rate (non-büyükşehir). GSYH share %0,1.
+    landformNoteTr:
+      'Tarihte Sürmeli Çukuru olarak da anılan Iğdır Ovası, Batı Iğdır, Doğu Iğdır ve Dil ' +
+      'Ovası olmak üzere üç kesimden oluşur; batıda Çalpala köyü dolaylarında 910 metreye çıkan ' +
+      "yükseklik, doğuda Dil Ucu'nda 795 metreye iner. Ovanın güneyinde, Türkiye'nin en yüksek " +
+      "zirvesi Ağrı Dağı'nın kuzey yamaçları yükselir.",
+    introTr:
+      'Iğdır Ovası, çevresini saran yüksek dağlara karşın 850 metre ortalama yükseklikle Doğu ' +
+      "Anadolu Bölgesi'nin en alçak düzlüğüdür. Aras Nehri'nin ikiye ayırdığı ova, bölgenin " +
+      'diğer illerine kıyasla daha ılıman bir mikroklimaya sahiptir; bu iklim kayısı, şeftali ' +
+      've üzüm gibi meyve yetiştiriciliğine imkân tanır.',
+    hydrographyNoteTr:
+      "İlin tek büyük akarsuyu Aras Nehri'dir; ovayı ikiye bölerek doğuya akar ve verimli " +
+      'alüvyonlu topraklar bırakır. Tarım arazilerinin yarısından fazlasında tahıl, özellikle ' +
+      'buğday ve arpa yetiştirilir.',
+    urbanizationRate: 59.56,
+    netMigrationRate: -18.1,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,1',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '36',
+    nameTr: 'Kars',
+    slugTr: 'kars',
+    slugEn: 'kars',
+    region: GeographicRegion.DoguAnadolu,
+    population: 268_991,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 10_193,
+    districtCount: 8,
+    elevationM: 1795, // MGM Merkez istasyonu
+    latitude: 40.6042,
+    longitude: 43.1073,
+    // Ardahan=75, Ağrı=04, Iğdır=76, Erzurum=25 (+ Ermenistan — ülke, hariç)
+    neighborPlateCodes: ['75', '04', '76', '25'],
+    climateKoppen: KOPPEN_DFB,
+    climateClassTr: CLIMATE_CLASS_D_GROUP_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_DFB_TR,
+    // ── Kars deep content (wave-6b Tier-B). 6-field set. hydrographyNoteTr from the Tier-1 Kars
+    //    İl Kültür ve Turizm Müdürlüğü "Akarsular" page. urbanizationRate 55.19 is a REAL rate.
+    //    GSYH share %0,2.
+    landformNoteTr:
+      "Kars'ın dağları, kuzeyde Kuzey Anadolu kıvrım sistemine, güneyde Güney Anadolu kıvrım " +
+      "sistemine bağlı kütlelerden oluşur; Kars Ovası'nın temelini volkanik malzemeler " +
+      'oluşturur. İlin güneybatısında, Sarıkamış çevresinde geniş çam ormanları yer alır.',
+    introTr:
+      "Kars Ovası, 1.750 metre ortalama yüksekliğiyle Doğu Anadolu Bölgesi'nin en geniş " +
+      'ovasıdır. İl, Allahuekber Dağları ile Sarıkamış-Kars Platosu arasında, doğuya açılan bir ' +
+      'çöküntü oluğu üzerinde kuruludur. Yüksek rakımı nedeniyle kışları uzun ve sert geçer.',
+    hydrographyNoteTr:
+      "İlin başlıca akarsuları Kars Çayı, Arpaçayı ve Aras Irmağı'dır. Kars Çayı, Soğanlı " +
+      'Dağı geçidindeki Yaycı ve Kırkpınar yaylalarından doğar; Arpaçayı ile birleştikten sonra ' +
+      "Tekelibağ yakınlarında Aras'a katılır. Aras Irmağı, kışın donmayan tek akarsu olma " +
+      'özelliğiyle diğerlerinden ayrılır; debisi nisanda 180-200 m³/saniyeye çıkarken ' +
+      'temmuz-ağustosta 20-25 m³/saniyeye düşer.',
+    urbanizationRate: 55.19,
+    netMigrationRate: -25.28,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,2',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '44',
+    nameTr: 'Malatya',
+    slugTr: 'malatya',
+    slugEn: 'malatya',
+    region: GeographicRegion.DoguAnadolu,
+    population: 755_854,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 12_259,
+    districtCount: 13,
+    elevationM: 950, // MGM "Merkez" etiketli istasyon (büyükşehir — gerçek merkez ilçeler Battalgazi/Yeşilyurt; MGM etiket kalıntısı)
+    latitude: 38.35,
+    longitude: 38.25,
+    // Elazığ=23, Erzincan=24, Sivas=58, Kahramanmaraş=46, Adıyaman=02, Diyarbakır=21
+    neighborPlateCodes: ['23', '24', '58', '46', '02', '21'],
+    climateKoppen: KOPPEN_BSK,
+    climateClassTr: CLIMATE_CLASS_BSK_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_BSK_TR,
+    // ── Malatya deep content (wave-6b Tier-B + büyükşehir EXCEPTION → DEC 2026-07-12, Mardin
+    //    precedent). Tier-B depth (hydrographyFeatures OMITTED), BUT büyükşehir, so
+    //    urbanizationRate=100 carries ONLY the single-sentence settlementNoteTr. The wave's SOLE
+    //    positive net migration (+6.88 ‰). introTr kayısı stat = fact-check CORRECTION ("dünya
+    //    kuru kayısı üretiminin ~%85'i", not "Türkiye"). GSYH share %0,6 (wave's highest).
+    landformNoteTr:
+      "Güneydoğu Toroslar'ın bir kolu olan Malatya Dağları, ilin batı-doğu doğrultusundaki " +
+      "omurgasını oluşturur; bunların en yükseği, kenti gören 2.544 metrelik Beydağı'dır. " +
+      "Sultansuyu Vadisi'nin batısındaki Nurhak Dağları'nda ise en yüksek nokta 2.428 metrelik " +
+      "Derbent Dağı'dır. Malatya Ovası, bu dağlık çevrenin ortasında tarımsal üretimin " +
+      'merkezidir.',
+    introTr:
+      "Malatya, dünya kuru kayısı üretiminin yaklaşık %85'ini karşılar. İl, Fırat Nehri " +
+      "vadisinin doğusunda, Doğu Anadolu Bölgesi'nin batı ucunda kuruludur; Akdeniz'e Sultansuyu " +
+      "ve Sürgü vadileriyle, İç Anadolu'ya Tohma Vadisi'yle açılan bir geçiş bölgesidir.",
+    hydrographyNoteTr:
+      'İlin su kaynaklarının büyük bölümünü Fırat Nehri ve kolları oluşturur. Kayısı ' +
+      "yetiştiriciliğine elverişli iklim koşulları, 900 metre rakımdaki Malatya Ovası'nda " +
+      'en yağışlı mevsim olan ilkbaharla birlikte şekillenir.',
+    urbanizationRate: 100.0,
+    netMigrationRate: 6.88,
+    settlementNoteTr:
+      "Malatya'nın TÜİK il/ilçe merkezi nüfus oranı, büyükşehir statüsündeki illerde olduğu gibi " +
+      "%100'dür — belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) " +
+      'bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,6',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '49',
+    nameTr: 'Muş',
+    slugTr: 'mus',
+    slugEn: 'mus',
+    region: GeographicRegion.DoguAnadolu,
+    population: 389_127,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 8718,
+    districtCount: 6,
+    elevationM: 1316, // MGM Merkez istasyonu
+    latitude: 38.7509,
+    longitude: 41.5023,
+    // Bitlis=13, Bingöl=12, Erzurum=25, Ağrı=04, Diyarbakır=21, Batman=72
+    neighborPlateCodes: ['13', '12', '25', '04', '21', '72'],
+    climateKoppen: KOPPEN_DSA,
+    climateClassTr: CLIMATE_CLASS_D_GROUP_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_DSA_TR,
+    // ── Muş deep content (wave-6b Tier-B). 6-field set. The Nemrut here only bounds the Muş Ovası;
+    //    the mountain itself is administratively in Bitlis (not presented as Muş's landform).
+    //    urbanizationRate 51.26 is a REAL rate (non-büyükşehir). GSYH share %0,2.
+    landformNoteTr:
+      'Muş Ovası, jeolojik olarak Miyosen döneminde bir çöküntü alanına dönüşmüş, sonraki ' +
+      'dönemlerde alüvyonlarla dolarak verimli bir düzlük halini almıştır. Ovanın doğu ucuna ' +
+      "Nemrut Dağı'nın batı yamaçları uzanır; batı ucu ise dağlık bir araziyle sınırlanır. İlin " +
+      'doğusunda Bulanık ve Malazgirt ovaları, Murat Irmağı boyunca uzanan dar şeritler ' +
+      'oluşturur.',
+    introTr:
+      "Muş Ovası, 80 kilometre uzunluğu ve 30 kilometre genişliğiyle Türkiye'nin en büyük " +
+      'ovalarından biridir. İlin ortasından geçen Murat Irmağı, ovanın kuzey kesimini sular. ' +
+      "İl, Doğu Anadolu Bölgesi'nin güneybatısında, dağlarla çevrili bir çöküntü alanında yer " +
+      'alır.',
+    hydrographyNoteTr:
+      'Murat Irmağı, ilin kuzeydoğusundan girer ve ovayı kuzeyden güneye kat ederek birkaç ' +
+      "küçük dereyle birleşir. Irmak, Muş'tan sonra batıya yönelerek Bingöl ve Elazığ üzerinden " +
+      'Fırat sistemine katılır.',
+    urbanizationRate: 51.26,
+    netMigrationRate: -27.33,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,2',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '62',
+    nameTr: 'Tunceli',
+    slugTr: 'tunceli',
+    slugEn: 'tunceli',
+    region: GeographicRegion.DoguAnadolu,
+    population: 85_083,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 7582,
+    districtCount: 8,
+    elevationM: 981, // MGM Merkez istasyonu
+    latitude: 39.1058,
+    longitude: 39.5408,
+    // Erzincan=24, Bingöl=12, Elazığ=23 — 3 komşu (Sivas=58 fact-check'te ÇIKARILDI)
+    neighborPlateCodes: ['24', '12', '23'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    // ── Tunceli deep content (wave-6b Tier-B). 6-field set. Türkiye's least-populous il after
+    //    Bayburt (85.083). neighborPlateCodes is 3 (Sivas 58 removed by the fact-check — geojson +
+    //    both il's own Wikipedia pages disagree). urbanizationRate 67.04 is a REAL rate. GSYH %0,1.
+    landformNoteTr:
+      'Kuzeyde 3.300 metreye ulaşan Munzur Dağları, Mercan ve Munzur suyu vadileriyle ' +
+      'parçalanmış, metamorfik, volkanik ve tortul kayaçlardan oluşan bir kütledir. İlin ' +
+      'ortasında yükselen Bağırpaşa Dağı, batıdan Pülümür Çayı, kuzeyden Karasu, güneyden Peri ' +
+      'Suyu vadileriyle çevrilidir.',
+    introTr:
+      'İl merkezinin 8 kilometre kuzeyinden başlayan Munzur Vadisi Milli Parkı, 42.674 ' +
+      "hektarlık alanıyla Munzur Dağları'na kadar uzanır. Tunceli, 85.083 kişilik nüfusuyla " +
+      "Türkiye'nin en az nüfuslu ikinci ilidir. İl, Fırat Nehri'nin yukarı havzasında, dağlık " +
+      'bir arazi üzerinde kuruludur.',
+    hydrographyNoteTr:
+      "Munzur Dağları'nın 2.000-3.000 metrelik zirvelerinde krater gölleri, Ovacık düzlüğünde " +
+      'ise kaynayan gözeler bulunur. Peri Suyu vadisi, Tunceli ile Bingöl arasındaki doğal ' +
+      'sınırı oluşturur; ilin sularının büyük bölümü Munzur Suyu ve Peri Suyu aracılığıyla ' +
+      "Fırat'a katılır.",
+    urbanizationRate: 67.04,
+    netMigrationRate: -24.28,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,1',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+];
+
+/**
  * Every fact-checked province the geography seed loads, in batch order (pilot-5 first,
- * then Batch 2 wave-1, wave-2, wave-3, wave-4, then wave-6d Karadeniz-B). This is the
+ * then Batch 2 wave-1, wave-2, wave-3, wave-4, then wave-6d Karadeniz-B, then wave-6b
+ * Doğu Anadolu). This is the
  * single list `seedGeography` iterates — the seed is keyed on the unique `plate_code`,
  * so array order is cosmetic (the public list endpoint re-orders by plate code). Grows
  * batch-by-batch toward the full 81 as each wave clears an independent fact-check.
- * Currently 47 provinces: 5 pilot + 9 wave-1 + 10 wave-2 + 7 wave-3 + 7 wave-4 +
- * 9 wave-6d.
+ * Currently 60 provinces: 5 pilot + 9 wave-1 + 10 wave-2 + 7 wave-3 + 7 wave-4 +
+ * 9 wave-6d + 13 wave-6b Doğu Anadolu.
  */
 export const SEED_PROVINCES: readonly ProvinceSeed[] = [
   ...PILOT_PROVINCES,
@@ -3659,4 +4392,5 @@ export const SEED_PROVINCES: readonly ProvinceSeed[] = [
   ...BATCH2_WAVE3_PROVINCES,
   ...BATCH2_WAVE4_PROVINCES,
   ...WAVE6D_KARADENIZ_B_PROVINCES,
+  ...WAVE6B_DOGU_ANADOLU_PROVINCES,
 ];
