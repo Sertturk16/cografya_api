@@ -31,11 +31,12 @@ export interface SeedGeographyResult {
  * absent from the Cfa caveat and vice versa.)
  *
  * PRECONDITION when adding the NEXT class: this correspondence check is only sound
- * while no full Köppen code is a substring of another (holds for Csa/Cfa/Csb — all
- * 3 chars, pairwise non-substring). If a future class's code IS a substring of an
- * existing one (or vice versa), `note.includes(code)` could false-positive — switch
- * to a word-boundary / equality match at that point. Verify this the moment a new
- * code is introduced.
+ * while no full Köppen code is a substring of another (holds for the eight codes shipped
+ * across the full 81 — Csa/Cfa/Csb/Cfb/BSk/Dfb/Dsb/Dsa, all 3 chars and pairwise
+ * non-substring; wave-6d added Cfb, wave-6b added BSk/Dfb/Dsb/Dsa, wave-6c reuses Dsb + Cfb
+ * and introduces NO new code). If a future class's code IS a substring of an existing one
+ * (or vice versa), `note.includes(code)` could false-positive — switch to a word-boundary /
+ * equality match at that point. Verify this the moment a new code is introduced.
  */
 export function assertKoppenCaveatInvariant(seeds: readonly ProvinceSeed[]): void {
   const offenders = seeds.filter((seed) => {
@@ -154,9 +155,9 @@ function withExplicitDetailNulls(seed: ProvinceSeed): ProvinceSeed {
 
 /**
  * Seeds the geography base data (the platform's most critical seed — CLAUDE.md
- * §5). Currently the 38 fact-checked provinces (pilot-5 + Batch 2 wave-1 Güneydoğu
- * Anadolu + Batch 2 wave-2 Marmara + Batch 2 wave-3 Ege + Batch 2 wave-4 Akdeniz);
- * scales to 81 as the remaining batches clear an independent fact-check.
+ * §5). Now the COMPLETE 81 fact-checked provinces (pilot-5 + Batch 2 wave-1..4 + wave-6d
+ * Karadeniz-B + wave-6b Doğu Anadolu + wave-6a İç Anadolu + wave-6c Karadeniz-A) — the
+ * 81-province rollout is finished; wave-6c is the batch that closes it.
  *
  * IDEMPOTENT by design, PER ROW: keyed on the unique `plate_code`, each province
  * is INDEPENDENTLY inserted if absent, refreshed if its data drifted, or LEFT
