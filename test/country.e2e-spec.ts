@@ -29,7 +29,8 @@ import { computeNeighborCount } from '../src/country/country.service';
  * Docker); locally we run tsc + eslint per CONVENTIONS §2.
  */
 
-// Synthetic fixtures (reserved user-assigned ISO alpha-2 codes — never real countries):
+// Synthetic fixtures — clearly non-real placeholder ISO alpha-2 codes (ZZ is a formally
+// user-assigned/reserved ISO 3166-1 code; ZX/ZY are unassigned — none is a real country):
 //   ZX — 1 neighbour, minimal optionals (base-data shape).
 //   ZY — island: EMPTY neighbour array (count 0), all optionals absent → null.
 //   ZZ — full: 2 neighbours + every optional set (round-trip / detail shape).
@@ -328,6 +329,48 @@ describe('Country (e2e)', () => {
     await request(app.getHttpServer()).get('/api/countries/atlantis').expect(404);
     await request(app.getHttpServer()).get('/api/countries/narnia').expect(404);
   });
+
+  it('sets Cache-Control on a 2xx read but NOT on an error response', async () => {
+    // The @CacheControl interceptor sets the header only on a successful response, so an
+    // error (here a 404) never carries a cacheable directive — a caching intermediary
+    // cannot serve/prolong a resolved outage (PR #23 I1).
+    const ok = await request(app.getHttpServer()).get('/api/countries').expect(200);
+    expect(ok.headers['cache-control']).toBe('public, max-age=300, stale-while-revalidate=86400');
+    const missing = await request(app.getHttpServer()).get('/api/countries/atlantis').expect(404);
+    expect(missing.headers['cache-control']).toBeUndefined();
+  });
+
+  it('rolls the WHOLE seed back on a mid-batch row failure (zero partial inserts)', async () => {
+    // The transactional guarantee seedWorld documents — load-bearing the moment NOVA's
+    // ~195-row real dataset replaces the empty stub (PR #23 I2). Force a mid-batch failure:
+    // two NEW rows sharing one slug_tr — the first inserts inside the transaction, the
+    // second trips the UNIQUE(slug_tr) constraint, and that must roll the first back too.
+    // Uses user-assigned ISO codes (XA/XB — never real countries) not present in the DB.
+    const repo = dataSource.getRepository(Country);
+    const before = await repo.count();
+    const good: CountrySeed = {
+      isoCode: 'XA',
+      nameTr: 'Rollback A',
+      nameEn: 'Rollback A',
+      slugTr: 'rollback-dup-slug',
+      slugEn: 'rollback-a-en',
+      continent: Continent.Africa,
+      neighborIsoCodes: [],
+    };
+    // slugTr is inherited from `good` (NOT overridden) → collides on the UNIQUE(slug_tr).
+    const badDuplicate: CountrySeed = {
+      ...good,
+      isoCode: 'XB',
+      nameEn: 'Rollback B',
+      slugEn: 'rollback-b-en',
+    };
+
+    // The run rejects, and the row-context wrapper names the offending row (XB).
+    await expect(seedWorld(dataSource, [good, badDuplicate])).rejects.toThrow(/XB/);
+    // Zero partial inserts: the earlier good row (XA) was rolled back → count unchanged.
+    expect(await repo.count()).toBe(before);
+    expect(await repo.findOne({ where: { isoCode: 'XA' } })).toBeNull();
+  });
 });
 
 /**
@@ -337,7 +380,8 @@ describe('Country (e2e)', () => {
  */
 describe('computeNeighborCount', () => {
   it('returns the neighbour-array length, 0 for an island', () => {
-    expect(computeNeighborCount(['GR', 'BG', 'GE'])).toBe(3);
+    // Synthetic placeholder codes only (no real country facts in tests — CONVENTIONS §2).
+    expect(computeNeighborCount(['ZX', 'ZY', 'ZZ'])).toBe(3);
     expect(computeNeighborCount([])).toBe(0);
   });
 });

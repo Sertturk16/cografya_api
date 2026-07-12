@@ -1,4 +1,4 @@
-import { Controller, Get, Header, Param } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import {
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -6,6 +6,7 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
+import { CacheControl } from '../common/http-cache/cache-control.decorator';
 import { CountryDetailDto } from './dto/country-detail.dto';
 import { CountryListItemDto } from './dto/country-list-item.dto';
 import { CountryMapSummaryDto } from './dto/country-map-summary.dto';
@@ -25,7 +26,7 @@ export class CountryController {
   constructor(private readonly countryService: CountryService) {}
 
   @Get()
-  @Header('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400')
+  @CacheControl('public, max-age=300, stale-while-revalidate=86400')
   @ApiOperation({ summary: 'List all countries (lean payload for the /dunya hub + map).' })
   @ApiOkResponse({ type: CountryListItemDto, isArray: true })
   findAll(): Promise<CountryListItemDto[]> {
@@ -36,7 +37,7 @@ export class CountryController {
   // matches in declaration order, so a `:slug` route above would capture
   // `/countries/map-summary` as slug="map-summary" and 404. Do not reorder.
   @Get('map-summary')
-  @Header('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400')
+  @CacheControl('public, max-age=300, stale-while-revalidate=86400')
   @ApiOperation({
     summary: 'Bulk hover-card summary for all countries (world SVG map, build-time embed).',
   })
@@ -46,7 +47,7 @@ export class CountryController {
   }
 
   @Get(':slug')
-  @Header('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400')
+  @CacheControl('public, max-age=300, stale-while-revalidate=86400')
   @ApiOperation({ summary: 'Get one country by its TR or EN slug (full detail).' })
   @ApiParam({ name: 'slug', example: 'turkiye', description: 'TR or EN slug of the country.' })
   @ApiOkResponse({ type: CountryDetailDto })
