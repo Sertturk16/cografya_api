@@ -1020,6 +1020,26 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
     caveatContains: 'Csa',
+    // ── Adana wave-4 Tier-A deep content — restated INDEPENDENTLY from the fact-checked
+    //    "Dalga 4" draft. Structured fields asserted EXACTLY in the it.each below; prose gets
+    //    distinctive-token checks in the wave-4 Tier-A detail test.
+    urbanizationRate: 100,
+    netMigrationRate: -0.34,
+    hydrographyFeatures: [
+      { name: 'Seyhan Nehri', type: 'nehir' },
+      { name: 'Ceyhan Nehri', type: 'nehir' },
+      { name: 'Seyhan Barajı', type: 'baraj' },
+      { name: 'Çatalan Barajı', type: 'baraj' },
+      { name: 'Akyatan Gölü', type: 'gol' },
+      { name: 'Tuzla Gölü', type: 'gol' },
+    ],
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%2,0',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     slug: 'burdur',
@@ -1038,6 +1058,18 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
     caveatContains: 'Csa',
+    // ── Burdur wave-4 Tier-B deep content — 6-field set (no hydrographyFeatures /
+    //    settlementNoteTr; those are asserted null in the it.each Tier-B branch). urbanizationRate
+    //    71.04 is a REAL (non-büyükşehir) rate — the wave's first non-100 value.
+    urbanizationRate: 71.04,
+    netMigrationRate: -6.52,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     slug: 'hatay',
@@ -1057,6 +1089,23 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
     caveatContains: 'Csa',
+    // ── Hatay wave-4 Tier-A deep content — independent restatement of the fact-checked draft.
+    //    landformNoteTr carries the 6 Şubat 2023 depremleri paragraph (AFAD-sourced).
+    urbanizationRate: 100,
+    netMigrationRate: 1.51,
+    hydrographyFeatures: [
+      { name: 'Asi Nehri', type: 'nehir' },
+      { name: 'Karaçay Barajı', type: 'baraj' },
+      { name: 'Tahtaköprü Barajı', type: 'baraj' },
+      { name: 'Yarseli Barajı', type: 'baraj' },
+    ],
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%1,4',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     slug: 'isparta',
@@ -1076,6 +1125,18 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
     caveatContains: 'Csa',
+    // ── Isparta wave-4 Tier-B deep content — 6-field set (no hydrographyFeatures /
+    //    settlementNoteTr, asserted null in the it.each Tier-B branch). urbanizationRate 75.77 is
+    //    a REAL (non-büyükşehir) rate.
+    urbanizationRate: 75.77,
+    netMigrationRate: -3.31,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,4',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     slug: 'kahramanmaras',
@@ -1096,6 +1157,25 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
     caveatContains: 'Csa',
+    // ── Kahramanmaraş wave-4 Tier-A deep content — independent restatement. landformNoteTr
+    //    carries the AFAD fault-segment quake detail (true epicentre) + the CORRECTED Nurhak
+    //    Dağı 3.090 m (was 3.081 in an earlier draft; Kahramanmaraş Valiliği Tier-1).
+    urbanizationRate: 100,
+    netMigrationRate: 6.31,
+    hydrographyFeatures: [
+      { name: 'Ceyhan Nehri', type: 'nehir' },
+      { name: 'Aksu Çayı', type: 'nehir' },
+      { name: 'Kılavuzlu Barajı', type: 'baraj' },
+      { name: 'Menzelet Barajı', type: 'baraj' },
+      { name: 'Sır Barajı', type: 'baraj' },
+    ],
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,9',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     slug: 'mersin',
@@ -1114,6 +1194,23 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
     caveatContains: 'Csa',
+    // ── Mersin wave-4 Tier-A deep content — independent restatement. Carries the two
+    //    fact-check corrections: Medetsiz Tepesi 3.524 m (was 3.585) in landformNoteTr and
+    //    Berdan Barajı 87,5 milyon m³ (was 185) in hydrographyNoteTr.
+    urbanizationRate: 100,
+    netMigrationRate: 3.01,
+    hydrographyFeatures: [
+      { name: 'Göksu Nehri', type: 'nehir' },
+      { name: 'Berdan Çayı', type: 'nehir' },
+      { name: 'Berdan Barajı', type: 'baraj' },
+    ],
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%2,1',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     slug: 'osmaniye',
@@ -1132,6 +1229,18 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
     caveatContains: 'Csa',
+    // ── Osmaniye wave-4 Tier-B deep content — 6-field set (no hydrographyFeatures /
+    //    settlementNoteTr, asserted null in the it.each Tier-B branch). urbanizationRate 78.24 is
+    //    a REAL (non-büyükşehir) rate.
+    urbanizationRate: 78.24,
+    netMigrationRate: -1.26,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,4',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
 ] as const;
 
@@ -1602,16 +1711,19 @@ describe('Province (e2e)', () => {
       expect(body.latitude).toBe(expected.latitude);
       expect(body.longitude).toBe(expected.longitude);
 
-      // Detail-section fields — THREE tiers coexist across the seed since wave-3:
+      // Detail-section fields — THREE tiers coexist across the seed (tiered model introduced by
+      // wave-3, extended by wave-4):
       //   • FULL (8 fields): İstanbul 34 + the wave-1 four (06/35/65/07) + the wave-3 Tier-A
       //     four (Manisa 45, Aydın 09, Denizli 20, Muğla 48) + the 10 wave-2 Marmara il
-      //     (10/11/16/17/22/39/41/54/59/77 — full 7-field, no Tier-B this wave). Structured
-      //     fields asserted EXACTLY here; the 4 prose fields get distinctive-token checks below.
-      //   • TIER-B (6 fields): the wave-3 <1M il (Afyonkarahisar 03, Kütahya 43, Uşak 64).
-      //     hydrographyFeatures AND settlementNoteTr are DELIBERATELY absent → null (owner-approved
-      //     scope cut, DEC 2026-07-11); asserted null HERE, while the other six are populated
-      //     (3 non-empty prose + urbanizationRate/netMigrationRate/economyIndicator). This
-      //     populated+null MIX within one row is the genuinely new shape wave-3 introduced.
+      //     (10/11/16/17/22/39/41/54/59/77 — full 7-field, no Tier-B that wave) + the wave-4
+      //     Tier-A four (Adana 01, Hatay 31, Kahramanmaraş 46, Mersin 33). Structured fields
+      //     asserted EXACTLY here; the 4 prose fields get distinctive-token checks below.
+      //   • TIER-B (6 fields): the wave-3 <1M il (Afyonkarahisar 03, Kütahya 43, Uşak 64) +
+      //     the wave-4 <1M il (Burdur 15, Isparta 32, Osmaniye 80). hydrographyFeatures AND
+      //     settlementNoteTr are DELIBERATELY absent → null (owner-approved scope cut,
+      //     DEC 2026-07-11); asserted null HERE, while the other six are populated (3 non-empty
+      //     prose + urbanizationRate/netMigrationRate/economyIndicator). This populated+null MIX
+      //     within one row is the shape wave-3 introduced and wave-4 continues.
       //   • BASE-DATA: every OTHER il keeps all 8 detail fields null — no deep-content leak.
       // The `=== || ===` chains (not Array.includes) are DELIBERATE: they discriminate `expected`
       // by its literal plateCode so the exact-value reads below (expected.hydrographyFeatures etc.)
@@ -1635,7 +1747,11 @@ describe('Province (e2e)', () => {
         expected.plateCode === '41' ||
         expected.plateCode === '54' ||
         expected.plateCode === '59' ||
-        expected.plateCode === '77'
+        expected.plateCode === '77' ||
+        expected.plateCode === '01' ||
+        expected.plateCode === '31' ||
+        expected.plateCode === '46' ||
+        expected.plateCode === '33'
       ) {
         expect(body).toMatchObject({
           urbanizationRate: expected.urbanizationRate,
@@ -1655,8 +1771,14 @@ describe('Province (e2e)', () => {
       } else if (
         expected.plateCode === '03' ||
         expected.plateCode === '43' ||
-        expected.plateCode === '64'
+        expected.plateCode === '64' ||
+        expected.plateCode === '15' ||
+        expected.plateCode === '32' ||
+        expected.plateCode === '80'
       ) {
+        // Tier-B: the six authored fields are present; the two Tier-B-omitted keys come back
+        // null (omitted-in-seed → normalised to null by withExplicitDetailNulls → serialised
+        // as null). This is the mixed-tier serialisation/idempotency guard.
         expect(body).toMatchObject({
           urbanizationRate: expected.urbanizationRate,
           netMigrationRate: expected.netMigrationRate,
@@ -2019,6 +2141,107 @@ describe('Province (e2e)', () => {
       expect(body.settlementNoteTr).toBeNull();
     },
   );
+
+  // Wave-4 Tier-A deep content (Adana/Hatay/Kahramanmaraş/Mersin): full-depth prose asserted by
+  // distinctive token (same discipline as İstanbul/wave-1). Hatay + Kahramanmaraş carry their
+  // own 6 Şubat 2023 depremleri paragraph in landformNoteTr (AFAD-sourced, factual register).
+  it.each([
+    {
+      slug: 'adana',
+      intro: ['Çukurova', 'yedinci'],
+      landform: ['Aladağlar', 'Misis', '1995'],
+      hydrography: ['Seyhan Barajı', 'ASKİ', 'Akyatan'],
+      settlement: ['6360', '%100', '-0,34'],
+    },
+    {
+      slug: 'hatay',
+      intro: ['Amik Ovası', 'on üçüncü'],
+      landform: ['Amanos', 'Mığır Tepe', '6 Şubat 2023', '53.537'],
+      hydrography: ['Asi Nehri', 'Amik Gölü', 'Tahtaköprü'],
+      settlement: ['6360', '+1,51'],
+    },
+    {
+      slug: 'kahramanmaras',
+      intro: ['Maraş Ovası', 'yirminci'],
+      landform: ['Nurhak', '3.090', 'Pazarcık', 'Çardak Fayı'],
+      hydrography: ['Ceyhan', 'Kılavuzlu', 'Menzelet'],
+      settlement: ['6360', '+6,31'],
+    },
+    {
+      slug: 'mersin',
+      intro: ['liman', 'on birinci', '321'],
+      landform: ['Medetsiz', '3.524', 'Cennet', 'Cehennem'],
+      hydrography: ['Göksu', 'Berdan', '87,5'],
+      settlement: ['6360', '+3,01'],
+    },
+  ])(
+    'GET /api/provinces/$slug serves the wave-4 Tier-A deep-content prose (fact-checked tokens)',
+    async ({ slug, intro, landform, hydrography, settlement }) => {
+      const res = await request(app.getHttpServer()).get(`/api/provinces/${slug}`).expect(200);
+      const body = res.body as Record<string, string>;
+      for (const token of intro) expect(body.introTr).toContain(token);
+      for (const token of landform) expect(body.landformNoteTr).toContain(token);
+      for (const token of hydrography) expect(body.hydrographyNoteTr).toContain(token);
+      for (const token of settlement) expect(body.settlementNoteTr).toContain(token);
+      expect(body.landformNoteTr).not.toContain('DEĞİL');
+    },
+  );
+
+  // Wave-4 Tier-B deep content (Burdur/Isparta/Osmaniye): the three authored prose fields carry
+  // their distinctive tokens, AND the two Tier-B-omitted fields (hydrographyFeatures,
+  // settlementNoteTr) MUST serialise as null — the explicit Tier-B null-fields assertion.
+  it.each([
+    {
+      slug: 'burdur',
+      intro: ['Göller Bölgesi', 'altmış beşinci'],
+      landform: ['Batı Toroslar', 'çöküntü', 'Burdur Gölü'],
+      hydrography: ['842', '20 metrenin', 'tuzluluk'],
+    },
+    {
+      slug: 'isparta',
+      intro: ['Eğirdir', 'kırk beşinci', 'yağ gülü'],
+      landform: ['Dedegöl', '2.992', 'Sultan Dağları'],
+      hydrography: ['468-482', 'dördüncü büyük', '16-17'],
+    },
+    {
+      slug: 'osmaniye',
+      intro: ['Çukurova', 'kırk birinci', '4200'],
+      landform: ['Düldül', '2.400', 'Kadirli'],
+      hydrography: ['Ceyhan', '75', 'Karaçay'],
+    },
+  ])(
+    'GET /api/provinces/$slug serves wave-4 Tier-B prose AND nulls the two omitted fields',
+    async ({ slug, intro, landform, hydrography }) => {
+      const res = await request(app.getHttpServer()).get(`/api/provinces/${slug}`).expect(200);
+      const body = res.body as Record<string, unknown>;
+      for (const token of intro) expect(body.introTr).toContain(token);
+      for (const token of landform) expect(body.landformNoteTr).toContain(token);
+      for (const token of hydrography) expect(body.hydrographyNoteTr).toContain(token);
+      // Tier-B deliberately omits these two — they must come back null, never a stray value or
+      // an empty array leaking from a sibling row.
+      expect(body.hydrographyFeatures).toBeNull();
+      expect(body.settlementNoteTr).toBeNull();
+      expect(body.landformNoteTr).not.toContain('DEĞİL');
+    },
+  );
+
+  it('carries the wave-4 fact-check CORRECTIONS (Nurhak 3.090, Medetsiz 3.524, Berdan 87,5)', async () => {
+    // The three ZORUNLU numeric fixes from the independent fact-check — corrected value present,
+    // superseded value absent (mirrors the İstanbul Alibey / Antalya 3.086 correction guards).
+    const maras = await request(app.getHttpServer())
+      .get('/api/provinces/kahramanmaras')
+      .expect(200);
+    const marasBody = maras.body as Record<string, string>;
+    expect(marasBody.landformNoteTr).toContain('3.090'); // Nurhak Dağı (was 3.081)
+    expect(marasBody.landformNoteTr).not.toContain('3.081');
+
+    const mersin = await request(app.getHttpServer()).get('/api/provinces/mersin').expect(200);
+    const mersinBody = mersin.body as Record<string, string>;
+    expect(mersinBody.landformNoteTr).toContain('3.524'); // Medetsiz Tepesi (was 3.585)
+    expect(mersinBody.landformNoteTr).not.toContain('3.585');
+    expect(mersinBody.hydrographyNoteTr).toContain('87,5'); // Berdan Barajı (was 185)
+    expect(mersinBody.hydrographyNoteTr).not.toContain('185 milyon');
+  });
 
   it('GET /api/provinces/:slug returns 404 for an unseeded slug', async () => {
     // A real, valid province NOT in the seeded 38 → 404 (web renders notFound()).
