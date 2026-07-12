@@ -63,10 +63,30 @@ import {
  *   • Style rules: CONTENT-STYLE.md (orchestrator root — binding for shipped prose)
  *   • Fact-check:  Owner's Inbox/il-detay-genisletme/wave1-pilot-deep-content-factcheck.md
  *   • Ledger:      data-provenance.md (root) — "İl Detay Sayfası — Derinlik İçerik Dalga 1"
- * DELIBERATELY NULL (not invented — deferred to a later fact-checked content batch): every
- *   Batch 2 province keeps landformNoteTr AND all PR-5a detail-section fields null until its
- *   own content batch clears an independent fact-check — an unverified fact stays absent,
- *   never invented.
+ * WAVE-2 DEEP CONTENT (plates 10/11/16/17/22/39/41/54/59/77 — the 10 Marmara il, İstanbul
+ *   hariç): the whole Marmara wave now carries the SAME full PR-5a detail-section field set,
+ *   from NOVA's independently fact-checked "Dalga 2" deep-content draft (verdict SEED-READY
+ *   WITH CORRECTIONS — all applied: Yalova netMigration source-note fix, Kocaeli 1999 toll as
+ *   a range, two introTr openings re-sequenced). This wave predates the tiered-depth model, so
+ *   ALL 10 il get the FULL 7 fields (no Tier-B, unlike wave-3). Each il is written to its OWN
+ *   geographic character (Kocaeli/Sakarya/Yalova: sanayi-Marmara + 1999 fay kuşağı; Bursa: buzul
+ *   jeomorfolojisi/tektonik göller; Çanakkale: boğaz/UNESCO; Edirne: nehir buluşması/iki ülke
+ *   sınırı; Kırklareli: Neolitik yerleşim/longoz; Balıkesir: çift deniz/2025 Sındırgı; Tekirdağ:
+ *   bağcılık/Ganos Fayı; Bilecik: Söğüt/en küçük nüfus), NOT a palette-swapped copy. FIRST
+ *   WAVE WITH NON-100 urbanizationRate: 5 of the 10 (Bilecik, Çanakkale, Edirne, Kırklareli,
+ *   Yalova) are NOT büyükşehir, so their urbanizationRate is a GENUINE computed rate (<100),
+ *   not the 6360-Kanun legal artifact — their settlementNoteTr is structurally DIFFERENT (no
+ *   6360 note, by design; it does not apply). The other 5 keep the büyükşehir framing.
+ *   netMigrationRate is the signed 2024 TÜİK İç Göç value (Yalova the national #1 at +15.59 ‰,
+ *   Tekirdağ #2 at +13.09 ‰, Bilecik the sole negative at -0.07 ‰). No schema/DTO/OpenAPI
+ *   change (every field exists since the İstanbul pilot).
+ *   • Content:     Owner's Inbox/il-detay-genisletme/wave2-pilot-deep-content-draft.md
+ *   • Style rules: CONTENT-STYLE.md (orchestrator root — binding for shipped prose)
+ *   • Ledger:      data-provenance.md (root) — "İl Detay Sayfası — Derinlik İçerik Dalga 2"
+ * DELIBERATELY NULL (not invented — deferred to a later fact-checked content batch): the
+ *   REMAINING Batch 2 provinces (wave-4 Akdeniz) keep landformNoteTr AND all PR-5a
+ *   detail-section fields null until their own content batch clears an independent
+ *   fact-check — an unverified fact stays absent, never invented.
  * DERIVED, NOT STORED HERE: centroid / bounding-box (from boundary GeoJSON at
  *   build time, dictionary field #9) — see the entity's header note.
  * ─────────────────────────────────────────────────────────────────────────────
@@ -959,11 +979,12 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
  *   the 81-il İçişleri/HGM boundary pass; Vera must not write a HARD "only Edirne+
  *   Tekirdağ" sentence on the il page in the interim (per fact-check §A.6.1).
  *
- * DELIBERATELY NULL — same as pilot-5 / wave-1: `landformNoteTr` AND every PR-5a
- *   detail-page field (introTr / hydrography* / urbanizationRate / netMigrationRate /
- *   settlementNoteTr / economyIndicator) stay null. BASE DATA ONLY (owner priority
- *   ruling, DEC 2026-07-10); those fields are filled in a later fact-checked content
- *   batch, never invented here.
+ * DEEP CONTENT THIS WAVE: all 10 il now carry the full PR-5a detail-section field set
+ *   (introTr / landformNoteTr / hydrographyNoteTr + hydrographyFeatures / urbanizationRate /
+ *   netMigrationRate / settlementNoteTr / economyIndicator), transcribed from NOVA's
+ *   independently fact-checked "Dalga 2" deep-content draft — see the WAVE-2 DEEP CONTENT
+ *   note at the top of this file for the load-bearing specifics and the non-büyükşehir
+ *   urbanizationRate nuance (5 of the 10 il carry a genuine <100 rate, no 6360 note).
  * ─────────────────────────────────────────────────────────────────────────────
  */
 export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
@@ -985,7 +1006,55 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Balıkesir deep content (wave-2 — see the WAVE-2 DEEP CONTENT note above). Çift deniz
+    //    (Marmara + Ege) kimliği + 2025 Sındırgı depremleri (Kandilli/AFAD 6,1 çift-teyit).
+    //    Büyükşehir: urbanizationRate=100 is the 6360 legal artifact, framed in settlementNoteTr.
+    landformNoteTr:
+      "İlin güneybatısında, Balıkesir ile Edremit körfezi arasında yükselen Kazdağı'nın (İda " +
+      "Dağı) en yüksek noktası, 1.774 metrelik Karataş Tepesi'dir. Madra ve Alaçam dağları " +
+      'ilin diğer önemli yükseltileridir. Balıkesir Ovası (140 kilometrekare) ve Manyas ' +
+      'Ovası (110 kilometrekare), ilin tarıma elverişli düzlükleridir.\n\n' +
+      "10 Ağustos 2025'te merkez üssü Sındırgı olan, Kandilli Rasathanesi'ne göre 6,1, AFAD'a " +
+      "göre de 6,1 büyüklüğünde bir deprem meydana geldi. 27 Ekim 2025'te aynı bölgede, bu " +
+      'kez Aktaş mevkiinde merkezlenen 6,0 büyüklüğünde ikinci bir deprem oldu; iki deprem ' +
+      'arasındaki dönemde bölgede çok sayıda küçük artçı sarsıntı kaydedildi.',
+    introTr:
+      'Balıkesir, 2025 yılı boyunca Sındırgı ilçesi çevresinde art arda yaşanan depremlerle ' +
+      "sismik olarak gündeme geldi: 10 Ağustos'ta büyüklüğü 6,1, 27 Ekim'de ise 6,0 olan iki " +
+      "ayrı deprem kaydedildi. İl, kuzeyde Marmara Denizi'ne, güney ve batıda Ege Denizi'ne " +
+      "kıyısı olan, iki denizi birden kucaklayan Türkiye'nin az sayıdaki ilinden biridir; " +
+      'toplam kıyı uzunluğu 290,5 kilometredir. Marmara kıyısında Bandırma 60, Ege kıyısında ' +
+      'ise Ayvalık 54 kilometrelik bir kıyı şeridine sahiptir.',
+    hydrographyNoteTr:
+      "İlin kuzeyindeki Manyas Gölü (Kuş Gölü), 13 Temmuz 1994'te Ramsar Sözleşmesi kapsamına " +
+      "alınmış, 15 Nisan 1998'de koruma alanı 20.400 hektara genişletilmiştir; göl " +
+      'kıyısındaki Kuşcenneti Milli Parkı, 24.047 hektarlık toplam alanıyla kuş göç ' +
+      "yollarının önemli bir durağıdır. Gölü besleyen ve Susurluk Çayı'na bağlanan sistem, " +
+      "Marmara Denizi'ne dökülmeden önce yukarı havzadaki sanayi tesislerinden kaynaklanan " +
+      "kirlilikle karşı karşıyadır — bu konu Tarım ve Orman Bakanlığı'nın havza yönetim " +
+      'planlarında ayrıca ele alınır.\n\n' +
+      'İlin Ege kıyısına akan Madra ve Havran çayları, Marmara tarafındaki Susurluk sistemine ' +
+      'tamamen bağımsız, ayrı bir su ağı oluşturur; bu çaylar Edremit ve Çandarlı ' +
+      'körfezlerine dökülür.',
+    hydrographyFeatures: [
+      { name: 'Manyas Gölü', type: HydrographyFeatureType.Gol },
+      { name: 'Susurluk Çayı', type: HydrographyFeatureType.Nehir },
+      { name: 'Madra Çayı', type: HydrographyFeatureType.Nehir },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: 3.5,
+    settlementNoteTr:
+      "Balıkesir'de de büyükşehir statüsünün getirdiği yapısal sonuç geçerlidir: TÜİK il/ilçe " +
+      "merkezi nüfus oranı %100'dür, çünkü belde ve köylerin idari tüzel kişiliği 6360 sayılı " +
+      "Kanun'la kaldırılmıştır. 2024 yılında 44.834 kişi aldı, 40.371 kişi verdi; net göç " +
+      "hızı binde +3,50'dir.",
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%1,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '11',
@@ -1005,7 +1074,55 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Bilecik deep content (wave-2). Söğüt/Ertuğrul (TDV kaynak-eleştirisiyle) + en küçük
+    //    nüfus + denize kıyısı olmayan tek Marmara ili. NON-büyükşehir: urbanizationRate=84.11
+    //    is a GENUINE computed rate — settlementNoteTr carries NO 6360 note (it does not apply).
+    //    netMigrationRate is this wave's sole NEGATIVE (-0.07 ‰); reel GSYH düşüşü moved to introTr.
+    landformNoteTr:
+      'İl toprakları, klasik anlamda dağlık değil, derin ve dik vadilerle yarılmış bir yayla ' +
+      "görünümündedir; ortalama rakım 500 metre dolayındadır. En yüksek nokta, Bozüyük'ün " +
+      "güneybatısındaki 1.906 metrelik Kala Dağı'dır. İlin büyük bölümü, Sakarya Nehri'nin " +
+      'yukarı ve orta havzasında yer alır; nehir, il sınırları içinde yaklaşık 80 kilometre ' +
+      'boyunca akar.\n\n' +
+      'Rakamlı bir deprem geçmişi zayıf olsa da il, güncel tehlike haritalarında birinci ' +
+      'derece deprem kuşağında sınıflandırılır; kayıtlara geçen tarihsel sarsıntılar arasında ' +
+      "1862'de Söğüt ve 1897'de Osmaneli'nde hissedilen depremler bulunur. İl, 1956 Eskişehir " +
+      've 1999 Kocaeli depremlerinden etkilenmiş, ama bu iki depremin merkez üssü Bilecik ' +
+      'sınırları dışında kalmıştır.',
+    introTr:
+      "Bilecik'e bağlı Söğüt, Osmanlı Beyliği'nin geleneksel olarak ilk yurdu kabul edilir; " +
+      "TDV İslam Ansiklopedisi'nin Ertuğrul Gazi maddesi, döneme dair bilgilerin büyük ölçüde " +
+      'sonraki yüzyıllarda yazılmış, efsanevi unsurlar taşıyan kaynaklara dayandığını, çağdaş ' +
+      "bir Bizans ya da İslam kroniğinde Ertuğrul'dan söz edilmediğini belirtir. İl, bu " +
+      'ilçelerin bulunduğu bölgede nüfus bakımından küçük kalır — 2025 sonu itibarıyla 228.995 ' +
+      "kişi, komşusu Bursa'nın nüfusunun onda birinden azdır — ve Marmara Bölgesi'nde denize " +
+      "kıyısı olmayan tek ildir. TÜİK'in 2024 verilerine göre, gayrisafi yurt içi hasılası bir " +
+      "önceki yıla göre reel olarak %2,4 gerileyen tek il de Bilecik'tir; bu, 81 il arasındaki " +
+      'en yüksek düşüş oranıdır.',
+    hydrographyNoteTr:
+      "Sakarya Nehri'nin yanı sıra, Bozüyük çevresinde Karasu adlı bir kol nehre katılır. " +
+      'Söğüt ilçesinde, Söğüt Çayı üzerinde 1994-2000 arasında inşa edilen Kızıldamlar ' +
+      'Barajı, 10,70 milyon metreküplük hacmiyle çevredeki tarım arazilerini sular; aynı ' +
+      'zamanda bir kuş barınağıdır.',
+    hydrographyFeatures: [
+      { name: 'Sakarya Nehri', type: HydrographyFeatureType.Nehir },
+      { name: 'Karasu', type: HydrographyFeatureType.Nehir },
+      { name: 'Kızıldamlar Barajı', type: HydrographyFeatureType.Baraj },
+    ],
+    urbanizationRate: 84.11,
+    netMigrationRate: -0.07,
+    settlementNoteTr:
+      "Bilecik'te büyükşehir statüsü bulunmadığından TÜİK'in il/ilçe merkezi nüfus oranı " +
+      "gerçek bir kentleşme düzeyi gösterir: 2025 verilerine göre nüfusun %84,11'i il ve ilçe " +
+      'merkezlerinde yaşıyor. 2024 yılında 10.023 kişi aldı, 10.038 kişi verdi; net göç hızı ' +
+      'binde -0,07 ile aradaki 15 kişilik farkla aldığından hafifçe daha fazla göç verdi.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '16',
@@ -1025,7 +1142,58 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Bursa deep content (wave-2). Uludağ buzul-jeomorfolojisi + 1855 depremleri (SHEEC
+    //    katalog değeri) + tektonik göller (İznik/Uluabat). "Horst" terimi bilinçli KULLANILMADI
+    //    (MTA: metamorfik çekirdek karmaşığı). Büyükşehir: urbanizationRate=100 = 6360 artifact.
+    landformNoteTr:
+      'Uludağ, kuzey yamaçlarında sirk vadileri ve sirk gölleriyle (Karagöl, Aynalıgöl, ' +
+      "Kilimligöl, Buzlu Göl) Türkiye'de buzul döneminin izlerinin görüldüğü ilk yerlerden " +
+      "biridir; dağın 12.762 hektarlık bölümü 1961'de milli park ilan edilmiştir. İlin " +
+      "dağlık kesimini Uludağ'ın yanı sıra Samanlı, Mudanya ve Katırlı dağları oluşturur; " +
+      'Bursa, İnegöl, Karacabey, Orhangazi, İznik ve Yenişehir ovaları ise il topraklarının ' +
+      'önemli bir bölümünü kaplar.\n\n' +
+      "28 Şubat 1855'te, merkez üssü Mustafakemalpaşa yakınlarında olan ve büyüklüğü " +
+      'yaklaşık 7,0 olarak kaydedilen bir deprem meydana geldi; yaklaşık 300 kişi hayatını ' +
+      "kaybetti. Altı hafta sonra, 11 Nisan 1855'te Gemlik-Mudanya yakınlarında merkezlenen " +
+      'ikinci bir deprem (6,7 büyüklüğünde) yaklaşık 1.300 kişinin daha ölümüne yol açtı. ' +
+      "1999 İzmit depreminde Bursa'nın kendisi merkez üssünden uzak kaldı; bölgeden nakledilen " +
+      'çok sayıda yaralı, kentteki hastanelerde tedavi gördü.',
+    introTr:
+      "Bursa, 2.543 metrelik Uludağ ile Marmara Bölgesi'nin en yüksek noktasına sahiptir. " +
+      "Kent, 1326'da Orhan Gazi tarafından fethedilmiş ve kısa süre sonra ilk Osmanlı başkenti " +
+      "olmuştur; başkentlik unvanı 1363'te Edirne'ye taşınana kadar sürmüştür. Bugün nüfus " +
+      "bakımından Türkiye'nin dördüncü büyük ilidir.",
+    hydrographyNoteTr:
+      "İznik Gölü, 298 kilometrekarelik yüzölçümüyle Türkiye'nin doğal gölleri arasında " +
+      "beşinci, Marmara Bölgesi'nde ise en büyüğüdür; tektonik kökenli bir çöküntü gölü olup " +
+      "en derin noktası 65 metreye ulaşır. Antik adı Ascania Limne olan göl, Homeros'un " +
+      "İlyada'sında da anılır. İlin batısındaki Uluabat Gölü ise sığdır — derinliği 2-4 " +
+      'metreyi geçmez — ve nilüfer yataklarıyla kaplı, tümüyle koruma altındaki bir sulak ' +
+      'alandır.\n\n' +
+      "Nilüfer Çayı, Uludağ'daki Aras Şelalesi'nden doğar, Bursa Ovası'nı geçerek Susurluk " +
+      "Çayı'na katılır ve Karacabey üzerinden Marmara Denizi'ne ulaşır; adını Orhan Gazi'nin " +
+      "eşi Nilüfer Hatun'dan alır. İçme suyu ihtiyacının büyük bölümü, birlikte ilin su " +
+      "ihtiyacının yaklaşık %85'ini karşılayan Doğancı ve Nilüfer barajlarından sağlanır.",
+    hydrographyFeatures: [
+      { name: 'İznik Gölü', type: HydrographyFeatureType.Gol },
+      { name: 'Uluabat Gölü', type: HydrographyFeatureType.Gol },
+      { name: 'Nilüfer Çayı', type: HydrographyFeatureType.Nehir },
+      { name: 'Doğancı Barajı', type: HydrographyFeatureType.Baraj },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: 4.71,
+    settlementNoteTr:
+      "Bursa'da da büyükşehir statüsünün getirdiği yapısal sonuç geçerlidir: TÜİK il/ilçe " +
+      "merkezi nüfus oranı %100'dür, çünkü belde ve köylerin idari tüzel kişiliği 6360 sayılı " +
+      "Kanun'la kaldırılmıştır. 2024 yılında 81.656 kişi aldı, 66.440 kişi verdi; net göç " +
+      'hızı binde +4,71 ile ölçülü ama istikrarlı bir göç kazancı gösteriyor.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%3,8',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '17',
@@ -1045,7 +1213,52 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Çanakkale deep content (wave-2). Boğaz/iki yarımada + UNESCO Truva + Gelibolu. Boğaz
+    //    en dar noktası bilinçli olarak bir ARALIK (1,2-1,4 km); Kazdağı zirve rakamı Balıkesir
+    //    tarafında olduğu için YAZILMADI. NON-büyükşehir: urbanizationRate=62.03, genuine rate.
+    landformNoteTr:
+      'Çanakkale, 671 kilometrelik kıyı şeridiyle Ege Denizi, Marmara Denizi, Çanakkale ' +
+      "Boğazı ve iç göllere aynı anda kıyısı olan ender illerden biridir. Anadolu'nun en batı " +
+      "noktası olan Baba Burnu ile Türkiye'nin en batı noktası olan, Gökçeada'daki İncir " +
+      'Burnu il sınırları içindedir. İlin güneyinde, Balıkesir sınırında yükselen Kaz Dağı ' +
+      "(İda Dağı), Kazdağı Milli Parkı'nın da bulunduğu ormanlık bir kütledir.\n\n" +
+      'Çanakkale Boğazı, yaklaşık 61 kilometre uzunluğundadır; genişliği kuzey ağzında 3,2 ' +
+      'kilometreye ulaşırken orta kesimde 8 kilometreyi bulur, Çanakkale kenti hizasında ise ' +
+      '1,2-1,4 kilometreye kadar daralır. Ortalama derinliği 55 metre, Kilitbahir ' +
+      'açıklarındaki en derin noktası 103 metredir.',
+    introTr:
+      "Çanakkale, Ege Denizi'ni Marmara Denizi'ne bağlayan Çanakkale Boğazı'nın iki yakasına " +
+      "kuruludur; il toprakları Avrupa'daki Gelibolu Yarımadası ile Anadolu'daki Biga " +
+      "Yarımadası'ndan oluşur. İlin güneyinde, kent merkezinin yaklaşık 30 kilometre " +
+      "içerisinde, 1998'de UNESCO Dünya Mirası Listesi'ne alınan Truva Ören Yeri bulunur; " +
+      'kesintisiz 3.000 yılı aşkın bir süreye yayılan 10 yerleşim katmanı taşır. Boğazın ' +
+      "Avrupa yakasındaki Gelibolu Yarımadası'nın büyük bölümü, 1915 Çanakkale Savaşları'nın " +
+      'anı ve mezarlık alanlarına ayrılmıştır.',
+    hydrographyNoteTr:
+      'Kent merkezinden geçen Sarıçay, boğaza ulaştığı ağızda kıyı şeridini şekillendirir. ' +
+      "Gelibolu Yarımadası'nda Tuzla Gölü, Biga ilçesinde ise Hoyrat ve Ece gölleri ilin " +
+      "başlıca göletleridir. İlin tek içme suyu kaynağı Atikhisar Barajı'dır; sulama amaçlı " +
+      'işletilen Bayramiç Barajı ise ilin bir diğer önemli su yapısıdır.',
+    hydrographyFeatures: [
+      { name: 'Atikhisar Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Bayramiç Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Sarıçay', type: HydrographyFeatureType.Nehir },
+      { name: 'Tuzla Gölü', type: HydrographyFeatureType.Gol },
+    ],
+    urbanizationRate: 62.03,
+    netMigrationRate: 6.18,
+    settlementNoteTr:
+      'Çanakkale, büyükşehir olmayan bir il olarak gerçek bir kentleşme oranı gösterir: 2025 ' +
+      "TÜİK verilerine göre nüfusun %62,03'ü il ve ilçe merkezlerinde, kalan bölüm belde ve " +
+      'köylerde yaşıyor. 2024 yılında 24.714 kişi aldı, 21.211 kişi verdi; net göç hızı binde ' +
+      "+6,18'dir.",
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,6',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '22',
@@ -1065,7 +1278,56 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Edirne deep content (wave-2). İki ülke sınırı (Bulgaristan/Yunanistan) + nehir buluşması
+    //    (Meriç/Tunca/Arda/Ergene) + Gala Gölü Milli Parkı (Edirne'de, Çanakkale'de DEĞİL). Kadıköy
+    //    Barajı Edirne'ye ait (Tier-1 SYGM). NON-büyükşehir: urbanizationRate=77.06, genuine rate.
+    landformNoteTr:
+      'İlin toplam sınır uzunluğu 292 kilometredir; kalan kesim Kırklareli, Tekirdağ ve Saros ' +
+      "Körfezi kıyısıyla Çanakkale'ye komşudur. İlin dağlık kesimini kuzeyde Istranca, " +
+      'güneyde Uzunköprü, Koru ve Çandır dağları oluşturur; en yüksek nokta, 720 metrelik ' +
+      "Korudağ'dır. Geri kalan topraklar, ayçiçeği, çeltik ve tahıl tarımına elverişli " +
+      'alüvyonlu Ergene, Meriç, Kazanova ve İpsala ovalarıyla kaplıdır.',
+    introTr:
+      "Fatih Sultan Mehmed, İstanbul kuşatmasını planladığı söylenen bir dönemde Edirne'de " +
+      "doğmuştur. Kent, 1361'de I. Murad tarafından fethedildikten sonra Osmanlı başkenti " +
+      "olmuş; İstanbul'un fethine kadar bu konumunu korumuştur. Edirne bugün, kuzeyde " +
+      "Bulgaristan'a 88 kilometre, batıda Yunanistan'a 204 kilometre sınırı olan, Türkiye'nin " +
+      'iki komşu ülkeye birden kara sınırı bulunan illerinden biridir.',
+    hydrographyNoteTr:
+      'Edirne, Meriç, Tunca, Arda ve Ergene nehirlerinin buluştuğu bir il merkezine sahiptir. ' +
+      "Meriç Nehri, Bulgaristan'daki Rila Dağı eteklerinden doğar; Edirne'de " +
+      'Türkiye-Yunanistan sınırını 185 kilometre boyunca çizdikten sonra Enez yakınlarında ' +
+      "Ege Denizi'ne dökülür. Bulgaristan'dan gelen Tunca Nehri, kent merkezinde Meriç'e " +
+      "katılır. Ergene Nehri ise Bulgaristan'dan değil, komşu Tekirdağ'ın Saray ilçesi " +
+      'çevresinden doğar; il sınırları içinde yaklaşık 72 kilometre akan nehir, aşağı ' +
+      "havzadaki sanayi ve yerleşim kirliliği nedeniyle 2011'den bu yana bir devlet eylem " +
+      'planı kapsamındadır.\n\n' +
+      "İlin güneyinde, Enez ve İpsala ilçeleri sınırlarındaki Gala Gölü, 2005'te Türkiye'nin " +
+      '36. milli parkı ilan edilmiştir; 6.090 hektarlık alanın 3.090 hektarı sulak alan, ' +
+      'kalanı Hisarlı Dağı eteklerindeki ormandır. İçme suyu ihtiyacı, kent merkezinin 36 ' +
+      "kilometre kuzeydoğusundaki Süloğlu Barajı ile Kadıköy Barajı'ndan karşılanır.",
+    hydrographyFeatures: [
+      { name: 'Meriç Nehri', type: HydrographyFeatureType.Nehir },
+      { name: 'Tunca Nehri', type: HydrographyFeatureType.Nehir },
+      { name: 'Ergene Nehri', type: HydrographyFeatureType.Nehir },
+      { name: 'Gala Gölü', type: HydrographyFeatureType.Gol },
+      { name: 'Süloğlu Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Kadıköy Barajı', type: HydrographyFeatureType.Baraj },
+    ],
+    urbanizationRate: 77.06,
+    netMigrationRate: 2.4,
+    settlementNoteTr:
+      "Edirne'de büyükşehir statüsü bulunmadığı için TÜİK'in il/ilçe merkezi nüfus oranı " +
+      "gerçek bir kentleşme düzeyini yansıtır: 2025 verilerine göre nüfusun %77,06'sı il ve " +
+      'ilçe merkezlerinde yaşıyor. 2024 yılında 17.332 kişi aldı, 16.323 kişi verdi; net göç ' +
+      "hızı binde +2,40'tır.",
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,4',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '39',
@@ -1087,7 +1349,47 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Kırklareli deep content (wave-2). Neolitik Aşağıpınar Höyüğü + Yıldız Dağları/İğneada
+    //    longoz ormanı. hydrographyFeatures BİLİNÇLİ olarak TEK maddeye indirildi (İstanbul
+    //    su-transferi iddiası doğrulanamadı). NON-büyükşehir: urbanizationRate=74.04, genuine.
+    landformNoteTr:
+      'İlin kuzeyini, Bulgaristan sınırı boyunca uzanan Yıldız Dağları (Istrancalar) kaplar; ' +
+      "bu kütledeki, Pınarhisar'a bağlı Evciler köyü ile Vize'ye bağlı Sergen kasabası " +
+      'arasındaki Mahya Tepesi, 1.031 metreyle ilin en yüksek noktasıdır. En alçak kesim, ' +
+      'Karadeniz kıyısında 10 metreye kadar iner. Kuzeydeki dağlık kuşak ile güneydeki ' +
+      'Ergene Ovası arasında, il topraklarının büyük bölümünü oluşturan tepelik ve platoluk ' +
+      'bir geçiş kuşağı yer alır.\n\n' +
+      "Demirköy ilçesinde, Yıldız Dağları'nın Karadeniz'e indiği kesimde bulunan İğneada " +
+      "Longoz Ormanları, 2007'de 3.155 hektarlık bir alanda milli park ilan edilmiştir; tatlı " +
+      've tuzlu suyun iç içe geçtiği bu taşkın ormanı, altı gölü ve kıyı kumullarıyla dünyada ' +
+      'benzerine az rastlanan bir ekosistemdir.',
+    introTr:
+      "Kırklareli'nin güneyinde yer alan Aşağıpınar Höyüğü, arkeolog Mehmet Özdoğan'ın " +
+      "1993'te başlattığı kazılarla MÖ 6200'e tarihlenen bir yerleşim katmanı ortaya çıkardı; " +
+      "araştırmacılar, tarımın Anadolu'dan Trakya üzerinden Avrupa'ya bu güzergâhtan " +
+      "yayıldığını öne sürer. İl, kuzeyde 159 kilometrelik bir sınırla Bulgaristan'a, doğuda " +
+      "58 kilometrelik bir kıyı şeridiyle Karadeniz'e komşudur. Resmi deprem bölgesi " +
+      'sınıflamasında il, dördüncü (en düşük riskli) derece kuşakta yer alır.',
+    hydrographyNoteTr:
+      "İlin başlıca su yapısı, Şeytan Deresi üzerindeki Kırklareli Barajı'dır; sulama, taşkın " +
+      "koruma ve içme suyu amacıyla işletilir. Trakya'nın turizme açılan tek mağarası olan " +
+      'Dupnisa, Demirköy ilçesinde, birbirine bağlı kuru ve sulu galerilerden oluşan çok ' +
+      'katlı bir karstik sistemdir.',
+    hydrographyFeatures: [{ name: 'Kırklareli Barajı', type: HydrographyFeatureType.Baraj }],
+    urbanizationRate: 74.04,
+    netMigrationRate: 3.0,
+    settlementNoteTr:
+      "Kırklareli'de büyükşehir statüsü bulunmadığından TÜİK'in il/ilçe merkezi nüfus oranı " +
+      "gerçek bir kentleşme düzeyi gösterir: 2025 verilerine göre nüfusun %74,04'ü il ve ilçe " +
+      'merkezlerinde yaşıyor. 2024 yılında 15.265 kişi aldı, 14.128 kişi verdi; net göç hızı ' +
+      "binde +3,00'dür.",
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,5',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '41',
@@ -1108,7 +1410,57 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CFA,
     climateClassTr: CLIMATE_CLASS_CFA_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
-    landformNoteTr: null,
+    // ── Kocaeli deep content (wave-2). İzmit Körfezi/KAF kuzey kolu + 1999 depremi (Kandilli
+    //    7,4 / USGS 7,6 çift-rakam, ulusal toll bir ARALIK: 17.480-18.373). Kişi başına GSYH
+    //    ulusal #2 introTr'da. Büyükşehir: urbanizationRate=100 = 6360 artifact.
+    landformNoteTr:
+      "İlin kuzeyi İzmit Körfezi'nin kıyı şeridinden oluşur; körfez, kuzeyindeki Kocaeli " +
+      'Yarımadası ile güneyindeki Samanlı Dağları arasında uzanan tektonik bir çöküntüdür. ' +
+      'Samanlı Dağları, ilin güneyinde Kartepe ve çevresinde 1.500 metreyi aşan bir kütle ' +
+      'halinde yükselir. İlin tek Karadeniz kıyısı, 52 kilometrelik bir şeritle Kandıra ' +
+      'ilçesindedir; buradaki Babadağı 400 metreye ulaşır.\n\n' +
+      "Kuzey Anadolu Fayı'nın kuzey kolu, İzmit Körfezi'nin altından geçer. 17 Ağustos " +
+      "1999'da merkez üssü Gölcük olan bir deprem meydana geldi; büyüklüğü Kandilli " +
+      "Rasathanesi'ne göre 7,4, ABD Jeoloji Araştırmaları Kurumu'na (USGS) göre 7,6 olarak " +
+      'ölçüldü. Deprem, ülke genelinde resmi kayıtlara göre 17.480 ile 18.373 arasında ' +
+      "değişen sayıda kişinin ölümüne yol açtı; bunların büyük bölümü Kocaeli'nde yaşanmıştır.",
+    introTr:
+      "Kocaeli, İzmit Körfezi kıyısında, Marmara Bölgesi'nin sanayi ağırlıklı kesiminde " +
+      "kuruludur. İlin adı, 14. yüzyılda Orhan Gazi'nin oğlu Süleyman Paşa'nın bölgeyi sancak " +
+      "beyi olarak yönettiği döneme dayanır; 1888'de bağımsız bir sancak haline gelmiştir. " +
+      "2024 yılında kişi başına gayrisafi yurt içi hasılada İstanbul'un ardından ikinci " +
+      "sırada yer aldı — TÜİK'in rakamlarına göre Ankara'yı yalnızca 14 liralık bir farkla " +
+      'geride bırakarak.',
+    hydrographyNoteTr:
+      'İlin su kaynaklarının merkezinde İzmit Körfezi yer alır; körfezin kıyısında kurulu ' +
+      'olan İzmit ile Gölcük, Değirmendere ve Karamürsel ilçeleri kıyı şeridini paylaşır. ' +
+      "İlin doğu sınırında, Sapanca Gölü'nün küçük bir bölümü Kocaeli topraklarında kalır; " +
+      'gölün büyük bölümü komşu Sakarya ilindedir.\n\n' +
+      "İçme suyu ihtiyacının büyük bölümü Yuvacık Barajı'ndan karşılanır; baraj, Kocaeli, " +
+      'Sakarya ve Bursa sınırları içindeki 258 kilometrekarelik bir havzadan beslenir. ' +
+      'Namazgâh Barajı, ilin diğer önemli içme suyu kaynağıdır. Kentin su ihtiyacı ' +
+      "yükseldiğinde, Yuvacık'tan Sapanca Gölü'ne suyun geri pompalandığı bir sistem de " +
+      'devreye girer.',
+    hydrographyFeatures: [
+      { name: 'Yuvacık Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Namazgâh Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Sapanca Gölü', type: HydrographyFeatureType.Gol },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: 8.11,
+    settlementNoteTr:
+      "Kocaeli'nde de TÜİK'in il/ilçe merkezi nüfus oranı %100'dür — büyükşehir statüsündeki " +
+      "illerde belde ve köylerin idari tüzel kişiliğinin 6360 sayılı Kanun'la kaldırılmasının " +
+      'bir sonucudur, ilin fiilen tamamen kentleştiği anlamına gelmez. 2024 yılında 80.804 ' +
+      'kişi aldı, 63.593 kişi verdi; net göç hızı binde +8,11 ile sanayi istihdamının çektiği ' +
+      'net bir göç kazancına işaret ediyor.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%3,8',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '54',
@@ -1129,7 +1481,58 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CFA,
     climateClassTr: CLIMATE_CLASS_CFA_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
-    landformNoteTr: null,
+    // ── Sakarya deep content (wave-2). Ad nehirden gelir (savaştan DEĞİL) + Adapazarı 1999
+    //    zemin sıvılaşması (Kocaeli'nin fay-yakınlığından kasıtlı farklı) + tektonik Sapanca
+    //    Gölü. Büyükşehir: urbanizationRate=100 = 6360 artifact.
+    landformNoteTr:
+      "Sakarya'nın tek dağlık kesimi, Köroğlu Dağları'nın batı uzantısı olan Samanlı " +
+      "Dağları'dır; ilin en yüksek noktası bu kütledeki 1.543 metrelik Keremali Dağı'dır. " +
+      'İlin yüzölçümünün büyük bölümünü ise ovalar oluşturur: 650 kilometrekarelik Adapazarı ' +
+      'Ovası ilin en büyük düzlüğüdür, güneydoğuda kalan Pamukova Ovası ise yaklaşık 170 ' +
+      'kilometrekaredir.\n\n' +
+      "İl, Kuzey Anadolu Fayı'nın kuzey kolu üzerindedir. 17 Ağustos 1999 depreminde " +
+      "Adapazarı, alüvyonlu zemini ve yüksek yeraltı su seviyesi nedeniyle Türkiye'nin " +
+      'mühendislik literatüründe zemin sıvılaşmasının en ağır görüldüğü yerleşim olarak kayda ' +
+      'geçti — bina hasarının önemli bir bölümü doğrudan fay kırığından değil, bu zemin ' +
+      "sıvılaşmasından kaynaklandı. Aynı yılın 12 Kasım'ında, komşu Düzce'de merkezlenen " +
+      'ikinci bir deprem ilin doğu kesimini de etkiledi.',
+    introTr:
+      "Sakarya, adını ilin ortasından geçen Sakarya Nehri'nden alır. Sık karıştırılan 1921 " +
+      'Sakarya Meydan Muharebesi, bugünkü Ankara sınırları içinde, Polatlı ile Haymana ' +
+      "arasında yaşanmıştır. İl, Adapazarı'nın 17 Haziran 1954'te kabul edilen bir yasayla " +
+      'ayrı bir il merkezi haline getirilmesiyle kuruldu; yeni ilin sınırları o dönem Akyazı, ' +
+      'Geyve, Hendek ve Karasu ilçelerini kapsıyordu.',
+    hydrographyNoteTr:
+      "Sakarya Nehri, Türkiye'nin üçüncü uzun akarsuyu olup toplam 824 kilometrelik " +
+      'uzunluğunun yaklaşık 159,5 kilometresi il sınırları içinden geçer; Mudurnu Çayı ve ' +
+      "Sapanca Gölü'nü boşaltan Çark Suyu ile birleştikten sonra Karasu ilçesinden Karadeniz'e " +
+      'dökülür.\n\n' +
+      "Sapanca Gölü, Kuzey Anadolu Fayı'nın kuzey kolu üzerinde bir çöküntü havzasında " +
+      "oluşmuş, 47 kilometrekarelik bir göldür; Prof. Dr. Sırrı Erinç'in 156 noktada yaptığı " +
+      'ölçümlere göre en derin noktası 61 metredir. Göl yüzeyi deniz seviyesinden yalnızca ' +
+      '30-31 metre yukarıdadır, taban kotu ise deniz seviyesinin altına iner. İlin sulama ve ' +
+      "içme suyu ihtiyacının bir bölümü, Pamukova ilçesindeki Çilekli Barajı'ndan karşılanır.",
+    hydrographyFeatures: [
+      { name: 'Sakarya Nehri', type: HydrographyFeatureType.Nehir },
+      { name: 'Sapanca Gölü', type: HydrographyFeatureType.Gol },
+      { name: 'Çark Suyu', type: HydrographyFeatureType.Nehir },
+      { name: 'Pamukova Çilekli Barajı', type: HydrographyFeatureType.Baraj },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: 5.97,
+    settlementNoteTr:
+      "Büyükşehir statüsündeki illerde olduğu gibi Sakarya'nın da TÜİK il/ilçe merkezi nüfus " +
+      "oranı %100 görünür; bu, belde ve köylerin idari tüzel kişiliğinin 6360 sayılı Kanun'la " +
+      'kaldırılmasının bir sonucudur, ilin fiilen tamamen kentleştiği anlamına gelmez. 2024 ' +
+      'yılında 37.116 kişi aldı, 30.501 kişi verdi; net göç hızı binde +5,97 ile pozitif bir ' +
+      'dengeye işaret ediyor.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%1,2',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '59',
@@ -1149,7 +1552,51 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Tekirdağ deep content (wave-2). Trakya bağcılık merkezi (Şarköy %89) + Ganos Fayı/1912
+    //    Mürefte depremi. Kadıköy Barajı BİLİNÇLİ olarak listede DEĞİL (Edirne'ye ait). Büyükşehir:
+    //    urbanizationRate=100 = 6360 artifact. netMigrationRate national #2 (+13.09 ‰, Yalova sonrası).
+    landformNoteTr:
+      "İlin dağlık omurgasını, Kumbağ'dan Gelibolu berzahına kadar yaklaşık 60 kilometre " +
+      'uzanan Tekir Dağları oluşturur; bu sıradağın en yüksek noktası, 945 metrelik Ganos ' +
+      "(Işıklar) Dağı'dır. İl, kuzeyde Yıldız Dağları'nın güney eteklerine, güneyde Ganos ve " +
+      "Koru dağlarına yaslanır; bu iki kuşak arasında kalan orta kesim, Ergene Havzası'nın su " +
+      'bölümü çizgisini oluşturur.\n\n' +
+      "Ganos Fayı, Kuzey Anadolu Fayı'nın Marmara Denizi'nden karaya çıktığı Şarköy-Gaziköy " +
+      "kesiminden geçer. 9 Ağustos 1912'de merkez üssü Mürefte olan, büyüklüğü akademik " +
+      'kaynaklara göre 7,4 olan bir deprem meydana geldi; resmi deprem bölgesi haritasında ' +
+      'bugün de Şarköy ve Mürefte en yüksek risk derecesinde, il merkezi bir alt derecede ' +
+      'sınıflandırılır.',
+    introTr:
+      "Tekirdağ, Trakya'nın bağcılık merkezidir: 2024 tarım verilerine göre ildeki şaraplık " +
+      "üzüm alanının %89'u tek başına Şarköy ilçesinde yer alır. İl, 2024 TÜİK göç " +
+      "istatistiklerinde Yalova'nın ardından Türkiye'nin en yüksek ikinci net göç hızına " +
+      "ulaştı. Marmara Denizi kıyısında, İstanbul'a en yakın komşu illerden biri olarak sanayi " +
+      've tarımın iç içe geçtiği bir yapı taşır.',
+    hydrographyNoteTr:
+      'İlde büyük bir akarsu yoktur; kıyıya dökülen Işıklar, Bağlar, Kovan, Ova ve Gölcük ' +
+      "dereleri ilin başlıca su yollarıdır. Şarköy ilçesinde, 2021'de inşaatına başlanan " +
+      'Eriklice Barajı tamamlandığında bölgenin sulama ve içme suyu ihtiyacının bir bölümünü ' +
+      'karşılayacaktır; bu arada Malkara ve Şarköy çevresindeki küçük göletler tarımsal ' +
+      'sulamayı destekler.',
+    hydrographyFeatures: [
+      { name: 'Eriklice Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Işıklar Deresi', type: HydrographyFeatureType.Nehir },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: 13.09,
+    settlementNoteTr:
+      "Tekirdağ'da da büyükşehir statüsünün getirdiği yapısal sonuç geçerlidir: TÜİK il/ilçe " +
+      "merkezi nüfus oranı %100'dür, çünkü belde ve köylerin idari tüzel kişiliği 6360 sayılı " +
+      "Kanun'la kaldırılmıştır. 2024 yılında 53.439 kişi aldı, 37.996 kişi verdi; net göç " +
+      "hızı binde +13,09 ile Yalova'nın ardından Türkiye'nin en yüksek ikinci net göç hızına " +
+      'ulaştı.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%1,6',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '77',
@@ -1169,7 +1616,53 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Yalova deep content (wave-2). Türkiye'nin en küçük ili (798 km²) + 1995 kuruluşu +
+    //    1999 ağır hasarı. NON-büyükşehir: urbanizationRate=72.35, genuine rate — no 6360 note.
+    //    netMigrationRate is the NATIONAL #1 (+15.59 ‰, all 81 il), asserted in settlementNoteTr.
+    landformNoteTr:
+      "İlin büyük bölümü, güneyde Samanlı Dağları'nın uzantılarıyla kaplı dağlık bir " +
+      'arazidir; doğuda kalan kıyı kesimi ise düzlüktür. İlin en yüksek noktası, 926 metrelik ' +
+      "Beşpınar Tepesi'dir. Marmara Denizi kıyısı, kumluk plajlarla kaplı 105 kilometrelik " +
+      'bir şerit oluşturur; Çınarcık ve Esenköy çevresinde bu şerit yer yer çakıllı bir ' +
+      'kıyıya dönüşür.\n\n' +
+      "İl, Kuzey Anadolu Fayı'nın Marmara Denizi altından geçen kollarına yakın konumdadır. " +
+      '17 Ağustos 1999 depreminde Yalova ağır hasar gördü; ilde 33.708 konut ve işyeri ' +
+      'hasarlı bulundu, en ağır yıkım kent merkezindeki Bahçelievler ile Çiftlikköy ve ' +
+      "Çınarcık'taki yazlık yerleşimlerde yaşandı.",
+    introTr:
+      "Yalova, 798 kilometrekarelik yüzölçümüyle Türkiye'nin en küçük ilidir. İl, 5 Haziran " +
+      "1995'te yürürlüğe giren bir kanun hükmünde kararnameyle 77. il olarak kuruldu; o " +
+      "tarihe kadar 1930'dan beri İstanbul'un bir ilçesiydi. Kuruluşla birlikte Armutlu " +
+      "ilçesi Bursa'dan, Altınova ise Kocaeli'nden Yalova'ya bağlandı.",
+    hydrographyNoteTr:
+      "İlin en büyük akarsuyu, Samanlı Dağları'ndan doğan ve yıllık yaklaşık 120 milyon " +
+      "metreküp su taşıyan 40 kilometrelik Sellimandıra Deresi'dir. Altınova ilçesinde " +
+      "Yalakdere, Hersek Deltası'nı oluşturarak denize ulaşır. Çınarcık'taki Delmece Yaylası " +
+      'yakınında yer alan Dipsiz Göl, ilin doğal gölüdür.\n\n' +
+      "İçme suyu, 1988'de tamamlanan Gökçe Barajı'ndan karşılanır; barajın suyu Termal " +
+      "beldesi yakınından alınır. Armutlu'daki Sarpdere Barajı ise 2017'de tamamlanmış, " +
+      'öncelikli olarak sulama amacıyla işletilen küçük bir barajdır.',
+    hydrographyFeatures: [
+      { name: 'Gökçe Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Sarpdere Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Sellimandıra Deresi', type: HydrographyFeatureType.Nehir },
+      { name: 'Dipsiz Göl', type: HydrographyFeatureType.Gol },
+    ],
+    urbanizationRate: 72.35,
+    netMigrationRate: 15.59,
+    settlementNoteTr:
+      "Yalova, büyükşehir olmayan bir il olduğu için TÜİK'in il/ilçe merkezi nüfus oranı " +
+      "burada %100'ün altındadır: 2025 verilerine göre nüfusun %72,35'i il ve ilçe " +
+      'merkezlerinde, kalanı belde ve köylerde yaşıyor. 2024 yılında 17.812 kişi aldı, 13.049 ' +
+      "kişi verdi; net göç hızı binde +15,59 ile Türkiye'nin 81 ili arasında en yüksek değere " +
+      'ulaştı.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
 ];
 

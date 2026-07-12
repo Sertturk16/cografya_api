@@ -437,6 +437,22 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
     caveatContains: 'Csa',
+    // Balıkesir wave-2 deep content — restated INDEPENDENTLY from the fact-checked draft.
+    // Büyükşehir → urbanizationRate 100 (6360 artifact). Structured fields asserted EXACTLY.
+    urbanizationRate: 100,
+    netMigrationRate: 3.5,
+    hydrographyFeatures: [
+      { name: 'Manyas Gölü', type: 'gol' },
+      { name: 'Susurluk Çayı', type: 'nehir' },
+      { name: 'Madra Çayı', type: 'nehir' },
+    ],
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%1,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     slug: 'bilecik',
@@ -455,6 +471,22 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
     caveatContains: 'Csa',
+    // Bilecik wave-2 deep content — NON-büyükşehir: urbanizationRate is a GENUINE computed
+    // rate (84.11, <100), NOT the 6360 legal artifact. netMigrationRate is the sole NEGATIVE.
+    urbanizationRate: 84.11,
+    netMigrationRate: -0.07,
+    hydrographyFeatures: [
+      { name: 'Sakarya Nehri', type: 'nehir' },
+      { name: 'Karasu', type: 'nehir' },
+      { name: 'Kızıldamlar Barajı', type: 'baraj' },
+    ],
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     slug: 'bursa',
@@ -473,6 +505,22 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
     caveatContains: 'Csa',
+    // Bursa wave-2 deep content — büyükşehir (urbanizationRate 100 = 6360 artifact).
+    urbanizationRate: 100,
+    netMigrationRate: 4.71,
+    hydrographyFeatures: [
+      { name: 'İznik Gölü', type: 'gol' },
+      { name: 'Uluabat Gölü', type: 'gol' },
+      { name: 'Nilüfer Çayı', type: 'nehir' },
+      { name: 'Doğancı Barajı', type: 'baraj' },
+    ],
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%3,8',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     slug: 'canakkale',
@@ -491,6 +539,22 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
     caveatContains: 'Csa',
+    // Çanakkale wave-2 deep content — NON-büyükşehir: genuine urbanizationRate 62.03 (<100).
+    urbanizationRate: 62.03,
+    netMigrationRate: 6.18,
+    hydrographyFeatures: [
+      { name: 'Atikhisar Barajı', type: 'baraj' },
+      { name: 'Bayramiç Barajı', type: 'baraj' },
+      { name: 'Sarıçay', type: 'nehir' },
+      { name: 'Tuzla Gölü', type: 'gol' },
+    ],
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,6',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     slug: 'edirne',
@@ -509,6 +573,24 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
     caveatContains: 'Csa',
+    // Edirne wave-2 deep content — NON-büyükşehir: genuine urbanizationRate 77.06 (<100).
+    urbanizationRate: 77.06,
+    netMigrationRate: 2.4,
+    hydrographyFeatures: [
+      { name: 'Meriç Nehri', type: 'nehir' },
+      { name: 'Tunca Nehri', type: 'nehir' },
+      { name: 'Ergene Nehri', type: 'nehir' },
+      { name: 'Gala Gölü', type: 'gol' },
+      { name: 'Süloğlu Barajı', type: 'baraj' },
+      { name: 'Kadıköy Barajı', type: 'baraj' },
+    ],
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,4',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     slug: 'kirklareli',
@@ -528,6 +610,18 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
     caveatContains: 'Csa',
+    // Kırklareli wave-2 deep content — NON-büyükşehir: genuine urbanizationRate 74.04 (<100).
+    // Single-item hydrographyFeatures by design (İstanbul su-transferi claim unverified).
+    urbanizationRate: 74.04,
+    netMigrationRate: 3.0,
+    hydrographyFeatures: [{ name: 'Kırklareli Barajı', type: 'baraj' }],
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,5',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     slug: 'kocaeli',
@@ -547,6 +641,21 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Cfa',
     climateClassTr: 'Karadeniz iklimi',
     caveatContains: 'Cfa',
+    // Kocaeli wave-2 deep content — büyükşehir (urbanizationRate 100 = 6360 artifact).
+    urbanizationRate: 100,
+    netMigrationRate: 8.11,
+    hydrographyFeatures: [
+      { name: 'Yuvacık Barajı', type: 'baraj' },
+      { name: 'Namazgâh Barajı', type: 'baraj' },
+      { name: 'Sapanca Gölü', type: 'gol' },
+    ],
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%3,8',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     slug: 'sakarya',
@@ -566,6 +675,22 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Cfa',
     climateClassTr: 'Karadeniz iklimi',
     caveatContains: 'Cfa',
+    // Sakarya wave-2 deep content — büyükşehir (urbanizationRate 100 = 6360 artifact).
+    urbanizationRate: 100,
+    netMigrationRate: 5.97,
+    hydrographyFeatures: [
+      { name: 'Sakarya Nehri', type: 'nehir' },
+      { name: 'Sapanca Gölü', type: 'gol' },
+      { name: 'Çark Suyu', type: 'nehir' },
+      { name: 'Pamukova Çilekli Barajı', type: 'baraj' },
+    ],
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%1,2',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     slug: 'tekirdag',
@@ -584,6 +709,21 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
     caveatContains: 'Csa',
+    // Tekirdağ wave-2 deep content — büyükşehir (urbanizationRate 100 = 6360 artifact).
+    // netMigrationRate is the national #2 (+13.09 ‰, behind Yalova).
+    urbanizationRate: 100,
+    netMigrationRate: 13.09,
+    hydrographyFeatures: [
+      { name: 'Eriklice Barajı', type: 'baraj' },
+      { name: 'Işıklar Deresi', type: 'nehir' },
+    ],
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%1,6',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     slug: 'yalova',
@@ -602,6 +742,23 @@ const EXPECTED_PROVINCES = [
     climateKoppen: 'Csa',
     climateClassTr: 'Akdeniz iklimi',
     caveatContains: 'Csa',
+    // Yalova wave-2 deep content — NON-büyükşehir: genuine urbanizationRate 72.35 (<100).
+    // netMigrationRate is the NATIONAL #1 (+15.59 ‰, all 81 il).
+    urbanizationRate: 72.35,
+    netMigrationRate: 15.59,
+    hydrographyFeatures: [
+      { name: 'Gökçe Barajı', type: 'baraj' },
+      { name: 'Sarpdere Barajı', type: 'baraj' },
+      { name: 'Sellimandıra Deresi', type: 'nehir' },
+      { name: 'Dipsiz Göl', type: 'gol' },
+    ],
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   // ── Batch 2 — wave 3 (Ege, 7 il, İzmir hariç), alphabetical by nameTr ──
   {
@@ -1206,18 +1363,22 @@ describe('Province (e2e)', () => {
         'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
     });
 
-    // A base-data-only province (Bursa, a wave-2 il — Ankara now carries wave-1 deep
-    // content) keeps EVERY detail field null: the deep-content updates are surgical and
-    // must NOT leak into sibling rows.
-    const bursa = await repo.findOneByOrFail({ plateCode: '16' });
-    expect(bursa.introTr).toBeNull();
-    expect(bursa.landformNoteTr).toBeNull();
-    expect(bursa.hydrographyNoteTr).toBeNull();
-    expect(bursa.hydrographyFeatures).toBeNull();
-    expect(bursa.urbanizationRate).toBeNull();
-    expect(bursa.netMigrationRate).toBeNull();
-    expect(bursa.settlementNoteTr).toBeNull();
-    expect(bursa.economyIndicator).toBeNull();
+    // A base-data-only province keeps EVERY detail field null: the deep-content updates are
+    // surgical and must NOT leak into sibling rows. Picked DYNAMICALLY as an EXPECTED row with
+    // no deep-content set (Bursa used to be the example but is now a wave-2 deep-content il) —
+    // self-maintaining so this stays correct as later waves fill their provinces, until none
+    // remain base-only. Today the wave-4 Akdeniz rows are the base-data-only ones here.
+    const baseOnlyExpected = EXPECTED_PROVINCES.find((p) => !('economyIndicator' in p));
+    if (!baseOnlyExpected) throw new Error('expected at least one base-data-only province');
+    const baseOnly = await repo.findOneByOrFail({ plateCode: baseOnlyExpected.plateCode });
+    expect(baseOnly.introTr).toBeNull();
+    expect(baseOnly.landformNoteTr).toBeNull();
+    expect(baseOnly.hydrographyNoteTr).toBeNull();
+    expect(baseOnly.hydrographyFeatures).toBeNull();
+    expect(baseOnly.urbanizationRate).toBeNull();
+    expect(baseOnly.netMigrationRate).toBeNull();
+    expect(baseOnly.settlementNoteTr).toBeNull();
+    expect(baseOnly.economyIndicator).toBeNull();
   });
 
   it('GET /api/provinces returns all 38, plate-ordered, lean (no detail leak)', async () => {
@@ -1443,13 +1604,14 @@ describe('Province (e2e)', () => {
 
       // Detail-section fields — THREE tiers coexist across the seed since wave-3:
       //   • FULL (8 fields): İstanbul 34 + the wave-1 four (06/35/65/07) + the wave-3 Tier-A
-      //     four (Manisa 45, Aydın 09, Denizli 20, Muğla 48). Structured fields asserted EXACTLY
-      //     here; the 4 prose fields get distinctive-token checks in the detail tests below.
+      //     four (Manisa 45, Aydın 09, Denizli 20, Muğla 48) + the 10 wave-2 Marmara il
+      //     (10/11/16/17/22/39/41/54/59/77 — full 7-field, no Tier-B this wave). Structured
+      //     fields asserted EXACTLY here; the 4 prose fields get distinctive-token checks below.
       //   • TIER-B (6 fields): the wave-3 <1M il (Afyonkarahisar 03, Kütahya 43, Uşak 64).
       //     hydrographyFeatures AND settlementNoteTr are DELIBERATELY absent → null (owner-approved
       //     scope cut, DEC 2026-07-11); asserted null HERE, while the other six are populated
       //     (3 non-empty prose + urbanizationRate/netMigrationRate/economyIndicator). This
-      //     populated+null MIX within one row is the genuinely new shape this wave introduces.
+      //     populated+null MIX within one row is the genuinely new shape wave-3 introduced.
       //   • BASE-DATA: every OTHER il keeps all 8 detail fields null — no deep-content leak.
       // The `=== || ===` chains (not Array.includes) are DELIBERATE: they discriminate `expected`
       // by its literal plateCode so the exact-value reads below (expected.hydrographyFeatures etc.)
@@ -1463,7 +1625,17 @@ describe('Province (e2e)', () => {
         expected.plateCode === '45' ||
         expected.plateCode === '09' ||
         expected.plateCode === '20' ||
-        expected.plateCode === '48'
+        expected.plateCode === '48' ||
+        expected.plateCode === '10' ||
+        expected.plateCode === '11' ||
+        expected.plateCode === '16' ||
+        expected.plateCode === '17' ||
+        expected.plateCode === '22' ||
+        expected.plateCode === '39' ||
+        expected.plateCode === '41' ||
+        expected.plateCode === '54' ||
+        expected.plateCode === '59' ||
+        expected.plateCode === '77'
       ) {
         expect(body).toMatchObject({
           urbanizationRate: expected.urbanizationRate,
@@ -1672,6 +1844,110 @@ describe('Province (e2e)', () => {
       for (const token of hydrography) expect(body.hydrographyNoteTr).toContain(token);
       for (const token of settlement) expect(body.settlementNoteTr).toContain(token);
       // No ALL-CAPS emphasis in shipped prose (CONTENT-STYLE.md §2), same as every wave before.
+      expect(body.landformNoteTr).not.toContain('DEĞİL');
+    },
+  );
+
+  // Wave-2 deep content (the 10 Marmara il): each prose field carries the load-bearing,
+  // fact-checked facts, asserted by distinctive token (the same discipline İstanbul/wave-1
+  // use) — not a brittle full-prose match. Kept tight/table-driven despite being the biggest
+  // batch. `settlementAbsent` encodes THIS WAVE'S structural split: the 5 NON-büyükşehir il
+  // (Bilecik/Çanakkale/Edirne/Kırklareli/Yalova) carry a GENUINE <100 urbanizationRate and
+  // their settlementNoteTr must NOT contain the 6360 büyükşehir note (it does not apply); the
+  // 5 büyükşehir il keep the 6360/%100 framing (settlementAbsent: []).
+  it.each([
+    {
+      slug: 'balikesir',
+      intro: ['Sındırgı', '290,5'],
+      landform: ['Kazdağı', 'Karataş', '1.774'],
+      hydrography: ['Manyas', 'Ramsar', 'Kuşcenneti'],
+      settlement: ['6360', '%100', '+3,50'],
+      settlementAbsent: [],
+    },
+    {
+      slug: 'bilecik',
+      intro: ['Söğüt', 'Ertuğrul', '%2,4'],
+      landform: ['Kala Dağı', '1.906', 'Sakarya Nehri'],
+      hydrography: ['Kızıldamlar', 'Karasu'],
+      settlement: ['%84,11', '-0,07'],
+      settlementAbsent: ['6360'],
+    },
+    {
+      slug: 'bursa',
+      intro: ['Uludağ', '2.543', '1326'],
+      landform: ['sirk', '1855', 'milli park'],
+      hydrography: ['İznik Gölü', 'Uluabat', 'Nilüfer Çayı'],
+      settlement: ['6360', '%100', '+4,71'],
+      settlementAbsent: [],
+    },
+    {
+      slug: 'canakkale',
+      intro: ['Truva', 'UNESCO', 'Gelibolu'],
+      landform: ['Boğazı', '671', 'Baba Burnu'],
+      hydrography: ['Atikhisar', 'Sarıçay'],
+      settlement: ['%62,03', '+6,18'],
+      settlementAbsent: ['6360'],
+    },
+    {
+      slug: 'edirne',
+      intro: ['Fatih', '1361', 'Bulgaristan'],
+      landform: ['292', 'Korudağ', 'Ergene'],
+      hydrography: ['Meriç', 'Gala Gölü', 'Kadıköy'],
+      settlement: ['%77,06', '+2,40'],
+      settlementAbsent: ['6360'],
+    },
+    {
+      slug: 'kirklareli',
+      intro: ['Aşağıpınar', 'Özdoğan', 'Bulgaristan'],
+      landform: ['Yıldız Dağları', 'Mahya', 'İğneada'],
+      hydrography: ['Kırklareli Barajı', 'Dupnisa'],
+      settlement: ['%74,04', '+3,00'],
+      settlementAbsent: ['6360'],
+    },
+    {
+      slug: 'kocaeli',
+      intro: ['İzmit Körfezi', 'Süleyman Paşa'],
+      landform: ['Samanlı', '17.480', '1999'],
+      hydrography: ['Yuvacık', 'Sapanca'],
+      settlement: ['6360', '%100', '+8,11'],
+      settlementAbsent: [],
+    },
+    {
+      slug: 'sakarya',
+      intro: ['Sakarya Nehri', 'Adapazarı', '1954'],
+      landform: ['Keremali', 'sıvılaşma', 'Adapazarı'],
+      hydrography: ['824', 'Sapanca Gölü', 'Çilekli'],
+      settlement: ['6360', '%100', '+5,97'],
+      settlementAbsent: [],
+    },
+    {
+      slug: 'tekirdag',
+      intro: ['bağcılık', 'Şarköy', '%89'],
+      landform: ['Ganos', '945', '1912'],
+      hydrography: ['Eriklice', 'Işıklar'],
+      settlement: ['6360', '%100', '+13,09'],
+      settlementAbsent: [],
+    },
+    {
+      slug: 'yalova',
+      intro: ['en küçük', '798', '1995'],
+      landform: ['Beşpınar', '926', '1999'],
+      hydrography: ['Sellimandıra', 'Gökçe', 'Sarpdere'],
+      settlement: ['%72,35', '+15,59'],
+      settlementAbsent: ['6360'],
+    },
+  ])(
+    'GET /api/provinces/$slug serves the wave-2 deep-content prose (fact-checked tokens)',
+    async ({ slug, intro, landform, hydrography, settlement, settlementAbsent }) => {
+      const res = await request(app.getHttpServer()).get(`/api/provinces/${slug}`).expect(200);
+      const body = res.body as Record<string, string>;
+      for (const token of intro) expect(body.introTr).toContain(token);
+      for (const token of landform) expect(body.landformNoteTr).toContain(token);
+      for (const token of hydrography) expect(body.hydrographyNoteTr).toContain(token);
+      for (const token of settlement) expect(body.settlementNoteTr).toContain(token);
+      // The 5 non-büyükşehir il carry a genuine <100 rate and NO 6360 note (structural split).
+      for (const token of settlementAbsent) expect(body.settlementNoteTr).not.toContain(token);
+      // No ALL-CAPS emphasis in shipped prose (CONTENT-STYLE.md §2) — same guard as wave-1.
       expect(body.landformNoteTr).not.toContain('DEĞİL');
     },
   );
