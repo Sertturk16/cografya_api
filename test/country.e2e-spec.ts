@@ -8,7 +8,7 @@ import { DataSource } from 'typeorm';
 import { applyGlobalPrefix } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { seedWorld, type SeedWorldResult } from '../src/database/seeds/seed-world';
-import type { CountrySeed } from '../src/database/seeds/country.seed-data';
+import { SEED_COUNTRIES, type CountrySeed } from '../src/database/seeds/country.seed-data';
 import { Continent } from '../src/common/continent.enum';
 import { Country } from '../src/country/entities/country.entity';
 import { computeNeighborCount } from '../src/country/country.service';
@@ -17,15 +17,17 @@ import { computeNeighborCount } from '../src/country/country.service';
 // not load until DATABASE_URL has been set to the container URL.
 
 /**
- * Real-Postgres e2e (Testcontainers) for the Country module. There is NO real country
- * data yet (NOVA sources a fact-checked pilot batch separately), so — per CONVENTIONS §2
- * (structural/invariant tests only, never hardcoded literal facts) — this suite proves
- * only the MECHANISM: the country migration runs clean, the `db:seed:world` seed is
- * idempotent (insert / no-op / drift-update / retraction-clear) on SYNTHETIC fixtures,
- * the derived `neighborCount` is correct, and the public read endpoints serve the right
- * shape under the `/api` prefix (lean list, hover summary, detail, 404). Every fixture
- * uses reserved private-use ISO codes (ZX/ZY/ZZ) and invented values — zero real country
- * facts, so a legitimate future content revision never breaks it. Runs on CI only (needs
+ * Real-Postgres e2e (Testcontainers) for the Country module. Per CONVENTIONS §2
+ * (structural/invariant tests only, never hardcoded literal facts) this suite proves the
+ * MECHANISM, not the data: phase 1 seeds the REAL `SEED_COUNTRIES` and asserts only that
+ * every row inserts cleanly and the COUNT matches `SEED_COUNTRIES.length` (a structural
+ * invariant that scales with the batch and pins no specific country's facts); the table is
+ * then cleared and every remaining phase runs on SYNTHETIC fixtures — the `db:seed:world`
+ * seed is idempotent (insert / no-op / drift-update / retraction-clear), the derived
+ * `neighborCount` is correct, and the public read endpoints serve the right shape under the
+ * `/api` prefix (lean list, hover summary, detail, 404). Every fixture uses ISO-reserved
+ * private-use codes (ZX/ZY/ZZ, XA/XB) and invented values — zero real country facts, so a
+ * legitimate future content revision never breaks the fixture phases. Runs on CI only (needs
  * Docker); locally we run tsc + eslint per CONVENTIONS §2.
  */
 
@@ -35,6 +37,9 @@ import { computeNeighborCount } from '../src/country/country.service';
 //   ZY — island: EMPTY neighbour array (count 0), all optionals absent → null.
 //   ZZ — full: 2 neighbours + every optional set (round-trip / detail shape).
 // ISO-ASC order is ZX, ZY, ZZ — the deterministic order the endpoints must return.
+// CONVENTION (keep this as real batches grow): all synthetic fixtures MUST use the ISO
+// 3166-1 private-use ranges — AA, QM–QZ, XA–XZ, ZZ — which the standard never assigns to a
+// real country, so a fixture can never collide with a seeded country as coverage scales.
 const ZX: CountrySeed = {
   isoCode: 'ZX',
   nameTr: 'Test Ülkesi ZX',
@@ -87,7 +92,7 @@ describe('Country (e2e)', () => {
   let app: INestApplication;
 
   let appliedMigrationNames: string[];
-  let emptySeed: SeedWorldResult;
+  let realSeed: SeedWorldResult;
   let insertSeed: SeedWorldResult;
   let reSeed: SeedWorldResult;
   let zzUpdatedAtAfterInsert: string;
@@ -107,11 +112,15 @@ describe('Country (e2e)', () => {
     appliedMigrationNames = applied.map((m) => m.name);
 
     // 2) Exercise the seed mechanism through its real code path:
-    //    Phase 1 — seed the EMPTY default set (what the CLI runs today): a clean no-op.
-    //    Phase 2 — seed the 3 synthetic fixtures into an empty table (all-insert).
+    //    Phase 1 — seed the REAL default set (the SEED_COUNTRIES the CLI ships): proves every
+    //      row inserts cleanly (no ISO/slug collision, no column overflow) and the count matches.
+    //    Phase 2 — reset to a clean table, then seed the 3 synthetic fixtures (all-insert).
     //    Phase 3 — re-seed the SAME 3: pure no-op, proving idempotency + no updated_at churn.
     const repo = dataSource.getRepository(Country);
-    emptySeed = await seedWorld(dataSource); // default SEED_COUNTRIES ([])
+    realSeed = await seedWorld(dataSource); // default SEED_COUNTRIES — the real pilot batch
+    // Clear the real rows so the MECHANISM phases below run on synthetic fixtures in isolation
+    //   (their exact-count and ISO-order assertions must not see the real countries).
+    await repo.clear();
     insertSeed = await seedWorld(dataSource, FIXTURES);
     zzUpdatedAtAfterInsert = (
       await repo.findOneByOrFail({ isoCode: 'ZZ' })
@@ -168,10 +177,17 @@ describe('Country (e2e)', () => {
     ]);
   });
 
-  it('phase 1 — seeding the empty default set is a clean no-op', () => {
-    // The state the CLI produces today (SEED_COUNTRIES is []). The mechanism must handle
-    // an empty list without touching the table.
-    expect(emptySeed).toEqual({ inserted: 0, updated: 0, unchanged: 0, total: 0 });
+  it('phase 1 — seeding the real default set inserts every SEED_COUNTRIES row cleanly', () => {
+    // The state the CLI produces today: the real pilot batch. Asserted DYNAMICALLY against
+    // SEED_COUNTRIES.length (a structural count, never hardcoded facts — CONVENTIONS §2), so
+    // it proves the whole seed inserts without a constraint violation and scales as the batch
+    // grows, without pinning any specific country's data.
+    expect(realSeed).toEqual({
+      inserted: SEED_COUNTRIES.length,
+      updated: 0,
+      unchanged: 0,
+      total: SEED_COUNTRIES.length,
+    });
   });
 
   it('phase 2 — seeding the fixtures into an empty table inserts exactly those 3', () => {
