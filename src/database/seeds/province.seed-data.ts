@@ -2276,11 +2276,21 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
  *   Country/sea adjacencies (Hatay→Suriye, Adana/Mersin/Hatay→Akdeniz kıyısı) are NOT
  *   provinces and are excluded from `neighborPlateCodes`.
  *
- * DELIBERATELY NULL — same as pilot-5 / wave-1 / wave-2 / wave-3: `landformNoteTr` AND
- *   every PR-5a detail-page field (introTr / hydrography* / urbanizationRate /
- *   netMigrationRate / settlementNoteTr / economyIndicator) stay null. BASE DATA ONLY
- *   (owner priority ruling, DEC 2026-07-10); those fields are filled in a later
- *   fact-checked content batch, never invented here.
+ * DEEP CONTENT — TIERED (wave-4, owner-approved tiered depth model, DEC 2026-07-11).
+ *   Unlike pilot-5 / wave-1 (uniform full depth), this wave fills the PR-5a detail-page
+ *   fields at TWO depths from NOVA's independently fact-checked "Dalga 4" draft (verdict
+ *   SEED-READY WITH CORRECTIONS — all applied):
+ *     • Tier-A (nüfus ≥1M): Adana, Hatay, Kahramanmaraş, Mersin — the FULL 8-field set
+ *       (introTr, landformNoteTr, hydrographyNoteTr + hydrographyFeatures, urbanizationRate,
+ *       netMigrationRate, settlementNoteTr, economyIndicator), same rigor as wave-1.
+ *     • Tier-B (nüfus <1M): Burdur, Isparta, Osmaniye — a 6-field set; hydrographyFeatures
+ *       AND settlementNoteTr are DELIBERATELY OMITTED (a permanent Tier-B scope cut, NOT
+ *       "not authored yet"): the keys are absent, normalised to null against the DB by
+ *       withExplicitDetailNulls, and asserted null in the e2e suite.
+ *   Tier-B also introduces the wave's first NON-100 urbanizationRate values (Burdur 71.04,
+ *   Isparta 75.77, Osmaniye 78.24) — these il are NOT büyükşehir, so the rate is real and
+ *   carries no 6360 methodological note (contrast the four Tier-A büyükşehir at 100). No
+ *   fact is invented here; every value traces to the fact-checked draft.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
@@ -2303,7 +2313,67 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Adana deep content (wave-4 Tier-A). Full 8-field detail set from the fact-checked
+    //    "Dalga 4" (Akdeniz) draft. Çukurova alüvyal ovası + Aladağlar (landform); Seyhan/
+    //    Ceyhan nehirleri + Seyhan/Çatalan barajları + Akyatan/Tuzla lagünleri (hydrography).
+    //    urbanizationRate=100 is the 6360 büyükşehir artifact framed in settlementNoteTr;
+    //    netMigrationRate -0.34 ‰ is this wave's closest-to-zero value; GSYH share %2,0.
+    landformNoteTr:
+      'Adana, yüzölçümünün yaklaşık dörtte birini oluşturan Çukurova ovası ile kuzeyde ' +
+      'yükselen Toros dağları arasında ikiye ayrılır. Seyhan, Ceyhan ve Tarsus (Berdan) ' +
+      "çaylarının taşıdığı alüvyonlarla dolan Çukurova, Türkiye'nin en geniş ve en verimli " +
+      'ovalarından biridir; Misis Tepeleri bu ovayı kuzeydeki Yukarı Ova ile güneydeki asıl ' +
+      "Çukurova'ya ayırır.\n\n" +
+      "İlin kuzey kesimi, Orta Toroslar'ın bir parçası olan Aladağlar kütlesine uzanır; " +
+      'Tufanbeyli, Saimbeyli ve Feke ilçeleri bu dağlık bölgenin içindedir. ' +
+      "Aladağlar'ın 3.700 metreyi aşan zirveleri (Demirkazık, Kızılkaya) ağırlıklı olarak " +
+      "komşu Niğde tarafında yükselir; Adana'nın kendi sınırları içinde kalan kesimi " +
+      "Karanfil Dağı çevresinde 3.000 metrenin üzerine çıkar. Bu yüksek kesimde, 1995'te " +
+      'kurulan Aladağlar Milli Parkı yer alır.',
+    introTr:
+      "Adana, Çukurova'nın ortasında, Seyhan ve Ceyhan nehirlerinin taşıdığı alüvyonlarla " +
+      "oluşan geniş bir ovanın üzerinde kuruludur. Nüfus bakımından Türkiye'nin yedinci " +
+      'büyük ilidir. Kentin kuzeyi Toros dağlarına, güneyi Akdeniz kıyısına uzanır; bu iki ' +
+      "farklı coğrafya, ili Türkiye'nin en önemli tarım ve sanayi merkezlerinden biri " +
+      'hâline getirir.',
+    hydrographyNoteTr:
+      "Adana'nın su ağı, ilin ortasından geçerek Akdeniz'e dökülen Seyhan ve Ceyhan " +
+      "nehirlerine dayanır. Seyhan Nehri, Kayseri'nin Uzunyayla bölgesinde doğar ve son 30 " +
+      'kilometrelik bölümünde Adana-Mersin il sınırını çizer. Ceyhan Nehri ise 509 ' +
+      "kilometre uzunluğuyla bölgenin en uzun akarsuyudur; Kahramanmaraş'ta doğar, " +
+      "Adana'nın doğusundan geçerek Akdeniz'e ulaşır.\n\n" +
+      "Şehir merkezinin hemen kuzeyinde yer alan Seyhan Barajı, 8 Nisan 1956'da hizmete " +
+      'giren ve yaklaşık 850 bin dekar araziyi sulayan bir toprak dolgu barajdır; aynı ' +
+      "zamanda Adana'yı Seyhan'ın taşkınlarından korur. Çatalan Barajı ise ASKİ'nin " +
+      "Çatalan İçme Suyu Projesi'nin ana kaynağıdır ve kentin içme suyu ihtiyacının büyük " +
+      'bölümünü karşılar.\n\n' +
+      'İlin güney kıyısında Akyatan ve Tuzla gibi kıyı gölleri (lagünler) yer alır. ' +
+      'Akyatan Gölü, deniz kaplumbağalarının yumurtlama alanlarından biridir; göl ile ' +
+      "Akdeniz arasında kalan yaklaşık 2.500 hektarlık kumul alan 1960'lardan bu yana " +
+      'ağaçlandırılmaktadır.',
+    hydrographyFeatures: [
+      { name: 'Seyhan Nehri', type: HydrographyFeatureType.Nehir },
+      { name: 'Ceyhan Nehri', type: HydrographyFeatureType.Nehir },
+      { name: 'Seyhan Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Çatalan Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Akyatan Gölü', type: HydrographyFeatureType.Gol },
+      { name: 'Tuzla Gölü', type: HydrographyFeatureType.Gol },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: -0.34,
+    settlementNoteTr:
+      "Adana'da da, büyükşehir statüsündeki illerin çoğunda olduğu gibi, TÜİK il/ilçe " +
+      'merkezi nüfus oranı %100 çıkıyor; bu, belde ve köylerin idari tüzel kişiliğinin ' +
+      'kaldırılmasının (6360 sayılı Kanun) bir sonucudur, ilin fiilen tamamen kentleştiği ' +
+      'anlamına gelmez. 2024 yılında il 55.342 kişi aldı, 56.108 kişi verdi; net göç hızı ' +
+      'binde -0,34 ile bu dalganın sıfıra en yakın değeriydi.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%2,0',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '15',
@@ -2323,7 +2393,38 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Burdur deep content (wave-4 Tier-B). The tiered 6-field set from the fact-checked
+    //    "Dalga 4" draft: introTr + (shortened) landformNoteTr + hydrographyNoteTr +
+    //    urbanizationRate + netMigrationRate + economyIndicator. `hydrographyFeatures` AND
+    //    `settlementNoteTr` are DELIBERATELY OMITTED (Tier-B scope — see block header), so the
+    //    keys are absent and normalise to null against the DB. urbanizationRate=71.04 is a REAL
+    //    rate (Burdur is NOT a büyükşehir), no 6360 note; net göç -6,52 ‰ is this wave's most
+    //    negative; GSYH share %0,3.
+    landformNoteTr:
+      "Burdur, Batı Toroslar'ın uzantıları arasında kalan, dağlarla çevrili bir çöküntü " +
+      'ovasıdır. İlin dört yanını Söğüt, Dedegöl, Akdağ ve Eşeler dağları gibi 2.200-2.600 ' +
+      'metre aralığında yükselen dağlar çevirir. İlin ortasındaki çöküntü alanını Burdur ' +
+      'Gölü doldurur.',
+    introTr:
+      "Burdur, Göller Bölgesi'nin batısında, aynı adı taşıyan Burdur Gölü'nün güneydoğu " +
+      "kıyısında kuruludur. Nüfus bakımından Türkiye'nin altmış beşinci ilidir. İl, Akdeniz " +
+      "Bölgesi'nden Ege ve İç Anadolu bölgelerine geçiş kuşağında yer alır.",
+    hydrographyNoteTr:
+      'Burdur Gölü, deniz seviyesinden yaklaşık 842 metre yükseklikte yer alan, dışa akışı ' +
+      "olmayan kapalı bir havza gölüdür. Göl, 1970'ten bu yana artan sulu tarım kullanımı ve " +
+      'barajlarla azalan besleyici dere akışı nedeniyle sürekli küçülmekte; su seviyesi 2015 ' +
+      'itibarıyla yaklaşık 17 metre gerilemişken, güncel kaynaklara göre bu düşüş bugün 20 ' +
+      'metrenin üzerine çıkmıştır. Su seviyesindeki bu düşüş gölün tuzluluk oranını da ' +
+      'belirgin biçimde artırmıştır.',
+    urbanizationRate: 71.04,
+    netMigrationRate: -6.52,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '31',
@@ -2344,7 +2445,69 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Hatay deep content (wave-4 Tier-A). Full 8-field set from the fact-checked "Dalga 4"
+    //    draft. Amanos Dağları/Amik Ovası + the 6 Şubat 2023 depremleri paragraph (landform,
+    //    AFAD-sourced, same factual register as İstanbul's KAF / İzmir's Sisam quake); Asi
+    //    Nehri + kurutulan Amik Gölü + DSİ barajları (hydrography). urbanizationRate=100 is the
+    //    6360 büyükşehir artifact; net göç +1,51 ‰ (post-2023 recovery); GSYH share %1,4.
+    landformNoteTr:
+      'Hatay, kuzeydoğu-güneybatı yönünde uzanan Amanos Dağları ile bu dağların doğusundaki ' +
+      'çöküntü alanında yer alan Amik Ovası arasında ikiye ayrılır. Yaklaşık 175 kilometre ' +
+      'uzunluğundaki Amanos Dağları (Nur Dağları), İskenderun Körfezi ile Amik Ovası ' +
+      'arasında bir set gibi yükselir; ilin en yüksek noktası, Hassa ilçesinin batısındaki ' +
+      "2.240 metrelik Mığır Tepe'dir. 119.350 hektarlık Amik Ovası ilin en geniş ve en " +
+      "verimli tarım alanını oluşturur; ovanın güneyinde, Asi Nehri'nin Suriye'den " +
+      "Türkiye'ye geçtiği kesimde yükseltisi 400-900 metre arasında değişen Kuseyr Platosu " +
+      'yer alır.\n\n' +
+      'İl, Anadolu ve Arap levhalarının sınırını oluşturan Doğu Anadolu Fay Hattı üzerinde ' +
+      "bulunur. AFAD'ın deprem raporuna göre, 6 Şubat 2023 sabahı 04.17'de merkez üssü " +
+      "Kahramanmaraş'ın Pazarcık ilçesi olan Mw 7,7 büyüklüğünde bir deprem, öğleden sonra " +
+      "13.24'te ise merkez üssü yine Kahramanmaraş'ın Elbistan ilçesi olan Mw 7,6 " +
+      'büyüklüğünde ikinci bir deprem meydana geldi. Hatay, bu iki depremden en ağır hasar ' +
+      "gören illerin başında geldi: TÜİK verilerine göre ilin nüfusu 2022'de 1.686.043 iken " +
+      "2023'te 1.544.640'a geriledi. İçişleri Bakanlığı'nın açıklamasına göre depremlerde " +
+      'bölge genelinde toplam 53.537 kişi hayatını kaybetti.',
+    introTr:
+      "Hatay, Amanos Dağları ile Suriye sınırı arasında, Asi Nehri'nin oluşturduğu Amik " +
+      "Ovası çevresinde kuruludur. Nüfus bakımından Türkiye'nin on üçüncü büyük ilidir. " +
+      'Akdeniz kıyısının Türkiye sınırları içindeki en güneydoğu ucunda yer alan il, ' +
+      'kuzeyden Anadolu, güneyden Suriye topraklarıyla komşudur.',
+    hydrographyNoteTr:
+      "İlin ana akarsuyu Asi Nehri'dir. Nehir Lübnan'daki Bekaa Vadisi'nde doğar, Suriye " +
+      'topraklarından geçtikten sonra bir süre Türkiye-Suriye sınırını çizer, ardından yön ' +
+      "değiştirip Türkiye'ye girer; Antakya'dan geçtikten sonra Samandağ'da bir delta " +
+      "oluşturarak Akdeniz'e dökülür. Toplam uzunluğu 556 kilometredir.\n\n" +
+      "Amik Ovası'nın ortasında bulunan Amik Gölü, 1954'te başlayıp 1966-1975 arasında " +
+      'Devlet Su İşleri tarafından yürütülen bir kurutma projesiyle tarım alanı kazanmak, ' +
+      'taşkınları önlemek ve sıtmayı ortadan kaldırmak amacıyla tamamen kurutulmuştur; göl ' +
+      'artık mevcut değildir.\n\n' +
+      "İlin sulama ve içme suyu ihtiyacı DSİ'nin işlettiği barajlardan karşılanır: Antakya, " +
+      "Defne ve Samandağ'ın içme suyunu sağlayan 54 milyon m³ kapasiteli Karaçay Barajı, " +
+      "Gaziantep'in İslahiye ile Hatay'ın Hassa ve Kırıkhan ilçelerini ve Amik Ovası'nı " +
+      'sulayan 454 milyon m³ kapasiteli Tahtaköprü Barajı ve ' +
+      "Altınözü'nde tarımsal sulamada kullanılan 55 milyon m³ kapasiteli Yarseli Barajı.",
+    hydrographyFeatures: [
+      { name: 'Asi Nehri', type: HydrographyFeatureType.Nehir },
+      { name: 'Karaçay Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Tahtaköprü Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Yarseli Barajı', type: HydrographyFeatureType.Baraj },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: 1.51,
+    settlementNoteTr:
+      "Hatay'ın TÜİK il/ilçe merkezi nüfus oranı, diğer büyükşehirlerde olduğu gibi " +
+      "%100'dür — belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı " +
+      "Kanun) bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor. TÜİK'in 2024 " +
+      'iç göç verilerine göre il aynı yıl 52.193 kişi aldı, 49.835 kişi verdi; net göç hızı ' +
+      'binde +1,51 oldu — 2023 depremlerinin ardından yaşanan büyük nüfus kaybından sonraki ' +
+      'ilk pozitif net göç yıllarından biri.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%1,4',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '32',
@@ -2365,7 +2528,34 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Isparta deep content (wave-4 Tier-B). 6-field set (hydrographyFeatures +
+    //    settlementNoteTr DELIBERATELY OMITTED, Tier-B scope — see block header). Batı Toroslar
+    //    + Dedegöl Dağı 2.992 m (landform); Eğirdir Gölü (hydrography, area/depth given as
+    //    fact-checked safe RANGES). urbanizationRate=75.77 is REAL (not büyükşehir); net göç
+    //    -3,31 ‰; GSYH share %0,4.
+    landformNoteTr:
+      "Isparta, Batı Toroslar'ın Isparta uzantıları üzerinde, 3.000 metreye yaklaşan yüksek " +
+      'dağlarla çevrilidir. İlin en yüksek noktası, hem Anamas (Dedegöl) ' +
+      "Dağları'nın hem de Batı Toroslar'ın en yüksek zirvesi olan 2.992 metrelik Dedegöl " +
+      "Dağı'dır. Doğuda Sultan Dağları, Konya sınırını oluşturur.",
+    introTr:
+      "Isparta, Göller Bölgesi'nin merkezinde, Eğirdir Gölü'nün güney kıyısında kuruludur. " +
+      "Nüfus bakımından Türkiye'nin kırk beşinci ilidir. İl, Türkiye'nin yağ gülü " +
+      'üretiminin büyük bölümünü karşılayan tarım alanlarıyla da tanınır.',
+    hydrographyNoteTr:
+      'İlin en büyük gölü, yüzölçümü kaynaklara göre 468-482 km² arasında değişen, ' +
+      "Türkiye'nin dördüncü büyük gölü olan Eğirdir Gölü'dür; en derin noktası 16-17 metre " +
+      'civarındadır. Tatlı sulu bu göl, çevresindeki tarım alanlarının sulanmasında ve ' +
+      'balıkçılıkta kullanılır.',
+    urbanizationRate: 75.77,
+    netMigrationRate: -3.31,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,4',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '46',
@@ -2391,7 +2581,68 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Kahramanmaraş deep content (wave-4 Tier-A). Full 8-field set from the fact-checked
+    //    "Dalga 4" draft. Ahır/Nurhak dağları + Elbistan Ovası + the 6 Şubat 2023 depremleri
+    //    (landform, AFAD-sourced fault-segment detail — this il was the true epicentre). NB:
+    //    the prose's "il merkezi 568 metre" (Kahramanmaraş Barosu) and the base-data
+    //    elevationM=572 (MGM Onikişubat, GLOSSARY §1) are two readings of the SAME city-centre
+    //    elevation, reconciled by NOVA; the "3.090 metrelik Nurhak Dağı" is a DIFFERENT fact (a
+    //    named peak). Ceyhan + Kılavuzlu/Menzelet/Sır barajları (hydrography). net göç +6,31 ‰
+    //    is this wave's HIGHEST positive; GSYH share %0,9.
+    landformNoteTr:
+      "Kahramanmaraş, kuzeyi Güneydoğu Toroslar'ın uzantılarıyla kaplı, güneyi Maraş " +
+      "Ovası'na açılan bir geçiş bölgesidir; il merkezi 568 metre rakımdadır. İl merkezinin " +
+      'hemen kuzeyinde yükselen Ahır Dağı (2.301 m), kuzeydoğusunda Engizek Dağı, kuzeyinde ' +
+      'ise Nurhak ve Binboğa dağları ilin başlıca yükseltileridir; il sınırları içindeki en ' +
+      'yüksek nokta, Elbistan ve Nurhak ilçeleri arasındaki 3.090 metrelik Nurhak ' +
+      "Dağı'dır. Kuzeyde, Nurhak, Binboğa, Engizek ve Berit dağları arasında kalan Elbistan " +
+      'Ovası, ilin bir diğer geniş tarım alanıdır.\n\n' +
+      "AFAD'ın deprem raporuna göre, 6 Şubat 2023'teki iki büyük depremin merkez üssü de " +
+      "Kahramanmaraş sınırları içindeydi: sabah 04.17'de Pazarcık ilçesinde Mw 7,7, öğleden " +
+      "sonra 13.24'te ise Elbistan ilçesinde Mw 7,6 büyüklüğünde iki deprem meydana geldi. " +
+      "Depremler Doğu Anadolu Fay Hattı'nın farklı segmentlerinde gerçekleşti: Pazarcık " +
+      "depremi, sol yanal doğrultu atımlı Ölüdeniz Fay Zonu'nun kuzey ucundaki Narlı " +
+      "Segmenti'nde; Elbistan depremi ise faydan ayrılan bir kol olan Çardak Fayı üzerinde. " +
+      'İl, komşu Hatay ile birlikte depremlerden en ağır hasar gören iki il arasında yer ' +
+      'aldı.',
+    introTr:
+      "Kahramanmaraş, Güneydoğu Toroslar'ın güney eteklerinde, Ahır Dağı'nın hemen " +
+      "güneyindeki Maraş Ovası üzerinde kuruludur. Nüfus bakımından Türkiye'nin yirminci " +
+      'büyük ilidir. İl, Akdeniz, Güneydoğu Anadolu ve Doğu Anadolu bölgelerinin kesiştiği ' +
+      'bir geçiş noktasında yer alır.',
+    hydrographyNoteTr:
+      "Kahramanmaraş'ın ana akarsuyu, ilin kuzeyinden doğup güneybatıya akan Ceyhan " +
+      "Nehri'dir; nehir, Adana'ya geçmeden önce ilin batı sınırını uzun bir bölüm boyunca " +
+      "çizer. Ahır Dağı'nın güneyinden doğan Aksu Çayı, Sarayköy yakınında Gölbaşı çöküntü " +
+      "alanına açılır ve buradan güneybatıya yönelerek Pazarcık'taki Kartalkaya Barajı'na " +
+      'dökülür.\n\n' +
+      'İl merkezinin içme suyu ihtiyacı, kuzeybatıda Ceyhan Nehri üzerindeki Kılavuzlu ' +
+      "Barajı'ndan karşılanır; 1994'te inşaatına başlanan baraj 2014'te işletmeye " +
+      'alınmıştır. Aynı nehir üzerindeki Menzelet ve Sır barajları ise enerji üretimi ' +
+      "amacıyla işletilir: Menzelet Barajı yılda yaklaşık 515 GWh, 1991'de üretime başlayan " +
+      'Sır Barajı ise 725 GWh elektrik üretir.',
+    hydrographyFeatures: [
+      { name: 'Ceyhan Nehri', type: HydrographyFeatureType.Nehir },
+      { name: 'Aksu Çayı', type: HydrographyFeatureType.Nehir },
+      { name: 'Kılavuzlu Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Menzelet Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Sır Barajı', type: HydrographyFeatureType.Baraj },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: 6.31,
+    settlementNoteTr:
+      'Büyükşehir statüsündeki illerin ortak özelliği burada da geçerli: ' +
+      "Kahramanmaraş'ın TÜİK il/ilçe merkezi nüfus oranı %100'dür, belde ve köylerin idari " +
+      'tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir sonucudur, ilin fiilen ' +
+      'tamamen kentleştiği anlamına gelmez. İl 2024 yılında 37.523 kişi aldı, 30.393 kişi ' +
+      'verdi; net göç hızı binde +6,31 ile bu dalganın en yüksek pozitif değerine ulaştı.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,9',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '33',
@@ -2411,7 +2662,57 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Mersin deep content (wave-4 Tier-A). Full 8-field set from the fact-checked "Dalga 4"
+    //    draft. ~%87 dağlık Toros kıyısı + Medetsiz Tepesi 3.524 m + Cennet/Cehennem karstic
+    //    obrukları (landform); Göksu deltası + Berdan Çayı/Barajı (hydrography). Two fact-check
+    //    corrections applied: Medetsiz 3.585→3.524 m and Berdan Barajı 185→87,5 milyon m³.
+    //    urbanizationRate=100 is the 6360 artifact; net göç +3,01 ‰ (2nd highest); GSYH %2,1.
+    landformNoteTr:
+      "Mersin, yüzölçümünün yaklaşık %87'sini kaplayan Batı ve Orta Toroslar'ın Akdeniz'e " +
+      'indiği bir kıyı ilidir; düzlük alanlar yalnızca il merkezi, Tarsus ve Silifke ' +
+      'çevresinde gelişmiştir. İlin en yüksek noktası, Bolkar Dağları üzerindeki 3.524 ' +
+      "metrelik Medetsiz Tepesi'dir. Dağların denize dik indiği Anamur, Bozyazı ve Aydıncık " +
+      'çevresinde ise kıyı boyunca dar ve birbirinden kopuk küçük ovalar yer alır.\n\n' +
+      "İlin kireçtaşı ana kayası, Antalya'dakine benzer bir karstik arazi üretir. " +
+      "Silifke'nin yaklaşık 25 kilometre güneydoğusundaki Cennet ve Cehennem obrukları " +
+      'bunun en bilinen örnekleridir: Cennet Obruğu 250x110 metrelik ağzı ve 70 metrelik ' +
+      'derinliğiyle, Cehennem Obruğu ise 128 metreye inen dikey duvarlarıyla dikkat çeker. ' +
+      "Cennet Obruğu'nun güney ucundaki mağara girişinde, Bizans döneminden kalma küçük bir " +
+      'şapel bulunur.',
+    introTr:
+      "Mersin, Toros dağlarının Akdeniz'e en dik indiği kesimlerden birinde, geniş bir " +
+      "liman kenti olarak kuruludur. Nüfus bakımından Türkiye'nin on birinci büyük ilidir. " +
+      "İlin 321 kilometrelik kıyı şeridi, batıda Anamur'dan doğuda Adana sınırına kadar " +
+      'uzanır.',
+    hydrographyNoteTr:
+      "İlin en büyük akarsuyu, Silifke'nin güneyinde geniş bir delta oluşturarak Akdeniz'e " +
+      "dökülen Göksu Nehri'dir. 10.000 km²'lik bir havzayı toplayan nehrin deltası, kumul, " +
+      'tatlı su bataklığı ve tuzcul çayır gibi farklı ekosistemleri bir arada barındırır ve ' +
+      "toplam 15.000 hektarlık alana yayılır. Tarsus'un su kaynağı olan Berdan Çayı ise ilin " +
+      'ikinci büyük akarsuyudur.\n\n' +
+      "MESKİ'nin işlettiği Berdan Barajı, Mersin ve Tarsus'un içme ve kullanma suyu " +
+      'ihtiyacının büyük bölümünü karşılar; barajın normal su kotundaki göl hacmi yaklaşık ' +
+      "87,5 milyon m³'tür.",
+    hydrographyFeatures: [
+      { name: 'Göksu Nehri', type: HydrographyFeatureType.Nehir },
+      { name: 'Berdan Çayı', type: HydrographyFeatureType.Nehir },
+      { name: 'Berdan Barajı', type: HydrographyFeatureType.Baraj },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: 3.01,
+    settlementNoteTr:
+      "TÜİK il/ilçe merkezi nüfus oranı Mersin'de de %100 çıkıyor; büyükşehir statüsündeki " +
+      'illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı ' +
+      'Kanun) bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor. Mersin 2024 ' +
+      'yılında 60.574 kişi aldı, 54.703 kişi verdi; net göç hızı binde +3,01 ile dalganın ' +
+      'en yüksek ikinci pozitif değeriydi.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%2,1',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '80',
@@ -2431,7 +2732,35 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Osmaniye deep content (wave-4 Tier-B). 6-field set (hydrographyFeatures +
+    //    settlementNoteTr DELIBERATELY OMITTED, Tier-B scope — see block header). Amanos/Toros
+    //    yükseltileri + Düldül Dağı 2.400 m (landform, Osmaniye Valiliği Tier-1); Ceyhan Nehri
+    //    (hydrography, dam names generalised per Tier-B). urbanizationRate=78.24 is REAL (not
+    //    büyükşehir); net göç -1,26 ‰; GSYH share %0,4.
+    landformNoteTr:
+      'Osmaniye toprakları güneyden kuzeye ve doğuya doğru yükselir; güneyde Amanos (Nur) ' +
+      "Dağları, kuzeybatıda ise Toroslar'ın uzantıları yer alır. İlin en yüksek noktası, " +
+      "2.400 metrelik Düldül Dağı'dır. Düzlük alanlar il merkezi ile Toprakkale, Kadirli ve " +
+      'Düziçi ilçeleri çevresinde gelişmiştir.',
+    introTr:
+      "Osmaniye, Çukurova'nın doğu ucunda, Nur (Amanos) Dağları ile Ceyhan Nehri arasında " +
+      "kuruludur. Nüfus bakımından Türkiye'nin kırk birinci ilidir. İl, 1996'da 4200 sayılı " +
+      "Kanun'la Adana'dan ayrılarak Türkiye'nin seksen ilinden biri olmuş, Akdeniz " +
+      "Bölgesi'nin en küçük yüzölçümüne sahip ilidir.",
+    hydrographyNoteTr:
+      "İlin başlıca akarsuyu, Kahramanmaraş'tan gelerek topraklarının yaklaşık 75 " +
+      "kilometrelik bölümünden geçen Ceyhan Nehri'dir. Karaçay, Savrun ve Hamıs gibi daha " +
+      'küçük çaylar da bu ana havzaya katılır. Nehir üzerindeki barajlar ilin sulama ve ' +
+      'enerji ihtiyacının bir bölümünü karşılar.',
+    urbanizationRate: 78.24,
+    netMigrationRate: -1.26,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,4',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
 ];
 
