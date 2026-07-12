@@ -1,4 +1,4 @@
-import { Controller, Get, Header, Param } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import {
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -6,6 +6,7 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
+import { CacheControl } from '../common/http-cache/cache-control.decorator';
 import { ProvinceDetailDto } from './dto/province-detail.dto';
 import { ProvinceListItemDto } from './dto/province-list-item.dto';
 import { ProvinceMapSummaryDto } from './dto/province-map-summary.dto';
@@ -25,7 +26,7 @@ export class ProvinceController {
   constructor(private readonly provinceService: ProvinceService) {}
 
   @Get()
-  @Header('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400')
+  @CacheControl('public, max-age=300, stale-while-revalidate=86400')
   @ApiOperation({ summary: 'List all provinces (lean payload for the il-hub + map).' })
   @ApiOkResponse({ type: ProvinceListItemDto, isArray: true })
   findAll(): Promise<ProvinceListItemDto[]> {
@@ -36,7 +37,7 @@ export class ProvinceController {
   // matches in declaration order, so a `:slug` route above would capture
   // `/provinces/map-summary` as slug="map-summary" and 404. Do not reorder.
   @Get('map-summary')
-  @Header('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400')
+  @CacheControl('public, max-age=300, stale-while-revalidate=86400')
   @ApiOperation({
     summary: 'Bulk hover-card summary for all provinces (homepage SVG map, build-time embed).',
   })
@@ -46,7 +47,7 @@ export class ProvinceController {
   }
 
   @Get(':slug')
-  @Header('Cache-Control', 'public, max-age=300, stale-while-revalidate=86400')
+  @CacheControl('public, max-age=300, stale-while-revalidate=86400')
   @ApiOperation({ summary: 'Get one province by its TR or EN slug (full detail).' })
   @ApiParam({ name: 'slug', example: 'istanbul', description: 'TR or EN slug of the province.' })
   @ApiOkResponse({ type: ProvinceDetailDto })

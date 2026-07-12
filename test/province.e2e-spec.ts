@@ -150,10 +150,14 @@ describe('Province (e2e)', () => {
   });
 
   it('runs all migrations clean, in order', () => {
+    // The country migration is registered in the shared migrations array, so it runs
+    // here too (this suite migrates the whole schema) — it just adds a table this suite
+    // does not exercise. The dedicated country coverage lives in country.e2e-spec.ts.
     expect(appliedMigrationNames).toEqual([
       'InitProvince1783382400000',
       'AddProvinceClimateNote1783513986800',
       'AddProvinceDetailSections1783701664849',
+      'InitCountry1784001600000',
     ]);
   });
 
