@@ -77,14 +77,15 @@ export interface CountrySeed {
  *      Köppen code). So each draft section is split at its clean paragraph boundary: the
  *      relief paragraph(s) → `landformNoteTr`, the final climate paragraph → `climateNoteTr`.
  *      NOVA's wording is transcribed verbatim (no rewriting) — only the cut is editorial.
- *   2. HYDROGRAPHY — SCHEMA LANDED, DATA PENDING. NOVA authored a fact-checked
+ *   2. HYDROGRAPHY — SCHEMA + DATA NOW BOTH LANDED. NOVA authored a fact-checked
  *      `hydrographyNoteTr` (nehir/göl/deniz) section for all 8 countries. The Country entity
- *      now carries a `hydrography_note_tr` column (added in the schema fast-follow →
- *      DEC 2026-07-13, mirroring the Province `hydrography_note_tr` field), but this batch
- *      does NOT yet populate it — the pilot prose lands in a separate follow-up DATA PR so
- *      the schema and data changes stay reviewable independently. That prose was never
- *      force-fitted into `landformNoteTr` (the house pattern keeps relief and hydrography in
- *      separate fields).
+ *      carries a `hydrography_note_tr` column (added in the schema fast-follow →
+ *      DEC 2026-07-13, mirroring the Province `hydrography_note_tr` field). The schema landed
+ *      first (PR #25); this data-only follow-up PR populates the field for all 8 rows, kept
+ *      separate from the schema change so each stays reviewable independently. The draft kept
+ *      hydrography as its OWN section, so the prose transcribes verbatim into `hydrographyNoteTr`
+ *      — it was never force-fitted into `landformNoteTr` (the house pattern keeps relief and
+ *      hydrography in separate fields).
  *   3. populationYear = null for all 8 — the owner ruling declines to assert a reference
  *      year at world scale (province-grade TÜİK-year precision is above this batch's bar).
  *   4. independenceNoteTr filled for 7 of 8. BG/GE/AM/IQ/SY have a single, multi-source-
@@ -153,6 +154,15 @@ export const SEED_COUNTRIES: readonly CountrySeed[] = [
       'Kıyı kesimler ve adalar, sıcak-kurak yaz ile ılık-yağışlı kışın görüldüğü tipik ' +
       "Akdeniz ikliminin etkisindedir. Pindus'un iç ve kuzey kesimlerinde ise yükseklik " +
       'nedeniyle kışlar daha soğuk ve karlı geçer, yaz-kış sıcaklık farkı belirginleşir.',
+    hydrographyNoteTr:
+      "Yunanistan'ın akarsuları genelde kısa ve mevsimsel rejime sahiptir. En uzun nehri, " +
+      "yaklaşık 300 kilometrelik Aliakmon'dur; Aheloos, Evros ve Pinios diğer önemli " +
+      "nehirlerdir. Evros Nehri, Yunanistan'ın Türkiye ve Bulgaristan ile sınırının önemli bir " +
+      'bölümünü çizer.' +
+      '\n\n' +
+      "Ülkenin en büyük doğal gölü Trihonis Gölü'dür; Vegoritis ve Volvi gölleri de önemli iç " +
+      'su kütleleridir. Arnavutluk ve Kuzey Makedonya ile paylaşılan Prespa Gölleri, sınır ' +
+      "ötesi bir ekosistem olarak Avrupa'nın önemli sulak alanları arasında sayılır.",
   },
   {
     isoCode: 'BG',
@@ -196,6 +206,15 @@ export const SEED_COUNTRIES: readonly CountrySeed[] = [
       'yazlar sıcak geçer. Karadeniz kıyısında deniz etkisiyle sıcaklık farkları yumuşar. ' +
       'Güneyde, Trakya Ovası ve Rodop eteklerine doğru inildikçe Akdeniz ikliminin etkisi ' +
       'hissedilmeye başlar.',
+    hydrographyNoteTr:
+      'Ülkenin en uzun ve en önemli akarsuyu, kuzey sınırının büyük bölümünü Romanya ile ' +
+      "paylaşan Tuna Nehri'dir — Avrupa'nın ikinci en uzun nehridir. Balkan Dağları'nın " +
+      "güneyinde doğan Meriç Nehri, Trakya Ovası'ndan geçerek Türkiye-Yunanistan sınırına " +
+      'ulaşır.' +
+      '\n\n' +
+      "Karadeniz kıyısı, Durankulak'tan Rezovska Nehri ağzına kadar yaklaşık 378 kilometre " +
+      'uzunluğundadır. Kuzey kesimi geniş kumsallar ve kıyı gölleriyle, Kaliakra Burnu çevresi ' +
+      'ise 70 metreyi bulan dik kayalıklarla karakterize olur.',
   },
   {
     isoCode: 'GE',
@@ -237,6 +256,11 @@ export const SEED_COUNTRIES: readonly CountrySeed[] = [
       'başkent Tiflis ve İç Kartli bölgesinde dağların yağış gölgesi etkisiyle daha kurak ve ' +
       'karasal bir iklim görülür. Yüksek Kafkas kesimlerinde ise alp iklimi ve yıl boyu kar ' +
       'örtüsü hakimdir.',
+    hydrographyNoteTr:
+      "Ülkenin en uzun akarsuyu, Türkiye'de doğup Gürcistan'ın doğu ovalarından geçen ve " +
+      "başkent Tiflis'in ortasından akan Kura (Mtkvari) Nehri'dir; nehir Azerbaycan " +
+      "topraklarına geçerek Hazar Denizi'ne dökülür. Karadeniz kıyısındaki başlıca limanlar " +
+      "Poti ve Batum'dur.",
   },
   {
     isoCode: 'AM',
@@ -279,6 +303,10 @@ export const SEED_COUNTRIES: readonly CountrySeed[] = [
       'sert, kar yağışlı kışlar ve serin yazlar görülür. Ararat Ovası gibi daha alçak ' +
       'kesimlerde ise yaz sıcaklıkları yükselir, yarı-kurak ve bozkır karakterli bir iklim ' +
       'egemen olur.',
+    hydrographyNoteTr:
+      'Ülkenin en büyük su kütlesi, deniz seviyesinden yaklaşık 2.000 metre yükseklikte yer ' +
+      "alan Sevan Gölü'dür. Aras Nehri, güneyde Türkiye ve İran ile doğal sınır oluşturur; " +
+      'Debed Nehri ülkenin kuzeyindeki başlıca akarsulardandır.',
   },
   {
     isoCode: 'AZ',
@@ -330,6 +358,10 @@ export const SEED_COUNTRIES: readonly CountrySeed[] = [
       'karakterli bir iklim görülür; güneydoğudaki Talış bölgesinde nemli subtropikal iklim ' +
       "egemendir; Büyük Kafkas'ın yüksek kesimlerinde ise alp iklimi ve kalıcı kar örtüsü " +
       'hakimdir.',
+    hydrographyNoteTr:
+      "Kafkasya'nın en büyük akarsuyu olan Kura Nehri, Gürcistan'dan Azerbaycan'a geçer; " +
+      "ülkenin ikinci büyük nehri Aras, Kura'nın başlıca kolu olup ikisi birleşerek Hazar " +
+      "Denizi'ne dökülür. Ülkenin Hazar kıyısı 713 kilometre uzunluğundadır.",
   },
   {
     isoCode: 'IR',
@@ -376,6 +408,11 @@ export const SEED_COUNTRIES: readonly CountrySeed[] = [
       "nemli, yıl boyu yağışlı bir iklim görülür. Merkezi Plato'da kurak ve yarı-kurak çöl " +
       'iklimi egemendir, yaz-kış ve gündüz-gece sıcaklık farkları büyüktür. Batıdaki Zagros ' +
       'yüksek kesimlerinde ise karasal-dağlık iklim, soğuk ve karlı kışlarla kendini gösterir.',
+    hydrographyNoteTr:
+      "İran'ın çoğu akarsuyu kısa ve mevsimsel rejime sahiptir; ülkenin gemilerle ulaşılabilen " +
+      "tek nehri, güneybatıdaki 830 kilometrelik Karun'dur. Hazar Denizi, dünyanın en büyük " +
+      "kapalı su kütlesi olarak İran'ın kuzey sınırını oluşturur; ülkenin güneyinde ise Basra " +
+      'Körfezi ve Umman Denizi kıyıları uzanır.',
   },
   {
     isoCode: 'IQ',
@@ -422,6 +459,11 @@ export const SEED_COUNTRIES: readonly CountrySeed[] = [
       'İklim, kuzeydeki dağlık bölgede daha soğuk kışlı, yarı-kurak bir karakterdedir; orta ' +
       've güney Mezopotamya ovasında ise yazları aşırı sıcak, kışları ılık geçen kurak bir ' +
       'çöl iklimi egemendir.',
+    hydrographyNoteTr:
+      "Dicle (1.900 km) ve Fırat (2.800 km) nehirleri, Irak'ın en uzun ve coğrafi kimliğini " +
+      'belirleyen akarsularıdır; başkent Bağdat dahil büyük şehirlerin çoğu bu iki nehrin ' +
+      'kıyısında kuruludur. Nehirlerin arasında kalan toprakların "iki nehir arası" anlamına ' +
+      'gelen Mezopotamya adını taşıması, bu coğrafyanın en eski yerleşim izlerine kadar uzanır.',
   },
   {
     isoCode: 'SY',
@@ -466,5 +508,11 @@ export const SEED_COUNTRIES: readonly CountrySeed[] = [
       'sıcak-kurak yazın görüldüğü tipik Akdeniz iklimi hakimdir; Şam ve Halep gibi iç kesim ' +
       "şehirlerinde yarı-kurak bozkır iklimi egemendir; doğudaki Bâdiye'de ise tam kurak çöl " +
       'iklimi görülür, yıllık yağış çok düşük seviyelerde kalır.',
+    hydrographyNoteTr:
+      "Ülkenin en önemli ve gemilerle ulaşılabilen tek nehri, Türkiye'de doğup ülkenin " +
+      "doğusunu güneydoğu yönünde kat eden Fırat Nehri'dir. Kıyı şeridindeki dar ovalar " +
+      "dışında, Suriye'nin büyük bölümünde kalıcı yüzey suyu kaynağı sınırlıdır — bu da iç " +
+      'kesim ve doğu bölgelerindeki yerleşimlerin tarih boyunca nehir vadilerine ve vahalara ' +
+      'yoğunlaşmasının başlıca nedenidir.',
   },
 ];
