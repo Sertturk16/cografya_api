@@ -226,6 +226,18 @@ export class Country {
   @Column({ name: 'climate_note_tr', type: 'text', nullable: true })
   climateNoteTr!: string | null;
 
+  /**
+   * Hidrografya — kısa düzyazı not (nehir/göl/deniz anlatısı, TR). Mirrors the province
+   * `hydrographyNoteTr` field exactly (nullable prose, no structured feature list at
+   * country scale — the country model deliberately omits the province `hydrographyFeatures`
+   * jsonb). Kept as the LAST natural-geography prose field (after landform + climate),
+   * matching the province ordering where hydrography is the final natural-geography note.
+   * NULL until fact-checked content fills it — an unverified fact stays absent, never
+   * invented (CLAUDE §5).
+   */
+  @Column({ name: 'hydrography_note_tr', type: 'text', nullable: true })
+  hydrographyNoteTr!: string | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 

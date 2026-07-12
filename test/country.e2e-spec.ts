@@ -83,6 +83,7 @@ const ZZ: CountrySeed = {
   introTr: 'Test Ülkesi ZZ, bu testin sentetik bir ülkesidir.',
   landformNoteTr: 'Düz test arazisi.',
   climateNoteTr: 'Kuzeyde test iklimi, güneyde ikinci test iklimi görülür.',
+  hydrographyNoteTr: 'Test Ülkesi ZZ, iki sentetik test nehri ile bir test gölüne sahiptir.',
 };
 const FIXTURES: readonly CountrySeed[] = [ZX, ZY, ZZ];
 
@@ -174,6 +175,7 @@ describe('Country (e2e)', () => {
       'AddProvinceClimateNote1783513986800',
       'AddProvinceDetailSections1783701664849',
       'InitCountry1784001600000',
+      'AddCountryHydrographyNote1784102400000',
     ]);
   });
 
@@ -296,6 +298,7 @@ describe('Country (e2e)', () => {
     expect(zz).not.toHaveProperty('neighborIsoCodes');
     expect(zz).not.toHaveProperty('capitalLatitude');
     expect(zz).not.toHaveProperty('climateNoteTr');
+    expect(zz).not.toHaveProperty('hydrographyNoteTr');
   });
 
   it('GET /api/countries/:slug round-trips transformers + derives neighborCount (full row)', async () => {
@@ -318,6 +321,12 @@ describe('Country (e2e)', () => {
     expect(body.climateNoteTr).toBe('Kuzeyde test iklimi, güneyde ikinci test iklimi görülür.');
     expect(body).not.toHaveProperty('climateKoppen');
     expect(body).not.toHaveProperty('climateClassTr');
+    // hydrography note round-trips as free prose (mirrors the province field); the country
+    // model has only the note, NO structured hydrography feature list.
+    expect(body.hydrographyNoteTr).toBe(
+      'Test Ülkesi ZZ, iki sentetik test nehri ile bir test gölüne sahiptir.',
+    );
+    expect(body).not.toHaveProperty('hydrographyFeatures');
   });
 
   it('GET /api/countries/:slug resolves the EN slug too, and nulls serialise as null', async () => {
@@ -339,6 +348,8 @@ describe('Country (e2e)', () => {
     expect(body.currencyCode).toBeNull();
     expect(body.climateNoteTr).toBeNull();
     expect(body.independenceNoteTr).toBeNull();
+    // the new nullable hydrography note serialises to null when unset (round-trips absent).
+    expect(body.hydrographyNoteTr).toBeNull();
   });
 
   it('GET /api/countries/:slug returns 404 for an unknown slug', async () => {

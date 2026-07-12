@@ -180,6 +180,13 @@ export class CountryDetailDto {
   })
   climateNoteTr!: string | null;
 
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Hidrografya — kısa düzyazı not (nehir/göl/deniz anlatısı, TR).',
+  })
+  hydrographyNoteTr!: string | null;
+
   @ApiProperty({ type: String, format: 'date-time', description: 'Kayıt oluşturulma zamanı.' })
   createdAt!: string;
 
