@@ -85,11 +85,14 @@ export interface CountrySeed {
  *      follow-up PR, not this data-only one.
  *   3. populationYear = null for all 8 — the owner ruling declines to assert a reference
  *      year at world scale (province-grade TÜİK-year precision is above this batch's bar).
- *   4. independenceNoteTr filled only for the 5 countries with a single, multi-source-
- *      consistent date (BG, GE, AM, IQ, SY). Left NULL for GR + AZ (no canonical date
- *      settled — real open items flagged to the owner) and IR (the field is conceptually
- *      inapplicable to a continuous ancient state). An undecided fact stays absent, not
- *      invented — CLAUDE §5.
+ *   4. independenceNoteTr filled for 7 of 8. BG/GE/AM/IQ/SY have a single, multi-source-
+ *      consistent date. GR + AZ have MULTIPLE real candidate dates with no single objective
+ *      answer, so — per DEC 2026-07-13's resolution rule — each is anchored on the country's
+ *      OWN officially-designated Independence Day (GR 25 Mart; AZ 28 Mayıs) with the other
+ *      historically-relevant dates woven into the same free-text prose as context (not a
+ *      forced single value). Left NULL only for IR: the field is conceptually inapplicable
+ *      to a continuous ancient state (no colonial/Soviet exit date) — an undecided fact
+ *      stays absent, not invented (CLAUDE §5).
  *   5. governmentFormTr = null for Syria — a genuinely fluid, owner-open item (post-2024
  *      transitional government), explicitly out of scope of the fact-check round.
  *   6. areaKm2 stored as whole km² (entity is integer): Armenia 28.199,44 → 28199.
@@ -124,8 +127,13 @@ export const SEED_COUNTRIES: readonly CountrySeed[] = [
     currencyNameTr: 'Euro',
     currencyCode: 'EUR',
     governmentFormTr: 'Parlamenter cumhuriyet',
-    // independenceNoteTr: NULL — no canonical date settled (1821 mücadele / 1830 tanıma /
-    //   1832 sınır antlaşması). Open item flagged to the owner (data-dictionary §1).
+    // Multi-candidate date → anchor on the country's own official Independence Day, weave
+    //   the other relevant dates in as context (DEC 2026-07-13 resolution rule).
+    independenceNoteTr:
+      "Yunanistan, 1821'de başlayan Bağımsızlık Savaşı'nın başlangıcını simgeleyen 25 Mart'ı " +
+      'resmî Bağımsızlık Günü (ulusal bayram) olarak kutlar. Ülkenin bağımsızlığı 1830 Londra ' +
+      'Protokolü ile uluslararası düzeyde tanındı, sınırları ise 1832 Konstantinopolis ' +
+      "Antlaşması'yla kesinleşti.",
     introTr:
       "Yunanistan, Balkan Yarımadası'nın en güneyinde, binlerce adaya yayılan bir Akdeniz " +
       'ülkesidir. Kuzeyde Arnavutluk, Kuzey Makedonya ve Bulgaristan, doğuda ise Türkiye ile ' +
@@ -293,9 +301,14 @@ export const SEED_COUNTRIES: readonly CountrySeed[] = [
     currencyNameTr: 'Azerbaycan manatı',
     currencyCode: 'AZN',
     governmentFormTr: 'Üniter yarı-başkanlık cumhuriyeti',
-    // independenceNoteTr: NULL — three living official commemorations (28 Mayıs 1918
-    //   Bağımsızlık Günü / 30 Ağustos 1991 Bildirge / 18 Ekim 1991 Anayasal Kanun); the
-    //   canonical choice is an open item flagged to the owner (data-dictionary §5).
+    // Multi-candidate date → anchor on Azerbaijan's own official Independence Day (28 May,
+    //   named by its 2021 law), weave the other relevant dates in as context (DEC 2026-07-13
+    //   resolution rule; source language from data-dictionary §5).
+    independenceNoteTr:
+      "Azerbaycan, 1918'de kurulan Azerbaycan Demokratik Cumhuriyeti'nin ilan tarihi olan 28 " +
+      "Mayıs'ı resmî Bağımsızlık Günü olarak anar (ülkenin 2021 tarihli kanunuyla). " +
+      "Sovyetler Birliği'nin dağılma sürecinde bağımsızlık, 30 Ağustos 1991 Bağımsızlık " +
+      'Bildirgesi ve 18 Ekim 1991 Devlet Bağımsızlığı Anayasal Kanunu ile yeniden kazanıldı.',
     introTr:
       "Hazar Denizi'nin batı kıyısında uzanan Azerbaycan, kuzeyde Rusya, kuzeybatıda " +
       'Gürcistan, batıda Ermenistan, güneyde İran ile komşudur; ülkenin Nahçıvan Özerk ' +
