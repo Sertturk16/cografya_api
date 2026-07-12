@@ -79,14 +79,14 @@ describe('Province (e2e)', () => {
     //    growing one phase per historical wave:
     //      Phase 1 — empty DB seeded with the pilot-5 ONLY: the state PR-4a left
     //        (all-insert). Snapshot İstanbul's updated_at.
-    //      Phase 2 — re-seed the SAME DB with the FULL 72-list (SEED_PROVINCES). The 5
+    //      Phase 2 — re-seed the SAME DB with the FULL 81-list (SEED_PROVINCES). The 5
     //        pilot rows already match (no-op) and the other 76 are new (insert) → a
     //        MIXED batch, the largest this repo ships. İstanbul's updated_at must be
     //        UNCHANGED (a mixed batch never touches the rows it leaves alone — and, per
     //        the earlier waves' agreed trigger, the number of prior batches the no-op
     //        set spans does not change what this proves, so one mixed transition stands
     //        in for the old +wave-1/+wave-2/+wave-3 chain).
-    //      Phase 3 — a routine re-run over the complete 72: pure no-op, proving
+    //      Phase 3 — a routine re-run over the complete 81: pure no-op, proving
     //        idempotency AND no updated_at churn (SEO lastmod honesty, §6).
     //    PILOT_PROVINCES + SEED_PROVINCES drive the phases here; these structural tests
     //    assert seed-counts, idempotency and shape — not per-il fact-checked values
@@ -112,9 +112,9 @@ describe('Province (e2e)', () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { AppModule } = require('../src/app.module') as typeof import('../src/app.module');
     // Neutralise the global 120 req/min rate limit FOR THIS TEST RUN ONLY. The suite fires
-    // one HTTP request per seeded province (72) plus every per-wave detail assertion from a
-    // single in-memory client inside one ~25 s window — far above the production 120/min limit,
-    // which would otherwise 429 the later tests as the seed grows. The guard is registered as an
+    // its HTTP assertions from a single in-memory client inside one short window; the override
+    // keeps that free of 429s independently of the exact request count (so adding a structural
+    // test never trips the limiter), without weakening the production posture. The guard is registered as an
     // APP_GUARD via `useClass` (app.module.ts), so `overrideGuard(ThrottlerGuard)` does NOT reach
     // it (the DI token is APP_GUARD, not the guard class). Instead we override the `ThrottlerStorage`
     // provider the guard injects with a stub that always reports zero hits — so `canActivate`
@@ -176,7 +176,7 @@ describe('Province (e2e)', () => {
   it('phase 3 — re-seed is a no-op: no duplicates, no writes, no updated_at churn', async () => {
     // Every row already matches → all 81 unchanged, none updated/inserted.
     expect(reSeed).toEqual({ inserted: 0, updated: 0, unchanged: 81, total: 81 });
-    // Still exactly 72 rows.
+    // Still exactly 81 rows.
     const count = await dataSource.getRepository(Province).count();
     expect(count).toBe(81);
     // updated_at was NOT bumped by the no-op re-seed.
@@ -196,7 +196,7 @@ describe('Province (e2e)', () => {
     await repo.update({ plateCode: '34' }, { economyIndicator: null });
 
     const result = await seedGeography(dataSource);
-    // Only İstanbul drifted (via the economyIndicator comparison) → 1 updated, 59 untouched.
+    // Only İstanbul drifted (via the economyIndicator comparison) → 1 updated, 80 untouched.
     expect(result).toEqual({ inserted: 0, updated: 1, unchanged: 80, total: 81 });
 
     // The drifted field was actually re-written from the seed.
@@ -208,7 +208,7 @@ describe('Province (e2e)', () => {
       source:
         'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
     });
-    // Still exactly 72 rows — an UPDATE, never an insert/delete.
+    // Still exactly 81 rows — an UPDATE, never an insert/delete.
     expect(await repo.count()).toBe(81);
   });
 
@@ -227,7 +227,7 @@ describe('Province (e2e)', () => {
     const retractedList = SEED_PROVINCES.map((p) => (p.plateCode === '34' ? istanbulRetracted : p));
 
     const result = await seedGeography(dataSource, retractedList);
-    // İstanbul drifts (economyIndicator retracted → null) → 1 updated, 59 unchanged.
+    // İstanbul drifts (economyIndicator retracted → null) → 1 updated, 80 unchanged.
     expect(result).toEqual({ inserted: 0, updated: 1, unchanged: 80, total: 81 });
 
     // The retracted field is actually CLEARED in the DB (the coherence fix works).
@@ -500,7 +500,23 @@ describe('Province (e2e)', () => {
       urbanizationRate: 93.5,
       netMigrationRate: -12.34,
     });
-    await repo.save(fixture);
+    // A second throwaway row (plate '99', not a real province) with the two jsonb columns
+    // left NULL — proves a null jsonb column serialises to JSON `null` OVER THE WIRE (never
+    // [] or {}), the HTTP-layer mechanism the cut per-il Tier-B / base-data tests used to
+    // guard. The büyükşehir invariant below only reaches the DB entity, never HTTP, so this
+    // fixture is what actually covers null-jsonb serialisation through the controller.
+    const nullFixture = repo.create({
+      plateCode: '99',
+      nameTr: 'Test Null İli',
+      slugTr: 'jsonb-roundtrip-null-fixture',
+      slugEn: 'jsonb-roundtrip-null-fixture-en',
+      region: GeographicRegion.Marmara,
+      population: 1000,
+      areaKm2: 4,
+      hydrographyFeatures: null,
+      economyIndicator: null,
+    });
+    await repo.save([fixture, nullFixture]);
 
     try {
       const res = await request(app.getHttpServer())
@@ -531,20 +547,29 @@ describe('Province (e2e)', () => {
       expect(body.latitude).toBe(41.012345);
       expect(body.longitude).toBe(28.987654);
       expect(body.neighborPlateCodes).toEqual(['34', '41']);
-      // Nullable columns the fixture leaves unset must serialise as null (never '' or 0) —
-      // the null-serialisation mechanism the cut per-il Tier-B / base-data tests proved per
-      // row. (Null jsonb → null is asserted on real data by the büyükşehir invariant below,
-      // whose exception rows carry a null hydrographyFeatures.)
+      // Nullable text/scalar columns the fixture leaves unset must serialise as null
+      // (never '' or 0) — the null-serialisation mechanism the cut per-il Tier-B /
+      // base-data tests proved per row.
       expect(body.introTr).toBeNull();
       expect(body.landformNoteTr).toBeNull();
       expect(body.hydrographyNoteTr).toBeNull();
       expect(body.settlementNoteTr).toBeNull();
       expect(body.climateKoppen).toBeNull();
       expect(body.climateNoteTr).toBeNull();
+
+      // Null JSONB columns must serialise to JSON `null` over HTTP — never [] or {} — so a
+      // base-data / Tier-B row that omits them reads back as null through the controller.
+      const nullRes = await request(app.getHttpServer())
+        .get('/api/provinces/jsonb-roundtrip-null-fixture')
+        .expect(200);
+      const nullBody = nullRes.body as Record<string, unknown>;
+      expect(nullBody.hydrographyFeatures).toBeNull();
+      expect(nullBody.economyIndicator).toBeNull();
     } finally {
-      // Clean up unconditionally so the 72-row count assumed by the other tests
-      // holds even if an assertion above throws.
+      // Clean up unconditionally so the exact 81-row count the other tests assume holds
+      // even if an assertion above throws.
       await repo.delete({ plateCode: '00' });
+      await repo.delete({ plateCode: '99' });
     }
   });
 
