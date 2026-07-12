@@ -261,8 +261,8 @@ const MGM_KOPPEN_CAVEAT_CSB_TR =
  * Wave-6d (the first BRAND-NEW base-data batch since the deep-content waves) is the
  * FIRST batch to hit Köppen **Cfb**: MGM's own 2023 table classifies the three
  * inland/highland Karadeniz-B il (Bolu 743 m, Çorum 776 m, Kastamonu 800 m) as Cfb
- * ("b" = yazı sıcak / warm-summer — one step milder than the coastal il's Cfa "a" =
- * yazı çok sıcak / hot-summer), while their wave-mates split 4×Cfa + 2×Csa —
+ * ("b" = yazı serin / cool-summer — warmest month < 22°C, milder than the coastal il's
+ * Cfa "a" = yazı çok sıcak / hot-summer), while their wave-mates split 4×Cfa + 2×Csa —
  * independently fact-checked (wave6d-karadeniz-b-factcheck, VERIFIED per `koppen.pdf`
  * on each il's own row, NOT copied from a coastal Cfa neighbour).
  *
@@ -271,9 +271,8 @@ const MGM_KOPPEN_CAVEAT_CSB_TR =
  * different family. So it reuses the SAME curriculum-register TR label as Cfa,
  * "Karadeniz iklimi" (owner ruling, → DEC 2026-07-12; MEB lise müfredatı teaches
  * "Karadeniz iklimi" as one regional type and does NOT split Cfa/Cfb at YKS/KPSS
- * level). The warm-summer nuance the shared label elides is carried in the caveat's
- * opening clause ("…her mevsim yağışlı, yazı sıcak…", the draft Bölüm 2 condition),
- * mirroring how Csb carries "yazı sıcak ve kurak".
+ * level). The cool-summer nuance the shared label elides is carried in the caveat's
+ * opening clause ("…her mevsim yağışlı, yazı serin…").
  *
  * INVARIANT PRECONDITION (seed-geography.ts `assertKoppenCaveatInvariant`): the
  * note-contains-its-own-code correspondence check is sound only while no full Köppen
@@ -286,15 +285,21 @@ const KOPPEN_CFB = 'Cfb';
 const CLIMATE_CLASS_CFB_TR = 'Karadeniz iklimi';
 /**
  * Cfb variant of the mandatory MGM Köppen caveat (see MGM_KOPPEN_CAVEAT_TR). The
- * opening clause names Cfb + the warm-summer subtype note ("her mevsim yağışlı, yazı
- * sıcak", draft Bölüm 2); the methodological tail is identical to the Csa/Cfa/Csb
- * caveats (climate-code-agnostic) so the mandatory note reads consistently across the
- * whole seed. Names its own code ("…bu ili Cfb…"), so the seed-time Köppen⇒caveat
+ * opening clause names Cfb + the cool-summer subtype note ("her mevsim yağışlı, yazı
+ * serin"); the methodological tail is identical to the Csa/Cfa/Csb caveats
+ * (climate-code-agnostic) so the mandatory note reads consistently across the whole
+ * seed. Names its own code ("…bu ili Cfb…"), so the seed-time Köppen⇒caveat
  * correspondence invariant is satisfied self-maintainingly.
+ *
+ * KÖPPEN "b" CORRECTNESS (→ Atlas ruling 2026-07-12, applied during the wave-6c rebase):
+ * the third Köppen letter "b" means warm/cool summer (warmest month < 22°C), NOT hot — so
+ * this caveat reads "yazı serin", never "yazı sıcak" (that is the "a" suffix, e.g. Cfa).
+ * This corrects the wording PR #19 (wave-6d) first merged; because the constant is shared,
+ * the fix also covers the already-shipped wave-6d Cfb il (Bolu/Çorum/Kastamonu).
  */
 const MGM_KOPPEN_CAVEAT_CFB_TR =
   "MGM'nin 2023 Köppen sınıflandırması bu ili Cfb (Karadeniz iklimi, her mevsim yağışlı, " +
-  'yazı sıcak) olarak verir. ' +
+  'yazı serin) olarak verir. ' +
   "Ancak MGM'nin kendi raporu, bu basitleştirilmiş yöntemin (üçüncü-harf kuralı) " +
   "Türkiye'deki 254 istasyonun yaklaşık %65'ini 'Cs' (Akdeniz tipi) çıkardığını ve " +
   'İç Anadolu ile Doğu Anadolu gibi bölgelerde ayırt ediciliğinin sınırlı kaldığını ' +
@@ -5048,13 +5053,543 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
 ];
 
 /**
+ * ── Wave-6c — Karadeniz-A (9 il, BRAND-NEW from scratch) ──────────────────────
+ * The platform's FIRST provinces in the Karadeniz region (`GeographicRegion.Karadeniz`).
+ * Unlike every prior wave (base data first, deep content later — or deep content onto
+ * already-seeded base rows), this batch produces BOTH layers in ONE pass — base data +
+ * population-tiered deep content — from NOVA's independently fact-checked "Dalga 6c" draft
+ * (verdict SEED-READY WITH CORRECTIONS: the sole mandatory fix — all 9 `netMigrationRate`
+ * values re-read from TÜİK's own official "Net göç hızı" column instead of a manual
+ * recompute — is applied here).
+ *   • Content/base: Owner's Inbox/data-source-groundwork/wave6c-karadeniz-a-draft.md
+ *   • Fact-check:   Owner's Inbox/data-source-groundwork/wave6c-karadeniz-a-factcheck.md
+ *   • Style rules:  CONTENT-STYLE.md (orchestrator root — binding for shipped prose)
+ *   • Ledger:       data-provenance.md (root) — Wave-6c
+ *
+ * TIER split (→ DEC 2026-07-11 threshold 1M): Samsun 55 is the SOLE Tier-A (full 8-field
+ * set incl. hydrographyFeatures). Trabzon 61 and Ordu 52 are Tier-B by population BUT are
+ * legally büyükşehir, so — exactly like wave-5's Mardin (→ DEC 2026-07-12) — each carries a
+ * MINIMAL single-sentence `settlementNoteTr` (the 6360 %100 caveat ONLY), while staying
+ * Tier-B for every other field (hydrographyFeatures absent → null). The other six (Giresun
+ * 28, Rize 53, Artvin 08, Gümüşhane 29, Bayburt 69, Amasya 05) are plain Tier-B (6-field
+ * set: hydrographyFeatures + settlementNoteTr absent → null).
+ *
+ * KÖPPEN — five classes across the nine, ALL reusing constants introduced by earlier or
+ * sibling waves (wave-6c adds NO new Köppen code of its own — the merge order landed both
+ * Cfb and the D-group ahead of it):
+ *   • Csa (Trabzon 61, Amasya 05) → shared MGM_KOPPEN_CAVEAT_TR. Trabzon is Csa DESPITE
+ *     being a coast il (MGM's own row; its summers run drier than neighbouring Rize's) —
+ *     a concrete case of MGM's own "third-letter rule has limited discriminating power"
+ *     warning, shipped WITH that caveat exactly like Ankara/Van. NOT "corrected" to Cfa.
+ *   • Cfa (Samsun 55, Ordu 52, Giresun 28, Rize 53) → CLIMATE_CLASS_CFA_TR + Cfa caveat.
+ *   • Csb (Gümüşhane 29) → existing CLIMATE_CLASS_CSB_TR (the wave-3 third class).
+ *   • Cfb (Artvin 08) → "Karadeniz iklimi" (same as Cfa, → DEC 2026-07-12). REUSES the
+ *     KOPPEN_CFB constants introduced by the sibling wave-6d (PR #19, merged first) — this
+ *     rebase corrected their caveat wording "yazı sıcak" → "yazı serin" (a "b"-suffix climate
+ *     has a cool/warm summer, not a hot one; the fix also covers wave-6d's own Cfb il).
+ *   • Dsb (Bayburt 69) → "Karasal iklim" (whole D-group, → DEC 2026-07-12). REUSES the
+ *     KOPPEN_DSB + CLIMATE_CLASS_D_GROUP_TR + MGM_KOPPEN_CAVEAT_DSB_TR constants introduced by
+ *     the sibling wave-6b (PR #20, Doğu Anadolu, merged first) — Bayburt is NOT the platform's
+ *     first D-group il (wave-6b's Ağrı/Ardahan preceded it), only wave-6c's first.
+ *
+ * NET MIGRATION — this batch holds the platform's TWO largest magnitudes: Gümüşhane
+ * -42.80 ‰ (new record, prev Siirt -33.96) and Bayburt -35.16 ‰ (2nd) — BOTH transcribed
+ * from TÜİK's corrected official column (superseding the draft's earlier -43.74 / -35.79
+ * manual-calc values). Samsun +2.60 ‰ is the batch's SOLE positive.
+ *
+ * CONTENT CORRECTIONS APPLIED (Atlas ruling 2026-07-12 — the three items surfaced at PR review;
+ * all are jargon/geographic fixes, no fact invented; none was pinned by a test token so CI is
+ * unaffected):
+ *   (1) Gümüşhane introTr — DROPPED the "platformda gördüğü ikinci Köppen sınıfı (Csb)" clause
+ *       (platform-content-rollout ordinal is internal-process leakage into customer-facing text);
+ *       the sentence now states only the real climate characteristics (kurak yazlı, ılıman-serin,
+ *       unlike its coastal neighbours).
+ *   (2) Artvin landformNoteTr — "Akdeniz kıyısına paralel" → "Karadeniz kıyısına paralel": the
+ *       Kaçkar/Karadeniz Dağları parallel the BLACK SEA coast, not the Mediterranean.
+ *   (3) Samsun settlementNoteTr + Bayburt introTr — REMOVED the internal-batch reference
+ *       ("bu partideki dokuz il", same class of jargon-leak as wave-6d's Bolu catch); each now
+ *       states only customer-relevant facts (Samsun's +2,60 ‰ positive rate; Bayburt's elevation).
+ *   Jargon sweep of all 9 il's prose for parti/dalga/batch/wave: CLEAN. (NB: 5 PRE-EXISTING
+ *   "bu dalga(da)" instances remain in the already-merged wave-3/4 prose — Muğla, Uşak, Adana,
+ *   Kahramanmaraş, Mersin — flagged to Atlas as out-of-scope for this PR.)
+ */
+export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
+  {
+    plateCode: '05',
+    nameTr: 'Amasya',
+    slugTr: 'amasya',
+    slugEn: 'amasya',
+    region: GeographicRegion.Karadeniz,
+    population: 342_242,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 5628,
+    districtCount: 7,
+    elevationM: 409, // MGM Merkez istasyonu
+    latitude: 40.6668,
+    longitude: 35.8353,
+    // Samsun=55, Tokat=60, Yozgat=66, Çorum=19
+    neighborPlateCodes: ['55', '60', '66', '19'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    // ── Amasya deep content (wave-6c plain Tier-B). 6-field set (hydrographyFeatures +
+    //    settlementNoteTr DELIBERATELY OMITTED → null, Tier-B scope). urbanizationRate=75.80 is
+    //    a REAL rate (non-büyükşehir) and the highest Tier-B rate of the batch; net göç -1,65 is
+    //    the batch's smallest-magnitude negative. GSYH share %0,3.
+    landformNoteTr:
+      "İlin arazisi, Yeşilırmak'ın vadisi boyunca uzanan dar bir koridor ile bu koridoru " +
+      'çevreleyen daha yüksek platolardan oluşur. Harşena Dağı, vadinin kuzeyinde yaklaşık 300 ' +
+      'metre yükselen kalker bir kütledir; kayalıklara oyulmuş mezarlar bu kütlenin güney ' +
+      'yamacında yer alır.',
+    introTr:
+      "Amasya, Yeşilırmak'ın açtığı dar ve derin bir vadide kuruludur; kent merkezi, nehrin iki " +
+      'yakasını dik kayalıklar arasında birbirine bağlar. Vadinin kuzey yamacındaki Harşena ' +
+      "Dağı'nın eteklerine oyulmuş Pontus Kral Kaya Mezarları, MÖ 302-26 yılları arasında Pontus " +
+      "Krallığı'na başkentlik yapan kentin bu döneme ait en görünür izidir; 2015'te UNESCO Dünya " +
+      "Mirası Geçici Listesi'ne alınmıştır.",
+    hydrographyNoteTr:
+      'Yeşilırmak, ilin ana su kaynağı ve aynı zamanda kent dokusunu şekillendiren temel ' +
+      "unsurdur; nehir, Amasya'dan sonra kuzeye yönelip Samsun'daki deltasında Karadeniz'e " +
+      'ulaşır. İlin sınır komşuluklarının çoğu (Samsun, Tokat, Çorum) da aynı Yeşilırmak havzası ' +
+      'içinde yer alır.',
+    urbanizationRate: 75.8,
+    netMigrationRate: -1.65,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '08',
+    nameTr: 'Artvin',
+    slugTr: 'artvin',
+    slugEn: 'artvin',
+    region: GeographicRegion.Karadeniz,
+    population: 167_531,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 7393,
+    districtCount: 9,
+    elevationM: 613, // MGM Merkez istasyonu
+    latitude: 41.1752,
+    longitude: 41.8187,
+    // Rize=53, Erzurum=25, Ardahan=75 (+ Gürcistan — ülke, hariç)
+    neighborPlateCodes: ['53', '25', '75'],
+    climateKoppen: KOPPEN_CFB,
+    climateClassTr: CLIMATE_CLASS_CFB_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_CFB_TR,
+    // ── Artvin deep content (wave-6c plain Tier-B). The platform's FIRST Cfb il (→ "Karadeniz
+    //    iklimi", same label as Cfa, DEC 2026-07-12). 6-field set (hydrographyFeatures +
+    //    settlementNoteTr null). urbanizationRate=65.27 REAL; net göç -16,00; GSYH share %0,1.
+    //    NB (fixed per Atlas ruling 2026-07-12): landformNoteTr said "Akdeniz kıyısına paralel"
+    //    → corrected to "Karadeniz kıyısına paralel" (the range parallels the Black Sea coast).
+    landformNoteTr:
+      "İlin güneydoğusunda yükselen Kaçkar Dağı, 3.937 metreyle Karadeniz Dağları'nın en yüksek " +
+      'noktasıdır ve Karadeniz kıyısına paralel uzanan sıradağın bir parçasıdır. Şavşat ile Borçka ' +
+      'ilçeleri arasında, Gürcistan sınırına kadar uzanan Karçal Dağları ise 3.428 metreye ' +
+      "ulaşır; bu kütle, Doğu Karadeniz'in ılıman-nemli karışık ormanlarının en iyi korunmuş " +
+      'örneklerinden bazılarını barındırır.',
+    introTr:
+      "Artvin, Karadeniz Bölgesi'nin en dağlık ve en ormanlık ilidir; topraklarının yaklaşık " +
+      "%79'u dağlarla, yalnızca %1'i düzlüklerle kaplıdır. İlin ortasından geçen Çoruh Nehri, " +
+      'derin ve dar bir vadi oyarak Gürcistan sınırına doğru akar; bu vadi, ilin yerleşim ' +
+      'düzenini ve ulaşım ağını doğrudan belirler.',
+    hydrographyNoteTr:
+      "Çoruh Nehri'nin toplam 376 kilometrelik uzunluğunun yaklaşık 150 kilometresi Artvin " +
+      'sınırları içinden geçer. Nehir üzerinde inşa edilen Deriner Barajı, 249 metrelik gövde ' +
+      "yüksekliğiyle Türkiye'nin en yüksek barajıdır; 2012'de enerji üretimine başlamıştır.",
+    urbanizationRate: 65.27,
+    netMigrationRate: -16.0,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,1',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '69',
+    nameTr: 'Bayburt',
+    slugTr: 'bayburt',
+    slugEn: 'bayburt',
+    region: GeographicRegion.Karadeniz,
+    population: 82_836,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 3746,
+    districtCount: 3,
+    elevationM: 1584, // MGM Merkez istasyonu (batch's highest il centre)
+    latitude: 40.2547,
+    longitude: 40.2207,
+    // Trabzon=61, Gümüşhane=29, Rize=53, Erzurum=25, Erzincan=24
+    neighborPlateCodes: ['61', '29', '53', '25', '24'],
+    climateKoppen: KOPPEN_DSB,
+    climateClassTr: CLIMATE_CLASS_D_GROUP_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_DSB_TR,
+    // ── Bayburt deep content (wave-6c plain Tier-B). The platform's FIRST Dsb / "D" main-group il
+    //    (→ "Karasal iklim", DEC 2026-07-12). 6-field set (hydrographyFeatures + settlementNoteTr
+    //    null). urbanizationRate=65.95 REAL; net göç -35,16 is the platform's 2ND-largest magnitude
+    //    (surpasses the old Siirt -33.96 record). GSYH share %0,1. Türkiye's least-populous il.
+    //    NB (fixed per Atlas ruling 2026-07-12): introTr's "bu partideki dokuz il" internal-batch
+    //    reference REMOVED — the closing sentence now just states the 1.584 m elevation.
+    landformNoteTr:
+      'İlin güneyinde, Erzurum yolu üzerinde yükselen Kop Dağı 2.918 metreye ulaşır; Karadeniz ' +
+      "Bölgesi'ni Doğu Anadolu'ya bağlayan tarihi bir geçit güzergâhı üzerindedir. İlin diğer " +
+      'önemli yükseltileri arasında Çoşan Dağı (2.963 m) ve Otlukbeli Dağı (2.520 m) yer alır. ' +
+      "Bu yüksek, dağlık çevre, Bayburt'un kıyı illerine göre çok daha az yağış alan, karasal " +
+      'özellikte bir iklime sahip olmasının başlıca nedenidir.',
+    introTr:
+      "Bayburt, 82.836 kişilik nüfusuyla Türkiye'nin en az nüfuslu ilidir. Çoruh Nehri, il " +
+      'sınırları içinde Pullur ve Sakızlı derelerinin birleşmesiyle asıl akarsu hüviyetini ' +
+      "kazanır; bu nedenle Çoruh'un yukarı havzası Bayburt'un coğrafyasıyla doğrudan bağlantılıdır. " +
+      'İl merkezinin rakımı 1.584 metredir.',
+    hydrographyNoteTr:
+      'Çoruh Nehri, Bayburt il merkezinin güneyinde Pullur ve Sakızlı derelerinin birleşmesiyle ' +
+      "oluşur; buradan kuzeydoğuya, Erzurum ve Artvin üzerinden Gürcistan'a doğru akar. İlin " +
+      "diğer akarsuları Karasu (Fırat'ın bir kolu değil, Çoruh'un bir kolu) ile besleniyor; bu " +
+      "iki nehir arasındaki su bölümü çizgisi Kop Dağı'ndan geçer.",
+    urbanizationRate: 65.95,
+    netMigrationRate: -35.16,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,1',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '28',
+    nameTr: 'Giresun',
+    slugTr: 'giresun',
+    slugEn: 'giresun',
+    region: GeographicRegion.Karadeniz,
+    population: 455_074,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 6972,
+    districtCount: 16,
+    elevationM: 38, // MGM Merkez istasyonu
+    latitude: 40.9227,
+    longitude: 38.3878,
+    // Trabzon=61, Gümüşhane=29, Erzincan=24, Sivas=58, Ordu=52
+    neighborPlateCodes: ['61', '29', '24', '58', '52'],
+    climateKoppen: KOPPEN_CFA,
+    climateClassTr: CLIMATE_CLASS_CFA_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
+    // ── Giresun deep content (wave-6c plain Tier-B, Cfa). 6-field set (hydrographyFeatures +
+    //    settlementNoteTr null). urbanizationRate=67.73 REAL; net göç -12,17; GSYH share %0,3.
+    landformNoteTr:
+      'Kıyı ile güneydeki Kelkit Vadisi arasında yükselen Giresun Dağları, ilin ana yer şeklidir; ' +
+      "kütlenin Giresun-Gümüşhane sınırındaki en yüksek noktası Abdal Musa Tepesi'dir, 3.331 " +
+      'metreye ulaşır. Aynı kütle üzerindeki Karagöl, 2.760 metre yükseklikte bir buzul gölüdür ' +
+      've dağın en büyük gölüdür. Kulakkaya, Kümbet ve Bektaş gibi yaylalar bu yüksek kütlenin ' +
+      'üzerinde yer alır.',
+    introTr:
+      'Giresun, adını dünyaya yayan fındığın kültüre alındığı bölgelerden biri olarak bilinir; ' +
+      'il, dar bir kıyı şeridiyle güneyindeki Giresun Dağları arasında dik bir topografyaya ' +
+      "sahiptir. Kıyıdaki Giresun Adası, Karadeniz'in Türkiye kıyılarındaki tek doğal adasıdır.",
+    hydrographyNoteTr:
+      'İlin doğusunda Aksu Çayı, batısında Batlama Deresi ilin başlıca akarsularıdır; Aksu ' +
+      "Çayı'nın havzası 898 kilometrekare, Batlama Deresi'ninki 161 kilometrekaredir. Her ikisi " +
+      'de dik eğimli, kısa havzaları nedeniyle ani sel ve taşkınlara yol açabilen akarsular ' +
+      'arasında sayılır.',
+    urbanizationRate: 67.73,
+    netMigrationRate: -12.17,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '29',
+    nameTr: 'Gümüşhane',
+    slugTr: 'gumushane',
+    slugEn: 'gumushane',
+    region: GeographicRegion.Karadeniz,
+    population: 138_807,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 6668,
+    districtCount: 6,
+    elevationM: 1216, // MGM Merkez istasyonu
+    latitude: 40.4598,
+    longitude: 39.4653,
+    // Trabzon=61, Giresun=28, Bayburt=69, Erzincan=24
+    neighborPlateCodes: ['61', '28', '69', '24'],
+    climateKoppen: KOPPEN_CSB,
+    climateClassTr: CLIMATE_CLASS_CSB_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_CSB_TR,
+    // ── Gümüşhane deep content (wave-6c plain Tier-B, Csb — the wave-3 third class). 6-field set
+    //    (hydrographyFeatures + settlementNoteTr null). urbanizationRate=61.03 REAL and the LOWEST
+    //    of the batch; net göç -42,80 is the platform's LARGEST-magnitude value (new record). GSYH
+    //    share %0,1. NB (fixed per Atlas ruling 2026-07-12): introTr's "platformda gördüğü ikinci
+    //    Köppen sınıfı (Csb)" platform-meta clause REMOVED — the sentence now states only the real
+    //    climate characteristics (kurak yazlı, ılıman-serin, unlike its coastal neighbours).
+    landformNoteTr:
+      'İlin kuzey kesimi (Merkez, Torul, Kürtün) sarp ve dağlıktır; buradaki Giresun-Gümüşhane ' +
+      'sınırındaki Abdal Musa Tepesi, 3.331 metreyle ilin en yüksek noktasıdır. Güney kesimi ' +
+      '(Kelkit, Köse, Şiran) ise 1.450-1.750 metre yükseklikte bir yayla karakterine sahiptir; ' +
+      'Kelkit Ovası olarak bilinen bu düzlük yaklaşık 280 kilometrekaredir.',
+    introTr:
+      "Gümüşhane, Doğu Karadeniz'in iç kesiminde, kıyıdaki nemli iklimden Doğu Anadolu'nun " +
+      'karasal iklimine geçiş bölgesinde yer alır; il merkezinin rakımı 1.216 metredir. Bu geçiş ' +
+      'karakteri, ilin komşusu kıyı illerin çoğunun aksine kurak yazlı, ılıman-serin bir iklim ' +
+      'tipine sahip olmasını açıklar.',
+    hydrographyNoteTr:
+      "İlin başlıca akarsuyu, doğu sınırındaki dağlardan doğan ve Torul ile Kürtün'ü geçip " +
+      "Tirebolu (Giresun) yakınından Karadeniz'e dökülen 160 kilometrelik Harşit Çayı'dır. İlin " +
+      "güneyindeki Kelkit Çayı ise Karadeniz'e değil, Yeşilırmak havzasına bağlanan ayrı bir akış " +
+      "yönü izler — bu, ilin su ağının kuzey (Karadeniz'e akan) ve güney (Yeşilırmak'a akan) " +
+      'olmak üzere iki ayrı havzaya bölündüğünü gösterir.',
+    urbanizationRate: 61.03,
+    netMigrationRate: -42.8,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,1',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '52',
+    nameTr: 'Ordu',
+    slugTr: 'ordu',
+    slugEn: 'ordu',
+    region: GeographicRegion.Karadeniz,
+    population: 768_087,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 5914,
+    districtCount: 19,
+    elevationM: 5, // MGM Altınordu istasyonu (büyükşehir; ayrı "Merkez" ilçesi yok)
+    latitude: 40.9838,
+    longitude: 37.8858,
+    // Samsun=55, Giresun=28, Tokat=60, Sivas=58
+    neighborPlateCodes: ['55', '28', '60', '58'],
+    climateKoppen: KOPPEN_CFA,
+    climateClassTr: CLIMATE_CLASS_CFA_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
+    // ── Ordu deep content (wave-6c Tier-B + büyükşehir EXCEPTION → DEC 2026-07-12, same as Mardin).
+    //    Tier-B depth (hydrographyFeatures null) BUT legally büyükşehir, so urbanizationRate=100 is
+    //    the 6360 legal artifact and carries a settlementNoteTr holding ONLY the single 6360 caveat
+    //    sentence (NO migration narrative — that lives in netMigrationRate=-7.25). GSYH share %0,5.
+    landformNoteTr:
+      "İlin en yüksek noktası, güneydoğusundaki Karagöl Dağları'nda 3.107 metreye ulaşan Karagöl " +
+      "Tepesi'dir; aynı kütledeki Kırklar Tepesi 3.039 metreye çıkar. Kıyıdan güneye doğru arazi " +
+      'hızla yükselir, tarım arazileri dar ve parçalı vadi yamaçlarına sıkışmıştır — bu, hem ' +
+      'fındık bahçelerinin karakteristik teraslanmış görünümünü hem de dağınık, yayla-tipi ' +
+      'yerleşim düzenini açıklar.',
+    introTr:
+      'Ordu, dar bir kıyı şeridiyle güneyindeki sarp Karagöl Dağları arasında uzanan, Türkiye ' +
+      'fındık üretiminin ağırlık merkezlerinden biri olan bir ildir. Fındık, Karadeniz kıyısının ' +
+      "hemen her yerinde yetişse de en yoğun biçimde Ordu ve komşusu Giresun'da üretilir; iki il " +
+      "birlikte Türkiye'nin — dolayısıyla dünyanın önemli bir bölümünün — fındık arzını karşılar.",
+    hydrographyNoteTr:
+      "İlin en büyük akarsuyu, Karagöl Dağları'ndan doğup kent merkezinin doğusundan " +
+      "Karadeniz'e dökülen Melet Irmağı'dır. Kıyı boyunca sıralanan çok sayıda küçük dere, dik " +
+      'eğimli havzalarından kaynaklanan ani taşkınlarla bilinir; bu derelerin havza yapısı, ' +
+      "DSİ'nin bölgedeki yüzey suyu araştırmalarının (Melet Irmağı Havzası Yüzey Araştırması) " +
+      'konusunu oluşturuyor.',
+    urbanizationRate: 100.0,
+    netMigrationRate: -7.25,
+    settlementNoteTr:
+      "Ordu'nun TÜİK il/ilçe merkezi nüfus oranı, büyükşehir statüsündeki illerde olduğu gibi " +
+      "%100'dür; bu, ilin fiilen tamamen kentleştiği anlamına gelmez, belde ve köylerin idari " +
+      "tüzel kişiliğinin 6360 sayılı Kanun'la kaldırılmasının bir sonucudur.",
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,5',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '53',
+    nameTr: 'Rize',
+    slugTr: 'rize',
+    slugEn: 'rize',
+    region: GeographicRegion.Karadeniz,
+    population: 346_947,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 3835,
+    districtCount: 12,
+    elevationM: 0, // MGM Merkez istasyonu (kıyı; deniz seviyesine çok yakın — Kocaeli/İzmit emsali)
+    latitude: 41.04,
+    longitude: 40.5013,
+    // Trabzon=61, Artvin=08, Bayburt=69, Erzurum=25
+    neighborPlateCodes: ['61', '08', '69', '25'],
+    climateKoppen: KOPPEN_CFA,
+    climateClassTr: CLIMATE_CLASS_CFA_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
+    // ── Rize deep content (wave-6c plain Tier-B, Cfa). 6-field set (hydrographyFeatures +
+    //    settlementNoteTr null). urbanizationRate=68.02 REAL; net göç -11,87; GSYH share %0,3.
+    //    Türkiye's rainiest il (2.250+ mm) — the natural condition for its tea agriculture.
+    landformNoteTr:
+      "İlin güneyi, Kaçkar Dağları'nın kuzeybatı uzantılarıyla hızla yükselir; kıyı ile dağlık " +
+      'kesim arasındaki düzlük neredeyse yok denecek kadar dardır. Çamlıhemşin ilçesindeki ' +
+      "Fırtına Deresi, Kaçkar Dağları'ndan inen çok sayıda derenin birleşmesiyle oluşur ve " +
+      "yaklaşık 57 kilometre sonra Ardeşen yakınlarında Karadeniz'e ulaşır; derin ve dar " +
+      'kanyonuyla bölgenin dik topografyasının tipik bir örneğidir.',
+    introTr:
+      "Rize, Türkiye'nin en yağışlı ilidir; uzun yıllar ortalaması 2.250 milimetrenin " +
+      'üzerindeki yıllık yağış, yılın her mevsimine dağılır ve kurak bir dönem oluşturmaz. Bu ' +
+      'yağış rejimi, ilin ekonomisinin temelini oluşturan çay tarımının doğrudan doğal ' +
+      'koşuludur; kıyı şeridinden iç kesimlere doğru dik yamaçlar boyunca sıralanan çay ' +
+      'bahçeleri, ilin en tanınan manzarasını oluşturur.',
+    hydrographyNoteTr:
+      'Yıllık 2.250 milimetreyi aşan yağış, ile yoğun bir akarsu ağı ve bol yeraltı suyu ' +
+      "kazandırır; Fırtına Deresi'nin yanı sıra çok sayıda küçük dere kıyı boyunca doğrudan " +
+      "Karadeniz'e dökülür. Bu bol su kaynağı, çay ve fındık tarımının yanında ilin başlıca " +
+      'geçim kaynaklarından birini oluşturan küçük ölçekli hidroelektrik ve içme suyu ' +
+      'tesislerinin de altyapısını oluşturur.',
+    urbanizationRate: 68.02,
+    netMigrationRate: -11.87,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '55',
+    nameTr: 'Samsun',
+    slugTr: 'samsun',
+    slugEn: 'samsun',
+    region: GeographicRegion.Karadeniz,
+    population: 1_392_403,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 9725,
+    districtCount: 17,
+    elevationM: 4, // MGM Atakum istasyonu (büyükşehir; ayrı "Merkez" ilçesi yok)
+    latitude: 41.3442,
+    longitude: 36.2564,
+    // Sinop=57, Ordu=52, Amasya=05, Tokat=60, Çorum=19 (+ Karadeniz — deniz, hariç)
+    neighborPlateCodes: ['57', '52', '05', '60', '19'],
+    climateKoppen: KOPPEN_CFA,
+    climateClassTr: CLIMATE_CLASS_CFA_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
+    // ── Samsun deep content (wave-6c Tier-A — the batch's SOLE ≥1M il). FULL 8-field set incl.
+    //    hydrographyFeatures. Büyükşehir → urbanizationRate=100 is the 6360 artifact, framed in a
+    //    FULL settlementNoteTr (unlike the Trabzon/Ordu minimal-caveat exception). netMigrationRate
+    //    +2,60 is the batch's SOLE positive. GSYH share %1,2 (highest of the nine). NB (fixed per
+    //    Atlas ruling 2026-07-12): settlementNoteTr's "bu partideki dokuz il" internal-batch
+    //    reference REMOVED — it now states only that the +2,60 ‰ rate stayed positive.
+    landformNoteTr:
+      "İlin kıyı kesimi, batıda Kızılırmak'ın oluşturduğu Bafra Ovası ile doğuda Yeşilırmak'ın " +
+      "oluşturduğu Çarşamba Ovası arasında geniş bir düzlük oluşturur; Bafra Ovası'nın kıyı " +
+      "boyunca uzunluğu 69 kilometreye, Çarşamba Ovası'nınki 88 kilometreye ulaşır. Bu iki delta " +
+      "ovası, Anadolu'nun kıyı ovaları arasında en büyükler arasında sayılır.\n\n" +
+      "İlin güneyi, Canik Dağları'nın kuzey yamaçlarıyla kıyı ovasından iç kesimlere doğru " +
+      'yükselir; kıyıdan güneye gidildikçe arazi giderek daha engebeli bir yapıya bürünür.',
+    introTr:
+      "Samsun, Kızılırmak ve Yeşilırmak'ın Karadeniz'e ulaştığı geniş kıyı ovasında kuruludur; " +
+      'bu iki deltanın oluşturduğu düzlük, ilin Karadeniz kıyısındaki en geniş tarım arazisidir. ' +
+      'Antik adı Amisos olan kent, MÖ 6. yüzyılda Milet kolonistleri tarafından kurulmuştur. ' +
+      "19 Mayıs 1919'da Mustafa Kemal'in Samsun'a çıkışı, Kurtuluş Savaşı'nın fiilen başladığı " +
+      'tarih olarak kabul edilir.',
+    hydrographyNoteTr:
+      "Türkiye'nin en uzun akarsuyu Kızılırmak, Bafra ilçesi yakınlarında Karadeniz'e dökülür; " +
+      "nehrin taşıdığı alüvyonların oluşturduğu Kızılırmak Deltası, 1998'de Ramsar " +
+      "Sözleşmesi'ne dahil edilmiş, Anadolu'nun ikinci büyük Ramsar alanıdır. Delta içindeki " +
+      'Balık, Uzun, Cernek, Liman, Karaboğaz ve Mülk gölleri acı su özelliği taşır; alanda 358 ' +
+      'kuş türü tespit edilmiştir.\n\n' +
+      'İlin doğusunda Yeşilırmak, Çarşamba ilçesi yakınlarında kendi deltasını oluşturarak ' +
+      'denize ulaşır. İçme suyu ihtiyacının büyük bölümü, Abdal Deresi üzerinde 1985-1988 ' +
+      "arasında inşa edilen ve yaklaşık 580 milyon m³ kapasiteli Çakmak Barajı'ndan " +
+      'karşılanır.',
+    hydrographyFeatures: [
+      { name: 'Kızılırmak', type: HydrographyFeatureType.Nehir },
+      { name: 'Yeşilırmak', type: HydrographyFeatureType.Nehir },
+      { name: 'Çakmak Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Liman Gölü', type: HydrographyFeatureType.Gol },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: 2.6,
+    settlementNoteTr:
+      "Samsun'da da büyükşehir statüsünün yapısal sonucu geçerlidir: TÜİK il/ilçe merkezi nüfus " +
+      "oranı %100'dür, belde ve köylerin idari tüzel kişiliği 6360 sayılı Kanun'la " +
+      'kaldırılmıştır. 2024 yılında 46.841 kişi aldı, 43.246 kişi verdi; net göç hızı binde ' +
+      '+2,60 ile pozitif kaldı.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%1,2',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '61',
+    nameTr: 'Trabzon',
+    slugTr: 'trabzon',
+    slugEn: 'trabzon',
+    region: GeographicRegion.Karadeniz,
+    population: 823_323,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 4628,
+    districtCount: 18,
+    elevationM: 39, // MGM Ortahisar istasyonu (büyükşehir; ayrı "Merkez" ilçesi yok)
+    latitude: 40.9985,
+    longitude: 39.7649,
+    // Rize=53, Giresun=28, Gümüşhane=29, Bayburt=69 (+ Karadeniz — deniz, hariç)
+    neighborPlateCodes: ['53', '28', '29', '69'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    // ── Trabzon deep content (wave-6c Tier-B + büyükşehir EXCEPTION → DEC 2026-07-12, same as
+    //    Mardin/Ordu). Tier-B depth (hydrographyFeatures null) BUT legally büyükşehir, so
+    //    urbanizationRate=100 is the 6360 artifact and carries a settlementNoteTr holding ONLY the
+    //    single 6360 caveat sentence. Csa DESPITE being a coast il (see block header). GSYH %0,6.
+    landformNoteTr:
+      'İlin yüzölçümünün büyük bölümünü dağlar oluşturur; kıyı düzlükleri yalnızca akarsu ' +
+      "ağızlarında dar şeritler halinde genişler. Güneydoğuda Soğanlı Dağları'nın en yüksek " +
+      "noktası olan Çakırgöl Dağı 3.063 metreye, güneybatıda Zigana Dağları'ndaki Zigana Geçidi " +
+      "2.356 metreye ulaşır. İlin en yüksek kesimi ise güneydoğu ucundaki Haldizen Dağları'dır, " +
+      '3.000 metrenin üzerinde zirvelere sahiptir.',
+    introTr:
+      'Trabzon, Doğu Karadeniz kıyı şeridinin en kalabalık ilidir; dar bir sahil şeridiyle ' +
+      'güneyindeki sarp dağlık kütle arasında sıkışmış bir topografyaya sahiptir. Maçka ' +
+      "ilçesindeki Altındere Vadisi'nde, Karadağ'ın dik bir kayalığına oyularak inşa edilmiş " +
+      'Sümela Manastırı, bu dik yamaçlı arazi yapısının en bilinen örneğidir; manastır deniz ' +
+      'seviyesinden yaklaşık 1.150 metre yükseklikte yer alır.',
+    hydrographyNoteTr:
+      'İlin su ağı, güneydeki dağlardan kısa ve dik eğimli vadilerle kıyıya inen çok sayıda ' +
+      'derenin (Solaklı, Yomra, Değirmendere, Sera, Foldere) oluşturduğu bir örüntüdür. İçme ve ' +
+      "kullanma suyu ihtiyacının önemli bir bölümü Atasu Barajı'ndan karşılanır. Kent merkezinden " +
+      'geçen Değirmendere, tarihsel olarak taşkın riski taşıyan bir vadi koridorudur; DSİ ve ' +
+      'Trabzon Büyükşehir Belediyesi bu vadide taşkın kontrolü çalışmaları yürütüyor.',
+    urbanizationRate: 100.0,
+    netMigrationRate: -3.78,
+    settlementNoteTr:
+      "Trabzon'un TÜİK il/ilçe merkezi nüfus oranı, büyükşehir statüsündeki illerde olduğu gibi " +
+      "%100'dür; bu, ilin fiilen tamamen kentleştiği anlamına gelmez, belde ve köylerin idari " +
+      "tüzel kişiliğinin 6360 sayılı Kanun'la kaldırılmasının bir sonucudur.",
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,6',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+];
+
+/**
  * Every fact-checked province the geography seed loads, in batch order (pilot-5 first,
  * then Batch 2 wave-1, wave-2, wave-3, wave-4, then wave-6d Karadeniz-B, then wave-6b
- * Doğu Anadolu, then wave-6a İç Anadolu). This is the
+ * Doğu Anadolu, wave-6a İç Anadolu, then wave-6c Karadeniz-A — the batch that completes
+ * all 81). This is the
  * single list `seedGeography` iterates — the seed is keyed on the unique `plate_code`,
  * so array order is cosmetic (the public list endpoint re-orders by plate code). Grows
  * batch-by-batch toward the full 81 as each wave clears an independent fact-check.
- * Currently 72 provinces: 5 pilot + 9 wave-1 + 10 wave-2 + 7 wave-3 + 7 wave-4 +
+ * Currently ALL 81 provinces: 5 pilot + 9 wave-1 + 10 wave-2 + 7 wave-3 + 7 wave-4 + 9 wave-6c +
  * 9 wave-6d + 13 wave-6b Doğu Anadolu + 12 wave-6a İç Anadolu.
  */
 export const SEED_PROVINCES: readonly ProvinceSeed[] = [
@@ -5066,4 +5601,5 @@ export const SEED_PROVINCES: readonly ProvinceSeed[] = [
   ...WAVE6D_KARADENIZ_B_PROVINCES,
   ...WAVE6B_DOGU_ANADOLU_PROVINCES,
   ...WAVE6A_IC_ANADOLU_PROVINCES,
+  ...WAVE6C_KARADENIZ_A_PROVINCES,
 ];
