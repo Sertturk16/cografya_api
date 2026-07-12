@@ -298,6 +298,7 @@ describe('Country (e2e)', () => {
     expect(zz).not.toHaveProperty('neighborIsoCodes');
     expect(zz).not.toHaveProperty('capitalLatitude');
     expect(zz).not.toHaveProperty('climateNoteTr');
+    expect(zz).not.toHaveProperty('hydrographyNoteTr');
   });
 
   it('GET /api/countries/:slug round-trips transformers + derives neighborCount (full row)', async () => {
