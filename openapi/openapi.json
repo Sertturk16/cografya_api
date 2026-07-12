@@ -891,6 +891,11 @@
             "nullable": true,
             "description": "İklim — serbest anlatı düzyazısı (ülke içi bölgesel iklim çeşitliliği). Yapılandırılmış Köppen kodu DEĞİL (ülke ölçeğinde tek kod yanıltıcı olur)."
           },
+          "hydrographyNoteTr": {
+            "type": "string",
+            "nullable": true,
+            "description": "Hidrografya — kısa düzyazı not (nehir/göl/deniz anlatısı, TR)."
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time",
@@ -928,6 +933,7 @@
           "independenceNoteTr",
           "landformNoteTr",
           "climateNoteTr",
+          "hydrographyNoteTr",
           "createdAt",
           "updatedAt"
         ]

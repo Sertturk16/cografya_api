@@ -51,7 +51,8 @@ function rowMatchesSeed(row: Country, seed: CountrySeed): boolean {
     (row.independenceNoteTr ?? null) === (seed.independenceNoteTr ?? null) &&
     (row.introTr ?? null) === (seed.introTr ?? null) &&
     (row.landformNoteTr ?? null) === (seed.landformNoteTr ?? null) &&
-    (row.climateNoteTr ?? null) === (seed.climateNoteTr ?? null)
+    (row.climateNoteTr ?? null) === (seed.climateNoteTr ?? null) &&
+    (row.hydrographyNoteTr ?? null) === (seed.hydrographyNoteTr ?? null)
   );
 }
 
@@ -86,6 +87,7 @@ function withExplicitNulls(seed: CountrySeed): CountrySeed {
     introTr: seed.introTr ?? null,
     landformNoteTr: seed.landformNoteTr ?? null,
     climateNoteTr: seed.climateNoteTr ?? null,
+    hydrographyNoteTr: seed.hydrographyNoteTr ?? null,
   };
 }
 

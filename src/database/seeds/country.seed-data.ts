@@ -41,6 +41,7 @@ export interface CountrySeed {
   introTr?: string | null;
   landformNoteTr?: string | null;
   climateNoteTr?: string | null;
+  hydrographyNoteTr?: string | null;
 }
 
 /**
@@ -76,13 +77,14 @@ export interface CountrySeed {
  *      Köppen code). So each draft section is split at its clean paragraph boundary: the
  *      relief paragraph(s) → `landformNoteTr`, the final climate paragraph → `climateNoteTr`.
  *      NOVA's wording is transcribed verbatim (no rewriting) — only the cut is editorial.
- *   2. HYDROGRAPHY DEFERRED (flagged to Atlas). NOVA authored a fact-checked
- *      `hydrographyNoteTr` (nehir/göl/deniz) section for all 8 countries, but the Country
- *      entity has NO hydrography column — unlike its mirror, Province, which carries
- *      `hydrography_note_tr`. That prose is intentionally NOT force-fitted into
- *      `landformNoteTr` (the house pattern keeps relief and hydrography in separate fields);
- *      landing it needs a schema change (new column + migration + DTO + OpenAPI), which is a
- *      follow-up PR, not this data-only one.
+ *   2. HYDROGRAPHY — SCHEMA LANDED, DATA PENDING. NOVA authored a fact-checked
+ *      `hydrographyNoteTr` (nehir/göl/deniz) section for all 8 countries. The Country entity
+ *      now carries a `hydrography_note_tr` column (added in the schema fast-follow →
+ *      DEC 2026-07-13, mirroring the Province `hydrography_note_tr` field), but this batch
+ *      does NOT yet populate it — the pilot prose lands in a separate follow-up DATA PR so
+ *      the schema and data changes stay reviewable independently. That prose was never
+ *      force-fitted into `landformNoteTr` (the house pattern keeps relief and hydrography in
+ *      separate fields).
  *   3. populationYear = null for all 8 — the owner ruling declines to assert a reference
  *      year at world scale (province-grade TÜİK-year precision is above this batch's bar).
  *   4. independenceNoteTr filled for 7 of 8. BG/GE/AM/IQ/SY have a single, multi-source-
