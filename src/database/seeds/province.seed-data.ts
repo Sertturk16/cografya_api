@@ -738,11 +738,49 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
  *   classification for these 9 (draft Bölüm 2 / fact-check §A.5), so inventing one
  *   would be a sourceless fact.
  *
- * DELIBERATELY NULL — same as pilot-5: `landformNoteTr` AND every PR-5a detail-page
- *   field (introTr / hydrography* / urbanizationRate / netMigrationRate /
- *   settlementNoteTr / economyIndicator) stay null. This wave is BASE DATA ONLY
- *   (owner priority ruling, DEC 2026-07-10); those fields are filled in a later
- *   fact-checked content batch, never invented here.
+ * WAVE-5 DEEP CONTENT — TIERED (the LAST of the current 5-wave deep-content plan; after it
+ *   all 37 already-live il carry deep content). Each of these 9 Güneydoğu Anadolu il now
+ *   carries the PR-5a detail-section fields from NOVA's independently fact-checked "Dalga 5"
+ *   deep-content draft (verdict SEED-READY WITH CORRECTIONS — both mandatory corrections
+ *   applied before seeding: Diyarbakır sur 5.700→5.800 m, and the Kilis internal-note fix).
+ *   Depth is split by population, same tiers as wave-3 (DEC 2026-07-11 "Tiered deep-content
+ *   depth"):
+ *     • Tier-A (nüfus ≥1M — Diyarbakır 21, Gaziantep 27, Şanlıurfa 63): the SAME full 8-field
+ *       set as İstanbul/wave-1/wave-3-Tier-A. urbanizationRate=100.00 is the 6360-Kanun
+ *       büyükşehir artifact, framed in settlementNoteTr.
+ *     • Tier-B (nüfus <1M — Adıyaman 02, Batman 72, Kilis 79, Siirt 56, Şırnak 73): the
+ *       6-field set only (introTr, landformNoteTr, hydrographyNoteTr, urbanizationRate,
+ *       netMigrationRate, economyIndicator). `hydrographyFeatures` AND `settlementNoteTr`
+ *       are DELIBERATELY OMITTED (owner-approved Tier-B scope cut, NOT "not authored yet");
+ *       the keys are absent, normalised to null against the DB by withExplicitDetailNulls.
+ *       These are non-büyükşehir il, so urbanizationRate is a REAL rate (69.04 / 84.12 /
+ *       79.93 / 69.56 / 68.33), carrying NO 6360 methodological note. Siirt's
+ *       netMigrationRate=-33.96 is the largest-magnitude value in ANY deep-content wave
+ *       (fact-check re-verified it PRIORITY; not a calculation error).
+ *     • Mardin 47 — THE SPECIAL EXCEPTION (→ DEC 2026-07-12 "Tier-B büyükşehir caveat
+ *       exception"): Tier-B in every other respect (6 fields' depth, `hydrographyFeatures`
+ *       still OMITTED), BUT because Mardin is legally büyükşehir since 2012 (6360 sayılı
+ *       Kanun) its urbanizationRate=100.00 is the same legal artifact as the Tier-A büyükşehir
+ *       il — so it DOES carry a `settlementNoteTr`, containing ONLY the single 6360
+ *       urbanization-caveat sentence (NO migration stats, NO narrative — that number lives in
+ *       the separate netMigrationRate field). This is a THIRD detail-field variant (full /
+ *       Tier-B-none / Tier-B-with-one-field); the field-by-field, null-normalising comparator
+ *       (`rowMatchesSeed` + `withExplicitDetailNulls`, seed-geography.ts) handles it with no
+ *       change — hydrographyFeatures compares null=null, settlementNoteTr compares the
+ *       populated sentence. LOCKED standing rule for any future Tier-B-but-büyükşehir il.
+ *   Each il is written to its OWN geographic character (Diyarbakır: Dicle vadisi/Karacadağ
+ *   bazalt; Gaziantep: plato + 6 Şubat 2023; Şanlıurfa: Atatürk Barajı/Harran/Urfa Tüneli;
+ *   Adıyaman: Nemrut/Fırat; Batman: petrol/Raman; Kilis: sınır platosu; Mardin: Mardin Eşiği;
+ *   Siirt: Botan Vadisi; Şırnak: Habur/Cudi) — NOT a palette-swapped copy. No factual value
+ *   invented or altered; every number/name is transcribed verbatim from the fact-checked
+ *   draft (economyIndicator `source` date normalised to the codebase's numeric "11.12.2025"
+ *   form, same bulletin no. 53930 as every other wave). No schema/DTO/OpenAPI change (every
+ *   field exists since the İstanbul pilot).
+ *   • Content:     Owner's Inbox/il-detay-genisletme/wave5-guneydogu-anadolu-deep-content-draft.md
+ *   • Style rules: CONTENT-STYLE.md (orchestrator root — binding for shipped prose)
+ *   • Fact-check:  Owner's Inbox/il-detay-genisletme/wave5-guneydogu-anadolu-deep-content-factcheck.md
+ *   • Ledger:      data-provenance.md (root) — "Dalga 5"
+ * The Şanlıurfa slug stays LOCKED to "sanliurfa" (→ DEC 2026-07-10) — untouched here.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
@@ -764,7 +802,37 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Adıyaman deep content (wave-5 Tier-B). 6-field set from the fact-checked "Dalga 5"
+    //    draft (introTr + shortened landform/hydrography + urbanizationRate + netMigrationRate +
+    //    economyIndicator). `hydrographyFeatures` + `settlementNoteTr` DELIBERATELY OMITTED
+    //    (Tier-B scope, DEC 2026-07-11). urbanizationRate=69.04 is a REAL rate (Adıyaman is not a
+    //    büyükşehir — no 6360 note). GSYH share %0,5.
+    landformNoteTr:
+      "Adıyaman, kuzeyde Toros Dağları'nın uzantısı olan dağlarla çevrilidir; başlıca " +
+      "yükseltileri Akdağ, Dibek, Ulubaba, Gördük, Nemrut, Bozdağ ve Karadağ'dır. Kuzeydoğudaki " +
+      "Nemrut Dağı, 2.150 metre yüksekliğiyle UNESCO Dünya Mirası Listesi'nde yer alan bir açık " +
+      "hava anıt mezara ev sahipliği yapar; UNESCO'nun kayıtlarına göre zirvedeki tümülüs 50 " +
+      'metre yükseklikte, 145 metre çapındadır. İlin genel yüksekliği deniz seviyesinden 669 ' +
+      'metredir; başlıca ovaları Kahta, Samsat, Keysun ve İnekli ovalarıdır.',
+    introTr:
+      "İl sınırları içindeki Nemrut Dağı, 1987'de UNESCO Dünya Mirası Listesi'ne alınan, " +
+      "Kommagene Krallığı'na ait bir açık hava anıt mezara ev sahipliği yapar. Adıyaman, " +
+      "Güneydoğu Toroslar'ın güney eteklerinde, Fırat Nehri'nin batı kıyısında kuruludur; " +
+      "617.821 kişilik nüfusuyla Türkiye'nin otuz dördüncü kalabalık ilidir.",
+    hydrographyNoteTr:
+      "İlin en önemli akarsuyu, Şanlıurfa ve Diyarbakır sınırlarını da çizen Fırat Nehri'dir; " +
+      'il topraklarından 180 kilometre boyunca geçer. Çelikhan yakınlarında doğan Kahta Çayı, ' +
+      "45,5 kilometrelik bir akıştan sonra Fırat'a karışır. İlin doğu ve güneydoğu sınırının " +
+      'büyük bölümünü, Fırat üzerindeki Atatürk Baraj Gölü oluşturur.',
+    urbanizationRate: 69.04,
+    netMigrationRate: 1.86,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,5',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '72',
@@ -784,7 +852,34 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Batman deep content (wave-5 Tier-B). 6-field set (hydrographyFeatures + settlementNoteTr
+    //    DELIBERATELY OMITTED, Tier-B scope). urbanizationRate=84.12 is a REAL rate
+    //    (non-büyükşehir — no 6360 note). GSYH share %0,4. The idiomatic "adını taşıyan Batman
+    //    Çayı" (a place-name origin, not the §15 bureaucratic "taşımak") is intentional.
+    landformNoteTr:
+      "Batman ili, Batman Çayı, Dicle Nehri ve İluh Deresi'nin biriktirdiği tortullarla " +
+      'şekillenmiş bir çöküntü alanıdır. Bölgenin en belirgin yükseltisi, kalkerli ve engebeli ' +
+      'yapısıyla mağaralar, derin vadiler ve sarp kayalıklar barındıran 1.288 metrelik Raman ' +
+      "Dağı'dır. Aynı dağın adını taşıyan Raman sahası, Türkiye'nin ilk petrol üretiminin " +
+      "yapıldığı yerdir: 1940'ta açılan Raman-1 kuyusunda petrol tespit edilmiş, 1948'de Raman-8 " +
+      'kuyusundan ekonomik ölçekte üretime geçilmiştir.',
+    introTr:
+      "1955'te açılan Tüpraş Batman Rafinerisi, Türkiye'nin ilk modern petrol rafinerisidir. " +
+      "Batman, Güneydoğu Anadolu Bölgesi'nde, Dicle Nehri'ne katılan Batman Çayı'nın aşağı " +
+      "havzasında kuruludur; 662.626 kişilik nüfusuyla Türkiye'nin otuz ikinci kalabalık ilidir.",
+    hydrographyNoteTr:
+      "İlin adını taşıyan Batman Çayı, kuzeydeki dağlardan doğup güneye akarak Dicle Nehri'ne " +
+      'karışır; bu havza, ilin tarımsal sulama ve yerleşim düzenini büyük ölçüde belirler. İlin ' +
+      'güney sınırının bir bölümünü Dicle Nehri oluşturur.',
+    urbanizationRate: 84.12,
+    netMigrationRate: -2.95,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,4',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '21',
@@ -804,7 +899,57 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Diyarbakır deep content (wave-5 Tier-A). Full 8-field set from the fact-checked "Dalga 5"
+    //    draft. Dicle vadisi + Karacadağ kalkan volkanı (landform); Dicle Nehri + Kralkızı/Dicle/
+    //    Devegeçidi barajları (hydrography). urbanizationRate=100 is the 6360 büyükşehir artifact
+    //    framed in settlementNoteTr; GSYH share %1,0. The UNESCO sur length is the fact-check's
+    //    CORRECTION (5.700 → 5.800 m, whc.unesco.org/en/list/1488).
+    landformNoteTr:
+      'Diyarbakır, dağlarla çevrili, ortası hafif çukurlaşmış bir arazi yapısına sahiptir; bu ' +
+      'çukur alanın eksenini batı-doğu doğrultulu geniş Dicle Vadisi oluşturur. Vadi tabanı, ' +
+      'kent merkezinin bulunduğu kesimde deniz seviyesinden yaklaşık 600 metreye iner.\n\n' +
+      'İlin batısında, Diyarbakır ile Şanlıurfa arasında yükselen Karacadağ, Kolubaba zirvesiyle ' +
+      "1.957 metreye ulaşan, sönmüş bir kalkan volkanıdır. MTA'nın kayıtlarına göre Geç " +
+      "Miyosen'den Kuvaterner'e uzanan bir süreçte etkinlik göstermiş olan Karacadağ, yaklaşık " +
+      "10.000 km²'lik bir alanı kaplayan bazalt lav örtüsüyle Akdeniz çevresindeki en geniş taban " +
+      "alanına sahip volkanlardan biridir. Bu bazalt örtü doğu yönünde Dicle Vadisi'ne kadar " +
+      'uzanır ve kent merkezindeki tarihi surların yapı malzemesini oluşturur.',
+    introTr:
+      "Diyarbakır'ın kent merkezini çevreleyen 5.800 metre uzunluğundaki bazalt sur, Dicle " +
+      "kıyısındaki Hevsel Bahçeleri ile birlikte 2015'te UNESCO Dünya Mirası Listesi'ne " +
+      "alınmıştır. İl, Güneydoğu Anadolu Bölgesi'nin ortasında, Dicle Nehri vadisinin batı " +
+      "kıyısında kuruludur. 1.852.356 kişilik nüfusuyla Türkiye'nin on ikinci kalabalık ilidir.",
+    hydrographyNoteTr:
+      "İlin en önemli akarsuyu, Elazığ sınırları içinden doğan Dicle Nehri'dir. Toplam uzunluğu " +
+      '1.900 kilometre olan nehrin 523 kilometresi Türkiye topraklarından geçer; Diyarbakır kent ' +
+      'merkezinin bulunduğu bazalt sahanlığın doğu kesimine paralel akar. Nehir üzerindeki ' +
+      'Kralkızı ve Dicle barajları, Güneydoğu Anadolu Projesi (GAP) kapsamında sulama ve enerji ' +
+      'üretimi amacıyla işletilir; Dicle Barajı, Kralkızı baraj ekseninin 22 kilometre mansabında ' +
+      'yer alır.\n\n' +
+      'Kentin içme ve sulama suyu ihtiyacının bir bölümü, Devegeçidi Çayı üzerindeki Devegeçidi ' +
+      "Barajı'ndan karşılanır. Kar sularının eridiği ilkbahar aylarında, Dicle ve Kralkızı " +
+      "barajlarındaki su DİSKİ tarafından Devegeçidi Barajı'na aktarılır.",
+    hydrographyFeatures: [
+      { name: 'Dicle Nehri', type: HydrographyFeatureType.Nehir },
+      { name: 'Kralkızı Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Dicle Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Devegeçidi Barajı', type: HydrographyFeatureType.Baraj },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: -4.04,
+    settlementNoteTr:
+      "Diyarbakır'ın TÜİK il/ilçe merkezi nüfus oranı, büyükşehir statüsündeki illerde olduğu " +
+      "gibi %100'dür — belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı " +
+      "Kanun) bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor. TÜİK'in 2024 iç göç " +
+      'verilerine göre il aynı yıl 43.561 kişi aldı, 50.981 kişi verdi; net göç hızı binde -4,04 ' +
+      'oldu.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%1,0',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '27',
@@ -824,7 +969,60 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Gaziantep deep content (wave-5 Tier-A). Full 8-field set from the fact-checked "Dalga 5"
+    //    draft. Gaziantep Platosu + 6 Şubat 2023 deprem paragrafı (landform, factual/short, AFAD +
+    //    resmi açıklama sourced — Hatay/wave-4 emsali); Fırat/Nizip/Karasu + Kayacık Barajı
+    //    (hydrography). urbanizationRate=100 is the 6360 büyükşehir artifact; netMigrationRate is
+    //    the sole POSITIVE of the wave's Tier-A (+3,09); GSYH share %1,9 (highest of the nine il).
+    landformNoteTr:
+      "Gaziantep topraklarının yaklaşık %52'si dağlarla, %27'si ovalarla kaplıdır. İlin batı " +
+      "sınırını Amanos (Nur) Dağları çizer; ilin geri kalanı, Güneydoğu Toroslar'ın uzantısı olan " +
+      'Sof Dağları ile Dülükbaba, Sam, Ganibaba ve Sarıkaya tepelerinin sınırladığı, ' +
+      'Pliyo-Kuvaterner volkanizması ve akarsu aşındırmasıyla şekillenmiş geniş ve hafif eğimli ' +
+      'bir plato — Gaziantep Platosu — üzerinde yer alır.\n\n' +
+      "İlin başlıca ovaları İslahiye, Barak, Araban, Yavuzeli ve Oğuzeli'dir; Barak Ovası, Nizip " +
+      "ve Karkamış ilçeleri arasında, Fırat'a yakın kesimde uzanır.\n\n" +
+      "Gaziantep, 6 Şubat 2023'te merkez üssü komşu Kahramanmaraş olan büyük depremlerden " +
+      "etkilenen illerden biridir. Cumhurbaşkanı Yardımcısı Fuat Oktay'ın aynı gün yaptığı " +
+      'açıklamaya göre depremlerde ilde 309 kişi hayatını kaybetti, 1.597 kişi yaralandı ve 581 ' +
+      'bina yıkıldı; hasar en çok Nurdağı ve İslahiye ilçelerinde yoğunlaştı.',
+    introTr:
+      "TÜİK'in 2025 verilerine göre Gaziantep'in Şahinbey ilçesi, 957.792 kişiyle Türkiye'nin en " +
+      'kalabalık ikinci ilçesidir; Şehitkamil ilçesi de 905.880 kişiyle beşinci sırada yer alır. ' +
+      "İl, Güneydoğu Anadolu Bölgesi'nin batı ucunda, Fırat Nehri'nin batısındaki Gaziantep " +
+      "Platosu üzerinde kuruludur ve 2.222.415 kişilik nüfusuyla Türkiye'nin dokuzuncu kalabalık " +
+      'ilidir.',
+    hydrographyNoteTr:
+      "İlin doğu sınırını Fırat Nehri çizer; nehir, Gaziantep'i Şanlıurfa'dan ayırır. İl " +
+      "topraklarından çıkmadan Fırat'a karışan son önemli akarsu Nizip Çayı'dır; Karasu ise Araban " +
+      "Ovası'ndan geçtikten sonra batıdan Fırat'a katılır. Bunların dışında ilde çok sayıda pınar " +
+      'bulunmasına karşın doğal göl yoktur.\n\n' +
+      'Oğuzeli ilçesinde Ayfinar Çayı üzerindeki Kayacık Barajı, 13.680 hektarlık bir alanı ' +
+      "sulamanın yanı sıra Gaziantep ile Kilis'in bir bölümüne su sağlar. Kentin içme suyu " +
+      "ihtiyacının önemli bir kısmı ise, Kahramanmaraş'ın Pazarcık ilçesindeki Kartalkaya " +
+      "Barajı'ndan 53,7 kilometrelik bir isale hattıyla aktarılır.",
+    hydrographyFeatures: [
+      { name: 'Fırat Nehri', type: HydrographyFeatureType.Nehir },
+      { name: 'Nizip Çayı', type: HydrographyFeatureType.Nehir },
+      { name: 'Karasu', type: HydrographyFeatureType.Nehir },
+      { name: 'Kayacık Barajı', type: HydrographyFeatureType.Baraj },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: 3.09,
+    settlementNoteTr:
+      "Gaziantep'in TÜİK il/ilçe merkezi nüfus oranı, büyükşehir statüsündeki illerde olduğu gibi " +
+      "%100'dür — belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) " +
+      "bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor. TÜİK'in 2024 iç göç " +
+      'verilerine göre il aynı yıl 56.097 kişi aldı, 49.330 kişi verdi; net göç hızı binde +3,09 ' +
+      'oldu — bölgedeki komşu illerin çoğunun aksine Gaziantep göç açısından pozitif bir tablo ' +
+      'çiziyor.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%1,9',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '79',
@@ -844,7 +1042,32 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Kilis deep content (wave-5 Tier-B). 6-field set (hydrographyFeatures + settlementNoteTr
+    //    DELIBERATELY OMITTED, Tier-B scope). urbanizationRate=79.93 is a REAL rate
+    //    (non-büyükşehir — no 6360 note). GSYH share %0,1 (lowest of the nine il — pure scale, a
+    //    non-sensitive figure). All landform/hydrography numbers from the Kilis Valiliği page.
+    landformNoteTr:
+      'Kilis, kuzeyde daha sarp bir dağlık alanın, güneyde Suriye sınırına doğru alçalan bir ' +
+      'platonun üzerinde yer alır; ilin ortalama yüksekliği 680 metredir. Sınır boyunca Darmik ' +
+      "Dağı'ndan başlayıp kuzeye Hazil, Karruca, Kartal, Büyük Arapdede ve Sof Dağları'yla devam " +
+      "eden kuşağın en yüksek noktası, 1.496 metrelik Sof Dağı'dır.",
+    introTr:
+      "Kilis, Güneydoğu Anadolu Bölgesi'nin batısında, Gaziantep Platosu'nun güneybatı ucunda, " +
+      "Türkiye-Suriye sınırı boyunca kuruludur. 157.363 kişilik nüfusuyla Türkiye'nin nüfus " +
+      'bakımından en küçük beşinci ilidir; Gaziantep, ilin Türkiye içindeki tek sınır komşusudur.',
+    hydrographyNoteTr:
+      'İlin su ağı ikiye ayrılır: batı kesimi, Afrin Çayı ve kolları aracılığıyla Amik Ovası ' +
+      "üzerinden Asi Nehri'ne ve oradan Akdeniz'e bağlanırken; doğu kesimindeki küçük akarsular " +
+      "Halep'in güneyindeki kapalı bir havzaya boşalır. İlde doğal göl bulunmaz.",
+    urbanizationRate: 79.93,
+    netMigrationRate: -3.43,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,1',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '47',
@@ -864,7 +1087,43 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Mardin deep content (wave-5 Tier-B, SPECIAL EXCEPTION → DEC 2026-07-12 "Tier-B büyükşehir
+    //    caveat exception"). Tier-B depth (shortened landform/hydrography, `hydrographyFeatures`
+    //    still OMITTED), BUT Mardin is legally büyükşehir since 2012 (6360 sayılı Kanun), so
+    //    urbanizationRate=100 is the SAME legal artifact as the Tier-A büyükşehir il — it therefore
+    //    carries a `settlementNoteTr` holding ONLY the single 6360 caveat sentence (NO migration
+    //    stats, NO narrative; the number lives in netMigrationRate). This is the THIRD detail-field
+    //    variant (full / Tier-B-none / Tier-B-with-one-field); the field-by-field null-normalising
+    //    comparator handles it unchanged. GSYH share %0,5. LOCKED rule for future Tier-B-but-
+    //    büyükşehir il.
+    landformNoteTr:
+      'İlin kuzey kesimini kaplayan Mardin Dağları, güneydeki Mezopotamya ovasından 600-1.000 ' +
+      'metre, yer yer 1.200 metreye varan bir yükseklikle ayrılan, doğu-batı doğrultulu geniş bir ' +
+      "kütledir; bu yükselti, Güneydoğu Anadolu Bölgesi'nin belirgin coğrafi eşiklerinden biri " +
+      "olan Mardin Eşiği'ni oluşturur. Dağların kalkerli kesimleri aşınarak platolara dönüşmüş; " +
+      'bu platolar güneyde Mardin, Nusaybin ve Kızıltepe ovalarına doğru alçalır.',
+    introTr:
+      "Mardin, Mezopotamya ovasına kuzeyden egemen bir konumda, Mardin Dağları'nın (Mardin Eşiği) " +
+      "üzerinde kuruludur. Nüfus bakımından Türkiye'nin yirmi altıncı büyük ilidir. Kentin tarihi " +
+      'merkezi, ovadan 600-1.000 metre yükseklikteki bu sırtın üzerine kuruludur.',
+    hydrographyNoteTr:
+      "İlin en büyük akarsuyu, Batman ile aradaki sınırın bir bölümünü çizen Dicle Nehri'dir. " +
+      'Nusaybin ilçesinden geçen Çağçağ suyu ile Savur Çayı, ildeki diğer önemli akarsulardır. ' +
+      "Mardin'de doğal göl bulunmaz; Buğur Çayı üzerindeki küçük bir gölet sulama amacıyla " +
+      'işletilir.',
+    urbanizationRate: 100.0,
+    netMigrationRate: -5.65,
+    settlementNoteTr:
+      "Mardin'in TÜİK il/ilçe merkezi nüfus oranı, büyükşehir statüsündeki illerde olduğu gibi " +
+      "%100'dür — belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) " +
+      'bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,5',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '56',
@@ -884,7 +1143,34 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Siirt deep content (wave-5 Tier-B). 6-field set (hydrographyFeatures + settlementNoteTr
+    //    DELIBERATELY OMITTED, Tier-B scope). urbanizationRate=69.56 is a REAL rate
+    //    (non-büyükşehir — no 6360 note). netMigrationRate=-33.96 is the LARGEST-magnitude value
+    //    in ANY deep-content wave (prev record Van -20.02) — read straight from the raw TÜİK 54082
+    //    table and PRIORITY-reverified by the independent fact-check, NOT a calc error. GSYH %0,2.
+    landformNoteTr:
+      "İl topraklarının büyük bölümünü, doğuda Hakkari dağlarına bağlanan Güneydoğu Toroslar'ın " +
+      "uzantıları kaplar; ilin en yüksek noktası, 2.838 metrelik Yazlıca (Herekul) Dağı'dır. Botan " +
+      "Çayı, Doğruyol, Koran ve Kapılı dağları arasında, Türkiye'nin en sarp ve derin vadilerinden " +
+      "biri olan Botan Vadisi'ni oluşturur; vadinin bir bölümü 2019'da millî park ilan edilmiştir.",
+    introTr:
+      "İlin güneyinden geçen Botan Çayı, Türkiye'nin en sarp ve derin vadilerinden birini oyar. " +
+      "Siirt, Güneydoğu Toroslar'ın Hakkari dağlarına bağlandığı, doğuya doğru yükselen dağlık bir " +
+      "arazi üzerinde kuruludur; 332.369 kişilik nüfusuyla Türkiye'nin elli sekizinci kalabalık " +
+      'ilidir.',
+    hydrographyNoteTr:
+      "İlin başlıca akarsuyu, Bitlis güneyindeki yüksek dağlardan doğan Botan Çayı'dır; Kezer ve " +
+      "Başur çaylarıyla birleştikten sonra batıya, ardından kuzeybatıya yönelerek Dicle Nehri'ne " +
+      'katılır. İlin düzlük alanları sınırlıdır; Kurtalan Ovası bunların başında gelir.',
+    urbanizationRate: 69.56,
+    netMigrationRate: -33.96,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,2',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '63',
@@ -905,7 +1191,60 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Şanlıurfa deep content (wave-5 Tier-A). Full 8-field set from the fact-checked "Dalga 5"
+    //    draft. Arap Platformu/karstik plato + Karacadağ bazalt (landform); Fırat + Atatürk/Birecik/
+    //    Karkamış barajları + Urfa Tüneli (hydrography). urbanizationRate=100 is the 6360 büyükşehir
+    //    artifact; settlementNoteTr also carries the pure-demographic "en genç nüfuslu il" (21,8
+    //    ortanca yaş) TÜİK figure. GSYH share %1,1. Slug stays LOCKED "sanliurfa" (DEC 2026-07-10).
+    landformNoteTr:
+      "Şanlıurfa, kuzeyde Arap Platformu'nun kuzey kesimleri ile Güneydoğu Toroslar'ın orta " +
+      'bölümünün güney eteklerinde, genel olarak plato görünümünde bir arazi üzerinde yer alır. ' +
+      'Karacadağ ile Fırat Nehri arasında uzanan Şanlıurfa Platosu, güneyde Suriye sınırına doğru ' +
+      'alçalır; Hilvan-Viranşehir çizgisinin doğusunda kalan kesimi Karacadağ kaynaklı bazalt ' +
+      'lavlarla, batı kesimi ise kireçtaşıyla kaplıdır.\n\n' +
+      'Kireçtaşı örtülü kesimlerde geniş bir karstik arazi gelişmiştir; Çaykuyu, Arat, Tektek ve ' +
+      "Baziki platoları bu yapının en belirgin örnekleridir. Tektek Dağları'nda geniş bir alana " +
+      'yayılan yabani fıstık ağaçları, bölgenin doğal bitki örtüsünün en dikkat çekici ' +
+      'unsurudur.\n\n' +
+      'İlin başlıca ovaları Harran, Suruç, Viranşehir, Hilvan, Ceylanpınar, Bozova ve Siverek ' +
+      "ovalarıdır; bunlardan Harran Ovası, GAP'ın sulama yatırımlarıyla tarımsal üretimin en " +
+      'yoğunlaştığı alandır.',
+    introTr:
+      "Güneydoğu Anadolu Projesi'nin (GAP) en büyük barajı olan Atatürk Barajı'nın gövdesi, " +
+      "Şanlıurfa sınırları içinde yer alır. İl, Güneydoğu Anadolu Bölgesi'nin güneyinde, Fırat " +
+      'Nehri ile Suriye sınırı arasında geniş bir plato üzerinde kuruludur; 2.265.800 kişilik ' +
+      "nüfusuyla Türkiye'nin sekizinci kalabalık ilidir.",
+    hydrographyNoteTr:
+      "İlin en önemli akarsuyu, batı sınırını çizen Fırat Nehri'dir. Nehir üzerindeki Atatürk " +
+      "Barajı, 817 km²'lik göl alanı ve 48,5 milyar m³'lük su hacmiyle GAP'ın en büyük barajıdır; " +
+      "gövdesinin temelden yüksekliği 169 metre, toplam kurulu gücü 2.400 MW'tır. İl sınırları " +
+      'içinde, Gaziantep sınırına yakın kesimde ayrıca Birecik ve Karkamış barajları yer alır.\n\n' +
+      "Atatürk Barajı'ndan çıkan su, 26,4 kilometre uzunluğundaki iki paralel Urfa Tüneli " +
+      "aracılığıyla Harran Ovası'na ulaştırılır. 9 Kasım 1994'te suyla buluşan tüneller, cazibeyle " +
+      '358.000 hektar, pompajla 118.000 hektar olmak üzere toplam 476.000 hektar araziyi ' +
+      'sulamaktadır.',
+    hydrographyFeatures: [
+      { name: 'Fırat Nehri', type: HydrographyFeatureType.Nehir },
+      { name: 'Atatürk Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Birecik Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Karkamış Barajı', type: HydrographyFeatureType.Baraj },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: -8.52,
+    settlementNoteTr:
+      "Şanlıurfa'nın TÜİK il/ilçe merkezi nüfus oranı, büyükşehir statüsündeki illerde olduğu " +
+      "gibi %100'dür — belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı " +
+      "Kanun) bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor. TÜİK'in 2024 iç göç " +
+      'verilerine göre il aynı yıl 41.771 kişi aldı, 60.925 kişi verdi; net göç hızı binde -8,52 ' +
+      "oldu. TÜİK'in ADNKS verilerine göre Şanlıurfa, 21,8 ortanca yaşla Türkiye'nin en genç " +
+      'nüfuslu ilidir.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%1,1',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '73',
@@ -925,7 +1264,35 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Şırnak deep content (wave-5 Tier-B). 6-field set (hydrographyFeatures + settlementNoteTr
+    //    DELIBERATELY OMITTED, Tier-B scope). urbanizationRate=68.33 is a REAL rate and the LOWEST
+    //    of the nine il (non-büyükşehir — no 6360 note). Habur Sınır Kapısı / Cudi Dağı / Dicle
+    //    havzası framed strictly as infrastructure/geography (task's geography-angle-only note).
+    //    GSYH share %0,4.
+    landformNoteTr:
+      'Şırnak toprakları, batıdan doğuya belirgin bir yükselme gösterir: batıdaki Cizre ve Silopi ' +
+      'ilçeleri 400-550 metre dolayında alçak ovalarla kaplıyken, merkez ilçe ve doğudaki ' +
+      'Uludere-Beytüşşebap kesimi 1.000 metrenin üzerinde, sarp ve dağlık bir arazi yapısındadır. ' +
+      "İlin başlıca dağları Cudi, Gabar, Namaz ve Altın dağlarıdır; elips biçimindeki Cudi Dağı'nın " +
+      'üzerinde 2.000 metreyi aşan dört doruk bulunur, bunların en yükseği 2.114 metredir.',
+    introTr:
+      "İlin güneyindeki Habur Sınır Kapısı, Türkiye'nin Irak'a açılan başlıca kara sınır " +
+      "kapısıdır. Şırnak, Güneydoğu Toroslar'ın en dağlık kesiminde, Türkiye'nin Irak ve Suriye " +
+      "ile sınır komşusu olduğu bölgede kuruludur; 573.666 kişilik nüfusuyla Türkiye'nin otuz " +
+      'dokuzuncu kalabalık ilidir.',
+    hydrographyNoteTr:
+      "İlin akarsuları, Türkiye'nin dördüncü büyük su toplama havzası olan Dicle havzasının bir " +
+      'parçasıdır; Kızılsu, Hezil ve Habur çayları bu havzanın Şırnak sınırları içindeki başlıca ' +
+      'kollarıdır. Habur Çayı, aynı zamanda Türkiye-Irak sınırının bir bölümünü de çizer.',
+    urbanizationRate: 68.33,
+    netMigrationRate: -14.08,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,4',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
 ];
 
