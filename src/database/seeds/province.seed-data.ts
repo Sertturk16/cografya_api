@@ -4376,14 +4376,686 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
 ];
 
 /**
+ * ── WAVE 6a — İç Anadolu (remaining 12 il) — BRAND-NEW rows, base + tiered deep content ──
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * PROVENANCE (traceability — CONVENTIONS §4: no sourceless facts)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * SOURCE OF RECORD: NOVA's researched draft, INDEPENDENTLY fact-checked by a different
+ *   actor — verdict "SEED-READY WITH CORRECTIONS" (all 4 factual + 1 style correction
+ *   applied before seeding). A from-scratch single-pass wave (same shape as wave-6b/6d,
+ *   already merged): these 12 il had NO prior seed row — base data + tiered deep content
+ *   are authored together here.
+ *   • Draft:       Owner's Inbox/data-source-groundwork/wave6a-ic-anadolu-draft.md
+ *   • Fact-check:  Owner's Inbox/data-source-groundwork/wave6a-ic-anadolu-factcheck.md
+ *   • Ledger:      data-provenance.md (root) — wave-6a section
+ * Per-field Tier-1 authorities (same registry as every prior wave):
+ *   • Nüfus (31.12.2025)          → TÜİK ADNKS 2025, bülten 53899
+ *   • Yüzölçümü (km²)             → Harita Genel Müdürlüğü (il_ilce_alanlari.xlsx)
+ *   • Rakım + koordinat (il mrk.) → MGM servis API (servis.mgm.gov.tr/web/merkezler)
+ *   • Köppen iklim                → MGM 2023 Köppen raporu, s.11-15 (12/12 re-verified)
+ *   • GSYH payı                   → TÜİK İl Bazında GSYH 2024, bülten 53930
+ *   • Net göç hızı                → TÜİK İç Göç 2024, bülten 54082
+ *   • İlçe sayısı + komşu iller   → Tier-2 çok-kaynaklı çapraz kontrol + 2 bağımsız GeoJSON
+ *     il-sınırı veri setinin `shapely` geometrik analizi (Karaman/Kırıkkale komşuluk
+ *     düzeltmeleri bu geometrik yöntemle yapıldı — aşağıda ilgili il yorumlarına bkz.).
+ *
+ * KÖPPEN — 12 il resolve to 6× BSk (Konya/Eskişehir/Niğde/Aksaray/Karaman/Kırıkkale),
+ *   3× Csa (Kayseri/Kırşehir/Nevşehir), 2× Csb (Sivas/Yozgat), 1× Cfa (Çankırı). BSk is
+ *   NOT new here — it was introduced by wave-6b (Elazığ/Iğdır/Malatya) and these 6 il REUSE
+ *   the already-merged KOPPEN_BSK / CLIMATE_CLASS_BSK_TR ("Yarı Kurak Step İklimi") /
+ *   MGM_KOPPEN_CAVEAT_BSK_TR constants verbatim (canonical "soğuk alt-tipi" wording,
+ *   → DEC 2026-07-12); no BSk constant is redefined. The rest reuse Csa/Csb/Cfa constants.
+ *
+ * ANKARA (İç Anadolu's 13th il, plate 06) is DELIBERATELY untouched — it was seeded at
+ *   founding with full wave-1 deep content. Its existing neighborPlateCodes
+ *   (['18','71','40','68','42','26','14']) already list all SIX of its wave-6a neighbours
+ *   (Çankırı/Kırıkkale/Kırşehir/Aksaray/Konya/Eskişehir), so no back-reference edit is
+ *   needed — bidirectionality holds by construction (each il carries its FULL real-world
+ *   adjacency regardless of seed order; verified against the whole 50-il set).
+ *
+ * DEEP CONTENT — TIERED (owner-approved tiered depth, DEC 2026-07-11), THREE variants here:
+ *   • Tier-A (nüfus ≥1M): Konya 42, Kayseri 38 — the FULL 8-field set.
+ *   • Tier-B (nüfus <1M): Sivas, Yozgat, Kırşehir, Nevşehir, Niğde, Aksaray, Karaman,
+ *       Kırıkkale, Çankırı — a 6-field set; hydrographyFeatures AND settlementNoteTr are
+ *       DELIBERATELY OMITTED (permanent Tier-B scope cut → null, asserted null in the e2e).
+ *   • Tier-B-but-büyükşehir EXCEPTION (→ DEC 2026-07-12): Eskişehir 26. Nüfus 927,956 (<1M,
+ *       so Tier-B depth: no hydrographyFeatures), BUT it is legally büyükşehir since 1993, so
+ *       urbanizationRate=100 is the SAME 6360 legal artifact as a Tier-A büyükşehir — it
+ *       therefore carries a SINGLE-SENTENCE settlementNoteTr holding ONLY the 6360 caveat (no
+ *       migration stats, no narrative). Identical shape to wave-5's Mardin — the locked rule
+ *       for any Tier-B-but-büyükşehir il. Konya (Tier-A, büyükşehir since 1989) keeps the FULL
+ *       settlementNoteTr with migration prose. No fact is invented; every value traces to the
+ *       fact-checked draft.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
+  {
+    plateCode: '42',
+    nameTr: 'Konya',
+    slugTr: 'konya',
+    slugEn: 'konya',
+    region: GeographicRegion.IcAnadolu,
+    population: 2_343_409,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 40_838, // HGM — bu platformda seed edilmiş illerin en büyük yüzölçümlüsü
+    districtCount: 31,
+    elevationM: 1029, // MGM Meram istasyonu (büyükşehir — ayrı "Merkez" ilçesi yok; kent 3 metropol ilçeye bölünmüş)
+    latitude: 37.8687,
+    longitude: 32.4713,
+    // Ankara=06, Aksaray=68, Niğde=51, Mersin=33, Karaman=70, Antalya=07, Isparta=32,
+    // Afyonkarahisar=03, Eskişehir=26 (9 komşu — bu partinin en çok kara-komşulu ili)
+    neighborPlateCodes: ['06', '68', '51', '33', '70', '07', '32', '03', '26'],
+    climateKoppen: KOPPEN_BSK,
+    climateClassTr: CLIMATE_CLASS_BSK_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_BSK_TR,
+    // ── Konya deep content (wave-6a Tier-A). Full 8-field set. Bozkır platosu + Toros
+    //    uzantıları + Karacadağ/Karadağ volkanik kütleleri (landform); Türkiye'nin en büyük
+    //    kapalı havzası, Çarşamba Çayı/Çumra Sulaması + Beyşehir/Tuz gölleri (hydrography).
+    //    urbanizationRate=100 is the 6360 büyükşehir artifact framed in settlementNoteTr
+    //    (büyükşehir since 1989); net göç -0,97 ‰; GSYH share %2,1.
+    landformNoteTr:
+      "Konya toprakları, İç Anadolu'nun bozkır platosu karakterini taşıyan geniş, düz " +
+      'ovalardan oluşur; ilin ortalama yükseltisi 1.000-1.050 metre bandındadır. Çumra ve ' +
+      'Ereğli ovaları, ilin en geniş tarım alanlarını oluşturur.\n\n' +
+      "İlin güneyinde, Toros Dağları'nın kuzey uzantıları başlar — Seydişehir, Hadim ve " +
+      'Taşkent ilçelerinde 2.000 metreyi aşan yükseltiler görülür. Kuzeydoğuda, Aksaray ' +
+      'sınırındaki Karacadağ ve Karadağ (Hotamış) volkanik kütleleri, ilin platosuna serpilmiş ' +
+      'sönmüş yanardağlardır.',
+    introTr:
+      "Konya, 40.838 kilometrekarelik yüzölçümüyle Türkiye'nin en büyük ilidir. İç Anadolu " +
+      "Bölgesi'nin güneyinde, geniş bir bozkır platosu üzerinde kuruludur. İl merkezindeki " +
+      "Çumra ilçesi sınırlarında yer alan Çatalhöyük, MÖ 7.400'lere uzanan tarihiyle 2012'de " +
+      "UNESCO Dünya Mirası Listesi'ne girmiştir.",
+    hydrographyNoteTr:
+      "Konya, Türkiye'nin en büyük kapalı havzalarından birinin merkezindedir; ilin " +
+      'akarsuları denize ulaşmaz, iç göllerde ya da sulama kanallarında sonlanır. Çarşamba ' +
+      "Çayı, Beyşehir Gölü'nden çıkarak Çumra Ovası'nı sular; 1907-1913 arasında Osmanlı " +
+      'döneminde inşa edilen Çumra Sulaması, bugün 59.560 hektarlık bir alanı kapsar.\n\n' +
+      'Çarşamba Çayı üzerindeki Apa Barajı, 1957-1962 arasında inşa edilmiş, yaklaşık 169 ' +
+      "milyon m³ kapasiteyle Çumra Ovası'nın sulamasına katkı sağlar. Altınapa Barajı ise " +
+      'Meram ilçesinin içme suyu ihtiyacının bir bölümünü karşılar.\n\n' +
+      "İlin batı sınırındaki Beyşehir Gölü, 651 kilometrekarelik yüzölçümüyle Türkiye'nin en " +
+      'büyük tatlı su gölüdür; gölün küçük bir kısmı Isparta sınırları içinde kalır. İlin ' +
+      "kuzeydoğu ucunda, Şereflikoçhisar'daki (Ankara) kapalı havzanın parçası olan Tuz " +
+      "Gölü'nün güney kıyı şeridi Konya topraklarına girer.",
+    hydrographyFeatures: [
+      { name: 'Çarşamba Çayı', type: HydrographyFeatureType.Nehir },
+      { name: 'Apa Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Altınapa Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Beyşehir Gölü', type: HydrographyFeatureType.Gol },
+      { name: 'Tuz Gölü', type: HydrographyFeatureType.Gol },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: -0.97,
+    settlementNoteTr:
+      "Konya'da da TÜİK'in il/ilçe merkezi nüfus oranı %100 çıkıyor — büyükşehir " +
+      'statüsündeki illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 ' +
+      'sayılı Kanun) bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor. Konya ' +
+      '2024 yılında 53.971 kişi aldı, 56.234 kişi verdi; net göç hızı binde -0,97 ile hafif ' +
+      'negatif kaldı.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%2,1',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '38',
+    nameTr: 'Kayseri',
+    slugTr: 'kayseri',
+    slugEn: 'kayseri',
+    region: GeographicRegion.IcAnadolu,
+    population: 1_458_991,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 16_970, // HGM
+    districtCount: 16,
+    elevationM: 1094, // MGM Melikgazi istasyonu (büyükşehir — ayrı "Merkez" ilçesi yok)
+    latitude: 38.687,
+    longitude: 35.5,
+    // Yozgat=66, Sivas=58, Kahramanmaraş=46, Adana=01, Niğde=51, Nevşehir=50 (6 komşu)
+    neighborPlateCodes: ['66', '58', '46', '01', '51', '50'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    // ── Kayseri deep content (wave-6a Tier-A). Full 8-field set. Erciyes stratovolkanı
+    //    (3.917 m, İç Anadolu'nun en yüksek noktası; volkanizma yaşı ~2,5-3 milyon yıl, MTA
+    //    kaynaklı fact-check düzeltmesi) + Sultansazlığı (landform); Zamantı/Sarımsaklı +
+    //    Sultansazlığı Ramsar 13 Temmuz 1994 (hydrography, tescil tarihi fact-check ile
+    //    düzeltildi). urbanizationRate=100 6360 büyükşehir artifact; net göç +0,92 ‰; GSYH %1,4.
+    landformNoteTr:
+      "Kayseri'nin en belirgin yer şekli, kentin 25 kilometre güneybatısında yükselen " +
+      "Erciyes'tir — sönmüş bir stratovolkan olan dağ, 3.917 metreyle İç Anadolu Bölgesi'nin " +
+      'en yüksek noktasıdır. Yaklaşık 2,5-3 milyon yıl önce başlayan ve günümüze yakın ' +
+      'dönemlere kadar süren volkanik faaliyet sonucu oluşan Erciyes, günümüzde kayak ' +
+      'turizmine ev sahipliği yapar.\n\n' +
+      'İlin geri kalanı, ortalama 1.050 metre yükseklikteki bir plato üzerindedir. Kuzeyde ' +
+      'Sultansazlığı bataklık-göl kompleksinin çevresindeki düzlükler, güneyde ise ' +
+      "Erciyes'in eteklerinden başlayıp Niğde sınırına uzanan step arazisi ilin diğer ana " +
+      'yer şekli gruplarıdır.',
+    introTr:
+      "Kayseri, İç Anadolu'nun sanayi ağırlıklı illerinden biridir; kentin güneybatısında " +
+      "yükselen 3.917 metrelik Erciyes, bölgenin en yüksek dağıdır. Erciyes'in " +
+      "milyonlarca yıl önceki kül ve tüf püskürtmeleri, komşu Nevşehir'e uzanan " +
+      "Kapadokya'nın peribacalarını oluşturan yumuşak kayaçların kaynağıdır. Kayseri OSB'de " +
+      'yoğunlaşan mobilya ve metal ürünleri imalatı, ilin ekonomisinin bel kemiğini ' +
+      'oluşturur.',
+    hydrographyNoteTr:
+      'İlin güneyinden doğan Zamantı Irmağı, Kayseri topraklarında güneye akarak Adana ' +
+      'sınırından Seyhan havzasına katılır. Kentin içinden geçen Sarımsaklı Deresi ise ' +
+      'kuzeydeki step arazisinde kaybolan mevsimlik bir akarsudur.\n\n' +
+      "Kayseri'nin kuzeyindeki Sultansazlığı, tatlı ve tuzlu su kütlelerinin bir arada " +
+      'bulunduğu geniş bir sulak alan kompleksidir; kuş göç yollarının kesişim noktasında ' +
+      "yer alması nedeniyle 13 Temmuz 1994'te Ramsar Sözleşmesi listesine dahil " +
+      'edilmiştir.',
+    hydrographyFeatures: [
+      { name: 'Zamantı Irmağı', type: HydrographyFeatureType.Nehir },
+      { name: 'Sarımsaklı Deresi', type: HydrographyFeatureType.Nehir },
+      { name: 'Sultansazlığı', type: HydrographyFeatureType.Gol },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: 0.92,
+    settlementNoteTr:
+      "Kayseri'de de TÜİK'in il/ilçe merkezi nüfus oranı %100 çıkıyor — büyükşehir " +
+      'statüsündeki illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 ' +
+      'sayılı Kanun) bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor. Kayseri ' +
+      '2024 yılında 37.960 kişi aldı, 36.622 kişi verdi; net göç hızı binde +0,92 ile hemen ' +
+      'hemen dengede kaldı.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%1,4',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '26',
+    nameTr: 'Eskişehir',
+    slugTr: 'eskisehir',
+    slugEn: 'eskisehir',
+    region: GeographicRegion.IcAnadolu,
+    population: 927_956,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 13_960, // HGM
+    districtCount: 14,
+    elevationM: 801, // MGM Odunpazarı istasyonu (büyükşehir — 2 merkez ilçeden varsayılan)
+    latitude: 39.7656,
+    longitude: 30.5502,
+    // Ankara=06, Kütahya=43, Bilecik=11, Afyonkarahisar=03, Konya=42, Bolu=14 (6 komşu)
+    neighborPlateCodes: ['06', '43', '11', '03', '42', '14'],
+    climateKoppen: KOPPEN_BSK,
+    climateClassTr: CLIMATE_CLASS_BSK_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_BSK_TR,
+    // ── Eskişehir deep content (wave-6a Tier-B + büyükşehir EXCEPTION → DEC 2026-07-12).
+    //    Nüfus 927,956 (<1M → Tier-B depth: shortened landform/hydrography, NO
+    //    hydrographyFeatures), BUT büyükşehir since 1993, so urbanizationRate=100 is the 6360
+    //    legal artifact — it carries a SINGLE-SENTENCE settlementNoteTr (ONLY the 6360 caveat,
+    //    no migration prose; the number lives in netMigrationRate). Same shape as wave-5's
+    //    Mardin. net göç +7,43 ‰ (bu partinin en yüksek pozitifi); GSYH share %1,1.
+    landformNoteTr:
+      'Eskişehir, kuzeyde Sakarya Nehri havzası ile güneyde Porsuk Çayı vadisinin kesiştiği ' +
+      'bir plato üzerindedir; il topraklarının büyük bölümü 800-1.000 metre yükseklik ' +
+      'bandındadır. İlin kuzeybatısındaki Türkmen Dağı ve güneyindeki Sündiken Dağları ilin ' +
+      'başlıca yükseltileridir.',
+    introTr:
+      "Eskişehir, İç Anadolu Bölgesi'nde kentin ortasından akan Porsuk Çayı'yla bölgenin " +
+      'genel kurak karakterinden ayrılan bir ildir. Anadolu Üniversitesi ve Eskişehir ' +
+      "Osmangazi Üniversitesi'nin varlığı, kenti Türkiye'nin önde gelen öğrenci " +
+      'şehirlerinden birine dönüştürmüştür.',
+    hydrographyNoteTr:
+      "Kentin ortasından geçen Porsuk Çayı, Kütahya'dan doğar ve Eskişehir Ovası'nı " +
+      "sulayarak Sakarya Nehri'ne katılır; 448 kilometrelik uzunluğuyla Sakarya'nın en uzun " +
+      "kolu kabul edilir. 1948 ve 1971'de iki aşamada tamamlanan Porsuk Barajı, kent " +
+      'merkezinin hemen yukarısında 23,4 kilometrekarelik bir baraj gölü oluşturur.',
+    urbanizationRate: 100.0,
+    netMigrationRate: 7.43,
+    settlementNoteTr:
+      "TÜİK'in il/ilçe merkezi nüfus oranı Eskişehir için de %100'dür — büyükşehir " +
+      'statüsündeki illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 ' +
+      'sayılı Kanun) bir sonucudur, ilin fiilen tamamen kentleştiği anlamına gelmez.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%1,1',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '58',
+    nameTr: 'Sivas',
+    slugTr: 'sivas',
+    slugEn: 'sivas',
+    region: GeographicRegion.IcAnadolu,
+    population: 631_401,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 28_164, // HGM — İç Anadolu'nun Konya'dan sonra 2. büyük ili
+    districtCount: 17,
+    elevationM: 1294, // MGM Merkez istasyonu
+    latitude: 39.7437,
+    longitude: 37.002,
+    // Malatya=44, Kahramanmaraş=46, Kayseri=38, Yozgat=66, Tokat=60, Ordu=52, Giresun=28,
+    // Erzincan=24 (8 komşu)
+    neighborPlateCodes: ['44', '46', '38', '66', '60', '52', '28', '24'],
+    climateKoppen: KOPPEN_CSB,
+    climateClassTr: CLIMATE_CLASS_CSB_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_CSB_TR,
+    // ── Sivas deep content (wave-6a Tier-B). 6-field set (hydrographyFeatures +
+    //    settlementNoteTr DELIBERATELY OMITTED, Tier-B scope — non-büyükşehir, no 6360 note).
+    //    Kızılırmak yukarı havzası, Türkiye'nin en yüksek il merkezlerinden biri (1.294 m) +
+    //    Divriği Ulu Cami 1985 UNESCO. urbanizationRate=77.38 REAL rate; net göç -21,14 ‰;
+    //    GSYH share %0,5.
+    landformNoteTr:
+      "Sivas, Kızılırmak'ın yukarı havzasında, ortalama 1.200-1.300 metre yükseklikteki bir " +
+      "plato üzerindedir — bu, Türkiye'nin en yüksek rakımlı il merkezlerinden biri olmasının " +
+      "nedenidir. İlin kuzeyi Karadeniz'e geçiş bölgesindeki dağlık arazi, güneyi ise İç " +
+      'Anadolu step karakterindeki düzlüklerdir.',
+    introTr:
+      "Sivas, 1.294 metre rakımıyla Türkiye'nin en yüksek il merkezlerinden biridir. " +
+      "Türkiye'nin en uzun nehri Kızılırmak, ilin doğusundaki İmranlı ilçesinde, Kızıldağ'ın " +
+      '2.000 metreyi aşan yükseltilerinden doğar. Divriği ilçesindeki Ulu Cami ve Darüşşifa, ' +
+      "1985'te Türkiye'den UNESCO Dünya Mirası Listesi'ne giren ilk mimari eserdir.",
+    hydrographyNoteTr:
+      'Kızılırmak, İmranlı ilçesindeki Kızıldağ kaynaklarından doğar ve toplam 1.355 ' +
+      'kilometrelik uzunluğuyla Türkiye sınırları içinde tamamen akan en uzun nehirdir; Sivas ' +
+      'topraklarından geçtikten sonra Kayseri, Kırşehir, Kırıkkale, Ankara, Aksaray, ' +
+      "Nevşehir, Çorum ve Samsun'dan geçerek Karadeniz'e dökülür.",
+    urbanizationRate: 77.38,
+    netMigrationRate: -21.14,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,5',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '66',
+    nameTr: 'Yozgat',
+    slugTr: 'yozgat',
+    slugEn: 'yozgat',
+    region: GeographicRegion.IcAnadolu,
+    population: 413_208,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 13_690, // HGM
+    districtCount: 14,
+    elevationM: 1301, // MGM Merkez istasyonu
+    latitude: 39.8243,
+    longitude: 34.8159,
+    // Çorum=19, Amasya=05, Tokat=60, Sivas=58, Kayseri=38, Nevşehir=50, Kırşehir=40,
+    // Kırıkkale=71 (8 komşu)
+    neighborPlateCodes: ['19', '05', '60', '58', '38', '50', '40', '71'],
+    climateKoppen: KOPPEN_CSB,
+    climateClassTr: CLIMATE_CLASS_CSB_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_CSB_TR,
+    // ── Yozgat deep content (wave-6a Tier-B). 6-field set (hydrographyFeatures +
+    //    settlementNoteTr omitted, Tier-B). Yozgat Çamlığı = Türkiye'nin ilk milli parkı
+    //    (5 Şubat 1958). introTr opening re-sequenced by fact-check so it does NOT share
+    //    Sivas's "[İl], [X] metre rakımıyla…" skeleton (CONTENT-STYLE.md §9/§12). net göç
+    //    -20,23 ‰; GSYH share %0,3.
+    landformNoteTr:
+      'Yozgat, Kızılırmak ile Çekerek Irmağı arasındaki, ortalama 1.200-1.300 metre ' +
+      'yükseklikteki bir plato üzerindedir. İlin kuzeyinde step-orman geçiş kuşağı, ' +
+      "güneyinde ise İç Anadolu'nun tipik bozkır arazisi hakimdir.",
+    introTr:
+      "Kent merkezine birkaç kilometre uzaklıktaki Yozgat Çamlığı, 5 Şubat 1958'de " +
+      "Türkiye'nin ilk milli parkı ilan edilmiştir. İl, 1.301 metre rakımıyla İç Anadolu'nun " +
+      'yüksek platolarından birinde yer alır.',
+    hydrographyNoteTr:
+      "İlin başlıca akarsuyu Çekerek Irmağı'dır; Yozgat'ın kuzeyinden geçerek Tokat " +
+      "üzerinden Yeşilırmak'a katılır. Kızılırmak'ın bir bölümü de ilin batı-güneybatı " +
+      'sınırını çizer.',
+    urbanizationRate: 66.93,
+    netMigrationRate: -20.23,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '40',
+    nameTr: 'Kırşehir',
+    slugTr: 'kirsehir',
+    slugEn: 'kirsehir',
+    region: GeographicRegion.IcAnadolu,
+    population: 242_777,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 6584, // HGM
+    districtCount: 7,
+    elevationM: 1007, // MGM Merkez istasyonu
+    latitude: 39.1639,
+    longitude: 34.1561,
+    // Kırıkkale=71, Yozgat=66, Nevşehir=50, Aksaray=68, Ankara=06 (5 komşu)
+    neighborPlateCodes: ['71', '66', '50', '68', '06'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    // ── Kırşehir deep content (wave-6a Tier-B). 6-field set (hydrographyFeatures +
+    //    settlementNoteTr omitted, Tier-B). Ahilik merkezi + Kaman-Kalehöyük (intro);
+    //    Hirfanlı Baraj Gölü + Seyfe Gölü (1994 Ramsar, ~320.000 flamingo). net göç -4,57 ‰;
+    //    GSYH share %0,2.
+    landformNoteTr:
+      "Kırşehir, Kızılırmak'ın batı kesiminde, ortalama 1.000-1.100 metre yükseklikteki bir " +
+      'plato üzerindedir. İlin güneydoğusundaki Kaman-Kırşehir ovası, çevresindeki step ' +
+      'arazisine göre nispeten daha verimli tarım alanlarına sahiptir.',
+    introTr:
+      "Kırşehir, Ahi Evran'ın 13. yüzyılda kurduğu esnaf-zanaat dayanışma geleneği Ahiliğin " +
+      'merkezi olarak bilinir. Kaman ilçesindeki Kalehöyük kazı alanı, Japon Ortadoğu Kültür ' +
+      'Merkezi tarafından yürütülen uzun soluklu bir arkeolojik araştırmaya ev sahipliği ' +
+      'yapmaktadır.',
+    hydrographyNoteTr:
+      'Kızılırmak, ilin güney sınırından geçer; Kaman ve Kırşehir Merkez ilçeleri arasında ' +
+      "kalan bölümü Hirfanlı Baraj Gölü'nün su kütlesine dahildir. İlin " +
+      "kuzeydoğusundaki Seyfe Gölü, sığ ve tuzlu bir step gölüdür; 1994'te Ramsar " +
+      'Sözleşmesi listesine alınmış, dönem dönem 300 binin üzerinde flamingoya ev sahipliği ' +
+      'yapan önemli bir kuş alanıdır.',
+    urbanizationRate: 81.81,
+    netMigrationRate: -4.57,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,2',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '50',
+    nameTr: 'Nevşehir',
+    slugTr: 'nevsehir',
+    slugEn: 'nevsehir',
+    region: GeographicRegion.IcAnadolu,
+    population: 320_150,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 5485, // HGM
+    districtCount: 8,
+    elevationM: 1260, // MGM Merkez istasyonu
+    latitude: 38.6163,
+    longitude: 34.7025,
+    // Aksaray=68, Kırşehir=40, Yozgat=66, Kayseri=38, Niğde=51 (5 komşu)
+    neighborPlateCodes: ['68', '40', '66', '38', '51'],
+    climateKoppen: KOPPEN_CSA,
+    climateClassTr: CLIMATE_CLASS_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    // ── Nevşehir deep content (wave-6a Tier-B). 6-field set (hydrographyFeatures +
+    //    settlementNoteTr omitted, Tier-B). Kapadokya peribacaları + Göreme Milli Parkı 1985
+    //    UNESCO + Derinkuyu/Kaymaklı yeraltı şehirleri; İç Anadolu'nun en kurak illerinden
+    //    biri (Damsa Barajı). net göç +4,05 ‰; GSYH share %0,3.
+    landformNoteTr:
+      "Nevşehir toprakları, Erciyes (Kayseri sınırında) ve Hasan Dağı'nın (Aksaray-Niğde " +
+      'sınırında) milyonlarca yıl önceki kül ve tüf püskürtmeleriyle oluşan yumuşak volkanik ' +
+      'kayaç örtüsü üzerindedir; rüzgar ve suyun bu tüf tabakasını aşındırmasıyla Göreme, ' +
+      'Ürgüp ve Avanos çevresindeki peribacaları ortaya çıkmıştır. İlin ortalama yükseltisi ' +
+      '1.200-1.300 metre bandındadır.',
+    introTr:
+      "Nevşehir, Kapadokya'nın peribacaları ve yeraltı şehirleriyle özdeşleşen ildir; " +
+      "Göreme Milli Parkı ve Kapadokya Kaya Siteleri, 1985'te UNESCO Dünya Mirası Listesi'ne " +
+      'alınmıştır. Derinkuyu ve Kaymaklı ilçelerindeki çok katlı yeraltı şehirleri, Erciyes ' +
+      "ve Hasan Dağı'nın volkanik tüf katmanları içine oyulmuştur.",
+    hydrographyNoteTr:
+      "Nevşehir, İç Anadolu'nun en kurak illerinden biridir; büyük akarsuları yoktur. " +
+      'Kızılırmak, ilin kuzey ucundan kısa bir mesafe geçer; Damsa Barajı ise il merkezinin ' +
+      'içme suyu ihtiyacının bir bölümünü karşılar.',
+    urbanizationRate: 66.42,
+    netMigrationRate: 4.05,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '51',
+    nameTr: 'Niğde',
+    slugTr: 'nigde',
+    slugEn: 'nigde',
+    region: GeographicRegion.IcAnadolu,
+    population: 374_492,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 7234, // HGM
+    districtCount: 6,
+    elevationM: 1211, // MGM Merkez istasyonu
+    latitude: 37.9587,
+    longitude: 34.6795,
+    // Aksaray=68, Nevşehir=50, Kayseri=38, Konya=42, Mersin=33, Adana=01 (6 komşu)
+    neighborPlateCodes: ['68', '50', '38', '42', '33', '01'],
+    climateKoppen: KOPPEN_BSK,
+    climateClassTr: CLIMATE_CLASS_BSK_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_BSK_TR,
+    // ── Niğde deep content (wave-6a Tier-B). 6-field set (hydrographyFeatures +
+    //    settlementNoteTr omitted, Tier-B). Patates üretiminde Türkiye 1.si (2024 rekoltesi
+    //    >1 milyon ton) + Hasan Dağı (kuzey volkanik) / Bolkar-Aladağlar (güney Toros).
+    //    net göç -13,92 ‰; GSYH share %0,3.
+    landformNoteTr:
+      "Niğde'nin kuzeyi, Aksaray sınırındaki 3.268 metrelik Hasan Dağı'nın volkanik " +
+      "tüf arazisiyle Kapadokya'nın güney ucunu oluşturur. İlin güneyi ise Toros " +
+      "Dağları'nın bir kolu olan Bolkar Dağları ile Adana/Mersin sınırındaki Aladağlar'ın " +
+      'oluşturduğu dik, yüksek bir dağlık kuşaktır — bu kesimde 3.500 metreyi aşan zirveler ' +
+      'bulunur.',
+    introTr:
+      "Niğde, patates üretiminde Türkiye'nin ilk sırasında yer alan ildir — 2024 rekoltesi 1 " +
+      "milyon tonu aşmıştır. İlin güneyinde Bolkar Dağları, kuzeyinde ise Hasan Dağı'nın " +
+      'volkanik tüf arazisi ilin iki farklı coğrafi kimliğini oluşturur.',
+    hydrographyNoteTr:
+      "Niğde'nin güneyindeki Bolkar Dağları ve Aladağlar'dan doğan dereler, Adana yönünde " +
+      "Seyhan havzasına akar; ilin kuzey kesimi ise İç Anadolu'nun kapalı havza karakterine " +
+      'uygun biçimde büyük akarsulardan yoksundur.',
+    urbanizationRate: 62.92,
+    netMigrationRate: -13.92,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '68',
+    nameTr: 'Aksaray',
+    slugTr: 'aksaray',
+    slugEn: 'aksaray',
+    region: GeographicRegion.IcAnadolu,
+    population: 441_136,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 7659, // HGM
+    districtCount: 8,
+    elevationM: 970, // MGM Merkez istasyonu
+    latitude: 38.3705,
+    longitude: 33.9987,
+    // Nevşehir=50, Niğde=51, Konya=42, Ankara=06, Kırşehir=40 (5 komşu)
+    neighborPlateCodes: ['50', '51', '42', '06', '40'],
+    climateKoppen: KOPPEN_BSK,
+    climateClassTr: CLIMATE_CLASS_BSK_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_BSK_TR,
+    // ── Aksaray deep content (wave-6a Tier-B). 6-field set (hydrographyFeatures +
+    //    settlementNoteTr omitted, Tier-B). Ihlara Vadisi + Tuz Gölü güneybatı kıyısı (intro);
+    //    Hasan Dağı volkanik tüf + Melendiz Çayı'nın oyduğu kanyon. net göç -2,10 ‰;
+    //    GSYH share %0,4.
+    landformNoteTr:
+      'İlin kuzeybatısı, Ankara-Konya-Aksaray üçlü sınırının kesiştiği Tuz Gölü kapalı ' +
+      'havzasının bir parçasıdır. Güneyde ise Aksaray-Niğde sınırındaki 3.268 metrelik Hasan ' +
+      "Dağı ve çevresindeki volkanik tüf arazisi, Ihlara Vadisi'ni oluşturan Melendiz " +
+      "Çayı'nın aşındırdığı kanyonlarla kaplıdır.",
+    introTr:
+      "Aksaray, Kapadokya'nın en uzun kanyonlarından biri olan Ihlara Vadisi'ne ev sahipliği " +
+      "yapar. İlin kuzeydoğu ucu, Türkiye'nin ikinci büyük gölü Tuz Gölü'nün güneybatı " +
+      'kıyısına kadar uzanır.',
+    hydrographyNoteTr:
+      "Melendiz Çayı, Ihlara Vadisi'ni 18 kilometre boyunca, ortalama 150 metre derinlik " +
+      "ve 200 metre genişlikte bir kanyon halinde oyarak akar; vadi boyunca 30'a yakın " +
+      "menderes çizer. İlin kuzeydoğusunda, Tuz Gölü'nün güneybatı kıyı şeridi Aksaray " +
+      'sınırları içindedir.',
+    urbanizationRate: 74.2,
+    netMigrationRate: -2.1,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,4',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '70',
+    nameTr: 'Karaman',
+    slugTr: 'karaman',
+    slugEn: 'karaman',
+    region: GeographicRegion.IcAnadolu,
+    population: 262_355,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 8678, // HGM
+    districtCount: 6,
+    elevationM: 1018, // MGM Merkez istasyonu
+    latitude: 37.1932,
+    longitude: 33.2202,
+    // Konya=42, Antalya=07, Mersin=33 (3 komşu) — Niğde ve Adana fact-check'te GeoJSON
+    // geometrik analizle ÇIKARILDI (Karaman-Niğde ~19-33 km, Karaman-Adana ~53-62 km; sınır
+    // komşusu değil).
+    neighborPlateCodes: ['42', '07', '33'],
+    climateKoppen: KOPPEN_BSK,
+    climateClassTr: CLIMATE_CLASS_BSK_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_BSK_TR,
+    // ── Karaman deep content (wave-6a Tier-B). 6-field set (hydrographyFeatures +
+    //    settlementNoteTr omitted, Tier-B). 1989'da Konya'dan ayrıldı + Karamanoğulları +
+    //    Karadağ/Binbirkilise; step-Toros geçiş kuşağı; Ermenek Çayı (Akdeniz havzası).
+    //    net göç -5,79 ‰; GSYH share %0,3.
+    landformNoteTr:
+      "Karaman, kuzeyde İç Anadolu'nun step platosu ile güneyde Toros Dağları'nın başladığı " +
+      'bir geçiş kuşağındadır. İlin kuzeyindeki Karadağ, sönmüş bir volkanik kütledir; ' +
+      "güneydeki Ermenek ve Sarıveliler ilçelerinde ise Toros'un dik, ormanlık dağlık arazisi " +
+      'başlar.',
+    introTr:
+      "Karaman, 1989'da Konya'dan ayrılarak ayrı bir il olmuştur; 13-16. yüzyıllar arasında " +
+      "Anadolu'nun güçlü beyliklerinden Karamanoğulları'na başkentlik yapmıştır. İlin " +
+      "kuzeyinde yükselen Karadağ'daki Binbirkilise ören yeri, Bizans döneminden kalma " +
+      'yüzlerce kilise ve manastır kalıntısını barındırır.',
+    hydrographyNoteTr:
+      "Karaman'ın yüzey suyu kaynakları sınırlıdır; ilin kuzey kesimi kapalı iç havza " +
+      "karakterindedir. Güneydeki Ermenek ilçesinden doğan Ermenek Çayı, Toros'un derin " +
+      'vadilerinden geçerek Mersin yönünde Akdeniz havzasına akar.',
+    urbanizationRate: 77.02,
+    netMigrationRate: -5.79,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '71',
+    nameTr: 'Kırıkkale',
+    slugTr: 'kirikkale',
+    slugEn: 'kirikkale',
+    region: GeographicRegion.IcAnadolu,
+    population: 282_830,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 4791, // HGM — İç Anadolu'nun bu platformda seed edilmiş illeri arasında en küçüğü
+    districtCount: 9,
+    elevationM: 751, // MGM Merkez istasyonu
+    latitude: 39.8433,
+    longitude: 33.5181,
+    // Ankara=06, Yozgat=66, Çankırı=18, Kırşehir=40, Çorum=19 (5 komşu) — Bolu fact-check'te
+    // GeoJSON geometrik analizle ÇIKARILDI (Kırıkkale-Bolu ~107-117 km; Çankırı/Ankara arada,
+    // sınır komşusu değil; Kırıkkale Valiliği resmi sayfası da 5 komşu sayar).
+    neighborPlateCodes: ['06', '66', '18', '40', '19'],
+    climateKoppen: KOPPEN_BSK,
+    climateClassTr: CLIMATE_CLASS_BSK_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_BSK_TR,
+    // ── Kırıkkale deep content (wave-6a Tier-B). 6-field set (hydrographyFeatures +
+    //    settlementNoteTr omitted, Tier-B). 1925 Top ve Tüfek Fabrikası ile kurulan planlı
+    //    savunma sanayii şehri (MKE); Kızılırmak + Delice Irmağı. net göç -11,58 ‰;
+    //    GSYH share %0,3.
+    landformNoteTr:
+      "Kırıkkale, Kızılırmak'ın Ankara'ya yakın kesiminden geçtiği, ortalama 700-850 metre " +
+      "yükseklikteki dar bir plato şeridi üzerindedir. İl, İç Anadolu Bölgesi'nin bu " +
+      'platformda seed edilmiş illeri arasında en küçük yüzölçümüne sahiptir.',
+    introTr:
+      "Kırıkkale, 1925'te Top ve Tüfek Fabrikası'nın temellerinin atılmasıyla kurulan, planlı " +
+      'bir savunma sanayii şehridir. Bugün MKE (Makine ve Kimya Endüstrisi) fabrikaları, ilin ' +
+      'ekonomisinin ve kentleşmesinin belirleyici unsuru olmaya devam eder.',
+    hydrographyNoteTr:
+      "Kızılırmak, ilin ortasından geçerek Kırıkkale'nin su ağının omurgasını oluşturur; " +
+      "Delice ilçesi yakınında Delice Irmağı'nı (Kızılırmak'ın bir kolu) alır.",
+    urbanizationRate: 88.16,
+    netMigrationRate: -11.58,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    plateCode: '18',
+    nameTr: 'Çankırı',
+    slugTr: 'cankiri',
+    slugEn: 'cankiri',
+    region: GeographicRegion.IcAnadolu,
+    population: 200_549,
+    populationYear: POPULATION_YEAR,
+    areaKm2: 7542, // HGM
+    districtCount: 12,
+    elevationM: 755, // MGM Merkez istasyonu
+    latitude: 40.6082,
+    longitude: 33.6102,
+    // Karabük=78, Kastamonu=37, Çorum=19, Kırıkkale=71, Ankara=06, Bolu=14 (6 komşu)
+    neighborPlateCodes: ['78', '37', '19', '71', '06', '14'],
+    climateKoppen: KOPPEN_CFA,
+    climateClassTr: CLIMATE_CLASS_CFA_TR,
+    climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
+    // ── Çankırı deep content (wave-6a Tier-B). 6-field set (hydrographyFeatures +
+    //    settlementNoteTr omitted, Tier-B). Karadeniz'e geçiş kuşağı (Cfa) + Kaya Tuzu
+    //    Mağarası; Ilgaz Dağı Milli Parkı (Büyükhacet 2.587 m) + tuz/jips platosu;
+    //    Kızılırmak + Devrez Çayı. net göç -27,69 ‰ (bu partinin en negatif değeri);
+    //    GSYH share %0,2.
+    landformNoteTr:
+      "Çankırı'nın kuzeyinde, Kastamonu sınırında yükselen Ilgaz Dağı'nın 2.587 " +
+      'metrelik Büyükhacet Tepesi, milli park statüsündeki dağlık kütlenin en yüksek ' +
+      'noktasıdır — milli parkın küçük bir bölümü (yaklaşık 338 hektar) Çankırı sınırları ' +
+      "içindedir. İlin geri kalanı, Kızılırmak'ın kollarıyla parçalanmış, tuz ve jips " +
+      'yataklarıyla bilinen bir plato arazisidir.',
+    introTr:
+      "Çankırı, İç Anadolu'nun Karadeniz'e geçiş kuşağındaki ilidir — Cfa Köppen sınıfı, ilin " +
+      'bu geçiş karakterini yansıtır. Kent merkezine yakın Kaya Tuzu Mağarası, Hititler ' +
+      'döneminden beri işletilen bir tuz yatağı üzerine kuruludur.',
+    hydrographyNoteTr:
+      'Kızılırmak, ilin güney kesiminden geçer; adını taşıyan Kızılırmak ilçesi bu güzergah ' +
+      "üzerindedir. Devrez Çayı ise Ilgaz Dağı'ndan doğarak ilin kuzeyinden geçer ve " +
+      "Kastamonu yönünde Gökırmak'a katılır.",
+    urbanizationRate: 69.39,
+    netMigrationRate: -27.69,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,2',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+];
+
+/**
  * Every fact-checked province the geography seed loads, in batch order (pilot-5 first,
  * then Batch 2 wave-1, wave-2, wave-3, wave-4, then wave-6d Karadeniz-B, then wave-6b
- * Doğu Anadolu). This is the
+ * Doğu Anadolu, then wave-6a İç Anadolu). This is the
  * single list `seedGeography` iterates — the seed is keyed on the unique `plate_code`,
  * so array order is cosmetic (the public list endpoint re-orders by plate code). Grows
  * batch-by-batch toward the full 81 as each wave clears an independent fact-check.
- * Currently 60 provinces: 5 pilot + 9 wave-1 + 10 wave-2 + 7 wave-3 + 7 wave-4 +
- * 9 wave-6d + 13 wave-6b Doğu Anadolu.
+ * Currently 72 provinces: 5 pilot + 9 wave-1 + 10 wave-2 + 7 wave-3 + 7 wave-4 +
+ * 9 wave-6d + 13 wave-6b Doğu Anadolu + 12 wave-6a İç Anadolu.
  */
 export const SEED_PROVINCES: readonly ProvinceSeed[] = [
   ...PILOT_PROVINCES,
@@ -4393,4 +5065,5 @@ export const SEED_PROVINCES: readonly ProvinceSeed[] = [
   ...BATCH2_WAVE4_PROVINCES,
   ...WAVE6D_KARADENIZ_B_PROVINCES,
   ...WAVE6B_DOGU_ANADOLU_PROVINCES,
+  ...WAVE6A_IC_ANADOLU_PROVINCES,
 ];

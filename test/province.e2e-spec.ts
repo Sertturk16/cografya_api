@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { ThrottlerStorage } from '@nestjs/throttler';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
@@ -32,7 +33,7 @@ import { HydrographyFeatureType } from '../src/province/province.types';
 /**
  * Expected, fact-checked values for every seeded province (5 pilot + 9 Batch 2
  * wave-1 + 10 Batch 2 wave-2 + 7 Batch 2 wave-3 + 7 Batch 2 wave-4 + 9 wave-6d
- * Karadeniz-B + 13 wave-6b = 60), restated
+ * Karadeniz-B + 13 wave-6b + 12 wave-6a İç Anadolu = 72), restated
  * INDEPENDENTLY of the seed source (NOT imported from the seed arrays) so a
  * transcription regression in the seed is caught rather than tautologically passed.
  * Pilot values trace to il-data-dictionary §2.1 (fact-checked 2026-07-08); wave-1
@@ -56,10 +57,11 @@ import { HydrographyFeatureType } from '../src/province/province.types';
  * Afyonkarahisar are Cfa; wave-3 Kütahya is Csb (the third class); all 7 wave-4
  * provinces are Csa (no new class); wave-6d adds Cfb (the FOURTH class — Çorum 19,
  * Kastamonu 37, Bolu 14, "Karadeniz iklimi" like Cfa) plus 4×Cfa + 2×Csa; wave-6b adds the platform's first non-"C" codes (Dfb/Dsb/Dsa →
- * "Karasal iklim", BSk → "Yarı Kurak Step İklimi"); the rest
+ * "Karasal iklim", BSk → "Yarı Kurak Step İklimi"); wave-6a introduces NO new code —
+ * its 12 il REUSE existing codes (6× BSk, 3× Csa, 2× Csb, 1× Cfa); the rest
  * are Csa. `caveatContains` is the
  * province's OWN class code, asserting each row got the caveat that names its code
- * (Cfa/Csb caveat, not the Csa one) — the copy-paste guard.
+ * (Cfa/Csb/BSk caveat, not the Csa one) — the copy-paste guard.
  */
 const EXPECTED_PROVINCES = [
   {
@@ -2010,13 +2012,385 @@ const EXPECTED_PROVINCES = [
         'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
     },
   },
+  // ── Wave 6a (İç Anadolu, 12 brand-new il) — restated INDEPENDENTLY from the fact-checked
+  //    wave6a-ic-anadolu draft (SEED-READY WITH CORRECTIONS). Köppen is MIXED: 6× BSk
+  //    (Konya/Eskişehir/Niğde/Aksaray/Karaman/Kırıkkale, caveatContains 'BSk' — BSk was
+  //    introduced by wave-6b, these reuse it), 3× Csa, 2× Csb, 1× Cfa. Konya + Kayseri are Tier-A (full 8-field);
+  //    Eskişehir is the Tier-B-but-büyükşehir exception (→ DEC 2026-07-12, mirrors Mardin); the
+  //    other 9 are plain Tier-B (hydrographyFeatures + settlementNoteTr null). ──
+  {
+    slug: 'konya',
+    plateCode: '42',
+    nameTr: 'Konya',
+    region: 'IC_ANADOLU',
+    population: 2_343_409,
+    populationYear: 2025,
+    areaKm2: 40_838,
+    districtCount: 31,
+    populationDensity: 57, // round(2_343_409 / 40_838)
+    elevationM: 1029,
+    latitude: 37.8687,
+    longitude: 32.4713,
+    neighborPlateCodes: ['06', '68', '51', '33', '70', '07', '32', '03', '26'],
+    climateKoppen: 'BSk',
+    climateClassTr: 'Yarı Kurak Step İklimi',
+    caveatContains: 'BSk',
+    // ── Konya wave-6a Tier-A — the FULL 8-field set. urbanizationRate=100 is the 6360
+    //    büyükşehir artifact (framed in settlementNoteTr); net göç -0,97 ‰; GSYH %2,1.
+    urbanizationRate: 100,
+    netMigrationRate: -0.97,
+    hydrographyFeatures: [
+      { name: 'Çarşamba Çayı', type: 'nehir' },
+      { name: 'Apa Barajı', type: 'baraj' },
+      { name: 'Altınapa Barajı', type: 'baraj' },
+      { name: 'Beyşehir Gölü', type: 'gol' },
+      { name: 'Tuz Gölü', type: 'gol' },
+    ],
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%2,1',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    slug: 'kayseri',
+    plateCode: '38',
+    nameTr: 'Kayseri',
+    region: 'IC_ANADOLU',
+    population: 1_458_991,
+    populationYear: 2025,
+    areaKm2: 16_970,
+    districtCount: 16,
+    populationDensity: 86, // round(1_458_991 / 16_970)
+    elevationM: 1094,
+    latitude: 38.687,
+    longitude: 35.5,
+    neighborPlateCodes: ['66', '58', '46', '01', '51', '50'],
+    climateKoppen: 'Csa',
+    climateClassTr: 'Akdeniz iklimi',
+    caveatContains: 'Csa',
+    // ── Kayseri wave-6a Tier-A — FULL 8-field set. urbanizationRate=100 is the 6360
+    //    büyükşehir artifact; net göç +0,92 ‰; GSYH %1,4.
+    urbanizationRate: 100,
+    netMigrationRate: 0.92,
+    hydrographyFeatures: [
+      { name: 'Zamantı Irmağı', type: 'nehir' },
+      { name: 'Sarımsaklı Deresi', type: 'nehir' },
+      { name: 'Sultansazlığı', type: 'gol' },
+    ],
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%1,4',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    slug: 'eskisehir',
+    plateCode: '26',
+    nameTr: 'Eskişehir',
+    region: 'IC_ANADOLU',
+    population: 927_956,
+    populationYear: 2025,
+    areaKm2: 13_960,
+    districtCount: 14,
+    populationDensity: 66, // round(927_956 / 13_960)
+    elevationM: 801,
+    latitude: 39.7656,
+    longitude: 30.5502,
+    neighborPlateCodes: ['06', '43', '11', '03', '42', '14'],
+    climateKoppen: 'BSk',
+    climateClassTr: 'Yarı Kurak Step İklimi',
+    caveatContains: 'BSk',
+    // ── Eskişehir wave-6a Tier-B-but-büyükşehir EXCEPTION (→ DEC 2026-07-12, mirrors Mardin):
+    //    hydrographyFeatures null (Tier-B) BUT settlementNoteTr POPULATED with the single 6360
+    //    caveat sentence (urbanizationRate=100 is the büyükşehir legal artifact). net göç +7,43 ‰
+    //    (this wave's highest positive); GSYH %1,1. Exact one-sentence content asserted in the
+    //    dedicated Eskişehir exception test.
+    urbanizationRate: 100,
+    netMigrationRate: 7.43,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%1,1',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    slug: 'sivas',
+    plateCode: '58',
+    nameTr: 'Sivas',
+    region: 'IC_ANADOLU',
+    population: 631_401,
+    populationYear: 2025,
+    areaKm2: 28_164,
+    districtCount: 17,
+    populationDensity: 22, // round(631_401 / 28_164)
+    elevationM: 1294,
+    latitude: 39.7437,
+    longitude: 37.002,
+    neighborPlateCodes: ['44', '46', '38', '66', '60', '52', '28', '24'],
+    climateKoppen: 'Csb',
+    climateClassTr: 'Akdeniz iklimi',
+    caveatContains: 'Csb',
+    // ── Sivas wave-6a plain Tier-B (non-büyükşehir): hydrographyFeatures + settlementNoteTr null.
+    //    urbanizationRate=77.38 REAL rate; net göç -21,14 ‰; GSYH %0,5.
+    urbanizationRate: 77.38,
+    netMigrationRate: -21.14,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,5',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    slug: 'yozgat',
+    plateCode: '66',
+    nameTr: 'Yozgat',
+    region: 'IC_ANADOLU',
+    population: 413_208,
+    populationYear: 2025,
+    areaKm2: 13_690,
+    districtCount: 14,
+    populationDensity: 30, // round(413_208 / 13_690)
+    elevationM: 1301,
+    latitude: 39.8243,
+    longitude: 34.8159,
+    neighborPlateCodes: ['19', '05', '60', '58', '38', '50', '40', '71'],
+    climateKoppen: 'Csb',
+    climateClassTr: 'Akdeniz iklimi',
+    caveatContains: 'Csb',
+    // ── Yozgat wave-6a plain Tier-B: hydrographyFeatures + settlementNoteTr null.
+    //    urbanizationRate=66.93; net göç -20,23 ‰; GSYH %0,3.
+    urbanizationRate: 66.93,
+    netMigrationRate: -20.23,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    slug: 'kirsehir',
+    plateCode: '40',
+    nameTr: 'Kırşehir',
+    region: 'IC_ANADOLU',
+    population: 242_777,
+    populationYear: 2025,
+    areaKm2: 6584,
+    districtCount: 7,
+    populationDensity: 37, // round(242_777 / 6584)
+    elevationM: 1007,
+    latitude: 39.1639,
+    longitude: 34.1561,
+    neighborPlateCodes: ['71', '66', '50', '68', '06'],
+    climateKoppen: 'Csa',
+    climateClassTr: 'Akdeniz iklimi',
+    caveatContains: 'Csa',
+    // ── Kırşehir wave-6a plain Tier-B: hydrographyFeatures + settlementNoteTr null.
+    //    urbanizationRate=81.81; net göç -4,57 ‰; GSYH %0,2.
+    urbanizationRate: 81.81,
+    netMigrationRate: -4.57,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,2',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    slug: 'nevsehir',
+    plateCode: '50',
+    nameTr: 'Nevşehir',
+    region: 'IC_ANADOLU',
+    population: 320_150,
+    populationYear: 2025,
+    areaKm2: 5485,
+    districtCount: 8,
+    populationDensity: 58, // round(320_150 / 5485)
+    elevationM: 1260,
+    latitude: 38.6163,
+    longitude: 34.7025,
+    neighborPlateCodes: ['68', '40', '66', '38', '51'],
+    climateKoppen: 'Csa',
+    climateClassTr: 'Akdeniz iklimi',
+    caveatContains: 'Csa',
+    // ── Nevşehir wave-6a plain Tier-B: hydrographyFeatures + settlementNoteTr null.
+    //    urbanizationRate=66.42; net göç +4,05 ‰; GSYH %0,3.
+    urbanizationRate: 66.42,
+    netMigrationRate: 4.05,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    slug: 'nigde',
+    plateCode: '51',
+    nameTr: 'Niğde',
+    region: 'IC_ANADOLU',
+    population: 374_492,
+    populationYear: 2025,
+    areaKm2: 7234,
+    districtCount: 6,
+    populationDensity: 52, // round(374_492 / 7234)
+    elevationM: 1211,
+    latitude: 37.9587,
+    longitude: 34.6795,
+    neighborPlateCodes: ['68', '50', '38', '42', '33', '01'],
+    climateKoppen: 'BSk',
+    climateClassTr: 'Yarı Kurak Step İklimi',
+    caveatContains: 'BSk',
+    // ── Niğde wave-6a plain Tier-B (BSk): hydrographyFeatures + settlementNoteTr null.
+    //    urbanizationRate=62.92; net göç -13,92 ‰; GSYH %0,3.
+    urbanizationRate: 62.92,
+    netMigrationRate: -13.92,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    slug: 'aksaray',
+    plateCode: '68',
+    nameTr: 'Aksaray',
+    region: 'IC_ANADOLU',
+    population: 441_136,
+    populationYear: 2025,
+    areaKm2: 7659,
+    districtCount: 8,
+    populationDensity: 58, // round(441_136 / 7659)
+    elevationM: 970,
+    latitude: 38.3705,
+    longitude: 33.9987,
+    neighborPlateCodes: ['50', '51', '42', '06', '40'],
+    climateKoppen: 'BSk',
+    climateClassTr: 'Yarı Kurak Step İklimi',
+    caveatContains: 'BSk',
+    // ── Aksaray wave-6a plain Tier-B (BSk): hydrographyFeatures + settlementNoteTr null.
+    //    urbanizationRate=74.20; net göç -2,10 ‰; GSYH %0,4.
+    urbanizationRate: 74.2,
+    netMigrationRate: -2.1,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,4',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    slug: 'karaman',
+    plateCode: '70',
+    nameTr: 'Karaman',
+    region: 'IC_ANADOLU',
+    population: 262_355,
+    populationYear: 2025,
+    areaKm2: 8678,
+    districtCount: 6,
+    populationDensity: 30, // round(262_355 / 8678)
+    elevationM: 1018,
+    latitude: 37.1932,
+    longitude: 33.2202,
+    // 3 komşu — Niğde ve Adana fact-check GeoJSON geometrik analiziyle ÇIKARILDI.
+    neighborPlateCodes: ['42', '07', '33'],
+    climateKoppen: 'BSk',
+    climateClassTr: 'Yarı Kurak Step İklimi',
+    caveatContains: 'BSk',
+    // ── Karaman wave-6a plain Tier-B (BSk): hydrographyFeatures + settlementNoteTr null.
+    //    urbanizationRate=77.02; net göç -5,79 ‰; GSYH %0,3.
+    urbanizationRate: 77.02,
+    netMigrationRate: -5.79,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    slug: 'kirikkale',
+    plateCode: '71',
+    nameTr: 'Kırıkkale',
+    region: 'IC_ANADOLU',
+    population: 282_830,
+    populationYear: 2025,
+    areaKm2: 4791,
+    districtCount: 9,
+    populationDensity: 59, // round(282_830 / 4791)
+    elevationM: 751,
+    latitude: 39.8433,
+    longitude: 33.5181,
+    // 5 komşu — Bolu fact-check GeoJSON geometrik analiziyle ÇIKARILDI.
+    neighborPlateCodes: ['06', '66', '18', '40', '19'],
+    climateKoppen: 'BSk',
+    climateClassTr: 'Yarı Kurak Step İklimi',
+    caveatContains: 'BSk',
+    // ── Kırıkkale wave-6a plain Tier-B (BSk): hydrographyFeatures + settlementNoteTr null.
+    //    urbanizationRate=88.16; net göç -11,58 ‰; GSYH %0,3.
+    urbanizationRate: 88.16,
+    netMigrationRate: -11.58,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
+  {
+    slug: 'cankiri',
+    plateCode: '18',
+    nameTr: 'Çankırı',
+    region: 'IC_ANADOLU',
+    population: 200_549,
+    populationYear: 2025,
+    areaKm2: 7542,
+    districtCount: 12,
+    populationDensity: 27, // round(200_549 / 7542)
+    elevationM: 755,
+    latitude: 40.6082,
+    longitude: 33.6102,
+    neighborPlateCodes: ['78', '37', '19', '71', '06', '14'],
+    climateKoppen: 'Cfa',
+    climateClassTr: 'Karadeniz iklimi',
+    caveatContains: 'Cfa',
+    // ── Çankırı wave-6a plain Tier-B (Cfa — Karadeniz'e geçiş kuşağı): hydrographyFeatures +
+    //    settlementNoteTr null. urbanizationRate=69.39; net göç -27,69 ‰ (this wave's most
+    //    negative); GSYH %0,2.
+    urbanizationRate: 69.39,
+    netMigrationRate: -27.69,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,2',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
+  },
 ] as const;
 
 /**
  * Real-Postgres e2e (Testcontainers): proves the migrations run clean, the
- * `db:seed:geography` seed lands ALL 60 fact-checked provinces (5 pilot + 9 Batch 2
+ * `db:seed:geography` seed lands ALL 72 fact-checked provinces (5 pilot + 9 Batch 2
  * wave-1 + 10 Batch 2 wave-2 + 7 Batch 2 wave-3 + 7 Batch 2 wave-4 + 9 wave-6d
- * Karadeniz-B + 13 wave-6b Doğu Anadolu) IDEMPOTENTLY (no
+ * Karadeniz-B + 13 wave-6b Doğu Anadolu + 12 wave-6a İç Anadolu) IDEMPOTENTLY (no
  * duplicate rows, no `updated_at` bump on a no-op re-seed), and the public read
  * endpoints serve that data under the `/api` prefix. Runs on CI only (needs Docker);
  * locally we run tsc + eslint per CONVENTIONS §2.
@@ -2063,14 +2437,14 @@ describe('Province (e2e)', () => {
     //    growing one phase per historical wave:
     //      Phase 1 — empty DB seeded with the pilot-5 ONLY: the state PR-4a left
     //        (all-insert). Snapshot İstanbul's updated_at.
-    //      Phase 2 — re-seed the SAME DB with the FULL 47-list (SEED_PROVINCES). The 5
-    //        pilot rows already match (no-op) and the other 55 are new (insert) → a
+    //      Phase 2 — re-seed the SAME DB with the FULL 72-list (SEED_PROVINCES). The 5
+    //        pilot rows already match (no-op) and the other 67 are new (insert) → a
     //        MIXED batch, the largest this repo ships. İstanbul's updated_at must be
     //        UNCHANGED (a mixed batch never touches the rows it leaves alone — and, per
     //        the earlier waves' agreed trigger, the number of prior batches the no-op
     //        set spans does not change what this proves, so one mixed transition stands
     //        in for the old +wave-1/+wave-2/+wave-3 chain).
-    //      Phase 3 — a routine re-run over the complete 47: pure no-op, proving
+    //      Phase 3 — a routine re-run over the complete 72: pure no-op, proving
     //        idempotency AND no updated_at churn (SEO lastmod honesty, §6).
     //    PILOT_PROVINCES + SEED_PROVINCES drive the phases here; value correctness is
     //    asserted independently from EXPECTED_PROVINCES.
@@ -2094,7 +2468,33 @@ describe('Province (e2e)', () => {
     //    import) defers module load to here.
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { AppModule } = require('../src/app.module') as typeof import('../src/app.module');
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    // Neutralise the global 120 req/min rate limit FOR THIS TEST RUN ONLY. The suite fires
+    // one HTTP request per seeded province (72) plus every per-wave detail assertion from a
+    // single in-memory client inside one ~25 s window — far above the production 120/min limit,
+    // which would otherwise 429 the later tests as the seed grows. The guard is registered as an
+    // APP_GUARD via `useClass` (app.module.ts), so `overrideGuard(ThrottlerGuard)` does NOT reach
+    // it (the DI token is APP_GUARD, not the guard class). Instead we override the `ThrottlerStorage`
+    // provider the guard injects with a stub that always reports zero hits — so `canActivate`
+    // never exceeds the limit. This is TEST-ONLY: the production posture (app.module.ts
+    // THROTTLE_LIMIT=120) is untouched, no security control is weakened, and no assertion is
+    // dropped. No test asserts 429 behaviour, so nothing depends on the limiter being live here.
+    const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
+      .overrideProvider(ThrottlerStorage)
+      .useValue({
+        increment: (): Promise<{
+          totalHits: number;
+          timeToExpire: number;
+          isBlocked: boolean;
+          timeToBlockExpire: number;
+        }> =>
+          Promise.resolve({
+            totalHits: 0,
+            timeToExpire: 0,
+            isBlocked: false,
+            timeToBlockExpire: 0,
+          }),
+      })
+      .compile();
     app = moduleRef.createNestApplication();
     applyGlobalPrefix(app);
     await app.init();
@@ -2118,24 +2518,24 @@ describe('Province (e2e)', () => {
     expect(pilotOnlySeed).toEqual({ inserted: 5, updated: 0, unchanged: 0, total: 5 });
   });
 
-  it('phase 2 — re-seeding the full 60 over the pilot-5 is a MIXED batch', () => {
+  it('phase 2 — re-seeding the full 72 over the pilot-5 is a MIXED batch', () => {
     // The representative mixed transition (the wave-4 collapse of the old per-wave
-    // chain): the 5 pilot rows are already present (no-ops) and the other 55 are new
+    // chain): the 5 pilot rows are already present (no-ops) and the other 67 are new
     // (inserts) — a genuine mixed batch that guards per-row independence. A shared-state
     // regression would mis-count HERE while the homogeneous all-insert (phase 1) and
     // all-no-op (phase 3) cases stayed green. The no-op set spanning one prior batch
     // rather than three does not change what this proves.
-    expect(fullMixedSeed).toEqual({ inserted: 55, updated: 0, unchanged: 5, total: 60 });
+    expect(fullMixedSeed).toEqual({ inserted: 67, updated: 0, unchanged: 5, total: 72 });
     // A mixed batch must NOT touch the updated_at of the rows it leaves alone.
     expect(istanbulUpdatedAtAfterFullInsert).toBe(istanbulUpdatedAtAfterPilotInsert);
   });
 
   it('phase 3 — re-seed is a no-op: no duplicates, no writes, no updated_at churn', async () => {
-    // Every row already matches → all 60 unchanged, none updated/inserted.
-    expect(reSeed).toEqual({ inserted: 0, updated: 0, unchanged: 60, total: 60 });
-    // Still exactly 60 rows.
+    // Every row already matches → all 72 unchanged, none updated/inserted.
+    expect(reSeed).toEqual({ inserted: 0, updated: 0, unchanged: 72, total: 72 });
+    // Still exactly 72 rows.
     const count = await dataSource.getRepository(Province).count();
-    expect(count).toBe(60);
+    expect(count).toBe(72);
     // updated_at was NOT bumped by the no-op re-seed.
     expect(istanbulUpdatedAtAfterReseed).toBe(istanbulUpdatedAtAfterFullInsert);
   });
@@ -2154,7 +2554,7 @@ describe('Province (e2e)', () => {
 
     const result = await seedGeography(dataSource);
     // Only İstanbul drifted (via the economyIndicator comparison) → 1 updated, 59 untouched.
-    expect(result).toEqual({ inserted: 0, updated: 1, unchanged: 59, total: 60 });
+    expect(result).toEqual({ inserted: 0, updated: 1, unchanged: 71, total: 72 });
 
     // The drifted field was actually re-written from the seed.
     const istanbul = await repo.findOneByOrFail({ plateCode: '34' });
@@ -2165,8 +2565,8 @@ describe('Province (e2e)', () => {
       source:
         'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
     });
-    // Still exactly 60 rows — an UPDATE, never an insert/delete.
-    expect(await repo.count()).toBe(60);
+    // Still exactly 72 rows — an UPDATE, never an insert/delete.
+    expect(await repo.count()).toBe(72);
   });
 
   it('re-seed CLEARS a retracted optional field (merge/compare stay coherent)', async () => {
@@ -2185,20 +2585,20 @@ describe('Province (e2e)', () => {
 
     const result = await seedGeography(dataSource, retractedList);
     // İstanbul drifts (economyIndicator retracted → null) → 1 updated, 59 unchanged.
-    expect(result).toEqual({ inserted: 0, updated: 1, unchanged: 59, total: 60 });
+    expect(result).toEqual({ inserted: 0, updated: 1, unchanged: 71, total: 72 });
 
     // The retracted field is actually CLEARED in the DB (the coherence fix works).
     const istanbul = await repo.findOneByOrFail({ plateCode: '34' });
     expect(istanbul.economyIndicator).toBeNull();
     // The retraction is a genuine no-op on re-run (does not churn `updated` forever).
     const rerun = await seedGeography(dataSource, retractedList);
-    expect(rerun).toEqual({ inserted: 0, updated: 0, unchanged: 60, total: 60 });
+    expect(rerun).toEqual({ inserted: 0, updated: 0, unchanged: 72, total: 72 });
 
     // Restore the canonical, fully-populated İstanbul for the later tests.
     const restore = await seedGeography(dataSource);
-    expect(restore).toEqual({ inserted: 0, updated: 1, unchanged: 59, total: 60 });
+    expect(restore).toEqual({ inserted: 0, updated: 1, unchanged: 71, total: 72 });
     expect((await repo.findOneByOrFail({ plateCode: '34' })).economyIndicator).not.toBeNull();
-    expect(await repo.count()).toBe(60);
+    expect(await repo.count()).toBe(72);
   });
 
   it('round-trips a seeded Province (transformer + array + İstanbul deep-content jsonb)', async () => {
@@ -2262,12 +2662,12 @@ describe('Province (e2e)', () => {
     }
   });
 
-  it('GET /api/provinces returns all 60, plate-ordered, lean (no detail leak)', async () => {
+  it('GET /api/provinces returns all 72, plate-ordered, lean (no detail leak)', async () => {
     const res = await request(app.getHttpServer()).get('/api/provinces').expect(200);
     const body = res.body as Array<Record<string, unknown>>;
     expect(Array.isArray(body)).toBe(true);
-    expect(body).toHaveLength(60);
-    // lexical plate order across all seven batches (pilot + wave-1..4 + wave-6d + wave-6b).
+    expect(body).toHaveLength(72);
+    // lexical plate order across all eight batches (pilot + wave-1..4 + wave-6d + wave-6b + wave-6a).
     expect(body.map((p) => p.plateCode)).toEqual([
       '01',
       '02',
@@ -2284,6 +2684,7 @@ describe('Province (e2e)', () => {
       '15',
       '16',
       '17',
+      '18',
       '19',
       '20',
       '21',
@@ -2291,6 +2692,7 @@ describe('Province (e2e)', () => {
       '23',
       '24',
       '25',
+      '26',
       '27',
       '30',
       '31',
@@ -2300,8 +2702,11 @@ describe('Province (e2e)', () => {
       '35',
       '36',
       '37',
+      '38',
       '39',
+      '40',
       '41',
+      '42',
       '43',
       '44',
       '45',
@@ -2309,16 +2714,23 @@ describe('Province (e2e)', () => {
       '47',
       '48',
       '49',
+      '50',
+      '51',
       '54',
       '56',
       '57',
+      '58',
       '59',
       '60',
       '62',
       '63',
       '64',
       '65',
+      '66',
       '67',
+      '68',
+      '70',
+      '71',
       '72',
       '73',
       '74',
@@ -2350,8 +2762,8 @@ describe('Province (e2e)', () => {
     const res = await request(app.getHttpServer()).get('/api/provinces/map-summary').expect(200);
     const body = res.body as Array<Record<string, unknown>>;
     expect(Array.isArray(body)).toBe(true);
-    expect(body).toHaveLength(60);
-    // same plate order as the list endpoint (all 60, seven batches)
+    expect(body).toHaveLength(72);
+    // same plate order as the list endpoint (all 72, eight batches)
     expect(body.map((p) => p.plateCode)).toEqual([
       '01',
       '02',
@@ -2368,6 +2780,7 @@ describe('Province (e2e)', () => {
       '15',
       '16',
       '17',
+      '18',
       '19',
       '20',
       '21',
@@ -2375,6 +2788,7 @@ describe('Province (e2e)', () => {
       '23',
       '24',
       '25',
+      '26',
       '27',
       '30',
       '31',
@@ -2384,8 +2798,11 @@ describe('Province (e2e)', () => {
       '35',
       '36',
       '37',
+      '38',
       '39',
+      '40',
       '41',
+      '42',
       '43',
       '44',
       '45',
@@ -2393,16 +2810,23 @@ describe('Province (e2e)', () => {
       '47',
       '48',
       '49',
+      '50',
+      '51',
       '54',
       '56',
       '57',
+      '58',
       '59',
       '60',
       '62',
       '63',
       '64',
       '65',
+      '66',
       '67',
+      '68',
+      '70',
+      '71',
       '72',
       '73',
       '74',
@@ -2444,7 +2868,7 @@ describe('Province (e2e)', () => {
   // seeded row leaves them null (base data only), so nothing else exercises a
   // NON-null jsonb round-trip through Postgres. A throwaway fixture row (plate '00',
   // not a real province) is inserted, read back through the API, then deleted in
-  // `finally` so the other tests still see exactly the 47 seeded rows.
+  // `finally` so the other tests still see exactly the 72 seeded rows.
   it('round-trips non-null jsonb + numeric-rate fields through the DB and API', async () => {
     const repo = dataSource.getRepository(Province);
     const fixture = repo.create({
@@ -2489,13 +2913,13 @@ describe('Province (e2e)', () => {
       // computed density on real inputs: round(1000 / 4) = 250
       expect(body.populationDensity).toBe(250);
     } finally {
-      // Clean up unconditionally so the 47-row count assumed by the other tests
+      // Clean up unconditionally so the 72-row count assumed by the other tests
       // holds even if an assertion above throws.
       await repo.delete({ plateCode: '00' });
     }
   });
 
-  // I1/M4: assert EVERY seeded province's key fact-checked fields (all 60, seven
+  // I1/M4: assert EVERY seeded province's key fact-checked fields (all 72, eight
   // batches — not just İstanbul) so a transcription regression in any row fails CI.
   // The province-specific MGM caveat (Ankara/Van divergence), the Cfa caveat
   // (Kocaeli/Sakarya/Afyonkarahisar, caveatContains: 'Cfa') and the wave-3 Csb caveat
@@ -2579,7 +3003,10 @@ describe('Province (e2e)', () => {
         expected.plateCode === '33' ||
         expected.plateCode === '21' ||
         expected.plateCode === '27' ||
-        expected.plateCode === '63'
+        expected.plateCode === '63' ||
+        // wave-6a Tier-A (İç Anadolu): Konya 42, Kayseri 38 — full 8-field set.
+        expected.plateCode === '42' ||
+        expected.plateCode === '38'
       ) {
         expect(body).toMatchObject({
           urbanizationRate: expected.urbanizationRate,
@@ -2629,7 +3056,18 @@ describe('Province (e2e)', () => {
         expected.plateCode === '49' ||
         expected.plateCode === '62' ||
         expected.plateCode === '75' ||
-        expected.plateCode === '76'
+        expected.plateCode === '76' ||
+        // wave-6a plain Tier-B (İç Anadolu, non-büyükşehir): Sivas 58, Yozgat 66, Kırşehir 40,
+        // Nevşehir 50, Niğde 51, Aksaray 68, Karaman 70, Kırıkkale 71, Çankırı 18.
+        expected.plateCode === '58' ||
+        expected.plateCode === '66' ||
+        expected.plateCode === '40' ||
+        expected.plateCode === '50' ||
+        expected.plateCode === '51' ||
+        expected.plateCode === '68' ||
+        expected.plateCode === '70' ||
+        expected.plateCode === '71' ||
+        expected.plateCode === '18'
       ) {
         // Tier-B: the six authored fields are present; the two Tier-B-omitted keys come back
         // null (omitted-in-seed → normalised to null by withExplicitDetailNulls → serialised
@@ -2650,10 +3088,11 @@ describe('Province (e2e)', () => {
       } else if (
         expected.plateCode === '47' ||
         expected.plateCode === '25' ||
-        expected.plateCode === '44'
+        expected.plateCode === '44' ||
+        expected.plateCode === '26'
       ) {
-        // Tier-B-but-büyükşehir variant (→ DEC 2026-07-12): Mardin 47 (wave-5) + Erzurum 25 and
-        // Malatya 44 (wave-6b). Tier-B depth,
+        // Tier-B-but-büyükşehir variant (→ DEC 2026-07-12): Mardin 47 (wave-5), Erzurum 25 and
+        // Malatya 44 (wave-6b), Eskişehir 26 (wave-6a). Tier-B depth,
         // so hydrographyFeatures is null like the plain Tier-B il — BUT settlementNoteTr is POPULATED
         // (unlike them), because its %100 urbanizationRate is the 6360 büyükşehir legal artifact. The
         // three scalars are asserted exactly; hydrographyFeatures null; settlementNoteTr a NON-empty
@@ -3499,8 +3938,207 @@ describe('Province (e2e)', () => {
     }
   });
 
+  // Wave-6a Tier-A deep content (Konya/Kayseri — nüfus ≥1M): the FULL 4-prose set (incl.
+  // settlementNoteTr; both büyükşehir), asserted by distinctive fact token. Tokens are distinct
+  // because each il is written to its OWN character (Konya: bozkır platosu/kapalı havza/Beyşehir;
+  // Kayseri: Erciyes stratovolkanı/Sultansazlığı Ramsar). Konya is a BSk il — its climate caveat
+  // is asserted via caveatContains in the it.each value loop above; here we cover the prose.
+  it.each([
+    {
+      slug: 'konya',
+      intro: ['40.838', 'Çatalhöyük'],
+      landform: ['bozkır', 'Toros', 'Karacadağ'],
+      hydrography: ['Çarşamba', 'Beyşehir', 'Tuz Gölü'],
+      settlement: ['6360', '%100', '-0,97'],
+    },
+    {
+      slug: 'kayseri',
+      intro: ['Erciyes', 'OSB'],
+      landform: ['3.917', 'stratovolkan', '2,5-3 milyon'],
+      hydrography: ['Zamantı', 'Sultansazlığı', '13 Temmuz 1994'],
+      settlement: ['6360', '%100', '+0,92'],
+    },
+  ])(
+    'GET /api/provinces/$slug serves the wave-6a Tier-A deep-content prose (fact-checked tokens)',
+    async ({ slug, intro, landform, hydrography, settlement }) => {
+      const res = await request(app.getHttpServer()).get(`/api/provinces/${slug}`).expect(200);
+      const body = res.body as Record<string, string>;
+      for (const token of intro) expect(body.introTr).toContain(token);
+      for (const token of landform) expect(body.landformNoteTr).toContain(token);
+      for (const token of hydrography) expect(body.hydrographyNoteTr).toContain(token);
+      for (const token of settlement) expect(body.settlementNoteTr).toContain(token);
+      // No ALL-CAPS emphasis in shipped prose (CONTENT-STYLE.md §2), same guard as every wave.
+      expect(body.landformNoteTr).not.toContain('DEĞİL');
+    },
+  );
+
+  // Wave-6a plain Tier-B (Sivas/Yozgat/Kırşehir/Nevşehir/Niğde/Aksaray/Karaman/Kırıkkale/Çankırı —
+  // nüfus <1M, none büyükşehir): 6 fields populated, hydrographyFeatures + settlementNoteTr null
+  // (Tier-B scope cut) — same shape as wave-3/wave-5 Tier-B. Çankırı's -27.69 ‰ is this wave's most
+  // negative net-migration. (Eskişehir — the Tier-B-but-büyükşehir exception with a POPULATED
+  // settlementNoteTr — is covered in its own test below, NOT here.)
+  it.each([
+    {
+      slug: 'sivas',
+      intro: ['1.294', 'Kızılırmak', 'Divriği'],
+      landform: ['plato', 'Karadeniz'],
+      hydrography: ['İmranlı', '1.355'],
+      urbanizationRate: 77.38,
+      netMigrationRate: -21.14,
+      economyValue: '%0,5',
+    },
+    {
+      slug: 'yozgat',
+      intro: ['Yozgat Çamlığı', '5 Şubat 1958'],
+      landform: ['Çekerek', 'bozkır'],
+      hydrography: ['Çekerek', 'Yeşilırmak'],
+      urbanizationRate: 66.93,
+      netMigrationRate: -20.23,
+      economyValue: '%0,3',
+    },
+    {
+      slug: 'kirsehir',
+      intro: ['Ahi Evran', 'Kalehöyük'],
+      landform: ['Kaman-Kırşehir', 'plato'],
+      hydrography: ['Hirfanlı', 'Seyfe', 'Ramsar'],
+      urbanizationRate: 81.81,
+      netMigrationRate: -4.57,
+      economyValue: '%0,2',
+    },
+    {
+      slug: 'nevsehir',
+      intro: ['Kapadokya', 'Göreme', 'Derinkuyu'],
+      landform: ['tüf', 'peribacaları', 'Hasan Dağı'],
+      hydrography: ['Kızılırmak', 'Damsa'],
+      urbanizationRate: 66.42,
+      netMigrationRate: 4.05,
+      economyValue: '%0,3',
+    },
+    {
+      slug: 'nigde',
+      intro: ['patates', 'Hasan Dağı'],
+      landform: ['3.268', 'Bolkar', 'Aladağlar'],
+      hydrography: ['Seyhan', 'kapalı havza'],
+      urbanizationRate: 62.92,
+      netMigrationRate: -13.92,
+      economyValue: '%0,3',
+    },
+    {
+      slug: 'aksaray',
+      intro: ['Ihlara', 'Tuz Gölü'],
+      landform: ['Hasan Dağı', 'Melendiz', 'kanyon'],
+      hydrography: ['Melendiz', '18 kilometre', 'menderes'],
+      urbanizationRate: 74.2,
+      netMigrationRate: -2.1,
+      economyValue: '%0,4',
+    },
+    {
+      slug: 'karaman',
+      intro: ['1989', 'Karamanoğulları', 'Binbirkilise'],
+      landform: ['Karadağ', 'Toros', 'Ermenek'],
+      hydrography: ['Ermenek', 'Akdeniz'],
+      urbanizationRate: 77.02,
+      netMigrationRate: -5.79,
+      economyValue: '%0,3',
+    },
+    {
+      slug: 'kirikkale',
+      intro: ['1925', 'MKE'],
+      landform: ['Kızılırmak', 'en küçük'],
+      hydrography: ['Delice', 'Kızılırmak'],
+      urbanizationRate: 88.16,
+      netMigrationRate: -11.58,
+      economyValue: '%0,3',
+    },
+    {
+      slug: 'cankiri',
+      intro: ['Cfa', 'Kaya Tuzu', 'Hititler'],
+      landform: ['Ilgaz', '2.587', 'jips'],
+      hydrography: ['Kızılırmak', 'Devrez'],
+      urbanizationRate: 69.39,
+      netMigrationRate: -27.69,
+      economyValue: '%0,2',
+    },
+  ])(
+    'GET /api/provinces/$slug serves the wave-6a Tier-B set: 6 fields populated, hydrographyFeatures + settlementNoteTr null',
+    async ({
+      slug,
+      intro,
+      landform,
+      hydrography,
+      urbanizationRate,
+      netMigrationRate,
+      economyValue,
+    }) => {
+      const res = await request(app.getHttpServer()).get(`/api/provinces/${slug}`).expect(200);
+      const body = res.body as Record<string, unknown>;
+
+      // The three authored Tier-B prose fields carry their fact-checked tokens.
+      for (const token of intro) expect(body.introTr).toContain(token);
+      for (const token of landform) expect(body.landformNoteTr).toContain(token);
+      for (const token of hydrography) expect(body.hydrographyNoteTr).toContain(token);
+      expect(body.landformNoteTr).not.toContain('DEĞİL');
+
+      // The three authored structured/scalar fields — urbanizationRate is a REAL rate (<100),
+      // proving the non-büyükşehir path (no 6360 artifact).
+      expect(body.urbanizationRate).toBe(urbanizationRate);
+      expect(body.netMigrationRate).toBe(netMigrationRate);
+      expect((body.economyIndicator as { value: string }).value).toBe(economyValue);
+
+      // The two Tier-B omissions surface as null (never a bare [] or empty note).
+      expect(body.hydrographyFeatures).toBeNull();
+      expect(body.settlementNoteTr).toBeNull();
+    },
+  );
+
+  // Wave-6a Eskişehir — the Tier-B-but-büyükşehir exception (→ DEC 2026-07-12), the SECOND province
+  // (after wave-5's Mardin) to take this shape. Nüfus 927,956 (<1M → Tier-B: hydrographyFeatures
+  // null) BUT büyükşehir since 1993, so its %100 urbanizationRate is a 6360 legal artifact that MUST
+  // ship with its methodological framing — its settlementNoteTr is POPULATED (unlike the 9 plain
+  // Tier-B il above), but with ONLY the single caveat sentence (no migration stats — that number
+  // lives in netMigrationRate). Also a BSk il. This test proves both halves: settlementNoteTr
+  // populated-single-sentence, hydrographyFeatures STILL null — the same discipline as Mardin's.
+  it('GET /api/provinces/eskisehir serves the Tier-B-but-büyükşehir settlementNoteTr EXCEPTION (single caveat sentence; hydrographyFeatures still null)', async () => {
+    const res = await request(app.getHttpServer()).get('/api/provinces/eskisehir').expect(200);
+    const body = res.body as Record<string, unknown>;
+
+    // settlementNoteTr is POPULATED (unlike the plain Tier-B il) — the büyükşehir-caveat exception.
+    expect(typeof body.settlementNoteTr).toBe('string');
+    const note = body.settlementNoteTr as string;
+    // It IS the 6360 %100 büyükşehir caveat, identical framing to every büyükşehir il.
+    expect(note).toContain('6360');
+    expect(note).toContain('%100');
+    expect(note).toContain('büyükşehir statüsündeki illerde');
+    // ONLY the single caveat sentence: the draft's explicit "tek cümle" constraint. The migration
+    // note that every Tier-A settlementNoteTr carries ('göç' marker + the signed rate) is ABSENT —
+    // Eskişehir's migration figure lives in the numeric field, not restated in prose.
+    expect(note).not.toContain('göç');
+    expect(note).not.toContain('+7,43');
+    // Exactly one sentence: a single terminal period, no interior '. ' sentence break.
+    expect(note.trim().endsWith('.')).toBe(true);
+    expect(note.split('. ')).toHaveLength(1);
+
+    // The exception is scoped to settlementNoteTr ALONE — hydrographyFeatures stays null (Eskişehir
+    // is Tier-B for every other detail field), unlike a Tier-A il which carries the dam/river list.
+    expect(body.hydrographyFeatures).toBeNull();
+    // The scalars: %100 urbanization (the artifact the caveat frames) + the signed migration rate in
+    // its own numeric field + the GSYH-share economyIndicator.
+    expect(body.urbanizationRate).toBe(100);
+    expect(body.netMigrationRate).toBe(7.43);
+    expect((body.economyIndicator as { value: string }).value).toBe('%1,1');
+    // The three authored Tier-B prose fields are present and non-empty.
+    for (const prose of [body.introTr, body.landformNoteTr, body.hydrographyNoteTr]) {
+      expect(typeof prose).toBe('string');
+      expect((prose as string).length).toBeGreaterThan(0);
+    }
+    expect(body.landformNoteTr).not.toContain('DEĞİL');
+    // Eskişehir is the platform's fourth-class BSk il — the caveat names its own code.
+    expect(body.climateNoteTr).toContain('BSk');
+    expect(body.climateClassTr).toBe('Yarı Kurak Step İklimi');
+  });
+
   it('GET /api/provinces/:slug returns 404 for an unseeded slug', async () => {
-    // A real, valid province NOT in the seeded 47 → 404 (web renders notFound()).
+    // A real, valid province NOT in the seeded 72 → 404 (web renders notFound()).
     // NB: 'bursa' USED to be the unseeded example — it is now seeded (wave-2), so
     // this uses 'trabzon' (a real Karadeniz province still awaiting its wave).
     await request(app.getHttpServer()).get('/api/provinces/trabzon').expect(404);
@@ -3698,7 +4336,7 @@ describe('assertKoppenCaveatInvariant', () => {
 /**
  * Pure, DB-free coverage of the density derivation — critically the NULL/zero
  * branch, which is the NORMAL state of every not-yet-seeded province (21 of 81).
- * The e2e above only exercises the value branch (all 60 seeded provinces have
+ * The e2e above only exercises the value branch (all 72 seeded provinces have
  * population + area), so without this a regression in the guard (dropped
  * null-check, removed `areaKm2 === 0` guard) could serve a wrong "0" or a
  * non-finite number on a public SEO page with CI staying green. Mirrors the
