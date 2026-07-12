@@ -1220,11 +1220,38 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
  *   EXCLUDED), and Manisa DOES border Denizli (0.00 km shared border via Sarıgöl/Çivril,
  *   despite looking separated on a coarse map).
  *
- * DELIBERATELY NULL — same as pilot-5 / wave-1 / wave-2: `landformNoteTr` AND every
- *   PR-5a detail-page field (introTr / hydrography* / urbanizationRate /
- *   netMigrationRate / settlementNoteTr / economyIndicator) stay null. BASE DATA ONLY
- *   (owner priority ruling, DEC 2026-07-10); those fields are filled in a later
- *   fact-checked content batch, never invented here.
+ * WAVE-3 DEEP CONTENT — TIERED (the platform's FIRST tiered depth batch, DEC 2026-07-11
+ *   "Tiered deep-content depth"): each of the 7 il now carries the PR-5a detail-section
+ *   fields from NOVA's independently fact-checked "Dalga 3" deep-content draft (verdict
+ *   SEED-READY WITH CORRECTIONS — all five corrections applied before seeding). Depth is
+ *   split by population, NOT uniform:
+ *     • Tier-A (nüfus ≥1M — Manisa 45, Aydın 09, Denizli 20, Muğla 48): the SAME full
+ *       8-field set as İstanbul/wave-1 (introTr, landformNoteTr, hydrographyNoteTr,
+ *       hydrographyFeatures, urbanizationRate, netMigrationRate, settlementNoteTr,
+ *       economyIndicator). urbanizationRate=100.00 is the 6360-Kanun büyükşehir artifact,
+ *       framed in settlementNoteTr (all four büyükşehir since 2014).
+ *     • Tier-B (nüfus <1M — Afyonkarahisar 03, Kütahya 43, Uşak 64): a 6-field set only
+ *       (introTr, landformNoteTr, hydrographyNoteTr, urbanizationRate, netMigrationRate,
+ *       economyIndicator). `hydrographyFeatures` AND `settlementNoteTr` are DELIBERATELY
+ *       OMITTED — an owner-approved permanent scope cut for the <1M il, NOT "not authored
+ *       yet". The keys are absent (never a bare null/[] in this file); withExplicitDetailNulls
+ *       normalises the omission to null at seed time. These are also the platform's FIRST
+ *       non-büyükşehir il, so their urbanizationRate is a REAL rate (62.20 / 74.57 / 77.11),
+ *       carrying NO 6360 methodological note — the structural pattern of the ~51 non-metropolitan
+ *       il to come, the mirror image of wave-1's uniform %100.
+ *   Each il is written to its OWN geographic character (Manisa: Spil/Gediz grabeni; Aydın:
+ *   Büyük Menderes grabeni; Denizli: Pamukkale/Honaz; Muğla: karstik parçalı kıyı; Afyon:
+ *   kapalı havza/termal; Kütahya: çini/plato; Uşak: least-populous/İç Ege) — NOT a
+ *   palette-swapped copy. No factual value invented or altered; every number/name is
+ *   transcribed verbatim from the fact-checked draft. No schema/DTO/OpenAPI change (every
+ *   field exists since the İstanbul pilot).
+ *   • Content:     Owner's Inbox/il-detay-genisletme/wave3-ege-deep-content-draft.md
+ *   • Style rules: CONTENT-STYLE.md (orchestrator root — binding for shipped prose)
+ *   • Fact-check:  Owner's Inbox/il-detay-genisletme/wave3-ege-deep-content-factcheck.md
+ *   • Ledger:      data-provenance.md (root) §4.7 — "İl Detay Sayfası — Derinlik İçerik Dalga 3"
+ * DELIBERATELY NULL — every OTHER Batch 2 province keeps landformNoteTr AND all PR-5a
+ *   detail-section fields null until its own content batch clears an independent fact-check
+ *   (owner priority ruling, DEC 2026-07-10) — an unverified fact stays absent, never invented.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
@@ -1248,7 +1275,42 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CFA,
     climateClassTr: CLIMATE_CLASS_CFA_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
-    landformNoteTr: null,
+    // ── Afyonkarahisar deep content (wave-3 Tier-B). The tiered 6-field set from the
+    //    fact-checked "Dalga 3" draft: introTr + (shortened) landformNoteTr + hydrographyNoteTr +
+    //    urbanizationRate + netMigrationRate + economyIndicator. `hydrographyFeatures` AND
+    //    `settlementNoteTr` are DELIBERATELY OMITTED (owner-approved Tier-B scope, DEC 2026-07-11
+    //    — a permanent design cut for <1M-nüfus il, NOT "not authored yet"): the keys are absent,
+    //    normalised to null against the DB by withExplicitDetailNulls. NOTE: urbanizationRate=62.20
+    //    is a REAL urbanization rate — Afyonkarahisar is NOT a büyükşehir, so this is the platform's
+    //    first non-100 rate and carries no 6360 methodological note. GSYH share %0,6.
+    landformNoteTr:
+      'İl toprakları, yüksekliği çoğu yerde 1.000 metreyi aşan bir yayla görünümündedir; kuzeyde ' +
+      'Ağın Dağı, doğuda Emir Dağları, güneydoğuda Sultan Dağları, güneyde Kumalar Dağı, ' +
+      'güneybatıda Akdağ ve batıda Ahır Dağları ili çevreler. Dağlık kesimlerin arasında Afyon, ' +
+      'Şuhut, Sandıklı ve Sincanlı gibi tektonik-karstik kökenli verimli ovalar yer alır. Bölgenin ' +
+      'genç volkanik geçmişi, kalker ve traverten oluşumlarının yanı sıra ildeki çok sayıda termal ' +
+      'kaynağın da kökenini oluşturur.',
+    introTr:
+      'Afyonkarahisar, İç Ege ile İç Anadolu arasındaki geçiş kuşağında, ortalama 1.000-1.500 ' +
+      'metre yükseklikteki bir yayla görünümündedir. İl, kaplıca ve termal turizmiyle tanınır; ' +
+      'Sandıklı, Gazlıgöl ve Heybeli gibi jeotermal sahalar bu zenginliğin başlıca kaynaklarıdır. ' +
+      'Kent merkezinin ortasında yükselen volkanik kayalık üzerindeki Afyonkarahisar Kalesi, ilin ' +
+      'adını da bu kayalıktan (Kara Hisar) almasını sağlayan tarihî simgesidir.',
+    hydrographyNoteTr:
+      "Afyon Ovası, dışarıya su akışı olmayan kapalı bir havzadır; Ahır Dağı'nın kuzey " +
+      "yamaçlarından doğan Akarçay, ovayı kateder ve Eber Gölü'ne dökülür. Eber Gölü, 150 km²'lik " +
+      "yüzölçümüyle Türkiye'nin 12. büyük gölüdür; Akşehir Gölü ile birlikte Sultan Dağları ile " +
+      'Emir Dağları arasındaki çöküntü alanında yer alır. İlin kuzeydoğusundaki Bayat ilçesi, ' +
+      "Sakarya Nehri'nin kollarından birinin doğduğu yükseltilerden biridir.",
+    urbanizationRate: 62.2,
+    netMigrationRate: -5.63,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,6',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '09',
@@ -1268,7 +1330,61 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Aydın deep content (wave-3 Tier-A). Full 8-field detail set from the fact-checked
+    //    "Dalga 3" draft. Büyük Menderes grabeni + Madran Dağı (landform); Büyük Menderes /
+    //    Çine Çayı + Çine (Adnan Menderes) barajı + Bafa Gölü (hydrography). urbanizationRate=100
+    //    is the 6360 büyükşehir artifact framed in settlementNoteTr; GSYH share %1,0.
+    landformNoteTr:
+      'Aydın topraklarının büyük bölümü, kuzeyde Aydın Dağları (Messogis) ile güneyde Menteşe ' +
+      "Dağları arasında sıkışmış Büyük Menderes Grabeni'nden oluşur; erken Miyosen'den bu yana " +
+      'aktif olan bu çöküntü, batıdan doğuya yaklaşık 140 kilometre uzanır. Graben tabanı, ' +
+      'Nazilli, Aydın ve Söke ovalarını barındıran ilin en verimli tarım alanıdır.\n\n' +
+      'Çine, Bozdoğan ve Yenipazar ilçeleri sınırlarında yükselen 1.792 metrelik Madran Dağı, ' +
+      'ilin en yüksek dağlarından biridir; zirvesi Madranbaba adıyla da anılır. İlin kıyı şeridi ' +
+      "dar bir alana sıkışır — Kuşadası ve Söke çevresi dışında Aydın'ın karakteri, dağlık iç " +
+      'kesim ile geniş graben ovasının bileşimidir.',
+    introTr:
+      "Büyük Menderes Nehri'nin Aydın topraklarındaki kıvrımlı akışı, İngilizce'deki " +
+      '"meander" (kıvrım) sözcüğünün kaynağıdır. ' +
+      "İl, Ege Bölgesi'nde nüfus bakımından İzmir ve Manisa'nın ardından üçüncü büyük ildir. Söke " +
+      'ilçesindeki Priene ile Karacasu ilçesindeki Aphrodisias antik kentleri ilin arkeolojik ' +
+      "zenginliğinin iki ayrı ucunu oluşturur; Aphrodisias 9 Temmuz 2017'de UNESCO Dünya Mirası " +
+      "Listesi'ne girmiştir.",
+    hydrographyNoteTr:
+      "Büyük Menderes Nehri, Afyonkarahisar'ın Dinar ilçesindeki Suçıkan kaynağından doğar ve Uşak " +
+      "ile Denizli'den geçtikten sonra Aydın topraklarına girer; burada Nazilli, Aydın ve Söke " +
+      "ovalarını sular. Çine ilçesinden gelen Çine Çayı, Koçarlı yakınlarında Büyük Menderes'e " +
+      "katılır; nehir son olarak antik Milet kalıntılarına yakın bir noktadan Ege Denizi'ne " +
+      'ulaşır.\n\n' +
+      "DSİ 21. Bölge Müdürlüğü'nün kayıtlarına göre ildeki barajların en büyüğü, Çine Çayı üzerinde " +
+      "2010'da tamamlanan Çine (Adnan Menderes) Barajı'dır; 136,5 metre yüksekliğiyle sulama, " +
+      'enerji üretimi ve taşkın koruması amacıyla işletilir. Bozdoğan ilçesindeki Kemer Barajı ' +
+      '(1958) ve Topçam Barajı (1985) ilin diğer büyük su yapılarıdır.\n\n' +
+      "İlin güneybatısındaki Bafa Gölü, Büyük Menderes'in taşıdığı alüvyonun eski bir Ege koyunu " +
+      "denizden ayırmasıyla oluşmuştur; yaklaşık 60 km²'lik yüzeyinin büyük bölümü Aydın'ın Söke " +
+      "ilçesinde, doğu kıyıları ise Muğla'nın Milas ilçesinde kalır.",
+    hydrographyFeatures: [
+      { name: 'Büyük Menderes Nehri', type: HydrographyFeatureType.Nehir },
+      { name: 'Çine Çayı', type: HydrographyFeatureType.Nehir },
+      { name: 'Çine (Adnan Menderes) Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Kemer Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Topçam Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Bafa Gölü', type: HydrographyFeatureType.Gol },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: 4.31,
+    settlementNoteTr:
+      "Aydın'da TÜİK'in il/ilçe merkezi nüfus oranı %100'e ulaşır; büyükşehir statüsündeki illerde " +
+      'belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +
+      "sonucudur, ilin fiilen tamamen kentleştiği anlamına gelmez. 2024'te Aydın 40.849 kişi aldı, " +
+      '35.832 kişi verdi; net göç hızı binde +4,31 oldu.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%1,0',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '20',
@@ -1289,7 +1405,61 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Denizli deep content (wave-3 Tier-A). Full 8-field detail set from the fact-checked
+    //    "Dalga 3" draft. Pamukkale traverten + Honaz Dağı 2.571 m (Ege's highest point) +
+    //    Çürüksu grabeni (landform); Büyük Menderes / Çürüksu + Adıgüzel/Cindere barajları +
+    //    Işıklı Gölü/Acıgöl (hydrography). urbanizationRate=100 is the 6360 artifact; GSYH %1,0.
+    landformNoteTr:
+      "Pamukkale'nin beyaz traverten basamakları, yer altından yükselen 35 santigrat derecenin " +
+      'üzerindeki kalsiyum bikarbonatlı termal suyun yüzeyde karbondioksit kaybederek kalsiyum ' +
+      "karbonatı çökeltmesiyle oluşur; UNESCO'nun kayıtlarına göre alan 1.077 hektarlık bir sahayı " +
+      "kaplar ve Orta Pleyistosen'den bu yana biçimlenmektedir.\n\n" +
+      'İlin güneyinde, Honaz, Pamukkale ve Serinhisar ilçeleri sınırlarında yer alan Honaz Dağı ' +
+      "Milli Parkı'nın 2.571 metrelik zirvesi, Ege Bölgesi'nin en yüksek noktasıdır. İl toprakları, " +
+      "kuzeyde Büyük Menderes'in bir kolu tarafından drene edilen Çürüksu Grabeni (Denizli Havzası) " +
+      "ile güneydeki dağlık kesimin bileşiminden oluşur; MEB'in il coğrafyası kaynaklarına göre " +
+      "yüzölçümünün yaklaşık %47'sini dağlar, %28'ini ovalar oluşturur.",
+    introTr:
+      "Denizli, dünyaca tanınan traverten teraslarıyla ünlü Pamukkale'nin bulunduğu ildir. " +
+      'Pamukkale, kalsiyum karbonatça zengin termal suların basamaklı çökeltileriyle oluşan bu ' +
+      "görünümüyle, bitişiğindeki antik Hierapolis kentiyle birlikte 1988'de UNESCO Dünya Mirası " +
+      "Listesi'ne alınmıştır. İlin güneyinde yükselen 2.571 metrelik Honaz Dağı, Ege Bölgesi'nin " +
+      'en yüksek noktasını oluşturur.',
+    hydrographyNoteTr:
+      "Büyük Menderes Nehri, Afyonkarahisar'ın Dinar ilçesindeki Suçıkan kaynağından doğduktan " +
+      'sonra Denizli topraklarına girer ve Çivril, Çal ve Baklan ovalarını sular. İlin kendi kolu ' +
+      'Çürüksu Çayı, Honaz Dağı ve çevresindeki kaynaklardan beslenerek Sarayköy yakınlarında ' +
+      "Büyük Menderes'e katılır.\n\n" +
+      "DSİ 21. Bölge Müdürlüğü'nün işlettiği barajların en büyüğü, Büyük Menderes üzerinde 1990'da " +
+      "tamamlanan Adıgüzel Barajı'dır; sulama, taşkın koruması ve enerji üretimi amacıyla " +
+      "kullanılır. Güney ilçesindeki Cindere Barajı ise aynı nehir üzerinde 2007'de tamamlanmış, " +
+      'hidroelektrik enerji üretimine ayrılmış bir başka büyük yapıdır.\n\n' +
+      "Çivril ilçesindeki Işıklı Gölü, DSİ tarafından 1953'te bir bent inşa edilerek rezervuara " +
+      "dönüştürülmüş doğal bir göldür; Büyük Menderes'i Işıklı ve Kufi dereleri aracılığıyla besler " +
+      've önemli bir kuş alanı olarak korunur. İlin Afyonkarahisar sınırındaki Acıgöl ise ' +
+      "Türkiye'nin büyük tuz göllerinden biridir.",
+    hydrographyFeatures: [
+      { name: 'Büyük Menderes Nehri', type: HydrographyFeatureType.Nehir },
+      { name: 'Çürüksu Çayı', type: HydrographyFeatureType.Nehir },
+      { name: 'Adıgüzel Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Cindere Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Işıklı Gölü', type: HydrographyFeatureType.Gol },
+      { name: 'Acıgöl', type: HydrographyFeatureType.Gol },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: 0.99,
+    settlementNoteTr:
+      "Denizli için TÜİK'in il/ilçe merkezi nüfus oranı %100'dür; büyükşehir statüsündeki illerde " +
+      'belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +
+      "sonucudur, ilin fiilen tamamen kentleştiği anlamına gelmez. Denizli 2024'te 25.866 kişi " +
+      'aldı, 24.816 kişi verdi; net göç hızı binde +0,99 ile dengeye yakın bir değerde kaldı.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%1,0',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '43',
@@ -1310,7 +1480,39 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSB,
     climateClassTr: CLIMATE_CLASS_CSB_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CSB_TR,
-    landformNoteTr: null,
+    // ── Kütahya deep content (wave-3 Tier-B). Tiered 6-field set from the fact-checked "Dalga 3"
+    //    draft (introTr + shortened landform/hydrography + urbanizationRate + netMigrationRate +
+    //    economyIndicator). `hydrographyFeatures` + `settlementNoteTr` DELIBERATELY OMITTED
+    //    (Tier-B scope, DEC 2026-07-11). urbanizationRate=74.57 is a REAL rate (Kütahya is not a
+    //    büyükşehir — no 6360 note). GSYH share %0,5. The locked Csb/"Akdeniz iklimi" climate
+    //    fields (DEC 2026-07-10) are UNTOUCHED here; no prose below contradicts them.
+    landformNoteTr:
+      "İl topraklarının yaklaşık %57'sini dağlar, %31'ini platolar, %11'ini ovalar oluşturur; " +
+      'ortalama yükseklik 1.200 metredir. Kenti kuzeydoğudan Türkmen Dağı, batıdan Karlık Tepe ve ' +
+      'Eğrigöz Dağı (2.181 m), güneybatıdan Şaphane Dağı (2.121 m), güneyden ise ilin en yüksek ' +
+      'noktası olan 2.312 metrelik Murat Dağı çevreler. Kütahya Ovası, Simav Ovası ve Altıntaş ' +
+      'Ovası bu dağlık çerçeve içindeki başlıca tarım alanlarıdır.',
+    introTr:
+      'Kütahya, Osmanlı ve Selçuklu döneminden bu yana kesintisiz üretilen çini ve porselen ' +
+      'sanatıyla tanınan bir Ege iç kesim ilidir. Ortalama yüksekliği 1.200 metreye ulaşan yayla ' +
+      'topraklarının yarıdan fazlası dağlarla kaplıdır. İlin güneyindeki Murat Dağı, hem yüksek ' +
+      'zirvesiyle hem de kayak turizmiyle bölgenin öne çıkan yükseltisidir.',
+    hydrographyNoteTr:
+      "Porsuk Çayı'nın başlangıç kolları, Kütahya-Uşak sınırındaki Murat Dağı'nın kuzey " +
+      "yamaçlarından doğar; çay ilin kuzeydoğusundan Eskişehir'e geçer ve orada Porsuk Barajı'nı " +
+      "besler. Barajın gövdesi Eskişehir'de yer alır; geniş gölü ise büyük ölçüde Kütahya " +
+      'topraklarındadır. İlin tek doğal gölü olan Simav Gölü, Simav ilçesinin kuzeybatısında yer ' +
+      "alan, yaklaşık 5 km²'lik tektonik kökenli bir göldür. Simav Çayı, Şaphane Dağları'ndan " +
+      "doğar, kuzeye akar ve Marmara Denizi'ne dökülen akarsular arasında en büyüğüdür.",
+    urbanizationRate: 74.57,
+    netMigrationRate: -3.74,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,5',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '45',
@@ -1331,7 +1533,63 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Manisa deep content (wave-3 Tier-A — see the WAVE-3 DEEP CONTENT note above). The
+    //    full 8-field detail set, transcribed from NOVA's fact-checked "Dalga 3" draft.
+    //    Spil Dağı milli parkı + Gediz (Alaşehir) grabeni (landform); Gediz Nehri + Demirköprü
+    //    barajı + Marmara Gölü (hydrography). urbanizationRate=100 is the 6360 büyükşehir legal
+    //    artifact framed in settlementNoteTr; economyIndicator is the 2024 TÜİK GSYH share (%1,5).
+    landformNoteTr:
+      'İlin güneyinde, kent merkezine yakın konumda yükselen Spil Dağı, 1.513 metrelik zirvesiyle ' +
+      "1968'de milli park ilan edilmiştir; 6.860 hektarlık park alanı kireçtaşı kökenli kanyonlar, " +
+      'dolinler ve mağaralarla kaplıdır. Antik mitolojide taşa dönüşen Niobe efsanesiyle özdeşleşen ' +
+      'kaya oluşumu, park sınırları içindeki Çaybaşı mevkiindedir.\n\n' +
+      'Manisa, aktif olarak çöken Gediz (Alaşehir) Grabeni üzerinde yer alır. Grabenin kuzey ' +
+      'sınırını oluşturan Bozdağlar horst bloğu üzerinde, ilin en yüksek noktası olan 2.070 ' +
+      'metrelik Kumpınar Tepe yükselir. Uydu tabanlı bir jeoloji çalışması, graben tabanının yılda ' +
+      'yaklaşık 26 milimetre çöktüğünü, horst bloğunun ise yılda 3 milimetre yükseldiğini ' +
+      'ölçmüştür; bu hareketlilik, 1969 Alaşehir depreminden bu yana yüzeyde çatlak ve çökme izleri ' +
+      'üretmeyi sürdürüyor.',
+    introTr:
+      "Manisa, Ege Bölgesi'nde İzmir'in ardından nüfusu en kalabalık ikinci ildir. Kentin " +
+      "güneyinde yükselen Spil Dağı ile ilin doğusunu boydan boya kateden Gediz Ovası, Manisa'nın " +
+      'yer şekillerini belirleyen iki ana unsurdur. Salihli ilçesindeki Sardes antik kenti — ' +
+      "dünyanın ilk sikke parasını basan Lidya Krallığı'nın başkenti — Bin Tepeler Lidya " +
+      "Tümülüsleri'yle birlikte 2025'te UNESCO Dünya Mirası Listesi'ne girdi.",
+    hydrographyNoteTr:
+      "Gediz Nehri, Manisa'nın su ağının omurgasıdır; Manisa Valiliği'nin kayıtlarına göre 386 " +
+      'kilometrelik toplam uzunluğunun 204 kilometresi il sınırları içinden geçer. Nehir, Salihli ' +
+      "ve Turgutlu ovalarını sulayarak Manisa'nın kendi merkezinden geçer ve İzmir'in Menemen " +
+      "ilçesi yakınlarında Ege Denizi'ne ulaşır.\n\n" +
+      "İlin en büyük barajı Demirköprü'dür; Gediz üzerinde Salihli yakınında 1954-1960 arasında " +
+      'inşa edilmiş, hem sulama hem enerji üretimi amacıyla işletilir. Gördes Çayı üzerindeki ' +
+      "Gördes Barajı ise Manisa toprakları içinde yer almasına karşın esas olarak İzmir'in içme " +
+      'suyu ihtiyacını karşılamak için işletilir.\n\n' +
+      "İlin doğusundaki Marmara Gölü (Gölmarmara), 2017'de Ulusal Öneme Haiz Sulak Alan olarak " +
+      'tescillenmiştir; Bin Tepeler Lidya nekropolü gölün güney kıyısında yer alır. Gölün su ' +
+      "seviyesi Gördes ve Gediz'den gelen regülatörlerle yönetilir ve kuraklık dönemlerinde " +
+      'belirgin biçimde küçülür.',
+    hydrographyFeatures: [
+      { name: 'Gediz Nehri', type: HydrographyFeatureType.Nehir },
+      { name: 'Demirköprü Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Gördes Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Alaşehir Kavaklıdere Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Sarıgöl Buldan Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Marmara Gölü', type: HydrographyFeatureType.Gol },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: 0.22,
+    settlementNoteTr:
+      "TÜİK'in il/ilçe merkezi nüfus oranı Manisa için de %100'dür — büyükşehir statüsündeki " +
+      'illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +
+      'sonucudur, ilin fiilen tamamen kentleştiği anlamına gelmez. Manisa 2024 yılında 37.649 kişi ' +
+      'aldı, 37.328 kişi verdi; net göç hızı binde +0,22 ile hemen hemen dengede kaldı.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%1,5',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '48',
@@ -1351,7 +1609,66 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Muğla deep content (wave-3 Tier-A). Full 8-field detail set from the fact-checked
+    //    "Dalga 3" draft. Ege/Akdeniz geçiş kuşağı + parçalı karstik kıyı (landform); Dalaman /
+    //    Eşen Çayı + Akköprü barajı + Köyceğiz haliç gölü (hydrography). netMigrationRate=+11,64
+    //    is the HIGHEST of the wave's seven; urbanizationRate=100 is the 6360 artifact; GSYH %1,3.
+    landformNoteTr:
+      "Muğla'nın engebeli kıyı çizgisi iki süreçle biçimlenmiştir: kıyıya yakın kesimde, Akdeniz'e " +
+      "özgü kıyıya paralel dağ uzanımı yerini Batı Anadolu'ya özgü kıyıya dik uzanıma bırakır; buna " +
+      "ek olarak Üçüncü Zaman sonu ile Dördüncü Zaman'daki yoğun tektonik hareketler, çökme ve " +
+      'yükselmelerle yeni koy ve burunlar oluşturmuştur. Fethiye-Katrancı, Göcek ve Datça ' +
+      'çevresindeki koylar bu sürecin en belirgin örnekleridir; dağ sıraları yer yer doğrudan ' +
+      'denize iner.\n\n' +
+      'İl toprakları, Toros kıvrım sistemi ile Batı Anadolu kıvrım sisteminin üst üste bindiği ' +
+      'kireçtaşı ağırlıklı, karstik bir arazidir; bu geçirimli yapı yüzeysel akarsu gelişimini ' +
+      'sınırlar. Boncuk Dağları, Sandras (Çiçekbaba) Dağı ve Akdağlar ilin başlıca yükseltileridir; ' +
+      'en yüksek nokta konusunda kaynaklar arasında kesin bir mutabakat yoktur, Antalya sınırındaki ' +
+      'Akdağlar kütlesinde 3.000 metreyi aşan zirveler bildirilir.',
+    introTr:
+      'Muğla, Ege ve Akdeniz bölgelerinin coğrafi olarak iç içe geçtiği bir geçiş kuşağında yer ' +
+      'alır. Bodrum, Marmaris, Datça ve Fethiye yarımadalarıyla parçalanmış kıyı şeridi, yaklaşık ' +
+      "1.480 kilometreyle Türkiye'nin en uzun il kıyısını oluşturur. Bu parçalı kıyı yapısı, " +
+      "Muğla'nın kıyı turizminin coğrafi temelidir.",
+    hydrographyNoteTr:
+      'İl topraklarının kalkerli, karstik yapısı yüzeysel akarsu ağının gelişimini sınırlar; Muğla ' +
+      "İl Çevre Durum Raporu'na göre ilin başlıca üç akarsuyu Çine Çayı, Eşen Çayı ve Dalaman " +
+      "Çayı'dır. Boncuk Dağları'nın kuzey yamaçlarından doğan Dalaman Çayı, 190 kilometrelik toplam " +
+      "uzunluğunun 65 kilometresini Muğla sınırları içinde kat eder; Akdağlar'dan beslenen Eşen " +
+      'Çayı ise 128 kilometrelik uzunluğunun 80 kilometresini il topraklarında geçirir ve Saklıkent ' +
+      "Kanyonu'ndaki karstik kaynaklarla beslenir.\n\n" +
+      'Dalaman Çayı üzerindeki Akköprü Barajı, 1995-2012 arasında inşa edilmiş, 384,5 milyon m³ ' +
+      "rezervuar hacmiyle, elektrik üretim kapasitesi bakımından Türkiye'nin altıncı büyük " +
+      'barajıdır; sulama, enerji üretimi ve taşkın koruması amacıyla işletilir. Milas ilçesindeki ' +
+      "Geyik Barajı ise Yeniköy Termik Santrali'ne soğutma suyu sağlamanın yanında Bodrum " +
+      "Yarımadası'nın içme suyu ihtiyacının bir bölümünü karşılar.\n\n" +
+      "İlin en büyük doğal gölü olan Köyceğiz Gölü, dar bir kanalla Akdeniz'e bağlı bir haliç " +
+      "gölüdür; 1988'de özel çevre koruma bölgesi ilan edilmiştir. Gölü denize bağlayan Dalyan " +
+      'Kanalı kıyısındaki İztuzu Kumsalı, deniz kaplumbağalarının (Caretta caretta) önemli ' +
+      'yumurtlama alanlarından biridir.',
+    hydrographyFeatures: [
+      { name: 'Dalaman Çayı', type: HydrographyFeatureType.Nehir },
+      { name: 'Eşen Çayı', type: HydrographyFeatureType.Nehir },
+      { name: 'Akköprü Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Geyik Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Mumcular Barajı', type: HydrographyFeatureType.Baraj },
+      { name: 'Köyceğiz Gölü', type: HydrographyFeatureType.Gol },
+    ],
+    urbanizationRate: 100.0,
+    netMigrationRate: 11.64,
+    settlementNoteTr:
+      "Muğla'da TÜİK'in il/ilçe merkezi nüfus oranı %100'dür; büyükşehir statüsündeki illerde belde " +
+      've köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir sonucudur, ilin ' +
+      "fiilen tamamen kentleştiği anlamına gelmez. Muğla 2024'te 48.895 kişi aldı, 36.378 kişi " +
+      "verdi; net göç hızı binde +11,64 ile Ege'nin bu dalgada incelenen yedi ili arasındaki en " +
+      'yüksek pozitif değere ulaştı.',
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%1,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
   {
     plateCode: '64',
@@ -1371,7 +1688,37 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    landformNoteTr: null,
+    // ── Uşak deep content (wave-3 Tier-B). Tiered 6-field set from the fact-checked "Dalga 3"
+    //    draft (introTr + shortened landform/hydrography + urbanizationRate + netMigrationRate +
+    //    economyIndicator). `hydrographyFeatures` + `settlementNoteTr` DELIBERATELY OMITTED
+    //    (Tier-B scope, DEC 2026-07-11). Uşak is the LEAST-populous of the wave's seven il;
+    //    urbanizationRate=77.11 is a REAL rate (not a büyükşehir — no 6360 note). GSYH share %0,3.
+    landformNoteTr:
+      'İl topraklarının büyük bölümünü, ortalama 1.170-1.200 metre yükseklikteki Uşak ve Banaz ' +
+      'ovalarını çevreleyen platolar ve dağlar oluşturur. Güneyde, Kütahya sınırındaki Murat ' +
+      "Dağı'nın Kartal Tepe zirvesi 2.309 metreyle ilin en yüksek noktalarından biridir. Kuzeyde, " +
+      'eski bir volkanik kütle olan Elmadağ (1.805 m) geniş yaylalarıyla dikkat çeker; Ahır Dağı ' +
+      '(1.915 m) ilin diğer önemli yükseltisidir.',
+    introTr:
+      "Uşak, bu dalgada incelenen yedi il arasında nüfusu en az olan ildir ve İç Ege'ye geçiş " +
+      'karakteriyle öne çıkar. İl, Osmanlı döneminden bu yana süregelen halı dokumacılığı ' +
+      'geleneğiyle tanınır. Kuzeyindeki Elmadağ, ilin en belirgin yer şekillerinden biri olan eski ' +
+      'bir volkanik kütledir.',
+    hydrographyNoteTr:
+      "İlin en önemli akarsuyu, Murat Dağı'ndan doğan ve kuzeyden güneye 165 kilometre akan Banaz " +
+      "Çayı'dır; il topraklarını geçtikten sonra Büyük Menderes Nehri'ne katılır. Gediz Nehri'nin " +
+      "yukarı kolları da ilin kuzeyinden geçer. DSİ, 2003'ten bu yana Uşak'ta Kozviran, Halaçlar, " +
+      'Bahadır ve Karaköse gibi barajlar inşa ederek Banaz ilçesindeki tarım arazilerinin büyük ' +
+      'bölümünü sulamaya açmıştır.',
+    urbanizationRate: 77.11,
+    netMigrationRate: -2.22,
+    economyIndicator: {
+      label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
+      value: '%0,3',
+      year: 2024,
+      source:
+        'TÜİK, İl Bazında Gayrisafi Yurt İçi Hasıla, 2024 (Bülten no. 53930, yayım tarihi 11.12.2025)',
+    },
   },
 ];
 
