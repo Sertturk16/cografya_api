@@ -5,6 +5,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { buildDataSourceOptions } from './database/data-source-options';
 import { type Env, validateEnv } from './config/env.schema';
+import { CountryModule } from './country/country.module';
 import { HealthModule } from './health/health.module';
 import { ProvinceModule } from './province/province.module';
 
@@ -33,6 +34,7 @@ const THROTTLE_LIMIT = 120;
     ThrottlerModule.forRoot([{ ttl: THROTTLE_TTL_MS, limit: THROTTLE_LIMIT }]),
     HealthModule,
     ProvinceModule,
+    CountryModule,
   ],
   providers: [
     // Rate limit every route by default; opt out per-route with @SkipThrottle.
