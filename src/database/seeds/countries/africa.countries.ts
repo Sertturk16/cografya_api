@@ -341,6 +341,36 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'XOF',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "7 Ağustos 1960'ta Fransa'dan bağımsız oldu.",
+    introTr:
+      'Fildişi Sahili toprakları güneyden kuzeye üç kuşağa ayrılır: kıyı boyunca uzanan lagünlü ' +
+      'ova, bunun ardındaki yağmur ormanı kuşağı ve kuzeydeki yüksek savan. Ülkenin en yüksek ' +
+      "noktası, batı ucunda Gine sınırında yükselen Nimba Dağı'dır. Kıyı şeridi, güçlü dalgalar " +
+      've sualtı kum setleri nedeniyle denizden erişimi zor bir hat oluşturur.',
+    landformNoteTr:
+      'Kıyının doğu yarısı boyunca, Gana sınırından başlayıp yaklaşık 300 kilometre uzanan bir ' +
+      'dizi lagün sıralanır; bu sığ kıyı gölleri dar bir kum seti ile açık denizden ayrılır. ' +
+      'Lagünlerin hemen kuzeyinde, bir asır öncesine kadar 200 kilometre genişliğinde ' +
+      'kesintisiz bir kuşak oluşturan yoğun yağmur ormanı yer alır; günümüzde bu orman ' +
+      'özellikle güneybatıda yoğunluğunu korur. Ülkenin kuzey yarısı, deniz seviyesinden ' +
+      'yaklaşık 300 metre yükseklikteki geniş bir savan platosudur; bitki örtüsü kuzeye doğru ' +
+      'seyrekleşir. Orman ve savan kuşakları arasında, ikisinin özelliklerini bir arada ' +
+      'barındıran bir geçiş bölgesi uzanır. Batı ucunda, Gine sınırında yükselen Nimba Dağı ' +
+      '1.752 metreye ulaşır — ülkenin doruğu, aynı zamanda zengin biyoçeşitliliği nedeniyle ' +
+      "UNESCO Dünya Mirası listesinde yer alan, Liberya'ya doğru uzanan geniş bir doğa " +
+      'rezervinin parçasıdır.',
+    climateNoteTr:
+      "Fildişi Sahili'nde iklim güneyde nemli tropikal, kuzeyde ise daha kurak bir karaktere " +
+      'sahiptir. Güney kesiminde sıcaklıklar yıl boyunca 24-32 santigrat derece arasında ' +
+      'seyreder ve iki ayrı yağmur mevsimi görülür; bunlardan ilki mayıs-temmuz arasına denk ' +
+      'gelir. Kuzeye gidildikçe yağmur mevsimi tek bir döneme, genellikle yaz aylarına sıkışır ' +
+      've toplam yağış miktarı azalır.',
+    hydrographyNoteTr:
+      'Ülke topraklarını kuzeyden güneye kesen dört büyük nehir — Cavally, Sassandra, Bandama ' +
+      "ve Comoé — birbirine yakın, paralel güzergahlar izleyerek Atlas Okyanusu'na dökülür. " +
+      'Bunlardan en uzunu olan Sassandra, 650 kilometrelik akışı boyunca sulama ve ' +
+      'hidroelektrik üretimi için yoğun biçimde kullanılır. Nehirlerin çoğu, çeşitli noktalarda ' +
+      'çavlanlarla kesintiye uğradığı ve kurak mevsimde su seviyesi düştüğü için gemi ' +
+      'taşımacılığına elverişli değildir.',
   },
   {
     isoCode: 'GM',
@@ -625,6 +655,32 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr:
       "4 Nisan 1960'ta Mali Federasyonu olarak, 20 Ağustos 1960'ta ise tam bağımsız Senegal Cumhuriyeti olarak bağımsızlığını kazandı.",
+    introTr:
+      "Senegal, büyük ölçüde düz bir arazi üzerinde, kuzeyde Sahra'nın eşiğindeki Sahel " +
+      'kuşağından güneyde daha yeşil Casamance bölgesine uzanan bir ülkedir. Ülkenin en yüksek ' +
+      'noktası, güneydoğuda Gine sınırındaki Fouta Djallon eteklerinde yer alır. Gambiya, ' +
+      'Senegal topraklarının ortasına giren dar bir koridor oluşturur.',
+    landformNoteTr:
+      "Kuzey ve orta Senegal, Sahel'in kumlu ve dalgalı ovalarından oluşur; bitki örtüsü kuzeye " +
+      'doğru inceldikçe seyrekleşir. Güneydoğuda arazi, Gine sınırındaki Fouta Djallon ' +
+      'yaylasının eteklerine doğru yavaşça yükselir; ülkenin en yüksek noktası burada, 648 ' +
+      "metrelik Baunez sırtındadır. Güneyde, Gambiya'nın güneyinde kalan Casamance bölgesi " +
+      'ülkenin geri kalanından belirgin biçimde farklıdır: yoğun ormanlar ve sulak alanlarla ' +
+      'kaplı bu kesim, adını veren Casamance Nehri boyunca uzanır.',
+    climateNoteTr:
+      "Senegal'de iklim, Batı Afrika Musonu'nun etkisiyle kuzeyden güneye keskin biçimde " +
+      'değişir. Kuzeydeki Sahel kuşağında yağış az ve düzensizdir, kurak mevsim uzundur. Güneye ' +
+      "inildikçe yağış artar; Casamance'de yıllık yağış 1.400-1.600 milimetreye, Gine sınırına " +
+      'yakın kesimlerde yer yer 1.800 milimetreye ulaşır. Yağmurlar neredeyse tamamen ' +
+      'haziran-ekim arasında düşer.',
+    hydrographyNoteTr:
+      'Senegal Nehri, ülkenin kuzey sınırının büyük bölümünü Moritanya ile paylaşarak çizer; ' +
+      'aşağı kesiminde ikiye ayrılıp Île à Morfil adını verdiği bir ada oluşturur ve Langue de ' +
+      'Barbarie adlı uzun bir kumsal şeridinin ardındaki bir halice dökülür. Ülkenin orta-batı ' +
+      'kesiminde, Sine ve Saloum nehirlerinin birleştiği Saloum Deltası, gelgit kanalları, ' +
+      'adalar ve mangrov ormanlarından oluşan karmaşık bir sulak alan sistemidir. Güneyde ' +
+      'Gambiya Nehri ülkeyi doğu-batı yönünde keserek Gambiya topraklarından geçip Atlas ' +
+      "Okyanusu'na ulaşır.",
   },
   {
     isoCode: 'SL',
@@ -694,6 +750,35 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'AOA',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "11 Kasım 1975'te Portekiz'den bağımsız oldu.",
+    introTr:
+      'Angola toprakları üç ana kuşağa ayrılır: dar bir kıyı ovası, bunun hemen ardından ' +
+      'yükselen bir yamaç kuşağı ve ülkenin büyük bölümünü kaplayan iç yüksek platosu ' +
+      "(planalto). Kuzeyde dar bir şeritle Kongo Nehri'ne komşu olan ülke, güneyde Namib " +
+      "Çölü'nün kuzey uzantısına doğru kurak bir kıyı iklimine geçer.",
+    landformNoteTr:
+      'Kıyı ovası Benguela yakınında yaklaşık 25 kilometre genişliğindeyken, Cuanza Nehri ' +
+      'vadisinde 150 kilometreyi aşacak kadar genişler; soğuk ve kuzeye akan Benguela Akıntısı ' +
+      'bu kıyı kuşağının kurak karakterini belirler. Kıyının hemen doğusunda arazi bir dizi ' +
+      "terasla hızla yükselir ve 1.520-1.830 metre arasında değişen Bié Platosu'na ulaşır. Bu " +
+      'platonun kuzeybatı ucunda, Huambo yakınlarında yükselen Moco Dağı 2.620 metreye ulaşarak ' +
+      'ülkenin doruk noktasını oluşturur. Bié Platosu, Kongo, Zambezi, Okavango, Kuanza ve ' +
+      'Kunene nehirlerinin kaynak veya önemli kollarını barındırdığı için bölgenin bir su ' +
+      'kulesi işlevi görür; nehirler buradan farklı yönlere, farklı okyanus ve iç havzalara ' +
+      'dağılır.',
+    climateNoteTr:
+      "Angola'nın iklimi, kuzeyden güneye ve kıyıdan iç kesimlere doğru büyük farklılıklar " +
+      'gösterir. Yağışlar kasım-mart arasında yoğunlaşır, nisan-ekim arası genellikle kuraktır. ' +
+      'Kuzeydoğudaki Lunda bölgelerinde yıllık yağış 1.600 milimetreyi aşar. Güneydeki Namibe ' +
+      'eyaletinde ise bu rakam 40 milimetrenin altına iner. İç platonun yüksek kesimleri, ' +
+      'kıyıya göre daha serin ve daha yağışlıdır.',
+    hydrographyNoteTr:
+      "Angola'nın kendi sınırları içinde kalan en uzun nehri olan Kuanza, Bié Platosu'nda " +
+      "doğar, yaklaşık 960 kilometre kuzeye ve ardından batıya akarak Luanda'nın güneyinde " +
+      "Atlas Okyanusu'na dökülür. Huambo yakınlarında doğan Kunene Nehri ise güneye yönelir, " +
+      'ardından batıya dönerek Namibya sınırının bir bölümünü çizer ve okyanusa ulaşır. Ülkenin ' +
+      'kuzeyinde, Kongo Nehri kısa bir mesafe boyunca Angola-Kongo Demokratik Cumhuriyeti ' +
+      "sınırını oluşturur; Angola'nın ana nehir sistemleri bunun dışında büyük ölçüde Kuanza ve " +
+      'Kunene havzalarına dayanır.',
   },
   {
     isoCode: 'TD',
@@ -815,6 +900,37 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'CDF',
     governmentFormTr: 'Yarı-başkanlık cumhuriyeti',
     independenceNoteTr: "30 Haziran 1960'ta Belçika'dan bağımsız oldu.",
+    introTr:
+      'Kongo Demokratik Cumhuriyeti topraklarının büyük bölümü, ortalama yükseltisi yalnızca 44 ' +
+      "metre olan geniş bir çanak biçimindeki Kongo Havzası'nda yer alır; bu havza, Afrika'nın " +
+      "en büyük, dünyanın ise Amazon'dan sonra ikinci büyük yağmur ormanını barındırır. Havzayı " +
+      "çevreleyen yüksek platolar batıda ve güneyde savanlara, doğuda ise Büyük Rift Vadisi'nin " +
+      'dağlık arazisine dönüşür.',
+    landformNoteTr:
+      'Ülke topraklarının yaklaşık üçte birini oluşturan merkezi Kongo Havzası, 800.000 ' +
+      'kilometrekarelik alanıyla batıya doğru hafifçe alçalan, nehirlerle kesintiye uğrayan bir ' +
+      'yağmur ormanı platosudur. Havzanın kenarlarını, batıda dağlık teraslar, güney ve ' +
+      "güneybatıda ise savanlara açılan platolar çevreler. Doğuda, Büyük Rift Vadisi'nin batı " +
+      "kolu boyunca ülkenin en engebeli arazisi yükselir; bu kuşak, Albert Gölü'nün kuzeyinden " +
+      'ülkenin güney ucuna kadar 1.500 kilometreden fazla uzanır. Bu hattın kuzey ucunda, ' +
+      "Uganda sınırındaki Rwenzori sıradağları, 5.109 metrelik Margherita Zirvesi ile Kongo'nun " +
+      'da en yüksek noktasını oluşturur; hemen güneyinde ise volkanik kökenli Virunga Dağları ' +
+      'hâlâ etkin yanardağlar barındırır.',
+    climateNoteTr:
+      "Kongo Demokratik Cumhuriyeti'nde iklim, ekvatoral yağmur ormanından güney platolarındaki " +
+      'tropikal kurak-yaş rejime, doğudaki 2.000 metrenin üzerindeki dağlık bölgelerde ise ' +
+      'serin bir yayla iklimine kadar geniş bir yelpazede değişir. Ülkenin ekvator çizgisinin ' +
+      'her iki yakasına yayılmış olması, kuzey ve güney kesimlerinde yağışlı mevsimlerin farklı ' +
+      'aylara denk gelmesine yol açar. Havzanın iç kesimlerinde nem ve sıcaklık yıl boyunca ' +
+      'yüksek seyreder.',
+    hydrographyNoteTr:
+      "Kongo Nehri, Katanga'daki Lualaba ve Lufira kollarından beslenerek doğar ve yaklaşık " +
+      "4.700 kilometre boyunca akarak Atlas Okyanusu'na dökülür; ortalama debisi saniyede " +
+      "41.000 metreküple, dünyanın Amazon'dan sonra en yüksek debili ikinci nehridir. Doğudaki " +
+      'Rift Vadisi boyunca sıralanan Kivu, Tanganyika, Edward ve Albert gölleri, Büyük Afrika ' +
+      "Gölleri'nin bir bölümünü oluşturur. Kivu Gölü, Ruzizi Nehri aracılığıyla Tanganyika " +
+      "Gölü'ne bağlanır; Tanganyika ise Lukuga Nehri üzerinden Lualaba'ya, dolayısıyla Kongo " +
+      'sistemine akar. Edward ve Albert göllerinin suları ise kuzeye, Nil havzasına yönelir.',
   },
   {
     isoCode: 'GQ',
@@ -1434,6 +1550,34 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr:
       "Tanganyika 9 Aralık 1961'de, Zanzibar 10 Aralık 1963'te bağımsız oldu; 26 Nisan 1964'te birleşerek Tanzanya'yı oluşturdular.",
+    introTr:
+      "Tanzanya'nın kuzeyinde, Afrika kıtasının en yüksek noktası olan Kilimanjaro yükselir. " +
+      "Ülke topraklarını kuzeyden güneye kesen Büyük Rift Vadisi'nin doğu kolu (Gregory Rift), " +
+      'yüksek volkanik arazi ile düz Serengeti platosunu birbirinden ayırır. Doğuda dar bir ' +
+      "kıyı ovası Hint Okyanusu'na uzanır; açığında Zanzibar takımadası yer alır.",
+    landformNoteTr:
+      'Kibo ve Mawenzi adlı iki ana zirveden oluşan Kilimanjaro, 5.895 metreyle hem ' +
+      "Tanzanya'nın hem de Afrika kıtasının en yüksek noktasıdır. Kibo, tepesinde hâlâ belirgin " +
+      'bir krater bulunan sönmüş bir volkandır; Mawenzi ise çok daha eski ve aşınmış bir ' +
+      "zirvedir. Kilimanjaro'nun batısında, Gregory Rift'in tabanında Natron, Manyara ve Eyasi " +
+      "gibi sığ soda gölleri sıralanır; Rift'in batısında kalan geniş orta kesim, çimenlik ve " +
+      'savanlarla kaplı Serengeti platosudur. Doğuda, Hint Okyanusu kıyısı boyunca alçak ve dar ' +
+      'bir ova uzanır; kıyı şeridi yer yer mangrov bataklıklarıyla kaplıdır. Kıyının açığındaki ' +
+      'Zanzibar (Unguja) ve Pemba adaları mercan kökenli, alçak rakımlı bir takımadadır ve ' +
+      'anakaradan farklı bir coğrafi karaktere sahiptir.',
+    climateNoteTr:
+      "Tanzanya'da tropikal iklim hakimdir, ancak rakım ve konuma göre büyük farklılıklar " +
+      'görülür. Orta kesimdeki yüksek plato yarı kurak bozkır karakterinde bir iklime sahiptir; ' +
+      'kuzey ve güney bölgelerinde ise tropikal savan iklimi görülür. Kıyı şeridi ve Zanzibar, ' +
+      "Hint Okyanusu'nun etkisiyle daha nemli ve sıcaktır. Kilimanjaro'nun zirve bölgesinde, " +
+      'ekvatora yakınlığına rağmen buzullar bulunur.',
+    hydrographyNoteTr:
+      "Tanzanya, Afrika'nın büyük göllerinden üçüne kıyısı olan bir ülkedir: kuzeyde Viktorya " +
+      "Gölü'nün yaklaşık yarısı, batıda dünyanın Baykal'dan sonra en derin ikinci gölü olan " +
+      "Tanganyika Gölü'nün en büyük payı (yaklaşık %46) ve güneybatıda Malavi (Nyasa) Gölü'nün " +
+      'kuzey ucu ülke sınırları içinde kalır. Doğuya akan nehirlerin en büyüğü olan Rufiji, ' +
+      "orta ve güney yaylalardan beslenerek Hint Okyanusu'na dökülür. İç kesimdeki Malagarasi " +
+      "Nehri ise orta platodan doğup batıya akarak Tanganyika Gölü'ne ulaşır.",
   },
   {
     isoCode: 'UG',
@@ -1457,6 +1601,33 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'UGX',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "9 Ekim 1962'de Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      'Uganda topraklarının büyük bölümü, güneyde yaklaşık 1.500 metreden kuzeyde 900 metreye ' +
+      'kadar yavaşça alçalan bir plato üzerinde yer alır. Ülkenin batı sınırını, Büyük Rift ' +
+      "Vadisi'nin batı kolu (Albertine Rift) çizer; bu hat boyunca Albert ve Edward gölleri " +
+      'uzanır. Güneydoğuda, sınırının yaklaşık yarısını Viktorya Gölü kıyısı oluşturur.',
+    landformNoteTr:
+      'Batı sınırı boyunca, Albert ve Edward gölleri arasında 130 kilometre uzunluğunda ' +
+      'yükselen Rwenzori sıradağları, kıtanın ekvator kuşağındaki en sıra dışı dağ ' +
+      'kütlelerinden biridir: çoğu Afrika zirvesinin aksine volkanik kökenli değildir, yaklaşık ' +
+      'üç milyon yıl önce yükselmiş bir kristalin kaya bloğudur (horst). Sıradağın en yüksek ' +
+      'noktası olan Margherita Zirvesi 5.109 metreye ulaşır; ekvatora yakın konumuna rağmen ' +
+      'zirve buzullarla kaplıdır. Bu doruk, Uganda ile Kongo Demokratik Cumhuriyeti arasındaki ' +
+      "sınırın tam üzerinde bulunur ve iki ülkenin de en yüksek noktasıdır. Rwenzori'nin " +
+      'batısında arazi Rift Vadisi tabanına doğru sert biçimde alçalırken, doğusunda ülkenin iç ' +
+      'platosuna kadar daha kademeli bir iniş görülür.',
+    climateNoteTr:
+      "Uganda'da ekvatoral bir iklim görülür, ancak ülkenin büyük bölümünün yüksek bir plato " +
+      'üzerinde olması sıcaklıkları ekvator kuşağı için beklenenden daha ılıman tutar. Çoğu ' +
+      'bölgede yıllık yağış 1.400 milimetrenin üzerindedir; kuzeydoğuya doğru bu miktar 700 ' +
+      'milimetreye kadar düşer. Albert Gölü çevresindeki alçak Rift Vadisi tabanı, platonun ' +
+      'geri kalanına göre daha sıcak ve kurak bir mikroiklime sahiptir.',
+    hydrographyNoteTr:
+      "Viktorya Gölü'nün yaklaşık yarısı Uganda sınırları içinde kalır ve gölün Jinja " +
+      "yakınındaki çıkışı, Nil Nehri'nin kaynağı kabul edilir. Buradan çıkan Viktorya Nili " +
+      "kuzeye doğru akarak sığ ve geniş bir göl olan Kyoga Gölü'nü besler, ardından Albert " +
+      "Gölü'ne dökülür. Albert Gölü'nden çıkan su Albert Nili adını alır ve Güney Sudan " +
+      "sınırına ulaşır. Uganda'nın su ağının neredeyse tamamı, sonuçta Nil havzasına bağlanır.",
   },
   {
     isoCode: 'ZM',
@@ -1480,6 +1651,37 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'ZMW',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "24 Ekim 1964'te Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      'Zambiya topraklarının yaklaşık dörtte üçünü, denizden 900-1.500 metre yükseklikte uzanan ' +
+      'geniş bir merkezi plato kaplar; bu plato aynı zamanda Kongo ve Zambezi nehir havzaları ' +
+      "arasındaki su bölümü çizgisini oluşturur. Platonun doğu kenarını, Luangwa Vadisi'ni " +
+      'sınırlayan sarp Muchinga Dağları çizer. Ülkenin güney sınırının büyük bölümünü Zambezi ' +
+      'Nehri oluşturur.',
+    landformNoteTr:
+      "Zambiya'nın merkezi platosu, prekambriyen kristalin kayaçlardan oluşan, hafif dalgalı ve " +
+      'yer yer inselberg denen yalnız kayalık tepelerle noktalanmış bir yüzeye sahiptir. ' +
+      'Platonun kuzey kesimleri 1.200 metrenin üzerine çıkarak ülkenin en yüksek arazilerini ' +
+      'oluşturur; Malavi sınırındaki Mafinga Tepeleri bölgenin en yüksek arazisidir. Buradaki ' +
+      'Mafinga Central zirvesi yaklaşık 2.339 metreye ulaşır, ancak hemen yakınındaki Mafinga ' +
+      'South ile hangisinin daha yüksek olduğu kesin olarak ölçülememiştir. Plato, doğuda sarp ' +
+      "bir yamaçla, Muchinga Dağları'yla sona erer; bu dağlar Luangwa Nehri'nin aktığı derin ve " +
+      "geniş Luangwa Vadisi'ni platodan ayırır. Güneyde ise arazi, Zambezi Nehri'nin aktığı " +
+      "daha alçak Zambezi Vadisi'ne doğru alçalır.",
+    climateNoteTr:
+      "Zambiya'da tropikal iklim, rakımın etkisiyle yumuşatılmış biçimde görülür; kasım-nisan " +
+      'arası yağışlı, mayıs-ekim arası kurak bir dönem izlenir. Merkezi platonun büyük ' +
+      "bölümünde ılıman-nemli bir iklim hakimdir. Güneybatıda ve Zambezi Vadisi'nin alçak " +
+      'kesimlerinde ise yarı kurak bozkır koşulları görülür. Kuzeydeki yüksek arazilerde yıllık ' +
+      'yağış, güneye göre belirgin biçimde daha fazladır.',
+    hydrographyNoteTr:
+      "Zambezi Nehri'nin kaynağı, ülkenin kuzeybatısındaki Kalene Tepeleri'ndedir; nehir " +
+      'buradan güneye ve doğuya doğru yaklaşık 2.600 kilometre akarak Mozambik kıyısında Hint ' +
+      "Okyanusu'na ulaşır. Zambezi'nin Zambiya-Zimbabve sınırındaki güzergahında, dünyanın en " +
+      'büyük su perdelerinden biri olan Victoria Şelalesi ve ardından, depolama kapasitesi ' +
+      'bakımından dünyanın en büyük yapay gölü sayılan Kariba Gölü yer alır. Kuzeyde, ' +
+      "Tanganyika Gölü'nün yalnızca güney ucu Zambiya sınırları içinde kalır. Kuzeydeki " +
+      'Bangweulu Gölü tamamen Zambiya topraklarındadır. Kuzeybatıdaki Mweru Gölü ise Demokratik ' +
+      'Kongo Cumhuriyeti ile paylaşılan bir sınır gölüdür.',
   },
   {
     isoCode: 'ZW',
@@ -1503,5 +1705,32 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'ZWG',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "18 Nisan 1980'de Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      'Zimbabve topraklarının belkemiğini, ülkeyi kuzeydoğu-güneybatı yönünde bir sırt gibi kat ' +
+      'eden ve 1.200-1.500 metre yükseklikteki Highveld platosu oluşturur. Kuzeyde Zambezi, ' +
+      'güneyde ise Limpopo nehirleri ülkenin doğal sınırlarını çizer. Doğu sınırı boyunca, ' +
+      "Mozambik'e komşu daha sarp ve yüksek Doğu Yaylaları uzanır.",
+    landformNoteTr:
+      'Highveld, ülkenin ortasından geçen ve genişliği 80-160 kilometre arasında değişen, ' +
+      'yaklaşık 650 kilometre uzunluğunda bir plato sırtıdır; savan bitki örtüsüyle kaplı bu ' +
+      "dalgalı arazide ülkenin tarım ve yerleşim ağırlığının büyük bölümü yer alır. Highveld'in " +
+      'kuzey ve güneyinde arazi kademeli olarak alçalarak Middleveld ve daha sıcak Lowveld ' +
+      'bölgelerine dönüşür. Doğu sınırı boyunca uzanan Doğu Yaylaları (Manica Yaylaları), ' +
+      'ülkenin geri kalanından belirgin biçimde farklı, daha nemli ve ormanlık bir topografyaya ' +
+      'sahiptir; Nyanga, Bvumba ve Chimanimani sıradağlarından oluşan bu kuşağın en yüksek ' +
+      "noktası, 2.592 metrelik Nyangani Dağı'dır.",
+    climateNoteTr:
+      "Zimbabve'nin subtropikal ikliminde rakım belirleyici bir etkendir. Highveld'de " +
+      'sıcaklıklar yıl boyunca ölçülü kalır, kışın geceleri soğuk geçebilir. Kuzeydeki Zambezi ' +
+      've güneydeki Limpopo vadilerinin alçak kesimlerinde ise sıcaklıklar belirgin biçimde ' +
+      "daha yüksektir. Doğu Yaylaları ülkenin en yağışlı bölgesidir; Hint Okyanusu'ndan gelen " +
+      'nemli hava kütleleri buradaki yamaçlara çarparak yoğun yağış bırakır.',
+    hydrographyNoteTr:
+      'Zambezi Nehri ülkenin kuzey sınırının büyük bölümünü çizer; Zambiya ile paylaşılan ' +
+      "Victoria Şelalesi'nin ardından, iki ülke arasında uzanan Kariba Gölü'nü besler. Kariba, " +
+      'en geniş noktasında 40 kilometreye ulaşan büyüklüğüyle dünyanın en büyük yapay ' +
+      'göllerinden biridir. Güneyde Limpopo Nehri, Güney Afrika ve Botsvana ile sınırı çizerek ' +
+      "Mozambik'e doğru akar. Highveld'in iç kesimlerindeki nehirlerin çoğu mevsimsel akışa " +
+      'sahiptir; yağmur mevsimi dışında su seviyeleri belirgin biçimde düşer.',
   },
 ];
