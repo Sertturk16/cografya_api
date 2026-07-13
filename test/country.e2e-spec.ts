@@ -37,9 +37,15 @@ import { computeNeighborCount } from '../src/country/country.service';
 //   ZY — island: EMPTY neighbour array (count 0), all optionals absent → null.
 //   ZZ — full: 2 neighbours + every optional set (round-trip / detail shape).
 // ISO-ASC order is ZX, ZY, ZZ — the deterministic order the endpoints must return.
-// CONVENTION (keep this as real batches grow): all synthetic fixtures MUST use the ISO
-// 3166-1 private-use ranges — AA, QM–QZ, XA–XZ, ZZ — which the standard never assigns to a
-// real country, so a fixture can never collide with a seeded country as coverage scales.
+// CONVENTION (keep this as real batches grow): this suite's synthetic fixtures use exactly
+// FIVE ISO 3166-1 private-use codes — ZX, ZY, ZZ (Z-block) and XA, XB (X-block) — none of
+// which the standard assigns to a real country, so a fixture never collides with a seeded
+// row as coverage scales. Do NOT widen a new fixture to "any private-use code": the broader
+// private-use range is NOT free real estate. Two real production iso_code values in
+// SEED_COUNTRIES fall inside it — QN (KKTC, self-assigned from the QM–QZ block) and XK
+// (Kosova, real-world quasi-standard, World Bank/EU/SWIFT), both seeded in PR #32. XK in
+// particular sits in the same XA–XZ block these fixtures draw XA/XB from. A new fixture MUST
+// extend the ZX/ZY/ZZ/XA/XB set and MUST NEVER reuse QN or XK, which name real seeded rows.
 const ZX: CountrySeed = {
   isoCode: 'ZX',
   nameTr: 'Test Ülkesi ZX',

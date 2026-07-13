@@ -39,9 +39,13 @@ import type { CountrySeed } from '../country.seed-data';
  *
  *   2. KKTC has no ISO 3166-1 code (unofficial state). Self-assigned `QN` from the QM-QZ
  *      private-use block (→ DEC 2026-07-13) — an INTERNAL-ONLY identifier so the NOT-NULL
- *      UNIQUE iso_code has a value, NOT a claim of international-standard recognition, and
- *      deliberately not from the X- and Z-prefixed range reserved for synthetic test fixtures.
- *      alpha-3 is null (no code exists).
+ *      UNIQUE iso_code has a value, NOT a claim of international-standard recognition. `QN` is
+ *      chosen to be distinct from the five specific codes the country e2e suite reserves for
+ *      synthetic fixtures (ZX/ZY/ZZ, XA/XB — see test/country.e2e-spec.ts), so a real seeded
+ *      KKTC row can never collide with a test fixture. (The QM–QZ block QN sits in is itself a
+ *      real ISO 3166-1 private-use range — the point is that QN is not one of those five
+ *      fixture codes, not that it lives in some separate "non-fixture" range.) alpha-3 is null
+ *      (no code exists).
  *   3. KOSOVA uses `XK`, a genuine real-world quasi-standard code (World Bank/EU/SWIFT) —
  *      already correct, not a self-assignment (→ CONVENTIONS §5). alpha-3 left null: only
  *      XK (alpha-2) is documented in the source; XKX is not asserted here.
