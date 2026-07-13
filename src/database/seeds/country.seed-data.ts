@@ -1,4 +1,7 @@
 import { Continent } from '../../common/continent.enum';
+import { AFRICA_COUNTRIES } from './countries/africa.countries';
+import { AMERICAS_COUNTRIES } from './countries/americas.countries';
+import { ASIA_COUNTRIES } from './countries/asia.countries';
 import { EUROPE_OCEANIA_COUNTRIES } from './countries/europe-oceania.countries';
 
 /**
@@ -526,5 +529,8 @@ const PILOT_COUNTRIES: readonly CountrySeed[] = [
  */
 export const SEED_COUNTRIES: readonly CountrySeed[] = [
   ...PILOT_COUNTRIES,
+  ...ASIA_COUNTRIES,
+  ...AFRICA_COUNTRIES,
+  ...AMERICAS_COUNTRIES,
   ...EUROPE_OCEANIA_COUNTRIES,
 ];
