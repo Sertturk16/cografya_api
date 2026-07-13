@@ -16,10 +16,15 @@ import type { CountrySeed } from '../country.seed-data';
  * ROUTED ELSEWHERE — Kıbrıs (CY) and Kosova (XK) are in europe-oceania.md but are handled
  *   in the separate sovereignty seed lane (owner-ruled sensitive content), not here.
  *
- * NEIGHBOUR RECIPROCITY (ruled, → PR #30 review): İspanya carries GB (Cebelitarık/Gibraltar
- *   land border at La Línea — undisputed border, only sovereignty is contested) and İtalya
- *   carries VA (Vatikan) — same exclave/enclave-inclusive principle as France/Brazil,
- *   Russia/Kaliningrad. VA is not seeded yet (benign dangling ref, like TR).
+ * NEIGHBOUR RECIPROCITY (corrected, → DEC 2026-07-13 "CORRECTION: Gibraltar"): the
+ *   exclave-inclusive rule applies ONLY to a fully constitutionally-integrated territory
+ *   (DROM-equivalent / oblast / autonomous republic) — e.g. France↔Brazil via French Guiana
+ *   (a DROM) and Russia↔Lithuania/Poland via Kaliningrad (an oblast) DO count. Gibraltar is a
+ *   British Overseas Territory (NOT integrated UK territory), so the ES↔GB land border at
+ *   La Línea does NOT propagate to either state's list — GB and ES do NOT carry each other
+ *   (an earlier ruling wrongly added them; reversed here). İtalya still carries VA (Vatikan):
+ *   that is a genuine bilateral border with a sovereign enclave state, a separate case from
+ *   the Gibraltar one. VA is not seeded yet (benign dangling ref, like TR).
  *
  * areaKm2 is whole km² (entity is integer); decimal source values are rounded to nearest
  *   (e.g. İsviçre 39.509,63 → 39_510, Portekiz 91.605,6 → 91_606, Slovenya 20.134,5 →
@@ -254,7 +259,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     capitalNameEn: 'London',
     capitalLatitude: 51.5074,
     capitalLongitude: -0.1278,
-    neighborIsoCodes: ['IE', 'ES'],
+    neighborIsoCodes: ['IE'],
     officialLanguagesTr: ['İngilizce'],
     currencyNameTr: 'Sterlin',
     currencyCode: 'GBP',
@@ -772,7 +777,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     capitalNameEn: 'Madrid',
     capitalLatitude: 40.4168,
     capitalLongitude: -3.7038,
-    neighborIsoCodes: ['PT', 'FR', 'AD', 'MA', 'GB'],
+    neighborIsoCodes: ['PT', 'FR', 'AD', 'MA'],
     officialLanguagesTr: ['İspanyolca (Kastilyaca)'],
     currencyNameTr: 'Euro',
     currencyCode: 'EUR',
