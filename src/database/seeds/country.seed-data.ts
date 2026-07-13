@@ -1,4 +1,5 @@
 import { Continent } from '../../common/continent.enum';
+import { ASIA_COUNTRIES } from './countries/asia.countries';
 
 /**
  * Shape of one seeded country. The IDENTITY fields (isoCode, TR+EN name, both slugs,
@@ -107,7 +108,7 @@ export interface CountrySeed {
  *   bounding-box (from boundary GeoJSON at build time — see the entity header note).
  * ─────────────────────────────────────────────────────────────────────────────
  */
-export const SEED_COUNTRIES: readonly CountrySeed[] = [
+const PILOT_COUNTRIES: readonly CountrySeed[] = [
   {
     isoCode: 'GR',
     isoCodeAlpha3: 'GRC',
@@ -516,3 +517,11 @@ export const SEED_COUNTRIES: readonly CountrySeed[] = [
       'yoğunlaşmasının başlıca nedenidir.',
   },
 ];
+
+/**
+ * The full `db:seed:world` set: the 8-country TR-neighbour pilot plus the dünya
+ * haritası base-data waves, aggregated here so `seed-world.ts` and the e2e suite keep a
+ * single import. Each continent lives in its own `./countries/*.countries.ts` module so
+ * a continent wave is reviewable in isolation; add a wave = add one import + one spread.
+ */
+export const SEED_COUNTRIES: readonly CountrySeed[] = [...PILOT_COUNTRIES, ...ASIA_COUNTRIES];
