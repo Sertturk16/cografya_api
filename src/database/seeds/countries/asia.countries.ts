@@ -220,7 +220,7 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "Japon işgalinden kurtuluş 15 Ağustos 1945'te gerçekleşti (resmî olarak kutlanır); Kore Cumhuriyeti 15 Ağustos 1948'de ilan edildi.",
     introTr:
-      "Kore Yarımadası'nın güney yarısını kaplayan Güney Kore, batıda Sarı Deniz'e, doğuda " +
+      "Kore Yarımadası'nın güney yarısını kaplayan Güney Kore'nin, batıda Sarı Deniz'e, doğuda " +
       "Japon Denizi'ne, güneyde ise Japonya'yı ayıran Kore Boğazı'na kıyısı vardır. Tek kara " +
       'sınırı, kuzeyde Kuzey Kore ile paylaştığı hattır. Dağlar ve tepeler, ülke topraklarının ' +
       'yaklaşık dörtte üçünü oluşturur.',
