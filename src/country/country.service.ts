@@ -125,6 +125,7 @@ export class CountryService {
       landformNoteTr: row.landformNoteTr,
       climateNoteTr: row.climateNoteTr,
       hydrographyNoteTr: row.hydrographyNoteTr,
+      sovereigntyNoteTr: row.sovereigntyNoteTr,
       createdAt: row.createdAt.toISOString(),
       updatedAt: row.updatedAt.toISOString(),
     };

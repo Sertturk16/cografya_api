@@ -42,6 +42,7 @@ export interface CountrySeed {
   landformNoteTr?: string | null;
   climateNoteTr?: string | null;
   hydrographyNoteTr?: string | null;
+  sovereigntyNoteTr?: string | null;
 }
 
 /**

@@ -896,6 +896,11 @@
             "nullable": true,
             "description": "Hidrografya — kısa düzyazı not (nehir/göl/deniz anlatısı, TR)."
           },
+          "sovereigntyNoteTr": {
+            "type": "string",
+            "nullable": true,
+            "description": "Egemenlik / uluslararası tanınma çerçevesi — serbest anlatı düzyazısı (TR). Yalnızca tanınma statüsü tartışmalı/standart-dışı ülkeler için doldurulur; sıradan ülkelerde null."
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time",
@@ -934,6 +939,7 @@
           "landformNoteTr",
           "climateNoteTr",
           "hydrographyNoteTr",
+          "sovereigntyNoteTr",
           "createdAt",
           "updatedAt"
         ]
