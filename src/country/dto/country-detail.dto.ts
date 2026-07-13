@@ -187,6 +187,16 @@ export class CountryDetailDto {
   })
   hydrographyNoteTr!: string | null;
 
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description:
+      'Egemenlik / uluslararası tanınma çerçevesi — serbest anlatı düzyazısı (TR). ' +
+      'Yalnızca tanınma statüsü tartışmalı/standart-dışı ülkeler için doldurulur; ' +
+      'sıradan ülkelerde null.',
+  })
+  sovereigntyNoteTr!: string | null;
+
   @ApiProperty({ type: String, format: 'date-time', description: 'Kayıt oluşturulma zamanı.' })
   createdAt!: string;
 

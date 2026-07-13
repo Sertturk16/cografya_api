@@ -238,6 +238,25 @@ export class Country {
   @Column({ name: 'hydrography_note_tr', type: 'text', nullable: true })
   hydrographyNoteTr!: string | null;
 
+  /**
+   * Egemenlik / uluslararası tanınma çerçevesi — FREE NARRATIVE PROSE (TR). Holds the
+   * owner's binding, twice-fact-checked framing language for the handful of countries whose
+   * international recognition / sovereignty status is contested or non-standard (Kıbrıs
+   * Cumhuriyeti, KKTC, İsrail, Filistin, Tayvan, Kosova). Deliberately ONE broad prose field
+   * (owner-ruled → DEC 2026-07-13), mirroring the existing pattern of a modest number of broad
+   * notes (intro/landform/climate/hydrography), NOT several hyper-specific single-use columns:
+   * İsrail's capital-note nuance and Filistin's governance-note nuance fold into this same
+   * field as continuous prose per entity, rather than separate capital_note/governance_note
+   * columns.
+   *
+   * NULL for the overwhelming majority of countries — the field exists ONLY for entities whose
+   * status genuinely needs the framing; an ordinary, uncontested country leaves it absent (an
+   * unset note, never a placeholder). The prose is transcribed VERBATIM from the fact-checked
+   * source; it is the platform's single most editorially-sensitive surface (CONVENTIONS §4).
+   */
+  @Column({ name: 'sovereignty_note_tr', type: 'text', nullable: true })
+  sovereigntyNoteTr!: string | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 

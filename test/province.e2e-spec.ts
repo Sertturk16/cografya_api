@@ -159,6 +159,7 @@ describe('Province (e2e)', () => {
       'AddProvinceDetailSections1783701664849',
       'InitCountry1784001600000',
       'AddCountryHydrographyNote1784102400000',
+      'AddCountrySovereigntyNote1784188800000',
     ]);
   });
 
