@@ -218,6 +218,33 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'NOK',
     governmentFormTr: 'Anayasal monarşi (parlamenter)',
     independenceNoteTr: "7 Haziran 1905'te İsveç ile birliğin feshiyle bağımsız oldu.",
+    introTr:
+      "Norveç, İskandinav Dağları'nın batı yamacı boyunca kuzeye doğru uzanan, dünyanın en " +
+      'girintili çıkıntılı kıyı şeritlerinden birine sahip dar bir ülkedir. Buzul çağından kalma ' +
+      'fiyortlar kıyı şeridini içeri doğru derinlemesine yarar ve ülkenin coğrafyasını tanımlayan ' +
+      'temel unsuru oluşturur. Kuzeyde Rusya ve Finlandiya, doğuda ise İsveç ile kara sınırı ' +
+      'paylaşır.',
+    landformNoteTr:
+      "Orta Norveç'teki Jotunheimen sırası, ülkenin en sarp arazisini barındırır; sıradaki " +
+      "Galdhøpiggen 2.469 metreye yükselir — bu yükseklik yalnızca Norveç'te değil, tüm Kuzey " +
+      "Avrupa'da aşılmamıştır. Aynı bölgedeki Jostedalsbreen, yaklaşık 460 km²'lik yüzölçümüyle " +
+      'Avrupa anakarasının en büyük buzuludur. Batı kıyısında, dağların denizle buluştuğu hat ' +
+      'boyunca sayısız fiyort açılır; bunların en uzunu ve en derini olan Sognefjord, 205 ' +
+      "kilometre iç kesimlere uzanır ve 1.300 metreyi aşan noktalarıyla Avrupa'nın en derin " +
+      'fiyordudur.',
+    climateNoteTr:
+      'Norveç, bulunduğu enleme göre beklenenden çok daha ılıman bir iklime sahiptir; bunun ' +
+      "nedeni, kıyı boyunca kuzeye taşınan sıcak Golfstrim sularıdır. Kutup Dairesi'nin çok " +
+      'üzerindeki limanlar bile bu etki sayesinde yıl boyunca donmaz. İç kesimlerde ve yüksek ' +
+      'dağlarda deniz etkisi zayıflar, kışlar belirgin biçimde daha soğuk ve karlı geçer. En ' +
+      'kuzeydeki bölgelerde yazın gece güneşi, kışın ise kutup gecesi yaşanır.',
+    hydrographyNoteTr:
+      "Norveç'in kıyı şeridi, anakara ve fiyortlarla birlikte yaklaşık 29.000 kilometre, binlerce " +
+      "adayı da içine katan ölçümlerde ise 100.000 kilometreyi aşar — dünyanın Kanada'dan sonra " +
+      'en uzun ikinci kıyı şeridi. Dağlık arazi nedeniyle ülkedeki nehirler genellikle kısa ve ' +
+      'akışı hızlıdır; bu özellik, akarsuların hidroelektrik üretimi için yoğun biçimde ' +
+      'kullanılmasını kolaylaştırır. Binlerce buzul gölü ve buzuldan beslenen akarsu, İskandinav ' +
+      "Dağları'nın su ağını besler.",
   },
   {
     isoCode: 'SE',
@@ -242,6 +269,32 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Anayasal monarşi (parlamenter)',
     independenceNoteTr:
       "Modern devlet geleneksel olarak 6 Haziran 1523'e (Gustav Vasa'nın seçimi) dayanır; eski, kesintisiz bir devlettir.",
+    introTr:
+      'İsveç, kuzey-güney doğrultusunda yaklaşık 1.570 kilometre uzanan, Norveç sınırındaki ' +
+      "İskandinav Dağları'ndan Baltık Denizi kıyısına doğru alçalan bir topografyaya sahiptir. " +
+      'Ülkenin büyük bölümünü ormanlarla kaplı düzlükler ve binlerce göl oluşturur; kıyı şeridi ' +
+      'ise Stockholm çevresinde yoğunlaşan geniş takımadalarla parçalanmıştır. Batısında Norveç, ' +
+      'kuzeydoğusunda ise Finlandiya yer alır.',
+    landformNoteTr:
+      "Kuzeydeki Kebnekaise, İsveç'in en yüksek dağıdır; kuzey doruğu 2.097 metreye ulaşır. Bir " +
+      'zamanlar daha yüksek olan buzullu güney doruk, son elli yılda belirgin biçimde erimiş ve ' +
+      "artık kuzey doruğun gerisinde kalmıştır. İskandinav Dağları'nın doğusunda arazi kademeli " +
+      "olarak alçalır ve orta ile güney İsveç'in büyük bölümünü kaplayan, göllerle noktalanmış " +
+      "ormanlık platoya bağlanır. Vänern (5.650 km²), Avrupa'nın üçüncü büyük gölü olarak bu " +
+      "platonun güneyinde yer alır; hemen doğusundaki Vättern ise İsveç'in ikinci büyük gölüdür.",
+    climateNoteTr:
+      "İsveç'in kuzey yarısı, Kutup Dairesi'nin de içinden geçtiği subarktik bir iklime sahiptir; " +
+      'kışlar uzun ve karanlık, yazlar kısa geçer, yaz aylarında güneş ufkun altına inmez. Güney ' +
+      "İsveç'te iklim ılıman kıta karakterine yaklaşır, dört mevsim daha belirgin biçimde " +
+      "ayrışır. İskandinav Dağları, Atlas Okyanusu'ndan gelen nemli hava kütlelerini büyük ölçüde " +
+      'batı yamaçlarında tutar; bu nedenle İsveç, dağların doğusunda kalan konumu itibarıyla ' +
+      'nispeten kurak bir iklime sahiptir.',
+    hydrographyNoteTr:
+      'İsveç topraklarında 95 binin üzerinde göl bulunur; bunların en büyüğü olan Vänern, ' +
+      "Rusya'daki Ladoga ve Onega göllerinin ardından Avrupa'nın üçüncü büyük gölüdür. Çoğu " +
+      "nehir, İskandinav Dağları'ndan doğup güneydoğu yönünde akarak Botni Körfezi ile Baltık " +
+      "Denizi'ne dökülür. Stockholm kıyısındaki takımada, 24 bini aşkın ada, adacık ve kayalıktan " +
+      "oluşur ve İsveç'in Baltık kıyı şeridinin karakteristik bir parçasıdır.",
   },
   {
     isoCode: 'GB',
@@ -324,6 +377,32 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'Millî Gün (Nationalfeiertag) olarak kutlar; modern devletin diğer dönüm noktaları ' +
       "arasında 12 Kasım 1918 (I. Cumhuriyet'in ilanı) ve 15 Mayıs 1955 Avusturya Devlet " +
       'Antlaşması (işgal rejiminin sona ermesi) yer alır.',
+    introTr:
+      "Avusturya toprağının yaklaşık %60'ını Doğu Alpleri kaplar; ülkenin kuzey ve doğu kesimleri " +
+      "ise Tuna Nehri vadisi ve Panonya Ovası'na açılan alçak arazilerden oluşur. Kıyısı olmayan " +
+      'ülke, Almanya, Çekya, Slovakya, Macaristan, Slovenya, İtalya, İsviçre ve Lihtenştayn ile ' +
+      "sınır komşusudur. Viyana, Tuna'nın Alpler'den ovaya çıktığı noktada, ülkenin kuzeydoğu " +
+      'ucunda kuruludur.',
+    landformNoteTr:
+      'Ülke sınırları içinde 3.000 metrenin üzerinde yüzlerce zirve yükselir; bunların en ' +
+      "yükseği, Hohe Tauern sırasındaki Grossglockner'dir — 3.798 metrelik bu dağ, aynı zamanda " +
+      "ünlü Grossglockner Yüksek Alp Yolu'nun geçtiği güzergahtır. Kuzeyde, Tuna vadisi boyunca " +
+      "uzanan şerit ile Tuna'nın kuzeyinde kalan, jeolojik olarak Alp sistemine değil çok daha " +
+      "eski Bohemya Masifi'ne ait Waldviertel ve Mühlviertel platoları, ülkenin nispeten alçak " +
+      "kesimlerini oluşturur. Doğuda, Viyana Havzası'nın ötesinde arazi Panonya Ovası'na doğru " +
+      "alçalır — Avusturya'nın Alpler dışındaki tek geniş düzlük burasıdır.",
+    climateNoteTr:
+      "Avusturya'da Atlantik ve kıta iklimleri arasında bir geçiş yaşanır. Batıda yağış daha bol " +
+      've deniz etkisi daha belirgindir; doğuya gidildikçe yazlar daha sıcak, kışlar daha kurak ' +
+      'hale gelir. Alp kesimlerinde rakımla birlikte sıcaklık hızla düşer, yüksek vadilerde kar ' +
+      "örtüsü aylarca yerde kalır. Viyana çevresindeki düzlükler, Panonya Ovası'nın ılıman-kıta " +
+      'karakterinden etkilenir.',
+    hydrographyNoteTr:
+      'Tuna Nehri, Avusturya topraklarını batıdan doğuya yaklaşık 357 kilometre boyunca kat eder ' +
+      "ve Viyana'dan geçerek Slovakya sınırına ulaşır. İnn, Enns ve Traun gibi büyük kolları, " +
+      "Alpler'deki buzul ve kar erimesinden beslenerek Tuna'ya katılır. Ülke yüzölçümünün " +
+      "neredeyse tamamı Tuna havzası içinde kalır — Avusturya'nın kıyısı olmasa da su ağı " +
+      "doğrudan Karadeniz'e bağlıdır.",
   },
   {
     isoCode: 'DE',
@@ -405,6 +484,33 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'EUR',
     governmentFormTr: 'Federal anayasal monarşi (parlamenter)',
     independenceNoteTr: "4 Ekim 1830'da Hollanda'dan bağımsız oldu.",
+    introTr:
+      'Belçika toprakları kuzeyden güneye üç farklı doğal bölgeye ayrılır: kuzeybatıdaki kıyı ' +
+      'ovası, ülkenin ortasını kaplayan alçak plato ve güneydoğudaki ormanlık Ardenler yaylası. ' +
+      'Kıyı şeridindeki dar kesim dışında ülkenin büyük bölümü 200 metrenin altında kalır. Kara ' +
+      'sınırları dört komşuya açılır: güneyde Fransa, güneydoğuda Lüksemburg, doğuda Almanya, ' +
+      'kuzeyde ise Hollanda.',
+    landformNoteTr:
+      'Kıyı boyunca dar bir kumul şeridi uzanır; hemen gerisinde, geçmişte bataklık olan ve bugün ' +
+      'tarım amacıyla kullanılan düz polder arazileri yer alır. Bu düzlük, güneye doğru yavaşça ' +
+      'yükselerek ortadaki verimli, dalgalı platoya bağlanır. Sambre ve Maas nehirlerinin çizdiği ' +
+      "vadi, ülkeyi kuzeydeki düzlüklerden güneydeki Ardenler'den ayıran belirgin bir hat " +
+      'oluşturur.' +
+      '\n\n' +
+      'Ardenler, Devon ve Kambriyen dönemine ait eski kayaçlardan oluşan, sık ormanlarla kaplı ' +
+      'bir plato yaylasıdır. Bu yaylanın ve ülkenin en yüksek noktası olan 694 metrelik Signal de ' +
+      'Botrange, Hautes Fagnes adı verilen geniş bir turbalık alanda yer alır.',
+    climateNoteTr:
+      "Belçika'da ılıman deniz iklimi görülür; kıyı ve orta kesimlerde kışlar yumuşak, yazlar " +
+      "serin geçer. Ardenler'in yüksek platosunda rakımın etkisiyle sıcaklıklar birkaç derece " +
+      'daha düşük seyreder, kar örtüsü kıyıya göre daha uzun sürer. Ardenler aynı zamanda ülkenin ' +
+      'en yağışlı bölgesidir.',
+    hydrographyNoteTr:
+      "Fransa'dan gelen Schelde (Escaut) Nehri, ülkenin kuzeybatısından geçerek Antwerp limanını " +
+      "besler ve Hollanda topraklarında Kuzey Denizi'ne ulaşır. Maas Nehri ise güneydoğudan girip " +
+      "Ardenler'i dar ve derin bir vadi boyunca kat eder; Namur yakınlarında Sambre'ı alarak " +
+      "Liège üzerinden kuzeye yönelir. Antwerp Limanı, Schelde'nin gelgit etkisindeki geniş " +
+      "ağzında konumlanmasıyla Avrupa'nın en büyük limanlarından biri haline gelmiştir.",
   },
   {
     isoCode: 'FR',
@@ -550,6 +656,36 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'EUR',
     governmentFormTr: 'Anayasal monarşi (parlamenter)',
     independenceNoteTr: null,
+    introTr:
+      "Hollanda, Ren, Maas ve Schelde nehirlerinin Kuzey Denizi'ne döküldüğü büyük bir deltanın " +
+      'üzerinde kuruludur. Ülke topraklarının yaklaşık dörtte biri deniz seviyesinin altındadır; ' +
+      'bu alanların büyük bölümü, yüzyıllar boyunca bentlerle çevrilip pompalarla kurutulan eski ' +
+      'göl ve bataklık yataklarından oluşan polderlerdir. Almanya ve Belçika ile kara sınırı ' +
+      'paylaşır.',
+    landformNoteTr:
+      'Kıyı şeridi boyunca uzanan kumullar, denizin doğrudan içeri girmesini engelleyen doğal bir ' +
+      'bariyer oluşturur; bu kumulların gerisinde kalan alanlar, bentlerle çevrilip pompalarla ' +
+      'kurutulan polderlerdir. Ülkenin en alçak noktası, Rotterdam yakınlarındaki ' +
+      "Zuidplaspolder'de deniz seviyesinin yaklaşık 6,76 metre altındadır. En yüksek nokta ise " +
+      "ülkenin güneydoğu ucunda, Almanya ve Belçika ile üçlü sınırın kesiştiği Vaalserberg'de 322 " +
+      'metreye ulaşır — ülkenin geri kalanından topografik olarak tamamen kopuk, tek gerçek ' +
+      'tepelik nokta.' +
+      '\n\n' +
+      "1953'teki büyük Kuzey Denizi taşkınının ardından inşa edilen Delta Projesi, güneybatıdaki " +
+      'Ren-Maas-Schelde deltasını bir dizi dev bariyer ve setle korumaya yöneliktir; dünyanın en ' +
+      'kapsamlı su mühendisliği çalışmalarından biri sayılır.',
+    climateNoteTr:
+      "Hollanda'da ılıman deniz iklimi egemendir; Kuzey Denizi'nin etkisiyle kışlar hafif, yazlar " +
+      'serin geçer. Yağış yıl boyunca düzenli dağılır, gökyüzü sık sık bulutludur. Ülkenin düz ' +
+      'topografyası, batıdan esen rüzgarların iç kesimlere kadar güçlü biçimde ulaşmasına imkân ' +
+      'tanır.',
+    hydrographyNoteTr:
+      'Ren, Maas ve Schelde nehirleri Hollanda topraklarında birbirine yakın ağızlardan Kuzey ' +
+      "Denizi'ne dökülür; bu üçlü delta, ülkenin güneybatısını oluşturan Zeeland ve Güney " +
+      "Hollanda bölgelerinin fiziki temelidir. Kuzeyde, 1932'de tamamlanan Afsluitdijk bendi eski " +
+      'Zuiderzee körfezini denizden ayırarak IJsselmeer adlı geniş bir tatlı su gölüne ' +
+      'dönüştürdü. Ülke genelindeki binlerce kilometrelik kanal ağı, hem taşımacılık hem de su ' +
+      'seviyesi kontrolü için kullanılır.',
   },
   {
     isoCode: 'CH',
@@ -574,6 +710,30 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal cumhuriyet (direktoryal)',
     independenceNoteTr:
       'Konfederasyonun geleneksel kuruluşu 1 Ağustos 1291 (millî gün); uluslararası tanınma 1648 Vestfalya Barışı.',
+    introTr:
+      'İsviçre toprakları kuzeybatıdan güneydoğuya üç kuşağa ayrılır: Jura Dağları, ortadaki ' +
+      "İsviçre Platosu (Mittelland) ve ülke yüzölçümünün yaklaşık %60'ını kaplayan Alpler. " +
+      "Nüfusun büyük bölümü, iki dağ kuşağı arasında kalan ve göllerle noktalanan Mittelland'da " +
+      'yaşar. Almanya, Fransa, İtalya, Avusturya ve Lihtenştayn ile kara sınırı paylaşan ülke, ' +
+      'kıyısı olmayan bir iç Avrupa devletidir.',
+    landformNoteTr:
+      "Güneyde yükselen Alpler, İsviçre'nin en yüksek ve en sarp arazisini oluşturur; İtalya " +
+      'sınırındaki Monte Rosa kütlesinin bir parçası olan Dufourspitze, 4.634 metreyle ülkenin en ' +
+      'yüksek noktasıdır. Kuzeybatıda, Fransa sınırı boyunca uzanan Jura Dağları daha alçak ve ' +
+      'yumuşak hatlı kireçtaşı sıradağlarından oluşur. İkisinin arasında kalan Mittelland, göller ' +
+      've tepelerle kesintiye uğrayan verimli bir platodur; Zürih, Bern ve Cenevre gibi büyük ' +
+      'şehirlerin çoğu burada yer alır.',
+    climateNoteTr:
+      "İsviçre'de iklim büyük ölçüde rakıma göre değişir: Mittelland'da ılıman kıta iklimi, " +
+      'yüksek Alp vadilerinde ise sert kış koşulları görülür. Güneyden esen sıcak ve kuru föhn ' +
+      'rüzgarı, kışın Alp vadilerinde ani sıcaklık artışlarına ve hızlı kar erimesine yol ' +
+      "açabilir. Güney kantonlarında, İtalya'ya yakınlığın etkisiyle daha ılık kışlar yaşanır.",
+    hydrographyNoteTr:
+      'İsviçre, Ren, Ron, Ticino ve İnn nehirlerinin kaynağını Alp buzullarından alması nedeniyle ' +
+      'Avrupa\'nın "su kulesi" olarak anılır; bu dört nehir sırasıyla Kuzey Denizi, Akdeniz, ' +
+      "Adriyatik ve Karadeniz havzalarına ulaşır. Ren'in kaynağı, Graubünden kantonundaki Toma " +
+      "Gölü'dür. Cenevre, Konstanz ve Lugano gölleri gibi büyük göllerin çoğu komşu ülkelerle " +
+      'paylaşılır; hem enerji üretiminde hem de iç su taşımacılığında önemli rol oynar.',
   },
   {
     isoCode: 'AL',
@@ -917,6 +1077,30 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Yarı-başkanlık parlamenter cumhuriyeti',
     independenceNoteTr:
       "1143'te kuruldu; 1 Aralık 1640'ta İspanya'dan bağımsızlığın restorasyonu (resmî millî günlerden biri).",
+    introTr:
+      "Portekiz, İber Yarımadası'nın batı kıyısı boyunca uzanan, tamamı Atlas Okyanusu'na bakan " +
+      'bir ülkedir. Ülkeyi doğudan batıya kat eden Tejo (Tagus) Nehri, kabaca kuzeyin daha dağlık ' +
+      "arazisini güneyin daha düz ovalarından ayırır. Anakaraya ek olarak, Atlas Okyanusu'ndaki " +
+      "Azorlar ve Madeira takımadaları da Portekiz'in özerk bölgeleridir.",
+    landformNoteTr:
+      "Tejo'nun kuzeyinde arazi belirgin biçimde yükselir; bu bölgenin doruk noktası Serra da " +
+      "Estrela'daki Torre'dir. 1.993 metreye ulaşan bu nokta, anakara Portekiz'in en yüksek " +
+      'yeridir. Douro Nehri vadisi boyunca, üzüm bağları için taraçalanmış dik yamaçlar bu kuzey ' +
+      'bölgesinin karakteristik görünümünü oluşturur.' +
+      '\n\n' +
+      "Tejo'nun güneyinde arazi alçalır; Alentejo'nun geniş, dalgalı ovaları ve en güneyde " +
+      "Algarve'nin kıyı şeridi bu düzlüğü oluşturur.",
+    climateNoteTr:
+      "Portekiz'de Atlas Okyanusu etkisiyle yumuşatılmış bir Akdeniz iklimi görülür. Kuzey, " +
+      'okyanusa açıklığı nedeniyle daha yağışlı ve serindir. Güneye inildikçe yazlar uzar ve ' +
+      "kuraklaşır; Alentejo'da yaz ayları neredeyse yağışsız geçebilir. Azorlar tam okyanusal bir " +
+      'iklime, Madeira ise ılıman-subtropikal bir iklime sahiptir.',
+    hydrographyNoteTr:
+      "Tejo, İber Yarımadası'nın en uzun akarsuyudur; İspanya'da doğar, 1.007 kilometre boyunca " +
+      "batıya akar ve Lizbon'da geniş bir haliç oluşturarak Atlas Okyanusu'na dökülür. Kuzeyde de " +
+      'İspanya kaynaklı olan Douro Nehri, Porto kentinden geçerek okyanusa ulaşır; ağzına yakın ' +
+      'kesimindeki bağlar, dünyaca tanınan Porto şarabının kaynağıdır. Her iki nehir de sınır ' +
+      'ötesi bir havzaya sahiptir ve İspanya ile su paylaşım anlaşmalarına konu olur.',
   },
   {
     isoCode: 'SM',
@@ -1202,6 +1386,32 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'PLN',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "11 Kasım 1918'de modern devlet yeniden kuruldu.",
+    introTr:
+      "Polonya topraklarının büyük bölümü Kuzey Avrupa Ovası'nın bir parçasıdır; ülkenin ortalama " +
+      'yükseltisi düşüktür ve dağlık arazi yalnızca güney sınırında görülür. Kuzeyde Baltık ' +
+      'Denizi kıyısı, güneyde ise Sudetler ve Karpatlar sıradağları ülkeyi çevreler. Batıda ' +
+      'Almanya, güneyde Çekya ve Slovakya, doğuda Ukrayna ve Belarus, kuzeyde ise Litvanya ve ' +
+      "Rusya'nın Kaliningrad eksklavı bulunur.",
+    landformNoteTr:
+      'Baltık kıyısı boyunca kumul setleri ve lagünler uzanır; Vistül Kumsalı ve Hel Yarımadası ' +
+      'bu kıyı biçimlerinin en belirgin örnekleridir. İç kesimlerde, buzul çağından kalma ' +
+      'binlerce gölün bulunduğu Mazurya Göller Bölgesi ülkenin kuzeydoğusunu kaplar. Güney ' +
+      "sınırındaki Tatra Dağları, Polonya'nın en yüksek arazisidir; Slovakya ile paylaşılan Rysy " +
+      'zirvesi, 2.499 metreye ulaşan üç doruğuyla ülkenin çatısını oluşturur. Ülkenin güneybatı ' +
+      "ucunda, Tatralar'dan çok daha eski ve ayrı bir jeolojik kütle olan Sudetler sıradağı ise " +
+      'daha alçak ve yuvarlak hatlı bir topografya sergiler.',
+    climateNoteTr:
+      'Polonya, batıdaki ılıman deniz iklimiyle doğudaki daha sert kıta iklimi arasında bir geçiş ' +
+      'kuşağında yer alır. Baltık kıyısına yakın bölgelerde kışlar nispeten yumuşaktır. Doğuya ve ' +
+      'iç kesimlere gidildikçe yaz-kış sıcaklık farkı belirginleşir. Güneydeki dağlık kesimlerde ' +
+      'rakımın etkisiyle kışlar daha uzun sürer, kar örtüsü aylarca yerde kalır.',
+    hydrographyNoteTr:
+      "Ülkenin en uzun akarsuyu olan Vistül (Wisła), güneydeki Karpatlar'dan doğar, Varşova ve " +
+      "Kraków gibi büyük şehirlerden geçerek yaklaşık 1.047 kilometre sonra Baltık Denizi'ne " +
+      'dökülür. Batıda ülke topraklarının büyük bölümünü boşaltan Oder (Odra) Nehri ise 840 ' +
+      'kilometrelik toplam uzunluğunun önemli bir bölümünde Almanya ile sınırı çizer. Her iki ' +
+      "nehir de kuzeye, Baltık Denizi'ne akar; aralarında kalan havza, Polonya'nın tarım " +
+      'arazilerinin çoğunu sular.',
   },
   {
     isoCode: 'RO',
