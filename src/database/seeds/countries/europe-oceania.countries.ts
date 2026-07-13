@@ -73,7 +73,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     climateNoteTr:
       "Danimarka'nın iklimini, Kuzey Denizi'nden sürekli geçen alçak basınç sistemleri " +
       'belirler; hava genellikle rüzgarlı ve değişkendir, belirgin bir kurak mevsim yoktur. ' +
-      'Kışlar deniz etkisiyle ilımlıdır, sıcaklık nadiren derin donlara iner; yazlar ise ' +
+      'Kışlar deniz etkisiyle ılımlıdır, sıcaklık nadiren derin donlara iner; yazlar ise ' +
       "serindir, 20-25 santigrat derece bandında seyreder. Batı Jutland, Kuzey Denizi'ne açık " +
       'olduğu için rüzgara ve fırtınalara daha fazla maruz kalır; doğu adaları ve Kopenhag ' +
       'çevresi görece daha durgun bir hava düzenine sahiptir. Yağış yıl boyunca dağılır, ' +
