@@ -265,6 +265,36 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'GBP',
     governmentFormTr: 'Anayasal monarşi (parlamenter)',
     independenceNoteTr: null,
+    introTr:
+      'Büyük Britanya adasının tamamını ve İrlanda adasının kuzeydoğu köşesini kaplayan ' +
+      "Birleşik Krallık, kıtasal Avrupa'yla kara sınırı olmayan bir ada ülkesidir; egemen " +
+      "devlet olarak tek kara komşusu İrlanda'dır. (Birleşik Krallık'a bağlı ama ayrı bir " +
+      'denizaşırı toprak olan Cebelitarık, İspanya ile kendi kara sınırına sahiptir — bu, ' +
+      "Birleşik Krallık'ın kendisinin bir kara komşusu sayılmaz, çünkü Cebelitarık'ın kendi " +
+      "anayasası ve yönetimi vardır, Westminster'da temsil edilmez.)",
+    landformNoteTr:
+      "İskoçya, Birleşik Krallık'ın en dağlık parçasıdır; Highland Sınır Fayı, ülkeyi " +
+      "kuzeybatıdaki dağlık Highlands ile güneydoğudaki Lowlands'e ayırır. Highlands'teki Ben " +
+      "Nevis, 1.345 metreyle Birleşik Krallık'ın en yüksek noktasıdır." +
+      '\n\n' +
+      'İngiltere, büyük ölçüde alçak arazilerden oluşur; dağlık kesimler yalnızca kuzeybatıda, ' +
+      "Pennine Dağları ile Göller Bölgesi'nde görülür — bu bölgedeki Scafell Pike, 978 metreyle " +
+      "İngiltere'nin en yüksek noktasıdır. Galler'de ise Snowdonia'daki Snowdon (Yr Wyddfa), " +
+      '1.085 metreyle bölgenin en yüksek zirvesidir.',
+    climateNoteTr:
+      "Batı kesimler — İskoçya'nın batı Highlands'i, Galler ve İngiltere'nin batısı — Atlas " +
+      "Okyanusu'na en yakın, en yağışlı ve en rüzgarlı bölgelerdir; İskoçya'nın batı " +
+      "Highlands'inde yıllık yağış 3.000 milimetreyi aşarken, doğu kıyısında 800 milimetrenin " +
+      'altına iner. Kuzey bölgeler genelde daha serin ve daha yağışlıyken, güney bölgeler daha ' +
+      'ılık ve daha kuru geçer. Tüm ülke, kışları göreceli ılık, yazları serin geçen nemli ' +
+      'ılıman bir deniz ikliminin etkisi altındadır.',
+    hydrographyNoteTr:
+      "Birleşik Krallık'ın en uzun nehri, Galler'deki Cambrian Dağları'nda doğup Bristol " +
+      "Körfezi'ne dökülen 354 kilometrelik Severn'dir. Thames, güney İngiltere'yi kat ederek " +
+      "Londra'nın içinden geçer, uzunluğu 346 kilometredir." +
+      '\n\n' +
+      "İskoçya'daki en büyük göl olan Loch Lomond'un yanı sıra, İngiltere'nin en büyük gölü " +
+      "Windermere de Göller Bölgesi'nin başlıca su kütleleridir.",
   },
   {
     isoCode: 'AT',
@@ -318,6 +348,40 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal parlamenter cumhuriyet',
     independenceNoteTr:
       "Modern Federal Cumhuriyet 1949'da kuruldu; 3 Ekim 1990'da Doğu ve Batı Almanya birleşti (bugünkü resmî millî gün).",
+    introTr:
+      "Orta Avrupa'da yer alan Almanya, kuzeyde Kuzey Denizi ve Baltık Denizi kıyısından " +
+      'güneyde Alp dağlarına kadar üç farklı yer şekli kuşağını bir arada barındıran bir ' +
+      'ülkedir. Dokuz ülkeyle kara sınırı paylaşır — Danimarka, Polonya, Çekya, Avusturya, ' +
+      'İsviçre, Fransa, Lüksemburg, Belçika ve Hollanda.',
+    landformNoteTr:
+      "Almanya'nın kuzey üçte biri, buzul çağından kalma kumlu topraklar ve sığ göllerle kaplı, " +
+      'çoğunlukla 100 metrenin altında kalan düz bir kıyı ovasıdır — Kuzey Almanya Ovası. Elbe, ' +
+      'Ems, Weser ve Oder nehirleri bu ovayı kuzeye doğru kat eder; kuzeydoğuda Mecklenburg ' +
+      'Göller Bölgesi, aynı buzul kökenli yüzlerce gölü barındırır.' +
+      '\n\n' +
+      'Ülkenin ortası, Eifel, Taunus, Vogelsberg, Rhön ve Thüringen Ormanı gibi alçak dağlık ' +
+      "kütlelerden oluşan Orta Almanya Yaylaları'yla kaplıdır; bu bölge 1.500 metreyi nadiren " +
+      'aşar ama geniş bir alana yayılır. Güneyde, Bavyera sınırında yükselen Alp dağları, ' +
+      "ülkenin en yüksek noktası olan 2.962 metrelik Zugspitze'yi barındırır.",
+    climateNoteTr:
+      'Kuzey Denizi ve Baltık Denizi kıyısında ılıman, yağışlı bir deniz iklimi egemendir; ' +
+      'yaz-kış sıcaklık farkı sınırlı kalır. Orta ve doğu kesimlerde bu deniz etkisi zayıflar, ' +
+      'karasal bir karaktere geçilir — kışlar daha soğuk, yazlar daha sıcak geçer. Güneydeki ' +
+      'Alp eteklerinde ise yükseklik belirleyici olur, kışlar karlı ve sert geçer, yaz-kış ' +
+      'sıcaklık farkı en belirgin haline ulaşır.',
+    hydrographyNoteTr:
+      "Almanya'nın en uzun akarsuyu, ülke sınırları içinde 865 kilometre uzunluğundaki Ren'dir; " +
+      "İsviçre'de doğar, ülkeyi güneyden kuzeye kat ederek Hollanda üzerinden Kuzey Denizi'ne " +
+      "ulaşır ve tarih boyunca ülkenin başlıca ticaret yoludur. Elbe, Çekya'daki dağlardan " +
+      "doğup Hamburg üzerinden Kuzey Denizi'ne dökülür; Almanya'dan geçen bölümü yaklaşık 727 " +
+      "kilometredir. Tuna Nehri, Karaorman'da doğup ülkeden güneydoğuya akarak dokuz ülkeden " +
+      'geçen uzun yolculuğuna başlar.' +
+      '\n\n' +
+      "Ülke genelinde 3.000'i aşkın göl bulunur; sınırları tamamen Almanya içinde kalan en " +
+      "büyüğü, kuzeydoğudaki buzul kökenli Müritz Gölü'dür. Almanya'nın mutlak anlamda en büyük " +
+      "gölü ise güneydeki Bodensee'dir (Constance Gölü) — ama bu göl İsviçre ve Avusturya ile " +
+      'paylaşıldığı için "tamamen Almanya\'da" sayılmaz, yüzölçümü Müritz\'in yaklaşık 4,6 ' +
+      'katıdır.',
   },
   {
     isoCode: 'BE',
@@ -364,6 +428,36 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'EUR',
     governmentFormTr: 'Yarı-başkanlık cumhuriyeti (üniter)',
     independenceNoteTr: null,
+    introTr:
+      "Fransa, Avrupa'daki sekiz kara komşusunun yanı sıra, Güney Amerika'daki Fransız Guyanası " +
+      "toprağı üzerinden Brezilya ve Surinam'la da kara sınırı paylaşır — bir Avrupa ülkesinin " +
+      "Güney Amerika'da kara komşusu olması, kıtalar arası nadir bir örnektir. Anakara Fransa, " +
+      "La Manş, Atlas Okyanusu ve Akdeniz'e kıyısı olan, altıgen biçimiyle tanınan bir ülkedir.",
+    landformNoteTr:
+      "Fransa'nın güneydoğu sınırını Alpler, güneybatı sınırını ise Pireneler çizer. " +
+      "Alpler'deki Mont Blanc, 4.810 metreyle hem Fransa'nın hem Avrupa'nın en yüksek " +
+      "noktasıdır ve İtalya sınırında yükselir. Pireneler, İspanya'yla arada yaklaşık 490 " +
+      'kilometre uzunluğunda doğal bir set oluşturur. Ülkenin güney-orta kesiminde, eski ve ' +
+      'aşınmış bir volkanik plato olan Merkez Masifi uzanır; en yüksek noktası 1.886 metrelik ' +
+      "Puy de Sancy'dir, günümüzden yaklaşık 6.000 yıl önce sönmüş Chaîne des Puys volkanik " +
+      'zinciri bu platonun en genç jeolojik izidir.' +
+      '\n\n' +
+      'Ülkenin kuzeyini geniş ve sığ bir çöküntü alanı olan Paris Havzası, güneybatısını ise ' +
+      'Akitanya Havzası kaplar; bu iki alçak ova, Fransa topraklarının büyük bölümünü ' +
+      'oluşturur.',
+    climateNoteTr:
+      'Batı kıyısında (Bretanya, Normandiya, Atlantik Loire) ılıman, yıl boyu yağışlı bir ' +
+      'okyanus iklimi egemendir, sıcaklık farkları sınırlıdır. Ülkenin ortasında ve doğusunda ' +
+      '(Şampanya, Burgonya, Alsace) karasal bir iklim görülür, kışlar soğuk yazlar sıcak geçer. ' +
+      "Güneyde, Provence, Korsika ve Côte d'Azur'da sıcak-kurak yaz ve ılık-yağışlı kışın " +
+      "görüldüğü Akdeniz iklimi hakimdir. Alpler ve Pireneler'in yüksek kesimlerinde ise dağ " +
+      'iklimi egemendir, 900 metrenin üzerinde kar örtüsü aralık-nisan arasında kalıcıdır.',
+    hydrographyNoteTr:
+      "Fransa'nın en uzun nehri, Merkez Masifi'nde doğup batıya akarak Atlas Okyanusu'na " +
+      "dökülen 1.013 kilometrelik Loire'dır. Sen Nehri, kuzeybatı yönünde Paris'in içinden " +
+      "geçerek La Manş'a ulaşır, uzunluğu 776 kilometredir. Rhône, İsviçre'de doğar ve Fransa " +
+      "içindeki 545 kilometrelik bölümüyle güneye, Akdeniz'e akar. Garonne, ülkenin " +
+      "güneybatısındaki başlıca nehirdir ve Bordeaux üzerinden Atlas Okyanusu'na ulaşır.",
   },
   {
     isoCode: 'LI',
@@ -596,6 +690,36 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr:
       "İtalyan birleşmesi 17 Mart 1861'de tamamlandı; Cumhuriyet 2 Haziran 1946'da ilan edildi.",
+    introTr:
+      "Akdeniz'in ortasına çizme biçiminde uzanan İtalya, kuzeyde Alpler'le komşularından " +
+      'ayrılır; ülke toprakları içinde iki bağımsız mikro-devlet, San Marino ve Vatikan, tam ' +
+      'eksklav olarak yer alır.',
+    landformNoteTr:
+      'Ülkenin kuzey sınırını yaklaşık 1.000 kilometre boyunca çizen Alpler, İtalya ' +
+      "topraklarının yaklaşık %40'ını kaplayan dağlık kesimin kuzey ayağıdır; Fransa " +
+      "sınırındaki Mont Blanc, 4.810 metreyle hem İtalya'nın hem Avrupa Birliği'nin en yüksek " +
+      "noktasıdır. Po Ovası'nın güneyinden başlayan Apenin Dağları, yarımadanın omurgasını " +
+      "oluşturarak Liguria'dan Calabria'ya, oradan kuzey Sicilya'ya kadar 1.350 kilometre " +
+      'boyunca uzanır ve Tiren ile Adriyatik-İyon kıyıları arasında bir su ayrım hattı ' +
+      'oluşturur.' +
+      '\n\n' +
+      "Ülkenin en geniş ve en verimli ovası olan Po Ovası, İtalya'nın toplam düzlük alanının " +
+      "büyük bölümünü oluşturur; adını, ülkenin en uzun nehri olan Po'dan alır.",
+    climateNoteTr:
+      "Kuzeydeki Po Ovası'nda (Milano, Torino, Bologna, Venedik) karasal bir iklim görülür, " +
+      'yazlar sıcak ve nemli, kışlar soğuk ve sisli geçer. Kıyı kesimler ve güney, tipik ' +
+      'Akdeniz iklimi altındadır — serin kışlar, sıcak ve kurak yazlar egemendir. Kuzeydeki Alp ' +
+      'kesimlerinde ise dağ iklimi hakimdir, kışın sıcaklıklar sıfırın belirgin altına düşer, ' +
+      'yıllık yağış 2.000 milimetreyi aşabilir.',
+    hydrographyNoteTr:
+      "İtalya'nın en uzun ve en önemli nehri, Fransa sınırındaki Kotya Alpleri'nde doğup Po " +
+      "Ovası'nı kat ederek Adriyatik Denizi'ne geniş bir deltayla dökülen 652 kilometrelik " +
+      "Po'dur. Tiber Nehri, Apenin Dağları'nda doğar, Roma'nın içinden geçerek Tiren Denizi'ne " +
+      "ulaşır; uzunluğu 405 kilometredir. Arno Nehri, Floransa ve Pisa'dan geçerek Ligurya " +
+      "Denizi'ne dökülür." +
+      '\n\n' +
+      "Ülkenin en büyük gölü olan Garda Gölü'nün yanı sıra Maggiore, Como ve Iseo gölleri, " +
+      'kuzeydeki Alp eteklerinin başlıca doğal su kütleleridir.',
   },
   {
     isoCode: 'MT',
@@ -783,6 +907,34 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'EUR',
     governmentFormTr: 'Parlamenter anayasal monarşi',
     independenceNoteTr: null,
+    introTr:
+      "İber Yarımadası'nın büyük bölümünü kaplayan İspanya, İsviçre'den sonra Avrupa'nın en " +
+      'dağlık ikinci ülkesidir; kıtadaki komşularının yanı sıra, Afrika kıyısındaki Ceuta ve ' +
+      "Melilla eksklavları üzerinden Fas'la da kara sınırı paylaşır.",
+    landformNoteTr:
+      'Ülkenin kalbini, ortalama 600-700 metre yükseklikte, çevresi dağlarla çevrili geniş bir ' +
+      'iç plato olan Meseta Central oluşturur; bu plato İspanya topraklarının önemli bir ' +
+      'bölümünü kaplar.' +
+      '\n\n' +
+      "Meseta'nın kuzeydoğu sınırını, Fransa'yla aradaki doğal seti oluşturan ve yaklaşık 490 " +
+      'kilometre boyunca uzanan Pireneler çizer, zirveleri 3.400 metreyi aşar. Güneydoğuda, ' +
+      "Endülüs'teki Baetik Sistem'in bir parçası olan Sierra Nevada, İspanya anakarasının en " +
+      "yüksek noktası olan yaklaşık 3.479 metrelik Mulhacén'i barındırır.",
+    climateNoteTr:
+      "Meseta'yı çevreleyen dağlar deniz etkisindeki nemli havayı iç kesimlerden büyük ölçüde " +
+      "keser; bu nedenle Meseta'da sıcak yaz ve soğuk kışın görüldüğü karasal bir iklim " +
+      'egemendir. Kuzeyde, Bask Bölgesi, Asturias ve Kantabria kıyısında Atlas Okyanusu etkili, ' +
+      'yıl boyu yağışlı bir okyanus iklimi görülür. Güney ve doğuda, Endülüs ile Ebro ' +
+      "Vadisi'nde sıcak yaz ve ılık kışın görüldüğü tipik Akdeniz iklimi hakimdir; güneydoğuda " +
+      "Alicante-Murcia-Almería üçgeninde ise yarı-kurak bir iklim egemendir, İspanya'nın en az " +
+      'yağış alan bölgesidir.',
+    hydrographyNoteTr:
+      "İspanya'nın en uzun nehri, 1.007 kilometrelik Tajo'dur (Tagus); ülke içindeki bölümü 816 " +
+      "kilometredir, Madrid yakınlarından geçerek Portekiz üzerinden Atlas Okyanusu'na ulaşır. " +
+      "Ebro, Kantabria Dağları'nda doğar ve 900 kilometreyi aşan uzunluğuyla Akdeniz'e geniş " +
+      "bir deltayla dökülür — hacim olarak İspanya'nın en büyük nehridir. Duero, kuzeyden " +
+      "batıya akarak Portekiz'e geçer; Guadalquivir ise tamamen İspanya sınırları içinde " +
+      "kalarak Kurtuba ve Sevilla'dan geçip Cádiz Körfezi'ne ulaşır.",
   },
   {
     isoCode: 'BY',
@@ -961,6 +1113,47 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'RUB',
     governmentFormTr: 'Federal yarı-başkanlık cumhuriyeti',
     independenceNoteTr: null,
+    introTr:
+      'Toprakları hem Avrupa hem Asya kıtasına yayılan Rusya, yüzölçümü bakımından dünyanın en ' +
+      "büyük ülkesidir — ikinci sıradaki Kanada'nın neredeyse iki katı büyüklüğündedir — ve on " +
+      "dört ülkeyle kara sınırı paylaşarak Çin'le birlikte dünyanın en fazla kara komşusuna " +
+      'sahip ülkesi unvanını taşır.',
+    landformNoteTr:
+      "Rusya'nın batı kesimini, Kuzey Buz Denizi'nden Kazakistan bozkırlarına kadar uzanan Ural " +
+      'Dağları ikiye böler; bu sıradağ, Avrupa ile Asya arasındaki geleneksel kıta sınırı kabul ' +
+      "edilir, en yüksek noktası 1.895 metrelik Narodnaya Dağı'dır. Ural'ın batısında kalan " +
+      "geniş düzlük, Doğu Avrupa Ovası'nın bir parçasıdır." +
+      '\n\n' +
+      "Ural'ın doğusunda, ülke yüzölçümünün yaklaşık altıda birini kaplayan Batı Sibirya Ovası " +
+      'uzanır — dünyanın en büyük düzlüklerinden biri, bataklık ve nehir ağlarıyla kaplı, ' +
+      'neredeyse hiç engebesiz bir arazidir. Daha doğuda, Yenisey ve Lena nehirleri arasında ' +
+      'kalan Orta Sibirya Platosu, derin vadilerle yarılmış bir yayla karakterindedir.' +
+      '\n\n' +
+      "Ülkenin güneyinde, Gürcistan sınırına yakın Kafkas Dağları'nda yükselen 5.642 metrelik " +
+      "Elbruz, hem Rusya'nın hem Avrupa'nın en yüksek noktasıdır — sönmüş bir stratovolkandır. " +
+      "Uzak Doğu'da ise Kamçatka Yarımadası'nın etkin yanardağları ve Sibirya'nın dağlık " +
+      'kuşakları, ülkenin en engebeli kesimlerinden bazılarını oluşturur.',
+    climateNoteTr:
+      'Ülkenin devasa yüzölçümü ve denizden uzaklığı, iklimi kuzeyden güneye altı geniş kuşağa ' +
+      'ayırır: kutup çölü, tundra, tayga, karışık-yapraklı orman, orman-bozkır ve bozkır. Kuzey ' +
+      'kıyı şeridi ve adalarda tundra iklimi egemendir, yaz kısa ve serin geçer, toprak büyük ' +
+      "ölçüde donmuş kalır (permafrost). Bu kuşağın güneyinde, Sibirya'nın büyük bölümünü " +
+      'kaplayan tayga kuşağında sert, uzun kışlarla karakterize subarktik iklim görülür — ' +
+      "dünyanın en soğuk yerleşim yerlerinden bazıları bu bölgededir. Avrupa Rusyası'nın " +
+      "güneyi, Batı Sibirya'nın güneyi ve Uzak Doğu'nun bazı kesimleri (Moskova ve " +
+      'Sankt-Peterburg dahil) nemli karasal bir iklim altındadır, dört mevsim belirgindir. ' +
+      'Güneydeki bozkır kuşağında ise yazlar sıcak, kışlar soğuk ve kurak geçer. Güney ve ' +
+      'doğudaki dağlık kesimlerde ise enlem yerine yükseklik belirleyici olur, kısa mesafelerde ' +
+      'keskin iklim farklılıkları görülür.',
+    hydrographyNoteTr:
+      "Avrupa'nın en uzun nehri olan 3.531 kilometrelik Volga, tamamen Rusya sınırları içinde " +
+      "akarak Hazar Denizi'ne dökülür. Sibirya'da, ülke sınırları içindeki en uzun nehir olan " +
+      "4.294 kilometrelik Lena, Baykal Dağları'nda doğup Kuzey Buz Denizi'ne ulaşır. Yenisey, " +
+      "Moğolistan'da doğan ana kolu Angara ile birlikte Kuzey Buz Denizi'ne akar; Angara, " +
+      "dünyanın en derin gölü olan Baykal Gölü'nden çıkar. Ob Nehri ve kolu İrtiş, Batı Sibirya " +
+      "Ovası'nı boydan boya kat eder." +
+      '\n\n' +
+      'Baykal Gölü, hem dünyanın en derin hem de en berrak gölü olarak kabul edilir.',
   },
   {
     isoCode: 'SK',

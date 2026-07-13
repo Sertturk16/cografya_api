@@ -61,6 +61,39 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal başkanlık cumhuriyeti',
     independenceNoteTr:
       "4 Temmuz 1776'da bağımsızlığını ilan etti (İngiltere'nin tanıması 1783 Paris Antlaşması).",
+    introTr:
+      'Kuzey Amerika kıtasının büyük bölümünü kaplayan Amerika Birleşik Devletleri, Atlantik ve ' +
+      'Pasifik okyanuslarına birden kıyısı olan, elli eyaletten oluşan federal bir ' +
+      "cumhuriyettir; kıtadaki tek iki kara komşusu Kanada ve Meksika'dır.",
+    landformNoteTr:
+      "Ülkenin batısına Kuzey Amerika'nın en büyük sıradağı olan Kayalık Dağları hakimdir; " +
+      "Alaska'daki 6.190 metrelik Denali, ülkenin ve kıtanın en yüksek noktasıdır (kıtasal 48 " +
+      "eyalette en yüksek nokta ise Kaliforniya'daki 4.421 metrelik Mount Whitney'dir). Pasifik " +
+      'kıyısı boyunca Cascade ve Kıyı Sıradağları uzanır. Ülkenin ortasını, ortalama 300 metre ' +
+      'yükseklikte, geniş prerilerden oluşan Büyük Ovalar kaplar; bu düzlük 2.000 kilometreden ' +
+      "uzun bir alana yayılır. Doğuda, Kanada'dan Alabama'ya kadar uzanan Appalaş Dağları, " +
+      'genellikle 1.800 metrenin altında kalan, yaşlı ve aşınmış bir sıradağdır.',
+    climateNoteTr:
+      'Enlem, denizden uzaklık ve dağların yarattığı yağış gölgesi etkisi, iklimi bölgeden ' +
+      'bölgeye keskin biçimde farklılaştırır. Doğu kıyısında ve iç kesimlerde (Orta Batı, Büyük ' +
+      'Göller, Yeni İngiltere) dört mevsimin belirgin yaşandığı nemli karasal bir iklim ' +
+      "egemendir; güneydoğuda, Florida'ya kadar uzanan kesimde ise sıcak-nemli subtropikal bir " +
+      "iklime geçilir. Büyük Ovalar'ın batı kesimi yarı-kurak bir karaktere sahiptir. " +
+      'Güneybatıda, Arizona ve Nevada gibi eyaletlerde sıcak ve düşük yağışlı bir çöl iklimi ' +
+      'görülür. Pasifik kıyısında ise kuzeyden güneye geçiş belirgindir — Oregon ve ' +
+      "Washington'da nemli bir deniz iklimi, Kaliforniya kıyısında ise yazı kurak, kışı yağışlı " +
+      'bir Akdeniz iklimi hakimdir. Alaska büyük ölçüde subarktik ve tundra iklimi altındayken, ' +
+      'Hawaii adaları tropikal bir iklime sahiptir.',
+    hydrographyNoteTr:
+      "Ülkenin en uzun nehri, Montana'da doğup Mississippi'ye katılan 3.767 kilometrelik " +
+      "Missouri'dir; Mississippi Nehri'yle birleşerek dünyanın dördüncü en büyük nehir " +
+      "sistemini oluşturur. Mississippi, Minnesota'dan Meksika Körfezi'ne kadar 3.766 kilometre " +
+      "boyunca ülkeyi kuzeyden güneye kat eder. Colorado Nehri, Kayalık Dağları'ndan doğarak " +
+      "2.334 kilometre boyunca güneybatıyı kat eder ve Kaliforniya Körfezi'ne ulaşır." +
+      '\n\n' +
+      'Kuzeyde, Büyük Göller sistemi — Superior, Michigan, Huron, Erie ve Ontario — dünyanın en ' +
+      "büyük tatlı su kaynaklarından birini oluşturur; Michigan Gölü dışındaki dördü Kanada'yla " +
+      'paylaşılır.',
   },
   {
     isoCode: 'MX',
