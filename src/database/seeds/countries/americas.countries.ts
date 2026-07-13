@@ -908,7 +908,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr: "7 Eylül 1822'de Portekiz'den bağımsız oldu.",
     introTr:
       "Güney Amerika kıtasının yaklaşık %47'sini kaplayan Brezilya, kıtanın yüzölçümce en " +
-      'büyük ülkesidir. Şili ve Ekvator dışındaki her Güney Amerika ülkesiyle kara sınırı ' +
+      'büyük ülkesidir. Şili ve Ekvador dışındaki her Güney Amerika ülkesiyle kara sınırı ' +
       "paylaşır. Doğuda Atlantik Okyanusu'na kıyısı vardır; kuzeyini Amazon Havzası, güney " +
       've orta kesimini ise geniş bir yayla kaplar.',
     landformNoteTr:
@@ -1014,7 +1014,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "20 Temmuz 1810'da İspanya'ya karşı mücadele başladı (resmî millî gün); tam bağımsızlık 1819.",
     introTr:
-      "And Dağları, Ekvator sınırından Kolombiya'ya girer girmez üçe ayrılır — kıtadaki " +
+      "And Dağları, Ekvador sınırından Kolombiya'ya girer girmez üçe ayrılır — kıtadaki " +
       "hiçbir başka ülkede görülmeyen bu yapı, Kolombiya'nın coğrafyasını baştan sona " +
       "şekillendirir. Ülke, kuzeyde Karayip Denizi'ne, batıda ise Büyük Okyanus'a kıyısı " +
       'olan tek Güney Amerika ülkesidir.',
@@ -1045,9 +1045,9 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
   {
     isoCode: 'EC',
     isoCodeAlpha3: 'ECU',
-    nameTr: 'Ekvator',
+    nameTr: 'Ekvador',
     nameEn: 'Ecuador',
-    slugTr: 'ekvator',
+    slugTr: 'ekvador',
     slugEn: 'ecuador',
     continent: Continent.SouthAmerica,
     unSubregionTr: 'Güney Amerika',
