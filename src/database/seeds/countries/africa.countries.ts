@@ -53,6 +53,31 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Üniter başkanlık tipi cumhuriyet',
     independenceNoteTr:
       "5 Temmuz 1962'de Fransa'dan bağımsız oldu (1954-62 Bağımsızlık Savaşı, Évian Anlaşmaları).",
+    introTr:
+      "Cezayir, Afrika'nın ve Arap dünyasının en büyük ülkesidir; kuzeyde Akdeniz'e dar bir " +
+      "kıyı şeridiyle açılır, topraklarının büyük bölümü ise güneye doğru Sahra'nın " +
+      'içlerine uzanır. Tunus, Libya, Nijer, Mali, Moritanya ve Fas olmak üzere altı ' +
+      'ülkeyle kara sınırı vardır. Kuzeydeki nüfus yoğun kıyı kuşağı ile güneydeki ' +
+      'neredeyse ıssız çöl arasında keskin bir tezat bulunur.',
+    landformNoteTr:
+      "Ülkenin kuzeyini, kıyıya paralel uzanan iki sıradağ kaplar: Akdeniz'e yakın Tell " +
+      'Atlas ve ondan güneye, yüksek platolarla ayrılan Sahra Atlas. Bu iki sıradağın ' +
+      "güneyinde topraklar hızla alçalır ve Cezayir topraklarının %80'inden fazlasını " +
+      "oluşturan Sahra başlar. Sahra'nın derinliklerinde, güneydeki Hoggar (Ahaggar) " +
+      'Dağları volkanik kökenli bir yayla oluşturur; ülkenin en yüksek noktası, bu ' +
+      "yaylada 2.908 metreye ulaşan Tahat Dağı'dır.",
+    climateNoteTr:
+      "Cezayir'de yağış, kuzeyden güneye çok kısa bir mesafede neredeyse sıfıra iner. " +
+      "Tell bölgesinin en doğusunda yıllık yağış 100 santimetreye yaklaşırken, Sahra'da " +
+      'bu rakam 10 santimetrenin altındadır. Kıyı kesiminde Akdeniz iklimi görülür; iç ' +
+      'bölgelerde ise sirokko adı verilen sıcak ve kurutucu bir rüzgar, tarımı doğrudan ' +
+      'etkileyen mevsimsel bir unsurdur.',
+    hydrographyNoteTr:
+      "Sahra Atlas'ta doğan Chelif Nehri, kuzeybatıya doğru yaklaşık 700 kilometre " +
+      "aktıktan sonra Mostaganem yakınlarında Akdeniz'e ulaşır; vadisi boyunca ülkenin en " +
+      "verimli tarım arazilerinden birini oluşturur. Sahra'daki vadiler (oued) ise yılın " +
+      'büyük bölümünde kurudur, yalnızca nadir yağmurlardan sonra kısa süreli sel ' +
+      'sularıyla dolar.',
   },
   {
     isoCode: 'EG',
@@ -77,6 +102,34 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Üniter başkanlık tipi cumhuriyet',
     independenceNoteTr:
       "İngiltere'den kısmi bağımsızlık 28 Şubat 1922'de (Mısır Krallığı), tam egemenlik/cumhuriyet ilanı 18 Haziran 1953'te (1952 Devrimi sonrası).",
+    introTr:
+      'Mısır topraklarının bir kısmı, Sina Yarımadası üzerinden Asya kıtasına uzanır — bu ' +
+      "kıtalar arası konum, Afrika ülkeleri arasında yalnızca Mısır'a özgüdür. Kuzeyde " +
+      "Akdeniz'e, doğuda Kızıldeniz'e kıyısı vardır; batıda Libya, güneyde Sudan ile " +
+      'komşudur. Topraklarının neredeyse tamamı çöldür — nüfusun büyük kısmı, ülke ' +
+      "yüzölçümünün yalnızca yaklaşık yirmide birini oluşturan Nil Vadisi ve Deltası'nda " +
+      'yaşar.',
+    landformNoteTr:
+      "Nil'in batısında kalan geniş Batı Çölü, Sahra'nın bir uzantısı olarak ülke " +
+      'topraklarının üçte ikisinden fazlasını kaplar ve içinde Kattara Çukurluğu gibi deniz ' +
+      'seviyesinin altına inen depresyonlar barındırır. Doğu Çölü, Nil ile Kızıldeniz ' +
+      "arasında Kızıldeniz Dağları'nın granit ve volkanik kütleleriyle yükselir. Sina " +
+      "Yarımadası'nda, iki denizin arasında kalan bu üçgen toprak parçasında ülkenin en " +
+      'yüksek noktası olan 2.642 metrelik Katerina Dağı bulunur. Nil Vadisi, bu üç çöl ' +
+      'bölgesinin ortasında dar bir yeşil şerit halinde güneyden kuzeye uzanır.',
+    climateNoteTr:
+      "Mısır'ın iklimi, kuzeyden güneye keskin biçimde kuraklaşan bir çöl iklimidir. " +
+      'Akdeniz kıyısındaki İskenderiye yılda ortalama 175 milimetre yağış alırken, ' +
+      "Kahire'de bu rakam 25 milimetreye, güneydeki Asvan'da ise 3 milimetrenin altına " +
+      'düşer. Yazlar ülke genelinde çok sıcak ve kurak geçer; kışlar kıyı şeridinde ' +
+      'ılıman, iç kesimlerde ise gece-gündüz sıcaklık farkı belirgin biçimde artar.',
+    hydrographyNoteTr:
+      "Sudan'dan ülkeye giren Nil, Asvan'da Yüksek Baraj tarafından tutularak Nasır " +
+      "Gölü'nü oluşturur; gölün yaklaşık üçte ikisi Mısır, kalanı Sudan sınırları " +
+      'içindedir. Barajın ardından nehir, yaklaşık 1.500 kilometre boyunca kuzeye akarak ' +
+      "Yukarı Mısır'ın çöl manzarasını yarar ve Kahire yakınında Aşağı Mısır'ın geniş " +
+      "taşkın ovasına, Nil Deltası'na yayılır. Mısır'ın tek kalıcı akarsuyu olan Nil, " +
+      'ülkenin tarım alanlarının ve tatlı su kaynağının neredeyse tamamını sağlar.',
   },
   {
     isoCode: 'LY',
@@ -124,6 +177,32 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'MAD',
     governmentFormTr: 'Üniter parlamenter anayasal monarşi',
     independenceNoteTr: "2 Mart 1956'da Fransa'dan bağımsız oldu.",
+    introTr:
+      "Fas, hem Atlas Okyanusu'na hem de Akdeniz'e kıyısı olan tek Afrika ülkesidir. " +
+      "Cebelitarık Boğazı'nın karşı kıyısında İspanya'yla, karada ise Cezayir'le komşudur. " +
+      'Ülke topraklarının omurgasını, kuzeydoğudan güneybatıya uzanan Atlas Dağları ' +
+      "oluşturur; bu sıradağ, kuzeybatıdaki verimli kıyı ovalarını güneydoğudaki Sahra'dan " +
+      'ayırır.',
+    landformNoteTr:
+      'Atlas Dağları, Fas içinde Rif, Orta Atlas, Yüksek Atlas ve Anti Atlas olmak üzere ' +
+      'birbirine paralel dört ayrı sıradağa bölünür. Bunlardan Yüksek Atlas, ülkenin ve ' +
+      "tüm Kuzey Afrika'nın en yüksek noktası olan 4.167 metrelik Toubkal Dağı'nı içerir. " +
+      "Kuzeyde, Ceuta ve Melilla arasında yay çizen Rif Dağları'nın en yüksek noktası " +
+      "2.456 metrelik Tidirhine Dağı'dır. Atlas kuşağının güneyinde, Anti Atlas'ın " +
+      "ardından arazi giderek alçalır ve Sahra'nın kum ve çakıl düzlüklerine dönüşür.",
+    climateNoteTr:
+      "Atlas Dağları, Sahra'dan gelen sıcak ve kuru rüzgarları büyük ölçüde tutar; bu " +
+      'sayede Atlantik kıyısı boyunca, enlemine göre beklenenden daha ılıman bir iklim ' +
+      'yaşanır. Kuzeybatıda Akdeniz tipi bir iklim görülür: yağışlar Eylül-Nisan arasında ' +
+      "yoğunlaşır, yüksek Atlas zirvelerinde bu dönemde kar yağışı yaygındır. Atlas'ın " +
+      'doğusuna ve güneyine geçildikçe yağış hızla azalır, iklim önce yarı kurak, ' +
+      "ardından Sahra'nın çöl koşullarına döner.",
+    hydrographyNoteTr:
+      "Draa, Fas'ın en uzun nehridir: Yüksek Atlas'ın güney yamaçlarında doğar ve " +
+      'güneydoğuya doğru yaklaşık 1.100 kilometre akar; alt kesiminde akışı düzensizdir, ' +
+      "yılın büyük bölümünde yatağı kurudur. Kuzeybatıda, Atlas'tan inen Sebou ve Oum " +
+      'Er-Rbia nehirleri, yaklaşık 500 kilometreye ulaşan uzunluklarıyla ülkenin en ' +
+      'önemli tarım vadilerini sular ve yıl boyunca düzenli bir akışa sahiptir.',
   },
   {
     isoCode: 'SD',
@@ -309,6 +388,31 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr:
       "6 Mart 1957'de Birleşik Krallık'tan bağımsız oldu (Sahra-altı Afrika'nın ilk bağımsız ülkesi).",
+    introTr:
+      "Gana topraklarının yaklaşık yarısı, ülkeyi ortadan geçen Volta Nehri Havzası'nın " +
+      'içinde kalır; havzanın merkezinde, dünyanın yüzölçümü en büyük yapay gölü olan ' +
+      "Volta Gölü uzanır. Gine Körfezi'ne kıyısı olan Gana, batıda Fildişi Sahili, " +
+      'kuzeyde Burkina Faso, doğuda Togo ile komşudur.',
+    landformNoteTr:
+      'Volta Havzası, Voltaian kumtaşı zemininin oluşturduğu geniş ve genellikle alçak bir ' +
+      'arazidir; kuzey kesiminde yükseklik 150-215 metre arasında değişir. Havzanın ' +
+      "güneybatı ucunda, Aşanti Yaylaları'nın bir parçası olan Kwahu Platosu yükselir. " +
+      'Doğuda, Togo sınırına yakın Akwapim-Togo sıradağlarında yükselen Afadjato Dağı, ' +
+      'geleneksel olarak 885 metreyle ülkenin en yüksek noktası kabul edilir; güncel ' +
+      'ölçümler bu rakam ve unvan konusunda belirsizlik olduğunu gösteriyor. Güney kıyı ' +
+      'şeridi boyunca alçak ovalar ve lagünler uzanır.',
+    climateNoteTr:
+      "Gana'da bölgeden bölgeye belirgin iklim farkları görülse de, genel karakter " +
+      'tropikaldir: doğu kıyı şeridi sıcak ve nispeten kurak, güneybatı köşesi sıcak ve ' +
+      'nemli, ülkenin kuzeyi ise sıcak ve yağışlı bir Guine savanı iklimine sahiptir. ' +
+      'Kuzeydeki yağış mevsimi tek bir yaz dönemine sıkışırken, güneybatıda yağışlar yıl ' +
+      'boyunca iki ayrı dönemde düşer.',
+    hydrographyNoteTr:
+      "Kara Volta ve Ak Volta, Burkina Faso'dan güneye Gana'ya girer ve ülkenin ortasında " +
+      "birleşerek Volta Nehri'ni oluşturur. 1965'te tamamlanan Akosombo Barajı, bu nehrin " +
+      "akışını keserek yaklaşık 8.500 kilometrekarelik Volta Gölü'nü oluşturdu — dünyanın " +
+      'yüzölçümü en büyük, hacim bakımından ise dördüncü büyük yapay gölü. Göl, ülkenin ' +
+      'orta kesimini kuzeyden güneye kat eden başlıca iç su yoludur.',
   },
   {
     isoCode: 'GN',
@@ -472,6 +576,31 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'NGN',
     governmentFormTr: 'Federal başkanlık cumhuriyeti',
     independenceNoteTr: "1 Ekim 1960'ta Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      'Nijer ve Benue nehirleri, Nijerya topraklarını Lokoja kasabasında birleşerek Y ' +
+      'biçiminde ikiye ayırır; bu iki nehir vadisi, ülkenin en geniş topografik bölgesini ' +
+      'oluşturur. Batıda Benin, kuzeyde Nijer, kuzeydoğuda Çad, doğuda Kamerun ile komşu ' +
+      'olan ülke, Gine Körfezi kıyısında uzanır.',
+    landformNoteTr:
+      "Orta Nijerya'da, ortalama 1.280 metre yükseklikteki Jos Platosu, çevresindeki sıcak " +
+      'ovalardan farklı olarak serin bir iklime sahiptir. Ülkenin en yüksek noktası, ' +
+      "Kamerun sınırındaki Adamava Dağları'nda yükselen 2.419 metrelik Chappal Waddi'dir " +
+      "(Gangirwal). Güneyde, Nijer Nehri'nin Atlantik'e döküldüğü kesimde, dünyanın en " +
+      'büyük yelpaze biçimli nehir deltalarından biri olan Nijer Deltası uzanır; iç içe ' +
+      'geçmiş sayısız akarsu ve kanaldan oluşan mangrov bataklıkları kıyı şeridini kaplar.',
+    climateNoteTr:
+      "Nijerya'nın iklimi güneyden kuzeye üç farklı kuşağa ayrılır: güney kıyı şeridinde " +
+      "yıl boyunca yağışlı ekvatoral iklim, ortada tropikal savan, kuzeyde ise Sahel'e " +
+      "yaklaşan yarı kurak koşullar görülür. Kasım-Mart arasında Sahra'dan esen tozlu ve " +
+      'kuru harmattan rüzgarı, özellikle kuzey ve orta bölgelerde havayı sisli bir ' +
+      'tabakayla kaplar. Yağışlı mevsim güneyde neredeyse yıl boyunca sürerken, kuzeyde ' +
+      'birkaç aya sıkışır.',
+    hydrographyNoteTr:
+      "Nijer Nehri ülkenin batısından, Benue ise Kamerun'dan gelerek Lokoja'da birleşir ve " +
+      "tek bir ana gövde halinde güneye, Atlantik'e doğru akar. Bu birleşim noktası, " +
+      'ülkenin iç su ulaşımının ve tarımının merkezi kabul edilir. Nijer, denize ' +
+      'ulaşmadan önce geniş bir delta oluşturur; deltadaki kanalların çoğu, mevsimsel su ' +
+      'seviyesi değişimlerine göre genişleyip daralan bir ağ kurar.',
   },
   {
     isoCode: 'SN',
@@ -871,6 +1000,36 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr:
       "Birleşik Krallık'tan çok aşamalı: 1910 Güney Afrika Birliği, 1931 Westminster Statüsü, 31 Mayıs 1961 Cumhuriyet ilanı.",
+    introTr:
+      "Güney Afrika'nın üç ayrı başkenti vardır: idari başkent Pretoria, yasama başkenti " +
+      "Cape Town ve yargı başkenti Bloemfontein. Ülke, batıda Atlantik'e, güney ve doğuda " +
+      "Hint Okyanusu'na kıyısı olan, kıtanın en güney ucundaki topraktır. Namibya, " +
+      'Botsvana, Zimbabve, Mozambik ve Esvatini ile komşudur; toprakları içinde tamamen ' +
+      'çevrili bir enklav olan Lesotho da altıncı kara komşusudur.',
+    landformNoteTr:
+      'Ülkenin iç kesimini, kenarları Büyük Sarp (Great Escarpment) ile çevrili yüksek bir ' +
+      'plato oluşturur. Bu sarp, doğuda Lesotho sınırı boyunca Drakensberg adını alır. ' +
+      'Güney Afrika topraklarının kendi sınırları içindeki en yüksek noktası, Lesotho ' +
+      "sınırındaki Mafadi Tepesi'dir; zirve 3.446 metreye ulaşır. Hemen yakınındaki 3.482 " +
+      'metrelik Thabana Ntlenyana ise sınırın Lesotho tarafında kalır ve tüm Güney Afrika ' +
+      'bölgesinin (kıtanın güney ucundaki bölgenin) en yüksek noktasıdır. Platonun ' +
+      "kuzeydoğu kesimi, 1.500-2.100 metre yükseklikteki Highveld'dir; ortasında ve " +
+      'güneybatısında ise kuru çalılık bitki örtüsüyle kaplı Karoo platosu uzanır, ' +
+      "kuzeybatıya doğru Kalahari Çölü'ne yaklaştıkça daha da kuraklaşır.",
+    climateNoteTr:
+      "Güney Afrika'nın iklimi bölgeden bölgeye büyük farklılık gösterir. Cape Town " +
+      'çevresinde kışın yağışlı, yazın kurak geçen Akdeniz tipi bir iklim görülürken, ' +
+      "Highveld'de yağış büyük ölçüde yaz aylarındaki gök gürültülü sağanaklardan gelir. " +
+      'Karoo platosu yarı kurak bir karaktere sahiptir; yazları çok sıcak, kışları ise ' +
+      "donlu geçebilir. Doğu kıyı şeridi, Hint Okyanusu'nun ılıman etkisiyle yıl boyunca " +
+      'nispeten nemli kalır.',
+    hydrographyNoteTr:
+      "Ülkenin en uzun nehri olan Orange (Lesotho'daki adıyla Senqu), Lesotho Yaylaları'nda " +
+      '3.300 metre yükseklikte doğar ve batıya doğru 2.432 kilometre akarak Atlantik ' +
+      "Okyanusu'na, Alexander Körfezi'nde dökülür. Yol boyunca güneyde Kalahari'nin, " +
+      "kuzeyde ise Namib Çölü'nün sınırını çizer. En büyük kolu olan Vaal Nehri, " +
+      "Mpumalanga'da Hint Okyanusu'na yalnızca yaklaşık 240 kilometre uzaklıkta doğar, " +
+      "ama tersine batıya akarak Kimberley yakınında Orange'a katılır.",
   },
   {
     isoCode: 'BI',
@@ -987,6 +1146,35 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'ETB',
     governmentFormTr: 'Federal parlamenter cumhuriyet',
     independenceNoteTr: null,
+    introTr:
+      "Etiyopya, 1993'te Eritre'nin bağımsızlığını kazanmasından bu yana kıyısı olmayan " +
+      "bir ülkedir. Afrika Boynuzu'nun merkezinde yer alır ve Eritre, Cibuti, Somali, " +
+      'Kenya, Güney Sudan ve Sudan ile komşudur. Ülke topraklarının büyük bölümü, ' +
+      '"Afrika\'nın Çatısı" olarak da anılan yüksek bir plato — Etiyopya Yaylaları — ' +
+      'üzerinde yer alır.',
+    landformNoteTr:
+      'Etiyopya Yaylaları, kıtanın en geniş yüksek plato kütlesidir; yüzeyinin büyük ' +
+      'bölümü 1.500 metrenin üzerinde kalır ve zirveleri 4.500 metreyi aşar. Büyük Rift ' +
+      'Vadisi, bu yaylaları çapraz biçimde ikiye böler ve kuzeybatıdaki Abisinya, ' +
+      'güneydoğudaki Harar plato kütlelerini birbirinden ayırır. Kuzeydeki Simien ' +
+      "Dağları'nın en yüksek doruğu Ras Dashen, 4.550 metreyle ülkenin zirve noktasıdır. " +
+      'Ülkenin kuzeydoğusunda, Afar bölgesindeki Danakil Çukurluğu ise deniz seviyesinin ' +
+      'oldukça altına iner ve dünyanın en sıcak yerleşim yerlerinden biri kabul edilir.',
+    climateNoteTr:
+      'Etiyopya, ekvatora yakın bir ülke olmasına rağmen, yüksek rakımı sayesinde ' +
+      'beklenenden çok daha serin bir iklime sahiptir. Yaylalarda ılıman, hatta soğuk bir ' +
+      "dağ iklimi görülür ve Haziran'dan Eylül ortasına kadar süren ana yağış mevsimi, " +
+      "Hint Okyanusu'ndan gelen muson rüzgarlarının yaylalara çarpmasıyla oluşur. Danakil " +
+      'Çukurluğu ve güneydoğudaki alçak ovalar ise yıl boyunca sıcak, kurak ve çoğu zaman ' +
+      'çöl koşullarındadır.',
+    hydrographyNoteTr:
+      "Etiyopya Yaylaları'ndaki Tana Gölü, Mavi Nil'in kaynağıdır. Nehir, gölden çıktıktan " +
+      'kısa süre sonra yaklaşık 350 kilometrelik bir kesimde 1.450 metre alçalarak derin ' +
+      "bir kanyon — Mavi Nil Kanyonu — oyar; bu kanyondan sonra Hartum'a kadar akışına " +
+      "devam eder ve Nil'in toplam akışının yaklaşık %59'unu sağlar. Rift Vadisi'nin " +
+      'tabanında ise tamamen Etiyopya sınırları içinde kalan Awash Nehri akar; ' +
+      'kaynağından itibaren denize ulaşmadan, sırayla birbirine bağlı bir göller ' +
+      "zincirinde son bulur ve bu zincir Cibuti sınırındaki Abbe Gölü'nde sona erer.",
   },
   {
     isoCode: 'KE',
@@ -1010,6 +1198,32 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'KES',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "12 Aralık 1963'te Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      "Ekvator çizgisi Kenya'yı ortadan ikiye böler; ülke doğuda Hint Okyanusu'na açılır. " +
+      'Kuzeyde Etiyopya ve Güney Sudan, kuzeydoğuda Somali, batıda Uganda, güneyde ' +
+      'Tanzanya ile komşudur. Topraklarını, kuzeyden güneye kesen Büyük Rift Vadisi de ' +
+      "ikiye ayırır — bu vadi, Doğu Afrika Rift Sistemi'nin Kenya'daki uzantısıdır.",
+    landformNoteTr:
+      "Rift Vadisi, Kenya'nın orta kesimindeki yüksek plato bölgesini, Kenya Yaylaları'nı, " +
+      'doğu ve batı olmak üzere iki parçaya böler. Vadinin hemen doğusunda, sönmüş bir ' +
+      "yanardağ olan Kenya Dağı yükselir; 5.199 metreyle ülkenin ve Kilimanjaro'dan sonra " +
+      "Afrika'nın en yüksek ikinci noktasıdır. Yaylalar bölgesinin dışında kalan " +
+      'topraklar, kuzey ve kuzeydoğuda alçak ve kurak ovalara, güneyde ve kıyı şeridinde ' +
+      'ise daha alçak tropikal arazilere dönüşür.',
+    climateNoteTr:
+      "Kenya'da iklimi belirleyen temel etken rakımdır: yükseklik arttıkça sıcaklık düşer, " +
+      'yaylalar ortalama olarak ovalardan yaklaşık 11 santigrat derece daha serindir. ' +
+      'Güney, batı ve orta bölgelerde tropikal bir iklim görülürken, kuzey ve kuzeydoğuda ' +
+      'kurak ve yarı kurak koşullar hakimdir. Nairobi gibi yüksek rakımlı yerleşimler, ' +
+      'ekvator yakınında olmalarına rağmen ılıman bir iklime sahiptir.',
+    hydrographyNoteTr:
+      "Rift Vadisi'nin tabanında, kuzeyden güneye sıralanmış bir göller zinciri uzanır: " +
+      "dünyanın en büyük alkali gölü olan Turkana Gölü'nden başlayıp Baringo, Bogoria, " +
+      'Nakuru, Elmenteita, Naivasha ve Magadi göllerine kadar uzanan bu dizide, Baringo ve ' +
+      'Naivasha dışındakiler yüksek alkalinite nedeniyle tatlı su değildir. Rift ' +
+      "Vadisi'nin dışında, Tana Nehri orta yaylalardan doğar ve 1.000 kilometreden fazla " +
+      "akarak Hint Okyanusu'na ulaşır — ülkenin en uzun nehridir. Benzer bir güzergahı " +
+      'izleyen Athi-Galana-Sabaki Nehri ise ikinci sırada gelir.',
   },
   {
     isoCode: 'MG',
