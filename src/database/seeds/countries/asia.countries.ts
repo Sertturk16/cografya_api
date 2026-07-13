@@ -783,6 +783,38 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'JOD',
     governmentFormTr: 'Üniter parlamenter anayasal monarşi',
     independenceNoteTr: "25 Mayıs 1946'da İngiliz manda yönetiminden bağımsız oldu.",
+    introTr:
+      "Ürdün Çöküntü Vadisi'nin doğu yamacında kurulu Ürdün, denize yalnızca güneybatı " +
+      'ucundaki Akabe Körfezi üzerinden kısa bir şeritle açılır. Kuzeyde Suriye, doğuda ' +
+      'Irak, güneyde ve doğuda Suudi Arabistan, batıda İsrail ile komşudur.',
+    landformNoteTr:
+      'Ülkenin batı sınırını, Büyük Rift Vadisi sisteminin bir parçası olan Ürdün Çöküntü ' +
+      'Vadisi çizer; bu derin çöküntü, çevresindeki platolardan 1.200-2.000 metre aşağıda ' +
+      "kalır ve dip noktasında, Dünya'nın kara yüzeyindeki en alçak noktası olan Ölü " +
+      "Deniz'e ulaşır. Ölü Deniz'in su seviyesi yılda yaklaşık 1 metre düşmeye devam ediyor; " +
+      'bugün deniz seviyesinin yaklaşık 440 metre altındadır.' +
+      '\n\n' +
+      'Çöküntü vadisinin doğusunda, 600-1.000 metre rakımlı kıvrımlı kireçtaşı sırtlardan ' +
+      'oluşan Aclun ve Belka yaylaları yükselir; Vadi Mucib ve Vadi Hasa gibi vadiler bu ' +
+      'yaylaları derin kanyonlarla yarar. Ülkenin en yüksek noktası, güneydeki ıssız bir ' +
+      "kesimde yer alan 1.854 metrelik Jabal Umm ad-Dami'dir. Doğuda, Suudi Arabistan ve " +
+      'Irak sınırlarına kadar uzanan Bâdiye, yaylalara yakın kesimde 900 metreden sınıra ' +
+      'doğru 600 metreye alçalan, yer yer bazalt kütleleriyle kaplı bir çöl platosudur.',
+    climateNoteTr:
+      'Çöküntü vadisinin batısındaki yaylalarda Akdeniz iklimi görülür; yıllık yağış ' +
+      'kuzeyde 500 milimetreyi bulurken güneye doğru 300 milimetreye iner. Ölü Deniz ve ' +
+      'Ürdün Nehri çevresindeki çöküntü vadisi tabanında, yaz sıcaklarının ve düşük rakımın ' +
+      '(deniz seviyesinin altında) birleşiminden doğan subtropikal bir iklim hakimdir, ' +
+      "yıllık yağış yaklaşık 200 milimetredir. Ülkenin yaklaşık %90'ını oluşturan doğu ve " +
+      'güney kesimlerinde ise yıllık yağış 100 milimetrenin altına düşen bir çöl iklimi ' +
+      'egemendir.',
+    hydrographyNoteTr:
+      'Ülkenin batı sınırını izleyen Ürdün Nehri, Yarmuk ve Zerka nehirlerinden beslenir; ' +
+      'Suriye-Ürdün sınırının bir bölümünü çizen Yarmuk, nehrin en büyük kolu ve Ürdün ' +
+      "Vadisi'ndeki tarımın ana su kaynağıdır. Amman yakınlarındaki kaynaklardan doğan " +
+      "Zerka, derin bir vadiden geçerek Ürdün Nehri'ne katılır. Nehir, güneyde kapalı bir " +
+      "havza olan Ölü Deniz'de son bulur; yukarı havzadaki yoğun su kullanımı nedeniyle " +
+      'nehrin yıllık debisi geçmiş dönemlere kıyasla büyük ölçüde azalmıştır.',
   },
   {
     isoCode: 'KW',
@@ -806,6 +838,34 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'KWD',
     governmentFormTr: 'Anayasal monarşi (Emirlik)',
     independenceNoteTr: "19 Haziran 1961'de İngiltere'den bağımsız oldu.",
+    introTr:
+      "Basra Körfezi'nin kuzeybatı köşesinde, kıyısını Kuveyt Körfezi'nin derin bir " +
+      'girintisiyle paylaşan Kuveyt, neredeyse tamamen düz bir çöl ülkesidir. Kuzeyde ve ' +
+      'batıda Irak, güneyde Suudi Arabistan ile komşudur.',
+    landformNoteTr:
+      'Ülke arazisi, Basra Körfezi kıyısındaki deniz seviyesinden kuzeybatıdaki Mutla ' +
+      "Sırtı'na kadar kademeli olarak yükselir; ülkenin en yüksek noktası olan bu sırt 306 " +
+      "metreye ulaşır. Kuveyt Körfezi'nin kuzey kıyısına hakim Cal ez-Zor sırtı 145 " +
+      'metreyi, güneydeki Ahmedi tepesi ise 137 metreyi bulur — bunların dışında arazi ' +
+      'büyük ölçüde düzdür.' +
+      '\n\n' +
+      'Kuveyt Körfezi, kıyı şeridine yaklaşık 40 kilometre sokularak ülkenin 195 ' +
+      'kilometrelik toplam kıyı uzunluğunun yaklaşık üçte birini oluşturur; başkent Kuveyt ' +
+      "Şehri'nin limanını doğal olarak korur. Ülkeye bağlı dokuz adadan en büyüğü, 863 " +
+      "kilometrekarelik yüzölçümüyle Kuveyt topraklarının yaklaşık %5'ini oluşturan " +
+      "Bubiyan'dır — tuz düzlükleri, gelgit çamurları ve mangrovlarla kaplı bu bataklık ada, " +
+      'askeri bir köprüyle karaya bağlıdır.',
+    climateNoteTr:
+      'Kuveyt, beş aydan uzun süren yazlarında sıcaklığın sık sık 50 santigrat dereceyi ' +
+      "aştığı, aşırı kurak bir çöl iklimine sahiptir. 2016'da Mitriba'da ölçülen 54,0 " +
+      'santigrat derece, Asya kıtasında ölçülmüş en yüksek sıcaklık kaydıdır. Kışlar kısa ve ' +
+      'ılımlıdır; sınırlı ve düzensiz yağış Kasım-Şubat arasına yoğunlaşır, toz fırtınaları ' +
+      'yılın büyük bölümünde görülür.',
+    hydrographyNoteTr:
+      'Ülkede doğal göl ya da nehir yoktur; tek yerel su kaynağı, denize yakınlığı ve aşırı ' +
+      'çekim nedeniyle giderek tuzlanan acı yeraltı sularıdır. Kuveyt, tatlı su ihtiyacının ' +
+      'büyük bölümünü deniz suyu arıtma tesislerinden karşılar — 2023 yılında 0,8 milyar ' +
+      'metreküp arıtılmış su üretildi.',
   },
   {
     isoCode: 'LB',
@@ -829,6 +889,37 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'LBP',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "22 Kasım 1943'te Fransız manda yönetiminden bağımsız oldu.",
+    introTr:
+      'Lübnan, kıyıdan iç kesime doğru birbirine paralel dört kuşaktan oluşur: dar bir kıyı ' +
+      'ovası, Lübnan Dağları, Bekaa Vadisi ve Anti-Lübnan Dağları. Küçük yüzölçümüne karşın ' +
+      'bu dört kuşak arasında büyük bir rakım farkı vardır. Kuzeyde ve doğuda Suriye, ' +
+      'güneyde İsrail ile komşudur.',
+    landformNoteTr:
+      'Akdeniz kıyısına paralel uzanan Lübnan Dağları, yaklaşık 170 kilometre boyunca ' +
+      'ülkeyi kuzeyden güneye kat eder; genişliği Trablus yakınında 56,5 kilometreye ' +
+      'ulaşırken güneyde 9,5 kilometreye kadar daralır. Sıradağın en yüksek noktası, 3.088 ' +
+      "metrelik Kurnet es Sevda'dır." +
+      '\n\n' +
+      "Lübnan Dağları'nın doğusunda, Doğu Afrika Rift Sistemi'nin bir uzantısı sayılan Bekaa " +
+      'Vadisi yer alır; 800-1.100 metre rakımlı, yaklaşık 120 kilometre uzunluğunda ve ' +
+      '10-20 kilometre genişliğindeki bu çöküntü, kalın alüvyon dolgusuyla ülkenin en verimli ' +
+      "tarım alanını oluşturur. Vadinin doğusunda, Lübnan Dağları'na paralel uzanan " +
+      'Anti-Lübnan Dağları, güney ucunda 2.814 metreye kadar yükselir.',
+    climateNoteTr:
+      'Kıyı şeridinde sıcak-kurak yaz ve ılık-yağışlı kışın görüldüğü tipik bir Akdeniz ' +
+      "iklimi hakimdir. Lübnan Dağları'nın yüksek kesimleri kışın kalıcı kar örtüsüyle " +
+      'kaplanır; bu yükseklik, kıyıdan yalnızca birkaç saat mesafede kayak turizmine imkan ' +
+      'tanır. Bekaa Vadisi, iki paralel sıradağ arasında kaldığı için deniz etkisinden büyük ' +
+      'ölçüde uzaktır — kışları daha soğuk, yazları ise daha sıcak ve kurak bir karasal iklim ' +
+      'burada egemendir.',
+    hydrographyNoteTr:
+      "Tamamen Lübnan sınırları içinde akan en uzun nehir, Bekaa Vadisi'nde Baalbek'in " +
+      "batısından doğan ve Sur kentinin kuzeyinde Akdeniz'e dökülen 140 kilometreden uzun " +
+      "Litani'dir; 2.110 kilometrekarelik havzası ülke topraklarının yaklaşık beşte birini " +
+      'kaplar ve ülkenin toplam akarsu debisinin yaklaşık üçte birini sağlar, sulama ve ' +
+      "hidroelektrik üretiminde kullanılır. Kuzey Bekaa'da, Hermel yakınlarında doğan Asi " +
+      "(Orontes) Nehri ise kuzeye, Suriye üzerinden Türkiye'ye akarak Akdeniz'e ulaşır. " +
+      "Ülkede toplam 40 nehir sayılır, bunlardan 16'sı yıl boyu akar.",
   },
   {
     isoCode: 'OM',
@@ -852,6 +943,38 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'OMR',
     governmentFormTr: 'Mutlak monarşi (Sultanlık)',
     independenceNoteTr: null,
+    introTr:
+      'Arap Denizi ve Umman Körfezi boyunca 3.000 kilometreyi aşan kıyı şeridiyle Umman, ' +
+      'kümedeki sekiz ülke arasında kıyısı en uzun olanıdır. Ülkenin kuzeyindeki Musandam ' +
+      'Yarımadası, Birleşik Arap Emirlikleri topraklarıyla ana kara parçasından ayrılmış bir ' +
+      'eksklavdır. Suudi Arabistan, BAE ve Yemen ile komşudur.',
+    landformNoteTr:
+      "Musandam'dan ülkenin doğu kıyısına kadar yaklaşık 700 kilometre uzanan Hacer " +
+      "Dağları, Arap Yarımadası'nın en yüksek sıradağlarından biridir; yaklaşık 100 " +
+      'kilometre genişliğindeki bu kuşağın en yüksek noktası, Jabal Ahdar kütlesinin bir ' +
+      "parçası olan 3.009 metrelik Jabal Şems'tir. Ülke topraklarının yaklaşık %82'sini " +
+      "vadiler ve çöl, %15'ini dağlar, yalnızca %3'ünü ise dar kıyı ovası (Batına) " +
+      'oluşturur.' +
+      '\n\n' +
+      "Batıda ve iç kesimde ülke toprakları, dünyanın en büyük kum çölü olan Rubalhali'nin " +
+      "bir uzantısıyla birleşir. Musandam Yarımadası'nın kıyısı ise ülkenin geri kalanından " +
+      "tamamen farklı bir karakter taşır: Arap Levhası'nın bu kesimde Avrasya Levhası'nın " +
+      'altına dalması nedeniyle kıyı çizgisi çöküyor, bu da "Arabistan\'ın Norveç\'i" olarak ' +
+      'anılan fiyort benzeri girintili bir kıyı oluşturuyor.',
+    climateNoteTr:
+      "Jabal Ahdar'ın 2.000 metreyi aşan kesimleri dışında, ülke genelinde sıcak ve kurak " +
+      'bir çöl iklimi hakimdir. Bu yükseklerde iklim tamamen değişir: yıllık yağış 500 ' +
+      'milimetreye ulaşır, serin hava gül bahçelerinin ve meyve teraslarının yetişmesine ' +
+      'imkan tanır — Nisan ayındaki gül hasadı, bu serin yükseklik sayesinde mümkün olur. ' +
+      "Güneydeki Zufar bölgesi ise Umman'a özgü bir başka iklim istisnasıdır: Haziran-Eylül " +
+      'arasında Hint Okyanusu\'ndan gelen "khareef" musonu, Salalah çevresindeki kahverengi ' +
+      'tepeleri yemyeşile çevirir ve mevsimlik şelaleler oluşturur.',
+    hydrographyNoteTr:
+      "Umman'da kalıcı akan bir nehir yoktur; yağış sonrası dolan vadiler ülkenin başlıca " +
+      'yüzey suyu kaynağıdır. Yüzyıllardır kullanılan eflec sulama kanalları, yeraltı suyunu ' +
+      'yükseklerden yerçekimiyle taşıyarak özellikle Jabal Ahdar ve Batına kıyısındaki ' +
+      'teraslı tarımı besler. Zufar bölgesi ise musonun etkisiyle yıl boyu akan derelere ' +
+      'sahiptir — bu özellik, bölgeyi ülkenin en verimli tarım alanı haline getirir.',
   },
   {
     isoCode: 'QA',
@@ -875,6 +998,34 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'QAR',
     governmentFormTr: 'Mutlak monarşi (Emirlik)',
     independenceNoteTr: "3 Eylül 1971'de İngiltere'den bağımsız oldu.",
+    introTr:
+      "Arap Yarımadası'ndan Basra Körfezi'ne yaklaşık 160 kilometre boyunca uzanan dar bir " +
+      'yarımada üzerinde kurulu Katar, kara sınırında yalnızca Suudi Arabistan ile komşudur; ' +
+      'kümedeki sekiz ülke arasında tek kara komşusu bulunan tek ülkesidir.',
+    landformNoteTr:
+      'Yarımadanın genişliği 55 ile 90 kilometre arasında değişir, arazi genel olarak ' +
+      'düzdür. Doğu kesiminde ince kum ve tozla kaplı geniş düzlükler, güney ve güneybatıda ' +
+      'ise kum tepeleri ve sebha adı verilen tuz düzlükleri yer alır; bu özellik özellikle ' +
+      'Mesaid ve Hor el-Adid çevresinde belirginleşir. Ülkenin arazisine serpilmiş, yatay ' +
+      'tabakalı ve sert kayaçla kaplı düz tepeli tepecikler ile daha geniş mesa benzeri ' +
+      'yükseltiler de görülür.' +
+      '\n\n' +
+      "Ülkenin en yüksek noktası, güneydeki Kurayn Ebü'l-Bevl'dir ve deniz seviyesinden " +
+      "yalnızca 103 metre yükseklikte kalır. Abu Samra'dan Hor el-Adid'e kadar yaklaşık " +
+      '650 kilometre uzanan kıyı şeridi, "İç Deniz" olarak da bilinen Hor el-Adid gelgit ' +
+      'koyuyla güneyde sona erer.',
+    climateNoteTr:
+      "Katar, Basra Körfezi'nin sığ ve sıcak sularının etkisiyle yaz aylarında hem " +
+      'sıcaklığın hem de nemin aynı anda çok yüksek seyrettiği bir çöl iklimine sahiptir; bu ' +
+      'birleşim, kıyı kesimlerinde hissedilen sıcaklığı ölçülen değerin belirgin biçimde ' +
+      'üzerine çıkarır. Yıllık yağış oldukça düşüktür ve neredeyse tamamı kış aylarındaki ' +
+      'kısa, düzensiz sağanaklardan oluşur.',
+    hydrographyNoteTr:
+      "Katar'da kalıcı nehir ya da doğal tatlı su gölü bulunmaz; sınırlı yeraltı suyu " +
+      'kaynakları aşırı çekim nedeniyle tükenme eğilimindedir. İçme suyunun neredeyse tamamı ' +
+      "deniz suyu arıtmasıyla karşılanıyor; 2023'te üretilen 0,7 milyar metreküp arıtılmış " +
+      'su, bu bağımlılığın ölçüsünü gösteriyor. Güneydeki Hor el-Adid, çölün ortasında ' +
+      'denizle birleşen gelgit koyu yapısıyla ülkenin en ayırt edici su kütlesidir.',
   },
   {
     isoCode: 'SA',
@@ -898,6 +1049,37 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'SAR',
     governmentFormTr: 'Mutlak monarşi',
     independenceNoteTr: null,
+    introTr:
+      "Arap Yarımadası'nın büyük bölümünü kaplayan Suudi Arabistan, batıda Kızıldeniz'e, " +
+      "doğuda ise Basra Körfezi'ne kıyısı olan bir ülkedir. Ürdün, Irak, Kuveyt, Katar, " +
+      'Birleşik Arap Emirlikleri, Umman ve Yemen ile toplam yedi ülkeyle kara sınırı ' +
+      'paylaşır — bu kümedeki en fazla kara komşusuna sahip ülkedir.',
+    landformNoteTr:
+      'Ülkenin batısında, Kızıldeniz kıyısı boyunca kuzeyde Hicaz, güneyde ise Asir dağları ' +
+      "uzanır; bu dağlık kuşak dar bir kıyı ovasının hemen ardından yükselir. Asir'de, Ebha " +
+      'yakınlarında yükselen, resmi olarak 3.015 metre kabul edilen Jabal Sawda, ülkenin en ' +
+      'yüksek noktasıdır. Dağların doğusunda, ülkenin ortasını geniş bir plato olan Necid ' +
+      'kaplar.' +
+      '\n\n' +
+      "Necid'in kuzeyinde An-Nefud, güneyinde ise dünyanın en büyük kum çölü olan Rubalhali " +
+      "uzanır; Rubalhali'nin 650.000 kilometrekarelik alanı Suudi Arabistan'ın yanı sıra " +
+      'Umman, BAE ve Yemen topraklarına da taşar, kimi kum tepeleri 250 metreyi bulur. İki ' +
+      'çölü birbirine bağlayan Ed-Dehna kum koridoru, ülkenin doğu-batı ekseninde bir hilal ' +
+      'çizer.',
+    climateNoteTr:
+      'Ülkenin büyük bölümünde, yıllık yağışın 100 milimetrenin altında kaldığı tam kurak ' +
+      'bir çöl iklimi egemendir; yazlar aşırı sıcak, kışlar iç kesimlerde soğuk geçer. Asir ' +
+      'dağları bu genel tabloyu bozan tek bölgedir: Hint Okyanusu kaynaklı yaz musonunun ' +
+      'etkisiyle, yükseklere doğru yıllık yağış 600-1.000 milimetreye çıkar, bulutlu ve serin ' +
+      'bir dağ iklimi oluşur. Bu nem, teraslanmış tarım alanlarını ve dağ ormanlarını besler ' +
+      '— ülkenin geri kalanında görülmeyen bir yeşillik kuşağıdır.',
+    hydrographyNoteTr:
+      "Suudi Arabistan'da kalıcı akan bir nehir yoktur; yüzey suyu, nadir yağmurlarda dolan " +
+      "vadiler olan vadilerle taşınır. En uzun vadi, Nefud Çölü'nden Dibdibe ovasına kadar " +
+      "yaklaşık 600 kilometre uzanan Vadi er-Rumme'dir; Riyad'ı kuzeybatıdan güneydoğuya kat " +
+      'eden 120 kilometrelik Vadi Hanife ise başkentin coğrafi omurgasını oluşturur. Tatlı ' +
+      'su ihtiyacının büyük bölümü, vadi yataklarındaki yeraltı akiferlerinden ve kıyı ' +
+      'kentlerinde deniz suyu arıtma tesislerinden karşılanır.',
   },
   {
     isoCode: 'AE',
@@ -921,6 +1103,31 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'AED',
     governmentFormTr: 'Federal mutlak monarşi',
     independenceNoteTr: "2 Aralık 1971'de İngiltere'den bağımsız oldu (7 emirliğin federasyonu).",
+    introTr:
+      'Yedi emirliğin federasyonu olan Birleşik Arap Emirlikleri, batıda uzun bir Basra ' +
+      "Körfezi kıyısına, doğuda ise Umman Körfezi'ne açılan kısa bir şeride sahiptir. Kara " +
+      'sınırında yalnızca Suudi Arabistan ve Umman ile komşudur.',
+    landformNoteTr:
+      "Ülkenin doğusunda, Ras Al Khaimah'tan Fujayra'ya uzanan Batı Hacer Dağları yükselir; " +
+      'bu sıradağ ülkeyi kıyı kesimi ile iç kesimden ayırır. Sıradağın en yüksek noktası ' +
+      "olarak anılan 1.934 metrelik Jebel Jais, Ras Al Khaimah'ta yer alır." +
+      '\n\n' +
+      'Ülke topraklarının büyük bölümünü kaplayan çölde, Liva vahası çevresindeki kum ' +
+      "tepeleri dünyanın en büyüklerinden sayılır — bu bölge, güneyde Rubalhali'nin bir " +
+      'uzantısıdır. Basra Körfezi kıyısı, çok sayıda koy ve adayla girintili-çıkıntılıdır; ' +
+      "Umman Körfezi'ndeki Batina kıyısı ise dar bir şerit halinde yaklaşık 90 kilometre " +
+      'uzanır.',
+    climateNoteTr:
+      'Ülke genelinde, yazın 45 santigrat dereceyi aşan sıcaklıklarla tam kurak bir çöl ' +
+      'iklimi görülür. Basra Körfezi kıyısında sıcaklığa yüksek nem eşlik eder; iç ' +
+      'kesimlerde ve çölde ise hava daha kuru, gece-gündüz sıcaklık farkı daha belirgindir. ' +
+      "Hacer Dağları'nın yüksek kesimlerinde rakım etkisiyle sıcaklıklar bir ölçüde düşer.",
+    hydrographyNoteTr:
+      "Ülkede kalıcı akan bir nehir ya da doğal göl yoktur; Hacer Dağları'nın eteklerinde " +
+      'yer yer yağmur sonrası dolan vadiler bulunur. Yüzyıllardır kullanılan eflec sistemi, ' +
+      'yeraltı suyunu yükseklerden yerçekimiyle kilometrelerce taşıyarak vaha tarımını ' +
+      'besler. Bugün Al Ain ve Liva gibi iç vahaların içme suyu ihtiyacı tamamen deniz suyu ' +
+      'arıtma tesislerinden karşılanıyor.',
   },
   {
     isoCode: 'YE',
@@ -945,5 +1152,37 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: null,
     independenceNoteTr:
       "22 Mayıs 1990'da Kuzey ve Güney Yemen birleşerek Yemen Cumhuriyeti'ni kurdu.",
+    introTr:
+      "Arap Yarımadası'nın güneybatı köşesinde yer alan Yemen, batıda Kızıldeniz'e, güneyde " +
+      "ise Aden Körfezi ve Arap Denizi'ne kıyısı olan dağlık bir ülkedir. Hint " +
+      "Okyanusu'nda, ana kara parçasından yaklaşık 380 kilometre güneyde yer alan Sokotra " +
+      'Adası da ülke topraklarına dahildir. Kuzeyde Suudi Arabistan, doğuda Umman ile ' +
+      'komşudur.',
+    landformNoteTr:
+      'Kızıldeniz kıyısı boyunca dar bir kıyı ovası olan Tihame uzanır; bu ova, iç kesime ' +
+      'doğru dik bir yamaçla merkezi yaylalara yükselir. 2.000-3.200 metre rakımlı bu yayla, ' +
+      'tepeler ve küçük dağlardan oluşur; yaylanın üzerinde yükselen 3.666 metrelik Jabal ' +
+      "en-Nebi Şuayb, hem Yemen'in hem de tüm Arap Yarımadası'nın en yüksek noktasıdır. " +
+      "Yaylalar doğuya doğru alçalarak ülkenin kuzeydoğusunda Rubalhali'nin bir uzantısına " +
+      'dönüşür.' +
+      '\n\n' +
+      'Ülkenin doğusunda, üst kesimi alüvyal toprak ve sel sularıyla beslenen, alt kesimi ' +
+      'ise ıssız ve çorak Vadi Hadramut yer alır — bölgenin en büyük vadi sistemidir. Hint ' +
+      "Okyanusu'ndaki Sokotra Adası'nın iç kesimini Hacir Dağları kaplar; kuzeyde dar, " +
+      'güneyde ise daha geniş kıyı ovaları bulunur, kıyı çizgisi kumsallar, kayalık burunlar ' +
+      've korunaklı lagünler arasında değişir.',
+    climateNoteTr:
+      'Kızıldeniz kıyısındaki Tihame ovası, yıl boyu yüksek sıcaklık ve nemin bir arada ' +
+      "görüldüğü sıcak bir iklime sahiptir. Yaklaşık 2.200 metre rakımlı başkent Sana'a " +
+      'başta olmak üzere merkezi yaylalarda iklim belirgin biçimde serinler; yazın gündüz ' +
+      'sıcaklıkları 20 santigrat derece civarında kalır, kışın gece sıcaklıkları eksiye ' +
+      'düşer. Bu serinlik, yüzyıllardır süren teraslı buğday, arpa, kahve ve kat tarımını ' +
+      'mümkün kılar. Doğudaki Hadramut ve kuzeydoğudaki çöl kesimlerinde ise yıl boyu sıcak ' +
+      've kurak bir iklim egemendir, kimi bölgelerde yıllarca yağış düşmez.',
+    hydrographyNoteTr:
+      "Yemen'de kalıcı akan bir nehir yoktur; yaylalardan inen mevsimsel vadiler, yağmur " +
+      'sonrası kısa süreliğine dolar. Tarım, büyük ölçüde bu vadi tabanlarına, yamaçlara ve ' +
+      'akarsu kanallarına bitişik teraslara yoğunlaşmıştır. Ülkenin doğusundaki Vadi ' +
+      'Hadramut, tarih boyunca yerleşimin ve tarımın yoğunlaştığı en geniş vadi sistemidir.',
   },
 ];
