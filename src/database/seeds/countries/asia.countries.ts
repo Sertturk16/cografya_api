@@ -1075,7 +1075,7 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       '— ülkenin geri kalanında görülmeyen bir yeşillik kuşağıdır.',
     hydrographyNoteTr:
       "Suudi Arabistan'da kalıcı akan bir nehir yoktur; yüzey suyu, nadir yağmurlarda dolan " +
-      "vadiler olan vadilerle taşınır. En uzun vadi, Nefud Çölü'nden Dibdibe ovasına kadar " +
+      "vadilerle taşınır. En uzun vadi, Nefud Çölü'nden Dibdibe ovasına kadar " +
       "yaklaşık 600 kilometre uzanan Vadi er-Rumme'dir; Riyad'ı kuzeybatıdan güneydoğuya kat " +
       'eden 120 kilometrelik Vadi Hanife ise başkentin coğrafi omurgasını oluşturur. Tatlı ' +
       'su ihtiyacının büyük bölümü, vadi yataklarındaki yeraltı akiferlerinden ve kıyı ' +
