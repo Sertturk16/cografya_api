@@ -47,6 +47,42 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'CNY',
     governmentFormTr: 'Tek parti sosyalist cumhuriyet',
     independenceNoteTr: null,
+    introTr:
+      'Batıda dünyanın en yüksek platosundan doğuda Pasifik kıyısına uzanan Çin, nüfus ' +
+      'bakımından dünyanın en kalabalık ülkelerinden biridir ve on dört ülkeyle kara sınırı ' +
+      "paylaşarak Rusya'yla birlikte dünyanın en fazla kara komşusuna sahip ülkesi unvanını " +
+      'taşır.',
+    landformNoteTr:
+      'Ülkenin batısını, dünyanın en büyük ve en yüksek platosu olan Tibet Platosu kaplar — bu ' +
+      'yükseklik nedeniyle "dünyanın çatısı" olarak da anılır. Platonun güneyinde yükselen ' +
+      "Himalayalar'da, Nepal sınırındaki 8.848 metrelik Everest Dağı, hem Çin'in hem dünyanın " +
+      'en yüksek noktasıdır; Pakistan sınırındaki K2 (8.611 m) dünyanın ikinci en yüksek ' +
+      "zirvesidir. Dünyanın en yüksek 17 zirvesinden 11'i Çin'in batı sınırlarında yer alır." +
+      '\n\n' +
+      "Kuzeybatıda, Himalayalar'ın yağış gölgesinde kalan Taklamakan Çölü, dünyanın en büyük " +
+      'ikinci hareketli kum çölüdür. Doğuya doğru inildikçe arazi alçalır; ülkenin ' +
+      "kuzeydoğusunda Mançurya Ovası, güneydoğusunda ise Yangtze ve Sarı Nehir'in taşıdığı " +
+      'alüvyonlarla oluşan geniş ve verimli Kuzey Çin Ovası uzanır — ülkenin en yoğun nüfuslu ' +
+      'kesimleri bu düzlüklerdedir.',
+    climateNoteTr:
+      'Kuzey-güney doğrultusunda geniş bir enlem açıklığı ve doğu-batı yönünde okyanustan iç ' +
+      "kesimlere uzanan devasa bir derinlik, Çin'i dünyanın en çok iklim çeşitliliğine sahip " +
+      "ülkelerinden biri yapar. Güneydoğu kıyıları ve Hainan Adası'nda tropikal ve subtropikal " +
+      'muson iklimi egemendir, yazlar sıcak ve yağışlı geçer. Kuzeye doğru bu muson etkisi ' +
+      'zayıflar, Pekin ve çevresinde karasal bir iklim görülür, kışlar soğuk ve kurak geçer. ' +
+      'Kuzeybatıda, Taklamakan ve çevresinde nemden büyük ölçüde yoksun kurak bir iç Asya ' +
+      "iklimi hakimdir. Tibet Platosu'nda ise yükseklik belirleyicidir — kısa ve serin yazlar, " +
+      'uzun ve sert kışlarla karakterize soğuk bir yayla iklimi egemendir, kış sıcaklıkları sık ' +
+      'sık eksi 10 derecenin altına iner.',
+    hydrographyNoteTr:
+      "Çin'in en uzun nehri, dünyanın üçüncü en uzun nehri olan 6.300 kilometrelik Yangtze'dir " +
+      "(Chang Jiang); kaynağı Tibet Platosu'ndaki Qinghai bölgesindedir, ülkeyi batıdan doğuya " +
+      "kat ederek Şangay yakınlarında Doğu Çin Denizi'ne dökülür. Sarı Nehir (Huang He), 5.464 " +
+      'kilometreyle ülkenin ikinci en uzun nehridir, adını taşıdığı sarımsı alüvyonlardan alır ' +
+      "ve Kuzey Çin Ovası'nın oluşumunda belirleyici rol oynamıştır." +
+      '\n\n' +
+      "Ülkenin en büyük tatlı su gölü Poyang Gölü, Yangtze'nin orta-alt havzasında yer alır; " +
+      "Tibet Platosu'ndaki Qinghai Gölü ise Çin'in en büyük tuzlu su gölüdür.",
   },
   {
     isoCode: 'JP',
