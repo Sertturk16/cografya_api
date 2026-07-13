@@ -3,6 +3,7 @@ import { AFRICA_COUNTRIES } from './countries/africa.countries';
 import { AMERICAS_COUNTRIES } from './countries/americas.countries';
 import { ASIA_COUNTRIES } from './countries/asia.countries';
 import { EUROPE_OCEANIA_COUNTRIES } from './countries/europe-oceania.countries';
+import { SOVEREIGNTY_COUNTRIES } from './countries/sovereignty.countries';
 
 /**
  * Shape of one seeded country. The IDENTITY fields (isoCode, TR+EN name, both slugs,
@@ -534,4 +535,5 @@ export const SEED_COUNTRIES: readonly CountrySeed[] = [
   ...AFRICA_COUNTRIES,
   ...AMERICAS_COUNTRIES,
   ...EUROPE_OCEANIA_COUNTRIES,
+  ...SOVEREIGNTY_COUNTRIES,
 ];
