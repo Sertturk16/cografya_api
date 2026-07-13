@@ -755,7 +755,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'vadi tabanı ve güneybatıdaki Pelagonya Ovası, ülkenin en verimli tarım alanlarını ' +
       'oluşturur.',
     climateNoteTr:
-      "Vardar Vadisi'nin plan alanlarında Akdeniz ve Karadeniz etkilerinin karıştığı, yazları " +
+      "Vardar Vadisi'nin ovalık alanlarında Akdeniz ve Karadeniz etkilerinin karıştığı, yazları " +
       "subtropikal sıcaklıklara ulaşabilen (bazı yıllar 40°C'yi aşan) bir iklim görülür. " +
       'Güneydeki dağlar sıcak hava kütlelerinin kuzeye ilerlemesini kısmen engellediği için bu ' +
       'karasal-subtropikal karışım daha da belirginleşir. Çevredeki yüksek dağlık kesimlerde ' +
