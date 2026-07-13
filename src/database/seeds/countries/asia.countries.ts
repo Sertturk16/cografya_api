@@ -483,6 +483,40 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr:
       "17 Ağustos 1945'te bağımsızlığını ilan etti (Hollanda'nın resmî tanıması 27 Aralık 1949); ülke 17 Ağustos'u Bağımsızlık Günü olarak kutlar.",
+    introTr:
+      "Dünyanın en büyük takımadası olan Endonezya, 17.000'i aşkın adadan oluşur ve Hint " +
+      'Okyanusu ile Büyük Okyanus arasında, Asya ile Avustralya kıtaları arasındaki denizler ' +
+      "boyunca yayılır. Kara sınırları yalnızca üç adada — Malezya ile Borneo'da, Papua Yeni " +
+      "Gine ile Papua'da, Doğu Timor ile Timor'da — paylaşılır, kalan tüm komşuluklar denizden " +
+      'geçer. Sumatra, Cava, Kalimantan, Sulawesi ve Papua, ülkenin nüfus ve yüzölçümce en ' +
+      'büyük beş adasıdır.',
+    landformNoteTr:
+      "Endonezya, Pasifik Ateş Çemberi üzerinde yer alır ve 120'den fazla aktif yanardağa ev " +
+      'sahipliği yapar; Cava adasındaki Merapi ve Kelud, tarih boyunca en sık patlayan ' +
+      "yanardağlar arasındadır. Ülkenin en yüksek noktası, Papua'daki Sudirman Sıradağları'nda " +
+      "yükselen 4.884 metrelik Puncak Jaya'dır — aynı zamanda dünyanın en yüksek ada zirvesi " +
+      "kabul edilir. Sumatra ve Cava'nın omurgasını, Hint-Avustralya ve Avrasya levhalarının " +
+      'çarpışmasıyla oluşan volkanik sıradağlar oluşturur; bu adaların verimli toprakları ' +
+      "büyük ölçüde volkanik küle borçludur. Kalimantan — Borneo'nun Endonezya kesimi — ise " +
+      'daha alçak ve yaşlı bir arazi yapısına sahiptir, adanın büyük bölümünü yağmur ormanı ' +
+      'kaplar.',
+    climateNoteTr:
+      "Ekvator üzerinde konumlanan Endonezya'da mevsimsel sıcaklık farkı azdır, yıl boyunca " +
+      'ortalama sıcaklık 25-26 santigrat derece civarında seyreder. İklimi asıl belirleyen, ' +
+      "iki zıt yönlü muson rüzgarıdır: Mayıs-Eylül arasında Avustralya'dan esen kuru muson, " +
+      'güney adalarında (Cava, Bali, Nusa Tenggara) belirgin bir kurak mevsim yaratır; ' +
+      'Ekim-Nisan arasında ise Asya kıtasından esen nemli muson, ülke genelinde yoğun yağış ' +
+      'getirir. Sumatra, Kalimantan ve Papua gibi ekvatora yakın adalarda ise yıl boyunca ' +
+      'yağış görülür, belirgin bir kurak mevsim yaşanmaz.',
+    hydrographyNoteTr:
+      "Kalimantan'ın merkezindeki Müller Dağları'ndan doğan Kapuas Nehri, batıya doğru 1.143 " +
+      "kilometre akarak Güney Çin Denizi'ne ulaşır — Endonezya'nın en uzun nehridir. Aynı " +
+      "adada, Kapuas'tan sonra 1.090 kilometrelik Barito Nehri ikinci sırada gelir; doğuya " +
+      "akan 980 kilometrelik Mahakam Nehri ise üçüncü sıradadır. Cava ve Sumatra'daki " +
+      'nehirler, adaların dar ve dağlık yapısı nedeniyle genellikle daha kısa ve hızlı ' +
+      "akışlıdır, ama yoğun nüfus ve tarım için hayati önemdedir. Papua'nın alçak güney " +
+      'kesiminde ise geniş bataklık ve nehir ağları, kıtasal Avustralya sahanlığının bir ' +
+      'parçası olan düz araziyi kat eder.',
   },
   {
     isoCode: 'LA',
@@ -531,6 +565,38 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal parlamenter seçimli monarşi',
     independenceNoteTr:
       "31 Ağustos 1957'de Malaya Federasyonu İngiltere'den bağımsız oldu; bugünkü Malezya Federasyonu 16 Eylül 1963'te kuruldu.",
+    introTr:
+      "Malezya, Güney Çin Denizi'yle birbirinden ayrılan iki ayrı parçadan oluşur: Malay " +
+      "Yarımadası'nın güney ucundaki Yarımada Malezyası (Batı Malezya) ve Borneo adasının " +
+      'kuzeyindeki Sabah ile Sarawak eyaletlerinden oluşan Doğu Malezya. Yarımada Malezyası ' +
+      "kuzeyde Tayland'a komşuyken, Doğu Malezya güneyde Endonezya'ya, kuzeyde ise Brunei'ye " +
+      'komşudur. İki parça birbirine kara ile değil, yalnızca deniz ve hava yoluyla bağlıdır.',
+    landformNoteTr:
+      "Sabah'taki Crocker Sıradağları'nda yükselen 4.095 metrelik Kinabalu Dağı, Malezya'nın " +
+      "ve adalar/deniz Güneydoğu Asya'sının (Maritime Southeast Asia) en yüksek noktasıdır; " +
+      "anakara Güneydoğu Asya'da bundan daha yüksek zirveler bulunur (Myanmar'daki Hkakabo " +
+      "Razi gibi). Yarımada Malezyası'nın omurgasını kuzeyden güneye uzanan Titiwangsa " +
+      'Sıradağları oluşturur; kıyı ovaları bu merkezi sıradağın her iki yanında yer alır. ' +
+      "Sarawak'ta kıyı boyunca bataklık alçak araziler, iç kesimlere doğru ise Endonezya " +
+      'sınırına kadar uzanan sarp yaylalar bulunur — bu yaylalardaki en yüksek nokta, 2.424 ' +
+      "metrelik Murud Dağı'dır. Ülke topraklarının yaklaşık %58'i, dipterokarp ormanları, " +
+      'bataklık ormanları ve mangrovlardan oluşan tropikal yağmur ormanlarıyla kaplıdır.',
+    climateNoteTr:
+      "Malezya'nın iklimi, ekvatora yakınlığının bir sonucu olarak yıl boyunca sıcak ve nemli " +
+      'geçer; sıcaklık ortalama 27 santigrat derece civarında sabit kalır, mevsimsel fark ' +
+      'azdır. İklimi asıl şekillendiren, yılda iki kez yön değiştiren muson rüzgarlarıdır: ' +
+      "Kasım-Mart arasında Çin ve Kuzey Pasifik'ten esen kuzeydoğu musonu daha bol yağış " +
+      'getirirken, Mayıs-Eylül arasındaki güneybatı musonu görece daha kuru geçer. Yıllık ' +
+      'ortalama yağış yaklaşık 2.500 milimetredir; bu yüksek nem ve yağış rejimi, ülkenin ' +
+      'yoğun yağmur ormanı örtüsünü besler.',
+    hydrographyNoteTr:
+      "Sarawak'taki Iran Dağları'nda doğan Rajang Nehri, Güney Çin Denizi'ne ulaşana kadar " +
+      "yaklaşık 565 kilometre akar. Malezya'nın en uzun nehri budur. Sabah'taki Kinabatangan " +
+      "Nehri, kaynağını güneybatı Sabah'ın dağlarından alıp Sulu Denizi'ne dökülür ve yaklaşık " +
+      "560 kilometreyle ülkenin ikinci en uzun nehridir. Yarımada Malezyası'nın en uzun nehri " +
+      "ise, Pahang eyaletinden geçip Güney Çin Denizi'ne ulaşan yaklaşık 459 kilometrelik " +
+      "Pahang Nehri'dir. Doğu Malezya'daki nehirler, yoğun yağmur ormanı örtüsü nedeniyle hem " +
+      'taşımacılık hem de ekosistem açısından bölgenin ana can damarlarıdır.',
   },
   {
     isoCode: 'MM',
@@ -578,6 +644,37 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr:
       "12 Haziran 1898'de İspanya'dan bağımsızlık ilan edildi (resmî kutlanan tarih); ABD'den fiilî egemenlik devri 4 Temmuz 1946'da gerçekleşti.",
+    introTr:
+      "Filipinler, Güneydoğu Asya'nın kuzeydoğusunda, 7.000'i aşkın adadan oluşan bir " +
+      'takımadadır ve dünyanın beşinci en büyük ada ülkesidir. Kara sınırı olmayan ülke, ' +
+      "kuzeyde Luzon Boğazı ile Tayvan'dan, batıda Güney Çin Denizi ile anakara Asya'dan, " +
+      "doğuda ise Filipin Denizi ile Büyük Okyanus'un açığından ayrılır. Adalar üç ana grupta " +
+      'toplanır: kuzeydeki Luzon, ortadaki Visayas takımadaları ve güneydeki Mindanao.',
+    landformNoteTr:
+      "Filipin takımadası, Büyük Okyanus'un batı kıyısındaki volkanik yay sisteminin bir " +
+      'parçasıdır ve çok sayıda aktif yanardağ barındırır. Ülkenin en yüksek noktası, ' +
+      "Mindanao'daki üç zirveli stratovolkan Mount Apo'dur (2.954 metre). En büyük ada olan " +
+      'Luzon, yaklaşık 105.000 kilometrekarelik yüzölçümüyle ülke nüfusunun ve başkent ' +
+      "Manila'nın da bulunduğu bölgedir; ikinci büyük ada Mindanao ise yaklaşık 95.000 " +
+      'kilometrekaredir. Visayas takımadaları arasında Panay, Negros, Cebu, Bohol ve Leyte ' +
+      "gibi orta büyüklükte adalar yer alır; on bir büyük ada, ülke topraklarının %95'ini " +
+      'oluşturur.',
+    climateNoteTr:
+      'Ocaktaki 25,5 santigrat dereceden mayıstaki 28,3 santigrat dereceye kadar dar bir ' +
+      "aralıkta değişen sıcaklıklarıyla Filipinler'de tropikal deniz iklimi görülür. " +
+      "PAGASA'nın (ulusal meteoroloji kurumu) sınıflandırmasına göre ülke dört yağış tipine " +
+      'ayrılır — belirgin kurak/yağışlı mevsimi olan bölgelerden yıl boyunca yağış alan ' +
+      'bölgelere kadar. Haziran-Ekim arasında yılda ortalama 20 tropikal siklon ülkenin ' +
+      "sorumluluk alanına girer, bunlardan 8-9'u karaya çıkar; kuzey Filipinler'deki yıllık " +
+      "yağışın en az %30'u bu fırtınalardan gelir. Dağların rüzgar alan yamaçlarında yıllık " +
+      'yağış 4.000-5.000 milimetreyi bulabilir.',
+    hydrographyNoteTr:
+      "Kuzey Luzon'daki Cagayan Vadisi boyunca akan 505 kilometrelik Cagayan Nehri (Río Grande " +
+      "de Cagayán), hem uzunluk hem de debi bakımından Filipinler'in en büyük nehridir. " +
+      "Mindanao'da, Bukidnon Platosu'ndan inip Cotabato Ovası'ndan geçerek Illana Körfezi'ne " +
+      'dökülen 373 kilometrelik Rio Grande de Mindanao, ülkenin ikinci en uzun nehridir. Ada ' +
+      'yapısı nedeniyle Filipin nehirlerinin çoğu kısa ve dik eğimlidir, denize ulaşmadan önce ' +
+      'uzun bir mesafe kat etmez.',
   },
   {
     isoCode: 'SG',
@@ -624,6 +721,37 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'THB',
     governmentFormTr: 'Parlamenter anayasal monarşi',
     independenceNoteTr: null,
+    introTr:
+      "Güneydoğu Asya'nın ortasında yer alan Tayland, kuzeyde ve batıda Myanmar, kuzeydoğuda " +
+      'Laos, güneydoğuda Kamboçya, güneyde ise Malay Yarımadası boyunca Malezya ile komşudur. ' +
+      'Ülke kabaca bir fil başı biçiminde tanımlanır: geniş kuzey ve orta kesim "baş", güneye ' +
+      'doğru uzayan dar Malay Yarımadası şeridi ise "hortum"dur. Bu uzun güney şeridi, ' +
+      "batıdaki Andaman Denizi ile doğudaki Tayland Körfezi'ni birbirinden ayırır.",
+    landformNoteTr:
+      'Ülke beş coğrafi bölgeye ayrılır: kuzey ve batıdaki katlanmış dağlar, kuzeydoğudaki ' +
+      'Khorat Platosu, ortadaki Chao Phraya Havzası, güneydoğudaki kıyı şeridi ve güneydeki ' +
+      "dar yarımada. Kuzeydeki dağlar, Himalayaların güneydoğu uzantısı sayılır ve Tayland'ın " +
+      "en yüksek noktası olan 2.565 metrelik Doi Inthanon'u barındırır. Khorat Platosu, kuzey " +
+      've doğudan Mekong Nehri ile sınırlanan geniş bir tablalık olup yükseklik kuzeybatıdan ' +
+      'güneydoğuya doğru 200 metreden 90 metreye kadar azalır. Ortadaki Chao Phraya Havzası, ' +
+      'ülkenin tarımsal ve nüfus çekirdeğini oluşturan alüvyonlu bir ovadır. Güneyde, Kra ' +
+      "Kıstağı'nda kara en dar noktasında yalnızca birkaç on kilometreye kadar daralır.",
+    climateNoteTr:
+      'Tayland, Köppen sınıflandırmasında büyük ölçüde tropikal savan iklimine (Aw) girer; ' +
+      'güney yarımadada ise yıl boyunca yağışın sürdüğü tropikal muson iklimi (Am) görülür. ' +
+      'Ülke genelinde üç mevsim yaşanır: Mart-Mayıs arasında sıcak yaz, Mayıs-Ekim arasında ' +
+      'güneybatı musonunun getirdiği yağışlı dönem, Kasım-Şubat arasında ise serin ve kurak ' +
+      "kış. Eylül, Bangkok'ta en yağışlı ay olup ortalama 336 milimetre yağış alır. Güneydeki " +
+      'Phuket ve Krabi gibi bölgeler, muson rüzgarının yönüne bağlı olarak yıl boyunca değişen ' +
+      'ama hiçbir zaman tamamen kesilmeyen bir yağış rejimine sahiptir.',
+    hydrographyNoteTr:
+      "Chao Phraya Nehri, kuzeydeki Ping ve Nan nehirlerinin Nakhon Sawan'da birleşmesiyle " +
+      "oluşur ve buradan Bangkok'u geçerek Tayland Körfezi'ne ulaşana kadar 372 kilometre " +
+      "akar; kaynağı olan Nan Nehri'nin en uzak başlangıç noktasından itibaren ölçüldüğünde " +
+      "toplam uzunluk yaklaşık 1.112 kilometreyi bulur. Mekong Nehri, Altın Üçgen'den itibaren " +
+      'önce Laos ile 920 kilometrelik, ardından güneye dönerek yaklaşık 850 kilometrelik ' +
+      "ikinci bir sınır hattı boyunca Tayland'ın kuzey ve kuzeydoğu sınırını çizer; ülke " +
+      'nehirlerinin üçte biri Mekong havzasına akar.',
   },
   {
     isoCode: 'TL',
@@ -671,6 +799,40 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'VND',
     governmentFormTr: 'Tek parti sosyalist cumhuriyet',
     independenceNoteTr: "2 Eylül 1945'te bağımsızlığını ilan etti (kuzey-güney birleşme 1976).",
+    introTr:
+      'Kuzeyden güneye 1.650 kilometre uzanan, en dar noktasında yalnızca yaklaşık 50 ' +
+      'kilometre genişliğindeki Vietnam, karakteristik S biçimiyle tanınır. Kuzeyde ve ' +
+      'kuzeybatıda Çin, batıda Laos ve Kamboçya ile komşudur; doğu ve güney boyunca Güney Çin ' +
+      "Denizi'ne (Vietnam'da Doğu Denizi) uzun bir kıyı şeridiyle açılır. Ülke, kuzeydeki " +
+      'Kızıl Nehir Deltası, ortadaki dar kıyı şeridi ve Annam Sıradağları, güneydeki Mekong ' +
+      'Deltası olmak üzere üç ana bölgeye ayrılır.',
+    landformNoteTr:
+      "Annam Sıradağları (Trường Sơn), Çin'in Yünnan bölgesinden başlayıp Vietnam-Laos sınırı " +
+      "boyunca güneye uzanır ve Mekong Deltası'nın kuzeyinde sona erer; ülkenin orta kesimini " +
+      "boydan boya kat eden bu sıradağ, kıyı ovasını içeriden kuşatır. Vietnam'ın en yüksek " +
+      'noktası, kuzeybatıdaki Hoàng Liên Sơn sıradağında yükselen ve Hint-Çin yarımadasının en ' +
+      "yüksek zirvesi olan Fansipan'dır (yaklaşık 3.143 metre). Düz arazi ülke topraklarının " +
+      'beşte birinden azını oluşturur, geri kalanı tepelik ve dağlık arazidir. Kuzeyde Kızıl ' +
+      "Nehir'in, güneyde ise Mekong'un taşıdığı alüvyonla oluşan iki büyük delta, ülkenin en " +
+      'verimli ve en yoğun nüfuslu kesimleridir.',
+    climateNoteTr:
+      'Vietnam tamamen tropik kuşakta yer almasına rağmen, kuzeyden güneye üç farklı iklim ' +
+      'bölgesine ayrılır. Kuzeyde, sıcak ve yağışlı yazların soğuk ve kurak kışlarla değiştiği ' +
+      'nemli subtropikal bir muson iklimi görülür — dört mevsim burada belirgindir. Orta ' +
+      "Vietnam'da tropikal muson iklimi hakim olsa da yağışlı ve kurak dönemler kuzey ve " +
+      'güneyle örtüşmez; bölge yazın daha az, kışın ise daha fazla yağış alır. Güneyde ise yıl ' +
+      'boyunca yüksek sıcaklıklarla (ortalama 27 santigrat derece) birlikte yalnızca iki ' +
+      'mevsim yaşanır: Mayıs-Kasım arasındaki yağışlı dönem ve Aralık-Nisan arasındaki kurak ' +
+      'dönem.',
+    hydrographyNoteTr:
+      "Kızıl Nehir (Sông Hồng), Çin'in Yünnan bölgesinde doğar ve toplamda yaklaşık 1.149 " +
+      'kilometre uzunluğundadır; bu mesafenin yaklaşık 510 kilometresi Vietnam topraklarından ' +
+      "geçer. Việt Trì'den sonra Đuống, Kinh Thầy ve Thái Bình gibi kollara ayrılarak Kızıl " +
+      "Nehir Deltası'nı besler ve Tonkin Körfezi'ne ulaşır. Güneyde Mekong, Phnom Penh " +
+      'yakınlarında Mekong ve Bassac adlı iki ana kola ayrıldıktan sonra Vietnam topraklarında ' +
+      'dokuz ayrı ağızdan denize dökülür; bu ağ yerel dilde "Dokuz Ejderha Nehri" (Sông Cửu ' +
+      'Long) olarak anılır. Delta boyunca yoğun kanal ağı, hem tarımı sular hem de ana ulaşım ' +
+      'güzergahını oluşturur.',
   },
   {
     isoCode: 'AF',
@@ -719,6 +881,39 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr:
       "26 Mart 1971'de Pakistan'dan bağımsızlığını ilan etti (Bangladeş Kurtuluş Savaşı).",
+    introTr:
+      "Güney Asya'nın kuzeydoğusunda, Ganj, Brahmaputra ve Meghna nehirlerinin oluşturduğu " +
+      'deltanın büyük bölümü üzerinde kurulu olan Bangladeş, batı, kuzey ve doğuda Hindistan, ' +
+      "güneydoğuda ise kısa bir sınır boyunca Myanmar ile komşudur. Güneyde Bengal Körfezi'ne " +
+      'kıyısı vardır. Ülke topraklarının neredeyse tamamı, güneydoğudaki Chittagong Tepeleri ' +
+      'dışında, deniz seviyesine yakın alçak bir ova görünümündedir.',
+    landformNoteTr:
+      'Ganj, Brahmaputra ve Meghna nehirlerinin taşıdığı tortularla oluşan ' +
+      'Ganj-Brahmaputra-Meghna Deltası, yaklaşık 105.000 kilometrekarelik yüzölçümüyle ' +
+      'dünyanın en büyük nehir deltasıdır ve Bangladeş topraklarının büyük bölümünü kaplar. ' +
+      'Deltanın güneyinde, Hindistan ile paylaşılan Sundarbans, dünyanın en büyük mangrov ' +
+      "ormanıdır. Ülkenin tek dağlık bölgesi, güneydoğudaki Chittagong Tepeleri'dir; burada " +
+      "sıradağlar 200-1.000 metre arasında paralel sırtlar halinde uzanır. Bangladeş'in en " +
+      'yüksek noktası konusunda kaynaklar tam örtüşmüyor: resmi olarak uzun süre Tazing Dong ' +
+      "kabul edilmişti, ama güncel ölçümler bu unvanı Saka Haphong'a (yaklaşık 1.063 metre) " +
+      'veriyor.',
+    climateNoteTr:
+      'Bangladeş tropikal bir muson iklimine sahiptir ve üç mevsim yaşanır: Ekim-Mart arasında ' +
+      'serin ve kurak kış, Mart-Mayıs arasında sıcak ve nemli bir geçiş dönemi, Haziran-Eylül ' +
+      'arasında ise güneybatı musonunun getirdiği yoğun yağışlı yaz. Yıllık yağışın yaklaşık ' +
+      "%80'i bu son dönemde düşer. Ekim-Aralık ve Nisan-Mayıs aylarında Bengal Körfezi'nden " +
+      'gelen tropikal siklonlar kıyı bölgelerini düzenli olarak vurur; körfezin kuzeye doğru ' +
+      'daralan huni biçimi, fırtına dalgalarının etkisini artırır. Delta düzlüğünün alçaklığı, ' +
+      'muson yağmurlarıyla birleşince ülkenin büyük bölümünü yıllık taşkınlara açık hale ' +
+      'getirir.',
+    hydrographyNoteTr:
+      "Ülkenin batısından giren Ganj, Bangladeş'te Padma adını alır; kuzeydoğudan gelen " +
+      'Brahmaputra ise Jamuna adıyla akar. Bu iki büyük nehir, Goalanda yakınlarında birleşir ' +
+      "ve güneydoğudan gelen Meghna ile birlikte Bengal Körfezi'ne dökülür. Delta boyunca " +
+      'sayısız kol ve dağıtım kanalı bulunur; bu yoğun su ağı hem tarımı besler hem de ülkenin ' +
+      "başlıca iç ulaşım güzergahını oluşturur. Hindistan'ın Mizoram eyaletindeki Lushai " +
+      "Tepeleri'nde doğan Karnaphuli Nehri, Chittagong Tepeleri'ni geçerek Bengal Körfezi'ne " +
+      'hızlı akışıyla ulaşır.',
   },
   {
     isoCode: 'BT',
@@ -765,6 +960,38 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'INR',
     governmentFormTr: 'Federal parlamenter cumhuriyet',
     independenceNoteTr: "15 Ağustos 1947'de İngiltere'den bağımsız oldu.",
+    introTr:
+      "Güney Asya'nın en büyük ülkesi olan Hindistan, kuzeyde Himalayalar boyunca Pakistan, " +
+      'Çin, Nepal ve Bhutan ile, doğuda ise Bangladeş ve Myanmar ile komşudur. Batıda Arap ' +
+      "Denizi'ne, doğuda Bengal Körfezi'ne kıyısı olan ülke, güneyde Hint Okyanusu'na doğru " +
+      'bir yarımada halinde uzanır. Kuzeydeki karla kaplı Keşmir vadilerinden güneydeki ' +
+      'tropikal Kerala kıyılarına kadar geniş bir yer şekli ve iklim yelpazesi barındırır.',
+    landformNoteTr:
+      "Ülkenin kuzeyini boydan boya kateden Himalayalar, Hindistan'ın en yüksek noktası olan " +
+      "8.586 metrelik Kanchenjunga'yı barındırır; dünyanın en yüksek zirvesi Everest ise " +
+      'sınırın Nepal tarafında kalır. Himalayaların güneyinde, Indus, Ganj ve Brahmaputra ' +
+      'nehirlerinin taşıdığı alüvyonla oluşan Indo-Gangetik Ovası, ülkenin kuzey ve doğusunu ' +
+      'bir uçtan diğerine kat eder. Ovanın güneyinde, ortalama 300-700 metre yükseklikteki ' +
+      'üçgen biçimli Dekkan Platosu yükselir; platoyu batıdan Batı Ghatlar, doğudan Doğu ' +
+      'Ghatlar çevreler. Ülkenin kuzeybatısında, Pakistan sınırına yayılan Thar Çölü yer alır. ' +
+      'Himalayaların batı ucundaki Keşmir Vadisi ise Pir Panjal ve Büyük Himalaya sıradağları ' +
+      "arasında sıkışan, Jhelum Nehri'nin suladığı yüksek bir çöküntü ovasıdır.",
+    climateNoteTr:
+      "Hindistan'ın iklimini büyük ölçüde güneybatı musonu belirler; Haziran'dan Ekim'e kadar " +
+      'süren bu mevsim ülkenin yıllık yağışının büyük bölümünü getirir. Kuzeybatıdaki Thar ' +
+      'Çölü çevresinde kurak ve yarı kurak koşullar hakimdir, güneydeki Kerala ve Tamil Nadu ' +
+      'kıyılarında ise nemli tropikal bir iklim görülür. Himalayalarda rakım arttıkça iklim de ' +
+      'değişir: dağ eteklerinde ılıman koşullar görülürken, zirvelere yaklaştıkça kar ve buzul ' +
+      'iklimi başlar. Köppen sınıflandırmasında Hindistan toprakları tropikal, kurak, ılıman ' +
+      've dağlık iklim tiplerinin neredeyse tamamını kapsar.',
+    hydrographyNoteTr:
+      "Ganj Nehri, Himalayalar'daki Gangotri buzulundan doğar ve yaklaşık 2.525 kilometre " +
+      "boyunca doğuya akarak Bangladeş'te Brahmaputra ile birleşir. Yalnızca Hindistan " +
+      "toprakları içinde akan en uzun nehir ise Godavari'dir; Deccan Platosu'nda doğar ve " +
+      "yaklaşık 1.465 kilometre sonra Bengal Körfezi'ne ulaşır. Indus Nehri, kaynağını " +
+      "Tibet'te alıp önce Hindistan'ın kuzeyinden, ardından Pakistan topraklarından geçerek " +
+      "Arap Denizi'ne ulaşır. Yamuna, Ganj'ın en büyük kolu olarak Himalayalar'dan iner ve " +
+      "Allahabad'da (Prayagraj) ana nehirle birleşir.",
   },
   {
     isoCode: 'MV',
@@ -835,6 +1062,35 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal parlamenter cumhuriyet',
     independenceNoteTr:
       "14 Ağustos 1947'de İngiltere'den bağımsız oldu (Hindistan'ın bölünmesiyle).",
+    introTr:
+      "Güney Asya'nın kuzeybatı ucunda yer alan Pakistan, doğuda Hindistan, kuzeyde Çin, " +
+      "batıda Afganistan ve İran ile komşudur. Güneyde Arap Denizi'ne kıyısı vardır. Ülke " +
+      'toprakları, kuzeyde 8.611 metreye ulaşan Karakoram zirvelerinden güneyde deniz ' +
+      'seviyesindeki Indus Nehri deltasına kadar uzanır.',
+    landformNoteTr:
+      "Kuzey Pakistan'da Karakoram, Himalaya ve Hindukuş sıradağları kesişir; dünyanın en " +
+      "yüksek ikinci zirvesi olan 8.611 metrelik K2, Çin sınırına yakın Karakoram'da yükselir. " +
+      'Bu üç sıradağ aynı zamanda kutup bölgeleri dışındaki en büyük buzul kütlesini ' +
+      "barındırır. Ülkenin ortasını, Indus Nehri'nin taşıdığı alüvyonla oluşan geniş ve " +
+      'verimli Indus Ovası kaplar; Pencap ve Sind eyaletlerinin tarımı bu ovaya dayanır. ' +
+      'Güneybatıda, 600-3.000 metre yükseklikteki Beluçistan Platosu kurak ve dağlık bir arazi ' +
+      "sunar. Doğuda, Hindistan sınırına yayılan Thar Çölü'nün Pakistan tarafı Cholistan " +
+      'olarak bilinir.',
+    climateNoteTr:
+      'Pakistan topraklarının yaklaşık dörtte üçünde kurak ve yarı kurak iklim hakimdir; bu ' +
+      "kuşak Indus Ovası'nın büyük bölümünü ve Beluçistan Platosu'nu kapsar. Pencap ve Sind'de " +
+      'Temmuz-Eylül arasındaki güneybatı musonu yılın esas yağış dönemidir. Kuzeydeki ' +
+      'Karakoram ve Himalaya yükseltilerinde soğuk, karlı bir dağ iklimi görülür, buzullar yıl ' +
+      "boyunca erimez. Kıyı şeridi boyunca Arap Denizi'nden gelen deniz esintisi sıcaklığı bir " +
+      'miktar yumuşatır.',
+    hydrographyNoteTr:
+      "Tibet'te doğan Indus Nehri, Pakistan topraklarında yaklaşık 2.750 kilometre kat ederek " +
+      'Arap Denizi\'ne dökülür. Pencap — "beş nehir ülkesi" — adını, Indus\'a katılan Jhelum, ' +
+      'Chenab, Ravi, Beas ve Sutlej nehirlerinden alır; bu kolların dördü (Beas hariç) ' +
+      'Pakistan topraklarından geçer. Mithankot yakınlarında bu nehirler Panjnad adı altında ' +
+      "birleşip Indus'a katılır. 1960 tarihli Indus Suları Antlaşması, batı kollarının (Indus, " +
+      "Jhelum, Chenab) sularını Pakistan'a, doğu kollarının (Ravi, Beas, Sutlej) sularını ise " +
+      "Hindistan'a tahsis eder.",
   },
   {
     isoCode: 'LK',
