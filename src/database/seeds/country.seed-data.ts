@@ -1,5 +1,6 @@
 import { Continent } from '../../common/continent.enum';
 import { AFRICA_COUNTRIES } from './countries/africa.countries';
+import { ASIA_COUNTRIES } from './countries/asia.countries';
 
 /**
  * Shape of one seeded country. The IDENTITY fields (isoCode, TR+EN name, both slugs,
@@ -524,4 +525,8 @@ const PILOT_COUNTRIES: readonly CountrySeed[] = [
  * single import. Each continent lives in its own `./countries/*.countries.ts` module so
  * a continent wave is reviewable in isolation; add a wave = add one import + one spread.
  */
-export const SEED_COUNTRIES: readonly CountrySeed[] = [...PILOT_COUNTRIES, ...AFRICA_COUNTRIES];
+export const SEED_COUNTRIES: readonly CountrySeed[] = [
+  ...PILOT_COUNTRIES,
+  ...ASIA_COUNTRIES,
+  ...AFRICA_COUNTRIES,
+];
