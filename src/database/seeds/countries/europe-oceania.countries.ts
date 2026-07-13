@@ -53,6 +53,39 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'DKK',
     governmentFormTr: 'Anayasal monarşi (parlamenter)',
     independenceNoteTr: null,
+    introTr:
+      "Danimarka, Almanya'ya kara sınırıyla bağlanan Jutland (Jylland) Yarımadası ile " +
+      "aralarında Zelanda ve Fyn'in de bulunduğu 400'den fazla adadan oluşur; adaların çoğu " +
+      'Kattegat ve Baltık Denizi arasında kalır. Başkent Kopenhag, Zelanda adasının ' +
+      "doğusunda, Öresund Boğazı'nın karşısında İsveç'e bakar. Ülke toprakları büyük ölçüde " +
+      "düz ve alçaktır; Grönland ve Faroe Adaları, Danimarka Krallığı'nın özerk bölgeleri " +
+      'olarak ayrı bir statüde durur ve bu ülke profilinin dışında kalır.',
+    landformNoteTr:
+      "Danimarka'nın arazisi, son Buzul Çağı'nın bıraktığı moren tepeleri ve düzlüklerden " +
+      'oluşur; ülkenin en yüksek noktası konusunda uzun süre bir belirsizlik yaşanmıştır. ' +
+      "2005 yılındaki ölçümlere kadar orta Jutland'daki 170,77 metrelik Yding Skovhøj en " +
+      "yüksek nokta kabul edilirken, aynı bölgedeki Møllehøj'un aslında birkaç santimetre " +
+      'daha yüksek (170,86 m) olduğu tespit edilmiştir — ikisi birbirine yürüme ' +
+      'mesafesindedir. Doğu Jutland ve adalar kıyısında buzul çağından kalma koylar ve ' +
+      "girintiler görülürken, batı Jutland'da Kuzey Denizi'ne bakan kesim uzun kumsallar, " +
+      "kumullar ve düz bir kıyı ovasıyla (heden) kaplıdır. Kuzey Jutland'ı neredeyse bir " +
+      "adaya çeviren Limfjord, Kuzey Denizi'ni Kattegat'a bağlayan sığ ve dar bir su yoludur.",
+    climateNoteTr:
+      "Danimarka'nın iklimini, Kuzey Denizi'nden sürekli geçen alçak basınç sistemleri " +
+      'belirler; hava genellikle rüzgarlı ve değişkendir, belirgin bir kurak mevsim yoktur. ' +
+      'Kışlar deniz etkisiyle ılımlıdır, sıcaklık nadiren derin donlara iner; yazlar ise ' +
+      "serindir, 20-25 santigrat derece bandında seyreder. Batı Jutland, Kuzey Denizi'ne açık " +
+      'olduğu için rüzgara ve fırtınalara daha fazla maruz kalır; doğu adaları ve Kopenhag ' +
+      'çevresi görece daha durgun bir hava düzenine sahiptir. Yağış yıl boyunca dağılır, ' +
+      'sonbahar ve kış ayları en yağışlı dönemlerdir.',
+    hydrographyNoteTr:
+      "Danimarka'nın en uzun akarsuyu, orta Jutland'da doğan ve Randers Fjordu üzerinden " +
+      "Kattegat'a dökülen 158 kilometrelik Gudenå'dır; yolu boyunca Mossø ve Julsø gibi " +
+      'birkaç gölü besler. Ülke, düşük ve düz arazisi nedeniyle büyük göllerden yoksundur — ' +
+      "en geniş göl olan Arresø bile 40 kilometrekareyi bulmaz. Kuzey Jutland'ı ikiye ayıran " +
+      'Limfjord, gerçek bir nehir değil, deniz sularının doldurduğu bir boğazdır; tarihte ' +
+      "birkaç kez Kuzey Denizi'yle bağlantısı açılıp kapanmış, bugünkü haliyle gemi trafiğine " +
+      'elverişli bir su yoludur.',
   },
   {
     isoCode: 'EE',
@@ -100,6 +133,38 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'EUR',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "6 Aralık 1917'de Rusya'dan bağımsız oldu.",
+    introTr:
+      "Finlandiya, batıda İsveç, kuzeyde Norveç, doğuda ise AB'nin Rusya'yla en uzun kara " +
+      'sınırına komşudur. Ülke, "binlerce göl ülkesi" olarak bilinir; gerçek sayı 187.000\'i ' +
+      "aşar. Başkent Helsinki, güney kıyısında Finlandiya Körfezi'ne bakar; güneybatıdaki " +
+      'takımada (Turku Takımadası ve Åland Adaları) on binlerce küçük adadan oluşur. Ülke ' +
+      'topraklarının büyük bölümü, buzul çağının şekillendirdiği alçak ve engebeli bir arazi ' +
+      'üzerine kuruludur.',
+    landformNoteTr:
+      "Finlandiya'nın büyük bölümü Baltık Kalkanı'nın eski, aşınmış kristalen kayaçları " +
+      'üzerinde yer alır; bu yüzden ülke genelinde yükselti düşük, arazi engebeli ama ' +
+      "alçaktır. Ülkenin en yüksek noktası, kuzeybatı ucundaki Laponya'da, Norveç sınırındaki " +
+      "sırtın Finlandiya tarafında kalan 1.324 metrelik Halti'dir. Güney ve orta kesimde, " +
+      'buzulun geriye bıraktığı Salpausselkä sırtları doğu-batı doğrultusunda uzanır ve ' +
+      'bölgeyi göl platosuna dönüştürür; on binlerce göl birbirine kısa nehir ve boğazlarla ' +
+      "bağlıdır. Kuzey Laponya'da ise dağlardan çok aşınmış, yuvarlak tepeler (tunturi) " +
+      'hakimdir; ağaç sınırının üzerinde kalan bu tepeler tundra bitki örtüsüyle kaplıdır.',
+    climateNoteTr:
+      "Finlandiya'nın güney ve orta kesimi nemli kıta iklimine sahiptir; yazlar ılık, kışlar " +
+      "soğuk ve karlıdır, kar örtüsü ortalama üç-dört ay yerde kalır. Kuzeye, Laponya'ya " +
+      'doğru iklim subarktik karaktere döner; kışlar daha uzun ve sert geçer, kar örtüsü yedi ' +
+      'aya kadar sürebilir ve kutup gecesi ile gece güneşi burada belirgin biçimde yaşanır. ' +
+      'Baltık Denizi, güneybatı kıyısını hafifçe ılımlaştırır ama bu etki İskandinav ' +
+      'yarımadasının batı kıyısındaki kadar güçlü değildir. Yıllık yağış güneyde daha fazla, ' +
+      'kuzeyde daha azdır.',
+    hydrographyNoteTr:
+      "Finlandiya'da 187.000'i aşkın göl bulunur; bunların en büyüğü, 4.279 kilometrekarelik " +
+      "yüzölçümüyle Avrupa'nın dördüncü büyük doğal gölü olan Saimaa'dır. Saimaa, Saimaa " +
+      "Kanalı aracılığıyla Rusya topraklarından geçerek Finlandiya Körfezi'ne bağlanır. " +
+      "Ülkenin en uzun nehri, Laponya'da doğup güneye akan ve 550 kilometre sonra Botni " +
+      "Körfezi'ne dökülen Kemijoki'dir; nehir üzerindeki barajlar ülkenin önemli bir " +
+      'hidroelektrik kaynağıdır. Güney ve orta kesimdeki sayısız göl, tarihte kereste ' +
+      'taşımacılığı için kullanılan doğal bir su yolları ağı oluşturur.',
   },
   {
     isoCode: 'IS',
@@ -124,6 +189,38 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr:
       "17 Haziran 1944'te Danimarka'dan tam bağımsızlığını kazanarak cumhuriyet ilan etti.",
+    introTr:
+      'İzlanda, Kuzey Atlantik ortasında, Avrasya ve Kuzey Amerika levhalarının birbirinden ' +
+      'ayrıldığı Orta Atlantik Sırtı üzerinde yer alan bir ada ülkesidir; kara komşusu ' +
+      "yoktur. Bu jeolojik konum, ülkeye Avrupa'nın en yoğun volkanik ve jeotermal " +
+      'etkinliğini kazandırır. Başkent Reykjavik güneybatı kıyısındadır; nüfusun büyük bölümü ' +
+      'kıyı şeridinde toplanmıştır, iç kesimlerdeki yüksek yayla neredeyse tamamen ' +
+      'yerleşimsizdir.',
+    landformNoteTr:
+      "İzlanda'da 30'u aşkın etkin volkanik sistem bulunur; ülke lav alanları, kraterler ve " +
+      'jeotermal sahalarla kaplıdır — "geyser" kelimesinin kökeni olan Geysir de bu ' +
+      'sahalardan biridir. Ülkenin en yüksek noktası, Vatnajökull buzulunun içindeki ' +
+      'Öræfajökull yanardağının kraterinin kenarında yükselen 2.110 metrelik ' +
+      "Hvannadalshnúkur'dur. Vatnajökull, yaklaşık 7.700 kilometrekarelik alanıyla Avrupa'nın " +
+      'en büyük buzuludur ve tek başına kıtanın geri kalan buzullarının toplamından daha ' +
+      "büyüktür. Güneybatıda, Þingvellir'deki yarık vadisi, iki tektonik levhanın ayrılışını " +
+      'yüzeyde doğrudan gözle görülebilir kılar.',
+    climateNoteTr:
+      "İzlanda'nın iklimi, enlemine göre beklenenden çok daha ılımandır; bunun başlıca " +
+      "nedeni, Golf Akıntısı'nın uzantısı olan sıcak bir okyanus akıntısının ada çevresinden " +
+      'geçmesidir. Güney ve güneybatı kıyısı bu akıntının etkisiyle kışın nispeten yumuşak ' +
+      'kalır, sıcaklık nadiren derin donlara iner. Hava koşulları hızla değişir ve rüzgar ' +
+      'neredeyse her mevsimde güçlüdür. İç kesimdeki yüksek yayla, kıyıdan çok daha soğuk ve ' +
+      'kurak bir karaktere sahiptir; burada yıl boyunca don olayları görülebilir. Volkanik ' +
+      'patlamalar zaman zaman kısa süreli yerel hava/kül olaylarına da yol açar.',
+    hydrographyNoteTr:
+      "İzlanda'nın nehirleri genellikle kısa ve buzul erimesiyle beslenir; bu tip nehirlere " +
+      '"jökulsá" (buzul nehri) denir. Ülkenin en uzun nehri, güneyde doğan ve 230 kilometre ' +
+      "sonra Atlantik'e ulaşan Þjórsá'dır. Buzulların geri çekilmesiyle oluşan Jökulsárlón " +
+      'gibi buzul gölleri, erimiş buz kütlelerinin denize taşınmadan önce biriktiği gölet ' +
+      'sistemleridir. Ülkenin en büyük doğal gölü olan Þingvallavatn, tam da iki tektonik ' +
+      'levhanın ayrıldığı yarık vadisinin içinde yer alır. Jeotermal kaynaklar ülke genelinde ' +
+      'yaygındır ve elektrik/ısınma ihtiyacının büyük bölümünü karşılar.',
   },
   {
     isoCode: 'IE',
@@ -147,6 +244,36 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'EUR',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "6 Aralık 1922'de İrlanda Serbest Devleti kuruldu (Cumhuriyet ilanı 1949).",
+    introTr:
+      "İrlanda Cumhuriyeti, İrlanda Adası'nın yaklaşık beşte dördünü kaplar; adanın geri " +
+      "kalan kesimi, Birleşik Krallık'ın bir parçası olan Kuzey İrlanda'dır ve ülkenin tek " +
+      'kara sınırı buradan geçer. Batısında açık Atlas Okyanusu, doğusunda ise Britanya ' +
+      "Adası'nı ayıran İrlanda Denizi bulunur. Başkent Dublin, doğu kıyısında, Liffey " +
+      "Nehri'nin ağzında yer alır.",
+    landformNoteTr:
+      "İrlanda'nın iç kesimi, çoğunlukla kireçtaşı üzerine kurulu, alçak ve düz bir ova " +
+      'oluşturur; bu ovanın büyük bölümü turba bataklıklarıyla kaplıdır. Ovayı çepeçevre ' +
+      'saran kıyı kesimindeki tepeler ve dağlar, ülkenin en engebeli arazisini oluşturur. ' +
+      "Ülkenin en yüksek noktası, güneybatıdaki Kerry ilinde, MacGillycuddy's Reeks sıradağı " +
+      "üzerindeki 1.038,6 metrelik Carrauntoohil'dir. Batı kıyısı, Atlas Okyanusu'nun " +
+      'aşındırmasıyla derin girintili çıkıntılı bir hat izler — Moher Kayalıkları gibi dik ' +
+      'uçurumlar ile Kerry ve Dingle gibi uzun yarımadalar bu kıyının belirgin ' +
+      'özellikleridir; doğu kıyısı ise çok daha düz ve düzenlidir.',
+    climateNoteTr:
+      "İrlanda'da ılıman deniz iklimi hakimdir; kışlar ender olarak dona iner, yazlar ise " +
+      'serin kalır, mevsimler arasındaki sıcaklık farkı azdır. Yağış yıl boyunca düzenli ' +
+      "aralıklarla düşer, belirgin bir kurak mevsim yoktur. Batı kıyısı Atlas Okyanusu'na " +
+      'doğrudan açık olduğu için en yağışlı bölgedir — bazı kesimlerde yıllık yağış 2.000 ' +
+      'milimetreyi aşar; doğuda, Dublin çevresinde bu rakam 750-800 milimetreye kadar düşer. ' +
+      'Gökyüzü sık sık bulutludur, güneşli gün sayısı Avrupa ortalamasının altında kalır.',
+    hydrographyNoteTr:
+      "Şannon Nehri, 360 kilometreyle hem İrlanda'nın hem de Britanya Adaları'nın en uzun " +
+      "nehridir; kuzeydeki Şannon Çukuru'ndan doğar, ülkeyi güneye kat eder ve batıda geniş " +
+      "bir haliç üzerinden Atlas Okyanusu'na ulaşır. Yolu boyunca Lough Ree ve Lough Derg " +
+      'gibi birkaç geniş gölü besler. Cumhuriyet sınırları içindeki en büyük göl, batıda ' +
+      "Galway ilinde yer alan ve 176 kilometrekareyi bulan Lough Corrib'dir. Batı kıyısındaki " +
+      'Burren bölgesinde, kireçtaşı arazi yer altı akarsu ve mağara sistemleriyle delik ' +
+      'deşiktir; yağış suyunun büyük bölümü yüzeyde akmadan doğrudan yer altına sızar.',
   },
   {
     isoCode: 'LV',
@@ -876,6 +1003,33 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'EUR',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "25 Haziran 1991'de Yugoslavya'dan bağımsızlığını ilan etti.",
+    introTr:
+      "Hırvatistan, Bosna-Hersek'i kuzeyden ve batıdan kavrayan hilal biçimli bir sınıra " +
+      'sahip bir ülkedir; bu yapı, kıyı boyunca uzanan Dalmaçya ile iç kesimdeki düz Panon ' +
+      'ovasını tek bir ülke sınırı içinde birleştirir. Adriyatik Denizi boyunca binin ' +
+      'üzerinde ada bulunur. Başkent Zagreb, kıyıdan uzakta, ülkenin kuzeyindeki iç kesimde ' +
+      'yer alır.',
+    landformNoteTr:
+      'Adriyatik kıyısı boyunca uzanan Dinar Alpleri, kireçtaşı esaslı bir karst arazisi ' +
+      'oluşturur; mağaralar, çukurlar (dolin) ve yer altına gömülen nehirler bu bölgenin ' +
+      'karakteristik özellikleridir. Ülkenin en yüksek noktası, Bosna-Hersek sınırına yakın ' +
+      "1.831 metrelik Dinara'dır. Aynı karst süreçleri, iç kesimdeki Plitvice Gölleri'nde " +
+      'olduğu gibi, kireçtaşı çökeltileriyle birbirine bağlanan basamaklı göl ve şelale ' +
+      'sistemleri de yaratır. Kıyıdan uzaklaşıp kuzeydoğuya gidildikçe arazi alçalır; ' +
+      "Slavonya bölgesi, Panon Havzası'nın düz ve tarıma elverişli bir uzantısıdır.",
+    climateNoteTr:
+      'Adriyatik kıyısında Akdeniz iklimi hakimdir; yazlar sıcak ve kurak, kışlar ılık ve ' +
+      'yağışlıdır. İç kesimlerde, Zagreb ve Slavonya çevresinde ise kara iklimi etkilidir — ' +
+      'yazlar sıcak, kışlar soğuk geçer ve yağış yıl boyunca daha dengeli dağılır. Kıyı ile ' +
+      'iç kesim arasındaki Dinar Alpleri, iki iklim bölgesi arasında bir engel görevi görür; ' +
+      'dağlık kesim, ülkenin en fazla yağış ve kar alan bölgesidir.',
+    hydrographyNoteTr:
+      "Ülkenin doğusundaki Slavonya'yı Sava ve Drava nehirleri kat eder; ikisi de Tuna'nın " +
+      "kollarıdır ve bu bölgeyi Karadeniz havzasına bağlar. Sava, Zagreb'in de kıyısından " +
+      'geçerek ülkenin güney sınırının önemli bir bölümünü çizer. Kıyı kesiminde ise nehirler ' +
+      "kısa ve doğrudan Adriyatik'e akar; bunların en tanınmışı, aşağı yatağında Skradinski " +
+      "Buk şelalesini oluşturan Krka'dır. İç kesimdeki Plitvice Gölleri, on altı basamaklı " +
+      'gölün travertin bariyerlerle ve şelalelerle birbirine bağlandığı bir karst sistemidir.',
   },
   {
     isoCode: 'IT',
@@ -1291,6 +1445,37 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'CZK',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "1 Ocak 1993'te Çekoslovakya'nın ayrılmasıyla kuruldu.",
+    introTr:
+      'Çekya, denize kıyısı olmayan ve Almanya, Polonya, Slovakya, Avusturya ile komşu olan ' +
+      'bir Orta Avrupa ülkesidir. Ülke toprakları, batıda tarihi Bohemya ve doğuda Moravya ' +
+      'bölgelerinden oluşur; her ikisini de düşük dağ sıraları çevreler ve bu sıralar ülkeye ' +
+      "doğal bir sınır çizer. Başkent Prag, Bohemya'nın ortasında, Vltava Nehri kıyısında yer " +
+      'alır.',
+    landformNoteTr:
+      "Çekya'nın sınırlarının büyük bölümü, Bohemya Masifi'nin eski, aşınmış dağ sıralarını " +
+      'izler; bu sıralar ülkeyi çepeçevre saran alçak bir duvar gibi durur. Güneybatıda, ' +
+      'Almanya ve Avusturya sınırında, ormanlarla kaplı Şumava sıradağı yer alır. ' +
+      'Kuzeydoğuda, Polonya sınırındaki Krkonoše (Dev Dağlar), ülkenin en yüksek noktasını ' +
+      "barındırır: 1.603 metrelik Sněžka. Doğudaki Moravya, Bohemya'ya göre daha alçak ve " +
+      "tepelik bir arazidir; Moravya Geçidi üzerinden güneye, Panon Havzası'na doğru açılan " +
+      'doğal bir koridor oluşturur. Ülke geneli, gerçek yüksek dağlardan çok, tepelik ve ' +
+      'ormanlık bir topografya sergiler.',
+    climateNoteTr:
+      "Çekya'da ılıman kara iklimi hakimdir; yazlar sıcak, kışlar soğuk ve karlıdır. Ülkeyi " +
+      'çevreleyen dağ sıraları, orta Bohemya havzasını nemli hava kütlelerinden kısmen korur; ' +
+      'bu yüzden Prag çevresi, çevresindeki dağlık kesimlere göre daha az yağış alır. ' +
+      'Krkonoše ve Şumava gibi yüksek kesimlerde kar örtüsü aylarca yerde kalır, kış sporları ' +
+      'burada yaygındır. Yıl içindeki sıcaklık farkı belirgindir; ilkbahar ve sonbahar geçiş ' +
+      'mevsimleri kısa sürer.',
+    hydrographyNoteTr:
+      "Çekya toprakları, Avrupa'nın su ayrım hattının üzerinde yer alır — ülkenin nehirleri " +
+      "iki farklı denize akar. Ülke sınırları içinde tamamen kalan en uzun nehir, Şumava'da " +
+      "doğup Prag'dan geçen ve Mělník'te Elbe (Labe) Nehri'yle birleşen 430 kilometrelik " +
+      "Vltava'dır; Elbe, Almanya üzerinden Kuzey Denizi'ne ulaşır. Doğuda ise Moravya'yı " +
+      "boydan boya geçen Morava Nehri güneye akar ve Tuna'ya katılarak Karadeniz havzasına " +
+      "bağlanır. Güney Bohemya'da, Orta Çağ'dan beri balık üretimi için açılmış binlerce " +
+      'yapay gölet (Třeboň bölgesi başta olmak üzere) bulunur; ülkenin doğal büyük gölleri ' +
+      'yoktur.',
   },
   {
     isoCode: 'HU',
@@ -1315,6 +1500,36 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr:
       "Eski krallık geleneği ~1000'e dayanır; modern Üçüncü Cumhuriyet 23 Ekim 1989'da ilan edildi.",
+    introTr:
+      'Macaristan topraklarının büyük bölümü, çevresini Karpat ve Alp sıradağlarının ' +
+      "uzantılarının sardığı Panon Havzası'nın ortasında yer alır; ülkenin denize kıyısı " +
+      'yoktur. Ülkeyi kuzeyden güneye kat eden Tuna Nehri, topraklarını batıdaki Tuna-ötesi ' +
+      "bölgesi ile doğudaki Büyük Macar Ovası'na (Alföld) ayırır. Başkent Budapeşte, Tuna'nın " +
+      "iki yakasında, tepelik Buda ile düz Peşte'nin birleşmesiyle oluşmuştur.",
+    landformNoteTr:
+      'Macaristan topraklarının yarısından fazlasını, tarihsel olarak bozkır otlağı (puszta) ' +
+      'olarak bilinen Büyük Macar Ovası kaplar; bu ova ülkenin doğusunda, neredeyse tamamen ' +
+      'düz bir arazi üzerinde uzanır. Kuzeybatıda, Tuna kıyısında ayrı ve daha küçük bir ' +
+      "alçak alan olan Küçük Macar Ovası (Kisalföld) yer alır. Tuna'nın batısındaki " +
+      'Tuna-ötesi bölgesi ise daha tepeliktir; volkanik kökenli Bakony ve Mecsek sıraları ' +
+      "burada yükselir. Ülkenin en yüksek noktası, Budapeşte'nin kuzeydoğusundaki Mátra " +
+      "sıradağı üzerindeki 1.014 metrelik Kékes'tir.",
+    climateNoteTr:
+      'Macaristan, denizden uzak iç konumu nedeniyle belirgin bir kara iklimine sahiptir; ' +
+      'yazlar sıcak ve kimi zaman kurak, kışlar soğuk geçer. Büyük Macar Ovası, ülkenin en uç ' +
+      'sıcaklık farklarının yaşandığı bölgedir — yaz aylarında sıcaklık sık sık 35 santigrat ' +
+      'dereceyi aşarken, kışın sert donlar görülebilir. Tuna-ötesi bölgesi, Alp eteklerine ' +
+      'yakınlığı nedeniyle nispeten daha ılımlı ve biraz daha yağışlıdır. Yıllık yağış genel ' +
+      'olarak mütevazıdır, batı doğuya göre biraz daha fazla yağış alır.',
+    hydrographyNoteTr:
+      "Tuna Nehri, Macaristan'ı yaklaşık 417 kilometre boyunca kuzeyden güneye kat eder ve " +
+      "Budapeşte'yi ikiye bölerek şehri tanımlayan başlıca coğrafi unsur haline gelir. " +
+      "Doğuda, Büyük Macar Ovası'nı boydan boya geçen Tisza, ülkenin ikinci büyük nehridir; " +
+      'kıvrımlı yatağı yüzünden tarih boyunca sık sık taşkınlara yol açmış, 19. yüzyılda ' +
+      'büyük ıslah çalışmalarıyla düzenlenmiştir. Tuna-ötesi bölgesindeki Balaton Gölü, ' +
+      "yaklaşık 600 kilometrekarelik yüzeyiyle Orta Avrupa'nın en büyük gölüdür; ortalama " +
+      'derinliği yalnızca 3 metre civarındadır, bu sığlık gölün yazın hızla ısınmasını ' +
+      'sağlar.',
   },
   {
     isoCode: 'MD',
@@ -1565,6 +1780,37 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'EUR',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "1 Ocak 1993'te Çekoslovakya'nın ayrılmasıyla kuruldu.",
+    introTr:
+      "Slovakya'nın kuzey ve orta kesimini Karpat sıradağının yükseltileri kaplar; güneyde " +
+      'ise Tuna Nehri boyunca alçak ve verimli bir ova uzanır. Denizle bağlantısı olmayan ' +
+      'ülke, Çekya, Polonya, Ukrayna, Macaristan ve Avusturya ile komşudur. Başkent ' +
+      'Bratislava, ülkenin en güneybatı ucunda, Tuna kıyısında ve Avusturya ile Macaristan ' +
+      'sınırlarına yakın bir noktada yer alır.',
+    landformNoteTr:
+      'Karpat sıradağı, Slovakya topraklarını kuzeyden bir yay gibi kat eder; bu yayın en ' +
+      "yüksek ve en sarp kesimi, kuzeydeki Yüksek Tatra'dır. Ülkenin en yüksek noktası, aynı " +
+      "zamanda tüm Karpat sisteminin de zirvesi olan 2.655 metrelik Gerlachovský štít'tir. " +
+      'Yüksek Tatra, buzul çağından kalma sivri doruklar, dik vadiler ve buzul gölleri ' +
+      '(pleso) ile gerçek bir alp topografyası sergiler — Štrbské Pleso bunların en ' +
+      'tanınmışıdır. Daha güneyde, Alçak Tatra ve maden yatakları bakımından tarihsel öneme ' +
+      'sahip Slovak Maden Dağları gibi daha alçak sıralar yer alır. Ülkenin güneyinde, Tuna ' +
+      'kıyısı boyunca uzanan Tuna Ovası ise düz, alüvyal ve tarıma son derece elverişli bir ' +
+      'arazidir.',
+    climateNoteTr:
+      'Kuzeydeki dağlık kesimde alp tipi bir iklim hakimdir; kışlar uzun ve karlıdır, Yüksek ' +
+      "Tatra'daki bazı vadilerde kar örtüsü yılın büyük bölümünde yerde kalır. Ülkenin geneli " +
+      'ılıman kara ikliminde yer alır — yazlar sıcak, kışlar soğuk geçer. Güneydeki Tuna ' +
+      "Ovası'nda, Panon Havzası'nın etkisiyle yazlar daha uzun ve daha sıcaktır, kış donları " +
+      'kuzeye göre daha kısa sürer. Yağış dağdan ovaya doğru azalır; dağlık kuzey, ülkenin en ' +
+      'yağışlı kesimidir.',
+    hydrographyNoteTr:
+      "Slovakya sınırları içinde tamamen kalan en uzun nehir, Yüksek ve Alçak Tatra'dan doğan " +
+      'iki kaynak kolunun (Beyaz Váh ve Kara Váh) birleşmesiyle oluşan, batıya doğru akan ve ' +
+      "yaklaşık 406 kilometre sonra Komárno yakınında Tuna'ya katılan Váh'dır. Tuna Nehri'nin " +
+      'kendisi, ülkenin güney sınırının bir bölümünü çizer ve Bratislava tam da bu nehrin ' +
+      "kıyısında kurulmuştur. Yüksek Tatra'daki buzul gölleri, boyut olarak küçük ama sayıca " +
+      'çoktur; bunlar hem yüzey suyu hem de dağ turizmi açısından bölgenin belirgin bir ' +
+      'özelliğidir.',
   },
   {
     isoCode: 'UA',
