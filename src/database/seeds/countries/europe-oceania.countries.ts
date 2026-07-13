@@ -597,6 +597,33 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'ALL',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "28 Kasım 1912'de Osmanlı'dan bağımsız oldu.",
+    introTr:
+      'Adriyatik ve İyon denizlerine kıyısı olan Arnavutluk, topraklarının büyük bölümü dağlık ' +
+      'bir Balkan ülkesidir. Kuzeyde Karadağ ve Kosova, doğuda Kuzey Makedonya, güneyde ' +
+      'Yunanistan ile komşudur.',
+    landformNoteTr:
+      'Ülkenin kuzeyini, sarp ve derin vadilerle yarılmış Arnavut Alpleri (Prokletije) kaplar. ' +
+      "Doğuda, Kuzey Makedonya sınırında yükselen 2.764 metrelik Korab, Arnavutluk'un en yüksek " +
+      "noktasıdır — Avrupa'da bir zirvenin aynı anda iki ülkenin de en yüksek noktası olduğu " +
+      "yalnızca iki örnekten biridir, diğeri Mont Blanc'tır." +
+      '\n\n' +
+      'Adriyatik kıyısı boyunca, kıyı çizgisinden içeri doğru yaklaşık 50 kilometreye kadar ' +
+      'uzanan alçak ve verimli bir kıyı ovası yer alır; bu ova ülkenin batı kesiminin tarım ' +
+      "alanlarını oluşturur. İyon kıyısı ise Adriyatik'in aksine sarp kayalıklar ve derin " +
+      'koylarla şekillenmiş dik bir kıyı karakteri taşır.',
+    climateNoteTr:
+      'Kıyı ovaları ve İyon kıyısı, sıcak-kurak yaz ile ılık-yağışlı kışın görüldüğü Akdeniz ' +
+      'iklimi altındadır. Doğuya, Arnavut Alpleri ve iç dağlık kesimlere doğru gidildikçe iklim ' +
+      'karasallaşır; kışlar daha soğuk ve kar yağışlı, yaz-kış sıcaklık farkı daha belirgin ' +
+      'hale gelir.',
+    hydrographyNoteTr:
+      "Ülkenin en uzun akarsuyu, kısmen Kosova'da doğup Arnavutluk topraklarından geçen " +
+      "yaklaşık 280 kilometrelik Drin Nehri'dir. Seman, Shkumbin ve Vjosë nehirleri, batı " +
+      'ovalarını sulayan diğer önemli akarsulardır.' +
+      '\n\n' +
+      "Arnavutluk'un üç büyük gölü sınır ötesi karakter taşır: Karadağ ile paylaşılan İşkodra " +
+      'Gölü, Kuzey Makedonya ile paylaşılan Ohrid Gölü ve yine Kuzey Makedonya ile paylaşılan ' +
+      'Prespa Gölü.',
   },
   {
     isoCode: 'AD',
@@ -643,6 +670,29 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'BAM',
     governmentFormTr: 'Federal parlamenter cumhuriyet',
     independenceNoteTr: "3 Mart 1992'de Yugoslavya'dan bağımsız oldu.",
+    introTr:
+      "Topraklarının üçte ikisi dağlık ve tepelik olan Bosna-Hersek, Adriyatik'e yalnızca Neum " +
+      'kasabası çevresindeki dar bir şeritten kıyısı bulunan, neredeyse denizsiz sayılabilecek ' +
+      'bir Balkan ülkesidir. Kuzeyde ve batıda Hırvatistan, doğuda Sırbistan, güneydoğuda ' +
+      'Karadağ ile komşudur.',
+    landformNoteTr:
+      "Ülke topraklarının büyük bölümünü Dinar Alpleri'nin dağlık ve karstik arazisi kaplar; " +
+      'Karadağ sınırındaki 2.386 metrelik Maglić, ülkenin en yüksek noktasıdır. Kuzeyde, Sava ' +
+      "Nehri vadisi boyunca, doğudan batıya uzanan tepelik ama verimli Pannon Ovası'nın bir " +
+      'kesimi yer alır.' +
+      '\n\n' +
+      "Ülkenin Adriyatik'e açılan tek noktası, Hersek bölgesindeki Neum kasabası çevresinde " +
+      'yaklaşık 20 kilometrelik bir kıyı şerididir; bu dar şerit, Hırvatistan yarımadalarıyla ' +
+      "çevrilidir ve Hırvatistan'ın kendi kıyı çizgisini ikiye böler.",
+    climateNoteTr:
+      'Ülkenin orta ve kuzey kesimleri, yükseklik nedeniyle soğuk kışlı ve serin yazlı bir ' +
+      "karasal-dağlık iklime sahiptir. Neum çevresindeki güney şeridinde ise Adriyatik'in " +
+      'etkisiyle çok daha ılıman bir Akdeniz iklimi görülür.',
+    hydrographyNoteTr:
+      'Ülkenin başlıca nehirleri Neretva, Sava, Vrbas, Bosna ve Sırbistan ile doğal sınır ' +
+      "oluşturan Drina'dır. Bunlar arasında yalnızca Neretva güneye, Adriyatik'e doğru akar — " +
+      'Hersek bölgesinin ana nehri olan Neretva, bu yönüyle ülkenin diğer büyük nehirlerinden ' +
+      'ayrılır.',
   },
   {
     isoCode: 'HR',
@@ -767,6 +817,32 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr:
       "3 Haziran 2006'da Sırbistan ile devlet birliğinden ayrılarak bağımsız oldu.",
+    introTr:
+      'Adı ("Kara Dağ") ülkenin karakterini özetleyen Karadağ, kuzeyde yüksek dağlarla başlayıp ' +
+      'güneyde dar bir Adriyatik kıyı şeridiyle sona eren, küçük ama dikey olarak çok katmanlı ' +
+      'bir ülkedir. Kuzeybatıda Bosna-Hersek, kuzeyde Sırbistan, doğuda Kosova, güneydoğuda ' +
+      'Arnavutluk, batıda Hırvatistan ile komşudur.',
+    landformNoteTr:
+      'Ülkenin kuzeyi, 2.000 metrenin üzerinde 37 zirve barındıran yüksek dağlarla kaplıdır; ' +
+      "bunların en tanınmışı, Durmitor kütlesinde yükselen 2.523 metrelik Bobotov Kuk'tur. Bu " +
+      'dağlık kesimin güneyinde, çukurlar ve düzlüklerle bezeli bir karst platosu uzanır; ' +
+      'platonun en alçak kesimini, Zeta ve aşağı Morača nehirlerinin oluşturduğu ' +
+      'Zeta-Bjelopavlići Ovası oluşturur. En güneyde ise birkaç yüz metreden birkaç kilometreye ' +
+      'kadar değişen genişlikte, yaklaşık 293 kilometre uzunluğunda dar bir Adriyatik kıyı ' +
+      'ovası yer alır.',
+    climateNoteTr:
+      "Güneydeki kıyı şeridi ve Zeta-Bjelopavlići Ovası'nda uzun, sıcak ve kurak yazların, " +
+      'ılıman ve yağışlı kışların görüldüğü Akdeniz iklimi hakimdir. Orta ve kuzey kesimlerde ' +
+      'Akdeniz etkisi hâlâ hissedilse de dağ iklimi karakteri öne çıkar. En kuzeydeki karasal ' +
+      'kesimde ise gün içi ve mevsimler arası sıcaklık farkları büyüktür. Yıllık yağış, ülkenin ' +
+      'en kuzeyinde yaklaşık 800 milimetreden en güneyinde 5.000 milimetreye kadar çıkabilir — ' +
+      "bu, Avrupa'nın en yağışlı bölgelerinden birini oluşturur.",
+    hydrographyNoteTr:
+      "Kuzeydeki Tara Nehri'nin oyduğu Tara Kanyonu, yer yer 1.300 metreyi bulan derinliğiyle " +
+      "Avrupa'nın en derin kanyonudur. Piva, Tara ve Lim nehirleri kuzeye doğru akarken, Morača " +
+      "ve Zeta nehirleri güneye yönelir ve başkent Podgoritsa yakınlarında İşkodra Gölü'ne " +
+      'dökülür. Arnavutluk ile paylaşılan İşkodra Gölü, mevsimlere göre 370 ile 530 ' +
+      "kilometrekare arasında değişen yüzölçümüyle Balkan Yarımadası'nın en büyük gölüdür.",
   },
   {
     isoCode: 'MK',
@@ -790,6 +866,33 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'MKD',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "8 Eylül 1991'de Yugoslavya'dan bağımsız oldu.",
+    introTr:
+      "Vardar Nehri'nin kestiği bir vadi üzerine kurulu Kuzey Makedonya, denize kıyısı " +
+      'bulunmayan, dağlarla kuşatılmış bir Orta Balkan ülkesidir. Kuzeyde Kosova ve Sırbistan, ' +
+      'doğuda Bulgaristan, güneyde Yunanistan, batıda Arnavutluk ile komşudur.',
+    landformNoteTr:
+      'Ülke topraklarını kuzeyden Kosova sınırındaki Şar Dağları, doğudan Osogovo, batıdan ise ' +
+      'Arnavutluk sınırındaki Korab kütlesi çevreler. Arnavutluk ile paylaşılan 2.764 metrelik ' +
+      "Korab, Kuzey Makedonya'nın da en yüksek noktasıdır." +
+      '\n\n' +
+      'Bu dağlık çerçevenin ortasında, ülkeyi kuzeyden güneye kat eden Vardar Vadisi uzanır; ' +
+      'vadi tabanı ve güneybatıdaki Pelagonya Ovası, ülkenin en verimli tarım alanlarını ' +
+      'oluşturur.',
+    climateNoteTr:
+      "Vardar Vadisi'nin ovalık alanlarında Akdeniz ve Karadeniz etkilerinin karıştığı, yazları " +
+      "subtropikal sıcaklıklara ulaşabilen (bazı yıllar 40°C'yi aşan) bir iklim görülür. " +
+      'Güneydeki dağlar sıcak hava kütlelerinin kuzeye ilerlemesini kısmen engellediği için bu ' +
+      'karasal-subtropikal karışım daha da belirginleşir. Çevredeki yüksek dağlık kesimlerde ' +
+      'ise soğuk kışlı, kısa yazlı bir dağ iklimi egemendir.',
+    hydrographyNoteTr:
+      "Ülkenin en uzun akarsuyu, topraklarının yaklaşık %80'ini drene eden ve Yunanistan " +
+      "üzerinden Ege Denizi'ne dökülen Vardar Nehri'dir; Kuzey Makedonya sınırları içindeki " +
+      'uzunluğu yaklaşık 312 kilometredir.' +
+      '\n\n' +
+      'Güneybatıdaki Ohrid Gölü, Arnavutluk ile paylaşılan, 288 metreyi bulan derinliğiyle ' +
+      "Balkanlar'ın en derin gölü ve dünyanın en eski göllerinden biridir; 200'ün üzerinde " +
+      'endemik türe ev sahipliği yapar. Yine Arnavutluk ile paylaşılan Prespa Gölü, bölgenin ' +
+      'diğer önemli sınır-ötesi su kütlesidir.',
   },
   {
     isoCode: 'PT',
@@ -861,6 +964,29 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr:
       "5 Haziran 2006'da bugünkü Sırbistan Cumhuriyeti kuruldu (Karadağ'ın ayrılmasıyla); Osmanlı'dan tanınma 1878.",
+    introTr:
+      "Tuna ve Sava nehirlerinin kesiştiği bir konumda kurulu Sırbistan, Balkan Yarımadası'nın " +
+      'iç kesiminde denize kıyısı olmayan bir ülkedir. Kuzeyde Macaristan, doğuda Romanya ve ' +
+      'Bulgaristan, güneyde Kuzey Makedonya, güneybatıda Karadağ, batıda Bosna-Hersek ve ' +
+      'Hırvatistan ile komşudur.',
+    landformNoteTr:
+      "Ülkenin kuzeyini oluşturan Voyvodina, Pannon Ovası'nın bir parçası olan alçak ve verimli " +
+      'bir düzlüktür; rakımı genellikle 60-100 metre arasında kalır. Orta ve güney kesimlere ' +
+      'inildikçe arazi tepelik ve dağlık bir karaktere bürünür — Dinar, Karpat ve Rodop ' +
+      'sıradağlarının uzantıları, ülkenin güneyinde birbirine yaklaşır. Bulgaristan sınırındaki ' +
+      "Stara Planina üzerinde yükselen 2.169 metrelik Midžor, Sırbistan'ın tartışmasız " +
+      'toprakları içindeki en yüksek noktasıdır.',
+    climateNoteTr:
+      "Voyvodina'nın düzlüklerinde ölçülü-karasal bir iklim görülür; Temmuz ortalaması yaklaşık " +
+      '22°C, Ocak ortalaması ise eksi 1°C civarındadır. Güneye ve dağlık kesimlere doğru ' +
+      'gidildikçe yükseklik etkisiyle kışlar daha soğuk ve yağışlı, yazlar ise daha serin ' +
+      'geçer.',
+    hydrographyNoteTr:
+      'Tuna Nehri, Hırvatistan ile kuzeybatı sınırının ve Romanya ile güneydoğu sınırının bir ' +
+      'bölümünü çizerek Sırbistan topraklarından yaklaşık 588 kilometre boyunca geçer. Batıdan ' +
+      'gelen Sava, kuzeyden gelen Tisa ve güneyden gelen, Bosna-Hersek ile doğal sınır ' +
+      "oluşturan Drina, Tuna'nın başlıca kollarıdır. Bu nehirler arasında yalnızca Morava, " +
+      'kaynağından ağzına kadar tamamen Sırbistan toprakları içinde akar.',
   },
   {
     isoCode: 'SI',
@@ -1028,6 +1154,31 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'MDL',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "27 Ağustos 1991'de Sovyetler Birliği'nden bağımsız oldu.",
+    introTr:
+      "Doğu Avrupa'nın iç kesiminde, Prut ve Dinyester nehirleri arasında kalan Moldova, kara " +
+      'ile çevrili bir ülke olmasına karşın güneydoğu ucundaki Giurgiuleşti kasabası çevresinde ' +
+      "Tuna Nehri'ne yalnızca birkaç yüz metrelik dar bir kıyısı bulunur. Kuzeyde, doğuda ve " +
+      'güneyde Ukrayna, batıda Romanya ile komşudur.',
+    landformNoteTr:
+      "Moldova'nın arazisi büyük ölçüde tepelik bir platodan oluşur; ülkenin hiçbir noktası 430 " +
+      "metre rakımı aşmaz, en yüksek nokta 429 metrelik Bălăneşti Tepesi'dir. Kuzeyde, ortalama " +
+      '150-200 metre rakımlı düzlük bir alan olan Bălţi Bozkırı yer alır. Ülkenin orta ' +
+      'kesimini, "Codri" (ormanlar) adıyla anılan ormanlık Merkezi Moldova Platosu kaplar; ' +
+      'kuzeydoğuda Dinyester Tepeleri, güneyde ise daha alçak ve düz bir arazi uzanır.',
+    climateNoteTr:
+      "Moldova, Karadeniz'in yakınlığıyla yumuşayan, ölçülü-karasal bir iklime sahiptir. Yazlar " +
+      "sıcak ve uzun geçer, ortalama sıcaklık yaklaşık 20°C'dir; kışlar nispeten ılıman ve " +
+      'kurak geçer, Ocak ortalaması eksi 4°C civarındadır. Ülkenin doğal bitki örtüsü, çayır ' +
+      'alanlarla orman parçalarının iç içe geçtiği orman-bozkır karakterindedir — bu geçiş ' +
+      'kuşağı en belirgin biçimde merkezdeki Codri bölgesinde görülür.',
+    hydrographyNoteTr:
+      'Ülkenin ana akarsuyu olan Dinyester (Nistru), Moldova topraklarının neredeyse tamamı ' +
+      'boyunca gemilerle ulaşılabilir niteliktedir ve ılık geçen kışlarda donmaz. Prut Nehri, ' +
+      "Romanya ile olan batı sınırının tamamını çizer. Ülkenin güneydoğu ucunda, 1990'ların " +
+      "sonunda Ukrayna ile yapılan bir sınır düzenlemesiyle Moldova'ya geçen dar bir şerit, " +
+      "Giurgiuleşti kasabası çevresinde Tuna Nehri'ne birkaç yüz metrelik bir kıyı kazandırdı — " +
+      'kara ile çevrili ülkeye Tuna-Karadeniz hattı üzerinden tek doğrudan açık deniz ' +
+      'bağlantısını sağlayan Giurgiuleşti Limanı, bu dar şerit üzerinde kuruludur.',
   },
   {
     isoCode: 'PL',
@@ -1075,6 +1226,33 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Yarı-başkanlık parlamenter cumhuriyeti',
     independenceNoteTr:
       "1877'de Osmanlı'dan bağımsızlığını ilan etti, 1878 Berlin Antlaşması'yla tanındı.",
+    introTr:
+      "Karpat Dağları'nın bir yay gibi kestiği Romanya, bu yayın çevrelediği platolar, ovalar " +
+      've tepelerden oluşan bir Balkan-Karadeniz ülkesidir. Kuzeybatıda Macaristan, kuzeydoğuda ' +
+      'Ukrayna, doğuda Moldova, güneyde Bulgaristan, batıda Sırbistan ile komşudur.',
+    landformNoteTr:
+      'Karpat Dağları, ülkeyi kuzeyden güneybatıya doğru üç kola ayrılarak kat eder: Doğu ' +
+      'Karpatlar, Transilvanya Alpleri olarak da bilinen Güney Karpatlar ve Batı Karpatlar. ' +
+      "Güney Karpatlar'ın Făgăraş kesiminde yükselen 2.544 metrelik Moldoveanu Zirvesi, ülkenin " +
+      'en yüksek noktasıdır.' +
+      '\n\n' +
+      'Karpat yayının içinde Transilvanya Platosu, dışında ise kuzeydoğuda Moldova Platosu ve ' +
+      "güneyde Eflak Ovası uzanır; batıda ülke, Pannon Ovası'nın bir kesimini paylaşır. Ülke " +
+      'topraklarının yaklaşık üçte biri dağlık, üçte biri tepelik-platoluk, üçte biri ise ' +
+      'düzlüktür.',
+    climateNoteTr:
+      'Romanya, ılıman-karasal bir iklime sahiptir; yazlar sıcak, kışlar nispeten ılımlı geçer. ' +
+      'Karpatlar, Atlas Okyanusu kaynaklı nemli hava kütlelerinin etkisini batı ve merkez ' +
+      'kesimlerle sınırlayarak buralarda daha ılıman kışlar ve daha bol yağış sağlar. Aynı ' +
+      "sıradağ, doğudaki Rus Ovası'ndan gelen karasal etkiyi de büyük ölçüde güney ve güneydoğu " +
+      'kesimlere yönlendirir; bu bölgelerde kışlar daha sert, yağış ise daha azdır.',
+    hydrographyNoteTr:
+      "Romanya'nın hemen hemen tüm akarsuları Karpat Dağları'ndan doğar. Ülkenin güney ve " +
+      'güneydoğu sınırının büyük bölümünü çizen Tuna Nehri, yaklaşık 3.000 kilometrelik ' +
+      "yolculuğunun sonunda Karadeniz'e dökülmeden önce üç kola ayrılarak Tuna Deltası'nı " +
+      'oluşturur; sazlık adacıklar, bataklıklar ve kumullardan oluşan bu delta, Volga ' +
+      "Deltası'ndan sonra Avrupa'nın en büyük ikinci nehir deltasıdır ve kıtanın en iyi " +
+      'korunmuş deltası kabul edilir.',
   },
   {
     isoCode: 'RU',
@@ -1201,6 +1379,38 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Yarı-başkanlık parlamenter cumhuriyeti',
     independenceNoteTr:
       "24 Ağustos 1991'de Sovyetler Birliği'nden bağımsızlığını ilan etti (1 Aralık 1991 referandumuyla teyit).",
+    introTr:
+      "Rusya'dan sonra Avrupa'nın en büyük ikinci ülkesi olan Ukrayna — kıtada tamamen Avrupa " +
+      "sınırları içinde kalan ülkeler arasında ise en büyüğüdür — Karadeniz ve Azak Denizi'ne " +
+      'kıyısı olan geniş bir bozkır ülkesidir. Kuzeyde Belarus, kuzeydoğu ve doğuda Rusya, ' +
+      'güneybatıda Romanya ve Moldova, batıda Polonya, Slovakya ve Macaristan ile komşudur.',
+    landformNoteTr:
+      'Ukrayna topraklarının büyük bölümünü verimli bozkırlar ve alçak platolar kaplar; ülkenin ' +
+      "ana ekseni boyunca akan Dinyeper Nehri'nin çevresindeki düzlükler bu arazinin en geniş " +
+      "parçasıdır. Ülkenin batı ucunda, Karpat Dağları'nın bir kolu yükselir; bu kesimde yer " +
+      'alan 2.061 metrelik Hoverla, ülkenin en yüksek noktasıdır, yamaçları kayın ve ladin ' +
+      'ormanları ile bunların üzerindeki "polonina" adı verilen sub-alpin çayırlarla kaplıdır.' +
+      '\n\n' +
+      "Güneyde, Karadeniz'e uzanan Kırım Yarımadası'nın kuzey ve orta kesimini (yaklaşık dörtte " +
+      'üçünü) kurak bir bozkır düzlüğü oluşturur; yarımadanın güney kıyısı boyunca ise Kırım ' +
+      "Dağları'nın üç paralel sırası uzanır, en yüksek noktası 1.545 metrelik Roman-Koş'tur.",
+    climateNoteTr:
+      'Ukrayna genel olarak ılıman-karasal bir iklime sahiptir; yıllık ortalama sıcaklık ' +
+      "kuzeyde 5,5-7°C'den güneyde 11-13°C'ye kadar yükselir. Güney kıyı kesimleri (Kırım ve " +
+      'Karadeniz kıyısı) yarı-kurak ve ılıman-nemli, farklı bir iklim kuşağındadır. Yağış ' +
+      'dağılımı da dengesizdir: batıda, özellikle Karpat Dağları çevresinde yıllık ortalama ' +
+      '1.200 milimetreye ulaşırken, Kırım ve Karadeniz kıyı şeridinde bu değer yaklaşık 400 ' +
+      'milimetreye kadar düşer.',
+    hydrographyNoteTr:
+      'Ülkenin ana ekseni olan Dinyeper (Dnipro) Nehri, yaklaşık 2.200 kilometrelik uzunluğuyla ' +
+      "Avrupa'nın Volga, Tuna ve Ural'dan sonra dördüncü en uzun nehridir ve güneye, " +
+      "Karadeniz'e doğru akar. Batıda, Moldova sınırı boyunca akan Dinyester (Nistru), Desna, " +
+      'Güney Bug ve Siverskyi Donets, ülkenin diğer büyük akarsularıdır; güneybatı ucunda Tuna ' +
+      "Nehri de kısa bir kesimde Ukrayna topraklarından geçerek Karadeniz'e ulaşır." +
+      '\n\n' +
+      "Ülkenin güneydoğusundaki Azak Denizi, Kerç Boğazı üzerinden Karadeniz'e bağlanır ve " +
+      'ortalama 7 metre, en derin noktasında ise 14 metre derinliğiyle dünyanın en sığ ' +
+      'denizidir.',
   },
   {
     isoCode: 'AU',
