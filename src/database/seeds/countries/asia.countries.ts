@@ -106,6 +106,43 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'JPY',
     governmentFormTr: 'Parlamenter anayasal monarşi',
     independenceNoteTr: null,
+    introTr:
+      'Kuzeydoğu Asya kıyısı boyunca kuzeyden güneye yaklaşık 3.000 kilometre uzanan Japonya, ' +
+      'dört ana ada — Hokkaido, Honshu, Şikoku ve Kyushu — ile bunlara bağlı binlerce küçük ' +
+      "adadan oluşan bir takımadadır; kara sınırı yoktur. Batıda Japon Denizi'ne, doğuda " +
+      "Büyük Okyanus'a kıyısı vardır. Bu geniş enlem açıklığı, kuzeyde subarktik Hokkaido'dan " +
+      "güneyde subtropikal Ryukyu Adaları'na kadar uzanan gerçek bir iklim çeşitliliğine yol " +
+      'açar.',
+    landformNoteTr:
+      "Japonya topraklarının yaklaşık %73'ü dağlıktır. Honshu'nun ortasında yükselen Hida, " +
+      "Kiso ve Akaishi sıradağları birlikte Japon Alpleri'ni oluşturur; bu üçlünün en yüksek " +
+      "noktası, Akaishi sıradağına ait 3.193 metrelik Kita Dağı'dır. Ülkenin en yüksek noktası " +
+      "ise Şizuoka ve Yamanaşi illeri sınırında yükselen 3.776 metrelik Fuji Dağı'dır " +
+      "(Fujisan); 1707'den bu yana patlamamış olsa da jeologlar onu hâlâ aktif bir " +
+      'stratovolkan olarak sınıflandırır.' +
+      '\n\n' +
+      'Japon Takımadaları, Pasifik, Filipin Denizi, Avrasya ve Kuzey Amerika levhalarının ' +
+      'kesiştiği noktada yer alır; bu levha hareketleri ülkeyi dünyanın en depremsel ' +
+      "bölgelerinden birine dönüştürür, yılda 1.500'e yakın deprem kaydedilir. Aynı levha " +
+      'sınırları, dünyadaki aktif volkanların yaklaşık onda birini Japonya topraklarında ' +
+      'toplar.',
+    climateNoteTr:
+      'Hokkaido, uzun ve çok soğuk kışlarla ılık yazların görüldüğü nemli karasal bir iklime ' +
+      'sahiptir; kışın Sibirya kaynaklı soğuk rüzgârlar Japon Denizi üzerinden nem toplayarak ' +
+      "Sapporo gibi kentlere yoğun kar yağışı taşır. Honshu, Şikoku ve Kyushu'nun büyük " +
+      'bölümünde nemli subtropikal iklim egemendir; yazlar sıcak ve nemlidir, Haziran-Ekim ' +
+      'arasında tayfunlar kıyı kesimlerini etkiler. Bu adaların kendi içinde bile Japon Denizi ' +
+      'kıyısı ile Büyük Okyanus kıyısı farklı bir kış yaşar: Japon Denizi tarafı kalın kar ' +
+      'örtüsüyle kaplanırken, Büyük Okyanus tarafı görece kuru ve güneşli geçer. Güneyde, ' +
+      "Ryukyu Adaları'nda kışlar ılık geçer; subtropikal iklimde nem ve sıcaklık yıl boyunca " +
+      'yüksek kalır.',
+    hydrographyNoteTr:
+      "Japonya'nın dağlık topografyası nehirlerin kısa ve dik akmasına yol açar; ülkenin en " +
+      "uzun nehri bile 367 kilometrelik Şinano Nehri'dir — Japon Alpleri'nde doğar, Nagano'daki " +
+      "üst akımında Chikuma adıyla anılır ve Niigata yakınlarında Japon Denizi'ne dökülür. " +
+      "Ülkenin en büyük gölü, Şiga ilinde, Kyoto'nun kuzeydoğusunda yer alan Biwa Gölü'dür; " +
+      '670 kilometrekarelik yüzölçümüyle ve dört milyon yıldan uzun jeolojik geçmişiyle ' +
+      'dünyanın en eski göllerinden sayılır.',
   },
   {
     isoCode: 'MN',
@@ -130,6 +167,34 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr:
       "1921'de Çin'den fiili bağımsızlık kazandı; 1945 referandumunun ardından uluslararası tanınma geldi.",
+    introTr:
+      'Kuzeyde Rusya, güneyde Çin ile komşu olan Moğolistan, denize kıyısı olmayan bir iç ' +
+      'Asya ülkesidir; ortalama 1.580 metre yükseklikteki geniş bir plato üzerinde yer alır. ' +
+      'Toprakların büyük bölümünü step (bozkır) örtüsü kaplar; batıda yüksek dağlar, güneyde ' +
+      'ise Gobi Çölü ülkenin manzarasını belirler.',
+    landformNoteTr:
+      'Ülkenin batısında, kuzeybatı-güneydoğu doğrultusunda uzanan Altay Dağları yükselir; ' +
+      'bu sıradağın Moğolistan sınırları içindeki en yüksek noktası 4.374 metrelik Höyten ' +
+      "Zirvesi'dir (Khüiten). Altay Tavan Bogd bölgesi, ülkedeki tek güncel buzullaşmanın " +
+      'görüldüğü kesimdir. Daha doğuda, orta kesimde yükselen Hangay Dağları geniş bir step ' +
+      'kuşağıyla çevrilidir. Güneyde, ülke yüzölçümünün yaklaşık üçte birini kaplayan Gobi ' +
+      'Çölü uzanır. Gobi, kum tepelerinden çok kayalık ve sarp arazi ile kaplıdır; kum ' +
+      'tepeleri yalnızca güney kesimlerinde belirginleşir.',
+    climateNoteTr:
+      "Uzun ve çok soğuk kışlar, kısa yazlarla birlikte Moğolistan'a aşırı karasal bir iklim " +
+      'kazandırır; yıllık yağışın büyük bölümü bu kısa yaz döneminde düşer. Başkent Ulan ' +
+      'Batur, yıllık ortalama sıcaklığı eksi 1,3 santigrat derece ile dünyanın en soğuk ' +
+      'başkenti kabul edilir; kış geceleri sıklıkla eksi 35 santigrat derecenin altına iner. ' +
+      "Yağış kuzeyde yılda 200-350 milimetreye ulaşırken güneydeki Gobi Çölü'nde 100-200 " +
+      'milimetreye kadar düşer. Şiddetli kış koşullarının hayvancılığı vurduğu bu duruma ' +
+      'Moğolca "zud" denir ve ülkenin kırsal ekonomisini düzenli aralıklarla sarsar.',
+    hydrographyNoteTr:
+      "Moğolistan sınırları içinde tamamen akan en uzun nehir, Hangay Dağları'nda doğan ve " +
+      "1.124 kilometre sonra Selenge Nehri'ne katılan Orkun Nehri'dir. Selenge, Orkun'un da " +
+      "içinde bulunduğu kolları toplayarak kuzeye, Rusya topraklarındaki Baykal Gölü'ne akar. " +
+      'Ülkenin en büyük tatlı su gölü, kuzeyde Rusya sınırına yakın yer alan Hövsgöl ' +
+      "Gölü'dür; 262 metreye varan derinliğiyle Moğolistan'ın tatlı su rezervinin yaklaşık " +
+      "%70'ini tek başına barındırır.",
   },
   {
     isoCode: 'KR',
@@ -154,6 +219,30 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr:
       "Japon işgalinden kurtuluş 15 Ağustos 1945'te gerçekleşti (resmî olarak kutlanır); Kore Cumhuriyeti 15 Ağustos 1948'de ilan edildi.",
+    introTr:
+      "Kore Yarımadası'nın güney yarısını kaplayan Güney Kore'nin, batıda Sarı Deniz'e, doğuda " +
+      "Japon Denizi'ne, güneyde ise Japonya'yı ayıran Kore Boğazı'na kıyısı vardır. Tek kara " +
+      'sınırı, kuzeyde Kuzey Kore ile paylaştığı hattır. Dağlar ve tepeler, ülke topraklarının ' +
+      'yaklaşık dörtte üçünü oluşturur.',
+    landformNoteTr:
+      'Ülkenin doğu kıyısı boyunca, yaklaşık 500 kilometre uzunluğunda bir sırt oluşturan ' +
+      "Taebaek Dağları uzanır; bu sıradağın doğu yamacı Japon Denizi'ne dik bir fay hattıyla " +
+      'iner, batı yamacı ise çok daha kademelidir. Seorak Dağı (1.708 m) bu sıradağın en ' +
+      'tanınmış zirvelerindendir. Ülkenin en yüksek noktası ise anakaradan ayrı, Kore ' +
+      "Boğazı'ndaki Jeju Adası'nı oluşturan bir kalkan volkanı olan 1.950 metrelik Halla " +
+      "Dağı'dır (Hallasan). Batı ve güney kıyılarında, nüfusun ve tarımın yoğunlaştığı geniş " +
+      've alçak ovalar yer alır.',
+    climateNoteTr:
+      "Seul'ün de içinde bulunduğu orta ve kuzey kesimde, kışın kuru ve soğuk, yazın sıcak ve " +
+      "nemli geçtiği nemli karasal iklim görülür. Güney kıyısı ve Jeju Adası'nda ise kışları " +
+      'daha ılıman, nemli subtropikal iklim egemendir. Ülke genelinde dört mevsim belirgindir; ' +
+      'Haziran sonu ile Temmuz sonu arasında Doğu Asya musonunun getirdiği yoğun yağışlı ' +
+      'döneme "jangma" denir, yaz sonuna doğru ise tayfunlar etkili olur.',
+    hydrographyNoteTr:
+      "Güney Kore'nin en uzun nehri, Taebaek Dağları'ndan doğup Kore Boğazı'na dökülen 506 " +
+      "kilometrelik Nakdong Nehri'dir; Daegu ve Busan kentlerinden geçer. Kollarından biri " +
+      "Taebaek Dağları'na yakın bir kaynaktan doğan 494 kilometrelik Han Nehri ise başkent " +
+      "Seul'ün içinden akarak Sarı Deniz'e ulaşır.",
   },
   {
     isoCode: 'KP',
@@ -177,6 +266,38 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'KPW',
     governmentFormTr: 'Tek parti sosyalist cumhuriyet',
     independenceNoteTr: "9 Eylül 1948'de kuruldu (Japon işgalinden kurtuluş 1945).",
+    introTr:
+      "Kore Yarımadası'nın kuzey yarısını kaplayan Kuzey Kore, kuzeybatıda Yalu Nehri boyunca " +
+      "Çin'e, kuzeydoğuda kısa bir hatta Tuman Nehri boyunca Rusya'ya komşudur; güneyde ise " +
+      'Güney Kore ile 250 kilometre uzunluğunda, yaklaşık 4 kilometre genişliğindeki ' +
+      "askerden arındırılmış bölge (DMZ) ile ayrılır — 1953 Kore Ateşkes Anlaşması'yla " +
+      "kurulan bu hat, 38. paralele açılı biçimde kesişir. Batıda Kore Körfezi'ne (Sarı " +
+      "Deniz'in bir kolu), doğuda Japon Denizi'ne kıyısı vardır. Yüzölçümünün yaklaşık %80'i " +
+      'dağlık ve tepeliktir.',
+    landformNoteTr:
+      'Ülkenin en yüksek noktası, Çin sınırında yükselen aktif bir stratovolkan olan 2.744 ' +
+      "metrelik Paektu Dağı'dır (Baekdu); zirvesindeki kalderada, Songhua, Tuman ve Yalu " +
+      "nehirlerinin kaynağını oluşturan Cennet Gölü yer alır. Paektu'nun güneyinde, Kore'nin " +
+      'en geniş yaylası olan ve "Kore\'nin çatısı" diye anılan Kaema Platosu uzanır; 700-2.000 ' +
+      'metre yükseklikte, yaklaşık 40.000 kilometrekarelik bir alanı kaplar. Platonun batısını, ' +
+      'ülkenin ortasından kuzey-güney doğrultusunda uzanan ve yarımadanın doğu ve batı ' +
+      'yamaçlarını birbirinden ayıran Rangnim Dağları (güney lehçesinde Nangnim olarak da ' +
+      'telaffuz edilir) çevreler; doğusunu ise Hamgyong Dağları sınırlar. Kıyı ovaları ' +
+      "dardır; en geniş düzlükler batıda, Sarı Deniz'e bakan kesimdedir.",
+    climateNoteTr:
+      "Kuzey Kore'de yazları ılık, kışları soğuk ve kurak geçen nemli karasal iklim egemendir. " +
+      'Sibirya kaynaklı kuzey ve kuzeybatı rüzgârları kışın uzun süreli soğuk dalgaları ' +
+      'getirir; kış sıcaklıkları güneyde yaklaşık eksi 7, Kaema Platosu gibi yüksek kuzey ' +
+      'kesimlerinde ise eksi 23 santigrat dereceye kadar düşebilir. Yaz yağışlarının büyük ' +
+      'bölümü Haziran-Eylül arasında, Doğu Asya musonuyla birlikte gelir.',
+    hydrographyNoteTr:
+      "Çin sınırını çizen Yalu Nehri (Amnok), Paektu Dağı'nda doğar ve yaklaşık 790 kilometre " +
+      "sonra Kore Körfezi'ne dökülür; kışın dört ay boyunca donarak gemi trafiğine kapanır. " +
+      'Rusya sınırının bir bölümünü oluşturan 521 kilometrelik Tuman Nehri de kaynağını ' +
+      "Paektu'nun eteklerinden alır ve Japon Denizi'ne ulaşır. Ülke sınırları içinde tamamen " +
+      "akan en önemli nehir, Rangnim Dağları'nda doğup başkent Pyongyang'ın içinden geçerek " +
+      "Nampo'da Kore Körfezi'ne dökülen 439 kilometrelik Taedong Nehri'dir; derinliği " +
+      'sayesinde iç kesimlere kadar gemi taşımacılığına elverişlidir.',
   },
   {
     isoCode: 'KZ',
