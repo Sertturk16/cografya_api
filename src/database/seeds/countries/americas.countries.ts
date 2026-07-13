@@ -198,6 +198,36 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr:
       "15 Eylül 1821'de İspanya'dan bağımsız oldu (ortak Orta Amerika bildirgesiyle).",
+    introTr:
+      "Kosta Rika, kuzeyde Nikaragua, güneydoğuda Panama ile komşu, batıda Büyük Okyanus'a, " +
+      "doğuda ise Karayip Denizi'ne kıyısı olan dar bir Orta Amerika ülkesidir. Ülkenin " +
+      'ortasından geçen volkanik sıradağlar zinciri, kıyı ovalarını birbirinden ayırır ve ' +
+      "nüfusun büyük bölümünün yaşadığı Orta Vadi'yi (Valle Central) çevreler. 200'den " +
+      'fazla sönmüş ve etkin volkan barındıran ülke, dünyanın volkanik açıdan en yoğun ' +
+      'bölgelerinden biridir.',
+    landformNoteTr:
+      'Kuzeyden güneye sırasıyla Guanacaste, Tilarán, Orta (Central) ve Talamanca ' +
+      'sıradağları ülkenin ana dağ dizisini oluşturur; ilk üçü büyük ölçüde volkanik ' +
+      'kökenlidir ve Poás, Irazú, Arenal ile Turrialba gibi hâlâ etkin yanardağları ' +
+      'barındırır. Ülkenin en yüksek noktası, volkanik olmayan Talamanca sıradağlarındaki ' +
+      "3.821 metrelik Cerro Chirripó'dur; açık havalarda zirveden aynı anda hem Büyük " +
+      'Okyanus hem de Karayip Denizi görülebilir. Kıyı ovaları dardır — Karayip kıyısında ' +
+      'düz ve bataklık, Pasifik kıyısında ise Nicoya ve Osa gibi yarımadalarla girintili ' +
+      'çıkıntılıdır.',
+    climateNoteTr:
+      'Karayip kıyısında belirgin bir kurak mevsim yoktur; yağış yıl boyunca düşer ve ' +
+      'yıllık ortalama 3.500 milimetreyi bulur. Pasifik kıyısında ise durum tam tersidir — ' +
+      'kuzeydeki Guanacaste bölgesinde Kasım-Mayıs arasında altı ay süren belirgin bir ' +
+      'kurak mevsim yaşanır ve bölge ülkenin en az yağış alan kesimidir; güneye inildikçe ' +
+      "yağış artar. Orta Vadi'deki yükseklik sıcaklığı dengeler; başkent San José'de yıl " +
+      'boyunca sıcaklık dar bir aralıkta, genellikle 15-26 santigrat derece arasında kalır.',
+    hydrographyNoteTr:
+      'Ülkenin dar yapısı, nehirlerin kısa ve dik eğimli olmasına yol açar; dağlardan ' +
+      'kıyıya inen çok sayıda bağımsız akarsu sistemi bulunur, tek bir baskın ana nehir ' +
+      'yoktur. Karayip yamacındaki Reventazón ve Pacuare nehirleri, hızlı akışlarıyla ' +
+      'rafting güzergâhı olarak bilinir. Kuzeyde, Nikaragua sınırı boyunca akan San Juan ' +
+      "Nehri, Nikaragua Gölü'nün fazla suyunu Karayip Denizi'ne taşır ve sınırın büyük " +
+      'bölümünü oluşturur.',
   },
   {
     isoCode: 'SV',
@@ -246,6 +276,39 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr:
       "15 Eylül 1821'de İspanya'dan bağımsız oldu (ortak Orta Amerika bildirgesiyle).",
+    introTr:
+      'Guatemala, kuzey ve batıda Meksika, doğuda Belize ve Honduras, güneydoğuda El ' +
+      "Salvador ile komşudur; güneybatıda Büyük Okyanus'a, doğuda ise kısa bir Karayip " +
+      'Denizi kıyısına sahiptir. Ülke topraklarını doğu-batı doğrultusunda kat eden ' +
+      "volkanik dağ kuşağı, Guatemala'yı üç farklı bölgeye ayırır: ortadaki yüksek dağlık " +
+      'bölge (Highlands), güneyde dar bir Pasifik kıyı ovası ve kuzeyde geniş bir kireçtaşı ' +
+      "platosu olan Petén alçak ovaları. Orta Amerika'nın nüfusça en kalabalık ülkesi olan " +
+      "Guatemala'da halkın büyük bölümü dağlık bölgede yaşar.",
+    landformNoteTr:
+      "Guatemala'nın dağlık bölgesinde 30'dan fazla volkanik zirve sıralanır; bunların en " +
+      "yükseği, Orta Amerika'nın da en yüksek noktası olan 4.220 metrelik Tajumulco " +
+      "Yanardağı'dır. Aynı volkanik kuşakta, yaklaşık 84.000 yıl önce büyük bir patlamayla " +
+      'oluşan kalderanın içini dolduran Atitlán Gölü yer alır; 340 metreyi bulan ' +
+      "derinliğiyle Orta Amerika'nın en derin gölüdür ve kenarında Atitlán, Tolimán ve San " +
+      "Pedro yanardağları yükselir. Kuzeyde, Meksika'daki Yucatán Platosu'nun uzantısı olan " +
+      'Petén bölgesi bunların tam tersidir: yüksekliği nadiren 200 metreyi aşan, düz ve ' +
+      'alçak bir kireçtaşı arazidir; yüzey suyu azdır, drenaj büyük ölçüde yeraltından ' +
+      'gerçekleşir.',
+    climateNoteTr:
+      'Pasifik kıyı ovası ve kuzeydeki Petén alçak ovaları yıl boyunca sıcak ve nemli bir ' +
+      'iklime sahiptir. Orta yükseklikteki dağlık bölge, "ebedi bahar" olarak tanımlanan ' +
+      "ılıman bir iklimle bilinir — başkent Guatemala Şehri'nde yıllık sıcaklık farkı " +
+      'azdır. Kuzeybatıdaki Cuchumatanes sıradağlarının yüksek kesimlerinde ise kışın ' +
+      'donlar ve hatta kar görülebilir. Ülkenin doğu uçlarında, Karayip nemi dağlarla ' +
+      'kesildiği için daha kurak ve sıcak bir iklim hakimdir.',
+    hydrographyNoteTr:
+      'Batı dağlarından doğan Motagua, doğuya akarak yaklaşık 480 kilometre sonra Karayip ' +
+      "Denizi'ne ulaşır ve ülkenin en uzun nehridir; aşağı yatağında Honduras sınırının bir " +
+      "bölümünü de çizer. Kuzeydoğuda, Polochic Nehri'nin beslediği Izabal Gölü ülkenin en " +
+      "büyük gölüdür ve dar Río Dulce boğazı aracılığıyla Karayip Denizi'ne bağlanır. " +
+      "Kuzeyde, Petén'in düz kireçtaşı arazisinden geçen Usumacinta Nehri, aşağı yatağında " +
+      'Meksika sınırının önemli bir bölümünü oluşturur ve bölgenin en büyük akarsu ' +
+      'sistemlerinden biridir.',
   },
   {
     isoCode: 'HN',
@@ -318,6 +381,40 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr:
       "Kolombiya'dan 3 Kasım 1903'te ayrıldı (daha önce 28 Kasım 1821'de İspanya'dan bağımsızlık kazanıp Gran Kolombiya'ya katılmıştı).",
+    introTr:
+      'Panama, Kuzey ve Güney Amerika kıtalarını birbirine bağlayan dar bir kara köprüsü ' +
+      '(kıstak) üzerinde yer alır; batıda Kosta Rika, doğuda Kolombiya ile komşudur. ' +
+      "Ülkenin ortasından geçen Panama Kanalı, Atlas ve Büyük Okyanus'u birbirine bağlar ve " +
+      'dünya deniz ticaretinin en önemli geçitlerinden biridir. Doğudaki Darién bölgesi, ' +
+      'yol ve köprü bulunmayan yoğun bir yağmur ormanıyla kaplıdır — Amerika kıtalarını ' +
+      "uçtan uca bağlayan Pan-Amerikan Otoyolu'nun tek kesintiye uğradığı yer burasıdır.",
+    landformNoteTr:
+      'Kosta Rika sınırından başlayıp ülkenin ortasına kadar uzanan Cordillera Central, ' +
+      "Orta Amerika'nın ana dağ sisteminin güney ucudur ve Panama'nın tek büyük " +
+      'sıradağıdır. Ülkenin en yüksek noktası, bu sıradağ üzerindeki 3.474 metrelik Volcán ' +
+      "Barú'dur; son patlamasının üzerinden yüzyıllar geçmiş olsa da jeologlar onu hâlâ " +
+      'etkin bir stratovolkan olarak sınıflandırıyor. Doğuda, Kolombiya sınırına kadar ' +
+      'uzanan Darién bölgesi alçak, sarp ve yoğun ormanlıktır; bu coğrafya bölgeyi kara ' +
+      "yoluyla neredeyse geçilmez kılar. Ülke boyunca 500'e yakın nehir, dar kıstağı kuzey " +
+      've güney kıyılarına bağlar.',
+    climateNoteTr:
+      "Panama'da yıl boyunca sıcaklık farkı azdır; iklimi asıl belirleyen unsur yağış " +
+      'rejimidir. Nisan-Aralık arasındaki yağışlı mevsimde neredeyse tüm yıllık yağış ' +
+      'düşer; Ocak-Nisan arasındaki kısa kurak dönem ise özellikle Pasifik kıyısında ' +
+      'belirgindir. Karayip kıyısında yağış daha bol ve daha az mevsimsel dağılımlıdır, ' +
+      "kurak dönem burada zayıf biçimde hissedilir. Panama Kanalı'nın işleyişi doğrudan bu " +
+      'yağış rejimine bağlıdır — kanaldaki gölleri besleyen suyun neredeyse tamamı ' +
+      'yağmurdan gelir.',
+    hydrographyNoteTr:
+      "Kanal havzasının en büyük nehri olan Chagres, Gatún Barajı ile setlenerek 1912'de " +
+      "Gatún Gölü'nü oluşturmuştur; bu göl kanal boyunca gemilerin geçişini sağlayan " +
+      'yükseltilmiş su yolunun büyük bölümünü kapsar ve halen ülkenin en büyük su ' +
+      'kütlesidir. Karayip kıyısına akan yaklaşık 150 nehrin en önemlisi Chagres iken, ' +
+      "Pasifik tarafında bu rolü, Darién'de doğup 230 kilometre boyunca güneye akan Tuira " +
+      'Nehri üstlenir; havza büyüklüğü ve debisiyle ülkenin en büyük nehri budur, ülkenin ' +
+      "en uzun akarsuyu ise Tuira'nın bir kolu olan Chucunaque'dir. İki kıyıya akan " +
+      "nehirlerin bu şekilde ayrışması, Cordillera Central'in su ayrım hattı olarak işlev " +
+      'görmesinden kaynaklanır.',
   },
   {
     isoCode: 'AG',
@@ -483,6 +580,34 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'DOP',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "27 Şubat 1844'te Haiti'den bağımsız oldu.",
+    introTr:
+      "Dominik Cumhuriyeti, Büyük Antiller'deki Hispaniola adasının doğu üçte ikisini " +
+      "kaplar; adanın batı kesimini Haiti ile paylaşır ve bu, Karayipler'deki 13 ada " +
+      'devleti arasında kara sınırı bulunan tek çifttir. Ülkenin kuzeyinde Atlas Okyanusu, ' +
+      'güneyinde ise Karayip Denizi yer alır. Topraklarının ortasından geçen dağ sıraları, ' +
+      'adayı ve ülkeyi birbirinden farklı iklim ve arazi bölgelerine ayırır.',
+    landformNoteTr:
+      "Ülkenin ortasından geçen Cordillera Central, yalnızca Dominik Cumhuriyeti'nin değil, " +
+      "tüm Karayipler'in en yüksek dağ sırasıdır; 3.101 metrelik Pico Duarte, adanın ve " +
+      "Karayipler'in en yüksek noktasıdır. Bu zirveden yalnızca 85 kilometre uzaklıkta, " +
+      'adanın en alçak noktası olan Enriquillo Gölü bulunur — deniz seviyesinin 46 metre ' +
+      'altında kalan, tuzlu sulu kapalı bir göl. Kuzeyde, Cordillera Central ile kıyı ' +
+      'boyunca uzanan Cordillera Septentrional arasında, verimli ve geniş Cibao Vadisi yer ' +
+      'alır; ülkenin en önemli tarım bölgesidir.',
+    climateNoteTr:
+      'Ülke genelinde tropikal bir iklim hakimdir; Aralık-Nisan arasında görece kurak, ' +
+      'Mayıs-Kasım arasında ise yağışlı bir dönem yaşanır. Kuzeydoğudan esen ticaret ' +
+      'rüzgarları adanın kuzey ve doğu kesimlerine bol yağış taşır — buralarda yıllık yağış ' +
+      '1.350 milimetreye ulaşabilirken, dağların rüzgar gölgesinde kalan batı kesiminde 430 ' +
+      'milimetrenin altına iner. Haziran-Kasım arasındaki kasırga mevsiminde, özellikle ' +
+      'Ağustos-Ekim döneminde, Atlas Okyanusu kökenli tropik fırtınalar ülkeyi ' +
+      'etkileyebilir.',
+    hydrographyNoteTr:
+      'Cordillera Central, ülkenin üç ana nehir sisteminin de kaynağını oluşturur: kuzeye ' +
+      "akan Yaque del Norte, kuzeydoğuya akıp Cibao Vadisi'ni sulayan Yuna ve güneye akan " +
+      "Yaque del Sur. Yuna Nehri, Samaná Körfezi'ne dökülmeden önce Cibao Vadisi'nin " +
+      "verimli topraklarını besler. Enriquillo Gölü'ne akan akarsular ise denize ulaşamaz; " +
+      'havza, adanın diğer nehir sistemlerinden bağımsız, kapalı bir drenaj sistemidir.',
   },
   {
     isoCode: 'GD',
@@ -717,6 +842,47 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'BOB',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "6 Ağustos 1825'te İspanya'dan bağımsız oldu.",
+    introTr:
+      "Bolivya, Güney Amerika'nın ortasında, Peru, Şili, Arjantin, Paraguay ve Brezilya ile " +
+      'komşu, kıtanın denize kıyısı olmayan iki ülkesinden biridir. Ülke toprakları üç ana ' +
+      "coğrafi bölgeye ayrılır: batıda And Dağları'nın yüksek platosu Altiplano, ortada " +
+      "nemli geçiş bölgesi Yungas, doğuda ise alçak ovalar (Llanos) ile Gran Chaco'nun " +
+      'kuzey ucu. Nüfusun büyük bölümü, deniz seviyesinden ortalama 3.700 metre ' +
+      "yükseklikteki Altiplano'da ve çevresindeki vadilerde yaşar.",
+    landformNoteTr:
+      'Bolivya toprakları, birbirine paralel uzanan iki And Dağları sırası arasında ' +
+      'sıkışmıştır: batıda, Şili sınırını izleyen ve volkanik zirveler barındıran ' +
+      'Cordillera Occidental; doğuda ise daha eski kristalen kayaçlardan oluşan Cordillera ' +
+      'Oriental. Ülkenin en yüksek noktası, Cordillera Occidental üzerindeki 6.542 metrelik ' +
+      "Sajama Yanardağı'dır. İki sıradağ arasında, ortalama 3.700 metre yükseklikte uzanan " +
+      'geniş bir plato olan Altiplano yer alır; platonun güneyinde, eski göllerin ' +
+      'kurumasıyla oluşan ve 10.000 kilometrekareyi aşan, dünyanın en büyük tuz düzlüğü ' +
+      'Salar de Uyuni bulunur.' +
+      '\n\n' +
+      "Altiplano'nun kuzeyinde, Peru ile paylaşılan Titicaca Gölü'nün Bolivya kıyısı " +
+      'uzanır; 3.812 metre yükseklikteki bu göl dünyanın seyrüsefere elverişli en yüksek ' +
+      "gölüdür ve yüzeyinin yaklaşık %40'ı Bolivya sınırları içinde kalır. Cordillera " +
+      "Oriental'in doğu yamaçlarında nemli ve ormanlık Yungas bölgesi başlar; ülkenin " +
+      "doğusundaki geniş ovalar (Llanos) Amazon Havzası'na, güneydeki Gran Chaco'nun kuzey " +
+      'ucu ise yarı-kurak bir düzlüğe açılır.',
+    climateNoteTr:
+      "Altiplano'da rakımın da etkisiyle serin ve yarı-kurak bir iklim hakimdir; yıllık " +
+      'ortalama sıcaklık 5-15 santigrat derece arasında değişir, yağış çoğunlukla ' +
+      "Aralık-Mart döneminde düşer ve yılda 500 milimetreyi geçmez. Cordillera Oriental'in " +
+      "doğu yamaçlarındaki Yungas'a Amazon Havzası'ndan gelen nemli hava kütleleri ulaşır; " +
+      'sis sık görülür, yağış yılda 1.500 milimetreye kadar çıkabilir. Doğudaki alçak ' +
+      'Llanos bölgesinde ise sıcaklık yıl boyunca 25-30 santigrat derece bandında seyreder, ' +
+      'yağış birçok kesimde 2.000 milimetreyi aşar ve yağmur ormanı sektörlerinde 4.000 ' +
+      'milimetreye ulaşabilir.',
+    hydrographyNoteTr:
+      "Titicaca Gölü'nün fazla suyu, Desaguadero Nehri aracılığıyla güneye, sığ ve tuzlu " +
+      "Poopó Gölü'ne akar; bu havza denize bağlantısı olmayan kapalı bir drenaj sistemidir. " +
+      'Poopó son derece sığ olduğu için yüzey alanı yıldan yıla büyük ölçüde değişir — göl ' +
+      "2015-2016'da tamamen kurumuş, o tarihten bu yana ancak kısmi ve kırılgan bir düzeyde " +
+      "su tutabiliyor. Doğudaki Llanos'ta Mamoré ve Beni nehirleri, And Dağları'ndan inen " +
+      "suları toplayarak kuzeye, Brezilya'daki Madeira Nehri üzerinden Amazon sistemine " +
+      "taşır. Güneydoğuda, Gran Chaco'nun kuzey ucundan geçen Pilcomayo Nehri Bolivya And " +
+      "Dağları'nda doğar ve güneydoğuya akarak Paraguay Nehri'ne katılır.",
   },
   {
     isoCode: 'BR',
@@ -899,6 +1065,39 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Üniter başkanlık cumhuriyeti',
     independenceNoteTr:
       "24 Mayıs 1822'de İspanya'dan bağımsız oldu; Büyük Kolombiya'dan ayrılış 1830.",
+    introTr:
+      'Ekvador, adını üzerinden geçtiği ekvator çizgisinden alır; başkent Kito, ekvatora ' +
+      'dünyanın en yakın başkentlerinden biridir. Kuzeyde Kolombiya, güney ve doğuda Peru ' +
+      'ile komşu olan ülkenin batısında Büyük Okyanus kıyısı uzanır. And Dağları, ülke ' +
+      'topraklarını kuzeyden güneye boydan boya keserek üç farklı bölgeye ayırır: dar bir ' +
+      'kıyı ovası olan Costa, volkanik And sırtı Sierra ve doğuda Amazon ormanına açılan ' +
+      'Oriente. Kıyıdan yaklaşık 1.000 kilometre açıktaki Galápagos Adaları da ülke ' +
+      'topraklarının bir parçasıdır.',
+    landformNoteTr:
+      "And Dağları, Ekvador'da iki paralel sırt halinde uzanır ve aralarındaki vadi, " +
+      'onlarca yüksek volkanik zirve barındırdığı için "Volkanlar Bulvarı" olarak anılır. ' +
+      "Bu bulvarın en yükseği, 6.263 metrelik Chimborazo'dur; ekvatora yakınlığı ve " +
+      "Dünya'nın ekvator çevresindeki şişkinliği nedeniyle zirvesi, gezegen merkezinden en " +
+      'uzak nokta kabul edilir. Hâlâ etkin bir volkan olan Cotopaxi, 5.897 metreyle ülkenin ' +
+      "ikinci yüksek zirvesidir. Batıda, And Dağları'ndan Büyük Okyanus'a inen dar Costa " +
+      "ovası tarımsal açıdan verimlidir; doğuda ise Oriente, Amazon Havzası'nın bir parçası " +
+      'olan alçak ve yoğun yağmur ormanıyla kaplıdır.',
+    climateNoteTr:
+      "Kıyı boyunca esen soğuk Humboldt Akıntısı, Ekvador'un güney ve orta Pasifik " +
+      'kıyısında serin ve nispeten kurak bir iklim yaratır; bazı güneybatı kesimlerinde ' +
+      'yıllık yağış 250 milimetrenin altına iner. Kuzey kıyıda akıntının etkisi zayıflar ve ' +
+      "yağış Kolombiya sınırına yaklaştıkça 3.000 milimetreyi aşabilir. And Dağları'ndaki " +
+      'Sierra bölgesinde iklimi büyük ölçüde rakım belirler; Kito gibi yüksek vadilerde ' +
+      'gündüz ile gece sıcaklığı arasındaki fark, mevsimler arasındaki farktan daha ' +
+      "belirgindir. Doğudaki Oriente'de ise yıl boyunca sıcak, nemli ve yağışlı tropikal " +
+      'bir iklim hakimdir.',
+    hydrographyNoteTr:
+      'Kıyı bölgesinin en büyük akarsu sistemi, Daule ve Babahoyo nehirlerinin Guayaquil ' +
+      "yakınında birleşmesiyle oluşan Guayas Nehri'dir; bu nehir Guayaquil Körfezi'ne " +
+      "dökülür ve havzası kıyı ovasının tarımsal can damarıdır. Doğuda, And Dağları'ndan " +
+      "inen Napo Nehri, Oriente'yi boydan boya geçerek Peru topraklarında Amazon Nehri'ne " +
+      "katılır. Sierra'daki yüksek vadilerde ise nehirler kısa ve dik yataklıdır, çoğu " +
+      'zaman derin kanyonlar oyar.',
   },
   {
     isoCode: 'GY',
@@ -945,6 +1144,39 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'PYG',
     governmentFormTr: 'Üniter başkanlık cumhuriyeti',
     independenceNoteTr: "14-15 Mayıs 1811'de İspanya'dan bağımsız oldu.",
+    introTr:
+      'Paraguay Nehri, ülke topraklarını iki farklı bölgeye ayırır: doğuda daha yoğun ' +
+      'nüfuslu, ova ve tepelerden oluşan Región Oriental; batıda ise ülke yüzölçümünün ' +
+      "yaklaşık %60'ını kaplayan ama nüfusun çok küçük bir bölümünü barındıran Gran " +
+      "Chaco'nun bir parçası, Región Occidental. Kuzeyde Bolivya, doğu ve güneyde Brezilya " +
+      "ile Arjantin ile komşu olan Paraguay, Bolivya ile birlikte Güney Amerika'nın denize " +
+      'kıyısı olmayan iki ülkesinden biridir. Oğlak Dönencesi ülkenin ortasından geçer; bu ' +
+      "nedenle Región Oriental'in büyük bölümü subtropikal, kuzeydeki Chaco Boreal ise " +
+      'tropikale yakın bir iklim kuşağında kalır.',
+    landformNoteTr:
+      'Región Oriental, platolar, dalgalı tepeler ve verimli vadilerden oluşan bir arazi ' +
+      'yapısına sahiptir; ülkenin en yüksek noktası da bu bölgede, Ybytyruzú sıradağı ' +
+      "üzerindeki 842 metrelik Cerro Tres Kandú'dur. Región Occidental ise Gran Chaco'nun " +
+      'doğu ucunu oluşturur — Bolivya ve Arjantin topraklarına da yayılan, neredeyse düz, ' +
+      'ağaçlık ve çalılık bitki örtüsüyle kaplı geniş bir alüvyal düzlüktür; arazi Paraguay ' +
+      "Nehri'ne doğru hafifçe eğimlidir. Chaco'nun toprağı, mevsimsel taşkınlar ve yeraltı " +
+      'suyunun tuzluluğu nedeniyle tarıma Región Oriental kadar elverişli değildir.',
+    climateNoteTr:
+      "Región Oriental'de subtropikal nemli bir iklim hakimdir; yağış yıl boyunca dağılır " +
+      've belirgin bir kurak mevsim yoktur, yıllık ortalama 1.400-1.800 milimetre arasında ' +
+      "değişir. Batıya doğru yağış hızla azalır — Chaco'nun kuzey kesimi olan Chaco " +
+      "Boreal'de yıllık yağış 500-1.000 milimetreye kadar düşer, bu da bölgeyi ülkenin en " +
+      'kurak kesimi haline getirir. Yaz ayları ülkenin büyük bölümünde sıcak ve nemli ' +
+      'geçer, sıcaklıklar sık sık 35 santigrat dereceyi aşar; kışın ise güneyden esen soğuk ' +
+      'pampero rüzgarı, sıcaklığı birkaç gün içinde keskin biçimde düşürebilir.',
+    hydrographyNoteTr:
+      "Paraguay Nehri, kuzeyden güneye ülkeyi ikiye bölerek başkent Asunción'un yanından " +
+      "geçer ve güneyde Paraná Nehri'yle birleşir. Paraná, ülkenin doğu ve güney sınırının " +
+      'büyük bölümünü çizer; Brezilya sınırındaki bu nehir üzerinde kurulu Itaipu Barajı, ' +
+      "yıllık ortalama enerji üretimi bakımından Çin'deki Üç Boğaz Barajı'ndan sonra " +
+      "dünyanın ikinci büyük hidroelektrik santralidir. Batıda, Gran Chaco'yu And " +
+      "Dağları'ndan güneydoğuya kat eden Pilcomayo Nehri, ülkenin Arjantin ile olan " +
+      "sınırının bir bölümünü oluşturarak Paraguay Nehri'ne katılır.",
   },
   {
     isoCode: 'PE',
@@ -1042,6 +1274,39 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Üniter başkanlık cumhuriyeti',
     independenceNoteTr:
       "25 Ağustos 1825'te bağımsızlığını ilan etti; uluslararası tanınma 1828 Montevideo Antlaşması ile.",
+    introTr:
+      "Güney Amerika'nın (Surinam'dan sonra) yüzölçümce en küçük ikinci ülkesi olan " +
+      'Uruguay, kuzeyde ve doğuda Brezilya, batıda Arjantin ile komşudur; güneyde Río de la ' +
+      "Plata halici, güneydoğuda ise doğrudan Atlas Okyanusu'na kıyısı vardır. Ülke " +
+      "toprakları, kıtanın büyük çayır kuşağı Pampalar'ın doğu ucunu oluşturur ve neredeyse " +
+      "hiç dağ barındırmaz — Güney Amerika'nın en düz ülkelerinden biridir. Yüzölçümünün " +
+      'büyük bölümü, tarım ve hayvancılığa elverişli dalgalı otlaklardan oluşur.',
+    landformNoteTr:
+      "Uruguay'ın iç kesimlerinde, kuzeyden güneye uzanan alçak ve yumuşak tepe sıraları — " +
+      'cuchillalar — araziye hafif bir dalgalanma katar; bunların en belirgini, ülkeyi ' +
+      "ortadan geçen Cuchilla Grande'dir, ona batıda paralel uzanan Cuchilla de Haedo eşlik " +
+      'eder. Bu sıralar gerçek dağ zincirleri oluşturmaz, çimenli tepelerin art arda ' +
+      'dizilmesinden ibarettir; aralarında Cerro Pan de Azúcar ve Cerro Arequita gibi tek ' +
+      'başına yükselen tepeler bulunur. Ülkenin en yüksek noktası, Maldonado bölgesindeki ' +
+      "Sierra Carapé'de yer alan 513,66 metrelik Cerro Catedral'dir — Güney Amerika'nın en " +
+      'alçak ulusal zirvelerinden biri. Güney ve güneybatı kıyı şeridi boyunca, Río de la ' +
+      "Plata'nın kenarında alçak ve düz kıyı ovaları uzanır.",
+    climateNoteTr:
+      'Uruguay, ülke genelinde oldukça tekdüze bir nemli subtropikal iklime (Köppen Cfa) ' +
+      'sahiptir; belirgin bir kurak mevsim yoktur, yağış kışın soğuk cephelerle, yazın ise ' +
+      'gök gürültülü sağanaklarla yıl boyunca dağılır. Yıllık yağış güneyden kuzeye artar — ' +
+      'Montevideo çevresinde 1.100-1.200 milimetre iken, ülkenin kuzeyinde 1.600 ' +
+      'milimetreye ulaşabilir. Mevsimler belirgin biçimde ayrışır: ilkbahar nemli ve ' +
+      'rüzgarlı, yaz ılık, sonbahar mutedil, kış ise nemli ve serin geçer.',
+    hydrographyNoteTr:
+      'Batı sınırı boyunca, güney Brezilya dağlarından doğan Río Uruguay güneye akar ve ' +
+      '1.800 kilometreden fazla bir mesafenin ardından Río de la Plata halicine ulaşır. Río ' +
+      "de la Plata, Uruguay ve Paraná nehirlerinin birleşerek Atlas Okyanusu'na açıldığı " +
+      'huni biçimli bir halic olup dünyanın en geniş nehir ağızlarından biridir. Ülke ' +
+      "içinde ise Río Negro doğudan batıya akarak Río Uruguay'a katılır; üzerindeki Rincón " +
+      "del Bonete Barajı'nın oluşturduğu gölet, ülkenin en büyük tatlı su kütlesidir ve Río " +
+      "Negro üzerindeki üç büyük baraj birlikte Uruguay'ın elektriğinin yaklaşık %60'ını " +
+      'üretir.',
   },
   {
     isoCode: 'VE',
