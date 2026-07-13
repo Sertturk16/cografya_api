@@ -1,4 +1,5 @@
 import { Continent } from '../../common/continent.enum';
+import { AMERICAS_COUNTRIES } from './countries/americas.countries';
 import { ASIA_COUNTRIES } from './countries/asia.countries';
 
 /**
@@ -524,4 +525,8 @@ const PILOT_COUNTRIES: readonly CountrySeed[] = [
  * single import. Each continent lives in its own `./countries/*.countries.ts` module so
  * a continent wave is reviewable in isolation; add a wave = add one import + one spread.
  */
-export const SEED_COUNTRIES: readonly CountrySeed[] = [...PILOT_COUNTRIES, ...ASIA_COUNTRIES];
+export const SEED_COUNTRIES: readonly CountrySeed[] = [
+  ...PILOT_COUNTRIES,
+  ...ASIA_COUNTRIES,
+  ...AMERICAS_COUNTRIES,
+];
