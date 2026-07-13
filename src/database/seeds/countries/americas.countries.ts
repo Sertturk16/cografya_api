@@ -118,6 +118,39 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal başkanlık cumhuriyeti',
     independenceNoteTr:
       "16 Eylül 1810'da bağımsızlık mücadelesi başladı (resmî millî gün); İspanya'nın tanıması 1821.",
+    introTr:
+      "Kuzey Amerika'nın güneyinde yer alan Meksika, kuzeyde ABD, güneydoğuda Belize ve " +
+      "Guatemala ile komşudur. Batıda Büyük Okyanus'a, doğuda Meksika Körfezi ve Karayip " +
+      "Denizi'ne kıyısı vardır. Ülkenin kuzeybatısındaki Baja California ve " +
+      'güneydoğusundaki Yucatán, birbirinden çok farklı iki yarımadadır — biri kurak ve ' +
+      'dağlık, diğeri düz ve ormanlık kireçtaşı bir plato.',
+    landformNoteTr:
+      "Orta plato'yu doğu ve batıdan çevreleyen Sierra Madre Occidental (~1.250 km) ve " +
+      "Sierra Madre Oriental (~1.000 km), Meksika'nın ana dağ sistemini oluşturur. Bu iki " +
+      "sıradağ, Mexico City'nin doğusunda, doğu-batı doğrultulu Trans-Meksika Volkanik " +
+      "Kuşağı'yla birleşir; ülkenin en yüksek üç zirvesi de bu kuşaktadır. En yükseği, " +
+      "5.636 metreyle Kuzey Amerika'nın en yüksek volkanı olan Pico de Orizaba'dır; onu " +
+      '5.393 metrelik hâlâ aktif Popocatépetl ve 5.230 metrelik Iztaccíhuatl izler. ' +
+      'Güneydoğuda, Yucatán Yarımadası bunların hiçbirine benzemez: düz, alçak bir ' +
+      'kireçtaşı plato olan bu bölgede yüzey nehri neredeyse yoktur, su büyük ölçüde ' +
+      "yeraltından akar ve çökme çukurları olan cenote'leri besler.",
+    climateNoteTr:
+      "Yengeç Dönencesi Meksika'yı kabaca iki iklim kuşağına böler; kuzey daha kurak, " +
+      'güney daha nemli ve tropikaldir. Baja California, batı Sonora ve orta platonun ' +
+      'kuzey kesimi çöl ya da yarı çöl iklimindedir, yıllık yağış çoğu yerde 250 ' +
+      'milimetrenin altında kalır. Rakım da en az enlem kadar belirleyicidir: 900 ' +
+      'metrenin altındaki tierra caliente sıcak ve nemli geçer, 900-1.800 metre ' +
+      'arasındaki tierra templada ılıman bir iklim sunar; 1.800 metrenin üzerindeki ' +
+      'tierra fría ise serin ve kurak geçer — 2.240 metre yükseklikteki Mexico City de ' +
+      'bu üst kuşaktadır.',
+    hydrographyNoteTr:
+      "Kuzeyde Rio Bravo (ABD'de Rio Grande), yaklaşık 3.000 kilometrelik uzunluğunun " +
+      '2.000 kilometrelik bölümünde Meksika ile ABD arasındaki sınırı çizer ve Meksika ' +
+      "Körfezi'ne dökülür. Meksika platosunda doğan 750 kilometrelik Lerma Nehri, " +
+      "ülkenin en büyük gölü olan Chapala Gölü'ne akar. Güneydoğuda Usumacinta Nehri, " +
+      "Guatemala sınırından geçerek Meksika Körfezi'ne ulaşır; Guatemala'daki kaynak " +
+      "kollarıyla birlikte toplam uzunluğu yaklaşık 1.000 kilometredir. Yucatán'da ise " +
+      "yüzey nehri yerine cenote'ler ve yeraltı su sistemleri hakimdir.",
   },
   {
     isoCode: 'BZ',
@@ -379,6 +412,31 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Tek parti sosyalist cumhuriyet',
     independenceNoteTr:
       "İspanya egemenliğinin ardından 20 Mayıs 1902'de bağımsız cumhuriyet ilan edildi.",
+    introTr:
+      "Karayipler'in yüzölçümce en büyük adası olan Küba'nın kara sınırı yoktur. Kuzeyinde " +
+      'Florida Boğazı, kuzeybatısında Meksika Körfezi, güneyinde ise Karayip Denizi yer ' +
+      'alır. Ülke toprağının yaklaşık üçte ikisi düz ya da hafif dalgalı ovalardan oluşur, ' +
+      'dağlık kesimler adanın belirli bölgelerinde toplanmıştır.',
+    landformNoteTr:
+      "Küba'nın dağlık arazisi üç ayrı kümede toplanır: güneydoğuda, ülkenin en yüksek " +
+      "noktası olan 1.974 metrelik Pico Turquino'yu barındıran Sierra Maestra; orta " +
+      'kesimde Sierra del Escambray; batıda ise Sierra del Rosario. Batıdaki Viñales ' +
+      "Vadisi, dik yamaçlı kireçtaşı tepeleri olan mogote'leriyle Küba'nın en tanınmış " +
+      'karst manzarasını oluşturur.',
+    climateNoteTr:
+      "Köppen sınıflandırmasında Aw kodlu tropikal savan iklimi, Küba'nın büyük bölümünde " +
+      "görülür. Sierra Maestra ve Sierra del Rosario'nun rüzgar alan yamaçlarında bu iklim, " +
+      'daha nemli bir muson ya da yağmur ormanı karakterine yaklaşır. Buna karşılık ' +
+      "Guantánamo Körfezi çevresi, Sierra Maestra'nın yağış gölgesinde kaldığı için yarı " +
+      'kurak bir iklime sahiptir. Kasım-Nisan arasında kurak, Mayıs-Ekim arasında yağışlı ' +
+      'mevsim yaşanır; Haziran-Kasım kasırga sezonu adayı düzenli olarak etkiler.',
+    hydrographyNoteTr:
+      "Sierra Maestra'da doğan Cauto Nehri, kuzeybatıya akarak 370 kilometre sonra denize " +
+      'ulaşır — ülkenin en uzun nehridir. Debi bakımından en yüksek ve en bakir ' +
+      "nehirlerden biri olan Toa Nehri de yine doğu Küba'da yer alır. Adanın dar ve uzun " +
+      "biçimi yüzünden Küba'nın nehirleri genellikle kısa kalır, çoğu da gemi " +
+      'taşımacılığına elverişli değildir. Batıdaki karst bölgelerinde ise yüzey nehirleri ' +
+      'yerine yeraltı nehir ve mağara sistemleri yaygındır.',
   },
   {
     isoCode: 'DM',
@@ -611,6 +669,31 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal başkanlık cumhuriyeti',
     independenceNoteTr:
       "9 Temmuz 1816'da İspanya'dan bağımsızlığını ilan etti (süreç 25 Mayıs 1810'da başladı).",
+    introTr:
+      "Güney Amerika'nın (Brezilya'dan sonra) yüzölçümce ikinci büyük ülkesi olan Arjantin, " +
+      'batıda And Dağları boyunca Şili ile sınırlanır. Ülke kuzeyden güneye yaklaşık 3.700 ' +
+      'kilometre uzanır ve üç farklı bölgeye ayrılır: kuzeyde Gran Chaco, orta kesimde ' +
+      'Pampalar, güneyde ise Patagonya.',
+    landformNoteTr:
+      'And Dağları, ülkenin batı sınırı boyunca uzanır ve en yüksek noktasını, 6.961 ' +
+      "metrelik Aconcagua'da bulur — yalnızca Arjantin'in değil, Amerika kıtalarının ve tüm " +
+      'Batı ile Güney yarımkürenin en yüksek zirvesidir. Merkezde, yaklaşık 760.000 ' +
+      'kilometrekarelik geniş ve düz bir çayır olan Pampalar uzanır; batıdaki kurak Pampa ' +
+      'ile doğudaki nemli Pampa arasındaki fark, bölgeyi tarım ve hayvancılığın kalbi ' +
+      'haline getirir. Güneyde ise Patagonya başlar: doğusu rüzgarlı ve kurak bir ' +
+      'yayla-step, batısındaki Andine kesimi ise buzullarla kaplıdır.',
+    climateNoteTr:
+      'Kuzeyde neredeyse tropikal bir iklim görülürken, Buenos Aires ve Pampalar bölgesinde ' +
+      'ılıman bir iklim hakimdir. Daha güneyde, Patagonya soğuk ve sürekli rüzgarlı bir ' +
+      "iklime sahiptir; ülkenin en güneyindeki Ateş Ülkesi'nde ise subpolar koşullar " +
+      "yaşanır. Kuzeyden güneye 3.700 kilometreyi bulan bu uzunluk, Arjantin'e kıtanın en " +
+      'geniş iklim yelpazelerinden birini kazandırır.',
+    hydrographyNoteTr:
+      "Ülkenin en uzun nehri, Brezilya'da doğup güneye akan ve toplamda yaklaşık 4.880 " +
+      "kilometreye ulaşan Paraná'dır; Uruguay Nehri ile birleştiği noktada geniş bir haliç " +
+      "olan Río de la Plata'yı oluşturur. Gran Chaco'da, Paraguay ve Paraná'nın kolları " +
+      "olan Pilcomayo ve Bermejo nehirleri akar. Patagonya'da ise Colorado ve Negro " +
+      "nehirleri, And Dağları'ndan doğup Atlantik'e ulaşan başlıca su yollarıdır.",
   },
   {
     isoCode: 'BO',
@@ -657,6 +740,39 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'BRL',
     governmentFormTr: 'Federal başkanlık cumhuriyeti',
     independenceNoteTr: "7 Eylül 1822'de Portekiz'den bağımsız oldu.",
+    introTr:
+      "Güney Amerika kıtasının yaklaşık %47'sini kaplayan Brezilya, kıtanın yüzölçümce en " +
+      'büyük ülkesidir. Şili ve Ekvator dışındaki her Güney Amerika ülkesiyle kara sınırı ' +
+      "paylaşır. Doğuda Atlantik Okyanusu'na kıyısı vardır; kuzeyini Amazon Havzası, güney " +
+      've orta kesimini ise geniş bir yayla kaplar.',
+    landformNoteTr:
+      'Ülkenin güney ve orta kesimini, ortalama 1.000 metre yükseklikteki Brezilya Yaylası ' +
+      '(Planalto Brasileiro) kaplar; bu yaylanın karakteristik bitki örtüsü, geniş bir ' +
+      "savan ekosistemi olan Cerrado'dur. Kuzeyde ise düz ve alçak Amazon Havzası uzanır, " +
+      "dünyanın en büyük yağmur ormanına ev sahipliği yapar. Brezilya'nın en yüksek " +
+      "noktası, Amazonas eyaletindeki İmeri Dağları'nda yükselen 2.995 metrelik Pico da " +
+      "Neblina'dır; bu zirve, ülkenin en dağlık bölgesi olan güneydoğu değil, Amazon " +
+      'ormanının derinlikleri içinde yer alır. Ülkenin batı-orta kesiminde, Paraguay ' +
+      "Nehri'nin taşkın ovasında yer alan Pantanal, dünyanın en büyük tropikal sulak " +
+      'alanlarından biridir.',
+    climateNoteTr:
+      "Brezilya beş farklı iklim bölgesine ayrılır. Amazon Havzası'nda yıl boyunca sıcak " +
+      've nemli kalan ekvatoral iklim egemendir. Kuzeydoğu kıyısı boyunca, belirgin ' +
+      'yağışlı ve kurak dönemleri olan tropikal iklim görülür; kıyının hemen iç kesiminde, ' +
+      'Sertão olarak bilinen bölgede ise yarı kurak bir iklim hakimdir. Brezilya ' +
+      "Yaylası'nın iç kesimlerinde Cerrado'nun tropikal yükseklik iklimi, güneyde ise dört " +
+      'mevsimin belirgin olduğu ılıman subtropikal iklim yaşanır.',
+    hydrographyNoteTr:
+      'Amazon Nehri, debi bakımından dünyanın en büyük nehridir; saniyede yaklaşık 209.000 ' +
+      "metreküp su Atlantik'e boşalır, bu da dünya okyanuslarına giren nehir suyunun " +
+      "yaklaşık beşte biri anlamına gelir. 1.100'den fazla kolu vardır, bunlardan 17'si " +
+      '1.500 kilometreden uzundur. En büyük kollarından biri olan 2.230 kilometrelik Rio ' +
+      "Negro, Manaus yakınlarında Solimões Nehri'yle birleşir — bu birleşmeden sonra nehir " +
+      "Brezilya'da Amazon adını alır. İki kolun farklı renkteki suları, birleşme " +
+      'noktasından sonra uzun süre karışmadan yan yana akar; bu görüntü ' +
+      '"Encontro das Águas" (suların buluşması) adıyla bilinir. Güneyde Paraná, Paraguay ' +
+      "ve Uruguay nehirleri, Brezilya Yaylası'nda doğup güneye akarak Río de la Plata " +
+      'havzasını besler.',
   },
   {
     isoCode: 'CL',
@@ -681,6 +797,32 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Üniter başkanlık cumhuriyeti',
     independenceNoteTr:
       '18 Şubat 1818\'de bağımsızlık ilan edildi (millî gün "Fiestas Patrias" ise mücadelenin başladığı 18 Eylül 1810\'da kutlanır).',
+    introTr:
+      "Güney Amerika'nın batı kıyısında, kuzeyden güneye yaklaşık 4.300 kilometre uzanan " +
+      'ama ortalama yalnızca 180 kilometre genişliğinde olan Şili, dünyanın en uzun ve dar ' +
+      "ülkelerinden biridir. Doğuda And Dağları boyunca Arjantin'e, kuzeyde Peru ve " +
+      "Bolivya'ya komşudur.",
+    landformNoteTr:
+      'Ülke, kuzeyden güneye üç paralel kuşaktan oluşur: doğuda kıtanın omurgası olan And ' +
+      'Dağları, batıda genellikle 2.000 metrenin altında kalan Kıyı Sıradağları, ikisinin ' +
+      'arasında ise yaklaşık 965 kilometre uzunluğundaki Orta Vadi — ülke nüfusunun ve ' +
+      'tarımının büyük bölümü bu vadide yoğunlaşır. Kuzeyde, And Dağları ile Kıyı ' +
+      "Sıradağları'nın iki yönden kapattığı Atakama Çölü, dünyanın kutup dışındaki en kurak " +
+      'çölüdür. Güneye inildikçe Kıyı Sıradağları parçalanıp adalara dönüşür; bu bölgede ' +
+      'Kuzey ve Güney Patagonya Buz Tarlaları ile derin fiyortlar yer alır.',
+    climateNoteTr:
+      "Kuzeydeki Atakama'da yıllarca hiç yağış görmeyen alanlar bulunan hiper-kurak bir çöl " +
+      "iklimi hakimdir. Orta kesimde, başkent Santiago'nun da bulunduğu bölgede Akdeniz " +
+      'iklimi görülür — yazlar sıcak ve kurak, kışlar ılık ve yağışlıdır. Güneye doğru ' +
+      "iklim giderek soğur ve nemlenir; Patagonya'ya yakın kesimlerde okyanusal, soğuk ve " +
+      'yağışlı bir iklim egemen olur. Kıyı boyunca kuzeyden güneye akan soğuk Humboldt ' +
+      'Akıntısı, bu iklim çeşitliliğinin başlıca belirleyicilerinden biridir.',
+    hydrographyNoteTr:
+      "Şili'nin dar yapısı nehirlerin genellikle kısa olmasına yol açar; neredeyse tamamı " +
+      "And Dağları'nda doğup batıya, Pasifik Okyanusu'na akar. Ülkenin en uzun nehri, " +
+      'kuzeyde Antofagasta bölgesinde U biçiminde bir yörünge izleyen 440 kilometrelik Loa ' +
+      "Nehri'dir. Orta-güney kesimdeki 380 kilometrelik Biobío Nehri ise ülkenin en geniş " +
+      'nehridir, ortalama genişliği 1 kilometreyi bulur.',
   },
   {
     isoCode: 'CO',
@@ -705,6 +847,34 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Üniter başkanlık cumhuriyeti',
     independenceNoteTr:
       "20 Temmuz 1810'da İspanya'ya karşı mücadele başladı (resmî millî gün); tam bağımsızlık 1819.",
+    introTr:
+      "And Dağları, Ekvator sınırından Kolombiya'ya girer girmez üçe ayrılır — kıtadaki " +
+      "hiçbir başka ülkede görülmeyen bu yapı, Kolombiya'nın coğrafyasını baştan sona " +
+      "şekillendirir. Ülke, kuzeyde Karayip Denizi'ne, batıda ise Büyük Okyanus'a kıyısı " +
+      'olan tek Güney Amerika ülkesidir.',
+    landformNoteTr:
+      'And Dağları, Kolombiya sınırları içinde Batı, Orta ve Doğu Kordilyera olmak üzere üç ' +
+      "paralel sıradağa ayrılır; bunların en yükseği Orta Kordilyera'dır. Magdalena ve " +
+      'Cauca nehirlerinin vadileri, bu üç sıradağı birbirinden ayırır. Doğuda, Orinoco ' +
+      "Havzası'nın bir parçası olan Llanos düzlükleri geniş bir savan örtüsüyle uzanır; " +
+      'güneyde ise Amazon yağmur ormanı başlar. Batı kıyısındaki Chocó bölgesi, yılda ' +
+      '7.000 ila 13.000 milimetre arasında yağış alarak dünyanın en yağışlı yerlerinden ' +
+      'biri sayılır.',
+    climateNoteTr:
+      "Ekvator'a yakınlığı nedeniyle Kolombiya'da mevsimsel sıcaklık farkı azdır; iklimi " +
+      'büyük ölçüde rakım belirler. Deniz seviyesinden 900 metreye kadar tierra caliente ' +
+      'kuşağında sıcak ve nemli bir iklim görülür. 900-1.980 metre arasındaki tierra ' +
+      "templada'da ılıman koşullar hakimdir — Medellín bu kuşaktadır. 1.980-3.500 metre " +
+      'arasındaki tierra fría serindir; 2.640 metre yükseklikteki başkent Bogotá bu ' +
+      'kuşağın içinde yer alır. 3.000 metrenin üzerinde başlayan páramo kuşağında ise ' +
+      'sıcaklık 10 santigrat derecenin altına düşer, kar yağışı sık görülür.',
+    hydrographyNoteTr:
+      "Ülkenin ana nehri Magdalena, And Dağları'nda doğar ve yaklaşık 1.528 kilometre " +
+      "boyunca kuzeye akarak Karayip Denizi'ne dökülür; kolu Cauca ile birlikte Batı ve " +
+      "Orta Kordilyera arasındaki vadiyi oluşturur. Pasifik kıyısında, Chocó'nun yoğun " +
+      'yağmur ormanından geçen Atrato ve San Juan nehirleri kısa ama hızlı akışlıdır. ' +
+      "Güneyde ise Putumayo ve Caquetá nehirleri, Kolombiya topraklarını Amazon Havzası'na " +
+      'bağlar.',
   },
   {
     isoCode: 'EC',
@@ -798,6 +968,33 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'PEN',
     governmentFormTr: 'Üniter başkanlık cumhuriyeti',
     independenceNoteTr: "28 Temmuz 1821'de İspanya'dan bağımsızlığını ilan etti.",
+    introTr:
+      'Peru, birbirinden çok farklı üç boylamsal bölgeye ayrılır: batıda kurak kıyı ' +
+      '(Costa), ortada And Dağları (Sierra), doğuda ise Amazon ormanı (Selva). Bu üç bölge ' +
+      "içinde en büyüğü Selva'dır — ülke topraklarının %60'ından fazlasını kaplar, ama " +
+      "nüfusun büyük kısmı Costa ve Sierra'da yaşar.",
+    landformNoteTr:
+      'And Dağları, Peru topraklarını kuzeyden güneye boydan boya kat eder; ülkenin en ' +
+      "yüksek noktası, 6.768 metrelik Huascarán'dır. And Dağları'nın içinde, Bolivya ile " +
+      'paylaşılan Titicaca Gölü yer alır — 3.812 metre yükseklikteki bu göl, dünyanın ' +
+      'seyrüsefere elverişli en yüksek gölüdür. Kıyı boyunca dar bir çöl şeridi uzanır; ' +
+      "And Dağları'ndan inen birkaç nehrin oluşturduğu vadiler bu kurak şeritte tarıma " +
+      "elverişli cepler yaratır. Doğuda başlayan Selva, Amazon Havzası'nın bir parçasıdır " +
+      've alçak, yoğun ormanla kaplıdır.',
+    climateNoteTr:
+      "Kıyı boyunca, soğuk Humboldt Akıntısı'nın etkisiyle nemli ama neredeyse yağışsız bir " +
+      'çöl iklimi hakimdir; başkent Lima yılda ortalama yalnızca 10 milimetre yağış alır ' +
+      "ve Mayıs-Kasım arasında sık sık yoğun sis (garúa) örter. And Dağları'nda rakım " +
+      'arttıkça sıcaklık düşer; Mayıs-Eylül arasındaki kuru mevsimde gökyüzü açık ve ' +
+      'geceler soğuk geçerken, Ekim-Nisan yağışlı mevsiminde öğleden sonraları sağanak ' +
+      "yağış görülür. Doğudaki Selva'da ise yıl boyunca sıcak ve nemli, yılda 2.000-3.000 " +
+      'milimetre yağış alan tropikal bir iklim egemendir.',
+    hydrographyNoteTr:
+      "Amazon Nehri'nin en uzak kaynağı, onlarca yıl boyunca Peru'daki Apurímac Nehri'nin " +
+      "başlangıç noktası olarak kabul edildi; 2014'te yapılan bir çalışma bu kaynağı, yine " +
+      "Peru'da bulunan Cordillera Rumi Cruz'daki Mantaro Nehri'nin başlangıcına taşıdı — " +
+      "Mantaro, Apurímac'tan yaklaşık 75 kilometre daha uzun çıktı. Doğuda, Marañón ve " +
+      "Ucayali nehirleri Peru topraklarında birleşerek Amazon'un ana gövdesini başlatır.",
   },
   {
     isoCode: 'SR',
@@ -868,5 +1065,31 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'VES',
     governmentFormTr: 'Federal başkanlık cumhuriyeti',
     independenceNoteTr: "5 Temmuz 1811'de İspanya'dan bağımsızlığını ilan etti.",
+    introTr:
+      "Venezuela, kuzeyde Karayip Denizi'ne kıyısı olan ve dört farklı coğrafi bölgeye " +
+      "ayrılan bir ülkedir: kuzeybatıda Maracaibo alçak arazisi, kuzeyde And Dağları'nın " +
+      'uzantısı olan kıyı sıradağları, orta kesimde geniş Orinoco düzlükleri (Llanos) ve ' +
+      'güneydoğuda Guyana Yaylası.',
+    landformNoteTr:
+      "And Dağları'nın Venezuela'ya uzanan kolu, ülkenin kuzeybatısını kaplar; en yüksek " +
+      "noktası, Mérida yakınlarındaki 4.978 metrelik Pico Bolívar'dır. Maracaibo Gölü, " +
+      "Karayip Denizi'ne açık olduğu için teknik olarak bir göl sayılmasa da, Güney " +
+      "Amerika'nın en büyük iç su kütlesi kabul edilir. Ülkenin yaklaşık üçte birini " +
+      'kaplayan Llanos, Orinoco Nehri havzasının parçası olan geniş bir çayır-savan ' +
+      "düzlüğüdür. Güneydoğuda ise Guyana Yaylası'nda, dik yamaçlı ve düz tepeli tepui'ler " +
+      "yükselir; bunlardan Auyán-tepui'nin kenarından dökülen Angel Şelalesi, 979 metre " +
+      'yükseklikle dünyanın en yüksek şelalesidir.',
+    climateNoteTr:
+      "Llanos'ta, belirgin yağışlı ve kurak dönemleri olan tropikal savan iklimi hakimdir. " +
+      'Maracaibo Gölü çevresi ise ülkenin en sıcak bölgesidir; bazı yerleşimlerde sıcaklık ' +
+      "46-47 santigrat dereceye kadar çıkabilir. And Dağları'nın yüksek vadilerinde, Mérida " +
+      've Karakas çevresinde ise ılıman bir dağ iklimi görülür — Mérida eyaletindeki en ' +
+      'yüksek kesimlerde sıcaklık eksi 11 santigrat dereceye kadar düşebilir.',
+    hydrographyNoteTr:
+      "Debi bakımından Güney Amerika'da Amazon'dan sonra en büyük, dünya genelinde ise " +
+      "üçüncü büyük nehir olan Orinoco, Guyana Yaylası'nda doğar ve yaklaşık 2.140 " +
+      "kilometre sonra Atlantik Okyanusu'na ulaşır. Guyana Yaylası'ndan inen Caroní Nehri " +
+      "de Orinoco'ya katılır; güzergahı boyunca Angel Şelalesi dahil çok sayıda şelale " +
+      'barındırır.',
   },
 ];
