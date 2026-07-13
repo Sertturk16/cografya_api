@@ -321,6 +321,41 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'KZT',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "16 Aralık 1991'de Sovyetler Birliği'nden bağımsız oldu.",
+    introTr:
+      'Kazakistan, dünyanın kıyısı olmayan en büyük ülkesidir — bu unvanı, batı sınırını ' +
+      "oluşturan Hazar Denizi'nin kapalı bir iç deniz sayılmasına borçludur. Ülke " +
+      'toprakları batıdan doğuya üç farklı coğrafi kuşağa ayrılır: Hazar Çukurluğu, ' +
+      'ortadaki geniş bozkır ve çöller, doğudaki yüksek dağlar. Rusya, Çin, Kırgızistan, ' +
+      'Özbekistan ve Türkmenistan ile sınır komşusudur.',
+    landformNoteTr:
+      "Hazar Çukurluğu'ndaki Karagiye Çöküntüsü, ülkenin en alçak kesimidir; çöküntünün " +
+      'Kaundı adı verilen en derin noktası deniz seviyesinin yaklaşık 132 metre altına ' +
+      "iner. Orta Kazakistan'ı, dünyanın en büyük kurak bozkır bölgesi olan Kazak Bozkırı " +
+      'kaplar — ülke yüzölçümünün üçte birinden fazlasını oluşturan bu düzlüğün güneyinde, ' +
+      'Balkaş Gölü ile Sarısu Nehri arasında Betpak-Dala (Aç Bozkır) çölü uzanır. Doğuda ' +
+      'arazi hızla yükselir: Kırgızistan ve Çin sınırının kesiştiği noktada Tanrı ' +
+      "Dağları'nda (Tien Shan) yükselen 7.010 metrelik Han Tengri, ülkenin en yüksek " +
+      'noktasıdır ve dünyanın en kuzeydeki 7.000 metre üzeri zirvesi kabul edilir.' +
+      '\n\n' +
+      "Kuzeydoğuda, Rusya sınırındaki Altay Dağları'nın en yüksek noktası 4.506 metrelik " +
+      "Beluha Dağı'dır; bu iki dağ kuşağı, ortadaki bozkır ve çöllerle keskin bir yükselti " +
+      'farkı oluşturur.',
+    climateNoteTr:
+      "Yaz aylarında güneyde 49°C'ye ulaşabilen sıcaklıklar, kışın kuzeyde -57°C'ye kadar " +
+      "düşebilir — Kazakistan'ın iklimi, dünyanın denizden en uzak bölgelerinden birine " +
+      'özgü, aşırı karasaldır. Yağış bölgeye göre büyük farklılık gösterir: dağ eteklerinde ' +
+      'yılda 500-1.600 milimetreye ulaşırken, bozkırlarda 200-500 milimetreye, çöllerde ise ' +
+      '100-200 milimetreye kadar düşer. Kısa ve sıcak geçen yazların ardından, kar örtülü ' +
+      'uzun kışlar gelir.',
+    hydrographyNoteTr:
+      "Kazakistan'ın en uzun akarsuyu, Rusya'ya geçerek Ob Nehri'ne katılan 4.248 " +
+      "kilometrelik İrtiş'tir. Çin'de doğup ülkenin güneydoğusundan geçen İli Nehri ise " +
+      "Balkaş Gölü'ne dökülür; Balkaş, dünyanın nadir göllerinden biridir — bir boğazla " +
+      'ayrılan batı yarısı tatlı su, doğu yarısı ise tuzludur.' +
+      '\n\n' +
+      "Kuzey Aral Denizi'nin Kazakistan sınırları içinde kalan bölümü, 2005'te tamamlanan " +
+      'Kokaral Barajı sayesinde kısmen geri kazanıldı; baraj, kuzeydeki suyu güneydeki daha ' +
+      'tuzlu ve kirli bölümden ayırarak su hacminde belirgin bir artışa yol açtı.',
   },
   {
     isoCode: 'KG',
@@ -344,6 +379,37 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'KGS',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "31 Ağustos 1991'de Sovyetler Birliği'nden bağımsız oldu.",
+    introTr:
+      'Kırgızistan yüzölçümünün büyük bölümü 1.000 metrenin üzerinde yer alır; ülkenin ' +
+      "ortalama yükseltisi 2.750 metreye ulaşır ve bu, Kırgızistan'ı dünyanın en dağlık " +
+      'ülkelerinden biri yapar. Kazakistan, Özbekistan, Tacikistan ve Çin ile komşu olan ' +
+      "ülke, doğusunda Tanrı Dağları'nın (Tien Shan), güneyinde ise Pamir-Alay sisteminin " +
+      'bir parçasıdır.',
+    landformNoteTr:
+      'Tanrı Dağları, ülke topraklarının büyük bölümünü kaplar ve doğuda Çin sınırındaki ' +
+      "Kakşaal-Too sırasında, 7.439 metrelik Cengiş Çokusu'nda (Pobeda Zirvesi) doruğa " +
+      "ulaşır — bu zirve Kırgızistan'ın ve tüm Tanrı Dağları sisteminin en yüksek " +
+      'noktasıdır. Güneyde, Pamir-Alay sistemine bağlı Alay Vadisi çevresinde, 7.134 ' +
+      'metrelik Lenin Zirvesi yükselir.' +
+      '\n\n' +
+      "Batıda, Fergana Vadisi'nin Oş çevresindeki uzantısında yükselti 400 metrenin " +
+      "altına düşer — Kırgızistan'ın en alçak ve tarımsal açıdan en yoğun kullanılan " +
+      'bölgesi burasıdır.',
+    climateNoteTr:
+      'Herhangi bir büyük su kütlesinin ılımanlaştırıcı etkisinden yoksun olan ' +
+      "Kırgızistan'da iklimi belirleyen temel etken yükseltidir. Vadi tabanlarında yazlar " +
+      'sıcak ve kurak geçerken, yüksek dağ kesimlerinde yıl boyu kar ve buzul örtüsü ' +
+      'kalıcıdır. Kışlar, özellikle iç kesimlerdeki yüksek platolarda uzun ve şiddetli ' +
+      'olabilir; ilkbahar ve sonbahar geçişleri kısa sürer.',
+    hydrographyNoteTr:
+      "Orta Tanrı Dağları'ndaki buzullardan beslenen Narın Nehri, ülkeyi doğudan batıya " +
+      "kat ederek Fergana Vadisi'ne yönelir ve burada Özbekistan topraklarına geçerek " +
+      "Sirderya'yı oluşturur; 535 kilometrelik uzunluğuyla ülkenin sulama ve hidroelektrik " +
+      'üretiminin omurgasını oluşturur.' +
+      '\n\n' +
+      'Doğuda, deniz seviyesinden yaklaşık 1.600 metre yükseklikte yer alan Isık-Göl, ' +
+      'dünyanın en büyük ikinci dağ gölüdür. Tuzlu suyu nedeniyle kışın donmaz — adı da ' +
+      'Kırgızcada "sıcak göl" anlamına gelir.',
   },
   {
     isoCode: 'TJ',
@@ -367,6 +433,40 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'TJS',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "9 Eylül 1991'de Sovyetler Birliği'nden bağımsız oldu.",
+    introTr:
+      'Tacikistan topraklarının neredeyse tamamı Pamir ve Alay dağ sistemlerinin bir ' +
+      'parçasıdır; yüzeyin yarısından fazlası 3.000 metrenin üzerinde yer alır. Bu dağlık ' +
+      "yapı, Orta Asya'nın en yüksek ortalama rakımına sahip ülkesini oluşturur. " +
+      'Kuzeyde Kırgızistan, batıda Özbekistan, güneyde Afganistan, doğuda ise Çin ile ' +
+      'komşudur.',
+    landformNoteTr:
+      'Ülkenin doğu yarısını kaplayan Pamir Dağları, sivri zirvelerden çok, 4.000-4.500 ' +
+      'metre yükseklikte geniş platolardan oluşur — bu özelliği nedeniyle bölgeye ' +
+      '"Dünyanın Damı" da denir. ' +
+      "Pamir'in kuzeybatı ucunda 7.495 metreye yükselen İsmail " +
+      "Somoni Zirvesi (eski adlarıyla Stalin ve Komünizm Zirvesi), Tacikistan'ın en " +
+      'yüksek noktasıdır; bu yükseklik, eski Sovyetler Birliği topraklarının tamamında ' +
+      'da aşılmamıştır.' +
+      '\n\n' +
+      'Pamir, dünyanın kutup bölgeleri dışındaki en büyük buzulu olan, 77 kilometre ' +
+      "uzunluğundaki Fedçenko Buzulu'na ev sahipliği yapar. Ülkenin batısında, dağlar " +
+      'arasındaki dar vadiler boyunca nüfusun büyük bölümü yaşar; bu vadilerin en genişi, ' +
+      'güneybatıdaki Vahş ve Hisor ovalarıdır.',
+    climateNoteTr:
+      "Tacikistan'da iklim, birkaç on kilometrelik mesafede subtropikalden kutup benzeri " +
+      'koşullara geçebilecek kadar keskin bir yükselti gradyanı izler. Dağlık kesimler ' +
+      'yılda 1.500 milimetreyi bulan bir yağış alır; ovalarda bu rakam 100 milimetrenin ' +
+      'bile altındadır. Batıdaki alçak vadilerde yazlar sıcak ve uzun sürerken, yüksek ' +
+      'Pamir platolarında yıl boyu don ve kar hakimdir.',
+    hydrographyNoteTr:
+      "Pamir'in doğusundan gelen Pyanc (Panj) ile kuzeyden inen Vahş nehirleri, ülkenin " +
+      "güneyinde birleşerek Amu Derya'yı oluşturur; Vahş tek başına Amu Derya'nın toplam " +
+      'akışının yaklaşık dörtte birini sağlar. Vahş üzerindeki Nurek Barajı, dünyanın en ' +
+      'yüksek barajlarından biridir ve ülke elektriğinin büyük bölümünü üretir.' +
+      '\n\n' +
+      "Tacikistan'ın binlerce buzulu, Amu Derya ve Sirderya havzalarının en önemli su " +
+      'kaynağıdır — bu buzullar, kurak ovalara mevsimsel olarak su sağlayan doğal birer ' +
+      'rezervuar işlevi görür.',
   },
   {
     isoCode: 'TM',
@@ -390,6 +490,37 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'TMT',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "27 Ekim 1991'de Sovyetler Birliği'nden bağımsız oldu.",
+    introTr:
+      'Ülke adını da veren Karakum (Kara Kum) Çölü, Türkmenistan yüzölçümünün büyük ' +
+      "çoğunluğunu kaplar. Batıda Hazar Denizi'ne kıyısı vardır, güneyde İran ve " +
+      'Afganistan, kuzeyde Kazakistan, doğu ve kuzeydoğuda ise Özbekistan ile komşudur.',
+    landformNoteTr:
+      'Karakum, rüzgarın şekillendirdiği hareketli kum tepeleriyle kaplı bir çöldür; bazı ' +
+      'kesimlerde bu tepeler 20 metre yüksekliğe ve birkaç kilometre uzunluğa ulaşır. ' +
+      "Çölün güneyinde, İran sınırı boyunca Köpetdağ Dağları yükselir; başkent Aşkabat'ın " +
+      "güneybatısındaki 2.912 metrelik Şahşah (Rizeh) Tepesi, Köpetdağ'ın Türkmenistan " +
+      'sınırları içindeki en yüksek noktasıdır.' +
+      '\n\n' +
+      'Ülkenin gerçek en yüksek noktası ise güneydoğu ucunda, Özbekistan ve Afganistan ' +
+      'sınırlarının kesiştiği yerdeki Köýtendag (Kugitang) sırasında bulunan 3.139 ' +
+      "metrelik Ayrıbaba Dağı'dır — bu sıradağ, Pamir-Alay dağ sisteminin en batı " +
+      'uzantısını oluşturur.',
+    climateNoteTr:
+      "Türkmenistan'da sert bir çöl iklimi egemendir: yazlar uzun, sıcak ve kurak " +
+      "geçerken, kışlar kısa ama seyri tahmin edilmesi güç geçer. Karakum'un iç " +
+      "kesimlerinde yaz sıcaklıkları gölgede 50°C'ye yaklaşabilir; kışın donlar " +
+      'görülebilir, ancak kar örtüsü nadir ve kısa ömürlüdür. Hazar kıyısı ve Köpetdağ ' +
+      'eteklerinde, denizin ve yükseltinin ılımanlaştırıcı etkisiyle sıcaklık farkları ' +
+      'biraz daha az keskindir.',
+    hydrographyNoteTr:
+      'Amu Derya, ülkenin kuzeydoğu ve doğu kesiminden geçerek Özbekistan ve Tacikistan ' +
+      "sınırlarının bir bölümünü çizer. Bu nehrin sularının bir kısmı, 1950'lerden " +
+      'itibaren aşamalı olarak inşa edilen ve çölü doğu-batı yönünde yaklaşık 1.350 ' +
+      'kilometre boyunca kat eden Karakum Kanalı ile başkent Aşkabat çevresindeki tarım ' +
+      'alanlarına taşınır — kanal, dünyanın en uzun sulama kanallarından biridir.' +
+      '\n\n' +
+      'Batıda, ülke sınırının en uzun kesimini oluşturan Hazar Denizi kıyısı yaklaşık ' +
+      '1.200 kilometre uzunluğundadır.',
   },
   {
     isoCode: 'UZ',
@@ -413,6 +544,37 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'UZS',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "1 Eylül 1991'de Sovyetler Birliği'nden bağımsız oldu.",
+    introTr:
+      'Özbekistan, dünyada yalnızca Lihtenştayn ile paylaştığı nadir bir konuma sahiptir: ' +
+      'topraklarının tamamı, kendileri de kıyısı olmayan ülkelerle çevrilidir — Kazakistan, ' +
+      'Kırgızistan, Tacikistan, Türkmenistan ve Afganistan. Ülke topraklarının yaklaşık ' +
+      'dörtte üçü çöldür; nüfusun büyük bölümü, doğudaki Fergana Vadisi ile güneybatıdaki ' +
+      'nehir vadilerinde yoğunlaşır.',
+    landformNoteTr:
+      "Ülkenin en büyük çölü olan Kızılkum Çölü, kuzeyde Kazakistan'la paylaşılan geniş " +
+      "bir kumul ve bozkır alanıdır. Kızılkum'un hemen doğusunda, üç yandan dağlarla " +
+      "çevrili verimli bir çöküntü ovası olan Fergana Vadisi uzanır — Özbekistan'ın en " +
+      "yoğun tarım ve yerleşim alanıdır. Ülkenin güneydoğusunda, Tanrı Dağları'nın " +
+      '(Tien Shan) alçalan eteklerinin ardından Hisar Sırası yükselir; bu sırada, ' +
+      "Tacikistan sınırında, Özbekistan'ın en yüksek noktası olan 4.643 metrelik " +
+      'Hazret-i Sultan Tepesi bulunur.',
+    climateNoteTr:
+      "Özbekistan'ın iklimi, yazın buharlaşmanın düşen yağışın on ila on beş katına " +
+      'ulaştığı kurak ve karasaldır. Çöl ve bozkır kesimlerinde yazlar uzun, sıcak ve ' +
+      'kurak geçer; kışlar ise özellikle kuzeyde sert ve dondurucu olabilir. Fergana ' +
+      'Vadisi ve güneydeki nehir vadilerinde, dağlardan gelen sulama suyu sayesinde bu ' +
+      'kurak karakter büyük ölçüde yumuşar.',
+    hydrographyNoteTr:
+      'Özbekistan topraklarının büyük bölümü, Amu Derya ve Sirderya nehirlerinin arasında ' +
+      "kalır; her iki nehir de kaynağını Pamir ve Tanrı Dağları'ndaki buzullardan alır. " +
+      "Tacikistan'dan gelen Zerefşan Nehri ise Amu Derya'ya hiç ulaşmaz — Buhara " +
+      "yakınlarında Kızılkum Çölü'nün kumlarında tükenir, suyu tamamen sulama için " +
+      'kullanılır.' +
+      '\n\n' +
+      'Sovyet döneminde pamuk tarımı için yönlendirilen bu iki nehrin akışı, dünyanın ' +
+      "dördüncü büyük iç gölü olan Aral Denizi'nin büyük ölçüde kurumasına yol açtı; " +
+      'gölün güney havzasının çoğu bugün Aralkum adı verilen genç bir çöle dönüşmüş ' +
+      'durumdadır.',
   },
   {
     isoCode: 'BN',
