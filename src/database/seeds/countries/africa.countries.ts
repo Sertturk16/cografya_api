@@ -154,6 +154,37 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: null,
     independenceNoteTr:
       "24 Aralık 1951'de İtalya'dan bağımsız oldu (BM gözetiminde geçici yönetim sonrası).",
+    introTr:
+      "Libya toprağının yaklaşık %90'ını Sahra Çölü kaplar; ülke coğrafi olarak üç bölgeye " +
+      'ayrılır: kıyıdaki Trablus, doğuda Bingazi çevresinde Sirenayka ve güneyde derin çöl ' +
+      "karakterindeki Fizan. Sirenayka'daki Cebel-i Ahdar (Yeşil Dağ), adını çevresindeki kurak " +
+      'araziden farklı olarak nispeten verimli topraklarından alır.',
+    landformNoteTr:
+      'Ülke sınırlarının büyük bölümünü çevreleyen kum denizleri (erg), Libya çölünün en ' +
+      'belirgin yüzey şekilleridir: doğuda Kalanşiyu, güneydoğuda Rebiyana, güneybatıda İdehan ' +
+      'Murzuk ve batıda İdehan Ubari kum denizleri, kimi noktalarda 500 metreyi aşan kum ' +
+      'tepeleriyle sıralanır. Ülkenin en yüksek noktası, güneyde Çad sınırına yakın Tibesti ' +
+      "sıradağının bir kolunda yükselen 2.267 metrelik Bikku Bitti'dir." +
+      '\n\n' +
+      'Merkezde, Al Haruc al Aswad adlı geniş dairesel volkanik kalkan sahası — halk arasında ' +
+      '"Kara Çöl" — siyah bazalt örtüsüyle kaplıdır; batıda, Tunus sınırına yakın Hamada ' +
+      'al-Hamra ise demir oksit içeriğiyle kızıla çalan taşlık bir plato oluşturur.',
+    climateNoteTr:
+      'Kıyı şeridinde Akdeniz iklimi görülür: yazlar 27-32 santigrat derece ortalama sıcaklıkla ' +
+      "geçer, ancak sıcaklık 40 derecenin üzerine çıkabilir; kışlar ılımandır. Trablus'ta " +
+      "yıllık yağış ortalama 380 milimetre, Bingazi'de 250 milimetredir; yalnızca Cebel-i " +
+      "Ahdar'ın yüksek kesimlerinde bu rakam 400-700 milimetreye ulaşır. İç kesimlerdeki Sahra " +
+      'ikliminde yıl içinde 200 gün boyunca hiç yağış düşmeyebilir; Sabha kentinde yıllık ' +
+      'ortalama yağış 10 milimetrenin altındadır, dünyanın en kurak istasyonlarından biri kabul ' +
+      'edilir. Gibli adlı sıcak ve kuru çöl rüzgarı, sıcaklığı birkaç saat içinde 15-20 derece ' +
+      'değiştirebilir.',
+    hydrographyNoteTr:
+      "Libya'da kalıcı akan bir nehir yoktur; yağış sonrası kısa süreliğine dolan vadiler " +
+      "dışında yüzey suyu neredeyse hiç bulunmaz, su ihtiyacının yaklaşık %97'si yeraltı " +
+      'kaynaklarından karşılanır. Bu ihtiyacı gidermek için inşa edilen Büyük Yapay Nehir, ' +
+      "güneydeki Nubian Kumtaşı Akiferi'nden — Libya, Mısır, Sudan ve Çad altında uzanan, on " +
+      'binlerce yıllık fosil su rezervi — çıkarılan suyu 2.800 kilometreyi aşan boru hattıyla ' +
+      'kıyı kentlerine taşır; dünyanın en büyük yeraltı su nakil projesi olarak kabul edilir.',
   },
   {
     isoCode: 'MA',
@@ -226,6 +257,37 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'SDG',
     governmentFormTr: null,
     independenceNoteTr: "1 Ocak 1956'da Birleşik Krallık-Mısır Kondominyumu'ndan bağımsız oldu.",
+    introTr:
+      "Güneyden gelen Beyaz Nil ile Etiyopya yaylalarından inen Mavi Nil, başkent Hartum'da " +
+      'birleşerek Nil Nehri\'ni oluşturur; bu birleşme noktası Arapça\'da "el-Mogran" olarak ' +
+      "anılır. Ülkenin kuzeyi Sahra'nın bir parçası olan çöl arazisidir, güneye doğru savan " +
+      'bitki örtüsü artar. Doğuda Kızıldeniz kıyısı, batıda Darfur Platosu ülkenin coğrafi ' +
+      'çeşitliliğini tamamlar.',
+    landformNoteTr:
+      "Hartum'un kuzeyinde, Nubya Çölü olarak bilinen kayalık arazi Nil'in doğusunu kaplar; " +
+      "nehrin batısında ise kum tepeleriyle örtülü Libya Çölü — Sudan'ın en büyük çöl bölgesi — " +
+      "uzanır. Doğu sınırında, Kızıldeniz'e paralel uzanan Kızıldeniz Tepeleri, hızlı akan " +
+      'mevsimsel derelerle yarılmış engebeli bir kuşak oluşturur.' +
+      '\n\n' +
+      "Batıda, Darfur Platosu'ndan yükselen Marra Dağları volkanik kökenlidir; sıradağın " +
+      'tepesindeki Deriba Krateri, 3.042 metreyle ülkenin en yüksek noktasıdır ve bir kaldera ' +
+      'gölü barındırır.',
+    climateNoteTr:
+      "Sudan'ın kuzeyi, Mısır ve Libya Sahrası'na benzer bir çöl iklimine sahiptir. Hartum'dan " +
+      'güneye inildikçe yıllık yağış kademeli olarak artar; yağmur mevsimi nisan-ekim arasına ' +
+      'denk gelir, süresi kuzeyde yaklaşık iki aya inerken güney sınıra yakın kesimlerde dört ' +
+      'aya çıkar. Hartum, yıllık ortalama 30,5 santigrat dereceyle dünyanın en sıcak ' +
+      'başkentlerinden biridir.',
+    hydrographyNoteTr:
+      "Mavi Nil, Etiyopya'daki Tana Gölü'nden doğar ve Nil'in toplam su ve alüvyon yükünün " +
+      "yaklaşık %80'ini taşıyarak koyu renkli sularıyla bilinir; Beyaz Nil ise çok daha uzun " +
+      'bir güzergahla Uganda-Kongo sınırındaki kaynaklardan gelir ve daha berrak akar. İki ' +
+      "nehir Hartum'da birleştikten sonra kuzeye yönelen Nil, Mısır sınırına ulaşmadan önce " +
+      'altı büyük çağlayandan (katarakt) geçerek 375 metreden 90 metreye alçalır. Bu güzergahta ' +
+      'katılan son önemli kol olan Atbara Nehri mevsimseldir — aralık-mayıs arasında neredeyse ' +
+      "kurur, temmuz-ekim taşkınlarında ise Nil'in toplam debisinin beşte birinden fazlasını " +
+      "sağlar. Ülkenin en kuzeyinde, Asvan Barajı'nın oluşturduğu Nasır Gölü'nün yaklaşık üçte " +
+      "biri Sudan sınırları içinde kalır, kalanı Mısır'dadır.",
   },
   {
     isoCode: 'TN',
@@ -249,6 +311,36 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'TND',
     governmentFormTr: 'Üniter başkanlık tipi cumhuriyet',
     independenceNoteTr: "20 Mart 1956'da Fransa'dan bağımsız oldu.",
+    introTr:
+      "Tunus'un en kuzey noktası olan Ras Ben Sakka, 2014'teki güncellenmiş jeodezik " +
+      'ölçümlerden bu yana kıtanın en kuzey noktası kabul edilir. Ülke toprakları kuzeyden ' +
+      'güneye üç ayrı arazi kuşağını art arda geçer: kuzeydeki dağlık Tell bölgesi, ortadaki ' +
+      "bozkır karakterindeki geçiş kuşağı ve güneydeki Sahra'nın eşiği. Doğuda Akdeniz'e uzun " +
+      'bir kıyı şeridiyle açılan ülke, batıda Cezayir, güneydoğuda Libya ile komşudur.',
+    landformNoteTr:
+      "Kuzeybatıdan güneydoğuya uzanan Tunus Dorsali, Sahra Atlasları'nın bir uzantısı olarak " +
+      'ülkenin dağlık omurgasını oluşturur; sıradağın en yüksek noktası, 1.544 metrelik Djebel ' +
+      "Chambi'dir. Dorsal'ın kuzeyinde, Cezayir'de doğan Medjerda Nehri'nin vadisi, eski göl " +
+      'tabanlarından oluşan verimli bir tahıl ovasıdır.' +
+      '\n\n' +
+      'Güneye inildikçe arazi alçalır ve chott ya da şat olarak adlandırılan bir dizi sığ tuz ' +
+      "gölü, Sahra'nın kuzey sınırını çizer. Bunların en büyüğü olan Chott el Djerid, yaklaşık " +
+      '7.000 kilometrekarelik alanıyla ülkenin en alçak noktasıdır (-17 m); yazın neredeyse ' +
+      "tamamen kurur. Gölün güneyinde, Büyük Doğu Erg'i adlı kum denizi başlar.",
+    climateNoteTr:
+      "Tunus'ta iklim kuzeyden güneye keskin biçimde değişir. Kuzeyde Akdeniz iklimi hakimdir; " +
+      'yazlar sıcak ve kurak, kışlar ılıman ve yağışlı geçer, yıllık yağış kıyı kesiminde ' +
+      '400-1.000 milimetre arasındadır, kuzeybatıdaki Kroumirie tepelerinde ise 1.500 ' +
+      'milimetreye ulaşır. Orta kesimde yağış 380 milimetreye kadar düşer ve step bitki örtüsü ' +
+      'hakim olur. Güneydeki Sahra kuşağında yıllık yağış 100 milimetrenin altına iner; Tozeur ' +
+      've Douz gibi yerleşimlerde kışın gündüz 18-20 santigrat dereceye çıkan sıcaklıklar, gece ' +
+      '3-5 dereceye kadar düşer.',
+    hydrographyNoteTr:
+      "Ülkenin en uzun ve tek büyük kalıcı akarsuyu olan Medjerda, Cezayir'de doğar, 450 " +
+      "kilometre boyunca doğuya akar ve Tunus Körfezi'ne dökülür; vadisi ülkenin başlıca tahıl " +
+      "üretim alanıdır. Güneydeki chott'lar kalıcı göl değildir — Chott el Djerid gibi büyük " +
+      'depresyonlar yılın çoğunda kuru bir tuz kabuğuyla kaplıdır, yalnızca kışın kısa süreli ' +
+      'sığ sularla dolar. Bu dönemde gölün üzerinde sık sık serap görülür.',
   },
   {
     isoCode: 'BJ',
@@ -537,6 +629,35 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'XOF',
     governmentFormTr: null,
     independenceNoteTr: "22 Eylül 1960'ta Fransa'dan bağımsız oldu.",
+    introTr:
+      "Mali toprakları kuzeyden güneye üç kuşağa ayrılır: kuzeyde Sahra'nın çöl arazisi, ortada " +
+      'yarı kurak Sahel kuşağı ve güneyde Sudan tipi savan. Ülkenin ortasından geçen Nijer ' +
+      'Nehri, Timbuktu yakınında keskin bir kavis çizerek doğuya yönelir; bu kavisin hemen ' +
+      'öncesinde nehir, geniş bir iç deltaya yayılır.',
+    landformNoteTr:
+      'Kuzeydoğuda, Cezayir sınırına yakın Adrar des Ifoghas, Hoggar sıradağlar sisteminin bir ' +
+      'uzantısı olan aşınmış bir kumtaşı platosudur ve yaklaşık 800 metreye ulaşır. Ülkenin ' +
+      'orta-güney kesiminde, Hombori yakınlarındaki sarp kayalık masaların en yükseği olan ' +
+      '1.155 metrelik Hombori Tondo, ülkenin en yüksek noktasıdır.' +
+      '\n\n' +
+      'Ülkenin can damarı olan Nijer Nehri, güneybatıdan Gine yaylalarının etkisiyle taşan ' +
+      "sularla beslenerek Mali'ye girer ve Timbuktu'ya yaklaşırken keskin bir dönüş yaparak " +
+      'doğuya yönelir; bu dönüşten önce nehir, kanallar, göller ve mevsimsel taşkın ovalarından ' +
+      "oluşan İç Nijer Deltası'na yayılır.",
+    climateNoteTr:
+      "Mali'de yıllık yağış kuzeyden güneye keskin bir gradyan izler: kuzeydeki Sahra kuşağında " +
+      'yağış neredeyse sıfıra iner, orta kesimdeki Sahel kuşağında 200-500 milimetre arasında ' +
+      'kalır, güneydeki Sudan kuşağında ise 500-1.800 milimetreye kadar çıkar. Kurak mevsimde, ' +
+      'kuzeydoğudan esen tozlu ve kuru harmattan rüzgarı ülkenin büyük bölümünü etkisi altına ' +
+      "alır. Yağışlı mevsim, Güneybatı Musonu'nun etkisiyle haziran-eylül arasına yoğunlaşır; " +
+      'bu dönem kuzeyde Timbuktu gibi yerleşimlerde bile kısa süreli yağışlara yol açar.',
+    hydrographyNoteTr:
+      'Nijer Nehri, Gine yaylalarında doğan sularla beslenerek ülkenin güneybatısından girer; ' +
+      "Timbuktu'ya yaklaşırken oluşturduğu İç Nijer Deltası, yaklaşık 425 kilometre uzunluğunda " +
+      've ortalama 80 kilometre genişliğinde, eylül-aralık arasında mevsimsel olarak taşan bir ' +
+      "sulak alan sistemidir. Ülkenin batısında, Gine'de doğan Bafing ve Bakoye nehirleri, " +
+      "Bafoulabé kasabası yakınında birleşerek Senegal Nehri'ni oluşturur ve buradan batıya, " +
+      'Senegal topraklarına doğru akar.',
   },
   {
     isoCode: 'MR',
@@ -1215,6 +1336,35 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'DJF',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "27 Haziran 1977'de Fransa'dan bağımsız oldu.",
+    introTr:
+      "Cibuti, Kızıldeniz Rifti, Aden Körfezi Rifti ve Doğu Afrika Rift Vadisi'nin kesiştiği " +
+      '"Afar Üçlü Kavşağı" üzerinde yer alır; bu konum ülkeye yoğun bir tektonik ve volkanik ' +
+      'karakter kazandırır. Kıyı boyunca dar bir şerit halinde uzanan arazi, iç kesimde 300-430 ' +
+      'metre yükseklikteki platolara yükselir. Ülkenin en alçak noktası olan Assal Gölü, Afrika ' +
+      'kıtasının da en alçak noktasıdır.',
+    landformNoteTr:
+      "Cibuti kentinin yaklaşık 120 kilometre batısında, Tadjoura Körfezi'nin batı kolu olan " +
+      'Ghoubbet-el-Kharab koyuna yalnızca 10 kilometre uzaklıkta yer alan Assal Gölü, deniz ' +
+      "seviyesinin 155 metre altındadır; bu değer onu Afrika'nın en alçak noktası, dünyanın ise " +
+      "Ölü Deniz ve Celile Gölü'nün ardından üçüncü en alçak noktası yapar. Yüksek buharlaşma " +
+      'nedeniyle gölün tuzluluğu deniz suyunun on katına ulaşır. Gölü çevreleyen volkanik ' +
+      "bazalt oluşumları, Afar Üçlü Kavşağı'nın jeolojik hareketliliğini yansıtır." +
+      '\n\n' +
+      "Güneyde, Etiyopya sınırındaki Abbe Gölü'nün çevresinde, derin jeotermal sulardan " +
+      'beslenen ve 50 metreye ulaşan kireçtaşı bacalar yükselir; bu oluşumlar, göle ulaşan ' +
+      "Etiyopya kökenli Auş Nehri'nin sularının jeotermal akışkanlarla karışmasıyla oluşur.",
+    climateNoteTr:
+      'Cibuti, dünyanın en sıcak ülkeleri arasında sayılan sıcak ve yarı kurak bir iklime ' +
+      'sahiptir. Kıyı ve alçak kesimlerde gündüz sıcaklıkları 32-41 santigrat derece arasında ' +
+      'değişir, en sıcak ay temmuzdur. Yağış kıyıda yılda 130 milimetrenin altındadır; iç ' +
+      'kesimdeki yüksek platolarda bu rakam 200-410 milimetreye çıkar. Yağışlar düzensizdir ve ' +
+      'yıllar süren kuraklıkların ardından birkaç saat içinde sel baskınlarına yol açabilir.',
+    hydrographyNoteTr:
+      "Cibuti'de kalıcı akan bir nehir yoktur; iç kesimdeki mevsimsel vadiler yalnızca yağış " +
+      "sonrası kısa süreliğine su taşır. Assal Gölü'nün çıkışı yoktur — Tadjoura Körfezi'nden " +
+      'yer altından sızan deniz suyu ve sınırlı tatlı su girdisi, yalnızca buharlaşmayla ' +
+      'dengelenir; bu, gölün aşırı tuzluluğunun kaynağıdır. Etiyopya sınırındaki Abbe Gölü ise ' +
+      "düzensiz akışlı Auş Nehri'nden beslenir.",
   },
   {
     isoCode: 'ER',
@@ -1239,6 +1389,34 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Tek parti/otoriter başkanlık rejimi',
     independenceNoteTr:
       "24 Mayıs 1993'te Etiyopya'dan bağımsızlığını ilan etti (Nisan 1993 referandumu sonrası).",
+    introTr:
+      'Eritre, yaklaşık 1.000 kilometrelik Kızıldeniz kıyısı boyunca uzanan bir ülkedir. ' +
+      "Ülkenin omurgasını, başkent Asmara'nın 2.300 metre yükseklikte kurulu olduğu merkezi " +
+      'yayla oluşturur; bu yayla doğuda sarp bir yamaçla alçak ve sıcak kıyı ovasına iner. ' +
+      'Açıklarda, mercan resifleriyle çevrili Dahlak Takımadaları yer alır.',
+    landformNoteTr:
+      'Etiyopya platosunun bir uzantısı olan Eritre Yaylası, ülkenin nüfus ve tarımının ' +
+      'yoğunlaştığı serin ve verimli bir bölgedir; yaylanın güneyindeki 3.018 metrelik Amba ' +
+      "Soira, ülkenin en yüksek noktasıdır. Yayladan doğuya inen keskin yamaç, Kızıldeniz'e " +
+      'paralel dar bir kıyı ovasında sona erer.' +
+      '\n\n' +
+      "Ülkenin güneydoğusunda, Etiyopya sınırına yakın kesimde arazi Danakil Çukurluğu'na doğru " +
+      'alçalır; deniz seviyesinin yaklaşık 125 metre altına inen bu volkanik ve tuz düzlüğü, ' +
+      "dünyanın en sıcak bölgelerinden biridir. Açıklarda, çoğu ıssız 200'den fazla adadan " +
+      'oluşan Dahlak Takımadaları, alçak mercan platformlarından oluşur; adaların çoğu ' +
+      'fosilleşmiş mercan kayalıklarıyla kaplıdır.',
+    climateNoteTr:
+      "Eritre'de yükseklik, iklimi belirleyen temel etkendir. Asmara'da gündüz sıcaklıkları " +
+      'kışın 22-23 santigrat derece dolayında seyreder, yıllık yağış ortalama 500 milimetredir ' +
+      "ve neredeyse tamamı temmuz-ağustos aylarında düşer. Kızıldeniz kıyısındaki Massava'da " +
+      'ise sıcaklık yaz aylarında gündüz 40 dereceye, kimi günler 45 dereceye ulaşır; yıllık ' +
+      'yağış 200 milimetrenin altındadır. Güneydoğudaki Danakil Çukurluğu kesiminde sıcaklık ' +
+      'sık sık 50 dereceyi aşar.',
+    hydrographyNoteTr:
+      "Eritre'de kalıcı akan büyük bir nehir yoktur; Barka ve Gash gibi mevsimsel dereler, yaz " +
+      'yağmurlarının ardından kısa süreliğine dolar ve büyük ölçüde yeraltına sızarak ya da ' +
+      "komşu ülkelere doğru akarak kaybolur. Kızıldeniz kıyısı boyunca, Dahlak Takımadaları'nın " +
+      'çevresindeki sığ sular canlı mercan resifleriyle kaplıdır.',
   },
   {
     isoCode: 'ET',
@@ -1502,6 +1680,34 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal parlamenter cumhuriyet',
     independenceNoteTr:
       "1 Temmuz 1960'ta İngiliz ve İtalyan yönetimlerinden ayrı ayrı bağımsız olan bölgeler birleşerek Somali Cumhuriyeti'ni kurdu.",
+    introTr:
+      "Afrika Boynuzu'nun doğu ucunda yer alan Somali, kıta anakarasının en uzun kıyı şeridine " +
+      "(yaklaşık 3.300 km) sahiptir; kuzeyde Aden Körfezi'ne, doğu ve güneyde Hint Okyanusu'na " +
+      'kıyısı vardır. Kuzeyde dar bir kıyı ovasının ardından yükselen bir dağlık kuşak, ülkenin ' +
+      'geri kalanını oluşturan geniş güney-orta platosundan belirgin biçimde farklıdır.',
+    landformNoteTr:
+      "Kuzey kıyısı boyunca uzanan Guban, Aden Körfezi'ne paralel dar ve alçak bir kumul " +
+      "ovadır; genişliği batıda 56 kilometreden doğuda 6 kilometreye kadar daralır. Guban'ın " +
+      'hemen güneyinde, sarp bir yamaçla yükselen Ogo (Galgodon) Yaylası başlar; bu yaylanın ' +
+      'Cal Madow kesiminde, Erigavo yakınlarında yükselen Şimbiris Zirvesi, yaklaşık 2.416 ' +
+      'metreyle ülkenin en yüksek noktasıdır.' +
+      '\n\n' +
+      "Güney ve orta Somali'nin büyük bölümü, kıyıya doğru kademeli olarak alçalan geniş ve düz " +
+      'bir plato niteliğindedir; kıyı şeridi kumullarla kaplıdır ve güçlü dalgalar nedeniyle ' +
+      'denizden yaklaşımı zordur.',
+    climateNoteTr:
+      "Somali'de kurak ve yarı kurak bir iklim hakimdir; yağış rejimi, Ekvatoral Yakınsama " +
+      "Kuşağı'nın kuzey-güney hareketine bağlı dört mevsimle belirlenir: mart-haziran arası ana " +
+      'yağmur mevsimi Gu, temmuz-eylül arası serin ve kurak Xagaa, ekim-kasım arası ikincil ' +
+      'yağmur mevsimi Deyr ve aralık-mart arası ana kurak dönem Jilaal. Yıllık yağışın 400-600 ' +
+      'milimetreye ulaştığı tek bölgeler, kuzeybatının bir kesimi ile Shabelle ve Jubba nehir ' +
+      'vadileridir; kuraklık ülke genelinde sık görülen bir risktir.',
+    hydrographyNoteTr:
+      'Ülkenin kalıcı akan tek iki nehri olan Shabelle ve Jubba, Etiyopya yaylalarından doğar. ' +
+      "Jubba, Kismayo'nun kuzeyinden doğrudan Hint Okyanusu'na dökülür. Shabelle ise kıyıya " +
+      "paralel bir güzergah izler, ama çoğu yılda Jubba'nın ağzına ulaşamadan Kismayo'nun " +
+      'kuzeydoğusundaki bataklık ve kum düzlüklerinde kaybolur; yalnızca yağışlı yıllarda ' +
+      "Jubba'ya bağlanarak okyanusa ulaşır.",
   },
   {
     isoCode: 'SS',
@@ -1526,6 +1732,32 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal başkanlık cumhuriyeti',
     independenceNoteTr:
       "9 Temmuz 2011'de Sudan'dan bağımsızlığını ilan etti (Ocak 2011 referandumu sonrası).",
+    introTr:
+      "Uganda'dan gelen Beyaz Nil'in üst kolu, Güney Sudan topraklarına Dağ Nili (Bahr el " +
+      'Jebel) adıyla girer ve ülkenin ortasında dünyanın en büyük sulak alanlarından biri olan ' +
+      "Sudd'a yayılır. Güneydoğuda, Uganda sınırındaki İmatong Dağları ülkenin tek dağlık " +
+      'kesimidir; geri kalan toprakların büyük bölümü düz ova ve alçak platolardan oluşur.',
+    landformNoteTr:
+      'Ülkenin ortasında yer alan Sudd, 30.000 kilometrekareyi aşan bir alana yayılan, papirüs ' +
+      "ve sazlıklarla kaplı mevsimsel bir bataklıktır; Beyaz Nil'in taşıdığı suyun yaklaşık " +
+      'yarısı burada bitki örtüsü tarafından emilerek ya da buharlaşarak kaybolur.' +
+      '\n\n' +
+      "Güneydoğuda, Uganda sınırı boyunca uzanan İmatong Dağları'nın en yüksek noktası, 3.187 " +
+      "metrelik Kinyeti Dağı'dır — ülkenin de en yüksek noktasıdır; yamaçları nemli dağ " +
+      'ormanlarıyla kaplıdır. Ülkenin geri kalanı, kuzeyde alçalarak Sudan sınırına doğru ' +
+      'düzleşen geniş savan ovalarından oluşur.',
+    climateNoteTr:
+      "Güney Sudan'da tropikal bir iklim, Ekvatorun kuzey-güney salınımına bağlı yağışlı ve " +
+      'kurak dönemler halinde yaşanır. Güneydeki Ekvatorya bölgelerinde yıllık yağış 1.000 ' +
+      'milimetreyi aşabilir ve yağmur mevsimi sekiz aya kadar uzar. Kuzeyde, Sudan sınırına ' +
+      'yakın bölgelerde yağış 500 milimetrenin altına iner, yağmur mevsimi altı aya kısalır. ' +
+      'Aralık-mart arasında ülke geneli kuzeydoğu rüzgarlarının etkisi altında kalır ve yağış ' +
+      'neredeyse durur.',
+    hydrographyNoteTr:
+      "Bahr el Jebel, Uganda'daki Albert Nili'nin devamı olarak ülkeye girer ve kısa süre sonra " +
+      'Sudd bataklığına dağılır; buradan çıkan su, batıdan gelen Bahr el Gazal ve doğudan, ' +
+      'Etiyopya yaylalarından inen Sobat nehirleriyle birleşerek Beyaz Nil adını alır ve ' +
+      'kuzeye, Sudan sınırına doğru akar.',
   },
   {
     isoCode: 'TZ',
