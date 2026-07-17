@@ -893,7 +893,7 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'ölçüde şekillenir: dağ sıraları ve vadilerin kuzey-güney doğrultusunda uzanması, hem ' +
       'güneybatı hem de kuzeydoğu musonu sırasında bol ve az yağışlı bölgelerin yan yana ' +
       'ortaya çıkmasına yol açar. Haziran-Eylül arasındaki güneybatı musonu sıcak, nemli ve ' +
-      'bulutlu bir yaz getirir; bu dönem yıllık yağışın büyük bölümünü oluşturur. Aralık- ' +
+      'bulutlu bir yaz getirir; bu dönem yıllık yağışın büyük bölümünü oluşturur. Aralık-' +
       'Nisan arasındaki kuzeydoğu musonu ise daha serin, kuru ve az bulutlu bir kış ' +
       'dönemidir. İki muson arasındaki geçiş, kısa ve sıcak bir ara mevsim oluşturur.',
     hydrographyNoteTr:
