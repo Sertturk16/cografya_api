@@ -174,6 +174,42 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'BZD',
     governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
     independenceNoteTr: "21 Eylül 1981'de Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      "Belize, Orta Amerika'nın Karayip kıyısında, Yucatán Yarımadası'nın hemen güneyinde yer " +
+      "alır. Bölgenin resmi dili İngilizce olan tek ülkesidir; bu miras, 1981'e kadar Britanya " +
+      "Honduras'ı adıyla bir Birleşik Krallık sömürgesi olmasından gelir. Nüfusun büyük bölümü " +
+      'kıyı şeridinde ve güneydeki nehir vadilerinde toplanır, iç kesimlerin geniş bir bölümü ' +
+      'seyrek nüfusludur ve yağmur ormanıyla kaplıdır.',
+    landformNoteTr:
+      "Ülkenin güneyinde yükselen Maya Dağları, 1.124 metrelik Doyle's Delight zirvesiyle " +
+      "Belize'nin en yüksek noktasını oluşturur; daha uzun süre bu unvanı taşıdığı sanılan " +
+      'Victoria Peak (1.120 m), uydu ölçümleriyle ikinci sıraya inmiştir. Sıradağın granit ve ' +
+      "şist çekirdeği yaklaşık 300-400 milyon yıl önce şekillenmiştir ve Orta Amerika'nın " +
+      'bilinen en eski kayaçları arasında sayılır. Ülkenin geri kalanını kaplayan kireçtaşı ' +
+      'arazi çok daha genç bir dönemde, sığ bir denizin tortullarından oluşmuştur; bu jeolojik ' +
+      "fark, Maya Dağları'nın asidik ve besince fakir topraklarıyla çevresindeki kireçtaşı " +
+      'ovaların bitki örtüsü arasında belirgin bir ayrım yaratır.' +
+      '\n\n' +
+      'Kıyı açıklarında uzanan Belize Bariyer Resifi, yaklaşık 300 kilometrelik uzunluğuyla ' +
+      "Büyük Set Resifi'nin ardından dünyanın en uzun ikinci kesintisiz bariyer resifidir. Resif " +
+      'içindeki Lighthouse Reef atolünde yer alan Büyük Mavi Delik, son buzul çağında oluşmuş ' +
+      'bir kireçtaşı mağaranın deniz seviyesi yükselişiyle sular altında kalmasından doğmuştur; ' +
+      'çapı 300 metreyi aşan bu neredeyse dairesel çukur dünya çapında tanınan bir dalış ' +
+      'noktasıdır.',
+    climateNoteTr:
+      "Belize'de tropikal bir iklim egemendir; Mayıs-Kasım arası yağışlı, Aralık-Nisan arası " +
+      'görece kurak bir mevsim izler. Ülke Karayip kasırga kuşağının içinde yer alır, kıyı ' +
+      'bölgeleri yaz sonu ve sonbahar aylarında tropikal fırtına riskiyle karşı karşıyadır. ' +
+      'Güneydeki dağlık kesimler kuzeydeki düz ovalara göre belirgin biçimde daha fazla yağış ' +
+      "alır; Maya Dağları'nın rüzgar alan yamaçları ülkenin en yağışlı bölgeleridir.",
+    hydrographyNoteTr:
+      "Belize'nin en uzun nehri, Guatemala'da Mopán Nehri adıyla doğan ve 290 kilometre sonra " +
+      "Belize Kenti yakınında Karayip Denizi'ne dökülen Belize Nehri'dir; kollarıyla birlikte " +
+      'ülkenin en yoğun nüfuslu ve en verimli tarım bölgelerini sular. Kuzeyde Meksika sınırının ' +
+      'büyük bölümünü belirleyen Rio Hondo yaklaşık 150 kilometre, güneyde Guatemala sınırını ' +
+      'izleyen Sarstoon Nehri ise 111 kilometre uzunluğundadır. Kireçtaşı arazinin bulunduğu iç ' +
+      'kesimlerde çok sayıda yeraltı nehri ve mağara sistemi bulunur, yüzey suyunun önemli bir ' +
+      'bölümü bu mağaralardan beslenir.',
   },
   {
     isoCode: 'CR',
@@ -252,6 +288,33 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr:
       "15 Eylül 1821'de İspanya'dan bağımsız oldu (ortak Orta Amerika bildirgesiyle).",
+    introTr:
+      "El Salvador, Orta Amerika'da yalnızca Büyük Okyanus'a kıyısı olan tek ülkedir; kıtanın " +
+      'Karayip kıyısına hiç ulaşmayan bu konum, onu bölgedeki diğer altı ülkeden ayıran temel ' +
+      "özelliktir. Yüzölçümü 20.720 km² ile Orta Amerika'nın en küçük ülkesi olmasına karşın " +
+      "nüfus yoğunluğu bölgede en yüksek seviyededir. Ülke, Kokos Plakası'nın Karayip " +
+      "Plakası'nın altına daldığı aktif bir yitim kuşağı üzerinde yer alır ve bu nedenle sık " +
+      'depremle ve etkin volkanizmayla karşı karşıyadır.',
+    landformNoteTr:
+      "Ülkeyi doğu-batı doğrultusunda kesen bir volkanik sıradağ, El Salvador'un iç coğrafyasını " +
+      'belirler; bu hat üzerinde yirmiden fazla volkan sıralanır. Ülkenin en yüksek noktası, ' +
+      "batıda Guatemala sınırına yakın 2.381 metrelik Santa Ana Yanardağı'dır (Ilamatepec). " +
+      "Hemen yanı başındaki Izalco Yanardağı, 1770'ten bu yana 50'den fazla patlama geçirmiştir; " +
+      'geceleri gemilere yol gösteren düzenli kızıl parıltısı nedeniyle tarihte "Büyük ' +
+      'Okyanus\'un Feneri" adıyla anılmıştır.',
+    climateNoteTr:
+      "El Salvador'da tropikal bir iklim egemendir; Mayıs-Ekim arası yağışlı mevsim, Kasım-Nisan " +
+      'arası ise kurak mevsim olarak ayrılır. Kıyı ovaları ve iç vadiler yıl boyunca sıcak ' +
+      'kalırken, volkanik sıradağın yüksek kesimlerinde rakımın etkisiyle sıcaklıklar belirgin ' +
+      'biçimde düşer. Ülke, Karayip kıyısındaki komşularını düzenli vuran tropikal siklonlardan ' +
+      'büyük ölçüde uzak kalır; bunun yerine sık deprem ve volkanik patlama riskiyle karşı ' +
+      'karşıyadır.',
+    hydrographyNoteTr:
+      "Ülkenin en önemli akarsuyu, Guatemala'da doğan, kuzey sıradağlarını kestikten sonra " +
+      "merkezi platoyu geçen ve güneydeki volkanik sıradağı da yararak Büyük Okyanus'a dökülen " +
+      "Lempa Nehri'dir; ülke topraklarının yaklaşık yarısı bu nehir ve kolları tarafından " +
+      'sulanır. Lempa, ülkenin gemi taşımacılığına elverişli tek akarsuyudur. İç kesimdeki ' +
+      'Coatepeque ve Ilopango gölleri, sönmüş volkanik kalderaların su tutmasıyla oluşmuştur.',
   },
   {
     isoCode: 'GT',
@@ -333,6 +396,38 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr:
       "15 Eylül 1821'de İspanya'dan bağımsız oldu (ortak Orta Amerika bildirgesiyle).",
+    introTr:
+      "Honduras, Orta Amerika'da hem Karayip hem de Büyük Okyanus kıyısına sahip ülkelerden " +
+      'biridir: kuzeyde 700 kilometrelik bir Karayip kıyı şeridi uzanırken, güneyde Fonseka ' +
+      'Körfezi üzerinden yalnızca 153 kilometrelik dar bir Büyük Okyanus kıyısına açılır. Ülke ' +
+      'topraklarının büyük bölümü dağlık ve engebelidir, düzlükler yalnızca kıyı şeritlerinde ve ' +
+      'nehir vadilerinde görülür. Kuzey kıyısı açıklarındaki Bahía Adaları, ülkenin dalış ve ' +
+      'kıyı turizminin merkezidir.',
+    landformNoteTr:
+      "Ülkenin en yüksek noktası, batıdaki Lempira Departmanı'nda yükselen 2.870 metrelik Cerro " +
+      "Las Minas'tır; zirve ve çevresindeki 266 kilometrekarelik alan Celaque Ulusal Parkı " +
+      'sınırları içinde korunur. Dağlık iç kesim, rakıma göre üç farklı iklim-arazi kuşağına ' +
+      'ayrılır: 1.000 metrenin altında sıcak tierra caliente, 1.000-2.000 metre arası ılıman ' +
+      'tierra templada, 2.000 metrenin üzerinde ise serin tierra fría. Başkent Tegusigalpa, ' +
+      '1.000 metre rakımdaki bir vadide kurulu olması nedeniyle bu ılıman kuşağın tipik bir ' +
+      'örneğidir.' +
+      '\n\n' +
+      'Kuzey kıyısı açıklarındaki Roatán, Utila ve Guanaja adalarından oluşan Bahía Adaları, ' +
+      "Mezoamerika Resif Sistemi'nin bir parçasıdır; bu sistem, Büyük Set Resifi'nden sonra " +
+      'dünyanın en büyük ikinci mercan resif ağıdır.',
+    climateNoteTr:
+      "Honduras'ın iklimi kıyı ve iç kesimler arasında belirgin biçimde farklılaşır. Karayip " +
+      'kıyısı yıl boyunca sıcak ve nemli kalırken, Fonseka Körfezi çevresindeki Büyük Okyanus ' +
+      'kıyısında Kasım-Nisan arası belirgin bir kurak mevsim yaşanır. İç kesimlerdeki yüksek ' +
+      'vadiler, rakımın etkisiyle kıyı ovalarına göre çok daha ılımandır. Ülke Karayip kasırga ' +
+      'kuşağının içinde yer alır; kuzey kıyısı zaman zaman tropikal fırtına ve kasırga etkisi ' +
+      'altında kalır.',
+    hydrographyNoteTr:
+      'Ülkenin en uzun nehirlerinden Ulúa Nehri, kuzeydeki verimli ovaları sulayarak Karayip ' +
+      "Denizi'ne dökülür; kollarıyla birlikte ülke topraklarının yaklaşık üçte birini sular. " +
+      'Chamelecón, Aguán, Plátano ve Patuca gibi diğer büyük nehirler de kuzey kıyısına paralel ' +
+      'havzalarda akar. Doğudaki La Mosquitia bölgesinde, Patuca ve Plátano nehirlerinin ' +
+      'çevresinde geniş ve seyrek nüfuslu yağmur ormanı ile sulak alanlar uzanır.',
   },
   {
     isoCode: 'NI',
@@ -357,6 +452,35 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr:
       "15 Eylül 1821'de İspanya'dan bağımsız oldu (ortak Orta Amerika bildirgesiyle).",
+    introTr:
+      "Nikaragua, Orta Amerika'nın yüzölçümce en büyük ülkesidir; buna karşın nüfus yoğunluğu " +
+      'bölgede düşük seviyededir. Ülkenin batı yarısını volkanik bir sıradağ ve iki büyük göl — ' +
+      'Managua ve Nikaragua Gölleri — kaplarken, doğu yarısı seyrek nüfuslu, alçak ve ormanlık ' +
+      "Mosquito Kıyısı'ndan oluşur. Bu iki bölge arasındaki nüfus ve altyapı farkı, ülkenin " +
+      'coğrafi kimliğinin temel eksenini oluşturur.',
+    landformNoteTr:
+      "Ülkenin en yüksek noktası, kuzeyde Honduras sınırındaki Dipilto ve Jalapa Sıradağı'nda " +
+      "yükselen 2.085 metrelik Mogotón Tepesi'dir. Batı Nikaragua'yı boydan boya kateden " +
+      'volkanik hat üzerinde yirmiye yakın etkin ya da sönmüş volkan sıralanır. Nikaragua ' +
+      "Gölü'nün ortasında yükselen Ometepe Adası, biri hâlâ etkin olan 1.610 metrelik Concepción " +
+      've sönmüş 1.394 metrelik Maderas volkanlarının dar bir kıstakla birleşmesinden oluşur; ' +
+      'ada genellikle dünyanın bir tatlı su gölü içindeki en büyük volkanik ada toprağı olarak ' +
+      'anılır.',
+    climateNoteTr:
+      "Nikaragua'da tropikal iklim egemendir, ancak Karayip ve Büyük Okyanus kıyıları arasında " +
+      'belirgin bir yağış farkı vardır. Doğudaki Karayip kıyısı ve Mosquito Kıyısı yıl boyunca ' +
+      'bol yağış alır; Bluefields kenti yılda ortalama 2.700 milimetrenin üzerinde yağışla ' +
+      'ülkenin en yağışlı yerleşimlerinden biridir. Batıdaki Büyük Okyanus kıyısında ise ' +
+      'Kasım-Nisan arası belirgin bir kurak mevsim yaşanır, ticaret rüzgarları bu dönemde ' +
+      'serinletici bir etki yaratır.',
+    hydrographyNoteTr:
+      'Ülkenin en büyük gölü olan Nikaragua Gölü (Cocibolca), 8.264 kilometrekarelik ' +
+      "yüzölçümüyle Orta Amerika'nın en büyük tatlı su gölüdür; gölde yaşayan boğa " +
+      'köpekbalıkları, okyanusla göl arasında haftalar içinde gidip gelebilen, tatlı suya uyum ' +
+      'sağlamış nadir popülasyonlardan biridir. Göl doğuda San Juan Nehri aracılığıyla Karayip ' +
+      "Denizi'ne boşalır; bu 192 kilometrelik nehir, uzun bir bölümünde Kosta Rika sınırını da " +
+      "belirler. Daha küçük Managua Gölü (Xolotlán), Tipitapa Nehri ile Nikaragua Gölü'ne " +
+      'bağlanır.',
   },
   {
     isoCode: 'PA',
@@ -461,6 +585,36 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'BSD',
     governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
     independenceNoteTr: "10 Temmuz 1973'te Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      "Bahamalar, Karayip Denizi'nde değil Atlantik Okyanusu'nda, Küba'nın ve Florida'nın " +
+      "kuzeyinde yer alan bir takımadadır; 700'den fazla ada ve 2.000'den fazla küçük kayalık " +
+      'adacıktan (cay) oluşur, bunların yalnızca otuz kadarı kalıcı olarak yerleşiktir. Ülke, ' +
+      'karbonat kayaçlardan oluşan sığ deniz platformları — Büyük ve Küçük Bahama Bankaları — ' +
+      'üzerine kuruludur. Adaların hiçbiri volkanik kökenli değildir; tamamı, milyonlarca yıl ' +
+      'boyunca sığ tropikal denizlerde birikmiş mercan ve kireçtaşı katmanlarından oluşur.',
+    landformNoteTr:
+      "Bahamalar'ın tamamı alçak ve düzdür; ülkenin en yüksek noktası, Cat Adası'ndaki yalnızca " +
+      "63 metrelik Mount Alvernia'dır — bu rakım, egemen bir ülkenin en yüksek noktası olarak " +
+      'dünyanın en düşük değerlerinden biridir. Kireçtaşı zemin, yağış suyunun kimyasal ' +
+      'aşınmasıyla yer yer çökerek adalar boyunca çok sayıda mavi delik (blue hole) ' +
+      "oluşturmuştur. Long Adası açıklarındaki Dean's Mavi Deliği 202 metre derinliğindedir; " +
+      "uzun yıllar dünyanın en derin mavi deliği kabul edilmiştir. 2018'de ölçülen Çin'deki 301 " +
+      "metrelik Dragon Hole ve 2024'te keşfedilen Meksika kıyısındaki 420 metreden derin Taam " +
+      "Ja', bu unvanı geride bırakmıştır. Dean's Mavi Deliği bugün de dünyanın önde gelen " +
+      'serbest dalış noktalarından biridir.',
+    climateNoteTr:
+      "Bahamalar'da tropikal ve yarı tropikal iklim arasında bir geçiş yaşanır; kuzeydeki adalar " +
+      "Florida'ya yakınlığı nedeniyle güneydekilere göre biraz daha serin kışlar geçirir. Ülke " +
+      'Atlantik kasırga kuşağının tam merkezinde yer alır ve Haziran-Kasım arası kasırga ' +
+      'mevsiminde düzenli risk altındadır. Sığ banka suları çevredeki derin okyanus sularına ' +
+      'göre daha hızlı ısınıp soğur; bu fark adalar çevresindeki deniz yüzeyi sıcaklıklarını da ' +
+      'etkiler.',
+    hydrographyNoteTr:
+      "Bahamalar'da Andros Adası dışında akarsu bulunmaz; kireçtaşı zemin yağış suyunu hızla " +
+      'yeraltına geçirdiğinden yüzeyde kalıcı bir nehir ağı gelişmemiştir. Tatlı su ihtiyacı ' +
+      'büyük ölçüde yeraltı su mercekleri (freshwater lens) ve yağmur suyu toplama sistemleriyle ' +
+      "karşılanır. Andros Adası'nın iç kesimlerinde, dünyanın en yoğun mavi delik kümelerinden " +
+      'birine ev sahipliği yapan geniş sulak alanlar ve iç göller bulunur.',
   },
   {
     isoCode: 'BB',
@@ -485,6 +639,31 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr:
       "30 Kasım 1966'da Birleşik Krallık'tan bağımsız oldu (2021'de cumhuriyete geçti).",
+    introTr:
+      "Barbados, Küçük Antiller'in çoğu adasından farklı olarak volkanik kökenli değildir; " +
+      "yüzeyinin %85'ten fazlası mercan kökenli kireçtaşından oluşur. Karayip ada yayının en " +
+      'doğusunda, diğer adalardan yaklaşık 160 kilometre uzakta, açık Atlantik sularına bakan ' +
+      'izole bir konumdadır. Ülke düz ve hafif dalgalı bir arazi yapısına sahiptir, iç ' +
+      'kesimlerdeki tepeler bile alçak kalır.',
+    landformNoteTr:
+      'Ülkenin en yüksek noktası, kuzey-orta kesimdeki Aziz Andrew bölgesinde yükselen 336 ' +
+      "metrelik Mount Hillaby'dir. Kireçtaşı zemin, yüzyıllar boyunca yağış suyunun " +
+      'aşındırmasıyla adanın ortasında Harrison Mağarası gibi geniş yeraltı boşlukları ' +
+      'oluşturmuştur; bu mağara sistemi sarkıt ve dikitlerle kaplı galerileri ve yeraltı ' +
+      'akarsularıyla tanınır. Kıyı boyunca uzanan mercan resif kalıntıları, adanın deniz kökenli ' +
+      'geçmişinin yüzeydeki izleridir.',
+    climateNoteTr:
+      "Barbados'ta tropikal bir iklim egemendir; Aralık-Mayıs arası kurak, Haziran-Kasım arası " +
+      'ise yağışlı mevsim olarak ayrılır. Ada, Karayip kasırga kuşağının doğu ucunda yer ' +
+      "almasına karşın komşu adalara göre çarpıcı biçimde az kasırga alır: 1955'teki Kasırga " +
+      "Janet'in ardından, 2021'de Kasırga Elsa vurana kadar 66 yıl boyunca adaya doğrudan bir " +
+      'kasırga kaydedilmemiştir. Kuzeydoğu ticaret rüzgarları yıl boyunca eserek adanın ' +
+      'sıcaklığını dengeler.',
+    hydrographyNoteTr:
+      "Barbados'ta kalıcı akarsu bulunmaz; kireçtaşı zemin yağış suyunu hızla yeraltına " +
+      'geçirdiğinden yüzey akışı gelişmemiştir. Bunun yerine adayı boydan boya kesen derin ' +
+      'vadiler (gully), yağmur sularını kıyıya doğru yönlendirir. Yeraltına sızan su, adanın ' +
+      'içme suyu ihtiyacının neredeyse tamamını karşılayan geniş bir kireçtaşı akiferini besler.',
   },
   {
     isoCode: 'CU',
@@ -655,6 +834,32 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: null,
     independenceNoteTr:
       "1 Ocak 1804'te Fransa'dan bağımsız oldu (dünyanın ilk bağımsız siyah cumhuriyeti).",
+    introTr:
+      'Haiti, adını Taino dilinde "dağlık toprak" anlamına gelen "Ayiti" sözcüğünden alır; ülke ' +
+      "topraklarının %80'den fazlası dağlık veya tepeliktir. Hispaniola adasının batı üçte " +
+      'birini kaplar, adanın kalan kesimini Dominik Cumhuriyeti oluşturur; iki ülke arasındaki ' +
+      "391 kilometrelik kara sınırı, Karayipler'deki 13 ada devleti arasında tek kara sınırı " +
+      'örneğidir. Ülkenin dağlık yapısı tarih boyunca ulaşımı güçleştirmiş, kıyı ovalarındaki ' +
+      'yerleşimlerin birbirinden görece izole gelişmesine yol açmıştır.',
+    landformNoteTr:
+      "Ülkenin güneyindeki yarımadayı boydan boya kateden Selle Sıradağı'nda yükselen 2.680 " +
+      "metrelik Pic la Selle, Haiti'nin en yüksek noktasıdır. Kuzeyde Massif du Nord, orta " +
+      "kesimde ise Karayip Denizi'ne doğru daralan bir dizi paralel sıradağ uzanır; bu dağ " +
+      'dizileri arasında Cul-de-Sac ve Artibonite gibi dar ovalar yer alır. Ülkenin başlıca ' +
+      'tarım alanları, bu dağlar arasındaki alüvyal ovalarda ve nehir vadilerinde toplanır.',
+    climateNoteTr:
+      "Haiti'de tropikal bir iklim egemendir, ancak dağlık arazi yerel iklimde büyük " +
+      'farklılıklara yol açar. Kıyı ovaları yıl boyunca sıcak ve nemli kalırken, yüksek dağlık ' +
+      'kesimlerde rakımın etkisiyle sıcaklıklar belirgin biçimde düşer. Ülke Karayip kasırga ' +
+      'kuşağı içinde yer alır; Mayıs-Kasım arası kasırga mevsiminde şiddetli yağışlar, dağlık ' +
+      'arazinin dik yamaçlarında sel ve heyelan riskini artırır.',
+    hydrographyNoteTr:
+      "Ülkenin en uzun nehri olan Artibonite Nehri, kaynağını komşu Dominik Cumhuriyeti'ndeki " +
+      "Cordillera Central'dan alır; toplam yaklaşık 320 kilometrelik akışının büyük bölümünü " +
+      "Haiti topraklarında tamamladıktan sonra Gonâve Körfezi'ne dökülür ve Hispaniola adasının " +
+      'en uzun akarsuyu sayılır. Nehir üzerindeki Péligre Barajı ülkenin başlıca hidroelektrik ' +
+      "kaynaklarından birini oluşturur ve aşağı Artibonite Vadisi'ndeki geniş pirinç tarımını " +
+      'sular.',
   },
   {
     isoCode: 'JM',
@@ -678,6 +883,32 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'JMD',
     governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
     independenceNoteTr: "6 Ağustos 1962'de Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      "Jamaika, Karayipler'in Küba ve Hispaniola'dan sonra üçüncü büyük adasıdır. Ülkenin iç " +
+      'kesimi büyük ölçüde dağlık ve kireçtaşı araziyle kaplıdır, düzlükler yalnızca dar kıyı ' +
+      'şeritlerinde bulunur. Ada Karayip kasırga kuşağının tam ortasında yer alır ve tarihi ' +
+      'boyunca birçok büyük kasırgadan etkilenmiştir.',
+    landformNoteTr:
+      "Ülkenin doğusunda yükselen Mavi Dağlar, 2.256 metrelik Blue Mountain Peak ile Jamaika'nın " +
+      'en yüksek noktasını oluşturur; bu sıradağın yüksek ve bulutlu yamaçlarında yetiştirilen ' +
+      'kahve dünya çapında tanınır. Adanın batı-orta kesimini kaplayan Cockpit Country, dünyanın ' +
+      'en dramatik karst arazi örneklerinden biridir; yüzlerce huni biçimli çukur ve tepecik ' +
+      'birbirini izler, aralarındaki vadi ve çöküntüler yer yer onlarca metre derinliğe ulaşır. ' +
+      'Bu engebeli ve erişimi güç arazi, tarihte kaçak köle topluluklarının (Maroon) sığındığı ' +
+      'bir bölge olmuştur.',
+    climateNoteTr:
+      "Jamaika'da tropikal deniz iklimi egemendir; kıyı ovaları yıl boyunca sıcak kalırken, Mavi " +
+      "Dağlar'ın yüksek kesimlerinde geceleri serin bir hava hâkimdir. Ülke Haziran-Kasım " +
+      "kasırga mevsiminde düzenli risk altındadır: 1988'de adayı vuran Kasırga Gilbert, kategori " +
+      "beşe ulaşan rüzgarlarıyla evlerin yaklaşık %80'ini hasara uğratmış, 500 bin kişiyi evsiz " +
+      'bırakmıştır. Kuzey kıyısı, ticaret rüzgarlarına daha açık olduğundan güney kıyısına göre ' +
+      'genellikle daha fazla yağış alır.',
+    hydrographyNoteTr:
+      "Jamaika'nın en uzun nehri, orta kesimden güneye akan 93 kilometrelik Rio Minho'dur. " +
+      'Güneybatıdaki Black Nehri ise 53 kilometrelik akışıyla adanın en geniş sulak alanlarından ' +
+      'birini besler ve teknelerle gezilebilen bataklık kesimleriyle tanınır. Cockpit ' +
+      "Country'nin yaygın kireçtaşı arazisinde yüzey suları büyük ölçüde yeraltına sızar, bu " +
+      'nedenle bölgede belirgin bir yüzey akarsu ağı gelişmemiştir.',
   },
   {
     isoCode: 'KN',
@@ -770,6 +1001,35 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'TTD',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "31 Ağustos 1962'de Birleşik Krallık'tan bağımsız oldu (Cumhuriyet 1976).",
+    introTr:
+      "Trinidad ve Tobago, Karayipler'deki diğer adaların çoğundan farklı olarak volkanik " +
+      'kökenli değildir; Trinidad adası jeolojik olarak Venezuela kıyısındaki Güney Amerika ' +
+      'kıtasal sahanlığının bir parçasıdır ve yalnızca yaklaşık 11 kilometrelik dar bir su ' +
+      'yoluyla anakaradan ayrılır. İki ana adadan oluşan ülkenin nüfusunun büyük bölümü, ' +
+      "güneybatıda Port of Spain çevresinde yoğunlaşan Trinidad'da yaşar; Tobago ise " +
+      'kuzeydoğuda, daha küçük ve seyrek nüfusludur.',
+    landformNoteTr:
+      "Trinidad'ın kuzeyinde kıyıya paralel uzanan Kuzey Sıradağları, Venezuela'daki And " +
+      "Dağları'nın bir uzantısıdır; sıradağın 940 metrelik El Cerro del Aripo zirvesi ülkenin en " +
+      'yüksek noktasıdır. Adanın güneybatısındaki La Brea kasabası yakınında bulunan Katran Gölü ' +
+      '(Pitch Lake), dünyanın en büyük doğal asfalt yatağıdır; yaklaşık 40 hektarlık yüzeyi ' +
+      'altında binlerce yıldır sürekli yenilenen katran, 19. yüzyıldan bu yana ticari olarak ' +
+      "çıkarılır. Tobago'nun iç kesimini kaplayan Ana Sıradağ (Main Ridge), 1776'da koruma " +
+      "altına alınmıştır ve Batı Yarımküre'nin resmi olarak korunan en eski yağmur ormanı " +
+      'rezervidir.',
+    climateNoteTr:
+      'Trinidad ve Tobago, kuzeye 10-11 derece enlemde ve Güney Amerika kıyısına yakın konumu ' +
+      'nedeniyle Karayip kasırga kuşağının büyük ölçüde dışında kalır; bölgeye ulaşan tropikal ' +
+      'sistemler bu enlemde güçlenme fırsatı bulamadan geçer. Bu konum ülkeyi kuzeydeki ' +
+      'komşularına göre doğrudan kasırga vuruşlarına karşı belirgin biçimde daha az savunmasız ' +
+      'kılar. Ülkede yıl boyunca sıcak ve nemli tropikal bir iklim egemendir; Haziran-Aralık ' +
+      'arası yağışlı, Ocak-Mayıs arası ise görece kurak bir mevsim yaşanır.',
+    hydrographyNoteTr:
+      "Trinidad'ın en uzun nehirlerinden Ortoire Nehri, adanın doğusunda Atlantik kıyısına " +
+      'dökülür. Hacim bakımından adanın en büyük nehri olan Caroni Nehri ise başkent Port of ' +
+      "Spain yakınında Caroni Bataklığı'nı besler; bu bataklık, ülkenin ulusal kuşu allık ibisin " +
+      "dünyadaki en büyük tünekleme alanlarından biridir. Dağlık ve dar Tobago'da ise kısa, " +
+      'hızlı akan dereler dışında büyük bir akarsu sistemi bulunmaz.',
   },
   {
     isoCode: 'AR',
