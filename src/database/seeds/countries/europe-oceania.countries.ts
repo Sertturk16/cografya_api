@@ -110,6 +110,35 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr:
       "20 Ağustos 1991'de Sovyetler Birliği'nden bağımsızlığını yeniden kazandı (ilk bağımsızlık 24 Şubat 1918).",
+    introTr:
+      "Estonya, Baltık Denizi'nin doğu kıyısında, düz ve alçak bir arazi üzerinde yer alır; " +
+      "topraklarının yaklaşık onda biri 1.500'den fazla adadan oluşur. En büyük iki ada olan " +
+      'Saaremaa ve Hiiumaa, ülkenin batısında bir takımada oluşturur. Başkent Tallin, kuzey ' +
+      "kıyısında, Fin Körfezi'ne bakar. Doğuda Rusya, güneyde Letonya ile komşu olan ülkenin " +
+      "sınırlarının bir bölümünü Avrupa'nın en büyük sınır-ötesi gölü olan Peipus Gölü çizer.",
+    landformNoteTr:
+      "Estonya'nın arazisi büyük ölçüde düzdür; ortalama yükselti yalnızca 50 metre " +
+      "civarındadır. Güneydoğu köşede, Letonya ve Rusya sınırlarına yakın Haanja Yaylası'nda 318 " +
+      'metreye yükselen Suur Munamägi (Büyük Yumurta Dağı), ülkenin en yüksek noktasıdır. Kuzey ' +
+      'kıyısı boyunca, buzul çağından kalma kireçtaşı uçurumlar (klint) uzanır; bu hat en ' +
+      'belirgin haliyle Lahemaa bölgesinde görülür. Ülke genelinde geniş bataklık ve turba ' +
+      "alanları yayılır — bunlar Estonya'nın toplam yüzölçümünün önemli bir bölümünü kaplar ve " +
+      'ülkenin en karakteristik peyzaj unsurlarından biridir.',
+    climateNoteTr:
+      'Estonya, deniz ve kara iklimleri arasındaki geçiş kuşağında yer alır. Saaremaa ve Hiiumaa ' +
+      "adaları ile kuzey-batı kıyısı, Baltık Denizi'nin ılımlaştırıcı etkisini daha güçlü " +
+      'hisseder; Şubat ayı ortalaması burada -1 ila -2 santigrat derece civarındadır. İç ' +
+      'kesimlere doğru bu etki zayıflar, aynı ayın ortalaması -5 santigrat dereceye kadar ' +
+      'düşebilir. Yazlar genel olarak serin ve nemlidir, Temmuz ortalaması 17-18 santigrat ' +
+      'derece bandındadır. Kar örtüsü iç bölgelerde kıyıya göre daha uzun süre yerde kalır.',
+    hydrographyNoteTr:
+      "Estonya'nın en büyük gölü, 3.555 kilometrekarelik yüzeyiyle Peipus'tur; gölün büyük " +
+      "bölümü Rusya sınırındadır ve Avrupa'nın en geniş sınır-ötesi gölü sayılır. Ülkenin ikinci " +
+      "büyük gölü olan Võrtsjärv, orta Estonya'da yer alır ve Emajõgi Nehri ile Peipus'a " +
+      "bağlanır. Peipus Gölü'nün suları, kuzeye akan ve Fin Körfezi'ne dökülen 77 kilometrelik " +
+      "Narva Nehri aracılığıyla Baltık Denizi'ne ulaşır; Narva'nın akışı aynı zamanda " +
+      "Estonya-Rusya sınırının bir bölümünü oluşturur. Ülke genelinde 1.500'ü aşkın küçük göl " +
+      'daha bulunur.',
   },
   {
     isoCode: 'FI',
@@ -298,6 +327,34 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr:
       "21 Ağustos 1991'de Sovyetler Birliği'nden bağımsızlığını yeniden kazandı (ilk bağımsızlık 18 Kasım 1918).",
+    introTr:
+      "Letonya, Baltık'ın orta kesiminde, kuzeyde Estonya ve güneyde Litvanya arasında yer alır; " +
+      'doğusunda Rusya ve Belarus ile de sınır komşuluğu vardır. Ülke toprakları büyük ölçüde ' +
+      'alçak ovalardan oluşur, dörtte biri ise orta yükseklikte tepelik platolarla kaplıdır. ' +
+      "Başkent Riga, ülkenin ortasında, Daugava Nehri'nin Riga Körfezi'ne döküldüğü noktada " +
+      'kuruludur.',
+    landformNoteTr:
+      "Son Buzul Çağı, Letonya'nın arazisini üç ana bölgeye ayırmıştır: batı ve doğudaki morenik " +
+      "yaylalar ile aralarında kalan orta düzlük. Bu yaylalardan orta Vidzeme'dekinde, Madona " +
+      'kasabasının yakınında, ülkenin en yüksek noktası olan 312 metrelik Gaiziņkalns yükselir. ' +
+      'Doğudaki Latgale bölgesi, buzul göllerinin yoğun olduğu engebeli bir yayla karakteri ' +
+      'taşır; batıdaki Kurzeme ise kıyı boyunca uzanan kumsal ve kumul şeritleriyle tanınır. ' +
+      'Ülke topraklarının yaklaşık yarısı ormanlarla kaplıdır.',
+    climateNoteTr:
+      'Letonya da Estonya gibi deniz-kara geçiş kuşağında yer alır, ama ülke içinde belirgin bir ' +
+      'batı-doğu kademelenmesi görülür. Baltık kıyısındaki Kurzeme bölgesi denizin ılımlaştırıcı ' +
+      "etkisini daha güçlü hisseder; Rusya'ya yakın doğudaki Latgale ise daha karasal bir " +
+      'karaktere bürünür, kış donları burada daha sert ve daha uzun sürelidir. Riga çevresi bu ' +
+      'iki uç arasında kalır. Yazlar ılık geçer, yıllık yağış 600-700 milimetre bandındadır ve ' +
+      'mevsimler arasında nispeten dengeli dağılır.',
+    hydrographyNoteTr:
+      "Letonya'nın en uzun nehri Daugava'dır; Rusya'da doğar, kuzey Belarus'tan geçer ve Letonya " +
+      "topraklarında 352 kilometre kat ederek Riga Körfezi'ne dökülür. Orta Çağ'dan beri Baltık " +
+      'ile iç Avrupa arasında ticaret mallarını taşıyan önemli bir su yolu olmuştur. Ülke ' +
+      'sınırları içinde doğup yine ülke içinde denize ulaşan en uzun nehir ise, Gauja Ulusal ' +
+      "Parkı'nı boydan boya geçen 460 kilometrelik Gauja'dır. Letonya'da 3.000'i aşkın küçük göl " +
+      'bulunur; bunların en büyüğü doğu ovalarındaki Lubāns, en derini ise güneydoğudaki ' +
+      "Drīdzis'tir.",
   },
   {
     isoCode: 'LT',
@@ -322,6 +379,35 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr:
       "11 Mart 1990'da Sovyetler Birliği'nden ayrılan ilk cumhuriyet oldu (ilk bağımsızlık 16 Şubat 1918).",
+    introTr:
+      'Litvanya, üç Baltık devletinin en güneyi ve en büyüğüdür; kuzeyde Letonya, doğu ve ' +
+      "güneyde Belarus, güneybatıda Polonya ve Rusya'nın Kaliningrad Oblastı ile komşudur. " +
+      'Başkent Vilnius, ülkenin güneydoğusunda, Neris ve Vilnia nehirlerinin birleştiği noktada ' +
+      "kuruludur. Vilnius'un yakınındaki bir köy, 1989'da bir Fransız coğrafya enstitüsünün " +
+      "hesaplamasıyla Avrupa'nın geometrik merkezi olarak belirlenmiştir.",
+    landformNoteTr:
+      "Gerçek dağlardan yoksun Litvanya'da arazi, buzul çağının biçimlendirdiği alçak ovalar ve " +
+      "hafif tepelerden ibarettir. Ülkenin en yüksek noktası, Vilnius'un yaklaşık 24 kilometre " +
+      'güneydoğusundaki Medininkai Yaylası üzerinde yer alan ve 2004 yılındaki GPS ölçümüyle ' +
+      "293,84 metre olarak belirlenen Aukštojas Tepesi'dir. Ülkenin batı kıyısında, Baltık " +
+      "Denizi ile Kuron Lagünü'nü birbirinden ayıran 98 kilometre uzunluğunda bir kum seti " +
+      'uzanır — Kuršių Nerija (Kuron Kıyı Seti); ortalama 35 metre yüksekliğe ulaşan kumulları ' +
+      "bazı noktalarda 60 metreyi bulur. Setin kuzey kesimi Litvanya'da, güney kesimi ise " +
+      "Rusya'nın Kaliningrad Oblastı'ndadır.",
+    climateNoteTr:
+      "Litvanya'nın iklimi de deniz-kara geçiş kuşağındadır, ama Baltık'ın ılımlaştırıcı etkisi " +
+      'yalnızca Klaipėda çevresi ve Kuron Kıyı Seti gibi dar bir kıyı şeridinde belirgindir; ' +
+      'ülkenin geri kalanı nemli kara iklimi karakterindedir. Kar örtüsü yılın önemli bir ' +
+      'bölümünde yerde kalır, kış ayları özellikle doğu ve güneydoğudaki yüksek kesimlerde uzun ' +
+      'sürer. Yazlar ılıktır, Temmuz ortalaması 17-18 santigrat derece civarındadır. Yağış yıl ' +
+      'boyunca dağılır, yaz ayları görece daha yağışlıdır.',
+    hydrographyNoteTr:
+      "Litvanya'nın en uzun ve en önemli nehri, Belarus'ta doğup ülkeyi güneyden kuzeybatıya kat " +
+      "eden 937 kilometrelik Nemunas'tır. Nemunas'ın en büyük kolu olan Neris, Vilnius'tan " +
+      "geçerek Kaunas'ta ana nehre katılır. Nemunas, denize ulaşmadan önce geniş bir delta " +
+      "oluşturarak Kuron Lagünü'ne dökülür; bu sığ lagün, Kuron Kıyı Seti'nin kum tepeleriyle " +
+      "açık Baltık Denizi'nden ayrılır. Ülkenin 2.800'den fazla gölünün büyük bölümü, doğudaki " +
+      'Aukštaitija bölgesinde toplanır.',
   },
   {
     isoCode: 'NO',
@@ -737,6 +823,32 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'EUR',
     governmentFormTr: 'Anayasal monarşi (parlamenter, Büyük Dükalık)',
     independenceNoteTr: "1839 Londra Antlaşması ile bağımsızlığı tanındı (1867'de pekiştirildi).",
+    introTr:
+      'Lüksemburg, Belçika, Fransa ve Almanya arasında kalan bir Batı Avrupa ülkesidir. ' +
+      'Topraklar, kuzeyde ormanlık ve tepelik Oesling (Éislek) ile güneyde daha alçak ve tarıma ' +
+      'elverişli Gutland olmak üzere iki farklı bölgeye ayrılır. Başkent Lüksemburg şehri, ' +
+      "Gutland'ın ortasında, Alzette ve Pétrusse vadilerinin kesiştiği bir kayalık platform " +
+      'üzerinde kuruludur.',
+    landformNoteTr:
+      "Kuzey Lüksemburg'u oluşturan Oesling, Ardenler sıradağının bir uzantısıdır; ormanlarla " +
+      'kaplı tepeler ve derin nehir vadileriyle ülkenin en engebeli kesimidir. Oesling ' +
+      'bölgesindeki Kneiff, 560 metreyle ülkenin en yüksek tepesidir. Güneydeki Gutland ise çok ' +
+      'daha yumuşak bir topografyaya sahiptir; verimli tarım arazileri, bağlar ve Alzette gibi ' +
+      'nehirlerin oyduğu sığ vadilerle karakterize olur. İki bölge arasındaki yükselti ve arazi ' +
+      'farkı, ülkenin nüfus dağılımını da belirler — güney çok daha yoğun yerleşimlidir.',
+    climateNoteTr:
+      'Lüksemburg, ılıman okyanus iklimine sahiptir; kışlar yumuşak, yazlar serin geçer, aşırı ' +
+      'sıcaklıklar nadirdir. Kuzeydeki Oesling, Atlantik kaynaklı hava sistemlerinden daha güçlü ' +
+      'etkilenir; kışın sık sık kapalı gökyüzü ve çisenti görülür, bazı kesimlerde yıllık yağış ' +
+      '1.200 milimetreye ulaşır. Güneydeki Gutland ise hem daha az yağış alır hem de yaz ayları ' +
+      'biraz daha sıcak geçer. Belirgin bir kurak mevsim yoktur; yağış yıl boyunca aşağı yukarı ' +
+      'dengeli dağılır, yaz sonuna doğru hafif bir artış görülür.',
+    hydrographyNoteTr:
+      "Lüksemburg'un doğu sınırının büyük bölümünü Almanya ile paylaşılan Moselle (Mosel) Nehri " +
+      "çizer; vadisi bağcılığıyla tanınır. Belçika'da doğan Sûre Nehri, ülkeyi doğuya doğru 172 " +
+      "kilometre boyunca kıvrılarak geçer ve Moselle'e katılır; güzergahı ülkeyi pratikte " +
+      'doğu-batı doğrultusunda ikiye böler. Başkent şehrin adını verdiği Alzette Nehri ise ' +
+      "Gutland'ı kuzeyden güneye kat eder ve başkentin kayalık platformunu oyan vadiyi oluşturur.",
   },
   {
     isoCode: 'MC',
@@ -760,6 +872,28 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'EUR',
     governmentFormTr: 'Anayasal monarşi (parlamenter prenslik)',
     independenceNoteTr: null,
+    introTr:
+      "Monako, Fransa'nın Akdeniz kıyısında, İtalya sınırına yakın bir noktada, dar bir kıyı " +
+      'şeridi üzerinde kurulu bir şehir-devlettir. Ülke topraklarının tamamı dört mahalleye ' +
+      '(quartier) ayrılır: kayalık bir yarımada üzerindeki tarihi Monako-Ville (Le Rocher), ' +
+      'liman çevresindeki La Condamine, ana yerleşim ve turizm bölgesi Monte-Carlo, ve 20. ' +
+      'yüzyılda denizden kazanılan Fontvieille.',
+    landformNoteTr:
+      "Akdeniz'e dik inen kayalık yamaçlar ve dar sırtlar Monako topraklarının tamamını kaplar; " +
+      'düz arazi neredeyse yoktur. Ülkenin en belirgin coğrafi unsuru, denize doğru uzanan ' +
+      "kireçtaşı bir yarımada olan Kaya'dır (Le Rocher); tarih boyunca doğal bir savunma noktası " +
+      'olarak kullanılmıştır. Dar kıyı şeridi ve dik topografya, ülkenin toprak genişletme ' +
+      'yolunu deniz doldurmaya çevirmiştir — 1966-1981 arasında inşa edilen Fontvieille ' +
+      'mahallesi, ülkenin toplam yüzölçümünü yaklaşık beşte bir oranında artırmıştır.',
+    climateNoteTr:
+      'Monako, ılıman-yaz alt tipiyle bir Akdeniz iklimine sahiptir: yazlar sıcak ve güneşli ' +
+      'geçer ama deniz meltemi sayesinde sıcaklık 30 santigrat derecenin üzerine nadiren çıkar, ' +
+      'geceler de bu etkiyle ılık kalır. Kışlar bu enleme göre şaşırtıcı derecede yumuşaktır; ' +
+      'Ocak-Şubat ortalaması 10 santigrat derece civarındadır, don olayları son derece nadirdir ' +
+      've kar on yılda bir ya da iki kez görülür.',
+    hydrographyNoteTr:
+      "Monako'da kalıcı bir nehir yoktur; ülkenin en uzun akarsuyu, yaklaşık 190 metre " +
+      "uzunluğundaki Saint-Jean deresidir. Tatlı su ihtiyacı komşu Fransa'dan sağlanır.",
   },
   {
     isoCode: 'NL',
@@ -934,6 +1068,29 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'EUR',
     governmentFormTr: 'Parlamenter eş-prenslik',
     independenceNoteTr: null,
+    introTr:
+      "Andorra, doğu Pireneler'in tam ortasında, Fransa ile İspanya arasında sıkışmış bir dağ " +
+      'ülkesidir. Topraklarının tamamı 1.000 metrenin üzerinde başlar; ortalama yükselti ' +
+      'yaklaşık 2.000 metredir. Başkent Andorra la Vella, ülkenin güneybatısında, üç vadinin ' +
+      "birleştiği noktada yer alır ve Avrupa'nın en yüksek rakımlı başkentlerinden biridir.",
+    landformNoteTr:
+      'Andorra topraklarının tamamı, Y biçiminde birleşen üç dar vadi ve bu vadileri çevreleyen ' +
+      'sarp dağ sıralarından oluşur. Kuzeybatıda, Fransa sınırına yakın 2.942 metreye ulaşan ' +
+      'Coma Pedrosa, ülkenin doruk noktasıdır. Vadi tabanları dışında düz arazi neredeyse ' +
+      'yoktur; yerleşimler dar vadi zeminlerine ve dağ yamaçlarındaki teraslara kurulmuştur. ' +
+      'Yüksek kesimlerde, çoğu 2.000 metrenin üzerinde yer alan, buzul çağından kalma çok sayıda ' +
+      'küçük dağ gölü (estany) bulunur.',
+    climateNoteTr:
+      "Andorra'nın iklimi yükseltiye göre büyük farklılık gösterir. Vadi tabanlarında, komşu " +
+      'ülkelerin ılıman iklimine benzer ama rakım nedeniyle biraz daha sert bir okyanus-dağ ' +
+      'iklimi hakimdir; kışlar daha soğuk, nem oranı daha düşüktür. Yükseklere çıkıldıkça kış ' +
+      'uzar ve sertleşir, kar örtüsü aylarca yerde kalır — bu da ülkeyi kayak turizminin merkezi ' +
+      'haline getirir. Yazlar vadilerde ılık, yüksek kesimlerde ise serin geçer.',
+    hydrographyNoteTr:
+      "Andorra'nın üç ana vadisinden inen Valira d'Orient ve Valira del Nord dereleri, başkentin " +
+      "yakınında birleşerek Gran Valira'yı oluşturur; bu nehir ülkeyi terk edip İspanya'ya " +
+      "girer. Yüksek kesimlerdeki buzul gölleri arasında, Incles Vadisi'nde yer alan ve 21,9 " +
+      'hektarlık yüzeyiyle ülkenin en büyük gölü olan Estany de Juclar öne çıkar.',
   },
   {
     isoCode: 'BA',
@@ -1107,6 +1264,29 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'EUR',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "21 Eylül 1964'te Birleşik Krallık'tan bağımsız oldu (Cumhuriyet 1974).",
+    introTr:
+      "Malta, Akdeniz'in ortasında, Sicilya'nın güneyinde yer alan bir ada devletidir; üç ana " +
+      'adadan oluşur: en büyüğü ve nüfusun çoğunun yaşadığı Malta Adası, kuzeybatıdaki Gozo ve ' +
+      "aralarındaki küçük Comino. Başkent Valetta, Malta Adası'nın kuzeydoğu kıyısında, doğal " +
+      "bir limanın çevresinde kuruludur. Ülke, Avrupa Birliği'nin yüzölçümü en küçük üyesidir.",
+    landformNoteTr:
+      'Malta takımadasının kireçtaşı tabakalarından yükselen arazisi, genel olarak alçak ' +
+      'platolar, teraslanmış tarım alanları ve dik kıyı uçurumlarından ibarettir. Malta ' +
+      "Adası'nın güneybatı kıyısındaki Dingli Kayalıkları, yaklaşık 253 metreyle ülkenin en " +
+      "yüksek yeridir. Bu kireçtaşı yapı, güneybatı kıyısı boyunca hem Dingli'deki dik " +
+      'uçurumları hem de Mavi Mağara gibi deniz mağaralarını oluşturur.',
+    climateNoteTr:
+      "Malta'da tipik bir Akdeniz iklimi hakimdir; yazlar sıcak ve kuraktır, Temmuz ortalaması " +
+      '30 santigrat dereceye yaklaşır. Kışlar ılık ve yağışlıdır, Ocak ayı ortalama düşük ' +
+      "sıcaklığı Valetta'da 9 santigrat derece civarındadır. Yağışın büyük bölümü Kasım-Ocak " +
+      'arasına yoğunlaşır; yıllık toplam yaklaşık 560 milimetredir. Deniz etkisi sıcaklık ' +
+      'farklarını yumuşatır, don olayları neredeyse hiç görülmez.',
+    hydrographyNoteTr:
+      "Malta'da kalıcı bir nehir ya da doğal göl yoktur; yalnızca yoğun yağış dönemlerinde kısa " +
+      'süreliğine akan mevsimlik dereler oluşur. Bunun başlıca nedeni, adaların gözenekli ' +
+      'kireçtaşı yapısıdır — yağış suyunun büyük bölümü yüzeyde akmadan doğrudan kayaç içine ' +
+      'sızar. Tatlı su ihtiyacının önemli bir bölümü bu nedenle deniz suyu arıtma tesisleri ve ' +
+      'yer altı su kaynaklarından karşılanır.',
   },
   {
     isoCode: 'ME',
@@ -1422,6 +1602,37 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'BYN',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "25 Ağustos 1991'de Sovyetler Birliği'nden bağımsız oldu.",
+    introTr:
+      "Belarus, Doğu Avrupa'da, denize kıyısı olmayan bir ülkedir; kuzeyde Letonya ve Litvanya, " +
+      'batıda Polonya, güneyde Ukrayna, doğu ve kuzeydoğuda Rusya ile komşudur. Ülke toprakları ' +
+      "büyük ölçüde düz ve alçaktır, geniş orman alanları ve Avrupa'nın en büyük bataklık " +
+      'sistemlerinden biri ülke yüzeyinin önemli bir bölümünü kaplar. Başkent Minsk, ülkenin ' +
+      'ortasına yakın bir konumda yer alır.',
+    landformNoteTr:
+      'Belarus arazisinin büyük bölümü, buzul çağının bıraktığı düzlük ve alçak tepelerden ' +
+      'oluşur; ülkeyi güneybatıdan kuzeydoğuya çaprazlamasına kat eden Belarus Sırtı, bu düzlüğü ' +
+      "kesen tek belirgin yükselti kuşağıdır. Minsk'in batısında, Dzyarzhynsk kasabası yakınında " +
+      '345 metreye yükselen Dzyarzhynskaya Hara, ülkenin çatısını oluşturur. Güneyde, Pripyat ' +
+      "Nehri havzası çevresinde yayılan Polesya bölgesi, Orta-Doğu Avrupa'nın en geniş bataklık " +
+      'sistemini oluşturur; bu bölge, doğu-batı doğrultusunda yaklaşık 480, kuzey-güney ' +
+      'doğrultusunda ise yaklaşık 225 kilometre boyunca uzanan nehir kolları, ölü göller, turba ' +
+      'bataklıkları ve taşkın ormanlarından oluşan bir labirent görünümündedir.',
+    climateNoteTr:
+      "Belarus'un iklimi ılıman karasaldır; kışlar soğuk ve nemli, yazlar ılık ve nemli geçer. " +
+      'Ocak ayı ortalaması -4,5 ile -8 santigrat derece arasında değişir, kuzey bölgelerde don ' +
+      'dönemlerinde sıcaklık -40 santigrat dereceye kadar inebilir. Kar örtüsü süresi bölgeye ' +
+      'göre büyük farklılık gösterir; güneybatıda yaklaşık 75 güne inen bu süre, kuzeydoğuda 125 ' +
+      'güne kadar uzar. Temmuz ortalaması 17-18,5 santigrat derece bandındadır. Yıllık yağışın ' +
+      "yaklaşık %70'i Nisan-Ekim arasına denk gelir, yaz ayları sağanak ve fırtınalarla yağışın " +
+      'en yoğun olduğu dönemdir.',
+    hydrographyNoteTr:
+      'Belarus toprakları, Karadeniz ve Baltık Denizi havzaları arasındaki su ayrım hattı ' +
+      'üzerinde yer alır. Ülke yüzeyinin yarısından fazlası, Dinyeper Nehri ve onun en büyük ' +
+      'kolu olan Pripyat aracılığıyla Karadeniz havzasına drene olur. Kuzey ve batı kesimler ise ' +
+      "Neman (Nemunas) ve Batı Dvina nehirleri üzerinden Baltık Denizi'ne bağlanır; Neman " +
+      "Litvanya'ya, Batı Dvina ise Letonya'ya (Daugava adıyla) akar. Ülke genelinde 10.000'i " +
+      'aşkın göl bulunur; bunların en büyüğü, kuzeyde Myadzyel yakınındaki Narach Gölleri ' +
+      "grubunun parçası olan ve 79,6 kilometrekareyi bulan Narach Gölü'dür.",
   },
   {
     isoCode: 'CZ',
