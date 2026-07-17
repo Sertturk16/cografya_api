@@ -598,6 +598,34 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'BND',
     governmentFormTr: 'Mutlak monarşi (Sultanlık)',
     independenceNoteTr: "1 Ocak 1984'te İngiltere'den bağımsız oldu.",
+    introTr:
+      "Borneo adasının kuzey kıyısında, Malezya'nın Sarawak eyaletiyle çevrili küçük bir " +
+      "sultanlık olan Brunei, güneyde Güney Çin Denizi'ne kıyısı vardır. Ülke toprakları " +
+      "Sarawak'ın Limbang bölgesi tarafından ikiye bölünür: batıdaki büyük kesimde başkent " +
+      'Bandar Seri Begawan, doğudaki küçük Temburong bölgesi ise anakaradan tamamen ayrı ' +
+      'kalır. Kıyı boyunca alçak ve bataklık bir düzlük uzanır, bu düzlük doğuya doğru ' +
+      'tepelere ve dağlara yükselir.',
+    landformNoteTr:
+      'Brunei topraklarının büyük bölümü, kıyıdan içeriye doğru yükselen alçak tepeler ve ' +
+      'ovalık arazidir; mangrov bataklıkları kıyı şeridinin büyük kesimini kaplar. Ülkenin ' +
+      "tek dağlık bölgesi, anakaradan Limbang koridoruyla ayrılan Temburong'dur. Buradaki " +
+      "Pagon Dağları'nın en yüksek noktası Bukit Pagon, Malezya sınırında 1.850 metreye " +
+      "ulaşır ve Brunei'nin en yüksek noktasıdır. Temburong'un iç kesimleri, ülkenin geri " +
+      'kalanına göre çok daha az nüfuslu ve neredeyse tamamen yağmur ormanıyla kaplıdır.',
+    climateNoteTr:
+      "Brunei'de sıcaklık yıl boyunca 31-33 santigrat derece bandında neredeyse sabit kalır, " +
+      'nem oranı ise ortalama %80 civarındadır. Ülkenin belirgin bir kurak mevsimi yoktur; ' +
+      "yağış Ekim-Ocak arasında Güney Çin Denizi'nden gelen kuzeydoğu musonuyla, Mayıs-Temmuz " +
+      'arasında ise güneybatı musonuyla iki ayrı dönemde yoğunlaşır. Yağış miktarı bölgeden ' +
+      "bölgeye büyük farklılık gösterir: Temburong'un yağmur ormanlarında yıllık yağış 400 " +
+      'santimetreyi bulurken, kıyı kesiminde bu rakam 275 santimetre civarındadır.',
+    hydrographyNoteTr:
+      "Brunei'nin dört ana nehri — Brunei, Tutong, Belait ve Temburong — hepsi kuzeye doğru " +
+      "akarak Güney Çin Denizi'ne dökülür. Brunei Nehri, başkent Bandar Seri Begawan'ın " +
+      'kurulduğu haliç etrafında geniş bir sulak alan oluşturur; nehrin ağzındaki Kampong ' +
+      'Ayer, dünyanın en büyük su üstü yerleşimlerinden biri kabul edilir. Belait Nehri, ' +
+      'ülkenin batısındaki petrol ve doğal gaz sahalarının bulunduğu bölgeyi kat eder. ' +
+      'Temburong Nehri ise anakaradan ayrı kalan doğu bölgesinin ana su yoludur.',
   },
   {
     isoCode: 'KH',
@@ -621,6 +649,40 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'KHR',
     governmentFormTr: 'Parlamenter monarşi',
     independenceNoteTr: "9 Kasım 1953'te Fransa'dan bağımsız oldu.",
+    introTr:
+      "Hint-Çin Yarımadası'nın güneyinde yer alan Kamboçya, kuzeyde ve kuzeybatıda Tayland, " +
+      'kuzeydoğuda Laos, doğuda ve güneydoğuda Vietnam ile komşudur. Güneybatıda Tayland ' +
+      "Körfezi'ne kıyısı vardır. Ülke topraklarının dörtte üçünden fazlası, ortadaki geniş " +
+      'Tonle Sap-Mekong ovasından oluşur; bu alçak ova, kuzeyde Dangrek Dağları, güneybatıda ' +
+      'ise Kardamom ve Fil Dağları tarafından çevrelenir.',
+    landformNoteTr:
+      "Kamboçya topraklarının yaklaşık %75'ini, Tonle Sap Gölü havzası ile Mekong ve Bassac " +
+      'nehirlerinin taşkın ovaları oluşturur. Bu geniş merkezi ova, kuzeyde Tayland ve Laos ' +
+      "sınırındaki Dangrek Dağları, doğuda Annam Sıradağları'nın uzantıları, güneybatıda ise " +
+      'kuzeybatı-güneydoğu doğrultusunda uzanan Kardamom Dağları ve Fil Dağları ile ' +
+      "çevrilidir. Ülkenin en yüksek noktası, Kardamom Dağları'nın doğu kesiminde, " +
+      "Kampong Speu ilinde yükselen 1.810 metrelik Phnom Aural'dır. Kardamom Dağları aynı " +
+      "zamanda Kamboçya'nın en yoğun yağış alan ve en az nüfuslu bölgesidir.",
+    climateNoteTr:
+      'Kasım-Nisan arasındaki kurak mevsimde kuzeydoğu musonu hakimdir ve bu dönemde hava ' +
+      'daha serin ve kuru kalır. Mayıs-Ekim arasındaki yağışlı mevsimde ise güneybatı ' +
+      "musonu, yıllık yağışın yaklaşık dörtte üçünü (%75'ini) getirir. Tonle Sap havzası ve " +
+      "Mekong ovasında sıcaklık yıl boyunca yüksek seyreder, Kardamom Dağları'nın rüzgar alan " +
+      'yamaçları ülkenin en yağışlı kesimidir.',
+    hydrographyNoteTr:
+      "Mekong Nehri, Laos'tan Stung Treng ilinden girip ülkeyi kuzeyden güneye yaklaşık 500 " +
+      'kilometre boyunca kat eder. Phnom Penh yakınında Mekong, Tonle Sap Nehri ve Bassac ' +
+      'Nehri ile "dört yüz" anlamına gelen Chaktomuk adı verilen geniş bir kavşakta buluşur. ' +
+      'Sen, Sreng, Sangkae ve Pursat gibi ikincil nehirler, çevredeki platoları Tonle Sap ' +
+      "Gölü'ne ya da Mekong'a bağlar." +
+      '\n\n' +
+      "Tonle Sap Nehri, yılın altı ayında Mekong'a doğru güneydoğuya akar; ancak yağışlı " +
+      "mevsimde Mekong'un su seviyesi yükseldiğinde bu akış tersine döner ve nehir suyu " +
+      'göle doğru geri iter. Bu tersine akışla Tonle Sap Gölü, kurak mevsimdeki yaklaşık ' +
+      '2.500 kilometrekarelik yüzölçümünden yağışlı mevsim sonunda 16.000 kilometrekareye ' +
+      "kadar genişler — Güneydoğu Asya'nın en büyük tatlı su gölünü, dünyanın en üretken " +
+      'iç su ekosistemlerinden birine dönüştüren bu döngü, göldeki balıkçılığın da temelini ' +
+      'oluşturur.',
   },
   {
     isoCode: 'ID',
@@ -703,6 +765,34 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Tek parti sosyalist cumhuriyet',
     independenceNoteTr:
       "22 Ekim 1953'te Fransa'dan tam bağımsızlığını kazandı (1949'da kısmi özerklik tanınmıştı).",
+    introTr:
+      "Güneydoğu Asya'nın kara ile çevrili tek ülkesi olan Laos, kuzeyde Çin, kuzeydoğu ve " +
+      'doğuda Vietnam, güneyde Kamboçya, batıda Tayland, kuzeybatıda ise Myanmar ile ' +
+      'komşudur. Ülke toprakları büyük ölçüde Mekong Nehri havzasının içinde kalır; nehrin ' +
+      'kendisi, batı sınırının önemli bir bölümünü çizer. Kuzey ve doğudaki dağlık arazi, ' +
+      'ülkenin arazisinin büyük kısmını kaplar.',
+    landformNoteTr:
+      "Laos, özellikle kuzeyde ve Vietnam sınırı boyunca uzanan Annam Sıradağları'nda sarp ve " +
+      "dağlıktır. Ülkenin en yüksek noktası, Xiangkhoang Platosu'nun güney ucunda, Annam " +
+      "Sıradağları'nın bir parçası olarak yükselen 2.819 metrelik Phou Bia'dır. Ülke toprakları " +
+      'neredeyse tamamen Mekong havzasının batısında kalır; yalnızca Houaphan ilinin büyük ' +
+      "bölümü ile Xiangkhoang'ın bir kesimi bu havzanın doğusundadır. Mekong'un batı sınırını " +
+      'çizdiği kesimde nehir, Tayland ile aralarında 800 kilometreyi aşan doğal bir sınır ' +
+      'oluşturur.',
+    climateNoteTr:
+      "Laos'ta üç mevsim yaşanır: Kasım-Şubat arasında serin ve kurak bir kış, Mart-Nisan " +
+      'arasında sıcak ve kurak bir geçiş dönemi, Mayıs-Ekim arasında ise güneybatı musonunun ' +
+      'getirdiği yağışlı bir yaz. Ovalık kesimlerde yıllık yağış 1.300-2.300 milimetre ' +
+      'arasında değişir, dağların rüzgar alan yamaçlarında ise bu rakam 3.000 milimetreyi ' +
+      'aşabilir. Temmuz ve Ağustos ayları en yoğun yağışın görüldüğü dönemdir, bu aylarda ' +
+      'günler boyunca kesintisiz yağmur yağabilir.',
+    hydrographyNoteTr:
+      'Mekong Nehri, Laos topraklarını kuzeyden güneye yaklaşık 1.900 kilometre boyunca kat ' +
+      'eder ve ülkenin en önemli coğrafi eksenini oluşturur. Nam Ou, Nam Khan ve Xe Don gibi ' +
+      "çok sayıda kol, dağlık bölgelerden inerek Mekong'a katılır. Bunlar arasında en büyüğü " +
+      "olan Nam Ngum, Mekong'un yıllık akışının yaklaşık %14'ünü tek başına sağlar. Mekong'un " +
+      'mevsimsel taşkın rejimi, ülkenin tarım takvimini ve nehir kıyısındaki yerleşim ' +
+      'düzenini büyük ölçüde belirler.',
   },
   {
     isoCode: 'MY',
@@ -782,6 +872,40 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'MMK',
     governmentFormTr: null,
     independenceNoteTr: "4 Ocak 1948'de İngiltere'den bağımsız oldu.",
+    introTr:
+      "Hint-Çin Yarımadası'nın en büyük ülkesi olan Myanmar, kuzeyde ve kuzeydoğuda Çin, " +
+      'batıda Hindistan ve Bangladeş, güneydoğuda Tayland ve Laos ile komşudur. Batıda Bengal ' +
+      'Körfezi ve Andaman Denizi boyunca uzun bir kıyı şeridi vardır. Ülke topraklarını ' +
+      'kuzeyden güneye U biçiminde çevreleyen dağ sıraları, ortada Irrawaddy ve Sittaung ' +
+      'nehirlerinin oluşturduğu geniş bir ova bırakır.',
+    landformNoteTr:
+      'Myanmar beş coğrafi bölgeye ayrılır: kuzeydeki yüksek dağlar, batıdaki sıradağlar, ' +
+      'doğudaki Shan Platosu, ortadaki alçak ova ve güneydeki kıyı şeridi. Kuzeyde, Kachin ' +
+      'eyaletinde Çin sınırına yakın yükselen 5.881 metrelik Hkakabo Razi, Himalayaların ' +
+      "güneydoğu uzantısı olarak hem Myanmar'ın hem de tüm Güneydoğu Asya'nın en yüksek " +
+      'noktasıdır. Batıda, Hindistan ve Bangladeş sınırı boyunca Patkai Sıradağları, Naga ' +
+      'Tepeleri, Chin Tepeleri ve Rakhine Dağları kuzeyden güneye sıralanır. Doğuda, orta ' +
+      'ovadan 600 metrelik tek bir basamakla yükselen Shan Platosu, kristalin bir kütle ' +
+      "olarak Myanmar'ın doğu yarısını oluşturur. Irrawaddy ile Sittaung nehirleri arasında, " +
+      'nispeten alçak Bago Dağları uzanır.',
+    climateNoteTr:
+      'Myanmar muson kuşağında yer alsa da, iklimi ülkenin kendi topografyasıyla büyük ' +
+      'ölçüde şekillenir: dağ sıraları ve vadilerin kuzey-güney doğrultusunda uzanması, hem ' +
+      'güneybatı hem de kuzeydoğu musonu sırasında bol ve az yağışlı bölgelerin yan yana ' +
+      'ortaya çıkmasına yol açar. Haziran-Eylül arasındaki güneybatı musonu sıcak, nemli ve ' +
+      'bulutlu bir yaz getirir; bu dönem yıllık yağışın büyük bölümünü oluşturur. Aralık-' +
+      'Nisan arasındaki kuzeydoğu musonu ise daha serin, kuru ve az bulutlu bir kış ' +
+      'dönemidir. İki muson arasındaki geçiş, kısa ve sıcak bir ara mevsim oluşturur.',
+    hydrographyNoteTr:
+      "Irrawaddy Nehri, kuzeydeki N'mai ve Mali nehirlerinin birleşmesiyle doğar ve ülkeyi " +
+      "kuzeyden güneye yaklaşık 2.170 kilometre boyunca kat ederek Andaman Denizi'ne " +
+      "dökülür; Myanmar'ın en önemli ticari su yoludur. Ana kolu Chindwin, yaklaşık 1.200 " +
+      "kilometre sonra Mandalay yakınında Irrawaddy'ye katılır. Nehrin taşıdığı alüvyonla " +
+      'oluşan Irrawaddy Deltası, kimi kesimlerde deniz seviyesinden yalnızca 3 metre ' +
+      'yükseklikte olmasına rağmen ülkenin başlıca pirinç üretim bölgesidir. Doğuda, ' +
+      "Tibet Platosu'nda doğan Salween Nehri, Myanmar sınırları içinde yaklaşık 1.200 " +
+      'kilometre akar; Sittaung ise yaklaşık 420 kilometreyle daha kısa ama ağzındaki güçlü ' +
+      'gelgit dalgası nedeniyle seyrüsefer açısından zorlu bir nehirdir.',
   },
   {
     isoCode: 'PH',
@@ -860,6 +984,34 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'SGD',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "9 Ağustos 1965'te Malezya Federasyonu'ndan ayrılarak bağımsız oldu.",
+    introTr:
+      "Malay Yarımadası'nın güney ucunda, ana ada Singapur ile çevresindeki 60'tan fazla " +
+      "küçük adadan oluşan Singapur, Johor Boğazı ile Malezya'dan ayrılır; iki ülke bir " +
+      'karayolu köprüsüyle bağlıdır ama kara sınırı yoktur. Güneyde Singapur Boğazı, ' +
+      "ülkeyi Endonezya'nın Riau Adaları'ndan ayırır. Bölgedeki diğer ülkelerin aksine " +
+      "Singapur'un kırsal bir iç bölgesi yoktur — ada neredeyse tamamen kentleşmiştir.",
+    landformNoteTr:
+      'Singapur genel olarak alçak bir arazi yapısına sahiptir, ortalama yükseklik yaklaşık ' +
+      "11 metredir. Ada'nın en yüksek noktası, granit kayadan oluşan 164 metrelik Bukit Timah " +
+      "Tepesi'dir. Kuzeybatı, tortul kayalardan oluşan tepeler ve vadilerle şekillenirken, " +
+      "doğu bölgesi kumlu ve düz bir arazi sunar. 1819'daki İngiliz kolonizasyonundan bu " +
+      'yana yürütülen arazi doldurma çalışmaları, ülke topraklarını orijinal büyüklüğünün ' +
+      'yaklaşık %25 üzerine çıkarmıştır — dolgu malzemesi kendi tepelerinden, deniz ' +
+      'tabanından ve komşu ülkelerden temin edilmiştir.',
+    climateNoteTr:
+      "Singapur'da belirgin mevsimler yoktur; ekvatora yakın konumu nedeniyle sıcaklık yıl " +
+      'boyunca neredeyse sabit kalır. Yağış yılın her ayında görülür ve genellikle kısa ' +
+      'süreli ama şiddetli sağanaklar biçimindedir; büyük tropikal siklonlar bölgeyi ' +
+      'vurmaz. Yıllık ortalama yağış yaklaşık 2.100 milimetredir, en yoğun yağış Kasım-Ocak ' +
+      'arasındaki muson döneminde düşer.',
+    hydrographyNoteTr:
+      "Küçük yüzölçümü nedeniyle Singapur'da doğal göl ya da büyük nehir yoktur; su " +
+      'ihtiyacı büyük ölçüde yağış toplama ve depolama altyapısına dayanır. Ülke ' +
+      'topraklarının üçte ikisi su toplama alanı olarak tasarlanmıştır, toplanan yağmur ' +
+      'suyu adadaki 17 rezervuarda depolanır. Singapur, Geylang ve Kallang nehirlerinin ' +
+      'birleştiği haliçte inşa edilen Marina Barajı, bu üç nehrin ağzını denizden ayırarak ' +
+      'tatlı su rezervuarına (Marina Rezervuarı) dönüştürmüştür; 1977-1987 arasındaki on ' +
+      'yıllık bir temizlik çalışması bu dönüşümü mümkün kılmıştır.',
   },
   {
     isoCode: 'TH',
@@ -938,6 +1090,40 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Yarı-başkanlık cumhuriyeti',
     independenceNoteTr:
       "28 Kasım 1975'te Portekiz'den bağımsızlık ilan edildi; fiilî bağımsızlık, BM geçici yönetiminin ardından 20 Mayıs 2002'de gerçekleşti.",
+    introTr:
+      'Timor adasının doğu yarısında yer alan Doğu Timor, adanın batı yarısını Endonezya ' +
+      'ile paylaşır; ülkenin Oecusse bölgesi ise Endonezya toprakları içinde kalan bir ' +
+      'kara parçasıdır (eksklav). Kuzeyde Wetar Boğazı ve Banda Denizi, güneyde ise Timor ' +
+      'Denizi ile çevrilidir. Arazinin neredeyse tamamı dağlıktır; kıyıdan başlayan dar ' +
+      'düzlükler kısa mesafede sarp yamaçlara dönüşür.',
+    landformNoteTr:
+      'Ülke topraklarının yaklaşık yarısı 40 dereceyi aşan eğime sahiptir — bu durum ' +
+      'araziyi tarım ve yol yapımı açısından son derece zorlu kılar. Ülkenin merkezini ' +
+      'boydan boya kat eden Ramelau Sıradağları, Avustralya ve Avrasya levhalarının ' +
+      "çarpışmasıyla oluşmuştur. Başkent Dili'nin yaklaşık 70 kilometre güneyinde, " +
+      'Ainaro bölgesinde yükselen 2.963 metrelik Tatamailau (Ramelau Dağı), hem ülkenin ' +
+      'hem de tüm Timor adasının en yüksek noktasıdır. Ülke genelinde 2.000 metreyi aşan ' +
+      'birkaç zirve daha bulunur (Matebian, Maubohilau, Kablaki gibi), ancak bunlar ' +
+      "Ramelau'dan ayrı, farklı belediyelerdeki başka sıradağlara aittir. Kuzey kıyısı " +
+      'denize dik biçimde iner ve dar düzlüklerin ardından hemen dağlara geçilirken, ' +
+      'güney kıyısı daha geniş düzlükler ve bataklık alçak arazi sunar.',
+    climateNoteTr:
+      "Doğu Timor'da yağış dağılımı kuzeyden güneye keskin biçimde değişir: kuzey kıyısı, " +
+      'merkezi dağların yağış gölgesinde kalarak yarı kurak bir savan iklimi yaşarken, ' +
+      'güney kıyısı ve orta dağlık kesim çok daha yağışlı bir muson ikliminin etkisi ' +
+      'altındadır. Kasım-Mart arasındaki kuzeybatı musonu nemli ve sıcak bir dönem ' +
+      'getirirken, Nisan-Ekim arasındaki güneydoğu musonu daha kurudur. Bu asimetri ' +
+      "yıllık yağış rakamlarına da yansır: kuzey kıyısındaki Manatuto'da yıllık yağış 565 " +
+      "milimetre kadar düşükken, orta-batı dağlık bölgedeki Lolotai'de 2.837 milimetreye " +
+      'ulaşır; kuzeyde yılın neredeyse sekiz ayı boyunca hemen hiç yağış görülmez.',
+    hydrographyNoteTr:
+      "Dağlık ve sarp arazi yapısı nedeniyle Doğu Timor'un nehirleri genellikle kısa ve " +
+      'mevsimsel akışlıdır: yağışlı mevsimde sellenebilirken, kurak mevsimde su seviyeleri ' +
+      'büyük ölçüde düşer. En uzun nehir olan Loes, yaklaşık 80 kilometre uzunluğunda ve ' +
+      '2.184 kilometrekarelik bir havzayı besler. Laclo ve Seical gibi diğer önemli ' +
+      'nehirler, merkezi sıradağlardan inerken derin vadiler ve kanyonlar oyar; bu ' +
+      'nehirlerin çoğu, kaynaklandıkları dağ omurgasına göre kuzeye ya da güneye akarak ' +
+      'kıyıya ulaşır.',
   },
   {
     isoCode: 'VN',
