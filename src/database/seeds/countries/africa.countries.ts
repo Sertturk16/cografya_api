@@ -364,6 +364,38 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'XOF',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "1 Ağustos 1960'ta Fransa'dan bağımsız oldu.",
+    introTr:
+      'Benin toprakları güneyden kuzeye dört farklı kademede yükselir ve ülke ortalama ' +
+      'yükseltisi yalnızca 200 metredir. Dar bir kıyı ovasının ardından, kuzey-güney yönlü ' +
+      "vadilerle bölünmüş bir güney plato kuşağı gelir. Kuzeybatı sınırında, Togo'ya doğru " +
+      'uzanan Atakora sıradağları ülkenin en engebeli arazisini oluşturur.',
+    landformNoteTr:
+      'Güney kıyısındaki ova en fazla 10 metre yükseklikte, genişliği 10 kilometreyi geçmeyen ' +
+      'bataklık bir şerittir; göller ve lagünlerle noktalanır. Hemen kuzeyinde, 20-200 metre ' +
+      'arasında değişen güney platoları, Couffo, Zou ve Ouémé nehirlerinin kazdığı ' +
+      'kuzey-güney yönlü vadilerle parçalanır. Nikki ve Savé çevresindeki orta kesim ise ' +
+      'yüksekliği nadiren 400 metreyi bulan kayalık tepelerle noktalanmış, görece düz bir ' +
+      'arazidir.' +
+      '\n\n' +
+      'Kuzeybatıda, Togo sınırı boyunca uzanan Atakora sıradağları 300-600 metre arasında ' +
+      'yükselen, yoğun ormanlarla kaplı bir kütledir. Sıradağın en yüksek noktası olan ' +
+      'Sokbaro Dağı 658 metreye ulaşır; aynı dağ yapısı sınırın öte yakasında Togo ' +
+      'topraklarına doğru devam eder.',
+    climateNoteTr:
+      'Benin üç iklim kuşağından oluşur. Güneydeki Gine kıyı kuşağında yılda iki kez yağış ' +
+      'getiren bir düzen görülür; yağışlar nisan-haziran ve eylül-kasım aylarında yoğunlaşır, ' +
+      "yıllık toplam Cotonou'da yaklaşık 1.360 milimetredir. Orta kesimdeki Sudan-Gine geçiş " +
+      'kuşağında yağış tek bir mevsime toplanır ve yıllık 900-1.110 milimetre arasında ' +
+      'değişir. Kuzeydeki Sudan kuşağında ise yarı kurak bir iklim hakimdir; kısa yağmur ' +
+      'mevsimi mayıs-eylül arasına sıkışır, yıllık yağış 890 milimetre civarındadır ve ' +
+      "aralık-mart arasında Sahra'dan esen kuru harmattan rüzgarı etkilidir.",
+    hydrographyNoteTr:
+      'Ülkenin en uzun nehri olan Ouémé orta kesimden doğar, güneye akarken Okpara ve Zou ' +
+      "kollarını alır ve Cotonou yakınında ikiye ayrılarak bir kolu Nokoué Gölü'ne, diğeri " +
+      'Porto-Novo lagününe dökülür. Nokoué Gölü, Ouémé ve Sô nehirlerinden beslenir ve kıyı ' +
+      'boyunca uzanan geniş bir lagün-göl sisteminin merkezini oluşturur. Kuzeydoğuda Nijer ' +
+      'Nehri, Mekrou, Alibori ve Sota kollarıyla beslenerek Nijer sınırının bir bölümünü ' +
+      'çizer; batıda ise Mono Nehri, Togo ile paylaşılan sınırın bir kesimini oluşturur.',
   },
   {
     isoCode: 'BF',
@@ -387,6 +419,39 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'XOF',
     governmentFormTr: null,
     independenceNoteTr: "5 Ağustos 1960'ta Fransa'dan bağımsız oldu.",
+    introTr:
+      "Burkina Faso, Sahra ile Gine Körfezi arasında, Nijer Nehri'nin büyük kıvrımının " +
+      'güneyinde yer alan denize kıyısı olmayan bir ülkedir. Topraklarının büyük bölümünü, ' +
+      '200-300 metre yükseklikte hafif dalgalı bir peneplen oluşturur. Ülkenin güneybatı ' +
+      'köşesinde, Mali sınırındaki bir kumtaşı kütlesi üzerinde ülkenin en yüksek noktası ' +
+      'yükselir.',
+    landformNoteTr:
+      'Ülke topraklarının büyük bölümü, prekambriyen bir kütlenin aşınmasıyla oluşmuş, hafif ' +
+      'dalgalı bir peneplendir; buradaki savan platosu 200-300 metre yükseklikte uzanır ve ' +
+      'yer yer yalnız kalmış kayalık tepelerle noktalanır.' +
+      '\n\n' +
+      'Güneybatıda arazi, yüksekliği 150 metreye varan sarp kayalıklarla çevrili bir kumtaşı ' +
+      'kütlesine dönüşür. Bu kütlenin, Mali sınırı üzerinde yükselen Ténakourou Dağı 749 ' +
+      'metreyle ülkenin en yüksek noktasıdır; zirveden Mali ve Fildişi Sahili topraklarına ' +
+      "doğru geniş bir manzara görülür. Ténakourou'nun hemen yakınından, Kara Volta Nehri'nin " +
+      'kaynak suları doğar.',
+    climateNoteTr:
+      "Burkina Faso'da kurak tropikal bir iklim, kısa bir yağmur mevsimiyle uzun bir kurak " +
+      'mevsim arasında değişir. Ülke kuzeyden güneye üç yağış kuşağına ayrılır: kuzeydeki ' +
+      'Sahel kuşağında yıllık yağış 600 milimetrenin altında kalır, orta kesimdeki ' +
+      'kuzey-Sudan kuşağında 600-900 milimetre arasında değişir, güneydeki güney-Sudan ' +
+      'kuşağında ise 900 milimetreyi aşar. Yağmur mevsimi mayıs-haziran ile eylül arasında ' +
+      "yaşanır ve kuzeye doğru gidildikçe kısalır; kurak mevsimde Sahra'dan esen harmattan " +
+      'rüzgarı etkilidir.',
+    hydrographyNoteTr:
+      "Ülkenin su ağı üç havzaya ayrılır. Topraklarının yaklaşık %63'ünü kaplayan Volta " +
+      'havzası merkez ve batı kesimde yer alır; burada doğan Kara Volta, Ak Volta ve Kızıl ' +
+      'Volta nehirleri — sırasıyla Mouhoun, Nakambé ve Nazinon adlarıyla da anılır — Gana ' +
+      "topraklarında birleşerek Volta Nehri'ni oluşturur. Nakambé, başkent Ouagadougou'nun " +
+      "içinden geçer. Doğu ve kuzeydeki Nijer havzası topraklarının yaklaşık %30'unu " +
+      "oluşturur ve sularını Nijer Nehri'ne aktarır. Güneybatıdaki Comoé havzası ise " +
+      "topraklarının yaklaşık %7'sini kaplar ve Fildişi Sahili üzerinden Gine Körfezi'ne " +
+      'ulaşır. Kara Volta ve Comoé, ülkenin yıl boyunca sürekli akan iki nehridir.',
   },
   {
     isoCode: 'CV',
@@ -486,6 +551,32 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'GMD',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "18 Şubat 1965'te Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      'Gambiya, Atlas Okyanusu kıyısında, Senegal tarafından üç yandan çevrilen dar bir şerit ' +
+      "üzerinde yer alan, Afrika'nın ada olmayan en küçük ülkesidir. Ülke toprakları, " +
+      "ortasından geçen Gambiya Nehri'nin vadisini izleyerek uzanır. Arazide belirgin bir " +
+      'yükselti yoktur — Gambiya, kıtanın en alçak ulusal zirve noktasına sahip ülkesidir.',
+    landformNoteTr:
+      'Gambiya Nehri ülkenin düz arazisine egemendir ve bir kumtaşı platosu üzerinden akar. ' +
+      'Nehrin aşağı kesimi boyunca yoğun mangrov bataklıkları, alçak kesimlerde ise tatlı su ' +
+      'bataklıkları ve tuzlu düzlükler uzanır; vadinin alüvyonlu toprakları pirinç tarımına, ' +
+      'daha yüksek yamaçları ise yer fıstığı yetiştiriciliğine elverişlidir. Ülkede dağ ya da ' +
+      'tepe sayılabilecek bir yükselti yoktur; arazi nehri yakından izleyerek yalnızca birkaç ' +
+      'önemsiz tepeye kadar yükselir. En yüksek nokta 53 metreyle kıtanın herhangi bir ' +
+      'ülkesindeki en alçak ulusal zirvedir.',
+    climateNoteTr:
+      "Gambiya'da Sahel tipi bir iklim görülür: kasım-mayıs arası uzun bir kurak mevsim, " +
+      'haziran-ekim arası ise kısa bir yağışlı mevsimdir. Ülke, batıdan doğuya dört ' +
+      'tarımsal-ekolojik kuşağa ayrılır; en batıda nispeten nemli bir Gine savanı, en doğuda ' +
+      'ise açık ağaçlık ve çalılıklarla kaplı bir Sahel savanı uzanır. Yıllık yağış iç ' +
+      'kesimlerde 920 milimetreden kıyıda 1.450 milimetreye kadar çıkar; kıyı boyunca ' +
+      'okyanusun etkisiyle sıcaklık ve nem daha ölçülüdür.',
+    hydrographyNoteTr:
+      "Gambiya Nehri, kaynağını Gine'deki Fouta Djallon yaylasından alır ve ülke sınırları " +
+      'içinde yaklaşık 480 kilometre boyunca akar. Gelgit etkisi nehrin oldukça iç ' +
+      'kesimlerine kadar hissedilir; aşağı kesimde geniş mangrov bataklıkları, nehir ağzında ' +
+      'ise tuzlu su birikintileri oluşur. Ülkenin neredeyse tüm yerleşim ve tarım faaliyeti ' +
+      'bu tek nehrin vadisi çevresinde yoğunlaşır.',
   },
   {
     isoCode: 'GH',
@@ -558,6 +649,38 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'GNF',
     governmentFormTr: null,
     independenceNoteTr: "2 Ekim 1958'de Fransa'dan bağımsız oldu.",
+    introTr:
+      'Gine, kıyıdan iç kesime doğru dört farklı coğrafi bölgeden oluşur: dar bir kıyı şeridi ' +
+      'olan Alt Gine, pastoral bir yayla olan Orta Gine (Fouta Djallon), kuzeydeki savan ' +
+      "kuşağı Üst Gine ve güneydoğudaki yağmur ormanı bölgesi Orman Gine. Batı Afrika'nın " +
+      'başlıca nehirlerinin yarıdan fazlası bu topraklardan doğduğu için ülke, bölgenin su ' +
+      'kulesi olarak anılır.',
+    landformNoteTr:
+      'Ülkenin ortasında yükselen Fouta Djallon, ortalama 900 metre yükseklikte, derin vadi ' +
+      've boğazlarla yarılmış basamaklı kumtaşı platolarından oluşur. Bu platonun kuzey ' +
+      "ucunda yükselen Loura Dağı (Tamgué), Fouta Djallon'un en yüksek noktasıdır ve yaklaşık " +
+      "1.540 metreye ulaşır. Buradan Gambiya, Senegal Nehri'nin ana kolu Bafing, Konkouré ve " +
+      'Büyük/Küçük Scarcies gibi nehirlerin kaynak suları doğar.' +
+      '\n\n' +
+      'Ülkenin güneydoğu ucunda, Fildişi Sahili ve Liberya sınırına yakın Gine Yaylaları ' +
+      "uzanır; bu kuşak Nijer Nehri'nin asıl kaynağını barındırır. Yaylaların en yüksek " +
+      'noktası, Fildişi Sahili sınırındaki Nimba sıradağının zirvesidir; 1.752 metreye ulaşan ' +
+      "bu zirve, Gine'nin de ülke genelindeki en yüksek noktasıdır.",
+    climateNoteTr:
+      "Gine'de iklim bölgeden bölgeye büyük farklılıklar gösterir. Kıyı boyunca uzanan Alt " +
+      "Gine'de musonsu bir yağış rejimi hakimdir; yağmur mevsimi nisan-kasım arasını kapsar " +
+      "ve başkent Conakry'de yıllık yağış yaklaşık 3.800 milimetreye ulaşır — dünyanın en " +
+      "yağışlı kıyı kentlerinden biridir. Orta kesimdeki Fouta Djallon'da yağış daha az ve " +
+      'düzensizdir, yıllık 1.500-2.000 milimetre arasında değişir; kurak mevsimde günlük ' +
+      "sıcaklık farkı belirgin biçimde artar. Kuzeydeki Üst Gine'de yağmur mevsimi daha " +
+      'kısadır ve aralık-mayıs arasında Sahra kökenli harmattan rüzgarı eser.',
+    hydrographyNoteTr:
+      "Fouta Djallon, Batı Afrika'nın büyük nehirlerinin çoğuna kaynaklık ettiği için " +
+      'bölgenin su kulesi kabul edilir. Platonun orta kesiminden Gambiya Nehri, Senegal ' +
+      "Nehri'nin ana kolu Bafing ve Konkouré doğar; platonun doğu yamaçları ise Nijer " +
+      "Nehri'nin çeşitli kollarını besler. Güneydoğudaki Gine Yaylaları, Nijer'in asıl " +
+      "kaynağını barındırır. Kuzeybatıda, Büyük ve Küçük Scarcies nehirleri Sierra Leone'ye " +
+      'doğru akar.',
   },
   {
     isoCode: 'GW',
@@ -582,6 +705,38 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Yarı başkanlık cumhuriyeti',
     independenceNoteTr:
       "24 Eylül 1973'te Portekiz'den bağımsızlık ilan edildi (Portekiz'in resmî tanıması 10 Eylül 1974).",
+    introTr:
+      'Gine-Bissau toprakları, alçak kıyı ovaları ile iç kesimdeki hafif yüksek platolardan ' +
+      'oluşur; ülkede belirgin bir dağ silsilesi yoktur. Kıyı açığında, Geba ve Rio Grande de ' +
+      'Buba nehirlerinin eski deltasından oluşan Bijagós Takımadaları uzanır. Ülkenin ' +
+      "güneydoğusunda, Gine'deki Fouta Djallon yaylasına komşu Gabú Platosu yer alır.",
+    landformNoteTr:
+      'Kıyı boyunca uzanan alçak ovalar, Geba, Cacheu ve diğer nehirlerin geniş gelgit ' +
+      'halicileriyle derin biçimde kesilir; bu kesim mangrov ve tuzlu bataklıklarla kaplıdır. ' +
+      "İç kesimde arazi kademeli olarak yükselir ve merkezde Bafatá Platosu'na, güneydoğuda " +
+      "ise Gine sınırındaki Gabú Platosu'na ulaşır. Ülkenin en yüksek kesimleri bu güneydoğu " +
+      'platosunda, 260-300 metre arasında bir yüksekliğe çıkar; kaynaklarda tutarlı biçimde ' +
+      'öne çıkan tek bir zirve adı yok.' +
+      '\n\n' +
+      'Kıyı açığındaki Bijagós Takımadaları, Geba ve Rio Grande de Buba nehirlerinin eski ' +
+      'deltasının sular altında kalmasıyla oluşmuş, yaklaşık 88 adadan oluşan bir ' +
+      "topluluktur. Bölgenin Afrika'nın en güçlü gelgitlerinden bazılarına sahip olması, " +
+      'kumsalları, dolambaçlı kanalları ve gelgit düzlüklerini sürekli yeniden şekillendirir. ' +
+      "Takımada, mangrovlardan kuru savanlara uzanan ekosistem çeşitliliği nedeniyle 1996'da " +
+      'UNESCO Biyosfer Rezervi ilan edildi.',
+    climateNoteTr:
+      "Gine-Bissau'da tropikal muson iklimi görülür; ekvatora yakınlık nedeniyle sıcaklıklar " +
+      'yıl boyunca ortalama 26 santigrat derece civarında, az değişkenlikle seyreder. ' +
+      'Haziran-kasım arası yağışlı, aralık-mayıs arası kurak bir mevsim izlenir. Kıyı ' +
+      'kesiminde yıllık yağış 2.000-3.000 milimetreye ulaşırken, iç kesimler daha kuraktır. ' +
+      'Temmuz-eylül arasındaki yoğun yağışlar zaman zaman geniş çaplı taşkınlara yol açar.',
+    hydrographyNoteTr:
+      'Kıyı şeridi, Geba, Cacheu, Mansôa, Cacine ve Rio Grande de Buba gibi huni biçimli ' +
+      'halicilerle derin biçimde parçalanmıştır; Geba halicinde gelgit farkı 7 metreye ' +
+      "ulaşır. Geba Nehri, Gine'deki Fouta Djallon'da doğar, Senegal topraklarından geçerek " +
+      "yaklaşık 550 kilometre sonra Gine-Bissau'da Atlas Okyanusu'na ulaşır. Ana kolu olan " +
+      "Corubal, kısa bir mesafe boyunca Gine ile sınırı oluşturduktan sonra Geba'ya katılır. " +
+      "Ülke, Batı Afrika'da tuzlu su nehirlerinin sayısı bakımından ilk sırada yer alır.",
   },
   {
     isoCode: 'LR',
@@ -606,6 +761,37 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr:
       "26 Temmuz 1847'de kendi ilanıyla bağımsız oldu (bir Avrupa sömürge gücünden değil).",
+    introTr:
+      'Liberya toprakları, kıyıdan iç kesime doğru sıralanan dört paralel kuşaktan oluşur: ' +
+      'alçak bir kıyı ovası, dalgalı bir tepelik kuşak, parçalı bir iç plato ve kuzeybatıda ' +
+      'dağınık düşük dağlar. Ülkenin en yüksek arazisi, Gine ve Fildişi Sahili sınırındaki ' +
+      'geniş yayla sisteminin bir uzantısı olan kuzeybatı dağlık kesimindedir. Başkent ' +
+      'Monrovia, dünyanın en yağışlı başkentlerinden biridir.',
+    landformNoteTr:
+      'Yaklaşık 560 kilometre uzunluğundaki kıyı ovası, çoğu yerde yalnızca 1-2 metre ' +
+      'yükseklikte, düz ve kumludur; kumsallar arasında kum setleriyle kapanmış lagünler ve ' +
+      'mangrov bataklıkları sıralanır. Bunun hemen ardında, genişliği yaklaşık 32 kilometreyi ' +
+      'bulan ve ortalama 90 metre yükseklikteki dalgalı bir tepelik kuşak uzanır.' +
+      '\n\n' +
+      'İç kesimde arazi, dağınık alçak dağlarla parçalanmış bir platoya dönüşür. Kuzeybatıda, ' +
+      'Lofa eyaletindeki Wologizi sırası üzerinde yükselen Wuteve Dağı, 1.447 metreyle ülke ' +
+      'topraklarının en yüksek noktasıdır. Nimba sıradağının 1.752 metrelik asıl zirvesi ise ' +
+      'Gine ve Fildişi Sahili sınırı üzerinde yükselir; Liberya toprakları bu geniş dağ ' +
+      'sistemine yalnızca komşudur.',
+    climateNoteTr:
+      "Liberya'da yıl boyunca sıcak ve nemli tropikal bir iklim hakimdir; Afrika Musonu'nun " +
+      'etkisiyle nisan sonu-kasım ortası arası yağışlı bir mevsim yaşanır. Başkent Monrovia, ' +
+      'yıllık yaklaşık 5.000 milimetre yağışla dünyanın en yağışlı başkentlerinden biridir; ' +
+      'haziran ve temmuz aylarında bu miktarın önemli bir kısmı tek başına düşer. Kurak ' +
+      'mevsimde ise Sahra kökenli harmattan rüzgarı etkilidir.',
+    hydrographyNoteTr:
+      'Gine yaylalarından inen altı ana nehir ülke topraklarını kat eder. Loffa, St. Paul, ' +
+      'St. John ve Cestos nehirlerinin aşağı kesimleri tamamen Liberya sınırları içinde ' +
+      'kalır. Batıda Mano Nehri, Sierra Leone ile paylaşılan sınırı çizer; doğuda ise ülkenin ' +
+      'en uzun nehri olan Cavalla (515 km), akışının güney kesimiyle Fildişi Sahili ile ' +
+      'paylaşılan sınırın büyük bölümünü oluşturur — kuzey kesimi ise sınıra değmeden tamamen ' +
+      'Liberya topraklarından geçer. Kıyıya yakın kesimlerde, kum setleriyle kapanan nehir ' +
+      'ağızları sık sık tatlı su lagünlerine dönüşür.',
   },
   {
     isoCode: 'ML',
@@ -825,6 +1011,37 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'SLE',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "27 Nisan 1961'de Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      'Sierra Leone, kıyıdan iç kesime doğru dört farklı bölgeden oluşur: alçak bir kıyı ' +
+      'ovası, ormanlık tepelik kuşak, iç kesimdeki yüksek plato ve kuzeydoğudaki dağlık ' +
+      "bölge. Başkent Freetown'ın kurulu olduğu Sierra Leone Yarımadası, kendine özgü dağlık " +
+      "bir kütle oluşturur. Ülkenin en yüksek noktası, kuzeydoğudaki Loma Dağları'nda yer " +
+      'alır.',
+    landformNoteTr:
+      'Kıyı boyunca uzanan ova, genişliği 8-40 kilometre arasında değişen, sık sık su basan ' +
+      "bataklıklar, haliçler ve mangrovlarla kaplı alçak bir şerittir. Freetown'ın kurulu " +
+      'olduğu yarımada bu düz kıyıdan farklı olarak 888 metreye ulaşan dağlık bir kütledir ve ' +
+      'yaklaşık 40 kilometre uzunluğundadır.' +
+      '\n\n' +
+      'İç kesimde arazi, ormanlık tepelerden geçerek yükselen bir platoya dönüşür. ' +
+      "Kuzeydoğuda yükselen Loma Dağları'nın en yüksek noktası olan Bintumani (Loma Mansa), " +
+      '1.945 metreyle ülkenin en yüksek noktasıdır. Daha doğuda, Tingi Dağları 1.853 metreye ' +
+      'kadar yükselir.',
+    climateNoteTr:
+      "Sierra Leone'de tropikal muson iklimi görülür; güneyde nisan, kuzeyde ise mayıs ayında " +
+      'başlayan yağmur mevsimi kasıma kadar sürer, kasım-nisan arası ise kurak geçer. Başkent ' +
+      'Freetown, yıllık ortalama 4.400 milimetre yağışla dünyanın en yağışlı kıyı ' +
+      'başkentlerinden biridir; en yağışlı ay olan temmuzda tek başına 600 milimetreye yakın ' +
+      'yağış düşer. Kurak mevsimde, özellikle ocak-mart arasında yağış neredeyse tamamen ' +
+      'kesilir.',
+    hydrographyNoteTr:
+      'Ülkeyi kuzeydoğudan güneybatıya beş büyük nehir keser: Küçük Scarcies, Rokel, Jong, ' +
+      "Sewa ve Moa. Bunlardan Küçük ve Büyük Scarcies ile Moa kaynaklarını Gine'den alır; " +
+      "güneydoğudaki Mano Nehri ise Liberya'dan doğar ve iki ülke arasındaki sınırın bir " +
+      'bölümünü oluşturur. Nehirler yukarı kesimlerinde kayalık ve hızlı akışlıyken, aşağı ' +
+      'kesimde geniş haliçlere açılır; bu haliçleri 10.000 kilometrekareyi aşan mangrov ' +
+      "ormanları çevreler. Akış mevsimsel olarak büyük farklılık gösterir; Rokel Nehri'nde " +
+      'debi eylülde en yüksek seviyeye ulaşırken martta neredeyse sıfıra iner.',
   },
   {
     isoCode: 'TG',
@@ -848,6 +1065,41 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'XOF',
     governmentFormTr: null,
     independenceNoteTr: "27 Nisan 1960'ta Fransa'dan bağımsız oldu.",
+    introTr:
+      'Togo, kıyıdan kuzeye doğru uzanan dar ve uzun bir ülkedir; toprakları güneyden kuzeye ' +
+      "beş farklı kuşağa ayrılır. Kıyı boyunca alçak Ouatchi Platosu'nun ardından bir tabla " +
+      'arazi, ardından ülkeyi ortadan ikiye bölen Togo Dağları ve en kuzeyde geniş düzlükler ' +
+      "sıralanır. Togo Dağları, Gana'daki Akwapim Tepeleri ile Benin'deki Atakora " +
+      'sıradağlarıyla aynı jeolojik kuşağın bir parçasıdır.',
+    landformNoteTr:
+      'Yalnızca 56 kilometrelik kıyı şeridinin gerisinde, 60-90 metre yükseklikteki Ouatchi ' +
+      'Platosu yaklaşık 32 kilometre iç kesime uzanır. Bunun kuzeydoğusunda, 400-460 metre ' +
+      "yükseklikteki bir tabla arazi yer alır; bu bölgeyi Mono Nehri'nin kolları sular." +
+      '\n\n' +
+      "Ülkeyi güneybatıdan kuzeydoğuya kat eden Togo Dağları, Gana'daki Akwapim Tepeleri'nden " +
+      "başlayıp Benin'deki Atakora sıradağlarına kadar uzanan geniş bir yapının orta " +
+      'parçasıdır; bu geniş kuşağın ortalama yüksekliği 700 metre civarındadır. Kuşağın en ' +
+      "yüksek noktası, Kpalimé yakınında yükselen ve 986 metreye ulaşan Agou Dağı'dır. " +
+      "Kuzeyde, Togo Dağları'nın ardından arazi tekrar alçalarak geniş düzlüklere dönüşür.",
+    climateNoteTr:
+      "Togo'nun büyük bölümünde tropikal savan iklimi görülür ve iklim Batı Afrika " +
+      "Musonu'ndan güçlü biçimde etkilenir. Güney kıyı şeridinde yılda iki yağmur mevsimi " +
+      'yaşanır — nisan-temmuz arası ana mevsim, eylül-kasım arası ise daha zayıf ikinci bir ' +
+      'mevsim — ancak buradaki yıllık yağış yalnızca 800 milimetre civarındadır; bölge, Gine ' +
+      'Körfezi kıyısındaki daha nemli ormanlık kuşağın ortasında görece kurak bir koridor ' +
+      'oluşturur. Orta kesimdeki plato ve dağlık bölgede iklim daha ölçülüdür, yağış tek bir ' +
+      'mevsime toplanır ve yıllık 1.400-1.600 milimetreye ulaşır. Kuzeyde yağmur mevsimi ' +
+      'mayıs-kasım arasına yayılır, aralık-mart arasında ise Sahra kökenli harmattan rüzgarı ' +
+      'eser.',
+    hydrographyNoteTr:
+      'Ülkenin en uzun nehri olan Oti, kuzeyden gelip ülke topraklarını yaklaşık 100 ' +
+      'kilometre boyunca çaprazlamasına keser, ardından güneye dönerek yaklaşık 110 kilometre ' +
+      'boyunca Gana sınırını çizer; toplam uzunluğu kaynağa göre 520-550 kilometre arasında ' +
+      "verilir ve Volta Nehri'nin bir koludur. Güneyde Mono Nehri, aşağı kesiminde Benin ile " +
+      'paylaşılan sınırı oluşturarak yaklaşık 400 kilometre sonra kıyıdaki geniş lagün ' +
+      'sistemine dökülür. Bu sistemin en büyüğü olan Togo Gölü, Zio, Haho, Boko ve Mono ' +
+      'nehirlerinden beslenir ve doğuya doğru Vogan ve Aného lagünleriyle bağlantılıdır — ' +
+      'ülkenin en büyük doğal iç su kütlesidir.',
   },
   {
     isoCode: 'AO',
