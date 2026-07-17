@@ -1891,6 +1891,44 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal parlamenter anayasal monarşi',
     independenceNoteTr:
       "Federasyon 1 Ocak 1901'de kuruldu; tam anayasal bağımsızlık kademeli (1931 Westminster, 1986 Avustralya Yasası).",
+    introTr:
+      'Avustralya, dünyanın en küçük kıtası ve tek başına bir kıtanın tamamını kaplayan tek ' +
+      'ülkedir. Başkenti Sydney değil, iki büyük kent arasındaki rekabeti çözmek için özel ' +
+      "olarak planlanmış Kanberra'dır. Kıtanın büyük bölümü düz ve alçak bir arazidir; nüfusun " +
+      'büyük kısmı doğu ve güneydoğu kıyısındaki dar bir şeritte yaşar.',
+    landformNoteTr:
+      'Kıta üç büyük fiziki bölgeye ayrılır: batıda milyonlarca yıllık aşınmayla düzleşmiş eski ' +
+      'bir kalkan olan Batı Platosu, ortada Lake Eyre havzasını içeren Orta Ovalar ve doğuda ' +
+      'kıyıya paralel uzanan Büyük Ayırıcı Sıradağlar (Great Dividing Range). Bu sıradağ, Cape ' +
+      "York'tan Victoria'ya kadar 3.500 kilometreden uzun bir hatla uzanır ve tek bir ülke " +
+      'sınırları içinde kalan dünyanın en uzun sıradağıdır. Kıtanın en yüksek noktası, ' +
+      "sıradağın güneyindeki Kar Dağları'nda yer alan 2.228 metrelik Kosciuszko Dağı'dır. Batı " +
+      "Platosu'nun ortasında yükselen Uluru, dünyanın en büyük tek parça kaya kütlelerinden " +
+      'biridir.' +
+      '\n\n' +
+      'Kuzeydoğu kıyısı boyunca 2.300 kilometreden uzun bir hatla uzanan Büyük Set Resifi, ' +
+      "2.900'den fazla ayrı resiften oluşan dünyanın en büyük mercan resif sistemidir.",
+    climateNoteTr:
+      "Avustralya'nın iklimi geniş bir enlem aralığına yayıldığı için büyük çeşitlilik " +
+      'gösterir. Kuzeyde tropikal muson rejimi egemendir, yıl yağışlı ve kurak iki mevsime ' +
+      'ayrılır. İç kesimlerin büyük bölümü çöl ve yarı çöl arazidir; kıtanın ortasındaki bu ' +
+      "kurak kuşak, Avustralya'yı dünyanın en kurak kıtalarından biri yapar. Güneydoğu ve " +
+      'güneybatı kıyıları ılımandır, Perth çevresi ise yazları kurak, kışları yağışlı bir ' +
+      "Akdeniz iklimi rejimi gösterir. Kar Dağları'nın yüksek kesimlerinde kış aylarında kar " +
+      'yağışı görülür ve ülkenin az sayıdaki kayak merkezi burada kuruludur.',
+    hydrographyNoteTr:
+      "Avustralya'nın en uzun nehri, 2.508 kilometreyle Murray Nehri'dir; Darling Nehri ve " +
+      'kollarıyla birlikte oluşturduğu Murray-Darling Havzası, kıtanın güneydoğusundaki en ' +
+      'önemli tarımsal su kaynağıdır. Bu havza dışındaki iç kesim nehirlerinin çoğu ' +
+      'mevsimliktir, yılın büyük bölümünde kuru yatak halinde kalır. Kıtanın en alçak noktası ' +
+      've en büyük gölü olan Lake Eyre (Kati Thanda), deniz seviyesinin yaklaşık 15 metre ' +
+      'altında kalan kapalı bir havzadır; yalnızca seyrek büyük yağışlardan sonra su tutar, ' +
+      'çoğu zaman geniş bir tuz düzlüğü halindedir.' +
+      '\n\n' +
+      'İç kesimlerin susuz görünümüne rağmen, kıtanın altında 1,7 milyon kilometrekareyi aşan ' +
+      'Büyük Artezyen Havzası uzanır — dünyanın en büyük ve en derin artezyen yeraltı suyu ' +
+      'rezervlerinden biri. Bu su, iç bölgelerdeki çiftlik ve kasabaların neredeyse tek tatlı ' +
+      'su kaynağıdır.',
   },
   {
     isoCode: 'NZ',
@@ -1915,6 +1953,40 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter anayasal monarşi',
     independenceNoteTr:
       'Dominyon statüsü 1907; tam bağımsızlık kademeli Commonwealth sürecinde kazanıldı.',
+    introTr:
+      "Yeni Zelanda, Avustralya'nın yaklaşık 2.000 kilometre güneydoğusunda, Güney Pasifik'te " +
+      'izole bir konumdadır. Ülke, Kuzey Adası ve Güney Adası olmak üzere iki ana adadan ve çok ' +
+      'sayıda küçük adadan oluşur. Pasifik ve Avustralya levhalarının sınırında yer alması, ' +
+      'ülkede volkanik etkinliği ve deprem sıklığını artırır.',
+    landformNoteTr:
+      "Güney Adası'nın omurgasını, Pasifik ve Avustralya levhalarının sınırını oluşturan " +
+      'yaklaşık 600 kilometrelik Alp Fayı boyunca yükselen Güney Alpleri oluşturur. Bu ' +
+      "sıradağın en yüksek noktası, üç doruğu bulunan 3.724 metrelik Aoraki/Cook Dağı'dır. " +
+      'Adanın güneybatısındaki Fiordland bölgesinde, buzul aşındırmasıyla oyulmuş vadilerin ' +
+      'deniz suyuyla dolmasından oluşan 14 fiyort sıralanır; bazıları kıyıdan 40 kilometre ' +
+      'içeriye kadar uzanır ve kenarlarındaki sarp kayalıklar 1.500-2.000 metreye ulaşır.' +
+      '\n\n' +
+      "Kuzey Adası'nın merkezini, Taupo Volkanik Bölgesi'nin parçası olan bir volkanik plato " +
+      'kaplar. Adanın en yüksek noktası, hâlâ etkin bir yanardağ olan 2.797 metrelik Ruapehu ' +
+      "Dağı'dır; çevresindeki Ngauruhoe ve Tongariro ile birlikte Tongariro Ulusal Parkı'nı " +
+      "oluşturur. Ruapehu 1830'dan bu yana 60'tan fazla kez patlamıştır, zirvesindeki krater " +
+      'gölü büyük patlamalar arasında yeniden su tutar.',
+    climateNoteTr:
+      "Yeni Zelanda'da ılıman deniz iklimi egemendir, ancak Güney Alpleri ülkeyi doğu ve batı " +
+      "olmak üzere iki farklı yağış rejimine ayırır. Tasman Denizi'nden gelen nemli hava " +
+      'kütleleri dağların batı yamaçlarına çarparak yoğun yağış bırakır; Fiordland ve batı ' +
+      'kıyısı dünyanın en yağışlı bölgeleri arasında sayılır. Dağların doğusunda kalan ' +
+      'Canterbury Ovaları ise yağış gölgesinde kaldığından belirgin biçimde daha kurudur. ' +
+      "Kuzeyden güneye gidildikçe sıcaklıklar da düşer; Kuzey Adası'nın en ucu neredeyse " +
+      "subtropikal, Güney Adası'nın güneyi ise serin ve rüzgarlıdır.",
+    hydrographyNoteTr:
+      "Ülkenin en uzun nehri, Ruapehu Dağı'nın yamaçlarından doğan ve 425 kilometre sonra " +
+      "Tazman Denizi'ne dökülen Waikato Nehri'dir. Nehir, yolu üzerinde ülkenin en büyük gölü " +
+      "olan ve bir volkanik kalderanın çöküşüyle oluşan Taupo Gölü'nü besler; gölden çıktığı " +
+      "noktada oluşturduğu Huka Şelalesi'nin ardından sekiz baraj ve dokuz hidroelektrik " +
+      "santralinden geçerek ülke elektrik şebekesine önemli bir katkı sağlar. Güney Adası'nda " +
+      "ise debi bakımından en büyük nehir Clutha Nehri'dir; Wakatipu ve Te Anau gibi buzul " +
+      "gölleri, Güney Alpleri'nin eteklerinde sıralanır.",
   },
   {
     isoCode: 'FJ',
@@ -1938,6 +2010,30 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'FJD',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "10 Ekim 1970'te Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      "Fiji, 330'dan fazla adadan oluşan bir takımadadır; bunların yaklaşık 110'u yerleşime " +
+      "sahiptir. Nüfusun ve ekonomik faaliyetin büyük bölümü, başkent Suva'yı barındıran en " +
+      "büyük ada Viti Levu'da toplanır. İkinci büyük ada Vanua Levu kuzeydoğuda yer alır. " +
+      'Adaların tamamı volkanik kökenlidir ve geniş mercan resifleriyle çevrilidir.',
+    landformNoteTr:
+      "Viti Levu'nun iç kesimi, sönmüş bir volkanın kalıntısı olan dağlık bir arazidir. Adanın " +
+      "ve ülkenin en yüksek noktası, 1.324 metrelik Tomanivi Dağı'dır (eski adıyla Victoria " +
+      "Dağı); zirveye yakın yamaçlar Fiji'nin en yüksek rakımlı dağ ormanlarını barındırır. " +
+      'Kuzeyde Vanua Levu kıyısı boyunca uzanan Büyük Deniz Resifi (Cakaulevu), yaklaşık 200 ' +
+      "kilometre uzunluğuyla Büyük Set Resifi ve Mezoamerika Resifi'nin ardından dünyanın " +
+      'üçüncü en uzun kesintisiz bariyer resifidir.',
+    climateNoteTr:
+      "Fiji'de tropikal deniz iklimi egemendir. Kasım-Nisan arası ıslak mevsimde sıcaklık ve " +
+      'nem yüksektir, bu dönem aynı zamanda tropikal siklon riskinin en yüksek olduğu ' +
+      "aralıktır. Viti Levu'nun güneydoğuya bakan rüzgar alan yamaçları yıl boyunca bol yağış " +
+      'alırken, kuzeybatı kıyısı rüzgar gölgesinde kaldığından daha kurak bir iklime sahiptir; ' +
+      'bu fark, adanın "ıslak taraf" ve "kuru taraf" olarak anılan iki ayrı bölgeye ayrılmasına ' +
+      'yol açar.',
+    hydrographyNoteTr:
+      "Fiji'nin en uzun ve en büyük hacimli nehri, Viti Levu'nun doğusundan denize dökülen ve " +
+      "Suva yakınında bir delta oluşturan Rewa Nehri'dir. Ada takımadası dışında büyük bir " +
+      'nehir sistemi yoktur; diğer adalardaki akarsular, volkanik iç kesimlerden kıyıya kısa ' +
+      'mesafelerde inen dereler düzeyinde kalır.',
   },
   {
     isoCode: 'PG',
@@ -1961,6 +2057,36 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'PGK',
     governmentFormTr: 'Parlamenter anayasal monarşi',
     independenceNoteTr: "16 Eylül 1975'te Avustralya idaresinden bağımsız oldu.",
+    introTr:
+      "Papua Yeni Gine, dünyanın Grönland'dan sonra en büyük ikinci adası olan Yeni Gine'nin " +
+      'doğu yarısını ve New Britain, New Ireland, Bougainville gibi çok sayıda küçük adayı ' +
+      'kapsar. Ülke Büyük Okyanus Ateş Çemberi üzerinde yer alır ve hem etkin volkanizmaya hem ' +
+      'de sık depremselliğe sahiptir. İç kesimlerin büyük bölümünü kaplayan yoğun yağmur ' +
+      'ormanı, tarih boyunca yüzlerce dilin ve topluluğun birbirinden izole biçimde gelişmesine ' +
+      'zemin hazırlamıştır.',
+    landformNoteTr:
+      'Ülkenin omurgasını, ana adanın boyunca uzanan Merkezi Sıradağlar oluşturur. Bu sıradağın ' +
+      "ve ülkenin en yüksek noktası, Bismarck Sıradağı'nın bir parçası olan 4.509 metrelik " +
+      "Wilhelm Dağı'dır; zirve, Chimbu, Jiwaka ve Madang eyaletlerinin kesiştiği noktada " +
+      'yükselir. Dağlık iç kesimler tarihsel olarak ulaşımı güçleştirmiş, yüksek vadilerdeki ' +
+      'toplulukların kıyı bölgelerinden bağımsız biçimde gelişmesine yol açmıştır.' +
+      '\n\n' +
+      'New Britain ve Bougainville adalarının kıyı kesimlerinde etkin yanardağlar bulunur; ' +
+      "bölge Ateş Çemberi'nin güneybatı ucunu oluşturur ve düzenli sismik/volkanik etkinlik " +
+      'gösterir.',
+    climateNoteTr:
+      'Papua Yeni Gine, ekvatora yakın konumu nedeniyle nemli ekvatoral iklime sahiptir; ' +
+      'sıcaklık yıl boyunca değişmez, yağış boldur. Kıyı ovalarında sıcak ve nemli hava ' +
+      'egemenken, rakımın arttığı iç yaylalarda sıcaklıklar belirgin biçimde düşer; 1.500 ' +
+      'metrenin üzerindeki vadilerde geceleri serin, gündüzleri ılık bir iklim yaşanır. Bu ' +
+      'rakım farkı, aynı ülke içinde tropikal ovadan neredeyse ılıman bir dağ iklimine geçişi ' +
+      'mümkün kılar.',
+    hydrographyNoteTr:
+      "Ülkenin en uzun nehri, kuzeyde Bismarck Denizi'ne dökülen ve 1.126 kilometre boyunca " +
+      "akan Sepik Nehri'dir; üzerinde hiçbir baraj bulunmaması nedeniyle dünyanın en uzun " +
+      "serbest akışlı nehirlerinden biri sayılır ve geniş sulak alanlarıyla 1.500'den fazla " +
+      "göle su sağlar. Güneyde Fly Nehri, kaynağından Papua Körfezi'ne kadar büyük bölümü " +
+      'gemilerle ulaşılabilir durumdadır ve ağzında geniş bir delta oluşturur.',
   },
   {
     isoCode: 'SB',
@@ -1984,6 +2110,28 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'SBD',
     governmentFormTr: 'Parlamenter anayasal monarşi',
     independenceNoteTr: "7 Temmuz 1978'de Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      'Solomon Adaları, çift sıra halinde uzanan yaklaşık 990 adadan oluşan bir takımadadır. ' +
+      "Nüfusun ve başkent Honiara'nın bulunduğu en büyük ada Guadalcanal, İkinci Dünya " +
+      "Savaşı'nın Pasifik Cephesi'ndeki en kritik muharebelerinden birine sahne olmuştur. " +
+      'Adaların tamamı Büyük Okyanus Ateş Çemberi üzerinde, volkanik kökenli bir jeolojik zemin ' +
+      'üzerinde yükselir.',
+    landformNoteTr:
+      "Guadalcanal'ın iç kesimi dağlıktır; adanın merkezinde yükselen Popomanaseu Dağı, 2.335 " +
+      'metreyle ülkenin çatısını oluşturur. Bu doruk, Yeni Gine adası ve onun uydu adaları ' +
+      "dışarıda tutulduğunda Güney Pasifik'in ada parçası üzerindeki en yüksek noktasıdır. " +
+      'Takımadanın güneyinde, deniz yüzeyinin yaklaşık 20 metre altında zirve yapan Kavachi, ' +
+      'bölgenin en etkin denizaltı yanardağlarından biridir; patlamaları zaman zaman kısa ' +
+      'ömürlü adacıklar oluşturur.',
+    climateNoteTr:
+      'Solomon Adaları, ekvatora yakın konumu nedeniyle tropikal ve nemli bir iklime sahiptir, ' +
+      "yağış yıl boyunca boldur. Ekvatora olan yakınlık, ülkeyi güneydeki Fiji ve Vanuatu'ya " +
+      'kıyasla tropikal siklonlara daha az maruz bırakır; siklonlar bölgede genellikle güneye ' +
+      'doğru ilerlerken güçlenir ve takımadaya daha seyrek doğrudan çarpar.',
+    hydrographyNoteTr:
+      'Guadalcanal ve diğer büyük adalarda, dağlık iç kesimlerden kıyıya inen kısa ve hızlı ' +
+      'akan dereler bulunur; ülkenin büyük bir nehir sistemi yoktur. Tatlı su ihtiyacının büyük ' +
+      'bölümü yağış ve yeraltı suyu kaynaklarından karşılanır.',
   },
   {
     isoCode: 'VU',
@@ -2008,6 +2156,31 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr:
       "30 Temmuz 1980'de Birleşik Krallık-Fransa ortak yönetiminden bağımsız oldu.",
+    introTr:
+      'Vanuatu, Y harfi biçiminde kuzeyden güneye uzanan yaklaşık 83 adadan oluşan volkanik bir ' +
+      'takımadadır. Adaların çoğu dar kıyı ovaları ile dağlık iç kesimlerden oluşur, nüfusun ' +
+      'büyük bölümü kıyı şeridinde yaşar. Ülke, Büyük Okyanus Ateş Çemberi üzerindeki konumu ' +
+      'nedeniyle volkanik patlama, deprem ve tropikal siklon riskinin aynı anda yüksek olduğu ' +
+      "az sayıda ülkeden biridir; 2015 Dünya Risk Endeksi'nde doğal afet riski en yüksek ülke " +
+      'olarak sıralanmıştır.',
+    landformNoteTr:
+      "Ülkenin en büyük adası Espiritu Santo'da yükselen 1.879 metrelik Tabwemasana Dağı, " +
+      "Vanuatu'nun en yüksek noktasıdır. Vanuatu'daki adaların neredeyse tümü volkanik kökenli " +
+      'olup iç kesimleri dağlarla kaplıdır.' +
+      '\n\n' +
+      'Tanna adasındaki Yasur Yanardağı, 800 yılı aşkın süredir neredeyse kesintisiz etkinlik ' +
+      'gösterir ve saatte birkaç kez patlama üretir; kraterin kenarına araçla yaklaşılabilmesi ' +
+      'onu dünyanın en erişilebilir etkin yanardağlarından biri yapar.',
+    climateNoteTr:
+      "Aralık-Nisan arasındaki ıslak mevsimde Vanuatu'da sıcaklık ve nem en yüksek seviyesine " +
+      'ulaşır; ülke tropikal bir iklim kuşağında yer alır. Ülke, Güney Pasifik siklon kuşağının ' +
+      'tam ortasında yer alır ve yılda birden fazla şiddetli tropikal siklonla karşılaşabilir. ' +
+      "2015'teki Kasırga Pam, GSYH'nin yaklaşık %64'üne karşılık gelen ekonomik kayıpla ülke " +
+      'tarihinin en yıkıcı doğal afetlerinden biri olarak kayıtlara geçmiştir.',
+    hydrographyNoteTr:
+      "Vanuatu'da büyük ölçekli bir nehir sistemi bulunmaz; adaların volkanik iç kesimlerinden " +
+      'inen akarsular kısa ve dik yataklıdır. Tatlı su temininde yağış ve sınırlı yeraltı suyu ' +
+      'kaynakları belirleyicidir.',
   },
   {
     isoCode: 'KI',
@@ -2148,6 +2321,26 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'WST',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "1 Ocak 1962'de Yeni Zelanda idaresinden bağımsız oldu.",
+    introTr:
+      "Samoa, Yeni Zelanda'nın kuzeydoğusunda, Fiji ile Cook Adaları arasında yer alır ve biri " +
+      'diğerinden belirgin biçimde farklı iki ana adadan oluşur: nüfusun çoğunluğunu ve başkent ' +
+      "Apia'yı barındıran Upolu, yüzölçümü daha büyük ama nüfusu daha seyrek olan Savai'i. Her " +
+      "iki ada da volkanik kökenlidir; Savai'i, Güney Pasifik'in en büyük kalkan volkanı adası " +
+      'kabul edilir.',
+    landformNoteTr:
+      "Savai'i'nin ortasından geçen dağ sırasında yükselen Silisili Dağı, 1.858 metreyle adanın " +
+      've ülkenin en yüksek noktasıdır. Adanın kuzey kıyısında, 1905-1911 arasında süren ' +
+      'Matavanu Yanardağı patlamaları sonucu oluşan ve yaklaşık 75 kilometrekarelik bir alanı ' +
+      'kaplayan lav tarlaları hâlâ görülebilir durumdadır; lav akıntısı beş köyü yok etmiş, ' +
+      'ancak yavaş ilerlediği için can kaybına yol açmamıştır.',
+    climateNoteTr:
+      "Samoa'nın iklimi yıl boyunca tropikaldir. Kasım-Nisan ıslak mevsiminde sıcaklık ve nem " +
+      'yükselir, tropikal siklon riski bu aylarda artar; Mayıs-Ekim arası kurak mevsimde ' +
+      'güneydoğu ticaret rüzgarları serinletici bir etki yaratır.',
+    hydrographyNoteTr:
+      "Upolu'da kısa ama düzenli akan dereler bulunurken, Savai'i'nin genç ve gözenekli lav " +
+      'arazisi yağış suyunun büyük bölümünü yüzeyde akıtmadan doğrudan yeraltına sızdırır; bu ' +
+      'nedenle adanın büyük kesiminde belirgin bir yüzey akarsu ağı gelişmemiştir.',
   },
   {
     isoCode: 'TO',
@@ -2171,6 +2364,34 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'TOP',
     governmentFormTr: 'Anayasal monarşi (parlamenter)',
     independenceNoteTr: "4 Haziran 1970'te Birleşik Krallık himayesi sona erdi.",
+    introTr:
+      "Tonga, 169 adadan oluşan ve bunların yaklaşık 36'sının yerleşime sahip olduğu bir " +
+      "takımadadır; adalar güneyde Tongatapu, ortada Ha'apai ve kuzeyde Vava'u olmak üzere üç " +
+      "ana grupta toplanır. Başkent Nuku'alofa, nüfusun çoğunluğunun yaşadığı Tongatapu " +
+      "adasındadır. Uluslararası Tarih Değişim Çizgisi'nin hemen batısında yer alması nedeniyle " +
+      'Tonga, dünyada yeni günü ilk karşılayan ülkelerden biri olarak tanınır.',
+    landformNoteTr:
+      'Tonga adaları iki paralel hat halinde sıralanır: batıdaki hat etkin volkanik adalardan, ' +
+      "doğudaki hat ise denizden yükselmiş mercan kireçtaşı adalarından oluşur. Ha'apai " +
+      'grubundaki ıssız Kao adası, 1.030 metreye ulaşan Kao Yanardağı ile ülkenin en yüksek ' +
+      'kesimidir. Buna karşılık başkent adası Tongatapu, en yüksek noktası yalnızca 70 metreye ' +
+      'ulaşan düz bir mercan platformudur.' +
+      '\n\n' +
+      "Ocak 2022'de, Tongatapu'nun yaklaşık 65 kilometre kuzeyindeki denizaltı yanardağı Hunga " +
+      "Tonga-Hunga Ha'apai, kayıtlara geçmiş en güçlü volkanik patlamalardan birini " +
+      'gerçekleştirdi; patlama bulutu 58 kilometre yüksekliğe ulaşarak stratosferi aştı ve ' +
+      'Tongatapu kıyılarında 15 metreye varan tsunami dalgalarına yol açtı.',
+    climateNoteTr:
+      'Tonga tropikal bir iklime sahiptir; Aralık-Nisan arası daha sıcak ve nemli ıslak mevsim, ' +
+      'Mayıs-Kasım arası ise güneydoğu ticaret rüzgarlarının serinlettiği daha kurak bir mevsim ' +
+      'yaşanır. Ülke Güney Pasifik siklon kuşağının içinde yer alır ve yılın ıslak döneminde ' +
+      'tropikal siklon riskiyle karşı karşıyadır.',
+    hydrographyNoteTr:
+      'Tongatapu gibi yükselmiş mercan adalarında yüzey akarsuyu bulunmaz; kireçtaşı zemin ' +
+      'yağış suyunu hızla yeraltına geçirir, tatlı su ihtiyacı tuzlu yeraltı suyunun üzerinde ' +
+      'yüzen ince bir tatlı su mercek katmanından (freshwater lens) ve yağmur sarnıçlarından ' +
+      'karşılanır. Volkanik adalarda ise kısa ve düzensiz akan dereler dışında kayda değer bir ' +
+      'akarsu ağı yoktur.',
   },
   {
     isoCode: 'TV',
