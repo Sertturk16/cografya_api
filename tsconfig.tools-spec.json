@@ -9,6 +9,14 @@
   // `tools/tsconfig.json`, specs included.
   "extends": "./tsconfig.spec.json",
   "compilerOptions": {
-    "isolatedModules": true
+    "isolatedModules": true,
+    // Only `tools/` is transformed through this config, so TS infers a common source
+    // directory of `tools/seed-transcription` and demands an explicit `rootDir` (TS5011).
+    "rootDir": ".",
+    // `moduleResolution: node10` is inherited from `tsconfig.spec.json` and is deprecated
+    // in TS 6. It cannot be raised here in isolation (node16/bundler require a matching
+    // `module`, and Jest needs CommonJS), so the deprecation is acknowledged explicitly
+    // rather than silenced globally. Revisit when the spec configs move to node16.
+    "ignoreDeprecations": "6.0"
   }
 }
