@@ -2,6 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { CLIMATE_MONTH_COUNT, CLIMATE_SOURCE_MGM_GENERAL } from '../../province/province.types';
+import { assertClimateNormalsShape } from './climate-assertions';
 import {
   formatLikeRawKaNumber,
   parseKaNumber,
@@ -97,6 +98,47 @@ describe('parseMgmGeneralStatisticsPage — happy path', () => {
     },
   );
 
+  it.each(FIXTURES)(
+    '$mgmKey: captures the occurrence date of each monthly extreme reading',
+    ({ file, mgmKey }) => {
+      // MGM publishes these in a `title` attribute. "41,5 °C" is a number; "41,5 °C
+      // (September 2020)" is an event — and it is information the competitor does not show.
+      const { normals } = parseMgmGeneralStatisticsPage(loadFixture(file), contextFor(mgmKey));
+
+      const withMaxDate = normals.months.filter((month) => month.tempRecordMaxDate !== null);
+      const withMinDate = normals.months.filter((month) => month.tempRecordMinDate !== null);
+      expect(withMaxDate.length).toBeGreaterThan(0);
+      expect(withMinDate.length).toBeGreaterThan(0);
+
+      for (const month of normals.months) {
+        for (const date of [month.tempRecordMaxDate, month.tempRecordMinDate]) {
+          if (date !== null) expect(date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+        }
+        // A date may never stand without the reading it dates.
+        if (month.tempRecordMaxDate !== null) expect(month.tempRecordMaxC).not.toBeNull();
+        if (month.tempRecordMinDate !== null) expect(month.tempRecordMinC).not.toBeNull();
+      }
+    },
+  );
+
+  it.each(FIXTURES)(
+    '$mgmKey: attaches occurrence dates ONLY to the extreme rows, never to averages',
+    ({ file, mgmKey }) => {
+      // Averages have no single occurrence date; inventing one would be fabricated data.
+      const { normals } = parseMgmGeneralStatisticsPage(loadFixture(file), contextFor(mgmKey));
+
+      const rawTitlesOfAverageRows = parseMgmGeneralStatisticsPage(
+        loadFixture(file),
+        contextFor(mgmKey),
+      ).raw.metricRows.filter((row) => !row.label.startsWith('En '));
+      expect(rawTitlesOfAverageRows.length).toBeGreaterThan(0);
+      for (const row of rawTitlesOfAverageRows) {
+        expect(row.rawMonthlyTitles.every((title) => title === '')).toBe(true);
+      }
+      expect(normals.months.length).toBe(CLIMATE_MONTH_COUNT);
+    },
+  );
+
   it.each(FIXTURES)('$mgmKey: keeps exactly 12 raw cells per parsed row', ({ file, mgmKey }) => {
     const { raw } = parseMgmGeneralStatisticsPage(loadFixture(file), contextFor(mgmKey));
 
@@ -185,6 +227,52 @@ describe('parseMgmGeneralStatisticsPage — refuses malformed input', () => {
 
     expect(() => parseMgmGeneralStatisticsPage(mutated, context)).toThrow(
       /more than one measurement period/,
+    );
+  });
+
+  it('KEEPS the reading when its occurrence date is missing (no data loss)', () => {
+    // The regression this guards: "the date is absent, so drop the value". A missing date is
+    // MGM's omission, not our error — the reading must survive it.
+    const mutated = html.replace(/\stitle="\d{2}\.\d{2}\.\d{4}"/g, '');
+    expect(mutated).not.toBe(html);
+
+    const { normals } = parseMgmGeneralStatisticsPage(mutated, context);
+
+    const withValues = normals.months.filter((month) => month.tempRecordMaxC !== null);
+    expect(withValues.length).toBeGreaterThan(0);
+    for (const month of normals.months) {
+      expect(month.tempRecordMaxDate).toBeNull();
+      expect(month.tempRecordMinDate).toBeNull();
+    }
+    // …and the series is still publishable: dates are enrichment, never a gate.
+    expect(() => assertClimateNormalsShape('33', normals)).not.toThrow();
+  });
+
+  it('throws on an occurrence date in an unexpected format instead of guessing', () => {
+    // `01.02.2003` vs `2003-02-01` vs `02/01/2003` are three different dates under three
+    // conventions. Pinning the format is the same discipline as refusing a dot decimal.
+    const mutated = html.replace(/title="(\d{2})\.(\d{2})\.(\d{4})"/, 'title="$3-$2-$1"');
+    expect(mutated).not.toBe(html);
+
+    expect(() => parseMgmGeneralStatisticsPage(mutated, context)).toThrow(/is not DD\.MM\.YYYY/);
+  });
+
+  it('throws on a date that matches the pattern but is not a real calendar date', () => {
+    const mutated = html.replace(/title="\d{2}\.\d{2}\.(\d{4})"/, 'title="31.02.$1"');
+    expect(mutated).not.toBe(html);
+
+    expect(() => parseMgmGeneralStatisticsPage(mutated, context)).toThrow(
+      /not a real calendar date/,
+    );
+  });
+
+  it('throws when an occurrence date stands with no reading', () => {
+    // Blank the value but leave its `title` in place.
+    const mutated = html.replace(/(<td id="j01"[^>]*>)[^<]*(<\/td>)/, '$1$2');
+    expect(mutated).not.toBe(html);
+
+    expect(() => parseMgmGeneralStatisticsPage(mutated, context)).toThrow(
+      /occurrence date with no reading/,
     );
   });
 

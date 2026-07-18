@@ -99,8 +99,23 @@ export interface ClimateMonthlyNormal {
   rainyDays: number | null;
   /** O ay için ölçülmüş EN YÜKSEK sıcaklık (°C) — bir uç değer, ortalama değil. */
   tempRecordMaxC: number | null;
+  /**
+   * `tempRecordMaxC`'nin gerçekleşme tarihi — ISO `YYYY-MM-DD`.
+   *
+   * MGM bu tarihi hücrenin `title` attribute'ünde yayımlıyor. "41,5 °C" bir sayı,
+   * "41,5 °C (Eylül 2020)" bir olaydır: rakip uç değerleri tarihsiz gösteriyor, yani bu
+   * doğrudan bir information-gain farkı, ve NOVA'nın il-il yorumları için ilin kendi
+   * tablosundan türetilemeyecek gerçek malzeme (→ owner ruling, 2026-07-18).
+   *
+   * **Değerden BAĞIMSIZ olarak nullable:** MGM bazı hücrelerde tarihi yazmamış olabilir ve
+   * eksik bir tarih yüzünden ölçüm değerini düşürmek veri kaybı olur. Tersi geçerli değil —
+   * değeri olmayan bir tarih anlamsızdır ve import'ta hata verir.
+   */
+  tempRecordMaxDate: string | null;
   /** O ay için ölçülmüş EN DÜŞÜK sıcaklık (°C) — bir uç değer, ortalama değil. */
   tempRecordMinC: number | null;
+  /** `tempRecordMinC`'nin gerçekleşme tarihi — ISO `YYYY-MM-DD`. Bkz. `tempRecordMaxDate`. */
+  tempRecordMinDate: string | null;
 }
 
 /**
@@ -110,10 +125,14 @@ export interface ClimateMonthlyNormal {
  * string rather than a `Date` because this object lives inside a `jsonb` column: a `Date`
  * would round-trip through JSON as an ISO *timestamp* and invent a time-of-day and a
  * timezone that the source never stated.
+ *
+ * `date` is **nullable independently of `value`**: a record whose date MGM did not print is
+ * still a real record, and dropping the value over a missing date would be data loss. The
+ * reverse is rejected at import — a date with no value is meaningless.
  */
 export interface ClimateExtremeRecord {
   value: number;
-  date: string;
+  date: string | null;
 }
 
 /**

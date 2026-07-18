@@ -105,6 +105,13 @@ export interface MgmRawMetricRow {
   label: MetricRowLabel;
   /** Exactly `CLIMATE_MONTH_COUNT` cell strings, trimmed but otherwise untouched. */
   rawMonthlyCells: string[];
+  /**
+   * Exactly `CLIMATE_MONTH_COUNT` raw `title` attributes (`''` where the cell has none) —
+   * the occurrence dates of the extreme-temperature rows. Kept verbatim for the same reason
+   * the values are: so the load phase can prove the stored ISO date re-prints to what MGM
+   * actually published.
+   */
+  rawMonthlyTitles: string[];
 }
 
 /** A raw (unparsed) record cell, kept verbatim for the round-trip check. */
@@ -146,9 +153,14 @@ export class MgmParseError extends Error {
  * HTML micro-extraction
  * ------------------------------------------------------------------ */
 
-/** A table cell reduced to the only thing any assertion here reads: its text. */
+/**
+ * A table cell reduced to what this parser reads: its text, and its `title` attribute —
+ * which is where MGM hides the occurrence date of an extreme-temperature reading.
+ */
 interface HtmlCell {
   text: string;
+  /** `title` attribute content, or `''` when the cell has none. */
+  title: string;
 }
 
 function extractTables(html: string): string[] {
@@ -160,8 +172,9 @@ function extractRows(tableHtml: string): string[] {
 }
 
 function extractCells(rowHtml: string): HtmlCell[] {
-  return [...rowHtml.matchAll(/<(th|td)\b[^>]*>([\s\S]*?)<\/\1>/gi)].map((match) => ({
-    text: toText(match[2] ?? ''),
+  return [...rowHtml.matchAll(/<(th|td)\b([^>]*)>([\s\S]*?)<\/\1>/gi)].map((match) => ({
+    text: toText(match[3] ?? ''),
+    title: /\btitle="([^"]*)"/i.exec(match[2] ?? '')?.[1]?.trim() ?? '',
   }));
 }
 
@@ -243,17 +256,52 @@ export function formatLikeRawKaNumber(value: number, rawCell: string): string {
   return `${sign}${Math.abs(value).toFixed(decimals)}`.replace('.', ',');
 }
 
-function parseRecordDate(rawDate: string, context: MgmParseContext, where: string): string {
+/**
+ * `DD.MM.YYYY` → ISO `YYYY-MM-DD`.
+ *
+ * Returns `null` for a genuinely absent date and THROWS on a present-but-unparseable one.
+ * That split is the whole point: a missing date must never cost us the reading it belongs
+ * to, but a date in a shape we do not recognise must never be guessed at (the T3 lesson —
+ * `01.02.2003` is 1 February or 2 January depending on a convention we must not assume, so
+ * the format is pinned rather than inferred).
+ */
+function parseRecordDate(rawDate: string, context: MgmParseContext, where: string): string | null {
   const raw = rawDate.trim();
+  if (EMPTY_CELL_VALUES.has(raw)) return null;
+
   const match = RECORD_DATE_RE.exec(raw);
   if (!match) {
     throw new MgmParseError(
-      `${where}: record date ${JSON.stringify(raw)} is not DD.MM.YYYY.`,
+      `${where}: record date ${JSON.stringify(raw)} is not DD.MM.YYYY. Refusing to guess at a ` +
+        `date format rather than publish a wrong one.`,
       context,
     );
   }
   const [, day = '', month = '', year = ''] = match;
+
+  // Calendar-validate: `31.02.1970` matches the pattern but is not a date. A silently wrong
+  // date on a public page is worse than a loud import failure.
+  const monthNumber = Number(month);
+  const dayNumber = Number(day);
+  const composed = new Date(Date.UTC(Number(year), monthNumber - 1, dayNumber));
+  if (
+    composed.getUTCFullYear() !== Number(year) ||
+    composed.getUTCMonth() !== monthNumber - 1 ||
+    composed.getUTCDate() !== dayNumber
+  ) {
+    throw new MgmParseError(
+      `${where}: ${JSON.stringify(raw)} is not a real calendar date.`,
+      context,
+    );
+  }
+
   return `${year}-${month}-${day}`;
+}
+
+/** ISO `YYYY-MM-DD` → MGM's `DD.MM.YYYY`, for the round-trip assertion. */
+export function formatLikeRawRecordDate(isoDate: string): string {
+  const [year = '', month = '', day = ''] = isoDate.split('-');
+  return `${day}.${month}.${year}`;
 }
 
 /* ------------------------------------------------------------------ *
@@ -265,6 +313,27 @@ interface MonthlyTableResult {
   periodEndYear: number;
   metricRows: MgmRawMetricRow[];
   values: Map<MetricField, (number | null)[]>;
+  /** Occurrence dates (ISO), only for the two extreme-temperature rows. */
+  dates: Map<MonthlyDateField, (string | null)[]>;
+}
+
+/**
+ * The two monthly measures whose cells carry an occurrence date in their `title` attribute,
+ * mapped to the field the date is stored in.
+ *
+ * Only these two are read. Averages have no meaningful single date, so a `title` on any
+ * other row is ignored rather than treated as an error — ignoring an attribute we never
+ * claim to publish is not a silent data loss, unlike ignoring a VALUE.
+ */
+const MONTHLY_DATE_FIELDS = {
+  tempRecordMaxC: 'tempRecordMaxDate',
+  tempRecordMinC: 'tempRecordMinDate',
+} as const satisfies Partial<Record<MetricField, keyof ClimateMonthlyNormal>>;
+
+type MonthlyDateField = (typeof MONTHLY_DATE_FIELDS)[keyof typeof MONTHLY_DATE_FIELDS];
+
+function isDatedMetricField(field: MetricField): field is keyof typeof MONTHLY_DATE_FIELDS {
+  return Object.prototype.hasOwnProperty.call(MONTHLY_DATE_FIELDS, field);
 }
 
 function parseMonthlyTable(tableHtml: string, context: MgmParseContext): MonthlyTableResult {
@@ -311,6 +380,7 @@ function parseMonthlyTable(tableHtml: string, context: MgmParseContext): Monthly
   const periods: { start: number; end: number }[] = [];
   const metricRows: MgmRawMetricRow[] = [];
   const values = new Map<MetricField, (number | null)[]>();
+  const dates = new Map<MonthlyDateField, (string | null)[]>();
 
   for (const [index, rowHtml] of rows.slice(1).entries()) {
     const cells = extractCells(rowHtml);
@@ -375,16 +445,40 @@ function parseMonthlyTable(tableHtml: string, context: MgmParseContext): Monthly
 
     // The month count comes from the CONSTANT, never from the number of cells found.
     const rawMonthlyCells: string[] = [];
+    const rawMonthlyTitles: string[] = [];
     const monthlyValues: (number | null)[] = [];
+    const monthlyDates: (string | null)[] = [];
+    const dated = isDatedMetricField(field);
+
     for (let month = 1; month <= CLIMATE_MONTH_COUNT; month += 1) {
-      const raw = cells[month]?.text ?? '';
+      const cell = cells[month];
+      const raw = cell?.text ?? '';
+      const rawTitle = cell?.title ?? '';
+      const where = `row ${rowNumber} (${label}), month ${month}`;
+
       rawMonthlyCells.push(raw);
-      monthlyValues.push(
-        parseKaNumber(raw, context, `row ${rowNumber} (${label}), month ${month}`),
-      );
+      rawMonthlyTitles.push(rawTitle);
+      monthlyValues.push(parseKaNumber(raw, context, where));
+      // Dates are read ONLY for the two extreme rows. A missing date yields null and never
+      // costs us the reading; a malformed one throws.
+      monthlyDates.push(dated ? parseRecordDate(rawTitle, context, where) : null);
     }
 
-    metricRows.push({ label, rawMonthlyCells });
+    if (dated) {
+      // A date with no value is meaningless — it would render as "(Temmuz 2017)" attached to
+      // nothing. The reverse (a value with no date) is explicitly allowed.
+      for (let month = 1; month <= CLIMATE_MONTH_COUNT; month += 1) {
+        if (monthlyDates[month - 1] !== null && monthlyValues[month - 1] === null) {
+          throw new MgmParseError(
+            `row ${rowNumber} (${label}), month ${month}: an occurrence date with no reading.`,
+            context,
+          );
+        }
+      }
+      dates.set(MONTHLY_DATE_FIELDS[field], monthlyDates);
+    }
+
+    metricRows.push({ label, rawMonthlyCells, rawMonthlyTitles });
     values.set(field, monthlyValues);
   }
 
@@ -430,6 +524,7 @@ function parseMonthlyTable(tableHtml: string, context: MgmParseContext): Monthly
     periodEndYear: firstPeriod.end,
     metricRows,
     values,
+    dates,
   };
 }
 
@@ -507,6 +602,10 @@ function parseRecordsTable(tableHtml: string, context: MgmParseContext): Records
  * this column must carry, and pair it with its date. A blank pair yields `null` (a station
  * with no measurable snow is normal); a present value with a WRONG unit throws, because a
  * unit swap would silently rescale the figure.
+ *
+ * A value WITHOUT a date is kept, with `date: null` — MGM may simply not have printed one,
+ * and discarding a real record over a missing date would be data loss. A date without a
+ * value still throws: it is meaningless on its own.
  */
 export function parseRecordValue(
   rawValue: string,
@@ -517,13 +616,14 @@ export function parseRecordValue(
 ): ClimateExtremeRecord | null {
   const value = rawValue.trim();
   const date = rawDate.trim();
-  if (EMPTY_CELL_VALUES.has(value) && EMPTY_CELL_VALUES.has(date)) return null;
-  if (EMPTY_CELL_VALUES.has(value) || EMPTY_CELL_VALUES.has(date)) {
-    throw new MgmParseError(
-      `${where}: half of the record is blank (value=${JSON.stringify(value)}, date=${JSON.stringify(date)}). ` +
-        `A record without its date, or a date without its record, is not publishable.`,
-      context,
-    );
+  if (EMPTY_CELL_VALUES.has(value)) {
+    if (!EMPTY_CELL_VALUES.has(date)) {
+      throw new MgmParseError(
+        `${where}: an occurrence date ${JSON.stringify(date)} with no record value.`,
+        context,
+      );
+    }
+    return null;
   }
 
   const separatorIndex = value.lastIndexOf(' ');
@@ -601,7 +701,9 @@ export function parseMgmGeneralStatisticsPage(
       sunshineHours: monthly.values.get('sunshineHours')?.[index] ?? null,
       rainyDays: monthly.values.get('rainyDays')?.[index] ?? null,
       tempRecordMaxC: monthly.values.get('tempRecordMaxC')?.[index] ?? null,
+      tempRecordMaxDate: monthly.dates.get('tempRecordMaxDate')?.[index] ?? null,
       tempRecordMinC: monthly.values.get('tempRecordMinC')?.[index] ?? null,
+      tempRecordMinDate: monthly.dates.get('tempRecordMinDate')?.[index] ?? null,
     });
   }
   if (months.length !== CLIMATE_MONTH_COUNT) {

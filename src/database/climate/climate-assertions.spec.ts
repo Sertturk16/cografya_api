@@ -88,6 +88,68 @@ describe('assertDecimalRoundTrip', () => {
   });
 });
 
+describe('occurrence dates — enrichment that must never cost us a reading', () => {
+  it('catches a monthly occurrence date that was dropped while the source had one', () => {
+    const parsed = parseFixture();
+    const corrupted = clone(parsed.normals);
+    const target = corrupted.months.find((month) => month.tempRecordMaxDate !== null);
+    expect(target).toBeDefined();
+    if (target) target.tempRecordMaxDate = null;
+
+    expect(() =>
+      assertDecimalRoundTrip('33', corrupted, parsed.raw.metricRows, parsed.raw.recordCells),
+    ).toThrow(/a date was dropped/);
+  });
+
+  it('catches a monthly occurrence date that no longer re-prints to the source string', () => {
+    const parsed = parseFixture();
+    const corrupted = clone(parsed.normals);
+    const target = corrupted.months.find((month) => month.tempRecordMinDate !== null);
+    if (target) target.tempRecordMinDate = '1900-01-01';
+
+    expect(() =>
+      assertDecimalRoundTrip('33', corrupted, parsed.raw.metricRows, parsed.raw.recordCells),
+    ).toThrow(/does not re-print/);
+  });
+
+  it('accepts a null date when the source printed none — and KEEPS the reading', () => {
+    // The regression gate: absence of a date is MGM's omission, not our data loss.
+    const parsed = parseFixture();
+    const normals = clone(parsed.normals);
+    const rawRows = clone(parsed.raw.metricRows).map((row) => ({
+      ...row,
+      rawMonthlyTitles: row.rawMonthlyTitles.map(() => ''),
+    }));
+    for (const month of normals.months) {
+      month.tempRecordMaxDate = null;
+      month.tempRecordMinDate = null;
+    }
+
+    expect(() =>
+      assertDecimalRoundTrip('33', normals, rawRows, parsed.raw.recordCells),
+    ).not.toThrow();
+    // The readings themselves survived untouched.
+    expect(normals.months.some((month) => month.tempRecordMaxC !== null)).toBe(true);
+    expect(() => assertClimateNormalsShape('33', normals)).not.toThrow();
+  });
+
+  it('rejects an occurrence date standing without its reading', () => {
+    const corrupted = clone(parseFixture().normals);
+    const target = corrupted.months.find((month) => month.tempRecordMaxDate !== null);
+    if (target) target.tempRecordMaxC = null;
+
+    expect(() => assertClimateNormalsShape('33', corrupted)).toThrow(/without its reading/);
+  });
+
+  it('rejects a non-ISO stored occurrence date', () => {
+    const corrupted = clone(parseFixture().normals);
+    const target = corrupted.months.find((month) => month.tempRecordMaxDate !== null);
+    if (target) target.tempRecordMaxDate = '08.01.1971';
+
+    expect(() => assertClimateNormalsShape('33', corrupted)).toThrow(/not ISO YYYY-MM-DD/);
+  });
+});
+
 describe('findUnpublishableReason — the all-or-nothing core pair', () => {
   it('accepts a complete series', () => {
     expect(findUnpublishableReason(parseFixture().normals)).toBeNull();

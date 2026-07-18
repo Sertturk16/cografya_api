@@ -8,6 +8,7 @@ import {
   METRIC_ROW_LABELS,
   RECORD_COLUMNS,
   formatLikeRawKaNumber,
+  formatLikeRawRecordDate,
   type MgmRawMetricRow,
   type MgmRawRecordCell,
 } from './mgm-parser';
@@ -28,6 +29,68 @@ export class ClimateImportError extends Error {
     this.name = 'ClimateImportError';
   }
 }
+
+/** The cell contents MGM uses to mean "nothing here". Kept in ONE place so the value check
+ * and the date check cannot drift apart on what counts as blank. */
+function isBlankSourceCell(raw: string): boolean {
+  const trimmed = raw.trim();
+  return trimmed === '' || trimmed === '-' || trimmed === '—';
+}
+
+/**
+ * The monthly extreme-temperature rows carry an occurrence date in each cell's `title`.
+ * Those dates round-trip exactly like the values do.
+ *
+ * The asymmetry is deliberate and is the rule the owner set: **a missing date must never
+ * cost us the reading** (MGM simply may not have printed one), but a date that MGM DID print
+ * and we dropped is a silent loss, and a stored date that does not re-print to the source
+ * string is a corruption. Both throw.
+ */
+function assertMonthlyDatesRoundTrip(
+  plateCode: string,
+  normals: ClimateNormals,
+  row: MgmRawMetricRow,
+): void {
+  const dateField = MONTHLY_DATE_FIELD_BY_LABEL[row.label];
+  if (dateField === undefined) return; // averages carry no occurrence date
+
+  if (row.rawMonthlyTitles.length !== CLIMATE_MONTH_COUNT) {
+    throw new ClimateImportError(
+      `${plateCode}: raw row "${row.label}" holds ${row.rawMonthlyTitles.length} title cells, ` +
+        `expected ${CLIMATE_MONTH_COUNT}.`,
+    );
+  }
+
+  for (let month = 1; month <= CLIMATE_MONTH_COUNT; month += 1) {
+    const rawTitle = (row.rawMonthlyTitles[month - 1] ?? '').trim();
+    const stored = normals.months[month - 1]?.[dateField] ?? null;
+
+    if (stored === null) {
+      if (!isBlankSourceCell(rawTitle)) {
+        throw new ClimateImportError(
+          `${plateCode}: "${row.label}" month ${month} has a null occurrence date but the ` +
+            `source cell carries ${JSON.stringify(rawTitle)} — a date was dropped.`,
+        );
+      }
+      continue;
+    }
+
+    if (formatLikeRawRecordDate(stored) !== rawTitle) {
+      throw new ClimateImportError(
+        `${plateCode}: "${row.label}" month ${month} occurrence date ${JSON.stringify(stored)} ` +
+          `does not re-print as the source's ${JSON.stringify(rawTitle)}.`,
+      );
+    }
+  }
+}
+
+/** Which stored date field (if any) an extreme-temperature row's `title` attributes feed. */
+const MONTHLY_DATE_FIELD_BY_LABEL: Partial<
+  Record<MgmRawMetricRow['label'], 'tempRecordMaxDate' | 'tempRecordMinDate'>
+> = {
+  'En Yüksek Sıcaklık (°C)': 'tempRecordMaxDate',
+  'En Düşük Sıcaklık (°C)': 'tempRecordMinDate',
+};
 
 /* ------------------------------------------------------------------ *
  * 1. The decimal round-trip — the ONLY defence that catches trap T3
@@ -70,7 +133,7 @@ export function assertDecimalRoundTrip(
       if (value === null) {
         // A null must correspond to a genuinely blank source cell. A null standing where MGM
         // printed a number would mean we dropped a reading.
-        if (raw !== '' && raw !== '-' && raw !== '—') {
+        if (!isBlankSourceCell(raw)) {
           throw new ClimateImportError(
             `${plateCode}: "${row.label}" month ${month} is null but the source cell reads ` +
               `${JSON.stringify(raw)} — a reading was dropped.`,
@@ -93,6 +156,8 @@ export function assertDecimalRoundTrip(
         );
       }
     }
+
+    assertMonthlyDatesRoundTrip(plateCode, normals, row);
   }
 
   for (const cell of rawRecordCells) {
@@ -106,7 +171,7 @@ export function assertDecimalRoundTrip(
     const rawValue = cell.rawValue.trim();
 
     if (record === null) {
-      if (rawValue !== '' && rawValue !== '-' && rawValue !== '—') {
+      if (!isBlankSourceCell(rawValue)) {
         throw new ClimateImportError(
           `${plateCode}: record "${column.header}" is null but the source cell reads ` +
             `${JSON.stringify(rawValue)} — a record was dropped.`,
@@ -125,12 +190,20 @@ export function assertDecimalRoundTrip(
       );
     }
 
-    // Dates round-trip too: `1968-12-26` must re-print as MGM's `26.12.1968`.
-    const [year, month, day] = record.date.split('-');
-    if (`${day ?? ''}.${month ?? ''}.${year ?? ''}` !== cell.rawDate.trim()) {
+    // Dates round-trip too: `1968-12-26` must re-print as MGM's `26.12.1968`. A null date is
+    // legitimate ONLY when the source printed none — otherwise a date was dropped.
+    const rawDate = cell.rawDate.trim();
+    if (record.date === null) {
+      if (!isBlankSourceCell(rawDate)) {
+        throw new ClimateImportError(
+          `${plateCode}: record "${column.header}" has a null date but the source cell reads ` +
+            `${JSON.stringify(rawDate)} — an occurrence date was dropped.`,
+        );
+      }
+    } else if (formatLikeRawRecordDate(record.date) !== rawDate) {
       throw new ClimateImportError(
         `${plateCode}: record "${column.header}" date ${JSON.stringify(record.date)} does not ` +
-          `re-print as the source's ${JSON.stringify(cell.rawDate.trim())}.`,
+          `re-print as the source's ${JSON.stringify(rawDate)}.`,
       );
     }
   }
@@ -218,6 +291,27 @@ export function assertClimateNormalsShape(plateCode: string, normals: ClimateNor
         `${plateCode}: month ${month.month} has negative precipitation ${month.precipitationMm} mm.`,
       );
     }
+    // Occurrence dates: an ISO date is meaningful only alongside the reading it dates. The
+    // reverse (a reading with no date) is explicitly allowed — see `ClimateMonthlyNormal`.
+    for (const [dateField, valueField] of [
+      ['tempRecordMaxDate', 'tempRecordMaxC'],
+      ['tempRecordMinDate', 'tempRecordMinC'],
+    ] as const) {
+      const date = month[dateField];
+      if (date === null) continue;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        throw new ClimateImportError(
+          `${plateCode}: month ${month.month} ${dateField} ${JSON.stringify(date)} is not ISO YYYY-MM-DD.`,
+        );
+      }
+      if (month[valueField] === null) {
+        throw new ClimateImportError(
+          `${plateCode}: month ${month.month} carries ${dateField} with no ${valueField} — an ` +
+            `occurrence date without its reading is meaningless.`,
+        );
+      }
+    }
+
     if (month.rainyDays !== null && (month.rainyDays < 0 || month.rainyDays > 31)) {
       throw new ClimateImportError(
         `${plateCode}: month ${month.month} has ${month.rainyDays} rainy days.`,
