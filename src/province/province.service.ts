@@ -2,9 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Province } from './entities/province.entity';
+import { computeClimateDerived } from './climate-derivations';
 import { ProvinceDetailDto } from './dto/province-detail.dto';
 import { ProvinceListItemDto } from './dto/province-list-item.dto';
 import { ProvinceMapSummaryDto } from './dto/province-map-summary.dto';
+import type { Climate } from './province.types';
 
 /**
  * Nüfus yoğunluğu (kişi/km²) from two verified values. A single source of truth
@@ -24,6 +26,32 @@ export function computePopulationDensity(
     return null;
   }
   return Math.round(population / areaKm2);
+}
+
+/**
+ * Build the served climate payload from a stored series: the series itself PLUS the derived
+ * annual/seasonal block. A single source of truth for "does this province render a climate
+ * section?" so no two consumers disagree.
+ *
+ * Null in three cases, all rendering NO climate section (graceful degradation, never a crash):
+ *   - the province has no stored series (`climate_normals` is NULL — the normal state until the
+ *     import runs, and permanently for any province MGM's page cannot cover), or
+ *   - the series is present but its core pair is not derivable (a data-integrity slip the
+ *     import-time all-or-nothing rule should already prevent — belt-and-braces, so a bad row
+ *     degrades one section instead of 500-ing a public SEO page).
+ *
+ * Exported for direct unit testing of the null-collapse branches (the `computePopulationDensity`
+ * precedent).
+ */
+export function buildClimate(normals: Province['climateNormals']): Climate | null {
+  if (normals === null) {
+    return null;
+  }
+  const derived = computeClimateDerived(normals);
+  if (derived === null) {
+    return null;
+  }
+  return { ...normals, derived };
 }
 
 @Injectable()
@@ -90,6 +118,7 @@ export class ProvinceService {
       region: row.region,
       slugTr: row.slugTr,
       slugEn: row.slugEn,
+      climateKoppen: row.climateKoppen,
     };
   }
 
@@ -127,6 +156,8 @@ export class ProvinceService {
       climateKoppen: row.climateKoppen,
       climateClassTr: row.climateClassTr,
       climateNoteTr: row.climateNoteTr,
+      climate: buildClimate(row.climateNormals),
+      climateNarrativeTr: row.climateNarrativeTr,
       landformNoteTr: row.landformNoteTr,
       hydrographyNoteTr: row.hydrographyNoteTr,
       hydrographyFeatures: row.hydrographyFeatures,

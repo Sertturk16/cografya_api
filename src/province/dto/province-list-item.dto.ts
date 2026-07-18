@@ -26,4 +26,15 @@ export class ProvinceListItemDto {
 
   @ApiProperty({ example: 'istanbul', description: 'EN slug (routing key).' })
   slugEn!: string;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: 'Csa',
+    description:
+      'Köppen iklim kısa kodu (MGM 2023). Liste DTO’suna bilinçli eklendi: "benzer iklime sahip ' +
+      'iller" bloğu bu alan olmadan kurulamaz (aynı Köppen kodlu illere çapraz link). Saf toplama, ' +
+      'kırıcı değil.',
+  })
+  climateKoppen!: string | null;
 }

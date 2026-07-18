@@ -178,3 +178,71 @@ export interface ClimateNormals {
   months: ClimateMonthlyNormal[];
   records: ClimateRecords;
 }
+
+/**
+ * Seasonal share of the annual precipitation, as WHOLE-INTEGER percentages that sum to
+ * EXACTLY 100.
+ *
+ * The four values are constrained to total 100 by construction (`climate-derivations.ts`
+ * adds the rounding residue to the largest share). This is a *derivation*, not a formatting
+ * choice, so it is single-sourced in the api: every consumer — the visible summary, the
+ * metadata description, the JSON-LD — reads the same four integers and cannot disagree about
+ * whether they add up (PLAN.md risk 7). The competitor's one genuine contribution is this
+ * seasonal breakdown; computing it ourselves, once, is how we match it without a rounding drift.
+ *
+ * Northern-hemisphere meteorological seasons (the convention MGM's own material uses):
+ * winter = Dec/Jan/Feb, spring = Mar/Apr/May, summer = Jun/Jul/Aug, autumn = Sep/Oct/Nov.
+ */
+export interface SeasonalPrecipitation {
+  winterPct: number;
+  springPct: number;
+  summerPct: number;
+  autumnPct: number;
+}
+
+/**
+ * Values DERIVED from a province's `months` series — never stored, computed at serialization
+ * time in `climate-derivations.ts` (the `computePopulationDensity` precedent, exported for
+ * direct unit testing).
+ *
+ * These are OURS, not MGM's: MGM's own "Yıllık" column is empty in the source HTML
+ * (province.types trap T1), so nothing here may be attributed to MGM. Computing once and
+ * serving the result means the chart, the table summary, the metadata and the JSON-LD can
+ * never round the same figure two different ways (PLAN.md risk 7).
+ *
+ * RAW numbers, never pre-formatted strings — decimal places, thousands separators and units
+ * are the web repo's `next-intl` `getFormatter()` job. The api fixes the *value* (and its
+ * canonical precision); the web fixes its *presentation*.
+ *
+ * Month fields are 1-12 indices into `months`, not names — the Turkish month label is a web
+ * presentation concern. A tie (two months sharing the extreme) resolves to the EARLIEST month,
+ * deterministically.
+ */
+export interface ClimateDerived {
+  /** Yıllık ortalama sıcaklık (°C) — mean of the 12 monthly means, 1 decimal. */
+  annualMeanTempC: number;
+  /** Yıllık toplam yağış (mm) — sum of the 12 monthly totals, 1 decimal. */
+  annualPrecipitationMm: number;
+  /** En sıcak ay — month (1-12) with the highest `tempMeanC`. */
+  hottestMonth: number;
+  /** En soğuk ay — month (1-12) with the lowest `tempMeanC`. */
+  coldestMonth: number;
+  /** En yağışlı ay — month (1-12) with the highest `precipitationMm`. */
+  wettestMonth: number;
+  /** En kurak ay — month (1-12) with the lowest `precipitationMm`. */
+  driestMonth: number;
+  /** Yıllık sıcaklık farkı (°C) — hottest month's mean minus coldest month's mean, 1 decimal. */
+  annualTempRangeC: number;
+  /** Mevsimsel yağış yüzdeleri — whole integers summing to exactly 100. */
+  seasonalPrecipitation: SeasonalPrecipitation;
+}
+
+/**
+ * The climate payload the public contract serves: the full stored `ClimateNormals` series
+ * PLUS the `derived` block. `ClimateDto` mirrors this exactly (so the served shape and this
+ * interface cannot drift), and `ProvinceService.toDetail` builds it — or emits `null` when the
+ * province has no publishable series (or, defensively, one whose core pair is not derivable).
+ */
+export interface Climate extends ClimateNormals {
+  derived: ClimateDerived;
+}
