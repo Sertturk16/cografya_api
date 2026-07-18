@@ -11,6 +11,7 @@ import {
   findUnpublishableReason,
 } from './climate-assertions';
 import {
+  METRIC_ROW_LABELS,
   RECORD_COLUMNS,
   parseMgmGeneralStatisticsPage,
   type MgmParseResult,
@@ -445,22 +446,29 @@ describe('assertArtifactsCorroborate', () => {
     );
   });
 
-  it('CORE_PAIR_FIELDS agrees with what findUnpublishableReason actually enforces', () => {
-    // The two live in one file now, but they are still two expressions of one rule. Pinned
-    // mechanically rather than by comment: nulling a core field must make a series unpublishable,
-    // and nulling a non-core one must not.
-    for (const field of CORE_PAIR_FIELDS) {
+  it('CORE_PAIR_FIELDS agrees with what findUnpublishableReason actually enforces, BOTH ways', () => {
+    // The two live in one file now, but they are still two expressions of one rule, and
+    // `CORE_PAIR_FIELDS` is what the load phase uses to decide whether a withheld province is
+    // justified. Pinned mechanically rather than by comment.
+    //
+    // Swept over EVERY metric field rather than over `CORE_PAIR_FIELDS` alone, so the pin holds in
+    // both directions. A single canary would catch a bad ADDITION to the set but not the reverse:
+    // if `findUnpublishableReason` ever started requiring a third measure and the set were not
+    // updated, a one-directional test stays green while the two rules have silently diverged —
+    // and the load phase would then accept a withholding the fetch phase would never produce.
+    for (const field of Object.values(METRIC_ROW_LABELS)) {
       const normals = clone(parseFixture().normals);
-      const january = normals.months[0];
-      if (january === undefined) throw new Error('fixture has no January');
-      january[field as 'tempMeanC' | 'precipitationMm'] = null;
+      for (const month of normals.months) month[field] = null;
 
-      expect(findUnpublishableReason(normals)).not.toBeNull();
+      const isCore = CORE_PAIR_FIELDS.has(field);
+      expect({ field, unpublishable: findUnpublishableReason(normals) !== null }).toEqual({
+        field,
+        unpublishable: isCore,
+      });
     }
 
-    const withoutSunshine = clone(parseFixture().normals);
-    for (const month of withoutSunshine.months) month.sunshineHours = null;
-    expect(findUnpublishableReason(withoutSunshine)).toBeNull();
+    // Guards the sweep itself: an empty or core-only field list would make the above vacuous.
+    expect(Object.values(METRIC_ROW_LABELS).length).toBeGreaterThan(CORE_PAIR_FIELDS.size);
   });
 
   it('rejects artifacts from different runs', () => {

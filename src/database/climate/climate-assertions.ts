@@ -338,10 +338,23 @@ export const CORE_PAIR_FIELDS: ReadonlySet<string> = new Set(['tempMeanC', 'prec
  *
  * **No new declaration is introduced by this fix** — deliberately, because the recurring shape of
  * these defects is "a check is disabled by a list, and the list becomes the attack surface". This
- * consumes the `anomalies` list, which is itself verified against raw cells. The chain of trust
- * therefore terminates at MGM's own strings rather than at another claim:
+ * consumes the `anomalies` list, which is itself verified against raw cells rather than trusted:
  *
  *   unpublishable[] → a core-pair anomaly for the same province → its raw manifest cell.
+ *
+ * **Where that chain actually ends — stated precisely, because an overclaim here is worse than a
+ * gap.** It ends at `manifest.rawMetricRows` / `rawRecordCells`, which are **inside the artifact**
+ * and therefore hand-editable under this module's own threat model. It does NOT reach MGM's served
+ * bytes. Forging a withheld province still requires three coordinated edits (delete the series,
+ * add the anomaly, rewrite the raw cell to something negative) instead of one, and every
+ * inconsistent subset is refused — but a consistent forgery of all three is not currently caught.
+ *
+ * **The last link is open, and knowingly so.** `pageSha256` is written by the fetch phase and
+ * never checked on the load path, and the 81 committed fragments are never read by
+ * `load-climate.ts`. Closing it means having `load` read the fragments and verify the raw cells
+ * against them — real work with its own test surface, tracked as a follow-up rather than bolted on
+ * here. Until then: the raw cells are the *best available* evidence on the write path, not
+ * independent evidence. Do not describe them as the latter.
  */
 function assertUnpublishableDeclarationsAreReal(manifest: ClimateManifestArtifact): void {
   const manifestByCode = new Map(manifest.entries.map((entry) => [entry.plateCode, entry]));
