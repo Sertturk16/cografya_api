@@ -141,14 +141,18 @@ naming a field this tool does not transcribe is a printed **warning**, not silen
 
 ## Verified against the committed seed
 
-Run per wave — which is how the gate is defined (`CLAUDE.md` §8) — **25 of the 26 drafts
+Run per wave — which is how the gate is defined (`CLAUDE.md` §8) — **24 of the 26 drafts
 exit 0 today**. The exceptions are known, tracked, and none is a tool defect:
 
 | Draft | Result | Cause |
 | --- | --- | --- |
-| `dunya-haritasi-afrika-sahra-alti` | 7 drifted | **Real seed regression:** `\n\n` paragraph breaks lost during hand transcription on `landformNoteTr` (TZ, ZM, ZW, AO, CD, SN, CI). The draft is right, the seed is wrong. Owner decision pending — deliberately not bundled into this PR. |
 | `dunya-haritasi-latin-amerika` | 2 drifted | **Stale draft:** PR #46's `Ekvator` -> `Ekvador` correction landed on the seed and was never back-ported to the draft. `apply` now refuses rather than reverting it. NOVA task. |
 | `dunya-haritasi-sovereignty` | hard error | **Superseded draft.** Its authoritative replacement is `dunya-haritasi-sovereignty-narrative/`, which exits 0 on all 24 fields. The older file also annotates its field headers, which is now an error. |
+
+**Resolved:** `dunya-haritasi-afrika-sahra-alti` used to report `7 drifted` — a real seed
+regression, not a tool defect: `\n\n` paragraph breaks on `landformNoteTr` (TZ, ZM, ZW, AO,
+CD, SN, CI) were flattened to single spaces during hand transcription. This was the tool's
+first live catch, and it is fixed in PR #63; that draft now exits 0.
 
 Note the last row: those 6 "divergences" only ever appeared when **both** sovereignty
 drafts were passed to one run, where the duplicate `isoCode.field` silently resolved
