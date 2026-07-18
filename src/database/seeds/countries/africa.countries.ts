@@ -1623,6 +1623,37 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'BWP',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "30 Eylül 1966'da Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      'Botsvana topraklarının yaklaşık dörtte üçünü Kalahari kaplar; ancak bu kesim kum ' +
+      'tepeleriyle kaplı klasik bir çölden çok, seyrek çalı ve otla örtülü yarı kurak bir savan ' +
+      'düzlüğüdür. Kuzeybatıda, Angola yaylalarından gelen Okavango Nehri denize hiç ulaşmadan ' +
+      'devasa bir iç deltada dağılır. Ülkenin doğusunda, kurumuş eski bir gölün kalıntısı olan ' +
+      'Makgadikgadi tuz düzlükleri yer alır.',
+    landformNoteTr:
+      "Kalahari, Botsvana'nın güneybatısından kuzeydoğusuna kadar ülkenin büyük bölümünü " +
+      'kaplayan, ortalama 1.000 metre yükseklikte hafif dalgalı bir kum platosudur; toprak ' +
+      'altındaki kalın kum tabakası nedeniyle yüzey suyu neredeyse hiç tutulmaz. Ülkenin en ' +
+      'yüksek noktası bu platonun güneydoğu ucunda, Güney Afrika sınırına yakın Monalanong ' +
+      "Tepesi'dir; 2025'te yapılan GNSS ölçümleri, komşu Otse Tepesi'ni yalnızca yaklaşık 2 " +
+      'metre farkla geçen bu tepeyi kesin olarak ülkenin zirvesi ilan etti.' +
+      '\n\n' +
+      'Kuzeybatıda, Okavango Nehri bir tektonik çöküntüye ulaştığında hızını kaybeder ve ' +
+      'kanallar, göletler ve adacıklardan oluşan, kuru mevsimde yaklaşık 15.000 kilometrekareye ' +
+      'yayılan bir iç deltaya dönüşür. Deltaya giren suyun neredeyse tamamı buharlaşma ve ' +
+      'yeraltına sızma yoluyla kaybolur; denize ulaşan hiçbir kolu yoktur.',
+    climateNoteTr:
+      "Botsvana'da yarı kurak bozkır ve tropikal savan iklimleri bir arada görülür; yıl boyunca " +
+      'sıcaklıklar genellikle 20-30 santigrat derece arasında seyreder. Yağışlar ekim-nisan ' +
+      'arasına yoğunlaşır ve düzensizdir; kuzey ve doğu kesimlerinde yıllık 500-700 milimetreye ' +
+      "ulaşırken, güneybatıdaki Kalahari'nin en kurak bölümlerinde bu miktar 250 milimetrenin " +
+      'altına iner. Kuraklık, ülkenin neredeyse her bölgesinde tekrarlayan bir risktir.',
+    hydrographyNoteTr:
+      "Botsvana'nın su ağı dört ayrı sisteme ayrılır. Kuzeybatıdaki Okavango, denize " +
+      'bağlanmayan kapalı bir havza oluşturur; deltadan taşan sular Boteti Nehri aracılığıyla ' +
+      'doğuya, Makgadikgadi tuz düzlüklerine ulaşır ve bu düzlükleri mevsimlik olarak sığ bir ' +
+      'göle çevirir. Kuzeyde, Namibya sınırı boyunca akan ve güzergahı boyunca Kwando, Linyanti ' +
+      "ve Chobe adlarını alan nehir, Kazungula yakınında Zambezi'ye katılır. Güneydoğuda ise " +
+      'Limpopo Nehri, kısa bir bölümde Güney Afrika ile sınırı çizer.',
   },
   {
     isoCode: 'SZ',
@@ -1646,6 +1677,38 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'SZL',
     governmentFormTr: 'Mutlak monarşi',
     independenceNoteTr: "6 Eylül 1968'de Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      'Esvatini, batıdan doğuya doğru birbirini izleyen dört fiziki kuşaktan oluşur: dağlık ' +
+      'Highveld, orta yükseklikteki Middleveld, alçak ve sıcak Lowveld ve Mozambik sınırındaki ' +
+      "dar Lubombo sarp hattı. Ülke, güneydoğu Afrika'nın en küçük ve tamamen karayla çevrili " +
+      'krallıklarından biridir; Güney Afrika ve Mozambik dışında başka bir komşusu yoktur.',
+    landformNoteTr:
+      "Ülke yüzölçümünün yaklaşık %30'unu kaplayan Highveld, granit ve daha eski metamorfik " +
+      'kayaçların aşınmasıyla oluşmuş, 1.370-1.980 metre yükseklikte engebeli bir dağlık ' +
+      "kuşaktır; başkent Mbabane bu bölgededir. Highveld'in kuzeybatı ucunda, Güney Afrika " +
+      'sınırındaki Emlembe Dağı 1.862 metreyle ülkenin en yüksek noktasıdır.' +
+      '\n\n' +
+      'Doğuya doğru arazi kademeli olarak alçalır: ortalama 700 metre yükseklikteki Middleveld ' +
+      "ülkenin en kalabalık bölgesidir ve ticaret merkezi Manzini'yi barındırır; ortalama 250 " +
+      'metrelik Lowveld ise seyrek nüfuslu, çalı ve akasyalarla kaplı bir savandır. Mozambik ' +
+      'sınırı boyunca uzanan Lubombo sırtı, Lowveld düzlüklerinden yaklaşık 600 metre yükselen ' +
+      'dar ve belirgin bir sarptır.',
+    climateNoteTr:
+      "Esvatini'de subtropikal bir iklim görülür; yıllık yağışın %80'inden fazlası ekim-nisan " +
+      'arasındaki yaz mevsiminde, şiddetli gök gürültülü sağanaklar ve cephesel yağışlar ' +
+      'biçiminde düşer, kış ayları kuraktır. Yağış miktarı batıdan doğuya keskin biçimde ' +
+      "azalır: Highveld'de 700-1.500 milimetre, Middleveld'de 550-850 milimetre, Lowveld'de ise " +
+      "yalnızca yaklaşık 200 milimetredir. Sıcaklıklar da aynı yönde artar; Highveld'de " +
+      "ortalama 17 santigrat derece iken, Lowveld'de ortalama 22 dereceye, yaz aylarında 29 " +
+      'dereceye kadar çıkar.',
+    hydrographyNoteTr:
+      "Esvatini'yi batıdan doğuya, Highveld'den Mozambik'e doğru dört büyük nehir keser: " +
+      'kuzeyde Komati ve Mbuluzi, ortada Büyük Usutu (Lusutfu) ve güneyde Ngwavuma. Komati, ' +
+      'Usutu ve Lomati nehirlerinin kaynakları Güney Afrika topraklarındadır; bu paylaşılan ' +
+      "havzaların yönetimi SADC protokolleri ve 1992'de imzalanan bir antlaşmayla kurulan " +
+      'Komati Havzası Su İdaresi çerçevesinde yürütülür, Komati üzerindeki Maguga Barajı bu ' +
+      'işbirliğinin somut bir örneğidir. Nehirlerin tamamı, Lubombo sarp hattını dar vadilerle ' +
+      "yararak Mozambik'e geçer.",
   },
   {
     isoCode: 'LS',
@@ -1669,6 +1732,41 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'LSL',
     governmentFormTr: 'Parlamenter anayasal monarşi',
     independenceNoteTr: "4 Ekim 1966'da Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      'Lesotho, topraklarının tamamı deniz seviyesinden 1.000 metrenin üzerinde kalan tek ' +
+      'bağımsız ülkedir. Batıda Caledon Nehri boyunca uzanan alçak düzlükler, orta ve doğu ' +
+      'kesimde Maloti-Drakensberg sıradağlarının oluşturduğu yüksek dağlık bölge ve ikisi ' +
+      'arasındaki geçiş kuşağı olan eteklik bölgesi olmak üzere üç coğrafi bölgeye ayrılır. ' +
+      'Ülke, tamamen Güney Afrika toprakları içinde kalan bir enklavdır.',
+    landformNoteTr:
+      'Ülkenin doğu ve güneydoğusunu kaplayan Maloti Sıradağları, 3.400 metreye varan yüksek ' +
+      "bir bazalt plato oluşturur ve doğuda Drakensberg sarp hattıyla Güney Afrika'ya doğru " +
+      'sona erer. Bu sıradağların en yüksek noktası olan 3.482 metrelik Thabana Ntlenyana, ' +
+      "yalnızca Lesotho'nun değil, Kilimanjaro'nun güneyinde kalan tüm Afrika'nın en yüksek " +
+      'zirvesidir.' +
+      '\n\n' +
+      'Ülkenin en alçak noktası, Güney Afrika sınırındaki Makhaleng ve Senqu (Orange) ' +
+      'nehirlerinin birleştiği yerde, yalnızca 1.400 metre yüksekliktedir — bu, dünyadaki ' +
+      'hiçbir ülkenin en alçak noktasının bu kadar yüksekte olmaması nedeniyle kayda değer bir ' +
+      'olgudur. Başkent Maseru, 1.600 metre yükseklikte, ülkenin nispeten alçak batı ' +
+      'düzlüklerinde kuruludur.',
+    climateNoteTr:
+      "Lesotho'da iklim büyük ölçüde rakıma bağlıdır. Doğu ve güneydoğudaki yüksek kesimlerde " +
+      'alpin bir iklim görülür; kışın sıcaklıklar -18 santigrat derecenin altına inebilir, kar ' +
+      've don sık görülen bir tehlikedir. Yaz aylarında (aralık-şubat) sıcaklıklar 10,8 ile ' +
+      '27,6 derece arasında değişir. Yağışlar ekim-nisan arasında yoğunlaşır ve ülke genelinde ' +
+      'yıllık ortalama yaklaşık 700 milimetreye ulaşırken, en yüksek sıradağlarda bu miktar ' +
+      '1.000 milimetreye yaklaşır.',
+    hydrographyNoteTr:
+      'Lesotho, çok sayıda önemli nehrin kaynağını oluşturması nedeniyle "Güney Afrika\'nın su ' +
+      'kulesi" olarak anılır. Senqu (Orange) Nehri\'nin başlıca kolları — Malibamatso, Matsoku ' +
+      've Senqunyane — ülkenin yüksek dağlarında, yaklaşık 3.300 metre rakımda doğar. Bu su ' +
+      "kaynağını Güney Afrika'ya aktarmak amacıyla kurulan Lesotho Yaylaları Su Projesi, " +
+      "Afrika'nın en büyük su transfer sistemidir; projenin parçası olan ve Malibamatso Nehri " +
+      "üzerinde 1996'da tamamlanan Katse Barajı, Afrika'nın Etiyopya'daki Tekeze Barajı'ndan " +
+      'sonra en büyük ikinci çift eğrilikli kemer barajıdır. Güney Afrika, bu su için ' +
+      "Lesotho'ya yıllık bir bedel ve kullanım miktarına bağlı bir telif ödemesi yapar. Ülkenin " +
+      'kuzeybatısında ise Caledon Nehri, düzlükler boyunca Güney Afrika sınırını çizer.',
   },
   {
     isoCode: 'NA',
@@ -1692,6 +1790,41 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'NAD',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "21 Mart 1990'da Güney Afrika'dan bağımsız oldu.",
+    introTr:
+      "Namibya'nın kıyı şeridi boyunca, dünyanın en yaşlı çölü kabul edilen Namib Çölü uzanır; " +
+      'iç kesimde ise ülkenin belkemiğini oluşturan Merkezi Plato yükselir. İkisini ayıran ' +
+      'Büyük Sarp (Great Escarpment), Gondwana kıtasının parçalanmasının ardından yaklaşık 80 ' +
+      'milyon yıl önce şekillenmiş, kesintili ama yer yer 1.000 metreye varan bir yükselti ' +
+      'hattıdır. Kuzeydoğuda, dar bir şerit halinde uzanan Caprivi (Zambezi Bölgesi), ülkenin ' +
+      'geri kalanından çok daha nemli bir coğrafyaya sahiptir.',
+    landformNoteTr:
+      'Namib Çölü, kıyı boyunca değişen genişlikte, yer yer birkaç yüz kilometreye ulaşan ' +
+      'hiper-kurak çakıl düzlükleri ve kum tepelerinden oluşur; güneydeki kum denizinde ' +
+      'dünyanın en yüksek kum tepeleri bulunur. Bölge, yaklaşık 55-80 milyon yıldır kesintisiz ' +
+      'kurak veya yarı kurak koşullar altında kaldığı için dünyanın en yaşlı çölü sayılır. ' +
+      'Çölün içinde, kıyıya yakın granit bir inselberg olan Brandberg masifinin Königstein ' +
+      'zirvesi, yaklaşık 2.573 metreyle ülkenin en yüksek noktasını oluşturur.' +
+      '\n\n' +
+      "Ülkenin güneyinde, Fish Nehri'nin binlerce yıl boyunca aşındırdığı Fish Nehri Kanyonu, " +
+      "yaklaşık 160 kilometre uzunluğuyla Büyük Kanyon'dan sonra dünyanın ikinci büyük kanyonu " +
+      'kabul edilir. Kuzeyde ise yaklaşık 4.800 kilometrekarelik Etoşa Tuz Düzlüğü, yılın büyük ' +
+      'bölümünde kuru ve tuzlu bir arazi iken, bol yağışlı yıllarda yüzeyinin büyük bölümü sığ ' +
+      'bir su tabakasıyla kaplanarak geçici bir göle dönüşür.',
+    climateNoteTr:
+      "Namibya'nın kıyı şeridindeki aşırı kuraklık, kıyı boyunca kuzeye akan soğuk Benguela " +
+      "Akıntısı'ndan kaynaklanır; akıntının soğuttuğu hava nem tutamaz, bunun yerine yılın " +
+      '180-200 günü kıyıyı saran yoğun bir sis oluşur. Yıllık yağış kıyıda birkaç milimetreyle ' +
+      'sınırlıyken iç kesimlere doğru artar; ülkenin en yağışlı bölgesi olan kuzeydoğudaki ' +
+      "Caprivi/Zambezi Bölgesi'nde bu miktar 700 milimetreye, bazı yıllarda 800 milimetreye " +
+      "ulaşır. Buna rağmen ülke topraklarının yaklaşık %70'i yıllık 400 milimetrenin altında " +
+      'yağış alır.',
+    hydrographyNoteTr:
+      "Namibya'nın sürekli akan nehirlerinin tamamı sınır nehirleridir: kuzeybatıda Angola ile " +
+      "paylaşılan Kunene, orta kuzeyde Angola ve Botsvana'ya doğru akan Okavango, kuzeydoğuda " +
+      'Zambiya ve Zambezi havzasına bağlanan Kwando-Chobe sistemi ve güneyde Güney Afrika ile ' +
+      'paylaşılan Orange. Ülkenin iç kesimlerindeki nehirlerin tamamı mevsimlik akışlıdır; Fish ' +
+      'Nehri de dahil olmak üzere bu akarsular yağmurdan sonra kısa süre taşar, çoğunlukla ' +
+      'denize ulaşmadan kuma karışır ya da buharlaşır.',
   },
   {
     isoCode: 'ZA',
@@ -2146,6 +2279,36 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'MWK',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "6 Temmuz 1964'te Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      "Malavi, Büyük Rift Vadisi'ni kuzeyden güneye izleyen uzun ve dar bir ülkedir. Doğu " +
+      'sınırının büyük bölümünü oluşturan Malavi (Nyasa) Gölü, kuzeyde Tanzanya, güneydoğuda ' +
+      "ise Mozambik ile paylaşılır. Rift Vadisi'nin her iki yakasında, kuzeyde Nyika Platosu ve " +
+      'güneyde Mulanje Masifi gibi yüksek araziler yükselir.',
+    landformNoteTr:
+      "Ülkenin doğu kesimini, Rift Vadisi'nin tabanında yer alan Malavi Gölü havzası oluşturur; " +
+      'gölün güneyinden çıkan Shire Nehri vadisi, aynı rift hattını ülkenin güneyine doğru ' +
+      'sürdürür. Vadinin her iki yakasında arazi sert biçimde yükselerek platolara dönüşür.' +
+      '\n\n' +
+      'Kuzeyde, gölün batısında yer alan Nyika Platosu, 2.000 metrenin üzerinde dağlık ' +
+      "çayırlarla kaplı geniş bir yayladır. Güneyde ise 2025'te UNESCO Dünya Mirası listesine " +
+      'giren dev bir inselberg olan Mulanje Masifi yükselir; masifin 3.002 metrelik Sapitwa ' +
+      "Zirvesi, ülkenin en yüksek noktasıdır. Mulanje'ye yakın Zomba Platosu da 2.100 metreye " +
+      'ulaşan bir başka yüksek arazidir.',
+    climateNoteTr:
+      "Malavi'de subtropikal bir iklim görülür, ancak rakım sıcaklıkları büyük ölçüde " +
+      "yumuşatır. Yağışlı mevsim kasım-nisan arasına denk gelir ve Hint Okyanusu'ndan gelen " +
+      'nemli hava kütleleriyle beslenir. Yıllık yağış, alçak kesimlerde 800 milimetre ' +
+      'civarındayken, yüksek platolarda ve gölün kuzey kıyısında 1.600 milimetrenin üzerine ' +
+      'çıkar. Kuru mevsim olan mayıs-ağustos arasında gökyüzü açık, sıcaklıklar 15-25 santigrat ' +
+      'derece arasında ölçülü kalır; yüksek platolarda geceleri donma noktasına yakın ' +
+      'sıcaklıklar görülebilir.',
+    hydrographyNoteTr:
+      'Malavi Gölü, dünyanın en büyük ve en derin rift gölleri arasında yer alır; kuzey-güney ' +
+      'doğrultusunda 560 kilometreden uzun bir alana yayılır ve ülkenin doğu sınırının büyük ' +
+      'bölümünü oluşturur. Gölden çıkan tek doğal çıkış olan Shire Nehri, Chigaru ile Chikwawa ' +
+      'arasındaki 80 kilometrelik bir bölümde art arda gelen çavlan ve hızlı akıntılarla ' +
+      "yaklaşık 400 metre alçalır, ardından Mozambik'te Zambezi Nehri'ne katılır. Kuzeyde, " +
+      'Songwe Nehri sınırın bir bölümünü Tanzanya ile paylaşılan biçimde çizer.',
   },
   {
     isoCode: 'MU',
@@ -2226,6 +2389,39 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'MZN',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "25 Haziran 1975'te Portekiz'den bağımsız oldu.",
+    introTr:
+      'Mozambik, Hint Okyanusu boyunca yaklaşık 2.470 kilometre uzunluğunda bir kıyı şeridine ' +
+      'sahiptir; bu kıyı, Zambezi deltasının kuzeyinde dar bir şerit halindeyken, deltanın ' +
+      'güneyinde geniş ovalara dönüşerek Güney Afrika sınırına kadar uzanır. Ülke topraklarının ' +
+      "yaklaşık %44'ünü oluşturan bu alçak kıyı ovasının ardında, kuzeye ve orta kesime doğru " +
+      "Büyük Rift Vadisi'nin güney ucunun etkisiyle şekillenmiş platolar ve yaylalar yükselir. " +
+      'Zimbabve sınırındaki Chimanimani sıradağları, ülkenin en yüksek arazisini oluşturur.',
+    landformNoteTr:
+      'Kıyı ovası, Rovuma Nehri ağzından Zambezi deltasına kadar nispeten dar bir şerit ' +
+      'oluşturur; deltanın güneyinde ise ova belirgin biçimde genişler ve ülkenin güney ' +
+      "yarısının büyük bölümünü kaplar. Kıyı şeridinin %90'ından fazlası, bitki örtüsüyle " +
+      'tutulan kum ve balçık zeminli alçak bir arazidir.' +
+      '\n\n' +
+      "İç kesimde, özellikle kuzey ve orta bölgelerde, Büyük Rift Vadisi'nin tektonik etkisi " +
+      'çanaklar, yükselmiş platolar ve tek başına duran kayalık tepeler (inselberg) biçiminde ' +
+      'izler bırakmıştır; bu etki Malavi Gölü çevresinde ve Zambezi vadisinde belirgindir. ' +
+      'Ülkenin en yüksek noktası, Zimbabve sınırındaki Chimanimani sıradağının bir parçası olan ' +
+      "ve 2.436 metreye ulaşan Binga Dağı'dır.",
+    climateNoteTr:
+      "Mozambik'in iklimi tropikaldir ve Hint Okyanusu'ndan gelen muson rüzgarlarıyla " +
+      'şekillenir; ekim-mart arası yağışlı, nisan-eylül arası kurak bir dönemdir. Yıllık yağış ' +
+      'ülke genelinde ortalama 800-1.200 milimetre arasındadır; kuzey ve orta kıyı bölgelerinde ' +
+      '(Nampula, Zambézia) bu miktar 1.500 milimetreyi aşarken, güneydeki Gaza bölgesinde 500 ' +
+      'milimetrenin altına iner. Kasım-mayıs arası tropikal siklon mevsimidir; siklonlar en sık ' +
+      'aralık-nisan arasında kıyıya ulaşarak yoğun yağış ve güçlü rüzgar getirir.',
+    hydrographyNoteTr:
+      "Zambezi Nehri, Mozambik'in yenilenebilir yüzey suyunun yaklaşık %58'ini oluşturur; ülke " +
+      'sınırları içinde yaklaşık 820 kilometre akar ve kıyıya yaklaştığında birden fazla kola ' +
+      'ayrılarak geniş bir delta oluşturur. Kuzeyde Tanzanya sınırını çizen Rovuma Nehri, ' +
+      "ülkenin yüzey suyunun yaklaşık %13'ünü sağlar. Güneyde Limpopo, orta kesimde ise Save ve " +
+      "Lurio nehirleri diğer önemli su sistemleridir. Kuzeybatıda, Büyük Afrika Gölleri'nin en " +
+      "güneyindekisi olan Malavi (Niassa) Gölü'nün güney ucu Mozambik kıyısını oluşturur; gölün " +
+      'büyük bölümü kuzeyde Malavi ve Tanzanya ile paylaşılır.',
   },
   {
     isoCode: 'RW',
