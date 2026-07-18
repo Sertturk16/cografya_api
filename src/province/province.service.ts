@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Province } from './entities/province.entity';
@@ -28,27 +28,42 @@ export function computePopulationDensity(
   return Math.round(population / areaKm2);
 }
 
+/** Module-scoped logger for the one observable data-integrity signal `buildClimate` emits. */
+const climateLogger = new Logger('ProvinceClimate');
+
 /**
  * Build the served climate payload from a stored series: the series itself PLUS the derived
  * annual/seasonal block. A single source of truth for "does this province render a climate
  * section?" so no two consumers disagree.
  *
- * Null in three cases, all rendering NO climate section (graceful degradation, never a crash):
+ * Null in two cases, both rendering NO climate section (graceful degradation, never a crash):
  *   - the province has no stored series (`climate_normals` is NULL — the normal state until the
- *     import runs, and permanently for any province MGM's page cannot cover), or
+ *     import runs, and permanently for any province MGM's page cannot cover). This is EXPECTED
+ *     and silent, and
  *   - the series is present but its core pair is not derivable (a data-integrity slip the
  *     import-time all-or-nothing rule should already prevent — belt-and-braces, so a bad row
- *     degrades one section instead of 500-ing a public SEO page).
+ *     degrades one section instead of 500-ing a public SEO page). This is a DEFECT, so it is
+ *     logged: unreachable via the verified load path today, but any future migration,
+ *     admin-CRUD write or manual SQL lands here, and without a signal the province's climate
+ *     section would vanish invisibly and forever. The plate code is public data (no PII, §3.6).
  *
  * Exported for direct unit testing of the null-collapse branches (the `computePopulationDensity`
  * precedent).
  */
-export function buildClimate(normals: Province['climateNormals']): Climate | null {
+export function buildClimate(
+  normals: Province['climateNormals'],
+  plateCode: string,
+): Climate | null {
   if (normals === null) {
     return null;
   }
   const derived = computeClimateDerived(normals);
   if (derived === null) {
+    climateLogger.warn(
+      `province ${plateCode}: climate_normals is present but not derivable (incomplete/corrupt ` +
+        `core pair) — serving climate: null. The import guarantees this cannot happen via the ` +
+        `load path, so this row was written by some other path and needs inspection.`,
+    );
     return null;
   }
   return { ...normals, derived };
@@ -156,7 +171,7 @@ export class ProvinceService {
       climateKoppen: row.climateKoppen,
       climateClassTr: row.climateClassTr,
       climateNoteTr: row.climateNoteTr,
-      climate: buildClimate(row.climateNormals),
+      climate: buildClimate(row.climateNormals, row.plateCode),
       climateNarrativeTr: row.climateNarrativeTr,
       landformNoteTr: row.landformNoteTr,
       hydrographyNoteTr: row.hydrographyNoteTr,

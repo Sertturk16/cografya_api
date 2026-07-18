@@ -74,6 +74,17 @@ describe('computeSeasonalPrecipitationPercentages', () => {
     expect(sumSeasons(result)).toBe(100);
   });
 
+  it('places the residue on the LARGEST season even when it is NOT winter (guards the target rule)', () => {
+    // The residue-target rule is the one genuinely branchy line; every fixture above happens to
+    // have its largest season at winter, so a `largestIndex = 0` hardcode would pass them all.
+    // Here summer is the largest total (4 vs 1/1/1) and the residue is +1: a hardcode would put
+    // +1 on winter → {15,14,57,14} (also sums 100), so only the exact object catches the bug.
+    const precip = [1, 0, 1, 0, 0, 4, 0, 0, 1, 0, 0, 0];
+    const result = computeSeasonalPrecipitationPercentages(precip);
+    expect(result).toEqual({ winterPct: 14, springPct: 14, summerPct: 58, autumnPct: 14 });
+    expect(sumSeasons(result)).toBe(100);
+  });
+
   it('always totals 100 across a spread of shapes (the invariant the contract exposes)', () => {
     const shapes = [
       [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
@@ -94,6 +105,14 @@ describe('computeSeasonalPrecipitationPercentages', () => {
 
   it('returns null when the annual total is 0 (guards divide-by-zero)', () => {
     expect(computeSeasonalPrecipitationPercentages(new Array<number>(12).fill(0))).toBeNull();
+  });
+
+  it('returns null when any monthly value is negative (a physically impossible input)', () => {
+    // A negative could otherwise yield e.g. `winterPct: -8` while the four shares still sum to
+    // 100, silently passing the sum invariant. The pure function refuses it rather than trusting
+    // the caller, so the contract's percentages are always non-negative shares of a real total.
+    const precip = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, -5];
+    expect(computeSeasonalPrecipitationPercentages(precip)).toBeNull();
   });
 });
 
@@ -118,13 +137,15 @@ describe('computeClimateDerived', () => {
     expect(sumSeasons(derived?.seasonalPrecipitation ?? null)).toBe(100);
   });
 
-  it('breaks an extreme tie toward the EARLIEST month, deterministically', () => {
-    // Two months share the max temp AND two share the max precip; the earlier of each must win.
-    const temps = [5, 5, 5, 5, 5, 30, 5, 30, 5, 5, 5, 5]; // Jun & Aug tie hottest → Jun (6)
-    const precip = [90, 0, 0, 0, 0, 0, 90, 0, 0, 0, 0, 0]; // Jan & Jul tie wettest → Jan (1)
+  it('breaks EVERY extreme tie toward the EARLIEST month, deterministically', () => {
+    // All four extremes are tied here; each must resolve to the earliest month sharing the value.
+    const temps = [5, 5, 5, 5, 5, 30, 5, 30, 5, 5, 5, 5]; // hottest tie Jun/Aug → Jun (6); coldest tie all 5 → Jan (1)
+    const precip = [90, 0, 0, 0, 0, 0, 90, 0, 0, 0, 0, 0]; // wettest tie Jan/Jul → Jan (1); driest tie (0s) → Feb (2)
     const derived = computeClimateDerived(makeNormals(makeMonths(temps, precip)));
     expect(derived?.hottestMonth).toBe(6);
+    expect(derived?.coldestMonth).toBe(1);
     expect(derived?.wettestMonth).toBe(1);
+    expect(derived?.driestMonth).toBe(2);
   });
 
   it('rounds the annual mean to one decimal (single-sourced precision)', () => {
@@ -133,6 +154,24 @@ describe('computeClimateDerived', () => {
       makeNormals(makeMonths([100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], PRECIP)),
     );
     expect(derived?.annualMeanTempC).toBe(8.3);
+  });
+
+  it('rounds annual precipitation AND temp range to one decimal (float residue, not just mean)', () => {
+    // One-decimal MGM inputs whose sum/difference carries binary float error — exactly what real
+    // data hits. Deleting roundTo1 from either aggregate would surface e.g. 124.79999999999998.
+    const temps = [9.4, 10, 11, 12, 13, 14, 20.1, 15, 14, 13, 11, 10]; // hottest 20.1 − coldest 9.4
+    const precip = new Array<number>(12).fill(10.4); // 12 × 10.4 = 124.79999… → 124.8
+    const derived = computeClimateDerived(makeNormals(makeMonths(temps, precip)));
+    expect(derived?.annualPrecipitationMm).toBe(124.8);
+    expect(derived?.annualTempRangeC).toBe(10.7); // 20.1 − 9.4 = 10.700000000000001 → 10.7
+  });
+
+  it('returns null when a monthly precipitation is negative (impossible input rejected)', () => {
+    const months = makeMonths(TEMPS, PRECIP);
+    const june = months[5];
+    if (june === undefined) throw new Error('fixture malformed');
+    june.precipitationMm = -3;
+    expect(computeClimateDerived(makeNormals(months))).toBeNull();
   });
 
   it('returns null when a month is missing its core temperature (graceful degradation)', () => {

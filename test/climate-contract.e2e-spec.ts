@@ -42,7 +42,7 @@ interface ServedClimate {
   periodStartYear: number;
   periodEndYear: number;
   months: unknown[];
-  records: unknown;
+  records: Record<string, unknown>;
   derived: {
     annualMeanTempC: number;
     annualPrecipitationMm: number;
@@ -164,6 +164,14 @@ describe('Climate contract (e2e)', () => {
       expect(climate.periodStartYear).toBeLessThan(climate.periodEndYear);
       expect(climate.months).toHaveLength(CLIMATE_MONTH_COUNT);
 
+      // The records block is part of the served contract too — present, with its three columns
+      // (each an object or null). Value-level correctness is proven by the climate-load suite;
+      // here it is the SHAPE the web codegens against that matters.
+      expect(climate.records).not.toBeNull();
+      for (const key of ['dailyMaxPrecipitationMm', 'fastestWindMs', 'maxSnowDepthCm']) {
+        expect(climate.records).toHaveProperty(key);
+      }
+
       // THE invariant this PR exposes: seasonal percentages are whole integers summing to 100.
       const s = climate.derived.seasonalPrecipitation;
       for (const pct of [s.winterPct, s.springPct, s.summerPct, s.autumnPct]) {
@@ -183,9 +191,13 @@ describe('Climate contract (e2e)', () => {
       expect(Number.isFinite(d.annualTempRangeC)).toBe(true);
     }
 
-    // Guard against a vacuous pass: ruling 5 fills all 81, so the sum-to-100 loop MUST have run
-    // on real series. Zero here would mean the artifact never loaded, not that the rule holds.
-    expect(withClimate).toBeGreaterThan(0);
+    // Ruling 5 fills ALL 81, so the sum-to-100 loop must have run on every province, not just
+    // one. `toBe(provinces.length)` is the real invariant: `> 0` would let coverage silently
+    // collapse 81→1 (e.g. a future re-fetch declaring 60 provinces unpublishable, loaded
+    // successfully) with the suite still green — exactly CONVENTIONS §2's "a check switched off
+    // by a condition, and the condition becomes the new unverified surface." Still count-level
+    // and structural, no per-province literal.
+    expect(withClimate).toBe(provinces.length);
   });
 
   it('a province whose series is null degrades gracefully (climate: null, still 200)', async () => {

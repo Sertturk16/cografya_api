@@ -53,14 +53,19 @@ const SEASONS: ReadonlyArray<{
  *
  * The residue rule is the plan's (PLAN.md §1): round each season's share to the nearest
  * integer, then add whatever is missing from (or over) 100 to the season with the LARGEST
- * precipitation total. That single correction is what guarantees the four values sum to 100 —
- * a property the visible summary, the metadata and the JSON-LD all depend on, so it must live
- * in one place and be tested here.
+ * precipitation total. (Largest total ≡ largest share — the four shares divide by the same
+ * annual denominator — so this matches PLAN.md's "largest share" wording exactly.) That single
+ * correction is what guarantees the four values sum to 100 — a property the visible summary, the
+ * metadata and the JSON-LD all depend on, so it must live in one place and be tested here.
  *
- * Returns `null` (rather than emitting `0/0/0/0`, which would not sum to 100 and would break
- * the contract's invariant) if the input is not a complete 12-month array or the annual total
- * is not positive. No real Turkish province has zero annual precipitation, so this is a
- * defensive guard against corrupt input, not an expected path.
+ * Returns `null` (rather than emitting a set that would not sum to 100 and would break the
+ * contract's invariant) if the input is not a complete 12-month array, carries a NEGATIVE monthly
+ * value, or has a non-positive annual total. A negative precipitation is physically impossible and
+ * the import (`assertClimateNormalsShape`) already refuses it, but a negative slipping through here
+ * could yield a nonsensical share (e.g. `winterPct: -8`) that still sums to 100 and passes every
+ * other invariant — so the pure function refuses it too, making its own contract total and
+ * self-consistent rather than relying on the caller. No real Turkish province hits any of these
+ * paths; they are defensive guards against corrupt input, not expected outcomes.
  *
  * Exported for direct unit testing of the residue distribution and the tie-break.
  */
@@ -76,7 +81,9 @@ export function computeSeasonalPrecipitationPercentages(
     let total = 0;
     for (const index of season.monthIndexes) {
       const value = monthlyPrecipMm[index];
-      if (value === undefined) {
+      // A missing or NEGATIVE monthly value is not a derivable series — the four seasons cover
+      // all 12 indices, so this guard sees every month.
+      if (value === undefined || value < 0) {
         return null;
       }
       total += value;
