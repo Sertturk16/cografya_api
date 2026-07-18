@@ -475,6 +475,38 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'CVE',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "5 Temmuz 1975'te Portekiz'den bağımsız oldu.",
+    introTr:
+      "Cabo Verde, Senegal kıyısından yaklaşık 570 kilometre açıkta, Atlas Okyanusu'nda yer alan " +
+      'on adalı bir takımadadır. Adalar, rüzgâr yönüne göre kuzeydeki Barlavento ve güneydeki ' +
+      'Sotavento olmak üzere iki gruba ayrılır. Takımadanın tamamı volkanik kökenlidir; en ' +
+      "yüksek noktası, Fogo adasındaki hâlâ etkin bir stratovolkan olan Pico do Fogo'dur.",
+    landformNoteTr:
+      'Barlavento grubundaki Santo Antão, São Vicente ve São Nicolau ile Sotavento grubundaki ' +
+      'Fogo, Santiago ve Brava, derin vadiler ve sarp yamaçlarla yarılmış dağlık adalardır; ' +
+      "Santo Antão'da arazi 1.979 metreye kadar yükselir. Buna karşılık Sal, Boa Vista ve Maio " +
+      'düz, alçak ve çöl görünümlü adalardır; ekonomileri tarih boyunca tuz üretimine ' +
+      'dayanmıştır.' +
+      '\n\n' +
+      'Fogo adasının neredeyse tamamını tek bir volkan oluşturur; ada bu nedenle yaklaşık 25 ' +
+      'kilometre çapında, hemen hemen yuvarlak bir biçim alır. Adanın kuzeydoğu köşesine kaymış ' +
+      'geniş bir kalderanın içinde, Chã das Caldeiras köyü ve kalderanın ortasından yükselen ' +
+      '2.829 metrelik Pico do Fogo konisi yer alır. Volkanın en son patlaması 2014-2015 kışında ' +
+      '77 gün sürmüş, Portela ve Bangaeira yerleşimlerini lav akıntısı altında bırakmıştır.',
+    climateNoteTr:
+      'Cabo Verde, Sahra ile nemli tropikal kuşak arasındaki Sahel biriminde yer alır ve yarı ' +
+      'kurak bir iklime sahiptir. Yağış mevsimi kısadır ve ağustos-ekim aylarına sıkışır; geri ' +
+      'kalan aylar boyunca hemen hiç yağmur düşmez. Kuzeydeki Barlavento adalarında yıllık yağış ' +
+      '100 milimetrenin altında kalırken, dağlık Sotavento adalarında bu miktar 150-250 ' +
+      'milimetreye çıkar. Kasım-mayıs arasında Sahra kökenli harmattan rüzgârı etkili olur; ' +
+      'sıcaklıklar aralık-haziran arasında ortalama 21, temmuz-kasım arasında ise 27 santigrat ' +
+      'derece civarında seyreder.',
+    hydrographyNoteTr:
+      'Volkanik arazi ve kurak iklim nedeniyle takımadada kalıcı akan hiçbir nehir yoktur. ' +
+      "Dağlık adalarda, özellikle Santiago'da, yağış sonrası kısa süreliğine akan mevsimsel dere " +
+      "yatakları (ribeira) bulunur; bu akışları depolamak için 2006'da tamamlanan Poilão " +
+      'barajından başlayarak bugüne kadar yedi baraj inşa edilmiştir. Yeraltı suyu kaynakları ' +
+      'sınırlıdır ve çoğu zaman tuzludur; düz, çöl görünümlü Sal ve Boa Vista adalarında içme ' +
+      "suyunun %85'inden fazlası deniz suyu arıtma tesislerinden karşılanır.",
   },
   {
     isoCode: 'CI',
@@ -867,6 +899,44 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'MRU',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "28 Kasım 1960'ta Fransa'dan bağımsız oldu.",
+    introTr:
+      'Moritanya, kuzeyde Sahra çölü ile güneyde Sahel kuşağı arasında uzanan, topraklarının ' +
+      'tamamı 1.000 metre rakımın altında kalan dünyanın en büyük ülkesidir. Ülke dört coğrafi ' +
+      'kuşağa ayrılır: kuzeyde ve ortada Sahra, güneyde Sahel, güneybatıda Senegal Nehri vadisi ' +
+      've batıda dar bir kıyı şeridi. Ülkenin en yüksek noktası, kuzeyde demir cevheri ' +
+      "yataklarıyla tanınan Kediet ej Jill'dir.",
+    landformNoteTr:
+      'İç kesimde, Taoudeni havzasının güneybatı ucunu Adrar, Tagant ve Assaba adlı kumtaşı ' +
+      'platoları çevreler; bunların en yükseği olan Adrar Platosu yaklaşık 500 metreye ulaşır. ' +
+      'Platoların üzerinde, madence zengin, yalnız kalmış tepeler yükselir — küçükleri "guelb", ' +
+      'büyükleri "kedia" olarak adlandırılır. Bunların en büyüğü, kuzeyde Tiris Zemmour ' +
+      "bölgesindeki 915 metrelik Kediet ej Jill'dir; manyetit bakımından zengin olduğu için " +
+      "mavimsi bir renktedir ve 1952'den beri işletilen demir madenleri, 700 kilometrelik bir " +
+      'demiryoluyla Atlas kıyısındaki Nouadhibou limanına bağlanır.' +
+      '\n\n' +
+      'Kıyı kesiminde, kilden düzlükler (reg) ile yer yer yer değiştiren kum tepeleri (erg) art ' +
+      "arda sıralanır. Nouakchott'un güneyinde, kıyı kum setleri ile Trarza ergine ait 5-20 " +
+      'metrelik kum sırtları arasında, deniz seviyesinin 1-5 metre altında kalan Aftout es ' +
+      'Saheli çöküntüsü uzanır; bu geniş sebkha ve kil-silt havzası kıyıya paralel olarak ' +
+      'yaklaşık 165 kilometre boyunca devam eder.',
+    climateNoteTr:
+      "Moritanya'da sıcaklık uçları ve düzensiz, seyrek yağış hakimdir. Ülkenin kuzey iki bölü " +
+      'üçünü kaplayan Sahra kesiminde, mayıs-temmuz ayları arasında günlük sıcaklık sabah 16, ' +
+      'öğleden sonra 49 santigrat dereceye kadar çıkar. Güneydeki Sahel kesiminde iklim yarı çöl ' +
+      'niteliğindedir; yağmur mevsimi haziran-ekim arasına yayılır ve yıllık yağış buralarda 310 ' +
+      "milimetreye ulaşır, ağustosta tek başına 120 milimetreye çıkar. Başkent Nouakchott'ta " +
+      'yıllık yağış 100 milimetrenin altında kalır ve temmuz-eylül arasına sıkışır; kasım ' +
+      'sonu-mart ortası arasında etkili olan harmattan rüzgârı, ülkenin büyük bölümünde kum ve ' +
+      'toz taşırken, okyanus rüzgârlarının etkisindeki dar kıyı şeridinde bu etki daha zayıftır.',
+    hydrographyNoteTr:
+      'Ülkenin güney sınırının büyük bölümünü Senegal ile paylaşarak çizen Senegal Nehri, ' +
+      "Moritanya'nın tek kalıcı yüzey suyu kaynağıdır. Nehrin altından uzanan Senegalo-Moritanya " +
+      "Akiferi, 335.000 kilometrekarelik alanıyla Batı Afrika'nın en büyük sınır-ötesi yeraltı " +
+      "suyu sistemidir ve ülke topraklarının %84'ünün altında yer alır; kıyıdaki Trarza akiferi, " +
+      "kuyu alanlarıyla başkent Nouakchott'u besler. Senegal vadisinin dışında kalan güney Sahel " +
+      'kesiminde, yağmur sularını toplayan yaklaşık 20 küçük gölet ve tepe barajı yerel sulamaya ' +
+      'hizmet eder; kuzeydeki geniş Sahra kesiminde ise yüzey suyu neredeyse hiç yoktur, Adrar ' +
+      've Tagant platolarındaki kaynaklar ve kuyular yerleşim ve tarımın tek su kaynağıdır.',
   },
   {
     isoCode: 'NE',
@@ -890,6 +960,47 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'XOF',
     governmentFormTr: null,
     independenceNoteTr: "3 Ağustos 1960'ta Fransa'dan bağımsız oldu.",
+    introTr:
+      'Nijer toprakları, kuzeyden güneye üç iklim ve bitki örtüsü kuşağına ayrılır: kuzeydeki ' +
+      'Sahra çölü, ortadaki Sahel bozkırı ve güneydeki tarıma elverişli şerit. Ülke ' +
+      "topraklarının %80'inden fazlasını Sahra ve onun bir parçası olan Ténéré çölü kaplar. " +
+      'Ülkenin can damarı Nijer Nehri, topraklarının yalnızca güneybatı köşesinden geçer; bu ' +
+      "köşede nehir, Benin ve Burkina Faso ile paylaşılan W Milli Parkı'nı oluşturan " +
+      'karakteristik W biçimli kıvrımlar çizer.',
+    landformNoteTr:
+      "Ülkenin kuzey-orta kesiminde, Sahra'yı kuzey-güney yönünde dokuz ayrı kütle halinde delen " +
+      'Aïr Dağları yükselir; bu volkanik kökenli sıradağın Bagzane platosu üzerindeki ' +
+      "Idoukal-n-Taghès Dağı, 2.022 metreyle ülkenin en yüksek noktasıdır. Aïr'in doğusunda ve " +
+      'güneyinde, dünyanın en kurak bölgelerinden biri olan Ténéré çölü, Bilma ve Ténéré ' +
+      'erglerinin dev kum tepeleriyle uzanır. Ülkenin kuzeydoğu ucunda ise düz tepeli ' +
+      'kayalıkları, derin kanyonları ve eski volkanik oluşumlarıyla Djado Platosu yer alır.' +
+      '\n\n' +
+      'Ülkenin orta-doğusunda, kuzey-güney yönünde uzanan ve 700 metreye kadar yükselen Termit ' +
+      'Masifi çevresinde, dünyanın kara yüzeyindeki en geniş doğa rezervlerinden birini ' +
+      "oluşturan bir koruma alanı bulunur. Güneybatıda ise Nijer Nehri'nin verimli taşkın ovası " +
+      'uzanır; nehrin Benin ve Burkina Faso sınırlarına yakın kesimde çizdiği W biçimli ' +
+      'kıvrımlar, kurak mevsimde yaban hayatının sığındığı geniş taşkın düzlükleri oluşturur.',
+    climateNoteTr:
+      "Nijer'de yağış kuzeyden güneye keskin bir gradyan izler. Doğuda, Bilma çevresindeki çöl " +
+      "kesiminde yıllık yağış 20 milimetreyi geçmez; ortadaki Sahel kuşağında, Agadez'de yıllık " +
+      'ortalama 110 milimetreye ulaşan yağış yıldan yıla büyük farklılık gösterir. Güneydeki ' +
+      "Sahel-Sudan geçiş kuşağında ise başkent Niamey'de yıllık yağış yaklaşık 540 milimetreye, " +
+      "en güneydeki Gaya'da 800 milimetreye çıkar; yağışın büyük bölümü temmuz-ağustos aylarında " +
+      'düşer. Ekim-şubat arasında kuzeydoğudan esen kuru ve tozlu harmattan rüzgârı ülkenin ' +
+      "büyük bölümünü etkiler; Niamey'de günlük en yüksek sıcaklık nisanda 41, ağustosta ise 31 " +
+      'santigrat dereceye kadar geriler.',
+    hydrographyNoteTr:
+      'Nijer Nehri, ülke topraklarını yalnızca güneybatı köşesinde, yaklaşık 550 kilometre ' +
+      'boyunca keser; bu merkez-dışı konumu nedeniyle nehir ülkenin genelini besleyemez. Sağ ' +
+      'kıyıdan katılan Goroual, Dargol, Sirba, Diamangou, Tapoa ve Mekrou gibi küçük Sahel ' +
+      'karakterli kollar, aralık-haziran arasında neredeyse tamamen kurur, yağmur mevsiminde ise ' +
+      "güçlü biçimde akar. Güneydoğuda, Nijerya'daki Hadejia ve Komadugu Gana nehirlerinin " +
+      'birleşmesiyle oluşan Komadugu Yobe, Nijer-Nijerya sınırının yaklaşık 150 kilometrelik bir ' +
+      "kesimini çizdikten sonra Çad Gölü'nün batı ucuna dökülür; gölün Nijer sınırları içinde " +
+      'kalan bölümü, göl seviyesine bağlı olarak mevsimden mevsime büyük ölçüde değişir. ' +
+      "Kuzeyde, Aïr Dağları'ndan inen " +
+      '"kori" adı verilen kuru vadilerde yüzey akışı yoktur, ancak kum tabakalarının altında ' +
+      'yeraltı suyu bulunur.',
   },
   {
     isoCode: 'NG',
