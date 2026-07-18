@@ -28,19 +28,48 @@ export interface PendingWrite {
   readonly value: string;
 }
 
+/**
+ * A field whose committed value is a non-null string that DIFFERS from the draft.
+ *
+ * WHY THIS IS NOT JUST AN UPDATE (the C1 failure): the draft is not automatically newer
+ * than the seed. A correction landed directly on the seed (PR #46 fixed the country name
+ * `Ekvator` -> `Ekvador` on `BR.introTr` / `CO.introTr`) leaves the draft stale, and an
+ * unconditional `apply` silently reverts a live, reviewed fix on public pages — via the
+ * very command `CLAUDE.md` §8 mandates. The only defence was a human reading the diff,
+ * which is precisely the defence that failed in PR #43 and caused this tool to exist.
+ *
+ * So divergence is a QUESTION, not an instruction: report it and refuse. Overwriting is
+ * still one flag away (`--force`) for the legitimate case — NOVA revising prose on purpose.
+ */
+export interface Divergence {
+  readonly isoCode: string;
+  readonly field: NarrativeField;
+  readonly committed: string;
+  readonly draft: string;
+}
+
 export interface ApplyResult {
   readonly file: string;
   readonly updated: number;
   readonly inserted: number;
   /** Fields whose committed value already equals the draft — deliberately left untouched. */
   readonly skipped: number;
+  /** Non-null committed values that differ from the draft. Empty unless `force` is set. */
+  readonly diverged: readonly Divergence[];
   readonly text: string;
+}
+
+export interface ApplyOptions {
+  /** Overwrite a diverging non-null committed value. Off by default, on purpose. */
+  readonly force?: boolean;
 }
 
 interface Splice {
   readonly start: number;
   readonly end: number;
   readonly text: string;
+  /** Emission index — the tie-break when two splices share a start offset (see below). */
+  readonly order: number;
 }
 
 function propertyName(property: ts.ObjectLiteralElementLike): string | null {
@@ -62,6 +91,7 @@ export function applyToSource(
   fileName: string,
   text: string,
   writes: readonly PendingWrite[],
+  options: ApplyOptions = {},
 ): ApplyResult {
   const byIso = new Map<string, Map<NarrativeField, string>>();
   for (const write of writes) {
@@ -72,6 +102,7 @@ export function applyToSource(
 
   const source = ts.createSourceFile(fileName, text, ts.ScriptTarget.Latest, true);
   const splices: Splice[] = [];
+  const diverged: Divergence[] = [];
   let updated = 0;
   let inserted = 0;
   let skipped = 0;
@@ -107,8 +138,16 @@ export function applyToSource(
             // without changing a single character of content, burying the real edit and
             // violating the "don't rewrite existing seed data" boundary. Bytes move only
             // when the VALUE moves.
-            if (foldStringConcat(existing.initializer) === value) {
+            const committed = foldStringConcat(existing.initializer);
+            if (committed === value) {
               skipped += 1;
+              continue;
+            }
+            // `committed === null` means the initializer is not a string at all — `null`,
+            // the normal "not yet seeded" state. Writing that is the happy path.
+            // A non-null string that differs is a DIVERGENCE (see `Divergence`).
+            if (committed !== null && options.force !== true) {
+              diverged.push({ isoCode: isoCode ?? '?', field, committed, draft: value });
               continue;
             }
             const start = existing.getStart(source);
@@ -119,7 +158,12 @@ export function applyToSource(
             // Splice from the START OF THE LINE, not from the property name: `emitConcat`
             // renders its own leading indent, and replacing from the name would leave the
             // original indent in place and double it.
-            splices.push({ start: start - indent, end, text: emitConcat(value, indent, field) });
+            splices.push({
+              start: start - indent,
+              end,
+              text: emitConcat(value, indent, field),
+              order: splices.length,
+            });
             updated += 1;
             continue;
           }
@@ -140,7 +184,12 @@ export function applyToSource(
           let end = anchor.getEnd();
           if (text[end] === ',') end += 1;
           const indent = columnOf(text, anchor.getStart(source));
-          splices.push({ start: end, end, text: `\n${emitConcat(value, indent, field)}` });
+          splices.push({
+            start: end,
+            end,
+            text: `\n${emitConcat(value, indent, field)}`,
+            order: splices.length,
+          });
           inserted += 1;
           // Later fields in this pass anchor off the one just inserted only through
           // `order`, which is why insertions are emitted in NARRATIVE_FIELDS order.
@@ -153,17 +202,25 @@ export function applyToSource(
 
   visit(source);
 
-  // Back-to-front so earlier offsets stay valid.
-  const ordered = [...splices].sort((a, b) => b.start - a.start);
+  // Back-to-front so earlier offsets stay valid. Two INSERTIONS can share a start offset
+  // (both anchor on the same existing property); applying those in emission order would
+  // land them reversed, because each one is spliced in ahead of the previous. Applying the
+  // LATER-emitted one first leaves the earlier one in front of it, which is the seed field
+  // order `NARRATIVE_FIELDS` defines.
+  const ordered = [...splices].sort((a, b) => b.start - a.start || b.order - a.order);
   let output = text;
   for (const splice of ordered) {
     output = output.slice(0, splice.start) + splice.text + output.slice(splice.end);
   }
 
-  return { file: fileName, updated, inserted, skipped, text: output };
+  return { file: fileName, updated, inserted, skipped, diverged, text: output };
 }
 
-export function applyToFile(filePath: string, writes: readonly PendingWrite[]): ApplyResult {
+export function applyToFile(
+  filePath: string,
+  writes: readonly PendingWrite[],
+  options: ApplyOptions = {},
+): ApplyResult {
   const text = fs.readFileSync(filePath, 'utf8');
-  return applyToSource(filePath, text, writes);
+  return applyToSource(filePath, text, writes, options);
 }

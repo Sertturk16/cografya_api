@@ -74,8 +74,10 @@ export function readSeedDirectory(directory: string): SeedIndex {
 
     const visit = (node: ts.Node): void => {
       if (ts.isObjectLiteralExpression(node)) {
+        // One map, not two: `scalars` and `concats` were built identically and only one was
+        // ever read. `foldStringConcat` already covers both the single-literal and the
+        // `+`-chain shapes, so there is nothing for a second map to distinguish.
         const scalars = new Map<string, string>();
-        const concats = new Map<string, string>();
 
         for (const property of node.properties) {
           const name = propertyName(property);
@@ -83,7 +85,6 @@ export function readSeedDirectory(directory: string): SeedIndex {
           const folded = foldStringConcat(property.initializer);
           if (folded === null) continue;
           scalars.set(name, folded);
-          concats.set(name, folded);
         }
 
         const isoCode = scalars.get('isoCode');
@@ -94,7 +95,7 @@ export function readSeedDirectory(directory: string): SeedIndex {
         // avoids mistaking a nested literal for a country entry.
         if (isoCode !== undefined && nameTr !== undefined && nameEn !== undefined) {
           countries.push({ isoCode, nameTr, nameEn, file });
-          for (const [name, value] of concats) {
+          for (const [name, value] of scalars) {
             if (isNarrativeField(name)) fields.push({ isoCode, field: name, value, file });
           }
         }

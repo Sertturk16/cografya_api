@@ -46,8 +46,36 @@ export interface ParsedField {
   readonly line: number;
 }
 
+/**
+ * Something the parser noticed but did not fold into a value.
+ *
+ * WHY THIS EXISTS: before, an unrecognised field header set `field = null` and the prose
+ * beneath it vanished with ZERO signal — a typo'd `introTR` was indistinguishable from an
+ * intentional skip. Country resolution has always failed loudly; field names now do too.
+ *
+ *   - `error`   aborts the run (the caller must not proceed on a partly-understood draft)
+ *   - `warning` is printed and the run continues (a genuinely out-of-scope field)
+ */
+export interface ParseDiagnostic {
+  readonly severity: 'error' | 'warning';
+  /** 1-based line number. */
+  readonly line: number;
+  readonly message: string;
+}
+
+export interface ParseResult {
+  readonly fields: readonly ParsedField[];
+  readonly diagnostics: readonly ParseDiagnostic[];
+}
+
 function isNarrativeField(name: string): name is NarrativeField {
   return (NARRATIVE_FIELDS as readonly string[]).includes(name);
+}
+
+/** A name that differs from a narrative field only by case is a typo, not another field. */
+function caseVariantOf(name: string): NarrativeField | null {
+  const lowered = name.toLowerCase();
+  return NARRATIVE_FIELDS.find((candidate) => candidate.toLowerCase() === lowered) ?? null;
 }
 
 /**
@@ -83,16 +111,27 @@ function joinLine(accumulated: string, next: string): { text: string; tight: boo
 
 const SECTION_RE = /^##\s+(?<title>\S.*)$/u;
 const FIELD_RE = /^###\s+`(?<name>[A-Za-z]+)`\s*$/u;
+/** A `###` header whose backticked name carries trailing text — a field header with a note. */
+const ANNOTATED_FIELD_RE = /^###\s+`(?<name>[A-Za-z]+)`\s*(?<trailing>\S.*)$/u;
+/** Any markdown ATX heading. Used only to TERMINATE a field block (see below). */
+const HEADING_RE = /^#{1,6}\s/u;
 const QUOTE_RE = /^>\s?(?<content>.*)$/u;
 
 /**
  * Parse one narrative draft. Deterministic: the same markdown always yields the same
- * `ParsedField[]`, and the parser never normalises, trims, or "fixes" prose beyond the
+ * `ParseResult`, and the parser never normalises, trims, or "fixes" prose beyond the
  * documented JOIN RULE.
+ *
+ * LINE ENDINGS ARE NORMALISED FIRST. Every regex here is anchored with `$`, and `.` does
+ * not match `\r`, so a CRLF draft used to parse to ZERO fields — after which `check`
+ * printed "0 drifted" and `apply` wrote nothing. A total no-op that looked exactly like
+ * success, on the very command `CLAUDE.md` §8 mandates as the content-fidelity gate. The
+ * drafts are authored on macOS today; that is an accident, not a guarantee.
  */
-export function parseDraft(markdown: string): ParsedField[] {
+export function parseDraft(markdown: string): ParseResult {
   const out: ParsedField[] = [];
-  const lines = markdown.split('\n');
+  const diagnostics: ParseDiagnostic[] = [];
+  const lines = markdown.replace(/\r\n?/gu, '\n').split('\n');
 
   let section: string | null = null;
   let field: NarrativeField | null = null;
@@ -135,15 +174,60 @@ export function parseDraft(markdown: string): ParsedField[] {
   };
 
   lines.forEach((line, index) => {
+    const lineNumber = index + 1;
+
     const fieldMatch = FIELD_RE.exec(line);
     if (fieldMatch?.groups !== undefined) {
       flush();
       const name = fieldMatch.groups['name'] ?? '';
-      field = isNarrativeField(name) ? name : null;
-      fieldLine = index + 1;
+      fieldLine = lineNumber;
+      if (isNarrativeField(name)) {
+        field = name;
+        return;
+      }
+      field = null;
+      const variant = caseVariantOf(name);
+      if (variant !== null) {
+        // `introTR` vs `introTr`: certainly a typo for a field we DO handle, and the prose
+        // beneath it is real content that would otherwise be discarded in silence.
+        diagnostics.push({
+          severity: 'error',
+          line: lineNumber,
+          message: `field header \`${name}\` differs from \`${variant}\` only by case — typo?`,
+        });
+      } else {
+        // A field this tool deliberately does not transcribe. Legal, but never silent.
+        diagnostics.push({
+          severity: 'warning',
+          line: lineNumber,
+          message: `ignoring \`${name}\` — not a narrative field`,
+        });
+      }
       return;
     }
-    // `###` also matches `^##\s` only if we check the field pattern first, which we do.
+
+    // A backticked field name followed by a note (`### \`introTr\` (owner verbatim)`) is a
+    // field header a human would read as one. Silently swallowing it is the I5 failure.
+    const annotated = ANNOTATED_FIELD_RE.exec(line);
+    if (annotated?.groups !== undefined) {
+      flush();
+      field = null;
+      const name = annotated.groups['name'] ?? '';
+      // Fatal only when it names a field we actually transcribe — that is real prose about
+      // to be dropped. An annotated header for an out-of-scope field is merely noted.
+      const handled = isNarrativeField(name) || caseVariantOf(name) !== null;
+      diagnostics.push({
+        severity: handled ? 'error' : 'warning',
+        line: lineNumber,
+        message:
+          `field header \`${name}\` carries trailing text ` +
+          `(${JSON.stringify(annotated.groups['trailing'] ?? '')}) — ` +
+          `put the note elsewhere so the header is unambiguous`,
+      });
+      return;
+    }
+
+    // `###` also matches `^##\s` only if we check the field patterns first, which we do.
     const sectionMatch = SECTION_RE.exec(line);
     if (sectionMatch?.groups !== undefined && !line.startsWith('###')) {
       flush();
@@ -151,9 +235,20 @@ export function parseDraft(markdown: string): ParsedField[] {
       section = sectionMatch.groups['title']?.trim() ?? null;
       return;
     }
+
+    // ANY OTHER HEADING TERMINATES THE FIELD BLOCK. Without this, a `### Kaynaklar`
+    // section's blockquoted citation kept accumulating into the preceding field and got
+    // seeded as public prose. The roundtrip `check` is structurally blind to that class:
+    // both sides run this same parser, so they agree with each other while both are wrong.
+    if (HEADING_RE.test(line)) {
+      flush();
+      field = null;
+      return;
+    }
+
     if (field !== null) buffer.push(line);
   });
   flush();
 
-  return out;
+  return { fields: out, diagnostics };
 }

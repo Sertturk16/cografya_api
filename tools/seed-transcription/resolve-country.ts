@@ -76,16 +76,6 @@ export type Resolution =
 export function resolveCountry(heading: string, countries: readonly SeededCountry[]): Resolution {
   const candidates = headingCandidates(heading);
 
-  // An explicit ISO code in the heading (`## 5. ÇİN CUMHURİYETİ / TAYVAN (TW)`) is exact
-  // and beats every name heuristic. It is the escape hatch for any country whose seeded
-  // name does not match how a wave chose to head the section, and it is already the
-  // convention some drafts use — so it is honoured, not merely tolerated.
-  for (const candidate of candidates) {
-    if (!/^[A-Z]{2}$/u.test(candidate)) continue;
-    const exact = countries.find((country) => country.isoCode === candidate);
-    if (exact !== undefined) return { ok: true, isoCode: exact.isoCode, matchedOn: candidate };
-  }
-
   const hits = new Map<string, string>();
   for (const candidate of candidates) {
     const folded = foldName(candidate);
@@ -98,6 +88,30 @@ export function resolveCountry(heading: string, countries: readonly SeededCountr
         hits.set(country.isoCode, candidate);
       }
     }
+  }
+
+  // An explicit ISO code in the heading (`## 5. ÇİN CUMHURİYETİ / TAYVAN (TW)`) is exact
+  // and beats the name heuristic. It is the escape hatch for any country whose seeded name
+  // does not match how a wave chose to head the section, and it is already the convention
+  // some drafts use — so it is honoured, not merely tolerated.
+  //
+  // But it is CROSS-CHECKED, never taken on faith: a two-letter token that happens to be a
+  // valid ISO code while the heading's names point at a different country is exactly the
+  // "writes Tanzania's climate onto Zambia" failure this module's docstring forbids. When
+  // the two disagree, neither wins — the caller is told.
+  for (const candidate of candidates) {
+    if (!/^[A-Z]{2}$/u.test(candidate)) continue;
+    const exact = countries.find((country) => country.isoCode === candidate);
+    if (exact === undefined) continue;
+    if (hits.size > 0 && !hits.has(exact.isoCode)) {
+      return {
+        ok: false,
+        reason:
+          `heading "${heading}" is contradictory — the ISO code "${candidate}" resolves to ` +
+          `${exact.isoCode}, but its name(s) resolve to ${[...hits.keys()].sort().join(', ')}`,
+      };
+    }
+    return { ok: true, isoCode: exact.isoCode, matchedOn: candidate };
   }
 
   if (hits.size === 1) {

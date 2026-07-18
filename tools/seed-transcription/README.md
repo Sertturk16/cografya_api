@@ -20,8 +20,10 @@ it against the draft"_ to one line:
 pnpm seed:transcribe check "Owner's Inbox/<wave>/<wave>-narrative-draft.md"
 ```
 
-If that prints `N identical, 0 drifted`, the committed seed and the fact-checked draft
-agree. Nothing else needs re-reading.
+If that **exits 0**, the committed seed and the fact-checked draft agree. Nothing else
+needs re-reading. Judge by the exit code, not by eye: `check` exits non-zero on drift **and
+on "not yet seeded"**, because a wave where `apply` was never run has no drift at all and
+would otherwise print a reassuring `0 drifted` while nothing had been written.
 
 ## Usage
 
@@ -34,9 +36,29 @@ pnpm seed:transcribe emit  "<draft.md>"
 
 # Write the values into the seed files in place
 pnpm seed:transcribe apply "<draft.md>"
+
+# Same, but overwrite values the seed and the draft disagree on (see below — think first)
+pnpm seed:transcribe apply --force "<draft.md>"
 ```
 
-Several drafts may be passed at once. `check` exits non-zero on drift.
+Several drafts may be passed at once — but pass only **authoritative** ones: two drafts
+naming the same country+field with different prose is a hard error, not a last-wins merge.
+
+### `apply` refuses to revert a correction
+
+The draft is **not** automatically newer than the seed. When a field's committed value is a
+non-null string that differs from the draft, `apply` prints both sides and writes **nothing
+at all** — not even the files it could have written.
+
+This is a real failure that was caught in review, not a hypothetical: PR #46 corrected the
+country name `Ekvator` -> `Ekvador` on `BR.introTr` and `CO.introTr` directly in the seed,
+and the draft was never back-ported. An unconditional `apply` silently reverted that fix on
+two live pages — via the very command `CLAUDE.md` §8 mandates as the fidelity gate. The
+only defence was a human reading the diff, which is precisely the defence that failed in
+PR #43 and caused this tool to exist in the first place.
+
+So: back-port the fix to the draft. `--force` is for the case where the draft really is the
+newer text, and reaching for it is a decision you should be able to defend in the PR.
 
 ## Design decisions
 
@@ -108,18 +130,30 @@ No match, or more than one match, is a **hard error** and the run stops. There i
 nearest-name fallback: a silently skipped country is how a wave "lands" with an empty
 field, and a silently mis-matched one would write one country's climate onto another.
 
+The ISO escape hatch is **cross-checked, not trusted**: if a heading's two-letter code and
+its names resolve to different countries, neither wins and the run stops.
+
+Field headers fail loudly too, which they previously did not. A header that differs from a
+known field only by case (`introTR`) or that carries trailing text
+(`` ### `introTr` (owner verbatim) ``) is an **error**, because the prose beneath it is
+real content that would otherwise be discarded with no signal at all. A backticked header
+naming a field this tool does not transcribe is a printed **warning**, not silence.
+
 ## Verified against the committed seed
 
-Running `check` across every narrative draft:
+Run per wave — which is how the gate is defined (`CLAUDE.md` §8) — **25 of the 26 drafts
+exit 0 today**. The exceptions are known, tracked, and none is a tool defect:
 
-```
-checked 729 field(s): 714 identical, 15 drifted, 0 not yet seeded
-```
+| Draft | Result | Cause |
+| --- | --- | --- |
+| `dunya-haritasi-afrika-sahra-alti` | 7 drifted | **Real seed regression:** `\n\n` paragraph breaks lost during hand transcription on `landformNoteTr` (TZ, ZM, ZW, AO, CD, SN, CI). The draft is right, the seed is wrong. Owner decision pending — deliberately not bundled into this PR. |
+| `dunya-haritasi-latin-amerika` | 2 drifted | **Stale draft:** PR #46's `Ekvator` -> `Ekvador` correction landed on the seed and was never back-ported to the draft. `apply` now refuses rather than reverting it. NOVA task. |
+| `dunya-haritasi-sovereignty` | hard error | **Superseded draft.** Its authoritative replacement is `dunya-haritasi-sovereignty-narrative/`, which exits 0 on all 24 fields. The older file also annotates its field headers, which is now an error. |
 
-The 15 divergences are **not** tool defects — see the closing summary. They fall in three
-classes: 7 lost paragraph breaks (a real, previously undetected fidelity regression), 2
-stale drafts where a spelling correction was applied at seed time and never back-ported,
-and 6 sovereignty entries whose drafts were deliberately restructured during seeding.
+Note the last row: those 6 "divergences" only ever appeared when **both** sovereignty
+drafts were passed to one run, where the duplicate `isoCode.field` silently resolved
+last-wins. That is now a hard error, so the corpus no longer has a permanently un-greenable
+field.
 
 ## Tests
 
