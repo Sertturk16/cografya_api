@@ -261,6 +261,43 @@ describe('Climate load phase (e2e)', () => {
     );
   });
 
+  /**
+   * Withhold one province the way a real run does: refuse an impossible CORE value, drop the
+   * series, and leave BOTH the anomaly and the negative raw source cell behind as evidence.
+   * A declaration without that evidence is refused (asserted below), so the helper has to build
+   * the whole chain rather than just the declaration.
+   */
+  function withholdLastProvince(artifacts: {
+    normals: ClimateNormalsArtifact;
+    manifest: ClimateManifestArtifact;
+  }): string {
+    const withheld = artifacts.normals.entries.pop();
+    if (withheld === undefined) throw new Error('malformed fixture');
+    const entry = artifacts.manifest.entries.find(
+      (candidate) => candidate.plateCode === withheld.plateCode,
+    );
+    const row = entry?.rawMetricRows.find(
+      (candidate) => candidate.label === 'Aylık Toplam Yağış Miktarı Ortalaması (mm)',
+    );
+    if (row === undefined) throw new Error('fixture has no precipitation row');
+
+    row.rawMonthlyCells[0] = '-5,0';
+    artifacts.manifest.anomalies = [
+      {
+        plateCode: withheld.plateCode,
+        sourceLabel: 'Aylık Toplam Yağış Miktarı Ortalaması',
+        field: 'precipitationMm',
+        month: 1,
+        rawCell: '-5',
+        reason: 'a negative precipitationMm is physically impossible',
+      },
+    ];
+    artifacts.manifest.unpublishable = [
+      { plateCode: withheld.plateCode, reason: 'core pair incomplete: precipitationMm[1]' },
+    ];
+    return withheld.plateCode;
+  }
+
   it('a DECLARED-unpublishable province is accepted, and its stored series is CLEARED', async () => {
     // The load half of I1's ruling. An undeclared gap is still refused (the test above); a
     // declared one is a recorded decision and must be honoured — including actively clearing the
@@ -271,11 +308,7 @@ describe('Climate load phase (e2e)', () => {
     await loadClimateNormals(dataSource, { inputDir });
 
     const artifacts = buildArtifacts('2026-07-18T05:00:00.000Z');
-    const withheld = artifacts.normals.entries.pop();
-    if (withheld === undefined) throw new Error('malformed fixture');
-    artifacts.manifest.unpublishable = [
-      { plateCode: withheld.plateCode, reason: 'core pair incomplete: precipitationMm[1]' },
-    ];
+    const withheld = withholdLastProvince(artifacts);
     await writeArtifacts(inputDir, artifacts);
 
     const result = await loadClimateNormals(dataSource, { inputDir });
@@ -283,8 +316,58 @@ describe('Climate load phase (e2e)', () => {
 
     const stored = await dataSource
       .getRepository(Province)
-      .findOneOrFail({ where: { plateCode: withheld.plateCode } });
+      .findOneOrFail({ where: { plateCode: withheld } });
     expect(stored.climateNormals).toBeNull();
+  });
+
+  it('REFUSES a withheld province with no verified anomaly — a dropped province cannot hide', async () => {
+    // `unpublishable[]` suppresses the coverage check above, so it is itself a declaration that
+    // disables a check — the same shape as the anomaly list. On the write path it therefore has
+    // to be backed by evidence, not merely well-formed.
+    const repo = dataSource.getRepository(Province);
+    const before = await repo.find({ select: { plateCode: true, updatedAt: true } });
+
+    const artifacts = buildArtifacts('2026-07-18T07:00:00.000Z');
+    const dropped = artifacts.normals.entries.pop();
+    if (dropped === undefined) throw new Error('malformed fixture');
+    artifacts.manifest.unpublishable = [
+      { plateCode: dropped.plateCode, reason: 'core pair incomplete: precipitationMm[1]' },
+    ];
+    await writeArtifacts(inputDir, artifacts);
+
+    await expect(loadClimateNormals(dataSource, { inputDir })).rejects.toThrow(
+      /no anomaly on a core field/,
+    );
+
+    // Refused BEFORE the transaction, like every other coverage failure.
+    const after = await repo.find({ select: { plateCode: true, updatedAt: true } });
+    expect(after.map((province) => province.updatedAt.toISOString())).toEqual(
+      before.map((province) => province.updatedAt.toISOString()),
+    );
+  });
+
+  it('a withheld province absent from the DB fails by NAME, not as a bare TypeORM error', async () => {
+    // The withheld province is written to (its series is cleared), so it needs the same
+    // pre-flight existence check the published ones get. Without it the miss fell through to
+    // `findOneOrFail` inside the transaction and surfaced unnamed.
+    const artifacts = buildArtifacts('2026-07-18T08:00:00.000Z');
+    withholdLastProvince(artifacts);
+    const declared = artifacts.manifest.unpublishable?.[0];
+    const anomaly = artifacts.manifest.anomalies[0];
+    if (declared === undefined || anomaly === undefined) throw new Error('malformed fixture');
+    // Re-point every reference at a plate code that is not seeded.
+    const entry = artifacts.manifest.entries.find(
+      (candidate) => candidate.plateCode === declared.plateCode,
+    );
+    if (entry === undefined) throw new Error('malformed fixture');
+    entry.plateCode = '99';
+    declared.plateCode = '99';
+    anomaly.plateCode = '99';
+    await writeArtifacts(inputDir, artifacts);
+
+    await expect(loadClimateNormals(dataSource, { inputDir })).rejects.toThrow(
+      /not in the database: 99/,
+    );
   });
 
   it('clearing an unpublishable province is idempotent — a re-run moves no updated_at', async () => {
@@ -292,21 +375,17 @@ describe('Climate load phase (e2e)', () => {
     // `dateModified` and the sitemap `lastmod`, so a no-op re-run must not tell Google a page
     // changed. The clear path is a write, so it needed its own proof.
     const artifacts = buildArtifacts('2026-07-18T06:00:00.000Z');
-    const withheld = artifacts.normals.entries.pop();
-    if (withheld === undefined) throw new Error('malformed fixture');
-    artifacts.manifest.unpublishable = [
-      { plateCode: withheld.plateCode, reason: 'core pair incomplete: precipitationMm[1]' },
-    ];
+    const withheld = withholdLastProvince(artifacts);
     await writeArtifacts(inputDir, artifacts);
     await loadClimateNormals(dataSource, { inputDir });
 
     const repo = dataSource.getRepository(Province);
-    const before = await repo.findOneOrFail({ where: { plateCode: withheld.plateCode } });
+    const before = await repo.findOneOrFail({ where: { plateCode: withheld } });
 
     const result = await loadClimateNormals(dataSource, { inputDir });
 
     expect(result.updated).toBe(0);
-    const after = await repo.findOneOrFail({ where: { plateCode: withheld.plateCode } });
+    const after = await repo.findOneOrFail({ where: { plateCode: withheld } });
     expect(after.updatedAt.toISOString()).toBe(before.updatedAt.toISOString());
   });
 

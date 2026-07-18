@@ -12,6 +12,7 @@ import type {
   ClimateUnpublishableProvince,
 } from './climate-artifact.types';
 import {
+  CORE_PAIR_FIELDS,
   assertClimateNormalsShape,
   assertDecimalRoundTrip,
   findUnpublishableReason,
@@ -116,15 +117,6 @@ export interface FetchPhaseOptions {
    */
   nowImpl?: () => Date;
 }
-
-/**
- * The two measures a province MUST have in all 12 months to be published at all (PLAN §1). An
- * anomaly on one of these is the case that turns "one refused cell" into "no series".
- *
- * Derived from `findUnpublishableReason`'s rule, and kept next to the branch that consumes it so
- * the two cannot silently disagree about what "core" means.
- */
-const CORE_PAIR_FIELDS = new Set<string>(['tempMeanC', 'precipitationMm']);
 
 export function buildMgmUrl(mgmKey: string): string {
   return `${MGM_BASE_URL}?k=A&m=${mgmKey}`;

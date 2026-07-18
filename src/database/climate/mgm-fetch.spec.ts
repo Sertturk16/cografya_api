@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { ClimateManifestArtifact, ClimateNormalsArtifact } from './climate-artifact.types';
+import { assertArtifactsCorroborate } from './climate-assertions';
 import { runFetchPhase } from './mgm-fetch';
 
 /**
@@ -269,6 +270,17 @@ describe('runFetchPhase', () => {
     // …and the other 80 provinces shipped, which is the entire point.
     expect(normals.entries).toHaveLength(PROVINCE_COUNT - 1);
     expect(normals.entries.some((entry) => entry.plateCode === withheld)).toBe(false);
+
+    // The two phases must actually meet. The load phase refuses a withheld province unless a
+    // VERIFIED core-pair anomaly stands behind it, so a fetch that withholds without leaving that
+    // evidence would produce an artifact its own loader rejects — the ruled outcome would be
+    // unreachable in practice, which is exactly the trap this design walked into once already.
+    expect(() => assertArtifactsCorroborate(normals, manifest)).not.toThrow();
+    expect(
+      manifest.anomalies.some(
+        (anomaly) => anomaly.plateCode === withheld && anomaly.field === 'precipitationMm',
+      ),
+    ).toBe(true);
   }, 60_000);
 
   it('REGRESSION (C1): every page is stamped no later than the artifact itself', async () => {

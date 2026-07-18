@@ -120,13 +120,23 @@ export async function loadClimateNormals(
   // which breaks the all-or-nothing model every other check in this file maintains and
   // contradicts the comment above.
   const artifactCodes = normalsArtifact.entries.map((entry) => entry.plateCode);
+  const unpublishableCodes = new Set(
+    (manifest.unpublishable ?? []).map((province) => province.plateCode),
+  );
   const knownCodes = new Set(
     (await dataSource.getRepository(Province).find({ select: { plateCode: true } })).map(
       (province) => province.plateCode,
     ),
   );
 
-  const missingProvinces = artifactCodes.filter((code) => !knownCodes.has(code));
+  // Both the published and the WITHHELD codes: a withheld province is written to as well (its
+  // series is cleared), so it needs the same pre-flight existence check. Covering only
+  // `artifactCodes` left a declared-unpublishable province absent from the database to fall
+  // through to `findOneOrFail` INSIDE the transaction and surface as an unnamed TypeORM error —
+  // the same "bare error instead of a named ClimateImportError" class fixed at I2, reintroduced
+  // by the fix for I1.
+  const writtenCodes = [...artifactCodes, ...unpublishableCodes];
+  const missingProvinces = writtenCodes.filter((code) => !knownCodes.has(code));
   if (missingProvinces.length > 0) {
     throw new ClimateImportError(
       `the artifact covers province(s) that are not in the database: ${missingProvinces.join(', ')}. ` +
@@ -143,10 +153,9 @@ export async function loadClimateNormals(
   // A DECLARED-unpublishable province counts as covered: the run fetched its page and recorded
   // that an impossible core value left it with no publishable series. That is a decision with an
   // audit trail, which is the opposite of the silent gap this check guards against — so it is
-  // accepted here and then acted on explicitly below.
-  const unpublishableCodes = new Set(
-    (manifest.unpublishable ?? []).map((province) => province.plateCode),
-  );
+  // accepted here and then acted on explicitly below — but only after
+  // `assertArtifactsCorroborate` has proved the declaration is backed by a verified core-pair
+  // anomaly, so what is accepted here is evidence, not a claim.
   const covered = new Set([...artifactCodes, ...unpublishableCodes]);
   const uncovered = [...knownCodes].filter((code) => !covered.has(code)).sort();
   if (uncovered.length > 0) {

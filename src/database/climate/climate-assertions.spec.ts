@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { CLIMATE_SOURCE_MGM_GENERAL, type ClimateNormals } from '../../province/province.types';
 import type { ClimateManifestArtifact, ClimateNormalsArtifact } from './climate-artifact.types';
 import {
+  CORE_PAIR_FIELDS,
   assertArtifactsCorroborate,
   assertClimateNormalsShape,
   assertDecimalRoundTrip,
@@ -326,23 +327,107 @@ describe('assertArtifactsCorroborate', () => {
     ).toThrow(/no "anomalies" array/);
   });
 
-  it('accepts a manifest that declares a province unpublishable and omits its series', () => {
+  const PRECIPITATION_LABEL = 'Aylık Toplam Yağış Miktarı Ortalaması (mm)';
+
+  /**
+   * Withhold `33` the way a real run does: refuse an impossible CORE value, drop the series, and
+   * leave BOTH the anomaly and the negative raw cell behind as evidence.
+   */
+  function withholdProvince(manifest: ClimateManifestArtifact): void {
+    const entry = manifest.entries[0];
+    if (entry === undefined) throw new Error('malformed fixture');
+    const row = entry.rawMetricRows.find((candidate) => candidate.label === PRECIPITATION_LABEL);
+    if (row === undefined) throw new Error('fixture has no precipitation row');
+
+    row.rawMonthlyCells[0] = '-5,0';
+    manifest.anomalies = [
+      {
+        plateCode: entry.plateCode,
+        sourceLabel: 'Aylık Toplam Yağış Miktarı Ortalaması',
+        field: 'precipitationMm',
+        month: 1,
+        rawCell: '-5',
+        reason: 'a negative precipitationMm is physically impossible',
+      },
+    ];
+    manifest.unpublishable = [
+      { plateCode: entry.plateCode, reason: 'core pair incomplete: precipitationMm[1]' },
+    ];
+  }
+
+  it('accepts a withheld province when a verified core anomaly stands behind it', () => {
     // The ruled outcome for an impossible CORE value: the province is fetched, recorded and
     // deliberately not published. Its manifest entry has no counterpart in the normals, which
     // would otherwise read as a dropped province.
     const { normalsArtifact, manifest } = buildArtifacts(parseFixture().normals);
-    const dropped = normalsArtifact.entries.pop();
-    if (dropped === undefined) throw new Error('malformed fixture');
-    manifest.unpublishable = [
-      { plateCode: dropped.plateCode, reason: 'core pair incomplete: precipitationMm[3]' },
-    ];
+    normalsArtifact.entries.pop();
+    withholdProvince(manifest);
 
     expect(() => assertArtifactsCorroborate(normalsArtifact, manifest)).not.toThrow();
   });
 
+  it('REFUSES a withheld province with no anomaly behind it — the declaration is evidence-free', () => {
+    // The defect the fix for I1 introduced: `unpublishable[]` suppresses the coverage check that
+    // exists to catch a silently dropped province, and structural validation alone made
+    // membership sufficient. Append one line, delete the province from the normals, and a
+    // genuinely dropped province passes — and has its stored series actively cleared.
+    const { normalsArtifact, manifest } = buildArtifacts(parseFixture().normals);
+    const dropped = normalsArtifact.entries.pop();
+    if (dropped === undefined) throw new Error('malformed fixture');
+    manifest.unpublishable = [
+      { plateCode: dropped.plateCode, reason: 'core pair incomplete: precipitationMm[1]' },
+    ];
+
+    expect(() => assertArtifactsCorroborate(normalsArtifact, manifest)).toThrow(
+      /no anomaly on a core field/,
+    );
+  });
+
+  it('REFUSES a withheld province whose supporting anomaly names a good reading', () => {
+    // One level deeper: the declaration cites an anomaly, but that anomaly is itself a lie. The
+    // chain has to terminate at MGM's own string, not at another claim.
+    const { normalsArtifact, manifest } = buildArtifacts(parseFixture().normals);
+    normalsArtifact.entries.pop();
+    withholdProvince(manifest);
+    const entry = manifest.entries[0];
+    const row = entry?.rawMetricRows.find((candidate) => candidate.label === PRECIPITATION_LABEL);
+    if (row === undefined) throw new Error('fixture has no precipitation row');
+    row.rawMonthlyCells[0] = '117,5'; // the source cell restored to a perfectly good reading
+
+    expect(() => assertArtifactsCorroborate(normalsArtifact, manifest)).toThrow(
+      /not an impossible value/,
+    );
+  });
+
+  it('REFUSES a withheld province supported only by a NON-core anomaly', () => {
+    // A refused snow record does not empty the core pair, so it cannot justify withholding a
+    // province. This is the "anomaly-induced only" narrowing — which previously existed solely in
+    // the fetch phase, the phase that does not write.
+    const { normalsArtifact, manifest } = buildArtifacts(parseFixture().normals);
+    const dropped = normalsArtifact.entries.pop();
+    if (dropped === undefined) throw new Error('malformed fixture');
+    manifest.anomalies = [
+      {
+        plateCode: dropped.plateCode,
+        sourceLabel: 'En Yüksek Kar',
+        field: 'maxSnowDepthCm',
+        month: null,
+        rawCell: '-1 cm',
+        reason: 'a negative En Yüksek Kar is physically impossible',
+      },
+    ];
+    manifest.unpublishable = [
+      { plateCode: dropped.plateCode, reason: 'core pair incomplete: precipitationMm[1]' },
+    ];
+
+    expect(() => assertArtifactsCorroborate(normalsArtifact, manifest)).toThrow(
+      /no anomaly on a core field/,
+    );
+  });
+
   it('rejects a province that is declared unpublishable AND published', () => {
     const { normalsArtifact, manifest } = buildArtifacts(parseFixture().normals);
-    manifest.unpublishable = [{ plateCode: '33', reason: 'core pair incomplete' }];
+    withholdProvince(manifest);
 
     expect(() => assertArtifactsCorroborate(normalsArtifact, manifest)).toThrow(
       /contradicts itself/,
@@ -358,6 +443,24 @@ describe('assertArtifactsCorroborate', () => {
     expect(() => assertArtifactsCorroborate(normalsArtifact, manifest)).toThrow(
       /no manifest entry/,
     );
+  });
+
+  it('CORE_PAIR_FIELDS agrees with what findUnpublishableReason actually enforces', () => {
+    // The two live in one file now, but they are still two expressions of one rule. Pinned
+    // mechanically rather than by comment: nulling a core field must make a series unpublishable,
+    // and nulling a non-core one must not.
+    for (const field of CORE_PAIR_FIELDS) {
+      const normals = clone(parseFixture().normals);
+      const january = normals.months[0];
+      if (january === undefined) throw new Error('fixture has no January');
+      january[field as 'tempMeanC' | 'precipitationMm'] = null;
+
+      expect(findUnpublishableReason(normals)).not.toBeNull();
+    }
+
+    const withoutSunshine = clone(parseFixture().normals);
+    for (const month of withoutSunshine.months) month.sunshineHours = null;
+    expect(findUnpublishableReason(withoutSunshine)).toBeNull();
   });
 
   it('rejects artifacts from different runs', () => {
