@@ -9,7 +9,12 @@ import {
   assertDecimalRoundTrip,
   findUnpublishableReason,
 } from './climate-assertions';
-import { parseMgmGeneralStatisticsPage, type MgmParseResult } from './mgm-parser';
+import {
+  RECORD_COLUMNS,
+  parseMgmGeneralStatisticsPage,
+  type MgmParseResult,
+  type MgmRawMetricRow,
+} from './mgm-parser';
 
 const FIXTURE_DIR = join(__dirname, '..', '..', '..', 'test', 'fixtures', 'mgm');
 const SOURCE_URL =
@@ -269,6 +274,92 @@ describe('assertArtifactsCorroborate', () => {
     expect(() => assertArtifactsCorroborate(normalsArtifact, manifest)).not.toThrow();
   });
 
+  it('REGRESSION (PR #65 C1): rejects a page fetched AFTER the run was stamped', () => {
+    // The defect this PR shipped and review caught: the artifact's `generatedAtUtc` was captured
+    // BEFORE a ~70-minute loop, so it necessarily preceded every `fetchedAtUtc` and the two
+    // fields could describe different sessions with nothing objecting. Stamping the artifact
+    // when the run FINISHES makes this a real invariant; this is the one-line check that turns
+    // it into a CI failure instead of something a reviewer has to notice.
+    const { normalsArtifact, manifest } = buildArtifacts(parseFixture().normals);
+    const entry = manifest.entries[0];
+    if (entry === undefined) throw new Error('malformed fixture');
+    entry.fetchedAtUtc = '2026-07-18T12:00:01.000Z';
+
+    expect(() => assertArtifactsCorroborate(normalsArtifact, manifest)).toThrow(
+      /AFTER the artifact's generatedAtUtc/,
+    );
+  });
+
+  it('does NOT require fetchedAtUtc to be ordered — a resumable harvest is legitimate', () => {
+    // Deliberately not asserted. Monotonicity is a property of one transport strategy (a single
+    // serial pass), not of the data: the committed artifact's stamps are genuine and out of
+    // alphabetical order because the harvest ran in resumable batches. An assertion honest data
+    // cannot satisfy has only two outcomes, and both are worse than no assertion — rewriting
+    // real timestamps, or deleting the check.
+    const { normalsArtifact, manifest } = buildArtifacts(parseFixture().normals);
+    const entry = manifest.entries[0];
+    if (entry === undefined) throw new Error('malformed fixture');
+    entry.fetchedAtUtc = '2026-07-18T11:00:00.000Z';
+
+    expect(() => assertArtifactsCorroborate(normalsArtifact, manifest)).not.toThrow();
+  });
+
+  it('rejects an unparseable provenance stamp instead of comparing NaN', () => {
+    const { normalsArtifact, manifest } = buildArtifacts(parseFixture().normals);
+    const entry = manifest.entries[0];
+    if (entry === undefined) throw new Error('malformed fixture');
+    entry.fetchedAtUtc = 'last tuesday';
+
+    expect(() => assertArtifactsCorroborate(normalsArtifact, manifest)).toThrow(/ISO-8601/);
+  });
+
+  it('rejects a manifest with no anomalies array — with a NAMED error, not a TypeError', () => {
+    // The consumer iterates `manifest.anomalies` directly. A file predating the field, a bad
+    // merge or a hand-edit produced a bare `TypeError: not iterable`, which tells an operator
+    // nothing about which of the two artifacts is wrong.
+    const { normalsArtifact, manifest } = buildArtifacts(parseFixture().normals);
+    const withoutAnomalies = { ...manifest } as Partial<ClimateManifestArtifact>;
+    delete withoutAnomalies.anomalies;
+
+    expect(() =>
+      assertArtifactsCorroborate(normalsArtifact, withoutAnomalies as ClimateManifestArtifact),
+    ).toThrow(/no "anomalies" array/);
+  });
+
+  it('accepts a manifest that declares a province unpublishable and omits its series', () => {
+    // The ruled outcome for an impossible CORE value: the province is fetched, recorded and
+    // deliberately not published. Its manifest entry has no counterpart in the normals, which
+    // would otherwise read as a dropped province.
+    const { normalsArtifact, manifest } = buildArtifacts(parseFixture().normals);
+    const dropped = normalsArtifact.entries.pop();
+    if (dropped === undefined) throw new Error('malformed fixture');
+    manifest.unpublishable = [
+      { plateCode: dropped.plateCode, reason: 'core pair incomplete: precipitationMm[3]' },
+    ];
+
+    expect(() => assertArtifactsCorroborate(normalsArtifact, manifest)).not.toThrow();
+  });
+
+  it('rejects a province that is declared unpublishable AND published', () => {
+    const { normalsArtifact, manifest } = buildArtifacts(parseFixture().normals);
+    manifest.unpublishable = [{ plateCode: '33', reason: 'core pair incomplete' }];
+
+    expect(() => assertArtifactsCorroborate(normalsArtifact, manifest)).toThrow(
+      /contradicts itself/,
+    );
+  });
+
+  it('rejects an unpublishable declaration with no provenance behind it', () => {
+    // An unpublishable province is one we DID fetch and chose not to publish. Declaring one we
+    // never fetched would let the coverage check be silenced by assertion rather than evidence.
+    const { normalsArtifact, manifest } = buildArtifacts(parseFixture().normals);
+    manifest.unpublishable = [{ plateCode: '06', reason: 'core pair incomplete' }];
+
+    expect(() => assertArtifactsCorroborate(normalsArtifact, manifest)).toThrow(
+      /no manifest entry/,
+    );
+  });
+
   it('rejects artifacts from different runs', () => {
     // Otherwise the raw cells the round-trip check trusts would not belong to the values
     // being written, and the check would be theatre.
@@ -365,7 +456,220 @@ describe('the round-trip covers stored values, not only raw rows', () => {
   });
 });
 
+/**
+ * The anomaly list disables the decimal round-trip — this module's strongest check, and the only
+ * one that can see a reading silently dropped to null. Treated as an ALLOWLIST it was a hole the
+ * size of the whole defence: the manifest is hand-editable between the two phases (that is this
+ * module's own stated threat model), so appending one line to `anomalies` and nulling the
+ * matching value would publish a `null` where MGM printed a real number, with nothing objecting.
+ *
+ * These tests pin the fix: a declaration is a CLAIM about the source, honoured only when the raw
+ * cell it names really does hold an impossible value.
+ */
+describe('anomaly declarations are verified against the source, not trusted', () => {
+  /** The raw source row backing a given field, for tests that need to edit it. */
+  function rawRowFor(parsed: MgmParseResult, label: string): MgmRawMetricRow {
+    const row = parsed.raw.metricRows.find((candidate) => candidate.label === label);
+    if (row === undefined) throw new Error(`fixture has no "${label}" row`);
+    return row;
+  }
+
+  const SUNSHINE_LABEL = 'Ortalama Güneşlenme Süresi (saat)';
+
+  it('HONOURS an anomaly whose source cell really is impossible — and skips the round-trip', () => {
+    // The anomaly-CONSUMING branch, which no test drove before: none of the 81 committed
+    // provinces has a monthly anomaly, so every real-data test exercised only the record-level
+    // bypass. A key-format mismatch between where the anomaly is created and where it is looked
+    // up would therefore have surfaced on the day MGM first published a negative monthly value —
+    // precisely the scenario the mechanism exists for.
+    const parsed = parseFixture();
+    const normals = clone(parsed.normals);
+    const rawRows = clone(parsed.raw.metricRows);
+    const row = rawRows.find((candidate) => candidate.label === SUNSHINE_LABEL);
+    if (row === undefined) throw new Error('fixture has no sunshine row');
+
+    row.rawMonthlyCells[2] = '-3,1';
+    const march = normals.months[2];
+    if (march === undefined) throw new Error('fixture has no March');
+    march.sunshineHours = null;
+
+    expect(() =>
+      assertDecimalRoundTrip('33', normals, rawRows, parsed.raw.recordCells, [
+        {
+          sourceLabel: 'Ortalama Güneşlenme Süresi',
+          field: 'sunshineHours',
+          month: 3,
+          rawCell: '-3,1',
+          reason: 'a negative sunshineHours is physically impossible',
+        },
+      ]),
+    ).not.toThrow();
+  });
+
+  it('REFUSES a fabricated anomaly whose source cell holds a perfectly good reading', () => {
+    // The attack the allowlist permitted, in full: null a real value, append one line, and the
+    // load phase writes `null` to Postgres indistinguishably from a genuine MGM gap.
+    const parsed = parseFixture();
+    const normals = clone(parsed.normals);
+    const march = normals.months[2];
+    if (march === undefined) throw new Error('fixture has no March');
+    // The source cell is left EXACTLY as MGM printed it — only the declaration is a lie.
+    march.sunshineHours = null;
+
+    expect(() =>
+      assertDecimalRoundTrip('33', normals, parsed.raw.metricRows, parsed.raw.recordCells, [
+        {
+          sourceLabel: 'Ortalama Güneşlenme Süresi',
+          field: 'sunshineHours',
+          month: 3,
+          rawCell: 'fabricated',
+          reason: 'fabricated',
+        },
+      ]),
+    ).toThrow(/not an impossible value/);
+  });
+
+  it('REFUSES an anomaly on a field that has no impossible-value rule', () => {
+    // `tempMinMeanC` and `tempMaxMeanC` were the most exposed fields of all: the ordering
+    // invariant short-circuits to PASS the moment either is null, so nothing anywhere objected.
+    // A negative temperature is an ordinary January, so no anomaly can ever be justified on one.
+    const parsed = parseFixture();
+    const normals = clone(parsed.normals);
+    const march = normals.months[2];
+    if (march === undefined) throw new Error('fixture has no March');
+    march.tempMinMeanC = null;
+
+    expect(() =>
+      assertDecimalRoundTrip('33', normals, parsed.raw.metricRows, parsed.raw.recordCells, [
+        {
+          sourceLabel: 'Ortalama En Düşük Sıcaklık',
+          field: 'tempMinMeanC',
+          month: 3,
+          rawCell: '-2,0',
+          reason: 'fabricated',
+        },
+      ]),
+    ).toThrow(/no impossible-value rule/);
+  });
+
+  it('REFUSES an anomaly declared alongside a value that IS published', () => {
+    // An anomaly exempts a cell from the round-trip. Declared over a live value it would exempt
+    // a real number from the only check that can see it truncated — the T3 trap, re-opened.
+    const parsed = parseFixture();
+    const normals = clone(parsed.normals);
+    const rawRows = clone(parsed.raw.metricRows);
+    const row = rawRows.find((candidate) => candidate.label === SUNSHINE_LABEL);
+    if (row === undefined) throw new Error('fixture has no sunshine row');
+    row.rawMonthlyCells[2] = '-3,1';
+
+    expect(() =>
+      assertDecimalRoundTrip('33', normals, rawRows, parsed.raw.recordCells, [
+        {
+          sourceLabel: 'Ortalama Güneşlenme Süresi',
+          field: 'sunshineHours',
+          month: 3,
+          rawCell: '-3,1',
+          reason: 'fabricated',
+        },
+      ]),
+    ).toThrow(/IS published/);
+  });
+
+  it('REFUSES an anomaly naming a field the manifest holds no raw row for', () => {
+    const parsed = parseFixture();
+    const normals = clone(parsed.normals);
+    for (const month of normals.months) month.sunshineHours = null;
+    const withoutSunshine = parsed.raw.metricRows.filter(
+      (candidate) => candidate.label !== SUNSHINE_LABEL,
+    );
+
+    expect(() =>
+      assertDecimalRoundTrip('33', normals, withoutSunshine, parsed.raw.recordCells, [
+        {
+          sourceLabel: 'Ortalama Güneşlenme Süresi',
+          field: 'sunshineHours',
+          month: 3,
+          rawCell: '-3,1',
+          reason: 'fabricated',
+        },
+      ]),
+    ).toThrow(/no raw source row/);
+  });
+
+  it('REFUSES a fabricated RECORD anomaly, the shape the real committed one takes', () => {
+    const parsed = parseFixture();
+    const normals = clone(parsed.normals);
+    normals.records.dailyMaxPrecipitationMm = null;
+
+    expect(() =>
+      assertDecimalRoundTrip('33', normals, parsed.raw.metricRows, parsed.raw.recordCells, [
+        {
+          sourceLabel: 'Günlük Toplam En Yüksek Yağış Miktarı',
+          field: 'dailyMaxPrecipitationMm',
+          month: null,
+          rawCell: 'fabricated',
+          reason: 'fabricated',
+        },
+      ]),
+    ).toThrow(/not an impossible value/);
+  });
+
+  it('HONOURS a record anomaly whose source cell is genuinely negative', () => {
+    const parsed = parseFixture();
+    const normals = clone(parsed.normals);
+    const rawCells = clone(parsed.raw.recordCells);
+    const cell = rawCells.find((candidate) => candidate.field === 'maxSnowDepthCm');
+    if (cell === undefined) throw new Error('fixture has no snow record cell');
+    cell.rawValue = '-1 cm';
+    cell.rawDate = '15.02.2004';
+    normals.records.maxSnowDepthCm = null;
+
+    expect(() =>
+      assertDecimalRoundTrip('33', normals, parsed.raw.metricRows, rawCells, [
+        {
+          sourceLabel: 'En Yüksek Kar',
+          field: 'maxSnowDepthCm',
+          month: null,
+          rawCell: '-1 cm (2004-02-15)',
+          reason: 'a negative En Yüksek Kar is physically impossible',
+        },
+      ]),
+    ).not.toThrow();
+  });
+
+  it('REFUSES an anomaly naming a month outside 1-12', () => {
+    const parsed = parseFixture();
+    const normals = clone(parsed.normals);
+
+    expect(() =>
+      assertDecimalRoundTrip('33', normals, parsed.raw.metricRows, parsed.raw.recordCells, [
+        {
+          sourceLabel: 'Ortalama Güneşlenme Süresi',
+          field: 'sunshineHours',
+          month: 13,
+          rawCell: '-1',
+          reason: 'fabricated',
+        },
+      ]),
+    ).toThrow(/not 1-12/);
+  });
+
+  it('the sunshine row exists in the fixture — otherwise the tests above are vacuous', () => {
+    expect(rawRowFor(parseFixture(), SUNSHINE_LABEL).rawMonthlyCells).toHaveLength(12);
+  });
+});
+
 describe('record plausibility', () => {
+  it('every record column states its impossible-value rule explicitly', () => {
+    // The monthly sweep was always an allowlist; the record sweep was a blanket rule. MGM
+    // publishes `En Düşük Sıcaklık`, so the day a temperature record joins this table a blanket
+    // rule would silently null every legitimate sub-zero record. Requiring the flag per column
+    // makes adding one a decision that cannot be made by omission.
+    for (const column of RECORD_COLUMNS) {
+      expect(typeof column.nonNegative).toBe('boolean');
+    }
+  });
+
   it('rejects a negative record magnitude', () => {
     // Rainfall, wind speed and snow depth are magnitudes. The monthly values were
     // range-checked; the records were not, so a sign flip had no cheap check at all.

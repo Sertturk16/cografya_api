@@ -1,5 +1,5 @@
 import type { ClimateNormals, ClimateSource } from '../../province/province.types';
-import type { MgmRawMetricRow, MgmRawRecordCell } from './mgm-parser';
+import type { MgmRawMetricRow, MgmRawRecordCell, MgmValueAnomaly } from './mgm-parser';
 
 /**
  * The two committed artifacts that the `fetch` phase writes and the `load` phase reads.
@@ -72,12 +72,39 @@ export interface ClimateAnomaly {
   plateCode: string;
   /** MGM's own row/column heading, so the anomaly can be found on the page by eye. */
   sourceLabel: string;
-  /** The stored field that was nulled. */
-  field: string;
+  /**
+   * The stored field that was nulled — the closed set of fields the parser is capable of
+   * refusing, not a free-form string.
+   *
+   * The narrowing is a hint, not a guarantee: this object comes back through `JSON.parse`, so
+   * its type is an assertion about a file. The enforcement is `assertDecimalRoundTrip`, which
+   * re-verifies every declaration against the raw source cell it names before honouring it.
+   */
+  field: MgmValueAnomaly['field'];
   /** 1-12 for a monthly cell, `null` for a records-table cell. */
   month: number | null;
   /** MGM's cell text, verbatim and untouched — the evidence. */
   rawCell: string;
+  reason: string;
+}
+
+/**
+ * A province the run deliberately did NOT publish, because refusing an impossible source value
+ * left its all-or-nothing core pair incomplete (PLAN §1).
+ *
+ * This is a supported outcome, not a crash. The alternative — which is what the code did before
+ * — was that nulling a negative `precipitationMm` immediately tripped the core-pair veto and
+ * aborted the whole ~70-minute, 81-province run, so a mechanism whose stated purpose is "the
+ * value is dropped, the rest of the province is kept" instead cost us every province.
+ *
+ * Recording it here rather than simply omitting the province is the point: an absent province is
+ * invisible, and the load phase's coverage check exists precisely to refuse silent gaps. A
+ * DECLARED gap is auditable — the load phase clears that province's series on purpose and says
+ * so, instead of leaving whatever was in the database from last year.
+ */
+export interface ClimateUnpublishableProvince {
+  plateCode: string;
+  /** `findUnpublishableReason`'s verdict, verbatim. */
   reason: string;
 }
 
@@ -93,5 +120,12 @@ export interface ClimateManifestArtifact {
    * than that one cell is wrong.
    */
   anomalies: ClimateAnomaly[];
+  /**
+   * Provinces excluded from `climate-normals.json` on purpose. **Optional**, because artifacts
+   * committed before this field existed do not carry it and re-writing them by hand would
+   * falsify a provenance record to satisfy a schema. Absent and empty mean the same thing, and
+   * every reader must treat them the same way.
+   */
+  unpublishable?: ClimateUnpublishableProvince[];
   entries: ClimateManifestEntry[];
 }

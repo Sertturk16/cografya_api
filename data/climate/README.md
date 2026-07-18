@@ -1,8 +1,28 @@
 # `data/climate` — MGM climate normals, committed artifacts
 
-Produced by `pnpm db:import:climate --phase=fetch`, consumed by `--phase=load`. **Do not hand-edit
+Written by `pnpm db:import:climate --phase=fetch`, consumed by `--phase=load`. **Do not hand-edit
 any file here.** Every value is cross-checked on load against the raw source strings in the
 manifest, so a manual edit does not quietly take effect — it fails the import.
+
+> **How THESE files were actually produced (2026-07-18).** Not by a single clean `--phase=fetch`
+> invocation. MGM throttled the session hard and the fetch was completed by an ad-hoc, resumable
+> harvest that saved each page to local disk; the artifacts were then produced by REPLAYING the
+> committed parser and assertions over those cached pages. Consequences you should know when
+> reading the manifest:
+>
+> - `fetchedAtUtc` per province comes from the **harvest**, not the replay, and is genuine
+>   per-page provenance. Because the harvest resumed in batches, these stamps are **not in
+>   alphabetical/iteration order** — that is expected, and no assertion demands otherwise.
+> - `generatedAtUtc` comes from the **replay**, which is why it sits ~13 minutes after the last
+>   `fetchedAtUtc`.
+> - The data itself was verified independently at review: sha256 of every harvested page matches
+>   its manifest `pageSha256` (81/81), every committed fragment is reproduced byte-exact by the
+>   committed extraction (81/81), and ~7,776 values re-parsed from the fragments matched the
+>   JSON with zero mismatches.
+>
+> **A NEXT run does not need any of this.** `FetchPhaseOptions` now exposes a `nowImpl` clock
+> seam precisely so a replay over cached pages is reproducible by the committed code, with no
+> patching — which is what was missing when the files above were made.
 
 | File | What it is |
 |---|---|
@@ -44,3 +64,23 @@ An impossible value is nulled, recorded and printed — it does not abort the ru
 MGM cell must not block 81 provinces. But more than `MAX_ANOMALIES` (5) of them **does** abort,
 before anything is written: that many means the source has broken rather than that one cell is
 wrong. If a future run trips it, investigate MGM — **do not raise the number.**
+
+A declaration in `anomalies` is **verified, not trusted**: on load, each one is checked against the
+raw source cell it names, and is honoured only if that cell really does re-derive to an impossible
+value. Adding a line by hand does not switch off the fidelity check — it fails the import.
+
+## Unpublishable provinces
+
+If an impossible value lands on one of the two **core** measures (mean temperature, precipitation),
+nulling it leaves the province with no publishable series under the all-or-nothing rule. That
+province is then **withheld, not fatal**: its page was still fetched and its provenance is still
+recorded, it is listed in the manifest's `unpublishable`, the run continues and publishes the
+others, and the load phase clears that province's stored series on purpose. The province page
+simply renders no climate section. The completeness gate asks *"did we reach all 81 pages?"* — a
+different question from *"is each one publishable?"*, and conflating the two once cost an entire
+~70-minute run over a single cell.
+
+**The 2026-07-18 run has none.** The field is *absent* from the committed manifest rather than
+present-and-empty, because these artifacts predate it — the two mean the same thing to every
+reader, and rewriting a provenance file by hand to satisfy a schema is exactly what this directory
+forbids.

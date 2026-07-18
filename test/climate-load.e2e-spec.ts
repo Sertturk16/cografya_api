@@ -261,6 +261,55 @@ describe('Climate load phase (e2e)', () => {
     );
   });
 
+  it('a DECLARED-unpublishable province is accepted, and its stored series is CLEARED', async () => {
+    // The load half of I1's ruling. An undeclared gap is still refused (the test above); a
+    // declared one is a recorded decision and must be honoured — including actively clearing the
+    // series, not merely skipping it. Skipping would leave last year's chart on the page while
+    // this year's manifest says we refused to publish one, i.e. the database quietly disagreeing
+    // with the artifact.
+    await writeArtifacts(inputDir, buildArtifacts('2026-07-18T04:00:00.000Z'));
+    await loadClimateNormals(dataSource, { inputDir });
+
+    const artifacts = buildArtifacts('2026-07-18T05:00:00.000Z');
+    const withheld = artifacts.normals.entries.pop();
+    if (withheld === undefined) throw new Error('malformed fixture');
+    artifacts.manifest.unpublishable = [
+      { plateCode: withheld.plateCode, reason: 'core pair incomplete: precipitationMm[1]' },
+    ];
+    await writeArtifacts(inputDir, artifacts);
+
+    const result = await loadClimateNormals(dataSource, { inputDir });
+    expect(result.updated + result.unchanged).toBe(SEED_PROVINCES.length);
+
+    const stored = await dataSource
+      .getRepository(Province)
+      .findOneOrFail({ where: { plateCode: withheld.plateCode } });
+    expect(stored.climateNormals).toBeNull();
+  });
+
+  it('clearing an unpublishable province is idempotent — a re-run moves no updated_at', async () => {
+    // Same publishing-honesty rule the whole load phase is built on: `updated_at` feeds
+    // `dateModified` and the sitemap `lastmod`, so a no-op re-run must not tell Google a page
+    // changed. The clear path is a write, so it needed its own proof.
+    const artifacts = buildArtifacts('2026-07-18T06:00:00.000Z');
+    const withheld = artifacts.normals.entries.pop();
+    if (withheld === undefined) throw new Error('malformed fixture');
+    artifacts.manifest.unpublishable = [
+      { plateCode: withheld.plateCode, reason: 'core pair incomplete: precipitationMm[1]' },
+    ];
+    await writeArtifacts(inputDir, artifacts);
+    await loadClimateNormals(dataSource, { inputDir });
+
+    const repo = dataSource.getRepository(Province);
+    const before = await repo.findOneOrFail({ where: { plateCode: withheld.plateCode } });
+
+    const result = await loadClimateNormals(dataSource, { inputDir });
+
+    expect(result.updated).toBe(0);
+    const after = await repo.findOneOrFail({ where: { plateCode: withheld.plateCode } });
+    expect(after.updatedAt.toISOString()).toBe(before.updatedAt.toISOString());
+  });
+
   /**
    * The artifacts every test above uses are BUILT — real parser output, but assembled in the
    * test. This one loads the actual committed `data/climate/` files, which is the thing that

@@ -139,7 +139,15 @@ export async function loadClimateNormals(
   // province (its series would simply stay NULL forever, with no error at any layer). Under
   // the all-or-nothing design every seeded province gets a series, so a gap is a defect, not
   // a configuration.
-  const covered = new Set(artifactCodes);
+  //
+  // A DECLARED-unpublishable province counts as covered: the run fetched its page and recorded
+  // that an impossible core value left it with no publishable series. That is a decision with an
+  // audit trail, which is the opposite of the silent gap this check guards against — so it is
+  // accepted here and then acted on explicitly below.
+  const unpublishableCodes = new Set(
+    (manifest.unpublishable ?? []).map((province) => province.plateCode),
+  );
+  const covered = new Set([...artifactCodes, ...unpublishableCodes]);
   const uncovered = [...knownCodes].filter((code) => !covered.has(code)).sort();
   if (uncovered.length > 0) {
     throw new ClimateImportError(
@@ -170,6 +178,24 @@ export async function loadClimateNormals(
       }
 
       province.climateNormals = entry.normals;
+      await repo.save(province);
+      updated += 1;
+    }
+
+    // Declared-unpublishable provinces are actively CLEARED, not merely skipped.
+    //
+    // Skipping would leave last year's series in place while the manifest says this year's run
+    // refused to publish one — the database quietly disagreeing with the artifact, and a page
+    // rendering a chart the current run declined to stand behind. Idempotency still holds: a
+    // province already NULL is not written, so `updated_at` (and with it `dateModified` and the
+    // sitemap `lastmod`) does not move on a re-run.
+    for (const plateCode of unpublishableCodes) {
+      const province = await repo.findOneOrFail({ where: { plateCode } });
+      if (province.climateNormals === null) {
+        unchanged += 1;
+        continue;
+      }
+      province.climateNormals = null;
       await repo.save(province);
       updated += 1;
     }
