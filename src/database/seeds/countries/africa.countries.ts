@@ -1180,6 +1180,46 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     //   iddia edilmez.
     governmentFormTr: null,
     independenceNoteTr: "11 Ağustos 1960'ta Fransa'dan bağımsız oldu.",
+    introTr:
+      "Çad, kuzeyde Sahra Çölü'nün derinliklerinden güneyde Sudan tipi savanlara uzanan, kıtanın " +
+      'en büyük iklim ve yer şekli çeşitliliğine sahip iç ülkelerinden biridir. Ülke ' +
+      "topraklarının büyük bölümü, adını taşıyan sığ ve çanak biçimli Çad Havzası'nın içinde " +
+      'kalır; bu havzanın kuzey ucunda volkanik Tibesti Sıradağları, kuzeydoğusunda ise ' +
+      'basamaklı kalker yapılı Ennedi Platosu yükselir. Havzanın merkezinde, bir zamanlar ' +
+      "Afrika'nın en büyük göllerinden biri olan Çad Gölü bulunur.",
+    landformNoteTr:
+      'Ülkenin kuzey ucunda yer alan Tibesti Sıradağları, Sahra Çölü içindeki en yüksek ve en ' +
+      'geniş volkanik kütledir; sıradağın güneydoğu ucundaki Emi Koussi, 3.415 metreyle hem ' +
+      "Çad'ın hem de tüm Sahra'nın en yüksek noktasıdır. Kuzeydoğuda, kalker tabakalarının " +
+      'aşınmayla basamak basamak yontulduğu Ennedi Platosu yer alır; platonun batısındaki Bodélé ' +
+      'Çöküntüsü, dünyanın en güçlü toz kaynaklarından biri olarak bilinir.' +
+      '\n\n' +
+      "Ülkenin orta ve güney kesimleri, Çad Havzası'nın çanak biçimli tabanını oluşturur. Bu " +
+      "geniş düzlük kuzeyde kumul tepeleriyle Sahra'ya, güneyde ise gittikçe yeşillenen otlak ve " +
+      'çalılıklarla Sahel kuşağına açılır; ülkenin en güneyinde, Logone ve Chari nehirleri ' +
+      'çevresinde mevsimlik bataklıklar ve daha nemli bir savan görülür.',
+    climateNoteTr:
+      "Çad'da iklim, kuzeyden güneye geniş kuşaklar halinde değişir. Kuzeydeki Sahra kesiminde " +
+      'yıllık yağış 200 milimetrenin altında kalır ve gündüz-gece sıcaklık farkı büyüktür. ' +
+      'Ülkenin orta kesimini oluşturan Sahel kuşağında yağış artar ama düzensizdir; kısa bir ' +
+      'yağmur mevsimi dışında yıl boyu kurak bir hava hakimdir. Güneydeki Sudan kuşağında ' +
+      'yağışlı mevsim uzar, bitki örtüsü savan ve açık ormana dönüşür — ülkenin nüfus ve tarım ' +
+      'açısından en yoğun kesimi burasıdır. Ülkenin en güneybatı ucunda, Logone Nehri ' +
+      'çevresindeki dar bir şeritte yıllık yağış 1.000 milimetreyi aşarak daha nemli, Gine ' +
+      'kuşağına yaklaşan bir bitki örtüsüne dönüşür.',
+    hydrographyNoteTr:
+      'Çad Gölü, Çad, Kamerun, Nijer ve Nijerya sınırlarının kesiştiği noktada yer alan sığ, ' +
+      "tatlı su gölüdür; gölün suyunun yaklaşık %80'i Chari-Logone nehir sisteminden gelir. " +
+      "Gölün yüzölçümü 1960'larda yaklaşık 25.000-26.000 kilometrekareyken, 1970-80'lerdeki " +
+      'büyük Sahel kuraklığı döneminde 2.000 kilometrekareye kadar gerilemiştir. Son yirmi yılın ' +
+      'uydu ölçümleri, artan yağışla birlikte gölün büyük ölçüde eski genişliğine döndüğünü ve ' +
+      '2024 itibarıyla yaklaşık 24.500 kilometrekareye ulaştığını gösteriyor; havzadaki güncel ' +
+      'risk artık gölün küçülmesi değil, aşırı yağış dönemlerinde yaşanan taşkınlardır.' +
+      '\n\n' +
+      "Chari Nehri, Orta Afrika Cumhuriyeti'nde doğan kollarla beslenerek Çad topraklarına girer " +
+      "ve Logone Nehri'yle birleşerek Çad Gölü'ne dökülür. Ülkenin kuzey yarısında ise kalıcı " +
+      'bir akarsu ağı bulunmaz; buradaki vadiler yalnızca nadir yağmurlardan sonra kısa ' +
+      'süreliğine su taşır.',
   },
   {
     isoCode: 'CM',
@@ -1204,6 +1244,38 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr:
       "1 Ocak 1960'ta Fransa'dan bağımsız oldu (İngiliz Güney Kamerunu 1961'de birleşti).",
+    introTr:
+      'Kamerun, Gine Körfezi kıyısındaki nemli ova ile ülkenin kuzeyindeki Sahel düzlükleri ' +
+      'arasında, kıtanın en çeşitli yer şekli ve iklim profillerinden birini barındırır. Batı ' +
+      "sınırı boyunca, Gine Körfezi'nden Çad Gölü'ne doğru uzanan volkanik bir hat üzerinde " +
+      "yükselen Kamerun Dağı, 4.095 metreyle hem ülkenin hem de Batı ve Orta Afrika'nın en " +
+      'yüksek noktasıdır. Ülkenin ortasında Adamawa Platosu, kuzey ile güneyi birbirinden ayıran ' +
+      'doğal bir eşik oluşturur.',
+    landformNoteTr:
+      'Güneybatı kıyısında, Wouri Halici ve mangrov bataklıklarıyla kaplı dar bir kıyı ovası ' +
+      'uzanır; bu ovanın hemen arkasında, hâlâ etkin bir yanardağ olan Kamerun Dağı yükselir. ' +
+      "Dağ, Gine Körfezi'ndeki Bioko ve São Tomé adalarını da içine alan Kamerun Volkanik " +
+      "Hattı'nın anakara üzerindeki en yüksek ve en genç parçasıdır. Bu hat üzerindeki Nyos Gölü " +
+      "gibi krater gölleri, 1986'da ölümcül bir gaz patlamasıyla dünya çapında tanınmıştı." +
+      '\n\n' +
+      'Ülkenin ortasında, 750-1.350 metre yükseklikteki Adamawa Platosu doğu-batı doğrultusunda ' +
+      'uzanarak kuzey ile güney bölgeleri birbirinden ayırır. Platonun batısında, volkanik ' +
+      'kökenli Bamileke ve Grassfields yaylaları yer alır; kuzeyinde ise arazi kademeli biçimde ' +
+      "alçalarak Çad Havzası'nın güney ucundaki düz ovalara dönüşür.",
+    climateNoteTr:
+      "Güneyden kuzeye gidildikçe Kamerun'un iklimi üç bölgede belirgin biçimde değişir. Güney " +
+      'kıyı kesimi ve yağmur ormanı bölgesi, yıl boyu yüksek nem ve sık yağışla ekvatoral bir ' +
+      'rejim yaşar; burada kısa ve uzun olmak üzere iki ayrı yağmur mevsimi görülür. Orta ' +
+      'kesimde, Adamawa çevresinde iklim tropikalleşir, tek bir uzun yağmur mevsimi ve daha ' +
+      "belirgin bir kurak dönem ortaya çıkar. Ülkenin en kuzeyinde, Çad Havzası'na yakın " +
+      'düzlüklerde yağış 600 milimetrenin altına iner ve Sahel kuşağına özgü kurak bir hava ' +
+      'hakim olur.',
+    hydrographyNoteTr:
+      "Kamerun'un akarsuları dört ayrı su toplama sistemine ayrılır. Güneyde Sanaga, Wouri, " +
+      "Nyong ve Ntem nehirleri doğrudan Atlas Okyanusu'na dökülür; bunlardan Sanaga, ülkenin en " +
+      "uzun ve en yüksek debili nehridir. Kuzeyde Benoué Nehri batıya akarak Nijerya'da Nijer " +
+      "Nehri'ne katılır, Logone Nehri ise Çad Gölü havzasına yönelir. Güneydoğuda, Ngoko ve " +
+      "Sangha nehirleri ise Kongo Havzası'na bağlanan tek su yolunu oluşturur.",
   },
   {
     isoCode: 'CF',
@@ -1227,6 +1299,37 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'XAF',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "13 Ağustos 1960'ta Fransa'dan bağımsız oldu.",
+    introTr:
+      'Orta Afrika Cumhuriyeti, adının da işaret ettiği gibi kıtanın tam ortasında, Çad Gölü ve ' +
+      'Kongo Nehri havzaları arasındaki su bölümü çizgisi üzerinde yer alan, denize kıyısı ' +
+      'olmayan bir yayla ülkesidir. Ülke topraklarının büyük bölümü 500 metre civarındaki ' +
+      "dalgalı bir plato biçimindedir; bu plato kuzeydoğuda Bongo Masifi'ne, batıda ise Karre " +
+      "Dağları'na doğru yükselir. Kuzeyden güneye gidildikçe bitki örtüsü de Sahel kuşağına " +
+      'yakın açık savanlardan, güneydeki daha yoğun orman parçalarına doğru değişir.',
+    landformNoteTr:
+      'Ülkenin büyük bölümünü kaplayan bu plato, güneybatıdan kuzeydoğuya uzanan bir sırt ' +
+      'boyunca Çad Gölü ve Kongo Nehri havzaları arasındaki ana su bölümü çizgisini oluşturur. ' +
+      "Kuzeydoğuda, Bongo Masifi 1.330 metrelik Toussoro Dağı'na kadar yükselir; ülkenin " +
+      "doğusunda ise benzer bir yükselti Tondou Masifi'nde görülür." +
+      '\n\n' +
+      "Batıda arazi, granit yapılı Karre Dağları'na doğru tırmanır; bu sıradağın içindeki 1.410 " +
+      'metrelik Ngaoui Dağı, ülkenin en yüksek noktasıdır. Buradan doğuya doğru arazi yeniden ' +
+      "alçalarak kumtaşı platolarına dönüşür. Ülkenin güneybatı ucunda, Kongo Havzası'nın yağmur " +
+      'ormanı sınırı ülke topraklarına küçük bir dilim halinde sızar.',
+    climateNoteTr:
+      "Orta Afrika Cumhuriyeti'nde yıllık yağış, kuzeyden güneye güçlü bir gradyan izler: " +
+      'ülkenin en kuzeyinde yıllık ortalama 700 milimetre civarındayken, güneyde bu rakam 1.700 ' +
+      'milimetreye kadar çıkar. Ülkenin büyük bölümü, kuzeyde Sahel kuşağına yaklaşan açık ' +
+      'savanlarla güneydeki daha nemli orman-savan karışımı arasında kalan Sudan tipi savan ' +
+      'iklimine sahiptir. Yağışlı mevsim Nisan-Ekim arasına yayılır, kısa bir kurak dönem ise ' +
+      'Kasım-Mart aylarında yaşanır.',
+    hydrographyNoteTr:
+      "Ülke topraklarının kuzey üçte biri, Çad Gölü'ne dökülen Chari Nehri'nin kollarıyla " +
+      'sulanır; bunların en önemlileri Bamingui, Gribingui ve en yüksek debiye sahip olan ' +
+      "Ouham'dır. Geri kalan güney üçte ikilik kesim ise Ubangi Nehri havzasına akar. Ubangi, " +
+      'ülkenin doğusunda Mbomou ve Uele nehirlerinin birleşmesiyle oluşur ve ülkenin güney ' +
+      'sınırının büyük bölümünü çizerek batıya akar; bu nehir aynı zamanda Kongo Nehri sistemine ' +
+      'bağlanan ana su yoludur.',
   },
   {
     isoCode: 'CG',
@@ -1250,6 +1353,37 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'XAF',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "15 Ağustos 1960'ta Fransa'dan bağımsız oldu.",
+    introTr:
+      "Kongo Cumhuriyeti, Gine Körfezi kıyısından iç kesimdeki Kongo Havzası'na doğru dört " +
+      'farklı yer şekli kuşağından geçilerek ulaşılan, ekvator çizgisinin hemen güneyinde yer ' +
+      'alan bir ülkedir. Dar kıyı ovasının ardından Mayombe Dağları yükselir, onu verimli Niari ' +
+      "Vadisi ve granit yapılı iç platolar izler; ülkenin kuzeyi ise Kongo Havzası'nın alçak, " +
+      'bataklık ormanlarına açılır. Başkent Brazzaville, Kongo Nehri kıyısında kuruludur.',
+    landformNoteTr:
+      'Atlas Okyanusu kıyısında, 40-50 kilometre genişliğindeki tortul bir kıyı ovası uzanır; bu ' +
+      'ovanın hemen ardında, 930 metreye kadar yükselen Mayombe Dağları kıyı şeridine paralel ' +
+      "bir sıradağ oluşturur. Mayombe'nin doğusunda, yaklaşık 200 kilometre genişliğindeki Niari " +
+      'Vadisi, iç platolarla kıyı arasındaki tarihi geçiş güzergâhını oluşturur.' +
+      '\n\n' +
+      "Niari Vadisi'nin doğusunda Bembe Platosu, ondan sonra ise Brazzaville'den kuzeye Kongo " +
+      "Nehri boyunca uzanan Batéké Platosu yer alır. Ülkenin kuzey yarısı ise Kongo Havzası'nın " +
+      'bir parçasıdır; burada arazi büyük ölçüde düzleşir ve mevsimlik taşkın ormanlarıyla kaplı ' +
+      'geniş bir alçak alan oluşur.',
+    climateNoteTr:
+      "Kongo Cumhuriyeti'nde iklim ekvatoral ile tropikal arasında değişir. Kuzeydeki Kongo " +
+      'Havzası kesiminde yıl boyunca yüksek sıcaklık ve nem hakimdir, kurak mevsim neredeyse ' +
+      'hissedilmez. Güneydeki kıyı ve Niari Vadisi kesiminde ise Haziran-Eylül arasına denk ' +
+      'gelen belirgin bir kurak mevsim yaşanır; yağışlar geri kalan aylara, biri kısa biri uzun ' +
+      'olmak üzere iki döneme yayılır. Yıllık yağış, kıyıda 1.200 milimetre civarındayken ' +
+      'kuzeydeki orman kuşağında 1.800 milimetreyi aşar.',
+    hydrographyNoteTr:
+      "Kongo Nehri, ülkenin doğu sınırının büyük bölümünü Kongo Demokratik Cumhuriyeti'yle " +
+      'paylaşılan bir hat olarak çizer; iki başkent Brazzaville ve Kinshasa bu nehrin karşılıklı ' +
+      'kıyılarında kuruludur. Ülkenin kuzeyinde, Sangha ve Likouala nehirleri geniş bataklık ' +
+      "ormanlarından süzülerek Kongo Nehri'ne katılır ve Kongo Havzası'nın su ağının bir " +
+      'parçasını oluşturur. Güneybatıda ise Kouilou-Niari Nehri, iç platolardan doğup Mayombe ' +
+      "Dağları'nı bir vadiyle yararak doğrudan Atlas Okyanusu'na ulaşır — ülkenin Kongo " +
+      'sistemine bağlı olmayan tek büyük akarsuyu.',
   },
   {
     isoCode: 'CD',
@@ -1327,6 +1461,37 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'XAF',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "12 Ekim 1968'de İspanya'dan bağımsız oldu.",
+    introTr:
+      "Ekvator Ginesi, kıta parçası Río Muni ile Gine Körfezi'ndeki Bioko ve Annobón adalarından " +
+      "oluşan, Orta Afrika'nın nadir kıta-ada karışımı ülkelerinden biridir. Anakaradan yaklaşık " +
+      '160 kilometre açıkta yer alan Bioko, volkanik kökenli bir adadır ve ülkenin başkenti ' +
+      "Malabo da bu adada kuruludur; Bioko'nun 595 kilometre güneybatısındaki küçük Annobón " +
+      'Adası ise ekvatorun güneyinde, São Tomé takımadalarına yakın bir konumdadır. Ülkenin en ' +
+      "yüksek noktası da anakarada değil, Bioko'daki bir yanardağın zirvesindedir.",
+    landformNoteTr:
+      'Río Muni, kıyı boyunca dar bir kumul şeridinin ardından iç kesimde alçak bir platoya ' +
+      'yükselen, neredeyse tamamı yağmur ormanıyla kaplı bir anakara parçasıdır; kıyı ile iç ' +
+      'plato arasındaki geçişi Sierra Cristal (Kristal Dağları) sıradağı oluşturur. Bioko Adası ' +
+      'ise bambaşka bir jeolojik kökene sahiptir: ada, bir vadiyle ikiye ayrılan iki büyük ' +
+      'volkanik kütleden oluşur; kuzeydeki kütlenin zirvesi olan Pico Basilé, 3.008 metreyle ' +
+      "ülkenin en yüksek noktasıdır ve aynı zamanda Kamerun Volkanik Hattı'nın bir parçasıdır." +
+      '\n\n' +
+      'Annobón, ikisinden de bağımsız, küçük ve sarp bir volkanik ada olup 18 kilometrekarelik ' +
+      'yüzölçümüyle ülkenin en küçük parçasıdır; bu ada da aynı volkanik hattın güney ucunda yer ' +
+      'alır.',
+    climateNoteTr:
+      "Ekvator Ginesi'nde iklim sıcak-nemli ekvatoral karakterdedir, ama anakara ile ada " +
+      "arasında mevsimler tuhaf biçimde ters yönde işler: Haziran-Ağustos ayları Río Muni'de " +
+      "kurak mevsim iken, aynı aylar Bioko'da yağışlı geçer; Aralık-Şubat arasında ise roller " +
+      "değişir. Yıllık yağış miktarı da adada uç noktalara ulaşır: başkent Malabo'da yaklaşık " +
+      "1.900 milimetreyken, adanın güney kıyısındaki San Antonio de Ureca'da 10.000 milimetreyi " +
+      "aşar — Afrika'nın en yağışlı noktalarından biri.",
+    hydrographyNoteTr:
+      "Río Muni'nin akarsuları kısa ve düzensiz debilidir; en önemlileri Mbini (Benito) ve Muni " +
+      "nehirleridir, ikisi de doğrudan Atlas Okyanusu'na dökülür ve Muni Nehri ağzındaki geniş " +
+      'haliç ülkenin güney sınırının bir bölümünü oluşturur. Bioko ve Annobón adalarında ise ' +
+      'kalıcı bir akarsu sistemi yoktur; volkanik yamaçlardan inen kısa ve sarp dereler, yağış ' +
+      'sonrası hızla denize ulaşır.',
   },
   {
     isoCode: 'GA',
@@ -1350,6 +1515,35 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'XAF',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "17 Ağustos 1960'ta Fransa'dan bağımsız oldu.",
+    introTr:
+      'Gabon, ülke topraklarının yaklaşık dörtte üçünü kaplayan yoğun ekvatoral yağmur ormanıyla ' +
+      'tanınan, Gine Körfezi kıyısındaki bir Orta Afrika ülkesidir. Dar bir kıyı ovasının ' +
+      'ardından, kuzeybatı-güneydoğu doğrultusunda uzanan granit platolar iç kesimleri kaplar; ' +
+      'ülkeyi boydan boya kateden Ogooué Nehri, hem ülkenin ana ulaşım eksenini hem de en büyük ' +
+      'su havzasını oluşturur.',
+    landformNoteTr:
+      "Gabon'un kıyı ovası güneyde yalnızca 30 kilometre genişliğindedir; kumtaşı ve alüvyon " +
+      'yapılı bu düzlük kuzeye doğru genişleyerek 160 kilometreye ulaşır ve kireçtaşı-tebeşir ' +
+      'çıkıntıları barındırır. İç kesimde, 300-600 metre yükseklikteki granit platolar hakimdir; ' +
+      "ülkenin güneyinde bu platolar Şayyu (Chaillu) Masifi'nde 1.000 metrenin üzerine çıkar." +
+      '\n\n' +
+      "Ülkenin en yüksek noktası ise Şayyu Masifi'nde değil, kuzeydoğuda Kongo Cumhuriyeti " +
+      "sınırına yakın Bengoué Dağı'ndadır; dağ 1.070 metreye ulaşır. Ogooué Nehri, iç kesimdeki " +
+      'kumtaşı platosunu bir eşikle aşarak Lambaréné yakınlarındaki granit kütleler arasından ' +
+      'alçalır ve geniş bir deltayla okyanusa ulaşır.',
+    climateNoteTr:
+      'Yıl boyunca yüksek sıcaklık ve nemin hakim olduğu tipik bir ekvatoral rejim, Gabon ' +
+      'iklimini baştan sona belirler; mevsimler arasındaki sıcaklık farkı azdır. Yağış miktarı ' +
+      "kıyı boyunca değişir: başkent Libreville'de yıllık ortalama 2.850 milimetreye ulaşırken, " +
+      'kuzeybatı kıyısında bu rakam 3.800 milimetreye kadar çıkar. Haziran-Eylül arasına denk ' +
+      'gelen görece serin ve kurak bir dönem dışında, yağışlar yılın geri kalanına yayılır.',
+    hydrographyNoteTr:
+      'Ogooué Nehri, 1.200 kilometrelik uzunluğuyla ülke topraklarının yaklaşık dörtte üçünü ' +
+      'kapsayan bir havzaya sahiptir ve Ngounié, İvindo gibi büyük kollarıyla beslenir; nehir, ' +
+      "Port-Gentil yakınında geniş bir deltayla Atlas Okyanusu'na dökülür. Ülkenin kuzeyinde " +
+      'Ntem Nehri, Kamerun ve Ekvator Ginesi sınırının bir bölümünü çizerken, güneyde Nyanga ' +
+      'Nehri bağımsız bir kıyı havzası oluşturur. Başkent Libreville ise Ogooué sistemine değil, ' +
+      "Komo Nehri'nin oluşturduğu geniş bir halice kuruludur.",
   },
   {
     isoCode: 'ST',
@@ -1373,6 +1567,39 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'STN',
     governmentFormTr: 'Yarı-başkanlık cumhuriyeti',
     independenceNoteTr: "12 Temmuz 1975'te Portekiz'den bağımsız oldu.",
+    introTr:
+      "Sao Tome ve Principe, Gine Körfezi'nde ekvatorun hemen kuzeyinde yer alan, aynı adı " +
+      'taşıyan iki ana ada ile çok sayıda küçük kayalık adacıktan oluşan bir ülkedir. Her iki ' +
+      "ada da Kamerun Dağı'ndan güneybatıya uzanan Kamerun Volkanik Hattı'nın parçasıdır, ama " +
+      'son birkaç yüzyılda hiçbir volkanik etkinlik görülmemiştir. Adaların sarp, dağlık iç ' +
+      'kesimleri kıyıya doğru dik biçimde alçalır; bu da ülkeye çok kısa mesafelerde büyük iklim ' +
+      've bitki örtüsü farklılıkları kazandırır.',
+    landformNoteTr:
+      "São Tomé Adası'nın güney ve batı kesimlerinde, volkanik zirveler doğrudan denize dik " +
+      'biçimde iner; adanın en yüksek noktası olan São Tomé Zirvesi 2.024 metreye ulaşır. Adanın ' +
+      'iç kesiminde, dar bir volkanik boru içinde katılaşmış lavın aşınmayla ortaya çıkardığı ' +
+      '663 metrelik sivri kaya kütlesi Cão Grande Zirvesi, bölgenin en belirgin yer ' +
+      'şekillerinden biridir. Kuzeydoğuya doğru arazi kademeli biçimde alçalarak küçük ' +
+      'düzlüklere dönüşür; ülkenin başkenti de bu daha alçak kesimde kuruludur.' +
+      '\n\n' +
+      "Principe Adası, São Tomé'den daha eski bir volkanik oluşumdur — yaklaşık 31 milyon yıl " +
+      "önce oluşmuşken São Tomé'nin lav akıntılarının büyük bölümü yaklaşık 13 milyon yıl önce " +
+      "ile günümüz arasında oluşmuştur; bu yaş farkı Principe'nin daha ileri düzeyde aşınmış, " +
+      'sivri ve dişli kütlelerine yansır. Adanın en yüksek noktası olan Pico Principe 948 ' +
+      'metreye ulaşır.',
+    climateNoteTr:
+      "Sao Tome ve Principe'de iklim deniz etkili ve tropikaldir, ama adaların sarp topografyası " +
+      'çok kısa mesafelerde büyük mikro-iklim farkları yaratır. Güneybatıdan esen nemli ' +
+      "rüzgarlar dağlarda tutulduğu için São Tomé'nin güneybatı yamaçlarında yıllık yağış 5.000 " +
+      'milimetreye ulaşırken, adanın kuzey düzlüklerinde bu rakam 1.000 milimetrenin altına ' +
+      'iner. Sıcaklık yıl boyu ekvatoral karakteriyle uyumlu biçimde yüksek ve az değişken ' +
+      'kalır; yükseklikle birlikte iç kesimlerde hava belirgin biçimde serinler.',
+    hydrographyNoteTr:
+      'Adaların iç kesimindeki dağlık kaynak bölgelerinden denize doğru, her yönde kısa ve hızlı ' +
+      'akan onlarca dere iner; bu ışınsal drenaj deseni, adaların dairesel volkanik yapısının ' +
+      "doğrudan bir sonucudur. São Tomé Adası'nda 200'den fazla dere sayılır, ama hiçbiri gemi " +
+      'taşımacılığına elverişli büyüklükte değildir. Kalıcı göl ya da geniş nehir yatağı ' +
+      'bulunmaz; dereler şelaleler ve hızlı akıntılarla kısa mesafede denize ulaşır.',
   },
   {
     isoCode: 'BW',
