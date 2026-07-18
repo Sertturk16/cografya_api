@@ -800,6 +800,36 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'CHF',
     governmentFormTr: 'Anayasal monarşi (parlamenter)',
     independenceNoteTr: "23 Ocak 1719'da prenslik kuruldu; tam egemenlik 1806.",
+    introTr:
+      "Ren Nehri, Lihtenştayn'ın batı sınırının tamamını çizer; nehrin karşı yakasında İsviçre, " +
+      'ülkenin doğu ve güneyinde ise Avusturya yer alır. Topraklarının yaklaşık üçte ikisini ' +
+      "kaplayan doğu kesimi, Alpler'in bir parçası olan sarp Rätikon dağlarına aittir; batıdaki dar " +
+      'Ren Vadisi ise ülkenin tek düzlük şeridini oluşturur. Başkent Vaduz, bu vadinin ortasında, ' +
+      'dağların eteğinde kuruludur. Lihtenştayn, dünyada Özbekistan ile birlikte çift-landlocked ' +
+      '(iki kez karayla çevrili) yalnızca iki ülkeden biridir.',
+    landformNoteTr:
+      "Lihtenştayn'ın arazisi, yalnızca 25 kilometrelik bir mesafede 453 metreden 2.599 metreye " +
+      'çıkan dik bir yükselti farkı taşır. Ülkenin çatısı, İsviçre sınırındaki Rätikon silsilesinde ' +
+      "yükselen Grauspitz'tir; her iki yamacı da Ren'in su toplama havzasına akar. Doğu yarısı " +
+      'boyunca dar vadiler ve kireçtaşı sırtlar birbirini izler; batıdaki Ren Vadisi ise tarıma ' +
+      'elverişli düzlük ve bağ arazisi sunar. İki bölge arasındaki bu keskin geçiş, ülkenin ' +
+      'nüfusunu da vadi tabanına toplar.',
+    climateNoteTr:
+      "Lihtenştayn'ın iklimi Alp karakterli ama nispeten ılımandır; vadi tabanında yıllık ortalama " +
+      'sıcaklık yaklaşık 9,5 santigrat derecedir, yazlar 20-28 santigrat derece arasında serin-ılık ' +
+      "geçer. İklimi en çok etkileyen unsur, Alpler'in güneyinden esen sıcak ve kuru foehn " +
+      'rüzgarıdır — bu rüzgar estiğinde kış ortasında bile sıcaklık hızla yükselebilir. Yükseklere ' +
+      'çıkıldıkça kış sertleşir, kar örtüsü aylarca yerde kalır; ülkenin 25 kilometrelik dar ' +
+      'coğrafyası içinde bu kadar çok farklı mikroiklimin bir arada bulunması, arazinin dikliğinin ' +
+      'doğrudan bir sonucudur.',
+    hydrographyNoteTr:
+      "Ren Nehri, Lihtenştayn'ın batı sınırının tamamını oluşturur; nehir yatağı yüksek taş " +
+      "setlerle çevrilenmiş olsa da zaman zaman taşkınlara yol açar — 1927'deki büyük taşkın, bugün " +
+      "ülkenin tek doğal gölü olan küçük Gampriner Seele'yi (435 m) doğurmuştur. Ülke içindeki en " +
+      'önemli akarsu, doğudaki Stägerbach ve Valorschbach derelerinin birleşmesiyle oluşan ve ' +
+      "güneyden kuzeye akan Samina'dır; suyu hem elektrik üretiminde hem de içme suyu kaynağı " +
+      'olarak kullanılır. Triesenberg belediyesindeki Steg baraj gölü, 1.295 metre rakımda ve 32 ' +
+      'hektarlık yüzeyiyle ülkenin en büyük su kütlesidir.',
   },
   {
     isoCode: 'LU',
@@ -1458,6 +1488,32 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'EUR',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: null,
+    introTr:
+      "İtalya'nın ortasında, Adriyatik kıyısından yalnızca 13 kilometre içeride, tek başına " +
+      'yükselen bir kireçtaşı kütlesinin üzerine kurulu San Marino, İtalya toprakları içinde tam ' +
+      "bir enklavdır — tek komşusu İtalya'dır. Ülkenin simgesi, Titano Dağı'nın üç ayrı doruğuna " +
+      'kurulu üç ortaçağ kulesidir (Guaita, Cesta, Montale); bu üç kule bayrakta da yer alır. ' +
+      "Geleneksel kuruluş tarihi olan MS 301, San Marino'yu dünyanın hâlâ var olan en eski " +
+      'cumhuriyetlerinden biri olarak tanımlar.',
+    landformNoteTr:
+      'Titano Dağı, çevresini saran yumuşak tepelik Apenin arazisinden dikine yükselen tek bir ' +
+      "kireçtaşı bloğudur; bu yüzden San Marino'nun görünümü bölgenin geri kalanından tamamen " +
+      'farklıdır. Dağın 739 metrelik zirvesi ülkenin en yüksek noktasıdır, ama kayalık kütlenin ' +
+      'kendisi vadi tabanından yalnızca yaklaşık 200 metre yükselir — üç kule de bu dar kayalık ' +
+      "sırt üzerinde art arda dizilidir. Ülkenin en alçak noktası ise 55 metreyle, Ausa Deresi'nin " +
+      'San Marino topraklarını terk ettiği yerdir.',
+    climateNoteTr:
+      "San Marino, Akdeniz iklimine sahiptir, ama Titano Dağı'nın yüksekliği bu iklimi Adriyatik " +
+      'kıyısındaki nemli havadan biraz ayırır: yaz sıcaklıkları nadiren 26 santigrat derecenin ' +
+      'üzerine çıkar, kış ayları da 7 santigrat derecenin altına çok az düşer. Yıllık yağış 560 ile ' +
+      "800 milimetre arasında değişir. Titano'nun tepesindeki geceler, aynı enlemdeki kıyı " +
+      'düzlüklerine göre daha serin geçer — kayalık kütlenin yüksekliği, ülkenin küçük yüzölçümüne ' +
+      'rağmen kendi mikroiklimini yaratır.',
+    hydrographyNoteTr:
+      "San Marino'da doğal göl ya da büyük bir nehir yoktur; ülke, doğuya doğru Adriyatik'e akan " +
+      "birkaç küçük dere ile drene olur. Bunlardan Ausa, kaynağını doğrudan Titano Dağı'nın " +
+      'kendisinden alır ve ülkeyi 55 metre rakımda terk eder. San Marino Deresi ve Marano da aynı ' +
+      'doğu yönünde akan, benzer büyüklükte iki diğer akarsudur.',
   },
   {
     isoCode: 'RS',
@@ -1528,6 +1584,36 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'EUR',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "25 Haziran 1991'de Yugoslavya'dan bağımsız oldu.",
+    introTr:
+      'Slovenya, dört farklı Avrupa coğrafyasının kesiştiği noktada yer alır: kuzeybatıda Alpler, ' +
+      "güneybatıda Dinar dağlarının karstik platosu, doğuda Panon Ovası'nın düzlükleri ve güneyde " +
+      'kısa bir Akdeniz kıyı şeridi. Başkent Lübliyana, ülkenin ortasında, bu dört bölgenin ' +
+      "birleştiği bir havzada kuruludur. Ülkenin Adriyatik'teki tek kıyısı, İtalya ile Hırvatistan " +
+      'arasında kalan ve tamamı Trieste Körfezi üzerinde bulunan 47 kilometrelik dar bir şerittir.',
+    landformNoteTr:
+      "Ülkenin kuzeybatısını kaplayan Julian Alpleri'nin bayrakta da yer alan zirvesi Triglav, " +
+      "2.864 metreyle Slovenya'nın en yüksek noktasıdır. Güneybatıda, Dinar dağlarının bir uzantısı " +
+      'olan Kras Platosu, dünya çapında kullanılan "karst" teriminin kaynağıdır — bölge, dolinler ' +
+      '(çöküntü depresyonları), yeraltı nehirleri ve mağara sistemleriyle tanınır; en ünlü örneği, ' +
+      "Reka Nehri'nin yerin altına daldığı Škocjan Mağaraları'dır. Doğuya doğru arazi yumuşar ve " +
+      "Panon Ovası'nın uzantısı olan Mura-Drava vadilerine açılır; ülkenin ortasında kalan " +
+      "Lübliyana Havzası'nda ise büyük bölümü Habsburg döneminde kurutulmuş geniş bir sazlık olan " +
+      'Lübliyana Bataklığı bulunur.',
+    climateNoteTr:
+      "Slovenya'nın iklimi, ülkenin dört coğrafi bölgesine göre üçe ayrılır. Kuzeybatıdaki Julian " +
+      "Alpleri'nde sert bir dağ iklimi hakimdir, kar örtüsü yüksek kesimlerde aylarca yerde kalır. " +
+      'Orta ve doğu bölgelerde, yıllık ortalama sıcaklığı 8-10 santigrat derece civarında olan ' +
+      "ılıman bir karasal iklim görülür. Güneybatıdaki dar kıyı şeridi ise, Kras Platosu'nun " +
+      "Akdeniz'e açılan kapısı olarak, çok daha ılık ve kurak yazlarıyla bu ikisinden ayrılır.",
+    hydrographyNoteTr:
+      "Slovenya topraklarının yaklaşık %81'i (16.423 km²) Karadeniz havzasına, geri kalan %19'u " +
+      '(3.851 km²) ise Adriyatik havzasına drene olur. Karadeniz tarafını, Sava Dolinka ve Sava ' +
+      "Bohinjka derelerinin (ikincisi Bohinj Gölü'nden çıkar) birleşmesiyle doğan ve ülke içinde " +
+      '221 kilometre akan Sava Nehri ile 142 kilometrelik Drava kolu oluşturur; ikisi de sonunda ' +
+      "Tuna'ya karışır. Kras Platosu'nda ise sular çoğu zaman yer altından akar: Reka Nehri, " +
+      "Škocjan Mağaraları'nda yer altına dalıp 34 kilometre boyunca görünmeden akar ve İtalya'da " +
+      'Timavo adıyla yeniden yüzeye çıkar. Bled Gölü ve Bohinj Gölü, kuzeybatıdaki Alp gölleri ' +
+      'arasında en tanınmış olanlarıdır.',
   },
   {
     isoCode: 'ES',
@@ -2415,6 +2501,32 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'AUD',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "12 Temmuz 1979'da Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      "Kiribati'nin 33 adası, ekvatoru ve 180. meridyeni aynı anda kesen tek ülkedir — bu nedenle " +
+      'dünyada dört yarımküreye birden yayılan yegâne devlet olarak anılır. Adalar üç ayrı takımada ' +
+      "grubuna dağılır: batıdaki Gilbert Adaları (başkent Tarava'nın da bulunduğu grup), ortadaki " +
+      "Phoenix Adaları ve doğudaki Line Adaları. 1995'te ülke, tarih değiştirme çizgisini doğuya " +
+      "doğru kaydırarak en doğudaki adalarını da Gilbert Adaları'yla aynı güne almış ve bu adaları " +
+      'dünyanın en ileri saat dilimine (UTC+14) taşımıştır.',
+    landformNoteTr:
+      "Kiribati'nin 810 kilometrekarelik kara yüzeyi, okyanusa 3,5 milyon kilometrekareyi aşan " +
+      'devasa bir münhasır ekonomik bölgeye yayılır. Adaların neredeyse tamamı, deniz seviyesinden ' +
+      '3-4 metreden fazla yükselmeyen alçak mercan atolleridir. Tek istisna, Gilbert grubundan ' +
+      "coğrafi olarak uzakta, batıda tek başına duran Banaba'dır: bu ada, mercan resifinin jeolojik " +
+      'olarak yükselmesiyle oluşmuş, 81 metreye ulaşan ülkenin en yüksek noktasıdır.',
+    climateNoteTr:
+      "Kiribati'de tropikal ekvatoral bir iklim hakimdir; sıcaklıklar yıl boyunca 26-32 santigrat " +
+      "derece bandında kalır. Gilbert Adaları'nda Aralık-Nisan arası daha yağışlı, Mayıs-Kasım " +
+      "arası ise görece daha kurak geçer; başkent Tarava'da yağış Mart ayında en yüksek, Kasım'da " +
+      'en düşük seviyesine iner. Ülke, hem kuzey hem güney yarımkürenin tayfun rotalarının dışında ' +
+      'kaldığı için tropikal siklonlardan neredeyse hiç etkilenmez.',
+    hydrographyNoteTr:
+      "Kiribati'nin adalarında ne nehir ne de yağışı toplayacak bir dağ bulunur; tek tatlı su " +
+      'kaynağı, mercan tabakasının üzerinde yüzen ve yağmur suyuyla beslenen ince bir yeraltı su ' +
+      'merceğidir. Bu mercek, kuraklık dönemlerinde hızla incelir, fırtına ve yüksek gelgit ' +
+      'sırasında ise tuzlu su karışımıyla kolayca kirlenir. Atollerin çoğu, açık okyanusla resif ' +
+      'arasında sakin bir lagün barındırır; bu lagünler balıkçılık ve ulaşım açısından hayati önem ' +
+      'taşır.',
   },
   {
     isoCode: 'MH',
@@ -2439,6 +2551,31 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr:
       "21 Ekim 1986'da ABD ile Serbest Ortaklık Anlaşması yürürlüğe girdi (BM üyeliği 1991).",
+    introTr:
+      'Marşal Adaları, birbirine yaklaşık 200 kilometre uzaklıkta, kuzeybatı-güneydoğu yönünde ' +
+      'uzanan iki paralel ada zincirinden oluşur: doğudaki Ratak ("gündoğumu") ve batıdaki Ralik ' +
+      '("günbatımı"). Bu iki zincir birlikte yaklaşık 1.300 kilometrelik bir hat boyunca 29 atol ve ' +
+      '5 tekil adaya yayılır. Başkent Majuro, Ratak zincirinin güneyinde, geniş bir doğal lagüne ' +
+      'sahip bir atoldür.',
+    landformNoteTr:
+      "Marşal Adaları'nın kara yüzeyi son derece küçüktür ama bazı atolleri devasa lagünler " +
+      'çevreler. Ratak zincirindeki Kwajalein Atolü, yaklaşık 97 adacığıyla toplam yalnızca 16 ' +
+      'kilometrekarelik bir kara alanına sahiptir; buna karşılık çevrelediği lagün 2.174 ' +
+      'kilometrekareyle dünyanın en büyük atol lagünlerinden biridir. Ülkedeki adaların tamamı dar ' +
+      'mercan şeritleridir, hiçbiri birkaç metreden fazla yükselmez.',
+    climateNoteTr:
+      "Marşal Adaları'nda tropikal bir iklim hakimdir; kuzeydeki adalarda Aralık-Nisan arası görece " +
+      'kurak bir dönem yaşanırken, ekvatora yakın orta ve güney adalarda yıl boyu bol yağış ' +
+      'görülür. Yağış miktarı ülke içinde kuzeybatıdan güneydoğuya belirgin biçimde artar: ' +
+      "Enewetak'ta yıllık ortalama 140 santimetre iken, Kwajalein'de 245, başkent Majuro'da ise 333 " +
+      "santimetreye ulaşır ve Majuro'da yıllık tepe noktası Ekim ayına denk gelir. Tayfunlar " +
+      'görülebilir, ama bu fırtınaların olağan rotaları genellikle ülkenin batısından geçer.',
+    hydrographyNoteTr:
+      "Marşal Adaları'nda kalıcı bir nehir ya da yüzey suyu kaynağı yoktur. Tatlı su ihtiyacı iki " +
+      'kaynaktan karşılanır: çatılara kurulan yağmur suyu toplama sistemleri ve bazı geniş ' +
+      'adacıkların altında biriken yeraltı su merceği. Bu mercek yalnızca birkaç yüz metreden geniş ' +
+      'adacıklarda oluşabilir — dar adacıklarda yağışı tutacak yeterli yüzey alanı bulunmadığından ' +
+      'mercek hiç oluşmaz, bu adacıklar tamamen yağmur suyuna bağımlıdır.',
   },
   {
     isoCode: 'FM',
@@ -2463,6 +2600,33 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal başkanlık cumhuriyeti',
     independenceNoteTr:
       "3 Kasım 1986'da ABD ile Serbest Ortaklık Anlaşması yürürlüğe girdi (BM üyeliği 1991).",
+    introTr:
+      "Mikronezya Federe Devletleri, Karolin Adaları'nın büyük bölümüne yayılan dört eyaletten " +
+      "oluşur: batıda Yap, ortada Chuuk ve Pohnpei, doğuda Kosrae. Bu dört eyalet, Kosrae'den Yap'a " +
+      'kadar yaklaşık 2.900 kilometrelik bir okyanus şeridine dağılır. Federal başkent Palikir, ' +
+      'ülkenin en büyük tekil adası olan Pohnpei üzerinde yer alır.',
+    landformNoteTr:
+      'Dört eyalet birbirinden çok farklı bir arazi karakteri taşır. Chuuk, tabanında batık bir ' +
+      "kalkan volkanı bulunan ve yaklaşık 50-80 kilometre genişliğindeki devasa Chuuk Lagünü'nü " +
+      'çevreleyen volkanik adalarla mercan atollerinin karışımından oluşur; lagün içindeki volkanik ' +
+      'adalar 443 metreye kadar yükselir. Pohnpei, ülkenin en büyük tekil adası olarak tek bir ' +
+      'yüksek volkanik kütledir. Kosrae ise en doğudaki eyalet olarak tamamen tek bir yüksek ' +
+      "volkanik adadan ibarettir. Yap'ın dört büyük adası da volkanik kökenlidir, ama eyaletin geri " +
+      'kalanı çok sayıda mercan atolünden oluşur.',
+    climateNoteTr:
+      "Mikronezya Federe Devletleri'nde sıcak ve nemli ekvatoral bir iklim hakimdir, ülke tayfun " +
+      "kuşağının güney sınırında yer alır — özellikle Guam'ın hemen güneyindeki Yap ve Chuuk " +
+      'eyaletleri tayfun riskine daha açıktır. Yağış eyaletten eyalete büyük farklılık gösterir: ' +
+      "Chuuk'un başkenti Weno'da yıllık ortalama 3.600 milimetreyken, Yap'ta bu rakam 3.048 " +
+      'milimetredir. Pohnpei ise dünyanın en yağışlı yerlerinden biridir — kıyıda yıllık yağış ' +
+      'ortalama 4.775 milimetreye ulaşır, dağlık iç kesimlerde ise 7.600-10.000 milimetre bandına ' +
+      'kadar çıkabilir.',
+    hydrographyNoteTr:
+      "Kosrae ve Pohnpei'nin yüksek volkanik arazisi, bol yağışla birleşince çok sayıda kalıcı " +
+      "nehir ve şelale doğurur — Kosrae'nin yoğun yağışı, ada üzerinde geniş bir akarsu ağı " +
+      "oluşturmasına yol açar. Buna karşılık Yap ve Chuuk'un dış atolleri, tıpkı Pasifik'in diğer " +
+      'alçak mercan adaları gibi nehirden yoksundur; bu adalarda tatlı su ihtiyacı yağmur suyu ' +
+      'toplama ve yeraltı su merceğiyle karşılanır.',
   },
   {
     isoCode: 'NR',
@@ -2486,6 +2650,31 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'AUD',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "31 Ocak 1968'de bağımsız oldu.",
+    introTr:
+      'Nauru, tipik bir mercan atolü değildir; okyanus ortasında tek başına yükselmiş bir fosfat ' +
+      'adasıdır. Yalnızca 20 kilometrekarelik yüzölçümüyle dünyanın en küçük ada devleti ve en ' +
+      'küçük cumhuriyetidir; nüfusu 12 binin biraz üzerindedir. Ülkenin yasal olarak ilan edilmiş ' +
+      'bir başkenti yoktur — hükümet binalarının toplandığı Yaren bölgesi, fiilen idari merkez ' +
+      'işlevi görür.',
+    landformNoteTr:
+      'Nauru, milyonlarca yıl önce bir deniz altı yanardağının üzerinde büyüyen bir mercan ' +
+      'resifinin, okyanus tabanından yaklaşık 30 metre yükselmesiyle oluşmuştur; bu yükselme, ' +
+      'resifi oluşturan kireçtaşını karstik biçimde aşındırarak 20 metreye varan sivri pinakıllara ' +
+      'dönüştürmüştür. Adanın kıyı şeridi dar ve verimli bir halka oluştururken, ortadaki "Topside" ' +
+      'adı verilen yüksek plato, 65 metreyle ülkenin en yüksek noktasını oluşturur. Bir asrı aşkın ' +
+      "fosfat madenciliği, bu platonun yaklaşık %80'ini çıplak kireçtaşı pinakıllarından oluşan bir " +
+      'çorak araziye çevirmiştir.',
+    climateNoteTr:
+      "Nauru'da yıl boyunca sıcak ve nemli, belirgin bir kurak mevsimden yoksun ekvatoral bir iklim " +
+      'hakimdir. Aralık-Nisan arası daha yağışlı, Mayıs-Kasım arası ise nispeten daha kurak geçer; ' +
+      'yıllık ortalama yağış yaklaşık 2.000 milimetredir ama yıldan yıla büyük farklılık gösterir. ' +
+      "Ekvatora yakınlığı nedeniyle Nauru'da tropikal siklon neredeyse hiç görülmez.",
+    hydrographyNoteTr:
+      "Nauru'da kalıcı bir nehir yoktur. Ülkenin tek doğal tatlı su kaynağı, deniz seviyesi daha " +
+      "düşükken kireçtaşının erimesi ve çökmesiyle oluşan Buada Lagünü'dür; bu küçük göl, merkezi " +
+      'platonun güneybatısındaki bataklık bir çöküntüde yer alır. Adanın kuzeydoğusunda, Anabar ve ' +
+      'Ijuw bölgelerinde, platonun eteğinde birkaç tuzlu-acı su birikintisi daha bulunur. Diğer ' +
+      'tatlı su ihtiyacı, yağmur suyu toplama sistemleriyle karşılanır.',
   },
   {
     isoCode: 'PW',
@@ -2509,6 +2698,32 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'USD',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "1 Ekim 1994'te ABD ile Serbest Ortaklık Anlaşması yürürlüğe girdi.",
+    introTr:
+      'Palau, iki farklı ada tipinin bir arada bulunduğu bir takımadadır: kireçtaşından oluşan ve ' +
+      '"Kayalık Adalar" (Chelbacheb) olarak bilinen yüzlerce küçük ada ile ülkenin en büyük parçası ' +
+      'olan volkanik kökenli Babeldaob. Başkent Melekeok, bu volkanik adada yer alır. Neredeyse tüm ' +
+      "adaları çevreleyen geniş bir bariyer resif, Palau'yu dünyanın en zengin mercan " +
+      'ekosistemlerinden birine dönüştürür.',
+    landformNoteTr:
+      'Kayalık Adalar, milyonlarca yıl önce yükselmiş eski mercan resiflerinin kalıntılarıdır; ' +
+      'mantar biçimli, yeşillikle kaplı 250-300 küçük kireçtaşı adasından oluşur ve turkuaz ' +
+      'lagünler içinde dağılır. Bunun tam tersine, ülkenin kara yüzeyinin büyük bölümünü oluşturan ' +
+      'Babeldaob volkanik kökenlidir; dağlık bir arazi taşır ve 242 metreyle ülkenin en yüksek ' +
+      "noktası olan Ngerchelchuus Dağı'na sahiptir. Babeldaob'da ayrıca yoğun ormanlar, şelaleler " +
+      've mangrov bataklıkları bulunur.',
+    climateNoteTr:
+      "Palau'da belirgin bir kurak mevsimi olmayan tropikal bir iklim hakimdir; Şubat-Nisan " +
+      'arasında sağanak ve gök gürültülü fırtına sıklığında görece bir azalma yaşanır, ama bu ' +
+      'gerçek bir kurak mevsim oluşturmaz. Yıllık yağış ortalaması yaklaşık 3.700 milimetreyle ' +
+      'bölgenin en yağışlı ülkelerinden biridir; en yoğun yağış Haziran-Temmuz aylarına denk gelir. ' +
+      'Tropikal siklonlar Nisan-Aralık arasında görülebilir, Ağustos-Kasım döneminde risk artar.',
+    hydrographyNoteTr:
+      "Babeldaob, beş büyük nehir sistemine sahiptir — bunlardan Ngerdorch Nehri, Mikronezya'nın en " +
+      "büyük doğal tatlı su gölü olan Ngardok Gölü'nden doğar ve denize ulaşır. Kayalık Adalar'da " +
+      'ise akarsu yerine, karayla çevrili ve okyanustan izole kalmış deniz suyu gölcükleri (marine ' +
+      'lake) görülür; bunların en tanınmışı, izolasyon nedeniyle sokma yeteneğini kaybetmiş ' +
+      "milyonlarca altın rengi denizanasına ev sahipliği yapan Denizanası Gölü'dür (Jellyfish " +
+      'Lake).',
   },
   {
     isoCode: 'WS',
@@ -2626,5 +2841,33 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'AUD',
     governmentFormTr: 'Parlamenter anayasal monarşi',
     independenceNoteTr: "1 Ekim 1978'de Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      'Tuvalu, altısı gerçek mercan atolü (Funafuti, Nanumea, Nui, Nukufetau, Nukulaelae, Vaitupu) ' +
+      'üçü ise yükselmiş resif adası (Nanumaga, Niutao, Niulakita) olan dokuz adadan oluşur. ' +
+      'Başkent Funafuti, aynı adı taşıyan atolün Fongafale adacığında yer alır — bazı noktalarda ' +
+      'genişliği yalnızca bir yolu sığdıracak kadar dar bir şerittir. Ortalama rakımı 2 metrenin ' +
+      'altında olan Tuvalu, deniz seviyesindeki en küçük değişikliklerden bile doğrudan etkilenen ' +
+      'ülkelerin başında gelir.',
+    landformNoteTr:
+      "Tuvalu'nun en yüksek noktası, Niulakita adasında yalnızca 4,6 metredir; ülke genelinde " +
+      "ortalama rakım bunun da altındadır. Funafuti Atolü'nün 33 adacığı toplamda yalnızca 2,4 " +
+      "kilometrekarelik bir kara alanı oluşturur — bu, atolün çevrelediği alanın %1'inden bile " +
+      'azdır. Buna karşılık Funafuti Lagünü kendisi yaklaşık 275 kilometrekarelik bir yüzeye ' +
+      'yayılır ve kuzey kesiminde derinliği 50 metreyi aşar; kara ile deniz arasındaki bu ' +
+      'orantısızlık, ülkenin dokuz adasının ortak özelliğidir.',
+    climateNoteTr:
+      "Tuvalu'da tropikal bir iklim hakimdir, sıcaklıklar yıl boyunca 25-32 santigrat derece " +
+      'bandında seyreder. Aralık-Mart arası yağışın yoğunlaştığı dönemdir, Mayıs ortasından Ekim ' +
+      'sonuna kadar ise görece daha kurak geçer. Ülke, olağan tayfun rotalarının dışında kalır ve ' +
+      "doğrudan bir siklonla nadiren karşılaşır; ama 2015'te Tuvalu'ya hiç uğramadan geçen Kasırga " +
+      "Pam'ın yol açtığı gibi, uzaktaki bir siklonun oluşturduğu dalga ve deniz kabarması bile " +
+      'alçak adaları su altında bırakabilir.',
+    hydrographyNoteTr:
+      "Tuvalu'da hiçbir nehir, göl ya da dere bulunmaz. Beş atol geniş birer lagün barındırsa da bu " +
+      'lagünler tatlı su sağlamaz; tek tatlı su kaynağı yağışın çatılarda toplanması ve adaların ' +
+      'altında biriken ince bir yeraltı su merceğidir. Bilimsel modellemeler, deniz seviyesinin 25 ' +
+      'santimetre yükselmesinin bu mercekleri yaklaşık %25, 50 santimetrelik bir yükselişin ise ' +
+      'yaklaşık %50 oranında küçültebileceğini gösteriyor — adaların tatlı su güvenliği, deniz ' +
+      'seviyesindeki her küçük değişikliğe doğrudan bağlıdır.',
   },
 ];
