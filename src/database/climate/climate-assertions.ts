@@ -5,10 +5,12 @@ import {
 } from '../../province/province.types';
 import type { ClimateManifestArtifact, ClimateNormalsArtifact } from './climate-artifact.types';
 import {
+  EMPTY_CELL_VALUES,
   METRIC_ROW_LABELS,
   RECORD_COLUMNS,
   formatLikeRawKaNumber,
   formatLikeRawRecordDate,
+  type MetricField,
   type MgmRawMetricRow,
   type MgmRawRecordCell,
 } from './mgm-parser';
@@ -30,11 +32,18 @@ export class ClimateImportError extends Error {
   }
 }
 
-/** The cell contents MGM uses to mean "nothing here". Kept in ONE place so the value check
- * and the date check cannot drift apart on what counts as blank. */
+/**
+ * The cell contents MGM uses to mean "nothing here".
+ *
+ * The definition lives in ONE place — `EMPTY_CELL_VALUES` in `mgm-parser`, the same set
+ * `parseKaNumber` consults when it decides to return `null`. This function is only the
+ * trim-then-look-up wrapper. It used to be a second, independent copy of the list while its
+ * own comment claimed the opposite; the copy is what would have let the two drift, so that a
+ * cell the parser called blank could read as non-blank here (or worse, the reverse — which
+ * turns "a reading was dropped" into a passing check).
+ */
 function isBlankSourceCell(raw: string): boolean {
-  const trimmed = raw.trim();
-  return trimmed === '' || trimmed === '-' || trimmed === '—';
+  return EMPTY_CELL_VALUES.has(raw.trim());
 }
 
 /**
@@ -97,6 +106,55 @@ const MONTHLY_DATE_FIELD_BY_LABEL: Partial<
  * ------------------------------------------------------------------ */
 
 /**
+ * Close the round-trip's OTHER direction: every stored value must HAVE a raw row to be
+ * checked against.
+ *
+ * `assertDecimalRoundTrip` iterates the raw rows and looks up the stored value for each. That
+ * only proves "every raw row is faithfully represented" — a stored value whose metric has no
+ * manifest row is never re-printed, never compared, and passes. Given this module's own threat
+ * model (the artifact is hand-editable between the two phases, and `load` is the phase that
+ * actually writes), an unchecked value is exactly the seam the design exists to close: adding
+ * a `sunshineHours` series and deleting its raw row would otherwise publish unverified numbers.
+ */
+function assertRawRowsCoverStoredValues(
+  plateCode: string,
+  normals: ClimateNormals,
+  rawMetricRows: readonly MgmRawMetricRow[],
+  rawRecordCells: readonly MgmRawRecordCell[],
+): void {
+  const coveredFields = new Set<MetricField>(
+    rawMetricRows.map((row) => METRIC_ROW_LABELS[row.label]),
+  );
+
+  const uncovered = new Set<MetricField>();
+  for (const month of normals.months) {
+    for (const field of Object.values(METRIC_ROW_LABELS)) {
+      if (month[field] !== null && !coveredFields.has(field)) uncovered.add(field);
+    }
+  }
+  if (uncovered.size > 0) {
+    throw new ClimateImportError(
+      `${plateCode}: field(s) ${[...uncovered].join(', ')} carry values but the manifest holds ` +
+        `no raw source row for them — those numbers would be written unverified.`,
+    );
+  }
+
+  // The three record columns are a fixed set, so their coverage is absolute, not conditional:
+  // a missing raw cell means the whole column escapes the check.
+  const coveredRecordFields = new Set(rawRecordCells.map((cell) => cell.field));
+  const missingRecordFields = RECORD_COLUMNS.filter(
+    (column) => !coveredRecordFields.has(column.field),
+  );
+  if (missingRecordFields.length > 0) {
+    throw new ClimateImportError(
+      `${plateCode}: the manifest holds no raw cell for record column(s) ` +
+        `${missingRecordFields.map((column) => column.field).join(', ')} — expected all ` +
+        `${RECORD_COLUMNS.length}.`,
+    );
+  }
+}
+
+/**
  * Re-print every parsed number in MGM's own notation and require it to match the raw source
  * cell byte-for-byte.
  *
@@ -117,6 +175,8 @@ export function assertDecimalRoundTrip(
   rawMetricRows: readonly MgmRawMetricRow[],
   rawRecordCells: readonly MgmRawRecordCell[],
 ): void {
+  assertRawRowsCoverStoredValues(plateCode, normals, rawMetricRows, rawRecordCells);
+
   for (const row of rawMetricRows) {
     const field = METRIC_ROW_LABELS[row.label];
     if (row.rawMonthlyCells.length !== CLIMATE_MONTH_COUNT) {
@@ -323,6 +383,20 @@ export function assertClimateNormalsShape(plateCode: string, normals: ClimateNor
       );
     }
   }
+
+  // The three records are magnitudes — rainfall, wind speed and snow depth. None can be
+  // negative. The monthly values are range-checked above; the records were not, so a sign flip
+  // in a record cell had no cheap check at all. (Like every range invariant here this is weak
+  // on its own and cannot see a truncated decimal — that remains the round-trip's job.)
+  for (const column of RECORD_COLUMNS) {
+    const record = normals.records[column.field];
+    if (record !== null && record.value < 0) {
+      throw new ClimateImportError(
+        `${plateCode}: record "${column.header}" is ${record.value} ${column.unit} — a negative ` +
+          `magnitude is impossible.`,
+      );
+    }
+  }
 }
 
 /* ------------------------------------------------------------------ *
@@ -366,6 +440,20 @@ export function assertArtifactsCorroborate(
   }
   if (new Set(manifestCodes).size !== manifestCodes.length) {
     throw new ClimateImportError('climate-manifest.json contains duplicate plate codes.');
+  }
+
+  // Both directions. The normals→manifest direction below catches a value with no provenance;
+  // this one catches the reverse — a manifest entry with no series. That is not cosmetic: the
+  // two files are supposed to be one run's output, so an extra manifest entry means either the
+  // artifacts came from different runs or a province was dropped from the normals after the
+  // fact, which is precisely the I1 omission this pair of files should be able to see.
+  const normalsCodeSet = new Set(normalsCodes);
+  const orphanedManifestCodes = manifestCodes.filter((code) => !normalsCodeSet.has(code));
+  if (orphanedManifestCodes.length > 0) {
+    throw new ClimateImportError(
+      `province(s) ${orphanedManifestCodes.join(', ')} are present in climate-manifest.json but ` +
+        `absent from climate-normals.json — the two artifacts do not describe the same run.`,
+    );
   }
 
   const manifestByCode = new Map(manifest.entries.map((entry) => [entry.plateCode, entry]));

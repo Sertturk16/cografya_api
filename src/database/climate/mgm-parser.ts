@@ -92,8 +92,14 @@ const K_A_NUMBER_RE = /^(-?)(\d{1,4})(?:,(\d{1,2}))?$/;
 /** MGM prints record dates as `DD.MM.YYYY`. */
 const RECORD_DATE_RE = /^(\d{2})\.(\d{2})\.(\d{4})$/;
 
-/** Cells MGM leaves blank. `-` is included because a station with no record prints it. */
-const EMPTY_CELL_VALUES = new Set(['', '-', '—']);
+/**
+ * Cells MGM leaves blank. `-` is included because a station with no record prints it.
+ *
+ * Exported because the load-phase assertions must decide "is this source cell blank?" by the
+ * SAME rule the parser used when it produced the `null` — two independent copies could drift
+ * apart and turn a dropped reading into a passing check.
+ */
+export const EMPTY_CELL_VALUES: ReadonlySet<string> = new Set(['', '-', '—']);
 
 /** Plausibility window for a measurement period. Wider than reality on purpose: this
  * guards against a parse landing on the wrong digits, not against MGM being wrong. */
@@ -515,6 +521,23 @@ function parseMonthlyTable(tableHtml: string, context: MgmParseContext): Monthly
       context,
     );
   }
+  // The allowlist above catches a RENAMED row (unrecognised label → throw). It cannot catch a
+  // REMOVED one: a dropped row simply never appears, its field fills `?? null` for all 12
+  // months, and `metricRows.length === 0` still passes because the other seven rows remain —
+  // so six of the eight measures could vanish and the table would quietly lose a column across
+  // all 81 provinces. Requiring the full expected set closes that direction (PLAN risk #3:
+  // "Gürültülü patlar, sessiz boş dizi asla").
+  const missingLabels = (Object.keys(METRIC_ROW_LABELS) as MetricRowLabel[]).filter(
+    (label) => !values.has(METRIC_ROW_LABELS[label]),
+  );
+  if (missingLabels.length > 0) {
+    throw new MgmParseError(
+      `the monthly table is missing ${missingLabels.length} expected measure row(s): ` +
+        `${missingLabels.map((label) => JSON.stringify(label)).join(', ')}. MGM's table layout ` +
+        `has changed; refusing to import a series that would silently lose a measure.`,
+      context,
+    );
+  }
   if (metricRows.length === 0) {
     throw new MgmParseError('monthly table contained no recognised measure rows.', context);
   }
@@ -543,6 +566,16 @@ function parseRecordsTable(tableHtml: string, context: MgmParseContext): Records
   const bodyRowHtml = rows[1];
   if (headerRowHtml === undefined || bodyRowHtml === undefined) {
     throw new MgmParseError('records table needs a header row and a value row.', context);
+  }
+  // Every row must be accounted for, exactly as in the monthly table. Reading only rows 0-1
+  // would silently discard an added row — and an added row is precisely the signal that the
+  // column layout we index by position has moved.
+  if (rows.length !== 2) {
+    throw new MgmParseError(
+      `records table has ${rows.length} rows, expected exactly 2 (a header row and a value ` +
+        `row). MGM's layout has changed; refusing to read the value row by position.`,
+      context,
+    );
   }
 
   const headerCells = extractCells(headerRowHtml);

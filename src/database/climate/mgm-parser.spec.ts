@@ -8,6 +8,7 @@ import {
   parseKaNumber,
   parseMgmGeneralStatisticsPage,
   parseMgmProvinceKeys,
+  parseRecordValue,
   type MgmParseContext,
 } from './mgm-parser';
 
@@ -293,6 +294,36 @@ describe('parseMgmGeneralStatisticsPage — refuses malformed input', () => {
     const monthlyOnly = /<table[\s\S]*?<\/table>/.exec(html)?.[0] ?? '';
     expect(() => parseMgmGeneralStatisticsPage(monthlyOnly, context)).toThrow(/no records table/);
   });
+
+  it('throws when MGM REMOVES a measure row entirely, not only when it renames one', () => {
+    // The allowlist catches a renamed label (unrecognised → throw). A removed row is the
+    // silent direction: it simply never appears, the field fills `null` for all 12 months,
+    // and the remaining seven rows keep every other check green — so six of the eight
+    // measures could vanish and the table would quietly lose a column across all 81
+    // provinces. Sunshine is used here precisely because it is NOT part of the core pair, so
+    // nothing else in the pipeline would have objected.
+    const mutated = html.replace(
+      /<tr>\s*<th>Ortalama Güneşlenme Süresi \(saat\)<\/th>[\s\S]*?<\/tr>/,
+      '',
+    );
+    expect(mutated).not.toBe(html);
+
+    expect(() => parseMgmGeneralStatisticsPage(mutated, context)).toThrow(
+      /missing 1 expected measure row/,
+    );
+  });
+
+  it('throws when the records table grows a row instead of reading rows 0-1 by position', () => {
+    // Insert before the LAST `</tbody>` — the monthly table has one too, and `replace`
+    // would otherwise hit that one.
+    const insertAt = html.lastIndexOf('</tbody>');
+    expect(insertAt).toBeGreaterThan(0);
+    const mutated = `${html.slice(0, insertAt)}<tr><td>x</td></tr>\n  ${html.slice(insertAt)}`;
+
+    expect(() => parseMgmGeneralStatisticsPage(mutated, context)).toThrow(
+      /records table has 3 rows/,
+    );
+  });
 });
 
 describe('parseKaNumber / formatLikeRawKaNumber', () => {
@@ -327,6 +358,40 @@ describe('parseKaNumber / formatLikeRawKaNumber', () => {
     expect(formatLikeRawKaNumber(-6.3, '-6,3')).toBe('-6,3');
     expect(formatLikeRawKaNumber(113, '113')).toBe('113');
     expect(formatLikeRawKaNumber(0.76, '0,76')).toBe('0,76');
+  });
+});
+
+describe('parseRecordValue', () => {
+  const context = contextFor('ICEL');
+
+  it('keeps a record whose occurrence date is missing', () => {
+    // Same asymmetry as the monthly rows: MGM may simply not have printed a date, and
+    // discarding a real record over that would be data loss.
+    expect(parseRecordValue('199,5 mm', '', 'mm', context, 'test')).toEqual({
+      value: 199.5,
+      date: null,
+    });
+  });
+
+  it('returns null for a blank pair', () => {
+    // A station with no measurable snow is normal — that is not a parse failure.
+    expect(parseRecordValue('-', '-', 'cm', context, 'test')).toBeNull();
+  });
+
+  it('throws when a value carries no unit', () => {
+    // The unit is what makes the magnitude meaningful; a bare number here means the cell
+    // layout changed, and silently keeping the number would publish an unscaled figure.
+    expect(() => parseRecordValue('199,5', '26.12.1968', 'mm', context, 'test')).toThrow(
+      /carries no unit/,
+    );
+  });
+
+  it('throws on an occurrence date with no record value', () => {
+    // The records analog of the monthly rule — a date attached to nothing would render as
+    // a dangling parenthetical.
+    expect(() => parseRecordValue('-', '26.12.1968', 'mm', context, 'test')).toThrow(
+      /occurrence date .* with no record value/,
+    );
   });
 });
 

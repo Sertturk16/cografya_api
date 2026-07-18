@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { DataSource } from 'typeorm';
 import { Province } from '../../province/entities/province.entity';
+import { canonicalJson } from './canonical-json';
 import type { ClimateManifestArtifact, ClimateNormalsArtifact } from './climate-artifact.types';
 import {
   ClimateImportError,
@@ -37,8 +38,6 @@ export interface LoadPhaseOptions {
 export interface LoadPhaseResult {
   updated: number;
   unchanged: number;
-  /** Provinces present in the artifact but absent from the database. */
-  missingProvinces: string[];
 }
 
 async function readJsonFile<T>(path: string): Promise<T> {
@@ -48,7 +47,13 @@ async function readJsonFile<T>(path: string): Promise<T> {
   } catch (error: unknown) {
     throw new ClimateImportError(`cannot read ${path}`, { cause: error });
   }
-  return JSON.parse(contents) as T;
+  try {
+    return JSON.parse(contents) as T;
+  } catch (error: unknown) {
+    // Wrapped for the same reason the read is: an operator seeing a bare `SyntaxError` has to
+    // guess WHICH of the two artifacts is corrupt.
+    throw new ClimateImportError(`${path} is not valid JSON`, { cause: error });
+  }
 }
 
 /**
@@ -91,23 +96,60 @@ export async function loadClimateNormals(
     );
   }
 
+  // Province coverage is resolved HERE, before the transaction opens, and in BOTH directions.
+  //
+  // It used to be detected inside the transaction loop, with the `throw` firing after
+  // `dataSource.transaction(...)` had already resolved — so 80 provinces committed (bumping
+  // their `updated_at`) and only then did the process exit 1. The failure was loud but
+  // misleading: an operator seeing "load failed" could not assume nothing had been written,
+  // which breaks the all-or-nothing model every other check in this file maintains and
+  // contradicts the comment above.
+  const artifactCodes = normalsArtifact.entries.map((entry) => entry.plateCode);
+  const knownCodes = new Set(
+    (await dataSource.getRepository(Province).find({ select: { plateCode: true } })).map(
+      (province) => province.plateCode,
+    ),
+  );
+
+  const missingProvinces = artifactCodes.filter((code) => !knownCodes.has(code));
+  if (missingProvinces.length > 0) {
+    throw new ClimateImportError(
+      `the artifact covers province(s) that are not in the database: ${missingProvinces.join(', ')}. ` +
+        `Run \`pnpm db:seed:geography\` first — a climate series without its province is a silent no-op.`,
+    );
+  }
+
+  // The other direction, which nothing checked before: a province in the database that the
+  // artifact does not cover. That is the load-side backstop for a fetch run which dropped a
+  // province (its series would simply stay NULL forever, with no error at any layer). Under
+  // the all-or-nothing design every seeded province gets a series, so a gap is a defect, not
+  // a configuration.
+  const covered = new Set(artifactCodes);
+  const uncovered = [...knownCodes].filter((code) => !covered.has(code)).sort();
+  if (uncovered.length > 0) {
+    throw new ClimateImportError(
+      `the artifact covers ${covered.size} of ${knownCodes.size} provinces in the database — ` +
+        `missing ${uncovered.join(', ')}. A province absent from the artifact keeps a NULL ` +
+        `series silently; re-run the fetch phase rather than loading a partial artifact.`,
+    );
+  }
+
   let updated = 0;
   let unchanged = 0;
-  const missingProvinces: string[] = [];
 
   await dataSource.transaction(async (manager) => {
     const repo = manager.getRepository(Province);
 
     for (const entry of normalsArtifact.entries) {
-      const province = await repo.findOne({ where: { plateCode: entry.plateCode } });
-      if (!province) {
-        missingProvinces.push(entry.plateCode);
-        continue;
-      }
+      // Re-read inside the transaction: the pre-flight `find` above proved existence, this
+      // read is the one the write is based on.
+      const province = await repo.findOneOrFail({ where: { plateCode: entry.plateCode } });
 
-      // Structural comparison via canonical JSON. The artifact and the stored document are
-      // both produced by this codebase from the same interface, so key order is stable.
-      if (JSON.stringify(province.climateNormals) === JSON.stringify(entry.normals)) {
+      // Structural comparison, ORDER-INDEPENDENT — see `canonical-json.ts`. Plain
+      // `JSON.stringify` equality is wrong here: `province.climateNormals` came back through
+      // Postgres `jsonb`, which re-sorts object keys, so two identical documents produced
+      // different strings and every re-run rewrote all 81 rows.
+      if (canonicalJson(province.climateNormals) === canonicalJson(entry.normals)) {
         unchanged += 1;
         continue;
       }
@@ -118,12 +160,5 @@ export async function loadClimateNormals(
     }
   });
 
-  if (missingProvinces.length > 0) {
-    throw new ClimateImportError(
-      `the artifact covers province(s) that are not in the database: ${missingProvinces.join(', ')}. ` +
-        `Run \`pnpm db:seed:geography\` first — a climate series without its province is a silent no-op.`,
-    );
-  }
-
-  return { updated, unchanged, missingProvinces };
+  return { updated, unchanged };
 }

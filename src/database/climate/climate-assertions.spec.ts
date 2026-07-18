@@ -305,4 +305,72 @@ describe('assertArtifactsCorroborate', () => {
       /duplicate plate codes/,
     );
   });
+
+  it('rejects a manifest entry with no matching series (the other direction)', () => {
+    // The normals→manifest direction was already covered; this is its mirror. An extra
+    // manifest entry means either the two files came from different runs or a province was
+    // dropped from the normals after the fact — the second is exactly the omission this
+    // pair of files is supposed to be able to see.
+    const { normalsArtifact, manifest } = buildArtifacts(parseFixture().normals);
+    const entry = manifest.entries[0];
+    if (entry) manifest.entries.push({ ...entry, plateCode: '34' });
+
+    expect(() => assertArtifactsCorroborate(normalsArtifact, manifest)).toThrow(
+      /present in climate-manifest.json but absent from climate-normals.json/,
+    );
+  });
+});
+
+describe('the round-trip covers stored values, not only raw rows', () => {
+  it('rejects a stored value whose metric has no raw row to be checked against', () => {
+    // The round-trip iterates the RAW rows, so before this check a value whose manifest row
+    // was deleted was never re-printed, never compared, and passed. Given the module's own
+    // threat model — the artifact is hand-editable between the two phases — that was the
+    // seam the design exists to close.
+    const parsed = parseFixture();
+    const withoutSunshine = parsed.raw.metricRows.filter(
+      (row) => row.label !== 'Ortalama Güneşlenme Süresi (saat)',
+    );
+    expect(withoutSunshine.length).toBe(parsed.raw.metricRows.length - 1);
+
+    expect(() =>
+      assertDecimalRoundTrip('33', parsed.normals, withoutSunshine, parsed.raw.recordCells),
+    ).toThrow(/carry values but the manifest holds no raw source row/);
+  });
+
+  it('rejects a missing raw record cell, whose whole column would otherwise escape the check', () => {
+    const parsed = parseFixture();
+    const withoutSnow = parsed.raw.recordCells.filter((cell) => cell.field !== 'maxSnowDepthCm');
+
+    expect(() =>
+      assertDecimalRoundTrip('33', parsed.normals, parsed.raw.metricRows, withoutSnow),
+    ).toThrow(/no raw cell for record column/);
+  });
+
+  it('does NOT demand a raw row for a metric that is null in all 12 months', () => {
+    // Coverage is required of values, not of fields: MGM legitimately omits whole rows for
+    // some stations, and demanding a raw row for a field that carries nothing would turn a
+    // normal page into a failed import.
+    const parsed = parseFixture();
+    const normals = clone(parsed.normals);
+    for (const month of normals.months) month.sunshineHours = null;
+    const withoutSunshine = parsed.raw.metricRows.filter(
+      (row) => row.label !== 'Ortalama Güneşlenme Süresi (saat)',
+    );
+
+    expect(() =>
+      assertDecimalRoundTrip('33', normals, withoutSunshine, parsed.raw.recordCells),
+    ).not.toThrow();
+  });
+});
+
+describe('record plausibility', () => {
+  it('rejects a negative record magnitude', () => {
+    // Rainfall, wind speed and snow depth are magnitudes. The monthly values were
+    // range-checked; the records were not, so a sign flip had no cheap check at all.
+    const normals = clone(parseFixture().normals);
+    normals.records.dailyMaxPrecipitationMm = { value: -1, date: null };
+
+    expect(() => assertClimateNormalsShape('33', normals)).toThrow(/negative magnitude/);
+  });
 });

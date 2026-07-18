@@ -74,7 +74,8 @@ export const CLIMATE_MONTH_COUNT = 12;
  * some stations — but the CORE PAIR (`tempMeanC` + `precipitationMm`) is all-or-nothing at
  * the series level: if either is incomplete across the 12 months the whole
  * `climate_normals` object is left NULL and the page section does not render
- * (PLAN.md "Eksik veri" rule, enforced by `assertPublishableClimateNormals`). The extras
+ * (PLAN.md "Eksik veri" rule, enforced by `findUnpublishableReason` and, on the write path,
+ * by `assertClimateNormalsShape`). The extras
  * (sunshine, rainy days, records) degrade gracefully — the web drops a table column that is
  * null in all 12 months.
  *
