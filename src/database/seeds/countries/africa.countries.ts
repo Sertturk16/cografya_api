@@ -1769,6 +1769,43 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'BIF',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "1 Temmuz 1962'de Belçika'dan bağımsız oldu.",
+    introTr:
+      'Burundi, Tanganyika Gölü kıyısındaki 772 metrelik Imbo ovasından başlayıp yalnızca ' +
+      'birkaç on kilometre içeride 2.600 metrenin üzerine çıkan bir iç ülkedir. Bu keskin ' +
+      'yükselti farkının tepesinde uzanan Kongo-Nil sırtı, ülkeyi boydan boya kat eden ana su ' +
+      "bölümü çizgisidir: batısındaki sular Kongo Nehri'ne, doğusundakiler ise Nil sistemine " +
+      'akar. Sırtın doğusunda arazi, aralıksız bir tepe-vadi dizisi halinde alçalır — ' +
+      'Burundi\'nin "bin tepe ülkesi" olarak anılmasının kaynağı da budur.',
+    landformNoteTr:
+      "Batıda, Tanganyika Gölü kıyısı boyunca uzanan Imbo ovası, Afrika Rift Vadisi'nin " +
+      'tabanını oluşturan dar ve alçak bir çöküntüdür. Ovanın hemen doğusunda arazi, Mumirwa ' +
+      'olarak bilinen dik bir yamaç boyunca aniden yükselir; bu yamaç birkaç kilometre içinde ' +
+      '1.000 metreden fazla tırmanır. Yamacın tepesinde, ülkenin en yüksek noktası olan 2.684 ' +
+      "metrelik Heha Dağı'nın da üzerinde bulunduğu Kongo-Nil sırtı uzanır." +
+      '\n\n' +
+      'Sırtın doğusunda arazi, orta yükseklikteki dalgalı platolar halinde kademeli olarak ' +
+      'alçalır; ülke nüfusunun büyük bölümü bu bölgede yaşar. En doğuda ise arazi, Bugesera ve ' +
+      'Kumoso çöküntülerinde 1.000-1.300 metreye kadar iner — ülkenin en alçak ve en sıcak iç ' +
+      'kesimi burasıdır.',
+    climateNoteTr:
+      "Burundi'de iklim, alçak Imbo ovasından yüksek Kongo-Nil sırtına doğru keskin biçimde " +
+      "değişir. Tanganyika kıyısındaki Imbo'da yıllık yağış 800-950 milimetre arasında kalır, " +
+      'ortalama sıcaklık 23 derecenin üzerindedir. Mumirwa yamacında yağış 1.000-1.400 ' +
+      'milimetreye çıkar; sırtın kendisinde yıllık 1.500-2.000 milimetreye ulaşan en yüksek ' +
+      'yağış görülür, ama ortalama sıcaklık 14-15 dereceye kadar düşer. Orta platolarda yağış ' +
+      '1.200-1.500 milimetre civarındadır; en doğudaki Bugesera ve Kumoso çöküntülerinde ise ' +
+      '750-1.250 milimetreye geriler. Ülke genelinde yağmur mevsimi Ekim-Mayıs arasına yayılır, ' +
+      'Haziran-Eylül ise kurak geçer.',
+    hydrographyNoteTr:
+      "Tanganyika Gölü, Baykal'dan sonra dünyanın en derin ikinci tatlı su gölüdür ve Burundi, " +
+      "Tanzanya, Kongo Demokratik Cumhuriyeti ile Zambiya arasında paylaşılır; gölün Burundi'ye " +
+      'düşen kıyı payı yaklaşık 2.600 kilometrekaredir. Ülkenin en uzun nehri olan Ruvubu, ' +
+      "Kongo-Nil sırtının doğu yamaçlarında doğar ve kuzeydoğuya akarak Kagera Nehri'ne, oradan " +
+      'da Nil sistemine katılır.' +
+      '\n\n' +
+      "Ruvubu'nun kollarından Ruvyironza, Rutovu yakınlarındaki Kasumo kaynağından doğar. " +
+      "1937'de buraya dikilen taş bir anıt, kaynağı Nil'in en güneydeki başlangıç noktası " +
+      'olarak tanımlar.',
   },
   {
     isoCode: 'KM',
@@ -1792,6 +1829,35 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'KMF',
     governmentFormTr: 'Federal başkanlık cumhuriyeti',
     independenceNoteTr: "6 Temmuz 1975'te Fransa'dan bağımsız oldu.",
+    introTr:
+      "Komorlar, Mozambik Kanalı'nın kuzey ucunda, Madagaskar ile Afrika anakarası arasında " +
+      'kuzeybatı-güneydoğu doğrultusunda dizilmiş dört volkanik adadan oluşur. Adalar, oluşum ' +
+      'yaşına göre belirgin bir sıra izler: en kuzeydoğudaki Grande Comore hâlâ etkin bir ' +
+      'yanardağa sahip en genç ada iken, en güneybatıdaki Mayotte volkanik etkinliğini çoktan ' +
+      'kaybetmiş en yaşlı adadır — bu ada bugün Fransa tarafından yönetiliyor. Anjouan ve ' +
+      'Moheli, yaş ve aşınma bakımından bu iki uç arasında yer alır.',
+    landformNoteTr:
+      "Grande Comore'un kuzey üçte birini, artık etkin olmayan ve 1.000 metreye kadar yükselen " +
+      'La Grille yanardağı kaplar. Adanın güney üçte ikisini ise Karthala oluşturur; bu etkin ' +
+      "kalkan yanardağı 2.361 metreyle Komorlar'ın en yüksek noktasıdır ve 3x4 kilometrelik " +
+      "zirve kalderasıyla tanınır. 19. yüzyıldan bu yana 20'den fazla patlama kaydedilmiştir." +
+      '\n\n' +
+      'Anjouan, aşınmayla derin vadilere bölünmüş üçgen biçimli bir adadır; en yüksek noktası ' +
+      "1.595 metrelik Ntringui Dağı'dır. En küçük ve en aşınmış ada olan Moheli'de arazi daha " +
+      "alçaktır, en yüksek nokta 790 metrelik Mlédjélé Dağı'dır.",
+    climateNoteTr:
+      "Komorlar'da iklim tropikal olup yıl iki mevsime ayrılır. Aralık-Nisan arası, kuzeybatı " +
+      'musonunun (kashkazi) getirdiği sıcak ve yağışlı bir dönem yaşanır; Mayıs-Kasım arası ise ' +
+      "güneydoğu ticaret rüzgarı kusi'nin hakim olduğu daha serin ve kurak bir dönem gelir. " +
+      "Yağış adadan adaya değişir; Moheli'deki Fomboni'de yıllık ortalama 2.100 milimetreyken, " +
+      "Anjouan'daki Ouani'de bu rakam 1.800 milimetreye iner. Ocak ayı, kıyı kesimlerinde 300 " +
+      'milimetreyi aşan yağışıyla en yağışlı ay olurken, Eylül-Kasım arası en kurak dönemdir.',
+    hydrographyNoteTr:
+      'Bol yağışa rağmen Komorlar kronik bir tatlı su sıkıntısı yaşar, çünkü genç volkanik ' +
+      "kayaç suyu hızla emer ve yüzey akışına izin vermez. Grande Comore'da kalıcı bir akarsu " +
+      'neredeyse hiç yoktur; adanın su ihtiyacı büyük ölçüde yağmur suyu toplama ve yeraltı ' +
+      "kaynaklarıyla karşılanır. Daha yaşlı ve daha aşınmış olan Anjouan ile Moheli'de " +
+      'mevsimlik dereler bulunur, ama bu adalarda da güvenilir bir yeraltı suyu kaynağı yoktur.',
   },
   {
     isoCode: 'DJ',
@@ -2020,6 +2086,43 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'MGA',
     governmentFormTr: 'Yarı başkanlık cumhuriyeti',
     independenceNoteTr: "26 Haziran 1960'ta Fransa'dan bağımsız oldu.",
+    introTr:
+      'Madagaskar, dünyanın dördüncü büyük adası ve eski bir Gondwana parçasıdır; önce ' +
+      "Afrika'dan yaklaşık 180 milyon yıl önce, ardından Hindistan alt kıtasından yaklaşık 90 " +
+      'milyon yıl önce koptu. Bu uzun izolasyon, adada dünyanın başka hiçbir yerinde bulunmayan ' +
+      "bir canlı çeşitliliği yarattı — bitki ve hayvan türlerinin yaklaşık %90'ı yalnızca " +
+      'burada yaşar. Fiziki olarak ada, kuzeyden güneye uzanan bir orta yayla omurgası ile bu ' +
+      'omurganın doğusundaki dar, yağmur ormanlarıyla kaplı kıyı şeridi ve batısındaki daha ' +
+      'geniş, kademeli alçalan düzlükler arasında keskin bir asimetri gösterir.',
+    landformNoteTr:
+      'Orta yayla, 800-1.800 metre yükseklikte, yuvarlak tepeler, granit mostralar, sönmüş ' +
+      'volkanik koniler ve pirinç tarımına dönüştürülmüş alüvyal ovalardan oluşan karmaşık bir ' +
+      "topografyaya sahiptir. Kuzeydeki Tsaratanana Masifi'nde yer alan 2.876 metrelik " +
+      'Maromokotro, adanın en yüksek noktasıdır; ortada Ankaratra Masifi 2.666 metreye, güneyde ' +
+      'ise Ivakoany Masifi benzer yüksekliklere ulaşır.' +
+      '\n\n' +
+      'Doğuya doğru arazi, dik bir şevle aniden düşerek dar bir kıyı ovasına ve onu kaplayan ' +
+      'yoğun yağmur ormanına ulaşır. Batıya doğru iniş çok daha kademelidir; burada geniş ' +
+      'yaprak döken orman ve savan görünümlü düzlükler, Mozambik Kanalı kıyısındaki geniş kıyı ' +
+      'ovalarına kadar uzanır. Ülkenin en güneyinde ise bu düzlükler kuraklaşarak baobab ' +
+      'ağaçları ve dikenli çalılıklarla kaplı kendine özgü bir bitki örtüsüne dönüşür.',
+    climateNoteTr:
+      "Madagaskar'ın iklimi, güneydoğu ticaret rüzgarlarının orta yaylaya ulaşmadan önce nemini " +
+      'doğu yamaçlarında bırakması yüzünden doğu-batı doğrultusunda keskin biçimde değişir. ' +
+      'Doğu kıyısı ve yağmur ormanı kuşağı yıl boyu yüksek nem ve bol yağış alır, siklonlara da ' +
+      'en açık bölgedir. Orta yayla daha serin ve nispeten kurak bir subtropikal iklime ' +
+      'sahiptir; burada Kasım-Nisan arası sıcak bir yağmur mevsimi, Mayıs-Ekim arası ise serin ' +
+      'bir kurak dönem yaşanır. Kuzeyde muson etkili sıcak ve nemli bir hava hakimken, güney ve ' +
+      'güneybatıda yağış 500 milimetrenin altına inerek yarı çöl görünümlü bir iklime dönüşür.',
+    hydrographyNoteTr:
+      "Madagaskar'ın nehirleri, adanın doğu-batı asimetrisini birebir yansıtır. Batıya akan " +
+      'nehirler — Betsiboka, Mangoky, Mahajamba, Sambirano gibi — orta yayladan daha kademeli ' +
+      'bir eğimle indiği için uzun ve yavaş akışlıdır; 564 kilometreyle ülkenin en uzun nehri ' +
+      "olan Mangoky, 58.000 kilometrekarelik bir havzayı Mozambik Kanalı'na boşaltır. Betsiboka " +
+      'ise yukarı havzadaki yoğun toprak erozyonu yüzünden taşıdığı kırmızı tortuyla tanınır ve ' +
+      "Bombetoka Körfezi'nde geniş bir delta oluşturur. Doğuya akan nehirler ise şevin dikliği " +
+      'yüzünden kısa ve hızlıdır; bu fark, ülkenin batı kıyısındaki geniş deltaların doğu ' +
+      'kıyısında neredeyse hiç görülmemesinin başlıca nedenidir.',
   },
   {
     isoCode: 'MW',
@@ -2066,6 +2169,40 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'MUR',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "12 Mart 1968'de Birleşik Krallık'tan bağımsız oldu (Cumhuriyet 1992).",
+    introTr:
+      'Mauritius Cumhuriyeti, ana Mauritius adasının yanı sıra ondan çok daha eski ve aşınmış ' +
+      'bir volkanik ada olan Rodrigues ile Agalega ve Saint Brandon mercan adacıklarından ' +
+      'oluşur. Ana ada, Réunion sıcak noktasının yaklaşık 8 milyon yıl önce okyanus tabanından ' +
+      'yükselttiği bir kalkan yanardağının aşınmış kalıntısıdır. Adanın 300-600 metre ' +
+      'yükseklikteki merkezi platosunu, eski kraterin kenarını oluşturduğu düşünülen aşınmış ' +
+      'zirveler çevreler; bunların en yükseği 828 metrelik Piton de la Petite Rivière ' +
+      "Noire'dır.",
+    landformNoteTr:
+      'Merkezi platonun çevresindeki aşınmış volkanik zirveler arasında, sivri silueti ile ' +
+      'tanınan Pieter Both ve deniz kıyısına dik inen Le Morne Brabant öne çıkar. Adanın ' +
+      'güneybatısındaki Kara Nehir (Black River) Vadileri, ormanlık kanyonları, şelaleleri ve ' +
+      'adayı bir zamanlar baştan başa kaplayan yerli abanoz ormanının kalıntılarını barındırır. ' +
+      'Ada, neredeyse kesintisiz bir bariyer resif ile çevrilidir; bu resif kıyı boyunca 1-2 ' +
+      'kilometre genişliğinde sakin bir lagün oluşturur.' +
+      '\n\n' +
+      'Merkezi platonun güneybatısında, 550 metre yükseklikte yer alan Grand Bassin (Ganga ' +
+      'Talao), 18 metre derinliğindeki bir krater gölüdür. Ana adadan çok daha eski olan ' +
+      'Rodrigues, benzer biçimde bazalt lav tabakalarından oluşur, ama aşınma çok daha ileri ' +
+      'düzeydedir; bu ada da kendi mercan resifiyle çevrilidir.',
+    climateNoteTr:
+      'Mauritius, yıl boyu esen güneydoğu ticaret rüzgarlarının etkisi altında tropikal deniz ' +
+      'iklimine sahiptir. Kasım-Nisan arası sıcak ve nemli bir dönem olup aynı zamanda siklon ' +
+      'mevsimidir; Mayıs-Ekim arası ise daha serin ve kuru geçer. Yıllık yağış, ticaret ' +
+      'rüzgarlarına kapalı kalan kuzeybatı kıyısında yaklaşık 1.200 milimetreyken, rüzgara açık ' +
+      'güneydoğu kıyısında 1.600 milimetreye çıkar; merkezi plato ise kıyıdan daha serin ' +
+      'olmasına karşın, rüzgar yamaçlarında yıllık 5.000 milimetreye ulaşan en yüksek yağışı ' +
+      'alır.',
+    hydrographyNoteTr:
+      'Ülkenin nehirleri, merkezi platodan kıyıya doğru kısa ve dik bir güzergah izler; en ' +
+      'uzunu olan Grand River South East (Büyük Güneydoğu Nehri) yalnızca 40 kilometredir. ' +
+      'Hiçbiri gemi taşımacılığına elverişli değildir, ama pek çoğu şelale ve dar vadilerle ' +
+      'dikkat çeker. Ülkede doğal göl azdır; merkezi platodaki Grand Bassin krater gölü bu ' +
+      'bakımdan ada üzerindeki tek büyük durgun su kütlesidir.',
   },
   {
     isoCode: 'MZ',
@@ -2112,6 +2249,51 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'RWF',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "1 Temmuz 1962'de Belçika'dan bağımsız oldu.",
+    introTr:
+      'Ruanda, ülke topraklarının neredeyse tamamı 1.000 metrenin üzerinde kalan, aralıksız ' +
+      "tepe dizileriyle kaplı bir yayla ülkesidir; bu görünüm ülkeye komşusu Burundi'yle " +
+      'paylaştığı "bin tepe ülkesi" adını kazandırır. Batı sınırı boyunca Afrika Rift ' +
+      "Vadisi'nin batı kolu geçer ve bu hat üzerinde, kuzeybatıda Kongo Demokratik Cumhuriyeti " +
+      'sınırına yakın Virunga Dağları yükselir. Sıradağın en yüksek zirvesi olan 4.507 metrelik ' +
+      'Karisimbi, aynı zamanda ülkenin en yüksek noktasıdır.',
+    landformNoteTr:
+      'Ülkenin batısını doğusundan ayıran Kongo-Nil su bölümü çizgisi, kuzeyden güneye ortalama ' +
+      "2.743 metre yükseklikte uzanır; ülke sularının yaklaşık %80'i bu hattın doğusundan Nil " +
+      "havzasına, %20'si ise batısından Kongo havzasına akar. Hattın kuzey ucunda, Virunga " +
+      "Dağları'nın volkanik konileri — Karisimbi, Bisoke, Sabyinyo — art arda sıralanır; bu " +
+      "kütleler Kongo ve Uganda sınırlarına doğru uzanan geniş bir sıradağın Ruanda'ya düşen " +
+      'parçasıdır.' +
+      '\n\n' +
+      'Su bölümü çizgisinin doğusunda arazi, 1.500-2.000 metre yükseklikteki dalgalı orta ' +
+      'platoya kademeli olarak alçalır; ülke nüfusunun büyük bölümü bu bölgede yaşar. En ' +
+      'doğuda, Akagera Nehri çevresindeki düzlükler 1.000-1.500 metreye kadar iner ve savan ' +
+      'görünümü kazanır.',
+    climateNoteTr:
+      "Ruanda'da sıcaklık büyük ölçüde yükseltiyle belirlenir; her 1.000 metrelik tırmanışta " +
+      'ortalama sıcaklık yaklaşık 6,5 derece düşer. Bu nedenle 1.500 metredeki başkent ' +
+      "Kigali'de gündüz sıcaklıkları 26-28 derece civarındayken, batıdaki volkanik ve orman " +
+      "bölgelerinde bu rakam 16-21 dereceye iner; yalnızca en batıdaki Ruzizi Vadisi'nde arazi " +
+      '1.000 metrenin altına inerek 35 dereceye ulaşan sıcak bir hava kazanır. Yağış rejimi ' +
+      'dört mevsime ayrılır: Mart-Mayıs arası uzun ve şiddetli bir yağmur mevsimi, ' +
+      'Haziran-ortası Eylül arası uzun bir kurak dönem, Ekim-Kasım arası kısa bir yağmur ' +
+      'mevsimi ve Aralık-Şubat arası kısa bir kurak dönem.',
+    hydrographyNoteTr:
+      'Ülke sularının beşte dördü, Nyabarongo ve onun devamı olan Akagera nehirleri üzerinden ' +
+      'Nil sistemine akar; Akagera, ülkenin doğu sınırının bir bölümünü çizdikten sonra Uganda ' +
+      "topraklarındaki Victoria Gölü'ne dökülür. Nyabarongo'nun kollarından Rukarara, " +
+      "güneybatıdaki Nyungwe Ormanı içindeki Kamiranzovu Bataklığı'nda 2.430 metre yükseklikte " +
+      "doğar; 2005-2006'daki bir GPS ölçüm seferi burayı Nil'in denizden en uzak kaynağı olarak " +
+      'belirledi. Bu, Burundi\'deki Kasumo kaynağının "en güneydeki kaynak" tanımından ayrı, ' +
+      'farklı bir ölçüte dayanan bağımsız bir sonuçtur.' +
+      '\n\n' +
+      'Su bölümü çizgisinin batısında kalan beşte birlik dilim ise Kivu Gölü ve onu güneyden ' +
+      'boşaltan Ruzizi Nehri üzerinden Kongo havzasına akar. Kivu, Ruanda ile Kongo Demokratik ' +
+      'Cumhuriyeti arasında paylaşılan ve 480 metre derinliğe ulaşan bir rift gölüdür; göl ' +
+      'tabanında büyük miktarda çözünmüş metan ve karbondioksit birikmiştir. Bu özellik ' +
+      "Kivu'yu, geçmişte patlayarak yüzlerce can alan Kamerun'daki Nyos ve Monoun gölleriyle " +
+      'aynı, dünyada yalnızca birkaç örneği bilinen "limnik patlama" riski olan göller arasına ' +
+      'sokar; bugün gölün Ruanda kıyısında bu metan gazı elektrik üretimi için ticari olarak ' +
+      'çekiliyor.',
   },
   {
     isoCode: 'SC',
@@ -2135,6 +2317,39 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'SCR',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "29 Haziran 1976'da Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      'Seyşeller, dünyanın okyanus ortasındaki tek granit adalar topluluğuna sahip ülkesidir. ' +
+      'Ülkenin 155 adası iki tamamen farklı kökene ayrılır: kuzeydoğuda kümelenen 41 granit ' +
+      "ada, yaklaşık 750 milyon yıl önce oluşmuş ve Hindistan'ın Gondwana'dan ayrılması " +
+      'sırasında (yaklaşık 66 milyon yıl önce) okyanus ortasında yalıtılmış kalmış bir kıta ' +
+      'parçasıdır; geri kalan adalar ise güneybatıdaki alçak mercan atolleridir. Ülkenin en ' +
+      'büyük ve en kalabalık adası olan Mahé, granit adalar grubunun merkezinde yer alır.',
+    landformNoteTr:
+      "Mahé'de, granit kütlelerin denize dik indiği sarp bir topografya hakimdir; adanın ve " +
+      'ülkenin en yüksek noktası olan 905 metrelik Morne Seychellois, dar kıyı düzlüğünün hemen ' +
+      "üzerinde yükselir. İkinci büyük granit ada olan Praslin'de, Vallée de Mai adlı eski " +
+      'palmiye ormanı, yalnızca burada yetişen ve bitkiler aleminin en büyük tohumuna sahip ' +
+      'coco de mer palmiyesini barındırır.' +
+      '\n\n' +
+      'Güneybatıdaki mercan adaları granit adalardan tamamen farklı bir yapıya sahiptir. ' +
+      "Bunların en büyüğü olan Aldabra, dünyanın Kiritimati'den sonraki en büyük ikinci " +
+      'atolüdür; deniz seviyesinden yalnızca 8 metre yükselen bu yükselmiş mercan resifi, ' +
+      'dünyanın en büyük yükselmiş atolü kabul edilir.',
+    climateNoteTr:
+      "Seyşeller'de iklim ekvatoral karakterde olup mevsimsel farklılık azdır; ülke, Hint " +
+      "Okyanusu'nun ana siklon kuşağının dışında kalır — kayıtlara geçmiş tek büyük fırtına " +
+      "1862'de Mahé'yi vurmuştur. Yağış miktarı adadan adaya büyük fark gösterir: Mahé'de deniz " +
+      'seviyesinde yıllık ortalama 2.880 milimetreyken, dağlık yamaçlarda bu rakam 3.550 ' +
+      'milimetreye çıkar. Güneybatıdaki mercan adalarında ise iklim çok daha kuraktır; Aldabra ' +
+      'gibi adalarda yıllık yağış 500 milimetreye kadar geriler.',
+    hydrographyNoteTr:
+      'Ülkede önemli bir akarsu yoktur. Granit adalarda, dağ yamaçlarından inen kısa ve dik ' +
+      'dereler dışında kalıcı bir su ağı bulunmaz. Mercan adalarında ise durum daha da ' +
+      "keskindir: Aldabra'da hiç tatlı su kaynağı yoktur; adadaki tek su, kireçtaşı " +
+      'çukurlarında gelgitle birlikte yükselip alçalan, deniz suyunun üzerinde tatlı-tuzlu bir ' +
+      "mercek halinde duran sınırlı miktardaki sudur. Bu su yokluğu, Aldabra'nın tarih boyunca " +
+      'gemiler tarafından uğranmamasının ve bugün hâlâ el değmemiş kalmasının başlıca ' +
+      'nedenlerinden biridir.',
   },
   {
     isoCode: 'SO',
