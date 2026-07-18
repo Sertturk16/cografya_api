@@ -1,0 +1,14 @@
+{
+  // Jest config for the `tools/` unit tests.
+  //
+  // `isolatedModules: true` puts ts-jest in transpile-only mode. That is deliberate, not a
+  // shortcut: tools source imports siblings with explicit `.ts` extensions (Node's native
+  // type stripping requires them), which needs `allowImportingTsExtensions`, which in turn
+  // requires `noEmit` — and ts-jest must emit. Transpiling sidesteps the conflict, and
+  // nothing goes unchecked: `pnpm typecheck` type-checks `tools/` in full through
+  // `tools/tsconfig.json`, specs included.
+  "extends": "./tsconfig.spec.json",
+  "compilerOptions": {
+    "isolatedModules": true
+  }
+}

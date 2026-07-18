@@ -194,10 +194,17 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   changed files (**no `--fix`**). Verify tests by reading the PR's CI — never run the e2e
   suite to "confirm green" locally.
 - **CI jobs (`.github/workflows/ci.yml`):** `Typecheck & Lint` · `Build` · `OpenAPI spec
-  drift` · `Test (e2e)` (Jest + `@testcontainers/postgresql` on a real Postgres +
-  supertest). **CI green is the single merge gate — no merge while red.**
+  drift` · `Test (unit — tools)` · `Test (e2e)` (Jest + `@testcontainers/postgresql` on a
+  real Postgres + supertest). **CI green is the single merge gate — no merge while red.**
 - **e2e tests use a real Postgres via Testcontainers**, not mocks. Every authz-bearing
   route asserts the forbidden and unauthenticated paths, not only the happy path.
+- **Narrative-content seed PRs are transcribed by tool, never by hand.** Use
+  `pnpm seed:transcribe apply <draft.md>` to write fact-checked prose into the seed, and
+  `pnpm seed:transcribe check <draft.md>` to verify. This replaces the manual
+  byte-for-byte roundtrip reconstruction that `CONVENTIONS.md` §2 required: the
+  content-fidelity check is now one command that must print `0 drifted`. Hand-typing prose
+  into the `+`-concatenation idiom is what caused PR #43's dropped spaces — don't.
+  See `tools/seed-transcription/README.md` for the join rule and the design rationale.
 - No deploy job — hosting is undecided (`CONVENTIONS.md` §2/§7). Do **not** wire a deploy
   pipeline until the hosting target is chosen.
 
