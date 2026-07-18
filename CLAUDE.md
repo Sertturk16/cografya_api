@@ -155,6 +155,16 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   (`dist/database/data-source.js`).
 - **Public entities carry `slug_tr` + `slug_en`** (the web repo's localized-slug routing
   depends on them). Slug columns are indexed for the lookup path.
+- **External data imports are TWO-PHASE, and the phases are not interchangeable**
+  (`pnpm db:import:climate --phase=fetch|load`, `src/database/climate/`). `fetch` is the only
+  thing that touches the network: run BY HAND (roughly yearly), polite by construction
+  (serial, >=3 s apart, 30 s timeout, identifying UA, circuit breaker), and it writes
+  committed, reviewable artifacts. `load` is offline, deterministic and idempotent, reads
+  only those artifacts, and is the only phase CI or a deploy may run. **Never collapse the
+  two** — a build that can fail because a provider is down is not a build. Fidelity rule: the
+  manifest keeps the RAW source cell strings and the load phase re-prints each parsed number
+  to prove it still matches, because range/ordering invariants cannot detect a silently
+  truncated decimal.
 - **Seeds** are split: `db:seed` / `db:seed:dev`, plus a dedicated **`db:seed:geography`**
   for the country/province/concept base data — the platform's most critical seed. Seed
   discipline notes belong on the entity (e.g. `plate_code` is zero-padded to 2 chars so
@@ -194,8 +204,13 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   changed files (**no `--fix`**). Verify tests by reading the PR's CI — never run the e2e
   suite to "confirm green" locally.
 - **CI jobs (`.github/workflows/ci.yml`):** `Typecheck & Lint` · `Build` · `OpenAPI spec
-  drift` · `Test (unit — tools)` · `Test (e2e)` (Jest + `@testcontainers/postgresql` on a
-  real Postgres + supertest). **CI green is the single merge gate — no merge while red.**
+  drift` · `Test (unit)` · `Test (e2e)` (Jest + `@testcontainers/postgresql` on a real
+  Postgres + supertest). **CI green is the single merge gate — no merge while red.**
+- **`Test (unit)` covers `tools/` AND pure `src/` modules with a `.spec.ts` sibling**
+  (config: `test/jest-unit.json` + `tsconfig.unit-spec.json`). A module that needs no
+  database belongs there, not in the Testcontainers e2e suite — the e2e job is for code that
+  genuinely needs Postgres. `src/**/*.spec.ts` is excluded from `tsconfig.build.json`, so
+  specs are type-checked but never emitted to `dist/`.
 - **e2e tests use a real Postgres via Testcontainers**, not mocks. Every authz-bearing
   route asserts the forbidden and unauthenticated paths, not only the happy path.
 - **Narrative-content seed PRs are transcribed by tool, never by hand.** Use

@@ -160,7 +160,24 @@ describe('Province (e2e)', () => {
       'InitCountry1784001600000',
       'AddCountryHydrographyNote1784102400000',
       'AddCountrySovereigntyNote1784188800000',
+      'AddProvinceClimateNormals1784620800000',
     ]);
+  });
+
+  it('exposes the two climate columns, empty for every province (A1a ships MECHANISM, no data)', async () => {
+    // Two things at once, both structural:
+    //   1. the migration + entity mapping actually work end-to-end against real Postgres
+    //      (a jsonb column the entity mis-maps would fail to select here), and
+    //   2. this PR introduces the SCHEMA only — every province is still null, so nothing
+    //      about a rendered climate section can be true yet. The import is PR A1b.
+    const repo = dataSource.getRepository(Province);
+    const provinces = await repo.find();
+
+    expect(provinces).toHaveLength(81);
+    for (const province of provinces) {
+      expect(province.climateNormals).toBeNull();
+      expect(province.climateNarrativeTr).toBeNull();
+    }
   });
 
   it('phase 1 — seeding the pilot-5 into an empty DB inserts exactly those 5', () => {

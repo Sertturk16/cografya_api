@@ -8,7 +8,7 @@ import {
   type ValueTransformer,
 } from 'typeorm';
 import { GEOGRAPHIC_REGION_DB_ENUM, GeographicRegion } from '../../common/geographic-region.enum';
-import type { EconomyIndicator, HydrographyFeature } from '../province.types';
+import type { ClimateNormals, EconomyIndicator, HydrographyFeature } from '../province.types';
 
 /**
  * Postgres `numeric`/`decimal` values come back from the driver as strings (to
@@ -153,6 +153,44 @@ export class Province {
    */
   @Column({ name: 'climate_note_tr', type: 'text', nullable: true })
   climateNoteTr!: string | null;
+
+  /**
+   * MGM iklim normalleri — aylık seri + kaynak + ölçüm periyodu + rekorlar.
+   *
+   * `jsonb` on the province row, NOT a child table (PLAN.md §1, a deliberate reversal of
+   * `SPEC-veri.md` §3.1). Two reasons carry it:
+   *   1. **`dateModified` / sitemap `lastmod` stay correct for free.** Writing the climate
+   *      series onto the province row trips the existing `@UpdateDateColumn`. A child table
+   *      would NOT trip it, so every climate refresh would leave the page's advertised
+   *      modification date silently stale — a defect the child table would have *introduced*.
+   *   2. Ruling 5 (`k=A` as the single series) removed the multiplicity that justified a
+   *      child table at all: what remains is one fixed-shape object per province, exactly
+   *      the shape `hydrographyFeatures` already occupies.
+   *
+   * The honest cost is the loss of DB-level `CHECK (month BETWEEN 1 AND 12)` and a unique
+   * key. Three auditable layers pay it back: the shared `ClimateNormals` interface (the
+   * entity column and the DTO cannot drift), the loud import-time assertions in
+   * `climate-assertions.ts` (a malformed series aborts the import instead of publishing),
+   * and the served-payload invariants in the e2e suite.
+   *
+   * NULL means "no publishable series" — the web renders no climate section at all. The
+   * kill-switch is one statement: `UPDATE provinces SET climate_normals = NULL`.
+   */
+  @Column({ name: 'climate_normals', type: 'jsonb', nullable: true })
+  climateNormals!: ClimateNormals | null;
+
+  /**
+   * NOVA'nın il-il yazdığı iklim yorumu (TR) — mekanizma anlatan gerçek düzyazı
+   * (karasallık, orografi, yağış gölgesi, denizel yumuşatma), tabloyu tekrar eden bir
+   * özet DEĞİL (PLAN.md §3, doorway-content kapısı 1).
+   *
+   * This is NOT a reuse of `climateNoteTr`: that column holds the locked MGM Köppen
+   * methodology caveat and must stay exactly as it is. Null for months while the content
+   * waves run — the column ships now so that ten content waves need zero further
+   * migrations. Null renders no prose block; the chart still renders.
+   */
+  @Column({ name: 'climate_narrative_tr', type: 'text', nullable: true })
+  climateNarrativeTr!: string | null;
 
   /** Öne çıkan yer şekilleri / jeoloji notu — short free text (TR). */
   @Column({ name: 'landform_note_tr', type: 'text', nullable: true })

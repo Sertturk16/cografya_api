@@ -7,6 +7,7 @@ import { AddProvinceDetailSections1783701664849 } from './migrations/17837016648
 import { InitCountry1784001600000 } from './migrations/1784001600000-InitCountry';
 import { AddCountryHydrographyNote1784102400000 } from './migrations/1784102400000-AddCountryHydrographyNote';
 import { AddCountrySovereigntyNote1784188800000 } from './migrations/1784188800000-AddCountrySovereigntyNote';
+import { AddProvinceClimateNormals1784620800000 } from './migrations/1784620800000-AddProvinceClimateNormals';
 
 /**
  * Single source of truth for the TypeORM connection shape. Consumed by:
@@ -34,6 +35,7 @@ export function buildDataSourceOptions(url: string): DataSourceOptions {
       InitCountry1784001600000,
       AddCountryHydrographyNote1784102400000,
       AddCountrySovereigntyNote1784188800000,
+      AddProvinceClimateNormals1784620800000,
     ],
     synchronize: false,
     migrationsRun: false,
