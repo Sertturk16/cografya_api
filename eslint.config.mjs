@@ -41,6 +41,14 @@ export default tseslint.config(
     },
   },
   {
+    // `tools/` is ESM run directly by Node's type stripping (it uses `import.meta`), so
+    // it needs `sourceType: 'module'` unlike the CommonJS application code.
+    files: ['tools/**/*.ts'],
+    languageOptions: {
+      sourceType: 'module',
+    },
+  },
+  {
     // Test files only. Test tooling surfaces `any` at its boundaries
     // (supertest's `res.body`, `app.getHttpServer()`, jest matchers), so relax
     // the unsafe-any family for specs. Production code keeps the full strict

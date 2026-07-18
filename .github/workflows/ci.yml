@@ -61,6 +61,23 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run openapi:check
 
+  # Unit tests for build-time tooling (`tools/`). These need no database, so they run as
+  # their own fast job rather than waiting on Testcontainers. They cover the seed
+  # transcription tool, whose losslessness invariant is what replaces the manual
+  # byte-for-byte roundtrip check on narrative-content PRs (CONVENTIONS §2).
+  test-unit:
+    name: Test (unit — tools)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run test:unit
+
   # e2e tests on a real Postgres via Testcontainers (the team's single test gate).
   # GitHub-hosted runners ship Docker, so Testcontainers manages its own Postgres
   # container — no `services:` block needed.

@@ -1,0 +1,28 @@
+{
+  // Build-tooling project. `tools/` is NOT part of the Nest application: it is run
+  // directly by Node's native type stripping (Node >= 24), never compiled to `dist/`.
+  // That is why it needs its own project — `allowImportingTsExtensions` requires
+  // `noEmit`, which the application build cannot use.
+  //
+  // The strict base is inherited unchanged: tooling that rewrites seed data gets the
+  // same type rigor as production code.
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    // Node runs these files as ESM (it detects `import`/`export` and reparses, since the
+    // package is typeless), so the checker must agree — `nodenext` would infer CommonJS
+    // from the absent `"type": "module"` and reject `import.meta`.
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "rootDir": "..",
+    "types": ["node", "jest"]
+  },
+  // Specs are included so `typecheck` and the type-aware lint pass cover them too.
+  // Jest itself transpiles without type-checking (`isolatedModules`), so this project is
+  // the single place tools types are verified.
+  // `exclude` must be restated: the base config excludes `tools` (so the application
+  // typecheck skips it), and `extends` would otherwise inherit that here and match nothing.
+  "include": ["**/*.ts"],
+  "exclude": []
+}

@@ -194,10 +194,32 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   changed files (**no `--fix`**). Verify tests by reading the PR's CI — never run the e2e
   suite to "confirm green" locally.
 - **CI jobs (`.github/workflows/ci.yml`):** `Typecheck & Lint` · `Build` · `OpenAPI spec
-  drift` · `Test (e2e)` (Jest + `@testcontainers/postgresql` on a real Postgres +
-  supertest). **CI green is the single merge gate — no merge while red.**
+  drift` · `Test (unit — tools)` · `Test (e2e)` (Jest + `@testcontainers/postgresql` on a
+  real Postgres + supertest). **CI green is the single merge gate — no merge while red.**
 - **e2e tests use a real Postgres via Testcontainers**, not mocks. Every authz-bearing
   route asserts the forbidden and unauthenticated paths, not only the happy path.
+- **Narrative-content seed PRs are transcribed by tool, never by hand.** Use
+  `pnpm seed:transcribe apply <draft.md>` to write fact-checked prose into the seed, and
+  `pnpm seed:transcribe check <draft.md>` to verify. This replaces the manual
+  byte-for-byte roundtrip reconstruction that `CONVENTIONS.md` §2 required. Hand-typing
+  prose into the `+`-concatenation idiom is what caused PR #43's dropped spaces — don't.
+  See `tools/seed-transcription/README.md` for the join rule and the design rationale.
+- **The content-fidelity gate is per-wave, and it is `exit 0`.** Run `check` over **the
+  draft(s) that PR touches** — not the whole corpus — and it must exit 0, which means
+  `0 drifted` **and** `0 not yet seeded`. Do not read the printed counts and judge by eye;
+  read the exit code.
+  - The gate is **scoped to the PR's own drafts on purpose.** A corpus-wide run also sweeps
+    up superseded drafts and drafts whose prose the seed has since corrected — neither is a
+    defect in the wave being reviewed, and folding them in produces a gate that can never
+    go green. A mandated gate that cannot go green trains the next engineer to ignore it,
+    which is worse than having no gate.
+  - **`apply` refuses to overwrite a committed value that differs from the draft.** That is
+    not an obstacle to route around: it means the seed may hold a correction the draft
+    never caught up with (PR #46's `Ekvator` -> `Ekvador` is the live example). Back-port
+    the fix to the draft. `--force` exists for the case where the draft is genuinely the
+    newer text — using it is a decision you must be able to defend in the PR.
+  - **Pass only the authoritative draft.** Two drafts naming the same country+field with
+    different prose is a hard error, by design; the tool will not pick a winner for you.
 - No deploy job — hosting is undecided (`CONVENTIONS.md` §2/§7). Do **not** wire a deploy
   pipeline until the hosting target is chosen.
 

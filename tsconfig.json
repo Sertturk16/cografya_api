@@ -19,5 +19,10 @@
 
     "strict": true,
     "noUncheckedIndexedAccess": true
-  }
+  },
+
+  // `tools/` is checked by its own project (`tools/tsconfig.json`), which enables
+  // `allowImportingTsExtensions` — that option requires `noEmit` and so cannot live here.
+  // `pnpm typecheck` runs BOTH projects; nothing goes unchecked.
+  "exclude": ["node_modules", "dist", "tools"]
 }
