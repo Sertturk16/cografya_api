@@ -243,6 +243,7 @@ describe('assertArtifactsCorroborate', () => {
         generatedAtUtc: GENERATED_AT,
         source: CLIMATE_SOURCE_MGM_GENERAL,
         userAgent: 'CografyaPlatformBot/1.0',
+        anomalies: [],
         entries: [
           {
             plateCode: '33',

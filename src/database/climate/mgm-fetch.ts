@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { CLIMATE_SOURCE_MGM_GENERAL } from '../../province/province.types';
 import { SEED_PROVINCES } from '../seeds/province.seed-data';
 import type {
+  ClimateAnomaly,
   ClimateManifestArtifact,
   ClimateManifestEntry,
   ClimateNormalsArtifact,
@@ -22,7 +23,9 @@ import { parseMgmGeneralStatisticsPage, parseMgmProvinceKeys } from './mgm-parse
  * MGM is a public institution serving us for free with no API and no permission granted
  * (→ DEC 2026-07-18f). This client is therefore conservative on every axis:
  *   - **Serial**, never parallel — one request in flight, ever.
- *   - **≥ 3 s between requests**, so 81 pages take ~5 minutes rather than hammering.
+ *   - **≥ 5 s between requests** rather than hammering. Budget **~70 minutes** for the 81 pages:
+ *     MGM degrades to ~50 s/page under sustained access (measured 2026-07-18), so the wall-clock
+ *     cost is dominated by MGM's own pace, not by this delay.
  *   - **30 s timeout** per request via `AbortSignal.timeout` — no unbounded external call
  *     (repo CLAUDE §3.5).
  *   - **2 retries** with a longer pause, for transient failures only.
@@ -42,7 +45,15 @@ const MGM_BASE_URL = 'https://www.mgm.gov.tr/veridegerlendirme/il-ve-ilceler-ist
 const USER_AGENT =
   'CografyaPlatformBot/1.0 (climate normals import; yearly; contact via https://www.mgm.gov.tr)';
 
-const REQUEST_TIMEOUT_MS = 30_000;
+/**
+ * 60 s, not 30 s. Measured, not guessed: during the 2026-07-18 run MGM served the first ~90
+ * requests in ~3-4 s each and then degraded to ~50 s per page for the rest of the session. At a
+ * 30 s timeout that degradation cost two spurious failures (Bolu, Karaman) which only the retry
+ * saved — and three such pages in a row would have tripped the circuit breaker and aborted an
+ * otherwise healthy run. A longer ceiling is also the POLITER choice: it waits for a slow server
+ * instead of hanging up and asking again.
+ */
+const REQUEST_TIMEOUT_MS = 60_000;
 /**
  * Hard cap on a single response body. A `k=A` page is ~364 KB, so 8 MB is ~22x headroom and
  * still bounds the process.
@@ -54,10 +65,27 @@ const REQUEST_TIMEOUT_MS = 30_000;
  * "no unbounded external call, ever" (repo CLAUDE §3.5) is a rule, not a risk assessment.
  */
 const MAX_RESPONSE_BYTES = 8 * 1024 * 1024;
-const DELAY_BETWEEN_REQUESTS_MS = 3_000;
+/**
+ * 5 s, not 3 s. MGM visibly throttles sustained access (see `REQUEST_TIMEOUT_MS`); backing off
+ * is both the courteous response and the one that makes the yearly run finish.
+ */
+const DELAY_BETWEEN_REQUESTS_MS = 5_000;
 const RETRY_DELAY_MS = 10_000;
 const MAX_ATTEMPTS_PER_PAGE = 3;
 const MAX_CONSECUTIVE_FAILURES = 3;
+
+/**
+ * How many physically-impossible source values the run tolerates before it aborts.
+ *
+ * The threshold is the whole point of the anomaly mechanism: it separates "one MGM cell is
+ * wrong" from "MGM's data has broken". A single bad cell must not block 81 provinces — but a
+ * systemic breakage must not be absorbed into a quiet pile of nulls either. The 2026-07-18
+ * harvest found exactly ONE anomaly across all 81 provinces, so 5 is comfortable headroom over
+ * observed reality while still being nowhere near "something is badly wrong".
+ *
+ * If a future run trips this, the correct response is to investigate MGM, NOT to raise the number.
+ */
+const MAX_ANOMALIES = 5;
 
 export interface FetchPhaseOptions {
   /** Directory the three artifacts are written to. */
@@ -192,6 +220,7 @@ export async function runFetchPhase(options: FetchPhaseOptions): Promise<void> {
 
   let consecutiveFailures = 0;
   const failures: { plateCode: string; nameTr: string }[] = [];
+  const anomalies: ClimateAnomaly[] = [];
   // Fragments are BUFFERED, not streamed to disk, so that a run which fails the completeness
   // gate below leaves the previous year's audit trail completely untouched rather than half
   // overwritten. ~0.5 MB across 81 provinces — the whole point of committing the table
@@ -232,6 +261,28 @@ export async function runFetchPhase(options: FetchPhaseOptions): Promise<void> {
       sourceUrl: url,
     });
 
+    // The parser has already nulled anything physically impossible; record what it refused, with
+    // the province attached, so the manifest can carry the evidence.
+    for (const anomaly of parsed.anomalies) {
+      anomalies.push({ plateCode: province.plateCode, ...anomaly });
+      console.warn(
+        `[db:import:climate] ANOMALY ${province.plateCode} ${province.nameTr} — ` +
+          `"${anomaly.sourceLabel}" = ${JSON.stringify(anomaly.rawCell)}: ${anomaly.reason}. ` +
+          `Value dropped; the rest of the province is kept.`,
+      );
+    }
+    // A pile of these is a different event from one of them — stop before writing anything.
+    if (anomalies.length > MAX_ANOMALIES) {
+      throw new Error(
+        `[db:import:climate] ABORTING — ${anomalies.length} impossible values found, above the ` +
+          `threshold of ${MAX_ANOMALIES}. One bad cell is MGM having a bad day; this many means ` +
+          `the source has changed or broken. Investigate MGM before raising this number.\n` +
+          anomalies
+            .map((a) => `  - ${a.plateCode} "${a.sourceLabel}" = ${JSON.stringify(a.rawCell)}`)
+            .join('\n'),
+      );
+    }
+
     // Validate BEFORE writing an artifact, so a bad page never reaches a committed file.
     assertClimateNormalsShape(province.plateCode, parsed.normals);
     assertDecimalRoundTrip(
@@ -239,6 +290,7 @@ export async function runFetchPhase(options: FetchPhaseOptions): Promise<void> {
       parsed.normals,
       parsed.raw.metricRows,
       parsed.raw.recordCells,
+      parsed.anomalies,
     );
 
     normalsEntries.push({ plateCode: province.plateCode, normals: parsed.normals });
@@ -310,6 +362,7 @@ export async function runFetchPhase(options: FetchPhaseOptions): Promise<void> {
     generatedAtUtc,
     source: CLIMATE_SOURCE_MGM_GENERAL,
     userAgent: USER_AGENT,
+    anomalies,
     entries: manifestEntries,
   };
 
@@ -328,4 +381,21 @@ export async function runFetchPhase(options: FetchPhaseOptions): Promise<void> {
     `[db:import:climate] fetch done — ${normalsEntries.length}/${provinceKeys.length} provinces ` +
       `written to ${options.outputDir}`,
   );
+
+  // Re-stated at the END, where a human actually looks. A warning logged 70 minutes and 81
+  // provinces ago has scrolled far out of sight; an anomaly nobody reads is a silent one.
+  if (anomalies.length === 0) {
+    console.log('[db:import:climate] no impossible source values found.');
+  } else {
+    console.warn(
+      `[db:import:climate] ${anomalies.length} IMPOSSIBLE SOURCE VALUE(S) dropped — recorded in ` +
+        `climate-manifest.json under "anomalies":`,
+    );
+    for (const anomaly of anomalies) {
+      console.warn(
+        `  - ${anomaly.plateCode} "${anomaly.sourceLabel}" = ${JSON.stringify(anomaly.rawCell)} ` +
+          `→ ${anomaly.field} set to null (${anomaly.reason})`,
+      );
+    }
+  }
 }

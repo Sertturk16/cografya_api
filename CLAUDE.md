@@ -158,8 +158,10 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
 - **External data imports are TWO-PHASE, and the phases are not interchangeable**
   (`pnpm db:import:climate --phase=fetch|load`, `src/database/climate/`). `fetch` is the only
   thing that touches the network: run BY HAND (roughly yearly), polite by construction
-  (serial, >=3 s apart, 30 s timeout, identifying UA, circuit breaker), and it writes
-  committed, reviewable artifacts. `load` is offline, deterministic and idempotent, reads
+  (serial, >=5 s apart, 60 s timeout, identifying UA, circuit breaker), and it writes
+  committed, reviewable artifacts. **Budget ~70 minutes for a full `fetch`** — MGM throttles
+  sustained access down to ~50 s/page (measured 2026-07-18); a slow run is being throttled,
+  not hung. `load` is offline, deterministic and idempotent, reads
   only those artifacts, and is the only phase CI or a deploy may run. **Never collapse the
   two** — a build that can fail because a provider is down is not a build. Fidelity rule: the
   manifest keeps the RAW source cell strings and the load phase re-prints each parsed number

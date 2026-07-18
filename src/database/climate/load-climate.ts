@@ -3,7 +3,11 @@ import { join } from 'node:path';
 import type { DataSource } from 'typeorm';
 import { Province } from '../../province/entities/province.entity';
 import { canonicalJson } from './canonical-json';
-import type { ClimateManifestArtifact, ClimateNormalsArtifact } from './climate-artifact.types';
+import type {
+  ClimateAnomaly,
+  ClimateManifestArtifact,
+  ClimateNormalsArtifact,
+} from './climate-artifact.types';
 import {
   ClimateImportError,
   assertArtifactsCorroborate,
@@ -78,6 +82,16 @@ export async function loadClimateNormals(
   assertArtifactsCorroborate(normalsArtifact, manifest);
   const manifestByCode = new Map(manifest.entries.map((entry) => [entry.plateCode, entry]));
 
+  // Anomalies are declared per province, so the round-trip check can tell "we deliberately
+  // refused an impossible source value" from "we lost a reading" — the load phase re-runs that
+  // check against the artifact and would otherwise reject our own recorded refusals.
+  const anomaliesByCode = new Map<string, ClimateAnomaly[]>();
+  for (const anomaly of manifest.anomalies) {
+    const existing = anomaliesByCode.get(anomaly.plateCode);
+    if (existing) existing.push(anomaly);
+    else anomaliesByCode.set(anomaly.plateCode, [anomaly]);
+  }
+
   // Validate EVERYTHING before writing ANYTHING: a run must not leave half the provinces
   // updated because entry 57 was malformed.
   for (const entry of normalsArtifact.entries) {
@@ -93,6 +107,7 @@ export async function loadClimateNormals(
       entry.normals,
       manifestEntry.rawMetricRows,
       manifestEntry.rawRecordCells,
+      anomaliesByCode.get(entry.plateCode) ?? [],
     );
   }
 

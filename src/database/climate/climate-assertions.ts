@@ -10,9 +10,11 @@ import {
   RECORD_COLUMNS,
   formatLikeRawKaNumber,
   formatLikeRawRecordDate,
+  isAbsentRecordValueCell,
   type MetricField,
   type MgmRawMetricRow,
   type MgmRawRecordCell,
+  type MgmValueAnomaly,
 } from './mgm-parser';
 
 /**
@@ -174,7 +176,21 @@ export function assertDecimalRoundTrip(
   normals: ClimateNormals,
   rawMetricRows: readonly MgmRawMetricRow[],
   rawRecordCells: readonly MgmRawRecordCell[],
+  /**
+   * Values the parser nulled because they are physically impossible. Without this the check
+   * cannot tell "we refused to publish an impossible reading" from "we lost a reading", and it
+   * must keep failing loudly on the second. Defaults to none, so the strict behaviour is what
+   * you get unless an anomaly is explicitly declared.
+   */
+  anomalies: readonly MgmValueAnomaly[] = [],
 ): void {
+  const anomalousMonthlyCells = new Set(
+    anomalies.filter((a) => a.month !== null).map((a) => `${a.field}:${String(a.month)}`),
+  );
+  const anomalousRecordFields = new Set(
+    anomalies.filter((a) => a.month === null).map((a) => a.field),
+  );
+
   assertRawRowsCoverStoredValues(plateCode, normals, rawMetricRows, rawRecordCells);
 
   for (const row of rawMetricRows) {
@@ -191,8 +207,10 @@ export function assertDecimalRoundTrip(
       const value = normals.months[month - 1]?.[field] ?? null;
 
       if (value === null) {
-        // A null must correspond to a genuinely blank source cell. A null standing where MGM
-        // printed a number would mean we dropped a reading.
+        // A null must correspond to a genuinely blank source cell — OR to a declared anomaly,
+        // where MGM printed something impossible and we refused it on purpose. A null standing
+        // where MGM printed a usable number would mean we dropped a reading.
+        if (anomalousMonthlyCells.has(`${field}:${String(month)}`)) continue;
         if (!isBlankSourceCell(raw)) {
           throw new ClimateImportError(
             `${plateCode}: "${row.label}" month ${month} is null but the source cell reads ` +
@@ -231,7 +249,14 @@ export function assertDecimalRoundTrip(
     const rawValue = cell.rawValue.trim();
 
     if (record === null) {
-      if (!isBlankSourceCell(rawValue)) {
+      // A record may legitimately be null two ways: the station has no such record, or the one
+      // MGM published was impossible and we refused it.
+      if (anomalousRecordFields.has(cell.field)) continue;
+      // NOT `isBlankSourceCell`: a records cell has a second way of being empty that a monthly
+      // cell does not — MGM prints the bare unit (` cm`) when the station has no such record.
+      // The predicate is imported from the parser rather than restated here, so the "was this
+      // null legitimate?" test cannot drift from the rule that produced the null.
+      if (!isAbsentRecordValueCell(rawValue, column.unit)) {
         throw new ClimateImportError(
           `${plateCode}: record "${column.header}" is null but the source cell reads ` +
             `${JSON.stringify(rawValue)} — a record was dropped.`,

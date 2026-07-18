@@ -62,7 +62,9 @@ async function main(): Promise<void> {
 
   if (phase === 'fetch') {
     console.log(
-      '[db:import:climate] fetch phase — 81 serial requests, ≥3s apart. This takes ~5 minutes.',
+      '[db:import:climate] fetch phase — 81 serial requests, ≥5s apart. Budget ~70 MINUTES, not ' +
+        'minutes: MGM slows to ~50s/page once it has been serving us for a while. A run that ' +
+        'looks hung after 10 minutes is almost certainly just being throttled — let it finish.',
     );
     await runFetchPhase({ outputDir: ARTIFACT_DIR });
     return;

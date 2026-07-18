@@ -1,10 +1,17 @@
 import { describe, expect, it } from '@jest/globals';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { CLIMATE_MONTH_COUNT, CLIMATE_SOURCE_MGM_GENERAL } from '../../province/province.types';
+import {
+  CLIMATE_MONTH_COUNT,
+  CLIMATE_SOURCE_MGM_GENERAL,
+  type ClimateNormals,
+} from '../../province/province.types';
 import { assertClimateNormalsShape } from './climate-assertions';
 import {
+  RECORD_COLUMNS,
+  collectImpossibleValueAnomalies,
   formatLikeRawKaNumber,
+  isAbsentRecordValueCell,
   parseKaNumber,
   parseMgmGeneralStatisticsPage,
   parseMgmProvinceKeys,
@@ -392,6 +399,216 @@ describe('parseRecordValue', () => {
     expect(() => parseRecordValue('-', '26.12.1968', 'mm', context, 'test')).toThrow(
       /occurrence date .* with no record value/,
     );
+  });
+
+  // MGM's real "no such record" spelling, found on the 2026-07-18 harvest: the date cell reads
+  // `..` and the value cell holds the bare unit. Before this was recognised the import aborted
+  // on it, which is why these cases are pinned.
+  it('returns null for MGM\'s "no record" spelling (bare unit + ".." date)', () => {
+    expect(parseRecordValue(' cm', '..', 'cm', context, 'test')).toBeNull();
+  });
+
+  it('still throws when a bare unit is paired with a REAL occurrence date', () => {
+    // MGM asserting "an event happened on this date" while printing no magnitude is a
+    // contradiction, not an absent record. Staying loud here is what keeps the new marker
+    // narrow — it may only mean "no record", never "a reading we could not read".
+    expect(() => parseRecordValue(' cm', '15.02.2004', 'cm', context, 'test')).toThrow(
+      /occurrence date .* with no record value/,
+    );
+  });
+
+  it('does not treat a WRONG bare unit as an absent record', () => {
+    // The absent marker is matched against the unit this column must carry. A different unit
+    // means the column layout moved, and that must never be read as "nothing here".
+    expect(() => parseRecordValue(' mm', '..', 'cm', context, 'test')).toThrow();
+  });
+
+  it('does not treat an unparseable value as an absent record', () => {
+    // The failure mode this guards: a broad "if I cannot parse it, call it null" rule would
+    // turn every future format change into silent, total data loss instead of a loud stop.
+    expect(() => parseRecordValue('bilinmiyor cm', '..', 'cm', context, 'test')).toThrow();
+  });
+});
+
+describe('isAbsentRecordValueCell', () => {
+  it('accepts only the blank markers and the exact expected unit', () => {
+    expect(isAbsentRecordValueCell(' cm ', 'cm')).toBe(true);
+    expect(isAbsentRecordValueCell('-', 'cm')).toBe(true);
+    expect(isAbsentRecordValueCell('', 'cm')).toBe(true);
+
+    expect(isAbsentRecordValueCell('33 cm', 'cm')).toBe(false);
+    expect(isAbsentRecordValueCell('-1 cm', 'cm')).toBe(false);
+    expect(isAbsentRecordValueCell('mm', 'cm')).toBe(false);
+    expect(isAbsentRecordValueCell('cmx', 'cm')).toBe(false);
+  });
+});
+
+describe('collectImpossibleValueAnomalies', () => {
+  function normalsWith(mutate: (normals: ClimateNormals) => void): ClimateNormals {
+    const { normals } = parseMgmGeneralStatisticsPage(
+      loadFixture('k-a-icel.tables.html'),
+      contextFor('ICEL'),
+    );
+    mutate(normals);
+    return normals;
+  }
+
+  it('reports nothing on a clean series', () => {
+    const normals = normalsWith(() => undefined);
+
+    expect(collectImpossibleValueAnomalies(normals)).toEqual([]);
+  });
+
+  it('nulls an impossible record magnitude but KEEPS the rest of the province', () => {
+    const normals = normalsWith((draft) => {
+      const record = draft.records.maxSnowDepthCm;
+      if (record) record.value = -1;
+    });
+
+    const anomalies = collectImpossibleValueAnomalies(normals);
+
+    expect(anomalies).toHaveLength(1);
+    expect(anomalies[0]?.field).toBe('maxSnowDepthCm');
+    expect(normals.records.maxSnowDepthCm).toBeNull();
+    // The point of nulling rather than throwing: one bad cell must not cost a whole series.
+    expect(normals.records.dailyMaxPrecipitationMm).not.toBeNull();
+    expect(normals.months.every((month) => month.tempMeanC !== null)).toBe(true);
+  });
+
+  it('nulls an impossible monthly value and names the month', () => {
+    const normals = normalsWith((draft) => {
+      const month = draft.months[3];
+      if (month) month.precipitationMm = -5;
+    });
+
+    const anomalies = collectImpossibleValueAnomalies(normals);
+
+    expect(anomalies).toHaveLength(1);
+    expect(anomalies[0]?.month).toBe(4);
+    expect(normals.months[3]?.precipitationMm).toBeNull();
+  });
+
+  it('NEVER treats a negative temperature as impossible', () => {
+    // The rule must not reach temperatures: a −24,9 °C January is an ordinary eastern
+    // Anatolian reading, and nulling those would destroy the most important part of the series.
+    const normals = normalsWith((draft) => {
+      for (const month of draft.months) {
+        month.tempMeanC = -20;
+        month.tempMinMeanC = -30;
+      }
+    });
+
+    expect(collectImpossibleValueAnomalies(normals)).toEqual([]);
+    expect(normals.months.every((month) => month.tempMeanC === -20)).toBe(true);
+  });
+
+  it('records the raw cell and a reason for every anomaly', () => {
+    // The anomaly is a provenance record, not just a flag — without the source text it cannot
+    // be checked against MGM's page by a human later.
+    const normals = normalsWith((draft) => {
+      const record = draft.records.maxSnowDepthCm;
+      if (record) record.value = -1;
+    });
+
+    const [anomaly] = collectImpossibleValueAnomalies(normals);
+
+    expect(anomaly?.rawCell).toContain('-1');
+    expect(anomaly?.reason.length).toBeGreaterThan(0);
+    expect(anomaly?.sourceLabel.length).toBeGreaterThan(0);
+  });
+});
+
+/**
+ * FULL-PAGE fixtures — the gap PR A1a could not close.
+ *
+ * Every test above this point feeds the parser two-table FRAGMENTS, which are themselves this
+ * parser's output. That proves self-consistency, not that it can read what MGM actually serves:
+ * `parseMgmGeneralStatisticsPage` requires the page to contain EXACTLY two `<table>` elements,
+ * and until a real ~364 KB `.aspx` response was in hand that requirement was an assumption.
+ * These fixtures are real responses captured on 2026-07-18, committed unmodified.
+ *
+ * `k-a-osmaniye.page.html` is committed alongside them but deliberately NOT asserted yet: it
+ * carries a snow record of `-1 cm` against a real date, the import correctly refuses it, and
+ * whether that is an MGM sentinel or a data-entry error is an open question. Pinning an expected
+ * behaviour before that is answered would bake in a guess.
+ */
+describe('parseMgmGeneralStatisticsPage — real full pages', () => {
+  const FULL_PAGES = [
+    { file: 'k-a-ankara.page.html', mgmKey: 'ANKARA' },
+    { file: 'k-a-mugla.page.html', mgmKey: 'MUGLA' },
+  ] as const;
+
+  it.each(FULL_PAGES)('$mgmKey: the fixture is a whole page, not a fragment', ({ file }) => {
+    const html = loadFixture(file);
+
+    // Guards the fixture itself: if someone later "tidies" these down to the two tables, the
+    // suite silently goes back to testing fragments and the gap reopens with no failure.
+    expect(html.length).toBeGreaterThan(100_000);
+    expect(html).toMatch(/<\/html>/i);
+    expect(html).toMatch(/nav_iller/);
+  });
+
+  it.each(FULL_PAGES)('$mgmKey: parses a whole page into 12 ordered months', ({ file, mgmKey }) => {
+    const { normals } = parseMgmGeneralStatisticsPage(loadFixture(file), contextFor(mgmKey));
+
+    expect(normals.months).toHaveLength(CLIMATE_MONTH_COUNT);
+    expect(normals.months.map((month) => month.month)).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+    ]);
+    for (const month of normals.months) {
+      expect(typeof month.tempMeanC).toBe('number');
+      expect(typeof month.precipitationMm).toBe('number');
+    }
+  });
+
+  it.each(FULL_PAGES)('$mgmKey: a whole page passes the import assertions', ({ file, mgmKey }) => {
+    const parsed = parseMgmGeneralStatisticsPage(loadFixture(file), contextFor(mgmKey));
+
+    expect(() => assertClimateNormalsShape('00', parsed.normals)).not.toThrow();
+  });
+
+  it.each(FULL_PAGES)(
+    '$mgmKey: reads the period from the page, not from a constant',
+    ({ file, mgmKey }) => {
+      const html = loadFixture(file);
+      const { normals } = parseMgmGeneralStatisticsPage(html, contextFor(mgmKey));
+
+      const stated = /Ölçüm Periyodu\s*\(\s*(\d{4})\s*-\s*(\d{4})\s*\)/.exec(html);
+      expect(stated).not.toBeNull();
+      expect(normals.periodStartYear).toBe(Number(stated?.[1]));
+      expect(normals.periodEndYear).toBe(Number(stated?.[2]));
+    },
+  );
+
+  it.each(FULL_PAGES)(
+    '$mgmKey: a record is null if and ONLY if its source cell is absent',
+    ({ file, mgmKey }) => {
+      // Stated as an invariant over whatever the fixture happens to contain, so it asserts the
+      // parser's RULE rather than any province's snowfall history.
+      const parsed = parseMgmGeneralStatisticsPage(loadFixture(file), contextFor(mgmKey));
+
+      for (const cell of parsed.raw.recordCells) {
+        const column = RECORD_COLUMNS.find((candidate) => candidate.field === cell.field);
+        expect(column).toBeDefined();
+        const absent = isAbsentRecordValueCell(cell.rawValue, column?.unit ?? '');
+        expect(parsed.normals.records[cell.field] === null).toBe(absent);
+      }
+    },
+  );
+
+  it('a page may carry an absent record without losing its other records', () => {
+    // The Muğla fixture is the one that exercises the absent branch at all; without it the
+    // invariant above would be vacuously true everywhere.
+    const parsed = parseMgmGeneralStatisticsPage(
+      loadFixture('k-a-mugla.page.html'),
+      contextFor('MUGLA'),
+    );
+    const records = Object.values(parsed.normals.records);
+
+    expect(records.some((record) => record === null)).toBe(true);
+    expect(records.some((record) => record !== null)).toBe(true);
+    // An absent EXTRA must never suppress the core series (PLAN §1's all-or-nothing pair).
+    expect(parsed.normals.months.every((month) => month.tempMeanC !== null)).toBe(true);
   });
 });
 

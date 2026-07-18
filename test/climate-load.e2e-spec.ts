@@ -9,7 +9,7 @@ import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { seedGeography } from '../src/database/seeds/seed-geography';
 import { SEED_PROVINCES } from '../src/database/seeds/province.seed-data';
 import { Province } from '../src/province/entities/province.entity';
-import { CLIMATE_SOURCE_MGM_GENERAL } from '../src/province/province.types';
+import { CLIMATE_MONTH_COUNT, CLIMATE_SOURCE_MGM_GENERAL } from '../src/province/province.types';
 import type {
   ClimateManifestArtifact,
   ClimateNormalsArtifact,
@@ -72,6 +72,7 @@ function buildArtifacts(generatedAtUtc: string): {
     generatedAtUtc,
     source: CLIMATE_SOURCE_MGM_GENERAL,
     userAgent: 'CografyaPlatformBot/1.0 (e2e fixture)',
+    anomalies: [],
     entries: [],
   };
 
@@ -258,5 +259,54 @@ describe('Climate load phase (e2e)', () => {
     await expect(loadClimateNormals(dataSource, { inputDir })).rejects.toThrow(
       new RegExp(`missing ${dropped.plateCode}`),
     );
+  });
+
+  /**
+   * The artifacts every test above uses are BUILT — real parser output, but assembled in the
+   * test. This one loads the actual committed `data/climate/` files, which is the thing that
+   * will really be deployed. It is the only test that can catch an artifact which is valid in
+   * the abstract but wrong on disk (a hand-edit, a bad merge, a partial regeneration).
+   *
+   * Structural only, per CONVENTIONS §2: it asserts coverage and invariants, never that any
+   * province has a particular temperature.
+   */
+  it('the COMMITTED artifact loads cleanly and covers every seeded province', async () => {
+    const committedDir = join(__dirname, '..', 'data', 'climate');
+
+    const result = await loadClimateNormals(dataSource, { inputDir: committedDir });
+    expect(result.updated + result.unchanged).toBe(SEED_PROVINCES.length);
+
+    const stored = await dataSource.getRepository(Province).find({
+      select: { plateCode: true, climateNormals: true },
+    });
+    expect(stored).toHaveLength(SEED_PROVINCES.length);
+
+    for (const province of stored) {
+      const normals = province.climateNormals;
+      expect(normals).not.toBeNull();
+      if (normals === null) continue;
+
+      expect(normals.months).toHaveLength(CLIMATE_MONTH_COUNT);
+      expect(normals.periodStartYear).toBeLessThan(normals.periodEndYear);
+      // PLAN §1's all-or-nothing rule, checked on what actually reached the database.
+      for (const month of normals.months) {
+        expect(typeof month.tempMeanC).toBe('number');
+        expect(typeof month.precipitationMm).toBe('number');
+      }
+      // No published magnitude may be negative — the anomaly sweep runs before this point.
+      for (const record of Object.values(normals.records)) {
+        if (record !== null) expect(record.value).toBeGreaterThanOrEqual(0);
+      }
+    }
+  });
+
+  it('re-loading the COMMITTED artifact is a no-op — it is genuinely idempotent', async () => {
+    const committedDir = join(__dirname, '..', 'data', 'climate');
+    await loadClimateNormals(dataSource, { inputDir: committedDir });
+
+    const result = await loadClimateNormals(dataSource, { inputDir: committedDir });
+
+    expect(result.updated).toBe(0);
+    expect(result.unchanged).toBe(SEED_PROVINCES.length);
   });
 });

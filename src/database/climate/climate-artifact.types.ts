@@ -56,11 +56,42 @@ export interface ClimateManifestEntry {
   rawRecordCells: MgmRawRecordCell[];
 }
 
+/**
+ * A source value we refused to publish because it is physically impossible.
+ *
+ * This is NOT an error channel — it is a provenance record. MGM occasionally publishes a value
+ * that cannot exist (the 2026-07-18 harvest found exactly one across 81 provinces: Osmaniye's
+ * `En Yüksek Kar` printed as `-1 cm` against a real date). The field is nulled, the rest of the
+ * province's record is kept, and the discrepancy is written down here so that "we show no snow
+ * record for Osmaniye" has a documented cause instead of looking like OUR bug.
+ *
+ * Lives in the MANIFEST rather than the normals artifact on purpose: it is evidence about the
+ * source, and it carries the raw cell string, which is the manifest's whole job.
+ */
+export interface ClimateAnomaly {
+  plateCode: string;
+  /** MGM's own row/column heading, so the anomaly can be found on the page by eye. */
+  sourceLabel: string;
+  /** The stored field that was nulled. */
+  field: string;
+  /** 1-12 for a monthly cell, `null` for a records-table cell. */
+  month: number | null;
+  /** MGM's cell text, verbatim and untouched — the evidence. */
+  rawCell: string;
+  reason: string;
+}
+
 /** `climate-manifest.json` — provenance + raw strings. Never written to the database. */
 export interface ClimateManifestArtifact {
   generatedAtUtc: string;
   source: ClimateSource;
   /** The user agent the fetch run identified itself with. */
   userAgent: string;
+  /**
+   * Impossible source values that were nulled. Expected to be EMPTY or very short; the fetch
+   * phase aborts past a small threshold, because a pile of these means MGM's data broke rather
+   * than that one cell is wrong.
+   */
+  anomalies: ClimateAnomaly[];
   entries: ClimateManifestEntry[];
 }

@@ -3,7 +3,7 @@ import { access, mkdir, mkdtemp, readdir, readFile, writeFile } from 'node:fs/pr
 import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { ClimateNormalsArtifact } from './climate-artifact.types';
+import type { ClimateManifestArtifact, ClimateNormalsArtifact } from './climate-artifact.types';
 import { runFetchPhase } from './mgm-fetch';
 
 /**
@@ -64,6 +64,31 @@ function makeFetchStub(options: StubOptions = {}): typeof fetch {
       return Promise.resolve(new Response('upstream error', { status: 500 }));
     }
     return Promise.resolve(new Response(pageFor(key), { status: 200 }));
+  };
+}
+
+/**
+ * Like `makeFetchStub`, but corrupts the page served for the FIRST `corruptCount` provinces.
+ *
+ * Used to drive the anomaly threshold from both sides. The mutation is applied to the transport
+ * response, so the production parse/validate/threshold path runs exactly as it would against a
+ * real MGM page that carried a bad cell.
+ */
+function makeMutatingStub(corruptCount: number, corrupt: (html: string) => string): typeof fetch {
+  let callIndex = 0;
+  const seenKeys: string[] = [];
+
+  return (input: string | URL | Request): Promise<Response> => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+    if (callIndex++ === 0) {
+      return Promise.resolve(new Response(NAV_HTML, { status: 200 }));
+    }
+
+    const key = keyFromUrl(url);
+    if (!seenKeys.includes(key)) seenKeys.push(key);
+    const html = pageFor(key);
+    const shouldCorrupt = seenKeys.indexOf(key) < corruptCount;
+    return Promise.resolve(new Response(shouldCorrupt ? corrupt(html) : html, { status: 200 }));
   };
 }
 
@@ -164,9 +189,60 @@ describe('runFetchPhase', () => {
     }) as typeof fetch;
 
     // `AbortSignal.timeout` bounds wall-clock, not payload; without the cap a fast, huge
-    // response inside the 30 s window is read in full.
+    // response inside the timeout window is read in full.
     await expect(
       runFetchPhase({ outputDir, fetchImpl: oversized, sleepImpl: noSleep }),
     ).rejects.toThrow(/cap/);
+  }, 60_000);
+
+  /**
+   * The anomaly threshold. Its whole purpose is to distinguish "one MGM cell is wrong" (absorb
+   * it, record it, carry on) from "the source has broken" (stop before writing anything), so
+   * both sides of that line need pinning.
+   */
+  it('records a handful of impossible values, publishes none of them, and still completes', async () => {
+    // Two provinces' snow records made negative — under the threshold.
+    const withAnomalies = makeMutatingStub(2, (html) =>
+      html.replace(/<b>\s*\d+(?:,\d+)?\s*cm/, '<b>-1 cm'),
+    );
+
+    await runFetchPhase({ outputDir, fetchImpl: withAnomalies, sleepImpl: noSleep });
+
+    const manifest = JSON.parse(
+      await readFile(join(outputDir, 'climate-manifest.json'), 'utf8'),
+    ) as ClimateManifestArtifact;
+    const normals = JSON.parse(
+      await readFile(join(outputDir, 'climate-normals.json'), 'utf8'),
+    ) as ClimateNormalsArtifact;
+
+    // Recorded, with the evidence…
+    expect(manifest.anomalies).toHaveLength(2);
+    for (const anomaly of manifest.anomalies) {
+      expect(anomaly.plateCode.length).toBeGreaterThan(0);
+      expect(anomaly.rawCell).toContain('-1');
+    }
+    // …never published…
+    for (const entry of normals.entries) {
+      for (const record of Object.values(entry.normals.records)) {
+        if (record !== null) expect(record.value).toBeGreaterThanOrEqual(0);
+      }
+    }
+    // …and the other 79 provinces are unharmed.
+    expect(normals.entries).toHaveLength(PROVINCE_COUNT);
+  }, 60_000);
+
+  it('ABORTS without writing anything when impossible values pass the threshold', async () => {
+    // Enough anomalies to mean "the source has broken", not "a cell is wrong".
+    const manyAnomalies = makeMutatingStub(20, (html) =>
+      html.replace(/<b>\s*\d+(?:,\d+)?\s*cm/, '<b>-1 cm'),
+    );
+
+    await expect(
+      runFetchPhase({ outputDir, fetchImpl: manyAnomalies, sleepImpl: noSleep }),
+    ).rejects.toThrow(/above the threshold/);
+
+    // The same all-or-nothing guarantee the completeness gate gives: a refused run leaves the
+    // previous artifacts untouched rather than half-rewritten.
+    await expect(readFile(join(outputDir, 'climate-normals.json'), 'utf8')).rejects.toThrow();
   }, 60_000);
 });

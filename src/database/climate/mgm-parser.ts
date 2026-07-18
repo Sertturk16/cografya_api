@@ -101,6 +101,39 @@ const RECORD_DATE_RE = /^(\d{2})\.(\d{2})\.(\d{4})$/;
  */
 export const EMPTY_CELL_VALUES: ReadonlySet<string> = new Set(['', '-', '—']);
 
+/**
+ * MGM's own "there is no such record" DATE marker in the records table.
+ *
+ * Discovered empirically, not guessed: the 2026-07-18 harvest of all 81 provinces produced
+ * exactly one instance — Muğla's `En Yüksek Kar`, printed as date `..` with the value cell
+ * holding a bare ` cm`. Muğla's series starts in 2001 and its station sits on the Mediterranean
+ * coast, so "no measurable snow in 24 years" is the correct reading, not a defect.
+ *
+ * Deliberately kept SEPARATE from `EMPTY_CELL_VALUES` and used ONLY by the records table.
+ * Folding `..` into the shared set would simultaneously teach the MONTHLY series parser and the
+ * load-phase blank check to swallow it — a two-character token silently becoming a legal "no
+ * reading" across 81 provinces × 8 measures × 12 months. This set is the narrow fix; the shared
+ * one stays exactly as strict as it was.
+ */
+export const RECORD_ABSENT_DATE_VALUES: ReadonlySet<string> = new Set(['..']);
+
+/**
+ * Does this records-table VALUE cell mean "this station has no such record"?
+ *
+ * THE single definition, deliberately shared by the two places that must agree: `parseRecordValue`
+ * consults it when it decides to return `null`, and the load-phase round-trip assertion consults
+ * it when it decides whether that `null` was legitimate or a dropped reading. Two independent
+ * copies would drift, and the dangerous direction is silent — an assertion that considers a cell
+ * blank when the parser did not turns "a record was lost" into a passing check.
+ *
+ * Narrow on purpose: a cell counts as absent only if it is one of the shared blank markers, or
+ * EXACTLY the unit this column must carry with no number in front of it.
+ */
+export function isAbsentRecordValueCell(rawValue: string, expectedUnit: string): boolean {
+  const value = rawValue.trim();
+  return EMPTY_CELL_VALUES.has(value) || value === expectedUnit;
+}
+
 /** Plausibility window for a measurement period. Wider than reality on purpose: this
  * guards against a parse landing on the wrong digits, not against MGM being wrong. */
 const MIN_PERIOD_YEAR = 1900;
@@ -133,8 +166,25 @@ export interface MgmRawRecordCell {
  * round-trip assertion needs. The raw half is what makes trap T3 catchable — a range
  * invariant cannot see `10,4 → 10`, because `10` still satisfies `min ≤ mean ≤ max`.
  */
+/**
+ * One impossible source value, as seen by the parser. The plate code is attached later by the
+ * fetch phase, which is the layer that knows which province a page belongs to.
+ */
+export interface MgmValueAnomaly {
+  sourceLabel: string;
+  field: string;
+  month: number | null;
+  rawCell: string;
+  reason: string;
+}
+
 export interface MgmParseResult {
   normals: ClimateNormals;
+  /**
+   * Physically-impossible values that were nulled rather than published. Normally empty — see
+   * `collectImpossibleValueAnomalies`.
+   */
+  anomalies: MgmValueAnomaly[];
   raw: {
     metricRows: MgmRawMetricRow[];
     recordCells: MgmRawRecordCell[];
@@ -649,8 +699,15 @@ export function parseRecordValue(
 ): ClimateExtremeRecord | null {
   const value = rawValue.trim();
   const date = rawDate.trim();
-  if (EMPTY_CELL_VALUES.has(value)) {
-    if (!EMPTY_CELL_VALUES.has(date)) {
+
+  // MGM prints an absent record as a BARE UNIT — the value cell holds ` cm` and nothing else.
+  // Matched against the exact unit this column must carry, so a malformed reading like `"x cm"`
+  // or `"1,2,3 cm"` still throws instead of being read as "no record".
+  const valueIsAbsent = isAbsentRecordValueCell(value, expectedUnit);
+  const dateIsAbsent = EMPTY_CELL_VALUES.has(date) || RECORD_ABSENT_DATE_VALUES.has(date);
+
+  if (valueIsAbsent) {
+    if (!dateIsAbsent) {
       throw new MgmParseError(
         `${where}: an occurrence date ${JSON.stringify(date)} with no record value.`,
         context,
@@ -746,17 +803,89 @@ export function parseMgmGeneralStatisticsPage(
     );
   }
 
+  const normals: ClimateNormals = {
+    source: CLIMATE_SOURCE_MGM_GENERAL,
+    sourceUrl: context.sourceUrl,
+    periodStartYear: monthly.periodStartYear,
+    periodEndYear: monthly.periodEndYear,
+    months,
+    records,
+  };
+
+  // Mutates `normals` in place, nulling anything impossible and reporting what it nulled.
+  const anomalies = collectImpossibleValueAnomalies(normals);
+
   return {
-    normals: {
-      source: CLIMATE_SOURCE_MGM_GENERAL,
-      sourceUrl: context.sourceUrl,
-      periodStartYear: monthly.periodStartYear,
-      periodEndYear: monthly.periodEndYear,
-      months,
-      records,
-    },
+    normals,
+    anomalies,
     raw: { metricRows: monthly.metricRows, recordCells },
   };
+}
+
+/**
+ * Quantities that cannot be negative, by physics rather than by convention.
+ *
+ * Temperatures are deliberately ABSENT: −24,9 °C is an ordinary January in eastern Anatolia,
+ * and a rule that nulled negative temperatures would quietly destroy the most important part
+ * of the series.
+ */
+const NON_NEGATIVE_MONTHLY_FIELDS = [
+  { field: 'precipitationMm', label: 'Aylık Toplam Yağış Miktarı Ortalaması' },
+  { field: 'sunshineHours', label: 'Ortalama Güneşlenme Süresi' },
+  { field: 'rainyDays', label: 'Ortalama Yağışlı Gün Sayısı' },
+] as const satisfies readonly { field: keyof ClimateMonthlyNormal; label: string }[];
+
+/**
+ * Null every physically-impossible value and report each one, instead of aborting the import.
+ *
+ * **Why this is a mechanism and not a per-province exception.** The 2026-07-18 harvest turned up
+ * exactly one such value in 81 provinces — a snow depth of `-1 cm` against a real date, unique
+ * to one province, unexplained in MGM's documentation and unsupported by any independent source.
+ * Hard-coding "if this province, ignore this cell" would have fixed that one page and left the
+ * next anomaly to be discovered by a reader. Encoding the RULE instead means the next one is
+ * handled, recorded and visible without a code change.
+ *
+ * The three properties that make this safe to do automatically:
+ *   1. The impossible value is never published — the field becomes `null`.
+ *   2. The rest of the province survives; one bad cell does not cost us a whole series.
+ *   3. It is never silent — every instance is written to the manifest and printed at the end of
+ *      the run, and the caller aborts past a small threshold (`MAX_ANOMALIES` in `mgm-fetch`),
+ *      because "one cell is wrong" and "the source has broken" need different responses.
+ */
+export function collectImpossibleValueAnomalies(normals: ClimateNormals): MgmValueAnomaly[] {
+  const anomalies: MgmValueAnomaly[] = [];
+
+  for (const month of normals.months) {
+    for (const { field, label } of NON_NEGATIVE_MONTHLY_FIELDS) {
+      const value = month[field];
+      if (typeof value === 'number' && value < 0) {
+        anomalies.push({
+          sourceLabel: label,
+          field,
+          month: month.month,
+          rawCell: String(value),
+          reason: `a negative ${field} is physically impossible`,
+        });
+        month[field] = null;
+      }
+    }
+  }
+
+  for (const column of RECORD_COLUMNS) {
+    const record = normals.records[column.field];
+    if (record !== null && record.value < 0) {
+      anomalies.push({
+        sourceLabel: column.header,
+        field: column.field,
+        month: null,
+        rawCell: `${record.value} ${column.unit}${record.date === null ? '' : ` (${record.date})`}`,
+        reason: `a negative ${column.header} is physically impossible`,
+      });
+      normals.records[column.field] = null;
+    }
+  }
+
+  return anomalies;
 }
 
 /* ------------------------------------------------------------------ *
