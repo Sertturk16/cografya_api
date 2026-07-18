@@ -95,6 +95,36 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     currencyNameTr: 'Euro',
     currencyCode: 'EUR',
     governmentFormTr: 'Başkanlık cumhuriyeti',
+    introTr:
+      "Kıbrıs Cumhuriyeti, Doğu Akdeniz'in Sicilya ve Sardinya'dan sonra en büyük üçüncü adası " +
+      "olan Kıbrıs'ın güney kesiminde yer alır. Ülke topraklarının çatısını, adanın tümüne " +
+      'yüksekliğiyle egemen olan Troodos Dağları oluşturur. Dağların eteklerinde ve güney ' +
+      "kıyısında ise verimli ovalar ile alçak kıyı düzlükleri Akdeniz'e iner.",
+    landformNoteTr:
+      'Ülkenin ve tüm adanın en yüksek noktası, Troodos kütlesinin ortasında yükselen 1.952 ' +
+      'metrelik Olimpos Dağı\'dır (Rumca Hionistra, "kar kubbesi"). Kışın karla kaplanan bu ' +
+      'zirvenin çevresinde küçük bir kayak merkezi işletilir. Troodos, jeolojik açıdan okyanus ' +
+      'kabuğunun ve üst mantonun yeryüzüne çıkmış eksiksiz bir kesiti olan Troodos ' +
+      'ofiyolitiyle tanınır; adanın antik çağlardan beri bilinen bakır yatakları da bu kütleye ' +
+      'bağlıdır. Dağların kuzey eteğinde, adayı doğu-batı doğrultusunda kesen Mesarya ' +
+      "Ovası'nın güney kenarı başlar. Güneyde ise Limasol ve Larnaka çevresindeki alçak kıyı " +
+      'ovaları denize doğru alçalır.',
+    climateNoteTr:
+      "Kıbrıs Cumhuriyeti'nde yazları sıcak ve kurak, kışları ılık ve yağışlı geçen tipik bir " +
+      'Akdeniz iklimi görülür. Kıyı ovalarında yaz sıcaklıkları düzenli olarak 35 santigrat ' +
+      'derecenin üzerine çıkar; iç kesimdeki Mesarya Ovası yazın adanın en sıcak noktasıdır. ' +
+      "Yağışın büyük bölümü kasım ile mart arasında düşer ve asıl olarak Troodos'un yüksek " +
+      'kesimlerinde toplanır. Zirve çevresi yılın birkaç ayı kar altında kalır, bu da kurak ' +
+      'ovalarla serin dağlar arasında belirgin bir iklim karşıtlığı yaratır.',
+    hydrographyNoteTr:
+      "Kıbrıs'ta yıl boyu kesintisiz akan bir akarsu yoktur; adanın bütün dereleri, yağışın " +
+      'kesildiği yaz aylarında büyük ölçüde kuruyan mevsimlik akarsulardır. Adanın en uzun ' +
+      "akarsuyu olan 98 kilometrelik Pedieos (Kanlı Dere), Troodos Dağları'ndaki Makheras " +
+      "ormanlarında doğar, Mesarya Ovası boyunca akıp Lefkoşa'nın içinden geçer ve kuzeydoğuda " +
+      "Gazimağusa Körfezi'ne yönelir. Sürekli akarsuların olmaması nedeniyle ülke, su " +
+      'ihtiyacını büyük ölçüde barajlarda toplanan kış yağışlarına dayandırır. Güney ' +
+      "kıyısında, Larnaka ve Akrotiri'deki tuz gölleri kışın suyla dolup yazın kuruyan sığ " +
+      'çanaklardır.',
     sovereigntyNoteTr:
       'Kıbrıs Cumhuriyeti, uluslararası alanda adanın tamamını temsilen tanınan ancak ' +
       "fiilen güneyi yöneten devlettir. 1974'te yaşanan olayların ardından ada fiilen ikiye " +
@@ -124,6 +154,35 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     currencyNameTr: 'Türk Lirası',
     currencyCode: 'TRY',
     governmentFormTr: 'Yarı başkanlık sistemiyle yönetilen cumhuriyet',
+    introTr:
+      'Kuzey Kıbrıs Türk Cumhuriyeti, Kıbrıs adasının kuzey kesiminde yer alır. Coğrafyasına, ' +
+      'kuzey kıyısı boyunca ince bir şerit hâlinde uzanan Beşparmak (Girne) Dağları ile bu ' +
+      "sıradağın güneyindeki geniş Mesarya Ovası damga vurur. Kuzeydoğuda, adadan Akdeniz'e " +
+      'doğru uzanan ince Karpaz Yarımadası ülkenin en uç noktasını oluşturur.',
+    landformNoteTr:
+      'Ülkenin kuzey kıyısı boyunca, doğu-batı doğrultusunda yaklaşık 160 kilometre uzanan ' +
+      'Beşparmak Dağları (Girne Sıradağları) yükselir; adına kaynaklık eden, beş parmağa ' +
+      'benzeyen kayalık zirvesiyle tanınır. Bu kireçtaşı sıradağın ve ülkenin en yüksek ' +
+      "noktası 1.024 metrelik Selvili Tepe'dir (Rumca Kiparisóvuno). Beşparmak Dağları, adanın " +
+      'güneybatısındaki çok daha yüksek Troodos kütlesinden bağımsız, ayrı bir jeolojik ' +
+      "yapıdır; adanın 1.952 metreye ulaşan en yüksek noktası güneyde, Troodos'tadır. Dağlarla " +
+      'kuzey kıyısı arasında yalnızca dar bir kıyı şeridi kalır. Güneyde ise düz ve geniş ' +
+      'Mesarya Ovası ile batıdaki Güzelyurt Ovası, tarımın yoğunlaştığı düzlükleri oluşturur.',
+    climateNoteTr:
+      "Kuzey Kıbrıs'ta yazları sıcak ve kurak, kışları ılık ve yağışlı Akdeniz iklimi " +
+      'egemendir. Mesarya Ovası yaz aylarında bunaltıcı sıcaklara ulaşırken, Beşparmak ' +
+      "Dağları'nın kuzey yamaçları ve Girne kıyısı deniz etkisiyle bir miktar daha ılıman " +
+      'kalır. Yağışın neredeyse tamamı kasım ile mart arasında toplanır; yaz ayları uzun ve ' +
+      "kuraktır. Güneydeki yüksek Troodos'un aksine adanın kuzeyinde kalıcı bir dağ karı " +
+      'örtüsü görülmez.',
+    hydrographyNoteTr:
+      "Kıbrıs'ın kuzeyinde de yıl boyu akan sürekli bir akarsu bulunmaz; dereler kışın yağışla " +
+      'canlanıp yazın kurur. Adanın en uzun akarsuyu Pedieos (Kanlı Dere), kaynağını güneydeki ' +
+      "Troodos Dağları'ndan alır; Lefkoşa'yı geçtikten sonra kuzeydoğuya, Mesarya üzerinden " +
+      "Gazimağusa Körfezi'ne yönelir. Sürekli tatlı su kaynaklarının azlığı nedeniyle ülke " +
+      "uzun süre yeraltı suyuna ve barajlara bağımlı kalmıştır. 2015'te tamamlanan Kuzey " +
+      "Kıbrıs Su Temin Projesi ile Türkiye'nin Akdeniz kıyısından denizin altına döşenen bir " +
+      'boru hattı üzerinden adaya içme ve sulama suyu ulaştırılmaya başlanmıştır.',
     sovereigntyNoteTr:
       'KKTC, yalnızca Türkiye Cumhuriyeti tarafından resmen tanınan, de facto (fiili) ' +
       "bağımsız bir devlettir. Birleşmiş Milletler Güvenlik Konseyi, 1983'teki bağımsızlık " +
@@ -157,6 +216,37 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     currencyNameTr: 'Yeni İsrail Şekeli',
     currencyCode: 'ILS',
     governmentFormTr: 'Parlamenter cumhuriyet',
+    introTr:
+      "İsrail, Doğu Akdeniz'in güneydoğu kıyısında yer alan bir ülkedir. Topraklar batıdan " +
+      'doğuya dört farklı coğrafi kuşağa ayrılır: Akdeniz boyunca uzanan bir kıyı ovası, ' +
+      "ortada kuzey-güney doğrultulu tepelik yükseltiler, doğuda Şeria (Ürdün) Vadisi'nin " +
+      'derin çöküntüsü ve güneyde ülkenin yarısından fazlasını kaplayan Necef Çölü.',
+    landformNoteTr:
+      'Ülkenin batısını, Akdeniz kıyısı boyunca uzanan ve nüfusun büyük bölümünün toplandığı ' +
+      'verimli kıyı ovası oluşturur. Bu ovanın doğusunda arazi yükselir: kuzeydeki Celile ' +
+      '(Galilee) dağlık bölgesi, ülkenin uluslararası kabul gören sınırları içindeki en yüksek ' +
+      "noktası olan 1.208 metrelik Meron Dağı'nı barındırır. Güney yarıyı ise üçgen biçimli " +
+      'Necef Çölü kaplar; yaklaşık 12.000 kilometrekarelik bu kurak bölge, İsrail ' +
+      'topraklarının yarısından fazlasına karşılık gelir. Doğu sınırı boyunca, Afrika ve Asya ' +
+      "kıta levhalarının ayrılmasıyla oluşan Büyük Rift Vadisi'nin bir parçası olan Şeria " +
+      'Vadisi uzanır. Bu çöküntünün ortasındaki Lut Gölü (Ölü Deniz) kıyısı, deniz seviyesinin ' +
+      '430 metreden fazla altındaki yüzeyiyle yeryüzü kara alanının en alçak noktasıdır.',
+    climateNoteTr:
+      "İsrail'de kuzeyden güneye belirgin bir iklim geçişi görülür. Akdeniz kıyısı ile " +
+      'kuzeydeki dağlık kesimlerde yazları sıcak ve kurak, kışları ılık ve yağışlı bir Akdeniz ' +
+      'iklimi egemendir. Güneye inildikçe iklim hızla kuraklaşır; Necef Çölü ve Şeria ' +
+      "Vadisi'nin güneyi yarı kurak ve çöl iklimine geçer. Yağışın neredeyse tamamı kış " +
+      'aylarında düşer ve kuzeyden güneye doğru azalır: kuzeyde yılda 1.000 milimetreyi aşan ' +
+      "yağış, Necef'in güneyinde 30 milimetrenin altına iner.",
+    hydrographyNoteTr:
+      "İsrail'in en önemli tatlı su kaynağı, kuzeydoğuda deniz seviyesinin yaklaşık 210 metre " +
+      "altında yer alan Celile Denizi'dir (Taberiye Gölü / Kineret); ülkenin en büyük tatlı su " +
+      "gölüdür. Bu gölden çıkan Şeria (Ürdün) Nehri güneye doğru akarak Lut Gölü'ne dökülür ve " +
+      'yolunun bir bölümünde ülkenin doğu sınırını çizer. Yaklaşık 320 kilometrelik Şeria ' +
+      'Nehri bölgenin en uzun akarsuyudur, ancak suyunun büyük bölümü sulama ve içme amacıyla ' +
+      'çekildiğinden alt kesimlerinde debisi belirgin biçimde azalır. Lut Gölü, deniz suyunun ' +
+      'yaklaşık on katı tuzluluğuyla dünyanın en tuzlu su kütlelerinden biridir; su seviyesi ' +
+      'her yıl yaklaşık bir metre düşmektedir.',
     // Owner'ın başkent-notu, kelimesi kelimesine (verbatim).
     sovereigntyNoteTr:
       "İsrail Kudüs'ü 'bölünmez başkenti' ilan etmiş olsa da, Birleşmiş Milletler ve " +
@@ -189,6 +279,33 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     currencyNameTr: null,
     currencyCode: null,
     governmentFormTr: 'Yarı başkanlık sistemiyle yönetilen cumhuriyet',
+    introTr:
+      'Filistin, Doğu Akdeniz kıyısında, birbirinden ayrı iki toprak parçasından oluşur. ' +
+      'Doğudaki Batı Şeria, Şeria Nehri ile Akdeniz kıyı ovası arasında yer alan, orta kesimi ' +
+      'dağlık bir yayla ülkesidir. Güneybatıdaki Gazze Şeridi ise Akdeniz boyunca uzanan dar, ' +
+      'alçak ve kumul bir kıyı şerididir. İki bölge coğrafi olarak birbirine komşu değildir.',
+    landformNoteTr:
+      "Batı Şeria'nın omurgasını, kuzey-güney doğrultusunda uzanan orta dağlık yüksek yayla " +
+      "oluşturur; kireçtaşından oluşan bu yayla Filistin'in en yüksek kesimidir. Bölgenin ve " +
+      "ülkenin en yüksek noktası, Halhul yakınlarındaki 1.030 metrelik Nebi Yunus Dağı'dır. " +
+      "Yaylanın doğusunda arazi hızla alçalarak Şeria Vadisi'nin çöküntüsüne iner; Eriha " +
+      '(Jericho) çevresi, deniz seviyesinin yüzlerce metre altında kalan bu vadinin en alçak ' +
+      'yerlerindendir. Gazze Şeridi ise bütünüyle alçak kıyı ovası ve kum tepelerinden oluşur; ' +
+      'en yüksek noktası birkaç on metreyi geçmez.',
+    climateNoteTr:
+      "Filistin'in iki bölgesinde de temelde Akdeniz iklimi görülür; yazlar sıcak ve kurak, " +
+      "kışlar ılık ve yağışlıdır. Batı Şeria'nın yüksek dağlık kuşağında kışlar serin geçer ve " +
+      "zaman zaman kar yağar. Doğuya, Şeria Vadisi'ne inildikçe iklim hızla kuraklaşarak yarı " +
+      "kurak ve çöl özelliği kazanır. Gazze Şeridi'nde ise deniz etkisiyle ılıman ve nispeten " +
+      'nemli bir kıyı iklimi egemendir. Yağışın büyük bölümü kış aylarında düşer.',
+    hydrographyNoteTr:
+      'Filistin topraklarında yıl boyu akan sürekli bir nehir yoktur; iç kesimdeki vadiler ' +
+      "yalnızca kış yağışlarıyla akar. Bölgenin başlıca akarsuyu, Batı Şeria'nın doğu sınırını " +
+      "çizen Şeria (Ürdün) Nehri'dir; kuzeyden güneye akarak Lut Gölü'ne (Ölü Deniz) dökülür. " +
+      "Batı Şeria'nın güneydoğu kenarı, deniz seviyesinin 430 metreden fazla altındaki " +
+      'yüzeyiyle yeryüzünün en alçak noktası olan Lut Gölü kıyısına kadar iner. Gazze ' +
+      "Şeridi'nde yüzey suyu yok denecek kadar azdır; bölge, içme ve sulama suyunu büyük " +
+      'ölçüde kıyı akiferinden, yani yeraltı suyundan sağlar.',
     // Owner'ın başkent-notu + yönetim-notu tek alanda birleştirildi (verbatim; başkent
     //   etiketi owner'ın büyük harfli "(İlan edilen)/(Fiili idari merkez)" formunda).
     sovereigntyNoteTr:
@@ -236,6 +353,33 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     // independenceNoteTr: NULL — İran ile aynı sınıf (kesintisiz devlet, kopuş tarihi yok);
     //   bir tarih dayatmak siyasi bir ifade olurdu (DEC 2026-07-13).
     independenceNoteTr: null,
+    introTr:
+      "Tayvan, Doğu Asya'da, Çin anakarasından Tayvan Boğazı ile ayrılan bir ada ülkesidir. " +
+      'Adanın omurgasını, kuzeyden güneye uzanan yüksek sıradağlar oluşturur; bu dağlar adayı ' +
+      'sarp ve dik bir doğu kıyısı ile geniş ve alçak batı ovalarına böler. Nüfusun ve tarımın ' +
+      'büyük bölümü batıdaki ovalarda toplanır.',
+    landformNoteTr:
+      "Adayı boydan boya kat eden Merkezî Sıradağlar (Zhongyang), Tayvan'ın çatısını oluşturur " +
+      've 3.000 metrenin üzerinde iki yüzden fazla zirve barındırır. Adanın en yüksek noktası, ' +
+      "bu sıradağda yükselen 3.952 metrelik Yu Dağı'dır (Jade / Yushan) ve Kuzeydoğu Asya'nın " +
+      'en yüksek zirvelerinden biri kabul edilir. Dağlar adanın doğusunda denize dik inerek ' +
+      'yer yer yüzlerce metre yükseklikte deniz falezleri oluşturur. Batıda ise arazi kademeli ' +
+      'olarak alçalır ve geniş alüvyal ovalara dönüşür; ülke nüfusunun ve tarımının çekirdeği ' +
+      'bu batı ovalarındadır.',
+    climateNoteTr:
+      "Yengeç Dönencesi adanın ortasından geçer ve Tayvan'ı iki iklim kuşağına böler: " +
+      'dönencenin güneyi tropikal, kuzeyi ise subtropikal iklime girer. Ada genelinde muson ' +
+      'belirleyicidir; kışın kuzeydoğu, yazın güneybatı musonu yağış getirir. Yaz sonu ile ' +
+      "sonbahar, Pasifik'ten gelen tayfunların en sık görüldüğü dönemdir ve adaya kısa sürede " +
+      'çok yüksek miktarda yağış bırakır. Yüksek dağlık iç kesimler, kıyılara göre belirgin ' +
+      'biçimde serin ve yağışlıdır.',
+    hydrographyNoteTr:
+      "Tayvan'ın akarsuları, yüksek dağlardan kısa mesafede denize indikleri için kısa, hızlı " +
+      've dik eğimlidir; debileri mevsime göre büyük ölçüde değişir. Adanın en uzun nehri, ' +
+      "Merkezî Sıradağlar'daki Hehuan Dağı çevresinden doğup batıya, Tayvan Boğazı'na dökülen " +
+      "203 kilometrelik Zhuoshui Nehri'dir. Adanın en büyük gölü ise iç kesimde, yaklaşık 750 " +
+      "metre yükseklikteki Sun Moon (Güneş-Ay) Gölü'dür; hidroelektrik üretiminde kullanılan " +
+      'bu göl aynı zamanda ülkenin önemli bir turizm merkezidir.',
     sovereigntyNoteTr:
       'Tayvan, kendi anayasası, ordusu ve demokratik hükümeti olan fiilen (de facto) ' +
       "bağımsız bir devlet olmakla birlikte, Çin Halk Cumhuriyeti'nin 'Tek Çin' politikası " +
@@ -270,6 +414,35 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     currencyNameTr: 'Euro',
     currencyCode: 'EUR',
     governmentFormTr: 'Parlamenter cumhuriyet',
+    introTr:
+      "Kosova, Balkan Yarımadası'nın ortasında, denize kıyısı olmayan bir ülkedir. Ülke " +
+      'toprakları, çevrelerini yüksek dağların kuşattığı iki ana ovadan oluşur: doğuda Kosova ' +
+      'Ovası, batıda Metohija (Dukagini) Ovası. Arazinin yaklaşık dörtte üçü 500 ile 1.500 ' +
+      'metre arasında yer alır.',
+    landformNoteTr:
+      'Ülkenin iç kesimini, birbirinden alçak tepelerle ayrılan iki geniş ova oluşturur: ' +
+      'doğudaki Kosova Ovası ile batıdaki Metohija Ovası. Bu ovaları güneyden ve batıdan ' +
+      'yüksek sıradağlar çevreler. Güneyde, Kuzey Makedonya sınırı boyunca Şar Dağları (Šar ' +
+      "Planina) yükselir. Güneybatıda ise Dinar Alpleri'nin bir parçası olan, Arnavutluk ve " +
+      'Karadağ sınırına yaslanmış Prokletije dağları (Arnavut Alpleri / Bjeshkët e Nemuna) ' +
+      'uzanır. Ülkenin resmî olarak en yüksek noktası, bu dağlardaki 2.656 metrelik ' +
+      "Gjeravica'dır; Şar Dağları'ndaki Velika Rudoka ise son ölçümlere göre birkaç metre daha " +
+      'yüksek kabul edilir.',
+    climateNoteTr:
+      "Kosova'da temel olarak karasal iklim görülür; yazlar sıcak, kışlar soğuk ve kar " +
+      "yağışlıdır. Batıdaki Metohija Ovası, Adriyatik'ten Ak Drin vadisi boyunca sızan hava " +
+      'akımları nedeniyle daha ılıman ve Akdeniz etkisine açıktır; doğudaki Kosova Ovası ise ' +
+      'daha belirgin bir karasal karaktere sahiptir. Çevredeki yüksek dağlarda kışlar uzun ve ' +
+      'bol kar yağışlı geçer, bu kesimler yılın önemli bir bölümünü kar altında geçirir.',
+    hydrographyNoteTr:
+      "Kosova'nın en önemli akarsuyu, Peja'nın (İpek) kuzeyindeki Žleb Dağı'nın yamaçlarından " +
+      "doğan Ak Drin'dir (Drini i Bardhë / Beli Drim). Metohija Ovası'nı geçtikten sonra " +
+      "Arnavutluk'a girer, Kara Drin'le birleşerek Drin Nehri'ni oluşturur ve Adriyatik " +
+      "Denizi'ne ulaşır. Kosova, sularını üç ayrı denize gönderen ender bölgelerden biridir: " +
+      "Ak Drin batıda Adriyatik'e, Kosova Ovası'ndan geçen Sitnica (İbar üzerinden) kuzeyde " +
+      "Karadeniz havzasına, güneydeki Lepenac ise Vardar üzerinden Ege Denizi'ne akar. Doğal " +
+      'göllerin azlığı nedeniyle ülkenin büyük su kütlelerinin çoğu, Gazivode (Ujmani) gibi ' +
+      'yapay baraj gölleridir.',
     // Tanınma sayısı owner'ın kasıtlı olarak muğlak "100'ün üzerinde" ifadesiyle — spesifik
     //   (115-120/84/110) rakam bilinçli olarak KULLANILMADI (task + CONVENTIONS §5 + DEC
     //   2026-07-13). Narrative draft hâlâ spesifik rakamları içeriyor — FLAGGED, NOVA
