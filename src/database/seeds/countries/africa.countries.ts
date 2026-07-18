@@ -538,15 +538,16 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     landformNoteTr:
       'Kıyının doğu yarısı boyunca, Gana sınırından başlayıp yaklaşık 300 kilometre uzanan bir ' +
       'dizi lagün sıralanır; bu sığ kıyı gölleri dar bir kum seti ile açık denizden ayrılır. ' +
-      'Lagünlerin hemen kuzeyinde, bir asır öncesine kadar 200 kilometre genişliğinde ' +
-      'kesintisiz bir kuşak oluşturan yoğun yağmur ormanı yer alır; günümüzde bu orman ' +
-      'özellikle güneybatıda yoğunluğunu korur. Ülkenin kuzey yarısı, deniz seviyesinden ' +
-      'yaklaşık 300 metre yükseklikteki geniş bir savan platosudur; bitki örtüsü kuzeye doğru ' +
-      'seyrekleşir. Orman ve savan kuşakları arasında, ikisinin özelliklerini bir arada ' +
-      'barındıran bir geçiş bölgesi uzanır. Batı ucunda, Gine sınırında yükselen Nimba Dağı ' +
-      '1.752 metreye ulaşır — ülkenin doruğu, aynı zamanda zengin biyoçeşitliliği nedeniyle ' +
-      "UNESCO Dünya Mirası listesinde yer alan, Liberya'ya doğru uzanan geniş bir doğa " +
-      'rezervinin parçasıdır.',
+      'Lagünlerin hemen kuzeyinde, bir asır öncesine kadar 200 kilometre genişliğinde kesintisiz ' +
+      'bir kuşak oluşturan yoğun yağmur ormanı yer alır; günümüzde bu orman özellikle ' +
+      'güneybatıda yoğunluğunu korur.' +
+      '\n\n' +
+      'Ülkenin kuzey yarısı, deniz seviyesinden yaklaşık 300 metre yükseklikteki geniş bir savan ' +
+      'platosudur; bitki örtüsü kuzeye doğru seyrekleşir. Orman ve savan kuşakları arasında, ' +
+      'ikisinin özelliklerini bir arada barındıran bir geçiş bölgesi uzanır. Batı ucunda, Gine ' +
+      'sınırında yükselen Nimba Dağı 1.752 metreye ulaşır — ülkenin doruğu, aynı zamanda zengin ' +
+      "biyoçeşitliliği nedeniyle UNESCO Dünya Mirası listesinde yer alan, Liberya'ya doğru " +
+      'uzanan geniş bir doğa rezervinin parçasıdır.',
     climateNoteTr:
       "Fildişi Sahili'nde iklim güneyde nemli tropikal, kuzeyde ise daha kurak bir karaktere " +
       'sahiptir. Güney kesiminde sıcaklıklar yıl boyunca 24-32 santigrat derece arasında ' +
@@ -1082,9 +1083,11 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "Kuzey ve orta Senegal, Sahel'in kumlu ve dalgalı ovalarından oluşur; bitki örtüsü kuzeye " +
       'doğru inceldikçe seyrekleşir. Güneydoğuda arazi, Gine sınırındaki Fouta Djallon ' +
       'yaylasının eteklerine doğru yavaşça yükselir; ülkenin en yüksek noktası burada, 648 ' +
-      "metrelik Baunez sırtındadır. Güneyde, Gambiya'nın güneyinde kalan Casamance bölgesi " +
-      'ülkenin geri kalanından belirgin biçimde farklıdır: yoğun ormanlar ve sulak alanlarla ' +
-      'kaplı bu kesim, adını veren Casamance Nehri boyunca uzanır.',
+      'metrelik Baunez sırtındadır.' +
+      '\n\n' +
+      "Güneyde, Gambiya'nın güneyinde kalan Casamance bölgesi ülkenin geri kalanından belirgin " +
+      'biçimde farklıdır: yoğun ormanlar ve sulak alanlarla kaplı bu kesim, adını veren ' +
+      'Casamance Nehri boyunca uzanır.',
     climateNoteTr:
       "Senegal'de iklim, Batı Afrika Musonu'nun etkisiyle kuzeyden güneye keskin biçimde " +
       'değişir. Kuzeydeki Sahel kuşağında yağış az ve düzensizdir, kurak mevsim uzundur. Güneye ' +
@@ -1245,10 +1248,11 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'bu kıyı kuşağının kurak karakterini belirler. Kıyının hemen doğusunda arazi bir dizi ' +
       "terasla hızla yükselir ve 1.520-1.830 metre arasında değişen Bié Platosu'na ulaşır. Bu " +
       'platonun kuzeybatı ucunda, Huambo yakınlarında yükselen Moco Dağı 2.620 metreye ulaşarak ' +
-      'ülkenin doruk noktasını oluşturur. Bié Platosu, Kongo, Zambezi, Okavango, Kuanza ve ' +
-      'Kunene nehirlerinin kaynak veya önemli kollarını barındırdığı için bölgenin bir su ' +
-      'kulesi işlevi görür; nehirler buradan farklı yönlere, farklı okyanus ve iç havzalara ' +
-      'dağılır.',
+      'ülkenin doruk noktasını oluşturur.' +
+      '\n\n' +
+      'Bié Platosu, Kongo, Zambezi, Okavango, Kuanza ve Kunene nehirlerinin kaynak veya önemli ' +
+      'kollarını barındırdığı için bölgenin bir su kulesi işlevi görür; nehirler buradan farklı ' +
+      'yönlere, farklı okyanus ve iç havzalara dağılır.',
     climateNoteTr:
       "Angola'nın iklimi, kuzeyden güneye ve kıyıdan iç kesimlere doğru büyük farklılıklar " +
       'gösterir. Yağışlar kasım-mart arasında yoğunlaşır, nisan-ekim arası genellikle kuraktır. ' +
@@ -1528,12 +1532,13 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'Ülke topraklarının yaklaşık üçte birini oluşturan merkezi Kongo Havzası, 800.000 ' +
       'kilometrekarelik alanıyla batıya doğru hafifçe alçalan, nehirlerle kesintiye uğrayan bir ' +
       'yağmur ormanı platosudur. Havzanın kenarlarını, batıda dağlık teraslar, güney ve ' +
-      "güneybatıda ise savanlara açılan platolar çevreler. Doğuda, Büyük Rift Vadisi'nin batı " +
-      "kolu boyunca ülkenin en engebeli arazisi yükselir; bu kuşak, Albert Gölü'nün kuzeyinden " +
-      'ülkenin güney ucuna kadar 1.500 kilometreden fazla uzanır. Bu hattın kuzey ucunda, ' +
-      "Uganda sınırındaki Rwenzori sıradağları, 5.109 metrelik Margherita Zirvesi ile Kongo'nun " +
-      'da en yüksek noktasını oluşturur; hemen güneyinde ise volkanik kökenli Virunga Dağları ' +
-      'hâlâ etkin yanardağlar barındırır.',
+      'güneybatıda ise savanlara açılan platolar çevreler.' +
+      '\n\n' +
+      "Doğuda, Büyük Rift Vadisi'nin batı kolu boyunca ülkenin en engebeli arazisi yükselir; bu " +
+      "kuşak, Albert Gölü'nün kuzeyinden ülkenin güney ucuna kadar 1.500 kilometreden fazla " +
+      'uzanır. Bu hattın kuzey ucunda, Uganda sınırındaki Rwenzori sıradağları, 5.109 metrelik ' +
+      "Margherita Zirvesi ile Kongo'nun da en yüksek noktasını oluşturur; hemen güneyinde ise " +
+      'volkanik kökenli Virunga Dağları hâlâ etkin yanardağlar barındırır.',
     climateNoteTr:
       "Kongo Demokratik Cumhuriyeti'nde iklim, ekvatoral yağmur ormanından güney platolarındaki " +
       'tropikal kurak-yaş rejime, doğudaki 2.000 metrenin üzerindeki dağlık bölgelerde ise ' +
@@ -2789,15 +2794,17 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'yüksek volkanik arazi ile düz Serengeti platosunu birbirinden ayırır. Doğuda dar bir ' +
       "kıyı ovası Hint Okyanusu'na uzanır; açığında Zanzibar takımadası yer alır.",
     landformNoteTr:
-      'Kibo ve Mawenzi adlı iki ana zirveden oluşan Kilimanjaro, 5.895 metreyle hem ' +
-      "Tanzanya'nın hem de Afrika kıtasının en yüksek noktasıdır. Kibo, tepesinde hâlâ belirgin " +
-      'bir krater bulunan sönmüş bir volkandır; Mawenzi ise çok daha eski ve aşınmış bir ' +
-      "zirvedir. Kilimanjaro'nun batısında, Gregory Rift'in tabanında Natron, Manyara ve Eyasi " +
-      "gibi sığ soda gölleri sıralanır; Rift'in batısında kalan geniş orta kesim, çimenlik ve " +
-      'savanlarla kaplı Serengeti platosudur. Doğuda, Hint Okyanusu kıyısı boyunca alçak ve dar ' +
-      'bir ova uzanır; kıyı şeridi yer yer mangrov bataklıklarıyla kaplıdır. Kıyının açığındaki ' +
-      'Zanzibar (Unguja) ve Pemba adaları mercan kökenli, alçak rakımlı bir takımadadır ve ' +
-      'anakaradan farklı bir coğrafi karaktere sahiptir.',
+      "Kibo ve Mawenzi adlı iki ana zirveden oluşan Kilimanjaro, 5.895 metreyle hem Tanzanya'nın " +
+      'hem de Afrika kıtasının en yüksek noktasıdır. Kibo, tepesinde hâlâ belirgin bir krater ' +
+      'bulunan sönmüş bir volkandır; Mawenzi ise çok daha eski ve aşınmış bir zirvedir. ' +
+      "Kilimanjaro'nun batısında, Gregory Rift'in tabanında Natron, Manyara ve Eyasi gibi sığ " +
+      "soda gölleri sıralanır; Rift'in batısında kalan geniş orta kesim, çimenlik ve savanlarla " +
+      'kaplı Serengeti platosudur.' +
+      '\n\n' +
+      'Doğuda, Hint Okyanusu kıyısı boyunca alçak ve dar bir ova uzanır; kıyı şeridi yer yer ' +
+      'mangrov bataklıklarıyla kaplıdır. Kıyının açığındaki Zanzibar (Unguja) ve Pemba adaları ' +
+      'mercan kökenli, alçak rakımlı bir takımadadır ve anakaradan farklı bir coğrafi karaktere ' +
+      'sahiptir.',
     climateNoteTr:
       "Tanzanya'da tropikal iklim hakimdir, ancak rakım ve konuma göre büyük farklılıklar " +
       'görülür. Orta kesimdeki yüksek plato yarı kurak bozkır karakterinde bir iklime sahiptir; ' +
@@ -2896,10 +2903,11 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'Platonun kuzey kesimleri 1.200 metrenin üzerine çıkarak ülkenin en yüksek arazilerini ' +
       'oluşturur; Malavi sınırındaki Mafinga Tepeleri bölgenin en yüksek arazisidir. Buradaki ' +
       'Mafinga Central zirvesi yaklaşık 2.339 metreye ulaşır, ancak hemen yakınındaki Mafinga ' +
-      'South ile hangisinin daha yüksek olduğu kesin olarak ölçülememiştir. Plato, doğuda sarp ' +
-      "bir yamaçla, Muchinga Dağları'yla sona erer; bu dağlar Luangwa Nehri'nin aktığı derin ve " +
-      "geniş Luangwa Vadisi'ni platodan ayırır. Güneyde ise arazi, Zambezi Nehri'nin aktığı " +
-      "daha alçak Zambezi Vadisi'ne doğru alçalır.",
+      'South ile hangisinin daha yüksek olduğu kesin olarak ölçülememiştir.' +
+      '\n\n' +
+      "Plato, doğuda sarp bir yamaçla, Muchinga Dağları'yla sona erer; bu dağlar Luangwa " +
+      "Nehri'nin aktığı derin ve geniş Luangwa Vadisi'ni platodan ayırır. Güneyde ise arazi, " +
+      "Zambezi Nehri'nin aktığı daha alçak Zambezi Vadisi'ne doğru alçalır.",
     climateNoteTr:
       "Zambiya'da tropikal iklim, rakımın etkisiyle yumuşatılmış biçimde görülür; kasım-nisan " +
       'arası yağışlı, mayıs-ekim arası kurak bir dönem izlenir. Merkezi platonun büyük ' +
@@ -2948,10 +2956,12 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'yaklaşık 650 kilometre uzunluğunda bir plato sırtıdır; savan bitki örtüsüyle kaplı bu ' +
       "dalgalı arazide ülkenin tarım ve yerleşim ağırlığının büyük bölümü yer alır. Highveld'in " +
       'kuzey ve güneyinde arazi kademeli olarak alçalarak Middleveld ve daha sıcak Lowveld ' +
-      'bölgelerine dönüşür. Doğu sınırı boyunca uzanan Doğu Yaylaları (Manica Yaylaları), ' +
-      'ülkenin geri kalanından belirgin biçimde farklı, daha nemli ve ormanlık bir topografyaya ' +
-      'sahiptir; Nyanga, Bvumba ve Chimanimani sıradağlarından oluşan bu kuşağın en yüksek ' +
-      "noktası, 2.592 metrelik Nyangani Dağı'dır.",
+      'bölgelerine dönüşür.' +
+      '\n\n' +
+      'Doğu sınırı boyunca uzanan Doğu Yaylaları (Manica Yaylaları), ülkenin geri kalanından ' +
+      'belirgin biçimde farklı, daha nemli ve ormanlık bir topografyaya sahiptir; Nyanga, Bvumba ' +
+      've Chimanimani sıradağlarından oluşan bu kuşağın en yüksek noktası, 2.592 metrelik ' +
+      "Nyangani Dağı'dır.",
     climateNoteTr:
       "Zimbabve'nin subtropikal ikliminde rakım belirleyici bir etkendir. Highveld'de " +
       'sıcaklıklar yıl boyunca ölçülü kalır, kışın geceleri soğuk geçebilir. Kuzeydeki Zambezi ' +
