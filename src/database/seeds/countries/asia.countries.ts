@@ -1205,6 +1205,35 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: null,
     independenceNoteTr:
       "19 Ağustos 1919'da İngiltere'den bağımsız oldu (III. Anglo-Afgan Savaşı sonrası).",
+    introTr:
+      'Hiçbir denize kıyısı olmayan Afganistan, toprağının büyük bölümünü kaplayan dağlarla ' +
+      'tanımlanır. Kuzeyde Türkmenistan, Özbekistan ve Tacikistan, batıda İran, güney ve doğuda ' +
+      'Pakistan ile komşudur; kuzeydoğuda dar bir şerit halinde uzanan Vahan Koridoru, ülkeyi ' +
+      "Çin'e bağlayan tek kara bağlantısıdır. Toprakların yaklaşık dörtte üçünü, orta ve " +
+      'kuzeydoğu kesimini kaplayan Hindukuş sıradağları ile bunun uzantıları oluşturur.',
+    landformNoteTr:
+      'Himalayaların batı ucu sayılan Hindukuş, Vahan Koridoru boyunca Çin sınırına kadar ' +
+      "uzanır; sıradağın en yüksek noktası, Pakistan sınırındaki 7.492 metrelik Noshaq'tır. " +
+      'Kabil, Kandahar ve Herat gibi büyük şehirler, bu dağlık kütlenin çevresindeki nehir ' +
+      'vadilerinde ve platolarda kurulmuştur.' +
+      '\n\n' +
+      "Ülkenin güneybatısında, Hindukuş'tan inen sular Sistan Havzası'ndaki tuzlu göllerde son " +
+      "bulur; bu kapalı havzanın dışarıya akışı yoktur. Kuzeyde, Amu Derya'nın güneyinde kalan " +
+      'bölge, Türkmenistan sınırına kadar uzanan geniş bir bozkır ve çöl kuşağıdır.',
+    climateNoteTr:
+      "Afganistan'da sert bir karasal iklim egemendir: yazlar çöl kesimlerinde 49 santigrat " +
+      'dereceye kadar çıkarken, yüksek dağlarda kışın sıcaklık -25 santigrat dereceye kadar ' +
+      'düşer. Yıl boyunca yağış azdır ve büyük ölçüde kışın düşen kardan oluşur. Güneydoğuda, ' +
+      'Pakistan sınırına yakın Nuristan ve Kunar bölgelerine Hint muson sisteminin uç etkisi ' +
+      'ulaşır; bu iki bölgede yıllık yağış 1.000 milimetreye kadar çıkarken, ülkenin geri kalanı ' +
+      'bu yağıştan büyük ölçüde yoksun kalır.',
+    hydrographyNoteTr:
+      "Amu Derya, Hindukuş'un kuzey yamaçlarından beslenir ve yaklaşık 1.000 kilometre boyunca " +
+      "Afganistan'ın Tacikistan, Özbekistan ve Türkmenistan ile olan sınırını çizer. Ülke " +
+      "sınırları içinde tamamen akan en uzun nehir olan Helmand, Hindukuş'ta doğar ve yaklaşık " +
+      "1.150 kilometre sonra güneybatıdaki Sistan Havzası'nın tuzlu göllerinde son bulur; bu " +
+      'nehir hiçbir denize ulaşmaz. Kabil Nehri ise başkentten geçtikten sonra doğuya akarak ' +
+      "Pakistan'da Indus Nehri'ne katılır — ülkenin denize ulaşan tek büyük su yolu budur.",
   },
   {
     isoCode: 'BD',
@@ -1285,6 +1314,33 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'BTN',
     governmentFormTr: 'Parlamenter anayasal monarşi',
     independenceNoteTr: null,
+    introTr:
+      "Doğu Himalayalar'da, Çin ile Hindistan arasında sıkışmış küçük bir krallık olan Butan, " +
+      'toprağının neredeyse tamamı dağlık bir arazi üzerinde kuruludur. Kuzeyde Tibet platosuna ' +
+      "komşu olan ülke, güneyde Hindistan'ın Assam, Batı Bengal, Arunaçal Pradeş ve Sikkim " +
+      'eyaletleriyle sınır komşusudur. Rakım, güneydeki sıcak ova şeridinden kuzeydeki buzullu ' +
+      'zirvelere kadar birkaç bin metrelik bir yelpazede değişir.',
+    landformNoteTr:
+      'Butan üç paralel kuşağa ayrılır: güneyde Hindistan sınırına bitişik, alçak ve ormanlık ' +
+      'Duars ovası; ortada 1.500-2.700 metre rakımlı vadi ve tepelerden oluşan İç Himalaya ' +
+      'kuşağı — başkent Thimphu da bu kuşakta yer alır; kuzeyde ise buzul ve karla kaplı Büyük ' +
+      'Himalaya. Tibet sınırına yakın 7.570 metrelik Gangkhar Puensum, ülkenin en yüksek noktası ' +
+      've aynı zamanda dünyanın tırmanılmamış en yüksek zirvesi kabul edilir.',
+    climateNoteTr:
+      'Güney kuşaktaki Duars ovasında nemli subtropikal bir iklim görülür. Orta vadilerde bu ' +
+      'sıcaklık ılımanlaşır, kuzeydeki yüksek Himalaya kesiminde ise yerini alpin bir iklime ' +
+      'bırakır — aynı ülke sınırları içinde birkaç bin metrelik rakım farkının yarattığı bu ' +
+      "çeşitlilik, Butan'ın iklimini tanımlayan temel özelliktir. Haziran-Eylül arasındaki " +
+      "güneybatı musonu, Bengal Körfezi'nden gelen nemi ülkeye taşır ve yıllık yağışın büyük " +
+      'bölümünü getirir; kışlar kuzeyde kurak ve dondurucu, güneyde ise ılık geçer.',
+    hydrographyNoteTr:
+      'Ülke toprakları, kuzeydeki buzullardan inen dört büyük nehir havzasıyla (Amoçu, Wangçu, ' +
+      "Punatsangçu ve Manas) güneye, Hindistan topraklarındaki Brahmaputra'ya doğru drene olur; " +
+      "bunlardan Manas, orta ve doğu Butan'ın neredeyse tamamını toplayan en büyük havzadır. " +
+      "Başkent Thimphu'nun da içinde bulunduğu Wangçu havzası, Thimphu, Paro ve Ha vadilerinden " +
+      "gelen kolların birleşmesiyle oluşur. Ülke genelinde, Butan'ın kendi 2021 buzul gölü " +
+      'envanterine göre 567 buzul gölü bulunur; bunlardan bir kısmı, ısınan iklimle birlikte ' +
+      'büyüyerek aşağı vadilerdeki yerleşimler için taşkın riski oluşturuyor.',
   },
   {
     isoCode: 'IN',
@@ -1363,6 +1419,35 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'MVR',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "26 Temmuz 1965'te İngiltere'den bağımsız oldu.",
+    introTr:
+      "Dünyanın en alçak ülkesi olan Maldivler, Hint Okyanusu'nda ekvatorun az kuzeyinde, 26 " +
+      'mercan atolü içinde dağılmış yaklaşık 1.200 adacıktan oluşur. Kara sınırı olmayan ülke ' +
+      'toprakları, kuzeyden güneye yaklaşık 820 kilometrelik bir şerit boyunca yayılır; adaların ' +
+      'hiçbiri sekiz kilometreden uzun değildir.',
+    landformNoteTr:
+      "Maldivler'in atolleri, milyonlarca yıl önce sönmüş volkanik zirvelerin üzerinde büyüyen " +
+      'mercan resiflerinin, zirveler denize battıkça yukarı doğru büyümeye devam etmesiyle ' +
+      'oluşmuştur; sonuçta ortaya, her biri sığ bir lagünü çevreleyen halka biçimli ada ' +
+      "zincirleri çıkmıştır. Adaların yüzde 80'inden fazlası deniz seviyesinden bir metreden " +
+      'daha az yükseklikte kalır; ülkenin ortalama doğal zemin yüksekliği yalnızca 1,5 metre, en ' +
+      'yüksek noktası ise 2,4 metredir. Bazı büyük atoller kuzey-güney doğrultusunda 50 ' +
+      'kilometreye kadar uzansa da, bunları oluşturan tek tek adaların her biri küçük ve ' +
+      'alçaktır.',
+    climateNoteTr:
+      "Maldivler'de yıl boyunca sıcaklık 25-31 santigrat derece bandında neredeyse sabit kalır, " +
+      'mevsimleri asıl belirleyen muson rüzgarlarının yönüdür. Aralık-Nisan arasında ' +
+      'kuzeydoğudan esen kurak "iruvai" musonu, güneşli ve sakin bir dönem getirir; Mayıs-Kasım ' +
+      'arasında ise güneybatıdan esen nemli "hulhangu" musonu, kısa ama yoğun sağanaklarla ' +
+      'birlikte yılın çoğu yağışını yağdırır. En kurak aylar Şubat ile Mart, en yağışlı aylar ' +
+      "ise Kasım ile Mayıs'tır.",
+    hydrographyNoteTr:
+      "Adaların hiçbiri bir akarsu barındıracak büyüklükte değildir; Maldivler'de kalıcı nehir " +
+      'ya da göl yoktur. Tatlı su, yağmur suyunun kumlu toprağa süzülmesiyle oluşan ve deniz ' +
+      'suyunun üzerinde ince bir tabaka halinde yüzen yeraltı "tatlı su merceği"nden sağlanır — ' +
+      'bu mercek genellikle yüzeyin birkaç metre altında kalır ve kalınlığı birkaç metreyi ' +
+      'geçmez. Kurak mevsim sonunda meskun adaların yaklaşık yarısında bu mercek neredeyse ' +
+      'tükenir; aşırı çekim tuzlu su sızmasına yol açarak kaynağı daha da kırılganlaştırır. ' +
+      'Yağmur suyu toplama, yüzyıllardır bu adalarda içme suyunun başlıca kaynağı olmuştur.',
   },
   {
     isoCode: 'NP',
@@ -1386,6 +1471,39 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'NPR',
     governmentFormTr: 'Federal parlamenter cumhuriyet',
     independenceNoteTr: null,
+    introTr:
+      'Dünyanın 8.000 metreyi aşan on dört zirvesinden sekizi Nepal sınırları içinde ya da ' +
+      'üzerinde yükselir. Himalayaların güney yamacında dar ve uzun bir şerit halinde uzanan ' +
+      'ülke, kuzeyde Çin, doğu, batı ve güneyde ise Hindistan ile komşudur. Toprakları, ' +
+      "güneydeki alçak Terai ovasından kuzeydeki Everest'e kadar yalnızca 200 kilometrelik bir " +
+      'mesafede sekiz bin metreye yakın bir rakım farkı kat eder.',
+    landformNoteTr:
+      'Nepal, güneyden kuzeye üç paralel kuşağa ayrılır: Hindistan sınırındaki alçak ve verimli ' +
+      'Terai ovası, ülke yüzölçümünün yaklaşık üçte ikisini oluşturan orta yükseklikteki Tepe ' +
+      '(Pahad) bölgesi ve kuzeydeki Himalaya kuşağı. Himalaya kuşağında yükselen 8.849 metrelik ' +
+      "Everest (Sagarmatha), Nepal'in ve dünyanın en yüksek noktasıdır; Hindistan sınırındaki " +
+      '8.586 metrelik Kanchenjunga ise ülkenin ikinci yüksek zirvesidir.' +
+      '\n\n' +
+      "Batı Nepal'de, Dhaulagiri ve Annapurna zirveleri arasından geçen Kali Gandaki Vadisi, " +
+      'dünyanın en derin kanyonlarından biri kabul edilir: iki zirve ile vadi tabanındaki nehir ' +
+      "arasındaki rakım farkı 5.571 metreye ulaşır. Kali Gandaki'nin Himalayalar yükselmeye " +
+      'başlamadan önce var olduğu, dağlar etrafında yükselirken nehrin kendi yatağını koruduğu ' +
+      'düşünülür — bu süreç jeolojide "öncül drenaj" olarak adlandırılır.',
+    climateNoteTr:
+      "Nepal'in iklimi, Terai'nin tropikal sıcaklığından Himalaya zirvelerinin kalıcı buzuluna " +
+      'kadar rakımla birlikte değişir. Haziran-Eylül arasındaki güneybatı musonu, yıllık yağışın ' +
+      'büyük bölümünü getirir; bu dönemde Terai ve orta kesim yoğun yağış alırken, Himalayaların ' +
+      'Tibet platosuna bakan kuzey yamaçları — Mustang ve Dolpo gibi bölgeler — sıradağın yağış ' +
+      'gölgesinde kalarak yarı kurak bir karaktere bürünür. Kışın, yüksek kesimlerde kar ' +
+      'egemenken, Terai ılıman ve kurak bir mevsim yaşar.',
+    hydrographyNoteTr:
+      'Koshi, Gandaki (Narayani) ve Karnali gibi büyük nehirler, kaynaklarını Himalayaların ' +
+      'kuzeyinde ya da içinde alır ve dağ sırasını enine keserek güneye, Hindistan üzerinden ' +
+      "Ganj'a akar; bu nehirlerin çoğu, dağlar yükselmeden önce var olan yataklarını koruduğu " +
+      'için sıradağı boydan boya yarar. Terai ovası, bu nehirlerin taşıdığı alüvyonla beslenir ' +
+      've dağlardan inen sularla düzenli olarak sulanır. Himalaya kuşağındaki nehirler büyük ' +
+      'ölçüde buzul ve kar erimesiyle beslenir, bu da yaz aylarında akışlarını belirgin biçimde ' +
+      'artırır.',
   },
   {
     isoCode: 'PK',
@@ -1462,6 +1580,33 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'LKR',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "4 Şubat 1948'de İngiltere'den bağımsız oldu.",
+    introTr:
+      "Hindistan'ın güneydoğusunda, Palk Boğazı ile anakaradan ayrılan gözyaşı damlası " +
+      'biçimindeki Sri Lanka, ortasında yükselen bir dağlık kütle ile çevresini saran alçak ' +
+      "ovalardan oluşur. Kuzeyde Hindistan'a doğru uzanan sığ mercan ve kum sığlıkları zinciri " +
+      'Adem Köprüsü, iki ülke arasındaki en yakın noktayı işaret eder.',
+    landformNoteTr:
+      'Ülkenin güney-orta kesiminde yükselen Merkez Yaylalar, platolar, sırtlar ve dik ' +
+      'yamaçlarla parçalanmış engebeli bir arazi sunar; yaylaların batı ve güneybatı kenarları, ' +
+      '"Dünyanın Sonu" (World\'s End) olarak bilinen yaklaşık 1.200 metrelik dik bir uçurumla ' +
+      'aniden son bulur. 2.524 metrelik Pidurutalagala, ülkenin en yüksek noktasıdır; onu ' +
+      'Kirigalpotta ve hac yeri olarak da bilinen Adem Zirvesi (Sri Pada) izler. Yaylaların ' +
+      'çevresini, kıyıya kadar kademeli olarak alçalan geniş ovalar sarar.',
+    climateNoteTr:
+      'Adanın güneybatı çeyreğini kaplayan Islak Bölge ile kuzey ve doğudaki Kurak Bölge ' +
+      'arasında, yağış miktarı ve düzenliliği bakımından keskin bir ayrım vardır. Mayıs-Eylül ' +
+      "arasındaki güneybatı musonu, Islak Bölge'ye ve yaylalara yılda 2.500 milimetreyi aşan " +
+      'yoğun ve düzenli yağış getirir; Aralık-Mart arasındaki kuzeydoğu musonu ise esas olarak ' +
+      "Kurak Bölge'yi besler ve buradaki yağış hem daha az hem de yıldan yıla daha değişkendir.",
+    hydrographyNoteTr:
+      'Ülkenin en uzun nehri olan 335 kilometrelik Mahaweli dışında, büyük nehirlerin tamamı ' +
+      "Merkez Yaylalar'dan kıyıya doğru ışınsal biçimde akar; Mahaweli ise yaylaların batı " +
+      'yamaçlarında doğduktan sonra dolambaçlı bir güzergahla kuzeydoğu kıyısına ulaşır. Yağışın ' +
+      "düzensiz olduğu Kurak Bölge'de, MÖ 3. yüzyıldan itibaren inşa edilen binlerce yapay " +
+      'göletten ("wewa") oluşan basamaklı bir rezervuar ağı, mevsimlik akışları depolayarak ' +
+      'kuraklık dönemlerinde tarımı sürdürülebilir kılmıştır. Bugün ülke genelinde bu ağdan ' +
+      'kalan yaklaşık 18.000 rezervuar hâlâ işlevini sürdürüyor; tarihi zirvesinde toplam gölet ' +
+      "sayısının 30.000'e ulaştığı tahmin ediliyor.",
   },
   {
     isoCode: 'BH',
@@ -1485,6 +1630,32 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'BHD',
     governmentFormTr: 'Anayasal monarşi',
     independenceNoteTr: "15 Ağustos 1971'de İngiltere'den bağımsız oldu.",
+    introTr:
+      "Ülke topraklarının sekizde yedisi tek bir adada, ana ada Bahreyn Adası'nda toplanır. " +
+      "Basra Körfezi'nde, Suudi Arabistan ile Katar Yarımadası arasında yer alan bu takımada " +
+      "otuzdan fazla doğal adadan oluşur; kara sınırı bulunmayan ülke, Suudi Arabistan'a " +
+      "yalnızca King Fahd Köprüsü'yle bağlıdır.",
+    landformNoteTr:
+      'Ana ada büyük ölçüde alçak ve düz bir arazi yapısına sahiptir; kıyı şeridi boyunca tuzlu ' +
+      'bataklıklar ve gelgit düzlükleri uzanır. Ülkenin ortasında yükselen Cebel ed-Dühan, adına ' +
+      "ismini veren pus benzeri sisiyle bilinir ve 134 metreyle Bahreyn'in en yüksek noktasını " +
+      'oluşturur. Ana adanın güneyinde, çoğu ıssız ve düz olan Havar Adaları takımadası yer ' +
+      'alır; bu adalar kıyı kuşlarının önemli üreme alanlarındandır.',
+    climateNoteTr:
+      "Bahreyn'de kısa ve ılık bir kış ile Nisan'dan Ekim'e uzanan uzun ve aşırı sıcak bir yaz " +
+      'görülür; Haziran-Eylül arasında gündüz sıcaklıkları düzenli olarak 38-40 santigrat ' +
+      "dereceyi bulur, ülkenin resmi sıcaklık rekoru 2021'de ölçülen 48,7 santigrat derecedir. " +
+      "Basra Körfezi'nin sığ ve sıcak suları, yaz aylarında havaya yüzde 80'i aşan bir nem " +
+      "katar; bu birleşim, özellikle Ağustos ve Eylül'de hissedilen sıcaklığı ölçülen değerin " +
+      'belirgin biçimde üzerine çıkarır. Yağış, neredeyse tamamen Kasım-Nisan arasındaki seyrek ' +
+      've düzensiz sağanaklara sıkışır.',
+    hydrographyNoteTr:
+      "Kuzey ve kuzeybatı kıyısındaki tatlı su kaynakları, yüzyıllar boyunca Bahreyn'e yerleşimi " +
+      'çeken artezyen kaynaklarından beslenmiştir; bu kaynaklar hurma bahçelerini ve sebze ' +
+      'tarlalarını sulamış, inci dalgıçlığı döneminde gemilere tatlı su sağlamıştır. Aşırı çekim ' +
+      've deniz suyu sızması nedeniyle bu kaynaklar bugün büyük ölçüde tuzlanmış durumdadır. ' +
+      'Ülkede kalıcı akan bir nehir yoktur; günümüzde tatlı su ihtiyacının yaklaşık beşte üçü, ' +
+      'doğal gazla çalışan deniz suyu arıtma tesislerinden karşılanıyor.',
   },
   {
     isoCode: 'JO',
