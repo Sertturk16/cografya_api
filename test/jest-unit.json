@@ -2,9 +2,9 @@
   "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": "..",
   "testEnvironment": "node",
-  "testRegex": "tools/.*\\.spec\\.ts$",
+  "testRegex": "(tools|src)/.*\\.spec\\.ts$",
   "transform": {
-    "^.+\\.ts$": ["ts-jest", { "tsconfig": "tsconfig.tools-spec.json" }]
+    "^.+\\.ts$": ["ts-jest", { "tsconfig": "tsconfig.unit-spec.json" }]
   },
   "moduleNameMapper": {
     "^(\\.{1,2}/.*)\\.ts$": "$1"
