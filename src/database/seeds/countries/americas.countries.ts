@@ -37,6 +37,44 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal parlamenter monarşi (Commonwealth realm)',
     independenceNoteTr:
       "Federasyon 1 Temmuz 1867'de kuruldu; tam bağımsızlık kademeli (1931 Westminster, 1982 Kanada Yasası).",
+    introTr:
+      "Kanada, 8.788.700 kilometrekarelik yüzölçümüyle Rusya'dan sonra dünyanın ikinci büyük " +
+      'ülkesidir. Ülke, aynı anda Atlantik, Pasifik ve Arktik okyanuslarına kıyısı olan dünyadaki tek ' +
+      'ülkedir. Buna karşın nüfusun büyük bölümü güney kesimindeki dar bir kuşakta yoğunlaşır; kuzeye ' +
+      'doğru genişleyen topraklar seyrek nüfusludur ve büyük ölçüde donmuş toprakla (permafrost) ' +
+      "kaplıdır. Bu güney-kuzey karşıtlığı, Kanada'nın coğrafi kimliğinin temel eksenini oluşturur.",
+    landformNoteTr:
+      'Batıda, British Columbia-Alberta sınırı boyunca yaklaşık 1.400 kilometre uzanan Kayalık ' +
+      "Dağlar'ın (Rockies) en yüksek zirvesi, 3.954 metrelik Mount Robson'dır. Ülkenin gerçek en " +
+      "yüksek noktası ise Kayalık Dağlar'da değil, çok daha kuzeybatıda Yukon'daki Saint Elias " +
+      "Sıradağları'nda yükselen 5.959 metrelik Mount Logan'dır; bu sıradağ Kayalık Dağlar'ın bir " +
+      'parçası olmayıp Pasifik kıyı kordilyerasının ayrı bir kolunu oluşturur — ikisinin sık sık ' +
+      'karıştırılan iki ayrı dağ sistemi olduğu unutulmamalı.' +
+      '\n\n' +
+      'Ülkenin doğu ve orta kesiminin büyük bölümünü, Hudson Körfezi çevresinde at nalı biçiminde ' +
+      'kıvrılan Kanada Kalkanı kaplar. Milyarlarca yıllık Prekambriyen kayaçlardan oluşan bu aşınmış ' +
+      'plato, dünyanın en eski ve en geniş kıta çekirdeklerinden biridir. Buzul çağlarının yonttuğu ' +
+      "arazi, sayısız göl ve bataklıkla noktalanır; kuzey Ontario ile Quebec'teki akarsuları önemli " +
+      'hidroelektrik kaynakları besler.',
+    climateNoteTr:
+      "Kanada'nın iklimi, güneydeki ılıman kesimlerden kuzeydeki kutup koşullarına kadar büyük bir " +
+      "çeşitlilik gösterir. Pasifik kıyısında, British Columbia'nın kıyı şeridinde ılık ve yağışlı bir " +
+      'deniz iklimi egemendir; kışlar ülkenin geri kalanına göre belirgin biçimde daha ılımandır. İç ' +
+      "kesimdeki Prairie eyaletlerinde sert bir karasal iklim görülür; kışın Kayalık Dağlar'dan inen " +
+      'sıcak ve kuru Chinook rüzgarları bazen sıcaklığı birkaç saat içinde onlarca derece yükseltir. ' +
+      'Kuzeye gidildikçe orman örtüsü seyrekleşir, tayga kuşağının ardından ağaç sınırının ötesinde ' +
+      'kalan geniş bir tundra ve sürekli donmuş toprak kuşağı başlar; bu bölgede tarım neredeyse ' +
+      'imkansızdır.',
+    hydrographyNoteTr:
+      'Ülkenin güneydoğusunda, Amerika Birleşik Devletleri ile paylaşılan Büyük Göller, yüzölçümü ' +
+      'bakımından dünyanın en büyük tatlı su göl grubunu oluşturur; suları Saint Lawrence Nehri ' +
+      "aracılığıyla Atlantik Okyanusu'na ulaşır. Kuzeyde ülkenin en uzun akarsuyu olan Mackenzie " +
+      "Nehri, Büyük Köle Gölü'nden çıkıp yaklaşık 1.738 kilometre boyunca kuzeybatıya akarak Arktik " +
+      "Okyanusu'na dökülür ve havzasıyla ülke topraklarının yaklaşık beşte birini sular. Doğuda " +
+      '1.230.000 kilometrekarelik yüzeyiyle Hudson Körfezi, dünyanın en büyük tuzlu su körfezlerinden ' +
+      "biridir; drenaj havzası Kanada'nın altı eyalet ve bölgesine yayılır. Kanada, HydroLAKES " +
+      'veritabanına dayanan 2016 tarihli bir araştırmaya göre, tek başına dünyadaki herhangi bir başka ' +
+      'ülkeden daha fazla göle sahiptir.',
   },
   {
     isoCode: 'US',
@@ -562,6 +600,38 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'XCD',
     governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
     independenceNoteTr: "1 Kasım 1981'de Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      'Antigua ve Barbuda, birbirinden tamamen farklı iki jeolojik kökene sahip adaların oluşturduğu ' +
+      "bir ikiz ada devletidir. Antigua'nın güneybatısında aşınmış bir volkanik krater kalıntısı, " +
+      'ortasında bir düzlük, doğusunda ise daha genç kireçtaşı tepeleri yer alır. Kuzeybatıda, ' +
+      'yaklaşık 50 kilometre uzaktaki Barbuda ise tamamen mercan kökenli, düz ve alçak bir kireçtaşı ' +
+      'platosudur. Antigua\'nın kıyı şeridinin girintili-çıkıntılı yapısı, geleneksel olarak "yılın her ' +
+      'günü için bir tane" denilerek 365 plaj sayısıyla anılır.',
+    landformNoteTr:
+      "Antigua'nın güneybatı köşesinde yükselen ve eski adıyla Boggy Peak olarak bilinen, 402 metrelik " +
+      'Mount Obama, adanın en yüksek noktasıdır; bu tepe, aşınmış bir volkanik kraterin kalıntısıdır ' +
+      've adanın en eski kayaçlarından oluşur. Bu volkanik kütlenin kuzeydoğusunda marn ve kilden ' +
+      'oluşan bir merkez düzlük uzanır, adanın doğu kesimi ise daha genç bir dönemde oluşmuş kireçtaşı ' +
+      'tepelerle kaplıdır.' +
+      '\n\n' +
+      "Barbuda'da arazi bütünüyle farklıdır. Adanın en yüksek noktası olan Barbuda Highlands yalnızca " +
+      '44,5 metreye ulaşır, yüzey tamamen mercan kireçtaşından oluşur. Batı kıyısında, uzun bir kum ' +
+      'seti tarafından açık denizden ayrılan geniş Codrington Lagünü yer alır; bu sığ lagün, Batı ' +
+      "Yarımküre'nin en büyük fırkateyn kuşu kolonisine ev sahipliği yapar.",
+    climateNoteTr:
+      'Ülkede tropikal bir iklim egemendir; Aralık-Nisan arası kurak, Ağustos-Kasım arası ise daha ' +
+      'yağışlı bir dönem izler. Antigua ve Barbuda, Karayip kasırga kuşağının tam içinde yer alır ve ' +
+      "bu risk iki ada arasında eşit dağılmaz: 2017'de Kasırga Irma, Barbuda'daki yapıların yaklaşık " +
+      "%95'ini hasara uğratmış, ada 300 yılı aşkın kayıtlı tarihinde ilk kez tamamen boşaltılmıştır. " +
+      'Antigua aynı fırtınadan görece daha hafif etkilenmiştir. Düşük rakım ve sınırlı yağış, her iki ' +
+      'adada da yıl boyunca su sıkıntısına yol açar.',
+    hydrographyNoteTr:
+      "Antigua ve Barbuda'da kalıcı akarsu bulunmaz; ülke, Karayipler'in en su sıkıntılı ülkelerinden " +
+      'biri sayılır. Tatlı su ihtiyacının büyük bölümü yağmur suyu toplama sistemleri ve iki büyük ' +
+      'tuzdan arındırma tesisiyle karşılanır; bazı yıllarda barajları dolduracak yağış yıllarca ' +
+      "gecikebilir. Antigua'nın birkaç küçük yapay barajı ve kuyu alanı tarım ve konut kullanımına " +
+      "destek olur. Barbuda'da yüzey suyu neredeyse hiç yoktur, ada nüfusunun su ihtiyacı da benzer " +
+      'şekilde yağmur ve ithal kaynaklarla karşılanır.',
   },
   {
     isoCode: 'BS',
@@ -736,6 +806,35 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'XCD',
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "3 Kasım 1978'de Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      "Dominika, Küçük Antiller'in en genç ve jeolojik olarak en etkin adasıdır; dokuz etkin volkanik " +
+      "merkeziyle Karayipler'de en yoğun volkanizmaya sahip ülke kabul edilir. Fransız adaları " +
+      'Martinik ile Guadeloupe arasında yer alan ada, kuzey-güney doğrultusunda uzanan sarp ve ' +
+      'ormanlık bir sırtla kaplıdır. Yerleşim dar kıyı şeritleri ve birkaç nehir vadisiyle sınırlıdır, ' +
+      'iç kesimlerin büyük bölümü hâlâ el değmemiş yağmur ormanıdır. Bu özellikleri nedeniyle ülke ' +
+      'turizm pazarlamasında "Doğa Adası" olarak tanıtılır.',
+    landformNoteTr:
+      "Ülkenin en yüksek noktası, 1.447 metrelik Morne Diablotins'tir; onu 1.342 metrelik Morne Trois " +
+      "Pitons izler. Morne Trois Pitons Ulusal Parkı 1997'de UNESCO Dünya Mirası Listesi'ne " +
+      'alınmıştır; park içindeki Umutsuzluk Vadisi, kaynayan çamur gölcükleri ve küçük gayzerleriyle ' +
+      'tanınır.' +
+      '\n\n' +
+      'Aynı parkın içindeki Kaynayan Göl, bir fümarolün sular altında kalmasıyla oluşmuştur; çapı ' +
+      "60-75 metre arasında değişen göl, Yeni Zelanda'daki Frying Pan Gölü'nden sonra dünyanın bilinen " +
+      'ikinci büyük kaynayan gölüdür.',
+    climateNoteTr:
+      "Dominika, Karayipler'in en yağışlı adalarından biridir. Rüzgar alan doğu kıyısında yıllık yağış " +
+      'düzenli olarak 5.000 milimetreyi aşar, dağlık iç kesimin bazı yamaçlarında bu rakam 9.000 ' +
+      'milimetreye kadar çıkar. Batı kıyısı, dağların rüzgar gölgesinde kaldığı için belirgin biçimde ' +
+      'daha kuru kalır. Ülke Karayip kasırga kuşağı içinde yer alır; sarp arazi, şiddetli yağışlarla ' +
+      'birleştiğinde sel ve heyelan riskini artırır.',
+    hydrographyNoteTr:
+      'Dominika, "365 nehir ülkesi" olarak anılır; bu sayı ırmak, dere ve çayı bir arada saydığı için ' +
+      'sembolik kabul edilir, resmi kayıtlar adada 83 önemli akarsu sayar. Batıya akan başlıca ' +
+      "nehirler Layou ve Roseau'dur, doğuya dökülen büyük akarsu ise Toulaman'dır. Adanın dört " +
+      "gölünden en büyüğü olan Freshwater Gölü, aynı zamanda Roseau Nehri'nin kaynağıdır. Morne Trois " +
+      'Pitons Ulusal Parkı, adanın güney yarısındaki akarsuların neredeyse tamamının doğduğu bölgedir ' +
+      've yerel su şebekesi ile hidroelektrik üretiminin temel kaynağıdır.',
   },
   {
     isoCode: 'DO',
@@ -810,6 +909,39 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'XCD',
     governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
     independenceNoteTr: "7 Şubat 1974'te Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      'Grenada, Küçük Antiller yayının en güneyindeki büyük adalardan biridir ve "Baharat Adası" ' +
+      'unvanıyla tanınır; küresel muskat (nutmeg) üretiminin önemli bir bölümü bu adada yapılır. Ülke, ' +
+      'Grenada adasının yanı sıra Grenadinler zincirinin güney ucundaki Carriacou ve Petite Martinique ' +
+      'adalarını da kapsar. Adanın iç kesimi, yoğun yağmur ormanıyla kaplı volkanik bir kütleden ' +
+      'oluşur; nüfus büyük ölçüde kıyı düzlüklerinde yaşar.',
+    landformNoteTr:
+      "Ülkenin en yüksek noktası, 840 metrelik Mount Saint Catherine'dir; adanın en genç volkanik " +
+      'merkezidir ve buzul çağından bu yana patlamamış olmasına karşın, beş volkanik merkez arasında ' +
+      'jeolojik olarak hâlâ "canlı" kabul edilen tek yapıdır. Bu volkanik kütlenin güneyinde, sönmüş ' +
+      'bir volkanın kraterinde oluşan Grand Etang Gölü 530 metre rakımda yer alır; çevresindeki orman ' +
+      'rezervi adanın başlıca su havzalarından birini oluşturur.' +
+      '\n\n' +
+      "Grenada'nın kuzeyinde, açık denizde kalan Kick 'em Jenny, Doğu Karayipler'in bilinen tek etkin " +
+      'sualtı volkanıdır; zirvesi deniz yüzeyinin yaklaşık 180 metre altında kalır ve deniz tabanından ' +
+      "yaklaşık 1.300 metre yükselir. Kick 'em Jenny etkinleştiğinde Grand Etang Gölü'nün suyunun " +
+      'çalkalandığı gözlemlenmiştir; bu durum iki oluşum arasında bir yeraltı bağlantısı olabileceğine ' +
+      'işaret eder.',
+    climateNoteTr:
+      "Grenada'da tropikal bir iklim egemendir; Ocak-Mayıs arası kurak, Haziran-Aralık arası ise " +
+      'yağışlı bir dönem yaşanır. Ada, kasırga kuşağının güney sınırına yakın konumu nedeniyle tarihte ' +
+      "görece az sayıda doğrudan kasırga darbesi almıştır; ancak 2004'te Kasırga Ivan bu geleneksel " +
+      "güvenli algıyı kırarak adanın güney yarısında evlerin yaklaşık %90'ını hasara uğratmış, 37 " +
+      'kişinin ölümüne yol açmıştır. İç kesimdeki dağlık ve ormanlık alanlar, kıyı düzlüklerine göre ' +
+      'belirgin biçimde daha fazla yağış alır; bu yağış rejimi adanın baharat tarımı için gerekli nemi ' +
+      'sağlar.',
+    hydrographyNoteTr:
+      "Grenada'nın volkanik iç kesimi ve bol yağışı, adayı çok sayıda kısa ve hızlı akan akarsuyla " +
+      'donatır; bu akarsular merkezi yüksek kesimlerden radyal biçimde kıyıya doğru akar. Grand Etang ' +
+      'ormanı ve çevresindeki yüksek kesimler bu akarsu ağının başlıca besleme alanıdır ve adanın içme ' +
+      'suyu kaynaklarının büyük bölümünü oluşturur. Akarsuların kısa mesafede denize ulaşması, yağışlı ' +
+      'dönemlerde ani sel riskini artırır. Bu akarsulardan beslenen Annandale ve Concord şelaleleri, ' +
+      'adanın iç kesimindeki yükseklik farkının somut bir görüntüsünü sunar.',
   },
   {
     isoCode: 'HT',
@@ -932,6 +1064,35 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'XCD',
     governmentFormTr: 'Federal parlamenter monarşi (Commonwealth realm)',
     independenceNoteTr: "19 Eylül 1983'te Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      'Saint Kitts ve Nevis, ikisi de birer volkanik koniden oluşan iki adanın bir araya gelmesiyle ' +
+      'kurulmuş bir federasyondur; nüfus ve yüzölçümü bakımından Amerika kıtalarının en küçük bağımsız ' +
+      'devletidir. St. Kitts kuzeybatı-güneydoğu doğrultusunda uzanan, ortasında dağlık bir omurga ' +
+      'taşıyan uzunca bir ada iken, Nevis ortasında tek bir volkanik koninin yükseldiği neredeyse ' +
+      'dairesel bir biçime sahiptir. İki adayı The Narrows adlı dar bir boğaz birbirinden ayırır.',
+    landformNoteTr:
+      "St. Kitts'in kuzeybatı ucunda yükselen 1.156 metrelik Mount Liamuiga, adanın en yüksek " +
+      "noktasıdır ve aynı zamanda Britanya Rüzgaraltı Adaları'nın tamamındaki en yüksek zirvedir. " +
+      "Zirvedeki bir kilometre genişliğindeki krater 1959'a kadar sığ bir göl barındırmış, 2006 " +
+      "itibarıyla göl yeniden oluşmuştur. Nevis'in ortasında yükselen 985 metrelik Nevis Peak ise " +
+      'adanın tek başına hakim volkanik kütlesidir, genellikle bulutlarla örtülü kalır.' +
+      '\n\n' +
+      'İki adayı ayıran The Narrows, en dar noktasında yaklaşık 3 kilometre genişliğindedir; günlük ' +
+      "feribot seferleri bu boğazı St. Kitts'teki Basseterre ile Nevis'teki Charlestown arasında kısa " +
+      'sürede geçer.',
+    climateNoteTr:
+      'Ülkede tropikal bir iklim egemendir, Mayıs-Kasım arası yağışlı mevsim izlenir. Yağış rejimi ' +
+      'büyük ölçüde rakıma bağlıdır: kıyı kesimlerinde yıllık ortalama yağış yaklaşık 1.200 milimetre ' +
+      "iken, dağlık iç kesimin en yüksek noktalarında bu rakam 3.000 milimetreyi aşar. St. Kitts'in " +
+      'güneydoğusundaki dar yarımada, adanın geri kalanına göre belirgin biçimde daha kuraktır. Ülke ' +
+      'Karayip kasırga kuşağı içinde yer alır ve düzenli tropikal fırtına riskiyle karşı karşıyadır.',
+    hydrographyNoteTr:
+      'Her iki adada da kalıcı akarsu sınırlıdır; merkezi sıradağlardan kıyıya inen su yolları, yerel ' +
+      'olarak "ghaut" adıyla anılan derin ve dar vadilerden akar, bunların çoğu yalnızca yağışlı ' +
+      "dönemlerde ya da şiddetli sağanaklarda dolar. St. Kitts'teki Wingfield ve Cayon dereleri, yılın " +
+      "yağışlı bölümünde kıyıya kadar akan az sayıdaki istisnadır. Nevis Peak'ten radyal biçimde inen " +
+      'on ana drenaj havzası, adayı volkanik konilerle kesintiye uğrayan bir yelpaze gibi kıyıya ' +
+      'bağlar. Bol yağış ve volkanik toprak, yüksek kesimlerde yağmur ormanının gelişmesini sağlar.',
   },
   {
     isoCode: 'LC',
@@ -955,6 +1116,33 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'XCD',
     governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
     independenceNoteTr: "22 Şubat 1979'da Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      'Saint Lucia, kuzeyden güneye dağlık ve ormanlık bir volkanik kütleyle kaplıdır. Adanın ' +
+      'güneybatısında, Soufrière kasabası yakınında yükselen ikiz volkanik kayalar Gros Piton ve Petit ' +
+      "Piton, ülkenin en tanınan coğrafi simgesidir ve 2004'te UNESCO Dünya Mirası Listesi'ne " +
+      'alınmıştır. İç kesimdeki yüksek ve yağışlı ormanların aksine, kıyı düzlükleri tarımsal ' +
+      'yerleşime elverişlidir.',
+    landformNoteTr:
+      "Piton'lar, ayrı ayrı yükselen iki volkanik tıkaçtır: 798 metrelik Gros Piton ile 743 metrelik " +
+      'Petit Piton, aralarındaki Piton Mitan sırtıyla birbirine bağlanır. Adanın gerçek en yüksek ' +
+      "noktası ise Piton'lar değil, iç kesimdeki dağ sırasında yükselen 950 metrelik Mount Gimie'dir." +
+      '\n\n' +
+      'Soufrière kasabasının güneyinde yer alan Sulphur Springs, aracın içinden geçilebilen kükürtlü ' +
+      'kaynaklar ve fümaroller nedeniyle "sürüşle görülebilen volkan" olarak tanıtılır; bölge, adanın ' +
+      "en güncel volkanik etkinliğinin odaklandığı Soufrière Volkanik Merkezi'nin bir parçasıdır.",
+    climateNoteTr:
+      "Saint Lucia'da tropikal bir iklim egemendir; Haziran-Eylül arası yağışlı, Şubat-Mayıs arası ise " +
+      'görece kurak bir dönem yaşanır. Kıyı kesimlerinde yıllık yağış yaklaşık 127 santimetre iken, ' +
+      'dağlık iç kesimde bu rakam 380 santimetreye kadar çıkar; adanın kuzey ve güney uçları iç kesime ' +
+      'göre belirgin biçimde daha az yağış alır. Ülke Karayip kasırga kuşağı içindedir ve yaz ' +
+      'sonu-sonbahar döneminde tropikal fırtına riskiyle karşılaşır.',
+    hydrographyNoteTr:
+      'Adanın merkezi yüksek kesimlerinden kıyıya inen çok sayıda kısa nehir arasında en uzunu, 48 ' +
+      "kilometrekarelik bir havzayı süzen Roseau Nehri'dir. Roseau Nehri üzerinde 1995'te tamamlanan, " +
+      'resmi adıyla John Compton Barajı (eski adıyla Roseau Barajı), 45 metre yüksekliğinde olup 2,6 ' +
+      "milyar litreden fazla su tutma kapasitesine sahiptir. Cul de Sac, Fond D'Or ve Marquis gibi " +
+      'diğer nehir vadileri, adanın alüvyal ovalarını ve en geniş tropikal nemli orman alanlarını ' +
+      'barındırır.',
   },
   {
     isoCode: 'VC',
@@ -978,6 +1166,35 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'XCD',
     governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
     independenceNoteTr: "27 Ekim 1979'da Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      "Saint Vincent ve Grenadinler, tek büyük ada olan Saint Vincent ile bunun güneyinde Grenada'ya " +
+      'kadar uzanan, yaklaşık 600 adacık ve kayalıktan oluşan Grenadinler zincirinin kuzey üçte ikilik ' +
+      "bölümünü kapsar. Saint Vincent'ın tamamı, adanın kuzeyinde yükselen etkin bir volkan olan La " +
+      "Soufrière'in egemenliğindeki dağlık ve ormanlık bir arazidir. Grenadinler'in çoğu düşük " +
+      'profilli, kuru ve seyrek nüfuslu küçük adalardır; bunlardan Bequia en büyüğü, Union Adası ise ' +
+      'Tobago Cays deniz parkına yakınlığıyla tanınır.',
+    landformNoteTr:
+      "Saint Vincent'ın kuzeyinde yükselen 1.235 metrelik La Soufrière, ülkenin en yüksek noktasıdır " +
+      "ve tepesinde bir krater gölü barındırır. Volkan 1718'den bu yana kayıtlı sekiz kez patlamıştır; " +
+      "en son patlaması Aralık 2020'de başlamış, 9 Nisan 2021'deki patlayıcı evrede kül bulutu " +
+      'yaklaşık 10 kilometre yüksekliğe ulaşmış ve yaklaşık 16 bin kişi tahliye edilmiştir.' +
+      '\n\n' +
+      "Grenadinler'de yaklaşık 32 ada ve kayalık Saint Vincent ve Grenadinler'e, geri kalan güney " +
+      "kesim ise Grenada'ya aittir. Zincirin güney kesimindeki Tobago Cays, beş küçük adacığı ve " +
+      "çevresindeki Horseshoe Resifi'ni kapsayan geniş bir kumluk lagünle tanınır.",
+    climateNoteTr:
+      "Saint Vincent ve Grenadinler'de yıl boyunca sıcak ve nemli tropikal koşullar hakimdir; Saint " +
+      "Vincent'ın dağlık iç kesimi, düşük ve düz Grenadinler adacıklarına göre belirgin biçimde daha " +
+      'fazla yağış alır. Ülke Karayip kasırga kuşağı içinde yer alır ve yaz sonu-sonbahar döneminde ' +
+      "düzenli tropikal fırtına riskiyle karşılaşır. La Soufrière'in etkin olması, ülkeyi bölgedeki " +
+      'komşularının çoğunun maruz kalmadığı ayrı bir doğal tehlikeyle — volkanik kül ve piroklastik ' +
+      'akıntı riskiyle — karşı karşıya bırakır.',
+    hydrographyNoteTr:
+      "Saint Vincent'ın merkezi volkanik sırtından kıyıya inen çok sayıda kısa ve hızlı akan dere, " +
+      'adanın başlıca yüzey suyu ağını oluşturur. Volkanik kökenli koyu renkli kumlar, özellikle ' +
+      'adanın batı kıyısındaki plajlarda belirgindir ve arazinin volkanik kökenini görsel olarak ele ' +
+      'verir. Küçük ve düşük profilli Grenadinler adacıklarında ise kalıcı akarsu bulunmaz; tatlı su ' +
+      'ihtiyacı büyük ölçüde yağmur suyu toplama ve sınırlı yeraltı kaynaklarıyla karşılanır.',
   },
   {
     isoCode: 'TT',
@@ -1381,6 +1598,37 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'GYD',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "26 Mayıs 1966'da Birleşik Krallık'tan bağımsız oldu.",
+    introTr:
+      "Guyana, Güney Amerika'nın kuzeydoğu kıyısında, dünyanın en eski kıta çekirdeklerinden biri olan " +
+      'Guyana Kalkanı üzerinde yer alır. Ülke toprakları üç ana kuşağa ayrılır: dar ve alçak bir kıyı ' +
+      'ovası, bunun ardından gelen kumlu-killi bir orta kuşak ve güneyde yükselen ormanlık yaylalar ' +
+      'ile savanlar. Nüfusun büyük bölümü deniz seviyesinin altında kalan ve setlerle korunan kıyı ' +
+      'ovasında yaşarken, iç kesimlerin büyük bölümü seyrek nüfuslu yağmur ormanıdır.',
+    landformNoteTr:
+      "Ülkenin batısındaki Pakaraima Dağları, Guyana'nın en yüksek noktası olan 2.772 metrelik Roraima " +
+      "Dağı'nda son bulur; bu düz tepeli, dik yamaçlı tepui, Guyana, Venezuela ve Brezilya " +
+      'sınırlarının kesiştiği bölgede yer alır. Güneyde Rupununi bölgesini ikiye bölen Kanuku Dağları ' +
+      'ile en güneydeki Acarai Dağları, ülkenin diğer başlıca sıradağlarıdır.' +
+      '\n\n' +
+      'Potaro Nehri üzerindeki 226 metrelik Kaieteur Şelalesi, saniyede yaklaşık 663 metreküplük akış ' +
+      'debisiyle dünyanın hacimce en güçlü tek düşüşlü şelalelerinden biri kabul edilir; yüksekliği ' +
+      "Angel Şelalesi'nin dörtte biri kadar olsa da akıttığı su hacmi onu bambaşka bir ölçekte bir " +
+      'doğa olayı yapar.',
+    climateNoteTr:
+      "Guyana'da ekvatoral bir iklim egemendir; sıcaklık ve nem yıl boyunca yüksek kalır, mevsimsel " +
+      'farklar küçüktür. Ülke, çoğu tropikal ülkeden farklı olarak iki yağışlı ve iki kurak dönem ' +
+      "yaşar: Mayıs'tan Ağustos ortasına kadar süren dönemde yıllık yağışın yaklaşık %40'ı, Aralık'tan " +
+      "Ocak ortasına kadar süren daha kısa ikinci dönemde ise yaklaşık %20'si düşer; Şubat-Nisan ile " +
+      'Eylül-Ekim arası kurak mevsimlerdir. Kıyı ovasında yıllık yağış 2.000 milimetreyi aşarken, iç ' +
+      'kesimdeki Rupununi savanında bu rakam yaklaşık 1.800 milimetreye iner.',
+    hydrographyNoteTr:
+      "Ülkenin en uzun akarsuyu olan Essequibo Nehri, güneydeki Acarai Dağları'nda doğar ve yaklaşık " +
+      "1.014 kilometre boyunca kuzeye akarak Atlantik Okyanusu'na dökülür; havzasıyla ülke " +
+      "topraklarının yaklaşık %73'ünü sular. Demerara ve Berbice nehirleri kıyı ovasındaki diğer büyük " +
+      "akarsulardır ve adlarını başkent Georgetown'ın da içinde bulunduğu bölgelere vermiştir. Kıyı " +
+      'ovası, yüksek gelgit sırasında deniz seviyesinin yaklaşık 1,7 metre altında kalır; bu düşük ' +
+      'kesim beton ve toprak setlerle korunur, kanallar ve savaklar yağış sularının alçak gelgitte ' +
+      'denize boşaltılmasını sağlar.',
   },
   {
     isoCode: 'PY',
@@ -1510,6 +1758,38 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'SRD',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "25 Kasım 1975'te Hollanda'dan bağımsız oldu.",
+    introTr:
+      "Surinam, Güney Amerika'nın en küçük egemen ülkesidir ve topraklarının yaklaşık %94'ü ormanla " +
+      'kaplıdır; bu oran, dünyada bir ülkenin toplam yüzölçümüne oranla sahip olduğu en yüksek orman ' +
+      "örtüsü kabul edilir. Ülke, komşusu Guyana gibi Guyana Kalkanı'nın bir parçası üzerinde yer " +
+      "alır. Guyana'nın basamaklı yaylalarının aksine, Surinam'ın iç kesimi büyük ölçüde aşınmış ve " +
+      'düşük eğimli bir peneplendir. Nüfus neredeyse tamamen kıyı şeridinde, başkent Paramaribo ' +
+      'çevresinde toplanır; güneydeki geniş iç kesim neredeyse tamamen yağmur ormanıyla kaplıdır ve ' +
+      'son derece seyrek nüfusludur.',
+    landformNoteTr:
+      "Ülkenin güneyinde yükselen Wilhelmina Dağları'ndaki 1.280 metrelik Julianatop, Surinam'ın en " +
+      "yüksek noktasıdır. Kuzeyde, Brokopondo Rezervuarı'na bakan tepeleriyle Brownsberg Platosu, " +
+      'ülkenin en bilinen doğa parklarından birini barındırır.' +
+      '\n\n' +
+      'Ülke topraklarının yaklaşık dörtte biri, 1,6 milyon hektarlık el değmemiş tropikal ormanı ' +
+      "koruma altına alan Merkez Surinam Doğa Rezervi'nde yer alır; bu alan 2000'de UNESCO Dünya " +
+      "Mirası Listesi'ne alınmış olup Guyana Kalkanı'ndaki en geniş korunan orman parçalarından " +
+      'biridir.',
+    climateNoteTr:
+      "Surinam'ın neredeyse tamamını kaplayan yağmur ormanı, ülkenin ekvatoral iklimiyle doğrudan " +
+      'bağlantılıdır; sıcaklık ve nem yıl boyunca yüksek kalır, mevsimsel sıcaklık farkı azdır. Ülke, ' +
+      'Nisan-Ağustos arası uzun bir yağışlı dönemin ardından Ağustos-Kasım arası uzun bir kurak dönem ' +
+      'yaşar; Aralık-Şubat arasında ise daha kısa ve daha az yağışlı ikinci bir yağışlı dönem görülür. ' +
+      'Yıllık yağış, ülkenin batısında yaklaşık 1.700 milimetreden doğusunda 2.500 milimetreye kadar ' +
+      "artar; başkent Paramaribo'da yılda ortalama 200 civarı yağışlı gün kaydedilir.",
+    hydrographyNoteTr:
+      'Batıda Guyana ile sınırı belirleyen Corantijn Nehri ve doğuda Fransız Guyanası ile sınırı çizen ' +
+      "Marowijne (Maroni) Nehri, ülkenin en uzun akarsularıdır; ikisi de Guyana Kalkanı'nın iç " +
+      'kesimlerinde doğar ve yukarı çığırlarında çok sayıda çağlayan ve hızlı akıntı barındırır. ' +
+      "Ülkenin ortasından geçen Surinam Nehri, başkenti de sulayarak Atlantik'e ulaşır; nehir üzerinde " +
+      "1964'te tamamlanan Afobaka Barajı'nın oluşturduğu Brokopondo Rezervuarı, inşa edildiğinde " +
+      'dünyanın en büyük yapay göllerinden biriydi. İç kesimdeki altın madenciliği, özellikle Lawa ve ' +
+      'Marowijne nehirleri boyunca cıva kirliliği yoluyla su kalitesini olumsuz etkiler.',
   },
   {
     isoCode: 'UY',
