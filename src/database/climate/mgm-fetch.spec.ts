@@ -3,7 +3,8 @@ import { access, mkdir, mkdtemp, readdir, readFile, writeFile } from 'node:fs/pr
 import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { ClimateNormalsArtifact } from './climate-artifact.types';
+import type { ClimateManifestArtifact, ClimateNormalsArtifact } from './climate-artifact.types';
+import { assertArtifactsCorroborate } from './climate-assertions';
 import { runFetchPhase } from './mgm-fetch';
 
 /**
@@ -64,6 +65,31 @@ function makeFetchStub(options: StubOptions = {}): typeof fetch {
       return Promise.resolve(new Response('upstream error', { status: 500 }));
     }
     return Promise.resolve(new Response(pageFor(key), { status: 200 }));
+  };
+}
+
+/**
+ * Like `makeFetchStub`, but corrupts the page served for the FIRST `corruptCount` provinces.
+ *
+ * Used to drive the anomaly threshold from both sides. The mutation is applied to the transport
+ * response, so the production parse/validate/threshold path runs exactly as it would against a
+ * real MGM page that carried a bad cell.
+ */
+function makeMutatingStub(corruptCount: number, corrupt: (html: string) => string): typeof fetch {
+  let callIndex = 0;
+  const seenKeys: string[] = [];
+
+  return (input: string | URL | Request): Promise<Response> => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+    if (callIndex++ === 0) {
+      return Promise.resolve(new Response(NAV_HTML, { status: 200 }));
+    }
+
+    const key = keyFromUrl(url);
+    if (!seenKeys.includes(key)) seenKeys.push(key);
+    const html = pageFor(key);
+    const shouldCorrupt = seenKeys.indexOf(key) < corruptCount;
+    return Promise.resolve(new Response(shouldCorrupt ? corrupt(html) : html, { status: 200 }));
   };
 }
 
@@ -164,9 +190,153 @@ describe('runFetchPhase', () => {
     }) as typeof fetch;
 
     // `AbortSignal.timeout` bounds wall-clock, not payload; without the cap a fast, huge
-    // response inside the 30 s window is read in full.
+    // response inside the timeout window is read in full.
     await expect(
       runFetchPhase({ outputDir, fetchImpl: oversized, sleepImpl: noSleep }),
     ).rejects.toThrow(/cap/);
+  }, 60_000);
+
+  /**
+   * The anomaly threshold. Its whole purpose is to distinguish "one MGM cell is wrong" (absorb
+   * it, record it, carry on) from "the source has broken" (stop before writing anything), so
+   * both sides of that line need pinning.
+   */
+  it('records a handful of impossible values, publishes none of them, and still completes', async () => {
+    // Two provinces' snow records made negative — under the threshold.
+    const withAnomalies = makeMutatingStub(2, (html) =>
+      html.replace(/<b>\s*\d+(?:,\d+)?\s*cm/, '<b>-1 cm'),
+    );
+
+    await runFetchPhase({ outputDir, fetchImpl: withAnomalies, sleepImpl: noSleep });
+
+    const manifest = JSON.parse(
+      await readFile(join(outputDir, 'climate-manifest.json'), 'utf8'),
+    ) as ClimateManifestArtifact;
+    const normals = JSON.parse(
+      await readFile(join(outputDir, 'climate-normals.json'), 'utf8'),
+    ) as ClimateNormalsArtifact;
+
+    // Recorded, with the evidence…
+    expect(manifest.anomalies).toHaveLength(2);
+    for (const anomaly of manifest.anomalies) {
+      expect(anomaly.plateCode.length).toBeGreaterThan(0);
+      expect(anomaly.rawCell).toContain('-1');
+    }
+    // …never published…
+    for (const entry of normals.entries) {
+      for (const record of Object.values(entry.normals.records)) {
+        if (record !== null) expect(record.value).toBeGreaterThanOrEqual(0);
+      }
+    }
+    // …and the other 79 provinces are unharmed.
+    expect(normals.entries).toHaveLength(PROVINCE_COUNT);
+  }, 60_000);
+
+  it('REGRESSION (I1): an impossible CORE value costs one province, not the whole run', async () => {
+    // The mechanism advertises "the value is dropped, the rest of the province is kept" — but
+    // `precipitationMm` is one of the two all-or-nothing core fields, so nulling it made the
+    // province unpublishable and `assertClimateNormalsShape` then aborted the entire
+    // ~70-minute, 81-province run. The mechanism defeated its own purpose on one of the four
+    // cases it claims to cover, and the crash never named the anomaly that caused it.
+    //
+    // Ruled outcome: that province becomes UNPUBLISHABLE (a state the design already supports —
+    // the page renders no climate section) and the run continues.
+    const negativePrecipitation = makeMutatingStub(1, (html) =>
+      // January's precipitation cell only. The label carries a nested `<span>` for its unit, so
+      // the match runs from the row heading to its first `<td>` rather than assuming they are
+      // adjacent.
+      html.replace(/(Aylık Toplam Yağış Miktarı Ortalaması[\s\S]*?<td[^>]*>)([^<]*)/, '$1-5,0'),
+    );
+
+    await runFetchPhase({ outputDir, fetchImpl: negativePrecipitation, sleepImpl: noSleep });
+
+    const manifest = JSON.parse(
+      await readFile(join(outputDir, 'climate-manifest.json'), 'utf8'),
+    ) as ClimateManifestArtifact;
+    const normals = JSON.parse(
+      await readFile(join(outputDir, 'climate-normals.json'), 'utf8'),
+    ) as ClimateNormalsArtifact;
+
+    // Exactly one province withheld, and WHY is recorded rather than left to be inferred from
+    // its absence — an undeclared gap is the thing the completeness gate exists to refuse.
+    expect(manifest.unpublishable).toHaveLength(1);
+    expect(manifest.unpublishable?.[0]?.reason).toMatch(/core pair incomplete/);
+
+    // Its provenance survives: we fetched the page, we simply chose not to publish it.
+    expect(manifest.entries).toHaveLength(PROVINCE_COUNT);
+    const withheld = manifest.unpublishable?.[0]?.plateCode;
+    expect(manifest.entries.some((entry) => entry.plateCode === withheld)).toBe(true);
+
+    // …and the other 80 provinces shipped, which is the entire point.
+    expect(normals.entries).toHaveLength(PROVINCE_COUNT - 1);
+    expect(normals.entries.some((entry) => entry.plateCode === withheld)).toBe(false);
+
+    // The two phases must actually meet. The load phase refuses a withheld province unless a
+    // VERIFIED core-pair anomaly stands behind it, so a fetch that withholds without leaving that
+    // evidence would produce an artifact its own loader rejects — the ruled outcome would be
+    // unreachable in practice, which is exactly the trap this design walked into once already.
+    expect(() => assertArtifactsCorroborate(normals, manifest)).not.toThrow();
+    expect(
+      manifest.anomalies.some(
+        (anomaly) => anomaly.plateCode === withheld && anomaly.field === 'precipitationMm',
+      ),
+    ).toBe(true);
+  }, 60_000);
+
+  it('REGRESSION (C1): every page is stamped no later than the artifact itself', async () => {
+    // `generatedAtUtc` used to be captured BEFORE the ~70-minute loop, so it necessarily preceded
+    // every `fetchedAtUtc` — the artifact was labelled with the run's start, and the ordering
+    // could not be asserted anywhere. Captured after the completeness gate it means what its
+    // name says, and `assertArtifactsCorroborate` can enforce it.
+    await runFetchPhase({ outputDir, fetchImpl: makeFetchStub(), sleepImpl: noSleep });
+
+    const manifest = JSON.parse(
+      await readFile(join(outputDir, 'climate-manifest.json'), 'utf8'),
+    ) as ClimateManifestArtifact;
+
+    const generatedAt = Date.parse(manifest.generatedAtUtc);
+    for (const entry of manifest.entries) {
+      expect(Date.parse(entry.fetchedAtUtc)).toBeLessThanOrEqual(generatedAt);
+    }
+  }, 60_000);
+
+  it('reads every provenance stamp from the injected clock, so a replay is reproducible', async () => {
+    // The seam that was missing when this PR's artifacts were produced. Without it, replaying the
+    // parse over locally cached pages required patching this file — which is how a committed
+    // artifact came to be produced by code that was not in the repository, while the README said
+    // otherwise. A yearly job whose output cannot be regenerated by the code shipped beside it
+    // has no provenance story at all.
+    const fixedInstant = new Date('2020-01-02T03:04:05.000Z');
+
+    await runFetchPhase({
+      outputDir,
+      fetchImpl: makeFetchStub(),
+      sleepImpl: noSleep,
+      nowImpl: () => fixedInstant,
+    });
+
+    const manifest = JSON.parse(
+      await readFile(join(outputDir, 'climate-manifest.json'), 'utf8'),
+    ) as ClimateManifestArtifact;
+
+    expect(manifest.generatedAtUtc).toBe(fixedInstant.toISOString());
+    for (const entry of manifest.entries) {
+      expect(entry.fetchedAtUtc).toBe(fixedInstant.toISOString());
+    }
+  }, 60_000);
+
+  it('ABORTS without writing anything when impossible values pass the threshold', async () => {
+    // Enough anomalies to mean "the source has broken", not "a cell is wrong".
+    const manyAnomalies = makeMutatingStub(20, (html) =>
+      html.replace(/<b>\s*\d+(?:,\d+)?\s*cm/, '<b>-1 cm'),
+    );
+
+    await expect(
+      runFetchPhase({ outputDir, fetchImpl: manyAnomalies, sleepImpl: noSleep }),
+    ).rejects.toThrow(/above the threshold/);
+
+    // The same all-or-nothing guarantee the completeness gate gives: a refused run leaves the
+    // previous artifacts untouched rather than half-rewritten.
+    await expect(readFile(join(outputDir, 'climate-normals.json'), 'utf8')).rejects.toThrow();
   }, 60_000);
 });

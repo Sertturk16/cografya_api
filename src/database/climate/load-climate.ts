@@ -3,7 +3,11 @@ import { join } from 'node:path';
 import type { DataSource } from 'typeorm';
 import { Province } from '../../province/entities/province.entity';
 import { canonicalJson } from './canonical-json';
-import type { ClimateManifestArtifact, ClimateNormalsArtifact } from './climate-artifact.types';
+import type {
+  ClimateAnomaly,
+  ClimateManifestArtifact,
+  ClimateNormalsArtifact,
+} from './climate-artifact.types';
 import {
   ClimateImportError,
   assertArtifactsCorroborate,
@@ -78,6 +82,16 @@ export async function loadClimateNormals(
   assertArtifactsCorroborate(normalsArtifact, manifest);
   const manifestByCode = new Map(manifest.entries.map((entry) => [entry.plateCode, entry]));
 
+  // Anomalies are declared per province, so the round-trip check can tell "we deliberately
+  // refused an impossible source value" from "we lost a reading" — the load phase re-runs that
+  // check against the artifact and would otherwise reject our own recorded refusals.
+  const anomaliesByCode = new Map<string, ClimateAnomaly[]>();
+  for (const anomaly of manifest.anomalies) {
+    const existing = anomaliesByCode.get(anomaly.plateCode);
+    if (existing) existing.push(anomaly);
+    else anomaliesByCode.set(anomaly.plateCode, [anomaly]);
+  }
+
   // Validate EVERYTHING before writing ANYTHING: a run must not leave half the provinces
   // updated because entry 57 was malformed.
   for (const entry of normalsArtifact.entries) {
@@ -93,6 +107,7 @@ export async function loadClimateNormals(
       entry.normals,
       manifestEntry.rawMetricRows,
       manifestEntry.rawRecordCells,
+      anomaliesByCode.get(entry.plateCode) ?? [],
     );
   }
 
@@ -105,13 +120,23 @@ export async function loadClimateNormals(
   // which breaks the all-or-nothing model every other check in this file maintains and
   // contradicts the comment above.
   const artifactCodes = normalsArtifact.entries.map((entry) => entry.plateCode);
+  const unpublishableCodes = new Set(
+    (manifest.unpublishable ?? []).map((province) => province.plateCode),
+  );
   const knownCodes = new Set(
     (await dataSource.getRepository(Province).find({ select: { plateCode: true } })).map(
       (province) => province.plateCode,
     ),
   );
 
-  const missingProvinces = artifactCodes.filter((code) => !knownCodes.has(code));
+  // Both the published and the WITHHELD codes: a withheld province is written to as well (its
+  // series is cleared), so it needs the same pre-flight existence check. Covering only
+  // `artifactCodes` left a declared-unpublishable province absent from the database to fall
+  // through to `findOneOrFail` INSIDE the transaction and surface as an unnamed TypeORM error —
+  // the same "bare error instead of a named ClimateImportError" class fixed at I2, reintroduced
+  // by the fix for I1.
+  const writtenCodes = [...artifactCodes, ...unpublishableCodes];
+  const missingProvinces = writtenCodes.filter((code) => !knownCodes.has(code));
   if (missingProvinces.length > 0) {
     throw new ClimateImportError(
       `the artifact covers province(s) that are not in the database: ${missingProvinces.join(', ')}. ` +
@@ -124,7 +149,14 @@ export async function loadClimateNormals(
   // province (its series would simply stay NULL forever, with no error at any layer). Under
   // the all-or-nothing design every seeded province gets a series, so a gap is a defect, not
   // a configuration.
-  const covered = new Set(artifactCodes);
+  //
+  // A DECLARED-unpublishable province counts as covered: the run fetched its page and recorded
+  // that an impossible core value left it with no publishable series. That is a decision with an
+  // audit trail, which is the opposite of the silent gap this check guards against — so it is
+  // accepted here and then acted on explicitly below — but only after
+  // `assertArtifactsCorroborate` has proved the declaration is backed by a verified core-pair
+  // anomaly, so what is accepted here is evidence, not a claim.
+  const covered = new Set([...artifactCodes, ...unpublishableCodes]);
   const uncovered = [...knownCodes].filter((code) => !covered.has(code)).sort();
   if (uncovered.length > 0) {
     throw new ClimateImportError(
@@ -155,6 +187,24 @@ export async function loadClimateNormals(
       }
 
       province.climateNormals = entry.normals;
+      await repo.save(province);
+      updated += 1;
+    }
+
+    // Declared-unpublishable provinces are actively CLEARED, not merely skipped.
+    //
+    // Skipping would leave last year's series in place while the manifest says this year's run
+    // refused to publish one — the database quietly disagreeing with the artifact, and a page
+    // rendering a chart the current run declined to stand behind. Idempotency still holds: a
+    // province already NULL is not written, so `updated_at` (and with it `dateModified` and the
+    // sitemap `lastmod`) does not move on a re-run.
+    for (const plateCode of unpublishableCodes) {
+      const province = await repo.findOneOrFail({ where: { plateCode } });
+      if (province.climateNormals === null) {
+        unchanged += 1;
+        continue;
+      }
+      province.climateNormals = null;
       await repo.save(province);
       updated += 1;
     }

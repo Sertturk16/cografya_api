@@ -4,13 +4,24 @@ import { join } from 'node:path';
 import { CLIMATE_SOURCE_MGM_GENERAL } from '../../province/province.types';
 import { SEED_PROVINCES } from '../seeds/province.seed-data';
 import type {
+  ClimateAnomaly,
   ClimateManifestArtifact,
   ClimateManifestEntry,
   ClimateNormalsArtifact,
   ClimateNormalsEntry,
+  ClimateUnpublishableProvince,
 } from './climate-artifact.types';
-import { assertClimateNormalsShape, assertDecimalRoundTrip } from './climate-assertions';
-import { parseMgmGeneralStatisticsPage, parseMgmProvinceKeys } from './mgm-parser';
+import {
+  CORE_PAIR_FIELDS,
+  assertClimateNormalsShape,
+  assertDecimalRoundTrip,
+  findUnpublishableReason,
+} from './climate-assertions';
+import {
+  parseMgmGeneralStatisticsPage,
+  parseMgmProvinceKeys,
+  type MgmParseResult,
+} from './mgm-parser';
 
 /**
  * `--phase=fetch` — the ONLY phase that touches the network.
@@ -22,9 +33,11 @@ import { parseMgmGeneralStatisticsPage, parseMgmProvinceKeys } from './mgm-parse
  * MGM is a public institution serving us for free with no API and no permission granted
  * (→ DEC 2026-07-18f). This client is therefore conservative on every axis:
  *   - **Serial**, never parallel — one request in flight, ever.
- *   - **≥ 3 s between requests**, so 81 pages take ~5 minutes rather than hammering.
- *   - **30 s timeout** per request via `AbortSignal.timeout` — no unbounded external call
- *     (repo CLAUDE §3.5).
+ *   - **≥ 5 s between requests** rather than hammering. Budget **~70 minutes** for the 81 pages:
+ *     MGM degrades to ~50 s/page under sustained access (measured 2026-07-18), so the wall-clock
+ *     cost is dominated by MGM's own pace, not by this delay.
+ *   - **60 s timeout** per request via `AbortSignal.timeout` — no unbounded external call
+ *     (repo CLAUDE §3.5). See `REQUEST_TIMEOUT_MS` for why it is not 30 s.
  *   - **2 retries** with a longer pause, for transient failures only.
  *   - **An identifying User-Agent** — we do not pretend to be a browser.
  *   - **A 3-consecutive-failure circuit breaker** that aborts the whole run. If MGM has
@@ -42,22 +55,47 @@ const MGM_BASE_URL = 'https://www.mgm.gov.tr/veridegerlendirme/il-ve-ilceler-ist
 const USER_AGENT =
   'CografyaPlatformBot/1.0 (climate normals import; yearly; contact via https://www.mgm.gov.tr)';
 
-const REQUEST_TIMEOUT_MS = 30_000;
+/**
+ * 60 s, not 30 s. Measured, not guessed: during the 2026-07-18 run MGM served the first ~90
+ * requests in ~3-4 s each and then degraded to ~50 s per page for the rest of the session. At a
+ * 30 s timeout that degradation cost two spurious failures (Bolu, Karaman) which only the retry
+ * saved — and three such pages in a row would have tripped the circuit breaker and aborted an
+ * otherwise healthy run. A longer ceiling is also the POLITER choice: it waits for a slow server
+ * instead of hanging up and asking again.
+ */
+const REQUEST_TIMEOUT_MS = 60_000;
 /**
  * Hard cap on a single response body. A `k=A` page is ~364 KB, so 8 MB is ~22x headroom and
  * still bounds the process.
  *
  * `AbortSignal.timeout` bounds WALL-CLOCK, not payload: a fast multi-gigabyte response inside
- * the 30 s window would be buffered fully into memory by `response.text()` and OOM the run.
+ * the timeout window would be buffered fully into memory by `response.text()` and OOM the run.
  * Scored honestly, the realistic trigger here is "MGM misbehaves or a captive portal answers",
  * not an adversary — this is a hand-run developer script against one hardcoded HTTPS URL — but
  * "no unbounded external call, ever" (repo CLAUDE §3.5) is a rule, not a risk assessment.
  */
 const MAX_RESPONSE_BYTES = 8 * 1024 * 1024;
-const DELAY_BETWEEN_REQUESTS_MS = 3_000;
+/**
+ * 5 s, not 3 s. MGM visibly throttles sustained access (see `REQUEST_TIMEOUT_MS`); backing off
+ * is both the courteous response and the one that makes the yearly run finish.
+ */
+const DELAY_BETWEEN_REQUESTS_MS = 5_000;
 const RETRY_DELAY_MS = 10_000;
 const MAX_ATTEMPTS_PER_PAGE = 3;
 const MAX_CONSECUTIVE_FAILURES = 3;
+
+/**
+ * How many physically-impossible source values the run tolerates before it aborts.
+ *
+ * The threshold is the whole point of the anomaly mechanism: it separates "one MGM cell is
+ * wrong" from "MGM's data has broken". A single bad cell must not block 81 provinces — but a
+ * systemic breakage must not be absorbed into a quiet pile of nulls either. The 2026-07-18
+ * harvest found exactly ONE anomaly across all 81 provinces, so 5 is comfortable headroom over
+ * observed reality while still being nowhere near "something is badly wrong".
+ *
+ * If a future run trips this, the correct response is to investigate MGM, NOT to raise the number.
+ */
+const MAX_ANOMALIES = 5;
 
 export interface FetchPhaseOptions {
   /** Directory the three artifacts are written to. */
@@ -66,10 +104,63 @@ export interface FetchPhaseOptions {
   fetchImpl?: typeof fetch;
   /** Injected for tests; defaults to a real timer. */
   sleepImpl?: (ms: number) => Promise<void>;
+  /**
+   * The clock every provenance stamp is read from. Injected for tests — and, just as
+   * importantly, so that a REPLAY over locally cached pages is reproducible by committed code.
+   *
+   * This seam is not decoration. PR A1b's artifacts were produced by a live harvest followed by
+   * a replay through the parser, with the per-page `fetchedAtUtc` values carried over from the
+   * harvest. With no clock seam that replay could only be done by patching this file, which
+   * meant the committed artifact was produced by code that was not in the repository — and the
+   * README claimed it came from a plain `--phase=fetch` run. A yearly job whose artifacts cannot
+   * be regenerated by the code that ships alongside them has no provenance story at all.
+   */
+  nowImpl?: () => Date;
 }
 
 export function buildMgmUrl(mgmKey: string): string {
   return `${MGM_BASE_URL}?k=A&m=${mgmKey}`;
+}
+
+/**
+ * The audit trail is the TABLE FRAGMENT, not the 364 KB page: ~0.5 MB total across 81 provinces
+ * instead of ~29 MB, and the manifest's sha256 still pins the full response.
+ */
+function extractTableFragments(pageBody: string): string {
+  const fragments = [...pageBody.matchAll(/<table\b[^>]*>[\s\S]*?<\/table>/gi)].map(
+    (match) => match[0],
+  );
+  return `${fragments.join('\n')}\n`;
+}
+
+/**
+ * Provenance for one fetched page.
+ *
+ * Written for BOTH outcomes — a published province and a declared-unpublishable one — because a
+ * province we chose not to publish still has to carry the evidence for that choice. Extracted so
+ * the two call sites cannot drift into recording different things.
+ */
+function buildManifestEntry(
+  plateCode: string,
+  provinceKey: { key: string; nameTr: string },
+  url: string,
+  page: FetchedPage,
+  parsed: MgmParseResult,
+  nowImpl: () => Date,
+): ClimateManifestEntry {
+  return {
+    plateCode,
+    mgmKey: provinceKey.key,
+    mgmNameTr: provinceKey.nameTr,
+    url,
+    fetchedAtUtc: nowImpl().toISOString(),
+    httpStatus: page.status,
+    pageSha256: createHash('sha256').update(page.body, 'utf8').digest('hex'),
+    periodStartYear: parsed.normals.periodStartYear,
+    periodEndYear: parsed.normals.periodEndYear,
+    rawMetricRows: parsed.raw.metricRows,
+    rawRecordCells: parsed.raw.recordCells,
+  };
 }
 
 function sleep(ms: number): Promise<void> {
@@ -163,13 +254,14 @@ async function fetchPage(
 /**
  * Fetch, parse and validate all 81 provinces, then write the artifacts.
  *
- * NOTE (PR A1a): this function is the SKELETON — it is complete and reviewable, but it has
- * not been executed. The actual run, its committed artifacts and their review are PR A1b.
+ * Executed for real on 2026-07-18 (PR A1b); `data/climate/` holds that run's output. See
+ * `data/climate/README.md` for how those specific files were produced — it was not a single
+ * clean invocation of this function, and the README says so.
  */
 export async function runFetchPhase(options: FetchPhaseOptions): Promise<void> {
   const fetchImpl = options.fetchImpl ?? fetch;
   const sleepImpl = options.sleepImpl ?? sleep;
-  const generatedAtUtc = new Date().toISOString();
+  const nowImpl = options.nowImpl ?? ((): Date => new Date());
 
   // Step 1: read MGM's own province-key dictionary off any one of its pages, so no key is
   // ever guessed from a province name (Mersin's key is `ICEL`).
@@ -191,7 +283,10 @@ export async function runFetchPhase(options: FetchPhaseOptions): Promise<void> {
   const fragmentDir = join(options.outputDir, 'fragments');
 
   let consecutiveFailures = 0;
+  let pagesFetched = 0;
   const failures: { plateCode: string; nameTr: string }[] = [];
+  const anomalies: ClimateAnomaly[] = [];
+  const unpublishable: ClimateUnpublishableProvince[] = [];
   // Fragments are BUFFERED, not streamed to disk, so that a run which fails the completeness
   // gate below leaves the previous year's audit trail completely untouched rather than half
   // overwritten. ~0.5 MB across 81 provinces — the whole point of committing the table
@@ -232,6 +327,69 @@ export async function runFetchPhase(options: FetchPhaseOptions): Promise<void> {
       sourceUrl: url,
     });
 
+    // The parser has already nulled anything physically impossible; record what it refused, with
+    // the province attached, so the manifest can carry the evidence.
+    for (const anomaly of parsed.anomalies) {
+      anomalies.push({ plateCode: province.plateCode, ...anomaly });
+      console.warn(
+        `[db:import:climate] ANOMALY ${province.plateCode} ${province.nameTr} — ` +
+          `"${anomaly.sourceLabel}" = ${JSON.stringify(anomaly.rawCell)}: ${anomaly.reason}. ` +
+          `Value dropped; the rest of the province is kept.`,
+      );
+    }
+    // A pile of these is a different event from one of them — stop before writing anything.
+    if (anomalies.length > MAX_ANOMALIES) {
+      throw new Error(
+        `[db:import:climate] ABORTING — ${anomalies.length} impossible values found, above the ` +
+          `threshold of ${MAX_ANOMALIES}. One bad cell is MGM having a bad day; this many means ` +
+          `the source has changed or broken. Investigate MGM before raising this number.\n` +
+          anomalies
+            .map((a) => `  - ${a.plateCode} "${a.sourceLabel}" = ${JSON.stringify(a.rawCell)}`)
+            .join('\n'),
+      );
+    }
+
+    // An anomaly on a CORE-PAIR field is the one case where refusing a value costs us the whole
+    // province: `precipitationMm` is nulled, and the all-or-nothing rule (PLAN §1) then makes the
+    // series unpublishable. Before this branch existed, `assertClimateNormalsShape` threw on it
+    // and the entire 81-province run died — a mechanism advertised as "the value is dropped, the
+    // rest of the province is kept" instead losing everything, and doing so with a message that
+    // never named the anomaly, leaving the operator to scroll back through ~70 minutes of log.
+    //
+    // Ruled outcome: an impossible CORE value makes that province unpublishable, and the run
+    // CONTINUES. An unpublishable province is a state the design already supports (the page
+    // simply renders no climate section); a lost run is not. The exclusion is recorded in the
+    // manifest, so a gap is declared rather than silent, and reported again at the end.
+    //
+    // Narrow on purpose: this converts an ANOMALY-INDUCED gap only. A province that arrives
+    // unpublishable for any other reason still aborts the run, because under ruling 5 all 81 are
+    // expected to publish and any other cause means MGM's page changed shape.
+    const unpublishableReason = findUnpublishableReason(parsed.normals);
+    const coreAnomalies = parsed.anomalies.filter((anomaly) => CORE_PAIR_FIELDS.has(anomaly.field));
+    if (unpublishableReason !== null && coreAnomalies.length > 0) {
+      unpublishable.push({ plateCode: province.plateCode, reason: unpublishableReason });
+      pagesFetched += 1;
+      manifestEntries.push(
+        buildManifestEntry(province.plateCode, provinceKey, url, page, parsed, nowImpl),
+      );
+      fragmentsByFile.set(
+        `k-a-${provinceKey.key.toLowerCase()}.tables.html`,
+        extractTableFragments(page.body),
+      );
+      console.warn(
+        `[db:import:climate] ${province.plateCode} ${province.nameTr} is UNPUBLISHABLE — ` +
+          `${unpublishableReason}. Caused by ${coreAnomalies.length} impossible core value(s): ` +
+          `${coreAnomalies
+            .map(
+              (anomaly) =>
+                `"${anomaly.sourceLabel}"${anomaly.month === null ? '' : ` month ${String(anomaly.month)}`} = ` +
+                `${JSON.stringify(anomaly.rawCell)}`,
+            )
+            .join('; ')}. No series is written for this province; the run continues.`,
+      );
+      continue;
+    }
+
     // Validate BEFORE writing an artifact, so a bad page never reaches a committed file.
     assertClimateNormalsShape(province.plateCode, parsed.normals);
     assertDecimalRoundTrip(
@@ -239,29 +397,17 @@ export async function runFetchPhase(options: FetchPhaseOptions): Promise<void> {
       parsed.normals,
       parsed.raw.metricRows,
       parsed.raw.recordCells,
+      parsed.anomalies,
     );
 
+    pagesFetched += 1;
     normalsEntries.push({ plateCode: province.plateCode, normals: parsed.normals });
-    manifestEntries.push({
-      plateCode: province.plateCode,
-      mgmKey: provinceKey.key,
-      mgmNameTr: provinceKey.nameTr,
-      url,
-      fetchedAtUtc: new Date().toISOString(),
-      httpStatus: page.status,
-      pageSha256: createHash('sha256').update(page.body, 'utf8').digest('hex'),
-      periodStartYear: parsed.normals.periodStartYear,
-      periodEndYear: parsed.normals.periodEndYear,
-      rawMetricRows: parsed.raw.metricRows,
-      rawRecordCells: parsed.raw.recordCells,
-    });
-
-    // The audit trail is the TABLE FRAGMENT, not the 364 KB page: ~0.5 MB total across 81
-    // provinces instead of ~29 MB, and the sha256 above still pins the full response.
-    const fragments = [...page.body.matchAll(/<table\b[^>]*>[\s\S]*?<\/table>/gi)].map((m) => m[0]);
+    manifestEntries.push(
+      buildManifestEntry(province.plateCode, provinceKey, url, page, parsed, nowImpl),
+    );
     fragmentsByFile.set(
       `k-a-${provinceKey.key.toLowerCase()}.tables.html`,
-      `${fragments.join('\n')}\n`,
+      extractTableFragments(page.body),
     );
   }
 
@@ -269,15 +415,20 @@ export async function runFetchPhase(options: FetchPhaseOptions): Promise<void> {
   //
   // The circuit breaker above only catches CONSECUTIVE failures, and `consecutiveFailures`
   // resets to 0 on the next success: a 500 on province 12 and another on province 40 across an
-  // unattended ~5-minute run never trips it, and both provinces would simply be absent from
+  // unattended ~70-minute run never trips it, and both provinces would simply be absent from
   // the artifacts, which were then written with the process exiting 0. Nothing downstream
   // catches that either — the load phase's old check ran the OPPOSITE direction, and a
   // province dropped here keeps `climate_normals = NULL` forever with no error at any layer.
   //
   // The end-of-run `console.log` was the only signal, which is a hope, not a gate.
-  if (normalsEntries.length !== provinceKeys.length) {
+  //
+  // It counts PAGES FETCHED, not provinces published — two different questions. "Did we reach all
+  // 81 of MGM's pages?" is the completeness question this gate owns; "is each one publishable?"
+  // is a separate, expected-outcome question owned by `findUnpublishableReason`. Conflating them
+  // is what made a single impossible core value abort an otherwise perfect run.
+  if (pagesFetched !== provinceKeys.length) {
     throw new Error(
-      `[db:import:climate] INCOMPLETE RUN — ${normalsEntries.length}/${provinceKeys.length} ` +
+      `[db:import:climate] INCOMPLETE RUN — ${pagesFetched}/${provinceKeys.length} ` +
         `provinces fetched. Absent: ` +
         `${failures.map((failure) => `${failure.plateCode} ${failure.nameTr}`).join(', ')}. ` +
         `Refusing to write a partial artifact: an absent province is invisible after this ` +
@@ -301,6 +452,15 @@ export async function runFetchPhase(options: FetchPhaseOptions): Promise<void> {
     }
   }
 
+  // Stamped HERE — after the completeness gate, not before the ~70-minute loop.
+  //
+  // Captured at the top, `generatedAtUtc` was always earlier than every `fetchedAtUtc`, which is
+  // both wrong (it labels the artifact with the run's START) and unassertable. Taken at the end
+  // it means what its name says, and it makes `fetchedAtUtc <= generatedAtUtc` a real invariant
+  // that `assertArtifactsCorroborate` now enforces — which is the check that would have caught
+  // this PR's own provenance defect at CI instead of in review.
+  const generatedAtUtc = nowImpl().toISOString();
+
   const normalsArtifact: ClimateNormalsArtifact = {
     generatedAtUtc,
     source: CLIMATE_SOURCE_MGM_GENERAL,
@@ -310,6 +470,8 @@ export async function runFetchPhase(options: FetchPhaseOptions): Promise<void> {
     generatedAtUtc,
     source: CLIMATE_SOURCE_MGM_GENERAL,
     userAgent: USER_AGENT,
+    anomalies,
+    unpublishable,
     entries: manifestEntries,
   };
 
@@ -328,4 +490,35 @@ export async function runFetchPhase(options: FetchPhaseOptions): Promise<void> {
     `[db:import:climate] fetch done — ${normalsEntries.length}/${provinceKeys.length} provinces ` +
       `written to ${options.outputDir}`,
   );
+
+  // Same reasoning as the anomaly summary below: an exclusion decided 70 minutes ago has
+  // scrolled out of sight, and an unpublished province that nobody notices is the exact silent
+  // gap the completeness gate exists to prevent.
+  if (unpublishable.length > 0) {
+    console.warn(
+      `[db:import:climate] ${unpublishable.length} PROVINCE(S) NOT PUBLISHED — their pages were ` +
+        `fetched, but an impossible core value left them with no publishable series. Recorded in ` +
+        `climate-manifest.json under "unpublishable":`,
+    );
+    for (const province of unpublishable) {
+      console.warn(`  - ${province.plateCode}: ${province.reason}`);
+    }
+  }
+
+  // Re-stated at the END, where a human actually looks. A warning logged 70 minutes and 81
+  // provinces ago has scrolled far out of sight; an anomaly nobody reads is a silent one.
+  if (anomalies.length === 0) {
+    console.log('[db:import:climate] no impossible source values found.');
+  } else {
+    console.warn(
+      `[db:import:climate] ${anomalies.length} IMPOSSIBLE SOURCE VALUE(S) dropped — recorded in ` +
+        `climate-manifest.json under "anomalies":`,
+    );
+    for (const anomaly of anomalies) {
+      console.warn(
+        `  - ${anomaly.plateCode} "${anomaly.sourceLabel}" = ${JSON.stringify(anomaly.rawCell)} ` +
+          `→ ${anomaly.field} set to null (${anomaly.reason})`,
+      );
+    }
+  }
 }

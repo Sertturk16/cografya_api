@@ -7,12 +7,16 @@ import type { ClimateManifestArtifact, ClimateNormalsArtifact } from './climate-
 import {
   EMPTY_CELL_VALUES,
   METRIC_ROW_LABELS,
+  NON_NEGATIVE_MONTHLY_FIELDS,
   RECORD_COLUMNS,
   formatLikeRawKaNumber,
   formatLikeRawRecordDate,
+  isAbsentRecordValueCell,
+  tryParseKaNumber,
   type MetricField,
   type MgmRawMetricRow,
   type MgmRawRecordCell,
+  type MgmValueAnomaly,
 } from './mgm-parser';
 
 /**
@@ -154,6 +158,244 @@ function assertRawRowsCoverStoredValues(
   }
 }
 
+/* ------------------------------------------------------------------ *
+ * 1a. Anomaly declarations are VERIFIED, never trusted
+ * ------------------------------------------------------------------ */
+
+/**
+ * Prove that every declared anomaly names a raw cell that really does hold an impossible value.
+ *
+ * **Why this exists.** An anomaly switches OFF the decimal round-trip for the cell it names —
+ * the strongest check in this module, and the only one that can see a dropped reading. If
+ * membership in the list were enough, the list would be an unverified allowlist over
+ * artifact-controlled JSON: appending one line to `climate-manifest.json` and nulling the
+ * matching value in `climate-normals.json` would make a genuine MGM reading vanish into
+ * Postgres and onto a public page, indistinguishable from a real source gap. `tempMinMeanC`
+ * and `tempMaxMeanC` were fully exposed to exactly that (the ordering invariant short-circuits
+ * on `null`, so nothing else would have objected), and the core pair was protected only
+ * incidentally, by an unrelated rule.
+ *
+ * So the declaration is treated as a CLAIM about the source, and the source is right there in
+ * the manifest. A claim is honoured only when all of these hold:
+ *   1. the named field is one this parser is capable of refusing (the two allowlists — an
+ *      anomaly cannot be declared on a temperature mean, where negatives are ordinary);
+ *   2. the manifest carries a raw cell for it;
+ *   3. that raw cell re-derives, through the SAME `k=A` grammar the parser uses, to a value
+ *      that is actually impossible.
+ * Anything else throws. The failure is deliberately loud and specific: a false declaration is
+ * either tampering or a genuine bug in the fetch phase, and both need a human.
+ */
+function assertAnomalyDeclarationsAreReal(
+  plateCode: string,
+  normals: ClimateNormals,
+  rawMetricRows: readonly MgmRawMetricRow[],
+  rawRecordCells: readonly MgmRawRecordCell[],
+  anomalies: readonly MgmValueAnomaly[],
+): void {
+  for (const anomaly of anomalies) {
+    // Half one: the source really did publish something impossible. Shared with the
+    // unpublishable-declaration check, so both consume the SAME evidence by the same rule.
+    assertAnomalyMatchesSource(plateCode, anomaly, rawMetricRows, rawRecordCells);
+
+    // Half two: and we really did refuse it. Only meaningful where a series exists to inspect —
+    // a declaration standing over a PUBLISHED value would exempt a live number from the
+    // round-trip, which is the T3 trap re-opened.
+    const declared = describeAnomaly(anomaly);
+    if (anomaly.month !== null) {
+      const stored = normals.months[anomaly.month - 1]?.[anomaly.field as MetricField] ?? null;
+      if (stored !== null) {
+        throw new ClimateImportError(
+          `${plateCode}: ${declared} but the value ${JSON.stringify(stored)} IS published — an ` +
+            `anomaly exempts a cell from the round-trip, so it must correspond to a null.`,
+        );
+      }
+      continue;
+    }
+    if (normals.records[anomaly.field as keyof typeof normals.records] !== null) {
+      throw new ClimateImportError(
+        `${plateCode}: ${declared} but the record IS published — an anomaly exempts a cell from ` +
+          `the round-trip, so it must correspond to a null.`,
+      );
+    }
+  }
+}
+
+function describeAnomaly(anomaly: MgmValueAnomaly): string {
+  return `declared anomaly ${JSON.stringify(anomaly.field)}${
+    anomaly.month === null ? '' : ` month ${String(anomaly.month)}`
+  }`;
+}
+
+/**
+ * The EVIDENCE half of an anomaly check: does the raw cell this declaration names really hold a
+ * physically impossible value?
+ *
+ * Split out from `assertAnomalyDeclarationsAreReal` because it is the half that does not need a
+ * published series to check against — which is exactly the situation of a province that was
+ * WITHHELD. Sharing it is the point: an unpublishable declaration and an anomaly declaration are
+ * now grounded in the same raw cells by the same rule, so the two cannot drift into disagreeing
+ * about what "impossible" means.
+ */
+function assertAnomalyMatchesSource(
+  plateCode: string,
+  anomaly: MgmValueAnomaly,
+  rawMetricRows: readonly MgmRawMetricRow[],
+  rawRecordCells: readonly MgmRawRecordCell[],
+): void {
+  const declared = describeAnomaly(anomaly);
+
+  if (anomaly.month !== null) {
+    const nonNegativeMonthlyFields = new Set<string>(
+      NON_NEGATIVE_MONTHLY_FIELDS.map((entry) => entry.field),
+    );
+    if (!Number.isInteger(anomaly.month) || anomaly.month < 1 || anomaly.month > 12) {
+      throw new ClimateImportError(
+        `${plateCode}: ${declared} names month ${String(anomaly.month)}, which is not 1-12.`,
+      );
+    }
+    if (!nonNegativeMonthlyFields.has(anomaly.field)) {
+      throw new ClimateImportError(
+        `${plateCode}: ${declared} names a field that has no impossible-value rule. Only ` +
+          `${[...nonNegativeMonthlyFields].join(', ')} can be refused for being negative — a ` +
+          `negative temperature is an ordinary January, not an anomaly.`,
+      );
+    }
+
+    const rawRowByField = new Map<MetricField, MgmRawMetricRow>(
+      rawMetricRows.map((row) => [METRIC_ROW_LABELS[row.label], row]),
+    );
+    const row = rawRowByField.get(anomaly.field as MetricField);
+    if (row === undefined) {
+      throw new ClimateImportError(
+        `${plateCode}: ${declared} but the manifest holds no raw source row for it — the ` +
+          `declaration cannot be checked against anything, so it is refused.`,
+      );
+    }
+    const raw = (row.rawMonthlyCells[anomaly.month - 1] ?? '').trim();
+    const rederived = tryParseKaNumber(raw);
+    if (rederived === null || rederived >= 0) {
+      throw new ClimateImportError(
+        `${plateCode}: ${declared}, but its source cell reads ${JSON.stringify(raw)}, which is ` +
+          `not an impossible value. An anomaly disables the strongest fidelity check for that ` +
+          `cell; it is honoured only when the source really did publish something impossible.`,
+      );
+    }
+    return;
+  }
+
+  const column = RECORD_COLUMNS.find((candidate) => candidate.field === anomaly.field);
+  if (column === undefined || !column.nonNegative) {
+    throw new ClimateImportError(
+      `${plateCode}: ${declared} names no record column that has an impossible-value rule.`,
+    );
+  }
+  const cell = rawRecordCells.find((candidate) => candidate.field === anomaly.field);
+  if (cell === undefined) {
+    throw new ClimateImportError(
+      `${plateCode}: ${declared} but the manifest holds no raw source cell for it — the ` +
+        `declaration cannot be checked against anything, so it is refused.`,
+    );
+  }
+  // `"-1 cm"` → `"-1"`. A cell with no unit separator cannot be a real reading, so it also
+  // cannot justify an anomaly.
+  const rawValue = cell.rawValue.trim();
+  const separatorIndex = rawValue.lastIndexOf(' ');
+  const rederived =
+    separatorIndex === -1 ? null : tryParseKaNumber(rawValue.slice(0, separatorIndex));
+  if (rederived === null || rederived >= 0) {
+    throw new ClimateImportError(
+      `${plateCode}: ${declared}, but its source cell reads ${JSON.stringify(rawValue)}, which ` +
+        `is not an impossible value. An anomaly disables the strongest fidelity check for that ` +
+        `cell; it is honoured only when the source really did publish something impossible.`,
+    );
+  }
+}
+
+/**
+ * The two measures a province MUST carry in all 12 months to be published at all (PLAN §1).
+ *
+ * Lives here, next to `findUnpublishableReason` which enforces the rule, and is consumed by BOTH
+ * phases — the fetch phase's withhold branch and the load phase's verification of that branch.
+ * A second copy in `mgm-fetch` would let the writing phase and the deciding phase disagree about
+ * what "core" means, which is the drift this module refuses everywhere else.
+ */
+export const CORE_PAIR_FIELDS: ReadonlySet<string> = new Set(['tempMeanC', 'precipitationMm']);
+
+/**
+ * Prove that every WITHHELD province was withheld for a reason the source can corroborate.
+ *
+ * **This is the same defect as the anomaly allowlist, one layer up, and it was introduced by the
+ * fix for that one.** `unpublishable[]` suppresses the load phase's province-coverage check —
+ * the backstop against a silently dropped province. Validated only structurally (is it an array,
+ * is it not also published, does it have a manifest entry), membership was again enough: append
+ * one line, delete the province from `climate-normals.json`, and a genuinely dropped province
+ * passes coverage AND has its stored series actively cleared.
+ *
+ * The "anomaly-induced only" rule existed, but ONLY in `mgm-fetch` — the phase that does not
+ * write. This module's own threat model is that the artifact is hand-editable between the two
+ * phases and `load` is the phase that actually writes, so the rule had to come down to the
+ * writing phase.
+ *
+ * **No new declaration is introduced by this fix** — deliberately, because the recurring shape of
+ * these defects is "a check is disabled by a list, and the list becomes the attack surface". This
+ * consumes the `anomalies` list, which is itself verified against raw cells rather than trusted:
+ *
+ *   unpublishable[] → a core-pair anomaly for the same province → its raw manifest cell.
+ *
+ * **Where that chain actually ends — stated precisely, because an overclaim here is worse than a
+ * gap.** It ends at `manifest.rawMetricRows` / `rawRecordCells`, which are **inside the artifact**
+ * and therefore hand-editable under this module's own threat model. It does NOT reach MGM's served
+ * bytes. Forging a withheld province still requires three coordinated edits (delete the series,
+ * add the anomaly, rewrite the raw cell to something negative) instead of one, and every
+ * inconsistent subset is refused — but a consistent forgery of all three is not currently caught.
+ *
+ * **The last link is open, and knowingly so.** `pageSha256` is written by the fetch phase and
+ * never checked on the load path, and the 81 committed fragments are never read by
+ * `load-climate.ts`. Closing it means having `load` read the fragments and verify the raw cells
+ * against them — real work with its own test surface, tracked as a follow-up rather than bolted on
+ * here. Until then: the raw cells are the *best available* evidence on the write path, not
+ * independent evidence. Do not describe them as the latter.
+ */
+function assertUnpublishableDeclarationsAreReal(manifest: ClimateManifestArtifact): void {
+  const manifestByCode = new Map(manifest.entries.map((entry) => [entry.plateCode, entry]));
+
+  for (const province of manifest.unpublishable ?? []) {
+    const entry = manifestByCode.get(province.plateCode);
+    if (entry === undefined) {
+      // Already reported by the caller's provenance check; guarded so this cannot throw a bare
+      // TypeError if the order of checks is ever rearranged.
+      continue;
+    }
+
+    // A province is withheld ONLY because refusing an impossible CORE value emptied its
+    // all-or-nothing pair. Any other cause is a page-shape change that must abort the run, not a
+    // gap to be declared away — so a declaration with no core-pair anomaly behind it is refused.
+    const supporting = manifest.anomalies.filter(
+      (anomaly) => anomaly.plateCode === province.plateCode && CORE_PAIR_FIELDS.has(anomaly.field),
+    );
+    if (supporting.length === 0) {
+      throw new ClimateImportError(
+        `${province.plateCode}: declared unpublishable (${JSON.stringify(province.reason)}) but no ` +
+          `anomaly on a core field (${[...CORE_PAIR_FIELDS].join(', ')}) is recorded for it. A ` +
+          `province may be withheld only because an impossible CORE value was refused; the ` +
+          `declaration is evidence-free and is refused, because it would otherwise suppress the ` +
+          `coverage check that exists to catch a silently dropped province.`,
+      );
+    }
+
+    // …and that supporting anomaly is itself checked against the raw source cell, by the same
+    // rule and the same `k=A` grammar every other declaration is checked by.
+    for (const anomaly of supporting) {
+      assertAnomalyMatchesSource(
+        province.plateCode,
+        anomaly,
+        entry.rawMetricRows,
+        entry.rawRecordCells,
+      );
+    }
+  }
+}
+
 /**
  * Re-print every parsed number in MGM's own notation and require it to match the raw source
  * cell byte-for-byte.
@@ -174,7 +416,27 @@ export function assertDecimalRoundTrip(
   normals: ClimateNormals,
   rawMetricRows: readonly MgmRawMetricRow[],
   rawRecordCells: readonly MgmRawRecordCell[],
+  /**
+   * Values the parser nulled because they are physically impossible. Without this the check
+   * cannot tell "we refused to publish an impossible reading" from "we lost a reading", and it
+   * must keep failing loudly on the second. Defaults to none, so the strict behaviour is what
+   * you get unless an anomaly is explicitly declared.
+   *
+   * **Every entry is VERIFIED against the raw cell it names before it exempts anything** — see
+   * `assertAnomalyDeclarationsAreReal`. A declaration is a claim about the source, not a
+   * permission slip.
+   */
+  anomalies: readonly MgmValueAnomaly[] = [],
 ): void {
+  assertAnomalyDeclarationsAreReal(plateCode, normals, rawMetricRows, rawRecordCells, anomalies);
+
+  const anomalousMonthlyCells = new Set(
+    anomalies.filter((a) => a.month !== null).map((a) => `${a.field}:${String(a.month)}`),
+  );
+  const anomalousRecordFields = new Set(
+    anomalies.filter((a) => a.month === null).map((a) => a.field),
+  );
+
   assertRawRowsCoverStoredValues(plateCode, normals, rawMetricRows, rawRecordCells);
 
   for (const row of rawMetricRows) {
@@ -191,8 +453,10 @@ export function assertDecimalRoundTrip(
       const value = normals.months[month - 1]?.[field] ?? null;
 
       if (value === null) {
-        // A null must correspond to a genuinely blank source cell. A null standing where MGM
-        // printed a number would mean we dropped a reading.
+        // A null must correspond to a genuinely blank source cell — OR to a declared anomaly,
+        // where MGM printed something impossible and we refused it on purpose. A null standing
+        // where MGM printed a usable number would mean we dropped a reading.
+        if (anomalousMonthlyCells.has(`${field}:${String(month)}`)) continue;
         if (!isBlankSourceCell(raw)) {
           throw new ClimateImportError(
             `${plateCode}: "${row.label}" month ${month} is null but the source cell reads ` +
@@ -231,7 +495,14 @@ export function assertDecimalRoundTrip(
     const rawValue = cell.rawValue.trim();
 
     if (record === null) {
-      if (!isBlankSourceCell(rawValue)) {
+      // A record may legitimately be null two ways: the station has no such record, or the one
+      // MGM published was impossible and we refused it.
+      if (anomalousRecordFields.has(cell.field)) continue;
+      // NOT `isBlankSourceCell`: a records cell has a second way of being empty that a monthly
+      // cell does not — MGM prints the bare unit (` cm`) when the station has no such record.
+      // The predicate is imported from the parser rather than restated here, so the "was this
+      // null legitimate?" test cannot drift from the rule that produced the null.
+      if (!isAbsentRecordValueCell(rawValue, column.unit)) {
         throw new ClimateImportError(
           `${plateCode}: record "${column.header}" is null but the source cell reads ` +
             `${JSON.stringify(rawValue)} — a record was dropped.`,
@@ -384,11 +655,17 @@ export function assertClimateNormalsShape(plateCode: string, normals: ClimateNor
     }
   }
 
-  // The three records are magnitudes — rainfall, wind speed and snow depth. None can be
-  // negative. The monthly values are range-checked above; the records were not, so a sign flip
-  // in a record cell had no cheap check at all. (Like every range invariant here this is weak
-  // on its own and cannot see a truncated decimal — that remains the round-trip's job.)
+  // The record columns published today are magnitudes — rainfall, wind speed and snow depth —
+  // and none can be negative. The monthly values are range-checked above; the records were not,
+  // so a sign flip in a record cell had no cheap check at all. (Like every range invariant here
+  // this is weak on its own and cannot see a truncated decimal — that remains the round-trip's
+  // job.)
+  //
+  // Driven by the per-column `nonNegative` flag rather than applied blanket, symmetrically with
+  // `NON_NEGATIVE_MONTHLY_FIELDS`: MGM also publishes `En Düşük Sıcaklık`, and a blanket rule
+  // would silently null every legitimate sub-zero record the day such a column is added.
   for (const column of RECORD_COLUMNS) {
+    if (!column.nonNegative) continue;
     const record = normals.records[column.field];
     if (record !== null && record.value < 0) {
       throw new ClimateImportError(
@@ -433,6 +710,63 @@ export function assertArtifactsCorroborate(
     );
   }
 
+  // The manifest is `JSON.parse`d off disk, so `anomalies: ClimateAnomaly[]` is a declared type,
+  // not a fact. A file that predates the field, a bad merge or a hand-edit yields `undefined`
+  // here and the consumer's `for…of` then throws a bare `TypeError: not iterable`, which tells
+  // an operator nothing about WHICH artifact is wrong. Checked here, where every other
+  // artifact-shape rule already lives, so the failure is a `ClimateImportError` that names the
+  // problem. `unpublishable` is genuinely optional (see the type) so absence is fine, but a
+  // present-and-wrong value is not.
+  if (!Array.isArray(manifest.anomalies)) {
+    throw new ClimateImportError(
+      'climate-manifest.json has no "anomalies" array. It may legitimately be EMPTY, but it must ' +
+        'be present: it is the record of every source value the run refused, and an absent list ' +
+        'is indistinguishable from a list that was dropped.',
+    );
+  }
+  if (manifest.unpublishable !== undefined && !Array.isArray(manifest.unpublishable)) {
+    throw new ClimateImportError(
+      'climate-manifest.json has an "unpublishable" key that is not an array.',
+    );
+  }
+
+  // Provenance monotonicity: the artifact is stamped when the run FINISHES, so no page can have
+  // been fetched after it. This is one line, and it is the check that would have caught PR #65's
+  // provenance defect at CI instead of in review — the committed manifest mixed a stamp captured
+  // before a ~70-minute loop with per-page stamps captured during it, and nothing objected.
+  //
+  // The reviewer also proposed asserting `fetchedAtUtc` NON-DECREASING across entries. That is
+  // deliberately NOT here: monotonicity is a property of one transport strategy (a single serial
+  // pass), not of the data. A resumable or batched harvest produces genuine, correct stamps in
+  // non-alphabetical order — the committed artifact is exactly that case — so the assertion
+  // would reject true provenance and its only available remedies would be to rewrite real
+  // timestamps or to delete the check. A check that honest data cannot satisfy does not survive
+  // contact with the next operator.
+  const generatedAt = Date.parse(manifest.generatedAtUtc);
+  if (Number.isNaN(generatedAt)) {
+    throw new ClimateImportError(
+      `climate-manifest.json generatedAtUtc ${JSON.stringify(manifest.generatedAtUtc)} is not a ` +
+        `parseable ISO-8601 instant.`,
+    );
+  }
+  for (const entry of manifest.entries) {
+    const fetchedAt = Date.parse(entry.fetchedAtUtc);
+    if (Number.isNaN(fetchedAt)) {
+      throw new ClimateImportError(
+        `${entry.plateCode}: fetchedAtUtc ${JSON.stringify(entry.fetchedAtUtc)} is not a ` +
+          `parseable ISO-8601 instant.`,
+      );
+    }
+    if (fetchedAt > generatedAt) {
+      throw new ClimateImportError(
+        `${entry.plateCode}: fetchedAtUtc ${entry.fetchedAtUtc} is AFTER the artifact's ` +
+          `generatedAtUtc ${manifest.generatedAtUtc}. The run stamp is taken when the run ` +
+          `finishes, so a page cannot have been fetched later — the two fields describe ` +
+          `different runs.`,
+      );
+    }
+  }
+
   const normalsCodes = normalsArtifact.entries.map((entry) => entry.plateCode);
   const manifestCodes = manifest.entries.map((entry) => entry.plateCode);
   if (new Set(normalsCodes).size !== normalsCodes.length) {
@@ -447,14 +781,47 @@ export function assertArtifactsCorroborate(
   // two files are supposed to be one run's output, so an extra manifest entry means either the
   // artifacts came from different runs or a province was dropped from the normals after the
   // fact, which is precisely the I1 omission this pair of files should be able to see.
+  //
+  // A DECLARED-unpublishable province is the one legitimate exception: its page was fetched (so
+  // it has a manifest entry and full provenance) but refusing an impossible core value left it
+  // with no publishable series. That is a recorded decision, not a dropped province — which is
+  // exactly the distinction this check exists to make.
   const normalsCodeSet = new Set(normalsCodes);
-  const orphanedManifestCodes = manifestCodes.filter((code) => !normalsCodeSet.has(code));
+  const unpublishableCodes = new Set(
+    (manifest.unpublishable ?? []).map((province) => province.plateCode),
+  );
+  const bothPublishedAndNot = [...unpublishableCodes].filter((code) => normalsCodeSet.has(code));
+  if (bothPublishedAndNot.length > 0) {
+    throw new ClimateImportError(
+      `province(s) ${bothPublishedAndNot.sort().join(', ')} are declared unpublishable in ` +
+        `climate-manifest.json yet carry a series in climate-normals.json — the artifact ` +
+        `contradicts itself about what is being published.`,
+    );
+  }
+  const orphanedManifestCodes = manifestCodes.filter(
+    (code) => !normalsCodeSet.has(code) && !unpublishableCodes.has(code),
+  );
   if (orphanedManifestCodes.length > 0) {
     throw new ClimateImportError(
       `province(s) ${orphanedManifestCodes.join(', ')} are present in climate-manifest.json but ` +
         `absent from climate-normals.json — the two artifacts do not describe the same run.`,
     );
   }
+  const unknownUnpublishable = [...unpublishableCodes].filter(
+    (code) => !new Set(manifestCodes).has(code),
+  );
+  if (unknownUnpublishable.length > 0) {
+    throw new ClimateImportError(
+      `province(s) ${unknownUnpublishable.sort().join(', ')} are declared unpublishable but have ` +
+        `no manifest entry — an unpublishable province is one we DID fetch and chose not to ` +
+        `publish, so it must still carry its provenance.`,
+    );
+  }
+
+  // The checks above are STRUCTURAL — they prove the declaration is well-formed, not that it is
+  // true. This one demands evidence, and it runs on the load path because `load` is the phase
+  // that writes.
+  assertUnpublishableDeclarationsAreReal(manifest);
 
   const manifestByCode = new Map(manifest.entries.map((entry) => [entry.plateCode, entry]));
   for (const entry of normalsArtifact.entries) {

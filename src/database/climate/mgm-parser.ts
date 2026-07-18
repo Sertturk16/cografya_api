@@ -72,12 +72,32 @@ export const METRIC_ROW_LABELS = {
 export type MetricRowLabel = keyof typeof METRIC_ROW_LABELS;
 export type MetricField = (typeof METRIC_ROW_LABELS)[MetricRowLabel];
 
-/** Record columns of the second `k=A` table, with the unit each MUST carry. */
+/**
+ * Record columns of the second `k=A` table, with the unit each MUST carry.
+ *
+ * `nonNegative` is an explicit per-column ALLOWLIST, not a blanket rule over the table. All
+ * three columns published today are magnitudes (rainfall, wind speed, snow depth) so a blanket
+ * "no negative record" sweep is correct for them — but MGM also publishes `En Düşük Sıcaklık`,
+ * and the day a temperature record joins this list a blanket rule would silently null every
+ * legitimate sub-zero record in eastern Anatolia. Flagging it per column makes adding such a
+ * column a decision rather than an accident, and keeps this symmetric with
+ * `NON_NEGATIVE_MONTHLY_FIELDS`, which was already an allowlist for exactly this reason.
+ */
 export const RECORD_COLUMNS = [
-  { header: 'Günlük Toplam En Yüksek Yağış Miktarı', field: 'dailyMaxPrecipitationMm', unit: 'mm' },
-  { header: 'Günlük En Hızlı Rüzgar', field: 'fastestWindMs', unit: 'm/sn' },
-  { header: 'En Yüksek Kar', field: 'maxSnowDepthCm', unit: 'cm' },
-] as const satisfies readonly { header: string; field: keyof ClimateRecords; unit: string }[];
+  {
+    header: 'Günlük Toplam En Yüksek Yağış Miktarı',
+    field: 'dailyMaxPrecipitationMm',
+    unit: 'mm',
+    nonNegative: true,
+  },
+  { header: 'Günlük En Hızlı Rüzgar', field: 'fastestWindMs', unit: 'm/sn', nonNegative: true },
+  { header: 'En Yüksek Kar', field: 'maxSnowDepthCm', unit: 'cm', nonNegative: true },
+] as const satisfies readonly {
+  header: string;
+  field: keyof ClimateRecords;
+  unit: string;
+  nonNegative: boolean;
+}[];
 
 const PERIOD_ROW_RE = /^Ölçüm Periyodu\s*\(\s*(\d{4})\s*-\s*(\d{4})\s*\)$/;
 
@@ -100,6 +120,39 @@ const RECORD_DATE_RE = /^(\d{2})\.(\d{2})\.(\d{4})$/;
  * apart and turn a dropped reading into a passing check.
  */
 export const EMPTY_CELL_VALUES: ReadonlySet<string> = new Set(['', '-', '—']);
+
+/**
+ * MGM's own "there is no such record" DATE marker in the records table.
+ *
+ * Discovered empirically, not guessed: the 2026-07-18 harvest of all 81 provinces produced
+ * exactly one instance — Muğla's `En Yüksek Kar`, printed as date `..` with the value cell
+ * holding a bare ` cm`. Muğla's series starts in 2001 and its station sits on the Mediterranean
+ * coast, so "no measurable snow in 24 years" is the correct reading, not a defect.
+ *
+ * Deliberately kept SEPARATE from `EMPTY_CELL_VALUES` and used ONLY by the records table.
+ * Folding `..` into the shared set would simultaneously teach the MONTHLY series parser and the
+ * load-phase blank check to swallow it — a two-character token silently becoming a legal "no
+ * reading" across 81 provinces × 8 measures × 12 months. This set is the narrow fix; the shared
+ * one stays exactly as strict as it was.
+ */
+export const RECORD_ABSENT_DATE_VALUES: ReadonlySet<string> = new Set(['..']);
+
+/**
+ * Does this records-table VALUE cell mean "this station has no such record"?
+ *
+ * THE single definition, deliberately shared by the two places that must agree: `parseRecordValue`
+ * consults it when it decides to return `null`, and the load-phase round-trip assertion consults
+ * it when it decides whether that `null` was legitimate or a dropped reading. Two independent
+ * copies would drift, and the dangerous direction is silent — an assertion that considers a cell
+ * blank when the parser did not turns "a record was lost" into a passing check.
+ *
+ * Narrow on purpose: a cell counts as absent only if it is one of the shared blank markers, or
+ * EXACTLY the unit this column must carry with no number in front of it.
+ */
+export function isAbsentRecordValueCell(rawValue: string, expectedUnit: string): boolean {
+  const value = rawValue.trim();
+  return EMPTY_CELL_VALUES.has(value) || value === expectedUnit;
+}
 
 /** Plausibility window for a measurement period. Wider than reality on purpose: this
  * guards against a parse landing on the wrong digits, not against MGM being wrong. */
@@ -129,12 +182,43 @@ export interface MgmRawRecordCell {
 }
 
 /**
+ * One impossible source value, as seen by the parser. The plate code is attached later by the
+ * fetch phase, which is the layer that knows which province a page belongs to.
+ *
+ * `field` is deliberately NOT a bare `string`: it is the closed set of fields this parser can
+ * actually null, so a declaration naming something else does not type-check at the point it is
+ * built. That is only half the defence — an anomaly read back out of the committed artifact has
+ * been through `JSON.parse` and its type is an assertion, not a guarantee — so
+ * `assertDecimalRoundTrip` re-verifies every declaration against the raw cell it names.
+ */
+export interface MgmValueAnomaly {
+  sourceLabel: string;
+  field: MetricField | keyof ClimateRecords;
+  month: number | null;
+  /**
+   * The refused value, rendered for a human reading the manifest — e.g. `-1 cm (2004-02-15)`.
+   *
+   * NOT the verbatim source cell, despite what an earlier version of this comment implied: it is
+   * built from the PARSED value, because that is what `collectImpossibleValueAnomalies` sees.
+   * The verbatim evidence lives in the manifest's `rawMetricRows` / `rawRecordCells`, and that
+   * — not this string — is what the load-phase verification checks a declaration against.
+   */
+  rawCell: string;
+  reason: string;
+}
+
+/**
  * Everything the parser produces: the normalized object we store, plus the raw strings the
  * round-trip assertion needs. The raw half is what makes trap T3 catchable — a range
  * invariant cannot see `10,4 → 10`, because `10` still satisfies `min ≤ mean ≤ max`.
  */
 export interface MgmParseResult {
   normals: ClimateNormals;
+  /**
+   * Physically-impossible values that were nulled rather than published. Normally empty — see
+   * `collectImpossibleValueAnomalies`.
+   */
+  anomalies: MgmValueAnomaly[];
   raw: {
     metricRows: MgmRawMetricRow[];
     recordCells: MgmRawRecordCell[];
@@ -223,8 +307,8 @@ export function parseKaNumber(
   const raw = rawCell.trim();
   if (EMPTY_CELL_VALUES.has(raw)) return null;
 
-  const match = K_A_NUMBER_RE.exec(raw);
-  if (!match) {
+  const parsed = matchKaNumber(raw);
+  if (parsed === null) {
     throw new MgmParseError(
       `${where}: cell ${JSON.stringify(raw)} does not match the k=A number grammar ` +
         `(optional '-', 1-4 digits, optional ',' + 1-2 decimals). Refusing to guess — a ` +
@@ -232,21 +316,44 @@ export function parseKaNumber(
       context,
     );
   }
+  return parsed;
+}
+
+/**
+ * The grammar itself, with no opinion about what an unparseable cell means.
+ *
+ * Split out so the load-phase anomaly verification can re-derive a raw cell WITHOUT a
+ * `MgmParseContext` and without throwing, while still using the one and only `k=A` number
+ * grammar. A second, private copy of the regex in the assertions module is exactly the kind of
+ * drift this file already refuses elsewhere (see `EMPTY_CELL_VALUES`,
+ * `isAbsentRecordValueCell`): the dangerous direction is silent, because a verifier that reads
+ * a cell differently from the parser can bless a declaration the parser never made.
+ */
+function matchKaNumber(raw: string): number | null {
+  const match = K_A_NUMBER_RE.exec(raw);
+  if (!match) return null;
 
   const [, sign = '', integerPart = '', decimalPart] = match;
   const parsed = Number(
     `${sign}${integerPart}${decimalPart === undefined ? '' : `.${decimalPart}`}`,
   );
-  if (!Number.isFinite(parsed)) {
-    throw new MgmParseError(
-      `${where}: cell ${JSON.stringify(raw)} parsed to a non-finite number.`,
-      context,
-    );
-  }
+  if (!Number.isFinite(parsed)) return null;
 
   // Normalize -0 to 0: JSON.stringify(-0) emits "0", so a -0 stored in jsonb would come
   // back as 0 and make the load-phase round-trip check fail for a purely cosmetic reason.
   return parsed === 0 ? 0 : parsed;
+}
+
+/**
+ * Re-derive a raw `k=A` cell, returning `null` for anything blank or ungrammatical rather than
+ * throwing. The non-throwing counterpart of `parseKaNumber`, for the one caller that must ask
+ * "what number, if any, does this cell hold?" as a QUESTION — the anomaly verification, whose
+ * whole job is to decide whether a declared refusal is real.
+ */
+export function tryParseKaNumber(rawCell: string): number | null {
+  const raw = rawCell.trim();
+  if (EMPTY_CELL_VALUES.has(raw)) return null;
+  return matchKaNumber(raw);
 }
 
 /**
@@ -270,6 +377,14 @@ export function formatLikeRawKaNumber(value: number, rawCell: string): string {
  * to, but a date in a shape we do not recognise must never be guessed at (the T3 lesson —
  * `01.02.2003` is 1 February or 2 January depending on a convention we must not assume, so
  * the format is pinned rather than inferred).
+ *
+ * **`..` is NOT accepted here, deliberately.** `RECORD_ABSENT_DATE_VALUES` is consulted by
+ * `parseRecordValue` only on the branch where the VALUE cell is also absent — MGM's "no such
+ * record" pair. A `..` date standing next to a real value (`33 cm`) therefore reaches this
+ * function and throws. That is the wanted behaviour: a real record whose date MGM printed as
+ * `..` is a combination we have never observed, and the choice would be between failing loudly
+ * once and inventing a meaning for a two-character token that then applies to 81 provinces.
+ * Pinned by a test, so the narrowness is a decision rather than an accident.
  */
 function parseRecordDate(rawDate: string, context: MgmParseContext, where: string): string | null {
   const raw = rawDate.trim();
@@ -649,8 +764,15 @@ export function parseRecordValue(
 ): ClimateExtremeRecord | null {
   const value = rawValue.trim();
   const date = rawDate.trim();
-  if (EMPTY_CELL_VALUES.has(value)) {
-    if (!EMPTY_CELL_VALUES.has(date)) {
+
+  // MGM prints an absent record as a BARE UNIT — the value cell holds ` cm` and nothing else.
+  // Matched against the exact unit this column must carry, so a malformed reading like `"x cm"`
+  // or `"1,2,3 cm"` still throws instead of being read as "no record".
+  const valueIsAbsent = isAbsentRecordValueCell(value, expectedUnit);
+  const dateIsAbsent = EMPTY_CELL_VALUES.has(date) || RECORD_ABSENT_DATE_VALUES.has(date);
+
+  if (valueIsAbsent) {
+    if (!dateIsAbsent) {
       throw new MgmParseError(
         `${where}: an occurrence date ${JSON.stringify(date)} with no record value.`,
         context,
@@ -746,17 +868,90 @@ export function parseMgmGeneralStatisticsPage(
     );
   }
 
+  const normals: ClimateNormals = {
+    source: CLIMATE_SOURCE_MGM_GENERAL,
+    sourceUrl: context.sourceUrl,
+    periodStartYear: monthly.periodStartYear,
+    periodEndYear: monthly.periodEndYear,
+    months,
+    records,
+  };
+
+  // Mutates `normals` in place, nulling anything impossible and reporting what it nulled.
+  const anomalies = collectImpossibleValueAnomalies(normals);
+
   return {
-    normals: {
-      source: CLIMATE_SOURCE_MGM_GENERAL,
-      sourceUrl: context.sourceUrl,
-      periodStartYear: monthly.periodStartYear,
-      periodEndYear: monthly.periodEndYear,
-      months,
-      records,
-    },
+    normals,
+    anomalies,
     raw: { metricRows: monthly.metricRows, recordCells },
   };
+}
+
+/**
+ * Quantities that cannot be negative, by physics rather than by convention.
+ *
+ * Temperatures are deliberately ABSENT: −24,9 °C is an ordinary January in eastern Anatolia,
+ * and a rule that nulled negative temperatures would quietly destroy the most important part
+ * of the series.
+ */
+export const NON_NEGATIVE_MONTHLY_FIELDS = [
+  { field: 'precipitationMm', label: 'Aylık Toplam Yağış Miktarı Ortalaması' },
+  { field: 'sunshineHours', label: 'Ortalama Güneşlenme Süresi' },
+  { field: 'rainyDays', label: 'Ortalama Yağışlı Gün Sayısı' },
+] as const satisfies readonly { field: MetricField; label: string }[];
+
+/**
+ * Null every physically-impossible value and report each one, instead of aborting the import.
+ *
+ * **Why this is a mechanism and not a per-province exception.** The 2026-07-18 harvest turned up
+ * exactly one such value in 81 provinces — a snow depth of `-1 cm` against a real date, unique
+ * to one province, unexplained in MGM's documentation and unsupported by any independent source.
+ * Hard-coding "if this province, ignore this cell" would have fixed that one page and left the
+ * next anomaly to be discovered by a reader. Encoding the RULE instead means the next one is
+ * handled, recorded and visible without a code change.
+ *
+ * The three properties that make this safe to do automatically:
+ *   1. The impossible value is never published — the field becomes `null`.
+ *   2. The rest of the province survives; one bad cell does not cost us a whole series.
+ *   3. It is never silent — every instance is written to the manifest and printed at the end of
+ *      the run, and the caller aborts past a small threshold (`MAX_ANOMALIES` in `mgm-fetch`),
+ *      because "one cell is wrong" and "the source has broken" need different responses.
+ */
+export function collectImpossibleValueAnomalies(normals: ClimateNormals): MgmValueAnomaly[] {
+  const anomalies: MgmValueAnomaly[] = [];
+
+  for (const month of normals.months) {
+    for (const { field, label } of NON_NEGATIVE_MONTHLY_FIELDS) {
+      const value = month[field];
+      if (typeof value === 'number' && value < 0) {
+        anomalies.push({
+          sourceLabel: label,
+          field,
+          month: month.month,
+          rawCell: String(value),
+          reason: `a negative ${field} is physically impossible`,
+        });
+        month[field] = null;
+      }
+    }
+  }
+
+  for (const column of RECORD_COLUMNS) {
+    if (!column.nonNegative) continue;
+    const record = normals.records[column.field];
+    if (record !== null && record.value < 0) {
+      anomalies.push({
+        sourceLabel: column.header,
+        field: column.field,
+        month: null,
+        rawCell: `${record.value} ${column.unit}${record.date === null ? '' : ` (${record.date})`}`,
+        reason: `a negative ${column.header} is physically impossible`,
+      });
+      normals.records[column.field] = null;
+    }
+  }
+
+  return anomalies;
 }
 
 /* ------------------------------------------------------------------ *
