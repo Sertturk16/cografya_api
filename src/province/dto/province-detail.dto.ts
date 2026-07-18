@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { GeographicRegion } from '../../common/geographic-region.enum';
+import { ClimateDto } from './climate.dto';
 import { EconomyIndicatorDto } from './economy-indicator.dto';
 import { HydrographyFeatureDto } from './hydrography-feature.dto';
 
@@ -130,6 +131,25 @@ export class ProvinceDetailDto {
       "MGM Köppen metodolojik uyarı notu — Köppen değeriyle birlikte ZORUNLU olarak sunulur (bare bir 'Csa' yayınlanmaz).",
   })
   climateNoteTr!: string | null;
+
+  @ApiProperty({
+    type: ClimateDto,
+    nullable: true,
+    description:
+      'İklim serisi (MGM k=A aylık normalleri + kaynak/dönem/rekorlar) + TÜRETİLMİŞ yıllık/mevsimsel ' +
+      'değerler. Null = yayınlanabilir seri yok → web iklim bölümünü hiç render etmez. Türetilmiş ' +
+      "değerler bizimdir, MGM'e atfedilemez; tüm sayılar ham (biçimlendirme web'in işi).",
+  })
+  climate!: ClimateDto | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description:
+      "NOVA'nın il-il yazdığı iklim yorumu (TR) — mekanizma anlatan gerçek düzyazı. `climateNoteTr` " +
+      '(kilitli MGM Köppen uyarısı) DEĞİL; ayrı bir alandır. İçerik dalgaları doldurana kadar null.',
+  })
+  climateNarrativeTr!: string | null;
 
   @ApiProperty({
     type: String,
