@@ -131,6 +131,44 @@ describe('Climate contract (e2e)', () => {
     }
   });
 
+  it('list DTO carries climateAnnualMeanTempC equal to the detail DTO derived value, for every province', async () => {
+    // The W2.1 contract addition: the list item exposes the SAME annual-mean the detail DTO
+    // derives, so the "benzer iklim / en yakın 5" selection (→ DEC 2026-07-20b) and the anchor
+    // "il adı + °C" can be built from the list alone. Rule-level invariant across all 81 rows,
+    // cross-checked against the DETAIL payload (the derivation's own output) — NOT a per-province
+    // literal (CONVENTIONS §2). Because both DTOs read the same `buildClimate(...)?.derived
+    // .annualMeanTempC`, equality here is the single-source-of-truth guarantee, and it would FAIL
+    // the moment a persisted-derived column drifted from the live series.
+    const listRes = await request(app.getHttpServer()).get('/api/provinces').expect(200);
+    const listBody = listRes.body as Array<Record<string, unknown>>;
+    expect(listBody).toHaveLength(81);
+
+    const listByPlate = new Map(listBody.map((item) => [item.plateCode as string, item]));
+    const provinces = await dataSource
+      .getRepository(Province)
+      .find({ order: { plateCode: 'ASC' } });
+
+    for (const province of provinces) {
+      const listItem = listByPlate.get(province.plateCode);
+      expect(listItem).toBeDefined();
+      if (!listItem) continue; // narrowing; the toBeDefined above is the real guard
+
+      // Present on every list item, and typed number-or-null (never a string, NaN or missing).
+      expect(listItem).toHaveProperty('climateAnnualMeanTempC');
+      const listValue = listItem.climateAnnualMeanTempC;
+      expect(listValue === null || typeof listValue === 'number').toBe(true);
+
+      const detailRes = await request(app.getHttpServer())
+        .get(`/api/provinces/${province.slugTr}`)
+        .expect(200);
+      const detail = detailRes.body as ServedDetail;
+      const detailValue = detail.climate === null ? null : detail.climate.derived.annualMeanTempC;
+
+      // The whole point: list value IS the detail's derived value, byte-for-byte.
+      expect(listValue).toBe(detailValue);
+    }
+  });
+
   it('every province WITH a series serves a well-formed climate whose seasons sum to exactly 100', async () => {
     const provinces = await dataSource
       .getRepository(Province)
@@ -216,6 +254,16 @@ describe('Climate contract (e2e)', () => {
         .expect(200);
       const body = res.body as ServedDetail;
       expect(body.climate).toBeNull();
+
+      // The list field degrades in lockstep: because it is derived LIVE from `climate_normals`
+      // (not persisted), clearing the series makes the list serve null too — the same one
+      // statement is the kill-switch for BOTH DTOs. A persisted-derived column would still show
+      // the stale °C here, which is exactly why this PR does not persist the value.
+      const listRes = await request(app.getHttpServer()).get('/api/provinces').expect(200);
+      const listBody = listRes.body as Array<Record<string, unknown>>;
+      const item = listBody.find((p) => p.plateCode === '01');
+      expect(item).toBeDefined();
+      expect(item?.climateAnnualMeanTempC).toBeNull();
     } finally {
       await repo.update({ plateCode: '01' }, { climateNormals: original });
     }

@@ -87,11 +87,18 @@ export class ProvinceService {
    * playbook.
    */
   async findAll(): Promise<ProvinceListItemDto[]> {
-    // Project to ONLY the columns `toListItem` returns. Without this, `find` hauls the full
-    // row — including the fat `climate_normals` jsonb (~0.45 MB/call) plus every narrative
-    // text field — over the wire from Postgres just to discard it in the mapper. The select
-    // keeps the query as lean as the DTO. (No serialized-output change: the list DTO never
-    // exposed those columns.)
+    // Project to ONLY the columns `toListItem` returns — the same discipline PR #67
+    // established (keep the query as lean as the DTO), NOT a reversal of it. The list DTO now
+    // carries `climateAnnualMeanTempC`, a value DERIVED from `climate_normals`, so that jsonb
+    // is now genuinely a column this DTO needs and belongs in the projection by the very rule
+    // #67 set. It is the ONLY heavy column added (the narrative text fields stay out), and it
+    // is derived LIVE in `toListItem` via the same `buildClimate` the detail path uses — a
+    // single source of truth. The persisted-derived-column alternative was rejected on data
+    // correctness: it would let the list disagree with the detail on any write to
+    // `climate_normals` that bypasses the import (the documented `SET climate_normals = NULL`
+    // kill-switch included), reintroducing exactly the staleness `province.types.ts` designed
+    // out ("never persisted, so they cannot go stale"). This is a bounded (81), fully
+    // cacheable, build/ISR-time read, so the projection weight is negligible here.
     const rows = await this.provinces.find({
       select: {
         plateCode: true,
@@ -100,6 +107,7 @@ export class ProvinceService {
         slugTr: true,
         slugEn: true,
         climateKoppen: true,
+        climateNormals: true,
       },
       order: { plateCode: 'ASC' },
     });
@@ -162,6 +170,12 @@ export class ProvinceService {
       slugTr: row.slugTr,
       slugEn: row.slugEn,
       climateKoppen: row.climateKoppen,
+      // The SAME derived value the detail DTO exposes: both read
+      // `buildClimate(...)?.derived.annualMeanTempC`, so the list and the detail can never
+      // round or null it differently (one source of truth — climate-derivations.ts). Null
+      // when the province has no publishable series (or, defensively, one not derivable).
+      climateAnnualMeanTempC:
+        buildClimate(row.climateNormals, row.plateCode)?.derived.annualMeanTempC ?? null,
     };
   }
 

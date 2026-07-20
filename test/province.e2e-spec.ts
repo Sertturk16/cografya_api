@@ -363,6 +363,15 @@ describe('Province (e2e)', () => {
     expect(body[0]).not.toHaveProperty('population');
     expect(body[0]).not.toHaveProperty('latitude');
     expect(body[0]).not.toHaveProperty('climateNoteTr');
+    // The W2.1 derived field is PRESENT on every row and, since this suite seeds geography
+    // WITHOUT loading any climate series, is null for all 81 — the genuine "seeded, no
+    // publishable series" state (distinct from the climate-contract suite's manufactured null).
+    // The non-null branch + equality-to-detail invariant lives in climate-contract.e2e-spec.ts,
+    // where the real MGM artifact is loaded.
+    for (const row of body) {
+      expect(row).toHaveProperty('climateAnnualMeanTempC');
+      expect(row.climateAnnualMeanTempC).toBeNull();
+    }
   });
 
   it('GET /api/provinces/map-summary returns hover-card data for all provinces', async () => {

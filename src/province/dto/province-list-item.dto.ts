@@ -37,4 +37,18 @@ export class ProvinceListItemDto {
       'kırıcı değil.',
   })
   climateKoppen!: string | null;
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    example: 14.2,
+    description:
+      'Yıllık ortalama sıcaklık (°C) — 12 aylık ortalamanın ortalaması, 1 ondalık. Detay ' +
+      'DTO’sundaki climate.derived.annualMeanTempC ile AYNI türetilmiş değerdir (tek kaynak: ' +
+      'climate-derivations.ts; liste yolunda yeniden türetilmez, aynı buildClimate çağrısıyla ' +
+      'canlı hesaplanır). Benzer-iklim bloğunun "en yakın 5" seçimi (→ DEC 2026-07-20b) ve çapa ' +
+      'metnindeki "il adı + °C" bu alan olmadan kurulamaz. İlin yayınlanabilir iklim serisi ' +
+      'yoksa null. Saf toplama, kırıcı değil.',
+  })
+  climateAnnualMeanTempC!: number | null;
 }
