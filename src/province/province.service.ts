@@ -87,7 +87,22 @@ export class ProvinceService {
    * playbook.
    */
   async findAll(): Promise<ProvinceListItemDto[]> {
-    const rows = await this.provinces.find({ order: { plateCode: 'ASC' } });
+    // Project to ONLY the columns `toListItem` returns. Without this, `find` hauls the full
+    // row — including the fat `climate_normals` jsonb (~0.45 MB/call) plus every narrative
+    // text field — over the wire from Postgres just to discard it in the mapper. The select
+    // keeps the query as lean as the DTO. (No serialized-output change: the list DTO never
+    // exposed those columns.)
+    const rows = await this.provinces.find({
+      select: {
+        plateCode: true,
+        nameTr: true,
+        region: true,
+        slugTr: true,
+        slugEn: true,
+        climateKoppen: true,
+      },
+      order: { plateCode: 'ASC' },
+    });
     return rows.map((row) => this.toListItem(row));
   }
 
@@ -97,13 +112,26 @@ export class ProvinceService {
    * A bounded set (81) the map pre-embeds at build/ISR time — returned as a plain
    * array (no envelope), same rationale as `findAll`.
    *
-   * The RESPONSE is lean, not the query: `toMapSummary` narrows each row to the
-   * hover-card fields, while the query fetches full rows — mirroring `findAll` on
-   * a bounded, cached 81-row read (a column projection would only diverge from
-   * `findAll` for no measurable gain).
+   * Projected to ONLY the hover-card columns `toMapSummary` returns — the query is as lean
+   * as the response, so the fat `climate_normals` jsonb (~0.45 MB/row) and the narrative
+   * text fields are never read just to be dropped in the mapper. (No serialized-output
+   * change: the map-summary DTO never exposed those columns.)
    */
   async findMapSummary(): Promise<ProvinceMapSummaryDto[]> {
-    const rows = await this.provinces.find({ order: { plateCode: 'ASC' } });
+    const rows = await this.provinces.find({
+      select: {
+        plateCode: true,
+        nameTr: true,
+        region: true,
+        slugTr: true,
+        slugEn: true,
+        population: true,
+        populationYear: true,
+        areaKm2: true,
+        districtCount: true,
+      },
+      order: { plateCode: 'ASC' },
+    });
     return rows.map((row) => this.toMapSummary(row));
   }
 

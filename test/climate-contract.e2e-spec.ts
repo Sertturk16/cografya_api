@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { ThrottlerStorage } from '@nestjs/throttler';
+import type { NextFunction, Request, Response } from 'express';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { join } from 'node:path';
 import request from 'supertest';
@@ -12,6 +12,11 @@ import { loadClimateNormals } from '../src/database/climate/load-climate';
 import { seedGeography } from '../src/database/seeds/seed-geography';
 import { Province } from '../src/province/entities/province.entity';
 import { CLIMATE_MONTH_COUNT, CLIMATE_SOURCE_MGM_GENERAL } from '../src/province/province.types';
+import { INTERNAL_REQUEST_HEADER } from '../src/common/throttler/trusted-client';
+
+// 44-char dummy secret used ONLY to exercise the REAL trusted-client throttle exemption
+// (replaces the former test-only ThrottlerStorage stub). Not a production secret.
+const TEST_INTERNAL_TOKEN = 'e2e-trusted-client-token-0123456789-abcdefgh';
 
 /**
  * Real-Postgres e2e for the A2 CLIMATE CONTRACT — the shape the web repo codegens against.
@@ -69,6 +74,9 @@ describe('Climate contract (e2e)', () => {
     const url = container.getConnectionUri();
     process.env.DATABASE_URL = url;
     process.env.WEB_ORIGIN = 'http://localhost:3000';
+    // Configure the trusted-client secret so the exemption exists for this run; the
+    // header-injecting middleware below presents the matching token on every request.
+    process.env.INTERNAL_REQUEST_TOKEN = TEST_INTERNAL_TOKEN;
 
     dataSource = new DataSource(buildDataSourceOptions(url));
     await dataSource.initialize();
@@ -81,28 +89,18 @@ describe('Climate contract (e2e)', () => {
 
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { AppModule } = require('../src/app.module') as typeof import('../src/app.module');
-    // TEST-ONLY throttle neutralisation (identical rationale to province.e2e): the suite fires
-    // many HTTP calls from one client in a short window; stub ThrottlerStorage to report zero
-    // hits so a per-province loop never trips the 120/min limiter. Production posture untouched.
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
-      .overrideProvider(ThrottlerStorage)
-      .useValue({
-        increment: (): Promise<{
-          totalHits: number;
-          timeToExpire: number;
-          isBlocked: boolean;
-          timeToBlockExpire: number;
-        }> =>
-          Promise.resolve({
-            totalHits: 0,
-            timeToExpire: 0,
-            isBlocked: false,
-            timeToBlockExpire: 0,
-          }),
-      })
-      .compile();
+    // Exercise the REAL trusted-client throttle exemption (identical rationale to province.e2e):
+    // the suite fires a per-province loop of HTTP calls from one client in a short window;
+    // rather than stub ThrottlerStorage, every request presents the internal token exactly as
+    // the web SSG build will, so the PRODUCTION guard path keeps the loop free of 429s.
+    // Production posture untouched (global 120/min stands for anonymous clients).
+    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
     app = moduleRef.createNestApplication();
     applyGlobalPrefix(app);
+    app.use((req: Request, _res: Response, next: NextFunction) => {
+      req.headers[INTERNAL_REQUEST_HEADER] = TEST_INTERNAL_TOKEN;
+      next();
+    });
     await app.init();
   }, 180_000);
 

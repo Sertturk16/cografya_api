@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { ThrottlerStorage } from '@nestjs/throttler';
+import type { NextFunction, Request, Response } from 'express';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
@@ -23,7 +23,13 @@ import {
 import { GeographicRegion } from '../src/common/geographic-region.enum';
 import { Province } from '../src/province/entities/province.entity';
 import { computePopulationDensity } from '../src/province/province.service';
+import { INTERNAL_REQUEST_HEADER } from '../src/common/throttler/trusted-client';
 import { HydrographyFeatureType } from '../src/province/province.types';
+
+// 44-char dummy secret used ONLY to exercise the REAL trusted-client throttle exemption
+// (replaces the former test-only ThrottlerStorage stub). Not a production secret — no
+// deployed value derives from it.
+const TEST_INTERNAL_TOKEN = 'e2e-trusted-client-token-0123456789-abcdefgh';
 // NOTE: AppModule is imported dynamically inside beforeAll — NOT at the top —
 // because ConfigModule.forRoot validates the env eagerly at module-load time, so
 // AppModule must not load until DATABASE_URL has been set to the container URL.
@@ -67,6 +73,9 @@ describe('Province (e2e)', () => {
     // The app reads these from the env at boot (zod-validated).
     process.env.DATABASE_URL = url;
     process.env.WEB_ORIGIN = 'http://localhost:3000';
+    // Configure the trusted-client secret so the exemption exists for this run; the
+    // header-injecting middleware below presents the matching token on every request.
+    process.env.INTERNAL_REQUEST_TOKEN = TEST_INTERNAL_TOKEN;
 
     // 1) Migrations must run clean against a real Postgres, creating the schema.
     dataSource = new DataSource(buildDataSourceOptions(url));
@@ -111,35 +120,20 @@ describe('Province (e2e)', () => {
     //    import) defers module load to here.
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { AppModule } = require('../src/app.module') as typeof import('../src/app.module');
-    // Neutralise the global 120 req/min rate limit FOR THIS TEST RUN ONLY. The suite fires
-    // its HTTP assertions from a single in-memory client inside one short window; the override
-    // keeps that free of 429s independently of the exact request count (so adding a structural
-    // test never trips the limiter), without weakening the production posture. The guard is registered as an
-    // APP_GUARD via `useClass` (app.module.ts), so `overrideGuard(ThrottlerGuard)` does NOT reach
-    // it (the DI token is APP_GUARD, not the guard class). Instead we override the `ThrottlerStorage`
-    // provider the guard injects with a stub that always reports zero hits — so `canActivate`
-    // never exceeds the limit. This is TEST-ONLY: the production posture (app.module.ts
-    // THROTTLE_LIMIT=120) is untouched, no security control is weakened, and no assertion is
-    // dropped. No test asserts 429 behaviour, so nothing depends on the limiter being live here.
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
-      .overrideProvider(ThrottlerStorage)
-      .useValue({
-        increment: (): Promise<{
-          totalHits: number;
-          timeToExpire: number;
-          isBlocked: boolean;
-          timeToBlockExpire: number;
-        }> =>
-          Promise.resolve({
-            totalHits: 0,
-            timeToExpire: 0,
-            isBlocked: false,
-            timeToBlockExpire: 0,
-          }),
-      })
-      .compile();
+    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
     app = moduleRef.createNestApplication();
     applyGlobalPrefix(app);
+    // Exercise the REAL trusted-client throttle exemption instead of stubbing the limiter.
+    // The suite fires many HTTP calls from one in-memory client in a short window; rather
+    // than neutralise the throttler with a fake ThrottlerStorage, every request here presents
+    // the internal token exactly as the web SSG build will, so the PRODUCTION guard path
+    // (config read + constant-time compare + skip) is what keeps the burst free of 429s. The
+    // production posture is untouched (global 120/min stands for anonymous clients) and no
+    // 429 assertion is dropped — no test asserts 429 behaviour.
+    app.use((req: Request, _res: Response, next: NextFunction) => {
+      req.headers[INTERNAL_REQUEST_HEADER] = TEST_INTERNAL_TOKEN;
+      next();
+    });
     await app.init();
   }, 180_000);
 
