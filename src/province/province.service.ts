@@ -36,13 +36,16 @@ const climateLogger = new Logger('ProvinceClimate');
  * annual/seasonal block. A single source of truth for "does this province render a climate
  * section?" so no two consumers disagree.
  *
- * Null in two cases, both rendering NO climate section (graceful degradation, never a crash):
- *   - the province has no stored series (`climate_normals` is NULL — the normal state until the
- *     import runs, and permanently for any province MGM's page cannot cover). This is EXPECTED
- *     and silent, and
- *   - the series is present but its core pair is not derivable (a data-integrity slip the
- *     import-time all-or-nothing rule should already prevent — belt-and-braces, so a bad row
- *     degrades one section instead of 500-ing a public SEO page). This is a DEFECT, so it is
+ * Null in two cases, both rendering NO climate section (graceful degradation, never a crash — the
+ * shape guard in `computeClimateDerived` is what makes that literally true, not aspirational):
+ *   - the province has no stored series: `climate_normals` is NULL (the normal state until the
+ *     import runs, and permanently for any province MGM's page cannot cover) OR the column was
+ *     projected out and arrives as `undefined` — hence the `== null` guard, not `=== null`. Both
+ *     are EXPECTED and silent, and
+ *   - the series is present but not derivable — an incomplete core pair, or a jsonb shape the
+ *     column's type cannot enforce (a data-integrity slip the import-time all-or-nothing rule
+ *     should already prevent — belt-and-braces, so a bad row degrades one section instead of
+ *     500-ing a public SEO page). This is a DEFECT, so it is
  *     logged: unreachable via the verified load path today, but any future migration,
  *     admin-CRUD write or manual SQL lands here, and without a signal the province's climate
  *     section would vanish invisibly and forever. The plate code is public data (no PII, §3.6).
@@ -54,7 +57,10 @@ export function buildClimate(
   normals: Province['climateNormals'],
   plateCode: string,
 ): Climate | null {
-  if (normals === null) {
+  // `== null` (not `=== null`): a projection that omits the column hands us `undefined`, which is
+  // the same EXPECTED, silent "no climate section" case as an explicit NULL — take this path
+  // rather than fall through and destructure-throw inside `computeClimateDerived`.
+  if (normals == null) {
     return null;
   }
   const derived = computeClimateDerived(normals);
@@ -87,11 +93,18 @@ export class ProvinceService {
    * playbook.
    */
   async findAll(): Promise<ProvinceListItemDto[]> {
-    // Project to ONLY the columns `toListItem` returns. Without this, `find` hauls the full
-    // row — including the fat `climate_normals` jsonb (~0.45 MB/call) plus every narrative
-    // text field — over the wire from Postgres just to discard it in the mapper. The select
-    // keeps the query as lean as the DTO. (No serialized-output change: the list DTO never
-    // exposed those columns.)
+    // Project to ONLY the columns `toListItem` returns — the same discipline PR #67
+    // established (keep the query as lean as the DTO), NOT a reversal of it. The list DTO now
+    // carries `climateAnnualMeanTempC`, a value DERIVED from `climate_normals`, so that jsonb
+    // is now genuinely a column this DTO needs and belongs in the projection by the very rule
+    // #67 set. It is the ONLY heavy column added (the narrative text fields stay out), and it
+    // is derived LIVE in `toListItem` via the same `buildClimate` the detail path uses — a
+    // single source of truth. The persisted-derived-column alternative was rejected on data
+    // correctness: it would let the list disagree with the detail on any write to
+    // `climate_normals` that bypasses the import (the documented `SET climate_normals = NULL`
+    // kill-switch included), reintroducing exactly the staleness `province.types.ts` designed
+    // out ("never persisted, so they cannot go stale"). This is a bounded (81), fully
+    // cacheable, build/ISR-time read, so the projection weight is negligible here.
     const rows = await this.provinces.find({
       select: {
         plateCode: true,
@@ -100,6 +113,7 @@ export class ProvinceService {
         slugTr: true,
         slugEn: true,
         climateKoppen: true,
+        climateNormals: true,
       },
       order: { plateCode: 'ASC' },
     });
@@ -162,6 +176,12 @@ export class ProvinceService {
       slugTr: row.slugTr,
       slugEn: row.slugEn,
       climateKoppen: row.climateKoppen,
+      // The SAME derived value the detail DTO exposes: both read
+      // `buildClimate(...)?.derived.annualMeanTempC`, so the list and the detail can never
+      // round or null it differently (one source of truth — climate-derivations.ts). Null
+      // when the province has no publishable series (or, defensively, one not derivable).
+      climateAnnualMeanTempC:
+        buildClimate(row.climateNormals, row.plateCode)?.derived.annualMeanTempC ?? null,
     };
   }
 

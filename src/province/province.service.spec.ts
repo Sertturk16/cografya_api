@@ -89,4 +89,23 @@ describe('buildClimate', () => {
     expect(warn).toHaveBeenCalledTimes(1);
     expect(warn.mock.calls[0]?.[0]).toContain('06');
   });
+
+  it('returns null (silently, no crash) when the column is absent as undefined', () => {
+    // A projection that omits `climate_normals` hands `buildClimate` `undefined`, not `null`. An
+    // absent series is the same EXPECTED, silent no-climate case as an explicit NULL (the `== null`
+    // guard) — it must not fall through and destructure-throw a 500 on the list/detail read.
+    const warn = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+    expect(buildClimate(undefined as unknown as ClimateNormals, '34')).toBeNull();
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  it('serves null AND warns for a present-but-malformed jsonb shape the type forbids', () => {
+    // Present-but-corrupt shapes ({}, { months: null }) the compile-time type believes impossible
+    // but a jsonb column can still hold: a DEFECT, so — exactly like an incomplete core pair —
+    // they serve null and log, rather than throwing a TypeError inside the derivation.
+    const warn = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+    expect(buildClimate({} as unknown as ClimateNormals, '35')).toBeNull();
+    expect(buildClimate({ months: null } as unknown as ClimateNormals, '35')).toBeNull();
+    expect(warn).toHaveBeenCalledTimes(2);
+  });
 });

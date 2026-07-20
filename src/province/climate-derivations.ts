@@ -121,17 +121,25 @@ export function computeSeasonalPrecipitationPercentages(
 /**
  * Derive the annual/extreme/seasonal figures from a climate series.
  *
- * Returns `null` when the series cannot yield a coherent derivation — either the 12-month core
- * pair (`tempMeanC` + `precipitationMm`) is not complete, or the annual precipitation is not
- * positive. Under the import-time all-or-nothing rule every STORED series is complete, so a
- * `null` here means either a province with no series at all or corrupt data; either way the
- * detail payload serves `climate: null` and the page degrades gracefully rather than shipping a
- * chart summary built on `NaN`. It deliberately returns `null` instead of throwing: a
- * serialization path must not 500 a public SEO page over a data-integrity slip.
+ * Returns `null` when the series cannot yield a coherent derivation — because the 12-month core
+ * pair (`tempMeanC` + `precipitationMm`) is not complete, the annual precipitation is not
+ * positive, or the stored value is not even the shape the type promises (`{}`, `{ months: null }`,
+ * a non-array `months`). That last case is real, not paranoia: this argument is deserialized from
+ * a `jsonb` column, and a `jsonb` value's runtime shape is NOT constrained by its TypeScript type,
+ * so a legacy, hand-written or future admin-CRUD row can violate `ClimateNormals` at runtime.
+ * Under the import-time all-or-nothing rule every STORED series is complete, so a `null` here
+ * means either a province with no series at all or corrupt data; either way the caller serves
+ * `climate: null` and the page degrades gracefully rather than shipping a chart summary built on
+ * `NaN`. It deliberately returns `null` instead of throwing — and the shape guard is what makes
+ * that promise TRUE for the malformed shapes above: a serialization path (the whole
+ * `GET /api/provinces` list + the sitemap build, not just one detail page) must not 500 over a
+ * data-integrity slip.
  */
 export function computeClimateDerived(normals: ClimateNormals): ClimateDerived | null {
+  // Shape guard at the jsonb boundary (see docblock): `!Array.isArray(months)` catches `{}` and
+  // `{ months: null }` (a destructured `undefined`/`null`) before `.length` can throw on them.
   const { months } = normals;
-  if (months.length !== CLIMATE_MONTH_COUNT) {
+  if (!Array.isArray(months) || months.length !== CLIMATE_MONTH_COUNT) {
     return null;
   }
 
