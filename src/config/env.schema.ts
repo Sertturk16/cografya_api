@@ -21,6 +21,17 @@ export const envSchema = z.object({
   // Browser origin of the web app, allowed by CORS. Defaults to the typical
   // local Next.js dev origin; production sets the real domain once it's decided.
   WEB_ORIGIN: z.url().default('http://localhost:3000'),
+  // Shared secret that exempts a trusted first-party caller (the web SSG build) from
+  // the global rate limit — presented in the `x-internal-request-token` header and
+  // matched constant-time by TrustedClientThrottlerGuard. OPTIONAL and fail-closed: when
+  // unset the exemption does not exist and every request is throttled, so dev/test/CI boot
+  // with no secret. When set it MUST be >= 32 chars (a weak bypass secret is worse than
+  // none). It is a SECRET — never log it, never echo it in the OpenAPI spec; only the
+  // web build's SERVER-SIDE fetches may hold it (it must never reach the browser).
+  INTERNAL_REQUEST_TOKEN: z
+    .string()
+    .min(32, 'INTERNAL_REQUEST_TOKEN must be at least 32 characters when set')
+    .optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { ThrottlerStorage } from '@nestjs/throttler';
+import type { NextFunction, Request, Response } from 'express';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
@@ -12,6 +12,11 @@ import { SEED_COUNTRIES, type CountrySeed } from '../src/database/seeds/country.
 import { Continent } from '../src/common/continent.enum';
 import { Country } from '../src/country/entities/country.entity';
 import { computeNeighborCount } from '../src/country/country.service';
+import { INTERNAL_REQUEST_HEADER } from '../src/common/throttler/trusted-client';
+
+// 44-char dummy secret used ONLY to exercise the REAL trusted-client throttle exemption
+// (replaces the former test-only ThrottlerStorage stub). Not a production secret.
+const TEST_INTERNAL_TOKEN = 'e2e-trusted-client-token-0123456789-abcdefgh';
 // NOTE: AppModule is imported dynamically inside beforeAll — NOT at the top — because
 // ConfigModule.forRoot validates the env eagerly at module-load time, so AppModule must
 // not load until DATABASE_URL has been set to the container URL.
@@ -112,6 +117,9 @@ describe('Country (e2e)', () => {
 
     process.env.DATABASE_URL = url;
     process.env.WEB_ORIGIN = 'http://localhost:3000';
+    // Configure the trusted-client secret so the exemption exists for this run; the
+    // header-injecting middleware below presents the matching token on every request.
+    process.env.INTERNAL_REQUEST_TOKEN = TEST_INTERNAL_TOKEN;
 
     // 1) Migrations must run clean against a real Postgres, creating the schema.
     dataSource = new DataSource(buildDataSourceOptions(url));
@@ -143,30 +151,20 @@ describe('Country (e2e)', () => {
     //    real container URL. A typed require (not a static import) defers module load to here.
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { AppModule } = require('../src/app.module') as typeof import('../src/app.module');
-    // Neutralise the global 120 req/min rate limit FOR THIS TEST RUN ONLY (same approach as
-    // province.e2e-spec): the suite fires its HTTP assertions from a single in-memory client
-    // in one short window; overriding ThrottlerStorage with a zero-hits stub keeps it free of
-    // 429s independently of request count, without weakening the production posture. No test
-    // asserts 429 behaviour, so nothing depends on the limiter being live here.
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
-      .overrideProvider(ThrottlerStorage)
-      .useValue({
-        increment: (): Promise<{
-          totalHits: number;
-          timeToExpire: number;
-          isBlocked: boolean;
-          timeToBlockExpire: number;
-        }> =>
-          Promise.resolve({
-            totalHits: 0,
-            timeToExpire: 0,
-            isBlocked: false,
-            timeToBlockExpire: 0,
-          }),
-      })
-      .compile();
+    // Exercise the REAL trusted-client throttle exemption (same approach as province.e2e-spec)
+    // instead of stubbing the limiter: every suite request presents the internal token exactly
+    // as the web SSG build will, so the PRODUCTION guard path is what CI covers. This suite's
+    // request volume is under the 120/min window, so the exemption is NOT what keeps it 429-free
+    // today (it would pass on volume alone) — the value is fidelity to the real allow path.
+    // Production posture untouched (global 120/min stands for anonymous clients); no test
+    // asserts 429 behaviour.
+    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
     app = moduleRef.createNestApplication();
     applyGlobalPrefix(app);
+    app.use((req: Request, _res: Response, next: NextFunction) => {
+      req.headers[INTERNAL_REQUEST_HEADER] = TEST_INTERNAL_TOKEN;
+      next();
+    });
     await app.init();
   }, 180_000);
 
