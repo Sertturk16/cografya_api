@@ -158,20 +158,45 @@ describe('Province (e2e)', () => {
     ]);
   });
 
-  it('exposes the two climate columns, empty for every province (A1a ships MECHANISM, no data)', async () => {
-    // Two things at once, both structural:
-    //   1. the migration + entity mapping actually work end-to-end against real Postgres
-    //      (a jsonb column the entity mis-maps would fail to select here), and
-    //   2. this PR introduces the SCHEMA only — every province is still null, so nothing
-    //      about a rendered climate section can be true yet. The import is PR A1b.
+  // The N1 climate-narrative wave: 5 calibration pilots + 4 new provinces, identified by
+  // PLATE CODE as wave MEMBERSHIP — never by prose content (CONVENTIONS §2 bars literal-text
+  // assertions in tests; byte-for-byte fidelity of the prose is gated separately by the
+  // seed-transcription roundtrip, `oneoff-n1-province-climate.ts check`).
+  const N1_CLIMATE_NARRATIVE_PLATES = new Set([
+    '07', // Antalya (pilot)
+    '53', // Rize (pilot)
+    '42', // Konya (pilot)
+    '25', // Erzurum (pilot)
+    '34', // İstanbul (pilot)
+    '08', // Artvin (new)
+    '43', // Kütahya (new)
+    '30', // Hakkari (new)
+    '04', // Ağrı (new)
+  ]);
+
+  it('serves climateNarrativeTr for exactly the 9 N1 provinces, null elsewhere; climateNormals still empty', async () => {
+    // Structural, not textual:
+    //   1. the migration + entity mapping work end-to-end against real Postgres (a jsonb
+    //      column the entity mis-maps would fail to select here), and
+    //   2. climate NARRATIVE prose is populated for EXACTLY the 9 N1 provinces and null for
+    //      the other 72 — asserted by plate-code membership + a count guard, so a miswired
+    //      seed that drops or adds a province fails loudly. climateNormals stays null: the
+    //      offline climate IMPORT (load phase) is not run in this seed-only e2e.
     const repo = dataSource.getRepository(Province);
     const provinces = await repo.find();
 
     expect(provinces).toHaveLength(81);
     for (const province of provinces) {
       expect(province.climateNormals).toBeNull();
-      expect(province.climateNarrativeTr).toBeNull();
+      if (N1_CLIMATE_NARRATIVE_PLATES.has(province.plateCode)) {
+        expect(typeof province.climateNarrativeTr).toBe('string');
+        expect((province.climateNarrativeTr ?? '').trim().length).toBeGreaterThan(0);
+      } else {
+        expect(province.climateNarrativeTr).toBeNull();
+      }
     }
+    const withNarrative = provinces.filter((province) => province.climateNarrativeTr !== null);
+    expect(withNarrative).toHaveLength(N1_CLIMATE_NARRATIVE_PLATES.size);
   });
 
   it('phase 1 — seeding the pilot-5 into an empty DB inserts exactly those 5', () => {
@@ -258,6 +283,32 @@ describe('Province (e2e)', () => {
     const restore = await seedGeography(dataSource);
     expect(restore).toEqual({ inserted: 0, updated: 1, unchanged: 80, total: 81 });
     expect((await repo.findOneByOrFail({ plateCode: '34' })).economyIndicator).not.toBeNull();
+    expect(await repo.count()).toBe(81);
+  });
+
+  it('re-seed detects a climateNarrativeTr drift and UPDATES (the N1 comparator line participates)', async () => {
+    // Proves the comparison line this PR added to `rowMatchesSeed` actually fires: mutate ONLY
+    // climateNarrativeTr on a wave province and re-seed. Were the field absent from the
+    // comparator, the row would be mis-counted `unchanged` and corrupted prose would never be
+    // refreshed — the exact idempotency gap PR #63 closed for landformNoteTr. Restores at end.
+    const repo = dataSource.getRepository(Province);
+    const seeded = (await repo.findOneByOrFail({ plateCode: '34' })).climateNarrativeTr;
+    expect(seeded).not.toBeNull();
+    await repo.update({ plateCode: '34' }, { climateNarrativeTr: 'DRIFTED' });
+
+    const result = await seedGeography(dataSource);
+    // Only İstanbul drifted (via the climateNarrativeTr comparison) → 1 updated, 80 untouched.
+    expect(result).toEqual({ inserted: 0, updated: 1, unchanged: 80, total: 81 });
+
+    // The field was actually re-written from the seed (back to its canonical value).
+    expect((await repo.findOneByOrFail({ plateCode: '34' })).climateNarrativeTr).toBe(seeded);
+    // A genuine no-op on re-run (the restored value does not churn `updated` forever).
+    expect(await seedGeography(dataSource)).toEqual({
+      inserted: 0,
+      updated: 0,
+      unchanged: 81,
+      total: 81,
+    });
     expect(await repo.count()).toBe(81);
   });
 

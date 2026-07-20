@@ -112,6 +112,15 @@ export interface ProvinceSeed {
   climateNoteTr: string;
   landformNoteTr: string | null;
   /**
+   * Climate NARRATIVE (the `climate_narrative_tr` column, exposed since PR A2) — the
+   * per-province prose that explains the climate MECHANISM. This is NOT `climateNoteTr`:
+   * that column holds the locked, class-level MGM Köppen methodological caveat. OPTIONAL on
+   * the seed exactly like the PR-5a detail fields below — absent (undefined) reads as "not
+   * authored yet" and is normalised to null in `rowMatchesSeed` / `withExplicitDetailNulls`
+   * (seed-geography.ts), so a base-data re-seed of a province that lacks it stays a no-op.
+   */
+  climateNarrativeTr?: string | null;
+  /**
    * PR-5a il-detay-sayfası detail-section fields. OPTIONAL on the seed by design: the
    * base-data waves (pilot base + Batch 2) DELIBERATELY leave them absent (an unverified
    * fact stays absent, never invented — CLAUDE §5), and a later, independently
@@ -409,6 +418,23 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateNarrativeTr:
+      "İstanbul'un iklim verisi, ilin Avrupa yakasında, deniz düzeyine yakın Yeşilköy " +
+      "istasyonundan gelir. Oysa il, İstanbul Boğazı'nın iki yakasına yayılır ve kuzeyde " +
+      "Karadeniz kıyısına, Şile'ye kadar uzanır. Tek bir kıyı istasyonunun rakamları, beş bin " +
+      'kilometrekareyi aşan bu alanın tamamını değil, onun deniz kenarındaki bir kesitini ' +
+      'anlatır; kuzeydeki yüksek ve ormanlık kesimler daha serin ve nemlidir.' +
+      '\n\n' +
+      'Konum, iklime de geçiş karakteri kazandırır. İstanbul, yaz kuraklığı belirgin Akdeniz ' +
+      'rejimi ile her mevsimi yağışlı Karadeniz rejimi arasında bir yerde durur. Bunun izi ' +
+      'verilere yansır: en kurak ay temmuzda bile yağış 22 milimetrenin altına inmez, yani yaz ' +
+      'mevsimi Akdeniz kıyısındaki kadar kesin biçimde kurumaz. Kışın ise bulutluluk baskındır; ' +
+      'şubatta güneşli süre günde bir saatin altına düşer.' +
+      '\n\n' +
+      'Sıcaklıkta çevredeki denizler dengeleyici rol oynar. Yıllık sıcaklık farkı on sekiz ' +
+      'derecenin altında kalır. En sıcak aylar temmuz ve ağustosta ortalama yirmi beş dereceyi ' +
+      'bulmaz, en soğuk ay ocakta ise yedi derece dolayındadır. Yine de tek istasyonun bu ılıman ' +
+      'değerleri, kuzeydeki yüksek kesimlerin daha sert koşullarını gizler.',
     // ── İstanbul deep-content pilot (see the İSTANBUL DEEP-CONTENT PILOT note above).
     //    Seven values transcribed from the fact-checked draft. The four prose fields
     //    (introTr, landformNoteTr, hydrographyNoteTr, settlementNoteTr) carry NOVA's
@@ -759,6 +785,24 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateNarrativeTr:
+      "Antalya'nın yaz kuraklığı bir tesadüf değil, basınç kuşaklarının mevsimlik yer " +
+      'değiştirmesinin sonucudur. Yaz aylarında subtropikal yüksek basınç kuzeye kayarak kıyıyı ' +
+      'örter; alçalan hava bulut oluşumunu bastırdığı için temmuz ve ağustosta yağış neredeyse ' +
+      'tümüyle kesilir. İstasyonun ağustos kaydı bunu somutlaştırır: koca ayda ortalama yalnızca ' +
+      'yarım gün yağış düşer. Kışın ise Akdeniz üzerinde dolaşan gezici alçak basınçlar nemli ' +
+      'havayı kıyıya sürükleyip cephesel yağış bırakır.' +
+      '\n\n' +
+      'Bu yüzden Antalya yazın kavrulur ama yıllık yağış toplamı bin milimetreyi aşar. Kışın ' +
+      "gelen nemli havanın hemen ardında Beydağları'nın dik yamaçları yükselir; deniz üzerinden " +
+      'beslenen hava bu duvara çarpıp yükseldikçe yağış kıyı kuşağında yoğunlaşır. Merkez ' +
+      'istasyonun ölçtüğü değerler bu dar kıyı şeridine aittir, ilin yükseklerindeki yağış çok ' +
+      'daha fazladır. Aralıkta 250 milimetreyi aşan aylık yağışın yanı sıra, bir günde ölçülen ' +
+      'en yüksek yağış 1969 Ocağında 331,5 milimetreye ulaşmıştır.' +
+      '\n\n' +
+      'Sıcaklıkta ise deniz kışı yumuşatır. En soğuk ay ocakta bile ortalama on derecenin altına ' +
+      'inmez ve yıllık sıcaklık farkı yirmi dereceyi bulmaz. Denizin ısıyı yavaş depolayıp yavaş ' +
+      'salması, sıcaklığı hem yazın hem kışın dar bir aralıkta tutar.',
     // ── Antalya deep content (wave-1 — see the WAVE-1 DEEP CONTENT note above). Akdeniz /
     //    karstic framing: the Toros/Bey Dağları coastal squeeze + karst forms (düden/obruk/
     //    polye) and Kızlarsivrisi=3.086 m (the fact-check factual correction from 3.070 m);
@@ -2466,6 +2510,23 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSB,
     climateClassTr: CLIMATE_CLASS_CSB_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CSB_TR,
+    climateNarrativeTr:
+      "Ege Bölgesi'nin çoğu ili kıyı ovalarında, deniz seviyesine yakın kurulmuştur; Kütahya ise " +
+      'bunun dışında kalır. İl merkezi 969 metre yükseklikte, dağlarla çevrili bir platoda yer ' +
+      'alır ve bu yükseklik ilin iklimini komşularından ayırır.' +
+      '\n\n' +
+      'Yaz kuraklığı burada da belirgindir: temmuz ve ağustosta yağış yirmi milimetrenin altına ' +
+      'iner, Akdeniz ikliminin kurak yaz rejimiyle örtüşür. Ama sıcaklık aynı örtüşmeyi ' +
+      "göstermez. Kıyı kesimindeki Antalya'da temmuz ortalaması 28,6 derecedir. Aynı ayda " +
+      "Kütahya'nın ortalaması 20,9 derecede kalır, aradaki fark neredeyse sekiz derecedir. " +
+      'Yükseklik, denizden uzaklığın getirdiği ısınmayı frenler ve ili Köppen\'in "a" değil "b" ' +
+      'alt tipine sokar: kurak yaz aynı kalır, yaz sıcak değil serindir.' +
+      '\n\n' +
+      'Kışın ise karasal karakter öne çıkar. Aralık ayı ortalaması sıfırın birkaç derece ' +
+      'üzerinde, ocak ise sıfıra yakın seyreder. Rekor düşük sıcaklık 1948 Aralığında eksi 28,1 ' +
+      'dereceye inmiştir. İlin en yüksek noktası, güneyde yükselen 2.312 metrelik Murat ' +
+      "Dağı'dır. Bu dağlık kuşak, platoyu çevresindeki alçak Ege kıyısından hem yükseklik hem " +
+      'iklim bakımından ayırır.',
     // ── Kütahya deep content (wave-3 Tier-B). Tiered 6-field set from the fact-checked "Dalga 3"
     //    draft (introTr + shortened landform/hydrography + urbanizationRate + netMigrationRate +
     //    economyIndicator). `hydrographyFeatures` + `settlementNoteTr` DELIBERATELY OMITTED
@@ -3797,6 +3858,26 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_DSB,
     climateClassTr: CLIMATE_CLASS_D_GROUP_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_DSB_TR,
+    climateNarrativeTr:
+      "Ağrı'da yaz ile kış arasındaki sıcaklık farkı otuz iki dereceye yaklaşır. Bu genişliğin " +
+      "en görünür kaynağı, ilin kuzeydoğusunda yükselen Ağrı Dağı'dır. 5.137 metreyle " +
+      "Türkiye'nin en yüksek zirvesi olan dağın tepesinde, yaklaşık on kilometrekarelik kalıcı " +
+      "bir buz örtüsü bulunur. Ama MGM'nin ölçüm istasyonu bu zirvede değil, ilin düzlük " +
+      'kesiminde, 1.646 metre yükseklikteki merkezdedir.' +
+      '\n\n' +
+      'Oysa merkezdeki düzlük, dağın buzullu ikliminden çok uzak bir hava yaşar. Yazlar kurak ' +
+      'geçer, ama sıcak değildir: temmuz ve ağustos ortalaması yirmi bir derece civarındadır, bu ' +
+      "da ili Hakkâri'nin sıcak-kurak Dsa'sından ayırıp serin-kurak Dsb alt tipine yerleştirir. " +
+      'Kışın ise karasallık en sert haliyle görülür: ocak ortalaması eksi on derecenin biraz ' +
+      'altındadır, rekor düşük ise 1972 Ocağında eksi kırk beş virgül altı dereceye inmiştir. ' +
+      "Bu, ilin kendi ölçüm tarihindeki en düşük değerdir; Türkiye'nin resmî en düşük sıcaklık " +
+      "rekoru, Van'ın Çaldıran ilçesinde ölçülen eksi kırk altı virgül dört derecedir." +
+      '\n\n' +
+      'İlin düzlükleri, batıya akan Murat ile kuzeyden geçen Aras nehirlerinin vadileri arasında ' +
+      "uzanır. İkisi de Ağrı Dağı'nın eteklerinden beslenir. Kışın yağış azdır ama kar uzun süre " +
+      'yerde kalır: 1985 Şubatında ölçülen 225 santimetrelik kar örtüsü, ovanın kışın ne denli ' +
+      'sert geçtiğini gösterir. Yılın en yağışlı ayı nisandır, yağış yetmiş bir milimetreyi ' +
+      'bulur.',
     // ── Ağrı deep content (wave-6b Tier-B). 6-field set (hydrographyFeatures + settlementNoteTr
     //    OMITTED). urbanizationRate=62.76 is a REAL rate (non-büyükşehir). netMigrationRate
     //    -32.59 is among the wave's most-negative (near Siirt's -33.96 record). GSYH share %0,2.
@@ -4065,6 +4146,24 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_DFB,
     climateClassTr: CLIMATE_CLASS_D_GROUP_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_DFB_TR,
+    climateNarrativeTr:
+      "Erzurum'da kış yılın üçte birine yayılır; dört ay boyunca aylık ortalama sıcaklık donma " +
+      "noktasının altında kalır. İl, Doğu Anadolu'da üç bin metreye ulaşan dağlarla çevrili, " +
+      'yaklaşık bin dokuz yüz metre yükseltideki bir ovada kurulmuştur. Hem denizden uzaklığı ' +
+      'hem yüksekliği kışları uzun ve şiddetli yapar: ocak ortalaması eksi dokuz dereceye iner, ' +
+      'yıllık ortalama ise altı derece dolayında kalır.' +
+      '\n\n' +
+      'Bu tabloya bir de yer şeklinin etkisi eklenir. Açık ve durgun havalarda soğuyan ağır hava ' +
+      'çukur ovanın tabanına çöker ve orada göllenir; üstteki hava daha ılık kaldığı için ' +
+      'sıcaklık, yükseldikçe artan ters bir dağılım gösterir. Sıcaklık terselmesi denen bu ' +
+      'durum, kış aylarında ova tabanındaki donu daha inatçı hale getirir ve kirliliği yüzeye ' +
+      'yakın hapseder. Merkez istasyonda ölçülen en düşük sıcaklık 2002 Aralığında eksi 37,2 ' +
+      'dereceye inmiştir.' +
+      '\n\n' +
+      'Yağış rejimi de karasal iç bölgelere özgü davranır. En kurak mevsim yaz değil kıştır, ' +
+      'çünkü soğuk ve yüksek basınçlı hava fazla nem tutmaz; asıl yağış ilkbahar ve yaz başında ' +
+      'düşer. Kışın yağış az olsa da kar yerde uzun süre kalır: merkezde ölçülen en yüksek kar ' +
+      'kalınlığı 2004 Şubatında 110 santimetreyi bulmuştur.',
     // ── Erzurum deep content (wave-6b Tier-B + büyükşehir EXCEPTION → DEC 2026-07-12, Mardin
     //    precedent). Tier-B depth (hydrographyFeatures OMITTED), BUT büyükşehir, so
     //    urbanizationRate=100 is the 6360 legal artifact carrying ONLY the single-sentence
@@ -4118,6 +4217,28 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_DSA,
     climateClassTr: CLIMATE_CLASS_D_GROUP_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_DSA_TR,
+    climateNarrativeTr:
+      "Hakkâri, Türkiye'nin ortalama rakımı en yüksek illerinden biridir; toprakların neredeyse " +
+      'tamamı 1.500 metrenin üzerindedir. İlin kuzeyinde yükselen Cilo-Sat Dağları, 4.168 ' +
+      'metreye ulaşan zirveleri ve üzerlerindeki buzullarla ülkenin güncel buz örtüsünün önemli ' +
+      'bir bölümünü içerir. Bu yükseklik ve buzullu manzara, merkez istasyonun ölçtüğü yazla ' +
+      'örtüşmez: temmuz ayı ortalaması 5,7, ağustos ise 4,9 milimetrede kalır. İkisi de düşük ' +
+      'olsa da yalnızca ağustos beş milimetrenin altına iner.' +
+      '\n\n' +
+      "Bu çelişkinin nedeni yer şeklindedir. İl, Güneydoğu Toroslar'ın en sarp kesiminde, derin " +
+      'vadilerle yüksek kütlelerin iç içe geçtiği bir arazide kuruludur. Merkez istasyon bu ' +
+      'derin vadilerden birinde yer alır ve yazın çevresindeki yüksek kütlelerden çok daha fazla ' +
+      'ısınır: temmuz ve ağustos ortalaması yirmi dört virgül sekiz derecedir, rekor sıcaklık ' +
+      'ise 1966 Temmuzunda otuz sekiz virgül sekiz dereceye ulaşmıştır. Yağışın neredeyse tamamı ' +
+      'kışla ilkbahar arasında düşer; nisan, 126 milimetreyle yılın en yağışlı ayıdır.' +
+      '\n\n' +
+      "Bu kurak ve sıcak yaz, Hakkâri'yi Doğu Anadolu'nun öbür karasal illerinden ayırır. " +
+      "Bölgenin çoğu D grubu ili yazın serin kalırken, Hakkâri'nin vadi tabanı sıcak kalır; bu " +
+      'fark, ilin iklimini Dsa alt tipine sokar. Kışın ise tablo tersine döner: ocak ayı ' +
+      'ortalaması eksi dört buçuk derece civarındadır, rekor düşük 2009 Ocağında eksi yirmi üç ' +
+      'virgül dört dereceye inmiştir. Aynı kış, üç bin metrenin üzerindeki Cilo-Sat zirvelerinde ' +
+      'kar kalıcı buzullara dönüşür. Bu buzullar, ilin ölçüm istasyonundaki sıcak yazdan ' +
+      'habersiz, yükseklerde varlığını sürdürür.',
     // ── Hakkari deep content (wave-6b Tier-B). 6-field set. Türkiye içinde SADECE 2 komşu (Van,
     //    Şırnak — both symmetric). Cilo-Sat is stated as "one of the highest massifs", no exact
     //    ranking claim (deliberate). urbanizationRate 66.55 is a REAL rate. GSYH share %0,2.
@@ -4127,8 +4248,9 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
       "ile 3.460 metrelik Gare Dağı'dır. Sat Dağları kütlesinde ise 3.540 metrelik Sat Dağı ve " +
       '3.356 metrelik Gevaroki Dağı öne çıkar.',
     introTr:
-      "Hakkari, il geneli ortalama yükseklik bakımından Türkiye'nin en yüksek rakımlı ilidir; " +
-      'toprakların neredeyse tamamı 1.500 metrenin üzerindedir. İlin kuzeyindeki Cilo-Sat ' +
+      "Hakkari, il geneli ortalama yükseklik bakımından Türkiye'nin en yüksek rakımlı " +
+      'illerinden biridir; toprakların neredeyse tamamı 1.500 metrenin üzerindedir. İlin ' +
+      'kuzeyindeki Cilo-Sat ' +
       "Dağları, 4.168 metreye ulaşan zirveleriyle Türkiye'nin en yüksek dağ kütlelerinden " +
       "biridir. İl, Güneydoğu Toroslar'ın en sarp bölümünde, Irak ve İran sınırına bitişik " +
       'kuruludur.',
@@ -4454,6 +4576,20 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_BSK,
     climateClassTr: CLIMATE_CLASS_BSK_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_BSK_TR,
+    climateNarrativeTr:
+      "Türkiye'nin en az yağış alan il merkezlerinden biri Konya'dır ve bunun nedeni ilin " +
+      'coğrafyasında yatar. Konya, her yanı yükseltilerle çevrili kapalı bir havzanın tabanında ' +
+      "oturur; güneyinde Toros Dağları bir set gibi uzanır ve Akdeniz'den gelen nemli havanın " +
+      'havzaya girmesini büyük ölçüde keser. Dağların ardında kalan bu yağış gölgesi, yıllık ' +
+      'yağışı yaklaşık 325 milimetrede, yarı kurak iklim sınırında tutar.' +
+      '\n\n' +
+      'Denizden uzak ve çevresi kapalı olduğu için havza güçlü bir karasallık gösterir. Kış ile ' +
+      'yaz arasındaki sıcaklık farkı yirmi üç dereceyi aşar. Ocak ortalaması donma noktasının ' +
+      'altına iner; 1942 Ocağında sıcaklık eksi 28 dereceye kadar düşmüştür. Yağışın en yoğun ' +
+      'olduğu ayın kış değil mayıs olması da karasal iç bölgelerin işaretidir: baharda ısınan ' +
+      'zeminin üstünde yükselen hava konveksiyon yağışları oluşturur. Merkez istasyonun bu düşük ' +
+      'değerleri havzanın tabanını yansıtır. Güneydeki Toros eteklerinde, Beyşehir ve Seydişehir ' +
+      'çevresinde yıllık yağış belirgin biçimde artar.',
     // ── Konya deep content (wave-6a Tier-A). Full 8-field set. Bozkır platosu + Toros
     //    uzantıları + Karacadağ/Karadağ volkanik kütleleri (landform); Türkiye'nin en büyük
     //    kapalı havzası, Çarşamba Çayı/Çumra Sulaması + Beyşehir/Tuz gölleri (hydrography).
@@ -5180,6 +5316,25 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CFB,
     climateClassTr: CLIMATE_CLASS_CFB_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFB_TR,
+    climateNarrativeTr:
+      "Artvin denince akla önce Türkiye'nin en yağışlı köşelerinden biri gelir. İlin Karadeniz'e " +
+      "açılan Hopa kesimi, Doğu Karadeniz'in en fazla yağış alan kıyı kuşağının bir parçasıdır; " +
+      'aynı kaynağa göre bu kuşağın en yoğun yağış aldığı Rize çevresinde yıllık ortalama 2.500 ' +
+      'milimetreye ulaşır. Merkez istasyonda ise yıllık toplam yalnızca 694 milimetredir, kıyı ' +
+      'kuşağının çok gerisinde kalan bir rakam. Aradaki farkın nedeni coğrafyadadır: kıyı ile ' +
+      'Çoruh vadisi arasına giren dağlar, denizden gelen nemi kıyı şeridinde bırakır.' +
+      '\n\n' +
+      "Bu dağ seti, komşu Rize'de kıyıyı örten Kaçkar Dağları'nın uzantısıdır; 3.937 metrelik " +
+      'Kaçkar Dağı, ilin sınırları içinde yükselir. Duvarın arkasında kalan Çoruh vadisi hem ' +
+      'yağıştan hem de yazın kıyının sıcaklığından korunur: merkez istasyonda temmuz ortalaması ' +
+      "yirmi bir dereceye yakındır, kıyıdaki Rize'den iki derece kadar serin. Bu ince fark, ilin " +
+      "iklimini Rize'nin Cfa'sından ayırıp Cfb'ye, yazı serin alt tipine kaydırır." +
+      '\n\n' +
+      'Kışın kar bu vadide uzun süre tutunur: 1989 Şubatında ölçülen 142 santimetrelik kar ' +
+      'örtüsü, dağlık iç kesimde kışın ne denli sert geçtiğini gösterir. Yazın ise yağış ' +
+      'neredeyse keser; ağustosta ortalama yalnızca 28,7 milimetre düşer, ilin en kurak ayıdır. ' +
+      "Vadinin bu kuru-serin karakteri, kıyıdaki bol yağışlı Hopa'dan yalnızca birkaç on " +
+      'kilometre uzaktadır.',
     // ── Artvin deep content (wave-6c plain Tier-B). The platform's FIRST Cfb il (→ "Karadeniz
     //    iklimi", same label as Cfa, DEC 2026-07-12). 6-field set (hydrographyFeatures +
     //    settlementNoteTr null). urbanizationRate=65.27 REAL; net göç -16,00; GSYH share %0,1.
@@ -5426,6 +5581,26 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CFA,
     climateClassTr: CLIMATE_CLASS_CFA_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
+    climateNarrativeTr:
+      "Rize'nin arkasında, kıyıya paralel uzanan ve doğuda komşu Artvin'e doğru devam eden " +
+      'Kaçkar Dağları bir duvar gibi yükselir. Karadeniz üzerinden gelen nemli hava kütleleri bu ' +
+      'yüksek engele çarpıp yükselmek zorunda kalır; yükseldikçe soğur, soğudukça içindeki nemi ' +
+      'yağışa çevirir. Orografik yağış denen bu düzenek, merkez istasyonda yıllık toplamı ' +
+      "yaklaşık 2.300 milimetreye çıkararak ili Türkiye'nin en yağışlı ili yapar." +
+      '\n\n' +
+      "Burada, Akdeniz'in aksine, kurak bir mevsim yoktur. En az yağış alan mayıs ayında bile " +
+      "ölçülen değer 96 milimetrenin altına düşmez; bu miktar, Türkiye'nin pek çok ilinde en " +
+      'yağışlı ayın toplamından fazladır. Yağışın zirvesi de yaza değil sonbahara denk gelir: ' +
+      'deniz yaz boyunca ısındığından havadaki nem sonbaharda en yüksek düzeydedir ve ekim ' +
+      'ayında yağış 290 milimetreyi geçer. Eylülde bile ölçülen değer 256 milimetrenin ' +
+      'üzerindedir.' +
+      '\n\n' +
+      'Deniz etkisi sıcaklığı da dengeler. Yıllık sıcaklık farkı on yedi derecenin altında kalır ' +
+      've kışlar iç bölgelere göre ılık geçer. Bu değerlerin tümü kıyıdaki merkez istasyona ' +
+      'aittir; yükseklere çıkıldıkça iklim hızla sertleşir. Merkezde bile kar zaman zaman ' +
+      'kalınlaşıp 1942 Ocağında 187 santimetreye ulaşmış olsa da, asıl uç değerler yüksek ' +
+      'kesimlerde yaşanır ve dağların denize bakan yüksek yamaçlarında yıllık yağış üç bin ' +
+      'milimetreyi aşar.',
     // ── Rize deep content (wave-6c plain Tier-B, Cfa). 6-field set (hydrographyFeatures +
     //    settlementNoteTr null). urbanizationRate=68.02 REAL; net göç -11,87; GSYH share %0,3.
     //    Türkiye's rainiest il (2.250+ mm) — the natural condition for its tea agriculture.

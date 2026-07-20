@@ -89,7 +89,7 @@ function plateArraysEqual(a: readonly string[], b: readonly string[]): boolean {
  * row already drifts regardless): the guard is FORWARD-LOOKING. Once a province has
  * `landformNoteTr` populated, a later detail-ONLY correction (e.g. a new economyIndicator,
  * landform unchanged) would NOT be seen by the base-field comparison alone → silently
- * skipped as `unchanged`. Comparing all seven closes that gap: any detail field drifting is
+ * skipped as `unchanged`. Comparing all eight closes that gap: any detail field drifting is
  * detected → UPDATED; nothing drifting → unchanged, no churn.
  */
 function rowMatchesSeed(row: Province, seed: ProvinceSeed): boolean {
@@ -110,6 +110,7 @@ function rowMatchesSeed(row: Province, seed: ProvinceSeed): boolean {
     row.climateClassTr === seed.climateClassTr &&
     row.climateNoteTr === seed.climateNoteTr &&
     row.landformNoteTr === seed.landformNoteTr &&
+    (row.climateNarrativeTr ?? null) === (seed.climateNarrativeTr ?? null) &&
     (row.introTr ?? null) === (seed.introTr ?? null) &&
     (row.hydrographyNoteTr ?? null) === (seed.hydrographyNoteTr ?? null) &&
     isDeepStrictEqual(row.hydrographyFeatures ?? null, seed.hydrographyFeatures ?? null) &&
@@ -136,13 +137,14 @@ function rowMatchesSeed(row: Province, seed: ProvinceSeed): boolean {
  * null, so the stale value is actually cleared and the row settles to `unchanged`. The seed
  * is authoritative: after a run, the DB matches the seed exactly, omitted-optional included.
  *
- * No behaviour change for the shipped data (İstanbul sets all seven; the other 30 omit all
- * seven and their columns are already null) — this only makes the omit⇒null contract
- * enforced rather than incidental.
+ * No behaviour change for the shipped data (each province sets whichever of the eight
+ * optional detail fields it carries and omits the rest, whose columns are already null) —
+ * this only makes the omit⇒null contract enforced rather than incidental.
  */
 function withExplicitDetailNulls(seed: ProvinceSeed): ProvinceSeed {
   return {
     ...seed,
+    climateNarrativeTr: seed.climateNarrativeTr ?? null,
     introTr: seed.introTr ?? null,
     hydrographyNoteTr: seed.hydrographyNoteTr ?? null,
     hydrographyFeatures: seed.hydrographyFeatures ?? null,
