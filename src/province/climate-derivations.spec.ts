@@ -202,6 +202,16 @@ describe('computeClimateDerived', () => {
     first.month = 2; // slot 0 no longer holds month 1
     expect(computeClimateDerived(makeNormals(months))).toBeNull();
   });
+
+  it('returns null (never throws) for a malformed jsonb shape the type forbids', () => {
+    // `normals` types as `ClimateNormals` but is deserialized from a jsonb column, whose runtime
+    // shape the compiler cannot enforce; a legacy/hand-written/admin-CRUD row could present a
+    // shape the type believes impossible. Each must degrade to null via the shape guard, not
+    // throw a TypeError that would 500 the whole province list + sitemap build.
+    expect(computeClimateDerived({} as unknown as ClimateNormals)).toBeNull();
+    expect(computeClimateDerived({ months: null } as unknown as ClimateNormals)).toBeNull();
+    expect(computeClimateDerived({ months: 'x' } as unknown as ClimateNormals)).toBeNull();
+  });
 });
 
 /** Sum the four seasonal shares, or NaN if the object is null (so a null slips the `=== 100` check). */

@@ -36,13 +36,16 @@ const climateLogger = new Logger('ProvinceClimate');
  * annual/seasonal block. A single source of truth for "does this province render a climate
  * section?" so no two consumers disagree.
  *
- * Null in two cases, both rendering NO climate section (graceful degradation, never a crash):
- *   - the province has no stored series (`climate_normals` is NULL — the normal state until the
- *     import runs, and permanently for any province MGM's page cannot cover). This is EXPECTED
- *     and silent, and
- *   - the series is present but its core pair is not derivable (a data-integrity slip the
- *     import-time all-or-nothing rule should already prevent — belt-and-braces, so a bad row
- *     degrades one section instead of 500-ing a public SEO page). This is a DEFECT, so it is
+ * Null in two cases, both rendering NO climate section (graceful degradation, never a crash — the
+ * shape guard in `computeClimateDerived` is what makes that literally true, not aspirational):
+ *   - the province has no stored series: `climate_normals` is NULL (the normal state until the
+ *     import runs, and permanently for any province MGM's page cannot cover) OR the column was
+ *     projected out and arrives as `undefined` — hence the `== null` guard, not `=== null`. Both
+ *     are EXPECTED and silent, and
+ *   - the series is present but not derivable — an incomplete core pair, or a jsonb shape the
+ *     column's type cannot enforce (a data-integrity slip the import-time all-or-nothing rule
+ *     should already prevent — belt-and-braces, so a bad row degrades one section instead of
+ *     500-ing a public SEO page). This is a DEFECT, so it is
  *     logged: unreachable via the verified load path today, but any future migration,
  *     admin-CRUD write or manual SQL lands here, and without a signal the province's climate
  *     section would vanish invisibly and forever. The plate code is public data (no PII, §3.6).
@@ -54,7 +57,10 @@ export function buildClimate(
   normals: Province['climateNormals'],
   plateCode: string,
 ): Climate | null {
-  if (normals === null) {
+  // `== null` (not `=== null`): a projection that omits the column hands us `undefined`, which is
+  // the same EXPECTED, silent "no climate section" case as an explicit NULL — take this path
+  // rather than fall through and destructure-throw inside `computeClimateDerived`.
+  if (normals == null) {
     return null;
   }
   const derived = computeClimateDerived(normals);
