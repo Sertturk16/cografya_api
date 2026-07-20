@@ -110,6 +110,7 @@ function rowMatchesSeed(row: Province, seed: ProvinceSeed): boolean {
     row.climateClassTr === seed.climateClassTr &&
     row.climateNoteTr === seed.climateNoteTr &&
     row.landformNoteTr === seed.landformNoteTr &&
+    (row.climateNarrativeTr ?? null) === (seed.climateNarrativeTr ?? null) &&
     (row.introTr ?? null) === (seed.introTr ?? null) &&
     (row.hydrographyNoteTr ?? null) === (seed.hydrographyNoteTr ?? null) &&
     isDeepStrictEqual(row.hydrographyFeatures ?? null, seed.hydrographyFeatures ?? null) &&
@@ -143,6 +144,7 @@ function rowMatchesSeed(row: Province, seed: ProvinceSeed): boolean {
 function withExplicitDetailNulls(seed: ProvinceSeed): ProvinceSeed {
   return {
     ...seed,
+    climateNarrativeTr: seed.climateNarrativeTr ?? null,
     introTr: seed.introTr ?? null,
     hydrographyNoteTr: seed.hydrographyNoteTr ?? null,
     hydrographyFeatures: seed.hydrographyFeatures ?? null,
