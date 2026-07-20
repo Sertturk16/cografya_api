@@ -5328,7 +5328,7 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
       'Kaçkar Dağı, ilin sınırları içinde yükselir. Duvarın arkasında kalan Çoruh vadisi hem ' +
       'yağıştan hem de yazın kıyının sıcaklığından korunur: merkez istasyonda temmuz ortalaması ' +
       "yirmi bir dereceye yakındır, kıyıdaki Rize'den iki derece kadar serin. Bu ince fark, ilin " +
-      "iklimini Rize'nin Cfa'sından ayırıp Cfb'ye, yazı serin alt tipine taşır." +
+      "iklimini Rize'nin Cfa'sından ayırıp Cfb'ye, yazı serin alt tipine kaydırır." +
       '\n\n' +
       'Kışın kar bu vadide uzun süre tutunur: 1989 Şubatında ölçülen 142 santimetrelik kar ' +
       'örtüsü, dağlık iç kesimde kışın ne denli sert geçtiğini gösterir. Yazın ise yağış ' +
@@ -5582,11 +5582,11 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
     climateClassTr: CLIMATE_CLASS_CFA_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
     climateNarrativeTr:
-      "Rize'nin arkasında, kıyıya paralel uzanan Kaçkar Dağları bir duvar gibi yükselir. " +
-      'Karadeniz üzerinden gelen nemli hava kütleleri bu yüksek engele çarpıp yükselmek zorunda ' +
-      'kalır; yükseldikçe soğur, soğudukça içindeki nemi yağışa çevirir. Orografik yağış denen ' +
-      'bu düzenek, merkez istasyonda yıllık toplamı yaklaşık 2.300 milimetreye çıkararak ili ' +
-      "Türkiye'nin en yağışlı ili yapar." +
+      "Rize'nin arkasında, kıyıya paralel uzanan ve doğuda komşu Artvin'e doğru devam eden " +
+      'Kaçkar Dağları bir duvar gibi yükselir. Karadeniz üzerinden gelen nemli hava kütleleri bu ' +
+      'yüksek engele çarpıp yükselmek zorunda kalır; yükseldikçe soğur, soğudukça içindeki nemi ' +
+      'yağışa çevirir. Orografik yağış denen bu düzenek, merkez istasyonda yıllık toplamı ' +
+      "yaklaşık 2.300 milimetreye çıkararak ili Türkiye'nin en yağışlı ili yapar." +
       '\n\n' +
       "Burada, Akdeniz'in aksine, kurak bir mevsim yoktur. En az yağış alan mayıs ayında bile " +
       "ölçülen değer 96 milimetrenin altına düşmez; bu miktar, Türkiye'nin pek çok ilinde en " +

@@ -38,108 +38,17 @@
  */
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
 
 import { emitConcat } from './emit.ts';
+import { TARGETS, collectFromContents, type ExtractResult } from './oneoff-n1-extract.ts';
 import { foldStringConcat } from './seed-reader.ts';
-
-/** Draft-heading name (exact, incl. Turkish diacritics) -> canonical plate code. */
-const TARGETS: readonly { readonly name: string; readonly plate: string }[] = [
-  { name: 'Antalya', plate: '07' },
-  { name: 'Rize', plate: '53' },
-  { name: 'Konya', plate: '42' },
-  { name: 'Erzurum', plate: '25' },
-  { name: 'İstanbul', plate: '34' },
-  { name: 'Artvin', plate: '08' },
-  { name: 'Kütahya', plate: '43' },
-  { name: 'Hakkâri', plate: '30' },
-  { name: 'Ağrı', plate: '04' },
-];
 
 const SEED_FILE = path.resolve(
   import.meta.dirname,
   '../../src/database/seeds/province.seed-data.ts',
 );
-
-/**
- * The JOIN RULE, copied verbatim from `draft-parser.ts` (kept local so this one-off does not
- * force an export purely for a throwaway): join hard-wrapped lines with a single space,
- * EXCEPT when the accumulated text ends with a Turkish suffix-binding character (apostrophe)
- * or a hyphen (range/compound), where the join is tight. Every tight join is surfaced.
- */
-const TIGHT_JOIN_SUFFIX = /['’-]$/u;
-
-interface ExtractResult {
-  readonly value: string;
-  readonly tightJoins: readonly string[];
-}
-
-/** Extract the narrative body of one `## N. <name>` province section from a draft. */
-function extractBody(markdown: string, targetName: string): ExtractResult | null {
-  const lines = markdown.replace(/\r\n?/gu, '\n').split('\n');
-
-  // Locate the section heading: `## <n>. <name>` optionally followed by ` (Köppen)`.
-  const headingRe = /^##\s+\d+\.\s+(?<name>.+?)\s*(?:\(.*\))?\s*$/u;
-  let start = -1;
-  for (let i = 0; i < lines.length; i += 1) {
-    const m = headingRe.exec(lines[i] ?? '');
-    if (m?.groups?.['name'] === targetName) {
-      start = i + 1;
-      break;
-    }
-  }
-  if (start === -1) return null;
-
-  // Section runs until the next `##` heading (or EOF).
-  let end = lines.length;
-  for (let i = start; i < lines.length; i += 1) {
-    if (/^##\s/u.test(lines[i] ?? '')) {
-      end = i;
-      break;
-    }
-  }
-
-  // Group the section into blank-line-separated paragraphs.
-  const paragraphs: string[][] = [];
-  let current: string[] = [];
-  for (let i = start; i < end; i += 1) {
-    const raw = (lines[i] ?? '').trim();
-    if (raw === '') {
-      if (current.length > 0) {
-        paragraphs.push(current);
-        current = [];
-      }
-      continue;
-    }
-    current.push(raw);
-  }
-  if (current.length > 0) paragraphs.push(current);
-
-  const bodyParas: string[] = [];
-  const tightJoins: string[] = [];
-  for (const para of paragraphs) {
-    const first = para[0] ?? '';
-    if (/^\*\*Mekanizma/u.test(first)) break; // sources block — stop, exclude the rest
-    if (first.startsWith('**')) continue; // **Veri:** and any other bold meta — skip
-    if (first.startsWith('|') || first.startsWith('---') || first.startsWith('#')) continue;
-
-    let acc = '';
-    for (const line of para) {
-      if (acc === '') {
-        acc = line;
-      } else if (TIGHT_JOIN_SUFFIX.test(acc)) {
-        tightJoins.push(`${acc.slice(-30)}⟨no-space⟩${line.slice(0, 20)}`);
-        acc += line;
-      } else {
-        acc = `${acc} ${line}`;
-      }
-    }
-    bodyParas.push(acc);
-  }
-
-  if (bodyParas.length === 0) return null;
-  return { value: bodyParas.join('\n\n'), tightJoins };
-}
 
 /** Fold the committed `climateNarrativeTr` value for each plate code out of the seed AST. */
 function readCommitted(): Map<string, string> {
@@ -169,19 +78,9 @@ function readCommitted(): Map<string, string> {
   return byPlate;
 }
 
+/** Read each draft path and delegate to the pure, one-authoritative-draft-per-province collector. */
 function collect(draftPaths: readonly string[]): Map<string, ExtractResult> {
-  const drafts = draftPaths.map((p) => fs.readFileSync(p, 'utf8'));
-  const found = new Map<string, ExtractResult>();
-  for (const target of TARGETS) {
-    for (const markdown of drafts) {
-      const body = extractBody(markdown, target.name);
-      if (body !== null) {
-        found.set(target.plate, body);
-        break;
-      }
-    }
-  }
-  return found;
+  return collectFromContents(draftPaths.map((p) => fs.readFileSync(p, 'utf8')));
 }
 
 function main(): number {
@@ -245,4 +144,9 @@ function main(): number {
   return drifted.length > 0 || missing.length > 0 ? 1 : 0;
 }
 
-process.exitCode = main();
+// Run only when executed directly (`node oneoff-…ts …`), not when imported by the spec —
+// importing must not trigger the CLI or clobber the test runner's exit code.
+const invokedPath = process.argv[1];
+if (invokedPath !== undefined && import.meta.url === pathToFileURL(invokedPath).href) {
+  process.exitCode = main();
+}
