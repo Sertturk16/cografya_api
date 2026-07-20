@@ -123,13 +123,13 @@ describe('Province (e2e)', () => {
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
     app = moduleRef.createNestApplication();
     applyGlobalPrefix(app);
-    // Exercise the REAL trusted-client throttle exemption instead of stubbing the limiter.
-    // The suite fires many HTTP calls from one in-memory client in a short window; rather
-    // than neutralise the throttler with a fake ThrottlerStorage, every request here presents
-    // the internal token exactly as the web SSG build will, so the PRODUCTION guard path
-    // (config read + constant-time compare + skip) is what keeps the burst free of 429s. The
-    // production posture is untouched (global 120/min stands for anonymous clients) and no
-    // 429 assertion is dropped — no test asserts 429 behaviour.
+    // Exercise the REAL trusted-client throttle exemption instead of stubbing the limiter:
+    // every request here presents the internal token exactly as the web SSG build will, so the
+    // PRODUCTION guard path (config read + safe-method scope + constant-time compare + skip) is
+    // what the suite covers — not a fake ThrottlerStorage. This suite's own request volume is
+    // well under the 120/min window, so the exemption is NOT what keeps the suite 429-free today
+    // (it would pass on volume alone); the value is fidelity to the real allow path. Production
+    // posture is untouched (global 120/min stands for anonymous clients); no test asserts 429.
     app.use((req: Request, _res: Response, next: NextFunction) => {
       req.headers[INTERNAL_REQUEST_HEADER] = TEST_INTERNAL_TOKEN;
       next();

@@ -26,6 +26,13 @@ describe('isTrustedClientRequest', () => {
     expect(isTrustedClientRequest(undefined, SECRET)).toBe(false);
   });
 
+  it('denies an empty or whitespace token against a VALID secret (spoof stays throttled)', () => {
+    // Distinct from the both-empty fail-closed case below: here a real secret IS configured,
+    // so an empty/whitespace presented token must be hash-compared and rejected, not matched.
+    expect(isTrustedClientRequest('', SECRET)).toBe(false);
+    expect(isTrustedClientRequest('   ', SECRET)).toBe(false);
+  });
+
   it('is FAIL-CLOSED when no secret is configured — the exemption does not exist', () => {
     // The normal state in dev/test/CI unless INTERNAL_REQUEST_TOKEN is deliberately set:
     // with no server-side secret, nothing is trusted regardless of what the caller sends.

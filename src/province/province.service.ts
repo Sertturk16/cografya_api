@@ -113,7 +113,7 @@ export class ProvinceService {
    * array (no envelope), same rationale as `findAll`.
    *
    * Projected to ONLY the hover-card columns `toMapSummary` returns — the query is as lean
-   * as the response, so the fat `climate_normals` jsonb (~0.45 MB/row) and the narrative
+   * as the response, so the fat `climate_normals` jsonb (~0.45 MB/call) and the narrative
    * text fields are never read just to be dropped in the mapper. (No serialized-output
    * change: the map-summary DTO never exposed those columns.)
    */

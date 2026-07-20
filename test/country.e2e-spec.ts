@@ -153,8 +153,10 @@ describe('Country (e2e)', () => {
     const { AppModule } = require('../src/app.module') as typeof import('../src/app.module');
     // Exercise the REAL trusted-client throttle exemption (same approach as province.e2e-spec)
     // instead of stubbing the limiter: every suite request presents the internal token exactly
-    // as the web SSG build will, so the PRODUCTION guard path keeps the request burst free of
-    // 429s. Production posture untouched (global 120/min stands for anonymous clients); no test
+    // as the web SSG build will, so the PRODUCTION guard path is what CI covers. This suite's
+    // request volume is under the 120/min window, so the exemption is NOT what keeps it 429-free
+    // today (it would pass on volume alone) — the value is fidelity to the real allow path.
+    // Production posture untouched (global 120/min stands for anonymous clients); no test
     // asserts 429 behaviour.
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
     app = moduleRef.createNestApplication();

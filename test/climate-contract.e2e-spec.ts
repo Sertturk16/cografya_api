@@ -90,10 +90,12 @@ describe('Climate contract (e2e)', () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { AppModule } = require('../src/app.module') as typeof import('../src/app.module');
     // Exercise the REAL trusted-client throttle exemption (identical rationale to province.e2e):
-    // the suite fires a per-province loop of HTTP calls from one client in a short window;
-    // rather than stub ThrottlerStorage, every request presents the internal token exactly as
-    // the web SSG build will, so the PRODUCTION guard path keeps the loop free of 429s.
-    // Production posture untouched (global 120/min stands for anonymous clients).
+    // the suite fires a per-province loop of HTTP calls from one client; every request presents
+    // the internal token exactly as the web SSG build will, so the PRODUCTION guard path is what
+    // CI covers rather than a fake ThrottlerStorage. Even this suite's per-province volume stays
+    // under the 120/min window, so the exemption is NOT what keeps it 429-free today (it would
+    // pass on volume alone) — the value is fidelity to the real allow path. Production posture
+    // untouched (global 120/min stands for anonymous clients).
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
     app = moduleRef.createNestApplication();
     applyGlobalPrefix(app);

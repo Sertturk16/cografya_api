@@ -18,7 +18,8 @@ import { ProvinceModule } from './province/province.module';
  * Atlas first). `/health` is exempt (see HealthController @SkipThrottle).
  *
  * The limit deliberately stays at 120 for anonymous callers. The one legitimate
- * high-volume client — the web SSG build (~163 req/min at TR+EN, over the limit) —
+ * high-volume client — the web SSG build, whose full-site fetch burst (81 provinces
+ * × 2 locales of pages, plus per-page data calls) exceeds this window during a build —
  * is instead distinguished as a TRUSTED first-party caller and exempted by
  * TrustedClientThrottlerGuard (a shared secret in the `x-internal-request-token`
  * header). Distinguishing the trusted build beats raising the global number, which
