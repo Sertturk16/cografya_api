@@ -22,10 +22,54 @@
  * plain prose; a `**Mekanizma` paragraph STOPS the section; any other `**`-led paragraph is SKIPPED.
  */
 
-/** Draft-heading name (exact, incl. Turkish diacritics) -> canonical plate code. */
+/**
+ * One province of a wave: the `## N. <name>` heading spelling used in the draft, paired with the
+ * İçişleri plate code the seed row is keyed on.
+ *
+ * The pairing is the ONE link in this pipeline that no other gate can derive — a wrong `plate`
+ * seeds one province's prose onto another province's page while `emit`, `check` and the e2e
+ * plate-membership assertions all stay green, because every one of them is defined in terms of
+ * this same table. `assertTargetsMatchSeed` (runner) therefore cross-checks each `name` against
+ * the seed row's own `nameTr` under `foldProvinceName`.
+ *
+ * `name` is the DRAFT spelling, which is not always the seed spelling: wave N1's draft heading is
+ * `Hakkâri` while the seed's `nameTr` is `Hakkari`. That is exactly why the cross-check folds
+ * diacritics instead of comparing raw strings.
+ */
 export interface WaveTarget {
   readonly name: string;
   readonly plate: string;
+}
+
+/**
+ * Fold a province name to a comparison key: strip diacritics (NFD, drop combining marks) and
+ * case. Used ONLY to compare two spellings of the same province — never to display or to key
+ * anything. Both sides of every comparison run through this same function, so the fold does not
+ * have to be linguistically principled, only consistent (`Hakkâri` and `Hakkari` must meet; no
+ * two distinct Turkish province names differ by diacritics alone, so the fold cannot merge two
+ * real provinces).
+ */
+export function foldProvinceName(name: string): string {
+  return name.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim();
+}
+
+/** `## <n>. <name>` optionally followed by a parenthetical (the Köppen code in the wave drafts). */
+const SECTION_HEADING_RE = /^##\s+\d+\.\s+(?<name>.+?)\s*(?:\(.*\))?\s*$/u;
+
+/**
+ * Every `## N. <name>` heading in a draft, in document order.
+ *
+ * Wave drafts number their editorial sections too (`## 5. Paylaşılan varlık …`, `## 6. Register
+ * …`), so a heading is NOT a province section by virtue of being numbered — the caller decides
+ * what is a province by matching against the seed's own name list.
+ */
+export function collectSectionHeadings(markdown: string): string[] {
+  const names: string[] = [];
+  for (const line of markdown.replace(/\r\n?/gu, '\n').split('\n')) {
+    const name = SECTION_HEADING_RE.exec(line)?.groups?.['name'];
+    if (name !== undefined) names.push(name);
+  }
+  return names;
 }
 
 /** Wave N1 — 5 calibration pilots + 4 new provinces (PR #69). */
@@ -77,10 +121,9 @@ export function extractBody(markdown: string, targetName: string): ExtractResult
   const lines = markdown.replace(/\r\n?/gu, '\n').split('\n');
 
   // Locate the section heading: `## <n>. <name>` optionally followed by ` (Köppen)`.
-  const headingRe = /^##\s+\d+\.\s+(?<name>.+?)\s*(?:\(.*\))?\s*$/u;
   let start = -1;
   for (let i = 0; i < lines.length; i += 1) {
-    const m = headingRe.exec(lines[i] ?? '');
+    const m = SECTION_HEADING_RE.exec(lines[i] ?? '');
     if (m?.groups?.['name'] === targetName) {
       start = i + 1;
       break;

@@ -22,10 +22,13 @@
  * closing summary.
  *
  * Since wave N2 this file is a THIN ENTRY POINT: the pure paragraph classification lives in
- * `oneoff-province-climate-extract.ts` (unit-tested) and the IO/AST/diff shell in
- * `oneoff-province-climate-runner.ts`. Behaviour, output and exit codes are unchanged — the
- * command below still prints `checked 9 province(s): …` and still exits 0 only when all nine
- * committed bodies are byte-identical to the drafts.
+ * `oneoff-province-climate-extract.ts` and the IO/AST/diff shell in
+ * `oneoff-province-climate-runner.ts` — both unit-tested in the `Test (unit)` job. Behaviour,
+ * output and exit codes are unchanged — the command below still prints
+ * `checked 9 province(s): …` and still exits 0 only when all nine committed bodies are
+ * byte-identical to the drafts. The PR-#70 filter round added three bookkeeping guards
+ * (target plate vs. seed name, stray draft province, target with no draft body); they are silent
+ * on correct data, so this wave's stdout/stderr/exit were re-verified byte-identical after them.
  *
  * USAGE (reviewer-reproducible — pass the two authoritative draft paths):
  *   node tools/seed-transcription/oneoff-n1-province-climate.ts emit  <pilot.md> <n1.md>

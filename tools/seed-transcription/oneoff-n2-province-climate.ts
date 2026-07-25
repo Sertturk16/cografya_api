@@ -19,8 +19,10 @@
  *         the same exit-code contract as `seed:transcribe check`.
  *
  * The draft lives OUTSIDE the repo (`Owner's Inbox/`), so the path is a CLI argument and this
- * one-off is wired into NO CI job (it is covered by `typecheck` only). The content-fidelity
- * reviewer replays the command above by hand — deliberate, unchanged from N1.
+ * ENTRY POINT is wired into NO CI job (it is covered by `typecheck` only). The logic it drives is
+ * not: both `oneoff-province-climate-extract.ts` and `oneoff-province-climate-runner.ts` carry
+ * unit specs in the `Test (unit)` job. The content-fidelity reviewer still replays the command
+ * above by hand against the real draft — deliberate, unchanged from N1.
  *
  * BODY-BOUNDARY RULE (Atlas-confirmed 2026-07-20, unchanged for N2): the seeded body is the
  * NARRATIVE PARAGRAPHS ONLY of each `## N. <Province>` section. Excluded: the `**Veri:**` block,
