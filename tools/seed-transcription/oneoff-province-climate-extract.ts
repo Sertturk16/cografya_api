@@ -1,10 +1,19 @@
 /**
- * PURE extraction logic for the wave-N1 province `climateNarrativeTr` one-off.
+ * PURE extraction logic for the province `climateNarrativeTr` wave one-offs (N1, N2, …).
  *
  * This module is deliberately IO-free and `import.meta`-free so it can be unit-tested under
  * ts-jest (CommonJS) — the same pure-vs-shell split the main pipeline uses (`draft-parser.ts`
- * is pure and tested; `cli.ts` holds the IO and `import.meta`). The CLI shell that reads files,
- * folds the committed seed AST and drives `emit`/`check` lives in `oneoff-n1-province-climate.ts`.
+ * is pure and tested; `cli.ts` holds the IO and `import.meta`). The CLI shells that read files,
+ * fold the committed seed AST and drive `emit`/`check` live in `oneoff-n<wave>-province-climate.ts`
+ * (they share `oneoff-province-climate-runner.ts`).
+ *
+ * WAVE-NEUTRAL BY EXTRACTION, NOT BY GENERALIZATION. It was first authored for wave N1 (PR #69,
+ * as `oneoff-n1-extract.ts`) and is reused verbatim by N2: only the TARGET LIST is wave-specific,
+ * so the list is passed in as data and every wave shares ONE tested extractor. Copying this file
+ * per wave would fork the join rule and the paragraph classification — the byte-fidelity logic —
+ * into parallel copies that can silently drift, which is the opposite of what the fidelity gate
+ * is for. This is still NOT a generalization of the country `seed:transcribe` pipeline (that
+ * remains country-only by construction; see `oneoff-n1-province-climate.ts`).
  *
  * BODY-BOUNDARY RULE (Atlas-confirmed 2026-07-20): the seeded body is the NARRATIVE PARAGRAPHS
  * ONLY of each `## N. <Province>` section. Excluded: the `**Veri:**` block, the
@@ -14,7 +23,13 @@
  */
 
 /** Draft-heading name (exact, incl. Turkish diacritics) -> canonical plate code. */
-export const TARGETS: readonly { readonly name: string; readonly plate: string }[] = [
+export interface WaveTarget {
+  readonly name: string;
+  readonly plate: string;
+}
+
+/** Wave N1 — 5 calibration pilots + 4 new provinces (PR #69). */
+export const N1_TARGETS: readonly WaveTarget[] = [
   { name: 'Antalya', plate: '07' },
   { name: 'Rize', plate: '53' },
   { name: 'Konya', plate: '42' },
@@ -24,6 +39,24 @@ export const TARGETS: readonly { readonly name: string; readonly plate: string }
   { name: 'Kütahya', plate: '43' },
   { name: 'Hakkâri', plate: '30' },
   { name: 'Ağrı', plate: '04' },
+];
+
+/**
+ * Wave N2 — 10 provinces (Şırnak mandated + the 9 population-weighted candidates NOVA kept).
+ * The `name` is the DRAFT HEADING spelling and the `plate` is the İçişleri plate code the seed
+ * is keyed on; the two are written out together so the mapping is auditable rather than implied.
+ */
+export const N2_TARGETS: readonly WaveTarget[] = [
+  { name: 'Şırnak', plate: '73' },
+  { name: 'Ankara', plate: '06' },
+  { name: 'İzmir', plate: '35' },
+  { name: 'Bursa', plate: '16' },
+  { name: 'Adana', plate: '01' },
+  { name: 'Gaziantep', plate: '27' },
+  { name: 'Mersin', plate: '33' },
+  { name: 'Kocaeli', plate: '41' },
+  { name: 'Şanlıurfa', plate: '63' },
+  { name: 'Eskişehir', plate: '26' },
 ];
 
 /**
@@ -114,9 +147,12 @@ export function extractBody(markdown: string, targetName: string): ExtractResult
  * taking the first match could seed the wrong (e.g. superseded) body while `check` still exited
  * green against whichever draft won.
  */
-export function collectFromContents(drafts: readonly string[]): Map<string, ExtractResult> {
+export function collectFromContents(
+  drafts: readonly string[],
+  targets: readonly WaveTarget[],
+): Map<string, ExtractResult> {
   const found = new Map<string, ExtractResult>();
-  for (const target of TARGETS) {
+  for (const target of targets) {
     const matches = drafts
       .map((markdown) => extractBody(markdown, target.name))
       .filter((body): body is ExtractResult => body !== null);

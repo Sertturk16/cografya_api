@@ -158,11 +158,11 @@ describe('Province (e2e)', () => {
     ]);
   });
 
-  // The N1 climate-narrative wave: 5 calibration pilots + 4 new provinces, identified by
-  // PLATE CODE as wave MEMBERSHIP — never by prose content (CONVENTIONS §2 bars literal-text
-  // assertions in tests; byte-for-byte fidelity of the prose is gated separately by the
-  // seed-transcription roundtrip, `oneoff-n1-province-climate.ts check`).
-  const N1_CLIMATE_NARRATIVE_PLATES = new Set([
+  // The climate-narrative waves, identified by PLATE CODE as wave MEMBERSHIP — never by prose
+  // content (CONVENTIONS §2 bars literal-text assertions in tests; byte-for-byte fidelity of the
+  // prose is gated separately by the seed-transcription roundtrip,
+  // `oneoff-n<wave>-province-climate.ts check`).
+  const N1_CLIMATE_NARRATIVE_PLATES = [
     '07', // Antalya (pilot)
     '53', // Rize (pilot)
     '42', // Konya (pilot)
@@ -172,14 +172,38 @@ describe('Province (e2e)', () => {
     '43', // Kütahya (new)
     '30', // Hakkari (new)
     '04', // Ağrı (new)
+  ];
+  const N2_CLIMATE_NARRATIVE_PLATES = [
+    '73', // Şırnak
+    '06', // Ankara
+    '35', // İzmir
+    '16', // Bursa
+    '01', // Adana
+    '27', // Gaziantep
+    '33', // Mersin
+    '41', // Kocaeli
+    '63', // Şanlıurfa
+    '26', // Eskişehir
+  ];
+  const CLIMATE_NARRATIVE_PLATES = new Set([
+    ...N1_CLIMATE_NARRATIVE_PLATES,
+    ...N2_CLIMATE_NARRATIVE_PLATES,
   ]);
 
-  it('serves climateNarrativeTr for exactly the 9 N1 provinces, null elsewhere; climateNormals still empty', async () => {
+  it('the two authored waves are disjoint (a later wave never silently re-seeds an earlier one)', () => {
+    // Guards the wave bookkeeping itself: with an overlap the Set would collapse and the count
+    // guard below would still pass while one province was authored twice.
+    expect(CLIMATE_NARRATIVE_PLATES.size).toBe(
+      N1_CLIMATE_NARRATIVE_PLATES.length + N2_CLIMATE_NARRATIVE_PLATES.length,
+    );
+  });
+
+  it('serves climateNarrativeTr for exactly the 19 authored provinces, null elsewhere; climateNormals still empty', async () => {
     // Structural, not textual:
     //   1. the migration + entity mapping work end-to-end against real Postgres (a jsonb
     //      column the entity mis-maps would fail to select here), and
-    //   2. climate NARRATIVE prose is populated for EXACTLY the 9 N1 provinces and null for
-    //      the other 72 — asserted by plate-code membership + a count guard, so a miswired
+    //   2. climate NARRATIVE prose is populated for EXACTLY the 9 N1 + 10 N2 provinces and null
+    //      for the other 62 — asserted by plate-code membership + a count guard, so a miswired
     //      seed that drops or adds a province fails loudly. climateNormals stays null: the
     //      offline climate IMPORT (load phase) is not run in this seed-only e2e.
     const repo = dataSource.getRepository(Province);
@@ -188,7 +212,7 @@ describe('Province (e2e)', () => {
     expect(provinces).toHaveLength(81);
     for (const province of provinces) {
       expect(province.climateNormals).toBeNull();
-      if (N1_CLIMATE_NARRATIVE_PLATES.has(province.plateCode)) {
+      if (CLIMATE_NARRATIVE_PLATES.has(province.plateCode)) {
         expect(typeof province.climateNarrativeTr).toBe('string');
         expect((province.climateNarrativeTr ?? '').trim().length).toBeGreaterThan(0);
       } else {
@@ -196,7 +220,7 @@ describe('Province (e2e)', () => {
       }
     }
     const withNarrative = provinces.filter((province) => province.climateNarrativeTr !== null);
-    expect(withNarrative).toHaveLength(N1_CLIMATE_NARRATIVE_PLATES.size);
+    expect(withNarrative).toHaveLength(CLIMATE_NARRATIVE_PLATES.size);
   });
 
   it('phase 1 — seeding the pilot-5 into an empty DB inserts exactly those 5', () => {
