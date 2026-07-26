@@ -642,9 +642,9 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
       'yaşar. Kentin Ege kıyısındaki konumu kışı belirgin ölçüde yumuşatır: ocak ortalaması 8,9 ' +
       'derecedir, başkentten sekiz buçuk derece daha yüksektir.' +
       '\n\n' +
-      "Bu yumuşatmanın bir sınırı var. İlin güneyindeki Bozdağlar'da, Ödemiş yakınlarında 2.159 " +
-      "metreye ulaşan bir zirve yükselir; burada kayak turizmi gelişmiştir, ama MGM'nin kıyıdaki " +
-      '29 metrelik istasyonu bu yüksek kesimin kışını ölçmez.' +
+      'Bu yumuşatmanın bir sınırı var. İlin güneyinde, Ödemiş yakınlarındaki Bozdağlar 2.159 ' +
+      'metreye ulaşır ve bu yükseklikte kayak turizmi gelişmiştir. Kentin resmi iklim profilini ' +
+      'belirleyen ölçüm istasyonu ise 29 metrede, kıyı ovasındadır.' +
       '\n\n' +
       'Yaz kuraklığı da tipik bir Akdeniz düzenidir: temmuzda yağış yalnızca 4,2 milimetreye ' +
       'iner. Kışın ise tam tersi yaşanır; aralık ayı ortalama 145,8 milimetreyle ilin en yağışlı ' +
@@ -1411,7 +1411,7 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
       '\n\n' +
       "Temmuz ortalaması 32,1 derece, Antalya'nınkinden (28,6 derece) belirgin ölçüde yüksektir; " +
       "aynı ay yağış yalnızca 2 milimetreye iner. Rekor sıcaklık, 25 Temmuz 2025'te 46,8 " +
-      'dereceye ulaştı — bu dalgadaki en yüksek rekor.' +
+      'dereceye ulaştı.' +
       '\n\n' +
       "Bu aşırılığın kaynağı, ilin Mezopotamya'ya açılan geniş platosudur. Fırat Nehri batı " +
       "sınırını çizerek Gaziantep'ten ayırır ve Atatürk Barajı'yla bu kurak ovaya su ulaştırır. " +
@@ -1504,9 +1504,9 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
       'başladığı, Hakkâri ise doruğa ulaştığı kesimdir.' +
       '\n\n' +
       'Yaz kuraklığı bu ilde de belirgindir: ağustos ayı ortalama yağışı yalnızca 0,6 ' +
-      'milimetredir, bu dalgadaki on ilin en düşük tek ay değeri. Kışın ise kar zaman zaman ' +
-      'kalıcı bir örtü oluşturur; 2020 Şubatında ölçülen 65 santimetrelik kar derinliği, ' +
-      'doğudaki yüksek kesimlerin kışın ne denli sert geçtiğine işaret eder.',
+      'milimetredir. Kışın ise kar zaman zaman kalıcı bir örtü oluşturur; 2020 Şubatında ölçülen ' +
+      '65 santimetrelik kar derinliği, doğudaki yüksek kesimlerin kışın ne denli sert geçtiğine ' +
+      'işaret eder.',
     // ── Şırnak deep content (wave-5 Tier-B). 6-field set (hydrographyFeatures + settlementNoteTr
     //    DELIBERATELY OMITTED, Tier-B scope). urbanizationRate=68.33 is a REAL rate and the LOWEST
     //    of the nine il (non-büyükşehir — no 6360 note). Habur Sınır Kapısı / Cudi Dağı / Dicle
@@ -1753,10 +1753,9 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
     climateNarrativeTr:
-      "2 Temmuz 1942'de Bursa'da bir günde 200,9 milimetre yağış ölçüldü; bu, bu dalgadaki on " +
-      "ilin en yüksek tek günlük yağış rekorudur. Aynı günün tarihi, komşu Kocaeli'nin kendi " +
-      'rekoruyla (169,4 milimetre) birebir örtüşür — ikisi de aynı fırtına sistemine işaret ' +
-      'eder.' +
+      "2 Temmuz 1942'de Bursa'da bir günde 200,9 milimetre yağış ölçüldü. Aynı günün tarihi, " +
+      "komşu Kocaeli'nin kendi rekoruyla (169,4 milimetre) birebir örtüşür — ikisi de aynı " +
+      'fırtına sistemine işaret eder.' +
       '\n\n' +
       'Bu bol yağışın kaynağı ilin coğrafyasında aranmalı. Uludağ, 2.543 metreyle Marmara ' +
       "Bölgesi'nin en yüksek noktasıdır ve Marmara'dan gelen nemli havayı yamaçlarında " +
@@ -1766,7 +1765,7 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
       'Yaz kuraklığı burada da görülür, ama kıyı kentleri kadar keskin değildir: ağustos ' +
       "ortalaması 17,7 milimetredir, İzmir ya da Adana'nın yaz kuraklığından daha ölçülüdür. " +
       'Kışın da yağışlı gün sayısı belirgin biçimde artar: ocakta ayda ortalama 14,6 gün yağış ' +
-      "düşer; dalgadaki bu ölçütün en yükseği ise komşu Kocaeli'ye (16,69 gün) aittir.",
+      "düşer. Bu, komşu Kocaeli'nin 16,69 gününün biraz altındadır.",
     // ── Bursa deep content (wave-2). Uludağ buzul-jeomorfolojisi + 1855 depremleri (SHEEC
     //    katalog değeri) + tektonik göller (İznik/Uluabat). "Horst" terimi bilinçli KULLANILMADI
     //    (MTA: metamorfik çekirdek karmaşığı). Büyükşehir: urbanizationRate=100 = 6360 artifact.
@@ -2036,11 +2035,10 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateClassTr: CLIMATE_CLASS_CFA_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
     climateNarrativeTr:
-      'Kocaeli, bu dalgadaki tek Cfa ilidir. Diğer sekiz il (Şırnak, Ankara, İzmir, Bursa, ' +
-      "Adana, Gaziantep, Mersin, Şanlıurfa) Csa koduyla anılırken, Kocaeli MGM'nin tablosunda " +
-      '"her mevsim yağışlı" anlamına gelen "f" harfiyle ayrışır. Ağustos ortalama yağışı 42,4 ' +
-      "milimetredir, aynı ayda Bursa'nın (17,7 mm) ya da Adana'nın (9,2 mm) yaşadığı yaz " +
-      'kuraklığından çok uzaktır.' +
+      'Kocaeli, MGM\'nin tablosunda Csa değil Cfa koduyla, "her mevsim yağışlı" anlamına gelen ' +
+      '"f" harfiyle anılır. Diğer sekiz il (Şırnak, Ankara, İzmir, Bursa, Adana, Gaziantep, ' +
+      'Mersin, Şanlıurfa) Csa koduyla anılır. Ağustos ortalama yağışı 42,4 milimetredir, aynı ' +
+      "ayda Bursa'nın (17,7 mm) ya da Adana'nın (9,2 mm) yaşadığı yaz kuraklığından çok uzaktır." +
       '\n\n' +
       "Bu farkın kaynağı İzmit Körfezi'dir. Körfez, kuzeyindeki Kocaeli Yarımadası ile " +
       'güneyindeki Samanlı Dağları arasında uzanan bir çöküntüdür ve ilin neredeyse tamamını ' +
@@ -2972,8 +2970,8 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
     climateNarrativeTr:
-      "9 Ağustos 2025'te Adana'da 46,7 derece ölçüldü. Bu, bu dalgadaki en yüksek ikinci rekor " +
-      "sıcaklıktır; en yüksek rekor, aynı yaz Şanlıurfa'da ölçülen 46,8 derecedir." +
+      "9 Ağustos 2025'te Adana'da 46,7 derece ölçüldü — aynı yaz, 25 Temmuz'da Şanlıurfa'da " +
+      'ölçülen 46,8 derecenin hemen altındadır.' +
       '\n\n' +
       "Adana'nın sıcaklığı, Çukurova ovasının alçak ve denizden içeride kalan konumundan " +
       'kaynaklanır. Kentin kendi ölçüm istasyonu yalnızca 20 metrede, ovanın ortasındadır; komşu ' +
@@ -3340,9 +3338,9 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
       'daha yüksektir.' +
       '\n\n' +
       "Bu küçük fark, Mersin'in asıl karakterini gizler. İl topraklarının yaklaşık %87'si, " +
-      "Akdeniz'e dik inen Batı ve Orta Toroslar'la kaplıdır; en yüksek nokta, Bolkar " +
-      "Dağları'ndaki 3.524 metrelik Medetsiz Tepesi'dir. MGM'nin kıyıdaki istasyonu bu yüksek " +
-      'kesimin iklimini ölçmez, yalnızca dar kıyı şeridini temsil eder.' +
+      "Akdeniz'e dik inen Batı ve Orta Toroslar'la kaplıdır; en yüksek nokta, kuzeyde Niğde'ye " +
+      "uzanan Bolkar Dağları'ndaki 3.524 metrelik Medetsiz Tepesi'dir. MGM'nin kıyıdaki " +
+      'istasyonu bu yüksek kesimin iklimini ölçmez, yalnızca dar kıyı şeridini temsil eder.' +
       '\n\n' +
       "Yaz kuraklığı Toroslar'ın gölgesinde de sürer: ağustos ortalaması yalnızca 7,1 " +
       'milimetredir. Kışın ise kıyı boyunca yağış artar, aralıkta 136,6 milimetreye çıkar; bu ' +
@@ -4863,19 +4861,18 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateClassTr: CLIMATE_CLASS_BSK_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_BSK_TR,
     climateNarrativeTr:
-      "Eskişehir, MGM'nin BSk (soğuk yarı-kurak step) sınıfına giren bu dalgadaki tek ildir; " +
-      "platformda bu sınıfın ilk örneği pilot ili Konya'dır. Ama iki step ili aynı hikâyeyi " +
-      "anlatmaz. Konya'nın suyu kapalı bir havzada birikip buharlaşır; Eskişehir'in ortasından " +
-      'ise gerçek bir akarsu, Porsuk Çayı, geçer.' +
+      "Eskişehir, MGM'nin BSk (soğuk yarı-kurak step) sınıfına girer. Platformda bu sınıfın ilk " +
+      "örneği pilot ili Konya'dır. Ama iki step ili aynı hikâyeyi anlatmaz. Konya'nın suyu " +
+      "kapalı bir havzada birikip buharlaşır; Eskişehir'in ortasından ise gerçek bir akarsu, " +
+      'Porsuk Çayı, geçer.' +
       '\n\n' +
       "Porsuk'un varlığı, Eskişehir'in genel karasal karakterini değiştirmez. Yıllık yağış 355,9 " +
-      "milimetredir, komşu Ankara'nın 392,2 milimetresinden bile düşüktür ve bu dalganın en " +
-      'düşük değeridir. Rekor düşük sıcaklık, 2019 Şubatında ölçülen eksi yirmi sekiz virgül ' +
-      'altı derece, bu dalgadaki en soğuk rekordur.' +
+      "milimetredir, komşu Ankara'nın 392,2 milimetresinden bile düşüktür. Rekor düşük sıcaklık, " +
+      '2019 Şubatında eksi yirmi sekiz virgül altı dereceye inmiştir.' +
       '\n\n' +
-      'Yaz kısa ve ölçülü geçer: temmuz-ağustos ortalaması 22,1 derece, dalganın en düşük yaz ' +
-      'sıcaklıklarından biridir. Porsuk Barajı, kent merkezinin hemen yukarısında, bu kurak ' +
-      'platoda yıl boyunca su tutan nadir bir yüzey kaynağıdır.',
+      'Yaz kısa ve ölçülü geçer: temmuz-ağustos ortalaması 22,1 derecedir. Porsuk Barajı, kent ' +
+      'merkezinin hemen yukarısında, bu kurak platoda yıl boyunca su tutan nadir bir yüzey ' +
+      'kaynağıdır.',
     // ── Eskişehir deep content (wave-6a Tier-B + büyükşehir EXCEPTION → DEC 2026-07-12).
     //    Nüfus 927,956 (<1M → Tier-B depth: shortened landform/hydrography, NO
     //    hydrographyFeatures), BUT büyükşehir since 1993, so urbanizationRate=100 is the 6360
