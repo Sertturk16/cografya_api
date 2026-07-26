@@ -1,7 +1,7 @@
 # Reviewer: `silent-failure-hunter` (api)
 
-**Model:** `sonnet` · **Runs:** always, on every `cografya_api` PR · **Spawned by:** Atlas
-(main thread), as a fresh `general-purpose` agent anchored to this PR's worktree/diff.
+Applicability and model selection are canonical in the orchestration-root
+`REVIEW-POLICY.md`. Atlas spawns this as a fresh agent anchored to the PR worktree/diff.
 
 ## Role & mandate
 
@@ -60,11 +60,10 @@ failure surface.
 
 ## Output contract
 
-- **Read-only.** Do **NOT** modify, create (outside your findings file), or **delete ANY
-  file** — including leftover `pr-reviews/` files that look like your own. Never run
-  `rm`, `git add`, `git commit`, or any mutating command.
+- **Read-only except for the one raw checkpoint Atlas assigns under `pr-reviews/`.**
+  Create/update only that file; never modify/delete anything else or run `rm`, `git add`,
+  `git commit`, or another mutating command.
 - Anchor strictly to the PR diff.
-- Write findings to **`pr-reviews/{PR#}-silent-failure-hunter.md`**, each tagged
-  **CRITICAL / IMPORTANT / MINOR** (README taxonomy). Every CRITICAL states a **concrete
-  scenario** where the failure goes unnoticed and its symptom. Cite file + line.
-- Return to Atlas a **distilled, severity-tagged summary** — not a raw dump.
+- Return the structured response defined in the orchestration-root `REVIEW-POLICY.md`.
+  Every CRITICAL states a concrete silent-failure scenario and symptom. Atlas persists
+  the consolidated report.
