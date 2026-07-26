@@ -4861,10 +4861,10 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateClassTr: CLIMATE_CLASS_BSK_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_BSK_TR,
     climateNarrativeTr:
-      "Eskişehir, MGM'nin BSk (soğuk yarı-kurak step) sınıfına girer. Platformda bu sınıfın ilk " +
-      "örneği pilot ili Konya'dır. Ama iki step ili aynı hikâyeyi anlatmaz. Konya'nın suyu " +
-      "kapalı bir havzada birikip buharlaşır; Eskişehir'in ortasından ise gerçek bir akarsu, " +
-      'Porsuk Çayı, geçer.' +
+      "Eskişehir, MGM'nin BSk (soğuk yarı-kurak step) sınıfına girer. Türkiye'de bu sınıfın bir " +
+      "diğer örneği Konya'dır. Ama iki step ili aynı hikâyeyi anlatmaz. Konya'nın suyu kapalı " +
+      "bir havzada birikip buharlaşır; Eskişehir'in ortasından ise gerçek bir akarsu, Porsuk " +
+      'Çayı, geçer.' +
       '\n\n' +
       "Porsuk'un varlığı, Eskişehir'in genel karasal karakterini değiştirmez. Yıllık yağış 355,9 " +
       "milimetredir, komşu Ankara'nın 392,2 milimetresinden bile düşüktür. Rekor düşük sıcaklık, " +
