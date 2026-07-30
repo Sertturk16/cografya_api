@@ -2,6 +2,26 @@
 
 Deterministic transcription of fact-checked narrative drafts into the country seed files.
 
+> **This CLI is the COUNTRY lane. Provinces have a separate one.**
+> `pnpm seed:transcribe` resolves rows by `isoCode` and only ever reads
+> `src/database/seeds/country.seed-data.ts`. Province narrative waves are keyed on
+> `plateCode` and are driven by a per-wave one-off entry point run directly with `node`:
+>
+> ```bash
+> node tools/seed-transcription/oneoff-n<wave>-province-climate.ts emit  "<draft.md>"
+> node tools/seed-transcription/oneoff-n<wave>-province-climate.ts check "<draft.md>"
+> ```
+>
+> N1 and N2 (`oneoff-n1-province-climate.ts`, `oneoff-n2-province-climate.ts`) are the
+> shipped precedent; they share `oneoff-province-climate-runner.ts` (file IO, AST fold,
+> `emit`/`check` drivers) and `oneoff-province-climate-extract.ts` (pure classification), so
+> the byte-fidelity gate has one implementation across waves. Both lanes reuse `emitConcat`
+> and honour the same exit-code contract.
+>
+> **Running the country CLI over a province wave reports a false green** — it never reads
+> `province.seed-data.ts`, so it finds nothing to disagree with. Pick the lane that owns the
+> seed file the PR touches.
+
 ## Why
 
 PR #43 shipped a real content bug. A fact-checked draft was transcribed **by hand** into

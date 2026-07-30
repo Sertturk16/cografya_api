@@ -230,6 +230,95 @@ describe('assertClimateNormalsShape', () => {
 
     expect(() => assertClimateNormalsShape('33', corrupted)).toThrow(/not ascending/);
   });
+
+  /**
+   * The artifact is hand-editable between the two phases, and the served payload is built as
+   * `{ ...normals, derived }` — so a key added here is a key SERVED, outside every DTO and
+   * outside `openapi.json`. Nothing downstream can catch it: the DTOs only `implements` the
+   * interfaces and the response is a plain object, so there is no serializer whitelist in the
+   * path. The load assertion is the boundary that can still refuse it.
+   */
+  describe('unknown/missing keys', () => {
+    it('REFUSES a key hand-added to the series root — it would reach the public payload', () => {
+      const corrupted = clone(parseFixture().normals) as unknown as Record<string, unknown>;
+      corrupted.internalNote = 'not part of the contract';
+
+      expect(() => assertClimateNormalsShape('33', corrupted as unknown as ClimateNormals)).toThrow(
+        /unknown key\(s\) "internalNote"/,
+      );
+    });
+
+    it('REFUSES a key hand-added to a single month — nested keys ride the same spread', () => {
+      const corrupted = clone(parseFixture().normals);
+      const month = corrupted.months[0] as unknown as Record<string, unknown>;
+      month.humidityPct = 61;
+
+      expect(() => assertClimateNormalsShape('33', corrupted)).toThrow(
+        /months\[0\] carries unknown key\(s\) "humidityPct"/,
+      );
+    });
+
+    it('REFUSES a key hand-added to `records` and to a single record object', () => {
+      const withExtraRecords = clone(parseFixture().normals);
+      (withExtraRecords.records as unknown as Record<string, unknown>).hottestDayC = 41.5;
+      expect(() => assertClimateNormalsShape('33', withExtraRecords)).toThrow(
+        /"records" carries unknown key\(s\) "hottestDayC"/,
+      );
+
+      const withExtraRecordField = clone(parseFixture().normals);
+      const record = Object.values(withExtraRecordField.records).find((value) => value !== null);
+      expect(record).toBeDefined();
+      (record as unknown as Record<string, unknown>).station = 'ICEL';
+      expect(() => assertClimateNormalsShape('33', withExtraRecordField)).toThrow(
+        /carries unknown key\(s\) "station"/,
+      );
+    });
+
+    it('REFUSES a DELETED key — the contract promises a value or an explicit null', () => {
+      const corrupted = clone(parseFixture().normals);
+      const month = corrupted.months[0] as unknown as Record<string, unknown>;
+      delete month.sunshineHours;
+
+      expect(() => assertClimateNormalsShape('33', corrupted)).toThrow(
+        /months\[0\] is missing key\(s\) "sunshineHours"/,
+      );
+    });
+
+    it('REFUSES a DELETED key at the other three levels too, and names the level', () => {
+      // Symmetry with the unknown-key direction above, which is exercised at all four levels.
+      // The `missing` half is one shared branch, but the EXPECTED list is passed per call site,
+      // so a call site wired to the wrong array — or dropped entirely — only shows up level by
+      // level. `sourceUrl` is chosen deliberately at the root: a later check would also reject
+      // its absence, with `not an MGM URL`, so this pins that the key set is verified FIRST and
+      // the operator is told which key is gone rather than which rule tripped over it.
+      const withoutSourceUrl = clone(parseFixture().normals) as unknown as Record<string, unknown>;
+      delete withoutSourceUrl.sourceUrl;
+      expect(() =>
+        assertClimateNormalsShape('33', withoutSourceUrl as unknown as ClimateNormals),
+      ).toThrow(/the series is missing key\(s\) "sourceUrl"/);
+
+      const withoutRecordColumn = clone(parseFixture().normals);
+      delete (withoutRecordColumn.records as unknown as Record<string, unknown>).maxSnowDepthCm;
+      expect(() => assertClimateNormalsShape('33', withoutRecordColumn)).toThrow(
+        /"records" is missing key\(s\) "maxSnowDepthCm"/,
+      );
+
+      const withoutRecordDate = clone(parseFixture().normals);
+      expect(withoutRecordDate.records.dailyMaxPrecipitationMm).not.toBeNull();
+      delete (
+        withoutRecordDate.records.dailyMaxPrecipitationMm as unknown as Record<string, unknown>
+      ).date;
+      expect(() => assertClimateNormalsShape('33', withoutRecordDate)).toThrow(
+        /records\.dailyMaxPrecipitationMm is missing key\(s\) "date"/,
+      );
+    });
+
+    it('accepts the parsed series unchanged — the rule matches what the parser produces', () => {
+      // The guard is only useful if the honest path satisfies it; a check the real data cannot
+      // pass would just be deleted by the next engineer.
+      expect(() => assertClimateNormalsShape('33', parseFixture().normals)).not.toThrow();
+    });
+  });
 });
 
 describe('assertArtifactsCorroborate', () => {

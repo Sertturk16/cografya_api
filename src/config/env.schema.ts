@@ -56,9 +56,35 @@ export const envSchema = z
     // with no secret. When set it MUST be >= 32 chars (a weak bypass secret is worse than
     // none). It is a SECRET — never log it, never echo it in the OpenAPI spec; only the
     // web build's SERVER-SIDE fetches may hold it (it must never reach the browser).
+    //
+    // The character class MIRRORS `cografya_web`'s `lib/env.server.ts` byte for byte, and it is a
+    // WIRE-CONTRACT constraint rather than cosmetics. The two stores must hold the SAME string,
+    // and this value travels as an HTTP header value: visible ASCII (0x21-0x7E) is exactly the
+    // set that survives that trip unchanged. Both excluded classes fail in a way no log explains:
+    //   · whitespace — Node's HTTP parser TRIMS a leading/trailing space or newline off an
+    //     incoming header value, so a byte-identical secret in both stores still hashes to
+    //     something different here and the caller gets permanent 429s while our boot log says
+    //     "exemption: active" (the one diagnostic that would exonerate the token). An INTERNAL
+    //     newline never even reaches this schema: dotenv truncates an unquoted multiline value to
+    //     its first line, and that truncated half is what we would then compare against — which
+    //     is why the `.env.example` minting line forbids a wrapped `openssl rand -base64 64`.
+    //   · control/non-ASCII — NUL, 0x7F, `ş`, an emoji: all NON-whitespace, so a `\S`-only check
+    //     admits them, yet the web side's `Headers` rejects every one of them. Accepting such a
+    //     value here configures an exemption that NO valid client can ever satisfy, and the
+    //     failure looks identical to a wrong token.
+    // Keep this rule and the web's in lockstep — but know what enforces that. `env.schema.spec.ts`
+    // pins THIS side, so a loosening here fails our CI; nothing in either repo can observe the
+    // other's rule, so the PAIRING itself is convention-enforced only. Changing either side is a
+    // cross-repo change: land the matching one, or the two stores can hold a value one repo boots
+    // with and the other refuses.
     INTERNAL_REQUEST_TOKEN: z
       .string()
       .min(32, 'INTERNAL_REQUEST_TOKEN must be at least 32 characters when set')
+      .regex(
+        /^[\x21-\x7E]+$/,
+        'INTERNAL_REQUEST_TOKEN must contain only visible ASCII characters (no whitespace, no ' +
+          'control or non-ASCII characters) when set',
+      )
       .optional(),
 
     // ── Cache infrastructure ────────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 import type { DataSource } from 'typeorm';
 import { Country } from '../../country/entities/country.entity';
 import { SEED_COUNTRIES, type CountrySeed } from './country.seed-data';
+import { assertNoTurkiyeCountryRow } from './turkiye-exclusion';
 
 /** Outcome of a world seed run (for logging + idempotency assertions). */
 export interface SeedWorldResult {
@@ -115,6 +116,12 @@ export async function seedWorld(
   dataSource: DataSource,
   countries: readonly CountrySeed[] = SEED_COUNTRIES,
 ): Promise<SeedWorldResult> {
+  // BEFORE the transaction opens, and before a single row is touched: Türkiye is the site's own
+  // /turkiye hub, never a country row (product ruling, PR #23 M5 — see `turkiye-exclusion.ts` for
+  // why a comment would not be enough). Checking here rather than per row inside the loop means a
+  // batch containing it is refused whole, with nothing written and nothing to roll back.
+  assertNoTurkiyeCountryRow(countries);
+
   let inserted = 0;
   let updated = 0;
   let unchanged = 0;

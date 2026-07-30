@@ -26,9 +26,15 @@ import { ProvinceModule } from './province/province.module';
  * TrustedClientThrottlerGuard (a shared secret in the `x-internal-request-token`
  * header). Distinguishing the trusted build beats raising the global number, which
  * would weaken every client's protection and be a treadmill as content grows.
+ *
+ * EXPORTED so `test/throttle.e2e-spec.ts` can pin the BEHAVIOUR without restating the
+ * numbers: a test that hardcoded `120` would silently stop testing the real window the
+ * day someone tuned it, and re-typing a fact into an assertion is exactly what
+ * `CONVENTIONS.md` §2's structural-test rule forbids. Nothing in `src/` reads them from
+ * outside this module.
  */
-const THROTTLE_TTL_MS = 60_000;
-const THROTTLE_LIMIT = 120;
+export const THROTTLE_TTL_MS = 60_000;
+export const THROTTLE_LIMIT = 120;
 
 @Module({
   imports: [

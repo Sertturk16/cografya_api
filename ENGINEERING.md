@@ -225,13 +225,36 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   specs are type-checked but never emitted to `dist/`.
 - **e2e tests use a real Postgres via Testcontainers**, not mocks. Every authz-bearing
   route asserts the forbidden and unauthenticated paths, not only the happy path.
-- **Narrative-content seed PRs are transcribed by tool, never by hand.** Use
-  `pnpm seed:transcribe apply <draft.md>` to write fact-checked prose into the seed, and
-  `pnpm seed:transcribe check <draft.md>` to verify. This is the tool-run form of the
-  byte-for-byte roundtrip check `CONVENTIONS.md` §2 requires (tool since PR #62; the
-  reviewing code-reviewer still re-runs the check independently). Hand-typing
-  prose into the `+`-concatenation idiom is what caused PR #43's dropped spaces — don't.
-  See `tools/seed-transcription/README.md` for the join rule and the design rationale.
+- **Narrative-content seed PRs are transcribed by tool, never by hand.** Hand-typing prose
+  into the `+`-concatenation idiom is what caused PR #43's dropped spaces — don't. There are
+  **TWO transcription lanes, and they are not interchangeable**; using the wrong one reports a
+  false green, because each lane can only see the seed file it knows about.
+  - **Countries — `pnpm seed:transcribe`.** `apply <draft.md>` writes fact-checked prose into
+    `country.seed-data.ts`, `check <draft.md>` verifies it. Country-only **by construction**:
+    the pipeline keys rows on `isoCode`. See `tools/seed-transcription/README.md` for the join
+    rule and the design rationale.
+  - **Provinces — a per-wave ONE-OFF script, not a `package.json` command.** Provinces are
+    keyed on `plateCode`, so they are driven by their own wave entry point run directly with
+    `node`:
+
+    ```
+    node tools/seed-transcription/oneoff-n<wave>-province-climate.ts emit  "<draft.md>"
+    node tools/seed-transcription/oneoff-n<wave>-province-climate.ts check "<draft.md>"
+    ```
+
+    N1 (PR #69) and N2 (PR #70) are the shipped precedent. Each wave entry point holds only its
+    target list and usage banner; the shared shell (`oneoff-province-climate-runner.ts`) and the
+    pure extraction logic (`oneoff-province-climate-extract.ts`) are common and unit-tested, so
+    the `check` gate cannot weaken in one wave without failing in all of them. Adding a wave =
+    a new target list + a new entry point, deliberately NOT a generalisation of the country
+    pipeline (Atlas ruling 2026-07-25).
+  - **Both lanes share ONE exit-code contract** (below) and both reuse the property-tested
+    lossless emitter, which is the part that actually kills the PR #43 bug class. Neither
+    entry point is wired into a CI job — the drafts live outside the repo, under
+    `Owner's Inbox/` — so the reviewing code-reviewer still runs the matching command by hand.
+    **Run the lane that owns the seed file the PR touches:** a province wave verified with
+    `pnpm seed:transcribe` reports nothing wrong because that pipeline never reads
+    `province.seed-data.ts` (this happened in a PR #70 review).
 - **The content-fidelity gate is per-wave, and it is `exit 0`.** Run `check` over **the
   draft(s) that PR touches** — not the whole corpus — and it must exit 0, which means
   `0 drifted` **and** `0 not yet seeded`. Do not read the printed counts and judge by eye;
