@@ -248,6 +248,48 @@ describe('Country (e2e)', () => {
     expect(await repo.count()).toBe(3);
   });
 
+  it('REFUSES to seed Türkiye as a country row, and writes NOTHING when it does', async () => {
+    // Product ruling (PR #23 M5): Türkiye is the site's own `/turkiye` provinces hub, so a TR
+    // country row would statically generate a duplicate `/dunya/turkiye` page. Nothing in the
+    // pipeline objects to such a row on its own — it inserts cleanly and serves a valid payload —
+    // which is why the rule lives in `seedWorld` as a guard.
+    //
+    // The unit spec pins the guard's own logic and the committed corpus without a database. What
+    // only a real Postgres can prove is what this asserts: the refusal happens on the WRITE path
+    // and the batch is rejected WHOLE — no partial seed, no orphan row, no count change.
+    const repo = dataSource.getRepository(Country);
+    const before = await repo.count();
+
+    const turkiyeRow: CountrySeed = {
+      isoCode: 'TR',
+      nameTr: 'Türkiye',
+      nameEn: 'Türkiye',
+      slugTr: 'turkiye',
+      slugEn: 'turkiye',
+      continent: Continent.Asia,
+      neighborIsoCodes: [],
+    };
+    // A valid NEW row ahead of it (XA — a private-use code absent from the fixtures): had the
+    // guard been per-row inside the transaction, this one would have been written before the
+    // throw. It must not be.
+    const goodRow: CountrySeed = {
+      isoCode: 'XA',
+      nameTr: 'Test Ülkesi XA',
+      nameEn: 'Test Country XA',
+      slugTr: 'test-ulkesi-xa',
+      slugEn: 'test-country-xa',
+      continent: Continent.Africa,
+      neighborIsoCodes: [],
+    };
+    await expect(seedWorld(dataSource, [goodRow, turkiyeRow])).rejects.toThrow(/identifies as/);
+
+    expect(await repo.count()).toBe(before);
+    expect(await repo.findOneBy({ isoCode: 'TR' })).toBeNull();
+    expect(await repo.findOneBy({ isoCode: 'XA' })).toBeNull();
+    // …and the slug that would have become `/dunya/turkiye` resolves to nothing.
+    await request(app.getHttpServer()).get('/api/countries/turkiye').expect(404);
+  });
+
   it('GET /api/countries returns all rows, ISO-ordered, lean (no detail leak)', async () => {
     const res = await request(app.getHttpServer()).get('/api/countries').expect(200);
     const body = res.body as Array<Record<string, unknown>>;

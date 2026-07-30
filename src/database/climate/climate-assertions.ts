@@ -1,7 +1,10 @@
 import {
   CLIMATE_MONTH_COUNT,
   CLIMATE_SOURCE_MGM_GENERAL,
+  type ClimateExtremeRecord,
+  type ClimateMonthlyNormal,
   type ClimateNormals,
+  type ClimateRecords,
 } from '../../province/province.types';
 import type { ClimateManifestArtifact, ClimateNormalsArtifact } from './climate-artifact.types';
 import {
@@ -574,12 +577,136 @@ export function findUnpublishableReason(normals: ClimateNormals): string | null 
   return missing.length > 0 ? `core pair incomplete: ${missing.join(', ')}` : null;
 }
 
+/* ------------------------------------------------------------------ *
+ * 1b. The key set is EXACT — the artifact cannot widen the public contract
+ * ------------------------------------------------------------------ */
+
+/**
+ * The key sets of every object inside a stored series, mirroring `province.types.ts`.
+ *
+ * Kept as literal arrays rather than derived from the interfaces because TypeScript types do not
+ * exist at runtime and this check must run against JSON that came off disk. The `satisfies` on
+ * each entry is what keeps them honest: rename or drop a field in `province.types.ts` and this
+ * file stops compiling, which is the same "the interface is the one definition" discipline
+ * `province.types.ts` documents for the entity and the DTO.
+ */
+const CLIMATE_NORMALS_KEYS = [
+  'source',
+  'sourceUrl',
+  'periodStartYear',
+  'periodEndYear',
+  'months',
+  'records',
+] as const satisfies readonly (keyof ClimateNormals)[];
+
+const CLIMATE_MONTHLY_KEYS = [
+  'month',
+  'tempMeanC',
+  'tempMaxMeanC',
+  'tempMinMeanC',
+  'precipitationMm',
+  'sunshineHours',
+  'rainyDays',
+  'tempRecordMaxC',
+  'tempRecordMaxDate',
+  'tempRecordMinC',
+  'tempRecordMinDate',
+] as const satisfies readonly (keyof ClimateMonthlyNormal)[];
+
+const CLIMATE_RECORDS_KEYS = [
+  'dailyMaxPrecipitationMm',
+  'fastestWindMs',
+  'maxSnowDepthCm',
+] as const satisfies readonly (keyof ClimateRecords)[];
+
+const CLIMATE_EXTREME_RECORD_KEYS = [
+  'value',
+  'date',
+] as const satisfies readonly (keyof ClimateExtremeRecord)[];
+
+/**
+ * Require an object's key set to be EXACTLY the declared one — no extras, none missing.
+ *
+ * **The extras half is the load-bearing one, and it is a PUBLIC-CONTRACT defence.** The served
+ * climate payload is built as `{ ...normals, derived }` (`province.service.ts`), so this object's
+ * keys are spread verbatim onto a public endpoint. A key hand-added to `climate-normals.json`
+ * between the two import phases therefore travels: artifact → `jsonb` column → response body →
+ * a live SEO page, without appearing in any DTO, in `openapi.json`, or in the web repo's
+ * generated types. Nothing downstream can stop it: the DTOs are `implements`-only mirrors, and
+ * the response is a plain object, so no serializer whitelist is in the path. The `whitelist`
+ * `ValidationPipe` guards INBOUND request bodies, not outbound reads.
+ *
+ * That is why the check sits HERE, at the upstream load assertion, rather than at serialization:
+ * this is the boundary where hand-editable JSON becomes trusted data, and it is the only place
+ * that can reject the key instead of quietly dropping it. A serializer whitelist would hide the
+ * edit; a load assertion refuses the import and names it.
+ *
+ * The missing half costs one comparison and closes the mirror hole: a deleted key would put
+ * `undefined` on the wire for a field the contract declares non-optional.
+ */
+function assertExactKeys(
+  plateCode: string,
+  what: string,
+  value: object,
+  expected: readonly string[],
+): void {
+  const actual = Object.keys(value);
+  const expectedSet = new Set<string>(expected);
+  const unexpected = actual.filter((key) => !expectedSet.has(key)).sort();
+  const missing = expected.filter((key) => !actual.includes(key)).sort();
+
+  if (unexpected.length > 0) {
+    throw new ClimateImportError(
+      `${plateCode}: ${what} carries unknown key(s) ${unexpected.map((k) => JSON.stringify(k)).join(', ')}. ` +
+        `The stored series is spread verbatim onto the public climate payload, so an unknown key ` +
+        `would be SERVED — outside the DTO, outside openapi.json and outside the web's generated ` +
+        `types. Add the field to province.types.ts, its DTO and the OpenAPI spec deliberately, or ` +
+        `remove it from the artifact.`,
+    );
+  }
+  if (missing.length > 0) {
+    throw new ClimateImportError(
+      `${plateCode}: ${what} is missing key(s) ${missing.map((k) => JSON.stringify(k)).join(', ')}. ` +
+        `Every field is declared non-optional, so an absent one would serve \`undefined\` where ` +
+        `the contract promises a value or an explicit null.`,
+    );
+  }
+}
+
 /**
  * Structural validation of a series that IS about to be written. Unlike
  * `findUnpublishableReason` (an expected outcome), every failure here means the artifact is
  * malformed, so these throw.
  */
 export function assertClimateNormalsShape(plateCode: string, normals: ClimateNormals): void {
+  // FIRST, before any field is read: the object's key set must be exactly what the contract
+  // declares. Every later check inspects individual fields and is blind to a key it does not
+  // know about — and an unknown key here is served straight onto a public page (see
+  // `assertExactKeys`). Months and records are covered too: they are nested inside the same
+  // spread, so an extra key on a single month reaches the wire exactly the same way.
+  assertExactKeys(plateCode, 'the series', normals, CLIMATE_NORMALS_KEYS);
+  if (!Array.isArray(normals.months)) {
+    throw new ClimateImportError(`${plateCode}: "months" is not an array.`);
+  }
+  for (const [index, month] of normals.months.entries()) {
+    if (month === null || typeof month !== 'object') {
+      throw new ClimateImportError(`${plateCode}: months[${index}] is not an object.`);
+    }
+    assertExactKeys(plateCode, `months[${index}]`, month, CLIMATE_MONTHLY_KEYS);
+  }
+  if (normals.records === null || typeof normals.records !== 'object') {
+    throw new ClimateImportError(`${plateCode}: "records" is not an object.`);
+  }
+  assertExactKeys(plateCode, '"records"', normals.records, CLIMATE_RECORDS_KEYS);
+  for (const key of CLIMATE_RECORDS_KEYS) {
+    const record = normals.records[key];
+    if (record === null) continue;
+    if (typeof record !== 'object') {
+      throw new ClimateImportError(`${plateCode}: records.${key} is neither an object nor null.`);
+    }
+    assertExactKeys(plateCode, `records.${key}`, record, CLIMATE_EXTREME_RECORD_KEYS);
+  }
+
   if (normals.source !== CLIMATE_SOURCE_MGM_GENERAL) {
     throw new ClimateImportError(
       `${plateCode}: source is ${JSON.stringify(normals.source)}, expected ` +

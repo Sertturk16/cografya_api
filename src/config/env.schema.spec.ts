@@ -83,6 +83,53 @@ describe('validateEnv — booleans', () => {
   });
 });
 
+describe('validateEnv — INTERNAL_REQUEST_TOKEN is a wire contract, not just a length', () => {
+  // A 44-char visible-ASCII stand-in, the shape `openssl rand -hex 32` produces. Not a secret.
+  const VALID = 'e2e-trusted-client-token-0123456789-abcdefgh';
+
+  it('stays OPTIONAL — the exemption is fail-closed and dev/test/CI boot without it', () => {
+    expect(validateEnv({ ...BASE }).INTERNAL_REQUEST_TOKEN).toBeUndefined();
+  });
+
+  it('accepts a visible-ASCII value of at least 32 characters', () => {
+    expect(validateEnv({ ...BASE, INTERNAL_REQUEST_TOKEN: VALID }).INTERNAL_REQUEST_TOKEN).toBe(
+      VALID,
+    );
+  });
+
+  it('still refuses a value shorter than 32 characters', () => {
+    // A weak bypass secret is worse than none: the exemption exists only when deliberately set.
+    expect(() => validateEnv({ ...BASE, INTERNAL_REQUEST_TOKEN: 'short' })).toThrow(
+      /at least 32 characters/,
+    );
+    // An EMPTY assignment is a value, not an absence — it must not read as "unset".
+    expect(() => validateEnv({ ...BASE, INTERNAL_REQUEST_TOKEN: '' })).toThrow(
+      /at least 32 characters/,
+    );
+  });
+
+  it('REFUSES whitespace — the api and the web would then hold different bytes', () => {
+    // Node's HTTP parser trims a header value's edges, so a leading/trailing space here can
+    // never be presented back to us: the exemption would be permanently dead while the boot log
+    // reports it active. An internal newline is the wrapped `openssl rand -base64 64` shape.
+    for (const value of [` ${VALID}`, `${VALID} `, `${VALID.slice(0, 20)}\n${VALID.slice(20)}`]) {
+      expect(() => validateEnv({ ...BASE, INTERNAL_REQUEST_TOKEN: value })).toThrow(
+        /visible ASCII/,
+      );
+    }
+  });
+
+  it('REFUSES control and non-ASCII characters that a `\\S` check would admit', () => {
+    // Every one of these is non-whitespace, so a length+`\S` rule accepts them — and the web
+    // side's `Headers` rejects them, which configures an exemption no valid client can satisfy.
+    for (const suffix of ['\u0000', '\u007F', 'ş', '🌍']) {
+      expect(() => validateEnv({ ...BASE, INTERNAL_REQUEST_TOKEN: VALID + suffix })).toThrow(
+        /visible ASCII/,
+      );
+    }
+  });
+});
+
 describe('validateEnv — E1: Redis is mandatory in production (DEC 2026-07-29b)', () => {
   it('REFUSES TO BOOT in production with the marine feature on and no REDIS_URL', () => {
     expect(() => validateEnv({ ...BASE, NODE_ENV: 'production', MARINE_ENABLED: 'true' })).toThrow(
