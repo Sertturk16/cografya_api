@@ -70,11 +70,12 @@ describe('deriveWindDirection — invariants', () => {
     expect(deriveWindDirection(1, Number.NaN)).toBeNull();
   });
 
-  it('publishes 0 for a dead-calm vector, which calmThreshold is what suppresses', () => {
-    // Documented behaviour, pinned so it cannot drift silently in either direction: the bearing
-    // of a zero vector is undefined, and the contract's answer is the `calmThreshold` interlock
-    // on wind_speed_10m rather than a fourth null state here.
-    expect(deriveWindDirection(0, 0)).toBe(0);
+  it('has NO bearing for a dead-calm vector, and says so rather than inventing one', () => {
+    // The speed is genuinely zero and is published as zero. The direction of a zero vector does
+    // not exist, so it is a gap — not "north", and in particular not the 180° that IEEE
+    // `atan2(-0, -0)` would hand back if this case were left to the formula.
+    expect(deriveWindDirection(0, 0)).toBeNull();
+    expect(deriveWindDirection(0, 0)).not.toBe(180);
     expect(deriveWindSpeed(0, 0)).toBe(0);
   });
 

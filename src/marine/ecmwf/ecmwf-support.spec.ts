@@ -60,17 +60,29 @@ describe('classifyFieldSeries', () => {
     expect(() => classifyFieldSeries([])).toThrow(EcmwfContractError);
   });
 
-  it('never invents a value — the gaps it counts are the gaps it was given', () => {
-    // The negative test. `classifyFieldSeries` returns counts, not data: there is no path by
-    // which a missing step acquires a number, from a neighbour or from anywhere else.
+  it('never invents a value — it returns counts, and it hands back no data at all', () => {
+    // The negative test, and the honest form of it. `classifyFieldSeries` cannot fill a gap from
+    // a neighbour because it never returns sample data in the first place: the result is four
+    // counts and a flag. Asserting "no value equals 2" would be wrong here — `missingCount` is
+    // legitimately 2 — and asserting on the shape is what actually rules interpolation out.
     const samples: readonly (number | null)[] = [1, null, 3];
     const before = [...samples];
 
     const classification = classifyFieldSeries(samples);
 
+    // The input is not touched, so nothing can be back-filled into it either.
     expect(samples).toEqual(before);
+    expect(Object.keys(classification).sort()).toEqual([
+      'missingCount',
+      'partial',
+      'presentCount',
+      'sampleCount',
+      'support',
+    ]);
+    // No array, no sample, no derived midpoint — nothing a value could hide in.
+    expect(Object.values(classification).some((value) => Array.isArray(value))).toBe(false);
     expect(classification.presentCount + classification.missingCount).toBe(samples.length);
-    expect(Object.values(classification)).not.toContain(2); // no interpolated midpoint anywhere
+    expect(classification.sampleCount).toBe(samples.length);
   });
 });
 

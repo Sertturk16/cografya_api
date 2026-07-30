@@ -49,16 +49,21 @@ export function deriveWindSpeed(u: number | null, v: number | null): number | nu
  * default of 0 for absent data is indistinguishable from a real northerly and would be rendered
  * as a confident arrow pointing at nothing.
  *
- * ## The dead-calm case returns 0, deliberately
- * `u = v = 0` has no defined bearing, and `atan2(0, 0)` is 0. We publish that 0 rather than a
- * `null`, because the contract already has a purpose-built interlock for it: `calmThreshold`
- * (0.5 m/s) sits on `wind_speed_10m` and governs whether the paired direction is drawn at all,
- * so a zero-speed sample never reaches the screen as an arrow. Returning `null` here would
- * instead invent a fourth state — "value present, direction absent, status ok" — that every
- * downstream status mapping would have to carry for a case the display already handles.
+ * ## The dead-calm case returns `null`, and the reason is a caught mistake
+ * `u = v = 0` has no bearing at all. An earlier version of this function documented that it would
+ * publish 0 there, on the grounds that the `calmThreshold` interlock suppresses the arrow anyway
+ * — and it was wrong twice over. First, it did not do what it said: IEEE `atan2(-0, -0)` is π, so
+ * the function actually returned **180°**, a confident-looking "wind from the south" (CI caught
+ * the mismatch). Second, and more to the point, both 0 and 180 are fabrications. The speed IS
+ * zero and is published as zero; the direction is not "north" or "south", it does not exist, and
+ * the owner rule is that we never approximate. A gap is the honest answer and the series contract
+ * already carries gaps.
  */
 export function deriveWindDirection(u: number | null, v: number | null): number | null {
   if (!isUsable(u) || !isUsable(v)) return null;
+  // Before `atan2`, not after: `atan2(-0, -0)` is π, so a zero vector would otherwise publish a
+  // perfectly ordinary 180°.
+  if (u === 0 && v === 0) return null;
   const degrees = (Math.atan2(-u, -v) * 180) / Math.PI;
   const normalised = (degrees + 360) % 360;
   // `(-0 + 360) % 360` is 0, but `359.9999999999999 % 360` can round UP to 360 on the way through
