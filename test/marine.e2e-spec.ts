@@ -241,8 +241,10 @@ describe('Marine (e2e)', () => {
     // exercised, because every test loaded the same committed artifact onto a table that either
     // was empty or already matched it. `updated` and `removed` were only ever asserted to be 0,
     // so a regression in either branch — say, adding a column to `isUnchanged` but forgetting it
-    // in the reassignment block — would ship silently. That is not hypothetical: this very round
-    // added `coastLabelTr`/`coastLabelEn` to both.
+    // in the reassignment block — would ship silently. The coast-label round showed how easily a
+    // loaded column can sit outside a gate: `isUnchanged` and the reassignment block did carry
+    // `coastLabelTr`/`coastLabelEn` from the start, but the artifact STALENESS gate did not, and
+    // nothing failed (review #72, silent-failure I1).
     //
     // Both cases mutate the DATABASE (the technique the MAPPING tests already use) and then load
     // the unchanged committed artifact, so the artifact on disk stays authoritative throughout.
@@ -551,6 +553,23 @@ describe('Marine (e2e)', () => {
         .get('/api/marine/points')
         .set(ANONYMOUS_MARKER_HEADER, '1')
         .expect(200);
+    });
+
+    it('carries an ETag and answers a matching If-None-Match with 304', async () => {
+      // SPEC-ADDENDUM §7.8 requires an ETag on these endpoints so Vera's ISR revalidation costs
+      // almost nothing. It is asserted rather than implemented: the platform already emits a weak
+      // ETag for JSON responses and handles the conditional request. Pinning it here means a
+      // future change that disables it (a custom serializer, a streaming response) fails loudly
+      // instead of quietly multiplying the web build's bandwidth.
+      const first = await request(app.getHttpServer()).get('/api/marine/points').expect(200);
+      const etag: unknown = first.headers.etag;
+      expect(etag).toBeDefined();
+
+      const conditional = await request(app.getHttpServer())
+        .get('/api/marine/points')
+        .set('If-None-Match', typeof etag === 'string' ? etag : '')
+        .expect(304);
+      expect(conditional.text).toBe('');
     });
   });
 

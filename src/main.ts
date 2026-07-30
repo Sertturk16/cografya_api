@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import { applyGlobalPrefix } from './common/bootstrap';
 import { AppModule } from './app.module';
 import { type Env } from './config/env.schema';
+import { MARINE_CACHE_AGE_HEADER } from './marine/marine-cache-age.interceptor';
 import { buildOpenApiDocument } from './openapi/build-document';
 
 async function bootstrap(): Promise<void> {
@@ -25,6 +26,11 @@ async function bootstrap(): Promise<void> {
     origin: configService.get('WEB_ORIGIN', { infer: true }),
     methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: false,
+    // Custom response headers are invisible to browser JavaScript unless they are exposed.
+    // `X-Marine-Cache-Age` carries only an integer age (no PII, no provider detail, no key), and
+    // a marine widget that wants to say "veri N dakika önce" would otherwise read `undefined`
+    // with nothing to explain why.
+    exposedHeaders: [MARINE_CACHE_AGE_HEADER],
   });
 
   // Global `/api` prefix for content endpoints; `/health` stays bare.

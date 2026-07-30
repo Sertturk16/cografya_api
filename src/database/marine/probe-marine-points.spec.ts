@@ -322,6 +322,27 @@ describe('runProbePhase — retry, circuit breaker and the completeness gate', (
     expect(artifact.entries).toHaveLength(MARINE_POINT_CANDIDATES.length);
   });
 
+  it('reports the number of attempts it ACTUALLY made, not the configured maximum', async () => {
+    // A size-cap breach is deterministic, so it breaks out after ONE attempt. The terminal
+    // message used to print the constant regardless and told the operator we had tried three
+    // times — which sends them looking for a flaky network that was never involved.
+    const outputDir = await mkdtemp(join(tmpdir(), 'marine-probe-'));
+    const oversized = (): Response =>
+      new Response('x', {
+        status: 200,
+        headers: { 'content-type': 'application/json', 'content-length': '999999999' },
+      });
+
+    await expect(
+      runProbePhase({
+        outputDir,
+        fetchImpl: jest.fn(() => Promise.resolve(oversized())),
+        sleepImpl: noSleep,
+        nowImpl: fixedClock,
+      }),
+    ).rejects.toThrow(/after 1 attempt\(s\)/);
+  });
+
   it('records the two Open-Meteo calls as covering every candidate in one request each', async () => {
     const outputDir = await mkdtemp(join(tmpdir(), 'marine-probe-'));
     await expect(

@@ -3,8 +3,10 @@
 #   docker compose up -d
 #
 # Postgres is wired into the app from PR-1a: point DATABASE_URL (see
-# .env.example) at this instance, then run `pnpm migration:run`. Redis is up for
-# the caching layer that lands in a later PR (not yet read by the app).
+# .env.example) at this instance, then run `pnpm migration:run`. Redis is read by
+# the app from the marine M2 PR onwards: set REDIS_URL to use it. Leaving REDIS_URL
+# unset is a supported DEVELOPMENT mode (in-process LRU, announced at boot); it is
+# refused in production with MARINE_ENABLED=true (DEC 2026-07-29b).
 #
 # Credentials below are dev-only defaults (see .env.example); they are NOT
 # secrets and are overridable via a local .env.
