@@ -12,7 +12,7 @@ The orchestration-root `REVIEW-POLICY.md` is the only authority for:
 - validation, deduplication, and report shape;
 - author filter and delivery loop.
 
-These files contain role-specific checklists only:
+These files contain the role-specific mandate and checklists only:
 
 - `code-reviewer.md`
 - `security-privacy-reviewer.md`

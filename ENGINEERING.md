@@ -220,7 +220,7 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
 - **Narrative-content seed PRs are transcribed by tool, never by hand.** Use
   `pnpm seed:transcribe apply <draft.md>` to write fact-checked prose into the seed, and
   `pnpm seed:transcribe check <draft.md>` to verify. This is the tool-run form of the
-  byte-for-byte roundtrip check `CONVENTIONS.md` §2 requires (tool since PR #63; the
+  byte-for-byte roundtrip check `CONVENTIONS.md` §2 requires (tool since PR #62; the
   reviewing code-reviewer still re-runs the check independently). Hand-typing
   prose into the `+`-concatenation idiom is what caused PR #43's dropped spaces — don't.
   See `tools/seed-transcription/README.md` for the join rule and the design rationale.
