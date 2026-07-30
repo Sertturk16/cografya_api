@@ -71,11 +71,18 @@ export class MarineSeriesDto {
   windDirection10m!: (number | null)[];
 
   @ApiProperty({
-    enum: MarineSource,
+    // A single-value enum, not the two-value `MarineSource`. SPEC-ADDENDUM §7.2 pins this field
+    // to the LITERAL `'open-meteo'`, and the distinction is not pedantic: publishing the full
+    // enum makes generated web types `'cmems' | 'open-meteo'`, forcing the web repo to defend
+    // against a value the server can never emit. A type is the right place to say "always", a
+    // description is not.
+    enum: [MarineSource.OpenMeteo],
     example: MarineSource.OpenMeteo,
-    description: 'Always open-meteo — CMEMS cannot serve a time range in one call.',
+    description:
+      'Always open-meteo — CMEMS answers one time step per call, so a 5-day hourly series ' +
+      'would cost ~120 requests per point.',
   })
-  source!: MarineSource;
+  source!: MarineSource.OpenMeteo;
 
   @ApiProperty({
     example: '2026-08-04T00:00:00.000Z',

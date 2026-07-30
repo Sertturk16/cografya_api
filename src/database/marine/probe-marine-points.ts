@@ -17,7 +17,6 @@ import {
 } from './marine-assertions';
 import {
   BASIN_CMEMS_ROUTING,
-  COAST_LABELS,
   MARINE_POINT_CANDIDATES,
   MARMARA_CROSS_CHECK_LAYER,
   type CmemsLayerRef,
@@ -67,9 +66,21 @@ const CMEMS_ZOOM = 12;
 const OPEN_METEO_FORECAST_ENDPOINT = 'https://api.open-meteo.com/v1/forecast';
 const OPEN_METEO_MARINE_ENDPOINT = 'https://marine-api.open-meteo.com/v1/marine';
 
+/**
+ * Identify ourselves honestly.
+ *
+ * NO `contact via <url>` claim. It used to read `contact via https://marine.copernicus.eu` —
+ * the PROVIDER's own homepage, which gives their ops team no way to reach us and is therefore a
+ * contact channel that only looks like one (review #72, security MINOR; the climate line carried
+ * the same copy-paste and is fixed alongside).
+ *
+ * TODO(contact): publish a real Coğrafya-owned contact URL or mailbox here once one exists. It
+ * does not today — the domain and hosting are still undecided — and inventing one, or committing
+ * a personal address, is an owner decision rather than an engineering one. Surfaced to Atlas.
+ */
 const USER_AGENT =
-  'CografyaPlatformBot/1.0 (marine reference-point probe; run by hand, roughly yearly; ' +
-  'contact via https://marine.copernicus.eu)';
+  'CografyaPlatformBot/1.0 (non-commercial educational geography platform; ' +
+  'marine reference-point probe; run by hand, roughly yearly)';
 
 const REQUEST_TIMEOUT_MS = 20_000;
 const DELAY_BETWEEN_REQUESTS_MS = 2_500;
@@ -98,6 +109,14 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * A response that breached the byte cap.
+ *
+ * Its own type purely so `fetchRaw` can tell a deterministic refusal (do not retry) from a
+ * transport blip (do retry). Everything else about it behaves like any other import error.
+ */
+class OversizedResponseError extends MarineImportError {}
+
 interface RawResponse {
   status: number;
   contentType: string;
@@ -114,13 +133,26 @@ interface RawResponse {
 async function readBodyCapped(response: Response, url: string): Promise<string> {
   const declared = Number(response.headers.get('content-length') ?? Number.NaN);
   if (Number.isFinite(declared) && declared > MAX_RESPONSE_BYTES) {
-    throw new MarineImportError(
+    throw new OversizedResponseError(
       `${url} declares Content-Length ${String(declared)} B, above the ${String(MAX_RESPONSE_BYTES)} B cap.`,
     );
   }
 
   const body = response.body;
-  if (body === null) return response.text();
+  if (body === null) {
+    // A body-less response still has to obey the cap. `text()` buffers whatever arrives, so the
+    // check has to happen after the read — which is fine, because this branch only exists for
+    // runtimes/stubs that expose no stream, never for a hostile peer. Leaving it uncapped meant
+    // the documented 8 MB ceiling had a hole exactly where the streaming meter could not run
+    // (review #72, silent-failure M).
+    const text = await response.text();
+    if (Buffer.byteLength(text, 'utf8') > MAX_RESPONSE_BYTES) {
+      throw new OversizedResponseError(
+        `${url} returned a body-less response over the ${String(MAX_RESPONSE_BYTES)} B cap.`,
+      );
+    }
+    return text;
+  }
 
   const reader = body.getReader();
   const decoder = new TextDecoder('utf-8');
@@ -133,7 +165,7 @@ async function readBodyCapped(response: Response, url: string): Promise<string> 
       if (done) break;
       total += value.byteLength;
       if (total > MAX_RESPONSE_BYTES) {
-        throw new MarineImportError(
+        throw new OversizedResponseError(
           `${url} exceeded the ${String(MAX_RESPONSE_BYTES)} B response cap — aborting the read.`,
         );
       }
@@ -176,6 +208,10 @@ async function fetchRaw(
       };
     } catch (error: unknown) {
       lastError = error;
+      // A size-cap breach is DETERMINISTIC: the same request will produce the same oversized
+      // body. Retrying it twice more, with 8 s pauses, only re-requests a payload we already
+      // refused — from a free, anonymous provider we are deliberately being polite to.
+      if (error instanceof OversizedResponseError) break;
       if (attempt < MAX_ATTEMPTS_PER_REQUEST) {
         console.warn(
           `[db:import:marine-points] attempt ${String(attempt)} failed for ${url}:`,
@@ -189,6 +225,16 @@ async function fetchRaw(
   throw new MarineImportError(
     `failed to fetch ${url} after ${String(MAX_ATTEMPTS_PER_REQUEST)} attempts: ${String(lastError)}`,
   );
+}
+
+/**
+ * Did this call come back as data, as opposed to a provider refusal?
+ *
+ * The same two conditions `assertTransport` applies offline, so the breaker and the acceptance
+ * criteria agree on what "the provider answered" means.
+ */
+function isCleanJsonResponse(result: CmemsProbeResult): boolean {
+  return result.httpStatus === 200 && result.contentType.toLowerCase().includes('application/json');
 }
 
 function sha256(body: string): string {
@@ -236,7 +282,7 @@ export function buildCmemsUrl(latitude: number, longitude: number, layer: CmemsL
  * Turkish point somewhere in the Indian Ocean — silently, since both numbers are valid
  * coordinates. Measured 2026-07-30; SPEC v1 §3.1 flagged it first.
  */
-function parseCmemsProperties(body: string): {
+export function parseCmemsProperties(body: string): {
   datasetId: string | null;
   variableId: string | null;
   value: number | null;
@@ -328,7 +374,7 @@ async function probeCmemsLayer(
 }
 
 /** One location's block of an Open-Meteo multi-coordinate response. */
-interface OpenMeteoLocation {
+export interface OpenMeteoLocation {
   latitude: number;
   longitude: number;
   hourly: Record<string, unknown>;
@@ -341,7 +387,7 @@ interface OpenMeteoLocation {
  * The API returns a bare object for ONE coordinate and an array for several. Both forms are
  * handled so the code cannot break if the candidate list ever shrinks to one point.
  */
-function parseOpenMeteoLocations(body: string, expected: number): OpenMeteoLocation[] {
+export function parseOpenMeteoLocations(body: string, expected: number): OpenMeteoLocation[] {
   const parsed: unknown = JSON.parse(body);
   const list = Array.isArray(parsed) ? parsed : [parsed];
   if (list.length !== expected) {
@@ -378,6 +424,26 @@ function firstTime(hourly: Record<string, unknown>): string | null {
   if (!Array.isArray(times)) return null;
   const value: unknown = times[0];
   return typeof value === 'string' ? value : null;
+}
+
+/**
+ * Stamp an explicit UTC designator onto a provider timestamp.
+ *
+ * We request `timezone=UTC`, and Open-Meteo answers with a zone-LESS local-looking string
+ * (`2026-07-30T00:00`). Recording that verbatim in a field the artifact types call "ISO-8601
+ * UTC" produces evidence that reads ambiguously — and a zone-less string is exactly the kind a
+ * later reader parses in local time without noticing. The instant is unchanged; only the
+ * designator is made explicit.
+ */
+export function toUtcInstant(value: string | null): string | null {
+  if (value === null) return null;
+  // Already carries a zone (`Z` or `±HH:MM`) — leave the provider's string untouched.
+  if (/(?:Z|[+-]\d{2}:?\d{2})$/.test(value)) return value;
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return `${value}:00Z`;
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(value)) return `${value}Z`;
+  // An unrecognised shape is returned verbatim rather than "repaired": inventing a designator
+  // for a string we do not understand would be worse evidence than the ambiguous original.
+  return value;
 }
 
 /**
@@ -440,17 +506,25 @@ async function probeOpenMeteo(
       throw new MarineImportError(`Open-Meteo block ${String(index)} is missing`);
     }
 
-    // The MARINE grid is the one that matters for the snap distance: it is the coarser of the
-    // two (~0.08°) and it is the grid the sea fields come from.
+    // BOTH grid centres are recorded. The marine grid (~1/12°) is where the wave and SST values
+    // come from; the forecast grid is a different endpoint and a different model, and it is the
+    // ONLY source of the two wind layers. Recording just one of them would leave a published
+    // layer with no evidence of where its value was read (review #72, code-reviewer M).
     const distanceKm = roundKm(
       haversineKm(candidate.latitude, candidate.longitude, sea.latitude, sea.longitude),
+    );
+    const windDistanceKm = roundKm(
+      haversineKm(candidate.latitude, candidate.longitude, wind.latitude, wind.longitude),
     );
 
     return {
       gridLatitude: sea.latitude,
       gridLongitude: sea.longitude,
       distanceKm,
-      validAtUtc: firstTime(sea.hourly) ?? firstTime(wind.hourly),
+      windGridLatitude: wind.latitude,
+      windGridLongitude: wind.longitude,
+      windDistanceKm,
+      validAtUtc: toUtcInstant(firstTime(sea.hourly) ?? firstTime(wind.hourly)),
       windSpeed10m: firstSample(wind.hourly, 'wind_speed_10m'),
       windDirection10m: firstSample(wind.hourly, 'wind_direction_10m'),
       waveHeight: firstSample(sea.hourly, 'wave_height'),
@@ -508,6 +582,8 @@ export async function runProbePhase(options: ProbePhaseOptions): Promise<void> {
 
   const entries: MarineProbeEntry[] = [];
   let consecutiveFailures = 0;
+  /** Set when the provider-refusal breaker trips; thrown after the current candidate is recorded. */
+  let providerRefusalAbort: string | null = null;
 
   for (const [index, candidate] of candidates.entries()) {
     const routing = BASIN_CMEMS_ROUTING[candidate.seaBasin];
@@ -552,16 +628,48 @@ export async function runProbePhase(options: ProbePhaseOptions): Promise<void> {
         );
       }
 
-      consecutiveFailures = 0;
+      // The circuit breaker counts PROVIDER-LEVEL refusals too, not only transport failures.
+      //
+      // `fetchRaw` deliberately does not throw on a non-200: the body is evidence. But that meant
+      // the breaker — whose stated purpose is "if the provider has started refusing us, stopping
+      // is correct; grinding through 84 calls is not" — never engaged for the one scenario this
+      // repo has already written down as its most likely trigger: a pinned dataset id retires and
+      // CMEMS answers every single call with a clean HTTP 400 + XML. The counter only moved on
+      // sockets and timeouts, and it was reset by any request that came back at all. So the run
+      // walked all 30 candidates hammering a provider that was telegraphing "stop asking me
+      // this", and only failed at the very end (review #72, silent-failure I2).
+      const rejected = [seaSurfaceTemperature, waveHeight, waveDirection, crossCheck].filter(
+        (result): result is CmemsProbeResult => result !== null && !isCleanJsonResponse(result),
+      );
+      if (rejected.length > 0) {
+        consecutiveFailures += 1;
+        console.error(
+          `[db:import:marine-points] ${candidate.slugTr}: ${String(rejected.length)} provider ` +
+            `rejection(s) — ${rejected
+              .map((result) => `${result.requestedVariableId} HTTP ${String(result.httpStatus)}`)
+              .join(', ')}. Recorded as evidence; counted toward the circuit breaker.`,
+        );
+        if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+          // Recorded, NOT thrown here. A throw inside this `try` would be caught by the
+          // candidate-level handler below, counted a second time, and re-reported as a
+          // TRANSPORT failure — the operator would then be told the socket died when in fact
+          // the provider answered cleanly and refused. The abort fires after the loop body.
+          providerRefusalAbort =
+            `aborting: ${String(MAX_CONSECUTIVE_FAILURES)} consecutive candidates were refused by ` +
+            `the provider. A pinned dataset id has probably retired — check ` +
+            `BASIN_CMEMS_ROUTING against the provider catalogue before re-running.`;
+        }
+      } else {
+        consecutiveFailures = 0;
+      }
 
-      const labels = COAST_LABELS[candidate.seaBasin];
       const entry: MarineProbeEntry = {
         slugTr: candidate.slugTr,
         slugEn: candidate.slugEn,
         nameTr: candidate.nameTr,
         nameEn: candidate.nameEn,
-        coastLabelTr: labels.tr,
-        coastLabelEn: labels.en,
+        coastLabelTr: candidate.coastLabelTr,
+        coastLabelEn: candidate.coastLabelEn,
         plateCode: candidate.plateCode,
         provinceNameTr: candidate.provinceNameTr,
         seaBasin: candidate.seaBasin,
@@ -601,6 +709,12 @@ export async function runProbePhase(options: ProbePhaseOptions): Promise<void> {
           { cause: error },
         );
       }
+    }
+
+    // Fires OUTSIDE the try/catch, so the provider-refusal abort is reported as what it is
+    // rather than being re-caught and relabelled a transport failure.
+    if (providerRefusalAbort !== null) {
+      throw new MarineImportError(providerRefusalAbort);
     }
   }
 

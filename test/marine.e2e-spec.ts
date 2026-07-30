@@ -45,6 +45,14 @@ import {
 
 const COMMITTED_ARTIFACT_DIR = join(__dirname, '..', 'data', 'marine');
 const TEST_INTERNAL_TOKEN = 'e2e-trusted-client-token-0123456789-abcdefgh';
+/** Test-only opt-out from the trusted-client middleware below — see its comment. */
+const ANONYMOUS_MARKER_HEADER = 'x-e2e-anonymous';
+
+/** The exact Cache-Control strings SPEC-ADDENDUM §7.8 locks for these two endpoints. */
+const EXPECTED_CACHE_CONTROL = {
+  points: 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800',
+  layers: 'public, max-age=1800, s-maxage=21600, stale-while-revalidate=86400',
+} as const;
 
 // NOTE: AppModule is required inside beforeAll — NOT imported at the top — because
 // ConfigModule.forRoot validates the env eagerly at module-load time, so it must not load
@@ -121,8 +129,15 @@ describe('Marine (e2e)', () => {
     applyGlobalPrefix(app);
     // Present the internal token exactly as the web SSG build does, so the REAL throttle
     // exemption path is exercised rather than a stubbed limiter (the province suite's precedent).
+    //
+    // A request may OPT OUT with `x-e2e-anonymous`, which is what makes the "no authentication
+    // needed" test below mean something: stamping the trusted-client token on every request left
+    // that test unable to exercise an anonymous caller at all, so it asserted nothing about the
+    // path real CDN and browser traffic actually take.
     app.use((req: Request, _res: Response, next: NextFunction) => {
-      req.headers[INTERNAL_REQUEST_HEADER] = TEST_INTERNAL_TOKEN;
+      if (req.headers[ANONYMOUS_MARKER_HEADER] === undefined) {
+        req.headers[INTERNAL_REQUEST_HEADER] = TEST_INTERNAL_TOKEN;
+      }
       next();
     });
     await app.init();
@@ -220,6 +235,84 @@ describe('Marine (e2e)', () => {
         expect(new Set(bucket.map((row) => row.seaBasin)).size).toBe(bucket.length);
       }
     });
+
+    // ── the UPDATE and REMOVE branches ───────────────────────────────────────
+    // `loadMarinePoints` has four per-row outcomes; only insert and unchanged were ever
+    // exercised, because every test loaded the same committed artifact onto a table that either
+    // was empty or already matched it. `updated` and `removed` were only ever asserted to be 0,
+    // so a regression in either branch — say, adding a column to `isUnchanged` but forgetting it
+    // in the reassignment block — would ship silently. That is not hypothetical: this very round
+    // added `coastLabelTr`/`coastLabelEn` to both.
+    //
+    // Both cases mutate the DATABASE (the technique the MAPPING tests already use) and then load
+    // the unchanged committed artifact, so the artifact on disk stays authoritative throughout.
+
+    it('UPDATES a row that has drifted from the artifact, and restores every column', async () => {
+      const repo = dataSource.getRepository(MarinePoint);
+      const [target] = await repo.find({ order: { displayOrder: 'ASC' }, take: 1 });
+      if (target === undefined) throw new Error('the table must hold points at this point');
+      const expected = artifact.entries.find((entry) => entry.slugTr === target.slugTr);
+      if (expected === undefined) throw new Error('artifact has no entry for the stored row');
+
+      // Drift several columns at once, including the two that were outside the gates.
+      await dataSource.query(
+        `UPDATE marine_points
+         SET name_tr = $1, coast_label_tr = $2, coast_label_en = $3, display_order = $4,
+             latitude = $5
+         WHERE slug_tr = $6`,
+        ['Yanlış Ad', 'yanlış etiket', 'wrong label', 4242, 1.5, target.slugTr],
+      );
+
+      const result = await loadMarinePoints(dataSource, { inputDir: COMMITTED_ARTIFACT_DIR });
+      expect(result.updated).toBe(1);
+      expect(result.inserted).toBe(0);
+      expect(result.removed).toBe(0);
+      expect(result.unchanged).toBe(artifact.entries.length - 1);
+
+      const restored = await repo.findOneByOrFail({ slugTr: target.slugTr });
+      expect(restored.nameTr).toBe(expected.nameTr);
+      expect(restored.coastLabelTr).toBe(expected.coastLabelTr);
+      expect(restored.coastLabelEn).toBe(expected.coastLabelEn);
+      expect(restored.displayOrder).toBe(expected.displayOrder);
+      expect(restored.latitude).toBe(expected.latitude);
+    });
+
+    it('REMOVES a stored row the artifact no longer contains', async () => {
+      const repo = dataSource.getRepository(MarinePoint);
+      // A synthetic row in a (province, basin) slot the artifact does not use, so it can be
+      // inserted without colliding with the composite unique key.
+      const orphan = await repo.save(
+        repo.create({
+          slugTr: 'e2e-orphan-tr',
+          slugEn: 'e2e-orphan-en',
+          nameTr: 'Artık Yok',
+          nameEn: 'No Longer Present',
+          coastLabelTr: 'Test',
+          coastLabelEn: 'Test',
+          provincePlateCode: '06', // Ankara — landlocked, so never a marine point
+          seaBasin: SeaBasin.BlackSea,
+          latitude: 41.0,
+          longitude: 33.0,
+          displayOrder: 9100,
+        }),
+      );
+
+      const result = await loadMarinePoints(dataSource, { inputDir: COMMITTED_ARTIFACT_DIR });
+      expect(result.removed).toBe(1);
+      expect(result.unchanged).toBe(artifact.entries.length);
+      expect(await repo.findOneBy({ id: orphan.id })).toBeNull();
+    });
+
+    it('is back to a clean no-op after the update and remove cases', async () => {
+      // Guards the two tests above from leaving state that would silently change later results.
+      const result = await loadMarinePoints(dataSource, { inputDir: COMMITTED_ARTIFACT_DIR });
+      expect(result).toEqual({
+        inserted: 0,
+        updated: 0,
+        unchanged: artifact.entries.length,
+        removed: 0,
+      });
+    });
   });
 
   describe('the composite unique constraint', () => {
@@ -242,6 +335,36 @@ describe('Marine (e2e)', () => {
             latitude: existing.latitude,
             longitude: existing.longitude,
             displayOrder: 9001,
+          }),
+        ),
+      ).rejects.toThrow();
+    });
+
+    it('REFUSES a duplicate slug at the DATABASE level', async () => {
+      // The uniqueness test above observes that loaded rows happen to have distinct slugs — which
+      // the load phase itself guaranteed. That says nothing about the constraint. If
+      // `UQ_marine_points_slug_tr` were dropped or typo'd in a future migration edit, the
+      // observed data would still look unique because the artifact never contains a duplicate.
+      // So the constraint is exercised directly, like the composite one.
+      const repo = dataSource.getRepository(MarinePoint);
+      const [existing] = await repo.find({ order: { displayOrder: 'ASC' }, take: 1 });
+      if (existing === undefined) throw new Error('the table must hold points at this point');
+
+      await expect(
+        repo.save(
+          repo.create({
+            slugTr: existing.slugTr, // the collision under test
+            slugEn: 'e2e-distinct-slug-en',
+            nameTr: 'Slug Duplicate',
+            nameEn: 'Slug Duplicate',
+            coastLabelTr: 'Test',
+            coastLabelEn: 'Test',
+            // A free (province, basin) slot, so the COMPOSITE key cannot be what rejects this.
+            provincePlateCode: '06',
+            seaBasin: SeaBasin.Mediterranean,
+            latitude: 36.0,
+            longitude: 33.0,
+            displayOrder: 9200,
           }),
         ),
       ).rejects.toThrow();
@@ -384,8 +507,10 @@ describe('Marine (e2e)', () => {
       const orders = body.map((point) => point.displayOrder);
       expect(orders).toEqual([...orders].sort((a, b) => a - b));
 
-      expect(response.headers['cache-control']).toContain('s-maxage=');
-      expect(response.headers['cache-control']).toContain('stale-while-revalidate=');
+      // Asserted EXACTLY, not by substring: §7.8 locks these strings, and the whole point of a
+      // cache-header test is to catch a typo in the numbers — which a `toContain('s-maxage=')`
+      // cannot do.
+      expect(response.headers['cache-control']).toBe(EXPECTED_CACHE_CONTROL.points);
     });
 
     it('serves a complete, correctly-typed payload for every point', async () => {
@@ -417,10 +542,14 @@ describe('Marine (e2e)', () => {
       }
     });
 
-    it('needs no authentication — it is public content by design', async () => {
+    it('needs no authentication — served to a genuinely ANONYMOUS caller', async () => {
+      // The marker opts this request out of the trusted-client middleware, so it travels the
+      // untrusted, throttled path that real CDN and browser traffic takes. Previously every
+      // request in this file carried the internal token, so the test named "needs no
+      // authentication" proved only that an empty Authorization header is ignored.
       await request(app.getHttpServer())
         .get('/api/marine/points')
-        .set('Authorization', '')
+        .set(ANONYMOUS_MARKER_HEADER, '1')
         .expect(200);
     });
   });
@@ -433,7 +562,7 @@ describe('Marine (e2e)', () => {
       expect(body.map((layer) => layer.id).sort()).toEqual(
         [...Object.values(MarineLayerId)].sort(),
       );
-      expect(response.headers['cache-control']).toContain('s-maxage=');
+      expect(response.headers['cache-control']).toBe(EXPECTED_CACHE_CONTROL.layers);
     });
 
     it('publishes a direction convention on EXACTLY the direction layers', async () => {

@@ -108,7 +108,8 @@ export class MarinePoint {
    * `cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511` — different datasets inside the same
    * product), and it is the key the probe's basin assertions check against.
    */
-  @Index('IDX_marine_points_sea_basin')
+  // Not indexed: a 4-value enum on a 30-row table with no query filtering on it (see the
+  // migration for the full reasoning).
   @Column({
     name: 'sea_basin',
     type: 'enum',

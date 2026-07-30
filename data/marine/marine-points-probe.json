@@ -1,6 +1,6 @@
 {
-  "generatedAtUtc": "2026-07-30T15:19:33.860Z",
-  "userAgent": "CografyaPlatformBot/1.0 (marine reference-point probe; run by hand, roughly yearly; contact via https://marine.copernicus.eu)",
+  "generatedAtUtc": "2026-07-30T16:07:36.943Z",
+  "userAgent": "CografyaPlatformBot/1.0 (non-commercial educational geography platform; marine reference-point probe; run by hand, roughly yearly)",
   "cmems": {
     "endpoint": "https://wmts.marine.copernicus.eu/teroWmts",
     "tileMatrixSet": "EPSG:3857",
@@ -17,7 +17,7 @@
         "requestUrl": "https://api.open-meteo.com/v1/forecast?latitude=41.9500%2C41.3000%2C41.2500%2C41.2000%2C41.1800%2C41.5500%2C41.8500%2C42.0800%2C42.1500%2C41.4000%2C41.0800%2C40.9900%2C41.1000%2C41.1300%2C41.5200%2C40.5000%2C40.8700%2C40.5500%2C40.8500%2C40.4800%2C40.7200%2C39.7800%2C39.4200%2C38.7200%2C37.6000%2C36.9500%2C36.6000%2C36.6000%2C36.4000%2C36.0500&longitude=28.1500%2C29.6100%2C30.2000%2C30.6800%2C31.1300%2C31.7800%2C32.3800%2C33.7600%2C35.1500%2C36.3300%2C37.8800%2C38.3900%2C39.7200%2C40.5200%2C41.4200%2C27.3500%2C27.5000%2C27.9000%2C28.8000%2C28.8500%2C29.1500%2C25.9000%2C26.4500%2C26.6000%2C27.1000%2C27.2500%2C30.7000%2C34.5000%2C35.3800%2C35.8000&hourly=wind_speed_10m%2Cwind_direction_10m&wind_speed_unit=ms&forecast_days=1&timeformat=iso8601&timezone=UTC",
         "httpStatus": 200,
         "contentType": "application/json; charset=utf-8",
-        "responseSha256": "8b2bf12ad929034a4b79dab1f5e79f6b98c84ecc94ba6119bd48d135a2a32635",
+        "responseSha256": "29b0d584b1b837927c594c152eb17c0c8047ddb462dde433a8323da9fcb0b921",
         "pointCount": 30
       },
       {
@@ -25,7 +25,7 @@
         "requestUrl": "https://marine-api.open-meteo.com/v1/marine?latitude=41.9500%2C41.3000%2C41.2500%2C41.2000%2C41.1800%2C41.5500%2C41.8500%2C42.0800%2C42.1500%2C41.4000%2C41.0800%2C40.9900%2C41.1000%2C41.1300%2C41.5200%2C40.5000%2C40.8700%2C40.5500%2C40.8500%2C40.4800%2C40.7200%2C39.7800%2C39.4200%2C38.7200%2C37.6000%2C36.9500%2C36.6000%2C36.6000%2C36.4000%2C36.0500&longitude=28.1500%2C29.6100%2C30.2000%2C30.6800%2C31.1300%2C31.7800%2C32.3800%2C33.7600%2C35.1500%2C36.3300%2C37.8800%2C38.3900%2C39.7200%2C40.5200%2C41.4200%2C27.3500%2C27.5000%2C27.9000%2C28.8000%2C28.8500%2C29.1500%2C25.9000%2C26.4500%2C26.6000%2C27.1000%2C27.2500%2C30.7000%2C34.5000%2C35.3800%2C35.8000&hourly=wave_height%2Cwave_direction%2Csea_surface_temperature&forecast_days=1&timeformat=iso8601&timezone=UTC",
         "httpStatus": 200,
         "contentType": "application/json; charset=utf-8",
-        "responseSha256": "6c7be70e3549454a40bda456ec5c524f10e66fdf04ea7a8ffd4ae04629c041d3",
+        "responseSha256": "ecb25d93fa778c7fcf9f1f8f9e29137af95eaa1437aec13ffa38ef3f8e27f821",
         "pointCount": 30
       }
     ]
@@ -44,7 +44,7 @@
       "latitude": 41.95,
       "longitude": 28.15,
       "displayOrder": 1,
-      "probedAtUtc": "2026-07-30T15:16:05.213Z",
+      "probedAtUtc": "2026-07-30T16:04:00.737Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1521&TileCol=2368&I=72&J=69&infoformat=application%2Fjson",
@@ -97,7 +97,10 @@
         "gridLatitude": 41.958336,
         "gridLongitude": 28.208344,
         "distanceKm": 4.9129,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 41.9375,
+        "windGridLongitude": 28.125,
+        "windDistanceKm": 2.4914,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 3.4,
         "windDirection10m": 88,
         "waveHeight": 0.68,
@@ -176,7 +179,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511, provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao; provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -206,12 +209,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -231,7 +234,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 4.913 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 4.913 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 2.491 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -258,7 +266,7 @@
       "latitude": 41.3,
       "longitude": 29.61,
       "displayOrder": 2,
-      "probedAtUtc": "2026-07-30T15:16:12.905Z",
+      "probedAtUtc": "2026-07-30T16:04:08.565Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1531&TileCol=2384&I=229&J=41&infoformat=application%2Fjson",
@@ -279,12 +287,12 @@
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1531&TileCol=2384&I=229&J=41&infoformat=application%2Fjson",
           "httpStatus": 200,
           "contentType": "application/json",
-          "responseSha256": "6dac86aa8d4574025518068b11d7c0b3c10b75c5c30b70bda59a22f2be90463e",
+          "responseSha256": "49185215f8c31ac31a1c444833fd746eb744225a268a18c11f7604bf4358e4f0",
           "requestedDatasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
           "requestedVariableId": "VHM0",
           "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
           "variableId": "VHM0",
-          "value": 1.5972833633422852,
+          "value": 1.5726977586746216,
           "units": "m",
           "gridLatitude": 41.3000000894288,
           "gridLongitude": 29.6,
@@ -311,7 +319,10 @@
         "gridLatitude": 41.375,
         "gridLongitude": 29.625015,
         "distanceKm": 8.4333,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 41.3125,
+        "windGridLongitude": 29.625,
+        "windDistanceKm": 1.8713,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 9.58,
         "windDirection10m": 76,
         "waveHeight": 1.18,
@@ -390,7 +401,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511, provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao; provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -410,7 +421,7 @@
         {
           "id": "a2-wave-height-present",
           "passed": true,
-          "detail": "VHM0 = 1.5972833633422852 m"
+          "detail": "VHM0 = 1.5726977586746216 m"
         },
         {
           "id": "a3-wave-pair",
@@ -420,12 +431,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -445,7 +456,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 8.433 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 8.433 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 1.871 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -472,7 +488,7 @@
       "latitude": 41.25,
       "longitude": 30.2,
       "displayOrder": 3,
-      "probedAtUtc": "2026-07-30T15:16:20.743Z",
+      "probedAtUtc": "2026-07-30T16:04:16.624Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1531&TileCol=2391&I=155&J=235&infoformat=application%2Fjson",
@@ -525,7 +541,10 @@
         "gridLatitude": 41.291664,
         "gridLongitude": 30.208344,
         "distanceKm": 4.685,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 41.1875,
+        "windGridLongitude": 30.25,
+        "windDistanceKm": 8.111,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 4.37,
         "windDirection10m": 70,
         "waveHeight": 1.04,
@@ -604,7 +623,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511, provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao; provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -634,12 +653,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -659,7 +678,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 4.685 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 4.685 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 8.111 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -686,7 +710,7 @@
       "latitude": 41.2,
       "longitude": 30.68,
       "displayOrder": 4,
-      "probedAtUtc": "2026-07-30T15:16:28.393Z",
+      "probedAtUtc": "2026-07-30T16:04:24.348Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1532&TileCol=2397&I=17&J=173&infoformat=application%2Fjson",
@@ -739,7 +763,10 @@
         "gridLatitude": 41.291664,
         "gridLongitude": 30.708344,
         "distanceKm": 10.4644,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 41.125,
+        "windGridLongitude": 30.625,
+        "windDistanceKm": 9.5262,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 5.61,
         "windDirection10m": 68,
         "waveHeight": 1.18,
@@ -818,7 +845,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511, provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao; provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -848,12 +875,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -873,7 +900,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 10.464 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 10.464 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 9.526 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -900,7 +932,7 @@
       "latitude": 41.18,
       "longitude": 31.13,
       "displayOrder": 5,
-      "probedAtUtc": "2026-07-30T15:16:36.286Z",
+      "probedAtUtc": "2026-07-30T16:04:32.056Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1532&TileCol=2402&I=48&J=250&infoformat=application%2Fjson",
@@ -953,7 +985,10 @@
         "gridLatitude": 41.208336,
         "gridLongitude": 31.125015,
         "distanceKm": 3.1783,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 41.1875,
+        "windGridLongitude": 31.125,
+        "windDistanceKm": 0.933,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 6.62,
         "windDirection10m": 63,
         "waveHeight": 0.92,
@@ -1032,7 +1067,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511, provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao; provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -1062,12 +1097,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -1087,7 +1122,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 3.178 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 3.178 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 0.933 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -1114,7 +1154,7 @@
       "latitude": 41.55,
       "longitude": 31.78,
       "displayOrder": 6,
-      "probedAtUtc": "2026-07-30T15:16:43.944Z",
+      "probedAtUtc": "2026-07-30T16:04:39.824Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1527&TileCol=2409&I=149&J=94&infoformat=application%2Fjson",
@@ -1167,7 +1207,10 @@
         "gridLatitude": 41.541664,
         "gridLongitude": 31.791672,
         "distanceKm": 1.3427,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 41.5625,
+        "windGridLongitude": 31.75,
+        "windDistanceKm": 2.8571,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 7.95,
         "windDirection10m": 69,
         "waveHeight": 0.66,
@@ -1246,7 +1289,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511, provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao; provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -1276,12 +1319,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -1301,7 +1344,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 1.343 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 1.343 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 2.857 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -1328,7 +1376,7 @@
       "latitude": 41.85,
       "longitude": 32.38,
       "displayOrder": 7,
-      "probedAtUtc": "2026-07-30T15:16:51.633Z",
+      "probedAtUtc": "2026-07-30T16:04:47.494Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1522&TileCol=2416&I=105&J=204&infoformat=application%2Fjson",
@@ -1381,7 +1429,10 @@
         "gridLatitude": 41.875,
         "gridLongitude": 32.375015,
         "distanceKm": 2.8104,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 41.875,
+        "windGridLongitude": 32.375,
+        "windDistanceKm": 2.8105,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 6.48,
         "windDirection10m": 70,
         "waveHeight": 0.74,
@@ -1460,7 +1511,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511, provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao; provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -1490,12 +1541,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -1515,7 +1566,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 2.810 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 2.810 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 2.811 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -1542,7 +1598,7 @@
       "latitude": 42.08,
       "longitude": 33.76,
       "displayOrder": 8,
-      "probedAtUtc": "2026-07-30T15:16:59.742Z",
+      "probedAtUtc": "2026-07-30T16:04:55.158Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1519&TileCol=2432&I=29&J=71&infoformat=application%2Fjson",
@@ -1595,7 +1651,10 @@
         "gridLatitude": 42.208336,
         "gridLongitude": 33.79167,
         "distanceKm": 14.5072,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 42.0625,
+        "windGridLongitude": 33.75,
+        "windDistanceKm": 2.1137,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 2.01,
         "windDirection10m": 153,
         "waveHeight": 0.68,
@@ -1674,7 +1733,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511, provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao; provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -1704,12 +1763,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -1729,7 +1788,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 14.507 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 14.507 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 2.114 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -1756,18 +1820,18 @@
       "latitude": 42.15,
       "longitude": 35.15,
       "displayOrder": 9,
-      "probedAtUtc": "2026-07-30T15:17:07.410Z",
+      "probedAtUtc": "2026-07-30T16:05:03.363Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1518&TileCol=2447&I=237&J=52&infoformat=application%2Fjson",
           "httpStatus": 200,
           "contentType": "application/json",
-          "responseSha256": "fc242c315eb321841c040bd89a1cfb29367d999a8d69af4984219f7e990dfab1",
+          "responseSha256": "9c019d06fad176ec556dd72915ae7824b9fb874250e6d9a623965ff5f3e8538f",
           "requestedDatasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511",
           "requestedVariableId": "thetao",
           "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511",
           "variableId": "thetao",
-          "value": 24.616159439086914,
+          "value": 24.493432998657227,
           "units": "degrees_C",
           "gridLatitude": 42.1500001844469,
           "gridLongitude": 35.15,
@@ -1777,12 +1841,12 @@
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1518&TileCol=2447&I=237&J=52&infoformat=application%2Fjson",
           "httpStatus": 200,
           "contentType": "application/json",
-          "responseSha256": "58eb6130dcccea4ae16508aefa337416a1e1d0316452d3d9847d3167f4116f0d",
+          "responseSha256": "5b85ff4047ed1f8ae073ec0f5020580af42aed704e1794c7cb30fbf03d41b375",
           "requestedDatasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
           "requestedVariableId": "VHM0",
           "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
           "variableId": "VHM0",
-          "value": 0.5204166769981384,
+          "value": 0.5055632591247559,
           "units": "m",
           "gridLatitude": 42.1500001844469,
           "gridLongitude": 35.15,
@@ -1792,12 +1856,12 @@
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1518&TileCol=2447&I=237&J=52&infoformat=application%2Fjson",
           "httpStatus": 200,
           "contentType": "application/json",
-          "responseSha256": "7e8ebf35959b3b881baf1e7c2b5603bcd2f9d5efc5804b25dcc3a279e67d0e99",
+          "responseSha256": "1616e6d9c2001f5cf5550ec42c9cdc6fcbbd06750b3f26b766b8e25850596b07",
           "requestedDatasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
           "requestedVariableId": "VMDR",
           "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
           "variableId": "VMDR",
-          "value": 5.1727294921875,
+          "value": 8.5635986328125,
           "units": "degree",
           "gridLatitude": 42.1500001844469,
           "gridLongitude": 35.15,
@@ -1809,7 +1873,10 @@
         "gridLatitude": 42.208336,
         "gridLongitude": 35.125015,
         "distanceKm": 6.8056,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 42.125,
+        "windGridLongitude": 35.125,
+        "windDistanceKm": 3.4608,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 1.61,
         "windDirection10m": 263,
         "waveHeight": 0.74,
@@ -1883,12 +1950,12 @@
         {
           "id": "a1-sst-present",
           "passed": true,
-          "detail": "thetao = 24.616159439086914 °C (accepted 0–35)"
+          "detail": "thetao = 24.493432998657227 °C (accepted 0–35)"
         },
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511, provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao; provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -1908,7 +1975,7 @@
         {
           "id": "a2-wave-height-present",
           "passed": true,
-          "detail": "VHM0 = 0.5204166769981384 m"
+          "detail": "VHM0 = 0.5055632591247559 m"
         },
         {
           "id": "a3-wave-pair",
@@ -1918,12 +1985,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -1943,7 +2010,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 6.806 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 6.806 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 3.461 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -1970,7 +2042,7 @@
       "latitude": 41.4,
       "longitude": 36.33,
       "displayOrder": 10,
-      "probedAtUtc": "2026-07-30T15:17:15.094Z",
+      "probedAtUtc": "2026-07-30T16:05:11.133Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1529&TileCol=2461&I=90&J=165&infoformat=application%2Fjson",
@@ -2023,7 +2095,10 @@
         "gridLatitude": 41.375,
         "gridLongitude": 36.375015,
         "distanceKm": 4.6723,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 41.3125,
+        "windGridLongitude": 36.3125,
+        "windDistanceKm": 9.8386,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 1.8,
         "windDirection10m": 326,
         "waveHeight": 0.66,
@@ -2102,7 +2177,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511, provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao; provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -2132,12 +2207,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -2157,7 +2232,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 4.672 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 4.672 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 9.839 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -2184,7 +2264,7 @@
       "latitude": 41.08,
       "longitude": 37.88,
       "displayOrder": 11,
-      "probedAtUtc": "2026-07-30T15:17:22.744Z",
+      "probedAtUtc": "2026-07-30T16:05:18.931Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1534&TileCol=2478&I=253&J=125&infoformat=application%2Fjson",
@@ -2237,7 +2317,10 @@
         "gridLatitude": 41.208336,
         "gridLongitude": 37.875015,
         "distanceKm": 14.2764,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 41,
+        "windGridLongitude": 37.8125,
+        "windDistanceKm": 10.5442,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 1.43,
         "windDirection10m": 348,
         "waveHeight": 0.98,
@@ -2316,7 +2399,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511, provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao; provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -2346,12 +2429,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -2371,7 +2454,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 14.276 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 14.276 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 10.544 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -2398,7 +2486,7 @@
       "latitude": 40.99,
       "longitude": 38.39,
       "displayOrder": 12,
-      "probedAtUtc": "2026-07-30T15:17:30.397Z",
+      "probedAtUtc": "2026-07-30T16:05:26.617Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1535&TileCol=2484&I=202&J=217&infoformat=application%2Fjson",
@@ -2451,7 +2539,10 @@
         "gridLatitude": 40.958336,
         "gridLongitude": 38.375015,
         "distanceKm": 3.7389,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 41,
+        "windGridLongitude": 38.375,
+        "windDistanceKm": 1.6797,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 4.52,
         "windDirection10m": 18,
         "waveHeight": 0.78,
@@ -2530,7 +2621,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511, provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao; provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -2560,12 +2651,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -2585,7 +2676,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 3.739 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 3.739 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 1.680 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -2612,7 +2708,7 @@
       "latitude": 41.1,
       "longitude": 39.72,
       "displayOrder": 13,
-      "probedAtUtc": "2026-07-30T15:17:38.062Z",
+      "probedAtUtc": "2026-07-30T16:05:34.301Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1534&TileCol=2499&I=236&J=48&infoformat=application%2Fjson",
@@ -2665,7 +2761,10 @@
         "gridLatitude": 41.208336,
         "gridLongitude": 39.708344,
         "distanceKm": 12.0859,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 41.125,
+        "windGridLongitude": 39.75,
+        "windDistanceKm": 3.7476,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 3.55,
         "windDirection10m": 302,
         "waveHeight": 0.96,
@@ -2744,7 +2843,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511, provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao; provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -2774,12 +2873,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -2799,7 +2898,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 12.086 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 12.086 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 3.748 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -2826,7 +2930,7 @@
       "latitude": 41.13,
       "longitude": 40.52,
       "displayOrder": 14,
-      "probedAtUtc": "2026-07-30T15:17:45.720Z",
+      "probedAtUtc": "2026-07-30T16:05:43.821Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1533&TileCol=2509&I=7&J=188&infoformat=application%2Fjson",
@@ -2879,7 +2983,10 @@
         "gridLatitude": 41.208336,
         "gridLongitude": 40.54167,
         "distanceKm": 8.8974,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 41.125,
+        "windGridLongitude": 40.5,
+        "windDistanceKm": 1.765,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 3.11,
         "windDirection10m": 228,
         "waveHeight": 0.7,
@@ -2958,7 +3065,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511, provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao; provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -2988,12 +3095,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -3013,7 +3120,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 8.897 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 8.897 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 1.765 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -3040,7 +3152,7 @@
       "latitude": 41.52,
       "longitude": 41.42,
       "displayOrder": 15,
-      "probedAtUtc": "2026-07-30T15:17:53.377Z",
+      "probedAtUtc": "2026-07-30T16:05:52.138Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1527&TileCol=2519&I=68&J=211&infoformat=application%2Fjson",
@@ -3093,7 +3205,10 @@
         "gridLatitude": 41.541664,
         "gridLongitude": 41.458344,
         "distanceKm": 3.9988,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 41.4375,
+        "windGridLongitude": 41.5,
+        "windDistanceKm": 11.3389,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 2.42,
         "windDirection10m": 114,
         "waveHeight": 0.38,
@@ -3172,7 +3287,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511, provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao; provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -3202,12 +3317,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411, provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR; provider echoed BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -3227,7 +3342,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 3.999 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 3.999 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 11.339 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -3254,7 +3374,7 @@
       "latitude": 40.5,
       "longitude": 27.35,
       "displayOrder": 16,
-      "probedAtUtc": "2026-07-30T15:17:58.491Z",
+      "probedAtUtc": "2026-07-30T16:05:57.275Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1543&TileCol=2359&I=46&J=52&infoformat=application%2Fjson",
@@ -3293,7 +3413,10 @@
         "gridLatitude": 40.541664,
         "gridLongitude": 27.375015,
         "distanceKm": 5.0925,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 40.4375,
+        "windGridLongitude": 27.3125,
+        "windDistanceKm": 7.6395,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 8.23,
         "windDirection10m": 63,
         "waveHeight": 0.98,
@@ -3372,7 +3495,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311, provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311/thetao; provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -3397,7 +3520,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 5.093 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 5.093 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 7.639 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -3429,7 +3557,7 @@
       "latitude": 40.87,
       "longitude": 27.5,
       "displayOrder": 17,
-      "probedAtUtc": "2026-07-30T15:18:03.602Z",
+      "probedAtUtc": "2026-07-30T16:06:02.521Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1537&TileCol=2360&I=227&J=167&infoformat=application%2Fjson",
@@ -3468,7 +3596,10 @@
         "gridLatitude": 40.875,
         "gridLongitude": 27.625015,
         "distanceKm": 10.5262,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 40.875,
+        "windGridLongitude": 27.4375,
+        "windDistanceKm": 5.2845,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 2.92,
         "windDirection10m": 38,
         "waveHeight": 0.84,
@@ -3547,7 +3678,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311, provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311/thetao; provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -3572,7 +3703,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 10.526 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 10.526 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 5.285 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -3604,7 +3740,7 @@
       "latitude": 40.55,
       "longitude": 27.9,
       "displayOrder": 18,
-      "probedAtUtc": "2026-07-30T15:18:08.727Z",
+      "probedAtUtc": "2026-07-30T16:06:07.902Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1542&TileCol=2365&I=112&J=117&infoformat=application%2Fjson",
@@ -3643,7 +3779,10 @@
         "gridLatitude": 40.541664,
         "gridLongitude": 27.791672,
         "distanceKm": 9.2001,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 40.5,
+        "windGridLongitude": 27.875,
+        "windDistanceKm": 5.9478,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 6.19,
         "windDirection10m": 59,
         "waveHeight": 0.62,
@@ -3722,7 +3861,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311, provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311/thetao; provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -3747,7 +3886,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 9.200 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 9.200 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 5.948 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -3779,7 +3923,7 @@
       "latitude": 40.85,
       "longitude": 28.8,
       "displayOrder": 19,
-      "probedAtUtc": "2026-07-30T15:18:13.994Z",
+      "probedAtUtc": "2026-07-30T16:06:13.565Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1537&TileCol=2375&I=174&J=244&infoformat=application%2Fjson",
@@ -3818,7 +3962,10 @@
         "gridLatitude": 40.875,
         "gridLongitude": 28.791672,
         "distanceKm": 2.8667,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 40.875,
+        "windGridLongitude": 28.8125,
+        "windDistanceKm": 2.972,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 8.14,
         "windDirection10m": 64,
         "waveHeight": 0.64,
@@ -3897,7 +4044,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311, provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311/thetao; provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -3922,7 +4069,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 2.867 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 2.867 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 2.972 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -3954,7 +4106,7 @@
       "latitude": 40.48,
       "longitude": 28.85,
       "displayOrder": 20,
-      "probedAtUtc": "2026-07-30T15:18:19.111Z",
+      "probedAtUtc": "2026-07-30T16:06:18.697Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1543&TileCol=2376&I=63&J=129&infoformat=application%2Fjson",
@@ -3993,7 +4145,10 @@
         "gridLatitude": 40.458336,
         "gridLongitude": 28.875015,
         "distanceKm": 3.2064,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 40.5,
+        "windGridLongitude": 28.875,
+        "windDistanceKm": 3.0684,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 3.42,
         "windDirection10m": 83,
         "waveHeight": 0.4,
@@ -4072,7 +4227,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311, provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311/thetao; provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -4097,7 +4252,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 3.206 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 3.206 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 3.068 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -4129,7 +4289,7 @@
       "latitude": 40.72,
       "longitude": 29.15,
       "displayOrder": 21,
-      "probedAtUtc": "2026-07-30T15:18:24.384Z",
+      "probedAtUtc": "2026-07-30T16:06:23.801Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1539&TileCol=2379&I=169&J=232&infoformat=application%2Fjson",
@@ -4168,7 +4328,10 @@
         "gridLatitude": 40.791664,
         "gridLongitude": 29.125015,
         "distanceKm": 8.2419,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 40.75,
+        "windGridLongitude": 29.125,
+        "windDistanceKm": 3.9452,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 6.96,
         "windDirection10m": 72,
         "waveHeight": 0.36,
@@ -4247,7 +4410,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311, provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311"
+          "detail": "routed to BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311/thetao; provider echoed BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -4272,7 +4435,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 8.242 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 8.242 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 3.945 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -4304,7 +4472,7 @@
       "latitude": 39.78,
       "longitude": 25.9,
       "displayOrder": 22,
-      "probedAtUtc": "2026-07-30T15:18:32.058Z",
+      "probedAtUtc": "2026-07-30T16:06:31.708Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_PHY_006_013%2Fcmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1553&TileCol=2342&I=175&J=236&infoformat=application%2Fjson",
@@ -4357,7 +4525,10 @@
         "gridLatitude": 39.791664,
         "gridLongitude": 25.875015,
         "distanceKm": 2.498,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 39.75,
+        "windGridLongitude": 25.875,
+        "windDistanceKm": 3.9616,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 9.62,
         "windDirection10m": 38,
         "waveHeight": 0.98,
@@ -4436,7 +4607,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511, provider echoed MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511/thetao; provider echoed MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -4466,12 +4637,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311, provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VHM0; provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311, provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VMDR; provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -4491,7 +4662,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 2.498 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 2.498 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 3.962 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -4518,7 +4694,7 @@
       "latitude": 39.42,
       "longitude": 26.45,
       "displayOrder": 23,
-      "probedAtUtc": "2026-07-30T15:18:39.736Z",
+      "probedAtUtc": "2026-07-30T16:06:39.466Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_PHY_006_013%2Fcmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1559&TileCol=2348&I=241&J=61&infoformat=application%2Fjson",
@@ -4571,7 +4747,10 @@
         "gridLatitude": 39.458336,
         "gridLongitude": 26.458344,
         "distanceKm": 4.3226,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 39.5,
+        "windGridLongitude": 26.4375,
+        "windDistanceKm": 8.9601,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 1,
         "windDirection10m": 360,
         "waveHeight": 0.2,
@@ -4650,7 +4829,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511, provider echoed MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511/thetao; provider echoed MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -4680,12 +4859,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311, provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VHM0; provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311, provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VMDR; provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -4705,7 +4884,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 4.323 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 4.323 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 8.960 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -4732,18 +4916,18 @@
       "latitude": 38.72,
       "longitude": 26.6,
       "displayOrder": 24,
-      "probedAtUtc": "2026-07-30T15:18:47.413Z",
+      "probedAtUtc": "2026-07-30T16:06:50.377Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_PHY_006_013%2Fcmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1569&TileCol=2350&I=166&J=127&infoformat=application%2Fjson",
           "httpStatus": 200,
           "contentType": "application/json",
-          "responseSha256": "af71f3163224b4f619c0de7e28418d700082808614c334606d4d4c0d941e2afe",
+          "responseSha256": "5000000d8d894258af91ad23343eb850c97de32f7c08c89a0188e94cb53b1bee",
           "requestedDatasetId": "MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511",
           "requestedVariableId": "thetao",
           "datasetId": "MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511",
           "variableId": "thetao",
-          "value": 23.030954360961914,
+          "value": 22.952136993408203,
           "units": "degrees_C",
           "gridLatitude": 38.7291673544529,
           "gridLongitude": 26.58333605147817,
@@ -4753,12 +4937,12 @@
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_WAV_006_017%2Fcmems_mod_med_wav_anfc_4.2km_PT1H-i_202311%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1569&TileCol=2350&I=166&J=127&infoformat=application%2Fjson",
           "httpStatus": 200,
           "contentType": "application/json",
-          "responseSha256": "95aa93fb573a6acd23734674990c88cbfa9e8fc6d43ab9d4ef9cb09e71c52f86",
+          "responseSha256": "73dfe337488443cba6c69c7acf30db7a5fe98e77983573f398bce1729b80c625",
           "requestedDatasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
           "requestedVariableId": "VHM0",
           "datasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
           "variableId": "VHM0",
-          "value": 1.3760000467300415,
+          "value": 1.3980001211166382,
           "units": "m",
           "gridLatitude": 38.7291673544529,
           "gridLongitude": 26.58333437804241,
@@ -4785,7 +4969,10 @@
         "gridLatitude": 38.791664,
         "gridLongitude": 26.625015,
         "distanceKm": 8.2586,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 38.75,
+        "windGridLongitude": 26.625,
+        "windDistanceKm": 3.9787,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 6.63,
         "windDirection10m": 34,
         "waveHeight": 0.94,
@@ -4859,12 +5046,12 @@
         {
           "id": "a1-sst-present",
           "passed": true,
-          "detail": "thetao = 23.030954360961914 °C (accepted 0–35)"
+          "detail": "thetao = 22.952136993408203 °C (accepted 0–35)"
         },
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511, provider echoed MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511/thetao; provider echoed MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -4884,7 +5071,7 @@
         {
           "id": "a2-wave-height-present",
           "passed": true,
-          "detail": "VHM0 = 1.3760000467300415 m"
+          "detail": "VHM0 = 1.3980001211166382 m"
         },
         {
           "id": "a3-wave-pair",
@@ -4894,12 +5081,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311, provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VHM0; provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311, provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VMDR; provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -4919,7 +5106,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 8.259 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 8.259 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 3.979 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -4946,7 +5138,7 @@
       "latitude": 37.6,
       "longitude": 27.1,
       "displayOrder": 25,
-      "probedAtUtc": "2026-07-30T15:18:55.095Z",
+      "probedAtUtc": "2026-07-30T16:06:58.314Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_PHY_006_013%2Fcmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1585&TileCol=2356&I=86&J=180&infoformat=application%2Fjson",
@@ -4999,7 +5191,10 @@
         "gridLatitude": 37.625,
         "gridLongitude": 27.125015,
         "distanceKm": 3.5472,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 37.625,
+        "windGridLongitude": 27.0625,
+        "windDistanceKm": 4.3172,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 6.53,
         "windDirection10m": 15,
         "waveHeight": 0.58,
@@ -5078,7 +5273,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511, provider echoed MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511/thetao; provider echoed MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -5108,12 +5303,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311, provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VHM0; provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311, provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VMDR; provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -5133,7 +5328,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 3.547 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 3.547 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 4.317 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -5160,7 +5360,7 @@
       "latitude": 36.95,
       "longitude": 27.25,
       "displayOrder": 26,
-      "probedAtUtc": "2026-07-30T15:19:02.773Z",
+      "probedAtUtc": "2026-07-30T16:07:05.974Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_PHY_006_013%2Fcmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1594&TileCol=2358&I=11&J=255&infoformat=application%2Fjson",
@@ -5213,7 +5413,10 @@
         "gridLatitude": 36.958336,
         "gridLongitude": 27.208344,
         "distanceKm": 3.8158,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 37,
+        "windGridLongitude": 27.3125,
+        "windDistanceKm": 7.8573,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 3.41,
         "windDirection10m": 328,
         "waveHeight": 0.94,
@@ -5292,7 +5495,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511, provider echoed MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511/thetao; provider echoed MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -5322,12 +5525,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311, provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VHM0; provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311, provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VMDR; provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -5347,7 +5550,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 3.816 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 3.816 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 7.857 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -5374,18 +5582,18 @@
       "latitude": 36.6,
       "longitude": 30.7,
       "displayOrder": 27,
-      "probedAtUtc": "2026-07-30T15:19:10.826Z",
+      "probedAtUtc": "2026-07-30T16:07:13.939Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_PHY_006_013%2Fcmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1599&TileCol=2397&I=76&J=248&infoformat=application%2Fjson",
           "httpStatus": 200,
           "contentType": "application/json",
-          "responseSha256": "694173a9aa3de0b9b6d2cfe7fe7fa1d7698266ba74089d914478e91a135a219e",
+          "responseSha256": "c8f16a742b07552f45ab3c2e41333fdb7afcee89005410c4f7ea1583c1ffaee7",
           "requestedDatasetId": "MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511",
           "requestedVariableId": "thetao",
           "datasetId": "MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511",
           "variableId": "thetao",
-          "value": 27.452451705932617,
+          "value": 27.409717559814453,
           "units": "degrees_C",
           "gridLatitude": 36.6041671833451,
           "gridLongitude": 30.708336247255787,
@@ -5395,12 +5603,12 @@
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_WAV_006_017%2Fcmems_mod_med_wav_anfc_4.2km_PT1H-i_202311%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1599&TileCol=2397&I=76&J=248&infoformat=application%2Fjson",
           "httpStatus": 200,
           "contentType": "application/json",
-          "responseSha256": "7febd85f4b6c4f8ddbd2d821c8f2929ea60ecb6d45c027c5f14be8108d2ad68c",
+          "responseSha256": "dc41760d9aab2f2c232003773c36297df62117fdf10d69db380afbba0456557a",
           "requestedDatasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
           "requestedVariableId": "VHM0",
           "datasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
           "variableId": "VHM0",
-          "value": 0.20000000298023224,
+          "value": 0.203000009059906,
           "units": "m",
           "gridLatitude": 36.6041671833451,
           "gridLongitude": 30.708334474432156,
@@ -5410,12 +5618,12 @@
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_WAV_006_017%2Fcmems_mod_med_wav_anfc_4.2km_PT1H-i_202311%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1599&TileCol=2397&I=76&J=248&infoformat=application%2Fjson",
           "httpStatus": 200,
           "contentType": "application/json",
-          "responseSha256": "b1e0a26728ac040a41221edc4c91401ccf6a7bfec51acf7e66b9fb97b5222ff4",
+          "responseSha256": "19d98376676c5513a2904939913bbde3507a676cc66c50234d97d43319d8ea4d",
           "requestedDatasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
           "requestedVariableId": "VMDR",
           "datasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
           "variableId": "VMDR",
-          "value": 185.7100067138672,
+          "value": 189.82000732421875,
           "units": "degree",
           "gridLatitude": 36.6041671833451,
           "gridLongitude": 30.708334474432156,
@@ -5427,7 +5635,10 @@
         "gridLatitude": 36.625,
         "gridLongitude": 30.708344,
         "distanceKm": 2.8779,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 36.625,
+        "windGridLongitude": 30.6875,
+        "windDistanceKm": 2.9954,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 9.01,
         "windDirection10m": 3,
         "waveHeight": 0.68,
@@ -5501,12 +5712,12 @@
         {
           "id": "a1-sst-present",
           "passed": true,
-          "detail": "thetao = 27.452451705932617 °C (accepted 0–35)"
+          "detail": "thetao = 27.409717559814453 °C (accepted 0–35)"
         },
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511, provider echoed MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511/thetao; provider echoed MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -5526,7 +5737,7 @@
         {
           "id": "a2-wave-height-present",
           "passed": true,
-          "detail": "VHM0 = 0.20000000298023224 m"
+          "detail": "VHM0 = 0.203000009059906 m"
         },
         {
           "id": "a3-wave-pair",
@@ -5536,12 +5747,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311, provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VHM0; provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311, provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VMDR; provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -5561,7 +5772,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 2.878 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 2.878 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 2.995 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -5588,7 +5804,7 @@
       "latitude": 36.6,
       "longitude": 34.5,
       "displayOrder": 28,
-      "probedAtUtc": "2026-07-30T15:19:18.524Z",
+      "probedAtUtc": "2026-07-30T16:07:21.594Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_PHY_006_013%2Fcmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1599&TileCol=2440&I=136&J=248&infoformat=application%2Fjson",
@@ -5641,7 +5857,10 @@
         "gridLatitude": 36.625,
         "gridLongitude": 34.458344,
         "distanceKm": 4.6423,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 36.6875,
+        "windGridLongitude": 34.4375,
+        "windDistanceKm": 11.2142,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 1.65,
         "windDirection10m": 346,
         "waveHeight": 0.26,
@@ -5720,7 +5939,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511, provider echoed MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511/thetao; provider echoed MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -5750,12 +5969,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311, provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VHM0; provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311, provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VMDR; provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -5775,7 +5994,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 4.642 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 4.642 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 11.214 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -5802,7 +6026,7 @@
       "latitude": 36.4,
       "longitude": 35.38,
       "displayOrder": 29,
-      "probedAtUtc": "2026-07-30T15:19:26.190Z",
+      "probedAtUtc": "2026-07-30T16:07:29.271Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_PHY_006_013%2Fcmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1602&TileCol=2450&I=139&J=205&infoformat=application%2Fjson",
@@ -5855,7 +6079,10 @@
         "gridLatitude": 36.375,
         "gridLongitude": 35.375015,
         "distanceKm": 2.8155,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 36.375,
+        "windGridLongitude": 35.375,
+        "windDistanceKm": 2.8157,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 1.53,
         "windDirection10m": 122,
         "waveHeight": 0.58,
@@ -5934,7 +6161,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511, provider echoed MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511/thetao; provider echoed MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -5964,12 +6191,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311, provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VHM0; provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311, provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VMDR; provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -5989,7 +6216,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 2.816 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 2.816 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 2.816 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",
@@ -6016,7 +6248,7 @@
       "latitude": 36.05,
       "longitude": 35.8,
       "displayOrder": 30,
-      "probedAtUtc": "2026-07-30T15:19:33.860Z",
+      "probedAtUtc": "2026-07-30T16:07:36.943Z",
       "cmems": {
         "seaSurfaceTemperature": {
           "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_PHY_006_013%2Fcmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1607&TileCol=2455&I=83&J=188&infoformat=application%2Fjson",
@@ -6069,7 +6301,10 @@
         "gridLatitude": 36.041664,
         "gridLongitude": 35.79167,
         "distanceKm": 1.1917,
-        "validAtUtc": "2026-07-30T00:00",
+        "windGridLatitude": 36.0625,
+        "windGridLongitude": 35.8125,
+        "windDistanceKm": 1.7873,
+        "validAtUtc": "2026-07-30T00:00:00Z",
         "windSpeed10m": 2.98,
         "windDirection10m": 220,
         "waveHeight": 0.52,
@@ -6148,7 +6383,7 @@
         {
           "id": "c2-sst-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511, provider echoed MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511/thetao; provider echoed MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511/thetao"
         },
         {
           "id": "b1-sst-distance",
@@ -6178,12 +6413,12 @@
         {
           "id": "c2-wave-height-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311, provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VHM0; provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VHM0"
         },
         {
           "id": "c2-wave-direction-dataset",
           "passed": true,
-          "detail": "requested MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311, provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311"
+          "detail": "routed to MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VMDR; provider echoed MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311/VMDR"
         },
         {
           "id": "b2-wave-distance",
@@ -6203,7 +6438,12 @@
         {
           "id": "b3-open-meteo-distance",
           "passed": true,
-          "detail": "open-meteo: 1.192 km against a 20 km ceiling"
+          "detail": "open-meteo marine grid (wave + SST): 1.192 km against a 20 km ceiling"
+        },
+        {
+          "id": "b4-open-meteo-wind-distance",
+          "passed": true,
+          "detail": "open-meteo forecast grid (wind): 1.787 km against a 20 km ceiling"
         },
         {
           "id": "c1-basin-box",

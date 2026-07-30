@@ -27,6 +27,13 @@ validate the file.
 **2026-07-30**, by a single `pnpm db:import:marine-points --phase=probe` invocation of the
 committed code. Not a replay, not a hand-edit. If you regenerate it, say so here.
 
+Re-run the same day after the PR #72 review, which hardened the acceptance criteria: the
+dataset routing is now re-derived against `BASIN_CMEMS_ROUTING` instead of only being
+echo-checked, the wind grid centre is recorded and thresholded on its own, coast labels are
+covered by the staleness gate, and `validAtUtc` carries an explicit UTC designator. New
+criteria mean the old evidence no longer certifies the points, so the artifact was
+regenerated rather than patched.
+
 |                              |                                                                                         |
 | ---------------------------- | --------------------------------------------------------------------------------------- |
 | Candidates                   | 30 (15 Black Sea, 6 Marmara, 5 Aegean, 4 Mediterranean) across **27** coastal provinces |
@@ -90,8 +97,14 @@ perfectly good temperature, i.e. points unambiguously at sea.
 
 The ceiling was therefore measuring a quantity Open-Meteo does not produce. It is now
 **20 km** ≈ half a cell diagonal (~5.8 km) + a two-cell wet-search allowance. Observed
-maximum in this run: **14.51 km**. Recorded as a deviation from a locked acceptance number
-and reported to Atlas.
+maximum in this run: **14.51 km**. Recorded as a deviation from a locked acceptance number,
+independently re-derived during review and ratified; `SPEC-ADDENDUM.md` §4.5(b) carries a dated
+correction note.
+
+**Wind has its own row now.** It comes from the `forecast` endpoint — a different model on a
+different grid from the `marine` one — and it is the only source of both wind layers. Recording
+just the marine grid centre left them with no distance evidence at all. Observed wind snap range
+in this run: **0.93 – 11.34 km**.
 
 This also corrects the served contract: `MarineValueDto.distanceKm` means an **in-cell
 offset** for `cmems` and a **nearest-wet-cell search distance** for `open-meteo`. Those are

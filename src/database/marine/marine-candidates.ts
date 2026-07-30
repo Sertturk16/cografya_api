@@ -39,12 +39,25 @@ import type { BoundingBox } from './geo';
  * carry two each). The v1.1 addendum budgeted "~31"; the exact number is this probe's output.
  */
 
-/** A candidate before the probe has judged it. */
+/**
+ * A candidate before the probe has judged it.
+ *
+ * Every field that ends up as a `marine_points` COLUMN belongs here, including the two coast
+ * labels. That is not tidiness: `assertArtifactMatchesCandidates` walks this shape to decide
+ * whether the committed artifact still describes current code, so a loaded column that is NOT
+ * on this interface is a column the staleness gate cannot see. `coastLabelTr`/`coastLabelEn`
+ * were exactly that — derived straight from `COAST_LABELS` at probe time and thereafter read
+ * only back out of the artifact, which meant a wording fix in `COAST_LABELS` shipped the OLD
+ * text forever, with every gate and every test green (review #72, silent-failure I1).
+ */
 export interface MarinePointCandidate {
   slugTr: string;
   slugEn: string;
   nameTr: string;
   nameEn: string;
+  /** Province-relative short label, derived from the basin — see {@link COAST_LABELS}. */
+  coastLabelTr: string;
+  coastLabelEn: string;
   plateCode: string;
   /** The province's TR name, carried into the artifact as the MAPPING audit trail (DEC 2026-07-19). */
   provinceNameTr: string;
@@ -331,7 +344,11 @@ const CANDIDATE_ROWS: readonly CandidateRow[] = [
   { plate: '17', basin: SeaBasin.Marmara, latitude: 40.5, longitude: 27.35 }, // Çanakkale, off Karabiga
   { plate: '59', basin: SeaBasin.Marmara, latitude: 40.87, longitude: 27.5 }, // Tekirdağ
   { plate: '10', basin: SeaBasin.Marmara, latitude: 40.55, longitude: 27.9 }, // Balıkesir, N of Kapıdağ
-  { plate: '34', basin: SeaBasin.Marmara, latitude: 40.85, longitude: 28.8 }, // İstanbul, S of the Adalar
+  // ~14 km off Bakırköy/Yeşilköy on İstanbul's central-west Marmara shore. (An earlier comment
+  // here said "south of the Princes' Islands" — wrong: the Adalar are ~29.12 E, some 27 km
+  // further east. Corrected per the MAPPING leg's independent re-derivation; the coordinate
+  // itself was and is correct.)
+  { plate: '34', basin: SeaBasin.Marmara, latitude: 40.85, longitude: 28.8 }, // İstanbul
   { plate: '16', basin: SeaBasin.Marmara, latitude: 40.48, longitude: 28.85 }, // Bursa, off Mudanya
   // Yalova: 40.72 / 29.15, NOT the first candidate 40.58 / 29.10 — that one sat on the Armutlu
   // peninsula and the 500 m Marmara model answered `null` for it, which is exactly the land-cell
@@ -398,6 +415,8 @@ export const MARINE_POINT_CANDIDATES: readonly MarinePointCandidate[] = (() => {
       nameEn: needsSeaQualifier
         ? `${province.nameTr} – ${naming.nameEn} Offshore`
         : `${province.nameTr} Offshore`,
+      coastLabelTr: COAST_LABELS[row.basin].tr,
+      coastLabelEn: COAST_LABELS[row.basin].en,
       plateCode: province.plateCode,
       provinceNameTr: province.nameTr,
       seaBasin: row.basin,

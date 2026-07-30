@@ -63,9 +63,21 @@ export interface OpenMeteoRequestRecord {
 
 /** One point's slice of the batched Open-Meteo responses (first time step). */
 export interface OpenMeteoProbeResult {
+  /** Grid centre of the MARINE call (wave + SST). */
   gridLatitude: number | null;
   gridLongitude: number | null;
   distanceKm: number | null;
+  /**
+   * Grid centre of the FORECAST call (wind) — a different endpoint, on a different grid.
+   *
+   * Recorded separately because wind is a published layer whose ONLY source is this call: if the
+   * artifact carried just the marine grid centre, there would be no evidence at all of where the
+   * wind value was actually read from, and no threshold guarding it. The two really do differ —
+   * they are different models — so collapsing them would be a guess dressed as a record.
+   */
+  windGridLatitude: number | null;
+  windGridLongitude: number | null;
+  windDistanceKm: number | null;
   /** The instant the sampled values belong to (`hourly.time[0]`), ISO-8601 UTC. */
   validAtUtc: string | null;
   windSpeed10m: number | null;

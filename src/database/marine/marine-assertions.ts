@@ -1,5 +1,6 @@
 import { MarineLayerId, MarineSource, SeaBasin } from '../../marine/marine.types';
 import { haversineKm, isInsideBoundingBox } from './geo';
+import type { CmemsLayerRef } from './marine-candidates';
 import {
   BASIN_BOUNDING_BOXES,
   BASIN_CMEMS_ROUTING,
@@ -73,12 +74,60 @@ function assertTransport(id: string, result: CmemsProbeResult): ProbeAssertionRe
   return pass(id, `HTTP 200, ${result.contentType}`);
 }
 
-/** (c2) The provider must echo back the dataset we asked for. */
-function assertDatasetEcho(id: string, result: CmemsProbeResult): ProbeAssertionResult {
+/**
+ * (c2) The dataset must be the one this BASIN routes to, and the provider must echo it back.
+ *
+ * Two claims, and the first one is the load-bearing half. Comparing only `datasetId` against
+ * `requestedDatasetId` compares two fields that both live INSIDE the artifact, so it can never
+ * detect that the artifact was gathered against a dataset the code no longer queries — the very
+ * "a file cannot corroborate itself" failure this module's docblock exists to forbid.
+ *
+ * That gap is not theoretical: `marine-candidates.ts` pins the dataset ids and records that they
+ * retire, that three version stamps are in service at once, and that the naming has no
+ * predictable pattern. Bump a pinned id (or paste the Black Sea id into the Marmara slot) and
+ * without this check every gate still passes while 30 rows are certified against a model the
+ * runtime will never query — and Marmara points get certified against the Black Sea model, which
+ * the addendum says means the point "has drifted".
+ *
+ * SPEC-ADDENDUM §4.5(c)2 asks for exactly this: the dataset must be the one `sea_basin` expects.
+ * The Marmara cross-check already bound itself to `MARMARA_CROSS_CHECK_LAYER`; SST and wave now
+ * do the same.
+ */
+function assertDatasetRouting(
+  id: string,
+  result: CmemsProbeResult,
+  expected: CmemsLayerRef,
+  basin: SeaBasin,
+): ProbeAssertionResult {
+  if (result.requestedDatasetId !== expected.datasetId) {
+    return check(
+      id,
+      false,
+      `basin ${basin} routes to ${expected.datasetId}, but the artifact was probed against ` +
+        `${result.requestedDatasetId} — the evidence is for a dataset this code no longer queries`,
+    );
+  }
+  if (result.requestedVariableId !== expected.variableId) {
+    return check(
+      id,
+      false,
+      `basin ${basin} expects variable ${expected.variableId}, artifact probed ` +
+        `${result.requestedVariableId}`,
+    );
+  }
+  if (result.datasetId !== result.requestedDatasetId) {
+    return check(
+      id,
+      false,
+      `requested ${result.requestedDatasetId}, provider echoed ${String(result.datasetId)}`,
+    );
+  }
+  // `variableId` is recorded by the probe and was previously never asserted at all.
   return check(
     id,
-    result.datasetId === result.requestedDatasetId,
-    `requested ${result.requestedDatasetId}, provider echoed ${String(result.datasetId)}`,
+    result.variableId === expected.variableId,
+    `routed to ${expected.datasetId}/${expected.variableId}; provider echoed ` +
+      `${String(result.datasetId)}/${String(result.variableId)}`,
   );
 }
 
@@ -121,7 +170,9 @@ export function evaluateProbeAssertions(entry: MarineProbeEntry): ProbeAssertion
         : `thetao = ${sstValue} °C (accepted ${SST_MIN_C}–${SST_MAX_C})`,
     ),
   );
-  results.push(assertDatasetEcho('c2-sst-dataset', sst));
+  results.push(
+    assertDatasetRouting('c2-sst-dataset', sst, routing.seaSurfaceTemperature, entry.seaBasin),
+  );
   results.push(
     assertGridDistance('b1-sst-distance', sst.distanceKm, routing.maxGridDistanceKm, 'thetao'),
   );
@@ -173,8 +224,17 @@ export function evaluateProbeAssertions(entry: MarineProbeEntry): ProbeAssertion
             `${direction.value === null ? 'null' : 'present'} — they must agree`,
         ),
       );
-      results.push(assertDatasetEcho('c2-wave-height-dataset', height));
-      results.push(assertDatasetEcho('c2-wave-direction-dataset', direction));
+      results.push(
+        assertDatasetRouting('c2-wave-height-dataset', height, routing.wave.height, entry.seaBasin),
+      );
+      results.push(
+        assertDatasetRouting(
+          'c2-wave-direction-dataset',
+          direction,
+          routing.wave.direction,
+          entry.seaBasin,
+        ),
+      );
       results.push(
         assertGridDistance(
           'b2-wave-distance',
@@ -207,7 +267,20 @@ export function evaluateProbeAssertions(entry: MarineProbeEntry): ProbeAssertion
       'b3-open-meteo-distance',
       openMeteo.distanceKm,
       OPEN_METEO_MAX_GRID_DISTANCE_KM,
-      'open-meteo',
+      'open-meteo marine grid (wave + SST)',
+    ),
+  );
+  // The wind grid gets its own threshold. Wind is a published layer whose ONLY source is the
+  // forecast endpoint — a different model on a different grid — so guarding just the marine grid
+  // left both wind layers with no distance evidence at all. Same ceiling: it is generous for the
+  // finer forecast grid, which is the right direction for a check whose job is to catch a
+  // coordinate nowhere near modelled water, not to police normal snapping.
+  results.push(
+    assertGridDistance(
+      'b4-open-meteo-wind-distance',
+      openMeteo.windDistanceKm,
+      OPEN_METEO_MAX_GRID_DISTANCE_KM,
+      'open-meteo forecast grid (wind)',
     ),
   );
 
@@ -349,7 +422,41 @@ export function evaluateRunAssertions(
     ),
   );
 
+  // Coordinate precision, which idempotency quietly depends on.
+  //
+  // `latitude`/`longitude` are `numeric(9,6)`. A coordinate pasted from a mapping tool at 7+
+  // decimals is silently ROUNDED to scale 6 on write, so it never compares equal on read-back,
+  // so every subsequent `load` reports `updated` and bumps `updated_at` — which feeds
+  // `dateModified` and the sitemap `lastmod`. CI would notice (the e2e loads the committed
+  // artifact twice and asserts `unchanged`) but only as an unexplained `updated=30`. This names
+  // the cause instead.
+  const overPrecise = entries
+    .filter(
+      (entry) => !isWithinColumnScale(entry.latitude) || !isWithinColumnScale(entry.longitude),
+    )
+    .map((entry) => `${entry.slugTr} (${String(entry.latitude)}, ${String(entry.longitude)})`);
+  results.push(
+    check(
+      'run-coordinate-scale',
+      overPrecise.length === 0,
+      overPrecise.length === 0
+        ? `every coordinate fits numeric(9,${String(COORDINATE_DECIMALS)}) exactly`
+        : `coordinate(s) with more than ${String(COORDINATE_DECIMALS)} decimals, which Postgres ` +
+            `will round on write and break load idempotency: ${overPrecise.join('; ')}`,
+    ),
+  );
+
   return results;
+}
+
+/** Decimal places of the `numeric(9,6)` coordinate columns on `marine_points`. */
+const COORDINATE_DECIMALS = 6;
+
+function isWithinColumnScale(value: number): boolean {
+  const scaled = value * 10 ** COORDINATE_DECIMALS;
+  // A tolerance rather than `Number.isInteger`: 40.72 * 1e6 is 40719999.999999996 in binary
+  // floating point, which is exactly representable at scale 6 but not an integer product.
+  return Math.abs(scaled - Math.round(scaled)) < 1e-6;
 }
 
 /**
@@ -478,6 +585,12 @@ export function assertArtifactMatchesCandidates(artifact: MarinePointsProbeArtif
       'slugEn',
       'nameTr',
       'nameEn',
+      // The two coast labels are on this list because they are LOADED COLUMNS. They used to be
+      // absent — derived from COAST_LABELS at probe time and thereafter read only back out of the
+      // artifact — so a wording fix in COAST_LABELS shipped the OLD text forever, with the gate,
+      // the e2e suite and CI all green (review #72, silent-failure I1 / code-reviewer I2).
+      'coastLabelTr',
+      'coastLabelEn',
       'plateCode',
       'provinceNameTr',
       'seaBasin',
@@ -518,6 +631,19 @@ export function assertProbeVerdictsAreSound(artifact: MarinePointsProbeArtifact)
 
   const drifted: string[] = [];
   for (const entry of artifact.entries) {
+    // The support matrix gets the same treatment as the verdicts, and for a sharper reason: it is
+    // the field the M4 runtime reads to decide `status: 'not_supported'` and to SKIP a provider
+    // call entirely. A hand-edited `supported: false` would silently retire a layer at a point
+    // that actually serves it. Inert in M1, load-bearing in M4 — cheaper to close now than to
+    // remember later.
+    const recomputedSupport = deriveLayerSupport(entry);
+    if (JSON.stringify(recomputedSupport) !== JSON.stringify(entry.support)) {
+      drifted.push(
+        `${entry.slugTr} / support: the recorded support matrix does not match a re-derivation ` +
+          `from the same evidence`,
+      );
+    }
+
     const recomputed = evaluateProbeAssertions(entry);
     const recordedById = new Map(entry.assertions.map((a) => [a.id, a]));
     for (const result of recomputed) {

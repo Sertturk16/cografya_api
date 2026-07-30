@@ -94,8 +94,14 @@ export enum MarineSource {
 /**
  * The five Faz-1 layers (SPEC-ADDENDUM §7.2, `MarineLayerDto.id`).
  *
- * The ids double as the `MarineValueDto` field names on the conditions/overview payloads, so
- * the layer catalogue can be joined to a value client-side without a mapping table.
+ * The ids are `snake_case`; the matching `MarineValueDto` properties on the conditions/overview
+ * payloads are `camelCase` (`sea_surface_temperature` ↔ `seaSurfaceTemperature`). They
+ * correspond one-to-one but they are NOT the same string, so a consumer joining the catalogue to
+ * a value payload must convert the case rather than index by the id.
+ *
+ * (An earlier version of this comment — and, worse, the published OpenAPI description — claimed
+ * the id "doubles as the field name". A web consumer following that indexes the payload by the
+ * id and gets `undefined`. Corrected per review #72.)
  */
 export enum MarineLayerId {
   SeaSurfaceTemperature = 'sea_surface_temperature',

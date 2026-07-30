@@ -1484,13 +1484,12 @@
             "description": "Wind direction at 10 m, degrees. True north, clockwise, 0–360. Per-field from/towards meaning is published in GET /api/marine/layers → directionConvention. This field is 'from'."
           },
           "source": {
+            "type": "string",
             "enum": [
-              "cmems",
               "open-meteo"
             ],
-            "type": "string",
             "example": "open-meteo",
-            "description": "Always open-meteo — CMEMS cannot serve a time range in one call."
+            "description": "Always open-meteo — CMEMS answers one time step per call, so a 5-day hourly series would cost ~120 requests per point."
           },
           "horizonEndUtc": {
             "type": "string",
@@ -1872,7 +1871,7 @@
               "wind_direction_10m"
             ],
             "type": "string",
-            "description": "Layer id; also the value field name on the conditions/overview payloads."
+            "description": "Layer id, snake_case. It corresponds one-to-one with a MarineValueDto property on the conditions/overview payloads, but those are camelCase — sea_surface_temperature ↔ seaSurfaceTemperature — so convert the case rather than indexing the payload by this id."
           },
           "labelTr": {
             "type": "string",
@@ -1901,7 +1900,7 @@
               "towards"
             ],
             "type": "string",
-            "description": "What a degree MEANS for this layer; null for non-direction layers. True north, clockwise, 0–360. Per-field from/towards meaning is published in GET /api/marine/layers → directionConvention."
+            "description": "What a degree MEANS for this layer; null for non-direction layers. True north, clockwise, 0–360. Per-field from/towards meaning is published in GET /api/marine/layers → directionConvention. INTERLOCK: publishing this field is only the FIRST of two preconditions for rendering a direction arrow. The second is M3’s regression test, which pins Open-Meteo’s wind convention — the provider does not document it, so it was established empirically. Until that test exists, direction-arrow rendering is out of scope on every surface; consume this field for labels and data, not for arrows."
           },
           "calmThreshold": {
             "type": "number",

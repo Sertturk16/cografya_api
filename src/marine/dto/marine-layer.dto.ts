@@ -40,7 +40,10 @@ export class MarineColorStopDto {
 export class MarineLayerDto {
   @ApiProperty({
     enum: MarineLayerId,
-    description: 'Layer id; also the value field name on the conditions/overview payloads.',
+    description:
+      'Layer id, snake_case. It corresponds one-to-one with a MarineValueDto property on the ' +
+      'conditions/overview payloads, but those are camelCase — sea_surface_temperature ↔ ' +
+      'seaSurfaceTemperature — so convert the case rather than indexing the payload by this id.',
   })
   id!: MarineLayerId;
 
@@ -56,7 +59,13 @@ export class MarineLayerDto {
   @ApiProperty({
     enum: MarineDirectionConvention,
     nullable: true,
-    description: `What a degree MEANS for this layer; null for non-direction layers. ${MARINE_DIRECTION_REFERENCE}`,
+    description:
+      `What a degree MEANS for this layer; null for non-direction layers. ${MARINE_DIRECTION_REFERENCE} ` +
+      'INTERLOCK: publishing this field is only the FIRST of two preconditions for rendering a ' +
+      'direction arrow. The second is M3’s regression test, which pins Open-Meteo’s wind ' +
+      'convention — the provider does not document it, so it was established empirically. Until ' +
+      'that test exists, direction-arrow rendering is out of scope on every surface; consume ' +
+      'this field for labels and data, not for arrows.',
   })
   directionConvention!: MarineDirectionConvention | null;
 

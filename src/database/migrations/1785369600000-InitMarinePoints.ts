@@ -71,9 +71,11 @@ export class InitMarinePoints1785369600000 implements MigrationInterface {
     await queryRunner.query(
       `CREATE INDEX "IDX_marine_points_province_plate_code" ON "marine_points" ("province_plate_code")`,
     );
-    await queryRunner.query(
-      `CREATE INDEX "IDX_marine_points_sea_basin" ON "marine_points" ("sea_basin")`,
-    );
+
+    // NO index on `sea_basin`, deliberately. It is a 4-value enum on a 30-row table and no
+    // endpoint in the frozen contract filters by it — Postgres would seq-scan regardless. An
+    // index with no consumer is the speculative machinery this repo's YAGNI default rejects; the
+    // plate-code index above earns its place because the M4 province endpoint filters on it.
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {

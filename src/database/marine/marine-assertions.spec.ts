@@ -16,6 +16,7 @@ import {
 } from './marine-assertions';
 import {
   BASIN_CMEMS_ROUTING,
+  COAST_LABELS,
   MARINE_POINT_CANDIDATES,
   MARMARA_CROSS_CHECK_LAYER,
 } from './marine-candidates';
@@ -104,6 +105,9 @@ function blackSeaEntry(overrides: Partial<MarineProbeEntry> = {}): MarineProbeEn
       gridLatitude: 42.2083,
       gridLongitude: 35.125,
       distanceKm: 6.8,
+      windGridLatitude: 42.15,
+      windGridLongitude: 35.15,
+      windDistanceKm: 0.4,
       validAtUtc: '2026-07-30T00:00:00Z',
       windSpeed10m: 3.1,
       windDirection10m: 190,
@@ -158,6 +162,9 @@ function marmaraEntry(overrides: Partial<MarineProbeEntry> = {}): MarineProbeEnt
       gridLatitude: 40.875,
       gridLongitude: 28.7917,
       distanceKm: 2.9,
+      windGridLatitude: 40.85,
+      windGridLongitude: 28.8,
+      windDistanceKm: 0.2,
       validAtUtc: '2026-07-30T00:00:00Z',
       windSpeed10m: 4.4,
       windDirection10m: 30,
@@ -461,8 +468,13 @@ describe('assertProbeVerdictsAreSound', () => {
     };
   }
 
+  /** Seal a fixture the way the probe does: derive the support matrix AND the verdicts. */
   function sealed(entry: MarineProbeEntry): MarineProbeEntry {
-    return { ...entry, assertions: evaluateProbeAssertions(entry) };
+    return {
+      ...entry,
+      support: deriveLayerSupport(entry),
+      assertions: evaluateProbeAssertions(entry),
+    };
   }
 
   it('accepts an artifact whose recorded verdicts match a re-derivation', () => {
@@ -560,5 +572,152 @@ describe('assertArtifactMatchesCandidates', () => {
     expect(() => {
       assertArtifactMatchesCandidates(stale);
     }).toThrow(/STALE/);
+  });
+});
+
+describe('(c2) dataset routing is re-derived against the code, not just echoed', () => {
+  /**
+   * The gap this closes: comparing `datasetId` to `requestedDatasetId` compares two fields that
+   * both live inside the artifact, so it can never detect that the evidence was gathered against
+   * a dataset the code no longer routes to. `marine-candidates.ts` pins those ids and records
+   * that they retire — so this is the failure the pinning itself predicts.
+   */
+  it('fails when the artifact was probed against a dataset this basin no longer routes to', () => {
+    const entry = blackSeaEntry();
+    const stalePin =
+      'BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_209901';
+    // Internally consistent — requested and echoed agree, exactly as a real old run would look.
+    entry.cmems.seaSurfaceTemperature = cmemsResult({
+      requestedDatasetId: stalePin,
+      datasetId: stalePin,
+    });
+    expect(failedIds(entry)).toContain('c2-sst-dataset');
+  });
+
+  it('fails a Marmara point certified against the BLACK SEA temperature model', () => {
+    // The copy-paste this assertion is really for: the addendum says a Marmara point answering
+    // from the 2.5 km Black Sea model "has drifted into the Black Sea model".
+    const entry = marmaraEntry();
+    const blackSeaTemp = BASIN_CMEMS_ROUTING[SeaBasin.BlackSea].seaSurfaceTemperature.datasetId;
+    entry.cmems.seaSurfaceTemperature = cmemsResult({
+      requestedDatasetId: blackSeaTemp,
+      datasetId: blackSeaTemp,
+      gridLatitude: 40.85,
+      gridLongitude: 28.8,
+      distanceKm: 0.1,
+      value: 23.5,
+    });
+    expect(failedIds(entry)).toContain('c2-sst-dataset');
+  });
+
+  it('fails when the provider echoed a different VARIABLE than we asked for', () => {
+    const entry = blackSeaEntry();
+    entry.cmems.seaSurfaceTemperature = cmemsResult({ variableId: 'so' });
+    expect(failedIds(entry)).toContain('c2-sst-dataset');
+  });
+});
+
+describe('(b4) the wind grid has its own distance evidence', () => {
+  it('fails a wind snap beyond the ceiling even when the marine snap is fine', () => {
+    // Wind comes from a DIFFERENT endpoint on a DIFFERENT grid, and it is the only source of
+    // both wind layers — guarding only the marine grid left them with no distance evidence.
+    const entry = blackSeaEntry();
+    entry.openMeteo = { ...entry.openMeteo, windDistanceKm: 40 };
+    const failed = failedIds(entry);
+    expect(failed).toContain('b4-open-meteo-wind-distance');
+    expect(failed).not.toContain('b3-open-meteo-distance');
+  });
+});
+
+describe('run-coordinate-scale', () => {
+  function runFailures(entries: MarineProbeEntry[]): string[] {
+    return evaluateRunAssertions(entries)
+      .filter((result) => !result.passed)
+      .map((result) => result.id);
+  }
+
+  it('accepts coordinates that fit numeric(9,6) exactly', () => {
+    expect(runFailures([blackSeaEntry()])).not.toContain('run-coordinate-scale');
+  });
+
+  it('rejects a coordinate with more decimals than the column can store', () => {
+    // Postgres rounds it on write, so it never compares equal on read-back and every subsequent
+    // load reports `updated` — silently bumping updated_at, which feeds dateModified and the
+    // sitemap lastmod. Without this the symptom is an unexplained `updated=30`.
+    const entry = blackSeaEntry({ latitude: 42.1234567 });
+    expect(runFailures([entry])).toContain('run-coordinate-scale');
+  });
+});
+
+describe('the support matrix is re-derived, not trusted', () => {
+  it('refuses an artifact whose recorded support matrix was hand-edited', () => {
+    // `support` is what the M4 runtime reads to decide `not_supported` and to SKIP a provider
+    // call, so a flipped flag would silently retire a layer at a point that actually serves it.
+    const entry = blackSeaEntry();
+    const sealed = {
+      ...entry,
+      support: deriveLayerSupport(entry).map((row) => ({ ...row, supported: false })),
+      assertions: evaluateProbeAssertions(entry),
+    };
+
+    expect(() => {
+      assertProbeVerdictsAreSound({
+        generatedAtUtc: '2026-07-30T12:00:00.000Z',
+        userAgent: 'test',
+        cmems: {
+          endpoint: 'https://example.invalid/teroWmts',
+          tileMatrixSet: 'EPSG:3857',
+          zoom: 12,
+          timeParam: null,
+        },
+        openMeteo: {
+          forecastEndpoint: 'https://example.invalid/forecast',
+          marineEndpoint: 'https://example.invalid/marine',
+          windSpeedUnit: 'ms',
+          requests: [],
+        },
+        entries: [sealed],
+      });
+    }).toThrow(/support matrix does not match a re-derivation/);
+  });
+});
+
+describe('the staleness gate covers the coast labels', () => {
+  const committed = JSON.parse(
+    readFileSync(
+      join(__dirname, '..', '..', '..', 'data', 'marine', 'marine-points-probe.json'),
+      'utf8',
+    ),
+  ) as MarinePointsProbeArtifact;
+
+  it('rejects an artifact whose coast label no longer matches COAST_LABELS', () => {
+    // The hole the review found: coastLabel is a LOADED COLUMN that was outside both gates, so a
+    // wording fix in COAST_LABELS shipped the old text forever with everything green.
+    const stale = JSON.parse(JSON.stringify(committed)) as MarinePointsProbeArtifact;
+    const first = stale.entries[0];
+    if (first === undefined) throw new Error('the committed artifact has no entries');
+    first.coastLabelTr = 'eski metin';
+
+    expect(() => {
+      assertArtifactMatchesCandidates(stale);
+    }).toThrow(/STALE/);
+  });
+
+  it('rejects a drifted EN label too, not only the TR one', () => {
+    const stale = JSON.parse(JSON.stringify(committed)) as MarinePointsProbeArtifact;
+    const first = stale.entries[0];
+    if (first === undefined) throw new Error('the committed artifact has no entries');
+    first.coastLabelEn = 'stale text';
+
+    expect(() => {
+      assertArtifactMatchesCandidates(stale);
+    }).toThrow(/STALE/);
+  });
+
+  it('holds every committed coast label equal to the live COAST_LABELS value', () => {
+    for (const candidate of MARINE_POINT_CANDIDATES) {
+      expect(candidate.coastLabelTr).toBe(COAST_LABELS[candidate.seaBasin].tr);
+      expect(candidate.coastLabelEn).toBe(COAST_LABELS[candidate.seaBasin].en);
+    }
   });
 });
