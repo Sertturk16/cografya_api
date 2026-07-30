@@ -1,4 +1,4 @@
-import { MarineLayerId, MarineSource, SeaBasin } from '../../marine/marine.types';
+import { MarineLayerId, SeaBasin } from '../../marine/marine.types';
 import { haversineKm, isInsideBoundingBox } from './geo';
 import type { CmemsLayerRef, MarinePointCandidate } from './marine-candidates';
 import {
@@ -11,6 +11,7 @@ import {
   SST_MIN_C,
   TWO_SEA_MIN_SEPARATION_KM,
 } from './marine-candidates';
+import { MARINE_ARTIFACT_SOURCE } from './marine-artifact.types';
 import type {
   CmemsProbeResult,
   LayerSupportEntry,
@@ -478,49 +479,49 @@ export function deriveLayerSupport(entry: MarineProbeEntry): LayerSupportEntry[]
   return [
     {
       layerId: MarineLayerId.SeaSurfaceTemperature,
-      source: MarineSource.Cmems,
+      source: MARINE_ARTIFACT_SOURCE.cmems,
       supported: entry.cmems.seaSurfaceTemperature.value !== null,
       reason: 'CMEMS temperature is available in all four basins',
     },
     {
       layerId: MarineLayerId.SeaSurfaceTemperature,
-      source: MarineSource.OpenMeteo,
+      source: MARINE_ARTIFACT_SOURCE.openMeteo,
       supported: entry.openMeteo.seaSurfaceTemperature !== null,
       reason: 'Open-Meteo fallback for temperature',
     },
     {
       layerId: MarineLayerId.WaveHeight,
-      source: MarineSource.Cmems,
+      source: MARINE_ARTIFACT_SOURCE.cmems,
       supported: waveSupported,
       reason: waveReason,
     },
     {
       layerId: MarineLayerId.WaveHeight,
-      source: MarineSource.OpenMeteo,
+      source: MARINE_ARTIFACT_SOURCE.openMeteo,
       supported: entry.openMeteo.waveHeight !== null,
       reason: 'Open-Meteo wave height — the ONLY source in the Marmara',
     },
     {
       layerId: MarineLayerId.WaveDirection,
-      source: MarineSource.Cmems,
+      source: MARINE_ARTIFACT_SOURCE.cmems,
       supported: entry.cmems.waveDirection !== null && entry.cmems.waveDirection.value !== null,
       reason: waveReason,
     },
     {
       layerId: MarineLayerId.WaveDirection,
-      source: MarineSource.OpenMeteo,
+      source: MARINE_ARTIFACT_SOURCE.openMeteo,
       supported: entry.openMeteo.waveDirection !== null,
       reason: 'Open-Meteo wave direction — the ONLY source in the Marmara',
     },
     {
       layerId: MarineLayerId.WindSpeed10m,
-      source: MarineSource.OpenMeteo,
+      source: MARINE_ARTIFACT_SOURCE.openMeteo,
       supported: entry.openMeteo.windSpeed10m !== null,
       reason: 'CMEMS is an ocean service and carries no wind field anywhere',
     },
     {
       layerId: MarineLayerId.WindDirection10m,
-      source: MarineSource.OpenMeteo,
+      source: MARINE_ARTIFACT_SOURCE.openMeteo,
       supported: entry.openMeteo.windDirection10m !== null,
       reason: 'CMEMS is an ocean service and carries no wind field anywhere',
     },

@@ -1,0 +1,1249 @@
+{
+  "generatedAtUtc": "2026-07-30T22:49:47.381Z",
+  "userAgent": "CografyaPlatformBot/1.0 (non-commercial educational geography platform; ECMWF Open Data reference-point probe; run by hand)",
+  "baseUrl": "https://data.ecmwf.int/forecasts",
+  "cycleUtc": "2026-07-30T12:00:00.000Z",
+  "stepHours": 72,
+  "plannedStepCount": 41,
+  "plannedHorizonHours": 120,
+  "decoder": {
+    "package": "@mattnucc/gribberish",
+    "version": "1.6.0",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "directionConvention": {
+    "source": "ECMWF Parameter Database, paramId 140230 (mwd) — https://codes.ecmwf.int/grib/param-db/140230",
+    "quote": "The units are degree true which means the direction relative to the geographic location of the north pole. Zero means 'coming from the north' and 90 'coming from the east'."
+  },
+  "requests": [
+    {
+      "label": "oper.index",
+      "url": "https://data.ecmwf.int/forecasts/20260730/12z/ifs/0p25/oper/20260730120000-72h-oper-fc.index",
+      "method": "GET",
+      "rangeHeader": null,
+      "httpStatus": 200,
+      "contentType": "application/json",
+      "bytes": 40204,
+      "durationMs": 476,
+      "sha256": "3814a0c3843f28b43b3919f2aff0b4142c5d11b355ca2f157724f8d679316e3e"
+    },
+    {
+      "label": "wave.index",
+      "url": "https://data.ecmwf.int/forecasts/20260730/12z/ifs/0p25/wave/20260730120000-72h-wave-fc.index",
+      "method": "GET",
+      "rangeHeader": null,
+      "httpStatus": 200,
+      "contentType": "application/json",
+      "bytes": 2660,
+      "durationMs": 124,
+      "sha256": "2bb9a0b5f7351738561763f225ebd43aa5c4c5de407943905e69efc23457cb9e"
+    },
+    {
+      "label": "oper.range",
+      "url": "https://data.ecmwf.int/forecasts/20260730/12z/ifs/0p25/oper/20260730120000-72h-oper-fc.grib2",
+      "method": "GET",
+      "rangeHeader": "bytes=10186000-10935721",
+      "httpStatus": 206,
+      "contentType": "application/grib",
+      "bytes": 749722,
+      "durationMs": 639,
+      "sha256": "a9ea4a4628acb73c1b113f5a2ccd008129f69d2aa8592079892e80a4ebdd8bab"
+    },
+    {
+      "label": "oper.range",
+      "url": "https://data.ecmwf.int/forecasts/20260730/12z/ifs/0p25/oper/20260730120000-72h-oper-fc.grib2",
+      "method": "GET",
+      "rangeHeader": "bytes=14175789-14920283",
+      "httpStatus": 206,
+      "contentType": "application/grib",
+      "bytes": 744495,
+      "durationMs": 454,
+      "sha256": "c078828432665ae2a756af36db614ace22c3c9554a054e45dd77fc7ca90c91fb"
+    },
+    {
+      "label": "wave.range",
+      "url": "https://data.ecmwf.int/forecasts/20260730/12z/ifs/0p25/wave/20260730120000-72h-wave-fc.grib2",
+      "method": "GET",
+      "rangeHeader": "bytes=5886914-7709051",
+      "httpStatus": 206,
+      "contentType": "application/grib",
+      "bytes": 1822138,
+      "durationMs": 1146,
+      "sha256": "0a8f84bf63b4d1349191aa49515309167cd416431fadec00dbb7885350f37cba"
+    }
+  ],
+  "totals": {
+    "requestCount": 5,
+    "downloadedBytes": 3359219,
+    "downloadMs": 2839,
+    "decodeMs": 352
+  },
+  "messages": [
+    {
+      "param": "10u",
+      "stream": "oper",
+      "offsetInFile": 10186000,
+      "lengthBytes": 749722,
+      "dataRepresentationTemplate": 42,
+      "packingLabel": "grid_ccsds",
+      "bitsPerValue": 12,
+      "columns": 1440,
+      "rows": 721,
+      "numberOfDataPoints": 1038240,
+      "numberOfEncodedValues": 1038240,
+      "bitmapPresent": false,
+      "firstLatitude": 90,
+      "firstLongitude": 180,
+      "lastLatitude": -90,
+      "lastLongitude": 179.75,
+      "scanningMode": 0,
+      "referenceTimeUtc": "2026-07-30T12:00:00.000Z",
+      "forecastHours": 72,
+      "validTimeUtc": "2026-08-02T12:00:00.000Z",
+      "finiteValues": 1038240,
+      "decodeMs": 103
+    },
+    {
+      "param": "10v",
+      "stream": "oper",
+      "offsetInFile": 14175789,
+      "lengthBytes": 744495,
+      "dataRepresentationTemplate": 42,
+      "packingLabel": "grid_ccsds",
+      "bitsPerValue": 12,
+      "columns": 1440,
+      "rows": 721,
+      "numberOfDataPoints": 1038240,
+      "numberOfEncodedValues": 1038240,
+      "bitmapPresent": false,
+      "firstLatitude": 90,
+      "firstLongitude": 180,
+      "lastLatitude": -90,
+      "lastLongitude": 179.75,
+      "scanningMode": 0,
+      "referenceTimeUtc": "2026-07-30T12:00:00.000Z",
+      "forecastHours": 72,
+      "validTimeUtc": "2026-08-02T12:00:00.000Z",
+      "finiteValues": 1038240,
+      "decodeMs": 102
+    },
+    {
+      "param": "swh",
+      "stream": "wave",
+      "offsetInFile": 5886914,
+      "lengthBytes": 847407,
+      "dataRepresentationTemplate": 42,
+      "packingLabel": "grid_ccsds",
+      "bitsPerValue": 16,
+      "columns": 1440,
+      "rows": 721,
+      "numberOfDataPoints": 1038240,
+      "numberOfEncodedValues": 665628,
+      "bitmapPresent": true,
+      "firstLatitude": 90,
+      "firstLongitude": 180,
+      "lastLatitude": -90,
+      "lastLongitude": 179.75,
+      "scanningMode": 0,
+      "referenceTimeUtc": "2026-07-30T12:00:00.000Z",
+      "forecastHours": 72,
+      "validTimeUtc": "2026-08-02T12:00:00.000Z",
+      "finiteValues": 665628,
+      "decodeMs": 74
+    },
+    {
+      "param": "mwd",
+      "stream": "wave",
+      "offsetInFile": 6734321,
+      "lengthBytes": 974731,
+      "dataRepresentationTemplate": 42,
+      "packingLabel": "grid_ccsds",
+      "bitsPerValue": 16,
+      "columns": 1440,
+      "rows": 721,
+      "numberOfDataPoints": 1038240,
+      "numberOfEncodedValues": 665628,
+      "bitmapPresent": true,
+      "firstLatitude": 90,
+      "firstLongitude": 180,
+      "lastLatitude": -90,
+      "lastLongitude": 179.75,
+      "scanningMode": 0,
+      "referenceTimeUtc": "2026-07-30T12:00:00.000Z",
+      "forecastHours": 72,
+      "validTimeUtc": "2026-08-02T12:00:00.000Z",
+      "finiteValues": 665628,
+      "decodeMs": 74
+    }
+  ],
+  "points": [
+    {
+      "slugTr": "kirklareli-aciklari",
+      "slugEn": "kirklareli-offshore",
+      "plateCode": "39",
+      "provinceNameTr": "Kırklareli",
+      "seaBasin": "black_sea",
+      "latitude": 41.95,
+      "longitude": 28.15,
+      "displayOrder": 1,
+      "gridLatitude": 42,
+      "gridLongitude": 28.25,
+      "gridRow": 192,
+      "gridColumn": 833,
+      "gridIndex": 277313,
+      "distanceKm": 9.9623,
+      "thresholdKm": 20.7807,
+      "withinThreshold": true,
+      "values": {
+        "10u": -3.2894287109375,
+        "10v": -6.9886322021484375,
+        "swh": 1.0764314383268356,
+        "mwd": 57.71234431071207
+      },
+      "derived": {
+        "windSpeed10m": 7.724074138771977,
+        "windDirection10m": 25.20555755401199
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "istanbul-karadeniz-aciklari",
+      "slugEn": "istanbul-black-sea-offshore",
+      "plateCode": "34",
+      "provinceNameTr": "İstanbul",
+      "seaBasin": "black_sea",
+      "latitude": 41.3,
+      "longitude": 29.61,
+      "displayOrder": 2,
+      "gridLatitude": 41.25,
+      "gridLongitude": 29.5,
+      "gridRow": 195,
+      "gridColumn": 838,
+      "gridIndex": 281638,
+      "distanceKm": 10.7431,
+      "thresholdKm": 20.8675,
+      "withinThreshold": true,
+      "values": {
+        "10u": -4.1331787109375,
+        "10v": -4.1136322021484375,
+        "swh": 0.9040681570768356,
+        "mwd": 39.96234431071207
+      },
+      "derived": {
+        "windSpeed10m": 5.831392299537013,
+        "windDirection10m": 45.135801629557534
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "kocaeli-aciklari",
+      "slugEn": "kocaeli-offshore",
+      "plateCode": "41",
+      "provinceNameTr": "Kocaeli",
+      "seaBasin": "black_sea",
+      "latitude": 41.25,
+      "longitude": 30.2,
+      "displayOrder": 3,
+      "gridLatitude": 41.25,
+      "gridLongitude": 30.25,
+      "gridRow": 195,
+      "gridColumn": 841,
+      "gridIndex": 281641,
+      "distanceKm": 4.18,
+      "thresholdKm": 20.8675,
+      "withinThreshold": true,
+      "values": {
+        "10u": -3.1331787109375,
+        "10v": -3.7073822021484375,
+        "swh": 0.8471833914518356,
+        "mwd": 33.76703181071207
+      },
+      "derived": {
+        "windSpeed10m": 4.854018090971538,
+        "windDirection10m": 40.2017837017284
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "sakarya-aciklari",
+      "slugEn": "sakarya-offshore",
+      "plateCode": "54",
+      "provinceNameTr": "Sakarya",
+      "seaBasin": "black_sea",
+      "latitude": 41.2,
+      "longitude": 30.68,
+      "displayOrder": 4,
+      "gridLatitude": 41.25,
+      "gridLongitude": 30.75,
+      "gridRow": 195,
+      "gridColumn": 843,
+      "gridIndex": 281643,
+      "distanceKm": 8.0736,
+      "thresholdKm": 20.8675,
+      "withinThreshold": true,
+      "values": {
+        "10u": -2.1019287109375,
+        "10v": -1.1448822021484375,
+        "swh": 0.7566072195768356,
+        "mwd": 28.16546931071207
+      },
+      "derived": {
+        "windSpeed10m": 2.3935036165963144,
+        "windDirection10m": 61.42367657600545
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "duzce-aciklari",
+      "slugEn": "duzce-offshore",
+      "plateCode": "81",
+      "provinceNameTr": "Düzce",
+      "seaBasin": "black_sea",
+      "latitude": 41.18,
+      "longitude": 31.13,
+      "displayOrder": 5,
+      "gridLatitude": 41.25,
+      "gridLongitude": 31.25,
+      "gridRow": 195,
+      "gridColumn": 845,
+      "gridIndex": 281645,
+      "distanceKm": 12.7018,
+      "thresholdKm": 20.8675,
+      "withinThreshold": true,
+      "values": {
+        "10u": 0.9918212890625,
+        "10v": -2.3323822021484375,
+        "swh": 0.5615388602018356,
+        "mwd": 14.51703181071207
+      },
+      "derived": {
+        "windSpeed10m": 2.5345051205977853,
+        "windDirection10m": 336.9628808976341
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "zonguldak-aciklari",
+      "slugEn": "zonguldak-offshore",
+      "plateCode": "67",
+      "provinceNameTr": "Zonguldak",
+      "seaBasin": "black_sea",
+      "latitude": 41.55,
+      "longitude": 31.78,
+      "displayOrder": 6,
+      "gridLatitude": 41.5,
+      "gridLongitude": 31.75,
+      "gridRow": 194,
+      "gridColumn": 847,
+      "gridIndex": 280207,
+      "distanceKm": 6.0949,
+      "thresholdKm": 20.8386,
+      "withinThreshold": true,
+      "values": {
+        "10u": -2.7581787109375,
+        "10v": -3.3011322021484375,
+        "swh": 0.5832673758268356,
+        "mwd": 14.58734431071207
+      },
+      "derived": {
+        "windSpeed10m": 4.301746577557799,
+        "windDirection10m": 39.87960238856215
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "bartin-aciklari",
+      "slugEn": "bartin-offshore",
+      "plateCode": "74",
+      "provinceNameTr": "Bartın",
+      "seaBasin": "black_sea",
+      "latitude": 41.85,
+      "longitude": 32.38,
+      "displayOrder": 7,
+      "gridLatitude": 41.75,
+      "gridLongitude": 32.5,
+      "gridRow": 193,
+      "gridColumn": 850,
+      "gridIndex": 278770,
+      "distanceKm": 14.9194,
+      "thresholdKm": 20.8097,
+      "withinThreshold": true,
+      "values": {
+        "10u": -4.9456787109375,
+        "10v": -4.5198822021484375,
+        "swh": 0.6106111258268356,
+        "mwd": 26.98578181071207
+      },
+      "derived": {
+        "windSpeed10m": 6.699930823009938,
+        "windDirection10m": 47.57564315653656
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "kastamonu-aciklari",
+      "slugEn": "kastamonu-offshore",
+      "plateCode": "37",
+      "provinceNameTr": "Kastamonu",
+      "seaBasin": "black_sea",
+      "latitude": 42.08,
+      "longitude": 33.76,
+      "displayOrder": 8,
+      "gridLatitude": 42,
+      "gridLongitude": 33.75,
+      "gridRow": 192,
+      "gridColumn": 855,
+      "gridIndex": 277335,
+      "distanceKm": 8.9339,
+      "thresholdKm": 20.7807,
+      "withinThreshold": true,
+      "values": {
+        "10u": -0.9769287109375,
+        "10v": -1.0511322021484375,
+        "swh": 0.5600740164518356,
+        "mwd": 29.34515681071207
+      },
+      "derived": {
+        "windSpeed10m": 1.4350151959639414,
+        "windDirection10m": 42.904574182347005
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "sinop-aciklari",
+      "slugEn": "sinop-offshore",
+      "plateCode": "57",
+      "provinceNameTr": "Sinop",
+      "seaBasin": "black_sea",
+      "latitude": 42.15,
+      "longitude": 35.15,
+      "displayOrder": 9,
+      "gridLatitude": 42.25,
+      "gridLongitude": 35.25,
+      "gridRow": 191,
+      "gridColumn": 861,
+      "gridIndex": 275901,
+      "distanceKm": 13.8383,
+      "thresholdKm": 20.7516,
+      "withinThreshold": true,
+      "values": {
+        "10u": -1.6956787109375,
+        "10v": -4.2073822021484375,
+        "swh": 0.9189607352018356,
+        "mwd": 20.03265681071207
+      },
+      "derived": {
+        "windSpeed10m": 4.536230955945927,
+        "windDirection10m": 21.950649435003697
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "samsun-aciklari",
+      "slugEn": "samsun-offshore",
+      "plateCode": "55",
+      "provinceNameTr": "Samsun",
+      "seaBasin": "black_sea",
+      "latitude": 41.4,
+      "longitude": 36.33,
+      "displayOrder": 10,
+      "gridLatitude": 41.5,
+      "gridLongitude": 36.25,
+      "gridRow": 194,
+      "gridColumn": 865,
+      "gridIndex": 280225,
+      "distanceKm": 12.9653,
+      "thresholdKm": 20.8386,
+      "withinThreshold": true,
+      "values": {
+        "10u": 4.2105712890625,
+        "10v": -5.9573822021484375,
+        "swh": 0.7666169852018356,
+        "mwd": 345.43890681071207
+      },
+      "derived": {
+        "windSpeed10m": 7.295156837433477,
+        "windDirection10m": 324.74801293212755
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "ordu-aciklari",
+      "slugEn": "ordu-offshore",
+      "plateCode": "52",
+      "provinceNameTr": "Ordu",
+      "seaBasin": "black_sea",
+      "latitude": 41.08,
+      "longitude": 37.88,
+      "displayOrder": 11,
+      "gridLatitude": 41,
+      "gridLongitude": 38,
+      "gridRow": 196,
+      "gridColumn": 872,
+      "gridIndex": 283112,
+      "distanceKm": 13.4321,
+      "thresholdKm": 20.8963,
+      "withinThreshold": true,
+      "values": {
+        "10u": -1.2269287109375,
+        "10v": -1.7073822021484375,
+        "swh": 0.41334550082683563,
+        "mwd": 331.72015681071207
+      },
+      "derived": {
+        "windSpeed10m": 2.10250042709532,
+        "windDirection10m": 35.70110957126536
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "giresun-aciklari",
+      "slugEn": "giresun-offshore",
+      "plateCode": "28",
+      "provinceNameTr": "Giresun",
+      "seaBasin": "black_sea",
+      "latitude": 40.99,
+      "longitude": 38.39,
+      "displayOrder": 12,
+      "gridLatitude": 41,
+      "gridLongitude": 38.5,
+      "gridRow": 196,
+      "gridColumn": 874,
+      "gridIndex": 283114,
+      "distanceKm": 9.2986,
+      "thresholdKm": 20.8963,
+      "withinThreshold": true,
+      "values": {
+        "10u": 1.3355712890625,
+        "10v": 1.7926177978515625,
+        "swh": 0.38673417270183563,
+        "mwd": 319.66546931071207
+      },
+      "derived": {
+        "windSpeed10m": 2.2354483302779005,
+        "windDirection10m": 216.68757061156256
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "trabzon-aciklari",
+      "slugEn": "trabzon-offshore",
+      "plateCode": "61",
+      "provinceNameTr": "Trabzon",
+      "seaBasin": "black_sea",
+      "latitude": 41.1,
+      "longitude": 39.72,
+      "displayOrder": 13,
+      "gridLatitude": 41,
+      "gridLongitude": 39.75,
+      "gridRow": 196,
+      "gridColumn": 879,
+      "gridIndex": 283119,
+      "distanceKm": 11.4005,
+      "thresholdKm": 20.8963,
+      "withinThreshold": true,
+      "values": {
+        "10u": 0.1168212890625,
+        "10v": -1.0198822021484375,
+        "swh": 0.22047440707683563,
+        "mwd": 326.17328181071207
+      },
+      "derived": {
+        "windSpeed10m": 1.0265509825806853,
+        "windDirection10m": 353.4655962185122
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "rize-aciklari",
+      "slugEn": "rize-offshore",
+      "plateCode": "53",
+      "provinceNameTr": "Rize",
+      "seaBasin": "black_sea",
+      "latitude": 41.13,
+      "longitude": 40.52,
+      "displayOrder": 14,
+      "gridLatitude": 41.25,
+      "gridLongitude": 40.5,
+      "gridRow": 195,
+      "gridColumn": 882,
+      "gridIndex": 281682,
+      "distanceKm": 13.4479,
+      "thresholdKm": 20.8675,
+      "withinThreshold": true,
+      "values": {
+        "10u": 0.3355712890625,
+        "10v": -0.3323822021484375,
+        "swh": 0.29176346957683563,
+        "mwd": 284.75140681071207
+      },
+      "derived": {
+        "windSpeed10m": 0.4723198263339288,
+        "windDirection10m": 314.7264482711438
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "artvin-aciklari",
+      "slugEn": "artvin-offshore",
+      "plateCode": "08",
+      "provinceNameTr": "Artvin",
+      "seaBasin": "black_sea",
+      "latitude": 41.52,
+      "longitude": 41.42,
+      "displayOrder": 15,
+      "gridLatitude": 41.5,
+      "gridLongitude": 41.5,
+      "gridRow": 194,
+      "gridColumn": 886,
+      "gridIndex": 280246,
+      "distanceKm": 7.0228,
+      "thresholdKm": 20.8386,
+      "withinThreshold": true,
+      "values": {
+        "10u": 2.5230712890625,
+        "10v": -1.2073822021484375,
+        "swh": 0.25514237582683563,
+        "mwd": 288.97796931071207
+      },
+      "derived": {
+        "windSpeed10m": 2.7970807124136257,
+        "windDirection10m": 295.57282563223316
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "canakkale-marmara-aciklari",
+      "slugEn": "canakkale-marmara-offshore",
+      "plateCode": "17",
+      "provinceNameTr": "Çanakkale",
+      "seaBasin": "marmara",
+      "latitude": 40.5,
+      "longitude": 27.35,
+      "displayOrder": 16,
+      "gridLatitude": 40.5,
+      "gridLongitude": 27.25,
+      "gridRow": 198,
+      "gridColumn": 829,
+      "gridIndex": 285949,
+      "distanceKm": 8.4553,
+      "thresholdKm": 20.9537,
+      "withinThreshold": true,
+      "values": {
+        "10u": -7.1956787109375,
+        "10v": -4.2698822021484375,
+        "swh": 0.5695955008268356,
+        "mwd": 52.74359431071207
+      },
+      "derived": {
+        "windSpeed10m": 8.367179102377523,
+        "windDirection10m": 59.31530384621061
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "tekirdag-aciklari",
+      "slugEn": "tekirdag-offshore",
+      "plateCode": "59",
+      "provinceNameTr": "Tekirdağ",
+      "seaBasin": "marmara",
+      "latitude": 40.87,
+      "longitude": 27.5,
+      "displayOrder": 17,
+      "gridLatitude": 40.75,
+      "gridLongitude": 27.5,
+      "gridRow": 197,
+      "gridColumn": 830,
+      "gridIndex": 284510,
+      "distanceKm": 13.3434,
+      "thresholdKm": 20.925,
+      "withinThreshold": true,
+      "values": {
+        "10u": -6.7894287109375,
+        "10v": -4.0511322021484375,
+        "swh": 0.7006990164518356,
+        "mwd": 73.65765681071207
+      },
+      "derived": {
+        "windSpeed10m": 7.9062010055516865,
+        "windDirection10m": 59.17621864612033
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "balikesir-marmara-aciklari",
+      "slugEn": "balikesir-marmara-offshore",
+      "plateCode": "10",
+      "provinceNameTr": "Balıkesir",
+      "seaBasin": "marmara",
+      "latitude": 40.55,
+      "longitude": 27.9,
+      "displayOrder": 18,
+      "gridLatitude": 40.5,
+      "gridLongitude": 28,
+      "gridRow": 198,
+      "gridColumn": 832,
+      "gridIndex": 285952,
+      "distanceKm": 10.1168,
+      "thresholdKm": 20.9537,
+      "withinThreshold": true,
+      "values": {
+        "10u": -4.8519287109375,
+        "10v": -4.9886322021484375,
+        "swh": 0.5988923758268356,
+        "mwd": 44.91546931071207
+      },
+      "derived": {
+        "windSpeed10m": 6.958998740072597,
+        "windDirection10m": 44.20410743152786
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "istanbul-marmara-aciklari",
+      "slugEn": "istanbul-marmara-offshore",
+      "plateCode": "34",
+      "provinceNameTr": "İstanbul",
+      "seaBasin": "marmara",
+      "latitude": 40.85,
+      "longitude": 28.8,
+      "displayOrder": 19,
+      "gridLatitude": 40.75,
+      "gridLongitude": 28.75,
+      "gridRow": 197,
+      "gridColumn": 835,
+      "gridIndex": 284515,
+      "distanceKm": 11.8894,
+      "thresholdKm": 20.925,
+      "withinThreshold": true,
+      "values": {
+        "10u": -5.9769287109375,
+        "10v": -7.8636322021484375,
+        "swh": 0.7053376883268356,
+        "mwd": 42.75921931071207
+      },
+      "derived": {
+        "windSpeed10m": 9.877266232429644,
+        "windDirection10m": 37.237458303842516
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "bursa-aciklari",
+      "slugEn": "bursa-offshore",
+      "plateCode": "16",
+      "provinceNameTr": "Bursa",
+      "seaBasin": "marmara",
+      "latitude": 40.48,
+      "longitude": 28.85,
+      "displayOrder": 20,
+      "gridLatitude": 40.5,
+      "gridLongitude": 28.75,
+      "gridRow": 198,
+      "gridColumn": 835,
+      "gridIndex": 285955,
+      "distanceKm": 8.7441,
+      "thresholdKm": 20.9537,
+      "withinThreshold": true,
+      "values": {
+        "10u": -4.4144287109375,
+        "10v": -8.019882202148438,
+        "swh": 0.6272126883268356,
+        "mwd": 28.94671931071207
+      },
+      "derived": {
+        "windSpeed10m": 9.154544848340992,
+        "windDirection10m": 28.82995207674304
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "yalova-aciklari",
+      "slugEn": "yalova-offshore",
+      "plateCode": "77",
+      "provinceNameTr": "Yalova",
+      "seaBasin": "marmara",
+      "latitude": 40.72,
+      "longitude": 29.15,
+      "displayOrder": 21,
+      "gridLatitude": 40.75,
+      "gridLongitude": 29.25,
+      "gridRow": 197,
+      "gridColumn": 837,
+      "gridIndex": 284517,
+      "distanceKm": 9.062,
+      "thresholdKm": 20.925,
+      "withinThreshold": true,
+      "values": {
+        "10u": -4.6956787109375,
+        "10v": -6.1136322021484375,
+        "swh": 0.31056229770183563,
+        "mwd": 36.22015681071207
+      },
+      "derived": {
+        "windSpeed10m": 7.708819446549388,
+        "windDirection10m": 37.52667459777422
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "canakkale-ege-aciklari",
+      "slugEn": "canakkale-aegean-offshore",
+      "plateCode": "17",
+      "provinceNameTr": "Çanakkale",
+      "seaBasin": "aegean",
+      "latitude": 39.78,
+      "longitude": 25.9,
+      "displayOrder": 22,
+      "gridLatitude": 39.75,
+      "gridLongitude": 26,
+      "gridRow": 201,
+      "gridColumn": 824,
+      "gridIndex": 290264,
+      "distanceKm": 9.1752,
+      "thresholdKm": 21.0391,
+      "withinThreshold": true,
+      "values": {
+        "10u": -3.2894287109375,
+        "10v": -9.394882202148438,
+        "swh": 0.7863923758268356,
+        "mwd": 6.579531810712069
+      },
+      "derived": {
+        "windSpeed10m": 9.954102311940812,
+        "windDirection10m": 19.296673965790774
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "balikesir-ege-aciklari",
+      "slugEn": "balikesir-aegean-offshore",
+      "plateCode": "10",
+      "provinceNameTr": "Balıkesir",
+      "seaBasin": "aegean",
+      "latitude": 39.42,
+      "longitude": 26.45,
+      "displayOrder": 23,
+      "gridLatitude": 39.5,
+      "gridLongitude": 26.5,
+      "gridRow": 202,
+      "gridColumn": 826,
+      "gridIndex": 291706,
+      "distanceKm": 9.8771,
+      "thresholdKm": 21.0674,
+      "withinThreshold": true,
+      "values": {
+        "10u": 1.8355712890625,
+        "10v": 1.0113677978515625,
+        "swh": 0.22218339145183563,
+        "mwd": 90.05609431071207
+      },
+      "derived": {
+        "windSpeed10m": 2.095754465523499,
+        "windDirection10m": 241.14600156106363
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "izmir-aciklari",
+      "slugEn": "izmir-offshore",
+      "plateCode": "35",
+      "provinceNameTr": "İzmir",
+      "seaBasin": "aegean",
+      "latitude": 38.72,
+      "longitude": 26.6,
+      "displayOrder": 24,
+      "gridLatitude": 38.75,
+      "gridLongitude": 26.5,
+      "gridRow": 205,
+      "gridColumn": 826,
+      "gridIndex": 296026,
+      "distanceKm": 9.2931,
+      "thresholdKm": 21.1519,
+      "withinThreshold": true,
+      "values": {
+        "10u": 6.0230712890625,
+        "10v": 0.5738677978515625,
+        "swh": 0.40870682895183563,
+        "mwd": 300.58734431071207
+      },
+      "derived": {
+        "windSpeed10m": 6.050348089369735,
+        "windDirection10m": 264.5573869622539
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "aydin-aciklari",
+      "slugEn": "aydin-offshore",
+      "plateCode": "09",
+      "provinceNameTr": "Aydın",
+      "seaBasin": "aegean",
+      "latitude": 37.6,
+      "longitude": 27.1,
+      "displayOrder": 25,
+      "gridLatitude": 37.5,
+      "gridLongitude": 27,
+      "gridRow": 210,
+      "gridColumn": 828,
+      "gridIndex": 303228,
+      "distanceKm": 14.1902,
+      "thresholdKm": 21.2908,
+      "withinThreshold": true,
+      "values": {
+        "10u": 4.8043212890625,
+        "10v": 0.5738677978515625,
+        "swh": 0.36378495395183563,
+        "mwd": 294.24359431071207
+      },
+      "derived": {
+        "windSpeed10m": 4.8384736537414526,
+        "windDirection10m": 263.18839247805374
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "mugla-aciklari",
+      "slugEn": "mugla-offshore",
+      "plateCode": "48",
+      "provinceNameTr": "Muğla",
+      "seaBasin": "aegean",
+      "latitude": 36.95,
+      "longitude": 27.25,
+      "displayOrder": 26,
+      "gridLatitude": 37,
+      "gridLongitude": 27.25,
+      "gridRow": 212,
+      "gridColumn": 829,
+      "gridIndex": 306109,
+      "distanceKm": 5.5598,
+      "thresholdKm": 21.3457,
+      "withinThreshold": true,
+      "values": {
+        "10u": 4.2105712890625,
+        "10v": -2.4261322021484375,
+        "swh": 0.32374589145183563,
+        "mwd": 308.70453181071207
+      },
+      "derived": {
+        "windSpeed10m": 4.859529611246244,
+        "windDirection10m": 299.95055667812204
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "antalya-aciklari",
+      "slugEn": "antalya-offshore",
+      "plateCode": "07",
+      "provinceNameTr": "Antalya",
+      "seaBasin": "mediterranean",
+      "latitude": 36.6,
+      "longitude": 30.7,
+      "displayOrder": 27,
+      "gridLatitude": 36.5,
+      "gridLongitude": 30.75,
+      "gridRow": 214,
+      "gridColumn": 843,
+      "gridIndex": 309003,
+      "distanceKm": 11.983,
+      "thresholdKm": 21.4001,
+      "withinThreshold": true,
+      "values": {
+        "10u": 0.9293212890625,
+        "10v": 5.7613677978515625,
+        "swh": 0.26881425082683563,
+        "mwd": 195.65765681071207
+      },
+      "derived": {
+        "windSpeed10m": 5.8358372972886885,
+        "windDirection10m": 189.16301020197514
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "mersin-aciklari",
+      "slugEn": "mersin-offshore",
+      "plateCode": "33",
+      "provinceNameTr": "Mersin",
+      "seaBasin": "mediterranean",
+      "latitude": 36.6,
+      "longitude": 34.5,
+      "displayOrder": 28,
+      "gridLatitude": 36.5,
+      "gridLongitude": 34.5,
+      "gridRow": 214,
+      "gridColumn": 858,
+      "gridIndex": 309018,
+      "distanceKm": 11.1195,
+      "thresholdKm": 21.4001,
+      "withinThreshold": true,
+      "values": {
+        "10u": 1.0543212890625,
+        "10v": 4.0738677978515625,
+        "swh": 0.28248612582683563,
+        "mwd": 209.62640681071207
+      },
+      "derived": {
+        "windSpeed10m": 4.208086526551273,
+        "windDirection10m": 194.50985271714052
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "adana-aciklari",
+      "slugEn": "adana-offshore",
+      "plateCode": "01",
+      "provinceNameTr": "Adana",
+      "seaBasin": "mediterranean",
+      "latitude": 36.4,
+      "longitude": 35.38,
+      "displayOrder": 29,
+      "gridLatitude": 36.5,
+      "gridLongitude": 35.5,
+      "gridRow": 214,
+      "gridColumn": 862,
+      "gridIndex": 309022,
+      "distanceKm": 15.4545,
+      "thresholdKm": 21.4001,
+      "withinThreshold": true,
+      "values": {
+        "10u": 0.5543212890625,
+        "10v": 4.0113677978515625,
+        "swh": 0.30177323520183563,
+        "mwd": 233.47015681071207
+      },
+      "derived": {
+        "windSpeed10m": 4.049486844175248,
+        "windDirection10m": 187.86773847906898
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    },
+    {
+      "slugTr": "hatay-aciklari",
+      "slugEn": "hatay-offshore",
+      "plateCode": "31",
+      "provinceNameTr": "Hatay",
+      "seaBasin": "mediterranean",
+      "latitude": 36.05,
+      "longitude": 35.8,
+      "displayOrder": 30,
+      "gridLatitude": 36,
+      "gridLongitude": 35.75,
+      "gridRow": 216,
+      "gridColumn": 863,
+      "gridIndex": 311903,
+      "distanceKm": 7.1505,
+      "thresholdKm": 21.4541,
+      "withinThreshold": true,
+      "values": {
+        "10u": 0.7730712890625,
+        "10v": -0.3948822021484375,
+        "swh": 0.28077714145183563,
+        "mwd": 256.00921931071207
+      },
+      "derived": {
+        "windSpeed10m": 0.868084772096801,
+        "windDirection10m": 297.0577916511871
+      },
+      "observed": {
+        "10u": "value",
+        "10v": "value",
+        "swh": "value",
+        "mwd": "value"
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "id": "g0-candidates-current",
+      "passed": true,
+      "detail": "30 points match the candidate table"
+    },
+    {
+      "id": "g1-grid-mapping-reproducible",
+      "passed": true,
+      "detail": "every recorded cell is what mapPointToGrid produces today"
+    },
+    {
+      "id": "g2-grid-threshold",
+      "passed": true,
+      "detail": "largest in-cell offset 15.45 km, all within their latitude ceiling"
+    },
+    {
+      "id": "g3-parameters-complete",
+      "passed": true,
+      "detail": "all four Faz-1 parameters probed: 10u, 10v, swh, mwd"
+    },
+    {
+      "id": "g4-message-envelopes",
+      "passed": true,
+      "detail": "4 message(s), all CCSDS on the expected 0.25° grid"
+    },
+    {
+      "id": "g5-bitmap-applied",
+      "passed": true,
+      "detail": "10u: 1038240/1038240 cells carry a value; 10v: 1038240/1038240 cells carry a value; swh: 665628/1038240 cells carry a value; mwd: 665628/1038240 cells carry a value"
+    },
+    {
+      "id": "g6-wind-derivation-reproducible",
+      "passed": true,
+      "detail": "every recorded wind speed and bearing is what the current derivation produces"
+    },
+    {
+      "id": "g7-observation-matrix",
+      "passed": true,
+      "detail": "points carrying a value: 10u 30/30, 10v 30/30, swh 30/30, mwd 30/30"
+    },
+    {
+      "id": "g8-transport",
+      "passed": true,
+      "detail": "5 request(s), 3359219 B in 2839 ms"
+    }
+  ]
+}

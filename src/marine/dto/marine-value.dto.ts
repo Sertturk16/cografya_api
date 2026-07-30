@@ -83,6 +83,19 @@ export class MarineValueDto {
   @ApiProperty({
     type: String,
     nullable: true,
+    example: '2026-07-30T12:00:00.000Z',
+    description:
+      'The model RUN this value came from (ISO-8601 UTC). ECMWF: the 00/06/12/18 UTC cycle, ' +
+      'which the provider states in both the URL and the GRIB header. CMEMS: null — it ' +
+      'publishes no run time per value. Added because it is the ONLY field that can reveal a ' +
+      'stale forecast: an old cycle still produces a step valid "now", so validAtUtc looks ' +
+      'current and fetchedAtUtc is genuinely recent while the numbers are two days old.',
+  })
+  modelRunAtUtc!: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
     description:
       'When this value first became stale (ISO-8601 UTC), or null while fresh. Two ' +
       'independent ceilings can retire a value: cache age and model validity age — they catch ' +
@@ -129,14 +142,13 @@ export class MarineValueDto {
     nullable: true,
     example: 1.2,
     description:
-      'Distance from the requested coordinate to that grid centre, km. Honest to show ("the ' +
-      'nearest model point is ~1.2 km away"), but READ IT PER SOURCE — the two providers ' +
-      'compute different quantities. For cmems it is an IN-CELL OFFSET: the provider returns ' +
-      'the cell the query pixel falls in and never looks for a nearer wet cell, so the value ' +
-      'cannot exceed half a cell diagonal (≤ ~2 km) and cannot warn that data is far away. For ' +
-      'open-meteo it is a NEAREST-WET-CELL SEARCH distance (measured 2026-07-30: cells up to ' +
-      'two 1/12° steps from the containing one, i.e. up to ~15 km), which genuinely does mean ' +
-      '"how far the nearest modelled water is".',
+      'Distance from the requested coordinate to that grid centre, km. On BOTH Faz-1 sources ' +
+      'this is an IN-CELL OFFSET, never a search distance: the value comes from the cell the ' +
+      'coordinate falls in, and neither leg ever looks for a nearer wet cell. It therefore ' +
+      'cannot exceed half a cell diagonal — ≤ ~2 km for the regional CMEMS grids, ≤ ~21 km for ' +
+      'the 0.25° ECMWF grid (largest measured over the 30 reference points: 15.5 km) — and it ' +
+      'cannot warn that data is far away. What it CAN do is expose a mapping bug: an offset ' +
+      'above half a diagonal means the arithmetic picked the wrong cell.',
   })
   distanceKm!: number | null;
 }

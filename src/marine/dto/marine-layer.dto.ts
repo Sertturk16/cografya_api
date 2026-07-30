@@ -22,20 +22,21 @@ export class MarineColorStopDto {
  *
  * ## The one field that is a safety interlock, not metadata
  * `directionConvention` is the ONLY machine-readable statement of what a direction degree
- * means. It exists because the providers disagree with themselves: Open-Meteo documents wave
- * direction as "the direction the waves come from" and ocean-current direction as "where the
- * current is heading towards" — inside the same API. A reversed wind arrow is the textbook
- * "silently wrong while every test is green" defect.
+ * means. It exists because the providers disagree with themselves: ECMWF states its mean wave
+ * direction as "coming from" and, on the same page, its wave SPECTRUM fields as "propagating
+ * towards" — two conventions inside one wave model. A reversed arrow is the textbook "silently
+ * wrong while every test is green" defect.
  *
  * **BINDING (SPEC-ADDENDUM §5.5): no surface may draw a direction arrow until BOTH this field
- * is published AND M3's empirical wind-convention regression test exists.** M1 satisfies only
- * the first half. Publishing it here is what unblocks Vera's contract work, not her arrows.
+ * is published AND the wind-convention regression suite exists.** M1 satisfied only the first
+ * half. M3a satisfies the second — the full condition is written out on the field itself, so a
+ * web consumer reading only the generated types can see what it rests on.
  *
- * ## M1 completeness
- * The static half ships now. Three fields resolve from the provider's STAC catalogue and are
- * therefore `null` until M3 wires that fetch: `horizonEndUtc`, `updateFrequency`,
- * `catalogueUpdatedAtUtc`. They are nullable in the contract anyway (a provider may not
- * publish them), so M3 fills values into an unchanged shape — no breaking change.
+ * ## Completeness
+ * The static half shipped in M1. Three fields resolve from the provider's catalogue and are
+ * still `null`: `horizonEndUtc`, `updateFrequency`, `catalogueUpdatedAtUtc`. They are nullable
+ * in the contract regardless (a provider may not publish them), so filling them later changes
+ * no shape.
  */
 export class MarineLayerDto {
   @ApiProperty({
@@ -61,11 +62,17 @@ export class MarineLayerDto {
     nullable: true,
     description:
       `What a degree MEANS for this layer; null for non-direction layers. ${MARINE_DIRECTION_REFERENCE} ` +
-      'INTERLOCK: publishing this field is only the FIRST of two preconditions for rendering a ' +
-      'direction arrow. The second is M3’s regression test, which pins Open-Meteo’s wind ' +
-      'convention — the provider does not document it, so it was established empirically. Until ' +
-      'that test exists, direction-arrow rendering is out of scope on every surface; consume ' +
-      'this field for labels and data, not for arrows.',
+      'ARROW-UNLOCK CONDITION (binding, and now MET for wind_speed_10m and wind_direction_10m): ' +
+      'a direction arrow may be drawn once this field is published AND the three-layer wind ' +
+      'regression suite is green — (1) a table of eight cardinal vectors mapped to expected ' +
+      'bearings, (2) the invariants every bearing in [0, 360), speed >= 0, speed >= |u| and |v|, ' +
+      'and a null component producing a null bearing rather than 0, and (3) a committed real ' +
+      'ECMWF GRIB message decoded and compared against ecCodes reference values. All three ship ' +
+      'in src/marine/ecmwf/ and run on CI. The condition exists because ECMWF publishes wind as ' +
+      'the vector components 10u/10v, so the bearing is SERVER-DERIVED arithmetic: a sign error ' +
+      'produces a bearing exactly 180 degrees wrong, and a reversed arrow is indistinguishable ' +
+      'from a correct one on screen. Wave direction is not derived — ECMWF states mwd as ' +
+      '"degree true, zero means coming from the north" and it is published verbatim.',
   })
   directionConvention!: MarineDirectionConvention | null;
 

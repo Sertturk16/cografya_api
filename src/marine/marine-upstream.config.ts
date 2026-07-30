@@ -11,7 +11,7 @@ import type { StalenessCeilings } from '../upstream/staleness';
  * migration and silently rename the metrics with it.
  */
 export const MARINE_PROVIDER = {
-  openMeteo: 'open-meteo',
+  ecmwf: 'ecmwf',
   cmems: 'cmems',
 } as const;
 
@@ -20,36 +20,41 @@ export type MarineProviderId = (typeof MARINE_PROVIDER)[keyof typeof MARINE_PROV
 /**
  * The budgets, in the unit the PROVIDER counts (SPEC-ADDENDUM §2.7) — Atlas ruling, review #73 I5.
  *
- * ## The unit is a location, not a request
- * Open-Meteo bills a multi-location batch per LOCATION under the project's own conservative
- * reading of its docs, so our two batched calls for 31 points cost 62 quota units, not 2. The
- * first version of this table counted HTTP requests, which made the ceiling below read as
- * comfortable while actually permitting 600 × 31 = 18 600 weighted calls a day against a
- * 10 000/day free tier — 186% of the quota, with `budget.rejected` never firing. A guard that
- * cannot fire is worse than none, because it is believed.
+ * ## The unit is whatever the provider bills, not whatever we send
+ * That distinction cost this table a rewrite once already: counting HTTP requests for a provider
+ * that bills per location made the ceiling read as comfortable while permitting 186% of the free
+ * tier, with `budget.rejected` never firing. A guard that cannot fire is worse than none, because
+ * it is believed.
  *
- * ## Open-Meteo — the arithmetic, in weighted units throughout
+ * ## ECMWF — one HTTP request is one unit, and the unit does not scale with points
+ * ECMWF Open Data is anonymous, keyless and publishes no request quota at all (only a documented
+ * 500-concurrent-connection limit). This budget is therefore us braking OURSELVES, and it is the
+ * numeric form of the "no unbounded external call" rule.
+ *
+ * The steady state is structural rather than traffic-dependent — this provider serves whole
+ * global fields, so 30 reference points cost exactly what 300 would:
+ *
  * | quantity | value |
  * |---|---|
- * | free tier | 600/min · 5 000/h · 10 000/day |
- * | one refresh (2 endpoints × 31 points) | 62 |
- * | steady state (hourly refresh) | 62/h · **1 488/day** |
- * | budget below | 200/min · 600/h · **4 000/day** |
+ * | per step | 2 `.index` + 3 `Range` = **5 requests** (measured: the wave pair merges, the wind pair never does) |
+ * | per cycle (41 steps, +120 h at 3 h) | **~205** |
+ * | steady state (4 cycles a day) | **~820/day** |
+ * | budget below | 60/min · 400/h · **2 000/day** |
  *
- * 4 000/day is ~2.7× the steady state (room for the boot tour, a redeploy and a bad hour) and
- * 40% of the free tier, so even a total cache collapse cannot reach the quota. The hour cap is
- * the real brake: 600/h means the day cap can only be approached over ~7 h of continuous
- * failure, and 200/min keeps a burst to a third of the provider's own minute limit.
+ * 2 000/day is ~2.4× the steady state — room for a re-ingest, a redeploy and a cycle retried
+ * after a bad hour — and 400/h is the brake that actually bites: the day cap cannot be reached in
+ * under five hours of continuous failure. 60/min keeps us to at most 4 concurrent downloads'
+ * worth of pace, which is 0.8% of the provider's own concurrency limit.
  *
- * ## CMEMS — one call is one location, so weight 1 and the numbers are unchanged
- * No published limit (risk R1), so this budget is us braking ourselves. Steady state is 77 calls
- * per refresh × 24 ≈ 1 848/day; 20 000 leaves ~10× headroom.
+ * ## CMEMS — one call is one location, so weight 1 and the numbers are call counts
+ * No published limit (risk R1). Steady state is 77 calls per refresh × 24 ≈ 1 848/day; 20 000
+ * leaves ~10× headroom.
  *
  * These are per-instance unless Redis is present, in which case they are shared — one more
  * reason production requires Redis (E1).
  */
 export const MARINE_PROVIDER_BUDGETS: Readonly<Record<MarineProviderId, ProviderBudgetLimits>> = {
-  [MARINE_PROVIDER.openMeteo]: { perMinute: 200, perHour: 600, perDay: 4_000 },
+  [MARINE_PROVIDER.ecmwf]: { perMinute: 60, perHour: 400, perDay: 2_000 },
   [MARINE_PROVIDER.cmems]: { perMinute: 300, perHour: 5_000, perDay: 20_000 },
 };
 

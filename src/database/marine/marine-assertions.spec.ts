@@ -1,7 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { MarineLayerId, MarineSource, SeaBasin } from '../../marine/marine.types';
+import { MarineLayerId, SeaBasin } from '../../marine/marine.types';
+import { MARINE_ARTIFACT_SOURCE } from './marine-artifact.types';
 import type {
   CmemsProbeResult,
   MarineProbeEntry,
@@ -420,10 +421,12 @@ describe('deriveLayerSupport', () => {
   it('derives CMEMS wave as UNSUPPORTED in the Marmara, with Open-Meteo carrying it instead', () => {
     const support = deriveLayerSupport(marmaraEntry());
     const cmemsWave = support.find(
-      (row) => row.layerId === MarineLayerId.WaveHeight && row.source === MarineSource.Cmems,
+      (row) =>
+        row.layerId === MarineLayerId.WaveHeight && row.source === MARINE_ARTIFACT_SOURCE.cmems,
     );
     const openMeteoWave = support.find(
-      (row) => row.layerId === MarineLayerId.WaveHeight && row.source === MarineSource.OpenMeteo,
+      (row) =>
+        row.layerId === MarineLayerId.WaveHeight && row.source === MARINE_ARTIFACT_SOURCE.openMeteo,
     );
     expect(cmemsWave?.supported).toBe(false);
     expect(openMeteoWave?.supported).toBe(true);
@@ -432,7 +435,8 @@ describe('deriveLayerSupport', () => {
   it('derives CMEMS wave as supported where the provider actually returned a value', () => {
     const support = deriveLayerSupport(blackSeaEntry());
     const cmemsWave = support.find(
-      (row) => row.layerId === MarineLayerId.WaveHeight && row.source === MarineSource.Cmems,
+      (row) =>
+        row.layerId === MarineLayerId.WaveHeight && row.source === MARINE_ARTIFACT_SOURCE.cmems,
     );
     expect(cmemsWave?.supported).toBe(true);
   });
@@ -441,7 +445,8 @@ describe('deriveLayerSupport', () => {
     const support = deriveLayerSupport(blackSeaEntry());
     expect(
       support.some(
-        (row) => row.layerId === MarineLayerId.WindSpeed10m && row.source === MarineSource.Cmems,
+        (row) =>
+          row.layerId === MarineLayerId.WindSpeed10m && row.source === MARINE_ARTIFACT_SOURCE.cmems,
       ),
     ).toBe(false);
   });

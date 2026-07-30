@@ -475,4 +475,152 @@ describe('UpstreamHttpClient', () => {
     expect(outcome.kind).toBe('transient');
     expect(outcome.kind === 'transient' && outcome.reason).not.toContain('s3cret');
   });
+  /**
+   * The binary branch (DEC 2026-07-31 A-1 / DEC 2026-07-31b).
+   *
+   * The point of these tests is not that bytes come back — it is that they come back through the
+   * SAME guards, in the same order. A second downloader would have passed its own tests too;
+   * review #73's CRITICAL lived in exactly this sequence, which is why there is only one of it.
+   */
+  describe('responseKind: bytes', () => {
+    /** Bytes no UTF-8 decoder can round-trip: 0x80–0x83 are lone continuation bytes. */
+    const BINARY = new Uint8Array([0x47, 0x52, 0x49, 0x42, 0x80, 0x81, 0x82, 0x83, 0xff, 0x00]);
+
+    function binaryResponse(
+      body: Uint8Array,
+      status = 200,
+      contentType = 'application/grib',
+    ): Response {
+      // Copied into a plain ArrayBuffer: a `Uint8Array` view is not a `BodyInit` under this
+      // TypeScript lib, and the copy also guarantees the fixture cannot be mutated by the read.
+      const buffer = new ArrayBuffer(body.byteLength);
+      new Uint8Array(buffer).set(body);
+      return new Response(buffer, { status, headers: { 'content-type': contentType } });
+    }
+
+    function requestBytes(
+      client: UpstreamHttpClient,
+      overrides: { maxResponseBytes?: number; expectedContentType?: string } = {},
+    ) {
+      return client.request({
+        providerId: 'provider',
+        label: 'provider.grib',
+        url: URL_UNDER_TEST,
+        deadline: new OperationDeadline(6_000),
+        limits: LIMITS,
+        responseKind: 'bytes',
+        expectedContentType: overrides.expectedContentType ?? 'application/grib',
+        maxResponseBytes: overrides.maxResponseBytes,
+        parse: (body: Uint8Array): UpstreamParseResult<Uint8Array> => ({ kind: 'ok', value: body }),
+      });
+    }
+
+    it('delivers the bytes verbatim, with nothing lost to a UTF-8 round trip', async () => {
+      const client = build(jest.fn(() => Promise.resolve(binaryResponse(BINARY))));
+
+      const outcome = await requestBytes(client);
+
+      expect(outcome.kind).toBe('ok');
+      expect(outcome.kind === 'ok' && Array.from(outcome.value)).toEqual(Array.from(BINARY));
+      // The proof that the branch matters at all: decoding first replaces every invalid sequence
+      // with U+FFFD, which is lossy, irreversible, and produces a perfectly ordinary string.
+      const throughText = new TextEncoder().encode(new TextDecoder().decode(BINARY));
+      expect(Array.from(throughText)).not.toEqual(Array.from(BINARY));
+    });
+
+    it('is still stopped by the provider budget, before the call is made', async () => {
+      const fetchImpl = jest.fn(() => Promise.resolve(binaryResponse(BINARY)));
+      const client = build(fetchImpl);
+
+      const first = await requestBytes(client);
+      expect(first.kind).toBe('ok');
+
+      const exhausted = await client.request({
+        providerId: 'provider',
+        label: 'provider.grib',
+        url: URL_UNDER_TEST,
+        deadline: new OperationDeadline(6_000),
+        limits: { perMinute: 1, perHour: 1, perDay: 1 },
+        responseKind: 'bytes',
+        expectedContentType: 'application/grib',
+        parse: (body: Uint8Array): UpstreamParseResult<Uint8Array> => ({ kind: 'ok', value: body }),
+      });
+
+      expect(exhausted.kind).toBe('budget_exhausted');
+      expect(fetchImpl).toHaveBeenCalledTimes(1);
+    });
+
+    it('is still stopped by an already-spent deadline, without touching the breaker', async () => {
+      const fetchImpl = jest.fn(() => Promise.resolve(binaryResponse(BINARY)));
+      const client = build(fetchImpl);
+      const deadline = new OperationDeadline(0);
+
+      const outcome = await client.request({
+        providerId: 'provider',
+        label: 'provider.grib',
+        url: URL_UNDER_TEST,
+        deadline,
+        limits: LIMITS,
+        responseKind: 'bytes',
+        expectedContentType: 'application/grib',
+        parse: (body: Uint8Array): UpstreamParseResult<Uint8Array> => ({ kind: 'ok', value: body }),
+      });
+
+      expect(outcome.kind).toBe('transient');
+      expect(fetchImpl).not.toHaveBeenCalled();
+    });
+
+    it('is still stopped by the byte cap', async () => {
+      const client = build(jest.fn(() => Promise.resolve(binaryResponse(BINARY))));
+
+      // Deterministic, so it must NOT be retried — the same request produces the same oversized
+      // body, from a provider we are deliberately being polite to.
+      const outcome = await requestBytes(client, { maxResponseBytes: 4 });
+
+      expect(outcome.kind).toBe('schema_error');
+    });
+
+    it('is still stopped by the content-type check, before parse is reached', async () => {
+      let parsed = false;
+      const client = build(
+        jest.fn(() => Promise.resolve(binaryResponse(BINARY, 200, 'text/html'))),
+      );
+
+      const outcome = await client.request({
+        providerId: 'provider',
+        label: 'provider.grib',
+        url: URL_UNDER_TEST,
+        deadline: new OperationDeadline(6_000),
+        limits: LIMITS,
+        responseKind: 'bytes',
+        expectedContentType: 'application/grib',
+        parse: (body: Uint8Array): UpstreamParseResult<Uint8Array> => {
+          parsed = true;
+          return { kind: 'ok', value: body };
+        },
+      });
+
+      expect(outcome.kind).toBe('schema_error');
+      expect(parsed).toBe(false);
+    });
+
+    it('reports a 4xx with a readable, redacted excerpt even though the branch is binary', async () => {
+      const client = build(
+        jest.fn(() =>
+          Promise.resolve(
+            new Response('bad request: apikey=s3cret is unknown', {
+              status: 400,
+              headers: { 'content-type': 'text/plain' },
+            }),
+          ),
+        ),
+      );
+
+      const outcome = await requestBytes(client);
+
+      expect(outcome.kind).toBe('client_error');
+      expect(outcome.kind === 'client_error' && outcome.reason).toContain('bad request');
+      expect(outcome.kind === 'client_error' && outcome.reason).not.toContain('s3cret');
+    });
+  });
 });

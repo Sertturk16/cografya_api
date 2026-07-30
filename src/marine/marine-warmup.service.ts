@@ -12,7 +12,7 @@ import type { UpstreamMetrics } from '../upstream/upstream-metrics';
  * tour is a no-op that proves the mechanism rather than a stub that pretends to.
  */
 export interface MarineWarmupTarget {
-  /** Stable label for logs and counters (`open-meteo.batch`, `cmems.thetao`). */
+  /** Stable label for logs and counters (`ecmwf.cycle`, `cmems.thetao`). */
   readonly label: string;
   /**
    * Refresh this target. MUST respect the deadline it is handed and MUST NOT throw for a provider

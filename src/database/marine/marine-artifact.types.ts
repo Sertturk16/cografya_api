@@ -1,4 +1,33 @@
-import type { MarineLayerId, MarineSource, SeaBasin } from '../../marine/marine.types';
+import type { MarineLayerId, SeaBasin } from '../../marine/marine.types';
+
+/**
+ * The provider vocabulary of the M1 probe artifact — **frozen, historical, and deliberately NOT
+ * the live `MarineSource` enum**.
+ *
+ * ## Why these two had to be separated
+ * `marine-points-probe.json` is the record of a run that happened on 2026-07-30 and queried
+ * Copernicus Marine and Open-Meteo. M3a replaces `open-meteo` with `ecmwf` in the live contract
+ * (DEC 2026-07-31), and while the artifact imported that enum the two were the same string by
+ * coincidence of timing. Rewriting the artifact to say `ecmwf` would be falsifying a measurement:
+ * that run never spoke to ECMWF. Leaving it importing an enum that no longer contains
+ * `open-meteo` would simply not compile.
+ *
+ * So the artifact gets its own closed set, fixed at what was actually measured. This is a
+ * DECOUPLING, not a generalisation: nothing is added, and the live enum stays the single
+ * authority for what the API may publish today.
+ *
+ * `layerId` deliberately keeps reading the live `MarineLayerId`, and the asymmetry is on purpose.
+ * A source changed because the PROVIDER changed, and history must keep naming the provider it
+ * queried. A layer id changing would mean the published layer vocabulary moved — and then the
+ * artifact genuinely is stale and should be re-probed rather than quietly kept readable.
+ */
+export const MARINE_ARTIFACT_SOURCE = {
+  cmems: 'cmems',
+  openMeteo: 'open-meteo',
+} as const;
+
+export type MarineArtifactSource =
+  (typeof MARINE_ARTIFACT_SOURCE)[keyof typeof MARINE_ARTIFACT_SOURCE];
 
 /**
  * The committed artifact `--phase=probe` writes and `--phase=load` reads.
@@ -99,7 +128,8 @@ export interface OpenMeteoProbeResult {
  */
 export interface LayerSupportEntry {
   layerId: MarineLayerId;
-  source: MarineSource;
+  /** Historical vocabulary — see {@link MarineArtifactSource}, NOT the live `MarineSource`. */
+  source: MarineArtifactSource;
   supported: boolean;
   reason: string;
 }
