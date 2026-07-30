@@ -31,14 +31,6 @@ return value
 `;
 
 /**
- * Connection timings.
- *
- * `commandTimeout` is the important one: without it a Redis that accepts connections but stops
- * answering would hold every request until the operation deadline, converting a cache outage
- * into a site-wide latency event. One second is far above a healthy round trip (sub-millisecond
- * on a local network) and far below any budget we care about.
- */
-/**
  * Namespace for every key this application writes.
  *
  * Applied by THIS class rather than through ioredis's `keyPrefix`, because the prefix has to
@@ -52,9 +44,20 @@ return value
  */
 const KEY_PREFIX = 'cografya:api:';
 
+/**
+ * Connection timings.
+ *
+ * `commandTimeout` is the important one: without it a Redis that accepts connections but stops
+ * answering would hold every request until the operation deadline, converting a cache outage
+ * into a site-wide latency event. One second is far above a healthy round trip (sub-millisecond
+ * on a local network) and far below any budget we care about.
+ */
 const CONNECT_TIMEOUT_MS = 3_000;
 const COMMAND_TIMEOUT_MS = 1_000;
 const MAX_RETRIES_PER_REQUEST = 1;
+
+/** How long a graceful `QUIT` may take before the connection is simply dropped. */
+const QUIT_GRACE_MS = 2_000;
 
 /**
  * The one place in the app that talks to a Redis driver.
@@ -73,11 +76,13 @@ export class IoredisAdapter implements RedisClientPort {
       connectTimeout: CONNECT_TIMEOUT_MS,
       commandTimeout: COMMAND_TIMEOUT_MS,
       maxRetriesPerRequest: MAX_RETRIES_PER_REQUEST,
-      // A command issued while the connection is down REJECTS instead of joining an unbounded
-      // in-memory queue. Every caller already treats a rejection as "the cache is unavailable"
-      // and degrades loudly, so failing fast is both the documented contract and the only place
-      // in this design that would otherwise grow without a cap.
-      enableOfflineQueue: false,
+      // `enableOfflineQueue` is left at the driver default (`true`) ON PURPOSE, and the reason is
+      // `commandTimeout` above. The review's concern — an unbounded in-memory queue during a
+      // reconnect storm — is already bounded in TIME: every queued command rejects after one
+      // second, so at the app's own 120 req/min/client limit the queue cannot grow meaningfully.
+      // Disabling it would additionally reject commands issued in the window between construction
+      // and `ready`, i.e. make the first request after every boot fail for a reason that has
+      // nothing to do with the cache being unavailable.
       // Keep the driver quiet about its own reconnection attempts; we log the outcomes that
       // matter (a degraded read/write) at the call site, with our own context.
       showFriendlyErrorStack: false,
@@ -136,7 +141,26 @@ export class IoredisAdapter implements RedisClientPort {
     return value;
   }
 
+  /**
+   * Close the connection without ever BLOCKING the shutdown.
+   *
+   * `quit()` waits for the server's reply, so against a Redis that is unreachable or
+   * mid-reconnect it can hang — and a process that will not exit is worse than a socket closed
+   * rudely. After a short grace period the connection is dropped with `disconnect()`, which is
+   * synchronous and unconditional. Shutting down must be as fail-soft as everything else here.
+   */
   async quit(): Promise<void> {
-    await this.client.quit();
+    try {
+      await Promise.race([
+        this.client.quit(),
+        new Promise((resolve) => setTimeout(resolve, QUIT_GRACE_MS).unref()),
+      ]);
+    } catch (error: unknown) {
+      this.logger.warn(
+        `Redis QUIT failed; dropping the connection — ${error instanceof Error ? error.message : 'unknown'}`,
+      );
+    } finally {
+      this.client.disconnect();
+    }
   }
 }

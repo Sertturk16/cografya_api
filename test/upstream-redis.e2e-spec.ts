@@ -218,6 +218,10 @@ describe('IoredisAdapter against a real Redis', () => {
       const client = moduleRef.get<RedisClientPort | null>(REDIS_CLIENT);
       expect(client).not.toBeNull();
 
+      // Closed explicitly, not left to the module hook: this factory opened a SECOND connection
+      // to the container, and a socket still open when the suite ends keeps the jest worker
+      // alive with every test already passed — a green run that never finishes.
+      await client?.quit();
       await moduleRef.close();
     });
 
