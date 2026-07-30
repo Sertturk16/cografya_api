@@ -33,8 +33,6 @@ export type CachedReadOrigin =
   | 'stale_revalidating'
   /** The refresh failed (or is suppressed by a negative entry), so the old value was served. */
   | 'stale_after_failure'
-  /** Another instance is refreshing; this caller served its own stale value instead of waiting. */
-  | 'stale_lock_lost'
   /** Another instance is refreshing and this caller had nothing — it waited briefly and won. */
   | 'polled'
   | 'unavailable';
@@ -96,6 +94,27 @@ function negativeKey(key: string): string {
 
 function toIso(ms: number | null): string | null {
   return ms === null ? null : new Date(ms).toISOString();
+}
+
+/**
+ * How long an `ok` entry physically survives.
+ *
+ * Never shorter than the freshness TTL (or a value could not even be served fresh) and never
+ * shorter than the staleness ceiling, because the whole point of `ttlSeconds` NOT being an
+ * eviction time is that the value is still there to be served stale after it ages out.
+ *
+ * Retention and the ceiling are still two different jobs, and the ceiling is the one that
+ * decides: it is the RULE ("this number is too old to show a student"), while retention is only
+ * a memory bound. They coincide at steady state, but they part company the moment
+ * `MARINE_STALE_MAX_SECONDS` is LOWERED — entries written under the old, larger retention are
+ * already in Redis, and it is the ceiling that refuses them (loudly) rather than the store
+ * quietly not having them.
+ */
+function retentionSecondsFor(options: {
+  ttls: OutcomeTtlTable;
+  ceilings: StalenessCeilings;
+}): number {
+  return Math.max(options.ttls.ok, options.ceilings.staleMaxSeconds);
 }
 
 /**
@@ -228,13 +247,7 @@ export class UpstreamCacheService {
         validAtMs: outcome.validAtMs,
         ttlSeconds: options.ttls.ok,
       };
-      // Retention outlives the freshness TTL so the value is still THERE to be served stale once
-      // it ages out — the whole reason `ttlSeconds` is not an eviction time.
-      await this.store.set(
-        options.key,
-        entry,
-        Math.max(options.ttls.ok, options.ceilings.staleMaxSeconds),
-      );
+      await this.store.set(options.key, entry, retentionSecondsFor(options));
       return {
         value: outcome.value,
         kind: 'ok',

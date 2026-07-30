@@ -49,12 +49,12 @@ describe('buildMarineUpstreamConfig', () => {
   it('carries the two ceilings separately', () => {
     const config = buildMarineUpstreamConfig(
       configFrom({
-        MARINE_STALE_MAX_SECONDS: '1000',
+        MARINE_STALE_MAX_SECONDS: '9000',
         MARINE_VALID_AT_MAX_AGE_SECONDS: '500',
       }),
     );
 
-    expect(config.ceilings).toEqual({ staleMaxSeconds: 1000, validAtMaxAgeSeconds: 500 });
+    expect(config.ceilings).toEqual({ staleMaxSeconds: 9000, validAtMaxAgeSeconds: 500 });
   });
 
   it('keeps the request deadline and the warmup deadline apart', () => {

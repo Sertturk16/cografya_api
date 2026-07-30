@@ -220,16 +220,21 @@ describe('UpstreamCacheService', () => {
     expect(refresh).toHaveBeenCalledTimes(2);
   });
 
-  it('DROPS a value that breached the staleness ceiling rather than publishing it', async () => {
+  it('DROPS a value that breached the CACHE-AGE ceiling rather than publishing it', async () => {
+    // Reachable because retention and the ceiling are different jobs: this entry is WRITTEN under
+    // a six-hour ceiling and then READ under a one-hour one — exactly what happens the first time
+    // MARINE_STALE_MAX_SECONDS is lowered. The rule refuses it, loudly, rather than the store
+    // quietly not having it.
     const cache = build();
     await cache.read(options(() => Promise.resolve(ok('v1'))));
 
-    nowMs += 7 * 3_600_000; // seven hours: past the 6 h cache-age ceiling
-    const read = await cache.read(
-      options(() =>
+    nowMs += 2 * 3_600_000;
+    const read = await cache.read({
+      ...options(() =>
         Promise.resolve<UpstreamOutcome<string>>({ kind: 'transient', reason: 'down' }),
       ),
-    );
+      ceilings: { staleMaxSeconds: 3_600, validAtMaxAgeSeconds: 10_800 },
+    });
 
     expect(read.value).toBeNull();
     expect(metrics.get('cache.ceiling_dropped', 'open-meteo')).toBeGreaterThan(0);
@@ -283,6 +288,9 @@ describe('UpstreamCacheService', () => {
 
   describe('when another instance holds the refresh lock', () => {
     it('serves this instance’s own stale value immediately instead of waiting', async () => {
+      // With a usable value in hand the read never even reaches the lock: it answers from cache
+      // and revalidates behind the response, and the revalidation is the thing that loses. Either
+      // way the caller waits for nobody — which is the property under test.
       const seeded = build();
       await seeded.read(options(() => Promise.resolve(ok('v1'))));
       nowMs += 3_700_000;
@@ -292,7 +300,8 @@ describe('UpstreamCacheService', () => {
         options(() => Promise.reject(new Error('must not run — we lost the lock'))),
       );
 
-      expect(read).toMatchObject({ value: 'v1', freshness: 'stale', origin: 'stale_lock_lost' });
+      expect(read).toMatchObject({ value: 'v1', freshness: 'stale', origin: 'stale_revalidating' });
+      await flush();
     });
 
     it('polls briefly when it holds nothing, then answers honestly', async () => {

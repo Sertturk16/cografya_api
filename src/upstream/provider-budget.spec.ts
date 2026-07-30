@@ -10,7 +10,9 @@ interface RecordedEvent {
   context: Record<string, unknown>;
 }
 
-const LIMITS: ProviderBudgetLimits = { perMinute: 3, perHour: 5, perDay: 6 };
+// perHour deliberately sits just one above perMinute so the rollover test can prove the
+// HOUR window keeps counting after the minute window resets.
+const LIMITS: ProviderBudgetLimits = { perMinute: 3, perHour: 4, perDay: 6 };
 
 describe('ProviderBudget', () => {
   let metrics: UpstreamMetrics;
