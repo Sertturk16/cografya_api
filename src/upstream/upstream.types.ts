@@ -22,7 +22,11 @@
  * | `rate_limited` | ours (volume)    | no             | warn + open breaker |
  * | `client_error` | OURS (bad query) | no             | error — loud        |
  * | `schema_error` | contract drift   | no             | error — alarm       |
- * | `budget_exhausted` | OURS (volume) | no            | error — loud        |
+ * | `budget_exhausted` | OURS (volume) | no            | error — loud (¹)    |
+ *
+ * (¹) Emitted by `ProviderBudget` at the source — once per window, with the window and limit only
+ * it knows — not by the HTTP client's outcome switch. That switch therefore carries a deliberate
+ * no-log branch for this kind rather than a missing one.
  *
  * `client_error` and `schema_error` are loud on purpose. A 400 means we sent a request the
  * provider cannot answer (a retired dataset id, an out-of-horizon `time=`); a schema error means

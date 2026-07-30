@@ -218,6 +218,63 @@ describe('UpstreamHttpClient', () => {
 
     expect(outcome.kind).toBe('transient');
     expect(fetchImpl).not.toHaveBeenCalled();
+    expect(metrics.get('upstream.deadline_exceeded', 'provider')).toBe(1);
+  });
+
+  it('records NO breaker evidence for the keys a spent shared deadline refuses', async () => {
+    // The shared-deadline fix made an already-spent budget the normal state for keys 2..N of one
+    // multi-key request. Gating on the breaker first meant those keys each recorded a phantom
+    // failure — and, in half-open, consumed the trial — for calls the provider never saw
+    // (review #73 confirm pass, N1). Three keys, one spent budget: the breaker must not move.
+    const fetchImpl = jest.fn(() => Promise.resolve(jsonResponse('{"value":1}')));
+    const client = build(fetchImpl);
+    const shared = new OperationDeadline(1);
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    for (const label of ['key.a', 'key.b', 'key.c']) {
+      const outcome = await client.request({
+        providerId: 'provider',
+        label,
+        url: URL_UNDER_TEST,
+        deadline: shared,
+        limits: LIMITS,
+        parse: parseValue,
+      });
+      expect(outcome.kind).toBe('transient');
+    }
+
+    expect(fetchImpl).not.toHaveBeenCalled();
+    expect(breaker.state('provider')).toBe('closed');
+    expect(metrics.get('breaker.opened', 'provider')).toBe(0);
+    expect(metrics.get('upstream.deadline_exceeded', 'provider')).toBe(3);
+  });
+
+  it('does not consume the half-open trial for a call the deadline already refused', async () => {
+    // The half of N1 that is the same family as the validated CRITICAL: `canAttempt` is a
+    // WITHDRAWAL, not a question. A call that never leaves the process must not spend the one
+    // probe the circuit allows — and must not re-arm the cooldown on its own refusal.
+    const fetchImpl = jest.fn(() => Promise.resolve(jsonResponse('{"value":1}')));
+    const client = build(fetchImpl);
+
+    breaker.recordFailure('provider', 'transient');
+    breaker.recordFailure('provider', 'transient');
+    breaker.recordFailure('provider', 'transient');
+    nowMs += 10_001; // the cooldown has elapsed → the circuit is half-open
+
+    const spent = new OperationDeadline(1);
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    await client.request({
+      providerId: 'provider',
+      label: 'provider.value',
+      url: URL_UNDER_TEST,
+      deadline: spent,
+      limits: LIMITS,
+      parse: parseValue,
+    });
+
+    // The trial is still available to the next caller — one that can actually make the call.
+    expect(breaker.canAttempt('provider')).toBe(true);
+    expect(metrics.get('breaker.trial_abandoned', 'provider')).toBe(0);
   });
 
   it('refuses the call when the provider budget is exhausted — the cache-failure backstop', async () => {

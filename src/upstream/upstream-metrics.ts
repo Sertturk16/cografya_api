@@ -25,6 +25,13 @@ export type UpstreamMetricName =
   | 'upstream.request'
   /** One retry of a transient failure. */
   | 'upstream.retry'
+  /**
+   * The operation's budget was already spent when this call was reached — no request was made.
+   *
+   * Its own counter because it is a refusal WE generated: it must be separable from the provider
+   * failures it would otherwise be buried among, and it is deliberately never told to the breaker.
+   */
+  | 'upstream.deadline_exceeded'
   | 'upstream.outcome.ok'
   | 'upstream.outcome.no_data'
   | 'upstream.outcome.transient'

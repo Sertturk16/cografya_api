@@ -13,7 +13,7 @@ const BASE = {
 };
 
 describe('validateEnv — defaults', () => {
-  it('boots with nothing but DATABASE_URL, and the marine feature starts OFF', () => {
+  it('boots on NODE_ENV + DATABASE_URL alone, with the marine feature OFF', () => {
     const env = validateEnv({ ...BASE });
 
     // `false` by default so a fresh deployment can never reach a provider before someone decided

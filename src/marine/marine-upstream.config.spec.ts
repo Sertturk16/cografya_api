@@ -97,8 +97,10 @@ describe('MARINE_PROVIDER_BUDGETS', () => {
     expect(openMeteo.perDay).toBeGreaterThan(OPEN_METEO_STEADY_STATE_PER_DAY * 2);
     // …and far enough below the free tier that a total cache collapse still cannot get us banned.
     expect(openMeteo.perDay).toBeLessThan(OPEN_METEO_FREE_TIER_PER_DAY / 2);
-    // The hour cap is the real brake: the day cap must not be reachable inside one hour.
-    expect(openMeteo.perHour).toBeLessThan(openMeteo.perDay);
+    // The hour cap is the real brake, so it has to be the one that BITES: reaching the day cap
+    // must take several hours of continuous failure, not one. (`perHour < perDay` alone is
+    // satisfied by 3 999/h, which is reachable inside an hour and would prove nothing.)
+    expect(openMeteo.perDay / openMeteo.perHour).toBeGreaterThanOrEqual(4);
     // A burst must stay well under the provider's own 600/min.
     expect(openMeteo.perMinute).toBeLessThan(600 / 2);
 

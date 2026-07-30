@@ -136,7 +136,32 @@ export class UpstreamHttpClient {
    * provider's health.
    */
   async request<T>(options: UpstreamRequestOptions<T>): Promise<UpstreamOutcome<T>> {
-    const { providerId, label } = options;
+    const { providerId, label, deadline } = options;
+
+    // ── The deadline is checked BEFORE the breaker gate, and that order is load-bearing ──
+    //
+    // `canAttempt` is not a question, it is a WITHDRAWAL: in half-open it consumes the circuit's
+    // single trial. Asking it first meant a call that was never going to leave the process took
+    // that trial and then recorded a failure for it.
+    //
+    // Before the shared-deadline fix an already-spent deadline was nearly unreachable here, since
+    // every read minted its own. It is now the NORMAL state for keys 2..N of one multi-key request
+    // (the very thing the shared budget exists for — a cold `/deniz/<point>` reads three CMEMS
+    // keys on one 6 s budget). One slow first key would otherwise produce N−1 phantom failures
+    // against a provider those calls never reached, burn the half-open trial, and re-arm the
+    // cooldown on entirely self-inflicted evidence (review #73 confirm pass, N1).
+    if (deadline.hasExpired()) {
+      // The breaker is NOT told — the same principle as `budget_exhausted`: a refusal WE generated
+      // is not evidence about the provider's health. Where the provider really did cause the delay,
+      // the calls that actually timed out have already recorded their own failures, so telling it
+      // again would double-count. The dedicated counter keeps the case visible without inventing
+      // an outcome kind that every downstream status mapping would have to carry.
+      this.metrics.increment('upstream.deadline_exceeded', providerId);
+      return this.record(providerId, label, {
+        kind: 'transient',
+        reason: 'operation deadline elapsed before the call was made',
+      });
+    }
 
     if (!this.breaker.canAttempt(providerId)) {
       return this.record(providerId, label, {
@@ -159,17 +184,6 @@ export class UpstreamHttpClient {
 
   private async attemptLoop<T>(options: UpstreamRequestOptions<T>): Promise<UpstreamOutcome<T>> {
     const { providerId, label, deadline } = options;
-
-    if (deadline.hasExpired()) {
-      // Counts as a failure for the breaker: from the provider's point of view nothing happened,
-      // but from ours the operation is already over and pretending otherwise would let a caller
-      // treat the empty result as "the provider has no data".
-      this.breaker.recordFailure(providerId, 'transient');
-      return this.record(providerId, label, {
-        kind: 'transient',
-        reason: 'operation deadline elapsed before the call was made',
-      });
-    }
 
     // Typed as the FAILURE subset so the breaker call below cannot be handed an `ok` kind.
     let lastFailure: Exclude<UpstreamOutcome<T>, { kind: 'ok' }> = {
@@ -375,6 +389,26 @@ export class UpstreamHttpClient {
           reason: outcome.reason,
         });
         break;
+      case 'budget_exhausted':
+        // Deliberately no line here: `ProviderBudget` already emits the LOUD error at the source,
+        // once per window, with the window and limit that only it knows. A second line from this
+        // switch would double-log the same standing condition on every attempt — the exact
+        // amplification the throttle there exists to prevent. The branch is explicit rather than
+        // absent so the outcome table in `upstream.types.ts` and this function agree in writing.
+        break;
+      default: {
+        // Compile-time gate: adding a kind to `UpstreamOutcomeKind` without a branch above fails
+        // the build here, naming it. Without this, the next kind would silently inherit a no-log
+        // path — the same class of "forgotten in one of two places" the staleness gate closed in
+        // `marine-assertions.ts`.
+        const unhandled: never = outcome;
+        this.metrics.event('error', 'unhandled upstream outcome kind', {
+          provider: providerId,
+          label,
+          outcome: JSON.stringify(unhandled),
+        });
+        break;
+      }
     }
 
     return outcome;

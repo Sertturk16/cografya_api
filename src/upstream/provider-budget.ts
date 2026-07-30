@@ -9,9 +9,15 @@ import type { UpstreamMetrics } from './upstream-metrics';
  * per hour, K per day* (§2.7), and a token bucket cannot express three nested caps: a refill
  * rate that satisfies the daily cap permits a burst that breaches the minute cap, and vice
  * versa. Fixed windows model the quota exactly as the provider counts it, which is the only
- * accounting that can actually keep us under the limit. The cost — up to 2× the limit across a
- * window boundary — is irrelevant at our numbers (steady state is 48 calls/day against a 600/day
- * budget, itself 6% of the free tier).
+ * accounting that can actually keep us under the limit.
+ *
+ * The cost — up to 2× the limit across a window boundary — is affordable at our numbers, in the
+ * WEIGHTED units the quota is actually counted in (see `MARINE_PROVIDER_BUDGETS`, which holds the
+ * authoritative table): Open-Meteo's steady state is 1 488 units/day against a 4 000/day budget,
+ * itself 40% of the 10 000/day free tier — so even the doubled worst case, 8 000, stays inside
+ * the tier. (These figures were request-counted before the unit was corrected; a comment claiming
+ * the budget consumes 6% of a quota it may consume 40% of is the same defect the correction
+ * fixed, so it is restated here rather than left to drift a second time.)
  */
 export interface ProviderBudgetLimits {
   perMinute: number;
