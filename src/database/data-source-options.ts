@@ -1,5 +1,6 @@
 import type { DataSourceOptions } from 'typeorm';
 import { Country } from '../country/entities/country.entity';
+import { MarinePoint } from '../marine/entities/marine-point.entity';
 import { Province } from '../province/entities/province.entity';
 import { InitProvince1783382400000 } from './migrations/1783382400000-InitProvince';
 import { AddProvinceClimateNote1783513986800 } from './migrations/1783513986800-AddProvinceClimateNote';
@@ -8,6 +9,7 @@ import { InitCountry1784001600000 } from './migrations/1784001600000-InitCountry
 import { AddCountryHydrographyNote1784102400000 } from './migrations/1784102400000-AddCountryHydrographyNote';
 import { AddCountrySovereigntyNote1784188800000 } from './migrations/1784188800000-AddCountrySovereigntyNote';
 import { AddProvinceClimateNormals1784620800000 } from './migrations/1784620800000-AddProvinceClimateNormals';
+import { InitMarinePoints1785369600000 } from './migrations/1785369600000-InitMarinePoints';
 
 /**
  * Single source of truth for the TypeORM connection shape. Consumed by:
@@ -27,7 +29,7 @@ export function buildDataSourceOptions(url: string): DataSourceOptions {
   return {
     type: 'postgres',
     url,
-    entities: [Province, Country],
+    entities: [Province, Country, MarinePoint],
     migrations: [
       InitProvince1783382400000,
       AddProvinceClimateNote1783513986800,
@@ -36,6 +38,7 @@ export function buildDataSourceOptions(url: string): DataSourceOptions {
       AddCountryHydrographyNote1784102400000,
       AddCountrySovereigntyNote1784188800000,
       AddProvinceClimateNormals1784620800000,
+      InitMarinePoints1785369600000,
     ],
     synchronize: false,
     migrationsRun: false,

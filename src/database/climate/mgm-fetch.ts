@@ -51,9 +51,25 @@ import {
 
 const MGM_BASE_URL = 'https://www.mgm.gov.tr/veridegerlendirme/il-ve-ilceler-istatistik.aspx';
 
-/** Identify ourselves honestly; a contact URL is expected of any polite crawler. */
+/**
+ * Identify ourselves honestly.
+ *
+ * NO `contact via <url>` claim. It used to read `contact via https://www.mgm.gov.tr` — MGM's own
+ * homepage, which gives them no way to reach us about this bot and is therefore a contact channel
+ * that only looks like one (review of PR #72, where the marine probe copied this string verbatim;
+ * both are fixed together).
+ *
+ * TODO(contact): publish a real Coğrafya-owned contact URL or mailbox once one exists. It does
+ * not today — the domain and hosting are still undecided — and inventing one, or committing a
+ * personal address, is an owner decision rather than an engineering one.
+ *
+ * NOTE: the committed manifest keeps the user agent of the run that produced it, so
+ * `data/climate/climate-manifest.json` still records the old string. That is correct provenance,
+ * not drift — the next `--phase=fetch` run will record this one.
+ */
 const USER_AGENT =
-  'CografyaPlatformBot/1.0 (climate normals import; yearly; contact via https://www.mgm.gov.tr)';
+  'CografyaPlatformBot/1.0 (non-commercial educational geography platform; ' +
+  'climate normals import; run by hand, yearly)';
 
 /**
  * 60 s, not 30 s. Measured, not guessed: during the 2026-07-18 run MGM served the first ~90

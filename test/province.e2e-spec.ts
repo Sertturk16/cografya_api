@@ -155,6 +155,7 @@ describe('Province (e2e)', () => {
       'AddCountryHydrographyNote1784102400000',
       'AddCountrySovereigntyNote1784188800000',
       'AddProvinceClimateNormals1784620800000',
+      'InitMarinePoints1785369600000',
     ]);
   });
 

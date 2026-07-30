@@ -194,6 +194,58 @@
           "countries"
         ]
       }
+    },
+    "/api/marine/points": {
+      "get": {
+        "description": "Plain array, bounded and small. Points are OFFSHORE coordinates deliberately outside straits and narrow gulfs, where regional models measurably disagree; the three two-sea provinces (İstanbul, Çanakkale, Balıkesir) each return two entries.",
+        "operationId": "MarineController_findAllPoints",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MarinePointListItemDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List every marine reference point (lean payload for the /deniz hub + map).",
+        "tags": [
+          "marine"
+        ]
+      }
+    },
+    "/api/marine/layers": {
+      "get": {
+        "description": "The machine-readable authority for how a value may be rendered. In particular directionConvention states, per layer, whether a degree means the direction the flow comes FROM or heads TOWARDS — the providers use both, inside the same API. NOTE: publishing this field is only the first of the two preconditions for drawing a direction arrow; the second (M3’s wind-convention regression test) does not exist yet. horizonEndUtc, updateFrequency and catalogueUpdatedAtUtc are null until M3 resolves them from the provider catalogue. M1 makes no provider call.",
+        "operationId": "MarineController_findAllLayers",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MarineLayerDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Layer catalogue — units, direction conventions, calm thresholds, colour ramps.",
+        "tags": [
+          "marine"
+        ]
+      }
     }
   },
   "info": {
@@ -1268,6 +1320,660 @@
           "sovereigntyNoteTr",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "MarineValueDto": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "number",
+            "nullable": true,
+            "example": 23.5,
+            "description": "The value, or null when status !== ok. NOT suppressed when the sea is calm: a server-side null would become indistinguishable from a genuine no_data. The layer catalogue publishes calmThreshold instead, and the DISPLAY decides not to draw an arrow."
+          },
+          "unit": {
+            "enum": [
+              "m",
+              "celsius",
+              "degree_true",
+              "meter_per_second"
+            ],
+            "type": "string",
+            "description": "Canonical machine unit. Providers return three different strings for the same quantity (m / degree / degrees_C from CMEMS; m / ° / °C / km/h from Open-Meteo), so passthrough is not an option. Symbols are a display concern (web i18n)."
+          },
+          "status": {
+            "enum": [
+              "ok",
+              "no_data",
+              "not_supported",
+              "unavailable"
+            ],
+            "type": "string",
+            "description": "Why the value is or is not present. not_supported is a PERMANENT product truth (CMEMS carries no wave field in the Marmara at all) and is distinct from no_data (\"covered here, but nothing right now\"); the two must not render alike."
+          },
+          "freshness": {
+            "nullable": true,
+            "enum": [
+              "fresh",
+              "stale"
+            ],
+            "type": "string",
+            "description": "Cache freshness, ALWAYS null when status !== ok. Deliberately separate from status: ok + stale is a normal, frequent combination (provider quiet for 20 minutes, we hold a 40-minute-old valid number)."
+          },
+          "validAtUtc": {
+            "type": "string",
+            "nullable": true,
+            "example": "2026-07-30T12:00:00.000Z",
+            "description": "The MODEL time this value belongs to (ISO-8601 UTC). For CMEMS this is the time WE sent: the GetFeatureInfo reply carries no time field at all, yet the time parameter does change the value — so an explicit time is always sent and never defaulted."
+          },
+          "fetchedAtUtc": {
+            "type": "string",
+            "nullable": true,
+            "example": "2026-07-30T12:04:11.000Z",
+            "description": "When WE fetched it (ISO-8601 UTC, server clock)."
+          },
+          "staleSinceUtc": {
+            "type": "string",
+            "nullable": true,
+            "description": "When this value first became stale (ISO-8601 UTC), or null while fresh. Two independent ceilings can retire a value: cache age and model validity age — they catch different failures, since a value fetched 10 minutes ago may belong to an 8-hour-old model step."
+          },
+          "source": {
+            "nullable": true,
+            "enum": [
+              "cmems",
+              "open-meteo"
+            ],
+            "type": "string",
+            "description": "Which provider produced THIS field. Carried per field, never per response: mixing sources silently is banned (K6), and the Marmara wave fields legitimately come from a different provider than the temperature next to them."
+          },
+          "datasetId": {
+            "type": "string",
+            "nullable": true,
+            "example": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311",
+            "description": "Provider dataset identifier, verbatim, when the provider reports one."
+          },
+          "gridLatitude": {
+            "type": "number",
+            "nullable": true,
+            "description": "Latitude of the model grid cell centre the value was read from."
+          },
+          "gridLongitude": {
+            "type": "number",
+            "nullable": true,
+            "description": "Longitude of the model grid cell centre the value was read from."
+          },
+          "distanceKm": {
+            "type": "number",
+            "nullable": true,
+            "example": 1.2,
+            "description": "Distance from the requested coordinate to that grid centre, km. Honest to show (\"the nearest model point is ~1.2 km away\"), but READ IT PER SOURCE — the two providers compute different quantities. For cmems it is an IN-CELL OFFSET: the provider returns the cell the query pixel falls in and never looks for a nearer wet cell, so the value cannot exceed half a cell diagonal (≤ ~2 km) and cannot warn that data is far away. For open-meteo it is a NEAREST-WET-CELL SEARCH distance (measured 2026-07-30: cells up to two 1/12° steps from the containing one, i.e. up to ~15 km), which genuinely does mean \"how far the nearest modelled water is\"."
+          }
+        },
+        "required": [
+          "value",
+          "unit",
+          "status",
+          "freshness",
+          "validAtUtc",
+          "fetchedAtUtc",
+          "staleSinceUtc",
+          "source",
+          "datasetId",
+          "gridLatitude",
+          "gridLongitude",
+          "distanceKm"
+        ]
+      },
+      "MarineSeriesDto": {
+        "type": "object",
+        "properties": {
+          "stepHours": {
+            "type": "number",
+            "example": 3,
+            "description": "Spacing between consecutive samples, hours."
+          },
+          "timesUtc": {
+            "example": [
+              "2026-07-30T00:00:00.000Z",
+              "2026-07-30T03:00:00.000Z"
+            ],
+            "description": "Sample instants (ISO-8601 UTC). Defines the length of EVERY array below.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "seaSurfaceTemperature": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "nullable": true
+            },
+            "description": "Sea surface temperature, °C. Same length as timesUtc; nulls are gaps."
+          },
+          "waveHeight": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "nullable": true
+            },
+            "description": "Significant wave height, m. Same length as timesUtc."
+          },
+          "waveDirection": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "nullable": true
+            },
+            "description": "Wave direction, degrees. True north, clockwise, 0–360. Per-field from/towards meaning is published in GET /api/marine/layers → directionConvention. This field is 'from'."
+          },
+          "windSpeed10m": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "nullable": true
+            },
+            "description": "Wind speed at 10 m, m/s (requested explicitly from the provider, never its default)."
+          },
+          "windDirection10m": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "nullable": true
+            },
+            "description": "Wind direction at 10 m, degrees. True north, clockwise, 0–360. Per-field from/towards meaning is published in GET /api/marine/layers → directionConvention. This field is 'from'."
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "open-meteo"
+            ],
+            "example": "open-meteo",
+            "description": "Always open-meteo — CMEMS answers one time step per call, so a 5-day hourly series would cost ~120 requests per point."
+          },
+          "horizonEndUtc": {
+            "type": "string",
+            "example": "2026-08-04T00:00:00.000Z",
+            "description": "Last instant the provider can serve for this point (ISO-8601 UTC). The horizon is NOT a constant (4–9 days depending on product), so the server states it and the web must not hardcode a slider bound."
+          }
+        },
+        "required": [
+          "stepHours",
+          "timesUtc",
+          "seaSurfaceTemperature",
+          "waveHeight",
+          "waveDirection",
+          "windSpeed10m",
+          "windDirection10m",
+          "source",
+          "horizonEndUtc"
+        ]
+      },
+      "MarinePointListItemDto": {
+        "type": "object",
+        "properties": {
+          "slugTr": {
+            "type": "string",
+            "example": "istanbul-marmara-aciklari",
+            "description": "TR slug (routing key)."
+          },
+          "slugEn": {
+            "type": "string",
+            "example": "istanbul-marmara-offshore",
+            "description": "EN slug (routing key)."
+          },
+          "nameTr": {
+            "type": "string",
+            "example": "İstanbul – Marmara Açıkları",
+            "description": "Standalone full name, used where the point appears WITHOUT province context (the /deniz hub). İstanbul, Çanakkale and Balıkesir each have two points that show different numbers side by side, so the sea must be part of the name."
+          },
+          "nameEn": {
+            "type": "string",
+            "example": "İstanbul – Marmara Offshore",
+            "description": "Standalone full name (EN)."
+          },
+          "coastLabelTr": {
+            "type": "string",
+            "example": "Marmara açıkları",
+            "description": "Province-relative short label, used INSIDE /turkiye/{il} where the province name is already in the heading and repeating it would be noise."
+          },
+          "coastLabelEn": {
+            "type": "string",
+            "example": "Marmara offshore",
+            "description": "Province-relative short label (EN)."
+          },
+          "plateCode": {
+            "type": "string",
+            "example": "34",
+            "description": "Plaka kodu of the province this point is published under (zero-padded)."
+          },
+          "latitude": {
+            "type": "number",
+            "example": 40.85,
+            "description": "Requested latitude (decimal degrees). This is OUR chosen coordinate, not the model grid centre — the grid centre is per-provider and is served on the value payload as gridLatitude/gridLongitude."
+          },
+          "longitude": {
+            "type": "number",
+            "example": 28.8,
+            "description": "Requested longitude (decimal degrees)."
+          },
+          "seaBasin": {
+            "enum": [
+              "aegean",
+              "mediterranean",
+              "marmara",
+              "black_sea"
+            ],
+            "type": "string",
+            "description": "The POINT's basin, never the province's. İstanbul has one black_sea point and one marmara point; the basin also selects the CMEMS dataset, so deriving it from the province would query the wrong model."
+          },
+          "displayOrder": {
+            "type": "number",
+            "example": 2,
+            "description": "Presentation order on the /deniz hub — a coastal traverse (Black Sea west→east, then Marmara, Aegean, Mediterranean), not alphabetical."
+          }
+        },
+        "required": [
+          "slugTr",
+          "slugEn",
+          "nameTr",
+          "nameEn",
+          "coastLabelTr",
+          "coastLabelEn",
+          "plateCode",
+          "latitude",
+          "longitude",
+          "seaBasin",
+          "displayOrder"
+        ]
+      },
+      "MarineOverviewPointDto": {
+        "type": "object",
+        "properties": {
+          "point": {
+            "description": "The point this block describes.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MarinePointListItemDto"
+              }
+            ]
+          },
+          "seaSurfaceTemperature": {
+            "description": "Sea surface temperature (°C).",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MarineValueDto"
+              }
+            ]
+          },
+          "waveHeight": {
+            "description": "Significant wave height (m) — the mean of the highest one third of waves. Individual waves can be noticeably higher; the /deniz hub is required to explain this in prose.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MarineValueDto"
+              }
+            ]
+          },
+          "waveDirection": {
+            "description": "Wave direction. True north, clockwise, 0–360. Per-field from/towards meaning is published in GET /api/marine/layers → directionConvention. This field is 'from'.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MarineValueDto"
+              }
+            ]
+          },
+          "windSpeed10m": {
+            "description": "Wind speed at 10 m (m/s).",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MarineValueDto"
+              }
+            ]
+          },
+          "windDirection10m": {
+            "description": "Wind direction at 10 m. True north, clockwise, 0–360. Per-field from/towards meaning is published in GET /api/marine/layers → directionConvention. This field is 'from'.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MarineValueDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "point",
+          "seaSurfaceTemperature",
+          "waveHeight",
+          "waveDirection",
+          "windSpeed10m",
+          "windDirection10m"
+        ]
+      },
+      "MarineAttributionDto": {
+        "type": "object",
+        "properties": {
+          "providerId": {
+            "type": "string",
+            "example": "cmems",
+            "description": "Stable provider key."
+          },
+          "providerName": {
+            "type": "string",
+            "example": "Copernicus Marine Service",
+            "description": "Provider display name."
+          },
+          "licenceName": {
+            "type": "string",
+            "example": "Copernicus Marine Service licence",
+            "description": "Licence name."
+          },
+          "licenceUrl": {
+            "type": "string",
+            "example": "https://marine.copernicus.eu/",
+            "description": "Licence URL."
+          },
+          "requiredNoticeTr": {
+            "type": "string",
+            "description": "The notice the licence REQUIRES us to display, verbatim (TR). Not editorial copy — shortening or restyling it is a licence breach, so it is data, not a template."
+          },
+          "requiredNoticeEn": {
+            "type": "string",
+            "description": "The required notice, verbatim (EN)."
+          },
+          "doi": {
+            "type": "string",
+            "nullable": true,
+            "description": "Product DOI when the provider issues one, else null."
+          },
+          "productTitle": {
+            "type": "string",
+            "nullable": true,
+            "description": "Product title as the provider names it, when required by the licence."
+          }
+        },
+        "required": [
+          "providerId",
+          "providerName",
+          "licenceName",
+          "licenceUrl",
+          "requiredNoticeTr",
+          "requiredNoticeEn",
+          "doi",
+          "productTitle"
+        ]
+      },
+      "MarineOverviewDto": {
+        "type": "object",
+        "properties": {
+          "points": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarineOverviewPointDto"
+            }
+          },
+          "generatedAtUtc": {
+            "type": "string",
+            "example": "2026-07-30T12:04:11.000Z",
+            "description": "When the server assembled this response (ISO-8601 UTC)."
+          },
+          "dataAvailable": {
+            "type": "boolean",
+            "example": true,
+            "description": "False only in the narrow window where the cache is genuinely empty (first boot before the first warmup tick, or after a cache flush). The response is still 200 — a 5xx would break the web build, which is the one thing these endpoints must never do — but it carries Cache-Control: no-store and this flag. CONTRACT: a response with dataAvailable=false MUST NOT be committed by ISR/SSG; keep the previous render. That is what stops an empty /deniz page from being indexed."
+          },
+          "attributions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarineAttributionDto"
+            }
+          }
+        },
+        "required": [
+          "points",
+          "generatedAtUtc",
+          "dataAvailable",
+          "attributions"
+        ]
+      },
+      "MarineConditionsDto": {
+        "type": "object",
+        "properties": {
+          "point": {
+            "description": "The point this block describes.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MarinePointListItemDto"
+              }
+            ]
+          },
+          "seaSurfaceTemperature": {
+            "description": "Sea surface temperature (°C).",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MarineValueDto"
+              }
+            ]
+          },
+          "waveHeight": {
+            "description": "Significant wave height (m).",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MarineValueDto"
+              }
+            ]
+          },
+          "waveDirection": {
+            "description": "Wave direction. True north, clockwise, 0–360. Per-field from/towards meaning is published in GET /api/marine/layers → directionConvention. This field is 'from'.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MarineValueDto"
+              }
+            ]
+          },
+          "windSpeed10m": {
+            "description": "Wind speed at 10 m (m/s).",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MarineValueDto"
+              }
+            ]
+          },
+          "windDirection10m": {
+            "description": "Wind direction at 10 m. True north, clockwise, 0–360. Per-field from/towards meaning is published in GET /api/marine/layers → directionConvention. This field is 'from'.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MarineValueDto"
+              }
+            ]
+          },
+          "series": {
+            "nullable": true,
+            "description": "The 5-day series, or null. Nullable for a real case, not for convenience: CMEMS may be up while Open-Meteo is down, which yields instant values with no series.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MarineSeriesDto"
+              }
+            ]
+          },
+          "seriesSourceDiffersFromInstant": {
+            "type": "boolean",
+            "example": true,
+            "description": "SERVER-COMPUTED. True when the chart comes from a different model than the headline instant value, which measurably happens (~1.5–1.7 °C apart at the same point). When true the web MUST render the fixed i18n notice marine.series.sourceDiffersNotice. It is a boolean rather than a design-guide sentence precisely so it can be asserted in a contract test instead of quietly skipped."
+          }
+        },
+        "required": [
+          "point",
+          "seaSurfaceTemperature",
+          "waveHeight",
+          "waveDirection",
+          "windSpeed10m",
+          "windDirection10m",
+          "series",
+          "seriesSourceDiffersFromInstant"
+        ]
+      },
+      "MarineProvinceConditionsDto": {
+        "type": "object",
+        "properties": {
+          "plateCode": {
+            "type": "string",
+            "example": "34",
+            "description": "Plaka kodu (zero-padded)."
+          },
+          "marinePoints": {
+            "description": "One entry per marine point of this province, in displayOrder. Two entries for the three two-sea provinces; they legitimately disagree and must be labelled by sea.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarineConditionsDto"
+            }
+          },
+          "attributions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarineAttributionDto"
+            }
+          }
+        },
+        "required": [
+          "plateCode",
+          "marinePoints",
+          "attributions"
+        ]
+      },
+      "MarineColorStopDto": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "number",
+            "example": 20,
+            "description": "Value the stop is anchored at, in the layer unit."
+          },
+          "hex": {
+            "type": "string",
+            "example": "#2c7fb8",
+            "description": "Colour, `#rrggbb`."
+          }
+        },
+        "required": [
+          "value",
+          "hex"
+        ]
+      },
+      "MarineLayerDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "enum": [
+              "sea_surface_temperature",
+              "wave_height",
+              "wave_direction",
+              "wind_speed_10m",
+              "wind_direction_10m"
+            ],
+            "type": "string",
+            "description": "Layer id, snake_case. It corresponds one-to-one with a MarineValueDto property on the conditions/overview payloads, but those are camelCase — sea_surface_temperature ↔ seaSurfaceTemperature — so convert the case rather than indexing the payload by this id."
+          },
+          "labelTr": {
+            "type": "string",
+            "example": "Deniz suyu sıcaklığı",
+            "description": "Display label (TR)."
+          },
+          "labelEn": {
+            "type": "string",
+            "example": "Sea surface temperature",
+            "description": "Display label (EN)."
+          },
+          "unit": {
+            "enum": [
+              "m",
+              "celsius",
+              "degree_true",
+              "meter_per_second"
+            ],
+            "type": "string",
+            "description": "Canonical unit of this layer’s values."
+          },
+          "directionConvention": {
+            "nullable": true,
+            "enum": [
+              "from",
+              "towards"
+            ],
+            "type": "string",
+            "description": "What a degree MEANS for this layer; null for non-direction layers. True north, clockwise, 0–360. Per-field from/towards meaning is published in GET /api/marine/layers → directionConvention. INTERLOCK: publishing this field is only the FIRST of two preconditions for rendering a direction arrow. The second is M3’s regression test, which pins Open-Meteo’s wind convention — the provider does not document it, so it was established empirically. Until that test exists, direction-arrow rendering is out of scope on every surface; consume this field for labels and data, not for arrows."
+          },
+          "calmThreshold": {
+            "type": "number",
+            "nullable": true,
+            "example": 0.1,
+            "description": "Below this magnitude the sea/wind counts as CALM. Published on the MAGNITUDE layer (wave_height, wind_speed_10m) and it governs the PAIRED direction layer: when wave_height < its calmThreshold the web shows a calm indicator instead of a wave_direction arrow, and likewise for wind. Null on the direction layers themselves and on temperature. The server never suppresses the direction value — nulling it would make \"calm\" indistinguishable from \"no data\"."
+          },
+          "primarySource": {
+            "enum": [
+              "cmems",
+              "open-meteo"
+            ],
+            "type": "string",
+            "description": "Primary provider for this layer."
+          },
+          "fallbackSource": {
+            "nullable": true,
+            "enum": [
+              "cmems",
+              "open-meteo"
+            ],
+            "type": "string",
+            "description": "Provider used where the primary does not cover the point (CMEMS carries no wave field in the Marmara), or null when there is no fallback."
+          },
+          "stepHours": {
+            "type": "number",
+            "example": 3,
+            "description": "Series step for this layer, hours."
+          },
+          "horizonEndUtc": {
+            "type": "string",
+            "nullable": true,
+            "description": "Last instant the provider can serve (ISO-8601 UTC). NULL IN M1 — resolved from the provider catalogue in M3. The horizon is genuinely variable (4–9 days by product), so the web must read it here rather than hardcode a slider bound."
+          },
+          "updateFrequency": {
+            "type": "string",
+            "nullable": true,
+            "example": "twice-daily: 00:00 UTC; 12:00 UTC",
+            "description": "How often the provider re-runs the model, as the provider states it. NULL IN M1 — resolved from the provider catalogue in M3. Carried at LAYER level rather than per value because neither Faz-1 provider publishes a model-run time per value; a per-value field would be null 31 × 5 times per response."
+          },
+          "catalogueUpdatedAtUtc": {
+            "type": "string",
+            "nullable": true,
+            "description": "When the provider last updated its catalogue entry (ISO-8601 UTC). NULL IN M1 — resolved from the provider catalogue in M3."
+          },
+          "colorStops": {
+            "description": "Colour ramp for this layer, ascending by value.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarineColorStopDto"
+            }
+          },
+          "attributionId": {
+            "type": "string",
+            "example": "cmems",
+            "description": "Key of the MarineAttributionDto that must accompany this layer. Attribution ROWS are seeded in M5; the reference is frozen now so the join is stable."
+          }
+        },
+        "required": [
+          "id",
+          "labelTr",
+          "labelEn",
+          "unit",
+          "directionConvention",
+          "calmThreshold",
+          "primarySource",
+          "fallbackSource",
+          "stepHours",
+          "horizonEndUtc",
+          "updateFrequency",
+          "catalogueUpdatedAtUtc",
+          "colorStops",
+          "attributionId"
         ]
       }
     }

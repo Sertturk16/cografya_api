@@ -9,6 +9,7 @@ import { buildDataSourceOptions } from './database/data-source-options';
 import { type Env, validateEnv } from './config/env.schema';
 import { CountryModule } from './country/country.module';
 import { HealthModule } from './health/health.module';
+import { MarineModule } from './marine/marine.module';
 import { ProvinceModule } from './province/province.module';
 
 /**
@@ -45,6 +46,7 @@ const THROTTLE_LIMIT = 120;
     HealthModule,
     ProvinceModule,
     CountryModule,
+    MarineModule,
   ],
   providers: [
     // Rate limit every route by default; opt out per-route with @SkipThrottle,

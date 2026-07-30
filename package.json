@@ -32,6 +32,7 @@
     "db:seed:geography": "pnpm build && node dist/database/seeds/geography.cli.js",
     "db:seed:world": "pnpm build && node dist/database/seeds/world.cli.js",
     "db:import:climate": "pnpm build && node dist/database/climate/climate.cli.js",
+    "db:import:marine-points": "pnpm build && node dist/database/marine/marine-points.cli.js",
     "openapi:generate": "pnpm build && node dist/openapi/generate-openapi.js",
     "openapi:check": "pnpm run openapi:generate && git diff --exit-code -- openapi/openapi.json",
     "prepare": "husky"
