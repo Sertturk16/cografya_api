@@ -6,7 +6,7 @@ provider-neutral and is used by both Claude and Codex.
 The orchestration-root `REVIEW-POLICY.md` is the only authority for:
 
 - roster and applicability;
-- model selection and escalation;
+- escalation (model selection is set by the active provider's `review-pr` skill);
 - severity;
 - output contract;
 - validation, deduplication, and report shape;

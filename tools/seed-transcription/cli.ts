@@ -61,7 +61,7 @@ function runCheck(items: readonly Item[], seed: SeedIndex): number {
 
   // `missing` FAILS TOO. A wave where `apply` was never run has every field missing and no
   // drift, so ignoring `missing` printed "0 drifted" and exited green — verbatim the
-  // failure this command exists to catch, and the exact wording `CLAUDE.md` §8 relies on.
+  // failure this command exists to catch, and the exact wording `ENGINEERING.md` §8 relies on.
   return drifted.length > 0 || missing.length > 0 ? 1 : 0;
 }
 

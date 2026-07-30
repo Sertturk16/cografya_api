@@ -1,7 +1,7 @@
 # Reviewer: `code-reviewer` (api)
 
-Applicability and model selection are canonical in the orchestration-root
-`REVIEW-POLICY.md`. Atlas spawns this as a fresh agent anchored to the PR worktree/diff.
+Applicability is canonical in the orchestration-root `REVIEW-POLICY.md`; model
+selection is set by the active provider's `review-pr` skill. Atlas spawns this as a fresh agent anchored to the PR worktree/diff.
 
 ## Role & mandate
 

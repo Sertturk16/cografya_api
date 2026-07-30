@@ -2,13 +2,15 @@
 
 This file is the binding engineering playbook for the **`cografya_api`** repo — the
 NestJS backend of the Coğrafya platform (an SEO-first, free, TR+EN geography education
-site). On engineering specifics it **overrides** the Deniz persona and the
-orchestrator-home docs; it is the local source of truth for how code lands here.
+site). On repo-specific engineering questions it **overrides** the Deniz persona and
+orchestrator summaries (per `ATLAS-OPERATIONS.md` "Engineering ground truth"); it never
+overrides `CONVENTIONS.md` on cross-repo product/process rules, the live board, or a
+dated ruling in `DECISIONS.md`. It is the local source of truth for how code lands here.
 
 - **Single writer:** Deniz. No one else commits to this repo.
 - **Precedence:** this file wins over the Deniz persona on repo specifics. For
   cross-team *process* (routing, delivery, the review-loop ownership), the
-  orchestrator-home `ATLAS-OPERATIONS.md` + `CONVENTIONS.md` remain authoritative — this file does
+  orchestration-root `ATLAS-OPERATIONS.md` + `CONVENTIONS.md` remain authoritative — this file does
   not restate or override them, it implements the api half.
 - **Sister repo:** `cografya_web` (Vera, single writer). We share **one contract**: the
   OpenAPI spec this repo generates. Never edit the web repo; coordinate contract changes
@@ -217,8 +219,9 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   route asserts the forbidden and unauthenticated paths, not only the happy path.
 - **Narrative-content seed PRs are transcribed by tool, never by hand.** Use
   `pnpm seed:transcribe apply <draft.md>` to write fact-checked prose into the seed, and
-  `pnpm seed:transcribe check <draft.md>` to verify. This replaces the manual
-  byte-for-byte roundtrip reconstruction that `CONVENTIONS.md` §2 required. Hand-typing
+  `pnpm seed:transcribe check <draft.md>` to verify. This is the tool-run form of the
+  byte-for-byte roundtrip check `CONVENTIONS.md` §2 requires (tool since PR #63; the
+  reviewing code-reviewer still re-runs the check independently). Hand-typing
   prose into the `+`-concatenation idiom is what caused PR #43's dropped spaces — don't.
   See `tools/seed-transcription/README.md` for the join rule and the design rationale.
 - **The content-fidelity gate is per-wave, and it is `exit 0`.** Run `check` over **the
@@ -256,9 +259,11 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
 ## 10. PR review loop + Critical Architect Filter (BINDING protocol)
 
 Atlas alone runs the independent reviewer fan-out. Deniz has no subagent-spawn tool and
-must never self-review.
+must never self-review. Provider-neutral reviewer role rubrics live at the legacy
+`.claude/reviewers/` path; the canonical roster, severity, and workflow live in the
+orchestration-root `REVIEW-POLICY.md`.
 
-When Atlas returns a consolidated report, read and apply `../REVIEW-POLICY.md` §9
+When Atlas returns a consolidated report, read and apply the orchestration-root `REVIEW-POLICY.md` §9
 completely. It is the single severity, author-filter, annotation, re-loop, and delivery
 procedure.
 

@@ -53,7 +53,7 @@ at all** — not even the files it could have written.
 This is a real failure that was caught in review, not a hypothetical: PR #46 corrected the
 country name `Ekvator` -> `Ekvador` on `BR.introTr` and `CO.introTr` directly in the seed,
 and the draft was never back-ported. An unconditional `apply` silently reverted that fix on
-two live pages — via the very command `CLAUDE.md` §8 mandates as the fidelity gate. The
+two live pages — via the very command `ENGINEERING.md` §8 mandates as the fidelity gate. The
 only defence was a human reading the diff, which is precisely the defence that failed in
 PR #43 and caused this tool to exist in the first place.
 
@@ -141,7 +141,7 @@ naming a field this tool does not transcribe is a printed **warning**, not silen
 
 ## Verified against the committed seed
 
-Run per wave — which is how the gate is defined (`CLAUDE.md` §8) — **24 of the 26 drafts
+Run per wave — which is how the gate is defined (`ENGINEERING.md` §8) — **24 of the 26 drafts
 exit 0 today**. The exceptions are known, tracked, and none is a tool defect:
 
 | Draft | Result | Cause |

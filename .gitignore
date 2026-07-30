@@ -23,7 +23,7 @@ yarn-error.log*
 
 # PR-review run workspace — reviewers write pr-reviews/{PR#}-{role}.md here per run;
 # Atlas archives the consolidated file to Owner's Inbox/pr-review-archive/. Transient,
-# never committed (see .claude/reviewers/README.md).
+# never committed (workflow: the orchestration-root REVIEW-POLICY.md; rubrics: .claude/reviewers/).
 /pr-reviews/
 
 # TypeScript build info

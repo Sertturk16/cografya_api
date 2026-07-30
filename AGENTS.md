@@ -5,13 +5,13 @@ binding backend handbook.
 
 For shared process and product state, also read:
 
-- `../ATLAS-OPERATIONS.md`
-- `../CONVENTIONS.md`
-- `../TASKS.md` when task state matters
+- the orchestration-root `ATLAS-OPERATIONS.md`
+- the orchestration-root `CONVENTIONS.md`
+- the orchestration-root `TASKS.md` when task state matters
 - the relevant root policy documents
 
 Codex-specific execution uses the `cografya_backend_dev` profile from
-`../.codex/agents/`. Deniz is the single writer. Never edit `../cografya_web`; coordinate
+the orchestration root's `.codex/agents/`. Deniz is the single writer. Never edit the sibling `cografya_web` repo; coordinate
 OpenAPI contract changes through Atlas.
 
 CI is the only test-suite gate. Use only the local checks allowed by `ENGINEERING.md`.

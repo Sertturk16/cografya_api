@@ -12,7 +12,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  *   • economy_indicator   — jsonb single `{ label, value, year, source }` stat
  *
  * Hand-authored (not generated) and hand-reviewed, consistent with the sibling
- * migrations and the repo's migration discipline (CLAUDE.md §5): raw SQL so the
+ * migrations and the repo's migration discipline (ENGINEERING.md §5): raw SQL so the
  * exact DDL is reviewable at a glance and maps 1:1 to the entity's new columns
  * (`synchronize` is never used).
  *
