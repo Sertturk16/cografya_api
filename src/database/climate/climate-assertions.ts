@@ -625,6 +625,31 @@ const CLIMATE_EXTREME_RECORD_KEYS = [
 ] as const satisfies readonly (keyof ClimateExtremeRecord)[];
 
 /**
+ * The OTHER direction, at compile time: every key of the interface must appear in the array.
+ *
+ * `satisfies readonly (keyof T)[]` is one-directional — it fails when a field is RENAMED or
+ * DROPPED (a listed name stops being a `keyof`), and it is silent when a field is ADDED. That
+ * silent direction is the expensive one: a new contract field would reach `assertExactKeys` as an
+ * "unknown key" and abort the offline `load` phase against a perfectly honest artifact, which is a
+ * failure at import time for a mistake made at the keyboard. Instantiating the alias below with
+ * the keys an array does NOT list makes TypeScript reject anything but `never`, so the mistake
+ * cannot compile.
+ *
+ * `ClimateKeyListsAreExhaustive` is `export`ed for one mechanical reason only — it has no callers
+ * and is not API: a purely local type-level proof reads as dead code to
+ * `@typescript-eslint/no-unused-vars`, and silencing that rule per-line would be the same wound
+ * one indirection further away.
+ */
+type NoUnlistedKeys<TUnlisted extends never> = TUnlisted;
+
+export type ClimateKeyListsAreExhaustive = [
+  NoUnlistedKeys<Exclude<keyof ClimateNormals, (typeof CLIMATE_NORMALS_KEYS)[number]>>,
+  NoUnlistedKeys<Exclude<keyof ClimateMonthlyNormal, (typeof CLIMATE_MONTHLY_KEYS)[number]>>,
+  NoUnlistedKeys<Exclude<keyof ClimateRecords, (typeof CLIMATE_RECORDS_KEYS)[number]>>,
+  NoUnlistedKeys<Exclude<keyof ClimateExtremeRecord, (typeof CLIMATE_EXTREME_RECORD_KEYS)[number]>>,
+];
+
+/**
  * Require an object's key set to be EXACTLY the declared one — no extras, none missing.
  *
  * **The extras half is the load-bearing one, and it is a PUBLIC-CONTRACT defence.** The served
@@ -668,7 +693,10 @@ function assertExactKeys(
     throw new ClimateImportError(
       `${plateCode}: ${what} is missing key(s) ${missing.map((k) => JSON.stringify(k)).join(', ')}. ` +
         `Every field is declared non-optional, so an absent one would serve \`undefined\` where ` +
-        `the contract promises a value or an explicit null.`,
+        `the contract promises a value or an explicit null. If the field was just ADDED to the ` +
+        `contract, the committed artifact predates it: re-mint it with ` +
+        `\`pnpm db:import:climate --phase=fetch\` (by hand, network, ~70 min) and commit the ` +
+        `result — \`load\` is offline and cannot invent a value MGM was never asked for.`,
     );
   }
 }

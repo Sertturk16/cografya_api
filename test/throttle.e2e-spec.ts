@@ -82,10 +82,15 @@ describe('Rate limiting (e2e)', () => {
     // flake instead of failing honestly. Stated as a check rather than a comment.
     expect(throttleTtlMs).toBeGreaterThanOrEqual(30_000);
     expect(throttleLimit).toBeGreaterThan(0);
+    // A non-finite limit passes `> 0` and then makes the loop below run forever: the suite would
+    // die on Jest's timeout, naming nothing. Fail here instead, on the actual cause.
+    expect(Number.isFinite(throttleLimit)).toBe(true);
   });
 
   it('serves an anonymous client up to the limit, then answers 429', async () => {
     const server = app.getHttpServer();
+
+    const startedAt = Date.now();
 
     // Sequential on purpose: the assertion is "the Nth request is still allowed", which is only
     // meaningful if the requests are ordered. Concurrency would prove a total, not a boundary.
@@ -96,7 +101,15 @@ describe('Rate limiting (e2e)', () => {
 
     // The first request over the window. This is the whole point of the suite.
     const denied = await request(server).get('/api/provinces');
-    expect(denied.status).toBe(429);
+
+    // The elapsed time rides along in the SAME assertion so an overrun self-reports. The whole
+    // sequence has to land inside ONE window; if a slow machine ever stretched it past the TTL
+    // the bucket would reset mid-run and this test would report "expected 429, got 200" — a
+    // status defect it does not have. Asserted, the failure names its real cause instead.
+    expect({
+      status: denied.status,
+      insideOneWindow: Date.now() - startedAt < throttleTtlMs,
+    }).toEqual({ status: 429, insideOneWindow: true });
   }, 120_000);
 
   it('does NOT throttle the trusted first-party client, from the same exhausted client', async () => {

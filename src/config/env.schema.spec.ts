@@ -108,6 +108,19 @@ describe('validateEnv — INTERNAL_REQUEST_TOKEN is a wire contract, not just a 
     );
   });
 
+  it('draws the length line at EXACTLY 32 — one character either side of it', () => {
+    // The boundary itself, not a value comfortably past it: `min(32)` and `min(33)` both pass
+    // every other test in this block, and the two repos must cut at the same character or a
+    // secret one repo accepts is a secret the other refuses to boot with. Mirrors the same
+    // pair in the web's `env.server` spec.
+    expect(() => validateEnv({ ...BASE, INTERNAL_REQUEST_TOKEN: 'a'.repeat(31) })).toThrow(
+      /at least 32 characters/,
+    );
+    expect(
+      validateEnv({ ...BASE, INTERNAL_REQUEST_TOKEN: 'a'.repeat(32) }).INTERNAL_REQUEST_TOKEN,
+    ).toHaveLength(32);
+  });
+
   it('REFUSES whitespace — the api and the web would then hold different bytes', () => {
     // Node's HTTP parser trims a header value's edges, so a leading/trailing space here can
     // never be presented back to us: the exemption would be permanently dead while the boot log

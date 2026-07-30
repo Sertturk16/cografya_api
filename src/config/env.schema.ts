@@ -72,8 +72,11 @@ export const envSchema = z
     //     admits them, yet the web side's `Headers` rejects every one of them. Accepting such a
     //     value here configures an exemption that NO valid client can ever satisfy, and the
     //     failure looks identical to a wrong token.
-    // Keep this rule and the web's in lockstep; `env.schema.spec.ts` pins it so a future
-    // loosening fails CI instead of re-opening both failure modes.
+    // Keep this rule and the web's in lockstep — but know what enforces that. `env.schema.spec.ts`
+    // pins THIS side, so a loosening here fails our CI; nothing in either repo can observe the
+    // other's rule, so the PAIRING itself is convention-enforced only. Changing either side is a
+    // cross-repo change: land the matching one, or the two stores can hold a value one repo boots
+    // with and the other refuses.
     INTERNAL_REQUEST_TOKEN: z
       .string()
       .min(32, 'INTERNAL_REQUEST_TOKEN must be at least 32 characters when set')

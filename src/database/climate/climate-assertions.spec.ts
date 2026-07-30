@@ -280,7 +280,36 @@ describe('assertClimateNormalsShape', () => {
       delete month.sunshineHours;
 
       expect(() => assertClimateNormalsShape('33', corrupted)).toThrow(
-        /missing key\(s\) "sunshineHours"/,
+        /months\[0\] is missing key\(s\) "sunshineHours"/,
+      );
+    });
+
+    it('REFUSES a DELETED key at the other three levels too, and names the level', () => {
+      // Symmetry with the unknown-key direction above, which is exercised at all four levels.
+      // The `missing` half is one shared branch, but the EXPECTED list is passed per call site,
+      // so a call site wired to the wrong array — or dropped entirely — only shows up level by
+      // level. `sourceUrl` is chosen deliberately at the root: a later check would also reject
+      // its absence, with `not an MGM URL`, so this pins that the key set is verified FIRST and
+      // the operator is told which key is gone rather than which rule tripped over it.
+      const withoutSourceUrl = clone(parseFixture().normals) as unknown as Record<string, unknown>;
+      delete withoutSourceUrl.sourceUrl;
+      expect(() =>
+        assertClimateNormalsShape('33', withoutSourceUrl as unknown as ClimateNormals),
+      ).toThrow(/the series is missing key\(s\) "sourceUrl"/);
+
+      const withoutRecordColumn = clone(parseFixture().normals);
+      delete (withoutRecordColumn.records as unknown as Record<string, unknown>).maxSnowDepthCm;
+      expect(() => assertClimateNormalsShape('33', withoutRecordColumn)).toThrow(
+        /"records" is missing key\(s\) "maxSnowDepthCm"/,
+      );
+
+      const withoutRecordDate = clone(parseFixture().normals);
+      expect(withoutRecordDate.records.dailyMaxPrecipitationMm).not.toBeNull();
+      delete (
+        withoutRecordDate.records.dailyMaxPrecipitationMm as unknown as Record<string, unknown>
+      ).date;
+      expect(() => assertClimateNormalsShape('33', withoutRecordDate)).toThrow(
+        /records\.dailyMaxPrecipitationMm is missing key\(s\) "date"/,
       );
     });
 
