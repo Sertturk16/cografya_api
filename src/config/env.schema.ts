@@ -66,12 +66,25 @@ export const envSchema = z
     // provider-budget counters. OPTIONAL in development and test, where the app falls back to an
     // in-process LRU and says so loudly at boot. It is NOT optional in production with the marine
     // feature enabled — see the superRefine below (owner ruling E1 → DEC 2026-07-29b).
+    // The HOST check is not pedantry: `redis://` and `rediss://` with no host pass `z.url()`, and
+    // ioredis silently resolves such a URL to localhost:6379. A deployment templating
+    // `REDIS_URL=redis://$REDIS_HOST:6379` with the inner variable unset therefore satisfied E1
+    // on paper and pointed the cache at nothing, while the boot log printed the reassuring
+    // "REDIS — shared across instances" line (review #73, security i2 — both halves executed
+    // against this repo's own zod and ioredis versions).
     REDIS_URL: z
       .url()
-      .refine(
-        (value) => value.startsWith('redis://') || value.startsWith('rediss://'),
-        'REDIS_URL must use the redis:// or rediss:// scheme',
-      )
+      .refine((value) => {
+        try {
+          const parsed = new URL(value);
+          return (
+            (parsed.protocol === 'redis:' || parsed.protocol === 'rediss:') &&
+            parsed.hostname !== ''
+          );
+        } catch {
+          return false;
+        }
+      }, 'REDIS_URL must be a redis:// or rediss:// URL with a host')
       .optional(),
 
     // ── Marine feature (SPEC-ADDENDUM §6, §7.8) ─────────────────────────────────
