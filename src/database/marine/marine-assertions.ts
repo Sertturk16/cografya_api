@@ -1,6 +1,6 @@
 import { MarineLayerId, MarineSource, SeaBasin } from '../../marine/marine.types';
 import { haversineKm, isInsideBoundingBox } from './geo';
-import type { CmemsLayerRef } from './marine-candidates';
+import type { CmemsLayerRef, MarinePointCandidate } from './marine-candidates';
 import {
   BASIN_BOUNDING_BOXES,
   BASIN_CMEMS_ROUTING,
@@ -553,6 +553,52 @@ export function collectAssertionFailures(artifact: MarinePointsProbeArtifact): s
  * where a wrong point is already in the database.
  */
 /**
+ * Every field of a candidate the staleness gate compares — DERIVED FROM THE TYPE, not curated.
+ *
+ * ## Why this is not just a hand-written list any more
+ * It used to be one, and it was wrong: the two coast labels were absent, so a wording fix in
+ * `COAST_LABELS` shipped the OLD text forever with the gate, the e2e suite and CI all green
+ * (review #72, silent-failure I1 / code-reviewer I2). Adding the two missing names fixed that
+ * INSTANCE; it did not fix the CLASS, because the next field added to `MarinePointCandidate`
+ * would be forgotten in exactly the same way.
+ *
+ * Now the list is checked against the type: `satisfies` rejects a name that is not a candidate
+ * field, and `AllCandidateFieldsAreCompared` below fails to COMPILE if a candidate field is
+ * missing from it. Forgetting is no longer possible; it is a build error with the field's name
+ * in the message.
+ *
+ * ## Why not simply `Object.keys(candidate)`
+ * Because that is the same silent failure wearing a different hat: a field declared on the type
+ * but absent from a particular object literal would be skipped at runtime with nothing to see.
+ * A compile-time gate cannot be skipped at runtime.
+ */
+const STALENESS_COMPARED_FIELDS = [
+  'slugTr',
+  'slugEn',
+  'nameTr',
+  'nameEn',
+  'coastLabelTr',
+  'coastLabelEn',
+  'plateCode',
+  'provinceNameTr',
+  'seaBasin',
+  'latitude',
+  'longitude',
+  'displayOrder',
+] as const satisfies readonly (keyof MarinePointCandidate)[];
+
+/**
+ * Compile-time exhaustiveness gate.
+ *
+ * If a field is added to `MarinePointCandidate` and not to `STALENESS_COMPARED_FIELDS`, this
+ * alias resolves to that field's name instead of `never` and the build fails, naming it.
+ */
+type AssertNever<T extends never> = T;
+export type AllCandidateFieldsAreCompared = AssertNever<
+  Exclude<keyof MarinePointCandidate, (typeof STALENESS_COMPARED_FIELDS)[number]>
+>;
+
+/**
  * The artifact must describe the CURRENT candidate list — the staleness gate.
  *
  * Without it the two-phase split has a hole that defeats its own purpose: edit a coordinate in
@@ -566,6 +612,7 @@ export function collectAssertionFailures(artifact: MarinePointsProbeArtifact): s
  */
 export function assertArtifactMatchesCandidates(artifact: MarinePointsProbeArtifact): void {
   const drift: string[] = [];
+  const comparedFields = STALENESS_COMPARED_FIELDS;
 
   if (artifact.entries.length !== MARINE_POINT_CANDIDATES.length) {
     drift.push(
@@ -580,24 +627,7 @@ export function assertArtifactMatchesCandidates(artifact: MarinePointsProbeArtif
       drift.push(`${candidate.slugTr}: absent from the artifact`);
       continue;
     }
-    for (const field of [
-      'slugTr',
-      'slugEn',
-      'nameTr',
-      'nameEn',
-      // The two coast labels are on this list because they are LOADED COLUMNS. They used to be
-      // absent — derived from COAST_LABELS at probe time and thereafter read only back out of the
-      // artifact — so a wording fix in COAST_LABELS shipped the OLD text forever, with the gate,
-      // the e2e suite and CI all green (review #72, silent-failure I1 / code-reviewer I2).
-      'coastLabelTr',
-      'coastLabelEn',
-      'plateCode',
-      'provinceNameTr',
-      'seaBasin',
-      'latitude',
-      'longitude',
-      'displayOrder',
-    ] as const) {
+    for (const field of comparedFields) {
       if (entry[field] !== candidate[field]) {
         drift.push(
           `${candidate.slugTr}.${field}: candidate table says ${JSON.stringify(candidate[field])}, ` +

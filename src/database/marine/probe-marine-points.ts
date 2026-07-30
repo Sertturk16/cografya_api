@@ -193,8 +193,13 @@ async function fetchRaw(
   sleepImpl: (ms: number) => Promise<void>,
 ): Promise<RawResponse> {
   let lastError: unknown;
+  // The number of attempts actually MADE, which is not always the maximum: a size-cap breach
+  // breaks out after one. Reporting the constant instead told the operator we had tried three
+  // times when we had tried once — a small lie that sends them looking for a flaky network.
+  let attemptsMade = 0;
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS_PER_REQUEST; attempt += 1) {
+    attemptsMade = attempt;
     try {
       const response = await fetchImpl(url, {
         headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' },
@@ -223,7 +228,7 @@ async function fetchRaw(
   }
 
   throw new MarineImportError(
-    `failed to fetch ${url} after ${String(MAX_ATTEMPTS_PER_REQUEST)} attempts: ${String(lastError)}`,
+    `failed to fetch ${url} after ${String(attemptsMade)} attempt(s): ${String(lastError)}`,
   );
 }
 
@@ -564,6 +569,12 @@ async function probeOpenMeteo(
  * Throwing before writing would leave them with a console scrollback and nothing else. The
  * process still exits non-zero, and `--phase=load` refuses the artifact independently, so a
  * failing artifact can never reach the database by accident.
+ *
+ * That applies to ASSERTION failures only. An ABORT — the circuit breaker, a transport failure
+ * run, or the completeness gate — happens before the write and produces NO file at all, leaving
+ * the previous committed artifact untouched. That is the right outcome: a partial artifact is
+ * indistinguishable from a complete one at load time, and the console output already carries
+ * every rejection the run saw.
  */
 export async function runProbePhase(options: ProbePhaseOptions): Promise<void> {
   const fetchImpl = options.fetchImpl ?? fetch;
@@ -582,7 +593,15 @@ export async function runProbePhase(options: ProbePhaseOptions): Promise<void> {
 
   const entries: MarineProbeEntry[] = [];
   let consecutiveFailures = 0;
-  /** Set when the provider-refusal breaker trips; thrown after the current candidate is recorded. */
+  /**
+   * Set when the provider-refusal breaker trips; thrown after the current candidate has been
+   * appended to `entries` IN MEMORY.
+   *
+   * That appended entry does NOT reach disk: the artifact is written only after the completeness
+   * gate below, which the abort precedes. The durable record of an aborted run is the console
+   * output — which is why every rejection is logged as it happens rather than summarised at the
+   * end.
+   */
   let providerRefusalAbort: string | null = null;
 
   for (const [index, candidate] of candidates.entries()) {

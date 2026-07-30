@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheControlInterceptor } from './common/http-cache/cache-control.interceptor';
@@ -43,6 +44,11 @@ const THROTTLE_LIMIT = 120;
         buildDataSourceOptions(config.getOrThrow('DATABASE_URL')),
     }),
     ThrottlerModule.forRoot([{ ttl: THROTTLE_TTL_MS, limit: THROTTLE_LIMIT }]),
+    // In-process scheduling for the marine warmup tour (SPEC-ADDENDUM §3). This is NOT the
+    // "second entry point" `ENGINEERING.md` §1 rules out: no queue, no worker, no separate
+    // deployable — one provider inside this process, which is the exception §1 already allows.
+    // With `MARINE_ENABLED=false` (the default) nothing is scheduled at all.
+    ScheduleModule.forRoot(),
     HealthModule,
     ProvinceModule,
     CountryModule,

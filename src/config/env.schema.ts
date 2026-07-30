@@ -8,31 +8,163 @@ import { z } from 'zod';
  * ConfigService), so a var the app relies on but forgets to declare surfaces
  * immediately rather than silently reading `undefined`.
  */
-export const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  // Defaults to 3001, not the NestJS-conventional 3000, to avoid colliding with
-  // the sibling web app's Next.js dev server (see WEB_ORIGIN below), which
-  // conventionally owns 3000 — so both can run locally with defaults untouched.
-  PORT: z.coerce.number().int().positive().max(65535).default(3001),
-  // REQUIRED — no default. A missing (or malformed) DATABASE_URL aborts boot;
-  // this is the first no-default var, so the "missing var kills boot" guarantee
-  // is now literally true, not just forward-looking.
-  DATABASE_URL: z.url(),
-  // Browser origin of the web app, allowed by CORS. Defaults to the typical
-  // local Next.js dev origin; production sets the real domain once it's decided.
-  WEB_ORIGIN: z.url().default('http://localhost:3000'),
-  // Shared secret that exempts a trusted first-party caller (the web SSG build) from
-  // the global rate limit — presented in the `x-internal-request-token` header and
-  // matched constant-time by TrustedClientThrottlerGuard. OPTIONAL and fail-closed: when
-  // unset the exemption does not exist and every request is throttled, so dev/test/CI boot
-  // with no secret. When set it MUST be >= 32 chars (a weak bypass secret is worse than
-  // none). It is a SECRET — never log it, never echo it in the OpenAPI spec; only the
-  // web build's SERVER-SIDE fetches may hold it (it must never reach the browser).
-  INTERNAL_REQUEST_TOKEN: z
-    .string()
-    .min(32, 'INTERNAL_REQUEST_TOKEN must be at least 32 characters when set')
-    .optional(),
-});
+/**
+ * A boolean read from the environment — where everything is a string.
+ *
+ * Accepts EXACTLY `'true'` or `'false'`. `z.coerce.boolean()` is unusable here: it applies
+ * JavaScript truthiness, so `MARINE_ENABLED=false` would parse as `true` and turn a deliberate
+ * kill switch into a no-op. `'0'`, `'no'`, `'TRUE'` and a typo are all rejected at boot rather
+ * than quietly interpreted, which is the same fail-fast posture as the rest of this schema.
+ */
+function envBoolean(
+  defaultValue: 'true' | 'false',
+): z.ZodPipe<
+  z.ZodDefault<z.ZodEnum<{ true: 'true'; false: 'false' }>>,
+  z.ZodTransform<boolean, 'true' | 'false'>
+> {
+  return z
+    .enum(['true', 'false'])
+    .default(defaultValue)
+    .transform((value) => value === 'true');
+}
+
+export const envSchema = z
+  .object({
+    NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+    // Defaults to 3001, not the NestJS-conventional 3000, to avoid colliding with
+    // the sibling web app's Next.js dev server (see WEB_ORIGIN below), which
+    // conventionally owns 3000 — so both can run locally with defaults untouched.
+    PORT: z.coerce.number().int().positive().max(65535).default(3001),
+    // REQUIRED — no default. A missing (or malformed) DATABASE_URL aborts boot;
+    // this is the first no-default var, so the "missing var kills boot" guarantee
+    // is now literally true, not just forward-looking.
+    DATABASE_URL: z.url(),
+    // Browser origin of the web app, allowed by CORS. Defaults to the typical
+    // local Next.js dev origin; production sets the real domain once it's decided.
+    WEB_ORIGIN: z.url().default('http://localhost:3000'),
+    // Shared secret that exempts a trusted first-party caller (the web SSG build) from
+    // the global rate limit — presented in the `x-internal-request-token` header and
+    // matched constant-time by TrustedClientThrottlerGuard. OPTIONAL and fail-closed: when
+    // unset the exemption does not exist and every request is throttled, so dev/test/CI boot
+    // with no secret. When set it MUST be >= 32 chars (a weak bypass secret is worse than
+    // none). It is a SECRET — never log it, never echo it in the OpenAPI spec; only the
+    // web build's SERVER-SIDE fetches may hold it (it must never reach the browser).
+    INTERNAL_REQUEST_TOKEN: z
+      .string()
+      .min(32, 'INTERNAL_REQUEST_TOKEN must be at least 32 characters when set')
+      .optional(),
+
+    // ── Cache infrastructure ────────────────────────────────────────────────────
+    // Redis connection string for the upstream cache, the single-flight lock and the shared
+    // provider-budget counters. OPTIONAL in development and test, where the app falls back to an
+    // in-process LRU and says so loudly at boot. It is NOT optional in production with the marine
+    // feature enabled — see the superRefine below (owner ruling E1 → DEC 2026-07-29b).
+    REDIS_URL: z
+      .url()
+      .refine(
+        (value) => value.startsWith('redis://') || value.startsWith('rediss://'),
+        'REDIS_URL must use the redis:// or rediss:// scheme',
+      )
+      .optional(),
+
+    // ── Marine feature (SPEC-ADDENDUM §6, §7.8) ─────────────────────────────────
+    // Master switch for the marine UPSTREAM legs (warmup today; every provider call from M3).
+    // `false` by default so a fresh deployment never reaches a provider before someone decided it
+    // should — §3.4 makes "enabled only after the first warmup tour completed" an M5 acceptance
+    // criterion. It does NOT gate `/api/marine/points` and `/api/marine/layers`, which are a
+    // Postgres read and a constant with no upstream dependency at all.
+    MARINE_ENABLED: envBoolean('false'),
+
+    // Total upstream budget for ONE user request — retries, parallel legs, everything included
+    // (§6.4). Not a per-call timeout: a per-call timeout cannot bound an operation that makes an
+    // unknown number of calls, which was SPEC v1's error.
+    MARINE_UPSTREAM_DEADLINE_MS: z.coerce.number().int().positive().default(6_000),
+    // Ceiling on a SINGLE call, so one hung socket cannot silently consume the whole budget.
+    MARINE_SINGLE_CALL_TIMEOUT_MS: z.coerce.number().int().positive().default(3_000),
+
+    // The warmup tour (§3.4). Separate from MARINE_ENABLED so warming can be stopped without
+    // taking the feature down — e.g. if a provider writes to us.
+    MARINE_WARMUP_ENABLED: envBoolean('true'),
+    MARINE_WARMUP_INTERVAL_SECONDS: z.coerce.number().int().positive().default(900),
+    // The tour's OWN budget. It is background work, not a request; the 6 s request deadline does
+    // not apply to it (§6.4).
+    MARINE_WARMUP_DEADLINE_MS: z.coerce.number().int().positive().default(120_000),
+
+    // ── Cache TTLs, one per outcome kind (§6.3, §7.8) ───────────────────────────
+    // The single `MARINE_CACHE_TTL_SECONDS` the v1 SPEC proposed is deliberately absent: one
+    // number cannot serve a land mask (permanent), a rate-limit answer (the provider tells us
+    // when) and a schema mismatch (an alarm) at the same time.
+    MARINE_POINTS_TTL_SECONDS: z.coerce.number().int().positive().default(86_400),
+    MARINE_LAYERS_TTL_SECONDS: z.coerce.number().int().positive().default(21_600),
+    MARINE_VALUE_TTL_SECONDS: z.coerce.number().int().positive().default(3_600),
+    MARINE_NO_DATA_TTL_SECONDS: z.coerce.number().int().positive().default(86_400),
+    MARINE_ERROR_TTL_SECONDS: z.coerce.number().int().positive().default(60),
+    MARINE_RATELIMIT_TTL_SECONDS: z.coerce.number().int().positive().default(300),
+    MARINE_CLIENT_ERROR_TTL_SECONDS: z.coerce.number().int().positive().default(900),
+    MARINE_SCHEMA_ERROR_TTL_SECONDS: z.coerce.number().int().positive().default(300),
+
+    // ── The two independent staleness ceilings (§6.1) ───────────────────────────
+    // How long we may keep serving a value we cannot refresh…
+    MARINE_STALE_MAX_SECONDS: z.coerce.number().int().positive().default(21_600),
+    // …and how old the MODEL MOMENT the value describes may be. A value fetched ten minutes ago
+    // can still belong to an eight-hour-old model run; only the second ceiling sees that.
+    MARINE_VALID_AT_MAX_AGE_SECONDS: z.coerce.number().int().positive().default(10_800),
+  })
+  .superRefine((env, ctx) => {
+    // ── E1 (owner ruling, DEC 2026-07-29b): production + marine enabled ⇒ Redis is REQUIRED ──
+    // Without Redis every deploy starts from an empty cache (the first request would trigger the
+    // full cold call graph), N instances mean N× the upstream load, and single-flight cannot
+    // coordinate across them (§2.6). Silently degrading to the in-process LRU in production is
+    // forbidden, so this is a BOOT failure rather than a warning: a warning in a container log is
+    // exactly the kind of notice nobody reads until the provider has already blocked us.
+    if (env.NODE_ENV === 'production' && env.MARINE_ENABLED && env.REDIS_URL === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['REDIS_URL'],
+        message:
+          'REDIS_URL is REQUIRED when NODE_ENV=production and MARINE_ENABLED=true (owner ruling ' +
+          'E1 / DEC 2026-07-29b). The in-process LRU fallback is a development-only mode: it is ' +
+          'single-instance, it is emptied by every deploy, and single-flight does not work across ' +
+          'instances. Provision Redis, or start with MARINE_ENABLED=false.',
+      });
+    }
+
+    // A single-call cap above the total operation budget is a configuration that cannot mean what
+    // it says — the operation would end before the call it is waiting for could time out.
+    if (env.MARINE_SINGLE_CALL_TIMEOUT_MS > env.MARINE_UPSTREAM_DEADLINE_MS) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['MARINE_SINGLE_CALL_TIMEOUT_MS'],
+        message:
+          'MARINE_SINGLE_CALL_TIMEOUT_MS must not exceed MARINE_UPSTREAM_DEADLINE_MS — a single ' +
+          'call cannot be allowed more time than the whole operation.',
+      });
+    }
+
+    // A value TTL above the staleness ceiling would make a value droppable while still labelled
+    // `fresh`: the two rules would contradict each other on the same number.
+    if (env.MARINE_VALUE_TTL_SECONDS > env.MARINE_STALE_MAX_SECONDS) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['MARINE_VALUE_TTL_SECONDS'],
+        message:
+          'MARINE_VALUE_TTL_SECONDS must not exceed MARINE_STALE_MAX_SECONDS — otherwise a value ' +
+          'can breach the staleness ceiling while still being labelled fresh.',
+      });
+    }
+
+    // A tour that may run longer than the interval between tours would overlap itself. The lock
+    // prevents the damage, but the schedule would then be a lie; refuse the configuration instead.
+    if (env.MARINE_WARMUP_DEADLINE_MS >= env.MARINE_WARMUP_INTERVAL_SECONDS * 1000) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['MARINE_WARMUP_DEADLINE_MS'],
+        message:
+          'MARINE_WARMUP_DEADLINE_MS must be shorter than MARINE_WARMUP_INTERVAL_SECONDS — a tour ' +
+          'that can outlive its own interval overlaps the next one.',
+      });
+    }
+  });
 
 export type Env = z.infer<typeof envSchema>;
 

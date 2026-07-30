@@ -1,6 +1,7 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseInterceptors } from '@nestjs/common';
 import { ApiExtraModels, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CacheControl } from '../common/http-cache/cache-control.decorator';
+import { MarineCacheAgeInterceptor } from './marine-cache-age.interceptor';
 import { MarineConditionsDto } from './dto/marine-conditions.dto';
 import { MarineLayerDto } from './dto/marine-layer.dto';
 import { MarineOverviewDto } from './dto/marine-overview.dto';
@@ -44,6 +45,11 @@ import { MarineService } from './marine.service';
   MarineProvinceConditionsDto,
 )
 @Controller('marine')
+// Publishes `X-Marine-Cache-Age` for any handler whose body carries one (SPEC-ADDENDUM §6.1/B7).
+// Bound here rather than globally: only marine payloads have a marine cache age. The two M1
+// endpoints attach none — they are a Postgres read and a constant, with no cache behind them —
+// so today this is a pass-through, and the M3/M4 value endpoints are what will populate it.
+@UseInterceptors(MarineCacheAgeInterceptor)
 export class MarineController {
   constructor(private readonly marineService: MarineService) {}
 

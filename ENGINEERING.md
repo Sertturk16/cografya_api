@@ -28,9 +28,13 @@ dated ruling in `DECISIONS.md`. It is the local source of truth for how code lan
   ships; no unchecked index access.
 - **TypeORM + PostgreSQL 16.** `synchronize` is **always off** — schema changes ship only
   as hand-reviewed migrations (§5).
-- **Redis 7** for caching (hot content reads, feed responses). Present in
-  `docker-compose.yml`; wired into the app only when a real cache need lands — until then
-  hot reads use HTTP `Cache-Control` headers (see `ProvinceController`).
+- **Redis 7** for caching (hot content reads, feed responses). Wired into the app from the
+  marine M2 PR via `REDIS_URL` (`src/upstream/`): the upstream cache, the single-flight
+  refresh lock and the shared provider-budget counters. `REDIS_URL` is **optional in
+  development/test** — the app falls back to an in-process LRU and says so loudly at boot —
+  and **mandatory in production while `MARINE_ENABLED=true`**, enforced at boot by the env
+  schema (owner ruling E1 → DEC 2026-07-29b). Content reads that need no upstream call still
+  use HTTP `Cache-Control` headers only (see `ProvinceController`).
 - **Node 24**, **pnpm** (pinned via `packageManager`; `corepack enable`).
 - **Config:** env is validated at boot by a **zod** schema (`src/config/env.schema.ts`)
   wired into `ConfigModule.forRoot({ validate })`. Missing/mistyped env **aborts boot**.
@@ -41,7 +45,11 @@ dated ruling in `DECISIONS.md`. It is the local source of truth for how code lan
   `openapi:check` (regenerate + `git diff --exit-code`) — a stale spec fails the build.
 - **No BullMQ / no second entry point at day-0.** Background needs (feed polling, sitemap
   pings) start as simple scheduled providers. Escalate to a real queue only when a real
-  queue need appears — surface it to Atlas first (§12).
+  queue need appears — surface it to Atlas first (§12). The first such provider is the
+  marine warmup tour (`ScheduleModule` + `SchedulerRegistry`, marine M2): one provider inside
+  this process — no queue, no worker, no separate deployable — which is exactly the shape this
+  rule leaves room for. Its Faz-1 arrival is a recorded deviation from SPEC v1's "no scheduled
+  work" (SPEC-ADDENDUM §3.3, AÇIK-1).
 
 ---
 
