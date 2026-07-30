@@ -130,7 +130,7 @@ describe('applyToSource — divergence guard', () => {
   // REGRESSION (C1): the draft was unconditionally authoritative, so `apply` silently
   // reverted a correction that had landed on the seed but not on the draft. Reproduced
   // against the real corpus: BR/CO `introTr` lost PR #46's `Ekvator` -> `Ekvador` fix on
-  // two live pages, via the command CLAUDE.md §8 mandates.
+  // two live pages, via the command ENGINEERING.md §8 mandates.
   const seeded = FIXTURE.replace('introTr: null,', "introTr: 'düzeltilmiş değer',");
   const write = [{ isoCode: 'AA', field: 'introTr', value: 'eski taslak değeri' }] as const;
 

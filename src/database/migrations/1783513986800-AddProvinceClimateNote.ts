@@ -5,7 +5,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * per the il-level data dictionary (§2.1), MUST travel with the Köppen value.
  *
  * Hand-authored (not generated) and hand-reviewed, consistent with
- * `InitProvince` and the repo's migration discipline (CLAUDE.md §5). Kept in raw
+ * `InitProvince` and the repo's migration discipline (ENGINEERING.md §5). Kept in raw
  * SQL so the exact DDL is reviewable at a glance and maps 1:1 to the entity's new
  * `climateNoteTr` column (`synchronize` is never used).
  *

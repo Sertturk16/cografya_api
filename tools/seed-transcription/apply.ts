@@ -35,7 +35,7 @@ export interface PendingWrite {
  * than the seed. A correction landed directly on the seed (PR #46 fixed the country name
  * `Ekvator` -> `Ekvador` on `BR.introTr` / `CO.introTr`) leaves the draft stale, and an
  * unconditional `apply` silently reverts a live, reviewed fix on public pages — via the
- * very command `CLAUDE.md` §8 mandates. The only defence was a human reading the diff,
+ * very command `ENGINEERING.md` §8 mandates. The only defence was a human reading the diff,
  * which is precisely the defence that failed in PR #43 and caused this tool to exist.
  *
  * So divergence is a QUESTION, not an instruction: report it and refuse. Overwriting is

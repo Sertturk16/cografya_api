@@ -25,7 +25,7 @@ import { INTERNAL_REQUEST_HEADER, isTrustedClientRequest } from './trusted-clien
  *
  * Safe-method scope: the exemption's documented safety rationale (the exempted endpoints
  * are public, auth-less, PII-free, cheap, cacheable reads) holds only for reads. The roadmap
- * already commits admin CRUD, auth panels and an AI-vision POST (CLAUDE.md §3); a leaked
+ * already commits admin CRUD, auth panels and an AI-vision POST (ENGINEERING.md §3); a leaked
  * token must never silently exempt a write/upload/brute-force surface from throttling.
  * Restricting the exemption to GET/HEAD enforces a claim the exemption already makes about
  * itself, and changes no live behaviour (every current route is GET).
@@ -82,7 +82,7 @@ export class TrustedClientThrottlerGuard extends ThrottlerGuard implements OnMod
     }>();
 
     // Scope the exemption to safe, side-effect-free reads only. A leaked token must never
-    // exempt a future write/upload/auth POST from throttling (CLAUDE.md §3); all current
+    // exempt a future write/upload/auth POST from throttling (ENGINEERING.md §3); all current
     // routes are GET, so this restricts nothing that exists today.
     const method = request.method.toUpperCase();
     if (method !== 'GET' && method !== 'HEAD') {

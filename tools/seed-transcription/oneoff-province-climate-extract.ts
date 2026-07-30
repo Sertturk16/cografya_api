@@ -186,7 +186,7 @@ export function extractBody(markdown: string, targetName: string): ExtractResult
  * Extract each target's body from the supplied draft CONTENTS. A province heading must live in
  * EXACTLY ONE draft: if two drafts both carry a `## N. <name>` section for the same target, this
  * is a hard error — the one-off will not pick a winner, mirroring the main pipeline's locked rule
- * ("two drafts naming the same entity+field is a hard error, by design", CLAUDE.md §8). Silently
+ * ("two drafts naming the same entity+field is a hard error, by design", ENGINEERING.md §8). Silently
  * taking the first match could seed the wrong (e.g. superseded) body while `check` still exited
  * green against whichever draft won.
  */

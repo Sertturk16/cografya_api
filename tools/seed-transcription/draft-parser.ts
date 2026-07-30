@@ -125,7 +125,7 @@ const QUOTE_RE = /^>\s?(?<content>.*)$/u;
  * LINE ENDINGS ARE NORMALISED FIRST. Every regex here is anchored with `$`, and `.` does
  * not match `\r`, so a CRLF draft used to parse to ZERO fields — after which `check`
  * printed "0 drifted" and `apply` wrote nothing. A total no-op that looked exactly like
- * success, on the very command `CLAUDE.md` §8 mandates as the content-fidelity gate. The
+ * success, on the very command `ENGINEERING.md` §8 mandates as the content-fidelity gate. The
  * drafts are authored on macOS today; that is an accident, not a guarantee.
  */
 export function parseDraft(markdown: string): ParseResult {

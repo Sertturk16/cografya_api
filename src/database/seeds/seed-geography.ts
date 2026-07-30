@@ -156,7 +156,7 @@ function withExplicitDetailNulls(seed: ProvinceSeed): ProvinceSeed {
 }
 
 /**
- * Seeds the geography base data (the platform's most critical seed — CLAUDE.md
+ * Seeds the geography base data (the platform's most critical seed — ENGINEERING.md
  * §5). Now the COMPLETE 81 fact-checked provinces (pilot-5 + Batch 2 wave-1..4 + wave-6d
  * Karadeniz-B + wave-6b Doğu Anadolu + wave-6a İç Anadolu + wave-6c Karadeniz-A) — the
  * 81-province rollout is finished; wave-6c is the batch that closes it.
