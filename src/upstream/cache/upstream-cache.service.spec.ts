@@ -304,26 +304,34 @@ describe('UpstreamCacheService', () => {
       await flush();
     });
 
-    it('reports the winner’s NEGATIVE outcome instead of a generic transient', async () => {
-      // The correct reason (`rate_limited`) was already written to `<key>#neg` before the first
-      // poll; the loser used to sleep out the full 750 ms and then answer with the wrong kind.
+    it('reports the winner’s NEGATIVE outcome instead of waiting out the full poll', async () => {
+      // The winner's refresh fails DURING our poll: the correct reason (`rate_limited`) is written
+      // to `<key>#neg` while we are sleeping. Polling only the value key meant sleeping out the
+      // remaining 750 ms and then answering with a generic `transient` — a wrong kind, paid for
+      // with latency, when the right answer was already there.
       const winner = build();
-      await winner.read(
-        options(() =>
-          Promise.resolve<UpstreamOutcome<string>>({
-            kind: 'rate_limited',
-            reason: 'HTTP 429',
-            retryAfterSeconds: 600,
-          }),
-        ),
-      );
+      const cache = new UpstreamCacheService(store, ALWAYS_LOSES, metrics, {
+        now: () => nowMs,
+        lockLostPollDelayMs: 0,
+        sleepImpl: async () => {
+          await winner.read(
+            options(() =>
+              Promise.resolve<UpstreamOutcome<string>>({
+                kind: 'rate_limited',
+                reason: 'HTTP 429',
+                retryAfterSeconds: 600,
+              }),
+            ),
+          );
+        },
+      });
 
-      const cache = build(ALWAYS_LOSES);
       const read = await cache.read(
         options(() => Promise.reject(new Error('must not run — we lost the lock'))),
       );
 
       expect(read).toMatchObject({ kind: 'rate_limited', origin: 'polled' });
+      expect(read.reason).toContain('429');
     });
 
     it('polls briefly when it holds nothing, then answers honestly', async () => {

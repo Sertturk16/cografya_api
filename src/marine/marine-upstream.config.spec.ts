@@ -15,7 +15,11 @@ import {
  * below is only meaningful if the values really are the ones boot produces.
  */
 function configFrom(raw: Record<string, string>): ConfigService<Env, true> {
-  const env = validateEnv({ DATABASE_URL: 'postgresql://u:p@localhost:5432/db', ...raw });
+  const env = validateEnv({
+    NODE_ENV: 'test',
+    DATABASE_URL: 'postgresql://u:p@localhost:5432/db',
+    ...raw,
+  });
   return {
     getOrThrow: (key: keyof Env) => env[key],
   } as unknown as ConfigService<Env, true>;
