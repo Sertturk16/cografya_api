@@ -1,10 +1,43 @@
 import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
+import { Global, Module, type DynamicModule } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Test } from '@nestjs/testing';
 import { GenericContainer, type StartedTestContainer } from 'testcontainers';
+import { UpstreamCacheService } from '../src/upstream/cache/upstream-cache.service';
 import { RedisSingleFlight } from '../src/upstream/cache/single-flight';
 import { RedisCacheStore } from '../src/upstream/cache/upstream-cache.store';
 import { IoredisAdapter } from '../src/upstream/redis/ioredis.adapter';
-import type { RedisClientPort } from '../src/upstream/redis/redis-client.port';
+import { REDIS_CLIENT, type RedisClientPort } from '../src/upstream/redis/redis-client.port';
+import { UpstreamModule } from '../src/upstream/upstream.module';
 import { UpstreamMetrics } from '../src/upstream/upstream-metrics';
+
+/**
+ * A GLOBAL stub `ConfigService`, because `UpstreamModule` reads config the way the app wires it
+ * (globally) rather than by importing `ConfigModule` itself. Overriding a provider the module
+ * graph does not contain would not resolve; exporting one from a global module does.
+ */
+function stubConfigModule(redisUrl: string | undefined): DynamicModule {
+  @Global()
+  @Module({})
+  class StubConfigModule {}
+
+  return {
+    module: StubConfigModule,
+    providers: [
+      {
+        provide: ConfigService,
+        useValue: {
+          get: (key: string) => (key === 'REDIS_URL' ? redisUrl : undefined),
+          getOrThrow: (key: string) => {
+            if (key === 'MARINE_SINGLE_CALL_TIMEOUT_MS') return 3_000;
+            throw new Error(`unexpected config read: ${key}`);
+          },
+        },
+      },
+    ],
+    exports: [ConfigService],
+  };
+}
 
 /**
  * Real-Redis e2e for the ONE piece the in-memory fake cannot vouch for: the driver adapter.
@@ -88,6 +121,28 @@ describe('IoredisAdapter against a real Redis', () => {
       await new Promise((resolve) => setTimeout(resolve, 900));
       await expect(redis.incrementWithTtl('e2e:quota', 5)).resolves.toBe(1);
     });
+
+    it('adds WEIGHT, and still sets the expiry only on the first write', async () => {
+      // The quota unit is a location, not a request (Atlas ruling, review #73 I5), so the counter
+      // has to accept a weight — and the first-write-only EXPIRE must key off that weight rather
+      // than off the literal 1 the earlier script compared against.
+      await expect(redis.incrementWithTtl('e2e:weighted', 1, 31)).resolves.toBe(31);
+      await expect(redis.incrementWithTtl('e2e:weighted', 1, 31)).resolves.toBe(62);
+
+      await new Promise((resolve) => setTimeout(resolve, 1_300));
+      await expect(redis.incrementWithTtl('e2e:weighted', 60, 5)).resolves.toBe(5);
+    });
+
+    it('is atomic under genuine concurrency', async () => {
+      // The lock primitives are raced against a real server; the counter deserves the same, since
+      // it is the one thing standing between a cache failure and a provider ban.
+      const results = await Promise.all(
+        Array.from({ length: 20 }, () => redis.incrementWithTtl('e2e:concurrent', 30, 1)),
+      );
+
+      expect(new Set(results).size).toBe(20); // every caller saw a distinct value
+      expect(Math.max(...results)).toBe(20);
+    });
   });
 
   describe('the layers built on the port', () => {
@@ -141,6 +196,39 @@ describe('IoredisAdapter against a real Redis', () => {
 
       // The lock is released, so the next tour/refresh can take it.
       await expect(redis.get('upstream:lock:e2e:sf')).resolves.toBeNull();
+    });
+  });
+
+  describe('the DI wiring', () => {
+    it('resolves the REDIS-backed cache when REDIS_URL is set', async () => {
+      // Every class here is well tested in isolation; the SEAM that assembles them was not. A
+      // reordered `inject: [...]` or a flipped ternary in the module factory would wire every
+      // instance back onto independent in-process caches with `REDIS_URL` set and every existing
+      // test green — precisely the "N instances mean N× the upstream load" failure Redis exists to
+      // prevent (SPEC-ADDENDUM §2.6; review #73, tests I2).
+      const url = `redis://${container.getHost()}:${String(container.getMappedPort(6379))}`;
+      const moduleRef = await Test.createTestingModule({
+        imports: [stubConfigModule(url), UpstreamModule],
+      }).compile();
+
+      const cache = moduleRef.get(UpstreamCacheService);
+      expect(cache.mode).toBe('redis');
+
+      // …and the same client really is shared with the budget counters and the warmup lock.
+      const client = moduleRef.get<RedisClientPort | null>(REDIS_CLIENT);
+      expect(client).not.toBeNull();
+
+      await moduleRef.close();
+    });
+
+    it('falls back to the in-process cache when REDIS_URL is absent', async () => {
+      const moduleRef = await Test.createTestingModule({
+        imports: [stubConfigModule(undefined), UpstreamModule],
+      }).compile();
+
+      expect(moduleRef.get(UpstreamCacheService).mode).toBe('memory');
+      expect(moduleRef.get<RedisClientPort | null>(REDIS_CLIENT)).toBeNull();
+      await moduleRef.close();
     });
   });
 });

@@ -31,12 +31,15 @@ export type UpstreamMetricName =
   | 'upstream.outcome.rate_limited'
   | 'upstream.outcome.client_error'
   | 'upstream.outcome.schema_error'
+  | 'upstream.outcome.budget_exhausted'
   /** The provider budget refused the call before it was made (§2.7). */
   | 'budget.rejected'
   /** The circuit breaker refused the call before it was made. */
   | 'breaker.rejected'
   | 'breaker.opened'
   | 'breaker.closed'
+  /** A half-open trial was released without an outcome — an exception crossed a boundary. */
+  | 'breaker.trial_abandoned'
   /** Redis was unreachable and the call degraded to the in-process path. */
   | 'redis.degraded';
 
@@ -60,6 +63,7 @@ export type UpstreamMetricName =
 export class UpstreamMetrics {
   private readonly logger = new Logger('Upstream');
   private readonly counters = new Map<string, number>();
+  private readonly lastLoggedAtMs = new Map<string, number>();
 
   /**
    * Count one event.
@@ -113,8 +117,53 @@ export class UpstreamMetrics {
     }
   }
 
+  /**
+   * A structured event that repeats at most once per `everyMs` for the same `throttleKey`.
+   *
+   * ## Why a throttle exists at all, when "loud" is the rule everywhere else
+   * Two paths in this layer fire once per REQUEST while the thing they report is a single
+   * standing condition: a Redis outage (a degrade line per cache read, and there are two reads
+   * per call) and an exhausted daily budget (a line per attempt, for the rest of the window).
+   * With the global limit at 120 req/min per client, that is an unbounded, fan-out-inflatable
+   * ERROR stream layered on top of the outage itself — an availability problem caused by the
+   * reporting of an availability problem.
+   *
+   * Loudness is preserved where it matters: the COUNTER is never throttled, and the first
+   * occurrence is always logged, so the transition into the bad state is always visible. What is
+   * suppressed is only the repetition of a message that says nothing new.
+   */
+  throttledEvent(
+    level: 'debug' | 'log' | 'warn' | 'error',
+    throttleKey: string,
+    everyMs: number,
+    message: string,
+    context: Readonly<Record<string, string | number | boolean | null>>,
+  ): void {
+    const now = Date.now();
+    const last = this.lastLoggedAtMs.get(throttleKey);
+    if (last !== undefined && now - last < everyMs) return;
+
+    this.lastLoggedAtMs.set(throttleKey, now);
+    this.pruneThrottleKeys(now, everyMs);
+    this.event(level, message, context);
+  }
+
+  /**
+   * Keep the throttle map bounded.
+   *
+   * The keys are ours (provider + operation), so the map is small by construction; this only
+   * guards against a long-lived process accumulating keys for providers it no longer talks to.
+   */
+  private pruneThrottleKeys(nowMs: number, everyMs: number): void {
+    if (this.lastLoggedAtMs.size <= 64) return;
+    for (const [key, at] of this.lastLoggedAtMs) {
+      if (nowMs - at >= everyMs) this.lastLoggedAtMs.delete(key);
+    }
+  }
+
   /** Test-only reset; production code never calls it. */
   resetForTest(): void {
     this.counters.clear();
+    this.lastLoggedAtMs.clear();
   }
 }

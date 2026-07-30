@@ -7,7 +7,10 @@ import { validateEnv } from './env.schema';
  * ban. Every rule below is asserted from OUTSIDE, through `validateEnv`, exactly as
  * `ConfigModule` calls it.
  */
-const BASE = { DATABASE_URL: 'postgresql://user:pass@localhost:5432/db' };
+const BASE = {
+  NODE_ENV: 'development',
+  DATABASE_URL: 'postgresql://user:pass@localhost:5432/db',
+};
 
 describe('validateEnv — defaults', () => {
   it('boots with nothing but DATABASE_URL, and the marine feature starts OFF', () => {
@@ -34,6 +37,32 @@ describe('validateEnv — defaults', () => {
     expect(env.MARINE_SCHEMA_ERROR_TTL_SECONDS).toBe(300);
     expect(env.MARINE_STALE_MAX_SECONDS).toBe(21_600);
     expect(env.MARINE_VALID_AT_MAX_AGE_SECONDS).toBe(10_800);
+  });
+
+  it('declares only variables something actually reads', () => {
+    // MARINE_POINTS_TTL_SECONDS / MARINE_LAYERS_TTL_SECONDS were declared and documented but read
+    // by nothing — the values they named live in a controller decorator an env var cannot reach.
+    // An operator lowering one saw no change and no warning (review #73 MINOR).
+    const env: Record<string, unknown> = validateEnv({ ...BASE });
+    expect(env.MARINE_POINTS_TTL_SECONDS).toBeUndefined();
+    expect(env.MARINE_LAYERS_TTL_SECONDS).toBeUndefined();
+  });
+});
+
+describe('validateEnv — NODE_ENV is required', () => {
+  it('REFUSES to boot when the environment does not say which one it is', () => {
+    // The E1 gate keys on NODE_ENV, so a default made the rule opt-OUT-able by omission: a
+    // deployment that forgot to export it booted production traffic on the single-instance LRU
+    // (review #73, security i1).
+    expect(() => validateEnv({ DATABASE_URL: 'postgresql://u:p@localhost:5432/db' })).toThrow(
+      /NODE_ENV/,
+    );
+  });
+
+  it('REFUSES the E1-relevant combination when NODE_ENV is absent', () => {
+    expect(() =>
+      validateEnv({ DATABASE_URL: 'postgresql://u:p@localhost:5432/db', MARINE_ENABLED: 'true' }),
+    ).toThrow(/NODE_ENV/);
   });
 });
 
@@ -86,6 +115,29 @@ describe('validateEnv — E1: Redis is mandatory in production (DEC 2026-07-29b)
     expect(() => validateEnv({ ...BASE, REDIS_URL: 'http://cache:6379' })).toThrow(
       /redis:\/\/ or rediss:\/\//,
     );
+  });
+
+  it('rejects a HOSTLESS redis URL — it parses, and ioredis would silently use localhost', () => {
+    // The shape that satisfied E1 on paper while pointing the cache at nothing: a deployment
+    // templating `redis://$REDIS_HOST:6379` with the inner variable unset (review #73, security
+    // i2 — reproduced against this repo's own zod and ioredis).
+    for (const value of ['redis://', 'rediss://']) {
+      expect(() => validateEnv({ ...BASE, REDIS_URL: value })).toThrow(/with a host/);
+    }
+    expect(() => validateEnv({ ...BASE, REDIS_URL: 'redis://cache:6379' })).not.toThrow();
+  });
+
+  it('still refuses production + enabled when REDIS_URL is present but malformed', () => {
+    // Both rules have to compose: a field-level refine failing must not let the root-level E1
+    // check be skipped in a way that reads as "configured".
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        NODE_ENV: 'production',
+        MARINE_ENABLED: 'true',
+        REDIS_URL: 'redis://',
+      }),
+    ).toThrow(/Invalid environment configuration/);
   });
 });
 

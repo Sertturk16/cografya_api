@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
-import type { OperationDeadline } from '../operation-deadline';
+import { OperationDeadline } from '../operation-deadline';
 import type { StalenessCeilings } from '../staleness';
 import { UpstreamMetrics } from '../upstream-metrics';
 import type { UpstreamOutcome } from '../upstream.types';
@@ -304,6 +304,28 @@ describe('UpstreamCacheService', () => {
       await flush();
     });
 
+    it('reports the winner’s NEGATIVE outcome instead of a generic transient', async () => {
+      // The correct reason (`rate_limited`) was already written to `<key>#neg` before the first
+      // poll; the loser used to sleep out the full 750 ms and then answer with the wrong kind.
+      const winner = build();
+      await winner.read(
+        options(() =>
+          Promise.resolve<UpstreamOutcome<string>>({
+            kind: 'rate_limited',
+            reason: 'HTTP 429',
+            retryAfterSeconds: 600,
+          }),
+        ),
+      );
+
+      const cache = build(ALWAYS_LOSES);
+      const read = await cache.read(
+        options(() => Promise.reject(new Error('must not run — we lost the lock'))),
+      );
+
+      expect(read).toMatchObject({ kind: 'rate_limited', origin: 'polled' });
+    });
+
     it('polls briefly when it holds nothing, then answers honestly', async () => {
       const cache = build(ALWAYS_LOSES);
       const read = await cache.read(
@@ -330,6 +352,96 @@ describe('UpstreamCacheService', () => {
       );
       expect(read).toMatchObject({ value: 'from-the-winner', origin: 'polled' });
     });
+  });
+
+  it('treats `Retry-After: 0` as no hint at all instead of a zero-length suppression', async () => {
+    // `??` does not catch 0, so the negative entry was written with ttlSeconds: 0 and expired
+    // before the next read — we called the provider that had just said stop, immediately, in a
+    // tight loop. A MISSING header was handled better than a present one (review #73 I3).
+    const cache = build();
+    const refresh = jest.fn(() =>
+      Promise.resolve<UpstreamOutcome<string>>({
+        kind: 'rate_limited',
+        reason: 'HTTP 429',
+        retryAfterSeconds: 0,
+      }),
+    );
+
+    await cache.read(options(refresh));
+    nowMs += 30_000; // inside the 300 s default the header failed to override
+    await cache.read(options(refresh));
+
+    expect(refresh).toHaveBeenCalledTimes(1);
+  });
+
+  it('suppresses a budget refusal for the transient TTL, as its own kind', async () => {
+    const cache = build();
+    const refresh = jest.fn(() =>
+      Promise.resolve<UpstreamOutcome<string>>({
+        kind: 'budget_exhausted',
+        reason: 'provider budget exhausted (day limit 4000)',
+      }),
+    );
+
+    const first = await cache.read(options(refresh));
+    expect(first.kind).toBe('budget_exhausted');
+
+    nowMs += 30_000;
+    await cache.read(options(refresh));
+    expect(refresh).toHaveBeenCalledTimes(1);
+
+    nowMs += 61_000; // past the 60 s transient TTL — our own window may have rolled over
+    await cache.read(options(refresh));
+    expect(refresh).toHaveBeenCalledTimes(2);
+  });
+
+  it('uses the CALLER’s deadline when one request reads several keys', async () => {
+    // Otherwise N keys get N × 6 s and one request can spend 18 s while every individual timeout
+    // looks correct — structurally the bug §6.4 exists to prevent (review #73 I2).
+    const cache = build();
+    const shared = new OperationDeadline(6_000);
+    const seen: OperationDeadline[] = [];
+
+    for (const key of ['a', 'b', 'c']) {
+      await cache.read({
+        ...options((deadline) => {
+          seen.push(deadline);
+          return Promise.resolve(ok('v'));
+        }),
+        key,
+        deadline: shared,
+      });
+    }
+
+    expect(seen).toHaveLength(3);
+    expect(seen.every((deadline) => deadline === shared)).toBe(true);
+  });
+
+  it('mints a FRESH deadline for a background revalidation, never the caller’s spent one', async () => {
+    const cache = build();
+    const shared = new OperationDeadline(6_000);
+    const seen: OperationDeadline[] = [];
+
+    const read = (): Promise<unknown> =>
+      cache.read({
+        ...options((deadline) => {
+          seen.push(deadline);
+          return Promise.resolve(ok('v'));
+        }),
+        deadline: shared,
+        revalidateDeadlineMs: 120_000,
+      });
+
+    await read();
+    nowMs += 3_700_000;
+    await read();
+    await flush();
+
+    expect(seen).toHaveLength(2);
+    expect(seen[0]).toBe(shared);
+    // The response is already sent; borrowing a nearly-spent request budget would abort the
+    // refresh the next reader depends on.
+    expect(seen[1]).not.toBe(shared);
   });
 
   it('a background revalidation failure never escapes as an unhandled rejection', async () => {

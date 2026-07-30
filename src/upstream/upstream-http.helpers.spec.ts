@@ -4,6 +4,7 @@ import {
   hasExpectedContentType,
   parseRetryAfterSeconds,
   readBodyCapped,
+  redactSecrets,
   redactUrl,
   UpstreamOversizedResponseError,
 } from './upstream-http.helpers';
@@ -66,6 +67,26 @@ describe('redactUrl', () => {
 
   it('never echoes a string it could not parse', () => {
     expect(redactUrl('not a url')).toBe('<unparseable url>');
+  });
+});
+
+describe('redactSecrets', () => {
+  it('masks a credential echoed back inside a provider error body', () => {
+    // Providers routinely quote the offending request in an error body, and that excerpt is both
+    // logged at ERROR and persisted into the negative cache (review #73, security i4).
+    const masked = redactSecrets('bad request: /v1?apikey=s3cret&lat=40.7');
+    expect(masked).not.toContain('s3cret');
+    expect(masked).toContain('lat=40.7');
+  });
+
+  it('handles the JSON and XML-attribute shapes the same way', () => {
+    expect(redactSecrets('{"token":"abc123","lat":40}')).not.toContain('abc123');
+    expect(redactSecrets('<req api_key="abc123" lat="40"/>')).not.toContain('abc123');
+  });
+
+  it('leaves an ordinary diagnostic message untouched', () => {
+    const message = 'Invalid time coord: 2030-01-01T00:00:00.000Z is out of range';
+    expect(redactSecrets(message)).toBe(message);
   });
 });
 

@@ -61,6 +61,19 @@ export interface ReadThroughOptions<T> {
   /** Budget for a refresh this read performs while a request waits (`MARINE_UPSTREAM_DEADLINE_MS`). */
   deadlineMs: number;
   /**
+   * The CALLER's already-started deadline, when one user request reads several keys.
+   *
+   * Without this, every key mints its own budget and one request that reads N keys gets N × 6 s —
+   * structurally the bug SPEC-ADDENDUM §6.4 exists to prevent ("the ceiling on ALL the upstream
+   * work of ONE user request"), with every individual timeout still looking correct. It matters
+   * immediately in M4: a cold `/deniz/<point>` reads three CMEMS keys (§2.5 budgets that whole
+   * path at "6 s worst case", once), and the per-(point, layer) key split is forced by the
+   * negative-TTL table and `not_supported`.
+   *
+   * A BACKGROUND revalidation never uses it — see `revalidateDeadlineMs`.
+   */
+  deadline?: OperationDeadline;
+  /**
    * Budget for a BACKGROUND revalidation. Defaults to `deadlineMs`.
    *
    * A separate number because nobody is waiting for it: tying background work to a user-request
@@ -92,8 +105,46 @@ function negativeKey(key: string): string {
   return `${key}#neg`;
 }
 
+/**
+ * Epoch ms → ISO string, and `null` for anything that is not a finite number.
+ *
+ * The finite guard is not defensive decoration: `new Date(NaN).toISOString()` THROWS
+ * `RangeError`, and this function is called on values that came back from Redis. A single entry
+ * with a missing or non-numeric timestamp — a shape change across a deploy while entries written
+ * by the previous version are still inside their 6 h retention, a shared instance, a hand-run
+ * `redis-cli SET` — would otherwise turn every read of that key into a 500 on a public page until
+ * the key expired. The store now validates entries on the way in (`RedisCacheStore.get`); this is
+ * the second line, because a cache fault must degrade and never 500 (playbook §3.5, review #73
+ * I9 — mechanism reproduced by the validator on four malformed shapes).
+ */
 function toIso(ms: number | null): string | null {
-  return ms === null ? null : new Date(ms).toISOString();
+  return ms !== null && Number.isFinite(ms) ? new Date(ms).toISOString() : null;
+}
+
+/**
+ * How long a NEGATIVE entry suppresses the upstream call.
+ *
+ * Three rules in one place so the foreground and background paths cannot disagree:
+ *
+ * - **429 honours `Retry-After`** (SPEC-ADDENDUM §6.3) — but only a POSITIVE one. `??` does not
+ *   catch `0`, and `0` is a legal header value that `parseRetryAfterSeconds` also produces for an
+ *   already-elapsed HTTP-date (clock skew is enough). Written verbatim it made the negative entry
+ *   expire before the next read, so the very provider that just said "stop" got called again
+ *   immediately — a missing header was handled BETTER than a present one (review #73 I3).
+ * - **A budget refusal reuses the transient TTL.** Our own window rolls over on its own schedule,
+ *   so a short suppression is right; it needs no env of its own.
+ * - Everything else takes the TTL named for its kind.
+ */
+function negativeTtlSecondsFor(
+  ttls: OutcomeTtlTable,
+  outcome: Exclude<UpstreamOutcome<unknown>, { kind: 'ok' }>,
+): number {
+  if (outcome.kind === 'rate_limited') {
+    const asked = outcome.retryAfterSeconds;
+    return asked !== null && asked > 0 ? asked : ttls.rate_limited;
+  }
+  if (outcome.kind === 'budget_exhausted') return ttls.transient;
+  return ttls[outcome.kind];
 }
 
 /**
@@ -199,6 +250,9 @@ export class UpstreamCacheService {
    */
   private async revalidate<T>(options: ReadThroughOptions<T>): Promise<void> {
     try {
+      // Always a FRESH deadline, never the caller's: the response has already been sent, so
+      // borrowing a request budget that may be nearly spent would abort the refresh the next
+      // reader depends on — the same background-vs-request conflation §6.4 names.
       const deadline = new OperationDeadline(options.revalidateDeadlineMs ?? options.deadlineMs);
       const result = await this.singleFlight.run(options.key, () => options.refresh(deadline));
       if (result.outcome === 'lost') return;
@@ -214,7 +268,8 @@ export class UpstreamCacheService {
 
   /** The cold path: nothing usable is cached, so this request does have to wait. */
   private async refreshAndServe<T>(options: ReadThroughOptions<T>): Promise<CachedRead<T>> {
-    const deadline = new OperationDeadline(options.deadlineMs);
+    // The caller's budget when it owns one, so N keys in one request share ONE ceiling.
+    const deadline = options.deadline ?? new OperationDeadline(options.deadlineMs);
     const result = await this.singleFlight.run(options.key, () => options.refresh(deadline));
 
     if (result.outcome === 'lost') {
@@ -263,10 +318,7 @@ export class UpstreamCacheService {
 
     // A provider that answered "no value here" and a provider that failed are both stored, with
     // very different TTLs; 429 uses the provider's own `Retry-After` when it sent one (§6.3).
-    const ttlSeconds =
-      outcome.kind === 'rate_limited'
-        ? (outcome.retryAfterSeconds ?? options.ttls.rate_limited)
-        : options.ttls[outcome.kind];
+    const ttlSeconds = negativeTtlSecondsFor(options.ttls, outcome);
 
     const negative: UpstreamCacheEntry<never> = {
       kind: outcome.kind,
@@ -297,6 +349,16 @@ export class UpstreamCacheService {
           options.providerId,
         );
         return { ...usable.read, origin: 'polled' };
+      }
+
+      // The winner may have landed a NEGATIVE outcome — that is an answer too, and a more honest
+      // one than a generic `transient`: reporting `rate_limited` matters to whoever reads the
+      // reason. Checking it also ends the wait early instead of sleeping out the full budget for
+      // a result that is already there.
+      const negative = await this.store.get<never>(negativeKey(options.key));
+      if (negative !== null && this.isNegativeStillBinding(negative)) {
+        this.metrics.increment('cache.negative_hit', options.providerId);
+        return this.fromNegative<T>(negative, 'polled');
       }
     }
     return this.unavailable<T>('another instance is refreshing and no cached value is available');

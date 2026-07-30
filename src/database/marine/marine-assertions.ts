@@ -612,7 +612,6 @@ export type AllCandidateFieldsAreCompared = AssertNever<
  */
 export function assertArtifactMatchesCandidates(artifact: MarinePointsProbeArtifact): void {
   const drift: string[] = [];
-  const comparedFields = STALENESS_COMPARED_FIELDS;
 
   if (artifact.entries.length !== MARINE_POINT_CANDIDATES.length) {
     drift.push(
@@ -627,7 +626,7 @@ export function assertArtifactMatchesCandidates(artifact: MarinePointsProbeArtif
       drift.push(`${candidate.slugTr}: absent from the artifact`);
       continue;
     }
-    for (const field of comparedFields) {
+    for (const field of STALENESS_COMPARED_FIELDS) {
       if (entry[field] !== candidate[field]) {
         drift.push(
           `${candidate.slugTr}.${field}: candidate table says ${JSON.stringify(candidate[field])}, ` +

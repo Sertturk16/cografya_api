@@ -6,6 +6,7 @@ import {
   hasExpectedContentType,
   parseRetryAfterSeconds,
   readBodyCapped,
+  redactSecrets,
   redactUrl,
   UPSTREAM_MAX_RESPONSE_BYTES,
   UpstreamOversizedResponseError,
@@ -47,6 +48,16 @@ export interface UpstreamRequestOptions<T> {
    * `{ kind: 'no_data' }` when the provider legitimately has no value here.
    */
   parse: (body: string) => UpstreamParseResult<T>;
+  /**
+   * How many QUOTA units this request costs (default 1).
+   *
+   * The budget counts what the PROVIDER counts, not what we send. Open-Meteo bills a
+   * multi-location batch per location (SPEC-ADDENDUM §2.7's conservative reading), so one HTTP
+   * request for 31 points costs 31 units. Counting requests instead would have made the
+   * configured ceiling ~186% of the free tier while `budget.rejected` never fired — the guard
+   * silently guaranteeing nothing (Atlas ruling, review #73 I5).
+   */
+  quotaWeight?: number;
   /** Content type the body must declare before it is parsed. Defaults to `application/json`. */
   expectedContentType?: string;
   headers?: Readonly<Record<string, string>>;
@@ -108,8 +119,24 @@ export class UpstreamHttpClient {
     this.now = options.now ?? Date.now;
   }
 
+  /**
+   * Make one upstream call (plus at most one retry) and describe the outcome.
+   *
+   * ## The `try/finally` is load-bearing, not decoration
+   * `canAttempt` may hand this call the circuit's single half-open TRIAL. Every ordinary path
+   * below reports back to the breaker — but `attempt()` deliberately RETHROWS an exception that
+   * escapes the caller's `parse` callback, and that throw leaves the method without telling the
+   * breaker anything. Without the `finally`, the trial flag stays set for the lifetime of the
+   * process: `canAttempt` then refuses every future call to that provider, the logs are
+   * byte-identical to a healthy cooling-down breaker, and only a restart clears it — a permanent
+   * self-inflicted outage started by a bug in an unrelated callback (review #73 CRITICAL,
+   * independently found by three legs and confirmed by adversarial validation).
+   *
+   * The release is `abandonTrial`, NOT `recordFailure`: our own bug is not evidence about the
+   * provider's health.
+   */
   async request<T>(options: UpstreamRequestOptions<T>): Promise<UpstreamOutcome<T>> {
-    const { providerId, label, deadline } = options;
+    const { providerId, label } = options;
 
     if (!this.breaker.canAttempt(providerId)) {
       return this.record(providerId, label, {
@@ -117,6 +144,21 @@ export class UpstreamHttpClient {
         reason: 'circuit breaker is open for this provider',
       });
     }
+
+    try {
+      return await this.attemptLoop(options);
+    } finally {
+      // No-op on every path that already reported an outcome (`abandonTrial` returns immediately
+      // when the flag is clear), so the normal flow cannot double-release.
+      this.breaker.abandonTrial(
+        providerId,
+        `an exception escaped ${label} without a provider outcome`,
+      );
+    }
+  }
+
+  private async attemptLoop<T>(options: UpstreamRequestOptions<T>): Promise<UpstreamOutcome<T>> {
+    const { providerId, label, deadline } = options;
 
     if (deadline.hasExpired()) {
       // Counts as a failure for the breaker: from the provider's point of view nothing happened,
@@ -136,14 +178,23 @@ export class UpstreamHttpClient {
     };
 
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
-      const decision = await this.budget.tryConsume(providerId, options.limits);
+      const decision = await this.budget.tryConsume(
+        providerId,
+        options.limits,
+        options.quotaWeight ?? 1,
+      );
       if (!decision.allowed) {
-        const failure: UpstreamOutcome<T> = {
-          kind: 'transient',
+        // The breaker is NOT told. It tracks provider health, and a call we refused ourselves
+        // never reached the provider — recording it would open a circuit on a provider that may
+        // be perfectly well, and then mask the deliberately LOUD budget log behind a generic
+        // "circuit breaker is open" line for the rest of the cooldown. Same reasoning as the
+        // deadline case above, opposite conclusion, because there the operation really did use
+        // its budget. `budget_exhausted` is its own outcome kind so nothing downstream — metric,
+        // log, negative-cache entry or on-call human — can read it as a provider fault.
+        return this.record(providerId, label, {
+          kind: 'budget_exhausted',
           reason: `provider budget exhausted (${decision.window} limit ${String(decision.limit)})`,
-        };
-        this.breaker.recordFailure(providerId, 'transient');
-        return this.record(providerId, label, failure);
+        });
       }
 
       const outcome = await this.attempt(options, attempt);
@@ -193,7 +244,14 @@ export class UpstreamHttpClient {
           ...options.headers,
         },
         signal: deadline.signalFor(this.options.singleCallTimeoutMs),
-        redirect: 'follow',
+        // NOT `follow`. A redirect is the one way a provider (or anyone who can answer as one:
+        // a hijacked route, an expired domain, a compromised CDN) can choose the host this
+        // server talks to from INSIDE the deployment network — cloud metadata endpoints being
+        // the classic target once hosting exists. `fetch` offers no host allowlist, so the
+        // boundary layer refuses redirects outright and reports them as a transient failure.
+        // Both Faz-1 providers answer 200 directly (the probe tool proves it); if one ever
+        // starts redirecting, the fix is the URL M3 sends, not this policy.
+        redirect: 'error',
       });
       body = await readBodyCapped(
         response,
@@ -226,7 +284,13 @@ export class UpstreamHttpClient {
         kind: 'client_error',
         reason:
           `${label}: HTTP ${String(response.status)} — OUR request was rejected by ${safeUrl}. ` +
-          `Body starts: ${body.slice(0, 200)}`,
+          // REDACTED, because this excerpt is both logged at ERROR and persisted into the negative
+          // cache entry. Providers routinely echo the offending request back in an error body
+          // (CMEMS's measured OWS `ExceptionReport` is the in-repo example), so once a keyed feed
+          // is wired through this same client the first 200 bytes could carry its key. The URL on
+          // this line has always been redacted; the body was the hole in that guarantee (§3.7 has
+          // no "but it was only in an error string" exemption).
+          `Body starts: ${redactSecrets(body.slice(0, 200))}`,
       };
     }
     if (statusClass === 'transient') {

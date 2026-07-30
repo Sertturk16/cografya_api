@@ -26,8 +26,16 @@ export type WarmupSkipReason =
   | 'disabled'
   /** The previous tour on THIS instance has not finished. */
   | 'overlap'
-  /** Another instance holds the Redis lock for this tour. */
-  | 'lock_held';
+  /** Another instance holds the Redis lock for this tour — a healthy, expected skip. */
+  | 'lock_held'
+  /**
+   * Redis could not answer, so no lock could be taken and the tour was skipped.
+   *
+   * Its own value, not `lock_held`: the decision is the same but the SITUATION is not, and a
+   * result that claims another instance holds a lock nobody holds would send whoever reads it
+   * (or a future metric) looking for a peer that does not exist.
+   */
+  | 'redis_unavailable';
 
 export type WarmupTourResult =
   | { readonly ran: false; readonly reason: WarmupSkipReason }
@@ -197,7 +205,7 @@ export class MarineWarmupService implements OnApplicationBootstrap, OnModuleDest
             `tour (${trigger}) skipped: the warmup lock could not be taken — ` +
               `${error instanceof Error ? error.message : 'unknown error'}`,
           );
-          return { ran: false, reason: 'lock_held' };
+          return { ran: false, reason: 'redis_unavailable' };
         }
 
         if (!holdsLock) {

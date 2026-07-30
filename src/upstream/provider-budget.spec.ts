@@ -56,6 +56,38 @@ describe('ProviderBudget', () => {
       });
     });
 
+    it('does NOT burn the coarser windows on a call the minute window already refused', async () => {
+      // The contamination that made a cache outage exhaust a whole DAY of budget in ~2.5 minutes
+      // of calls that were never sent — and the day key has a 24 h TTL shared across instances,
+      // so the feature stayed dark until UTC midnight (review #73 I1).
+      const budget = new ProviderBudget(metrics, null, () => nowMs);
+
+      // Three allowed, then 20 refusals that must not touch the hour/day counters.
+      for (let i = 0; i < 3; i += 1) await budget.tryConsume('open-meteo', LIMITS);
+      for (let i = 0; i < 20; i += 1) {
+        await expect(budget.tryConsume('open-meteo', LIMITS)).resolves.toMatchObject({
+          window: 'minute',
+        });
+      }
+
+      // A new minute: the hour window has only the three real calls on it, so this is allowed.
+      nowMs += 61_000;
+      await expect(budget.tryConsume('open-meteo', LIMITS)).resolves.toEqual({ allowed: true });
+    });
+
+    it('charges WEIGHT, not calls — the provider counts locations, not requests', async () => {
+      // Atlas ruling (review #73 I5): one batched request for N locations costs N quota units.
+      const budget = new ProviderBudget(metrics, null, () => nowMs);
+      const limits: ProviderBudgetLimits = { perMinute: 10, perHour: 100, perDay: 100 };
+
+      await expect(budget.tryConsume('open-meteo', limits, 6)).resolves.toEqual({ allowed: true });
+      await expect(budget.tryConsume('open-meteo', limits, 6)).resolves.toEqual({
+        allowed: false,
+        window: 'minute',
+        limit: 10,
+      });
+    });
+
     it('keeps providers independent — CMEMS volume must not throttle Open-Meteo', async () => {
       const budget = new ProviderBudget(metrics, null, () => nowMs);
       for (let i = 0; i < 10; i += 1) await budget.tryConsume('cmems', LIMITS);
@@ -72,6 +104,18 @@ describe('ProviderBudget', () => {
           context: expect.objectContaining({ provider: 'open-meteo' }),
         }),
       );
+    });
+
+    it('logs the exhaustion ONCE per window while counting every refusal', async () => {
+      // Exhaustion is a standing condition: one ERROR per attempt for the rest of the window is an
+      // unbounded, fan-out-inflatable log stream stacked on top of the outage. The counter stays
+      // unsampled and the first line always goes out, so the transition is never hidden.
+      const budget = new ProviderBudget(metrics, null, () => nowMs);
+      for (let i = 0; i < 25; i += 1) await budget.tryConsume('open-meteo', LIMITS);
+
+      const exhaustionLines = events.filter((event) => event.message.includes('budget exhausted'));
+      expect(exhaustionLines).toHaveLength(1);
+      expect(metrics.get('budget.rejected', 'open-meteo')).toBe(22);
     });
   });
 

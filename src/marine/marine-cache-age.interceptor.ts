@@ -34,7 +34,12 @@ const CACHE_AGE_SECONDS = Symbol('marineCacheAgeSeconds');
  * serialization, to `Object.keys`, and to the OpenAPI shape.
  */
 export function withCacheAge<T extends object>(body: T, cacheAgeSeconds: number | null): T {
-  if (cacheAgeSeconds === null) return body;
+  // A non-finite age is dropped rather than published: `Math.round(NaN)` is `NaN` and the header
+  // would literally read `X-Marine-Cache-Age: NaN`, which a client would then have to defend
+  // against. The body handed in must be REQUEST-OWNED — never a shared cached instance — because
+  // this attaches to the object itself (`MarineService.findAllLayers` already returns copies for
+  // the same reason).
+  if (cacheAgeSeconds === null || !Number.isFinite(cacheAgeSeconds)) return body;
   Object.defineProperty(body, CACHE_AGE_SECONDS, {
     value: Math.max(0, Math.round(cacheAgeSeconds)),
     enumerable: false,

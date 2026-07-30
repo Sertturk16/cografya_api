@@ -22,6 +22,7 @@
  * | `rate_limited` | ours (volume)    | no             | warn + open breaker |
  * | `client_error` | OURS (bad query) | no             | error — loud        |
  * | `schema_error` | contract drift   | no             | error — alarm       |
+ * | `budget_exhausted` | OURS (volume) | no            | error — loud        |
  *
  * `client_error` and `schema_error` are loud on purpose. A 400 means we sent a request the
  * provider cannot answer (a retired dataset id, an out-of-horizon `time=`); a schema error means
@@ -29,7 +30,13 @@
  * widget — the exact silent failure this project keeps designing against.
  */
 export type UpstreamOutcomeKind =
-  'ok' | 'no_data' | 'transient' | 'rate_limited' | 'client_error' | 'schema_error';
+  | 'ok'
+  | 'no_data'
+  | 'transient'
+  | 'rate_limited'
+  | 'client_error'
+  | 'schema_error'
+  | 'budget_exhausted';
 
 /** Kinds that mean "we have no value" — everything except `ok`. */
 export type UpstreamFailureKind = Exclude<UpstreamOutcomeKind, 'ok'>;
@@ -46,6 +53,12 @@ export type UpstreamOutcome<T> =
   | { readonly kind: 'ok'; readonly value: T; readonly validAtMs: number | null }
   | { readonly kind: 'no_data'; readonly reason: string }
   | { readonly kind: 'transient'; readonly reason: string }
+  /**
+   * OUR budget refused the call. The provider was never contacted, which is why this is its own
+   * kind rather than a `transient`: a self-inflicted refusal must never be read — by the circuit
+   * breaker, by a metric, or by a human on call — as evidence that the provider is unhealthy.
+   */
+  | { readonly kind: 'budget_exhausted'; readonly reason: string }
   | { readonly kind: 'client_error'; readonly reason: string }
   | { readonly kind: 'schema_error'; readonly reason: string }
   | {

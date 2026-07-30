@@ -45,6 +45,42 @@ export interface UpstreamCacheStore {
   set<T>(key: string, entry: UpstreamCacheEntry<T>, retentionSeconds: number): Promise<void>;
 }
 
+/** How often a standing degradation may repeat in the log — see `degraded()`. */
+const DEGRADED_LOG_EVERY_MS = 60_000;
+
+/** Every outcome kind an entry may legitimately record. */
+const CACHE_ENTRY_KINDS: ReadonlySet<string> = new Set<UpstreamOutcomeKind>([
+  'ok',
+  'no_data',
+  'transient',
+  'rate_limited',
+  'client_error',
+  'schema_error',
+  'budget_exhausted',
+]);
+
+/**
+ * Is this really one of our cache entries?
+ *
+ * Deliberately structural and narrow: it checks the fields whose absence or wrong type can reach
+ * date arithmetic (`storedAtMs`, `validAtMs`) or TTL comparison (`ttlSeconds`), plus the
+ * discriminant. It does NOT validate `payload` — that shape belongs to the caller who wrote it
+ * and is theirs to parse. A `zod` schema was considered and rejected: the payload is generic
+ * (`T`), so a schema could only cover exactly these envelope fields anyway, at the cost of a
+ * runtime dependency on the hot read path.
+ */
+function isValidCacheEntry(value: unknown): boolean {
+  if (typeof value !== 'object' || value === null) return false;
+  const entry = value as Record<string, unknown>;
+
+  if (typeof entry.kind !== 'string' || !CACHE_ENTRY_KINDS.has(entry.kind)) return false;
+  if (!Number.isFinite(entry.storedAtMs)) return false;
+  if (!Number.isFinite(entry.ttlSeconds)) return false;
+  if (entry.validAtMs !== null && !Number.isFinite(entry.validAtMs)) return false;
+  if (entry.reason !== null && typeof entry.reason !== 'string') return false;
+  return true;
+}
+
 /**
  * Entries kept in the in-process store before the least-recently-used one is dropped.
  *
@@ -131,14 +167,35 @@ export class RedisCacheStore implements UpstreamCacheStore {
     }
     if (raw === null) return null;
 
+    let parsed: unknown;
     try {
-      return JSON.parse(raw) as UpstreamCacheEntry<T>;
+      parsed = JSON.parse(raw);
     } catch (error: unknown) {
       // A corrupt entry is a MISS. The miss drives a refresh, and the refresh overwrites the key —
       // so it heals itself on the next read without this layer needing a delete primitive.
       this.degraded('parse', key, error);
       return null;
     }
+
+    // …and so is a STRUCTURALLY invalid one. `JSON.parse(...) as UpstreamCacheEntry<T>` was an
+    // unchecked cast over data that lives outside this process: a parseable entry with a missing
+    // or non-numeric `storedAtMs` sailed through every downstream check (`NaN > ceiling` is false,
+    // `NaN <= ttl` is false) and reached `new Date(NaN).toISOString()`, which THROWS. That turned
+    // one bad key into a 500 on a public page for every request until the key expired — up to six
+    // hours — from the layer whose whole contract is that a cache fault degrades and never 500s
+    // (review #73 I9; the validator reproduced it on four malformed shapes, two different fields).
+    // Realistic origin is not an attacker but an entry-shape change across a deploy, with the
+    // previous version's entries still inside their retention — which this module's own boot log
+    // advertises as "survives deploys".
+    if (!isValidCacheEntry(parsed)) {
+      this.degraded(
+        'validate',
+        key,
+        new Error('stored entry does not match the cache-entry shape'),
+      );
+      return null;
+    }
+    return parsed as UpstreamCacheEntry<T>;
   }
 
   async set<T>(key: string, entry: UpstreamCacheEntry<T>, retentionSeconds: number): Promise<void> {
@@ -155,10 +212,20 @@ export class RedisCacheStore implements UpstreamCacheStore {
 
   private degraded(operation: string, key: string, error: unknown): void {
     this.metrics.increment('redis.degraded', 'cache');
-    this.metrics.event('warn', 'redis cache degraded', {
-      operation,
-      key,
-      reason: error instanceof Error ? error.message : 'unknown',
-    });
+    // Throttled per operation: a Redis outage produces at least two of these per request (the
+    // value key and the negative key), bounded only by the global rate limit — an unbounded log
+    // stream stacked on top of the outage. The counter above is never sampled and the first line
+    // always goes out, so the transition into the degraded state stays visible.
+    this.metrics.throttledEvent(
+      'warn',
+      `cache-degraded:${operation}`,
+      DEGRADED_LOG_EVERY_MS,
+      'redis cache degraded',
+      {
+        operation,
+        key,
+        reason: error instanceof Error ? error.message : 'unknown',
+      },
+    );
   }
 }

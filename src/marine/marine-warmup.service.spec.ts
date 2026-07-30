@@ -219,9 +219,11 @@ describe('MarineWarmupService', () => {
         }),
       );
 
+      // Its own reason, not `lock_held`: the decision is the same but the situation is not, and a
+      // result claiming a peer holds a lock nobody holds sends the reader hunting for that peer.
       await expect(service.runTour('scheduled')).resolves.toEqual({
         ran: false,
-        reason: 'lock_held',
+        reason: 'redis_unavailable',
       });
       expect(visited).toEqual([]);
       expect(metrics.get('redis.degraded', 'warmup')).toBe(1);

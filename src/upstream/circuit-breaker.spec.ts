@@ -105,6 +105,69 @@ describe('CircuitBreaker', () => {
     expect(breaker.state('cmems')).toBe('open');
   });
 
+  it('does NOT count a budget refusal — the call never reached the provider', () => {
+    // Guarded in the breaker as well as at the call site: a self-inflicted refusal opening a
+    // circuit would report a healthy provider as down, and then mask the deliberately loud budget
+    // log behind a generic "circuit breaker is open" for the rest of the cooldown.
+    const breaker = build(2);
+    breaker.recordFailure('open-meteo', 'budget_exhausted');
+    breaker.recordFailure('open-meteo', 'budget_exhausted');
+    breaker.recordFailure('open-meteo', 'budget_exhausted');
+    expect(breaker.state('open-meteo')).toBe('closed');
+  });
+
+  it('FLOORS a Retry-After of 0 at the default cooldown instead of disarming itself', () => {
+    // `Retry-After: 0` is legal, and an already-elapsed HTTP-date parses to 0 as well (clock skew
+    // is enough). Honoured verbatim it set openUntilMs = now, so the very next call went straight
+    // back to a provider that had just said stop — a missing header was handled BETTER than a
+    // present one (review #73 I3).
+    const breaker = build(5, 60_000);
+    breaker.recordFailure('open-meteo', 'rate_limited', 0);
+
+    expect(breaker.state('open-meteo')).toBe('open');
+    nowMs += 59_000;
+    expect(breaker.state('open-meteo')).toBe('open');
+    nowMs += 2_000;
+    expect(breaker.state('open-meteo')).toBe('half_open');
+  });
+
+  it('still honours a Retry-After LONGER than the default', () => {
+    const breaker = build(5, 10_000);
+    breaker.recordFailure('open-meteo', 'rate_limited', 120);
+    nowMs += 60_000;
+    expect(breaker.state('open-meteo')).toBe('open');
+  });
+
+  describe('abandonTrial', () => {
+    it('releases a leaked half-open trial WITHOUT recording a failure', () => {
+      // The CRITICAL from review #73: an exception escaping the caller's parse leaves the trial
+      // flag set, and the breaker then refuses that provider for the process lifetime while the
+      // logs look exactly like a healthy cooldown. The release must not go through recordFailure —
+      // that would re-dress our own bug as evidence about the provider.
+      const breaker = build(1, 5_000);
+      breaker.recordFailure('cmems', 'transient');
+      nowMs += 5_001;
+      expect(breaker.canAttempt('cmems')).toBe(true); // takes the trial
+      expect(breaker.canAttempt('cmems')).toBe(false); // trial in flight
+
+      breaker.abandonTrial('cmems', 'parse threw');
+
+      expect(breaker.canAttempt('cmems')).toBe(true); // the next caller gets the trial back
+      expect(metrics.get('breaker.trial_abandoned', 'cmems')).toBe(1);
+      expect(metrics.get('breaker.opened', 'cmems')).toBe(1); // unchanged — no failure recorded
+    });
+
+    it('is a no-op when no trial is in flight, so the normal path cannot double-release', () => {
+      const breaker = build(3);
+      breaker.abandonTrial('cmems', 'nothing to release');
+      breaker.recordFailure('cmems', 'transient');
+      breaker.abandonTrial('cmems', 'still nothing');
+
+      expect(metrics.get('breaker.trial_abandoned', 'cmems')).toBe(0);
+      expect(breaker.state('cmems')).toBe('closed');
+    });
+  });
+
   it('keeps providers independent — one being down must not take the other off the page', () => {
     const breaker = build(1);
     breaker.recordFailure('cmems', 'transient');

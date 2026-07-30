@@ -45,7 +45,12 @@ export interface CircuitBreakerOptions {
  *
  * ## 429 opens the circuit immediately, for as long as the provider asked
  * A rate-limit answer is the provider telling us to stop. Waiting for four more of them before
- * reacting is how a temporary throttle becomes a ban (SPEC-ADDENDUM §6.3).
+ * reacting is how a temporary throttle becomes a ban (SPEC-ADDENDUM §6.3). The honoured window is
+ * floored at `openMs` (a `Retry-After: 0` must not disarm the cooldown) and, since §6.3 says a
+ * present `Retry-After` is obeyed, its upper bound is the helper's 24 h clamp — worst case, one
+ * hostile or broken header suppresses a provider for a day and its layers read `unavailable` on
+ * the page once the 6 h staleness ceiling bites. That is the deliberate trade: obeying a provider
+ * that asked for a long pause beats risking a permanent block.
  *
  * ## In-process, per instance — stated, not hidden
  * Each instance keeps its own view. With N instances a struggling provider sees up to N trial
@@ -113,8 +118,35 @@ export class CircuitBreaker {
   }
 
   /**
-   * @param retryAfterSeconds honoured verbatim for a `rate_limited` failure — the provider knows
-   *   better than our default when it wants us back.
+   * Release a half-open trial WITHOUT recording an outcome.
+   *
+   * ## Why this exists instead of a `recordFailure` in a `finally`
+   * The one path that can leave the trial flag set is an exception escaping the caller's `parse`
+   * callback — which `UpstreamHttpClient` rethrows on purpose, because it is OUR bug, not the
+   * provider's. Releasing it via `recordFailure` would count our bug as evidence about the
+   * provider's health and could open the circuit on a provider that answered perfectly. So this
+   * clears the flag and nothing else: no counter moves, `openUntilMs` does not move, and the next
+   * call gets the trial the leaked one wasted.
+   *
+   * It is LOUD because a leaked trial means an unexpected exception crossed a boundary that is
+   * supposed to convert every provider fault into a value. If this line appears, something above
+   * threw where the design says it cannot.
+   */
+  abandonTrial(providerId: string, reason: string): void {
+    const circuit = this.circuits.get(providerId);
+    if (circuit === undefined || !circuit.trialInFlight) return;
+
+    circuit.trialInFlight = false;
+    this.metrics.increment('breaker.trial_abandoned', providerId);
+    this.metrics.event('error', 'half-open trial abandoned without an outcome', {
+      provider: providerId,
+      reason,
+    });
+  }
+
+  /**
+   * @param retryAfterSeconds honoured for a `rate_limited` failure — the provider knows better
+   *   than our default when it wants us back — but FLOORED at `openMs`; see below.
    */
   recordFailure(
     providerId: string,
@@ -122,6 +154,9 @@ export class CircuitBreaker {
     retryAfterSeconds: number | null = null,
   ): void {
     if (kind === 'no_data') return;
+    // A refusal by our own budget is not evidence about the provider: the call was never made.
+    // Guarded here as well as at the call site, so no future caller can reintroduce it.
+    if (kind === 'budget_exhausted') return;
 
     const circuit = this.circuits.get(providerId) ?? {
       consecutiveFailures: 0,
@@ -133,8 +168,20 @@ export class CircuitBreaker {
 
     const rateLimited = kind === 'rate_limited';
     if (rateLimited || circuit.consecutiveFailures >= this.failureThreshold) {
+      // FLOORED at `openMs`, not honoured verbatim. `Retry-After: 0` is a legal header, and
+      // `parseRetryAfterSeconds` also produces 0 for any HTTP-date that has already elapsed (clock
+      // skew is enough). Taking that 0 literally sets `openUntilMs = now`, so the circuit is
+      // half-open on the very next call and the "429 stops us immediately" guarantee becomes a
+      // no-op under a value the provider controls — the exact throttle-becomes-ban escalation this
+      // class exists to prevent. A provider asking for MORE time than our default still gets it.
+      //
+      // The upper bound stays the helper's 24 h clamp: SPEC-ADDENDUM §6.3 says a present
+      // `Retry-After` is obeyed, and second-guessing a provider that asked for a long pause is how
+      // a temporary block becomes a permanent one. The worst case is stated in the class docs.
       const openForMs =
-        rateLimited && retryAfterSeconds !== null ? retryAfterSeconds * 1000 : this.openMs;
+        rateLimited && retryAfterSeconds !== null
+          ? Math.max(retryAfterSeconds * 1000, this.openMs)
+          : this.openMs;
       const wasOpen = circuit.openUntilMs !== null && this.now() < circuit.openUntilMs;
       circuit.openUntilMs = this.now() + openForMs;
       if (!wasOpen) {

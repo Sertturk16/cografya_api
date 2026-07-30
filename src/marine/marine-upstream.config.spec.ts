@@ -81,15 +81,25 @@ describe('buildMarineUpstreamConfig', () => {
 });
 
 describe('MARINE_PROVIDER_BUDGETS', () => {
-  it('leaves real headroom over the measured steady state (SPEC-ADDENDUM §2.7)', () => {
-    // Open-Meteo steady state is 2 batched requests per refresh × 24 refreshes = 48 calls/day.
-    // The budget must sit comfortably above that and comfortably below the free tier, or it is
-    // either useless or an outage waiting to happen.
-    const openMeteo = MARINE_PROVIDER_BUDGETS[MARINE_PROVIDER.openMeteo];
-    expect(openMeteo.perDay).toBeGreaterThan(48 * 5);
-    expect(openMeteo.perDay).toBeLessThan(10_000);
+  it('is expressed in the unit the PROVIDER counts, with real headroom (SPEC-ADDENDUM §2.7)', () => {
+    // The unit is a LOCATION, not an HTTP request (Atlas ruling, review #73 I5): Open-Meteo bills
+    // a multi-location batch per location, so our two batched calls for 31 points cost 62 units.
+    // Counting requests made the ceiling ~186% of the free tier while the guard never fired.
+    const OPEN_METEO_FREE_TIER_PER_DAY = 10_000;
+    const OPEN_METEO_STEADY_STATE_PER_DAY = 2 * 31 * 24; // two endpoints × 31 points × hourly
 
-    // CMEMS steady state is 77 calls per refresh × 24 ≈ 1 848/day.
+    const openMeteo = MARINE_PROVIDER_BUDGETS[MARINE_PROVIDER.openMeteo];
+    // Above the steady state with room for a boot tour, a redeploy and a bad hour…
+    expect(openMeteo.perDay).toBeGreaterThan(OPEN_METEO_STEADY_STATE_PER_DAY * 2);
+    // …and far enough below the free tier that a total cache collapse still cannot get us banned.
+    expect(openMeteo.perDay).toBeLessThan(OPEN_METEO_FREE_TIER_PER_DAY / 2);
+    // The hour cap is the real brake: the day cap must not be reachable inside one hour.
+    expect(openMeteo.perHour).toBeLessThan(openMeteo.perDay);
+    // A burst must stay well under the provider's own 600/min.
+    expect(openMeteo.perMinute).toBeLessThan(600 / 2);
+
+    // CMEMS: one call is one point and one variable, so weight 1 and the numbers are call counts.
+    // Steady state is 77 per refresh × 24 ≈ 1 848/day.
     const cmems = MARINE_PROVIDER_BUDGETS[MARINE_PROVIDER.cmems];
     expect(cmems.perDay).toBeGreaterThan(1_848 * 5);
   });

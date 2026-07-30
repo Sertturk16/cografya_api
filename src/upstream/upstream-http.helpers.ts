@@ -107,6 +107,25 @@ const REDACTED_QUERY_KEYS = new Set([
 ]);
 
 /**
+ * Mask credential-shaped `key=value` pairs anywhere in a free-text blob.
+ *
+ * For provider ERROR BODIES, which are neither a URL nor structured: most REST/OWS services echo
+ * the offending request back, so an error excerpt can contain the whole query string. The excerpt
+ * is genuinely diagnostic (CMEMS's exception names the valid time range, which is how we learn a
+ * pinned horizon expired), so it is redacted rather than dropped.
+ *
+ * Matches the same key names as {@link redactUrl}, followed by `=` or `:`, in query-string, JSON
+ * and XML-attribute shapes.
+ */
+export function redactSecrets(text: string): string {
+  const keys = [...REDACTED_QUERY_KEYS].join('|');
+  return text.replace(
+    new RegExp(`("?(?:${keys})"?\\s*[=:]\\s*"?)([^&"'\\s<>,}]+)`, 'gi'),
+    '$1<redacted>',
+  );
+}
+
+/**
  * A log-safe rendering of a request URL.
  *
  * Strips userinfo and masks known-credential query values, keeping everything else verbatim —

@@ -41,14 +41,16 @@ export interface RedisClientPort {
   deleteIfValueEquals(key: string, expected: string): Promise<boolean>;
 
   /**
-   * Atomic `INCR` + first-write `EXPIRE` (Lua): the fixed-window quota counter.
+   * Atomic `INCRBY` + first-write `EXPIRE` (Lua): the fixed-window quota counter.
    *
    * The TTL is applied only when the counter is created, so a window cannot be extended
    * indefinitely by traffic inside it.
    *
+   * @param by quota units to add — a batched request costs what the PROVIDER charges for it, not
+   *   one (SPEC-ADDENDUM §2.7).
    * @returns the counter's new value.
    */
-  incrementWithTtl(key: string, ttlSeconds: number): Promise<number>;
+  incrementWithTtl(key: string, ttlSeconds: number, by?: number): Promise<number>;
 
   /** Close the connection. Called on application shutdown. */
   quit(): Promise<void>;

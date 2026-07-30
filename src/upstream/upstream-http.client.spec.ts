@@ -228,9 +228,108 @@ describe('UpstreamHttpClient', () => {
     await request(client, tiny);
     const outcome = await request(client, tiny);
 
-    expect(outcome.kind).toBe('transient');
-    expect(outcome.kind === 'transient' && outcome.reason).toContain('budget exhausted');
+    expect(outcome.kind).toBe('budget_exhausted');
+    expect(outcome.kind === 'budget_exhausted' && outcome.reason).toContain('budget exhausted');
     expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it('does NOT open the breaker on a budget refusal — that provider was never contacted', async () => {
+    // Otherwise a burst of self-inflicted refusals crosses the failure threshold within seconds
+    // and reports a perfectly healthy provider as down, then hides the loud budget log behind a
+    // generic "circuit breaker is open" for the cooldown (review #73, silent-failure I).
+    const fetchImpl = jest.fn(() => Promise.resolve(jsonResponse('{"value":1}')));
+    const client = build(fetchImpl);
+    const tiny: ProviderBudgetLimits = { perMinute: 1, perHour: 10, perDay: 10 };
+
+    await request(client, tiny);
+    for (let i = 0; i < 10; i += 1) await request(client, tiny);
+
+    expect(breaker.state('provider')).toBe('closed');
+  });
+
+  it('charges the provider quota in the unit the PROVIDER counts, not per HTTP request', async () => {
+    // One batched request for 31 locations costs 31 quota units on Open-Meteo's accounting
+    // (Atlas ruling, review #73 I5). Counting requests made the ceiling ~186% of the free tier
+    // while the guard never fired.
+    const fetchImpl = jest.fn(() => Promise.resolve(jsonResponse('{"value":1}')));
+    const client = build(fetchImpl);
+    const limits: ProviderBudgetLimits = { perMinute: 40, perHour: 100, perDay: 100 };
+
+    const weighted = (): Promise<unknown> =>
+      client.request({
+        providerId: 'provider',
+        label: 'provider.batch',
+        url: URL_UNDER_TEST,
+        deadline: new OperationDeadline(6_000),
+        limits,
+        quotaWeight: 31,
+        parse: parseValue,
+      });
+
+    await weighted();
+    const second = await weighted();
+
+    // Two batched requests = 62 weighted units, past the 40/min ceiling.
+    expect((second as { kind: string }).kind).toBe('budget_exhausted');
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it('releases a leaked half-open trial when `parse` throws — the review #73 CRITICAL', async () => {
+    // Without the try/finally the trial flag stays set for the process lifetime and the provider
+    // becomes permanently unreachable, with logs byte-identical to a healthy cooldown.
+    const fetchImpl = jest.fn(() => Promise.resolve(jsonResponse('{"value":1}')));
+    const client = build(fetchImpl);
+
+    breaker.recordFailure('provider', 'transient');
+    breaker.recordFailure('provider', 'transient');
+    breaker.recordFailure('provider', 'transient');
+    nowMs += 10_001; // cooldown elapsed → the next call takes the trial
+
+    await expect(
+      client.request({
+        providerId: 'provider',
+        label: 'provider.value',
+        url: URL_UNDER_TEST,
+        deadline: new OperationDeadline(6_000),
+        limits: LIMITS,
+        parse: () => {
+          throw new TypeError('undefined is not a function');
+        },
+      }),
+    ).rejects.toThrow(TypeError);
+
+    // The provider must still be reachable, and the release must NOT have counted as a failure.
+    expect(breaker.canAttempt('provider')).toBe(true);
+    expect(metrics.get('breaker.trial_abandoned', 'provider')).toBe(1);
+  });
+
+  it('refuses to follow a redirect, so a provider cannot choose the host we talk to', async () => {
+    const fetchImpl = jest.fn<typeof fetch>(() => Promise.resolve(jsonResponse('{"value":1}')));
+    await request(build(fetchImpl));
+    const init = fetchImpl.mock.calls[0]?.[1] as RequestInit;
+    expect(init.redirect).toBe('error');
+  });
+
+  it('redacts a credential echoed back inside a provider ERROR BODY', async () => {
+    // The excerpt is logged at ERROR and persisted into the negative cache. Providers routinely
+    // echo the offending request back, so once a keyed feed uses this client the first 200 bytes
+    // could carry its key (review #73, security i4).
+    const fetchImpl = jest.fn(() =>
+      Promise.resolve(
+        new Response('<Exception>bad request: /v1?apikey=s3cret&lat=40</Exception>', {
+          status: 400,
+          headers: { 'content-type': 'text/xml' },
+        }),
+      ),
+    );
+    const outcome = await request(build(fetchImpl));
+
+    expect(outcome.kind).toBe('client_error');
+    const reason = outcome.kind === 'client_error' ? outcome.reason : '';
+    expect(reason).not.toContain('s3cret');
+    expect(reason).toContain('<redacted>');
+    // …and the diagnostic remainder survives: the excerpt exists to tell an operator what we sent.
+    expect(reason).toContain('lat=40');
   });
 
   it('refuses the call while the breaker is open, without touching the network', async () => {

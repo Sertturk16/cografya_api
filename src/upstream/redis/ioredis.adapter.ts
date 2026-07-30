@@ -23,8 +23,8 @@ return 0
  * between the two calls — a quota window that never resets is a permanent outage.
  */
 const INCREMENT_WITH_TTL = `
-local value = redis.call("INCR", KEYS[1])
-if value == 1 then
+local value = redis.call("INCRBY", KEYS[1], ARGV[2])
+if value == tonumber(ARGV[2]) then
   redis.call("EXPIRE", KEYS[1], ARGV[1])
 end
 return value
@@ -38,6 +38,20 @@ return value
  * into a site-wide latency event. One second is far above a healthy round trip (sub-millisecond
  * on a local network) and far below any budget we care about.
  */
+/**
+ * Namespace for every key this application writes.
+ *
+ * Applied by THIS class rather than through ioredis's `keyPrefix`, because the prefix has to
+ * cover the keys passed to `eval` as well, and a driver option that silently does not apply to
+ * Lua `KEYS` is exactly the kind of half-working guard that produces a lock nobody shares.
+ *
+ * Hosting is undecided and every cheap option (Upstash, Redis Cloud free tiers, one
+ * docker-compose instance) hands out ONE logical database. Without a namespace, a staging process
+ * pointed at the same URL takes the same warmup lock as production and suppresses its tour, and a
+ * lost lock is a normal `debug` line — nothing would look wrong (review #73 MINOR).
+ */
+const KEY_PREFIX = 'cografya:api:';
+
 const CONNECT_TIMEOUT_MS = 3_000;
 const COMMAND_TIMEOUT_MS = 1_000;
 const MAX_RETRIES_PER_REQUEST = 1;
@@ -59,6 +73,11 @@ export class IoredisAdapter implements RedisClientPort {
       connectTimeout: CONNECT_TIMEOUT_MS,
       commandTimeout: COMMAND_TIMEOUT_MS,
       maxRetriesPerRequest: MAX_RETRIES_PER_REQUEST,
+      // A command issued while the connection is down REJECTS instead of joining an unbounded
+      // in-memory queue. Every caller already treats a rejection as "the cache is unavailable"
+      // and degrades loudly, so failing fast is both the documented contract and the only place
+      // in this design that would otherwise grow without a cap.
+      enableOfflineQueue: false,
       // Keep the driver quiet about its own reconnection attempts; we log the outcomes that
       // matter (a degraded read/write) at the call site, with our own context.
       showFriendlyErrorStack: false,
@@ -72,30 +91,42 @@ export class IoredisAdapter implements RedisClientPort {
     });
   }
 
+  /** Every key this class touches is namespaced here, in one place. */
+  private prefixed(key: string): string {
+    return `${KEY_PREFIX}${key}`;
+  }
+
   async get(key: string): Promise<string | null> {
-    return await this.client.get(key);
+    return await this.client.get(this.prefixed(key));
   }
 
   async setWithTtl(key: string, value: string, ttlMs: number): Promise<void> {
-    await this.client.set(key, value, 'PX', Math.max(1, Math.round(ttlMs)));
+    await this.client.set(this.prefixed(key), value, 'PX', Math.max(1, Math.round(ttlMs)));
   }
 
   async setIfAbsent(key: string, value: string, ttlMs: number): Promise<boolean> {
-    const result = await this.client.set(key, value, 'PX', Math.max(1, Math.round(ttlMs)), 'NX');
+    const result = await this.client.set(
+      this.prefixed(key),
+      value,
+      'PX',
+      Math.max(1, Math.round(ttlMs)),
+      'NX',
+    );
     return result === 'OK';
   }
 
   async deleteIfValueEquals(key: string, expected: string): Promise<boolean> {
-    const deleted = await this.client.eval(RELEASE_IF_OWNED, 1, key, expected);
+    const deleted = await this.client.eval(RELEASE_IF_OWNED, 1, this.prefixed(key), expected);
     return deleted === 1;
   }
 
-  async incrementWithTtl(key: string, ttlSeconds: number): Promise<number> {
+  async incrementWithTtl(key: string, ttlSeconds: number, by = 1): Promise<number> {
     const value = await this.client.eval(
       INCREMENT_WITH_TTL,
       1,
-      key,
+      this.prefixed(key),
       String(Math.max(1, Math.round(ttlSeconds))),
+      String(Math.max(1, Math.round(by))),
     );
     // `eval` is typed `unknown` by the driver; a counter that is not a number means the script
     // or the key type is wrong, and guessing a value would corrupt the quota accounting.

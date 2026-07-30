@@ -30,7 +30,14 @@ function envBoolean(
 
 export const envSchema = z
   .object({
-    NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+    // REQUIRED — no default, deliberately. This is the variable the owner-ruled E1 gate keys on
+    // (production + MARINE_ENABLED ⇒ Redis), and a gate is only as strong as its discriminator: with
+    // `.default('development')`, a deployment that simply forgot to export NODE_ENV silently opted
+    // ITSELF out of the rule and booted production traffic on the single-instance LRU. Nothing in
+    // the repo pinned it either — `start:prod` is a bare `node dist/main.js`, there is no Dockerfile
+    // and no deploy job (review #73, security i1: found by following the discriminator outward).
+    // Every environment must now say which one it is; `.env.example` and jest both already do.
+    NODE_ENV: z.enum(['development', 'test', 'production']),
     // Defaults to 3001, not the NestJS-conventional 3000, to avoid colliding with
     // the sibling web app's Next.js dev server (see WEB_ORIGIN below), which
     // conventionally owns 3000 — so both can run locally with defaults untouched.
@@ -94,8 +101,11 @@ export const envSchema = z
     // The single `MARINE_CACHE_TTL_SECONDS` the v1 SPEC proposed is deliberately absent: one
     // number cannot serve a land mask (permanent), a rate-limit answer (the provider tells us
     // when) and a schema mismatch (an alarm) at the same time.
-    MARINE_POINTS_TTL_SECONDS: z.coerce.number().int().positive().default(86_400),
-    MARINE_LAYERS_TTL_SECONDS: z.coerce.number().int().positive().default(21_600),
+    // NOTE: there is deliberately no MARINE_POINTS_TTL_SECONDS / MARINE_LAYERS_TTL_SECONDS here.
+    // Those two endpoints' cache lifetimes are HTTP `Cache-Control` values on a controller
+    // DECORATOR — metadata evaluated at class definition, which an env var cannot reach. Declaring
+    // them anyway gave an operator two knobs that turn with no effect and no warning; they come
+    // back the day something actually reads them (review #73 MINOR).
     MARINE_VALUE_TTL_SECONDS: z.coerce.number().int().positive().default(3_600),
     MARINE_NO_DATA_TTL_SECONDS: z.coerce.number().int().positive().default(86_400),
     MARINE_ERROR_TTL_SECONDS: z.coerce.number().int().positive().default(60),
