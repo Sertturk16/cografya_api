@@ -42,6 +42,25 @@ import { readMessageProfile, scanGribMessages, type Grib2MessageProfile } from '
  * right but the bitmap wrong would hand back a full-length array of plausible numbers with the
  * land silently filled in. `finite === numberOfEncodedValues` is that failure's signature.
  *
+ * ## A decoder panic ABORTS THE PROCESS — known, partly closed, and surfaced
+ * The published binary is built with `panic = abort`: a Rust panic inside it is not a JavaScript
+ * exception, no `try/catch` here can see it, and the Node process dies with exit 134
+ * ("fatal runtime error: failed to initiate panic"). Found by CI, not by design — a mutation test
+ * that made section 5's value count disagree with the section 6 bitmap took the whole test runner
+ * down with it.
+ *
+ * That specific path is now closed BEFORE the decoder is entered: `grib2-envelope.ts` counts the
+ * bitmap's set bits and this adapter refuses a message whose two counts contradict each other,
+ * along with every structural malformation (truncation, a wrong declared length, a missing
+ * terminator, an unpinned template).
+ *
+ * **What is NOT closed:** a message that passes every envelope check but whose CCSDS payload is
+ * internally corrupt could still panic. In M3a that is a hand-run tool and the blast radius is a
+ * failed probe. In M3b the ingest runs inside the API server, so the same input would take the
+ * server down — which the "a provider outage degrades the widget, never the page" rule does not
+ * permit. Isolating the decode (a worker thread, or ecCodes out of process) is an M3b
+ * architecture decision and is surfaced to Atlas rather than decided here.
+ *
  * ## Bytes are bound to meaning by the INDEX, never by the decoder's names
  * `gribberish` reports NOAA/wgrib2 abbreviations: `10u` comes back as `UGRD`, `swh` as `HTSGW`
  * and `mwd` as `WWSDIR` ("combined wave direction"). Matching on those would be matching on a
@@ -206,6 +225,22 @@ export function assertSupportedProfile(profile: Grib2MessageProfile, param: Ecmw
     problems.push(
       `no bitmap is present, yet section 5 encodes ${String(profile.numberOfEncodedValues)} of ` +
         `${String(profile.numberOfDataPoints)} points — an unmasked field must encode all of them`,
+    );
+  }
+  // THE guard that must run before the decoder, not after it. A message whose section 5 count
+  // disagrees with its own section 6 bitmap makes the decoder index past the end of its value
+  // array, and that Rust panic ABORTS THE PROCESS — it is not a JavaScript exception and no
+  // `try/catch` above can see it (verified: exit 134, "failed to initiate panic"). Every other
+  // check in this file could in principle be done afterwards; this one cannot.
+  if (
+    profile.bitmapPresent &&
+    profile.bitmapSetBits !== null &&
+    profile.bitmapSetBits !== profile.numberOfEncodedValues
+  ) {
+    problems.push(
+      `the section 6 bitmap marks ${String(profile.bitmapSetBits)} cells as present while ` +
+        `section 5 encodes ${String(profile.numberOfEncodedValues)} values — the message ` +
+        `contradicts itself, and handing it to the decoder would abort the process`,
     );
   }
 

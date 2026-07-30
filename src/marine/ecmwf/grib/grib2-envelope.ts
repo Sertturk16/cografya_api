@@ -72,6 +72,18 @@ export interface Grib2MessageProfile {
   readonly numberOfEncodedValues: number;
   /** True when section 6 carries a bitmap (indicator 0). */
   readonly bitmapPresent: boolean;
+  /**
+   * Set bits in the section 6 bitmap — how many cells the mask says carry a value. `null` when
+   * there is no bitmap.
+   *
+   * Counted here, cheaply, because it is the ONE cross-check that has to happen before the
+   * decoder is entered rather than after. A message whose section 5 count disagrees with its own
+   * bitmap makes `@mattnucc/gribberish` index past the end of its value array, and that Rust
+   * panic is **not catchable from JavaScript**: the released binary aborts the process (verified
+   * — "fatal runtime error: failed to initiate panic", exit 134). Every other disagreement in
+   * this file can be caught after the fact; this one has to be caught before.
+   */
+  readonly bitmapSetBits: number | null;
   /** Model run / reference time, from section 1. */
   readonly referenceTimeUtc: Date;
   /** Forecast step, hours, from section 4. */
@@ -318,6 +330,8 @@ export function readMessageProfile(
     scanningMode,
     numberOfEncodedValues,
     bitmapPresent: bitmapIndicator === 0,
+    bitmapSetBits:
+      bitmapIndicator === 0 ? countBitmapBits(bytes, bitmap, numberOfDataPoints, offset) : null,
     referenceTimeUtc,
     forecastHours: forecastTime,
     validTimeUtc: new Date(referenceTimeUtc.getTime() + forecastTime * 3_600_000),
@@ -337,6 +351,55 @@ function requireSection(
   }
   return section;
 }
+
+/**
+ * Count the set bits of a section 6 bitmap: one bit per grid point, most significant bit first,
+ * padded to a byte boundary.
+ *
+ * ~130 KB of popcount per masked message, which is nothing beside the ~50 ms the CCSDS unpack
+ * costs — and it is the only guard that can run BEFORE the decoder sees a message whose own two
+ * counts disagree. See {@link Grib2MessageProfile.bitmapSetBits} for what happens if it does not.
+ */
+function countBitmapBits(
+  bytes: Uint8Array,
+  bitmap: Grib2SectionExtent,
+  numberOfDataPoints: number,
+  messageOffset: number,
+): number {
+  const dataStart = bitmap.start + 6;
+  const availableBytes = bitmap.length - 6;
+  const requiredBytes = Math.ceil(numberOfDataPoints / 8);
+  if (availableBytes < requiredBytes) {
+    throw new EcmwfContractError(
+      `GRIB message at ${String(messageOffset)} carries a ${String(availableBytes)}-byte bitmap ` +
+        `for ${String(numberOfDataPoints)} grid points, which needs ${String(requiredBytes)}.`,
+    );
+  }
+
+  let set = 0;
+  // Whole bytes first.
+  const wholeBytes = Math.floor(numberOfDataPoints / 8);
+  for (let index = 0; index < wholeBytes; index += 1) {
+    set += POPCOUNT[bytes[dataStart + index] ?? 0] ?? 0;
+  }
+  // Then the trailing partial byte, masking off the padding bits so they cannot be counted.
+  const remainingBits = numberOfDataPoints - wholeBytes * 8;
+  if (remainingBits > 0) {
+    const lastByte = bytes[dataStart + wholeBytes] ?? 0;
+    const mask = (0xff << (8 - remainingBits)) & 0xff;
+    set += POPCOUNT[lastByte & mask] ?? 0;
+  }
+  return set;
+}
+
+/** Set-bit count for every byte value, built once. */
+const POPCOUNT: readonly number[] = Array.from({ length: 256 }, (_unused, byte) => {
+  let count = 0;
+  for (let bit = 0; bit < 8; bit += 1) {
+    if ((byte & (1 << bit)) !== 0) count += 1;
+  }
+  return count;
+});
 
 /**
  * Read a GRIB2 angle: 32 bits, units of 1e-6 degrees, SIGN-AND-MAGNITUDE.

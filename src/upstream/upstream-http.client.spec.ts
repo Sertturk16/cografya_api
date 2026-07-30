@@ -553,7 +553,11 @@ describe('UpstreamHttpClient', () => {
     it('is still stopped by an already-spent deadline, without touching the breaker', async () => {
       const fetchImpl = jest.fn(() => Promise.resolve(binaryResponse(BINARY)));
       const client = build(fetchImpl);
-      const deadline = new OperationDeadline(0);
+      // Spent the way the text branch's own test spends one: a 1 ms budget, then a real pause.
+      // `new OperationDeadline(0)` is rejected at construction — a zero budget is a bug, not a
+      // state.
+      const deadline = new OperationDeadline(1);
+      await new Promise((resolve) => setTimeout(resolve, 20));
 
       const outcome = await client.request({
         providerId: 'provider',

@@ -198,6 +198,16 @@ describe('readMessageProfile — every header field against ecCodes', () => {
       expect(profile.numberOfDataPoints).toBe(expected.Ni * expected.Nj);
       expect(profile.numberOfEncodedValues).toBe(expected.numberOfValues);
       expect(profile.bitmapPresent).toBe(expected.bitmapPresent === 1);
+      // The bitmap's own account of itself must agree with section 5's, and both must agree with
+      // ecCodes. This is the pre-decode crash guard's input.
+      if (expected.bitmapPresent === 1) {
+        expect(profile.bitmapSetBits).toBe(expected.numberOfValues);
+        expect(profile.numberOfDataPoints - (profile.bitmapSetBits ?? 0)).toBe(
+          expected.numberOfMissing,
+        );
+      } else {
+        expect(profile.bitmapSetBits).toBeNull();
+      }
       expect(profile.scanningMode).toBe(expected.scanningMode);
       expect(profile.firstLatitude).toBe(expected.latitudeOfFirstGridPointInDegrees);
       // The measured surprise, read back out of the message rather than assumed: the longitude
@@ -407,9 +417,15 @@ describe('decodeGribRange — fail-closed', () => {
     expect(() => decodeGribRange(mutated, WIND_MEMBERS)).toThrow(/first column is at/);
   });
 
-  it('refuses when the decoder and section 5 disagree about how many values are encoded', () => {
-    // The bitmap guard from the other side: section 5 is told to expect one fewer encoded value
-    // than the decoder produces. In the wild this fires when the decoder mishandles the mask.
+  it('refuses a message whose section 5 count contradicts its own bitmap — BEFORE decoding', () => {
+    // This one is not a nicety, it is a crash guard, and it was found by CI rather than by
+    // design. Handing this exact mutation to `@mattnucc/gribberish` makes it index past the end
+    // of its value array, and the resulting Rust panic is NOT a JavaScript exception: the
+    // released binary aborts the process (exit 134, "fatal runtime error: failed to initiate
+    // panic"). No `try/catch` above can see it, so the only place to stop it is before the
+    // decoder is entered — which is what counting the bitmap's set bits in the envelope buys.
+    //
+    // The fact that this test can RUN AT ALL, in-process, is the assertion.
     const bytes = readFixture(WAVE_FILE);
     const [location] = scanGribMessages(bytes);
     expect(location).toBeDefined();
@@ -422,6 +438,22 @@ describe('decodeGribRange — fail-closed', () => {
     const view = new DataView(mutated.buffer);
     view.setUint32(section5.start + 5, view.getUint32(section5.start + 5) - 1);
 
-    expect(() => decodeGribRange(mutated, WAVE_MEMBERS)).toThrow(/finite values/);
+    expect(() => decodeGribRange(mutated, WAVE_MEMBERS)).toThrow(/contradicts itself/);
+  });
+
+  it('refuses a bitmap too short for the grid it claims to mask', () => {
+    const bytes = readFixture(WAVE_FILE);
+    const [location] = scanGribMessages(bytes);
+    expect(location).toBeDefined();
+    if (location === undefined) return;
+    const section3 = readSectionMap(bytes, location).get(3);
+    expect(section3).toBeDefined();
+    if (section3 === undefined) return;
+
+    // Claim four times as many grid points as the bitmap can address.
+    const mutated = bytes.slice();
+    new DataView(mutated.buffer).setUint32(section3.start + 6, 1_038_240 * 4);
+
+    expect(() => decodeGribRange(mutated, WAVE_MEMBERS)).toThrow(EcmwfContractError);
   });
 });
