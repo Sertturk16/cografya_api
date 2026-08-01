@@ -1,5 +1,7 @@
 import type { DataSourceOptions } from 'typeorm';
 import { Country } from '../country/entities/country.entity';
+import { MarineEcmwfCycle } from '../marine/entities/marine-ecmwf-cycle.entity';
+import { MarineEcmwfPointSeries } from '../marine/entities/marine-ecmwf-point-series.entity';
 import { MarinePoint } from '../marine/entities/marine-point.entity';
 import { Province } from '../province/entities/province.entity';
 import { InitProvince1783382400000 } from './migrations/1783382400000-InitProvince';
@@ -10,6 +12,7 @@ import { AddCountryHydrographyNote1784102400000 } from './migrations/17841024000
 import { AddCountrySovereigntyNote1784188800000 } from './migrations/1784188800000-AddCountrySovereigntyNote';
 import { AddProvinceClimateNormals1784620800000 } from './migrations/1784620800000-AddProvinceClimateNormals';
 import { InitMarinePoints1785369600000 } from './migrations/1785369600000-InitMarinePoints';
+import { InitMarineEcmwfStore1785686400000 } from './migrations/1785686400000-InitMarineEcmwfStore';
 
 /**
  * Single source of truth for the TypeORM connection shape. Consumed by:
@@ -29,7 +32,7 @@ export function buildDataSourceOptions(url: string): DataSourceOptions {
   return {
     type: 'postgres',
     url,
-    entities: [Province, Country, MarinePoint],
+    entities: [Province, Country, MarinePoint, MarineEcmwfCycle, MarineEcmwfPointSeries],
     migrations: [
       InitProvince1783382400000,
       AddProvinceClimateNote1783513986800,
@@ -39,6 +42,7 @@ export function buildDataSourceOptions(url: string): DataSourceOptions {
       AddCountrySovereigntyNote1784188800000,
       AddProvinceClimateNormals1784620800000,
       InitMarinePoints1785369600000,
+      InitMarineEcmwfStore1785686400000,
     ],
     synchronize: false,
     migrationsRun: false,

@@ -400,6 +400,81 @@ function assertKnownParam(param: string): EcmwfParam {
   );
 }
 
+/** One field reduced to the requested grid cells — what the ingest actually keeps. */
+export interface DecodedGribCells {
+  /** OUR parameter name, from the `.index` record — never the decoder's abbreviation. */
+  readonly param: EcmwfParam;
+  /** One value per requested index, in request order. `null` is a masked (land) cell. */
+  readonly cells: readonly (number | null)[];
+  /** Section 1 reference time (the model run), epoch ms — IPC-safe. */
+  readonly referenceTimeUtcMs: number;
+  /** Sections 1+4 valid time of this step, epoch ms. */
+  readonly validTimeUtcMs: number;
+  /** Evidence for the cycle ledger: the packing template this message declared (42 = CCSDS). */
+  readonly dataRepresentationTemplate: number;
+}
+
+/**
+ * Decode ONE byte-range response and reduce it to the requested grid cells, holding at most one
+ * message's values in memory at a time.
+ *
+ * This is the ingest's entry point, and the memory discipline is measured, not stylistic
+ * (olcumler.md §M6.3): the decoder returns a plain JS `Array<number>` of 1 038 240 doubles, a
+ * ~43 MB transient PER MESSAGE, and holding a step's four fields together peaks at 194 MB. Each
+ * field is therefore decoded, reduced to the ~30 requested cells, and dropped before the next
+ * one is touched — the "one message at a time" rule the SPEC marks as mandatory.
+ *
+ * Every guard of {@link decodeGribRange} runs here identically (same scan, same envelope
+ * assertions, same decoder cross-checks); the only difference is what survives the call.
+ */
+export function decodeGribRangeCells(
+  bytes: Uint8Array,
+  expected: readonly EcmwfRangeMember[],
+  attribution: EcmwfExpectedAttribution,
+  indices: readonly number[],
+): DecodedGribCells[] {
+  const locations = scanGribMessages(bytes);
+
+  if (locations.length !== expected.length) {
+    throw new EcmwfContractError(
+      `the response holds ${String(locations.length)} GRIB message(s) but the .index promised ` +
+        `${String(expected.length)} (${expected.map((member) => member.param).join(', ')}).`,
+    );
+  }
+
+  return locations.map((location, index) => {
+    const member = expected[index];
+    if (member === undefined) {
+      throw new EcmwfContractError(`no expected message for position ${String(index)}.`);
+    }
+    if (location.offset !== member.relativeOffset || location.length !== member.length) {
+      throw new EcmwfContractError(
+        `message ${String(index)} of the response sits at ${String(location.offset)}+` +
+          `${String(location.length)}, but the .index placed "${member.param}" at ` +
+          `${String(member.relativeOffset)}+${String(member.length)}. The bytes are not the ones ` +
+          `that were asked for, so the parameter attribution cannot be trusted.`,
+      );
+    }
+
+    const param = assertKnownParam(member.param);
+    const profile = readMessageProfile(bytes, location);
+    assertSupportedProfile(profile, param, attribution);
+
+    // Decoded, reduced, and released inside this iteration — `values` must not escape it.
+    const values = decodeValues(bytes, location, profile, param);
+    const field: DecodedGribField = { param, profile, values };
+    const cells = indices.map((cellIndex) => readCell(field, cellIndex));
+
+    return {
+      param,
+      cells,
+      referenceTimeUtcMs: profile.referenceTimeUtc.getTime(),
+      validTimeUtcMs: profile.validTimeUtc.getTime(),
+      dataRepresentationTemplate: profile.dataRepresentationTemplate,
+    };
+  });
+}
+
 /** Read one grid cell out of a decoded field. `NaN` (a masked cell) becomes `null`. */
 export function readCell(field: DecodedGribField, index: number): number | null {
   if (!Number.isInteger(index) || index < 0 || index >= field.values.length) {

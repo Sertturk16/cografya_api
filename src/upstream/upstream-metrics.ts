@@ -48,7 +48,17 @@ export type UpstreamMetricName =
   /** A half-open trial was released without an outcome — an exception crossed a boundary. */
   | 'breaker.trial_abandoned'
   /** Redis was unreachable and the call degraded to the in-process path. */
-  | 'redis.degraded';
+  | 'redis.degraded'
+  // ── Scheduled-ingest events (M3b). Provider-neutral names: the provider dimension is the
+  // `providerId` argument, exactly like every counter above. ──
+  /** A decode child process died without a reply — the contained panic class (exit 134). */
+  | 'ingest.decode_crash'
+  /** A payload was refused by a fail-closed contract guard (packing, grid, attribution…). */
+  | 'ingest.contract_refusal'
+  /** The model-cycle age ceiling suppressed publication (the THIRD ceiling, SPEC §9.4). */
+  | 'ingest.cycle_age_ceiling'
+  /** An unexpected exception escaped the ingest's own handling — OUR bug, counted loudly. */
+  | 'ingest.bug';
 
 /**
  * Counters + structured logs for the upstream layer.
