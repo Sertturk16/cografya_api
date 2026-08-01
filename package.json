@@ -35,6 +35,7 @@
     "db:import:marine-points": "pnpm build && node dist/database/marine/marine-points.cli.js",
     "db:import:marine-ecmwf": "pnpm build && node dist/database/marine/marine-ecmwf.cli.js",
     "db:import:air-quality": "pnpm build && node dist/database/air-quality/air-quality.cli.js",
+    "db:import:era5": "pnpm build && node dist/database/era5/era5.cli.js",
     "openapi:generate": "pnpm build && node dist/openapi/generate-openapi.js",
     "openapi:check": "pnpm run openapi:generate && git diff --exit-code -- openapi/openapi.json",
     "prepare": "husky"
@@ -78,6 +79,7 @@
     "globals": "17.7.0",
     "husky": "9.1.7",
     "jest": "30.4.2",
+    "jsfive": "0.4.0",
     "lint-staged": "17.0.8",
     "prettier": "3.9.4",
     "supertest": "7.2.2",

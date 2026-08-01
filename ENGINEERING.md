@@ -185,6 +185,24 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   manifest keeps the RAW source cell strings and the load phase re-prints each parsed number
   to prove it still matches, because range/ordering invariants cannot detect a silently
   truncated decimal.
+  - **`pnpm db:import:era5 --phase=fetch` (`src/database/era5/`)** is the same two-phase shape
+    against a BINARY source (Copernicus CDS, ERA5-Land monthly means, NetCDF4/HDF5). Two serial
+    CDS jobs, budget ~5 minutes for a healthy queue but a **3-hour patience ceiling per job** (the
+    provider's queue is load-sensitive and a single fast measurement is not a guarantee). `DELETE
+    /jobs/{id}` is called **only after the download is byte- and MD5-verified** — deleting earlier
+    makes the job 404 permanently. The **raw ~19 MB `.nc` is never committed** (`--raw-dir` is
+    mandatory and must be absolute; `.gitignore` carries a belt); fidelity is carried instead by a
+    manifest (SHA-256 + provider MD5 + size + axes + every province's cell assignment) plus a
+    committed **converted-but-unaveraged** 81 × 360 × 2 series, so the published 30-year normal
+    stays auditable offline. `--from-file=<abs path>` re-runs the whole offline half with zero
+    network calls.
+- **A hand-run import's credentials NEVER enter `src/config/env.schema.ts`.** `fetch`/`probe`
+  phases read their key from `process.env` **script-locally** (`CDS_API_KEY`, `ADS_API_KEY`), and
+  the boot schema does not declare them. This became de-facto policy with the air-quality A1 probe
+  and is written down here as a rule: a migration somebody runs by hand once a decade must not
+  become a precondition for the server to start. The corollary is equally binding — such a key is
+  redacted from every log line, scanned for before any artifact is written, and asserted absent by
+  a `no-key-material` structural check.
 - **Seeds** are split: `db:seed` / `db:seed:dev`, plus a dedicated **`db:seed:geography`**
   for the country/province/concept base data — the platform's most critical seed. Seed
   discipline notes belong on the entity (e.g. `plate_code` is zero-padded to 2 chars so
