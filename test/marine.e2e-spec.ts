@@ -665,7 +665,12 @@ describe('Marine (e2e)', () => {
       // Returning `200 []` would let a broken deployment publish an empty /deniz page and let
       // Google index it. The success-only cache interceptor also means the emptiness is never
       // cached.
-      await dataSource.getRepository(MarinePoint).clear();
+      //
+      // `delete({})`, NOT `clear()`: clear() issues TRUNCATE, which Postgres refuses on a table
+      // referenced by a foreign key (M3b's marine_ecmwf_point_series). DELETE walks the rows
+      // and lets the FK's ON DELETE CASCADE do its job — the exact production semantics of a
+      // point being retired.
+      await dataSource.createQueryBuilder().delete().from(MarinePoint).execute();
 
       await request(app.getHttpServer()).get('/api/marine/points').expect(500);
 
