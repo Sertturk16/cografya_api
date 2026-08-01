@@ -16,8 +16,18 @@
  * already in hand, well after any HTTP call.
  */
 export class CamsContractError extends Error {
-  constructor(message: string, options?: { cause?: unknown }) {
-    super(`[cams] ${message}`, options);
+  /**
+   * `true` only when raised by the `decodeCamsFile` catch-all wrapper — i.e. the failure did
+   * NOT match any pinned guard, so it is either a bug of OURS or a byte pattern nobody
+   * anticipated. A2's ingest maps both flavours to `schema_error` (fail-closed either way),
+   * but MUST keep this flag in its run record/alerting: a wrapper-origin error means "fix the
+   * decoder", not "the provider drifted", and flattening the two would misdirect diagnosis.
+   */
+  readonly unexpected: boolean;
+
+  constructor(message: string, options?: { cause?: unknown; unexpected?: boolean }) {
+    super(`[cams] ${message}`, { cause: options?.cause });
     this.name = 'CamsContractError';
+    this.unexpected = options?.unexpected ?? false;
   }
 }

@@ -8,6 +8,8 @@ import {
   buildZipArchive,
   type FixtureFileSpec,
 } from '../../air-quality/cams/netcdf3-fixture.builder';
+import { AirQualityPollutant, AirQualityStatus } from '../../air-quality/air-quality.types';
+import type { AirQualityProbeArtifact } from './air-quality-artifact.types';
 import { parseAirQualityPhase } from './air-quality.cli';
 import {
   AirQualityProbeError,
@@ -16,6 +18,7 @@ import {
   buildDownloadHeaders,
   buildFixtureRequestBody,
   buildProductionRequestBody,
+  evaluateProbeAssertions,
   FIXTURE_ARCHIVE_NAME,
   redactAdsSecret,
   runAirQualityProbePhase,
@@ -302,12 +305,50 @@ describe('runAirQualityProbePhase — faked end-to-end', () => {
       expect(artifact.assertions.map((assertion) => assertion.id)).toContain(id);
     }
     expect(artifact.latitudeAxis.step).toBeLessThan(0);
-    expect(artifact.decoderVersion).toBe('netcdf3-ts@2');
+    expect(artifact.decoderVersion).toBe('netcdf3-ts@3');
     expect(artifact.jobs.every((job) => job.deleted && job.checksumVerified)).toBe(true);
 
     // The fixture archive was written where the golden spec expects it.
     const fixture = await readFile(fixturePath);
     expect(fixture.subarray(0, 4)).toEqual(Buffer.from([0x50, 0x4b, 0x03, 0x04]));
+  }, 30_000);
+
+  it('NEGATIVE: the three binding evidence gates can actually FAIL (test-r2-1 — no vacuous gate)', async () => {
+    // Take a genuinely PASSING artifact and break each bound fact: the gates must flip to
+    // FAIL, proving they read the artifact rather than always reporting green.
+    const { artifactPath } = await runProbe();
+    const artifact = JSON.parse(await readFile(artifactPath, 'utf8')) as AirQualityProbeArtifact;
+
+    const passing = evaluateProbeAssertions(artifact, API_KEY);
+    expect(passing.every((assertion) => assertion.passed)).toBe(true);
+
+    const byId = (id: string): boolean => {
+      const results = evaluateProbeAssertions(artifact, API_KEY);
+      const found = results.find((assertion) => assertion.id === id);
+      if (found === undefined) throw new Error(`gate ${id} missing from the assertion set`);
+      return found.passed;
+    };
+
+    const stepCount = artifact.timeStepCount;
+    artifact.timeStepCount = 2; // a 2-step file must never pass as the production shape
+    expect(byId('time-steps-97')).toBe(false);
+    artifact.timeStepCount = stepCount;
+
+    const firstProvince = artifact.provinces[0];
+    if (firstProvince === undefined) throw new Error('artifact lost its provinces');
+    const support = firstProvince.support[AirQualityPollutant.Pm2_5];
+    firstProvince.support[AirQualityPollutant.Pm2_5] = AirQualityStatus.NotSupported;
+    expect(byId('support-all-ok')).toBe(false);
+    firstProvince.support[AirQualityPollutant.Pm2_5] = support;
+
+    const nullCount = firstProvince.nullStepCounts[AirQualityPollutant.Pm2_5];
+    // Blow the 5% budget from a single province (81×5×97 total steps → >1 964 nulls needed).
+    firstProvince.nullStepCounts[AirQualityPollutant.Pm2_5] = 5_000;
+    expect(byId('null-step-budget')).toBe(false);
+    firstProvince.nullStepCounts[AirQualityPollutant.Pm2_5] = nullCount;
+
+    // Restored artifact passes again — the mutations, not the harness, flipped the gates.
+    expect(evaluateProbeAssertions(artifact, API_KEY).every((a) => a.passed)).toBe(true);
   }, 30_000);
 
   it('NEGATIVE: a hostile jobID shape is refused BEFORE any URL is built from it', async () => {

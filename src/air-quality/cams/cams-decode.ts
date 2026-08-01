@@ -32,10 +32,14 @@ import { NC_FLOAT, parseNetcdf3, type Netcdf3File } from './netcdf3';
  * Versioned decoder identity (plan §5.7). Bump on ANY behavioural change to this path.
  * `@2`: refuses non-NC_FLOAT / CF-packed data variables, binds the FORECAST product word,
  * null-classifies implausibly large values, throws on an all-points-outside domain, and ties
- * coordinate variables to their own dimension. The committed probe artifact honestly records
- * `@1` — the run that produced it predates these guards.
+ * coordinate variables to their own dimension.
+ * `@3`: extends the type/packing pin to the `time` axis and binds its VALUES to the measured
+ * hour ladder (0, 1, 2, …), refuses zero requested points, adds the nothing-usable OUTCOME
+ * guard (an all-fill file throws instead of returning quiet `not_supported` rows), and flags
+ * wrapper-origin errors as `unexpected`. The committed probe artifact honestly records `@1` —
+ * the run that produced it predates these guards.
  */
-export const CAMS_DECODER_VERSION = 'netcdf3-ts@2';
+export const CAMS_DECODER_VERSION = 'netcdf3-ts@3';
 
 /**
  * Upper plausibility bound for a raw concentration, µg/m³. Far above any physically observed
@@ -127,7 +131,7 @@ export function decodeCamsFile(archive: Uint8Array, options: CamsDecodeOptions):
     throw new CamsContractError(
       `unexpected decoder failure (${error instanceof Error ? error.name : typeof error}) — ` +
         'not a recognised contract deviation; treat as schema_error.',
-      { cause: error },
+      { cause: error, unexpected: true },
     );
   }
 }
@@ -141,6 +145,12 @@ function decodeCamsFileInner(archive: Uint8Array, options: CamsDecodeOptions): C
   const pollutants = options.pollutants ?? ALL_AIR_QUALITY_POLLUTANTS;
   if (pollutants.length === 0) {
     throw new CamsContractError('decode was asked for zero pollutants.');
+  }
+  // Zero points is a refusal, not an empty success: no A1 caller has a legitimate empty set
+  // (the probe always passes all 81), and an accidental empty array upstream would otherwise
+  // decode a whole file into a quiet zero-row "success" — the unnamed silent-success lane.
+  if (options.points.length === 0) {
+    throw new CamsContractError('decode was asked for zero points.');
   }
   const seenPlateCodes = new Set<string>();
   for (const point of options.points) {
@@ -296,7 +306,12 @@ function decodeCamsFileInner(archive: Uint8Array, options: CamsDecodeOptions): C
   // outside the domain is the structural `not_supported` class (SPEC §7.4), but EVERY point
   // outside means this is the wrong file/area (wrong `area` sent, packed axes, a lon-convention
   // change) — returning 81 quiet `not_supported` rows would be the #65 lesson inverted.
-  if (mappings.length > 0 && mappings.every((mapping) => mapping.outside)) {
+  // This is the sharper PRE-diagnosis (it can name the axis bounds); the BINDING net is the
+  // nothing-usable OUTCOME guard below, which subsumes this class. Both are deliberately
+  // relative to THIS call's point set, whatever its size: a caller that gets zero usable rows
+  // out of a decode must hear about it loudly, never receive a quiet all-`not_supported`
+  // envelope (`points` is guaranteed non-empty by the zero-points refusal above).
+  if (mappings.every((mapping) => mapping.outside)) {
     throw new CamsContractError(
       `EVERY requested point (${String(mappings.length)}) is outside the file domain ` +
         `(lon ${String(longitudeAnalysis.first)}…${String(longitudeAnalysis.last)}, ` +
@@ -385,6 +400,24 @@ function decodeCamsFileInner(archive: Uint8Array, options: CamsDecodeOptions): C
     };
   });
 
+  // The OUTCOME guard (review #77 R2): after every mechanism-level check passed, ask the only
+  // question that matters — did anything USABLE come out of this file? An all-fill file (or any
+  // future lane nobody has named yet) passes every structural pin and would otherwise return
+  // 81×5 quiet `not_supported` rows: a widget that silently goes dark instead of a pipeline
+  // that stops. Partial outcomes (some provinces/pollutants usable) return normally — SPEC
+  // §7.4's per-pollutant `not_supported` and per-step nulls are only legitimate while at least
+  // one series carries data.
+  const anyUsable = provinces.some((province) =>
+    Object.values(province.support).some((status) => status === AirQualityStatus.Ok),
+  );
+  if (!anyUsable) {
+    throw new CamsContractError(
+      `nothing usable came out of this file: all ${String(provinces.length)} province × ` +
+        `${String(pollutants.length)} pollutant series are outside the domain or entirely ` +
+        'missing — an all-fill or wrong-area file, not a data gap; failing loudly.',
+    );
+  }
+
   return {
     entryName: entry.name,
     zipMethod: entry.method,
@@ -451,6 +484,24 @@ function assertVariableShape(file: Netcdf3File, variableName: string): void {
  */
 function readTimeHours(file: Netcdf3File, expectedRunDate: string): number[] {
   const timeVariable = file.variable(DIMENSION_TIME);
+  // The same element-type + CF-packing pin the data variables carry (review #77 R2-SFH-I1):
+  // `time` was the ONE axis exempt from every check, and a packed NC_SHORT time would ×-skew
+  // every validAtUtc while the step COUNT still looked right. Measured: NC_FLOAT, unpacked
+  // (golden fixture + probe overlay).
+  if (timeVariable.ncType !== NC_FLOAT) {
+    throw new CamsContractError(
+      `"${DIMENSION_TIME}" is nc_type ${String(timeVariable.ncType)}, not the measured ` +
+        'NC_FLOAT — a re-typed/packed time axis shifts every validAtUtc; refusing.',
+    );
+  }
+  for (const packingAttribute of ['scale_factor', 'add_offset'] as const) {
+    if (file.attribute(DIMENSION_TIME, packingAttribute) !== undefined) {
+      throw new CamsContractError(
+        `"${DIMENSION_TIME}" carries CF packing attribute "${packingAttribute}" — raw hour ` +
+          'offsets would be off by the packing transform; refusing an encoding we did not pin.',
+      );
+    }
+  }
   const unitsAttribute = file.attribute(DIMENSION_TIME, 'units');
   if (
     unitsAttribute === undefined ||
@@ -472,7 +523,10 @@ function readTimeHours(file: Netcdf3File, expectedRunDate: string): number[] {
         `run day ${expectedRunDate}.`,
     );
   }
-  if (!longName.value.includes('FORECAST')) {
+  // Case-insensitive on purpose: the binding is PRODUCT IDENTITY, not prose casing — a benign
+  // casing drift ("Forecast …") must not raise a misleading WRONG PRODUCT TYPE alarm, while an
+  // analysis product stays refused in any casing.
+  if (!longName.value.toUpperCase().includes('FORECAST')) {
     throw new CamsContractError(
       `WRONG PRODUCT TYPE: time long_name "${longName.value}" does not contain "FORECAST" — ` +
         'an ANALYSIS (or unknown) product must not be published as forecast steps.',
@@ -490,5 +544,19 @@ function readTimeHours(file: Netcdf3File, expectedRunDate: string): number[] {
     }
     hours.push(value);
   }
+  // Bind the published VALUES, not only the count (review #77 R2-SFH-I1): the probe overlay
+  // pins the production time axis to exactly 0…96 — integral, ascending, step +1, starting at
+  // 0 — and every request WE build asks for a 0-based contiguous hour ladder. So the values
+  // must equal their own indices (float32 holds these small integers exactly); anything else
+  // means every derived validAtUtc would be silently wrong. If a future phase ever requests a
+  // non-0-based ladder, this pin is revisited EXPLICITLY, never loosened in passing.
+  hours.forEach((hour, index) => {
+    if (hour !== index) {
+      throw new CamsContractError(
+        `time value ${String(hour)} at record ${String(index)} breaks the measured hour ` +
+          'ladder (0, 1, 2, …) — validAtUtc derivation would be wrong for every step; refusing.',
+      );
+    }
+  });
   return hours;
 }

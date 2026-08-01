@@ -77,6 +77,13 @@ export const PROBE_MAX_DOWNLOAD_BYTES = 268_435_456;
 /** Committed fixture filename — referenced by `cams-golden.spec.ts` and the fixtures README. */
 export const FIXTURE_ARCHIVE_NAME = 'mini-tr-pm25-1step.zip';
 
+/**
+ * Production forecast step count: leadtime hours 0…96 inclusive. Single-sourced here so the
+ * request builder and the `time-steps-97` evidence gate cannot drift apart (a spec literal
+ * still pins the value independently).
+ */
+export const PRODUCTION_FORECAST_STEP_COUNT = 97;
+
 const USER_AGENT =
   'CografyaPlatformBot/1.0 (educational geography platform; CAMS air-quality probe; run by hand)';
 
@@ -166,7 +173,9 @@ export function buildProductionRequestBody(runDate: string): Record<string, unkn
     type: ['forecast'],
     date: [`${runDate}/${runDate}`], // mandatory, undeclared in the process schema (measured)
     time: ['00:00'],
-    leadtime_hour: Array.from({ length: 97 }, (_unused, hour) => String(hour)),
+    leadtime_hour: Array.from({ length: PRODUCTION_FORECAST_STEP_COUNT }, (_unused, hour) =>
+      String(hour),
+    ),
     area: [...AIR_QUALITY_AREA],
     data_format: 'netcdf_zip',
   };
@@ -367,8 +376,13 @@ export async function runAirQualityProbePhase(options: AirQualityProbeOptions): 
     // Shape gate BEFORE the id is interpolated into URLs: a hostile/odd jobID (`../`, `?`,
     // whitespace) must never steer the poll/results/DELETE paths. Real ADS ids are UUIDs.
     if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(jobId)) {
+      // Through redact() and length-capped: a refused jobID is hostile/arbitrary provider text
+      // and could be huge or echo key material — the one refusal message that skipped both.
       throw new AirQualityProbeError(
-        `${label}: jobID "${jobId}" has an unexpected shape — refusing to build URLs from it.`,
+        redact(
+          `${label}: jobID "${jobId.slice(0, 128)}" has an unexpected shape — refusing to ` +
+            'build URLs from it.',
+        ),
       );
     }
     log(`${label}: queued as job ${jobId}.`);
@@ -658,8 +672,9 @@ export function evaluateProbeAssertions(
   // 2-step file, or an all-fill run, must fail the probe loudly, not pass as "9/9".
   push(
     'time-steps-97',
-    artifact.timeStepCount === 97,
-    `${String(artifact.timeStepCount)} time step(s) (the production request asks for exactly 97).`,
+    artifact.timeStepCount === PRODUCTION_FORECAST_STEP_COUNT,
+    `${String(artifact.timeStepCount)} time step(s) (the production request asks for exactly ` +
+      `${String(PRODUCTION_FORECAST_STEP_COUNT)}).`,
   );
   const supportEntries = artifact.provinces.flatMap((province) => Object.values(province.support));
   const notOk = supportEntries.filter((status) => status !== AirQualityStatus.Ok).length;

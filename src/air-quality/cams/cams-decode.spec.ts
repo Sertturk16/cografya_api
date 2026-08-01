@@ -109,14 +109,23 @@ describe('decodeCamsFile — happy path', () => {
 describe('decodeCamsFile — null classification (SPEC §7.4, hand-built fixtures)', () => {
   it('_FillValue (−999) → null per step; NEGATIVE values → null (second line of defence)', () => {
     const decoded = decodeCamsFile(
-      // Cell (0,1): record 0 carries the fill value, record 1 carries a negative.
+      // Cell (0,1): record 0 carries the fill value, record 1 carries a negative. A second
+      // point on the healthy cell (0,0) keeps the file PARTIALLY usable — a fully unusable
+      // request is the outcome-guard refusal tested below, not this class.
       miniFile({ pm25Data: [1, FILL, 3, 4, 5, 6, 11, -0.5, 13, 14, 15, 16] }),
-      DECODE_OPTIONS,
+      {
+        ...DECODE_OPTIONS,
+        points: [POINT, { plateCode: '40', latitude: 42.44, longitude: 25.56 }],
+      },
     );
-    const province = decoded.provinces[0];
+    const province = decoded.provinces.find((row) => row.plateCode === POINT.plateCode);
     expect(province?.series[AirQualityPollutant.Pm2_5]).toEqual([null, null]);
     // Every step missing → the structural not_supported class.
     expect(province?.support[AirQualityPollutant.Pm2_5]).toBe(AirQualityStatus.NotSupported);
+    // The healthy neighbour is untouched: per-province classification, no cross-talk.
+    const healthy = decoded.provinces.find((row) => row.plateCode === '40');
+    expect(healthy?.series[AirQualityPollutant.Pm2_5]).toEqual([1, 11]);
+    expect(healthy?.support[AirQualityPollutant.Pm2_5]).toBe(AirQualityStatus.Ok);
   });
 
   it('SOME steps missing → per-step nulls, support stays ok — and NO neighbour/interpolation fill', () => {
@@ -188,6 +197,14 @@ describe('decodeCamsFile — contract refusals', () => {
     // but the product word is bound too: an analysis file must never publish as forecast steps.
     const analysisShaped = miniFile({ timeLongName: 'ANALYSIS time from 20260801' });
     expect(() => decodeCamsFile(analysisShaped, DECODE_OPTIONS)).toThrow(/WRONG PRODUCT TYPE/);
+    // The binding is product IDENTITY, not prose casing: a benign casing drift still decodes,
+    // and a differently-cased analysis product is still refused.
+    expect(() =>
+      decodeCamsFile(miniFile({ timeLongName: 'Forecast time from 20260801' }), DECODE_OPTIONS),
+    ).not.toThrow();
+    expect(() =>
+      decodeCamsFile(miniFile({ timeLongName: 'analysis time from 20260801' }), DECODE_OPTIONS),
+    ).toThrow(/WRONG PRODUCT TYPE/);
   });
 
   it('non-"hours" time units → schema error (a CF epoch here would shift every validAtUtc)', () => {
@@ -223,12 +240,23 @@ describe('decodeCamsFile — contract refusals', () => {
     ).toThrow(/EVERY requested point/);
   });
 
-  it('malformed expectedRunDate and empty pollutant list are refused', () => {
+  it('an ALL-FILL file → loud nothing-usable failure, never a quiet all-not_supported envelope (OUTCOME guard)', () => {
+    // Every structural pin passes (unit, _FillValue, shape, time) — only the OUTCOME is empty.
+    const allFill = miniFile({ pm25Data: new Array<number>(12).fill(FILL) });
+    expect(() => decodeCamsFile(allFill, DECODE_OPTIONS)).toThrow(CamsContractError);
+    expect(() => decodeCamsFile(allFill, DECODE_OPTIONS)).toThrow(/nothing usable/);
+  });
+
+  it('malformed expectedRunDate, empty pollutant list and empty point list are refused', () => {
     expect(() =>
       decodeCamsFile(miniFile(), { ...DECODE_OPTIONS, expectedRunDate: '2026-08-01' }),
     ).toThrow(/YYYYMMDD/);
     expect(() => decodeCamsFile(miniFile(), { ...DECODE_OPTIONS, pollutants: [] })).toThrow(
       /zero pollutants/,
+    );
+    // Zero points would otherwise decode the whole file into a quiet zero-row "success".
+    expect(() => decodeCamsFile(miniFile(), { ...DECODE_OPTIONS, points: [] })).toThrow(
+      /zero points/,
     );
   });
 
@@ -269,6 +297,59 @@ describe('decodeCamsFile — element type + packing pins (a packed variable is t
       ],
     });
     expect(() => decodeCamsFile(archive, DECODE_OPTIONS)).toThrow(/packing attribute/);
+  });
+});
+
+describe('decodeCamsFile — the time axis carries the SAME pins (R2-SFH-I1: no exempt axis)', () => {
+  it('a re-typed (NC_SHORT) time variable is refused, not decoded into ×-skewed hours', () => {
+    // Same self-verifying byte-patch idiom as the data-variable pin, but with `time` moved to
+    // the LAST header slot so its nc_type int32 sits exactly 12 bytes before the header end.
+    const spec = miniSpec();
+    const time = spec.variables.find((variable) => variable.name === 'time');
+    if (time === undefined) throw new Error('fixture spec lost its time variable');
+    spec.variables = [...spec.variables.filter((variable) => variable.name !== 'time'), time];
+    // Sanity: the reorder alone changes nothing.
+    expect(() => decodeCamsFile(zipSpec(spec), DECODE_OPTIONS)).not.toThrow();
+
+    const nc = buildNetcdf3(spec);
+    const parsed = parseNetcdf3(nc);
+    const headerEnd = Math.min(...parsed.variables.map((variable) => variable.begin));
+    const patched = Uint8Array.from(nc);
+    new DataView(patched.buffer).setInt32(headerEnd - 12, NC_SHORT, false);
+    // Sanity: the patch landed on the time variable, nowhere else.
+    expect(parseNetcdf3(patched).variable('time').ncType).toBe(NC_SHORT);
+
+    const archive = buildZipArchive([{ name: 'ENS_FORECAST.nc', bytes: patched }]);
+    expect(() => decodeCamsFile(archive, DECODE_OPTIONS)).toThrow(/"time" is nc_type/);
+  });
+
+  it.each(['scale_factor', 'add_offset'])(
+    'CF packing attribute "%s" on time is refused',
+    (attribute) => {
+      const spec = miniSpec();
+      for (const variable of spec.variables) {
+        if (variable.name === 'time') {
+          variable.attributes = [...(variable.attributes ?? []), { name: attribute, value: [3] }];
+        }
+      }
+      expect(() => decodeCamsFile(zipSpec(spec), DECODE_OPTIONS)).toThrow(/packing attribute/);
+    },
+  );
+
+  it('time VALUES off the measured 0,1,2,… hour ladder are refused (validAtUtc skew)', () => {
+    // Non-integral step, and an integral-but-shifted ladder — both would silently mislabel
+    // every published step while the step COUNT still looks right.
+    for (const badHours of [
+      [0, 1.5],
+      [1, 2],
+      [0, 2],
+    ]) {
+      const spec = miniSpec();
+      for (const variable of spec.variables) {
+        if (variable.name === 'time') variable.data = badHours;
+      }
+      expect(() => decodeCamsFile(zipSpec(spec), DECODE_OPTIONS)).toThrow(/hour ladder/);
+    }
   });
 });
 
@@ -364,5 +445,28 @@ describe('decodeCamsFile — structural cross-ties + the catch-all wrapper', () 
     structuredClone(archive.buffer, { transfer: [archive.buffer] });
     expect(() => decodeCamsFile(archive, DECODE_OPTIONS)).toThrow(CamsContractError);
     expect(() => decodeCamsFile(archive, DECODE_OPTIONS)).toThrow(/unexpected decoder failure/);
+  });
+
+  it('wrapper-origin errors carry unexpected=true; pinned-guard refusals carry unexpected=false', () => {
+    // A2's run record keeps the two apart: "fix the decoder" vs "the provider drifted".
+    const detached = Uint8Array.from(miniFile());
+    structuredClone(detached.buffer, { transfer: [detached.buffer] });
+    let wrapperError: unknown = null;
+    try {
+      decodeCamsFile(detached, DECODE_OPTIONS);
+    } catch (error: unknown) {
+      wrapperError = error;
+    }
+    expect(wrapperError).toBeInstanceOf(CamsContractError);
+    expect(wrapperError instanceof CamsContractError && wrapperError.unexpected).toBe(true);
+
+    let guardError: unknown = null;
+    try {
+      decodeCamsFile(miniFile({ timeLongName: 'FORECAST time from 20260731' }), DECODE_OPTIONS);
+    } catch (error: unknown) {
+      guardError = error;
+    }
+    expect(guardError).toBeInstanceOf(CamsContractError);
+    expect(guardError instanceof CamsContractError && guardError.unexpected).toBe(false);
   });
 });
