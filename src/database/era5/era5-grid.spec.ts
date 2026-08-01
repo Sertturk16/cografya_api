@@ -113,10 +113,14 @@ describe('mapEra5CoordinateToIndex — the Malatya boundary case', () => {
   });
 
   it('maps a mid-cell coordinate to the obvious cell', () => {
+    // NOTE 32.85 would NOT do here: on a 0.1 grid starting at 25.5 it is itself an exact
+    // half-step tie, which is a different code path (and is covered above).
     const lat = mapEra5CoordinateToIndex(latitudeAxis, latitudeAnalysis, 39.92, 'latitude');
     expect(lat.snapped).toBeCloseTo(39.9, 6);
-    const lon = mapEra5CoordinateToIndex(longitudeAxis, longitudeAnalysis, 32.85, 'longitude');
-    expect(lon.snapped).toBeCloseTo(32.9, 6);
+    expect(lat.halfStepTie).toBe(false);
+    const lon = mapEra5CoordinateToIndex(longitudeAxis, longitudeAnalysis, 32.83, 'longitude');
+    expect(lon.snapped).toBeCloseTo(32.8, 6);
+    expect(lon.halfStepTie).toBe(false);
   });
 
   it('THROWS outside the domain — no soft class on a migration (SPEC §4.1-3 / V5)', () => {
@@ -171,7 +175,7 @@ describe('selectEra5Cell — the A-1 declared land-cell fallback', () => {
     });
 
   it('uses the point cell and records NO shift when the cell is land', () => {
-    const selection = select(39.92, 32.85, () => false);
+    const selection = select(39.92, 32.83, () => false);
     expect(selection.fallbackUsed).toBe(false);
     expect(selection.fallbackDistanceKm).toBe(0);
     expect(selection.cellLatitude).toBeCloseTo(39.9, 6);
@@ -183,11 +187,11 @@ describe('selectEra5Cell — the A-1 declared land-cell fallback', () => {
   });
 
   it('falls back to the nearest land cell and RECORDS the flag, the cell and the km', () => {
-    const point = select(39.92, 32.85, () => false);
+    const point = select(39.92, 32.83, () => false);
     // Mask only the province's own cell; everything else is land.
     const selection = select(
       39.92,
-      32.85,
+      32.83,
       (latIndex, lonIndex) => latIndex === point.latIndex && lonIndex === point.lonIndex,
     );
     expect(selection.fallbackUsed).toBe(true);
@@ -199,27 +203,27 @@ describe('selectEra5Cell — the A-1 declared land-cell fallback', () => {
   });
 
   it('breaks ties DETERMINISTICALLY — same input, same manifest, every run', () => {
-    const point = select(39.92, 32.85, () => false);
+    const point = select(39.92, 32.83, () => false);
     const masked = (latIndex: number, lonIndex: number): boolean =>
       latIndex === point.latIndex && lonIndex === point.lonIndex;
-    const first = select(39.92, 32.85, masked);
-    const second = select(39.92, 32.85, masked);
+    const first = select(39.92, 32.83, masked);
+    const second = select(39.92, 32.83, masked);
     expect(second.latIndex).toBe(first.latIndex);
     expect(second.lonIndex).toBe(first.lonIndex);
     expect(second.fallbackDistanceKm).toBe(first.fallbackDistanceKm);
   });
 
   it('STOPS when the whole search window is sea — never widens the search to "find" data', () => {
-    expect(() => select(39.92, 32.85, () => true)).toThrow(/NO land cell was found/);
+    expect(() => select(39.92, 32.83, () => true)).toThrow(/NO land cell was found/);
   });
 
   it('STOPS when the nearest land cell is beyond the 25 km ceiling', () => {
-    const point = select(39.92, 32.85, () => false);
+    const point = select(39.92, 32.83, () => false);
     // Land only in the far corner of the window: ~3 cells away on both axes ≈ 40 km.
     const selection = (): ReturnType<typeof selectEra5Cell> =>
       select(
         39.92,
-        32.85,
+        32.83,
         (latIndex, lonIndex) =>
           !(latIndex === point.latIndex - 3 && lonIndex === point.lonIndex - 3),
       );

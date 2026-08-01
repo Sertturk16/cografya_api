@@ -15,6 +15,13 @@ const POINTS = SEED_PROVINCES.map((province) => ({
   longitude: province.longitude,
 }));
 
+/** The grid cell a given seed province resolves to — never an invented coordinate. */
+function cellKeyForProvince(plateCode: string): string {
+  const province = SEED_PROVINCES.find((entry) => entry.plateCode === plateCode);
+  if (province === undefined) throw new Error(`seed is missing province ${plateCode}`);
+  return cellKeyFor(province.latitude, province.longitude);
+}
+
 /** The five measured coastal provinces whose administrative point lands on sea. */
 function measuredMaskedCells(): Set<string> {
   const masked = new Set<string>();
@@ -72,7 +79,7 @@ describe('extractEra5Provinces', () => {
   });
 
   it('reports the mask as NOT time-invariant when a window cell flickers', () => {
-    const flickering = new Set([cellKeyFor(39.92, 32.85)]);
+    const flickering = new Set([cellKeyForProvince('06')]);
     const extraction = extractEra5Provinces(
       buildSyntheticDecodedFile({ monthCount: 4, flickeringCells: flickering }),
       POINTS,
@@ -89,14 +96,14 @@ describe('extractEra5Provinces', () => {
   });
 
   it('STOPS on an incomplete series — completeness is absolute (SPEC §5.3)', () => {
-    // A cell that is land in month 0 (so it is selected) and masked afterwards: the migration must
-    // stop, NOT publish 11 months and a null.
-    const ankara = cellKeyFor(39.92, 32.85);
+    // A cell that is land in month 0 (so it IS selected) and masked afterwards: the migration must
+    // stop, NOT publish 3 months and a null. The key is derived from the province's OWN seed
+    // coordinate, so it is guaranteed to be the cell that province actually resolves to.
     expect(() =>
       extractEra5Provinces(
         buildSyntheticDecodedFile({
           monthCount: 4,
-          flickeringCells: new Set([ankara]),
+          flickeringCells: new Set([cellKeyForProvince('06')]),
         }),
         POINTS.filter((point) => point.plateCode === '06'),
       ),

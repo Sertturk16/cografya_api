@@ -1,4 +1,4 @@
-import { analyseEra5Axis } from './era5-grid';
+import { analyseEra5Axis, mapEra5CoordinateToIndex } from './era5-grid';
 import type { Era5DecodedFile, Era5Month } from './era5-decode';
 import { ERA5_VARIABLES } from './era5-request';
 import { Era5ContractError } from './era5.errors';
@@ -292,7 +292,15 @@ export function buildSyntheticDecodedFile(options: SyntheticFileOptions = {}): E
   };
 }
 
-/** The grid indices the five measured fallback provinces' administrative points land on. */
+/**
+ * The grid cell a coordinate lands on, as a `maskedCells` key.
+ *
+ * It delegates to the PRODUCTION {@link mapEra5CoordinateToIndex} on purpose. An earlier version
+ * re-implemented the rounding with a bare `Math.round`, which silently disagreed with production
+ * on exact half-step ties — so a test that masked "this province's cell" was masking a DIFFERENT
+ * cell, and the assertion passed for the wrong reason. A test helper that re-derives the thing
+ * under test is a trap.
+ */
 export function cellKeyFor(
   latitude: number,
   longitude: number,
@@ -301,7 +309,7 @@ export function cellKeyFor(
 ): string {
   const latAnalysis = analyseEra5Axis(latitudeAxis, 'latitude');
   const lonAnalysis = analyseEra5Axis(longitudeAxis, 'longitude');
-  const latIndex = Math.round((latitude - latAnalysis.first) / latAnalysis.step);
-  const lonIndex = Math.round((longitude - lonAnalysis.first) / lonAnalysis.step);
-  return `${String(latIndex)},${String(lonIndex)}`;
+  const lat = mapEra5CoordinateToIndex(latitudeAxis, latAnalysis, latitude, 'latitude');
+  const lon = mapEra5CoordinateToIndex(longitudeAxis, lonAnalysis, longitude, 'longitude');
+  return `${String(lat.index)},${String(lon.index)}`;
 }
