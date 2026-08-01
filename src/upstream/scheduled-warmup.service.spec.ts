@@ -1,32 +1,43 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { FakeRedisClient } from '../../test/support/fake-redis-client';
-import { OperationDeadline } from '../upstream/operation-deadline';
-import { UpstreamMetrics } from '../upstream/upstream-metrics';
+import { OperationDeadline } from './operation-deadline';
+import { UpstreamMetrics } from './upstream-metrics';
 import {
-  MarineWarmupService,
-  WARMUP_BOOT_TIMEOUT_NAME,
-  WARMUP_INTERVAL_NAME,
-  WARMUP_LOCK_KEY,
-  type MarineWarmupTarget,
-} from './marine-warmup.service';
+  ScheduledWarmupService,
+  warmupBootTimeoutName,
+  warmupIntervalName,
+  warmupLockKey,
+  type ScheduledWarmupTarget,
+} from './scheduled-warmup.service';
+
+/** The names the marine leg has used since M2 — frozen, because production already runs them. */
+const WARMUP_LOCK_KEY = warmupLockKey('marine');
+const WARMUP_INTERVAL_NAME = warmupIntervalName('marine');
+const WARMUP_BOOT_TIMEOUT_NAME = warmupBootTimeoutName('marine');
 
 /**
- * M2 registers NO targets — the tour is a no-op by design. What is tested here is the machinery
+ * A tour with NO targets registered is a no-op by design. What is tested here is the machinery
  * that has to be right before any target exists: the lock, the deadline, the overlap guard and
- * the timer lifecycle. A fake target stands in for the M3/M4 legs.
+ * the timer lifecycle. A fake target stands in for a real provider leg.
  */
-describe('MarineWarmupService', () => {
+describe('ScheduledWarmupService', () => {
   let registry: SchedulerRegistry;
   let metrics: UpstreamMetrics;
   let nowMs: number;
 
   function build(
-    overrides: Partial<{ enabled: boolean; deadlineMs: number; intervalSeconds: number }> = {},
+    overrides: Partial<{
+      name: string;
+      enabled: boolean;
+      deadlineMs: number;
+      intervalSeconds: number;
+    }> = {},
     redis: FakeRedisClient | null = null,
     token = 'token-a',
-  ): MarineWarmupService {
-    return new MarineWarmupService(registry, metrics, redis, {
+  ): ScheduledWarmupService {
+    return new ScheduledWarmupService(registry, metrics, redis, {
+      name: overrides.name ?? 'marine',
       enabled: overrides.enabled ?? true,
       intervalSeconds: overrides.intervalSeconds ?? 900,
       deadlineMs: overrides.deadlineMs ?? 120_000,
@@ -38,7 +49,7 @@ describe('MarineWarmupService', () => {
   function target(
     label: string,
     refresh?: (deadline: OperationDeadline) => Promise<void>,
-  ): MarineWarmupTarget {
+  ): ScheduledWarmupTarget {
     return { label, refresh: refresh ?? ((): Promise<void> => Promise.resolve()) };
   }
 
@@ -226,11 +237,95 @@ describe('MarineWarmupService', () => {
         reason: 'redis_unavailable',
       });
       expect(visited).toEqual([]);
-      expect(metrics.get('redis.degraded', 'warmup')).toBe(1);
+      // Labelled with the leg's name, not a shared 'warmup' — with two legs in one process a
+      // single label cannot answer WHICH leg lost Redis (the A0 move's one declared assertion
+      // change).
+      expect(metrics.get('redis.degraded', 'marine')).toBe(1);
     });
 
     it('needs no lock in single-instance mode', async () => {
       await expect(build({}, null).runTour('manual')).resolves.toMatchObject({ ran: true });
+    });
+  });
+
+  describe('the names derived from `name`', () => {
+    it('reproduces the marine leg’s pre-move names byte for byte', () => {
+      // Not a tautology: these three strings are a LIVE contract with a running deployment. A
+      // one-character drift in the lock key lets two tours run at once against the provider with
+      // nothing in the log to show for it, and a drifted timer name orphans the shutdown teardown.
+      expect(warmupLockKey('marine')).toBe('marine:warmup:lock');
+      expect(warmupIntervalName('marine')).toBe('marine-warmup-interval');
+      expect(warmupBootTimeoutName('marine')).toBe('marine-warmup-boot');
+    });
+
+    it('registers the marine timers under exactly those names', () => {
+      const service = build();
+      service.onApplicationBootstrap();
+
+      expect(registry.doesExist('interval', 'marine-warmup-interval')).toBe(true);
+      expect(registry.doesExist('timeout', 'marine-warmup-boot')).toBe(true);
+
+      service.onModuleDestroy();
+    });
+
+    it('takes its lock under exactly that key', async () => {
+      // Asserted from the OUTSIDE: a foreign holder of the literal key must make the tour skip.
+      const redis = new FakeRedisClient(nowMs);
+      await redis.setIfAbsent('marine:warmup:lock', 'someone-else', 120_000);
+
+      await expect(build({}, redis).runTour('scheduled')).resolves.toEqual({
+        ran: false,
+        reason: 'lock_held',
+      });
+    });
+  });
+
+  describe('two legs in one process', () => {
+    it('keeps separate timers, and one leg’s shutdown leaves the other’s alone', () => {
+      const marine = build({ name: 'marine' });
+      const airQuality = build({ name: 'air-quality' });
+
+      marine.onApplicationBootstrap();
+      airQuality.onApplicationBootstrap();
+
+      expect(registry.doesExist('interval', 'marine-warmup-interval')).toBe(true);
+      expect(registry.doesExist('interval', 'air-quality-warmup-interval')).toBe(true);
+
+      marine.onModuleDestroy();
+
+      expect(registry.doesExist('interval', 'marine-warmup-interval')).toBe(false);
+      expect(registry.doesExist('timeout', 'marine-warmup-boot')).toBe(false);
+      expect(registry.doesExist('interval', 'air-quality-warmup-interval')).toBe(true);
+      expect(registry.doesExist('timeout', 'air-quality-warmup-boot')).toBe(true);
+
+      airQuality.onModuleDestroy();
+    });
+
+    it('takes separate locks — one leg’s held lock never skips the other’s tour', async () => {
+      // The reason the lock key is derived rather than shared: a shared key would make each leg
+      // silently swallow the other's tours, at exactly the cadence nobody is watching.
+      const redis = new FakeRedisClient(nowMs);
+      await redis.setIfAbsent('marine:warmup:lock', 'the-marine-instance', 120_000);
+
+      await expect(
+        build({ name: 'air-quality' }, redis, 'token-air').runTour('scheduled'),
+      ).resolves.toMatchObject({ ran: true });
+
+      // …and the air-quality tour released only its OWN lock.
+      await expect(redis.get('marine:warmup:lock')).resolves.toBe('the-marine-instance');
+      expect(redis.keys()).not.toContain('air-quality:warmup:lock');
+    });
+
+    it('counts a Redis outage against the leg that suffered it', async () => {
+      const redis = new FakeRedisClient(nowMs);
+      redis.failing = true;
+
+      await expect(
+        build({ name: 'air-quality' }, redis).runTour('scheduled'),
+      ).resolves.toMatchObject({ reason: 'redis_unavailable' });
+
+      expect(metrics.get('redis.degraded', 'air-quality')).toBe(1);
+      expect(metrics.get('redis.degraded', 'marine')).toBe(0);
     });
   });
 });
