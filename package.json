@@ -34,6 +34,7 @@
     "db:import:climate": "pnpm build && node dist/database/climate/climate.cli.js",
     "db:import:marine-points": "pnpm build && node dist/database/marine/marine-points.cli.js",
     "db:import:marine-ecmwf": "pnpm build && node dist/database/marine/marine-ecmwf.cli.js",
+    "db:import:air-quality": "pnpm build && node dist/database/air-quality/air-quality.cli.js",
     "openapi:generate": "pnpm build && node dist/openapi/generate-openapi.js",
     "openapi:check": "pnpm run openapi:generate && git diff --exit-code -- openapi/openapi.json",
     "prepare": "husky"

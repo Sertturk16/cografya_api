@@ -4,6 +4,7 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AirQualityModule } from './air-quality/air-quality.module';
 import { CacheControlInterceptor } from './common/http-cache/cache-control.interceptor';
 import { TrustedClientThrottlerGuard } from './common/throttler/trusted-client-throttler.guard';
 import { buildDataSourceOptions } from './database/data-source-options';
@@ -59,6 +60,7 @@ export const THROTTLE_LIMIT = 120;
     ProvinceModule,
     CountryModule,
     MarineModule,
+    AirQualityModule,
   ],
   providers: [
     // Rate limit every route by default; opt out per-route with @SkipThrottle,
