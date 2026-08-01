@@ -85,6 +85,40 @@ export interface MarineUpstreamConfig {
   readonly warmupIntervalSeconds: number;
   /** `MARINE_ENABLED && MARINE_WARMUP_ENABLED` — both must be on. */
   readonly warmupEnabled: boolean;
+  /** The ECMWF ingest leg (M3b). One coherent block; the env schema cross-checks it at boot. */
+  readonly ecmwf: EcmwfIngestConfig;
+}
+
+/**
+ * Everything the ECMWF ingest target and read path need (yeni-M3 SPEC §12).
+ *
+ * Lives inside {@link MarineUpstreamConfig} rather than as a second injection token: the caps
+ * only mean anything relative to the warmup deadline they slice, and the env schema validates
+ * them TOGETHER (`ECMWF_TOUR_BUDGET_MS < MARINE_WARMUP_DEADLINE_MS`, …). Splitting the object
+ * would let the two halves be resolved from different sources and drift.
+ */
+export interface EcmwfIngestConfig {
+  /** `ECMWF_ENABLED` — the leg's own kill switch, under the master `MARINE_ENABLED`. */
+  readonly enabled: boolean;
+  readonly baseUrl: string;
+  /** S3 mirror, or null when no failover is configured. */
+  readonly failoverBaseUrl: string | null;
+  /** Horizon, hours — 120 by owner ruling O1; capped at 120 by the env schema (contract guard). */
+  readonly forecastHours: number;
+  /** Per-download timeout — a 1.8 MB Range GET does not fit the 3 s marine default. */
+  readonly singleCallTimeoutMs: number;
+  /** The slice of one warmup tour ECMWF may consume. */
+  readonly tourBudgetMs: number;
+  readonly maxStepsPerTour: number;
+  /** LOUD-stop byte ceilings (the numeric "no unbounded external call"). */
+  readonly tourMaxBytes: number;
+  readonly cycleMaxBytes: number;
+  /** Pre-HTTP cap on ONE planned byte range — the `.index` cannot choose our heap ceiling. */
+  readonly maxRangeBytes: number;
+  /** The THIRD staleness ceiling: max age of the model cycle a published value may come from. */
+  readonly cycleMaxAgeSeconds: number;
+  /** Cache-age ceiling of the ECMWF read path (replaces MARINE_STALE_MAX_SECONDS there). */
+  readonly staleMaxSeconds: number;
 }
 
 /** Injection token for {@link MarineUpstreamConfig}. */
@@ -103,6 +137,20 @@ export function buildMarineUpstreamConfig(config: ConfigService<Env, true>): Mar
     warmupEnabled:
       config.getOrThrow('MARINE_ENABLED', { infer: true }) &&
       config.getOrThrow('MARINE_WARMUP_ENABLED', { infer: true }),
+    ecmwf: {
+      enabled: config.getOrThrow('ECMWF_ENABLED', { infer: true }),
+      baseUrl: config.getOrThrow('ECMWF_BASE_URL', { infer: true }),
+      failoverBaseUrl: config.get('ECMWF_FAILOVER_BASE_URL', { infer: true }) ?? null,
+      forecastHours: config.getOrThrow('ECMWF_FORECAST_HOURS', { infer: true }),
+      singleCallTimeoutMs: config.getOrThrow('ECMWF_SINGLE_CALL_TIMEOUT_MS', { infer: true }),
+      tourBudgetMs: config.getOrThrow('ECMWF_TOUR_BUDGET_MS', { infer: true }),
+      maxStepsPerTour: config.getOrThrow('ECMWF_MAX_STEPS_PER_TOUR', { infer: true }),
+      tourMaxBytes: config.getOrThrow('ECMWF_TOUR_MAX_BYTES', { infer: true }),
+      cycleMaxBytes: config.getOrThrow('ECMWF_CYCLE_MAX_BYTES', { infer: true }),
+      maxRangeBytes: config.getOrThrow('ECMWF_MAX_RANGE_BYTES', { infer: true }),
+      cycleMaxAgeSeconds: config.getOrThrow('ECMWF_CYCLE_MAX_AGE_SECONDS', { infer: true }),
+      staleMaxSeconds: config.getOrThrow('ECMWF_STALE_MAX_SECONDS', { infer: true }),
+    },
   };
 }
 

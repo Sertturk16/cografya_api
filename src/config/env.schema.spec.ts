@@ -23,7 +23,24 @@ describe('validateEnv — defaults', () => {
     expect(env.MARINE_UPSTREAM_DEADLINE_MS).toBe(6_000);
     expect(env.MARINE_SINGLE_CALL_TIMEOUT_MS).toBe(3_000);
     expect(env.MARINE_WARMUP_INTERVAL_SECONDS).toBe(900);
-    expect(env.MARINE_WARMUP_DEADLINE_MS).toBe(120_000);
+    // 300 s since M3b (SPEC §9.2): the tour now hosts the ECMWF ingest slice.
+    expect(env.MARINE_WARMUP_DEADLINE_MS).toBe(300_000);
+  });
+
+  it('carries the ECMWF ingest block with its measured defaults (M3b, SPEC §12)', () => {
+    const env = validateEnv({ ...BASE });
+
+    expect(env.ECMWF_ENABLED).toBe(true);
+    expect(env.ECMWF_BASE_URL).toBe('https://data.ecmwf.int/forecasts');
+    expect(env.ECMWF_FAILOVER_BASE_URL).toBeUndefined();
+    expect(env.ECMWF_FORECAST_HOURS).toBe(120);
+    expect(env.ECMWF_SINGLE_CALL_TIMEOUT_MS).toBe(20_000);
+    expect(env.ECMWF_TOUR_BUDGET_MS).toBe(180_000);
+    expect(env.ECMWF_MAX_STEPS_PER_TOUR).toBe(12);
+    expect(env.ECMWF_TOUR_MAX_BYTES).toBe(67_108_864);
+    expect(env.ECMWF_CYCLE_MAX_BYTES).toBe(335_544_320);
+    expect(env.ECMWF_CYCLE_MAX_AGE_SECONDS).toBe(86_400);
+    expect(env.ECMWF_STALE_MAX_SECONDS).toBe(43_200);
   });
 
   it('carries the decomposed TTLs, not one shared number', () => {
@@ -236,5 +253,56 @@ describe('validateEnv — configurations that cannot mean what they say', () => 
 
   it('still refuses a missing DATABASE_URL — the original fail-fast guarantee', () => {
     expect(() => validateEnv({})).toThrow(/Invalid environment configuration/);
+  });
+
+  it('refuses an ECMWF single-download timeout above the whole tour slice', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        ECMWF_SINGLE_CALL_TIMEOUT_MS: '200000',
+        ECMWF_TOUR_BUDGET_MS: '180000',
+      }),
+    ).toThrow(/must not exceed ECMWF_TOUR_BUDGET_MS/);
+  });
+
+  it('refuses an ECMWF tour slice that swallows the whole warmup deadline — CMEMS would starve', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        ECMWF_TOUR_BUDGET_MS: '300000',
+        MARINE_WARMUP_DEADLINE_MS: '300000',
+      }),
+    ).toThrow(/smaller than MARINE_WARMUP_DEADLINE_MS/);
+  });
+
+  it('refuses a per-tour byte cap above the per-cycle one', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        ECMWF_TOUR_MAX_BYTES: '400000000',
+        ECMWF_CYCLE_MAX_BYTES: '335544320',
+      }),
+    ).toThrow(/must not exceed ECMWF_CYCLE_MAX_BYTES/);
+  });
+
+  it('refuses a single-range cap above the per-tour one — the SEC-76-1 guard must stay inside the ceilings', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        ECMWF_MAX_RANGE_BYTES: '100000000',
+        ECMWF_TOUR_MAX_BYTES: '67108864',
+      }),
+    ).toThrow(/must not exceed ECMWF_TOUR_MAX_BYTES/);
+  });
+
+  it('refuses a horizon past 120 h — that is a frozen-contract change, not an env flip', () => {
+    // Past +144 h the provider's step widens to 6 h and `MarineSeriesDto.stepHours = 3` becomes a
+    // lie; 120 is the owner-ruled horizon (O1) and the schema is what keeps an operator from
+    // breaking the contract with an export line.
+    expect(() => validateEnv({ ...BASE, ECMWF_FORECAST_HOURS: '168' })).toThrow(
+      /frozen-contract change/,
+    );
+    expect(() => validateEnv({ ...BASE, ECMWF_FORECAST_HOURS: '100' })).toThrow(/multiple of/);
+    expect(validateEnv({ ...BASE, ECMWF_FORECAST_HOURS: '48' }).ECMWF_FORECAST_HOURS).toBe(48);
   });
 });

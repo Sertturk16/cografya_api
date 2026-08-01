@@ -48,7 +48,45 @@ export type UpstreamMetricName =
   /** A half-open trial was released without an outcome — an exception crossed a boundary. */
   | 'breaker.trial_abandoned'
   /** Redis was unreachable and the call degraded to the in-process path. */
-  | 'redis.degraded';
+  | 'redis.degraded'
+  // ── Scheduled-ingest events (M3b). Provider-neutral names: the provider dimension is the
+  // `providerId` argument, exactly like every counter above. ──
+  /**
+   * A decode child died without a reply for a cause the DECODER can have caused — the contained
+   * panic class (exit 134/SIGABRT, fatal native signals, the hung-child timeout). This counter
+   * is the DEC 2026-07-31d ecCodes-migration evidence stream; IPC failures and external
+   * termination are counted separately below so they cannot contaminate it (review #76 SFH-5).
+   */
+  | 'ingest.decode_crash'
+  /**
+   * A decode child ended without the decoder plausibly being the cause: fork/IPC/send failures,
+   * protocol exits 0/2/3, and the JS-level exit 1 (uncaught exception — e.g. the gribberish
+   * import failing to load its native binary; round-2 R2-SFH-B).
+   */
+  | 'ingest.decode_ipc_failure'
+  /** A decode child was killed from outside (SIGTERM/SIGINT/SIGHUP/external SIGKILL). */
+  | 'ingest.decode_interrupted'
+  /** A payload was refused by a fail-closed contract guard (packing, grid, attribution…). */
+  | 'ingest.contract_refusal'
+  /** The model-cycle age ceiling suppressed publication (the THIRD ceiling, SPEC §9.4). */
+  | 'ingest.cycle_age_ceiling'
+  /** The candidate-cycle walk found nothing to ingest from — no cycle answered (SFH-1). */
+  | 'ingest.walk_exhausted'
+  /**
+   * Bytes downloaded by a step that recorded nothing (incremented BY the byte count). The cycle
+   * ledger counts only ingested evidence, so without this a step failing every tour would spend
+   * megabytes invisible to every ceiling (review #76 SFH-2).
+   */
+  | 'ingest.bytes_abandoned'
+  /**
+   * A stored series row was refused by the read-path shape guard and SKIPPED — the remaining
+   * readable cycles still serve the point, and the read degrades to `schema_error` only when no
+   * readable row is left (review #76 round-3 R3-CR-1 + R3-SFH-7). jsonb is schemaless: this
+   * fires only when a row does not hold the written shape.
+   */
+  | 'ingest.corrupt_row_skipped'
+  /** An unexpected exception escaped the ingest's own handling — OUR bug, counted loudly. */
+  | 'ingest.bug';
 
 /**
  * Counters + structured logs for the upstream layer.

@@ -72,21 +72,32 @@ export class MarineController {
     return this.marineService.findAllPoints();
   }
 
+  /**
+   * Since M3b the catalogue carries TIME-DERIVED fields (horizonEndUtc & co. move four times a
+   * day and null out at the 24 h cycle-age ceiling), so the M1-era 6 h `s-maxage` + 24 h
+   * `stale-while-revalidate` would let a CDN keep publishing pre-stall values long after the
+   * ceiling suppressed them at the origin (review #76 CR-5). 30 min shared + 1 h SWR bounds the
+   * CDN's worst case to 1.5 h — a rounding error against the 24 h ceiling — while the origin
+   * cost stays a single-row Postgres read plus a constant.
+   */
   @Get('layers')
-  @CacheControl('public, max-age=1800, s-maxage=21600, stale-while-revalidate=86400')
+  @CacheControl('public, max-age=300, s-maxage=1800, stale-while-revalidate=3600')
   @ApiOperation({
     summary: 'Layer catalogue — units, direction conventions, calm thresholds, colour ramps.',
     description:
       'The machine-readable authority for how a value may be rendered. In particular ' +
       'directionConvention states, per layer, whether a degree means the direction the flow ' +
-      'comes FROM or heads TOWARDS — the providers use both, inside the same API. NOTE: ' +
-      'publishing this field is only the first of the two preconditions for drawing a ' +
-      'direction arrow; the second (M3’s wind-convention regression test) does not exist yet. ' +
-      'horizonEndUtc, updateFrequency and catalogueUpdatedAtUtc are null until M3 resolves ' +
-      'them from the provider catalogue. M1 makes no provider call.',
+      'comes FROM or heads TOWARDS — the providers use both, inside the same API. Both ' +
+      'arrow-unlock preconditions are met for the wind layers (the field is published and the ' +
+      'wind-convention regression suite runs on CI). For the two ECMWF-PRIMARY layers ' +
+      '(wind_speed_10m, wind_direction_10m), horizonEndUtc / updateFrequency / ' +
+      'catalogueUpdatedAtUtc are resolved from the newest ingested model cycle — a local ' +
+      'database read; this endpoint NEVER calls a provider. They are null while no cycle has ' +
+      'been ingested yet or the newest one breached the 24 h cycle-age ceiling. The ' +
+      'CMEMS-primary layers keep null until M4 resolves the CMEMS catalogue.',
   })
   @ApiOkResponse({ type: MarineLayerDto, isArray: true })
-  findAllLayers(): MarineLayerDto[] {
+  findAllLayers(): Promise<MarineLayerDto[]> {
     return this.marineService.findAllLayers();
   }
 }

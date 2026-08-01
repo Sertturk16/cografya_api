@@ -51,8 +51,27 @@ interface UpstreamRequestOptionsBase {
    * silently guaranteeing nothing (Atlas ruling, review #73 I5).
    */
   quotaWeight?: number;
-  /** Content type the body must declare before it is parsed. Defaults to `application/json`. */
-  expectedContentType?: string;
+  /**
+   * Content type(s) the body must declare before it is parsed. Defaults to `application/json`.
+   *
+   * A LIST is accepted because mirrors of the same provider demonstrably disagree: ECMWF's
+   * primary host serves `.index` as `application/json` and its GRIB bodies as
+   * `application/grib`, while the S3 failover serves both as `application/octet-stream`
+   * (measured, olcumler.md §M5). Pinning one string would break the failover on the header
+   * alone while the bytes are identical.
+   */
+  expectedContentType?: string | readonly string[];
+  /**
+   * Treat HTTP 404 and 410 as `no_data` instead of `client_error`.
+   *
+   * OPT-IN, for callers probing a resource whose absence is an expected, legitimate state —
+   * the first real case being an ECMWF cycle that is simply not published yet (the ingest
+   * walks candidate cycles newest-first and falls back on 404). `no_data` logs at debug and
+   * records a breaker SUCCESS, because the provider answered exactly as designed. Every OTHER
+   * non-200 — and 404/410 on callers that did NOT opt in — keeps its loud path: a missing
+   * resource we did not expect to be missing is still our bug or the provider's drift.
+   */
+  missingMeansNoData?: boolean;
   headers?: Readonly<Record<string, string>>;
   maxResponseBytes?: number;
 }
@@ -277,6 +296,10 @@ export class UpstreamHttpClient {
   ): Promise<UpstreamOutcome<T>> {
     const { url, providerId, label, deadline } = options;
     const expectedContentType = options.expectedContentType ?? 'application/json';
+    const expectedContentTypeLabel =
+      typeof expectedContentType === 'string'
+        ? expectedContentType
+        : expectedContentType.join(', ');
     const safeUrl = redactUrl(url);
 
     this.metrics.increment('upstream.request', providerId);
@@ -290,7 +313,7 @@ export class UpstreamHttpClient {
       response = await this.fetchImpl(url, {
         headers: {
           'User-Agent': this.options.userAgent,
-          Accept: expectedContentType,
+          Accept: expectedContentTypeLabel,
           ...options.headers,
         },
         signal: deadline.signalFor(this.options.singleCallTimeoutMs),
@@ -330,6 +353,22 @@ export class UpstreamHttpClient {
       };
     }
     if (statusClass === 'client_error') {
+      // The one caller-declared exception to "4xx is loud": a 404/410 on a resource whose
+      // absence is an expected state (an unpublished ECMWF cycle). `no_data` is the honest
+      // vocabulary for it — the provider answered correctly, there is simply nothing there —
+      // and it inherits no_data's quiet log and breaker-success semantics. Scoped to exactly
+      // these two statuses so a 400/403/422 can never ride along.
+      if (
+        options.missingMeansNoData === true &&
+        (response.status === 404 || response.status === 410)
+      ) {
+        return {
+          kind: 'no_data',
+          reason:
+            `${label}: HTTP ${String(response.status)} from ${safeUrl} — the resource does not ` +
+            `exist (an expected state for this caller: missingMeansNoData)`,
+        };
+      }
       return {
         kind: 'client_error',
         reason:
@@ -360,7 +399,7 @@ export class UpstreamHttpClient {
         reason:
           `${label}: HTTP 200 but content-type is ` +
           `"${response.headers.get('content-type') ?? '(absent)'}", expected ` +
-          `"${expectedContentType}" (${safeUrl})`,
+          `"${expectedContentTypeLabel}" (${safeUrl})`,
       };
     }
 

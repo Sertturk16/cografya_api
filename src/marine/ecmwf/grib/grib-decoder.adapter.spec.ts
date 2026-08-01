@@ -5,7 +5,7 @@ import { EcmwfContractError } from '../ecmwf.errors';
 import { mapPointToGrid } from '../ecmwf-grid';
 import type { EcmwfRangeMember } from '../ecmwf-index';
 import { deriveWindDirection, deriveWindSpeed } from '../ecmwf-wind';
-import { decodeGribRange, readCell } from './grib-decoder.adapter';
+import { decodeGribRange, decodeGribRangeCells, readCell } from './grib-decoder.adapter';
 import { readMessageProfile, readSectionMap, scanGribMessages } from './grib2-envelope';
 
 /**
@@ -505,5 +505,59 @@ describe('decodeGribRange — fail-closed', () => {
         forecastHours: 75,
       }),
     ).toThrow(/\+75 h was requested/);
+  });
+});
+
+describe('decodeGribRangeCells — the ingest entry point, one message in memory at a time', () => {
+  const indices = REFERENCE.points.map(
+    (point) => mapPointToGrid(point.latitude, point.longitude).index,
+  );
+
+  it('reduces each field to the requested cells, byte-identical to the full decode', () => {
+    const cells = decodeGribRangeCells(
+      readFixture(WAVE_FILE),
+      WAVE_MEMBERS,
+      CORPUS_ATTRIBUTION,
+      indices,
+    );
+
+    expect(cells.map((field) => field.param)).toEqual(['swh', 'mwd']);
+    for (const field of cells) {
+      expect(field.cells.length).toBe(indices.length);
+      expect(field.dataRepresentationTemplate).toBe(42);
+      expect(field.referenceTimeUtcMs).toBe(CORPUS_ATTRIBUTION.referenceTimeUtc.getTime());
+      expect(field.validTimeUtcMs).toBe(
+        CORPUS_ATTRIBUTION.referenceTimeUtc.getTime() +
+          CORPUS_ATTRIBUTION.forecastHours * 3_600_000,
+      );
+    }
+
+    // Same cells as the full-field path — the reduction must not move a single value.
+    const full = decodeGribRange(readFixture(WAVE_FILE), WAVE_MEMBERS, CORPUS_ATTRIBUTION);
+    cells.forEach((field, fieldIndex) => {
+      const reference = full[fieldIndex];
+      expect(reference).toBeDefined();
+      if (reference === undefined) return;
+      indices.forEach((gridIndex, pointIndex) => {
+        expect(field.cells[pointIndex]).toBe(readCell(reference, gridIndex));
+      });
+    });
+  });
+
+  it('runs the SAME fail-closed gates as the full decode — wrong cycle is refused', () => {
+    expect(() =>
+      decodeGribRangeCells(
+        readFixture(WAVE_FILE),
+        WAVE_MEMBERS,
+        { referenceTimeUtc: new Date('2026-07-30T00:00:00.000Z'), forecastHours: 72 },
+        indices,
+      ),
+    ).toThrow(EcmwfContractError);
+  });
+
+  it('refuses an out-of-grid cell index instead of returning undefined', () => {
+    expect(() =>
+      decodeGribRangeCells(readFixture(WIND_FILE), WIND_MEMBERS, CORPUS_ATTRIBUTION, [10_000_000]),
+    ).toThrow(EcmwfContractError);
   });
 });

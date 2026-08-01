@@ -184,6 +184,7 @@ describe('Country (e2e)', () => {
       'AddCountrySovereigntyNote1784188800000',
       'AddProvinceClimateNormals1784620800000',
       'InitMarinePoints1785369600000',
+      'InitMarineEcmwfStore1785686400000',
     ]);
   });
 

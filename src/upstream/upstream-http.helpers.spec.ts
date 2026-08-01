@@ -96,6 +96,17 @@ describe('hasExpectedContentType', () => {
     expect(hasExpectedContentType('text/xml;charset=UTF-8', 'application/json')).toBe(false);
     expect(hasExpectedContentType(null, 'application/json')).toBe(false);
   });
+
+  it('accepts a LIST — any entry may match, none matching refuses (the measured mirror variance)', () => {
+    // The same ECMWF `.index` is `application/json` on the primary host and
+    // `application/octet-stream` on the S3 mirror (olcumler.md §M5).
+    const accepted = ['application/json', 'application/octet-stream'] as const;
+    expect(hasExpectedContentType('application/json', accepted)).toBe(true);
+    expect(hasExpectedContentType('application/octet-stream', accepted)).toBe(true);
+    expect(hasExpectedContentType('text/html', accepted)).toBe(false);
+    expect(hasExpectedContentType(null, accepted)).toBe(false);
+    expect(hasExpectedContentType('application/json', [])).toBe(false);
+  });
 });
 
 describe('readBodyCapped', () => {

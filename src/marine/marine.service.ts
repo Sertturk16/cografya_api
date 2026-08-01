@@ -1,25 +1,44 @@
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MarinePointListItemDto } from './dto/marine-point-list-item.dto';
 import { MarineLayerDto } from './dto/marine-layer.dto';
+import { isCycleWithinMaxAge } from './ecmwf/ecmwf-cycle';
+import { ECMWF_INGEST_STORE, type EcmwfIngestStorePort } from './ecmwf/ecmwf-ingest.store';
+import { selectPublishableCycle, selectPublishedRun } from './ecmwf/ecmwf-series-compile';
+import { ECMWF_RETAINED_CYCLES, ECMWF_UPDATE_FREQUENCY } from './ecmwf/ecmwf.constants';
 import { MarinePoint } from './entities/marine-point.entity';
 import { MARINE_LAYER_CATALOGUE } from './marine-layer-catalogue';
+import { MARINE_UPSTREAM_CONFIG, type MarineUpstreamConfig } from './marine-upstream.config';
+import { MarineSource } from './marine.types';
 
 const logger = new Logger('MarinePoints');
 
+/** The three per-provider catalogue fields M3b resolves for the ECMWF-primary layers. */
+interface EcmwfCatalogueFields {
+  readonly horizonEndUtc: string;
+  readonly updateFrequency: string;
+  readonly catalogueUpdatedAtUtc: string;
+}
+
 /**
- * Read-only marine service for M1.
+ * Read-only marine service.
  *
- * Makes NO provider call — by design, not by omission. The provider legs land in M2–M4; until
- * then these two endpoints are a Postgres read and a constant, which is what lets the web repo
- * start against a real contract with zero upstream risk.
+ * M1: the reference-point read and the static layer catalogue. M3b: the two ECMWF-PRIMARY
+ * layers (wind speed/direction) carry live catalogue fields resolved from the newest ingested
+ * cycle — a Postgres read, never a provider call. The CMEMS-primary layers keep their nulls
+ * until M4 resolves the CMEMS/STAC side; filling a CMEMS layer's catalogue line from its
+ * FALLBACK provider would attribute one provider's horizon to another's product.
  */
 @Injectable()
 export class MarineService {
   constructor(
     @InjectRepository(MarinePoint)
     private readonly marinePointRepository: Repository<MarinePoint>,
+    @Inject(ECMWF_INGEST_STORE)
+    private readonly ecmwfStore: EcmwfIngestStorePort,
+    @Inject(MARINE_UPSTREAM_CONFIG)
+    private readonly config: MarineUpstreamConfig,
   ) {}
 
   /**
@@ -54,17 +73,67 @@ export class MarineService {
   }
 
   /**
-   * The layer catalogue. A constant in M1; three provider-catalogue fields stay null until M3
-   * resolves them (see `marine-layer-catalogue.ts`).
+   * The layer catalogue: the static half from the module constant, plus — for the layers whose
+   * PRIMARY source is ECMWF — the catalogue fields of the newest ingested cycle.
+   *
+   * ## Cold behaviour (COLD-BEHAVIOR table, binding)
+   * No ingested cycle, or a cycle over the 24 h age ceiling → the three fields stay `null`,
+   * the response stays 200, and NO upstream call happens on any branch — this method reads
+   * Postgres and a constant, nothing else. The nulls are the contract's own honest "provider
+   * catalogue not resolved" state, unchanged in shape since M1.
    *
    * Returned as a copy so a caller cannot mutate the module-level constant — the array is
    * shared by every request for the process lifetime.
    */
-  findAllLayers(): MarineLayerDto[] {
+  async findAllLayers(): Promise<MarineLayerDto[]> {
+    const ecmwfFields = await this.resolveEcmwfCatalogueFields();
+
     return MARINE_LAYER_CATALOGUE.map((layer) => ({
       ...layer,
       colorStops: layer.colorStops.map((stop) => ({ ...stop })),
+      ...(layer.primarySource === MarineSource.Ecmwf && ecmwfFields !== null ? ecmwfFields : {}),
     }));
+  }
+
+  /**
+   * The publishable cycle's catalogue line, or `null` when there is none — never a guess.
+   *
+   * WHICH cycle and WHICH steps: the exact same two policies the series read path applies —
+   * `selectPublishableCycle` (longest published run wins, newest breaks ties; review #76 CR-1)
+   * over `selectPublishedRun` (the contiguous run nearest to now; review #76 CR-2). Deriving
+   * both published `horizonEndUtc` fields from the same pure helpers is what keeps `/layers`
+   * and `MarineSeriesDto` from ever disagreeing about where the horizon ends (review #76
+   * SFH-4/CR-6).
+   *
+   * `catalogueUpdatedAtUtc` is the cycle's model-run time: ECMWF Open Data has no catalogue
+   * document to date-stamp, and the model run IS the moment the provider last updated the
+   * product these layers serve.
+   */
+  private async resolveEcmwfCatalogueFields(): Promise<EcmwfCatalogueFields | null> {
+    const cycles = await this.ecmwfStore.recentCycles(ECMWF_RETAINED_CYCLES);
+    const now = new Date();
+    const usable = cycles.filter((cycle) =>
+      // Same ceiling as the value read path (SPEC §9.4): a horizon advertised from a stale
+      // cycle would promise data the series reader refuses to publish.
+      isCycleWithinMaxAge(cycle.cycleUtc, now, this.config.ecmwf.cycleMaxAgeSeconds),
+    );
+
+    const winnerIndex = selectPublishableCycle(
+      usable.map((cycle) => ({ cycleUtc: cycle.cycleUtc, steps: cycle.stepsDone })),
+      now,
+    );
+    const cycle = winnerIndex === null ? undefined : usable[winnerIndex];
+    if (cycle === undefined) return null;
+
+    const run = selectPublishedRun(cycle.stepsDone, cycle.cycleUtc, now);
+    const lastStep = cycle.stepsDone[run.endIndexExclusive - 1];
+    if (lastStep === undefined) return null;
+
+    return {
+      horizonEndUtc: new Date(cycle.cycleUtc.getTime() + lastStep * 3_600_000).toISOString(),
+      updateFrequency: ECMWF_UPDATE_FREQUENCY,
+      catalogueUpdatedAtUtc: cycle.cycleUtc.toISOString(),
+    };
   }
 
   private toListItem(point: MarinePoint): MarinePointListItemDto {

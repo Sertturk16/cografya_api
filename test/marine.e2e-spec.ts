@@ -48,10 +48,15 @@ const TEST_INTERNAL_TOKEN = 'e2e-trusted-client-token-0123456789-abcdefgh';
 /** Test-only opt-out from the trusted-client middleware below — see its comment. */
 const ANONYMOUS_MARKER_HEADER = 'x-e2e-anonymous';
 
-/** The exact Cache-Control strings SPEC-ADDENDUM §7.8 locks for these two endpoints. */
+/**
+ * The exact Cache-Control strings pinned for these two endpoints. `points` is
+ * SPEC-ADDENDUM §7.8's original value; `layers` was tightened in M3b (review #76 CR-5):
+ * the catalogue now carries time-derived fields that null out at the 24 h cycle-age
+ * ceiling, and §7.8's 6 h s-maxage + 24 h SWR would let a CDN outlive that ceiling.
+ */
 const EXPECTED_CACHE_CONTROL = {
   points: 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800',
-  layers: 'public, max-age=1800, s-maxage=21600, stale-while-revalidate=86400',
+  layers: 'public, max-age=300, s-maxage=1800, stale-while-revalidate=3600',
 } as const;
 
 // NOTE: AppModule is required inside beforeAll — NOT imported at the top — because
@@ -665,7 +670,12 @@ describe('Marine (e2e)', () => {
       // Returning `200 []` would let a broken deployment publish an empty /deniz page and let
       // Google index it. The success-only cache interceptor also means the emptiness is never
       // cached.
-      await dataSource.getRepository(MarinePoint).clear();
+      //
+      // `delete({})`, NOT `clear()`: clear() issues TRUNCATE, which Postgres refuses on a table
+      // referenced by a foreign key (M3b's marine_ecmwf_point_series). DELETE walks the rows
+      // and lets the FK's ON DELETE CASCADE do its job — the exact production semantics of a
+      // point being retired.
+      await dataSource.createQueryBuilder().delete().from(MarinePoint).execute();
 
       await request(app.getHttpServer()).get('/api/marine/points').expect(500);
 

@@ -17,7 +17,8 @@
  * process alive.
  *
  * ## Background work does NOT share this budget
- * The warmup tour builds its own `OperationDeadline` from `MARINE_WARMUP_DEADLINE_MS` (120 s).
+ * The warmup tour builds its own `OperationDeadline` from `MARINE_WARMUP_DEADLINE_MS` (300 s
+ * since M3b — SPEC §9.2 raised it for the ECMWF ingest slice).
  * Conflating a background refresh with a user request in one budget was SPEC v1's underlying
  * conceptual error (§6.4).
  */

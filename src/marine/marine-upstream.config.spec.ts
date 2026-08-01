@@ -22,6 +22,9 @@ function configFrom(raw: Record<string, string>): ConfigService<Env, true> {
   });
   return {
     getOrThrow: (key: keyof Env) => env[key],
+    // The OPTIONAL variables (no default, may be absent) are read with `get`, mirroring the real
+    // ConfigService split; `getOrThrow` on an absent optional would throw at boot instead.
+    get: (key: keyof Env) => env[key],
   } as unknown as ConfigService<Env, true>;
 }
 
@@ -66,8 +69,47 @@ describe('buildMarineUpstreamConfig', () => {
     // this is the one place where both numbers are read, so it is the place to pin them.
     const config = buildMarineUpstreamConfig(configFrom({}));
     expect(config.requestDeadlineMs).toBe(6_000);
-    expect(config.warmupDeadlineMs).toBe(120_000);
+    expect(config.warmupDeadlineMs).toBe(300_000);
     expect(config.warmupDeadlineMs).toBeGreaterThan(config.requestDeadlineMs);
+  });
+
+  it('maps the ECMWF block by name, with the failover null when unset', () => {
+    const config = buildMarineUpstreamConfig(
+      configFrom({
+        ECMWF_ENABLED: 'true',
+        ECMWF_FORECAST_HOURS: '48',
+        ECMWF_SINGLE_CALL_TIMEOUT_MS: '111',
+        ECMWF_TOUR_BUDGET_MS: '222',
+        ECMWF_MAX_STEPS_PER_TOUR: '3',
+        ECMWF_TOUR_MAX_BYTES: '444',
+        ECMWF_CYCLE_MAX_BYTES: '555',
+        ECMWF_MAX_RANGE_BYTES: '333',
+        ECMWF_CYCLE_MAX_AGE_SECONDS: '666',
+        ECMWF_STALE_MAX_SECONDS: '777',
+      }),
+    );
+
+    expect(config.ecmwf).toEqual({
+      enabled: true,
+      baseUrl: 'https://data.ecmwf.int/forecasts',
+      failoverBaseUrl: null,
+      forecastHours: 48,
+      singleCallTimeoutMs: 111,
+      tourBudgetMs: 222,
+      maxStepsPerTour: 3,
+      tourMaxBytes: 444,
+      cycleMaxBytes: 555,
+      maxRangeBytes: 333,
+      cycleMaxAgeSeconds: 666,
+      staleMaxSeconds: 777,
+    });
+  });
+
+  it('carries the configured failover base URL through', () => {
+    const config = buildMarineUpstreamConfig(
+      configFrom({ ECMWF_FAILOVER_BASE_URL: 'https://mirror.example' }),
+    );
+    expect(config.ecmwf.failoverBaseUrl).toBe('https://mirror.example');
   });
 
   it('requires BOTH switches for warming', () => {
