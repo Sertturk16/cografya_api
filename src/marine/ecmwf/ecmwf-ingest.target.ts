@@ -9,7 +9,7 @@ import type { UpstreamOutcome } from '../../upstream/upstream.types';
 import type { MarinePoint } from '../entities/marine-point.entity';
 import type { MarineUpstreamConfig } from '../marine-upstream.config';
 import { MARINE_PROVIDER } from '../marine-upstream.config';
-import type { MarineWarmupTarget } from '../marine-warmup.service';
+import type { ScheduledWarmupTarget } from '../../upstream/scheduled-warmup.service';
 import {
   buildEcmwfUrl,
   candidateCycles,
@@ -91,7 +91,7 @@ interface MappedPoint {
 }
 
 /**
- * The scheduled ECMWF ingest — a `MarineWarmupTarget`, exactly the seam M2 opened for it.
+ * The scheduled ECMWF ingest — a `ScheduledWarmupTarget`, exactly the seam M2 opened for it.
  *
  * ## The one binding principle (SPEC §3)
  * A user request NEVER triggers an ECMWF call. This class is the ONLY thing that talks to the
@@ -113,7 +113,7 @@ interface MappedPoint {
  * Every step is atomic in Postgres (`recordStep`), so a stop at ANY point leaves a resumable,
  * honestly-partial cycle — the partial-cycle policy of the locked COLD-BEHAVIOR table.
  */
-export class EcmwfIngestTarget implements MarineWarmupTarget {
+export class EcmwfIngestTarget implements ScheduledWarmupTarget {
   readonly label = 'ecmwf.cycle';
 
   private readonly logger = new Logger('EcmwfIngest');

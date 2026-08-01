@@ -45,11 +45,19 @@ dated ruling in `DECISIONS.md`. It is the local source of truth for how code lan
   `openapi:check` (regenerate + `git diff --exit-code`) — a stale spec fails the build.
 - **No BullMQ / no second entry point at day-0.** Background needs (feed polling, sitemap
   pings) start as simple scheduled providers. Escalate to a real queue only when a real
-  queue need appears — surface it to Atlas first (§12). The first such provider is the
-  marine warmup tour (`ScheduleModule` + `SchedulerRegistry`, marine M2): one provider inside
-  this process — no queue, no worker, no separate deployable — which is exactly the shape this
-  rule leaves room for. Its Faz-1 arrival is a recorded deviation from SPEC v1's "no scheduled
-  work" (SPEC-ADDENDUM §3.3, AÇIK-1).
+  queue need appears — surface it to Atlas first (§12). The shape that rule leaves room for is
+  the **scheduled warmup tour** (`ScheduledWarmupService`, `src/upstream/`, `ScheduleModule` +
+  `SchedulerRegistry`): providers inside this process — no queue, no worker, no separate
+  deployable. It is **one shared class with one instance per feature leg**: the discipline that
+  must never be copied (the cross-instance Redis lock, its compare-and-delete release, the
+  overlap guard, the per-tour deadline, "skip the tour when Redis cannot answer") lives in that
+  one class, while each leg passes its own `name` — from which the lock key, both
+  scheduler-registry timer names, the logger context and the `redis.degraded` label are derived —
+  plus its own kill switch, interval and deadline. Per-leg instances are deliberate: a shared
+  instance would demote a leg's kill switch to "registers no targets" while its timer kept
+  running, and would let one leg's bad tour eat another's budget. It arrived with marine M2 as
+  `MarineWarmupService` and became provider-neutral in the air-quality A0 move. Its Faz-1 arrival
+  is a recorded deviation from marine SPEC v1's "no scheduled work" (SPEC-ADDENDUM §3.3, AÇIK-1).
 
 ---
 

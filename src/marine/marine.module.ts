@@ -8,6 +8,7 @@ import { REDIS_CLIENT, type RedisClientPort } from '../upstream/redis/redis-clie
 import { UpstreamCacheService } from '../upstream/cache/upstream-cache.service';
 import { CircuitBreaker } from '../upstream/circuit-breaker';
 import { ProviderBudget } from '../upstream/provider-budget';
+import { ScheduledWarmupService } from '../upstream/scheduled-warmup.service';
 import { UpstreamHttpClient } from '../upstream/upstream-http.client';
 import { UPSTREAM_USER_AGENT } from '../upstream/upstream-http.helpers';
 import { UpstreamMetrics } from '../upstream/upstream-metrics';
@@ -28,7 +29,6 @@ import {
 } from './marine-upstream.config';
 import { MarineController } from './marine.controller';
 import { MarineService } from './marine.service';
-import { MarineWarmupService } from './marine-warmup.service';
 
 /**
  * Injection token for the ECMWF-tuned HTTP client instance.
@@ -40,6 +40,16 @@ import { MarineWarmupService } from './marine-warmup.service';
  * process no matter which client touched it.
  */
 export const ECMWF_UPSTREAM_CLIENT = Symbol('ECMWF_UPSTREAM_CLIENT');
+
+/**
+ * Injection token for the MARINE warmup tour.
+ *
+ * A symbol rather than the class itself, because `ScheduledWarmupService` is provider-neutral and
+ * a second leg will construct a SECOND instance of it: a class token would then be ambiguous, and
+ * the failure mode of injecting the wrong instance is silent (a target registered on a tour that
+ * belongs to someone else). The token names the leg; the class names the mechanism.
+ */
+export const MARINE_WARMUP = Symbol('MARINE_WARMUP');
 
 /**
  * Marine module.
@@ -102,15 +112,18 @@ export const ECMWF_UPSTREAM_CLIENT = Symbol('ECMWF_UPSTREAM_CLIENT');
       ): EcmwfSeriesReader => new EcmwfSeriesReader(cache, store, marineConfig, metrics),
     },
     {
-      provide: MarineWarmupService,
+      provide: MARINE_WARMUP,
       inject: [SchedulerRegistry, UpstreamMetrics, REDIS_CLIENT, MARINE_UPSTREAM_CONFIG],
       useFactory: (
         schedulerRegistry: SchedulerRegistry,
         metrics: UpstreamMetrics,
         redis: RedisClientPort | null,
         marineConfig: MarineUpstreamConfig,
-      ): MarineWarmupService =>
-        new MarineWarmupService(schedulerRegistry, metrics, redis, {
+      ): ScheduledWarmupService =>
+        // `name: 'marine'` reproduces the lock key, both timer names and the counter label this
+        // leg has used since M2 — the move is mechanical, and a unit test pins those strings.
+        new ScheduledWarmupService(schedulerRegistry, metrics, redis, {
+          name: 'marine',
           enabled: marineConfig.warmupEnabled,
           intervalSeconds: marineConfig.warmupIntervalSeconds,
           deadlineMs: marineConfig.warmupDeadlineMs,
@@ -127,7 +140,7 @@ export const ECMWF_UPSTREAM_CLIENT = Symbol('ECMWF_UPSTREAM_CLIENT');
         ECMWF_INGEST_STORE,
         MARINE_UPSTREAM_CONFIG,
         UpstreamMetrics,
-        MarineWarmupService,
+        MARINE_WARMUP,
         getRepositoryToken(MarinePoint),
       ],
       useFactory: (
@@ -135,7 +148,7 @@ export const ECMWF_UPSTREAM_CLIENT = Symbol('ECMWF_UPSTREAM_CLIENT');
         store: EcmwfIngestStorePort,
         marineConfig: MarineUpstreamConfig,
         metrics: UpstreamMetrics,
-        warmup: MarineWarmupService,
+        warmup: ScheduledWarmupService,
         marinePointRepository: Repository<MarinePoint>,
       ): EcmwfIngestTarget | null => {
         if (!marineConfig.ecmwf.enabled) return null;
@@ -158,6 +171,6 @@ export const ECMWF_UPSTREAM_CLIENT = Symbol('ECMWF_UPSTREAM_CLIENT');
     // API would then inspect its body for a marine-only symbol.
     MarineCacheAgeInterceptor,
   ],
-  exports: [MarineWarmupService, MARINE_UPSTREAM_CONFIG, EcmwfSeriesReader, ECMWF_INGEST_STORE],
+  exports: [MARINE_WARMUP, MARINE_UPSTREAM_CONFIG, EcmwfSeriesReader, ECMWF_INGEST_STORE],
 })
 export class MarineModule {}

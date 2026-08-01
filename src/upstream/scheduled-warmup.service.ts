@@ -1,17 +1,17 @@
 import { Logger, type OnApplicationBootstrap, type OnModuleDestroy } from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { OperationDeadline } from '../upstream/operation-deadline';
-import type { RedisClientPort } from '../upstream/redis/redis-client.port';
-import type { UpstreamMetrics } from '../upstream/upstream-metrics';
+import { OperationDeadline } from './operation-deadline';
+import type { RedisClientPort } from './redis/redis-client.port';
+import type { UpstreamMetrics } from './upstream-metrics';
 
 /**
  * One thing the tour refreshes.
  *
- * The seam M3/M4 plug their provider legs into. In M2 the list is EMPTY on purpose — the lock,
- * the interval and the deadline are real and tested; there is simply nothing to fetch yet, so a
- * tour is a no-op that proves the mechanism rather than a stub that pretends to.
+ * The seam a provider leg plugs into. An EMPTY target list is a legitimate state — the lock, the
+ * interval and the deadline are real and tested; with nothing registered a tour is a no-op that
+ * proves the mechanism rather than a stub that pretends to (the whole of marine M2).
  */
-export interface MarineWarmupTarget {
+export interface ScheduledWarmupTarget {
   /** Stable label for logs and counters (`ecmwf.cycle`, `cmems.thetao`). */
   readonly label: string;
   /**
@@ -22,7 +22,7 @@ export interface MarineWarmupTarget {
 }
 
 export type WarmupSkipReason =
-  /** `MARINE_ENABLED` or `MARINE_WARMUP_ENABLED` is false. */
+  /** This tour's `enabled` option is false (marine: `MARINE_ENABLED` / `MARINE_WARMUP_ENABLED`). */
   | 'disabled'
   /** The previous tour on THIS instance has not finished. */
   | 'overlap'
@@ -48,7 +48,16 @@ export type WarmupTourResult =
       readonly durationMs: number;
     };
 
-export interface MarineWarmupOptions {
+export interface ScheduledWarmupOptions {
+  /**
+   * Identity of this tour (`marine`, `air-quality`).
+   *
+   * EVERY name-bearing thing the tour touches is derived from it — the Redis lock key, both
+   * scheduler-registry timer names, the logger context and the `redis.degraded` counter label —
+   * so two legs running in one process cannot silently share a lock or collide on a timer name.
+   * It is a code-level literal chosen by the module that constructs the tour, never user input.
+   */
+  name: string;
   enabled: boolean;
   intervalSeconds: number;
   deadlineMs: number;
@@ -57,12 +66,25 @@ export interface MarineWarmupOptions {
   tokenFactory?: () => string;
 }
 
-/** Redis key the tour's cross-instance lock lives under. */
-export const WARMUP_LOCK_KEY = 'marine:warmup:lock';
+/**
+ * Redis key a tour's cross-instance lock lives under. `marine` → `marine:warmup:lock`.
+ *
+ * A function rather than a constant because the key IS the leg boundary: two legs sharing one key
+ * would make each one skip the other's tours, with nothing in the logs to show for it.
+ */
+export function warmupLockKey(name: string): string {
+  return `${name}:warmup:lock`;
+}
 
-/** Names the scheduler registry knows these timers by — also how a test finds and clears them. */
-export const WARMUP_INTERVAL_NAME = 'marine-warmup-interval';
-export const WARMUP_BOOT_TIMEOUT_NAME = 'marine-warmup-boot';
+/** Name the scheduler registry knows the interval by — also how a test finds and clears it. */
+export function warmupIntervalName(name: string): string {
+  return `${name}-warmup-interval`;
+}
+
+/** Name the scheduler registry knows the delayed boot tour by. */
+export function warmupBootTimeoutName(name: string): string {
+  return `${name}-warmup-boot`;
+}
 
 /**
  * Delay before the boot tour.
@@ -75,9 +97,17 @@ export const WARMUP_BOOT_TIMEOUT_NAME = 'marine-warmup-boot';
 const BOOT_DELAY_MS = 10_000;
 
 /**
- * The warmup tour (SPEC-ADDENDUM §3).
+ * A scheduled warmup tour (marine SPEC-ADDENDUM §3, generalised).
  *
- * ## Why a scheduled job exists at all, against SPEC v1's own principle
+ * ## One class, one instance per leg
+ * The DISCIPLINE lives here once — a mis-copied lock key silently multiplies upstream load by the
+ * instance count, which is exactly the class of bug a second copy of this file would introduce.
+ * The INSTANCE, however, is per leg: each leg gets its own `name`, and therefore its own lock,
+ * its own timers, its own interval and its own deadline. That keeps a leg's kill switch meaning
+ * "this leg schedules nothing" (not "this leg registers no targets while the timer still runs")
+ * and stops one leg's bad day from eating another leg's tour budget.
+ *
+ * ## Why a scheduled job exists at all, against marine SPEC v1's own principle
  * SPEC v1 said "no scheduled work". Then A1 measured the cold call graph: a cold `/deniz`
  * overview costs 79 upstream requests, realistically 8–15 s. Three requirements collide — no
  * scheduled work · a real number in the first HTML · a fast cold start — and only ONE of them is
@@ -92,24 +122,28 @@ const BOOT_DELAY_MS = 10_000;
  * day-0" rule leaves room for.
  *
  * ## Multi-instance safety
- * With Redis, each tour takes `marine:warmup:lock` with `SET NX PX <deadline>`; an instance that
- * cannot take it skips the tour entirely. The lock is released by compare-and-delete, never a
- * bare `DEL` — an instance whose lock had already expired would otherwise delete the lock a
- * different instance has since taken, and two tours would hammer the provider with nothing in
+ * With Redis, each tour takes its own `<name>:warmup:lock` with `SET NX PX <deadline>`; an
+ * instance that cannot take it skips the tour entirely. The lock is released by compare-and-delete,
+ * never a bare `DEL` — an instance whose lock had already expired would otherwise delete the lock
+ * a different instance has since taken, and two tours would hammer the provider with nothing in
  * the logs to show for it. Without Redis there is no lock, because that mode is single-instance
  * by definition and says so loudly at boot.
  *
  * ## Its own deadline
- * 120 s, not the request path's 6 s. Nobody is waiting for this tour; conflating background work
- * with a user request in one budget was SPEC v1's underlying error (§6.4).
+ * The tour's `deadlineMs` (marine: 120 s), not the request path's 6 s. Nobody is waiting for this
+ * tour; conflating background work with a user request in one budget was SPEC v1's underlying
+ * error (§6.4).
  *
- * Constructed by `MarineModule`'s factory (env-derived options, an optional Redis client, and
- * injected clocks for tests). Nest still runs its lifecycle hooks — those are found on the
+ * Constructed by the OWNING leg's module factory (env-derived options, an optional Redis client,
+ * and injected clocks for tests). Nest still runs its lifecycle hooks — those are found on the
  * instance, not on the provider style.
  */
-export class MarineWarmupService implements OnApplicationBootstrap, OnModuleDestroy {
-  private readonly logger = new Logger('MarineWarmup');
-  private readonly targets: MarineWarmupTarget[] = [];
+export class ScheduledWarmupService implements OnApplicationBootstrap, OnModuleDestroy {
+  private readonly logger: Logger;
+  private readonly lockKey: string;
+  private readonly intervalName: string;
+  private readonly bootTimeoutName: string;
+  private readonly targets: ScheduledWarmupTarget[] = [];
   private readonly now: () => number;
   private readonly tokenFactory: () => string;
   private running = false;
@@ -118,19 +152,23 @@ export class MarineWarmupService implements OnApplicationBootstrap, OnModuleDest
     private readonly schedulerRegistry: SchedulerRegistry,
     private readonly metrics: UpstreamMetrics,
     private readonly redis: RedisClientPort | null,
-    private readonly options: MarineWarmupOptions,
+    private readonly options: ScheduledWarmupOptions,
   ) {
+    this.logger = new Logger(`Warmup:${options.name}`);
+    this.lockKey = warmupLockKey(options.name);
+    this.intervalName = warmupIntervalName(options.name);
+    this.bootTimeoutName = warmupBootTimeoutName(options.name);
     this.now = options.now ?? Date.now;
     this.tokenFactory = options.tokenFactory ?? (() => crypto.randomUUID());
   }
 
   /**
-   * Register a target. Called by the provider modules that land in M3/M4.
+   * Register a target. Called by the leg's own provider module.
    *
    * Deliberately additive rather than constructor-injected: the tour must be able to exist and be
-   * scheduled before any provider does, which is exactly the M2 state.
+   * scheduled before any provider does, which is exactly the state marine M2 shipped in.
    */
-  register(target: MarineWarmupTarget): void {
+  register(target: ScheduledWarmupTarget): void {
     this.targets.push(target);
   }
 
@@ -141,6 +179,8 @@ export class MarineWarmupService implements OnApplicationBootstrap, OnModuleDest
 
   onApplicationBootstrap(): void {
     if (!this.options.enabled) {
+      // The env names in this line are marine's. Left byte-for-byte in the A0 move because marine
+      // is the ONLY instance that exists today; the second leg parameterises it when it lands.
       this.logger.log('warmup is disabled (MARINE_ENABLED / MARINE_WARMUP_ENABLED) — no timers');
       return;
     }
@@ -148,12 +188,12 @@ export class MarineWarmupService implements OnApplicationBootstrap, OnModuleDest
     const bootTimeout = setTimeout(() => {
       void this.runTour('boot');
     }, BOOT_DELAY_MS);
-    this.schedulerRegistry.addTimeout(WARMUP_BOOT_TIMEOUT_NAME, bootTimeout);
+    this.schedulerRegistry.addTimeout(this.bootTimeoutName, bootTimeout);
 
     const interval = setInterval(() => {
       void this.runTour('scheduled');
     }, this.options.intervalSeconds * 1000);
-    this.schedulerRegistry.addInterval(WARMUP_INTERVAL_NAME, interval);
+    this.schedulerRegistry.addInterval(this.intervalName, interval);
 
     this.logger.log(
       `warmup scheduled every ${String(this.options.intervalSeconds)} s ` +
@@ -165,11 +205,11 @@ export class MarineWarmupService implements OnApplicationBootstrap, OnModuleDest
   onModuleDestroy(): void {
     // Timers are removed explicitly so a test (and a graceful shutdown) does not leave the event
     // loop alive. `deleteInterval`/`deleteTimeout` throw when absent, hence the guarded lookups.
-    if (this.schedulerRegistry.doesExist('interval', WARMUP_INTERVAL_NAME)) {
-      this.schedulerRegistry.deleteInterval(WARMUP_INTERVAL_NAME);
+    if (this.schedulerRegistry.doesExist('interval', this.intervalName)) {
+      this.schedulerRegistry.deleteInterval(this.intervalName);
     }
-    if (this.schedulerRegistry.doesExist('timeout', WARMUP_BOOT_TIMEOUT_NAME)) {
-      this.schedulerRegistry.deleteTimeout(WARMUP_BOOT_TIMEOUT_NAME);
+    if (this.schedulerRegistry.doesExist('timeout', this.bootTimeoutName)) {
+      this.schedulerRegistry.deleteTimeout(this.bootTimeoutName);
     }
   }
 
@@ -194,13 +234,16 @@ export class MarineWarmupService implements OnApplicationBootstrap, OnModuleDest
     try {
       if (this.redis !== null) {
         try {
-          holdsLock = await this.redis.setIfAbsent(WARMUP_LOCK_KEY, token, this.options.deadlineMs);
+          holdsLock = await this.redis.setIfAbsent(this.lockKey, token, this.options.deadlineMs);
         } catch (error: unknown) {
           // Redis unreachable: do NOT run. Unlike a cache read (where degrading keeps the site
           // up), running an unlocked tour on every instance multiplies upstream load by the
           // instance count — the exact thing the lock exists to prevent. Skipping is safe: the
-          // next tour is 15 minutes away and cached values remain servable for six hours.
-          this.metrics.increment('redis.degraded', 'warmup');
+          // next tour is one interval away and cached values stay servable far longer than that.
+          // The counter is labelled with the leg's `name`, not a shared 'warmup': with two legs a
+          // single label cannot answer WHICH leg lost Redis, which is the only question it exists
+          // to answer.
+          this.metrics.increment('redis.degraded', this.options.name);
           this.logger.error(
             `tour (${trigger}) skipped: the warmup lock could not be taken — ` +
               `${error instanceof Error ? error.message : 'unknown error'}`,
@@ -217,7 +260,7 @@ export class MarineWarmupService implements OnApplicationBootstrap, OnModuleDest
       return await this.visitTargets(trigger);
     } finally {
       if (holdsLock && this.redis !== null) {
-        await this.redis.deleteIfValueEquals(WARMUP_LOCK_KEY, token).catch((error: unknown) => {
+        await this.redis.deleteIfValueEquals(this.lockKey, token).catch((error: unknown) => {
           this.logger.warn(
             `warmup lock release failed; it expires on its own TTL — ` +
               `${error instanceof Error ? error.message : 'unknown error'}`,
@@ -259,8 +302,8 @@ export class MarineWarmupService implements OnApplicationBootstrap, OnModuleDest
     const durationMs = this.now() - startedMs;
 
     if (this.targets.length === 0) {
-      // Expected for the whole of M2: the mechanism runs, there is nothing registered to refresh.
-      // Logged at debug so it does not fill the log every 15 minutes, but never silent.
+      // Expected while a leg's kill switch is off: the mechanism runs, there is nothing registered
+      // to refresh. Logged at debug so it does not fill the log every interval, but never silent.
       this.logger.debug(`tour (${trigger}) completed with no registered targets`);
     } else {
       this.logger.log(
