@@ -41,6 +41,7 @@ function buildProvince(plateCode: string): Era5ProvinceCellRecord {
     cellLongitude: 32.9,
     fallbackUsed: fallback,
     fallbackDistanceKm: fallback ? 9.5 : 0,
+    halfStepTieAxes: [],
     annualMeanTempC: 12.3,
     annualTotalPrecipitationMm:
       regime === undefined ? 600 : (regime.minAnnualMm + regime.maxAnnualMm) / 2,
@@ -73,6 +74,7 @@ function buildPassingPair(): { manifest: Era5Manifest; series: Era5SeriesArtifac
     doi: '10.24381/cds.68d2bb30',
     licence: 'CC-BY-4.0',
     requiredAttribution: 'Generated using Copernicus Climate Change Service information 2026.',
+    sourceMode: 'cds-fetch',
     areaSent: [42.5, 25.5, 35.5, 45.0],
     productionRequestBody: {},
     decoder: {
@@ -80,6 +82,7 @@ function buildPassingPair(): { manifest: Era5Manifest; series: Era5SeriesArtifac
       version: '0.4.0',
       inflatePackage: 'pako',
       inflateVersion: '2.2.0',
+      attributeSupport: 'compact-only',
     },
     rawFile: { name: 'x.nc', sizeBytes: 19_801_767, sha256: 'a'.repeat(64), md5: 'b'.repeat(32) },
     axes: {
@@ -89,7 +92,9 @@ function buildPassingPair(): { manifest: Era5Manifest; series: Era5SeriesArtifac
     months: { count: ERA5_EXPECTED_MONTH_COUNT, firstIso: '1991-01-01', lastIso: '2020-12-01' },
     expver: { distinctValues: ['0001'], count: ERA5_EXPECTED_MONTH_COUNT },
     globalAttributes: {},
+    halfStepTieBreak: { rule: 'lower index wins', plateCodes: ['44'] },
     variables: [],
+    unitsAttributeNote: 'not readable',
     mask: { maskedCells: 3392, totalCells: 13916, maskedRatio: 0.2438, timeInvariant: true },
     provinces: PLATE_CODES.map(buildProvince),
     fallbackPlateCodes: [...EXPECTED_FALLBACK_PLATE_CODES],
@@ -254,6 +259,39 @@ describe('evaluateEra5Assertions', () => {
         }),
       ),
     ).toContain('mask-time-invariant');
+  });
+
+  it('accepts an offline --from-file regeneration that claims NO jobs', () => {
+    const { manifest, series } = buildPassingPair();
+    expect(
+      failed(
+        evaluateEra5Assertions({
+          manifest: { ...manifest, sourceMode: 'from-file', jobs: [] },
+          series,
+          apiKey: null,
+        }),
+      ),
+    ).toEqual([]);
+  });
+
+  it('REFUSES an offline regeneration that claims CDS jobs it never ran', () => {
+    const { manifest, series } = buildPassingPair();
+    expect(
+      failed(
+        evaluateEra5Assertions({
+          manifest: { ...manifest, sourceMode: 'from-file' },
+          series,
+          apiKey: null,
+        }),
+      ),
+    ).toContain('jobs-verified-then-deleted');
+  });
+
+  it('REFUSES a LIVE run that produced no jobs at all', () => {
+    const { manifest, series } = buildPassingPair();
+    expect(
+      failed(evaluateEra5Assertions({ manifest: { ...manifest, jobs: [] }, series, apiKey: null })),
+    ).toContain('jobs-verified-then-deleted');
   });
 
   it('fails when a job was deleted before its download verified', () => {

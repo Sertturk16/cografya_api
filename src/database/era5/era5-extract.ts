@@ -149,6 +149,7 @@ export function extractEra5Provinces(
       cellLongitude: selection.cellLongitude,
       fallbackUsed: selection.fallbackUsed,
       fallbackDistanceKm: selection.fallbackDistanceKm,
+      halfStepTieAxes: selection.halfStepTieAxes,
       annualMeanTempC: mean(tempMeanC),
       annualTotalPrecipitationMm:
         precipitationMm.length === 0 ? 0 : (sum(precipitationMm) * 12) / precipitationMm.length,

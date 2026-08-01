@@ -14,7 +14,7 @@ import type {
   Era5RequestRecord,
   Era5SeriesArtifact,
 } from './era5-artifact.types';
-import { decodeEra5File, type Era5DecodedFile } from './era5-decode';
+import { decodeEra5File, ERA5_UNITS_UNREADABLE_REASON, type Era5DecodedFile } from './era5-decode';
 import { extractEra5Provinces } from './era5-extract';
 import {
   buildFixtureRequestBody,
@@ -592,6 +592,7 @@ export async function runEra5FetchPhase(options: Era5FetchOptions): Promise<void
     doi: ERA5_DATASET_DOI,
     licence: LICENCE,
     requiredAttribution: REQUIRED_ATTRIBUTION,
+    sourceMode: fromFile === null ? 'cds-fetch' : 'from-file',
     areaSent: ERA5_AREA,
     productionRequestBody: buildProductionRequestBody(),
     decoder: readDecoderIdentity(),
@@ -612,6 +613,15 @@ export async function runEra5FetchPhase(options: Era5FetchOptions): Promise<void
       count: decoded.expverValues.length,
     },
     globalAttributes: decoded.globalAttributeSummary,
+    halfStepTieBreak: {
+      rule:
+        'A coordinate landing exactly on a cell boundary (within 1e-6 of the midpoint, in cell-' +
+        'index units) resolves to the LOWER INDEX. Declared so the choice cannot depend on ' +
+        'floating-point noise in the derived axis step.',
+      plateCodes: extraction.provinces
+        .filter((province) => province.halfStepTieAxes.length > 0)
+        .map((province) => province.plateCode),
+    },
     variables: decoded.variables.map((variable) => ({
       requestName: variable.mapping.requestName,
       fileName: variable.mapping.fileName,
@@ -621,6 +631,7 @@ export async function runEra5FetchPhase(options: Era5FetchOptions): Promise<void
           ? 'K − 273.15 → °C'
           : 'm/day × days_in_month × 1000 → mm/month (stream=moda; the "m" units attribute is misleading)',
     })),
+    unitsAttributeNote: ERA5_UNITS_UNREADABLE_REASON,
     mask: {
       maskedCells: decoded.maskedCellCount,
       totalCells: decoded.totalCellCount,

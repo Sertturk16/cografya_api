@@ -45,6 +45,34 @@ export const AXIS_EQUAL_STEP_TOLERANCE = 1e-3;
 export const READBACK_EXTRA_TOLERANCE = 1e-3;
 
 /**
+ * How close to the exact midpoint between two cells counts as a TIE, in units of cell index.
+ *
+ * ## Why this exists (Atlas ruling, 2026-08-02)
+ * 44 Malatya's administrative coordinate (38.35, 38.25) sits at EXACTLY half a step on BOTH axes
+ * of this grid-point-registered product. Two cells are therefore equally close, and plain
+ * `Math.round` resolves the tie by whichever side the derived step's floating-point noise happens
+ * to fall: the measured axis gives an index of 41.49999999999947, so `Math.round` returns 41 — but
+ * a future file whose axis noise pushed that to 41.50000000000053 would return 42 and publish
+ * Malatya's temperature from the neighbouring cell. Same province, same rule, different answer,
+ * decided by float dust rather than by geography.
+ *
+ * That is a silent shift, and A-1's whole legitimacy rests on shifts being DECLARED. So the tie is
+ * resolved by an explicit, documented convention instead:
+ *
+ * > **On an exact half-step tie, the LOWER INDEX wins.**
+ *
+ * That is deliberately the cell the 2026-08-02 production run already chose on both axes
+ * (latitude index 41 → 38.4, longitude index 127 → 38.2, confirmed against an independent
+ * reference reader), so adopting the rule changes no published value — it only makes the existing
+ * choice reproducible. Provinces that hit the tie are recorded in the manifest.
+ *
+ * 1e-6 is ~7 orders of magnitude above the observed axis noise (~1e-13 in index units) and 5
+ * orders below a real half-cell distinction, so it separates "tie" from "genuinely nearer one
+ * side" without weakening anything.
+ */
+export const HALF_STEP_TIE_EPSILON = 1e-6;
+
+/**
  * Hard ceiling on a declared land-cell fallback (SPEC §4.1-3). Measured maximum is 13.20 km
  * (57 Sinop); the cap is ~2× that — loose enough never to block the five legitimate provinces,
  * tight enough that a grid or coordinate change cannot creep past it silently.
@@ -142,7 +170,7 @@ export function mapEra5CoordinateToIndex(
   analysis: Era5AxisAnalysis,
   requested: number,
   axisName: string,
-): { index: number; snapped: number } {
+): { index: number; snapped: number; halfStepTie: boolean } {
   const halfCell = Math.abs(analysis.step) / 2;
   const low = Math.min(analysis.first, analysis.last) - halfCell;
   const high = Math.max(analysis.first, analysis.last) + halfCell;
@@ -154,7 +182,11 @@ export function mapEra5CoordinateToIndex(
     );
   }
 
-  const index = Math.round((requested - analysis.first) / analysis.step);
+  // Exact-tie handling BEFORE rounding — see HALF_STEP_TIE_EPSILON for why `Math.round` alone is
+  // not deterministic across files. On a tie the LOWER INDEX wins, by declared convention.
+  const raw = (requested - analysis.first) / analysis.step;
+  const halfStepTie = Math.abs(raw - Math.floor(raw) - 0.5) <= HALF_STEP_TIE_EPSILON;
+  const index = halfStepTie ? Math.floor(raw) : Math.round(raw);
   if (index < 0 || index >= axis.length) {
     throw new Era5ContractError(
       `"${axisName}": index ${String(index)} out of [0, ${String(axis.length)}) for requested ` +
@@ -175,7 +207,7 @@ export function mapEra5CoordinateToIndex(
         'from the wrong place.',
     );
   }
-  return { index, snapped };
+  return { index, snapped, halfStepTie };
 }
 
 /** Great-circle distance (haversine), km. */
@@ -204,6 +236,12 @@ export interface Era5CellSelection {
   fallbackUsed: boolean;
   /** Great-circle km from the administrative point to the cell used. `0` when no fallback. */
   fallbackDistanceKm: number;
+  /**
+   * Which axes placed the administrative point EXACTLY on a cell boundary, so the cell was chosen
+   * by the declared lower-index convention rather than by being nearer. Measured: 44 Malatya, on
+   * both axes. Recorded in the manifest so the choice is declared, never silent.
+   */
+  halfStepTieAxes: readonly ('latitude' | 'longitude')[];
 }
 
 /**
@@ -242,6 +280,10 @@ export function selectEra5Cell(options: {
     `${options.label} longitude`,
   );
 
+  const halfStepTieAxes: ('latitude' | 'longitude')[] = [];
+  if (lat.halfStepTie) halfStepTieAxes.push('latitude');
+  if (lon.halfStepTie) halfStepTieAxes.push('longitude');
+
   if (!options.isMasked(lat.index, lon.index)) {
     return {
       latIndex: lat.index,
@@ -250,6 +292,7 @@ export function selectEra5Cell(options: {
       cellLongitude: lon.snapped,
       fallbackUsed: false,
       fallbackDistanceKm: 0,
+      halfStepTieAxes,
     };
   }
 
@@ -284,6 +327,7 @@ export function selectEra5Cell(options: {
           cellLatitude,
           cellLongitude,
         ),
+        halfStepTieAxes,
       };
       // Deterministic tie-break: strictly-closer wins; on an exact tie the LOWER lat index, then
       // the LOWER lon index, wins. Without this a float tie would make the manifest depend on

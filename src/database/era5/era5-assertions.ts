@@ -180,18 +180,29 @@ export function evaluateEra5Assertions(input: Era5AssertionInput): Era5Assertion
   );
 
   // ── provider-contact hygiene ───────────────────────────────────────────────
+  // Mode-aware on purpose. A `--from-file` re-run has no jobs BY CONSTRUCTION, so demanding some
+  // would fail a perfectly valid offline regeneration; but it must not be able to claim any
+  // either, which is the actual thing worth asserting. A live run keeps the full obligation.
+  const offline = manifest.sourceMode === 'from-file';
   push(
     'jobs-verified-then-deleted',
-    manifest.jobs.length > 0 &&
-      manifest.jobs.every(
-        (job) => job.checksumVerified && job.downloadedBytes === job.declaredSizeBytes,
-      ),
-    `${String(manifest.jobs.length)} job(s); every download matched its declared size and MD5.`,
+    offline
+      ? manifest.jobs.length === 0
+      : manifest.jobs.length > 0 &&
+          manifest.jobs.every(
+            (job) => job.checksumVerified && job.downloadedBytes === job.declaredSizeBytes,
+          ),
+    offline
+      ? `offline regeneration (--from-file): ${String(manifest.jobs.length)} job(s) claimed ` +
+          '(must be 0); integrity is carried by the recorded raw-file SHA-256/MD5.'
+      : `${String(manifest.jobs.length)} job(s); every download matched its declared size and MD5.`,
   );
   push(
     'jobs-deleted',
-    manifest.jobs.every((job) => job.deleted),
-    'every CDS job was DELETEd after its download verified.',
+    offline ? manifest.jobs.length === 0 : manifest.jobs.every((job) => job.deleted),
+    offline
+      ? 'offline regeneration: no CDS job was created, so none is outstanding.'
+      : 'every CDS job was DELETEd after its download verified.',
   );
 
   // ── the `tp` multiplier, by magnitude class only ───────────────────────────

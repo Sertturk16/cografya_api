@@ -9,20 +9,34 @@ import { Era5Hdf5File, type Era5FileReader } from './hdf5/jsfive.adapter';
  *
  * Nothing in this file is assumed from CAMS. Three of the ten transferred expectations were
  * measured WRONG on this product (`netcdf_zip` does not exist, longitude is −180…180 and
- * grid-point registered, `_FillValue` is NaN and not −999), so every one of the following is
- * VERIFIED against the bytes rather than trusted:
+ * grid-point registered, `_FillValue` is NaN and not −999), so every claim is VERIFIED.
  *
- * | claim | measured | on deviation |
+ * ## EVERY GUARD HERE READS THE DATA, NEVER AN ATTRIBUTE (Atlas ruling O-1, 2026-08-02)
+ * The 2026-08-02 hand-run discovered that `jsfive@0.4.0` cannot read densely-stored HDF5
+ * attributes and returns an **empty bag with no error** (see the adapter's docblock for the
+ * mechanism). The original attribute-based guards were therefore not merely unavailable — one of
+ * them, `if ('scale_factor' in attributes) throw`, could never fire, so a packed file would have
+ * passed a check that reported "verified". A guard whose disabling surface is invisible is worse
+ * than no guard.
+ *
+ * So the contract is proven from the bytes, which is strictly stronger than proving it from a
+ * label the writer chose:
+ *
+ * | claim | how it is proven FROM DATA | on deviation |
  * |---|---|---|
- * | variable names | `t2m`, `tp` | `schema_error` (no substitution) |
- * | dimension ORDER | `(valid_time, latitude, longitude)` | `schema_error` |
- * | latitude axis | 42.5 → 35.5, step −0.1, n=71 | axis guard |
- * | longitude axis | 25.5 → 45.0, step +0.1, n=196 | axis guard |
- * | `_FillValue` | float **NaN** | `schema_error` if it becomes a numeric sentinel |
- * | packing | `scale_factor`/`add_offset` **absent** | `schema_error` if either appears |
- * | `GRIB_missingValue` | attribute present, **0 samples in data** | `schema_error` if seen |
- * | `expver` | string variable, 360/360 `"0001"` | `schema_error` |
- * | `valid_time` | int64 epoch seconds, CF, n=360, sorted | `schema_error` |
+ * | variable names | the dataset must exist under that exact name | `schema_error`, no substitution |
+ * | dimension ORDER | shape must equal `[months, lat, lon]`, sizes pairwise distinct | `schema_error` |
+ * | latitude / longitude axes | step derived from the axis WITH ITS SIGN; monotonic + even | axis guard |
+ * | epoch (`seconds since 1970-01-01`) | the int64s must be 360 CONSECUTIVE month-starts at midnight UTC — no other epoch maps these integers onto a gapless 1991-01…2020-12 calendar | `schema_error` |
+ * | missing-ness is NaN | masked cells must actually READ BACK NaN, and the grid must contain a mask at all | `schema_error` |
+ * | no numeric sentinel | every value scanned against −999, 3.4028e38, 9.969e36 | `schema_error` |
+ * | **no packing** | raw values must lie in the physical band (K / m per day). A packed int16 file read raw lands orders of magnitude outside and fails LOUDLY | `schema_error` |
+ * | `expver` | 360/360 `"0001"` (the values themselves, not an attribute) | `schema_error` |
+ *
+ * `units` strings are consequently unreadable and enter provenance as `null` WITH a recorded
+ * reason. Nothing was lost: the `tp` multiplier never rested on `tp:units` — that attribute is
+ * actively misleading (`"m"` for a per-day quantity). It rests on the ROOT-GROUP `history`
+ * attribute (`stream=moda`), which is compact-stored and reads correctly.
  *
  * ## Why the dimension ORDER can be pinned by shape alone
  * The three dimension sizes (360, 71, 196) are PAIRWISE DISTINCT, so a shape triple matching
@@ -44,9 +58,44 @@ export interface Era5VariableData {
   mapping: Era5VariableMapping;
   /** Flat, C-ordered `[time][lat][lon]`. NaN means "masked", which is real information here. */
   values: Float64Array;
-  /** The file's own `units` attribute — recorded because it is MISLEADING for `tp` (see below). */
+  /**
+   * The file's own `units` attribute, or `null` when the decoder cannot read it — which, for this
+   * decoder and this product, is ALWAYS (dense attribute storage). Kept in the shape so the
+   * manifest can state "unreadable" explicitly rather than omitting the field and letting a reader
+   * infer "absent from the file". See {@link ERA5_UNITS_UNREADABLE_REASON}.
+   */
   unitsAttribute: string | null;
 }
+
+/** Recorded in the manifest beside every `unitsAttribute: null` (ruling O-1, condition iii). */
+export const ERA5_UNITS_UNREADABLE_REASON =
+  'not readable: jsfive reads compact-stored HDF5 attributes only, and this product stores them ' +
+  'densely. Note the `tp` units attribute says "m" and is MISLEADING anyway — the per-day ' +
+  'semantics come from the root-group history attribute (stream=moda), which IS readable.';
+
+/**
+ * Numeric sentinels that must never appear as a reading. `GRIB_missingValue` (3.4028e38) is
+ * declared by this product but occurs 0 times in the data (measured, twice); −999 is CAMS's
+ * convention; 9.969e36 is the netCDF default float fill. We cannot read the attribute that
+ * declares them, so we scan the values for them directly — which is the stronger check regardless.
+ */
+export const ERA5_FORBIDDEN_SENTINELS: readonly number[] = [
+  3.4028234663852886e38, -999, 9.969209968386869e36,
+];
+
+/**
+ * Physical bands in the RAW units the file carries, which is what makes packing detectable.
+ *
+ * A packed file (int16 + `scale_factor`) read as raw values yields quantities in the thousands or
+ * tens of thousands — three to four orders of magnitude outside these bands — so the check fires
+ * loudly on exactly the case the unreadable `scale_factor` attribute used to pretend to cover.
+ * The bands are the SPEC §5.2 physical guards expressed at source: −60…+60 °C in Kelvin, and
+ * 0…2000 mm/month expressed as m per day over the shortest month.
+ */
+const RAW_BANDS: Record<Era5VariableMapping['kind'], { min: number; max: number; unit: string }> = {
+  temperature: { min: 213.15, max: 333.15, unit: 'K' },
+  precipitation: { min: 0, max: 2000 / 28 / 1000, unit: 'm per day' },
+};
 
 export interface Era5AxisSummary {
   first: number;
@@ -73,8 +122,6 @@ export interface Era5DecodedFile {
   totalCellCount: number;
 }
 
-/** `valid_time` must be CF epoch seconds — the free-text date trap CAMS had does not exist here. */
-const EXPECTED_TIME_UNITS = 'seconds since 1970-01-01';
 const EXPECTED_EXPVER = '0001';
 
 export interface Era5DecodeOptions {
@@ -116,20 +163,23 @@ export function decodeEra5File(
   const latitudeAnalysis = analyseEra5Axis(latitudeAxis, 'latitude');
   const longitudeAnalysis = analyseEra5Axis(longitudeAxis, 'longitude');
 
-  // ── valid_time: CF units, epoch seconds, sorted, month-aligned ──────────────
-  const timeUnits = readStringAttribute(timeDataset.attributes.units);
-  if (timeUnits === null || !timeUnits.startsWith(EXPECTED_TIME_UNITS)) {
-    throw new Era5ContractError(
-      `valid_time:units is ${JSON.stringify(timeUnits)}, expected it to start with ` +
-        `"${EXPECTED_TIME_UNITS}". A different epoch would shift every month silently.`,
-    );
-  }
+  // ── valid_time: the EPOCH is proven from the values, not from an attribute ──
+  // `buildMonths` requires every int64 to be midnight UTC on the first of a month AND each to be
+  // exactly one calendar month after its predecessor. Interpreted under any other epoch, this
+  // particular run of integers does not land on a gapless run of month-starts — so passing that
+  // gate IS the proof that the units are `seconds since 1970-01-01`. The attribute (which this
+  // decoder cannot read anyway) would only have been the writer's claim about the same thing.
   const rawTimes = file.readNumericDataset('valid_time', monthCount);
   const months = rawTimes.length === 0 ? [] : buildMonths(rawTimes);
 
   // ── expver: a string VARIABLE, not an extra dimension (measured M8) ─────────
+  // In the 360-month production file it is a proper vector. In the single-month fixture cfgrib
+  // collapses it to a SCALAR dataspace (rank 0, one value). Both are one value per month, so the
+  // scalar is accepted as a 1-element vector — and the production length check below is NOT
+  // relaxed by it (Atlas ruling, 2026-08-02).
   const expverDataset = file.dataset('expver');
-  const expverLength = onlyDimension(expverDataset.shape, 'expver');
+  const expverLength =
+    expverDataset.shape.length === 0 ? 1 : onlyDimension(expverDataset.shape, 'expver');
   if (expverLength !== monthCount) {
     throw new Era5ContractError(
       `expver has ${String(expverLength)} entries but valid_time has ${String(monthCount)} — ` +
@@ -183,48 +233,62 @@ export function decodeEra5File(
       );
     }
 
-    // Packing must be ABSENT. It is today (measured), and the danger is the future: a product
-    // that starts returning packed int16 would decode as garbage-but-plausible if we read raw.
-    for (const forbidden of ['scale_factor', 'add_offset']) {
-      if (forbidden in dataset.attributes) {
-        throw new Era5ContractError(
-          `variable "${mapping.fileName}" now carries a "${forbidden}" attribute. The measured ` +
-            'product is UNPACKED; reading raw values from a packed file would be silently wrong.',
-        );
-      }
-    }
-
-    // `_FillValue` must be NaN, so missing-ness is tested with `Number.isNaN` and NOT with a
-    // sentinel comparison. If it turns into a number (CAMS's −999), that comparison would be
-    // missing everywhere and −999 would be published as a temperature.
-    const fillValue = readNumericAttribute(dataset.attributes._FillValue);
-    if (fillValue !== null && !Number.isNaN(fillValue)) {
-      throw new Era5ContractError(
-        `variable "${mapping.fileName}" has _FillValue = ${String(fillValue)}, expected NaN. A ` +
-          'numeric sentinel must not be read as data (SPEC §5.2).',
-      );
-    }
-
     const values = file.readNumericDataset(mapping.fileName, expectedCellCount);
 
-    // `GRIB_missingValue` (3.4028e38) is declared as an attribute but never occurs in the data
-    // (0 samples measured). If it ever does, it is a sentinel masquerading as a reading.
-    const gribMissing = readNumericAttribute(dataset.attributes.GRIB_missingValue);
-    if (gribMissing !== null && Number.isFinite(gribMissing)) {
-      for (let index = 0; index < values.length; index += 1) {
-        if (values[index] === gribMissing) {
+    // ── ONE data pass that replaces three unreadable attribute guards ────────
+    // Missing-ness, sentinels and packing are all decided by the VALUES. See the module docblock
+    // for why this is stronger than reading `_FillValue` / `GRIB_missingValue` / `scale_factor`,
+    // and the adapter docblock for why reading them is impossible with this decoder.
+    const band = RAW_BANDS[mapping.kind];
+    let maskedInVariable = 0;
+    for (let index = 0; index < values.length; index += 1) {
+      const value = values[index];
+      if (value === undefined) {
+        throw new Era5ContractError(
+          `variable "${mapping.fileName}"[${String(index)}] is missing from the decoded array.`,
+          { unexpected: true },
+        );
+      }
+      // NaN IS the fill value in this product, and the sea mask is real information — kept.
+      if (Number.isNaN(value)) {
+        maskedInVariable += 1;
+        continue;
+      }
+      for (const sentinel of ERA5_FORBIDDEN_SENTINELS) {
+        if (value === sentinel) {
           throw new Era5ContractError(
-            `variable "${mapping.fileName}" contains its own GRIB_missingValue ` +
-              `(${String(gribMissing)}) at flat index ${String(index)} — a sentinel in the data.`,
+            `variable "${mapping.fileName}"[${String(index)}] is the sentinel ${String(sentinel)} ` +
+              '— a missing-value marker masquerading as a reading. Missing-ness on this product ' +
+              'is NaN; a numeric sentinel means the product changed.',
           );
         }
       }
+      // The packing guard. A packed int16 file read raw lands orders of magnitude outside.
+      if (value < band.min || value > band.max) {
+        throw new Era5ContractError(
+          `variable "${mapping.fileName}"[${String(index)}] = ${String(value)} ${band.unit} is ` +
+            `outside the physical band [${String(band.min)}, ${String(band.max)}] ${band.unit}. ` +
+            'The most likely cause is that the product started returning PACKED values ' +
+            '(scale_factor/add_offset), which must never be read raw — refusing to publish ' +
+            'plausible-looking nonsense.',
+        );
+      }
+    }
+    // A grid with NO masked cell at all would mean ERA5-Land started returning sea values, i.e.
+    // that NaN stopped being the fill marker. Measured: 24.4 % of this box is masked.
+    if (maskedInVariable === 0) {
+      throw new Era5ContractError(
+        `variable "${mapping.fileName}" contains NO masked cell. ERA5-Land is defined on land ` +
+          'only and 24.4 % of this box is sea, so an unmasked grid means missing-ness is no ' +
+          'longer expressed as NaN — every sea cell would be published as a real reading.',
+      );
     }
 
     decodedVariables.push({
       mapping,
-      values,
+      // Always null with this decoder; the manifest states the reason explicitly (ruling O-1 iii).
       unitsAttribute: readStringAttribute(dataset.attributes.units),
+      values,
     });
   }
 
@@ -345,17 +409,6 @@ function onlyDimension(shape: readonly number[], what: string): number {
   const size = shape[0];
   if (size === undefined) throw new Era5ContractError(`"${what}" has an undefined dimension size.`);
   return size;
-}
-
-/** HDF5 attributes arrive as a bare scalar (rank 0) or a 1-element array — accept both, only those. */
-function readNumericAttribute(raw: unknown): number | null {
-  if (raw === null || raw === undefined) return null;
-  if (typeof raw === 'number') return raw;
-  if (Array.isArray(raw) && raw.length === 1) {
-    const value: unknown = raw[0];
-    return typeof value === 'number' ? value : null;
-  }
-  return null;
 }
 
 function readStringAttribute(raw: unknown): string | null {

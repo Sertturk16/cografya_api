@@ -75,7 +75,10 @@ function resolve(options: SyntheticFileOptions): ResolvedOptions {
     firstYear: options.firstYear ?? 1991,
     latitudeAxis: options.latitudeAxis ?? TEST_LATITUDE_AXIS,
     longitudeAxis: options.longitudeAxis ?? TEST_LONGITUDE_AXIS,
-    maskedCells: options.maskedCells ?? new Set<string>(),
+    // A healthy ERA5-Land grid ALWAYS carries a mask (the product is land-only), and the decoder
+    // now refuses a grid without one — so the default synthetic file has a small masked block in
+    // the far north-west corner (42.5/42.4 °N, 25.5/25.6 °E: open Aegean, no province near it).
+    maskedCells: options.maskedCells ?? new Set<string>(['0,0', '0,1', '1,0', '1,1']),
     flickeringCells: options.flickeringCells ?? new Set<string>(),
     timeUnits: options.timeUnits ?? 'seconds since 1970-01-01',
     expverValues: options.expverValues ?? Array.from({ length: monthCount }, () => '0001'),

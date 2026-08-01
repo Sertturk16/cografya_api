@@ -72,6 +72,12 @@ export interface Era5ProvinceCellRecord {
   fallbackUsed: boolean;
   /** A-1 record 3 of 3: great-circle km from the administrative point to the cell used. */
   fallbackDistanceKm: number;
+  /**
+   * Axes on which the administrative point sat EXACTLY on a cell boundary, so the cell was picked
+   * by the declared lower-index tie-break rather than by being nearer. Measured: only 44 Malatya,
+   * on both axes. Recorded so the choice is declared rather than decided by floating-point noise.
+   */
+  halfStepTieAxes: readonly ('latitude' | 'longitude')[];
   /** 30-year mean of the monthly means — recorded evidence, asserted only by magnitude class. */
   annualMeanTempC: number;
   /** 30-year mean of the annual precipitation totals, mm. */
@@ -95,6 +101,17 @@ export interface Era5Manifest {
   licence: string;
   /** The verbatim CC-BY-4.0 attribution the provider requires (carried into provenance/UI). */
   requiredAttribution: string;
+  /**
+   * How THIS artifact was produced.
+   *
+   * `cds-fetch` — a live run: the `jobs` block below carries the CDS job ids, queue stamps and the
+   * provider's own checksum, and the download was verified against it before the job was deleted.
+   * `from-file` — a deterministic offline re-run over a raw file already on disk (`--from-file`).
+   * It has NO jobs by construction, and claiming any would be a lie; the integrity chain is
+   * carried instead by `rawFile.sha256`/`rawFile.md5`, which were verified against the provider's
+   * `file:checksum` when those bytes were originally downloaded.
+   */
+  sourceMode: 'cds-fetch' | 'from-file';
   /** The `area` parameter exactly as sent: [N, W, S, E]. */
   areaSent: readonly number[];
   /** The exact production request body — reproducibility, and key-free by construction. */
@@ -105,15 +122,29 @@ export interface Era5Manifest {
   axes: { latitude: Era5AxisSummary; longitude: Era5AxisSummary };
   months: { count: number; firstIso: string; lastIso: string };
   expver: { distinctValues: readonly string[]; count: number };
-  /** Global attributes verbatim — `history` carries the `stream=moda` proof for the `tp` factor. */
+  /**
+   * Root-group attributes verbatim. These ARE readable (compact storage) and carry the load:
+   * `history` holds `stream=moda`, which is the actual evidence for the `tp` multiplier.
+   */
   globalAttributes: Readonly<Record<string, string>>;
+  /**
+   * The declared tie-break convention for a coordinate landing exactly on a cell boundary, plus
+   * the provinces it applied to. Without this, which of two equidistant cells wins is decided by
+   * floating-point noise in the derived step — a silent shift (Atlas ruling, 2026-08-02).
+   */
+  halfStepTieBreak: { rule: string; plateCodes: readonly string[] };
   variables: readonly {
     requestName: string;
     fileName: string;
-    /** Recorded BECAUSE it is misleading: `tp:units` says "m" and means "m per day". */
+    /**
+     * `null` means UNREADABLE, not absent — see {@link Era5Manifest.unitsAttributeNote}. Never
+     * infer "the file has no units" from this field.
+     */
     unitsAttribute: string | null;
     conversion: string;
   }[];
+  /** Why every `unitsAttribute` above is `null`, stated so nobody misreads it as "absent". */
+  unitsAttributeNote: string;
   mask: {
     maskedCells: number;
     totalCells: number;

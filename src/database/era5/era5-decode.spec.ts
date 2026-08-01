@@ -1,5 +1,10 @@
 import { describe, expect, it } from '@jest/globals';
-import { buildMonths, decodeEra5File, flatIndex } from './era5-decode';
+import {
+  buildMonths,
+  decodeEra5File,
+  ERA5_UNITS_UNREADABLE_REASON,
+  flatIndex,
+} from './era5-decode';
 import {
   buildFakeEra5File,
   TEST_LATITUDE_AXIS,
@@ -34,11 +39,9 @@ describe('decodeEra5File — the healthy file', () => {
     expect(decoded.longitudeSummary.last).toBeCloseTo(45.0, 6);
   });
 
-  it('reads both core variables and keeps the MISLEADING tp units attribute verbatim', () => {
+  it('reads both core variables', () => {
     const decoded = decode();
     expect(decoded.variables.map((variable) => variable.mapping.fileName)).toEqual(['t2m', 'tp']);
-    // Recorded, never trusted: the file says "m" and means "m per day" (stream=moda).
-    expect(decoded.variables[1]?.unitsAttribute).toBe('m');
   });
 
   it('carries the global `history` attribute — the stream=moda evidence for the tp factor', () => {
@@ -57,55 +60,64 @@ describe('decodeEra5File — contract violations, one class at a time', () => {
     expect(() => decode({ omit: ['tp'] })).toThrow(Era5ContractError);
   });
 
-  it('REFUSES a `scale_factor` appearing where the measured product had none', () => {
-    expect(() =>
-      decode({
-        variables: [
-          { name: 't2m', attributes: { units: 'K', _FillValue: Number.NaN, scale_factor: 0.01 } },
-          { name: 'tp', attributes: { units: 'm', _FillValue: Number.NaN } },
-        ],
-      }),
-    ).toThrow(/scale_factor/);
-  });
+  // ── the guards that replaced the unreadable attributes (Atlas ruling O-1) ──
+  // Every one of these used to be an attribute lookup. They are data scans now, because this
+  // decoder reads dense-stored attributes back as an EMPTY BAG with no error — which made the
+  // packing guard in particular a check that could never fire.
 
-  it('REFUSES an `add_offset` appearing', () => {
-    expect(() =>
-      decode({
-        variables: [
-          { name: 't2m', attributes: { units: 'K', _FillValue: Number.NaN, add_offset: 200 } },
-        ],
-      }),
-    ).toThrow(/add_offset/);
-  });
-
-  it("REFUSES a `_FillValue` that turned into a numeric sentinel (CAMS's −999)", () => {
-    expect(() =>
-      decode({
-        variables: [{ name: 't2m', attributes: { units: 'K', _FillValue: -999 } }],
-      }),
-    ).toThrow(/_FillValue = -999, expected NaN/);
-  });
-
-  it('REFUSES a GRIB_missingValue that actually OCCURS in the data', () => {
+  it('REFUSES PACKED values via the physical band — the guard `scale_factor` used to pretend to be', () => {
     const latCount = TEST_LATITUDE_AXIS.length;
     const lonCount = TEST_LONGITUDE_AXIS.length;
-    const values = new Float64Array(2 * latCount * lonCount).fill(288);
-    values[17] = 3.4028234663852886e38;
-    expect(() =>
-      decode({
-        variables: [
-          {
-            name: 't2m',
-            attributes: {
-              units: 'K',
-              _FillValue: Number.NaN,
-              GRIB_missingValue: 3.4028234663852886e38,
-            },
-            values,
-          },
-        ],
-      }),
-    ).toThrow(/GRIB_missingValue/);
+    // What a packed int16 file looks like when read raw: plausible-looking integers, wildly
+    // outside the physical band. The old attribute check would have passed this file.
+    const values = new Float64Array(2 * latCount * lonCount).fill(14_237);
+    values[0] = Number.NaN;
+    expect(() => decode({ variables: [{ name: 't2m', attributes: {}, values }] })).toThrow(
+      /outside the physical band/,
+    );
+  });
+
+  it('names PACKING as the likely cause, so the next reader is not left guessing', () => {
+    const values = new Float64Array(
+      2 * TEST_LATITUDE_AXIS.length * TEST_LONGITUDE_AXIS.length,
+    ).fill(14_237);
+    values[0] = Number.NaN;
+    expect(() => decode({ variables: [{ name: 't2m', attributes: {}, values }] })).toThrow(
+      /scale_factor\/add_offset/,
+    );
+  });
+
+  it('REFUSES each numeric sentinel appearing as a reading', () => {
+    const latCount = TEST_LATITUDE_AXIS.length;
+    const lonCount = TEST_LONGITUDE_AXIS.length;
+    for (const sentinel of [3.4028234663852886e38, -999, 9.969209968386869e36]) {
+      const values = new Float64Array(2 * latCount * lonCount).fill(288);
+      values[0] = Number.NaN;
+      values[17] = sentinel;
+      expect(() => decode({ variables: [{ name: 't2m', attributes: {}, values }] })).toThrow(
+        /masquerading as a reading/,
+      );
+    }
+  });
+
+  it('REFUSES a grid with NO masked cell — NaN must still be how missing-ness is expressed', () => {
+    const values = new Float64Array(
+      2 * TEST_LATITUDE_AXIS.length * TEST_LONGITUDE_AXIS.length,
+    ).fill(288);
+    expect(() => decode({ variables: [{ name: 't2m', attributes: {}, values }] })).toThrow(
+      /contains NO masked cell/,
+    );
+  });
+
+  it('KEEPS NaN as data — the sea mask is information, not corruption', () => {
+    const decoded = decode({ maskedCells: new Set(['0,0', '1,1']) });
+    expect(decoded.maskedCellCount).toBe(2);
+  });
+
+  it('reports units as null (unreadable) rather than pretending the file has none', () => {
+    // The decoder cannot read dense-stored attributes; the manifest states the reason explicitly.
+    expect(ERA5_UNITS_UNREADABLE_REASON).toContain('not readable');
+    expect(ERA5_UNITS_UNREADABLE_REASON).toContain('stream=moda');
   });
 
   it('REFUSES a transposed DIMENSION ORDER — every value would come from the wrong place', () => {
@@ -138,8 +150,12 @@ describe('decodeEra5File — contract violations, one class at a time', () => {
     expect(() => decode({ expverValues: ['0001'] })).toThrow(/the product gained a dimension/);
   });
 
-  it('REFUSES a valid_time with a non-CF epoch', () => {
-    expect(() => decode({ timeUnits: 'hours since 1900-01-01' })).toThrow(/valid_time:units/);
+  it('proves the EPOCH from the values, not from an attribute', () => {
+    // Read as anything other than seconds-since-1970, these integers do not land on a gapless run
+    // of month-starts — so passing `buildMonths` IS the epoch proof.
+    const decoded = decode({ monthCount: 3 });
+    expect(decoded.months.map((month) => month.year)).toEqual([1991, 1991, 1991]);
+    expect(decoded.months.map((month) => month.month)).toEqual([1, 2, 3]);
   });
 
   it("REFUSES a month count that differs from the caller's expectation", () => {

@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { File as JsFiveFile } from 'jsfive';
 import { Era5ContractError } from '../era5.errors';
 
@@ -21,6 +23,29 @@ import { Era5ContractError } from '../era5.errors';
  * 3. **The decoder identity comes from the INSTALLED package**, not from a literal: the manifest's
  *    provenance claim must describe what actually ran (see {@link readDecoderIdentity}).
  *
+ * ## ⚠️ THIS DECODER CANNOT READ MOST OF THIS FILE'S ATTRIBUTES — NEVER WRITE AN ATTRIBUTE GUARD
+ * `jsfive@0.4.0` reads HDF5 attributes only from **compact** storage (attribute messages inside
+ * the object header). Once a dataset carries enough attributes for HDF5 to switch to **dense**
+ * storage (an Attribute Info Message plus a fractal heap), it returns an **EMPTY BAG WITH NO
+ * ERROR** — its own source carries the `TODO` for that case. Measured on our real production file:
+ * `ncdump` reports 33 attributes on `t2m` and 4 on `valid_time`; `jsfive` reports `{}` for both.
+ * Only small-attribute datasets (`number`) and the ROOT GROUP are read correctly.
+ *
+ * The consequence is the reason this warning is shouted rather than noted. A check of the form
+ * `if ('scale_factor' in dataset.attributes) throw …` **can never fire**: the bag is always empty,
+ * so a packed file would sail through a guard that reports "verified". That is a check whose
+ * disabling surface is invisible — the exact class DEC 2026-07-19 is about — and it is strictly
+ * worse than having no check, because it manufactures false confidence.
+ *
+ * **Binding rule (Atlas ruling O-1, 2026-08-02): every contract guard on this line reads the
+ * DATA, never an attribute.** The epoch is proven by 360 consecutive month-starts, missing-ness by
+ * scanning for actual NaN and for numeric sentinels, and packing by the physical range guard (a
+ * packed file read raw lands orders of magnitude outside −60…+60 °C and fails loudly). Byte-level
+ * checks are strictly stronger than label-level ones here, at essentially zero cost. `units`
+ * strings are consequently NOT readable and enter provenance as `null` with a recorded reason —
+ * note that the `tp` multiplier's justification never depended on them anyway: it rests on the
+ * root-group `history` attribute (`stream=moda`), which IS readable.
+ *
  * ## Licence, recorded here because a dependency audit that lives only in a PR body evaporates
  * `jsfive@0.4.0` — https://github.com/usnistgov/jsfive (US National Institute of Standards and
  * Technology). Its `LICENSE.txt`, read verbatim from the installed package, says: *"jsfive is in
@@ -33,41 +58,88 @@ import { Era5ContractError } from '../era5.errors';
 /** Exact pin, single-sourced. The lockfile is what actually enforces it; this is the claim. */
 export const ERA5_DECODER_PACKAGE = 'jsfive';
 
+/**
+ * How much of the HDF5 attribute model this decoder can actually see. Written into the manifest
+ * (Atlas ruling O-1 condition ii) so the limitation is a recorded property of the data, not tribal
+ * knowledge: anyone reading the artifact can tell that `unitsAttribute: null` means "unreadable",
+ * not "absent from the file".
+ */
+export const ERA5_DECODER_ATTRIBUTE_SUPPORT = 'compact-only' as const;
+
 export interface Era5DecoderIdentity {
   package: string;
   version: string;
   /** The DEFLATE dependency that does the real chunk decompression — pinned transitively. */
   inflatePackage: string;
   inflateVersion: string;
+  /**
+   * `compact-only`: dense-stored attributes read back EMPTY, with no error. Contract guards
+   * therefore read data, never attributes — see the module docblock.
+   */
+  attributeSupport: typeof ERA5_DECODER_ATTRIBUTE_SUPPORT;
 }
 
 /**
- * Read the decoder identity from the packages that are actually installed.
+ * Read the decoder identity from the packages that are ACTUALLY INSTALLED.
  *
- * A hardcoded `'jsfive@0.4.0'` string in the manifest would keep claiming 0.4.0 after somebody
- * bumped the dependency — a provenance record that cannot go stale is worth more than one that
- * merely looks precise.
+ * A hardcoded `'jsfive@0.4.0'` in the manifest would keep claiming 0.4.0 after somebody bumped the
+ * dependency — a provenance record that cannot go stale is worth more than one that merely looks
+ * precise.
+ *
+ * The version is found by resolving the package's entry point and walking UP to the nearest
+ * `package.json` that actually names it. The obvious `require('jsfive/package.json')` does not
+ * work: `jsfive` publishes an `exports` map that does not list `./package.json`, so Node refuses
+ * the subpath outright (`ERR_PACKAGE_PATH_NOT_EXPORTED`) — a real failure this hit on the first
+ * production run. `pako` is resolved relative to `jsfive`, because under pnpm it is a nested
+ * transitive dependency and is not resolvable from here directly.
  */
 export function readDecoderIdentity(
-  requireImpl: (id: string) => unknown = require,
+  resolveImpl: (id: string, fromDir?: string) => string = defaultResolve,
+  readFileImpl: (path: string) => string = (path) => readFileSync(path, 'utf8'),
 ): Era5DecoderIdentity {
-  const readVersion = (packageName: string): string => {
-    const manifest = requireImpl(`${packageName}/package.json`);
-    if (typeof manifest !== 'object' || manifest === null) {
-      throw new Era5ContractError(`could not read ${packageName}/package.json for provenance.`);
+  const readVersion = (packageName: string, fromDir?: string): { version: string; dir: string } => {
+    let directory: string;
+    try {
+      directory = dirname(resolveImpl(packageName, fromDir));
+    } catch (error: unknown) {
+      throw new Era5ContractError(`could not resolve "${packageName}" for provenance.`, {
+        cause: error,
+      });
     }
-    const version = (manifest as Record<string, unknown>).version;
-    if (typeof version !== 'string' || version.length === 0) {
-      throw new Era5ContractError(`${packageName}/package.json has no usable "version".`);
+    for (;;) {
+      try {
+        const parsed: unknown = JSON.parse(readFileImpl(join(directory, 'package.json')));
+        if (typeof parsed === 'object' && parsed !== null) {
+          const record = parsed as Record<string, unknown>;
+          if (record.name === packageName && typeof record.version === 'string') {
+            return { version: record.version, dir: directory };
+          }
+        }
+      } catch {
+        // No package.json here (or an unrelated one) — keep walking up.
+      }
+      const parent = dirname(directory);
+      if (parent === directory) {
+        throw new Era5ContractError(
+          `walked to the filesystem root without finding a package.json naming "${packageName}".`,
+        );
+      }
+      directory = parent;
     }
-    return version;
   };
+
+  const decoder = readVersion(ERA5_DECODER_PACKAGE);
   return {
     package: ERA5_DECODER_PACKAGE,
-    version: readVersion(ERA5_DECODER_PACKAGE),
+    version: decoder.version,
     inflatePackage: 'pako',
-    inflateVersion: readVersion('pako'),
+    inflateVersion: readVersion('pako', decoder.dir).version,
+    attributeSupport: ERA5_DECODER_ATTRIBUTE_SUPPORT,
   };
+}
+
+function defaultResolve(id: string, fromDir?: string): string {
+  return fromDir === undefined ? require.resolve(id) : require.resolve(id, { paths: [fromDir] });
 }
 
 /**
@@ -260,9 +332,15 @@ export class Era5Hdf5File implements Era5FileReader {
   }
 }
 
+/**
+ * An EMPTY shape array is legitimate: it is HDF5's scalar dataspace (rank 0), which holds exactly
+ * one value. `expver` arrives that way in the single-month fixture, where cfgrib collapses it to a
+ * scalar coordinate, while the 360-month production file returns it as a proper vector. Callers
+ * distinguish the two — the production month-count assertion is NOT relaxed for it.
+ */
 function asShape(raw: unknown, what: string): readonly number[] {
-  if (!Array.isArray(raw) || raw.length === 0) {
-    throw new Era5ContractError(`"${what}": shape is not a non-empty array.`, { unexpected: true });
+  if (!Array.isArray(raw)) {
+    throw new Era5ContractError(`"${what}": shape is not an array.`, { unexpected: true });
   }
   return raw.map((size: unknown, index: number) => {
     if (typeof size !== 'number' || !Number.isInteger(size) || size <= 0) {

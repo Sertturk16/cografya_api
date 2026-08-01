@@ -82,6 +82,36 @@ describe('mapEra5CoordinateToIndex — the Malatya boundary case', () => {
     expect(Math.abs(lon.snapped - 38.25)).toBeLessThanOrEqual(readbackToleranceFor(0.1));
   });
 
+  it('FLAGS the Malatya tie and resolves it to the LOWER INDEX, deterministically', () => {
+    // Atlas ruling 2026-08-02: an exact half-step tie must not be resolved by floating-point
+    // noise in the derived step. The declared convention is "lower index wins", chosen because it
+    // reproduces the cell the real 2026-08-02 run already published (lat 38.4, lon 38.2).
+    const lat = mapEra5CoordinateToIndex(latitudeAxis, latitudeAnalysis, 38.35, 'latitude');
+    const lon = mapEra5CoordinateToIndex(longitudeAxis, longitudeAnalysis, 38.25, 'longitude');
+    expect(lat.halfStepTie).toBe(true);
+    expect(lon.halfStepTie).toBe(true);
+    expect(lat.snapped).toBeCloseTo(38.4, 6);
+    expect(lon.snapped).toBeCloseTo(38.2, 6);
+  });
+
+  it('resolves the tie the SAME way whichever side float noise falls on', () => {
+    // The whole point: nudge the axis origin by a hair in both directions and the chosen cell must
+    // not move. Plain `Math.round` fails this — it flips at exactly x.5.
+    for (const nudge of [-1e-12, 0, 1e-12]) {
+      const nudged = latitudeAxis.map((value) => value + nudge);
+      const analysis = analyseEra5Axis(nudged, 'latitude');
+      const mapped = mapEra5CoordinateToIndex(nudged, analysis, 38.35 + nudge, 'latitude');
+      expect(mapped.halfStepTie).toBe(true);
+      expect(mapped.index).toBe(41);
+    }
+  });
+
+  it('does NOT flag a coordinate that is genuinely nearer one cell', () => {
+    expect(
+      mapEra5CoordinateToIndex(latitudeAxis, latitudeAnalysis, 39.92, 'latitude').halfStepTie,
+    ).toBe(false);
+  });
+
   it('maps a mid-cell coordinate to the obvious cell', () => {
     const lat = mapEra5CoordinateToIndex(latitudeAxis, latitudeAnalysis, 39.92, 'latitude');
     expect(lat.snapped).toBeCloseTo(39.9, 6);
@@ -145,6 +175,11 @@ describe('selectEra5Cell — the A-1 declared land-cell fallback', () => {
     expect(selection.fallbackUsed).toBe(false);
     expect(selection.fallbackDistanceKm).toBe(0);
     expect(selection.cellLatitude).toBeCloseTo(39.9, 6);
+    expect(selection.halfStepTieAxes).toEqual([]);
+  });
+
+  it('records BOTH tie axes for a Malatya-shaped coordinate', () => {
+    expect(select(38.35, 38.25, () => false).halfStepTieAxes).toEqual(['latitude', 'longitude']);
   });
 
   it('falls back to the nearest land cell and RECORDS the flag, the cell and the km', () => {
