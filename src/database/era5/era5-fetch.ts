@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import {
   readBodyCappedBytes,
   UpstreamOversizedResponseError,
@@ -237,6 +237,14 @@ export async function runEra5FetchPhase(options: Era5FetchOptions): Promise<void
   const log = (message: string): void => {
     console.log(redact(`[db:import:era5] ${message}`));
   };
+  /**
+   * Anything that went WRONG but did not (yet) stop the run. It must not share a stream with the
+   * progress narration: an operator scanning a 2-minute log for "did anything break" reads stderr,
+   * and a failure printed at info level is a failure nobody sees (DEC 2026-07-19 class).
+   */
+  const logError = (message: string): void => {
+    console.error(redact(`[db:import:era5] ${message}`));
+  };
 
   /** One serial call. Non-2xx statuses are returned (evidence); transport failures throw. */
   const call = async (
@@ -290,12 +298,21 @@ export async function runEra5FetchPhase(options: Era5FetchOptions): Promise<void
     url: string,
     body: Record<string, unknown> | null,
   ): Promise<{ status: number; json: unknown }> => {
+    // Fail closed rather than sending a blank credential. `apiKey` is null ONLY in `--from-file`
+    // mode, which reaches no network call at all — so this branch is unreachable by construction,
+    // and if construction ever changes, refusing beats quietly authenticating as nobody.
+    if (apiKey === null || apiKey.length === 0) {
+      throw new Era5FetchError(
+        `${label}: refusing to call ${method} ${url} without a CDS key. A JSON API call is only ` +
+          'reachable in live mode, so this means the offline/live split broke.',
+      );
+    }
     const raw = await call(
       label,
       method,
       url,
       body,
-      buildCdsJsonHeaders(apiKey ?? ''),
+      buildCdsJsonHeaders(apiKey),
       JSON_TIMEOUT_MS,
       JSON_MAX_BYTES,
     );
@@ -443,7 +460,7 @@ export async function runEra5FetchPhase(options: Era5FetchOptions): Promise<void
 
     // 6 — persist to `<name>.part` and verify BEFORE the final rename, so a half file can never
     // masquerade as a complete one. Only then is the job deletable.
-    await mkdir(dirNameOf(targetPath), { recursive: true });
+    await mkdir(dirname(targetPath), { recursive: true });
     const partPath = `${targetPath}.part`;
     await writeFile(partPath, download.bytes);
     const computedMd5 = createHash('md5').update(download.bytes).digest('hex');
@@ -476,7 +493,14 @@ export async function runEra5FetchPhase(options: Era5FetchOptions): Promise<void
     );
     const deleted = deletion.status >= 200 && deletion.status < 300;
     if (!deleted) {
-      log(`${label}: DELETE answered HTTP ${String(deletion.status)} (job left to expire).`);
+      // stderr, not stdout: the run continues (the bytes are safe on disk) but a job we could not
+      // dismiss is left occupying the provider's queue, and `jobs-deleted` will fail the run at
+      // the gate. The immediate signal must match the eventual outcome.
+      logError(
+        `${label}: DELETE answered HTTP ${String(deletion.status)} — job ${jobId} was NOT ` +
+          'dismissed and is left to expire on the provider. The `jobs-deleted` assertion will ' +
+          'fail this run.',
+      );
     }
 
     return {
@@ -565,6 +589,15 @@ export async function runEra5FetchPhase(options: Era5FetchOptions): Promise<void
   // ── artifacts ──────────────────────────────────────────────────────────────
   const rawSha256 = createHash('sha256').update(productionBytes).digest('hex');
   const rawMd5 = createHash('md5').update(productionBytes).digest('hex');
+  if (fromFile !== null) {
+    // An offline re-run has no provider `file:checksum` to verify against — the integrity link is
+    // the operator comparing this digest with `rawFile.sha256` in the manifest already in git.
+    // Printing it is the whole mechanism, so it is printed rather than assumed to be checked.
+    log(
+      `--from-file raw SHA-256: ${rawSha256} — compare it against "rawFile.sha256" in the ` +
+        'COMMITTED manifest before trusting the regenerated artifacts.',
+    );
+  }
   const generatedAtUtc = nowImpl().toISOString();
   const firstMonth = decoded.months[0];
   const lastMonth = decoded.months[decoded.months.length - 1];
@@ -652,21 +685,37 @@ export async function runEra5FetchPhase(options: Era5FetchOptions): Promise<void
   };
   manifest.assertions = evaluateEra5Assertions({ manifest, series, apiKey });
 
+  // ── write `.part` → GATE → rename, the raw download's discipline applied to the artifacts ──
+  // The gate must sit ON the write path, not after it (DEC 2026-07-19). Writing the canonical
+  // files first and throwing afterwards leaves an INVALID pair at exactly the two paths git
+  // tracks, one `git add -A` away from being committed; CI would catch it, but a guard whose only
+  // enforcement is a later job is an advisory. So a failed run's evidence is kept — it is what
+  // explains the failure — but it is kept at `<name>.part`, and the committed artifacts are left
+  // untouched. Both files are also renamed only after BOTH were written, so a crash between them
+  // can never leave a manifest that disagrees with its series.
+  const manifestPath = join(options.outputDir, MANIFEST_FILE_NAME);
+  const seriesPath = join(options.outputDir, SERIES_FILE_NAME);
   await mkdir(options.outputDir, { recursive: true });
-  await writeArtifact(join(options.outputDir, MANIFEST_FILE_NAME), manifest, apiKey);
-  await writeArtifact(join(options.outputDir, SERIES_FILE_NAME), series, apiKey);
+  await writeArtifact(`${manifestPath}.part`, manifest, apiKey);
+  await writeArtifact(`${seriesPath}.part`, series, apiKey);
 
   for (const result of manifest.assertions) {
     log(`${result.passed ? 'PASS' : 'FAIL'} ${result.id}: ${result.detail}`);
   }
   const failures = manifest.assertions.filter((result) => !result.passed);
   if (failures.length > 0) {
-    // The artifacts WERE written — a failed run's evidence is what fixes it. Exit non-zero.
+    logError(
+      `${String(failures.length)}/${String(manifest.assertions.length)} assertion(s) FAILED.`,
+    );
     throw new Era5FetchError(
       `${String(failures.length)} assertion(s) FAILED:\n  ` +
-        failures.map((result) => `${result.id}: ${result.detail}`).join('\n  '),
+        failures.map((result) => `${result.id}: ${result.detail}`).join('\n  ') +
+        `\nThe evidence of this run was kept at ${manifestPath}.part and ${seriesPath}.part; ` +
+        'the committed artifacts were NOT overwritten.',
     );
   }
+  await rename(`${manifestPath}.part`, manifestPath);
+  await rename(`${seriesPath}.part`, seriesPath);
   log(
     `done — ${String(requests.length)} request(s), ${String(manifest.totals.downloadedBytes)} B ` +
       `downloaded, artifacts in ${options.outputDir}. The raw ${String(productionBytes.byteLength)} ` +
@@ -677,9 +726,16 @@ export async function runEra5FetchPhase(options: Era5FetchOptions): Promise<void
 /**
  * Write one artifact deterministically, after scanning it for key material.
  *
- * Keys are sorted (`canonicalJson`, the climate precedent) and then re-indented, so two runs over
- * the same raw file produce BYTE-IDENTICAL files and a `--from-file=` re-run is verifiable by
- * `git diff` alone.
+ * Keys are sorted (`canonicalJson`, the climate precedent) and then re-indented, so the DATA two
+ * runs over the same raw file produce is byte-identical and a `--from-file=` re-run is verifiable
+ * by `git diff`.
+ *
+ * The claim is scoped deliberately: three fields are RUN-STAMPS and legitimately differ between
+ * two runs — `generatedAtUtc` (in both artifacts) and `totals.wallClockMs`. A verifying `git diff`
+ * therefore shows exactly those three lines and nothing else; a fourth changed line means the data
+ * changed. They are kept in the body rather than moved out because "when was this produced" is
+ * provenance, and provenance that lives beside the data is provenance that cannot be separated
+ * from it.
  */
 async function writeArtifact(path: string, value: unknown, apiKey: string | null): Promise<void> {
   const serialised = `${JSON.stringify(JSON.parse(canonicalJson(value)), null, 2)}\n`;
@@ -693,11 +749,6 @@ async function writeArtifact(path: string, value: unknown, apiKey: string | null
 }
 
 // ─── small parsing helpers (fail loudly, never guess) ───────────────────────
-
-function dirNameOf(path: string): string {
-  const index = path.lastIndexOf('/');
-  return index <= 0 ? '.' : path.slice(0, index);
-}
 
 function isoMonth(epochSeconds: number): string {
   return new Date(epochSeconds * 1000).toISOString().slice(0, 10);

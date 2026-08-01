@@ -35,6 +35,12 @@ yarn-error.log*
 /data/era5-land/*.nc
 /data/era5-land/*.nc.part
 
+# The artifacts of a FAILED run. They are kept on purpose — a failed run's evidence is what
+# explains it — but they are by definition invalid, so they must never be committable. The
+# generator writes `<name>.part`, gates, and only then renames; this makes the gate's failure
+# mode unstageable rather than merely caught later by CI.
+/data/era5-land/*.json.part
+
 # TypeScript build info
 *.tsbuildinfo
 

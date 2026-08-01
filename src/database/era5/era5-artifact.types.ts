@@ -7,9 +7,13 @@ import type { Era5DecoderIdentity } from './hdf5/jsfive.adapter';
  *
  * ## What these files ARE
  * `era5-manifest.json` answers "which byte of which file did this number come from": the axes, the
- * 81 cell assignments (with the A-1 fallback flag, cell and KILOMETRES), the attributes, the exact
- * request body, the CDS job ids and stamps, the checksums, the decoder identity and the run-time
- * assertion results. `era5-province-series.json` carries the 81 × 360 × 2 CONVERTED but
+ * 81 cell assignments (with the A-1 fallback flag, cell and KILOMETRES), the readable global
+ * attributes, the exact request body, the checksums, the decoder identity and the run-time
+ * assertion results — plus, on a LIVE run only, the CDS job ids and queue stamps (see
+ * {@link Era5Manifest.sourceMode}: an offline `--from-file` regeneration carries `jobs: []`,
+ * because claiming ids it never issued would be a lie). `rawFile.md5` is always OUR digest of the
+ * bytes; the provider's own `file:checksum` lives in `jobs[].declaredChecksumMd5`, where it was
+ * compared before the job was deleted. `era5-province-series.json` carries the 81 × 360 × 2 CONVERTED but
  * NOT-YET-AVERAGED values, so PR-2's 30-year mean stays auditable OFFLINE — anybody can recompute
  * the published normal from a committed file without touching CDS.
  *
@@ -117,7 +121,11 @@ export interface Era5Manifest {
   /** The exact production request body — reproducibility, and key-free by construction. */
   productionRequestBody: unknown;
   decoder: Era5DecoderIdentity;
-  /** Raw file identity: the 18.88 MiB `.nc` that is deliberately NOT committed. */
+  /**
+   * Raw file identity: the 18.88 MiB `.nc` that is deliberately NOT committed. Both digests are
+   * OURS, computed over the bytes we hold. On a live run the provider's own MD5 is recorded
+   * separately in `jobs[].declaredChecksumMd5` and `computedChecksumMd5` proves they matched.
+   */
   rawFile: { name: string; sizeBytes: number; sha256: string; md5: string };
   axes: { latitude: Era5AxisSummary; longitude: Era5AxisSummary };
   months: { count: number; firstIso: string; lastIso: string };

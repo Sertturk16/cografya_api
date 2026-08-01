@@ -9,9 +9,9 @@ import { FALLBACK_MAX_DISTANCE_KM } from './era5-grid';
  * ## Structure, never facts
  * Everything below asserts a shape or an invariant: 81 provinces, 360 months, no gaps in the
  * calendar, the fallback SET equals the expected five, every fallback distance under the ceiling,
- * axis directions, `expver` uniform, no key material. Nothing asserts that a province HAD a
- * particular temperature. The measured values are recorded as evidence in the manifest and
- * asserted nowhere.
+ * axis directions, `expver` uniform, the `stream=moda` evidence the `tp` factor rests on, no key
+ * material. Nothing asserts that a province HAD a particular temperature. The measured values are
+ * recorded as evidence in the manifest and asserted nowhere.
  *
  * The one apparent exception is {@link PRECIPITATION_REGIME_PROBES}, and it is not an exception:
  * the `tp` multiplier has three candidate readings whose annual totals differ by THREE ORDERS OF
@@ -177,6 +177,30 @@ export function evaluateEra5Assertions(input: Era5AssertionInput): Era5Assertion
     `${String(manifest.mask.maskedCells)}/${String(manifest.mask.totalCells)} cells masked ` +
       `(${(manifest.mask.maskedRatio * 100).toFixed(1)} %). A grid with NO mask would mean ` +
       'ERA5-Land started returning sea values.',
+  );
+
+  // ── the `tp` multiplier's evidence, GATED and not merely recorded ──────────
+  // `× days_in_month × 1000` rests on ONE readable piece of evidence: the root-group `history`
+  // attribute carrying `stream=moda` (monthly means of daily means). The `tp:units` attribute says
+  // "m" and is actively misleading, and this decoder cannot read it anyway.
+  //
+  // Recording that evidence in the manifest is not enough. A product that switched to a different
+  // accumulation convention would change the factor by 2–3×, and the regime bands above are sized
+  // for THREE-order errors on purpose — they would wave a 2–3× error straight through. So the
+  // evidence is asserted on the GENERATION path (a hand-run that loses it stops), and re-asserted
+  // in CI over the committed artifact by `era5-artifact.spec.ts`.
+  const history = manifest.globalAttributes.history ?? '';
+  const hasModaEvidence = history.includes('moda');
+  push(
+    'tp-evidence-present',
+    hasModaEvidence,
+    hasModaEvidence
+      ? 'the root-group `history` attribute still records stream=moda — the per-day accumulation ' +
+          'semantics the tp multiplier rests on.'
+      : 'the root-group `history` attribute NO LONGER records stream=moda, so the tp multiplier ' +
+          '(× days_in_month × 1000) has lost the only evidence it ever had. A changed accumulation ' +
+          'convention shifts the factor by 2–3×, which the order-of-magnitude regime bands cannot ' +
+          'see — refusing to publish.',
   );
 
   // ── provider-contact hygiene ───────────────────────────────────────────────

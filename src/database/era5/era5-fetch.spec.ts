@@ -1,8 +1,12 @@
 import { describe, expect, it } from '@jest/globals';
 import { createHash } from 'node:crypto';
-import { mkdtemp, readFile, readdir } from 'node:fs/promises';
+import { mkdtemp, readFile, readdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { SEED_PROVINCES } from '../seeds/province.seed-data';
+import type { Era5DecodedFile } from './era5-decode';
+import { EXPECTED_FALLBACK_PLATE_CODES } from './era5-extract';
+import { ERA5_EXPECTED_MONTH_COUNT } from './era5-request';
 import {
   assertAllowedDownloadHost,
   buildCdsJsonHeaders,
@@ -17,7 +21,12 @@ import {
   runEra5FetchPhase,
   SERIES_FILE_NAME,
 } from './era5-fetch';
-import { buildSyntheticDecodedFile } from './era5-fixture.builder';
+import {
+  buildSyntheticDecodedFile,
+  cellKeyFor,
+  TEST_LATITUDE_AXIS,
+  TEST_LONGITUDE_AXIS,
+} from './era5-fixture.builder';
 
 /**
  * HTTP + file-handling choreography against a FAKE `fetch`, an injected clock and an injected
@@ -44,6 +53,12 @@ interface ScriptOptions {
   declaredSize?: number;
   declaredChecksum?: string;
   runningPolls?: number;
+  /** The provider answers `execution` with a hostile `jobID` (A1's `../secrets?x=1` case). */
+  hostileJobId?: boolean;
+  /** The provider's error body ECHOES the key back at us (A1's licence-403 case). */
+  echoKeyInExecutionError?: boolean;
+  /** `DELETE /jobs/{id}` answers non-2xx — the job could not be dismissed. */
+  deleteStatus?: number;
 }
 
 /** A fake CDS that answers the whole queue protocol, with per-test sabotage points. */
@@ -74,10 +89,22 @@ function buildFakeCds(options: ScriptOptions): {
       return Promise.resolve(json(options.costing ?? { cost: 1440, limit: 120000 }));
     }
     if (url.endsWith('/execution')) {
+      if (options.echoKeyInExecutionError === true) {
+        return Promise.resolve(
+          json(
+            {
+              type: 'permission denied',
+              title: 'required licences not accepted',
+              detail: `token ${KEY} lacks the licence`,
+            },
+            options.executionStatus ?? 403,
+          ),
+        );
+      }
       return Promise.resolve(
         json(
           {
-            jobID: 'job-0001',
+            jobID: options.hostileJobId === true ? '../secrets?x=1' : 'job-0001',
             status: pollsLeft > 0 ? 'accepted' : (options.terminalStatus ?? 'successful'),
           },
           options.executionStatus ?? 201,
@@ -99,7 +126,7 @@ function buildFakeCds(options: ScriptOptions): {
       );
     }
     if (url.includes('/jobs/') && (init?.method ?? 'GET') === 'DELETE') {
-      return Promise.resolve(json({ status: 'dismissed' }));
+      return Promise.resolve(json({ status: 'dismissed' }, options.deleteStatus ?? 200));
     }
     if (url.includes('/jobs/')) {
       if (pollsLeft > 0) {
@@ -138,6 +165,7 @@ async function runAgainst(
   fixtureDir: string;
   error: unknown;
   logs: string[];
+  errors: string[];
 }> {
   const base = await mkdtemp(join(tmpdir(), 'era5-fetch-'));
   const rawDir = join(base, 'raw');
@@ -145,9 +173,14 @@ async function runAgainst(
   const fixtureDir = join(base, 'fixtures');
   const { fetchImpl, calls } = buildFakeCds(script);
   const logs: string[] = [];
+  const errors: string[] = [];
   const originalLog = console.log;
+  const originalError = console.error;
   console.log = (...args: unknown[]): void => {
     logs.push(args.map((arg) => String(arg)).join(' '));
+  };
+  console.error = (...args: unknown[]): void => {
+    errors.push(args.map((arg) => String(arg)).join(' '));
   };
   let error: unknown = null;
   try {
@@ -165,8 +198,54 @@ async function runAgainst(
     error = caught;
   } finally {
     console.log = originalLog;
+    console.error = originalError;
   }
-  return { calls, rawDir, outputDir, fixtureDir, error, logs };
+  return { calls, rawDir, outputDir, fixtureDir, error, logs, errors };
+}
+
+/** The grid cell one seed province resolves to on the production axes, as a `maskedCells` key. */
+function cellKeyForProvince(plateCode: string): string {
+  const province = SEED_PROVINCES.find((entry) => entry.plateCode === plateCode);
+  if (province === undefined) throw new Error(`seed is missing province ${plateCode}`);
+  return cellKeyFor(province.latitude, province.longitude);
+}
+
+function latIndexOfProvince(plateCode: string): number {
+  const [latIndex] = cellKeyForProvince(plateCode).split(',');
+  return Number(latIndex);
+}
+
+/**
+ * A synthetic decode that satisfies EVERY assertion — the only way to reach the rename, which is
+ * what a successful run's last two lines actually do.
+ *
+ * It is deliberately built from the same measured inputs the real run uses (the production axes,
+ * the real 81 seed coordinates, the five measured sea cells) rather than from numbers chosen to
+ * make the gate green: the point is a run the gate genuinely passes, not a bypass.
+ */
+function buildPassingDecodedFile(): Era5DecodedFile {
+  const latCount = TEST_LATITUDE_AXIS.length;
+  const lonCount = TEST_LONGITUDE_AXIS.length;
+  // Dry enough for Konya's continental band; the Eastern Black Sea row is overwritten below so
+  // Rize lands inside its wet band. Both bands are order-of-magnitude wide (see era5-assertions).
+  const dryMetresPerDay = 0.0015;
+  const wetMetresPerDay = 0.0075;
+  const rizeLatIndex = latIndexOfProvince('53');
+  const values = new Float64Array(ERA5_EXPECTED_MONTH_COUNT * latCount * lonCount).fill(
+    dryMetresPerDay,
+  );
+  for (let timeIndex = 0; timeIndex < ERA5_EXPECTED_MONTH_COUNT; timeIndex += 1) {
+    const rowStart = (timeIndex * latCount + rizeLatIndex) * lonCount;
+    values.fill(wetMetresPerDay, rowStart, rowStart + lonCount);
+  }
+  return buildSyntheticDecodedFile({
+    monthCount: ERA5_EXPECTED_MONTH_COUNT,
+    maskedCells: new Set(EXPECTED_FALLBACK_PLATE_CODES.map(cellKeyForProvince)),
+    variables: [
+      { name: 't2m', attributes: {} },
+      { name: 'tp', attributes: {}, values },
+    ],
+  });
 }
 
 describe('pure security helpers', () => {
@@ -300,28 +379,92 @@ describe('runEra5FetchPhase — the queue protocol', () => {
 
   it('writes both artifacts, and neither contains key material', async () => {
     const { outputDir } = await runAgainst({ payload });
-    const manifest = await readFile(join(outputDir, MANIFEST_FILE_NAME), 'utf8');
-    const series = await readFile(join(outputDir, SERIES_FILE_NAME), 'utf8');
+    // This run FAILS the gate (2 synthetic months), so the evidence lives at `.part` — see the
+    // gate-before-rename test below.
+    const manifest = await readFile(join(outputDir, `${MANIFEST_FILE_NAME}.part`), 'utf8');
+    const series = await readFile(join(outputDir, `${SERIES_FILE_NAME}.part`), 'utf8');
     expect(manifest).not.toContain(KEY);
     expect(series).not.toContain(KEY);
     expect(JSON.parse(manifest)).toMatchObject({ schemaVersion: 1, datasetId: expect.any(String) });
   });
 
-  it('never prints key material', async () => {
-    const { logs } = await runAgainst({ payload });
+  it('never prints key material, on stdout or stderr', async () => {
+    const { logs, errors } = await runAgainst({ payload });
     expect(logs.join('\n')).not.toContain(KEY);
+    expect(errors.join('\n')).not.toContain(KEY);
   });
 
-  it('FAILS LOUDLY when the structural assertions do not pass, having written the evidence', async () => {
+  it('NEGATIVE: a hostile jobID shape is refused BEFORE any URL is built from it', async () => {
+    // A1 precedent (`probe-air-quality.spec.ts`), ported with its guard: the shape gate is only a
+    // guard if something proves it rejects.
+    const { calls, error } = await runAgainst({ payload, hostileJobId: true });
+    expect(String(error)).toContain('unexpected shape');
+    expect(calls.some((call) => call.url.includes('secrets'))).toBe(false);
+  });
+
+  it('NEGATIVE: a provider error body that echoes the key is redacted in the thrown error', async () => {
+    const { error } = await runAgainst({ payload, echoKeyInExecutionError: true });
+    const message = error instanceof Error ? error.message : String(error);
+    expect(message).not.toContain(KEY);
+    expect(message).toContain('[REDACTED]');
+  });
+
+  it('reports a failed job DELETE on STDERR and fails the run at the gate', async () => {
+    const { errors, outputDir } = await runAgainst({ payload, deleteStatus: 500 });
+    // The immediate signal must match the eventual outcome: a job we could not dismiss is an
+    // error, not progress narration.
+    expect(errors.join('\n')).toContain('was NOT');
+    expect(errors.join('\n')).toContain('DELETE answered HTTP 500');
+    const manifest = JSON.parse(
+      await readFile(join(outputDir, `${MANIFEST_FILE_NAME}.part`), 'utf8'),
+    ) as { assertions: { id: string; passed: boolean }[] };
+    expect(manifest.assertions.find((result) => result.id === 'jobs-deleted')?.passed).toBe(false);
+  });
+
+  it('FAILS LOUDLY without overwriting the committed artifacts — the gate is ON the write path', async () => {
     // The synthetic decode yields 2 months, not 360, so `months-360` must fail.
     const { error, outputDir } = await runAgainst({ payload });
     expect(String(error)).toContain('assertion(s) FAILED');
     expect(String(error)).toContain('months-360');
-    // The artifacts of a FAILED run are what explain the failure — they must still be on disk.
-    await expect(readFile(join(outputDir, MANIFEST_FILE_NAME), 'utf8')).resolves.toContain(
-      '"assertions"',
-    );
+    // The artifacts of a FAILED run are what explain the failure — they stay on disk, but at
+    // `.part`, so an invalid pair can never sit at the two paths git tracks.
+    await expect(
+      readFile(join(outputDir, `${MANIFEST_FILE_NAME}.part`), 'utf8'),
+    ).resolves.toContain('"assertions"');
+    const written = await readdir(outputDir);
+    expect(written).not.toContain(MANIFEST_FILE_NAME);
+    expect(written).not.toContain(SERIES_FILE_NAME);
   });
+
+  it('renames `.part` → final ONLY when every assertion passes, leaving no `.part` behind', async () => {
+    const base = await mkdtemp(join(tmpdir(), 'era5-pass-'));
+    const rawPath = join(base, RAW_FILE_NAME);
+    await writeFile(rawPath, payload);
+    const outputDir = join(base, 'data');
+    const originalLog = console.log;
+    console.log = (): void => undefined;
+    try {
+      await runEra5FetchPhase({
+        rawDir: join(base, 'raw'),
+        outputDir,
+        fixtureDir: join(base, 'fixtures'),
+        fromFile: rawPath,
+        sleepImpl: () => Promise.resolve(),
+        nowImpl: () => new Date('2026-08-02T12:00:00Z'),
+        decodeImpl: () => buildPassingDecodedFile(),
+      });
+    } finally {
+      console.log = originalLog;
+    }
+    const written = await readdir(outputDir);
+    expect(written).toContain(MANIFEST_FILE_NAME);
+    expect(written).toContain(SERIES_FILE_NAME);
+    expect(written.some((name) => name.endsWith('.part'))).toBe(false);
+    const manifest = JSON.parse(await readFile(join(outputDir, MANIFEST_FILE_NAME), 'utf8')) as {
+      assertions: { id: string; passed: boolean }[];
+    };
+    expect(manifest.assertions.filter((result) => !result.passed)).toEqual([]);
+  }, 60_000);
 
   it('--from-file makes ZERO network calls', async () => {
     const first = await runAgainst({ payload });
@@ -350,9 +493,9 @@ describe('runEra5FetchPhase — the queue protocol', () => {
       console.log = originalLog;
     }
     expect(calls).toHaveLength(0);
-    await expect(readFile(join(base, 'data', MANIFEST_FILE_NAME), 'utf8')).resolves.toContain(
-      '"schemaVersion"',
-    );
+    await expect(
+      readFile(join(base, 'data', `${MANIFEST_FILE_NAME}.part`), 'utf8'),
+    ).resolves.toContain('"schemaVersion"');
   });
 
   it('produces BYTE-IDENTICAL artifacts on a re-run over the same raw file', async () => {
@@ -377,8 +520,10 @@ describe('runEra5FetchPhase — the queue protocol', () => {
       } finally {
         console.log = originalLog;
       }
-      return readFile(join(base, 'data', SERIES_FILE_NAME), 'utf8');
+      return readFile(join(base, 'data', `${SERIES_FILE_NAME}.part`), 'utf8');
     };
+    // Byte-identical DATA. The two run-stamp fields (`generatedAtUtc`, `totals.wallClockMs`) are
+    // pinned here by the injected clock; `writeArtifact`'s docblock scopes the claim honestly.
     expect(await readAgain()).toBe(await readAgain());
   });
 });

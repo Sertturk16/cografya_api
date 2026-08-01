@@ -48,6 +48,24 @@ describe('decodeEra5File — the healthy file', () => {
     expect(decode().globalAttributeSummary.history ?? '').toContain('"stream": ["moda"]');
   });
 
+  it('records string and single-string-array attributes, and DROPS anything else', () => {
+    // The summary is a string→string provenance map. Non-strings are dropped on purpose (see the
+    // function docblock); the test exists so the drop stays a decision rather than a surprise.
+    const summary = decode({
+      globalAttributes: {
+        Conventions: 'CF-1.7',
+        history: 'filter_by_keys: {"stream": ["moda"]}',
+        institution: ['ECMWF'],
+        GRIB_subCentre: 0,
+        someList: ['a', 'b'],
+      },
+    }).globalAttributeSummary;
+    expect(summary.Conventions).toBe('CF-1.7');
+    expect(summary.institution).toBe('ECMWF');
+    expect(Object.keys(summary)).not.toContain('GRIB_subCentre');
+    expect(Object.keys(summary)).not.toContain('someList');
+  });
+
   it('counts the masked cells of the first time step', () => {
     const decoded = decode({ maskedCells: new Set(['0,0', '0,1', '5,5']) });
     expect(decoded.maskedCellCount).toBe(3);

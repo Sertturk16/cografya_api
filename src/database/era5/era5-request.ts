@@ -14,6 +14,8 @@
  * `unarchived`, so a plain file arrives and no ZIP code path is written at all.
  */
 
+import { Era5ContractError } from './era5.errors';
+
 /** Base URL — a script-local CONSTANT, not env (see `era5-fetch.ts` for the security reasoning). */
 export const CDS_BASE_URL = 'https://cds.climate.copernicus.eu/api/retrieve/v1';
 
@@ -88,9 +90,16 @@ export function buildProductionRequestBody(): Record<string, unknown> {
  * variable × one month: 13 916 cells at ~2.85:1 measured compression.
  */
 export function buildFixtureRequestBody(): Record<string, unknown> {
+  // Looked up by KIND and failing loudly, not `ERA5_VARIABLES[0]?.requestName ?? '2m_temperature'`:
+  // a literal fallback beside the table it falls back FROM is a second copy of the same fact that
+  // no test can ever reach, so a rename would leave the two disagreeing in silence.
+  const temperature = ERA5_VARIABLES.find((mapping) => mapping.kind === 'temperature');
+  if (temperature === undefined) {
+    throw new Era5ContractError('ERA5_VARIABLES no longer carries a temperature mapping.');
+  }
   return {
     ...buildProductionRequestBody(),
-    variable: [ERA5_VARIABLES[0]?.requestName ?? '2m_temperature'],
+    variable: [temperature.requestName],
     year: [String(ERA5_FIRST_YEAR)],
     month: ['01'],
   };

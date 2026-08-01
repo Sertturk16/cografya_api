@@ -77,6 +77,11 @@
       "passed": true
     },
     {
+      "detail": "the root-group `history` attribute still records stream=moda — the per-day accumulation semantics the tp multiplier rests on.",
+      "id": "tp-evidence-present",
+      "passed": true
+    },
+    {
       "detail": "offline regeneration (--from-file): 0 job(s) claimed (must be 0); integrity is carried by the recorded raw-file SHA-256/MD5.",
       "id": "jobs-verified-then-deleted",
       "passed": true
@@ -140,7 +145,7 @@
     "57",
     "61"
   ],
-  "generatedAtUtc": "2026-08-01T22:48:18.237Z",
+  "generatedAtUtc": "2026-08-01T23:32:19.968Z",
   "globalAttributes": {
     "Conventions": "CF-1.7",
     "GRIB_centre": "ecmf",
@@ -1386,7 +1391,7 @@
   "totals": {
     "downloadedBytes": 0,
     "requestCount": 0,
-    "wallClockMs": 729
+    "wallClockMs": 792
   },
   "unitsAttributeNote": "not readable: jsfive reads compact-stored HDF5 attributes only, and this product stores them densely. Note the `tp` units attribute says \"m\" and is MISLEADING anyway — the per-day semantics come from the root-group history attribute (stream=moda), which IS readable.",
   "userAgent": "CografyaPlatformBot/1.0 (educational geography platform; ERA5-Land climate migration; run by hand)",

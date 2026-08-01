@@ -425,7 +425,15 @@ function readStringAttribute(raw: unknown): string | null {
  *
  * `history` is the one that MATTERS: it carries `filter_by_keys: {"stream": ["moda"]}`, which is
  * the actual evidence for the `tp` multiplier (`era5-units.ts`). Recording it means a future
- * reader can re-derive the unit decision from the artifact instead of trusting a comment.
+ * reader can re-derive the unit decision from the artifact instead of trusting a comment — and
+ * `era5-assertions.ts` GATES on it, so losing it stops the run rather than downgrading provenance.
+ *
+ * **Non-string values are dropped, deliberately and safely.** The bag is `unknown`-typed, and a
+ * numeric or array-valued global attribute (`GRIB_subCentre` is one) has no place in a
+ * string→string provenance map. Dropping is safe precisely because nothing infers meaning from a
+ * KEY BEING ABSENT here: the one attribute anything depends on is asserted present by id, and
+ * every other entry is recorded evidence nobody reads programmatically. The drop is covered by a
+ * test so it stays a decision rather than an accident.
  */
 function summariseGlobalAttributes(
   attributes: Readonly<Record<string, unknown>>,

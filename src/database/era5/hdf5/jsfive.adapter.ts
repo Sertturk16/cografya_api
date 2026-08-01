@@ -239,9 +239,31 @@ export class Era5Hdf5File implements Era5FileReader {
     return asAttributeBag(this.file.attrs, 'root');
   }
 
+  /**
+   * `jsfive`'s own lookup, normalised.
+   *
+   * Measured on the real fixture: a missing name makes `jsfive` **throw a bare STRING**
+   * (`"t2m_v2 not found in group"`) — not an `Error`, not `null`. Left unwrapped, that string
+   * escapes the adapter as a value with no type, no stack and no `instanceof Error`, and every
+   * caller's "which contract broke?" question becomes unanswerable. The `null`/`undefined` return
+   * is kept as a belt for a future version that stops throwing.
+   */
+  private rawGet(name: string): unknown {
+    try {
+      return this.file.get(name);
+    } catch (error: unknown) {
+      throw new Era5ContractError(
+        `variable "${name}" could not be read: ${String(error)}. Present at root: ` +
+          `${this.keys().join(', ')}. The product changed — refusing to substitute another ` +
+          'variable (SPEC §5.2).',
+        { cause: error },
+      );
+    }
+  }
+
   /** Fetch one dataset's metadata, failing closed when it is absent or is a group. */
   dataset(name: string): Era5Dataset {
-    const raw: unknown = this.file.get(name);
+    const raw: unknown = this.rawGet(name);
     if (raw === null || raw === undefined) {
       throw new Era5ContractError(
         `variable "${name}" is not in the file. Present at root: ${this.keys().join(', ')}. ` +
@@ -269,7 +291,7 @@ export class Era5Hdf5File implements Era5FileReader {
    * (masked cell where the mask should not be).
    */
   readNumericDataset(name: string, expectedLength: number): Float64Array {
-    const raw: unknown = (this.file.get(name) as { value?: unknown } | null)?.value;
+    const raw: unknown = (this.rawGet(name) as { value?: unknown } | null)?.value;
     if (!Array.isArray(raw)) {
       throw new Era5ContractError(
         `variable "${name}": jsfive returned ${typeof raw} for `.concat(
@@ -307,7 +329,7 @@ export class Era5Hdf5File implements Era5FileReader {
 
   /** Read a dataset's values as strings (the `expver` case: `string expver(valid_time)`). */
   readStringDataset(name: string, expectedLength: number): readonly string[] {
-    const raw: unknown = (this.file.get(name) as { value?: unknown } | null)?.value;
+    const raw: unknown = (this.rawGet(name) as { value?: unknown } | null)?.value;
     if (!Array.isArray(raw)) {
       throw new Era5ContractError(
         `variable "${name}": jsfive returned ${typeof raw} for `.concat(

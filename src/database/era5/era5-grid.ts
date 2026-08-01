@@ -80,9 +80,16 @@ export const HALF_STEP_TIE_EPSILON = 1e-6;
 export const FALLBACK_MAX_DISTANCE_KM = 25;
 
 /**
- * How far the nearest-land search may look, in CELLS, per axis. ±3 cells ≈ 33 km of latitude,
- * which strictly covers the 25 km ceiling above at every Turkish latitude — the window bounds
- * the search, the ceiling decides admissibility. They are deliberately two separate guards.
+ * How far the nearest-land search may look, in CELLS, per axis.
+ *
+ * The window BOUNDS the search; {@link FALLBACK_MAX_DISTANCE_KM} decides admissibility. They are
+ * deliberately two separate guards, and the window is the tighter of the two in one direction:
+ * ±3 cells is ~33.4 km along latitude everywhere, but along longitude it shrinks with the cosine —
+ * ~27.3 km at 35.5 °N and ~24.8 km at the northern edge (42.1 °N), i.e. marginally BELOW the 25 km
+ * ceiling in the far north-east corner. That is deliberate and harmless: the measured maximum
+ * fallback is 13.20 km (57 Sinop), and a province that needed a cell further east than this window
+ * reaches would stop the run with "NO land cell found" instead of drifting — which is the correct
+ * outcome for a shift nobody has ever measured on this grid.
  */
 export const FALLBACK_SEARCH_RADIUS_CELLS = 3;
 
@@ -188,10 +195,17 @@ export function mapEra5CoordinateToIndex(
   const halfStepTie = Math.abs(raw - Math.floor(raw) - 0.5) <= HALF_STEP_TIE_EPSILON;
   const index = halfStepTie ? Math.floor(raw) : Math.round(raw);
   if (index < 0 || index >= axis.length) {
+    // Reachable in exactly one legitimate way: a coordinate sitting exactly half a step OUTSIDE
+    // the first axis value is inside the coverage band, ties, and the declared lower-index
+    // convention then resolves it to −1. Everything else here is genuinely broken arithmetic. The
+    // outcome is the same stop either way — no Turkish province sits on that edge — but the
+    // message must not send the next reader hunting a bug that is not there.
     throw new Era5ContractError(
       `"${axisName}": index ${String(index)} out of [0, ${String(axis.length)}) for requested ` +
-        `${String(requested)} although the value is inside the axis coverage — the arithmetic ` +
-        'is broken.',
+        `${String(requested)} although the value is inside the axis coverage. Either the point ` +
+        `sits exactly on the OUTER half-step edge (where the declared lower-index tie-break ` +
+        `resolves off the axis${halfStepTie ? ' — which is what happened here' : ''}), or the ` +
+        'arithmetic is broken. Stopping either way.',
     );
   }
   const snapped = axis[index];

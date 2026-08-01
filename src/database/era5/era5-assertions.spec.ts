@@ -91,7 +91,11 @@ function buildPassingPair(): { manifest: Era5Manifest; series: Era5SeriesArtifac
     },
     months: { count: ERA5_EXPECTED_MONTH_COUNT, firstIso: '1991-01-01', lastIso: '2020-12-01' },
     expver: { distinctValues: ['0001'], count: ERA5_EXPECTED_MONTH_COUNT },
-    globalAttributes: {},
+    globalAttributes: {
+      Conventions: 'CF-1.7',
+      history:
+        '2026-08-01T18:31 GRIB to CDM+CF via cfgrib with {"filter_by_keys": {"stream": ["moda"]}}',
+    },
     halfStepTieBreak: { rule: 'lower index wins', plateCodes: ['44'] },
     variables: [],
     unitsAttributeNote: 'not readable',
@@ -146,6 +150,118 @@ describe('evaluateEra5Assertions', () => {
         }),
       ),
     ).toContain('provinces-81');
+  });
+
+  it('fails when the SERIES loses a province even though the manifest still lists 81', () => {
+    // The two artifacts are gated independently on purpose: a manifest with 81 cell assignments
+    // and a series with 80 would publish one province from another's numbers.
+    const { manifest, series } = buildPassingPair();
+    expect(
+      failed(
+        evaluateEra5Assertions({
+          manifest,
+          series: { ...series, provinces: series.provinces.slice(0, 80) },
+          apiKey: null,
+        }),
+      ),
+    ).toContain('series-81');
+  });
+
+  it('fails when the month AXIS no longer runs 1991-01 … 2020-12', () => {
+    const { manifest, series } = buildPassingPair();
+    // Same count, shifted window: the series would be a 30-year normal of the wrong 30 years.
+    const shifted = series.monthLabels.map((label) =>
+      label.replace(/^(\d{4})/, (year) => String(Number(year) + 1)),
+    );
+    expect(
+      failed(
+        evaluateEra5Assertions({
+          manifest,
+          series: { ...series, monthLabels: shifted },
+          apiKey: null,
+        }),
+      ),
+    ).toContain('month-labels-complete');
+  });
+
+  it('fails when the fallback SUMMARY and the per-province flags disagree', () => {
+    const { manifest, series } = buildPassingPair();
+    // The summary list is what provenance quotes; the flags are what the pages read. A manifest
+    // where they disagree declares a shift on one page and hides it on another.
+    const provinces = manifest.provinces.map((province) =>
+      province.plateCode === '07' ? { ...province, fallbackUsed: false } : province,
+    );
+    expect(
+      failed(
+        evaluateEra5Assertions({ manifest: { ...manifest, provinces }, series, apiKey: null }),
+      ),
+    ).toContain('fallback-flags-consistent');
+  });
+
+  it('fails when the grid carries NO mask at all — ERA5-Land would be returning sea values', () => {
+    const { manifest, series } = buildPassingPair();
+    expect(
+      failed(
+        evaluateEra5Assertions({
+          manifest: { ...manifest, mask: { ...manifest.mask, maskedCells: 0 } },
+          series,
+          apiKey: null,
+        }),
+      ),
+    ).toContain('mask-present');
+  });
+
+  it('fails when the whole grid reads as masked — that is not a mask, it is an empty file', () => {
+    const { manifest, series } = buildPassingPair();
+    expect(
+      failed(
+        evaluateEra5Assertions({
+          manifest: {
+            ...manifest,
+            mask: { ...manifest.mask, maskedCells: manifest.mask.totalCells },
+          },
+          series,
+          apiKey: null,
+        }),
+      ),
+    ).toContain('mask-present');
+  });
+
+  it('fails when a LIVE run left a job undeleted on the provider', () => {
+    const { manifest, series } = buildPassingPair();
+    const jobs = manifest.jobs.map((job) => ({ ...job, deleted: false }));
+    expect(
+      failed(evaluateEra5Assertions({ manifest: { ...manifest, jobs }, series, apiKey: null })),
+    ).toContain('jobs-deleted');
+  });
+
+  it('fails when the stream=moda evidence for the `tp` multiplier disappears', () => {
+    // The regime bands are sized for THREE-order errors and cannot see a 2–3× accumulation
+    // change; this assertion is what gates the evidence the multiplier actually rests on.
+    const { manifest, series } = buildPassingPair();
+    expect(
+      failed(
+        evaluateEra5Assertions({
+          manifest: {
+            ...manifest,
+            globalAttributes: { Conventions: 'CF-1.7', history: 'stream=oper, daily' },
+          },
+          series,
+          apiKey: null,
+        }),
+      ),
+    ).toContain('tp-evidence-present');
+
+    // Also when the attribute is gone entirely (an unreadable or stripped root group).
+    expect(
+      failed(
+        evaluateEra5Assertions({
+          manifest: { ...manifest, globalAttributes: {} },
+          series,
+          apiKey: null,
+        }),
+      ),
+    ).toContain('tp-evidence-present');
   });
 
   it('fails when a single month is missing from ONE series — completeness is absolute', () => {
