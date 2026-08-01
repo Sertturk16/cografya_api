@@ -61,14 +61,22 @@ describe('mapCoordinateToIndex — direction-aware arithmetic + the read-back gu
   });
 
   it('NEGATIVE (acceptance criterion 1): a +0.1 assumption on the descending axis is caught', () => {
-    // The naive formula round((value − axis[0]) / +0.1) for latitude 39.93:
-    const naiveIndex = Math.round((39.93 - 42.45) / 0.1); // −25 — out of range entirely
-    expect(naiveIndex).toBeLessThan(0);
-    // And if it were clamped into range, the read-back deviation convicts it:
-    const clamped = Math.abs(naiveIndex);
-    const wrongCell = LAT_AXIS[clamped];
-    expect(wrongCell).toBeDefined();
-    expect(Math.abs((wrongCell ?? 0) - 39.93)).toBeGreaterThan(readbackToleranceFor(lat.step));
+    // The measured production failure (probe-olcumleri.md §5.5): the naive formula
+    // round((value − axis[0]) / +0.1) run against the REAL descending latitude axis put
+    // 81 of 81 provinces out of range. Reproduce it across the whole TR latitude band:
+    // every in-domain latitude below axis[0] yields a NEGATIVE index under the naive
+    // formula, while the direction-aware mapping resolves the same latitude correctly.
+    for (let latitude = 35.6; latitude < 42.4; latitude += 0.37) {
+      const naiveIndex = Math.round((latitude - 42.45) / 0.1);
+      expect(naiveIndex).toBeLessThan(0); // OUT_OF_RANGE — exactly what the probe measured
+      const mapping = mapCoordinateToIndex(LAT_AXIS, lat, latitude, 'latitude');
+      expect(mapping.kind).toBe('mapped');
+      if (mapping.kind === 'mapped') {
+        expect(Math.abs(mapping.snapped - latitude)).toBeLessThanOrEqual(
+          readbackToleranceFor(lat.step),
+        );
+      }
+    }
   });
 
   it('KAYSERI pinned case: longitude 35.5000 is the exact midpoint of two cells and PASSES', () => {
