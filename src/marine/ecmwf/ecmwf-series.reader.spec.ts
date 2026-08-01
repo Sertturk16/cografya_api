@@ -249,6 +249,73 @@ describe('EcmwfSeriesReader', () => {
     );
   });
 
+  it('refuses a values row MISSING a sample array as schema_error, not a TypeError (R3-CR-1)', async () => {
+    const cycleUtc = new Date(NOW - 4 * 3_600_000);
+    const row = seriesRow(cycleUtc, storedValues([0, 3]));
+    // The round-3 escape: `cycleUtc` and `steps` are fine, but `u10` is absent entirely. The
+    // old guard passed this row and it died as a TypeError inside `assertParallel` — rethrown
+    // by design, a 500 on every cold-path request with no negative-TTL suppression.
+    const withoutU10 = { steps: [0, 3], v10: [0, 0], swh: [0.5, 0.5], mwd: [90, 90] };
+    store.rows = [
+      {
+        cycle: row.cycle,
+        series: { ...row.series, values: withoutU10 } as unknown as typeof row.series,
+      },
+    ];
+
+    const read = await reader.readSeries(POINT);
+    expect(read.kind).toBe('schema_error');
+    expect(read.value).toBeNull();
+    expect(events).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        message: expect.stringContaining('unreadable'),
+      }),
+    );
+  });
+
+  it('refuses a malformed support member the same way (R3-CR-1)', async () => {
+    const cycleUtc = new Date(NOW - 4 * 3_600_000);
+    const row = seriesRow(cycleUtc, storedValues([0, 3]));
+    store.rows = [
+      {
+        cycle: row.cycle,
+        series: { ...row.series, support: null } as unknown as typeof row.series,
+      },
+    ];
+
+    const read = await reader.readSeries(POINT);
+    expect(read.kind).toBe('schema_error');
+    expect(read.value).toBeNull();
+  });
+
+  it('SKIPS a corrupt retained row and still serves the readable cycle (R3-SFH-7)', async () => {
+    const fine = new Date(NOW - 4 * 3_600_000);
+    const corrupt = new Date(NOW - 10 * 3_600_000);
+    const corruptRow = seriesRow(corrupt, storedValues([0, 3, 6]));
+    store.rows = [
+      seriesRow(fine, storedValues([0, 3, 6])),
+      {
+        cycle: corruptRow.cycle,
+        series: { ...corruptRow.series, values: null } as unknown as typeof corruptRow.series,
+      },
+    ];
+
+    const read = await reader.readSeries(POINT);
+    // One corrupt retained row must not darken a point whose other cycle is fine: the row is
+    // skipped LOUDLY (counter + alarm event), and schema_error is reserved for the case where
+    // no readable row remains.
+    expect(read.kind).toBe('ok');
+    expect(read.value?.series.modelRunAtUtc).toBe(fine.toISOString());
+    expect(metrics.get('ingest.corrupt_row_skipped', 'ecmwf')).toBe(1);
+    expect(events).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        message: expect.stringContaining('candidate skipped'),
+      }),
+    );
+  });
+
   it('maps a store I/O failure to transient — a Postgres blip must degrade, never 500 (CR2R-1)', async () => {
     store.failWith = new Error('connection terminated unexpectedly');
 

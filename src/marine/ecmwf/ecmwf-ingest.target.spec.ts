@@ -433,8 +433,10 @@ describe('EcmwfIngestTarget', () => {
     await target.refresh(new OperationDeadline(300_000, () => NOW));
 
     expect(store.recorded).toEqual([]);
-    // One first-step oper-index probe per candidate, nothing more.
-    expect(log.length).toBe(4);
+    // BOTH streams of every candidate are probed — indexes only, KB-cheap (R3-SFH-2): the
+    // exhaustion diagnosis needs to tell a full outage from a single dark stream, and stopping
+    // at the first 404 could never see a stream that answers behind it.
+    expect(log.length).toBe(8);
     expect(events.filter((event) => event.level === 'error')).toEqual([]);
     // …but never metric-invisible: the exhausted walk is counted (SFH-1).
     expect(metrics.get('ingest.walk_exhausted', 'ecmwf')).toBe(1);
@@ -516,6 +518,55 @@ describe('EcmwfIngestTarget', () => {
           event.level === 'error' && event.message.includes('no candidate cycle answers at all'),
       ),
     ).toEqual([]);
+  });
+
+  it('diagnoses an OPER-side outage too: the plan probes the remaining streams past a 404 (R3-SFH-2)', async () => {
+    let clock = NOW;
+    const target = buildTarget({
+      publishedCycles: [CYCLE_12Z, CYCLE_06Z],
+      unpublishedStreams: ['oper'],
+      nowFn: () => clock,
+    });
+
+    await target.refresh(new OperationDeadline(300_000, () => clock));
+    clock = NOW + 7 * 3_600_000; // past one full 6 h cycle interval, oper still dark
+    await target.refresh(new OperationDeadline(300_000, () => clock));
+
+    // oper is the FIRST stream in the plan: without the remaining-stream probe the loop
+    // returned on its 404 with `indexAnswered` still false, and the escalation branded a
+    // wave-answering provider as a base-URL outage — the misdiagnosis in exactly the case
+    // the message split was built for.
+    expect(events).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        message: expect.stringContaining('single-stream outage'),
+      }),
+    );
+    expect(
+      events.filter(
+        (event) =>
+          event.level === 'error' && event.message.includes('no candidate cycle answers at all'),
+      ),
+    ).toEqual([]);
+  });
+
+  it('escalates the abandoned-bytes report to ERROR once the window says the waste is systematic (R3-SFH-3)', async () => {
+    // cycleMaxBytes: 1 makes the very first abandoned index byte breach the window's byte arm —
+    // the smallest fixture that drives the escalation branch at all (pr-test-analyzer round 3).
+    const target = buildTarget({
+      publishedCycles: [CYCLE_12Z],
+      config: makeConfig({ cycleMaxBytes: 1 }),
+      unpublishedStreams: ['wave'],
+    });
+    await target.refresh(new OperationDeadline(300_000, () => NOW));
+
+    expect(metrics.get('ingest.bytes_abandoned', 'ecmwf')).toBeGreaterThan(0);
+    expect(events).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        message: expect.stringContaining('systematic-waste'),
+      }),
+    );
   });
 
   it('re-arms the exhaustion escalation after a successful tour — recovery resets the clock', async () => {

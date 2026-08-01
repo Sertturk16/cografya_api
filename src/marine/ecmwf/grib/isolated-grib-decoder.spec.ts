@@ -1,4 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
+import type { ForkOptions } from 'node:child_process';
 import { EcmwfContractError } from '../ecmwf.errors';
 import type { GribDecodeJob, GribDecodeReply } from './grib-decode-protocol';
 import {
@@ -171,11 +172,13 @@ describe('IsolatedGribDecoder', () => {
     expect(result.decoderVersion).toBe('1.6.0');
   });
 
-  it('hands the job to the child verbatim over the IPC seam', async () => {
+  it('hands the job to the child verbatim over the IPC seam — with a hardened, EMPTY env', async () => {
     let seen: FakeChild | null = null;
+    let seenOptions: ForkOptions | null = null;
     const decoder = new IsolatedGribDecoder({
       childModulePath: '/fake/grib-decode-child.js',
-      forkImpl: () => {
+      forkImpl: (_modulePath, options) => {
+        seenOptions = options;
         seen = new FakeChild((child) => {
           child.emit('message', OK_REPLY);
           child.emit('exit', 0, null);
@@ -187,6 +190,13 @@ describe('IsolatedGribDecoder', () => {
     await decoder.decode(JOB);
     expect(seen).not.toBeNull();
     expect((seen as unknown as FakeChild).sentJobs).toEqual([JOB]);
+    // The fork hardening is load-bearing (review #76 SEC-76-2): the child runs memory-unsafe
+    // native code over provider bytes, so an EMPTY env — not an inherited one — is what keeps
+    // DATABASE_URL/REDIS_URL and every other secret out of that process. Pinned here so a
+    // refactor dropping `env: {}` goes red (pr-test-analyzer round 3).
+    expect(seenOptions).not.toBeNull();
+    expect((seenOptions as unknown as ForkOptions).env).toEqual({});
+    expect((seenOptions as unknown as ForkOptions).serialization).toBe('advanced');
   });
 });
 

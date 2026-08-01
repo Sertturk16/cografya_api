@@ -55,6 +55,14 @@ export interface GribDecodePort {
  */
 const ESTIMATED_STEP_COST_MS = 15_000;
 
+/**
+ * How often each abandoned-bytes log line may repeat per throttle key (round-3 R3-SFH-4). The
+ * routine quiet-lane fall-back abandons index KILOBYTES on every tour of a publication lag or a
+ * stream outage — a per-occurrence warn would be hundreds of lines a day reporting one standing
+ * fact, un-quieting the very lane NEW-1 declared quiet. The counter is never throttled.
+ */
+const ABANDONED_BYTES_LOG_EVERY_MS = 3_600_000;
+
 /** Accepted content types, by body kind (measured mirror variance — olcumler §M5 / S3). */
 const INDEX_CONTENT_TYPES = ['application/json', 'application/octet-stream'] as const;
 const GRIB_CONTENT_TYPES = ['application/grib', 'application/octet-stream'] as const;
@@ -121,11 +129,15 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
   private walkExhaustedSinceMs: number | null = null;
 
   /**
-   * Every byte a step downloaded and then failed to record, summed since boot (round-2
-   * R2-SFH-C). The per-occurrence counter (`ingest.bytes_abandoned`) has no alarm of its own;
-   * this total is what lets the abandon event escalate once the waste stops being incidental.
+   * Abandoned-byte accounting over a ROLLING one-cycle-interval window (round-3 R3-SFH-3). The
+   * per-occurrence counter (`ingest.bytes_abandoned`) has no alarm of its own, and the previous
+   * boot-lifetime total armed wrongly at the real 96-tours/day cadence: index-class abandons
+   * (KB each) needed weeks to reach a byte threshold and reset on every restart (a dead alarm),
+   * while one range-class burst latched the escalation forever. The window arms on EITHER spent
+   * bytes (range-class waste) or occurrence count (index-class persistence) and re-arms itself
+   * when the window rolls over.
    */
-  private abandonedBytesTotal = 0;
+  private abandonWindow = { startedMs: 0, bytes: 0, occurrences: 0 };
 
   constructor(private readonly deps: EcmwfIngestTargetDeps) {
     this.now = deps.now ?? Date.now;
@@ -332,29 +344,58 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
         // Bytes spent on a step that recorded nothing (review #76 SFH-2). They cannot go into
         // the cycle LEDGER — that column means "bytes of ingested evidence", and a write here
         // would create rows for unpublished cycles, disarming the NEW-1 quiet lane — but they
-        // must not vanish either: a step that fails every tour would otherwise spend
-        // ~3.2 MB/tour that no ceiling and no counter ever sees. The counter alone had no
-        // alarm (round-2 R2-SFH-C): the event below is its loud half — warn per occurrence
-        // (bounded by tour structure), escalating to error once the boot-lifetime total
-        // exceeds a full cycle's byte budget, because by then the waste is systematic.
+        // must not vanish either: a step that fails every tour would otherwise spend megabytes
+        // that no ceiling and no counter ever sees. The counter carries every byte, always; the
+        // log lines repeat through a throttle (round-3 R3-SFH-4). Escalation arms on the
+        // ROLLING one-cycle-interval window (round-3 R3-SFH-3): within the window, EITHER the
+        // spent bytes exceed a full cycle's byte budget (range-class waste, MB per tour) OR the
+        // abandons repeat at tour cadence (index-class persistence — KB each, which no byte
+        // threshold at the real 96-tours/day cadence would ever see). The window re-arms by
+        // rolling over, so the alarm neither latches forever after one burst nor dies across a
+        // restart the way a boot-lifetime total did.
+        const nowMs = this.now();
+        const windowMs = ECMWF_CYCLE_INTERVAL_HOURS * 3_600_000;
+        if (nowMs - this.abandonWindow.startedMs > windowMs) {
+          this.abandonWindow = { startedMs: nowMs, bytes: 0, occurrences: 0 };
+        }
+        this.abandonWindow.bytes += step.bytes;
+        this.abandonWindow.occurrences += 1;
         metrics.increment('ingest.bytes_abandoned', MARINE_PROVIDER.ecmwf, step.bytes);
-        this.abandonedBytesTotal += step.bytes;
-        const systematic = this.abandonedBytesTotal >= config.ecmwf.cycleMaxBytes;
-        metrics.event(
-          systematic ? 'error' : 'warn',
-          systematic
-            ? 'ECMWF abandoned bytes since boot exceed a full cycle byte budget — a step or ' +
-                'stream is failing persistently'
-            : 'ECMWF step abandoned bytes it will not record',
-          {
-            provider: MARINE_PROVIDER.ecmwf,
-            cycle: run.cycle.toISOString(),
-            stepHour,
-            outcome: step.kind,
-            abandonedBytes: step.bytes,
-            abandonedBytesTotal: this.abandonedBytesTotal,
-          },
+
+        const toursPerWindow = Math.max(
+          1,
+          Math.floor(windowMs / (config.warmupIntervalSeconds * 1_000)),
         );
+        const systematic =
+          this.abandonWindow.bytes >= config.ecmwf.cycleMaxBytes ||
+          this.abandonWindow.occurrences >= toursPerWindow;
+        const context = {
+          provider: MARINE_PROVIDER.ecmwf,
+          cycle: run.cycle.toISOString(),
+          stepHour,
+          outcome: step.kind,
+          abandonedBytes: step.bytes,
+          windowBytes: this.abandonWindow.bytes,
+          windowAbandons: this.abandonWindow.occurrences,
+        };
+        if (systematic) {
+          metrics.throttledEvent(
+            'error',
+            'ecmwf.bytes-abandoned-systematic',
+            ABANDONED_BYTES_LOG_EVERY_MS,
+            'ECMWF abandoned bytes within one cycle interval breach the systematic-waste ' +
+              'threshold — a step or stream is failing persistently',
+            context,
+          );
+        } else {
+          metrics.throttledEvent(
+            'warn',
+            'ecmwf.bytes-abandoned',
+            ABANDONED_BYTES_LOG_EVERY_MS,
+            'ECMWF step abandoned bytes it will not record',
+            context,
+          );
+        }
       }
       if (step.kind === 'cycle_unpublished') {
         return { kind: 'cycle_unpublished', indexAnswered: step.indexAnswered };
@@ -408,6 +449,7 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
       // probe is quiet; a range 404 (index exists, bytes gone) and every non-404/410 outcome
       // stay loud.
       const plans: { stream: EcmwfStream; ranges: EcmwfByteRange[] }[] = [];
+      let cycleUnpublished = false;
       for (const { stream, params } of STREAM_PARAMS) {
         const indexOutcome = await this.fetchIndex({
           cycle: step.cycle,
@@ -418,14 +460,27 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
         });
 
         if (indexOutcome.kind === 'no_data') {
-          return { kind: 'cycle_unpublished', bytes, indexAnswered };
+          // The candidate is unpublished on THIS stream — but the remaining streams' indexes
+          // are still probed (KB-cheap) before falling back: `indexAnswered` is what the
+          // walk-exhaustion escalation reads to tell "no candidate answers at all" from "one
+          // stream never publishes", and returning on the FIRST dark stream left the flag
+          // false whenever oper was the missing side — misdiagnosing an oper-side outage as a
+          // base-URL outage, the exact case the split was built for (round-3 R3-SFH-2).
+          cycleUnpublished = true;
+          continue;
         }
         if (indexOutcome.kind !== 'ok') {
+          if (cycleUnpublished) {
+            // The candidate is already known-unpublished; this request was diagnosis only,
+            // and its failure must not abort the fall-back walk to older candidates.
+            continue;
+          }
           this.logStop('index download failed', step, indexOutcome.kind, indexOutcome.reason);
           return { kind: 'stop', bytes };
         }
         indexAnswered = true;
         bytes += indexOutcome.value.bytes;
+        if (cycleUnpublished) continue; // diagnosis only — this candidate will not be paid for.
 
         // Select OUR records and hold ONLY THOSE against the request (board item NEW-3:
         // the index lists ~50 unrelated parameters whose metadata is not our contract).
@@ -437,6 +492,9 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
 
         // Byte-range plan (adjacency computed per step, never assumed).
         plans.push({ stream, ranges: mergeByteRanges(selected) });
+      }
+      if (cycleUnpublished) {
+        return { kind: 'cycle_unpublished', bytes, indexAnswered };
       }
 
       // PHASE 2 — PAY: download the planned ranges and decode, now that every stream of the

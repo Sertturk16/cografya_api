@@ -11,6 +11,7 @@ import {
   selectPublishableCycle,
   type EcmwfCompiledSeries,
 } from './ecmwf-series-compile';
+import { assertParallel } from './ecmwf-series-merge';
 import { ECMWF_RETAINED_CYCLES } from './ecmwf.constants';
 import { EcmwfContractError } from './ecmwf.errors';
 import type { EcmwfIngestStorePort, NewestPointSeries } from './ecmwf-ingest.store';
@@ -32,27 +33,52 @@ export interface EcmwfPointSeriesRead {
 const EXIT_SUPPRESSION_LOG_EVERY_MS = 60_000;
 
 /**
- * Refuse candidates whose stored shape is not the one the code below dereferences (CR2R-1).
+ * Why a stored candidate row cannot be read — or `null` when it holds the written shape.
  *
  * The rows arrive from a schemaless jsonb column plus a relation join, so their runtime shape is
  * an assumption, not a type. The checks are written against a widened view on purpose — the
  * entity types CLAIM these fields exist, which is exactly what cannot be trusted here.
+ *
+ * EVERY member the compile path dereferences is covered (round-3 R3-CR-1: the original guard
+ * checked only `cycleUtc` and `steps`, so a `values` missing one of the four sample arrays
+ * passed it, died as a TypeError inside `assertParallel`, rethrew by design and 500'd the cold
+ * path with no negative-TTL suppression): the cycle relation, the five `values` arrays, the four
+ * `support` verdicts, and the parallel/ascending stored invariant itself.
  */
-function assertReadableCandidates(candidates: readonly NewestPointSeries[], slugTr: string): void {
-  for (const candidate of candidates) {
-    const widened: {
-      cycle?: { cycleUtc?: unknown } | null;
-      series?: { values?: { steps?: unknown } | null } | null;
-    } = candidate;
-    const cycleReadable = widened.cycle?.cycleUtc instanceof Date;
-    const stepsReadable = Array.isArray(widened.series?.values?.steps);
-    if (!cycleReadable || !stepsReadable) {
-      throw new EcmwfContractError(
-        `stored ECMWF series row for ${slugTr} is unreadable — missing cycle relation or ` +
-          `malformed values.steps. jsonb is schemaless; this row does not hold the written shape.`,
-      );
-    }
+function describeUnreadableCandidate(candidate: NewestPointSeries): string | null {
+  const widened: {
+    cycle?: { cycleUtc?: unknown } | null;
+    series?: { values?: unknown; support?: unknown } | null;
+  } = candidate;
+  if (!(widened.cycle?.cycleUtc instanceof Date)) {
+    return 'the cycle relation or its cycleUtc is missing';
   }
+  const values = widened.series?.values;
+  if (typeof values !== 'object' || values === null) return '`values` is not an object';
+  const valueMembers = values as Record<string, unknown>;
+  for (const member of ['steps', 'u10', 'v10', 'swh', 'mwd'] as const) {
+    if (!Array.isArray(valueMembers[member])) return `\`values.${member}\` is not an array`;
+  }
+  const support = widened.series?.support;
+  if (typeof support !== 'object' || support === null) return '`support` is not an object';
+  const supportMembers = support as Record<string, unknown>;
+  for (const member of ['u10', 'v10', 'swh', 'mwd'] as const) {
+    if (typeof supportMembers[member] !== 'string') return `\`support.${member}\` is not a verdict`;
+  }
+  try {
+    assertParallel(candidate.series.values);
+  } catch (error: unknown) {
+    if (error instanceof EcmwfContractError) return error.message;
+    throw error; // a non-contract throw out of a pure invariant check is OUR bug.
+  }
+  return null;
+}
+
+/** The cycle label for a skip event — readable even when the cycle relation itself is broken. */
+function cycleLabelOf(candidate: NewestPointSeries): string {
+  const widened: { cycle?: { cycleUtc?: unknown } | null } = candidate;
+  const cycleUtc = widened.cycle?.cycleUtc;
+  return cycleUtc instanceof Date ? cycleUtc.toISOString() : 'unknown';
 }
 
 /**
@@ -65,8 +91,10 @@ function assertReadableCandidates(candidates: readonly NewestPointSeries[], slug
  * request never triggers an ECMWF call" holds by construction: there is no code path from here
  * to the HTTP client at all (asserted by e2e with a counting fetch). The never-throw contract
  * covers the WHOLE closure body, store I/O included (review #76 SFH-7 + round-2 CR2R-1):
- * a Postgres blip maps to `transient` (loud event, 60 s negative TTL), a corrupt stored row to
- * `schema_error` (alarm-level event), and only a genuine bug rethrows — a cold-path read must
+ * a Postgres blip maps to `transient` (loud event, 60 s negative TTL); an unreadable stored row
+ * is SKIPPED with an alarm-level event and counter so a corrupt retained row cannot darken a
+ * point whose other cycles are fine (round-3 R3-SFH-7), degrading to `schema_error` only when
+ * EVERY retained row is unreadable; and only a genuine bug rethrows — a cold-path read must
  * degrade the widget, never 500 the page.
  *
  * ## Which cycle serves the read
@@ -220,18 +248,38 @@ export class EcmwfSeriesReader {
         };
       }
 
-      // jsonb is schemaless: a row whose `values` is not the written shape would otherwise die
-      // as a TypeError on the raw accesses below — indistinguishable from a bug. Refusing it
-      // HERE, deterministically, keeps the rule honest: corrupt rows are `schema_error`, and
-      // any TypeError that still escapes really is a bug and really does rethrow (CR2R-1).
-      assertReadableCandidates(candidates, point.slugTr);
+      // jsonb is schemaless: a row that is not the written shape would otherwise die as a
+      // TypeError on the raw accesses below — indistinguishable from a bug, escaping the
+      // never-throw closure as a cold-path 500 (CR2R-1, round-3 R3-CR-1). Unreadable rows are
+      // SKIPPED loudly instead of failing the read: one corrupt retained row must not darken a
+      // point whose other cycles are fine (round-3 R3-SFH-7). Only when NO readable row remains
+      // does the read degrade to `schema_error` — and any TypeError that still escapes really
+      // is a bug and really does rethrow.
+      const readable = candidates.filter((candidate) => {
+        const refusal = describeUnreadableCandidate(candidate);
+        if (refusal === null) return true;
+        this.metrics.increment('ingest.corrupt_row_skipped', MARINE_PROVIDER.ecmwf);
+        this.metrics.event('error', 'ECMWF stored series row is unreadable — candidate skipped', {
+          provider: MARINE_PROVIDER.ecmwf,
+          point: point.slugTr,
+          cycle: cycleLabelOf(candidate),
+          reason: refusal,
+        });
+        return false;
+      });
+      if (readable.length === 0) {
+        throw new EcmwfContractError(
+          `every retained ECMWF series row for ${point.slugTr} is unreadable — jsonb is ` +
+            `schemaless and no stored row holds the written shape.`,
+        );
+      }
 
       const nowDate = new Date(this.now());
       const maxAge = this.config.ecmwf.cycleMaxAgeSeconds;
-      const usable = candidates.filter((candidate) =>
+      const usable = readable.filter((candidate) =>
         isCycleWithinMaxAge(candidate.cycle.cycleUtc, nowDate, maxAge),
       );
-      const newest = candidates[0];
+      const newest = readable[0];
       if (usable.length === 0 && newest !== undefined) {
         // The third ceiling, breached by every retained cycle: values exist but may not be
         // published. LOUD — a stalled ingest is an operational event that must be seen before a
@@ -270,10 +318,10 @@ export class EcmwfSeriesReader {
       return this.compileWinner(point, winner, nowDate);
     } catch (error: unknown) {
       if (error instanceof EcmwfContractError) {
-        // A corrupt stored row (jsonb is schemaless — a short array, unordered steps, a missing
-        // `steps` entirely). The refresh contract is never-throw: surfaced as schema_error
-        // (alarm-level log + its own negative TTL), never as a 500 on the M4 request path
-        // (review #76 SFH-7, round-2 CR2R-1).
+        // Every retained row unreadable (the throw above), or a compile-time refusal on a row
+        // the shape guard admitted. The refresh contract is never-throw: surfaced as
+        // schema_error (alarm-level log + its own negative TTL), never as a 500 on the M4
+        // request path (review #76 SFH-7, round-2 CR2R-1, round-3 R3-CR-1).
         this.metrics.event('error', 'ECMWF stored series refused by a contract guard on read', {
           provider: MARINE_PROVIDER.ecmwf,
           point: point.slugTr,

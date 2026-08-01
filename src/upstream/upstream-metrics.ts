@@ -78,6 +78,13 @@ export type UpstreamMetricName =
    * megabytes invisible to every ceiling (review #76 SFH-2).
    */
   | 'ingest.bytes_abandoned'
+  /**
+   * A stored series row was refused by the read-path shape guard and SKIPPED — the remaining
+   * readable cycles still serve the point, and the read degrades to `schema_error` only when no
+   * readable row is left (review #76 round-3 R3-CR-1 + R3-SFH-7). jsonb is schemaless: this
+   * fires only when a row does not hold the written shape.
+   */
+  | 'ingest.corrupt_row_skipped'
   /** An unexpected exception escaped the ingest's own handling — OUR bug, counted loudly. */
   | 'ingest.bug';
 
