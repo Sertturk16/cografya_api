@@ -20,16 +20,21 @@ import { MarineDirectionConvention, MarineLayerId, MarineSource, MarineUnit } fr
  * not publish them). M3 therefore fills values into an UNCHANGED shape — not a breaking change.
  *
  * ## Sources and conventions, per field
- * - `directionConvention` is `from` for both Faz-1 direction layers. Verified, not assumed:
- *   Open-Meteo documents wave direction as "the direction the waves come from" and CMEMS
- *   publishes `VMDR` as `sea_surface_wave_from_direction` (CF standard name). Open-Meteo does
- *   NOT document its wind convention anywhere; it was resolved empirically against the
- *   documented `wind_wave_direction` (8 steps, all within 20°, none near 180°) and M3 pins that
- *   finding with a regression test. Faz-1 therefore converts ZERO degrees.
+ * - `directionConvention` is `from` for both Faz-1 direction layers. Verified from PRIMARY
+ *   sources, not assumed: CMEMS publishes `VMDR` as `sea_surface_wave_from_direction` (CF
+ *   standard name), and ECMWF's parameter database states `mwd` (paramId 140230) as "degree
+ *   true … zero means 'coming from the north'". Wind is the one that is now DERIVED rather than
+ *   read: ECMWF publishes `10u`/`10v` vector components, so the bearing is our arithmetic and
+ *   the three-layer regression suite in `src/marine/ecmwf/` is what defends it.
  * - `calmThreshold` sits on the MAGNITUDE layer and governs its paired direction layer.
  * - `primarySource` follows K6: CMEMS primary for the three ocean fields (regional 500 m –
- *   4.2 km models beat a global ~8 km one near the coast), Open-Meteo for wind, which CMEMS —
- *   an ocean service — does not carry at all.
+ *   4.2 km models beat a global 25 km one near the coast), ECMWF for wind, which CMEMS — an
+ *   ocean service — does not carry at all.
+ * - `fallbackSource` is `ecmwf` for wave height and direction (measured: real values at all 30
+ *   reference points, the Marmara included, where CMEMS has no wave field at all) and **null for
+ *   temperature**: ECMWF Open Data publishes no `sst` in any stream (measured across
+ *   oper/wave/enfo/aifs), so it cannot back CMEMS up there. `skt` exists and is a different
+ *   parameter; publishing it as sea surface temperature would be an approximation.
  */
 
 /**
@@ -60,7 +65,11 @@ export const MARINE_LAYER_CATALOGUE: readonly MarineLayerDto[] = [
     directionConvention: null,
     calmThreshold: null,
     primarySource: MarineSource.Cmems,
-    fallbackSource: MarineSource.OpenMeteo,
+    // NULL, not `ecmwf`: ECMWF Open Data publishes no sea-surface-temperature field at all.
+    // Measured across every stream (oper / wave / enfo / aifs-single) on a live cycle — `sst`
+    // (paramId 34) appears in none of them. There is therefore no fallback for this layer, and
+    // the ECMWF series' `seaSurfaceTemperature` array is null for its whole length.
+    fallbackSource: null,
     stepHours: SERIES_STEP_HOURS,
     horizonEndUtc: null,
     updateFrequency: null,
@@ -85,7 +94,7 @@ export const MARINE_LAYER_CATALOGUE: readonly MarineLayerDto[] = [
     calmThreshold: 0.1,
     primarySource: MarineSource.Cmems,
     // The Marmara has no CMEMS wave field at all — permanently, not transiently.
-    fallbackSource: MarineSource.OpenMeteo,
+    fallbackSource: MarineSource.Ecmwf,
     stepHours: SERIES_STEP_HOURS,
     horizonEndUtc: null,
     updateFrequency: null,
@@ -107,7 +116,7 @@ export const MARINE_LAYER_CATALOGUE: readonly MarineLayerDto[] = [
     directionConvention: MarineDirectionConvention.From,
     calmThreshold: null,
     primarySource: MarineSource.Cmems,
-    fallbackSource: MarineSource.OpenMeteo,
+    fallbackSource: MarineSource.Ecmwf,
     stepHours: SERIES_STEP_HOURS,
     horizonEndUtc: null,
     updateFrequency: null,
@@ -125,14 +134,14 @@ export const MARINE_LAYER_CATALOGUE: readonly MarineLayerDto[] = [
     // 0.5 m/s ≈ Beaufort 0/1 boundary: below it the wind direction is meaningless.
     calmThreshold: 0.5,
     // CMEMS is an OCEAN service and carries no wind field anywhere — there is no fallback.
-    primarySource: MarineSource.OpenMeteo,
+    primarySource: MarineSource.Ecmwf,
     fallbackSource: null,
     stepHours: SERIES_STEP_HOURS,
     horizonEndUtc: null,
     updateFrequency: null,
     catalogueUpdatedAtUtc: null,
     colorStops: [...BEAUFORT_STOPS_MS],
-    attributionId: 'open-meteo',
+    attributionId: 'ecmwf',
   },
   {
     id: MarineLayerId.WindDirection10m,
@@ -141,13 +150,13 @@ export const MARINE_LAYER_CATALOGUE: readonly MarineLayerDto[] = [
     unit: MarineUnit.DegreeTrue,
     directionConvention: MarineDirectionConvention.From,
     calmThreshold: null,
-    primarySource: MarineSource.OpenMeteo,
+    primarySource: MarineSource.Ecmwf,
     fallbackSource: null,
     stepHours: SERIES_STEP_HOURS,
     horizonEndUtc: null,
     updateFrequency: null,
     catalogueUpdatedAtUtc: null,
     colorStops: [],
-    attributionId: 'open-meteo',
+    attributionId: 'ecmwf',
   },
 ];

@@ -85,10 +85,28 @@ export enum MarineFreshness {
   Stale = 'stale',
 }
 
-/** Which provider a single value came from. Carried per FIELD — silent mixing is banned (K6). */
+/**
+ * Which provider a single value came from. Carried per FIELD — silent mixing is banned (K6).
+ *
+ * ## `open-meteo` → `ecmwf` (M3a, a BREAKING contract change made at its cheapest moment)
+ * M1 froze this enum with `open-meteo` as the non-CMEMS provider. DEC 2026-07-30k then put
+ * Open-Meteo out of scope for the commercial platform, and DEC 2026-07-31 replaced it with
+ * **ECMWF Open Data** (CC BY 4.0, commercial use permitted). The value changes rather than being
+ * added alongside: there is no Faz-1 path left that can emit `open-meteo`, and keeping a value
+ * the server can never produce would force the web repo to defend against it forever.
+ *
+ * This is breaking by the repo playbook's own rule (§4) and is flagged to Atlas as such. It is
+ * landing now because today there is **no live consumer** — the M1 contract shipped so the web
+ * repo could codegen against a mock, and nothing renders it yet. The same change after `/deniz`
+ * ships would cost a coordinated two-repo release.
+ *
+ * The HISTORICAL M1 probe artifact still says `open-meteo`, and correctly so: it is the record of
+ * a run that really did query Open-Meteo. It no longer reads this enum at all — see
+ * `MarineArtifactSource` in `src/database/marine/marine-artifact.types.ts`.
+ */
 export enum MarineSource {
   Cmems = 'cmems',
-  OpenMeteo = 'open-meteo',
+  Ecmwf = 'ecmwf',
 }
 
 /**
@@ -117,11 +135,16 @@ export enum MarineLayerId {
  * Published machine-readably in the layer catalogue rather than repeated on every value: 31
  * points × 2 direction fields would carry the same constant string 62 times per response.
  *
- * The convention is per FIELD, not global, because the providers themselves are: Open-Meteo
- * documents wave direction as "the direction the waves come from" and ocean-current direction
- * as "where the current is heading towards" — two opposite conventions inside ONE API. Faz-1
- * performs ZERO degree conversion (all three Faz-1 direction layers are natively `from`), so a
- * conversion bug is structurally impossible here; Faz-2's currents are where it flips.
+ * The convention is per FIELD, not global, because the providers themselves are. ECMWF states
+ * `mwd` as "degree true … zero means coming from the north" and, on the SAME page, warns that its
+ * wave SPECTRUM fields use the opposite oceanographic convention — two conventions inside one
+ * wave model. Faz-1 fetches no spectral field, so wave direction is published verbatim.
+ *
+ * **Wind is different from M1, and this is where the conversion risk now lives.** ECMWF publishes
+ * wind as the vector components `10u`/`10v`, so the bearing is arithmetic WE perform
+ * (`src/marine/ecmwf/ecmwf-wind.ts`). SPEC-ADDENDUM §5.3's "Faz-1 converts zero degrees" no
+ * longer holds, which is why the arrow-unlock precondition published on
+ * `MarineLayerDto.directionConvention` names a three-layer regression suite.
  */
 export enum MarineDirectionConvention {
   /** Degrees the flow is coming FROM (meteorological). Wave + wind, Faz-1. */

@@ -1372,6 +1372,12 @@
             "example": "2026-07-30T12:04:11.000Z",
             "description": "When WE fetched it (ISO-8601 UTC, server clock)."
           },
+          "modelRunAtUtc": {
+            "type": "string",
+            "nullable": true,
+            "example": "2026-07-30T12:00:00.000Z",
+            "description": "The model RUN this value came from (ISO-8601 UTC). ECMWF: the 00/06/12/18 UTC cycle, which the provider states in both the URL and the GRIB header. CMEMS: null — it publishes no run time per value. Added because it is the ONLY field that can reveal a stale forecast: an old cycle still produces a step valid \"now\", so validAtUtc looks current and fetchedAtUtc is genuinely recent while the numbers are two days old."
+          },
           "staleSinceUtc": {
             "type": "string",
             "nullable": true,
@@ -1381,7 +1387,7 @@
             "nullable": true,
             "enum": [
               "cmems",
-              "open-meteo"
+              "ecmwf"
             ],
             "type": "string",
             "description": "Which provider produced THIS field. Carried per field, never per response: mixing sources silently is banned (K6), and the Marmara wave fields legitimately come from a different provider than the temperature next to them."
@@ -1406,7 +1412,7 @@
             "type": "number",
             "nullable": true,
             "example": 1.2,
-            "description": "Distance from the requested coordinate to that grid centre, km. Honest to show (\"the nearest model point is ~1.2 km away\"), but READ IT PER SOURCE — the two providers compute different quantities. For cmems it is an IN-CELL OFFSET: the provider returns the cell the query pixel falls in and never looks for a nearer wet cell, so the value cannot exceed half a cell diagonal (≤ ~2 km) and cannot warn that data is far away. For open-meteo it is a NEAREST-WET-CELL SEARCH distance (measured 2026-07-30: cells up to two 1/12° steps from the containing one, i.e. up to ~15 km), which genuinely does mean \"how far the nearest modelled water is\"."
+            "description": "Distance from the requested coordinate to that grid centre, km. On BOTH Faz-1 sources this is an IN-CELL OFFSET, never a search distance: the value comes from the cell the coordinate falls in, and neither leg ever looks for a nearer wet cell. It therefore cannot exceed half a cell diagonal — ≤ ~2 km for the regional CMEMS grids, ≤ ~21 km for the 0.25° ECMWF grid (largest measured over the 30 reference points: 15.5 km) — and it cannot warn that data is far away. What it CAN do is expose a mapping bug: an offset above half a diagonal means the arithmetic picked the wrong cell."
           }
         },
         "required": [
@@ -1416,6 +1422,7 @@
           "freshness",
           "validAtUtc",
           "fetchedAtUtc",
+          "modelRunAtUtc",
           "staleSinceUtc",
           "source",
           "datasetId",
@@ -1430,7 +1437,7 @@
           "stepHours": {
             "type": "number",
             "example": 3,
-            "description": "Spacing between consecutive samples, hours."
+            "description": "Spacing between consecutive samples, hours. Uniform at 3 across the whole published horizon: ECMWF switches to 6-hourly steps only after +144 h, and the horizon stops at +120 h, so this stays a single honest number."
           },
           "timesUtc": {
             "example": [
@@ -1449,7 +1456,7 @@
               "type": "number",
               "nullable": true
             },
-            "description": "Sea surface temperature, °C. Same length as timesUtc; nulls are gaps."
+            "description": "Sea surface temperature, °C. Same length as timesUtc; nulls are gaps. ON THIS SERIES IT IS NULL FOR ITS WHOLE LENGTH: ECMWF Open Data publishes no sea-surface-temperature field in any of its streams (verified against the published parameter set of oper, wave, enfo and aifs-single). The array is kept rather than removed because the temperature series is a CMEMS concern and this shape must not change when M4 fills it."
           },
           "waveHeight": {
             "type": "array",
@@ -1486,15 +1493,21 @@
           "source": {
             "type": "string",
             "enum": [
-              "open-meteo"
+              "ecmwf"
             ],
-            "example": "open-meteo",
-            "description": "Always open-meteo — CMEMS answers one time step per call, so a 5-day hourly series would cost ~120 requests per point."
+            "example": "ecmwf",
+            "description": "Always ecmwf — CMEMS answers one time step per call, so a 5-day series would cost ~120 requests per point."
+          },
+          "modelRunAtUtc": {
+            "type": "string",
+            "nullable": true,
+            "example": "2026-07-30T12:00:00.000Z",
+            "description": "The model RUN this series came from (ISO-8601 UTC) — for ECMWF, the 00/06/12/18 UTC cycle; null for a provider that publishes none. Distinct from fetchedAtUtc and from validAtUtc, and it is the only one of the three that can expose a stale forecast: a two-day-old cycle still produces a step valid \"now\", so both of the other timestamps look fresh while the data is not."
           },
           "horizonEndUtc": {
             "type": "string",
             "example": "2026-08-04T00:00:00.000Z",
-            "description": "Last instant the provider can serve for this point (ISO-8601 UTC). The horizon is NOT a constant (4–9 days depending on product), so the server states it and the web must not hardcode a slider bound."
+            "description": "Last instant covered by this series (ISO-8601 UTC). NOT a constant: the published ECMWF horizon is +120 h from the model run, and while a cycle is still being ingested this is the last step actually held — it grows as the cycle completes. The web must read it rather than hardcode a slider bound."
           }
         },
         "required": [
@@ -1506,6 +1519,7 @@
           "windSpeed10m",
           "windDirection10m",
           "source",
+          "modelRunAtUtc",
           "horizonEndUtc"
         ]
       },
@@ -1900,7 +1914,7 @@
               "towards"
             ],
             "type": "string",
-            "description": "What a degree MEANS for this layer; null for non-direction layers. True north, clockwise, 0–360. Per-field from/towards meaning is published in GET /api/marine/layers → directionConvention. INTERLOCK: publishing this field is only the FIRST of two preconditions for rendering a direction arrow. The second is M3’s regression test, which pins Open-Meteo’s wind convention — the provider does not document it, so it was established empirically. Until that test exists, direction-arrow rendering is out of scope on every surface; consume this field for labels and data, not for arrows."
+            "description": "What a degree MEANS for this layer; null for non-direction layers. True north, clockwise, 0–360. Per-field from/towards meaning is published in GET /api/marine/layers → directionConvention. ARROW-UNLOCK CONDITION (binding, and now MET for wind_speed_10m and wind_direction_10m): a direction arrow may be drawn once this field is published AND the three-layer wind regression suite is green — (1) a table of eight cardinal vectors mapped to expected bearings, (2) the invariants every bearing in [0, 360), speed >= 0, speed >= |u| and |v|, and a null component producing a null bearing rather than 0, and (3) a committed real ECMWF GRIB message decoded and compared against ecCodes reference values. All three ship in src/marine/ecmwf/ and run on CI. The condition exists because ECMWF publishes wind as the vector components 10u/10v, so the bearing is SERVER-DERIVED arithmetic: a sign error produces a bearing exactly 180 degrees wrong, and a reversed arrow is indistinguishable from a correct one on screen. Wave direction is not derived — ECMWF states mwd as \"degree true, zero means coming from the north\" and it is published verbatim."
           },
           "calmThreshold": {
             "type": "number",
@@ -1911,7 +1925,7 @@
           "primarySource": {
             "enum": [
               "cmems",
-              "open-meteo"
+              "ecmwf"
             ],
             "type": "string",
             "description": "Primary provider for this layer."
@@ -1920,7 +1934,7 @@
             "nullable": true,
             "enum": [
               "cmems",
-              "open-meteo"
+              "ecmwf"
             ],
             "type": "string",
             "description": "Provider used where the primary does not cover the point (CMEMS carries no wave field in the Marmara), or null when there is no fallback."

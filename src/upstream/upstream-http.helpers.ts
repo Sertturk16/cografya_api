@@ -8,11 +8,14 @@ import type { UpstreamFailureKind } from './upstream.types';
  * biggest measured Faz-1 body is Open-Meteo's 31-point marine batch at ~135 KB) and far below
  * anything that could hurt.
  *
- * Deliberately SEPARATE from the probe tool's 8 MB cap in `src/database/marine/`. That one
- * guards a hand-run, offline import whose evidence is committed to the repo; this one guards
- * the request path of a live server. They have different lifecycles, different limits and
- * different failure modes, and collapsing them would tie the frozen import evidence to a
- * runtime config surface. If you change one, decide about the other on purpose.
+ * Deliberately SEPARATE from the import tools' own caps in `src/database/` (8 MB for the M1
+ * marine probe and the climate fetch, 16 MB for the ECMWF probe, whose byte ranges are megabytes
+ * of GRIB by nature). Those guard hand-run, offline imports whose evidence is committed to the
+ * repo; this one guards the request path of a live server. They have different lifecycles,
+ * different limits and different failure modes, and collapsing them would tie the frozen import
+ * evidence to a runtime config surface. If you change one, decide about the other on purpose —
+ * the LIMIT is what differs, never the metering, which every caller gets from
+ * {@link readBodyCappedBytes}.
  */
 export const UPSTREAM_MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
 
@@ -153,17 +156,23 @@ export function redactUrl(rawUrl: string): string {
 }
 
 /**
- * Read a body with a hard byte cap.
+ * Read a body with a hard byte cap, as RAW BYTES.
  *
  * `Content-Length` is checked first as a cheap early exit, but it is only a hint (absent on a
  * chunked response, and a peer may lie), so the stream is metered as well — the second half is
  * what actually enforces the cap.
+ *
+ * The byte-level function is the primitive and {@link readBodyCapped} decodes it, rather than the
+ * other way round, because the first genuinely binary consumer (ECMWF's GRIB2 messages, marine
+ * M3) cannot survive a UTF-8 round trip: `TextDecoder` replaces every invalid sequence with
+ * U+FFFD, which is a lossy, irreversible corruption of packed numeric data — and a silent one,
+ * since the result is still a perfectly ordinary string.
  */
-export async function readBodyCapped(
+export async function readBodyCappedBytes(
   response: Response,
   url: string,
   maxBytes: number = UPSTREAM_MAX_RESPONSE_BYTES,
-): Promise<string> {
+): Promise<Uint8Array> {
   const declared = Number(response.headers.get('content-length') ?? Number.NaN);
   if (Number.isFinite(declared) && declared > maxBytes) {
     throw new UpstreamOversizedResponseError(
@@ -173,20 +182,20 @@ export async function readBodyCapped(
 
   const body = response.body;
   if (body === null) {
-    // A body-less response still has to obey the cap: `text()` buffers whatever arrives, so the
-    // check happens after the read. This branch exists for runtimes/stubs that expose no stream.
-    const text = await response.text();
-    if (Buffer.byteLength(text, 'utf8') > maxBytes) {
+    // A body-less response still has to obey the cap: `arrayBuffer()` buffers whatever arrives, so
+    // the check happens after the read. This branch exists for runtimes/stubs that expose no
+    // stream.
+    const buffer = new Uint8Array(await response.arrayBuffer());
+    if (buffer.byteLength > maxBytes) {
       throw new UpstreamOversizedResponseError(
         `${redactUrl(url)} returned a body-less response over the ${String(maxBytes)} B cap.`,
       );
     }
-    return text;
+    return buffer;
   }
 
   const reader = body.getReader();
-  const decoder = new TextDecoder('utf-8');
-  const chunks: string[] = [];
+  const chunks: Uint8Array[] = [];
   let total = 0;
 
   try {
@@ -199,15 +208,34 @@ export async function readBodyCapped(
           `${redactUrl(url)} exceeded the ${String(maxBytes)} B response cap — aborting the read.`,
         );
       }
-      chunks.push(decoder.decode(value, { stream: true }));
+      chunks.push(value);
     }
   } finally {
     // Releases the connection on the throw path too, so a capped read cannot leak a socket.
     await reader.cancel().catch(() => undefined);
   }
 
-  chunks.push(decoder.decode());
-  return chunks.join('');
+  const joined = new Uint8Array(total);
+  let position = 0;
+  for (const chunk of chunks) {
+    joined.set(chunk, position);
+    position += chunk.byteLength;
+  }
+  return joined;
+}
+
+/**
+ * Read a body with a hard byte cap, decoded as UTF-8.
+ *
+ * The cap is measured in BYTES, before decoding — which is the honest place for it, since that is
+ * what actually arrived over the socket.
+ */
+export async function readBodyCapped(
+  response: Response,
+  url: string,
+  maxBytes: number = UPSTREAM_MAX_RESPONSE_BYTES,
+): Promise<string> {
+  return new TextDecoder('utf-8').decode(await readBodyCappedBytes(response, url, maxBytes));
 }
 
 /**

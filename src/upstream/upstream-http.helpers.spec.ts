@@ -130,7 +130,10 @@ describe('readBodyCapped', () => {
     const response = {
       body: null,
       headers: new Headers(),
-      text: () => Promise.resolve(oversized),
+      // `arrayBuffer`, not `text`: the capped read is now byte-level all the way down, because a
+      // binary body cannot survive a UTF-8 round trip. A real `Response` always exposes both; this
+      // stub exists for the no-stream branch and has to model the method the code actually calls.
+      arrayBuffer: () => Promise.resolve(new TextEncoder().encode(oversized).buffer),
     } as unknown as Response;
 
     await expect(readBodyCapped(response, 'https://example.test', 10)).rejects.toBeInstanceOf(

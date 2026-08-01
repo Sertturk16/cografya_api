@@ -1,0 +1,540 @@
+{
+  "description": "ecCodes reference for the committed ECMWF GRIB2 golden corpus (DEC 2026-07-31d condition 2). Every number below was produced by ecCodes, NOT by the decoder under test; the golden tests assert that @mattnucc/gribberish reproduces them exactly. Regenerate with the commands in README.md.",
+  "eccodesVersion": "ecCodes Version 2.48.0",
+  "cycleUtc": "2026-07-30T12:00:00.000Z",
+  "stepHours": 72,
+  "files": [
+    {
+      "file": "20260730-12z-oper-10u-step72.grib2",
+      "sourceUrl": "https://data.ecmwf.int/forecasts/20260730/12z/ifs/0p25/oper/20260730120000-72h-oper-fc.grib2",
+      "indexFile": "20260730-12z-oper-step72.index",
+      "byteRange": {
+        "offset": 10186000,
+        "length": 749722
+      },
+      "sizeBytes": 749722,
+      "sha256": "a9ea4a4628acb73c1b113f5a2ccd008129f69d2aa8592079892e80a4ebdd8bab",
+      "messages": [
+        {
+          "shortName": "10u",
+          "discipline": 0,
+          "parameterCategory": 2,
+          "parameterNumber": 2,
+          "packingType": "grid_ccsds",
+          "dataRepresentationTemplateNumber": 42,
+          "editionNumber": 2,
+          "bitsPerValue": 12,
+          "Ni": 1440,
+          "Nj": 721,
+          "numberOfValues": 1038240,
+          "numberOfMissing": 0,
+          "bitmapPresent": 0,
+          "scanningMode": 0,
+          "latitudeOfFirstGridPointInDegrees": 90,
+          "longitudeOfFirstGridPointInDegrees": 180,
+          "latitudeOfLastGridPointInDegrees": -90,
+          "longitudeOfLastGridPointInDegrees": 179.75,
+          "iDirectionIncrementInDegrees": 0.25,
+          "jDirectionIncrementInDegrees": 0.25,
+          "dataDate": 20260730,
+          "dataTime": 1200,
+          "stepUnits": 1,
+          "step": 72,
+          "gridDefinitionTemplateNumber": 0,
+          "productDefinitionTemplateNumber": 0
+        }
+      ]
+    },
+    {
+      "file": "20260730-12z-wave-swh-mwd-step72.grib2",
+      "sourceUrl": "https://data.ecmwf.int/forecasts/20260730/12z/ifs/0p25/wave/20260730120000-72h-wave-fc.grib2",
+      "indexFile": "20260730-12z-wave-step72.index",
+      "byteRange": {
+        "offset": 5886914,
+        "length": 1822138
+      },
+      "sizeBytes": 1822138,
+      "sha256": "0a8f84bf63b4d1349191aa49515309167cd416431fadec00dbb7885350f37cba",
+      "messages": [
+        {
+          "shortName": "swh",
+          "discipline": 10,
+          "parameterCategory": 0,
+          "parameterNumber": 3,
+          "packingType": "grid_ccsds",
+          "dataRepresentationTemplateNumber": 42,
+          "editionNumber": 2,
+          "bitsPerValue": 16,
+          "Ni": 1440,
+          "Nj": 721,
+          "numberOfValues": 665628,
+          "numberOfMissing": 372612,
+          "bitmapPresent": 1,
+          "scanningMode": 0,
+          "latitudeOfFirstGridPointInDegrees": 90,
+          "longitudeOfFirstGridPointInDegrees": 180,
+          "latitudeOfLastGridPointInDegrees": -90,
+          "longitudeOfLastGridPointInDegrees": 179.75,
+          "iDirectionIncrementInDegrees": 0.25,
+          "jDirectionIncrementInDegrees": 0.25,
+          "dataDate": 20260730,
+          "dataTime": 1200,
+          "stepUnits": 1,
+          "step": 72,
+          "gridDefinitionTemplateNumber": 0,
+          "productDefinitionTemplateNumber": 0
+        },
+        {
+          "shortName": "mwd",
+          "discipline": 10,
+          "parameterCategory": 0,
+          "parameterNumber": 14,
+          "packingType": "grid_ccsds",
+          "dataRepresentationTemplateNumber": 42,
+          "editionNumber": 2,
+          "bitsPerValue": 16,
+          "Ni": 1440,
+          "Nj": 721,
+          "numberOfValues": 665628,
+          "numberOfMissing": 372612,
+          "bitmapPresent": 1,
+          "scanningMode": 0,
+          "latitudeOfFirstGridPointInDegrees": 90,
+          "longitudeOfFirstGridPointInDegrees": 180,
+          "latitudeOfLastGridPointInDegrees": -90,
+          "longitudeOfLastGridPointInDegrees": 179.75,
+          "iDirectionIncrementInDegrees": 0.25,
+          "jDirectionIncrementInDegrees": 0.25,
+          "dataDate": 20260730,
+          "dataTime": 1200,
+          "stepUnits": 1,
+          "step": 72,
+          "gridDefinitionTemplateNumber": 0,
+          "productDefinitionTemplateNumber": 0
+        }
+      ]
+    }
+  ],
+  "points": [
+    {
+      "slugTr": "kirklareli-aciklari",
+      "latitude": 41.95,
+      "longitude": 28.15,
+      "gridIndex": 277313,
+      "gridLatitude": 42,
+      "gridLongitude": 28.25,
+      "distanceKm": 9.96,
+      "values": {
+        "10u": -3.2894287109375,
+        "swh": 1.0764314383268356,
+        "mwd": 57.71234431071207
+      }
+    },
+    {
+      "slugTr": "istanbul-karadeniz-aciklari",
+      "latitude": 41.3,
+      "longitude": 29.61,
+      "gridIndex": 281638,
+      "gridLatitude": 41.25,
+      "gridLongitude": 29.5,
+      "distanceKm": 10.74,
+      "values": {
+        "10u": -4.1331787109375,
+        "swh": 0.9040681570768356,
+        "mwd": 39.96234431071207
+      }
+    },
+    {
+      "slugTr": "kocaeli-aciklari",
+      "latitude": 41.25,
+      "longitude": 30.2,
+      "gridIndex": 281641,
+      "gridLatitude": 41.25,
+      "gridLongitude": 30.25,
+      "distanceKm": 4.18,
+      "values": {
+        "10u": -3.1331787109375,
+        "swh": 0.8471833914518356,
+        "mwd": 33.76703181071207
+      }
+    },
+    {
+      "slugTr": "sakarya-aciklari",
+      "latitude": 41.2,
+      "longitude": 30.68,
+      "gridIndex": 281643,
+      "gridLatitude": 41.25,
+      "gridLongitude": 30.75,
+      "distanceKm": 8.07,
+      "values": {
+        "10u": -2.1019287109375,
+        "swh": 0.7566072195768356,
+        "mwd": 28.16546931071207
+      }
+    },
+    {
+      "slugTr": "duzce-aciklari",
+      "latitude": 41.18,
+      "longitude": 31.13,
+      "gridIndex": 281645,
+      "gridLatitude": 41.25,
+      "gridLongitude": 31.25,
+      "distanceKm": 12.7,
+      "values": {
+        "10u": 0.9918212890625,
+        "swh": 0.5615388602018356,
+        "mwd": 14.51703181071207
+      }
+    },
+    {
+      "slugTr": "zonguldak-aciklari",
+      "latitude": 41.55,
+      "longitude": 31.78,
+      "gridIndex": 280207,
+      "gridLatitude": 41.5,
+      "gridLongitude": 31.75,
+      "distanceKm": 6.1,
+      "values": {
+        "10u": -2.7581787109375,
+        "swh": 0.5832673758268356,
+        "mwd": 14.58734431071207
+      }
+    },
+    {
+      "slugTr": "bartin-aciklari",
+      "latitude": 41.85,
+      "longitude": 32.38,
+      "gridIndex": 278770,
+      "gridLatitude": 41.75,
+      "gridLongitude": 32.5,
+      "distanceKm": 14.92,
+      "values": {
+        "10u": -4.9456787109375,
+        "swh": 0.6106111258268356,
+        "mwd": 26.98578181071207
+      }
+    },
+    {
+      "slugTr": "kastamonu-aciklari",
+      "latitude": 42.08,
+      "longitude": 33.76,
+      "gridIndex": 277335,
+      "gridLatitude": 42,
+      "gridLongitude": 33.75,
+      "distanceKm": 8.93,
+      "values": {
+        "10u": -0.9769287109375,
+        "swh": 0.5600740164518356,
+        "mwd": 29.34515681071207
+      }
+    },
+    {
+      "slugTr": "sinop-aciklari",
+      "latitude": 42.15,
+      "longitude": 35.15,
+      "gridIndex": 275901,
+      "gridLatitude": 42.25,
+      "gridLongitude": 35.25,
+      "distanceKm": 13.84,
+      "values": {
+        "10u": -1.6956787109375,
+        "swh": 0.9189607352018356,
+        "mwd": 20.03265681071207
+      }
+    },
+    {
+      "slugTr": "samsun-aciklari",
+      "latitude": 41.4,
+      "longitude": 36.33,
+      "gridIndex": 280225,
+      "gridLatitude": 41.5,
+      "gridLongitude": 36.25,
+      "distanceKm": 12.97,
+      "values": {
+        "10u": 4.2105712890625,
+        "swh": 0.7666169852018356,
+        "mwd": 345.43890681071207
+      }
+    },
+    {
+      "slugTr": "ordu-aciklari",
+      "latitude": 41.08,
+      "longitude": 37.88,
+      "gridIndex": 283112,
+      "gridLatitude": 41,
+      "gridLongitude": 38,
+      "distanceKm": 13.43,
+      "values": {
+        "10u": -1.2269287109375,
+        "swh": 0.41334550082683563,
+        "mwd": 331.72015681071207
+      }
+    },
+    {
+      "slugTr": "giresun-aciklari",
+      "latitude": 40.99,
+      "longitude": 38.39,
+      "gridIndex": 283114,
+      "gridLatitude": 41,
+      "gridLongitude": 38.5,
+      "distanceKm": 9.3,
+      "values": {
+        "10u": 1.3355712890625,
+        "swh": 0.38673417270183563,
+        "mwd": 319.66546931071207
+      }
+    },
+    {
+      "slugTr": "trabzon-aciklari",
+      "latitude": 41.1,
+      "longitude": 39.72,
+      "gridIndex": 283119,
+      "gridLatitude": 41,
+      "gridLongitude": 39.75,
+      "distanceKm": 11.4,
+      "values": {
+        "10u": 0.1168212890625,
+        "swh": 0.22047440707683563,
+        "mwd": 326.17328181071207
+      }
+    },
+    {
+      "slugTr": "rize-aciklari",
+      "latitude": 41.13,
+      "longitude": 40.52,
+      "gridIndex": 281682,
+      "gridLatitude": 41.25,
+      "gridLongitude": 40.5,
+      "distanceKm": 13.45,
+      "values": {
+        "10u": 0.3355712890625,
+        "swh": 0.29176346957683563,
+        "mwd": 284.75140681071207
+      }
+    },
+    {
+      "slugTr": "artvin-aciklari",
+      "latitude": 41.52,
+      "longitude": 41.42,
+      "gridIndex": 280246,
+      "gridLatitude": 41.5,
+      "gridLongitude": 41.5,
+      "distanceKm": 7.02,
+      "values": {
+        "10u": 2.5230712890625,
+        "swh": 0.25514237582683563,
+        "mwd": 288.97796931071207
+      }
+    },
+    {
+      "slugTr": "canakkale-marmara-aciklari",
+      "latitude": 40.5,
+      "longitude": 27.35,
+      "gridIndex": 285949,
+      "gridLatitude": 40.5,
+      "gridLongitude": 27.25,
+      "distanceKm": 8.46,
+      "values": {
+        "10u": -7.1956787109375,
+        "swh": 0.5695955008268356,
+        "mwd": 52.74359431071207
+      }
+    },
+    {
+      "slugTr": "tekirdag-aciklari",
+      "latitude": 40.87,
+      "longitude": 27.5,
+      "gridIndex": 284510,
+      "gridLatitude": 40.75,
+      "gridLongitude": 27.5,
+      "distanceKm": 13.34,
+      "values": {
+        "10u": -6.7894287109375,
+        "swh": 0.7006990164518356,
+        "mwd": 73.65765681071207
+      }
+    },
+    {
+      "slugTr": "balikesir-marmara-aciklari",
+      "latitude": 40.55,
+      "longitude": 27.9,
+      "gridIndex": 285952,
+      "gridLatitude": 40.5,
+      "gridLongitude": 28,
+      "distanceKm": 10.12,
+      "values": {
+        "10u": -4.8519287109375,
+        "swh": 0.5988923758268356,
+        "mwd": 44.91546931071207
+      }
+    },
+    {
+      "slugTr": "istanbul-marmara-aciklari",
+      "latitude": 40.85,
+      "longitude": 28.8,
+      "gridIndex": 284515,
+      "gridLatitude": 40.75,
+      "gridLongitude": 28.75,
+      "distanceKm": 11.89,
+      "values": {
+        "10u": -5.9769287109375,
+        "swh": 0.7053376883268356,
+        "mwd": 42.75921931071207
+      }
+    },
+    {
+      "slugTr": "bursa-aciklari",
+      "latitude": 40.48,
+      "longitude": 28.85,
+      "gridIndex": 285955,
+      "gridLatitude": 40.5,
+      "gridLongitude": 28.75,
+      "distanceKm": 8.74,
+      "values": {
+        "10u": -4.4144287109375,
+        "swh": 0.6272126883268356,
+        "mwd": 28.94671931071207
+      }
+    },
+    {
+      "slugTr": "yalova-aciklari",
+      "latitude": 40.72,
+      "longitude": 29.15,
+      "gridIndex": 284517,
+      "gridLatitude": 40.75,
+      "gridLongitude": 29.25,
+      "distanceKm": 9.06,
+      "values": {
+        "10u": -4.6956787109375,
+        "swh": 0.31056229770183563,
+        "mwd": 36.22015681071207
+      }
+    },
+    {
+      "slugTr": "canakkale-ege-aciklari",
+      "latitude": 39.78,
+      "longitude": 25.9,
+      "gridIndex": 290264,
+      "gridLatitude": 39.75,
+      "gridLongitude": 26,
+      "distanceKm": 9.18,
+      "values": {
+        "10u": -3.2894287109375,
+        "swh": 0.7863923758268356,
+        "mwd": 6.579531810712069
+      }
+    },
+    {
+      "slugTr": "balikesir-ege-aciklari",
+      "latitude": 39.42,
+      "longitude": 26.45,
+      "gridIndex": 291706,
+      "gridLatitude": 39.5,
+      "gridLongitude": 26.5,
+      "distanceKm": 9.88,
+      "values": {
+        "10u": 1.8355712890625,
+        "swh": 0.22218339145183563,
+        "mwd": 90.05609431071207
+      }
+    },
+    {
+      "slugTr": "izmir-aciklari",
+      "latitude": 38.72,
+      "longitude": 26.6,
+      "gridIndex": 296026,
+      "gridLatitude": 38.75,
+      "gridLongitude": 26.5,
+      "distanceKm": 9.29,
+      "values": {
+        "10u": 6.0230712890625,
+        "swh": 0.40870682895183563,
+        "mwd": 300.58734431071207
+      }
+    },
+    {
+      "slugTr": "aydin-aciklari",
+      "latitude": 37.6,
+      "longitude": 27.1,
+      "gridIndex": 303228,
+      "gridLatitude": 37.5,
+      "gridLongitude": 27,
+      "distanceKm": 14.19,
+      "values": {
+        "10u": 4.8043212890625,
+        "swh": 0.36378495395183563,
+        "mwd": 294.24359431071207
+      }
+    },
+    {
+      "slugTr": "mugla-aciklari",
+      "latitude": 36.95,
+      "longitude": 27.25,
+      "gridIndex": 306109,
+      "gridLatitude": 37,
+      "gridLongitude": 27.25,
+      "distanceKm": 5.56,
+      "values": {
+        "10u": 4.2105712890625,
+        "swh": 0.32374589145183563,
+        "mwd": 308.70453181071207
+      }
+    },
+    {
+      "slugTr": "antalya-aciklari",
+      "latitude": 36.6,
+      "longitude": 30.7,
+      "gridIndex": 309003,
+      "gridLatitude": 36.5,
+      "gridLongitude": 30.75,
+      "distanceKm": 11.98,
+      "values": {
+        "10u": 0.9293212890625,
+        "swh": 0.26881425082683563,
+        "mwd": 195.65765681071207
+      }
+    },
+    {
+      "slugTr": "mersin-aciklari",
+      "latitude": 36.6,
+      "longitude": 34.5,
+      "gridIndex": 309018,
+      "gridLatitude": 36.5,
+      "gridLongitude": 34.5,
+      "distanceKm": 11.12,
+      "values": {
+        "10u": 1.0543212890625,
+        "swh": 0.28248612582683563,
+        "mwd": 209.62640681071207
+      }
+    },
+    {
+      "slugTr": "adana-aciklari",
+      "latitude": 36.4,
+      "longitude": 35.38,
+      "gridIndex": 309022,
+      "gridLatitude": 36.5,
+      "gridLongitude": 35.5,
+      "distanceKm": 15.46,
+      "values": {
+        "10u": 0.5543212890625,
+        "swh": 0.30177323520183563,
+        "mwd": 233.47015681071207
+      }
+    },
+    {
+      "slugTr": "hatay-aciklari",
+      "latitude": 36.05,
+      "longitude": 35.8,
+      "gridIndex": 311903,
+      "gridLatitude": 36,
+      "gridLongitude": 35.75,
+      "distanceKm": 7.15,
+      "values": {
+        "10u": 0.7730712890625,
+        "swh": 0.28077714145183563,
+        "mwd": 256.00921931071207
+      }
+    }
+  ]
+}

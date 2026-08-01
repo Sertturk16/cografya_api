@@ -1,10 +1,23 @@
-# `data/marine/` — the committed marine reference-point probe artifact
+# `data/marine/` — the committed marine probe artifacts
 
-One file: **`marine-points-probe.json`** (~250 KB, 30 points).
+Two files, from two providers, with **different jobs**:
 
-It is written by `pnpm db:import:marine-points --phase=probe` and read by
-`--phase=load`. Nothing else in the repo may write it, and no other phase touches the
-network.
+| File | Written by | Read by | Size |
+| --- | --- | --- | ---: |
+| `marine-points-probe.json` | `pnpm db:import:marine-points --phase=probe` | `--phase=load`, which seeds `marine_points` from it | ~250 KB |
+| `marine-ecmwf-probe.json` | `pnpm db:import:marine-ecmwf --phase=probe` | **nothing at runtime** — it is evidence, and a CI-checked one | ~33 KB |
+
+Nothing else in the repo may write either, and no other phase touches the network.
+
+The second file's job is worth stating plainly, because it is NOT the first file's job. It is
+**not** a runtime input and never becomes one: the ECMWF support matrix it records is a snapshot
+of one cycle, and a runtime that trusted a frozen matrix would keep publishing `not_supported`
+after the model's land mask moved. The runtime classifies from the cycle in front of it. What the
+artifact does is prove — reviewably, and re-checked by CI against the current code — that the grid
+mapping, the CCSDS+bitmap decode, the byte-range planning and the wind derivation were exercised
+against a real published cycle. `src/database/marine/marine-ecmwf-assertions.spec.ts` re-derives
+every verdict in it on every run, so if the axis, the rounding or the direction convention ever
+moves, the committed evidence stops agreeing with the code and the build says so.
 
 ---
 
@@ -148,9 +161,22 @@ design exists to catch before a row reaches the database.
 ## Re-running it
 
 ```bash
-pnpm db:import:marine-points --phase=probe   # network, by hand, ~4 min, writes this file
+pnpm db:import:marine-points --phase=probe   # network, by hand, ~4 min, writes the points artifact
 pnpm db:import:marine-points --phase=load    # offline, idempotent, upserts marine_points
+
+pnpm db:import:marine-ecmwf  --phase=probe   # network, by hand, ~15 s, 5 requests, ~3.3 MB
 ```
+
+The ECMWF probe takes ONE step (72 h) of the newest published cycle and downloads exactly the four
+parameters we publish, by byte range: two sidecar `.index` files plus three ranges (the `swh`/`mwd`
+pair is byte-adjacent and merges into one request; `10u`/`10v` never are). It has no `load` phase —
+M3a stores nothing, and persistence lands in M3b.
+
+Five requests is the clean case. ECMWF publishes 7–9 h after the cycle hour, so the newest
+candidate is sometimes not there yet and the probe walks back to the previous 6-hourly slot. Those
+extra requests are recorded with `abandonedCandidate: true` and are deliberately excluded from both
+`totals` (which projects what one cycle of the real ingest costs) and the `g8-transport` gate: an
+expected 404 on an unpublished cycle is the fallback working, not a transport failure.
 
 The artifact is written **even when assertions fail**, on purpose — a failed run's evidence
 is what you need in order to move a coordinate. The process still exits non-zero and

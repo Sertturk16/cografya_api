@@ -33,11 +33,13 @@
     "db:seed:world": "pnpm build && node dist/database/seeds/world.cli.js",
     "db:import:climate": "pnpm build && node dist/database/climate/climate.cli.js",
     "db:import:marine-points": "pnpm build && node dist/database/marine/marine-points.cli.js",
+    "db:import:marine-ecmwf": "pnpm build && node dist/database/marine/marine-ecmwf.cli.js",
     "openapi:generate": "pnpm build && node dist/openapi/generate-openapi.js",
     "openapi:check": "pnpm run openapi:generate && git diff --exit-code -- openapi/openapi.json",
     "prepare": "husky"
   },
   "dependencies": {
+    "@mattnucc/gribberish": "1.6.0",
     "@nestjs/common": "11.1.27",
     "@nestjs/config": "4.0.4",
     "@nestjs/core": "11.1.27",

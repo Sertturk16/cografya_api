@@ -86,23 +86,27 @@ describe('buildMarineUpstreamConfig', () => {
 
 describe('MARINE_PROVIDER_BUDGETS', () => {
   it('is expressed in the unit the PROVIDER counts, with real headroom (SPEC-ADDENDUM §2.7)', () => {
-    // The unit is a LOCATION, not an HTTP request (Atlas ruling, review #73 I5): Open-Meteo bills
-    // a multi-location batch per location, so our two batched calls for 31 points cost 62 units.
-    // Counting requests made the ceiling ~186% of the free tier while the guard never fired.
-    const OPEN_METEO_FREE_TIER_PER_DAY = 10_000;
-    const OPEN_METEO_STEADY_STATE_PER_DAY = 2 * 31 * 24; // two endpoints × 31 points × hourly
+    // ECMWF bills nothing and publishes no request quota, so this budget is us braking ourselves.
+    // The steady state is structural: whole global fields, 5 requests per step, 41 steps, 4
+    // cycles a day — and it does NOT grow with the number of reference points.
+    const ECMWF_REQUESTS_PER_STEP = 5;
+    const ECMWF_STEPS_PER_CYCLE = 41;
+    const ECMWF_CYCLES_PER_DAY = 4;
+    const ECMWF_STEADY_STATE_PER_DAY =
+      ECMWF_REQUESTS_PER_STEP * ECMWF_STEPS_PER_CYCLE * ECMWF_CYCLES_PER_DAY;
 
-    const openMeteo = MARINE_PROVIDER_BUDGETS[MARINE_PROVIDER.openMeteo];
-    // Above the steady state with room for a boot tour, a redeploy and a bad hour…
-    expect(openMeteo.perDay).toBeGreaterThan(OPEN_METEO_STEADY_STATE_PER_DAY * 2);
-    // …and far enough below the free tier that a total cache collapse still cannot get us banned.
-    expect(openMeteo.perDay).toBeLessThan(OPEN_METEO_FREE_TIER_PER_DAY / 2);
+    const ecmwf = MARINE_PROVIDER_BUDGETS[MARINE_PROVIDER.ecmwf];
+    // Above the steady state with room for a re-ingest, a redeploy and a retried cycle…
+    expect(ecmwf.perDay).toBeGreaterThan(ECMWF_STEADY_STATE_PER_DAY * 2);
+    // …but not so far above that a runaway loop could hammer a free anonymous provider all day.
+    expect(ecmwf.perDay).toBeLessThan(ECMWF_STEADY_STATE_PER_DAY * 5);
     // The hour cap is the real brake, so it has to be the one that BITES: reaching the day cap
     // must take several hours of continuous failure, not one. (`perHour < perDay` alone is
-    // satisfied by 3 999/h, which is reachable inside an hour and would prove nothing.)
-    expect(openMeteo.perDay / openMeteo.perHour).toBeGreaterThanOrEqual(4);
-    // A burst must stay well under the provider's own 600/min.
-    expect(openMeteo.perMinute).toBeLessThan(600 / 2);
+    // satisfied by 1 999/h, which is reachable inside an hour and would prove nothing.)
+    expect(ecmwf.perDay / ecmwf.perHour).toBeGreaterThanOrEqual(4);
+    // One cycle's worth of work must fit inside the hour cap, or a normal ingest would trip its
+    // own guard — a budget that blocks the steady state is a broken budget, not a strict one.
+    expect(ecmwf.perHour).toBeGreaterThan(ECMWF_REQUESTS_PER_STEP * ECMWF_STEPS_PER_CYCLE);
 
     // CMEMS: one call is one point and one variable, so weight 1 and the numbers are call counts.
     // Steady state is 77 per refresh × 24 ≈ 1 848/day.

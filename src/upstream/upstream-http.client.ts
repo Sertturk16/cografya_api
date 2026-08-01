@@ -5,7 +5,7 @@ import {
   classifyHttpStatus,
   hasExpectedContentType,
   parseRetryAfterSeconds,
-  readBodyCapped,
+  readBodyCappedBytes,
   redactSecrets,
   redactUrl,
   UPSTREAM_MAX_RESPONSE_BYTES,
@@ -32,22 +32,15 @@ const RETRY_BACKOFF_MS = 250;
 /** Attempts per operation: the first try plus at most one retry, and only for transient failures. */
 const MAX_ATTEMPTS = 2;
 
-export interface UpstreamRequestOptions<T> {
-  /** OUR label for the provider (`open-meteo`, `cmems`) — the metrics and breaker key. */
+interface UpstreamRequestOptionsBase {
+  /** OUR label for the provider (`cmems`, `ecmwf`) — the metrics and breaker key. */
   providerId: string;
-  /** Fine-grained label for logs (`cmems.thetao`, `open-meteo.marine-batch`). */
+  /** Fine-grained label for logs (`cmems.thetao`, `ecmwf.oper-range`). */
   label: string;
   url: string;
   /** The operation's total budget. Shared across every call the operation makes. */
   deadline: OperationDeadline;
   limits: ProviderBudgetLimits;
-  /**
-   * Turn a 200 body into a value.
-   *
-   * Throw {@link UpstreamSchemaError} when the body is not the promised shape; return
-   * `{ kind: 'no_data' }` when the provider legitimately has no value here.
-   */
-  parse: (body: string) => UpstreamParseResult<T>;
   /**
    * How many QUOTA units this request costs (default 1).
    *
@@ -63,6 +56,46 @@ export interface UpstreamRequestOptions<T> {
   headers?: Readonly<Record<string, string>>;
   maxResponseBytes?: number;
 }
+
+/** A textual response (the default): the body reaches `parse` as a UTF-8 string. */
+export interface UpstreamTextRequestOptions<T> extends UpstreamRequestOptionsBase {
+  responseKind?: 'text';
+  /**
+   * Turn a 200 body into a value.
+   *
+   * Throw {@link UpstreamSchemaError} when the body is not the promised shape; return
+   * `{ kind: 'no_data' }` when the provider legitimately has no value here.
+   */
+  parse: (body: string) => UpstreamParseResult<T>;
+}
+
+/** A binary response: the body reaches `parse` as raw bytes, never decoded. */
+export interface UpstreamBytesRequestOptions<T> extends UpstreamRequestOptionsBase {
+  responseKind: 'bytes';
+  /** Same contract as the text `parse`, over bytes. */
+  parse: (body: Uint8Array) => UpstreamParseResult<T>;
+}
+
+/**
+ * One request, in one of two body shapes.
+ *
+ * ## Why the binary branch lives HERE and not in a second client
+ * Two independent SPECs arrived needing binary bodies — marine M3's ECMWF GRIB2 messages and the
+ * air-quality leg — and both faced the same choice: teach this class one narrow branch, or write
+ * a second downloader beside it. Atlas ruled for the branch, once, in the PR that lands first
+ * (DEC 2026-07-31 A-1, extended by DEC 2026-07-31b).
+ *
+ * The reason is the guard ORDER — budget, then breaker, then deadline, then the byte cap, then
+ * the content type, then parse. That sequence is not a style preference: review #73's CRITICAL
+ * finding, three independent reviewers, lived inside it, and so did N1. A second copy would be a
+ * second place for the same class of bug to reappear, and it would drift quietly because both
+ * copies would keep passing their own tests. **The guard order is never duplicated.**
+ *
+ * The delta is deliberately the smallest thing that works: one discriminant, one alternative
+ * `parse` signature, no new option, no new class, no strategy object.
+ */
+export type UpstreamRequestOptions<T> =
+  UpstreamTextRequestOptions<T> | UpstreamBytesRequestOptions<T>;
 
 export interface UpstreamHttpClientOptions {
   /** Cap on ONE call, so a hung socket cannot eat the operation budget. */
@@ -249,7 +282,10 @@ export class UpstreamHttpClient {
     this.metrics.increment('upstream.request', providerId);
 
     let response: Response;
-    let body: string;
+    // Read as BYTES on every path and decode only for the text branch. `TextDecoder` replaces an
+    // invalid sequence with U+FFFD, so decoding first would corrupt a binary body irreversibly —
+    // and silently, since the result is still a perfectly ordinary string.
+    let body: Uint8Array;
     try {
       response = await this.fetchImpl(url, {
         headers: {
@@ -267,7 +303,7 @@ export class UpstreamHttpClient {
         // starts redirecting, the fix is the URL M3 sends, not this policy.
         redirect: 'error',
       });
-      body = await readBodyCapped(
+      body = await readBodyCappedBytes(
         response,
         url,
         options.maxResponseBytes ?? UPSTREAM_MAX_RESPONSE_BYTES,
@@ -304,7 +340,11 @@ export class UpstreamHttpClient {
           // is wired through this same client the first 200 bytes could carry its key. The URL on
           // this line has always been redacted; the body was the hole in that guarantee (§3.7 has
           // no "but it was only in an error string" exemption).
-          `Body starts: ${redactSecrets(body.slice(0, 200))}`,
+          //
+          // Decoded here rather than earlier: an error body is text on every provider we have
+          // met, and the excerpt is bounded to 200 bytes, so a lossy decode of a binary error
+          // page costs nothing while decoding the SUCCESS path would destroy it.
+          `Body starts: ${redactSecrets(decodeExcerpt(body))}`,
       };
     }
     if (statusClass === 'transient') {
@@ -325,7 +365,11 @@ export class UpstreamHttpClient {
     }
 
     try {
-      const parsed = options.parse(body);
+      // The ONE place the two branches diverge — after every guard above has already run.
+      const parsed =
+        options.responseKind === 'bytes'
+          ? options.parse(body)
+          : options.parse(new TextDecoder('utf-8').decode(body));
       if (parsed.kind === 'no_data') {
         return { kind: 'no_data', reason: parsed.reason };
       }
@@ -413,6 +457,11 @@ export class UpstreamHttpClient {
 
     return outcome;
   }
+}
+
+/** The first 200 bytes of a body, decoded leniently, for an error message. */
+function decodeExcerpt(body: Uint8Array): string {
+  return new TextDecoder('utf-8').decode(body.subarray(0, 200));
 }
 
 /** A transport failure in one line, without leaking a stack into a log aggregator. */
