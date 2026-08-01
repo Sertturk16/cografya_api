@@ -2262,39 +2262,39 @@
         "type": "object",
         "properties": {
           "pm2_5": {
-            "nullable": true,
-            "description": "µg/m³ per step; null per missing step.",
             "type": "array",
             "items": {
-              "type": "number"
-            }
+              "type": "number",
+              "nullable": true
+            },
+            "description": "µg/m³ per step; null per missing step."
           },
           "pm10": {
-            "nullable": true,
             "type": "array",
             "items": {
-              "type": "number"
+              "type": "number",
+              "nullable": true
             }
           },
           "no2": {
-            "nullable": true,
             "type": "array",
             "items": {
-              "type": "number"
+              "type": "number",
+              "nullable": true
             }
           },
           "o3": {
-            "nullable": true,
             "type": "array",
             "items": {
-              "type": "number"
+              "type": "number",
+              "nullable": true
             }
           },
           "so2": {
-            "nullable": true,
             "type": "array",
             "items": {
-              "type": "number"
+              "type": "number",
+              "nullable": true
             }
           }
         },
@@ -2331,14 +2331,14 @@
             "description": "End of the published horizon (run base + 96 h in Faz-1)."
           },
           "bands": {
-            "nullable": true,
-            "description": "Overall EAQI band per step; null where it cannot be computed.",
             "type": "array",
             "items": {
               "type": "number",
-              "maximum": 6,
-              "minimum": 1
-            }
+              "nullable": true,
+              "minimum": 1,
+              "maximum": 6
+            },
+            "description": "Overall EAQI band per step; null where it cannot be computed."
           },
           "categories": {
             "type": "array",
@@ -2351,9 +2351,9 @@
                 "poor",
                 "very_poor",
                 "extremely_poor"
-              ]
-            },
-            "nullable": true
+              ],
+              "nullable": true
+            }
           },
           "dominantPollutants": {
             "type": "array",
@@ -2365,9 +2365,9 @@
                 "no2",
                 "o3",
                 "so2"
-              ]
-            },
-            "nullable": true
+              ],
+              "nullable": true
+            }
           },
           "concentrations": {
             "$ref": "#/components/schemas/AirQualitySeriesConcentrationsDto"

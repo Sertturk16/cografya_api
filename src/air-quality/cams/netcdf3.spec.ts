@@ -104,7 +104,13 @@ describe('parseNetcdf3', () => {
     const bytes = buildNetcdf3(miniSpec());
     const truncated = bytes.subarray(0, bytes.byteLength - 8);
     const file = parseNetcdf3(truncated);
-    expect(() => file.readRecordBlock('pm2p5_conc', 1)).toThrow(/outside the/);
+    expect(() => file.readRecordBlock('pm2p5_conc', 1)).toThrow(/lies outside the/);
+  });
+
+  it('refuses an implausible numrecs (a corrupt/hostile header sizes every downstream loop)', () => {
+    const bytes = Uint8Array.from(buildNetcdf3(miniSpec()));
+    new DataView(bytes.buffer).setInt32(4, 2_000_000, false); // numrecs lives at offset 4
+    expect(() => parseNetcdf3(bytes)).toThrow(/implausible record count/);
   });
 
   it('refuses out-of-range record reads and wrong read modes', () => {

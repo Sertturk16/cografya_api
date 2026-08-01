@@ -35,6 +35,16 @@ describe('extractSingleZipEntry', () => {
     expect(() => extractSingleZipEntry(archive)).toThrow(/exactly ONE entry/);
   });
 
+  it('sanitises a hostile entry name before it reaches logs/evidence (visibly, not silently)', () => {
+    const archive = buildZipArchive([
+      // \x07 BEL + \n (C0 controls) and \u200E LRM (a Cf format char), as escapes on purpose.
+      { name: 'EVIL\x07\nNAME\u200E.nc', bytes: payload('body') },
+    ]);
+    const entry = extractSingleZipEntry(archive);
+    expect(entry.name).toBe('EVIL��NAME�.nc'); // control/format chars → U+FFFD, never dropped
+    expect(entry.name).not.toMatch(/[\p{Cc}\p{Cf}]/u);
+  });
+
   it('refuses an empty archive', () => {
     const archive = buildZipArchive([]);
     expect(() => extractSingleZipEntry(archive)).toThrow(CamsContractError);

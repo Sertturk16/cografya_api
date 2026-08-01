@@ -8,23 +8,43 @@ import { AirQualityCategory, AirQualityPollutant } from '../air-quality.types';
  */
 export class AirQualitySeriesConcentrationsDto {
   @ApiProperty({
-    type: Number,
-    isArray: true,
-    nullable: true,
+    // Raw schema, NOT `type: Number` + `isArray` + `nullable`: `nullable` on an `@ApiProperty`
+    // array marks the ARRAY nullable, never its items (@nestjs/swagger keeps `nullable` at the
+    // property level while descending other keywords). What the contract means is
+    // `(number | null)[]` — the nulls are per-step gaps. Same trap and same fix as the merged
+    // `MarineSeriesDto` (see its `seaSurfaceTemperature` comment).
+    type: 'array',
+    items: { type: 'number', nullable: true },
     description: 'µg/m³ per step; null per missing step.',
   })
   pm2_5!: (number | null)[];
 
-  @ApiProperty({ type: Number, isArray: true, nullable: true })
+  @ApiProperty({
+    // Raw schema — see `pm2_5` for why.
+    type: 'array',
+    items: { type: 'number', nullable: true },
+  })
   pm10!: (number | null)[];
 
-  @ApiProperty({ type: Number, isArray: true, nullable: true })
+  @ApiProperty({
+    // Raw schema — see `pm2_5` for why.
+    type: 'array',
+    items: { type: 'number', nullable: true },
+  })
   no2!: (number | null)[];
 
-  @ApiProperty({ type: Number, isArray: true, nullable: true })
+  @ApiProperty({
+    // Raw schema — see `pm2_5` for why.
+    type: 'array',
+    items: { type: 'number', nullable: true },
+  })
   o3!: (number | null)[];
 
-  @ApiProperty({ type: Number, isArray: true, nullable: true })
+  @ApiProperty({
+    // Raw schema — see `pm2_5` for why.
+    type: 'array',
+    items: { type: 'number', nullable: true },
+  })
   so2!: (number | null)[];
 }
 
@@ -72,19 +92,27 @@ export class AirQualitySeriesDto {
   horizonEndUtc!: string;
 
   @ApiProperty({
-    type: Number,
-    isArray: true,
-    nullable: true,
-    minimum: 1,
-    maximum: 6,
+    // Raw schema — item-level nullability, the `MarineSeriesDto` idiom (see the concentrations
+    // DTO above). `minimum`/`maximum` are written EXPLICITLY inside `items`: with the raw form
+    // there is no auto-descent to put them there for us.
+    type: 'array',
+    items: { type: 'number', nullable: true, minimum: 1, maximum: 6 },
     description: 'Overall EAQI band per step; null where it cannot be computed.',
   })
   bands!: (number | null)[];
 
-  @ApiProperty({ enum: AirQualityCategory, isArray: true, nullable: true })
+  @ApiProperty({
+    // Raw schema — see `bands` for why.
+    type: 'array',
+    items: { type: 'string', enum: Object.values(AirQualityCategory), nullable: true },
+  })
   categories!: (AirQualityCategory | null)[];
 
-  @ApiProperty({ enum: AirQualityPollutant, isArray: true, nullable: true })
+  @ApiProperty({
+    // Raw schema — see `bands` for why.
+    type: 'array',
+    items: { type: 'string', enum: Object.values(AirQualityPollutant), nullable: true },
+  })
   dominantPollutants!: (AirQualityPollutant | null)[];
 
   @ApiProperty({ type: AirQualitySeriesConcentrationsDto })

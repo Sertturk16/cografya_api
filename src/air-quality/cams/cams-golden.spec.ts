@@ -83,6 +83,9 @@ describe('decodeCamsFile — golden run over the committed REAL fixture', () => 
 
   it('maps all 81 provinces onto the SAME cells and reads BIT-IDENTICAL float32 values', () => {
     expect(decoded.provinces).toHaveLength(81);
+    // The REFERENCE itself is pinned to 81 rows: a truncated reference.json must fail here,
+    // not silently weaken the loop below.
+    expect(reference.provinces).toHaveLength(81);
     const byPlate = new Map(decoded.provinces.map((province) => [province.plateCode, province]));
     for (const expected of reference.provinces) {
       const actual = byPlate.get(expected.plateCode);

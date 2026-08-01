@@ -37,6 +37,50 @@ describe('openapi/openapi.json — air-quality contract', () => {
     expect(Object.keys(document.paths)).not.toContain('/api/air-quality/provinces/{plateCode}');
   });
 
+  it('the 8 step-aligned arrays are nullable at the ITEM level, never the array level', () => {
+    // Unrepeatable-class guard for the array-vs-item nullability inversion: `nullable` as a
+    // SIBLING of `type: array` publishes `T[] | null` while the DTO invariant is `(T|null)[]`
+    // (the trap the marine sibling DTO documents). Every one of the 8 series fields must pin
+    // `items.nullable === true` and carry NO array-level nullable.
+    const fields: [string, string][] = [
+      ['AirQualitySeriesDto', 'bands'],
+      ['AirQualitySeriesDto', 'categories'],
+      ['AirQualitySeriesDto', 'dominantPollutants'],
+      ['AirQualitySeriesConcentrationsDto', 'pm2_5'],
+      ['AirQualitySeriesConcentrationsDto', 'pm10'],
+      ['AirQualitySeriesConcentrationsDto', 'no2'],
+      ['AirQualitySeriesConcentrationsDto', 'o3'],
+      ['AirQualitySeriesConcentrationsDto', 'so2'],
+    ];
+    for (const [schemaName, fieldName] of fields) {
+      const schema = document.components.schemas[schemaName] as {
+        properties?: Record<
+          string,
+          { type?: string; nullable?: boolean; items?: { nullable?: boolean } }
+        >;
+      };
+      const property = schema.properties?.[fieldName];
+      expect(`${schemaName}.${fieldName}:${String(property?.type)}`).toBe(
+        `${schemaName}.${fieldName}:array`,
+      );
+      expect(`${schemaName}.${fieldName}:arrayNullable=${String(property?.nullable)}`).toBe(
+        `${schemaName}.${fieldName}:arrayNullable=undefined`,
+      );
+      expect(`${schemaName}.${fieldName}:itemsNullable=${String(property?.items?.nullable)}`).toBe(
+        `${schemaName}.${fieldName}:itemsNullable=true`,
+      );
+    }
+    // The band range must survive the raw-items form: with auto-descent gone, `minimum`/
+    // `maximum` exist only if written explicitly inside `items`.
+    const bands = (
+      document.components.schemas.AirQualitySeriesDto as {
+        properties: Record<string, { items?: { minimum?: number; maximum?: number } }>;
+      }
+    ).properties.bands;
+    expect(bands?.items?.minimum).toBe(1);
+    expect(bands?.items?.maximum).toBe(6);
+  });
+
   it('contains NO field named analysisEndUtc anywhere (Atlas checkpoint A-7)', () => {
     expect(spec).not.toContain('analysisEndUtc');
   });

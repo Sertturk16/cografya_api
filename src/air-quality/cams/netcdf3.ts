@@ -145,6 +145,12 @@ export class Netcdf3File {
         'STREAMING record count (numrecs = -1) — the provider always writes a concrete count.',
       );
     }
+    // Plausibility bound: the production shape is 97 records and even a year of hourly steps
+    // is 8 760 — a header claiming millions is corrupt or hostile, and every downstream loop
+    // sizes itself from this count.
+    if (numrecs > 1_000_000) {
+      throw new CamsContractError(`implausible record count ${String(numrecs)} (numrecs).`);
+    }
     this.recordCount = numrecs;
 
     this.dimensions = readDimensionList(reader);

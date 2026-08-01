@@ -12,10 +12,13 @@ import { CamsContractError } from './cams.errors';
  *    axis is not even monotonic (335.05…359.95 then 0.05…44.95). Invisible in the TR subset —
  *    by coincidence, not by design — so the AXIS GUARD refuses any non-monotonic or
  *    unevenly-stepped axis outright.
- * 3. **Registration.** Cell centres sit at x.x5 (cell-centred grid); a 0.05° registration
- *    error would move every province one half-cell while every array index stays in range.
- *    The READ-BACK GUARD re-reads the coordinate at the computed index and refuses a snap
- *    farther than half a step.
+ * 3. **Registration.** Cell centres sit at x.x5 (cell-centred grid). The real defence against
+ *    a registration change is that NOTHING IS ASSUMED: origin and step are derived from the
+ *    file's own axis, so a provider shift to x.x0 centres maps correctly by construction (and
+ *    stays bounded by the distance threshold). The READ-BACK GUARD is honest about what it
+ *    CAN catch: OUR arithmetic being wrong (rounding, sign, off-by-one) — it re-reads the
+ *    coordinate at the computed index and refuses a snap farther than half a step. It cannot
+ *    catch a provider-side registration change, because such a file is self-consistent.
  *
  * ## Tolerances are DERIVED, never fixed (risk R2b — a miscalibrated guard gets turned off)
  * - Equal-step check: max deviation from the median step ≤ 1e-3. Float32 axes are never

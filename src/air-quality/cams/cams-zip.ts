@@ -105,9 +105,13 @@ export function extractSingleZipEntry(
   ) {
     throw new CamsContractError('ZIP64 size/offset markers present — refusing.');
   }
-  const name = new TextDecoder('utf-8').decode(
-    archive.subarray(centralDirectoryOffset + 46, centralDirectoryOffset + 46 + nameLength),
-  );
+  // The entry name is provider-controlled input that ends up in logs and the evidence
+  // artifact: control/format characters are replaced (visibly, with U+FFFD — tampering should
+  // show, not vanish) and the length is capped before it goes anywhere.
+  const name = new TextDecoder('utf-8')
+    .decode(archive.subarray(centralDirectoryOffset + 46, centralDirectoryOffset + 46 + nameLength))
+    .replace(/[\p{Cc}\p{Cf}]/gu, '�')
+    .slice(0, 128);
 
   // ── the local header, where the body actually starts ────────────────────
   if (localHeaderOffset + 30 > archive.byteLength) {

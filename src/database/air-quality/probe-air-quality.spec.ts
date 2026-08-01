@@ -141,11 +141,13 @@ interface RecordedCall {
   headers: Record<string, string>;
 }
 
-function fakeAds(options: { failExecutionWithKeyEcho?: boolean }): {
+function fakeAds(options: { failExecutionWithKeyEcho?: boolean; hostileJobId?: boolean }): {
   fetchImpl: typeof fetch;
   calls: RecordedCall[];
 } {
-  const productionArchive = buildArchive(POLLUTANT_FILE_VARIABLES, 2);
+  // 97 records: the evidence gate BINDS the production step count (SF-77-2) — a 2-step fake
+  // would now fail the probe's own assertions, which is exactly the point.
+  const productionArchive = buildArchive(POLLUTANT_FILE_VARIABLES, 97);
   const fixtureArchive = buildArchive(['pm2p5_conc'], 1);
   const archives: Record<string, Uint8Array> = {
     'job-production': productionArchive,
@@ -180,6 +182,9 @@ function fakeAds(options: { failExecutionWithKeyEcho?: boolean }): {
           title: 'required licences not accepted',
           detail: `token ${API_KEY} lacks the licence`,
         });
+      }
+      if (options.hostileJobId === true) {
+        return json(201, { jobID: '../secrets?x=1', status: 'accepted' });
       }
       submissions += 1;
       const jobId = submissions === 1 ? 'job-production' : 'job-fixture';
@@ -292,13 +297,36 @@ describe('runAirQualityProbePhase — faked end-to-end', () => {
     expect(artifact.provinces.every((province) => province.withinThreshold)).toBe(true);
     expect(artifact.provinces.every((province) => !province.outsideDomain)).toBe(true);
     expect(artifact.assertions.every((assertion) => assertion.passed)).toBe(true);
+    // The BINDING gates are present, not merely "whatever ran passed".
+    for (const id of ['time-steps-97', 'support-all-ok', 'null-step-budget']) {
+      expect(artifact.assertions.map((assertion) => assertion.id)).toContain(id);
+    }
     expect(artifact.latitudeAxis.step).toBeLessThan(0);
-    expect(artifact.decoderVersion).toBe('netcdf3-ts@1');
+    expect(artifact.decoderVersion).toBe('netcdf3-ts@2');
     expect(artifact.jobs.every((job) => job.deleted && job.checksumVerified)).toBe(true);
 
     // The fixture archive was written where the golden spec expects it.
     const fixture = await readFile(fixturePath);
     expect(fixture.subarray(0, 4)).toEqual(Buffer.from([0x50, 0x4b, 0x03, 0x04]));
+  }, 30_000);
+
+  it('NEGATIVE: a hostile jobID shape is refused BEFORE any URL is built from it', async () => {
+    const outputDir = await mkdtemp(join(tmpdir(), 'aq-probe-jobid-'));
+    const fixtureDir = await mkdtemp(join(tmpdir(), 'aq-probe-jobid-fx-'));
+    const { fetchImpl, calls } = fakeAds({ hostileJobId: true });
+
+    await expect(
+      runAirQualityProbePhase({
+        outputDir,
+        fixtureDir,
+        apiKey: API_KEY,
+        fetchImpl,
+        sleepImpl: () => Promise.resolve(),
+        nowImpl: () => new Date('2026-08-01T14:05:00Z'),
+      }),
+    ).rejects.toThrow(/unexpected shape/);
+    // No poll/results/DELETE call ever carried the hostile id.
+    expect(calls.some((call) => call.url.includes('secrets'))).toBe(false);
   }, 30_000);
 
   it('NEGATIVE: a provider error body that echoes the key is redacted in the thrown error', async () => {

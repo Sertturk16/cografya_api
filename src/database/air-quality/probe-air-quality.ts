@@ -3,6 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import {
   AirQualityPollutant,
+  AirQualityStatus,
   ALL_AIR_QUALITY_POLLUTANTS,
 } from '../../air-quality/air-quality.types';
 import { CAMS_DECODER_VERSION, decodeCamsFile } from '../../air-quality/cams/cams-decode';
@@ -363,6 +364,13 @@ export async function runAirQualityProbePhase(options: AirQualityProbeOptions): 
     }
     const executionBody = asRecord(execution.json, `${label}.execution`);
     const jobId = asString(executionBody.jobID, `${label}.execution jobID`);
+    // Shape gate BEFORE the id is interpolated into URLs: a hostile/odd jobID (`../`, `?`,
+    // whitespace) must never steer the poll/results/DELETE paths. Real ADS ids are UUIDs.
+    if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(jobId)) {
+      throw new AirQualityProbeError(
+        `${label}: jobID "${jobId}" has an unexpected shape — refusing to build URLs from it.`,
+      );
+    }
     log(`${label}: queued as job ${jobId}.`);
 
     // 3 — poll until terminal.
@@ -645,6 +653,34 @@ export function evaluateProbeAssertions(
     artifact.longitudeAxis.step > 0 && artifact.latitudeAxis.step < 0,
     `lon step ${String(artifact.longitudeAxis.step)}, lat step ${String(artifact.latitudeAxis.step)} ` +
       '(expected +, −).',
+  );
+  // The three assertions below BIND the production shape instead of merely recording it: a
+  // 2-step file, or an all-fill run, must fail the probe loudly, not pass as "9/9".
+  push(
+    'time-steps-97',
+    artifact.timeStepCount === 97,
+    `${String(artifact.timeStepCount)} time step(s) (the production request asks for exactly 97).`,
+  );
+  const supportEntries = artifact.provinces.flatMap((province) => Object.values(province.support));
+  const notOk = supportEntries.filter((status) => status !== AirQualityStatus.Ok).length;
+  push(
+    'support-all-ok',
+    supportEntries.length > 0 && notOk === 0,
+    `${String(notOk)}/${String(supportEntries.length)} province×pollutant support entries not "ok".`,
+  );
+  const totalSteps = artifact.provinces.reduce(
+    (sum, province) => sum + Object.keys(province.nullStepCounts).length * artifact.timeStepCount,
+    0,
+  );
+  const nullSteps = artifact.provinces.reduce(
+    (sum, province) =>
+      sum + Object.values(province.nullStepCounts).reduce((inner, count) => inner + count, 0),
+    0,
+  );
+  push(
+    'null-step-budget',
+    totalSteps > 0 && nullSteps <= totalSteps * 0.05,
+    `${String(nullSteps)}/${String(totalSteps)} null steps (budget 5%; measured baseline 0).`,
   );
   push(
     'checksums-verified',

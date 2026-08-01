@@ -13,7 +13,7 @@ import {
 import { CAMS_CANONICAL_UNIT, camsVariableFor } from './cams-variables';
 import { extractSingleZipEntry } from './cams-zip';
 import { CamsContractError } from './cams.errors';
-import { parseNetcdf3, type Netcdf3File } from './netcdf3';
+import { NC_FLOAT, parseNetcdf3, type Netcdf3File } from './netcdf3';
 
 /**
  * The single wrapper around the whole decode path: ZIP → NetCDF3 → variable mapping → unit
@@ -28,8 +28,24 @@ import { parseNetcdf3, type Netcdf3File } from './netcdf3';
  * yeni-M3 §9.1 pattern, deliberately the same).
  */
 
-/** Versioned decoder identity (plan §5.7). Bump on ANY behavioural change to this path. */
-export const CAMS_DECODER_VERSION = 'netcdf3-ts@1';
+/**
+ * Versioned decoder identity (plan §5.7). Bump on ANY behavioural change to this path.
+ * `@2`: refuses non-NC_FLOAT / CF-packed data variables, binds the FORECAST product word,
+ * null-classifies implausibly large values, throws on an all-points-outside domain, and ties
+ * coordinate variables to their own dimension. The committed probe artifact honestly records
+ * `@1` — the run that produced it predates these guards.
+ */
+export const CAMS_DECODER_VERSION = 'netcdf3-ts@2';
+
+/**
+ * Upper plausibility bound for a raw concentration, µg/m³. Far above any physically observed
+ * value (extreme dust events reach the low thousands; the top EAQI boundary is 1250) and far
+ * below the NetCDF DEFAULT float fill (9.96921×10³⁶), which a provider bug could leak into a
+ * file whose declared `_FillValue` is −999 — without this bound such a value would publish as
+ * EAQI band 6. Symmetric to the negative-value rule: implausible → null, never a fabricated
+ * number.
+ */
+export const CAMS_MAX_PLAUSIBLE_CONCENTRATION_UG_M3 = 100_000;
 
 /** Dimension names as the provider writes them (measured). */
 const DIMENSION_LONGITUDE = 'longitude';
@@ -95,8 +111,28 @@ export interface CamsDecodeOptions {
   pollutants?: readonly AirQualityPollutant[];
 }
 
-/** Decode one downloaded `netcdf_zip` archive, fail-closed on every contract deviation. */
+/**
+ * Decode one downloaded `netcdf_zip` archive, fail-closed on every contract deviation.
+ *
+ * The catch-all below is the plan §5.2-D2 wrapper: every anticipated deviation already throws
+ * a typed {@link CamsContractError} at its own guard, and anything UNANTICIPATED (a DataView
+ * range error, a detached buffer, a bug of ours) is converted here so the caller — A2's
+ * `schema_error` mapping — sees exactly one failure type from this path.
+ */
 export function decodeCamsFile(archive: Uint8Array, options: CamsDecodeOptions): CamsDecodedFile {
+  try {
+    return decodeCamsFileInner(archive, options);
+  } catch (error: unknown) {
+    if (error instanceof CamsContractError) throw error;
+    throw new CamsContractError(
+      `unexpected decoder failure (${error instanceof Error ? error.name : typeof error}) — ` +
+        'not a recognised contract deviation; treat as schema_error.',
+      { cause: error },
+    );
+  }
+}
+
+function decodeCamsFileInner(archive: Uint8Array, options: CamsDecodeOptions): CamsDecodedFile {
   if (!/^\d{8}$/.test(options.expectedRunDate)) {
     throw new CamsContractError(
       `expectedRunDate must be YYYYMMDD, got "${options.expectedRunDate}".`,
@@ -106,11 +142,25 @@ export function decodeCamsFile(archive: Uint8Array, options: CamsDecodeOptions):
   if (pollutants.length === 0) {
     throw new CamsContractError('decode was asked for zero pollutants.');
   }
+  const seenPlateCodes = new Set<string>();
+  for (const point of options.points) {
+    if (seenPlateCodes.has(point.plateCode)) {
+      throw new CamsContractError(
+        `duplicate plateCode "${point.plateCode}" in the requested points — the per-province ` +
+          'series map would silently collapse them.',
+      );
+    }
+    seenPlateCodes.add(point.plateCode);
+  }
 
   const entry = extractSingleZipEntry(archive);
   const file = parseNetcdf3(entry.bytes);
 
   // ── axes + guards ─────────────────────────────────────────────────────────
+  // A coordinate variable must be declared on ITS OWN dimension: an axis declared on another
+  // dimension would still read cleanly but misalign every index against the data grid.
+  assertCoordinateVariable(file, DIMENSION_LONGITUDE);
+  assertCoordinateVariable(file, DIMENSION_LATITUDE);
   const longitudeValues = file.readFixedNumeric(DIMENSION_LONGITUDE);
   const latitudeValues = file.readFixedNumeric(DIMENSION_LATITUDE);
   const longitudeAnalysis = analyseAxis(longitudeValues, DIMENSION_LONGITUDE);
@@ -143,6 +193,26 @@ export function decodeCamsFile(archive: Uint8Array, options: CamsDecodeOptions):
       );
     }
     assertVariableShape(file, mapping.fileVariableName);
+
+    // The element type is PINNED (measured: NC_FLOAT) and CF packing attributes are REFUSED:
+    // a packed NC_SHORT variable passes every other guard and decodes to plausible numbers
+    // that are all off by 1/scale_factor — Copernicus's normal encoding for other datasets,
+    // so this is a live provider-change lane, not a hypothetical.
+    const variable = file.variable(mapping.fileVariableName);
+    if (variable.ncType !== NC_FLOAT) {
+      throw new CamsContractError(
+        `"${mapping.fileVariableName}" is nc_type ${String(variable.ncType)}, not the measured ` +
+          'NC_FLOAT — a re-typed/packed variable decodes to plausible but wrong numbers; refusing.',
+      );
+    }
+    for (const packingAttribute of ['scale_factor', 'add_offset'] as const) {
+      if (file.attribute(mapping.fileVariableName, packingAttribute) !== undefined) {
+        throw new CamsContractError(
+          `"${mapping.fileVariableName}" carries CF packing attribute "${packingAttribute}" — ` +
+            'raw values would be off by the packing transform; refusing an encoding we did not pin.',
+        );
+      }
+    }
 
     const unitAttribute = file.attribute(mapping.fileVariableName, 'units');
     if (unitAttribute === undefined || typeof unitAttribute.value !== 'string') {
@@ -222,6 +292,19 @@ export function decodeCamsFile(archive: Uint8Array, options: CamsDecodeOptions):
     };
   });
 
+  // Domain-coverage guard IN THE DECODE PATH, not only in the hand-run probe: one edge point
+  // outside the domain is the structural `not_supported` class (SPEC §7.4), but EVERY point
+  // outside means this is the wrong file/area (wrong `area` sent, packed axes, a lon-convention
+  // change) — returning 81 quiet `not_supported` rows would be the #65 lesson inverted.
+  if (mappings.length > 0 && mappings.every((mapping) => mapping.outside)) {
+    throw new CamsContractError(
+      `EVERY requested point (${String(mappings.length)}) is outside the file domain ` +
+        `(lon ${String(longitudeAnalysis.first)}…${String(longitudeAnalysis.last)}, ` +
+        `lat ${String(latitudeAnalysis.first)}…${String(latitudeAnalysis.last)}) — wrong ` +
+        'file/area, not a data gap; failing loudly.',
+    );
+  }
+
   const longitudeCount = longitudeAnalysis.length;
   const series = new Map<string, Record<AirQualityPollutant, (number | null)[]>>();
   for (const mapping of mappings) {
@@ -255,10 +338,17 @@ export function decodeCamsFile(archive: Uint8Array, options: CamsDecodeOptions):
         const provinceSeries = series.get(mapping.point.plateCode);
         if (provinceSeries === undefined) continue; // unreachable — map filled above
         // Null classification (SPEC §7.4, binding): == _FillValue → null; negative → null
-        // (second line of defence — a negative concentration is physically impossible).
-        // `Number.isNaN` alone is NEVER sufficient: the provider marks missing with −999.0.
+        // (second line of defence — a negative concentration is physically impossible);
+        // implausibly LARGE → null (third line — a leaked NetCDF default fill of ~9.97e36
+        // would otherwise publish as EAQI band 6). `Number.isNaN` alone is NEVER sufficient:
+        // the provider marks missing with −999.0.
         provinceSeries[pollutant][record] =
-          raw === fillValue || raw < 0 || Number.isNaN(raw) ? null : raw;
+          raw === fillValue ||
+          raw < 0 ||
+          raw > CAMS_MAX_PLAUSIBLE_CONCENTRATION_UG_M3 ||
+          Number.isNaN(raw)
+            ? null
+            : raw;
       }
     }
   }
@@ -319,6 +409,18 @@ function summarise(analysis: AxisAnalysis): CamsAxisSummary {
   };
 }
 
+/** A coordinate variable must be 1-D on exactly its namesake dimension. */
+function assertCoordinateVariable(file: Netcdf3File, dimensionName: string): void {
+  const variable = file.variable(dimensionName);
+  const names = variable.dimensionIds.map((id) => file.dimensions[id]?.name ?? '?');
+  if (names.length !== 1 || names[0] !== dimensionName) {
+    throw new CamsContractError(
+      `coordinate variable "${dimensionName}" is declared on (${names.join(', ')}) instead of ` +
+        'its own dimension — its values would not align with the data grid.',
+    );
+  }
+}
+
 /** The data variables must be exactly (time, level, latitude, longitude), by NAME. */
 function assertVariableShape(file: Netcdf3File, variableName: string): void {
   const variable = file.variable(variableName);
@@ -341,8 +443,11 @@ function assertVariableShape(file: Netcdf3File, variableName: string): void {
  * The provider's `time` is NOT CF-standard: plain hour counters with `units = "hours"` and
  * the reference instant only in free text (`long_name = "FORECAST time from 20260731"`). The
  * global attribute KEY changes with the request type (`FORECAST`/`ANALYSIS`), so the check
- * reads `time:long_name` and searches for the `YYYYMMDD` SUBSTRING — never full equality,
- * never parsing a timestamp out of prose.
+ * reads `time:long_name` and searches for SUBSTRINGS — never full equality, never parsing a
+ * timestamp out of prose. TWO substrings are bound: the `YYYYMMDD` run day AND the literal
+ * `FORECAST` product word — Faz-1 requests only the forecast product, and an ANALYSIS file
+ * slipping through would publish analysis steps under a contract that promises "every step is
+ * model FORECAST output" (the A-7 honesty rule).
  */
 function readTimeHours(file: Netcdf3File, expectedRunDate: string): number[] {
   const timeVariable = file.variable(DIMENSION_TIME);
@@ -365,6 +470,12 @@ function readTimeHours(file: Netcdf3File, expectedRunDate: string): number[] {
     throw new CamsContractError(
       `WRONG DAY'S FILE: time long_name "${longName.value}" does not contain the requested ` +
         `run day ${expectedRunDate}.`,
+    );
+  }
+  if (!longName.value.includes('FORECAST')) {
+    throw new CamsContractError(
+      `WRONG PRODUCT TYPE: time long_name "${longName.value}" does not contain "FORECAST" — ` +
+        'an ANALYSIS (or unknown) product must not be published as forecast steps.',
     );
   }
   if (!timeVariable.isRecord) {
