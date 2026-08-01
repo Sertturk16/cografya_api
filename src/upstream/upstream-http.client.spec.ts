@@ -627,4 +627,124 @@ describe('UpstreamHttpClient', () => {
       expect(outcome.kind === 'client_error' && outcome.reason).not.toContain('s3cret');
     });
   });
+
+  describe('expectedContentType as a LIST — the measured mirror variance (olcumler §M5)', () => {
+    function requestWithTypes(client: UpstreamHttpClient, expected: string | readonly string[]) {
+      return client.request({
+        providerId: 'provider',
+        label: 'provider.index',
+        url: URL_UNDER_TEST,
+        deadline: new OperationDeadline(6_000),
+        limits: LIMITS,
+        expectedContentType: expected,
+        parse: parseValue,
+      });
+    }
+
+    it('accepts a body whose content type matches ANY entry of the list', async () => {
+      // The S3 mirror serves the same `.index` bytes as application/octet-stream; a
+      // single-string check would break failover on the header alone.
+      const client = build(
+        jest.fn(() =>
+          Promise.resolve(
+            new Response('{"value":4}', {
+              status: 200,
+              headers: { 'content-type': 'application/octet-stream' },
+            }),
+          ),
+        ),
+      );
+
+      const outcome = await requestWithTypes(client, [
+        'application/json',
+        'application/octet-stream',
+      ]);
+      expect(outcome).toMatchObject({ kind: 'ok', value: 4 });
+    });
+
+    it('still refuses a content type matching NO entry, naming the whole list', async () => {
+      const client = build(
+        jest.fn(() =>
+          Promise.resolve(
+            new Response('<html/>', { status: 200, headers: { 'content-type': 'text/html' } }),
+          ),
+        ),
+      );
+
+      const outcome = await requestWithTypes(client, [
+        'application/json',
+        'application/octet-stream',
+      ]);
+      expect(outcome.kind).toBe('schema_error');
+      expect(outcome.kind === 'schema_error' && outcome.reason).toContain(
+        'application/json, application/octet-stream',
+      );
+    });
+
+    it('sends the whole accepted list in the Accept header', async () => {
+      const fetchImpl = jest.fn<typeof fetch>(() => Promise.resolve(jsonResponse('{"value":1}')));
+      await requestWithTypes(build(fetchImpl), ['application/json', 'application/grib']);
+      const init = fetchImpl.mock.calls[0]?.[1] as RequestInit;
+      expect((init.headers as Record<string, string>).Accept).toBe(
+        'application/json, application/grib',
+      );
+    });
+  });
+
+  describe('missingMeansNoData — an unpublished resource is quiet, everything else stays loud', () => {
+    function requestMissing(
+      client: UpstreamHttpClient,
+      status: number,
+      missingMeansNoData: boolean,
+    ) {
+      return client.request({
+        providerId: 'provider',
+        label: 'provider.cycle-probe',
+        url: URL_UNDER_TEST,
+        deadline: new OperationDeadline(6_000),
+        limits: LIMITS,
+        missingMeansNoData,
+        parse: parseValue,
+      });
+    }
+
+    function statusResponse(status: number): Response {
+      return new Response('not here', { status, headers: { 'content-type': 'text/plain' } });
+    }
+
+    it.each([404, 410])(
+      'turns HTTP %i into no_data when the caller opted in — debug-level, breaker stays closed',
+      async (status) => {
+        const client = build(jest.fn(() => Promise.resolve(statusResponse(status))));
+        const outcome = await requestMissing(client, status, true);
+
+        expect(outcome.kind).toBe('no_data');
+        // The provider answered exactly as designed — an unpublished ECMWF cycle is not a fault,
+        // and an ERROR line every candidate probe would train readers to ignore the real ones.
+        expect(events.filter((event) => event.level === 'error')).toEqual([]);
+        expect(breaker.state('provider')).toBe('closed');
+      },
+    );
+
+    it('keeps 404 LOUD for a caller that did not opt in', async () => {
+      const client = build(jest.fn(() => Promise.resolve(statusResponse(404))));
+      const outcome = await requestMissing(client, 404, false);
+
+      expect(outcome.kind).toBe('client_error');
+      expect(events).toContainEqual(
+        expect.objectContaining({
+          level: 'error',
+          message: expect.stringContaining('rejected OUR request'),
+        }),
+      );
+    });
+
+    it('does NOT extend the quiet path to any other 4xx — a 403 stays a loud client_error', async () => {
+      const client = build(jest.fn(() => Promise.resolve(statusResponse(403))));
+      const outcome = await requestMissing(client, 403, true);
+
+      expect(outcome.kind).toBe('client_error');
+      expect(events).toContainEqual(expect.objectContaining({ level: 'error' }));
+    });
+  });
 });

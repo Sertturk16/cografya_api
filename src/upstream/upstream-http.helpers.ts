@@ -239,12 +239,25 @@ export async function readBodyCapped(
 }
 
 /**
- * Does this response carry the content type we are willing to parse?
+ * Does this response carry ONE OF the content types we are willing to parse?
  *
  * Checked BEFORE the body is parsed, because CMEMS answers a malformed request with HTTP 400 and
  * a `text/xml` OWS `ExceptionReport` (measured, SPEC-ADDENDUM §6.3). A blind `JSON.parse` there
  * throws a `SyntaxError` that reads like a bug in our code instead of "we sent a bad request".
+ *
+ * ## Why `expected` is a LIST and not one string
+ * Measured on ECMWF Open Data (olcumler.md §M5): the SAME `.index` file is served as
+ * `application/json` by `data.ecmwf.int` and as `application/octet-stream` by the AWS S3
+ * mirror, and the SAME GRIB body as `application/grib` versus `application/octet-stream`. A
+ * single-string check would make the failover path fail on content type alone — silently, since
+ * both bodies are byte-identical. One accepted type is still the common case; callers pass a
+ * plain string for it.
  */
-export function hasExpectedContentType(header: string | null, expected: string): boolean {
-  return (header ?? '').toLowerCase().includes(expected.toLowerCase());
+export function hasExpectedContentType(
+  header: string | null,
+  expected: string | readonly string[],
+): boolean {
+  const candidates = typeof expected === 'string' ? [expected] : expected;
+  const actual = (header ?? '').toLowerCase();
+  return candidates.some((candidate) => actual.includes(candidate.toLowerCase()));
 }
