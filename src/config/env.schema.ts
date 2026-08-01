@@ -133,8 +133,54 @@ export const envSchema = z
     MARINE_WARMUP_ENABLED: envBoolean('true'),
     MARINE_WARMUP_INTERVAL_SECONDS: z.coerce.number().int().positive().default(900),
     // The tour's OWN budget. It is background work, not a request; the 6 s request deadline does
-    // not apply to it (§6.4).
-    MARINE_WARMUP_DEADLINE_MS: z.coerce.number().int().positive().default(120_000),
+    // not apply to it (§6.4). Raised 120 s → 300 s in M3b (SPEC §9.2): one ECMWF ingest step is
+    // ~2.5 s measured, a 12-step tour ~30 s, and the tour must still leave room for the M4 CMEMS
+    // targets behind it. Still well under the 900 s interval (cross-check below).
+    MARINE_WARMUP_DEADLINE_MS: z.coerce.number().int().positive().default(300_000),
+
+    // ── ECMWF Open Data ingest (yeni-M3 SPEC §12; measured overlay olcumler.md) ──
+    // Kill switch for the ECMWF leg alone. Both MARINE_ENABLED and this must be true for the
+    // ingest target to register; the read path degrades honestly either way.
+    ECMWF_ENABLED: envBoolean('true'),
+    ECMWF_BASE_URL: z.url().default('https://data.ecmwf.int/forecasts'),
+    // AWS S3 mirror (F2's failover suggestion). OPTIONAL and absent by default: no value means
+    // no failover. NOTE for the operator: the mirror serves application/octet-stream where the
+    // primary serves application/json|grib — the client accepts both by design.
+    ECMWF_FAILOVER_BASE_URL: z.url().optional(),
+    // Forecast horizon, hours. 120 (5 days) is an OWNER ruling (O1 → DEC 2026-07-31), and the
+    // ceiling here is a CONTRACT guard, not a taste: past +144 h ECMWF switches to 6-hourly
+    // steps, which would make the frozen `MarineSeriesDto.stepHours = 3` a lie. The knob exists
+    // so the horizon can be LOWERED (a cost lever); it cannot silently break the contract.
+    ECMWF_FORECAST_HOURS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .multipleOf(3, 'ECMWF_FORECAST_HOURS must be a multiple of the 3-hour step')
+      .max(
+        120,
+        'ECMWF_FORECAST_HOURS above 120 is a frozen-contract change (stepHours stops being ' +
+          'uniform past +144 h) — an owner decision, not an env flip',
+      )
+      .default(120),
+    // A 1.8 MB Range download does not fit the 3 s marine default; measured full-range time is
+    // ~0.4–2.3 s on a good day, and 20 s leaves room for a congested one.
+    ECMWF_SINGLE_CALL_TIMEOUT_MS: z.coerce.number().int().positive().default(20_000),
+    // The slice of ONE warmup tour ECMWF may consume, so the M4 CMEMS targets never starve.
+    ECMWF_TOUR_BUDGET_MS: z.coerce.number().int().positive().default(180_000),
+    // Work ceiling per tour: 12 steps ≈ 30 s measured, one 41-step cycle ≈ 4 tours ≈ 1 h.
+    ECMWF_MAX_STEPS_PER_TOUR: z.coerce.number().int().positive().default(12),
+    // Byte ceilings — the numeric form of "no unbounded external call" (§3.5). Breaching one
+    // stops the tour LOUDLY. Measured steady state: ~38 MB / 12-step tour, ~130 MB / cycle.
+    ECMWF_TOUR_MAX_BYTES: z.coerce.number().int().positive().default(67_108_864),
+    ECMWF_CYCLE_MAX_BYTES: z.coerce.number().int().positive().default(335_544_320),
+    // The THIRD staleness ceiling (SPEC §9.4): maximum age of the model CYCLE a published value
+    // may come from. The other two ceilings cannot see this failure — an old cycle still yields
+    // a step valid "now", so validAtUtc and fetchedAtUtc both look fresh. 24 h tolerates one
+    // fully missed cycle (normal in-use age is 7–15 h), never two.
+    ECMWF_CYCLE_MAX_AGE_SECONDS: z.coerce.number().int().positive().default(86_400),
+    // Cache-age ceiling of the ECMWF read path. Larger than the shared MARINE_STALE_MAX_SECONDS
+    // because the underlying store refreshes 6-hourly by nature, not hourly.
+    ECMWF_STALE_MAX_SECONDS: z.coerce.number().int().positive().default(43_200),
 
     // ── Cache TTLs, one per outcome kind (§6.3, §7.8) ───────────────────────────
     // The single `MARINE_CACHE_TTL_SECONDS` the v1 SPEC proposed is deliberately absent: one
@@ -211,6 +257,35 @@ export const envSchema = z
         message:
           'MARINE_WARMUP_DEADLINE_MS must be shorter than MARINE_WARMUP_INTERVAL_SECONDS — a tour ' +
           'that can outlive its own interval overlaps the next one.',
+      });
+    }
+
+    // ── ECMWF cross-checks (SPEC §12) — a config that contradicts itself does not boot ──
+    if (env.ECMWF_SINGLE_CALL_TIMEOUT_MS > env.ECMWF_TOUR_BUDGET_MS) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['ECMWF_SINGLE_CALL_TIMEOUT_MS'],
+        message:
+          'ECMWF_SINGLE_CALL_TIMEOUT_MS must not exceed ECMWF_TOUR_BUDGET_MS — a single download ' +
+          'cannot be allowed more time than the whole tour slice it runs in.',
+      });
+    }
+    if (env.ECMWF_TOUR_BUDGET_MS >= env.MARINE_WARMUP_DEADLINE_MS) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['ECMWF_TOUR_BUDGET_MS'],
+        message:
+          'ECMWF_TOUR_BUDGET_MS must be smaller than MARINE_WARMUP_DEADLINE_MS — the ECMWF slice ' +
+          'must leave room in the tour for the other marine targets (M4 CMEMS).',
+      });
+    }
+    if (env.ECMWF_TOUR_MAX_BYTES > env.ECMWF_CYCLE_MAX_BYTES) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['ECMWF_TOUR_MAX_BYTES'],
+        message:
+          'ECMWF_TOUR_MAX_BYTES must not exceed ECMWF_CYCLE_MAX_BYTES — one tour cannot be ' +
+          'allowed more bytes than the whole cycle it contributes to.',
       });
     }
   });
