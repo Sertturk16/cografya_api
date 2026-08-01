@@ -83,6 +83,7 @@ describe('buildMarineUpstreamConfig', () => {
         ECMWF_MAX_STEPS_PER_TOUR: '3',
         ECMWF_TOUR_MAX_BYTES: '444',
         ECMWF_CYCLE_MAX_BYTES: '555',
+        ECMWF_MAX_RANGE_BYTES: '333',
         ECMWF_CYCLE_MAX_AGE_SECONDS: '666',
         ECMWF_STALE_MAX_SECONDS: '777',
       }),
@@ -98,6 +99,7 @@ describe('buildMarineUpstreamConfig', () => {
       maxStepsPerTour: 3,
       tourMaxBytes: 444,
       cycleMaxBytes: 555,
+      maxRangeBytes: 333,
       cycleMaxAgeSeconds: 666,
       staleMaxSeconds: 777,
     });

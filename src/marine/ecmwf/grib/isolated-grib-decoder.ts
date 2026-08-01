@@ -37,6 +37,39 @@ export class EcmwfDecodeCrashError extends Error {
   }
 }
 
+/**
+ * What a reply-less child ending MEANS — the discrimination that keeps `ingest.decode_crash`
+ * an honest metric (review #76 SFH-5).
+ *
+ * `decode_crash` is the evidence stream for the DEC 2026-07-31d ecCodes-migration trigger, so
+ * only endings the DECODER can plausibly have caused may land in it:
+ *
+ * - **`panic`** — the migration-evidence class: the timeout SIGKILL (a child hung in native
+ *   code), SIGABRT/exit 134 (`panic = abort`), the other fatal native signals, and any exit
+ *   code this table does not recognise (fail-toward-evidence: an unknown native death is more
+ *   likely gribberish than us).
+ * - **`ipc`** — the child's OWN protocol exits (2 = no IPC channel, 3 = reply send failed), a
+ *   healthy exit 0 that raced the reply, and the fork/send/IPC-error paths that never reached
+ *   the child at all (`exitCode` and `signal` both null). Our plumbing, not the decoder.
+ * - **`interrupted`** — SIGTERM/SIGINT/SIGHUP: a deploy or an operator killed it from outside.
+ */
+export type DecodeCrashClass = 'panic' | 'ipc' | 'interrupted';
+
+const IPC_EXIT_CODES = new Set([0, 2, 3]);
+const INTERRUPT_SIGNALS = new Set(['SIGTERM', 'SIGINT', 'SIGHUP']);
+
+export function classifyDecodeCrash(error: EcmwfDecodeCrashError): DecodeCrashClass {
+  if (error.timedOut) return 'panic';
+  if (error.signal !== null) {
+    return INTERRUPT_SIGNALS.has(error.signal) ? 'interrupted' : 'panic';
+  }
+  if (error.exitCode !== null) {
+    return IPC_EXIT_CODES.has(error.exitCode) ? 'ipc' : 'panic';
+  }
+  // No exit code, no signal, no timeout: the fork/send/IPC-error constructors — never the child.
+  return 'ipc';
+}
+
 /** What a successful isolated decode hands back to the ingest. */
 export interface IsolatedDecodeResult {
   readonly fields: readonly DecodedGribCells[];

@@ -51,12 +51,29 @@ export type UpstreamMetricName =
   | 'redis.degraded'
   // ── Scheduled-ingest events (M3b). Provider-neutral names: the provider dimension is the
   // `providerId` argument, exactly like every counter above. ──
-  /** A decode child process died without a reply — the contained panic class (exit 134). */
+  /**
+   * A decode child died without a reply for a cause the DECODER can have caused — the contained
+   * panic class (exit 134/SIGABRT, fatal native signals, the hung-child timeout). This counter
+   * is the DEC 2026-07-31d ecCodes-migration evidence stream; IPC failures and external
+   * termination are counted separately below so they cannot contaminate it (review #76 SFH-5).
+   */
   | 'ingest.decode_crash'
+  /** A decode child reply was lost to OUR plumbing (fork/IPC/send, protocol exits 0/2/3). */
+  | 'ingest.decode_ipc_failure'
+  /** A decode child was terminated from outside (SIGTERM/SIGINT/SIGHUP — deploy/operator). */
+  | 'ingest.decode_interrupted'
   /** A payload was refused by a fail-closed contract guard (packing, grid, attribution…). */
   | 'ingest.contract_refusal'
   /** The model-cycle age ceiling suppressed publication (the THIRD ceiling, SPEC §9.4). */
   | 'ingest.cycle_age_ceiling'
+  /** The candidate-cycle walk found nothing to ingest from — no cycle answered (SFH-1). */
+  | 'ingest.walk_exhausted'
+  /**
+   * Bytes downloaded by a step that recorded nothing (incremented BY the byte count). The cycle
+   * ledger counts only ingested evidence, so without this a step failing every tour would spend
+   * megabytes invisible to every ceiling (review #76 SFH-2).
+   */
+  | 'ingest.bytes_abandoned'
   /** An unexpected exception escaped the ingest's own handling — OUR bug, counted loudly. */
   | 'ingest.bug';
 

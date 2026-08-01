@@ -72,8 +72,16 @@ export class MarineController {
     return this.marineService.findAllPoints();
   }
 
+  /**
+   * Since M3b the catalogue carries TIME-DERIVED fields (horizonEndUtc & co. move four times a
+   * day and null out at the 24 h cycle-age ceiling), so the M1-era 6 h `s-maxage` + 24 h
+   * `stale-while-revalidate` would let a CDN keep publishing pre-stall values long after the
+   * ceiling suppressed them at the origin (review #76 CR-5). 30 min shared + 1 h SWR bounds the
+   * CDN's worst case to 1.5 h — a rounding error against the 24 h ceiling — while the origin
+   * cost stays a single-row Postgres read plus a constant.
+   */
   @Get('layers')
-  @CacheControl('public, max-age=1800, s-maxage=21600, stale-while-revalidate=86400')
+  @CacheControl('public, max-age=300, s-maxage=1800, stale-while-revalidate=3600')
   @ApiOperation({
     summary: 'Layer catalogue — units, direction conventions, calm thresholds, colour ramps.',
     description:

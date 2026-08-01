@@ -5,7 +5,8 @@ import { MarinePointListItemDto } from './dto/marine-point-list-item.dto';
 import { MarineLayerDto } from './dto/marine-layer.dto';
 import { isCycleWithinMaxAge } from './ecmwf/ecmwf-cycle';
 import { ECMWF_INGEST_STORE, type EcmwfIngestStorePort } from './ecmwf/ecmwf-ingest.store';
-import { ECMWF_UPDATE_FREQUENCY } from './ecmwf/ecmwf.constants';
+import { selectPublishableCycle, selectPublishedRun } from './ecmwf/ecmwf-series-compile';
+import { ECMWF_RETAINED_CYCLES, ECMWF_UPDATE_FREQUENCY } from './ecmwf/ecmwf.constants';
 import { MarinePoint } from './entities/marine-point.entity';
 import { MARINE_LAYER_CATALOGUE } from './marine-layer-catalogue';
 import { MARINE_UPSTREAM_CONFIG, type MarineUpstreamConfig } from './marine-upstream.config';
@@ -95,23 +96,37 @@ export class MarineService {
   }
 
   /**
-   * The newest usable cycle's catalogue line, or `null` when there is none — never a guess.
+   * The publishable cycle's catalogue line, or `null` when there is none — never a guess.
+   *
+   * WHICH cycle and WHICH steps: the exact same two policies the series read path applies —
+   * `selectPublishableCycle` (longest published run wins, newest breaks ties; review #76 CR-1)
+   * over `selectPublishedRun` (the contiguous run nearest to now; review #76 CR-2). Deriving
+   * both published `horizonEndUtc` fields from the same pure helpers is what keeps `/layers`
+   * and `MarineSeriesDto` from ever disagreeing about where the horizon ends (review #76
+   * SFH-4/CR-6).
    *
    * `catalogueUpdatedAtUtc` is the cycle's model-run time: ECMWF Open Data has no catalogue
    * document to date-stamp, and the model run IS the moment the provider last updated the
-   * product these layers serve. `horizonEndUtc` is the last step ACTUALLY INGESTED (a partial
-   * cycle grows tour by tour), matching `MarineSeriesDto.horizonEndUtc` semantics exactly.
+   * product these layers serve.
    */
   private async resolveEcmwfCatalogueFields(): Promise<EcmwfCatalogueFields | null> {
-    const cycle = await this.ecmwfStore.newestCycle();
-    if (cycle === null) return null;
-    if (!isCycleWithinMaxAge(cycle.cycleUtc, new Date(), this.config.ecmwf.cycleMaxAgeSeconds)) {
+    const cycles = await this.ecmwfStore.recentCycles(ECMWF_RETAINED_CYCLES);
+    const now = new Date();
+    const usable = cycles.filter((cycle) =>
       // Same ceiling as the value read path (SPEC §9.4): a horizon advertised from a stale
       // cycle would promise data the series reader refuses to publish.
-      return null;
-    }
+      isCycleWithinMaxAge(cycle.cycleUtc, now, this.config.ecmwf.cycleMaxAgeSeconds),
+    );
 
-    const lastStep = cycle.stepsDone[cycle.stepsDone.length - 1];
+    const winnerIndex = selectPublishableCycle(
+      usable.map((cycle) => ({ cycleUtc: cycle.cycleUtc, steps: cycle.stepsDone })),
+      now,
+    );
+    const cycle = winnerIndex === null ? undefined : usable[winnerIndex];
+    if (cycle === undefined) return null;
+
+    const run = selectPublishedRun(cycle.stepsDone, cycle.cycleUtc, now);
+    const lastStep = cycle.stepsDone[run.endIndexExclusive - 1];
     if (lastStep === undefined) return null;
 
     return {

@@ -39,7 +39,7 @@ export interface RecordStepInput {
   readonly now: Date;
 }
 
-/** The newest stored evidence for one point. */
+/** One retained cycle's stored evidence for one point. */
 export interface NewestPointSeries {
   readonly cycle: MarineEcmwfCycle;
   readonly series: MarineEcmwfPointSeries;
@@ -50,10 +50,13 @@ export const ECMWF_INGEST_STORE = Symbol('ECMWF_INGEST_STORE');
 
 export interface EcmwfIngestStorePort {
   getCycle(cycleUtc: Date): Promise<MarineEcmwfCycle | null>;
-  /** Newest cycle row regardless of completeness — the layers fill and the ingest resume read. */
-  newestCycle(): Promise<MarineEcmwfCycle | null>;
-  /** Newest cycle that holds a series row for THIS point. */
-  newestSeriesForPoint(marinePointId: string): Promise<NewestPointSeries | null>;
+  /**
+   * The newest `limit` cycle rows, newest first, regardless of completeness — the candidate set
+   * the cycle-precedence policy (`selectPublishableCycle`, review #76 CR-1) chooses from.
+   */
+  recentCycles(limit: number): Promise<MarineEcmwfCycle[]>;
+  /** The newest `limit` cycles holding a series row for THIS point, newest first. */
+  recentSeriesForPoint(marinePointId: string, limit: number): Promise<NewestPointSeries[]>;
   /** Persist one fully-decoded step, atomically: ~30 series merges + the cycle ledger. */
   recordStep(input: RecordStepInput): Promise<void>;
   /** Retention (SPEC §9.1): keep the newest `keep` cycles, cascade-delete the rest. */
@@ -67,24 +70,21 @@ export class EcmwfIngestStore implements EcmwfIngestStorePort {
     return await this.dataSource.getRepository(MarineEcmwfCycle).findOneBy({ cycleUtc });
   }
 
-  async newestCycle(): Promise<MarineEcmwfCycle | null> {
-    const rows = await this.dataSource.getRepository(MarineEcmwfCycle).find({
+  async recentCycles(limit: number): Promise<MarineEcmwfCycle[]> {
+    return await this.dataSource.getRepository(MarineEcmwfCycle).find({
       order: { cycleUtc: 'DESC' },
-      take: 1,
+      take: limit,
     });
-    return rows[0] ?? null;
   }
 
-  async newestSeriesForPoint(marinePointId: string): Promise<NewestPointSeries | null> {
+  async recentSeriesForPoint(marinePointId: string, limit: number): Promise<NewestPointSeries[]> {
     const rows = await this.dataSource.getRepository(MarineEcmwfPointSeries).find({
       where: { marinePointId },
       order: { cycleUtc: 'DESC' },
-      take: 1,
+      take: limit,
       relations: { cycle: true },
     });
-    const series = rows[0];
-    if (series === undefined) return null;
-    return { cycle: series.cycle, series };
+    return rows.map((series) => ({ cycle: series.cycle, series }));
   }
 
   /**

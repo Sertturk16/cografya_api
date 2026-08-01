@@ -14,6 +14,7 @@ import {
   buildEcmwfUrl,
   candidateCycles,
   cycleSteps,
+  ECMWF_CYCLE_INTERVAL_HOURS,
   indexExpectation,
   orderStepsForIngest,
 } from './ecmwf-cycle';
@@ -27,20 +28,26 @@ import {
   type EcmwfIndexRecord,
 } from './ecmwf-index';
 import { mapPointToGrid, type EcmwfGridMapping } from './ecmwf-grid';
-import { ECMWF_STEP_HOURS, type EcmwfParam, type EcmwfStream } from './ecmwf.constants';
+import {
+  ECMWF_RETAINED_CYCLES,
+  ECMWF_STEP_HOURS,
+  type EcmwfParam,
+  type EcmwfStream,
+} from './ecmwf.constants';
 import { EcmwfContractError } from './ecmwf.errors';
 import type { EcmwfIngestStorePort, RecordStepPoint } from './ecmwf-ingest.store';
 import type { DecodedGribCells } from './grib/grib-decoder.adapter';
 import type { GribDecodeJob } from './grib/grib-decode-protocol';
-import { EcmwfDecodeCrashError, type IsolatedDecodeResult } from './grib/isolated-grib-decoder';
+import {
+  classifyDecodeCrash,
+  EcmwfDecodeCrashError,
+  type IsolatedDecodeResult,
+} from './grib/isolated-grib-decoder';
 
 /** The isolation seam: the real implementation forks a child; unit tests decode in-process. */
 export interface GribDecodePort {
   decode(job: GribDecodeJob): Promise<IsolatedDecodeResult>;
 }
-
-/** Cycles kept in Postgres — SPEC §9.1's retention rule. */
-export const ECMWF_RETAINED_CYCLES = 3;
 
 /**
  * What one step is assumed to cost before it is started. Measured ~2.5 s end to end; the
@@ -104,6 +111,15 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
   private readonly logger = new Logger('EcmwfIngest');
   private readonly now: () => number;
 
+  /**
+   * When the candidate walk FIRST came back empty-handed, or `null` while it is finding cycles.
+   * A single empty walk is routine (a slow publication day); an exhaustion that persists past a
+   * full cycle interval means no candidate has answered across every retry window — a typo'd
+   * base URL or a provider outage, which must escalate from warn to error rather than stay an
+   * indefinitely-repeating shrug (review #76 SFH-1).
+   */
+  private walkExhaustedSinceMs: number | null = null;
+
   constructor(private readonly deps: EcmwfIngestTargetDeps) {
     this.now = deps.now ?? Date.now;
   }
@@ -142,16 +158,42 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
 
     const selection = await this.selectCycle(deadline, mappedPoints, indices);
     if (selection === null) {
-      this.logger.warn(
-        'no candidate cycle is published or ingestible right now — nothing to do this tour',
-      );
+      this.recordWalkExhaustion();
       return;
     }
+    this.walkExhaustedSinceMs = null;
     if (!selection.recordedSteps) return;
 
     // Retention runs only after a tour that actually wrote — a no-op tour prunes nothing, so a
     // paused ingest can never age the store DOWN below the cycles it still serves from.
     await this.deps.store.pruneCycles(ECMWF_RETAINED_CYCLES);
+  }
+
+  /**
+   * The candidate walk found NOTHING to ingest from. Counted always; warn while it could still
+   * be a slow publication day, error once it has persisted a full cycle interval — by then a
+   * fresh deploy against a typo'd base URL, or an all-404 outage, would otherwise stay
+   * metric-invisible forever, because an empty store has no cycle for the age ceiling to fire on
+   * (review #76 SFH-1).
+   */
+  private recordWalkExhaustion(): void {
+    this.deps.metrics.increment('ingest.walk_exhausted', MARINE_PROVIDER.ecmwf);
+    const nowMs = this.now();
+    if (this.walkExhaustedSinceMs === null) this.walkExhaustedSinceMs = nowMs;
+
+    const exhaustedForMs = nowMs - this.walkExhaustedSinceMs;
+    const escalate = exhaustedForMs > ECMWF_CYCLE_INTERVAL_HOURS * 3_600_000;
+    this.deps.metrics.event(
+      escalate ? 'error' : 'warn',
+      escalate
+        ? 'ECMWF candidate walk has been exhausted for over a full cycle interval — no ' +
+            'candidate cycle answers at all (base URL / provider outage class)'
+        : 'no candidate cycle is published or ingestible right now — nothing to do this tour',
+      {
+        provider: MARINE_PROVIDER.ecmwf,
+        exhaustedForMs,
+      },
+    );
   }
 
   /**
@@ -260,6 +302,14 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
       });
       firstRequestOfCandidate = false;
 
+      if (step.kind !== 'ok' && step.bytes > 0) {
+        // Bytes spent on a step that recorded nothing (review #76 SFH-2). They cannot go into
+        // the cycle LEDGER — that column means "bytes of ingested evidence", and a write here
+        // would create rows for unpublished cycles, disarming the NEW-1 quiet lane — but they
+        // must not vanish either: a step that fails every tour would otherwise spend
+        // ~3.2 MB/tour that no ceiling and no counter ever sees.
+        metrics.increment('ingest.bytes_abandoned', MARINE_PROVIDER.ecmwf, step.bytes);
+      }
       if (step.kind === 'cycle_unpublished') return { kind: 'cycle_unpublished' };
       if (step.kind === 'stop') return { kind: 'ingested', steps: stepsThisTour };
 
@@ -283,7 +333,11 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
     mappedPoints: readonly MappedPoint[];
     indices: readonly number[];
     allowUnpublished: boolean;
-  }): Promise<{ kind: 'ok'; bytes: number } | { kind: 'stop' } | { kind: 'cycle_unpublished' }> {
+  }): Promise<
+    | { kind: 'ok'; bytes: number }
+    | { kind: 'stop'; bytes: number }
+    | { kind: 'cycle_unpublished'; bytes: number }
+  > {
     const { config, metrics } = this.deps;
     let bytes = 0;
 
@@ -291,23 +345,26 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
       const decodedByParam = new Map<EcmwfParam, DecodedGribCells>();
       let packingTemplate: number | null = null;
       let decoderVersion = 'unknown';
-      let firstRequest = step.allowUnpublished;
 
       for (const { stream, params } of STREAM_PARAMS) {
-        // 1) The step's `.index` sidecar — text, JSON-LINES, ~2–40 KB.
+        // 1) The step's `.index` sidecar — text, JSON-LINES, ~2–40 KB. The quiet 404 lane is
+        // granted PER STREAM of the candidate's first attempted step (review #76 SFH-6/CR-4):
+        // `oper` and `wave` publish minutes apart (olcumler §M5's Last-Modified delta), so an
+        // oper that answers 200 proves nothing about wave. NEW-1's boundary holds — only an
+        // index 404/410 on a candidate probe is quiet; a range 404 (index exists, bytes gone)
+        // and every non-404/410 outcome stay loud.
         const indexOutcome = await this.fetchIndex({
           cycle: step.cycle,
           stream,
           stepHour: step.stepHour,
           deadline: step.deadline,
-          missingMeansNoData: firstRequest,
+          missingMeansNoData: step.allowUnpublished,
         });
-        firstRequest = false;
 
-        if (indexOutcome.kind === 'no_data') return { kind: 'cycle_unpublished' };
+        if (indexOutcome.kind === 'no_data') return { kind: 'cycle_unpublished', bytes };
         if (indexOutcome.kind !== 'ok') {
           this.logStop('index download failed', step, indexOutcome.kind, indexOutcome.reason);
-          return { kind: 'stop' };
+          return { kind: 'stop', bytes };
         }
         bytes += indexOutcome.value.bytes;
 
@@ -330,7 +387,7 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
           });
           if (rangeOutcome.kind !== 'ok') {
             this.logStop('range download failed', step, rangeOutcome.kind, rangeOutcome.reason);
-            return { kind: 'stop' };
+            return { kind: 'stop', bytes };
           }
           bytes += rangeOutcome.value.byteLength;
 
@@ -369,19 +426,45 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
       return { kind: 'ok', bytes };
     } catch (error: unknown) {
       if (error instanceof EcmwfDecodeCrashError) {
-        // THE panic class. The child died so the server did not — but the input that killed it
-        // will kill it again, so this is alarm-level evidence for the ecCodes migration
-        // trigger (DEC 2026-07-31d), not a transient to shrug at.
-        metrics.increment('ingest.decode_crash', MARINE_PROVIDER.ecmwf);
-        metrics.event('error', 'ECMWF decode child crashed — panic class contained by isolation', {
+        // A reply-less child ending — but NOT every one of them is the panic class.
+        // `ingest.decode_crash` is the evidence metric for the ecCodes-migration trigger
+        // (DEC 2026-07-31d), and counting an IPC failure or a deploy's SIGTERM into it would
+        // contaminate the very number that decision reads (review #76 SFH-5). The
+        // classification is the decoder module's own (`classifyDecodeCrash`).
+        const crashClass = classifyDecodeCrash(error);
+        const context = {
           provider: MARINE_PROVIDER.ecmwf,
           cycle: step.cycle.toISOString(),
           stepHour: step.stepHour,
           exitCode: error.exitCode,
           signal: error.signal,
           timedOut: error.timedOut,
-        });
-        return { kind: 'stop' };
+        };
+        if (crashClass === 'panic') {
+          // THE panic class. The child died so the server did not — but the input that killed
+          // it will kill it again, so this is alarm-level migration evidence, not a transient
+          // to shrug at.
+          metrics.increment('ingest.decode_crash', MARINE_PROVIDER.ecmwf);
+          metrics.event(
+            'error',
+            'ECMWF decode child crashed — panic class contained by isolation',
+            context,
+          );
+        } else if (crashClass === 'ipc') {
+          // The child ran (or never started) but the reply could not cross — OUR infra, not
+          // decoder evidence. Still an error: a human must look, just not at gribberish.
+          metrics.increment('ingest.decode_ipc_failure', MARINE_PROVIDER.ecmwf);
+          metrics.event(
+            'error',
+            'ECMWF decode child IPC/spawn failure — not a decoder panic',
+            context,
+          );
+        } else {
+          // Terminated from outside (deploy/operator). Expected during a rollout; warn only.
+          metrics.increment('ingest.decode_interrupted', MARINE_PROVIDER.ecmwf);
+          metrics.event('warn', 'ECMWF decode child was terminated externally', context);
+        }
+        return { kind: 'stop', bytes };
       }
       if (error instanceof EcmwfContractError) {
         // Fail-closed refusal: the provider's bytes are not the product we pinned. Loud —
@@ -393,7 +476,7 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
           stepHour: step.stepHour,
           reason: error.message,
         });
-        return { kind: 'stop' };
+        return { kind: 'stop', bytes };
       }
       throw error;
     }
@@ -428,6 +511,23 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
     range: EcmwfByteRange;
     deadline: OperationDeadline;
   }): Promise<UpstreamOutcome<Uint8Array>> {
+    // The plan's length is a PROVIDER-CHOSEN number (`_offset`/`_length` from the `.index`), and
+    // below it becomes the parent process's heap ceiling for this download. Unbounded, a single
+    // corrupt or hostile index line (`_length: 4e9`) would let `readBodyCappedBytes` buffer
+    // gigabytes IN THE PARENT — the exact OOM the decode child exists to contain — and the abort
+    // would surface as transient and be retried into a crash loop. Refused BEFORE any HTTP
+    // leaves: the largest measured merged range is ~1.83 MB, so a plan over the cap is contract
+    // drift, not weather (review #76 SEC-76-1; ENGINEERING.md §3.5 "no unbounded external
+    // call").
+    const maxRangeBytes = this.deps.config.ecmwf.maxRangeBytes;
+    if (request.range.length > maxRangeBytes) {
+      throw new EcmwfContractError(
+        `.index plans a ${String(request.range.length)} B range where ECMWF_MAX_RANGE_BYTES ` +
+          `caps a single range at ${String(maxRangeBytes)} B — refusing the download plan ` +
+          `before any request is made.`,
+      );
+    }
+
     return await this.requestWithFailover((baseUrl) => ({
       providerId: MARINE_PROVIDER.ecmwf,
       label: `ecmwf.${request.stream}-range`,
@@ -439,7 +539,8 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
       headers: { Range: toRangeHeader(request.range) },
       // The plan knows the exact byte count; anything else is the wrong answer. This also
       // catches a server ignoring `Range` and answering 200 with the whole multi-MB file.
-      maxResponseBytes: request.range.length,
+      // `Math.min` keeps the cap authoritative even if the guard above ever drifts.
+      maxResponseBytes: Math.min(request.range.length, maxRangeBytes),
       parse: (body: Uint8Array) => {
         if (body.byteLength !== request.range.length) {
           throw new EcmwfContractError(

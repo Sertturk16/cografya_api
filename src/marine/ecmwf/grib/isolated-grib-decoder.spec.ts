@@ -2,6 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 import { EcmwfContractError } from '../ecmwf.errors';
 import type { GribDecodeJob, GribDecodeReply } from './grib-decode-protocol';
 import {
+  classifyDecodeCrash,
   EcmwfDecodeCrashError,
   IsolatedGribDecoder,
   type DecodeChildHandle,
@@ -186,5 +187,33 @@ describe('IsolatedGribDecoder', () => {
     await decoder.decode(JOB);
     expect(seen).not.toBeNull();
     expect((seen as unknown as FakeChild).sentJobs).toEqual([JOB]);
+  });
+});
+
+describe('classifyDecodeCrash', () => {
+  const crash = (
+    exitCode: number | null,
+    signal: string | null,
+    timedOut = false,
+  ): EcmwfDecodeCrashError => new EcmwfDecodeCrashError('x', exitCode, signal, timedOut);
+
+  it('keeps the migration-evidence class strict: abort, fatal native signals, timeout, unknown exits', () => {
+    expect(classifyDecodeCrash(crash(134, null))).toBe('panic'); // panic = abort
+    expect(classifyDecodeCrash(crash(null, 'SIGABRT'))).toBe('panic');
+    expect(classifyDecodeCrash(crash(null, 'SIGSEGV'))).toBe('panic');
+    expect(classifyDecodeCrash(crash(null, null, true))).toBe('panic'); // hung child, SIGKILLed
+    expect(classifyDecodeCrash(crash(1, null))).toBe('panic'); // unknown native death → evidence
+  });
+
+  it('separates OUR plumbing failures: protocol exits 0/2/3 and the fork/send/IPC-error paths', () => {
+    expect(classifyDecodeCrash(crash(0, null))).toBe('ipc'); // healthy exit raced the reply
+    expect(classifyDecodeCrash(crash(2, null))).toBe('ipc'); // no IPC channel
+    expect(classifyDecodeCrash(crash(3, null))).toBe('ipc'); // reply send failed
+    expect(classifyDecodeCrash(crash(null, null))).toBe('ipc'); // fork/send/IPC error, no child ending
+  });
+
+  it('separates external termination — a deploy must not read as a decoder panic', () => {
+    expect(classifyDecodeCrash(crash(null, 'SIGTERM'))).toBe('interrupted');
+    expect(classifyDecodeCrash(crash(null, 'SIGINT'))).toBe('interrupted');
   });
 });

@@ -11,6 +11,7 @@ import { INTERNAL_REQUEST_HEADER } from '../src/common/throttler/trusted-client'
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { loadMarinePoints } from '../src/database/marine/load-marine-points';
 import { seedGeography } from '../src/database/seeds/seed-geography';
+import { UpstreamMetrics } from '../src/upstream/upstream-metrics';
 import type { EcmwfIngestStorePort } from '../src/marine/ecmwf/ecmwf-ingest.store';
 import { ECMWF_INGEST_STORE } from '../src/marine/ecmwf/ecmwf-ingest.store';
 import { EcmwfSeriesReader } from '../src/marine/ecmwf/ecmwf-series.reader';
@@ -185,7 +186,7 @@ describe('Marine ECMWF store + read path (e2e)', () => {
 
       // The stored series is sorted by step regardless of arrival order, arrays parallel,
       // and the raw jsonb survives the Postgres round trip.
-      const newest = await store.newestSeriesForPoint(point.id);
+      const [newest] = await store.recentSeriesForPoint(point.id, 1);
       expect(newest?.series.values.steps).toEqual([0, 3, 6]);
       expect(newest?.series.values.u10).toEqual([2, 2, 2]);
       expect(newest?.series.values.swh).toEqual([null, 0.8, 0.8]);
@@ -346,6 +347,51 @@ describe('Marine ECMWF store + read path (e2e)', () => {
       expect(read.value).toBeNull();
       expect(read.kind).toBe('transient');
       expect(read.reason).toContain('cycle-age ceiling');
+      // The LOUD half of the suppression (SPEC §14 crit. 4): withholding data without an
+      // operational signal would be the silent stall §9.4 exists to expose.
+      const metrics = app.get(UpstreamMetrics);
+      expect(metrics.get('ingest.cycle_age_ceiling', 'ecmwf')).toBeGreaterThanOrEqual(1);
+    });
+
+    it('keeps serving a COMPLETE cycle while a newer cycle is still one step deep (CR-1 precedence)', async () => {
+      const point = points[5];
+      expect(point).toBeDefined();
+      if (point === undefined) return;
+
+      const completeCycle = new Date(Date.now() - 5 * 3_600_000);
+      for (const stepHour of [0, 3, 6]) {
+        await store.recordStep({
+          cycleUtc: completeCycle,
+          stepHour,
+          stepHours: 3,
+          forecastHours: 6,
+          bytesDownloaded: 10,
+          packingType: 'grib2 template 5.42',
+          decoderVersion: 'e2e-1',
+          now: new Date(),
+          points: [samplePoint(point, REAL)],
+        });
+      }
+      // The next cycle starts publishing: exactly ONE step has landed.
+      const fillingCycle = new Date(Date.now() - 1 * 3_600_000);
+      await store.recordStep({
+        cycleUtc: fillingCycle,
+        stepHour: 0,
+        stepHours: 3,
+        forecastHours: 6,
+        bytesDownloaded: 10,
+        packingType: 'grib2 template 5.42',
+        decoderVersion: 'e2e-1',
+        now: new Date(),
+        points: [samplePoint(point, REAL)],
+      });
+
+      // The published horizon must NOT collapse to the filling cycle's single step: the
+      // complete incumbent keeps the read until the newer cycle holds at least as much.
+      const read = await reader.readSeries(point);
+      expect(read.kind).toBe('ok');
+      expect(read.value?.series.modelRunAtUtc).toBe(completeCycle.toISOString());
+      expect(read.value?.series.timesUtc.length).toBe(3);
     });
   });
 

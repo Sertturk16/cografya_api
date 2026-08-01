@@ -42,10 +42,26 @@ const LAYOUT = {
     { param: 'swh', offset: 0, length: 8 },
     { param: 'mwd', offset: 8, length: 9 },
   ],
-} as const;
+};
+
+type Layout = typeof LAYOUT;
+
+/** A layout whose 10u `_length` exceeds the 8 MiB range cap — the SEC-76-1 refusal fixture. */
+const OVERSIZED_LAYOUT: Layout = {
+  oper: [
+    { param: '10u', offset: 100, length: 9_000_000 },
+    { param: '10v', offset: 10_000_000, length: 12 },
+  ],
+  wave: LAYOUT.wave,
+};
 
 /** Bytes of one full step: 2 index bodies + ranges 10 + 12 + (8+9). */
-function indexBody(cycleIso: string, stream: 'oper' | 'wave', step: number): string {
+function indexBody(
+  cycleIso: string,
+  stream: 'oper' | 'wave',
+  step: number,
+  layout: Layout = LAYOUT,
+): string {
   const day = cycleIso.slice(0, 10).replace(/-/g, '');
   const time = `${cycleIso.slice(11, 13)}00`;
   const line = (param: string, offset: number, length: number, date = day): string =>
@@ -64,7 +80,7 @@ function indexBody(cycleIso: string, stream: 'oper' | 'wave', step: number): str
       _length: length,
     });
 
-  const records = LAYOUT[stream].map((entry) => line(entry.param, entry.offset, entry.length));
+  const records = layout[stream].map((entry) => line(entry.param, entry.offset, entry.length));
   if (stream === 'oper') {
     // A FOREIGN parameter with a nonsense date, ON PURPOSE (board item NEW-3): the request
     // check is scoped to the records WE select, so this line must never trip it.
@@ -82,6 +98,13 @@ function makeFetch(options: {
   publishedCycles: readonly string[];
   log: FetchLog[];
   failGribOnce?: { remaining: number };
+  /** Streams that answer 404 even for a published cycle — the per-stream publication lag. */
+  unpublishedStreams?: readonly ('oper' | 'wave')[];
+  /** Hosts whose grib2 downloads always fail at transport level (failover fixture). */
+  gribTransientHosts?: readonly string[];
+  /** Hosts whose grib2 downloads answer HTTP 400 (the non-transient failover fixture). */
+  gribClientErrorHosts?: readonly string[];
+  layout?: Layout;
 }): typeof fetch {
   return (input: string | URL | Request, init?: RequestInit): Promise<Response> => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
@@ -101,7 +124,10 @@ function makeFetch(options: {
     ];
     const cycleIso = `${day.slice(0, 4)}-${day.slice(4, 6)}-${day.slice(6, 8)}T${hour}:00:00.000Z`;
 
-    if (!options.publishedCycles.includes(cycleIso)) {
+    if (
+      !options.publishedCycles.includes(cycleIso) ||
+      options.unpublishedStreams?.includes(stream) === true
+    ) {
       return Promise.resolve(
         new Response('not found', { status: 404, headers: { 'content-type': 'text/plain' } }),
       );
@@ -109,13 +135,21 @@ function makeFetch(options: {
 
     if (extension === 'index') {
       return Promise.resolve(
-        new Response(indexBody(cycleIso, stream, Number(step)), {
+        new Response(indexBody(cycleIso, stream, Number(step), options.layout), {
           status: 200,
           headers: { 'content-type': 'application/json' },
         }),
       );
     }
 
+    if (options.gribTransientHosts?.some((host) => url.startsWith(host)) === true) {
+      return Promise.reject(new Error('ECONNRESET'));
+    }
+    if (options.gribClientErrorHosts?.some((host) => url.startsWith(host)) === true) {
+      return Promise.resolve(
+        new Response('bad request', { status: 400, headers: { 'content-type': 'text/plain' } }),
+      );
+    }
     if (options.failGribOnce !== undefined && options.failGribOnce.remaining > 0) {
       options.failGribOnce.remaining -= 1;
       return Promise.reject(new Error('ECONNRESET'));
@@ -142,15 +176,15 @@ class FakeStore implements EcmwfIngestStorePort {
     return Promise.resolve(this.cycles.get(cycleUtc.toISOString()) ?? null);
   }
 
-  newestCycle(): Promise<MarineEcmwfCycle | null> {
-    const newest = [...this.cycles.values()].sort(
+  recentCycles(limit: number): Promise<MarineEcmwfCycle[]> {
+    const sorted = [...this.cycles.values()].sort(
       (a, b) => b.cycleUtc.getTime() - a.cycleUtc.getTime(),
-    )[0];
-    return Promise.resolve(newest ?? null);
+    );
+    return Promise.resolve(sorted.slice(0, limit));
   }
 
-  newestSeriesForPoint(): Promise<NewestPointSeries | null> {
-    return Promise.resolve(null);
+  recentSeriesForPoint(): Promise<NewestPointSeries[]> {
+    return Promise.resolve([]);
   }
 
   recordStep(input: RecordStepInput): Promise<void> {
@@ -230,6 +264,7 @@ function makeConfig(overrides: Partial<MarineUpstreamConfig['ecmwf']> = {}): Mar
       maxStepsPerTour: 2,
       tourMaxBytes: 10_000_000,
       cycleMaxBytes: 20_000_000,
+      maxRangeBytes: 8_388_608,
       cycleMaxAgeSeconds: 86_400,
       staleMaxSeconds: 43_200,
       ...overrides,
@@ -270,12 +305,18 @@ describe('EcmwfIngestTarget', () => {
     publishedCycles: readonly string[];
     config?: MarineUpstreamConfig;
     failGribOnce?: { remaining: number };
+    unpublishedStreams?: readonly ('oper' | 'wave')[];
+    gribTransientHosts?: readonly string[];
+    gribClientErrorHosts?: readonly string[];
+    layout?: Layout;
     decoderOverride?: GribDecodePort;
     points?: MarinePoint[];
+    nowFn?: () => number;
   }): EcmwfIngestTarget {
     const config = options.config ?? makeConfig();
-    const budget = new ProviderBudget(metrics, null, () => NOW);
-    const breaker = new CircuitBreaker(metrics, { now: () => NOW });
+    const now = options.nowFn ?? ((): number => NOW);
+    const budget = new ProviderBudget(metrics, null, now);
+    const breaker = new CircuitBreaker(metrics, { now });
     const client = new UpstreamHttpClient(metrics, budget, breaker, {
       singleCallTimeoutMs: config.ecmwf.singleCallTimeoutMs,
       userAgent: 'TestBot/1.0',
@@ -283,9 +324,13 @@ describe('EcmwfIngestTarget', () => {
         publishedCycles: options.publishedCycles,
         log,
         failGribOnce: options.failGribOnce,
+        unpublishedStreams: options.unpublishedStreams,
+        gribTransientHosts: options.gribTransientHosts,
+        gribClientErrorHosts: options.gribClientErrorHosts,
+        layout: options.layout,
       }),
       sleepImpl: () => Promise.resolve(),
-      now: () => NOW,
+      now,
     });
     return new EcmwfIngestTarget({
       client,
@@ -294,7 +339,7 @@ describe('EcmwfIngestTarget', () => {
       config,
       loadPoints: () => Promise.resolve(options.points ?? POINTS),
       metrics,
-      now: () => NOW,
+      now,
     });
   }
 
@@ -391,6 +436,89 @@ describe('EcmwfIngestTarget', () => {
     // One first-step oper-index probe per candidate, nothing more.
     expect(log.length).toBe(4);
     expect(events.filter((event) => event.level === 'error')).toEqual([]);
+    // …but never metric-invisible: the exhausted walk is counted (SFH-1).
+    expect(metrics.get('ingest.walk_exhausted', 'ecmwf')).toBe(1);
+  });
+
+  it('escalates a PERSISTENT walk exhaustion to error after a full cycle interval (SFH-1)', async () => {
+    let clock = NOW;
+    const target = buildTarget({ publishedCycles: [], nowFn: () => clock });
+
+    await target.refresh(new OperationDeadline(300_000, () => clock));
+    // Seven hours later — more than one 6 h cycle interval with still not a single candidate
+    // answering: this is a typo'd base URL or an outage, not a slow publication day.
+    clock = NOW + 7 * 3_600_000;
+    await target.refresh(new OperationDeadline(300_000, () => clock));
+
+    expect(metrics.get('ingest.walk_exhausted', 'ecmwf')).toBe(2);
+    expect(events).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        message: expect.stringContaining('exhausted for over a full cycle interval'),
+      }),
+    );
+  });
+
+  it('falls back QUIETLY when oper is published but wave is not yet — the quiet lane is per STREAM (SFH-6)', async () => {
+    // olcumler §M5: the two streams of one cycle publish minutes apart. An oper answering 200
+    // proves nothing about wave, so a wave-index 404 on the candidate probe must stay inside
+    // the NEW-1 quiet lane instead of alarming every tour until wave lands.
+    const target = buildTarget({
+      publishedCycles: [CYCLE_12Z, CYCLE_06Z],
+      unpublishedStreams: ['wave'],
+    });
+    await target.refresh(new OperationDeadline(300_000, () => NOW));
+
+    // Both candidates die on the wave index; nothing gets recorded, nothing gets loud.
+    expect(store.recorded).toEqual([]);
+    expect(events.filter((event) => event.level === 'error')).toEqual([]);
+  });
+
+  it('refuses an oversized range plan BEFORE any download — the .index cannot pick our heap ceiling (SEC-76-1)', async () => {
+    const target = buildTarget({ publishedCycles: [CYCLE_12Z], layout: OVERSIZED_LAYOUT });
+    await target.refresh(new OperationDeadline(300_000, () => NOW));
+
+    // The oper index announced a 9 MB range; the plan was refused pre-HTTP, so not one grib2
+    // request left the process and nothing was recorded.
+    expect(log.filter((entry) => entry.url.endsWith('.grib2'))).toEqual([]);
+    expect(store.recorded).toEqual([]);
+    expect(metrics.get('ingest.contract_refusal', 'ecmwf')).toBe(1);
+    expect(events).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        message: expect.stringContaining('contract guard'),
+      }),
+    );
+  });
+
+  it('retries a transient range failure ONCE against the mirror, and only the mirror (failover path)', async () => {
+    const target = buildTarget({
+      publishedCycles: [CYCLE_12Z],
+      config: makeConfig({ failoverBaseUrl: 'https://mirror.test', maxStepsPerTour: 1 }),
+      gribTransientHosts: ['https://primary.test'],
+    });
+    await target.refresh(new OperationDeadline(300_000, () => NOW));
+
+    // Every grib2 download failed on the primary (2 attempts each) and succeeded via exactly
+    // one mirror request each; the indexes never left the primary.
+    const mirrorRequests = log.filter((entry) => entry.url.startsWith('https://mirror.test'));
+    expect(mirrorRequests.length).toBe(3); // 3 ranges of the one ingested step
+    expect(mirrorRequests.every((entry) => entry.url.endsWith('.grib2'))).toBe(true);
+    expect(store.recorded.length).toBe(1);
+  });
+
+  it('never touches the mirror for a NON-transient failure — it cannot fix our own bad request', async () => {
+    const target = buildTarget({
+      publishedCycles: [CYCLE_12Z],
+      config: makeConfig({ failoverBaseUrl: 'https://mirror.test', maxStepsPerTour: 1 }),
+      gribClientErrorHosts: ['https://primary.test'],
+    });
+    await target.refresh(new OperationDeadline(300_000, () => NOW));
+
+    expect(log.filter((entry) => entry.url.startsWith('https://mirror.test'))).toEqual([]);
+    expect(store.recorded).toEqual([]);
+    // The 4xx keeps its loud path (the client's own error event).
+    expect(events).toContainEqual(expect.objectContaining({ level: 'error' }));
   });
 
   it('stops LOUDLY when the tour byte cap is breached (board acceptance: cost protection)', async () => {
@@ -449,6 +577,9 @@ describe('EcmwfIngestTarget', () => {
     // The first step died on its first range; nothing half-written was recorded.
     expect(store.recorded).toEqual([]);
     expect(store.cycles.has(CYCLE_12Z)).toBe(false);
+    // The bytes the dead step DID spend (its index download) are not invisible: they land in
+    // the abandoned-bytes counter, since the cycle ledger only counts ingested evidence (SFH-2).
+    expect(metrics.get('ingest.bytes_abandoned', 'ecmwf')).toBeGreaterThan(0);
   });
 
   it('contains a decoder crash: loud metric + error event, no record, server-side flow continues', async () => {
@@ -471,6 +602,29 @@ describe('EcmwfIngestTarget', () => {
       expect.objectContaining({
         level: 'error',
         message: expect.stringContaining('decode child crashed'),
+      }),
+    );
+  });
+
+  it('keeps an IPC child failure OUT of the panic metric — decode_crash is migration evidence (SFH-5)', async () => {
+    const ipcFailing: GribDecodePort = {
+      decode: () =>
+        Promise.reject(
+          // Protocol exit 3: the child decoded fine but could not SEND the reply — our
+          // plumbing, not gribberish, and it must not feed the DEC 2026-07-31d trigger.
+          new EcmwfDecodeCrashError('decode child died without a reply', 3, null, false),
+        ),
+    };
+    const target = buildTarget({ publishedCycles: [CYCLE_12Z], decoderOverride: ipcFailing });
+    await target.refresh(new OperationDeadline(300_000, () => NOW));
+
+    expect(store.recorded).toEqual([]);
+    expect(metrics.get('ingest.decode_crash', 'ecmwf')).toBe(0);
+    expect(metrics.get('ingest.decode_ipc_failure', 'ecmwf')).toBe(1);
+    expect(events).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        message: expect.stringContaining('IPC/spawn failure'),
       }),
     );
   });

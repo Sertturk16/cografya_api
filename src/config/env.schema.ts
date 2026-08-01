@@ -173,6 +173,12 @@ export const envSchema = z
     // stops the tour LOUDLY. Measured steady state: ~38 MB / 12-step tour, ~130 MB / cycle.
     ECMWF_TOUR_MAX_BYTES: z.coerce.number().int().positive().default(67_108_864),
     ECMWF_CYCLE_MAX_BYTES: z.coerce.number().int().positive().default(335_544_320),
+    // Ceiling on ONE planned byte range, enforced BEFORE the HTTP request leaves. The range
+    // length comes from the provider's own `.index` (`_offset`/`_length`), and it becomes the
+    // parent process's buffering cap for that download — so it must never be provider-chosen
+    // without a bound (review #76 SEC-76-1). 8 MiB ≈ 4.5× the largest measured merged range
+    // (~1.83 MB, olcumler §M6.1): a plan above it is contract drift and is refused loudly.
+    ECMWF_MAX_RANGE_BYTES: z.coerce.number().int().positive().default(8_388_608),
     // The THIRD staleness ceiling (SPEC §9.4): maximum age of the model CYCLE a published value
     // may come from. The other two ceilings cannot see this failure — an old cycle still yields
     // a step valid "now", so validAtUtc and fetchedAtUtc both look fresh. 24 h tolerates one

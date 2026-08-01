@@ -119,3 +119,10 @@ export const ECMWF_STEPS: readonly number[] = Array.from(
  * publication schedule (F2 §4, measured), not about our ingest interval.
  */
 export const ECMWF_UPDATE_FREQUENCY = 'four-times-daily: 00:00; 06:00; 12:00; 18:00 UTC';
+
+/**
+ * Cycles kept in Postgres — SPEC §9.1's retention rule. Shared by the ingest's pruning and by
+ * both read paths' candidate window (the cycle-precedence policy may only choose among cycles
+ * retention is guaranteed to keep).
+ */
+export const ECMWF_RETAINED_CYCLES = 3;

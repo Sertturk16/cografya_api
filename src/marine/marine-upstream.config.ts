@@ -113,6 +113,8 @@ export interface EcmwfIngestConfig {
   /** LOUD-stop byte ceilings (the numeric "no unbounded external call"). */
   readonly tourMaxBytes: number;
   readonly cycleMaxBytes: number;
+  /** Pre-HTTP cap on ONE planned byte range — the `.index` cannot choose our heap ceiling. */
+  readonly maxRangeBytes: number;
   /** The THIRD staleness ceiling: max age of the model cycle a published value may come from. */
   readonly cycleMaxAgeSeconds: number;
   /** Cache-age ceiling of the ECMWF read path (replaces MARINE_STALE_MAX_SECONDS there). */
@@ -145,6 +147,7 @@ export function buildMarineUpstreamConfig(config: ConfigService<Env, true>): Mar
       maxStepsPerTour: config.getOrThrow('ECMWF_MAX_STEPS_PER_TOUR', { infer: true }),
       tourMaxBytes: config.getOrThrow('ECMWF_TOUR_MAX_BYTES', { infer: true }),
       cycleMaxBytes: config.getOrThrow('ECMWF_CYCLE_MAX_BYTES', { infer: true }),
+      maxRangeBytes: config.getOrThrow('ECMWF_MAX_RANGE_BYTES', { infer: true }),
       cycleMaxAgeSeconds: config.getOrThrow('ECMWF_CYCLE_MAX_AGE_SECONDS', { infer: true }),
       staleMaxSeconds: config.getOrThrow('ECMWF_STALE_MAX_SECONDS', { infer: true }),
     },
