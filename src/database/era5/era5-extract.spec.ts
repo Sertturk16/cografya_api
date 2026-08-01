@@ -22,6 +22,20 @@ function cellKeyForProvince(plateCode: string): string {
   return cellKeyFor(province.latitude, province.longitude);
 }
 
+/**
+ * A cell inside a province's fallback SEARCH WINDOW but NOT the one it publishes from.
+ *
+ * The distinction matters and is asserted separately below: if the SELECTED cell flickers, the
+ * run stops immediately on completeness (a published series would have a hole). Only a
+ * neighbouring window cell flickering is reportable as "the mask is not time-invariant", because
+ * it would change which land cell a fallback picks depending on the month.
+ */
+function neighbourCellKeyForProvince(plateCode: string): string {
+  const [latIndex, lonIndex] = cellKeyForProvince(plateCode).split(',');
+  if (latIndex === undefined || lonIndex === undefined) throw new Error('bad cell key');
+  return `${latIndex},${String(Number(lonIndex) + 2)}`;
+}
+
 /** The five measured coastal provinces whose administrative point lands on sea. */
 function measuredMaskedCells(): Set<string> {
   const masked = new Set<string>();
@@ -78,8 +92,8 @@ describe('extractEra5Provinces', () => {
     expect(direct.every((province) => province.fallbackDistanceKm === 0)).toBe(true);
   });
 
-  it('reports the mask as NOT time-invariant when a window cell flickers', () => {
-    const flickering = new Set([cellKeyForProvince('06')]);
+  it('reports the mask as NOT time-invariant when a NEIGHBOUR window cell flickers', () => {
+    const flickering = new Set([neighbourCellKeyForProvince('06')]);
     const extraction = extractEra5Provinces(
       buildSyntheticDecodedFile({ monthCount: 4, flickeringCells: flickering }),
       POINTS,
