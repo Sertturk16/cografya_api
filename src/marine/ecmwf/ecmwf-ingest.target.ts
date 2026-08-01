@@ -147,20 +147,23 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
       );
       return;
     }
-    if (selection.done) return;
+    if (!selection.recordedSteps) return;
 
+    // Retention runs only after a tour that actually wrote — a no-op tour prunes nothing, so a
+    // paused ingest can never age the store DOWN below the cycles it still serves from.
     await this.deps.store.pruneCycles(ECMWF_RETAINED_CYCLES);
   }
 
   /**
    * Walk candidates newest-first; ingest into the first one that answers. Returns null when no
-   * candidate is available, `{ done: true }` after work (or a clean no-op) happened.
+   * candidate answered at all, otherwise whether any step was actually recorded (which is what
+   * decides if retention pruning has anything to do).
    */
   private async selectCycle(
     deadline: OperationDeadline,
     mappedPoints: readonly MappedPoint[],
     indices: readonly number[],
-  ): Promise<{ done: boolean } | null> {
+  ): Promise<{ recordedSteps: boolean } | null> {
     const { config, store } = this.deps;
     const nowDate = new Date(this.now());
 
@@ -172,7 +175,7 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
         // The newest candidate we know is already fully ingested. Nothing newer answered
         // (candidates are walked newest-first), so the tour is a clean no-op.
         this.logger.debug(`cycle ${cycle.toISOString()} already complete — no work`);
-        return { done: true };
+        return { recordedSteps: false };
       }
 
       const doneSet = new Set(existing?.stepsDone ?? []);
@@ -189,12 +192,12 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
         isKnownCycle: existing !== null,
       });
 
-      if (outcome === 'cycle_unpublished') {
+      if (outcome.kind === 'cycle_unpublished') {
         // Expected during the 7–9 h publication window: fall back one cycle, quietly.
         this.logger.debug(`cycle ${cycle.toISOString()} not published yet — falling back`);
         continue;
       }
-      return { done: true };
+      return { recordedSteps: outcome.steps > 0 };
     }
 
     return null;
@@ -208,7 +211,7 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
     indices: readonly number[];
     cycleBytesAlready: number;
     isKnownCycle: boolean;
-  }): Promise<'worked' | 'cycle_unpublished' | 'stopped'> {
+  }): Promise<{ kind: 'ingested'; steps: number } | { kind: 'cycle_unpublished' }> {
     const { config, metrics } = this.deps;
     const startedMs = this.now();
 
@@ -257,8 +260,8 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
       });
       firstRequestOfCandidate = false;
 
-      if (step.kind === 'cycle_unpublished') return 'cycle_unpublished';
-      if (step.kind === 'stop') return stepsThisTour > 0 ? 'worked' : 'stopped';
+      if (step.kind === 'cycle_unpublished') return { kind: 'cycle_unpublished' };
+      if (step.kind === 'stop') return { kind: 'ingested', steps: stepsThisTour };
 
       stepsThisTour += 1;
       bytesThisTour += step.bytes;
@@ -270,7 +273,7 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
           `${String(bytesThisTour)} B in ${String(this.now() - startedMs)} ms`,
       );
     }
-    return 'worked';
+    return { kind: 'ingested', steps: stepsThisTour };
   }
 
   private async ingestOneStep(step: {

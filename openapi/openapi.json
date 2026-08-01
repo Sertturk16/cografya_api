@@ -223,7 +223,7 @@
     },
     "/api/marine/layers": {
       "get": {
-        "description": "The machine-readable authority for how a value may be rendered. In particular directionConvention states, per layer, whether a degree means the direction the flow comes FROM or heads TOWARDS — the providers use both, inside the same API. NOTE: publishing this field is only the first of the two preconditions for drawing a direction arrow; the second (M3’s wind-convention regression test) does not exist yet. horizonEndUtc, updateFrequency and catalogueUpdatedAtUtc are null until M3 resolves them from the provider catalogue. M1 makes no provider call.",
+        "description": "The machine-readable authority for how a value may be rendered. In particular directionConvention states, per layer, whether a degree means the direction the flow comes FROM or heads TOWARDS — the providers use both, inside the same API. Both arrow-unlock preconditions are met for the wind layers (the field is published and the wind-convention regression suite runs on CI). For the two ECMWF-PRIMARY layers (wind_speed_10m, wind_direction_10m), horizonEndUtc / updateFrequency / catalogueUpdatedAtUtc are resolved from the newest ingested model cycle — a local database read; this endpoint NEVER calls a provider. They are null while no cycle has been ingested yet or the newest one breached the 24 h cycle-age ceiling. The CMEMS-primary layers keep null until M4 resolves the CMEMS catalogue.",
         "operationId": "MarineController_findAllLayers",
         "parameters": [],
         "responses": {
