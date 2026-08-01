@@ -285,6 +285,16 @@ describe('validateEnv — configurations that cannot mean what they say', () => 
     ).toThrow(/must not exceed ECMWF_CYCLE_MAX_BYTES/);
   });
 
+  it('refuses a single-range cap above the per-tour one — the SEC-76-1 guard must stay inside the ceilings', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        ECMWF_MAX_RANGE_BYTES: '100000000',
+        ECMWF_TOUR_MAX_BYTES: '67108864',
+      }),
+    ).toThrow(/must not exceed ECMWF_TOUR_MAX_BYTES/);
+  });
+
   it('refuses a horizon past 120 h — that is a frozen-contract change, not an env flip', () => {
     // Past +144 h the provider's step widens to 6 h and `MarineSeriesDto.stepHours = 3` becomes a
     // lie; 120 is the owner-ruled horizon (O1) and the schema is what keeps an operator from

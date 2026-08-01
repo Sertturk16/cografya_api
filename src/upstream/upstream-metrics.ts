@@ -58,9 +58,13 @@ export type UpstreamMetricName =
    * termination are counted separately below so they cannot contaminate it (review #76 SFH-5).
    */
   | 'ingest.decode_crash'
-  /** A decode child reply was lost to OUR plumbing (fork/IPC/send, protocol exits 0/2/3). */
+  /**
+   * A decode child ended without the decoder plausibly being the cause: fork/IPC/send failures,
+   * protocol exits 0/2/3, and the JS-level exit 1 (uncaught exception — e.g. the gribberish
+   * import failing to load its native binary; round-2 R2-SFH-B).
+   */
   | 'ingest.decode_ipc_failure'
-  /** A decode child was terminated from outside (SIGTERM/SIGINT/SIGHUP — deploy/operator). */
+  /** A decode child was killed from outside (SIGTERM/SIGINT/SIGHUP/external SIGKILL). */
   | 'ingest.decode_interrupted'
   /** A payload was refused by a fail-closed contract guard (packing, grid, attribution…). */
   | 'ingest.contract_refusal'

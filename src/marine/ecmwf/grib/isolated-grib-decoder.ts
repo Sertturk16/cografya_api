@@ -48,15 +48,25 @@ export class EcmwfDecodeCrashError extends Error {
  *   code), SIGABRT/exit 134 (`panic = abort`), the other fatal native signals, and any exit
  *   code this table does not recognise (fail-toward-evidence: an unknown native death is more
  *   likely gribberish than us).
- * - **`ipc`** — the child's OWN protocol exits (2 = no IPC channel, 3 = reply send failed), a
- *   healthy exit 0 that raced the reply, and the fork/send/IPC-error paths that never reached
- *   the child at all (`exitCode` and `signal` both null). Our plumbing, not the decoder.
- * - **`interrupted`** — SIGTERM/SIGINT/SIGHUP: a deploy or an operator killed it from outside.
+ * - **`ipc`** — endings the DECODER cannot have caused: the child's OWN protocol exits (2 = no
+ *   IPC channel, 3 = reply send failed), a healthy exit 0 that raced the reply, the
+ *   fork/send/IPC-error paths that never reached the child at all (`exitCode` and `signal` both
+ *   null), and **exit 1** — Node's uncaught-exception exit, i.e. the child died at the JS level
+ *   before or around the decode. The likeliest exit 1 in production is the gribberish IMPORT
+ *   failing to load its native binary (no published musl/arm64 build — olcumler §M1.3); counting
+ *   that as `panic` would book 100 % of decodes as decoder panics and poison the DEC 2026-07-31d
+ *   trigger (round-2 R2-SFH-B). A real native panic cannot exit 1: gribberish is built with
+ *   `panic = abort`, which dies as SIGABRT/exit 134 or hangs into the timeout.
+ * - **`interrupted`** — SIGTERM/SIGINT/SIGHUP, and an EXTERNAL SIGKILL (`timedOut` false — our
+ *   own kill always sets it): a deploy, an operator's `kill -9`, or the cgroup OOM killer.
+ *   Accepted trade-off: an OOM-killed ballooning decode loses its panic attribution here;
+ *   rollout SIGKILLs are overwhelmingly the more frequent source, and a child that hangs in
+ *   native code is still caught as `panic` by the timeout.
  */
 export type DecodeCrashClass = 'panic' | 'ipc' | 'interrupted';
 
-const IPC_EXIT_CODES = new Set([0, 2, 3]);
-const INTERRUPT_SIGNALS = new Set(['SIGTERM', 'SIGINT', 'SIGHUP']);
+const IPC_EXIT_CODES = new Set([0, 1, 2, 3]);
+const INTERRUPT_SIGNALS = new Set(['SIGTERM', 'SIGINT', 'SIGHUP', 'SIGKILL']);
 
 export function classifyDecodeCrash(error: EcmwfDecodeCrashError): DecodeCrashClass {
   if (error.timedOut) return 'panic';
@@ -148,8 +158,13 @@ export class IsolatedGribDecoder {
         child = this.forkImpl(this.childModulePath, {
           // 'advanced' = structured clone over IPC: the GRIB bytes cross as binary, not JSON.
           serialization: 'advanced',
-          // The child inherits nothing it does not need; stdio stays piped to ours for stderr
-          // visibility if the binary prints its dying words.
+          // Defense-in-depth (review #76 SEC-76-2): the child runs memory-unsafe native code
+          // over provider bytes and needs NO configuration — an empty env keeps DATABASE_URL,
+          // REDIS_URL and every other secret out of that process. `fork` injects its own IPC
+          // channel variable regardless, and the child resolves node via execPath, not PATH.
+          env: {},
+          // stdio stays piped to ours for stderr visibility if the binary prints its dying
+          // words.
           stdio: ['ignore', 'ignore', 'inherit', 'ipc'],
         });
       } catch (error: unknown) {

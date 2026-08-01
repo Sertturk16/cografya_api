@@ -202,11 +202,18 @@ describe('classifyDecodeCrash', () => {
     expect(classifyDecodeCrash(crash(null, 'SIGABRT'))).toBe('panic');
     expect(classifyDecodeCrash(crash(null, 'SIGSEGV'))).toBe('panic');
     expect(classifyDecodeCrash(crash(null, null, true))).toBe('panic'); // hung child, SIGKILLed
-    expect(classifyDecodeCrash(crash(1, null))).toBe('panic'); // unknown native death → evidence
+    // OUR timeout kill stays panic even though the signal is SIGKILL — `timedOut` wins.
+    expect(classifyDecodeCrash(crash(null, 'SIGKILL', true))).toBe('panic');
+    expect(classifyDecodeCrash(crash(101, null))).toBe('panic'); // unknown native death → evidence
   });
 
-  it('separates OUR plumbing failures: protocol exits 0/2/3 and the fork/send/IPC-error paths', () => {
+  it('separates OUR plumbing failures: protocol exits 0/2/3, JS-level exit 1, fork/send/IPC-error paths', () => {
     expect(classifyDecodeCrash(crash(0, null))).toBe('ipc'); // healthy exit raced the reply
+    // Exit 1 = Node's uncaught-exception exit: the child died at the JS level (the likeliest
+    // cause is the gribberish IMPORT failing on musl/arm64 — olcumler §M1.3). A native panic
+    // cannot exit 1 (`panic = abort` → SIGABRT/134), so this must NOT feed the DEC 2026-07-31d
+    // migration metric (round-2 R2-SFH-B).
+    expect(classifyDecodeCrash(crash(1, null))).toBe('ipc');
     expect(classifyDecodeCrash(crash(2, null))).toBe('ipc'); // no IPC channel
     expect(classifyDecodeCrash(crash(3, null))).toBe('ipc'); // reply send failed
     expect(classifyDecodeCrash(crash(null, null))).toBe('ipc'); // fork/send/IPC error, no child ending
@@ -215,5 +222,8 @@ describe('classifyDecodeCrash', () => {
   it('separates external termination — a deploy must not read as a decoder panic', () => {
     expect(classifyDecodeCrash(crash(null, 'SIGTERM'))).toBe('interrupted');
     expect(classifyDecodeCrash(crash(null, 'SIGINT'))).toBe('interrupted');
+    // An EXTERNAL SIGKILL (`timedOut` false — our own kill always sets it): operator `kill -9`
+    // or the OOM killer during a rollout, not decoder evidence (round-2 R2-SFH-B).
+    expect(classifyDecodeCrash(crash(null, 'SIGKILL'))).toBe('interrupted');
   });
 });

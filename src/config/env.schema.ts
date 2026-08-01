@@ -294,6 +294,15 @@ export const envSchema = z
           'allowed more bytes than the whole cycle it contributes to.',
       });
     }
+    if (env.ECMWF_MAX_RANGE_BYTES > env.ECMWF_TOUR_MAX_BYTES) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['ECMWF_MAX_RANGE_BYTES'],
+        message:
+          'ECMWF_MAX_RANGE_BYTES must not exceed ECMWF_TOUR_MAX_BYTES — a single planned range ' +
+          'cannot be allowed more bytes than the whole tour it downloads in.',
+      });
+    }
   });
 
 export type Env = z.infer<typeof envSchema>;

@@ -460,9 +460,11 @@ describe('EcmwfIngestTarget', () => {
   });
 
   it('falls back QUIETLY when oper is published but wave is not yet — the quiet lane is per STREAM (SFH-6)', async () => {
-    // olcumler §M5: the two streams of one cycle publish minutes apart. An oper answering 200
-    // proves nothing about wave, so a wave-index 404 on the candidate probe must stay inside
-    // the NEW-1 quiet lane instead of alarming every tour until wave lands.
+    // The two streams are independent provider-side objects on their own publication
+    // schedules, so an oper answering 200 proves nothing about wave: a wave-index 404 on the
+    // candidate probe must stay inside the NEW-1 quiet lane instead of alarming every tour
+    // until wave lands. (No measured oper-vs-wave lag exists — olcumler §M5's 38 s delta is
+    // primary-vs-mirror.)
     const target = buildTarget({
       publishedCycles: [CYCLE_12Z, CYCLE_06Z],
       unpublishedStreams: ['wave'],
@@ -471,6 +473,75 @@ describe('EcmwfIngestTarget', () => {
 
     // Both candidates die on the wave index; nothing gets recorded, nothing gets loud.
     expect(store.recorded).toEqual([]);
+    expect(events.filter((event) => event.level === 'error')).toEqual([]);
+
+    // The quiet lane is CHEAP by construction (round-2 R2-SFH-C): both indexes are fetched
+    // and validated before any range bytes are paid for, so a wave-side 404 abandons only
+    // oper's index kilobytes — never its ranges, never a decode.
+    expect(log.filter((entry) => entry.url.endsWith('.grib2'))).toEqual([]);
+    expect(decoder.jobs).toEqual([]);
+    // …and what it DID abandon is visible: the counter carries the bytes, the warn names them.
+    expect(metrics.get('ingest.bytes_abandoned', 'ecmwf')).toBeGreaterThan(0);
+    expect(events).toContainEqual(
+      expect.objectContaining({
+        level: 'warn',
+        message: expect.stringContaining('abandoned bytes'),
+      }),
+    );
+  });
+
+  it('names the MISSING STREAM when a persistent exhaustion had partial answers (R2-SFH-C)', async () => {
+    let clock = NOW;
+    const target = buildTarget({
+      publishedCycles: [CYCLE_12Z, CYCLE_06Z],
+      unpublishedStreams: ['wave'],
+      nowFn: () => clock,
+    });
+
+    await target.refresh(new OperationDeadline(300_000, () => clock));
+    clock = NOW + 7 * 3_600_000; // past one full 6 h cycle interval, wave still dark
+    await target.refresh(new OperationDeadline(300_000, () => clock));
+
+    // The escalated message must NOT claim "no candidate answers at all" — oper answered on
+    // every probe; sending the operator to the base URL would misdiagnose a stream outage.
+    expect(events).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        message: expect.stringContaining('single-stream outage'),
+      }),
+    );
+    expect(
+      events.filter(
+        (event) =>
+          event.level === 'error' && event.message.includes('no candidate cycle answers at all'),
+      ),
+    ).toEqual([]);
+  });
+
+  it('re-arms the exhaustion escalation after a successful tour — recovery resets the clock', async () => {
+    let clock = NOW;
+    const published: string[] = [];
+    const target = buildTarget({
+      publishedCycles: published,
+      config: makeConfig({ maxStepsPerTour: 3 }),
+      nowFn: () => clock,
+    });
+
+    // 1) Exhausted once (warn).
+    await target.refresh(new OperationDeadline(300_000, () => clock));
+    // 2) A cycle publishes and is fully ingested — the exhaustion clock must reset here.
+    published.push(CYCLE_12Z);
+    clock = NOW + 3_600_000;
+    await target.refresh(new OperationDeadline(300_000, () => clock));
+    expect(store.recorded.length).toBe(3);
+    // 3) 30 h later every candidate is unknown and unpublished again. Without the reset this
+    // would escalate to error (30 h since the FIRST exhaustion); with it, the walk is
+    // exhausted "for the first time" again and stays a warn.
+    published.length = 0;
+    clock = NOW + 30 * 3_600_000;
+    await target.refresh(new OperationDeadline(300_000, () => clock));
+
+    expect(metrics.get('ingest.walk_exhausted', 'ecmwf')).toBe(2);
     expect(events.filter((event) => event.level === 'error')).toEqual([]);
   });
 

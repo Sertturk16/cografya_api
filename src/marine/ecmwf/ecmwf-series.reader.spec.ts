@@ -147,9 +147,11 @@ function storedValues(steps: number[]): EcmwfStoredSeries {
 
 class FakeStore implements Partial<EcmwfIngestStorePort> {
   rows: NewestPointSeries[] = [];
+  /** When set, the read REJECTS — the Postgres-blip fixture (round-2 CR2R-1). */
+  failWith: Error | null = null;
 
   recentSeriesForPoint(): Promise<NewestPointSeries[]> {
-    return Promise.resolve(this.rows);
+    return this.failWith === null ? Promise.resolve(this.rows) : Promise.reject(this.failWith);
   }
 }
 
@@ -224,6 +226,44 @@ describe('EcmwfSeriesReader', () => {
     );
   });
 
+  it('maps a jsonb row whose values are NOT the written shape to schema_error, not a TypeError (CR2R-1)', async () => {
+    const cycleUtc = new Date(NOW - 4 * 3_600_000);
+    const row = seriesRow(cycleUtc, storedValues([0, 3]));
+    // jsonb is schemaless: a `values` of null would die as a TypeError on `.steps` — the
+    // readable-candidate guard must turn it into a deterministic contract refusal instead.
+    store.rows = [
+      {
+        cycle: row.cycle,
+        series: { ...row.series, values: null } as unknown as typeof row.series,
+      },
+    ];
+
+    const read = await reader.readSeries(POINT);
+    expect(read.kind).toBe('schema_error');
+    expect(read.value).toBeNull();
+    expect(events).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        message: expect.stringContaining('contract guard'),
+      }),
+    );
+  });
+
+  it('maps a store I/O failure to transient — a Postgres blip must degrade, never 500 (CR2R-1)', async () => {
+    store.failWith = new Error('connection terminated unexpectedly');
+
+    const read = await reader.readSeries(POINT);
+    expect(read.kind).toBe('transient');
+    expect(read.value).toBeNull();
+    expect(read.reason).toContain('store could not be read');
+    expect(events).toContainEqual(
+      expect.objectContaining({
+        level: 'error',
+        message: expect.stringContaining('store read failed'),
+      }),
+    );
+  });
+
   it('suppresses a stale cycle inside refresh, LOUDLY, with the counter (SPEC §9.4)', async () => {
     store.rows = [seriesRow(new Date(NOW - 30 * 3_600_000), storedValues([0, 3]))];
 
@@ -271,13 +311,39 @@ describe('EcmwfSeriesReader', () => {
     expect(read.kind).toBe('transient');
     expect(read.value).toBeNull();
     expect(read.reason).toContain('cycle-age ceiling');
-    expect(metrics.get('ingest.cycle_age_ceiling', 'ecmwf')).toBe(1);
     expect(events).toContainEqual(
       expect.objectContaining({
         level: 'warn',
         message: expect.stringContaining('on exit'),
       }),
     );
+
+    // The exit half runs once per REQUEST, so its reporting is bounded (round-2 R2-SFH-A):
+    // the counter belongs to the refresh half alone — a fresh cache hit must not turn
+    // `ingest.cycle_age_ceiling` into a traffic-proportional number — and the warn repeats
+    // through a throttle: a second immediate read suppresses the same value again but logs
+    // nothing new.
+    expect(metrics.get('ingest.cycle_age_ceiling', 'ecmwf')).toBe(0);
+    const warnsAfterFirst = events.filter((event) => event.message.includes('on exit')).length;
+    const second = await reader.readSeries(POINT);
+    expect(second.kind).toBe('transient');
+    expect(second.value).toBeNull();
+    expect(events.filter((event) => event.message.includes('on exit')).length).toBe(
+      warnsAfterFirst,
+    );
+  });
+
+  it('serves the usable cycle when the retained set MIXES usable and ceiling-breached rows', async () => {
+    const usable = new Date(NOW - 4 * 3_600_000);
+    const breached = new Date(NOW - 30 * 3_600_000);
+    store.rows = [seriesRow(usable, storedValues([0, 3])), seriesRow(breached, storedValues([0]))];
+
+    const read = await reader.readSeries(POINT);
+    expect(read.kind).toBe('ok');
+    expect(read.value?.series.modelRunAtUtc).toBe(usable.toISOString());
+    // A breached candidate merely dropping out of the race is not a suppression: no ceiling
+    // event, no counter — those fire only when EVERY retained cycle has breached.
+    expect(metrics.get('ingest.cycle_age_ceiling', 'ecmwf')).toBe(0);
   });
 
   it('answers a cold store honestly: transient, so the very next tour can fix it', async () => {

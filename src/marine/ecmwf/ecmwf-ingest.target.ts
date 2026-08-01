@@ -120,6 +120,13 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
    */
   private walkExhaustedSinceMs: number | null = null;
 
+  /**
+   * Every byte a step downloaded and then failed to record, summed since boot (round-2
+   * R2-SFH-C). The per-occurrence counter (`ingest.bytes_abandoned`) has no alarm of its own;
+   * this total is what lets the abandon event escalate once the waste stops being incidental.
+   */
+  private abandonedBytesTotal = 0;
+
   constructor(private readonly deps: EcmwfIngestTargetDeps) {
     this.now = deps.now ?? Date.now;
   }
@@ -157,8 +164,8 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
     const indices = mappedPoints.map((entry) => entry.mapping.index);
 
     const selection = await this.selectCycle(deadline, mappedPoints, indices);
-    if (selection === null) {
-      this.recordWalkExhaustion();
+    if (selection.kind === 'exhausted') {
+      this.recordWalkExhaustion(selection.partialAnswers);
       return;
     }
     this.walkExhaustedSinceMs = null;
@@ -175,39 +182,55 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
    * fresh deploy against a typo'd base URL, or an all-404 outage, would otherwise stay
    * metric-invisible forever, because an empty store has no cycle for the age ceiling to fire on
    * (review #76 SFH-1).
+   *
+   * The escalated message is SPLIT on what this tour actually saw (round-2 R2-SFH-C): with the
+   * quiet lane granted per stream, a wave-only outage also exhausts the walk — but there the
+   * candidates DID answer on another stream, and "no candidate answers at all" would send the
+   * operator to the base URL instead of to the missing stream.
    */
-  private recordWalkExhaustion(): void {
+  private recordWalkExhaustion(partialAnswers: boolean): void {
     this.deps.metrics.increment('ingest.walk_exhausted', MARINE_PROVIDER.ecmwf);
     const nowMs = this.now();
     if (this.walkExhaustedSinceMs === null) this.walkExhaustedSinceMs = nowMs;
 
     const exhaustedForMs = nowMs - this.walkExhaustedSinceMs;
     const escalate = exhaustedForMs > ECMWF_CYCLE_INTERVAL_HOURS * 3_600_000;
+    const escalatedMessage = partialAnswers
+      ? 'ECMWF candidate walk has been exhausted for over a full cycle interval — candidates ' +
+        'answer on one stream while another never publishes (single-stream outage / partial ' +
+        'publication class)'
+      : 'ECMWF candidate walk has been exhausted for over a full cycle interval — no ' +
+        'candidate cycle answers at all (base URL / provider outage class)';
     this.deps.metrics.event(
       escalate ? 'error' : 'warn',
       escalate
-        ? 'ECMWF candidate walk has been exhausted for over a full cycle interval — no ' +
-            'candidate cycle answers at all (base URL / provider outage class)'
+        ? escalatedMessage
         : 'no candidate cycle is published or ingestible right now — nothing to do this tour',
       {
         provider: MARINE_PROVIDER.ecmwf,
         exhaustedForMs,
+        partialAnswers,
       },
     );
   }
 
   /**
-   * Walk candidates newest-first; ingest into the first one that answers. Returns null when no
-   * candidate answered at all, otherwise whether any step was actually recorded (which is what
-   * decides if retention pruning has anything to do).
+   * Walk candidates newest-first; ingest into the first one that answers. An `exhausted` result
+   * means no candidate could be ingested from; `partialAnswers` records whether any stream of
+   * any candidate DID answer along the way, so the escalated exhaustion message can name the
+   * right failure class (round-2 R2-SFH-C). A selected result carries whether any step was
+   * actually recorded (which is what decides if retention pruning has anything to do).
    */
   private async selectCycle(
     deadline: OperationDeadline,
     mappedPoints: readonly MappedPoint[],
     indices: readonly number[],
-  ): Promise<{ recordedSteps: boolean } | null> {
+  ): Promise<
+    { kind: 'selected'; recordedSteps: boolean } | { kind: 'exhausted'; partialAnswers: boolean }
+  > {
     const { config, store } = this.deps;
     const nowDate = new Date(this.now());
+    let partialAnswers = false;
 
     for (const cycle of candidateCycles(nowDate)) {
       const existing = await store.getCycle(cycle);
@@ -217,7 +240,7 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
         // The newest candidate we know is already fully ingested. Nothing newer answered
         // (candidates are walked newest-first), so the tour is a clean no-op.
         this.logger.debug(`cycle ${cycle.toISOString()} already complete — no work`);
-        return { recordedSteps: false };
+        return { kind: 'selected', recordedSteps: false };
       }
 
       const doneSet = new Set(existing?.stepsDone ?? []);
@@ -236,13 +259,14 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
 
       if (outcome.kind === 'cycle_unpublished') {
         // Expected during the 7–9 h publication window: fall back one cycle, quietly.
+        partialAnswers = partialAnswers || outcome.indexAnswered;
         this.logger.debug(`cycle ${cycle.toISOString()} not published yet — falling back`);
         continue;
       }
-      return { recordedSteps: outcome.steps > 0 };
+      return { kind: 'selected', recordedSteps: outcome.steps > 0 };
     }
 
-    return null;
+    return { kind: 'exhausted', partialAnswers };
   }
 
   private async ingestSteps(run: {
@@ -253,7 +277,9 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
     indices: readonly number[];
     cycleBytesAlready: number;
     isKnownCycle: boolean;
-  }): Promise<{ kind: 'ingested'; steps: number } | { kind: 'cycle_unpublished' }> {
+  }): Promise<
+    { kind: 'ingested'; steps: number } | { kind: 'cycle_unpublished'; indexAnswered: boolean }
+  > {
     const { config, metrics } = this.deps;
     const startedMs = this.now();
 
@@ -307,10 +333,32 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
         // the cycle LEDGER — that column means "bytes of ingested evidence", and a write here
         // would create rows for unpublished cycles, disarming the NEW-1 quiet lane — but they
         // must not vanish either: a step that fails every tour would otherwise spend
-        // ~3.2 MB/tour that no ceiling and no counter ever sees.
+        // ~3.2 MB/tour that no ceiling and no counter ever sees. The counter alone had no
+        // alarm (round-2 R2-SFH-C): the event below is its loud half — warn per occurrence
+        // (bounded by tour structure), escalating to error once the boot-lifetime total
+        // exceeds a full cycle's byte budget, because by then the waste is systematic.
         metrics.increment('ingest.bytes_abandoned', MARINE_PROVIDER.ecmwf, step.bytes);
+        this.abandonedBytesTotal += step.bytes;
+        const systematic = this.abandonedBytesTotal >= config.ecmwf.cycleMaxBytes;
+        metrics.event(
+          systematic ? 'error' : 'warn',
+          systematic
+            ? 'ECMWF abandoned bytes since boot exceed a full cycle byte budget — a step or ' +
+                'stream is failing persistently'
+            : 'ECMWF step abandoned bytes it will not record',
+          {
+            provider: MARINE_PROVIDER.ecmwf,
+            cycle: run.cycle.toISOString(),
+            stepHour,
+            outcome: step.kind,
+            abandonedBytes: step.bytes,
+            abandonedBytesTotal: this.abandonedBytesTotal,
+          },
+        );
       }
-      if (step.kind === 'cycle_unpublished') return { kind: 'cycle_unpublished' };
+      if (step.kind === 'cycle_unpublished') {
+        return { kind: 'cycle_unpublished', indexAnswered: step.indexAnswered };
+      }
       if (step.kind === 'stop') return { kind: 'ingested', steps: stepsThisTour };
 
       stepsThisTour += 1;
@@ -336,23 +384,31 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
   }): Promise<
     | { kind: 'ok'; bytes: number }
     | { kind: 'stop'; bytes: number }
-    | { kind: 'cycle_unpublished'; bytes: number }
+    | { kind: 'cycle_unpublished'; bytes: number; indexAnswered: boolean }
   > {
     const { config, metrics } = this.deps;
     let bytes = 0;
+    let indexAnswered = false;
 
     try {
       const decodedByParam = new Map<EcmwfParam, DecodedGribCells>();
       let packingTemplate: number | null = null;
       let decoderVersion = 'unknown';
 
+      // PHASE 1 — PLAN: every stream's `.index` sidecar (text, JSON-LINES, ~2–40 KB) is
+      // fetched and validated BEFORE a single range byte is paid for (round-2 R2-SFH-C).
+      // The quiet 404 lane is granted PER STREAM of the candidate's first attempted step
+      // (review #76 SFH-6/CR-4): the two streams are independent objects on the provider's
+      // side, published on their own schedules, so an `oper` that answers 200 proves nothing
+      // about `wave`. (No measured oper-vs-wave lag exists — olcumler §M5's 38 s Last-Modified
+      // delta measures primary-vs-mirror, not stream-vs-stream.) Ordering the indexes ahead of
+      // the ranges is what keeps that lane CHEAP: a wave-side 404 abandons only oper's index
+      // kilobytes, never its ~1.6 MB of ranges — in a day-long wave outage the difference is
+      // hundreds of megabytes. NEW-1's boundary holds — only an index 404/410 on a candidate
+      // probe is quiet; a range 404 (index exists, bytes gone) and every non-404/410 outcome
+      // stay loud.
+      const plans: { stream: EcmwfStream; ranges: EcmwfByteRange[] }[] = [];
       for (const { stream, params } of STREAM_PARAMS) {
-        // 1) The step's `.index` sidecar — text, JSON-LINES, ~2–40 KB. The quiet 404 lane is
-        // granted PER STREAM of the candidate's first attempted step (review #76 SFH-6/CR-4):
-        // `oper` and `wave` publish minutes apart (olcumler §M5's Last-Modified delta), so an
-        // oper that answers 200 proves nothing about wave. NEW-1's boundary holds — only an
-        // index 404/410 on a candidate probe is quiet; a range 404 (index exists, bytes gone)
-        // and every non-404/410 outcome stay loud.
         const indexOutcome = await this.fetchIndex({
           cycle: step.cycle,
           stream,
@@ -361,14 +417,17 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
           missingMeansNoData: step.allowUnpublished,
         });
 
-        if (indexOutcome.kind === 'no_data') return { kind: 'cycle_unpublished', bytes };
+        if (indexOutcome.kind === 'no_data') {
+          return { kind: 'cycle_unpublished', bytes, indexAnswered };
+        }
         if (indexOutcome.kind !== 'ok') {
           this.logStop('index download failed', step, indexOutcome.kind, indexOutcome.reason);
           return { kind: 'stop', bytes };
         }
+        indexAnswered = true;
         bytes += indexOutcome.value.bytes;
 
-        // 2) Select OUR records and hold ONLY THOSE against the request (board item NEW-3:
+        // Select OUR records and hold ONLY THOSE against the request (board item NEW-3:
         // the index lists ~50 unrelated parameters whose metadata is not our contract).
         const selected = selectIndexRecords(indexOutcome.value.records, params);
         assertIndexRecordsMatchRequest(
@@ -376,11 +435,17 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
           indexExpectation(step.cycle, stream, step.stepHour),
         );
 
-        // 3) Byte-range plan (adjacency computed per step, never assumed) and download.
-        for (const range of mergeByteRanges(selected)) {
+        // Byte-range plan (adjacency computed per step, never assumed).
+        plans.push({ stream, ranges: mergeByteRanges(selected) });
+      }
+
+      // PHASE 2 — PAY: download the planned ranges and decode, now that every stream of the
+      // step is known to be published.
+      for (const plan of plans) {
+        for (const range of plan.ranges) {
           const rangeOutcome = await this.fetchRange({
             cycle: step.cycle,
-            stream,
+            stream: plan.stream,
             stepHour: step.stepHour,
             range,
             deadline: step.deadline,
@@ -391,7 +456,7 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
           }
           bytes += rangeOutcome.value.byteLength;
 
-          // 4) Decode ISOLATED (board item A1): a gribberish panic kills a child, not the API.
+          // Decode ISOLATED (board item A1): a gribberish panic kills a child, not the API.
           const decoded = await this.deps.decoder.decode({
             bytes: rangeOutcome.value,
             members: range.members,
@@ -407,7 +472,7 @@ export class EcmwfIngestTarget implements MarineWarmupTarget {
         }
       }
 
-      // 5) Assemble the 30 point samples; a missing parameter here is a plan/decode mismatch.
+      // Assemble the 30 point samples; a missing parameter here is a plan/decode mismatch.
       const points = this.toRecordPoints(step.mappedPoints, decodedByParam);
 
       await this.deps.store.recordStep({
