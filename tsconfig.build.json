@@ -4,6 +4,16 @@
     "rootDir": "./src"
   },
   // `tools/` is build-time tooling run by Node's type stripping, never bundled into
-  // `dist/` — it has its own project at `tools/tsconfig.json`.
-  "exclude": ["node_modules", "test", "dist", "tools", "**/*.spec.ts", "**/*.e2e-spec.ts"]
+  // `dist/` — it has its own project at `tools/tsconfig.json`. The NetCDF3/ZIP fixture
+  // builder is test infrastructure that lives in `src/` only so the unit lane collects its
+  // spec — it must never ship to `dist/`.
+  "exclude": [
+    "node_modules",
+    "test",
+    "dist",
+    "tools",
+    "**/*.spec.ts",
+    "**/*.e2e-spec.ts",
+    "src/air-quality/cams/netcdf3-fixture.builder.ts"
+  ]
 }

@@ -246,6 +246,29 @@
           "marine"
         ]
       }
+    },
+    "/api/air-quality/index-system": {
+      "get": {
+        "description": "The published methodology behind every band/category this API serves: the EAQI-2024 band table (EEA/ETC HE 2024/17, Table 5.2), the (lo, hi] boundary rule as a token, per-pollutant averaging periods (all hourly) and the dominant-pollutant tie-break order. The web repo renders from THIS payload and hardcodes none of it. Served from an in-code constant: answers 200 cold or warm and never calls the upstream provider.",
+        "operationId": "AirQualityController_getIndexSystem",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirQualityIndexSystemDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Full machine-readable definition of the active air-quality index system.",
+        "tags": [
+          "air-quality"
+        ]
+      }
     }
   },
   "info": {
@@ -1988,6 +2011,686 @@
           "catalogueUpdatedAtUtc",
           "colorStops",
           "attributionId"
+        ]
+      },
+      "AirQualityPollutantValueDto": {
+        "type": "object",
+        "properties": {
+          "pollutant": {
+            "enum": [
+              "pm2_5",
+              "pm10",
+              "no2",
+              "o3",
+              "so2"
+            ],
+            "type": "string",
+            "example": "pm2_5"
+          },
+          "value": {
+            "type": "number",
+            "nullable": true,
+            "example": 8.4,
+            "description": "Raw model concentration in µg/m³, or null when this step/pollutant is missing. Model output on a ~0.1° grid — never a station reading. Missing values are null, never a sentinel: the provider marks absence with an in-band fill value that the server classifies away before publication."
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "ug_m3"
+            ],
+            "description": "Canonical machine unit token. The display symbol (µg/m³) is a web i18n concern."
+          },
+          "averagingPeriod": {
+            "type": "string",
+            "enum": [
+              "hourly"
+            ],
+            "description": "EAQI-2024 rates ALL five pollutants on hourly values (no 24 h running mean), so this enum has a single member. A future methodology change arrives as a new indexSystem member, not a silent reinterpretation of this field."
+          },
+          "subIndexBand": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1,
+            "maximum": 6,
+            "example": 2,
+            "description": "EAQI sub-index band for this pollutant alone; null when value is null."
+          },
+          "subIndexCategory": {
+            "nullable": true,
+            "enum": [
+              "good",
+              "fair",
+              "moderate",
+              "poor",
+              "very_poor",
+              "extremely_poor"
+            ],
+            "type": "string",
+            "example": "fair"
+          },
+          "status": {
+            "enum": [
+              "ok",
+              "no_data",
+              "not_supported",
+              "unavailable"
+            ],
+            "type": "string",
+            "description": "Per-pollutant status: the same cell can carry PM2.5 and miss SO₂ — pollutants are classified independently, never averaged or borrowed from a neighbour cell."
+          }
+        },
+        "required": [
+          "pollutant",
+          "value",
+          "unit",
+          "averagingPeriod",
+          "subIndexBand",
+          "subIndexCategory",
+          "status"
+        ]
+      },
+      "AirQualityIndexDto": {
+        "type": "object",
+        "properties": {
+          "band": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1,
+            "maximum": 6,
+            "example": 2,
+            "description": "Overall EAQI band = the WORST per-pollutant sub-band. Null unless status=ok."
+          },
+          "category": {
+            "nullable": true,
+            "enum": [
+              "good",
+              "fair",
+              "moderate",
+              "poor",
+              "very_poor",
+              "extremely_poor"
+            ],
+            "type": "string",
+            "description": "Category TOKEN for the band — never user-facing text; TR/EN names and the \"our translation\" label are web i18n keys."
+          },
+          "dominantPollutant": {
+            "nullable": true,
+            "enum": [
+              "pm2_5",
+              "pm10",
+              "no2",
+              "o3",
+              "so2"
+            ],
+            "type": "string",
+            "description": "The pollutant that set the worst band. Ties are broken deterministically by the published order (see GET /api/air-quality/index-system → tieBreakOrder)."
+          },
+          "indexSystem": {
+            "type": "string",
+            "enum": [
+              "eaqi-eea-2024"
+            ],
+            "description": "Which index methodology produced band/category. The full band table behind this token is published at GET /api/air-quality/index-system; the web must not hardcode it. Adding a member is treated as a BREAKING change (exhaustive switches)."
+          },
+          "status": {
+            "enum": [
+              "ok",
+              "no_data",
+              "not_supported",
+              "unavailable"
+            ],
+            "type": "string"
+          },
+          "freshness": {
+            "nullable": true,
+            "enum": [
+              "fresh",
+              "stale"
+            ],
+            "type": "string",
+            "description": "Cache freshness; ALWAYS null when status !== ok."
+          },
+          "pollutants": {
+            "description": "Raw per-pollutant concentrations + sub-indexes (DEC 2026-07-30w: the index stays auditable against the numbers it came from).",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AirQualityPollutantValueDto"
+            }
+          },
+          "missingPollutants": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "pm2_5",
+                "pm10",
+                "no2",
+                "o3",
+                "so2"
+              ]
+            },
+            "description": "Pollutants missing at this instant. A partial index is still published; honesty here means SAYING what is missing, not hiding what is known. All five missing → status no_data."
+          },
+          "validAtUtc": {
+            "type": "string",
+            "nullable": true,
+            "example": "2026-08-01T14:00:00.000Z",
+            "description": "The model step this value belongs to (ISO-8601 UTC). Derived from the REQUESTED run day + hour offset — the file’s own free-text time label is only cross-validated, never parsed as the source of truth."
+          },
+          "modelRunAtUtc": {
+            "type": "string",
+            "nullable": true,
+            "example": "2026-08-01T00:00:00.000Z",
+            "description": "CAMS model run base time (00:00 UTC of the run day) — the \"model time\"."
+          },
+          "ingestedAtUtc": {
+            "type": "string",
+            "nullable": true,
+            "example": "2026-08-01T12:41:03.000Z",
+            "description": "When the run file was downloaded and decoded by this server."
+          },
+          "fetchedAtUtc": {
+            "type": "string",
+            "nullable": true,
+            "example": "2026-08-01T14:03:11.000Z",
+            "description": "When THIS response was compiled from the local store (cache semantics only — the model/ingest instants above are the honest data times)."
+          },
+          "staleSinceUtc": {
+            "type": "string",
+            "nullable": true,
+            "example": null,
+            "description": "When the served value started counting as stale; null while fresh."
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "cams-europe-aq"
+            ]
+          },
+          "datasetId": {
+            "type": "string",
+            "nullable": true,
+            "example": "cams-europe-air-quality-forecasts",
+            "description": "Provider dataset identifier, verbatim."
+          },
+          "gridLatitude": {
+            "type": "number",
+            "nullable": true,
+            "example": 39.95,
+            "description": "Latitude of the grid-cell CENTRE the value was read from."
+          },
+          "gridLongitude": {
+            "type": "number",
+            "nullable": true,
+            "example": 32.85
+          },
+          "distanceKm": {
+            "type": "number",
+            "nullable": true,
+            "example": 3.1,
+            "description": "Distance (km) between the requested province reference point and the grid-cell centre. This is the WITHIN-CELL offset of nearest-cell sampling — never the result of searching for a \"better\" cell; interpolation and averaging are banned by design."
+          },
+          "gridResolutionDegrees": {
+            "type": "number",
+            "example": 0.1,
+            "description": "Model grid resolution in degrees (~11 km background level). Street-level differences are below this resolution by construction — honest-presentation field."
+          }
+        },
+        "required": [
+          "band",
+          "category",
+          "dominantPollutant",
+          "indexSystem",
+          "status",
+          "freshness",
+          "pollutants",
+          "missingPollutants",
+          "validAtUtc",
+          "modelRunAtUtc",
+          "ingestedAtUtc",
+          "fetchedAtUtc",
+          "staleSinceUtc",
+          "source",
+          "datasetId",
+          "gridLatitude",
+          "gridLongitude",
+          "distanceKm",
+          "gridResolutionDegrees"
+        ]
+      },
+      "AirQualitySeriesConcentrationsDto": {
+        "type": "object",
+        "properties": {
+          "pm2_5": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "nullable": true
+            },
+            "description": "µg/m³ per step; null per missing step."
+          },
+          "pm10": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "nullable": true
+            }
+          },
+          "no2": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "nullable": true
+            }
+          },
+          "o3": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "nullable": true
+            }
+          },
+          "so2": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "nullable": true
+            }
+          }
+        },
+        "required": [
+          "pm2_5",
+          "pm10",
+          "no2",
+          "o3",
+          "so2"
+        ]
+      },
+      "AirQualitySeriesDto": {
+        "type": "object",
+        "properties": {
+          "timesUtc": {
+            "example": [
+              "2026-08-01T00:00:00.000Z",
+              "2026-08-01T01:00:00.000Z"
+            ],
+            "description": "Step instants (ISO-8601 UTC). INVARIANT: every other array in this object has exactly this length; a missing step is null in place, never dropped and never invented. Every step is model FORECAST output — the series starts at the model run base time and contains no earlier step.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "stepHours": {
+            "type": "number",
+            "example": 1,
+            "description": "Hours between steps (always 1 in Faz-1)."
+          },
+          "horizonEndUtc": {
+            "type": "string",
+            "example": "2026-08-05T00:00:00.000Z",
+            "description": "End of the published horizon (run base + 96 h in Faz-1)."
+          },
+          "bands": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "nullable": true,
+              "minimum": 1,
+              "maximum": 6
+            },
+            "description": "Overall EAQI band per step; null where it cannot be computed."
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "good",
+                "fair",
+                "moderate",
+                "poor",
+                "very_poor",
+                "extremely_poor"
+              ],
+              "nullable": true
+            }
+          },
+          "dominantPollutants": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "pm2_5",
+                "pm10",
+                "no2",
+                "o3",
+                "so2"
+              ],
+              "nullable": true
+            }
+          },
+          "concentrations": {
+            "$ref": "#/components/schemas/AirQualitySeriesConcentrationsDto"
+          }
+        },
+        "required": [
+          "timesUtc",
+          "stepHours",
+          "horizonEndUtc",
+          "bands",
+          "categories",
+          "dominantPollutants",
+          "concentrations"
+        ]
+      },
+      "AirQualityAttributionDto": {
+        "type": "object",
+        "properties": {
+          "providerName": {
+            "type": "string",
+            "example": "Copernicus Atmosphere Monitoring Service (CAMS)"
+          },
+          "productName": {
+            "type": "string",
+            "example": "CAMS European air quality forecasts"
+          },
+          "datasetUrl": {
+            "type": "string",
+            "example": "https://ads.atmosphere.copernicus.eu/datasets/cams-europe-air-quality-forecasts"
+          },
+          "licenceName": {
+            "type": "string",
+            "example": "Creative Commons Attribution 4.0 International (CC-BY-4.0)",
+            "description": "The licence the dataset actually requires (measured: cc-by, revision 1)."
+          },
+          "licenceUrl": {
+            "type": "string",
+            "example": "https://creativecommons.org/licenses/by/4.0/"
+          },
+          "attributionText": {
+            "type": "string",
+            "example": "Contains modified Copernicus Atmosphere Monitoring Service Information 2026",
+            "description": "Verbatim required attribution line — never translated."
+          },
+          "disclaimerText": {
+            "type": "string",
+            "example": "Neither the European Commission nor ECMWF is responsible for any use that may be made of the Copernicus information or data it contains.",
+            "description": "Verbatim required disclaimer — never translated."
+          },
+          "noticeKeys": {
+            "description": "i18n keys for the editorial notices (model nature, grid resolution, category-name translation). The API ships KEYS only; the texts are authored on the web side.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "providerName",
+          "productName",
+          "datasetUrl",
+          "licenceName",
+          "licenceUrl",
+          "attributionText",
+          "disclaimerText",
+          "noticeKeys"
+        ]
+      },
+      "AirQualityProvinceDto": {
+        "type": "object",
+        "properties": {
+          "plateCode": {
+            "type": "string",
+            "example": "06",
+            "description": "Zero-padded plate code."
+          },
+          "slugTr": {
+            "type": "string",
+            "example": "ankara"
+          },
+          "slugEn": {
+            "type": "string",
+            "example": "ankara"
+          },
+          "nameTr": {
+            "type": "string",
+            "example": "Ankara"
+          },
+          "latitude": {
+            "type": "number",
+            "example": 39.9727,
+            "description": "The canonical province reference point the platform uses everywhere."
+          },
+          "longitude": {
+            "type": "number",
+            "example": 32.8637
+          },
+          "current": {
+            "description": "The value for the step nearest to now.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AirQualityIndexDto"
+              }
+            ]
+          },
+          "series": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AirQualitySeriesDto"
+              }
+            ]
+          },
+          "attribution": {
+            "$ref": "#/components/schemas/AirQualityAttributionDto"
+          },
+          "dataAvailable": {
+            "type": "boolean",
+            "description": "False on the cold path (no usable run) — the page renders, the widget degrades."
+          }
+        },
+        "required": [
+          "plateCode",
+          "slugTr",
+          "slugEn",
+          "nameTr",
+          "latitude",
+          "longitude",
+          "current",
+          "series",
+          "attribution",
+          "dataAvailable"
+        ]
+      },
+      "AirQualityProvinceListItemDto": {
+        "type": "object",
+        "properties": {
+          "plateCode": {
+            "type": "string",
+            "example": "06"
+          },
+          "slugTr": {
+            "type": "string",
+            "example": "ankara"
+          },
+          "slugEn": {
+            "type": "string",
+            "example": "ankara"
+          },
+          "band": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 1,
+            "maximum": 6,
+            "example": 2
+          },
+          "category": {
+            "nullable": true,
+            "enum": [
+              "good",
+              "fair",
+              "moderate",
+              "poor",
+              "very_poor",
+              "extremely_poor"
+            ],
+            "type": "string"
+          },
+          "dominantPollutant": {
+            "nullable": true,
+            "enum": [
+              "pm2_5",
+              "pm10",
+              "no2",
+              "o3",
+              "so2"
+            ],
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ok",
+              "no_data",
+              "not_supported",
+              "unavailable"
+            ],
+            "type": "string"
+          },
+          "validAtUtc": {
+            "type": "string",
+            "nullable": true,
+            "example": "2026-08-01T14:00:00.000Z"
+          }
+        },
+        "required": [
+          "plateCode",
+          "slugTr",
+          "slugEn",
+          "band",
+          "category",
+          "dominantPollutant",
+          "status",
+          "validAtUtc"
+        ]
+      },
+      "AirQualityIndexSystemCategoryDto": {
+        "type": "object",
+        "properties": {
+          "band": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 6,
+            "example": 2
+          },
+          "category": {
+            "enum": [
+              "good",
+              "fair",
+              "moderate",
+              "poor",
+              "very_poor",
+              "extremely_poor"
+            ],
+            "type": "string",
+            "example": "fair"
+          }
+        },
+        "required": [
+          "band",
+          "category"
+        ]
+      },
+      "AirQualityIndexSystemPollutantDto": {
+        "type": "object",
+        "properties": {
+          "pollutant": {
+            "enum": [
+              "pm2_5",
+              "pm10",
+              "no2",
+              "o3",
+              "so2"
+            ],
+            "type": "string"
+          },
+          "averagingPeriod": {
+            "type": "string",
+            "enum": [
+              "hourly"
+            ]
+          },
+          "upperBoundsUgM3": {
+            "example": [
+              5,
+              15,
+              50,
+              90,
+              140
+            ],
+            "description": "Upper bounds (µg/m³) of bands 1..5; band 6 is unbounded above the last value. Interpreted under boundaryRule — the upper bound belongs to ITS band.",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "pollutant",
+          "averagingPeriod",
+          "upperBoundsUgM3"
+        ]
+      },
+      "AirQualityIndexSystemDto": {
+        "type": "object",
+        "properties": {
+          "indexSystem": {
+            "type": "string",
+            "enum": [
+              "eaqi-eea-2024"
+            ]
+          },
+          "boundaryRule": {
+            "type": "string",
+            "enum": [
+              "lower_exclusive_upper_inclusive"
+            ],
+            "example": "lower_exclusive_upper_inclusive",
+            "description": "Band boundary rule, machine-readable: (lo, hi] — a value equal to an upper bound falls in THAT band (PM2.5 = 15.0 µg/m³ → band 2). The last band has no upper bound."
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AirQualityIndexSystemCategoryDto"
+            }
+          },
+          "pollutants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AirQualityIndexSystemPollutantDto"
+            }
+          },
+          "tieBreakOrder": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "pm2_5",
+                "pm10",
+                "no2",
+                "o3",
+                "so2"
+              ]
+            },
+            "description": "Deterministic dominant-pollutant tie-break order when two pollutants share the worst band."
+          }
+        },
+        "required": [
+          "indexSystem",
+          "boundaryRule",
+          "categories",
+          "pollutants",
+          "tieBreakOrder"
         ]
       }
     }

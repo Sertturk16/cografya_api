@@ -1,0 +1,680 @@
+{
+  "archive": "mini-tr-pm25-1step.zip",
+  "runDate": "2026-08-01",
+  "variable": "pm2p5_conc",
+  "unit": "\u00b5g/m3",
+  "unitFirstCodePoint": 181,
+  "fillValue": -999.0,
+  "timeHours": [
+    0.0
+  ],
+  "longitudeAxis": {
+    "first": 25.549999237060547,
+    "last": 44.95000076293945,
+    "length": 195
+  },
+  "latitudeAxis": {
+    "first": 42.45000076293945,
+    "last": 35.54999923706055,
+    "length": 70
+  },
+  "provinces": [
+    {
+      "plateCode": "34",
+      "latIndex": 15,
+      "lonIndex": 33,
+      "gridLatitude": 40.95000076293945,
+      "gridLongitude": 28.850000381469727,
+      "pm2_5": 7.564957618713379
+    },
+    {
+      "plateCode": "06",
+      "latIndex": 25,
+      "lonIndex": 73,
+      "gridLatitude": 39.95000076293945,
+      "gridLongitude": 32.849998474121094,
+      "pm2_5": 5.6823039054870605
+    },
+    {
+      "plateCode": "35",
+      "latIndex": 40,
+      "lonIndex": 16,
+      "gridLatitude": 38.45000076293945,
+      "gridLongitude": 27.149999618530273,
+      "pm2_5": 7.233901500701904
+    },
+    {
+      "plateCode": "65",
+      "latIndex": 40,
+      "lonIndex": 178,
+      "gridLatitude": 38.45000076293945,
+      "gridLongitude": 43.349998474121094,
+      "pm2_5": 9.750103950500488
+    },
+    {
+      "plateCode": "07",
+      "latIndex": 56,
+      "lonIndex": 51,
+      "gridLatitude": 36.849998474121094,
+      "gridLongitude": 30.649999618530273,
+      "pm2_5": 5.159316062927246
+    },
+    {
+      "plateCode": "02",
+      "latIndex": 47,
+      "lonIndex": 127,
+      "gridLatitude": 37.75,
+      "gridLongitude": 38.25,
+      "pm2_5": 13.838197708129883
+    },
+    {
+      "plateCode": "72",
+      "latIndex": 46,
+      "lonIndex": 156,
+      "gridLatitude": 37.849998474121094,
+      "gridLongitude": 41.150001525878906,
+      "pm2_5": 15.04265308380127
+    },
+    {
+      "plateCode": "21",
+      "latIndex": 45,
+      "lonIndex": 147,
+      "gridLatitude": 37.95000076293945,
+      "gridLongitude": 40.25,
+      "pm2_5": 22.096750259399414
+    },
+    {
+      "plateCode": "27",
+      "latIndex": 55,
+      "lonIndex": 119,
+      "gridLatitude": 36.95000076293945,
+      "gridLongitude": 37.45000076293945,
+      "pm2_5": 10.279486656188965
+    },
+    {
+      "plateCode": "79",
+      "latIndex": 57,
+      "lonIndex": 116,
+      "gridLatitude": 36.75,
+      "gridLongitude": 37.150001525878906,
+      "pm2_5": 11.528478622436523
+    },
+    {
+      "plateCode": "47",
+      "latIndex": 51,
+      "lonIndex": 152,
+      "gridLatitude": 37.349998474121094,
+      "gridLongitude": 40.75,
+      "pm2_5": 12.904401779174805
+    },
+    {
+      "plateCode": "56",
+      "latIndex": 45,
+      "lonIndex": 164,
+      "gridLatitude": 37.95000076293945,
+      "gridLongitude": 41.95000076293945,
+      "pm2_5": 12.92210865020752
+    },
+    {
+      "plateCode": "63",
+      "latIndex": 53,
+      "lonIndex": 132,
+      "gridLatitude": 37.150001525878906,
+      "gridLongitude": 38.75,
+      "pm2_5": 11.509891510009766
+    },
+    {
+      "plateCode": "73",
+      "latIndex": 49,
+      "lonIndex": 169,
+      "gridLatitude": 37.54999923706055,
+      "gridLongitude": 42.45000076293945,
+      "pm2_5": 13.665109634399414
+    },
+    {
+      "plateCode": "10",
+      "latIndex": 28,
+      "lonIndex": 24,
+      "gridLatitude": 39.650001525878906,
+      "gridLongitude": 27.950000762939453,
+      "pm2_5": 6.593105792999268
+    },
+    {
+      "plateCode": "11",
+      "latIndex": 23,
+      "lonIndex": 44,
+      "gridLatitude": 40.150001525878906,
+      "gridLongitude": 29.950000762939453,
+      "pm2_5": 6.35245943069458
+    },
+    {
+      "plateCode": "16",
+      "latIndex": 22,
+      "lonIndex": 35,
+      "gridLatitude": 40.25,
+      "gridLongitude": 29.049999237060547,
+      "pm2_5": 7.263204574584961
+    },
+    {
+      "plateCode": "17",
+      "latIndex": 23,
+      "lonIndex": 8,
+      "gridLatitude": 40.150001525878906,
+      "gridLongitude": 26.350000381469727,
+      "pm2_5": 6.664472579956055
+    },
+    {
+      "plateCode": "22",
+      "latIndex": 8,
+      "lonIndex": 10,
+      "gridLatitude": 41.650001525878906,
+      "gridLongitude": 26.549999237060547,
+      "pm2_5": 6.0383710861206055
+    },
+    {
+      "plateCode": "39",
+      "latIndex": 7,
+      "lonIndex": 17,
+      "gridLatitude": 41.75,
+      "gridLongitude": 27.25,
+      "pm2_5": 5.689125061035156
+    },
+    {
+      "plateCode": "41",
+      "latIndex": 17,
+      "lonIndex": 44,
+      "gridLatitude": 40.75,
+      "gridLongitude": 29.950000762939453,
+      "pm2_5": 8.638900756835938
+    },
+    {
+      "plateCode": "54",
+      "latIndex": 17,
+      "lonIndex": 48,
+      "gridLatitude": 40.75,
+      "gridLongitude": 30.350000381469727,
+      "pm2_5": 8.364119529724121
+    },
+    {
+      "plateCode": "59",
+      "latIndex": 15,
+      "lonIndex": 19,
+      "gridLatitude": 40.95000076293945,
+      "gridLongitude": 27.450000762939453,
+      "pm2_5": 5.7263288497924805
+    },
+    {
+      "plateCode": "77",
+      "latIndex": 18,
+      "lonIndex": 37,
+      "gridLatitude": 40.650001525878906,
+      "gridLongitude": 29.25,
+      "pm2_5": 8.742810249328613
+    },
+    {
+      "plateCode": "03",
+      "latIndex": 37,
+      "lonIndex": 50,
+      "gridLatitude": 38.75,
+      "gridLongitude": 30.549999237060547,
+      "pm2_5": 7.114416599273682
+    },
+    {
+      "plateCode": "09",
+      "latIndex": 46,
+      "lonIndex": 23,
+      "gridLatitude": 37.849998474121094,
+      "gridLongitude": 27.850000381469727,
+      "pm2_5": 6.9868035316467285
+    },
+    {
+      "plateCode": "20",
+      "latIndex": 47,
+      "lonIndex": 35,
+      "gridLatitude": 37.75,
+      "gridLongitude": 29.049999237060547,
+      "pm2_5": 5.464820861816406
+    },
+    {
+      "plateCode": "43",
+      "latIndex": 30,
+      "lonIndex": 44,
+      "gridLatitude": 39.45000076293945,
+      "gridLongitude": 29.950000762939453,
+      "pm2_5": 6.838669300079346
+    },
+    {
+      "plateCode": "45",
+      "latIndex": 38,
+      "lonIndex": 19,
+      "gridLatitude": 38.650001525878906,
+      "gridLongitude": 27.450000762939453,
+      "pm2_5": 6.310764789581299
+    },
+    {
+      "plateCode": "48",
+      "latIndex": 52,
+      "lonIndex": 28,
+      "gridLatitude": 37.25,
+      "gridLongitude": 28.350000381469727,
+      "pm2_5": 3.4957363605499268
+    },
+    {
+      "plateCode": "64",
+      "latIndex": 38,
+      "lonIndex": 39,
+      "gridLatitude": 38.650001525878906,
+      "gridLongitude": 29.450000762939453,
+      "pm2_5": 5.91021728515625
+    },
+    {
+      "plateCode": "01",
+      "latIndex": 55,
+      "lonIndex": 97,
+      "gridLatitude": 36.95000076293945,
+      "gridLongitude": 35.25,
+      "pm2_5": 13.329874992370605
+    },
+    {
+      "plateCode": "15",
+      "latIndex": 47,
+      "lonIndex": 47,
+      "gridLatitude": 37.75,
+      "gridLongitude": 30.25,
+      "pm2_5": 4.120985507965088
+    },
+    {
+      "plateCode": "31",
+      "latIndex": 61,
+      "lonIndex": 107,
+      "gridLatitude": 36.349998474121094,
+      "gridLongitude": 36.25,
+      "pm2_5": 8.446087837219238
+    },
+    {
+      "plateCode": "32",
+      "latIndex": 47,
+      "lonIndex": 52,
+      "gridLatitude": 37.75,
+      "gridLongitude": 30.75,
+      "pm2_5": 3.89543080329895
+    },
+    {
+      "plateCode": "46",
+      "latIndex": 49,
+      "lonIndex": 114,
+      "gridLatitude": 37.54999923706055,
+      "gridLongitude": 36.95000076293945,
+      "pm2_5": 16.28291893005371
+    },
+    {
+      "plateCode": "33",
+      "latIndex": 56,
+      "lonIndex": 91,
+      "gridLatitude": 36.849998474121094,
+      "gridLongitude": 34.650001525878906,
+      "pm2_5": 11.453558921813965
+    },
+    {
+      "plateCode": "80",
+      "latIndex": 53,
+      "lonIndex": 107,
+      "gridLatitude": 37.150001525878906,
+      "gridLongitude": 36.25,
+      "pm2_5": 14.50832462310791
+    },
+    {
+      "plateCode": "60",
+      "latIndex": 21,
+      "lonIndex": 110,
+      "gridLatitude": 40.349998474121094,
+      "gridLongitude": 36.54999923706055,
+      "pm2_5": 6.2712016105651855
+    },
+    {
+      "plateCode": "19",
+      "latIndex": 19,
+      "lonIndex": 94,
+      "gridLatitude": 40.54999923706055,
+      "gridLongitude": 34.95000076293945,
+      "pm2_5": 6.586796283721924
+    },
+    {
+      "plateCode": "57",
+      "latIndex": 4,
+      "lonIndex": 96,
+      "gridLatitude": 42.04999923706055,
+      "gridLongitude": 35.150001525878906,
+      "pm2_5": 6.0383710861206055
+    },
+    {
+      "plateCode": "37",
+      "latIndex": 11,
+      "lonIndex": 82,
+      "gridLatitude": 41.349998474121094,
+      "gridLongitude": 33.75,
+      "pm2_5": 5.758872032165527
+    },
+    {
+      "plateCode": "67",
+      "latIndex": 10,
+      "lonIndex": 62,
+      "gridLatitude": 41.45000076293945,
+      "gridLongitude": 31.75,
+      "pm2_5": 6.231922626495361
+    },
+    {
+      "plateCode": "74",
+      "latIndex": 8,
+      "lonIndex": 68,
+      "gridLatitude": 41.650001525878906,
+      "gridLongitude": 32.349998474121094,
+      "pm2_5": 5.015189170837402
+    },
+    {
+      "plateCode": "78",
+      "latIndex": 12,
+      "lonIndex": 71,
+      "gridLatitude": 41.25,
+      "gridLongitude": 32.650001525878906,
+      "pm2_5": 7.089235305786133
+    },
+    {
+      "plateCode": "81",
+      "latIndex": 16,
+      "lonIndex": 56,
+      "gridLatitude": 40.849998474121094,
+      "gridLongitude": 31.149999618530273,
+      "pm2_5": 15.43436050415039
+    },
+    {
+      "plateCode": "14",
+      "latIndex": 17,
+      "lonIndex": 61,
+      "gridLatitude": 40.75,
+      "gridLongitude": 31.649999618530273,
+      "pm2_5": 9.933281898498535
+    },
+    {
+      "plateCode": "04",
+      "latIndex": 27,
+      "lonIndex": 175,
+      "gridLatitude": 39.75,
+      "gridLongitude": 43.04999923706055,
+      "pm2_5": 7.882001876831055
+    },
+    {
+      "plateCode": "75",
+      "latIndex": 13,
+      "lonIndex": 172,
+      "gridLatitude": 41.150001525878906,
+      "gridLongitude": 42.75,
+      "pm2_5": 10.582120895385742
+    },
+    {
+      "plateCode": "12",
+      "latIndex": 36,
+      "lonIndex": 150,
+      "gridLatitude": 38.849998474121094,
+      "gridLongitude": 40.54999923706055,
+      "pm2_5": 12.208382606506348
+    },
+    {
+      "plateCode": "13",
+      "latIndex": 40,
+      "lonIndex": 166,
+      "gridLatitude": 38.45000076293945,
+      "gridLongitude": 42.150001525878906,
+      "pm2_5": 9.322641372680664
+    },
+    {
+      "plateCode": "23",
+      "latIndex": 38,
+      "lonIndex": 137,
+      "gridLatitude": 38.650001525878906,
+      "gridLongitude": 39.25,
+      "pm2_5": 11.039824485778809
+    },
+    {
+      "plateCode": "24",
+      "latIndex": 27,
+      "lonIndex": 139,
+      "gridLatitude": 39.75,
+      "gridLongitude": 39.45000076293945,
+      "pm2_5": 7.648034572601318
+    },
+    {
+      "plateCode": "25",
+      "latIndex": 25,
+      "lonIndex": 157,
+      "gridLatitude": 39.95000076293945,
+      "gridLongitude": 41.25,
+      "pm2_5": 8.980870246887207
+    },
+    {
+      "plateCode": "30",
+      "latIndex": 49,
+      "lonIndex": 182,
+      "gridLatitude": 37.54999923706055,
+      "gridLongitude": 43.75,
+      "pm2_5": 9.996491432189941
+    },
+    {
+      "plateCode": "76",
+      "latIndex": 25,
+      "lonIndex": 185,
+      "gridLatitude": 39.95000076293945,
+      "gridLongitude": 44.04999923706055,
+      "pm2_5": 9.050020217895508
+    },
+    {
+      "plateCode": "36",
+      "latIndex": 18,
+      "lonIndex": 176,
+      "gridLatitude": 40.650001525878906,
+      "gridLongitude": 43.150001525878906,
+      "pm2_5": 10.1596040725708
+    },
+    {
+      "plateCode": "44",
+      "latIndex": 41,
+      "lonIndex": 127,
+      "gridLatitude": 38.349998474121094,
+      "gridLongitude": 38.25,
+      "pm2_5": 8.250262260437012
+    },
+    {
+      "plateCode": "49",
+      "latIndex": 37,
+      "lonIndex": 160,
+      "gridLatitude": 38.75,
+      "gridLongitude": 41.54999923706055,
+      "pm2_5": 11.509891510009766
+    },
+    {
+      "plateCode": "62",
+      "latIndex": 33,
+      "lonIndex": 140,
+      "gridLatitude": 39.150001525878906,
+      "gridLongitude": 39.54999923706055,
+      "pm2_5": 11.235962867736816
+    },
+    {
+      "plateCode": "42",
+      "latIndex": 46,
+      "lonIndex": 69,
+      "gridLatitude": 37.849998474121094,
+      "gridLongitude": 32.45000076293945,
+      "pm2_5": 6.122982501983643
+    },
+    {
+      "plateCode": "38",
+      "latIndex": 38,
+      "lonIndex": 99,
+      "gridLatitude": 38.650001525878906,
+      "gridLongitude": 35.45000076293945,
+      "pm2_5": 7.2257161140441895
+    },
+    {
+      "plateCode": "26",
+      "latIndex": 27,
+      "lonIndex": 50,
+      "gridLatitude": 39.75,
+      "gridLongitude": 30.549999237060547,
+      "pm2_5": 8.495001792907715
+    },
+    {
+      "plateCode": "58",
+      "latIndex": 27,
+      "lonIndex": 115,
+      "gridLatitude": 39.75,
+      "gridLongitude": 37.04999923706055,
+      "pm2_5": 6.131764888763428
+    },
+    {
+      "plateCode": "66",
+      "latIndex": 26,
+      "lonIndex": 93,
+      "gridLatitude": 39.849998474121094,
+      "gridLongitude": 34.849998474121094,
+      "pm2_5": 6.776710033416748
+    },
+    {
+      "plateCode": "40",
+      "latIndex": 33,
+      "lonIndex": 86,
+      "gridLatitude": 39.150001525878906,
+      "gridLongitude": 34.150001525878906,
+      "pm2_5": 5.921955585479736
+    },
+    {
+      "plateCode": "50",
+      "latIndex": 38,
+      "lonIndex": 92,
+      "gridLatitude": 38.650001525878906,
+      "gridLongitude": 34.75,
+      "pm2_5": 5.9100751876831055
+    },
+    {
+      "plateCode": "51",
+      "latIndex": 45,
+      "lonIndex": 91,
+      "gridLatitude": 37.95000076293945,
+      "gridLongitude": 34.650001525878906,
+      "pm2_5": 5.630519390106201
+    },
+    {
+      "plateCode": "68",
+      "latIndex": 41,
+      "lonIndex": 84,
+      "gridLatitude": 38.349998474121094,
+      "gridLongitude": 33.95000076293945,
+      "pm2_5": 5.632480621337891
+    },
+    {
+      "plateCode": "70",
+      "latIndex": 53,
+      "lonIndex": 77,
+      "gridLatitude": 37.150001525878906,
+      "gridLongitude": 33.25,
+      "pm2_5": 5.404282569885254
+    },
+    {
+      "plateCode": "71",
+      "latIndex": 26,
+      "lonIndex": 80,
+      "gridLatitude": 39.849998474121094,
+      "gridLongitude": 33.54999923706055,
+      "pm2_5": 9.147933006286621
+    },
+    {
+      "plateCode": "18",
+      "latIndex": 18,
+      "lonIndex": 81,
+      "gridLatitude": 40.650001525878906,
+      "gridLongitude": 33.650001525878906,
+      "pm2_5": 3.8647353649139404
+    },
+    {
+      "plateCode": "05",
+      "latIndex": 18,
+      "lonIndex": 103,
+      "gridLatitude": 40.650001525878906,
+      "gridLongitude": 35.849998474121094,
+      "pm2_5": 7.967153549194336
+    },
+    {
+      "plateCode": "08",
+      "latIndex": 13,
+      "lonIndex": 163,
+      "gridLatitude": 41.150001525878906,
+      "gridLongitude": 41.849998474121094,
+      "pm2_5": 6.687863826751709
+    },
+    {
+      "plateCode": "69",
+      "latIndex": 22,
+      "lonIndex": 147,
+      "gridLatitude": 40.25,
+      "gridLongitude": 40.25,
+      "pm2_5": 7.814301490783691
+    },
+    {
+      "plateCode": "28",
+      "latIndex": 15,
+      "lonIndex": 128,
+      "gridLatitude": 40.95000076293945,
+      "gridLongitude": 38.349998474121094,
+      "pm2_5": 5.441742420196533
+    },
+    {
+      "plateCode": "29",
+      "latIndex": 20,
+      "lonIndex": 139,
+      "gridLatitude": 40.45000076293945,
+      "gridLongitude": 39.45000076293945,
+      "pm2_5": 4.402502536773682
+    },
+    {
+      "plateCode": "52",
+      "latIndex": 15,
+      "lonIndex": 123,
+      "gridLatitude": 40.95000076293945,
+      "gridLongitude": 37.849998474121094,
+      "pm2_5": 6.620447635650635
+    },
+    {
+      "plateCode": "53",
+      "latIndex": 14,
+      "lonIndex": 150,
+      "gridLatitude": 41.04999923706055,
+      "gridLongitude": 40.54999923706055,
+      "pm2_5": 3.9729084968566895
+    },
+    {
+      "plateCode": "55",
+      "latIndex": 11,
+      "lonIndex": 107,
+      "gridLatitude": 41.349998474121094,
+      "gridLongitude": 36.25,
+      "pm2_5": 5.805540084838867
+    },
+    {
+      "plateCode": "61",
+      "latIndex": 15,
+      "lonIndex": 142,
+      "gridLatitude": 40.95000076293945,
+      "gridLongitude": 39.75,
+      "pm2_5": 6.292063236236572
+    }
+  ],
+  "crossValidation": {
+    "readers": [
+      "netcdf3-ts@1 (the TypeScript reader under test, via the probe run artifact)",
+      "independent Python stdlib struct reader (session scratch, nc3_reader.py)",
+      "ncdump (netCDF library, Homebrew) at -p 9"
+    ],
+    "result": "ncdump vs Python: 13650/13650 grid values bit-exact after float32 round-trip; Python vs netcdf3-ts: 81/81 province cells bit-exact (production job step 0, same model run and subset)",
+    "validatedAtUtc": "2026-08-01"
+  }
+}
