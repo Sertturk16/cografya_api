@@ -176,9 +176,6 @@ function decodeCamsFileInner(archive: Uint8Array, options: CamsDecodeOptions): C
   const longitudeAnalysis = analyseAxis(longitudeValues, DIMENSION_LONGITUDE);
   const latitudeAnalysis = analyseAxis(latitudeValues, DIMENSION_LATITUDE);
 
-  // ── time: hour offsets + the run-day cross-check ──────────────────────────
-  const timeHours = readTimeHours(file, options.expectedRunDate);
-
   // ── level must be a single surface level ──────────────────────────────────
   const levelDimension = file.dimensions.find((dimension) => dimension.name === DIMENSION_LEVEL);
   if (levelDimension === undefined || levelDimension.length !== 1) {
@@ -254,6 +251,13 @@ function decodeCamsFileInner(archive: Uint8Array, options: CamsDecodeOptions): C
     fillValues[pollutant] = fillAttribute.value[0];
     fileVariableNames[pollutant] = mapping.fileVariableName;
   }
+
+  // ── time: hour offsets + the run-day cross-check ──────────────────────────
+  // Deliberately AFTER the per-pollutant pins: a re-typed data variable changes the classic
+  // record stride, which skews every time-record read — reading time first would surface that
+  // corruption as a confusing hour-ladder refusal instead of naming the root cause (the
+  // re-typed variable). Both orders fail closed; this order diagnoses.
+  const timeHours = readTimeHours(file, options.expectedRunDate);
 
   // ── map every point, then extract ─────────────────────────────────────────
   const mappings = options.points.map((point) => {
