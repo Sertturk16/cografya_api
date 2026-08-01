@@ -42,6 +42,10 @@ import { readMessageProfile, scanGribMessages, type Grib2MessageProfile } from '
  * right but the bitmap wrong would hand back a full-length array of plausible numbers with the
  * land silently filled in. `finite === numberOfEncodedValues` is that failure's signature.
  *
+ * That cross-check is between two readings of the SAME bytes, so it cannot see a message that is
+ * internally perfect and simply from another cycle. The caller's own request closes that last gap
+ * — see {@link EcmwfExpectedAttribution}.
+ *
  * ## A decoder panic ABORTS THE PROCESS — known, partly closed, and surfaced
  * The published binary is built with `panic = abort`: a Rust panic inside it is not a JavaScript
  * exception, no `try/catch` here can see it, and the Node process dies with exit 134
@@ -70,6 +74,27 @@ import { readMessageProfile, scanGribMessages, type Grib2MessageProfile } from '
  * is checked rather than asserted.
  */
 
+/**
+ * What the CALLER asked the provider for — the one claim about these bytes that nothing else can
+ * corroborate.
+ *
+ * Every other check in this file compares the bytes against themselves or against a pinned
+ * constant: the message says it is CCSDS on a 1440 × 721 grid, and it is. But WHICH cycle and
+ * WHICH step a message belongs to is only ever checked against the decoder's own reading of the
+ * same header — so a stale CDN copy, a mid-run re-publication, or a mistyped URL hands back a
+ * perfectly valid message from the wrong valid time with every gate green. Wind and waves would
+ * then be attributed to a time they do not describe, and in M3b that becomes a published
+ * `modelRunAtUtc` that is simply false.
+ *
+ * The request is the only independent witness, so it is passed in and compared.
+ */
+export interface EcmwfExpectedAttribution {
+  /** The cycle that was requested. GRIB section 1's reference time must be exactly this. */
+  readonly referenceTimeUtc: Date;
+  /** The forecast step that was requested, hours. Section 4's forecast time must be exactly this. */
+  readonly forecastHours: number;
+}
+
 /** One decoded field: raw values in scanning-mode-0 order, plus the envelope they came from. */
 export interface DecodedGribField {
   /** OUR parameter name, from the `.index` record — never the decoder's abbreviation. */
@@ -93,10 +118,15 @@ export interface DecodedGribField {
  * same lengths. A response that merely CONTAINS the right messages somewhere else is a response
  * whose parameter attribution we cannot justify, and attribution is the thing that decides
  * whether a number is published as wind or as wave direction.
+ *
+ * `attribution` is the other half of that claim: WHICH cycle and step these bytes were asked for.
+ * It is required rather than optional, because a caller that cannot say what it requested has no
+ * business deciding what the numbers mean (see {@link EcmwfExpectedAttribution}).
  */
 export function decodeGribRange(
   bytes: Uint8Array,
   expected: readonly EcmwfRangeMember[],
+  attribution: EcmwfExpectedAttribution,
 ): DecodedGribField[] {
   const locations = scanGribMessages(bytes);
 
@@ -123,7 +153,7 @@ export function decodeGribRange(
 
     const param = assertKnownParam(member.param);
     const profile = readMessageProfile(bytes, location);
-    assertSupportedProfile(profile, param);
+    assertSupportedProfile(profile, param, attribution);
 
     const values = decodeValues(bytes, location, profile, param);
     return { param, profile, values };
@@ -137,9 +167,35 @@ export function decodeGribRange(
  * in `test/fixtures/ecmwf/eccodes-reference.json`. None of them is defensive programming for a
  * case nobody expects: each one is a way the provider could change what it publishes without
  * changing what it looks like.
+ *
+ * `expected` adds the one check the bytes cannot make for themselves — that this message is the
+ * cycle and step that were REQUESTED, not merely a self-consistent message from some other run.
  */
-export function assertSupportedProfile(profile: Grib2MessageProfile, param: EcmwfParam): void {
+export function assertSupportedProfile(
+  profile: Grib2MessageProfile,
+  param: EcmwfParam,
+  expected: EcmwfExpectedAttribution,
+): void {
   const problems: string[] = [];
+
+  // The stale-copy guard. Everything else here asks "are these bytes a message we understand?";
+  // this asks "are they the message we asked for?". A CDN serving yesterday's object under
+  // today's URL, or a cycle re-published mid-download, produces a fully valid GRIB message whose
+  // only defect is that it belongs to a different valid time — invisible to every other gate,
+  // and the whole point of the ingest is to say WHEN a number is for.
+  if (profile.referenceTimeUtc.getTime() !== expected.referenceTimeUtc.getTime()) {
+    problems.push(
+      `the message's model run is ${profile.referenceTimeUtc.toISOString()}, but the bytes were ` +
+        `requested from the ${expected.referenceTimeUtc.toISOString()} cycle — a stale or ` +
+        `re-published copy would attribute these values to the wrong valid time`,
+    );
+  }
+  if (profile.forecastHours !== expected.forecastHours) {
+    problems.push(
+      `the message is step +${String(profile.forecastHours)} h, but ` +
+        `+${String(expected.forecastHours)} h was requested`,
+    );
+  }
 
   if (profile.gridDefinitionTemplate !== ECMWF_GRID_DEFINITION_TEMPLATE) {
     problems.push(

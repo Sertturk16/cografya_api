@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { EcmwfContractError } from './ecmwf.errors';
 import {
+  assertIndexRecordsMatchRequest,
   mergeByteRanges,
   parseEcmwfIndex,
   selectIndexRecords,
@@ -197,5 +198,37 @@ describe('toRangeHeader', () => {
     // Inclusive on BOTH ends: `bytes=10-14` is five bytes. Writing the exclusive end here would
     // fetch one byte too many and break the message-boundary decomposition.
     expect(range && toRangeHeader(range)).toBe('bytes=10-14');
+  });
+});
+
+describe('assertIndexRecordsMatchRequest', () => {
+  const REQUESTED = { date: '20260730', time: '1200', step: '72', stream: 'wave' };
+
+  it('accepts a real index answered for the run that was asked for', () => {
+    const records = parseEcmwfIndex(readFixture('20260730-12z-wave-step72.index'));
+
+    expect(() => {
+      assertIndexRecordsMatchRequest(records, REQUESTED);
+    }).not.toThrow();
+  });
+
+  it.each([
+    ['a stale cycle date', { date: '20260729' }],
+    ['a different cycle hour', { time: '0000' }],
+    ['a different forecast step', { step: '75' }],
+    ['a different stream', { stream: 'oper' }],
+  ])('refuses an index describing %s', (_label: string, drift: Partial<EcmwfIndexRecord>) => {
+    // Each of these is a well-formed index for a DIFFERENT run — the shape a stale CDN copy or a
+    // mid-run re-publication has. Every byte range planned from it would be downloaded, decoded
+    // and attributed to a valid time it does not describe.
+    expect(() => {
+      assertIndexRecordsMatchRequest([record(drift)], REQUESTED);
+    }).toThrow(EcmwfContractError);
+  });
+
+  it('names the line and the field that disagree', () => {
+    expect(() => {
+      assertIndexRecordsMatchRequest([record({ step: '75', lineNumber: 7 })], REQUESTED);
+    }).toThrow(/line 7 .* step "75"/);
   });
 });

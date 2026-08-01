@@ -33,6 +33,19 @@ export interface EcmwfProbeRequestRecord {
   durationMs: number;
   /** sha256 of the body, so a re-run can prove exactly what changed. */
   sha256: string;
+  /**
+   * True when this request belongs to a cycle the probe WALKED AWAY FROM.
+   *
+   * ECMWF publishes 7–9 h after the cycle hour, so the newest candidate is regularly not there
+   * yet and the probe falls back to the previous 6-hourly slot. That 404 is the fallback working,
+   * not a transport failure — it must not fail the transport gate (`g8`) and it must not be
+   * counted in `totals`, which project what one cycle of the real ingest costs. It is still
+   * RECORDED, because "which cycles were tried" is exactly what someone re-reading a run needs.
+   *
+   * Optional because the first committed artifact (2026-07-30 12z) predates the field and had no
+   * abandoned candidate: absent means the same thing as `false`.
+   */
+  abandonedCandidate?: boolean;
 }
 
 /**
@@ -151,8 +164,11 @@ export interface MarineEcmwfProbeArtifact {
     quote: string;
   };
   requests: EcmwfProbeRequestRecord[];
+  /** Covers the requests that produced the evidence — see {@link EcmwfProbeRequestRecord.abandonedCandidate}. */
   totals: {
     requestCount: number;
+    /** Requests spent on cycle candidates that were walked away from. Optional for the same reason the flag is. */
+    abandonedRequestCount?: number;
     downloadedBytes: number;
     downloadMs: number;
     decodeMs: number;

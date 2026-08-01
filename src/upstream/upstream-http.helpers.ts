@@ -8,11 +8,14 @@ import type { UpstreamFailureKind } from './upstream.types';
  * biggest measured Faz-1 body is Open-Meteo's 31-point marine batch at ~135 KB) and far below
  * anything that could hurt.
  *
- * Deliberately SEPARATE from the probe tool's 8 MB cap in `src/database/marine/`. That one
- * guards a hand-run, offline import whose evidence is committed to the repo; this one guards
- * the request path of a live server. They have different lifecycles, different limits and
- * different failure modes, and collapsing them would tie the frozen import evidence to a
- * runtime config surface. If you change one, decide about the other on purpose.
+ * Deliberately SEPARATE from the import tools' own caps in `src/database/` (8 MB for the M1
+ * marine probe and the climate fetch, 16 MB for the ECMWF probe, whose byte ranges are megabytes
+ * of GRIB by nature). Those guard hand-run, offline imports whose evidence is committed to the
+ * repo; this one guards the request path of a live server. They have different lifecycles,
+ * different limits and different failure modes, and collapsing them would tie the frozen import
+ * evidence to a runtime config surface. If you change one, decide about the other on purpose —
+ * the LIMIT is what differs, never the metering, which every caller gets from
+ * {@link readBodyCappedBytes}.
  */
 export const UPSTREAM_MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
 

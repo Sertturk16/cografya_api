@@ -38,7 +38,10 @@ import type {
  *   decoder that ignores the land mask is caught;
  * - **the wind derivation**, recomputed from the recorded raw components: the artifact's derived
  *   bearing must still be what the current code produces, so a convention flip cannot land
- *   without the evidence disagreeing.
+ *   without the evidence disagreeing;
+ * - **the cycle and step attribution**: every message's model run and forecast step must be the
+ *   ones the artifact says the probe asked for. This is the only claim about the bytes that the
+ *   bytes cannot make for themselves — a stale copy of another run is a perfectly valid message.
  */
 
 function check(id: string, passed: boolean, detail: string): EcmwfProbeAssertionResult {
@@ -106,6 +109,20 @@ export function evaluateEcmwfProbeAssertions(
           `(${String(point.gridLatitude)}, ${String(point.gridLongitude)}), re-derivation says ` +
           `${String(mapping.index)} (${String(mapping.gridLatitude)}, ` +
           `${String(mapping.gridLongitude)})`,
+      );
+    }
+    // The offset and its ceiling are re-derived too, not read back. g2 below judges the recorded
+    // numbers against each other, which proves nothing if the recorded numbers are themselves
+    // stale — the docblock above promises a re-derivation, so this is it.
+    if (
+      !numbersMatch(mapping.distanceKm, point.distanceKm) ||
+      !numbersMatch(mapping.thresholdKm, point.thresholdKm) ||
+      mapping.withinThreshold !== point.withinThreshold
+    ) {
+      mappingDrift.push(
+        `${point.slugTr}: artifact records ${point.distanceKm.toFixed(3)} km against a ` +
+          `${point.thresholdKm.toFixed(3)} km ceiling, re-derivation gives ` +
+          `${mapping.distanceKm.toFixed(3)} km against ${mapping.thresholdKm.toFixed(3)} km`,
       );
     }
     maxDistanceKm = Math.max(maxDistanceKm, point.distanceKm);
@@ -275,8 +292,19 @@ export function evaluateEcmwfProbeAssertions(
     ),
   );
 
-  // ── g8: every recorded request actually succeeded ───────────────────────────
-  const badRequests = artifact.requests.filter(
+  // ── g8: every request that produced evidence actually succeeded ─────────────
+  //
+  // Scoped to the evidence, NOT to every recorded request. The probe walks back through cycle
+  // candidates because ECMWF publishes 7–9 h late, so an expected 404 on a not-yet-published
+  // cycle is the documented fallback working exactly as designed. Judging those as transport
+  // failures made this gate fail the very run the fallback exists to rescue — a red that means
+  // "correct behaviour happened", which is the kind that teaches an operator to stop reading the
+  // gates at all (review #75).
+  const evidenceRequests = artifact.requests.filter(
+    (request) => request.abandonedCandidate !== true,
+  );
+  const abandonedCount = artifact.requests.length - evidenceRequests.length;
+  const badRequests = evidenceRequests.filter(
     (request) => request.httpStatus !== 200 && request.httpStatus !== 206,
   );
   results.push(
@@ -284,12 +312,60 @@ export function evaluateEcmwfProbeAssertions(
       'g8-transport',
       badRequests.length === 0,
       badRequests.length === 0
-        ? `${String(artifact.requests.length)} request(s), ` +
+        ? `${String(evidenceRequests.length)} request(s), ` +
             `${String(artifact.totals.downloadedBytes)} B in ` +
-            `${String(artifact.totals.downloadMs)} ms`
+            `${String(artifact.totals.downloadMs)} ms` +
+            (abandonedCount > 0
+              ? `; ${String(abandonedCount)} further request(s) to abandoned cycle candidate(s)`
+              : '')
         : badRequests
             .map((request) => `${request.label}: HTTP ${String(request.httpStatus)}`)
             .join('; '),
+    ),
+  );
+
+  // ── g9: the bytes are the cycle and step the artifact claims to have asked for ──
+  //
+  // The last unguarded claim about these numbers. Every other gate compares the evidence with
+  // itself or with a pinned constant; none of them can tell a valid message of the WRONG RUN
+  // (a stale CDN copy, a cycle re-published mid-download) from the right one. Get it wrong and
+  // wind and waves are published against a valid time they do not describe — with every gate
+  // green. `assertSupportedProfile` refuses it at decode time; this is the same claim re-checked
+  // against the committed evidence, so an artifact that has drifted from its own header says so.
+  const attributionProblems: string[] = [];
+  const expectedReferenceMs = Date.parse(artifact.cycleUtc);
+  if (Number.isNaN(expectedReferenceMs)) {
+    attributionProblems.push(`the artifact's own cycleUtc "${artifact.cycleUtc}" is unreadable`);
+  }
+  for (const message of artifact.messages) {
+    const referenceMs = Date.parse(message.referenceTimeUtc);
+    if (referenceMs !== expectedReferenceMs) {
+      attributionProblems.push(
+        `${message.param}: model run ${message.referenceTimeUtc}, but the run was requested from ` +
+          `the ${artifact.cycleUtc} cycle`,
+      );
+    }
+    if (message.forecastHours !== artifact.stepHours) {
+      attributionProblems.push(
+        `${message.param}: step +${String(message.forecastHours)} h, but +` +
+          `${String(artifact.stepHours)} h was requested`,
+      );
+    }
+    if (Date.parse(message.validTimeUtc) !== referenceMs + message.forecastHours * 3_600_000) {
+      attributionProblems.push(
+        `${message.param}: valid time ${message.validTimeUtc} is not ${message.referenceTimeUtc} ` +
+          `plus ${String(message.forecastHours)} h`,
+      );
+    }
+  }
+  results.push(
+    check(
+      'g9-cycle-step-attribution',
+      attributionProblems.length === 0,
+      attributionProblems.length === 0
+        ? `${String(artifact.messages.length)} message(s), all from ${artifact.cycleUtc} step +` +
+            `${String(artifact.stepHours)} h`
+        : attributionProblems.join('; '),
     ),
   );
 

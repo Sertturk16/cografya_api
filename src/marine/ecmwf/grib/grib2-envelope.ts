@@ -234,11 +234,18 @@ export function readMessageProfile(
 
   const sections = readSectionMap(bytes, location);
 
-  const identification = requireSection(sections, 1, offset);
-  const grid = requireSection(sections, 3, offset);
-  const product = requireSection(sections, 4, offset);
-  const representation = requireSection(sections, 5, offset);
-  const bitmap = requireSection(sections, 6, offset);
+  // Each section is required to be long enough for the LAST octet this function reads out of it,
+  // and the minimum is stated at the call site so it can be checked against the reads below.
+  // Without it a short section is read THROUGH: the section map only proves a section fits inside
+  // the message, so a section 3 that declares 40 bytes would have its `scanningMode` read out of
+  // section 4's bytes — a number, from the wrong place, with no exception anywhere. Refusing up
+  // front also keeps the failure inside the typed contract instead of surfacing as a `DataView`
+  // RangeError at the end of a truncated message.
+  const identification = requireSection(sections, 1, offset, 21);
+  const grid = requireSection(sections, 3, offset, 72);
+  const product = requireSection(sections, 4, offset, 22);
+  const representation = requireSection(sections, 5, offset, 20);
+  const bitmap = requireSection(sections, 6, offset, 6);
 
   // ── Section 1: reference time (octets 13–19, 1-based) ────────────────────────
   const referenceTimeUtc = new Date(
@@ -342,11 +349,19 @@ function requireSection(
   sections: ReadonlyMap<number, Grib2SectionExtent>,
   number: number,
   messageOffset: number,
+  minimumLength: number,
 ): Grib2SectionExtent {
   const section = sections.get(number);
   if (section === undefined) {
     throw new EcmwfContractError(
       `GRIB message at ${String(messageOffset)} has no section ${String(number)}.`,
+    );
+  }
+  if (section.length < minimumLength) {
+    throw new EcmwfContractError(
+      `GRIB section ${String(number)} of the message at ${String(messageOffset)} declares ` +
+        `${String(section.length)} bytes, fewer than the ${String(minimumLength)} this reader ` +
+        `needs — a shorter section would be read through into the next one.`,
     );
   }
   return section;

@@ -174,7 +174,81 @@ describe('evaluateEcmwfProbeAssertions — the gates actually bite', () => {
       'g6-wind-derivation-reproducible',
       'g7-observation-matrix',
       'g8-transport',
+      'g9-cycle-step-attribution',
     ]);
+  });
+
+  it('does not fail the transport gate for the walk-back to an earlier cycle', () => {
+    // The probe's documented fallback: the newest candidate is not published yet (ECMWF is 7–9 h
+    // late by design), so it 404s and the run continues on the previous slot. Recording that 404
+    // is the point of the record; scoring it as a transport failure would make a CORRECT run exit
+    // non-zero, which is the false red that teaches an operator to ignore the gates.
+    const artifact = clone(loadArtifact());
+    artifact.requests.unshift({
+      label: 'oper.index',
+      url: 'https://data.ecmwf.int/forecasts/20260730/18z/ifs/0p25/oper/x.index',
+      method: 'GET',
+      rangeHeader: null,
+      httpStatus: 404,
+      contentType: 'text/html',
+      bytes: 0,
+      durationMs: 12,
+      sha256: 'n/a',
+      abandonedCandidate: true,
+    });
+
+    const results = evaluateEcmwfProbeAssertions(artifact);
+    expect(collectEcmwfProbeFailures(artifact)).toEqual([]);
+    expect(results.find((result) => result.id === 'g8-transport')?.detail).toContain(
+      'abandoned cycle candidate',
+    );
+  });
+
+  it('still fails the transport gate for a non-200 that is NOT an abandoned candidate', () => {
+    const artifact = clone(loadArtifact());
+    const request = artifact.requests[0];
+    expect(request).toBeDefined();
+    if (request === undefined) return;
+    request.httpStatus = 404;
+
+    expect(collectEcmwfProbeFailures(artifact).join(' ')).toContain('g8-transport');
+  });
+
+  it('fails when a message belongs to a cycle other than the one the artifact asked for', () => {
+    // The stale-copy case: a perfectly valid message from the previous run. Every other gate is
+    // green, because nothing is wrong with the bytes — only with which run they are.
+    const artifact = clone(loadArtifact());
+    const message = artifact.messages[0];
+    expect(message).toBeDefined();
+    if (message === undefined) return;
+    message.referenceTimeUtc = new Date(
+      Date.parse(message.referenceTimeUtc) - 6 * 3_600_000,
+    ).toISOString();
+
+    expect(collectEcmwfProbeFailures(artifact).join(' ')).toContain('g9-cycle-step-attribution');
+  });
+
+  it('fails when a message belongs to a step other than the one the artifact asked for', () => {
+    const artifact = clone(loadArtifact());
+    const message = artifact.messages[0];
+    expect(message).toBeDefined();
+    if (message === undefined) return;
+    message.forecastHours += 3;
+
+    expect(collectEcmwfProbeFailures(artifact).join(' ')).toContain('g9-cycle-step-attribution');
+  });
+
+  it('fails when the recorded in-cell offset is not the one the mapping produces', () => {
+    // g2 judges the recorded distance against the recorded ceiling, which proves nothing if both
+    // are stale. g1 re-derives them, so a distance edited to sit comfortably inside its threshold
+    // is still caught.
+    const artifact = clone(loadArtifact());
+    const point = artifact.points[0];
+    expect(point).toBeDefined();
+    if (point === undefined) return;
+    point.distanceKm = 0;
+
+    expect(collectEcmwfProbeFailures(artifact).join(' ')).toContain('g1-grid-mapping-reproducible');
   });
 });
 

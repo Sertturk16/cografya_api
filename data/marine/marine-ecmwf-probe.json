@@ -1244,6 +1244,11 @@
       "id": "g8-transport",
       "passed": true,
       "detail": "5 request(s), 3359219 B in 2839 ms"
+    },
+    {
+      "id": "g9-cycle-step-attribution",
+      "passed": true,
+      "detail": "4 message(s), all from 2026-07-30T12:00:00.000Z step +72 h"
     }
   ]
 }

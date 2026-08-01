@@ -156,6 +156,53 @@ export function selectIndexRecords(
   return selected;
 }
 
+/** What the caller asked the provider for, in the `.index` file's own vocabulary. */
+export interface EcmwfIndexExpectation {
+  /** Cycle date as the index writes it, `YYYYMMDD`. */
+  readonly date: string;
+  /** Cycle hour as the index writes it, `HHMM`. */
+  readonly time: string;
+  /** Forecast step as the index writes it — hours, no unit. */
+  readonly step: string;
+  /** Stream, `oper` or `wave`. */
+  readonly stream: string;
+}
+
+/**
+ * Refuse an index whose records are not the cycle, step and stream that were requested.
+ *
+ * ## Why this exists when the URL already encodes all three
+ * Because the URL is a request and the file is an answer, and nothing in between guarantees they
+ * agree. A CDN edge holding a stale object, a cycle re-published while we were reading it, or a
+ * mistyped path all produce a perfectly well-formed `.index` describing a DIFFERENT run — and
+ * every byte range planned from it would then be downloaded, decoded and attributed to the time
+ * we thought we asked for. The GRIB messages carry the same guard
+ * (`assertSupportedProfile`); this one fails ~2 MB of download earlier and names the cause.
+ *
+ * These four fields are parsed and REQUIRED on every line already. Requiring them and then never
+ * reading them would be the strangest half of both worlds.
+ */
+export function assertIndexRecordsMatchRequest(
+  records: readonly EcmwfIndexRecord[],
+  expected: EcmwfIndexExpectation,
+): void {
+  for (const record of records) {
+    const mismatches: string[] = [];
+    if (record.date !== expected.date) mismatches.push(`date "${record.date}"`);
+    if (record.time !== expected.time) mismatches.push(`time "${record.time}"`);
+    if (record.step !== expected.step) mismatches.push(`step "${record.step}"`);
+    if (record.stream !== expected.stream) mismatches.push(`stream "${record.stream}"`);
+    if (mismatches.length > 0) {
+      throw new EcmwfContractError(
+        `.index line ${String(record.lineNumber)} ("${record.param}") describes ` +
+          `${mismatches.join(', ')}, but this file was requested as ${expected.stream} ` +
+          `${expected.date} ${expected.time} step ${expected.step}. The answer is not the run ` +
+          `that was asked for, so nothing planned from it can be attributed to a valid time.`,
+      );
+    }
+  }
+}
+
 /**
  * Plan the HTTP `Range` requests for a set of selected records: merge the ones whose bytes are
  * physically adjacent, leave the rest alone.

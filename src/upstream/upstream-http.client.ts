@@ -33,9 +33,9 @@ const RETRY_BACKOFF_MS = 250;
 const MAX_ATTEMPTS = 2;
 
 interface UpstreamRequestOptionsBase {
-  /** OUR label for the provider (`open-meteo`, `cmems`) — the metrics and breaker key. */
+  /** OUR label for the provider (`cmems`, `ecmwf`) — the metrics and breaker key. */
   providerId: string;
-  /** Fine-grained label for logs (`cmems.thetao`, `open-meteo.marine-batch`). */
+  /** Fine-grained label for logs (`cmems.thetao`, `ecmwf.oper-range`). */
   label: string;
   url: string;
   /** The operation's total budget. Shared across every call the operation makes. */

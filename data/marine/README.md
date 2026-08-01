@@ -172,6 +172,12 @@ parameters we publish, by byte range: two sidecar `.index` files plus three rang
 pair is byte-adjacent and merges into one request; `10u`/`10v` never are). It has no `load` phase —
 M3a stores nothing, and persistence lands in M3b.
 
+Five requests is the clean case. ECMWF publishes 7–9 h after the cycle hour, so the newest
+candidate is sometimes not there yet and the probe walks back to the previous 6-hourly slot. Those
+extra requests are recorded with `abandonedCandidate: true` and are deliberately excluded from both
+`totals` (which projects what one cycle of the real ingest costs) and the `g8-transport` gate: an
+expected 404 on an unpublished cycle is the fallback working, not a transport failure.
+
 The artifact is written **even when assertions fail**, on purpose — a failed run's evidence
 is what you need in order to move a coordinate. The process still exits non-zero and
 `--phase=load` refuses the artifact independently, so a failing artifact cannot reach the

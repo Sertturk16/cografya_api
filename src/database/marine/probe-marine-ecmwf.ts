@@ -13,6 +13,7 @@ import {
 import { EcmwfContractError } from '../../marine/ecmwf/ecmwf.errors';
 import { mapPointToGrid } from '../../marine/ecmwf/ecmwf-grid';
 import {
+  assertIndexRecordsMatchRequest,
   mergeByteRanges,
   parseEcmwfIndex,
   selectIndexRecords,
@@ -25,6 +26,10 @@ import {
   readCell,
   type DecodedGribField,
 } from '../../marine/ecmwf/grib/grib-decoder.adapter';
+import {
+  readBodyCappedBytes,
+  UpstreamOversizedResponseError,
+} from '../../upstream/upstream-http.helpers';
 import { MarineImportError } from './marine-assertions';
 import { MARINE_POINT_CANDIDATES } from './marine-candidates';
 import type {
@@ -64,6 +69,12 @@ import { evaluateEcmwfProbeAssertions } from './marine-ecmwf-assertions';
  * CLI through its metrics/budget/breaker collaborators would couple a yearly hand-run script to
  * the runtime's configuration surface. The binary body branch this PR adds to that client is for
  * M3b's scheduled ingest, which does run inside the server and does need every guard.
+ *
+ * What is NOT re-implemented here is the byte cap itself: the body is read through
+ * `readBodyCappedBytes`, the same stream-metering primitive the client uses. `Content-Length` is
+ * a hint that an absent or lying header defeats, and a cap enforced after `arrayBuffer()` has
+ * already buffered the body is not a cap. There is exactly one correct way to meter a response,
+ * and this tool uses it rather than owning a third copy (review #75).
  */
 
 const ECMWF_BASE_URL = 'https://data.ecmwf.int/forecasts';
@@ -153,6 +164,10 @@ interface RawResponse {
  * A non-200 is returned rather than thrown: the status is evidence the artifact records. Redirects
  * are refused outright — measured, both access paths answer directly, and a redirect is the one
  * way a peer could choose the host this process talks to.
+ *
+ * A body over the cap is NOT a transport failure and is not retried: the same request would
+ * produce the same oversized body, so retrying it twice more only downloads the same refusal
+ * three times from a provider we are deliberately being polite to (review #75).
  */
 async function fetchRaw(
   url: string,
@@ -178,20 +193,7 @@ async function fetchRaw(
         redirect: 'error',
       });
 
-      const declared = Number(response.headers.get('content-length') ?? Number.NaN);
-      if (Number.isFinite(declared) && declared > MAX_RESPONSE_BYTES) {
-        throw new MarineImportError(
-          `${url} declares Content-Length ${String(declared)} B, above the ` +
-            `${String(MAX_RESPONSE_BYTES)} B cap.`,
-        );
-      }
-      const bytes = new Uint8Array(await response.arrayBuffer());
-      if (bytes.byteLength > MAX_RESPONSE_BYTES) {
-        throw new MarineImportError(
-          `${url} returned ${String(bytes.byteLength)} B, above the ` +
-            `${String(MAX_RESPONSE_BYTES)} B cap.`,
-        );
-      }
+      const bytes = await readBodyCappedBytes(response, url, MAX_RESPONSE_BYTES);
 
       return {
         status: response.status,
@@ -200,6 +202,10 @@ async function fetchRaw(
         durationMs: Date.now() - startedAt,
       };
     } catch (error: unknown) {
+      if (error instanceof UpstreamOversizedResponseError) {
+        // Deterministic, not transient — see the note above the function.
+        throw new MarineImportError(error.message, { cause: error });
+      }
       lastError = error;
       if (attempt < MAX_ATTEMPTS_PER_REQUEST) {
         console.warn(
@@ -225,6 +231,19 @@ function hasAcceptedContentType(contentType: string): boolean {
   return ACCEPTED_CONTENT_TYPES.some((accepted) => lower.includes(accepted));
 }
 
+/**
+ * A cycle in the two spellings the provider uses: `YYYYMMDD` for the path and the `.index`'s
+ * `date`, `HH` for the path — and `HHMM` for the `.index`'s `time`.
+ *
+ * Derived once so the URL we ASK with and the expectation we CHECK the answer against cannot
+ * drift apart; two independent formatters would eventually disagree in exactly the case the
+ * check exists to catch.
+ */
+function formatCycle(cycle: Date): { day: string; hour: string } {
+  const iso = cycle.toISOString();
+  return { day: iso.slice(0, 10).replace(/-/g, ''), hour: iso.slice(11, 13) };
+}
+
 /** `.../{YYYYMMDD}/{HH}z/ifs/0p25/{stream}/{YYYYMMDDHHMMSS}-{step}h-{stream}-fc.{ext}` */
 export function buildEcmwfUrl(
   cycle: Date,
@@ -232,9 +251,7 @@ export function buildEcmwfUrl(
   stepHours: number,
   extension: 'index' | 'grib2',
 ): string {
-  const iso = cycle.toISOString();
-  const day = iso.slice(0, 10).replace(/-/g, '');
-  const hour = iso.slice(11, 13);
+  const { day, hour } = formatCycle(cycle);
   const stamp = `${day}${hour}0000`;
   return (
     `${ECMWF_BASE_URL}/${day}/${hour}z/${ECMWF_RESOLUTION_PATH}/${stream}/` +
@@ -269,31 +286,26 @@ export async function runEcmwfProbePhase(options: EcmwfProbeOptions): Promise<vo
   const nowImpl = options.nowImpl ?? ((): Date => new Date());
 
   const requests: EcmwfProbeRequestRecord[] = [];
-  let downloadedBytes = 0;
-  let downloadMs = 0;
   let decodeMs = 0;
 
-  const record = (
+  const describeRequest = (
     label: string,
     url: string,
     method: 'GET' | 'HEAD',
     rangeHeader: string | null,
     raw: RawResponse,
-  ): void => {
-    requests.push({
-      label,
-      url,
-      method,
-      rangeHeader,
-      httpStatus: raw.status,
-      contentType: raw.contentType,
-      bytes: raw.bytes.byteLength,
-      durationMs: raw.durationMs,
-      sha256: sha256(raw.bytes),
-    });
-    downloadedBytes += raw.bytes.byteLength;
-    downloadMs += raw.durationMs;
-  };
+  ): EcmwfProbeRequestRecord => ({
+    label,
+    url,
+    method,
+    rangeHeader,
+    httpStatus: raw.status,
+    contentType: raw.contentType,
+    bytes: raw.bytes.byteLength,
+    durationMs: raw.durationMs,
+    sha256: sha256(raw.bytes),
+    abandonedCandidate: false,
+  });
 
   // ── 1. pick a cycle whose index files actually exist ────────────────────────
   let cycle: Date | null = null;
@@ -301,13 +313,20 @@ export async function runEcmwfProbePhase(options: EcmwfProbeOptions): Promise<vo
 
   for (const candidate of candidateCycles(nowImpl())) {
     const bodies: Partial<Record<EcmwfStream, string>> = {};
+    // Held aside rather than recorded immediately: whether these requests are EVIDENCE or an
+    // abandoned attempt is only known once the candidate has been accepted or walked away from,
+    // and the two must not be scored the same way. The walk-back's 404 is a documented, expected
+    // step of the fallback the provider's 7–9 h publication lag makes necessary — counting it as
+    // a failed transport made the probe's own gate reject the run it was designed to save
+    // (review #75).
+    const attempts: EcmwfProbeRequestRecord[] = [];
     let usable = true;
 
     for (const stream of ['oper', 'wave'] as const) {
       const url = buildEcmwfUrl(candidate, stream, PROBE_STEP_HOURS, 'index');
       await sleepImpl(DELAY_BETWEEN_REQUESTS_MS);
       const raw = await fetchRaw(url, { fetchImpl, sleepImpl });
-      record(`${stream}.index`, url, 'GET', null, raw);
+      attempts.push(describeRequest(`${stream}.index`, url, 'GET', null, raw));
 
       if (raw.status !== 200) {
         console.warn(
@@ -324,6 +343,13 @@ export async function runEcmwfProbePhase(options: EcmwfProbeOptions): Promise<vo
         );
       }
       bodies[stream] = new TextDecoder('utf-8').decode(raw.bytes);
+    }
+
+    // Every request of an abandoned candidate is marked, including one that DID answer 200: it
+    // still contributed nothing to the evidence, and totals that count it would misreport what a
+    // real ingest costs.
+    for (const attempt of attempts) {
+      requests.push({ ...attempt, abandonedCandidate: !usable });
     }
 
     if (usable && bodies.oper !== undefined && bodies.wave !== undefined) {
@@ -345,10 +371,19 @@ export async function runEcmwfProbePhase(options: EcmwfProbeOptions): Promise<vo
   );
 
   // ── 2. plan the byte ranges from the real indexes ───────────────────────────
+  const { day, hour } = formatCycle(cycle);
   const plans: { stream: EcmwfStream; range: EcmwfByteRange }[] = [];
   for (const stream of ['oper', 'wave'] as const) {
     const params = ECMWF_PARAMS.filter((param) => PARAM_STREAM[param] === stream);
     const records = parseEcmwfIndex(indexBodies[stream]);
+    // The answer must be the run that was asked for. Checked here, before a single byte range is
+    // planned from it, and again on every decoded message.
+    assertIndexRecordsMatchRequest(records, {
+      date: day,
+      time: `${hour}00`,
+      step: String(PROBE_STEP_HOURS),
+      stream,
+    });
     for (const range of mergeByteRanges(selectIndexRecords(records, params))) {
       plans.push({ stream, range });
     }
@@ -369,7 +404,7 @@ export async function runEcmwfProbePhase(options: EcmwfProbeOptions): Promise<vo
     const rangeHeader = toRangeHeader(plan.range);
     await sleepImpl(DELAY_BETWEEN_REQUESTS_MS);
     const raw = await fetchRaw(url, { rangeHeader, fetchImpl, sleepImpl });
-    record(`${plan.stream}.range`, url, 'GET', rangeHeader, raw);
+    requests.push(describeRequest(`${plan.stream}.range`, url, 'GET', rangeHeader, raw));
 
     if (raw.status !== 206) {
       throw new MarineImportError(
@@ -385,12 +420,24 @@ export async function runEcmwfProbePhase(options: EcmwfProbeOptions): Promise<vo
     }
 
     const decodeStartedAt = Date.now();
-    const decoded = decodeGribRange(raw.bytes, plan.range.members);
+    const decoded = decodeGribRange(raw.bytes, plan.range.members, {
+      referenceTimeUtc: cycle,
+      forecastHours: PROBE_STEP_HOURS,
+    });
     const elapsed = Date.now() - decodeStartedAt;
     decodeMs += elapsed;
 
     for (const field of decoded) {
       const member = plan.range.members.find((candidate) => candidate.param === field.param);
+      if (member === undefined) {
+        // Unreachable: `decodeGribRange` returns exactly the planned members, in order, or
+        // throws. Stated anyway, because the alternative — defaulting the offset to 0 — would
+        // write a wrong byte offset into a file whose entire purpose is being re-checkable.
+        throw new EcmwfContractError(
+          `"${field.param}" was decoded from the ${plan.stream} range but is not one of its ` +
+            `planned members.`,
+        );
+      }
       let finiteValues = 0;
       for (const value of field.values) {
         if (Number.isFinite(value)) finiteValues += 1;
@@ -398,7 +445,7 @@ export async function runEcmwfProbePhase(options: EcmwfProbeOptions): Promise<vo
       messages.push({
         param: field.param,
         stream: plan.stream,
-        offsetInFile: plan.range.start + (member?.relativeOffset ?? 0),
+        offsetInFile: plan.range.start + member.relativeOffset,
         lengthBytes: field.profile.length,
         dataRepresentationTemplate: field.profile.dataRepresentationTemplate,
         packingLabel: packingLabelFor(field.profile.dataRepresentationTemplate),
@@ -471,6 +518,15 @@ export async function runEcmwfProbePhase(options: EcmwfProbeOptions): Promise<vo
   });
 
   // ── 5. write the artifact, then fail loudly if anything did not pass ────────
+  // Totals describe the requests that PRODUCED the evidence. An abandoned candidate's 404s are
+  // kept in `requests` — they are the record of the fallback firing — but adding them here would
+  // overstate what one cycle of the real ingest costs, which is the number this projection exists
+  // to give.
+  const evidenceRequests = requests.filter((request) => request.abandonedCandidate !== true);
+  const abandonedCount = requests.length - evidenceRequests.length;
+  const downloadedBytes = evidenceRequests.reduce((sum, request) => sum + request.bytes, 0);
+  const downloadMs = evidenceRequests.reduce((sum, request) => sum + request.durationMs, 0);
+
   const artifact: MarineEcmwfProbeArtifact = {
     generatedAtUtc: nowImpl().toISOString(),
     userAgent: USER_AGENT,
@@ -483,7 +539,8 @@ export async function runEcmwfProbePhase(options: EcmwfProbeOptions): Promise<vo
     directionConvention: DIRECTION_CONVENTION_QUOTE,
     requests,
     totals: {
-      requestCount: requests.length,
+      requestCount: evidenceRequests.length,
+      abandonedRequestCount: abandonedCount,
       downloadedBytes,
       downloadMs,
       decodeMs,
@@ -507,8 +564,11 @@ export async function runEcmwfProbePhase(options: EcmwfProbeOptions): Promise<vo
     );
   }
   console.log(
-    `[db:import:marine-ecmwf] probe done — ${String(requests.length)} request(s), ` +
-      `${String(downloadedBytes)} B in ${String(downloadMs)} ms, decode ${String(decodeMs)} ms. ` +
+    `[db:import:marine-ecmwf] probe done — ${String(evidenceRequests.length)} request(s)` +
+      (abandonedCount > 0
+        ? ` (plus ${String(abandonedCount)} to abandoned cycle candidate(s))`
+        : '') +
+      `, ${String(downloadedBytes)} B in ${String(downloadMs)} ms, decode ${String(decodeMs)} ms. ` +
       `Per-cycle projection: ${String(ECMWF_STEPS.length)} steps × ${String(ECMWF_STEP_HOURS)} h ` +
       `to +${String(ECMWF_FORECAST_HOURS)} h.`,
   );

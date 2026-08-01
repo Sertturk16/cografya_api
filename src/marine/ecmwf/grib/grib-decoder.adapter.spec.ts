@@ -107,6 +107,16 @@ const WAVE_MEMBERS: readonly EcmwfRangeMember[] = [
   { param: 'mwd', relativeOffset: 847_407, length: 974_731 },
 ];
 
+/**
+ * What the corpus was DOWNLOADED as — taken from the ecCodes reference, not from the messages
+ * under test, so the attribution check is fed by the independent record rather than by the bytes
+ * it is meant to police.
+ */
+const CORPUS_ATTRIBUTION = {
+  referenceTimeUtc: new Date(REFERENCE.cycleUtc),
+  forecastHours: REFERENCE.stepHours,
+};
+
 function readFixture(name: string): Uint8Array {
   return new Uint8Array(readFileSync(join(FIXTURE_DIR, name)));
 }
@@ -239,8 +249,8 @@ describe('readMessageProfile — every header field against ecCodes', () => {
 
 describe('decodeGribRange — values against ecCodes at all 30 reference points', () => {
   const fields = [
-    ...decodeGribRange(readFixture(WIND_FILE), WIND_MEMBERS),
-    ...decodeGribRange(readFixture(WAVE_FILE), WAVE_MEMBERS),
+    ...decodeGribRange(readFixture(WIND_FILE), WIND_MEMBERS, CORPUS_ATTRIBUTION),
+    ...decodeGribRange(readFixture(WAVE_FILE), WAVE_MEMBERS, CORPUS_ATTRIBUTION),
   ];
   const byParam = new Map<string, (typeof fields)[number]>(
     fields.map((field) => [field.param, field]),
@@ -337,7 +347,11 @@ describe('decodeGribRange — values against ecCodes at all 30 reference points'
       const derived = deriveWindDirection(u, 0);
       if (u > 0) expect(derived).toBe(270);
       else if (u < 0) expect(derived).toBe(90);
-      else expect(derived).toBe(0);
+      // u = v = 0 is a dead calm: no bearing exists, so the derivation returns null rather than
+      // inventing a northerly. No reference point holds an exactly-zero component in the current
+      // corpus, which is precisely why this branch had to be corrected by reading it rather than
+      // by watching it fail (review #75).
+      else expect(derived).toBeNull();
       expect(deriveWindSpeed(u, 0)).toBeCloseTo(Math.abs(u), 12);
 
       // `mwd` is published verbatim — ECMWF already states it as "degree true, zero means coming
@@ -354,7 +368,9 @@ describe('decodeGribRange — values against ecCodes at all 30 reference points'
 
 describe('decodeGribRange — fail-closed', () => {
   it('refuses a response whose message count does not match the plan', () => {
-    expect(() => decodeGribRange(readFixture(WAVE_FILE), WIND_MEMBERS)).toThrow(EcmwfContractError);
+    expect(() => decodeGribRange(readFixture(WAVE_FILE), WIND_MEMBERS, CORPUS_ATTRIBUTION)).toThrow(
+      EcmwfContractError,
+    );
   });
 
   it('refuses a response whose message offsets do not match the plan', () => {
@@ -364,7 +380,9 @@ describe('decodeGribRange — fail-closed', () => {
       { param: 'swh', relativeOffset: 0, length: 847_407 },
       { param: 'mwd', relativeOffset: 847_408, length: 974_730 },
     ];
-    expect(() => decodeGribRange(readFixture(WAVE_FILE), shiftedPlan)).toThrow(EcmwfContractError);
+    expect(() => decodeGribRange(readFixture(WAVE_FILE), shiftedPlan, CORPUS_ATTRIBUTION)).toThrow(
+      EcmwfContractError,
+    );
   });
 
   it('refuses bytes whose GRIB identification contradicts the parameter the .index claimed', () => {
@@ -372,14 +390,16 @@ describe('decodeGribRange — fail-closed', () => {
     // itself carries discipline/category/number, so a plan that mislabels a field is caught in
     // PRODUCTION, on every message, not only here.
     const mislabelled: EcmwfRangeMember[] = [{ param: '10v', relativeOffset: 0, length: 749_722 }];
-    expect(() => decodeGribRange(readFixture(WIND_FILE), mislabelled)).toThrow(
+    expect(() => decodeGribRange(readFixture(WIND_FILE), mislabelled, CORPUS_ATTRIBUTION)).toThrow(
       /identifies itself as discipline/,
     );
   });
 
   it('refuses a parameter this leg does not publish', () => {
     const unknown: EcmwfRangeMember[] = [{ param: 'pp1d', relativeOffset: 0, length: 749_722 }];
-    expect(() => decodeGribRange(readFixture(WIND_FILE), unknown)).toThrow(EcmwfContractError);
+    expect(() => decodeGribRange(readFixture(WIND_FILE), unknown, CORPUS_ATTRIBUTION)).toThrow(
+      EcmwfContractError,
+    );
   });
 
   it('refuses a packing template it was not pinned against', () => {
@@ -397,7 +417,9 @@ describe('decodeGribRange — fail-closed', () => {
     const mutated = bytes.slice();
     new DataView(mutated.buffer).setUint16(section5.start + 9, 0);
 
-    expect(() => decodeGribRange(mutated, WIND_MEMBERS)).toThrow(/data representation template/);
+    expect(() => decodeGribRange(mutated, WIND_MEMBERS, CORPUS_ATTRIBUTION)).toThrow(
+      /data representation template/,
+    );
   });
 
   it('refuses a grid whose longitude axis has moved', () => {
@@ -414,7 +436,9 @@ describe('decodeGribRange — fail-closed', () => {
     const mutated = bytes.slice();
     new DataView(mutated.buffer).setUint32(section3.start + 50, 0);
 
-    expect(() => decodeGribRange(mutated, WIND_MEMBERS)).toThrow(/first column is at/);
+    expect(() => decodeGribRange(mutated, WIND_MEMBERS, CORPUS_ATTRIBUTION)).toThrow(
+      /first column is at/,
+    );
   });
 
   it('refuses a message whose section 5 count contradicts its own bitmap — BEFORE decoding', () => {
@@ -438,7 +462,9 @@ describe('decodeGribRange — fail-closed', () => {
     const view = new DataView(mutated.buffer);
     view.setUint32(section5.start + 5, view.getUint32(section5.start + 5) - 1);
 
-    expect(() => decodeGribRange(mutated, WAVE_MEMBERS)).toThrow(/contradicts itself/);
+    expect(() => decodeGribRange(mutated, WAVE_MEMBERS, CORPUS_ATTRIBUTION)).toThrow(
+      /contradicts itself/,
+    );
   });
 
   it('refuses a bitmap too short for the grid it claims to mask', () => {
@@ -454,6 +480,30 @@ describe('decodeGribRange — fail-closed', () => {
     const mutated = bytes.slice();
     new DataView(mutated.buffer).setUint32(section3.start + 6, 1_038_240 * 4);
 
-    expect(() => decodeGribRange(mutated, WAVE_MEMBERS)).toThrow(EcmwfContractError);
+    expect(() => decodeGribRange(mutated, WAVE_MEMBERS, CORPUS_ATTRIBUTION)).toThrow(
+      EcmwfContractError,
+    );
+  });
+
+  it('refuses a message from a cycle other than the one that was requested', () => {
+    // The stale-copy case, and the ONLY defect in this list that leaves the bytes perfectly
+    // valid: a CDN edge serving yesterday's object, or a cycle re-published mid-download, hands
+    // back a flawless GRIB message whose sole problem is that it belongs to another valid time.
+    // Nothing inside the message can reveal that — only the request can.
+    expect(() =>
+      decodeGribRange(readFixture(WIND_FILE), WIND_MEMBERS, {
+        referenceTimeUtc: new Date('2026-07-30T00:00:00.000Z'),
+        forecastHours: REFERENCE.stepHours,
+      }),
+    ).toThrow(/requested from the 2026-07-30T00:00:00.000Z cycle/);
+  });
+
+  it('refuses a message from a step other than the one that was requested', () => {
+    expect(() =>
+      decodeGribRange(readFixture(WAVE_FILE), WAVE_MEMBERS, {
+        referenceTimeUtc: new Date(REFERENCE.cycleUtc),
+        forecastHours: 75,
+      }),
+    ).toThrow(/\+75 h was requested/);
   });
 });
