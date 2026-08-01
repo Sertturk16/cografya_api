@@ -6,7 +6,7 @@ data: the server never reads them, and CI never regenerates them.
 
 | File | What it is |
 |---|---|
-| `era5-manifest.json` | Provenance: the exact CDS request, job ids and queue stamps, the raw file's SHA-256 + size + provider MD5, the decoded axes, the decoder identity, the land/sea mask census, and **every province's grid-cell assignment** — including the A-1 fallback flag, the cell used and the distance in kilometres. Plus the structural assertion results from the run. |
+| `era5-manifest.json` | Provenance: the exact CDS request, the raw file's SHA-256 + size + MD5, the decoded axes, the decoder identity, the land/sea mask census, and **every province's grid-cell assignment** — including the A-1 fallback flag, the cell used and the distance in kilometres. Plus the structural assertion results from the run. CDS job ids and queue stamps appear **only when `sourceMode` is `cds-fetch`**; see "What `sourceMode` changes" below. |
 | `era5-province-series.json` | 81 provinces × 360 months × 2 variables = 58 320 values, **converted but not averaged**: monthly mean °C and monthly total mm, unrounded. PR-2's 30-year normal is computed from this file, so the published number is auditable without touching Copernicus. |
 
 ## Where the raw file is
@@ -15,7 +15,22 @@ It is **not here, and never will be.** The production download is
 `era5-land-1991-2020.nc`, **19 801 767 bytes** of NetCDF4/HDF5. The fetch CLI requires an
 explicit absolute `--raw-dir` outside the repo, and `.gitignore` carries a belt for the case
 where someone points it here anyway. The manifest identifies that exact file forever by
-SHA-256, size and the provider's own MD5, so a copy can always be proven to be *the* copy.
+SHA-256, size and MD5, so a copy can always be proven to be *the* copy.
+
+## What `sourceMode` changes
+
+The manifest states how it was produced, and the two modes carry different evidence. Read the
+field before quoting the file.
+
+| | `cds-fetch` (live run) | `from-file` (offline re-run) |
+|---|---|---|
+| `jobs[]` | the CDS job ids, queue stamps, the provider's `file:checksum` (MD5) and our verification of it | **empty, by construction** — claiming job ids never issued would be a lie |
+| `rawFile.md5` | **our own** MD5 of the downloaded bytes (the provider's copy of it lives in `jobs[].declaredChecksumMd5`, where it was compared before the job was deleted) | our own MD5 of the bytes on disk |
+| integrity chain | provider `file:checksum` → verified at download → `rawFile.sha256` | `rawFile.sha256`, which was verified against the provider's checksum when those bytes were **first** downloaded |
+
+**The artifacts currently committed carry `sourceMode: "from-file"`** — they were regenerated
+offline from the already-verified raw file, so `jobs` is empty. The live run's job ids are
+recorded in the PR that introduced them.
 
 ## How to regenerate
 
@@ -33,8 +48,14 @@ Already have the raw file? Skip the network entirely:
 pnpm db:import:era5 --phase=fetch --raw-dir=/tmp/era5 --from-file=/absolute/path/era5-land-1991-2020.nc
 ```
 
-Both artifacts are deterministic — canonical key order, fixed indentation — so a re-run over
-the same raw file produces byte-identical files and `git diff` is a real verification.
+Both artifacts are deterministic — canonical key order, fixed indentation — so a re-run over the
+same raw file reproduces the **data** byte for byte, and `git diff` is a real verification.
+
+Scope it honestly: three fields are run-stamps and legitimately differ between two runs —
+`generatedAtUtc` (in both files) and `totals.wallClockMs`. A verifying diff therefore shows
+**exactly those three lines and nothing else**; a fourth changed line means the data changed.
+The re-run also prints the raw file's SHA-256, which must equal `rawFile.sha256` in the manifest
+already in git — otherwise you are regenerating from a different file.
 
 ## Source, licence and required attribution
 
