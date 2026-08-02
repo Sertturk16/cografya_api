@@ -10,16 +10,22 @@ import {
 } from '../../air-quality/cams/netcdf3-fixture.builder';
 import { AirQualityPollutant, AirQualityStatus } from '../../air-quality/air-quality.types';
 import type { AirQualityProbeArtifact } from './air-quality-artifact.types';
-import { parseAirQualityPhase } from './air-quality.cli';
+import { parseAirQualityCliArgs, parseAirQualityPhase } from './air-quality.cli';
 import {
+  ADS_DATASET_ID,
   AirQualityProbeError,
+  analysisDateFor,
+  ANALYSIS_ARCHIVE_NAME,
+  ANALYSIS_STEP_COUNT,
   assertAllowedDownloadHost,
   buildAdsJsonHeaders,
+  buildAnalysisRequestBody,
   buildDownloadHeaders,
   buildFixtureRequestBody,
   buildProductionRequestBody,
   evaluateProbeAssertions,
   FIXTURE_ARCHIVE_NAME,
+  FORECAST_ARCHIVE_NAME,
   redactAdsSecret,
   runAirQualityProbePhase,
   runDateFor,
@@ -38,6 +44,33 @@ describe('parseAirQualityPhase', () => {
     expect(parseAirQualityPhase(['--phase=probe'])).toBe('probe');
     expect(() => parseAirQualityPhase([])).toThrow(/Usage/);
     expect(() => parseAirQualityPhase(['--phase=load'])).toThrow(/Usage/);
+  });
+});
+
+describe('parseAirQualityCliArgs', () => {
+  it('requires an ABSOLUTE --raw-dir — the raw archives must never default into the repo', () => {
+    expect(() => parseAirQualityCliArgs(['--phase=probe'])).toThrow(/--raw-dir is mandatory/);
+    expect(() => parseAirQualityCliArgs(['--phase=probe', '--raw-dir=tmp/raw'])).toThrow(
+      /ABSOLUTE/,
+    );
+    expect(parseAirQualityCliArgs(['--phase=probe', '--raw-dir=/tmp/raw'])).toEqual({
+      phase: 'probe',
+      rawDir: '/tmp/raw',
+      fromFile: null,
+    });
+  });
+
+  it('accepts an absolute --from-file and refuses a relative one', () => {
+    expect(
+      parseAirQualityCliArgs([
+        '--phase=probe',
+        '--raw-dir=/tmp/raw',
+        '--from-file=/tmp/raw/production-forecast.zip',
+      ]).fromFile,
+    ).toBe('/tmp/raw/production-forecast.zip');
+    expect(() =>
+      parseAirQualityCliArgs(['--phase=probe', '--raw-dir=/tmp/raw', '--from-file=raw.zip']),
+    ).toThrow(/ABSOLUTE/);
   });
 });
 
@@ -86,6 +119,27 @@ describe('security helpers', () => {
     expect(mini.variable).toEqual(['particulate_matter_2.5um']);
     expect(mini.leadtime_hour).toEqual(['0']);
   });
+
+  it('analysisDateFor is exactly D−1, across month and year boundaries', () => {
+    expect(analysisDateFor('2026-08-01')).toBe('2026-07-31');
+    expect(analysisDateFor('2026-01-01')).toBe('2025-12-31');
+    expect(analysisDateFor('2028-03-01')).toBe('2028-02-29'); // leap year, not 02-28
+    expect(() => analysisDateFor('not-a-date')).toThrow(AirQualityProbeError);
+  });
+
+  it('the analysis body is the measured J3 shape: 24 hourly times, leadtime 0, type analysis', () => {
+    const analysis = buildAnalysisRequestBody('2026-07-31');
+    expect(analysis.type).toEqual(['analysis']);
+    expect(analysis.date).toEqual(['2026-07-31/2026-07-31']);
+    expect(analysis.leadtime_hour).toEqual(['0']);
+    expect((analysis.time as string[]).length).toBe(ANALYSIS_STEP_COUNT);
+    expect((analysis.time as string[])[0]).toBe('00:00');
+    expect((analysis.time as string[])[23]).toBe('23:00');
+    // Same five pollutants and the same area as the forecast job — the two products must be
+    // read from the same grid, which is what the ingest's identity guard later enforces.
+    expect(analysis.variable).toEqual(buildProductionRequestBody('2026-07-31').variable);
+    expect(analysis.area).toEqual(buildProductionRequestBody('2026-07-31').area);
+  });
 });
 
 // ─── the faked end-to-end run ────────────────────────────────────────────────
@@ -99,7 +153,12 @@ const POLLUTANT_FILE_VARIABLES = [
 ] as const;
 
 /** A TR-shaped grid: lon 25.55…44.95 (+0.1, 195) × lat 42.45…35.55 (−0.1, 70). */
-function buildArchive(variables: readonly string[], records: number): Uint8Array {
+function buildArchive(
+  variables: readonly string[],
+  records: number,
+  timeLongName = 'FORECAST time from 20260801',
+  entryName = 'ENS_FORECAST.nc',
+): Uint8Array {
   const lon = Array.from({ length: 195 }, (_u, index) => Math.fround(25.55 + index * 0.1));
   const lat = Array.from({ length: 70 }, (_u, index) => Math.fround(42.45 - index * 0.1));
   const cells = lon.length * lat.length;
@@ -120,7 +179,7 @@ function buildArchive(variables: readonly string[], records: number): Uint8Array
         dimensions: ['time'],
         attributes: [
           { name: 'units', value: 'hours' },
-          { name: 'long_name', value: 'FORECAST time from 20260801' },
+          { name: 'long_name', value: timeLongName },
         ],
         data: Array.from({ length: records }, (_u, index) => index),
       },
@@ -135,7 +194,7 @@ function buildArchive(variables: readonly string[], records: number): Uint8Array
       })),
     ],
   };
-  return buildZipArchive([{ name: 'ENS_FORECAST.nc', bytes: buildNetcdf3(spec) }]);
+  return buildZipArchive([{ name: entryName, bytes: buildNetcdf3(spec) }]);
 }
 
 interface RecordedCall {
@@ -149,14 +208,24 @@ function fakeAds(options: { failExecutionWithKeyEcho?: boolean; hostileJobId?: b
   calls: RecordedCall[];
 } {
   // 97 records: the evidence gate BINDS the production step count (SF-77-2) — a 2-step fake
-  // would now fail the probe's own assertions, which is exactly the point.
+  // would now fail the probe's own assertions, which is exactly the point. The analysis archive
+  // is the D−1 shape: 24 records, ANALYSIS product word, the SAME grid (which is what the
+  // grid-identity gate reads).
   const productionArchive = buildArchive(POLLUTANT_FILE_VARIABLES, 97);
+  const analysisArchive = buildArchive(
+    POLLUTANT_FILE_VARIABLES,
+    24,
+    'ANALYSIS time from 20260731',
+    'ENS_ANALYSIS.nc',
+  );
   const fixtureArchive = buildArchive(['pm2p5_conc'], 1);
   const archives: Record<string, Uint8Array> = {
     'job-production': productionArchive,
+    'job-analysis': analysisArchive,
     'job-fixture': fixtureArchive,
   };
   const calls: RecordedCall[] = [];
+  const submittedJobIds: string[] = [];
   let submissions = 0;
 
   const json = (status: number, body: unknown): Response =>
@@ -190,8 +259,23 @@ function fakeAds(options: { failExecutionWithKeyEcho?: boolean; hostileJobId?: b
         return json(201, { jobID: '../secrets?x=1', status: 'accepted' });
       }
       submissions += 1;
-      const jobId = submissions === 1 ? 'job-production' : 'job-fixture';
+      const jobId =
+        submissions === 1 ? 'job-production' : submissions === 2 ? 'job-analysis' : 'job-fixture';
+      submittedJobIds.push(jobId);
       return json(201, { jobID: jobId, status: 'accepted', created: '2026-08-01T14:00:00Z' });
+    }
+    // `GET /jobs` — the reconciliation list (Ö-A2-3). The measured-plausible shape: a `jobs`
+    // array of records that do NOT echo the submitted inputs.
+    if (/\/jobs$/.test(url) && method === 'GET') {
+      return json(200, {
+        jobs: submittedJobIds.map((jobId) => ({
+          processID: ADS_DATASET_ID,
+          jobID: jobId,
+          status: 'running',
+          created: '2026-08-01T14:00:00Z',
+        })),
+        metadata: { totalCount: submittedJobIds.length },
+      });
     }
     const pollMatch = /\/jobs\/(job-[a-z]+)$/.exec(url);
     if (pollMatch !== null && method === 'GET') {
@@ -242,15 +326,16 @@ function fakeAds(options: { failExecutionWithKeyEcho?: boolean; hostileJobId?: b
 describe('runAirQualityProbePhase — faked end-to-end', () => {
   const runProbe = async (): Promise<{
     calls: RecordedCall[];
+    outputDir: string;
+    rawDir: string;
     artifactPath: string;
-    fixturePath: string;
   }> => {
     const outputDir = await mkdtemp(join(tmpdir(), 'aq-probe-artifact-'));
-    const fixtureDir = await mkdtemp(join(tmpdir(), 'aq-probe-fixture-'));
+    const rawDir = await mkdtemp(join(tmpdir(), 'aq-probe-raw-'));
     const { fetchImpl, calls } = fakeAds({});
     await runAirQualityProbePhase({
       outputDir,
-      fixtureDir,
+      rawDir,
       apiKey: API_KEY,
       fetchImpl,
       sleepImpl: () => Promise.resolve(),
@@ -258,16 +343,17 @@ describe('runAirQualityProbePhase — faked end-to-end', () => {
     });
     return {
       calls,
+      outputDir,
+      rawDir,
       artifactPath: join(outputDir, 'air-quality-probe.json'),
-      fixturePath: join(fixtureDir, FIXTURE_ARCHIVE_NAME),
     };
   };
 
-  it('runs both jobs, never sends PRIVATE-TOKEN to the download host, and DELETEs politely', async () => {
+  it('runs all three jobs, never sends PRIVATE-TOKEN to the download host, and DELETEs politely', async () => {
     const { calls } = await runProbe();
 
     const downloads = calls.filter((call) => call.url.includes('object-store'));
-    expect(downloads).toHaveLength(2);
+    expect(downloads).toHaveLength(3);
     for (const download of downloads) {
       expect(Object.keys(download.headers)).not.toContain('PRIVATE-TOKEN');
     }
@@ -277,11 +363,105 @@ describe('runAirQualityProbePhase — faked end-to-end', () => {
       expect(apiCall.headers['PRIVATE-TOKEN']).toBe(API_KEY);
     }
     const deletes = calls.filter((call) => call.method === 'DELETE');
-    expect(deletes).toHaveLength(2);
+    expect(deletes).toHaveLength(3);
+    // The analysis job asked for D−1 while the forecast asked for D — the ONE ordering fact
+    // the whole product boundary rests on.
+    const executions = calls.filter((call) => call.url.endsWith('/execution'));
+    expect(executions).toHaveLength(3);
+    // Exactly ONE list measurement, and only while our jobs exist (Ö-A2-3).
+    expect(calls.filter((call) => /\/jobs$/.test(call.url) && call.method === 'GET')).toHaveLength(
+      1,
+    );
+  }, 30_000);
+
+  it('writes every archive to --raw-dir and NEVER touches the committed golden fixture', async () => {
+    const { rawDir } = await runProbe();
+    for (const name of [FORECAST_ARCHIVE_NAME, ANALYSIS_ARCHIVE_NAME, FIXTURE_ARCHIVE_NAME]) {
+      const bytes = await readFile(join(rawDir, name));
+      expect(bytes.subarray(0, 4)).toEqual(Buffer.from([0x50, 0x4b, 0x03, 0x04]));
+    }
+    // The probe has no fixture-directory option at all any more (it would not type-check), so
+    // the golden archive and its independently produced `reference.json` can only be replaced
+    // by a deliberate operator step, never as a side effect of a measurement run.
+  }, 30_000);
+
+  it('records the analysis evidence: D−1, 24 steps, grid identical to the forecast', async () => {
+    const { artifactPath } = await runProbe();
+    const artifact = JSON.parse(await readFile(artifactPath, 'utf8')) as AirQualityProbeArtifact;
+
+    expect(artifact.sourceMode).toBe('ads-probe');
+    expect(artifact.analysis).not.toBeNull();
+    expect(artifact.analysis?.requestDate).toBe(analysisDateFor(artifact.runDate));
+    expect(artifact.analysis?.timeStepCount).toBe(ANALYSIS_STEP_COUNT);
+    expect(artifact.analysis?.gridIdenticalToForecast).toBe(true);
+    expect(artifact.analysis?.gridMismatchPlateCodes).toEqual([]);
+    // The job record carries the product it asked for, so the artifact can never be read as
+    // "three forecast jobs".
+    expect(artifact.jobs.map((job) => job.product)).toEqual(['FORECAST', 'ANALYSIS', 'FORECAST']);
+    expect(artifact.jobs[1]?.requestDate).toBe(analysisDateFor(artifact.runDate));
+  }, 30_000);
+
+  it('records the content-type of every response and the GET /jobs shape (Ö-A2-1/2/3)', async () => {
+    const { artifactPath } = await runProbe();
+    const artifact = JSON.parse(await readFile(artifactPath, 'utf8')) as AirQualityProbeArtifact;
+
+    expect(artifact.requests.length).toBeGreaterThan(0);
+    for (const request of artifact.requests) {
+      expect(request).toHaveProperty('contentType');
+    }
+    const deleteRecords = artifact.requests.filter((request) => request.method === 'DELETE');
+    expect(deleteRecords).toHaveLength(3);
+    const download = artifact.requests.find((request) => request.label.endsWith('.download'));
+    expect(download?.contentType).toBe('application/zip');
+
+    expect(artifact.jobsListProbe).not.toBeNull();
+    expect(artifact.jobsListProbe?.jobsArrayKey).toBe('jobs');
+    expect(artifact.jobsListProbe?.entryKeys).toContain('jobID');
+    expect(artifact.jobsListProbe?.containsSubmittedJob).toBe(true);
+    // KEYS ONLY: no provider body, no values, and therefore nothing that could carry a key.
+    expect(JSON.stringify(artifact.jobsListProbe)).not.toContain(ADS_DATASET_ID);
+  }, 30_000);
+
+  it('--from-file re-derives the artifact with ZERO network calls and NO job records', async () => {
+    const { outputDir, rawDir } = await runProbe();
+    const before = JSON.parse(
+      await readFile(join(outputDir, 'air-quality-probe.json'), 'utf8'),
+    ) as AirQualityProbeArtifact;
+
+    let networkCalls = 0;
+    const countingFetch = ((): Promise<Response> => {
+      networkCalls += 1;
+      return Promise.reject(new Error('the offline path must not fetch'));
+    }) as unknown as typeof fetch;
+
+    await runAirQualityProbePhase({
+      outputDir,
+      rawDir,
+      fromFile: join(rawDir, FORECAST_ARCHIVE_NAME),
+      fetchImpl: countingFetch,
+      sleepImpl: () => Promise.resolve(),
+      nowImpl: () => new Date('2026-08-03T09:00:00Z'),
+    });
+
+    expect(networkCalls).toBe(0);
+    const after = JSON.parse(
+      await readFile(join(outputDir, 'air-quality-probe.json'), 'utf8'),
+    ) as AirQualityProbeArtifact;
+    expect(after.sourceMode).toBe('from-file');
+    // The run day came from the COMMITTED artifact, not from the (two days later) clock.
+    expect(after.runDate).toBe(before.runDate);
+    expect(after.jobs).toEqual([]);
+    expect(after.requests).toEqual([]);
+    expect(after.jobsListProbe).toBeNull();
+    // The measurement itself is reproduced: same provinces, same axes, same analysis evidence.
+    expect(after.provinces).toEqual(before.provinces);
+    expect(after.longitudeAxis).toEqual(before.longitudeAxis);
+    expect(after.analysis?.timeStepCount).toBe(ANALYSIS_STEP_COUNT);
+    expect(after.assertions.every((assertion) => assertion.passed)).toBe(true);
   }, 30_000);
 
   it('writes a key-free artifact with 81 in-threshold provinces and all assertions PASSED', async () => {
-    const { artifactPath, fixturePath } = await runProbe();
+    const { artifactPath } = await runProbe();
 
     const raw = await readFile(artifactPath, 'utf8');
     expect(raw).not.toContain(API_KEY);
@@ -304,13 +484,20 @@ describe('runAirQualityProbePhase — faked end-to-end', () => {
     for (const id of ['time-steps-97', 'support-all-ok', 'null-step-budget']) {
       expect(artifact.assertions.map((assertion) => assertion.id)).toContain(id);
     }
+    // The A2a measurement gates are present too — an artifact that quietly dropped them would
+    // still be "all passed" while proving nothing about the two products.
+    for (const id of [
+      'content-type-recorded',
+      'analysis-d-minus-1',
+      'analysis-24-steps',
+      'analysis-grid-identical',
+      'jobs-list-measured',
+    ]) {
+      expect(artifact.assertions.map((assertion) => assertion.id)).toContain(id);
+    }
     expect(artifact.latitudeAxis.step).toBeLessThan(0);
-    expect(artifact.decoderVersion).toBe('netcdf3-ts@3');
+    expect(artifact.decoderVersion).toBe('netcdf3-ts@4');
     expect(artifact.jobs.every((job) => job.deleted && job.checksumVerified)).toBe(true);
-
-    // The fixture archive was written where the golden spec expects it.
-    const fixture = await readFile(fixturePath);
-    expect(fixture.subarray(0, 4)).toEqual(Buffer.from([0x50, 0x4b, 0x03, 0x04]));
   }, 30_000);
 
   it('NEGATIVE: the three binding evidence gates can actually FAIL (test-r2-1 — no vacuous gate)', async () => {
@@ -353,13 +540,13 @@ describe('runAirQualityProbePhase — faked end-to-end', () => {
 
   it('NEGATIVE: a hostile jobID shape is refused BEFORE any URL is built from it', async () => {
     const outputDir = await mkdtemp(join(tmpdir(), 'aq-probe-jobid-'));
-    const fixtureDir = await mkdtemp(join(tmpdir(), 'aq-probe-jobid-fx-'));
+    const rawDir = await mkdtemp(join(tmpdir(), 'aq-probe-jobid-raw-'));
     const { fetchImpl, calls } = fakeAds({ hostileJobId: true });
 
     await expect(
       runAirQualityProbePhase({
         outputDir,
-        fixtureDir,
+        rawDir,
         apiKey: API_KEY,
         fetchImpl,
         sleepImpl: () => Promise.resolve(),
@@ -372,14 +559,14 @@ describe('runAirQualityProbePhase — faked end-to-end', () => {
 
   it('NEGATIVE: a provider error body that echoes the key is redacted in the thrown error', async () => {
     const outputDir = await mkdtemp(join(tmpdir(), 'aq-probe-redact-'));
-    const fixtureDir = await mkdtemp(join(tmpdir(), 'aq-probe-redact-fx-'));
+    const rawDir = await mkdtemp(join(tmpdir(), 'aq-probe-redact-raw-'));
     const { fetchImpl } = fakeAds({ failExecutionWithKeyEcho: true });
 
     let thrown: unknown = null;
     try {
       await runAirQualityProbePhase({
         outputDir,
-        fixtureDir,
+        rawDir,
         apiKey: API_KEY,
         fetchImpl,
         sleepImpl: () => Promise.resolve(),

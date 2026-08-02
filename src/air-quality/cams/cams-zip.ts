@@ -22,8 +22,17 @@ import { CamsContractError } from './cams.errors';
  * here means the provider changed shape under us.
  */
 
-/** Hard ceiling on the inflated size — mirrors the `AIR_QUALITY_RUN_MAX_BYTES` default (A2). */
-export const MAX_INFLATED_BYTES = 268_435_456;
+/**
+ * Hard ceiling on the inflated size when the CALLER supplies none.
+ *
+ * It mirrors the `AIR_QUALITY_RUN_MAX_BYTES` default, and A2a's plan §10-D2 keeps that mirror
+ * honest in two ways instead of one: the runtime ingest now passes the env value EXPLICITLY
+ * (so env is the single runtime source of truth), and a unit test pins this constant equal to
+ * the schema's default — a silent divergence turns a build red instead of leaving two ceilings
+ * that each pass their own tests. The number itself dropped 256 MiB → 64 MiB with the default,
+ * because in-process decoding makes it a HEAP ceiling, not a cost ceiling (plan §10-D1).
+ */
+export const MAX_INFLATED_BYTES = 67_108_864;
 
 const EOCD_SIGNATURE = 0x06054b50;
 const CENTRAL_DIRECTORY_SIGNATURE = 0x02014b50;

@@ -207,6 +207,46 @@ describe('decodeCamsFile — contract refusals', () => {
     ).toThrow(/WRONG PRODUCT TYPE/);
   });
 
+  // ── `@4` product-type matrix (plan §10-D7) — all four corners, none of them implicit ──
+  it('expectedProduct defaults to FORECAST — the pre-@4 contract is unchanged', () => {
+    // The regression nail: no caller that omits the option may change behaviour, which is why
+    // the option is optional rather than required.
+    expect(DECODE_OPTIONS).not.toHaveProperty('expectedProduct');
+    expect(() => decodeCamsFile(miniFile(), DECODE_OPTIONS)).not.toThrow();
+    expect(() =>
+      decodeCamsFile(miniFile({ timeLongName: 'ANALYSIS time from 20260801' }), DECODE_OPTIONS),
+    ).toThrow(/WRONG PRODUCT TYPE/);
+  });
+
+  it('expectedProduct ANALYSIS accepts the analysis file and REFUSES the forecast file', () => {
+    const analysisFile = miniFile({ timeLongName: 'ANALYSIS time from 20260801' });
+    const decoded = decodeCamsFile(analysisFile, {
+      ...DECODE_OPTIONS,
+      expectedProduct: 'ANALYSIS',
+    });
+    // The hour ladder is NOT loosened for the second product — measured 0…23, so `hour ===
+    // index` still holds and is still asserted (probe overlay §12).
+    expect(decoded.timeHours).toEqual([0, 1]);
+
+    // The refusal runs in BOTH directions: a forecast archive answered for an analysis request
+    // would silently backdate 97 forecast steps into the "past" half of the published series.
+    expect(() =>
+      decodeCamsFile(miniFile(), { ...DECODE_OPTIONS, expectedProduct: 'ANALYSIS' }),
+    ).toThrow(/WRONG PRODUCT TYPE/);
+  });
+
+  it('the run-day guard still applies to the analysis product (D−1 is a DIFFERENT day)', () => {
+    // The whole point of requesting D−1 is that its 24 hours are fully in the past; a file for
+    // the wrong day would be the one mistake that makes the merged series silently discontinuous.
+    expect(() =>
+      decodeCamsFile(miniFile({ timeLongName: 'ANALYSIS time from 20260801' }), {
+        ...DECODE_OPTIONS,
+        expectedRunDate: '20260731',
+        expectedProduct: 'ANALYSIS',
+      }),
+    ).toThrow(/WRONG DAY/);
+  });
+
   it('non-"hours" time units → schema error (a CF epoch here would shift every validAtUtc)', () => {
     const archive = miniFile({ timeUnits: 'hours since 2026-08-01 00:00:00' });
     expect(() => decodeCamsFile(archive, DECODE_OPTIONS)).toThrow(/expected the measured/);

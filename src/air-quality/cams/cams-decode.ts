@@ -38,8 +38,17 @@ import { NC_FLOAT, parseNetcdf3, type Netcdf3File } from './netcdf3';
  * guard (an all-fill file throws instead of returning quiet `not_supported` rows), and flags
  * wrapper-origin errors as `unexpected`. The committed probe artifact honestly records `@1` —
  * the run that produced it predates these guards.
+ * `@4` (A2a, plan §10-D7): the product word the `time:long_name` must carry is a CALLER
+ * PARAMETER ({@link CamsDecodeOptions.expectedProduct}) instead of the hardcoded `FORECAST`,
+ * because A2 requests TWO products a day (forecast D + analysis D−1) and `@3` refused the
+ * analysis file outright. The default stays `'FORECAST'`, so every `@3` caller keeps `@3`
+ * behaviour. The inflate ceiling also became caller-supplied (plan §10-D2) so the runtime's
+ * single source of truth is `AIR_QUALITY_RUN_MAX_BYTES`, not a module constant.
  */
-export const CAMS_DECODER_VERSION = 'netcdf3-ts@3';
+export const CAMS_DECODER_VERSION = 'netcdf3-ts@4';
+
+/** The two products this leg requests. It is the word `time:long_name` must carry. */
+export type CamsProduct = 'FORECAST' | 'ANALYSIS';
 
 /**
  * Upper plausibility bound for a raw concentration, µg/m³. Far above any physically observed
@@ -113,6 +122,24 @@ export interface CamsDecodeOptions {
   points: readonly CamsPoint[];
   /** Which pollutants the file MUST carry. Defaults to all five (the production shape). */
   pollutants?: readonly AirQualityPollutant[];
+  /**
+   * Which PRODUCT this file must be, cross-validated against `time:long_name` (plan §10-D7).
+   *
+   * Defaults to `'FORECAST'` so every pre-`@4` caller is unchanged. The ingest passes the
+   * requesting JOB's own kind — never a constant — so a forecast archive answered for an
+   * analysis request (or the reverse) is refused instead of published under the wrong label.
+   * That refusal is the machine half of the A-7 honesty rule; the storage half is the two
+   * products living in SEPARATE columns.
+   */
+  expectedProduct?: CamsProduct;
+  /**
+   * Ceiling on a DEFLATE entry's inflated size, forwarded to the ZIP reader (plan §10-D2).
+   *
+   * Optional so the hand-run probe and the unit fixtures keep the module default; the runtime
+   * ingest passes `AIR_QUALITY_RUN_MAX_BYTES` explicitly, which makes env the single source of
+   * truth for the heap ceiling instead of a constant that would drift beside it.
+   */
+  maxInflatedBytes?: number;
 }
 
 /**
@@ -163,7 +190,10 @@ function decodeCamsFileInner(archive: Uint8Array, options: CamsDecodeOptions): C
     seenPlateCodes.add(point.plateCode);
   }
 
-  const entry = extractSingleZipEntry(archive);
+  const entry = extractSingleZipEntry(
+    archive,
+    options.maxInflatedBytes === undefined ? {} : { maxInflatedBytes: options.maxInflatedBytes },
+  );
   const file = parseNetcdf3(entry.bytes);
 
   // ── axes + guards ─────────────────────────────────────────────────────────
@@ -257,7 +287,11 @@ function decodeCamsFileInner(archive: Uint8Array, options: CamsDecodeOptions): C
   // record stride, which skews every time-record read — reading time first would surface that
   // corruption as a confusing hour-ladder refusal instead of naming the root cause (the
   // re-typed variable). Both orders fail closed; this order diagnoses.
-  const timeHours = readTimeHours(file, options.expectedRunDate);
+  const timeHours = readTimeHours(
+    file,
+    options.expectedRunDate,
+    options.expectedProduct ?? 'FORECAST',
+  );
 
   // ── map every point, then extract ─────────────────────────────────────────
   const mappings = options.points.map((point) => {
@@ -481,12 +515,20 @@ function assertVariableShape(file: Netcdf3File, variableName: string): void {
  * the reference instant only in free text (`long_name = "FORECAST time from 20260731"`). The
  * global attribute KEY changes with the request type (`FORECAST`/`ANALYSIS`), so the check
  * reads `time:long_name` and searches for SUBSTRINGS — never full equality, never parsing a
- * timestamp out of prose. TWO substrings are bound: the `YYYYMMDD` run day AND the literal
- * `FORECAST` product word — Faz-1 requests only the forecast product, and an ANALYSIS file
- * slipping through would publish analysis steps under a contract that promises "every step is
- * model FORECAST output" (the A-7 honesty rule).
+ * timestamp out of prose. TWO substrings are bound: the `YYYYMMDD` run day AND the product
+ * word the CALLER asked for.
+ *
+ * `@4` (plan §10-D7) turned that product word into a parameter. `@3` hardcoded `FORECAST`
+ * because Faz-1 requested only forecasts; A2 requests both products, and the honesty rule is
+ * unchanged — it is now enforced in BOTH directions: an analysis file may not be published as
+ * forecast steps, and a forecast file may not be published as the analysis (past) half of the
+ * series. The caller passes the requesting job's own kind, never a constant.
  */
-function readTimeHours(file: Netcdf3File, expectedRunDate: string): number[] {
+function readTimeHours(
+  file: Netcdf3File,
+  expectedRunDate: string,
+  expectedProduct: CamsProduct,
+): number[] {
   const timeVariable = file.variable(DIMENSION_TIME);
   // The same element-type + CF-packing pin the data variables carry (review #77 R2-SFH-I1):
   // `time` was the ONE axis exempt from every check, and a packed NC_SHORT time would ×-skew
@@ -528,12 +570,13 @@ function readTimeHours(file: Netcdf3File, expectedRunDate: string): number[] {
     );
   }
   // Case-insensitive on purpose: the binding is PRODUCT IDENTITY, not prose casing — a benign
-  // casing drift ("Forecast …") must not raise a misleading WRONG PRODUCT TYPE alarm, while an
-  // analysis product stays refused in any casing.
-  if (!longName.value.toUpperCase().includes('FORECAST')) {
+  // casing drift ("Forecast …") must not raise a misleading WRONG PRODUCT TYPE alarm, while the
+  // other product stays refused in any casing.
+  if (!longName.value.toUpperCase().includes(expectedProduct)) {
     throw new CamsContractError(
-      `WRONG PRODUCT TYPE: time long_name "${longName.value}" does not contain "FORECAST" — ` +
-        'an ANALYSIS (or unknown) product must not be published as forecast steps.',
+      `WRONG PRODUCT TYPE: time long_name "${longName.value}" does not contain ` +
+        `"${expectedProduct}" — the two CAMS products are stored and published separately, and ` +
+        "one must never be served under the other's label.",
     );
   }
   if (!timeVariable.isRecord) {
