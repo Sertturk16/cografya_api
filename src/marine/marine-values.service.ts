@@ -28,8 +28,9 @@ import type { MarineOverviewPointDto } from './dto/marine-overview-point.dto';
 import type { MarineProvinceConditionsDto } from './dto/marine-province-conditions.dto';
 import type { MarineSeriesDto } from './dto/marine-series.dto';
 import { MarinePoint } from './entities/marine-point.entity';
+import { buildMarineAttributions } from './marine-attribution-catalogue';
 import { withCacheAge } from './marine-cache-age.interceptor';
-import { newestOkFetchedAt, oldestOkCacheAge } from './marine-read-reducers';
+import { ecmwfDataYear, newestOkFetchedAt, oldestOkCacheAge } from './marine-read-reducers';
 import { toMarinePointListItem } from './marine-point.mapper';
 import { MARINE_UPSTREAM_CONFIG, type MarineUpstreamConfig } from './marine-upstream.config';
 import { MarineSource } from './marine.types';
@@ -87,9 +88,8 @@ export class MarineValuesService {
    * cannot refresh by construction (U-1). So this endpoint makes ZERO upstream calls on every
    * branch, cold included — the locked COLD-BEHAVIOR row.
    *
-   * `attributions` is `[]` in M4 (Atlas ruling U-3): attribution text is licence-dictated DATA
-   * that M5 seeds together with the `data-provenance.md` entry; nothing is publicly enabled
-   * before M5, so no user ever sees the empty interim state.
+   * `attributions` carries BOTH licence rows from M5 on, cold responses included — see
+   * `buildMarineAttributions`.
    */
   async getOverview(): Promise<MarineOverviewDto> {
     const points = await this.marinePointRepository.find({ order: { displayOrder: 'ASC' } });
@@ -121,7 +121,7 @@ export class MarineValuesService {
       // that response is `no-store`, so its instability caches nowhere.
       generatedAtUtc: newestOkFetchedAt(allReads) ?? new Date(nowMs).toISOString(),
       dataAvailable,
-      attributions: [],
+      attributions: buildMarineAttributions(ecmwfDataYear(resolved.map((entry) => entry.ecmwf))),
     };
     return withCacheAge(dto, oldestOkCacheAge(allReads));
   }
@@ -168,7 +168,7 @@ export class MarineValuesService {
       // Each point resolved independently: the two-sea provinces' rows legitimately disagree
       // and are never averaged, suppressed together, or filled from each other.
       marinePoints: resolved.map((entry) => this.toConditionsDto(entry)),
-      attributions: [],
+      attributions: buildMarineAttributions(ecmwfDataYear(resolved.map((entry) => entry.ecmwf))),
     };
     return withCacheAge(dto, oldestOkCacheAge(resolved.flatMap((entry) => entry.reads)));
   }

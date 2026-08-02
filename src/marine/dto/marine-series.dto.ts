@@ -15,8 +15,10 @@ import { MARINE_DIRECTION_REFERENCE, MarineSource } from '../marine.types';
  * risky (arrays drifting out of length) is cheap to assert and IS asserted — whereas the
  * object form's cost is paid on every request forever.
  *
- * **NOT IMPLEMENTED YET** — the shape is published so the web repo can codegen; the endpoints
- * that return it land in M3b (ECMWF read path) and M4 (CMEMS + merge).
+ * **IMPLEMENTED** — assembled by the M3b ECMWF read path and served as
+ * `MarineConditionsDto.series` by `GET /api/marine/points/{slug}/conditions` (M4b). The old
+ * banner also promised a CMEMS half of the series that this DTO's own first paragraph rules
+ * out, so it went with it.
  */
 export class MarineSeriesDto {
   @ApiProperty({

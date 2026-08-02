@@ -11,7 +11,7 @@ import { MarineValueDto } from './marine-value.dto';
  * plus a `seriesSourceDiffersFromInstant` flag that means nothing without a series is contract
  * noise the web repo would have to defend against.
  *
- * **NOT IMPLEMENTED IN M1** — frozen contract only; the endpoint lands in M4.
+ * **IMPLEMENTED IN M4b** — served by `GET /api/marine/overview`.
  */
 export class MarineOverviewPointDto {
   @ApiProperty({ type: MarinePointListItemDto, description: 'The point this block describes.' })

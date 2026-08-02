@@ -68,7 +68,7 @@ const MGM_BASE_URL = 'https://www.mgm.gov.tr/veridegerlendirme/il-ve-ilceler-ist
  * not drift — the next `--phase=fetch` run will record this one.
  */
 const USER_AGENT =
-  'CografyaPlatformBot/1.0 (non-commercial educational geography platform; ' +
+  'CografyaPlatformBot/1.0 (educational geography platform; ' +
   'climate normals import; run by hand, yearly)';
 
 /**

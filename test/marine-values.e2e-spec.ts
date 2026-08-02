@@ -92,6 +92,42 @@ const FIELD_NAMES = [
   'windDirection10m',
 ] as const;
 
+interface AttributionDto {
+  providerId: string;
+  providerName: string;
+  licenceName: string;
+  licenceUrl: string;
+  requiredNoticeEn: string;
+  disclaimerEn: string | null;
+  explanationTr: string;
+  doi: string | null;
+  productTitle: string | null;
+}
+
+/**
+ * The licence rows every value response must carry (M5).
+ *
+ * STRUCTURAL on purpose: the verbatim bytes are pinned once, in the unit suite
+ * (`src/marine/marine-attribution-catalogue.spec.ts`), where the assertion is readable and does
+ * not need Postgres. What this suite must prove is different and only provable end to end — that
+ * the rows actually reach the wire, on the cold branch as well as the warm one.
+ */
+function expectBothAttributionRows(attributions: AttributionDto[]): void {
+  expect(attributions.map((row) => row.providerId)).toEqual(['ecmwf', 'cmems']);
+  for (const row of attributions) {
+    expect(row.requiredNoticeEn.length).toBeGreaterThan(0);
+    // The Turkish text travels alongside, never instead of, the English notice.
+    expect(row.explanationTr.length).toBeGreaterThan(0);
+    expect(row.explanationTr).not.toBe(row.requiredNoticeEn);
+    // DOIs live in data-provenance.md, not in the payload (DEC 2026-08-02g §2).
+    expect(row.doi).toBeNull();
+    expect(row.productTitle).toBeNull();
+  }
+  // ECMWF's licence mandates a disclaimer; the Copernicus Marine licence imposes none.
+  expect(attributions[0]?.disclaimerEn).not.toBeNull();
+  expect(attributions[1]?.disclaimerEn).toBeNull();
+}
+
 describe('Marine M4b value endpoints (e2e)', () => {
   let container: StartedPostgreSqlContainer;
   let dataSource: DataSource;
@@ -100,6 +136,8 @@ describe('Marine M4b value endpoints (e2e)', () => {
   let fakeBase: string;
   let points: MarinePoint[] = [];
   let pointByPixel = new Map<string, MarinePoint>();
+  /** The ECMWF cycle phase E records — the source of the copyright year phase F checks. */
+  let ingestedCycleUtc: Date | null = null;
 
   const state: FakeState = { stamps: new Map(), retired: new Set(), nullValues: new Set() };
 
@@ -334,7 +372,7 @@ describe('Marine M4b value endpoints (e2e)', () => {
       const body = response.body as {
         points: Record<string, FieldDto | object>[];
         dataAvailable: boolean;
-        attributions: unknown[];
+        attributions: AttributionDto[];
       };
 
       expect(body.dataAvailable).toBe(false);
@@ -346,7 +384,17 @@ describe('Marine M4b value endpoints (e2e)', () => {
           expect((entry[field] as FieldDto).value).toBeNull();
         }
       }
-      expect(body.attributions).toEqual([]);
+      // M5: the licence notice is attached to the SECTION, not to whichever provider answered,
+      // so a cold response carries both rows in full. This is the branch where getting it wrong
+      // is invisible — the page still renders, just unattributed.
+      expectBothAttributionRows(body.attributions);
+      // No ECMWF cycle has been ingested, so there is no data year: the copyright line is
+      // OMITTED rather than filled from the wall clock.
+      expect(body.attributions[0]?.requiredNoticeEn).not.toContain('Copyright');
+      expect(body.attributions[0]?.requiredNoticeEn).toContain(
+        'This service is based on data and products of',
+      );
+
       // THE cold row of the locked table: the batch endpoint reached for nothing.
       expect(wmtsCalls).toEqual([]);
       expect(stacCalls).toEqual([]);
@@ -441,7 +489,11 @@ describe('Marine M4b value endpoints (e2e)', () => {
     it('İstanbul costs ≤6 CMEMS calls and its two points answer independently', async () => {
       resetCounters();
       const response = await http().get('/api/marine/provinces/34/conditions').expect(200);
-      const body = response.body as { plateCode: string; marinePoints: ConditionsDto[] };
+      const body = response.body as {
+        plateCode: string;
+        marinePoints: ConditionsDto[];
+        attributions: AttributionDto[];
+      };
 
       // 3 Black Sea keys + 1 Marmara key (waves are not_supported there → NO call, the
       // routing-level skip that cmemsWaveSupport encodes — its real M4b call site).
@@ -476,6 +528,14 @@ describe('Marine M4b value endpoints (e2e)', () => {
       // deterministic 24 h-pin proof lives in `marine-read-reducers.spec.ts`.
       expect(response.headers['x-marine-cache-age']).toMatch(/^\d+$/);
       expect(Number(response.headers['x-marine-cache-age'])).toBeLessThanOrEqual(5);
+
+      // M5, the combination only this phase reaches: the PROVINCE endpoint with CMEMS warm and
+      // the ECMWF store still empty. Both licence rows must ship, and with no ingested cycle the
+      // copyright line must be omitted rather than filled from the wall clock. Phase F proves
+      // the same endpoint on the year-bearing branch; without this the null-year branch was
+      // e2e-covered on /overview only (review #83 SFH-M1).
+      expectBothAttributionRows(body.attributions);
+      expect(body.attributions[0]?.requiredNoticeEn).not.toContain('Copyright');
     });
   });
 
@@ -483,6 +543,9 @@ describe('Marine M4b value endpoints (e2e)', () => {
     beforeAll(async () => {
       const store = app.get<EcmwfIngestStorePort>(ECMWF_INGEST_STORE);
       const cycleUtc = new Date(Date.now() - 2 * 3_600_000);
+      // Hoisted: phase F asserts the served copyright year is THIS cycle's year, not the
+      // wall clock's — a distinction only a recorded cycle can prove.
+      ingestedCycleUtc = cycleUtc;
       for (const stepHour of [0, 3]) {
         await store.recordStep({
           cycleUtc,
@@ -606,6 +669,43 @@ describe('Marine M4b value endpoints (e2e)', () => {
       expect(etag).toBeDefined();
       if (etag === undefined) return;
       await http().get('/api/marine/overview').set('If-None-Match', etag).expect(304);
+    });
+
+    it('both value surfaces carry the SAME two licence rows, dated from the ingested cycle', async () => {
+      const overview = await http().get('/api/marine/overview').expect(200);
+
+      // Adding attributions must not destabilise the body: the weak-ETag / ISR revalidation
+      // contract requires two identical requests over unchanged data to be byte-identical.
+      // Done back to back, and BEFORE the province call, because `/overview` is peek-only and
+      // so writes nothing — while a province read-through legitimately may.
+      const repeat = await http().get('/api/marine/overview').expect(200);
+      expect(repeat.text).toBe(overview.text);
+
+      const province = await http().get('/api/marine/provinces/34/conditions').expect(200);
+      const overviewRows = (overview.body as { attributions: AttributionDto[] }).attributions;
+      const provinceRows = (province.body as { attributions: AttributionDto[] }).attributions;
+
+      expectBothAttributionRows(overviewRows);
+      // ONE source, two endpoints: the hub and the province page must not be able to publish
+      // different licence text, which is exactly what two hand-maintained copies would allow.
+      //
+      // Read the scope of this assertion precisely (review #83 CR-M4): identity holds HERE
+      // because the phase-E fixture records one cycle for every point, so both responses derive
+      // the same copyright year. It is NOT a contract guarantee — the year is computed per
+      // response over that response's own points, so a province whose cached cycle is older than
+      // the hub's freshest, or a request straddling a New Year boundary, may legitimately state
+      // a different year. What IS contractual is that the licence-fixed parts of the rows come
+      // from one module; do not turn this into a cross-endpoint equality requirement.
+      expect(provinceRows).toEqual(overviewRows);
+
+      // The year is the DATA's, taken from the cycle phase E recorded — not `new Date()`.
+      // Asserting it against the recorded cycle is what makes the difference observable; a
+      // wall-clock implementation would pass any check written against the wall clock.
+      expect(ingestedCycleUtc).not.toBeNull();
+      if (ingestedCycleUtc === null) return;
+      expect(overviewRows[0]?.requiredNoticeEn).toContain(
+        `© ${String(ingestedCycleUtc.getUTCFullYear())} European Centre`,
+      );
     });
   });
 

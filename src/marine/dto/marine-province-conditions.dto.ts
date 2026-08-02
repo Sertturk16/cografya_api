@@ -17,7 +17,28 @@ import { MarineConditionsDto } from './marine-conditions.dto';
  * the web repo to make two calls for those provinces, or to filter the hub overview — which
  * carries no series and so cannot render the chart the province page wants.
  *
- * **NOT IMPLEMENTED IN M1** — frozen contract only; the endpoint lands in M4.
+ * ## Why there is NO `dataAvailable` flag here, unlike `MarineOverviewDto` (M5 plan §6)
+ * Asked at W2b and answered deliberately: the asymmetry is correct and the flag will not be
+ * added.
+ *
+ * `MarineOverviewDto.dataAvailable` is a PAGE-LEVEL publishing gate. It belongs on `/deniz`
+ * because `/deniz` is marine data end to end: committing a cold response there would make an
+ * empty page indexable, which is the one failure the marine contract must prevent.
+ *
+ * `/turkiye/{il}` is a different animal. Marine is one SECTION of a page whose other content
+ * (climate, geography) is real Postgres data. A page-level gate here would mean a provider
+ * outage takes down the PAGE — the exact inverse of the repo rule that a provider outage
+ * degrades the widget and never the page (`ENGINEERING.md` §3.5). And the cold state is
+ * already honest at the resolution the province surface actually needs: every field carries
+ * `status: 'unavailable'`, per point, which is what the web gates its section on.
+ *
+ * Steel-man for adding it: with a flag the web could hide the whole section in one check.
+ * Counter: that condition is DERIVABLE from the field statuses already in `marinePoints`, and
+ * the web derives it in exactly one place today. A second flag whose meaning at page level is
+ * ambiguous would add an interpretation gap, not a capability. **Winner: current shape** — the
+ * gate already exists at field level, which is the right level for a section.
+ *
+ * **IMPLEMENTED IN M4b**; `attributions` filled in M5.
  */
 export class MarineProvinceConditionsDto {
   @ApiProperty({ example: '34', description: 'Plaka kodu (zero-padded).' })

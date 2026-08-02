@@ -38,11 +38,18 @@ export class MarinePointListItemDto {
     example: 'Marmara açıkları',
     description:
       'Province-relative short label, used INSIDE /turkiye/{il} where the province name is ' +
-      'already in the heading and repeating it would be noise.',
+      'already in the heading and repeating it would be noise. GUARANTEE: derived from the ' +
+      "point's seaBasin, and therefore UNIFORM across every point in a basin — the /deniz hub " +
+      "relies on it, taking the first point of a group as that basin's heading. Turning this " +
+      'into a per-point label would silently mislabel that heading, so it is a basin label ' +
+      'that happens to be served per point, not a free-text field.',
   })
   coastLabelTr!: string;
 
-  @ApiProperty({ example: 'Marmara offshore', description: 'Province-relative short label (EN).' })
+  @ApiProperty({
+    example: 'Marmara offshore',
+    description: 'Province-relative short label (EN). Same per-basin uniformity guarantee.',
+  })
   coastLabelEn!: string;
 
   @ApiProperty({

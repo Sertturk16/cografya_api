@@ -1,11 +1,17 @@
 import { describe, expect, it } from '@jest/globals';
 import type { CachedRead } from '../upstream/cache/upstream-cache.service';
-import { newestOkFetchedAt, oldestOkCacheAge } from './marine-read-reducers';
+import type { EcmwfPointSeriesRead } from './ecmwf/ecmwf-series.reader';
+import { ecmwfDataYear, newestOkFetchedAt, oldestOkCacheAge } from './marine-read-reducers';
+import { MarineSource } from './marine.types';
 
 /**
  * Review #82 I5, the deterministic half: negative cache reads carry ages and fetch stamps of
  * their own, and neither reducer may count them. The e2e asserts the İstanbul header class
  * end-to-end; the 24 h land-mask pin is only provable with constructed reads, here.
+ *
+ * `ecmwfDataYear` joins them for the same reason (review #83 I1): the e2e can only ever seed one
+ * cycle for every point, so "newest run wins", "skip a non-ok read" and "skip an unparseable
+ * stamp" are indistinguishable there from "return the one value present".
  */
 
 function okRead(cacheAgeSeconds: number, fetchedAtUtc: string): CachedRead<unknown> {
@@ -37,6 +43,49 @@ function negativeRead(
     fetchedAtUtc,
     reason: 'land mask',
     origin: 'peeked',
+  };
+}
+
+/**
+ * One ECMWF read, built from its real types — no cast, so a contract change breaks this file
+ * rather than letting it drift into asserting a shape nobody serves.
+ */
+function ecmwfRead(
+  kind: CachedRead<unknown>['kind'],
+  modelRunAtUtc: string,
+): CachedRead<EcmwfPointSeriesRead> {
+  const base = {
+    kind,
+    freshness: kind === 'ok' ? ('fresh' as const) : null,
+    cacheAgeSeconds: 5,
+    staleSinceUtc: null,
+    validAtUtc: null,
+    fetchedAtUtc: '2026-08-02T05:00:00Z',
+    reason: null,
+    origin: 'peeked' as const,
+  };
+  if (kind !== 'ok') return { ...base, value: null };
+  return {
+    ...base,
+    value: {
+      series: {
+        stepHours: 3,
+        timesUtc: [modelRunAtUtc],
+        seaSurfaceTemperature: [null],
+        waveHeight: [0.8],
+        waveDirection: [120],
+        windSpeed10m: [3.6],
+        windDirection10m: [326],
+        source: MarineSource.Ecmwf,
+        modelRunAtUtc,
+        horizonEndUtc: modelRunAtUtc,
+        support: { u10: 'ok', v10: 'ok', swh: 'ok', mwd: 'ok' },
+        validAtMs: Date.parse(modelRunAtUtc),
+      },
+      gridLatitude: 41.25,
+      gridLongitude: 29.5,
+      distanceKm: 10.74,
+    },
   };
 }
 
@@ -83,5 +132,64 @@ describe('newestOkFetchedAt', () => {
 
   it('no OK read → null (the caller falls back to the wall clock on the no-store branch)', () => {
     expect(newestOkFetchedAt([negativeRead('no_data', 5, '2026-08-02T05:00:00Z')])).toBeNull();
+  });
+});
+
+describe('ecmwfDataYear', () => {
+  it('states the NEWEST run year across a mixed-year batch, not the first or the oldest', () => {
+    // The branch the e2e cannot reach: it seeds one shared cycle for every point, so a
+    // regression to `resolved[0]` or to the oldest run would still ship green there.
+    const reads = [
+      ecmwfRead('ok', '2026-12-31T18:00:00Z'),
+      ecmwfRead('ok', '2027-01-01T00:00:00Z'),
+      ecmwfRead('ok', '2026-06-01T06:00:00Z'),
+    ];
+    expect(ecmwfDataYear(reads)).toBe(2027);
+    // Order must not matter — the reducer scans, it does not trust position.
+    expect(ecmwfDataYear([...reads].reverse())).toBe(2027);
+  });
+
+  it('takes the UTC year of the run, never the local one', () => {
+    // 2026-12-31T23:00Z is already 2027 in İstanbul. Attributing the data to 2027 would credit
+    // a run ECMWF never published that year.
+    expect(ecmwfDataYear([ecmwfRead('ok', '2026-12-31T23:00:00Z')])).toBe(2026);
+  });
+
+  it('ignores a non-ok read even when it carries a newer stamp', () => {
+    // A negative entry describes a FAILURE, not a published cycle: its year would attribute
+    // material we are not serving. Dropping this guard would also dereference a null value.
+    const reads = [
+      ecmwfRead('ok', '2025-05-01T00:00:00Z'),
+      ecmwfRead('transient', '2026-05-01T00:00:00Z'),
+    ];
+    expect(ecmwfDataYear(reads)).toBe(2025);
+    expect(ecmwfDataYear([ecmwfRead('no_data', '2026-05-01T00:00:00Z')])).toBeNull();
+  });
+
+  it('ignores an ok read carrying a null value — the clause `ecmwfRead` cannot produce', () => {
+    // `CachedRead<T>.value` is `T | null` INDEPENDENTLY of `kind`, so this shape type-checks and
+    // is reachable; the helper above only ever pairs `ok` with a value, so the `value === null`
+    // half of the guard would otherwise be live code no test executes. Dropping it would
+    // dereference `.series` on null.
+    const okButEmpty: CachedRead<EcmwfPointSeriesRead> = {
+      ...ecmwfRead('ok', '2026-03-01T00:00:00Z'),
+      value: null,
+    };
+
+    expect(ecmwfDataYear([okButEmpty])).toBeNull();
+    expect(ecmwfDataYear([okButEmpty, ecmwfRead('ok', '2025-03-01T00:00:00Z')])).toBe(2025);
+  });
+
+  it('ignores an unparseable run stamp rather than publishing "NaN"', () => {
+    // jsonb round-trips the stamp, so a malformed value is a runtime possibility, and
+    // `new Date(NaN).getUTCFullYear()` would render the copyright line as "© NaN".
+    expect(ecmwfDataYear([ecmwfRead('ok', 'not-a-timestamp')])).toBeNull();
+    expect(
+      ecmwfDataYear([ecmwfRead('ok', 'not-a-timestamp'), ecmwfRead('ok', '2026-03-01T00:00:00Z')]),
+    ).toBe(2026);
+  });
+
+  it('no ECMWF cycle at all → null, so the copyright line is omitted rather than faked', () => {
+    expect(ecmwfDataYear([])).toBeNull();
   });
 });
