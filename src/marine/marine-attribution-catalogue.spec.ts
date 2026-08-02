@@ -84,26 +84,46 @@ function foldForEndorsementGuard(value: string): string {
  *
  * It is a STRUCTURAL guard, not a byte-pin: it asserts a property of whatever the catalogue
  * serves, so it keeps working when a licence changes and the pinned strings above are
- * legitimately updated. Two properties are deliberate, both from review #83 I2c:
+ * legitimately updated. Three properties are deliberate, and each was measured rather than
+ * reasoned about (review #83 I2c, then its round-2 confirm leg):
  *
  * - patterns run over {@link foldForEndorsementGuard} output, so Turkish casing cannot evade
  *   them;
- * - the `resmî Copernicus` rule is ORDER-TOLERANT. Brief §4.3 lists `Copernicus resmî ölçümü`
- *   as banned, and a fixed two-word pattern missed exactly that. The window is bounded and
- *   stops at a sentence break, so it cannot pair two unrelated sentences.
+ * - the Turkish approval family is matched at its STEM (`onayl…`), not at the adjective
+ *   `onaylı`. `onaylanmıştır` and `onayladı` are the same claim in another inflection, and an
+ *   adjective-only pattern read them as clean. The lookahead subtracts exactly one thing: the
+ *   negation morpheme `-ma-` sitting directly on the stem (`onayla-ma-`, `onaylan-ma-`), i.e.
+ *   `onaylanmamıştır` / `onaylamamaktadır` / `onaylamaz`. Those are DENIALS of endorsement —
+ *   the opposite of the banned claim, and exactly the disclaimer ADS art. 5 pushes a careful
+ *   publisher towards; a guard that rejected them would be routed around, not fixed. The inner
+ *   `(?!k)` keeps the infinitive `-mak-` on the banned side, so the affirmative
+ *   `onaylamaktadır` still fires;
+ * - the officialness rule binds the ADJECTIVE TO ITS HEAD NOUN rather than to a provider name.
+ *   `CONVENTIONS.md` §7 bans the whole `resmî X verisi` class, not only its Copernicus
+ *   spelling, and the previous provider-proximity window (`copernicus[^.]{0,40}resmi`) was
+ *   wrong in both directions at once: it missed `ECMWF resmî verisi`, and it flagged
+ *   `Copernicus … resmî lisans metni` (a licence TITLE) and `Copernicus tarafından resmi
+ *   olarak yayımlanmamıştır` (a DENIAL). `resmî`/`official` followed within ONE token by a
+ *   data noun is the claim itself. One token is what the phrasings the brief lists need
+ *   (`resmî Copernicus verisi`, `official ECMWF data`) and is the widest window that still
+ *   leaves `resmî lisansı bu veriyi kapsar` alone — both directions are asserted below. The
+ *   `[^.]{0,40}` window is gone with it, and with it the old docblock's claim that the window
+ *   "stops at a sentence break": a negated character class stops at a period only, and would
+ *   have spanned `;`, `!`, `?` and newlines — which the served ECMWF `explanationTr`, with its
+ *   semicolon, actually contains.
  *
  * Being honest about its limits: this is a denylist of known phrasings, not a proof of
  * non-endorsement. It catches the wordings we have actually seen or been warned about; a novel
  * phrasing still needs a human reading the diff. `catches every phrasing` is not the claim.
  */
 const ENDORSEMENT_PATTERNS: readonly RegExp[] = [
-  /onayli/,
-  /approved by/,
+  /onayl(?!an?ma(?!k))/,
+  /destekli/,
+  /approved/,
+  /certified/,
   /endorsed/,
   /sponsored/,
-  /resmi[^.]{0,40}copernicus/,
-  /copernicus[^.]{0,40}resmi/,
-  /ab destekli/,
+  /(?:resmi|official)\s+(?:\S+\s+)?(?:veri|ölçüm|kaynak|ürün|data|measurement|source)/,
 ];
 
 /** Every string the API actually publishes, across both copyright-year branches. */
@@ -224,6 +244,10 @@ describe('buildMarineAttributions', () => {
   });
 
   it('claims no endorsement in any served string', () => {
+    // The single place the property is asserted over what we actually publish. It cuts both
+    // ways: over-folding and the widened patterns are safe only while the mandated strings stay
+    // clean, and both proper names ("Copernicus Marine Service", "E.U. Copernicus Marine
+    // Service") sit inside served text.
     for (const value of servedStrings()) {
       for (const pattern of ENDORSEMENT_PATTERNS) {
         expect(foldForEndorsementGuard(value)).not.toMatch(pattern);
@@ -233,9 +257,13 @@ describe('buildMarineAttributions', () => {
 });
 
 /**
- * The guard's OWN test. A denylist that quietly matches nothing passes the assertion above
- * forever; review #83 I2c found it doing precisely that for uppercase Turkish and for one word
- * order the brief lists by name. These cases pin the fix.
+ * The guard's OWN test, in BOTH directions. A denylist that quietly matches nothing passes the
+ * property assertion above forever (review #83 I2c found it doing exactly that); a denylist
+ * that matches everything gets routed around instead of fixed. Neither failure is visible from
+ * the served strings alone, so each direction gets its own corpus here.
+ *
+ * The served-strings negative property is NOT repeated in this block: it is asserted once, over
+ * the same `servedStrings()`, in `buildMarineAttributions` above.
  */
 describe('the endorsement guard itself', () => {
   const banned = [
@@ -254,6 +282,22 @@ describe('the endorsement guard itself', () => {
     'approved by ECMWF',
     'endorsed by the European Union',
     'sponsored by ECMWF',
+    // The verb family the adjective-only pattern missed: same claim, other inflections.
+    'ECMWF tarafından onaylanmıştır',
+    'onaylanmıştır',
+    'Copernicus onayladı',
+    // Affirmative `-makta-`, one letter away from the negated `-mamakta-` the guard exempts.
+    'ECMWF onaylamaktadır',
+    'ECMWF tarafından onaylanmaktadır',
+    // `destekli` bound to `ab` alone missed every other way of naming the same endorser.
+    'Avrupa Birliği destekli',
+    // `resmî` bound to `copernicus` alone missed the rest of the class §7 actually bans.
+    'ECMWF resmî verisi',
+    'Copernicus Marine Service resmî verisi',
+    'resmî veri kaynağı',
+    'official ECMWF data',
+    'official source',
+    'certified by ECMWF',
   ];
 
   it.each(banned)('flags %s', (phrase) => {
@@ -261,12 +305,29 @@ describe('the endorsement guard itself', () => {
     expect(ENDORSEMENT_PATTERNS.some((pattern) => pattern.test(folded))).toBe(true);
   });
 
-  it('does not fire on the licence wording we are obliged to publish', () => {
-    // The negative half: over-folding is safe only while the mandated strings stay clean, and
-    // both proper names ("Copernicus Marine Service", "E.U. Copernicus Marine Service") sit in
-    // served text. A guard that flagged them would be routed around, not fixed.
-    for (const value of servedStrings()) {
-      expect(ENDORSEMENT_PATTERNS.some((p) => p.test(foldForEndorsementGuard(value)))).toBe(false);
-    }
+  /**
+   * The other direction, and the reason the widening above is not simply `/onayl/` + `/resmi/`.
+   * Every entry here is text we may legitimately publish — a DENIAL of endorsement, a licence
+   * TITLE, or a mandated notice from a provider whose Turkish prose comes through this same
+   * guard at A2b (CAMS, NOVA brief §3.2). The first two were measured false positives of the
+   * pre-round-3 pattern set.
+   */
+  const allowed = [
+    'Bu veri Copernicus tarafından resmi olarak yayımlanmamıştır.',
+    'Copernicus Marine Service (CMEMS) resmî lisans metni bu sayfada yayımlanır.',
+    'Copernicus Marine Service resmî lisans sayfası',
+    'Copernicus resmî lisansı bu veriyi kapsar',
+    'Bu platform ECMWF tarafından onaylanmamıştır.',
+    'ECMWF bu servisi onaylamamaktadır.',
+    'ECMWF bu platformu onaylamaz.',
+    'Contains modified Copernicus Atmosphere Monitoring Service information 2026',
+    'Neither the European Commission nor ECMWF is responsible for any use that may be made of the Copernicus information or data it contains.',
+    'Değiştirilmiş Copernicus Atmosphere Monitoring Service bilgisi içerir 2026. Ne Avrupa Komisyonu ne de ECMWF, içerdiği Copernicus bilgi veya verisinin yapılabilecek herhangi bir kullanımından sorumludur.',
+    'Copernicus, Avrupa Birliği tarafından desteklenen bir Dünya gözlem programıdır.',
+  ];
+
+  it.each(allowed)('leaves %s alone', (phrase) => {
+    const folded = foldForEndorsementGuard(phrase);
+    expect(ENDORSEMENT_PATTERNS.some((pattern) => pattern.test(folded))).toBe(false);
   });
 });

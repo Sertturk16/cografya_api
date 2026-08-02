@@ -166,6 +166,20 @@ describe('ecmwfDataYear', () => {
     expect(ecmwfDataYear([ecmwfRead('no_data', '2026-05-01T00:00:00Z')])).toBeNull();
   });
 
+  it('ignores an ok read carrying a null value — the clause `ecmwfRead` cannot produce', () => {
+    // `CachedRead<T>.value` is `T | null` INDEPENDENTLY of `kind`, so this shape type-checks and
+    // is reachable; the helper above only ever pairs `ok` with a value, so the `value === null`
+    // half of the guard would otherwise be live code no test executes. Dropping it would
+    // dereference `.series` on null.
+    const okButEmpty: CachedRead<EcmwfPointSeriesRead> = {
+      ...ecmwfRead('ok', '2026-03-01T00:00:00Z'),
+      value: null,
+    };
+
+    expect(ecmwfDataYear([okButEmpty])).toBeNull();
+    expect(ecmwfDataYear([okButEmpty, ecmwfRead('ok', '2025-03-01T00:00:00Z')])).toBe(2025);
+  });
+
   it('ignores an unparseable run stamp rather than publishing "NaN"', () => {
     // jsonb round-trips the stamp, so a malformed value is a runtime possibility, and
     // `new Date(NaN).getUTCFullYear()` would render the copyright line as "© NaN".
