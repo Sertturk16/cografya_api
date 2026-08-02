@@ -747,4 +747,158 @@ describe('UpstreamHttpClient', () => {
       expect(events).toContainEqual(expect.objectContaining({ level: 'error' }));
     });
   });
+
+  // ── the A2a P1 delta: verbs, bodies, the retry opt-out and body redaction ──
+  describe('the P1 delta (method / requestBody / retryable / redactBody)', () => {
+    it('defaults to GET with no body — every pre-delta caller is byte-identical', async () => {
+      const fetchImpl = jest.fn<typeof fetch>(() => Promise.resolve(jsonResponse('{"value":1}')));
+      await request(build(fetchImpl));
+
+      const init = fetchImpl.mock.calls[0]?.[1] as RequestInit;
+      expect(init.method).toBe('GET');
+      expect(init.body).toBeUndefined();
+      expect((init.headers as Record<string, string>)['Content-Type']).toBeUndefined();
+    });
+
+    it('sends a POST body with its declared Content-Type', async () => {
+      const fetchImpl = jest.fn<typeof fetch>(() => Promise.resolve(jsonResponse('{"value":2}')));
+      await build(fetchImpl).request({
+        providerId: 'provider',
+        label: 'provider.submit',
+        url: URL_UNDER_TEST,
+        deadline: new OperationDeadline(6_000),
+        limits: LIMITS,
+        method: 'POST',
+        requestBody: { contentType: 'application/json', content: '{"inputs":{"a":1}}' },
+        parse: parseValue,
+      });
+
+      const init = fetchImpl.mock.calls[0]?.[1] as RequestInit;
+      expect(init.method).toBe('POST');
+      expect(init.body).toBe('{"inputs":{"a":1}}');
+      expect((init.headers as Record<string, string>)['Content-Type']).toBe('application/json');
+    });
+
+    it('DELETE reaches the provider as a DELETE with no body', async () => {
+      const fetchImpl = jest.fn<typeof fetch>(() => Promise.resolve(jsonResponse('{"value":3}')));
+      await build(fetchImpl).request({
+        providerId: 'provider',
+        label: 'provider.cleanup',
+        url: URL_UNDER_TEST,
+        deadline: new OperationDeadline(6_000),
+        limits: LIMITS,
+        method: 'DELETE',
+        parse: parseValue,
+      });
+
+      const init = fetchImpl.mock.calls[0]?.[1] as RequestInit;
+      expect(init.method).toBe('DELETE');
+      expect(init.body).toBeUndefined();
+    });
+
+    it('retryable:false makes a transient failure FINAL — zero retries, zero backoff sleeps', async () => {
+      // The submit case: a retry after the provider already accepted the job creates a SECOND
+      // job. There is no safe automatic recovery, so the retry must not happen at all.
+      const fetchImpl = jest.fn<typeof fetch>(() => Promise.reject(new Error('socket hang up')));
+      const outcome = await build(fetchImpl).request({
+        providerId: 'provider',
+        label: 'provider.submit',
+        url: URL_UNDER_TEST,
+        deadline: new OperationDeadline(6_000),
+        limits: LIMITS,
+        method: 'POST',
+        retryable: false,
+        requestBody: { contentType: 'application/json', content: '{}' },
+        parse: parseValue,
+      });
+
+      expect(outcome.kind).toBe('transient');
+      expect(fetchImpl).toHaveBeenCalledTimes(1);
+      expect(sleeps).toEqual([]);
+    });
+
+    it('a caller that does NOT opt out still retries once — the regression nail', async () => {
+      const fetchImpl = jest
+        .fn<typeof fetch>()
+        .mockImplementationOnce(() => Promise.reject(new Error('socket hang up')))
+        .mockImplementationOnce(() => Promise.resolve(jsonResponse('{"value":9}')));
+      const outcome = await request(build(fetchImpl));
+
+      expect(outcome).toEqual({ kind: 'ok', value: 9, validAtMs: null });
+      expect(fetchImpl).toHaveBeenCalledTimes(2);
+    });
+
+    it('NEGATIVE: a provider error body that echoes a bare key is redacted in the log line', async () => {
+      // The ADS key is a naked UUID: `redactSecrets` (pattern-based) cannot see it, so the
+      // caller supplies a VALUE-based redactor. Mirrors ERA5 PR-1's negative test.
+      const secret = '01234567-dead-beef-0123-456789abcdef';
+      const fetchImpl = jest.fn<typeof fetch>(() =>
+        Promise.resolve(
+          new Response(`{"detail":"token ${secret} rejected"}`, {
+            status: 400,
+            headers: { 'content-type': 'application/json' },
+          }),
+        ),
+      );
+      const outcome = await build(fetchImpl).request({
+        providerId: 'provider',
+        label: 'provider.submit',
+        url: URL_UNDER_TEST,
+        deadline: new OperationDeadline(6_000),
+        limits: LIMITS,
+        redactBody: (excerpt) => excerpt.split(secret).join('[REDACTED]'),
+        parse: parseValue,
+      });
+
+      expect(outcome.kind).toBe('client_error');
+      const reason = outcome.kind === 'client_error' ? outcome.reason : '';
+      expect(reason).not.toContain(secret);
+      expect(reason).toContain('[REDACTED]');
+      expect(JSON.stringify(events)).not.toContain(secret);
+    });
+
+    it('without redactBody the excerpt is exactly what it was before — the regression nail', async () => {
+      const fetchImpl = jest.fn<typeof fetch>(() =>
+        Promise.resolve(
+          new Response('{"detail":"plain provider prose"}', {
+            status: 400,
+            headers: { 'content-type': 'application/json' },
+          }),
+        ),
+      );
+      const outcome = await request(build(fetchImpl));
+
+      expect(outcome.kind).toBe('client_error');
+      const reason = outcome.kind === 'client_error' ? outcome.reason : '';
+      expect(reason).toContain('Body starts: {"detail":"plain provider prose"}');
+    });
+
+    it('a redactor that THROWS withholds the excerpt instead of leaking it', async () => {
+      const secret = 'super-secret-value';
+      const fetchImpl = jest.fn<typeof fetch>(() =>
+        Promise.resolve(
+          new Response(`{"detail":"${secret}"}`, {
+            status: 400,
+            headers: { 'content-type': 'application/json' },
+          }),
+        ),
+      );
+      const outcome = await build(fetchImpl).request({
+        providerId: 'provider',
+        label: 'provider.submit',
+        url: URL_UNDER_TEST,
+        deadline: new OperationDeadline(6_000),
+        limits: LIMITS,
+        redactBody: () => {
+          throw new Error('redactor bug');
+        },
+        parse: parseValue,
+      });
+
+      expect(outcome.kind).toBe('client_error');
+      const reason = outcome.kind === 'client_error' ? outcome.reason : '';
+      expect(reason).not.toContain(secret);
+      expect(reason).toContain('excerpt withheld');
+    });
+  });
 });

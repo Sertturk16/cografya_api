@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { Logger } from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { FakeRedisClient } from '../../test/support/fake-redis-client';
 import { OperationDeadline } from './operation-deadline';
@@ -32,6 +33,7 @@ describe('ScheduledWarmupService', () => {
       enabled: boolean;
       deadlineMs: number;
       intervalSeconds: number;
+      disabledBy: string;
     }> = {},
     redis: FakeRedisClient | null = null,
     token = 'token-a',
@@ -39,6 +41,7 @@ describe('ScheduledWarmupService', () => {
     return new ScheduledWarmupService(registry, metrics, redis, {
       name: overrides.name ?? 'marine',
       enabled: overrides.enabled ?? true,
+      disabledBy: overrides.disabledBy ?? 'MARINE_ENABLED / MARINE_WARMUP_ENABLED',
       intervalSeconds: overrides.intervalSeconds ?? 900,
       deadlineMs: overrides.deadlineMs ?? 120_000,
       now: () => nowMs,
@@ -85,6 +88,33 @@ describe('ScheduledWarmupService', () => {
 
     it('tears down cleanly even if bootstrap never ran', () => {
       expect(() => build({ enabled: false }).onModuleDestroy()).not.toThrow();
+    });
+
+    it("the disabled line names the OWNING leg's env vars, not a hardcoded pair (CR-1)", () => {
+      // Marine's line is pinned byte-for-byte: parameterising it must not change what the
+      // instance that has printed it since M2 prints.
+      const logged: string[] = [];
+      const marine = build({ enabled: false });
+      jest.spyOn(Logger.prototype, 'log').mockImplementation((message: unknown) => {
+        logged.push(String(message));
+      });
+      marine.onApplicationBootstrap();
+      expect(logged).toContain(
+        'warmup is disabled (MARINE_ENABLED / MARINE_WARMUP_ENABLED) — no timers',
+      );
+
+      // A second leg says its OWN names — the failure this field exists to prevent is an
+      // operator sent to the wrong kill switch.
+      logged.length = 0;
+      build({
+        enabled: false,
+        name: 'air-quality',
+        disabledBy: 'AIR_QUALITY_ENABLED / AIR_QUALITY_INGEST_ENABLED',
+      }).onApplicationBootstrap();
+      expect(logged).toContain(
+        'warmup is disabled (AIR_QUALITY_ENABLED / AIR_QUALITY_INGEST_ENABLED) — no timers',
+      );
+      jest.restoreAllMocks();
     });
   });
 
