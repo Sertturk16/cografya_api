@@ -79,7 +79,7 @@ const OPEN_METEO_MARINE_ENDPOINT = 'https://marine-api.open-meteo.com/v1/marine'
  * a personal address, is an owner decision rather than an engineering one. Surfaced to Atlas.
  */
 const USER_AGENT =
-  'CografyaPlatformBot/1.0 (non-commercial educational geography platform; ' +
+  'CografyaPlatformBot/1.0 (educational geography platform; ' +
   'marine reference-point probe; run by hand, roughly yearly)';
 
 const REQUEST_TIMEOUT_MS = 20_000;

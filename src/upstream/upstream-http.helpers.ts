@@ -22,17 +22,25 @@ export const UPSTREAM_MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
 /**
  * How the running server identifies itself to every third-party provider.
  *
- * Honest, non-commercial, and NOT pretending to be a browser. It claims NO contact URL, because
- * we have none to give: an earlier string pointed at the PROVIDER's own homepage, which is a
- * contact channel that only looks like one (review #72).
+ * Honest, and NOT pretending to be a browser. It claims NO contact URL, because we have none to
+ * give: an earlier string pointed at the PROVIDER's own homepage, which is a contact channel
+ * that only looks like one (review #72).
+ *
+ * It also no longer claims to be "non-commercial". That word was inherited from an early draft
+ * and became FALSE when the platform was ruled commercial from day one (DEC 2026-07-30k — it
+ * will carry ads). A user agent is a statement to the provider, and some providers gate access
+ * on exactly this distinction, so a stale non-commercial claim is a misrepresentation rather
+ * than a cosmetic string. Removed repo-wide in M5 (ruling DEC 2026-08-02h S6). The truthful
+ * form simply drops the claim — it does NOT assert "commercial" instead, which no provider
+ * asked us to declare. Every licence behind the wired sources permits commercial use, so
+ * nothing about our access depends on the claim.
  *
  * TODO(contact): publish a real Coğrafya-owned contact URL or mailbox here — and at the two
  * import-tool user agents (`src/database/marine/probe-marine-points.ts`,
  * `src/database/climate/mgm-fetch.ts`), which carry the same pending decision — once the domain
  * exists. Inventing one, or committing a personal address, is an owner call.
  */
-export const UPSTREAM_USER_AGENT =
-  'CografyaPlatformBot/1.0 (non-commercial educational geography platform)';
+export const UPSTREAM_USER_AGENT = 'CografyaPlatformBot/1.0 (educational geography platform)';
 
 /** Thrown internally when a body breaches {@link UPSTREAM_MAX_RESPONSE_BYTES}. */
 export class UpstreamOversizedResponseError extends Error {

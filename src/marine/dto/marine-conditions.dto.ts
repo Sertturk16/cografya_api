@@ -7,7 +7,22 @@ import { MarineValueDto } from './marine-value.dto';
 /**
  * One point's FULL payload: instant values plus the 5-day series.
  *
- * **NOT IMPLEMENTED IN M1** — frozen contract only; the endpoints land in M4.
+ * ## BINDING: this DTO carries NO `attributions`, and that is a DEFERRAL, not a decision
+ * `GET /api/marine/points/{slug}/conditions` returns this shape at the top level and is the one
+ * marine value endpoint that publishes derived provider data with no licence notice attached.
+ * M1 froze it that way; M5 documented the gap instead of closing it (plan §8 R1, Atlas ruling
+ * DEC 2026-08-02h S5) for one reason only: **the endpoint has no consumer today.** The hub
+ * reads `/overview`, the province surfaces read `/provinces/{plateCode}/conditions`, and both
+ * of those carry both rows. Adding the array here would also nest it once per point inside the
+ * province response (twice for İstanbul), which is why it is not simply bolted on.
+ *
+ * **THE RULE, and it binds whoever breaks it first:** any surface that starts consuming
+ * `/points/{slug}/conditions` MUST display the ECMWF and Copernicus Marine notices, and
+ * `attributions` rides that change — it is part of the work of wiring the endpoint up, not a
+ * follow-up ticket. Shipping a page off this endpoint without the notices is a licence breach,
+ * not a missing nicety. `marine-attribution-catalogue.ts` already holds the rows.
+ *
+ * **IMPLEMENTED IN M4b.**
  */
 export class MarineConditionsDto {
   @ApiProperty({ type: MarinePointListItemDto, description: 'The point this block describes.' })

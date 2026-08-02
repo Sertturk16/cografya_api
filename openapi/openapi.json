@@ -1682,12 +1682,12 @@
           "coastLabelTr": {
             "type": "string",
             "example": "Marmara açıkları",
-            "description": "Province-relative short label, used INSIDE /turkiye/{il} where the province name is already in the heading and repeating it would be noise."
+            "description": "Province-relative short label, used INSIDE /turkiye/{il} where the province name is already in the heading and repeating it would be noise. GUARANTEE: derived from the point's seaBasin, and therefore UNIFORM across every point in a basin — the /deniz hub relies on it, taking the first point of a group as that basin's heading. Turning this into a per-point label would silently mislabel that heading, so it is a basin label that happens to be served per point, not a free-text field."
           },
           "coastLabelEn": {
             "type": "string",
             "example": "Marmara offshore",
-            "description": "Province-relative short label (EN)."
+            "description": "Province-relative short label (EN). Same per-basin uniformity guarantee."
           },
           "plateCode": {
             "type": "string",
@@ -1801,40 +1801,45 @@
           "providerId": {
             "type": "string",
             "example": "cmems",
-            "description": "Stable provider key."
+            "description": "Stable provider key, 'ecmwf' or 'cmems'. Joins to MarineLayerDto.attributionId, so a renderer can name the provider behind each layer."
           },
           "providerName": {
             "type": "string",
-            "example": "Copernicus Marine Service",
-            "description": "Provider display name."
+            "example": "E.U. Copernicus Marine Service",
+            "description": "Provider display name, as the provider itself writes it in the mandated notice. Not a localizable label — do not translate it."
           },
           "licenceName": {
             "type": "string",
-            "example": "Copernicus Marine Service licence",
-            "description": "Licence name."
+            "example": "Copernicus Marine Service Commitments and Licence",
+            "description": "Licence name, verbatim. The legal name of a licence is never translated."
           },
           "licenceUrl": {
             "type": "string",
-            "example": "https://marine.copernicus.eu/",
-            "description": "Licence URL."
-          },
-          "requiredNoticeTr": {
-            "type": "string",
-            "description": "The notice the licence REQUIRES us to display, verbatim (TR). Not editorial copy — shortening or restyling it is a licence breach, so it is data, not a template."
+            "example": "https://marine.copernicus.eu/user-corner/service-commitments-and-licence",
+            "description": "Canonical licence URL. Use this exact URL — a localized Creative Commons variant is not the same document."
           },
           "requiredNoticeEn": {
             "type": "string",
-            "description": "The required notice, verbatim (EN)."
+            "description": "The notice the licence REQUIRES us to display, VERBATIM and IN ENGLISH. Not editorial copy: shortening, restyling, reordering or translating it is a licence breach, so it is data, not a template. Render it as-is and mark it lang=\"en\" even on the Turkish locale. For ECMWF it starts with a copyright line whose year comes from the data behind this very response; when no ECMWF cycle has been ingested that line is OMITTED rather than faked, and the notice begins at the mandatory service sentence."
+          },
+          "disclaimerEn": {
+            "type": "string",
+            "nullable": true,
+            "description": "The liability disclaimer the licence requires, VERBATIM and IN ENGLISH, or null where the licence imposes none. Separate from requiredNoticeEn because the two providers genuinely differ: ECMWF mandates a disclaimer, the Copernicus Marine licence does not. Merging them into one string would tell the reader CMEMS carries a disclaimer it does not. Render it next to the notice, same lang=\"en\" rule."
+          },
+          "explanationTr": {
+            "type": "string",
+            "description": "Informational Turkish rendering of the notice. It stands ALONGSIDE requiredNoticeEn and MUST NEVER REPLACE IT — not even on the Turkish locale. ECMWF's terms say the wording \"shall be attached\" and, unlike the Copernicus framework, offer no \"or any similar notice\" escape, so the English text is the one that discharges the obligation. This field exists so a Turkish reader can understand it, not so a renderer can substitute it. Renamed from requiredNoticeTr in M5 precisely because the old name implied the opposite."
           },
           "doi": {
             "type": "string",
             "nullable": true,
-            "description": "Product DOI when the provider issues one, else null."
+            "description": "Deliberately null — DOIs live in data-provenance.md (DEC 2026-08-02g §2), not on the page. Serving one here would hand the web the easiest possible way to break that rule, and a single DOI cannot represent the five CMEMS products behind these values anyway: picking one would be a false statement about provenance."
           },
           "productTitle": {
             "type": "string",
             "nullable": true,
-            "description": "Product title as the provider names it, when required by the licence."
+            "description": "Deliberately null — same reasoning as doi. Neither licence requires a product title in the visible notice, and the marine values are merged across several products per field."
           }
         },
         "required": [
@@ -1842,8 +1847,9 @@
           "providerName",
           "licenceName",
           "licenceUrl",
-          "requiredNoticeTr",
           "requiredNoticeEn",
+          "disclaimerEn",
+          "explanationTr",
           "doi",
           "productTitle"
         ]

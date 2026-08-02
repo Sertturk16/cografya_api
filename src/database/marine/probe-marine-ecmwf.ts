@@ -104,7 +104,7 @@ const PROBE_STEP_HOURS = 72;
  * the same open TODO the other two import tools carry.
  */
 const USER_AGENT =
-  'CografyaPlatformBot/1.0 (non-commercial educational geography platform; ' +
+  'CografyaPlatformBot/1.0 (educational geography platform; ' +
   'ECMWF Open Data reference-point probe; run by hand)';
 
 const REQUEST_TIMEOUT_MS = 60_000;
