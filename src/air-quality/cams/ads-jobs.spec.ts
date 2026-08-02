@@ -20,6 +20,7 @@ import {
   jobUrl,
   jobsListUrl,
   parseCosting,
+  parseJobDismissal,
   parseJobList,
   parseJobStatus,
   parseResultAsset,
@@ -250,20 +251,39 @@ describe('terminal classification', () => {
   it('names the states that must never be retried', () => {
     expect(isTerminalProviderStatus('rejected')).toBe(true);
     expect(isTerminalProviderStatus('dismissed')).toBe(true);
-    // `failed` is the provider's TRANSIENT class and is retried against the per-job budget.
+    // `failed` is NOT in this vocabulary: it terminates the JOB as our own `failed` state via
+    // its dedicated branch (plan §5.4 ladder, `failed ⇒ failed`), not as a provider refusal.
     expect(isTerminalProviderStatus('failed')).toBe(false);
     expect(isTerminalProviderStatus('running')).toBe(false);
   });
 
-  it('reads a licence refusal from the BODY, not from a string match on the whole message', () => {
+  it('recognises a licence 403 from the refusal text, tolerant of the 200-byte excerpt cap', () => {
     expect(
       isLicenceRefusal(
         403,
         '{"type":"permission denied","title":"required licences not accepted"}',
       ),
     ).toBe(true);
+    // The composed client_error reason, truncated mid-body by the excerpt cap — the shape the
+    // call site actually receives (review #80 I5: a strict JSON.parse here never matched).
+    expect(
+      isLicenceRefusal(
+        403,
+        'forecast.execution: HTTP 403 — OUR request was rejected by https://ads.test. ' +
+          'Body starts: {"type":"permission denied","title":"required licen',
+      ),
+    ).toBe(true);
     expect(isLicenceRefusal(403, '{"title":"forbidden"}')).toBe(false);
     expect(isLicenceRefusal(400, '{"title":"required licences not accepted"}')).toBe(false);
+    expect(isLicenceRefusal(undefined, '{"title":"required licences not accepted"}')).toBe(false);
     expect(isLicenceRefusal(403, 'not json at all')).toBe(false);
+  });
+
+  it('a DELETE confirmation requires only `status` — the body’s other fields are unmeasured', () => {
+    expect(parseJobDismissal('{"status":"dismissed"}')).toEqual({ status: 'dismissed' });
+    expect(parseJobDismissal('{"jobID":"job-1","status":"dismissed"}')).toEqual({
+      status: 'dismissed',
+    });
+    expect(() => parseJobDismissal('{"jobID":"job-1"}')).toThrow(UpstreamSchemaError);
   });
 });

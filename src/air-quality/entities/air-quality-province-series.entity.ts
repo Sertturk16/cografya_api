@@ -21,6 +21,31 @@ const decimalTransformer: ValueTransformer = {
 };
 
 /**
+ * The SINGLE rounding authority for the two `numeric(9,6)` grid-coordinate columns.
+ *
+ * The decoder yields raw float32 axis values (`Math.fround(40.95)` = `40.95000076293945`),
+ * while the column keeps 6 decimals — so a value compared across the write→read round trip
+ * MUST pass through one shared rounding, or the analysis grid-identity guard refuses every
+ * real run: the probe's 81 committed cells produced 76/81 spurious mismatches against a strict
+ * `!==` (review #80 C2, empirically validated). Applying it in the `to:` transformer means
+ * Postgres never rounds anything itself; what the guard reads back is exactly what this
+ * function returns, and the guard applies the same function to the freshly decoded side.
+ *
+ * Idempotent by construction, so re-rounding a stored value is a no-op.
+ */
+export function toStoredDegrees(value: number): number {
+  return Math.round(value * 1e6) / 1e6;
+}
+
+/** `decimalTransformer` + {@link toStoredDegrees} on the way IN — grid coordinates only. */
+const degreesTransformer: ValueTransformer = {
+  to: (value: number | null | undefined): number | null =>
+    value === null || value === undefined ? null : toStoredDegrees(value),
+  from: (value: string | null | undefined): number | null =>
+    value === null || value === undefined ? null : Number(value),
+};
+
+/**
  * One province's RAW concentrations for one run — the store the A2b read path compiles the
  * public DTOs from.
  *
@@ -71,7 +96,7 @@ export class AirQualityProvinceSeries {
     type: 'numeric',
     precision: 9,
     scale: 6,
-    transformer: decimalTransformer,
+    transformer: degreesTransformer,
   })
   gridLatitude!: number;
 
@@ -80,7 +105,7 @@ export class AirQualityProvinceSeries {
     type: 'numeric',
     precision: 9,
     scale: 6,
-    transformer: decimalTransformer,
+    transformer: degreesTransformer,
   })
   gridLongitude!: number;
 

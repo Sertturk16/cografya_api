@@ -38,11 +38,13 @@ import {
   jobUrl,
   jobsListUrl,
   parseCosting,
+  parseJobDismissal,
   parseJobList,
   parseJobStatus,
   parseResultAsset,
   type AdsRequestBody,
 } from './ads-jobs';
+import { toStoredDegrees } from '../entities/air-quality-province-series.entity';
 import { adsRedactor } from './ads-redaction';
 import { decodeCamsFile, type CamsDecodedFile } from './cams-decode';
 import { CamsContractError } from './cams.errors';
@@ -148,10 +150,13 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
     if (newest !== null && newest.runUtc.getTime() >= targetRunUtc.getTime()) {
       return newest;
     }
-    if (newest === null && nowDate.getUTCHours() < config.ads.submitAfterUtcHour) {
-      // Cold start before the submit hour: the run day we would create is yesterday's, whose
-      // results may already have expired on the provider's side. Wait for the hour.
-      this.logger.debug('cold start before the submit hour — nothing to ingest yet');
+    if (nowDate.getUTCHours() < config.ads.submitAfterUtcHour) {
+      // Before the submit hour the target run day is still YESTERDAY's. Whether this is a cold
+      // start or the first tour after a multi-day outage, creating that run now would submit
+      // jobs for a past run day only for the submit hour to supersede them loudly a few hours
+      // later — one whole wasted job cycle (review #80 M3). A run already created for the
+      // target day was returned above and keeps advancing through this window unimpeded.
+      this.logger.debug('before the submit hour — the current run day is not submittable yet');
       return null;
     }
 
@@ -305,7 +310,10 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
     });
 
     if (outcome.kind !== 'ok') {
-      if (outcome.kind === 'client_error' && isLicenceRefusal(403, outcome.reason)) {
+      // The status is read STRUCTURALLY from the outcome, and the match runs over the composed
+      // (redacted, excerpt-capped) reason text — a JSON.parse of that text can never succeed,
+      // which is exactly how the previous form left this branch unreachable (review #80 I5).
+      if (outcome.kind === 'client_error' && isLicenceRefusal(outcome.httpStatus, outcome.reason)) {
         await this.terminate(run, index, job, 'licence not accepted for this dataset', 'refused');
         return;
       }
@@ -317,11 +325,13 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
         kind: job.kind,
         outcome: outcome.kind,
       });
+      const attempts = job.attempts + 1;
+      this.noteAttemptsSpent(run, job, attempts, this.redact(outcome.reason));
       await this.writeJob(run, index, {
         ...job,
         state: 'submitting',
         submittedAt,
-        attempts: job.attempts + 1,
+        attempts,
         lastError: this.redact(outcome.reason),
       });
       return;
@@ -381,10 +391,12 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
         `${job.kind}: no upstream job matches our submit window — the submit never arrived; ` +
           'returning to costed for ONE clean re-submit.',
       );
+      const attempts = job.attempts + 1;
+      this.noteAttemptsSpent(run, job, attempts, 'submit never arrived; re-submit budget spent');
       await this.writeJob(run, index, {
         ...job,
         state: 'costed',
-        attempts: job.attempts + 1,
+        attempts,
         submittedAt: null,
       });
       return;
@@ -403,8 +415,16 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
           candidates: candidates.length,
         },
       );
+      // The ambiguity SPENDS an attempt: without this the job stayed permanently progressable,
+      // re-entering here (and re-paying the ADS request + re-emitting the event) every tour
+      // forever — ~144×/day of identical error events and wasted provider budget (review #80
+      // I10). The attempt budget now terminates it into an honest terminal rollup; the alarm
+      // above has already said a human must look.
+      const attempts = job.attempts + 1;
+      this.noteAttemptsSpent(run, job, attempts, 'reconciliation ambiguous; attempt budget spent');
       await this.writeJob(run, index, {
         ...job,
+        attempts,
         lastError: `${String(candidates.length)} unknown upstream jobs match our submit window`,
       });
       return;
@@ -426,7 +446,13 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
     job: AdsJobRecord,
     deadline: OperationDeadline,
   ): Promise<void> {
-    if (job.jobId === null) return;
+    if (job.jobId === null) {
+      // Unreachable by construction (`submitted`/`running` are only written with a job id). If
+      // a refactor ever breaks that, this tour would otherwise spin here silently forever —
+      // say so instead (review #80 M8).
+      this.logger.error(`${job.kind}: state "${job.state}" with no jobId — ingest wiring bug`);
+      return;
+    }
     const outcome = await this.deps.client.request({
       ...this.baseRequest(deadline, `${job.kind}.poll`),
       url: jobUrl(this.deps.config.ads, job.jobId),
@@ -448,18 +474,31 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
       return;
     }
     if (isTerminalProviderStatus(status)) {
+      this.deps.metrics.increment('airq.provider_refusal', CAMS_ADS_PROVIDER);
       await this.terminate(
         run,
         index,
-        job,
+        { ...job, ...stamps },
         `the provider ended the job as "${status}"`,
         'rejected',
       );
       return;
     }
     if (status === 'failed') {
-      // The provider's transient class: retried against the per-JOB attempt budget.
-      await this.recordTransient(run, index, { ...job, ...stamps }, `provider job status "failed"`);
+      // Terminal for the JOB, immediately — the plan §5.4 ladder's `failed ⇒ failed`. A
+      // provider-side `failed` never becomes `successful` again, so "retrying" here could only
+      // re-poll the same dead job until the attempt budget burned out (~1 h of noise for the
+      // same answer, review #80 I11). The rollup and its abandoned/degraded alarm fire now,
+      // while a human could still conceivably act on the day.
+      this.deps.metrics.increment('airq.provider_failed', CAMS_ADS_PROVIDER);
+      await this.terminate(
+        run,
+        index,
+        { ...job, ...stamps },
+        'the provider ended the job as "failed" — a fresh submit needs a human decision',
+        'failed',
+        'upstream',
+      );
       return;
     }
     await this.writeJob(run, index, {
@@ -475,7 +514,11 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
     job: AdsJobRecord,
     deadline: OperationDeadline,
   ): Promise<void> {
-    if (job.jobId === null) return;
+    if (job.jobId === null) {
+      // Unreachable by construction — see the matching guard in stepPoll (review #80 M8).
+      this.logger.error(`${job.kind}: state "${job.state}" with no jobId — ingest wiring bug`);
+      return;
+    }
     const outcome = await this.deps.client.request({
       ...this.baseRequest(deadline, `${job.kind}.results`),
       url: jobResultsUrl(this.deps.config.ads, job.jobId),
@@ -492,6 +535,9 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
     try {
       url = assertAllowedDownloadHost(outcome.value.href, ads.objectStoreHosts);
     } catch (error: unknown) {
+      // SSRF class — the plan's §5.4 guard 1 requires this refusal to be LOUD, and `terminate`
+      // now alarms every abandoned run by construction; the dedicated counter names the cause.
+      this.deps.metrics.increment('airq.download_host_refused', CAMS_ADS_PROVIDER);
       await this.terminate(
         run,
         index,
@@ -558,6 +604,9 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
     const outcome = await this.deps.client.request<Uint8Array>({
       ...this.baseRequest(deadline, `${job.kind}.download`),
       url: asset.href,
+      // The ONE long call of the protocol (12.6 s measured for 25 MiB). Every JSON step runs
+      // under the poll timeout set in `baseRequest`; only the archive gets the download cap.
+      singleCallTimeoutMs: ads.downloadTimeoutMs,
       responseKind: 'bytes',
       expectedContentType: DOWNLOAD_CONTENT_TYPES,
       // No PRIVATE-TOKEN here: the object store authenticates nothing, and sending the key to a
@@ -648,8 +697,13 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
       throw error;
     }
 
-    const expectedSteps = expectedStepCount(config.ads, job.kind);
+    // Judged against the horizon THIS RUN was created with (persisted for exactly this,
+    // SAPMA 3) — an env change mid-run must not refuse an in-flight run whose bytes were
+    // already paid for (review #80 M2).
+    const expectedSteps =
+      job.kind === 'forecast' ? run.forecastHours + 1 : expectedStepCount(config.ads, job.kind);
     if (decoded.timeHours.length !== expectedSteps) {
+      this.deps.metrics.increment('airq.step_count_mismatch', CAMS_ADS_PROVIDER);
       await this.terminate(
         run,
         index,
@@ -682,12 +736,38 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
     // past came from — so the analysis is refused and the forecast publication is untouched.
     if (job.kind === 'analysis') {
       const forecastCells = await store.gridCellsFor(run.runUtc);
+      if (forecastCells.size === 0) {
+        // Defence in depth: `selectNextJob` no longer advances an analysis past a dead
+        // forecast, so an empty map here is an ingest sequencing bug, not provider drift.
+        // Saying "the grids differ" would send the operator to the provider, the wrong way
+        // (review #80 I12 / M7 — the validator's misdirection note).
+        this.deps.metrics.increment('airq.analysis_without_forecast', CAMS_ADS_PROVIDER);
+        this.deps.metrics.event(
+          'error',
+          'air-quality analysis decoded but this run has NO stored forecast rows — nothing to ' +
+            'align the grid-identity guard with; refusing the analysis product (ingest ' +
+            'sequencing bug, NOT a provider grid change)',
+          { provider: CAMS_ADS_PROVIDER, runUtc: run.runUtc.toISOString() },
+        );
+        await this.terminate(
+          run,
+          index,
+          job,
+          'no forecast rows are stored for this run — the analysis has nothing to align with',
+          'refused',
+        );
+        return;
+      }
+      // Both sides pass through `toStoredDegrees`: the stored side went through the
+      // `numeric(9,6)` transformer, so comparing it against the raw float32 decode would
+      // refuse essentially every real run — 76/81 committed probe cells mismatch under a
+      // strict `!==` (review #80 C2, empirically validated).
       const mismatched = rows.filter((row) => {
         const cell = forecastCells.get(row.provinceId);
         return (
           cell === undefined ||
-          cell.latitude !== row.gridLatitude ||
-          cell.longitude !== row.gridLongitude
+          toStoredDegrees(cell.latitude) !== toStoredDegrees(row.gridLatitude) ||
+          toStoredDegrees(cell.longitude) !== toStoredDegrees(row.gridLongitude)
         );
       });
       if (mismatched.length > 0) {
@@ -723,7 +803,7 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
     await store.recordProduct({
       runUtc: run.runUtc,
       kind: job.kind,
-      hours: job.kind === 'forecast' ? config.ads.forecastHours : decoded.timeHours.length,
+      hours: job.kind === 'forecast' ? run.forecastHours : decoded.timeHours.length,
       provinces: rows,
       bytesDownloaded: bytes,
       fileFormat: `zip(${String(decoded.zipMethod)})+${decoded.innerFormat}`,
@@ -751,15 +831,21 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
     deadline: OperationDeadline,
   ): Promise<void> {
     const job = run.adsRequests[index];
-    if (job === undefined || job.jobId === null) return;
+    if (job === undefined || job.jobId === null) {
+      // Unreachable: the cleanup selector only picks jobs WITH an id (review #80 M8).
+      this.logger.error('cleanup selected a job with no jobId — ingest wiring bug');
+      return;
+    }
 
     const outcome = await this.deps.client.request({
       ...this.baseRequest(deadline, `${job.kind}.delete`),
       url: jobUrl(this.deps.config.ads, job.jobId),
       method: 'DELETE',
-      // Measured: HTTP 200 + application/json + `{"status":"dismissed"}` — NOT a bare 204. The
-      // ordinary text branch and the ordinary content-type guard both apply unchanged.
-      parse: (body: string) => ({ kind: 'ok' as const, value: parseJobStatus(body, 'delete') }),
+      // Measured: HTTP 200 + application/json with a `status` field — NOT a bare 204. The
+      // ordinary text branch and the ordinary content-type guard both apply unchanged. Parsed
+      // with the DELETE-specific parser: the probe never recorded the body's full field list,
+      // so only `status` may be required of it (review #80 I2).
+      parse: (body: string) => ({ kind: 'ok' as const, value: parseJobDismissal(body) }),
     });
     if (outcome.kind !== 'ok') {
       // Cleanup is politeness, not correctness: the result expires on its own in ~2 days. The
@@ -787,6 +873,11 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
       label: `airq.${label}`,
       deadline,
       limits,
+      // Every JSON step of the protocol finishes in well under a second; only the archive
+      // download (which overrides this at ITS call site) may run long. Without the split the
+      // declared poll timeout was read by nothing and one stalled poll could hold the
+      // download's 180 s cap — most of a whole tour slice (review #80 I8).
+      singleCallTimeoutMs: this.deps.config.ads.pollTimeoutMs,
       // The key travels ONLY in this header, only to the ADS API host. The download step
       // overrides `headers` with an empty map so it can never inherit it.
       headers: apiKey === null ? {} : { 'PRIVATE-TOKEN': apiKey },
@@ -828,8 +919,8 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
     await this.deps.store.updateRun({
       runUtc: run.runUtc,
       adsRequests: jobs,
-      state: rollupRunState(jobs, this.deps.config.ads.maxAttemptsPerJob),
-      lastError: job.lastError === undefined ? undefined : job.lastError,
+      state: this.rollupLoudly(run, jobs, job.lastError ?? 'job state write'),
+      lastError: job.lastError,
     });
   }
 
@@ -854,17 +945,7 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
     reason: string,
   ): Promise<void> {
     const attempts = job.attempts + 1;
-    const exhausted = attempts >= this.deps.config.ads.maxAttemptsPerJob;
-    if (exhausted) {
-      this.deps.metrics.increment('airq.attempts_exhausted', CAMS_ADS_PROVIDER);
-      this.deps.metrics.event('error', 'air-quality job gave up after its attempt budget', {
-        provider: CAMS_ADS_PROVIDER,
-        runUtc: run.runUtc.toISOString(),
-        kind: job.kind,
-        attempts,
-        reason: this.redact(reason),
-      });
-    }
+    const exhausted = this.noteAttemptsSpent(run, job, attempts, this.redact(reason));
     const jobs = replaceJob(run.adsRequests, index, {
       ...job,
       attempts,
@@ -875,7 +956,7 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
     await this.deps.store.updateRun({
       runUtc: run.runUtc,
       adsRequests: jobs,
-      state: rollupRunState(jobs, this.deps.config.ads.maxAttemptsPerJob),
+      state: this.rollupLoudly(run, jobs, this.redact(reason)),
       lastError: this.redact(reason),
       lastErrorClass: 'upstream',
     });
@@ -886,7 +967,7 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
     index: number,
     job: AdsJobRecord,
     reason: string,
-    state: Extract<AdsJobState, 'refused' | 'rejected'>,
+    state: Extract<AdsJobState, 'refused' | 'rejected' | 'failed'>,
     errorClass: AirQualityErrorClass = 'refused',
   ): Promise<void> {
     const jobs = replaceJob(run.adsRequests, index, {
@@ -895,7 +976,7 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
       lastError: this.redact(reason),
     });
     run.adsRequests = jobs;
-    const runState = rollupRunState(jobs, this.deps.config.ads.maxAttemptsPerJob);
+    const runState = this.rollupLoudly(run, jobs, this.redact(reason));
     if (job.kind === 'analysis' && runState === 'degraded') {
       // The fixed-24-hours promise is broken, but fresh data keeps flowing. LOUD, because the
       // contract shrinks honestly and somebody has to know it did.
@@ -919,6 +1000,66 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
       lastErrorClass: errorClass,
     });
   }
+
+  /**
+   * The run-level rollup, with the abandoned alarm BY CONSTRUCTION.
+   *
+   * Every path that writes a run state goes through here, so no terminal forecast failure —
+   * provider refusal, off-allowlist host, step-count mismatch, exhausted budget, cost refusal
+   * — can roll the run to `abandoned` without an error-level event and the `airq.run_abandoned`
+   * counter. Review #80 C1 (validated): three such paths reached `abandoned` in total silence,
+   * the next-day supersede skips already-terminal runs, and the page would have served a stale
+   * run indefinitely with nothing to page on. Alarming at the transition, not at the call
+   * sites, is what makes the next forgotten call site impossible.
+   */
+  private rollupLoudly(
+    run: AirQualityRun,
+    jobs: readonly AdsJobRecord[],
+    reason: string,
+  ): AirQualityRunState {
+    const state = rollupRunState(jobs, this.deps.config.ads.maxAttemptsPerJob);
+    if (state === 'abandoned' && run.state !== 'abandoned') {
+      this.deps.metrics.increment('airq.run_abandoned', CAMS_ADS_PROVIDER);
+      this.deps.metrics.event(
+        'error',
+        'air-quality run ABANDONED — its forecast failed terminally; nothing will be published ' +
+          'for this run day and the previous run keeps serving',
+        {
+          provider: CAMS_ADS_PROVIDER,
+          runUtc: run.runUtc.toISOString(),
+          jobs: jobs.map((job) => `${job.kind}:${job.state}`).join(','),
+          reason,
+        },
+      );
+    }
+    run.state = state;
+    return state;
+  }
+
+  /**
+   * The ONE exhaustion check, shared by every attempt-spending path (review #80 I6): a job
+   * that gives up must always fire `airq.attempts_exhausted` at error level, whichever branch
+   * spent the final attempt. Returns whether the budget is now exhausted.
+   */
+  private noteAttemptsSpent(
+    run: AirQualityRun,
+    job: AdsJobRecord,
+    attempts: number,
+    reason: string,
+  ): boolean {
+    const exhausted = attempts >= this.deps.config.ads.maxAttemptsPerJob;
+    if (exhausted) {
+      this.deps.metrics.increment('airq.attempts_exhausted', CAMS_ADS_PROVIDER);
+      this.deps.metrics.event('error', 'air-quality job gave up after its attempt budget', {
+        provider: CAMS_ADS_PROVIDER,
+        runUtc: run.runUtc.toISOString(),
+        kind: job.kind,
+        attempts,
+        reason,
+      });
+    }
+    return exhausted;
+  }
 }
 
 // ─── dependencies ────────────────────────────────────────────────────────────
@@ -929,6 +1070,8 @@ interface AdsRequestBase {
   readonly label: string;
   readonly deadline: OperationDeadline;
   readonly limits: ProviderBudgetLimits;
+  /** The JSON-step cap (`AIR_QUALITY_POLL_TIMEOUT_MS`); the download overrides it. */
+  readonly singleCallTimeoutMs: number;
   readonly headers: Record<string, string>;
   readonly redactBody: (excerpt: string) => string;
 }
@@ -1001,11 +1144,25 @@ function replaceJob(
   return jobs.map((entry, position) => (position === index ? job : entry));
 }
 
+/** A job that will never produce a product: a terminal state, or a spent attempt budget. */
+export function isJobTerminalFailure(job: AdsJobRecord, maxAttemptsPerJob: number): boolean {
+  return (
+    job.state === 'refused' ||
+    job.state === 'rejected' ||
+    job.state === 'failed' ||
+    job.attempts >= maxAttemptsPerJob
+  );
+}
+
 /**
  * Which job this tour advances, and how.
  *
- * The FORECAST outranks everything, always: it is the page's "now". Cleanup debt comes last —
- * it is politeness, and it must never delay data.
+ * The FORECAST outranks everything, always: it is the page's "now". An analysis behind a DEAD
+ * forecast is not advanced at all — its product could only ever be refused by the grid-identity
+ * guard (there are no forecast rows to align with), so advancing it would spend a real ADS
+ * submit and a ~6.25 MiB download every day of an abandoned run to manufacture a misleading
+ * refusal (review #80 I12/M7). Cleanup debt comes last — it is politeness, and it must never
+ * delay data.
  */
 export function selectNextJob(
   run: { adsRequests: readonly AdsJobRecord[] },
@@ -1014,7 +1171,11 @@ export function selectNextJob(
   const progressable = (job: AdsJobRecord): boolean =>
     PROGRESSABLE_STATES.includes(job.state) && job.attempts < maxAttemptsPerJob;
 
+  const forecast = run.adsRequests.find((job) => job.kind === 'forecast');
+  const forecastDead = forecast === undefined || isJobTerminalFailure(forecast, maxAttemptsPerJob);
+
   for (const kind of ['forecast', 'analysis'] as const) {
+    if (kind === 'analysis' && forecastDead) continue;
     const index = run.adsRequests.findIndex((job) => job.kind === kind && progressable(job));
     if (index >= 0) return { index, action: 'progress' };
   }
@@ -1037,20 +1198,16 @@ export function rollupRunState(
   jobs: readonly AdsJobRecord[],
   maxAttemptsPerJob: number,
 ): AirQualityRunState {
-  const terminalFailure = (job: AdsJobRecord): boolean =>
-    job.state === 'refused' ||
-    job.state === 'rejected' ||
-    job.state === 'failed' ||
-    job.attempts >= maxAttemptsPerJob;
-
   const forecast = jobs.find((job) => job.kind === 'forecast');
   const analysis = jobs.find((job) => job.kind === 'analysis');
 
-  if (forecast === undefined || terminalFailure(forecast)) return 'abandoned';
+  if (forecast === undefined || isJobTerminalFailure(forecast, maxAttemptsPerJob)) {
+    return 'abandoned';
+  }
   if (forecast.state !== 'stored') return 'pending';
   if (analysis === undefined) return 'complete';
   if (analysis.state === 'stored') return 'complete';
-  if (terminalFailure(analysis)) return 'degraded';
+  if (isJobTerminalFailure(analysis, maxAttemptsPerJob)) return 'degraded';
   return 'serviceable';
 }
 

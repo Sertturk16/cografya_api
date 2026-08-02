@@ -208,6 +208,20 @@ export function parseJobStatus(body: string, what: string): AdsJobStatus {
   };
 }
 
+/**
+ * `DELETE /jobs/{id}` → the dismissal confirmation.
+ *
+ * Only `status` is required. The measured body carried more (319 B, HTTP 200 +
+ * `application/json`), but the probe never recorded the DELETE body's full field list, so
+ * requiring `jobID` here would stake the daily cleanup confirmation on an unmeasured
+ * assumption — a body without it would then report `schema_error` (an alarm-level "contract
+ * drift" event) every single day for a call whose only job is politeness (review #80 I2).
+ */
+export function parseJobDismissal(body: string): { readonly status: string } {
+  const record = asRecord(body, 'delete');
+  return { status: asString(record.status, 'delete.status') };
+}
+
 /** One entry of `GET /jobs` — measured keys, values we actually use. */
 export interface AdsJobListEntry {
   readonly jobId: string;
@@ -312,22 +326,23 @@ export function isTerminalProviderStatus(status: string): boolean {
 }
 
 /**
- * A licence 403, read from the BODY rather than matched as a string.
+ * A licence 403, recognised from the refusal TEXT the caller actually has.
  *
  * This one is terminal and needs a human: until the licence is accepted in the ADS profile,
  * every request from this account fails the same way, so retrying is pure noise against a
  * provider that already answered clearly.
+ *
+ * The match is deliberately a tolerant substring test, NOT a `JSON.parse`: what reaches the
+ * call site is the shared client's composed `client_error` reason — redacted prose whose body
+ * excerpt is capped at 200 bytes — so the measured `{"title":"required licences not
+ * accepted"}` may arrive truncated and would never survive a strict parse (review #80, found
+ * by the I5 coverage test: the parse-based predicate was structurally unreachable in
+ * production). Scoped to HTTP 403 via the outcome's STRUCTURAL `httpStatus`, so a licence
+ * mention in any other status can never ride along.
  */
-export function isLicenceRefusal(status: number, body: string): boolean {
+export function isLicenceRefusal(status: number | undefined, body: string): boolean {
   if (status !== 403) return false;
-  try {
-    const parsed: unknown = JSON.parse(body);
-    if (typeof parsed !== 'object' || parsed === null) return false;
-    const title = (parsed as Record<string, unknown>).title;
-    return typeof title === 'string' && title.toLowerCase().includes('licence');
-  } catch {
-    return false;
-  }
+  return /licen[cs]e/i.test(body);
 }
 
 // ─── small parsing helpers (fail loudly, never guess) ───────────────────────

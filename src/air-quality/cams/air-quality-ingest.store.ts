@@ -145,9 +145,18 @@ export class AirQualityIngestStore implements AirQualityIngestStorePort {
       const seriesRepository = manager.getRepository(AirQualityProvinceSeries);
 
       if (input.kind === 'forecast') {
-        for (const province of input.provinces) {
-          await seriesRepository.upsert(
-            {
+        // ONE statement for all 81 rows, and the conflict UPDATE set is restricted to the
+        // FORECAST columns: the analysis nulls are written on the initial INSERT only. A plain
+        // `upsert` put every supplied column into `ON CONFLICT … DO UPDATE SET`, so any second
+        // forecast write for the same run (a retry, an A2b backfill) would have silently erased
+        // an already-stored analysis product for all 81 provinces — a data-loss primitive on
+        // this port's public surface, contradicting the entity's own separation doc
+        // (review #80 I7; the single-statement shape also closes M6's forecast half).
+        await seriesRepository
+          .createQueryBuilder()
+          .insert()
+          .values(
+            input.provinces.map((province) => ({
               runUtc: input.runUtc,
               provinceId: province.provinceId,
               gridLatitude: province.gridLatitude,
@@ -158,10 +167,20 @@ export class AirQualityIngestStore implements AirQualityIngestStorePort {
               analysisConcentrations: null,
               analysisSupport: null,
               ingestedAt: input.now,
-            },
-            ['runUtc', 'provinceId'],
-          );
-        }
+            })),
+          )
+          .orUpdate(
+            [
+              'grid_latitude',
+              'grid_longitude',
+              'distance_km',
+              'concentrations',
+              'support',
+              'ingested_at',
+            ],
+            ['run_utc', 'province_id'],
+          )
+          .execute();
       } else {
         for (const province of input.provinces) {
           await seriesRepository.update(
@@ -195,9 +214,12 @@ export class AirQualityIngestStore implements AirQualityIngestStorePort {
   }
 
   async gridCellsFor(runUtc: Date): Promise<Map<string, { latitude: number; longitude: number }>> {
-    const rows = await this.dataSource
-      .getRepository(AirQualityProvinceSeries)
-      .find({ where: { runUtc } });
+    // Three narrow columns — without the `select`, every analysis tour would drag both large
+    // jsonb arrays across the wire to read 162 numbers (review #80 M10).
+    const rows = await this.dataSource.getRepository(AirQualityProvinceSeries).find({
+      select: { provinceId: true, gridLatitude: true, gridLongitude: true },
+      where: { runUtc },
+    });
     return new Map(
       rows.map((row) => [
         row.provinceId,

@@ -7,7 +7,10 @@ import {
   type AirQualityIngestStorePort,
   type RecordProvinceInput,
 } from '../src/air-quality/cams/air-quality-ingest.store';
-import { AirQualityProvinceSeries } from '../src/air-quality/entities/air-quality-province-series.entity';
+import {
+  AirQualityProvinceSeries,
+  toStoredDegrees,
+} from '../src/air-quality/entities/air-quality-province-series.entity';
 import {
   AirQualityRun,
   type AdsJobRecord,
@@ -34,6 +37,7 @@ const RUN_A = new Date('2026-08-01T00:00:00.000Z');
 const RUN_B = new Date('2026-08-02T00:00:00.000Z');
 const RUN_C = new Date('2026-08-03T00:00:00.000Z');
 const RUN_D = new Date('2026-08-04T00:00:00.000Z');
+const RUN_E = new Date('2026-08-05T00:00:00.000Z');
 
 function job(kind: 'forecast' | 'analysis', state: AdsJobRecord['state']): AdsJobRecord {
   return {
@@ -195,7 +199,7 @@ describe('Air-quality ingest store (e2e, real Postgres)', () => {
     expect(run?.completedAt?.toISOString()).toBe('2026-08-02T13:30:00.000Z');
   });
 
-  it('re-running the same product is idempotent — still exactly 81 rows', async () => {
+  it('re-running the forecast is idempotent AND cannot erase the stored analysis half', async () => {
     await store.recordProduct({
       runUtc: RUN_B,
       kind: 'forecast',
@@ -212,6 +216,14 @@ describe('Air-quality ingest store (e2e, real Postgres)', () => {
       .getRepository(AirQualityProvinceSeries)
       .find({ where: { runUtc: RUN_B } });
     expect(rows).toHaveLength(81);
+    // The conflict-update set is restricted to the FORECAST columns: the previous upsert wrote
+    // `analysisConcentrations: null` into ON CONFLICT … DO UPDATE SET, so this exact call
+    // silently destroyed the analysis product of all 81 provinces while the row count stayed
+    // green (review #80 I7).
+    expect(
+      rows.every((row) => row.analysisConcentrations?.[AirQualityPollutant.Pm2_5]?.length === 24),
+    ).toBe(true);
+    expect(rows.every((row) => row.analysisSupport !== null)).toBe(true);
   });
 
   it('updateRun advances job state WITHOUT touching the series rows or clearing the error', async () => {
@@ -257,7 +269,9 @@ describe('Air-quality ingest store (e2e, real Postgres)', () => {
     expect(cells.size).toBe(81);
     const first = provinces[0];
     expect(first).toBeDefined();
-    expect(cells.get(first?.id ?? '')?.latitude).toBeCloseTo(39.95, 6);
+    // `toBe`, never `toBeCloseTo(…, 6)`: that matcher's 5e-7 tolerance is LARGER than the
+    // ~2.4e-7 float32 error the grid-identity guard exists to survive (review #80 C2).
+    expect(cells.get(first?.id ?? '')?.latitude).toBe(39.95);
   });
 
   it('newestRun returns the newest row, whatever its state', async () => {
@@ -320,5 +334,58 @@ describe('Air-quality ingest store (e2e, real Postgres)', () => {
     // One row per retained run went with it — never an orphan pointing at a province that is
     // no longer in the reference set.
     expect(after).toBe(before - 3);
+  });
+
+  it('C2 regression: a raw float32 coordinate survives the numeric(9,6) round trip through the guard’s own rounding', async () => {
+    // `Math.fround(40.95)` = 40.95000076293945 — the exact shape of every axis value the
+    // decoder yields. Written through the REAL store and read back via `gridCellsFor`, it must
+    // equal `toStoredDegrees(raw)` BIT-FOR-BIT (`toBe`, deliberately not `toBeCloseTo`),
+    // because that identity is what the analysis grid guard compares. Before the shared
+    // rounding, 76/81 committed probe cells failed this round trip and the guard refused every
+    // real run (review #80 C2, validated empirically).
+    const rawLatitude = Math.fround(40.95);
+    const rawLongitude = Math.fround(29.05);
+    const first = provinces[0];
+    expect(first).toBeDefined();
+    if (first === undefined) return;
+
+    await store.createRun({
+      runUtc: RUN_E,
+      datasetId: 'cams-europe-air-quality-forecasts',
+      forecastHours: 96,
+      adsRequests: [job('forecast', 'stored')],
+      now: RUN_E,
+    });
+    await store.recordProduct({
+      runUtc: RUN_E,
+      kind: 'forecast',
+      hours: 96,
+      provinces: [
+        {
+          provinceId: first.id,
+          gridLatitude: rawLatitude,
+          gridLongitude: rawLongitude,
+          distanceKm: 4.5,
+          concentrations: concentrations(97, 10),
+          support: support(),
+        },
+      ],
+      bytesDownloaded: 1_000,
+      fileFormat: 'zip(0)+netcdf3-classic',
+      decoderVersion: 'netcdf3-ts@4',
+      adsRequests: [job('forecast', 'stored')],
+      state: 'serviceable',
+      now: RUN_E,
+    });
+
+    const cell = (await store.gridCellsFor(RUN_E)).get(first.id);
+    expect(cell?.latitude).toBe(toStoredDegrees(rawLatitude));
+    expect(cell?.latitude).toBe(40.950001);
+    expect(cell?.longitude).toBe(toStoredDegrees(rawLongitude));
+    expect(cell?.longitude).toBe(29.049999);
+    // The guard's exact comparison shape: stored side vs freshly decoded side, both through
+    // the shared rounding — equal, so identical grids no longer fail closed.
+    expect(toStoredDegrees(cell?.latitude ?? 0)).toBe(toStoredDegrees(rawLatitude));
+    expect(toStoredDegrees(cell?.longitude ?? 0)).toBe(toStoredDegrees(rawLongitude));
   });
 });

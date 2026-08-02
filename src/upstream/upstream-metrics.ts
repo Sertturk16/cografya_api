@@ -99,12 +99,26 @@ export type UpstreamMetricName =
   | 'airq.attempts_exhausted'
   /** A `submitting` job could not be reconciled unambiguously — a human must look. */
   | 'airq.reconcile_ambiguous'
-  /** A run was superseded before its forecast ever completed. */
+  /** The provider ended a job in its terminal refusal vocabulary (`rejected`/`dismissed`). */
+  | 'airq.provider_refusal'
+  /** The provider ended a job as `failed` — terminal upstream; a fresh submit needs a human. */
+  | 'airq.provider_failed'
+  /** WE refused a result href whose host is not on the download allowlist (SSRF class). */
+  | 'airq.download_host_refused'
+  /** The decoded file carries a different step count than the request asked for. */
+  | 'airq.step_count_mismatch'
+  /**
+   * A run rolled to `abandoned` — superseded unfinished, OR its forecast failed terminally.
+   * Fired at the state transition by construction (review #80 C1), so no terminal path can
+   * abandon a run silently.
+   */
   | 'airq.run_abandoned'
   /** The analysis product failed terminally; the run publishes without its past half. */
   | 'airq.run_degraded'
   /** The analysis file resolved to different grid cells than the forecast — refused (R11). */
   | 'airq.analysis_grid_mismatch'
+  /** An analysis decoded while the run had NO stored forecast rows — a sequencing bug of ours. */
+  | 'airq.analysis_without_forecast'
   /** The province reference set was not the expected 81 fully-located rows. */
   | 'airq.province_set_invalid'
   /**

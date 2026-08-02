@@ -18,6 +18,7 @@ import type {
   UpdateRunInput,
 } from './air-quality-ingest.store';
 import { AirQualityIngestTarget, rollupRunState, selectNextJob } from './air-quality-ingest.target';
+import { toStoredDegrees } from '../entities/air-quality-province-series.entity';
 
 /**
  * The two-job ADS state machine, against a FAKE store and a FAKE provider (no Postgres, no
@@ -199,11 +200,27 @@ class FakeStore implements AirQualityIngestStorePort {
 interface FakeAdsOptions {
   /** Fail the submit POST with a transport error (the double-submit scenario). */
   failSubmit?: boolean;
+  /** Answer the submit POST with the measured licence-refusal 403 (the I5 scenario). */
+  licence403?: boolean;
   /** What `GET /jobs` returns when the machine reconciles. */
   jobsList?: { processID: string; jobID: string; status: string; created: string }[];
   costing?: { cost: number; limit: number };
+  /** What `GET /jobs/{id}` reports as `status` (default `successful`). */
+  pollStatus?: string;
+  /** Answer the poll GET with this HTTP status instead of a body (the transient scenario). */
+  pollHttpStatus?: number;
+  /** Point the result href at a host that is NOT on the download allowlist. */
+  offListResultHost?: boolean;
+  /** Declare a checksum that cannot match the served bytes (the corrupt-transfer scenario). */
+  wrongChecksum?: boolean;
+  /** Omit `jobID` from the DELETE body — its fields beyond `status` are unmeasured (I2). */
+  deleteBodyOmitsJobId?: boolean;
   /** Serve the analysis archive from a SHIFTED grid (the R11 scenario). */
   shiftAnalysisGrid?: boolean;
+  /** Record count of the FORECAST archive (default 2 — the step-count contract). */
+  forecastRecords?: number;
+  /** Serve an ANALYSIS-labelled file for the forecast job (the decode contract scenario). */
+  mislabelForecast?: boolean;
   /** Declared `file:size` override — the pre-download ceiling scenario. */
   declaredSize?: number;
   /** Echo the API key inside a 400 error body (the redaction scenario). */
@@ -214,7 +231,10 @@ function fakeAds(options: FakeAdsOptions = {}): {
   fetchImpl: typeof fetch;
   calls: { method: string; url: string; headers: Record<string, string> }[];
 } {
-  const forecast = archiveFor('FORECAST', '20260802', 2);
+  const forecast =
+    options.mislabelForecast === true
+      ? archiveFor('ANALYSIS', '20260802', options.forecastRecords ?? 2)
+      : archiveFor('FORECAST', '20260802', options.forecastRecords ?? 2);
   const analysis = archiveFor(
     'ANALYSIS',
     '20260801',
@@ -246,6 +266,12 @@ function fakeAds(options: FakeAdsOptions = {}): {
     }
     if (url.endsWith('/execution')) {
       if (options.failSubmit === true) return Promise.reject(new Error('socket hang up'));
+      if (options.licence403 === true) {
+        // The measured licence-refusal shape (probe-olcumleri.md).
+        return Promise.resolve(
+          json(403, { type: 'permission denied', title: 'required licences not accepted' }),
+        );
+      }
       submits += 1;
       return Promise.resolve(
         json(201, {
@@ -261,13 +287,17 @@ function fakeAds(options: FakeAdsOptions = {}): {
     const results = /\/jobs\/(job-[fa])\/results$/.exec(url);
     if (results !== null) {
       const archive = archives[results[1] ?? ''] ?? forecast;
+      const host = options.offListResultHost === true ? 'evil-store.test' : 'object-store.test';
       return Promise.resolve(
         json(200, {
           asset: {
             value: {
-              href: `https://object-store.test/cache/${results[1] ?? ''}.zip`,
+              href: `https://${host}/cache/${results[1] ?? ''}.zip`,
               'file:size': options.declaredSize ?? archive.byteLength,
-              'file:checksum': createHash('md5').update(archive).digest('hex'),
+              'file:checksum':
+                options.wrongChecksum === true
+                  ? '00000000000000000000000000000000'
+                  : createHash('md5').update(archive).digest('hex'),
               'file:local_path': `s3://cache/${results[1] ?? ''}.zip`,
             },
           },
@@ -287,12 +317,22 @@ function fakeAds(options: FakeAdsOptions = {}): {
     const job = /\/jobs\/(job-[fa])$/.exec(url);
     if (job !== null) {
       if (method === 'DELETE') {
-        return Promise.resolve(json(200, { jobID: job[1], status: 'dismissed' }));
+        return Promise.resolve(
+          json(
+            200,
+            options.deleteBodyOmitsJobId === true
+              ? { status: 'dismissed' }
+              : { jobID: job[1], status: 'dismissed' },
+          ),
+        );
+      }
+      if (options.pollHttpStatus !== undefined) {
+        return Promise.resolve(json(options.pollHttpStatus, { detail: 'poll failure' }));
       }
       return Promise.resolve(
         json(200, {
           jobID: job[1],
-          status: 'successful',
+          status: options.pollStatus ?? 'successful',
           created: '2026-08-02T12:30:00Z',
           started: '2026-08-02T12:30:20Z',
           finished: '2026-08-02T12:31:00Z',
@@ -370,6 +410,41 @@ describe('selectNextJob — the binding priority', () => {
     };
     expect(selectNextJob(run, 3)).toEqual({ index: 0, action: 'progress' });
   });
+
+  it('I12: an analysis behind a DEAD forecast is never advanced — its product could only be refused', () => {
+    // Advancing it would spend a real ADS submit and a ~6.25 MiB download every day of an
+    // abandoned run, only to manufacture a refusal from the grid-identity guard.
+    const abandoned = {
+      adsRequests: [
+        job({ kind: 'forecast', state: 'refused' }),
+        job({ kind: 'analysis', state: 'pending' }),
+      ],
+    };
+    expect(selectNextJob(abandoned, 3)).toBeNull();
+
+    // …but a dead forecast that DID open a provider-side job still gets its politeness DELETE.
+    const withCleanupDebt = {
+      adsRequests: [
+        job({ kind: 'forecast', state: 'rejected', jobId: 'f', cleanupAt: null }),
+        job({ kind: 'analysis', state: 'pending' }),
+      ],
+    };
+    expect(selectNextJob(withCleanupDebt, 3)).toEqual({ index: 0, action: 'cleanup' });
+  });
+});
+
+describe('toStoredDegrees — the single numeric(9,6) rounding authority (C2)', () => {
+  it('rounds a raw float32 axis value to exactly what the column stores', () => {
+    // Math.fround(40.95) = 40.95000076293945 — the real shape of every decoded axis value.
+    expect(toStoredDegrees(Math.fround(40.95))).toBe(40.950001);
+    expect(toStoredDegrees(Math.fround(29.05))).toBe(29.049999);
+  });
+
+  it('is idempotent — a stored value re-rounds to itself, so both compare sides agree', () => {
+    for (const value of [40.950001, 29.049999, 42.45, 26.049999, 36.5]) {
+      expect(toStoredDegrees(value)).toBe(value);
+    }
+  });
 });
 
 describe('rollupRunState — servable, degraded and abandoned are different answers', () => {
@@ -412,20 +487,24 @@ describe('AirQualityIngestTarget — one step per tour', () => {
   let events: { level: string; message: string; context: Record<string, unknown> }[];
   let store: FakeStore;
 
-  function build(options: FakeAdsOptions = {}, config: AirQualityUpstreamConfig = CONFIG) {
+  function build(
+    options: FakeAdsOptions = {},
+    config: AirQualityUpstreamConfig = CONFIG,
+    nowMs: number = NOW_MS,
+  ) {
     const { fetchImpl, calls } = fakeAds(options);
-    const budget = new ProviderBudget(metrics, null, () => NOW_MS);
+    const budget = new ProviderBudget(metrics, null, () => nowMs);
     const breaker = new CircuitBreaker(metrics, {
-      failureThreshold: 5,
+      failureThreshold: 50,
       openMs: 1_000,
-      now: () => NOW_MS,
+      now: () => nowMs,
     });
     const client = new UpstreamHttpClient(metrics, budget, breaker, {
       singleCallTimeoutMs: 30_000,
       userAgent: 'TestBot/1.0',
       fetchImpl,
       sleepImpl: () => Promise.resolve(),
-      now: () => NOW_MS,
+      now: () => nowMs,
     });
     const target = new AirQualityIngestTarget({
       client,
@@ -434,7 +513,7 @@ describe('AirQualityIngestTarget — one step per tour', () => {
       loadProvinces: () => Promise.resolve(PROVINCES),
       metrics,
       md5: (bytes: Uint8Array) => createHash('md5').update(bytes).digest('hex'),
-      now: () => NOW_MS,
+      now: () => nowMs,
     });
     return { target, calls };
   }
@@ -456,6 +535,48 @@ describe('AirQualityIngestTarget — one step per tour', () => {
     }
     return count;
   };
+
+  /** A pre-existing job for seeding the fake store (the supersede scenarios). */
+  const seededJob = (
+    kind: 'forecast' | 'analysis',
+    state: AdsJobRecord['state'],
+    jobId: string | null = null,
+  ): AdsJobRecord => ({
+    kind,
+    requestDate: '2026-08-01',
+    requestBody: {},
+    state,
+    jobId,
+    attempts: 0,
+    submittedAt: '2026-08-01T12:30:00.000Z',
+    adsCreated: null,
+    adsStarted: null,
+    adsFinished: null,
+    cleanupAt: null,
+    result: null,
+    lastError: null,
+  });
+
+  /** A pre-existing run row, as the store would return it on a later day's tour. */
+  const seededRun = (
+    runUtcIso: string,
+    state: AirQualityRun['state'],
+    jobs: AdsJobRecord[],
+  ): AirQualityRun => ({
+    runUtc: new Date(runUtcIso),
+    state,
+    forecastHours: 1,
+    analysisHours: 0,
+    adsRequests: jobs,
+    datasetId: CONFIG.ads.datasetId,
+    lastError: null,
+    lastErrorClass: null,
+    bytesDownloaded: 0,
+    fileFormat: null,
+    decoderVersion: null,
+    startedAt: new Date(runUtcIso),
+    completedAt: null,
+  });
 
   beforeEach(() => {
     metrics = new UpstreamMetrics();
@@ -566,6 +687,19 @@ describe('AirQualityIngestTarget — one step per tour', () => {
     expect(events).toContainEqual(
       expect.objectContaining({ level: 'error', message: expect.stringContaining('AMBIGUOUS') }),
     );
+
+    // I10: the ambiguity SPENDS an attempt per tour instead of looping and re-paying the ADS
+    // request forever; the budget terminates it into an honest, LOUD abandoned rollup.
+    expect(store.run?.adsRequests[0]?.attempts).toBe(2); // submit failure + one ambiguity
+    await tour(target);
+    expect(store.run?.adsRequests[0]?.attempts).toBe(3);
+    expect(metrics.get('airq.attempts_exhausted', CAMS_ADS_PROVIDER)).toBe(1);
+    expect(store.run?.state).toBe('abandoned');
+    expect(metrics.get('airq.run_abandoned', CAMS_ADS_PROVIDER)).toBe(1);
+
+    const reconcileCalls = calls.filter((call) => /\/jobs$/.test(call.url)).length;
+    await tour(target);
+    expect(calls.filter((call) => /\/jobs$/.test(call.url))).toHaveLength(reconcileCalls);
   });
 
   it('a cost ABOVE the limit is terminal and submits NOTHING (the endpoint answers 200)', async () => {
@@ -657,6 +791,171 @@ describe('AirQualityIngestTarget — one step per tour', () => {
         message: expect.stringContaining('REFUSING the analysis'),
       }),
     );
+  });
+
+  it('I1: a tour BEFORE the submit hour creates nothing and calls nobody (cold start)', async () => {
+    const { target, calls } = build({}, CONFIG, Date.parse('2026-08-02T08:00:00.000Z'));
+    await tour(target);
+    expect(store.run).toBeNull();
+    expect(calls).toHaveLength(0);
+  });
+
+  it('M3: after an outage, a pre-submit-hour tour does NOT create a run for a past run day', async () => {
+    // 02:00 UTC after a multi-day gap: the target run day is YESTERDAY's; creating it now
+    // would submit jobs the 12:00 tour immediately supersedes.
+    store.run = seededRun('2026-07-30T00:00:00.000Z', 'complete', [
+      seededJob('forecast', 'stored', 'old-f'),
+    ]);
+    const { target, calls } = build({}, CONFIG, Date.parse('2026-08-02T02:00:00.000Z'));
+    await tour(target);
+    expect(store.run?.runUtc.toISOString()).toBe('2026-07-30T00:00:00.000Z');
+    expect(calls).toHaveLength(0);
+  });
+
+  it("I1: yesterday's unfinished run is superseded LOUDLY when the new run day opens", async () => {
+    store.run = seededRun('2026-08-01T00:00:00.000Z', 'pending', [
+      seededJob('forecast', 'submitted', 'old-f'),
+    ]);
+    const { target } = build();
+    await tour(target);
+
+    expect(metrics.get('airq.run_abandoned', CAMS_ADS_PROVIDER)).toBe(1);
+    expect(events).toContainEqual(
+      expect.objectContaining({ level: 'warn', message: expect.stringContaining('superseding') }),
+    );
+    // The new run day's row exists and already took its first step.
+    expect(store.run?.runUtc.toISOString()).toBe('2026-08-02T00:00:00.000Z');
+    expect(store.run?.adsRequests[0]?.state).toBe('costed');
+  });
+
+  it('C1: a provider-terminal poll status abandons the run LOUDLY — never silently', async () => {
+    const { target } = build({ pollStatus: 'rejected' });
+    await tourUntil(target, () => store.run?.state === 'abandoned');
+
+    expect(store.run?.state).toBe('abandoned');
+    expect(store.run?.adsRequests[0]?.state).toBe('rejected');
+    expect(metrics.get('airq.provider_refusal', CAMS_ADS_PROVIDER)).toBe(1);
+    expect(metrics.get('airq.run_abandoned', CAMS_ADS_PROVIDER)).toBe(1);
+    expect(events).toContainEqual(
+      expect.objectContaining({ level: 'error', message: expect.stringContaining('ABANDONED') }),
+    );
+  });
+
+  it('C1: an off-allowlist result host is refused BEFORE the network, LOUDLY and terminally', async () => {
+    const { target, calls } = build({ offListResultHost: true });
+    await tourUntil(target, () => store.run?.state === 'abandoned');
+
+    expect(store.run?.adsRequests[0]?.state).toBe('refused');
+    expect(calls.filter((call) => call.url.includes('evil-store'))).toHaveLength(0);
+    expect(metrics.get('airq.download_host_refused', CAMS_ADS_PROVIDER)).toBe(1);
+    expect(metrics.get('airq.run_abandoned', CAMS_ADS_PROVIDER)).toBe(1);
+    expect(events).toContainEqual(
+      expect.objectContaining({ level: 'error', message: expect.stringContaining('ABANDONED') }),
+    );
+  });
+
+  it('C1: a decoded step count that is not the requested horizon refuses the product LOUDLY', async () => {
+    const { target } = build({ forecastRecords: 3 });
+    await tourUntil(target, () => store.run?.state === 'abandoned');
+
+    expect(store.run?.adsRequests[0]?.state).toBe('rejected');
+    expect(store.run?.lastErrorClass).toBe('contract');
+    expect(metrics.get('airq.step_count_mismatch', CAMS_ADS_PROVIDER)).toBe(1);
+    expect(metrics.get('airq.run_abandoned', CAMS_ADS_PROVIDER)).toBe(1);
+    expect(store.products).toEqual([]);
+  });
+
+  it('I5: a licence 403 on submit terminates immediately — no retry, no reconcile loop', async () => {
+    const { target, calls } = build({ licence403: true });
+    await tourUntil(target, () => store.run?.state === 'abandoned');
+
+    expect(store.run?.adsRequests[0]?.state).toBe('refused');
+    expect(store.run?.adsRequests[0]?.attempts).toBe(0); // terminal, never budget-burned
+    expect(calls.filter((call) => call.url.endsWith('/execution'))).toHaveLength(1);
+    expect(store.run?.lastError).toContain('licence');
+    expect(metrics.get('airq.run_abandoned', CAMS_ADS_PROVIDER)).toBe(1);
+  });
+
+  it('I3: transient poll failures spend the attempt budget and end in a LOUD `failed`', async () => {
+    const { target } = build({ pollHttpStatus: 500 });
+    await tourUntil(target, () => store.run?.state === 'abandoned');
+
+    expect(store.run?.adsRequests[0]?.state).toBe('failed');
+    expect(store.run?.adsRequests[0]?.attempts).toBe(3);
+    expect(metrics.get('airq.attempts_exhausted', CAMS_ADS_PROVIDER)).toBe(1);
+    expect(metrics.get('airq.run_abandoned', CAMS_ADS_PROVIDER)).toBe(1);
+    expect(store.run?.lastErrorClass).toBe('upstream');
+  });
+
+  it('I11: a provider-side `failed` job terminates NOW instead of re-polling a dead job', async () => {
+    const { target, calls } = build({ pollStatus: 'failed' });
+    await tourUntil(target, () => store.run?.state === 'abandoned');
+
+    expect(store.run?.adsRequests[0]?.state).toBe('failed');
+    // Exactly ONE poll — the plan ladder's `failed ⇒ failed`, not an attempt-budget burn.
+    expect(
+      calls.filter((call) => /\/jobs\/job-f$/.test(call.url) && call.method === 'GET'),
+    ).toHaveLength(1);
+    expect(metrics.get('airq.provider_failed', CAMS_ADS_PROVIDER)).toBe(1);
+    expect(metrics.get('airq.run_abandoned', CAMS_ADS_PROVIDER)).toBe(1);
+    expect(store.run?.lastErrorClass).toBe('upstream');
+  });
+
+  it('I4: a checksum mismatch refuses to decode — corrupt bytes are never stored', async () => {
+    const { target } = build({ wrongChecksum: true });
+    await tourUntil(target, () => (store.run?.adsRequests[0]?.attempts ?? 0) > 0);
+
+    expect(store.run?.adsRequests[0]?.state).toBe('ready'); // transient: a re-download may repair it
+    expect(store.run?.adsRequests[0]?.lastError).toContain('MD5');
+    expect(store.products).toEqual([]);
+  });
+
+  it('M1: a mislabelled product is refused with the CONTRACT class and its own metric', async () => {
+    const { target } = build({ mislabelForecast: true });
+    await tourUntil(target, () => store.run?.state === 'abandoned');
+
+    expect(store.run?.adsRequests[0]?.state).toBe('rejected');
+    expect(store.run?.lastErrorClass).toBe('contract');
+    expect(metrics.get('airq.contract_refusal', CAMS_ADS_PROVIDER)).toBe(1);
+    expect(metrics.get('airq.decoder_bug', CAMS_ADS_PROVIDER)).toBe(0);
+  });
+
+  it('I2: each completed job gets its politeness DELETE in its OWN tour, stamped as cleaned', async () => {
+    const { target, calls } = build();
+    await tourUntil(
+      target,
+      () => store.run?.adsRequests.every((job) => job.cleanupAt !== null) === true,
+    );
+
+    expect(calls.filter((call) => call.method === 'DELETE')).toHaveLength(2);
+    expect(store.run?.state).toBe('complete');
+    expect(store.run?.adsRequests.map((job) => job.cleanupAt !== null)).toEqual([true, true]);
+  });
+
+  it('I2: a DELETE body without jobID still confirms — only `status` may be required of it', async () => {
+    const { target, calls } = build({ deleteBodyOmitsJobId: true });
+    await tourUntil(
+      target,
+      () => store.run?.adsRequests.every((job) => job.cleanupAt !== null) === true,
+    );
+
+    expect(calls.filter((call) => call.method === 'DELETE')).toHaveLength(2);
+    // No alarm-level "contract drift" event for a field the probe never measured.
+    expect(
+      events.filter((event) => event.message.includes('did not match the expected contract')),
+    ).toEqual([]);
+  });
+
+  it('I12: the analysis is NOT advanced against a dead forecast — no daily submit+download waste', async () => {
+    const { target, calls } = build({ costing: { cost: 23280, limit: 5000 } });
+    await tour(target); // forecast costing → refused → run abandoned
+    expect(store.run?.state).toBe('abandoned');
+
+    const callsAfterAbandon = calls.length;
+    await tour(target);
+    await tour(target);
+    expect(calls.length).toBe(callsAfterAbandon);
+    expect(store.run?.adsRequests[1]?.state).toBe('pending');
   });
 
   it('a province set that is not the expected 81 rows refuses to ingest a partial set', async () => {

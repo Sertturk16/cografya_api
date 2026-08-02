@@ -143,6 +143,11 @@ export class AirQualityRun {
    * Stored per run (SAPMA 3, the marine `forecastHours` precedent) so the
    * `length === forecast_hours + 1` invariant stays checkable per ROW after an operator
    * changes the env, instead of every historical row silently becoming "partial".
+   *
+   * SEMANTICS WARNING (A2b input): this is a SPAN — leadtime 0…N inclusive — so the forecast
+   * arrays hold `forecast_hours + 1` entries. `analysis_hours` below is a STEP COUNT and its
+   * arrays hold exactly `analysis_hours` entries. The two columns are deliberately in the
+   * unit their env/protocol counterpart uses; never read this one as a step count.
    */
   @Column({ name: 'forecast_hours', type: 'smallint' })
   forecastHours!: number;
@@ -151,7 +156,7 @@ export class AirQualityRun {
    * Analysis steps stored for this run: `0` means "no analysis product", `24` means one full
    * day of history (SAPMA 7). The published series base (`run_utc − analysis_hours`) and the
    * contract's `analysisEndUtc` are both DERIVED from it, so the machine-readable "there is no
-   * past half" state needs no second column.
+   * past half" state needs no second column. A STEP COUNT, not a span — see `forecast_hours`.
    */
   @Column({ name: 'analysis_hours', type: 'smallint', default: 0 })
   analysisHours!: number;
