@@ -50,19 +50,22 @@ export class AirQualitySeriesConcentrationsDto {
 
 /**
  * The hourly series for one province: bands, categories, dominant pollutants and raw
- * concentrations, all step-aligned.
+ * concentrations, all step-aligned. Served by `GET /api/air-quality/provinces/{plateCode}`.
  *
- * **NOT SERVED BY ANY A1 ENDPOINT** — frozen contract, published for codegen; served by A2.
+ * ## `analysisEndUtc` returned ADDITIVELY in A2b — the planned return, not a contract slip
+ * A1 froze this DTO with NO `analysisEndUtc` and said so in as many words, because Faz-1 was
+ * then a one-product (forecast-only) leg: publishing an analysis boundary that the data did not
+ * have would have labelled forecast hours as analysis, which SPEC §11.3.1 forbids. A1's own text
+ * recorded the escape clause — *"if a product decision (S2) later adds the analysis job, the
+ * field returns ADDITIVELY with an honest definition"*.
  *
- * ## There is deliberately NO `analysisEndUtc` field (Atlas checkpoint A-7, closed with the
- * approved A1 plan)
- * Faz-1 ingests only the daily FORECAST product. Every step of this series — including hours
- * that look "past" during the day — is model forecast output from the run base time onward;
- * the file contains no analysis/forecast boundary, so publishing one would label forecast
- * data as analysis (SPEC §11.3.1's honesty rule). A UI that wants to shade elapsed hours
- * derives it from `timesUtc` vs. the client clock — no server field required. If a product
- * decision (S2) later adds the analysis job, the field returns ADDITIVELY with an honest
- * definition.
+ * That decision was taken: **DEC 2026-08-02b** ruled S2 YES on production-parity grounds, A2a
+ * shipped the two-job ingest, and A2b publishes the boundary. So the field below is the
+ * PLANNED return of a deliberately deferred field, additive and nullable — not a silent
+ * reshaping of a frozen contract. Everything A1's honesty rule protected still holds, and is
+ * now enforced by the store itself: the two products live in SEPARATE columns
+ * (`air-quality-province-series.entity.ts`), so "a forecast hour labelled as analysis" is not a
+ * mistake anybody can write.
  */
 export class AirQualitySeriesDto {
   @ApiProperty({
@@ -71,11 +74,26 @@ export class AirQualitySeriesDto {
     example: ['2026-08-01T00:00:00.000Z', '2026-08-01T01:00:00.000Z'],
     description:
       'Step instants (ISO-8601 UTC). INVARIANT: every other array in this object has exactly ' +
-      'this length; a missing step is null in place, never dropped and never invented. Every ' +
-      'step is model FORECAST output — the series starts at the model run base time and ' +
-      'contains no earlier step.',
+      'this length; a missing step is null in place, never dropped and never invented. ' +
+      'Consecutive steps are exactly one hour apart. Steps BEFORE analysisEndUtc come from the ' +
+      'provider ANALYSIS product; that instant and everything after it come from the FORECAST ' +
+      'product. Both are model output, neither is an observation. When analysisEndUtc is null ' +
+      'the series starts at the model run base time and contains no earlier step.',
   })
   timesUtc!: string[];
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: '2026-08-01T00:00:00.000Z',
+    description:
+      'The instant the ANALYSIS half ends and the FORECAST half begins — always the model run ' +
+      'base time. Steps before this instant come from the provider’s ANALYSIS product; this ' +
+      'instant and everything after it come from the FORECAST product. Both are model output, ' +
+      'not observations. Null when this run carries no analysis product at all, in which case ' +
+      'the whole series is forecast.',
+  })
+  analysisEndUtc!: string | null;
 
   @ApiProperty({
     type: Number,
@@ -87,7 +105,8 @@ export class AirQualitySeriesDto {
   @ApiProperty({
     type: String,
     example: '2026-08-05T00:00:00.000Z',
-    description: 'End of the published horizon (run base + 96 h in Faz-1).',
+    description:
+      'End of the published horizon — the last entry of timesUtc (run base + 96 h in Faz-1).',
   })
   horizonEndUtc!: string;
 

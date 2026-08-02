@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it, jest } from '@jest/globals';
-import type { INestApplication } from '@nestjs/common';
+import { ValidationPipe, type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
@@ -13,23 +13,25 @@ import {
 } from '../src/air-quality/air-quality.types';
 
 /**
- * e2e for the A1 slice: ONE public endpoint served from an in-code constant.
+ * e2e for the COLD half of the air-quality surface: an empty database, nothing ingested.
  *
  * ## Everything here is STRUCTURAL (CONVENTIONS §2)
  * No test re-asserts a band-table number against an external source — the facts live in
  * `eaqi.constants.ts` with provenance, and the payload↔constant derivation is pinned in
- * `air-quality-index-system.catalogue.spec.ts`. What THIS suite pins is HTTP behaviour: 200
- * on the cold path (empty database, nothing ingested — COLD-BEHAVIOR §10), the cache header,
- * anonymous public access, absent-not-stubbed province paths, and the ZERO-external-fetch
- * invariant.
+ * `air-quality-index-system.catalogue.spec.ts`. What THIS suite pins is HTTP behaviour: 200 on
+ * the cold path (COLD-BEHAVIOR §10), the cache headers, anonymous public access, the parameter
+ * error table, and the ZERO-external-fetch invariant.
  *
- * The expected Cache-Control string is pinned VERBATIM (SPEC §11.1): a drive-by change to the
+ * The WARM path — a hand-written run, the series invariants, the product boundary — needs seeded
+ * provinces and stored rows, and lives in `air-quality-read.e2e-spec.ts`.
+ *
+ * The expected Cache-Control strings are pinned VERBATIM (SPEC §11.1): a drive-by change to the
  * caching contract must fail a test, not slip through as a "style" edit.
  */
 const EXPECTED_CACHE_CONTROL =
   'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800';
 
-describe('Air quality (e2e) — A1 contract slice', () => {
+describe('Air quality (e2e) — the cold contract slice', () => {
   let container: StartedPostgreSqlContainer;
   let dataSource: DataSource;
   let app: INestApplication;
@@ -53,6 +55,11 @@ describe('Air quality (e2e) — A1 contract slice', () => {
     const moduleRef = await Test.createTestingModule({ imports: [appModule.AppModule] }).compile();
     app = moduleRef.createNestApplication();
     applyGlobalPrefix(app);
+    // The same global pipe `main.ts` installs — without it the parameter error table below would
+    // be testing a different application than the one that ships.
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
+    );
     await app.init();
 
     fetchSpy = jest.spyOn(globalThis, 'fetch');
@@ -116,12 +123,36 @@ describe('Air quality (e2e) — A1 contract slice', () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it('the A2 province endpoints are ABSENT (404), not stubbed with 501', async () => {
-    fetchSpy.mockClear();
-    await request(app.getHttpServer()).get('/api/air-quality/provinces').expect(404);
+  it('serves the hub on the COLD path: 200, no-store, and no invented rows', async () => {
+    // TRANSLATED from A1's "these endpoints are ABSENT (404)" case — A2b implements them. The
+    // absent-not-stubbed rule it protected is unchanged and still asserted below for an unknown
+    // sub-path; what changes is that these two paths now work.
+    const response = await request(app.getHttpServer())
+      .get('/api/air-quality/provinces')
+      .expect(200);
+    // This database has no provinces seeded, so the hub is empty — and, crucially, still 200.
+    expect(Array.isArray(response.body)).toBe(true);
+    // No usable run ⇒ the cold window must never be committed by a CDN or by ISR/SSG.
+    expect(response.headers['cache-control']).toBe('no-store');
+  });
+
+  it('404s an unknown plate code and 400s a malformed one (the parameter error table)', async () => {
+    // A well-formed plate naming no province: the resource does not exist → 404.
     await request(app.getHttpServer()).get('/api/air-quality/provinces/06').expect(404);
-    // …and an unknown sub-path behaves like any other unknown route.
+    // Malformed parameters are refused by the global ValidationPipe before the handler runs.
+    await request(app.getHttpServer()).get('/api/air-quality/provinces/6').expect(400);
+    await request(app.getHttpServer()).get('/api/air-quality/provinces/abc').expect(400);
+    await request(app.getHttpServer()).get('/api/air-quality/provinces/123').expect(400);
+  });
+
+  it('keeps an unknown sub-path a plain 404 (absent beats stubbed)', async () => {
     await request(app.getHttpServer()).get('/api/air-quality/unknown').expect(404);
+  });
+
+  it('makes ZERO external calls on the province paths either (COLD-BEHAVIOR §10)', async () => {
+    fetchSpy.mockClear();
+    await request(app.getHttpServer()).get('/api/air-quality/provinces').expect(200);
+    await request(app.getHttpServer()).get('/api/air-quality/provinces/06').expect(404);
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 });

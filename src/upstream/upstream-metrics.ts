@@ -122,6 +122,13 @@ export type UpstreamMetricName =
   /** The province reference set was not the expected 81 fully-located rows. */
   | 'airq.province_set_invalid'
   /**
+   * The model-RUN age ceiling suppressed publication (the THIRD ceiling, SPEC §9.4). Owned by the
+   * REFRESH side of `AirQualitySeriesReader` alone: the exit-side check runs once per public
+   * request, so it logs through a throttle and never touches this counter — the number stays "the
+   * ceiling fired", not a traffic-proportional one (the marine R2-SFH-A convention).
+   */
+  | 'airq.run_age_ceiling'
+  /**
    * The politeness `DELETE /jobs/{id}` did not confirm. Never a correctness problem on its own
    * (the provider expires the job in ~2 days), but a daily rise here is a protocol drift saying
    * so early — which a warn line nobody counts cannot do (review #80 R2-M2).
