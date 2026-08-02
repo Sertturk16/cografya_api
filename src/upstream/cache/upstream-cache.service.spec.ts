@@ -549,8 +549,12 @@ describe('UpstreamCacheService', () => {
 
     it('applies the staleness ceilings on the way out, like read()', async () => {
       const cache = build();
-      await cache.read(options(() => Promise.resolve(ok('v1'))));
-      nowMs += (CEILINGS.staleMaxSeconds + 60) * 1000;
+      // The validAt ceiling is the one a peek can actually catch in the act: past the cache-age
+      // ceiling the store's RETENTION has expired too (retention = max(ttl, staleMax)), so that
+      // case is a plain miss. A value fetched recently but describing a too-old model moment is
+      // still physically present — and peek must drop it exactly like read().
+      await cache.read(options(() => Promise.resolve(ok('v1', nowMs))));
+      nowMs += (CEILINGS.validAtMaxAgeSeconds + 60) * 1000;
 
       const peeked = await cache.peek<string>(peekOptions());
       expect(peeked).toMatchObject({ value: null, origin: 'unavailable' });
