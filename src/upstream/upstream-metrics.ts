@@ -122,6 +122,12 @@ export type UpstreamMetricName =
   /** The province reference set was not the expected 81 fully-located rows. */
   | 'airq.province_set_invalid'
   /**
+   * The politeness `DELETE /jobs/{id}` did not confirm. Never a correctness problem on its own
+   * (the provider expires the job in ~2 days), but a daily rise here is a protocol drift saying
+   * so early — which a warn line nobody counts cannot do (review #80 R2-M2).
+   */
+  | 'airq.cleanup_unconfirmed'
+  /**
    * A stored series row was refused by the read-path shape guard and SKIPPED — the remaining
    * readable cycles still serve the point, and the read degrades to `schema_error` only when no
    * readable row is left (review #76 round-3 R3-CR-1 + R3-SFH-7). jsonb is schemaless: this

@@ -155,9 +155,19 @@ export function buildAnalysisRequestBody(
   };
 }
 
-/** How many steps a job's decoded file must carry, by product. */
-export function expectedStepCount(config: AdsIngestConfig, kind: AdsJobKind): number {
-  return kind === 'forecast' ? config.forecastHours + 1 : ANALYSIS_HOURS_PER_JOB;
+/**
+ * How many steps a job's decoded file must carry, by product.
+ *
+ * `forecastHours` is a SPAN (hour 0 through hour N), so the forecast file carries N+1 steps —
+ * the one `+1` in the codebase, here rather than duplicated at the ingest's compare site
+ * (review #80 N4). Pass the RUN once one exists: the horizon a run was created with is what
+ * its bytes were paid for, not the live env (review #80 M2).
+ */
+export function expectedStepCount(
+  source: { readonly forecastHours: number },
+  kind: AdsJobKind,
+): number {
+  return kind === 'forecast' ? source.forecastHours + 1 : ANALYSIS_HOURS_PER_JOB;
 }
 
 /** The decoder's `expectedProduct` for a job kind — never a constant at the call site. */

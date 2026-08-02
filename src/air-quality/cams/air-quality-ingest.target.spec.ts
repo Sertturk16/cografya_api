@@ -487,15 +487,21 @@ describe('AirQualityIngestTarget — one step per tour', () => {
   let events: { level: string; message: string; context: Record<string, unknown> }[];
   let store: FakeStore;
 
+  /**
+   * The shared harness keeps the PRODUCTION breaker threshold (5), so a scenario that would
+   * open the circuit for real opens it here too. Only the deliberate many-failure scenario
+   * raises it, at its own call site and for a stated reason (review #80 N5).
+   */
   function build(
     options: FakeAdsOptions = {},
     config: AirQualityUpstreamConfig = CONFIG,
     nowMs: number = NOW_MS,
+    breakerFailureThreshold = 5,
   ) {
     const { fetchImpl, calls } = fakeAds(options);
     const budget = new ProviderBudget(metrics, null, () => nowMs);
     const breaker = new CircuitBreaker(metrics, {
-      failureThreshold: 50,
+      failureThreshold: breakerFailureThreshold,
       openMs: 1_000,
       now: () => nowMs,
     });
@@ -693,6 +699,8 @@ describe('AirQualityIngestTarget — one step per tour', () => {
     expect(store.run?.adsRequests[0]?.attempts).toBe(2); // submit failure + one ambiguity
     await tour(target);
     expect(store.run?.adsRequests[0]?.attempts).toBe(3);
+    // N6: a spent budget reads `failed` in the ledger here too, not a forever-`submitting` job.
+    expect(store.run?.adsRequests[0]?.state).toBe('failed');
     expect(metrics.get('airq.attempts_exhausted', CAMS_ADS_PROVIDER)).toBe(1);
     expect(store.run?.state).toBe('abandoned');
     expect(metrics.get('airq.run_abandoned', CAMS_ADS_PROVIDER)).toBe(1);
@@ -820,8 +828,10 @@ describe('AirQualityIngestTarget — one step per tour', () => {
     await tour(target);
 
     expect(metrics.get('airq.run_abandoned', CAMS_ADS_PROVIDER)).toBe(1);
+    // ERROR, like every other transition into `abandoned` — one terminal state, one severity
+    // (review #80 R2-M1).
     expect(events).toContainEqual(
-      expect.objectContaining({ level: 'warn', message: expect.stringContaining('superseding') }),
+      expect.objectContaining({ level: 'error', message: expect.stringContaining('superseding') }),
     );
     // The new run day's row exists and already took its first step.
     expect(store.run?.runUtc.toISOString()).toBe('2026-08-02T00:00:00.000Z');
@@ -877,7 +887,15 @@ describe('AirQualityIngestTarget — one step per tour', () => {
   });
 
   it('I3: transient poll failures spend the attempt budget and end in a LOUD `failed`', async () => {
-    const { target } = build({ pollHttpStatus: 500 });
+    // The POLL alone is enough for the whole generic-failure family: poll, results, download and
+    // the reconcile GET all hand their non-`ok` outcome to the SAME `recordFailure`, so the
+    // attempt accounting, the exhaustion alarm and the terminal flip have exactly one
+    // implementation to exercise. What differs per step is only which URL failed.
+    //
+    // The breaker threshold is raised for this scenario ALONE: it is the only one that must
+    // survive several consecutive provider failures to reach the attempt ceiling, and a circuit
+    // that opened first would end the run on a different refusal than the one under test.
+    const { target } = build({ pollHttpStatus: 500 }, CONFIG, NOW_MS, 50);
     await tourUntil(target, () => store.run?.state === 'abandoned');
 
     expect(store.run?.adsRequests[0]?.state).toBe('failed');
@@ -927,7 +945,12 @@ describe('AirQualityIngestTarget — one step per tour', () => {
       () => store.run?.adsRequests.every((job) => job.cleanupAt !== null) === true,
     );
 
-    expect(calls.filter((call) => call.method === 'DELETE')).toHaveLength(2);
+    // The URL shape matters as much as the count: a DELETE aimed at the wrong id would clean up
+    // somebody else's job and leave ours to expire, and a call count alone cannot see that.
+    expect(calls.filter((call) => call.method === 'DELETE').map((call) => call.url)).toEqual([
+      `${CONFIG.ads.baseUrl}/retrieve/v1/jobs/job-f`,
+      `${CONFIG.ads.baseUrl}/retrieve/v1/jobs/job-a`,
+    ]);
     expect(store.run?.state).toBe('complete');
     expect(store.run?.adsRequests.map((job) => job.cleanupAt !== null)).toEqual([true, true]);
   });
@@ -939,7 +962,12 @@ describe('AirQualityIngestTarget — one step per tour', () => {
       () => store.run?.adsRequests.every((job) => job.cleanupAt !== null) === true,
     );
 
-    expect(calls.filter((call) => call.method === 'DELETE')).toHaveLength(2);
+    expect(calls.filter((call) => call.method === 'DELETE').map((call) => call.url)).toEqual([
+      `${CONFIG.ads.baseUrl}/retrieve/v1/jobs/job-f`,
+      `${CONFIG.ads.baseUrl}/retrieve/v1/jobs/job-a`,
+    ]);
+    // The DELETE URL is built from the id WE hold, never from the reply body — so a body without
+    // `jobID` changes nothing about which job was dismissed.
     // No alarm-level "contract drift" event for a field the probe never measured.
     expect(
       events.filter((event) => event.message.includes('did not match the expected contract')),

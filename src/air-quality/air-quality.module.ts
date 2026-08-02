@@ -91,9 +91,12 @@ export const AIR_QUALITY_WARMUP = Symbol('AIR_QUALITY_WARMUP');
         config: AirQualityUpstreamConfig,
       ): UpstreamHttpClient =>
         new UpstreamHttpClient(metrics, budget, breaker, {
-          // The DOWNLOAD is the long call (12.6 s measured for 25 MiB); the JSON calls finish in
-          // well under a second. One cap covers both because the operation deadline, not this
-          // number, is what actually bounds a tour.
+          // The instance-level FALLBACK only. Every air-quality call sets its own cap per
+          // request: the JSON steps run under `AIR_QUALITY_POLL_TIMEOUT_MS` and the archive
+          // download alone keeps `AIR_QUALITY_DOWNLOAD_TIMEOUT_MS` (review #80 I8 — one cap for
+          // both left the declared poll timeout read by nothing, and one stalled poll could hold
+          // the download's 180 s). The fallback stays at the DOWNLOAD cap so that a future call
+          // site which forgets to choose is bounded generously rather than truncated mid-archive.
           singleCallTimeoutMs: config.ads.downloadTimeoutMs,
           userAgent: UPSTREAM_USER_AGENT,
         }),

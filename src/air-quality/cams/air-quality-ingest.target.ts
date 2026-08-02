@@ -161,9 +161,18 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
     }
 
     if (newest !== null && !isRunTerminal(newest)) {
+      // ERROR, like every other transition into `abandoned` (review #80 R2-M1): the same
+      // terminal state must not be reported at two severities, or an operator filtering at
+      // error level sees only some of the days on which nothing was published.
+      //
+      // ACCEPTED RESIDUAL: a job of the superseded run that still holds an open provider-side
+      // job is never DELETE-cleaned — the ingest only ever advances the NEWEST run, so the old
+      // row's cleanup debt is dropped here. The provider expires such a job on its own in ~2
+      // days and the account holds no more than one orphan per superseded run; cleaning it
+      // would mean advancing two runs per tour, which is a design change, not a fix.
       this.deps.metrics.increment('airq.run_abandoned', CAMS_ADS_PROVIDER);
       this.deps.metrics.event(
-        'warn',
+        'error',
         'air-quality run never completed before the next run day — superseding it',
         {
           provider: CAMS_ADS_PROVIDER,
@@ -317,8 +326,9 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
         await this.terminate(run, index, job, 'licence not accepted for this dataset', 'refused');
         return;
       }
-      // The job stays in `submitting` on purpose. The next tour reconciles instead of
-      // submitting again — the failure may well have happened AFTER the provider accepted.
+      // While it still has budget the job stays in `submitting` on purpose. The next tour
+      // reconciles instead of submitting again — the failure may well have happened AFTER the
+      // provider accepted.
       this.deps.metrics.event('warn', 'air-quality submit failed — reconciling on the next tour', {
         provider: CAMS_ADS_PROVIDER,
         runUtc: run.runUtc.toISOString(),
@@ -326,10 +336,15 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
         outcome: outcome.kind,
       });
       const attempts = job.attempts + 1;
-      this.noteAttemptsSpent(run, job, attempts, this.redact(outcome.reason));
+      const exhausted = this.noteAttemptsSpent(run, job, attempts, this.redact(outcome.reason));
       await this.writeJob(run, index, {
         ...job,
-        state: 'submitting',
+        // A job whose budget is spent reads `failed` in the ledger, whichever path spent the
+        // last attempt (review #80 N6). The rollup already treated it as terminally failed;
+        // leaving it in `submitting` only misreported WHAT happened to the next operator — and
+        // to A2b, which reads this ledger. No re-submit is enabled: `selectNextJob` stops
+        // advancing a job at its attempt ceiling regardless of the state word.
+        state: exhausted ? 'failed' : 'submitting',
         submittedAt,
         attempts,
         lastError: this.redact(outcome.reason),
@@ -387,15 +402,23 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
     );
 
     if (candidates.length === 0) {
+      const attempts = job.attempts + 1;
+      const exhausted = this.noteAttemptsSpent(
+        run,
+        job,
+        attempts,
+        'submit never arrived; re-submit budget spent',
+      );
       this.logger.warn(
         `${job.kind}: no upstream job matches our submit window — the submit never arrived; ` +
-          'returning to costed for ONE clean re-submit.',
+          (exhausted
+            ? 'the attempt budget is spent, so the job gives up here.'
+            : 'returning to costed for ONE clean re-submit.'),
       );
-      const attempts = job.attempts + 1;
-      this.noteAttemptsSpent(run, job, attempts, 'submit never arrived; re-submit budget spent');
       await this.writeJob(run, index, {
         ...job,
-        state: 'costed',
+        // `failed` at exhaustion, like every other attempt-spending path (review #80 N6).
+        state: exhausted ? 'failed' : 'costed',
         attempts,
         submittedAt: null,
       });
@@ -421,9 +444,16 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
       // I10). The attempt budget now terminates it into an honest terminal rollup; the alarm
       // above has already said a human must look.
       const attempts = job.attempts + 1;
-      this.noteAttemptsSpent(run, job, attempts, 'reconciliation ambiguous; attempt budget spent');
+      const exhausted = this.noteAttemptsSpent(
+        run,
+        job,
+        attempts,
+        'reconciliation ambiguous; attempt budget spent',
+      );
       await this.writeJob(run, index, {
         ...job,
+        // `failed` at exhaustion, like every other attempt-spending path (review #80 N6).
+        state: exhausted ? 'failed' : job.state,
         attempts,
         lastError: `${String(candidates.length)} unknown upstream jobs match our submit window`,
       });
@@ -481,6 +511,9 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
         { ...job, ...stamps },
         `the provider ended the job as "${status}"`,
         'rejected',
+        // `upstream`, not the default `refused`: THEY ended the job, exactly as in the sibling
+        // `failed` branch below. `refused` is reserved for refusals WE make (review #80 N7).
+        'upstream',
       );
       return;
     }
@@ -699,9 +732,9 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
 
     // Judged against the horizon THIS RUN was created with (persisted for exactly this,
     // SAPMA 3) — an env change mid-run must not refuse an in-flight run whose bytes were
-    // already paid for (review #80 M2).
-    const expectedSteps =
-      job.kind === 'forecast' ? run.forecastHours + 1 : expectedStepCount(config.ads, job.kind);
+    // already paid for (review #80 M2). The span→step-count `+1` lives in the helper alone
+    // (review #80 N4); `run` is passed in place of the config for the reason above.
+    const expectedSteps = expectedStepCount(run, job.kind);
     if (decoded.timeHours.length !== expectedSteps) {
       this.deps.metrics.increment('airq.step_count_mismatch', CAMS_ADS_PROVIDER);
       await this.terminate(
@@ -800,6 +833,12 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
       state: 'stored',
       lastError: null,
     });
+    run.adsRequests = jobs;
+    // Through `rollupLoudly` like EVERY other run-state write (review #80 R2-I1). A stored
+    // product cannot roll the run to `abandoned` today — the analysis is only advanced behind a
+    // `stored` forecast, and a `stored` forecast is not a terminal failure — so this is the
+    // invariant, not a live alarm: the helper's promise that no state-writing path can bypass
+    // it has to be true of every call site, or the next refactor reopens C1 in silence.
     await store.recordProduct({
       runUtc: run.runUtc,
       kind: job.kind,
@@ -809,7 +848,7 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
       fileFormat: `zip(${String(decoded.zipMethod)})+${decoded.innerFormat}`,
       decoderVersion: decoded.decoderVersion,
       adsRequests: jobs,
-      state: rollupRunState(jobs, this.deps.config.ads.maxAttemptsPerJob),
+      state: this.rollupLoudly(run, jobs, `${job.kind} product stored`),
       now: new Date(this.now()),
     });
     this.logger.log(
@@ -849,7 +888,11 @@ export class AirQualityIngestTarget implements ScheduledWarmupTarget {
     });
     if (outcome.kind !== 'ok') {
       // Cleanup is politeness, not correctness: the result expires on its own in ~2 days. The
-      // stamp is written anyway so a failing DELETE cannot spin every tour forever.
+      // stamp is written anyway so a failing DELETE cannot spin every tour forever. Counted, not
+      // just logged (review #80 R2-M2): a DELETE that stops confirming EVERY day is how a
+      // protocol drift (or a jobs-endpoint change) announces itself first, and a warn line
+      // nobody counts is where that announcement dies.
+      this.deps.metrics.increment('airq.cleanup_unconfirmed', CAMS_ADS_PROVIDER);
       this.logger.warn(
         `${job.kind}: DELETE did not confirm (${outcome.kind}) — the job expires on its own.`,
       );

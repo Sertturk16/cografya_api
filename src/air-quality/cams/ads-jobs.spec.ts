@@ -147,6 +147,9 @@ describe('request bodies', () => {
     );
     expect(expectedStepCount(shorter, 'forecast')).toBe(25);
     expect(expectedStepCount(shorter, 'analysis')).toBe(24);
+    // The ingest passes the RUN row rather than the config (review #80 M2/N4) — the same helper,
+    // so the span→count `+1` has exactly one home.
+    expect(expectedStepCount({ forecastHours: 96 }, 'forecast')).toBe(97);
     expect(expectedProductFor('forecast')).toBe('FORECAST');
     expect(expectedProductFor('analysis')).toBe('ANALYSIS');
   });
