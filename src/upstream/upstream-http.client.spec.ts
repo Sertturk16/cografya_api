@@ -97,6 +97,38 @@ describe('UpstreamHttpClient', () => {
     expect(init.signal?.aborted).toBe(false);
   });
 
+  it('honours a per-request singleCallTimeoutMs override, and only then (review #80 I8)', async () => {
+    // One client serves both the sub-second ADS JSON steps and the ~13 s archive download; the
+    // per-request override is what keeps a stalled poll from holding the download's 180 s cap.
+    const fetchImpl = jest.fn<typeof fetch>(() => Promise.resolve(jsonResponse('{"value":1}')));
+    const client = build(fetchImpl);
+
+    const overridden = new OperationDeadline(600_000, () => nowMs);
+    const overriddenSpy = jest.spyOn(overridden, 'signalFor');
+    await client.request({
+      providerId: 'provider',
+      label: 'provider.value',
+      url: URL_UNDER_TEST,
+      deadline: overridden,
+      limits: LIMITS,
+      singleCallTimeoutMs: 250,
+      parse: parseValue,
+    });
+    expect(overriddenSpy).toHaveBeenCalledWith(250);
+
+    const defaulted = new OperationDeadline(600_000, () => nowMs);
+    const defaultedSpy = jest.spyOn(defaulted, 'signalFor');
+    await client.request({
+      providerId: 'provider',
+      label: 'provider.value',
+      url: URL_UNDER_TEST,
+      deadline: defaulted,
+      limits: LIMITS,
+      parse: parseValue,
+    });
+    expect(defaultedSpy).toHaveBeenCalledWith(3_000);
+  });
+
   it('reports HTTP 200 + null as `no_data`, not as a failure', async () => {
     const fetchImpl = jest.fn(() => Promise.resolve(jsonResponse('{"value":null}')));
     const outcome = await request(build(fetchImpl));

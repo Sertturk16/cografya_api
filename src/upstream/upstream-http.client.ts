@@ -114,6 +114,18 @@ interface UpstreamRequestOptionsBase {
   missingMeansNoData?: boolean;
   headers?: Readonly<Record<string, string>>;
   maxResponseBytes?: number;
+  /**
+   * Override the client-level single-call cap for THIS request.
+   *
+   * One client instance serves calls with genuinely different time shapes — the ADS job
+   * protocol's JSON steps finish in well under a second while its archive download runs for
+   * ~13 s — and a single instance-wide cap silently hands the long call's budget to every
+   * short one: a stalled poll would then hold its 180 s cap and eat the whole tour slice
+   * (review #80 I8, the same "declared env read by nothing" class review #73 pinned for
+   * `MARINE_*_TTL_SECONDS`). Absent means the instance-level cap, so every existing caller's
+   * behaviour is byte-identical.
+   */
+  singleCallTimeoutMs?: number;
 }
 
 /** A textual response (the default): the body reaches `parse` as a UTF-8 string. */
@@ -363,7 +375,7 @@ export class UpstreamHttpClient {
             : { 'Content-Type': options.requestBody.contentType }),
           ...options.headers,
         },
-        signal: deadline.signalFor(this.options.singleCallTimeoutMs),
+        signal: deadline.signalFor(options.singleCallTimeoutMs ?? this.options.singleCallTimeoutMs),
         // NOT `follow`. A redirect is the one way a provider (or anyone who can answer as one:
         // a hijacked route, an expired domain, a compromised CDN) can choose the host this
         // server talks to from INSIDE the deployment network — cloud metadata endpoints being
@@ -418,6 +430,7 @@ export class UpstreamHttpClient {
       }
       return {
         kind: 'client_error',
+        httpStatus: response.status,
         reason:
           `${label}: HTTP ${String(response.status)} — OUR request was rejected by ${safeUrl}. ` +
           // REDACTED, because this excerpt is both logged at ERROR and persisted into the negative

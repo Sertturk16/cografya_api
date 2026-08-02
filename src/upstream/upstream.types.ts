@@ -63,7 +63,17 @@ export type UpstreamOutcome<T> =
    * breaker, by a metric, or by a human on call — as evidence that the provider is unhealthy.
    */
   | { readonly kind: 'budget_exhausted'; readonly reason: string }
-  | { readonly kind: 'client_error'; readonly reason: string }
+  | {
+      readonly kind: 'client_error';
+      readonly reason: string;
+      /**
+       * The HTTP status that produced this refusal, when the failure came from an HTTP
+       * response at all. Carried STRUCTURALLY so a caller that must branch on a specific
+       * status (the ADS licence 403 is the one real case) never has to parse it back out of
+       * the composed `reason` string — which is redacted, truncated prose, not a contract.
+       */
+      readonly httpStatus?: number;
+    }
   | { readonly kind: 'schema_error'; readonly reason: string }
   | {
       readonly kind: 'rate_limited';
