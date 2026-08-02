@@ -119,7 +119,12 @@ export class MarineValueDto {
     nullable: true,
     example:
       'BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311',
-    description: 'Provider dataset identifier, verbatim, when the provider reports one.',
+    description:
+      'Provider dataset identifier, verbatim, when the provider reports one. For CMEMS-sourced ' +
+      'values the id is resolved from the provider STAC catalogue at runtime — never pinned in ' +
+      'code — so the trailing version stamp (_2xxxxx) rotates with the provider and consumers ' +
+      'must treat the string as opaque. ECMWF-sourced values carry null: that provider has no ' +
+      'per-value dataset id, and modelRunAtUtc is the provenance there.',
   })
   datasetId!: string | null;
 

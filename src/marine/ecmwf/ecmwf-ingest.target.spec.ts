@@ -269,6 +269,13 @@ function makeConfig(overrides: Partial<MarineUpstreamConfig['ecmwf']> = {}): Mar
       staleMaxSeconds: 43_200,
       ...overrides,
     },
+    cmems: {
+      wmtsBaseUrl: 'https://wmts.test/teroWmts',
+      stacBaseUrl: 'https://stac.test/metadata',
+      singleCallTimeoutMs: 6_000,
+      tourBudgetMs: 60_000,
+      stacTtlSeconds: 21_600,
+    },
   };
 }
 

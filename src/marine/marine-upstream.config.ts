@@ -87,6 +87,8 @@ export interface MarineUpstreamConfig {
   readonly warmupEnabled: boolean;
   /** The ECMWF ingest leg (M3b). One coherent block; the env schema cross-checks it at boot. */
   readonly ecmwf: EcmwfIngestConfig;
+  /** The CMEMS adapter leg (M4). Same one-coherent-block reasoning; cross-checked at boot. */
+  readonly cmems: CmemsAdapterConfig;
 }
 
 /**
@@ -121,6 +123,25 @@ export interface EcmwfIngestConfig {
   readonly staleMaxSeconds: number;
 }
 
+/**
+ * Everything the CMEMS adapter needs (marine M4, plan §7).
+ *
+ * Resolved at boot alongside the rest of the config so every declared env var has a real
+ * reader from the PR that declares it. In M4a nothing constructs the client yet — the values
+ * are validated, cross-checked and carried; M4b's endpoints and warmup target consume
+ * `tourBudgetMs` and `stacTtlSeconds`.
+ */
+export interface CmemsAdapterConfig {
+  readonly wmtsBaseUrl: string;
+  readonly stacBaseUrl: string;
+  /** Per-call cap. Its own knob: a session's first call measured 2.54 s (cold TLS). */
+  readonly singleCallTimeoutMs: number;
+  /** The slice of one warmup tour CMEMS may consume (M4b target). */
+  readonly tourBudgetMs: number;
+  /** How long a STAC dataset-id resolution is trusted (M4b warmup refresh cadence). */
+  readonly stacTtlSeconds: number;
+}
+
 /** Injection token for {@link MarineUpstreamConfig}. */
 export const MARINE_UPSTREAM_CONFIG = Symbol('MARINE_UPSTREAM_CONFIG');
 
@@ -150,6 +171,13 @@ export function buildMarineUpstreamConfig(config: ConfigService<Env, true>): Mar
       maxRangeBytes: config.getOrThrow('ECMWF_MAX_RANGE_BYTES', { infer: true }),
       cycleMaxAgeSeconds: config.getOrThrow('ECMWF_CYCLE_MAX_AGE_SECONDS', { infer: true }),
       staleMaxSeconds: config.getOrThrow('ECMWF_STALE_MAX_SECONDS', { infer: true }),
+    },
+    cmems: {
+      wmtsBaseUrl: config.getOrThrow('CMEMS_WMTS_BASE_URL', { infer: true }),
+      stacBaseUrl: config.getOrThrow('CMEMS_STAC_BASE_URL', { infer: true }),
+      singleCallTimeoutMs: config.getOrThrow('CMEMS_SINGLE_CALL_TIMEOUT_MS', { infer: true }),
+      tourBudgetMs: config.getOrThrow('CMEMS_TOUR_BUDGET_MS', { infer: true }),
+      stacTtlSeconds: config.getOrThrow('CMEMS_STAC_TTL_SECONDS', { infer: true }),
     },
   };
 }
