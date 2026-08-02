@@ -126,6 +126,11 @@ export type UpstreamMetricName =
    * REFRESH side of `AirQualitySeriesReader` alone: the exit-side check runs once per public
    * request, so it logs through a throttle and never touches this counter — the number stays "the
    * ceiling fired", not a traffic-proportional one (the marine R2-SFH-A convention).
+   *
+   * The exit half needs no counter of its OWN because this condition HAS an owner: an over-age run
+   * is equally visible to the refresh half, which fires this counter within one TTL. Contrast
+   * `airq.cached_run_unusable`, whose condition the refresh half can never see (review #84 round-2
+   * ruling).
    */
   | 'airq.run_age_ceiling'
   /**
@@ -138,19 +143,53 @@ export type UpstreamMetricName =
   /**
    * A stored run held no readable series row at all, so the read degraded to `schema_error`. The
    * per-row sibling is `ingest.corrupt_row_skipped`: one bad province is a skip, ALL of them is
-   * this. Also refresh-cadence. The EXIT-side twin — a CACHED payload that does not hold the
-   * written shape (review #84 CR-6) — deliberately carries no counter, exactly like the exit half
-   * of the run-age ceiling: it runs once per public request, so a counter there would report
-   * traffic rather than "the condition fired". It logs instead, throttled, at ERROR.
+   * this. Also refresh-cadence — its EXIT-side twin is `airq.cached_run_unusable`.
    */
   | 'airq.run_unreadable'
   /**
-   * R2 fired: stored concentrations were present but negative/non-finite/non-numeric, so they were
-   * null-classified before `subIndexBand` could throw. Incremented BY the substitution count, from
-   * BOTH passes — compile-time and post-cache (review #84 I2) — with the log line naming which.
-   * Non-zero means the decoder's guarantee did not hold for some bytes we stored.
+   * A CACHED payload did not hold the written shape, so the exit-side guard suppressed publication
+   * (review #84 CR-6, counter added at round 2).
+   *
+   * ## Why this one is counted while the run-age ceiling's exit half is not
+   * That condition has an OWNER: `airq.run_age_ceiling` fires on the refresh half, so an over-age
+   * run is never counter-invisible for longer than one TTL. This condition has no owner anywhere —
+   * it is detectable only on the exit side BY CONSTRUCTION, because the refresh half recompiles
+   * with today's code and therefore emits a well-shaped payload, so `airq.run_unreadable` can never
+   * fire for it. Left uncounted, a condition whose own log line says "a human has to look" produced
+   * zero counter events, ever. And the blast radius is wider than a corrupt cache: the exit guard
+   * also runs on the refresh RESULT, so a future bug in our own `compileRun` lands here too — both
+   * public endpoints 100 % `unavailable` behind `no-store`, one ERROR line a minute, nothing on any
+   * dashboard. That is fail-soft hiding a genuine fault.
+   *
+   * ## Cadence: once per THROTTLE WINDOW, never per request
+   * Incremented only when `throttledEvent` actually emits, so it reports "the condition fired" and
+   * stays free of the traffic-proportionality a naive per-request increment would carry.
+   */
+  | 'airq.cached_run_unusable'
+  /**
+   * R2 fired at COMPILE time: stored concentrations were present but negative/non-finite/
+   * non-numeric, so they were null-classified before `subIndexBand` could throw. Refresh-cadence,
+   * incremented BY the substitution count, so the number is a real magnitude of "how many stored
+   * values are bad". Non-zero means the decoder's guarantee did not hold for some bytes we stored.
+   *
+   * The post-cache pass is counted SEPARATELY (`airq.cached_concentration_normalised`) and not
+   * folded in here — review #84 NI-1: the two run at different cadences, and the only label that
+   * told them apart lived on the throttled log line rather than on the counter, so the compile
+   * signal drowned in the same series.
    */
   | 'airq.concentration_normalised'
+  /**
+   * R2 fired on a CACHED payload, i.e. after the cache and across a deploy boundary — the pass that
+   * exists for an entry an earlier deployment wrote (review #84 I2 / NI-1).
+   *
+   * ## Cadence: once per THROTTLE WINDOW, never per request
+   * Its sibling above is refresh-cadence, so incrementing BY the count is a magnitude there. Here
+   * the same arithmetic would be traffic: the pass runs on every public request, and a single
+   * corrupt cached payload adds ~81 × steps × pollutants per request. So this counter is
+   * incremented by ONE, only when `throttledEvent` actually emits; the magnitude of that request's
+   * substitutions rides the log line's `values` field, where it describes one sample honestly.
+   */
+  | 'airq.cached_concentration_normalised'
   /**
    * The politeness `DELETE /jobs/{id}` did not confirm. Never a correctness problem on its own
    * (the provider expires the job in ~2 days), but a daily rise here is a protocol drift saying
@@ -255,6 +294,14 @@ export class UpstreamMetrics {
    * Loudness is preserved where it matters: the COUNTER is never throttled, and the first
    * occurrence is always logged, so the transition into the bad state is always visible. What is
    * suppressed is only the repetition of a message that says nothing new.
+   *
+   * ## The return value is the CADENCE SEAM (review #84 round 2)
+   * `true` exactly when this call emitted. A condition that is detectable only on the once-per-
+   * request path still deserves a counter — but incrementing it per request turns "how often did
+   * this fire?" into a traffic reading. Gating the increment on this boolean gives such a condition
+   * a counter that ticks at most once per window, which is the file's real convention: count the
+   * condition, not the traffic. Callers that only log are unaffected — ignoring the value is the
+   * normal case.
    */
   throttledEvent(
     level: 'debug' | 'log' | 'warn' | 'error',
@@ -262,14 +309,15 @@ export class UpstreamMetrics {
     everyMs: number,
     message: string,
     context: Readonly<Record<string, string | number | boolean | null>>,
-  ): void {
+  ): boolean {
     const now = Date.now();
     const last = this.lastLoggedAtMs.get(throttleKey);
-    if (last !== undefined && now - last < everyMs) return;
+    if (last !== undefined && now - last < everyMs) return false;
 
     this.lastLoggedAtMs.set(throttleKey, now);
     this.pruneThrottleKeys(now, everyMs);
     this.event(level, message, context);
+    return true;
   }
 
   /**

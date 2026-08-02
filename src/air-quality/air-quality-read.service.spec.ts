@@ -288,37 +288,42 @@ describe('AirQualityReadService — the post-cache R2 report', () => {
    * Date.now())`, so which one the hub reads depends on the wall clock relative to the fixture's
    * timestamps. A single corrupted step would make this test pass or fail by time of day.
    */
-  function corruptedRun(): CompiledRun {
-    const run = compiledRun(['06']);
-    const target = run.provinces[0];
-    if (target === undefined) throw new Error('missing province');
+  function corruptedRun(plateCodes: readonly string[] = ['06']): CompiledRun {
+    const run = compiledRun(plateCodes);
     const steps = run.timesUtc.length;
     return {
       ...run,
-      provinces: [
-        {
-          ...target,
-          concentrations: {
-            ...target.concentrations,
-            [AirQualityPollutant.Pm2_5]: Array.from({ length: steps }, () => -999),
-          },
+      provinces: run.provinces.map((target) => ({
+        ...target,
+        concentrations: {
+          ...target.concentrations,
+          [AirQualityPollutant.Pm2_5]: Array.from({ length: steps }, () => -999),
         },
-      ],
+      })),
     };
   }
 
   it('reports ONCE per request, with the whole tally, when the hub substitutes', async () => {
-    const service = buildService({ provinces: [province('06')], read: okRead(corruptedRun()) });
+    // TWO corrupted provinces on purpose (review #84 NM-2). With one, `[1]` is the expected result
+    // under BOTH "once per request" and "once per province", so the assertion could not fail on the
+    // behaviour its name pins. With two, per-request gives `[2]` and per-province gives `[1, 1]`.
+    const service = buildService({
+      provinces: [province('06'), province('34')],
+      read: okRead(corruptedRun(['06', '34'])),
+    });
     await service.listProvinces();
-    // One line per request, never one per province.
-    expect(normalisationReports).toEqual([1]);
+    expect(normalisationReports).toEqual([2]);
   });
 
-  it('reports the detail endpoint tally across the index AND the whole series', async () => {
+  it('counts the detail endpoint tally ONCE per value, not once per builder', async () => {
+    // Review #84 NM-1: the index counts step `stepIndex`, the series counts every step INCLUDING
+    // that one, so handing the tally to both reported these 3 corrupted values as 4. The exact
+    // number is the assertion — `toBeGreaterThan(0)` could not see the double count.
     const service = buildService({ provinces: [province('06')], read: okRead(corruptedRun()) });
-    await service.getProvince('06');
-    expect(normalisationReports).toHaveLength(1);
-    expect(normalisationReports[0]).toBeGreaterThan(0);
+    const dto = await service.getProvince('06');
+    // 3 steps × the one corrupted pollutant, counted once each.
+    expect(dto.series?.timesUtc).toHaveLength(3);
+    expect(normalisationReports).toEqual([3]);
   });
 
   it('stays silent on a clean run and on the cold path', async () => {

@@ -160,6 +160,11 @@ export class AirQualityReadService {
     // skipped by the shape guard — all three degrade the SAME honest way, and the other 80
     // provinces are unaffected.
     const publishable = compiled !== null && stepIndex !== null && series !== undefined;
+    // ONE tally, handed to `buildSeriesDto` ALONE (review #84 NM-1). The two builders overlap on
+    // this path: the index counts step `stepIndex`, the series counts every step INCLUDING that
+    // one, so passing the tally to both reported 3 corrupted values as 4. `publishedValues`' own
+    // docblock states the rule — "counting them twice would make the number mean nothing" — and the
+    // series pass is the one that already covers everything the index would have counted.
     const tally: NormalisationTally = { count: 0 };
 
     const dto: AirQualityProvinceDto = {
@@ -175,7 +180,7 @@ export class AirQualityReadService {
             province: series,
             stepIndex,
             provenance: resolved.provenance,
-            tally,
+            // No tally here on purpose — the series pass below counts this step too.
           })
         : unavailableIndexDto(),
       series: publishable ? buildSeriesDto(compiled, series, tally) : null,

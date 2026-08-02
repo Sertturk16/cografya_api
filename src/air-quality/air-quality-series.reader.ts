@@ -68,13 +68,36 @@ function isArray(value: unknown): value is readonly unknown[] {
   return Array.isArray(value);
 }
 
-/** Every entry present and a string — `timesUtc`'s only structural requirement. */
-function isStringArray(value: unknown): value is readonly string[] {
-  return isArray(value) && value.every((entry) => typeof entry === 'string');
+/**
+ * A string that `Date` can actually read.
+ *
+ * Type-only was not enough (review #84 NM-3): every instant-typed member of a cached payload is
+ * published verbatim into a contract field the OpenAPI spec types as a date-time and the web
+ * formats as one, so `"banana"` passing a `typeof` check means the guard's own refusal message
+ * ("an array of instants") claimed more than it delivered. Nothing throws on such a value — that is
+ * why this is the cheap half of the fix rather than an urgent one — but "renders `Invalid Date` on
+ * a public page" is the same publish-something-wrong class the guard exists for. `Date.parse` is
+ * exactly the predicate the consumers use, so this claims no more than it checks.
+ */
+function isInstant(value: unknown): value is string {
+  return typeof value === 'string' && !Number.isNaN(Date.parse(value));
 }
 
-/** One cached province's shape, or the reason it cannot be published. */
-function describeUnusableProvince(value: unknown, index: number): string | null {
+/** Every entry present, a string, and parseable — `timesUtc`'s structural requirement. */
+function isInstantArray(value: unknown): value is readonly string[] {
+  return isArray(value) && value.every((entry) => isInstant(entry));
+}
+
+/**
+ * One cached province's shape, or the reason it cannot be published.
+ *
+ * `stepCount` is `timesUtc.length`, checked by the caller first: the parallel-array parity between
+ * the time axis and every concentration block is a documented `CompiledProvinceSeries` invariant
+ * (*"exactly `timesUtc.length` entries each"*) and `buildSeriesDto` restates it as its own, so a
+ * cross-version payload that breaks it publishes `times` and `concentrations` of different lengths —
+ * silently misaligned parallel arrays on the web side (review #84 NM-4).
+ */
+function describeUnusableProvince(value: unknown, index: number, stepCount: number): string | null {
   const label = `provinces[${String(index)}]`;
   if (typeof value !== 'object' || value === null) return `\`${label}\` is not an object`;
   const widened = value as {
@@ -89,8 +112,8 @@ function describeUnusableProvince(value: unknown, index: number): string | null 
   if (typeof widened.plateCode !== 'string' || widened.plateCode.length === 0) {
     return `\`${label}.plateCode\` is not a non-empty string`;
   }
-  if (typeof widened.ingestedAtUtc !== 'string') {
-    return `\`${label}.ingestedAtUtc\` is not a string`;
+  if (!isInstant(widened.ingestedAtUtc)) {
+    return `\`${label}.ingestedAtUtc\` is not a parseable instant`;
   }
   for (const [name, member] of [
     ['gridLatitude', widened.gridLatitude],
@@ -112,8 +135,15 @@ function describeUnusableProvince(value: unknown, index: number): string | null 
   const concentrationMembers = concentrations as Record<string, unknown>;
   const supportMembers = support as Record<string, unknown>;
   for (const pollutant of ALL_AIR_QUALITY_POLLUTANTS) {
-    if (!isArray(concentrationMembers[pollutant])) {
+    const values = concentrationMembers[pollutant];
+    if (!isArray(values)) {
       return `\`${label}.concentrations.${pollutant}\` is not an array`;
+    }
+    if (values.length !== stepCount) {
+      return (
+        `\`${label}.concentrations.${pollutant}\` holds ${String(values.length)} entries while ` +
+        `\`timesUtc\` holds ${String(stepCount)}`
+      );
     }
     const verdict = supportMembers[pollutant];
     if (verdict !== 'ok' && verdict !== 'not_supported') {
@@ -162,23 +192,22 @@ function describeUnusableRun(value: CompiledRun): string | null {
     horizonEndUtc?: unknown;
     provinces?: unknown;
   } = value;
-  if (typeof widened.runUtc !== 'string' || Number.isNaN(Date.parse(widened.runUtc))) {
-    return '`runUtc` is not a parseable instant';
-  }
+  if (!isInstant(widened.runUtc)) return '`runUtc` is not a parseable instant';
   if (typeof widened.datasetId !== 'string') return '`datasetId` is not a string';
   if (typeof widened.stepHours !== 'number' || !Number.isFinite(widened.stepHours)) {
     return '`stepHours` is not a finite number';
   }
-  if (typeof widened.horizonEndUtc !== 'string') return '`horizonEndUtc` is not a string';
-  if (widened.analysisEndUtc !== null && typeof widened.analysisEndUtc !== 'string') {
-    return '`analysisEndUtc` is neither a string nor null';
+  if (!isInstant(widened.horizonEndUtc)) return '`horizonEndUtc` is not a parseable instant';
+  if (widened.analysisEndUtc !== null && !isInstant(widened.analysisEndUtc)) {
+    return '`analysisEndUtc` is neither a parseable instant nor null';
   }
-  if (!isStringArray(widened.timesUtc) || widened.timesUtc.length === 0) {
-    return '`timesUtc` is not a non-empty array of instants';
+  if (!isInstantArray(widened.timesUtc) || widened.timesUtc.length === 0) {
+    return '`timesUtc` is not a non-empty array of parseable instants';
   }
   if (!isArray(widened.provinces)) return '`provinces` is not an array';
+  const stepCount = widened.timesUtc.length;
   for (const [index, province] of widened.provinces.entries()) {
-    const reason = describeUnusableProvince(province, index);
+    const reason = describeUnusableProvince(province, index, stepCount);
     if (reason !== null) return reason;
   }
   return null;
@@ -246,11 +275,21 @@ export class AirQualitySeriesReader {
    * Order matters. The shape check runs FIRST because the age check itself dereferences and
    * formats `runUtc`, which is the throw the guard exists to prevent.
    *
-   * Both branches run on every read, including fresh hits — so the reporting is quieter than the
-   * refresh half's: a throttled line, and no counter (the refresh half owns
-   * `airq.run_age_ceiling` / `airq.run_unreadable`; a per-request counter here would report
-   * traffic instead of "the condition fired"). The suppression itself applies to every single
-   * read; only the repetition of the message is bounded.
+   * Both branches run on every read, including fresh hits, so both report through a throttle: the
+   * suppression itself applies to every single read, only the repetition of the message is bounded.
+   * They differ on the COUNTER, and the difference is the ruling of review #84 round 2:
+   *
+   * - the run-age branch stays counter-free because its condition HAS an owner — the refresh half
+   *   fires `airq.run_age_ceiling`, so an over-age run is never counter-invisible for more than one
+   *   TTL, and a second counter here would only add traffic;
+   * - the shape branch owns `airq.cached_run_unusable`, because its condition has no owner
+   *   anywhere. The refresh half recompiles with today's code and therefore emits a well-shaped
+   *   payload, so `airq.run_unreadable` can never fire for it. Uncounted, a condition this
+   *   method's own comment describes as "a human has to look" produced zero events, ever — while
+   *   both public endpoints went 100 % `unavailable`.
+   *
+   * The counter is incremented only when `throttledEvent` actually EMITS, so it counts the
+   * condition once per window rather than once per request (see `UpstreamMetrics.throttledEvent`).
    */
   private suppressStaleRun(read: CachedRead<CompiledRun>): CachedRead<CompiledRun> {
     if (read.value === null) return read;
@@ -259,13 +298,15 @@ export class AirQualitySeriesReader {
     if (unusable !== null) {
       // ERROR, not warn: unlike an aged run this is never a normal operational state — it means a
       // payload we wrote does not hold the shape this code reads, and a human has to look.
-      this.metrics.throttledEvent(
+      const emitted = this.metrics.throttledEvent(
         'error',
         'airq.cached-run-unusable',
         EXIT_SUPPRESSION_LOG_EVERY_MS,
         'a CACHED air-quality run does not hold the written shape — publication suppressed',
         { provider: CAMS_ADS_PROVIDER, reason: unusable, origin: read.origin },
       );
+      // Counted on EMISSION, not on arrival — see the docblock above and `throttledEvent`.
+      if (emitted) this.metrics.increment('airq.cached_run_unusable', CAMS_ADS_PROVIDER);
       return this.withoutValue(read, 'schema_error', `the cached run is unusable: ${unusable}`);
     }
 
@@ -328,17 +369,27 @@ export class AirQualitySeriesReader {
    * the counter name, the provider label and the throttle window are stated once, and the two
    * passes cannot drift into reporting the same condition two different ways. Called once per
    * request with the whole tally, so 81 hub provinces produce one line, not 81.
+   *
+   * ## Its OWN counter, at its OWN cadence (review #84 NI-1)
+   * This method runs once per public REQUEST; the compile pass runs once per refresh. Sharing
+   * `airq.concentration_normalised` and incrementing it by `count` meant a single corrupt cached
+   * payload added ~81 × steps × pollutants per request — at 10 req/s, ~400 000/s — so "how many
+   * stored values are bad" became a traffic reading, and the compile pass's real magnitude drowned
+   * inside the same series with no way to separate them (the distinguishing `pass` label lives only
+   * on the throttled log line). So: a separate name, incremented by ONE and only when the log line
+   * actually emits. The magnitude of this request's substitutions stays on that line's `values`
+   * field, where it honestly describes one sample rather than a running total of requests.
    */
   reportPostCacheNormalisation(count: number, runUtc: string): void {
     if (count <= 0) return;
-    this.metrics.increment('airq.concentration_normalised', CAMS_ADS_PROVIDER, count);
-    this.metrics.throttledEvent(
+    const emitted = this.metrics.throttledEvent(
       'warn',
       'airq.concentration-normalised-post-cache',
       R2_NORMALISATION_LOG_EVERY_MS,
       'CACHED concentrations were negative/non-finite/non-numeric and were null-classified on read',
       { provider: CAMS_ADS_PROVIDER, run: runUtc, values: count, pass: 'post-cache' },
     );
+    if (emitted) this.metrics.increment('airq.cached_concentration_normalised', CAMS_ADS_PROVIDER);
   }
 
   /** The `refresh` closure body: Postgres → compiled run, or an honest non-ok outcome. */
@@ -443,7 +494,8 @@ export class AirQualitySeriesReader {
     if (outcome.normalisedValues > 0) {
       // The R2 condition, COMPILE pass. Throttled because a systematically bad run would otherwise
       // log once per refresh with a five-figure count; the first occurrence is always logged. The
-      // counter is not throttled — it runs at refresh cadence, so it stays a real magnitude.
+      // counter is not throttled — it runs at refresh cadence, so it stays a real magnitude. The
+      // post-cache pass carries its own name and its own cadence (`reportPostCacheNormalisation`).
       this.metrics.increment(
         'airq.concentration_normalised',
         CAMS_ADS_PROVIDER,

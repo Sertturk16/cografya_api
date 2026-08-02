@@ -158,12 +158,17 @@ function runRow(overrides: Partial<AirQualityRun> = {}): AirQualityRun {
   };
 }
 
-/** One province exactly as a healthy `CompiledRun` carries it. */
-function cachedProvince(): Record<string, unknown> {
+/**
+ * One province exactly as a healthy `CompiledRun` carries it.
+ *
+ * `steps` defaults to 1 to match `cannedOk`'s single-step `timesUtc`; passing anything else is how
+ * the array-length parity case (review #84 NM-4) is built.
+ */
+function cachedProvince(steps = 1): Record<string, unknown> {
   const concentrations: Record<string, (number | null)[]> = {};
   const verdicts: Record<string, string> = {};
   for (const pollutant of ALL_AIR_QUALITY_POLLUTANTS) {
-    concentrations[pollutant] = [10];
+    concentrations[pollutant] = Array.from({ length: steps }, () => 10);
     verdicts[pollutant] = 'ok';
   }
   return {
@@ -402,6 +407,22 @@ describe('AirQualitySeriesReader', () => {
         'a province with a non-finite coordinate',
         { provinces: [{ ...cachedProvince(), gridLatitude: Number.NaN }] },
       ],
+      // Review #84 NM-3: these four members used to be typeof-only, so an unparseable-yet-string
+      // instant passed a guard whose refusal message already claimed "instants" and was published
+      // into contract fields the web formats as dates.
+      ['an unparseable step in timesUtc', { timesUtc: ['not-an-instant'] }],
+      ['an unparseable horizonEndUtc', { horizonEndUtc: 'not-an-instant' }],
+      ['an unparseable analysisEndUtc', { analysisEndUtc: 'not-an-instant' }],
+      [
+        'a province with an unparseable ingestedAtUtc',
+        { provinces: [{ ...cachedProvince(), ingestedAtUtc: 'not-an-instant' }] },
+      ],
+      // Review #84 NM-4: the one `CompiledRun` invariant the widened guard did not cover. Two
+      // concentration entries against a one-step `timesUtc` publishes misaligned parallel arrays.
+      [
+        'a province whose concentrations disagree with timesUtc',
+        { provinces: [cachedProvince(2)] },
+      ],
     ];
 
     for (const [label, overrides] of unusable) {
@@ -423,6 +444,85 @@ describe('AirQualitySeriesReader', () => {
       expect(read.kind).toBe('ok');
       expect(read.value?.provinces.map((province) => province.plateCode)).toEqual(['06']);
       expect(read.cacheAgeSeconds).toBe(10);
+      expect(metrics.get('airq.cached_run_unusable', CAMS_ADS_PROVIDER)).toBe(0);
     });
+
+    /**
+     * Review #84 round-2 ruling. This condition is detectable ONLY on the exit side: the refresh
+     * half recompiles with today's code, so `airq.run_unreadable` can never fire for it. Left
+     * uncounted it produced zero events, ever, while both public endpoints answered 100 %
+     * `unavailable` — fail-soft hiding a genuine fault.
+     */
+    it('COUNTS the condition once per throttle window, not once per request', async () => {
+      cache.canned = cannedOk({ runUtc: 'not-an-instant' });
+      await reader.readRun();
+      expect(metrics.get('airq.cached_run_unusable', CAMS_ADS_PROVIDER)).toBe(1);
+
+      // Nine more requests inside the same 60 s window. A per-request counter would read 10 here,
+      // which is what makes "how often did this fire?" a traffic reading; the emission gate keeps
+      // it at 1. The SUPPRESSION still applies to every one of them.
+      for (let attempt = 0; attempt < 9; attempt += 1) {
+        expect((await reader.readRun()).kind).toBe('schema_error');
+      }
+      expect(metrics.get('airq.cached_run_unusable', CAMS_ADS_PROVIDER)).toBe(1);
+      // …and it never borrows the refresh half's counters, which answer different questions.
+      expect(metrics.get('airq.run_unreadable', CAMS_ADS_PROVIDER)).toBe(0);
+      expect(metrics.get('airq.run_age_ceiling', CAMS_ADS_PROVIDER)).toBe(0);
+    });
+  });
+
+  /**
+   * Review #84 NI-1: the post-cache R2 pass runs once per public REQUEST while the compile pass
+   * runs once per refresh, so they cannot share one counter — a corrupt cached payload would make
+   * "how many stored values are bad" a function of traffic and drown the compile signal in the
+   * same series.
+   */
+  describe('the two R2 passes report at their own cadences', () => {
+    it('counts the POST-CACHE pass once per window, under its own name', () => {
+      reader.reportPostCacheNormalisation(39_000, RUN_UTC.toISOString());
+      expect(metrics.get('airq.cached_concentration_normalised', CAMS_ADS_PROVIDER)).toBe(1);
+      // The compile pass's magnitude counter must be untouched by request traffic.
+      expect(metrics.get('airq.concentration_normalised', CAMS_ADS_PROVIDER)).toBe(0);
+
+      for (let request = 0; request < 9; request += 1) {
+        reader.reportPostCacheNormalisation(39_000, RUN_UTC.toISOString());
+      }
+      // Ten requests, one window: the number says "the condition fired", not "we served traffic".
+      expect(metrics.get('airq.cached_concentration_normalised', CAMS_ADS_PROVIDER)).toBe(1);
+    });
+
+    it('stays silent when nothing was substituted', () => {
+      reader.reportPostCacheNormalisation(0, RUN_UTC.toISOString());
+      expect(metrics.get('airq.cached_concentration_normalised', CAMS_ADS_PROVIDER)).toBe(0);
+    });
+
+    it('counts the COMPILE pass BY the substitution count, under the other name', async () => {
+      // A stored −999 is the R2 condition at compile time: 5 pollutants × 4 steps = 20 values.
+      store.rows = [
+        {
+          ...seriesRow('06'),
+          concentrations: block(4, -999),
+        },
+      ];
+      expect((await reader.readRun()).kind).toBe('ok');
+      expect(metrics.get('airq.concentration_normalised', CAMS_ADS_PROVIDER)).toBe(20);
+      expect(metrics.get('airq.cached_concentration_normalised', CAMS_ADS_PROVIDER)).toBe(0);
+    });
+  });
+
+  /** The store-failure counter added at review #84 SFH-4 — "the database was unreachable". */
+  it('counts a store read failure apart from the data-shape classes', async () => {
+    store.runThrows = true;
+    expect((await reader.readRun()).kind).toBe('transient');
+    expect(metrics.get('airq.store_read_failed', CAMS_ADS_PROVIDER)).toBe(1);
+    expect(metrics.get('airq.run_unreadable', CAMS_ADS_PROVIDER)).toBe(0);
+  });
+
+  /** …and its sibling: a run whose every row is unreadable (SFH-4). */
+  it('counts a run that holds no readable row at all', async () => {
+    store.rows = [seriesRow('06', 3), seriesRow('34', 9)];
+    expect((await reader.readRun()).kind).toBe('schema_error');
+    expect(metrics.get('airq.run_unreadable', CAMS_ADS_PROVIDER)).toBe(1);
+    expect(metrics.get('airq.store_read_failed', CAMS_ADS_PROVIDER)).toBe(0);
   });
 });
