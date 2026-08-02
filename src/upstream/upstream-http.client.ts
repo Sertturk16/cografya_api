@@ -35,6 +35,46 @@ const MAX_ATTEMPTS = 2;
 interface UpstreamRequestOptionsBase {
   /** OUR label for the provider (`cmems`, `ecmwf`) — the metrics and breaker key. */
   providerId: string;
+  /**
+   * HTTP verb. Defaults to `'GET'`, so every existing caller's behaviour is byte-identical.
+   *
+   * The three verbs are the ADS job protocol's whole surface: `POST` for `costing` and
+   * `execution`, `DELETE` for the politeness cleanup, `GET` for everything else. They live on
+   * the SHARED client rather than in a second one for the same reason the binary branch does:
+   * the guard order (budget → breaker → deadline → byte cap → content type → parse) is never
+   * duplicated (DEC 2026-07-31b).
+   */
+  method?: 'GET' | 'POST' | 'DELETE';
+  /**
+   * Request body, for `POST`. Carries its own content type, which is also what the
+   * `Content-Type` header is set from — a body whose declared type and header could disagree
+   * is a shape this client will not offer.
+   */
+  requestBody?: { readonly contentType: string; readonly content: string };
+  /**
+   * OPT OUT of the single transient retry. Absent (the default) = today's behaviour.
+   *
+   * `false` is for calls that are NOT idempotent. The one real case is the ADS `execution`
+   * submit: a timeout after the provider already accepted the job means a retry creates a
+   * SECOND job — double cost, and an orphan the account keeps. There is no safe automatic
+   * recovery from that, so the retry is refused at the source and the caller reconciles
+   * against `GET /jobs` instead of ever re-submitting.
+   */
+  retryable?: false;
+  /**
+   * Per-request redaction of the `client_error` body excerpt.
+   *
+   * The excerpt is already capped at 200 bytes and already passes the shared, PATTERN-based
+   * `redactSecrets` (which masks `key=…`-shaped pairs). What it cannot mask is a BARE secret
+   * — an ADS key is a naked UUID, and a provider that echoes it into an error body would put
+   * it in a line that is both logged at ERROR and persisted into the negative cache entry.
+   *
+   * So a keyed leg passes a VALUE-based redactor here: it knows the secret it holds and
+   * removes exactly that string (and its percent-encoded form). Value-based, never
+   * shape-based — masking "every UUID" would also erase the job ids that make the message
+   * diagnostic. The ERA5 `redactCdsSecret` is the merged precedent, negative test included.
+   */
+  redactBody?: (excerpt: string) => string;
   /** Fine-grained label for logs (`cmems.thetao`, `ecmwf.oper-range`). */
   label: string;
   url: string;
@@ -74,6 +114,18 @@ interface UpstreamRequestOptionsBase {
   missingMeansNoData?: boolean;
   headers?: Readonly<Record<string, string>>;
   maxResponseBytes?: number;
+  /**
+   * Override the client-level single-call cap for THIS request.
+   *
+   * One client instance serves calls with genuinely different time shapes — the ADS job
+   * protocol's JSON steps finish in well under a second while its archive download runs for
+   * ~13 s — and a single instance-wide cap silently hands the long call's budget to every
+   * short one: a stalled poll would then hold its 180 s cap and eat the whole tour slice
+   * (review #80 I8, the same "declared env read by nothing" class review #73 pinned for
+   * `MARINE_*_TTL_SECONDS`). Absent means the instance-level cap, so every existing caller's
+   * behaviour is byte-identical.
+   */
+  singleCallTimeoutMs?: number;
 }
 
 /** A textual response (the default): the body reaches `parse` as a UTF-8 string. */
@@ -272,7 +324,9 @@ export class UpstreamHttpClient {
 
       lastFailure = outcome;
 
-      const retryable = outcome.kind === 'transient';
+      // A transient failure is retryable UNLESS the caller opted out. One line, and it sits
+      // where the retry decision already lives — the guard order above is untouched.
+      const retryable = outcome.kind === 'transient' && options.retryable !== false;
       const affordable = deadline.canAfford(MIN_REMAINING_MS_FOR_RETRY + RETRY_BACKOFF_MS);
       if (!retryable || attempt >= MAX_ATTEMPTS || !affordable) {
         break;
@@ -311,12 +365,17 @@ export class UpstreamHttpClient {
     let body: Uint8Array;
     try {
       response = await this.fetchImpl(url, {
+        method: options.method ?? 'GET',
+        ...(options.requestBody === undefined ? {} : { body: options.requestBody.content }),
         headers: {
           'User-Agent': this.options.userAgent,
           Accept: expectedContentTypeLabel,
+          ...(options.requestBody === undefined
+            ? {}
+            : { 'Content-Type': options.requestBody.contentType }),
           ...options.headers,
         },
-        signal: deadline.signalFor(this.options.singleCallTimeoutMs),
+        signal: deadline.signalFor(options.singleCallTimeoutMs ?? this.options.singleCallTimeoutMs),
         // NOT `follow`. A redirect is the one way a provider (or anyone who can answer as one:
         // a hijacked route, an expired domain, a compromised CDN) can choose the host this
         // server talks to from INSIDE the deployment network — cloud metadata endpoints being
@@ -371,6 +430,7 @@ export class UpstreamHttpClient {
       }
       return {
         kind: 'client_error',
+        httpStatus: response.status,
         reason:
           `${label}: HTTP ${String(response.status)} — OUR request was rejected by ${safeUrl}. ` +
           // REDACTED, because this excerpt is both logged at ERROR and persisted into the negative
@@ -383,7 +443,12 @@ export class UpstreamHttpClient {
           // Decoded here rather than earlier: an error body is text on every provider we have
           // met, and the excerpt is bounded to 200 bytes, so a lossy decode of a binary error
           // page costs nothing while decoding the SUCCESS path would destroy it.
-          `Body starts: ${redactSecrets(decodeExcerpt(body))}`,
+          //
+          // TWO redactors, in order: the caller's VALUE-based one (which knows its own bare
+          // secret) and then the shared PATTERN-based one. Neither subsumes the other — the
+          // pattern cannot see a naked UUID, and the value redactor knows nothing about the
+          // `key=…` shapes of other providers.
+          `Body starts: ${redactSecrets(applyBodyRedaction(options.redactBody, decodeExcerpt(body)))}`,
       };
     }
     if (statusClass === 'transient') {
@@ -501,6 +566,27 @@ export class UpstreamHttpClient {
 /** The first 200 bytes of a body, decoded leniently, for an error message. */
 function decodeExcerpt(body: Uint8Array): string {
   return new TextDecoder('utf-8').decode(body.subarray(0, 200));
+}
+
+/**
+ * Run the caller's redactor, and treat a redactor that THROWS as a redaction failure rather
+ * than letting the un-redacted excerpt through.
+ *
+ * A callback that blows up while masking a secret must not end with that secret in the log —
+ * which is exactly what an unguarded call would do, since the exception would escape `attempt`
+ * and the excerpt would be gone but so would the whole outcome. Failing closed here costs one
+ * diagnostic string and cannot leak.
+ */
+function applyBodyRedaction(
+  redactBody: ((excerpt: string) => string) | undefined,
+  excerpt: string,
+): string {
+  if (redactBody === undefined) return excerpt;
+  try {
+    return redactBody(excerpt);
+  } catch {
+    return '<body redaction failed — excerpt withheld>';
+  }
 }
 
 /** A transport failure in one line, without leaking a stack into a log aggregator. */

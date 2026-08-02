@@ -59,6 +59,17 @@ export interface ScheduledWarmupOptions {
    */
   name: string;
   enabled: boolean;
+  /**
+   * The env variable names that turn this tour off, printed verbatim in the `disabled` log line
+   * (`MARINE_ENABLED / MARINE_WARMUP_ENABLED`).
+   *
+   * REQUIRED, not optional, and that is the whole point of the field (PR #78 CR-1): there are
+   * exactly two construction sites, and an optional field would let the second one silently
+   * inherit the first one's env names — an operator reading "warmup is disabled
+   * (MARINE_ENABLED / …)" while looking for why AIR-QUALITY is dark. Being made to say it is
+   * cheaper than being misled once.
+   */
+  disabledBy: string;
   intervalSeconds: number;
   deadlineMs: number;
   /** Injected in tests. */
@@ -179,9 +190,9 @@ export class ScheduledWarmupService implements OnApplicationBootstrap, OnModuleD
 
   onApplicationBootstrap(): void {
     if (!this.options.enabled) {
-      // The env names in this line are marine's. Left byte-for-byte in the A0 move because marine
-      // is the ONLY instance that exists today; the second leg parameterises it when it lands.
-      this.logger.log('warmup is disabled (MARINE_ENABLED / MARINE_WARMUP_ENABLED) — no timers');
+      // The env names come from the leg that built this instance (CR-1). Marine passes exactly
+      // the pair it has always printed, so its line stays byte-identical — pinned by a test.
+      this.logger.log(`warmup is disabled (${this.options.disabledBy}) — no timers`);
       return;
     }
 

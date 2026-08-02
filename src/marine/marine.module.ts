@@ -125,6 +125,9 @@ export const MARINE_WARMUP = Symbol('MARINE_WARMUP');
         new ScheduledWarmupService(schedulerRegistry, metrics, redis, {
           name: 'marine',
           enabled: marineConfig.warmupEnabled,
+          // CR-1: the env names in the `disabled` log line used to be hardcoded in the shared
+          // service. Marine's pair, verbatim — the line is unchanged, and a test pins it.
+          disabledBy: 'MARINE_ENABLED / MARINE_WARMUP_ENABLED',
           intervalSeconds: marineConfig.warmupIntervalSeconds,
           deadlineMs: marineConfig.warmupDeadlineMs,
         }),

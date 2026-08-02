@@ -1,5 +1,6 @@
 {
-  "generatedAtUtc": "2026-08-01T18:56:14.384Z",
+  "generatedAtUtc": "2026-08-02T01:52:22.751Z",
+  "sourceMode": "ads-probe",
   "userAgent": "CografyaPlatformBot/1.0 (educational geography platform; CAMS air-quality probe; run by hand)",
   "baseUrl": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1",
   "datasetId": "cams-europe-air-quality-forecasts",
@@ -10,7 +11,7 @@
     35.5,
     45
   ],
-  "decoderVersion": "netcdf3-ts@1",
+  "decoderVersion": "netcdf3-ts@4",
   "longitudeAxis": {
     "first": 25.549999237060547,
     "last": 44.95000076293945,
@@ -2640,9 +2641,90 @@
       }
     }
   ],
+  "analysis": {
+    "requestDate": "2026-07-31",
+    "timeStepCount": 24,
+    "timeHours": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+    ],
+    "longitudeAxis": {
+      "first": 25.549999237060547,
+      "last": 44.95000076293945,
+      "step": 0.10000038146972656,
+      "length": 195
+    },
+    "latitudeAxis": {
+      "first": 42.45000076293945,
+      "last": 35.54999923706055,
+      "step": -0.09999847412109375,
+      "length": 70
+    },
+    "gridIdenticalToForecast": true,
+    "gridMismatchPlateCodes": []
+  },
+  "jobsListProbe": {
+    "httpStatus": 200,
+    "contentType": "application/json",
+    "bodyKeys": [
+      "jobs",
+      "links",
+      "metadata"
+    ],
+    "jobsArrayKey": "jobs",
+    "jobCount": 1,
+    "entryKeys": [
+      "created",
+      "jobID",
+      "links",
+      "metadata",
+      "processID",
+      "status",
+      "type",
+      "updated"
+    ],
+    "entryEchoesRequestInputs": false,
+    "containsSubmittedJob": true,
+    "detailKeys": [
+      "created",
+      "jobID",
+      "links",
+      "metadata",
+      "processID",
+      "started",
+      "status",
+      "type",
+      "updated"
+    ],
+    "detailEchoesRequestInputs": false
+  },
   "jobs": [
     {
       "label": "production",
+      "product": "FORECAST",
+      "requestDate": "2026-08-01",
       "requestBody": {
         "model": [
           "ensemble"
@@ -2777,28 +2859,115 @@
         "cost": 485,
         "limit": 5000
       },
-      "jobId": "bc79c3a4-9801-48d6-9f52-6e6ac7f8a70b",
+      "jobId": "be6bbf4c-ab45-4a4f-a2d1-d16919566a16",
       "adsStamps": {
-        "created": "2026-08-01T18:52:57.160668",
-        "started": "2026-08-01T18:53:17.017242",
-        "finished": "2026-08-01T18:54:05.630750"
+        "created": "2026-08-02T01:48:24.076892",
+        "started": "2026-08-02T01:48:44.221706",
+        "finished": "2026-08-02T01:49:29.874543"
       },
-      "queueSeconds": 19.9,
-      "runSeconds": 48.6,
+      "queueSeconds": 20.1,
+      "runSeconds": 45.7,
       "resultHost": "object-store.os-api.cci2.ecmwf.int",
       "declaredSizeBytes": 26484852,
       "downloadedBytes": 26484852,
-      "checksumMd5": "9de4d315d5e0d76903d888fa94231829",
+      "checksumMd5": "9f7137fbd8d1b2f31e7099daceae2aa2",
       "checksumVerified": true,
-      "downloadMs": 27006,
-      "decodeMs": 26,
+      "downloadMs": 12641,
+      "decodeMs": 29,
       "zipMethod": 0,
       "entryName": "ENS_FORECAST.nc",
       "innerFormat": "netcdf3-classic",
       "deleted": true
     },
     {
+      "label": "analysis",
+      "product": "ANALYSIS",
+      "requestDate": "2026-07-31",
+      "requestBody": {
+        "model": [
+          "ensemble"
+        ],
+        "variable": [
+          "particulate_matter_2.5um",
+          "particulate_matter_10um",
+          "nitrogen_dioxide",
+          "ozone",
+          "sulphur_dioxide"
+        ],
+        "level": [
+          "0"
+        ],
+        "type": [
+          "analysis"
+        ],
+        "date": [
+          "2026-07-31/2026-07-31"
+        ],
+        "time": [
+          "00:00",
+          "01:00",
+          "02:00",
+          "03:00",
+          "04:00",
+          "05:00",
+          "06:00",
+          "07:00",
+          "08:00",
+          "09:00",
+          "10:00",
+          "11:00",
+          "12:00",
+          "13:00",
+          "14:00",
+          "15:00",
+          "16:00",
+          "17:00",
+          "18:00",
+          "19:00",
+          "20:00",
+          "21:00",
+          "22:00",
+          "23:00"
+        ],
+        "leadtime_hour": [
+          "0"
+        ],
+        "area": [
+          42.5,
+          25.5,
+          35.5,
+          45
+        ],
+        "data_format": "netcdf_zip"
+      },
+      "costing": {
+        "cost": 120,
+        "limit": 5000
+      },
+      "jobId": "ca915b4c-644d-4364-8299-ffdb8533561a",
+      "adsStamps": {
+        "created": "2026-08-02T01:50:22.085436",
+        "started": "2026-08-02T01:50:40.176552",
+        "finished": "2026-08-02T01:50:59.891902"
+      },
+      "queueSeconds": 18.1,
+      "runSeconds": 19.7,
+      "resultHost": "object-store.os-api.cci2.ecmwf.int",
+      "declaredSizeBytes": 6555560,
+      "downloadedBytes": 6555560,
+      "checksumMd5": "899527c70199bebc0f02e0a96bf3b0a3",
+      "checksumVerified": true,
+      "downloadMs": 13636,
+      "decodeMs": 17,
+      "zipMethod": 0,
+      "entryName": "ENS_ANALYSIS.nc",
+      "innerFormat": "netcdf3-classic",
+      "deleted": true
+    },
+    {
       "label": "fixture",
+      "product": "FORECAST",
+      "requestDate": "2026-08-01",
       "requestBody": {
         "model": [
           "ensemble"
@@ -2833,21 +3002,21 @@
         "cost": 1,
         "limit": 5000
       },
-      "jobId": "4aac76df-c3f3-4189-899b-341c1c417534",
+      "jobId": "a3be3b07-e1fe-425b-be14-93324592b86d",
       "adsStamps": {
-        "created": "2026-08-01T18:55:04.413026",
-        "started": "2026-08-01T18:55:33.185359",
-        "finished": "2026-08-01T18:55:40.227005"
+        "created": "2026-08-02T01:51:45.958144",
+        "started": "2026-08-02T01:52:01.557322",
+        "finished": "2026-08-02T01:52:07.538660"
       },
-      "queueSeconds": 28.8,
-      "runSeconds": 7,
+      "queueSeconds": 15.6,
+      "runSeconds": 6,
       "resultHost": "object-store.os-api.cci2.ecmwf.int",
       "declaredSizeBytes": 57028,
       "downloadedBytes": 57028,
-      "checksumMd5": "91ecf3bc7e1868a3cafb2a9fa8474bde",
+      "checksumMd5": "77c08ed2f704c7ac0851f258cfbe1ea3",
       "checksumVerified": true,
-      "downloadMs": 2268,
-      "decodeMs": 1,
+      "downloadMs": 334,
+      "decodeMs": 3,
       "zipMethod": 0,
       "entryName": "ENS_FORECAST.nc",
       "innerFormat": "netcdf3-classic",
@@ -2861,7 +3030,8 @@
       "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/processes/cams-europe-air-quality-forecasts/costing",
       "httpStatus": 200,
       "bytes": 41,
-      "durationMs": 507
+      "durationMs": 606,
+      "contentType": "application/json"
     },
     {
       "label": "production.execution",
@@ -2869,55 +3039,134 @@
       "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/processes/cams-europe-air-quality-forecasts/execution",
       "httpStatus": 201,
       "bytes": 588,
-      "durationMs": 405
+      "durationMs": 400,
+      "contentType": "application/json"
+    },
+    {
+      "label": "jobs.list",
+      "method": "GET",
+      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs",
+      "httpStatus": 200,
+      "bytes": 1258,
+      "durationMs": 145,
+      "contentType": "application/json"
     },
     {
       "label": "production.poll",
       "method": "GET",
-      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs/bc79c3a4-9801-48d6-9f52-6e6ac7f8a70b",
+      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs/be6bbf4c-ab45-4a4f-a2d1-d16919566a16",
       "httpStatus": 200,
       "bytes": 471,
-      "durationMs": 281
+      "durationMs": 343,
+      "contentType": "application/json"
     },
     {
       "label": "production.poll",
       "method": "GET",
-      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs/bc79c3a4-9801-48d6-9f52-6e6ac7f8a70b",
+      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs/be6bbf4c-ab45-4a4f-a2d1-d16919566a16",
       "httpStatus": 200,
       "bytes": 471,
-      "durationMs": 334
+      "durationMs": 2049,
+      "contentType": "application/json"
     },
     {
       "label": "production.poll",
       "method": "GET",
-      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs/bc79c3a4-9801-48d6-9f52-6e6ac7f8a70b",
+      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs/be6bbf4c-ab45-4a4f-a2d1-d16919566a16",
       "httpStatus": 200,
       "bytes": 644,
-      "durationMs": 403
+      "durationMs": 599,
+      "contentType": "application/json"
     },
     {
       "label": "production.results",
       "method": "GET",
-      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs/bc79c3a4-9801-48d6-9f52-6e6ac7f8a70b/results",
+      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs/be6bbf4c-ab45-4a4f-a2d1-d16919566a16/results",
       "httpStatus": 200,
-      "bytes": 331,
-      "durationMs": 253
+      "bytes": 329,
+      "durationMs": 107,
+      "contentType": "application/json"
     },
     {
       "label": "production.download",
       "method": "GET",
-      "url": "https://object-store.os-api.cci2.ecmwf.int/cci2-prod-cache-3/2026-08-01/4e466e145daaaeae4222e8e7434638ec.zip",
+      "url": "https://object-store.os-api.cci2.ecmwf.int/cci2-prod-cache-1/2026-08-02/5192b1a8ada6ceb45a83f10c3cf09f8.zip",
       "httpStatus": 200,
       "bytes": 26484852,
-      "durationMs": 27006
+      "durationMs": 12641,
+      "contentType": "application/zip"
     },
     {
       "label": "production.delete",
       "method": "DELETE",
-      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs/bc79c3a4-9801-48d6-9f52-6e6ac7f8a70b",
+      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs/be6bbf4c-ab45-4a4f-a2d1-d16919566a16",
       "httpStatus": 200,
       "bytes": 319,
-      "durationMs": 291
+      "durationMs": 2383,
+      "contentType": "application/json"
+    },
+    {
+      "label": "analysis.costing",
+      "method": "POST",
+      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/processes/cams-europe-air-quality-forecasts/costing",
+      "httpStatus": 200,
+      "bytes": 41,
+      "durationMs": 205,
+      "contentType": "application/json"
+    },
+    {
+      "label": "analysis.execution",
+      "method": "POST",
+      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/processes/cams-europe-air-quality-forecasts/execution",
+      "httpStatus": 201,
+      "bytes": 588,
+      "durationMs": 416,
+      "contentType": "application/json"
+    },
+    {
+      "label": "analysis.poll",
+      "method": "GET",
+      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs/ca915b4c-644d-4364-8299-ffdb8533561a",
+      "httpStatus": 200,
+      "bytes": 471,
+      "durationMs": 411,
+      "contentType": "application/json"
+    },
+    {
+      "label": "analysis.poll",
+      "method": "GET",
+      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs/ca915b4c-644d-4364-8299-ffdb8533561a",
+      "httpStatus": 200,
+      "bytes": 644,
+      "durationMs": 391,
+      "contentType": "application/json"
+    },
+    {
+      "label": "analysis.results",
+      "method": "GET",
+      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs/ca915b4c-644d-4364-8299-ffdb8533561a/results",
+      "httpStatus": 200,
+      "bytes": 330,
+      "durationMs": 463,
+      "contentType": "application/json"
+    },
+    {
+      "label": "analysis.download",
+      "method": "GET",
+      "url": "https://object-store.os-api.cci2.ecmwf.int/cci2-prod-cache-2/2026-08-02/69ac6f206046745612a5fb7d7a81c238.zip",
+      "httpStatus": 200,
+      "bytes": 6555560,
+      "durationMs": 13636,
+      "contentType": "application/zip"
+    },
+    {
+      "label": "analysis.delete",
+      "method": "DELETE",
+      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs/ca915b4c-644d-4364-8299-ffdb8533561a",
+      "httpStatus": 200,
+      "bytes": 319,
+      "durationMs": 1035,
+      "contentType": "application/json"
     },
     {
       "label": "fixture.costing",
@@ -2925,7 +3174,8 @@
       "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/processes/cams-europe-air-quality-forecasts/costing",
       "httpStatus": 200,
       "bytes": 39,
-      "durationMs": 219
+      "durationMs": 240,
+      "contentType": "application/json"
     },
     {
       "label": "fixture.execution",
@@ -2933,53 +3183,50 @@
       "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/processes/cams-europe-air-quality-forecasts/execution",
       "httpStatus": 201,
       "bytes": 588,
-      "durationMs": 367
+      "durationMs": 1664,
+      "contentType": "application/json"
     },
     {
       "label": "fixture.poll",
       "method": "GET",
-      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs/4aac76df-c3f3-4189-899b-341c1c417534",
-      "httpStatus": 200,
-      "bytes": 471,
-      "durationMs": 320
-    },
-    {
-      "label": "fixture.poll",
-      "method": "GET",
-      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs/4aac76df-c3f3-4189-899b-341c1c417534",
+      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs/a3be3b07-e1fe-425b-be14-93324592b86d",
       "httpStatus": 200,
       "bytes": 644,
-      "durationMs": 588
+      "durationMs": 369,
+      "contentType": "application/json"
     },
     {
       "label": "fixture.results",
       "method": "GET",
-      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs/4aac76df-c3f3-4189-899b-341c1c417534/results",
+      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs/a3be3b07-e1fe-425b-be14-93324592b86d/results",
       "httpStatus": 200,
       "bytes": 328,
-      "durationMs": 132
+      "durationMs": 75,
+      "contentType": "application/json"
     },
     {
       "label": "fixture.download",
       "method": "GET",
-      "url": "https://object-store.os-api.cci2.ecmwf.int/cci2-prod-cache-1/2026-08-01/c011b01bfe6e72c5433d6d34f724bd8f.zip",
+      "url": "https://object-store.os-api.cci2.ecmwf.int/cci2-prod-cache-2/2026-08-02/82da7a4419838aa44eabe661518edf0c.zip",
       "httpStatus": 200,
       "bytes": 57028,
-      "durationMs": 2268
+      "durationMs": 334,
+      "contentType": "application/zip"
     },
     {
       "label": "fixture.delete",
       "method": "DELETE",
-      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs/4aac76df-c3f3-4189-899b-341c1c417534",
+      "url": "https://ads.atmosphere.copernicus.eu/api/retrieve/v1/jobs/a3be3b07-e1fe-425b-be14-93324592b86d",
       "httpStatus": 200,
       "bytes": 319,
-      "durationMs": 1640
+      "durationMs": 969,
+      "contentType": "application/json"
     }
   ],
   "totals": {
-    "requestCount": 15,
-    "downloadedBytes": 26541880,
-    "wallClockMs": 200127
+    "requestCount": 22,
+    "downloadedBytes": 33097440,
+    "wallClockMs": 241654
   },
   "assertions": [
     {
@@ -3013,14 +3260,54 @@
       "detail": "lon step 0.10000038146972656, lat step -0.09999847412109375 (expected +, −)."
     },
     {
+      "id": "time-steps-97",
+      "passed": true,
+      "detail": "97 time step(s) (the production request asks for exactly 97)."
+    },
+    {
+      "id": "support-all-ok",
+      "passed": true,
+      "detail": "0/405 province×pollutant support entries not \"ok\"."
+    },
+    {
+      "id": "null-step-budget",
+      "passed": true,
+      "detail": "0/39285 null steps (budget 5%; measured baseline 0)."
+    },
+    {
       "id": "checksums-verified",
       "passed": true,
-      "detail": "every download matched its declared MD5."
+      "detail": "3 job(s), every download matched its declared MD5."
     },
     {
       "id": "jobs-deleted",
       "passed": true,
       "detail": "every ADS job was DELETEd after download (politeness)."
+    },
+    {
+      "id": "content-type-recorded",
+      "passed": true,
+      "detail": "22 request(s) recorded, all carrying a content-type observation (Ö-A2-1/Ö-A2-2)."
+    },
+    {
+      "id": "analysis-d-minus-1",
+      "passed": true,
+      "detail": "analysis requested for 2026-07-31, exactly one day before the forecast run day 2026-08-01."
+    },
+    {
+      "id": "analysis-24-steps",
+      "passed": true,
+      "detail": "24 analysis step(s) (the request asks for exactly 24 hourly times)."
+    },
+    {
+      "id": "analysis-grid-identical",
+      "passed": true,
+      "detail": "the analysis grid is bit-identical to the forecast grid for all 81 provinces."
+    },
+    {
+      "id": "jobs-list-measured",
+      "passed": true,
+      "detail": "GET /jobs answered HTTP 200; entry keys [created, jobID, links, metadata, processID, status, type, updated]; echoes request inputs: false."
     },
     {
       "id": "no-key-material",

@@ -44,10 +44,20 @@ days, so a refresh is a NEW probe run, not a re-download:
 
 ```bash
 # needs ADS_API_KEY in the environment (script-local read; never in env.schema.ts)
-pnpm db:import:air-quality --phase=probe
+pnpm db:import:air-quality --phase=probe --raw-dir=/absolute/path/outside/the/repo
 ```
 
-The probe rewrites `mini-tr-pm25-1step.zip` here and the evidence artifact under
-`data/air-quality/`. Then regenerate `reference.json` with independent readers (the
-procedure above), update the provenance table's run date, and expect the golden spec's
-values to change — that is the point of the anchor.
+**The probe does NOT write this directory.** It writes every archive it downloads —
+including the mini one, under the same `mini-tr-pm25-1step.zip` name — to `--raw-dir`, and
+the evidence artifact to `data/air-quality/`. Promoting a fresh mini archive is a deliberate
+operator step, because this archive and `reference.json` are a PAIR: replacing the bytes
+while the reference stayed behind would break `cams-golden.spec.ts` with a diff nobody asked
+for, and replacing both is a cross-validation exercise, not a copy.
+
+```bash
+cp /absolute/path/outside/the/repo/mini-tr-pm25-1step.zip test/fixtures/cams/
+```
+
+Then regenerate `reference.json` with independent readers (the procedure above), update the
+provenance table's run date, and expect the golden spec's values to change — that is the
+point of the anchor.

@@ -41,6 +41,15 @@ yarn-error.log*
 # mode unstageable rather than merely caught later by CI.
 /data/era5-land/*.json.part
 
+# CAMS raw downloads — the same BELT for the air-quality probe.
+# `db:import:air-quality --phase=probe` REQUIRES an explicit absolute `--raw-dir`, so the
+# ~32 MiB of per-run archives (forecast + analysis + mini) normally never come near the repo.
+# This entry catches the case where somebody points `--raw-dir` here deliberately. The
+# committed evidence next to it (`air-quality-probe.json`) identifies each archive by its
+# provider MD5 forever.
+/data/air-quality/raw/
+/data/air-quality/*.zip
+
 # TypeScript build info
 *.tsbuildinfo
 

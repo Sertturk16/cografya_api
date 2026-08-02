@@ -356,3 +356,101 @@ describe('validateEnv — configurations that cannot mean what they say', () => 
     expect(validateEnv({ ...BASE, ECMWF_FORECAST_HOURS: '48' }).ECMWF_FORECAST_HOURS).toBe(48);
   });
 });
+
+describe('validateEnv — the air-quality (CAMS/ADS) block', () => {
+  it('boots with the leg OFF and carries the measured defaults (plan §9)', () => {
+    const env = validateEnv({ ...BASE });
+
+    // OFF by default, and no key required to boot: dev, CI and the web build must all start
+    // on a machine that has never heard of ADS.
+    expect(env.AIR_QUALITY_ENABLED).toBe(false);
+    expect(env.ADS_API_KEY).toBeUndefined();
+    expect(env.AIR_QUALITY_INGEST_ENABLED).toBe(true);
+    expect(env.AIR_QUALITY_ANALYSIS_ENABLED).toBe(true);
+    expect(env.AIR_QUALITY_INGEST_INTERVAL_SECONDS).toBe(600);
+    expect(env.AIR_QUALITY_INGEST_DEADLINE_MS).toBe(300_000);
+    expect(env.ADS_API_BASE_URL).toBe('https://ads.atmosphere.copernicus.eu/api');
+    expect(env.ADS_OBJECT_STORE_HOSTS).toBe('object-store.os-api.cci2.ecmwf.int');
+    expect(env.AIR_QUALITY_DATASET_ID).toBe('cams-europe-air-quality-forecasts');
+    expect(env.AIR_QUALITY_AREA).toBe('42.5,25.5,35.5,45.0');
+    expect(env.AIR_QUALITY_FORECAST_HOURS).toBe(96);
+    expect(env.AIR_QUALITY_SUBMIT_AFTER_UTC_HOUR).toBe(12);
+    expect(env.AIR_QUALITY_MAX_ATTEMPTS_PER_JOB).toBe(6);
+    expect(env.AIR_QUALITY_POLL_TIMEOUT_MS).toBe(10_000);
+    expect(env.AIR_QUALITY_DOWNLOAD_TIMEOUT_MS).toBe(180_000);
+    expect(env.AIR_QUALITY_TOUR_BUDGET_MS).toBe(200_000);
+    // 64 MiB, not the SPEC's 256 MB: in-process decoding makes this a HEAP ceiling (plan D1).
+    expect(env.AIR_QUALITY_RUN_MAX_BYTES).toBe(67_108_864);
+    expect(env.AIR_QUALITY_RUN_MAX_AGE_SECONDS).toBe(172_800);
+  });
+
+  it('REQUIRES the key once the leg is enabled — a keyed provider without its key', () => {
+    expect(() => validateEnv({ ...BASE, AIR_QUALITY_ENABLED: 'true' })).toThrow(/ADS_API_KEY/);
+    expect(() =>
+      validateEnv({ ...BASE, AIR_QUALITY_ENABLED: 'true', ADS_API_KEY: 'a-key' }),
+    ).not.toThrow();
+  });
+
+  it('REQUIRES Redis in production once the leg is enabled (E1, stated for the second leg)', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        NODE_ENV: 'production',
+        AIR_QUALITY_ENABLED: 'true',
+        ADS_API_KEY: 'a-key',
+      }),
+    ).toThrow(/REDIS_URL/);
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        NODE_ENV: 'production',
+        AIR_QUALITY_ENABLED: 'true',
+        ADS_API_KEY: 'a-key',
+        REDIS_URL: 'redis://cache:6379',
+      }),
+    ).not.toThrow();
+  });
+
+  it('refuses an empty download allowlist while the leg is on', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        AIR_QUALITY_ENABLED: 'true',
+        ADS_API_KEY: 'a-key',
+        ADS_OBJECT_STORE_HOSTS: ' , ',
+      }),
+    ).toThrow(/at least one host/);
+  });
+
+  it('refuses an AIR_QUALITY_AREA whose corners are transposed or out of range', () => {
+    // A transposed pair parses as four perfectly ordinary numbers and requests a DIFFERENT
+    // rectangle; every province would then read a plausible-looking wrong cell.
+    for (const area of [
+      '35.5,25.5,42.5,45.0', // north/south swapped
+      '42.5,45.0,35.5,25.5', // west/east swapped
+      '42.5,25.5,35.5', // three values
+      '42.5,25.5,35.5,abc', // not a number
+      '95.0,25.5,35.5,45.0', // latitude out of range
+    ]) {
+      expect(() => validateEnv({ ...BASE, AIR_QUALITY_AREA: area })).toThrow(/AIR_QUALITY_AREA/);
+    }
+    expect(() => validateEnv({ ...BASE, AIR_QUALITY_AREA: '42.5,25.5,35.5,45.0' })).not.toThrow();
+  });
+
+  it('refuses a budget chain that contradicts itself', () => {
+    // download <= tour slice < tour deadline < interval. Every inversion is a timer that
+    // cannot finish the work it schedules.
+    expect(() => validateEnv({ ...BASE, AIR_QUALITY_DOWNLOAD_TIMEOUT_MS: '300000' })).toThrow(
+      /AIR_QUALITY_DOWNLOAD_TIMEOUT_MS/,
+    );
+    expect(() => validateEnv({ ...BASE, AIR_QUALITY_TOUR_BUDGET_MS: '300000' })).toThrow(
+      /AIR_QUALITY_TOUR_BUDGET_MS/,
+    );
+    expect(() => validateEnv({ ...BASE, AIR_QUALITY_INGEST_DEADLINE_MS: '600000' })).toThrow(
+      /AIR_QUALITY_INGEST_DEADLINE_MS/,
+    );
+    expect(() => validateEnv({ ...BASE, AIR_QUALITY_VALUE_TTL_SECONDS: '86400' })).toThrow(
+      /AIR_QUALITY_VALUE_TTL_SECONDS/,
+    );
+  });
+});

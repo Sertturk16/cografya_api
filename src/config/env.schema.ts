@@ -229,6 +229,92 @@ export const envSchema = z
     // …and how old the MODEL MOMENT the value describes may be. A value fetched ten minutes ago
     // can still belong to an eight-hour-old model run; only the second ceiling sees that.
     MARINE_VALID_AT_MAX_AGE_SECONDS: z.coerce.number().int().positive().default(10_800),
+
+    // ── Air quality: CAMS via the Copernicus ADS queue (SPEC §12 + plan §9) ─────
+    // Master kill switch for the whole leg's UPSTREAM half. `false` by default so a fresh
+    // deployment never reaches ADS before somebody decided it should — production is switched on
+    // only AFTER the ingest has completed at least one run (a go-live checklist item, marine M5
+    // precedent). It does NOT gate the public endpoints, which read Postgres and degrade
+    // honestly to `unavailable` when the store is cold.
+    AIR_QUALITY_ENABLED: envBoolean('false'),
+    // The tour's second switch, so ingest can be stopped without taking the feature down.
+    AIR_QUALITY_INGEST_ENABLED: envBoolean('true'),
+    // The leg's OWN warmup instance: its own interval and its own per-tour deadline. Not shared
+    // with marine's — a shared cadence would let one leg's bad day eat the other's budget.
+    AIR_QUALITY_INGEST_INTERVAL_SECONDS: z.coerce.number().int().positive().default(600),
+    AIR_QUALITY_INGEST_DEADLINE_MS: z.coerce.number().int().positive().default(300_000),
+    // The SECOND daily job (the D−1 analysis archive) has its own switch. If the provider's
+    // analysis product breaks, the second job must be stoppable without a deploy: fresh forecast
+    // data keeps flowing, runs go straight to `complete`, and the published series simply starts
+    // at the run hour instead of 24 hours earlier.
+    AIR_QUALITY_ANALYSIS_ENABLED: envBoolean('true'),
+
+    // ADS API root. The job protocol lives under `/retrieve/v1` (measured), which the URL
+    // builder appends — this value is the API ROOT so a future second ADS API family does not
+    // need a second variable.
+    ADS_API_BASE_URL: z.url().default('https://ads.atmosphere.copernicus.eu/api'),
+    // Download allowlist, comma-separated HOSTS (never paths: the bucket path changes per job).
+    // Following a provider-supplied `href` off this list is SSRF class, so the list is the guard.
+    ADS_OBJECT_STORE_HOSTS: z
+      .string()
+      .default('object-store.os-api.cci2.ecmwf.int')
+      .refine(
+        (value) =>
+          value
+            .split(',')
+            .map((host) => host.trim())
+            .filter((host) => host.length > 0).length > 0,
+        'ADS_OBJECT_STORE_HOSTS must list at least one host',
+      ),
+    // The ADS credential. OPTIONAL here and REQUIRED by the cross-check below when the leg is
+    // on: a keyless deployment with the leg off must still boot (dev, CI, the web build).
+    // SECRET — never logged, never in an artifact, never in the OpenAPI spec.
+    ADS_API_KEY: z.string().min(1).optional(),
+    AIR_QUALITY_DATASET_ID: z.string().min(1).default('cams-europe-air-quality-forecasts'),
+    // The requested subset, "N,W,S,E" — the exact `area` the probe measured. Parsed and
+    // ORDER-CHECKED at boot: a silently transposed pair would request a different rectangle and
+    // every province would map to a plausible-looking wrong cell.
+    AIR_QUALITY_AREA: z
+      .string()
+      .default('42.5,25.5,35.5,45.0')
+      .refine((value) => parseAreaOrNull(value) !== null, {
+        message:
+          'AIR_QUALITY_AREA must be "north,west,south,east" with four finite numbers, ' +
+          'north > south, east > west, latitudes within ±90 and longitudes within ±180',
+      }),
+    // Forecast horizon in leadtime hours; the request asks for 0…N inclusive (97 steps at 96).
+    AIR_QUALITY_FORECAST_HOURS: z.coerce.number().int().positive().max(120).default(96),
+    // Earliest UTC hour a run may be submitted. All CAMS products close by 12:00 UTC (measured
+    // accessible at 14:07), so 12 keeps every submit on the safe side of the provider's SLA.
+    AIR_QUALITY_SUBMIT_AFTER_UTC_HOUR: z.coerce.number().int().min(0).max(23).default(12),
+    // Attempts per JOB, not per run (plan SAPMA 6): with two jobs a shared counter would let a
+    // failing analysis eat the forecast's budget and keep the page on yesterday's data.
+    AIR_QUALITY_MAX_ATTEMPTS_PER_JOB: z.coerce.number().int().positive().default(6),
+    AIR_QUALITY_POLL_TIMEOUT_MS: z.coerce.number().int().positive().default(10_000),
+    // A 25 MiB download took 12.6 s measured; 180 s covers a congested provider.
+    AIR_QUALITY_DOWNLOAD_TIMEOUT_MS: z.coerce.number().int().positive().default(180_000),
+    // The slice of one tour this leg may consume.
+    AIR_QUALITY_TOUR_BUDGET_MS: z.coerce.number().int().positive().default(200_000),
+    // Byte ceiling for ONE downloaded archive. 64 MiB, not the SPEC's 256 MB, because decoding
+    // happens IN PROCESS: this is a HEAP ceiling, not a cost ceiling (plan §10-D1, RULED). The
+    // measured production archive is 25.26 MiB, so 64 MiB is 2.5× reality and still inside a
+    // small VPS even at the ~2× transient peak the byte reader needs. The asymmetry decides it:
+    // a tight ceiling fails LOUDLY before any HTTP leaves (the declared `file:size` is checked
+    // first), a generous one fails as a silent OOM of the whole API process.
+    AIR_QUALITY_RUN_MAX_BYTES: z.coerce.number().int().positive().default(67_108_864),
+    // The THIRD staleness ceiling (read path, A2b): maximum age of the model RUN a published
+    // value may come from. The other two ceilings cannot see it — an old run still yields a step
+    // valid "now". 48 h tolerates one fully missed run, never two.
+    AIR_QUALITY_RUN_MAX_AGE_SECONDS: z.coerce.number().int().positive().default(172_800),
+    AIR_QUALITY_STALE_MAX_SECONDS: z.coerce.number().int().positive().default(43_200),
+    AIR_QUALITY_VALID_AT_MAX_AGE_SECONDS: z.coerce.number().int().positive().default(5_400),
+    // Cache TTLs, one per outcome kind — the same table shape as marine's.
+    AIR_QUALITY_VALUE_TTL_SECONDS: z.coerce.number().int().positive().default(3_600),
+    AIR_QUALITY_NO_DATA_TTL_SECONDS: z.coerce.number().int().positive().default(86_400),
+    AIR_QUALITY_ERROR_TTL_SECONDS: z.coerce.number().int().positive().default(60),
+    AIR_QUALITY_RATELIMIT_TTL_SECONDS: z.coerce.number().int().positive().default(300),
+    AIR_QUALITY_CLIENT_ERROR_TTL_SECONDS: z.coerce.number().int().positive().default(900),
+    AIR_QUALITY_SCHEMA_ERROR_TTL_SECONDS: z.coerce.number().int().positive().default(300),
   })
   .superRefine((env, ctx) => {
     // ── E1 (owner ruling, DEC 2026-07-29b): production + marine enabled ⇒ Redis is REQUIRED ──
@@ -345,7 +431,113 @@ export const envSchema = z
           'cannot be allowed more bytes than the whole tour it downloads in.',
       });
     }
+
+    // ── Air-quality cross-checks (plan §9) — a config that contradicts itself does not boot ──
+    // 1. The leg cannot reach a keyed provider without its key. A missing key would otherwise
+    //    surface as a 401 on every tour, hours after the deploy that caused it.
+    if (env.AIR_QUALITY_ENABLED && env.ADS_API_KEY === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['ADS_API_KEY'],
+        message:
+          'ADS_API_KEY is REQUIRED when AIR_QUALITY_ENABLED=true — the ADS job protocol is ' +
+          'authenticated on every call. Provide it, or start with AIR_QUALITY_ENABLED=false.',
+      });
+    }
+    // 2. An empty allowlist would not mean "allow everything" here (the guard fails closed), but
+    //    it WOULD mean the leg can never download anything, silently, forever.
+    if (env.AIR_QUALITY_ENABLED && parseHostList(env.ADS_OBJECT_STORE_HOSTS).length === 0) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['ADS_OBJECT_STORE_HOSTS'],
+        message:
+          'ADS_OBJECT_STORE_HOSTS must list at least one host when AIR_QUALITY_ENABLED=true — ' +
+          'with an empty allowlist every result download is refused as off-list.',
+      });
+    }
+    // 3. E1 stated for the second leg: production + a scheduled upstream leg ⇒ Redis. Without it
+    //    the cross-instance warmup lock does not exist and N instances each run their own tour
+    //    against the provider.
+    if (env.NODE_ENV === 'production' && env.AIR_QUALITY_ENABLED && env.REDIS_URL === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['REDIS_URL'],
+        message:
+          'REDIS_URL is REQUIRED when NODE_ENV=production and AIR_QUALITY_ENABLED=true (the same ' +
+          'owner ruling E1 / DEC 2026-07-29b that binds the marine leg): without Redis the ' +
+          'cross-instance warmup lock does not exist, so every instance would run its own ADS ' +
+          'tour. Provision Redis, or start with AIR_QUALITY_ENABLED=false.',
+      });
+    }
+    // 4–6. The budget chain: one download ≤ the leg's tour slice < the tour deadline < the
+    //      interval between tours. Any inversion makes a timer that cannot finish its own work.
+    if (env.AIR_QUALITY_DOWNLOAD_TIMEOUT_MS > env.AIR_QUALITY_TOUR_BUDGET_MS) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['AIR_QUALITY_DOWNLOAD_TIMEOUT_MS'],
+        message:
+          'AIR_QUALITY_DOWNLOAD_TIMEOUT_MS must not exceed AIR_QUALITY_TOUR_BUDGET_MS — a single ' +
+          'download cannot be allowed more time than the whole tour slice it runs in.',
+      });
+    }
+    if (env.AIR_QUALITY_TOUR_BUDGET_MS >= env.AIR_QUALITY_INGEST_DEADLINE_MS) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['AIR_QUALITY_TOUR_BUDGET_MS'],
+        message:
+          'AIR_QUALITY_TOUR_BUDGET_MS must be smaller than AIR_QUALITY_INGEST_DEADLINE_MS — the ' +
+          'leg must leave room in its own tour for the tour bookkeeping around it.',
+      });
+    }
+    if (env.AIR_QUALITY_INGEST_DEADLINE_MS >= env.AIR_QUALITY_INGEST_INTERVAL_SECONDS * 1000) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['AIR_QUALITY_INGEST_DEADLINE_MS'],
+        message:
+          'AIR_QUALITY_INGEST_DEADLINE_MS must be shorter than ' +
+          'AIR_QUALITY_INGEST_INTERVAL_SECONDS — a tour that can outlive its own interval ' +
+          'overlaps the next one.',
+      });
+    }
+    // 7. A value TTL above the staleness ceiling would let a value be droppable while still
+    //    labelled fresh — the two rules would contradict each other on the same number.
+    if (env.AIR_QUALITY_VALUE_TTL_SECONDS > env.AIR_QUALITY_STALE_MAX_SECONDS) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['AIR_QUALITY_VALUE_TTL_SECONDS'],
+        message:
+          'AIR_QUALITY_VALUE_TTL_SECONDS must not exceed AIR_QUALITY_STALE_MAX_SECONDS — ' +
+          'otherwise a value can breach the staleness ceiling while still being labelled fresh.',
+      });
+    }
   });
+
+/** `"a, b"` → `['a', 'b']`; blanks dropped. The one place the allowlist string is split. */
+export function parseHostList(raw: string): string[] {
+  return raw
+    .split(',')
+    .map((host) => host.trim())
+    .filter((host) => host.length > 0);
+}
+
+/**
+ * `"north,west,south,east"` → the four numbers, or `null` when the string is not a usable
+ * rectangle.
+ *
+ * The ORDER checks are the point. A transposed pair still parses as four numbers and still
+ * produces a perfectly ordinary request — for a different rectangle, from which every province
+ * would read a plausible-looking wrong cell. That is unrecoverable at read time, so it is
+ * refused at boot.
+ */
+export function parseAreaOrNull(raw: string): [number, number, number, number] | null {
+  const parts = raw.split(',').map((part) => Number(part.trim()));
+  if (parts.length !== 4 || parts.some((value) => !Number.isFinite(value))) return null;
+  const [north, west, south, east] = parts as [number, number, number, number];
+  if (Math.abs(north) > 90 || Math.abs(south) > 90) return null;
+  if (Math.abs(west) > 180 || Math.abs(east) > 180) return null;
+  if (north <= south || east <= west) return null;
+  return [north, west, south, east];
+}
 
 export type Env = z.infer<typeof envSchema>;
 

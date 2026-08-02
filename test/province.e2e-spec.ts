@@ -157,6 +157,7 @@ describe('Province (e2e)', () => {
       'AddProvinceClimateNormals1784620800000',
       'InitMarinePoints1785369600000',
       'InitMarineEcmwfStore1785686400000',
+      'InitAirQualityStore1785859200000',
     ]);
   });
 
