@@ -26,6 +26,21 @@ yarn-error.log*
 # never committed (workflow: the orchestration-root REVIEW-POLICY.md; rubrics: .claude/reviewers/).
 /pr-reviews/
 
+# ERA5-Land raw downloads — a BELT, not the primary control.
+# `db:import:era5 --phase=fetch` REQUIRES an explicit absolute `--raw-dir`, so the raw
+# 19 801 767 B `.nc` normally never comes near the repo. This entry catches the case where
+# somebody points `--raw-dir` here deliberately. The committed artifacts next to it
+# (`era5-manifest.json`, `era5-province-series.json`) identify that file by SHA-256 forever.
+/data/era5-land/raw/
+/data/era5-land/*.nc
+/data/era5-land/*.nc.part
+
+# The artifacts of a FAILED run. They are kept on purpose — a failed run's evidence is what
+# explains it — but they are by definition invalid, so they must never be committable. The
+# generator writes `<name>.part`, gates, and only then renames; this makes the gate's failure
+# mode unstageable rather than merely caught later by CI.
+/data/era5-land/*.json.part
+
 # TypeScript build info
 *.tsbuildinfo
 
