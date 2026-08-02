@@ -8,6 +8,7 @@ import {
 } from '../../air-quality/air-quality.types';
 import { CAMS_DECODER_VERSION, decodeCamsFile } from '../../air-quality/cams/cams-decode';
 import type { CamsDecodedFile, CamsProduct } from '../../air-quality/cams/cams-decode';
+import { redactAdsSecret } from '../../air-quality/cams/ads-redaction';
 import { CAMS_VARIABLES } from '../../air-quality/cams/cams-variables';
 import {
   readBodyCappedBytes,
@@ -186,13 +187,12 @@ export function assertAllowedDownloadHost(
 }
 
 /**
- * Redact the ADS key wherever it might be echoed (error bodies, URLs, provider prose). Also
- * covers the URL-encoded form — a key inside a query string arrives percent-encoded.
+ * Redaction moved to `src/air-quality/cams/ads-redaction.ts` in A2a (plan §10-D4): the runtime
+ * ingest is its SECOND real consumer, and the rule in this repo is that the second consumer
+ * shares the function rather than copying it. Re-exported here so the probe's own call sites
+ * and its spec keep reading it from the tool they belong to.
  */
-export function redactAdsSecret(text: string, secret: string | null): string {
-  if (secret === null || secret.length === 0) return text;
-  return text.split(secret).join('[REDACTED]').split(encodeURIComponent(secret)).join('[REDACTED]');
-}
+export { redactAdsSecret } from '../../air-quality/cams/ads-redaction';
 
 /**
  * Which run day to request: today's run once the provider SLA has comfortably closed
