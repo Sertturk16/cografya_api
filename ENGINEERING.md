@@ -196,13 +196,23 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
     committed **converted-but-unaveraged** 81 × 360 × 2 series, so the published 30-year normal
     stays auditable offline. `--from-file=<abs path>` re-runs the whole offline half with zero
     network calls.
-- **A hand-run import's credentials NEVER enter `src/config/env.schema.ts`.** `fetch`/`probe`
-  phases read their key from `process.env` **script-locally** (`CDS_API_KEY`, `ADS_API_KEY`), and
-  the boot schema does not declare them. This became de-facto policy with the air-quality A1 probe
-  and is written down here as a rule: a migration somebody runs by hand once a decade must not
-  become a precondition for the server to start. The corollary is equally binding — such a key is
-  redacted from every log line, scanned for before any artifact is written, and asserted absent by
-  a `no-key-material` structural check.
+- **Provider keys come in two kinds, and the boot schema treats them differently** (rule
+  sharpened at the A2a review, #80 I9):
+  - **A hand-run-only key NEVER enters `src/config/env.schema.ts`.** A key consumed
+    exclusively by hand-run `fetch`/`probe` scripts (`CDS_API_KEY` is the live example) is
+    read from `process.env` **script-locally** and the boot schema does not declare it: a
+    migration somebody runs by hand once a decade must not become a precondition for the
+    server to start.
+  - **A server-boot key is declared — optional, feature-gated.** Once the SERVER itself
+    consumes the key (a scheduled ingest, a proxied feed), it belongs in the boot schema as
+    `optional()`, with a cross-check that makes the feature-enabled-but-keyless combination
+    unbootable (`ADS_API_KEY` + `AIR_QUALITY_ENABLED` is the live example, A2a). The default
+    stays "feature off", so a fresh clone still boots with no keys at all. Hand-run scripts
+    that share the same key keep reading it script-locally from their own shell — declaring
+    it for the server never makes it a requirement for a hand run, nor vice versa.
+  - The corollary binds BOTH kinds — a key is redacted from every log line, scanned for
+    before any artifact is written, and asserted absent by a `no-key-material` structural
+    check.
 - **Seeds** are split: `db:seed` / `db:seed:dev`, plus a dedicated **`db:seed:geography`**
   for the country/province/concept base data — the platform's most critical seed. Seed
   discipline notes belong on the entity (e.g. `plate_code` is zero-padded to 2 chars so
