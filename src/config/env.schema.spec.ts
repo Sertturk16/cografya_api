@@ -43,6 +43,22 @@ describe('validateEnv — defaults', () => {
     expect(env.ECMWF_STALE_MAX_SECONDS).toBe(43_200);
   });
 
+  it('carries the CMEMS adapter block with its measured defaults (M4a, plan §7)', () => {
+    const env = validateEnv({ ...BASE });
+
+    expect(env.CMEMS_WMTS_BASE_URL).toBe('https://wmts.marine.copernicus.eu/teroWmts');
+    expect(env.CMEMS_STAC_BASE_URL).toBe('https://stac.marine.copernicus.eu/metadata');
+    // 6 s, not the shared 3 s marine default: a session's FIRST call measured 2.54 s (cold TLS).
+    expect(env.CMEMS_SINGLE_CALL_TIMEOUT_MS).toBe(6_000);
+    expect(env.CMEMS_TOUR_BUDGET_MS).toBe(60_000);
+    expect(env.CMEMS_STAC_TTL_SECONDS).toBe(21_600);
+    // The two tour slices must fit the tour with room to spare AT THE DEFAULTS — a default set
+    // that only just squeezes in would make every operator adjustment a boot failure.
+    expect(env.ECMWF_TOUR_BUDGET_MS + env.CMEMS_TOUR_BUDGET_MS).toBeLessThan(
+      env.MARINE_WARMUP_DEADLINE_MS,
+    );
+  });
+
   it('carries the decomposed TTLs, not one shared number', () => {
     const env = validateEnv({ ...BASE });
 
@@ -273,6 +289,40 @@ describe('validateEnv — configurations that cannot mean what they say', () => 
         MARINE_WARMUP_DEADLINE_MS: '300000',
       }),
     ).toThrow(/smaller than MARINE_WARMUP_DEADLINE_MS/);
+  });
+
+  it('refuses two tour slices that EACH fit but together overrun the tour (M4a sum check)', () => {
+    // The individual-slice form of this check could not see it: 200 s and 150 s both look fine
+    // against a 300 s tour, and whichever target runs second starves with every number green.
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        ECMWF_TOUR_BUDGET_MS: '200000',
+        CMEMS_TOUR_BUDGET_MS: '150000',
+        MARINE_WARMUP_DEADLINE_MS: '300000',
+      }),
+    ).toThrow(/ECMWF_TOUR_BUDGET_MS \+ CMEMS_TOUR_BUDGET_MS/);
+  });
+
+  it('refuses a CMEMS single-call timeout above the request operation budget', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        CMEMS_SINGLE_CALL_TIMEOUT_MS: '9000',
+        MARINE_UPSTREAM_DEADLINE_MS: '6000',
+      }),
+    ).toThrow(/CMEMS_SINGLE_CALL_TIMEOUT_MS must not exceed MARINE_UPSTREAM_DEADLINE_MS/);
+  });
+
+  it('refuses a CMEMS single-call timeout above the CMEMS tour slice', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        MARINE_UPSTREAM_DEADLINE_MS: '90000',
+        CMEMS_SINGLE_CALL_TIMEOUT_MS: '70000',
+        CMEMS_TOUR_BUDGET_MS: '60000',
+      }),
+    ).toThrow(/CMEMS_SINGLE_CALL_TIMEOUT_MS must not exceed CMEMS_TOUR_BUDGET_MS/);
   });
 
   it('refuses a per-tour byte cap above the per-cycle one', () => {

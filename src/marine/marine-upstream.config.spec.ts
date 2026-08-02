@@ -105,6 +105,26 @@ describe('buildMarineUpstreamConfig', () => {
     });
   });
 
+  it('maps the CMEMS block by name (M4a)', () => {
+    const config = buildMarineUpstreamConfig(
+      configFrom({
+        CMEMS_WMTS_BASE_URL: 'https://wmts.example/teroWmts',
+        CMEMS_STAC_BASE_URL: 'https://stac.example/metadata',
+        CMEMS_SINGLE_CALL_TIMEOUT_MS: '111',
+        CMEMS_TOUR_BUDGET_MS: '2222',
+        CMEMS_STAC_TTL_SECONDS: '333',
+      }),
+    );
+
+    expect(config.cmems).toEqual({
+      wmtsBaseUrl: 'https://wmts.example/teroWmts',
+      stacBaseUrl: 'https://stac.example/metadata',
+      singleCallTimeoutMs: 111,
+      tourBudgetMs: 2222,
+      stacTtlSeconds: 333,
+    });
+  });
+
   it('carries the configured failover base URL through', () => {
     const config = buildMarineUpstreamConfig(
       configFrom({ ECMWF_FAILOVER_BASE_URL: 'https://mirror.example' }),

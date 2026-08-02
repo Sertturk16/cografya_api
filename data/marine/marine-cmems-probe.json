@@ -1,0 +1,4440 @@
+{
+  "generatedAtUtc": "2026-08-02T03:31:25.306Z",
+  "userAgent": "CografyaPlatformBot/1.0 (educational geography platform; CMEMS marine probe; run by hand)",
+  "wmts": {
+    "endpoint": "https://wmts.marine.copernicus.eu/teroWmts",
+    "tileMatrixSet": "EPSG:3857",
+    "zoom": 12,
+    "timeIso": "2026-08-02T03:00:00Z"
+  },
+  "stacEndpoint": "https://stac.marine.copernicus.eu/metadata",
+  "stacProducts": [
+    {
+      "productId": "MEDSEA_ANALYSISFORECAST_PHY_006_013",
+      "requestUrl": "https://stac.marine.copernicus.eu/metadata/MEDSEA_ANALYSISFORECAST_PHY_006_013/product.stac.json",
+      "httpStatus": 200,
+      "contentType": "application/json",
+      "responseSha256": "5d2e8a4a8d20522cd567f4ab3dbf73a744cba11a8a9f13e4ad55d12a2441bcbb",
+      "elapsedMs": 338,
+      "license": "proprietary",
+      "doi": "10.48670/mds-00359",
+      "temporalExtent": {
+        "startUtc": "2021-03-01T00:00:00Z",
+        "endUtc": "2026-08-10T23:00:00Z"
+      },
+      "updateFrequency": "daily: 16:00; 20th of each month at 16UTC",
+      "admpUpdatedUtc": "2026-08-01T13:07:06.456647Z",
+      "itemCount": 27,
+      "selections": [
+        {
+          "selectorKey": "MEDSEA_ANALYSISFORECAST_PHY_006_013/4.2km-2D",
+          "acceptedVariableTokens": [
+            "phy-tem",
+            "phy-temp"
+          ],
+          "gridToken": "4.2km-2D",
+          "datasetId": "cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511",
+          "failReason": null
+        }
+      ]
+    },
+    {
+      "productId": "MEDSEA_ANALYSISFORECAST_WAV_006_017",
+      "requestUrl": "https://stac.marine.copernicus.eu/metadata/MEDSEA_ANALYSISFORECAST_WAV_006_017/product.stac.json",
+      "httpStatus": 200,
+      "contentType": "application/json",
+      "responseSha256": "f455f42e3fa903cf1700344b6a2f809d908d59758a47b711915a8d467d3ab483",
+      "elapsedMs": 130,
+      "license": "proprietary",
+      "doi": "10.48670/mds-00373",
+      "temporalExtent": {
+        "startUtc": "2021-04-19T00:00:00Z",
+        "endUtc": "2026-08-11T11:00:00Z"
+      },
+      "updateFrequency": "daily: 06:00; 20:00",
+      "admpUpdatedUtc": "2026-08-02T01:01:23.934503Z",
+      "itemCount": 3,
+      "selections": [
+        {
+          "selectorKey": "MEDSEA_ANALYSISFORECAST_WAV_006_017/4.2km",
+          "acceptedVariableTokens": [
+            "wav"
+          ],
+          "gridToken": "4.2km",
+          "datasetId": "cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
+          "failReason": null
+        }
+      ]
+    },
+    {
+      "productId": "BLKSEA_ANALYSISFORECAST_PHY_007_001",
+      "requestUrl": "https://stac.marine.copernicus.eu/metadata/BLKSEA_ANALYSISFORECAST_PHY_007_001/product.stac.json",
+      "httpStatus": 200,
+      "contentType": "application/json",
+      "responseSha256": "96aa6c8a24b8a04016b3b26597e36e44ff900de172fceb0785f7c966bf839bba",
+      "elapsedMs": 118,
+      "license": "proprietary",
+      "doi": "10.48670/mds-00355",
+      "temporalExtent": {
+        "startUtc": "2021-01-01T00:00:00Z",
+        "endUtc": "2026-08-10T00:00:00Z"
+      },
+      "updateFrequency": "daily: 12:00 UTC; 20th of each month, 12:00 UTC; 06:00 UTC",
+      "admpUpdatedUtc": "2026-08-01T11:06:46.349007Z",
+      "itemCount": 32,
+      "selections": [
+        {
+          "selectorKey": "BLKSEA_ANALYSISFORECAST_PHY_007_001/2.5km",
+          "acceptedVariableTokens": [
+            "phy-tem",
+            "phy-temp"
+          ],
+          "gridToken": "2.5km",
+          "datasetId": "cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511",
+          "failReason": null
+        },
+        {
+          "selectorKey": "BLKSEA_ANALYSISFORECAST_PHY_007_001/mrm-500m",
+          "acceptedVariableTokens": [
+            "phy-tem",
+            "phy-temp"
+          ],
+          "gridToken": "mrm-500m",
+          "datasetId": "cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311",
+          "failReason": null
+        }
+      ]
+    },
+    {
+      "productId": "BLKSEA_ANALYSISFORECAST_WAV_007_003",
+      "requestUrl": "https://stac.marine.copernicus.eu/metadata/BLKSEA_ANALYSISFORECAST_WAV_007_003/product.stac.json",
+      "httpStatus": 200,
+      "contentType": "application/json",
+      "responseSha256": "28356d8989ff6accf40fd39aca619f4079b4c11d1ba3310a126efed9f841dd17",
+      "elapsedMs": 133,
+      "license": "proprietary",
+      "doi": "10.48670/mds-00360",
+      "temporalExtent": {
+        "startUtc": "2021-04-16T12:00:00Z",
+        "endUtc": "2026-08-11T11:00:00Z"
+      },
+      "updateFrequency": "twice-daily: 00:00 UTC; 12:00 UTC",
+      "admpUpdatedUtc": "2026-08-01T23:38:33.387165Z",
+      "itemCount": 3,
+      "selections": [
+        {
+          "selectorKey": "BLKSEA_ANALYSISFORECAST_WAV_007_003/2.5km",
+          "acceptedVariableTokens": [
+            "wav"
+          ],
+          "gridToken": "2.5km",
+          "datasetId": "cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+          "failReason": null
+        }
+      ]
+    }
+  ],
+  "licence": {
+    "pageUrl": "https://marine.copernicus.eu/user-corner/service-commitments-and-licence",
+    "httpStatus": 200,
+    "pageSha256": "8bf4ce4f469f8b5de0cf716ece3e8c7d816ee00a458f07772cead48ed92b8751",
+    "retrievedAtUtc": "2026-08-02T03:27:47.967Z",
+    "records": [
+      {
+        "row": 1,
+        "datasetLabel": "MEDSEA hourly surface thetao (Aegean + Mediterranean SST)",
+        "productId": "MEDSEA_ANALYSISFORECAST_PHY_006_013",
+        "resolvedDatasetId": "cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511",
+        "doi": "10.48670/mds-00359",
+        "stacLicenseField": "proprietary",
+        "licencePageUrl": "https://marine.copernicus.eu/user-corner/service-commitments-and-licence",
+        "licencePageTitle": "Copernicus Marine Service Commitments and Licence",
+        "verbatimCommercialUseQuote": "This Licence is granted free of charge. […] The Licensee is hereby granted a worldwide, non exclusive, royalty free, perpetual licence […] modify, adapt, develop, create and distribute Value Added Products or Derivative Work from Copernicus Marine Service Products for any purpose […] redistribute, disseminate any Copernicus Marine Service Product in their original form via any media",
+        "quoteVerified": true,
+        "attributionRequirement": "shall credit the Copernicus Marine Service by explicitly making mention of the originator (Copernicus Marine Environment Monitoring Service) and by citing the DOIs in the following manner: “Generated using E.U. Copernicus Marine Service Information; insert DOIs links here”",
+        "negativeEvidence": null
+      },
+      {
+        "row": 2,
+        "datasetLabel": "MEDSEA hourly VHM0/VMDR (Aegean + Mediterranean waves)",
+        "productId": "MEDSEA_ANALYSISFORECAST_WAV_006_017",
+        "resolvedDatasetId": "cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
+        "doi": "10.48670/mds-00373",
+        "stacLicenseField": "proprietary",
+        "licencePageUrl": "https://marine.copernicus.eu/user-corner/service-commitments-and-licence",
+        "licencePageTitle": "Copernicus Marine Service Commitments and Licence",
+        "verbatimCommercialUseQuote": "This Licence is granted free of charge. […] The Licensee is hereby granted a worldwide, non exclusive, royalty free, perpetual licence […] modify, adapt, develop, create and distribute Value Added Products or Derivative Work from Copernicus Marine Service Products for any purpose […] redistribute, disseminate any Copernicus Marine Service Product in their original form via any media",
+        "quoteVerified": true,
+        "attributionRequirement": "shall credit the Copernicus Marine Service by explicitly making mention of the originator (Copernicus Marine Environment Monitoring Service) and by citing the DOIs in the following manner: “Generated using E.U. Copernicus Marine Service Information; insert DOIs links here”",
+        "negativeEvidence": null
+      },
+      {
+        "row": 3,
+        "datasetLabel": "BLKSEA 2.5 km hourly thetao (Black Sea SST)",
+        "productId": "BLKSEA_ANALYSISFORECAST_PHY_007_001",
+        "resolvedDatasetId": "cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511",
+        "doi": "10.48670/mds-00355",
+        "stacLicenseField": "proprietary",
+        "licencePageUrl": "https://marine.copernicus.eu/user-corner/service-commitments-and-licence",
+        "licencePageTitle": "Copernicus Marine Service Commitments and Licence",
+        "verbatimCommercialUseQuote": "This Licence is granted free of charge. […] The Licensee is hereby granted a worldwide, non exclusive, royalty free, perpetual licence […] modify, adapt, develop, create and distribute Value Added Products or Derivative Work from Copernicus Marine Service Products for any purpose […] redistribute, disseminate any Copernicus Marine Service Product in their original form via any media",
+        "quoteVerified": true,
+        "attributionRequirement": "shall credit the Copernicus Marine Service by explicitly making mention of the originator (Copernicus Marine Environment Monitoring Service) and by citing the DOIs in the following manner: “Generated using E.U. Copernicus Marine Service Information; insert DOIs links here”",
+        "negativeEvidence": null
+      },
+      {
+        "row": 4,
+        "datasetLabel": "BLKSEA mrm-500m hourly thetao (Marmara SST, same product/DOI as row 3)",
+        "productId": "BLKSEA_ANALYSISFORECAST_PHY_007_001",
+        "resolvedDatasetId": "cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311",
+        "doi": "10.48670/mds-00355",
+        "stacLicenseField": "proprietary",
+        "licencePageUrl": "https://marine.copernicus.eu/user-corner/service-commitments-and-licence",
+        "licencePageTitle": "Copernicus Marine Service Commitments and Licence",
+        "verbatimCommercialUseQuote": "This Licence is granted free of charge. […] The Licensee is hereby granted a worldwide, non exclusive, royalty free, perpetual licence […] modify, adapt, develop, create and distribute Value Added Products or Derivative Work from Copernicus Marine Service Products for any purpose […] redistribute, disseminate any Copernicus Marine Service Product in their original form via any media",
+        "quoteVerified": true,
+        "attributionRequirement": "shall credit the Copernicus Marine Service by explicitly making mention of the originator (Copernicus Marine Environment Monitoring Service) and by citing the DOIs in the following manner: “Generated using E.U. Copernicus Marine Service Information; insert DOIs links here”",
+        "negativeEvidence": null
+      },
+      {
+        "row": 5,
+        "datasetLabel": "BLKSEA 2.5 km hourly VHM0/VMDR (Black Sea waves)",
+        "productId": "BLKSEA_ANALYSISFORECAST_WAV_007_003",
+        "resolvedDatasetId": "cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "doi": "10.48670/mds-00360",
+        "stacLicenseField": "proprietary",
+        "licencePageUrl": "https://marine.copernicus.eu/user-corner/service-commitments-and-licence",
+        "licencePageTitle": "Copernicus Marine Service Commitments and Licence",
+        "verbatimCommercialUseQuote": "This Licence is granted free of charge. […] The Licensee is hereby granted a worldwide, non exclusive, royalty free, perpetual licence […] modify, adapt, develop, create and distribute Value Added Products or Derivative Work from Copernicus Marine Service Products for any purpose […] redistribute, disseminate any Copernicus Marine Service Product in their original form via any media",
+        "quoteVerified": true,
+        "attributionRequirement": "shall credit the Copernicus Marine Service by explicitly making mention of the originator (Copernicus Marine Environment Monitoring Service) and by citing the DOIs in the following manner: “Generated using E.U. Copernicus Marine Service Information; insert DOIs links here”",
+        "negativeEvidence": null
+      },
+      {
+        "row": 6,
+        "datasetLabel": "Marmara waves: NO CMEMS dataset exists — not_supported by product fact",
+        "productId": null,
+        "resolvedDatasetId": null,
+        "doi": null,
+        "stacLicenseField": null,
+        "licencePageUrl": "https://marine.copernicus.eu/user-corner/service-commitments-and-licence",
+        "licencePageTitle": "Copernicus Marine Service Commitments and Licence",
+        "verbatimCommercialUseQuote": "This Licence is granted free of charge. […] The Licensee is hereby granted a worldwide, non exclusive, royalty free, perpetual licence […] modify, adapt, develop, create and distribute Value Added Products or Derivative Work from Copernicus Marine Service Products for any purpose […] redistribute, disseminate any Copernicus Marine Service Product in their original form via any media",
+        "quoteVerified": true,
+        "attributionRequirement": "shall credit the Copernicus Marine Service by explicitly making mention of the originator (Copernicus Marine Environment Monitoring Service) and by citing the DOIs in the following manner: “Generated using E.U. Copernicus Marine Service Information; insert DOIs links here”",
+        "negativeEvidence": "the BLKSEA wave product's STAC item list (3 items this run) contains no dataset with a Marmara (mrm-*) grid token; the M1 cross-check additionally proved the 2.5 km wave land mask excludes the Marmara. The runtime therefore publishes not_supported and makes NO call; the wave pair falls back to ECMWF as a pair."
+      }
+    ]
+  },
+  "entries": [
+    {
+      "slugTr": "kirklareli-aciklari",
+      "seaBasin": "black_sea",
+      "latitude": 41.95,
+      "longitude": 28.15,
+      "probedAtUtc": "2026-08-02T03:27:56.387Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1521&TileCol=2368&I=72&J=69&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "1b7afdb0825c5aae0063e4e11fc056f4f427cf1a8ee004f43b18a7c3022a9784",
+        "elapsedMs": 371,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 24.736549377441406,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 41.9500001620897,
+        "gridLongitude": 28.15,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1521&TileCol=2368&I=72&J=69&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "0bd315b0f3874aa27473ed780b4c70058de62e676b063954a9a3897b03edcfae",
+        "elapsedMs": 317,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VHM0",
+        "value": 1.2650065422058105,
+        "rawUnits": "m",
+        "gridLatitude": 41.9500001620897,
+        "gridLongitude": 28.15,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "m",
+        "distanceKm": 0,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1521&TileCol=2368&I=72&J=69&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "b65bb53d2dd65adca918a15c6819f7b1dad44ed96893aa5542c6426a52812e40",
+        "elapsedMs": 222,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VMDR",
+        "value": 63.58673095703125,
+        "rawUnits": "degree",
+        "gridLatitude": 41.9500001620897,
+        "gridLongitude": 28.15,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 0,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "istanbul-karadeniz-aciklari",
+      "seaBasin": "black_sea",
+      "latitude": 41.3,
+      "longitude": 29.61,
+      "probedAtUtc": "2026-08-02T03:28:04.554Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1531&TileCol=2384&I=229&J=41&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "e048ddb870ac2300f8eb5d9a08eb3e43c4b55e26ff7572c11d8efd3f315ca75b",
+        "elapsedMs": 293,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 21.27079200744629,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 41.3000000894288,
+        "gridLongitude": 29.6,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0.8354,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1531&TileCol=2384&I=229&J=41&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "c4a8adf560a10968b87ee6836a260711d0095e1394b7801493ed8d473a3e718e",
+        "elapsedMs": 213,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VHM0",
+        "value": 1.3780626058578491,
+        "rawUnits": "m",
+        "gridLatitude": 41.3000000894288,
+        "gridLongitude": 29.6,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "m",
+        "distanceKm": 0.8354,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1531&TileCol=2384&I=229&J=41&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "63e94a4672344d0df5bb9e85d3919b1106db41d2ffd4ea0191eb96bfe85b87fc",
+        "elapsedMs": 153,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VMDR",
+        "value": 44.07611083984375,
+        "rawUnits": "degree",
+        "gridLatitude": 41.3000000894288,
+        "gridLongitude": 29.6,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 0.8354,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "kocaeli-aciklari",
+      "seaBasin": "black_sea",
+      "latitude": 41.25,
+      "longitude": 30.2,
+      "probedAtUtc": "2026-08-02T03:28:12.622Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1531&TileCol=2391&I=155&J=235&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "e1734eae1f21c37a78bf7fd8d60ca077bbd5ab048fb7c42782ec4724bd1618ed",
+        "elapsedMs": 208,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 17.951435089111328,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 41.2500000838395,
+        "gridLongitude": 30.2,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1531&TileCol=2391&I=155&J=235&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "829c63caaf210173a8ebd3a31bbe80a173aae6eb2143eb8d5461714d45ccf9c8",
+        "elapsedMs": 152,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VHM0",
+        "value": 1.3519538640975952,
+        "rawUnits": "m",
+        "gridLatitude": 41.2500000838395,
+        "gridLongitude": 30.2,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "m",
+        "distanceKm": 0,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1531&TileCol=2391&I=155&J=235&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "9db115bffed5232cca526cf3131a2631790d2d939972b6d5ee30f844d503b685",
+        "elapsedMs": 204,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VMDR",
+        "value": 40.6181640625,
+        "rawUnits": "degree",
+        "gridLatitude": 41.2500000838395,
+        "gridLongitude": 30.2,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 0,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "sakarya-aciklari",
+      "seaBasin": "black_sea",
+      "latitude": 41.2,
+      "longitude": 30.68,
+      "probedAtUtc": "2026-08-02T03:28:20.578Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1532&TileCol=2397&I=17&J=173&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "2bb6a40990de1dc493b44a7ccc70953d5bac2c52dd4c95ffc78ef7352fc02489",
+        "elapsedMs": 150,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 21.50410270690918,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 41.2000000782502,
+        "gridLongitude": 30.675,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0.4183,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1532&TileCol=2397&I=17&J=173&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "4a381a2f269ea8f563be910fb7ea1462e4ccf2d2bd9e8f7e3b3caece8f5d9b48",
+        "elapsedMs": 157,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VHM0",
+        "value": 1.131547212600708,
+        "rawUnits": "m",
+        "gridLatitude": 41.2000000782502,
+        "gridLongitude": 30.675,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "m",
+        "distanceKm": 0.4183,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1532&TileCol=2397&I=17&J=173&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "dc4184ae80ab8da955a53306c5c7332841e2712f6d5fdfb5fcec014f313a5368",
+        "elapsedMs": 144,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VMDR",
+        "value": 27.444122314453125,
+        "rawUnits": "degree",
+        "gridLatitude": 41.2000000782502,
+        "gridLongitude": 30.675,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 0.4183,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "duzce-aciklari",
+      "seaBasin": "black_sea",
+      "latitude": 41.18,
+      "longitude": 31.13,
+      "probedAtUtc": "2026-08-02T03:28:28.539Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1532&TileCol=2402&I=48&J=250&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "f0d1b834e83473e691af18948cb24a3a1c1c202f4e0b2da7a7eb2fd5215994e4",
+        "elapsedMs": 155,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 20.622108459472656,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 41.17500007545555,
+        "gridLongitude": 31.125,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0.6959,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1532&TileCol=2402&I=48&J=250&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "80425d828e5735226370f0fb729289f6a2c3fc67c0a98ccf52aaa139271372a3",
+        "elapsedMs": 149,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VHM0",
+        "value": 0.922547459602356,
+        "rawUnits": "m",
+        "gridLatitude": 41.17500007545555,
+        "gridLongitude": 31.125,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "m",
+        "distanceKm": 0.6959,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1532&TileCol=2402&I=48&J=250&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "0ea77b721c3da578a6e88ae44aa039d0a495aa1ac38892c263ba5e3e8a271a6b",
+        "elapsedMs": 149,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VMDR",
+        "value": 14.83294677734375,
+        "rawUnits": "degree",
+        "gridLatitude": 41.17500007545555,
+        "gridLongitude": 31.125,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 0.6959,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "zonguldak-aciklari",
+      "seaBasin": "black_sea",
+      "latitude": 41.55,
+      "longitude": 31.78,
+      "probedAtUtc": "2026-08-02T03:28:36.503Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1527&TileCol=2409&I=149&J=94&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "a8c20d5c96f7173231eb7e296d5d810147031457422665e21386d146ba89d0b1",
+        "elapsedMs": 147,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 14.711692810058594,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 41.5500001173753,
+        "gridLongitude": 31.775,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0.4161,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1527&TileCol=2409&I=149&J=94&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "a8a2ca2890729376e540cc305b09b0e634dd9c91e9248c1a12f9c7156598453a",
+        "elapsedMs": 163,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VHM0",
+        "value": 0.9329925179481506,
+        "rawUnits": "m",
+        "gridLatitude": 41.5500001173753,
+        "gridLongitude": 31.775,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "m",
+        "distanceKm": 0.4161,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1527&TileCol=2409&I=149&J=94&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "d691b9f63e1c6eccd259c0fcd42514aabc2a6370addc9244fdc5e90c8db759f7",
+        "elapsedMs": 151,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VMDR",
+        "value": 22.90887451171875,
+        "rawUnits": "degree",
+        "gridLatitude": 41.5500001173753,
+        "gridLongitude": 31.775,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 0.4161,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "bartin-aciklari",
+      "seaBasin": "black_sea",
+      "latitude": 41.85,
+      "longitude": 32.38,
+      "probedAtUtc": "2026-08-02T03:28:44.714Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1522&TileCol=2416&I=105&J=204&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "b8f86e900fb9e5f4a7728ca6508d5c2a2eeaee1eb93a130bf2d52b27a3a52d8e",
+        "elapsedMs": 162,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 12.439427375793457,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 41.8500001509111,
+        "gridLongitude": 32.375,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0.4141,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1522&TileCol=2416&I=105&J=204&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "7a9ece376e2e5279bef0bb6d7be362b24fd4d18fddee74bb09fa0f27ed096e32",
+        "elapsedMs": 393,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VHM0",
+        "value": 0.8486319780349731,
+        "rawUnits": "m",
+        "gridLatitude": 41.8500001509111,
+        "gridLongitude": 32.375,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "m",
+        "distanceKm": 0.4141,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1522&TileCol=2416&I=105&J=204&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "e74d04a7dbd5dd11604c9dc5c9e9941d904dfa18202502e79f086ada4af9d791",
+        "elapsedMs": 153,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VMDR",
+        "value": 34.46929931640625,
+        "rawUnits": "degree",
+        "gridLatitude": 41.8500001509111,
+        "gridLongitude": 32.375,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 0.4141,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "kastamonu-aciklari",
+      "seaBasin": "black_sea",
+      "latitude": 42.08,
+      "longitude": 33.76,
+      "probedAtUtc": "2026-08-02T03:28:52.638Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1519&TileCol=2432&I=29&J=71&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "68d835e50cb58e443a0c0f4821b1f0bd1edafc13d3168ffb820b154683f762e2",
+        "elapsedMs": 149,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 23.198997497558594,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 42.07500017606295,
+        "gridLongitude": 33.75,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0.9951,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1519&TileCol=2432&I=29&J=71&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "93645857bfd5e112e7951b4f91edf30ca5bc660bf14153c0de8a78006ab20a64",
+        "elapsedMs": 123,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VHM0",
+        "value": 0.6113147735595703,
+        "rawUnits": "m",
+        "gridLatitude": 42.07500017606295,
+        "gridLongitude": 33.75,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "m",
+        "distanceKm": 0.9951,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1519&TileCol=2432&I=29&J=71&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "db001cee93705e6a065f5da49f74e0adda17939a201943ffc8f79fd8bfac3758",
+        "elapsedMs": 148,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VMDR",
+        "value": 31.9259033203125,
+        "rawUnits": "degree",
+        "gridLatitude": 42.07500017606295,
+        "gridLongitude": 33.75,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 0.9951,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "sinop-aciklari",
+      "seaBasin": "black_sea",
+      "latitude": 42.15,
+      "longitude": 35.15,
+      "probedAtUtc": "2026-08-02T03:29:00.809Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1518&TileCol=2447&I=237&J=52&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "1c24745f35764514296faa682b3f48cc4e80cd09b3aee05ba2a1ddd46d7a6a24",
+        "elapsedMs": 159,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 24.616056442260742,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 42.1500001844469,
+        "gridLongitude": 35.15,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1518&TileCol=2447&I=237&J=52&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "3b5d906d3e9e0208471775c4c866f9e0c2607acaff3ab05456e83b5f607c90a9",
+        "elapsedMs": 330,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VHM0",
+        "value": 0.850304901599884,
+        "rawUnits": "m",
+        "gridLatitude": 42.1500001844469,
+        "gridLongitude": 35.15,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "m",
+        "distanceKm": 0,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1518&TileCol=2447&I=237&J=52&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "4486709bb876fd855d8eb31099e8b77ac5d3659011adc615fe3e8a93606f0bcf",
+        "elapsedMs": 179,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VMDR",
+        "value": 5.032196044921875,
+        "rawUnits": "degree",
+        "gridLatitude": 42.1500001844469,
+        "gridLongitude": 35.15,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 0,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "samsun-aciklari",
+      "seaBasin": "black_sea",
+      "latitude": 41.4,
+      "longitude": 36.33,
+      "probedAtUtc": "2026-08-02T03:29:08.950Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1529&TileCol=2461&I=90&J=165&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "8479aae41bf98ead5b520dffac44db30316b4fd1854bb37bf339209e0c0902bc",
+        "elapsedMs": 172,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 24.987537384033203,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 41.4000001006074,
+        "gridLongitude": 36.325,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0.417,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1529&TileCol=2461&I=90&J=165&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "4fc87b10cf9357fdc29d41a919f6862d288e8e26759529bc7858cbe68d3c30f1",
+        "elapsedMs": 315,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VHM0",
+        "value": 0.5423531532287598,
+        "rawUnits": "m",
+        "gridLatitude": 41.4000001006074,
+        "gridLongitude": 36.325,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "m",
+        "distanceKm": 0.417,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1529&TileCol=2461&I=90&J=165&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "aab912ff004b5ee0cffb7bcc7bc96ce28aebf818a0e40e2cf45c87dcccaf8c30",
+        "elapsedMs": 149,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VMDR",
+        "value": 358.70037841796875,
+        "rawUnits": "degree",
+        "gridLatitude": 41.4000001006074,
+        "gridLongitude": 36.325,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 0.417,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "ordu-aciklari",
+      "seaBasin": "black_sea",
+      "latitude": 41.08,
+      "longitude": 37.88,
+      "probedAtUtc": "2026-08-02T03:29:17.152Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1534&TileCol=2478&I=253&J=125&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "01329c0b49b9826004be236e6a1741854a427f95dc88d85639fb2c0e44cb5fcd",
+        "elapsedMs": 150,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 25.205490112304688,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 41.07500006427695,
+        "gridLongitude": 37.875,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0.6962,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1534&TileCol=2478&I=253&J=125&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "d80165d21e4cf44305391aaadb2cd36f65f8a2e1ecf45e3b09dde7f1786d701f",
+        "elapsedMs": 395,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VHM0",
+        "value": 0.4663480222225189,
+        "rawUnits": "m",
+        "gridLatitude": 41.07500006427695,
+        "gridLongitude": 37.875,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "m",
+        "distanceKm": 0.6962,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1534&TileCol=2478&I=253&J=125&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "7dbac658ae3a45d86f9cf2c98c4b1c7a4f519cc044d5da055ac330884b16bf37",
+        "elapsedMs": 153,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VMDR",
+        "value": 338.7547912597656,
+        "rawUnits": "degree",
+        "gridLatitude": 41.07500006427695,
+        "gridLongitude": 37.875,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 0.6962,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "giresun-aciklari",
+      "seaBasin": "black_sea",
+      "latitude": 40.99,
+      "longitude": 38.39,
+      "probedAtUtc": "2026-08-02T03:29:25.194Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1535&TileCol=2484&I=202&J=217&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "5bbc457efafe297b117cf319ffd7c8b8e5dfab7b49ed10804330097ec764c1a6",
+        "elapsedMs": 122,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 25.596384048461914,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 41.000000055893,
+        "gridLongitude": 38.4,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "celsius",
+        "distanceKm": 1.3931,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1535&TileCol=2484&I=202&J=217&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "4115734fcd2ce4cd328f46b6341143facf34667dff9f298ec4f82b25d96718dd",
+        "elapsedMs": 265,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VHM0",
+        "value": 0.48606738448143005,
+        "rawUnits": "m",
+        "gridLatitude": 41.000000055893,
+        "gridLongitude": 38.4,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "m",
+        "distanceKm": 1.3931,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1535&TileCol=2484&I=202&J=217&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "75fefc2bd4ff4ea8f0eb0c70b344d2ee3a4ebc3e330c9467d1f909d4b093806e",
+        "elapsedMs": 152,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VMDR",
+        "value": 328.0111083984375,
+        "rawUnits": "degree",
+        "gridLatitude": 41.000000055893,
+        "gridLongitude": 38.4,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 1.3931,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "trabzon-aciklari",
+      "seaBasin": "black_sea",
+      "latitude": 41.1,
+      "longitude": 39.72,
+      "probedAtUtc": "2026-08-02T03:29:33.268Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1534&TileCol=2499&I=236&J=48&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "56e40b66ff012c1f0026af7bd8f314ad4fdf2f53429ddf5b05e302302989d26f",
+        "elapsedMs": 152,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 25.66107940673828,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 41.1000000670716,
+        "gridLongitude": 39.725,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0.419,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1534&TileCol=2499&I=236&J=48&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "1a2ae9525d042ad73fbe0499fa288a9b845717d2bb46b4d7a213910bbdb2c9c8",
+        "elapsedMs": 268,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VHM0",
+        "value": 0.4009700119495392,
+        "rawUnits": "m",
+        "gridLatitude": 41.1000000670716,
+        "gridLongitude": 39.725,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "m",
+        "distanceKm": 0.419,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1534&TileCol=2499&I=236&J=48&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "d05ae921124b2b7b9b9bf93af52846f5681d1f80333c5d5dabc5ab47b5b3cb9f",
+        "elapsedMs": 151,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VMDR",
+        "value": 320.15911865234375,
+        "rawUnits": "degree",
+        "gridLatitude": 41.1000000670716,
+        "gridLongitude": 39.725,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 0.419,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "rize-aciklari",
+      "seaBasin": "black_sea",
+      "latitude": 41.13,
+      "longitude": 40.52,
+      "probedAtUtc": "2026-08-02T03:29:41.227Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1533&TileCol=2509&I=7&J=188&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "61c8de141d6301abf0c78fb263436afef44973d072f6308dc886758f84e1840d",
+        "elapsedMs": 148,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 25.68942642211914,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 41.12500006986625,
+        "gridLongitude": 40.525,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0.696,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1533&TileCol=2509&I=7&J=188&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "88d2537da21d176e201df5d14a492b05c7b251a26495492f0138bc8012cea6de",
+        "elapsedMs": 147,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VHM0",
+        "value": 0.3909510672092438,
+        "rawUnits": "m",
+        "gridLatitude": 41.12500006986625,
+        "gridLongitude": 40.525,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "m",
+        "distanceKm": 0.696,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1533&TileCol=2509&I=7&J=188&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "2a5c7bd97d58290446ee2f5279bda0d65b28927a60a79e27ffc05e6e9184584e",
+        "elapsedMs": 159,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VMDR",
+        "value": 314.008544921875,
+        "rawUnits": "degree",
+        "gridLatitude": 41.12500006986625,
+        "gridLongitude": 40.525,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 0.696,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "artvin-aciklari",
+      "seaBasin": "black_sea",
+      "latitude": 41.52,
+      "longitude": 41.42,
+      "probedAtUtc": "2026-08-02T03:29:49.165Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1527&TileCol=2519&I=68&J=211&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "ce65098f072eb9c28ad68d59c7f83c7e3da50e51a4c7c38d6bf5eacfc17be781",
+        "elapsedMs": 121,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 25.638839721679688,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 41.52500011458065,
+        "gridLongitude": 41.425,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0.6945,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1527&TileCol=2519&I=68&J=211&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "91e791d72bcb9181a87388bb01c0a091cc65e74bc439b47141ebcf3a913f3f80",
+        "elapsedMs": 158,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VHM0",
+        "value": 0.3665197193622589,
+        "rawUnits": "m",
+        "gridLatitude": 41.52500011458065,
+        "gridLongitude": 41.425,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "m",
+        "distanceKm": 0.6945,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1527&TileCol=2519&I=68&J=211&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "594bd7103c8cd3c06c0d9270654ee12c43ea1fac5806679bf93f59a0578d4d83",
+        "elapsedMs": 153,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411",
+        "variableId": "VMDR",
+        "value": 298.3294677734375,
+        "rawUnits": "degree",
+        "gridLatitude": 41.52500011458065,
+        "gridLongitude": 41.425,
+        "maxGridDistanceKm": 2.1,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 0.6945,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "canakkale-marmara-aciklari",
+      "seaBasin": "marmara",
+      "latitude": 40.5,
+      "longitude": 27.35,
+      "probedAtUtc": "2026-08-02T03:29:51.958Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1543&TileCol=2359&I=46&J=52&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "652633eb4a6f3124448684801b19d20f186a1df9d29f24d2776e5904e664f047",
+        "elapsedMs": 290,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311",
+        "variableId": "thetao",
+        "value": 24.620349884033203,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 40.50000000000023,
+        "gridLongitude": 27.350000000000534,
+        "maxGridDistanceKm": 0.5,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": null,
+      "waveDirection": null
+    },
+    {
+      "slugTr": "tekirdag-aciklari",
+      "seaBasin": "marmara",
+      "latitude": 40.87,
+      "longitude": 27.5,
+      "probedAtUtc": "2026-08-02T03:29:54.635Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1537&TileCol=2360&I=227&J=167&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "eaa88325706c760690982bf0f0033473081c76433af136f829413384adcc1937",
+        "elapsedMs": 175,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311",
+        "variableId": "thetao",
+        "value": 24.116626739501953,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 40.86875000000031,
+        "gridLongitude": 27.50000000000057,
+        "maxGridDistanceKm": 0.5,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0.139,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": null,
+      "waveDirection": null
+    },
+    {
+      "slugTr": "balikesir-marmara-aciklari",
+      "seaBasin": "marmara",
+      "latitude": 40.55,
+      "longitude": 27.9,
+      "probedAtUtc": "2026-08-02T03:29:57.293Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1542&TileCol=2365&I=112&J=117&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "bd269e9e42796d80f3ac95f0a7e6f3c94df7e312b8e188a31e16088d18e3c6b5",
+        "elapsedMs": 156,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311",
+        "variableId": "thetao",
+        "value": 22.545259475708008,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 40.55000000000024,
+        "gridLongitude": 27.90000000000066,
+        "maxGridDistanceKm": 0.5,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": null,
+      "waveDirection": null
+    },
+    {
+      "slugTr": "istanbul-marmara-aciklari",
+      "seaBasin": "marmara",
+      "latitude": 40.85,
+      "longitude": 28.8,
+      "probedAtUtc": "2026-08-02T03:29:59.954Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1537&TileCol=2375&I=174&J=244&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "39a2e0380f0d1fd6f9fe9d806070e33afd4bf4efb0dd9401976553e434df42b4",
+        "elapsedMs": 158,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311",
+        "variableId": "thetao",
+        "value": 25.061552047729492,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 40.85000000000031,
+        "gridLongitude": 28.800000000000864,
+        "maxGridDistanceKm": 0.5,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": null,
+      "waveDirection": null
+    },
+    {
+      "slugTr": "bursa-aciklari",
+      "seaBasin": "marmara",
+      "latitude": 40.48,
+      "longitude": 28.85,
+      "probedAtUtc": "2026-08-02T03:30:05.974Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1543&TileCol=2376&I=63&J=129&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "dded25fc21807e15372e6e436e477d032d7b3f70bb0043e4a1dbd899d8674af6",
+        "elapsedMs": 3519,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311",
+        "variableId": "thetao",
+        "value": 19.94639778137207,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 40.48125000000022,
+        "gridLongitude": 28.850000000000875,
+        "maxGridDistanceKm": 0.5,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0.139,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": null,
+      "waveDirection": null
+    },
+    {
+      "slugTr": "yalova-aciklari",
+      "seaBasin": "marmara",
+      "latitude": 40.72,
+      "longitude": 29.15,
+      "probedAtUtc": "2026-08-02T03:30:08.637Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_PHY_007_001%2Fcmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1539&TileCol=2379&I=169&J=232&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "9b00a50f17691bfa4b38776da71beff023432f7cfc0470e97d13ce637cab3702",
+        "elapsedMs": 162,
+        "datasetId": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311",
+        "variableId": "thetao",
+        "value": 15.408056259155273,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 40.71875000000028,
+        "gridLongitude": 29.150000000000944,
+        "maxGridDistanceKm": 0.5,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0.139,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": null,
+      "waveDirection": null
+    },
+    {
+      "slugTr": "canakkale-ege-aciklari",
+      "seaBasin": "aegean",
+      "latitude": 39.78,
+      "longitude": 25.9,
+      "probedAtUtc": "2026-08-02T03:30:16.665Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_PHY_006_013%2Fcmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1553&TileCol=2342&I=175&J=236&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "e75f34ad3d2c0083157a7155737da59adbbb722c55d5e1389d655955c8a72075",
+        "elapsedMs": 145,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 20.397310256958008,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 39.77083410499593,
+        "gridLongitude": 25.916669353170676,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "celsius",
+        "distanceKm": 1.7516,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_WAV_006_017%2Fcmems_mod_med_wav_anfc_4.2km_PT1H-i_202311%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1553&TileCol=2342&I=175&J=236&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "896a4cea2737a4554ff3a20716ccde4339e15c24fe0c70bb8387f46fd8d560d0",
+        "elapsedMs": 218,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
+        "variableId": "VHM0",
+        "value": 1.319000005722046,
+        "rawUnits": "m",
+        "gridLatitude": 39.77083410499593,
+        "gridLongitude": 25.916667695797607,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "m",
+        "distanceKm": 1.7515,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_WAV_006_017%2Fcmems_mod_med_wav_anfc_4.2km_PT1H-i_202311%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1553&TileCol=2342&I=175&J=236&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "678acbb9786d87065d6054ed9989af9d1419db9c22eeac199852ece3af8b5447",
+        "elapsedMs": 159,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
+        "variableId": "VMDR",
+        "value": 14.750003814697266,
+        "rawUnits": "degree",
+        "gridLatitude": 39.77083410499593,
+        "gridLongitude": 25.916667695797607,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 1.7515,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "balikesir-ege-aciklari",
+      "seaBasin": "aegean",
+      "latitude": 39.42,
+      "longitude": 26.45,
+      "probedAtUtc": "2026-08-02T03:30:24.854Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_PHY_006_013%2Fcmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1559&TileCol=2348&I=241&J=61&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "96d18f2b0fdfe7c33627e04c938435910385410304cfd4d1b7eff606c4d3a2b0",
+        "elapsedMs": 173,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 22.040420532226562,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 39.43750074482216,
+        "gridLongitude": 26.458336045545515,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "celsius",
+        "distanceKm": 2.0735,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_WAV_006_017%2Fcmems_mod_med_wav_anfc_4.2km_PT1H-i_202311%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1559&TileCol=2348&I=241&J=61&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "6b92e47e64039e8f1d2fecc6852279fe62d66813dfddd6a735bb0be71c91bd82",
+        "elapsedMs": 296,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
+        "variableId": "VHM0",
+        "value": 0.19200000166893005,
+        "rawUnits": "m",
+        "gridLatitude": 39.43750074482216,
+        "gridLongitude": 26.45833437512151,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "m",
+        "distanceKm": 2.0735,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_WAV_006_017%2Fcmems_mod_med_wav_anfc_4.2km_PT1H-i_202311%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1559&TileCol=2348&I=241&J=61&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "65f3d38b9e8b553db64c69a74981077e11d13179b59688edb6efb6334277a779",
+        "elapsedMs": 217,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
+        "variableId": "VMDR",
+        "value": 75.08000183105469,
+        "rawUnits": "degree",
+        "gridLatitude": 39.43750074482216,
+        "gridLongitude": 26.45833437512151,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 2.0735,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "izmir-aciklari",
+      "seaBasin": "aegean",
+      "latitude": 38.72,
+      "longitude": 26.6,
+      "probedAtUtc": "2026-08-02T03:30:34.561Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_PHY_006_013%2Fcmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1569&TileCol=2350&I=166&J=127&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "cb0a2eb414cd1f5a2b4799c681aad8adf5e3a36fb4fbe4780a3af521d49a9099",
+        "elapsedMs": 1753,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 22.70831871032715,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 38.7291673544529,
+        "gridLongitude": 26.58333605147817,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "celsius",
+        "distanceKm": 1.7689,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_WAV_006_017%2Fcmems_mod_med_wav_anfc_4.2km_PT1H-i_202311%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1569&TileCol=2350&I=166&J=127&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "3fca7a68100322e512747f26e461bb7968efdf71c5ecd43d164265a9a07ef67c",
+        "elapsedMs": 294,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
+        "variableId": "VHM0",
+        "value": 0.41200003027915955,
+        "rawUnits": "m",
+        "gridLatitude": 38.7291673544529,
+        "gridLongitude": 26.58333437804241,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "m",
+        "distanceKm": 1.769,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_WAV_006_017%2Fcmems_mod_med_wav_anfc_4.2km_PT1H-i_202311%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1569&TileCol=2350&I=166&J=127&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "09502b72192697471cdd5502dc0bfc7b4fa37e3b8697fd75f40cc728f2003a70",
+        "elapsedMs": 154,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
+        "variableId": "VMDR",
+        "value": 2.4500038623809814,
+        "rawUnits": "degree",
+        "gridLatitude": 38.7291673544529,
+        "gridLongitude": 26.58333437804241,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 1.769,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "aydin-aciklari",
+      "seaBasin": "aegean",
+      "latitude": 37.6,
+      "longitude": 27.1,
+      "probedAtUtc": "2026-08-02T03:30:42.788Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_PHY_006_013%2Fcmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1585&TileCol=2356&I=86&J=180&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "72db6f6c4a7e5c5dfe846d20c6390085b11475c3b108d1d420b631daa99674fb",
+        "elapsedMs": 147,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 21.122583389282227,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 37.604167263866415,
+        "gridLongitude": 27.08333607520879,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "celsius",
+        "distanceKm": 1.5394,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_WAV_006_017%2Fcmems_mod_med_wav_anfc_4.2km_PT1H-i_202311%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1585&TileCol=2356&I=86&J=180&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "4eadf666ba78039416405e0ff66c499aa39aac0cf811794d5697da3b1b7b7fb8",
+        "elapsedMs": 158,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
+        "variableId": "VHM0",
+        "value": 0.18800000846385956,
+        "rawUnits": "m",
+        "gridLatitude": 37.604167263866415,
+        "gridLongitude": 27.08333438972602,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "m",
+        "distanceKm": 1.5396,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_WAV_006_017%2Fcmems_mod_med_wav_anfc_4.2km_PT1H-i_202311%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1585&TileCol=2356&I=86&J=180&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "1e1099815f187e6ee1fe9e1fcd26f4f9239fbe3e1afb97e0b7ab1cfb73a07a38",
+        "elapsedMs": 418,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
+        "variableId": "VMDR",
+        "value": 320.8399963378906,
+        "rawUnits": "degree",
+        "gridLatitude": 37.604167263866415,
+        "gridLongitude": 27.08333438972602,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 1.5396,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "mugla-aciklari",
+      "seaBasin": "aegean",
+      "latitude": 36.95,
+      "longitude": 27.25,
+      "probedAtUtc": "2026-08-02T03:30:50.670Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_PHY_006_013%2Fcmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1594&TileCol=2358&I=11&J=255&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "c1e09fa5433f53dd90f1386ca7bb226ec2de87cdcd712bb545f214f26ee2e51a",
+        "elapsedMs": 127,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 24.586572647094727,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 36.93750054351887,
+        "gridLongitude": 27.250002749785665,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "celsius",
+        "distanceKm": 1.3899,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_WAV_006_017%2Fcmems_mod_med_wav_anfc_4.2km_PT1H-i_202311%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1594&TileCol=2358&I=11&J=255&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "9759ecc2b87593f435800ab466f25f30e6e402fc626191de0485ae7cda68a288",
+        "elapsedMs": 116,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
+        "variableId": "VHM0",
+        "value": 0.1720000058412552,
+        "rawUnits": "m",
+        "gridLatitude": 36.93750054351887,
+        "gridLongitude": 27.250001060287218,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "m",
+        "distanceKm": 1.3899,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_WAV_006_017%2Fcmems_mod_med_wav_anfc_4.2km_PT1H-i_202311%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1594&TileCol=2358&I=11&J=255&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "8ea6fc1e4039e685fbe80d51b5e6da3ebc023aaa8548b7102478e4fa75067a33",
+        "elapsedMs": 134,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
+        "variableId": "VMDR",
+        "value": 309.3599853515625,
+        "rawUnits": "degree",
+        "gridLatitude": 36.93750054351887,
+        "gridLongitude": 27.250001060287218,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 1.3899,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "antalya-aciklari",
+      "seaBasin": "mediterranean",
+      "latitude": 36.6,
+      "longitude": 30.7,
+      "probedAtUtc": "2026-08-02T03:30:58.875Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_PHY_006_013%2Fcmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1599&TileCol=2397&I=76&J=248&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "30042c196e44377f7d573c15797f04c6e8a544194f8ed14d21defcf7ba411ab1",
+        "elapsedMs": 151,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 27.711774826049805,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 36.6041671833451,
+        "gridLongitude": 30.708336247255787,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0.8766,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_WAV_006_017%2Fcmems_mod_med_wav_anfc_4.2km_PT1H-i_202311%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1599&TileCol=2397&I=76&J=248&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "c37044247b5638610aee7957f8064f15a167d8223d3fd67f7a9fd983df166193",
+        "elapsedMs": 367,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
+        "variableId": "VHM0",
+        "value": 0.14500001072883606,
+        "rawUnits": "m",
+        "gridLatitude": 36.6041671833451,
+        "gridLongitude": 30.708334474432156,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "m",
+        "distanceKm": 0.8765,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_WAV_006_017%2Fcmems_mod_med_wav_anfc_4.2km_PT1H-i_202311%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1599&TileCol=2397&I=76&J=248&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "149fa3462da5b3d190e312706f2e58b0f2111b8b7bfda8fb5ecfcd04ab74a121",
+        "elapsedMs": 182,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
+        "variableId": "VMDR",
+        "value": 170.2899932861328,
+        "rawUnits": "degree",
+        "gridLatitude": 36.6041671833451,
+        "gridLongitude": 30.708334474432156,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 0.8765,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "mersin-aciklari",
+      "seaBasin": "mediterranean",
+      "latitude": 36.6,
+      "longitude": 34.5,
+      "probedAtUtc": "2026-08-02T03:31:06.765Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_PHY_006_013%2Fcmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1599&TileCol=2440&I=136&J=248&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "21bdd5bf3af56ad8d17da64650d7a272de11f6da23dc0515a66a65f38ecc637c",
+        "elapsedMs": 151,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 29.08879280090332,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 36.6041671833451,
+        "gridLongitude": 34.50000309387966,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0.4634,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_WAV_006_017%2Fcmems_mod_med_wav_anfc_4.2km_PT1H-i_202311%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1599&TileCol=2440&I=136&J=248&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "a7eeb840ac127d47535954bfe31d29eacf86f95ba9fccfbf33efc1a22123a90a",
+        "elapsedMs": 119,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
+        "variableId": "VHM0",
+        "value": 0.2770000100135803,
+        "rawUnits": "m",
+        "gridLatitude": 36.6041671833451,
+        "gridLongitude": 34.5000012296995,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "m",
+        "distanceKm": 0.4634,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_WAV_006_017%2Fcmems_mod_med_wav_anfc_4.2km_PT1H-i_202311%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1599&TileCol=2440&I=136&J=248&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "a0f77db1ffd0fa2f1507c15019f0bd7505462ec175897d1264a5127d7d5a8d2f",
+        "elapsedMs": 117,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
+        "variableId": "VMDR",
+        "value": 155.30999755859375,
+        "rawUnits": "degree",
+        "gridLatitude": 36.6041671833451,
+        "gridLongitude": 34.5000012296995,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 0.4634,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "adana-aciklari",
+      "seaBasin": "mediterranean",
+      "latitude": 36.4,
+      "longitude": 35.38,
+      "probedAtUtc": "2026-08-02T03:31:14.704Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_PHY_006_013%2Fcmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1602&TileCol=2450&I=139&J=205&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "ab76604293b0ab9b1323058026f35e46f4d64927bbabc518ee94badbb1f0abf5",
+        "elapsedMs": 154,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 28.931821823120117,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 36.395833833236495,
+        "gridLongitude": 35.37500313540825,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "celsius",
+        "distanceKm": 0.6439,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_WAV_006_017%2Fcmems_mod_med_wav_anfc_4.2km_PT1H-i_202311%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1602&TileCol=2450&I=139&J=205&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "ae8a0e796de0e5da79398e79b1fb20f69264f85fb8fa051f59a5b405fd5140ec",
+        "elapsedMs": 137,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
+        "variableId": "VHM0",
+        "value": 0.3330000042915344,
+        "rawUnits": "m",
+        "gridLatitude": 36.395833833236495,
+        "gridLongitude": 35.375001250145814,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "m",
+        "distanceKm": 0.644,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_WAV_006_017%2Fcmems_mod_med_wav_anfc_4.2km_PT1H-i_202311%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1602&TileCol=2450&I=139&J=205&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "cf34a62117c400e319e57cf5ba7c1955d9c7ba4e022b28c3b694db0cb73c2529",
+        "elapsedMs": 144,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
+        "variableId": "VMDR",
+        "value": 233.11000061035156,
+        "rawUnits": "degree",
+        "gridLatitude": 36.395833833236495,
+        "gridLongitude": 35.375001250145814,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 0.644,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    },
+    {
+      "slugTr": "hatay-aciklari",
+      "seaBasin": "mediterranean",
+      "latitude": 36.05,
+      "longitude": 35.8,
+      "probedAtUtc": "2026-08-02T03:31:22.727Z",
+      "seaSurfaceTemperature": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_PHY_006_013%2Fcmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511%2Fthetao&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1607&TileCol=2455&I=83&J=188&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "103ed05bb30a8d197a58863890e0e6c8e4876702d3a980f2c68b9029ecf48ae8",
+        "elapsedMs": 198,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511",
+        "variableId": "thetao",
+        "value": 29.03139305114746,
+        "rawUnits": "degrees_C",
+        "gridLatitude": 36.06250047306272,
+        "gridLongitude": 35.791669821850434,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "celsius",
+        "distanceKm": 1.5789,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveHeight": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_WAV_006_017%2Fcmems_mod_med_wav_anfc_4.2km_PT1H-i_202311%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1607&TileCol=2455&I=83&J=188&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "71512fb1cb19a02427671dffd72add91b5d5239b5fdec13a80149769b0bd820c",
+        "elapsedMs": 196,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
+        "variableId": "VHM0",
+        "value": 0.3050000071525574,
+        "rawUnits": "m",
+        "gridLatitude": 36.06250047306272,
+        "gridLongitude": 35.79166792654882,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "m",
+        "distanceKm": 1.579,
+        "verdict": "ok",
+        "errorDetail": null
+      },
+      "waveDirection": {
+        "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=MEDSEA_ANALYSISFORECAST_WAV_006_017%2Fcmems_mod_med_wav_anfc_4.2km_PT1H-i_202311%2FVMDR&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1607&TileCol=2455&I=83&J=188&infoformat=application%2Fjson&time=2026-08-02T03%3A00%3A00Z",
+        "httpStatus": 200,
+        "contentType": "application/json",
+        "responseSha256": "42315abba761a1ba2c2e269d264bcd9ad053f015776f98f7cf7e0a71b8508a82",
+        "elapsedMs": 122,
+        "datasetId": "MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311",
+        "variableId": "VMDR",
+        "value": 256.0799865722656,
+        "rawUnits": "degree",
+        "gridLatitude": 36.06250047306272,
+        "gridLongitude": 35.79166792654882,
+        "maxGridDistanceKm": 3.4,
+        "normalizedUnit": "degree_true",
+        "distanceKm": 1.579,
+        "verdict": "ok",
+        "errorDetail": null
+      }
+    }
+  ],
+  "xmlErrorFixture": {
+    "requestUrl": "https://wmts.marine.copernicus.eu/teroWmts?service=WMTS&version=1.0.0&request=GetFeatureInfo&layer=BLKSEA_ANALYSISFORECAST_WAV_007_003%2Fcmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411%2FVHM0&style=&format=image%2Fpng&tilematrixset=EPSG%3A3857&TileMatrix=12&TileRow=1534&TileCol=2499&I=236&J=48&infoformat=application%2Fjson&time=2030-01-01T00%3A00%3A00Z",
+    "requestedTimeIso": "2030-01-01T00:00:00Z",
+    "httpStatus": 400,
+    "contentType": "text/xml; charset=utf-8",
+    "bodySha256": "9d57148473fcb9a070f52ec28279204a4d882b95dc25eb901e1d6ad44aadd98b",
+    "fixturePath": "test/fixtures/cmems/getfeatureinfo-400-time-out-of-range.xml",
+    "firstBytes": "<ExceptionReport xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.opengis.net/ows/1.1 https://schemas.opengis.net/ows/1.1.0/owsExceptionReport.xsd\" xmlns=\"http://ww"
+  },
+  "timings": {
+    "callCount": 78,
+    "p50Ms": 156,
+    "p95Ms": 395,
+    "maxMs": 3519,
+    "totalMs": 19631
+  },
+  "assertions": [
+    {
+      "id": "a1-completeness",
+      "passed": true,
+      "detail": "30/30 candidates, in order"
+    },
+    {
+      "id": "a2-wave-support-kirklareli-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-istanbul-karadeniz-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-kocaeli-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-sakarya-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-duzce-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-zonguldak-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-bartin-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-kastamonu-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-sinop-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-samsun-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-ordu-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-giresun-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-trabzon-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-rize-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-artvin-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-canakkale-marmara-aciklari",
+      "passed": true,
+      "detail": "Marmara: no CMEMS wave product — the probe must make NO wave call (the runtime skips it the same way)"
+    },
+    {
+      "id": "a2-wave-support-tekirdag-aciklari",
+      "passed": true,
+      "detail": "Marmara: no CMEMS wave product — the probe must make NO wave call (the runtime skips it the same way)"
+    },
+    {
+      "id": "a2-wave-support-balikesir-marmara-aciklari",
+      "passed": true,
+      "detail": "Marmara: no CMEMS wave product — the probe must make NO wave call (the runtime skips it the same way)"
+    },
+    {
+      "id": "a2-wave-support-istanbul-marmara-aciklari",
+      "passed": true,
+      "detail": "Marmara: no CMEMS wave product — the probe must make NO wave call (the runtime skips it the same way)"
+    },
+    {
+      "id": "a2-wave-support-bursa-aciklari",
+      "passed": true,
+      "detail": "Marmara: no CMEMS wave product — the probe must make NO wave call (the runtime skips it the same way)"
+    },
+    {
+      "id": "a2-wave-support-yalova-aciklari",
+      "passed": true,
+      "detail": "Marmara: no CMEMS wave product — the probe must make NO wave call (the runtime skips it the same way)"
+    },
+    {
+      "id": "a2-wave-support-canakkale-ege-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-balikesir-ege-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-izmir-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-aydin-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-mugla-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-antalya-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-mersin-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-adana-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "a2-wave-support-hatay-aciklari",
+      "passed": true,
+      "detail": "basin has a CMEMS wave product — both wave calls must exist"
+    },
+    {
+      "id": "c1-transport-kirklareli-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-kirklareli-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 24.736549377441406"
+    },
+    {
+      "id": "c3-snap-kirklareli-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-kirklareli-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-kirklareli-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-kirklareli-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 371 ms"
+    },
+    {
+      "id": "c1-transport-kirklareli-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-kirklareli-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 1.2650065422058105"
+    },
+    {
+      "id": "c3-snap-kirklareli-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 0 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-kirklareli-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-kirklareli-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-kirklareli-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 317 ms"
+    },
+    {
+      "id": "c1-transport-kirklareli-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-kirklareli-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 63.58673095703125"
+    },
+    {
+      "id": "c3-snap-kirklareli-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 0 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-kirklareli-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-kirklareli-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-kirklareli-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 222 ms"
+    },
+    {
+      "id": "c1-transport-istanbul-karadeniz-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-istanbul-karadeniz-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 21.27079200744629"
+    },
+    {
+      "id": "c3-snap-istanbul-karadeniz-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0.8354 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-istanbul-karadeniz-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-istanbul-karadeniz-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-istanbul-karadeniz-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 293 ms"
+    },
+    {
+      "id": "c1-transport-istanbul-karadeniz-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-istanbul-karadeniz-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 1.3780626058578491"
+    },
+    {
+      "id": "c3-snap-istanbul-karadeniz-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 0.8354 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-istanbul-karadeniz-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-istanbul-karadeniz-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-istanbul-karadeniz-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 213 ms"
+    },
+    {
+      "id": "c1-transport-istanbul-karadeniz-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-istanbul-karadeniz-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 44.07611083984375"
+    },
+    {
+      "id": "c3-snap-istanbul-karadeniz-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 0.8354 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-istanbul-karadeniz-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-istanbul-karadeniz-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-istanbul-karadeniz-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 153 ms"
+    },
+    {
+      "id": "c1-transport-kocaeli-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-kocaeli-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 17.951435089111328"
+    },
+    {
+      "id": "c3-snap-kocaeli-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-kocaeli-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-kocaeli-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-kocaeli-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 208 ms"
+    },
+    {
+      "id": "c1-transport-kocaeli-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-kocaeli-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 1.3519538640975952"
+    },
+    {
+      "id": "c3-snap-kocaeli-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 0 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-kocaeli-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-kocaeli-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-kocaeli-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 152 ms"
+    },
+    {
+      "id": "c1-transport-kocaeli-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-kocaeli-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 40.6181640625"
+    },
+    {
+      "id": "c3-snap-kocaeli-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 0 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-kocaeli-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-kocaeli-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-kocaeli-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 204 ms"
+    },
+    {
+      "id": "c1-transport-sakarya-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-sakarya-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 21.50410270690918"
+    },
+    {
+      "id": "c3-snap-sakarya-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0.4183 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-sakarya-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-sakarya-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-sakarya-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 150 ms"
+    },
+    {
+      "id": "c1-transport-sakarya-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-sakarya-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 1.131547212600708"
+    },
+    {
+      "id": "c3-snap-sakarya-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 0.4183 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-sakarya-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-sakarya-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-sakarya-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 157 ms"
+    },
+    {
+      "id": "c1-transport-sakarya-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-sakarya-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 27.444122314453125"
+    },
+    {
+      "id": "c3-snap-sakarya-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 0.4183 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-sakarya-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-sakarya-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-sakarya-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 144 ms"
+    },
+    {
+      "id": "c1-transport-duzce-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-duzce-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 20.622108459472656"
+    },
+    {
+      "id": "c3-snap-duzce-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0.6959 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-duzce-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-duzce-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-duzce-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 155 ms"
+    },
+    {
+      "id": "c1-transport-duzce-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-duzce-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 0.922547459602356"
+    },
+    {
+      "id": "c3-snap-duzce-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 0.6959 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-duzce-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-duzce-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-duzce-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 149 ms"
+    },
+    {
+      "id": "c1-transport-duzce-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-duzce-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 14.83294677734375"
+    },
+    {
+      "id": "c3-snap-duzce-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 0.6959 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-duzce-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-duzce-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-duzce-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 149 ms"
+    },
+    {
+      "id": "c1-transport-zonguldak-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-zonguldak-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 14.711692810058594"
+    },
+    {
+      "id": "c3-snap-zonguldak-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0.4161 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-zonguldak-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-zonguldak-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-zonguldak-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 147 ms"
+    },
+    {
+      "id": "c1-transport-zonguldak-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-zonguldak-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 0.9329925179481506"
+    },
+    {
+      "id": "c3-snap-zonguldak-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 0.4161 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-zonguldak-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-zonguldak-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-zonguldak-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 163 ms"
+    },
+    {
+      "id": "c1-transport-zonguldak-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-zonguldak-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 22.90887451171875"
+    },
+    {
+      "id": "c3-snap-zonguldak-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 0.4161 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-zonguldak-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-zonguldak-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-zonguldak-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 151 ms"
+    },
+    {
+      "id": "c1-transport-bartin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-bartin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 12.439427375793457"
+    },
+    {
+      "id": "c3-snap-bartin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0.4141 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-bartin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-bartin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-bartin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 162 ms"
+    },
+    {
+      "id": "c1-transport-bartin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-bartin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 0.8486319780349731"
+    },
+    {
+      "id": "c3-snap-bartin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 0.4141 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-bartin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-bartin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-bartin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 393 ms"
+    },
+    {
+      "id": "c1-transport-bartin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-bartin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 34.46929931640625"
+    },
+    {
+      "id": "c3-snap-bartin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 0.4141 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-bartin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-bartin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-bartin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 153 ms"
+    },
+    {
+      "id": "c1-transport-kastamonu-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-kastamonu-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 23.198997497558594"
+    },
+    {
+      "id": "c3-snap-kastamonu-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0.9951 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-kastamonu-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-kastamonu-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-kastamonu-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 149 ms"
+    },
+    {
+      "id": "c1-transport-kastamonu-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-kastamonu-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 0.6113147735595703"
+    },
+    {
+      "id": "c3-snap-kastamonu-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 0.9951 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-kastamonu-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-kastamonu-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-kastamonu-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 123 ms"
+    },
+    {
+      "id": "c1-transport-kastamonu-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-kastamonu-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 31.9259033203125"
+    },
+    {
+      "id": "c3-snap-kastamonu-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 0.9951 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-kastamonu-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-kastamonu-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-kastamonu-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 148 ms"
+    },
+    {
+      "id": "c1-transport-sinop-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-sinop-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 24.616056442260742"
+    },
+    {
+      "id": "c3-snap-sinop-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-sinop-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-sinop-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-sinop-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 159 ms"
+    },
+    {
+      "id": "c1-transport-sinop-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-sinop-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 0.850304901599884"
+    },
+    {
+      "id": "c3-snap-sinop-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 0 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-sinop-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-sinop-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-sinop-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 330 ms"
+    },
+    {
+      "id": "c1-transport-sinop-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-sinop-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 5.032196044921875"
+    },
+    {
+      "id": "c3-snap-sinop-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 0 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-sinop-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-sinop-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-sinop-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 179 ms"
+    },
+    {
+      "id": "c1-transport-samsun-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-samsun-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 24.987537384033203"
+    },
+    {
+      "id": "c3-snap-samsun-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0.417 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-samsun-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-samsun-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-samsun-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 172 ms"
+    },
+    {
+      "id": "c1-transport-samsun-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-samsun-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 0.5423531532287598"
+    },
+    {
+      "id": "c3-snap-samsun-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 0.417 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-samsun-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-samsun-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-samsun-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 315 ms"
+    },
+    {
+      "id": "c1-transport-samsun-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-samsun-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 358.70037841796875"
+    },
+    {
+      "id": "c3-snap-samsun-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 0.417 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-samsun-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-samsun-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-samsun-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 149 ms"
+    },
+    {
+      "id": "c1-transport-ordu-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-ordu-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 25.205490112304688"
+    },
+    {
+      "id": "c3-snap-ordu-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0.6962 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-ordu-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-ordu-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-ordu-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 150 ms"
+    },
+    {
+      "id": "c1-transport-ordu-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-ordu-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 0.4663480222225189"
+    },
+    {
+      "id": "c3-snap-ordu-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 0.6962 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-ordu-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-ordu-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-ordu-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 395 ms"
+    },
+    {
+      "id": "c1-transport-ordu-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-ordu-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 338.7547912597656"
+    },
+    {
+      "id": "c3-snap-ordu-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 0.6962 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-ordu-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-ordu-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-ordu-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 153 ms"
+    },
+    {
+      "id": "c1-transport-giresun-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-giresun-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 25.596384048461914"
+    },
+    {
+      "id": "c3-snap-giresun-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 1.3931 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-giresun-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-giresun-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-giresun-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 122 ms"
+    },
+    {
+      "id": "c1-transport-giresun-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-giresun-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 0.48606738448143005"
+    },
+    {
+      "id": "c3-snap-giresun-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 1.3931 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-giresun-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-giresun-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-giresun-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 265 ms"
+    },
+    {
+      "id": "c1-transport-giresun-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-giresun-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 328.0111083984375"
+    },
+    {
+      "id": "c3-snap-giresun-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 1.3931 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-giresun-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-giresun-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-giresun-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 152 ms"
+    },
+    {
+      "id": "c1-transport-trabzon-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-trabzon-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 25.66107940673828"
+    },
+    {
+      "id": "c3-snap-trabzon-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0.419 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-trabzon-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-trabzon-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-trabzon-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 152 ms"
+    },
+    {
+      "id": "c1-transport-trabzon-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-trabzon-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 0.4009700119495392"
+    },
+    {
+      "id": "c3-snap-trabzon-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 0.419 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-trabzon-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-trabzon-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-trabzon-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 268 ms"
+    },
+    {
+      "id": "c1-transport-trabzon-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-trabzon-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 320.15911865234375"
+    },
+    {
+      "id": "c3-snap-trabzon-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 0.419 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-trabzon-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-trabzon-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-trabzon-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 151 ms"
+    },
+    {
+      "id": "c1-transport-rize-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-rize-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 25.68942642211914"
+    },
+    {
+      "id": "c3-snap-rize-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0.696 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-rize-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-rize-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-rize-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 148 ms"
+    },
+    {
+      "id": "c1-transport-rize-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-rize-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 0.3909510672092438"
+    },
+    {
+      "id": "c3-snap-rize-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 0.696 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-rize-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-rize-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-rize-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 147 ms"
+    },
+    {
+      "id": "c1-transport-rize-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-rize-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 314.008544921875"
+    },
+    {
+      "id": "c3-snap-rize-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 0.696 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-rize-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-rize-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-rize-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 159 ms"
+    },
+    {
+      "id": "c1-transport-artvin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-artvin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 25.638839721679688"
+    },
+    {
+      "id": "c3-snap-artvin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0.6945 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-artvin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-artvin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-artvin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 121 ms"
+    },
+    {
+      "id": "c1-transport-artvin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-artvin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 0.3665197193622589"
+    },
+    {
+      "id": "c3-snap-artvin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 0.6945 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-artvin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-artvin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-artvin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 158 ms"
+    },
+    {
+      "id": "c1-transport-artvin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-artvin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 298.3294677734375"
+    },
+    {
+      "id": "c3-snap-artvin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 0.6945 km vs ceiling 2.1 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-artvin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-artvin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_WAV_007_003/cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-artvin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 153 ms"
+    },
+    {
+      "id": "c1-transport-canakkale-marmara-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-canakkale-marmara-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 24.620349884033203"
+    },
+    {
+      "id": "c3-snap-canakkale-marmara-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0 km vs ceiling 0.5 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-canakkale-marmara-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-canakkale-marmara-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-canakkale-marmara-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 290 ms"
+    },
+    {
+      "id": "c1-transport-tekirdag-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-tekirdag-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 24.116626739501953"
+    },
+    {
+      "id": "c3-snap-tekirdag-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0.139 km vs ceiling 0.5 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-tekirdag-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-tekirdag-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-tekirdag-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 175 ms"
+    },
+    {
+      "id": "c1-transport-balikesir-marmara-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-balikesir-marmara-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 22.545259475708008"
+    },
+    {
+      "id": "c3-snap-balikesir-marmara-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0 km vs ceiling 0.5 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-balikesir-marmara-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-balikesir-marmara-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-balikesir-marmara-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 156 ms"
+    },
+    {
+      "id": "c1-transport-istanbul-marmara-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-istanbul-marmara-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 25.061552047729492"
+    },
+    {
+      "id": "c3-snap-istanbul-marmara-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0 km vs ceiling 0.5 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-istanbul-marmara-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-istanbul-marmara-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-istanbul-marmara-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 158 ms"
+    },
+    {
+      "id": "c1-transport-bursa-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-bursa-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 19.94639778137207"
+    },
+    {
+      "id": "c3-snap-bursa-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0.139 km vs ceiling 0.5 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-bursa-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-bursa-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-bursa-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 3519 ms"
+    },
+    {
+      "id": "c1-transport-yalova-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-yalova-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 15.408056259155273"
+    },
+    {
+      "id": "c3-snap-yalova-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0.139 km vs ceiling 0.5 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-yalova-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-yalova-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-yalova-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 162 ms"
+    },
+    {
+      "id": "c1-transport-canakkale-ege-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-canakkale-ege-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 20.397310256958008"
+    },
+    {
+      "id": "c3-snap-canakkale-ege-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 1.7516 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-canakkale-ege-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-canakkale-ege-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-canakkale-ege-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 145 ms"
+    },
+    {
+      "id": "c1-transport-canakkale-ege-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-canakkale-ege-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 1.319000005722046"
+    },
+    {
+      "id": "c3-snap-canakkale-ege-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 1.7515 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-canakkale-ege-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-canakkale-ege-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-canakkale-ege-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 218 ms"
+    },
+    {
+      "id": "c1-transport-canakkale-ege-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-canakkale-ege-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 14.750003814697266"
+    },
+    {
+      "id": "c3-snap-canakkale-ege-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 1.7515 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-canakkale-ege-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-canakkale-ege-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-canakkale-ege-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 159 ms"
+    },
+    {
+      "id": "c1-transport-balikesir-ege-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-balikesir-ege-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 22.040420532226562"
+    },
+    {
+      "id": "c3-snap-balikesir-ege-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 2.0735 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-balikesir-ege-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-balikesir-ege-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-balikesir-ege-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 173 ms"
+    },
+    {
+      "id": "c1-transport-balikesir-ege-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-balikesir-ege-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 0.19200000166893005"
+    },
+    {
+      "id": "c3-snap-balikesir-ege-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 2.0735 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-balikesir-ege-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-balikesir-ege-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-balikesir-ege-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 296 ms"
+    },
+    {
+      "id": "c1-transport-balikesir-ege-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-balikesir-ege-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 75.08000183105469"
+    },
+    {
+      "id": "c3-snap-balikesir-ege-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 2.0735 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-balikesir-ege-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-balikesir-ege-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-balikesir-ege-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 217 ms"
+    },
+    {
+      "id": "c1-transport-izmir-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-izmir-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 22.70831871032715"
+    },
+    {
+      "id": "c3-snap-izmir-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 1.7689 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-izmir-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-izmir-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-izmir-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 1753 ms"
+    },
+    {
+      "id": "c1-transport-izmir-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-izmir-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 0.41200003027915955"
+    },
+    {
+      "id": "c3-snap-izmir-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 1.769 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-izmir-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-izmir-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-izmir-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 294 ms"
+    },
+    {
+      "id": "c1-transport-izmir-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-izmir-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 2.4500038623809814"
+    },
+    {
+      "id": "c3-snap-izmir-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 1.769 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-izmir-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-izmir-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-izmir-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 154 ms"
+    },
+    {
+      "id": "c1-transport-aydin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-aydin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 21.122583389282227"
+    },
+    {
+      "id": "c3-snap-aydin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 1.5394 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-aydin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-aydin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-aydin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 147 ms"
+    },
+    {
+      "id": "c1-transport-aydin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-aydin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 0.18800000846385956"
+    },
+    {
+      "id": "c3-snap-aydin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 1.5396 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-aydin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-aydin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-aydin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 158 ms"
+    },
+    {
+      "id": "c1-transport-aydin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-aydin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 320.8399963378906"
+    },
+    {
+      "id": "c3-snap-aydin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 1.5396 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-aydin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-aydin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-aydin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 418 ms"
+    },
+    {
+      "id": "c1-transport-mugla-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-mugla-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 24.586572647094727"
+    },
+    {
+      "id": "c3-snap-mugla-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 1.3899 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-mugla-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-mugla-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-mugla-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 127 ms"
+    },
+    {
+      "id": "c1-transport-mugla-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-mugla-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 0.1720000058412552"
+    },
+    {
+      "id": "c3-snap-mugla-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 1.3899 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-mugla-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-mugla-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-mugla-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 116 ms"
+    },
+    {
+      "id": "c1-transport-mugla-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-mugla-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 309.3599853515625"
+    },
+    {
+      "id": "c3-snap-mugla-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 1.3899 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-mugla-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-mugla-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-mugla-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 134 ms"
+    },
+    {
+      "id": "c1-transport-antalya-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-antalya-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 27.711774826049805"
+    },
+    {
+      "id": "c3-snap-antalya-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0.8766 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-antalya-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-antalya-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-antalya-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 151 ms"
+    },
+    {
+      "id": "c1-transport-antalya-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-antalya-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 0.14500001072883606"
+    },
+    {
+      "id": "c3-snap-antalya-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 0.8765 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-antalya-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-antalya-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-antalya-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 367 ms"
+    },
+    {
+      "id": "c1-transport-antalya-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-antalya-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 170.2899932861328"
+    },
+    {
+      "id": "c3-snap-antalya-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 0.8765 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-antalya-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-antalya-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-antalya-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 182 ms"
+    },
+    {
+      "id": "c1-transport-mersin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-mersin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 29.08879280090332"
+    },
+    {
+      "id": "c3-snap-mersin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0.4634 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-mersin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-mersin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-mersin-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 151 ms"
+    },
+    {
+      "id": "c1-transport-mersin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-mersin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 0.2770000100135803"
+    },
+    {
+      "id": "c3-snap-mersin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 0.4634 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-mersin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-mersin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-mersin-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 119 ms"
+    },
+    {
+      "id": "c1-transport-mersin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-mersin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 155.30999755859375"
+    },
+    {
+      "id": "c3-snap-mersin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 0.4634 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-mersin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-mersin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-mersin-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 117 ms"
+    },
+    {
+      "id": "c1-transport-adana-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-adana-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 28.931821823120117"
+    },
+    {
+      "id": "c3-snap-adana-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 0.6439 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-adana-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-adana-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-adana-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 154 ms"
+    },
+    {
+      "id": "c1-transport-adana-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-adana-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 0.3330000042915344"
+    },
+    {
+      "id": "c3-snap-adana-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 0.644 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-adana-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-adana-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-adana-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 137 ms"
+    },
+    {
+      "id": "c1-transport-adana-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-adana-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 233.11000061035156"
+    },
+    {
+      "id": "c3-snap-adana-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 0.644 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-adana-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-adana-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-adana-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 144 ms"
+    },
+    {
+      "id": "c1-transport-hatay-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-hatay-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "value 29.03139305114746"
+    },
+    {
+      "id": "c3-snap-hatay-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "snap 1.5789 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-hatay-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "raw \"degrees_C\" → canonical \"celsius\""
+    },
+    {
+      "id": "c6-dataset-echo-hatay-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_PHY_006_013/cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-hatay-aciklari/seaSurfaceTemperature",
+      "passed": true,
+      "detail": "elapsed 198 ms"
+    },
+    {
+      "id": "c1-transport-hatay-aciklari/waveHeight",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-hatay-aciklari/waveHeight",
+      "passed": true,
+      "detail": "value 0.3050000071525574"
+    },
+    {
+      "id": "c3-snap-hatay-aciklari/waveHeight",
+      "passed": true,
+      "detail": "snap 1.579 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-hatay-aciklari/waveHeight",
+      "passed": true,
+      "detail": "raw \"m\" → canonical \"m\""
+    },
+    {
+      "id": "c6-dataset-echo-hatay-aciklari/waveHeight",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-hatay-aciklari/waveHeight",
+      "passed": true,
+      "detail": "elapsed 196 ms"
+    },
+    {
+      "id": "c1-transport-hatay-aciklari/waveDirection",
+      "passed": true,
+      "detail": "HTTP 200 application/json"
+    },
+    {
+      "id": "c2-value-plausible-hatay-aciklari/waveDirection",
+      "passed": true,
+      "detail": "value 256.0799865722656"
+    },
+    {
+      "id": "c3-snap-hatay-aciklari/waveDirection",
+      "passed": true,
+      "detail": "snap 1.579 km vs ceiling 3.4 km — a breach means OUR tile arithmetic picked the wrong cell"
+    },
+    {
+      "id": "c4-unit-hatay-aciklari/waveDirection",
+      "passed": true,
+      "detail": "raw \"degree\" → canonical \"degree_true\""
+    },
+    {
+      "id": "c6-dataset-echo-hatay-aciklari/waveDirection",
+      "passed": true,
+      "detail": "provider echoed \"MEDSEA_ANALYSISFORECAST_WAV_006_017/cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311\" — must be a PRODUCT/dataset path whose dataset half parses as an hourly set"
+    },
+    {
+      "id": "c7-timing-hatay-aciklari/waveDirection",
+      "passed": true,
+      "detail": "elapsed 122 ms"
+    },
+    {
+      "id": "a3-resolved-MEDSEA_ANALYSISFORECAST_PHY_006_013/4.2km-2D",
+      "passed": true,
+      "detail": "resolved \"cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511\""
+    },
+    {
+      "id": "a3-resolved-MEDSEA_ANALYSISFORECAST_WAV_006_017/4.2km",
+      "passed": true,
+      "detail": "resolved \"cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311\""
+    },
+    {
+      "id": "a3-resolved-BLKSEA_ANALYSISFORECAST_PHY_007_001/2.5km",
+      "passed": true,
+      "detail": "resolved \"cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511\""
+    },
+    {
+      "id": "a3-resolved-BLKSEA_ANALYSISFORECAST_WAV_007_003/2.5km",
+      "passed": true,
+      "detail": "resolved \"cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411\""
+    },
+    {
+      "id": "a3-resolved-BLKSEA_ANALYSISFORECAST_PHY_007_001/mrm-500m",
+      "passed": true,
+      "detail": "resolved \"cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311\""
+    },
+    {
+      "id": "a4-licence-rows",
+      "passed": true,
+      "detail": "6 rows (5 datasets + the Marmara negative)"
+    },
+    {
+      "id": "a4-licence-row-1",
+      "passed": true,
+      "detail": "dataset cmems_mod_med_phy-tem_anfc_4.2km-2D_PT1H-m_202511 · DOI 10.48670/mds-00359 · quote verified=true — an unverified commercial-use quote HALTS the build (risk R5, owner escalation)"
+    },
+    {
+      "id": "a4-licence-row-2",
+      "passed": true,
+      "detail": "dataset cmems_mod_med_wav_anfc_4.2km_PT1H-i_202311 · DOI 10.48670/mds-00373 · quote verified=true — an unverified commercial-use quote HALTS the build (risk R5, owner escalation)"
+    },
+    {
+      "id": "a4-licence-row-3",
+      "passed": true,
+      "detail": "dataset cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511 · DOI 10.48670/mds-00355 · quote verified=true — an unverified commercial-use quote HALTS the build (risk R5, owner escalation)"
+    },
+    {
+      "id": "a4-licence-row-4",
+      "passed": true,
+      "detail": "dataset cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311 · DOI 10.48670/mds-00355 · quote verified=true — an unverified commercial-use quote HALTS the build (risk R5, owner escalation)"
+    },
+    {
+      "id": "a4-licence-row-5",
+      "passed": true,
+      "detail": "dataset cmems_mod_blk_wav_anfc_2.5km_PT1H-i_202411 · DOI 10.48670/mds-00360 · quote verified=true — an unverified commercial-use quote HALTS the build (risk R5, owner escalation)"
+    },
+    {
+      "id": "a4-licence-row-6",
+      "passed": true,
+      "detail": "negative row: the BLKSEA wave product's STAC item list (3 items this run) contains no dataset with a Marmara (mrm-*) grid token; the M1 cross-check additionally proved the 2.5 km wave land mask excludes the Marmara. The runtime therefore publishes not_supported and makes NO call; the wave pair falls back to ECMWF as a pair."
+    },
+    {
+      "id": "a5-xml-fixture",
+      "passed": true,
+      "detail": "HTTP 400 text/xml; charset=utf-8 → test/fixtures/cmems/getfeatureinfo-400-time-out-of-range.xml"
+    },
+    {
+      "id": "a6-timings",
+      "passed": true,
+      "detail": "78 calls · p50 156 ms · p95 395 ms · max 3519 ms"
+    }
+  ]
+}

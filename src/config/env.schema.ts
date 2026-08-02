@@ -188,6 +188,25 @@ export const envSchema = z
     // because the underlying store refreshes 6-hourly by nature, not hourly.
     ECMWF_STALE_MAX_SECONDS: z.coerce.number().int().positive().default(43_200),
 
+    // ── CMEMS / Copernicus Marine adapter (marine M4; plan §7) ──────────────────
+    // NONE of these is a secret: both endpoints are anonymous (no key, no account, no token —
+    // verified live 2026-08-02), so base URLs and budget numbers are safe in the OpenAPI-visible
+    // config surface (SPEC v1 §5.6 precedent). The base URLs exist so e2e can point the adapter
+    // at a fake server (the ECMWF_BASE_URL precedent).
+    CMEMS_WMTS_BASE_URL: z.url().default('https://wmts.marine.copernicus.eu/teroWmts'),
+    CMEMS_STAC_BASE_URL: z.url().default('https://stac.marine.copernicus.eu/metadata'),
+    // A session's FIRST call measured 2.54 s (cold TLS); the shared 3 s marine single-call
+    // default would manufacture false timeouts there. Warm calls are 0.19–0.43 s.
+    CMEMS_SINGLE_CALL_TIMEOUT_MS: z.coerce.number().int().positive().default(6_000),
+    // The slice of ONE warmup tour CMEMS may consume (the M4b target's budget; the ECMWF slice
+    // has its own above): a full 78-call sweep at concurrency 4 is ~8 s warm, 20–40 s cold —
+    // 60 s leaves ~2× headroom while keeping the ECMWF targets fed (cross-check below).
+    CMEMS_TOUR_BUDGET_MS: z.coerce.number().int().positive().default(60_000),
+    // How long a STAC dataset-id resolution is trusted. The catalogue's own change stamp
+    // (`admp_updated`) moves on a daily cadence; a retirement INSIDE the TTL heals through the
+    // 400-triggered forced re-resolution (once per tour), so 6 h costs nothing in staleness.
+    CMEMS_STAC_TTL_SECONDS: z.coerce.number().int().positive().default(21_600),
+
     // ── Cache TTLs, one per outcome kind (§6.3, §7.8) ───────────────────────────
     // The single `MARINE_CACHE_TTL_SECONDS` the v1 SPEC proposed is deliberately absent: one
     // number cannot serve a land mask (permanent), a rate-limit answer (the provider tells us
@@ -276,13 +295,36 @@ export const envSchema = z
           'cannot be allowed more time than the whole tour slice it runs in.',
       });
     }
-    if (env.ECMWF_TOUR_BUDGET_MS >= env.MARINE_WARMUP_DEADLINE_MS) {
+    // Strengthened in M4a from the single-slice form ("ECMWF slice < tour deadline") to the SUM:
+    // now that the tour hosts two provider slices, each fitting individually while their sum
+    // overruns the tour would starve whichever target runs second — with every individual
+    // number still looking correct (defaults: 180 000 + 60 000 < 300 000 ✓).
+    if (env.ECMWF_TOUR_BUDGET_MS + env.CMEMS_TOUR_BUDGET_MS >= env.MARINE_WARMUP_DEADLINE_MS) {
       ctx.addIssue({
         code: 'custom',
         path: ['ECMWF_TOUR_BUDGET_MS'],
         message:
-          'ECMWF_TOUR_BUDGET_MS must be smaller than MARINE_WARMUP_DEADLINE_MS — the ECMWF slice ' +
-          'must leave room in the tour for the other marine targets (M4 CMEMS).',
+          'ECMWF_TOUR_BUDGET_MS + CMEMS_TOUR_BUDGET_MS must be smaller than ' +
+          'MARINE_WARMUP_DEADLINE_MS — the two provider slices share one tour, and their sum ' +
+          'overrunning it would starve whichever target runs second.',
+      });
+    }
+    if (env.CMEMS_SINGLE_CALL_TIMEOUT_MS > env.MARINE_UPSTREAM_DEADLINE_MS) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['CMEMS_SINGLE_CALL_TIMEOUT_MS'],
+        message:
+          'CMEMS_SINGLE_CALL_TIMEOUT_MS must not exceed MARINE_UPSTREAM_DEADLINE_MS — a single ' +
+          'CMEMS call cannot be allowed more time than the whole request operation it runs in.',
+      });
+    }
+    if (env.CMEMS_SINGLE_CALL_TIMEOUT_MS > env.CMEMS_TOUR_BUDGET_MS) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['CMEMS_SINGLE_CALL_TIMEOUT_MS'],
+        message:
+          'CMEMS_SINGLE_CALL_TIMEOUT_MS must not exceed CMEMS_TOUR_BUDGET_MS — a single call ' +
+          'cannot be allowed more time than the whole tour slice it runs in.',
       });
     }
     if (env.ECMWF_TOUR_MAX_BYTES > env.ECMWF_CYCLE_MAX_BYTES) {
