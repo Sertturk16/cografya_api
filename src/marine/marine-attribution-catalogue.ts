@@ -43,17 +43,40 @@ import type { MarineAttributionDto } from './dto/marine-attribution.dto';
  *   first-hand from `https://apps.ecmwf.int/datasets/licences/general/` on 2026-08-02. The
  *   notice deliberately merges the licence's list (A) copyright line with its list (B) service
  *   sentence — the conservative reading, since the licence does not say which list binds a
- *   service built on the data (NOVA §1.2).
- * - CMEMS (`requiredNoticeEn`): the machine-verified quote in
- *   `data/marine/marine-cmems-probe.json` → `licence.records[].attributionRequirement`
- *   (`quoteVerified: true`, 6/6). The provider's template continues "; insert DOIs links here";
- *   the DOIs are deliberately NOT served (see `doi` below), so the notice ends at the sentence.
+ *   service built on the data (NOVA §1.2). Its PUNCTUATION follows the licence itself rather
+ *   than the brief's §3.1 composition step: the licence writes `Source www.ecmwf.int` with no
+ *   colon, and closes the licence statement with a period before the CC URL. The brief's own
+ *   verbatim transcription (§1.2) has both; the composed §3.1 string drifted, and §4.1 plus
+ *   DEC 2026-08-02c say the English sentence stays *birebir* (review #83 I2a). The Turkish
+ *   rendering keeps `Kaynak:` — brief §4.3 sanctions that, because the Turkish text is
+ *   informational and is not the notice that discharges the obligation.
+ * - CMEMS (`requiredNoticeEn`): quoted from the `ATTRIBUTION_REQUIREMENT` constant in
+ *   `src/database/marine/probe-marine-cmems.ts`, which the M4a probe recorded from the licence
+ *   annex (page fetched HTTP 200, body SHA-256 pinned in `data/marine/marine-cmems-probe.json`).
+ *   Read the provenance precisely: the probe's `quoteVerified` flag covers the four
+ *   COMMERCIAL-USE fragments only. `ATTRIBUTION_REQUIREMENT` is a hardcoded constant that the
+ *   probe writes into every record WITHOUT re-checking it against the fetched page, so it is
+ *   not a verification badge for this notice (review #83 I2c).
+ *   The clause obliges us to credit the originator AND cite the DOIs "in the following manner:
+ *   '<template>'" — one construction, whose halves the licensor's own template operationalises.
+ *   We publish that template, so the "originator" half is discharged by the same sentence; its
+ *   trailing "; insert DOIs links here" is dropped because the DOIs are deliberately NOT served
+ *   (see `doi` below).
  * - CMEMS `licenceName` / `licenceUrl`: the same probe artifact (`licencePageTitle` /
  *   `licencePageUrl`, HTTP 200 + SHA-256 recorded). The STAC `license` field says
  *   `proprietary`, which is why the URL is mandatory rather than decorative.
- * - Every string is byte-identical to what `cografya_web` publishes today (verified 2026-08-02
- *   against `messages/{tr,en}.json`). M5 makes THIS module the single source; the web switches
- *   to reading it in W2d. Until it does, both sides are byte-pinned by their own tests.
+ * - CMEMS `explanationTr`: the Turkish half of `cografya_web`'s `sourceCmemsNoticeIntro`
+ *   (web PR #36), with the English service name restored INSIDE the sentence. Brief §4.3 scopes
+ *   its rule to *"TR metinde"* — the English proper name must appear in the Turkish text — and
+ *   the web sentence carried it in a leading clause this standalone row does not have. Without
+ *   it the row credits "Avrupa Birliği Copernicus Deniz Hizmeti", an institution that does not
+ *   exist under that name (review #83 I2b).
+ * - Parity with `cografya_web` (checked 2026-08-02 against `messages/{tr,en}.json`): every
+ *   string matched the web's copy when this module was written. Two deliberately do NOT match
+ *   it any more — the ECMWF English notice (I2a) and the CMEMS `explanationTr` (I2b). Both
+ *   corrections land here first; Atlas coordinates the matching web change. This module becomes
+ *   the single source at W2d; until then each side is byte-pinned by its own tests, so the
+ *   divergence cannot spread silently.
  */
 
 /** The `attributionId` values `MARINE_LAYER_CATALOGUE` points at. Kept narrow internally. */
@@ -64,11 +87,15 @@ export type MarineAttributionProviderId = 'ecmwf' | 'cmems';
  *
  * Carries NO year, so it is published on every response — including the cold one where no
  * cycle has been ingested and there is therefore no data year to state.
+ *
+ * Punctuated as the licence punctuates it: `Source www.ecmwf.int` (element 2 carries no colon)
+ * and a period, not a comma, closing element 3 before the CC URL. See the provenance block
+ * above — this is the *birebir* obligation, and the two characters are not ours to restyle.
  */
 const ECMWF_SERVICE_NOTICE_EN =
   'This service is based on data and products of the European Centre for Medium-Range ' +
-  'Weather Forecasts (ECMWF). Source: www.ecmwf.int. This ECMWF data is published under a ' +
-  'Creative Commons Attribution 4.0 International (CC BY 4.0), ' +
+  'Weather Forecasts (ECMWF). Source www.ecmwf.int. This ECMWF data is published under a ' +
+  'Creative Commons Attribution 4.0 International (CC BY 4.0). ' +
   'https://creativecommons.org/licenses/by/4.0/. Modified: values are sampled from the ' +
   'source grid to selected points; no other modification.';
 
@@ -152,7 +179,12 @@ export const MARINE_ATTRIBUTIONS: readonly MarineAttributionSource[] = [
     licenceUrl: 'https://marine.copernicus.eu/user-corner/service-commitments-and-licence',
     buildRequiredNoticeEn: () => CMEMS_REQUIRED_NOTICE_EN,
     disclaimerEn: null,
-    explanationTr: 'Avrupa Birliği Copernicus Deniz Hizmeti bilgileri kullanılarak üretilmiştir.',
+    // The English service name stays INSIDE the Turkish sentence (brief §4.3, "TR metinde"),
+    // exactly as the ECMWF row carries "(ECMWF)": it is the credited party's real name, and
+    // the Turkish gloss alone would credit a body that does not exist under that name.
+    explanationTr:
+      'Avrupa Birliği Copernicus Deniz Hizmeti (E.U. Copernicus Marine Service) bilgileri ' +
+      'kullanılarak üretilmiştir.',
     doi: null,
     productTitle: null,
   },

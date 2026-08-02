@@ -34,13 +34,19 @@ import { MARINE_LAYER_CATALOGUE } from './marine-layer-catalogue';
  * artifact, never retyped by hand.
  */
 
-/** ECMWF's full required notice for data belonging to 2026 — copyright line included. */
+/**
+ * ECMWF's full required notice for data belonging to 2026 — copyright line included.
+ *
+ * The punctuation is the LICENCE's, not the brief's §3.1 composition: `Source www.ecmwf.int`
+ * with no colon, and a period before the CC URL (review #83 I2a). Those two characters are the
+ * whole reason this pin exists in the first place.
+ */
 const ECMWF_NOTICE_2026 =
-  'Copyright © 2026 European Centre for Medium-Range Weather Forecasts (ECMWF). This service is based on data and products of the European Centre for Medium-Range Weather Forecasts (ECMWF). Source: www.ecmwf.int. This ECMWF data is published under a Creative Commons Attribution 4.0 International (CC BY 4.0), https://creativecommons.org/licenses/by/4.0/. Modified: values are sampled from the source grid to selected points; no other modification.';
+  'Copyright © 2026 European Centre for Medium-Range Weather Forecasts (ECMWF). This service is based on data and products of the European Centre for Medium-Range Weather Forecasts (ECMWF). Source www.ecmwf.int. This ECMWF data is published under a Creative Commons Attribution 4.0 International (CC BY 4.0). https://creativecommons.org/licenses/by/4.0/. Modified: values are sampled from the source grid to selected points; no other modification.';
 
 /** The same notice with no ingested cycle: the copyright line is OMITTED, never faked. */
 const ECMWF_NOTICE_NO_YEAR =
-  'This service is based on data and products of the European Centre for Medium-Range Weather Forecasts (ECMWF). Source: www.ecmwf.int. This ECMWF data is published under a Creative Commons Attribution 4.0 International (CC BY 4.0), https://creativecommons.org/licenses/by/4.0/. Modified: values are sampled from the source grid to selected points; no other modification.';
+  'This service is based on data and products of the European Centre for Medium-Range Weather Forecasts (ECMWF). Source www.ecmwf.int. This ECMWF data is published under a Creative Commons Attribution 4.0 International (CC BY 4.0). https://creativecommons.org/licenses/by/4.0/. Modified: values are sampled from the source grid to selected points; no other modification.';
 
 const ECMWF_DISCLAIMER =
   'ECMWF does not accept any liability whatsoever for any error or omission in the data, their availability, or for any loss or damage arising from their use.';
@@ -50,26 +56,54 @@ const ECMWF_EXPLANATION_TR =
 
 const CMEMS_NOTICE = 'Generated using E.U. Copernicus Marine Service Information';
 
+/** The English service name stays inside the Turkish sentence (brief §4.3 — review #83 I2b). */
 const CMEMS_EXPLANATION_TR =
-  'Avrupa Birliği Copernicus Deniz Hizmeti bilgileri kullanılarak üretilmiştir.';
+  'Avrupa Birliği Copernicus Deniz Hizmeti (E.U. Copernicus Marine Service) bilgileri kullanılarak üretilmiştir.';
+
+/**
+ * Turkish-aware folding, applied to a string BEFORE the endorsement denylist runs.
+ *
+ * JavaScript's `/i` flag does not fold the Turkish dotted/dotless i (review #83 I2c): the
+ * ECMAScript canonicalizer refuses any mapping that moves a non-ASCII character into ASCII, so
+ * `ı` (U+0131) never matches `I`, and `İ` (U+0130) never matches `i`. Measured consequence with
+ * the old `/onaylı/i` denylist: `ECMWF Onaylı` was caught while `ECMWF ONAYLI` and
+ * `AB DESTEKLİ` sailed through — i.e. the guard was blind to the one spelling a headline would
+ * use. Collapsing the whole i-family (`I İ ı i Î î`) onto plain `i` closes that; the denylist
+ * below is therefore written pre-folded and needs no `/i` flag.
+ *
+ * Over-folding is the safe direction for a denylist: it can only ever catch more phrasings, and
+ * every string this module actually serves is asserted clean below.
+ */
+function foldForEndorsementGuard(value: string): string {
+  return value.replace(/[IİıiÎî]/g, 'i').toLowerCase();
+}
 
 /**
  * Phrasing that would claim or imply a provider or the EU endorses this platform — banned by
  * `CONVENTIONS.md` §7 (from ADS Terms of Use art. 5, NOVA first-hand).
  *
- * This turns a prose rule into a machine check. It is a STRUCTURAL guard, not a byte-pin: it
- * asserts a property of whatever the catalogue serves, so it keeps working when a licence
- * changes and the pinned strings above are legitimately updated. Both spellings of "resmî" are
- * listed because the circumflex is routinely dropped in Turkish typing.
+ * It is a STRUCTURAL guard, not a byte-pin: it asserts a property of whatever the catalogue
+ * serves, so it keeps working when a licence changes and the pinned strings above are
+ * legitimately updated. Two properties are deliberate, both from review #83 I2c:
+ *
+ * - patterns run over {@link foldForEndorsementGuard} output, so Turkish casing cannot evade
+ *   them;
+ * - the `resmî Copernicus` rule is ORDER-TOLERANT. Brief §4.3 lists `Copernicus resmî ölçümü`
+ *   as banned, and a fixed two-word pattern missed exactly that. The window is bounded and
+ *   stops at a sentence break, so it cannot pair two unrelated sentences.
+ *
+ * Being honest about its limits: this is a denylist of known phrasings, not a proof of
+ * non-endorsement. It catches the wordings we have actually seen or been warned about; a novel
+ * phrasing still needs a human reading the diff. `catches every phrasing` is not the claim.
  */
 const ENDORSEMENT_PATTERNS: readonly RegExp[] = [
-  /onaylı/i,
-  /approved by/i,
-  /endorsed/i,
-  /sponsored/i,
-  /resmî Copernicus/i,
-  /resmi Copernicus/i,
-  /AB destekli/i,
+  /onayli/,
+  /approved by/,
+  /endorsed/,
+  /sponsored/,
+  /resmi[^.]{0,40}copernicus/,
+  /copernicus[^.]{0,40}resmi/,
+  /ab destekli/,
 ];
 
 /** Every string the API actually publishes, across both copyright-year branches. */
@@ -192,8 +226,47 @@ describe('buildMarineAttributions', () => {
   it('claims no endorsement in any served string', () => {
     for (const value of servedStrings()) {
       for (const pattern of ENDORSEMENT_PATTERNS) {
-        expect(value).not.toMatch(pattern);
+        expect(foldForEndorsementGuard(value)).not.toMatch(pattern);
       }
+    }
+  });
+});
+
+/**
+ * The guard's OWN test. A denylist that quietly matches nothing passes the assertion above
+ * forever; review #83 I2c found it doing precisely that for uppercase Turkish and for one word
+ * order the brief lists by name. These cases pin the fix.
+ */
+describe('the endorsement guard itself', () => {
+  const banned = [
+    'ECMWF onaylı veri',
+    // Uppercase Turkish — the class `/onaylı/i` could not see (U+0131 never folds to ASCII I).
+    'ECMWF ONAYLI',
+    'ECMWF Onaylı',
+    'AB destekli',
+    // U+0130 on the other side of the same blind spot.
+    'AB DESTEKLİ',
+    'resmî Copernicus verisi',
+    // Brief §4.3 lists this exact phrase; the old fixed-order pattern missed it.
+    'Copernicus resmî ölçümü',
+    'Copernicus resmi ölçümü',
+    'RESMÎ COPERNICUS VERİSİ',
+    'approved by ECMWF',
+    'endorsed by the European Union',
+    'sponsored by ECMWF',
+  ];
+
+  it.each(banned)('flags %s', (phrase) => {
+    const folded = foldForEndorsementGuard(phrase);
+    expect(ENDORSEMENT_PATTERNS.some((pattern) => pattern.test(folded))).toBe(true);
+  });
+
+  it('does not fire on the licence wording we are obliged to publish', () => {
+    // The negative half: over-folding is safe only while the mandated strings stay clean, and
+    // both proper names ("Copernicus Marine Service", "E.U. Copernicus Marine Service") sit in
+    // served text. A guard that flagged them would be routed around, not fixed.
+    for (const value of servedStrings()) {
+      expect(ENDORSEMENT_PATTERNS.some((p) => p.test(foldForEndorsementGuard(value)))).toBe(false);
     }
   });
 });

@@ -30,7 +30,7 @@ import type { MarineSeriesDto } from './dto/marine-series.dto';
 import { MarinePoint } from './entities/marine-point.entity';
 import { buildMarineAttributions } from './marine-attribution-catalogue';
 import { withCacheAge } from './marine-cache-age.interceptor';
-import { newestOkFetchedAt, oldestOkCacheAge } from './marine-read-reducers';
+import { ecmwfDataYear, newestOkFetchedAt, oldestOkCacheAge } from './marine-read-reducers';
 import { toMarinePointListItem } from './marine-point.mapper';
 import { MARINE_UPSTREAM_CONFIG, type MarineUpstreamConfig } from './marine-upstream.config';
 import { MarineSource } from './marine.types';
@@ -121,7 +121,7 @@ export class MarineValuesService {
       // that response is `no-store`, so its instability caches nowhere.
       generatedAtUtc: newestOkFetchedAt(allReads) ?? new Date(nowMs).toISOString(),
       dataAvailable,
-      attributions: buildMarineAttributions(ecmwfDataYear(resolved)),
+      attributions: buildMarineAttributions(ecmwfDataYear(resolved.map((entry) => entry.ecmwf))),
     };
     return withCacheAge(dto, oldestOkCacheAge(allReads));
   }
@@ -168,7 +168,7 @@ export class MarineValuesService {
       // Each point resolved independently: the two-sea provinces' rows legitimately disagree
       // and are never averaged, suppressed together, or filled from each other.
       marinePoints: resolved.map((entry) => this.toConditionsDto(entry)),
-      attributions: buildMarineAttributions(ecmwfDataYear(resolved)),
+      attributions: buildMarineAttributions(ecmwfDataYear(resolved.map((entry) => entry.ecmwf))),
     };
     return withCacheAge(dto, oldestOkCacheAge(resolved.flatMap((entry) => entry.reads)));
   }
@@ -267,37 +267,6 @@ export class MarineValuesService {
     );
     throw new InternalServerErrorException();
   }
-}
-
-/**
- * The `[year]` ECMWF's required copyright line states, taken from THIS response's own data.
- *
- * ## Why the response's own reading and not `/layers`' catalogue cycle (M5 plan §4, ruling S3)
- * NOVA §5 fixes the semantics: the year is the year the DATA belongs to, i.e. the model run's
- * year, not the wall clock's. Every resolved point already holds its ECMWF read, so the answer
- * costs ZERO extra queries — deriving it from the layer catalogue instead would add a Postgres
- * round trip to two hot public endpoints for a value that is identical 364 days out of 365.
- *
- * The accepted cost, documented rather than hidden: for a few hours around a New Year boundary
- * `/overview` and `/layers` can state different years, because they read different cycles. Both
- * are legally sound — each states the year of a run that really was published — so the
- * divergence is cosmetic, and the alternative (one shared query on every request) buys nothing.
- *
- * `null` when this response publishes no ECMWF reading at all: `buildEcmwfRequiredNotice` then
- * OMITS the copyright line rather than inventing a year.
- *
- * Only `kind === 'ok'` reads count, matching `marine-read-reducers`: a negative entry describes
- * a failure, not a published cycle, and its year would attribute data we are not serving.
- */
-function ecmwfDataYear(resolved: readonly ResolvedPoint[]): number | null {
-  let newestRunMs: number | null = null;
-  for (const entry of resolved) {
-    if (entry.ecmwf.kind !== 'ok' || entry.ecmwf.value === null) continue;
-    const runMs = Date.parse(entry.ecmwf.value.series.modelRunAtUtc);
-    if (Number.isNaN(runMs)) continue;
-    if (newestRunMs === null || runMs > newestRunMs) newestRunMs = runMs;
-  }
-  return newestRunMs === null ? null : new Date(newestRunMs).getUTCFullYear();
 }
 
 /** `EcmwfCompiledSeries` → the frozen series contract (drop the read-side-only members). */

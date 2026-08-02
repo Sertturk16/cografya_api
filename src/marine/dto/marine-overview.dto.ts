@@ -9,7 +9,7 @@ import { MarineOverviewPointDto } from './marine-overview-point.dto';
  * `attributions`. This is NOT a pagination envelope and does not trigger the repo playbook §2
  * rule that the first unbounded list establishes one.
  *
- * **NOT IMPLEMENTED IN M1** — frozen contract only; the endpoint lands in M4.
+ * **IMPLEMENTED IN M4b**; `attributions` filled in M5.
  */
 export class MarineOverviewDto {
   @ApiProperty({ type: MarineOverviewPointDto, isArray: true })

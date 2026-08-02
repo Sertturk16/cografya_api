@@ -1829,7 +1829,7 @@
           },
           "explanationTr": {
             "type": "string",
-            "description": "Informational Turkish rendering of the notice. It stands ALONGSIDE requiredNoticeEn and MUST NEVER REPLACE IT — not even on the Turkish locale. ECMWF's terms say the wording \"shall be attached\" and, unlike the Copernicus framework, offer no \"or any similar notice\" escape, so the English text is the one that discharges the obligation. This field exists so a Turkish reader can understand it, not so a renderer can substitute it. Renamed from requiredNoticeTr in M5 precisely because the old name implied the opposite."
+            "description": "Informational Turkish rendering of this row as a whole — the notice, plus the disclaimer where the licence imposes one (so the ECMWF row covers requiredNoticeEn AND disclaimerEn in a single paragraph, while the CMEMS row has no disclaimer to render). It stands ALONGSIDE requiredNoticeEn and MUST NEVER REPLACE IT — not even on the Turkish locale. ECMWF's terms say the wording \"shall be attached\" and, unlike the Copernicus framework, offer no \"or any similar notice\" escape, so the English text is the one that discharges the obligation. This field exists so a Turkish reader can understand it, not so a renderer can substitute it. Renamed from requiredNoticeTr in M5 precisely because the old name implied the opposite."
           },
           "doi": {
             "type": "string",
@@ -2109,7 +2109,7 @@
           "attributionId": {
             "type": "string",
             "example": "cmems",
-            "description": "Key of the MarineAttributionDto that must accompany this layer. Attribution ROWS are seeded in M5; the reference is frozen now so the join is stable."
+            "description": "Key of the MarineAttributionDto that must accompany this layer. The rows themselves are a compiled catalogue (src/marine/marine-attribution-catalogue.ts), NOT a seeded table and NOT a resolving endpoint: they are served inline as attributions[] on the value responses (GET /api/marine/overview and GET /api/marine/provinces/{plateCode}/conditions). Join on this key to name the provider behind a layer."
           }
         },
         "required": [

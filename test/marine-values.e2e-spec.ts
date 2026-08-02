@@ -489,7 +489,11 @@ describe('Marine M4b value endpoints (e2e)', () => {
     it('İstanbul costs ≤6 CMEMS calls and its two points answer independently', async () => {
       resetCounters();
       const response = await http().get('/api/marine/provinces/34/conditions').expect(200);
-      const body = response.body as { plateCode: string; marinePoints: ConditionsDto[] };
+      const body = response.body as {
+        plateCode: string;
+        marinePoints: ConditionsDto[];
+        attributions: AttributionDto[];
+      };
 
       // 3 Black Sea keys + 1 Marmara key (waves are not_supported there → NO call, the
       // routing-level skip that cmemsWaveSupport encodes — its real M4b call site).
@@ -524,6 +528,14 @@ describe('Marine M4b value endpoints (e2e)', () => {
       // deterministic 24 h-pin proof lives in `marine-read-reducers.spec.ts`.
       expect(response.headers['x-marine-cache-age']).toMatch(/^\d+$/);
       expect(Number(response.headers['x-marine-cache-age'])).toBeLessThanOrEqual(5);
+
+      // M5, the combination only this phase reaches: the PROVINCE endpoint with CMEMS warm and
+      // the ECMWF store still empty. Both licence rows must ship, and with no ingested cycle the
+      // copyright line must be omitted rather than filled from the wall clock. Phase F proves
+      // the same endpoint on the year-bearing branch; without this the null-year branch was
+      // e2e-covered on /overview only (review #83 SFH-M1).
+      expectBothAttributionRows(body.attributions);
+      expect(body.attributions[0]?.requiredNoticeEn).not.toContain('Copyright');
     });
   });
 
@@ -676,6 +688,14 @@ describe('Marine M4b value endpoints (e2e)', () => {
       expectBothAttributionRows(overviewRows);
       // ONE source, two endpoints: the hub and the province page must not be able to publish
       // different licence text, which is exactly what two hand-maintained copies would allow.
+      //
+      // Read the scope of this assertion precisely (review #83 CR-M4): identity holds HERE
+      // because the phase-E fixture records one cycle for every point, so both responses derive
+      // the same copyright year. It is NOT a contract guarantee — the year is computed per
+      // response over that response's own points, so a province whose cached cycle is older than
+      // the hub's freshest, or a request straddling a New Year boundary, may legitimately state
+      // a different year. What IS contractual is that the licence-fixed parts of the rows come
+      // from one module; do not turn this into a cross-endpoint equality requirement.
       expect(provinceRows).toEqual(overviewRows);
 
       // The year is the DATA's, taken from the cycle phase E recorded — not `new Date()`.

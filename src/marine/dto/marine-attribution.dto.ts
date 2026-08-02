@@ -86,7 +86,10 @@ export class MarineAttributionDto {
 
   @ApiProperty({
     description:
-      'Informational Turkish rendering of the notice. It stands ALONGSIDE requiredNoticeEn and ' +
+      'Informational Turkish rendering of this row as a whole — the notice, plus the ' +
+      'disclaimer where the licence imposes one (so the ECMWF row covers requiredNoticeEn AND ' +
+      'disclaimerEn in a single paragraph, while the CMEMS row has no disclaimer to render). ' +
+      'It stands ALONGSIDE requiredNoticeEn and ' +
       "MUST NEVER REPLACE IT — not even on the Turkish locale. ECMWF's terms say the wording " +
       '"shall be attached" and, unlike the Copernicus framework, offer no "or any similar ' +
       'notice" escape, so the English text is the one that discharges the obligation. This ' +

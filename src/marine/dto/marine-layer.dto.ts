@@ -154,8 +154,12 @@ export class MarineLayerDto {
   @ApiProperty({
     example: 'cmems',
     description:
-      'Key of the MarineAttributionDto that must accompany this layer. Attribution ROWS are ' +
-      'seeded in M5; the reference is frozen now so the join is stable.',
+      'Key of the MarineAttributionDto that must accompany this layer. The rows themselves are ' +
+      'a compiled catalogue (src/marine/marine-attribution-catalogue.ts), NOT a seeded table ' +
+      'and NOT a resolving endpoint: they are served inline as attributions[] on the value ' +
+      'responses (GET /api/marine/overview and ' +
+      'GET /api/marine/provinces/{plateCode}/conditions). Join on this key to name the ' +
+      'provider behind a layer.',
   })
   attributionId!: string;
 }
