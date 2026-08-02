@@ -39,6 +39,14 @@ export interface CmemsClientOptions {
   readonly wmtsBaseUrl: string;
   readonly stacBaseUrl: string;
   readonly limits: ProviderBudgetLimits;
+  /**
+   * `CMEMS_SINGLE_CALL_TIMEOUT_MS` (6 000): a session's FIRST call measured 2.54 s on a cold
+   * TLS handshake, so the shared client's 3 s marine default would manufacture false timeouts.
+   * Passed PER REQUEST via the shared client's `singleCallTimeoutMs` override (the review #80
+   * I8 seam) rather than by constructing a second client instance — the ECMWF second-instance
+   * pattern predates that seam.
+   */
+  readonly singleCallTimeoutMs: number;
   /** ~10–15 KB text documents; a cap far above them, far below the shared 8 MB default. */
   readonly maxResponseBytes?: number;
 }
@@ -50,7 +58,16 @@ export interface CmemsFetchValueRequest {
   readonly field: CmemsLayerField;
   readonly latitude: number;
   readonly longitude: number;
-  /** Resolved `PRODUCT_ID/dataset_id` (STAC resolver output — never a pinned constant). */
+  /**
+   * Resolved `PRODUCT_ID/dataset_id` (STAC resolver output — never a pinned constant).
+   *
+   * SECURITY INVARIANT (review #81 M-SEC-1): the product half of this path originates ONLY
+   * from the static `CMEMS_BASIN_ROUTING` table, and the dataset half only from the STAC
+   * resolver run against that same table's product ids. Nothing request-shaped — no slug, no
+   * query parameter, no header — may ever reach this string: it is interpolated into an
+   * outbound URL, and a caller-influenced value would let a request choose which upstream
+   * resource this server fetches.
+   */
   readonly datasetPath: string;
   readonly maxGridDistanceKm: number;
   /** From `selectCmemsTime` — the explicit instant that becomes `validAtUtc`. */
@@ -91,6 +108,7 @@ export class CmemsClient {
       url,
       deadline: request.deadline,
       limits: this.options.limits,
+      singleCallTimeoutMs: this.options.singleCallTimeoutMs,
       expectedContentType: 'application/json',
       maxResponseBytes: this.options.maxResponseBytes ?? DEFAULT_MAX_RESPONSE_BYTES,
       parse: (body) =>
@@ -115,6 +133,7 @@ export class CmemsClient {
       url: buildCmemsProductStacUrl(this.options.stacBaseUrl, request.productId),
       deadline: request.deadline,
       limits: this.options.limits,
+      singleCallTimeoutMs: this.options.singleCallTimeoutMs,
       expectedContentType: 'application/json',
       maxResponseBytes: this.options.maxResponseBytes ?? DEFAULT_MAX_RESPONSE_BYTES,
       // Selector misses inside a well-formed document are PER-SELECTION results, not a parse

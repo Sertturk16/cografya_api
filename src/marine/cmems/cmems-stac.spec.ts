@@ -42,6 +42,20 @@ describe('parseCmemsDatasetToken', () => {
     expect(token?.gridToken).toBe('mrm-500m');
   });
 
+  it('tolerates a leading ./ and an absolute URL — the id is found by segment scan (review #81 M7)', () => {
+    // Measured 2026-08-02: all four products serve the plain relative form. These variants are
+    // the cosmetic href changes a provider could make without changing the ids themselves; a
+    // fail-closed outage on either would be loud but pointless.
+    const expected = 'cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511';
+    for (const href of [
+      `./${expected}/dataset.stac.json`,
+      `https://stac.marine.copernicus.eu/metadata/BLKSEA_ANALYSISFORECAST_PHY_007_001/${expected}/dataset.stac.json`,
+      expected,
+    ]) {
+      expect(parseCmemsDatasetToken(href)?.datasetId).toBe(expected);
+    }
+  });
+
   it('excludes static, daily, monthly and 15-minute sets STRUCTURALLY (no denylist)', () => {
     // Every id below exists in the live catalogue in this shape; none may ever resolve.
     for (const href of [

@@ -68,7 +68,11 @@ export class MarineValueDto {
     description:
       'The MODEL time this value belongs to (ISO-8601 UTC). For CMEMS this is the time WE ' +
       'sent: the GetFeatureInfo reply carries no time field at all, yet the time parameter ' +
-      'does change the value — so an explicit time is always sent and never defaulted.',
+      'does change the value — so an explicit time is always sent and never defaulted. At ' +
+      'runtime that instant is the hour nearest to the request moment, clamped into the ' +
+      'dataset’s resolved temporal extent — so around a horizon edge it may sit up to a few ' +
+      'hours behind "now", honestly labelled here and still bounded by the server’s ' +
+      'validity-age ceiling.',
   })
   validAtUtc!: string | null;
 
@@ -123,8 +127,10 @@ export class MarineValueDto {
       'Provider dataset identifier, verbatim, when the provider reports one. For CMEMS-sourced ' +
       'values the id is resolved from the provider STAC catalogue at runtime — never pinned in ' +
       'code — so the trailing version stamp (_2xxxxx) rotates with the provider and consumers ' +
-      'must treat the string as opaque. ECMWF-sourced values carry null: that provider has no ' +
-      'per-value dataset id, and modelRunAtUtc is the provenance there.',
+      'must treat the string as opaque. Two values of the SAME field can therefore carry ' +
+      'different ids across basins (and across a provider rotation) — never join on this ' +
+      'string. ECMWF-sourced values carry null: that provider has no per-value dataset id, and ' +
+      'modelRunAtUtc is the provenance there.',
   })
   datasetId!: string | null;
 

@@ -100,7 +100,16 @@ function absentValue(
   };
 }
 
-/** A CMEMS cached read → one published instant value (`source: 'cmems'`). */
+/**
+ * A CMEMS cached read → one published instant value (`source: 'cmems'`).
+ *
+ * ## Exported for the table-driven unit tests ONLY — never call this for a wave half
+ * (review #81 M3) Runtime consumers use {@link resolveSst} / {@link resolveWavePair} /
+ * {@link resolveWindPair}, which are the ONLY functions encoding the pair-consistency rule.
+ * Calling `cmemsInstant('waveHeight', …)` directly bypasses that rule and is exactly how one
+ * model's direction gets drawn over another model's height (K6's arrow form). It stays
+ * exported because the §5.4 edge-case tables test it in isolation; production code must not.
+ */
 export function cmemsInstant(
   field: MarineInstantField,
   read: CachedRead<CmemsPointValue>,
@@ -169,6 +178,11 @@ export function nearestStepIndex(timesUtc: readonly string[], nowMs: number): nu
  * One instant value cut from the ECMWF compiled series at the step nearest to `now`
  * (§5.4): `validAtUtc` is that step's REAL time (±1.5 h ≤ the 3 h `validAt` ceiling),
  * `modelRunAtUtc` is the cycle, and freshness/staleness pass through the `CachedRead`.
+ *
+ * ## Exported for the unit tests ONLY — same bypass hazard as {@link cmemsInstant}
+ * (review #81 M3) A runtime caller cutting a single wave half from here would sidestep the
+ * pair-consistency rule in {@link resolveWavePair}. Production code goes through the three
+ * `resolve*` functions, full stop.
  */
 export function ecmwfInstantFromSeries(
   field: EcmwfInstantField,

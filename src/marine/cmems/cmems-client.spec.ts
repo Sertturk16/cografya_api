@@ -77,6 +77,7 @@ describe('CmemsClient', () => {
       wmtsBaseUrl: 'https://wmts.marine.copernicus.eu/teroWmts',
       stacBaseUrl: 'https://stac.marine.copernicus.eu/metadata',
       limits: MARINE_PROVIDER_BUDGETS.cmems,
+      singleCallTimeoutMs: 6_000,
     });
   }
 

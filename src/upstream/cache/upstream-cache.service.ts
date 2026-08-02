@@ -35,6 +35,8 @@ export type CachedReadOrigin =
   | 'stale_after_failure'
   /** Another instance is refreshing and this caller had nothing — it waited briefly and won. */
   | 'polled'
+  /** Answered by {@link UpstreamCacheService.peek}: read-only, no refresh was (or will be) started. */
+  | 'peeked'
   | 'unavailable';
 
 export interface CachedRead<T> {
@@ -51,13 +53,22 @@ export interface CachedRead<T> {
   readonly origin: CachedReadOrigin;
 }
 
-export interface ReadThroughOptions<T> {
+/**
+ * What a {@link UpstreamCacheService.peek} needs — the read-side subset of
+ * {@link ReadThroughOptions}, with deliberately NO `refresh` closure and NO deadline. A peek
+ * cannot be handed the machinery it must never use.
+ */
+export interface PeekOptions {
   /** Cache key. Derived from our own routing, never from a user-supplied string verbatim. */
   key: string;
   /** Provider label for metrics — the same one the HTTP client and breaker use. */
   providerId: string;
+  /** Read for the fresh/stale label and negative-entry TTLs; nothing is ever written under them. */
   ttls: OutcomeTtlTable;
   ceilings: StalenessCeilings;
+}
+
+export interface ReadThroughOptions<T> extends PeekOptions {
   /** Budget for a refresh this read performs while a request waits (`MARINE_UPSTREAM_DEADLINE_MS`). */
   deadlineMs: number;
   /**
@@ -242,6 +253,60 @@ export class UpstreamCacheService {
   }
 
   /**
+   * Read-only look at a key: apply the ceilings and the freshness label, and NOTHING else
+   * (marine M4 plan §4.4, Atlas ruling U-1).
+   *
+   * ## What a peek must never do — and structurally cannot
+   * - **No refresh is triggered**, foreground or background: {@link PeekOptions} carries no
+   *   `refresh` closure, so there is nothing to run.
+   * - **No negative entry is written.** This is the whole reason `peek` exists: calling
+   *   `read()` with a no-op refresh writes a 60 s `transient` negative on every cold key, and a
+   *   binding negative is exactly what keeps `read()` from ever refreshing — so a hot batch
+   *   endpoint polling 78 cold keys faster than the negative TTL would starve the warmup's real
+   *   refresh forever. The batch `overview` endpoint peeks; only the warmup and the single-point
+   *   endpoints refresh.
+   * - **No single-flight, no lock, no poll**: nothing to coordinate, nothing to wait for.
+   *
+   * ## What it reports, honestly
+   * The same decisions `read()` makes on its serve path, minus every side effect: a fresh or
+   * stale usable value (`origin: 'peeked'`); a stale value shadowed by a binding negative
+   * (`origin: 'stale_after_failure'`, so a sweep can tell "due for refresh" from "refresh is
+   * suppressed" — the negative TTLs bind a peeking sweep exactly as they bind `read()`); a bare
+   * binding negative (`negative_hit`); or an honest `unavailable` miss.
+   */
+  async peek<T>(options: PeekOptions): Promise<CachedRead<T>> {
+    const usable = this.evaluate(await this.store.get<T>(options.key), options);
+
+    if (usable !== null && usable.freshness === 'fresh') {
+      this.metrics.increment('cache.hit', options.providerId);
+      return { ...usable.read, origin: 'peeked' };
+    }
+
+    const negative = await this.store.get<never>(negativeKey(options.key));
+    const negativeBinding = negative !== null && this.isNegativeStillBinding(negative);
+
+    if (usable !== null) {
+      this.metrics.increment('cache.stale', options.providerId);
+      if (negativeBinding) {
+        this.metrics.increment('cache.negative_hit', options.providerId);
+        // The same label read() gives this state: the stale value is served AND a negative is
+        // suppressing its refresh — which a warmup sweep must respect, not race.
+        return { ...usable.read, origin: 'stale_after_failure' };
+      }
+      return { ...usable.read, origin: 'peeked' };
+    }
+
+    if (negativeBinding) {
+      this.metrics.increment('cache.negative_hit', options.providerId);
+      return this.fromNegative<T>(negative, 'peeked');
+    }
+
+    // NOT counted as `cache.miss`: that counter's documented meaning is "an upstream refresh
+    // was attempted", and a peek attempts none.
+    return this.unavailable<T>('nothing usable is cached and a peek never refreshes');
+  }
+
+  /**
    * Background refresh for a stale-but-served key.
    *
    * Never throws: it runs after the response has been decided, so a rejection here has no caller
@@ -373,7 +438,8 @@ export class UpstreamCacheService {
    */
   private evaluate<T>(
     cached: UpstreamCacheEntry<T> | null,
-    options: ReadThroughOptions<T>,
+    // The read-side subset is enough — `peek` calls this too, and must not need a refresh.
+    options: PeekOptions,
   ): { read: CachedRead<T>; freshness: 'fresh' | 'stale' } | null {
     if (cached === null || cached.kind !== 'ok' || cached.payload === null) return null;
 

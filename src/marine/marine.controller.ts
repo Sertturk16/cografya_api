@@ -1,5 +1,14 @@
-import { Controller, Get, UseInterceptors } from '@nestjs/common';
-import { ApiExtraModels, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Param, Res, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiExtraModels,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
+import type { Response } from 'express';
 import { CacheControl } from '../common/http-cache/cache-control.decorator';
 import { MarineCacheAgeInterceptor } from './marine-cache-age.interceptor';
 import { MarineConditionsDto } from './dto/marine-conditions.dto';
@@ -7,10 +16,20 @@ import { MarineLayerDto } from './dto/marine-layer.dto';
 import { MarineOverviewDto } from './dto/marine-overview.dto';
 import { MarineOverviewPointDto } from './dto/marine-overview-point.dto';
 import { MarinePointListItemDto } from './dto/marine-point-list-item.dto';
+import { MarinePointSlugParams, MarineProvincePlateParams } from './dto/marine-params.dto';
 import { MarineProvinceConditionsDto } from './dto/marine-province-conditions.dto';
 import { MarineSeriesDto } from './dto/marine-series.dto';
 import { MarineValueDto } from './dto/marine-value.dto';
+import { MarineEnabledGuard } from './marine-enabled.guard';
 import { MarineService } from './marine.service';
+import { MarineValuesService } from './marine-values.service';
+
+/**
+ * `Cache-Control` of the three value endpoints (SPEC-ADDENDUM §7.8, verbatim). The overview
+ * applies it BY HAND because its `dataAvailable:false` state must answer `no-store` instead —
+ * see the handler.
+ */
+const VALUE_CACHE_CONTROL = 'public, max-age=300, s-maxage=900, stale-while-revalidate=3600';
 
 /**
  * Public, read-only marine endpoints.
@@ -51,7 +70,10 @@ import { MarineService } from './marine.service';
 // so today this is a pass-through, and the M3/M4 value endpoints are what will populate it.
 @UseInterceptors(MarineCacheAgeInterceptor)
 export class MarineController {
-  constructor(private readonly marineService: MarineService) {}
+  constructor(
+    private readonly marineService: MarineService,
+    private readonly marineValuesService: MarineValuesService,
+  ) {}
 
   /**
    * Cache-Control per SPEC-ADDENDUM §7.8. The point list is the most static thing this feature
@@ -99,5 +121,79 @@ export class MarineController {
   @ApiOkResponse({ type: MarineLayerDto, isArray: true })
   findAllLayers(): Promise<MarineLayerDto[]> {
     return this.marineService.findAllLayers();
+  }
+
+  /**
+   * The `/deniz` hub payload — CMEMS values by cache PEEK only, ECMWF from the local store.
+   * ZERO upstream calls on every branch, cold included (the locked COLD-BEHAVIOR row; e2e
+   * counts the calls).
+   *
+   * ## `Cache-Control` is set by hand here, not with `@CacheControl`
+   * The `dataAvailable:false` state must answer `no-store` (an empty payload cached by a CDN
+   * would republish the cold window for `s-maxage`), and the global `CacheControlInterceptor`'s
+   * tap runs AFTER this handler — a decorated value would overwrite the override. Setting it in
+   * the handler keeps the §7.8 value on the success path and still leaves 5xx responses
+   * header-free, because a throw skips the assignment exactly as it skips the interceptor tap.
+   */
+  @Get('overview')
+  @UseGuards(MarineEnabledGuard)
+  @ApiOperation({
+    summary: 'Instant marine values for every reference point (the /deniz hub payload).',
+    description:
+      'CMEMS-sourced fields are answered from cache only — this endpoint NEVER waits for a ' +
+      'provider. dataAvailable=false (cold cache) responses carry Cache-Control: no-store and ' +
+      'MUST NOT be committed by ISR/SSG. Returns 404 while the marine feature is disabled.',
+  })
+  @ApiOkResponse({ type: MarineOverviewDto })
+  @ApiNotFoundResponse({ description: 'The marine feature is not enabled on this deployment.' })
+  async getOverview(@Res({ passthrough: true }) response: Response): Promise<MarineOverviewDto> {
+    const overview = await this.marineValuesService.getOverview();
+    response.setHeader('Cache-Control', overview.dataAvailable ? VALUE_CACHE_CONTROL : 'no-store');
+    return overview;
+  }
+
+  /** One point's full payload: instant values + the 5-day series. */
+  @Get('points/:slug/conditions')
+  @UseGuards(MarineEnabledGuard)
+  @CacheControl(VALUE_CACHE_CONTROL)
+  @ApiOperation({
+    summary: 'Instant values and the 5-day series for one marine reference point.',
+    description:
+      'The slug may be the TR or the EN one (both are routing keys). A cold cache may refresh ' +
+      'this point’s own CMEMS values inline under one bounded deadline; a provider ' +
+      'failure degrades the affected fields to unavailable, never the response.',
+  })
+  @ApiParam({ name: 'slug', example: 'istanbul-marmara-aciklari', description: 'TR or EN slug.' })
+  @ApiOkResponse({ type: MarineConditionsDto })
+  @ApiNotFoundResponse({
+    description: 'No marine point matches the slug, or the marine feature is disabled.',
+  })
+  @ApiBadRequestResponse({ description: 'The slug is not a well-formed kebab-case identifier.' })
+  getConditions(@Param() params: MarinePointSlugParams): Promise<MarineConditionsDto> {
+    return this.marineValuesService.getConditions(params.slug);
+  }
+
+  /** Every marine point of one province — the /turkiye/{il} "Deniz Durumu" payload. */
+  @Get('provinces/:plateCode/conditions')
+  @UseGuards(MarineEnabledGuard)
+  @CacheControl(VALUE_CACHE_CONTROL)
+  @ApiOperation({
+    summary: 'Marine conditions of every reference point published under one province.',
+    description:
+      'Two entries for the two-sea provinces (İstanbul, Çanakkale, Balıkesir); the entries ' +
+      'legitimately disagree and each carries its own per-field statuses — one point’s ' +
+      'outage never suppresses or fills the other. An inland province is a 404.',
+  })
+  @ApiParam({ name: 'plateCode', example: '34', description: 'Plaka kodu, zero-padded.' })
+  @ApiOkResponse({ type: MarineProvinceConditionsDto })
+  @ApiNotFoundResponse({
+    description:
+      'The province has no marine reference point (inland), or the marine feature is disabled.',
+  })
+  @ApiBadRequestResponse({ description: 'plateCode is not exactly two digits.' })
+  getProvinceConditions(
+    @Param() params: MarineProvincePlateParams,
+  ): Promise<MarineProvinceConditionsDto> {
+    return this.marineValuesService.getProvinceConditions(params.plateCode);
   }
 }

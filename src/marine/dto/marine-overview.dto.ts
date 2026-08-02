@@ -17,7 +17,12 @@ export class MarineOverviewDto {
 
   @ApiProperty({
     example: '2026-07-30T12:04:11.000Z',
-    description: 'When the server assembled this response (ISO-8601 UTC).',
+    description:
+      'When the freshest contributing value entered the server cache (ISO-8601 UTC) — ' +
+      'deliberately DATA-derived rather than the wall clock, so the body stays byte-identical ' +
+      'between requests that serve the same cached data and the weak ETag / 304 revalidation ' +
+      'works. Falls back to the wall clock only on the dataAvailable=false response, which is ' +
+      'no-store and never cached.',
   })
   generatedAtUtc!: string;
 

@@ -13,6 +13,10 @@ import { UpstreamHttpClient } from '../upstream/upstream-http.client';
 import { UPSTREAM_USER_AGENT } from '../upstream/upstream-http.helpers';
 import { UpstreamMetrics } from '../upstream/upstream-metrics';
 import { UpstreamModule } from '../upstream/upstream.module';
+import { CmemsClient } from './cmems/cmems-client';
+import { CmemsStacResolutionCache } from './cmems/cmems-stac.cache';
+import { CmemsValueReader } from './cmems/cmems-value.reader';
+import { CmemsWarmupTarget } from './cmems/cmems-warmup.target';
 import { EcmwfIngestStore, ECMWF_INGEST_STORE } from './ecmwf/ecmwf-ingest.store';
 import type { EcmwfIngestStorePort } from './ecmwf/ecmwf-ingest.store';
 import { EcmwfIngestTarget } from './ecmwf/ecmwf-ingest.target';
@@ -22,6 +26,7 @@ import { MarineEcmwfCycle } from './entities/marine-ecmwf-cycle.entity';
 import { MarineEcmwfPointSeries } from './entities/marine-ecmwf-point-series.entity';
 import { MarinePoint } from './entities/marine-point.entity';
 import { MarineCacheAgeInterceptor } from './marine-cache-age.interceptor';
+import { MarineEnabledGuard } from './marine-enabled.guard';
 import {
   buildMarineUpstreamConfig,
   MARINE_UPSTREAM_CONFIG,
@@ -29,6 +34,7 @@ import {
 } from './marine-upstream.config';
 import { MarineController } from './marine.controller';
 import { MarineService } from './marine.service';
+import { MarineValuesService } from './marine-values.service';
 
 /**
  * Injection token for the ECMWF-tuned HTTP client instance.
@@ -169,6 +175,88 @@ export const MARINE_WARMUP = Symbol('MARINE_WARMUP');
         return target;
       },
     },
+    // ── The CMEMS leg (M4b) ─────────────────────────────────────────────────────
+    // Storage for the STAC dataset-id resolutions — written by the warmup tour, read by the
+    // value-refresh path and `/layers`. Marine-local by policy (see its module docblock).
+    {
+      provide: CmemsStacResolutionCache,
+      inject: [REDIS_CLIENT, UpstreamMetrics],
+      useFactory: (redis: RedisClientPort | null, metrics: UpstreamMetrics) =>
+        new CmemsStacResolutionCache(redis, metrics),
+    },
+    // The SHARED HTTP client (guard order lives there once); the CMEMS-specific 6 s per-call
+    // cap rides the per-request `singleCallTimeoutMs` override (review #80 I8 seam) instead of
+    // a second client instance — the ECMWF second instance predates that seam.
+    {
+      provide: CmemsClient,
+      inject: [UpstreamHttpClient, MARINE_UPSTREAM_CONFIG],
+      useFactory: (http: UpstreamHttpClient, marineConfig: MarineUpstreamConfig) =>
+        new CmemsClient(http, {
+          wmtsBaseUrl: marineConfig.cmems.wmtsBaseUrl,
+          stacBaseUrl: marineConfig.cmems.stacBaseUrl,
+          limits: marineConfig.budgets.cmems,
+          singleCallTimeoutMs: marineConfig.cmems.singleCallTimeoutMs,
+        }),
+    },
+    {
+      provide: CmemsValueReader,
+      inject: [
+        UpstreamCacheService,
+        CmemsClient,
+        CmemsStacResolutionCache,
+        MARINE_UPSTREAM_CONFIG,
+        UpstreamMetrics,
+      ],
+      useFactory: (
+        cache: UpstreamCacheService,
+        client: CmemsClient,
+        stacCache: CmemsStacResolutionCache,
+        marineConfig: MarineUpstreamConfig,
+        metrics: UpstreamMetrics,
+      ) => new CmemsValueReader(cache, client, stacCache, marineConfig, metrics),
+    },
+    // The SECOND target on the marine tour. `EcmwfIngestTarget` is injected for ORDER, not
+    // use: Nest instantiates dependencies first, so the ECMWF target registers before this one
+    // and the tour visits ECMWF → CMEMS (plan §4.3: the series/fallback feed runs first).
+    // There is deliberately no CMEMS kill switch (ADDENDUM §7.6 YAGNI ruling): the breaker +
+    // `MARINE_ENABLED`/`MARINE_WARMUP_ENABLED` govern it, so the target always registers and
+    // the tour's own gates decide whether it ever runs.
+    {
+      provide: CmemsWarmupTarget,
+      inject: [
+        CmemsValueReader,
+        CmemsStacResolutionCache,
+        UpstreamCacheService,
+        MARINE_UPSTREAM_CONFIG,
+        UpstreamMetrics,
+        MARINE_WARMUP,
+        EcmwfIngestTarget,
+        getRepositoryToken(MarinePoint),
+      ],
+      useFactory: (
+        reader: CmemsValueReader,
+        stacCache: CmemsStacResolutionCache,
+        cache: UpstreamCacheService,
+        marineConfig: MarineUpstreamConfig,
+        metrics: UpstreamMetrics,
+        warmup: ScheduledWarmupService,
+        _ecmwfTarget: EcmwfIngestTarget | null,
+        marinePointRepository: Repository<MarinePoint>,
+      ): CmemsWarmupTarget => {
+        const target = new CmemsWarmupTarget({
+          reader,
+          stacCache,
+          cache,
+          config: marineConfig,
+          metrics,
+          loadPoints: () => marinePointRepository.find({ order: { displayOrder: 'ASC' } }),
+        });
+        warmup.register(target);
+        return target;
+      },
+    },
+    MarineValuesService,
+    MarineEnabledGuard,
     // A plain provider, bound with `@UseInterceptors` on the controller. NOT `APP_INTERCEPTOR`:
     // that token registers globally no matter which module declares it, and every route in the
     // API would then inspect its body for a marine-only symbol.

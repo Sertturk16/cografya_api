@@ -110,6 +110,20 @@ describe('the gates are falsifiable (mutated copies must fail)', () => {
     expect(failures.some((failure) => failure.id.startsWith('c4-unit-'))).toBe(true);
   });
 
+  it('a drifted RAW unit fails c4 too — both halves of the normalisation pair are gated (review #81 c4)', () => {
+    // The provider-side half: a recorded `degrees_C` mutating to `K` must fail even while the
+    // canonical half still reads `celsius` — the gate checks the PAIR, not one member.
+    const artifact = mutateFirstEntry(loadArtifact(), (entry) => ({
+      ...entry,
+      seaSurfaceTemperature: {
+        ...entry.seaSurfaceTemperature,
+        rawUnits: 'K',
+      },
+    }));
+    const failures = evaluateMarineCmemsArtifact(artifact).filter((result) => !result.passed);
+    expect(failures.some((failure) => failure.id.startsWith('c4-unit-'))).toBe(true);
+  });
+
   it('a recorded request URL whose tile address no longer matches toTilePixel fails c8 (review #81 I1)', () => {
     const artifact = mutateFirstEntry(loadArtifact(), (entry) => {
       const url = new URL(entry.seaSurfaceTemperature.requestUrl);

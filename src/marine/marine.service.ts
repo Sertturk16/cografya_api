@@ -1,6 +1,12 @@
 import { Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import {
+  CMEMS_LAYER_PRODUCTS,
+  resolveCmemsCatalogueFields,
+  type CmemsCatalogueFields,
+} from './cmems/cmems-catalogue';
+import { CmemsStacResolutionCache } from './cmems/cmems-stac.cache';
 import { MarinePointListItemDto } from './dto/marine-point-list-item.dto';
 import { MarineLayerDto } from './dto/marine-layer.dto';
 import { isCycleWithinMaxAge } from './ecmwf/ecmwf-cycle';
@@ -9,8 +15,9 @@ import { selectPublishableCycle, selectPublishedRun } from './ecmwf/ecmwf-series
 import { ECMWF_RETAINED_CYCLES, ECMWF_UPDATE_FREQUENCY } from './ecmwf/ecmwf.constants';
 import { MarinePoint } from './entities/marine-point.entity';
 import { MARINE_LAYER_CATALOGUE } from './marine-layer-catalogue';
+import { toMarinePointListItem } from './marine-point.mapper';
 import { MARINE_UPSTREAM_CONFIG, type MarineUpstreamConfig } from './marine-upstream.config';
-import { MarineSource } from './marine.types';
+import { MarineSource, type MarineLayerId } from './marine.types';
 
 const logger = new Logger('MarinePoints');
 
@@ -39,6 +46,7 @@ export class MarineService {
     private readonly ecmwfStore: EcmwfIngestStorePort,
     @Inject(MARINE_UPSTREAM_CONFIG)
     private readonly config: MarineUpstreamConfig,
+    private readonly stacCache: CmemsStacResolutionCache,
   ) {}
 
   /**
@@ -73,26 +81,65 @@ export class MarineService {
   }
 
   /**
-   * The layer catalogue: the static half from the module constant, plus — for the layers whose
-   * PRIMARY source is ECMWF — the catalogue fields of the newest ingested cycle.
+   * The layer catalogue: the static half from the module constant, plus — per layer — the
+   * catalogue fields of that layer's PRIMARY provider: the newest ingested cycle for the two
+   * ECMWF layers (M3b), the stored STAC resolutions for the three CMEMS layers (M4b, deltas
+   * d1–d3).
    *
    * ## Cold behaviour (COLD-BEHAVIOR table, binding)
-   * No ingested cycle, or a cycle over the 24 h age ceiling → the three fields stay `null`,
-   * the response stays 200, and NO upstream call happens on any branch — this method reads
-   * Postgres and a constant, nothing else. The nulls are the contract's own honest "provider
-   * catalogue not resolved" state, unchanged in shape since M1.
+   * No ingested cycle / no stored resolution → the three fields stay `null`, the response
+   * stays 200, and NO upstream call happens on any branch — this method reads Postgres, the
+   * resolution cache and a constant, nothing else (the resolutions are written ONLY by the
+   * warmup tour). The nulls are the contract's own honest "provider catalogue not resolved"
+   * state, unchanged in shape since M1.
    *
    * Returned as a copy so a caller cannot mutate the module-level constant — the array is
    * shared by every request for the process lifetime.
    */
   async findAllLayers(): Promise<MarineLayerDto[]> {
-    const ecmwfFields = await this.resolveEcmwfCatalogueFields();
+    const [ecmwfFields, cmemsFieldsByLayer] = await Promise.all([
+      this.resolveEcmwfCatalogueFields(),
+      this.resolveCmemsCatalogueFieldsByLayer(),
+    ]);
 
     return MARINE_LAYER_CATALOGUE.map((layer) => ({
       ...layer,
       colorStops: layer.colorStops.map((stop) => ({ ...stop })),
       ...(layer.primarySource === MarineSource.Ecmwf && ecmwfFields !== null ? ecmwfFields : {}),
+      ...(layer.primarySource === MarineSource.Cmems ? (cmemsFieldsByLayer[layer.id] ?? {}) : {}),
     }));
+  }
+
+  /**
+   * The CMEMS half of the catalogue fill: one resolution-cache read per distinct product
+   * (≤4 keys), aggregated per layer by the pure d1–d3 rules in `cmems-catalogue.ts`. A layer
+   * whose serving products are not all resolved keeps its honest nulls.
+   */
+  private async resolveCmemsCatalogueFieldsByLayer(): Promise<
+    Partial<Record<MarineLayerId, CmemsCatalogueFields>>
+  > {
+    const productIds = new Set<string>();
+    for (const products of Object.values(CMEMS_LAYER_PRODUCTS)) {
+      for (const productId of products) productIds.add(productId);
+    }
+
+    const resolutions = new Map<string, Awaited<ReturnType<CmemsStacResolutionCache['get']>>>();
+    await Promise.all(
+      [...productIds].map(async (productId) => {
+        resolutions.set(productId, await this.stacCache.get(productId));
+      }),
+    );
+
+    const byLayer: Partial<Record<MarineLayerId, CmemsCatalogueFields>> = {};
+    for (const [layerId, products] of Object.entries(CMEMS_LAYER_PRODUCTS) as [
+      MarineLayerId,
+      readonly string[],
+    ][]) {
+      byLayer[layerId] = resolveCmemsCatalogueFields(
+        products.map((productId) => resolutions.get(productId)?.resolution ?? null),
+      );
+    }
+    return byLayer;
   }
 
   /**
@@ -137,18 +184,7 @@ export class MarineService {
   }
 
   private toListItem(point: MarinePoint): MarinePointListItemDto {
-    return {
-      slugTr: point.slugTr,
-      slugEn: point.slugEn,
-      nameTr: point.nameTr,
-      nameEn: point.nameEn,
-      coastLabelTr: point.coastLabelTr,
-      coastLabelEn: point.coastLabelEn,
-      plateCode: point.provincePlateCode,
-      latitude: point.latitude,
-      longitude: point.longitude,
-      seaBasin: point.seaBasin,
-      displayOrder: point.displayOrder,
-    };
+    // Shared with the value endpoints (M4b) so the embedded identity block cannot diverge.
+    return toMarinePointListItem(point);
   }
 }

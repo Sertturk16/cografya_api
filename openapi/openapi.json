@@ -247,6 +247,116 @@
         ]
       }
     },
+    "/api/marine/overview": {
+      "get": {
+        "description": "CMEMS-sourced fields are answered from cache only — this endpoint NEVER waits for a provider. dataAvailable=false (cold cache) responses carry Cache-Control: no-store and MUST NOT be committed by ISR/SSG. Returns 404 while the marine feature is disabled.",
+        "operationId": "MarineController_getOverview",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarineOverviewDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The marine feature is not enabled on this deployment."
+          }
+        },
+        "summary": "Instant marine values for every reference point (the /deniz hub payload).",
+        "tags": [
+          "marine"
+        ]
+      }
+    },
+    "/api/marine/points/{slug}/conditions": {
+      "get": {
+        "description": "The slug may be the TR or the EN one (both are routing keys). A cold cache may refresh this point’s own CMEMS values inline under one bounded deadline; a provider failure degrades the affected fields to unavailable, never the response.",
+        "operationId": "MarineController_getConditions",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "description": "TR or EN slug.",
+            "schema": {
+              "minLength": 1,
+              "maxLength": 120,
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+              "example": "istanbul-marmara-aciklari",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarineConditionsDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The slug is not a well-formed kebab-case identifier."
+          },
+          "404": {
+            "description": "No marine point matches the slug, or the marine feature is disabled."
+          }
+        },
+        "summary": "Instant values and the 5-day series for one marine reference point.",
+        "tags": [
+          "marine"
+        ]
+      }
+    },
+    "/api/marine/provinces/{plateCode}/conditions": {
+      "get": {
+        "description": "Two entries for the two-sea provinces (İstanbul, Çanakkale, Balıkesir); the entries legitimately disagree and each carries its own per-field statuses — one point’s outage never suppresses or fills the other. An inland province is a 404.",
+        "operationId": "MarineController_getProvinceConditions",
+        "parameters": [
+          {
+            "name": "plateCode",
+            "required": true,
+            "in": "path",
+            "description": "Plaka kodu, zero-padded.",
+            "schema": {
+              "pattern": "^\\d{2}$",
+              "example": "34",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarineProvinceConditionsDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "plateCode is not exactly two digits."
+          },
+          "404": {
+            "description": "The province has no marine reference point (inland), or the marine feature is disabled."
+          }
+        },
+        "summary": "Marine conditions of every reference point published under one province.",
+        "tags": [
+          "marine"
+        ]
+      }
+    },
     "/api/air-quality/index-system": {
       "get": {
         "description": "The published methodology behind every band/category this API serves: the EAQI-2024 band table (EEA/ETC HE 2024/17, Table 5.2), the (lo, hi] boundary rule as a token, per-pollutant averaging periods (all hourly) and the dominant-pollutant tie-break order. The web repo renders from THIS payload and hardcodes none of it. Served from an in-code constant: answers 200 cold or warm and never calls the upstream provider.",
@@ -1387,7 +1497,7 @@
             "type": "string",
             "nullable": true,
             "example": "2026-07-30T12:00:00.000Z",
-            "description": "The MODEL time this value belongs to (ISO-8601 UTC). For CMEMS this is the time WE sent: the GetFeatureInfo reply carries no time field at all, yet the time parameter does change the value — so an explicit time is always sent and never defaulted."
+            "description": "The MODEL time this value belongs to (ISO-8601 UTC). For CMEMS this is the time WE sent: the GetFeatureInfo reply carries no time field at all, yet the time parameter does change the value — so an explicit time is always sent and never defaulted. At runtime that instant is the hour nearest to the request moment, clamped into the dataset’s resolved temporal extent — so around a horizon edge it may sit up to a few hours behind \"now\", honestly labelled here and still bounded by the server’s validity-age ceiling."
           },
           "fetchedAtUtc": {
             "type": "string",
@@ -1419,7 +1529,7 @@
             "type": "string",
             "nullable": true,
             "example": "BLKSEA_ANALYSISFORECAST_PHY_007_001/cmems_mod_blk_phy-tem_anfc_mrm-500m_PT1H-i_202311",
-            "description": "Provider dataset identifier, verbatim, when the provider reports one. For CMEMS-sourced values the id is resolved from the provider STAC catalogue at runtime — never pinned in code — so the trailing version stamp (_2xxxxx) rotates with the provider and consumers must treat the string as opaque. ECMWF-sourced values carry null: that provider has no per-value dataset id, and modelRunAtUtc is the provenance there."
+            "description": "Provider dataset identifier, verbatim, when the provider reports one. For CMEMS-sourced values the id is resolved from the provider STAC catalogue at runtime — never pinned in code — so the trailing version stamp (_2xxxxx) rotates with the provider and consumers must treat the string as opaque. Two values of the SAME field can therefore carry different ids across basins (and across a provider rotation) — never join on this string. ECMWF-sourced values carry null: that provider has no per-value dataset id, and modelRunAtUtc is the provenance there."
           },
           "gridLatitude": {
             "type": "number",
@@ -1750,7 +1860,7 @@
           "generatedAtUtc": {
             "type": "string",
             "example": "2026-07-30T12:04:11.000Z",
-            "description": "When the server assembled this response (ISO-8601 UTC)."
+            "description": "When the freshest contributing value entered the server cache (ISO-8601 UTC) — deliberately DATA-derived rather than the wall clock, so the body stays byte-identical between requests that serve the same cached data and the weak ETag / 304 revalidation works. Falls back to the wall clock only on the dataAvailable=false response, which is no-store and never cached."
           },
           "dataAvailable": {
             "type": "boolean",
@@ -1970,18 +2080,18 @@
           "horizonEndUtc": {
             "type": "string",
             "nullable": true,
-            "description": "Last instant the provider can serve (ISO-8601 UTC). NULL IN M1 — resolved from the provider catalogue in M3. The horizon is genuinely variable (4–9 days by product), so the web must read it here rather than hardcode a slider bound."
+            "description": "Last instant the PRIMARY provider can serve (ISO-8601 UTC), or null while the provider catalogue is unresolved. ECMWF layers: the newest ingested cycle’s published horizon. CMEMS layers: the MINIMUM of the serving products’ temporal-extent ends — the layer is one field for every basin, so the only horizon it can honour everywhere is the earliest one; it nulls when any serving product is unresolved or open-ended. The horizon is genuinely variable (4–9 days by product), so the web must read it here rather than hardcode a slider bound."
           },
           "updateFrequency": {
             "type": "string",
             "nullable": true,
-            "example": "twice-daily: 00:00 UTC; 12:00 UTC",
-            "description": "How often the provider re-runs the model, as the provider states it. NULL IN M1 — resolved from the provider catalogue in M3. Carried at LAYER level rather than per value because neither Faz-1 provider publishes a model-run time per value; a per-value field would be null 31 × 5 times per response."
+            "example": "daily: 16:00; 20th of each month at 16UTC",
+            "description": "How often the provider re-runs the model, as the provider states it — PROVIDER-VERBATIM and not machine-parseable by contract. For CMEMS layers this is the STAC updateFrequencies compaction; when the serving products state different cadences the distinct strings are joined with \" | \". Null while the catalogue is unresolved. Carried at LAYER level rather than per value because neither Faz-1 provider publishes a model-run time per value."
           },
           "catalogueUpdatedAtUtc": {
             "type": "string",
             "nullable": true,
-            "description": "When the provider last updated its catalogue entry (ISO-8601 UTC). NULL IN M1 — resolved from the provider catalogue in M3."
+            "description": "When the provider last updated its catalogue entry (ISO-8601 UTC), or null while unresolved. ECMWF layers: the model-run time of the newest ingested cycle (that provider has no catalogue document to date-stamp). CMEMS layers: the NEWEST admp_updated stamp across the serving products."
           },
           "colorStops": {
             "description": "Colour ramp for this layer, ascending by value.",
