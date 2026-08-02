@@ -158,6 +158,62 @@ function runRow(overrides: Partial<AirQualityRun> = {}): AirQualityRun {
   };
 }
 
+/** One province exactly as a healthy `CompiledRun` carries it. */
+function cachedProvince(): Record<string, unknown> {
+  const concentrations: Record<string, (number | null)[]> = {};
+  const verdicts: Record<string, string> = {};
+  for (const pollutant of ALL_AIR_QUALITY_POLLUTANTS) {
+    concentrations[pollutant] = [10];
+    verdicts[pollutant] = 'ok';
+  }
+  return {
+    plateCode: '06',
+    gridLatitude: 39.95,
+    gridLongitude: 32.85,
+    distanceKm: 3.1,
+    ingestedAtUtc: new Date(NOW).toISOString(),
+    concentrations,
+    support: verdicts,
+  };
+}
+
+/**
+ * A cache entry the service returns WITHOUT running the refresh closure, with `overrides` applied
+ * to the payload — i.e. exactly the seam a previous deployment's `CompiledRun` arrives through.
+ * Typed loosely on purpose: the point of these fixtures is shapes the type says cannot exist.
+ */
+function cannedOk(overrides: Record<string, unknown>): CachedRead<CompiledRun> {
+  const payload: Record<string, unknown> = {
+    runUtc: RUN_UTC.toISOString(),
+    datasetId: 'cams-europe-air-quality-forecasts',
+    analysisEndUtc: null,
+    stepHours: 1,
+    timesUtc: [new Date(NOW).toISOString()],
+    horizonEndUtc: new Date(NOW).toISOString(),
+    provinces: [cachedProvince()],
+    ...overrides,
+  };
+  return {
+    value: payload as unknown as CompiledRun,
+    kind: 'ok',
+    freshness: 'fresh',
+    cacheAgeSeconds: 10,
+    staleSinceUtc: null,
+    validAtUtc: new Date(NOW).toISOString(),
+    fetchedAtUtc: new Date(NOW).toISOString(),
+    reason: null,
+    origin: 'fresh_hit',
+  };
+}
+
+/** A well-shaped cached run that is simply too OLD — the exit-side ceiling's input. */
+function cannedStale(overrides: { cacheAgeSeconds: number }): CachedRead<CompiledRun> {
+  const read = cannedOk({
+    runUtc: new Date(NOW - (RUN_MAX_AGE_SECONDS + 60) * 1000).toISOString(),
+  });
+  return { ...read, ...overrides, freshness: 'stale', origin: 'stale_revalidating' };
+}
+
 class FakeStore implements AirQualityReadStorePort {
   run: AirQualityRun | null = runRow();
   rows: AirQualityRunSeriesRow[] = [seriesRow('06'), seriesRow('34')];
@@ -289,9 +345,84 @@ describe('AirQualitySeriesReader', () => {
       expect(metrics.get('airq.run_age_ceiling', CAMS_ADS_PROVIDER)).toBe(0);
     });
 
+    it('publishes NO cache age for a run it refused (review #84 I1 / CR-11)', async () => {
+      // The suppressed entry's own age describes data this response does not carry. Marine ruled
+      // the class out at #82 I5; the header must not say "4 minutes old" beside an empty payload.
+      cache.canned = cannedStale({ cacheAgeSeconds: 240 });
+      const read = await reader.readRun();
+      expect(read.value).toBeNull();
+      expect(read.cacheAgeSeconds).toBeNull();
+      expect(read.validAtUtc).toBeNull();
+    });
+
     it('lets a run exactly AT the ceiling through', async () => {
       store.run = runRow({ runUtc: new Date(NOW - RUN_MAX_AGE_SECONDS * 1000) });
       expect((await reader.readRun()).kind).toBe('ok');
+    });
+  });
+
+  /**
+   * Review #84 CR-6. `UpstreamCacheService` validates the ENVELOPE and explicitly delegates the
+   * PAYLOAD to whoever wrote it; the key is unversioned and entries survive a deploy for up to
+   * 12 h. Every shape below is one a previous version could plausibly have written, and each one
+   * used to reach `new Date(...).toISOString()` on the REQUEST path — a `RangeError` outside the
+   * never-throw closure, with no global exception filter to catch it.
+   */
+  describe('a CACHED payload of the wrong shape degrades instead of throwing', () => {
+    const unusable: [string, Record<string, unknown>][] = [
+      ['an unparseable runUtc', { runUtc: 'not-an-instant' }],
+      ['a missing runUtc', { runUtc: undefined }],
+      ['a missing datasetId', { datasetId: undefined }],
+      ['a non-numeric stepHours', { stepHours: '1' }],
+      ['a missing horizonEndUtc', { horizonEndUtc: undefined }],
+      ['an analysisEndUtc that is neither string nor null', { analysisEndUtc: 0 }],
+      ['a non-array timesUtc', { timesUtc: 'not-an-array' }],
+      ['an empty timesUtc', { timesUtc: [] }],
+      ['a non-string step in timesUtc', { timesUtc: [123] }],
+      ['a non-array provinces', { provinces: { '06': {} } }],
+      ['a province that is not an object', { provinces: ['06'] }],
+      ['a province with no plate code', { provinces: [{ ...cachedProvince(), plateCode: '' }] }],
+      [
+        'a province with no ingestedAtUtc',
+        { provinces: [{ ...cachedProvince(), ingestedAtUtc: undefined }] },
+      ],
+      [
+        'a province whose concentrations block is not an object',
+        { provinces: [{ ...cachedProvince(), concentrations: null }] },
+      ],
+      [
+        'a province missing one pollutant array',
+        { provinces: [{ ...cachedProvince(), concentrations: { pm2_5: [1] } }] },
+      ],
+      [
+        'a province whose support verdict is not a verdict',
+        { provinces: [{ ...cachedProvince(), support: { pm2_5: 'maybe' } }] },
+      ],
+      [
+        'a province with a non-finite coordinate',
+        { provinces: [{ ...cachedProvince(), gridLatitude: Number.NaN }] },
+      ],
+    ];
+
+    for (const [label, overrides] of unusable) {
+      it(`degrades to schema_error on ${label}`, async () => {
+        cache.canned = cannedOk(overrides);
+        const read = await reader.readRun();
+        expect(read.kind).toBe('schema_error');
+        expect(read.value).toBeNull();
+        // …and it says WHY, so the operator is not left guessing which member drifted.
+        expect(read.reason).toContain('the cached run is unusable');
+        // No stale age rides an empty payload out (review #84 I1).
+        expect(read.cacheAgeSeconds).toBeNull();
+      });
+    }
+
+    it('still serves a payload that DOES hold the written shape', async () => {
+      cache.canned = cannedOk({});
+      const read = await reader.readRun();
+      expect(read.kind).toBe('ok');
+      expect(read.value?.provinces.map((province) => province.plateCode)).toEqual(['06']);
+      expect(read.cacheAgeSeconds).toBe(10);
     });
   });
 });

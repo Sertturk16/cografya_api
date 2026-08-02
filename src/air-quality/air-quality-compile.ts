@@ -41,11 +41,14 @@ import type {
  * model output; neither is an observation.
  *
  * ## `forecastHours` is a SPAN, `analysisHours` is a STEP COUNT (rider M9, review #80)
- * The step count is derived from the ARRAYS THEMSELVES; the two run columns are read only to
- * VALIDATE that derivation (`forecastSteps === forecastHours + 1`, `analysisSteps ===
- * analysisHours`). `forecastHours` is never used as a length anywhere in this file — a mismatch
- * makes the row unreadable and it is skipped loudly, rather than publishing a series that is one
- * step short at an index nobody looks at.
+ * The step count is MEASURED on the arrays themselves (`compileRun`); the two run columns are read
+ * only inside {@link describeUnreadableRow} to VALIDATE that measurement (`forecastSteps ===
+ * forecastHours + 1`, `analysisSteps === analysisHours`). Neither column is ever used AS a length —
+ * a mismatch makes the row unreadable and it is skipped loudly, rather than publishing a series
+ * that is one step short at an index nobody looks at. Review #84 CR-2 found the earlier revision
+ * of this file claiming exactly that while `run.forecastHours + 1` was in fact the length behind
+ * `timesUtc`: correct only for as long as the M9 guard stayed fatal, and a silent off-by-one the
+ * moment it was ever downgraded to a warning. The code now does what this paragraph says.
  */
 
 /** Hours between published steps. CAMS is hourly and A2b publishes every stored hour. */
@@ -158,11 +161,43 @@ export type CompileRunOutcome =
  * the condition is never silent. Applied both at compile time (before the cache) and again when
  * building the EAQI input (after the cache), because a cache entry written by an earlier
  * deployment is inside the retention window and is not covered by today's compile.
+ *
+ * BOTH passes are counted — the compile pass into {@link CompileRunOutcome.normalisedValues}, the
+ * post-cache pass into the caller's {@link NormalisationTally}. Review #84 I2 found the second one
+ * silent while this docstring already claimed otherwise: the pass that exists precisely for the
+ * deploy-boundary case would have fired without a counter, a log or any way to tell it apart from
+ * a legitimate `no_data`.
  */
 export function normaliseConcentration(value: number | null | undefined): number | null {
   if (value === null || value === undefined) return null;
   if (!Number.isFinite(value) || value < 0) return null;
   return value;
+}
+
+/**
+ * `true` when a stored value was PRESENT and the R2 normalisation still had to null it.
+ *
+ * Deliberately not `typeof raw === 'number'` (review #84 CR-7 / SFH-3): `concentrations` is a
+ * schemaless jsonb column, so a corrupted block can hand back `"12"`, `true` or an object just as
+ * easily as `-999`. Counting only the numeric spelling meant a whole series could normalise to
+ * null, publish as `no_data` and increment nothing — the exact silence this counter exists to
+ * break. Absent values (`null`/`undefined`) are the legitimate "missing" and are still not counted.
+ */
+function wasSubstituted(raw: unknown, normalised: number | null): boolean {
+  return normalised === null && raw !== null && raw !== undefined;
+}
+
+/**
+ * The POST-CACHE substitution tally — the second R2 pass's counter.
+ *
+ * A mutable accumulator handed in by the caller rather than a return value, because the pass runs
+ * inside {@link buildIndexDto} / {@link buildSeriesDto}, which are on a hot per-request path and
+ * whose return shape is the published DTO. One tally per REQUEST is reported once by the reader,
+ * so 81 hub provinces cannot produce 81 log lines. Optional everywhere: a caller that does not
+ * pass one (a unit test, a future consumer) still gets identical values, only uncounted.
+ */
+export interface NormalisationTally {
+  count: number;
 }
 
 /** `true` when `value` is one of the two stored support verdicts. */
@@ -344,10 +379,15 @@ export function compileRun(input: {
     };
   }
 
-  // Lengths are derived from the arrays, and the guard above already proved every readable row
-  // agrees with the run columns — so all readable rows share these two counts.
-  const analysisSteps = first.analysisConcentrations === null ? 0 : run.analysisHours;
-  const forecastSteps = run.forecastHours + 1;
+  // MEASURED on the arrays, never taken from the run columns (rider M9 — and review #84 CR-2,
+  // which found this claim written above code that did the opposite). The guard already proved
+  // every readable row agrees with the columns AND that its five pollutant arrays are equal in
+  // length, so `pm2_5` stands for all five and every readable row shares these two counts.
+  const analysisSteps =
+    first.analysisConcentrations === null
+      ? 0
+      : first.analysisConcentrations[AirQualityPollutant.Pm2_5].length;
+  const forecastSteps = first.concentrations[AirQualityPollutant.Pm2_5].length;
   const totalSteps = analysisSteps + forecastSteps;
 
   const seriesStartMs = run.runUtc.getTime() - analysisSteps * MS_PER_HOUR;
@@ -375,9 +415,9 @@ export function compileRun(input: {
       const merged: (number | null)[] = [];
       for (const raw of stored) {
         const normalised = normaliseConcentration(raw);
-        // A stored value that WAS a number and came out null is the R2 condition: counted, so a
-        // −999 leaking past the decoder can never be silent.
-        if (normalised === null && typeof raw === 'number') normalisedValues += 1;
+        // A stored value that was PRESENT and came out null is the R2 condition: counted, so a
+        // −999 (or a corrupted non-numeric block) leaking past the decoder can never be silent.
+        if (wasSubstituted(raw, normalised)) normalisedValues += 1;
         merged.push(normalised);
       }
       concentrations[pollutant] = merged;
@@ -440,6 +480,7 @@ export function selectStepIndex(timesUtc: readonly string[], nowMs: number): num
 function eaqiInputAt(
   province: CompiledProvinceSeries,
   stepIndex: number,
+  tally?: NormalisationTally,
 ): Record<AirQualityPollutant, number | null> {
   const values = {} as Record<AirQualityPollutant, number | null>;
   for (const pollutant of ALL_AIR_QUALITY_POLLUTANTS) {
@@ -449,7 +490,12 @@ function eaqiInputAt(
     }
     // Normalised AGAIN on purpose — see `normaliseConcentration`: a cache entry written by an
     // earlier deployment never passed through today's compile, and `subIndexBand` throws.
-    values[pollutant] = normaliseConcentration(province.concentrations[pollutant][stepIndex]);
+    const raw = province.concentrations[pollutant][stepIndex];
+    const normalised = normaliseConcentration(raw);
+    // …and COUNTED again (review #84 I2). This is the pass that fires across a deploy boundary,
+    // i.e. exactly when nobody is watching the compile logs, so it must not be the silent one.
+    if (tally !== undefined && wasSubstituted(raw, normalised)) tally.count += 1;
+    values[pollutant] = normalised;
   }
   return values;
 }
@@ -478,9 +524,11 @@ export function buildIndexDto(input: {
   province: CompiledProvinceSeries;
   stepIndex: number;
   provenance: IndexProvenance;
+  /** Optional post-cache R2 counter — see {@link NormalisationTally}. */
+  tally?: NormalisationTally;
 }): AirQualityIndexDto {
-  const { compiled, province, stepIndex, provenance } = input;
-  const values = eaqiInputAt(province, stepIndex);
+  const { compiled, province, stepIndex, provenance, tally } = input;
+  const values = eaqiInputAt(province, stepIndex, tally);
   const eaqi = computeEaqi(values);
 
   const pollutants: AirQualityPollutantValueDto[] = ALL_AIR_QUALITY_POLLUTANTS.map((pollutant) => {
@@ -573,12 +621,13 @@ export function unavailableIndexDto(): AirQualityIndexDto {
 export function buildSeriesDto(
   compiled: CompiledRun,
   province: CompiledProvinceSeries,
+  tally?: NormalisationTally,
 ): AirQualitySeriesDto {
   const bands: (number | null)[] = [];
   const categories: (AirQualityCategory | null)[] = [];
   const dominantPollutants: (AirQualityPollutant | null)[] = [];
   for (let index = 0; index < compiled.timesUtc.length; index += 1) {
-    const eaqi = computeEaqi(eaqiInputAt(province, index));
+    const eaqi = computeEaqi(eaqiInputAt(province, index, tally));
     bands.push(eaqi.band);
     categories.push(eaqi.category);
     dominantPollutants.push(eaqi.dominantPollutant);
@@ -593,11 +642,31 @@ export function buildSeriesDto(
     categories,
     dominantPollutants,
     concentrations: {
-      pm2_5: [...province.concentrations[AirQualityPollutant.Pm2_5]],
-      pm10: [...province.concentrations[AirQualityPollutant.Pm10]],
-      no2: [...province.concentrations[AirQualityPollutant.No2]],
-      o3: [...province.concentrations[AirQualityPollutant.O3]],
-      so2: [...province.concentrations[AirQualityPollutant.So2]],
+      pm2_5: publishedValues(province, AirQualityPollutant.Pm2_5),
+      pm10: publishedValues(province, AirQualityPollutant.Pm10),
+      no2: publishedValues(province, AirQualityPollutant.No2),
+      o3: publishedValues(province, AirQualityPollutant.O3),
+      so2: publishedValues(province, AirQualityPollutant.So2),
     },
   };
+}
+
+/**
+ * One pollutant's PUBLISHED raw series — normalised, so a sentinel can never be SHOWN as a number.
+ *
+ * Found while closing review #84's R2 gap: the post-cache normalisation guarded the band lookup
+ * (`eaqiInputAt`) but the series' own `concentrations` were spread straight out of the cached
+ * payload. For anything today's `compileRun` produced that is identical — it already nulled them —
+ * but the whole reason a second pass exists is the entry an EARLIER deployment wrote, and on that
+ * entry the endpoint would have answered `"pm2_5": [-999, …]`. A band the guard refuses to compute
+ * beside a raw value it publishes anyway is the worse half of the two.
+ *
+ * Not counted into the tally: `eaqiInputAt` has already counted these same values for these same
+ * steps, and counting them twice would make the number mean nothing.
+ */
+function publishedValues(
+  province: CompiledProvinceSeries,
+  pollutant: AirQualityPollutant,
+): (number | null)[] {
+  return province.concentrations[pollutant].map((value) => normaliseConcentration(value));
 }

@@ -18,8 +18,11 @@ import type { AirQualityAttributionDto } from './dto/air-quality-attribution.dto
  * `information`. A1's frozen DTO example carried `Information`; that capital is corrected here,
  * in `openapi/openapi.json` and in the fixture README, and pinned by a byte-for-byte test.
  * The binding basis is CC-BY-4.0 §3(a) plus the licensor's template (the licence actually
- * attached to the dataset is `cc-by` revision 1, three lines long) — not the ADS ToS rev-12 the
- * A1 draft cited.
+ * attached to the dataset is `cc-by` revision 1, three lines long) — not the "Licence to use
+ * Copernicus Products" v1.2 / rev. 12 the A1 draft cited. Rev-12 names THAT document and nothing
+ * else: the ADS **Terms of Use** are a separate document at v1.2 (March 2024), and it is the ADS
+ * ToS — not the Products licence — whose art. 5 the no-endorsement paragraph below rests on
+ * (review #84 cf-3, which found the two conflated here).
  *
  * `src/database/marine/probe-marine-cmems.ts`'s "Marine Service Information" is CMEMS's OWN
  * template, not this defect: it is quoted verbatim from the Copernicus Marine licence annex and
@@ -28,8 +31,11 @@ import type { AirQualityAttributionDto } from './dto/air-quality-attribution.dto
  * ## No endorsement, either direction (`CONVENTIONS.md` §7, from ADS ToS art. 5)
  * These strings state the SOURCE of the data. Nothing published from this module may read as
  * "Copernicus onaylı", "resmî AB verisi" or any other claim that a provider or the EU endorses
- * this platform. The spec beside this file enforces that with a structural guard over every
- * served string.
+ * this platform. The spec beside this file runs a DENYLIST of known endorsement phrasings over
+ * every served string — which is not the same as proving non-endorsement, and the earlier wording
+ * here ("enforces that with a structural guard") claimed more than the guard delivers (review #84
+ * cf-1). It catches the phrasings we have been warned about; a novel one still needs a human
+ * reading the diff.
  *
  * ## The strings are LICENCE TEXT, so the tests pin them literally
  * The house rule is "tests assert structure, never facts". These two sentences are the recorded

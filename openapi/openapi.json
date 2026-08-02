@@ -415,7 +415,7 @@
             "name": "plateCode",
             "required": true,
             "in": "path",
-            "description": "Plaka kodu, zero-padded.",
+            "description": "Two-digit zero-padded province plate code.",
             "schema": {
               "pattern": "^\\d{2}$",
               "example": "06",

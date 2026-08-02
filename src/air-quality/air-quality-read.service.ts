@@ -15,6 +15,7 @@ import {
   type CompiledProvinceSeries,
   type CompiledRun,
   type IndexProvenance,
+  type NormalisationTally,
 } from './air-quality-compile';
 import { AIR_QUALITY_READ_DEADLINE_MS, AirQualitySeriesReader } from './air-quality-series.reader';
 import type { AirQualityProvinceDto } from './dto/air-quality-province.dto';
@@ -27,6 +28,16 @@ interface ResolvedRun {
   readonly stepIndex: number | null;
   readonly byPlateCode: Map<string, CompiledProvinceSeries>;
   readonly provenance: IndexProvenance;
+  /**
+   * What `X-Air-Quality-Cache-Age` may state — `null` unless this read actually published data.
+   *
+   * Resolved ONCE here rather than at each call site (review #84 I1): a negative cache entry and a
+   * suppressed run both carry a real `cacheAgeSeconds` describing the ENTRY, not any published
+   * value, so an all-`unavailable` body could ship a plausible "data is 4 minutes old" header.
+   * Marine ruled the identical class out at review #82 I5 (`marine-read-reducers.ts` — only
+   * `kind === 'ok'` reads count); air-quality carries the guard from here on.
+   */
+  readonly cacheAgeSeconds: number | null;
 }
 
 /**
@@ -88,6 +99,9 @@ export class AirQualityReadService {
       this.resolveRun(),
     ]);
 
+    // ONE tally for the whole request — reported once below, so 81 provinces cannot become 81
+    // log lines (review #84 I2).
+    const tally: NormalisationTally = { count: 0 };
     const items: AirQualityProvinceListItemDto[] = provinces.map((province) => {
       const series = resolved.byPlateCode.get(province.plateCode);
       if (resolved.compiled === null || resolved.stepIndex === null || series === undefined) {
@@ -107,6 +121,7 @@ export class AirQualityReadService {
         province: series,
         stepIndex: resolved.stepIndex,
         provenance: resolved.provenance,
+        tally,
       });
       return {
         plateCode: province.plateCode,
@@ -120,8 +135,9 @@ export class AirQualityReadService {
       };
     });
 
+    this.reportNormalisation(resolved, tally);
     // The array is the response body, so the symbol-keyed cache age rides on the array object.
-    return withAirQualityCacheAge(items, resolved.read.cacheAgeSeconds);
+    return withAirQualityCacheAge(items, resolved.cacheAgeSeconds);
   }
 
   /** `GET /api/air-quality/provinces/{plateCode}` — the full payload plus the hourly series. */
@@ -144,6 +160,7 @@ export class AirQualityReadService {
     // skipped by the shape guard — all three degrade the SAME honest way, and the other 80
     // provinces are unaffected.
     const publishable = compiled !== null && stepIndex !== null && series !== undefined;
+    const tally: NormalisationTally = { count: 0 };
 
     const dto: AirQualityProvinceDto = {
       plateCode: province.plateCode,
@@ -153,9 +170,15 @@ export class AirQualityReadService {
       latitude: province.latitude,
       longitude: province.longitude,
       current: publishable
-        ? buildIndexDto({ compiled, province: series, stepIndex, provenance: resolved.provenance })
+        ? buildIndexDto({
+            compiled,
+            province: series,
+            stepIndex,
+            provenance: resolved.provenance,
+            tally,
+          })
         : unavailableIndexDto(),
-      series: publishable ? buildSeriesDto(compiled, series) : null,
+      series: publishable ? buildSeriesDto(compiled, series, tally) : null,
       // Always present, cold included: the licence notice attaches to the published section, not
       // to whether a value resolved (M5 / DEC 2026-08-02g §3). Cold uses the current UTC year
       // (plan Q8) — a response with no Copernicus material in it cannot misdescribe one.
@@ -166,7 +189,19 @@ export class AirQualityReadService {
       ),
       dataAvailable: publishable,
     };
-    return withAirQualityCacheAge(dto, resolved.read.cacheAgeSeconds);
+    this.reportNormalisation(resolved, tally);
+    return withAirQualityCacheAge(dto, resolved.cacheAgeSeconds);
+  }
+
+  /**
+   * Hand one request's post-cache R2 tally to the reader, which owns the counter and the throttle.
+   *
+   * A no-op on the overwhelmingly common path (`count === 0`), and impossible to reach with no run
+   * — with `compiled === null` nothing was built, so nothing could be substituted.
+   */
+  private reportNormalisation(resolved: ResolvedRun, tally: NormalisationTally): void {
+    if (tally.count === 0 || resolved.compiled === null) return;
+    this.reader.reportPostCacheNormalisation(tally.count, resolved.compiled.runUtc);
   }
 
   /**
@@ -184,6 +219,9 @@ export class AirQualityReadService {
   private async resolveRun(): Promise<ResolvedRun> {
     const read = await this.reader.readRun(new OperationDeadline(AIR_QUALITY_READ_DEADLINE_MS));
     const compiled = read.value;
+    // A stale-but-served entry is still `ok` (that is what the header is FOR); a negative,
+    // suppressed or unusable read is not.
+    const cacheAgeSeconds = read.kind === 'ok' ? read.cacheAgeSeconds : null;
     if (compiled === null) {
       return {
         read,
@@ -191,11 +229,13 @@ export class AirQualityReadService {
         stepIndex: null,
         byPlateCode: new Map(),
         provenance: { freshness: null, fetchedAtUtc: null, staleSinceUtc: null },
+        cacheAgeSeconds,
       };
     }
     return {
       read,
       compiled,
+      cacheAgeSeconds,
       // Selected HERE, after the cache, per request — never cached with the run. Caching the
       // chosen step would freeze the published instant for a whole TTL while the `validAt`
       // ceiling stayed blind to it.

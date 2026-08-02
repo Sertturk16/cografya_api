@@ -1,4 +1,4 @@
-import { describe, expect, it } from '@jest/globals';
+import { beforeEach, describe, expect, it } from '@jest/globals';
 import { NotFoundException } from '@nestjs/common';
 import type { Repository } from 'typeorm';
 import type { CachedRead } from '../upstream/cache/upstream-cache.service';
@@ -93,6 +93,19 @@ const COLD_READ: CachedRead<CompiledRun> = {
   origin: 'refreshed',
 };
 
+/**
+ * A NEGATIVE cache entry that really was served from cache, so it carries a real age.
+ *
+ * The state review #84 I1 is about: `UpstreamCacheService.fromNegative` puts a genuine
+ * `cacheAgeSeconds` on a `value: null` read, because the age belongs to the ENTRY. Nothing in the
+ * response it produces is data, so nothing in it may claim a data age.
+ */
+const NEGATIVE_READ_WITH_AGE: CachedRead<CompiledRun> = {
+  ...COLD_READ,
+  cacheAgeSeconds: 240,
+  origin: 'negative_hit',
+};
+
 function buildService(input: {
   provinces: Province[];
   read: CachedRead<CompiledRun>;
@@ -106,9 +119,22 @@ function buildService(input: {
   } as unknown as Repository<Province>;
   const reader = {
     readRun: () => Promise.resolve(input.read),
+    // The post-cache R2 report sink (review #84 I2). Present on the fake so the service's call is
+    // exercised rather than merely type-erased — a fake missing it would only fail on the branch
+    // nobody tests, which is the whole defect class this review named.
+    reportPostCacheNormalisation: (count: number) => {
+      normalisationReports.push(count);
+    },
   } as unknown as AirQualitySeriesReader;
   return new AirQualityReadService(repository, reader);
 }
+
+/** Every post-cache R2 report the service made during the current test. */
+let normalisationReports: number[] = [];
+
+beforeEach(() => {
+  normalisationReports = [];
+});
 
 describe('AirQualityReadService — the hub', () => {
   it('lists EVERY province even on the cold path, all unavailable', async () => {
@@ -149,6 +175,22 @@ describe('AirQualityReadService — the hub', () => {
     const items = await service.listProvinces();
     expect(readAirQualityCacheAge(items)).toBe(17);
     expect(JSON.parse(JSON.stringify(items))).toHaveLength(1);
+  });
+
+  it('publishes NO cache age when the read carried no data (review #84 I1)', async () => {
+    // A negative entry's age describes the ENTRY. Publishing it beside an all-unavailable body
+    // tells an operator "this data is 4 minutes old" about data the response does not contain.
+    const service = buildService({
+      provinces: [province('06')],
+      read: NEGATIVE_READ_WITH_AGE,
+    });
+    const items = await service.listProvinces();
+    expect(items[0]?.status).toBe(AirQualityStatus.Unavailable);
+    expect(readAirQualityCacheAge(items)).toBeNull();
+
+    const detail = await service.getProvince('06');
+    expect(detail.dataAvailable).toBe(false);
+    expect(readAirQualityCacheAge(detail)).toBeNull();
   });
 
   it('treats "at least one province carries a value" as data (Atlas ruling Q7)', () => {
@@ -229,5 +271,63 @@ describe('AirQualityReadService — the detail endpoint', () => {
     expect(uncovered.series).toBeNull();
     // Identity is still served in full — the page renders, only the widget degrades.
     expect(uncovered.nameTr).toBe('İl 34');
+  });
+});
+
+/**
+ * Review #84 I2: the post-cache R2 pass must reach a counter, not just null a value.
+ *
+ * The pass exists for a payload an EARLIER deployment cached, so it fires exactly when nobody is
+ * reading today's compile logs. Silent, it is indistinguishable from a legitimate `no_data`.
+ */
+describe('AirQualityReadService — the post-cache R2 report', () => {
+  /**
+   * A cached run carrying a raw sentinel — a shape today's compile would never emit.
+   *
+   * EVERY step is corrupted, not just the first: the published step is `selectStepIndex(…,
+   * Date.now())`, so which one the hub reads depends on the wall clock relative to the fixture's
+   * timestamps. A single corrupted step would make this test pass or fail by time of day.
+   */
+  function corruptedRun(): CompiledRun {
+    const run = compiledRun(['06']);
+    const target = run.provinces[0];
+    if (target === undefined) throw new Error('missing province');
+    const steps = run.timesUtc.length;
+    return {
+      ...run,
+      provinces: [
+        {
+          ...target,
+          concentrations: {
+            ...target.concentrations,
+            [AirQualityPollutant.Pm2_5]: Array.from({ length: steps }, () => -999),
+          },
+        },
+      ],
+    };
+  }
+
+  it('reports ONCE per request, with the whole tally, when the hub substitutes', async () => {
+    const service = buildService({ provinces: [province('06')], read: okRead(corruptedRun()) });
+    await service.listProvinces();
+    // One line per request, never one per province.
+    expect(normalisationReports).toEqual([1]);
+  });
+
+  it('reports the detail endpoint tally across the index AND the whole series', async () => {
+    const service = buildService({ provinces: [province('06')], read: okRead(corruptedRun()) });
+    await service.getProvince('06');
+    expect(normalisationReports).toHaveLength(1);
+    expect(normalisationReports[0]).toBeGreaterThan(0);
+  });
+
+  it('stays silent on a clean run and on the cold path', async () => {
+    const clean = buildService({ provinces: [province('06')], read: okRead(compiledRun(['06'])) });
+    await clean.listProvinces();
+    await clean.getProvince('06');
+    const cold = buildService({ provinces: [province('06')], read: COLD_READ });
+    await cold.listProvinces();
+    await cold.getProvince('06');
+    expect(normalisationReports).toEqual([]);
   });
 });

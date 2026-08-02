@@ -270,8 +270,8 @@ describe('R2 — negative and non-finite concentrations never reach the EAQI ban
   });
 
   it('builds an index from a −999 row WITHOUT throwing (subIndexBand would RangeError)', () => {
-    // The exact R2 failure: `subIndexBand` throws on a negative, that throw would escape the
-    // never-throw refresh closure, and the public page would answer 500 on the cold path.
+    // The COMPILE-time half of R2: `subIndexBand` throws on a negative, that throw would escape
+    // the never-throw refresh closure, and the public page would answer 500 on the cold path.
     const compiled = okRun({ rows: [row({ concentrations: block(4, () => -999) })] });
     const province = compiled.provinces[0];
     expect(province).toBeDefined();
@@ -296,6 +296,118 @@ describe('R2 — negative and non-finite concentrations never reach the EAQI ban
     const series = buildSeriesDto(compiled, province);
     expect(series.bands).toEqual([null, null, null, null]);
     expect(series.concentrations.pm2_5).toEqual([null, null, null, null]);
+  });
+
+  it('counts a substituted value that was NOT a number (a corrupted jsonb block)', () => {
+    // CR-7 / SFH-3: counting gated on `typeof raw === 'number'` meant a stored block of
+    // `["12","13"]` compiled clean, published an all-null series and incremented nothing —
+    // indistinguishable from a legitimate `no_data`. jsonb is schemaless: this shape is exactly
+    // what the entity type only CLAIMS is impossible.
+    const corrupted = block(4, () => null) as unknown as Record<string, unknown[]>;
+    for (const pollutant of ALL_AIR_QUALITY_POLLUTANTS) {
+      corrupted[pollutant] = ['12', true, null, {}];
+    }
+    const outcome = compileRun({
+      run: run(),
+      rows: [row({ concentrations: corrupted as unknown as AirQualityStoredConcentrations })],
+    });
+    expect(outcome.kind).toBe('ok');
+    if (outcome.kind !== 'ok') return;
+    // Three present-but-unusable values per pollutant × five pollutants; the `null` step is a
+    // genuine absence and is still not counted.
+    expect(outcome.normalisedValues).toBe(15);
+  });
+});
+
+/**
+ * The POST-CACHE half of R2 — the pass that exists for a cache entry written by an EARLIER
+ * deployment, which never went through today's `compileRun`.
+ *
+ * ## Why these tests bypass `compileRun` (review #84, the downgraded CRITICAL)
+ * The two tests above build their input through `okRun()` → `compileRun()`, which already nulls
+ * the −999 before `buildIndexDto` runs — so what reaches the post-cache call is a NULL row, not a
+ * negative one, and deleting the second `normaliseConcentration` call left the whole suite green.
+ * The layer looked covered and was not. A `CompiledRun` is therefore hand-constructed here,
+ * carrying a raw −999 in a shape the compile layer would never emit, which is precisely the state
+ * a cross-deploy cache entry can be in.
+ */
+describe('R2 post-cache — a CACHED payload carrying a raw −999', () => {
+  /** A `CompiledRun` as it comes back from Redis: shaped like the type, never compiled by us. */
+  function cachedRunWith(value: number): CompiledRun {
+    const concentrations = {} as Record<AirQualityPollutant, (number | null)[]>;
+    const supportVerdicts = {} as Record<AirQualityPollutant, 'ok' | 'not_supported'>;
+    for (const pollutant of ALL_AIR_QUALITY_POLLUTANTS) {
+      concentrations[pollutant] = [value, value, value, value];
+      supportVerdicts[pollutant] = 'ok';
+    }
+    return {
+      runUtc: RUN_UTC.toISOString(),
+      datasetId: 'cams-europe-air-quality-forecasts',
+      analysisEndUtc: null,
+      stepHours: 1,
+      timesUtc: Array.from({ length: 4 }, (_unused, index) =>
+        new Date(RUN_UTC.getTime() + index * MS_PER_HOUR).toISOString(),
+      ),
+      horizonEndUtc: new Date(RUN_UTC.getTime() + 3 * MS_PER_HOUR).toISOString(),
+      provinces: [
+        {
+          plateCode: '06',
+          gridLatitude: 39.95,
+          gridLongitude: 32.85,
+          distanceKm: 3.1,
+          ingestedAtUtc: RUN_UTC.toISOString(),
+          concentrations,
+          support: supportVerdicts,
+        },
+      ],
+    };
+  }
+
+  it('buildIndexDto does not throw, publishes no number, and COUNTS the substitutions', () => {
+    const compiled = cachedRunWith(-999);
+    const province = compiled.provinces[0];
+    if (province === undefined) throw new Error('missing province');
+    const tally = { count: 0 };
+
+    const index = buildIndexDto({
+      compiled,
+      province,
+      stepIndex: 0,
+      provenance: { freshness: null, fetchedAtUtc: null, staleSinceUtc: null },
+      tally,
+    });
+
+    expect(index.band).toBeNull();
+    expect(index.status).toBe(AirQualityStatus.NoData);
+    expect(index.pollutants.every((pollutant) => pollutant.value === null)).toBe(true);
+    // One step × five pollutants — the pass is no longer silent (review #84 I2).
+    expect(tally.count).toBe(5);
+  });
+
+  it('buildSeriesDto does not throw and counts every step it substituted', () => {
+    const compiled = cachedRunWith(-999);
+    const province = compiled.provinces[0];
+    if (province === undefined) throw new Error('missing province');
+    const tally = { count: 0 };
+
+    const series = buildSeriesDto(compiled, province, tally);
+
+    expect(series.bands).toEqual([null, null, null, null]);
+    // …and the PUBLISHED raw values are null too: a sentinel must never be shown as a number on
+    // this path either, not only kept out of the band lookup.
+    expect(series.concentrations.pm2_5).toEqual([null, null, null, null]);
+    expect(series.concentrations.o3).toEqual([null, null, null, null]);
+    // Four steps × five pollutants.
+    expect(tally.count).toBe(20);
+  });
+
+  it('counts nothing when the cached payload is clean', () => {
+    const compiled = cachedRunWith(12);
+    const province = compiled.provinces[0];
+    if (province === undefined) throw new Error('missing province');
+    const tally = { count: 0 };
+    buildSeriesDto(compiled, province, tally);
+    expect(tally.count).toBe(0);
   });
 });
 

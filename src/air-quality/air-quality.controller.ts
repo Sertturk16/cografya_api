@@ -145,7 +145,11 @@ export class AirQualityController {
       'model output on a ~0.1° grid, neither is a station reading. A plate code that names no ' +
       'province is a 404. This endpoint never waits for the provider.',
   })
-  @ApiParam({ name: 'plateCode', example: '06', description: 'Plaka kodu, zero-padded.' })
+  @ApiParam({
+    name: 'plateCode',
+    example: '06',
+    description: 'Two-digit zero-padded province plate code.',
+  })
   @ApiOkResponse({ type: AirQualityProvinceDto })
   @ApiNotFoundResponse({ description: 'No province carries this plate code.' })
   @ApiBadRequestResponse({ description: 'plateCode is not exactly two digits.' })

@@ -96,11 +96,18 @@ describe('openapi/openapi.json — air-quality contract', () => {
     // forecast hour may be presented as analysis — is asserted here instead of by absence.
     const series = document.components.schemas.AirQualitySeriesDto as {
       properties: Record<string, { type?: string; nullable?: boolean; description?: string }>;
+      required?: string[];
     };
     const field = series.properties.analysisEndUtc;
     expect(field).toBeDefined();
     expect(field?.nullable).toBe(true);
     expect(field?.type).toBe('string');
+    // BOTH halves of the stated invariant — "required AND nullable". Asserting only `nullable`
+    // (review #84) left the other half untested: a later edit marking the field optional (`?` or
+    // `@ApiPropertyOptional`) would pass `openapi:check` AND this test, while the web codegen's
+    // type silently weakened from `string | null` to `string | null | undefined` and every
+    // consumer that relied on the field being PRESENT kept compiling.
+    expect(series.required).toContain('analysisEndUtc');
     // The honesty sentence is part of the contract, not decoration: a consumer reading only the
     // spec must learn that BOTH halves are model output.
     expect(field?.description).toContain('ANALYSIS');

@@ -388,7 +388,15 @@ describe('Air quality read path (e2e, real Postgres)', () => {
       expect(detail.headers['cache-control']).toBe('no-store');
       // Identity is still complete — the page renders, only the widget degrades.
       expect(body.nameTr.length).toBeGreaterThan(0);
-      expect(body.attribution.attributionText.length).toBeGreaterThan(0);
+      // The SAME licence template as the warm path, not merely a non-empty string (review #84
+      // cf-5): a regression publishing a placeholder attribution on the degraded branch used to
+      // pass a `length > 0` check, which reads as coverage while asserting almost nothing. The
+      // notice attaches to the published SECTION, so it must be byte-identical in both states.
+      expect(body.attribution.attributionText).toContain(
+        'Contains modified Copernicus Atmosphere Monitoring Service information',
+      );
+      expect(body.attribution.disclaimerText).toContain('Neither the European Commission');
+      expect(body.attribution.noticeKeys.length).toBeGreaterThan(0);
       expect(fetchSpy).not.toHaveBeenCalled();
     });
   });

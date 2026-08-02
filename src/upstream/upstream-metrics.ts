@@ -129,6 +129,29 @@ export type UpstreamMetricName =
    */
   | 'airq.run_age_ceiling'
   /**
+   * The read path could not read its own store — a Postgres blip, mapped to `transient` and healed
+   * by the next refresh. Counted apart from the data-shape classes below (review #84 SFH-4): "the
+   * database was unreachable" and "what the database holds is unreadable" need different humans.
+   * Refresh-cadence, never per request: the closure runs behind single-flight and a negative TTL.
+   */
+  | 'airq.store_read_failed'
+  /**
+   * A stored run held no readable series row at all, so the read degraded to `schema_error`. The
+   * per-row sibling is `ingest.corrupt_row_skipped`: one bad province is a skip, ALL of them is
+   * this. Also refresh-cadence. The EXIT-side twin — a CACHED payload that does not hold the
+   * written shape (review #84 CR-6) — deliberately carries no counter, exactly like the exit half
+   * of the run-age ceiling: it runs once per public request, so a counter there would report
+   * traffic rather than "the condition fired". It logs instead, throttled, at ERROR.
+   */
+  | 'airq.run_unreadable'
+  /**
+   * R2 fired: stored concentrations were present but negative/non-finite/non-numeric, so they were
+   * null-classified before `subIndexBand` could throw. Incremented BY the substitution count, from
+   * BOTH passes — compile-time and post-cache (review #84 I2) — with the log line naming which.
+   * Non-zero means the decoder's guarantee did not hold for some bytes we stored.
+   */
+  | 'airq.concentration_normalised'
+  /**
    * The politeness `DELETE /jobs/{id}` did not confirm. Never a correctness problem on its own
    * (the provider expires the job in ~2 days), but a daily rise here is a protocol drift saying
    * so early — which a warn line nobody counts cannot do (review #80 R2-M2).
