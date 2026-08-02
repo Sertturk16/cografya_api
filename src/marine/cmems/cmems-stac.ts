@@ -45,22 +45,32 @@ const DATASET_ID_PATTERN =
 
 /** Parse one item href/id into its tokens, or `null` when it is not an hourly forecast set. */
 export function parseCmemsDatasetToken(itemHref: string): CmemsDatasetToken | null {
-  // The href form is `<datasetId>/dataset.stac.json`; a bare id is accepted too so the same
-  // parser serves committed-artifact assertions.
-  const first = itemHref.split('/')[0];
-  if (first === undefined || first.length === 0) return null;
-  const match = DATASET_ID_PATTERN.exec(first);
-  if (match === null) return null;
-  const [, variableToken, gridToken, timeToken, stampRaw] = match;
-  if (
-    variableToken === undefined ||
-    gridToken === undefined ||
-    timeToken === undefined ||
-    stampRaw === undefined
-  ) {
-    return null;
+  // ## Href robustness (review #81 M7 — measured decision at wiring time)
+  // Measured 2026-08-02 against all four routed products: every `links[rel=item]` href is the
+  // plain relative form `<datasetId>/dataset.stac.json` — no leading `./`, no absolute URL.
+  // The parser still tolerates both, cheaply, by scanning PATH SEGMENTS for the dataset-id
+  // pattern instead of pinning "the id is the first segment": a provider switching to
+  // `./<id>/dataset.stac.json` or `https://host/…/<id>/dataset.stac.json` would otherwise
+  // fail-close the WHOLE CMEMS side on a cosmetic href change — loud, but a code-change outage
+  // for something a segment scan absorbs for free. The pattern is anchored (`^…$` per segment),
+  // so this cannot loosen WHAT is accepted, only WHERE in the href it may sit. A bare id is
+  // accepted too, so the same parser serves committed-artifact assertions.
+  for (const segment of itemHref.split('/')) {
+    if (segment.length === 0 || segment === '.' || segment === '..') continue;
+    const match = DATASET_ID_PATTERN.exec(segment);
+    if (match === null) continue;
+    const [, variableToken, gridToken, timeToken, stampRaw] = match;
+    if (
+      variableToken === undefined ||
+      gridToken === undefined ||
+      timeToken === undefined ||
+      stampRaw === undefined
+    ) {
+      return null;
+    }
+    return { datasetId: segment, variableToken, gridToken, timeToken, stamp: Number(stampRaw) };
   }
-  return { datasetId: first, variableToken, gridToken, timeToken, stamp: Number(stampRaw) };
+  return null;
 }
 
 /**

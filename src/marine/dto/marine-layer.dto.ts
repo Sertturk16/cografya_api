@@ -109,21 +109,27 @@ export class MarineLayerDto {
     type: String,
     nullable: true,
     description:
-      'Last instant the provider can serve (ISO-8601 UTC). NULL IN M1 — resolved from the ' +
-      'provider catalogue in M3. The horizon is genuinely variable (4–9 days by product), so ' +
-      'the web must read it here rather than hardcode a slider bound.',
+      'Last instant the PRIMARY provider can serve (ISO-8601 UTC), or null while the provider ' +
+      'catalogue is unresolved. ECMWF layers: the newest ingested cycle’s published horizon. ' +
+      'CMEMS layers: the MINIMUM of the serving products’ temporal-extent ends — the layer is ' +
+      'one field for every basin, so the only horizon it can honour everywhere is the earliest ' +
+      'one; it nulls when any serving product is unresolved or open-ended. The horizon is ' +
+      'genuinely variable (4–9 days by product), so the web must read it here rather than ' +
+      'hardcode a slider bound.',
   })
   horizonEndUtc!: string | null;
 
   @ApiProperty({
     type: String,
     nullable: true,
-    example: 'twice-daily: 00:00 UTC; 12:00 UTC',
+    example: 'daily: 16:00; 20th of each month at 16UTC',
     description:
-      'How often the provider re-runs the model, as the provider states it. NULL IN M1 — ' +
-      'resolved from the provider catalogue in M3. Carried at LAYER level rather than per ' +
-      'value because neither Faz-1 provider publishes a model-run time per value; a per-value ' +
-      'field would be null 31 × 5 times per response.',
+      'How often the provider re-runs the model, as the provider states it — PROVIDER-VERBATIM ' +
+      'and not machine-parseable by contract. For CMEMS layers this is the STAC ' +
+      'updateFrequencies compaction; when the serving products state different cadences the ' +
+      'distinct strings are joined with " | ". Null while the catalogue is unresolved. Carried ' +
+      'at LAYER level rather than per value because neither Faz-1 provider publishes a ' +
+      'model-run time per value.',
   })
   updateFrequency!: string | null;
 
@@ -131,8 +137,10 @@ export class MarineLayerDto {
     type: String,
     nullable: true,
     description:
-      'When the provider last updated its catalogue entry (ISO-8601 UTC). NULL IN M1 — ' +
-      'resolved from the provider catalogue in M3.',
+      'When the provider last updated its catalogue entry (ISO-8601 UTC), or null while ' +
+      'unresolved. ECMWF layers: the model-run time of the newest ingested cycle (that ' +
+      'provider has no catalogue document to date-stamp). CMEMS layers: the NEWEST ' +
+      'admp_updated stamp across the serving products.',
   })
   catalogueUpdatedAtUtc!: string | null;
 

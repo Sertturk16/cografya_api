@@ -469,4 +469,96 @@ describe('UpstreamCacheService', () => {
       }),
     );
   });
+
+  describe('peek — read-only, no refresh, no negative writes (marine M4 U-1)', () => {
+    function peekOptions() {
+      return { key: 'marine:overview', providerId: 'open-meteo', ttls: TTLS, ceilings: CEILINGS };
+    }
+
+    it('serves a fresh value with origin peeked', async () => {
+      const cache = build();
+      await cache.read(options(() => Promise.resolve(ok('v1'))));
+      nowMs += 600_000;
+
+      const peeked = await cache.peek<string>(peekOptions());
+      expect(peeked).toMatchObject({
+        value: 'v1',
+        kind: 'ok',
+        freshness: 'fresh',
+        origin: 'peeked',
+      });
+      expect(peeked.cacheAgeSeconds).toBe(600);
+    });
+
+    it('serves a stale value WITHOUT starting a revalidation', async () => {
+      const cache = build();
+      let served = 0;
+      const refresh = jest.fn(() => Promise.resolve(ok(`v${String(++served)}`)));
+      await cache.read(options(refresh));
+      nowMs += 3_700_000; // past the 1 h freshness TTL
+
+      const peeked = await cache.peek<string>(peekOptions());
+      await flush();
+
+      expect(peeked).toMatchObject({ value: 'v1', freshness: 'stale', origin: 'peeked' });
+      // read() at this age would have revalidated behind the response; peek must not.
+      expect(refresh).toHaveBeenCalledTimes(1);
+    });
+
+    it('a cold peek answers unavailable and WRITES NO NEGATIVE ENTRY — the next read still refreshes', async () => {
+      const cache = build();
+      const peeked = await cache.peek<string>(peekOptions());
+      expect(peeked).toMatchObject({ value: null, kind: 'transient', origin: 'unavailable' });
+      // `cache.miss` means "a refresh was attempted" — a peek attempts none.
+      expect(metrics.get('cache.miss', 'open-meteo')).toBe(0);
+
+      // THE warmup-starvation proof (plan §4.4): had the peek written a 60 s transient negative,
+      // this read would answer negative_hit and never run the closure.
+      const refresh = jest.fn(() => Promise.resolve(ok('v1')));
+      const read = await cache.read(options(refresh));
+      expect(refresh).toHaveBeenCalledTimes(1);
+      expect(read).toMatchObject({ value: 'v1', origin: 'refreshed' });
+    });
+
+    it('reports a binding negative honestly, with its own kind', async () => {
+      const cache = build();
+      await cache.read(
+        options(() => Promise.resolve({ kind: 'no_data', reason: 'land mask here' })),
+      );
+
+      const peeked = await cache.peek<string>(peekOptions());
+      expect(peeked).toMatchObject({ value: null, kind: 'no_data', origin: 'peeked' });
+    });
+
+    it('labels a stale value shadowed by a binding negative stale_after_failure — a sweep must not race the negative TTL', async () => {
+      const cache = build();
+      await cache.read(options(() => Promise.resolve(ok('v1'))));
+      nowMs += 3_700_000;
+      // The revalidation fails and records a 60 s transient negative next to the stale value.
+      await cache.read(options(() => Promise.resolve({ kind: 'transient', reason: 'down' })));
+      await flush();
+
+      const peeked = await cache.peek<string>(peekOptions());
+      expect(peeked).toMatchObject({ value: 'v1', kind: 'ok', origin: 'stale_after_failure' });
+
+      // Once the negative expires, the same peek reads as plainly stale (due for refresh).
+      nowMs += 61_000;
+      const later = await cache.peek<string>(peekOptions());
+      expect(later).toMatchObject({ value: 'v1', freshness: 'stale', origin: 'peeked' });
+    });
+
+    it('applies the staleness ceilings on the way out, like read()', async () => {
+      const cache = build();
+      // The validAt ceiling is the one a peek can actually catch in the act: past the cache-age
+      // ceiling the store's RETENTION has expired too (retention = max(ttl, staleMax)), so that
+      // case is a plain miss. A value fetched recently but describing a too-old model moment is
+      // still physically present — and peek must drop it exactly like read().
+      await cache.read(options(() => Promise.resolve(ok('v1', nowMs))));
+      nowMs += (CEILINGS.validAtMaxAgeSeconds + 60) * 1000;
+
+      const peeked = await cache.peek<string>(peekOptions());
+      expect(peeked).toMatchObject({ value: null, origin: 'unavailable' });
+      expect(metrics.get('cache.ceiling_dropped', 'open-meteo')).toBe(1);
+    });
+  });
 });
