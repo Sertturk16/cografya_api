@@ -78,6 +78,35 @@ export type UpstreamMetricName =
    * megabytes invisible to every ceiling (review #76 SFH-2).
    */
   | 'ingest.bytes_abandoned'
+  // ── Air-quality (CAMS/ADS) ingest events (A2a). Same convention: the provider dimension is
+  // the `providerId` argument, so these names stay leg-neutral in shape while naming the
+  // failure classes this queue protocol actually has. ──
+  /** An unexpected exception escaped the ingest slice — OUR bug, never a provider fault. */
+  | 'airq.ingest_bug'
+  /** WE refused a request shape because `costing` exceeded the account limit. */
+  | 'airq.cost_refused'
+  /** WE refused a download because the DECLARED size exceeded the byte ceiling. */
+  | 'airq.size_refused'
+  /** A pinned decode guard refused the provider's bytes — a provider-contract record. */
+  | 'airq.contract_refusal'
+  /**
+   * The decode WRAPPER raised, i.e. `CamsContractError.unexpected` — our decoder is broken, not
+   * the provider. Counted apart from `airq.contract_refusal` because flattening the two sends
+   * the diagnosis to the wrong file (plan §10-D3).
+   */
+  | 'airq.decoder_bug'
+  /** A job exhausted `AIR_QUALITY_MAX_ATTEMPTS_PER_JOB` and was given up on. */
+  | 'airq.attempts_exhausted'
+  /** A `submitting` job could not be reconciled unambiguously — a human must look. */
+  | 'airq.reconcile_ambiguous'
+  /** A run was superseded before its forecast ever completed. */
+  | 'airq.run_abandoned'
+  /** The analysis product failed terminally; the run publishes without its past half. */
+  | 'airq.run_degraded'
+  /** The analysis file resolved to different grid cells than the forecast — refused (R11). */
+  | 'airq.analysis_grid_mismatch'
+  /** The province reference set was not the expected 81 fully-located rows. */
+  | 'airq.province_set_invalid'
   /**
    * A stored series row was refused by the read-path shape guard and SKIPPED — the remaining
    * readable cycles still serve the point, and the read degrades to `schema_error` only when no
