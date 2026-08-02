@@ -33,9 +33,10 @@ interface EcmwfCatalogueFields {
  *
  * M1: the reference-point read and the static layer catalogue. M3b: the two ECMWF-PRIMARY
  * layers (wind speed/direction) carry live catalogue fields resolved from the newest ingested
- * cycle — a Postgres read, never a provider call. The CMEMS-primary layers keep their nulls
- * until M4 resolves the CMEMS/STAC side; filling a CMEMS layer's catalogue line from its
- * FALLBACK provider would attribute one provider's horizon to another's product.
+ * cycle — a Postgres read, never a provider call. M4b: the three CMEMS-primary layers resolve
+ * the same fields from the stored STAC resolutions (deltas d1–d3). Each layer fills ONLY from
+ * its own primary provider; filling a CMEMS layer's catalogue line from its FALLBACK provider
+ * would attribute one provider's horizon to another's product.
  */
 @Injectable()
 export class MarineService {

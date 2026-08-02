@@ -272,7 +272,9 @@ export class UpstreamCacheService {
    * stale usable value (`origin: 'peeked'`); a stale value shadowed by a binding negative
    * (`origin: 'stale_after_failure'`, so a sweep can tell "due for refresh" from "refresh is
    * suppressed" — the negative TTLs bind a peeking sweep exactly as they bind `read()`); a bare
-   * binding negative (`negative_hit`); or an honest `unavailable` miss.
+   * binding negative (kind and reason preserved, `origin: 'peeked'` like every other answer
+   * from this method — the sweep's suppression check keys on exactly that non-ok-kind +
+   * `'peeked'` pairing, review #82 M1); or an honest `unavailable` miss.
    */
   async peek<T>(options: PeekOptions): Promise<CachedRead<T>> {
     const usable = this.evaluate(await this.store.get<T>(options.key), options);

@@ -115,8 +115,11 @@ export class MarineController {
       '(wind_speed_10m, wind_direction_10m), horizonEndUtc / updateFrequency / ' +
       'catalogueUpdatedAtUtc are resolved from the newest ingested model cycle — a local ' +
       'database read; this endpoint NEVER calls a provider. They are null while no cycle has ' +
-      'been ingested yet or the newest one breached the 24 h cycle-age ceiling. The ' +
-      'CMEMS-primary layers keep null until M4 resolves the CMEMS catalogue.',
+      'been ingested yet or the newest one breached the 24 h cycle-age ceiling. The three ' +
+      'CMEMS-primary layers resolve the same fields from the stored STAC catalogue ' +
+      'resolutions the warmup tour maintains — also a local cache read, never a provider ' +
+      'call; they are null while no resolution is stored yet (cold cache) or not every ' +
+      'serving product is resolved (a partial horizon minimum could overstate the horizon).',
   })
   @ApiOkResponse({ type: MarineLayerDto, isArray: true })
   findAllLayers(): Promise<MarineLayerDto[]> {

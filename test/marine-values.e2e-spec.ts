@@ -32,9 +32,9 @@ import { OperationDeadline } from '../src/upstream/operation-deadline';
  *  0. empty `marine_points` → 500 on every value endpoint (broken deploy, not outage);
  *  A. counted-fetch COLD overview → 0 upstream calls, dataAvailable:false, `no-store`;
  *  B. warmup resolution phase → ≤4 STAC calls; `/layers` CMEMS fields fill (d1–d3);
- *  C. COLD single-point conditions → exactly its own 3 CMEMS calls, 0 ECMWF — which is ALSO
- *     the peek-writes-no-negatives proof (a negative from A's 78 cold peeks would have
- *     suppressed exactly these refreshes);
+ *  C. COLD single-point conditions → exactly its own 3 CMEMS calls, 0 ECMWF — corroborating
+ *     end-to-end that A's 78 cold peeks wrote no suppressing negatives (the BINDING proof of
+ *     that property is the injected-clock peek unit suite; see the phase-C note);
  *  D. İstanbul provinces → ≤6 CMEMS calls, two points with INDEPENDENT per-field statuses;
  *  E. ECMWF store seeded → Marmara wave pair falls back AS A PAIR, warm reads cost 0 calls;
  *  F. retired-dataset rotation → one forced STAC re-resolution, recovery, then the WARM
@@ -401,9 +401,13 @@ describe('Marine M4b value endpoints (e2e)', () => {
       const body = response.body as ConditionsDto;
 
       // ≤3 CMEMS (exactly 3 for a Black Sea point), 0 STAC, and — by the foreign-call guard —
-      // 0 ECMWF anywhere. This is ALSO the "peek writes no negative entries" machine check:
-      // phase A cold-peeked these very keys; a `transient` negative written there (60 s class)
-      // would have suppressed these refreshes into negative_hits with zero calls.
+      // 0 ECMWF anywhere. This also CORROBORATES "peek writes no negative entries": phase A
+      // cold-peeked these very keys, and a still-binding negative written there would have
+      // suppressed these refreshes into negative_hits with zero calls. Corroborates, not
+      // proves (review #82 M3): this suite pins `MARINE_ERROR_TTL_SECONDS=1`, so a phantom
+      // phase-A negative could also have lapsed on its own between phases under CI load. The
+      // BINDING proof is deterministic and clock-injected: the peek unit suite in
+      // `upstream-cache.service.spec.ts` (U-1 — no refresh, no negative write, structurally).
       expect(wmtsCalls).toHaveLength(3);
       expect(stacCalls).toEqual([]);
 
@@ -464,6 +468,14 @@ describe('Marine M4b value endpoints (e2e)', () => {
       expect(marmaraDto.waveHeight.status).toBe('unavailable');
       expect(marmaraDto.waveDirection.status).toBe('unavailable');
       expect(blackSeaDto.waveHeight.source).toBe('cmems');
+
+      // Review #82 I5 — header class: `X-Marine-Cache-Age` reduces over `kind === 'ok'` reads
+      // ONLY, so the Marmara land-mask `no_data` written by this very request (24 h negative
+      // TTL — the sweep deliberately never re-fetches it) must not drive the header. Here the
+      // ok values were just refreshed, so the header must sit in the seconds class; the
+      // deterministic 24 h-pin proof lives in `marine-read-reducers.spec.ts`.
+      expect(response.headers['x-marine-cache-age']).toMatch(/^\d+$/);
+      expect(Number(response.headers['x-marine-cache-age'])).toBeLessThanOrEqual(5);
     });
   });
 

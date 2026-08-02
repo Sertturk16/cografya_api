@@ -29,6 +29,7 @@ import type { MarineProvinceConditionsDto } from './dto/marine-province-conditio
 import type { MarineSeriesDto } from './dto/marine-series.dto';
 import { MarinePoint } from './entities/marine-point.entity';
 import { withCacheAge } from './marine-cache-age.interceptor';
+import { newestOkFetchedAt, oldestOkCacheAge } from './marine-read-reducers';
 import { toMarinePointListItem } from './marine-point.mapper';
 import { MARINE_UPSTREAM_CONFIG, type MarineUpstreamConfig } from './marine-upstream.config';
 import { MarineSource } from './marine.types';
@@ -118,11 +119,11 @@ export class MarineValuesService {
       // and defeat the weak ETag the ISR revalidation depends on (`marine-cache-age.interceptor`
       // promises body fields change only when the data does). Cold fallback: the wall clock —
       // that response is `no-store`, so its instability caches nowhere.
-      generatedAtUtc: newestFetchedAt(allReads) ?? new Date(nowMs).toISOString(),
+      generatedAtUtc: newestOkFetchedAt(allReads) ?? new Date(nowMs).toISOString(),
       dataAvailable,
       attributions: [],
     };
-    return withCacheAge(dto, oldestCacheAge(allReads));
+    return withCacheAge(dto, oldestOkCacheAge(allReads));
   }
 
   /** `GET /api/marine/points/{slug}/conditions` — one point, instant values + the 5-day series. */
@@ -139,7 +140,7 @@ export class MarineValuesService {
     const deadline = new OperationDeadline(this.config.requestDeadlineMs);
     const resolved = await this.resolvePoint(point, Date.now(), deadline);
     const dto = this.toConditionsDto(resolved);
-    return withCacheAge(dto, oldestCacheAge(resolved.reads));
+    return withCacheAge(dto, oldestOkCacheAge(resolved.reads));
   }
 
   /** `GET /api/marine/provinces/{plateCode}/conditions` — 1–2 points, ONE shared deadline. */
@@ -169,7 +170,7 @@ export class MarineValuesService {
       marinePoints: resolved.map((entry) => this.toConditionsDto(entry)),
       attributions: [],
     };
-    return withCacheAge(dto, oldestCacheAge(resolved.flatMap((entry) => entry.reads)));
+    return withCacheAge(dto, oldestOkCacheAge(resolved.flatMap((entry) => entry.reads)));
   }
 
   /**
@@ -282,26 +283,4 @@ function toSeriesDto(series: EcmwfCompiledSeries): MarineSeriesDto {
     modelRunAtUtc: series.modelRunAtUtc,
     horizonEndUtc: series.horizonEndUtc,
   };
-}
-
-/** `X-Marine-Cache-Age` = the OLDEST contributing read — the honest worst case (plan §5). */
-function oldestCacheAge(reads: readonly CachedRead<unknown>[]): number | null {
-  let oldest: number | null = null;
-  for (const read of reads) {
-    if (read.cacheAgeSeconds === null) continue;
-    if (oldest === null || read.cacheAgeSeconds > oldest) oldest = read.cacheAgeSeconds;
-  }
-  return oldest;
-}
-
-/** The freshest moment any contributing value entered the cache — `generatedAtUtc`'s source. */
-function newestFetchedAt(reads: readonly CachedRead<unknown>[]): string | null {
-  let newest: string | null = null;
-  for (const read of reads) {
-    if (read.fetchedAtUtc === null) continue;
-    if (newest === null || Date.parse(read.fetchedAtUtc) > Date.parse(newest)) {
-      newest = read.fetchedAtUtc;
-    }
-  }
-  return newest;
 }

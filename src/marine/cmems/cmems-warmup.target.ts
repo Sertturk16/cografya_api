@@ -29,6 +29,8 @@ interface SweepEntry {
 export interface CmemsTourSummary {
   resolutionsRefreshed: number;
   resolutionsFailed: number;
+  /** Products the resolution phase left behind because the slice expired (review #82 M-VAL-1). */
+  resolutionsSkipped: number;
   refreshed: number;
   failed: number;
   skippedFresh: number;
@@ -59,6 +61,14 @@ export interface CmemsTourSummary {
  * 400-triggered self-heal below, and still persists through the ONE shared persist path
  * (TTLs, negative entries and retention all decided by the cache service, never re-implemented
  * here). The pre-resolved closure means no second provider call on any `read` branch.
+ *
+ * One accepted looseness in that trade (review #82 M2, documented decision): on the
+ * steady-state STALE path `read` answers from cache and persists this outcome via its
+ * fire-and-forget background revalidation, so the write can land milliseconds after the tour
+ * summary logs, and a lost cross-instance single-flight race discards this worker's outcome in
+ * favour of the lock holder's own fresh write. Both windows are bounded and lose no data a
+ * reader could miss (the winning writer persists a value at least as new); growing a bare
+ * "persist" primitive on the shared cache to close them would buy nothing a user can observe.
  *
  * ## The 400-XML self-heal (plan §3.2 — the retired-dataset rotation)
  * A `client_error` with HTTP 400 out of a sweep fetch is the retired-dataset signature; the
@@ -110,6 +120,7 @@ export class CmemsWarmupTarget implements ScheduledWarmupTarget {
     const summary: CmemsTourSummary = {
       resolutionsRefreshed: 0,
       resolutionsFailed: 0,
+      resolutionsSkipped: 0,
       refreshed: 0,
       failed: 0,
       skippedFresh: 0,
@@ -144,7 +155,14 @@ export class CmemsWarmupTarget implements ScheduledWarmupTarget {
    */
   async refreshResolutions(deadline: OperationDeadline, summary?: CmemsTourSummary): Promise<void> {
     for (const [productId, selectors] of this.selectorsByProduct) {
-      if (deadline.hasExpired()) return;
+      if (deadline.hasExpired()) {
+        // Counted, not silently returned (review #82 M-VAL-1): the map iterates in a FIXED
+        // order, so an exhausted slice starves the SAME trailing products every tour — with
+        // defaults it cannot bite (the resolution phase is ≤4 cheap calls), but a lowered
+        // `CMEMS_TOUR_BUDGET_MS` must show up in the summary, not as invisibly-null layers.
+        if (summary !== undefined) summary.resolutionsSkipped += 1;
+        continue;
+      }
       const stored = await this.options.stacCache.get(productId);
       const due =
         stored === null ||
@@ -163,6 +181,7 @@ export class CmemsWarmupTarget implements ScheduledWarmupTarget {
     const counters = summary ?? {
       resolutionsRefreshed: 0,
       resolutionsFailed: 0,
+      resolutionsSkipped: 0,
       refreshed: 0,
       failed: 0,
       skippedFresh: 0,
@@ -198,7 +217,29 @@ export class CmemsWarmupTarget implements ScheduledWarmupTarget {
         counters.deadlineSkipped += 1;
         continue;
       }
-      await this.sweepOne(entry, deadline, counters);
+      try {
+        await this.sweepOne(entry, deadline, counters);
+      } catch (error: unknown) {
+        // Review #82 I4: an unexpected exception in ONE entry must fail that entry, not this
+        // worker. Under `Promise.all` a rejecting worker would surface at the top-level catch
+        // while its three siblings kept running — mutating the summary counters and issuing
+        // live provider calls AFTER the tour's "done" log had already fired. A provider fault
+        // never lands here (outcomes, not throws), so this is OUR bug: counted, throttled
+        // (a systematic bug would otherwise print once per entry), and the sweep continues.
+        counters.failed += 1;
+        this.options.metrics.throttledEvent(
+          'error',
+          'cmems.sweep-entry-failed',
+          60_000,
+          'CMEMS sweep entry failed unexpectedly — worker continues',
+          {
+            provider: MARINE_PROVIDER.cmems,
+            point: entry.point.slugTr,
+            field: entry.field,
+            reason: error instanceof Error ? `${error.name}: ${error.message}` : 'unknown',
+          },
+        );
+      }
     }
   }
 
@@ -249,8 +290,23 @@ export class CmemsWarmupTarget implements ScheduledWarmupTarget {
       outcome.httpStatus === 400
     ) {
       const productId = this.productIdFor(point, field);
-      if (productId !== null && this.gate.tryAcquire(productId)) {
-        const selectors = this.selectorsByProduct.get(productId) ?? [];
+      if (productId === null) return;
+      const selectors = this.selectorsByProduct.get(productId);
+      if (selectors === undefined) {
+        // Unreachable by construction (both maps derive from the same static routing table) —
+        // but the old `?? []` fallback here was WORSE than unreachable (review #82 CR-M6/I3):
+        // force-resolving with ZERO selectors would store a resolution whose empty selection
+        // list replaces a good one and darkens the whole product. Checked BEFORE the gate so
+        // the once-per-tour heal budget is not burned on a no-op.
+        this.options.metrics.event('error', 'CMEMS self-heal found no selectors for product', {
+          provider: MARINE_PROVIDER.cmems,
+          product: productId,
+          point: point.slugTr,
+          field,
+        });
+        return;
+      }
+      if (this.gate.tryAcquire(productId)) {
         const landed = await this.options.reader.forceResolveProduct(
           productId,
           selectors,
