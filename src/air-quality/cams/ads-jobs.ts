@@ -335,14 +335,15 @@ export function isTerminalProviderStatus(status: string): boolean {
  * The match is deliberately a tolerant substring test, NOT a `JSON.parse`: what reaches the
  * call site is the shared client's composed `client_error` reason — redacted prose whose body
  * excerpt is capped at 200 bytes — so the measured `{"title":"required licences not
- * accepted"}` may arrive truncated and would never survive a strict parse (review #80, found
- * by the I5 coverage test: the parse-based predicate was structurally unreachable in
- * production). Scoped to HTTP 403 via the outcome's STRUCTURAL `httpStatus`, so a licence
- * mention in any other status can never ride along.
+ * accepted"}` may arrive truncated (even mid-word) and would never survive a strict parse
+ * (review #80, found by the I5 coverage test: the parse-based predicate was structurally
+ * unreachable in production). The stem `licen` covers licence/license and their truncations;
+ * on a 403 there is no other word it could be. Scoped to HTTP 403 via the outcome's
+ * STRUCTURAL `httpStatus`, so a licence mention in any other status can never ride along.
  */
 export function isLicenceRefusal(status: number | undefined, body: string): boolean {
   if (status !== 403) return false;
-  return /licen[cs]e/i.test(body);
+  return /licen/i.test(body);
 }
 
 // ─── small parsing helpers (fail loudly, never guess) ───────────────────────
