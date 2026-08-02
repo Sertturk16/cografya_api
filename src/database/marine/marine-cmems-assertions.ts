@@ -1,10 +1,23 @@
-import { CMEMS_BASIN_ROUTING, CMEMS_SELECTOR_ENTRIES } from '../../marine/cmems/cmems-routing';
+import {
+  CMEMS_BASIN_ROUTING,
+  CMEMS_SELECTOR_ENTRIES,
+  cmemsWaveSupport,
+} from '../../marine/cmems/cmems-routing';
 import { parseCmemsDatasetToken } from '../../marine/cmems/cmems-stac';
-import { isPlausibleCmemsValue, type CmemsLayerField } from '../../marine/cmems/cmems.constants';
+import {
+  CMEMS_TILE_MATRIX_SET,
+  CMEMS_UNIT_NORMALISATION,
+  CMEMS_VARIABLE_IDS,
+  CMEMS_ZOOM,
+  isPlausibleCmemsValue,
+  type CmemsLayerField,
+} from '../../marine/cmems/cmems.constants';
+import { toTilePixel } from './geo';
 import { MARINE_POINT_CANDIDATES } from './marine-candidates';
 import type {
   CmemsProbeAssertionResult,
   CmemsProbeCallRecord,
+  CmemsProbeEntry,
   MarineCmemsProbeArtifact,
 } from './marine-cmems-artifact.types';
 
@@ -17,19 +30,71 @@ import type {
  * still written so the evidence is reviewable — the M1 precedent) and in
  * `marine-cmems-assertions.spec.ts` on every CI run against the COMMITTED artifact (staleness
  * gate: the committed evidence must keep describing current code).
+ *
+ * Staleness means CODE comparison: every threshold, unit and request parameter a gate judges
+ * is read from CURRENT code (`CMEMS_BASIN_ROUTING`, `CMEMS_UNIT_NORMALISATION`, `CMEMS_ZOOM`,
+ * `toTilePixel`), never from the artifact's own copy — an artifact-vs-artifact compare is a
+ * gate that structurally cannot fire (review #81 I1; the M1 `marine-assertions.ts` precedent).
  */
 
 function result(id: string, passed: boolean, detail: string): CmemsProbeAssertionResult {
   return { id, passed, detail };
 }
 
+/**
+ * Recompute the WMTS request from CURRENT code — tile arithmetic, zoom, matrix set, variable
+ * id — and require the RECORDED URL to still match. One gate pins `toTilePixel`, `CMEMS_ZOOM`,
+ * the parameter names and the layer's variable id against the committed evidence at once: a
+ * zoom bump or an arithmetic change must turn the artifact stale here (review #81 I1).
+ */
+function requestUrlMatchesCurrentCode(
+  entry: CmemsProbeEntry,
+  field: CmemsLayerField,
+  requestUrl: string,
+): { matches: boolean; detail: string } {
+  let url: URL;
+  try {
+    url = new URL(requestUrl);
+  } catch {
+    return { matches: false, detail: `recorded request URL is not parseable: "${requestUrl}"` };
+  }
+  const params = url.searchParams;
+  const pixel = toTilePixel(entry.latitude, entry.longitude, CMEMS_ZOOM);
+  const expected: readonly (readonly [string, string])[] = [
+    ['TileMatrix', String(CMEMS_ZOOM)],
+    ['tilematrixset', CMEMS_TILE_MATRIX_SET],
+    ['TileRow', String(pixel.tileRow)],
+    ['TileCol', String(pixel.tileCol)],
+    ['I', String(pixel.i)],
+    ['J', String(pixel.j)],
+  ];
+  const mismatches = expected
+    .filter(([key, value]) => params.get(key) !== value)
+    .map(([key, value]) => `${key} recorded "${String(params.get(key))}" ≠ code "${value}"`);
+  const layer = params.get('layer') ?? '';
+  if (!layer.endsWith(`/${CMEMS_VARIABLE_IDS[field]}`)) {
+    mismatches.push(`layer "${layer}" does not end with "/${CMEMS_VARIABLE_IDS[field]}"`);
+  }
+  return {
+    matches: mismatches.length === 0,
+    detail:
+      mismatches.length === 0
+        ? 'recorded URL matches a recompute from current code'
+        : mismatches.join('; '),
+  };
+}
+
 function callChecks(
   results: CmemsProbeAssertionResult[],
-  slug: string,
+  entry: CmemsProbeEntry,
   field: CmemsLayerField,
   call: CmemsProbeCallRecord,
 ): void {
-  const label = `${slug}/${field}`;
+  const label = `${entry.slugTr}/${field}`;
+  // Ceilings and units come FROM CURRENT CODE, never from the artifact's recorded copy — a
+  // follow-up that tightens a basin ceiling or changes a canonical unit must fail HERE.
+  const codeCeilingKm = CMEMS_BASIN_ROUTING[entry.seaBasin].maxGridDistanceKm;
+  const codeUnit = CMEMS_UNIT_NORMALISATION[field];
 
   results.push(
     result(
@@ -50,16 +115,21 @@ function callChecks(
     results.push(
       result(
         `c3-snap-${label}`,
-        call.distanceKm !== null && call.distanceKm <= call.maxGridDistanceKm,
-        `snap ${String(call.distanceKm)} km vs ceiling ${String(call.maxGridDistanceKm)} km — a ` +
-          `breach means OUR tile arithmetic picked the wrong cell`,
+        call.maxGridDistanceKm === codeCeilingKm &&
+          call.distanceKm !== null &&
+          call.distanceKm <= codeCeilingKm,
+        `snap ${String(call.distanceKm)} km vs CODE ceiling ${String(codeCeilingKm)} km ` +
+          `(recorded ${String(call.maxGridDistanceKm)}) — a distance breach means OUR tile ` +
+          `arithmetic picked the wrong cell; recorded ≠ code means the evidence proves an ` +
+          `outdated threshold and the probe must be re-run`,
       ),
     );
     results.push(
       result(
         `c4-unit-${label}`,
-        call.normalizedUnit !== null && call.rawUnits !== null,
-        `raw "${String(call.rawUnits)}" → canonical "${String(call.normalizedUnit)}"`,
+        call.rawUnits === codeUnit.raw && call.normalizedUnit === codeUnit.canonical,
+        `raw "${String(call.rawUnits)}" → canonical "${String(call.normalizedUnit)}" must equal ` +
+          `current code's "${codeUnit.raw}" → "${codeUnit.canonical}"`,
       ),
     );
   } else {
@@ -87,6 +157,9 @@ function callChecks(
       `elapsed ${String(call.elapsedMs)} ms`,
     ),
   );
+
+  const urlCheck = requestUrlMatchesCurrentCode(entry, field, call.requestUrl);
+  results.push(result(`c8-request-url-${label}`, urlCheck.matches, urlCheck.detail));
 }
 
 /** Every gate over one artifact. Pure; throws nothing — the caller decides what a failure means. */
@@ -109,7 +182,7 @@ export function evaluateMarineCmemsArtifact(
 
   // ── a2: the support rule — wave queried exactly where CMEMS supports it ─────
   for (const entry of artifact.entries) {
-    const waveSupported = CMEMS_BASIN_ROUTING[entry.seaBasin].wave !== null;
+    const waveSupported = cmemsWaveSupport(entry.seaBasin) === 'supported';
     results.push(
       result(
         `a2-wave-support-${entry.slugTr}`,
@@ -124,13 +197,12 @@ export function evaluateMarineCmemsArtifact(
     );
   }
 
-  // ── c*: per-call transport/value/snap/unit/echo/timing gates ────────────────
+  // ── c*: per-call transport/value/snap/unit/echo/timing/url gates ────────────
   for (const entry of artifact.entries) {
-    callChecks(results, entry.slugTr, 'seaSurfaceTemperature', entry.seaSurfaceTemperature);
-    if (entry.waveHeight !== null)
-      callChecks(results, entry.slugTr, 'waveHeight', entry.waveHeight);
+    callChecks(results, entry, 'seaSurfaceTemperature', entry.seaSurfaceTemperature);
+    if (entry.waveHeight !== null) callChecks(results, entry, 'waveHeight', entry.waveHeight);
     if (entry.waveDirection !== null) {
-      callChecks(results, entry.slugTr, 'waveDirection', entry.waveDirection);
+      callChecks(results, entry, 'waveDirection', entry.waveDirection);
     }
   }
 

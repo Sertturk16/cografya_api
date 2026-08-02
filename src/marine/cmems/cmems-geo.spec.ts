@@ -78,6 +78,10 @@ describe('toTilePixel guards', () => {
     const maxLatitude = 85.0511287798066;
     expect(toTilePixel(90, 0, 3)).toEqual(toTilePixel(maxLatitude, 0, 3));
     expect(toTilePixel(-90, 0, 3)).toEqual(toTilePixel(-maxLatitude, 0, 3));
+    // Over-clamp guard: a latitude just BELOW the limit must NOT be treated as the limit — a
+    // shrunk clamp constant would keep the clamp-equivalence above green while silently moving
+    // real coordinates (review #81 M-TEST-1). ~38 px apart at zoom 12, far from float edges.
+    expect(toTilePixel(85.05, 0, 12)).not.toEqual(toTilePixel(maxLatitude, 0, 12));
   });
 });
 

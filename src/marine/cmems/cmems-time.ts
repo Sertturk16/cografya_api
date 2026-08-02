@@ -20,6 +20,12 @@
  * available hour, honestly labelled by `validAtUtc`. Clamping is bounded by the ceilings: if
  * the extent end is hours behind now, the value the clamp fetches is REFUSED downstream by
  * the `validAtMaxAgeSeconds` ceiling, so the clamp can never smuggle old water in as fresh.
+ *
+ * The extent passed in is the PRODUCT-level temporal envelope — the union across every
+ * sub-model the product's STAC document serves (BLKSEA's 2.5 km grid and the mrm-500m Marmara
+ * sub-model share one document, hence one envelope). A sub-model lagging the envelope's end is
+ * therefore NOT clamp-protected: its call still answers 400 and fails loudly, which is the
+ * honest outcome — the clamp only removes the GUARANTEED 400 at the shared horizon edge.
  */
 
 export interface CmemsTimeSelection {

@@ -106,9 +106,25 @@ export const CMEMS_BASIN_ROUTING: Readonly<Record<SeaBasin, BasinCmemsRoute>> = 
   },
 };
 
-/** The CMEMS support verdict for one basin's wave pair — the "make NO call" rule's input. */
+/**
+ * The CMEMS support verdict for one basin's wave pair — the "make NO call" rule's input.
+ *
+ * Consumers: the probe-artifact gate (`a2-wave-support`, `marine-cmems-assertions.ts`) reads
+ * it now; the M4b `resolveWavePair` caller is the runtime consumer. The probe itself keeps
+ * the inline `route.wave !== null` form because that null check is also the type narrowing
+ * that lets it read `route.wave` — the two spellings are pinned equal by construction here.
+ */
 export function cmemsWaveSupport(basin: SeaBasin): 'supported' | 'not_supported' {
   return CMEMS_BASIN_ROUTING[basin].wave === null ? 'not_supported' : 'supported';
+}
+
+/**
+ * The canonical selector-key format, spelled ONCE (review #81 M2). The literal keys in the
+ * probe's licence-row table must match this format; a drift there fails the `a4` row gates
+ * loudly because the row's dataset lookup resolves nothing.
+ */
+export function cmemsSelectorKey(selector: CmemsDatasetSelector): string {
+  return `${selector.productId}/${selector.gridToken}`;
 }
 
 /**
@@ -129,7 +145,7 @@ export const CMEMS_SELECTOR_ENTRIES: readonly CmemsSelectorEntry[] = (() => {
   for (const route of Object.values(CMEMS_BASIN_ROUTING)) {
     for (const selector of [route.seaSurfaceTemperature, route.wave]) {
       if (selector === null) continue;
-      const key = `${selector.productId}/${selector.gridToken}`;
+      const key = cmemsSelectorKey(selector);
       if (!entries.has(key)) entries.set(key, { key, selector });
     }
   }

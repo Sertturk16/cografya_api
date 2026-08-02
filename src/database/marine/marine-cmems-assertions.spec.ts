@@ -1,7 +1,9 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from '@jest/globals';
+import { CMEMS_BASIN_ROUTING } from '../../marine/cmems/cmems-routing';
 import { SeaBasin } from '../../marine/marine.types';
+import { BASIN_CMEMS_ROUTING } from './marine-candidates';
 import { evaluateMarineCmemsArtifact } from './marine-cmems-assertions';
 import type {
   CmemsLicenceRecord,
@@ -81,6 +83,47 @@ describe('the gates are falsifiable (mutated copies must fail)', () => {
     expect(failures.some((failure) => failure.id.startsWith('c3-snap-'))).toBe(true);
   });
 
+  it('a RECORDED ceiling that drifted from CMEMS_BASIN_ROUTING fails c3 even when the distance is fine (review #81 I1)', () => {
+    // The distance stays under both values — only the artifact's recorded ceiling drifts. The
+    // gate must judge against CURRENT code, so a code-side ceiling revision without a probe
+    // re-run cannot stay green.
+    const artifact = mutateFirstEntry(loadArtifact(), (entry) => ({
+      ...entry,
+      seaSurfaceTemperature: {
+        ...entry.seaSurfaceTemperature,
+        maxGridDistanceKm: entry.seaSurfaceTemperature.maxGridDistanceKm + 1,
+      },
+    }));
+    const failures = evaluateMarineCmemsArtifact(artifact).filter((result) => !result.passed);
+    expect(failures.some((failure) => failure.id.startsWith('c3-snap-'))).toBe(true);
+  });
+
+  it('a unit that drifted from CMEMS_UNIT_NORMALISATION fails c4 (review #81 I1)', () => {
+    const artifact = mutateFirstEntry(loadArtifact(), (entry) => ({
+      ...entry,
+      seaSurfaceTemperature: {
+        ...entry.seaSurfaceTemperature,
+        normalizedUnit: 'kelvin',
+      },
+    }));
+    const failures = evaluateMarineCmemsArtifact(artifact).filter((result) => !result.passed);
+    expect(failures.some((failure) => failure.id.startsWith('c4-unit-'))).toBe(true);
+  });
+
+  it('a recorded request URL whose tile address no longer matches toTilePixel fails c8 (review #81 I1)', () => {
+    const artifact = mutateFirstEntry(loadArtifact(), (entry) => {
+      const url = new URL(entry.seaSurfaceTemperature.requestUrl);
+      const recordedRow = Number(url.searchParams.get('TileRow'));
+      url.searchParams.set('TileRow', String(recordedRow + 1));
+      return {
+        ...entry,
+        seaSurfaceTemperature: { ...entry.seaSurfaceTemperature, requestUrl: url.toString() },
+      };
+    });
+    const failures = evaluateMarineCmemsArtifact(artifact).filter((result) => !result.passed);
+    expect(failures.some((failure) => failure.id.startsWith('c8-request-url-'))).toBe(true);
+  });
+
   it('a missing candidate fails a1', () => {
     const artifact = loadArtifact();
     const truncated = { ...artifact, entries: artifact.entries.slice(1) };
@@ -123,5 +166,34 @@ describe('the gates are falsifiable (mutated copies must fail)', () => {
       xmlErrorFixture: { ...artifact.xmlErrorFixture, httpStatus: 200 },
     }).filter((result) => !result.passed);
     expect(failures.some((failure) => failure.id === 'a5-xml-fixture')).toBe(true);
+  });
+});
+
+describe('the two CMEMS routing tables agree (review #81 I2)', () => {
+  /**
+   * The runtime/probe table (`CMEMS_BASIN_ROUTING`, M4a) and the M1 tooling table
+   * (`BASIN_CMEMS_ROUTING`) both carry per-basin snap ceilings and the wave-support verdict.
+   * Nothing merges them (the M1 table pins full dataset ids — recorded pre-existing debt), so
+   * this invariant is what keeps a ceiling revision from certifying evidence against a
+   * threshold the runtime rejects, or the inverse.
+   */
+  it('per-basin snap ceilings, wave support and product families match', () => {
+    for (const basin of Object.values(SeaBasin)) {
+      const runtime = CMEMS_BASIN_ROUTING[basin];
+      const tooling = BASIN_CMEMS_ROUTING[basin];
+      expect(tooling.maxGridDistanceKm).toBe(runtime.maxGridDistanceKm);
+      expect(tooling.wave === null).toBe(runtime.wave === null);
+      expect(
+        tooling.seaSurfaceTemperature.datasetId.startsWith(
+          `${runtime.seaSurfaceTemperature.productId}/`,
+        ),
+      ).toBe(true);
+      if (tooling.wave !== null && runtime.wave !== null) {
+        expect(tooling.wave.height.datasetId.startsWith(`${runtime.wave.productId}/`)).toBe(true);
+        expect(tooling.wave.direction.datasetId.startsWith(`${runtime.wave.productId}/`)).toBe(
+          true,
+        );
+      }
+    }
   });
 });

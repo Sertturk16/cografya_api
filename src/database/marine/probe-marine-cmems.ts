@@ -1,7 +1,11 @@
 import { createHash } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { CMEMS_BASIN_ROUTING, CMEMS_SELECTOR_ENTRIES } from '../../marine/cmems/cmems-routing';
+import {
+  CMEMS_BASIN_ROUTING,
+  CMEMS_SELECTOR_ENTRIES,
+  cmemsSelectorKey,
+} from '../../marine/cmems/cmems-routing';
 import type { CmemsDatasetSelector } from '../../marine/cmems/cmems-routing';
 import {
   parseCmemsProductStac,
@@ -9,7 +13,10 @@ import {
   type CmemsProductResolution,
 } from '../../marine/cmems/cmems-stac';
 import { selectCmemsTime } from '../../marine/cmems/cmems-time';
-import { buildCmemsGetFeatureInfoUrl } from '../../marine/cmems/cmems-url';
+import {
+  buildCmemsGetFeatureInfoUrl,
+  buildCmemsProductStacUrl,
+} from '../../marine/cmems/cmems-url';
 import { parseCmemsGetFeatureInfo } from '../../marine/cmems/cmems-response';
 import {
   CMEMS_TILE_MATRIX_SET,
@@ -453,7 +460,9 @@ export async function runCmemsProbePhase(options: CmemsProbePhaseOptions): Promi
   const resolvedByKey = new Map<string, ResolvedSelector>();
 
   for (const [productId, selectors] of selectorsByProduct) {
-    const url = `${STAC_ENDPOINT}/${productId}/product.stac.json`;
+    // Through the ONE shared builder, so the artifact proves the runtime's own STAC request
+    // shape (cmems-url.ts doctrine; review #81 M8).
+    const url = buildCmemsProductStacUrl(STAC_ENDPOINT, productId);
     const raw = await fetchRaw(url, fetchImpl, sleepImpl);
     if (raw.status !== 200) {
       throw new MarineImportError(
@@ -543,7 +552,7 @@ export async function runCmemsProbePhase(options: CmemsProbePhaseOptions): Promi
 
   for (const candidate of candidates) {
     const route = CMEMS_BASIN_ROUTING[candidate.seaBasin];
-    const sstKey = `${route.seaSurfaceTemperature.productId}/${route.seaSurfaceTemperature.gridToken}`;
+    const sstKey = cmemsSelectorKey(route.seaSurfaceTemperature);
     const sstResolved = resolvedByKey.get(sstKey);
     if (sstResolved === undefined) {
       throw new MarineImportError(
@@ -566,7 +575,7 @@ export async function runCmemsProbePhase(options: CmemsProbePhaseOptions): Promi
     let waveHeight: CmemsProbeCallRecord | null = null;
     let waveDirection: CmemsProbeCallRecord | null = null;
     if (route.wave !== null) {
-      const waveKey = `${route.wave.productId}/${route.wave.gridToken}`;
+      const waveKey = cmemsSelectorKey(route.wave);
       const waveResolved = resolvedByKey.get(waveKey);
       if (waveResolved === undefined) {
         throw new MarineImportError(
