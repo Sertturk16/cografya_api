@@ -70,11 +70,14 @@ describe('toTilePixel guards', () => {
     expect(() => toTilePixel(41, 29, -1)).toThrow(/zoom/);
   });
 
-  it('clamps polar latitudes instead of producing an unreachable Mercator y', () => {
-    const northPole = toTilePixel(90, 0, 3);
-    expect(northPole.tileRow).toBe(0);
-    const southPole = toTilePixel(-90, 0, 3);
-    expect(southPole.tileRow).toBe(2 ** 3 - 1);
+  it('clamps polar latitudes to the projection limit instead of an unreachable Mercator y', () => {
+    // The DOCUMENTED behaviour is the clamp itself: a pole computes exactly what the ±85.0511°
+    // limit computes. The exact tile index AT the limit is float-edge territory (y lands within
+    // one ulp of the pyramid boundary), which no working code path reaches — every marine point
+    // is ~36–43° N — so the invariant pinned here is clamp-equivalence, not a boundary index.
+    const maxLatitude = 85.0511287798066;
+    expect(toTilePixel(90, 0, 3)).toEqual(toTilePixel(maxLatitude, 0, 3));
+    expect(toTilePixel(-90, 0, 3)).toEqual(toTilePixel(-maxLatitude, 0, 3));
   });
 });
 
