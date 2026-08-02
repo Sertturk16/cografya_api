@@ -16,6 +16,7 @@ describe('openapi/openapi.json — air-quality contract', () => {
 
   it('publishes the index-system path and the full frozen DTO set (the A1 contract PR)', () => {
     expect(Object.keys(document.paths)).toContain('/api/air-quality/index-system');
+
     for (const schema of [
       'AirQualityIndexSystemDto',
       'AirQualityIndexSystemCategoryDto',
@@ -32,9 +33,14 @@ describe('openapi/openapi.json — air-quality contract', () => {
     }
   });
 
-  it('does NOT publish the A1-absent province endpoints (absent beats stubbed-501)', () => {
-    expect(Object.keys(document.paths)).not.toContain('/api/air-quality/provinces');
-    expect(Object.keys(document.paths)).not.toContain('/api/air-quality/provinces/{plateCode}');
+  it('publishes the two A2b province paths (A1 kept them ABSENT until they worked)', () => {
+    // TRANSLATED from A1's "these paths must NOT exist" case, on purpose and with a ruling behind
+    // it: A1 deliberately left them absent rather than stubbing a 501, because an advertised path
+    // that cannot work is worse than an absent one. A2b implements them, so the case flips to
+    // asserting their presence. No gate is weakened — the absent-vs-stub rule is unchanged, and
+    // the ban on measurement vocabulary below still applies to the newly published surface.
+    expect(Object.keys(document.paths)).toContain('/api/air-quality/provinces');
+    expect(Object.keys(document.paths)).toContain('/api/air-quality/provinces/{plateCode}');
   });
 
   it('the 8 step-aligned arrays are nullable at the ITEM level, never the array level', () => {
@@ -81,8 +87,39 @@ describe('openapi/openapi.json — air-quality contract', () => {
     expect(bands?.items?.maximum).toBe(6);
   });
 
-  it('contains NO field named analysisEndUtc anywhere (Atlas checkpoint A-7)', () => {
-    expect(spec).not.toContain('analysisEndUtc');
+  it('publishes analysisEndUtc as an ADDITIVE nullable field with an honest description', () => {
+    // TRANSLATED from A1's "this field must not exist anywhere" case. A1 froze the contract
+    // without it because Faz-1 was a forecast-only leg, and its own docblock recorded the escape
+    // clause: "if a product decision (S2) later adds the analysis job, the field returns
+    // ADDITIVELY with an honest definition". DEC 2026-08-02b took that decision, A2a shipped the
+    // two-job ingest, A2b publishes the boundary. What the original case actually protected — no
+    // forecast hour may be presented as analysis — is asserted here instead of by absence.
+    const series = document.components.schemas.AirQualitySeriesDto as {
+      properties: Record<string, { type?: string; nullable?: boolean; description?: string }>;
+      required?: string[];
+    };
+    const field = series.properties.analysisEndUtc;
+    expect(field).toBeDefined();
+    expect(field?.nullable).toBe(true);
+    expect(field?.type).toBe('string');
+    // BOTH halves of the stated invariant — "required AND nullable". Asserting only `nullable`
+    // (review #84) left the other half untested: a later edit marking the field optional (`?` or
+    // `@ApiPropertyOptional`) would pass `openapi:check` AND this test, while the web codegen's
+    // type silently weakened from `string | null` to `string | null | undefined` and every
+    // consumer that relied on the field being PRESENT kept compiling.
+    expect(series.required).toContain('analysisEndUtc');
+    // The honesty sentence is part of the contract, not decoration: a consumer reading only the
+    // spec must learn that BOTH halves are model output.
+    expect(field?.description).toContain('ANALYSIS');
+    expect(field?.description).toContain('FORECAST');
+    expect(field?.description).toContain('model output');
+  });
+
+  it('publishes the CAMS attribution example with a LOWERCASE "information"', () => {
+    // Gate item 2, at the artifact level: the licensor's own template is lowercase
+    // (DEC 2026-08-02c-1) and the committed spec is what the web codegens from.
+    expect(spec).not.toContain('Copernicus Atmosphere Monitoring Service Information');
+    expect(spec).toContain('Copernicus Atmosphere Monitoring Service information');
   });
 
   it('no air-quality FIELD NAME contains measurement/observation/station vocabulary (SPEC §13.1)', () => {

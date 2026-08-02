@@ -20,7 +20,7 @@ readers (`reference.json`) and asserted bit-exactly in `cams-golden.spec.ts`.
 | Downloaded | 2026-08-01, by the hand-run probe (`pnpm db:import:air-quality --phase=probe`) |
 | Container | ZIP, single entry `ENS_FORECAST.nc`, method 0 (STORED) — 57 028 B |
 | Inner format | NetCDF3 classic (`CDF\x01`), grid 195 × 70, cell-centred, lat axis DESCENDING |
-| Licence | **CC-BY-4.0** — *Contains modified Copernicus Atmosphere Monitoring Service Information 2026.* Neither the European Commission nor ECMWF is responsible for any use that may be made of the Copernicus information or data it contains. |
+| Licence | **CC-BY-4.0** — *Contains modified Copernicus Atmosphere Monitoring Service information 2026.* Neither the European Commission nor ECMWF is responsible for any use that may be made of the Copernicus information or data it contains. (Lowercase `information` is the licensor's own template — DEC 2026-08-02c-1; the served strings live in `src/air-quality/air-quality-attribution.constant.ts` and are byte-pinned there.) |
 
 ## Cross-validation (`reference.json`)
 

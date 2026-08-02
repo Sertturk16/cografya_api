@@ -6,6 +6,7 @@ import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource, type Repository } from 'typeorm';
 import type { Env } from '../config/env.schema';
 import { Province } from '../province/entities/province.entity';
+import { UpstreamCacheService } from '../upstream/cache/upstream-cache.service';
 import { CircuitBreaker } from '../upstream/circuit-breaker';
 import { ProviderBudget } from '../upstream/provider-budget';
 import { REDIS_CLIENT, type RedisClientPort } from '../upstream/redis/redis-client.port';
@@ -14,7 +15,15 @@ import { UpstreamHttpClient } from '../upstream/upstream-http.client';
 import { UPSTREAM_USER_AGENT } from '../upstream/upstream-http.helpers';
 import { UpstreamMetrics } from '../upstream/upstream-metrics';
 import { UpstreamModule } from '../upstream/upstream.module';
+import { AirQualityCacheAgeInterceptor } from './air-quality-cache-age.interceptor';
 import { AirQualityController } from './air-quality.controller';
+import { AirQualityReadService } from './air-quality-read.service';
+import {
+  AirQualityReadStore,
+  AIR_QUALITY_READ_STORE,
+  type AirQualityReadStorePort,
+} from './air-quality-read.store';
+import { AirQualitySeriesReader } from './air-quality-series.reader';
 import {
   AIR_QUALITY_UPSTREAM_CONFIG,
   buildAirQualityUpstreamConfig,
@@ -51,10 +60,15 @@ export const AIR_QUALITY_WARMUP = Symbol('AIR_QUALITY_WARMUP');
 /**
  * Air-quality module.
  *
- * A1 shipped the frozen contract and the static index-system endpoint. A2a — here — adds the
- * persistent store, the two-job ADS state machine and the leg's own warmup instance. The read
- * path and the two province endpoints land in A2b; until then this PR's user-visible surface is
- * deliberately EMPTY (`openapi.json` diff: zero lines).
+ * A1 shipped the frozen contract and the static index-system endpoint. A2a added the persistent
+ * store, the two-job ADS state machine and the leg's own warmup instance. A2b — here — adds the
+ * READ half: a store port of its own, the cached run reader and the two public province
+ * endpoints.
+ *
+ * ## Two store ports, on purpose
+ * `AIR_QUALITY_INGEST_STORE` carries `recordProduct`/`updateRun`/`pruneRuns`; `AIR_QUALITY_READ_STORE`
+ * carries two read methods and nothing else. The read path is on a public request surface, so it
+ * is wired to the port whose whole authority is to read (A2b decision D-A2b-1).
  *
  * ## `AIR_QUALITY_ENABLED` gates the UPSTREAM half only
  * The public endpoints stay registered and degrade honestly from Postgres. The tour runs only
@@ -81,6 +95,32 @@ export const AIR_QUALITY_WARMUP = Symbol('AIR_QUALITY_WARMUP');
       useFactory: (dataSource: DataSource): AirQualityIngestStorePort =>
         new AirQualityIngestStore(dataSource),
     },
+    {
+      provide: AIR_QUALITY_READ_STORE,
+      inject: [DataSource],
+      useFactory: (dataSource: DataSource): AirQualityReadStorePort =>
+        new AirQualityReadStore(dataSource),
+    },
+    {
+      provide: AirQualitySeriesReader,
+      inject: [
+        UpstreamCacheService,
+        AIR_QUALITY_READ_STORE,
+        AIR_QUALITY_UPSTREAM_CONFIG,
+        UpstreamMetrics,
+      ],
+      useFactory: (
+        cache: UpstreamCacheService,
+        store: AirQualityReadStorePort,
+        config: AirQualityUpstreamConfig,
+        metrics: UpstreamMetrics,
+      ): AirQualitySeriesReader => new AirQualitySeriesReader(cache, store, config, metrics),
+    },
+    AirQualityReadService,
+    // A plain provider, bound with `@UseInterceptors` on the controller. NOT `APP_INTERCEPTOR`:
+    // that token registers globally no matter which module declares it, and every route in the
+    // API would then inspect its body for an air-quality-only symbol.
+    AirQualityCacheAgeInterceptor,
     {
       provide: ADS_UPSTREAM_CLIENT,
       inject: [UpstreamMetrics, ProviderBudget, CircuitBreaker, AIR_QUALITY_UPSTREAM_CONFIG],
@@ -157,6 +197,12 @@ export const AIR_QUALITY_WARMUP = Symbol('AIR_QUALITY_WARMUP');
       },
     },
   ],
-  exports: [AIR_QUALITY_WARMUP, AIR_QUALITY_UPSTREAM_CONFIG, AIR_QUALITY_INGEST_STORE],
+  exports: [
+    AIR_QUALITY_WARMUP,
+    AIR_QUALITY_UPSTREAM_CONFIG,
+    AIR_QUALITY_INGEST_STORE,
+    AIR_QUALITY_READ_STORE,
+    AirQualitySeriesReader,
+  ],
 })
 export class AirQualityModule {}

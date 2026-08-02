@@ -2,10 +2,15 @@ import { ApiProperty } from '@nestjs/swagger';
 import { AirQualityCategory, AirQualityPollutant, AirQualityStatus } from '../air-quality.types';
 
 /**
- * Lean list payload for the 81-province hub — `GET /api/air-quality/provinces` (A2).
+ * Lean list payload for the 81-province hub — `GET /api/air-quality/provinces`. Frozen in A1,
+ * served from A2b.
  *
- * **NOT SERVED BY ANY A1 ENDPOINT** — frozen contract, published for codegen. Bounded, fixed
- * set → plain typed array, no envelope, no pagination (playbook §2).
+ * Bounded, fixed set → plain typed array, no envelope, no pagination (ENGINEERING §2).
+ *
+ * DELIBERATELY LEAN: no attribution, no coordinates, no per-pollutant values. The hub renders a
+ * map and a list; everything heavier belongs to the detail payload. Where the hub page sources
+ * its licence line is an air-web decision (Atlas ruling Q6) — this DTO stays lean until an
+ * additive field is agreed for a real consumer.
  */
 export class AirQualityProvinceListItemDto {
   @ApiProperty({ type: String, example: '06' })

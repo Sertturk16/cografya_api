@@ -379,6 +379,73 @@
           "air-quality"
         ]
       }
+    },
+    "/api/air-quality/provinces": {
+      "get": {
+        "description": "Plain array, bounded and small — one entry per province, in plate order, ALWAYS. On the cold path every entry carries status=unavailable and the response is Cache-Control: no-store, which ISR/SSG must not commit. This endpoint reads the local store only and NEVER waits for the provider. Band and category are TOKENS: the band table behind them is published at GET /api/air-quality/index-system and must not be hardcoded.",
+        "operationId": "AirQualityController_listProvinces",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AirQualityProvinceListItemDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Instant air-quality state of every province (the /hava hub payload).",
+        "tags": [
+          "air-quality"
+        ]
+      }
+    },
+    "/api/air-quality/provinces/{plateCode}": {
+      "get": {
+        "description": "Answers 200 in every state: with no usable run the payload carries current.status=unavailable, series=null, dataAvailable=false and Cache-Control: no-store. The series concatenates the provider ANALYSIS product (steps before analysisEndUtc) with the FORECAST product (from analysisEndUtc onward); both halves are model output on a ~0.1° grid, neither is a station reading. A plate code that names no province is a 404. This endpoint never waits for the provider.",
+        "operationId": "AirQualityController_getProvince",
+        "parameters": [
+          {
+            "name": "plateCode",
+            "required": true,
+            "in": "path",
+            "description": "Two-digit zero-padded province plate code.",
+            "schema": {
+              "pattern": "^\\d{2}$",
+              "example": "06",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirQualityProvinceDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "plateCode is not exactly two digits."
+          },
+          "404": {
+            "description": "No province carries this plate code."
+          }
+        },
+        "summary": "Full air-quality state and the hourly series for one province.",
+        "tags": [
+          "air-quality"
+        ]
+      }
     }
   },
   "info": {
@@ -2430,11 +2497,17 @@
               "2026-08-01T00:00:00.000Z",
               "2026-08-01T01:00:00.000Z"
             ],
-            "description": "Step instants (ISO-8601 UTC). INVARIANT: every other array in this object has exactly this length; a missing step is null in place, never dropped and never invented. Every step is model FORECAST output — the series starts at the model run base time and contains no earlier step.",
+            "description": "Step instants (ISO-8601 UTC). INVARIANT: every other array in this object has exactly this length; a missing step is null in place, never dropped and never invented. Consecutive steps are exactly one hour apart. Steps BEFORE analysisEndUtc come from the provider ANALYSIS product; that instant and everything after it come from the FORECAST product. Both are model output, neither is an observation. When analysisEndUtc is null the series starts at the model run base time and contains no earlier step.",
             "type": "array",
             "items": {
               "type": "string"
             }
+          },
+          "analysisEndUtc": {
+            "type": "string",
+            "nullable": true,
+            "example": "2026-08-01T00:00:00.000Z",
+            "description": "The instant the ANALYSIS half ends and the FORECAST half begins — always the model run base time. Steps before this instant come from the provider’s ANALYSIS product; this instant and everything after it come from the FORECAST product. Both are model output, not observations. Null when this run carries no analysis product at all, in which case the whole series is forecast."
           },
           "stepHours": {
             "type": "number",
@@ -2444,7 +2517,7 @@
           "horizonEndUtc": {
             "type": "string",
             "example": "2026-08-05T00:00:00.000Z",
-            "description": "End of the published horizon (run base + 96 h in Faz-1)."
+            "description": "End of the published horizon — the last entry of timesUtc (run base + 96 h in Faz-1)."
           },
           "bands": {
             "type": "array",
@@ -2491,6 +2564,7 @@
         },
         "required": [
           "timesUtc",
+          "analysisEndUtc",
           "stepHours",
           "horizonEndUtc",
           "bands",
@@ -2525,8 +2599,8 @@
           },
           "attributionText": {
             "type": "string",
-            "example": "Contains modified Copernicus Atmosphere Monitoring Service Information 2026",
-            "description": "Verbatim required attribution line — never translated."
+            "example": "Contains modified Copernicus Atmosphere Monitoring Service information 2026",
+            "description": "Verbatim required attribution line — never translated. The year is the run’s."
           },
           "disclaimerText": {
             "type": "string",
@@ -2534,7 +2608,12 @@
             "description": "Verbatim required disclaimer — never translated."
           },
           "noticeKeys": {
-            "description": "i18n keys for the editorial notices (model nature, grid resolution, category-name translation). The API ships KEYS only; the texts are authored on the web side.",
+            "example": [
+              "airQuality.notice.modelOutput",
+              "airQuality.notice.gridResolution",
+              "airQuality.notice.categoryTranslation"
+            ],
+            "description": "i18n keys for the editorial notices (model nature, grid resolution, category-name translation). The API ships KEYS only; the texts are authored on the web side. Adding a key is additive; removing or renaming one is a breaking contract change.",
             "type": "array",
             "items": {
               "type": "string"

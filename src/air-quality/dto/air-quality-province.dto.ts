@@ -4,11 +4,10 @@ import { AirQualityIndexDto } from './air-quality-index.dto';
 import { AirQualitySeriesDto } from './air-quality-series.dto';
 
 /**
- * Full detail payload for one province — `GET /api/air-quality/provinces/{plateCode}` (A2).
+ * Full detail payload for one province — `GET /api/air-quality/provinces/{plateCode}`.
  *
- * **NOT SERVED BY ANY A1 ENDPOINT** — frozen contract, published for codegen (plan §3, D4):
- * publishing the schema now freezes the contract in the contract PR, so A2's delta is only
- * adding paths.
+ * Frozen in A1 and SERVED from A2b: publishing the schema in the contract PR is exactly why
+ * A2b's contract delta is additive (two paths plus one nullable series field).
  */
 export class AirQualityProvinceDto {
   @ApiProperty({ type: String, example: '06', description: 'Zero-padded plate code.' })
