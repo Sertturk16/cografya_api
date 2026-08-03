@@ -197,6 +197,24 @@ export type UpstreamMetricName =
    */
   | 'airq.cleanup_unconfirmed'
   /**
+   * A province EXISTS in the table but carries no reference point, so its detail endpoint 404s
+   * (Atlas ruling Q3, re-confirmed at DEC 2026-08-03a §2 / review #84 CR-5).
+   *
+   * ## Why the 404 needs a counter at all
+   * Q3 refuses to publish fabricated coordinates, which is right — but the refusal is invisible:
+   * a seed regression that nulls `latitude`/`longitude` turns `/hava/<il>` into a silent 404 that
+   * looks exactly like a plate code nobody has. This is OUR data being wrong, not a caller being
+   * wrong, so it is ERROR and it is counted.
+   *
+   * ## Cadence: once per THROTTLE WINDOW, on a public request path
+   * The condition is a standing seed state, checked once per request on an unauthenticated route,
+   * so the counter is incremented by ONE and only when `throttledEvent` actually emits — the
+   * `airq.cached_run_unusable` pattern (count the condition, not the traffic). The UNKNOWN-plate
+   * 404 beside it stays silent on purpose: 18 of the 99 well-formed two-digit codes name no
+   * province, so counting those would report caller behaviour, not a defect.
+   */
+  | 'airq.province_coordinates_missing'
+  /**
    * A stored series row was refused by the read-path shape guard and SKIPPED — the remaining
    * readable cycles still serve the point, and the read degrades to `schema_error` only when no
    * readable row is left (review #76 round-3 R3-CR-1 + R3-SFH-7). jsonb is schemaless: this
@@ -291,9 +309,21 @@ export class UpstreamMetrics {
    * ERROR stream layered on top of the outage itself — an availability problem caused by the
    * reporting of an availability problem.
    *
-   * Loudness is preserved where it matters: the COUNTER is never throttled, and the first
-   * occurrence is always logged, so the transition into the bad state is always visible. What is
-   * suppressed is only the repetition of a message that says nothing new.
+   * Loudness is preserved where it matters: the first occurrence is ALWAYS logged, so the
+   * transition into the bad state is always visible. What is suppressed is only the repetition of
+   * a message that says nothing new.
+   *
+   * ## The COUNTER is throttled only where the condition is request-cadence (corrected)
+   * An earlier revision of this docblock stated as an absolute that *"the COUNTER is never
+   * throttled"*, and the CADENCE SEAM below then introduced counters gated on exactly this
+   * method — the docblock contradicted the file it documented (review #84 round 3, carried as a
+   * rider). The real rule is one sentence: **a counter follows the cadence of the condition it
+   * measures, not the cadence of the code that notices it.** Refresh-cadence conditions
+   * (`airq.run_age_ceiling`, `airq.concentration_normalised`) are counted unthrottled, because
+   * there the count IS the magnitude. Conditions detectable only once per REQUEST
+   * (`airq.cached_run_unusable`, `airq.cached_concentration_normalised`,
+   * `airq.province_coordinates_missing`) gate their increment on this method's return value, so
+   * the series stays a count of the condition instead of a reading of the traffic.
    *
    * ## The return value is the CADENCE SEAM (review #84 round 2)
    * `true` exactly when this call emitted. A condition that is detectable only on the once-per-

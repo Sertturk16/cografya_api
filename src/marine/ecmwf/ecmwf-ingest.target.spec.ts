@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { Logger } from '@nestjs/common';
 import { CircuitBreaker } from '../../upstream/circuit-breaker';
 import { OperationDeadline } from '../../upstream/operation-deadline';
 import { ProviderBudget } from '../../upstream/provider-budget';
@@ -104,6 +105,14 @@ function makeFetch(options: {
   gribTransientHosts?: readonly string[];
   /** Hosts whose grib2 downloads answer HTTP 400 (the non-transient failover fixture). */
   gribClientErrorHosts?: readonly string[];
+  /**
+   * Step hours whose grib2 downloads ALWAYS fail at transport level.
+   *
+   * Distinct from `failGribOnce`, which counts down from the first grib call and therefore can
+   * only kill the FIRST step: this one lets an earlier step succeed and a later step stop the
+   * tour, which is the only shape in which the summary-log defect (K-1) is observable.
+   */
+  failGribForSteps?: readonly number[];
   layout?: Layout;
 }): typeof fetch {
   return (input: string | URL | Request, init?: RequestInit): Promise<Response> => {
@@ -149,6 +158,9 @@ function makeFetch(options: {
       return Promise.resolve(
         new Response('bad request', { status: 400, headers: { 'content-type': 'text/plain' } }),
       );
+    }
+    if (options.failGribForSteps?.includes(Number(step)) === true) {
+      return Promise.reject(new Error('ECONNRESET'));
     }
     if (options.failGribOnce !== undefined && options.failGribOnce.remaining > 0) {
       options.failGribOnce.remaining -= 1;
@@ -312,6 +324,7 @@ describe('EcmwfIngestTarget', () => {
     publishedCycles: readonly string[];
     config?: MarineUpstreamConfig;
     failGribOnce?: { remaining: number };
+    failGribForSteps?: readonly number[];
     unpublishedStreams?: readonly ('oper' | 'wave')[];
     gribTransientHosts?: readonly string[];
     gribClientErrorHosts?: readonly string[];
@@ -331,6 +344,7 @@ describe('EcmwfIngestTarget', () => {
         publishedCycles: options.publishedCycles,
         log,
         failGribOnce: options.failGribOnce,
+        failGribForSteps: options.failGribForSteps,
         unpublishedStreams: options.unpublishedStreams,
         gribTransientHosts: options.gribTransientHosts,
         gribClientErrorHosts: options.gribClientErrorHosts,
@@ -709,6 +723,36 @@ describe('EcmwfIngestTarget', () => {
     // The bytes the dead step DID spend (its index download) are not invisible: they land in
     // the abandoned-bytes counter, since the cycle ledger only counts ingested evidence (SFH-2).
     expect(metrics.get('ingest.bytes_abandoned', 'ecmwf')).toBeGreaterThan(0);
+  });
+
+  it('still reports the steps it ingested when an upstream stop ends the tour (K-1)', async () => {
+    // Shadow-run finding K-1 (DEC 2026-08-03b §3): the `stop` arm used to RETURN, skipping the
+    // summary line, so a tour that wrote steps and then hit an upstream failure reported
+    // nothing. Measured cost in the M3b shadow run: 12 steps / ~40.6 MB present in Postgres and
+    // absent from the log. The regression is invisible to every other assertion in this file,
+    // because the LEDGER was always correct — only the log lied. So this is the one case that
+    // reads the logger.
+    const logSpy = jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
+    // Step order for this cycle is [6, 0, 3] (nearest-to-now first, then the ascending fill), so
+    // failing step 0 lets step 6 land and then stops the tour — the shape K-1 needs.
+    const target = buildTarget({
+      publishedCycles: [CYCLE_12Z],
+      config: makeConfig({ maxStepsPerTour: 3 }),
+      failGribForSteps: [0],
+    });
+    await target.refresh(new OperationDeadline(300_000, () => NOW));
+
+    // Precondition of the case, not the assertion: the tour really did ingest and then stop.
+    expect(store.recorded.length).toBeGreaterThan(0);
+
+    const summaries = logSpy.mock.calls
+      .map(([message]) => String(message))
+      .filter((message) => message.startsWith('ingested '));
+    expect(summaries).toHaveLength(1);
+    // The count is read from the LEDGER, never written as a literal — a hardcoded number would
+    // stop testing the very relationship K-1 broke.
+    expect(summaries[0]).toContain(`ingested ${String(store.recorded.length)} step(s)`);
+    logSpy.mockRestore();
   });
 
   it('contains a decoder crash: loud metric + error event, no record, server-side flow continues', async () => {

@@ -31,8 +31,10 @@ import type { AirQualityAttributionDto } from './dto/air-quality-attribution.dto
  * ## No endorsement, either direction (`CONVENTIONS.md` §7, from ADS ToS art. 5)
  * These strings state the SOURCE of the data. Nothing published from this module may read as
  * "Copernicus onaylı", "resmî AB verisi" or any other claim that a provider or the EU endorses
- * this platform. The spec beside this file runs a DENYLIST of known endorsement phrasings over
- * every served string — which is not the same as proving non-endorsement, and the earlier wording
+ * this platform. The spec beside this file runs the SHARED denylist of known endorsement
+ * phrasings (`src/common/attribution/endorsement-guard.ts`, one copy for both the marine and air
+ * legs) over every served string — which is not the same as proving non-endorsement, and the
+ * earlier wording
  * here ("enforces that with a structural guard") claimed more than the guard delivers (review #84
  * cf-1). It catches the phrasings we have been warned about; a novel one still needs a human
  * reading the diff.

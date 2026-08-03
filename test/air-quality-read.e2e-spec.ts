@@ -180,26 +180,8 @@ describe('Air quality read path (e2e, real Postgres)', () => {
     await seedGeography(dataSource);
     provinces = await dataSource.getRepository(Province).find({ order: { plateCode: 'ASC' } });
     store = new AirQualityIngestStore(dataSource);
-
-    await store.createRun({
-      runUtc: RUN_UTC,
-      datasetId: 'cams-europe-air-quality-forecasts',
-      forecastHours: FORECAST_HOURS,
-      adsRequests: [job('forecast'), job('analysis')],
-      now: new Date(),
-    });
-    await store.recordProduct({
-      runUtc: RUN_UTC,
-      kind: 'forecast',
-      hours: FORECAST_HOURS,
-      provinces: rowsFor(FORECAST_HOURS + 1, 10),
-      bytesDownloaded: 1_000,
-      fileFormat: 'zip(stored)+netcdf3-classic',
-      decoderVersion: 'netcdf3-ts@4',
-      adsRequests: [job('forecast'), job('analysis')],
-      state: 'serviceable',
-      now: new Date(),
-    });
+    // NO run is created here on purpose — phase 0 below needs the seeded-but-unserved state, and
+    // it is the only phase that can ever see it. Phase 1 creates the run in its own `beforeAll`.
   }, 300_000);
 
   afterEach(async () => {
@@ -218,7 +200,93 @@ describe('Air quality read path (e2e, real Postgres)', () => {
     expect(provinces).toHaveLength(PROVINCE_COUNT);
   });
 
+  /**
+   * The state acceptance criterion 2 names and no test had ever reached over HTTP: every province
+   * seeded, NO serviceable run (review #84 CR-8 + Atlas ruling on the author's open question #4,
+   * DEC 2026-08-03a §3).
+   *
+   * The cold hub was previously proved only against a database with no provinces at all
+   * (`air-quality.e2e-spec.ts`), where `[]` satisfies "an array" and the 81-row contract is
+   * vacuous. The regression this closes is concrete: a change that suppressed uncovered provinces
+   * from the hub — making the row count depend on ingest health, which the service docblock
+   * explicitly forbids — passed BOTH e2e suites.
+   *
+   * Runs before phase 1 by construction: phase 1 creates the run in its own `beforeAll`, and the
+   * later phases build forward on that state.
+   */
+  describe('phase 0 — provinces seeded, NO serviceable run', () => {
+    it('serves all 81 provinces as unavailable, no-store, and claims no data age', async () => {
+      app = await bootApp();
+      const response = await request(app.getHttpServer())
+        .get('/api/air-quality/provinces')
+        .expect(200);
+
+      const items = response.body as ListItem[];
+      // The row count is a navigation contract, not a function of ingest health.
+      expect(items).toHaveLength(PROVINCE_COUNT);
+      expect(items.every((item) => item.status === STATUS_UNAVAILABLE)).toBe(true);
+      expect(items.every((item) => item.band === null)).toBe(true);
+      expect(items.every((item) => item.validAtUtc === null)).toBe(true);
+      expect([...items].map((item) => item.plateCode).sort()).toEqual(
+        items.map((item) => item.plateCode),
+      );
+      // Nothing here is data, so a CDN or ISR must never commit it (Atlas ruling Q7).
+      expect(response.headers['cache-control']).toBe('no-store');
+      // …and a body carrying no data may not state a data age (review #84 I1). Asserted over HTTP
+      // for the first time here: the unit spec pins the service half, and the warm branch is the
+      // only place the header was ever asserted end-to-end.
+      expect(response.headers['x-air-quality-cache-age']).toBeUndefined();
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
+
+    it('serves a province detail page that renders honestly with no run', async () => {
+      const target = provinces[0];
+      if (target === undefined) throw new Error('no province seeded');
+      app = await bootApp();
+      const response = await request(app.getHttpServer())
+        .get(`/api/air-quality/provinces/${target.plateCode}`)
+        .expect(200);
+
+      const body = response.body as ProvinceDetail;
+      expect(body.dataAvailable).toBe(false);
+      expect(body.current.status).toBe(STATUS_UNAVAILABLE);
+      expect(body.series).toBeNull();
+      // Identity is complete even with nothing to show — the page renders, the widget degrades.
+      expect(body.nameTr.length).toBeGreaterThan(0);
+      // The licence notice attaches to the published SECTION, not to whether a value resolved,
+      // so the cold branch carries the same template as the warm one (M5 / DEC 2026-08-02g §3).
+      expect(body.attribution.attributionText).toContain(
+        'Contains modified Copernicus Atmosphere Monitoring Service information',
+      );
+      expect(response.headers['cache-control']).toBe('no-store');
+      expect(response.headers['x-air-quality-cache-age']).toBeUndefined();
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
+  });
+
   describe('phase 1 — a forecast-only run (state: serviceable)', () => {
+    beforeAll(async () => {
+      await store.createRun({
+        runUtc: RUN_UTC,
+        datasetId: 'cams-europe-air-quality-forecasts',
+        forecastHours: FORECAST_HOURS,
+        adsRequests: [job('forecast'), job('analysis')],
+        now: new Date(),
+      });
+      await store.recordProduct({
+        runUtc: RUN_UTC,
+        kind: 'forecast',
+        hours: FORECAST_HOURS,
+        provinces: rowsFor(FORECAST_HOURS + 1, 10),
+        bytesDownloaded: 1_000,
+        fileFormat: 'zip(stored)+netcdf3-classic',
+        decoderVersion: 'netcdf3-ts@4',
+        adsRequests: [job('forecast'), job('analysis')],
+        state: 'serviceable',
+        now: new Date(),
+      });
+    }, 60_000);
+
     it('serves all 81 hub items with the pinned warm Cache-Control and a cache-age header', async () => {
       app = await bootApp();
       const response = await request(app.getHttpServer())

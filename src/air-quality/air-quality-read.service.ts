@@ -3,9 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import type { CachedRead } from '../upstream/cache/upstream-cache.service';
 import { OperationDeadline } from '../upstream/operation-deadline';
+import { UpstreamMetrics } from '../upstream/upstream-metrics';
 import { Province } from '../province/entities/province.entity';
 import { AirQualityFreshness, AirQualityStatus } from './air-quality.types';
 import { buildCamsAttribution } from './air-quality-attribution.constant';
+import { CAMS_ADS_PROVIDER } from './air-quality-upstream.config';
 import { withAirQualityCacheAge } from './air-quality-cache-age.interceptor';
 import {
   buildIndexDto,
@@ -54,6 +56,16 @@ function toAirQualityFreshness(freshness: 'fresh' | 'stale' | null): AirQualityF
 }
 
 /**
+ * How often the "province has no reference point" report may repeat.
+ *
+ * Its OWN constant, not one borrowed from the reader (review #84 CR-9): the condition here is a
+ * standing SEED state, unrelated to the reader's exit-side run suppression, and one constant
+ * throttling two unrelated paths means retuning either cadence silently retunes the other. Equal
+ * in value today, separate by construction.
+ */
+const COORDINATES_MISSING_LOG_EVERY_MS = 60_000;
+
+/**
  * The two public air-quality read endpoints (A2b).
  *
  * ## Province IDENTITY comes from Postgres, values come from the cache
@@ -78,6 +90,7 @@ export class AirQualityReadService {
     @InjectRepository(Province)
     private readonly provinceRepository: Repository<Province>,
     private readonly reader: AirQualitySeriesReader,
+    private readonly metrics: UpstreamMetrics,
   ) {}
 
   /**
@@ -144,13 +157,38 @@ export class AirQualityReadService {
   async getProvince(plateCode: string): Promise<AirQualityProvinceDto> {
     const province = await this.provinceRepository.findOne({ where: { plateCode } });
     // A well-formed plate naming no province is a 404: the resource does not exist. (A malformed
-    // one never reaches here — the `ValidationPipe` answers 400.)
+    // one never reaches here — the `ValidationPipe` answers 400.) DELIBERATELY SILENT: 18 of the
+    // 99 well-formed two-digit codes name no province, so reporting this on an unauthenticated
+    // route would count caller behaviour — and hand anyone a log-inflation lever — while saying
+    // nothing about our data. The branch below is the opposite case and is reported.
     if (province === null) throw new NotFoundException();
     // Atlas ruling Q3: a province with no reference point is EXCLUDED from the detail endpoint
     // rather than served with fabricated coordinates. The DTO's `latitude`/`longitude` are
     // non-nullable, and publishing 0/0 — or any invented pair — would be a data-honesty breach on
     // a public page. It stays in the hub, where the lean DTO carries no coordinates at all.
-    if (province.latitude === null || province.longitude === null) throw new NotFoundException();
+    if (province.latitude === null || province.longitude === null) {
+      // The other half of ruling Q3, which shipped missing (review #84 CR-5, re-confirmed at
+      // DEC 2026-08-03a §2): the 404 alone is SILENT, and a seed regression that nulls a
+      // province's coordinates would then take a whole province's page off the site with nothing
+      // logged and nothing counted. Throttled + counted on emission, because the condition is a
+      // standing seed state checked once per request (see `UpstreamMetrics.throttledEvent`).
+      // The throttle key carries the PLATE CODE so a second broken province is not hidden behind
+      // the first's window. That cannot inflate the key map: this line is reached only for a
+      // province that EXISTS, so the key space is bounded by the table (81).
+      // No PII: the context carries a plate code and a provider label, nothing else.
+      const emitted = this.metrics.throttledEvent(
+        'error',
+        `airq.province-coordinates-missing:${plateCode}`,
+        COORDINATES_MISSING_LOG_EVERY_MS,
+        'a province has no reference point — its air-quality detail page is 404 until the seed ' +
+          'is fixed',
+        { provider: CAMS_ADS_PROVIDER, plateCode },
+      );
+      if (emitted) {
+        this.metrics.increment('airq.province_coordinates_missing', CAMS_ADS_PROVIDER);
+      }
+      throw new NotFoundException();
+    }
 
     const resolved = await this.resolveRun();
     const series = resolved.byPlateCode.get(plateCode);
@@ -210,11 +248,24 @@ export class AirQualityReadService {
   }
 
   /**
-   * `true` when a payload carries at least one publishable value — the `Cache-Control` switch.
+   * `true` when the run REACHED at least one province — the `Cache-Control` switch.
    *
-   * Atlas ruling Q7: `no-store` when NO item carries a value, the warm string as soon as one does.
-   * The stricter reading ("every province must be present") was rejected — a single skipped
-   * corrupt row would then stop the whole hub from being cached.
+   * ## The threshold is `status !== unavailable`, which INCLUDES `no_data`
+   * Atlas ruling Q7 as restated (DEC 2026-08-03a §1). The ruling's first wording was "`no-store`
+   * when no item carries a VALUE"; the code and SPEC §11.1 together implement the narrower
+   * "no item was REACHED", and the ruling was aligned to the code rather than the other way
+   * round. `no_data` means "the run covered this province and produced no number" — that is a
+   * fact about the run, it is stable for the whole cache window, and it is exactly what the hub
+   * page renders. So it is cacheable content, not an empty response.
+   *
+   * The cost is recorded, not hidden: a run whose selected step is all-null for EVERY province
+   * answers the hub with 81 valueless items under the warm `s-maxage`. That state is rare, it
+   * self-heals on the next run (<=30 min), and `unavailable` — the state that actually means
+   * "we have nothing" — still forces `no-store`.
+   *
+   * The stricter reading in the other direction ("every province must be present") was rejected
+   * for the same reason: a single skipped corrupt row would then stop the whole hub from being
+   * cached.
    */
   static hubHasData(items: readonly AirQualityProvinceListItemDto[]): boolean {
     return items.some((item) => item.status !== AirQualityStatus.Unavailable);

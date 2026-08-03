@@ -130,8 +130,13 @@ describe('Air quality (e2e) — the cold contract slice', () => {
     const response = await request(app.getHttpServer())
       .get('/api/air-quality/provinces')
       .expect(200);
-    // This database has no provinces seeded, so the hub is empty — and, crucially, still 200.
-    expect(Array.isArray(response.body)).toBe(true);
+    // This database has no provinces seeded. The contract for that state is an EMPTY ARRAY with
+    // `no-store`, NOT marine's 500 (Atlas ruling, DEC 2026-08-03a §3, settling review #84 CR-8
+    // together with the author's open question #4): an empty table is a seed/deploy-order state,
+    // not an ingest-health state, so it must not break A2b's "200 in every state" principle. The
+    // 81-row half of the same contract is proved in `air-quality-read.e2e-spec.ts` phase 0.
+    // Asserted as `toEqual([])` rather than `Array.isArray`, which an invented row would pass.
+    expect(response.body).toEqual([]);
     // No usable run ⇒ the cold window must never be committed by a CDN or by ISR/SSG.
     expect(response.headers['cache-control']).toBe('no-store');
   });
