@@ -14,8 +14,11 @@ import { deflateRawSync } from 'node:zlib';
  * ## Why it lives in `src/` and not `test/`
  * The unit lane (`test/jest-unit.json`) only collects spec files under `tools/` and `src/`, and this
  * builder must itself be under test (its own spec asserts byte-level format details against
- * the specification, independent of our reader). It is still EXCLUDED from the production
- * build by name in `tsconfig.build.json` — test infrastructure never ships to `dist/`. The anchor against "the writer and the
+ * the specification, independent of our reader). It is named in `tsconfig.build.json`'s
+ * `exclude`, so it is not a build ENTRY point — but `exclude` does NOT forbid emission:
+ * TypeScript still compiles an excluded file that an included file imports. It stays out of
+ * `dist/` because no production file imports it, and that is a review guarantee the exclude
+ * supports rather than one the compiler enforces. The anchor against "the writer and the
  * reader share the same wrong model" is the committed REAL golden file in
  * `test/fixtures/cams/`, cross-validated with two independent readers (plan §5.5).
  *

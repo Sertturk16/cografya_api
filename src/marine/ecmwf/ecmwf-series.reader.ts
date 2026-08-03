@@ -141,8 +141,17 @@ export class EcmwfSeriesReader {
 
   /**
    * Read one point's series through the shared cache. `deadline` is the caller's request
-   * budget when several keys share one request (M4); the refresh itself is Postgres-only and
-   * cheap, so it matters little here — but the seam matches the M2 contract exactly.
+   * budget when several keys share one request (M4); the refresh itself is Postgres-only, so the
+   * `AbortSignal` it carries has no call site to honour it here — the seam matches the M2
+   * contract exactly, and the budget becomes real if this refresh ever grows an outbound call.
+   *
+   * What bounds a stalled query on this path is one level down (review #84 CR-3, the cross-leg
+   * half A2b's `AirQualitySeriesReader` shares): `DATABASE_STATEMENT_TIMEOUT_MS` in
+   * `src/database/data-source-options.ts` sets a pool-wide `statement_timeout`, so Postgres
+   * cancels an over-running statement and returns its connection to the pool rather than letting
+   * it be held until the pool drains. That promise is *"no query hangs forever"*, not *"this read
+   * finishes inside the marine request deadline"* — the ceiling sits far above any read budget
+   * because the same pool carries the ECMWF ingest writes.
    */
   async readSeries(
     point: Pick<MarinePoint, 'id' | 'slugTr'>,
