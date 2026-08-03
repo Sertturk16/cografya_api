@@ -18,9 +18,17 @@ import { isEndorsementClaim } from './endorsement-guard';
  */
 describe('the endorsement guard', () => {
   /**
-   * Phrasings that MUST fire. Every English row was measured missing from one of the two original
-   * guards by review #84's cf-1 validator; every Turkish row was measured missing from marine's
-   * pre-#83 guard.
+   * Phrasings that MUST fire.
+   *
+   * Provenance, stated no more strongly than it is (review #85 M2): every ENGLISH row was measured
+   * missing from one of the two original guards by review #84's cf-1 validator. The Turkish rows
+   * are a mix — the pre-#83 guard was `/onaylı/i` plus an `ab`-bound `destekli`, so it already
+   * caught the lowercase adjective forms (`ECMWF onaylı veri`, `AB destekli`). What it missed, and
+   * what those rows are kept for, is the UPPERCASE family the `/i` flag cannot fold (`ECMWF
+   * ONAYLI`, `AB DESTEKLİ`), the verb inflections (`onaylanmıştır`, `Copernicus onayladı`) and the
+   * endorsers/heads the old patterns were bound away from (`Avrupa Birliği destekli`, `ECMWF resmî
+   * verisi`). The caught-then rows stay because a corpus that only holds past misses stops
+   * protecting what already works.
    */
   const banned = [
     // ── English: the classes the air-quality module can actually publish, since it serves

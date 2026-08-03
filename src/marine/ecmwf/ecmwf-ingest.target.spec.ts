@@ -732,27 +732,33 @@ describe('EcmwfIngestTarget', () => {
     // absent from the log. The regression is invisible to every other assertion in this file,
     // because the LEDGER was always correct — only the log lied. So this is the one case that
     // reads the logger.
+    // `Logger.prototype` is shared process state, so the restore goes in a `finally` (review #85
+    // M4): a thrown assertion would otherwise leave every later test in this file running against
+    // a stubbed logger.
     const logSpy = jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
-    // Step order for this cycle is [6, 0, 3] (nearest-to-now first, then the ascending fill), so
-    // failing step 0 lets step 6 land and then stops the tour — the shape K-1 needs.
-    const target = buildTarget({
-      publishedCycles: [CYCLE_12Z],
-      config: makeConfig({ maxStepsPerTour: 3 }),
-      failGribForSteps: [0],
-    });
-    await target.refresh(new OperationDeadline(300_000, () => NOW));
+    try {
+      // Step order for this cycle is [6, 0, 3] (nearest-to-now first, then the ascending fill), so
+      // failing step 0 lets step 6 land and then stops the tour — the shape K-1 needs.
+      const target = buildTarget({
+        publishedCycles: [CYCLE_12Z],
+        config: makeConfig({ maxStepsPerTour: 3 }),
+        failGribForSteps: [0],
+      });
+      await target.refresh(new OperationDeadline(300_000, () => NOW));
 
-    // Precondition of the case, not the assertion: the tour really did ingest and then stop.
-    expect(store.recorded.length).toBeGreaterThan(0);
+      // Precondition of the case, not the assertion: the tour really did ingest and then stop.
+      expect(store.recorded.length).toBeGreaterThan(0);
 
-    const summaries = logSpy.mock.calls
-      .map(([message]) => String(message))
-      .filter((message) => message.startsWith('ingested '));
-    expect(summaries).toHaveLength(1);
-    // The count is read from the LEDGER, never written as a literal — a hardcoded number would
-    // stop testing the very relationship K-1 broke.
-    expect(summaries[0]).toContain(`ingested ${String(store.recorded.length)} step(s)`);
-    logSpy.mockRestore();
+      const summaries = logSpy.mock.calls
+        .map(([message]) => String(message))
+        .filter((message) => message.startsWith('ingested '));
+      expect(summaries).toHaveLength(1);
+      // The count is read from the LEDGER, never written as a literal — a hardcoded number would
+      // stop testing the very relationship K-1 broke.
+      expect(summaries[0]).toContain(`ingested ${String(store.recorded.length)} step(s)`);
+    } finally {
+      logSpy.mockRestore();
+    }
   });
 
   it('contains a decoder crash: loud metric + error event, no record, server-side flow continues', async () => {

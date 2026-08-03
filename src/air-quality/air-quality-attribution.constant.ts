@@ -34,10 +34,9 @@ import type { AirQualityAttributionDto } from './dto/air-quality-attribution.dto
  * this platform. The spec beside this file runs the SHARED denylist of known endorsement
  * phrasings (`src/common/attribution/endorsement-guard.ts`, one copy for both the marine and air
  * legs) over every served string — which is not the same as proving non-endorsement, and the
- * earlier wording
- * here ("enforces that with a structural guard") claimed more than the guard delivers (review #84
- * cf-1). It catches the phrasings we have been warned about; a novel one still needs a human
- * reading the diff.
+ * earlier wording here ("enforces that with a structural guard") claimed more than the guard
+ * delivers (review #84 cf-1). It catches the phrasings we have been warned about; a novel one
+ * still needs a human reading the diff.
  *
  * ## The strings are LICENCE TEXT, so the tests pin them literally
  * The house rule is "tests assert structure, never facts". These two sentences are the recorded

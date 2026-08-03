@@ -1,13 +1,24 @@
 /**
  * The shared No-Endorsement guard — ONE copy, used by every attribution spec.
  *
- * ## SPEC INFRASTRUCTURE. Never imported by production code, never emitted to `dist/`
- * It lives under `src/` only so the unit lane collects the spec beside it, and it is listed in
- * `tsconfig.build.json`'s `exclude` for exactly that reason — the same treatment as
- * `netcdf3-fixture.builder.ts` and `era5-fixture.builder.ts`. Nothing in `src/` outside a
- * `.spec.ts` may import it: this is a REVIEW aid, not a runtime filter. Our attribution strings
- * are compiled constants that a human reads in the diff; a runtime guard over them would be
- * theatre.
+ * ## SPEC INFRASTRUCTURE — do not import from production code
+ * It lives under `src/` because the unit lane only collects specs matching `(tools|src)/`, so the
+ * guard and its spec have to sit here together; and it lives in `common/` rather than a feature
+ * folder because it is deliberately CROSS-feature — putting it under `marine/` or `air-quality/`
+ * would recreate the ownership asymmetry whose duplication review #84 cf-1 was about. It is
+ * listed in `tsconfig.build.json`'s `exclude`, the same treatment as `netcdf3-fixture.builder.ts`
+ * and `era5-fixture.builder.ts`.
+ *
+ * **What that exclude does and does not buy (review #85 M6):** it keeps this file from being
+ * compiled as a build ROOT. It does NOT make emission impossible — TypeScript still pulls in an
+ * excluded file that an included file imports, so "never emitted" holds exactly as long as no
+ * production module imports it. The rule is therefore enforced by review, not by the compiler,
+ * and it is stated here rather than assumed. (The same is true of the two precedent builders; an
+ * earlier draft of this docblock claimed the stronger guarantee.)
+ *
+ * Nothing in `src/` outside a `.spec.ts` may import it: this is a REVIEW aid, not a runtime
+ * filter. Our attribution strings are compiled constants that a human reads in the diff; a
+ * runtime guard over them would be theatre.
  *
  * ## Why it is shared (review #84 cf-1, and its Atlas follow-up)
  * Marine (M5) and air-quality (A2b) each grew their own copy, spec-private and therefore
@@ -41,7 +52,7 @@
  * Over-folding is the safe direction for a denylist: it can only ever catch more phrasings, and
  * every string each leg actually serves is asserted clean in that leg's own spec.
  */
-export function foldForEndorsementGuard(value: string): string {
+function foldForEndorsementGuard(value: string): string {
   return value.replace(/[IİıiÎî]/g, 'i').toLowerCase();
 }
 
@@ -94,7 +105,7 @@ export function foldForEndorsementGuard(value: string): string {
  *   endorse/endorses/endorsed/endorsement in one — M5's narrower `/endorsed/` was blind to the noun
  *   form, which is how `an ECMWF endorsement` escaped it (review #84 cf-1).
  */
-export const ENDORSEMENT_PATTERNS: readonly RegExp[] = [
+const ENDORSEMENT_PATTERNS: readonly RegExp[] = [
   /onayl(?!an?ma(?!k))/,
   /destekli/,
   /approved/,
@@ -106,7 +117,13 @@ export const ENDORSEMENT_PATTERNS: readonly RegExp[] = [
   /official(?:ly)?\s+(?:eu|european)/,
 ];
 
-/** `true` when the folded value matches any banned phrasing — the one seam every caller uses. */
+/**
+ * `true` when the folded value matches any banned phrasing — the module's ONLY export.
+ *
+ * The patterns and the folder stay module-private (review #85 M3): exporting them as well gave
+ * callers three ways to ask one question, and the two extra ways were consumed by nobody. A
+ * future caller that genuinely needs the raw patterns can export them then, with a reason.
+ */
 export function isEndorsementClaim(value: string): boolean {
   const folded = foldForEndorsementGuard(value);
   return ENDORSEMENT_PATTERNS.some((pattern) => pattern.test(folded));

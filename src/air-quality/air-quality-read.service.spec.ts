@@ -261,7 +261,8 @@ describe('AirQualityReadService — the detail endpoint', () => {
     const service = buildService({ provinces: [province('06')], read: COLD_READ });
     await expect(service.getProvince('99')).rejects.toBeInstanceOf(NotFoundException);
     // The silence is as deliberate as the report in the next test, so it is pinned with the same
-    // weight: 18 of the 99 well-formed two-digit codes name no province, and this route is
+    // weight: 19 of the 100 well-formed two-digit codes name no province (`/^\d{2}$/` admits
+    // `00`), and this route is
     // unauthenticated. Counting caller behaviour here would be a log-inflation lever and would
     // bury the ONE case that means our own data is wrong.
     expect(events).toHaveLength(0);

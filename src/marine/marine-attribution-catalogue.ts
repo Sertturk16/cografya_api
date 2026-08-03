@@ -36,7 +36,13 @@ import type { MarineAttributionDto } from './dto/marine-attribution.dto';
  * ## No endorsement, either direction (`CONVENTIONS.md` §7, from ADS ToS art. 5)
  * These rows state the SOURCE of the data. Nothing here may read as "ECMWF onaylı", "resmî
  * Copernicus verisi" or any other claim that a provider or the EU endorses this platform. The
- * spec enforces that with a structural guard over every served string.
+ * spec beside this file runs the SHARED denylist of known endorsement phrasings
+ * (`src/common/attribution/endorsement-guard.ts`, one copy for both the marine and air legs)
+ * over every served string — which is not the same as proving non-endorsement. The earlier
+ * wording here ("enforces that with a structural guard") claimed more than the guard delivers:
+ * it catches the phrasings we have been warned about; a novel one still needs a human reading
+ * the diff. (Review #84 cf-1 corrected the air-quality twin of this sentence and #85 I2 caught
+ * that this copy had been left behind.)
  *
  * ## Provenance of every string below
  * - ECMWF (`requiredNoticeEn`, `disclaimerEn`, `explanationTr`): NOVA brief §3.1, read

@@ -157,8 +157,9 @@ export class AirQualityReadService {
   async getProvince(plateCode: string): Promise<AirQualityProvinceDto> {
     const province = await this.provinceRepository.findOne({ where: { plateCode } });
     // A well-formed plate naming no province is a 404: the resource does not exist. (A malformed
-    // one never reaches here — the `ValidationPipe` answers 400.) DELIBERATELY SILENT: 18 of the
-    // 99 well-formed two-digit codes name no province, so reporting this on an unauthenticated
+    // one never reaches here — the `ValidationPipe` answers 400.) DELIBERATELY SILENT: the
+    // validator is `/^\d{2}$/`, which admits `00`, so 19 of the 100 well-formed two-digit codes
+    // name no province — reporting this on an unauthenticated
     // route would count caller behaviour — and hand anyone a log-inflation lever — while saying
     // nothing about our data. The branch below is the opposite case and is reported.
     if (province === null) throw new NotFoundException();
@@ -173,8 +174,11 @@ export class AirQualityReadService {
       // logged and nothing counted. Throttled + counted on emission, because the condition is a
       // standing seed state checked once per request (see `UpstreamMetrics.throttledEvent`).
       // The throttle key carries the PLATE CODE so a second broken province is not hidden behind
-      // the first's window. That cannot inflate the key map: this line is reached only for a
-      // province that EXISTS, so the key space is bounded by the table (81).
+      // the first's window. The key space is BOUNDED by the table (81) — this line is reached
+      // only for a province that EXISTS — but bounded is not small: 81 is past
+      // `pruneThrottleKeys`' 64-key cleanup floor, so this call site is what made that method's
+      // per-key expiry necessary (review #85 I1). It is not a free suffix; read that method
+      // before adding another keyed throttle.
       // No PII: the context carries a plate code and a provider label, nothing else.
       const emitted = this.metrics.throttledEvent(
         'error',

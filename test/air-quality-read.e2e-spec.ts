@@ -285,6 +285,11 @@ describe('Air quality read path (e2e, real Postgres)', () => {
         state: 'serviceable',
         now: new Date(),
       });
+      // 60 s, not the outer hook's 300 s (review #85 M7): the outer budget covers pulling and
+      // starting a Postgres CONTAINER, while this hook is two writes against a container that is
+      // already up. 81 jsonb rows land in well under a second locally, so 60 s is already two
+      // orders of magnitude of headroom; inheriting 300 s would mean a genuinely hung write
+      // stalls the whole job five times longer before it says so.
     }, 60_000);
 
     it('serves all 81 hub items with the pinned warm Cache-Control and a cache-age header', async () => {
