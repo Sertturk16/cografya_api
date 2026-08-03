@@ -165,35 +165,25 @@ describe('Province (e2e)', () => {
   // content (CONVENTIONS §2 bars literal-text assertions in tests; byte-for-byte fidelity of the
   // prose is gated separately by the seed-transcription roundtrip,
   // `oneoff-n<wave>-province-climate.ts check`).
-  const N1_CLIMATE_NARRATIVE_PLATES = [
-    '07', // Antalya (pilot)
-    '53', // Rize (pilot)
-    '42', // Konya (pilot)
-    '25', // Erzurum (pilot)
-    '34', // İstanbul (pilot)
-    '08', // Artvin (new)
-    '43', // Kütahya (new)
-    '30', // Hakkari (new)
-    '04', // Ağrı (new)
-  ];
-  const N2_CLIMATE_NARRATIVE_PLATES = [
-    '73', // Şırnak
-    '06', // Ankara
-    '35', // İzmir
-    '16', // Bursa
-    '01', // Adana
-    '27', // Gaziantep
-    '33', // Mersin
-    '41', // Kocaeli
-    '63', // Şanlıurfa
-    '26', // Eskişehir
-  ];
+  //
+  // ## The list is currently EMPTY, and that is a declared state, not a disabled test
+  // The N1 (9) and N2 (10) waves were written against the MGM series and quoted its numbers. The
+  // published series is now ERA5-Land 1991-2020, so those 19 blocks were removed from the seed in
+  // the same PR that swapped it (→ DEC 2026-08-04c, Q3). The invariant this test protects is
+  // unchanged and is NOT weakened: "the set of provinces carrying a narrative equals the set this
+  // file declares". It simply now asserts 0 of 81, positively, rather than 19 of 81.
+  //
+  // The mechanism this preserves is the one that matters: a rewrite wave that seeds prose without
+  // adding its plate codes here FAILS, exactly as a wave that dropped one always did. Emptying the
+  // list without emptying the seed would fail too. Add the new wave's codes when it lands.
+  const N1_CLIMATE_NARRATIVE_PLATES: string[] = [];
+  const N2_CLIMATE_NARRATIVE_PLATES: string[] = [];
   const CLIMATE_NARRATIVE_PLATES = new Set([
     ...N1_CLIMATE_NARRATIVE_PLATES,
     ...N2_CLIMATE_NARRATIVE_PLATES,
   ]);
 
-  it('the two authored waves are disjoint (a later wave never silently re-seeds an earlier one)', () => {
+  it('the declared waves are disjoint (a later wave never silently re-seeds an earlier one)', () => {
     // Guards the wave bookkeeping itself: with an overlap the Set would collapse and the count
     // guard below would still pass while one province was authored twice.
     expect(CLIMATE_NARRATIVE_PLATES.size).toBe(
@@ -201,14 +191,14 @@ describe('Province (e2e)', () => {
     );
   });
 
-  it('serves climateNarrativeTr for exactly the 19 authored provinces, null elsewhere; climateNormals still empty', async () => {
+  it('serves climateNarrativeTr for exactly the declared wave provinces, null elsewhere; climateNormals still empty', async () => {
     // Structural, not textual:
     //   1. the migration + entity mapping work end-to-end against real Postgres (a jsonb
     //      column the entity mis-maps would fail to select here), and
-    //   2. climate NARRATIVE prose is populated for EXACTLY the 9 N1 + 10 N2 provinces and null
-    //      for the other 62 — asserted by plate-code membership + a count guard, so a miswired
-    //      seed that drops or adds a province fails loudly. climateNormals stays null: the
-    //      offline climate IMPORT (load phase) is not run in this seed-only e2e.
+    //   2. climate NARRATIVE prose is populated for EXACTLY the declared wave provinces and null
+    //      for the rest — asserted by plate-code membership + a count guard, so a miswired seed
+    //      that drops or adds a province fails loudly. climateNormals stays null: the offline
+    //      climate IMPORT (load phase) is not run in this seed-only e2e.
     const repo = dataSource.getRepository(Province);
     const provinces = await repo.find();
 
@@ -313,21 +303,27 @@ describe('Province (e2e)', () => {
     expect(await repo.count()).toBe(81);
   });
 
-  it('re-seed detects a climateNarrativeTr drift and UPDATES (the N1 comparator line participates)', async () => {
-    // Proves the comparison line this PR added to `rowMatchesSeed` actually fires: mutate ONLY
-    // climateNarrativeTr on a wave province and re-seed. Were the field absent from the
-    // comparator, the row would be mis-counted `unchanged` and corrupted prose would never be
-    // refreshed — the exact idempotency gap PR #63 closed for landformNoteTr. Restores at end.
+  it('re-seed detects a climateNarrativeTr drift and CLEARS it (comparator + omit⇒null together)', async () => {
+    // Proves the `rowMatchesSeed` comparison line for climateNarrativeTr actually fires: mutate
+    // ONLY that column and re-seed. Were the field absent from the comparator, the row would be
+    // mis-counted `unchanged` and corrupted prose would never be refreshed — the exact idempotency
+    // gap PR #63 closed for landformNoteTr.
+    //
+    // Now that no province declares the field, this ALSO exercises `withExplicitDetailNulls`: the
+    // seed omits the key, so the refresh must write an explicit NULL rather than TypeORM's "leave
+    // this column alone". A regression there would leave 'DRIFTED' in place and re-flag the row as
+    // updated on every future re-seed, churning `updated_at` forever with no error signal. The
+    // gate is therefore STRICTER than before, not weaker. Restores at end.
     const repo = dataSource.getRepository(Province);
     const seeded = (await repo.findOneByOrFail({ plateCode: '34' })).climateNarrativeTr;
-    expect(seeded).not.toBeNull();
+    expect(seeded).toBeNull();
     await repo.update({ plateCode: '34' }, { climateNarrativeTr: 'DRIFTED' });
 
     const result = await seedGeography(dataSource);
     // Only İstanbul drifted (via the climateNarrativeTr comparison) → 1 updated, 80 untouched.
     expect(result).toEqual({ inserted: 0, updated: 1, unchanged: 80, total: 81 });
 
-    // The field was actually re-written from the seed (back to its canonical value).
+    // The field was actually re-written from the seed — here, cleared back to null.
     expect((await repo.findOneByOrFail({ plateCode: '34' })).climateNarrativeTr).toBe(seeded);
     // A genuine no-op on re-run (the restored value does not churn `updated` forever).
     expect(await seedGeography(dataSource)).toEqual({

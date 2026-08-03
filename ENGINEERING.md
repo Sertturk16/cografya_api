@@ -173,29 +173,37 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   (`dist/database/data-source.js`).
 - **Public entities carry `slug_tr` + `slug_en`** (the web repo's localized-slug routing
   depends on them). Slug columns are indexed for the lookup path.
-- **External data imports are TWO-PHASE, and the phases are not interchangeable**
-  (`pnpm db:import:climate --phase=fetch|load`, `src/database/climate/`). `fetch` is the only
-  thing that touches the network: run BY HAND (roughly yearly), polite by construction
-  (serial, >=5 s apart, 60 s timeout, identifying UA, circuit breaker), and it writes
-  committed, reviewable artifacts. **Budget ~70 minutes for a full `fetch`** — MGM throttles
-  sustained access down to ~50 s/page (measured 2026-07-18); a slow run is being throttled,
-  not hung. `load` is offline, deterministic and idempotent, reads
-  only those artifacts, and is the only phase CI or a deploy may run. **Never collapse the
-  two** — a build that can fail because a provider is down is not a build. Fidelity rule: the
-  manifest keeps the RAW source cell strings and the load phase re-prints each parsed number
-  to prove it still matches, because range/ordering invariants cannot detect a silently
-  truncated decimal.
-  - **`pnpm db:import:era5 --phase=fetch` (`src/database/era5/`)** is the same two-phase shape
-    against a BINARY source (Copernicus CDS, ERA5-Land monthly means, NetCDF4/HDF5). Two serial
-    CDS jobs, budget ~5 minutes for a healthy queue but a **3-hour patience ceiling per job** (the
-    provider's queue is load-sensitive and a single fast measurement is not a guarantee). `DELETE
-    /jobs/{id}` is called **only after the download is byte- and MD5-verified** — deleting earlier
-    makes the job 404 permanently. The **raw ~19 MB `.nc` is never committed** (`--raw-dir` is
-    mandatory and must be absolute; `.gitignore` carries a belt); fidelity is carried instead by a
-    manifest (SHA-256 + provider MD5 + size + axes + every province's cell assignment) plus a
-    committed **converted-but-unaveraged** 81 × 360 × 2 series, so the published 30-year normal
-    stays auditable offline. `--from-file=<abs path>` re-runs the whole offline half with zero
-    network calls.
+- **External data imports are TWO-PHASE, and the phases are not interchangeable.** `fetch`/`probe`
+  is the only thing that touches the network: run BY HAND, polite by construction (serial, spaced,
+  timed out, identifying UA), and it writes committed, reviewable artifacts. `load` is offline,
+  deterministic and idempotent, reads only those artifacts, and is the only phase CI or a deploy
+  may run. **Never collapse the two** — a build that can fail because a provider is down is not a
+  build. Every such line also carries a **fidelity rule**: a check on the WRITE path that proves
+  the published numbers still correspond to the source, because range and ordering invariants
+  cannot detect a plausible-but-wrong value.
+  - **The climate line is `pnpm db:import:era5 --phase=fetch|load` (`src/database/era5/`)**, against
+    a BINARY source (Copernicus CDS, ERA5-Land monthly means, NetCDF4/HDF5). It is the ONLY climate
+    import; the retired MGM line (`db:import:climate`, `src/database/climate/`, `data/climate/`)
+    was removed with its artifacts and fixtures when MGM left production (→ DEC 2026-07-30l,
+    DEC 2026-08-04c). **What survives from it lives in `src/database/climate/`: `canonical-json.ts`
+    and `climate-normals.assertions.ts`, both source-independent on purpose** — the day a second
+    climate source lands, they are what it reuses. The MGM Köppen CLASS (`climate_koppen`,
+    `climate_class_tr`, `climate_note_tr`) is deliberately untouched by all of this: it is an
+    attributed quotation of an official publication, not a series we re-publish as our own
+    (→ DEC 2026-08-04a).
+  - `fetch`: two serial CDS jobs, budget ~5 minutes for a healthy queue but a **3-hour patience
+    ceiling per job** (the provider's queue is load-sensitive and a single fast measurement is not
+    a guarantee). `DELETE /jobs/{id}` is called **only after the download is byte- and
+    MD5-verified** — deleting earlier makes the job 404 permanently. The **raw ~19 MB `.nc` is
+    never committed** (`--raw-dir` is mandatory and must be absolute; `.gitignore` carries a belt);
+    a `<raw>.jobs.json` sidecar keeps the job evidence beside those bytes, and is **fail-soft in
+    every direction** — no sidecar can make a run fail. `--from-file=<abs path>` re-runs the whole
+    offline half with zero network calls.
+  - `load`: derives the 12 published normals from the committed 81 × 360 × 2 series and upserts
+    them, in one transaction, all-or-nothing, with no network. **The fidelity rule on this line is
+    the manifest cross-check**: the annual figures re-derived from the 12 normals must equal the
+    ones the fetch phase computed independently off the decoded arrays (tolerance 1e-9; measured
+    worst disagreement 8.3e-14). Completeness is absolute — 81 of 81, or nothing is written.
 - **Provider keys come in two kinds, and the boot schema treats them differently** (rule
   sharpened at the A2a review, #80 I9):
   - **A hand-run-only key NEVER enters `src/config/env.schema.ts`.** A key consumed

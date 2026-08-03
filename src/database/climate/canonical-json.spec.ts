@@ -4,16 +4,24 @@ import { canonicalJson } from './canonical-json';
 /**
  * Unit coverage for the ORDER-INDEPENDENCE property. These tests deliberately do NOT claim to
  * prove the fix works — an in-memory object literal cannot reproduce Postgres `jsonb` key
- * reordering, which IS the defect. That proof lives in `test/climate-load.e2e-spec.ts`, where
- * the document goes through a real Postgres and comes back.
+ * reordering, which IS the defect. That proof lives in `test/era5-load.e2e-spec.ts`, where the
+ * document goes through a real Postgres and comes back.
  *
  * What these DO pin is the contract that test depends on: order of keys ignored, order of
  * array elements respected, nesting handled all the way down.
  */
 describe('canonicalJson', () => {
   it('is blind to object key order, at every depth', () => {
-    const a = { source: 'mgm', records: { snow: 1, wind: 2 }, months: [{ month: 1, mean: 10.4 }] };
-    const b = { months: [{ mean: 10.4, month: 1 }], records: { wind: 2, snow: 1 }, source: 'mgm' };
+    const a = {
+      source: 's',
+      period: { start: 1991, end: 2020 },
+      months: [{ month: 1, mean: 10.4 }],
+    };
+    const b = {
+      months: [{ mean: 10.4, month: 1 }],
+      period: { end: 2020, start: 1991 },
+      source: 's',
+    };
 
     expect(canonicalJson(a)).toBe(canonicalJson(b));
     // Sanity: the naive comparison the load phase used to make DOES differ on this pair, so

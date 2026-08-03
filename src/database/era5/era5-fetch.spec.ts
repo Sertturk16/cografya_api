@@ -8,6 +8,7 @@ import type { Era5DecodedFile } from './era5-decode';
 import { EXPECTED_FALLBACK_PLATE_CODES } from './era5-extract';
 import { ERA5_EXPECTED_MONTH_COUNT } from './era5-request';
 import {
+  adoptRawJobsSidecar,
   assertAllowedDownloadHost,
   buildCdsJsonHeaders,
   buildDownloadHeaders,
@@ -17,6 +18,7 @@ import {
   FIXTURE_FILE_NAME,
   MANIFEST_FILE_NAME,
   RAW_FILE_NAME,
+  rawJobsSidecarPath,
   redactCdsSecret,
   runEra5FetchPhase,
   SERIES_FILE_NAME,
@@ -525,5 +527,181 @@ describe('runEra5FetchPhase — the queue protocol', () => {
     // Byte-identical DATA. The two run-stamp fields (`generatedAtUtc`, `totals.wallClockMs`) are
     // pinned here by the injected clock; `writeArtifact`'s docblock scopes the claim honestly.
     expect(await readAgain()).toBe(await readAgain());
+  });
+});
+
+/**
+ * R1 — the `<raw>.jobs.json` sidecar.
+ *
+ * The read half is tested through {@link adoptRawJobsSidecar} directly, because what has to be
+ * proved is a MATRIX of rejections that all degrade to the same silent, identical behaviour. The
+ * write half and the end-to-end recovery are proved through a real run.
+ */
+describe('adoptRawJobsSidecar — fail-soft in every direction', () => {
+  const SHA = 'c'.repeat(64);
+  const job = {
+    label: 'production',
+    jobId: 'job-0001',
+    requestBody: {},
+    costing: { cost: 1, limit: 2 },
+    cdsStamps: { created: null, started: null, finished: null },
+    queueSeconds: null,
+    runSeconds: null,
+    resultHost: 'example.invalid',
+    declaredSizeBytes: 1,
+    downloadedBytes: 1,
+    declaredChecksumMd5: 'd'.repeat(32),
+    computedChecksumMd5: 'd'.repeat(32),
+    checksumVerified: true,
+    sha256: SHA,
+    downloadMs: 1,
+    decodeMs: 1,
+    deleted: true,
+  };
+  const valid = JSON.stringify({
+    schemaVersion: 1,
+    generatedAtUtc: '2026-08-02T12:00:00.000Z',
+    rawFileSha256: SHA,
+    jobs: [job],
+  });
+
+  function adopt(contents: string | null): { jobs: unknown; warnings: string[] } {
+    const warnings: string[] = [];
+    const jobs = adoptRawJobsSidecar(contents, SHA, (message) => warnings.push(message));
+    return { jobs, warnings };
+  }
+
+  it('adopts a well-formed sidecar that names the right raw file', () => {
+    const { jobs, warnings } = adopt(valid);
+    expect(jobs).toHaveLength(1);
+    expect(warnings).toEqual([]);
+  });
+
+  it('returns null and does NOT warn when there is no sidecar at all', () => {
+    // The ordinary case: every raw file we hold today predates the mechanism. It must be silent,
+    // not merely non-fatal, or the noise would train operators to ignore the channel.
+    const { jobs, warnings } = adopt(null);
+    expect(jobs).toBeNull();
+    expect(warnings).toEqual([]);
+  });
+
+  it('returns null on invalid JSON', () => {
+    const { jobs, warnings } = adopt('{not json');
+    expect(jobs).toBeNull();
+    expect(warnings[0]).toMatch(/not valid JSON/);
+  });
+
+  it('returns null on a JSON array or scalar', () => {
+    expect(adopt('[]').jobs).toBeNull();
+    expect(adopt('42').jobs).toBeNull();
+  });
+
+  it('returns null on an unknown schemaVersion', () => {
+    const { jobs, warnings } = adopt(JSON.stringify({ ...JSON.parse(valid), schemaVersion: 2 }));
+    expect(jobs).toBeNull();
+    expect(warnings[0]).toMatch(/schemaVersion/);
+  });
+
+  it('REFUSES a sidecar belonging to a different raw file — evidence is never transplanted', () => {
+    const { jobs, warnings } = adopt(
+      JSON.stringify({ ...JSON.parse(valid), rawFileSha256: 'e'.repeat(64) }),
+    );
+    expect(jobs).toBeNull();
+    expect(warnings[0]).toMatch(/never transplanted/);
+  });
+
+  it('returns null on an empty or non-array jobs list', () => {
+    expect(adopt(JSON.stringify({ ...JSON.parse(valid), jobs: [] })).jobs).toBeNull();
+    expect(adopt(JSON.stringify({ ...JSON.parse(valid), jobs: 'x' })).jobs).toBeNull();
+  });
+
+  it('returns null when an entry is not a job record', () => {
+    const { jobs, warnings } = adopt(JSON.stringify({ ...JSON.parse(valid), jobs: [{ a: 1 }] }));
+    expect(jobs).toBeNull();
+    expect(warnings[0]).toMatch(/not a job record/);
+  });
+});
+
+describe('the .jobs.json sidecar, end to end', () => {
+  const payload = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
+
+  it('a LIVE run writes the sidecar beside the raw file, key-free', async () => {
+    const run = await runAgainst({ payload });
+    const sidecarPath = rawJobsSidecarPath(join(run.rawDir, RAW_FILE_NAME));
+    const contents = await readFile(sidecarPath, 'utf8');
+    expect(contents).not.toContain(KEY);
+    const sidecar = JSON.parse(contents) as {
+      schemaVersion: number;
+      rawFileSha256: string;
+      jobs: { jobId: string }[];
+    };
+    expect(sidecar.schemaVersion).toBe(1);
+    expect(sidecar.rawFileSha256).toBe(createHash('sha256').update(payload).digest('hex'));
+    // Both jobs of the run (production + fixture), so the evidence travels whole.
+    expect(sidecar.jobs.length).toBeGreaterThan(0);
+    expect(sidecar.jobs.every((entry) => entry.jobId.length > 0)).toBe(true);
+  });
+
+  it('an OFFLINE --from-file re-run recovers it into `recoveredJobs`, leaving `jobs` empty', async () => {
+    const live = await runAgainst({ payload });
+    const rawPath = join(live.rawDir, RAW_FILE_NAME);
+    const base = await mkdtemp(join(tmpdir(), 'era5-sidecar-'));
+    const originalLog = console.log;
+    console.log = (): void => undefined;
+    try {
+      await runEra5FetchPhase({
+        rawDir: join(base, 'raw'),
+        outputDir: join(base, 'data'),
+        fixtureDir: join(base, 'fixtures'),
+        fromFile: rawPath,
+        sleepImpl: () => Promise.resolve(),
+        nowImpl: () => new Date('2026-08-02T12:00:00Z'),
+        decodeImpl: () => buildSyntheticDecodedFile({ monthCount: 2 }),
+      });
+    } catch {
+      // The assertion gate still fails on a 2-month synthetic decode; the `.part` is what matters.
+    } finally {
+      console.log = originalLog;
+    }
+    const manifest = JSON.parse(
+      await readFile(join(base, 'data', `${MANIFEST_FILE_NAME}.part`), 'utf8'),
+    ) as { sourceMode: string; jobs: unknown[]; recoveredJobs?: unknown[] };
+
+    expect(manifest.sourceMode).toBe('from-file');
+    // The honesty invariant is untouched: this run issued no jobs and claims none.
+    expect(manifest.jobs).toEqual([]);
+    // The evidence survives, in a field that says what it is.
+    expect(manifest.recoveredJobs?.length).toBeGreaterThan(0);
+  });
+
+  it('an OFFLINE re-run with NO sidecar behaves exactly as before — no field, no failure', async () => {
+    // The mandatory fail-soft property (→ DEC 2026-08-04c Q6), proved rather than commented: a
+    // raw file with no sidecar is the case for every file we hold today.
+    const base = await mkdtemp(join(tmpdir(), 'era5-nosidecar-'));
+    const rawPath = join(base, RAW_FILE_NAME);
+    await writeFile(rawPath, payload);
+    const outputDir = join(base, 'data');
+    const originalLog = console.log;
+    console.log = (): void => undefined;
+    try {
+      await runEra5FetchPhase({
+        rawDir: join(base, 'raw'),
+        outputDir,
+        fixtureDir: join(base, 'fixtures'),
+        fromFile: rawPath,
+        sleepImpl: () => Promise.resolve(),
+        nowImpl: () => new Date('2026-08-02T12:00:00Z'),
+        decodeImpl: () => buildSyntheticDecodedFile({ monthCount: 2 }),
+      });
+    } catch {
+      // Assertion gate on a 2-month synthetic decode; irrelevant here.
+    } finally {
+      console.log = originalLog;
+    }
+    const manifest = JSON.parse(
+      await readFile(join(outputDir, `${MANIFEST_FILE_NAME}.part`), 'utf8'),
+    ) as Record<string, unknown>;
+    expect(manifest.jobs).toEqual([]);
+    expect('recoveredJobs' in manifest).toBe(false);
   });
 });

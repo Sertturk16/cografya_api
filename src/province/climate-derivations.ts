@@ -8,8 +8,10 @@ import {
 /**
  * Pure derivations over a province's climate series.
  *
- * Everything here is the value-add MGM's own page does not carry (its "Yıllık" column is
- * empty — trap T1), so these figures are OURS and may not be attributed to MGM. They are
+ * Everything here is value-add the provider does not publish: C3S ships a gridded reanalysis, not
+ * a per-province annual mean, seasonal breakdown or extreme-month index. So these figures are OURS
+ * and may not be attributed to C3S/ECMWF — the required CC-BY attribution covers the SERIES they
+ * were computed from, never the computation. They are
  * computed ONCE, at serialization time in `ProvinceService.toDetail`, and served as raw
  * numbers: the chart summary, the metadata description and the JSON-LD then all read the same
  * value and cannot round it three different ways (PLAN.md risk 7). Formatting — decimals,
@@ -22,11 +24,13 @@ import {
  */
 
 /**
- * Round to ONE decimal place. Chosen as the canonical precision for the annual aggregates:
- * MGM publishes monthly temperature and precipitation to one decimal, so one decimal is the
- * most an average or a sum can honestly claim, and pinning it here also cleans the floating-
- * point residue a naive sum leaves (e.g. `1247.7999999` → `1247.8`). The web may format to
- * fewer decimals for display; it must not re-derive.
+ * Round to ONE decimal place. Chosen as the canonical precision for the annual aggregates, and
+ * it is a PUBLISHING decision rather than a limit of the input: the stored ERA5-Land normals are
+ * themselves rounded to one decimal (`era5-normals.ts`), because a reanalysis whose ~0.1° cell
+ * spans tens of kilometres cannot honestly claim more resolution than that for a whole province.
+ * One decimal is therefore the most an average or a sum built on them may claim, and pinning it
+ * here also cleans the floating-point residue a naive sum leaves (e.g. `1247.7999999` →
+ * `1247.8`). The web may format to fewer decimals for display; it must not re-derive.
  */
 function roundTo1(value: number): number {
   return Math.round(value * 10) / 10;
@@ -34,8 +38,8 @@ function roundTo1(value: number): number {
 
 /**
  * Northern-hemisphere meteorological seasons, as 0-based indices into a 12-element monthly
- * array. Winter wraps the year end (Dec + Jan + Feb). This is the convention MGM's own climate
- * material uses and the one the competitor's seasonal breakdown assumes, so our percentages are
+ * array. Winter wraps the year end (Dec + Jan + Feb). This is the standard meteorological
+ * convention and the one the competitor's seasonal breakdown assumes, so our percentages are
  * comparable to theirs.
  */
 const SEASONS: ReadonlyArray<{
@@ -152,7 +156,15 @@ export function computeClimateDerived(normals: ClimateNormals): ClimateDerived |
     if (entry === undefined || entry.month !== month) {
       return null;
     }
-    if (entry.tempMeanC === null || entry.precipitationMm === null) {
+    // `typeof`, not `!== null`, and the difference matters. The core pair is typed `number`
+    // (non-nullable) since the ERA5-Land swap, so a `=== null` comparison would no longer even
+    // COMPILE — and deleting the guard instead would be the wrong repair. This value was
+    // deserialized from a `jsonb` column, where the TypeScript type is an assertion rather than a
+    // guarantee: hand-written SQL, a restored dump or a future admin-CRUD write can put `null`,
+    // a string or nothing at all here. `typeof` refuses all of those (and `NaN` is caught by the
+    // arithmetic guards downstream), so narrowing the contract made this check STRONGER, not
+    // weaker. The caller then serves `climate: null` and logs — it never crashes.
+    if (typeof entry.tempMeanC !== 'number' || typeof entry.precipitationMm !== 'number') {
       return null;
     }
     temps.push(entry.tempMeanC);

@@ -39,7 +39,8 @@ const climateLogger = new Logger('ProvinceClimate');
  * Null in two cases, both rendering NO climate section (graceful degradation, never a crash — the
  * shape guard in `computeClimateDerived` is what makes that literally true, not aspirational):
  *   - the province has no stored series: `climate_normals` is NULL (the normal state until the
- *     import runs, and permanently for any province MGM's page cannot cover) OR the column was
+ *     ERA5-Land load phase runs; that phase writes all 81 or none, so "some provinces
+ *     permanently uncovered" is no longer a reachable state) OR the column was
  *     projected out and arrives as `undefined` — hence the `== null` guard, not `=== null`. Both
  *     are EXPECTED and silent, and
  *   - the series is present but not derivable — an incomplete core pair, or a jsonb shape the

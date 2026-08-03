@@ -7,7 +7,13 @@ data: the server never reads them, and CI never regenerates them.
 | File | What it is |
 |---|---|
 | `era5-manifest.json` | Provenance: the exact CDS request, the raw file's SHA-256 + size + MD5, the decoded axes, the decoder identity, the land/sea mask census, and **every province's grid-cell assignment** — including the A-1 fallback flag, the cell used and the distance in kilometres. Plus the structural assertion results from the run. CDS job ids and queue stamps appear **only when `sourceMode` is `cds-fetch`**; see "What `sourceMode` changes" below. |
-| `era5-province-series.json` | 81 provinces × 360 months × 2 variables = 58 320 values, **converted but not averaged**: monthly mean °C and monthly total mm, unrounded. PR-2's 30-year normal is computed from this file, so the published number is auditable without touching Copernicus. |
+| `era5-province-series.json` | 81 provinces × 360 months × 2 variables = 58 320 values, **converted but not averaged**: monthly mean °C and monthly total mm, unrounded. `--phase=load` computes the published 30-year normal from this file, so every served number is auditable offline without touching Copernicus. |
+
+The load phase does not trust either file on its own: it re-derives each province's annual mean
+and annual total from the 12 normals it is about to publish and requires them to equal the annual
+figures the **fetch** phase computed independently, straight off the decoded 360-month arrays, and
+recorded in `era5-manifest.json`. See `src/database/era5/era5-load-assertions.ts` for why that
+identity is a re-derivation proof rather than a plausibility band.
 
 ## Where the raw file is
 
@@ -31,6 +37,20 @@ field before quoting the file.
 **The artifacts currently committed carry `sourceMode: "from-file"`** — they were regenerated
 offline from the already-verified raw file, so `jobs` is empty. The live run's job ids are
 recorded in the PR that introduced them.
+
+### The `<raw>.jobs.json` sidecar
+
+A live run now also writes the job evidence **beside the raw `.nc`**, as
+`era5-land-1991-2020.nc.jobs.json`. Keep the two files together: a later offline `--from-file`
+re-run reads the sidecar and carries what it finds into the manifest's separate `recoveredJobs`
+field, so the CDS job ids, queue stamps and the provider's `file:checksum` survive a regeneration
+instead of being lost.
+
+It is **fail-soft in every direction**, and that is deliberate: absent, unparseable, wrong schema
+version, or belonging to a different raw file (checked by SHA-256) all mean "ignore it and behave
+exactly as before". No sidecar can make a `--from-file` run fail — including the raw files we hold
+today, which predate the mechanism and have none. `jobs` still stays empty offline: recovered
+evidence is never relabelled as work this run did.
 
 ## How to regenerate
 

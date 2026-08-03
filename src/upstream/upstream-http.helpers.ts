@@ -37,7 +37,7 @@ export const UPSTREAM_MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
  *
  * TODO(contact): publish a real Coğrafya-owned contact URL or mailbox here — and at the two
  * import-tool user agents (`src/database/marine/probe-marine-points.ts`,
- * `src/database/climate/mgm-fetch.ts`), which carry the same pending decision — once the domain
+ * `src/database/era5/era5-fetch.ts`), which carry the same pending decision — once the domain
  * exists. Inventing one, or committing a personal address, is an owner call.
  */
 export const UPSTREAM_USER_AGENT = 'CografyaPlatformBot/1.0 (educational geography platform)';

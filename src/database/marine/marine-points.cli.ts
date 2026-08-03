@@ -6,9 +6,9 @@ import { runProbePhase } from './probe-marine-points';
 
 /**
  * CLI for `pnpm db:import:marine-points --phase=probe|load` (run against the COMPILED build,
- * like the seed, migration and climate CLIs).
+ * like the seed, migration and ERA5 CLIs).
  *
- * Two phases, deliberately separate — the `db:import:climate` discipline applied to a second
+ * Two phases, deliberately separate — the `db:import:era5` discipline applied to a second
  * data source:
  *   - `probe` — the only phase that touches the network. ~86 polite requests to Copernicus
  *     Marine + Open-Meteo, validated against the hardened acceptance criteria, written to a
@@ -52,7 +52,7 @@ async function runLoad(): Promise<void> {
     );
   } finally {
     // Nested try so a teardown failure is logged but never MASKS the original error
-    // (mirrors `geography.cli.ts` and `climate.cli.ts`).
+    // (mirrors `geography.cli.ts` and `era5.cli.ts`).
     try {
       await dataSource.destroy();
     } catch (destroyError) {

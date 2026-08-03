@@ -613,140 +613,19 @@
           },
           "tempMeanC": {
             "type": "number",
-            "nullable": true,
-            "example": 27.9,
-            "description": "Ortalama sıcaklık (°C). Çekirdek çift — yayınlanan her ilde doludur."
-          },
-          "tempMaxMeanC": {
-            "type": "number",
-            "nullable": true,
-            "example": 33.2,
-            "description": "Ortalama en yüksek sıcaklık (°C)."
-          },
-          "tempMinMeanC": {
-            "type": "number",
-            "nullable": true,
-            "example": 22.6,
-            "description": "Ortalama en düşük sıcaklık (°C)."
+            "example": 24.1,
+            "description": "30 yıllık (1991-2020) aylık ortalama sıcaklık (°C). Çekirdek çift — her yayınlanan ilde doludur."
           },
           "precipitationMm": {
             "type": "number",
-            "nullable": true,
-            "example": 4.7,
-            "description": "Aylık toplam yağış miktarı ortalaması (mm). Çekirdek çift."
-          },
-          "sunshineHours": {
-            "type": "number",
-            "nullable": true,
-            "example": 11.2,
-            "description": "Ortalama günlük güneşlenme süresi (saat)."
-          },
-          "rainyDays": {
-            "type": "number",
-            "nullable": true,
-            "example": 2.1,
-            "description": "Ortalama yağışlı gün sayısı."
-          },
-          "tempRecordMaxC": {
-            "type": "number",
-            "nullable": true,
-            "example": 45.6,
-            "description": "O ay ölçülmüş en yüksek sıcaklık (°C) — uç değer, ortalama değil."
-          },
-          "tempRecordMaxDate": {
-            "type": "string",
-            "nullable": true,
-            "format": "date",
-            "example": "2000-07-30",
-            "description": "`tempRecordMaxC` gerçekleşme tarihi (ISO YYYY-MM-DD). Değerden bağımsız nullable."
-          },
-          "tempRecordMinC": {
-            "type": "number",
-            "nullable": true,
-            "example": 12.3,
-            "description": "O ay ölçülmüş en düşük sıcaklık (°C) — uç değer, ortalama değil."
-          },
-          "tempRecordMinDate": {
-            "type": "string",
-            "nullable": true,
-            "format": "date",
-            "example": "1976-07-05",
-            "description": "`tempRecordMinC` gerçekleşme tarihi (ISO YYYY-MM-DD). Değerden bağımsız nullable."
+            "example": 21.5,
+            "description": "30 yıllık (1991-2020) aylık toplam yağış ortalaması (mm). Çekirdek çift — her yayınlanan ilde doludur."
           }
         },
         "required": [
           "month",
           "tempMeanC",
-          "tempMaxMeanC",
-          "tempMinMeanC",
-          "precipitationMm",
-          "sunshineHours",
-          "rainyDays",
-          "tempRecordMaxC",
-          "tempRecordMaxDate",
-          "tempRecordMinC",
-          "tempRecordMinDate"
-        ]
-      },
-      "ClimateExtremeRecordDto": {
-        "type": "object",
-        "properties": {
-          "value": {
-            "type": "number",
-            "example": 189.4,
-            "description": "Ölçülen uç değer (ham sayı)."
-          },
-          "date": {
-            "type": "string",
-            "nullable": true,
-            "format": "date",
-            "example": "1968-12-26",
-            "description": "Gerçekleşme tarihi (ISO YYYY-MM-DD). MGM tarihi basmadıysa null — değerden bağımsız nullable."
-          }
-        },
-        "required": [
-          "value",
-          "date"
-        ]
-      },
-      "ClimateRecordsDto": {
-        "type": "object",
-        "properties": {
-          "dailyMaxPrecipitationMm": {
-            "nullable": true,
-            "description": "Günlük toplam en yüksek yağış miktarı (mm).",
-            "type": "object",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ClimateExtremeRecordDto"
-              }
-            ]
-          },
-          "fastestWindMs": {
-            "nullable": true,
-            "description": "Günlük en hızlı rüzgâr (m/sn).",
-            "type": "object",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ClimateExtremeRecordDto"
-              }
-            ]
-          },
-          "maxSnowDepthCm": {
-            "nullable": true,
-            "description": "En yüksek kar yüksekliği (cm).",
-            "type": "object",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ClimateExtremeRecordDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "dailyMaxPrecipitationMm",
-          "fastestWindMs",
-          "maxSnowDepthCm"
+          "precipitationMm"
         ]
       },
       "SeasonalPrecipitationDto": {
@@ -785,13 +664,13 @@
         "properties": {
           "annualMeanTempC": {
             "type": "number",
-            "example": 19.1,
-            "description": "Yıllık ortalama sıcaklık (°C) — 12 aylık ortalamanın ortalaması (TÜRETİLMİŞ, MGM değil)."
+            "example": 14.7,
+            "description": "Yıllık ortalama sıcaklık (°C) — 12 aylık ortalamanın ortalaması (TÜRETİLMİŞ; kaynağa atfedilemez)."
           },
           "annualPrecipitationMm": {
             "type": "number",
-            "example": 592.4,
-            "description": "Yıllık toplam yağış (mm) — 12 aylık toplamın toplamı (TÜRETİLMİŞ, MGM değil)."
+            "example": 630.2,
+            "description": "Yıllık toplam yağış (mm) — 12 aylık toplamın toplamı (TÜRETİLMİŞ; kaynağa atfedilemez)."
           },
           "hottestMonth": {
             "type": "number",
@@ -815,7 +694,7 @@
           },
           "annualTempRangeC": {
             "type": "number",
-            "example": 20.4,
+            "example": 18.3,
             "description": "Yıllık sıcaklık farkı (°C) — en sıcak ile en soğuk ay ortalaması arası (TÜRETİLMİŞ)."
           },
           "seasonalPrecipitation": {
@@ -844,25 +723,25 @@
           "source": {
             "type": "string",
             "enum": [
-              "mgm_general"
+              "era5_land_monthly"
             ],
-            "example": "mgm_general",
-            "description": "Kaynak seri kimliği — MGM Genel İstatistik tablosu (k=A), 81 il için tek seri."
+            "example": "era5_land_monthly",
+            "description": "Kaynak seri kimliği — Copernicus C3S ERA5-Land aylık ortalamaları, 81 il için tek dataset."
           },
           "sourceUrl": {
             "type": "string",
-            "example": "https://www.mgm.gov.tr/veridegerlendirme/il-ve-ilceler-istatistik.aspx?k=A&m=ICEL",
-            "description": "Bu serinin okunduğu MGM sayfası — il başına (MGM anahtarı Türkçe adla aynı değil)."
+            "example": "https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land-monthly-means",
+            "description": "Serinin türetildiği ERA5-Land dataset sayfası — 81 ilde AYNI sabit değer (il başına sayfa yoktur)."
           },
           "periodStartYear": {
             "type": "number",
-            "example": 1929,
-            "description": "Ölçüm periyodu başlangıç yılı — il başına değişir, sayfadan okunur."
+            "example": 1991,
+            "description": "Normal penceresi başlangıç yılı — WMO 1991-2020, 81 ilde sabit."
           },
           "periodEndYear": {
             "type": "number",
-            "example": 2025,
-            "description": "Ölçüm periyodu bitiş yılı."
+            "example": 2020,
+            "description": "Normal penceresi bitiş yılı — WMO 1991-2020, 81 ilde sabit."
           },
           "months": {
             "description": "Aylık normaller — tam 12 ay, 1-12 sırasıyla.",
@@ -871,16 +750,8 @@
               "$ref": "#/components/schemas/ClimateMonthlyNormalDto"
             }
           },
-          "records": {
-            "description": "Tüm zamanların rekorları.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ClimateRecordsDto"
-              }
-            ]
-          },
           "derived": {
-            "description": "Seriden TÜRETİLMİŞ yıllık/uç/mevsimsel değerler — MGM’e atfedilemez.",
+            "description": "Seriden TÜRETİLMİŞ yıllık/uç/mevsimsel değerler — kaynağa atfedilemez.",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ClimateDerivedDto"
@@ -894,7 +765,6 @@
           "periodStartYear",
           "periodEndYear",
           "months",
-          "records",
           "derived"
         ]
       },
@@ -1074,7 +944,7 @@
           },
           "climate": {
             "nullable": true,
-            "description": "İklim serisi (MGM k=A aylık normalleri + kaynak/dönem/rekorlar) + TÜRETİLMİŞ yıllık/mevsimsel değerler. Null = yayınlanabilir seri yok → web iklim bölümünü hiç render etmez. Türetilmiş değerler bizimdir, MGM'e atfedilemez; tüm sayılar ham (biçimlendirme web'in işi).",
+            "description": "İklim serisi (ERA5-Land 1991-2020 aylık normalleri + kaynak/dönem) + TÜRETİLMİŞ yıllık/mevsimsel değerler. Null = yayınlanabilir seri yok → web iklim bölümünü hiç render etmez. Türetilmiş değerler bizimdir, kaynağa atfedilemez; tüm sayılar ham (biçimlendirme web'in işi).",
             "type": "object",
             "allOf": [
               {

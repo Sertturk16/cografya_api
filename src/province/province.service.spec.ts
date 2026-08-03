@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import { Logger } from '@nestjs/common';
 import { buildClimate } from './province.service';
 import {
-  CLIMATE_SOURCE_MGM_GENERAL,
+  CLIMATE_SOURCE_ERA5_LAND_MONTHLY,
   type ClimateMonthlyNormal,
   type ClimateNormals,
 } from './province.types';
@@ -23,27 +23,14 @@ function makeValidNormals(): ClimateNormals {
   const months: ClimateMonthlyNormal[] = Array.from({ length: 12 }, (_unused, i) => ({
     month: i + 1,
     tempMeanC: 10 + i,
-    tempMaxMeanC: null,
-    tempMinMeanC: null,
     precipitationMm: 50,
-    sunshineHours: null,
-    rainyDays: null,
-    tempRecordMaxC: null,
-    tempRecordMaxDate: null,
-    tempRecordMinC: null,
-    tempRecordMinDate: null,
   }));
   return {
-    source: CLIMATE_SOURCE_MGM_GENERAL,
-    sourceUrl: 'https://www.mgm.gov.tr/veridegerlendirme/il-ve-ilceler-istatistik.aspx?k=A&m=TEST',
-    periodStartYear: 1929,
-    periodEndYear: 2025,
+    source: CLIMATE_SOURCE_ERA5_LAND_MONTHLY,
+    sourceUrl: 'https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land-monthly-means',
+    periodStartYear: 1991,
+    periodEndYear: 2020,
     months,
-    records: {
-      dailyMaxPrecipitationMm: null,
-      fastestWindMs: null,
-      maxSnowDepthCm: null,
-    },
   };
 }
 
@@ -63,7 +50,7 @@ describe('buildClimate', () => {
     const normals = makeValidNormals();
     const climate = buildClimate(normals, '34');
     expect(climate).not.toBeNull();
-    expect(climate?.source).toBe(CLIMATE_SOURCE_MGM_GENERAL);
+    expect(climate?.source).toBe(CLIMATE_SOURCE_ERA5_LAND_MONTHLY);
     expect(climate?.months).toHaveLength(12);
     // The derived block is present and its seasonal shares total exactly 100.
     const seasonal = climate?.derived.seasonalPrecipitation;
@@ -82,7 +69,9 @@ describe('buildClimate', () => {
     const corrupt = makeValidNormals();
     const july = corrupt.months[6];
     if (july === undefined) throw new Error('fixture malformed');
-    july.tempMeanC = null; // breaks the core pair → not derivable
+    // Written past the type on purpose: the core pair is non-nullable in the contract, but this
+    // object comes out of a `jsonb` column where the type is an assertion, not a guarantee.
+    (july as unknown as Record<string, unknown>).tempMeanC = null;
 
     expect(buildClimate(corrupt, '06')).toBeNull();
     // Observability: the corrupt branch logs, and names the plate code (public data, no PII).
