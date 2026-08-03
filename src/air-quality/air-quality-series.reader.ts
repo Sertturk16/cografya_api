@@ -31,14 +31,22 @@ export const AIR_QUALITY_RUN_CACHE_KEY = 'airq:run:current';
  * choosing between "a local query that takes 5 s" and "a local query that takes 3 s" — not a real
  * operational choice, and the repo's rule is to not build knobs for scenarios nobody expects.
  *
- * ## What it actually bounds today: NOTHING (review #84 CR-3)
- * `OperationDeadline` yields an `AbortSignal` that only an HTTP call site can honour, and this
- * leg's `refresh` closure — `() => this.compileFromStore()` — takes no deadline and makes no HTTP
- * call. No `statement_timeout` or TypeORM `maxQueryExecutionTime` is configured either, so a
- * stalled pool is bounded by nothing on this path. That is a REAL gap, it is shared with marine's
- * `EcmwfSeriesReader.readSeries`, and it is filed as a cross-leg follow-up rather than fixed here.
- * The earlier wording ("the request budget handed to …") described a protection that does not
- * exist, which is worse than the gap itself: it tells the next reader to stop looking.
+ * ## What it actually bounds on this path, stated exactly (review #84 CR-3)
+ * **This constant still bounds nothing here.** `OperationDeadline` yields an `AbortSignal` that
+ * only an HTTP call site can honour, and this leg's `refresh` closure —
+ * `() => this.compileFromStore()` — takes no deadline and makes no HTTP call. The value is passed
+ * to the cache seam because the seam's contract asks for one, and it becomes real the moment this
+ * refresh ever grows an outbound call.
+ *
+ * What DOES bound the path now is one level down and belongs to nobody in particular:
+ * `DATABASE_STATEMENT_TIMEOUT_MS` in `src/database/data-source-options.ts` puts a pool-wide
+ * `statement_timeout` on every connection, so a stalled query is **cancelled by Postgres and its
+ * connection handed back to the pool** instead of being held forever until the pool drains and
+ * every public route hangs with it. Read that promise narrowly: it is *"no query hangs forever"*,
+ * NOT *"this request finishes within the 5 s above"* — the ceiling is deliberately far higher
+ * than this read budget, because the same pool also carries the ingest writes. A user-visible
+ * per-request budget on this path would still have to be built; what exists is the floor that
+ * stops one query from taking the whole service down with it.
  */
 export const AIR_QUALITY_READ_DEADLINE_MS = 5_000;
 

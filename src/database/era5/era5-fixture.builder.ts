@@ -8,8 +8,12 @@ import type { Era5Dataset, Era5FileReader } from './hdf5/jsfive.adapter';
  * TEST INFRASTRUCTURE — synthetic ERA5-Land files, in the shape `jsfive` would hand us.
  *
  * It lives under `src/` only so the unit lane collects the specs that use it, exactly like
- * `src/air-quality/cams/netcdf3-fixture.builder.ts`, and it is excluded from `tsconfig.build.json`
- * so it never reaches `dist/`. It is NOT a golden fixture and must never be confused with one:
+ * `src/air-quality/cams/netcdf3-fixture.builder.ts`, and it is named in `tsconfig.build.json`'s
+ * `exclude` so it is not a build ENTRY point. Stated precisely, because the stronger version
+ * would be wrong: `exclude` does not forbid emission — TypeScript still compiles an excluded
+ * file that an INCLUDED file imports. It stays out of `dist/` because no production file imports
+ * it; the exclude is the belt, and keeping it unimported is review's job, not the compiler's.
+ * It is NOT a golden fixture and must never be confused with one:
  * the golden test runs against REAL provider bytes (`test/fixtures/era5/`), because a builder and
  * a reader written by the same hand can share the same wrong model. This file exists to break
  * files ON PURPOSE — the `scale_factor` that appeared, the `_FillValue` that became a sentinel,
