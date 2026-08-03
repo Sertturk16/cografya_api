@@ -1,4 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
+import { isEndorsementClaim } from '../common/attribution/endorsement-guard';
 import {
   buildCamsAttribution,
   buildCamsAttributionText,
@@ -6,64 +7,6 @@ import {
   CAMS_DISCLAIMER_TEXT,
   CAMS_NOTICE_KEYS,
 } from './air-quality-attribution.constant';
-
-/**
- * Turkish-aware folding, applied BEFORE the endorsement denylist runs.
- *
- * JavaScript's `/i` flag does not fold the Turkish dotted/dotless i: the ECMAScript canonicalizer
- * refuses any mapping that moves a non-ASCII character into ASCII, so `ı` (U+0131) never matches
- * `I` and `İ` (U+0130) never matches `i` (marine review #83 I2c measured `ECMWF ONAYLI` sailing
- * through a `/onaylı/i` denylist — the one spelling a headline would use). Collapsing the whole
- * i-family onto plain `i` closes that, so the patterns below are written pre-folded and carry no
- * `/i` flag. Over-folding is the safe direction for a denylist: it can only catch more.
- */
-function foldForEndorsementGuard(value: string): string {
-  return value.replace(/[IİıiÎî]/g, 'i').toLowerCase();
-}
-
-/**
- * Phrasing that would claim or imply a provider or the EU endorses this platform — banned by
- * `CONVENTIONS.md` §7 (from ADS Terms of Use art. 5, NOVA first-hand).
- *
- * ## A UNION with M5's set, not an adoption of it (review #84 cf-1)
- * The validator measured both guards and found each catching what the other misses. M5's set
- * catches `official ECMWF data`, `ECMWF-approved`, `sponsored by ECMWF` — and `sponsored` was
- * absent from A2b's first guard entirely, which matters because this module publishes ENGLISH
- * exclusively. A2b's set catches `an ECMWF endorsement`, `the EU endorses this platform` and
- * `officially European data`, which M5 misses. "Just adopt M5's" would therefore have traded one
- * blind spot for another; the union below has neither, and both directions are measured in the
- * corpus at the bottom of this file rather than reasoned about.
- *
- * ## The duplication is deliberate, and it is a known debt
- * `ENDORSEMENT_PATTERNS` and `foldForEndorsementGuard` also live in
- * `src/marine/marine-attribution-catalogue.spec.ts`. They are spec-private there (no `export`, in
- * a file excluded from `tsconfig.build.json`), so importing them is impossible without moving them
- * into shared code — a `dev` refactor that touches marine's gate and is out of this PR's range.
- * Copied deliberately, recorded here, and handed to Atlas as a follow-up so the two copies do not
- * drift in silence.
- *
- * Honest about its limits: this is a denylist of known phrasings, not a proof of non-endorsement.
- * `catches every phrasing` is not the claim — a novel wording still needs a human reading the diff.
- */
-const ENDORSEMENT_PATTERNS: readonly RegExp[] = [
-  // The Turkish approval family at its STEM. The lookahead exempts `onayl` + `a`/`an` + `ma` +
-  // anything but `k`, which covers the denials (`onaylanmamıştır`, `onaylamamaktadır`) and,
-  // unavoidably, the homophonous affirmative verbal noun; the inner `(?!k)` recovers the
-  // infinitive so `onaylamaktadır` still fires. Reproduced from M5 with its reasoning intact.
-  /onayl(?!an?ma(?!k))/,
-  /destekli/,
-  /approved/,
-  /certified/,
-  // A STEM, not `endorsed`: covers endorse/endorses/endorsed/endorsement in one.
-  /endorse/,
-  /sponsored/,
-  // `resmî`/`official` followed within ONE token by a data noun is the claim itself; the one-token
-  // window is the widest that still leaves `resmî lisansı bu veriyi kapsar` (a licence clause,
-  // not a claim) alone.
-  /(?:resmi|official)\s+(?:\S+\s+)?(?:veri|ölçüm|kaynak|ürün|data|measurement|source)/,
-  // The adverb form, which the pattern above cannot reach: `officially European data`.
-  /official(?:ly)?\s+(?:eu|european)/,
-];
 
 /** Every string this module actually publishes. */
 function servedStrings(): string[] {
@@ -163,73 +106,14 @@ describe('CAMS attribution strings', () => {
   });
 
   it('carries NO endorsement claim in any served string (CONVENTIONS §7 / DEC 2026-08-02c-3)', () => {
+    // The guard itself — its patterns, its two corpora and its pinned known limits — lives at
+    // `src/common/attribution/endorsement-guard.ts`. It used to be duplicated here and in
+    // `marine-attribution-catalogue.spec.ts`, which is the structural reason review #84 cf-1
+    // happened: the copies drifted, each blind to what the other caught. What stays here is the
+    // only part that is air-quality's: the strings THIS module serves.
     expect(servedStrings().length).toBeGreaterThan(0);
     for (const value of servedStrings()) {
-      for (const pattern of ENDORSEMENT_PATTERNS) {
-        expect(foldForEndorsementGuard(value)).not.toMatch(pattern);
-      }
-    }
-  });
-});
-
-/**
- * The guard's OWN test, in BOTH directions.
- *
- * A denylist that quietly matches nothing passes the served-strings property above forever (marine
- * review #83 I2c found one doing exactly that), and a denylist that matches everything gets routed
- * around instead of fixed. Neither failure is visible from the served strings alone, so each
- * direction gets its own corpus here. The banned corpus is exactly the set review #84's cf-1
- * validator measured this module's first guard MISSING, plus the denials it wrongly caught.
- */
-describe('the endorsement guard itself', () => {
-  const banned = [
-    // English — the six misses the validator reproduced. This module publishes English only, so
-    // these are the classes that actually matter here.
-    'official ECMWF data',
-    'official source',
-    'ECMWF-approved',
-    'Approved product of ECMWF',
-    'sponsored by ECMWF',
-    'EU-sponsored',
-    'officially European data',
-    'certified by CAMS',
-    // …and the two the A2b guard caught that M5's set does not, which is why this is a UNION and
-    // not an adoption.
-    'an ECMWF endorsement',
-    'the EU endorses this platform',
-    // Turkish, with the casing JavaScript's /i flag cannot fold.
-    'Copernicus onaylı veri',
-    'CAMS ONAYLI',
-    'AB destekli',
-    'AB DESTEKLİ',
-    'resmî Copernicus verisi',
-  ];
-
-  const allowed = [
-    // DENIALS are the opposite of the banned claim — and are exactly what ADS ToS art. 5 pushes a
-    // careful publisher towards. A guard that rejected them would be routed around, not fixed.
-    'Copernicus tarafından onaylanmamıştır',
-    'ECMWF bu platformu onaylamamaktadır',
-    'Bu platform hiçbir kurum tarafından onaylanmamıştır',
-    // A licence TITLE is not an endorsement claim.
-    'Copernicus resmî lisans metni',
-    'resmî lisansı bu veriyi kapsar',
-  ];
-
-  function fires(value: string): boolean {
-    const folded = foldForEndorsementGuard(value);
-    return ENDORSEMENT_PATTERNS.some((pattern) => pattern.test(folded));
-  }
-
-  it('fires on every known endorsement phrasing', () => {
-    for (const value of banned) {
-      expect(`${value} → ${String(fires(value))}`).toBe(`${value} → true`);
-    }
-  });
-
-  it('stays silent on denials and licence titles', () => {
-    for (const value of allowed) {
-      expect(`${value} → ${String(fires(value))}`).toBe(`${value} → false`);
+      expect(`${value} → ${String(isEndorsementClaim(value))}`).toBe(`${value} → false`);
     }
   });
 });

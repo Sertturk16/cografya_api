@@ -1,10 +1,12 @@
-import { beforeEach, describe, expect, it } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { NotFoundException } from '@nestjs/common';
 import type { Repository } from 'typeorm';
 import type { CachedRead } from '../upstream/cache/upstream-cache.service';
+import { UpstreamMetrics } from '../upstream/upstream-metrics';
 import type { Province } from '../province/entities/province.entity';
 import type { CompiledRun } from './air-quality-compile';
 import { AirQualityReadService } from './air-quality-read.service';
+import { CAMS_ADS_PROVIDER } from './air-quality-upstream.config';
 import { readAirQualityCacheAge } from './air-quality-cache-age.interceptor';
 import type { AirQualitySeriesReader } from './air-quality-series.reader';
 import type { AirQualityProvinceListItemDto } from './dto/air-quality-province-list-item.dto';
@@ -126,14 +128,27 @@ function buildService(input: {
       normalisationReports.push(count);
     },
   } as unknown as AirQualitySeriesReader;
-  return new AirQualityReadService(repository, reader);
+  return new AirQualityReadService(repository, reader, metrics);
 }
 
 /** Every post-cache R2 report the service made during the current test. */
 let normalisationReports: number[] = [];
 
+/**
+ * A REAL `UpstreamMetrics`, not a fake — the throttle and the emission seam are the behaviour
+ * under test in the Q3 cases below, and a hand-written fake would have to reimplement both.
+ * Only `event` is spied, which is where `throttledEvent` lands when it decides to emit.
+ */
+let metrics: UpstreamMetrics;
+let events: { level: string; message: string }[] = [];
+
 beforeEach(() => {
   normalisationReports = [];
+  metrics = new UpstreamMetrics();
+  events = [];
+  jest.spyOn(metrics, 'event').mockImplementation((level, message) => {
+    events.push({ level, message });
+  });
 });
 
 describe('AirQualityReadService — the hub', () => {
@@ -242,9 +257,16 @@ describe('AirQualityReadService — the detail endpoint', () => {
     expect(dto.attribution.attributionText).toContain(String(new Date(RUN_UTC).getUTCFullYear()));
   });
 
-  it('404s a well-formed plate code that names no province', async () => {
+  it('404s a well-formed plate code that names no province — and reports NOTHING', async () => {
     const service = buildService({ provinces: [province('06')], read: COLD_READ });
     await expect(service.getProvince('99')).rejects.toBeInstanceOf(NotFoundException);
+    // The silence is as deliberate as the report in the next test, so it is pinned with the same
+    // weight: 19 of the 100 well-formed two-digit codes name no province (`/^\d{2}$/` admits
+    // `00`), and this route is
+    // unauthenticated. Counting caller behaviour here would be a log-inflation lever and would
+    // bury the ONE case that means our own data is wrong.
+    expect(events).toHaveLength(0);
+    expect(metrics.get('airq.province_coordinates_missing', CAMS_ADS_PROVIDER)).toBe(0);
   });
 
   it('404s a province with no reference point rather than inventing coordinates (Q3)', async () => {
@@ -256,6 +278,42 @@ describe('AirQualityReadService — the detail endpoint', () => {
       read: COLD_READ,
     });
     await expect(service.getProvince('06')).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('reports the Q3 404 as an ERROR and counts it — the half that shipped missing', async () => {
+    // Review #84 CR-5 / DEC 2026-08-03a §2: the 404 alone is silent, so a seed regression that
+    // nulls a province's coordinates takes a whole page off the site with nothing logged.
+    const service = buildService({
+      provinces: [province('06', { latitude: null, longitude: null })],
+      read: COLD_READ,
+    });
+    await expect(service.getProvince('06')).rejects.toBeInstanceOf(NotFoundException);
+    expect(events).toHaveLength(1);
+    expect(events[0]?.level).toBe('error');
+    expect(metrics.get('airq.province_coordinates_missing', CAMS_ADS_PROVIDER)).toBe(1);
+  });
+
+  it('throttles the report per PROVINCE — a second broken province is never hidden', async () => {
+    // Two properties in one case, because they are the same design decision: the repeat is
+    // suppressed (this route is public, so the report must not scale with traffic) while a
+    // DIFFERENT province still gets its own line. A single shared throttle key would have made
+    // the second province invisible for the whole window.
+    const service = buildService({
+      provinces: [
+        province('06', { latitude: null, longitude: null }),
+        province('34', { latitude: null, longitude: null }),
+      ],
+      read: COLD_READ,
+    });
+    await expect(service.getProvince('06')).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.getProvince('06')).rejects.toBeInstanceOf(NotFoundException);
+    expect(events).toHaveLength(1);
+    expect(metrics.get('airq.province_coordinates_missing', CAMS_ADS_PROVIDER)).toBe(1);
+
+    await expect(service.getProvince('34')).rejects.toBeInstanceOf(NotFoundException);
+    expect(events).toHaveLength(2);
+    // Counted on EMISSION, so the counter tracks the two emitted lines, not the three requests.
+    expect(metrics.get('airq.province_coordinates_missing', CAMS_ADS_PROVIDER)).toBe(2);
   });
 
   it('degrades ONE province honestly when the run does not cover it', async () => {

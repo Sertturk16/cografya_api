@@ -398,9 +398,20 @@ export class EcmwfIngestTarget implements ScheduledWarmupTarget {
         }
       }
       if (step.kind === 'cycle_unpublished') {
+        // No summary log is skipped here, and that is not an oversight: `cycle_unpublished` can
+        // only be produced while `allowUnpublished` is true, which is only the FIRST attempted
+        // step of an unknown candidate (`firstRequestOfCandidate` is cleared right after the
+        // call above). So `stepsThisTour` is necessarily 0 and the summary below would not have
+        // printed anyway. Stated because the `stop` arm one line down was the opposite case.
         return { kind: 'cycle_unpublished', indexAnswered: step.indexAnswered };
       }
-      if (step.kind === 'stop') return { kind: 'ingested', steps: stepsThisTour };
+      // BREAK, not `return` (shadow-run finding K-1, DEC 2026-08-03b §3). The early return here
+      // produced the same value as the tail below — and skipped the summary log on the way out.
+      // A tour that ingested steps and THEN hit an upstream stop reported nothing: in the M3b
+      // shadow run, 12 steps / ~40.6 MB were written to Postgres and never appeared in a log
+      // line. No data was lost — the ledger was right — but anyone measuring a run from its log
+      // under-reports it, and the defect was only caught by cross-checking the database.
+      if (step.kind === 'stop') break;
 
       stepsThisTour += 1;
       bytesThisTour += step.bytes;

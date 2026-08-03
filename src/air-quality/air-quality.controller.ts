@@ -107,9 +107,10 @@ export class AirQualityController {
    * writes both headers" sketch: a cache age is an observation derived from the body, while
    * `Cache-Control` is a decision of the handler — two responsibilities, two mechanisms.
    *
-   * The threshold is "at least ONE province carries a value" (Atlas ruling Q7). The stricter
-   * "all 81 must" was rejected: one skipped corrupt row would then keep the entire hub
-   * uncacheable.
+   * The threshold is "the run REACHED at least one province" — `status !== unavailable`, so a
+   * `no_data` item counts (Atlas ruling Q7 as restated, DEC 2026-08-03a §1; the reasoning lives
+   * on `AirQualityReadService.hubHasData`). The stricter "all 81 must" was rejected: one skipped
+   * corrupt row would then keep the entire hub uncacheable.
    */
   @Get('provinces')
   @ApiOperation({

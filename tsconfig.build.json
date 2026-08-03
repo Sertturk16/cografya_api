@@ -5,8 +5,9 @@
   },
   // `tools/` is build-time tooling run by Node's type stripping, never bundled into
   // `dist/` — it has its own project at `tools/tsconfig.json`. The NetCDF3/ZIP fixture
-  // builder and the ERA5 synthetic-file builder are test infrastructure that live in `src/`
-  // only so the unit lane collects their specs — they must never ship to `dist/`.
+  // builder, the ERA5 synthetic-file builder and the shared No-Endorsement denylist are
+  // test infrastructure that live in `src/` only so the unit lane collects their specs —
+  // they must never ship to `dist/`.
   "exclude": [
     "node_modules",
     "test",
@@ -15,6 +16,7 @@
     "**/*.spec.ts",
     "**/*.e2e-spec.ts",
     "src/air-quality/cams/netcdf3-fixture.builder.ts",
-    "src/database/era5/era5-fixture.builder.ts"
+    "src/database/era5/era5-fixture.builder.ts",
+    "src/common/attribution/endorsement-guard.ts"
   ]
 }

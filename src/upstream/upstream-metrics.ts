@@ -197,6 +197,25 @@ export type UpstreamMetricName =
    */
   | 'airq.cleanup_unconfirmed'
   /**
+   * A province EXISTS in the table but carries no reference point, so its detail endpoint 404s
+   * (Atlas ruling Q3, re-confirmed at DEC 2026-08-03a §2 / review #84 CR-5).
+   *
+   * ## Why the 404 needs a counter at all
+   * Q3 refuses to publish fabricated coordinates, which is right — but the refusal is invisible:
+   * a seed regression that nulls `latitude`/`longitude` turns `/hava/<il>` into a silent 404 that
+   * looks exactly like a plate code nobody has. This is OUR data being wrong, not a caller being
+   * wrong, so it is ERROR and it is counted.
+   *
+   * ## Cadence: once per THROTTLE WINDOW, on a public request path
+   * The condition is a standing seed state, checked once per request on an unauthenticated route,
+   * so the counter is incremented by ONE and only when `throttledEvent` actually emits — the
+   * `airq.cached_run_unusable` pattern (count the condition, not the traffic). The UNKNOWN-plate
+   * 404 beside it stays silent on purpose: 19 of the 100 well-formed two-digit codes (the
+   * validator is `/^\d{2}$/`, so `00` counts) name no province, and counting those would report
+   * caller behaviour, not a defect.
+   */
+  | 'airq.province_coordinates_missing'
+  /**
    * A stored series row was refused by the read-path shape guard and SKIPPED — the remaining
    * readable cycles still serve the point, and the read degrades to `schema_error` only when no
    * readable row is left (review #76 round-3 R3-CR-1 + R3-SFH-7). jsonb is schemaless: this
@@ -226,7 +245,13 @@ export type UpstreamMetricName =
 export class UpstreamMetrics {
   private readonly logger = new Logger('Upstream');
   private readonly counters = new Map<string, number>();
-  private readonly lastLoggedAtMs = new Map<string, number>();
+  /**
+   * Throttle key → the instant its window ENDS (not the instant it last logged).
+   *
+   * Storing the expiry rather than the timestamp is what lets every key be judged by its OWN
+   * window — see {@link pruneThrottleKeys}, which used to judge them all by the caller's.
+   */
+  private readonly throttleExpiresAtMs = new Map<string, number>();
 
   /**
    * Count one event.
@@ -291,9 +316,21 @@ export class UpstreamMetrics {
    * ERROR stream layered on top of the outage itself — an availability problem caused by the
    * reporting of an availability problem.
    *
-   * Loudness is preserved where it matters: the COUNTER is never throttled, and the first
-   * occurrence is always logged, so the transition into the bad state is always visible. What is
-   * suppressed is only the repetition of a message that says nothing new.
+   * Loudness is preserved where it matters: the first occurrence is ALWAYS logged, so the
+   * transition into the bad state is always visible. What is suppressed is only the repetition of
+   * a message that says nothing new.
+   *
+   * ## The COUNTER is throttled only where the condition is request-cadence (corrected)
+   * An earlier revision of this docblock stated as an absolute that *"the COUNTER is never
+   * throttled"*, and the CADENCE SEAM below then introduced counters gated on exactly this
+   * method — the docblock contradicted the file it documented (review #84 round 3, carried as a
+   * rider). The real rule is one sentence: **a counter follows the cadence of the condition it
+   * measures, not the cadence of the code that notices it.** Refresh-cadence conditions
+   * (`airq.run_age_ceiling`, `airq.concentration_normalised`) are counted unthrottled, because
+   * there the count IS the magnitude. Conditions detectable only once per REQUEST
+   * (`airq.cached_run_unusable`, `airq.cached_concentration_normalised`,
+   * `airq.province_coordinates_missing`) gate their increment on this method's return value, so
+   * the series stays a count of the condition instead of a reading of the traffic.
    *
    * ## The return value is the CADENCE SEAM (review #84 round 2)
    * `true` exactly when this call emitted. A condition that is detectable only on the once-per-
@@ -311,31 +348,50 @@ export class UpstreamMetrics {
     context: Readonly<Record<string, string | number | boolean | null>>,
   ): boolean {
     const now = Date.now();
-    const last = this.lastLoggedAtMs.get(throttleKey);
-    if (last !== undefined && now - last < everyMs) return false;
+    const expiresAt = this.throttleExpiresAtMs.get(throttleKey);
+    if (expiresAt !== undefined && now < expiresAt) return false;
 
-    this.lastLoggedAtMs.set(throttleKey, now);
-    this.pruneThrottleKeys(now, everyMs);
+    this.throttleExpiresAtMs.set(throttleKey, now + everyMs);
+    this.pruneThrottleKeys(now);
     this.event(level, message, context);
     return true;
   }
 
   /**
-   * Keep the throttle map bounded.
+   * Drop throttle keys whose OWN window has already ended.
    *
-   * The keys are ours (provider + operation), so the map is small by construction; this only
-   * guards against a long-lived process accumulating keys for providers it no longer talks to.
+   * ## Why each key carries its own expiry (review #85 I1)
+   * This method used to compare every key against the CALLING site's `everyMs`, which is a
+   * cross-domain bug the moment the map grows past the cleanup floor: a caller with a 60 s window
+   * would evict a key whose real window is an hour, and that key's next event — already
+   * throttled for a reason — would emit immediately. Measured shape of the failure: a seed
+   * regression darkens dozens of provinces, `airq.province-coordinates-missing:<plate>` fills the
+   * map, and every 60 s airq call then evicts `ecmwf.bytes-abandoned-systematic`, turning
+   * marine's hourly ERROR into a per-minute one DURING an incident — precisely the
+   * log-amplification `throttledEvent`'s own docblock exists to prevent.
+   *
+   * Storing the expiry removes the parameter that made that possible, so the bug is now
+   * structurally impossible rather than merely unlikely. A key just set can never be evicted
+   * here: its expiry is strictly in the future.
+   *
+   * ## The 64 is a cleanup FLOOR, not a cap
+   * The old comment claimed the map is "small by construction". That premise died when a key
+   * gained a per-province suffix, so state the real one: the key space is bounded by keys WE
+   * choose — static operation names plus at most one per province (81) — and the map is allowed
+   * to exceed 64 while those windows are genuinely open. Evicting an unexpired key to respect a
+   * size limit would silently disable the throttle it belongs to, which is worse than holding a
+   * few dozen numbers.
    */
-  private pruneThrottleKeys(nowMs: number, everyMs: number): void {
-    if (this.lastLoggedAtMs.size <= 64) return;
-    for (const [key, at] of this.lastLoggedAtMs) {
-      if (nowMs - at >= everyMs) this.lastLoggedAtMs.delete(key);
+  private pruneThrottleKeys(nowMs: number): void {
+    if (this.throttleExpiresAtMs.size <= 64) return;
+    for (const [key, expiresAt] of this.throttleExpiresAtMs) {
+      if (nowMs >= expiresAt) this.throttleExpiresAtMs.delete(key);
     }
   }
 
   /** Test-only reset; production code never calls it. */
   resetForTest(): void {
     this.counters.clear();
-    this.lastLoggedAtMs.clear();
+    this.throttleExpiresAtMs.clear();
   }
 }
