@@ -15,11 +15,13 @@ import {
  * also not `MarineForecastValueDto` — hindcast steps are served too.
  *
  * **IMPLEMENTED.** This shape was frozen and published at M1 (SPEC-ADDENDUM §8.2) so the web
- * repo could codegen and build against a mock before the runtime existed; the endpoints that
- * return it landed in M3b (ECMWF) and M4b (CMEMS + merge). Freezing early was safe because the
- * shape was derived from measured provider responses — the raw unit strings, the ABSENCE of a
- * time field in the CMEMS reply, the grid-centre snapping behaviour and the XML error path were
- * all verified live — which is where late surprises normally come from.
+ * repo could codegen and build against a mock before the runtime existed. The runtime arrived
+ * in stages — the ECMWF ingest + read path in M3b, the CMEMS adapter in M4a (zero runtime
+ * delta) and the merge that wires it in at M4b — but EVERY endpoint that returns this DTO
+ * landed in M4b. Freezing early was safe because the shape was derived from measured provider
+ * responses — the raw unit strings, the ABSENCE of a time field in the CMEMS reply, the
+ * grid-centre snapping behaviour and the XML error path were all verified live — which is
+ * where late surprises normally come from.
  */
 export class MarineValueDto {
   @ApiProperty({

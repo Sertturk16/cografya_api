@@ -56,7 +56,8 @@ export class MarineConditionsDto {
       'The 5-day series, or null. Nullable for a real case, not for convenience: the series is ' +
       'always ECMWF (MarineSeriesDto.source), while the instant values above are CMEMS-primary ' +
       'for the three ocean fields — so a point can hold instant values with no series whenever ' +
-      'no publishable ECMWF cycle exists.',
+      'no publishable ECMWF series can be read (no publishable cycle, or the stored series is ' +
+      'unreadable or past the cycle-age ceiling).',
   })
   series!: MarineSeriesDto | null;
 

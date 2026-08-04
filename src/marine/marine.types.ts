@@ -37,10 +37,13 @@ export const MARINE_SEA_BASIN_DB_ENUM = 'marine_sea_basin';
 /**
  * Canonical units (SPEC-ADDENDUM §7.4 / B3).
  *
- * MACHINE names, not symbols. Measured provider strings for the SAME quantity were `m` /
- * `degree` / `degrees_C` (CMEMS) and `m` / `°` / `°C` / `km/h` (Open-Meteo) — three spellings
- * for one unit. Passing those through would push string-matching onto the web repo. `°C` and
- * `m/s` are a DISPLAY concern and belong to Vera's i18n.
+ * MACHINE names, not symbols. Passing provider strings through would push string-matching onto
+ * the web repo — and there is no single string to pass: CMEMS states its own unit string per
+ * field (`m` / `degree` / `degrees_C`), while ECMWF Open Data ships GRIB2, where the unit is
+ * implied by the parameter and no unit string is carried at all. (The retired M1 Open-Meteo leg
+ * spelled the same quantities differently again — `m` / `°` / `°C` / `km/h` — which is the
+ * measurement this enum was born from.) `°C` and `m/s` are a DISPLAY concern and belong to
+ * Vera's i18n.
  *
  * Wind is `meter_per_second` because models produce m/s, the Beaufort scale is defined in m/s
  * (natural for a geography site), and m/s → km/h is a lossless ×3.6 while the reverse loses
