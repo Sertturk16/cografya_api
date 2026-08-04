@@ -113,12 +113,26 @@ describe('buildClimate', () => {
   });
 
   it('serves null AND warns for a present-but-malformed jsonb shape the type forbids', () => {
-    // Present-but-corrupt shapes ({}, { months: null }) the compile-time type believes impossible
-    // but a jsonb column can still hold: a DEFECT, so — exactly like an incomplete core pair —
-    // they serve null and log, rather than throwing a TypeError inside the derivation.
+    // Present-but-corrupt shapes the compile-time type believes impossible but a jsonb column can
+    // still hold: a DEFECT, so — exactly like an incomplete core pair — they serve null and log,
+    // rather than throwing a TypeError inside the derivation.
+    //
+    // Both fixtures carry a VALID `source` on purpose (review #87, CF87-M2). Without it they exit
+    // at the source branch added above and never reach the SHAPE guard this test names, so the
+    // test would pass while proving something else entirely — a bare `{}` would be "refused" for
+    // the wrong reason. The shape guard is what has to fire here.
     const warn = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
-    expect(buildClimate({} as unknown as ClimateNormals, '35')).toBeNull();
-    expect(buildClimate({ months: null } as unknown as ClimateNormals, '35')).toBeNull();
-    expect(warn).toHaveBeenCalledTimes(2);
+    const withSource = (extra: Record<string, unknown>): ClimateNormals =>
+      ({ source: CLIMATE_SOURCE_ERA5_LAND_MONTHLY, ...extra }) as unknown as ClimateNormals;
+
+    expect(buildClimate(withSource({}), '35')).toBeNull();
+    expect(buildClimate(withSource({ months: null }), '35')).toBeNull();
+    expect(buildClimate(withSource({ months: 'not-an-array' }), '35')).toBeNull();
+    expect(warn).toHaveBeenCalledTimes(3);
+    // …and it is the DERIVABILITY message, not the source message — i.e. the shape guard is what
+    // rejected them.
+    for (const call of warn.mock.calls) {
+      expect(String(call[0])).toContain('not derivable');
+    }
   });
 });

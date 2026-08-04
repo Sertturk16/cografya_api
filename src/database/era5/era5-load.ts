@@ -50,14 +50,21 @@ import { computeEra5Normals } from './era5-normals';
  * of magnitude away from the pool ceiling `data-source-options.ts` documents. Nothing in this file
  * needs a raised timeout, and nothing in it should ever grow into a single statement that would.
  *
- * ## Two error types, on purpose
- * This function can raise `Era5ContractError` (from `computeEra5Normals`, which runs first) or
- * `Era5LoadError` (from the gate and from this file). They are NOT collapsed, because they answer
- * different questions and route an operator differently: the first means *"the artifact is not the
- * document it claims to be"* — re-run `--phase=fetch`, or restore the file — while the second
- * means *"the artifact is well-formed but disagrees with the manifest, the closed fallback set or
- * the database"*, which is a data or ordering problem, not a corrupt file. Both are named, both
- * carry a prefixed message, and the CLI logs either identically.
+ * ## The two NAMED error types this module raises deliberately
+ * `Era5ContractError` (from `computeEra5Normals`, which runs first) and `Era5LoadError` (from the
+ * gate and from this file). They are NOT collapsed, because they answer different questions and
+ * route an operator differently: the first means *"the artifact is not the document it claims to
+ * be"* — re-run `--phase=fetch`, or restore the file — while the second means *"the artifact is
+ * well-formed but disagrees with the manifest, the closed fallback set or the database"*, which is
+ * a data or ordering problem, not a corrupt file. Both are named, both carry a prefixed message,
+ * and the CLI logs either identically.
+ *
+ * That is a claim about what this module RAISES, not about everything a caller can catch: a
+ * database fault inside the transaction propagates as TypeORM's own `QueryFailedError`, unwrapped
+ * and on purpose. Re-labelling a Postgres error would hide the SQLSTATE an operator actually needs
+ * (a `57014` statement timeout and a constraint violation call for different responses), and the
+ * transaction has already rolled back by the time it surfaces — the e2e's injected mid-transaction
+ * failure catches exactly one of these.
  */
 
 export const ERA5_MANIFEST_FILE_NAME = 'era5-manifest.json';

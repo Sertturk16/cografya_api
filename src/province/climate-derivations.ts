@@ -63,8 +63,12 @@ const SEASONS: ReadonlyArray<{
  * metadata and the JSON-LD all depend on, so it must live in one place and be tested here.
  *
  * Returns `null` (rather than emitting a set that would not sum to 100 and would break the
- * contract's invariant) if the input is not a complete 12-month array, carries a NEGATIVE monthly
- * value, or has a non-positive annual total. A negative precipitation is physically impossible and
+ * contract's invariant) if the input is not a complete 12-month array, carries a NON-FINITE
+ * monthly value (`NaN` or an infinity), carries a NEGATIVE monthly value, or has a non-positive
+ * annual total. The non-finite case is the one that used to escape: `NaN < 0` and `NaN <= 0` are
+ * both false, so a NaN passed the negative check AND the annual-total check and this function
+ * returned four NaN percentages (review #87, PTA87-I2). A negative precipitation is physically
+ * impossible and
  * the import (`assertClimateNormalsShape`) already refuses it, but a negative slipping through here
  * could yield a nonsensical share (e.g. `winterPct: -8`) that still sums to 100 and passes every
  * other invariant — so the pure function refuses it too, making its own contract total and
@@ -177,7 +181,10 @@ export function computeClimateDerived(normals: ClimateNormals): ClimateDerived |
     // string, `NaN` or nothing at all here.
     //
     // `Number.isFinite` refuses ALL of those in one expression, and — unlike the global
-    // `isFinite` — it does not coerce, so the string `"12,4"` is rejected rather than parsed.
+    // `isFinite` — it does not coerce: a hand-written row storing the quoted number `"6.2"` is
+    // REJECTED here, where `isFinite("6.2")` would have returned true and let a string into the
+    // arithmetic. (An earlier version of this comment used `"12,4"`, which does not demonstrate
+    // the difference — both forms reject it. Review #87, CF87 informational.)
     // It replaced a `typeof` check whose comment claimed NaN was "caught by the arithmetic guards
     // downstream"; review #87 (PTA87-I2) EXECUTED that claim and it is false — `NaN < 0` and
     // `NaN <= 0` are both false, so a NaN core value produced `{ winterPct: NaN, … }`, which
