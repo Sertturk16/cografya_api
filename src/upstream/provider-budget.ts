@@ -2,19 +2,23 @@ import type { RedisClientPort } from './redis/redis-client.port';
 import type { UpstreamMetrics } from './upstream-metrics';
 
 /**
- * A provider's own published quota, expressed as the three windows the providers themselves use.
+ * A per-provider rate ceiling, expressed as three nested windows.
+ *
+ * Where a provider publishes a quota, these mirror it. Where none is published — which is the
+ * case for every provider wired today (see `tryConsume`) — they are the ceiling we impose on
+ * OURSELVES, in the same shape, so one mechanism serves both and neither kind is a special case.
  *
  * ## Fixed windows, not a leaky token bucket — a deliberate deviation from the addendum's wording
- * SPEC-ADDENDUM §6.5 says "token bucket". The published quotas are literally *N per minute, M
- * per hour, K per day* (§2.7), and a token bucket cannot express three nested caps: a refill
- * rate that satisfies the daily cap permits a burst that breaches the minute cap, and vice
- * versa. Fixed windows model the quota exactly as the provider counts it, which is the only
- * accounting that can actually keep us under the limit.
+ * SPEC-ADDENDUM §6.5 says "token bucket". The caps are stated as *N per minute, M per hour, K per
+ * day* (§2.7), and a token bucket cannot express three nested caps: a refill rate that satisfies
+ * the daily cap permits a burst that breaches the minute cap, and vice versa. Fixed windows model
+ * the caps exactly as they are written, which is the only accounting that can actually hold all
+ * three at once.
  *
  * The cost — up to 2× the limit across a window boundary — is affordable at our numbers, in the
- * WEIGHTED units the quota is actually counted in. **The authoritative tables are the ones each
- * feature owns**, and each carries its own steady-state arithmetic and headroom argument against
- * live numbers:
+ * WEIGHTED units each cap is counted in. **The authoritative tables are the ones each feature
+ * owns**, and each carries its own steady-state arithmetic and headroom argument against live
+ * numbers:
  *
  *  - `MARINE_PROVIDER_BUDGETS` — `src/marine/marine-upstream.config.ts` (ECMWF, CMEMS)
  *  - `CAMS_ADS_BUDGET` — `src/air-quality/air-quality-upstream.config.ts` (ADS)
@@ -100,12 +104,17 @@ export class ProviderBudget {
   /**
    * Consume `weight` quota units for `providerId`.
    *
-   * ## Weight, not calls — the unit is the PROVIDER's, not ours
-   * The budget counts what the PROVIDER counts. Where the two disagree, counting our own HTTP
-   * requests reads as comfortable while permitting multiples of the real quota, and
-   * `budget.rejected` never fires: a guard that cannot fire is worse than none, because it is
-   * believed (review #73 I5, Atlas ruling — a provider billing a multi-location batch per
-   * LOCATION put the configured ceiling at ~186% of its free tier).
+   * ## Weight, not calls — the unit follows the PROVIDER wherever a weight can express it
+   * Where a provider counts something other than HTTP requests AND that unit is expressible as a
+   * per-request weight, the budget counts the provider's unit. Counting our own requests instead
+   * reads as comfortable while permitting multiples of the real quota, and `budget.rejected` never
+   * fires: a guard that cannot fire is worse than none, because it is believed (review #73 I5,
+   * Atlas ruling — a provider billing a multi-location batch per LOCATION put the configured
+   * ceiling at ~186% of its free tier).
+   *
+   * The qualifier is load-bearing, not hedging: a weight can only scale a per-request cost, so a
+   * quota counted in something other than requests falls outside what this mechanism can model at
+   * all. ADS below is exactly that case, and it is handled where it can be, not here.
    *
    * **No provider wired today needs a weight other than 1**, so no live caller sets one:
    *

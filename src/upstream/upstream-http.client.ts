@@ -84,10 +84,12 @@ interface UpstreamRequestOptionsBase {
   /**
    * How many QUOTA units this request costs (default 1).
    *
-   * The budget counts what the PROVIDER counts, not what we send. Where a provider bills a
-   * multi-location batch per LOCATION, counting requests instead would have made the configured
-   * ceiling ~186% of its free tier while `budget.rejected` never fired — the guard silently
-   * guaranteeing nothing (Atlas ruling, review #73 I5).
+   * Set this where the provider's billing unit is not our HTTP request but CAN be expressed as a
+   * per-request cost. Where a provider bills a multi-location batch per LOCATION, counting
+   * requests instead would have made the configured ceiling ~186% of its free tier while
+   * `budget.rejected` never fired — the guard silently guaranteeing nothing (Atlas ruling,
+   * review #73 I5). A quota counted in something other than requests cannot be modelled by a
+   * weight at all and is enforced elsewhere.
    *
    * **No caller sets this today**: no wired provider needs a weight other than 1, so every live
    * call takes the default. That is a fact about the current provider set, not a reason to delete
