@@ -132,12 +132,35 @@ describe('invariant 2 — entity type and card status label agree', () => {
     ).toThrow(/statusLabelTr/u);
   });
 
+  it('REFUSES a WHITESPACE-ONLY label on a country row — blank is not absent', () => {
+    // The rule is "must be NULL", and `'   '` is not NULL: it reaches the column verbatim and
+    // renders as blank card copy instead of letting the consumer take its country branch. An
+    // earlier revision used the same blank-tolerant helper for both directions and let this
+    // through.
+    expect(() => assertCountryEntityInvariants([{ ...CLEAN, statusLabelTr: '   ' }])).toThrow(
+      /whitespace string is not the same as absent/u,
+    );
+    expect(() => assertCountryEntityInvariants([{ ...CLEAN, statusLabelEn: '' }])).toThrow(
+      /status label/u,
+    );
+  });
+
   it('ACCEPTS a country with no labels and a non-country with both', () => {
     expect(() => assertCountryEntityInvariants([CLEAN])).not.toThrow();
     expect(() =>
       assertCountryEntityInvariants([{ ...CLEAN, statusLabelTr: null, statusLabelEn: null }]),
     ).not.toThrow();
     expect(() => assertCountryEntityInvariants([CLEAN_TERRITORY])).not.toThrow();
+  });
+});
+
+describe('the retired alpha-3 identity leg', () => {
+  // The old guard refused `isoCodeAlpha3: 'TUR'` outright. That check is gone ON PURPOSE (see
+  // the module header): TR now legitimately carries TUR, alpha-3 is not a routing key, and a
+  // duplicate claim is refused loudly by the column's UNIQUE constraint. Pinned so the removal
+  // reads as a decision rather than an oversight, and so re-adding it fails here first.
+  it('no longer refuses a row on its alpha-3 code alone', () => {
+    expect(() => assertCountryEntityInvariants([{ ...CLEAN, isoCodeAlpha3: 'TUR' }])).not.toThrow();
   });
 });
 
@@ -287,6 +310,11 @@ describe('the committed corpus', () => {
     // Asserting it here would open this schema-only PR red for a reason unrelated to its code.
     // This test pins the CURRENT truth rather than leaving the gap silent: today the corpus is
     // all-`country`, so the check legitimately does not hold yet.
-    expect(() => assertCountryCorpusInvariants(SEED_COUNTRIES)).toThrow(/EXACTLY ONE/u);
+    //
+    // PINNED TO THE ZERO-ROW MESSAGE, NOT TO `/EXACTLY ONE/`. The looser regex also matched
+    // "found 2" — so a DUPLICATE Türkiye row, a real and easy PR-B mistake, would have kept
+    // this test green while looking like the expected gap. The count is what distinguishes
+    // "the rows have not landed yet" from "the rows landed wrong".
+    expect(() => assertCountryCorpusInvariants(SEED_COUNTRIES)).toThrow(/found 0\./u);
   });
 });

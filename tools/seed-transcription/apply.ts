@@ -92,6 +92,36 @@ function columnOf(text: string, position: number): number {
 }
 
 /**
+ * Where a property assignment ENDS for splicing purposes, and whether it is comma-terminated.
+ *
+ * THE SEPARATOR IS A CORRECTNESS CONCERN, not a formatting one: this module writes TypeScript
+ * SOURCE, and two object properties that end up separated by a newline alone are a syntax
+ * error (`',' expected`). Getting it wrong produces a seed file that does not compile — and
+ * because `ts.createSourceFile` is error-tolerant, the `check` gate would still read the
+ * wreckage and report its counts. So the comma is found deliberately rather than assumed.
+ *
+ * Scanning forward past WHITESPACE (rather than testing the single adjacent character, which
+ * is what this used to do) closes two distinct ways of emitting unparseable output:
+ *   - the property has NO trailing comma — the caller must supply one;
+ *   - the comma exists but is not adjacent (`governmentFormTr: 'x'  ,`) — the old adjacency
+ *     test declared it absent, so the splice landed IN FRONT of it and produced `…,  ,`.
+ *
+ * Both were reachable through the ORDINARY anchor path, i.e. they predate the no-anchor
+ * fallback this file also grew; the fallback merely widened the set of shapes that reach here.
+ */
+function endOfProperty(
+  text: string,
+  property: ts.PropertyAssignment,
+): { end: number; hasComma: boolean } {
+  const propertyEnd = property.getEnd();
+  let scan = propertyEnd;
+  while (scan < text.length && /[\s]/u.test(text[scan] ?? '')) scan += 1;
+  return text[scan] === ','
+    ? { end: scan + 1, hasComma: true }
+    : { end: propertyEnd, hasComma: false };
+}
+
+/**
  * Compute the new text for one seed file. Pure over (text, writes) — no I/O, so it is
  * directly unit-testable and deterministic.
  */
@@ -111,6 +141,14 @@ export function applyToSource(
   const source = ts.createSourceFile(fileName, text, ts.ScriptTarget.Latest, true);
   const splices: Splice[] = [];
   const diverged: Divergence[] = [];
+  /**
+   * Anchors that have already been given a synthesised comma, so a second field inserted at
+   * the SAME anchor in the same pass does not add another. Getting this wrong yields `,,`,
+   * which is just as unparseable as the missing comma it was meant to fix — and it only shows
+   * up when two or more fields land on one comma-less anchor, the exact multi-insert shape a
+   * territory row hits in the next wave.
+   */
+  const commaSupplied = new Set<ts.PropertyAssignment>();
   let updated = 0;
   let inserted = 0;
   let skipped = 0;
@@ -160,12 +198,22 @@ export function applyToSource(
             }
             const start = existing.getStart(source);
             const indent = columnOf(text, start);
-            // Extend to include the trailing comma so the replacement owns it.
-            let end = existing.getEnd();
-            if (text[end] === ',') end += 1;
+            // Extend to include the trailing comma so the replacement owns it. `emitConcat`
+            // always emits its own trailing comma, so leaving a non-adjacent original behind
+            // would produce `newValue,  ,` — see `endOfProperty`.
+            const { end } = endOfProperty(text, existing);
             // Splice from the START OF THE LINE, not from the property name: `emitConcat`
             // renders its own leading indent, and replacing from the name would leave the
             // original indent in place and double it.
+            //
+            // KNOWN LIMITATION, pre-existing and recorded rather than papered over: this
+            // assumes the property OWNS its line, which is true of every committed seed file
+            // (prettier, printWidth 100, one property per line) and false of a single-line
+            // object literal — there, "the start of the line" is the start of the whole
+            // statement, so the replacement eats the prefix. Unreachable in this repo: a
+            // country row carries 15+ properties and cannot fit on one line. `cli.ts` re-parses
+            // every file before writing, so even if it somehow happened the tool refuses
+            // instead of committing wreckage.
             splices.push({
               start: start - indent,
               end,
@@ -191,9 +239,20 @@ export function applyToSource(
             // is the live example) has no anchor unless the author keeps explicit `: null,`
             // properties for fields the row will never use. That constraint is documented for
             // seed authors and remains the primary rule — but the tool should not DIE when a
-            // reasonable-looking cleanup removes a null property. The cost of the fallback is
-            // that the field lands at the END of the object instead of in house field order,
-            // which is fully visible in the diff; the cost of the throw was a blocked wave.
+            // reasonable-looking cleanup removes a null property.
+            //
+            // WHAT THE FALLBACK COSTS, stated precisely (an earlier revision of this comment
+            // claimed "nothing is lost", which was too strong on two counts and is the kind of
+            // over-claim this file is otherwise careful about):
+            //   - the field lands at the END of the object, OUT of `NARRATIVE_FIELDS` order —
+            //     visible in the diff, but it is a real deviation from house field order;
+            //   - when SOME fields anchor normally and others fall back in the same pass, the
+            //     two groups are ordered relative to their own anchors, so the object's overall
+            //     field order can differ from `NARRATIVE_FIELDS`. Correct content, unusual
+            //     order.
+            // What IS guaranteed is narrower and is enforced rather than asserted: the output
+            // parses (see `endOfProperty` + the applier tests' shared re-parse check), and no
+            // prose value is altered.
             for (const property of node.properties) {
               if (ts.isPropertyAssignment(property)) anchor = property;
             }
@@ -207,9 +266,18 @@ export function applyToSource(
                 `the object literal has no property to anchor on.`,
             );
           }
-          let end = anchor.getEnd();
-          if (text[end] === ',') end += 1;
+          const { end, hasComma } = endOfProperty(text, anchor);
           const indent = columnOf(text, anchor.getStart(source));
+          if (!hasComma && !commaSupplied.has(anchor)) {
+            // A ZERO-WIDTH splice carrying just the separator, pushed BEFORE the field's own
+            // splice at the same offset. Splices sharing an offset are applied
+            // highest-`order`-first, so the lowest-order one ends up physically first — i.e.
+            // this comma lands directly against the anchor, ahead of every field inserted
+            // here. Each emitted field already ends with its own comma, so one synthesised
+            // separator is all the object ever needs.
+            commaSupplied.add(anchor);
+            splices.push({ start: end, end, text: ',', order: splices.length });
+          }
           splices.push({
             start: end,
             end,

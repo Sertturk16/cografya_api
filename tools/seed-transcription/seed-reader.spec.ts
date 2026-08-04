@@ -9,7 +9,7 @@
  * row would make `check` report "0 drifted" over rows it never looked at — a false green on
  * the exact command ENGINEERING §8 mandates as the content-fidelity gate. So this pins it.
  */
-import { indexSeedSource } from './seed-reader.ts';
+import { indexSeedSource, syntaxErrorsIn } from './seed-reader.ts';
 
 const FIXTURE = `import { Continent } from '../../common/continent.enum';
 import { CountryEntityType } from '../../common/country-entity-type.enum';
@@ -78,10 +78,35 @@ describe('indexSeedSource — general behaviour', () => {
     expect(indexSeedSource('x.ts', FIXTURE)).toEqual(indexSeedSource('x.ts', FIXTURE));
   });
 
+  it('syntaxErrorsIn is the shared definition of "valid" — empty means it parses', () => {
+    // The same function guards the applier's output before it is written (`cli.ts`) and every
+    // applier test's result (`apply.spec.ts`). One definition, so the tool and its tests
+    // cannot disagree about what shipped.
+    expect(syntaxErrorsIn(`export const X = [{ a: 1, b: 2 }];\n`)).toEqual([]);
+    expect(syntaxErrorsIn(`export const X = [{ a: 1\n  b: 2 }];\n`)).toEqual([
+      expect.stringContaining("',' expected"),
+    ]);
+  });
+
   it('records the label it was given on every result', () => {
     const { fields, countries } = indexSeedSource('africa.countries.ts', FIXTURE);
     expect(countries.every((c) => c.file === 'africa.countries.ts')).toBe(true);
     expect(fields.every((f) => f.file === 'africa.countries.ts')).toBe(true);
+  });
+
+  it('reports a syntax error instead of silently under-indexing a broken file', () => {
+    // `ts.createSourceFile` is ERROR-TOLERANT: it returns a tree for a file with a missing
+    // comma, just one that has lost properties or whole rows. Without this signal the index is
+    // quietly incomplete and `check` prints "0 drifted" over fields it never read — a false
+    // green on the mandated content-fidelity gate. The CLI refuses when this is non-empty.
+    const broken = FIXTURE.replace("nameEn: 'Alpha',", "nameEn: 'Alpha'");
+    const { syntaxErrors } = indexSeedSource('broken.countries.ts', broken);
+    expect(syntaxErrors.length).toBeGreaterThan(0);
+    expect(syntaxErrors[0]).toContain('broken.countries.ts');
+  });
+
+  it('reports no syntax errors for a healthy file', () => {
+    expect(indexSeedSource('x.ts', FIXTURE).syntaxErrors).toEqual([]);
   });
 
   it('indexes independenceNoteTr now that it is a narrative field', () => {

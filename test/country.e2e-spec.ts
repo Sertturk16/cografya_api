@@ -197,6 +197,9 @@ describe('Country (e2e)', () => {
   });
 
   it('runs all migrations clean, in order (incl. the country table)', () => {
+    // THERE IS A SECOND COPY of this list in `province.e2e-spec.ts` — both suites migrate the
+    // whole schema, so both are entitled to state what a clean run produces. Adding a
+    // migration means editing BOTH; forgetting one fails there instead of here.
     expect(appliedMigrationNames).toEqual([
       'InitProvince1783382400000',
       'AddProvinceClimateNote1783513986800',

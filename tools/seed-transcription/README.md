@@ -151,8 +151,15 @@ property of a seed row — which is where the first narrative field of a row att
 away. Antarktika is the live example — neither concept applies to it. Both properties are
 what a later narrative wave anchors on; without them the field is appended at the END of
 the object instead of in house field order. That is a deliberate fallback (it used to be a
-hard error that killed the whole wave), so nothing is lost — but the explicit nulls are
-still the intended shape, and reviewing a diff is easier when the order is the usual one.
+hard error that killed the whole wave).
+
+Be precise about what the fallback does and does not promise. It guarantees the output
+**parses** and that no prose value is altered — `apply` re-parses every file it is about to
+write and refuses rather than committing broken source, and every applier test asserts the
+same thing through one shared check. It does **not** guarantee house field order: the field
+lands at the end, and in a mixed pass (some fields anchored normally, some fallen back) the
+object's overall order can differ from `NARRATIVE_FIELDS`. Correct content, unusual order —
+which is exactly why the explicit nulls remain the intended shape.
 
 `independenceNoteTr` is itself a narrative field as of the dalga-1 wave (Atlas ruling S2,
 2026-08-02): it is ordinary prose, and leaving it outside the tool would have forced the

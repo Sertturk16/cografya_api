@@ -55,6 +55,40 @@ function propertyName(property: ts.ObjectLiteralElementLike): string | null {
 export interface SeedIndex {
   readonly fields: readonly SeededField[];
   readonly countries: readonly SeededCountry[];
+  /**
+   * SYNTAX errors found while parsing the seed sources. Empty on a healthy corpus.
+   *
+   * WHY THIS IS CARRIED RATHER THAN IGNORED: `ts.createSourceFile` is ERROR-TOLERANT. Handed
+   * a seed file with a missing comma it returns a tree anyway — one that silently drops
+   * properties or whole rows. The index would then be quietly incomplete, and `check` would
+   * report "0 drifted" over fields it never actually read: a false green on the very command
+   * `ENGINEERING.md` §8 mandates as the content-fidelity gate. The gate's remit is content,
+   * not syntax — but a gate that can be defeated by a broken file is not a gate, so the
+   * condition is surfaced here and refused by the CLI (`cli.ts`) rather than swallowed.
+   */
+  readonly syntaxErrors: readonly string[];
+}
+
+/**
+ * Syntax errors in a TypeScript source, as human-readable strings. Empty means it parses.
+ *
+ * Uses `ts.transpileModule({ reportDiagnostics: true })` — a PUBLIC API that performs no type
+ * checking and needs no compiler host, so it is cheap enough to run on every write. (The
+ * `SourceFile.parseDiagnostics` property would be the obvious alternative and is deliberately
+ * NOT used: it is internal to the TypeScript API and reaching it requires an `any` cast, which
+ * this repo does not ship.)
+ *
+ * Shared by the reader, the CLI's pre-write verification and the applier's tests, so all three
+ * agree on one definition of "this is valid TypeScript".
+ */
+export function syntaxErrorsIn(text: string): string[] {
+  const output = ts.transpileModule(text, {
+    reportDiagnostics: true,
+    compilerOptions: { target: ts.ScriptTarget.Latest },
+  });
+  return (output.diagnostics ?? []).map(
+    (diagnostic) => `${ts.flattenDiagnosticMessageText(diagnostic.messageText, ' ')}`,
+  );
 }
 
 /**
@@ -76,6 +110,7 @@ export interface SeedIndex {
 export function indexSeedSource(label: string, text: string): SeedIndex {
   const fields: SeededField[] = [];
   const countries: SeededCountry[] = [];
+  const syntaxErrors = syntaxErrorsIn(text).map((message) => `${label}: ${message}`);
   const source = ts.createSourceFile(label, text, ts.ScriptTarget.Latest, true);
 
   const visit = (node: ts.Node): void => {
@@ -111,13 +146,14 @@ export function indexSeedSource(label: string, text: string): SeedIndex {
 
   visit(source);
 
-  return { fields, countries };
+  return { fields, countries, syntaxErrors };
 }
 
 /** Read every `*.countries.ts` file in a directory into a flat index. */
 export function readSeedDirectory(directory: string): SeedIndex {
   const fields: SeededField[] = [];
   const countries: SeededCountry[] = [];
+  const syntaxErrors: string[] = [];
 
   const files = fs
     .readdirSync(directory)
@@ -129,7 +165,8 @@ export function readSeedDirectory(directory: string): SeedIndex {
     const indexed = indexSeedSource(file, text);
     fields.push(...indexed.fields);
     countries.push(...indexed.countries);
+    syntaxErrors.push(...indexed.syntaxErrors);
   }
 
-  return { fields, countries };
+  return { fields, countries, syntaxErrors };
 }

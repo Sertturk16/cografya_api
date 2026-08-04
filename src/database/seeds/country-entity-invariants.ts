@@ -4,7 +4,13 @@ import type { CountrySeed } from './country.seed-data';
 
 /**
  * The structural product rules the `countries` corpus must obey — the successor to
- * `turkiye-exclusion.ts` (renamed in place, not deleted).
+ * `turkiye-exclusion.ts`.
+ *
+ * A NOTE ON THE HISTORY, because the diff does not show it: this file was produced with
+ * `git mv` from `turkiye-exclusion.ts`, but both it and its spec were then rewritten far
+ * enough that Git's similarity detection no longer reports a rename — the delivered diff
+ * reads as create + delete. Treat "renamed" as a statement about the intent and the history,
+ * not as something the diff will confirm. `git log --follow` is where the continuity lives.
  *
  * ## What changed, and why this file exists at all
  *
@@ -15,6 +21,18 @@ import type { CountrySeed } from './country.seed-data';
  * because the thing it actually protected is still true: **`/dunya/turkiye` must resolve to the
  * Türkiye row and to nothing else.** What used to be "no TR row" is now "the `turkiye` slug
  * belongs to the TR row alone".
+ *
+ * ## One leg of the old guard is GONE, deliberately: the alpha-3 identity check
+ *
+ * The old version also refused any row carrying `isoCodeAlpha3: 'TUR'`. Under the new model
+ * that check would be actively WRONG — the Türkiye row legitimately carries `TUR`, and this
+ * guard cannot tell "the real TR row" from "an impostor" by alpha-3 alone, because it is not a
+ * routing key and generates no page. What it protected against (a second row claiming
+ * Türkiye's secondary identifier) is now covered where it belongs and more strictly: the
+ * `iso_code_alpha3` column is UNIQUE, so a duplicate claim fails LOUDLY at insert time. The
+ * ordering case is covered too — a bogus row that took `TUR` first makes the real TR row's
+ * insert fail, inside the seed's single transaction, rolling the whole batch back. This is
+ * recorded rather than left as an unexplained deletion.
  *
  * ## Why guards rather than database constraints
  *
@@ -71,9 +89,25 @@ export function resolveEntityType(seed: CountrySeed): CountryEntityType {
   return seed.entityType ?? CountryEntityType.Country;
 }
 
-/** `null`, `undefined` and a whitespace-only string all count as "no value". */
+/**
+ * "No usable value" — `null`, `undefined`, or a string with nothing but whitespace in it.
+ * Use for rules of the form *"this MUST be filled in"*.
+ */
 function isBlank(value: string | null | undefined): boolean {
   return value === null || value === undefined || value.trim() === '';
+}
+
+/**
+ * "Genuinely absent" — `null` or `undefined`, and nothing else.
+ *
+ * DISTINCT FROM `isBlank` ON PURPOSE, and the two are not interchangeable. A rule of the form
+ * *"this MUST be absent"* has to reject `'   '`: whitespace is not absence. It reaches the
+ * column as three spaces, and the consumer that was promised NULL renders three spaces instead
+ * of taking its fallback branch — so the guard would have certified a row it was written to
+ * refuse. Using `isBlank` for both directions is how that hole opened.
+ */
+function isAbsent(value: string | null | undefined): boolean {
+  return value === null || value === undefined;
 }
 
 /** Names a row the way a human finds it in the seed files. */
@@ -118,10 +152,13 @@ export function assertCountryEntityInvariants(countries: readonly CountrySeed[])
     // subtitle nobody approved; a non-country missing one falls back to its continent name,
     // which DEC 2026-08-01m explicitly rejected.
     if (isCountry) {
-      if (!isBlank(seed.statusLabelTr) || !isBlank(seed.statusLabelEn)) {
+      // `isAbsent`, NOT `isBlank`: a whitespace-only label is not "no label" — it would be
+      // stored verbatim and rendered as blank card copy instead of taking the country branch.
+      if (!isAbsent(seed.statusLabelTr) || !isAbsent(seed.statusLabelEn)) {
         throw new CountrySeedInvariantError(
           `${label(seed)} is entityType "country" but carries a status label — status labels are ` +
-            `the approved card subtitle for NON-country entities only (DEC 2026-08-01m/n/p).`,
+            `the approved card subtitle for NON-country entities only (DEC 2026-08-01m/n/p). ` +
+            `Remove the property; an empty or whitespace string is not the same as absent.`,
         );
       }
     } else if (isBlank(seed.statusLabelTr) || isBlank(seed.statusLabelEn)) {
@@ -161,7 +198,9 @@ export function assertCountryEntityInvariants(countries: readonly CountrySeed[])
     // than editorially: a non-country row cannot carry the field, so the "Bağımsızlık" heading
     // can never reach a page where it makes no sense. The equivalent framing has its own home
     // in `governanceNoteTr` (SPEC §3.5-a).
-    if (!isCountry && !isBlank(seed.independenceNoteTr)) {
+    // `isAbsent` again: `'   '` is a stored value, and a stored value here is what puts the
+    // "Bağımsızlık" heading on a page where the concept does not apply.
+    if (!isCountry && !isAbsent(seed.independenceNoteTr)) {
       throw new CountrySeedInvariantError(
         `${label(seed)} is entityType "${entityType}" and must leave independenceNoteTr absent — ` +
           `"independence" does not apply to a dependent or special-status entity. Its ` +
