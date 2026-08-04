@@ -308,6 +308,90 @@ describe('applyToSource — divergence guard', () => {
     expect(result.text).toContain("introTr: 'yeni',");
     expect(result.text).not.toContain(',,');
   });
+
+  it('supplies ONE comma when a comma-less property is both UPDATED and used as an anchor', () => {
+    // REGRESSION (CONF88-I1), introduced by the separator fix itself and caught by the confirm
+    // leg. The update branch and the insert branch never look at each other: `emitConcat`
+    // already gives the rewritten property a trailing comma, but the insert branch re-reads the
+    // ORIGINAL text, sees no comma, and synthesises a second one -> `,,`.
+    //
+    // This is the HAPPY path, not an exotic one: `introTr: null` is the ordinary "not yet
+    // seeded" state, so a wave that fills it AND adds a later field to the same row hits
+    // exactly this. Only the missing trailing comma makes it fire, which is why it survived
+    // the first round.
+    const commaLess = `export const X = [
+  {
+    isoCode: 'AA',
+    nameTr: 'Alfa',
+    nameEn: 'Alpha',
+    introTr: null
+  },
+];
+`;
+    const result = apply('x.ts', commaLess, [
+      { isoCode: 'AA', field: 'introTr', value: 'yeni' },
+      { isoCode: 'AA', field: 'climateNoteTr', value: 'iklim' },
+    ]);
+    expect(result.updated).toBe(1);
+    expect(result.inserted).toBe(1);
+    expect(result.text).not.toContain(',,');
+    expect(result.text).toContain("introTr: 'yeni',");
+    expect(result.text).toContain("climateNoteTr: 'iklim',");
+    // …and the inserted field still lands after the one it anchored on.
+    expect(result.text.indexOf('climateNoteTr:')).toBeGreaterThan(result.text.indexOf('introTr:'));
+  });
+
+  it('cancels a synthesised comma when the FALLBACK anchor is rewritten later in the pass', () => {
+    // The half a flag alone cannot cover, and the reason the first attempt at CONF88-I1 was
+    // still wrong. `independenceNoteTr` sorts FIRST in NARRATIVE_FIELDS, so it is processed
+    // before `introTr` — but with no `governmentFormTr` to anchor on it falls back to the
+    // object's LAST property, which IS `introTr`. The comma is therefore synthesised before we
+    // know `introTr` is about to be rewritten with a trailing comma of its own. The synthesised
+    // splice stays cancellable precisely so the two branches are order-INDEPENDENT rather than
+    // order-lucky.
+    const commaLess = `export const X = [
+  {
+    isoCode: 'AA',
+    nameTr: 'Alfa',
+    nameEn: 'Alpha',
+    introTr: null
+  },
+];
+`;
+    const result = apply('x.ts', commaLess, [
+      { isoCode: 'AA', field: 'independenceNoteTr', value: 'bağımsızlık' },
+      { isoCode: 'AA', field: 'introTr', value: 'giriş' },
+    ]);
+    expect(result.updated).toBe(1);
+    expect(result.inserted).toBe(1);
+    expect(result.text).not.toContain(',,');
+    expect(result.text).toContain("introTr: 'giriş',");
+    expect(result.text).toContain("independenceNoteTr: 'bağımsızlık',");
+  });
+
+  it('still supplies the comma when the anchor is updated but NOT comma-terminated by us', () => {
+    // The complement: the property is skipped (already correct), so no update splice runs and
+    // no comma is contributed — the insert branch must still supply one. Guards against
+    // "fixing" the regression by suppressing the separator unconditionally.
+    const commaLess = `export const X = [
+  {
+    isoCode: 'AA',
+    nameTr: 'Alfa',
+    nameEn: 'Alpha',
+    introTr: 'aynı'
+  },
+];
+`;
+    const result = apply('x.ts', commaLess, [
+      { isoCode: 'AA', field: 'introTr', value: 'aynı' },
+      { isoCode: 'AA', field: 'climateNoteTr', value: 'iklim' },
+    ]);
+    expect(result.skipped).toBe(1);
+    expect(result.updated).toBe(0);
+    expect(result.inserted).toBe(1);
+    expect(result.text).toContain("introTr: 'aynı',");
+    expect(result.text).not.toContain(',,');
+  });
 });
 
 describe('applyToSource — the dalga-1 field-set change', () => {

@@ -6,11 +6,16 @@ import type { CountrySeed } from './country.seed-data';
  * The structural product rules the `countries` corpus must obey — the successor to
  * `turkiye-exclusion.ts`.
  *
- * A NOTE ON THE HISTORY, because the diff does not show it: this file was produced with
- * `git mv` from `turkiye-exclusion.ts`, but both it and its spec were then rewritten far
- * enough that Git's similarity detection no longer reports a rename — the delivered diff
- * reads as create + delete. Treat "renamed" as a statement about the intent and the history,
- * not as something the diff will confirm. `git log --follow` is where the continuity lives.
+ * A NOTE ON THE HISTORY, because no Git command will reconstruct it for you: this file was
+ * produced with `git mv` from `turkiye-exclusion.ts`, but both it and its spec were then
+ * rewritten far enough that similarity detection no longer sees a rename. The delivered diff
+ * reads as create + delete, and `git log --follow` on THIS path stops at the commit that
+ * created it — verified, not assumed. To read the predecessor's history, ask for the old path
+ * by name:
+ *
+ *     git log --oneline -- src/database/seeds/turkiye-exclusion.ts
+ *
+ * Treat "renamed" as a statement about intent, not about what tooling will confirm.
  *
  * ## What changed, and why this file exists at all
  *

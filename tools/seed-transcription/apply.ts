@@ -142,13 +142,30 @@ export function applyToSource(
   const splices: Splice[] = [];
   const diverged: Divergence[] = [];
   /**
-   * Anchors that have already been given a synthesised comma, so a second field inserted at
-   * the SAME anchor in the same pass does not add another. Getting this wrong yields `,,`,
-   * which is just as unparseable as the missing comma it was meant to fix — and it only shows
-   * up when two or more fields land on one comma-less anchor, the exact multi-insert shape a
-   * territory row hits in the next wave.
+   * Properties that already carry a comma AS A RESULT OF THIS PASS, so nothing adds a second
+   * one. Getting this wrong yields `,,` — just as unparseable as the missing comma it was
+   * meant to fix.
+   *
+   * TWO WAYS A PROPERTY ENDS UP COMMA-TERMINATED MID-PASS, and both must be recorded here:
+   *   - an INSERT synthesised the separator (several fields on one comma-less anchor);
+   *   - an UPDATE rewrote the property, and `emitConcat` always emits a trailing comma. This
+   *     one is easy to miss, because the update and the insert are different branches that
+   *     never look at each other: a comma-less property that is BOTH rewritten and used as
+   *     the anchor for a new field reads as comma-less from the ORIGINAL text, so the insert
+   *     branch helpfully adds the comma the update branch had already supplied.
+   *
+   * ORDER CANNOT BE ASSUMED, which is the trap here. For the NORMAL anchor chain a field's
+   * anchor is always an earlier entry of `NARRATIVE_FIELDS`, so the anchor is processed first
+   * and a flag would be enough. The no-anchor FALLBACK breaks that: it anchors on the object's
+   * LAST property, which may be a LATER narrative field — one whose own update has not run yet
+   * and will append its own comma afterwards. So a synthesised comma is not just recorded, it
+   * stays CANCELLABLE until the pass ends.
    */
   const commaSupplied = new Set<ts.PropertyAssignment>();
+  /** Anchor -> `order` of the comma splice synthesised for it, so a later update can cancel it. */
+  const synthesisedComma = new Map<ts.PropertyAssignment, number>();
+  /** `order` values of splices that a later decision retracted; filtered out before applying. */
+  const cancelledSplices = new Set<number>();
   let updated = 0;
   let inserted = 0;
   let skipped = 0;
@@ -220,6 +237,17 @@ export function applyToSource(
               text: emitConcat(value, indent, field),
               order: splices.length,
             });
+            // The replacement ends with `emitConcat`'s own trailing comma, so this property is
+            // comma-terminated from here on — even if the ORIGINAL text had none. Recorded so
+            // a field inserted against this same property later in the pass does not read the
+            // original, conclude "no comma", and synthesise a second one…
+            commaSupplied.add(existing);
+            // …and, for the fallback case where the insert already ran (it anchored on this
+            // property as the object's LAST one, before we knew it would be rewritten), retract
+            // the comma it synthesised. Cancelling is what makes the two branches order-
+            // independent instead of merely order-lucky.
+            const alreadySynthesised = synthesisedComma.get(existing);
+            if (alreadySynthesised !== undefined) cancelledSplices.add(alreadySynthesised);
             updated += 1;
             continue;
           }
@@ -273,9 +301,11 @@ export function applyToSource(
             // splice at the same offset. Splices sharing an offset are applied
             // highest-`order`-first, so the lowest-order one ends up physically first — i.e.
             // this comma lands directly against the anchor, ahead of every field inserted
-            // here. Each emitted field already ends with its own comma, so one synthesised
-            // separator is all the object ever needs.
+            // here. Each emitted field already ends with its own comma, so ONE separator per
+            // anchor is enough — see `commaSupplied` for the two ways an anchor can already
+            // have acquired it during this same pass.
             commaSupplied.add(anchor);
+            synthesisedComma.set(anchor, splices.length);
             splices.push({ start: end, end, text: ',', order: splices.length });
           }
           splices.push({
@@ -301,7 +331,9 @@ export function applyToSource(
   // land them reversed, because each one is spliced in ahead of the previous. Applying the
   // LATER-emitted one first leaves the earlier one in front of it, which is the seed field
   // order `NARRATIVE_FIELDS` defines.
-  const ordered = [...splices].sort((a, b) => b.start - a.start || b.order - a.order);
+  const ordered = [...splices]
+    .filter((splice) => !cancelledSplices.has(splice.order))
+    .sort((a, b) => b.start - a.start || b.order - a.order);
   let output = text;
   for (const splice of ordered) {
     output = output.slice(0, splice.start) + splice.text + output.slice(splice.end);

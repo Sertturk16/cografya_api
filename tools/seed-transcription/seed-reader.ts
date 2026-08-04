@@ -70,13 +70,19 @@ export interface SeedIndex {
 }
 
 /**
- * Syntax errors in a TypeScript source, as human-readable strings. Empty means it parses.
+ * Syntax errors in a TypeScript source, as human-readable `line:column message` strings.
+ * Empty means it parses.
  *
  * Uses `ts.transpileModule({ reportDiagnostics: true })` — a PUBLIC API that performs no type
  * checking and needs no compiler host, so it is cheap enough to run on every write. (The
  * `SourceFile.parseDiagnostics` property would be the obvious alternative and is deliberately
  * NOT used: it is internal to the TypeScript API and reaching it requires an `any` cast, which
  * this repo does not ship.)
+ *
+ * POSITIONS AND DEDUPING ARE NOT COSMETIC HERE. One missing comma in a large seed file makes
+ * the parser cascade: it can report the same message a hundred times while the actual defect
+ * is at one place. A wall of identical position-less lines is what makes an operator skim a
+ * message they need to read, so each distinct problem is reported once, located.
  *
  * Shared by the reader, the CLI's pre-write verification and the applier's tests, so all three
  * agree on one definition of "this is valid TypeScript".
@@ -86,9 +92,22 @@ export function syntaxErrorsIn(text: string): string[] {
     reportDiagnostics: true,
     compilerOptions: { target: ts.ScriptTarget.Latest },
   });
-  return (output.diagnostics ?? []).map(
-    (diagnostic) => `${ts.flattenDiagnosticMessageText(diagnostic.messageText, ' ')}`,
-  );
+
+  const seen = new Set<string>();
+  const errors: string[] = [];
+  for (const diagnostic of output.diagnostics ?? []) {
+    const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, ' ');
+    const at =
+      diagnostic.file !== undefined && diagnostic.start !== undefined
+        ? diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start)
+        : undefined;
+    const rendered =
+      at === undefined ? message : `line ${at.line + 1}, column ${at.character + 1}: ${message}`;
+    if (seen.has(rendered)) continue;
+    seen.add(rendered);
+    errors.push(rendered);
+  }
+  return errors;
 }
 
 /**

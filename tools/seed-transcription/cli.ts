@@ -114,14 +114,22 @@ function runApply(items: readonly Item[], seed: SeedIndex, force: boolean): numb
   // than a substitute for it: that logic is unit-tested, but this module writes SOURCE, and
   // "the bytes we are about to commit parse" is cheap enough to prove on every run instead of
   // trusting. A failure here is a TOOL BUG — say so, and name the file.
-  const unparseable = planned.flatMap((plan) =>
-    syntaxErrorsIn(plan.result.text).map((message) => `  ${plan.file}: ${message}`),
-  );
+  const unparseable = planned.flatMap((plan) => {
+    const errors = syntaxErrorsIn(plan.result.text);
+    if (errors.length === 0) return [];
+    // Name the ROWS, not just the file: a tool bug is reported by a human who needs to say
+    // which row triggered it, and `apply` is the only place that still knows.
+    const rows = [...new Set(byFile.get(plan.file)?.map((write) => write.isoCode) ?? [])].sort();
+    return [
+      `  ${plan.file} (rows: ${rows.join(', ') || 'unknown'})`,
+      ...errors.map((e) => `    ${e}`),
+    ];
+  });
   if (unparseable.length > 0) {
     process.stderr.write(
       `\nREFUSING TO WRITE — the generated seed source does not parse. This is a BUG in the\n` +
-        `applier, not in your draft; nothing has been written. Please report it with the\n` +
-        `draft and the target row.\n\n${unparseable.join('\n')}\n`,
+        `applier, not in your draft; NOTHING has been written. Please report it with the\n` +
+        `draft(s) you passed and the rows named below.\n\n${unparseable.join('\n')}\n`,
     );
     return 1;
   }
