@@ -20,8 +20,22 @@ describe('parseEra5CliArgs', () => {
     expect(() => parseEra5CliArgs(['--raw-dir=/var/tmp/era5'])).toThrow(/Usage/);
   });
 
-  it('REFUSES --phase=load with a pointer to PR-2, rather than silently doing nothing', () => {
-    expect(() => parseEra5CliArgs(['--phase=load', '--raw-dir=/var/tmp/era5'])).toThrow(/PR-2/);
+  it('accepts --phase=load, which takes no path flags at all', () => {
+    expect(parseEra5CliArgs(['--phase=load'])).toEqual({ phase: 'load' });
+  });
+
+  it('REFUSES --raw-dir on the load phase rather than ignoring it', () => {
+    // Silently accepting a flag that does nothing teaches an operator that it works, and the next
+    // person copies the wrong command. The load phase never reads the raw .nc.
+    expect(() => parseEra5CliArgs(['--phase=load', '--raw-dir=/var/tmp/era5'])).toThrow(
+      /--raw-dir belongs to --phase=fetch only/,
+    );
+  });
+
+  it('REFUSES --from-file on the load phase', () => {
+    expect(() => parseEra5CliArgs(['--phase=load', '--from-file=/var/tmp/x.nc'])).toThrow(
+      /--from-file belongs to --phase=fetch only/,
+    );
   });
 
   it('REFUSES an unknown phase', () => {

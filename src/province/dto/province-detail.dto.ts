@@ -136,9 +136,10 @@ export class ProvinceDetailDto {
     type: ClimateDto,
     nullable: true,
     description:
-      'İklim serisi (MGM k=A aylık normalleri + kaynak/dönem/rekorlar) + TÜRETİLMİŞ yıllık/mevsimsel ' +
-      'değerler. Null = yayınlanabilir seri yok → web iklim bölümünü hiç render etmez. Türetilmiş ' +
-      "değerler bizimdir, MGM'e atfedilemez; tüm sayılar ham (biçimlendirme web'in işi).",
+      'İklim serisi (ERA5-Land 1991-2020 aylık normalleri + kaynak/dönem) + TÜRETİLMİŞ ' +
+      'yıllık/mevsimsel değerler. Null = yayınlanabilir seri yok → web iklim bölümünü hiç render ' +
+      'etmez. Türetilmiş değerler bizimdir, kaynağa atfedilemez; tüm sayılar ham ' +
+      "(biçimlendirme web'in işi).",
   })
   climate!: ClimateDto | null;
 

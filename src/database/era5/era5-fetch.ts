@@ -11,6 +11,7 @@ import { evaluateEra5Assertions } from './era5-assertions';
 import type {
   Era5JobRecord,
   Era5Manifest,
+  Era5RawJobsSidecar,
   Era5RequestRecord,
   Era5SeriesArtifact,
 } from './era5-artifact.types';
@@ -175,6 +176,90 @@ export function assertAllowedDownloadHost(
 export function redactCdsSecret(text: string, secret: string | null): string {
   if (secret === null || secret.length === 0) return text;
   return text.split(secret).join('[REDACTED]').split(encodeURIComponent(secret)).join('[REDACTED]');
+}
+
+/** `<raw>.nc` → `<raw>.nc.jobs.json`. One definition, so writer and reader cannot disagree. */
+export function rawJobsSidecarPath(rawFilePath: string): string {
+  return `${rawFilePath}.jobs.json`;
+}
+
+/**
+ * Adopt a `<raw>.jobs.json` sidecar — or, on ANY doubt whatsoever, adopt nothing.
+ *
+ * **Fail-soft is mandatory here, not a courtesy** (→ DEC 2026-08-04c, Q6). The single most
+ * important property of `--from-file` is that an operator holding the raw bytes can reproduce the
+ * whole offline half with no network and no ceremony. If a missing, stale, hand-edited or
+ * differently-shaped sidecar could fail that run, this rider would have taken the repo's cheapest
+ * recovery path and made it conditional on a file that did not exist when the current raw file was
+ * downloaded — which is the case for every raw file we hold today.
+ *
+ * So every rejection path returns `null` and explains itself on stderr; none of them throws. The
+ * caller then behaves EXACTLY as it did before this existed. The mismatch case in particular is a
+ * refusal to decorate one download with another run's evidence — silence would be worse than
+ * absence, because the manifest would then carry a plausible lie.
+ *
+ * Returned parsing is defensive by design: this file came off a local disk under an operator's
+ * control, so its declared type is an assertion. Everything is re-checked.
+ */
+export function adoptRawJobsSidecar(
+  contents: string | null,
+  expectedRawSha256: string,
+  warn: (message: string) => void,
+): readonly Era5JobRecord[] | null {
+  if (contents === null) return null;
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(contents);
+  } catch (error: unknown) {
+    warn(
+      `the .jobs.json sidecar is not valid JSON (${String(error)}) — ignoring it and continuing ` +
+        'exactly as if it were absent.',
+    );
+    return null;
+  }
+
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    warn('the .jobs.json sidecar is not a JSON object — ignoring it.');
+    return null;
+  }
+  // Read through `unknown`, never through a cast to the target interface: this file came off a
+  // local disk under an operator's control, so its declared type would be a claim, not a fact.
+  const sidecar: Record<string, unknown> = parsed as Record<string, unknown>;
+
+  if (sidecar.schemaVersion !== 1) {
+    warn(
+      `the .jobs.json sidecar declares schemaVersion ${JSON.stringify(sidecar.schemaVersion)}, ` +
+        'expected 1 — ignoring it rather than guessing at an unknown layout.',
+    );
+    return null;
+  }
+  if (sidecar.rawFileSha256 !== expectedRawSha256) {
+    warn(
+      `the .jobs.json sidecar belongs to raw file ${JSON.stringify(sidecar.rawFileSha256)}, but ` +
+        `the file being decoded is ${JSON.stringify(expectedRawSha256)} — ignoring it. Job ` +
+        'evidence is never transplanted between downloads.',
+    );
+    return null;
+  }
+
+  const jobs: unknown = sidecar.jobs;
+  if (!Array.isArray(jobs) || jobs.length === 0) {
+    warn('the .jobs.json sidecar carries no jobs — ignoring it.');
+    return null;
+  }
+  const isJobRecord = (job: unknown): job is Era5JobRecord => {
+    if (typeof job !== 'object' || job === null) return false;
+    const entry = job as Record<string, unknown>;
+    return typeof entry.jobId === 'string' && typeof entry.label === 'string';
+  };
+  const entries: unknown[] = jobs;
+  if (!entries.every(isJobRecord)) {
+    warn('the .jobs.json sidecar holds an entry that is not a job record — ignoring it.');
+    return null;
+  }
+
+  return entries;
 }
 
 // ─── the run ─────────────────────────────────────────────────────────────────
@@ -598,6 +683,73 @@ export async function runEra5FetchPhase(options: Era5FetchOptions): Promise<void
         'COMMITTED manifest before trusting the regenerated artifacts.',
     );
   }
+  // R1 — the `<raw>.jobs.json` sidecar. Written on a live run so the job evidence travels with the
+  // (uncommitted) bytes; read back on `--from-file` so an offline regeneration can carry it into
+  // the manifest instead of losing it. `adoptRawJobsSidecar` is fail-soft in every direction, so
+  // the offline path with no sidecar is byte-for-byte what it was before this existed.
+  let recoveredJobs: readonly Era5JobRecord[] | null = null;
+  if (fromFile === null) {
+    const sidecar: Era5RawJobsSidecar = {
+      schemaVersion: 1,
+      generatedAtUtc: nowImpl().toISOString(),
+      rawFileSha256: rawSha256,
+      jobs,
+    };
+    // FAIL-SOFT ON THE WRITE SIDE TOO — and this direction is the one that can cost real money.
+    //
+    // By the time this line runs, both CDS jobs have been paid for, downloaded, verified AND
+    // `DELETE`d from the provider queue, which is irreversible ("deleting earlier makes the job
+    // 404 permanently"). An unguarded `writeArtifact` here meant a disk-full or permission fault
+    // on `--raw-dir` — moments after ~19.8 MB landed there — would abort the whole run before the
+    // manifest and series were ever written (review #87, SFH87-I1). Recoverable via `--from-file`,
+    // but the sidecar is a BONUS: it must never be able to fail a run that already spent its
+    // budget, which is precisely what Q6's "no sidecar can make a run fail" was asserting.
+    //
+    // Through `writeArtifact` so this file gets the same key-material scan the committed artifacts
+    // get: it lands outside the repo, where nobody is reviewing a diff of it. That scan throws
+    // too, and is caught here for the same reason — a refused sidecar is a reason to skip the
+    // sidecar, never a reason to lose the run.
+    const sidecarPath = rawJobsSidecarPath(rawPath);
+    try {
+      await writeArtifact(sidecarPath, sidecar, apiKey);
+      log(
+        `job evidence written beside the raw file at ${sidecarPath} — keep it with the .nc and a ` +
+          'later --from-file re-run can still name the CDS jobs these bytes came from.',
+      );
+    } catch (error: unknown) {
+      // stderr and loud: the run continues and its artifacts are complete, but a later
+      // `--from-file` regeneration will carry no recovered job evidence, and the operator is the
+      // only one who can fix the underlying I/O problem.
+      logError(
+        `could not write the job-evidence sidecar at ${sidecarPath}: ${String(error)}. The run ` +
+          'CONTINUES — the sidecar is evidence, not a dependency — but a later --from-file re-run ' +
+          'will not be able to name the CDS jobs these bytes came from. The job ids are in this ' +
+          "run's manifest.",
+      );
+    }
+  } else {
+    let contents: string | null = null;
+    try {
+      contents = await readFile(rawJobsSidecarPath(fromFile), 'utf8');
+    } catch {
+      // Absent is the ordinary case (every raw file downloaded before this rider has no sidecar),
+      // so it is not even a warning — only a note that the manifest will carry no recovered jobs.
+      log(
+        `no ${rawJobsSidecarPath(fromFile)} beside the raw file — the manifest will carry no ` +
+          'recovered job evidence, exactly as before. This is not an error.',
+      );
+    }
+    recoveredJobs = adoptRawJobsSidecar(contents, rawSha256, (message) => {
+      logError(`.jobs.json: ${message}`);
+    });
+    if (recoveredJobs !== null) {
+      log(
+        `recovered ${String(recoveredJobs.length)} CDS job record(s) from the sidecar; they are ` +
+          'carried in `recoveredJobs`, NOT in `jobs` — this run issued none.',
+      );
+    }
+  }
+
   const generatedAtUtc = nowImpl().toISOString();
   const firstMonth = decoded.months[0];
   const lastMonth = decoded.months[decoded.months.length - 1];
@@ -675,6 +827,9 @@ export async function runEra5FetchPhase(options: Era5FetchOptions): Promise<void
     provinces: extraction.provinces,
     fallbackPlateCodes: extraction.fallbackPlateCodes,
     jobs,
+    // Omitted entirely (rather than written as `[]`) when nothing was recovered, so "absent" keeps
+    // meaning "not recovered" and an existing committed manifest stays valid unchanged.
+    ...(recoveredJobs === null ? {} : { recoveredJobs }),
     requests,
     totals: {
       requestCount: requests.length,

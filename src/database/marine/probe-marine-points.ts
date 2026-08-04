@@ -30,7 +30,7 @@ import {
  * the running app. It writes one reviewable artifact and stops; nothing here can reach the
  * database.
  *
- * ## Politeness, by construction — the `db:import:climate` precedent, deliberately copied
+ * ## Politeness, by construction — the `db:import:era5` precedent, deliberately copied
  * Copernicus Marine and Open-Meteo both serve us anonymously and for free. This client is
  * therefore conservative on every axis:
  *   - **Serial**, never parallel — one request in flight, ever.

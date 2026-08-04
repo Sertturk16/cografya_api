@@ -56,12 +56,12 @@ import { evaluateEcmwfProbeAssertions } from './marine-ecmwf-assertions';
  * range for `10u`, one for `10v` (never adjacent, at any step) and one for the adjacent `swh` +
  * `mwd` pair.
  *
- * ## Politeness, by construction — the M1/climate precedent, deliberately copied
+ * ## Politeness, by construction — the M1/ERA5 precedent, deliberately copied
  * Serial, spaced, timed out, size-capped, redirect-refusing, and identifying itself honestly.
  * ECMWF serves us anonymously and for free.
  *
  * ## Why this tool has its own HTTP client instead of `UpstreamHttpClient`
- * The same reason `probe-marine-points.ts` and `mgm-fetch.ts` do, and it is NOT the guard-order
+ * The same reason `probe-marine-points.ts` and `era5-fetch.ts` do, and it is NOT the guard-order
  * duplication the upstream rules forbid: there are no guards here to duplicate. This is a
  * hand-run import tool with no provider budget, no circuit breaker and no operation deadline —
  * nobody is waiting for it, and it may take minutes on purpose. `UpstreamHttpClient` guards the

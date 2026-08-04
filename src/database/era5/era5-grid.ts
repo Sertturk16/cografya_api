@@ -73,9 +73,12 @@ export const READBACK_EXTRA_TOLERANCE = 1e-3;
 export const HALF_STEP_TIE_EPSILON = 1e-6;
 
 /**
- * Hard ceiling on a declared land-cell fallback (SPEC §4.1-3). Measured maximum is 13.20 km
- * (57 Sinop); the cap is ~2× that — loose enough never to block the five legitimate provinces,
- * tight enough that a grid or coordinate change cannot creep past it silently.
+ * Hard ceiling on a declared land-cell fallback (SPEC §4.1-3). Measured maximum is 57 Sinop:
+ * **13.19 km in the production run** (the value the committed manifest records), 13.20 km in the
+ * earlier probe. Both numbers are correct — two independent haversine implementations disagreeing
+ * at centimetre scale — and both are written down rather than one being quietly preferred. The cap
+ * is ~2× that: loose enough never to block the five legitimate provinces, tight enough that a grid
+ * or coordinate change cannot creep past it silently.
  */
 export const FALLBACK_MAX_DISTANCE_KM = 25;
 
@@ -87,7 +90,8 @@ export const FALLBACK_MAX_DISTANCE_KM = 25;
  * ±3 cells is ~33.4 km along latitude everywhere, but along longitude it shrinks with the cosine —
  * ~27.3 km at 35.5 °N and ~24.8 km at the northern edge (42.1 °N), i.e. marginally BELOW the 25 km
  * ceiling in the far north-east corner. That is deliberate and harmless: the measured maximum
- * fallback is 13.20 km (57 Sinop), and a province that needed a cell further east than this window
+ * fallback is ~13.19 km (57 Sinop — see {@link FALLBACK_MAX_DISTANCE_KM} on the two measurements),
+ * and a province that needed a cell further east than this window
  * reaches would stop the run with "NO land cell found" instead of drifting — which is the correct
  * outcome for a shift nobody has ever measured on this grid.
  */

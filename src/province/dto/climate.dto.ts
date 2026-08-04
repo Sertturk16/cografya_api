@@ -1,11 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  CLIMATE_SOURCE_MGM_GENERAL,
+  CLIMATE_SOURCE_ERA5_LAND_MONTHLY,
   type Climate,
   type ClimateDerived,
-  type ClimateExtremeRecord,
   type ClimateMonthlyNormal,
-  type ClimateRecords,
   type ClimateSource,
   type SeasonalPrecipitation,
 } from '../province.types';
@@ -17,138 +15,33 @@ import {
  * `HydrographyFeatureDto`).
  *
  * Every numeric field is a RAW number, never a pre-formatted string: formatting is the web
- * repo's `next-intl` `getFormatter()` concern. NOTHING derived here is attributed to MGM — the
- * annual/seasonal figures are ours (MGM's own "Yıllık" column is empty in the source).
+ * repo's `next-intl` `getFormatter()` concern. NOTHING derived here is attributed to the provider
+ * — the annual/seasonal figures are ours, computed from the series C3S publishes.
+ *
+ * The `example` values below are illustrative of the RANGE and PRECISION a consumer should
+ * expect. They are not fact claims about any province and must never be read as one.
  */
 
-/** One dated all-time record (e.g. the wettest day on record). */
-export class ClimateExtremeRecordDto implements ClimateExtremeRecord {
-  @ApiProperty({ type: Number, example: 189.4, description: 'Ölçülen uç değer (ham sayı).' })
-  value!: number;
-
-  @ApiProperty({
-    type: String,
-    format: 'date',
-    nullable: true,
-    example: '1968-12-26',
-    description:
-      'Gerçekleşme tarihi (ISO YYYY-MM-DD). MGM tarihi basmadıysa null — değerden bağımsız nullable.',
-  })
-  date!: string | null;
-}
-
-/** A province's all-time records (MGM's second `k=A` table). Each member independently nullable. */
-export class ClimateRecordsDto implements ClimateRecords {
-  @ApiProperty({
-    type: ClimateExtremeRecordDto,
-    nullable: true,
-    description: 'Günlük toplam en yüksek yağış miktarı (mm).',
-  })
-  dailyMaxPrecipitationMm!: ClimateExtremeRecordDto | null;
-
-  @ApiProperty({
-    type: ClimateExtremeRecordDto,
-    nullable: true,
-    description: 'Günlük en hızlı rüzgâr (m/sn).',
-  })
-  fastestWindMs!: ClimateExtremeRecordDto | null;
-
-  @ApiProperty({
-    type: ClimateExtremeRecordDto,
-    nullable: true,
-    description: 'En yüksek kar yüksekliği (cm).',
-  })
-  maxSnowDepthCm!: ClimateExtremeRecordDto | null;
-}
-
-/** One month of a province's climate normals. Every measure nullable per month (see the interface). */
+/** One month of a province's climate normals — the core pair, both always present. */
 export class ClimateMonthlyNormalDto implements ClimateMonthlyNormal {
   @ApiProperty({ type: Number, example: 7, description: '1 = Ocak … 12 = Aralık.' })
   month!: number;
 
   @ApiProperty({
     type: Number,
-    nullable: true,
-    example: 27.9,
-    description: 'Ortalama sıcaklık (°C). Çekirdek çift — yayınlanan her ilde doludur.',
-  })
-  tempMeanC!: number | null;
-
-  @ApiProperty({
-    type: Number,
-    nullable: true,
-    example: 33.2,
-    description: 'Ortalama en yüksek sıcaklık (°C).',
-  })
-  tempMaxMeanC!: number | null;
-
-  @ApiProperty({
-    type: Number,
-    nullable: true,
-    example: 22.6,
-    description: 'Ortalama en düşük sıcaklık (°C).',
-  })
-  tempMinMeanC!: number | null;
-
-  @ApiProperty({
-    type: Number,
-    nullable: true,
-    example: 4.7,
-    description: 'Aylık toplam yağış miktarı ortalaması (mm). Çekirdek çift.',
-  })
-  precipitationMm!: number | null;
-
-  @ApiProperty({
-    type: Number,
-    nullable: true,
-    example: 11.2,
-    description: 'Ortalama günlük güneşlenme süresi (saat).',
-  })
-  sunshineHours!: number | null;
-
-  @ApiProperty({
-    type: Number,
-    nullable: true,
-    example: 2.1,
-    description: 'Ortalama yağışlı gün sayısı.',
-  })
-  rainyDays!: number | null;
-
-  @ApiProperty({
-    type: Number,
-    nullable: true,
-    example: 45.6,
-    description: 'O ay ölçülmüş en yüksek sıcaklık (°C) — uç değer, ortalama değil.',
-  })
-  tempRecordMaxC!: number | null;
-
-  @ApiProperty({
-    type: String,
-    format: 'date',
-    nullable: true,
-    example: '2000-07-30',
+    example: 24.1,
     description:
-      '`tempRecordMaxC` gerçekleşme tarihi (ISO YYYY-MM-DD). Değerden bağımsız nullable.',
+      '30 yıllık (1991-2020) aylık ortalama sıcaklık (°C). Çekirdek çift — her yayınlanan ilde doludur.',
   })
-  tempRecordMaxDate!: string | null;
+  tempMeanC!: number;
 
   @ApiProperty({
     type: Number,
-    nullable: true,
-    example: 12.3,
-    description: 'O ay ölçülmüş en düşük sıcaklık (°C) — uç değer, ortalama değil.',
-  })
-  tempRecordMinC!: number | null;
-
-  @ApiProperty({
-    type: String,
-    format: 'date',
-    nullable: true,
-    example: '1976-07-05',
+    example: 21.5,
     description:
-      '`tempRecordMinC` gerçekleşme tarihi (ISO YYYY-MM-DD). Değerden bağımsız nullable.',
+      '30 yıllık (1991-2020) aylık toplam yağış ortalaması (mm). Çekirdek çift — her yayınlanan ilde doludur.',
   })
-  tempRecordMinDate!: string | null;
+  precipitationMm!: number;
 }
 
 /** Seasonal precipitation shares — whole integers summing to EXACTLY 100. */
@@ -167,23 +60,25 @@ export class SeasonalPrecipitationDto implements SeasonalPrecipitation {
 }
 
 /**
- * DERIVED figures — computed from the series, never stored, NOT attributed to MGM (its own
- * "Yıllık" column is empty). Raw numbers; the web formats them. Month fields are 1-12 indices;
- * a tie resolves to the earliest month.
+ * DERIVED figures — computed from the series, never stored, NOT attributable to the provider: C3S
+ * publishes a gridded reanalysis, not a per-province annual mean or a seasonal breakdown. Raw
+ * numbers; the web formats them. Month fields are 1-12 indices; a tie resolves to the earliest
+ * month.
  */
 export class ClimateDerivedDto implements ClimateDerived {
   @ApiProperty({
     type: Number,
-    example: 19.1,
+    example: 14.7,
     description:
-      'Yıllık ortalama sıcaklık (°C) — 12 aylık ortalamanın ortalaması (TÜRETİLMİŞ, MGM değil).',
+      'Yıllık ortalama sıcaklık (°C) — 12 aylık ortalamanın ortalaması (TÜRETİLMİŞ; kaynağa atfedilemez).',
   })
   annualMeanTempC!: number;
 
   @ApiProperty({
     type: Number,
-    example: 592.4,
-    description: 'Yıllık toplam yağış (mm) — 12 aylık toplamın toplamı (TÜRETİLMİŞ, MGM değil).',
+    example: 630.2,
+    description:
+      'Yıllık toplam yağış (mm) — 12 aylık toplamın toplamı (TÜRETİLMİŞ; kaynağa atfedilemez).',
   })
   annualPrecipitationMm!: number;
 
@@ -201,7 +96,7 @@ export class ClimateDerivedDto implements ClimateDerived {
 
   @ApiProperty({
     type: Number,
-    example: 20.4,
+    example: 18.3,
     description:
       'Yıllık sıcaklık farkı (°C) — en sıcak ile en soğuk ay ortalaması arası (TÜRETİLMİŞ).',
   })
@@ -215,33 +110,38 @@ export class ClimateDerivedDto implements ClimateDerived {
 }
 
 /**
- * Full climate payload: the stored MGM `k=A` series + source/period/records, PLUS the derived
- * block. `implements Climate` so the served contract mirrors the shared interface exactly.
+ * Full climate payload: the stored ERA5-Land series + source/period, PLUS the derived block.
+ * `implements Climate` so the served contract mirrors the shared interface exactly.
  */
 export class ClimateDto implements Climate {
   @ApiProperty({
-    enum: [CLIMATE_SOURCE_MGM_GENERAL],
-    example: CLIMATE_SOURCE_MGM_GENERAL,
-    description: 'Kaynak seri kimliği — MGM Genel İstatistik tablosu (k=A), 81 il için tek seri.',
+    enum: [CLIMATE_SOURCE_ERA5_LAND_MONTHLY],
+    example: CLIMATE_SOURCE_ERA5_LAND_MONTHLY,
+    description:
+      'Kaynak seri kimliği — Copernicus C3S ERA5-Land aylık ortalamaları, 81 il için tek dataset.',
   })
   source!: ClimateSource;
 
   @ApiProperty({
     type: String,
-    example: 'https://www.mgm.gov.tr/veridegerlendirme/il-ve-ilceler-istatistik.aspx?k=A&m=ICEL',
+    example: 'https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land-monthly-means',
     description:
-      'Bu serinin okunduğu MGM sayfası — il başına (MGM anahtarı Türkçe adla aynı değil).',
+      'Serinin türetildiği ERA5-Land dataset sayfası — 81 ilde AYNI sabit değer (il başına sayfa yoktur).',
   })
   sourceUrl!: string;
 
   @ApiProperty({
     type: Number,
-    example: 1929,
-    description: 'Ölçüm periyodu başlangıç yılı — il başına değişir, sayfadan okunur.',
+    example: 1991,
+    description: 'Normal penceresi başlangıç yılı — WMO 1991-2020, 81 ilde sabit.',
   })
   periodStartYear!: number;
 
-  @ApiProperty({ type: Number, example: 2025, description: 'Ölçüm periyodu bitiş yılı.' })
+  @ApiProperty({
+    type: Number,
+    example: 2020,
+    description: 'Normal penceresi bitiş yılı — WMO 1991-2020, 81 ilde sabit.',
+  })
   periodEndYear!: number;
 
   @ApiProperty({
@@ -250,12 +150,9 @@ export class ClimateDto implements Climate {
   })
   months!: ClimateMonthlyNormalDto[];
 
-  @ApiProperty({ type: ClimateRecordsDto, description: 'Tüm zamanların rekorları.' })
-  records!: ClimateRecordsDto;
-
   @ApiProperty({
     type: ClimateDerivedDto,
-    description: 'Seriden TÜRETİLMİŞ yıllık/uç/mevsimsel değerler — MGM’e atfedilemez.',
+    description: 'Seriden TÜRETİLMİŞ yıllık/uç/mevsimsel değerler — kaynağa atfedilemez.',
   })
   derived!: ClimateDerivedDto;
 }

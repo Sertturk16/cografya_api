@@ -8,10 +8,18 @@ import request from 'supertest';
 import { DataSource } from 'typeorm';
 import { applyGlobalPrefix } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
-import { loadClimateNormals } from '../src/database/climate/load-climate';
+import { loadEra5ClimateNormals } from '../src/database/era5/era5-load';
+import {
+  ERA5_DATASET_URL,
+  ERA5_FIRST_YEAR,
+  ERA5_LAST_YEAR,
+} from '../src/database/era5/era5-request';
 import { seedGeography } from '../src/database/seeds/seed-geography';
 import { Province } from '../src/province/entities/province.entity';
-import { CLIMATE_MONTH_COUNT, CLIMATE_SOURCE_MGM_GENERAL } from '../src/province/province.types';
+import {
+  CLIMATE_MONTH_COUNT,
+  CLIMATE_SOURCE_ERA5_LAND_MONTHLY,
+} from '../src/province/province.types';
 import { INTERNAL_REQUEST_HEADER } from '../src/common/throttler/trusted-client';
 
 // 44-char dummy secret used ONLY to exercise the REAL trusted-client throttle exemption
@@ -19,11 +27,11 @@ import { INTERNAL_REQUEST_HEADER } from '../src/common/throttler/trusted-client'
 const TEST_INTERNAL_TOKEN = 'e2e-trusted-client-token-0123456789-abcdefgh';
 
 /**
- * Real-Postgres e2e for the A2 CLIMATE CONTRACT — the shape the web repo codegens against.
+ * Real-Postgres e2e for the CLIMATE CONTRACT — the shape the web repo codegens against.
  *
- * It seeds all 81 provinces, LOADS the committed MGM artifact (so `climate_normals` is real,
- * exactly what a deploy runs — `db:import:climate --phase=load`), boots the app, and asserts the
- * SERVED payload's invariants:
+ * It seeds all 81 provinces, LOADS the committed ERA5-Land artifacts (so `climate_normals` is
+ * real, exactly what a deploy runs — `db:import:era5 --phase=load`), boots the app, and asserts
+ * the SERVED payload's invariants:
  *   - the list DTO carries `climateKoppen` (the "benzer iklimli iller" contract);
  *   - every province WITH a series serves a non-null `climate` whose seasonal percentages sum to
  *     EXACTLY 100 and whose derived block is well-formed;
@@ -46,8 +54,7 @@ interface ServedClimate {
   sourceUrl: string;
   periodStartYear: number;
   periodEndYear: number;
-  months: unknown[];
-  records: Record<string, unknown>;
+  months: Record<string, unknown>[];
   derived: {
     annualMeanTempC: number;
     annualPrecipitationMm: number;
@@ -83,9 +90,11 @@ describe('Climate contract (e2e)', () => {
     await dataSource.runMigrations();
     await seedGeography(dataSource);
 
-    // Load the COMMITTED climate artifact — the same offline path a deploy runs. Without this
+    // Load the COMMITTED ERA5-Land artifacts — the same offline path a deploy runs. Without this
     // every `climate_normals` is null and the sum-to-100 invariant below would be vacuous.
-    await loadClimateNormals(dataSource, { inputDir: join(__dirname, '..', 'data', 'climate') });
+    await loadEra5ClimateNormals(dataSource, {
+      inputDir: join(__dirname, '..', 'data', 'era5-land'),
+    });
 
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { AppModule } = require('../src/app.module') as typeof import('../src/app.module');
@@ -197,17 +206,23 @@ describe('Climate contract (e2e)', () => {
       if (climate === null) continue; // narrowing; the assertion above is the real guard
 
       // Series shape mirrors the stored ClimateNormals (raw numbers, full 12 months).
-      expect(climate.source).toBe(CLIMATE_SOURCE_MGM_GENERAL);
-      expect(climate.sourceUrl.startsWith('https://www.mgm.gov.tr/')).toBe(true);
-      expect(climate.periodStartYear).toBeLessThan(climate.periodEndYear);
+      expect(climate.source).toBe(CLIMATE_SOURCE_ERA5_LAND_MONTHLY);
+      expect(climate.sourceUrl).toBe(ERA5_DATASET_URL);
+      expect(climate.periodStartYear).toBe(ERA5_FIRST_YEAR);
+      expect(climate.periodEndYear).toBe(ERA5_LAST_YEAR);
       expect(climate.months).toHaveLength(CLIMATE_MONTH_COUNT);
 
-      // The records block is part of the served contract too — present, with its three columns
-      // (each an object or null). Value-level correctness is proven by the climate-load suite;
-      // here it is the SHAPE the web codegens against that matters.
-      expect(climate.records).not.toBeNull();
-      for (const key of ['dailyMaxPrecipitationMm', 'fastestWindMs', 'maxSnowDepthCm']) {
-        expect(climate.records).toHaveProperty(key);
+      // THE contract-narrowing assertion, and it is a REMOVAL check: the eight monthly MGM-era
+      // fields and the whole `records` block are gone from the payload the web codegens against.
+      // Asserted as ABSENCE rather than by a happy-path shape check, because a leftover null field
+      // would keep every other test green while shipping a contract the OpenAPI spec no longer
+      // declares (→ the B2/B3 breaking items handed to the web repo).
+      expect(climate).not.toHaveProperty('records');
+      for (const [index, month] of climate.months.entries()) {
+        expect(Object.keys(month).sort()).toEqual(['month', 'precipitationMm', 'tempMeanC']);
+        expect(month.month).toBe(index + 1);
+        expect(typeof month.tempMeanC).toBe('number');
+        expect(typeof month.precipitationMm).toBe('number');
       }
 
       // THE invariant this PR exposes: seasonal percentages are whole integers summing to 100.
@@ -229,17 +244,16 @@ describe('Climate contract (e2e)', () => {
       expect(Number.isFinite(d.annualTempRangeC)).toBe(true);
     }
 
-    // Ruling 5 fills ALL 81, so the sum-to-100 loop must have run on every province, not just
-    // one. `toBe(provinces.length)` is the real invariant: `> 0` would let coverage silently
-    // collapse 81→1 (e.g. a future re-fetch declaring 60 provinces unpublishable, loaded
-    // successfully) with the suite still green — exactly CONVENTIONS §2's "a check switched off
-    // by a condition, and the condition becomes the new unverified surface." Still count-level
-    // and structural, no per-province literal.
+    // The load phase fills ALL 81 or writes nothing, so the sum-to-100 loop must have run on every
+    // province, not just one. `toBe(provinces.length)` is the real invariant: `> 0` would let
+    // coverage silently collapse 81→1 with the suite still green — exactly CONVENTIONS §2's "a
+    // check switched off by a condition, and the condition becomes the new unverified surface."
+    // Still count-level and structural, no per-province literal.
     expect(withClimate).toBe(provinces.length);
   });
 
   it('a province whose series is null degrades gracefully (climate: null, still 200)', async () => {
-    // Ruling 5 fills all 81, so the null path cannot occur with real data (PLAN.md risk 9). It is
+    // The load phase fills all 81, so the null path cannot occur with real data (PLAN.md risk 9). It is
     // manufactured by clearing one row's series, exactly the kill-switch the schema documents
     // (`UPDATE provinces SET climate_normals = NULL`), then restored so later suites are unaffected.
     const repo = dataSource.getRepository(Province);

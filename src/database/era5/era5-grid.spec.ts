@@ -145,9 +145,15 @@ describe('distanceKm', () => {
     expect(distanceKm(39, 32, 40, 33)).toBeCloseTo(distanceKm(40, 33, 39, 32), 10);
   });
 
-  it('matches the measured Sinop fallback distance (13.20 km) to two decimals', () => {
+  it('matches the measured Sinop fallback distance (~13.19 km run / 13.20 km probe)', () => {
     // 57 Sinop: administrative point (42.0299, 35.1545) → land cell (42.0, 35.0). This pins the
     // haversine implementation against an independently measured value, not a geographic fact.
+    //
+    // Two measurements exist and they differ in the second decimal: the production run's manifest
+    // records 13.189844… km, the earlier probe reported 13.20 km — two independent haversine
+    // implementations rounding at centimetre scale. The assertion's ONE-decimal closeness was
+    // always the honest precision for that spread; only the test's name was overclaiming, and the
+    // numeric expectation is unchanged.
     expect(distanceKm(42.0299, 35.1545, 42.0, 35.0)).toBeCloseTo(13.2, 1);
   });
 });

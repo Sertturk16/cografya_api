@@ -13,7 +13,7 @@
  * not a text format: it decomposes the document and re-serializes its keys by (length, then
  * lexical) order, discarding insertion order. Verified directly against `postgres:16-alpine`:
  * a document written with `source` first comes back with `months` first, and the nested
- * per-month and `records` objects are reordered too. So the stored side comes back sorted
+ * per-month objects are reordered too. So the stored side comes back sorted
  * while the artifact side keeps declaration order, the two strings differ even when the
  * content is identical, and EVERY re-run would report all 81 provinces as updated — telling
  * Google 81 pages changed when nothing did. Silently, with exit code 0.

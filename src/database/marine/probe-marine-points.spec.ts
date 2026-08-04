@@ -16,7 +16,7 @@ import {
 /**
  * Unit tests for the `probe` phase, against SYNTHETIC responses only — no network, no timers.
  *
- * The sibling precedent is `src/database/climate/mgm-fetch.spec.ts`: the network-touching CLI
+ * The sibling precedent is `src/database/era5/era5-fetch.spec.ts`: the network-touching CLI
  * entry point stays untested (it is run by hand), but the parsing, the request construction and
  * the retry/breaker/completeness logic are exercised through the `fetchImpl`/`sleepImpl`/`nowImpl`
  * seams whose JSDoc says "Injected for tests". This PR built those seams and, until this file,

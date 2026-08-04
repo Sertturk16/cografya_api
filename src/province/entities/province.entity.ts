@@ -155,7 +155,7 @@ export class Province {
   climateNoteTr!: string | null;
 
   /**
-   * MGM iklim normalleri — aylık seri + kaynak + ölçüm periyodu + rekorlar.
+   * İklim normalleri — 12 aylık seri + kaynak + normal penceresi (ERA5-Land 1991-2020).
    *
    * `jsonb` on the province row, NOT a child table (PLAN.md §1, a deliberate reversal of
    * `SPEC-veri.md` §3.1). Two reasons carry it:
@@ -163,15 +163,21 @@ export class Province {
    *      series onto the province row trips the existing `@UpdateDateColumn`. A child table
    *      would NOT trip it, so every climate refresh would leave the page's advertised
    *      modification date silently stale — a defect the child table would have *introduced*.
-   *   2. Ruling 5 (`k=A` as the single series) removed the multiplicity that justified a
+   *   2. A single source series per province removed the multiplicity that justified a
    *      child table at all: what remains is one fixed-shape object per province, exactly
    *      the shape `hydrographyFeatures` already occupies.
+   *
+   * **The column type never changed across the source swap**, which is the whole payoff of
+   * choosing `jsonb`: moving from MGM's `k=A` table to ERA5-Land narrowed the DOCUMENT inside
+   * this column (11 monthly fields → 3, the records block dropped) with zero DDL and therefore
+   * zero migration (→ DEC 2026-08-04c). Postgres does not see a jsonb document's internal shape;
+   * the assertion layer below is what does.
    *
    * The honest cost is the loss of DB-level `CHECK (month BETWEEN 1 AND 12)` and a unique
    * key. Three auditable layers pay it back: the shared `ClimateNormals` interface (the
    * entity column and the DTO cannot drift), the loud import-time assertions in
-   * `climate-assertions.ts` (a malformed series aborts the import instead of publishing),
-   * and the served-payload invariants in the e2e suite.
+   * `climate-normals.assertions.ts` + `era5-load-assertions.ts` (a malformed series aborts the
+   * import instead of publishing), and the served-payload invariants in the e2e suite.
    *
    * NULL means "no publishable series" — the web renders no climate section at all. The
    * kill-switch is one statement: `UPDATE provinces SET climate_normals = NULL`.

@@ -64,8 +64,8 @@ jobs:
   # Unit tests for build-time tooling (`tools/`) and the pure `src/` modules that need no
   # database. They run as their own fast job rather than waiting on Testcontainers. Covered
   # today: the seed transcription tool, whose losslessness invariant replaces the manual
-  # byte-for-byte roundtrip check on narrative-content PRs (CONVENTIONS §2), and the MGM
-  # climate parser + import assertions, which run against committed HTML fixtures.
+  # byte-for-byte roundtrip check on narrative-content PRs (CONVENTIONS §2), and the offline
+  # ERA5-Land derivation + load assertions, which run against the committed artifacts.
   test-unit:
     name: Test (unit)
     runs-on: ubuntu-latest

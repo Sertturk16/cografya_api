@@ -36,7 +36,7 @@ import { SlowQueryLogger } from './slow-query.logger';
  * This one pool also carries the ingest writes (`AirQualityIngestStore.recordProduct` writes 81
  * provinces of jsonb per tour, `EcmwfIngestStore` writes step by step, `pruneRuns` deletes) and
  * EVERY other consumer of this builder: production `pnpm migration:run`, the offline load CLIs
- * (`db:import:climate`, `db:import:era5`, `db:seed:*`, the marine-points CLI) and every e2e's
+ * (`db:import:era5`, `db:seed:*`, the marine-points CLI) and every e2e's
  * migration run. A ceiling equal to the documented READ budget would kill a healthy but slow
  * WRITE and cost a whole ingest cycle. So the promise here is exactly *"no query hangs
  * forever"* — it is NOT *"every query finishes in 5 s"*.

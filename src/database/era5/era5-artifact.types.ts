@@ -164,9 +164,51 @@ export interface Era5Manifest {
   /** Plate codes whose fallback fired — compared against the expected closed set of five. */
   fallbackPlateCodes: readonly string[];
   jobs: readonly Era5JobRecord[];
+  /**
+   * Job evidence RECOVERED from the raw file's `<raw>.jobs.json` sidecar on an offline
+   * `--from-file` re-run — never jobs THIS run issued.
+   *
+   * Kept strictly separate from {@link Era5Manifest.jobs} rather than merged into it, because
+   * `jobs` answers "what did this run do" and must stay empty offline: an artifact claiming CDS
+   * job ids it never issued would be a lie, and the `jobs-verified-then-deleted` /`jobs-deleted`
+   * assertions enforce exactly that. This field answers a different, also-useful question — "what
+   * do we know about where these bytes came from" — and it is how the live run's queue stamps and
+   * the provider's own `file:checksum` survive a regeneration instead of being lost the first time
+   * somebody re-runs offline.
+   *
+   * OPTIONAL, and absent is the normal case: on a live run the evidence is in `jobs`, and on an
+   * offline run with no sidebar beside the raw file the whole mechanism degrades to exactly the
+   * previous behaviour (see `readRawJobsSidecar` — fail-soft is mandatory, → DEC 2026-08-04c Q6).
+   * Absent therefore means "not recovered", never "no such evidence exists".
+   */
+  recoveredJobs?: readonly Era5JobRecord[];
   requests: readonly Era5RequestRecord[];
   totals: { requestCount: number; downloadedBytes: number; wallClockMs: number };
   assertions: readonly Era5AssertionResult[];
+}
+
+/**
+ * The `<raw>.jobs.json` SIDECAR written beside the raw `.nc` on a live run.
+ *
+ * ## Why it exists
+ * The raw file is deliberately not committed, so an offline `--from-file` regeneration used to
+ * lose the entire live-run job record — ids, CDS queue stamps, the provider's own `file:checksum`
+ * — even when the operator still had the exact bytes on disk. Writing that evidence NEXT TO the
+ * bytes it describes means it travels with them (a copied directory carries both) instead of
+ * living only in whichever manifest happened to be committed at the time.
+ *
+ * ## Why it is keyed on the raw file's SHA-256
+ * A sidecar is adopted only when it names the digest of the file actually being decoded.
+ * Otherwise a stale sidecar left in a scratch directory would decorate a DIFFERENT download with
+ * another run's job ids — which is precisely the "claiming evidence you do not have" failure the
+ * `sourceMode` split exists to prevent.
+ */
+export interface Era5RawJobsSidecar {
+  schemaVersion: 1;
+  generatedAtUtc: string;
+  /** SHA-256 of the raw `.nc` this evidence belongs to — verified before it is adopted. */
+  rawFileSha256: string;
+  jobs: readonly Era5JobRecord[];
 }
 
 /** One province's converted-but-unaveraged series. */

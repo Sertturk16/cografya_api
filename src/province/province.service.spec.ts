@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import { Logger } from '@nestjs/common';
 import { buildClimate } from './province.service';
 import {
-  CLIMATE_SOURCE_MGM_GENERAL,
+  CLIMATE_SOURCE_ERA5_LAND_MONTHLY,
   type ClimateMonthlyNormal,
   type ClimateNormals,
 } from './province.types';
@@ -23,27 +23,14 @@ function makeValidNormals(): ClimateNormals {
   const months: ClimateMonthlyNormal[] = Array.from({ length: 12 }, (_unused, i) => ({
     month: i + 1,
     tempMeanC: 10 + i,
-    tempMaxMeanC: null,
-    tempMinMeanC: null,
     precipitationMm: 50,
-    sunshineHours: null,
-    rainyDays: null,
-    tempRecordMaxC: null,
-    tempRecordMaxDate: null,
-    tempRecordMinC: null,
-    tempRecordMinDate: null,
   }));
   return {
-    source: CLIMATE_SOURCE_MGM_GENERAL,
-    sourceUrl: 'https://www.mgm.gov.tr/veridegerlendirme/il-ve-ilceler-istatistik.aspx?k=A&m=TEST',
-    periodStartYear: 1929,
-    periodEndYear: 2025,
+    source: CLIMATE_SOURCE_ERA5_LAND_MONTHLY,
+    sourceUrl: 'https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land-monthly-means',
+    periodStartYear: 1991,
+    periodEndYear: 2020,
     months,
-    records: {
-      dailyMaxPrecipitationMm: null,
-      fastestWindMs: null,
-      maxSnowDepthCm: null,
-    },
   };
 }
 
@@ -63,7 +50,7 @@ describe('buildClimate', () => {
     const normals = makeValidNormals();
     const climate = buildClimate(normals, '34');
     expect(climate).not.toBeNull();
-    expect(climate?.source).toBe(CLIMATE_SOURCE_MGM_GENERAL);
+    expect(climate?.source).toBe(CLIMATE_SOURCE_ERA5_LAND_MONTHLY);
     expect(climate?.months).toHaveLength(12);
     // The derived block is present and its seasonal shares total exactly 100.
     const seasonal = climate?.derived.seasonalPrecipitation;
@@ -75,6 +62,30 @@ describe('buildClimate', () => {
     }
   });
 
+  it('REFUSES a stale MGM-shaped document rather than serving the retired contract', () => {
+    // Review #87, CR87-I1. `buildClimate` spreads the stored document verbatim onto a public
+    // response, and an MGM-era document passes every structural check `computeClimateDerived`
+    // makes (12 ordered months, finite core pair). So a database still holding MGM documents that
+    // receives this build before `db:import:era5 --phase=load` runs would serve
+    // `source: "mgm_general"`, the removed `records` block and eight fields that exist in no DTO
+    // and in no generated web type — at 200, with no signal. Absent beats wrong.
+    const warn = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+    const stale = makeValidNormals();
+    // Written past the type deliberately: `ClimateSource` has one member, so this shape is
+    // unrepresentable in TypeScript — and reachable in a `jsonb` column, which is the whole point.
+    (stale as unknown as Record<string, unknown>).source = 'mgm_general';
+    (stale as unknown as Record<string, unknown>).records = { dailyMaxPrecipitationMm: null };
+
+    expect(buildClimate(stale, '34')).toBeNull();
+    // It is a DEFECT, so it must be observable — and must name both the offending value and the
+    // command that fixes it, since the operator's real problem is deploy ordering.
+    expect(warn).toHaveBeenCalledTimes(1);
+    const message = String(warn.mock.calls[0]?.[0]);
+    expect(message).toContain('34');
+    expect(message).toContain('mgm_general');
+    expect(message).toContain('db:import:era5 --phase=load');
+  });
+
   it('serves climate: null AND warns when a stored series is present but not derivable', () => {
     // A present-but-corrupt row: the import's all-or-nothing rule should make this impossible,
     // so reaching it is a defect that must be observable (I5) while still degrading gracefully.
@@ -82,7 +93,9 @@ describe('buildClimate', () => {
     const corrupt = makeValidNormals();
     const july = corrupt.months[6];
     if (july === undefined) throw new Error('fixture malformed');
-    july.tempMeanC = null; // breaks the core pair → not derivable
+    // Written past the type on purpose: the core pair is non-nullable in the contract, but this
+    // object comes out of a `jsonb` column where the type is an assertion, not a guarantee.
+    (july as unknown as Record<string, unknown>).tempMeanC = null;
 
     expect(buildClimate(corrupt, '06')).toBeNull();
     // Observability: the corrupt branch logs, and names the plate code (public data, no PII).
@@ -100,12 +113,26 @@ describe('buildClimate', () => {
   });
 
   it('serves null AND warns for a present-but-malformed jsonb shape the type forbids', () => {
-    // Present-but-corrupt shapes ({}, { months: null }) the compile-time type believes impossible
-    // but a jsonb column can still hold: a DEFECT, so — exactly like an incomplete core pair —
-    // they serve null and log, rather than throwing a TypeError inside the derivation.
+    // Present-but-corrupt shapes the compile-time type believes impossible but a jsonb column can
+    // still hold: a DEFECT, so — exactly like an incomplete core pair — they serve null and log,
+    // rather than throwing a TypeError inside the derivation.
+    //
+    // Both fixtures carry a VALID `source` on purpose (review #87, CF87-M2). Without it they exit
+    // at the source branch added above and never reach the SHAPE guard this test names, so the
+    // test would pass while proving something else entirely — a bare `{}` would be "refused" for
+    // the wrong reason. The shape guard is what has to fire here.
     const warn = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
-    expect(buildClimate({} as unknown as ClimateNormals, '35')).toBeNull();
-    expect(buildClimate({ months: null } as unknown as ClimateNormals, '35')).toBeNull();
-    expect(warn).toHaveBeenCalledTimes(2);
+    const withSource = (extra: Record<string, unknown>): ClimateNormals =>
+      ({ source: CLIMATE_SOURCE_ERA5_LAND_MONTHLY, ...extra }) as unknown as ClimateNormals;
+
+    expect(buildClimate(withSource({}), '35')).toBeNull();
+    expect(buildClimate(withSource({ months: null }), '35')).toBeNull();
+    expect(buildClimate(withSource({ months: 'not-an-array' }), '35')).toBeNull();
+    expect(warn).toHaveBeenCalledTimes(3);
+    // …and it is the DERIVABILITY message, not the source message — i.e. the shape guard is what
+    // rejected them.
+    for (const call of warn.mock.calls) {
+      expect(String(call[0])).toContain('not derivable');
+    }
   });
 });

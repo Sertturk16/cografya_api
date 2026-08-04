@@ -33,7 +33,7 @@ export type MarineArtifactSource =
  * The committed artifact `--phase=probe` writes and `--phase=load` reads.
  *
  * ## Why the two-phase split, again, for a different provider
- * Same discipline as `db:import:climate`, for the same reason: `probe` is the ONLY phase that
+ * Same discipline as `db:import:era5`, for the same reason: `probe` is the ONLY phase that
  * touches the network, is run BY HAND, and produces a reviewable file; `load` is offline,
  * deterministic, idempotent, and is the only phase CI or a deploy may run. A build that can
  * fail because Copernicus is down is not a build.
