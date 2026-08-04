@@ -304,17 +304,26 @@ describe('the committed corpus', () => {
     expect(() => assertCountryEntityInvariants(SEED_COUNTRIES)).not.toThrow();
   });
 
-  it('is not yet asserted against the CORPUS-level invariants — and that is deliberate', () => {
-    // The TR / territory / special rows land in the seed PR (PR-B), which is where
-    // `assertCountryCorpusInvariants(SEED_COUNTRIES)` opens (Atlas ruling S3, 2026-08-02).
-    // Asserting it here would open this schema-only PR red for a reason unrelated to its code.
-    // This test pins the CURRENT truth rather than leaving the gap silent: today the corpus is
-    // all-`country`, so the check legitimately does not hold yet.
+  it('satisfies every CORPUS-level invariant — the S3 gap is now CLOSED', () => {
+    // THIS ASSERTION IS INVERTED FROM PR-A, ON PURPOSE (Atlas ruling S3, 2026-08-02).
+    // PR-A shipped `assertCountryCorpusInvariants` fully unit-tested against synthetic corpora
+    // but deliberately NOT bound to the real one, because the rows it describes did not exist
+    // yet; it pinned that gap with `toThrow(/found 0\./u)` so the hole could not go silent.
+    // PR-B lands the rows (GL `territory`, AQ `special`, TR `country`), so the same call must
+    // now SUCCEED. What arrives here is a PROVEN check finally pointed at production data —
+    // not a new check written to match whatever the seed happens to contain.
     //
-    // PINNED TO THE ZERO-ROW MESSAGE, NOT TO `/EXACTLY ONE/`. The looser regex also matched
-    // "found 2" — so a DUPLICATE Türkiye row, a real and easy PR-B mistake, would have kept
-    // this test green while looking like the expected gap. The count is what distinguishes
-    // "the rows have not landed yet" from "the rows landed wrong".
-    expect(() => assertCountryCorpusInvariants(SEED_COUNTRIES)).toThrow(/found 0\./u);
+    // What this covers that the row-level pass above cannot: invariant 6 (EXACTLY ONE `TR`
+    // row, `country`-typed, holding the `turkiye` slug) and invariant 7b (the corpus carries
+    // at least one `territory` AND at least one `special` row). Both are properties of the
+    // WHOLE corpus, so no per-row guard can see them — a second Türkiye row appended by a
+    // future wave, or a refactor that resets `entityType` back to its default, is invisible
+    // until something asserts here.
+    //
+    // Deliberately NO hardcoded row count (Atlas ruling, PR-B plan §7.1): `SEED_COUNTRIES`
+    // grows every wave, and a pinned 199 would rot on the next one and train the next
+    // engineer to edit the test instead of reading it. The e2e's phase 1 already proves the
+    // whole set inserts cleanly, dynamically, against `SEED_COUNTRIES.length`.
+    expect(() => assertCountryCorpusInvariants(SEED_COUNTRIES)).not.toThrow();
   });
 });
