@@ -10,6 +10,7 @@ import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { seedWorld, type SeedWorldResult } from '../src/database/seeds/seed-world';
 import { SEED_COUNTRIES, type CountrySeed } from '../src/database/seeds/country.seed-data';
 import { Continent } from '../src/common/continent.enum';
+import { CountryEntityType } from '../src/common/country-entity-type.enum';
 import { Country } from '../src/country/entities/country.entity';
 import { computeNeighborCount } from '../src/country/country.service';
 import { INTERNAL_REQUEST_HEADER } from '../src/common/throttler/trusted-client';
@@ -82,6 +83,7 @@ const ZZ: CountrySeed = {
   population: 1_000_000,
   populationYear: 2024,
   areaKm2: 500,
+  areaIsApproximate: true,
   capitalNameTr: 'Test Başkenti',
   capitalNameEn: 'Test Capital',
   capitalLatitude: 12.345678,
@@ -96,8 +98,28 @@ const ZZ: CountrySeed = {
   climateNoteTr: 'Kuzeyde test iklimi, güneyde ikinci test iklimi görülür.',
   hydrographyNoteTr: 'Test Ülkesi ZZ, iki sentetik test nehri ile bir test gölüne sahiptir.',
   sovereigntyNoteTr: 'Test Ülkesi ZZ, sentetik bir egemenlik çerçevesi notuna sahiptir.',
+  settlementNoteTr: 'Nüfusun çoğu sentetik test başkentinde toplanır.',
+  economyNoteTr: 'Ekonomi tamamen sentetik test kalemlerine dayanır.',
+  governanceNoteTr: 'Test Ülkesi ZZ, sentetik bir yönetim çerçevesiyle idare edilir.',
 };
 const FIXTURES: readonly CountrySeed[] = [ZX, ZY, ZZ];
+
+/**
+ * A NON-COUNTRY variant of ZZ, used by the typed-row cases below. It carries the CONSISTENT
+ * TRIPLE the seed guard requires — `entityType` plus BOTH approved status labels — and drops
+ * `independenceNoteTr`, which invariant 5 forbids on a non-country row. That is deliberate:
+ * a fixture that violated the guard would prove nothing except that the guard works.
+ */
+function asTerritory(seed: CountrySeed): CountrySeed {
+  const territory: CountrySeed = {
+    ...seed,
+    entityType: CountryEntityType.Territory,
+    statusLabelTr: 'Test Özerk Bölgesi',
+    statusLabelEn: 'Test Autonomous Territory',
+  };
+  delete territory.independenceNoteTr;
+  return territory;
+}
 
 describe('Country (e2e)', () => {
   let container: StartedPostgreSqlContainer;
@@ -186,7 +208,38 @@ describe('Country (e2e)', () => {
       'InitMarinePoints1785369600000',
       'InitMarineEcmwfStore1785686400000',
       'InitAirQualityStore1785859200000',
+      'AddContinentAntarctica1785945600000',
+      'AddCountryEntityType1785949200000',
+      'AddCountryDetailSections1785952800000',
     ]);
+  });
+
+  it('the continent enum type-swap left the ANTARKTIKA value usable and the index intact', async () => {
+    // `AddContinentAntarctica` recreates the Postgres enum type and rewrites the column. Two
+    // things could go wrong silently and only a real Postgres can tell us: the new value might
+    // not be accepted, and `IDX_countries_continent` — which Postgres is supposed to rebuild as
+    // part of the column type change — might have vanished with the old type.
+    const values = await dataSource.query<Array<{ enumlabel: string }>>(
+      `SELECT enumlabel FROM pg_enum e
+         JOIN pg_type t ON t.oid = e.enumtypid
+        WHERE t.typname = 'continent'
+        ORDER BY e.enumsortorder`,
+    );
+    expect(values.map((row) => row.enumlabel)).toEqual([
+      'ASYA',
+      'AVRUPA',
+      'AFRIKA',
+      'KUZEY_AMERIKA',
+      'GUNEY_AMERIKA',
+      'OKYANUSYA',
+      'ANTARKTIKA',
+    ]);
+
+    const indexes = await dataSource.query<Array<{ indexname: string }>>(
+      `SELECT indexname FROM pg_indexes
+        WHERE tablename = 'countries' AND indexname = 'IDX_countries_continent'`,
+    );
+    expect(indexes).toHaveLength(1);
   });
 
   it('phase 1 — seeding the real default set inserts every SEED_COUNTRIES row cleanly', () => {
@@ -250,24 +303,25 @@ describe('Country (e2e)', () => {
     expect(await repo.count()).toBe(3);
   });
 
-  it('REFUSES to seed Türkiye as a country row, and writes NOTHING when it does', async () => {
-    // Product ruling (PR #23 M5): Türkiye is the site's own `/turkiye` provinces hub, so a TR
-    // country row would statically generate a duplicate `/dunya/turkiye` page. Nothing in the
-    // pipeline objects to such a row on its own — it inserts cleanly and serves a valid payload —
-    // which is why the rule lives in `seedWorld` as a guard.
+  it('REFUSES a row that steals Türkiye’s slug, and writes NOTHING when it does', async () => {
+    // THE RULE INVERTED, AND THE GUARD SURVIVED. It used to be "TR is never a country row"
+    // (PR #23 M5); DEC 2026-08-01j made `/dunya/turkiye` a real profile. What is still true — and
+    // what this asserts — is that the path belongs to the TR row ALONE: any other row carrying
+    // that slug IS a duplicate page. Nothing in the pipeline objects to such a row on its own
+    // (it inserts cleanly and serves a valid payload), which is why the rule is a guard.
     //
-    // The unit spec pins the guard's own logic and the committed corpus without a database. What
-    // only a real Postgres can prove is what this asserts: the refusal happens on the WRITE path
-    // and the batch is rejected WHOLE — no partial seed, no orphan row, no count change.
+    // The unit spec pins the guard's own logic without a database. What only a real Postgres can
+    // prove is what this asserts: the refusal happens on the WRITE path and the batch is rejected
+    // WHOLE — no partial seed, no orphan row, no count change.
     const repo = dataSource.getRepository(Country);
     const before = await repo.count();
 
-    const turkiyeRow: CountrySeed = {
-      isoCode: 'TR',
-      nameTr: 'Türkiye',
-      nameEn: 'Türkiye',
+    const slugThief: CountrySeed = {
+      isoCode: 'XB',
+      nameTr: 'Test Ülkesi XB',
+      nameEn: 'Test Country XB',
       slugTr: 'turkiye',
-      slugEn: 'turkiye',
+      slugEn: 'turkey',
       continent: Continent.Asia,
       neighborIsoCodes: [],
     };
@@ -283,13 +337,167 @@ describe('Country (e2e)', () => {
       continent: Continent.Africa,
       neighborIsoCodes: [],
     };
-    await expect(seedWorld(dataSource, [goodRow, turkiyeRow])).rejects.toThrow(/identifies as/);
+    await expect(seedWorld(dataSource, [goodRow, slugThief])).rejects.toThrow(/routing key/);
 
     expect(await repo.count()).toBe(before);
-    expect(await repo.findOneBy({ isoCode: 'TR' })).toBeNull();
+    expect(await repo.findOneBy({ isoCode: 'XB' })).toBeNull();
     expect(await repo.findOneBy({ isoCode: 'XA' })).toBeNull();
-    // …and the slug that would have become `/dunya/turkiye` resolves to nothing.
+    // …and the slug that would have become a duplicate `/dunya/turkiye` resolves to nothing.
     await request(app.getHttpServer()).get('/api/countries/turkiye').expect(404);
+  });
+
+  it('REFUSES an inconsistent typed row on the write path, whole batch, nothing written', async () => {
+    // One representative of the OTHER invariants, proved end-to-end rather than only in the unit
+    // spec: a `special` row publishing population 0 ("zero people live here" — a claim nobody
+    // meant to make). The unit spec covers all seven; this proves they reach the write path.
+    const repo = dataSource.getRepository(Country);
+    const before = await repo.count();
+    const badSpecial: CountrySeed = {
+      isoCode: 'XA',
+      nameTr: 'Test Bölgesi XA',
+      nameEn: 'Test Region XA',
+      slugTr: 'test-bolgesi-xa',
+      slugEn: 'test-region-xa',
+      continent: Continent.Antarctica,
+      neighborIsoCodes: [],
+      entityType: CountryEntityType.Special,
+      statusLabelTr: 'Test Özel Statü',
+      statusLabelEn: 'Test Special Status',
+      population: 0,
+    };
+    await expect(seedWorld(dataSource, [...FIXTURES, badSpecial])).rejects.toThrow(
+      /population absent/,
+    );
+    expect(await repo.count()).toBe(before);
+    expect(await repo.findOneBy({ isoCode: 'XA' })).toBeNull();
+  });
+
+  it('runs a full insert/no-op/drift/retraction cycle on a NEW narrative field', async () => {
+    // SPEC §8 PR-A criterion 5, on `governanceNoteTr`. Insert + no-op are already covered by
+    // phases 2/3 (ZZ carries the field). What is left is the pair that actually exercises the
+    // widened `rowMatchesSeed` and `normalizeSeed`: a drift must be detected and rewritten, and
+    // a RETRACTION — dropping the key from the seed — must genuinely clear the column rather
+    // than leave the row drifted forever.
+    const repo = dataSource.getRepository(Country);
+    await repo.update({ isoCode: 'ZZ' }, { governanceNoteTr: 'elle değiştirilmiş metin' });
+
+    const drift = await seedWorld(dataSource, FIXTURES);
+    expect(drift).toEqual({ inserted: 0, updated: 1, unchanged: 2, total: 3 });
+    expect((await repo.findOneByOrFail({ isoCode: 'ZZ' })).governanceNoteTr).toBe(
+      ZZ.governanceNoteTr,
+    );
+
+    const zzRetracted: CountrySeed = { ...ZZ };
+    delete zzRetracted.governanceNoteTr;
+    const retracted = FIXTURES.map((c) => (c.isoCode === 'ZZ' ? zzRetracted : c));
+    expect(await seedWorld(dataSource, retracted)).toEqual({
+      inserted: 0,
+      updated: 1,
+      unchanged: 2,
+      total: 3,
+    });
+    expect((await repo.findOneByOrFail({ isoCode: 'ZZ' })).governanceNoteTr).toBeNull();
+    // The retraction settles — it does not churn `updated` forever.
+    expect(await seedWorld(dataSource, retracted)).toEqual({
+      inserted: 0,
+      updated: 0,
+      unchanged: 3,
+      total: 3,
+    });
+
+    // Restore the canonical fixture for the HTTP tests below.
+    expect(await seedWorld(dataSource, FIXTURES)).toEqual({
+      inserted: 0,
+      updated: 1,
+      unchanged: 2,
+      total: 3,
+    });
+  });
+
+  it('detects a drift in entityType and the status labels, and settles back', async () => {
+    // `entity_type` is NOT NULL with a DEFAULT, so it cannot ride the `?? null` idiom the other
+    // optional fields use. This proves the pair that replaces it: a row retyped in the seed is
+    // detected as drifted and rewritten, and returning it to an UNMARKED (`country`) seed row
+    // clears the labels and puts the type back to the default — not "leaves it alone".
+    const repo = dataSource.getRepository(Country);
+    const territory = asTerritory(ZZ);
+    const retyped = FIXTURES.map((c) => (c.isoCode === 'ZZ' ? territory : c));
+
+    expect(await seedWorld(dataSource, retyped)).toEqual({
+      inserted: 0,
+      updated: 1,
+      unchanged: 2,
+      total: 3,
+    });
+    const asTerritoryRow = await repo.findOneByOrFail({ isoCode: 'ZZ' });
+    expect(asTerritoryRow.entityType).toBe(CountryEntityType.Territory);
+    expect(asTerritoryRow.statusLabelTr).toBe('Test Özerk Bölgesi');
+    expect(asTerritoryRow.statusLabelEn).toBe('Test Autonomous Territory');
+    expect(asTerritoryRow.independenceNoteTr).toBeNull();
+    // Re-running the same list is a genuine no-op (the NOT-NULL default compares correctly).
+    expect(await seedWorld(dataSource, retyped)).toEqual({
+      inserted: 0,
+      updated: 0,
+      unchanged: 3,
+      total: 3,
+    });
+
+    // Back to the canonical (unmarked ⇒ country) fixture: the type resets and the labels clear.
+    expect(await seedWorld(dataSource, FIXTURES)).toEqual({
+      inserted: 0,
+      updated: 1,
+      unchanged: 2,
+      total: 3,
+    });
+    const restored = await repo.findOneByOrFail({ isoCode: 'ZZ' });
+    expect(restored.entityType).toBe(CountryEntityType.Country);
+    expect(restored.statusLabelTr).toBeNull();
+    expect(restored.statusLabelEn).toBeNull();
+  });
+
+  it('accepts and serves a special row on the new ANTARKTIKA continent', async () => {
+    // The `pg_enum` assertion above proves the label was DECLARED. Only an insert proves it is
+    // USABLE — the classic failure mode of the enum type-swap form is a value that exists in the
+    // catalogue while the column still points at the old type. This also round-trips the whole
+    // typed shape (special + labels + approximate area + absent population) through both DTOs.
+    const repo = dataSource.getRepository(Country);
+    const special: CountrySeed = {
+      isoCode: 'XA',
+      nameTr: 'Test Kıtası XA',
+      nameEn: 'Test Continent XA',
+      slugTr: 'test-kitasi-xa',
+      slugEn: 'test-continent-xa',
+      continent: Continent.Antarctica,
+      neighborIsoCodes: [],
+      entityType: CountryEntityType.Special,
+      statusLabelTr: 'Test Özel Statü',
+      statusLabelEn: 'Test Special Status',
+      areaKm2: 1_400_000,
+      areaIsApproximate: true,
+    };
+    expect(await seedWorld(dataSource, [...FIXTURES, special])).toEqual({
+      inserted: 1,
+      updated: 0,
+      unchanged: 3,
+      total: 4,
+    });
+
+    const detail = await request(app.getHttpServer())
+      .get('/api/countries/test-kitasi-xa')
+      .expect(200);
+    const body = detail.body as Record<string, unknown>;
+    expect(body.continent).toBe('ANTARKTIKA');
+    expect(body.entityType).toBe('special');
+    expect(body.statusLabelTr).toBe('Test Özel Statü');
+    expect(body.statusLabelEn).toBe('Test Special Status');
+    expect(body.areaIsApproximate).toBe(true);
+    // "not applicable" is ABSENT, never 0 — the guard's invariant 3, visible on the payload.
+    expect(body.population).toBeNull();
+    expect(body.independenceNoteTr).toBeNull();
+
+    // Clean up so the fixture-count assertions below still describe exactly 3 rows.
+    await repo.delete({ isoCode: 'XA' });
+    expect(await repo.count()).toBe(3);
   });
 
   it('GET /api/countries returns all rows, ISO-ordered, lean (no detail leak)', async () => {
@@ -312,6 +520,20 @@ describe('Country (e2e)', () => {
     expect(body[0]).not.toHaveProperty('neighborIsoCodes');
     expect(body[0]).not.toHaveProperty('neighborCount');
     expect(body[0]).not.toHaveProperty('capitalLatitude');
+    // The hub list is UNCHANGED by this wave (SPEC §4.1): the /dunya hub uses name + slug +
+    // continent only, so the new fields deliberately did NOT leak into it.
+    expect(body[0]).not.toHaveProperty('entityType');
+    expect(body[0]).not.toHaveProperty('statusLabelTr');
+    expect(body[0]).not.toHaveProperty('statusLabelEn');
+    expect(body[0]).not.toHaveProperty('areaIsApproximate');
+    expect(Object.keys(body[0] ?? {}).sort()).toEqual([
+      'continent',
+      'isoCode',
+      'nameEn',
+      'nameTr',
+      'slugEn',
+      'slugTr',
+    ]);
   });
 
   it('GET /api/countries/map-summary serves the hover stats incl. derived neighborCount', async () => {
@@ -335,11 +557,25 @@ describe('Country (e2e)', () => {
         nameTr: stored.nameTr,
         nameEn: stored.nameEn,
         continent: stored.continent,
+        entityType: stored.entityType,
+        statusLabelTr: stored.statusLabelTr,
+        statusLabelEn: stored.statusLabelEn,
         population: stored.population,
         areaKm2: stored.areaKm2,
+        areaIsApproximate: stored.areaIsApproximate,
         neighborCount: stored.neighborIsoCodes.length,
       });
     }
+
+    // Unseeded rows read as the NOT-NULL defaults, not as null: an unmarked row is a country
+    // with an exact area, which is what the web branches on.
+    const zx = body.find((c) => c.isoCode === 'ZX');
+    expect(zx).toMatchObject({
+      entityType: 'country',
+      statusLabelTr: null,
+      statusLabelEn: null,
+      areaIsApproximate: false,
+    });
     // The island (empty neighbour array) derives to 0, not null.
     expect(body.find((c) => c.isoCode === 'ZY')?.neighborCount).toBe(0);
     expect(body.find((c) => c.isoCode === 'ZZ')?.neighborCount).toBe(2);
@@ -352,6 +588,10 @@ describe('Country (e2e)', () => {
     expect(zz).not.toHaveProperty('climateNoteTr');
     expect(zz).not.toHaveProperty('hydrographyNoteTr');
     expect(zz).not.toHaveProperty('sovereigntyNoteTr');
+    // The three NEW narrative fields are detail-only too — the card never carries prose.
+    expect(zz).not.toHaveProperty('settlementNoteTr');
+    expect(zz).not.toHaveProperty('economyNoteTr');
+    expect(zz).not.toHaveProperty('governanceNoteTr');
   });
 
   it('GET /api/countries/:slug round-trips transformers + derives neighborCount (full row)', async () => {
@@ -384,6 +624,18 @@ describe('Country (e2e)', () => {
     expect(body.sovereigntyNoteTr).toBe(
       'Test Ülkesi ZZ, sentetik bir egemenlik çerçevesi notuna sahiptir.',
     );
+    // the three new detail sections round-trip as free prose too.
+    expect(body.settlementNoteTr).toBe('Nüfusun çoğu sentetik test başkentinde toplanır.');
+    expect(body.economyNoteTr).toBe('Ekonomi tamamen sentetik test kalemlerine dayanır.');
+    expect(body.governanceNoteTr).toBe(
+      'Test Ülkesi ZZ, sentetik bir yönetim çerçevesiyle idare edilir.',
+    );
+    // the ≈ flag round-trips as a real boolean, not a stringified one.
+    expect(body.areaIsApproximate).toBe(true);
+    // an unmarked row is a country, with no card label (the guard's invariant 2).
+    expect(body.entityType).toBe('country');
+    expect(body.statusLabelTr).toBeNull();
+    expect(body.statusLabelEn).toBeNull();
   });
 
   it('GET /api/countries/:slug resolves the EN slug too, and nulls serialise as null', async () => {
@@ -410,6 +662,16 @@ describe('Country (e2e)', () => {
     // the new nullable sovereignty note serialises to null when unset (absent for ordinary
     // countries — the field exists only for contested-status entities).
     expect(body.sovereigntyNoteTr).toBeNull();
+    // the three new detail sections serialise to null when unset.
+    expect(body.settlementNoteTr).toBeNull();
+    expect(body.economyNoteTr).toBeNull();
+    expect(body.governanceNoteTr).toBeNull();
+    // the two NOT-NULL-with-default fields are the exception: absent in the seed still reads as
+    // a real value, never null. A `null` here would mean the DTO leaked the DB's "unset".
+    expect(body.entityType).toBe('country');
+    expect(body.areaIsApproximate).toBe(false);
+    expect(body.statusLabelTr).toBeNull();
+    expect(body.statusLabelEn).toBeNull();
   });
 
   it('GET /api/countries/:slug returns 404 for an unknown slug', async () => {

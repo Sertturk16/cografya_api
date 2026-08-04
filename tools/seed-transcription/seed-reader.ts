@@ -57,6 +57,63 @@ export interface SeedIndex {
   readonly countries: readonly SeededCountry[];
 }
 
+/**
+ * Index ONE seed source's text. Pure over (label, text) — no I/O, so it is directly
+ * unit-testable and deterministic, matching the `applyToSource` / `applyToFile` split next door.
+ *
+ * `label` is the value recorded on every result (`file`); it is also handed to the compiler as
+ * the source file name, which nothing here reads — the parser needs a name, not a real path.
+ *
+ * WHAT IT SURVIVES, and why that is worth a test rather than an assumption: a seed row may carry
+ * properties this reader has no interest in, of shapes `foldStringConcat` cannot fold. An enum
+ * member reference (`entityType: CountryEntityType.Territory`) is a property-access expression,
+ * so folding returns null and the loop skips it — crucially WITHOUT disturbing row detection,
+ * which keys on the `isoCode`/`nameTr`/`nameEn` triple. A plain string that is not a narrative
+ * field (`statusLabelTr: 'Danimarka Özerk Bölgesi'`) folds fine but is filtered out by
+ * `isNarrativeField`, so approved card copy never enters the prose index and can never be
+ * reported as drifted prose.
+ */
+export function indexSeedSource(label: string, text: string): SeedIndex {
+  const fields: SeededField[] = [];
+  const countries: SeededCountry[] = [];
+  const source = ts.createSourceFile(label, text, ts.ScriptTarget.Latest, true);
+
+  const visit = (node: ts.Node): void => {
+    if (ts.isObjectLiteralExpression(node)) {
+      // One map, not two: `scalars` and `concats` were built identically and only one was
+      // ever read. `foldStringConcat` already covers both the single-literal and the
+      // `+`-chain shapes, so there is nothing for a second map to distinguish.
+      const scalars = new Map<string, string>();
+
+      for (const property of node.properties) {
+        const name = propertyName(property);
+        if (name === null || !ts.isPropertyAssignment(property)) continue;
+        const folded = foldStringConcat(property.initializer);
+        if (folded === null) continue;
+        scalars.set(name, folded);
+      }
+
+      const isoCode = scalars.get('isoCode');
+      const nameTr = scalars.get('nameTr');
+      const nameEn = scalars.get('nameEn');
+
+      // A country object is identified by carrying all three identity fields — this
+      // avoids mistaking a nested literal for a country entry.
+      if (isoCode !== undefined && nameTr !== undefined && nameEn !== undefined) {
+        countries.push({ isoCode, nameTr, nameEn, file: label });
+        for (const [name, value] of scalars) {
+          if (isNarrativeField(name)) fields.push({ isoCode, field: name, value, file: label });
+        }
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+
+  visit(source);
+
+  return { fields, countries };
+}
+
 /** Read every `*.countries.ts` file in a directory into a flat index. */
 export function readSeedDirectory(directory: string): SeedIndex {
   const fields: SeededField[] = [];
@@ -68,42 +125,10 @@ export function readSeedDirectory(directory: string): SeedIndex {
     .sort();
 
   for (const file of files) {
-    const fullPath = path.join(directory, file);
-    const text = fs.readFileSync(fullPath, 'utf8');
-    const source = ts.createSourceFile(fullPath, text, ts.ScriptTarget.Latest, true);
-
-    const visit = (node: ts.Node): void => {
-      if (ts.isObjectLiteralExpression(node)) {
-        // One map, not two: `scalars` and `concats` were built identically and only one was
-        // ever read. `foldStringConcat` already covers both the single-literal and the
-        // `+`-chain shapes, so there is nothing for a second map to distinguish.
-        const scalars = new Map<string, string>();
-
-        for (const property of node.properties) {
-          const name = propertyName(property);
-          if (name === null || !ts.isPropertyAssignment(property)) continue;
-          const folded = foldStringConcat(property.initializer);
-          if (folded === null) continue;
-          scalars.set(name, folded);
-        }
-
-        const isoCode = scalars.get('isoCode');
-        const nameTr = scalars.get('nameTr');
-        const nameEn = scalars.get('nameEn');
-
-        // A country object is identified by carrying all three identity fields — this
-        // avoids mistaking a nested literal for a country entry.
-        if (isoCode !== undefined && nameTr !== undefined && nameEn !== undefined) {
-          countries.push({ isoCode, nameTr, nameEn, file });
-          for (const [name, value] of scalars) {
-            if (isNarrativeField(name)) fields.push({ isoCode, field: name, value, file });
-          }
-        }
-      }
-      ts.forEachChild(node, visit);
-    };
-
-    visit(source);
+    const text = fs.readFileSync(path.join(directory, file), 'utf8');
+    const indexed = indexSeedSource(file, text);
+    fields.push(...indexed.fields);
+    countries.push(...indexed.countries);
   }
 
   return { fields, countries };

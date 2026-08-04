@@ -209,11 +209,71 @@ describe('applyToSource — divergence guard', () => {
     expect(result.text).toContain("'\\n\\n' +");
   });
 
-  it('throws rather than guessing when no anchor field exists', () => {
+  it('falls back to the last property when no anchor field exists', () => {
+    // BEHAVIOUR CHANGE (dalga-1, plan §6.4): this used to throw `cannot place`. A row whose
+    // `governmentFormTr` AND `independenceNoteTr` are both inapplicable — Antarktika is the live
+    // example — has no anchor unless the author keeps explicit `: null,` properties, and a
+    // reasonable-looking cleanup of those properties used to kill the whole wave. The field now
+    // lands at the END of the object instead: out of house field order, fully visible in the
+    // diff, and nothing is lost.
     const orphan = `export const X = [{ isoCode: 'AA', nameTr: 'A', nameEn: 'A' }];\n`;
-    expect(() =>
-      applyToSource('x.ts', orphan, [{ isoCode: 'AA', field: 'introTr', value: 'v' }]),
-    ).toThrow(/cannot place/u);
+    const result = applyToSource('x.ts', orphan, [{ isoCode: 'AA', field: 'introTr', value: 'v' }]);
+    expect(result.inserted).toBe(1);
+    expect(result.text).toContain("introTr: 'v',");
+    expect(result.text.indexOf('introTr:')).toBeGreaterThan(result.text.indexOf("nameEn: 'A'"));
+  });
+});
+
+describe('applyToSource — the dalga-1 field-set change', () => {
+  // `independenceNoteTr` became a NARRATIVE field (ruling S2) and the insertion anchor moved to
+  // `governmentFormTr`. These pin both halves: the new field is writable, and the five
+  // pre-existing fields still anchor exactly where they did.
+  const WITH_GOVERNMENT = `export const X = [
+  {
+    isoCode: 'CC',
+    nameTr: 'Gama',
+    nameEn: 'Gamma',
+    governmentFormTr: 'Test cumhuriyeti',
+  },
+];
+`;
+
+  it('writes independenceNoteTr, anchored on governmentFormTr', () => {
+    const result = applyToSource('x.ts', WITH_GOVERNMENT, [
+      { isoCode: 'CC', field: 'independenceNoteTr', value: 'bir tarih notu' },
+    ]);
+    expect(result.inserted).toBe(1);
+    const lines = result.text.split('\n');
+    const anchor = lines.findIndex((line) => line.includes('governmentFormTr:'));
+    expect(lines[anchor + 1]).toContain('independenceNoteTr:');
+  });
+
+  it('places the three new narrative fields last, in seed field order', () => {
+    const result = applyToSource('x.ts', WITH_GOVERNMENT, [
+      { isoCode: 'CC', field: 'governanceNoteTr', value: 'yönetim' },
+      { isoCode: 'CC', field: 'settlementNoteTr', value: 'yerleşme' },
+      { isoCode: 'CC', field: 'introTr', value: 'giriş' },
+      { isoCode: 'CC', field: 'economyNoteTr', value: 'ekonomi' },
+    ]);
+    expect(result.inserted).toBe(4);
+    const order = ['introTr:', 'settlementNoteTr:', 'economyNoteTr:', 'governanceNoteTr:'].map(
+      (name) => result.text.indexOf(name),
+    );
+    expect(order.every((index) => index > -1)).toBe(true);
+    expect(order).toEqual([...order].sort((a, b) => a - b));
+  });
+
+  it('still anchors introTr on independenceNoteTr when both exist — unchanged behaviour', () => {
+    const both = WITH_GOVERNMENT.replace(
+      "governmentFormTr: 'Test cumhuriyeti',",
+      "governmentFormTr: 'Test cumhuriyeti',\n    independenceNoteTr: 'bir not',",
+    );
+    const result = applyToSource('x.ts', both, [
+      { isoCode: 'CC', field: 'introTr', value: 'giriş' },
+    ]);
+    const lines = result.text.split('\n');
+    const anchor = lines.findIndex((line) => line.includes('independenceNoteTr:'));
+    expect(lines[anchor + 1]).toContain('introTr:');
   });
 });
 

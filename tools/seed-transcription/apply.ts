@@ -10,7 +10,7 @@
  *   - the property already exists (`introTr: null,` or an older concatenation) — its whole
  *     assignment is replaced;
  *   - the property is absent — it is inserted after the last narrative field already
- *     present, or after `independenceNoteTr`, keeping the seed's field order stable.
+ *     present, or after `governmentFormTr`, keeping the seed's field order stable.
  */
 import * as fs from 'node:fs';
 import ts from 'typescript';
@@ -19,8 +19,16 @@ import { NARRATIVE_FIELDS, type NarrativeField } from './draft-parser.ts';
 import { emitConcat } from './emit.ts';
 import { foldStringConcat } from './seed-reader.ts';
 
-/** Seed field order — narrative fields always follow `independenceNoteTr`. */
-const ANCHOR_FIELD = 'independenceNoteTr';
+/**
+ * Seed field order — narrative fields always follow `governmentFormTr`.
+ *
+ * It used to be `independenceNoteTr`, which became a NARRATIVE field itself in the dalga-1 wave
+ * (Atlas ruling S2 → see `NARRATIVE_FIELDS`). A field cannot be both the anchor and a thing that
+ * anchors on it, so the anchor moved back one slot to the last NON-narrative property in the
+ * seed objects. Behaviour for the five pre-existing narrative fields is unchanged: they anchored
+ * on `independenceNoteTr` before and still do, since it now sits first in `NARRATIVE_FIELDS`.
+ */
+const ANCHOR_FIELD = 'governmentFormTr';
 
 export interface PendingWrite {
   readonly isoCode: string;
@@ -176,9 +184,27 @@ export function applyToSource(
             if (name !== undefined) anchor = positions.get(name);
           }
           if (anchor === undefined) {
+            // NO ANCHOR AT ALL — fall back to the object's LAST property rather than refusing.
+            //
+            // This is reachable in practice, and the dalga-1 wave is where it becomes so: a row
+            // whose `governmentFormTr` and `independenceNoteTr` are both inapplicable (Antarktika
+            // is the live example) has no anchor unless the author keeps explicit `: null,`
+            // properties for fields the row will never use. That constraint is documented for
+            // seed authors and remains the primary rule — but the tool should not DIE when a
+            // reasonable-looking cleanup removes a null property. The cost of the fallback is
+            // that the field lands at the END of the object instead of in house field order,
+            // which is fully visible in the diff; the cost of the throw was a blocked wave.
+            for (const property of node.properties) {
+              if (ts.isPropertyAssignment(property)) anchor = property;
+            }
+          }
+          if (anchor === undefined) {
+            // Unreachable by construction: `wanted` is only defined when this object literal
+            // carries an `isoCode` property assignment, so there is always at least one. Kept
+            // as a loud failure rather than a non-null assertion, in case that ever changes.
             throw new Error(
               `applyToSource: cannot place "${field}" for ${isoCode ?? '?'} — ` +
-                `neither ${ANCHOR_FIELD} nor an earlier narrative field is present.`,
+                `the object literal has no property to anchor on.`,
             );
           }
           let end = anchor.getEnd();

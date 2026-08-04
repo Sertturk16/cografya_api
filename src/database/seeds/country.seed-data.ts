@@ -1,4 +1,5 @@
 import { Continent } from '../../common/continent.enum';
+import { CountryEntityType } from '../../common/country-entity-type.enum';
 import { AFRICA_COUNTRIES } from './countries/africa.countries';
 import { AMERICAS_COUNTRIES } from './countries/americas.countries';
 import { ASIA_COUNTRIES } from './countries/asia.countries';
@@ -19,6 +20,13 @@ import { SOVEREIGNTY_COUNTRIES } from './countries/sovereignty.countries';
  * `neighborIsoCodes` is required (not optional): an empty array is the correct,
  * explicit state for an island nation ("no land neighbour"), mirroring the entity's
  * NOT-NULL `'{}'` default — it is never "unknown".
+ *
+ * TWO OPTIONAL FIELDS HAVE NO `null` MEMBER, and the asymmetry is deliberate. Their DB
+ * columns are NOT NULL with a default (`entity_type` → `'country'`, `area_is_approximate`
+ * → `false`), so an explicit `null` would be a constraint violation waiting to happen —
+ * `normalizeSeed` resolves both to their non-null default instead of to `null`. Making them
+ * REQUIRED was the other option and was rejected: it would force a mechanical edit on all
+ * 196 existing rows and bury the wave's real content in a diff nobody can review.
  */
 export interface CountrySeed {
   /** ISO 3166-1 alpha-2 — UPPERCASE, exactly 2 letters (see entity seed discipline). */
@@ -29,6 +37,13 @@ export interface CountrySeed {
   slugEn: string;
   continent: Continent;
   neighborIsoCodes: string[];
+  /** Absent = `country` (see `resolveEntityType`, the single source of that default). */
+  entityType?: CountryEntityType;
+  /** Approved card subtitle; NULL on a `country` row, required on any other (guard 2). */
+  statusLabelTr?: string | null;
+  statusLabelEn?: string | null;
+  /** Absent = the area figure is exact. See the entity for why this flag exists. */
+  areaIsApproximate?: boolean;
   isoCodeAlpha3?: string | null;
   unSubregionTr?: string | null;
   population?: number | null;
@@ -48,6 +63,9 @@ export interface CountrySeed {
   climateNoteTr?: string | null;
   hydrographyNoteTr?: string | null;
   sovereigntyNoteTr?: string | null;
+  settlementNoteTr?: string | null;
+  economyNoteTr?: string | null;
+  governanceNoteTr?: string | null;
 }
 
 /**

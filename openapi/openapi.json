@@ -1070,7 +1070,8 @@
               "AFRIKA",
               "KUZEY_AMERIKA",
               "GUNEY_AMERIKA",
-              "OKYANUSYA"
+              "OKYANUSYA",
+              "ANTARKTIKA"
             ],
             "type": "string",
             "description": "Kıta."
@@ -1120,7 +1121,8 @@
               "AFRIKA",
               "KUZEY_AMERIKA",
               "GUNEY_AMERIKA",
-              "OKYANUSYA"
+              "OKYANUSYA",
+              "ANTARKTIKA"
             ],
             "type": "string",
             "description": "Kıta."
@@ -1134,6 +1136,28 @@
             "type": "string",
             "example": "turkey",
             "description": "EN slug (routing key)."
+          },
+          "entityType": {
+            "enum": [
+              "country",
+              "territory",
+              "special"
+            ],
+            "type": "string",
+            "example": "country",
+            "description": "Varlık türü — `country` / `territory` / `special`. Kartın \"ülke varsayan\" davranışları (alt başlık, komşu sayısı satırı, \"kalıcı nüfus yok\" satırı) buna dallanır."
+          },
+          "statusLabelTr": {
+            "type": "string",
+            "nullable": true,
+            "example": null,
+            "description": "Onaylı kart alt başlığı (TR). `country` satırlarında null; `territory`/`special` satırlarında daima dolu — kıta adına düşmeyin (DEC 2026-08-01m)."
+          },
+          "statusLabelEn": {
+            "type": "string",
+            "nullable": true,
+            "example": null,
+            "description": "Onaylı kart alt başlığı (EN). `statusLabelTr` ile aynı kural."
           },
           "population": {
             "type": "number",
@@ -1153,6 +1177,11 @@
             "example": 783562,
             "description": "Yüzölçümü (km², World Bank / UN)."
           },
+          "areaIsApproximate": {
+            "type": "boolean",
+            "example": false,
+            "description": "`areaKm2` yaklaşık mı? `true` ise kartta \"≈\" ile gösterilmelidir (DEC 2026-08-01l). Tek kaynak burasıdır — istemcide sabitlemeyin."
+          },
           "neighborCount": {
             "type": "number",
             "example": 8,
@@ -1166,9 +1195,13 @@
           "continent",
           "slugTr",
           "slugEn",
+          "entityType",
+          "statusLabelTr",
+          "statusLabelEn",
           "population",
           "populationYear",
           "areaKm2",
+          "areaIsApproximate",
           "neighborCount"
         ]
       },
@@ -1213,10 +1246,33 @@
               "AFRIKA",
               "KUZEY_AMERIKA",
               "GUNEY_AMERIKA",
-              "OKYANUSYA"
+              "OKYANUSYA",
+              "ANTARKTIKA"
             ],
             "type": "string",
             "description": "Kıta."
+          },
+          "entityType": {
+            "enum": [
+              "country",
+              "territory",
+              "special"
+            ],
+            "type": "string",
+            "example": "country",
+            "description": "Varlık türü — `country`: egemen devlet · `territory`: bağlı/özerk toprak · `special`: ülke kategorisine girmeyen özel statülü coğrafya. Her zaman doludur (işaretlenmemiş satır `country`). \"Bir ülkedir\" varsayan her davranış (JSON-LD tipi, meta cümlesi, kıta satırı, komşu sayısı satırı) bu alana dallanmalıdır — ada ya da slug'a bakarak çıkarım yapılmamalıdır."
+          },
+          "statusLabelTr": {
+            "type": "string",
+            "nullable": true,
+            "example": null,
+            "description": "Onaylı kart alt başlığı (TR), ör. \"Danimarka Özerk Bölgesi\". `country` satırlarında DAİMA null; `territory`/`special` satırlarında daima dolu. Kıta adına düşmeyin — boş etiket bir veri hatasıdır, bir yedek değil."
+          },
+          "statusLabelEn": {
+            "type": "string",
+            "nullable": true,
+            "example": null,
+            "description": "Onaylı kart alt başlığı (EN). `statusLabelTr` ile aynı kural."
           },
           "unSubregionTr": {
             "type": "string",
@@ -1247,6 +1303,11 @@
             "nullable": true,
             "example": 783562,
             "description": "Yüzölçümü (km², World Bank / UN)."
+          },
+          "areaIsApproximate": {
+            "type": "boolean",
+            "example": false,
+            "description": "`areaKm2` yaklaşık bir değer mi? `true` ise sunumda \"≈\" / \"yaklaşık\" ile verilmelidir (ör. Antarktika 14.200.000 km²; DEC 2026-08-01l). Her zaman doludur; işaretlenmemiş bir değer kesindir. Bunu istemci tarafında sabitlemeyin — tek kaynak burasıdır."
           },
           "neighborCount": {
             "type": "number",
@@ -1349,6 +1410,21 @@
             "nullable": true,
             "description": "Egemenlik / uluslararası tanınma çerçevesi — serbest anlatı düzyazısı (TR). Yalnızca tanınma statüsü tartışmalı/standart-dışı ülkeler için doldurulur; sıradan ülkelerde null."
           },
+          "settlementNoteTr": {
+            "type": "string",
+            "nullable": true,
+            "description": "Yerleşme / nüfus dağılışı — kısa düzyazı not (TR). İçerik dalgası dolduruncaya kadar null."
+          },
+          "economyNoteTr": {
+            "type": "string",
+            "nullable": true,
+            "description": "Ekonomi — kısa düzyazı not (TR). İçerik dalgası dolduruncaya kadar null."
+          },
+          "governanceNoteTr": {
+            "type": "string",
+            "nullable": true,
+            "description": "Yönetim / statü çerçevesi — kısa düzyazı not (TR). `sovereigntyNoteTr` DEĞİLDİR: bu sayfada görünen sıradan bir bölümdür (ör. \"Grönland'ın Yönetimi\"), diğeri tartışmalı tanınma için saklanan ve bugün render edilmeyen çerçeve metnidir. İçerik dalgası dolduruncaya kadar null."
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time",
@@ -1368,11 +1444,15 @@
           "slugTr",
           "slugEn",
           "continent",
+          "entityType",
+          "statusLabelTr",
+          "statusLabelEn",
           "unSubregionTr",
           "introTr",
           "population",
           "populationYear",
           "areaKm2",
+          "areaIsApproximate",
           "neighborCount",
           "neighborIsoCodes",
           "capitalNameTr",
@@ -1388,6 +1468,9 @@
           "climateNoteTr",
           "hydrographyNoteTr",
           "sovereigntyNoteTr",
+          "settlementNoteTr",
+          "economyNoteTr",
+          "governanceNoteTr",
           "createdAt",
           "updatedAt"
         ]

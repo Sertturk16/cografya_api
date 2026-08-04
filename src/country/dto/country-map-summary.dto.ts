@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Continent } from '../../common/continent.enum';
+import { CountryEntityType } from '../../common/country-entity-type.enum';
 
 /**
  * Purpose-sized bulk payload for the /dunya interactive SVG map hover-card (the
@@ -38,6 +39,33 @@ export class CountryMapSummaryDto {
   slugEn!: string;
 
   @ApiProperty({
+    enum: CountryEntityType,
+    example: CountryEntityType.Country,
+    description:
+      'Varlık türü — `country` / `territory` / `special`. Kartın "ülke varsayan" davranışları ' +
+      '(alt başlık, komşu sayısı satırı, "kalıcı nüfus yok" satırı) buna dallanır.',
+  })
+  entityType!: CountryEntityType;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: null,
+    description:
+      'Onaylı kart alt başlığı (TR). `country` satırlarında null; `territory`/`special` ' +
+      'satırlarında daima dolu — kıta adına düşmeyin (DEC 2026-08-01m).',
+  })
+  statusLabelTr!: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: null,
+    description: 'Onaylı kart alt başlığı (EN). `statusLabelTr` ile aynı kural.',
+  })
+  statusLabelEn!: string | null;
+
+  @ApiProperty({
     type: Number,
     nullable: true,
     example: 85372000,
@@ -60,6 +88,15 @@ export class CountryMapSummaryDto {
     description: 'Yüzölçümü (km², World Bank / UN).',
   })
   areaKm2!: number | null;
+
+  @ApiProperty({
+    type: Boolean,
+    example: false,
+    description:
+      '`areaKm2` yaklaşık mı? `true` ise kartta "≈" ile gösterilmelidir (DEC 2026-08-01l). ' +
+      'Tek kaynak burasıdır — istemcide sabitlemeyin.',
+  })
+  areaIsApproximate!: boolean;
 
   @ApiProperty({
     type: Number,

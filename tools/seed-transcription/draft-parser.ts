@@ -23,13 +23,35 @@
  * "## 0. Kapsam doğrulaması" / "## 1. Görev bağlamı" preamble sections).
  */
 
-/** The field names a narrative wave may carry. Anything else in a draft is ignored. */
+/**
+ * The field names a narrative wave may carry. Anything else in a draft is ignored.
+ *
+ * ORDER IS LOAD-BEARING: `apply` inserts a missing property after the last field that already
+ * exists and sorts BEFORE it, so this array is what keeps seed field order stable across waves.
+ * It matches the entity's own field order.
+ *
+ * `independenceNoteTr` joined the list in the dalga-1 wave (Atlas ruling S2, 2026-08-02) and is
+ * therefore FIRST. It had been outside the tool while being ordinary prose, which meant the one
+ * country whose draft carries an independence section would have had to be transcribed BY HAND
+ * — the exact PR #43 bug class the tool exists to make impossible, entering through the gate
+ * that is supposed to prevent it. Adding it costs nothing to earlier waves: no committed draft
+ * carries an `### \`independenceNoteTr\`` header, so `check` and `apply` see no new work
+ * anywhere in the corpus. Its former job as the insertion ANCHOR moved to `governmentFormTr`
+ * (see `apply.ts`), which is the field that precedes it in the seed objects.
+ *
+ * `settlementNoteTr` / `economyNoteTr` / `governanceNoteTr` are the dalga-1 additions and sort
+ * last, matching where their columns sit on the entity.
+ */
 export const NARRATIVE_FIELDS = [
+  'independenceNoteTr',
   'introTr',
   'landformNoteTr',
   'climateNoteTr',
   'hydrographyNoteTr',
   'sovereigntyNoteTr',
+  'settlementNoteTr',
+  'economyNoteTr',
+  'governanceNoteTr',
 ] as const;
 
 export type NarrativeField = (typeof NARRATIVE_FIELDS)[number];
