@@ -212,6 +212,40 @@ describe('parseDraft — unrecognised field headers fail loudly', () => {
   });
 });
 
+describe('parseDraft — the dalga-1 field set', () => {
+  // Four fields joined `NARRATIVE_FIELDS` in this wave: the three new detail sections, plus
+  // `independenceNoteTr` (ruling S2), which was ordinary prose living outside the tool and
+  // would otherwise have had to be transcribed by hand — the PR #43 bug class, entering
+  // through the gate meant to prevent it.
+  it.each([['independenceNoteTr'], ['settlementNoteTr'], ['economyNoteTr'], ['governanceNoteTr']])(
+    'parses a `%s` section like any other narrative field',
+    (field) => {
+      const { fields, diagnostics } = parseDraft(
+        draft(`### \`${field}\`\n> birinci satır\n> ikinci satır`),
+      );
+      expect(diagnostics).toEqual([]);
+      expect(fields).toHaveLength(1);
+      expect(fields[0]?.field).toBe(field);
+      expect(fields[0]?.value).toBe('birinci satır ikinci satır');
+    },
+  );
+
+  it('still WARNS on a field the tool deliberately does not transcribe', () => {
+    // The list grew; it did not become permissive. `statusLabelTr` is approved card copy that
+    // is hand-copied byte-for-byte from the label document, NOT prose the tool writes.
+    const { fields, diagnostics } = parseDraft(draft('### `statusLabelTr`\n> Bir Etiket'));
+    expect(fields).toHaveLength(0);
+    expect(diagnostics[0]?.severity).toBe('warning');
+    expect(diagnostics[0]?.message).toContain('not a narrative field');
+  });
+
+  it('still errors on a case-variant of a NEW field', () => {
+    const { diagnostics } = parseDraft(draft('### `governanceNoteTR`\n> metin'));
+    expect(diagnostics[0]?.severity).toBe('error');
+    expect(diagnostics[0]?.message).toContain('governanceNoteTr');
+  });
+});
+
 describe('parseDraft — JOIN RULE non-firing boundary', () => {
   // ASYMMETRIC DANGER: `tightJoins` reports only FIRINGS, so a rule that wrongly fails to
   // fire is invisible to the reported list and to the human eyeball-check alike. These

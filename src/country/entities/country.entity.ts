@@ -8,6 +8,10 @@ import {
   type ValueTransformer,
 } from 'typeorm';
 import { CONTINENT_DB_ENUM, Continent } from '../../common/continent.enum';
+import {
+  COUNTRY_ENTITY_TYPE_DB_ENUM,
+  CountryEntityType,
+} from '../../common/country-entity-type.enum';
 
 /**
  * Postgres `numeric`/`decimal` values come back from the driver as strings (to
@@ -110,6 +114,48 @@ export class Country {
   })
   continent!: Continent;
 
+  /**
+   * Varlık türü — `country` (egemen devlet) · `territory` (bağlı/özerk toprak) · `special`
+   * (ülke kategorisine girmeyen özel statülü coğrafya). See `CountryEntityType` for the
+   * binding definitions and for why the table is not split in two.
+   *
+   * NOT NULL with `DEFAULT 'country'`: the default backfills every pre-existing row with the
+   * correct value (no data migration needed) AND stays in place afterwards, so authoring an
+   * ordinary country row never has to state its type — only the exceptions are marked. That
+   * asymmetry is the point: 197 of 199 rows are countries.
+   *
+   * NO INDEX, deliberately. The table holds ~199 rows; a sequential scan is already optimal
+   * at that size and an index would be pure maintenance cost with no measurable read gain
+   * (YAGNI). Revisit only if this table ever grows by an order of magnitude.
+   */
+  @Column({
+    name: 'entity_type',
+    type: 'enum',
+    enum: CountryEntityType,
+    enumName: COUNTRY_ENTITY_TYPE_DB_ENUM,
+    default: CountryEntityType.Country,
+  })
+  entityType!: CountryEntityType;
+
+  /**
+   * Kart alt başlığı (TR/EN) — the owner-approved status label a non-country row shows on the
+   * /dunya map card, e.g. "Danimarka Özerk Bölgesi" / "Danish Autonomous Territory" for
+   * Grönland and "Tarafsız Kıta" / "Neutral Continent" for Antarktika (DEC 2026-08-01m/n/p).
+   *
+   * WHY A STORED COLUMN rather than deriving the subtitle from `entityType` or falling back to
+   * the continent name: DEC 2026-08-01m explicitly REJECTED the continent fallback ("kıta adı
+   * Grönland'ı ülke kartından ayırt edilemez kılardı"), and a type-derived generic word would
+   * replace approved copy. The label is approved CONTENT, so it lives with the row.
+   *
+   * NULL on every `country` row and non-empty on every non-country row — enforced structurally
+   * by the seed guard (`assertCountryEntityInvariants`, invariant 2), not by convention.
+   */
+  @Column({ name: 'status_label_tr', type: 'varchar', length: 80, nullable: true })
+  statusLabelTr!: string | null;
+
+  @Column({ name: 'status_label_en', type: 'varchar', length: 80, nullable: true })
+  statusLabelEn!: string | null;
+
   /** BM alt-bölgesi (UNSD M49) TR etiketi (e.g. "Güney Avrupa"). Research-derived. */
   @Column({ name: 'un_subregion_tr', type: 'varchar', length: 80, nullable: true })
   unSubregionTr!: string | null;
@@ -124,6 +170,28 @@ export class Country {
   /** Yüzölçümü (km², World Bank / UN) — whole km². */
   @Column({ name: 'area_km2', type: 'integer', nullable: true })
   areaKm2!: number | null;
+
+  /**
+   * Is `areaKm2` an APPROXIMATION rather than a measured figure?
+   *
+   * `area_km2` is a plain integer, which reads as an exact claim. For a few real entities that
+   * is false and the owner has ruled the "≈" must survive: Antarktika's 14.200.000 km² is an
+   * approximate figure and the ruling that removed the range explicitly KEPT the ≈ mark
+   * (DEC 2026-08-01l + DEC 2026-08-01g m.3). Without this flag the card would publish
+   * "14.200.000" as a fixed measurement, i.e. the api would silently break a fresh ruling.
+   *
+   * ONE FLAG, ONE SOURCE. The alternative — the web repo hardcoding "AQ is approximate" —
+   * splits one card between two sources of truth, which is exactly the discipline DEC
+   * 2026-08-01l established. This is not speculative generality either: dalga-2 already has
+   * two more rows of the same class (Somaliland ≈176.000, Chagos ≈60).
+   *
+   * NOT NULL with `DEFAULT false`: "we do not know whether it is approximate" is not a state
+   * we ever want; an unflagged figure is an exact one. A symmetric flag for POPULATION is
+   * deliberately NOT opened here — dalga-1 has no approximate population, and it can arrive
+   * additively the day one does.
+   */
+  @Column({ name: 'area_is_approximate', type: 'boolean', default: false })
+  areaIsApproximate!: boolean;
 
   /** Başkent adı (TR) — MFA başkentler listesi. */
   @Column({ name: 'capital_name_tr', type: 'varchar', length: 120, nullable: true })
@@ -256,6 +324,39 @@ export class Country {
    */
   @Column({ name: 'sovereignty_note_tr', type: 'text', nullable: true })
   sovereigntyNoteTr!: string | null;
+
+  /**
+   * Yerleşme / nüfus dağılışı — kısa düzyazı not (TR). The province model already carries a
+   * settlement note, so this is platform-internal parity, not a new idea. Its dalga-1 consumer
+   * is Grönland (Nuuk's share, the ice-free coastal settlement pattern) and Antarktika
+   * (research stations, a seasonal population).
+   */
+  @Column({ name: 'settlement_note_tr', type: 'text', nullable: true })
+  settlementNoteTr!: string | null;
+
+  /**
+   * Ekonomi — kısa düzyazı not (TR). Mirrors the province economy note. Dalga-1 consumer:
+   * Grönland (fisheries' share of goods exports).
+   */
+  @Column({ name: 'economy_note_tr', type: 'text', nullable: true })
+  economyNoteTr!: string | null;
+
+  /**
+   * Yönetim / statü çerçevesi — kısa düzyazı not (TR).
+   *
+   * DISTINCT FROM `sovereigntyNoteTr` ON PURPOSE, and the distinction is load-bearing:
+   * `sovereigntyNoteTr` holds the owner's binding framing for CONTESTED international
+   * recognition and is not rendered on the page today; this field is an ORDINARY, RENDERED
+   * page section ("Grönland'ın Yönetimi") describing how an entity is governed — the 2009
+   * Self-Government Act for GL, the Antarctic Treaty System and its article IV framework for
+   * AQ (DEC 2026-08-01q makes the latter mandatory, and it needs a visible home).
+   *
+   * The seed guard's invariant 5 is the structural companion: a non-country row may not carry
+   * `independenceNoteTr`, so the "independence" heading can never reach a page it does not
+   * apply to — the framing lands here instead.
+   */
+  @Column({ name: 'governance_note_tr', type: 'text', nullable: true })
+  governanceNoteTr!: string | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;

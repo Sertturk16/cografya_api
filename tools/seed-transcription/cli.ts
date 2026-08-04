@@ -20,7 +20,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 import { emitConcat } from './emit.ts';
-import { readSeedDirectory, type SeedIndex } from './seed-reader.ts';
+import { readSeedDirectory, syntaxErrorsIn, type SeedIndex } from './seed-reader.ts';
 import { applyToSource, type Divergence } from './apply.ts';
 import { collect, evaluateCheck, routeWrites, type DraftInput, type Item } from './pipeline.ts';
 
@@ -108,6 +108,32 @@ function runApply(items: readonly Item[], seed: SeedIndex, force: boolean): numb
     return { file, fullPath, before, result: applyToSource(fullPath, before, writes, { force }) };
   });
 
+  // VERIFY BEFORE WRITING, not after. The two-pass structure above already computes every
+  // file before touching disk, which makes this the one place a syntactically broken output
+  // can still be stopped for free. It is a belt over `apply.ts`'s separator handling rather
+  // than a substitute for it: that logic is unit-tested, but this module writes SOURCE, and
+  // "the bytes we are about to commit parse" is cheap enough to prove on every run instead of
+  // trusting. A failure here is a TOOL BUG — say so, and name the file.
+  const unparseable = planned.flatMap((plan) => {
+    const errors = syntaxErrorsIn(plan.result.text);
+    if (errors.length === 0) return [];
+    // Name the ROWS, not just the file: a tool bug is reported by a human who needs to say
+    // which row triggered it, and `apply` is the only place that still knows.
+    const rows = [...new Set(byFile.get(plan.file)?.map((write) => write.isoCode) ?? [])].sort();
+    return [
+      `  ${plan.file} (rows: ${rows.join(', ') || 'unknown'})`,
+      ...errors.map((e) => `    ${e}`),
+    ];
+  });
+  if (unparseable.length > 0) {
+    process.stderr.write(
+      `\nREFUSING TO WRITE — the generated seed source does not parse. This is a BUG in the\n` +
+        `applier, not in your draft; NOTHING has been written. Please report it with the\n` +
+        `draft(s) you passed and the rows named below.\n\n${unparseable.join('\n')}\n`,
+    );
+    return 1;
+  }
+
   const diverged = planned.flatMap((plan) => plan.result.diverged);
   if (diverged.length > 0) {
     process.stderr.write(
@@ -156,6 +182,23 @@ function main(): number {
   }
 
   const seed = readSeedDirectory(SEED_DIR);
+
+  // A COMMITTED SEED FILE THAT DOES NOT PARSE POISONS EVERY MODE, SILENTLY. `ts.createSourceFile`
+  // is error-tolerant: handed a file with a missing comma it still returns a tree, just one
+  // missing properties or whole rows. `check` would then compare against an index that never
+  // saw those fields and print "0 drifted" — a false green on the command `ENGINEERING.md` §8
+  // mandates as the content-fidelity gate — while `apply` would route writes off the same
+  // incomplete picture. Syntax is not this gate's remit, but a gate a broken file can defeat is
+  // not a gate, so refuse before any mode runs.
+  if (seed.syntaxErrors.length > 0) {
+    process.stderr.write(
+      `seed source does not parse — refusing to run, because every mode would be reading an\n` +
+        `incomplete index (and "check" would report a green it did not earn):\n` +
+        `${seed.syntaxErrors.map((e) => `  ${e}`).join('\n')}\n`,
+    );
+    return 1;
+  }
+
   const { items, errors, warnings } = collect(readDrafts(draftPaths), seed);
 
   if (warnings.length > 0) {

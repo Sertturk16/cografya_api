@@ -138,6 +138,35 @@ never reproducible. So `apply` folds the committed value and compares it to the 
 value: if they are equal, **not one byte moves**. Bytes move only when the _value_ moves.
 That keeps diffs minimal and honours the "don't rewrite existing seed data" boundary.
 
+### Field order, the insertion anchor, and one constraint on seed authors
+
+`NARRATIVE_FIELDS` (in `draft-parser.ts`) is both the list of fields this tool transcribes
+**and** the seed field order it maintains: an absent property is inserted after the last
+field that already exists and sorts before it, so waves cannot scramble the seed's shape.
+Below the whole list sits the **anchor**, `governmentFormTr` — the last non-narrative
+property of a seed row — which is where the first narrative field of a row attaches.
+
+**Constraint for whoever authors a new seed row:** keep `governmentFormTr: null,` and
+`independenceNoteTr: null,` in a row that will never use them, rather than "tidying" them
+away. Antarktika is the live example — neither concept applies to it. Both properties are
+what a later narrative wave anchors on; without them the field is appended at the END of
+the object instead of in house field order. That is a deliberate fallback (it used to be a
+hard error that killed the whole wave).
+
+Be precise about what the fallback does and does not promise. It guarantees the output
+**parses** and that no prose value is altered — `apply` re-parses every file it is about to
+write and refuses rather than committing broken source, and every applier test asserts the
+same thing through one shared check. It does **not** guarantee house field order: the field
+lands at the end, and in a mixed pass (some fields anchored normally, some fallen back) the
+object's overall order can differ from `NARRATIVE_FIELDS`. Correct content, unusual order —
+which is exactly why the explicit nulls remain the intended shape.
+
+`independenceNoteTr` is itself a narrative field as of the dalga-1 wave (Atlas ruling S2,
+2026-08-02): it is ordinary prose, and leaving it outside the tool would have forced the
+one country whose draft carries an independence section to be transcribed **by hand** —
+the PR #43 bug class, entering through the gate built to prevent it. No earlier draft
+carries an `` ### `independenceNoteTr` `` header, so past waves are unaffected.
+
 ### Country resolution fails loudly
 
 A `##` heading resolves to an `isoCode` via, in priority order:

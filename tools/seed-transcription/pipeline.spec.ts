@@ -13,6 +13,9 @@ const SEED: SeedIndex = {
     { isoCode: 'CC', nameTr: 'Gama', nameEn: 'Gamma', file: 'two.countries.ts' },
   ],
   fields: [{ isoCode: 'AA', field: 'introTr', value: 'yerleşik değer', file: 'one.countries.ts' }],
+  // A hand-built index, so it is healthy by construction. The real reader populates this from
+  // `syntaxErrorsIn`, and the CLI refuses to run any mode while it is non-empty.
+  syntaxErrors: [],
 };
 
 function draft(label: string, body: string) {

@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Continent } from '../../common/continent.enum';
+import { CountryEntityType } from '../../common/country-entity-type.enum';
 
 /**
  * Full detail payload for a ülke detay sayfası (`/dunya/{slug}`, SSG source).
@@ -40,6 +41,37 @@ export class CountryDetailDto {
   continent!: Continent;
 
   @ApiProperty({
+    enum: CountryEntityType,
+    example: CountryEntityType.Country,
+    description:
+      'Varlık türü — `country`: egemen devlet · `territory`: bağlı/özerk toprak · ' +
+      '`special`: ülke kategorisine girmeyen özel statülü coğrafya. Her zaman doludur ' +
+      '(işaretlenmemiş satır `country`). "Bir ülkedir" varsayan her davranış (JSON-LD tipi, ' +
+      'meta cümlesi, kıta satırı, komşu sayısı satırı) bu alana dallanmalıdır — ada ya da ' +
+      "slug'a bakarak çıkarım yapılmamalıdır.",
+  })
+  entityType!: CountryEntityType;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: null,
+    description:
+      'Onaylı kart alt başlığı (TR), ör. "Danimarka Özerk Bölgesi". `country` satırlarında ' +
+      'DAİMA null; `territory`/`special` satırlarında daima dolu. Kıta adına düşmeyin — ' +
+      'boş etiket bir veri hatasıdır, bir yedek değil.',
+  })
+  statusLabelTr!: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: null,
+    description: 'Onaylı kart alt başlığı (EN). `statusLabelTr` ile aynı kural.',
+  })
+  statusLabelEn!: string | null;
+
+  @ApiProperty({
     type: String,
     nullable: true,
     example: 'Batı Asya',
@@ -74,6 +106,16 @@ export class CountryDetailDto {
     description: 'Yüzölçümü (km², World Bank / UN).',
   })
   areaKm2!: number | null;
+
+  @ApiProperty({
+    type: Boolean,
+    example: false,
+    description:
+      '`areaKm2` yaklaşık bir değer mi? `true` ise sunumda "≈" / "yaklaşık" ile verilmelidir ' +
+      '(ör. Antarktika 14.200.000 km²; DEC 2026-08-01l). Her zaman doludur; işaretlenmemiş ' +
+      'bir değer kesindir. Bunu istemci tarafında sabitlemeyin — tek kaynak burasıdır.',
+  })
+  areaIsApproximate!: boolean;
 
   @ApiProperty({
     type: Number,
@@ -196,6 +238,33 @@ export class CountryDetailDto {
       'sıradan ülkelerde null.',
   })
   sovereigntyNoteTr!: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description:
+      'Yerleşme / nüfus dağılışı — kısa düzyazı not (TR). İçerik dalgası dolduruncaya ' +
+      'kadar null.',
+  })
+  settlementNoteTr!: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Ekonomi — kısa düzyazı not (TR). İçerik dalgası dolduruncaya kadar null.',
+  })
+  economyNoteTr!: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description:
+      'Yönetim / statü çerçevesi — kısa düzyazı not (TR). `sovereigntyNoteTr` DEĞİLDİR: bu ' +
+      'sayfada görünen sıradan bir bölümdür (ör. "Grönland\'ın Yönetimi"), diğeri tartışmalı ' +
+      'tanınma için saklanan ve bugün render edilmeyen çerçeve metnidir. İçerik dalgası ' +
+      'dolduruncaya kadar null.',
+  })
+  governanceNoteTr!: string | null;
 
   @ApiProperty({ type: String, format: 'date-time', description: 'Kayıt oluşturulma zamanı.' })
   createdAt!: string;
