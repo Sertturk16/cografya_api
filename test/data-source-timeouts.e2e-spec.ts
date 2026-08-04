@@ -149,6 +149,14 @@ describe('DataSource statement timeout (e2e)', () => {
  * Its own DataSource, because proving it requires a SATURATED pool — `poolSize: 1` plus a short
  * checkout window makes that deterministic and sub-second, where the production numbers (10
  * connections, 10 s) could only be reached by brute force.
+ *
+ * ONE COST OF THAT CHOICE, stated because this suite's whole subject is undeclared second effects
+ * (review #86, confirm-leg MINOR 1): the same 500 ms also bounds the FIRST connection, the one
+ * `initialize()` opens below. On a container whose handshake is slower than that — a cold or
+ * heavily loaded runner — `beforeAll` fails rather than the test. That is the acceptable
+ * direction: it fails LOUDLY and names the setup, where a longer window would blur the very
+ * ceiling this block exists to measure. If it ever proves flaky, raise this constant; do not
+ * reach for the assertions.
  */
 describe('DataSource pool checkout ceiling (e2e)', () => {
   const CHECKOUT_TIMEOUT_MS = 500;

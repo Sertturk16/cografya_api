@@ -44,7 +44,15 @@ describe('SlowQueryLogger', () => {
       undefined,
     );
 
+    // The subject must EXIST before it can be judged (review #86, confirm-leg MINOR 3). Without
+    // these two lines the negatives below are vacuous: an override that emitted nothing at all
+    // would leave `calls[0]?.[0]` undefined, `String(...)` would yield "undefined", and both
+    // `not.toContain` assertions would pass while proving nothing. That is the worst possible
+    // failure for a leak test — it stays green exactly when the logger has stopped working.
+    expect(warn).toHaveBeenCalledTimes(1);
     const line = String(warn.mock.calls[0]?.[0]);
+    expect(line).toContain('INSERT INTO air_quality_province_series');
+
     expect(line).not.toContain('a-very-secret-payload');
     expect(line).not.toContain('PARAMETERS');
   });

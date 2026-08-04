@@ -2,7 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 import {
   buildDataSourceOptions,
   DATABASE_STATEMENT_TIMEOUT_MS,
-  type DataSourceTimeoutOverrides,
+  type DataSourceOverrides,
 } from './data-source-options';
 import { SlowQueryLogger } from './slow-query.logger';
 
@@ -41,7 +41,7 @@ const POOL_EXTRA_KEYS = [
  * of surfacing later as `undefined` inside the pool, which is precisely the silent-hole class
  * this whole change exists to close.
  */
-function poolExtra(overrides?: DataSourceTimeoutOverrides): PoolExtra {
+function poolExtra(overrides?: DataSourceOverrides): PoolExtra {
   const options: unknown = buildDataSourceOptions(TEST_URL, overrides);
   const extra: unknown = (options as { extra?: unknown }).extra;
   if (typeof extra !== 'object' || extra === null) {

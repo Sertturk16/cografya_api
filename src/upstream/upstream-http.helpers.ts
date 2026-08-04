@@ -1,12 +1,27 @@
 import type { UpstreamFailureKind } from './upstream.types';
 
 /**
- * Response byte cap for the request path.
+ * Response byte cap for the request path — the DEFAULT, and it is load-bearing.
  *
  * `AbortSignal.timeout` bounds wall-clock, not payload: a provider that answers fast and never
- * stops sending would otherwise fill the heap. 2 MB is generous for the shapes we ask for (the
- * biggest measured Faz-1 body is Open-Meteo's 31-point marine batch at ~135 KB) and far below
- * anything that could hurt.
+ * stops sending would otherwise fill the heap.
+ *
+ * ## Which callers actually land here
+ * This is not a formality that every caller overrides. Two live classes take this default and
+ * are guarded by nothing else:
+ *
+ *  - **ECMWF `.index` sidecars** (`ecmwf-ingest.target.ts`, the PLAN phase) — text, JSON-LINES,
+ *    ~2–40 KB. Its sibling range download passes an exact cap; the `.index` request does not.
+ *  - **The CAMS ADS control plane** — costing, execution, polling, results and DELETE all spread
+ *    one `baseRequest()` which sets no cap of its own. Only the archive download step overrides
+ *    it, with the provider's own declared size floored by our ceiling.
+ *
+ * CMEMS is the exception that proves the rule: it passes its own, tighter 1 MB default.
+ *
+ * So 2 MB is chosen to sit far above those JSON/text control-plane shapes and far below anything
+ * that could hurt a request-path heap. It is deliberately NOT sized for bulk bodies — every
+ * caller that expects megabytes states its own cap from a number it already knows, so the cap
+ * can be exact rather than merely generous.
  *
  * Deliberately SEPARATE from the import tools' own caps in `src/database/` (8 MB for the M1
  * marine probe and the climate fetch, 16 MB for the ECMWF probe, whose byte ranges are megabytes
