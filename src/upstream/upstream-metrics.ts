@@ -256,7 +256,7 @@ export class UpstreamMetrics {
   /**
    * Count one event.
    *
-   * @param providerId our own provider label (`open-meteo`, `cmems`), never a hostname —
+   * @param providerId our own provider label (`ecmwf`, `cmems`, `cams-ads`), never a hostname —
    *   hostnames change and a metric that changes name on a provider's DNS migration is worse
    *   than no metric.
    */

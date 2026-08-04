@@ -47,7 +47,12 @@ export interface CmemsClientOptions {
    * pattern predates that seam.
    */
   readonly singleCallTimeoutMs: number;
-  /** ~10–15 KB text documents; a cap far above them, far below the shared 8 MB default. */
+  /**
+   * ~10–15 KB text documents; a cap far above them, and TIGHTER than the shared request-path
+   * default (`UPSTREAM_MAX_RESPONSE_BYTES`, 2 MB) rather than below some larger one. An earlier
+   * wording here cited a "shared 8 MB default" that has never existed: 8 MB is a hand-run marine
+   * PROBE's cap, not the server's (review #91 P2).
+   */
   readonly maxResponseBytes?: number;
 }
 

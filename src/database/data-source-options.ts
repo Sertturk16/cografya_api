@@ -123,13 +123,19 @@ const DATABASE_POOL_SIZE = 10;
 const DATABASE_SLOW_QUERY_LOG_MS = 2_000;
 
 /**
- * Test-only override of the pool timeouts.
+ * Test-only override of the pool's ceilings.
  *
  * Its ONLY consumer is `test/data-source-timeouts.e2e-spec.ts`, which needs ceilings small
  * enough to prove — in seconds, against a real Postgres — that the cancellation and the
  * checkout rejection actually happen rather than merely being configured. Recorded as the price
  * of that proof, not as an abstraction (api rider plan §9-S3, Atlas-accepted): nothing in
  * production passes it.
+ *
+ * NAMED for what it holds, after review #86's confirm leg caught the previous name
+ * (`DataSourceTimeoutOverrides`) claiming a category narrower than its contents: `poolSize` is a
+ * pool SIZE, not a timeout, and it was added by that same PR. A type whose name excludes one of
+ * its own fields is exactly the class of undeclared-second-effect defect this suite exists to
+ * catch — so the name gives ground rather than the field.
  *
  * Each field replaces exactly one constant, and `statementTimeoutMs` also moves the DERIVED
  * `query_timeout` with it, since the client belt is defined relative to the server deadline —
@@ -138,7 +144,7 @@ const DATABASE_SLOW_QUERY_LOG_MS = 2_000;
  * `DATABASE_SLOW_QUERY_LOG_MS` is deliberately NOT overridable: the proofs are about
  * cancellation and checkout, and `SlowQueryLogger` is unit-tested directly.
  */
-export interface DataSourceTimeoutOverrides {
+export interface DataSourceOverrides {
   readonly statementTimeoutMs: number;
   readonly connectionTimeoutMs?: number;
   readonly poolSize?: number;
@@ -168,11 +174,11 @@ export interface DataSourceTimeoutOverrides {
  */
 export function buildDataSourceOptions(
   url: string,
-  timeouts?: DataSourceTimeoutOverrides,
+  overrides?: DataSourceOverrides,
 ): DataSourceOptions {
-  const statementTimeoutMs = timeouts?.statementTimeoutMs ?? DATABASE_STATEMENT_TIMEOUT_MS;
-  const connectionTimeoutMs = timeouts?.connectionTimeoutMs ?? DATABASE_CONNECTION_TIMEOUT_MS;
-  const poolSize = timeouts?.poolSize ?? DATABASE_POOL_SIZE;
+  const statementTimeoutMs = overrides?.statementTimeoutMs ?? DATABASE_STATEMENT_TIMEOUT_MS;
+  const connectionTimeoutMs = overrides?.connectionTimeoutMs ?? DATABASE_CONNECTION_TIMEOUT_MS;
+  const poolSize = overrides?.poolSize ?? DATABASE_POOL_SIZE;
   return {
     type: 'postgres',
     url,

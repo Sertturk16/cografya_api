@@ -44,7 +44,23 @@ describe('SlowQueryLogger', () => {
       undefined,
     );
 
-    const line = String(warn.mock.calls[0]?.[0]);
+    // The subject must EXIST before it can be judged (review #86, confirm-leg MINOR 3). Without
+    // this the negatives below are vacuous: an override that emitted nothing at all would leave
+    // `calls[0]` undefined and every `not.toContain` would pass while proving nothing. That is
+    // the worst possible failure for a leak test — it stays green exactly when the logger has
+    // stopped working.
+    expect(warn).toHaveBeenCalledTimes(1);
+
+    // EVERY argument, not just the message. `Logger.warn(message, ...optionalParams)` accepts
+    // extras, so the idiomatic Nest regression — `this.logger.warn(msg, parameters)` — would put
+    // the payload in argument 1 and leave an arg-0-only assertion green while the whole bound
+    // parameter array reached the log stream (review #91 TEST91-M1).
+    //
+    // `JSON.stringify`, NOT `String`: stringifying the argument array renders an object argument
+    // as "[object Object]", which would hide the very payload this test exists to catch.
+    const line = JSON.stringify(warn.mock.calls[0]);
+    expect(line).toContain('INSERT INTO air_quality_province_series');
+
     expect(line).not.toContain('a-very-secret-payload');
     expect(line).not.toContain('PARAMETERS');
   });

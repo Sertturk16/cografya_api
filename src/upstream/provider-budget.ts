@@ -2,22 +2,32 @@ import type { RedisClientPort } from './redis/redis-client.port';
 import type { UpstreamMetrics } from './upstream-metrics';
 
 /**
- * A provider's own published quota, expressed as the three windows the providers themselves use.
+ * A per-provider rate ceiling, expressed as three nested windows.
+ *
+ * Where a provider publishes a quota, these mirror it. Where none is published — which is the
+ * case for every provider wired today (see `tryConsume`) — they are the ceiling we impose on
+ * OURSELVES, in the same shape, so one mechanism serves both and neither kind is a special case.
  *
  * ## Fixed windows, not a leaky token bucket — a deliberate deviation from the addendum's wording
- * SPEC-ADDENDUM §6.5 says "token bucket". The published quotas are literally *N per minute, M
- * per hour, K per day* (§2.7), and a token bucket cannot express three nested caps: a refill
- * rate that satisfies the daily cap permits a burst that breaches the minute cap, and vice
- * versa. Fixed windows model the quota exactly as the provider counts it, which is the only
- * accounting that can actually keep us under the limit.
+ * SPEC-ADDENDUM §6.5 says "token bucket". The caps are stated as *N per minute, M per hour, K per
+ * day* (§2.7), and a token bucket cannot express three nested caps: a refill rate that satisfies
+ * the daily cap permits a burst that breaches the minute cap, and vice versa. Fixed windows model
+ * the caps exactly as they are written, which is the only accounting that can actually hold all
+ * three at once.
  *
  * The cost — up to 2× the limit across a window boundary — is affordable at our numbers, in the
- * WEIGHTED units the quota is actually counted in (see `MARINE_PROVIDER_BUDGETS`, which holds the
- * authoritative table): Open-Meteo's steady state is 1 488 units/day against a 4 000/day budget,
- * itself 40% of the 10 000/day free tier — so even the doubled worst case, 8 000, stays inside
- * the tier. (These figures were request-counted before the unit was corrected; a comment claiming
- * the budget consumes 6% of a quota it may consume 40% of is the same defect the correction
- * fixed, so it is restated here rather than left to drift a second time.)
+ * WEIGHTED units each cap is counted in. **The authoritative tables are the ones each feature
+ * owns**, and each carries its own steady-state arithmetic and headroom argument against live
+ * numbers:
+ *
+ *  - `MARINE_PROVIDER_BUDGETS` — `src/marine/marine-upstream.config.ts` (ECMWF, CMEMS)
+ *  - `CAMS_ADS_BUDGET` — `src/air-quality/air-quality-upstream.config.ts` (ADS)
+ *
+ * No provider's figures live in THIS file, deliberately. It used to restate one provider's steady
+ * state as the worked example; that provider was retired (DEC 2026-07-30k / DEC 2026-07-31, the
+ * published-contract half closed by #89) and the numbers stayed behind, still pointing at a table
+ * that no longer held the row they described. A second copy of an argument is a second thing to
+ * go stale — the same failure mode the unit correction behind review #73 I5 already fixed once.
  */
 export interface ProviderBudgetLimits {
   perMinute: number;
@@ -52,10 +62,18 @@ const WINDOW_SECONDS: Readonly<Record<BudgetWindow, number>> = {
  *
  * ## Why this is not optional
  * If the cache stops working entirely, the app's own rate limit (120 req/min/client) lets ONE
- * client drive 172 800 requests a day — Open-Meteo's free tier is 10 000 (SPEC-ADDENDUM §2.7).
- * The quota would be gone in minutes and the provider would block us. The budget is the only
+ * client drive 172 800 requests a day. That figure is OURS — it is arithmetic on our own throttle,
+ * not a claim about any provider — and no wired provider publishes a per-day request tier we
+ * could sit under: ECMWF Open Data publishes no request quota at all (only a 500-concurrent
+ * limit), CMEMS publishes none either (risk R1), and ADS bills the QUEUE in fields rather than
+ * counting our HTTP calls. So there is no ceiling that fails politely and no margin to compute
+ * against; the first thing we would learn is that we had been blocked. The budget is the only
  * thing standing between "our cache broke" and "our data source is gone", so it is enforced
  * before the breaker, before the retry logic, before anything.
+ *
+ * An unpublished quota makes this MORE necessary, not less: the numbers in the two budget tables
+ * are us braking ourselves, which is exactly why they cannot be inferred from a provider doc and
+ * must be argued where they are defined.
  *
  * ## Shared through Redis when Redis is there
  * With N instances and per-process counters, the real ceiling is N × the budget. When a Redis
@@ -86,12 +104,29 @@ export class ProviderBudget {
   /**
    * Consume `weight` quota units for `providerId`.
    *
-   * ## Weight, not calls — the unit is the PROVIDER's, not ours
-   * Open-Meteo counts a multi-location batch per LOCATION (SPEC-ADDENDUM §2.7's conservative
-   * reading), so one HTTP request covering 31 points spends 31 units. Counting requests made the
-   * configured ceiling ~186% of the free tier while `budget.rejected` never fired — a guard that
-   * silently guaranteed nothing (review #73 I5, Atlas ruling). Providers whose quota really is
-   * per-request (CMEMS: one call = one point = one variable) simply pass weight 1.
+   * ## Weight, not calls — the unit follows the PROVIDER wherever a weight can express it
+   * Where a provider counts something other than HTTP requests AND that unit is expressible as a
+   * per-request weight, the budget counts the provider's unit. Counting our own requests instead
+   * reads as comfortable while permitting multiples of the real quota, and `budget.rejected` never
+   * fires: a guard that cannot fire is worse than none, because it is believed (review #73 I5,
+   * Atlas ruling — a provider billing a multi-location batch per LOCATION put the configured
+   * ceiling at ~186% of its free tier).
+   *
+   * The qualifier is load-bearing, not hedging: a weight can only scale a per-request cost, so a
+   * quota counted in something other than requests falls outside what this mechanism can model at
+   * all. ADS below is exactly that case, and it is handled where it can be, not here.
+   *
+   * **No provider wired today needs a weight other than 1**, so no live caller sets one:
+   *
+   *  - ECMWF — one request is one unit, and the unit does not scale with points.
+   *  - CMEMS — one call = one point = one variable.
+   *  - ADS — bills the QUEUE in fields, not our HTTP calls, so a request weight cannot express
+   *    its quota at all. That limit is enforced where it belongs instead: the costing step reads
+   *    the provider's own `{cost, limit}` and refuses before executing. What our budget counts
+   *    for ADS is our own call rate, deliberately.
+   *
+   * The parameter stays because the rule it encodes is the provider's, not ours, and the day a
+   * batch-billing provider lands this is the one place that has to change.
    *
    * ## The windows are checked in ORDER and stop at the first refusal
    * A call the minute window already refused must not burn an hour slot and a day slot as well.

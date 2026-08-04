@@ -1,17 +1,38 @@
 import type { UpstreamFailureKind } from './upstream.types';
 
 /**
- * Response byte cap for the request path.
+ * Response byte cap for the request path — the DEFAULT, and it is load-bearing.
  *
  * `AbortSignal.timeout` bounds wall-clock, not payload: a provider that answers fast and never
- * stops sending would otherwise fill the heap. 2 MB is generous for the shapes we ask for (the
- * biggest measured Faz-1 body is Open-Meteo's 31-point marine batch at ~135 KB) and far below
- * anything that could hurt.
+ * stops sending would otherwise fill the heap.
  *
- * Deliberately SEPARATE from the import tools' own caps in `src/database/` (8 MB for the M1
- * marine probe and the climate fetch, 16 MB for the ECMWF probe, whose byte ranges are megabytes
- * of GRIB by nature). Those guard hand-run, offline imports whose evidence is committed to the
- * repo; this one guards the request path of a live server. They have different lifecycles,
+ * ## Which callers actually land here
+ * This is not a formality that every caller overrides. Two live classes take this default and
+ * are guarded by nothing else:
+ *
+ *  - **ECMWF `.index` sidecars** (`ecmwf-ingest.target.ts`, the PLAN phase) — text, JSON-LINES,
+ *    ~2–40 KB. Its sibling range download passes an exact cap; the `.index` request does not.
+ *  - **The CAMS ADS control plane** — costing, execution, `jobs-list` reconciliation, polling,
+ *    results and DELETE all spread one `baseRequest()` which sets no cap of its own. Five of the
+ *    six answer in a fixed shape; the `jobs-list` reconciliation is the one whose size grows with
+ *    the queue, so it is the response this default actually guards. Only the archive download
+ *    step overrides the cap, taking the smaller of the provider's declared size and our ceiling.
+ *
+ * CMEMS is the exception that proves the rule: it passes its own, tighter 1 MB default.
+ *
+ * So 2 MB is chosen to sit far above those JSON/text control-plane shapes and far below anything
+ * that could hurt a request-path heap. It is deliberately NOT sized for bulk bodies — every
+ * caller that expects megabytes states its own cap from a number it already knows, so the cap
+ * can be exact rather than merely generous.
+ *
+ * Deliberately SEPARATE from the import tools' own caps in `src/database/`, which do not share a
+ * single number: 8 MB for the two marine probes (`probe-marine-points`, `probe-marine-cmems`),
+ * 16 MB for the ECMWF probe, whose byte ranges are megabytes of GRIB by nature, and 2 MB for the
+ * JSON control planes of the ERA5 climate fetch and the air-quality probe — each sized for what
+ * that tool actually reads. (An earlier version of this sentence credited "the climate fetch"
+ * with 8 MB; that figure belonged to the retired MGM line, and ERA5 caps its JSON at 2 MB while
+ * bounding the archive separately.) Those guard hand-run, offline imports whose evidence is
+ * committed to the repo; this one guards the request path of a live server. They have different lifecycles,
  * different limits and different failure modes, and collapsing them would tie the frozen import
  * evidence to a runtime config surface. If you change one, decide about the other on purpose —
  * the LIMIT is what differs, never the metering, which every caller gets from
