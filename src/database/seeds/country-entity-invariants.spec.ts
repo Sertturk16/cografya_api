@@ -301,6 +301,26 @@ describe('assertCountryCorpusInvariants — invariants 6 and 7b', () => {
     ).toThrow(/slugTr "turkiye"/u);
   });
 
+  it('6 — REFUSES a TR row whose slugEn drifted off the routing key', () => {
+    // The hostile fixture is the EXACT tidy-up the row's own note warns about: `nameEn` is
+    // "Türkiye", so harmonising the slug to match looks like a correction. It is not — ruling S8
+    // decided name and slug separately, `/en/dunya/turkey` is live, and the eight neighbour rows'
+    // EN cross-links resolve through it.
+    //
+    // This case exists because without it the pin was invisible to CI: the `TR` fixture already
+    // carries `slugEn: 'turkey'`, so every other invariant-6 test passes whether or not the pin
+    // exists — deleting the guard would have left the whole suite green. That is the same
+    // "green while broken" argument the pin itself was added for (TA90-I1), so leaving the guard
+    // unprotected would have reproduced the defect one level up.
+    expect(() =>
+      assertCountryCorpusInvariants([{ ...TR, slugEn: 'turkiye' }, CLEAN_TERRITORY, CLEAN_SPECIAL]),
+    ).toThrow(/slugEn "turkey"/u);
+    // Case folding is intended: an uppercase slug is the same routing key, not a violation.
+    expect(() =>
+      assertCountryCorpusInvariants([{ ...TR, slugEn: 'TURKEY' }, CLEAN_TERRITORY, CLEAN_SPECIAL]),
+    ).not.toThrow();
+  });
+
   it('7b — REFUSES a corpus with no territory row, or no special row', () => {
     expect(() => assertCountryCorpusInvariants([TR, CLEAN_SPECIAL])).toThrow(/"territory"/u);
     expect(() => assertCountryCorpusInvariants([TR, CLEAN_TERRITORY])).toThrow(/"special"/u);
@@ -311,10 +331,17 @@ describe('assertCountryCorpusInvariants — invariants 6 and 7b', () => {
   });
 
   it('8 — REFUSES a repeated isoCode, slugTr or slugEn, naming the colliding value', () => {
-    // All three are UNIQUE columns, so each of these corpora would fail the INSERT. The point of
-    // catching them here is the message: Postgres reports the constraint, this reports the value
-    // and the rule. Comparison is trim + case-folded, matching how the row-level guard and the
-    // seeder normalise, so a stray ' tr ' cannot smuggle a duplicate past it.
+    // All four are UNIQUE columns, so an EXACT repeat would fail the INSERT. The point of
+    // catching it here is the message: Postgres reports the constraint, this reports the value
+    // and the rule.
+    //
+    // The trim + case-folded comparison makes this guard DELIBERATELY STRICTER than the database,
+    // and the last case below proves it: `seedWorld`/`normalizeSeed` do NOT normalise (no trim,
+    // no case-fold anywhere in `seed-world.ts`) and the Postgres unique indexes are whitespace-
+    // and case-sensitive, so `'  zy  '` beside `'ZY'` would actually INSERT cleanly. It should
+    // still be refused — two rows differing only by invisible whitespace are the same entity to
+    // every human and to every URL, and the seed is hand-edited. Strictness is the safe
+    // direction here; the guard is not claiming to mirror the DB.
     expect(() =>
       assertCountryCorpusInvariants([
         ...FULL,

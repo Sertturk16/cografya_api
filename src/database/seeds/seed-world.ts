@@ -132,10 +132,9 @@ function normalizeSeed(seed: CountrySeed): CountrySeed {
  * compare/insert/update, so after a run the DB matches the seed exactly (an omitted
  * optional means null, or its NOT-NULL default; a retracted field is actually cleared).
  *
- * `countries` defaults to the full `SEED_COUNTRIES` set (what the CLI runs — currently
- * empty until NOVA's fact-checked data lands); accepting the list as a parameter lets
- * the e2e suite drive the exact insert/update/no-op paths through this real code path
- * with synthetic fixtures, with zero real country facts hardcoded.
+ * `countries` defaults to the full `SEED_COUNTRIES` set (what the CLI runs); accepting the
+ * list as a parameter lets the e2e suite drive the exact insert/update/no-op paths through
+ * this real code path with synthetic fixtures, with zero real country facts hardcoded.
  */
 export async function seedWorld(
   dataSource: DataSource,

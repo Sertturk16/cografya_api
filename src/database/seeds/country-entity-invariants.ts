@@ -54,19 +54,22 @@ import type { CountrySeed } from './country.seed-data';
  *    isolation, therefore safe on the WRITE path: `seedWorld` accepts arbitrary batches (the
  *    e2e suite and any future partial re-seed pass their own), so this runs over whatever is
  *    actually about to be written, not only over the reviewed corpus.
- *  - {@link assertCountryCorpusInvariants} — CORPUS-level rules (6, 7b). "Exactly one TR row"
- *    and "the corpus holds at least one territory and one special row" are statements about the
- *    WHOLE published set; asserting them on the write path would reject every legitimate
- *    partial batch, including every e2e fixture run. They belong in the unit spec over
- *    `SEED_COUNTRIES`, which needs no database and fails fast in `Test (unit)`.
+ *  - {@link assertCountryCorpusInvariants} — CORPUS-level rules (6, 7b, 8). "Exactly one TR row",
+ *    "the corpus holds at least one territory and one special row" and "no unique key repeats"
+ *    are statements about the WHOLE published set; asserting them on the write path would reject
+ *    every legitimate partial batch, including every e2e fixture run. They run in the unit spec
+ *    over `SEED_COUNTRIES` (no database, fails fast in `Test (unit)`) and, in production, at the
+ *    top of `world.cli.ts` — the one path that always seeds the full corpus.
  *
- * **The corpus assertion IS wired against the real `SEED_COUNTRIES`** — in
- * `country-entity-invariants.spec.ts` ("the committed corpus" → "satisfies every CORPUS-level
- * invariant"), which runs in the fast `Test (unit)` job and needs no database. It was
- * deliberately left unwired through PR-A, because the rows it describes did not exist yet and
- * asserting them would have opened a schema-only PR red; dalga-1 PR-B landed GL/AQ/TR and
- * inverted that pin (Atlas ruling S3, 2026-08-02). The function had been fully unit-tested
- * against synthetic corpora first, so what reached production data was a proven check.
+ * **The corpus assertion IS wired against the real `SEED_COUNTRIES`**, in two places: the unit
+ * spec `country-entity-invariants.spec.ts` ("the committed corpus" → "satisfies every
+ * CORPUS-level invariant"), which runs in the fast `Test (unit)` job and needs no database, and
+ * `world.cli.ts`, which calls it before opening a connection so a hand-run `db:seed:world`
+ * cannot write a corpus CI has not blessed. It was deliberately left unwired through PR-A,
+ * because the rows it describes did not exist yet and asserting them would have opened a
+ * schema-only PR red; dalga-1 PR-B landed GL/AQ/TR and inverted that pin (Atlas ruling S3,
+ * 2026-08-02). The function had been fully unit-tested against synthetic corpora first, so what
+ * reached production data was a proven check.
  */
 
 /** ISO 3166-1 alpha-2 code of Türkiye — the site's own country, and the only owner of its slug. */
@@ -231,10 +234,12 @@ export function assertCountryEntityInvariants(countries: readonly CountrySeed[])
 
 /**
  * CORPUS-LEVEL invariants — statements about the published set as a whole, so they are NOT on
- * the write path (see the module header). Called from the unit spec.
+ * the write path (see the module header). Two call sites: the unit spec over `SEED_COUNTRIES`,
+ * and `world.cli.ts` before it opens a connection.
  *
- *  - 6 — exactly one `TR` row, typed `country`, on the `turkiye` slug.
+ *  - 6 — exactly one `TR` row, typed `country`, on the `turkiye` slug AND the `turkey` EN slug.
  *  - 7b — the corpus actually contains the typed rows the model was built for.
+ *  - 8 — the four unique keys do not repeat (alpha-3 over its non-null values).
  */
 export function assertCountryCorpusInvariants(countries: readonly CountrySeed[]): void {
   // 6 — EXACTLY ONE TÜRKİYE. Two TR rows would be a duplicate page; zero would mean the profile
@@ -291,19 +296,31 @@ export function assertCountryCorpusInvariants(countries: readonly CountrySeed[])
     }
   }
 
-  // 8 — THE THREE UNIQUE KEYS ARE ACTUALLY UNIQUE. Postgres enforces all three, so a duplicate
+  // 8 — THE FOUR UNIQUE KEYS ARE ACTUALLY UNIQUE. Postgres enforces all four, so a duplicate
   // cannot reach production — but it can only be DISCOVERED by the Docker-backed e2e, minutes
   // into CI and with a raw constraint-violation message that names the constraint, not the wave
-  // that broke it. These three lines move detection into the fast unit job and say which value
+  // that broke it. These checks move detection into the fast unit job and say which value
   // collided. That matters most exactly when it is most likely: a wave appends rows to a NEW
   // file (this is how dalga-1 shipped), so nothing textually adjacent reveals that the isoCode
   // or slug already exists 400 lines away in another continent's file.
+  //
+  // `isoCodeAlpha3` is compared over its NON-NULL values only. The column is `unique` but
+  // `nullable`, Postgres allows many NULLs under a unique index, and two rows legitimately have
+  // no alpha-3 at all (QN/KKTC and XK/Kosova — neither is ISO-assigned). Folding the nulls in
+  // would invent a collision the database would never raise.
   //
   // Structural only — a duplicate key is a corpus-shape defect, not a geographic claim.
   for (const [label, values] of [
     ['isoCode', countries.map((seed) => seed.isoCode.trim().toUpperCase())],
     ['slugTr', countries.map((seed) => seed.slugTr.trim().toLowerCase())],
     ['slugEn', countries.map((seed) => seed.slugEn.trim().toLowerCase())],
+    [
+      'isoCodeAlpha3',
+      countries
+        .map((seed) => seed.isoCodeAlpha3)
+        .filter((code): code is string => code !== null && code !== undefined)
+        .map((code) => code.trim().toUpperCase()),
+    ],
   ] as const) {
     const seen = new Set<string>();
     const duplicates = new Set<string>();

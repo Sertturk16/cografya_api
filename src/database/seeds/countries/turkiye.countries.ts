@@ -69,9 +69,11 @@ export const TURKIYE_COUNTRY: readonly CountrySeed[] = [
     nameEn: 'Türkiye',
     slugTr: 'turkiye',
     slugEn: 'turkey',
-    // Kıta alanı BM M49'a göre atanır (korpus geneli: kıta = unSubregionTr'nin M49 üst bölgesi,
-    //   istisnasız). TR M49'da 145 "Batı Asya" → 142 ASYA; aynı kural RU'yu "Doğu Avrupa" →
-    //   AVRUPA yapar. Kıtalararasılık anlatıya taşınır (CY/BG/İR emsali).
+    // Kıta alanı BM M49'a göre atanır (korpus geneli: kıta = unSubregionTr'nin M49 üst bölgesi;
+    //   her alt-bölge tek bir kıtaya gider). TR M49'da 145 "Batı Asya" → 142 ASYA; aynı kural
+    //   RU'yu "Doğu Avrupa" → AVRUPA yapar. Kıtalararasılık anlatıya taşınır (CY/BG/İR emsali).
+    //   Tek incelik Amerika'da: korpus M49'un tek 019 bölgesini yaygın yedi-kıta ayrımına uyarak
+    //   KUZEY/GUNEY_AMERIKA diye ikiye böler. TR'yi etkilemez.
     continent: Continent.Asia,
     entityType: CountryEntityType.Country,
     // country ⇒ ikisi de null (guard 2).
