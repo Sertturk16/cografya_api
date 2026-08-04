@@ -144,9 +144,15 @@ describe('Province (e2e)', () => {
   });
 
   it('runs all migrations clean, in order', () => {
-    // The country migration is registered in the shared migrations array, so it runs
-    // here too (this suite migrates the whole schema) — it just adds a table this suite
+    // The country migrations are registered in the shared migrations array, so they run
+    // here too (this suite migrates the whole schema) — they just touch a table this suite
     // does not exercise. The dedicated country coverage lives in country.e2e-spec.ts.
+    //
+    // THIS IS THE SECOND COPY of the list, and that is deliberate rather than an oversight:
+    // both suites migrate the WHOLE schema, so both are entitled to state what a clean
+    // migration run produces. The cost is that adding a migration means editing two lists —
+    // and forgetting the second one fails loudly right here, which is the point. (It caught
+    // exactly that on this PR's first CI run.)
     expect(appliedMigrationNames).toEqual([
       'InitProvince1783382400000',
       'AddProvinceClimateNote1783513986800',
@@ -158,6 +164,9 @@ describe('Province (e2e)', () => {
       'InitMarinePoints1785369600000',
       'InitMarineEcmwfStore1785686400000',
       'InitAirQualityStore1785859200000',
+      'AddContinentAntarctica1785945600000',
+      'AddCountryEntityType1785949200000',
+      'AddCountryDetailSections1785952800000',
     ]);
   });
 
