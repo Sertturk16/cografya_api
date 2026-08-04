@@ -43,12 +43,21 @@ import { computeEra5Normals } from './era5-normals';
  * nothing (SPEC §5.3).
  *
  * ## Statement size, against the pool-wide 30 s `statement_timeout`
- * The write is 81 INDEPENDENT single-row updates, each carrying one ~730-byte jsonb document
- * (measured on the committed artifact) — roughly 59 KB in total across the whole run. There is
- * deliberately no bulk/multi-row statement here: the per-row read-compare-write loop is what makes
- * the idempotency skip possible at all, and it also keeps every statement three orders of
- * magnitude away from the pool ceiling `data-source-options.ts` documents. Nothing in this file
+ * The write is 81 INDEPENDENT single-row updates. Measured on the committed artifact: the largest
+ * jsonb document is **811 B**, the mean is 796 B, and the whole run writes **64 487 B = 63.0 KiB**.
+ * There is deliberately no bulk/multi-row statement here: the per-row read-compare-write loop is
+ * what makes the idempotency skip possible at all, and it also keeps every statement three orders
+ * of magnitude away from the pool ceiling `data-source-options.ts` documents. Nothing in this file
  * needs a raised timeout, and nothing in it should ever grow into a single statement that would.
+ *
+ * ## Two error types, on purpose
+ * This function can raise `Era5ContractError` (from `computeEra5Normals`, which runs first) or
+ * `Era5LoadError` (from the gate and from this file). They are NOT collapsed, because they answer
+ * different questions and route an operator differently: the first means *"the artifact is not the
+ * document it claims to be"* — re-run `--phase=fetch`, or restore the file — while the second
+ * means *"the artifact is well-formed but disagrees with the manifest, the closed fallback set or
+ * the database"*, which is a data or ordering problem, not a corrupt file. Both are named, both
+ * carry a prefixed message, and the CLI logs either identically.
  */
 
 export const ERA5_MANIFEST_FILE_NAME = 'era5-manifest.json';

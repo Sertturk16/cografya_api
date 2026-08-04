@@ -62,6 +62,30 @@ describe('buildClimate', () => {
     }
   });
 
+  it('REFUSES a stale MGM-shaped document rather than serving the retired contract', () => {
+    // Review #87, CR87-I1. `buildClimate` spreads the stored document verbatim onto a public
+    // response, and an MGM-era document passes every structural check `computeClimateDerived`
+    // makes (12 ordered months, finite core pair). So a database still holding MGM documents that
+    // receives this build before `db:import:era5 --phase=load` runs would serve
+    // `source: "mgm_general"`, the removed `records` block and eight fields that exist in no DTO
+    // and in no generated web type — at 200, with no signal. Absent beats wrong.
+    const warn = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+    const stale = makeValidNormals();
+    // Written past the type deliberately: `ClimateSource` has one member, so this shape is
+    // unrepresentable in TypeScript — and reachable in a `jsonb` column, which is the whole point.
+    (stale as unknown as Record<string, unknown>).source = 'mgm_general';
+    (stale as unknown as Record<string, unknown>).records = { dailyMaxPrecipitationMm: null };
+
+    expect(buildClimate(stale, '34')).toBeNull();
+    // It is a DEFECT, so it must be observable — and must name both the offending value and the
+    // command that fixes it, since the operator's real problem is deploy ordering.
+    expect(warn).toHaveBeenCalledTimes(1);
+    const message = String(warn.mock.calls[0]?.[0]);
+    expect(message).toContain('34');
+    expect(message).toContain('mgm_general');
+    expect(message).toContain('db:import:era5 --phase=load');
+  });
+
   it('serves climate: null AND warns when a stored series is present but not derivable', () => {
     // A present-but-corrupt row: the import's all-or-nothing rule should make this impossible,
     // so reaching it is a defect that must be observable (I5) while still degrading gracefully.

@@ -93,6 +93,38 @@ describe('assertEra5LoadIsSafe — every gate, broken', () => {
     }).toThrow(/different runs/);
   });
 
+  it.each(['assertions', 'provinces', 'fallbackPlateCodes'] as const)(
+    'THROWS an Era5LoadError (not a bare TypeError) when manifest.%s is not an array',
+    (field) => {
+      // Review #87, CR87-M5. These are `.map`/`.filter`ed a few checks later, so a hand-edited or
+      // truncated artifact used to escape as a bare `TypeError` — breaking the promise every
+      // other malformed-artifact path here makes, and the one the e2e asserts.
+      const input = buildInput();
+      const broken: Record<string, unknown> = { ...input.manifest };
+      broken[field] = undefined;
+      input.manifest = broken as unknown as Era5Manifest;
+      expect(() => {
+        assertEra5LoadIsSafe(input);
+      }).toThrow(Era5LoadError);
+      expect(() => {
+        assertEra5LoadIsSafe(input);
+      }).toThrow(new RegExp(`manifest\\.${field} is not an array`));
+    },
+  );
+
+  it.each(['provinces', 'monthLabels'] as const)(
+    'THROWS an Era5LoadError when series.%s is not an array',
+    (field) => {
+      const input = buildInput();
+      const broken: Record<string, unknown> = { ...input.series };
+      broken[field] = undefined;
+      input.series = broken as unknown as Era5SeriesArtifact;
+      expect(() => {
+        assertEra5LoadIsSafe(input);
+      }).toThrow(Era5LoadError);
+    },
+  );
+
   it('THROWS when the manifest records a FAILED assertion', () => {
     const input = buildInput();
     const first = input.manifest.assertions[0];
@@ -290,8 +322,9 @@ describe('assertEra5LoadIsSafe — every gate, broken', () => {
     // Stay inside the per-month band (≤2 000 mm) while pushing the annual total past 5 000.
     for (const month of target.months) month.precipitationMm = 500;
     input.normalsByPlateCode = normals;
-    // Keep the cross-check happy so this test isolates the regime gate.
-    input.annualChecks = input.annualChecks.map((check) => ({ ...check }));
+    // `annualChecks` is deliberately left untouched: it is derived from the ORIGINAL series, so
+    // the cross-check still passes and this test isolates the regime gate — which reads the
+    // mutated documents, not the checks.
     expect(() => {
       assertEra5LoadIsSafe(input);
     }).toThrow(/magnitude band/);

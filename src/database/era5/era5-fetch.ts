@@ -695,13 +695,38 @@ export async function runEra5FetchPhase(options: Era5FetchOptions): Promise<void
       rawFileSha256: rawSha256,
       jobs,
     };
+    // FAIL-SOFT ON THE WRITE SIDE TOO — and this direction is the one that can cost real money.
+    //
+    // By the time this line runs, both CDS jobs have been paid for, downloaded, verified AND
+    // `DELETE`d from the provider queue, which is irreversible ("deleting earlier makes the job
+    // 404 permanently"). An unguarded `writeArtifact` here meant a disk-full or permission fault
+    // on `--raw-dir` — moments after ~19.8 MB landed there — would abort the whole run before the
+    // manifest and series were ever written (review #87, SFH87-I1). Recoverable via `--from-file`,
+    // but the sidecar is a BONUS: it must never be able to fail a run that already spent its
+    // budget, which is precisely what Q6's "no sidecar can make a run fail" was asserting.
+    //
     // Through `writeArtifact` so this file gets the same key-material scan the committed artifacts
-    // get: it lands outside the repo, where nobody is reviewing a diff of it.
-    await writeArtifact(rawJobsSidecarPath(rawPath), sidecar, apiKey);
-    log(
-      `job evidence written beside the raw file at ${rawJobsSidecarPath(rawPath)} — keep it with ` +
-        'the .nc and a later --from-file re-run can still name the CDS jobs these bytes came from.',
-    );
+    // get: it lands outside the repo, where nobody is reviewing a diff of it. That scan throws
+    // too, and is caught here for the same reason — a refused sidecar is a reason to skip the
+    // sidecar, never a reason to lose the run.
+    const sidecarPath = rawJobsSidecarPath(rawPath);
+    try {
+      await writeArtifact(sidecarPath, sidecar, apiKey);
+      log(
+        `job evidence written beside the raw file at ${sidecarPath} — keep it with the .nc and a ` +
+          'later --from-file re-run can still name the CDS jobs these bytes came from.',
+      );
+    } catch (error: unknown) {
+      // stderr and loud: the run continues and its artifacts are complete, but a later
+      // `--from-file` regeneration will carry no recovered job evidence, and the operator is the
+      // only one who can fix the underlying I/O problem.
+      logError(
+        `could not write the job-evidence sidecar at ${sidecarPath}: ${String(error)}. The run ` +
+          'CONTINUES — the sidecar is evidence, not a dependency — but a later --from-file re-run ' +
+          'will not be able to name the CDS jobs these bytes came from. The job ids are in this ' +
+          "run's manifest.",
+      );
+    }
   } else {
     let contents: string | null = null;
     try {

@@ -111,6 +111,28 @@ function isArrayAtRuntime(value: unknown): boolean {
 export function assertEra5LoadIsSafe(input: Era5LoadAssertionInput): void {
   const { manifest, series, normalsByPlateCode, annualChecks } = input;
 
+  // ── 0. every array this gate walks IS an array ─────────────────────────────
+  // First, before any `.map`/`.filter`. Both artifacts were `JSON.parse`d off disk, so a
+  // hand-edited or truncated file can present any of these as `undefined`, an object or a string.
+  // Without this, `manifest.provinces.map(...)` two checks down throws a BARE `TypeError` —
+  // breaking the promise every other malformed-artifact path here makes, and the one the e2e
+  // asserts (`rejects.toThrow(Era5LoadError)`). A guard that reports the wrong error type is a
+  // guard an operator cannot act on (review #87, CR87-M5).
+  for (const [what, value] of [
+    ['manifest.assertions', manifest.assertions],
+    ['manifest.provinces', manifest.provinces],
+    ['manifest.fallbackPlateCodes', manifest.fallbackPlateCodes],
+    ['series.provinces', series.provinces],
+    ['series.monthLabels', series.monthLabels],
+  ] as const) {
+    if (!isArrayAtRuntime(value)) {
+      throw new Era5LoadError(
+        `${what} is not an array — the artifact is not the shape it declares, so none of the ` +
+          `structural checks below would mean anything.`,
+      );
+    }
+  }
+
   // ── 1. the two artifacts are the same run over the same bytes ──────────────
   // Without this the cross-check below would compare numbers derived from one download against
   // evidence recorded for another — the check would still pass most of the time, and would be
@@ -131,7 +153,7 @@ export function assertEra5LoadIsSafe(input: Era5LoadAssertionInput): void {
   // The fetch phase refuses to rename a failing run's files into place, so a committed artifact
   // carrying a failed assertion means somebody hand-edited or hand-copied one. Re-reading the
   // recorded results costs nothing and closes that path.
-  if (!isArrayAtRuntime(manifest.assertions) || manifest.assertions.length === 0) {
+  if (manifest.assertions.length === 0) {
     throw new Era5LoadError(
       'the manifest records no structural assertions — an artifact whose own gate is missing ' +
         'cannot be loaded.',

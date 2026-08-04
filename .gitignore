@@ -34,6 +34,11 @@ yarn-error.log*
 /data/era5-land/raw/
 /data/era5-land/*.nc
 /data/era5-land/*.nc.part
+# …and the job-evidence sidecar that now travels beside the raw file. The belt exists for the
+# operator who points `--raw-dir` here, and that operator would otherwise leave a commitable
+# `era5-land-1991-2020.nc.jobs.json`. It carries no key material (`writeArtifact` scans it), but
+# it belongs to the uncommitted bytes, not to the repo (review #87, CR87-M3).
+/data/era5-land/*.nc.jobs.json
 
 # The artifacts of a FAILED run. They are kept on purpose — a failed run's evidence is what
 # explains it — but they are by definition invalid, so they must never be committable. The

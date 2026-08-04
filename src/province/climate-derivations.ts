@@ -85,9 +85,22 @@ export function computeSeasonalPrecipitationPercentages(
     let total = 0;
     for (const index of season.monthIndexes) {
       const value = monthlyPrecipMm[index];
-      // A missing or NEGATIVE monthly value is not a derivable series — the four seasons cover
-      // all 12 indices, so this guard sees every month.
-      if (value === undefined || value < 0) {
+      // A missing, NON-FINITE or NEGATIVE monthly value is not a derivable series — the four
+      // seasons cover all 12 indices, so this guard sees every month.
+      //
+      // `!Number.isFinite` rather than `=== undefined`: `NaN < 0` is false, so a NaN slipped
+      // through the old guard, survived the `annualTotal <= 0` check too (`NaN <= 0` is also
+      // false), and this function returned `{ winterPct: NaN, … }` — a set that does not sum to
+      // 100 and serialises to JSON `null` on four fields the contract declares as `number`. That
+      // falsified this function's own docblock claim to a "total and self-consistent" contract
+      // that does not lean on its caller (review #87, PTA87-I2). `computeClimateDerived` now
+      // rejects NaN before ever reaching here, but a guard that is only correct because of its
+      // caller is exactly what this one promises not to be.
+      //
+      // `=== undefined` is kept ahead of it purely for NARROWING: `Number.isFinite` is typed
+      // `(value: unknown) => boolean`, not a type predicate, so it rejects `undefined` at runtime
+      // without telling the compiler that `value` is a `number` afterwards.
+      if (value === undefined || !Number.isFinite(value) || value < 0) {
         return null;
       }
       total += value;
@@ -156,15 +169,22 @@ export function computeClimateDerived(normals: ClimateNormals): ClimateDerived |
     if (entry === undefined || entry.month !== month) {
       return null;
     }
-    // `typeof`, not `!== null`, and the difference matters. The core pair is typed `number`
-    // (non-nullable) since the ERA5-Land swap, so a `=== null` comparison would no longer even
-    // COMPILE — and deleting the guard instead would be the wrong repair. This value was
+    // `Number.isFinite`, not `!== null`, and the difference matters. The core pair is typed
+    // `number` (non-nullable) since the ERA5-Land swap, so a `=== null` comparison would no longer
+    // even COMPILE — and deleting the guard instead would be the wrong repair. This value was
     // deserialized from a `jsonb` column, where the TypeScript type is an assertion rather than a
-    // guarantee: hand-written SQL, a restored dump or a future admin-CRUD write can put `null`,
-    // a string or nothing at all here. `typeof` refuses all of those (and `NaN` is caught by the
-    // arithmetic guards downstream), so narrowing the contract made this check STRONGER, not
-    // weaker. The caller then serves `climate: null` and logs — it never crashes.
-    if (typeof entry.tempMeanC !== 'number' || typeof entry.precipitationMm !== 'number') {
+    // guarantee: hand-written SQL, a restored dump or a future admin-CRUD write can put `null`, a
+    // string, `NaN` or nothing at all here.
+    //
+    // `Number.isFinite` refuses ALL of those in one expression, and — unlike the global
+    // `isFinite` — it does not coerce, so the string `"12,4"` is rejected rather than parsed.
+    // It replaced a `typeof` check whose comment claimed NaN was "caught by the arithmetic guards
+    // downstream"; review #87 (PTA87-I2) EXECUTED that claim and it is false — `NaN < 0` and
+    // `NaN <= 0` are both false, so a NaN core value produced `{ winterPct: NaN, … }`, which
+    // `JSON.stringify` emits as `null` for fields the contract declares as `number`. The written
+    // rule was already `Number.isFinite` on the import side (`findUnpublishableReason`); the two
+    // definitions of "a usable core value" simply disagreed, and now they do not.
+    if (!Number.isFinite(entry.tempMeanC) || !Number.isFinite(entry.precipitationMm)) {
       return null;
     }
     temps.push(entry.tempMeanC);

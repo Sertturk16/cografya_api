@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 import { createHash } from 'node:crypto';
-import { mkdtemp, readFile, readdir, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, readdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { SEED_PROVINCES } from '../seeds/province.seed-data';
@@ -640,6 +640,57 @@ describe('the .jobs.json sidecar, end to end', () => {
     // Both jobs of the run (production + fixture), so the evidence travels whole.
     expect(sidecar.jobs.length).toBeGreaterThan(0);
     expect(sidecar.jobs.every((entry) => entry.jobId.length > 0)).toBe(true);
+  });
+
+  it('a sidecar write FAILURE does not fail the run — the CDS jobs are already gone', async () => {
+    // Review #87, SFH87-I1. By the time the sidecar is written, both CDS jobs have been paid for,
+    // downloaded, verified and irreversibly DELETEd from the provider queue. An unguarded write
+    // meant a disk/permission fault on --raw-dir could abort the run at that exact point. Q6's
+    // "no sidecar can make a run fail" has to hold in BOTH directions, so it is proved in both.
+    //
+    // The fault is injected by making the sidecar path un-writable in the most portable way
+    // available: a DIRECTORY already occupies it, so `writeFile` raises EISDIR.
+    const base = await mkdtemp(join(tmpdir(), 'era5-sidecar-fail-'));
+    const rawDir = join(base, 'raw');
+    await mkdir(rawJobsSidecarPath(join(rawDir, RAW_FILE_NAME)), { recursive: true });
+
+    const { fetchImpl } = buildFakeCds({ payload });
+    const logs: string[] = [];
+    const errors: string[] = [];
+    const originalLog = console.log;
+    const originalError = console.error;
+    console.log = (...args: unknown[]): void => void logs.push(args.map(String).join(' '));
+    console.error = (...args: unknown[]): void => void errors.push(args.map(String).join(' '));
+    let thrown: unknown = null;
+    try {
+      await runEra5FetchPhase({
+        rawDir,
+        outputDir: join(base, 'data'),
+        fixtureDir: join(base, 'fixtures'),
+        apiKey: KEY,
+        fetchImpl,
+        sleepImpl: () => Promise.resolve(),
+        nowImpl: () => new Date('2026-08-02T12:00:00Z'),
+        decodeImpl: () => buildSyntheticDecodedFile({ monthCount: 2 }),
+      });
+    } catch (caught: unknown) {
+      thrown = caught;
+    } finally {
+      console.log = originalLog;
+      console.error = originalError;
+    }
+
+    // The run continues past the sidecar and reaches its normal end — the assertion gate, which
+    // fails on a 2-month synthetic decode. What must NOT happen is failing at the sidecar.
+    expect(String(thrown)).not.toMatch(/jobs\.json/);
+    // …and the degradation is LOUD, on stderr, naming the path and saying the run continues.
+    expect(errors.some((line) => line.includes('.jobs.json') && line.includes('CONTINUES'))).toBe(
+      true,
+    );
+    // The artifacts of the run were still produced (as `.part`, because the gate failed).
+    await expect(
+      readFile(join(base, 'data', `${MANIFEST_FILE_NAME}.part`), 'utf8'),
+    ).resolves.toContain('"schemaVersion"');
   });
 
   it('an OFFLINE --from-file re-run recovers it into `recoveredJobs`, leaving `jobs` empty', async () => {

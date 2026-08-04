@@ -4,6 +4,7 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DataSource } from 'typeorm';
+import { canonicalJson } from '../src/database/climate/canonical-json';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import {
   ERA5_MANIFEST_FILE_NAME,
@@ -40,7 +41,7 @@ import {
  * `buildDataSourceOptions`, so the load runs under the exact ceiling production carries. A
  * statement that overran it would fail here with SQLSTATE `57014` rather than being discovered in
  * production. (By construction it cannot come close: the write is 81 independent single-row
- * updates of a ~730-byte document each.)
+ * updates, the largest document measuring 811 B and the whole run 63.0 KiB.)
  *
  * Per CONVENTIONS §2 everything asserted is STRUCTURAL. No province's temperature or rainfall is
  * pinned to a value anywhere in this file.
@@ -107,6 +108,36 @@ describe('ERA5-Land load phase (e2e)', () => {
     }
   });
 
+  it('PREMISE: Postgres really does reorder jsonb keys — so canonicalJson is load-bearing', async () => {
+    // Carried over from the deleted MGM load suite (review #87, CR87-M4). Without it the
+    // idempotency test below could pass VACUOUSLY: if Postgres ever stopped reordering keys, a
+    // naive `JSON.stringify` comparison would start working, the test would still be green, and
+    // `canonicalJson`'s necessity would silently become unproven. This asserts the premise
+    // directly, so the two facts fail independently.
+    const written = {
+      source: CLIMATE_SOURCE_ERA5_LAND_MONTHLY,
+      sourceUrl: ERA5_DATASET_URL,
+      periodStartYear: ERA5_FIRST_YEAR,
+      periodEndYear: ERA5_LAST_YEAR,
+      months: [{ month: 1, tempMeanC: 6.2, precipitationMm: 77.8 }],
+    };
+    const rows: unknown = await dataSource.query('SELECT $1::jsonb::text AS round_tripped', [
+      JSON.stringify(written),
+    ]);
+    const text: unknown = Array.isArray(rows)
+      ? (rows[0] as { round_tripped?: unknown } | undefined)?.round_tripped
+      : undefined;
+    if (typeof text !== 'string') throw new Error('jsonb round-trip did not return text');
+    const readBack: unknown = JSON.parse(text);
+
+    // The premise: the SAME document comes back with a different key order …
+    expect(Object.keys(readBack as Record<string, unknown>)).not.toEqual(Object.keys(written));
+    // … so the naive comparison the loader must NOT use reports a false difference …
+    expect(JSON.stringify(readBack)).not.toBe(JSON.stringify(written));
+    // … while the comparison it does use sees them as the identical document they are.
+    expect(canonicalJson(readBack)).toBe(canonicalJson(written));
+  });
+
   it('IS IDEMPOTENT: a second run writes nothing and does not move updated_at', async () => {
     // The jsonb key-order lesson, proved where it can actually fail. `updated_at` is what the
     // page's `dateModified` and the sitemap `lastmod` are built from, so "no-op means no write" is
@@ -151,10 +182,12 @@ describe('ERA5-Land load phase (e2e)', () => {
     expect(restored.updatedAt.getTime()).toBeGreaterThan(before);
   });
 
-  it('is ALL-OR-NOTHING: a corrupt artifact writes nothing at all', async () => {
-    // The expensive lesson from the retired MGM loader: coverage used to be detected inside the
-    // transaction, so 80 provinces committed — and bumped their updated_at — before the run
-    // reported failure. Every gate now resolves before the transaction opens.
+  it('PRE-FLIGHT: a corrupt artifact is refused before the transaction opens, writing nothing', async () => {
+    // Named for what it actually proves (review #87, PTA87-I1). The sha256 corruption below is
+    // rejected by `assertEra5LoadIsSafe`'s FIRST check, so no write is ever attempted — this is
+    // the "every gate resolves before the transaction opens" half of the all-or-nothing claim.
+    // The other half — that the transaction really does roll back a partial run — is a separate
+    // property and is proved by the next test, because the two can regress independently.
     const repo = dataSource.getRepository(Province);
     const before = new Map(
       (await repo.find()).map((province) => [
@@ -191,6 +224,90 @@ describe('ERA5-Land load phase (e2e)', () => {
       expect(province.updatedAt.getTime()).toBe(previous?.updatedAt);
       expect(JSON.stringify(province.climateNormals)).toBe(previous?.normals);
     }
+  });
+
+  it('ROLLS BACK a genuine mid-transaction failure: 80 writes undone by the 81st', async () => {
+    // The half the pre-flight test cannot reach, and the one the retired MGM loader got wrong
+    // once: it detected coverage INSIDE the transaction loop, so 80 provinces committed — and
+    // bumped their updated_at — before the run reported failure (this suite's own docblock and
+    // `era5-load.ts`'s both cite it). Nothing in the suite could previously tell "all 81 writes
+    // are in ONE transaction" apart from "81 independent transactions", so a refactor to per-row
+    // transactions, or a write accidentally moved outside the block, would have passed everything.
+    //
+    // The failure is injected in Postgres itself rather than through a seam in production code: a
+    // BEFORE UPDATE trigger raises on the LAST province in artifact order, so the loop genuinely
+    // saves the preceding 80 rows first and only then hits a real database error. That also keeps
+    // the test honest about what it exercises — TypeORM's transaction wrapper against a real
+    // server, not a mock that agrees with us.
+    const repo = dataSource.getRepository(Province);
+    const seriesOrder = (
+      JSON.parse(await readFile(join(ARTIFACT_DIR, ERA5_SERIES_FILE_NAME), 'utf8')) as {
+        provinces: { plateCode: string }[];
+      }
+    ).provinces.map((province) => province.plateCode);
+    const lastPlate = seriesOrder[seriesOrder.length - 1];
+    if (lastPlate === undefined) throw new Error('fixture: empty series');
+
+    // Make every province genuinely dirty, so the idempotency skip cannot quietly turn this into
+    // a zero-write run — the loop must actually reach `repo.save` for the first 80.
+    for (const province of await repo.find()) {
+      const normals = province.climateNormals;
+      if (normals === null) throw new Error(`fixture: ${province.plateCode} has no series`);
+      await repo.update(
+        { plateCode: province.plateCode },
+        {
+          climateNormals: {
+            ...normals,
+            months: normals.months.map((month, index) =>
+              index === 0 ? { ...month, tempMeanC: month.tempMeanC + 7 } : month,
+            ),
+          },
+        },
+      );
+    }
+    const tampered = new Map(
+      (await repo.find()).map((province) => [
+        province.plateCode,
+        JSON.stringify(province.climateNormals),
+      ]),
+    );
+
+    await dataSource.query(
+      `CREATE FUNCTION e2e_block_last_province() RETURNS trigger AS $$
+       BEGIN RAISE EXCEPTION 'e2e injected failure on plate %', OLD.plate_code; END;
+       $$ LANGUAGE plpgsql`,
+    );
+    // Single-quoted rather than dollar-quoted: `$$…$$` in a statement `pg` also scans for `$n`
+    // placeholders is needless ambiguity. The value is a 2-char plate code read from our own
+    // committed artifact, not input.
+    await dataSource.query(
+      `CREATE TRIGGER e2e_block_last_province BEFORE UPDATE ON provinces
+       FOR EACH ROW WHEN (OLD.plate_code = '${lastPlate}')
+       EXECUTE FUNCTION e2e_block_last_province()`,
+    );
+
+    try {
+      await expect(loadEra5ClimateNormals(dataSource, { inputDir: ARTIFACT_DIR })).rejects.toThrow(
+        /e2e injected failure/,
+      );
+
+      // THE assertion: every one of the 80 rows the loop had already saved is back to its
+      // tampered value. A single row holding the artifact value would mean that write survived
+      // its transaction — i.e. the writes are not atomic together.
+      const after = await repo.find();
+      expect(after).toHaveLength(81);
+      for (const province of after) {
+        expect(JSON.stringify(province.climateNormals)).toBe(tampered.get(province.plateCode));
+      }
+    } finally {
+      await dataSource.query('DROP TRIGGER IF EXISTS e2e_block_last_province ON provinces');
+      await dataSource.query('DROP FUNCTION IF EXISTS e2e_block_last_province()');
+    }
+
+    // With the injected fault gone, the same call restores all 81 — proving the rollback left the
+    // table in a state the loader can still work from, not a wedged one.
+    const restored = await loadEra5ClimateNormals(dataSource, { inputDir: ARTIFACT_DIR });
+    expect(restored).toEqual({ updated: 81, unchanged: 0 });
   });
 
   it('REFUSES, by name, an artifact province that is not in the database', async () => {

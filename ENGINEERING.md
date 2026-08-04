@@ -178,9 +178,12 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   timed out, identifying UA), and it writes committed, reviewable artifacts. `load` is offline,
   deterministic and idempotent, reads only those artifacts, and is the only phase CI or a deploy
   may run. **Never collapse the two** — a build that can fail because a provider is down is not a
-  build. Every such line also carries a **fidelity rule**: a check on the WRITE path that proves
-  the published numbers still correspond to the source, because range and ordering invariants
-  cannot detect a plausible-but-wrong value.
+  build. A line that PUBLISHES numbers additionally needs a **fidelity rule**: a check on the WRITE
+  path proving the published values still correspond to the source, because range and ordering
+  invariants cannot detect a plausible-but-wrong value. This is a requirement on any new publishing
+  line, not a claim that every existing line already satisfies it — the climate line's rule is
+  written below; marine and air-quality carry their own acceptance criteria and are not audited
+  against this wording here.
   - **The climate line is `pnpm db:import:era5 --phase=fetch|load` (`src/database/era5/`)**, against
     a BINARY source (Copernicus CDS, ERA5-Land monthly means, NetCDF4/HDF5). It is the ONLY climate
     import; the retired MGM line (`db:import:climate`, `src/database/climate/`, `data/climate/`)

@@ -6,7 +6,7 @@ import { computeClimateDerived } from './climate-derivations';
 import { ProvinceDetailDto } from './dto/province-detail.dto';
 import { ProvinceListItemDto } from './dto/province-list-item.dto';
 import { ProvinceMapSummaryDto } from './dto/province-map-summary.dto';
-import type { Climate } from './province.types';
+import { CLIMATE_SOURCE_ERA5_LAND_MONTHLY, type Climate } from './province.types';
 
 /**
  * Nüfus yoğunluğu (kişi/km²) from two verified values. A single source of truth
@@ -36,13 +36,14 @@ const climateLogger = new Logger('ProvinceClimate');
  * annual/seasonal block. A single source of truth for "does this province render a climate
  * section?" so no two consumers disagree.
  *
- * Null in two cases, both rendering NO climate section (graceful degradation, never a crash — the
+ * Null in three cases, all rendering NO climate section (graceful degradation, never a crash — the
  * shape guard in `computeClimateDerived` is what makes that literally true, not aspirational):
  *   - the province has no stored series: `climate_normals` is NULL (the normal state until the
  *     ERA5-Land load phase runs; that phase writes all 81 or none, so "some provinces
  *     permanently uncovered" is no longer a reachable state) OR the column was
  *     projected out and arrives as `undefined` — hence the `== null` guard, not `=== null`. Both
  *     are EXPECTED and silent, and
+ *   - the stored series names a source this build does not serve (see below) — a DEFECT, logged;
  *   - the series is present but not derivable — an incomplete core pair, or a jsonb shape the
  *     column's type cannot enforce (a data-integrity slip the import-time all-or-nothing rule
  *     should already prevent — belt-and-braces, so a bad row degrades one section instead of
@@ -50,6 +51,21 @@ const climateLogger = new Logger('ProvinceClimate');
  *     logged: unreachable via the verified load path today, but any future migration,
  *     admin-CRUD write or manual SQL lands here, and without a signal the province's climate
  *     section would vanish invisibly and forever. The plate code is public data (no PII, §3.6).
+ *
+ * ## Why the SOURCE is checked here, on the read path (review #87 CR87-I1)
+ * This function returns `{ ...normals, derived }` — the stored document is spread VERBATIM onto a
+ * public response. `computeClimateDerived` only asks for 12 ordered months with a finite core
+ * pair, and a document written by the retired MGM line satisfies every one of those checks. So a
+ * database still holding MGM documents that receives this build BEFORE
+ * `pnpm db:import:era5 --phase=load` runs would serve `source: "mgm_general"` — a value the
+ * regenerated `openapi.json` no longer declares — plus the removed `records` block and eight
+ * monthly fields that appear in no DTO and in no generated web type. At 200, with no signal.
+ *
+ * `assertExactKeys` (`climate-normals.assertions.ts`) argues exactly this failure, but it only
+ * runs at IMPORT time, and this PR ships no migration and no startup assertion that could order
+ * code-after-load. The read path therefore has to refuse what it cannot vouch for: serving NO
+ * climate section is a visible, recoverable degradation, while serving the retired shape is a
+ * silent contract violation on an SEO page. Absent beats wrong.
  *
  * Exported for direct unit testing of the null-collapse branches (the `computePopulationDensity`
  * precedent).
@@ -64,6 +80,23 @@ export function buildClimate(
   if (normals == null) {
     return null;
   }
+
+  // Widened to `string` on purpose. `ClimateSource` is a single-member literal type, so comparing
+  // it directly against its only member is a no-overlap error (TS2367) — the same trap the old
+  // `tempMeanC === null` check hit. And the widening is the honest reading anyway: this value came
+  // out of a `jsonb` column, where the declared type is an assertion about what we wrote, never a
+  // guarantee about what is there.
+  const storedSource: string = normals.source;
+  if (storedSource !== CLIMATE_SOURCE_ERA5_LAND_MONTHLY) {
+    climateLogger.warn(
+      `province ${plateCode}: climate_normals names source ${JSON.stringify(storedSource)}, but ` +
+        `this build only serves ${JSON.stringify(CLIMATE_SOURCE_ERA5_LAND_MONTHLY)} — serving ` +
+        `climate: null rather than a payload whose shape the OpenAPI contract no longer declares. ` +
+        `Run \`pnpm db:import:era5 --phase=load\`.`,
+    );
+    return null;
+  }
+
   const derived = computeClimateDerived(normals);
   if (derived === null) {
     climateLogger.warn(

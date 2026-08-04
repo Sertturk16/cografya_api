@@ -116,6 +116,21 @@ describe('computeSeasonalPrecipitationPercentages', () => {
     const precip = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, -5];
     expect(computeSeasonalPrecipitationPercentages(precip)).toBeNull();
   });
+
+  it('returns null for a NaN monthly value — the case both old guards let through', () => {
+    // `NaN < 0` is false and `NaN <= 0` is false, so a NaN passed the negative check AND the
+    // annual-total check, and this function returned `{ winterPct: NaN, … }` — four values that
+    // do not sum to 100 and serialise as JSON `null` on `number` fields. Its docblock claims a
+    // contract that is "total and self-consistent rather than relying on the caller", so the
+    // guard is fixed here as well as at the caller (review #87, PTA87-I2).
+    const precip = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, Number.NaN];
+    expect(computeSeasonalPrecipitationPercentages(precip)).toBeNull();
+  });
+
+  it('returns null for an infinite monthly value', () => {
+    const precip = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, Number.POSITIVE_INFINITY];
+    expect(computeSeasonalPrecipitationPercentages(precip)).toBeNull();
+  });
 });
 
 describe('computeClimateDerived', () => {
@@ -210,6 +225,37 @@ describe('computeClimateDerived', () => {
     const october = months[9];
     if (october === undefined) throw new Error('fixture malformed');
     corrupt(october, 'precipitationMm', undefined);
+    expect(computeClimateDerived(makeNormals(months))).toBeNull();
+  });
+
+  it('returns null for a NaN core TEMPERATURE — `typeof NaN` is "number" and would sail through', () => {
+    // Review #87 (PTA87-I2) executed the old `typeof` guard and proved this case escaped it. The
+    // damage was not a crash: it was a `ClimateDerived` whose `annualMeanTempC` is NaN, which
+    // `JSON.stringify` emits as `null` on a field the contract declares `number` — a silent
+    // contract violation on a public page, instead of the documented `climate: null` degradation.
+    const months = makeMonths(TEMPS, PRECIP);
+    const february = months[1];
+    if (february === undefined) throw new Error('fixture malformed');
+    february.tempMeanC = Number.NaN;
+    expect(computeClimateDerived(makeNormals(months))).toBeNull();
+  });
+
+  it('returns null for a NaN core PRECIPITATION — neither `< 0` nor `<= 0` catches it', () => {
+    // The sharper half: `NaN < 0` is false, so the seasonal guard passed it, and `NaN <= 0` is
+    // also false, so the annual-total guard passed it too — the function returned four NaN
+    // percentages that do not sum to 100.
+    const months = makeMonths(TEMPS, PRECIP);
+    const september = months[8];
+    if (september === undefined) throw new Error('fixture malformed');
+    september.precipitationMm = Number.NaN;
+    expect(computeClimateDerived(makeNormals(months))).toBeNull();
+  });
+
+  it('returns null for an INFINITE core value', () => {
+    const months = makeMonths(TEMPS, PRECIP);
+    const june = months[5];
+    if (june === undefined) throw new Error('fixture malformed');
+    june.tempMeanC = Number.POSITIVE_INFINITY;
     expect(computeClimateDerived(makeNormals(months))).toBeNull();
   });
 
