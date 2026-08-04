@@ -24,7 +24,9 @@ import type { CountrySeed } from '../country.seed-data';
  *   La Línea does NOT propagate to either state's list — GB and ES do NOT carry each other
  *   (an earlier ruling wrongly added them; reversed here). İtalya still carries VA (Vatikan):
  *   that is a genuine bilateral border with a sovereign enclave state, a separate case from
- *   the Gibraltar one. VA is not seeded yet (benign dangling ref, like TR).
+ *   the Gibraltar one. VA is not seeded yet (benign dangling ref) — TR no longer belongs in
+ *   that sentence: its row landed with dalga-1 PR-B, so `TR` now resolves.
+ *   The SAME correction rule is why this file's DK row no longer carries `'CA'` — see the row.
  *
  * areaKm2 is whole km² (entity is integer); decimal source values are rounded to nearest
  *   (e.g. İsviçre 39.509,63 → 39_510, Portekiz 91.605,6 → 91_606, Slovenya 20.134,5 →
@@ -47,7 +49,14 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     capitalNameEn: 'Copenhagen',
     capitalLatitude: 55.6761,
     capitalLongitude: 12.5683,
-    neighborIsoCodes: ['DE', 'CA'],
+    // 'CA' KALDIRILDI (dalga-1 PR-B, Atlas kararı SG-C2) — bu satırın kendi kaynak
+    //   araştırmasına GERİ DÖNÜŞ, yeni bir karar değil: europe-oceania.md §2.1 "Komşu ülkeler
+    //   (1) | Almanya | ana kara (Jutland) üzerinden tek kara sınırı" diyor. 'CA' seed tarafında
+    //   karşılıklılık refleksiyle eklenmişti (PR #30); DEC 2026-07-13'ün Cebelitarık düzeltmesi
+    //   tam olarak bu hareketi ES↔GB için tersine çevirmiş, ama o tur DK'ya uğramamıştı.
+    //   Kanada sınırı Grönland üzerinden geçer ve Grönland ayrı bir satırdır — bu satırın kendi
+    //   introTr'si de Grönland'ı kapsam dışı ilan ediyor. Sınır artık GL ↔ CA olarak yaşıyor.
+    neighborIsoCodes: ['DE'],
     officialLanguagesTr: ['Danca'],
     currencyNameTr: 'Danimarka Kronu',
     currencyCode: 'DKK',

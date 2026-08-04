@@ -277,6 +277,10 @@ export const TERRITORY_COUNTRIES: readonly CountrySeed[] = [
       'Cumhurbaşkanlığı himayesinde, Sanayi ve Teknoloji Bakanlığı sorumluluğunda ve TÜBİTAK ' +
       'Marmara Araştırma Merkezi Kutup Araştırmaları Enstitüsü koordinasyonunda yürütülür. Türk ' +
       "bilim ekiplerinin kullandığı geçici araştırma kampı Horseshoe Adası'ndadır.",
+    // AÇIKÇA null: kıtada ekonomi bölümü yok (ticari faaliyet Antlaşma rejimi altında
+    //   kısıtlıdır). GL bu alanı dolduruyor, TR açıkça null yazıyor — bu satırın da sessiz
+    //   kalmaması, dosyanın kendi "açık null dürüst sinyaldir" ilkesinin gereği (CF-1).
+    economyNoteTr: null,
     governanceNoteTr:
       'Antarktika üzerinde hiçbir devletin genel kabul görmüş egemenliği yoktur. Kıtanın ' +
       'kesimleri üzerinde yedi ülkenin ileri sürdüğü toprak iddiaları bulunur ve bu iddialar ' +

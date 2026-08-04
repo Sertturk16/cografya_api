@@ -36,15 +36,25 @@ import type { CountrySeed } from '../country.seed-data';
  *     to it.
  *   • `slugEn: 'turkey'` — the NAME and the SLUG are separate decisions (ruling S8). The slug
  *     is an ASCII transliteration and a search-reality call; it is a routing key, not a label.
- *   • `continent: ASYA` — one value must be chosen and the corpus precedent decides it: the
- *     other transcontinental neighbours (GE/AM/AZ/RU) are all `Continent.Asia`. Türkiye's
- *     transcontinental character is a matter for the prose, not for a field that can hold one
- *     value.
+ *   • `continent: ASYA` — the field holds ONE value and the corpus assigns it by the **UN M49
+ *     geoscheme**, the sourced classification behind every row's `unSubregionTr` (`Owner's
+ *     Inbox/dunya-haritasi-base-data/*.md`: "UN Statistics Division — M49 Standard | Kıta + BM
+ *     alt-bölgesi"). M49 places Türkiye in 145 Western Asia, under region 142 Asia — hence
+ *     `ASYA`, and hence `unSubregionTr: 'Batı Asya'` below. The SAME rule, not a different one,
+ *     puts Rusya in AVRUPA (M49 151 Eastern Europe) though most of its landmass is in Asia, and
+ *     it is what puts Kıbrıs, Bulgaristan and İran where the corpus puts them, against popular
+ *     perception, with the divergence explained in prose each time. Türkiye's transcontinental
+ *     character is carried by `introTr` (~%3 Trakya), which is where a one-value field cannot
+ *     go. **Do not read this row as "copy the neighbours"** — GE/AM/AZ agree with it only
+ *     because M49 says so.
  *   • `populationYear: null` — symmetric with all 196 other rows (DEC 2026-07-13), even though
  *     the population figure itself has a precise reference date recorded in provenance.
  *   • `statusLabelTr`/`statusLabelEn` null — required for `country` rows by guard 2. A card
  *     subtitle here would imply Türkiye is a special case; it is not.
- *   • `sovereigntyNoteTr` null — Türkiye's status is not disputed (DEC 2026-08-01q).
+ *   • `sovereigntyNoteTr` null — Türkiye's status is not disputed, so there is nothing for the
+ *     field to say. This is the ordinary state of 190+ rows, NOT an application of
+ *     DEC 2026-08-01q: that ruling decided GL's and AQ's nulls, where a reader might expect
+ *     otherwise, and it does not reach this row.
  *   • `settlement/economy/governanceNoteTr` NULL, on purpose (SPEC §3.3). Those are the
  *     province layer's job, and leaving them empty is exactly what keeps this profile from
  *     becoming a duplicate of the `/turkiye` hub (DEC 2026-08-01j).
@@ -59,7 +69,9 @@ export const TURKIYE_COUNTRY: readonly CountrySeed[] = [
     nameEn: 'Türkiye',
     slugTr: 'turkiye',
     slugEn: 'turkey',
-    // Kıtalararasılık anlatıya taşınır; korpus emsali (GE/AM/AZ/RU) ASYA der.
+    // Kıta alanı BM M49'a göre atanır (korpus geneli: kıta = unSubregionTr'nin M49 üst bölgesi,
+    //   istisnasız). TR M49'da 145 "Batı Asya" → 142 ASYA; aynı kural RU'yu "Doğu Avrupa" →
+    //   AVRUPA yapar. Kıtalararasılık anlatıya taşınır (CY/BG/İR emsali).
     continent: Continent.Asia,
     entityType: CountryEntityType.Country,
     // country ⇒ ikisi de null (guard 2).
@@ -144,7 +156,8 @@ export const TURKIYE_COUNTRY: readonly CountrySeed[] = [
       "İstanbul ve Çanakkale boğazları arasında kalan bir iç denizdir; Karadeniz'in daha az " +
       "tuzlu suyu ile Akdeniz'in daha tuzlu suyu bu dar geçitlerde üst üste iki katman hâlinde " +
       'akar.',
-    // sovereigntyNoteTr: null — statü tartışmalı değil (DEC 2026-08-01q).
+    // sovereigntyNoteTr: null — statü tartışmalı değil (korpusun olağan hâli; GL/AQ'nun
+    //   null'ını karara bağlayan DEC 2026-08-01q bu satırı kapsamaz).
     sovereigntyNoteTr: null,
     // settlement/economy/governanceNoteTr: NULL — il katmanının işi (SPEC §3.3).
     settlementNoteTr: null,

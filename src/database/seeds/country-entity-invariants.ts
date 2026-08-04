@@ -60,11 +60,13 @@ import type { CountrySeed } from './country.seed-data';
  *    partial batch, including every e2e fixture run. They belong in the unit spec over
  *    `SEED_COUNTRIES`, which needs no database and fails fast in `Test (unit)`.
  *
- * **The corpus assertion against the real `SEED_COUNTRIES` is deliberately NOT wired yet.**
- * The three rows it describes arrive in the seed PR (PR-B); asserting them here would open this
- * PR red for a reason that has nothing to do with this PR's code. PR-B opens that line (Atlas
- * ruling S3, 2026-08-02). Until then the function is fully unit-tested against synthetic
- * corpora — so what lands with the rows is a proven check, not a new one.
+ * **The corpus assertion IS wired against the real `SEED_COUNTRIES`** — in
+ * `country-entity-invariants.spec.ts` ("the committed corpus" → "satisfies every CORPUS-level
+ * invariant"), which runs in the fast `Test (unit)` job and needs no database. It was
+ * deliberately left unwired through PR-A, because the rows it describes did not exist yet and
+ * asserting them would have opened a schema-only PR red; dalga-1 PR-B landed GL/AQ/TR and
+ * inverted that pin (Atlas ruling S3, 2026-08-02). The function had been fully unit-tested
+ * against synthetic corpora first, so what reached production data was a proven check.
  */
 
 /** ISO 3166-1 alpha-2 code of Türkiye — the site's own country, and the only owner of its slug. */
@@ -73,6 +75,8 @@ const TURKIYE_ALPHA2 = 'TR';
 const TURKIYE_SLUGS: ReadonlySet<string> = new Set(['turkiye', 'turkey']);
 /** Türkiye's own TR slug, as the corpus rule expects to find it. */
 const TURKIYE_SLUG_TR = 'turkiye';
+/** Türkiye's own EN slug — ASCII by ruling S8, deliberately NOT harmonised to `nameEn`. */
+const TURKIYE_SLUG_EN = 'turkey';
 
 export class CountrySeedInvariantError extends Error {
   constructor(message: string) {
@@ -260,6 +264,19 @@ export function assertCountryCorpusInvariants(countries: readonly CountrySeed[])
         `eight neighbour pages resolve it. Found ${JSON.stringify(row.slugTr)}.`,
     );
   }
+  // `slugEn` is pinned for the SAME reason as `slugTr`, and it needs its own line: invariant 1
+  // only stops OTHER rows from stealing the Türkiye slugs, so without this nothing required THIS
+  // row to keep `turkey`. The pressure to change it is real and documented on the row itself —
+  // `nameEn` is "Türkiye", so "harmonise the slug to match" looks like a tidy-up. It is not:
+  // `/en/dunya/turkey` is a live routing key, the eight neighbour rows' EN cross-links resolve
+  // through it, and ruling S8 decided name and slug separately on purpose. A routing key, not a
+  // geographic fact — the same class invariant 6 already pins.
+  if (row.slugEn.trim().toLowerCase() !== TURKIYE_SLUG_EN) {
+    throw new CountrySeedInvariantError(
+      `the Türkiye row must keep slugEn "${TURKIYE_SLUG_EN}" (ruling S8: the ASCII slug is a ` +
+        `routing key, decided separately from nameEn "Türkiye"). Found ${JSON.stringify(row.slugEn)}.`,
+    );
+  }
 
   // 7b — THE TYPED ROWS EXIST. A corpus with zero territory or zero special rows means the typed
   // model is carrying no weight: either a content wave dropped its rows, or a refactor reset the
@@ -270,6 +287,35 @@ export function assertCountryCorpusInvariants(countries: readonly CountrySeed[])
       throw new CountrySeedInvariantError(
         `the corpus contains no entityType "${wanted}" row — the dalga-1 wave publishes at least ` +
           `one of each, so zero means rows were dropped or their type was reset.`,
+      );
+    }
+  }
+
+  // 8 — THE THREE UNIQUE KEYS ARE ACTUALLY UNIQUE. Postgres enforces all three, so a duplicate
+  // cannot reach production — but it can only be DISCOVERED by the Docker-backed e2e, minutes
+  // into CI and with a raw constraint-violation message that names the constraint, not the wave
+  // that broke it. These three lines move detection into the fast unit job and say which value
+  // collided. That matters most exactly when it is most likely: a wave appends rows to a NEW
+  // file (this is how dalga-1 shipped), so nothing textually adjacent reveals that the isoCode
+  // or slug already exists 400 lines away in another continent's file.
+  //
+  // Structural only — a duplicate key is a corpus-shape defect, not a geographic claim.
+  for (const [label, values] of [
+    ['isoCode', countries.map((seed) => seed.isoCode.trim().toUpperCase())],
+    ['slugTr', countries.map((seed) => seed.slugTr.trim().toLowerCase())],
+    ['slugEn', countries.map((seed) => seed.slugEn.trim().toLowerCase())],
+  ] as const) {
+    const seen = new Set<string>();
+    const duplicates = new Set<string>();
+    for (const value of values) {
+      if (seen.has(value)) duplicates.add(value);
+      seen.add(value);
+    }
+    if (duplicates.size > 0) {
+      throw new CountrySeedInvariantError(
+        `the corpus repeats ${label} value(s) ${[...duplicates].sort().join(', ')} — every ` +
+          `${label} is UNIQUE in the database, so this would fail the insert; a wave has ` +
+          `appended a row whose key already exists elsewhere in the corpus.`,
       );
     }
   }
