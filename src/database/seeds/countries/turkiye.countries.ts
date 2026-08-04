@@ -106,8 +106,8 @@ export const TURKIYE_COUNTRY: readonly CountrySeed[] = [
       "Türkiye'yi dünyanın en kalabalık yirmi ülkesi arasına koyar." +
       '\n\n' +
       "Türkiye'nin coğrafi bağlantıları kendi bölgesiyle sınırlı değildir. 1996'dan bu yana " +
-      "Antarktika Antlaşması'na taraftır ve kıtadaki Horseshoe Adası'nda geçici bir bilim kampı " +
-      'yürütür.',
+      "Antarktika Antlaşması'na taraf olan ülkeler arasındadır ve Horseshoe Adası'ndaki geçici " +
+      "Türk Bilimsel Araştırma Kampı'nda bilim seferleri yürütür.",
     landformNoteTr:
       'Türkiye, Alp-Himalaya orojenik kuşağı üzerinde yer alır. Ülkenin genel yapısı batıdan ' +
       'doğuya yükselen bir eşiğe benzer: kıyı ovalarından iç platolara, oradan da doğudaki ' +
@@ -140,7 +140,7 @@ export const TURKIYE_COUNTRY: readonly CountrySeed[] = [
       "Bir bölümü ise Türkiye'de doğar ama denize başka ülkelerin kıyılarından ulaşır. Fırat'ın " +
       "Türkiye sınırları içinde kalan bölümü 1.263 kilometre, Dicle'ninki 512 kilometredir; " +
       'ikisi de güneye, Mezopotamya ovasına doğru akar. Doğuda Aras Nehri 548 kilometrelik bir ' +
-      'kesimi Türkiye içinde kat eder.' +
+      'kesimi Türkiye içinde kat eder. Bu kesimin bir bölümünde nehir, doğu sınırı boyunca akar.' +
       '\n\n' +
       "Tersi de olur. Meriç Nehri Türkiye dışında doğar ve son 187 kilometresini Türkiye'de " +
       "tamamlayarak Ege Denizi'ne dökülür. Bu son kesimin bir bölümünde nehir, Türkiye ile " +

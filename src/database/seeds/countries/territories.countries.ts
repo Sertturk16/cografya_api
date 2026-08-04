@@ -122,10 +122,9 @@ export const TERRITORY_COUNTRIES: readonly CountrySeed[] = [
       "Grönland'da klasik anlamda büyük bir akarsu ağı yoktur. Adanın hidrografyasını buzul " +
       'erime suları, fiyortlar ve her yıl denize bırakılan buzdağları belirler.' +
       '\n\n' +
-      'Buz örtüsü yaklaşık 1,7 milyon kilometrekare alan kaplar ve içinde 2,9 milyon ' +
-      'kilometreküp buz vardır. Kalınlığı yer yer 3 kilometreyi aşar. Bu buzun tamamı erise ' +
-      'dünya deniz seviyesi yaklaşık 7,4 metre yükselirdi. Grönland ve Antarktika buz örtüleri ' +
-      "birlikte, yeryüzündeki tatlı su buzunun yüzde 99'undan fazlasını tutar." +
+      'Adayı kaplayan buz örtüsünün kalınlığı yer yer 3 kilometreyi aşar. Yaklaşık 1,7 milyon ' +
+      'kilometrekarelik bir alana yayılan bu kütlenin hacmi 2,9 milyon kilometreküptür. Tamamı ' +
+      'erise dünya deniz seviyesi yaklaşık 7,4 metre yükselirdi.' +
       '\n\n' +
       "Batı kıyısındaki Ilulissat Buz Fiyordu 2004'te UNESCO Dünya Mirası Listesi'ne alındı. " +
       'Fiyordu besleyen Sermeq Kujalleq, dünyanın en hızlı hareket eden ve en etkin ' +
@@ -272,11 +271,13 @@ export const TERRITORY_COUNTRIES: readonly CountrySeed[] = [
       'aylarında bu sayı birkaç katına çıkar. Ulaşım ve ikmal deniz buzunun durumuna bağlı ' +
       'olduğu için istasyonların çalışma takvimi de mevsime göre kurulur.' +
       '\n\n' +
+      'Kıtada istasyon ya da kamp işleten ülkeler çok sayıdadır ve Türkiye de bunlardan biridir. ' +
       "Türkiye 24 Ocak 1996'da Antarktika Antlaşması'na taraf oldu; Çevre Protokolü Türkiye " +
       "bakımından 27 Ekim 2017'de yürürlüğe girdi. Ulusal Antarktika Bilim Seferleri " +
       'Cumhurbaşkanlığı himayesinde, Sanayi ve Teknoloji Bakanlığı sorumluluğunda ve TÜBİTAK ' +
-      'Marmara Araştırma Merkezi Kutup Araştırmaları Enstitüsü koordinasyonunda yürütülür. Türk ' +
-      "bilim ekiplerinin kullandığı geçici araştırma kampı Horseshoe Adası'ndadır.",
+      'Marmara Araştırma Merkezi Kutup Araştırmaları Enstitüsü koordinasyonunda yürütülür. ' +
+      "Seferlerde kullanılan Türk Bilimsel Araştırma Kampı, Horseshoe Adası'nda kurulan geçici " +
+      'bir tesistir.',
     // AÇIKÇA null: kıtada ekonomi bölümü yok (ticari faaliyet Antlaşma rejimi altında
     //   kısıtlıdır). GL bu alanı dolduruyor, TR açıkça null yazıyor — bu satırın da sessiz
     //   kalmaması, dosyanın kendi "açık null dürüst sinyaldir" ilkesinin gereği (CF-1).

@@ -15,8 +15,10 @@ import {
  * Pure — no Postgres — so it runs in the fast `Test (unit)` job (ENGINEERING §8). The e2e suite
  * separately proves the row-level guard fires inside `seedWorld` and that nothing is written.
  *
- * Fixtures use ISO private-use codes (ZX/ZY) so nothing here names a real country, and no value
- * below is a geographic fact — tests measure structure, never content.
+ * Fixtures use ISO private-use codes (ZX/ZY/ZZ) so nothing here names a real country, and no
+ * value below is a geographic fact — tests measure structure, never content. Each fixture owns
+ * a DISTINCT isoCode + slug pair, because corpus invariant 8 requires all three to be unique
+ * and a shared identity would make every multi-fixture corpus structurally invalid.
  */
 const CLEAN: CountrySeed = {
   isoCode: 'ZX',
@@ -41,9 +43,22 @@ const CLEAN_TERRITORY: CountrySeed = {
   statusLabelEn: 'Test Autonomous Territory',
 };
 
-/** A well-formed `special` row: no population, and (here) the Antarctic continent. */
+/**
+ * A well-formed `special` row: no population, and (here) the Antarctic continent.
+ *
+ * It carries its OWN identity triple rather than inheriting ZY's. Spreading `CLEAN_TERRITORY`
+ * used to leave both fixtures sharing one isoCode and both slugs — harmless while nothing
+ * asserted uniqueness, but it modelled two distinct entities as one, and every corpus test
+ * combining them was quietly built on a corpus the database would have rejected. Invariant 8
+ * surfaced it.
+ */
 const CLEAN_SPECIAL: CountrySeed = {
   ...CLEAN_TERRITORY,
+  isoCode: 'ZZ',
+  nameTr: 'Test Özel Bölgesi ZZ',
+  nameEn: 'Test Special Area ZZ',
+  slugTr: 'test-ozel-bolgesi-zz',
+  slugEn: 'test-special-area-zz',
   entityType: CountryEntityType.Special,
   continent: Continent.Antarctica,
 };
@@ -292,6 +307,32 @@ describe('assertCountryCorpusInvariants — invariants 6 and 7b', () => {
   });
 
   it('7b — ACCEPTS a corpus that carries at least one of each', () => {
+    expect(() => assertCountryCorpusInvariants(FULL)).not.toThrow();
+  });
+
+  it('8 — REFUSES a repeated isoCode, slugTr or slugEn, naming the colliding value', () => {
+    // All three are UNIQUE columns, so each of these corpora would fail the INSERT. The point of
+    // catching them here is the message: Postgres reports the constraint, this reports the value
+    // and the rule. Comparison is trim + case-folded, matching how the row-level guard and the
+    // seeder normalise, so a stray ' tr ' cannot smuggle a duplicate past it.
+    expect(() =>
+      assertCountryCorpusInvariants([
+        ...FULL,
+        { ...CLEAN_TERRITORY, slugTr: 'başka', slugEn: 'x' },
+      ]),
+    ).toThrow(/repeats isoCode value\(s\) ZY/u);
+    expect(() =>
+      assertCountryCorpusInvariants([...FULL, { ...CLEAN_TERRITORY, isoCode: 'ZQ', slugEn: 'x' }]),
+    ).toThrow(/repeats slugTr value\(s\) test-bolgesi-zy/u);
+    expect(() =>
+      assertCountryCorpusInvariants([...FULL, { ...CLEAN_TERRITORY, isoCode: 'ZQ', slugTr: 'y' }]),
+    ).toThrow(/repeats slugEn value\(s\) test-territory-zy/u);
+    expect(() =>
+      assertCountryCorpusInvariants([...FULL, { ...CLEAN_TERRITORY, isoCode: '  zy  ' }]),
+    ).toThrow(/repeats isoCode value\(s\) ZY/u);
+  });
+
+  it('8 — ACCEPTS a corpus whose three key sets are each collision-free', () => {
     expect(() => assertCountryCorpusInvariants(FULL)).not.toThrow();
   });
 });
