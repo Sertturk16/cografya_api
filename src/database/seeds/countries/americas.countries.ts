@@ -30,7 +30,15 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     capitalNameEn: 'Ottawa',
     capitalLatitude: 45.4215,
     capitalLongitude: -75.6972,
-    neighborIsoCodes: ['US', 'DK'],
+    // 'DK' → 'GL' (dalga-1 PR-B, Atlas kararı SG-C2). Hans Adası/Tartupaluk 2022 antlaşmasının
+    //   çizdiği kara sınırı Kanada ile GRÖNLAND arasındadır; Danimarka ana karasıyla Kanada'nın
+    //   ortak sınırı yoktur. 'DK' buraya PR #30'da seed tarafında karşılıklılık olsun diye
+    //   girmişti — DK'nın kendi kaynak araştırması (europe-oceania.md §2.1) tek komşu olarak
+    //   Almanya'yı veriyor. Bu, DEC 2026-07-13'ün Cebelitarık düzeltmesinde ES↔GB için
+    //   tersine çevirdiği hareketin aynısı; o tur GB/ES'i süpürmüş, DK'yı atlamıştı.
+    //   Grönland satırı indiği için sınır artık iki gerçek tarafıyla temsil ediliyor
+    //   (SPEC §1.2(c): GL ↔ CA çift yönlü, iki sayılı link).
+    neighborIsoCodes: ['US', 'GL'],
     officialLanguagesTr: ['İngilizce', 'Fransızca'],
     currencyNameTr: 'Kanada Doları',
     currencyCode: 'CAD',

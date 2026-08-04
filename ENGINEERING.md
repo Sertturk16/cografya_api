@@ -277,9 +277,12 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   **TWO transcription lanes, and they are not interchangeable**; using the wrong one reports a
   false green, because each lane can only see the seed file it knows about.
   - **Countries — `pnpm seed:transcribe`.** `apply <draft.md>` writes fact-checked prose into
-    `country.seed-data.ts`, `check <draft.md>` verifies it. Country-only **by construction**:
-    the pipeline keys rows on `isoCode`. See `tools/seed-transcription/README.md` for the join
-    rule and the design rationale.
+    the wave files under `src/database/seeds/countries/*.countries.ts`, `check <draft.md>`
+    verifies it. **That directory is the tool's ENTIRE world** (`cli.ts` → `SEED_DIR`): it
+    never opens `country.seed-data.ts`, so the 8 pilot rows living there are invisible to it
+    and a new wave's rows must be created inside `countries/` to be transcribable at all.
+    Country-only **by construction**: the pipeline keys rows on `isoCode`. See
+    `tools/seed-transcription/README.md` for the join rule and the design rationale.
   - **Provinces — a per-wave ONE-OFF script, not a `package.json` command.** Provinces are
     keyed on `plateCode`, so they are driven by their own wave entry point run directly with
     `node`:
