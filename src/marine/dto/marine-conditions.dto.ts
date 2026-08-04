@@ -53,8 +53,10 @@ export class MarineConditionsDto {
     type: MarineSeriesDto,
     nullable: true,
     description:
-      'The 5-day series, or null. Nullable for a real case, not for convenience: CMEMS may be ' +
-      'up while Open-Meteo is down, which yields instant values with no series.',
+      'The 5-day series, or null. Nullable for a real case, not for convenience: the series is ' +
+      'always ECMWF (MarineSeriesDto.source), while the instant values above are CMEMS-primary ' +
+      'for the three ocean fields — so a point can hold instant values with no series whenever ' +
+      'no publishable ECMWF cycle exists.',
   })
   series!: MarineSeriesDto | null;
 

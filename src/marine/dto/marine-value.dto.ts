@@ -14,12 +14,12 @@ import {
  * MODEL OUTPUTS, not observations, and the old name contradicted our own disclaimer. It is
  * also not `MarineForecastValueDto` — hindcast steps are served too.
  *
- * **NOT IMPLEMENTED IN M1.** This shape is frozen and published now (SPEC-ADDENDUM §8.2) so
- * the web repo can codegen and build against a mock; the endpoints that return it land in M3
- * (Open-Meteo) and M4 (CMEMS + merge). The shapes are safe to freeze because they were derived
- * from measured provider responses — the raw unit strings, the ABSENCE of a time field in the
- * CMEMS reply, the grid-centre snapping behaviour and the XML error path were all verified
- * live — which is where late surprises normally come from.
+ * **IMPLEMENTED.** This shape was frozen and published at M1 (SPEC-ADDENDUM §8.2) so the web
+ * repo could codegen and build against a mock before the runtime existed; the endpoints that
+ * return it landed in M3b (ECMWF) and M4b (CMEMS + merge). Freezing early was safe because the
+ * shape was derived from measured provider responses — the raw unit strings, the ABSENCE of a
+ * time field in the CMEMS reply, the grid-centre snapping behaviour and the XML error path were
+ * all verified live — which is where late surprises normally come from.
  */
 export class MarineValueDto {
   @ApiProperty({
@@ -36,9 +36,10 @@ export class MarineValueDto {
   @ApiProperty({
     enum: MarineUnit,
     description:
-      'Canonical machine unit. Providers return three different strings for the same ' +
-      'quantity (m / degree / degrees_C from CMEMS; m / ° / °C / km/h from Open-Meteo), so ' +
-      'passthrough is not an option. Symbols are a display concern (web i18n).',
+      'Canonical machine unit. Passthrough is not an option, because the two providers do not ' +
+      'even agree on having one: CMEMS states its own unit string per field (m / degree / ' +
+      'degrees_C), while ECMWF Open Data ships GRIB2, where the unit is implied by the ' +
+      'parameter and no unit string is carried at all. Symbols are a display concern (web i18n).',
   })
   unit!: MarineUnit;
 
