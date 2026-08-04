@@ -1492,7 +1492,7 @@
               "meter_per_second"
             ],
             "type": "string",
-            "description": "Canonical machine unit. Providers return three different strings for the same quantity (m / degree / degrees_C from CMEMS; m / ° / °C / km/h from Open-Meteo), so passthrough is not an option. Symbols are a display concern (web i18n)."
+            "description": "Canonical machine unit. Passthrough is not an option, because the two providers do not even agree on having one: CMEMS states its own unit string per field (m / degree / degrees_C), while ECMWF Open Data ships GRIB2, where the unit is implied by the parameter and no unit string is carried at all. Symbols are a display concern (web i18n)."
           },
           "status": {
             "enum": [
@@ -1960,7 +1960,7 @@
           },
           "series": {
             "nullable": true,
-            "description": "The 5-day series, or null. Nullable for a real case, not for convenience: CMEMS may be up while Open-Meteo is down, which yields instant values with no series.",
+            "description": "The 5-day series, or null. Nullable for a real case, not for convenience: the series is always ECMWF (MarineSeriesDto.source), while the instant values above are CMEMS-primary for the three ocean fields — so a point can hold instant values with no series whenever no publishable ECMWF series can be read (no publishable cycle, or the stored series is unreadable or past the cycle-age ceiling).",
             "type": "object",
             "allOf": [
               {
