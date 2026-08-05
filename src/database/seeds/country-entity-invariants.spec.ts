@@ -70,6 +70,11 @@ const CLEAN_SPECIAL: CountrySeed = {
   slugEn: 'test-special-area-zz',
   entityType: CountryEntityType.Special,
   continent: Continent.Antarctica,
+  // EXPLICIT, not merely inherited-as-absent. This fixture spreads `CLEAN_TERRITORY`, which now
+  // carries a population (corpus invariant 9 requires one on every non-special row) — so
+  // "no population here" has to be STATED or the spread silently makes this row violate
+  // row-rule 3. Leaving it implicit is what broke six cases the first time (PR #95 review round).
+  population: undefined,
 };
 
 describe('resolveEntityType', () => {
