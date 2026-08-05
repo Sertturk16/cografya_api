@@ -1680,9 +1680,11 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Üniter parlamenter anayasal monarşi',
     independenceNoteTr: "25 Mayıs 1946'da İngiliz manda yönetiminden bağımsız oldu.",
     introTr:
-      "Ürdün Çöküntü Vadisi'nin doğu yamacında kurulu Ürdün, denize yalnızca güneybatı " +
-      'ucundaki Akabe Körfezi üzerinden kısa bir şeritle açılır. Kuzeyde Suriye, doğuda ' +
-      'Irak, güneyde ve doğuda Suudi Arabistan, batıda İsrail ile komşudur.',
+      "Ürdün Çöküntü Vadisi'nin doğu yamacında kurulu Ürdün, denize yalnızca güneybatı ucundaki " +
+      'Akabe Körfezi üzerinden kısa bir şeritle açılır. Kuzeyde Suriye, doğuda Irak, güneyde ve ' +
+      'doğuda Suudi Arabistan, batıda İsrail ile komşudur. Batı sınırının orta kesiminde ise ' +
+      "komşu Filistin'dir; Şeria (Ürdün) Nehri ve Ölü Deniz hattı, Ürdün'ü Batı Şeria'dan " +
+      'ayırır.',
     landformNoteTr:
       'Ülkenin batı sınırını, Büyük Rift Vadisi sisteminin bir parçası olan Ürdün Çöküntü ' +
       'Vadisi çizer; bu derin çöküntü, çevresindeki platolardan 1.200-2.000 metre aşağıda ' +
