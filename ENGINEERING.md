@@ -281,12 +281,18 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   **THREE transcription lanes, and they are not interchangeable**; using the wrong one reports a
   false green, because each lane can only see the seed file it knows about. The shared
   exit-code contract lives in **three runner copies** (`country-runner.ts` +
-  `oneoff-province-climate-runner.ts` + `oneoff-province-prose-runner.ts`) driven by four
-  entry points (`cli.ts`, `oneoff-n1`, `oneoff-n2`, `oneoff-p1`) — a new lane author must
-  replicate the same invariant, not assume one copy guards all. **The runner/entry-point
-  split is structural, not stylistic:** the runner is deliberately `import.meta`-free so a
-  CommonJS (ts-jest) spec can import it, and the entry point owns `import.meta.dirname`,
-  argv and the usage banner. A refusal written into an entry point cannot be pinned at all.
+  `oneoff-province-climate-runner.ts` + `oneoff-province-prose-runner.ts`) driven by five
+  entry points (`cli.ts`, `oneoff-n1`, `oneoff-n2`, `oneoff-p1`, `oneoff-p2`) — a new
+  lane author must replicate the same invariant, not assume one copy guards all. **The
+  runner/entry-point split is structural, not stylistic:** the runner is deliberately
+  `import.meta`-free so a CommonJS (ts-jest) spec can import it, and the entry point owns
+  `import.meta.dirname`, argv and the usage banner. A refusal written into an entry point
+  cannot be pinned at all. **Direct-invocation guards in the four province-lane entry
+  points go through the shared, spec-pinned `isDirectInvocation` helper
+  (`oneoff-province-climate-runner.ts`) — never a raw `import.meta.url ===
+  pathToFileURL(argv[1])` compare, which silently no-ops the whole gate (exit 0, no
+  output) on any symlinked path (PR #94 review, SFH94-I1).** The caller passes its
+  `import.meta`-derived path; both sides are realpath'd.
   - **Countries — `pnpm seed:transcribe`.** `apply <draft.md>` writes fact-checked prose into
     the wave files under `src/database/seeds/countries/*.countries.ts`, `check <draft.md>`
     verifies it. **That directory is the tool's ENTIRE world** (`cli.ts` → `SEED_DIR`): it
@@ -312,7 +318,9 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   - **Province PROSE (non-climate narrative fields) — `oneoff-p<wave>-province-prose.ts`**,
     field-parametric, run directly with `node` exactly like the climate lane; shares the same
     exit-code contract via its own runner (`oneoff-province-prose-runner.ts`). The climate lane
-    remains `climateNarrativeTr`-only. P1 (PR #92) is the shipped precedent.
+    remains `climateNarrativeTr`-only. P1 (PR #92) and P2 (PR #94, `hydrographyNoteTr`)
+    are the shipped precedents; each wave = its own committed entry point (Atlas ruling
+    AS-3, option C).
   - **All THREE lanes share ONE exit-code contract** (below) and all three reuse the
     property-tested lossless emitter, which is the part that actually kills the PR #43 bug
     class. No entry point is wired into a CI job — the drafts live outside the repo, under
