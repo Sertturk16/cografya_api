@@ -30,6 +30,15 @@
  * The draft lives OUTSIDE the repo (`Owner's Inbox/`), so the path is a CLI argument and this
  * ENTRY POINT is wired into NO CI job (it is covered by `typecheck` only). The logic it drives IS
  * covered: `oneoff-province-prose-runner.ts` carries a unit spec in the `Test (unit)` job.
+ *
+ * ONE CROSS-LANE COUPLING, DELIBERATE AND WORTH NAMING (the file reads as if it were pure prose
+ * otherwise): `parseArgs` and `isDirectInvocation` are imported from the CLIMATE runner, not the
+ * prose one. Both are lane-agnostic — an argv shape and a "was I run directly?" check — and the
+ * climate runner is simply where they already lived and are already unit-tested. Duplicating
+ * either into the prose runner would fork an exit-code contract (`parseArgs` decides the exit-2
+ * usage path) and a false-green guard (`isDirectInvocation`, PR #94 SFH94-I1) across lanes,
+ * which is the failure mode this toolchain keeps re-learning. Only the FIELD-FOLDING half is
+ * lane-specific, and that is what `oneoff-province-prose-runner.ts` owns.
  */
 import * as path from 'node:path';
 
