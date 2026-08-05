@@ -30,10 +30,9 @@
  * paragraph, tables (`|`), rules (`---`) and headings.
  */
 import * as path from 'node:path';
-import { pathToFileURL } from 'node:url';
 
 import { N2_TARGETS } from './oneoff-province-climate-extract.ts';
-import { parseArgs, runWave } from './oneoff-province-climate-runner.ts';
+import { isDirectInvocation, parseArgs, runWave } from './oneoff-province-climate-runner.ts';
 
 const SEED_FILE = path.resolve(
   import.meta.dirname,
@@ -50,8 +49,9 @@ function main(): number {
 }
 
 // Run only when executed directly (`node oneoff-…ts …`), not when imported by a spec —
-// importing must not trigger the CLI or clobber the test runner's exit code.
-const invokedPath = process.argv[1];
-if (invokedPath !== undefined && import.meta.url === pathToFileURL(invokedPath).href) {
+// importing must not trigger the CLI or clobber the test runner's exit code. The comparison is
+// symlink-safe on BOTH sides (see `isDirectInvocation`): comparing the raw paths made this guard
+// no-op through any symlinked segment, which turned the mandated §8 gate into a silent exit 0.
+if (isDirectInvocation(import.meta.filename, process.argv[1])) {
   process.exitCode = main();
 }

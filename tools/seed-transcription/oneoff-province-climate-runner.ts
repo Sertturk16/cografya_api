@@ -312,3 +312,44 @@ export function parseArgs(
   if ((mode !== 'emit' && mode !== 'check') || draftPaths.length === 0) return null;
   return { mode, draftPaths };
 }
+
+/**
+ * "Was THIS module the file `node` was told to run?" — the direct-invocation guard every wave
+ * entry point closes with, so that importing one from a spec cannot fire its CLI or clobber the
+ * test runner's exit code.
+ *
+ * BOTH SIDES ARE RESOLVED THROUGH SYMLINKS, and that is the entire point. The ESM loader
+ * realpaths `import.meta.filename`, while `process.argv[1]` is whatever the caller typed. Every
+ * wave entry point used to compare the two RAW, so any symlinked path segment — macOS
+ * `/tmp` -> `/private/tmp`, `$TMPDIR`, a symlinked checkout or worktree — made them disagree and
+ * the guard then did NOTHING AT ALL: no output, exit 0. On the `check` command that is a false
+ * green on the mandated §8 fidelity gate, reported by a reviewer to judge by exit code, and it
+ * also swallowed the usage banner (exit 0 instead of 2 on bad argv). Reproduced on this machine,
+ * not hypothetical (PR #94, finding SFH94-I1).
+ *
+ * It lives HERE, in the shared shell, rather than being pasted into each entry point: the four
+ * entry points already import from this module, the invariant is subtle enough that four
+ * independent copies is how it silently rots, and a spec can only pin it if it is importable.
+ * This module stays `import.meta`-free — the caller passes its own `import.meta.filename` in.
+ *
+ * Returns false (never throws) when the path cannot be resolved: a guard that crashes at module
+ * load would be a worse failure than the one it replaces.
+ */
+export function isDirectInvocation(
+  moduleFilename: string,
+  invokedPath: string | undefined,
+): boolean {
+  if (invokedPath === undefined) return false;
+  const resolve = (candidate: string): string | null => {
+    try {
+      return fs.realpathSync(candidate);
+    } catch {
+      return null;
+    }
+  };
+  const invoked = resolve(invokedPath);
+  if (invoked === null) return false;
+  // The module side is realpath'd too, so the comparison holds even under `--preserve-symlinks`,
+  // where the loader would hand us the UNresolved specifier.
+  return (resolve(moduleFilename) ?? moduleFilename) === invoked;
+}
