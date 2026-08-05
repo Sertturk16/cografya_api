@@ -228,6 +228,20 @@ const CLIMATE_CLASS_TR = 'Akdeniz iklimi';
  *
  * Source of the text: NOVA's `Owner's Inbox/koppen-sablon-gecisi/cumle-taslaklari.md` §3,
  * transcribed with the seed-transcription emitter's own chunker — never retyped by hand.
+ *
+ * ## KNOWN SIDE EFFECT ON ANKARA (06) AND VAN (65) — surfaced, not fixed here
+ * Those two rows append their own divergence sentence AFTER this shared body ("Ankara, bu
+ * alternatif sınıflandırmalarda yarı-kurak step iklimi olarak ayrışır."). The A-2 sentence
+ * now sits BETWEEN the "Thornthwaite, Erinç, De Martonne ve Aydeniz" clause and that
+ * appendix, so the appendix's "bu alternatif sınıflandırmalarda" has to reach back one
+ * sentence further for its antecedent. Nothing became FALSE — the sentence in between is
+ * about a different pair of systems (Köppen vs the curriculum), not about the alternative
+ * classifications — but the reference is looser than it was.
+ *
+ * NOT repaired in this PR on purpose: the placement was ruled (append to the shared body,
+ * AT-10 / AK-4) and rewording published prose is the content line's call, not the seed
+ * author's. Routed to Atlas as a follow-up for NOVA; the candidate repair is to name the
+ * classifications explicitly in the two appendices instead of pointing at them.
  */
 const MGM_KOPPEN_CAVEAT_TR =
   "MGM'nin 2023 Köppen sınıflandırması bu ili Csa (Akdeniz iklimi) olarak verir. " +

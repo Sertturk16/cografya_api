@@ -170,6 +170,7 @@ describe('Province (e2e)', () => {
       'AddContinentAntarctica1785945600000',
       'AddCountryEntityType1785949200000',
       'AddCountryDetailSections1785952800000',
+      'AddProvinceClimateCurriculum1785974400000',
     ]);
   });
 
@@ -298,27 +299,40 @@ describe('Province (e2e)', () => {
     const A2_OPENING = 'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları';
 
     expect(rows).toHaveLength(81);
-    const tails = new Set<string>();
+    const tails: string[] = [];
     for (const row of rows) {
       const note = row.climateNoteTr ?? '';
       const at = note.indexOf(A2_OPENING);
       expect(at).toBeGreaterThan(-1);
-      tails.add(note.slice(at));
+      tails.push(note.slice(at));
     }
-    // ONE tail across all 81 rows. Two would mean the "shared body" claim in the seed's
-    // docblocks had quietly become false — the exact drift a per-class copy-paste produces.
-    expect(tails.size).toBe(1);
 
-    const [sentence] = [...tails];
-    expect(sentence).toBeDefined();
+    // THE TAILS ARE NOT ALL EQUAL, and asserting that they were is what this case got wrong on
+    // its first CI run. Two provinces (Ankara, Van) append their OWN divergence sentence to the
+    // shared caveat, so their note continues past A-2. The property that actually matters is
+    // narrower and is the one asserted: the shared sentence is a common PREFIX of every tail,
+    // and anything after it is an APPENDED sentence — never an edit of the shared body.
+    const sentence = tails.reduce((shortest, tail) =>
+      tail.length <= shortest.length ? tail : shortest,
+    );
+    expect(sentence.length).toBeGreaterThan(0);
+    expect(sentence.endsWith('.')).toBe(true);
+    for (const tail of tails) {
+      expect(tail.startsWith(sentence)).toBe(true);
+      // A per-province appendix begins with the space that separates two sentences. Without
+      // this, a tail that merely started with the shared text but then RAN ON inside the same
+      // sentence would pass — which is the drift a per-class copy-paste actually produces.
+      if (tail.length > sentence.length) expect(tail[sentence.length]).toBe(' ');
+    }
+
     // Code-agnostic, mechanically: no Köppen code and no digit anywhere in the shared sentence.
     for (const code of ['Csa', 'Cfa', 'Csb', 'Cfb', 'Dfb', 'Dsb', 'Dsa', 'BSk']) {
-      expect(sentence ?? '').not.toContain(code);
+      expect(sentence).not.toContain(code);
     }
-    expect(sentence ?? '').not.toMatch(/\d/u);
+    expect(sentence).not.toMatch(/\d/u);
     // …and it names no province (checked against the seed's own name list, so a future province
     // rename cannot make this stale).
-    for (const seed of SEED_PROVINCES) expect(sentence ?? '').not.toContain(seed.nameTr);
+    for (const seed of SEED_PROVINCES) expect(sentence).not.toContain(seed.nameTr);
   });
 
   it('phase 1 — seeding the pilot-5 into an empty DB inserts exactly those 5', () => {
