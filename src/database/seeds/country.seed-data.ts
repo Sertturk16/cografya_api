@@ -85,12 +85,22 @@ export interface CountrySeed {
  *   • Decision trail:    DECISIONS.md — two 2026-07-13 "World-map pilot" entries
  * Per-field Tier-1 / Tier-2 authorities:
  *   • Ad TR/EN + başkent TR/EN + ISO alpha-2/3  → T.C. Dışişleri Bakanlığı (MFA), 2026
- *   • Nüfus                                      → Dünya Bankası (World Bank) — year
- *       DELIBERATELY NOT asserted at world scale (owner ruling, 2026-07-13). NO EXCEPTIONS:
- *       Georgia carried one until 2026-08-05 (Geostat) and it was retired when the World Bank
- *       series caught up and began publishing that exact figure — see the GE row. This line is
- *       therefore true for EVERY row, which is what the generic "Kaynak: Dünya Bankası" credit
- *       the pages render depends on (AT-11a / FENER47-I1).
+ *   • Nüfus                                      → Dünya Bankası (World Bank) for the ordinary
+ *       country rows — year DELIBERATELY NOT asserted at world scale (owner ruling, 2026-07-13).
+ *       FOUR ROWS ARE NOT WORLD BANK, and this is by ruling, not by drift:
+ *         - Grönland (GL)  56.740   → Grønlands Statistik, 1 Oca 2026 (DEC 2026-08-01l)
+ *         - Kıbrıs (CY)    983.000  → CYSTAT, government-controlled area ONLY — deliberately
+ *                                     NOT the World Bank whole-island 1,36 M (DEC 2026-07-13)
+ *         - KKTC (QN)      489.308  → TRNC 2024 year-end revised projection; the World Bank
+ *                                     publishes no series for an unrecognised state
+ *         - Tayvan (TW) 23.299.132  → absent from `SP.POP.TOTL` altogether
+ *       Georgia USED to be a fifth (Geostat) and was retired on 2026-08-05 once the World Bank
+ *       series caught up and began publishing that exact figure — see the GE row.
+ *       CONSEQUENCE, STATED PLAINLY BECAUSE IT IS STILL OPEN: the generic "Kaynak: Dünya
+ *       Bankası" credit the pages render is therefore still WRONG on those four pages. Retiring
+ *       Georgia's exception narrowed FENER47-I1; it did not close it. The corpus-wide credit
+ *       fix is tracked by Atlas as its own item — do not read this block as "all rows are World
+ *       Bank" (an earlier version of this comment claimed exactly that, and was false).
  *   • Yüzölçümü (km²)                            → Dünya Bankası (AG.LND.TOTL.K2, 2023)
  *   • Kıta + BM alt-bölgesi (M49)                → UNSD M49 standard
  *   • Komşu ülkeler, yönetim biçimi, para birimi, resmi dil, bağımsızlık, fiziki coğrafya
@@ -263,7 +273,9 @@ const PILOT_COUNTRIES: readonly CountrySeed[] = [
     // bir yıl içinde YER DEĞİŞTİRDİ — istisnayı korumak, kurumun yayımlamadığı bir sayıya
     // kalıcı işaret koymak olurdu. DEC 2026-07-13 kuralı ("kaynağı adıyla an") değişmedi;
     // kuralın uygulandığı olgu değişti. Ders: vintage'a bağlı bir kaynak istisnasının son
-    // kullanma tarihi vardır (AT-11d) — bkz. data-provenance.md Gürcistan girdisi.
+    // kullanma tarihi vardır (AT-11d) — data-provenance.md'ye Gürcistan girdisi merge
+    // propagasyonunda eklenir. Bu satırın istisnası kalktı; korpusta DÖRT istisna
+    // (Grönland · Kıbrıs · KKTC · Tayvan) DURUYOR — bkz. dosya başlığındaki nüfus bloğu.
     population: 3_935_766,
     populationYear: null,
     areaKm2: 69_490,

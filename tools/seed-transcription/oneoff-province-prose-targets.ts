@@ -144,3 +144,61 @@ export const PROSE_WAVES: readonly {
 export function targetKey(target: ProseTarget): string {
   return `${target.plate} ${target.field}`;
 }
+
+/**
+ * Every `(plate, field)` pair any wave has EVER owned. **APPEND-ONLY — never delete a line.**
+ *
+ * WHAT THIS CLOSES. Ownership moves (see the note above), and moving is two edits: delete from
+ * the old wave, add to the new one. The second edit is the one nothing else can check. Forget it
+ * and the field becomes an ORPHAN — corrected prose sitting in the seed that NO draft asserts, so
+ * no `check` in any lane ever looks at it again and it can drift silently forever. The
+ * transfer-specific case pinned in the spec catches that for Mersin alone; this catches it for
+ * every pair, including the transfers nobody has made yet.
+ *
+ * The invariant is a SUPERSET one: the union of all live wave lists must contain every pair ever
+ * recorded here. It deliberately does NOT require the reverse — a wave may add new pairs freely,
+ * and appending them here is the same edit's other half.
+ *
+ * Order is landing order, then wave-local order. Entries are never removed even when the pair
+ * changes hands; that is exactly the history this list exists to hold.
+ */
+export const HISTORICALLY_OWNED: readonly string[] = [
+  // P1 (PR #92)
+  '19 hydrographyNoteTr',
+  // P2 (PR #94)
+  '58 hydrographyNoteTr',
+  // P3 (PR #95) — 33 settlementNoteTr was P3's and moved to P4 in PR #96; it stays listed here.
+  '65 settlementNoteTr',
+  '65 landformNoteTr',
+  '07 settlementNoteTr',
+  '48 settlementNoteTr',
+  '64 introTr',
+  '53 introTr',
+  '53 hydrographyNoteTr',
+  '34 landformNoteTr',
+  '34 hydrographyNoteTr',
+  '06 settlementNoteTr',
+  '21 settlementNoteTr',
+  '27 settlementNoteTr',
+  '47 settlementNoteTr',
+  '63 settlementNoteTr',
+  '31 settlementNoteTr',
+  '33 settlementNoteTr',
+  '25 settlementNoteTr',
+  '44 settlementNoteTr',
+  '42 settlementNoteTr',
+  '38 settlementNoteTr',
+  // P4 (PR #96)
+  '35 settlementNoteTr',
+  '41 settlementNoteTr',
+  '54 settlementNoteTr',
+  '09 settlementNoteTr',
+  '20 settlementNoteTr',
+  '45 settlementNoteTr',
+  '01 settlementNoteTr',
+  '46 settlementNoteTr',
+  '26 settlementNoteTr',
+  '52 settlementNoteTr',
+  '61 settlementNoteTr',
+  '55 settlementNoteTr',
+];
