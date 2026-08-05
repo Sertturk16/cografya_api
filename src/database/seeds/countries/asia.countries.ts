@@ -1673,7 +1673,7 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     capitalNameEn: 'Amman',
     capitalLatitude: 31.9454,
     capitalLongitude: 35.9284,
-    neighborIsoCodes: ['SY', 'IQ', 'SA', 'IL'],
+    neighborIsoCodes: ['SY', 'IQ', 'SA', 'IL', 'PS'],
     officialLanguagesTr: ['Arapça'],
     currencyNameTr: 'Ürdün Dinarı',
     currencyCode: 'JOD',

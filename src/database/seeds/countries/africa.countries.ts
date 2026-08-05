@@ -95,7 +95,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     capitalNameEn: 'Cairo',
     capitalLatitude: 30.0444,
     capitalLongitude: 31.2357,
-    neighborIsoCodes: ['LY', 'SD'],
+    neighborIsoCodes: ['LY', 'SD', 'IL', 'PS'],
     officialLanguagesTr: ['Arapça'],
     currencyNameTr: 'Mısır Lirası',
     currencyCode: 'EGP',
