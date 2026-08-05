@@ -3422,10 +3422,12 @@ export const WAVE6D_KARADENIZ_B_PROVINCES: readonly ProvinceSeed[] = [
       "İmparatorluğu'nun başkenti olarak 1986'da UNESCO Dünya Mirası Listesi'ne girmiştir. İlin en " +
       "yüksek noktası, İskilip ile Kargı arasındaki 2.087 metrelik Köse Dağı'dır.",
     hydrographyNoteTr:
-      'Türkiye topraklarında doğup denize dökülen en uzun akarsu olan Kızılırmak, yaklaşık 1.300 ' +
-      "kilometrelik güzergâhının önemli bir bölümünü Çorum'da geçirir. İlin güneyini kateden Delice " +
-      "Irmağı, Kızılırmak'a katılan başlıca koldur; ikisi de ova tarımını ve çeltik " +
-      'yetiştiriciliğini besler.',
+      'Türkiye topraklarında doğup denize dökülen en uzun akarsu olan Kızılırmak, güzergâhının ' +
+      "bir bölümünü Çorum'da geçirir. Su Yönetimi Genel Müdürlüğü nehrin uzunluğunu 1.151 " +
+      "kilometre verir. Millî Eğitim Bakanlığı'nın müfredat kaynaklarında yerleşik değer ise " +
+      "1.355 kilometredir. İlin güneyini kateden Delice Irmağı, Kızılırmak'a katılan başlıca " +
+      'koldur; ildeki ruhsatlı çeltik alanlarının beşte dördü ise kuzeydeki Kızılırmak boyunca ' +
+      'uzanır.',
     urbanizationRate: 76.82,
     netMigrationRate: -12.82,
     economyIndicator: {
