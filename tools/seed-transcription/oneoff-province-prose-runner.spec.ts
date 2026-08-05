@@ -56,12 +56,18 @@ function draft(sections: readonly { heading: string; field: string; body: string
 function writeSeed(
   rows: readonly { plate: string; nameTr: string; hydrography?: string; other?: string }[],
 ): string {
+  // JSON.stringify, NOT single quotes: Turkish fixture prose is full of apostrophes
+  // (`Testiye'nin`), and naive quoting would emit a seed fixture that does not parse — the test
+  // would then measure the tool against garbage instead of against a seed row.
   const literals = rows.map((row) => {
-    const parts = [`    plateCode: '${row.plate}',`, `    nameTr: '${row.nameTr}',`];
+    const parts = [
+      `    plateCode: ${JSON.stringify(row.plate)},`,
+      `    nameTr: ${JSON.stringify(row.nameTr)},`,
+    ];
     if (row.hydrography !== undefined) {
-      parts.push(`    hydrographyNoteTr: '${row.hydrography}',`);
+      parts.push(`    hydrographyNoteTr: ${JSON.stringify(row.hydrography)},`);
     }
-    if (row.other !== undefined) parts.push(`    introTr: '${row.other}',`);
+    if (row.other !== undefined) parts.push(`    introTr: ${JSON.stringify(row.other)},`);
     return `  {\n${parts.join('\n')}\n  },`;
   });
   return writeTemp('seed-fixture.ts', `export const ROWS = [\n${literals.join('\n')}\n];\n`);
@@ -82,9 +88,16 @@ describe('sectionName', () => {
     ['19. Çorum', 'Çorum'],
     ['7) Testiye', 'Testiye'],
     ['Testiye', 'Testiye'],
-  ])('strips the wave-local ordinal from %p', (heading, expected) => {
-    expect(sectionName(heading)).toBe(expected);
-  });
+    // The province drafts annotate headings with the Köppen code — same shape the climate
+    // lane's heading regex already tolerates.
+    ['19. Çorum (Cfb)', 'Çorum'],
+    ['3. Testiye (Csa)', 'Testiye'],
+  ])(
+    'strips the wave-local ordinal and any trailing parenthetical from %p',
+    (heading, expected) => {
+      expect(sectionName(heading)).toBe(expected);
+    },
+  );
 });
 
 describe('readCommitted', () => {
@@ -135,6 +148,32 @@ describe('checkTargetsAgainstSeed', () => {
       expect.stringContaining('no seed row carries this plate code'),
     ]);
   });
+
+  it('catches a row with no nameTr — the guard cannot silently pass unverifiable rows', () => {
+    // A row carrying `plateCode` but no `nameTr`: the cross-check has nothing to compare, which
+    // must be reported rather than treated as agreement.
+    const file = writeTemp(
+      'no-name.ts',
+      `export const ROWS = [\n  {\n    plateCode: '90',\n  },\n  {\n` +
+        `    plateCode: '91',\n    nameTr: 'Örnekabat',\n  },\n];\n`,
+    );
+    expect(checkTargetsAgainstSeed(TARGETS, readCommitted(file, []))).toEqual([
+      expect.stringContaining('has no nameTr to check against'),
+    ]);
+  });
+});
+
+describe('readCommitted — unfoldable values', () => {
+  it('separates "present but unfoldable" from "absent", so check can diagnose honestly', () => {
+    const file = writeTemp(
+      'unfoldable.ts',
+      `const SHARED = 'x';\nexport const ROWS = [\n  {\n    plateCode: '90',\n` +
+        `    nameTr: 'Testiye',\n    hydrographyNoteTr: SHARED,\n  },\n];\n`,
+    );
+    const row = readCommitted(file, ['hydrographyNoteTr']).get('90');
+    expect(row?.values.has('hydrographyNoteTr')).toBe(false);
+    expect(row?.unfoldable.has('hydrographyNoteTr')).toBe(true);
+  });
 });
 
 describe('collectBodies', () => {
@@ -177,38 +216,109 @@ describe('collectBodies', () => {
 });
 
 describe('runProse — the exit-code contract', () => {
-  const run = (mode: 'emit' | 'check', markdown: string, seedFile: string): number =>
-    runProse({
-      mode,
-      draftPaths: [writeTemp('draft-fixture.md', markdown)],
-      targets: TARGETS,
-      seedFile,
+  /**
+   * Run with stdout/stderr CAPTURED, so the exit code AND the report can be asserted — and so the
+   * failure-path cases below do not write real bytes into a green test run. Mirrors the sibling
+   * climate spec's helper.
+   */
+  const run = (
+    mode: 'emit' | 'check',
+    markdown: string,
+    seedFile: string,
+    targets: readonly ProseTarget[] = TARGETS,
+  ): { code: number; stdout: string; stderr: string } => {
+    let stdout = '';
+    let stderr = '';
+    const outSpy = jest.spyOn(process.stdout, 'write').mockImplementation((chunk) => {
+      stdout += String(chunk);
+      return true;
     });
+    const errSpy = jest.spyOn(process.stderr, 'write').mockImplementation((chunk) => {
+      stderr += String(chunk);
+      return true;
+    });
+    try {
+      const code = runProse({
+        mode,
+        draftPaths: [writeTemp('draft-fixture.md', markdown)],
+        targets,
+        seedFile,
+      });
+      return { code, stdout, stderr };
+    } finally {
+      outSpy.mockRestore();
+      errSpy.mockRestore();
+    }
+  };
 
   it('exits 0 when every committed value is byte-identical to the draft', () => {
-    expect(run('check', FULL_DRAFT, writeSeed(SEEDED))).toBe(0);
+    const { code, stdout } = run('check', FULL_DRAFT, writeSeed(SEEDED));
+    expect(code).toBe(0);
+    // The count line is the human-readable half of the gate; pin its semantics, not just the code.
+    expect(stdout).toContain('checked 2 field(s): 2 identical, 0 drifted, 0 not yet seeded');
   });
 
   it('exits 1 on drift — the gate cannot be read by eye', () => {
     const seed = writeSeed([{ ...SEEDED[0]!, hydrography: 'kaymış metin.' }, SEEDED[1]!]);
-    expect(run('check', FULL_DRAFT, seed)).toBe(1);
+    const { code, stdout } = run('check', FULL_DRAFT, seed);
+    expect(code).toBe(1);
+    expect(stdout).toContain('1 drifted');
   });
 
   it('exits 1 when a target is not yet seeded', () => {
     const seed = writeSeed([{ plate: '90', nameTr: 'Testiye' }, SEEDED[1]!]);
-    expect(run('check', FULL_DRAFT, seed)).toBe(1);
+    const { code, stdout } = run('check', FULL_DRAFT, seed);
+    expect(code).toBe(1);
+    expect(stdout).toContain('absent from the seed');
   });
 
   it('exits 1 when a draft covers no target at all — the false-green hole stays shut', () => {
-    expect(run('check', '# nothing the parser understands\n', writeSeed(SEEDED))).toBe(1);
+    const { code, stderr } = run('check', '# nothing the parser understands\n', writeSeed(SEEDED));
+    expect(code).toBe(1);
+    expect(stderr).toContain('no draft body found');
   });
 
-  it('exits 1 when the target list disagrees with the seed, before reading any draft', () => {
-    const seed = writeSeed([{ plate: '90', nameTr: 'Başkayer' }, SEEDED[1]!]);
-    expect(run('check', FULL_DRAFT, seed)).toBe(1);
+  it('exits 1 on an EMPTY target list rather than reporting "checked 0 field(s)"', () => {
+    const { code, stderr } = run('check', FULL_DRAFT, writeSeed(SEEDED), []);
+    expect(code).toBe(1);
+    expect(stderr).toContain('target list is empty');
   });
 
-  it('emits successfully for a complete draft', () => {
-    expect(run('emit', FULL_DRAFT, writeSeed(SEEDED))).toBe(0);
+  it('exits 1 when the target list disagrees with the seed, BEFORE reading any draft', () => {
+    // The fixture row still carries the field, so the only reason to fail is the name mismatch —
+    // otherwise this case would pass through the "not yet seeded" path and prove nothing.
+    const seed = writeSeed([{ plate: '90', nameTr: 'Başkayer', hydrography: BODY_90 }, SEEDED[1]!]);
+    const { code, stderr } = run('check', FULL_DRAFT, seed);
+    expect(code).toBe(1);
+    expect(stderr).toContain('the wave target list disagrees with the seed');
+  });
+
+  it('prints one emitted snippet per target', () => {
+    const { code, stdout } = run('emit', FULL_DRAFT, writeSeed(SEEDED));
+    expect(code).toBe(0);
+    expect(stdout.match(/^ {4}hydrographyNoteTr:/gmu)).toHaveLength(TARGETS.length);
+    expect(stdout).toContain(BODY_90);
+  });
+
+  it('REPORTS a tight join in check mode too — the gate must not be blind to it', () => {
+    // The draft breaks a line after an apostrophe, so the parser joins with no separator and
+    // flags it. `check` compares folded values and would otherwise stay silent about the join.
+    const tight = "## 1. Testiye\n\n### `hydrographyNoteTr`\n\n> Testiye'\n> nin ırmağı.\n";
+    const seed = writeSeed([
+      { plate: '90', nameTr: 'Testiye', hydrography: "Testiye'nin ırmağı." },
+    ]);
+    const targets = [TARGETS[0]!];
+    const { code, stdout } = run('check', tight, seed, targets);
+    expect(code).toBe(0);
+    expect(stdout).toContain('No-space line joins performed');
+    expect(stdout).toContain('90 Testiye.hydrographyNoteTr:');
+  });
+
+  it('surfaces a non-fatal parser warning instead of dropping it', () => {
+    const withWarning =
+      FULL_DRAFT + '\n## 3. Testiye\n\n### `bilinmeyenAlan`\n\n> kaybolmaması gereken metin.\n';
+    const { code, stderr } = run('check', withWarning, writeSeed(SEEDED));
+    expect(code).toBe(0);
+    expect(stderr).toContain('bilinmeyenAlan');
   });
 });

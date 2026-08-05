@@ -33,7 +33,7 @@ import ts from 'typescript';
 import { type NarrativeField, parseDraft } from './draft-parser.ts';
 import { emitConcat } from './emit.ts';
 import { foldProvinceName } from './oneoff-province-climate-extract.ts';
-import { foldStringConcat } from './seed-reader.ts';
+import { foldStringConcat, syntaxErrorsIn } from './seed-reader.ts';
 
 /** One field of one province this wave transcribes. `name` is how the DRAFT heads the section. */
 export interface ProseTarget {
@@ -45,12 +45,35 @@ export interface ProseTarget {
 /** One committed seed row, as far as this tool cares. */
 export interface CommittedRow {
   readonly nameTr: string | null;
-  /** Only the fields asked for, and only those the row actually carries. */
+  /** Only the fields asked for, and only those the row actually carries AND we could fold. */
   readonly values: ReadonlyMap<string, string>;
+  /**
+   * Fields the row DOES carry but whose initializer is not a foldable string literal chain (a
+   * template literal, a shared constant, a function call).
+   *
+   * Tracked separately so `check` can say so. Lumping them in with "absent from the seed" gives
+   * the right exit code with a diagnosis that sends the reader to write a field that is already
+   * there — the wrong-rationale-message class this lane exists to avoid.
+   */
+  readonly unfoldable: ReadonlySet<string>;
 }
 
 /** Property indent of a field inside a province seed object (`    hydrographyNoteTr:`). */
 const PROPERTY_INDENT = 4;
+
+/**
+ * Syntax errors in the committed seed source. Empty on a healthy file.
+ *
+ * WHY THIS IS CHECKED RATHER THAN ASSUMED: `ts.createSourceFile` is ERROR-TOLERANT. Handed a seed
+ * file with a missing comma it still returns a tree — one quietly missing properties or whole
+ * rows. `check` would then compare against an index that never saw the field and print
+ * "0 drifted": a false green on the very command `ENGINEERING.md` §8 mandates as the gate. Syntax
+ * is not this gate's remit, but a gate a broken file can defeat is not a gate. Same refusal the
+ * country lane's `cli.ts` performs.
+ */
+export function seedSyntaxErrors(seedFile: string): string[] {
+  return syntaxErrorsIn(fs.readFileSync(seedFile, 'utf8'));
+}
 
 /**
  * Fold every `plateCode`-bearing seed row out of the AST, keyed by plate code, capturing the
@@ -74,6 +97,7 @@ export function readCommitted(
       let plate: string | null = null;
       let nameTr: string | null = null;
       const values = new Map<string, string>();
+      const unfoldable = new Set<string>();
       for (const property of node.properties) {
         if (!ts.isPropertyAssignment(property)) continue;
         const name = ts.isIdentifier(property.name)
@@ -87,9 +111,10 @@ export function readCommitted(
         else if (wanted.has(name)) {
           const folded = foldStringConcat(property.initializer);
           if (folded !== null) values.set(name, folded);
+          else unfoldable.add(name);
         }
       }
-      if (plate !== null) byPlate.set(plate, { nameTr, values });
+      if (plate !== null) byPlate.set(plate, { nameTr, values, unfoldable });
     }
     ts.forEachChild(node, visit);
   };
@@ -97,9 +122,19 @@ export function readCommitted(
   return byPlate;
 }
 
-/** `19. Çorum` -> `Çorum`. The ordinal is wave-local numbering, never part of the name. */
+/**
+ * `19. Çorum` -> `Çorum`. The ordinal is wave-local numbering, never part of the name.
+ *
+ * A TRAILING PARENTHETICAL IS ALSO DROPPED (`19. Çorum (Cfb)` -> `Çorum`), matching the climate
+ * lane's own heading regex. The province drafts annotate headings with the Köppen code, so
+ * without this a perfectly well-formed wave draft would fail the "target list does not claim"
+ * guard — failing loud, but pointing at the target table instead of at the heading shape.
+ */
 export function sectionName(heading: string): string {
-  return heading.replace(/^\d+[.)]\s*/u, '').trim();
+  return heading
+    .replace(/^\d+[.)]\s*/u, '')
+    .replace(/\s*\([^)]*\)\s*$/u, '')
+    .trim();
 }
 
 /** The key a target and a parsed draft body meet on. */
@@ -153,13 +188,19 @@ export interface DraftBody {
  *    still exited 0 — the mirror of the "no draft body found" failure;
  *  - two drafts naming the same province+field with different prose is the "pick a winner"
  *    situation the country lane also refuses, and for the same reason.
+ *
+ * `warnings` are the parser's non-fatal diagnostics (a `### \`somethingElse\`` header this lane
+ * does not transcribe). They are RETURNED rather than dropped because `parseDraft`'s own contract
+ * is "printed and the run continues" — a swallowed warning turns a mistyped field header into
+ * prose that silently never reaches the seed, which is the failure this file exists to close.
  */
 export function collectBodies(
   contents: readonly string[],
   targets: readonly ProseTarget[],
-): { bodies: Map<string, DraftBody>; problems: string[] } {
+): { bodies: Map<string, DraftBody>; problems: string[]; warnings: string[] } {
   const bodies = new Map<string, DraftBody>();
   const problems: string[] = [];
+  const warnings: string[] = [];
 
   const byName = new Map<string, ProseTarget>();
   for (const target of targets) {
@@ -169,9 +210,9 @@ export function collectBodies(
   contents.forEach((markdown, index) => {
     const { fields, diagnostics } = parseDraft(markdown);
     for (const diagnostic of diagnostics) {
-      if (diagnostic.severity === 'error') {
-        problems.push(`  draft #${index + 1}, line ${diagnostic.line}: ${diagnostic.message}`);
-      }
+      const line = `  draft #${index + 1}, line ${diagnostic.line}: ${diagnostic.message}`;
+      if (diagnostic.severity === 'error') problems.push(line);
+      else warnings.push(line);
     }
     for (const parsed of fields) {
       const folded = foldProvinceName(sectionName(parsed.section));
@@ -195,7 +236,27 @@ export function collectBodies(
     }
   });
 
-  return { bodies, problems };
+  return { bodies, problems, warnings };
+}
+
+/**
+ * Print every no-separator line join the parser performed, for a human to eyeball. Mirrors the
+ * country lane's `reportTightJoins` (`cli.ts`), including its silence when the list is empty.
+ */
+function reportTightJoins(
+  targets: readonly ProseTarget[],
+  bodies: ReadonlyMap<string, DraftBody>,
+): void {
+  const joins = targets.flatMap((target) =>
+    (bodies.get(targetKey(target.plate, target.field))?.tightJoins ?? []).map(
+      (join) => `  ${target.plate} ${target.name}.${target.field}: ${join}`,
+    ),
+  );
+  if (joins.length === 0) return;
+  process.stdout.write(
+    `\nNo-space line joins performed (draft broke a line after "'" or "-"; verify each):\n` +
+      `${joins.join('\n')}\n`,
+  );
 }
 
 export interface ProseRunOptions {
@@ -216,6 +277,24 @@ export interface ProseRunOptions {
  * draft yields zero items and a green exit), closed here structurally rather than by convention.
  */
 export function runProse({ mode, draftPaths, targets, seedFile }: ProseRunOptions): number {
+  // AN EMPTY TARGET LIST WOULD SAIL THROUGH EVERY GUARD BELOW and print "checked 0 field(s)"
+  // with exit 0 — reintroducing, via the wave entry point, exactly the false green this lane's
+  // count is structured to prevent. A wave with nothing to transcribe is a mistake, not a pass.
+  if (targets.length === 0) {
+    process.stderr.write('error: the wave target list is empty — nothing to emit or check\n');
+    return 1;
+  }
+
+  const syntaxErrors = seedSyntaxErrors(seedFile);
+  if (syntaxErrors.length > 0) {
+    process.stderr.write(
+      `seed source does not parse — refusing to run, because every mode would be reading an\n` +
+        `incomplete index (and "check" would report a green it did not earn):\n` +
+        `${syntaxErrors.map((e) => `  ${e}`).join('\n')}\n`,
+    );
+    return 1;
+  }
+
   const contents = draftPaths.map((draftPath) => fs.readFileSync(draftPath, 'utf8'));
   const committed = readCommitted(
     seedFile,
@@ -230,7 +309,11 @@ export function runProse({ mode, draftPaths, targets, seedFile }: ProseRunOption
     return 1;
   }
 
-  const { bodies, problems } = collectBodies(contents, targets);
+  const { bodies, problems, warnings } = collectBodies(contents, targets);
+  // Printed BEFORE the guards, so a warning that explains the failure below is visible with it.
+  if (warnings.length > 0) {
+    process.stderr.write(`warning(s):\n${warnings.join('\n')}\n`);
+  }
   if (problems.length > 0) {
     process.stderr.write(`error: draft problem(s):\n${problems.join('\n')}\n`);
     return 1;
@@ -265,9 +348,17 @@ export function runProse({ mode, draftPaths, targets, seedFile }: ProseRunOption
   const missing: string[] = [];
   for (const target of targets) {
     const draftValue = bodies.get(targetKey(target.plate, target.field))?.value ?? '';
-    const seedValue = committed.get(target.plate)?.values.get(target.field) ?? null;
+    const row = committed.get(target.plate);
+    const seedValue = row?.values.get(target.field) ?? null;
     if (seedValue === null) {
-      missing.push(`  ${target.plate} ${target.name}.${target.field} — absent from the seed`);
+      // Distinguish "the field is not there" from "it is there but we could not fold it": the
+      // second sends the reader to the seed row to look at a template literal or a shared
+      // constant, the first to write the field at all. Same exit code, honest diagnosis.
+      const reason =
+        row?.unfoldable.has(target.field) === true
+          ? 'present in the seed but its value is not a foldable string-literal chain'
+          : 'absent from the seed';
+      missing.push(`  ${target.plate} ${target.name}.${target.field} — ${reason}`);
       continue;
     }
     if (seedValue !== draftValue) {
@@ -290,5 +381,14 @@ export function runProse({ mode, draftPaths, targets, seedFile }: ProseRunOption
   );
   if (drifted.length > 0) process.stdout.write(`\nDRIFT:\n${drifted.join('\n')}\n`);
   if (missing.length > 0) process.stdout.write(`\nNOT SEEDED:\n${missing.join('\n')}\n`);
+
+  // THE TIGHT-JOIN SIGNAL MUST SURVIVE `check`, not only `emit`. `check` is the mandated
+  // fidelity gate, and both of its sides run the SAME parser — so a wrongly glued line join
+  // ("Karadeniz-" + "Akdeniz") agrees with itself and exits 0. The heuristic's every firing is
+  // reported for a human to eyeball (`draft-parser.ts` JOIN RULE); computing that list and
+  // throwing it away here would make the gate blind to the exact PR #43 class it exists to stop.
+  // Reporting only — deliberately NOT a failure mode, since the rule is right far more often
+  // than not and a hard failure would train people to route around the gate.
+  reportTightJoins(targets, bodies);
   return drifted.length > 0 || missing.length > 0 ? 1 : 0;
 }

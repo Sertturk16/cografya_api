@@ -3328,9 +3328,11 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
  *   WHAT CHANGED: that reasoning rested on "only Tier-2 alternatives exist", and a Tier-1
  *   one was then found — the SAME institution's own WMO/OSCAR station record (WIGOS
  *   0-20000-0-17026, station number 17026 in both records) gives 32 m. The forecast
- *   service's 0 is a null-value encoding, not a measurement: across 81 provinces, 56 of the
- *   62 OSCAR-matched rows agree exactly, and the outliers are precisely the 0 m rows. The
- *   same correction lands on Kocaeli (0→74) and Rize (0→3) in this PR.
+ *   service's 0 is a null-value encoding, not a measurement: of the 81 provinces, 62 match an
+ *   OSCAR station and 56 of those agree exactly. Exactly FOUR deviate by more than 15 m —
+ *   these three 0 m rows AND Şırnak (plate 73, seeded 1.350 vs OSCAR 1.269), which is
+ *   deliberately NOT touched here and remains a separate open board item. The same
+ *   correction lands on Kocaeli (0→74) and Rize (0→3) in this PR.
  *
  * DEEP CONTENT — ALL 9 Tier-B (nüfus <1M, none büyükşehir → no Mardin-type exception).
  *   The 6-field set: introTr + (shortened) landformNoteTr + hydrographyNoteTr +
