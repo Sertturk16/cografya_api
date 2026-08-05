@@ -1919,7 +1919,10 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     populationYear: POPULATION_YEAR,
     areaKm2: 3397,
     districtCount: 12,
-    elevationM: 0, // MGM İzmit istasyonu (ilin hiç "Merkez" adlı ilçesi olmadı; 0 m = İzmit Körfezi kıyısı)
+    // MGM İzmit istasyonu (ilin hiç "Merkez" adlı ilçesi olmadı). Rakım: MGM'nin WMO/OSCAR
+    // kaydı, WIGOS 0-792-0-17066 → 74 m (erişim 2026-08-04). Tahmin servisinin 0'ı ölçüm değil,
+    // boş-değer kodlaması; koordinat-özdeş Derince kaydı da 74 m veriyor (→ AN-1).
+    elevationM: 74,
     latitude: 40.7663,
     longitude: 29.9173,
     // İstanbul=34, Bursa=16, Sakarya=54, Yalova=77 (+ Karadeniz kıyısı — hariç)
@@ -3315,13 +3318,19 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
  *   least-rainy coast, Tokat an inland rain-shadow valley; both ship the Csa "Akdeniz
  *   iklimi" label). Each il's caveat names its OWN code — the copy-paste guard.
  *
- * SİNOP ELEVATION = 0 m (flagged, NON-blocking): MGM's literal "Merkez" record returns
- *   0 m. Unlike Kahramanmaraş (wave-4), the GLOSSARY §1 same-coordinate exception could
- *   NOT be applied — Sinop's district dropdown has no coordinate-identical, non-broken
- *   "alias" record for Merkez (the OTHER 0 m record, Türkeli, shares ITS coordinate with
- *   Ayancık, a different point). So the literal MGM value 0 is seeded AS-IS; a sourced
- *   editorial correction (web sources give ~18-28 m) is an OPEN owner/Atlas call, not
- *   invented here (draft Bölüm 3, ORTA priority — surfaced to Atlas, not silently fixed).
+ * SİNOP ELEVATION — CLOSED by AN-1 (2026-08-04); seeded value is 32 m, not 0.
+ *   THE WAVE-6d RECORD, KEPT AS SUPERSEDED (not deleted): MGM's literal "Merkez" record
+ *   returns 0 m, and unlike Kahramanmaraş (wave-4) the GLOSSARY §1 same-coordinate
+ *   exception could NOT be applied — Sinop's district dropdown has no coordinate-identical,
+ *   non-broken "alias" record for Merkez (the OTHER 0 m record, Türkeli, shares ITS
+ *   coordinate with Ayancık, a different point). So the literal 0 was seeded AS-IS and a
+ *   sourced editorial correction was left an OPEN owner/Atlas call.
+ *   WHAT CHANGED: that reasoning rested on "only Tier-2 alternatives exist", and a Tier-1
+ *   one was then found — the SAME institution's own WMO/OSCAR station record (WIGOS
+ *   0-20000-0-17026, station number 17026 in both records) gives 32 m. The forecast
+ *   service's 0 is a null-value encoding, not a measurement: across 81 provinces, 56 of the
+ *   62 OSCAR-matched rows agree exactly, and the outliers are precisely the 0 m rows. The
+ *   same correction lands on Kocaeli (0→74) and Rize (0→3) in this PR.
  *
  * DEEP CONTENT — ALL 9 Tier-B (nüfus <1M, none büyükşehir → no Mardin-type exception).
  *   The 6-field set: introTr + (shortened) landformNoteTr + hydrographyNoteTr +
@@ -3437,10 +3446,10 @@ export const WAVE6D_KARADENIZ_B_PROVINCES: readonly ProvinceSeed[] = [
     populationYear: POPULATION_YEAR,
     areaKm2: 5717,
     districtCount: 9,
-    // MGM "Merkez" istasyonu literal 0 m — GLOSSARY §1 istisnası UYGULANAMADI (koordinat-özdeş,
-    // bozuk-olmayan komşu kayıt yok); literal MGM değeriyle bırakıldı, editoryal düzeltme OPEN
-    // (draft Bölüm 3, batch header'daki "SİNOP ELEVATION" notu). Atlas'a bildirildi.
-    elevationM: 0,
+    // MGM Merkez istasyonu. Rakım: MGM'nin WMO/OSCAR kaydı, WIGOS 0-20000-0-17026 → 32 m
+    // (erişim 2026-08-04; istasyon no 17026 iki kayıtta da aynı). Tahmin servisinin 0'ı ölçüm
+    // değil, boş-değer kodlaması; wave-6d'nin "editoryal düzeltme OPEN" notu superseded (→ AN-1).
+    elevationM: 32,
     latitude: 42.0299,
     longitude: 35.1545,
     // Çorum=19, Kastamonu=37, Samsun=55 — 3 komşu (+ kuzeyde Karadeniz kıyısı, kara komşusu değil).
@@ -5444,7 +5453,10 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
     populationYear: POPULATION_YEAR,
     areaKm2: 3835,
     districtCount: 12,
-    elevationM: 0, // MGM Merkez istasyonu (kıyı; deniz seviyesine çok yakın — Kocaeli/İzmit emsali)
+    // MGM Merkez istasyonu. Rakım: MGM'nin WMO/OSCAR kaydı, WIGOS 0-20000-0-17040 → 3 m
+    // (erişim 2026-08-04). Tahmin servisinin 0'ı ölçüm değil, boş-değer kodlaması; eski
+    // "Kocaeli/İzmit emsali" gerekçesi düştü — o satırın 0'ı da aynı kusurdu (→ AN-1).
+    elevationM: 3,
     latitude: 41.04,
     longitude: 40.5013,
     // Trabzon=61, Artvin=08, Bayburt=69, Erzurum=25
