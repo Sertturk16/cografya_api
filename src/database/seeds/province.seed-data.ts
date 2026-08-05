@@ -442,22 +442,35 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     //    hydrography framing, same fact-checked source). The structured/numeric detail
     //    fields (hydrographyFeatures, urbanizationRate, netMigrationRate, economyIndicator)
     //    are UNCHANGED from the fact-checked pilot.
+    //    P3 CONTENT FIX (2026-08-05, AT-8, B18): two repetitions removed, no fact touched.
+    //    (1) The Haliç/ria explanation was told TWICE — the full definition stays in
+    //    landformNoteTr, where "ria" is a coastal-geomorphology term and belongs; the
+    //    hydrography note now just states that the two streams meet there. (2) The
+    //    "Karadeniz'i Marmara Denizi'ne bağlayan" apposition appeared THREE times (landform,
+    //    intro, hydrography); it now survives only in introTr, the first place a reader
+    //    meets it. Dam list, 868/905 million m³, the two-layer current and the lagoon
+    //    paragraph are byte-identical. The hydrography field is still one long block —
+    //    splitting it into `\n\n` paragraphs is AÇIK-7, deliberately NOT done here.
     landformNoteTr:
       "İstanbul, jeomorfolojik olarak Çatalca-Kocaeli Bölümü'nde yer alır. İlin büyük bölümünü " +
       'dağlar ya da ovalar değil, aşınım yüzeyleri üzerinde gelişmiş bir plato oluşturur; bu ' +
       "plato Kocaeli Platosu'nun bir parçasıdır. İlin en yüksek noktası, Kartal, Pendik, " +
       "Sultanbeyli ve Sancaktepe sınırında yer alan 538 metrelik Aydos Dağı'dır. Onu 438 " +
-      'metreyle Kayış Dağı ve 409 metreyle Alem Dağı izler.\n\n' +
-      "Karadeniz'i Marmara Denizi'ne bağlayan İstanbul Boğazı, 17 deniz mili (yaklaşık 31,5 km) " +
-      'uzunluğundadır. Üzerinde, güneyden kuzeye doğru üç asma köprü iki yakayı birbirine ' +
-      "bağlar: 1973'te açılan 15 Temmuz Şehitler Köprüsü, 1988'de açılan Fatih Sultan Mehmet " +
-      "Köprüsü ve 2016'da açılan Yavuz Sultan Selim Köprüsü.\n\n" +
+      'metreyle Kayış Dağı ve 409 metreyle Alem Dağı izler.' +
+      '\n\n' +
+      'İstanbul Boğazı, 17 deniz mili (yaklaşık 31,5 km) uzunluğundadır. Üzerinde, güneyden ' +
+      "kuzeye doğru üç asma köprü iki yakayı birbirine bağlar: 1973'te açılan 15 Temmuz Şehitler " +
+      "Köprüsü, 1988'de açılan Fatih Sultan Mehmet Köprüsü ve 2016'da açılan Yavuz Sultan Selim " +
+      'Köprüsü.' +
+      '\n\n' +
       'Boğazın Avrupa yakasında yer alan Haliç, Kağıthane ve Alibeyköy derelerinin birleşip ' +
       'denizin istila ettiği bir vadi ağzından oluşmuştur. Coğrafyada bu tip kıyılara "ria" ' +
-      'denir.\n\n' +
+      'denir.' +
+      '\n\n' +
       'Tarihi yarımada — bugünkü Fatih ilçesi — şehrin en eski yerleşim çekirdeğidir ve ' +
       'geleneksel olarak yedi tepe üzerine kurulu kabul edilir. Bu tanım surlariçi bölgeyi ' +
-      "kapsar; ilin toplam yüzölçümü 5.461 km²'dir.\n\n" +
+      "kapsar; ilin toplam yüzölçümü 5.461 km²'dir." +
+      '\n\n' +
       "İstanbul'un yaklaşık 20 km güneyinden Kuzey Anadolu Fayı (KAF) geçer. Dünyanın en aktif " +
       'fay sistemlerinden biri olan KAF, toplam 1.500 km uzunluğunda, sağ yanal doğrultu atımlı ' +
       'bir kırık hattıdır. Fayın Marmara Denizi içinden geçen kolu — Adalar, Silivri, ' +
@@ -472,15 +485,14 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
       'yakasında Ömerli, Darlık ve Elmalı; Avrupa yakasında Terkos, Büyükçekmece, Sazlıdere, ' +
       'Pabuçdere, Alibey, Kazandere ve Istrancalar. Bu barajların toplam aktif biriktirme hacmi ' +
       "yaklaşık 868 milyon m³, yıllık ortalama su verimi ise yaklaşık 905 milyon m³'tür. Ayrıca " +
-      "Melen Sistemi üzerinden Düzce'den de trans-havza su aktarımı yapılır. " +
-      "Karadeniz'i Marmara Denizi'ne bağlayan İstanbul Boğazı'nda, dünyada nadir görülen iki " +
-      'katmanlı bir akıntı sistemi vardır: yüzeyde Karadeniz kökenli az tuzlu su ' +
-      "Marmara'ya doğru, dipte ise Marmara ve Akdeniz kökenli daha tuzlu ve yoğun su " +
-      "Karadeniz'e doğru akar. Boğazın Avrupa yakasında, Kağıthane ve Alibeyköy derelerinin " +
-      'birleşip denizin istila ettiği bir vadi ağzı olan Haliç yer alır. ' +
-      'İlin batı kesiminde, Küçükçekmece ve Büyükçekmece adlarını taşıyan iki kıyı gölü (lagün) ' +
-      'bulunur. Büyükçekmece aynı zamanda bir İSKİ barajı olarak işletilir. Küçükçekmece ise ' +
-      'denizle bağlantısı nedeniyle tuzlu su içerir ve içme suyu kaynağı olarak kullanılmaz.',
+      "Melen Sistemi üzerinden Düzce'den de trans-havza su aktarımı yapılır. İstanbul " +
+      "Boğazı'nda, dünyada nadir görülen iki katmanlı bir akıntı sistemi vardır: yüzeyde " +
+      "Karadeniz kökenli az tuzlu su Marmara'ya doğru, dipte ise Marmara ve Akdeniz kökenli daha " +
+      "tuzlu ve yoğun su Karadeniz'e doğru akar. Boğazın Avrupa yakasında Kağıthane ve Alibeyköy " +
+      "dereleri Haliç'te birleşir. İlin batı kesiminde, Küçükçekmece ve Büyükçekmece adlarını " +
+      'taşıyan iki kıyı gölü (lagün) bulunur. Büyükçekmece aynı zamanda bir İSKİ barajı olarak ' +
+      'işletilir. Küçükçekmece ise denizle bağlantısı nedeniyle tuzlu su içerir ve içme suyu ' +
+      'kaynağı olarak kullanılmaz.',
     hydrographyFeatures: [
       { name: 'Ömerli Barajı', type: HydrographyFeatureType.Baraj },
       { name: 'Terkos Barajı', type: HydrographyFeatureType.Baraj },
@@ -590,11 +602,11 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 100.0,
     netMigrationRate: 8.91,
     settlementNoteTr:
-      "Ankara'da da TÜİK'in il/ilçe merkezi nüfus oranı %100 çıkıyor — büyükşehir " +
-      'statüsündeki illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 ' +
-      'sayılı Kanun) bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor. Ankara ' +
-      '2024 yılında 202.402 kişi aldı, 150.373 kişi verdi; net göç hızı binde +8,91 ile ' +
-      "İstanbul'un ardından Türkiye'nin en yüksek pozitif değerlerinden birine ulaştı.",
+      "Ankara'da da TÜİK'in il/ilçe merkezi nüfus oranı %100 çıkıyor — büyükşehir statüsündeki " +
+      'illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +
+      'sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. Ankara 2024 yılında ' +
+      "202.402 kişi aldı, 150.373 kişi verdi; net göç hızı binde +8,91 ile İstanbul'un ardından " +
+      "Türkiye'nin en yüksek pozitif değerlerinden birine ulaştı.",
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%10,5',
@@ -702,24 +714,36 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
       ' Van, bu alternatif sınıflandırmalarda karasal/göl-etkili iklim olarak ayrışır.',
     // ── Van deep content (wave-1 — see the WAVE-1 DEEP CONTENT note above). Doğu Anadolu /
     //    volkanik + kapalı havza framing: Van Gölü as a Nemrut volcanic-dam lake + the 2011
-    //    Erçiş/Edremit quakes (landform); the göl's sodalı physical properties + DSİ dams
-    //    (hydrography). netMigrationRate is the sole NEGATIVE of the four (-20.02 ‰);
-    //    economyIndicator is the 2024 TÜİK GSYH share (%0,5, Atlas-ruled metric choice).
+    //    2011 Tabanlı/Edremit quakes (landform); the göl's sodalı physical properties + DSİ
+    //    dams (hydrography). economyIndicator is the 2024 TÜİK GSYH share (%0,5, Atlas-ruled
+    //    metric choice).
+    //    P3 CONTENT FIX (2026-08-05, AT-6/AT-8): the landform note said Nemrut was "sönmüş"
+    //    while /turkiye/bitlis called the same volcano "uykuda" — the site contradicted
+    //    itself. Now aligned on the two official sources (Tatvan Kaymakamlığı + Kültür
+    //    Portalı: uyuyan aktif, last lava 1441). Also `Erçiş` -> `Erciş` AND the epicentre's
+    //    district attribution: Tabanlı is Tuşba/Van Merkez, never Erciş (Tuşba Kaymakamlığı
+    //    mahalle list); AFAD names the event "Van-Erciş merkezli" because the HEAVIEST DAMAGE
+    //    was in Erciş, which the prose now says instead. netMigrationRate (-20.02 ‰) is NOT
+    //    described as "the sole negative" any more: that held only inside the four-province
+    //    pilot set, and the corpus itself carries Gümüşhane -42,80 / Bayburt -35,16 /
+    //    Siirt -33,96. Do not reintroduce a superlative here without a national-set check.
     landformNoteTr:
-      'Van, jeolojik olarak genç bir volkanik ve tektonik bölgede yer alır. İlin batısındaki ' +
-      "Van Gölü, yaklaşık 200 bin yıl önce Nemrut Dağı'nın patlayıp lav akıntılarıyla " +
-      'bölgenin drenajını tıkaması sonucu oluşmuş bir volkanik set gölüdür. Nemrut Dağı, ' +
-      'tepesinde 6 kilometre çapında bir kalderası olan, 2.935 metre yükseklikte sönmüş bir ' +
-      'yanardağdır.\n\n' +
+      'Van, jeolojik olarak genç bir volkanik ve tektonik bölgede yer alır. İlin batısındaki Van ' +
+      "Gölü, yaklaşık 200 bin yıl önce Nemrut Dağı'nın patlayıp lav akıntılarıyla bölgenin " +
+      'drenajını tıkaması sonucu oluşmuş bir volkanik set gölüdür. Nemrut Dağı, tepesinde 6 ' +
+      'kilometre çapında bir kalderası olan 2.935 metrelik bir yanardağdır. Uyuyan aktif bir ' +
+      'volkan olarak sınıflandırılır; bilinen son lav çıkışı 1441 yılında gerçekleşmiştir.' +
+      '\n\n' +
       "Gölün kuzeyinde yükselen Süphan Dağı ise 4.058 metreyle Ağrı Dağı ve Cilo Dağı'nın " +
-      "ardından Anadolu'nun üçüncü yüksek zirvesidir; tepesi yıl boyunca buzulla kaplıdır. Bu " +
+      "ardından Anadolu'nun üçüncü en yüksek zirvesidir; tepesi yıl boyunca buzulla kaplıdır. Bu " +
       "iki volkanik kütle, Van Gölü Kapalı Havzası'nı çevreleyen dağ sınırının bir parçasını " +
-      'oluşturur; havza güneyden Bitlis Masifi, doğu ve kuzeyden Tendürek ve diğer volkanik ' +
-      'kütlelerle çevrilidir.\n\n' +
-      "İl, karmaşık bir fay sistemi üzerinde bulunur. 23 Ekim 2011'de merkez üssü Erçiş " +
-      'ilçesine bağlı Tabanlı köyü olan, büyüklüğü 7,2 olarak ölçülen bir deprem meydana ' +
-      "geldi; 604 kişi hayatını kaybetti. Aynı yılın 9 Kasım'ında Edremit'te 5,6 büyüklüğünde " +
-      'ikinci bir deprem oldu.',
+      'oluşturur. Havza güneyden Bitlis Masifi, doğu ve kuzeyden Tendürek ve diğer volkanik ' +
+      'kütlelerle çevrilidir.' +
+      '\n\n' +
+      "İl, karmaşık bir fay sistemi üzerinde bulunur. 23 Ekim 2011'de merkez üssü Tabanlı köyü " +
+      'olan, büyüklüğü 7,2 olarak ölçülen bir deprem meydana geldi; 604 kişi hayatını kaybetti. ' +
+      "En ağır yıkım Erciş ilçesinde yaşandı. Aynı yılın 9 Kasım'ında Edremit'te 5,6 " +
+      'büyüklüğünde ikinci bir deprem oldu.',
     introTr:
       "Van, Doğu Anadolu Bölgesi'nin en doğusunda, Türkiye'nin en büyük gölü olan Van " +
       "Gölü'nün doğu kıyısında kuruludur. İl toprakları, denize akışı olmayan bir kapalı " +
@@ -752,12 +776,11 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 100.0,
     netMigrationRate: -20.02,
     settlementNoteTr:
-      "Van'ın TÜİK il/ilçe merkezi nüfus oranı da, diğer büyükşehirlerde olduğu gibi, " +
-      "%100'dür — belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı " +
-      'Kanun) bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor. Van, 2024 ' +
-      'yılında 31.418 kişi aldı, 54.023 kişi verdi; net göç hızı binde -20,02 ile dört pilot ' +
-      'il arasında tek negatif değere sahip oldu ve aldığından yaklaşık 1,7 kat fazla göç ' +
-      'verdi.',
+      "Van'ın TÜİK il/ilçe merkezi nüfus oranı da, diğer büyükşehirlerde olduğu gibi, %100'dür. " +
+      'Bu oran ilin fiilen tamamen kentleştiği anlamına gelmez; büyükşehir statüsündeki illerde ' +
+      'belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +
+      'sonucudur. Van 2024 yılında 31.418 kişi aldı, 54.023 kişi verdi — aldığının yaklaşık 1,7 ' +
+      'katı. Net göç hızı binde -20,02 ile negatif kaldı.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%0,5',
@@ -837,12 +860,11 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 100.0,
     netMigrationRate: 9.09,
     settlementNoteTr:
-      "Antalya için de aynı yapısal desen geçerli: TÜİK'in il/ilçe merkezi nüfus oranı " +
-      "%100'dür, çünkü büyükşehir statüsündeki illerde belde ve köylerin idari tüzel kişiliği " +
-      "6360 sayılı Kanun'la kaldırılmıştır — ilin fiilen tamamen kentleştiği anlamına gelmez. " +
-      'Antalya 2024 yılında 96.618 kişi aldı, 71.999 kişi verdi; net göç hızı binde +9,09 ile ' +
-      "dört pilot il arasında en yüksek pozitif değere ulaştı ve başkent Ankara'yı bile " +
-      'geride bıraktı.',
+      "Antalya'nın TÜİK il/ilçe merkezi nüfus oranı %100'dür, çünkü büyükşehir statüsündeki " +
+      "illerde belde ve köylerin idari tüzel kişiliği 6360 sayılı Kanun'la kaldırılmıştır — bu " +
+      'oran ilin fiilen tamamen kentleştiği anlamına gelmez. Antalya 2024 yılında 96.618 kişi ' +
+      "aldı, 71.999 kişi verdi. Net göç hızı binde +9,09 ile başkent Ankara'nın binde +8,91'lik " +
+      'oranının da üzerine çıktı.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%3,4',
@@ -1091,9 +1113,9 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     settlementNoteTr:
       "Diyarbakır'ın TÜİK il/ilçe merkezi nüfus oranı, büyükşehir statüsündeki illerde olduğu " +
       "gibi %100'dür — belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı " +
-      "Kanun) bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor. TÜİK'in 2024 iç göç " +
-      'verilerine göre il aynı yıl 43.561 kişi aldı, 50.981 kişi verdi; net göç hızı binde -4,04 ' +
-      'oldu.',
+      "Kanun) bir sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. TÜİK'in " +
+      '2024 iç göç verilerine göre il aynı yıl 43.561 kişi aldı, 50.981 kişi verdi; net göç hızı ' +
+      'binde -4,04 oldu.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%1,0',
@@ -1161,12 +1183,12 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 100.0,
     netMigrationRate: 3.09,
     settlementNoteTr:
-      "Gaziantep'in TÜİK il/ilçe merkezi nüfus oranı, büyükşehir statüsündeki illerde olduğu gibi " +
-      "%100'dür — belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) " +
-      "bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor. TÜİK'in 2024 iç göç " +
-      'verilerine göre il aynı yıl 56.097 kişi aldı, 49.330 kişi verdi; net göç hızı binde +3,09 ' +
-      'oldu — bölgedeki komşu illerin çoğunun aksine Gaziantep göç açısından pozitif bir tablo ' +
-      'çiziyor.',
+      "Gaziantep'in TÜİK il/ilçe merkezi nüfus oranı, büyükşehir statüsündeki illerde olduğu " +
+      "gibi %100'dür — belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı " +
+      "Kanun) bir sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. TÜİK'in " +
+      '2024 iç göç verilerine göre il aynı yıl 56.097 kişi aldı, 49.330 kişi verdi; net göç hızı ' +
+      'binde +3,09 oldu — bölgedeki komşu illerin çoğunun aksine Gaziantep göç açısından pozitif ' +
+      'bir tablo çiziyor.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%1,9',
@@ -1267,7 +1289,7 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     settlementNoteTr:
       "Mardin'in TÜİK il/ilçe merkezi nüfus oranı, büyükşehir statüsündeki illerde olduğu gibi " +
       "%100'dür — belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) " +
-      'bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor.',
+      'bir sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%0,5',
@@ -1385,10 +1407,10 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     settlementNoteTr:
       "Şanlıurfa'nın TÜİK il/ilçe merkezi nüfus oranı, büyükşehir statüsündeki illerde olduğu " +
       "gibi %100'dür — belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı " +
-      "Kanun) bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor. TÜİK'in 2024 iç göç " +
-      'verilerine göre il aynı yıl 41.771 kişi aldı, 60.925 kişi verdi; net göç hızı binde -8,52 ' +
-      "oldu. TÜİK'in ADNKS verilerine göre Şanlıurfa, 21,8 ortanca yaşla Türkiye'nin en genç " +
-      'nüfuslu ilidir.',
+      "Kanun) bir sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. TÜİK'in " +
+      '2024 iç göç verilerine göre il aynı yıl 41.771 kişi aldı, 60.925 kişi verdi; net göç hızı ' +
+      "binde -8,52 oldu. TÜİK'in ADNKS verilerine göre Şanlıurfa, 21,8 ortanca yaşla Türkiye'nin " +
+      'en genç nüfuslu ilidir.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%1,1',
@@ -2671,11 +2693,10 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 100.0,
     netMigrationRate: 11.64,
     settlementNoteTr:
-      "Muğla'da TÜİK'in il/ilçe merkezi nüfus oranı %100'dür; büyükşehir statüsündeki illerde belde " +
-      've köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir sonucudur, ilin ' +
-      "fiilen tamamen kentleştiği anlamına gelmez. Muğla 2024'te 48.895 kişi aldı, 36.378 kişi " +
-      "verdi; net göç hızı binde +11,64 ile Ege'nin bu dalgada incelenen yedi ili arasındaki en " +
-      'yüksek pozitif değere ulaştı.',
+      "Muğla'da TÜİK'in il/ilçe merkezi nüfus oranı %100'dür. Bu oran ilin fiilen tamamen " +
+      'kentleştiği anlamına gelmez; büyükşehir statüsündeki illerde belde ve köylerin idari ' +
+      "tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir sonucudur. Muğla 2024'te 48.895 " +
+      'kişi aldı, 36.378 kişi verdi. Net göç hızı binde +11,64 ile pozitif kaldı.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%1,3',
@@ -2714,10 +2735,9 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
       'eski bir volkanik kütle olan Elmadağ (1.805 m) geniş yaylalarıyla dikkat çeker; Ahır Dağı ' +
       '(1.915 m) ilin diğer önemli yükseltisidir.',
     introTr:
-      "Uşak, bu dalgada incelenen yedi il arasında nüfusu en az olan ildir ve İç Ege'ye geçiş " +
-      'karakteriyle öne çıkar. İl, Osmanlı döneminden bu yana süregelen halı dokumacılığı ' +
-      'geleneğiyle tanınır. Kuzeyindeki Elmadağ, ilin en belirgin yer şekillerinden biri olan eski ' +
-      'bir volkanik kütledir.',
+      "Uşak, Ege Bölgesi'nin nüfusu en az ilidir ve İç Ege'ye geçiş karakteriyle öne çıkar. İl, " +
+      'Osmanlı döneminden bu yana süregelen halı dokumacılığı geleneğiyle tanınır. Kuzeyindeki ' +
+      'Elmadağ, ilin en belirgin yer şekillerinden biri olan eski bir volkanik kütledir.',
     hydrographyNoteTr:
       "İlin en önemli akarsuyu, Murat Dağı'ndan doğan ve kuzeyden güneye 165 kilometre akan Banaz " +
       "Çayı'dır; il topraklarını geçtikten sonra Büyük Menderes Nehri'ne katılır. Gediz Nehri'nin " +
@@ -3016,12 +3036,12 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 100.0,
     netMigrationRate: 1.51,
     settlementNoteTr:
-      "Hatay'ın TÜİK il/ilçe merkezi nüfus oranı, diğer büyükşehirlerde olduğu gibi " +
-      "%100'dür — belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı " +
-      "Kanun) bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor. TÜİK'in 2024 " +
-      'iç göç verilerine göre il aynı yıl 52.193 kişi aldı, 49.835 kişi verdi; net göç hızı ' +
-      'binde +1,51 oldu — 2023 depremlerinin ardından yaşanan büyük nüfus kaybından sonraki ' +
-      'ilk pozitif net göç yıllarından biri.',
+      "Hatay'ın TÜİK il/ilçe merkezi nüfus oranı, diğer büyükşehirlerde olduğu gibi %100'dür — " +
+      'belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +
+      "sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. TÜİK'in 2024 iç göç " +
+      'verilerine göre il aynı yıl 52.193 kişi aldı, 49.835 kişi verdi; net göç hızı binde +1,51 ' +
+      'oldu — 2023 depremlerinin ardından yaşanan büyük nüfus kaybından sonraki ilk pozitif net ' +
+      'göç yıllarından biri.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%1,4',
@@ -3223,10 +3243,10 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     netMigrationRate: 3.01,
     settlementNoteTr:
       "TÜİK il/ilçe merkezi nüfus oranı Mersin'de de %100 çıkıyor; büyükşehir statüsündeki " +
-      'illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı ' +
-      'Kanun) bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor. Mersin 2024 ' +
-      'yılında 60.574 kişi aldı, 54.703 kişi verdi; net göç hızı binde +3,01 ile dalganın ' +
-      'en yüksek ikinci pozitif değeriydi.',
+      'illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +
+      'sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. Mersin 2024 yılında ' +
+      '60.574 kişi aldı, 54.703 kişi verdi; net göç hızı binde +3,01 ile dalganın en yüksek ' +
+      'ikinci pozitif değeriydi.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%2,1',
@@ -4129,7 +4149,7 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     settlementNoteTr:
       "Erzurum'un TÜİK il/ilçe merkezi nüfus oranı, büyükşehir statüsündeki illerde olduğu gibi " +
       "%100'dür — belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) " +
-      'bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor.',
+      'bir sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%0,5',
@@ -4316,7 +4336,7 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     settlementNoteTr:
       "Malatya'nın TÜİK il/ilçe merkezi nüfus oranı, büyükşehir statüsündeki illerde olduğu gibi " +
       "%100'dür — belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) " +
-      'bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor.',
+      'bir sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%0,6',
@@ -4533,11 +4553,10 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 100.0,
     netMigrationRate: -0.97,
     settlementNoteTr:
-      "Konya'da da TÜİK'in il/ilçe merkezi nüfus oranı %100 çıkıyor — büyükşehir " +
-      'statüsündeki illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 ' +
-      'sayılı Kanun) bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor. Konya ' +
-      '2024 yılında 53.971 kişi aldı, 56.234 kişi verdi; net göç hızı binde -0,97 ile hafif ' +
-      'negatif kaldı.',
+      "Konya'da da TÜİK'in il/ilçe merkezi nüfus oranı %100 çıkıyor — büyükşehir statüsündeki " +
+      'illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +
+      'sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. Konya 2024 yılında ' +
+      '53.971 kişi aldı, 56.234 kişi verdi; net göç hızı binde -0,97 ile hafif negatif kaldı.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%2,1',
@@ -4602,11 +4621,11 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 100.0,
     netMigrationRate: 0.92,
     settlementNoteTr:
-      "Kayseri'de de TÜİK'in il/ilçe merkezi nüfus oranı %100 çıkıyor — büyükşehir " +
-      'statüsündeki illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 ' +
-      'sayılı Kanun) bir sonucu, ilin fiilen tamamen kentleştiği anlamına gelmiyor. Kayseri ' +
-      '2024 yılında 37.960 kişi aldı, 36.622 kişi verdi; net göç hızı binde +0,92 ile hemen ' +
-      'hemen dengede kaldı.',
+      "Kayseri'de de TÜİK'in il/ilçe merkezi nüfus oranı %100 çıkıyor — büyükşehir statüsündeki " +
+      'illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +
+      'sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. Kayseri 2024 yılında ' +
+      '37.960 kişi aldı, 36.622 kişi verdi; net göç hızı binde +0,92 ile hemen hemen dengede ' +
+      'kaldı.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%1,4',
@@ -5471,7 +5490,16 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
     // ── Rize deep content (wave-6c plain Tier-B, Cfa). 6-field set (hydrographyFeatures +
     //    settlementNoteTr null). urbanizationRate=68.02 REAL; net göç -11,87; GSYH share %0,3.
-    //    Türkiye's rainiest il (2.250+ mm) — the natural condition for its tea agriculture.
+    //    Türkiye's rainiest il — the natural condition for its tea agriculture.
+    //    P3 CONTENT FIX (2026-08-05, AT-7 option A): the prose used to publish ">2.250 mm",
+    //    a Tier-2 figure that matched NEITHER our own published series (ERA5-Land 1991-2020,
+    //    Rize 2.222,8 mm — the climate table on this very page) NOR MGM's own station table
+    //    (1927-2025, 2.091,7 mm). Three numbers, one page. The FIGURE is gone from introTr
+    //    and hydrographyNoteTr; the QUALITATIVE claim stays, verified against all 81
+    //    provinces in `data/era5-land/era5-province-series.json` (Rize 1st, then Trabzon
+    //    2.169,2 · Artvin 2.103,8 · Giresun 1.919,3). Do not put a millimetre figure back in
+    //    the prose: the page's own table already publishes one (→ DEC 2026-08-04c retires
+    //    the MGM series, so it must not gain a new prose citation either).
     landformNoteTr:
       "İlin güneyi, Kaçkar Dağları'nın kuzeybatı uzantılarıyla hızla yükselir; kıyı ile dağlık " +
       'kesim arasındaki düzlük neredeyse yok denecek kadar dardır. Çamlıhemşin ilçesindeki ' +
@@ -5479,17 +5507,16 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
       "yaklaşık 57 kilometre sonra Ardeşen yakınlarında Karadeniz'e ulaşır; derin ve dar " +
       'kanyonuyla bölgenin dik topografyasının tipik bir örneğidir.',
     introTr:
-      "Rize, Türkiye'nin en yağışlı ilidir; uzun yıllar ortalaması 2.250 milimetrenin " +
-      'üzerindeki yıllık yağış, yılın her mevsimine dağılır ve kurak bir dönem oluşturmaz. Bu ' +
-      'yağış rejimi, ilin ekonomisinin temelini oluşturan çay tarımının doğrudan doğal ' +
-      'koşuludur; kıyı şeridinden iç kesimlere doğru dik yamaçlar boyunca sıralanan çay ' +
-      'bahçeleri, ilin en tanınan manzarasını oluşturur.',
+      "Rize, Türkiye'nin en yağışlı ilidir. Yıllık yağış yılın her mevsimine dağılır ve kurak " +
+      'bir dönem oluşturmaz; bu rejim, ilin ekonomisinin temelini oluşturan çay tarımının ' +
+      'doğrudan doğal koşuludur. Kıyı şeridinden iç kesimlere doğru dik yamaçlar boyunca ' +
+      'sıralanan çay bahçeleri, ilin en tanınan manzarasını oluşturur.',
     hydrographyNoteTr:
-      'Yıllık 2.250 milimetreyi aşan yağış, ile yoğun bir akarsu ağı ve bol yeraltı suyu ' +
-      "kazandırır; Fırtına Deresi'nin yanı sıra çok sayıda küçük dere kıyı boyunca doğrudan " +
-      "Karadeniz'e dökülür. Bu bol su kaynağı, çay ve fındık tarımının yanında ilin başlıca " +
-      'geçim kaynaklarından birini oluşturan küçük ölçekli hidroelektrik ve içme suyu ' +
-      'tesislerinin de altyapısını oluşturur.',
+      'Yıl boyunca süren yüksek yağış, ile yoğun bir akarsu ağı ve bol yeraltı suyu kazandırır; ' +
+      "Fırtına Deresi'nin yanı sıra çok sayıda küçük dere kıyı boyunca doğrudan Karadeniz'e " +
+      'dökülür. Bu bol su kaynağı, çay ve fındık tarımının yanında ilin başlıca geçim ' +
+      'kaynaklarından birini oluşturan küçük ölçekli hidroelektrik ve içme suyu tesislerinin de ' +
+      'altyapısını oluşturur.',
     urbanizationRate: 68.02,
     netMigrationRate: -11.87,
     economyIndicator: {

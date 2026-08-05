@@ -16,10 +16,26 @@ import type { CountrySeed } from '../country.seed-data';
  *
  * PER-FIELD JUDGEMENT CALLS (all "as documented", never invented):
  *   • population: exact World Bank figures stored exactly; a SINGLE approximate figure
- *     ("~13,7 milyon") stored as its rounded integer (13_700_000); a RANGE with no single
- *     WB value ("~5,6–6,5 milyon": CF/GQ/CG/ST) left NULL — an unresolved fact stays
- *     absent. CD's range is WB-attributed ("~102M / BM ~109M") so the WB figure (102M) is
- *     used.
+ *     ("~13,7 milyon") stored as its rounded integer (13_700_000). CD's range is
+ *     WB-attributed ("~102M / BM ~109M") so the WB figure (102M) is used.
+ *     RESOLVED 2026-08-05 (content-fix micro, AT-8): the five Orta Afrika rows whose
+ *     base-data block carried only a RANGE — CF, CG, GQ, GA, ST — were left NULL here on
+ *     the "an unresolved fact stays absent" rule, which was right at the time but meant
+ *     five public country pages silently drew no "Nüfus" card at all. NOVA read the
+ *     indicator itself instead of the range: World Bank `SP.POP.TOTL`, reference year
+ *     2025, API `lastupdated` 2026-07-13, CC BY 4.0, fetched 2026-08-05 — CF 5.513.282 ·
+ *     CG 6.484.437 · GQ 1.938.431 · GA 2.593.130 · ST 240.254. Each was sanity-checked
+ *     against its own 2020-2025 series (monotonic, no outlier year). `populationYear`
+ *     stays NULL across the corpus (DEC 2026-07-13, unchanged). After this, the ONLY
+ *     `population: null` left in the whole country corpus is Antarktika
+ *     (`territories.countries.ts`), where it is the correct answer, not missing data.
+ *   • ST areaKm2 was the corpus's ONLY `areaKm2: null` and is now 964 (AT-9). CAUTION,
+ *     a real inconsistency was surfaced rather than fixed here: `country-data-dictionary.md`
+ *     §0 documents areaKm2 as WB `AG.LND.TOTL.K2` (LAND area), but the values actually
+ *     seeded are TOTAL area (CF 622.984 vs WB 622.980; GA 267.668 vs WB 257.670; …). 964 is
+ *     total area, chosen for consistency with its four siblings. Which way that drift gets
+ *     closed is a corpus-wide convention question (AT-9(a)), not a per-row one — do not
+ *     "fix" single rows toward the dictionary until it is ruled.
  *   • governmentFormTr: NULL for the states the source flags "[KAYNAK DOĞRULANAMADI]"
  *     (Libya, Sudan, Burkina Faso, Mali, Niger, Togo, Guinea — junta/transition/no single
  *     functional government) — an unverified value is not asserted.
@@ -1402,7 +1418,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     slugEn: 'central-african-republic',
     continent: Continent.Africa,
     unSubregionTr: 'Orta Afrika',
-    population: null,
+    population: 5_513_282,
     populationYear: null,
     areaKm2: 622_984,
     capitalNameTr: 'Bangui',
@@ -1456,7 +1472,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     slugEn: 'republic-of-the-congo',
     continent: Continent.Africa,
     unSubregionTr: 'Orta Afrika',
-    population: null,
+    population: 6_484_437,
     populationYear: null,
     areaKm2: 342_000,
     capitalNameTr: 'Brazzaville',
@@ -1565,7 +1581,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     slugEn: 'equatorial-guinea',
     continent: Continent.Africa,
     unSubregionTr: 'Orta Afrika',
-    population: null,
+    population: 1_938_431,
     populationYear: null,
     areaKm2: 28_051,
     capitalNameTr: 'Malabo',
@@ -1619,7 +1635,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     slugEn: 'gabon',
     continent: Continent.Africa,
     unSubregionTr: 'Orta Afrika',
-    population: null,
+    population: 2_593_130,
     populationYear: null,
     areaKm2: 267_668,
     capitalNameTr: 'Libreville',
@@ -1671,9 +1687,9 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     slugEn: 'sao-tome-and-principe',
     continent: Continent.Africa,
     unSubregionTr: 'Orta Afrika',
-    population: null,
+    population: 240_254,
     populationYear: null,
-    areaKm2: null,
+    areaKm2: 964,
     capitalNameTr: 'São Tomé',
     capitalNameEn: 'São Tomé',
     capitalLatitude: 0.3365,
