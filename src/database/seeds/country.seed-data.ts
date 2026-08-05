@@ -86,8 +86,11 @@ export interface CountrySeed {
  * Per-field Tier-1 / Tier-2 authorities:
  *   • Ad TR/EN + başkent TR/EN + ISO alpha-2/3  → T.C. Dışişleri Bakanlığı (MFA), 2026
  *   • Nüfus                                      → Dünya Bankası (World Bank) — year
- *       DELIBERATELY NOT asserted at world scale (owner ruling, 2026-07-13); the sole
- *       exception is Georgia, re-attributed to Geostat's 2024 census (a corrected mis-cite)
+ *       DELIBERATELY NOT asserted at world scale (owner ruling, 2026-07-13). NO EXCEPTIONS:
+ *       Georgia carried one until 2026-08-05 (Geostat) and it was retired when the World Bank
+ *       series caught up and began publishing that exact figure — see the GE row. This line is
+ *       therefore true for EVERY row, which is what the generic "Kaynak: Dünya Bankası" credit
+ *       the pages render depends on (AT-11a / FENER47-I1).
  *   • Yüzölçümü (km²)                            → Dünya Bankası (AG.LND.TOTL.K2, 2023)
  *   • Kıta + BM alt-bölgesi (M49)                → UNSD M49 standard
  *   • Komşu ülkeler, yönetim biçimi, para birimi, resmi dil, bağımsızlık, fiziki coğrafya
@@ -251,7 +254,16 @@ const PILOT_COUNTRIES: readonly CountrySeed[] = [
     slugEn: 'georgia',
     continent: Continent.Asia,
     unSubregionTr: 'Batı Asya',
-    // Nüfus: Geostat 2024 Nüfus ve Tarım Sayımı (World Bank DEĞİL — corrected mis-cite).
+    // Nüfus: Dünya Bankası SP.POP.TOTL, 2025 değeri (vintage lastupdated 2026-07-13).
+    // DEĞER DEĞİŞMEDİ, ATIF DEĞİŞTİ (2026-08-05, AT-11a). 2026-07-13'te bu satır Geostat'a
+    // atfedilmişti ve o gün DOĞRUYDU: WB'nin o günkü serisi Gürcistan'ın Kasım 2024 sayımını
+    // henüz absorbe etmemiş, ~3,67 M taşıyordu (%7,1 fark). WB serisi sonradan yukarı revize
+    // edildi ve bugün tam olarak bu değeri yayımlıyor; Geostat ise yayımlamıyor (sayım
+    // 3.929.581; 1 Ocak tabloları 3.930,4 bin / 3.941,1 bin). Yani etiket ile rakamın ilişkisi
+    // bir yıl içinde YER DEĞİŞTİRDİ — istisnayı korumak, kurumun yayımlamadığı bir sayıya
+    // kalıcı işaret koymak olurdu. DEC 2026-07-13 kuralı ("kaynağı adıyla an") değişmedi;
+    // kuralın uygulandığı olgu değişti. Ders: vintage'a bağlı bir kaynak istisnasının son
+    // kullanma tarihi vardır (AT-11d) — bkz. data-provenance.md Gürcistan girdisi.
     population: 3_935_766,
     populationYear: null,
     areaKm2: 69_490,

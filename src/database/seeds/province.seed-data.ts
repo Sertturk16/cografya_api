@@ -679,11 +679,11 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 100.0,
     netMigrationRate: 3.53,
     settlementNoteTr:
-      "Büyükşehir statüsündeki illerde olduğu gibi İzmir'in de TÜİK il/ilçe merkezi nüfus " +
-      'oranı %100 görünür; belde ve köylerin idari tüzel kişiliğinin kaldırılması (6360 ' +
-      'sayılı Kanun) bu rakamın kaynağıdır, ilin fiilen tamamen kentleştiği anlamına gelmez. ' +
-      'İzmir 2024 yılında 117.889 kişi aldı, 102.040 kişi verdi; net göç hızı binde +3,53 ' +
-      "ile pozitif ama Ankara ve Antalya'nın gerisinde kaldı.",
+      "Büyükşehir statüsündeki illerde olduğu gibi İzmir'in de TÜİK il/ilçe merkezi nüfus oranı " +
+      '%100 görünür; belde ve köylerin idari tüzel kişiliğinin kaldırılması (6360 sayılı Kanun) ' +
+      'bu rakamın kaynağıdır. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. İzmir ' +
+      '2024 yılında 117.889 kişi aldı, 102.040 kişi verdi. Net göç hızı binde +3,53 ile pozitif ' +
+      "ama Ankara ve Antalya'nın gerisinde kaldı.",
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%5,7',
@@ -2004,9 +2004,9 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     settlementNoteTr:
       "Kocaeli'nde de TÜİK'in il/ilçe merkezi nüfus oranı %100'dür — büyükşehir statüsündeki " +
       "illerde belde ve köylerin idari tüzel kişiliğinin 6360 sayılı Kanun'la kaldırılmasının " +
-      'bir sonucudur, ilin fiilen tamamen kentleştiği anlamına gelmez. 2024 yılında 80.804 ' +
-      'kişi aldı, 63.593 kişi verdi; net göç hızı binde +8,11 ile sanayi istihdamının çektiği ' +
-      'net bir göç kazancına işaret ediyor.',
+      'bir sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. 2024 yılında ' +
+      '80.804 kişi aldı, 63.593 kişi verdi; net göç hızı binde +8,11 ile sanayi istihdamının ' +
+      'çektiği net bir göç kazancına işaret ediyor.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%3,8',
@@ -2076,9 +2076,9 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     settlementNoteTr:
       "Büyükşehir statüsündeki illerde olduğu gibi Sakarya'nın da TÜİK il/ilçe merkezi nüfus " +
       "oranı %100 görünür; bu, belde ve köylerin idari tüzel kişiliğinin 6360 sayılı Kanun'la " +
-      'kaldırılmasının bir sonucudur, ilin fiilen tamamen kentleştiği anlamına gelmez. 2024 ' +
-      'yılında 37.116 kişi aldı, 30.501 kişi verdi; net göç hızı binde +5,97 ile pozitif bir ' +
-      'dengeye işaret ediyor.',
+      'kaldırılmasının bir sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. ' +
+      '2024 yılında 37.116 kişi aldı, 30.501 kişi verdi. Net göç hızı binde +5,97 ile pozitif ' +
+      'bir dengeye işaret ediyor.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%1,2',
@@ -2420,10 +2420,10 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 100.0,
     netMigrationRate: 4.31,
     settlementNoteTr:
-      "Aydın'da TÜİK'in il/ilçe merkezi nüfus oranı %100'e ulaşır; büyükşehir statüsündeki illerde " +
-      'belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +
-      "sonucudur, ilin fiilen tamamen kentleştiği anlamına gelmez. 2024'te Aydın 40.849 kişi aldı, " +
-      '35.832 kişi verdi; net göç hızı binde +4,31 oldu.',
+      "Aydın'da TÜİK'in il/ilçe merkezi nüfus oranı %100'e ulaşır; büyükşehir statüsündeki " +
+      'illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +
+      "sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. 2024'te Aydın 40.849 " +
+      'kişi aldı, 35.832 kişi verdi. Net göç hızı binde +4,31 oldu.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%1,0',
@@ -2495,10 +2495,11 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 100.0,
     netMigrationRate: 0.99,
     settlementNoteTr:
-      "Denizli için TÜİK'in il/ilçe merkezi nüfus oranı %100'dür; büyükşehir statüsündeki illerde " +
-      'belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +
-      "sonucudur, ilin fiilen tamamen kentleştiği anlamına gelmez. Denizli 2024'te 25.866 kişi " +
-      'aldı, 24.816 kişi verdi; net göç hızı binde +0,99 ile dengeye yakın bir değerde kaldı.',
+      "Denizli için TÜİK'in il/ilçe merkezi nüfus oranı %100'dür; büyükşehir statüsündeki " +
+      'illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +
+      "sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. Denizli 2024'te " +
+      '25.866 kişi aldı, 24.816 kişi verdi. Net göç hızı binde +0,99 ile dengeye yakın bir ' +
+      'değerde kaldı.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%1,0',
@@ -2627,8 +2628,9 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
     settlementNoteTr:
       "TÜİK'in il/ilçe merkezi nüfus oranı Manisa için de %100'dür — büyükşehir statüsündeki " +
       'illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +
-      'sonucudur, ilin fiilen tamamen kentleştiği anlamına gelmez. Manisa 2024 yılında 37.649 kişi ' +
-      'aldı, 37.328 kişi verdi; net göç hızı binde +0,22 ile hemen hemen dengede kaldı.',
+      'sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. Manisa 2024 yılında ' +
+      '37.649 kişi aldı, 37.328 kişi verdi; net göç hızı binde +0,22 ile hemen hemen dengede ' +
+      'kaldı.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%1,5',
@@ -2913,11 +2915,11 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 100.0,
     netMigrationRate: -0.34,
     settlementNoteTr:
-      "Adana'da da, büyükşehir statüsündeki illerin çoğunda olduğu gibi, TÜİK il/ilçe " +
-      'merkezi nüfus oranı %100 çıkıyor; bu, belde ve köylerin idari tüzel kişiliğinin ' +
-      'kaldırılmasının (6360 sayılı Kanun) bir sonucudur, ilin fiilen tamamen kentleştiği ' +
-      'anlamına gelmez. 2024 yılında il 55.342 kişi aldı, 56.108 kişi verdi; net göç hızı ' +
-      'binde -0,34 ile bu dalganın sıfıra en yakın değeriydi.',
+      "Adana'da da, büyükşehir statüsündeki illerin çoğunda olduğu gibi, TÜİK il/ilçe merkezi " +
+      'nüfus oranı %100 çıkıyor; bu, belde ve köylerin idari tüzel kişiliğinin kaldırılmasının ' +
+      '(6360 sayılı Kanun) bir sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına ' +
+      'gelmez. 2024 yılında il 55.342 kişi aldı, 56.108 kişi verdi. Net göç hızı binde -0,34 ile ' +
+      'sıfıra çok yakın kaldı.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%2,0',
@@ -3182,11 +3184,11 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 100.0,
     netMigrationRate: 6.31,
     settlementNoteTr:
-      'Büyükşehir statüsündeki illerin ortak özelliği burada da geçerli: ' +
-      "Kahramanmaraş'ın TÜİK il/ilçe merkezi nüfus oranı %100'dür, belde ve köylerin idari " +
-      'tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir sonucudur, ilin fiilen ' +
-      'tamamen kentleştiği anlamına gelmez. İl 2024 yılında 37.523 kişi aldı, 30.393 kişi ' +
-      'verdi; net göç hızı binde +6,31 ile bu dalganın en yüksek pozitif değerine ulaştı.',
+      "Büyükşehir statüsündeki illerin ortak özelliği burada da geçerli: Kahramanmaraş'ın TÜİK " +
+      "il/ilçe merkezi nüfus oranı %100'dür; belde ve köylerin idari tüzel kişiliğinin " +
+      'kaldırılmasının (6360 sayılı Kanun) bir sonucudur. Bu oran, ilin fiilen tamamen ' +
+      'kentleştiği anlamına gelmez. İl 2024 yılında 37.523 kişi aldı, 30.393 kişi verdi. Net göç ' +
+      'hızı binde +6,31 ile pozitif kaldı.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%0,9',
@@ -3255,8 +3257,7 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
       "TÜİK il/ilçe merkezi nüfus oranı Mersin'de de %100 çıkıyor; büyükşehir statüsündeki " +
       'illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +
       'sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. Mersin 2024 yılında ' +
-      '60.574 kişi aldı, 54.703 kişi verdi; net göç hızı binde +3,01 ile dalganın en yüksek ' +
-      'ikinci pozitif değeriydi.',
+      '60.574 kişi aldı, 54.703 kişi verdi. Net göç hızı binde +3,01 ile pozitif kaldı.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%2,1',
@@ -4686,9 +4687,9 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 100.0,
     netMigrationRate: 7.43,
     settlementNoteTr:
-      "TÜİK'in il/ilçe merkezi nüfus oranı Eskişehir için de %100'dür — büyükşehir " +
-      'statüsündeki illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 ' +
-      'sayılı Kanun) bir sonucudur, ilin fiilen tamamen kentleştiği anlamına gelmez.',
+      "TÜİK'in il/ilçe merkezi nüfus oranı Eskişehir için de %100'dür — büyükşehir statüsündeki " +
+      'illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +
+      'sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%1,1',
@@ -5181,6 +5182,13 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
  *   Jargon sweep of all 9 il's prose for parti/dalga/batch/wave: CLEAN. (NB: 5 PRE-EXISTING
  *   "bu dalga(da)" instances remain in the already-merged wave-3/4 prose — Muğla, Uşak, Adana,
  *   Kahramanmaraş, Mersin — flagged to Atlas as out-of-scope for this PR.)
+ *   CLOSED 2026-08-05: all five are fixed — Muğla + Uşak in PR #95, Adana + Kahramanmaraş +
+ *   Mersin in PR #96 (AT-11b). Each carried TWO faults that could not be fixed separately: the
+ *   internal wave name, and a superlative that was only true INSIDE that wave. Dropping the
+ *   leak alone would have promoted a false claim to national scale, so both went together and
+ *   no replacement superlative was asserted (the Van precedent, PR #95). National ranks, from
+ *   our own 81 rows: Mersin 20th, Kahramanmaraş 10th, Adana 3rd by absolute value. A corpus
+ *   re-scan for parti/dalga/batch/wave now returns NOTHING in customer-facing prose.
  */
 export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
   {
@@ -5467,8 +5475,8 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
     netMigrationRate: -7.25,
     settlementNoteTr:
       "Ordu'nun TÜİK il/ilçe merkezi nüfus oranı, büyükşehir statüsündeki illerde olduğu gibi " +
-      "%100'dür; bu, ilin fiilen tamamen kentleştiği anlamına gelmez, belde ve köylerin idari " +
-      "tüzel kişiliğinin 6360 sayılı Kanun'la kaldırılmasının bir sonucudur.",
+      "%100'dür. Bu oran ilin fiilen tamamen kentleştiği anlamına gelmez; belde ve köylerin " +
+      "idari tüzel kişiliğinin 6360 sayılı Kanun'la kaldırılmasının bir sonucudur.",
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%0,5',
@@ -5594,7 +5602,7 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
     netMigrationRate: 2.6,
     settlementNoteTr:
       "Samsun'da da büyükşehir statüsünün yapısal sonucu geçerlidir: TÜİK il/ilçe merkezi nüfus " +
-      "oranı %100'dür, belde ve köylerin idari tüzel kişiliği 6360 sayılı Kanun'la " +
+      "oranı %100'dür, çünkü belde ve köylerin idari tüzel kişiliği 6360 sayılı Kanun'la " +
       'kaldırılmıştır. 2024 yılında 46.841 kişi aldı, 43.246 kişi verdi; net göç hızı binde ' +
       '+2,60 ile pozitif kaldı.',
     economyIndicator: {
@@ -5649,8 +5657,8 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
     netMigrationRate: -3.78,
     settlementNoteTr:
       "Trabzon'un TÜİK il/ilçe merkezi nüfus oranı, büyükşehir statüsündeki illerde olduğu gibi " +
-      "%100'dür; bu, ilin fiilen tamamen kentleştiği anlamına gelmez, belde ve köylerin idari " +
-      "tüzel kişiliğinin 6360 sayılı Kanun'la kaldırılmasının bir sonucudur.",
+      "%100'dür. Bu oran ilin fiilen tamamen kentleştiği anlamına gelmez; belde ve köylerin " +
+      "idari tüzel kişiliğinin 6360 sayılı Kanun'la kaldırılmasının bir sonucudur.",
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%0,6',
