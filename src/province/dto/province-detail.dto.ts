@@ -133,6 +133,36 @@ export class ProvinceDetailDto {
   climateNoteTr!: string | null;
 
   @ApiProperty({
+    type: String,
+    nullable: true,
+    example: 'İç Anadolu karasal iklimi',
+    description:
+      'MÜFREDAT iklim adı (MEB Coğrafya 9, Harita 1.39 terminolojisi). `climateClassTr` DEĞİLDİR: ' +
+      "o alan MGM'nin kendi Köppen sınıf adıdır ve atıflı alıntıdır; bu alan, MEB ders kitabı " +
+      'haritasından bizim türettiğimiz ayrı bir editoryal katmandır ve MGM’ye atfedilemez. ' +
+      'Sekiz kanonik değerden biri (Akdeniz / Karadeniz / İç Anadolu karasal / Doğu Anadolu ' +
+      'karasal / Güneydoğu Anadolu karasal / Trakya karasal / Marmara geçiş / Göller Yöresi ' +
+      'geçiş iklimi). Başlık dizgesi API’de KURULMAZ: web `<ad> · Köppen: <kod>` biçimini ' +
+      'kendisi kurar (ayırıcı ve tipografi sunum kararıdır, EN sürümünde farklıdır). EN ' +
+      'karşılığı bu dalgada yok.',
+  })
+  climateCurriculumNameTr!: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example:
+      'Çorum, 776 metredeki merkeziyle Kızılırmak havzasına açılan yüksek bir platodadır. İl Karadeniz Bölgesi’ndedir, iklim adı ise güneydeki İç Anadolu’yu gösterir.',
+    description:
+      'Müfredat adına eşlik eden açıklama notu (TR). Yalnız 14 ilde dolu, geri kalanında NULL — ' +
+      'bu bir eksiklik değil, tasarım: not ya adın harita sınırındaki bir okuma olduğunu ya da ' +
+      'addaki coğrafi etiketin ilin kendi bölgesinden farklı olduğunu açıklar. Köppen ile ' +
+      'müfredat arasındaki genel gerilim BURADA DEĞİL, tüm illerde ortak olan `climateNoteTr` ' +
+      'uyarısının içinde tek seferde karşılanır.',
+  })
+  climateCurriculumNoteTr!: string | null;
+
+  @ApiProperty({
     type: ClimateDto,
     nullable: true,
     description:

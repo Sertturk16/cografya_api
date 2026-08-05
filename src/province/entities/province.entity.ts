@@ -155,6 +155,60 @@ export class Province {
   climateNoteTr!: string | null;
 
   /**
+   * MÜFREDAT iklim adı (MEB Coğrafya 9, Harita 1.39 terminolojisi) — e.g. "İç Anadolu
+   * karasal iklimi". **This is NOT `climateClassTr`.**
+   *
+   * The two columns answer different questions and come from different authorities:
+   *   - `climateClassTr` is MGM's OWN Turkish label for the province's Köppen code, and it
+   *     travels with `climateKoppen` + the locked `climateNoteTr` caveat as an ATTRIBUTED
+   *     QUOTATION of an official publication (→ DEC 2026-08-04a, K1). Nothing may edit it.
+   *   - this column is the school-curriculum regional climate name, DERIVED by us from the
+   *     MEB textbook map (NOVA's `koppen-mufredat-eslemesi/brief.md`, §2.3 derivation rule)
+   *     and cross-checked against MGM's own Şekil 4. It is our editorial layer, published
+   *     as such — it is not attributed to MGM and it is not a Köppen value.
+   * The web renders both side by side ("<müfredat adı> · Köppen: <kod>", → DEC 2026-08-05c);
+   * the API deliberately publishes the PARTS and never a pre-joined string (separator and
+   * typography are presentation decisions, and they differ in EN).
+   *
+   * CLOSED VOCABULARY, enforced in two places: the seed's `CurriculumClimateNameTr` union
+   * type at compile time and `assertCurriculumMappingInvariant` (seed-geography.ts) at seed
+   * time. The column itself is a plain varchar and NOT a Postgres enum — the eight names are
+   * an editorial reading of a curriculum map, not a structural identity like `region`, and a
+   * later ninth name must be a seed edit + a migration of DATA, not an enum-label migration.
+   *
+   * Nullable by the entity's own rule (see the header note): every research-derived field is
+   * nullable, even one the seed happens to fill for all 81 rows today — exactly as
+   * `climate_koppen` is. "Has a Köppen code but no curriculum name" is caught as a NAMED
+   * seed error, not as a DB constraint violation.
+   *
+   * EN: deliberately absent this wave. Six of the eight English names carry `[TEYİT GEREK]`
+   * in the brief (§7.4); an unverified translation must stay absent, never invented. Adding
+   * `climate_curriculum_name_en` later is purely additive.
+   */
+  @Column({ name: 'climate_curriculum_name_tr', type: 'varchar', length: 80, nullable: true })
+  climateCurriculumNameTr!: string | null;
+
+  /**
+   * Müfredat iklim adına eşlik eden AÇIKLAMA notu (TR) — only where the reader would
+   * otherwise be misled. NULL for most provinces, by design.
+   *
+   * Two owner-ruled cases fill it (→ DEC 2026-08-05f #3 and #4), and three provinces need
+   * both, which is why this is ONE field and not two: a single flowing paragraph reads as
+   * prose, while two adjacent fields would hand the web two blocks to glue together.
+   *   #3 the textbook map places the province ON a boundary, so the name is a reading, not
+   *      a fact (the ten BELİRSİZ rows of brief §5);
+   *   #4 the name's geographic label differs from the province's own region — "Çorum,
+   *      Karadeniz Bölgesi, İç Anadolu karasal iklimi" (the seven rows of brief §6).
+   *
+   * NOT a place for the Köppen-vs-curriculum tension itself: that is class-level and is
+   * carried ONCE, for all 81 provinces, in the shared `climateNoteTr` caveat body (A-2).
+   * Trabzon, Sinop and Çankırı are the deliberate proof — high-tension rows whose note stays
+   * NULL because the shared sentence already covers them.
+   */
+  @Column({ name: 'climate_curriculum_note_tr', type: 'text', nullable: true })
+  climateCurriculumNoteTr!: string | null;
+
+  /**
    * İklim normalleri — 12 aylık seri + kaynak + normal penceresi (ERA5-Land 1991-2020).
    *
    * `jsonb` on the province row, NOT a child table (PLAN.md §1, a deliberate reversal of

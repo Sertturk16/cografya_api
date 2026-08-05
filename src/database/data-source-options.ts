@@ -19,6 +19,7 @@ import { InitAirQualityStore1785859200000 } from './migrations/1785859200000-Ini
 import { AddContinentAntarctica1785945600000 } from './migrations/1785945600000-AddContinentAntarctica';
 import { AddCountryEntityType1785949200000 } from './migrations/1785949200000-AddCountryEntityType';
 import { AddCountryDetailSections1785952800000 } from './migrations/1785952800000-AddCountryDetailSections';
+import { AddProvinceClimateCurriculum1785974400000 } from './migrations/1785974400000-AddProvinceClimateCurriculum';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -205,6 +206,7 @@ export function buildDataSourceOptions(
       AddContinentAntarctica1785945600000,
       AddCountryEntityType1785949200000,
       AddCountryDetailSections1785952800000,
+      AddProvinceClimateCurriculum1785974400000,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,

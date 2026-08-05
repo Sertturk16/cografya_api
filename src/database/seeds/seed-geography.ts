@@ -1,7 +1,20 @@
 import { isDeepStrictEqual } from 'node:util';
 import type { DataSource } from 'typeorm';
+import { GeographicRegion } from '../../common/geographic-region.enum';
 import { Province } from '../../province/entities/province.entity';
-import { SEED_PROVINCES, type ProvinceSeed } from './province.seed-data';
+import {
+  CURRICULUM_AKDENIZ,
+  CURRICULUM_CLIMATE_NAMES_TR,
+  CURRICULUM_DOGU_ANADOLU,
+  CURRICULUM_GOLLER_YORESI,
+  CURRICULUM_GUNEYDOGU_ANADOLU,
+  CURRICULUM_IC_ANADOLU,
+  CURRICULUM_KARADENIZ,
+  CURRICULUM_MARMARA_GECIS,
+  CURRICULUM_TRAKYA,
+  SEED_PROVINCES,
+  type ProvinceSeed,
+} from './province.seed-data';
 
 /** Outcome of a geography seed run (for logging + idempotency assertions). */
 export interface SeedGeographyResult {
@@ -59,6 +72,133 @@ export function assertKoppenCaveatInvariant(seeds: readonly ProvinceSeed[]): voi
   }
 }
 
+/** The `(region, curriculum name)` pair key both the table and the check are built on. */
+function regionNameKey(region: GeographicRegion, curriculumName: string): string {
+  return `${region}|${curriculumName}`;
+}
+
+/**
+ * The `(coğrafi bölge × müfredat iklim adı)` pairs a reader does NOT need explained.
+ *
+ * WHAT DECIDES MEMBERSHIP — a two-part test, taken from the sources' own wording rather than
+ * from editorial taste (NOVA re-read MGM's *Türkiye İklimi*, "İklim Tipleri", pp. 4-5 directly
+ * from the PDF on 2026-08-06 for exactly this question; brief §4.2-4.3). A province needs an
+ * explanation when the geographic label inside its curriculum climate name differs from its own
+ * region, UNLESS one of these holds:
+ *
+ *   1. **The source assigns the province's WHOLE REGION to that climate type.** MGM defines the
+ *      Akdeniz type for "Ege Bölgesi'nin büyük bir bölümü"; MEB's TYT summary names Manisa and
+ *      Denizli outright and the textbook uses İzmir as the type's worked example. Six of the
+ *      Ege region's eight provinces carry the name, so it is the region's RULE, not its
+ *      exception → İzmir, Manisa, Aydın, Muğla, Denizli, Uşak are exempt.
+ *   2. **The province is itself on the coast the type is named after, and the source names that
+ *      coastal strip.** MGM's Karadeniz definition explicitly includes "Marmara Bölgesi'nin
+ *      Karadeniz kıyı kuşağı"; Kocaeli and Sakarya have Black Sea coastline → both exempt.
+ *
+ * The same test explains the two pairs that look like exceptions but are not: Trakya is a
+ * sub-area of the Marmara region (Edirne, Kırklareli) and Göller Yöresi is a sub-area of the
+ * Akdeniz region (Isparta, Burdur) — neither name points at a DIFFERENT region.
+ *
+ * Applied to today's data this table yields exactly the seven provinces brief §6 lists:
+ * Gaziantep, Kilis (Güneydoğu Anadolu / Akdeniz iklimi), Afyonkarahisar, Kütahya (Ege / İç
+ * Anadolu karasal), Çorum (Karadeniz / İç Anadolu karasal), Gümüşhane, Bayburt (Karadeniz /
+ * Doğu Anadolu karasal). Each of those DOES fail both exemptions: no source assigns Güneydoğu
+ * Anadolu to the Akdeniz type — the textbook says the type's edge *starts at* Gaziantep and
+ * Kilis, i.e. the source itself frames them as the exception — the Ege region is nowhere
+ * assigned to İç Anadolu karasal, and MGM limits the Karadeniz type to the mountains'
+ * NORTH-facing slopes while Gümüşhane and Bayburt sit on the southern face.
+ *
+ * WHEN A NAME CHANGES, apply the two-part test above rather than adding a line to keep the
+ * seed green: an unlisted pair firing is the table doing its job.
+ */
+const EXPECTED_REGION_PAIRS: ReadonlySet<string> = new Set([
+  regionNameKey(GeographicRegion.Ege, CURRICULUM_AKDENIZ),
+  regionNameKey(GeographicRegion.Akdeniz, CURRICULUM_AKDENIZ),
+  regionNameKey(GeographicRegion.Akdeniz, CURRICULUM_GOLLER_YORESI),
+  regionNameKey(GeographicRegion.Marmara, CURRICULUM_MARMARA_GECIS),
+  regionNameKey(GeographicRegion.Marmara, CURRICULUM_TRAKYA),
+  regionNameKey(GeographicRegion.Marmara, CURRICULUM_KARADENIZ),
+  regionNameKey(GeographicRegion.Karadeniz, CURRICULUM_KARADENIZ),
+  regionNameKey(GeographicRegion.IcAnadolu, CURRICULUM_IC_ANADOLU),
+  regionNameKey(GeographicRegion.DoguAnadolu, CURRICULUM_DOGU_ANADOLU),
+  regionNameKey(GeographicRegion.GuneydoguAnadolu, CURRICULUM_GUNEYDOGU_ANADOLU),
+]);
+
+/** True when the province's region/curriculum-name pair would surprise a reader. */
+export function isUnexpectedRegionPair(seed: ProvinceSeed): boolean {
+  return !EXPECTED_REGION_PAIRS.has(regionNameKey(seed.region, seed.climateCurriculumNameTr));
+}
+
+/**
+ * Müfredat-mapping invariant — the seed-time guard for `climateCurriculumNameTr` /
+ * `climateCurriculumNoteTr` (→ DEC 2026-08-05c, DEC 2026-08-05f, DEC 2026-08-06a).
+ *
+ * DELIBERATELY A SECOND FUNCTION, not an extension of `assertKoppenCaveatInvariant`. That one
+ * guards an ATTRIBUTED QUOTATION of MGM's publication (K1, → DEC 2026-08-04a) and is not
+ * touched by this change; this one guards OUR editorial layer. Folding them together would
+ * make one failure message answer for two different authorities.
+ *
+ * Four rules, none of which names a province:
+ *   1. **A Köppen code implies a curriculum name.** The header the web renders puts the two
+ *      side by side, so a row with a code and no name renders half a header.
+ *   2. **The name is one of the eight canonical values.** A runtime membership test on top of
+ *      the compile-time union, because the type cannot see a value written by a future admin
+ *      endpoint or a hand-run SQL statement.
+ *   3. **An UNEXPECTED (region, name) pair implies an explanation note** — the structural form
+ *      of DEC 2026-08-05f #4, expressed entirely through `EXPECTED_REGION_PAIRS` so no plate
+ *      code is hard-coded. Rename a province's climate and this fires by itself.
+ *   4. **A note implies a name**, and neither field may be whitespace-only.
+ *
+ * WHAT THIS DELIBERATELY CANNOT ENFORCE, recorded rather than papered over: DEC 2026-08-05f #3
+ * ("each of the ten BELİRSİZ provinces carries a transition note") is not derivable from the
+ * data — "the textbook map is ambiguous here" is a fact about the SOURCE, not a column. Encoding
+ * it would mean a third column (`climateCurriculumCertainty`) that nothing renders and that
+ * exists only to feed a test, which is the abstraction-for-nobody the repo's rules reject. Two
+ * real guards cover it instead: the P5 wave's target list (`check` exits 1 if any of the
+ * fourteen pairs is missing from the seed) and the floor-count guards in the e2e suite.
+ */
+export function assertCurriculumMappingInvariant(seeds: readonly ProvinceSeed[]): void {
+  const canonical = new Set<string>(CURRICULUM_CLIMATE_NAMES_TR);
+  const problems: string[] = [];
+
+  for (const seed of seeds) {
+    const name = seed.climateCurriculumNameTr.trim();
+    const note = (seed.climateCurriculumNoteTr ?? '').trim();
+    const label = `${seed.plateCode} ${seed.nameTr}`;
+
+    if (name === '') {
+      problems.push(
+        seed.climateKoppen.trim() === ''
+          ? `${label} — curriculum name is empty/whitespace`
+          : `${label} — has Köppen code ${seed.climateKoppen} but no curriculum climate name`,
+      );
+    } else if (!canonical.has(name)) {
+      problems.push(`${label} — curriculum name ${JSON.stringify(name)} is not one of the eight`);
+    }
+
+    if (name !== '' && isUnexpectedRegionPair(seed) && note === '') {
+      problems.push(
+        `${label} — region ${seed.region} with curriculum name ${JSON.stringify(name)} is an ` +
+          `out-of-region pair and MUST carry climateCurriculumNoteTr (DEC 2026-08-05f #4)`,
+      );
+    }
+
+    if (note === '' && seed.climateCurriculumNoteTr !== undefined) {
+      if (seed.climateCurriculumNoteTr !== null) {
+        problems.push(`${label} — climateCurriculumNoteTr is present but whitespace-only`);
+      }
+    }
+  }
+
+  if (problems.length > 0) {
+    throw new Error(
+      `Müfredat mapping invariant violated:\n  ${problems.join('\n  ')}\n` +
+        'The curriculum climate name is our own editorial layer over MEB Coğrafya 9 (Harita ' +
+        '1.39) — it is NOT MGM’s Köppen class name and must never be published half-formed.',
+    );
+  }
+}
+
 /** Element-wise string-array equality (order-sensitive — plaka code order is stable). */
 function plateArraysEqual(a: readonly string[], b: readonly string[]): boolean {
   return a.length === b.length && a.every((value, index) => value === b[index]);
@@ -109,6 +249,8 @@ function rowMatchesSeed(row: Province, seed: ProvinceSeed): boolean {
     row.climateKoppen === seed.climateKoppen &&
     row.climateClassTr === seed.climateClassTr &&
     row.climateNoteTr === seed.climateNoteTr &&
+    row.climateCurriculumNameTr === seed.climateCurriculumNameTr &&
+    (row.climateCurriculumNoteTr ?? null) === (seed.climateCurriculumNoteTr ?? null) &&
     row.landformNoteTr === seed.landformNoteTr &&
     (row.climateNarrativeTr ?? null) === (seed.climateNarrativeTr ?? null) &&
     (row.introTr ?? null) === (seed.introTr ?? null) &&
@@ -144,6 +286,7 @@ function rowMatchesSeed(row: Province, seed: ProvinceSeed): boolean {
 function withExplicitDetailNulls(seed: ProvinceSeed): ProvinceSeed {
   return {
     ...seed,
+    climateCurriculumNoteTr: seed.climateCurriculumNoteTr ?? null,
     climateNarrativeTr: seed.climateNarrativeTr ?? null,
     introTr: seed.introTr ?? null,
     hydrographyNoteTr: seed.hydrographyNoteTr ?? null,
@@ -191,6 +334,9 @@ export async function seedGeography(
   provinces: readonly ProvinceSeed[] = SEED_PROVINCES,
 ): Promise<SeedGeographyResult> {
   assertKoppenCaveatInvariant(provinces);
+  // The MGM quotation and our own curriculum layer are checked SEPARATELY and in that order:
+  // a failure message must point at exactly one authority (see each function's docblock).
+  assertCurriculumMappingInvariant(provinces);
 
   let inserted = 0;
   let updated = 0;

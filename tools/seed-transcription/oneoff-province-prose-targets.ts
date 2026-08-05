@@ -125,6 +125,44 @@ export const P4_TARGETS: readonly ProseTarget[] = [
 ];
 
 /**
+ * P5 — the fourteen `climateCurriculumNoteTr` notes that ship with the müfredat climate name
+ * (→ DEC 2026-08-05c, DEC 2026-08-05f #3/#4, DEC 2026-08-06a; Atlas ruling AK-1/AK-4).
+ *
+ * Draft: `Owner's Inbox/koppen-sablon-gecisi/seed-draft-provinces-p5.md` — the lane-format
+ * transcription of NOVA's `cumle-taslaklari.md` §2 blocks (see that file's header).
+ *
+ * TWO KINDS OF NOTE, ONE FIELD. Ten provinces sit on a boundary the textbook map cannot
+ * resolve at its ~1:10.000.000 scale (Tekirdağ, Çanakkale, Balıkesir, Kütahya, Isparta,
+ * Burdur, Amasya, Tokat, Gümüşhane, Bayburt); seven carry a name whose geographic label is
+ * not their own region (Gaziantep, Kilis, Afyonkarahisar, Çorum, Kütahya, Gümüşhane,
+ * Bayburt). The three in both sets get ONE flowing paragraph rather than two glued blocks —
+ * the reason the entity has a single note column.
+ *
+ * ZERO OWNERSHIP TRANSFERS: every pair here is a field no wave has ever owned (the column
+ * did not exist until this PR), so the non-overlap invariant holds without moving anything
+ * out of P1-P4.
+ */
+export const P5_TARGETS: readonly ProseTarget[] = [
+  // The ten boundary readings (DEC 2026-08-05f #3).
+  { name: 'Tekirdağ', plate: '59', field: 'climateCurriculumNoteTr' },
+  { name: 'Çanakkale', plate: '17', field: 'climateCurriculumNoteTr' },
+  { name: 'Balıkesir', plate: '10', field: 'climateCurriculumNoteTr' },
+  { name: 'Kütahya', plate: '43', field: 'climateCurriculumNoteTr' },
+  { name: 'Isparta', plate: '32', field: 'climateCurriculumNoteTr' },
+  { name: 'Burdur', plate: '15', field: 'climateCurriculumNoteTr' },
+  { name: 'Amasya', plate: '05', field: 'climateCurriculumNoteTr' },
+  { name: 'Tokat', plate: '60', field: 'climateCurriculumNoteTr' },
+  { name: 'Gümüşhane', plate: '29', field: 'climateCurriculumNoteTr' },
+  { name: 'Bayburt', plate: '69', field: 'climateCurriculumNoteTr' },
+  // The out-of-region names (DEC 2026-08-05f #4). Kütahya, Gümüşhane and Bayburt are also
+  // in the list above — their single note answers both, so they appear ONCE.
+  { name: 'Gaziantep', plate: '27', field: 'climateCurriculumNoteTr' },
+  { name: 'Kilis', plate: '79', field: 'climateCurriculumNoteTr' },
+  { name: 'Afyonkarahisar', plate: '03', field: 'climateCurriculumNoteTr' },
+  { name: 'Çorum', plate: '19', field: 'climateCurriculumNoteTr' },
+];
+
+/**
  * EVERY shipped prose wave, in landing order.
  *
  * The spec iterates THIS, so adding a wave above without appending it here would leave the new
@@ -138,6 +176,7 @@ export const PROSE_WAVES: readonly {
   { label: 'P2', targets: P2_TARGETS },
   { label: 'P3', targets: P3_TARGETS },
   { label: 'P4', targets: P4_TARGETS },
+  { label: 'P5', targets: P5_TARGETS },
 ];
 
 /** The `(plate, field)` identity of a target — the only key a cross-wave collision means. */
@@ -201,4 +240,19 @@ export const HISTORICALLY_OWNED: readonly string[] = [
   '52 settlementNoteTr',
   '61 settlementNoteTr',
   '55 settlementNoteTr',
+  // P5 (the müfredat climate note) — a brand-new field, so no pair here was ever owned before.
+  '59 climateCurriculumNoteTr',
+  '17 climateCurriculumNoteTr',
+  '10 climateCurriculumNoteTr',
+  '43 climateCurriculumNoteTr',
+  '32 climateCurriculumNoteTr',
+  '15 climateCurriculumNoteTr',
+  '05 climateCurriculumNoteTr',
+  '60 climateCurriculumNoteTr',
+  '29 climateCurriculumNoteTr',
+  '69 climateCurriculumNoteTr',
+  '27 climateCurriculumNoteTr',
+  '79 climateCurriculumNoteTr',
+  '03 climateCurriculumNoteTr',
+  '19 climateCurriculumNoteTr',
 ];

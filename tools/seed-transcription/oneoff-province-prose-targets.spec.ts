@@ -23,6 +23,7 @@ import {
   P2_TARGETS,
   P3_TARGETS,
   P4_TARGETS,
+  P5_TARGETS,
   PROSE_WAVES,
   targetKey,
 } from './oneoff-province-prose-targets.ts';
@@ -31,12 +32,13 @@ describe('prose wave target lists — per-wave shape', () => {
   it('covers every shipped wave (the table the other cases iterate is complete)', () => {
     // A wave added to the module but forgotten in PROSE_WAVES would be invisible to every
     // assertion below — unguarded while looking guarded, which is worse than no spec.
-    expect(PROSE_WAVES.map((w) => w.label)).toEqual(['P1', 'P2', 'P3', 'P4']);
+    expect(PROSE_WAVES.map((w) => w.label)).toEqual(['P1', 'P2', 'P3', 'P4', 'P5']);
     expect(PROSE_WAVES.map((w) => w.targets)).toEqual([
       P1_TARGETS,
       P2_TARGETS,
       P3_TARGETS,
       P4_TARGETS,
+      P5_TARGETS,
     ]);
   });
 
@@ -117,6 +119,28 @@ describe('prose wave target lists — cross-wave invariants', () => {
     const MERSIN = targetKey({ name: 'Mersin', plate: '33', field: 'settlementNoteTr' });
     expect(P4_TARGETS.map(targetKey)).toContain(MERSIN);
     expect(P3_TARGETS.map(targetKey)).not.toContain(MERSIN);
+  });
+
+  it('P5 transfers nothing — every pair it claims is a field no earlier wave ever owned', () => {
+    // P5 introduces a brand-new column (`climateCurriculumNoteTr`), so unlike PR #96's Mersin
+    // move it should need ZERO deletions from P1-P4. Pinned as a positive statement rather than
+    // trusted: if a later correction ever DOES move one of these pairs, this case is where the
+    // reader is told the wave's "no transfer" claim has expired.
+    const earlier = new Set(
+      [...P1_TARGETS, ...P2_TARGETS, ...P3_TARGETS, ...P4_TARGETS].map(targetKey),
+    );
+    expect(P5_TARGETS.filter((target) => earlier.has(targetKey(target)))).toEqual([]);
+    expect(P5_TARGETS.every((target) => target.field === 'climateCurriculumNoteTr')).toBe(true);
+  });
+
+  it('P5 covers the fourteen provinces the two owner rulings demand a note for', () => {
+    // The wave's SIZE is the thing no other check can see: the runner refuses an empty list and
+    // the seed invariant refuses a missing out-of-region note, but neither notices a boundary
+    // note (DEC 2026-08-05f #3) quietly dropped from the list — that class of loss is silent
+    // everywhere else. Ten boundary readings + seven out-of-region names, three provinces in
+    // both sets, = 14.
+    expect(P5_TARGETS).toHaveLength(14);
+    expect(new Set(P5_TARGETS.map((target) => target.plate)).size).toBe(14);
   });
 
   it('every pair any wave has EVER owned is still owned by some wave (no orphaned field)', () => {
