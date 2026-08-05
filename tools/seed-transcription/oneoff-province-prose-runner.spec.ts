@@ -331,11 +331,18 @@ describe('runProse — the exit-code contract', () => {
   });
 
   it("answers a typo'd draft path with a readable message, not a node:fs stack trace", () => {
-    const missing = path.join(os.tmpdir(), 'prose-runner-no-such-draft.md');
+    // Its own tmpdir (no fixed shared-tmpdir name), and the FULL rendered line: the substring
+    // "no such file" also appears in the raw node message this replaces, so asserting only that
+    // would pass under the regressed form too.
+    const missing = path.join(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'prose-runner-gone-')),
+      'no-such-draft.md',
+    );
     const { code, stderr } = runWithPaths('check', [missing], writeSeed(SEEDED));
     expect(code).toBe(1);
     expect(stderr).toContain('cannot read draft file(s)');
-    expect(stderr).toContain('no such file');
+    expect(stderr).toContain(`${missing} — no such file`);
+    expect(stderr).not.toContain('ENOENT');
   });
 
   it('surfaces a non-fatal parser warning instead of dropping it', () => {

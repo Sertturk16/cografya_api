@@ -320,20 +320,35 @@ describe('runWave — the shared refusals', () => {
       { heading: 'Örnekâbat (Yyy)', body: BODY_91 },
     ]),
   );
-  const missingPath = path.join(os.tmpdir(), 'climate-runner-no-such-draft.md');
+  // Its OWN tmpdir: a fixed name in the shared tmpdir could collide with another run's
+  // leftovers and make the case pass for the wrong reason.
+  const missingPath = path.join(
+    fs.mkdtempSync(path.join(os.tmpdir(), 'climate-runner-gone-')),
+    'no-such-draft.md',
+  );
 
-  it('exits 1 on an EMPTY target list rather than reporting "checked 0 province(s)"', () => {
-    // The false green a wave entry point could reintroduce: every guard below passes vacuously.
-    const { code, stdout, stderr } = run({
-      mode: 'check',
-      draftPaths: [bothSections],
-      targets: [],
-      seedFile: writeSeed(SEEDED),
-    });
-    expect(code).toBe(1);
-    expect(stderr).toContain('target list is empty');
-    expect(stdout).toBe('');
-  });
+  // A draft whose sections match NO seed row, so that with the guard removed every remaining
+  // guard passes vacuously and the run really would print "checked 0 province(s)" and exit 0.
+  // (A draft carrying real province sections would be caught by the stray-section guard instead,
+  // and the case would prove nothing about this one.)
+  const noProvinceSections = writeDraft(
+    draft([{ heading: 'Genel notlar', body: 'Serbest metin.' }]),
+  );
+
+  it.each(['emit', 'check'] as const)(
+    'exits 1 in %s mode on an EMPTY target list rather than reporting "checked 0 province(s)"',
+    (mode) => {
+      const { code, stdout, stderr } = run({
+        mode,
+        draftPaths: [noProvinceSections],
+        targets: [],
+        seedFile: writeSeed(SEEDED),
+      });
+      expect(code).toBe(1);
+      expect(stderr).toContain('target list is empty');
+      expect(stdout).toBe('');
+    },
+  );
 
   it('refuses to run at all when the committed seed does not parse', () => {
     // `ts.createSourceFile` is error-tolerant, so without this the fold silently loses rows and
@@ -376,7 +391,11 @@ describe('runWave — the shared refusals', () => {
     });
     expect(code).toBe(1);
     expect(stderr).toContain('cannot read draft file(s)');
-    expect(stderr).toContain('no such file');
+    // The FULL rendered line, not the substring "no such file" — which the raw node message
+    // ("ENOENT: no such file or directory, open '…'") also contains, so the weaker assertion
+    // would pass under exactly the regression this module exists to prevent.
+    expect(stderr).toContain(`${missingPath} — no such file`);
+    expect(stderr).not.toContain('ENOENT');
   });
 });
 

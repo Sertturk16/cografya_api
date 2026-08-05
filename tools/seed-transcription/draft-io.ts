@@ -71,11 +71,17 @@ function isErrnoException(error: unknown): error is NodeJS.ErrnoException {
   );
 }
 
-function describe(error: unknown): string {
+/**
+ * NOT called `describe`: every spec in this repo loads its module under Jest, where `describe` is
+ * a global, and a module-local function by that name shadows it for the whole file.
+ *
+ * The `?? String(error.message ?? error)` tail is not belt-and-braces: the predicate above is
+ * DUCK-TYPED, so it also accepts a `{ code: 'X' }` object with no `message` at all.
+ */
+function reasonFor(error: unknown): string {
   if (!isErrnoException(error)) return String(error);
-  const code = error.code;
-  if (code === undefined) return String(error.message ?? error);
-  return REASON_BY_CODE[code] ?? String(error.message ?? error);
+  // `code` is a string here by construction — the predicate tested exactly that.
+  return REASON_BY_CODE[error.code ?? ''] ?? String(error.message ?? error);
 }
 
 /** Read every draft path, collecting EVERY failure instead of stopping at the first one. */
@@ -85,11 +91,17 @@ export function readDraftFiles(draftPaths: readonly string[]): DraftReadResult {
 
   for (const draftPath of draftPaths) {
     try {
-      files.push({ path: draftPath, markdown: fs.readFileSync(draftPath, 'utf8') });
+      // STRIP A LEADING BOM. The drafts are authored outside the repo by non-engineers, and one
+      // round-trip through an editor that writes UTF-8-with-BOM prefixes U+FEFF to the first
+      // heading — which then matches no heading pattern, so the whole first section vanishes.
+      // The result is loud (the empty-draft guard fires) but WRONGLY DIAGNOSED: it accuses a
+      // correct draft of being the wrong file. An invisible byte must not decide that.
+      const markdown = fs.readFileSync(draftPath, 'utf8').replace(/^\uFEFF/u, '');
+      files.push({ path: draftPath, markdown });
     } catch (error) {
       // ALL of them, not just the first: a run that passes three drafts should name every bad
       // path in one pass, so the operator fixes the invocation once instead of three times.
-      failures.push({ path: draftPath, reason: describe(error) });
+      failures.push({ path: draftPath, reason: reasonFor(error) });
     }
   }
 

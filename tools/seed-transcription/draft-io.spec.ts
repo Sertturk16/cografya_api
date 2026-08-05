@@ -1,11 +1,10 @@
 /**
  * Unit coverage for the shared draft reader.
  *
- * WHY THIS FILE EXISTS: the friendly-path-error behaviour is the one piece of this toolchain that
- * lives in NO entry point's spec — `cli.ts` and the three one-off entry points are unspecced by
- * design (they are argv + constants). Putting the logic here rather than in each shell is what
- * makes it testable at all, so the test has to be here too, otherwise the "all four entry points
- * answer a typo the same way" claim is guarded by nothing.
+ * WHY THIS FILE EXISTS: the four entry points themselves stay unspecced by design (they are argv +
+ * constants + `import.meta`, which a CommonJS spec cannot import), so the shared reader is where
+ * the "all four answer a typo the same way" claim can be pinned at all. The three shells assert
+ * that they USE it; this file asserts what it does.
  *
  * FIXTURES ARE SYNTHETIC — a temp directory and invented file names; nothing is read from
  * `Owner's Inbox/` or from a seed (→ CONVENTIONS §2: tests assert mechanics, never content).
@@ -48,6 +47,29 @@ describe('readDraftFiles', () => {
     const { failures } = readDraftFiles([directory]);
     expect(failures).toHaveLength(1);
     expect(failures[0]?.reason).toBe('is a directory, not a draft file');
+  });
+
+  it('names a non-directory path segment for what it is', () => {
+    // `<a real file>/draft.md` — the shape of a half-corrected path, and a different errno.
+    const notADirectory = path.join(writeFixture('# var\n'), 'draft.md');
+    const { failures } = readDraftFiles([notADirectory]);
+    expect(failures).toHaveLength(1);
+    expect(failures[0]?.reason).toBe('a path segment is not a directory');
+  });
+
+  it('strips a leading UTF-8 BOM — an invisible byte must not hide the first section', () => {
+    // An editor round-trip that writes UTF-8-with-BOM prefixes U+FEFF to the first heading, which
+    // then matches no heading pattern: the section silently vanishes and the empty-draft guard
+    // accuses a correct draft of being the wrong file. Verified against the parser: the same
+    // markdown yields 1 field without the BOM and 0 with it.
+    const withBom = writeFixture('\uFEFF## 1. ALFA (Alpha)\n');
+    const { files } = readDraftFiles([withBom]);
+    expect(files[0]?.markdown).toBe('## 1. ALFA (Alpha)\n');
+  });
+
+  it('strips ONLY a leading BOM, never one that is part of the prose', () => {
+    const inside = writeFixture('## 1. ALFA\n\n> me\uFEFFtin\n');
+    expect(readDraftFiles([inside]).files[0]?.markdown).toContain('me\uFEFFtin');
   });
 
   it('reports EVERY unreadable path in one pass, so the invocation is fixed once', () => {

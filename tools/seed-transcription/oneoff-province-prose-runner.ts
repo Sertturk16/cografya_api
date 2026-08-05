@@ -291,6 +291,7 @@ export function runProse({ mode, draftPaths, targets, seedFile }: ProseRunOption
     process.stderr.write(
       `seed source does not parse — refusing to run, because every mode would be reading an\n` +
         `incomplete index (and "check" would report a green it did not earn):\n` +
+        `  ${seedFile}\n` +
         `${syntaxErrors.map((e) => `  ${e}`).join('\n')}\n`,
     );
     return 1;

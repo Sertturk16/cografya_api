@@ -34,12 +34,25 @@ export interface Collected {
   readonly errors: readonly string[];
   /** Non-fatal, but never silent. */
   readonly warnings: readonly string[];
+  /**
+   * Labels of the drafts this tool UNDERSTOOD — one entry per draft that carried at least one
+   * `## <n>. <Country>` + `` ### `field` `` pair that resolved to a seed country.
+   *
+   * SEPARATE FROM `items` ON PURPOSE, and the distinction is the whole point: a draft whose
+   * fields were all deduplicated away (a byte-identical copy of an earlier draft, which this
+   * function documents as harmless) contributes NO item while being perfectly well understood.
+   * Judging "did this draft say anything" by the surviving items therefore blames a correct
+   * draft — and blames a different one depending on argv order, since the dedup keeps whichever
+   * came first.
+   */
+  readonly understood: ReadonlySet<string>;
 }
 
 export function collect(drafts: readonly DraftInput[], seed: SeedIndex): Collected {
   const items: Item[] = [];
   const errors: string[] = [];
   const warnings: string[] = [];
+  const understood = new Set<string>();
 
   // Keyed `isoCode.field` ACROSS all drafts, because that is the granularity at which a
   // collision actually corrupts: two drafts carrying the same country+field with different
@@ -72,6 +85,12 @@ export function collect(drafts: readonly DraftInput[], seed: SeedIndex): Collect
         resolved.set(parsed.section, isoCode);
       }
 
+      // RECORDED HERE — before the dedup below can `continue` past it. This is the moment the
+      // draft has proved it was understood: a real section, a real field, resolved to a real
+      // country. Everything after this point is about which COPY of a value wins, not about
+      // whether this draft made sense.
+      understood.add(label);
+
       const key = `${isoCode}.${parsed.field}`;
       const previous = seen.get(key);
       if (previous !== undefined) {
@@ -97,11 +116,11 @@ export function collect(drafts: readonly DraftInput[], seed: SeedIndex): Collect
     }
   }
 
-  return { items, errors, warnings };
+  return { items, errors, warnings, understood };
 }
 
 /**
- * THE COUNTRY LANE'S EXPECTED-COUNT GATE — the drafts that yielded NOTHING.
+ * THE COUNTRY LANE'S EXPECTED-COUNT GATE — the drafts this tool understood NOTHING in.
  *
  * `check` prints `checked N field(s)` where N is the number of fields the parser HAPPENED to
  * understand, not a number anyone declared in advance. So a draft the parser understood nothing in
@@ -118,13 +137,19 @@ export function collect(drafts: readonly DraftInput[], seed: SeedIndex): Collect
  * PER DRAFT, not "were there any items at all": passing two drafts where the second is a wrong,
  * superseded or non-transcription file is the likeliest shape of this mistake, and a global
  * `items.length === 0` test sails straight past it (Atlas ruling AS-7, 2026-08-05).
+ *
+ * MEASURED ON `understood`, NEVER ON THE SURVIVING ITEMS. Keying on `items` made the gate FALSE-RED
+ * on a legitimate invocation the README sanctions: two drafts carrying byte-identical prose (the
+ * case `collect` documents as harmless) leave the later one with zero items, so a perfectly
+ * well-formed draft was accused of being the wrong file — and, because the dedup keeps whichever
+ * came first, swapping the two arguments moved the accusation to the other file. Reproduced on the
+ * real okyanusya draft in the PR #93 review (CR93-I1 / TA93-I2 / SFH).
  */
-export function draftsWithoutItems(
+export function draftsWithoutFields(
   drafts: readonly DraftInput[],
-  items: readonly Item[],
+  understood: ReadonlySet<string>,
 ): string[] {
-  const contributed = new Set(items.map((item) => item.draft));
-  return drafts.filter((draft) => !contributed.has(draft.label)).map((draft) => draft.label);
+  return drafts.filter((draft) => !understood.has(draft.label)).map((draft) => draft.label);
 }
 
 export interface CheckReport {
