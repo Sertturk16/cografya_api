@@ -2141,13 +2141,13 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "Cibuti kentinin yaklaşık 120 kilometre batısında, Tadjoura Körfezi'nin batı kolu olan " +
       'Ghoubbet-el-Kharab koyuna yalnızca 10 kilometre uzaklıkta yer alan Assal Gölü, deniz ' +
       "seviyesinin 155 metre altındadır; bu değer onu Afrika'nın en alçak noktası, dünyanın ise " +
-      "Ölü Deniz ve Celile Gölü'nün ardından üçüncü en alçak noktası yapar. Yüksek buharlaşma " +
-      'nedeniyle gölün tuzluluğu deniz suyunun on katına ulaşır. Gölü çevreleyen volkanik ' +
-      "bazalt oluşumları, Afar Üçlü Kavşağı'nın jeolojik hareketliliğini yansıtır." +
+      "Lut Gölü (Ölü Deniz) ve Celile Gölü'nün ardından üçüncü en alçak noktası yapar. Yüksek " +
+      'buharlaşma nedeniyle gölün tuzluluğu deniz suyunun on katına ulaşır. Gölü çevreleyen ' +
+      "volkanik bazalt oluşumları, Afar Üçlü Kavşağı'nın jeolojik hareketliliğini yansıtır." +
       '\n\n' +
-      "Güneyde, Etiyopya sınırındaki Abbe Gölü'nün çevresinde, derin jeotermal sulardan " +
-      'beslenen ve 50 metreye ulaşan kireçtaşı bacalar yükselir; bu oluşumlar, göle ulaşan ' +
-      "Etiyopya kökenli Auş Nehri'nin sularının jeotermal akışkanlarla karışmasıyla oluşur.",
+      "Güneyde, Etiyopya sınırındaki Abbe Gölü'nün çevresinde, derin jeotermal sulardan beslenen " +
+      've 50 metreye ulaşan kireçtaşı bacalar yükselir; bu oluşumlar, göle ulaşan Etiyopya ' +
+      "kökenli Auş Nehri'nin sularının jeotermal akışkanlarla karışmasıyla oluşur.",
     climateNoteTr:
       'Cibuti, dünyanın en sıcak ülkeleri arasında sayılan sıcak ve yarı kurak bir iklime ' +
       'sahiptir. Kıyı ve alçak kesimlerde gündüz sıcaklıkları 32-41 santigrat derece arasında ' +

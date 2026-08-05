@@ -22,6 +22,7 @@ import {
   type CommittedProvince,
   checkDraftsAgainstTargets,
   checkTargetsAgainstSeed,
+  isDirectInvocation,
   parseArgs,
   readCommitted,
   runWave,
@@ -115,6 +116,60 @@ describe('parseArgs', () => {
 
   it('rejects empty argv', () => {
     expect(parseArgs([])).toBeNull();
+  });
+});
+
+describe('isDirectInvocation — the symlink-safe entry-point guard', () => {
+  let dir: string;
+  let realFile: string;
+
+  beforeEach(() => {
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), 'direct-invocation-'));
+    realFile = path.join(dir, 'entry-point.ts');
+    fs.writeFileSync(realFile, '// wave entry point\n');
+  });
+
+  afterEach(() => {
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('fires when the module IS the file node was told to run', () => {
+    expect(isDirectInvocation(realFile, realFile)).toBe(true);
+  });
+
+  it('does NOT fire for a different file — importing a sibling must not start its CLI', () => {
+    const other = path.join(dir, 'somewhere-else.ts');
+    fs.writeFileSync(other, '// a spec, or another module\n');
+    expect(isDirectInvocation(realFile, other)).toBe(false);
+  });
+
+  /**
+   * THE REGRESSION THIS FUNCTION EXISTS FOR (PR #94, SFH94-I1).
+   *
+   * The old guard compared `import.meta.url` (realpath'd by the ESM loader) against
+   * `pathToFileURL(process.argv[1])` (NOT realpath'd). Invoke a wave through a symlinked path
+   * segment — macOS `/tmp` -> `/private/tmp`, `$TMPDIR`, a symlinked checkout — and the two
+   * disagreed, so `main()` never ran: no output, exit 0. On `check` that is a FALSE GREEN on the
+   * mandated §8 fidelity gate.
+   */
+  it('still fires when the invoked path reaches the same file through a symlink', () => {
+    const linkDir = path.join(dir, 'link-to-dir');
+    fs.symlinkSync(dir, linkDir);
+    const throughLink = path.join(linkDir, 'entry-point.ts');
+
+    // Precondition: the two spellings really are different strings pointing at one file.
+    expect(throughLink).not.toBe(realFile);
+    expect(fs.realpathSync(throughLink)).toBe(fs.realpathSync(realFile));
+
+    expect(isDirectInvocation(realFile, throughLink)).toBe(true);
+  });
+
+  it('returns false instead of throwing when argv[1] does not exist on disk', () => {
+    expect(isDirectInvocation(realFile, path.join(dir, 'never-created.ts'))).toBe(false);
+  });
+
+  it('returns false when there is no argv[1] at all', () => {
+    expect(isDirectInvocation(realFile, undefined)).toBe(false);
   });
 });
 

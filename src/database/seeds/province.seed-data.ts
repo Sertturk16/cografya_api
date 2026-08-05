@@ -4703,10 +4703,11 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
       '2.000 metreyi aşan yükseltilerinden doğar. Divriği ilçesindeki Ulu Cami ve Darüşşifa, ' +
       "1985'te Türkiye'den UNESCO Dünya Mirası Listesi'ne giren ilk mimari eserdir.",
     hydrographyNoteTr:
-      'Kızılırmak, İmranlı ilçesindeki Kızıldağ kaynaklarından doğar ve toplam 1.355 ' +
-      'kilometrelik uzunluğuyla Türkiye sınırları içinde tamamen akan en uzun nehirdir; Sivas ' +
-      'topraklarından geçtikten sonra Kayseri, Kırşehir, Kırıkkale, Ankara, Aksaray, ' +
-      "Nevşehir, Çorum ve Samsun'dan geçerek Karadeniz'e dökülür.",
+      'Kızılırmak, İmranlı ilçesindeki Kızıldağ kaynaklarından doğar ve Türkiye sınırları içinde ' +
+      'tamamen akan en uzun nehirdir. Sivas topraklarından geçtikten sonra Kayseri, Kırşehir, ' +
+      "Kırıkkale, Ankara, Aksaray, Nevşehir, Çorum ve Samsun'dan geçerek Karadeniz'e dökülür. " +
+      'Millî Eğitim Bakanlığı müfredat kaynakları bu güzergâh için 1.355 kilometre rakamını ' +
+      'kullanır.',
     urbanizationRate: 77.38,
     netMigrationRate: -21.14,
     economyIndicator: {
