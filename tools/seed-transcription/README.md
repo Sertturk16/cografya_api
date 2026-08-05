@@ -69,17 +69,17 @@ The drafts live **outside this repo**, so from the repo root every path starts w
 
 ### What every lane refuses to do
 
-These four refusals are shared by all three lanes' shells (`cli.ts`, the climate runner,
+These four refusals are shared by all three lanes' shells (`country-runner.ts`, the climate runner,
 the prose runner) and a new lane has to carry all four. Each one closes a **false green**
 that was reproduced, not imagined — the whole point of this tool is that its `exit 0` can
 be trusted without re-reading the seed:
 
 | Situation | Behaviour |
 | --- | --- |
-| The wave target list is empty; or (country lane) a draft yielded no transcribable field | `exit 1` — it will not print "checked 0 field(s)" and call that a pass |
+| The wave target list is empty; or (country lane) a draft this tool understood no field in | `exit 1` — it will not print "checked 0 field(s)" and call that a pass. Measured on what was UNDERSTOOD, not on what survived de-duplication: passing the same draft twice is legal and stays green |
 | The committed seed source does not parse | `exit 1` before any mode runs — `ts.createSourceFile` is error-tolerant, so the fold would silently lose rows and `check` would compare against a hole |
-| A draft path cannot be read | `exit 1`, naming **every** unreadable path with a reason — never a `node:fs` stack trace, which reads like a tool crash |
-| The parser performed a no-separator line join | **Reported** in `check` as well as `emit`, and deliberately NOT a failure — both sides of `check` run the same parser, so a wrongly glued join agrees with itself |
+| A draft path cannot be read | `exit 1`, naming **every** unreadable path with a reason — never a `node:fs` stack trace, which reads like a tool crash. A leading UTF-8 BOM is stripped rather than allowed to hide the first section |
+| The parser performed a no-separator line join | **Reported** on stdout in `check` as well as `emit`, and deliberately NOT a failure — both sides of `check` run the same parser, so a wrongly glued join agrees with itself |
 
 The first three fail loud; only the last is reporting-only, because the join heuristic is
 right far more often than not and a hard failure would train people around the gate.

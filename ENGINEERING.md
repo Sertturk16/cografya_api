@@ -280,9 +280,13 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   into the `+`-concatenation idiom is what caused PR #43's dropped spaces — don't. There are
   **THREE transcription lanes, and they are not interchangeable**; using the wrong one reports a
   false green, because each lane can only see the seed file it knows about. The shared
-  exit-code contract now lives in three entry points and two runner copies
-  (`oneoff-province-climate-runner.ts` + `oneoff-province-prose-runner.ts`) — a new lane
-  author must replicate the same invariant, not assume one copy guards all.
+  exit-code contract lives in **three runner copies** (`country-runner.ts` +
+  `oneoff-province-climate-runner.ts` + `oneoff-province-prose-runner.ts`) driven by four
+  entry points (`cli.ts`, `oneoff-n1`, `oneoff-n2`, `oneoff-p1`) — a new lane author must
+  replicate the same invariant, not assume one copy guards all. **The runner/entry-point
+  split is structural, not stylistic:** the runner is deliberately `import.meta`-free so a
+  CommonJS (ts-jest) spec can import it, and the entry point owns `import.meta.dirname`,
+  argv and the usage banner. A refusal written into an entry point cannot be pinned at all.
   - **Countries — `pnpm seed:transcribe`.** `apply <draft.md>` writes fact-checked prose into
     the wave files under `src/database/seeds/countries/*.countries.ts`, `check <draft.md>`
     verifies it. **That directory is the tool's ENTIRE world** (`cli.ts` → `SEED_DIR`): it
@@ -318,15 +322,21 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
     `province.seed-data.ts` (this happened in a PR #70 review).
   - **The three shells also share FOUR REFUSALS, and a new lane must carry all four**
     (PR #93, Atlas ruling AS-7). Each is a false green somebody reproduced, not a
-    hypothetical: (1) **nothing expected** — an empty wave target list, and in the country
-    lane a draft that yielded no field at all, fails instead of printing "checked 0"; (2)
+    hypothetical: (1) **nothing expected** — an empty wave target list fails instead of
+    printing "checked 0". The country lane, which has no wave target table, additionally
+    refuses a draft it understood no field in; the province lanes have no twin of that
+    per-draft variant yet (queued follow-up). That gate is measured on what the parser
+    UNDERSTOOD, never on the items that survive de-duplication — two drafts carrying
+    identical prose is a sanctioned invocation, and judging it by surviving items false-REDs
+    a correct draft (PR #93 review); (2)
     **the committed seed does not parse** — `ts.createSourceFile` is error-tolerant, so
     every mode would read a silently incomplete index; (3) **an unreadable draft path** is
     answered with a message naming every bad path, not a `node:fs` stack trace; (4)
     **tight joins are reported in `check`, not only in `emit`** — both sides of `check` run
     the same parser, so a wrongly glued line join agrees with itself (reporting only, never
-    a failure). The country lane's shell is `cli.ts`; the province lanes' are their two
-    runners; the shared draft reader is `tools/seed-transcription/draft-io.ts`.
+    a failure) — and it prints on **stdout**, beside the count line it belongs to, in every
+    lane. The shared draft reader is `tools/seed-transcription/draft-io.ts`; it also strips
+    a leading BOM, because an invisible byte must not decide that a section exists.
   - **The drafts are not in this repo.** Run from the repo root, a draft path starts with
     `../Owner's Inbox/…`; the usage banners abbreviate it.
 - **The content-fidelity gate is per-wave, and it is `exit 0`.** Run `check` over **the
