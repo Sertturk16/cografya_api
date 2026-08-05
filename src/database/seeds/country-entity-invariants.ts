@@ -240,6 +240,7 @@ export function assertCountryEntityInvariants(countries: readonly CountrySeed[])
  *  - 6 — exactly one `TR` row, typed `country`, on the `turkiye` slug AND the `turkey` EN slug.
  *  - 7b — the corpus actually contains the typed rows the model was built for.
  *  - 8 — the four unique keys do not repeat (alpha-3 over its non-null values).
+ *  - 9 — every NON-`special` row publishes a population (the converse of row-rule 3).
  */
 export function assertCountryCorpusInvariants(countries: readonly CountrySeed[]): void {
   // 6 — EXACTLY ONE TÜRKİYE. Two TR rows would be a duplicate page; zero would mean the profile
@@ -335,5 +336,35 @@ export function assertCountryCorpusInvariants(countries: readonly CountrySeed[])
           `appended a row whose key already exists elsewhere in the corpus.`,
       );
     }
+  }
+
+  // 9 — POPULATION IS ABSENT ONLY WHERE THE CONCEPT DOES NOT APPLY. Row-rule 3 says a `special`
+  // row must NOT carry a population; this is its converse, and until now nothing asserted it.
+  // The gap was not hypothetical: five Orta Afrika rows (CF, CG, GQ, GA, ST) sat at
+  // `population: null` for a whole content wave because their base-data block quoted a RANGE
+  // rather than a figure, and the only symptom was five public pages silently declining to draw
+  // a "Nüfus" card at all — no error, no failing test, nothing to notice (fixed 2026-08-05).
+  //
+  // WHY THIS IS A CORPUS RULE AND NOT A ROW RULE, deliberately (PR #95 review, TA95-I3, where it
+  // was proposed for the row-level function): `assertCountryEntityInvariants` runs on the WRITE
+  // path over ARBITRARY batches — the e2e fixtures and any future partial re-seed pass their own
+  // rows, and several of those legitimately omit every optional in order to prove that unset
+  // optionals serialise to `null`. A "this must be filled in" completeness rule there would
+  // reject those valid batches. "Every published non-special row has a population" is a
+  // statement about the WHOLE set, exactly like rule 7b — so it belongs here, where it still
+  // runs in the fast `Test (unit)` job over the real `SEED_COUNTRIES` and in `world.cli.ts`
+  // before a hand-run seed can open a connection. Same teeth, correct scope.
+  const missingPopulation = countries.filter(
+    (seed) =>
+      resolveEntityType(seed) !== CountryEntityType.Special &&
+      (seed.population === null || seed.population === undefined),
+  );
+  if (missingPopulation.length > 0) {
+    throw new CountrySeedInvariantError(
+      `${missingPopulation.length} non-special row(s) publish no population — ` +
+        `${missingPopulation.map(label).join(', ')}. Only an entityType "special" row may leave ` +
+        `it absent (row-rule 3: the concept does not apply). Everywhere else the page simply ` +
+        `drops its "Nüfus" card in silence, which is why this is asserted rather than noticed.`,
+    );
   }
 }

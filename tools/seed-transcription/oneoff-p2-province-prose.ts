@@ -43,21 +43,13 @@
 import * as path from 'node:path';
 
 import { isDirectInvocation, parseArgs } from './oneoff-province-climate-runner.ts';
-import { type ProseTarget, runProse } from './oneoff-province-prose-runner.ts';
+import { P2_TARGETS } from './oneoff-province-prose-targets.ts';
+import { runProse } from './oneoff-province-prose-runner.ts';
 
 const SEED_FILE = path.resolve(
   import.meta.dirname,
   '../../src/database/seeds/province.seed-data.ts',
 );
-
-/**
- * `name` is the province as the DRAFT heads its section; it is cross-checked against the seed
- * row's own `nameTr` for `plate` before anything is emitted or compared, so a wrong plate cannot
- * quietly publish this prose on another province's page.
- */
-export const P2_TARGETS: readonly ProseTarget[] = [
-  { name: 'Sivas', plate: '58', field: 'hydrographyNoteTr' },
-];
 
 function main(): number {
   const args = parseArgs(process.argv.slice(2));
