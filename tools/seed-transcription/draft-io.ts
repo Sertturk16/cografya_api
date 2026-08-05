@@ -58,15 +58,24 @@ const REASON_BY_CODE: Readonly<Record<string, string>> = {
   EPERM: 'permission denied',
 };
 
+/**
+ * DUCK-TYPED, NOT `instanceof Error` — deliberately. An `fs` error crosses a realm boundary when
+ * it is raised inside Jest's VM context, and `instanceof` is realm-scoped: the check silently
+ * returns false there, and the friendly reason degrades to `String(error)` — the raw
+ * "Error: ENOENT: no such file or directory, open '…'" this module exists to replace. Caught by
+ * `draft-io.spec.ts` on CI, which is exactly what that spec is for.
+ */
 function isErrnoException(error: unknown): error is NodeJS.ErrnoException {
-  return error instanceof Error && 'code' in error && typeof error.code === 'string';
+  return (
+    typeof error === 'object' && error !== null && 'code' in error && typeof error.code === 'string'
+  );
 }
 
 function describe(error: unknown): string {
   if (!isErrnoException(error)) return String(error);
   const code = error.code;
-  if (code === undefined) return error.message;
-  return REASON_BY_CODE[code] ?? error.message;
+  if (code === undefined) return String(error.message ?? error);
+  return REASON_BY_CODE[code] ?? String(error.message ?? error);
 }
 
 /** Read every draft path, collecting EVERY failure instead of stopping at the first one. */
