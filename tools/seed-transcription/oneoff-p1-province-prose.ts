@@ -8,8 +8,8 @@
  * (Atlas ruling AS-3, 2026-08-05).
  *
  * USAGE (reviewer-reproducible — pass the ONE authoritative P1 draft):
- *   node tools/seed-transcription/oneoff-p1-province-prose.ts emit  "Owner's Inbox/komsu-kenar-rakim-seed/seed-draft-provinces.md"
- *   node tools/seed-transcription/oneoff-p1-province-prose.ts check "Owner's Inbox/komsu-kenar-rakim-seed/seed-draft-provinces.md"
+ *   node tools/seed-transcription/oneoff-p1-province-prose.ts emit  "../Owner's Inbox/komsu-kenar-rakim-seed/seed-draft-provinces.md"
+ *   node tools/seed-transcription/oneoff-p1-province-prose.ts check "../Owner's Inbox/komsu-kenar-rakim-seed/seed-draft-provinces.md"
  *
  * `emit`  prints the `hydrographyNoteTr:` concatenation snippet, produced by the property-tested
  *         lossless emitter — that snippet is what goes into the seed, never hand-typed prose.
