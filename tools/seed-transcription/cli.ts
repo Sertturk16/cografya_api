@@ -19,22 +19,42 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
+import { readDraftFiles, renderDraftReadFailures } from './draft-io.ts';
 import { emitConcat } from './emit.ts';
 import { readSeedDirectory, syntaxErrorsIn, type SeedIndex } from './seed-reader.ts';
 import { applyToSource, type Divergence } from './apply.ts';
-import { collect, evaluateCheck, routeWrites, type DraftInput, type Item } from './pipeline.ts';
+import {
+  collect,
+  draftsWithoutItems,
+  evaluateCheck,
+  routeWrites,
+  type DraftInput,
+  type Item,
+} from './pipeline.ts';
 
 const SEED_DIR = path.resolve(import.meta.dirname, '../../src/database/seeds/countries');
 
 type Mode = 'check' | 'emit' | 'apply';
 
-function readDrafts(draftPaths: readonly string[]): DraftInput[] {
-  return draftPaths.map((draftPath) => ({
+/**
+ * Read the drafts, or report EVERY path that could not be read and let the caller exit 1.
+ *
+ * A typo'd path used to surface as a raw `node:fs` stack trace, which reads like a tool crash
+ * rather than like "you named a file that is not there" (`draft-io.ts` carries the full rationale
+ * and the shared wording, so all four entry points answer a typo identically).
+ */
+function readDrafts(draftPaths: readonly string[]): DraftInput[] | null {
+  const { files, failures } = readDraftFiles(draftPaths);
+  if (failures.length > 0) {
+    process.stderr.write(renderDraftReadFailures(failures));
+    return null;
+  }
+  return files.map((file) => ({
     // The PATH, not the basename: two different waves ship a file called
     // `sovereignty-narrative-draft.md`, and a collision-prone label makes the duplicate-key
     // and drift messages ambiguous exactly when they matter most.
-    label: path.relative(process.cwd(), draftPath),
-    markdown: fs.readFileSync(draftPath, 'utf8'),
+    label: path.relative(process.cwd(), file.path),
+    markdown: file.markdown,
   }));
 }
 
@@ -199,7 +219,10 @@ function main(): number {
     return 1;
   }
 
-  const { items, errors, warnings } = collect(readDrafts(draftPaths), seed);
+  const drafts = readDrafts(draftPaths);
+  if (drafts === null) return 1;
+
+  const { items, errors, warnings } = collect(drafts, seed);
 
   if (warnings.length > 0) {
     process.stderr.write(`warning(s):\n${warnings.map((w) => `  ${w}`).join('\n')}\n`);
@@ -211,6 +234,22 @@ function main(): number {
     );
     // Never proceed on a partially-understood draft: a skipped country is a silently
     // empty field, which is the failure this tool exists to prevent.
+    return 1;
+  }
+
+  // A DRAFT THAT YIELDED NOTHING IS AN ERROR IN EVERY MODE, not a quiet no-op. Without this,
+  // `check` prints "checked 0 field(s)" and exits 0, `emit` prints nothing and exits 0, and
+  // `apply` writes nothing and exits 0 — three greens earned by understanding none of the file.
+  // The guard is mode-independent for the same reason the two refusals above are: a per-mode
+  // carve-out is a special case someone later has to explain (`pipeline.ts` carries the full
+  // rationale; Atlas ruling AS-7).
+  const emptyDrafts = draftsWithoutItems(drafts, items);
+  if (emptyDrafts.length > 0) {
+    process.stderr.write(
+      `error: no transcribable field found in:\n${emptyDrafts.map((d) => `  ${d}`).join('\n')}\n` +
+        `Wrong file, or its "### \`field\`" headers are malformed — nothing would have been ` +
+        `transcribed.\n`,
+    );
     return 1;
   }
 

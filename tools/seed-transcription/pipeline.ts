@@ -100,6 +100,33 @@ export function collect(drafts: readonly DraftInput[], seed: SeedIndex): Collect
   return { items, errors, warnings };
 }
 
+/**
+ * THE COUNTRY LANE'S EXPECTED-COUNT GATE — the drafts that yielded NOTHING.
+ *
+ * `check` prints `checked N field(s)` where N is the number of fields the parser HAPPENED to
+ * understand, not a number anyone declared in advance. So a draft the parser understood nothing in
+ * prints "checked 0 field(s): 0 identical, 0 drifted, 0 not yet seeded" and exits 0 — a green
+ * earned by parsing nothing, on the command `ENGINEERING.md` §8 mandates as the content-fidelity
+ * gate. `emit` prints nothing and `apply` writes nothing, both also exiting 0.
+ *
+ * The province lanes close this structurally by counting their WAVE TARGET TABLE instead. This
+ * lane has no such table and should not grow one (a country is resolved from its own heading via
+ * `isoCode` identity, never from a per-wave list). What the operator DOES declare here is the set
+ * of draft paths on the command line, so the honest structural claim is: every draft you passed
+ * must be a draft this tool understood.
+ *
+ * PER DRAFT, not "were there any items at all": passing two drafts where the second is a wrong,
+ * superseded or non-transcription file is the likeliest shape of this mistake, and a global
+ * `items.length === 0` test sails straight past it (Atlas ruling AS-7, 2026-08-05).
+ */
+export function draftsWithoutItems(
+  drafts: readonly DraftInput[],
+  items: readonly Item[],
+): string[] {
+  const contributed = new Set(items.map((item) => item.draft));
+  return drafts.filter((draft) => !contributed.has(draft.label)).map((draft) => draft.label);
+}
+
 export interface CheckReport {
   readonly matched: number;
   readonly drifted: readonly string[];

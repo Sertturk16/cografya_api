@@ -30,6 +30,7 @@ import * as fs from 'node:fs';
 
 import ts from 'typescript';
 
+import { readDraftFiles, renderDraftReadFailures } from './draft-io.ts';
 import { type NarrativeField, parseDraft } from './draft-parser.ts';
 import { emitConcat } from './emit.ts';
 import { foldProvinceName } from './oneoff-province-climate-extract.ts';
@@ -295,7 +296,12 @@ export function runProse({ mode, draftPaths, targets, seedFile }: ProseRunOption
     return 1;
   }
 
-  const contents = draftPaths.map((draftPath) => fs.readFileSync(draftPath, 'utf8'));
+  const { files, failures } = readDraftFiles(draftPaths);
+  if (failures.length > 0) {
+    process.stderr.write(renderDraftReadFailures(failures));
+    return 1;
+  }
+  const contents = files.map((file) => file.markdown);
   const committed = readCommitted(
     seedFile,
     targets.map((target) => target.field),
