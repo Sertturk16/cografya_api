@@ -1683,36 +1683,35 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       "Ürdün Çöküntü Vadisi'nin doğu yamacında kurulu Ürdün, denize yalnızca güneybatı ucundaki " +
       'Akabe Körfezi üzerinden kısa bir şeritle açılır. Kuzeyde Suriye, doğuda Irak, güneyde ve ' +
       'doğuda Suudi Arabistan, batıda İsrail ile komşudur. Batı sınırının orta kesiminde ise ' +
-      "komşu Filistin'dir; Şeria (Ürdün) Nehri ve Ölü Deniz hattı, Ürdün'ü Batı Şeria'dan " +
-      'ayırır.',
+      "komşu Filistin'dir; Şeria (Ürdün) Nehri, Ürdün'ü Batı Şeria'dan ayırır. Bu hat güneyde " +
+      "Lut Gölü'nün (Ölü Deniz) kuzey kesimi boyunca sürer.",
     landformNoteTr:
-      'Ülkenin batı sınırını, Büyük Rift Vadisi sisteminin bir parçası olan Ürdün Çöküntü ' +
-      'Vadisi çizer; bu derin çöküntü, çevresindeki platolardan 1.200-2.000 metre aşağıda ' +
-      "kalır ve dip noktasında, Dünya'nın kara yüzeyindeki en alçak noktası olan Ölü " +
-      "Deniz'e ulaşır. Ölü Deniz'in su seviyesi yılda yaklaşık 1 metre düşmeye devam ediyor; " +
-      'bugün deniz seviyesinin yaklaşık 440 metre altındadır.' +
+      'Ülkenin batı sınırını, Büyük Rift Vadisi sisteminin bir parçası olan Ürdün Çöküntü Vadisi ' +
+      'çizer; bu derin çöküntü, çevresindeki platolardan 1.200-2.000 metre aşağıda kalır ve dip ' +
+      "noktasında, Dünya'nın kara yüzeyindeki en alçak noktası olan Lut Gölü'ne ulaşır. Lut " +
+      "Gölü'nün su seviyesi yılda yaklaşık 1 metre düşmeye devam ediyor; bugün deniz seviyesinin " +
+      'yaklaşık 440 metre altındadır.' +
       '\n\n' +
-      'Çöküntü vadisinin doğusunda, 600-1.000 metre rakımlı kıvrımlı kireçtaşı sırtlardan ' +
-      'oluşan Aclun ve Belka yaylaları yükselir; Vadi Mucib ve Vadi Hasa gibi vadiler bu ' +
-      'yaylaları derin kanyonlarla yarar. Ülkenin en yüksek noktası, güneydeki ıssız bir ' +
-      "kesimde yer alan 1.854 metrelik Jabal Umm ad-Dami'dir. Doğuda, Suudi Arabistan ve " +
-      'Irak sınırlarına kadar uzanan Bâdiye, yaylalara yakın kesimde 900 metreden sınıra ' +
-      'doğru 600 metreye alçalan, yer yer bazalt kütleleriyle kaplı bir çöl platosudur.',
+      'Çöküntü vadisinin doğusunda, 600-1.000 metre rakımlı kıvrımlı kireçtaşı sırtlardan oluşan ' +
+      'Aclun ve Belka yaylaları yükselir; Vadi Mucib ve Vadi Hasa gibi vadiler bu yaylaları ' +
+      'derin kanyonlarla yarar. Ülkenin en yüksek noktası, güneydeki ıssız bir kesimde yer alan ' +
+      "1.854 metrelik Jabal Umm ad-Dami'dir. Doğuda, Suudi Arabistan ve Irak sınırlarına kadar " +
+      'uzanan Bâdiye, yaylalara yakın kesimde 900 metreden sınıra doğru 600 metreye alçalan, yer ' +
+      'yer bazalt kütleleriyle kaplı bir çöl platosudur.',
     climateNoteTr:
-      'Çöküntü vadisinin batısındaki yaylalarda Akdeniz iklimi görülür; yıllık yağış ' +
-      'kuzeyde 500 milimetreyi bulurken güneye doğru 300 milimetreye iner. Ölü Deniz ve ' +
-      'Ürdün Nehri çevresindeki çöküntü vadisi tabanında, yaz sıcaklarının ve düşük rakımın ' +
-      '(deniz seviyesinin altında) birleşiminden doğan subtropikal bir iklim hakimdir, ' +
-      "yıllık yağış yaklaşık 200 milimetredir. Ülkenin yaklaşık %90'ını oluşturan doğu ve " +
-      'güney kesimlerinde ise yıllık yağış 100 milimetrenin altına düşen bir çöl iklimi ' +
-      'egemendir.',
+      'Çöküntü vadisinin doğusundaki yaylalarda Akdeniz iklimi görülür; yıllık yağış kuzeyde 500 ' +
+      'milimetreyi bulurken güneye doğru 300 milimetreye iner. Lut Gölü ve Şeria Nehri ' +
+      'çevresindeki çöküntü vadisi tabanında, yaz sıcaklarının ve düşük rakımın (deniz ' +
+      'seviyesinin altında) birleşiminden doğan subtropikal bir iklim hakimdir, yıllık yağış ' +
+      "yaklaşık 200 milimetredir. Ülkenin yaklaşık %90'ını oluşturan doğu ve güney kesimlerinde " +
+      'ise yıllık yağış 100 milimetrenin altına düşen bir çöl iklimi egemendir.',
     hydrographyNoteTr:
-      'Ülkenin batı sınırını izleyen Ürdün Nehri, Yarmuk ve Zerka nehirlerinden beslenir; ' +
+      'Ülkenin batı sınırını izleyen Şeria Nehri, Yarmuk ve Zerka nehirlerinden beslenir; ' +
       'Suriye-Ürdün sınırının bir bölümünü çizen Yarmuk, nehrin en büyük kolu ve Ürdün ' +
-      "Vadisi'ndeki tarımın ana su kaynağıdır. Amman yakınlarındaki kaynaklardan doğan " +
-      "Zerka, derin bir vadiden geçerek Ürdün Nehri'ne katılır. Nehir, güneyde kapalı bir " +
-      "havza olan Ölü Deniz'de son bulur; yukarı havzadaki yoğun su kullanımı nedeniyle " +
-      'nehrin yıllık debisi geçmiş dönemlere kıyasla büyük ölçüde azalmıştır.',
+      "Vadisi'ndeki tarımın ana su kaynağıdır. Amman yakınlarındaki kaynaklardan doğan Zerka, " +
+      "derin bir vadiden geçerek Şeria Nehri'ne katılır. Nehir, güneyde kapalı bir havza olan " +
+      "Lut Gölü'nde son bulur; yukarı havzadaki yoğun su kullanımı nedeniyle nehrin yıllık " +
+      'debisi geçmiş dönemlere kıyasla büyük ölçüde azalmıştır.',
   },
   {
     isoCode: 'KW',

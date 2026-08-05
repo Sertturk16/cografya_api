@@ -281,9 +281,10 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Yarı başkanlık sistemiyle yönetilen cumhuriyet',
     introTr:
       'Filistin, Doğu Akdeniz kıyısında, birbirinden ayrı iki toprak parçasından oluşur. ' +
-      'Doğudaki Batı Şeria, Şeria Nehri ile Akdeniz kıyı ovası arasında yer alan, orta kesimi ' +
-      'dağlık bir yayla ülkesidir. Güneybatıdaki Gazze Şeridi ise Akdeniz boyunca uzanan dar, ' +
-      'alçak ve kumul bir kıyı şerididir. İki bölge coğrafi olarak birbirine komşu değildir.',
+      'Doğudaki Batı Şeria, Şeria (Ürdün) Nehri ile Akdeniz kıyı ovası arasında yer alan, orta ' +
+      'kesimi dağlık bir yayla ülkesidir. Güneybatıdaki Gazze Şeridi ise Akdeniz boyunca uzanan ' +
+      'dar, alçak ve kumul bir kıyı şerididir. İki bölge coğrafi olarak birbirine komşu ' +
+      'değildir.',
     landformNoteTr:
       "Batı Şeria'nın omurgasını, kuzey-güney doğrultusunda uzanan orta dağlık yüksek yayla " +
       "oluşturur; kireçtaşından oluşan bu yayla Filistin'in en yüksek kesimidir. Bölgenin ve " +
@@ -301,11 +302,11 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     hydrographyNoteTr:
       'Filistin topraklarında yıl boyu akan sürekli bir nehir yoktur; iç kesimdeki vadiler ' +
       "yalnızca kış yağışlarıyla akar. Bölgenin başlıca akarsuyu, Batı Şeria'nın doğu sınırını " +
-      "çizen Şeria (Ürdün) Nehri'dir; kuzeyden güneye akarak Lut Gölü'ne (Ölü Deniz) dökülür. " +
-      "Batı Şeria'nın güneydoğu kenarı, deniz seviyesinin 430 metreden fazla altındaki " +
-      'yüzeyiyle yeryüzünün en alçak noktası olan Lut Gölü kıyısına kadar iner. Gazze ' +
-      "Şeridi'nde yüzey suyu yok denecek kadar azdır; bölge, içme ve sulama suyunu büyük " +
-      'ölçüde kıyı akiferinden, yani yeraltı suyundan sağlar.',
+      "çizen Şeria Nehri'dir; kuzeyden güneye akarak Lut Gölü'ne (Ölü Deniz) dökülür. Batı " +
+      "Şeria'nın güneydoğu kenarı, deniz seviyesinin 430 metreden fazla altındaki yüzeyiyle " +
+      "yeryüzünün en alçak noktası olan Lut Gölü kıyısına kadar iner. Gazze Şeridi'nde yüzey " +
+      'suyu yok denecek kadar azdır; bölge, içme ve sulama suyunu büyük ölçüde kıyı akiferinden, ' +
+      'yani yeraltı suyundan sağlar.',
     // Owner'ın başkent-notu + yönetim-notu tek alanda birleştirildi (verbatim; başkent
     //   etiketi owner'ın büyük harfli "(İlan edilen)/(Fiili idari merkez)" formunda).
     sovereigntyNoteTr:
