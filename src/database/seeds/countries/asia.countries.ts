@@ -1673,16 +1673,18 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     capitalNameEn: 'Amman',
     capitalLatitude: 31.9454,
     capitalLongitude: 35.9284,
-    neighborIsoCodes: ['SY', 'IQ', 'SA', 'IL'],
+    neighborIsoCodes: ['SY', 'IQ', 'SA', 'IL', 'PS'],
     officialLanguagesTr: ['Arapça'],
     currencyNameTr: 'Ürdün Dinarı',
     currencyCode: 'JOD',
     governmentFormTr: 'Üniter parlamenter anayasal monarşi',
     independenceNoteTr: "25 Mayıs 1946'da İngiliz manda yönetiminden bağımsız oldu.",
     introTr:
-      "Ürdün Çöküntü Vadisi'nin doğu yamacında kurulu Ürdün, denize yalnızca güneybatı " +
-      'ucundaki Akabe Körfezi üzerinden kısa bir şeritle açılır. Kuzeyde Suriye, doğuda ' +
-      'Irak, güneyde ve doğuda Suudi Arabistan, batıda İsrail ile komşudur.',
+      "Ürdün Çöküntü Vadisi'nin doğu yamacında kurulu Ürdün, denize yalnızca güneybatı ucundaki " +
+      'Akabe Körfezi üzerinden kısa bir şeritle açılır. Kuzeyde Suriye, doğuda Irak, güneyde ve ' +
+      'doğuda Suudi Arabistan, batıda İsrail ile komşudur. Batı sınırının orta kesiminde ise ' +
+      "komşu Filistin'dir; Şeria (Ürdün) Nehri ve Ölü Deniz hattı, Ürdün'ü Batı Şeria'dan " +
+      'ayırır.',
     landformNoteTr:
       'Ülkenin batı sınırını, Büyük Rift Vadisi sisteminin bir parçası olan Ürdün Çöküntü ' +
       'Vadisi çizer; bu derin çöküntü, çevresindeki platolardan 1.200-2.000 metre aşağıda ' +

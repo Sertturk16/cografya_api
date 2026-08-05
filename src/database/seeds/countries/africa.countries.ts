@@ -95,7 +95,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     capitalNameEn: 'Cairo',
     capitalLatitude: 30.0444,
     capitalLongitude: 31.2357,
-    neighborIsoCodes: ['LY', 'SD'],
+    neighborIsoCodes: ['LY', 'SD', 'IL', 'PS'],
     officialLanguagesTr: ['Arapça'],
     currencyNameTr: 'Mısır Lirası',
     currencyCode: 'EGP',
@@ -105,10 +105,11 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     introTr:
       'Mısır topraklarının bir kısmı, Sina Yarımadası üzerinden Asya kıtasına uzanır — bu ' +
       "kıtalar arası konum, Afrika ülkeleri arasında yalnızca Mısır'a özgüdür. Kuzeyde " +
-      "Akdeniz'e, doğuda Kızıldeniz'e kıyısı vardır; batıda Libya, güneyde Sudan ile " +
-      'komşudur. Topraklarının neredeyse tamamı çöldür — nüfusun büyük kısmı, ülke ' +
-      "yüzölçümünün yalnızca yaklaşık yirmide birini oluşturan Nil Vadisi ve Deltası'nda " +
-      'yaşar.',
+      "Akdeniz'e, doğuda Kızıldeniz'e kıyısı vardır; batıda Libya, güneyde Sudan ile komşudur. " +
+      "Sina'nın doğu kenarı boyunca İsrail'le, bu kenarın Akdeniz'e ulaştığı Refah'ta ise " +
+      "Filistin'in Gazze Şeridi'yle sınırdaştır. Topraklarının neredeyse tamamı çöldür — nüfusun " +
+      'büyük kısmı, ülke yüzölçümünün yalnızca yaklaşık yirmide birini oluşturan Nil Vadisi ve ' +
+      "Deltası'nda yaşar.",
     landformNoteTr:
       "Nil'in batısında kalan geniş Batı Çölü, Sahra'nın bir uzantısı olarak ülke " +
       'topraklarının üçte ikisinden fazlasını kaplar ve içinde Kattara Çukurluğu gibi deniz ' +
