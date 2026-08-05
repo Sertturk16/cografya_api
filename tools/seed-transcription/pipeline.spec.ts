@@ -3,7 +3,7 @@
  * seed file — was not, and it is where a bug writes one country's prose into another
  * country's file. Structural only, invented placeholder data (→ CONVENTIONS §2).
  */
-import { collect, evaluateCheck, routeWrites, type Item } from './pipeline.ts';
+import { collect, draftsWithoutItems, evaluateCheck, routeWrites, type Item } from './pipeline.ts';
 import type { SeedIndex } from './seed-reader.ts';
 
 const SEED: SeedIndex = {
@@ -57,6 +57,35 @@ describe('routeWrites', () => {
   it('errors rather than silently dropping an unknown country', () => {
     const { errors } = routeWrites([item('ZZ', 'introTr')], SEED);
     expect(errors).toEqual(['ZZ is not present in any seed file']);
+  });
+});
+
+describe('draftsWithoutItems — the country lane’s expected-count gate', () => {
+  // The hole this closes, reproduced end-to-end in the PR #92 review: a draft the parser
+  // understood nothing in used to print "checked 0 field(s): 0 identical, 0 drifted, 0 not yet
+  // seeded" and exit 0 — a green earned by transcribing nothing.
+  const understood = draft('good.md', '## 1. ALFA (Alpha)\n### `introTr`\n> bir metin');
+  const nothing = draft('bad.md', 'Bu dosyada hiç alan başlığı yok.');
+
+  it('names nothing when every draft contributed at least one field', () => {
+    const { items, errors } = collect([understood], SEED);
+    expect(errors).toEqual([]);
+    expect(draftsWithoutItems([understood], items)).toEqual([]);
+  });
+
+  it('names the draft that yielded no field at all', () => {
+    const { items, errors } = collect([nothing], SEED);
+    // No error either: the parser found nothing to complain ABOUT, which is the whole problem.
+    expect(errors).toEqual([]);
+    expect(items).toEqual([]);
+    expect(draftsWithoutItems([nothing], items)).toEqual(['bad.md']);
+  });
+
+  it('names ONLY the empty one when a good draft is passed alongside it', () => {
+    // The case a global `items.length === 0` test sails straight past, and the likeliest shape
+    // of the mistake: one authoritative draft plus a wrong/superseded file (Atlas ruling AS-7).
+    const { items } = collect([understood, nothing], SEED);
+    expect(draftsWithoutItems([understood, nothing], items)).toEqual(['bad.md']);
   });
 });
 
