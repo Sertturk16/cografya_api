@@ -281,9 +281,9 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   **THREE transcription lanes, and they are not interchangeable**; using the wrong one reports a
   false green, because each lane can only see the seed file it knows about. The shared
   exit-code contract lives in **three runner copies** (`country-runner.ts` +
-  `oneoff-province-climate-runner.ts` + `oneoff-province-prose-runner.ts`) driven by six
+  `oneoff-province-climate-runner.ts` + `oneoff-province-prose-runner.ts`) driven by seven
   entry points (`cli.ts`, `oneoff-n1`, `oneoff-n2`, `oneoff-p1`, `oneoff-p2`,
-  `oneoff-p3`) — a new
+  `oneoff-p3`, `oneoff-p4`) — a new
   lane author must replicate the same invariant, not assume one copy guards all. **The
   runner/entry-point split is structural, not stylistic:** the runner is deliberately
   `import.meta`-free so a CommonJS (ts-jest) spec can import it, and the entry point owns
@@ -319,12 +319,16 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   - **Province PROSE (non-climate narrative fields) — `oneoff-p<wave>-province-prose.ts`**,
     field-parametric, run directly with `node` exactly like the climate lane; shares the same
     exit-code contract via its own runner (`oneoff-province-prose-runner.ts`). The climate lane
-    remains `climateNarrativeTr`-only. P1 (PR #92), P2 (PR #94, `hydrographyNoteTr`) and
-    P3 (PR #95, 20 fields / 17 provinces) are the shipped precedents; each wave = its own
-    committed entry point (Atlas ruling AS-3, option C). **Wave target lists live in the
-    shared `import.meta`-free targets module (`oneoff-province-prose-targets` + its spec,
-    PR #95) — keyed on the `(plate, field)` PAIR; a new wave adds its list there so the
-    cross-wave no-retarget invariant stays CI-pinned.**
+    remains `climateNarrativeTr`-only. P1 (PR #92), P2 (PR #94, `hydrographyNoteTr`),
+    P3 (PR #95, now 19 fields / 16 provinces after the Mersin transfer) and P4 (PR #96,
+    13 fields) are the shipped precedents; each wave = its own committed entry point
+    (Atlas ruling AS-3, option C). **Wave target lists live in the shared
+    `import.meta`-free targets module (`oneoff-province-prose-targets` + its spec) —
+    keyed on the `(plate, field)` PAIR. Ownership model (PR #96): exactly ONE wave owns
+    a pair at a time — lists say who owns a field NOW, not who ever touched it. A later
+    correction MOVES the entry (target list AND draft section together), never
+    duplicates it; the CI-pinned invariants are non-overlap + the `HISTORICALLY_OWNED`
+    superset (no pair ever ends up owned by no wave), NOT immutability.**
   - **All THREE lanes share ONE exit-code contract** (below) and all three reuse the
     property-tested lossless emitter, which is the part that actually kills the PR #43 bug
     class. No entry point is wired into a CI job — the drafts live outside the repo, under
