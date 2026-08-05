@@ -2,20 +2,37 @@
 
 Backend API for the **Coğrafya platform** — an SEO-first, free, TR+EN geography
 education site. Built with **NestJS + TypeScript** (full `strict` mode), **TypeORM +
-PostgreSQL** (from PR-1a), and **Redis** for caching.
+PostgreSQL**, and **Redis** for caching.
 
 This repo is the **single source of truth for the OpenAPI contract**: DTOs are
 documented with `@nestjs/swagger`, and the web repo codegens its types from the
-generated spec (OpenAPI codegen). `cografya_api` is written by a single author (Deniz);
-the web frontend lives in the separate `cografya_web` repo.
+generated spec (OpenAPI codegen). `cografya_api` is written and maintained by
+[Ömer Can Serttürk](https://github.com/Sertturk16); the web frontend lives in the
+separate [`cografya_web`](https://github.com/Sertturk16/cografya_web) repo.
 
 > `cografya_api` is a working title — it will be renamed once the brand/domain is final.
+
+## Architecture at a glance
+
+- **NestJS modules** behind a global `/api` prefix; every DTO is validated with
+  `class-validator` and documented with `@nestjs/swagger`.
+- **PostgreSQL via TypeORM** — `synchronize` is always off; schema changes ship only as
+  hand-reviewed migrations.
+- **Redis** backs upstream response caching, a single-flight refresh lock and shared
+  provider-budget counters; development falls back to an in-process LRU.
+- **Geoscience data ingestion** — a two-phase (`fetch` → `load`) import pipeline for
+  Copernicus ERA5-Land climate normals: the network phase runs by hand and commits
+  reviewable artifacts, the offline `load` phase is deterministic, transactional and
+  the only phase CI may run.
+- **OpenAPI as the cross-repo contract** — the committed spec is regenerated on every
+  DTO change, the web repo generates its TypeScript client types from it, and CI fails
+  on spec drift.
 
 ## Requirements
 
 - **Node 24** (see `.nvmrc` — `nvm use`)
 - **pnpm** (pinned via `packageManager`; `corepack enable` will provision it)
-- **Docker** (for the local Postgres + Redis, from PR-1a onward)
+- **Docker** (for the local Postgres + Redis)
 
 ## Getting started
 
@@ -27,7 +44,6 @@ pnpm install
 cp .env.example .env
 
 # 3. Start local infrastructure (Postgres 16 + Redis 7)
-#    Not wired into the app yet — the DB connection lands in PR-1a.
 docker compose up -d
 
 # 4. Run the API in watch mode
@@ -117,5 +133,8 @@ fails the build. Prettier ignores `openapi/`; the generator is its sole authorit
 
 ## Branching
 
-`feature/* → dev` (squash-merge PR). `main` is a placeholder until the prod-promotion
-model is decided alongside the hosting target.
+`feature/* → dev` (squash-merge PR); `dev` is promoted to `main` as it stabilizes.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
