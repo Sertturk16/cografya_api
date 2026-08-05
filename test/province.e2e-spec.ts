@@ -699,14 +699,30 @@ describe('Province (e2e)', () => {
     });
   });
 
-  it('every büyükşehir-caveat-exception province serves a single-sentence settlementNoteTr (rule, not per-il)', async () => {
+  it('every büyükşehir-caveat-exception province serves the caveat and NOTHING else (rule, not per-il)', async () => {
     // The Tier-B-but-büyükşehir settlementNoteTr EXCEPTION (→ DEC 2026-07-12) as a RULE-level
     // invariant, replacing the per-il Mardin/Erzurum/Malatya/Eskişehir/Trabzon/Ordu tests —
     // the same pattern as `assertKoppenCaveatInvariant`. A province is a büyükşehir-caveat
     // exception exactly when settlementNoteTr is populated while hydrographyFeatures is null
     // (Tier-B depth + the 6360 legal %100 artifact — a Tier-A il carries BOTH, a plain Tier-B
     // il NEITHER). Discovered from the data, so the rule scales to any new exception il with
-    // zero new tests. Every such row must carry ONLY the single caveat sentence.
+    // zero new tests. Every such row must carry ONLY the shared caveat — no extra fact.
+    //
+    // WHY THIS NO LONGER COUNTS SENTENCES (2026-08-05, content-fix micro / AT-8). The old
+    // assertion was `note.split('. ')` has length 1. That was never the invariant — it was a
+    // PROXY for it, and the proxy happened to hold only because three of these rows stated the
+    // caveat as a COMMA SPLICE ("…bir sonucu, ilin fiilen tamamen kentleştiği anlamına
+    // gelmiyor."). Repairing that splice into two grammatical sentences — the whole point of
+    // the B17 fix, which is the same caveat carrying the same two clauses — turned the proxy
+    // red while the actual invariant held perfectly. A punctuation accident must not be what a
+    // rule-level guard is pinned on.
+    //
+    // So the shape check is replaced by a STRICTLY STRONGER content bound: the note may say
+    // the caveat's two things and nothing more, enforced by the numbers it is allowed to
+    // contain. Every appended fact this test exists to catch — a migration rate, a population,
+    // a GSYH share, a year — carries a digit, so the numeric allow-list catches the whole class
+    // rather than only the 'göç' wording the old test named. The sentence cap stays as a loose
+    // upper bound because the caveat is two clauses, never a paragraph.
     const rows = await dataSource.getRepository(Province).find();
     const exceptions = rows.filter(
       (p) => p.settlementNoteTr !== null && p.hydrographyFeatures === null,
@@ -717,15 +733,23 @@ describe('Province (e2e)', () => {
     expect(exceptions.length).toBeGreaterThan(0);
     for (const p of exceptions) {
       const note = (p.settlementNoteTr as string).trim();
-      // Exactly one sentence: a single terminal period, no interior '. ' sentence break.
       expect(note.endsWith('.')).toBe(true);
-      expect(note.split('. ')).toHaveLength(1);
-      // It IS the shared 6360 %100 büyükşehir caveat (identical framing across every such il)…
+      // The caveat is two clauses; anything longer is narrative that belongs in another field.
+      expect(note.split('. ').length).toBeLessThanOrEqual(2);
+      // It IS the shared 6360 %100 büyükşehir caveat (same framing across every such il)…
       expect(note).toContain('6360');
       expect(note).toContain('%100');
       expect(note).toContain('büyükşehir statüsündeki illerde');
-      // …and ONLY that caveat: no migration narrative restated in prose (it lives in the field).
+      // …including its SECOND half, the "this does not mean fully urbanised" clause. Both the
+      // repaired ("gelmez") and the not-yet-repaired ("gelmiyor") wordings satisfy this.
+      expect(note).toMatch(/kentleştiği anlamına gelme/u);
+      // …and ONLY that caveat: no migration narrative restated in prose (it lives in the field)…
       expect(note).not.toContain('göç');
+      // …and no appended numeric fact at all. 100 is the rate the caveat frames, 6360 the law
+      // it cites; a third number means something else was pasted in. Compared SORTED, so that
+      // an il phrasing the caveat law-first stays green — the guard is about which numbers may
+      // appear, not the order a sentence happens to reach them in.
+      expect([...(note.match(/\d+/gu) ?? [])].sort()).toEqual(['100', '6360']);
       // The %100 urbanizationRate is the legal artifact the caveat frames.
       expect(p.urbanizationRate).toBe(100);
     }
