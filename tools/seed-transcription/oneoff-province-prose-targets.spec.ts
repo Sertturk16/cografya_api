@@ -18,9 +18,11 @@
  * module docblock on `oneoff-province-prose-targets.ts`.
  */
 import {
+  HISTORICALLY_OWNED,
   P1_TARGETS,
   P2_TARGETS,
   P3_TARGETS,
+  P4_TARGETS,
   PROSE_WAVES,
   targetKey,
 } from './oneoff-province-prose-targets.ts';
@@ -29,8 +31,13 @@ describe('prose wave target lists — per-wave shape', () => {
   it('covers every shipped wave (the table the other cases iterate is complete)', () => {
     // A wave added to the module but forgotten in PROSE_WAVES would be invisible to every
     // assertion below — unguarded while looking guarded, which is worse than no spec.
-    expect(PROSE_WAVES.map((w) => w.label)).toEqual(['P1', 'P2', 'P3']);
-    expect(PROSE_WAVES.map((w) => w.targets)).toEqual([P1_TARGETS, P2_TARGETS, P3_TARGETS]);
+    expect(PROSE_WAVES.map((w) => w.label)).toEqual(['P1', 'P2', 'P3', 'P4']);
+    expect(PROSE_WAVES.map((w) => w.targets)).toEqual([
+      P1_TARGETS,
+      P2_TARGETS,
+      P3_TARGETS,
+      P4_TARGETS,
+    ]);
   });
 
   it.each(PROSE_WAVES)('$label is non-empty', ({ targets }) => {
@@ -98,5 +105,34 @@ describe('prose wave target lists — cross-wave invariants', () => {
     const earlier = new Set([...P1_TARGETS, ...P2_TARGETS].map(targetKey));
     const reclaimed = P3_TARGETS.filter((target) => earlier.has(targetKey(target)));
     expect(reclaimed).toEqual([]);
+  });
+
+  it('P4 owns Mersin/33 settlementNoteTr and P3 no longer does (ownership MOVED, not shared)', () => {
+    // The first ownership transfer (PR #96). P4 corrects a field P3 already published, so the
+    // entry was deleted from P3 — list AND draft — rather than duplicated. Pinned in both
+    // directions, because the failure mode is asymmetric and each half is silent on its own:
+    // leaving it in P3 too would put P3's draft at odds with the seed and turn P3's mandated
+    // gate permanently red, while removing it from P3 without adding it here would leave the
+    // field with NO wave asserting it, which no gate anywhere can notice.
+    const MERSIN = targetKey({ name: 'Mersin', plate: '33', field: 'settlementNoteTr' });
+    expect(P4_TARGETS.map(targetKey)).toContain(MERSIN);
+    expect(P3_TARGETS.map(targetKey)).not.toContain(MERSIN);
+  });
+
+  it('every pair any wave has EVER owned is still owned by some wave (no orphaned field)', () => {
+    // THE GENERAL FORM of the case above, and the one that scales. An ownership transfer is two
+    // edits; the second is unguarded. Drop it and the field becomes an orphan: corrected prose
+    // in the seed that no draft asserts, so no lane's `check` ever reads it again and it can
+    // drift silently forever — the one failure in this toolchain that produces NO red anywhere.
+    // Superset only: a wave may add pairs freely, it just may not lose one.
+    const live = new Set(PROSE_WAVES.flatMap((wave) => wave.targets.map(targetKey)));
+    const orphaned = HISTORICALLY_OWNED.filter((key) => !live.has(key));
+    expect(orphaned).toEqual([]);
+  });
+
+  it('the historical record has no duplicate entries', () => {
+    // Append-only lists grow by hand, and a pair re-appended on its transfer would make the
+    // superset check above pass while quietly misrepresenting the history it exists to hold.
+    expect(new Set(HISTORICALLY_OWNED).size).toBe(HISTORICALLY_OWNED.length);
   });
 });

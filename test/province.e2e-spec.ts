@@ -759,7 +759,15 @@ describe('Province (e2e)', () => {
     // Guard against a vacuous pass: the variant exists in the seed (6 il as of DEC 2026-07-12),
     // so an empty set means the identifying predicate silently stopped matching — not that the
     // rule holds — and must fail here rather than pass green.
-    expect(exceptions.length).toBeGreaterThan(0);
+    //
+    // AT LEAST 6, not exactly 6, and not merely > 0 (PR #96 review). The danger is the set
+    // SHRINKING: the predicate is derived from the data (`settlementNoteTr` set while
+    // `hydrographyFeatures` is null), so a later wave that gives one of these six a
+    // `hydrographyFeatures` array drops it out of the set and this loop quietly checks fewer
+    // rows — no failure anywhere. `> 0` only catches total collapse, and three of the six are
+    // now maintained by a different prose wave than the other three. GROWTH is deliberately
+    // still free: a new exemption il needs no test edit, which is this rule's whole design.
+    expect(exceptions.length).toBeGreaterThanOrEqual(6);
     for (const p of exceptions) {
       // Case-folded ONCE, in the Turkish locale, and every text assertion below runs on the
       // folded copy: a sentence-initial "Büyükşehir" is a rewording, not a defect, and this
