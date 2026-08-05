@@ -30,7 +30,15 @@ const CLEAN: CountrySeed = {
   neighborIsoCodes: [],
 };
 
-/** A well-formed non-country row: type + BOTH approved labels, the consistent triple. */
+/**
+ * A well-formed non-country row: type + BOTH approved labels, the consistent triple.
+ *
+ * It carries a `population` because corpus invariant 9 requires every NON-`special` row to
+ * publish one, and this fixture is the territory in most synthetic corpora below. The value is
+ * arbitrary and asserts nothing — a structural placeholder, not a fact (→ CONVENTIONS §2).
+ * Row-level rule 3 only forbids a population on `special` rows, so this is equally well formed
+ * for the row-level cases that also use it.
+ */
 const CLEAN_TERRITORY: CountrySeed = {
   ...CLEAN,
   isoCode: 'ZY',
@@ -41,6 +49,7 @@ const CLEAN_TERRITORY: CountrySeed = {
   entityType: CountryEntityType.Territory,
   statusLabelTr: 'Test Özerk Bölgesi',
   statusLabelEn: 'Test Autonomous Territory',
+  population: 1_000,
 };
 
 /**
@@ -262,11 +271,21 @@ describe('invariant 7a — a non-country row still needs both localized slugs', 
   });
 });
 
-describe('assertCountryCorpusInvariants — invariants 6 and 7b', () => {
+describe('assertCountryCorpusInvariants — invariants 6, 7b, 8 and 9', () => {
   // These are statements about the WHOLE published set, so they are tested over synthetic
   // corpora rather than being placed on the write path, where every legitimate partial batch
   // would trip them. See the module header for the scope split.
-  const TR: CountrySeed = { ...CLEAN, isoCode: 'TR', slugTr: 'turkiye', slugEn: 'turkey' };
+  //
+  // `TR` carries a population for the same reason `CLEAN_TERRITORY` does: invariant 9 applies to
+  // every non-`special` row, so a corpus fixture without one would trip a rule these cases are
+  // not about. Arbitrary placeholder value, no fact asserted.
+  const TR: CountrySeed = {
+    ...CLEAN,
+    isoCode: 'TR',
+    slugTr: 'turkiye',
+    slugEn: 'turkey',
+    population: 1_000,
+  };
   const FULL: readonly CountrySeed[] = [TR, CLEAN_TERRITORY, CLEAN_SPECIAL];
 
   it('6 — ACCEPTS exactly one TR row, typed country, on the turkiye slug', () => {
@@ -360,6 +379,30 @@ describe('assertCountryCorpusInvariants — invariants 6 and 7b', () => {
   });
 
   it('8 — ACCEPTS a corpus whose three key sets are each collision-free', () => {
+    expect(() => assertCountryCorpusInvariants(FULL)).not.toThrow();
+  });
+
+  it('9 — REFUSES a non-special row that publishes no population, naming every such row', () => {
+    // The regression this rule exists for: five Orta Afrika rows sat at `population: null` for a
+    // whole content wave and the only symptom was five pages quietly not drawing a "Nüfus" card.
+    // Both absence shapes must be caught — an explicit `null` and an omitted property.
+    expect(() =>
+      assertCountryCorpusInvariants([{ ...TR, population: null }, CLEAN_TERRITORY, CLEAN_SPECIAL]),
+    ).toThrow(/non-special row\(s\) publish no population/u);
+    expect(() =>
+      assertCountryCorpusInvariants([
+        TR,
+        { ...CLEAN_TERRITORY, population: undefined },
+        CLEAN_SPECIAL,
+      ]),
+    ).toThrow(/\[ZY\] Test Bölgesi ZY/u);
+  });
+
+  it('9 — ACCEPTS the special row leaving population absent (rule 3 REQUIRES that)', () => {
+    // The two rules are converses and must not contradict each other: rule 3 forbids a
+    // population on `CLEAN_SPECIAL`, so rule 9 has to exempt exactly that row — otherwise the
+    // corpus would be unable to satisfy both at once and Antarktika could never be seeded.
+    expect(() => assertCountryEntityInvariants([CLEAN_SPECIAL])).not.toThrow();
     expect(() => assertCountryCorpusInvariants(FULL)).not.toThrow();
   });
 });

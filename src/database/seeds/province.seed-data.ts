@@ -859,6 +859,16 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     ],
     urbanizationRate: 100.0,
     netMigrationRate: 9.09,
+    // CROSS-ROW COUPLING, DELIBERATE AND DECLARED (PR #95 review, CR95). The prose below cites
+    // Ankara's rate ("binde +8,91") as a comparison. That figure is NOT Antalya's own — it is
+    // copied from the ANKARA row's `netMigrationRate: 8.91` (plateCode '06'), both from the same
+    // TÜİK 2024 iç göç release. If a later wave revises Ankara's figure, THIS SENTENCE GOES
+    // STALE IN SILENCE: nothing joins the two rows, and no gate can see it, because the
+    // transcription check only proves the seed matches its own draft. Left as prose rather than
+    // computed — a seed is a flat published record and a derived value here would be machinery
+    // nothing else needs — but recorded so whoever edits Ankara knows to grep for "+8,91". The
+    // comparison is the point of the sentence: it replaced an internal "dört pilot il" jargon
+    // leak with a real, checkable fact.
     settlementNoteTr:
       "Antalya'nın TÜİK il/ilçe merkezi nüfus oranı %100'dür, çünkü büyükşehir statüsündeki " +
       "illerde belde ve köylerin idari tüzel kişiliği 6360 sayılı Kanun'la kaldırılmıştır — bu " +

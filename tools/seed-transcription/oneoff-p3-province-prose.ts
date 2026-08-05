@@ -24,9 +24,11 @@
  * (Atlas ruling AS-3, option C, 2026-08-05). A new wave is a new target list plus a new entry
  * point, deliberately NOT a generalisation of the shared shell, which stays untouched here.
  *
- * CROSS-WAVE OVERLAP WAS CHECKED BY HAND (TA94-M1 has no CI net yet): P1 owns Çorum/19
- * `hydrographyNoteTr` and P2 owns Sivas/58 `hydrographyNoteTr`. Neither province+field pair
- * appears below, so no earlier wave's `check` can be knocked red by this one.
+ * CROSS-WAVE OVERLAP IS NOW MACHINE-CHECKED. P1 owns Çorum/19 `hydrographyNoteTr` and P2 owns
+ * Sivas/58 `hydrographyNoteTr`; this wave claims neither pair. That used to be a by-hand check
+ * (TA94-M1) — the third wave was its recorded trigger, so the lists moved to the
+ * `import.meta`-free `oneoff-province-prose-targets.ts` and
+ * `oneoff-province-prose-targets.spec.ts` now pins non-overlap in the `Test (unit)` job.
  *
  * USAGE (reviewer-reproducible — pass the ONE authoritative P3 draft):
  *   node tools/seed-transcription/oneoff-p3-province-prose.ts emit  "../Owner's Inbox/icerik-duzeltme-mikro/seed-draft-provinces.md"
@@ -57,43 +59,13 @@
 import * as path from 'node:path';
 
 import { isDirectInvocation, parseArgs } from './oneoff-province-climate-runner.ts';
-import { type ProseTarget, runProse } from './oneoff-province-prose-runner.ts';
+import { P3_TARGETS } from './oneoff-province-prose-targets.ts';
+import { runProse } from './oneoff-province-prose-runner.ts';
 
 const SEED_FILE = path.resolve(
   import.meta.dirname,
   '../../src/database/seeds/province.seed-data.ts',
 );
-
-/**
- * `name` is the province as the DRAFT heads its section; it is cross-checked against the seed
- * row's own `nameTr` for `plate` before anything is emitted or compared, so a wrong plate cannot
- * quietly publish this prose on another province's page. That guard earns its keep in this wave
- * specifically: seventeen plate codes hand-listed once is exactly where a transposition hides.
- */
-export const P3_TARGETS: readonly ProseTarget[] = [
-  // NOVA's own blocks (brief §A.1-A.5, §A.7).
-  { name: 'Van', plate: '65', field: 'settlementNoteTr' },
-  { name: 'Van', plate: '65', field: 'landformNoteTr' },
-  { name: 'Antalya', plate: '07', field: 'settlementNoteTr' },
-  { name: 'Muğla', plate: '48', field: 'settlementNoteTr' },
-  { name: 'Uşak', plate: '64', field: 'introTr' },
-  { name: 'Rize', plate: '53', field: 'introTr' },
-  { name: 'Rize', plate: '53', field: 'hydrographyNoteTr' },
-  { name: 'İstanbul', plate: '34', field: 'landformNoteTr' },
-  { name: 'İstanbul', plate: '34', field: 'hydrographyNoteTr' },
-  // The A.6 single-rule repair, eleven provinces (Van is fixed by its own block above).
-  { name: 'Ankara', plate: '06', field: 'settlementNoteTr' },
-  { name: 'Diyarbakır', plate: '21', field: 'settlementNoteTr' },
-  { name: 'Gaziantep', plate: '27', field: 'settlementNoteTr' },
-  { name: 'Mardin', plate: '47', field: 'settlementNoteTr' },
-  { name: 'Şanlıurfa', plate: '63', field: 'settlementNoteTr' },
-  { name: 'Hatay', plate: '31', field: 'settlementNoteTr' },
-  { name: 'Mersin', plate: '33', field: 'settlementNoteTr' },
-  { name: 'Erzurum', plate: '25', field: 'settlementNoteTr' },
-  { name: 'Malatya', plate: '44', field: 'settlementNoteTr' },
-  { name: 'Konya', plate: '42', field: 'settlementNoteTr' },
-  { name: 'Kayseri', plate: '38', field: 'settlementNoteTr' },
-];
 
 function main(): number {
   const args = parseArgs(process.argv.slice(2));

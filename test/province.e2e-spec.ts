@@ -699,6 +699,33 @@ describe('Province (e2e)', () => {
     });
   });
 
+  /**
+   * The büyükşehir caveat's negated clause, as ONE fragment both assertions below are built
+   * from — writing the alternation twice is how a "present" check and an "ends on" check drift
+   * into disagreeing about what the caveat even is.
+   *
+   * Every listed ending is a NEGATIVE Turkish form of "gelmek": `gelmez` (aorist, what the
+   * repaired rows use), `gelmiyor` (present continuous, the pre-B17 wording still live in the
+   * corpus elsewhere) and `gelmemekte` (formal continuous). The POSITIVE `gelmektedir` — the
+   * same sentence asserting the opposite, "it DOES mean the il is fully urbanised" — is
+   * deliberately NOT matched: it shares the `gelm` stem but continues `ektedir`, so it fails
+   * every alternative. A guard on a negated claim that a negation flip can satisfy is not a
+   * guard, and that is exactly the hole the earlier `gelme` prefix left open (it matched the
+   * inverted form and, despite its comment, never matched `gelmiyor` at all).
+   */
+  const CAVEAT_NEGATION_FORMS = 'gelm(ez|iyor|emekte)';
+  /** The clause must APPEAR — anywhere in the note. Applied to the tr-lowercased copy. */
+  const CAVEAT_NEGATED_CLAUSE = new RegExp(`kentleştiği anlamına ${CAVEAT_NEGATION_FORMS}`, 'u');
+  /**
+   * …and the note must END on the caveat: either on that clause, or on the law attribution
+   * ("…kaldırılmasının bir sonucudur.") for the ils that order the two halves the other way.
+   * Both endings exist in the corpus today; anything after either one is an appended fact.
+   */
+  const CAVEAT_ENDING = new RegExp(
+    `(kentleştiği anlamına ${CAVEAT_NEGATION_FORMS}|bir sonucudur)\\.$`,
+    'u',
+  );
+
   it('every büyükşehir-caveat-exception province serves the caveat and NOTHING else (rule, not per-il)', async () => {
     // The Tier-B-but-büyükşehir settlementNoteTr EXCEPTION (→ DEC 2026-07-12) as a RULE-level
     // invariant, replacing the per-il Mardin/Erzurum/Malatya/Eskişehir/Trabzon/Ordu tests —
@@ -718,11 +745,13 @@ describe('Province (e2e)', () => {
     // rule-level guard is pinned on.
     //
     // So the shape check is replaced by a STRICTLY STRONGER content bound: the note may say
-    // the caveat's two things and nothing more, enforced by the numbers it is allowed to
-    // contain. Every appended fact this test exists to catch — a migration rate, a population,
-    // a GSYH share, a year — carries a digit, so the numeric allow-list catches the whole class
-    // rather than only the 'göç' wording the old test named. The sentence cap stays as a loose
-    // upper bound because the caveat is two clauses, never a paragraph.
+    // the caveat's two things and nothing more, enforced by (a) the numbers it is allowed to
+    // contain, and (b) WHERE it is allowed to stop. Every appended fact this test exists to
+    // catch — a migration rate, a population, a GSYH share, a year — carries a digit, so the
+    // numeric allow-list catches that whole class rather than only the 'göç' wording the old
+    // test named; and the end-anchor catches the numberless variant the digit list cannot see
+    // ("…gelmez. Bu il ayrıca çok güzeldir."), including the ';'-appended shape the original
+    // `=1` sentence count also let through. The sentence cap stays only as a loose upper bound.
     const rows = await dataSource.getRepository(Province).find();
     const exceptions = rows.filter(
       (p) => p.settlementNoteTr !== null && p.hydrographyFeatures === null,
@@ -732,24 +761,33 @@ describe('Province (e2e)', () => {
     // rule holds — and must fail here rather than pass green.
     expect(exceptions.length).toBeGreaterThan(0);
     for (const p of exceptions) {
+      // Case-folded ONCE, in the Turkish locale, and every text assertion below runs on the
+      // folded copy: a sentence-initial "Büyükşehir" is a rewording, not a defect, and this
+      // guard must not force a capitalisation. `tr` matters — the dotted/dotless i pair does
+      // not fold correctly under the default locale.
       const note = (p.settlementNoteTr as string).trim();
-      expect(note.endsWith('.')).toBe(true);
+      const lower = note.toLocaleLowerCase('tr');
       // The caveat is two clauses; anything longer is narrative that belongs in another field.
       expect(note.split('. ').length).toBeLessThanOrEqual(2);
       // It IS the shared 6360 %100 büyükşehir caveat (same framing across every such il)…
-      expect(note).toContain('6360');
-      expect(note).toContain('%100');
-      expect(note).toContain('büyükşehir statüsündeki illerde');
-      // …including its SECOND half, the "this does not mean fully urbanised" clause. Both the
-      // repaired ("gelmez") and the not-yet-repaired ("gelmiyor") wordings satisfy this.
-      expect(note).toMatch(/kentleştiği anlamına gelme/u);
+      expect(lower).toContain('6360');
+      expect(lower).toContain('%100');
+      expect(lower).toContain('büyükşehir statüsündeki illerde');
+      // …including its SECOND half, the "this does not mean fully urbanised" clause. THE
+      // NEGATION IS THE POINT: `gelmektedir` ("it DOES mean") is the same sentence with the
+      // claim inverted, so the pattern must accept only the negative forms and reject that one.
+      expect(lower).toMatch(CAVEAT_NEGATED_CLAUSE);
       // …and ONLY that caveat: no migration narrative restated in prose (it lives in the field)…
-      expect(note).not.toContain('göç');
+      expect(lower).not.toContain('göç');
       // …and no appended numeric fact at all. 100 is the rate the caveat frames, 6360 the law
-      // it cites; a third number means something else was pasted in. Compared SORTED, so that
-      // an il phrasing the caveat law-first stays green — the guard is about which numbers may
-      // appear, not the order a sentence happens to reach them in.
-      expect([...(note.match(/\d+/gu) ?? [])].sort()).toEqual(['100', '6360']);
+      // it cites; a third number means something else was pasted in. Compared as a SORTED SET —
+      // sorted so an il phrasing the caveat law-first stays green, de-duplicated because the
+      // rule is about WHICH numbers may appear, not how often a sentence repeats one.
+      expect([...new Set(lower.match(/\d+/gu) ?? [])].sort()).toEqual(['100', '6360']);
+      // …and it STOPS on the caveat. Without this the loosened `≤2` cap admits a second
+      // sentence carrying no digits at all, which both the allow-list above and the old
+      // sentence count would wave through.
+      expect(lower).toMatch(CAVEAT_ENDING);
       // The %100 urbanizationRate is the legal artifact the caveat frames.
       expect(p.urbanizationRate).toBe(100);
     }
