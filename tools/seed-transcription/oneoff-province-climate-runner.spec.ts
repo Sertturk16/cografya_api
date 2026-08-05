@@ -69,6 +69,13 @@ function writeSeed(rows: readonly { plate: string; nameTr: string; narrative?: s
   return file;
 }
 
+/** A seed fixture written VERBATIM, so a deliberately broken one can be handed to the runner. */
+function writeRawSeed(source: string): string {
+  const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'climate-runner-')), 'broken.ts');
+  fs.writeFileSync(file, source, 'utf8');
+  return file;
+}
+
 /** Run `runWave` with stdout/stderr captured, so the exit code AND the report can be asserted. */
 function run(options: Parameters<typeof runWave>[0]): {
   code: number;
@@ -293,5 +300,146 @@ describe('runWave — the exit-code contract', () => {
     expect(stdout).toContain('// 91 Örnekâbat');
     expect(stdout.match(/climateNarrativeTr:/gu)).toHaveLength(2);
     expect(code).toBe(0);
+  });
+});
+
+/**
+ * The three refusals this shell shares with the country lane's `cli.ts` and the prose lane's
+ * runner. They are duplicated per lane on purpose (ENGINEERING §8: "a new lane author must
+ * replicate the same invariant, not assume one copy guards all"), so each copy needs its own
+ * evidence — otherwise a copy can lose a refusal with every suite green.
+ */
+describe('runWave — the shared refusals', () => {
+  const SEEDED: readonly { plate: string; nameTr: string; narrative?: string }[] = [
+    { plate: '90', nameTr: 'Testiye', narrative: BODY_90 },
+    { plate: '91', nameTr: 'Ornekabat', narrative: BODY_91 },
+  ];
+  const bothSections = writeDraft(
+    draft([
+      { heading: 'Testiye (Xxx)', body: BODY_90 },
+      { heading: 'Örnekâbat (Yyy)', body: BODY_91 },
+    ]),
+  );
+  // Its OWN tmpdir: a fixed name in the shared tmpdir could collide with another run's
+  // leftovers and make the case pass for the wrong reason.
+  const missingPath = path.join(
+    fs.mkdtempSync(path.join(os.tmpdir(), 'climate-runner-gone-')),
+    'no-such-draft.md',
+  );
+
+  // A draft whose sections match NO seed row, so that with the guard removed every remaining
+  // guard passes vacuously and the run really would print "checked 0 province(s)" and exit 0.
+  // (A draft carrying real province sections would be caught by the stray-section guard instead,
+  // and the case would prove nothing about this one.)
+  const noProvinceSections = writeDraft(
+    draft([{ heading: 'Genel notlar', body: 'Serbest metin.' }]),
+  );
+
+  it.each(['emit', 'check'] as const)(
+    'exits 1 in %s mode on an EMPTY target list rather than reporting "checked 0 province(s)"',
+    (mode) => {
+      const { code, stdout, stderr } = run({
+        mode,
+        draftPaths: [noProvinceSections],
+        targets: [],
+        seedFile: writeSeed(SEEDED),
+      });
+      expect(code).toBe(1);
+      expect(stderr).toContain('target list is empty');
+      expect(stdout).toBe('');
+    },
+  );
+
+  it('refuses to run at all when the committed seed does not parse', () => {
+    // `ts.createSourceFile` is error-tolerant, so without this the fold silently loses rows and
+    // `check` prints a green it did not earn.
+    const broken = writeRawSeed(
+      `export const rows = [\n  { plateCode: '90', nameTr: 'Testiye' \n];\n`,
+    );
+    const { code, stdout, stderr } = run({
+      mode: 'check',
+      draftPaths: [bothSections],
+      targets: TARGETS,
+      seedFile: broken,
+    });
+    expect(code).toBe(1);
+    expect(stderr).toContain('seed source does not parse');
+    expect(stdout).toBe('');
+  });
+
+  it('checks the seed BEFORE reading any draft — a broken seed poisons every mode', () => {
+    const broken = writeRawSeed(
+      `export const rows = [\n  { plateCode: '90' nameTr: 'Testiye' },\n];\n`,
+    );
+    const { code, stderr } = run({
+      mode: 'emit',
+      draftPaths: [missingPath],
+      targets: TARGETS,
+      seedFile: broken,
+    });
+    expect(code).toBe(1);
+    expect(stderr).toContain('seed source does not parse');
+    expect(stderr).not.toContain('cannot read draft file(s)');
+  });
+
+  it("answers a typo'd draft path with a readable message, not a node:fs stack trace", () => {
+    const { code, stderr } = run({
+      mode: 'check',
+      draftPaths: [missingPath],
+      targets: TARGETS,
+      seedFile: writeSeed(SEEDED),
+    });
+    expect(code).toBe(1);
+    expect(stderr).toContain('cannot read draft file(s)');
+    // The FULL rendered line, not the substring "no such file" — which the raw node message
+    // ("ENOENT: no such file or directory, open '…'") also contains, so the weaker assertion
+    // would pass under exactly the regression this module exists to prevent.
+    expect(stderr).toContain(`${missingPath} — no such file`);
+    expect(stderr).not.toContain('ENOENT');
+  });
+});
+
+describe('runWave — the tight-join signal', () => {
+  // The draft breaks a line after an apostrophe, so the extractor joins with NO separator and
+  // flags it. Both sides of `check` run that same extractor, so the diff can never catch it.
+  const TIGHT_TARGETS: readonly WaveTarget[] = [{ name: 'Testiye', plate: '90' }];
+  const tightDraft = writeDraft("## 1. Testiye\n\nTestiye'\nnin ırmağı vardır.\n");
+  const tightSeed = (): string =>
+    writeSeed([{ plate: '90', nameTr: 'Testiye', narrative: "Testiye'nin ırmağı vardır." }]);
+
+  it('REPORTS the join in check mode too — reporting only, the run still exits 0', () => {
+    const { code, stdout } = run({
+      mode: 'check',
+      draftPaths: [tightDraft],
+      targets: TIGHT_TARGETS,
+      seedFile: tightSeed(),
+    });
+    expect(stdout).toContain('No-space line joins performed');
+    expect(stdout).toContain('90 Testiye:');
+    // Deliberately NOT a failure mode: a hard error would train people around the gate.
+    expect(code).toBe(0);
+  });
+
+  it('stays silent when there is no join to report', () => {
+    const plain = writeDraft(draft([{ heading: 'Testiye', body: BODY_90 }]));
+    const { code, stdout } = run({
+      mode: 'check',
+      draftPaths: [plain],
+      targets: TIGHT_TARGETS,
+      seedFile: writeSeed([{ plate: '90', nameTr: 'Testiye', narrative: BODY_90 }]),
+    });
+    expect(code).toBe(0);
+    expect(stdout).not.toContain('No-space line joins');
+  });
+
+  it('still prints the inline tight-join comment in emit — that report did not move', () => {
+    const { code, stdout } = run({
+      mode: 'emit',
+      draftPaths: [tightDraft],
+      targets: TIGHT_TARGETS,
+      seedFile: tightSeed(),
+    });
+    expect(code).toBe(0);
+    expect(stdout).toContain('//   tight-join:');
   });
 });

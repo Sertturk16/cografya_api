@@ -3,7 +3,7 @@
  * seed file — was not, and it is where a bug writes one country's prose into another
  * country's file. Structural only, invented placeholder data (→ CONVENTIONS §2).
  */
-import { collect, evaluateCheck, routeWrites, type Item } from './pipeline.ts';
+import { collect, draftsWithoutFields, evaluateCheck, routeWrites, type Item } from './pipeline.ts';
 import type { SeedIndex } from './seed-reader.ts';
 
 const SEED: SeedIndex = {
@@ -57,6 +57,50 @@ describe('routeWrites', () => {
   it('errors rather than silently dropping an unknown country', () => {
     const { errors } = routeWrites([item('ZZ', 'introTr')], SEED);
     expect(errors).toEqual(['ZZ is not present in any seed file']);
+  });
+});
+
+describe('draftsWithoutFields — the country lane’s expected-count gate', () => {
+  // The hole this closes, reproduced end-to-end in the PR #92 review: a draft the parser
+  // understood nothing in used to print "checked 0 field(s): 0 identical, 0 drifted, 0 not yet
+  // seeded" and exit 0 — a green earned by transcribing nothing.
+  const good = draft('good.md', '## 1. ALFA (Alpha)\n### `introTr`\n> bir metin');
+  const nothing = draft('bad.md', 'Bu dosyada hiç alan başlığı yok.');
+
+  it('names nothing when every draft contributed at least one field', () => {
+    const { understood, errors } = collect([good], SEED);
+    expect(errors).toEqual([]);
+    expect(draftsWithoutFields([good], understood)).toEqual([]);
+  });
+
+  it('names the draft that yielded no field at all', () => {
+    const { items, understood, errors } = collect([nothing], SEED);
+    // No error either: the parser found nothing to complain ABOUT, which is the whole problem.
+    expect(errors).toEqual([]);
+    expect(items).toEqual([]);
+    expect(draftsWithoutFields([nothing], understood)).toEqual(['bad.md']);
+  });
+
+  it('names ONLY the empty one when a good draft is passed alongside it', () => {
+    // The case a global `items.length === 0` test sails straight past, and the likeliest shape
+    // of the mistake: one authoritative draft plus a wrong/superseded file (Atlas ruling AS-7).
+    const { understood, errors } = collect([good, nothing], SEED);
+    expect(errors).toEqual([]);
+    expect(draftsWithoutFields([good, nothing], understood)).toEqual(['bad.md']);
+  });
+
+  it('does NOT name a byte-identical duplicate draft — dedup is not "understood nothing"', () => {
+    // THE FALSE RED THIS GATE SHIPPED WITH (CR93-I1, reproduced on the real okyanusya draft):
+    // `collect` drops a field whose `isoCode.field` was already seen with identical prose, so
+    // an items-based gate accused a perfectly well-formed draft of being the wrong file.
+    const copy = draft('copy.md', '## 1. ALFA (Alpha)\n### `introTr`\n> bir metin');
+    const forward = collect([good, copy], SEED);
+    expect(forward.items).toHaveLength(1); // the dedup still happens — that part was correct
+    expect(draftsWithoutFields([good, copy], forward.understood)).toEqual([]);
+
+    // ARGV ORDER MUST NOT DECIDE: the old gate blamed whichever copy came second.
+    const reversed = collect([copy, good], SEED);
+    expect(draftsWithoutFields([copy, good], reversed.understood)).toEqual([]);
   });
 });
 

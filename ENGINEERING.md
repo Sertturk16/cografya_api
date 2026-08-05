@@ -280,9 +280,13 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   into the `+`-concatenation idiom is what caused PR #43's dropped spaces — don't. There are
   **THREE transcription lanes, and they are not interchangeable**; using the wrong one reports a
   false green, because each lane can only see the seed file it knows about. The shared
-  exit-code contract now lives in three entry points and two runner copies
-  (`oneoff-province-climate-runner.ts` + `oneoff-province-prose-runner.ts`) — a new lane
-  author must replicate the same invariant, not assume one copy guards all.
+  exit-code contract lives in **three runner copies** (`country-runner.ts` +
+  `oneoff-province-climate-runner.ts` + `oneoff-province-prose-runner.ts`) driven by four
+  entry points (`cli.ts`, `oneoff-n1`, `oneoff-n2`, `oneoff-p1`) — a new lane author must
+  replicate the same invariant, not assume one copy guards all. **The runner/entry-point
+  split is structural, not stylistic:** the runner is deliberately `import.meta`-free so a
+  CommonJS (ts-jest) spec can import it, and the entry point owns `import.meta.dirname`,
+  argv and the usage banner. A refusal written into an entry point cannot be pinned at all.
   - **Countries — `pnpm seed:transcribe`.** `apply <draft.md>` writes fact-checked prose into
     the wave files under `src/database/seeds/countries/*.countries.ts`, `check <draft.md>`
     verifies it. **That directory is the tool's ENTIRE world** (`cli.ts` → `SEED_DIR`): it
@@ -309,13 +313,32 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
     field-parametric, run directly with `node` exactly like the climate lane; shares the same
     exit-code contract via its own runner (`oneoff-province-prose-runner.ts`). The climate lane
     remains `climateNarrativeTr`-only. P1 (PR #92) is the shipped precedent.
-  - **Both lanes share ONE exit-code contract** (below) and both reuse the property-tested
-    lossless emitter, which is the part that actually kills the PR #43 bug class. Neither
-    entry point is wired into a CI job — the drafts live outside the repo, under
+  - **All THREE lanes share ONE exit-code contract** (below) and all three reuse the
+    property-tested lossless emitter, which is the part that actually kills the PR #43 bug
+    class. No entry point is wired into a CI job — the drafts live outside the repo, under
     `Owner's Inbox/` — so the reviewing code-reviewer still runs the matching command by hand.
     **Run the lane that owns the seed file the PR touches:** a province wave verified with
     `pnpm seed:transcribe` reports nothing wrong because that pipeline never reads
     `province.seed-data.ts` (this happened in a PR #70 review).
+  - **The three shells also share FOUR REFUSALS, and a new lane must carry all four**
+    (PR #93, Atlas ruling AS-7). Each is a false green somebody reproduced, not a
+    hypothetical: (1) **nothing expected** — an empty wave target list fails instead of
+    printing "checked 0". The country lane, which has no wave target table, additionally
+    refuses a draft it understood no field in; the province lanes have no twin of that
+    per-draft variant yet (queued follow-up). That gate is measured on what the parser
+    UNDERSTOOD, never on the items that survive de-duplication — two drafts carrying
+    identical prose is a sanctioned invocation, and judging it by surviving items false-REDs
+    a correct draft (PR #93 review); (2)
+    **the committed seed does not parse** — `ts.createSourceFile` is error-tolerant, so
+    every mode would read a silently incomplete index; (3) **an unreadable draft path** is
+    answered with a message naming every bad path, not a `node:fs` stack trace; (4)
+    **tight joins are reported in `check`, not only in `emit`** — both sides of `check` run
+    the same parser, so a wrongly glued line join agrees with itself (reporting only, never
+    a failure) — and it prints on **stdout**, beside the count line it belongs to, in every
+    lane. The shared draft reader is `tools/seed-transcription/draft-io.ts`; it also strips
+    a leading BOM, because an invisible byte must not decide that a section exists.
+  - **The drafts are not in this repo.** Run from the repo root, a draft path starts with
+    `../Owner's Inbox/…`; the usage banners abbreviate it.
 - **The content-fidelity gate is per-wave, and it is `exit 0`.** Run `check` over **the
   draft(s) that PR touches** — not the whole corpus — and it must exit 0, which means
   `0 drifted` **and** `0 not yet seeded`. Do not read the printed counts and judge by eye;

@@ -37,7 +37,7 @@ introduced. The reviewer's first check collapses from _"reconstruct every string
 it against the draft"_ to one line:
 
 ```bash
-pnpm seed:transcribe check "Owner's Inbox/<wave>/<wave>-narrative-draft.md"
+pnpm seed:transcribe check "../Owner's Inbox/<wave>/<wave>-narrative-draft.md"
 ```
 
 If that **exits 0**, the committed seed and the fact-checked draft agree. Nothing else
@@ -49,7 +49,7 @@ would otherwise print a reassuring `0 drifted` while nothing had been written.
 
 ```bash
 # Verify committed seed == draft (the automated CONVENTIONS §2 roundtrip gate)
-pnpm seed:transcribe check "Owner's Inbox/dunya-haritasi-okyanusya/okyanusya-narrative-draft.md"
+pnpm seed:transcribe check "../Owner's Inbox/dunya-haritasi-okyanusya/okyanusya-narrative-draft.md"
 
 # Print the TS snippet for each field, without touching any file
 pnpm seed:transcribe emit  "<draft.md>"
@@ -63,6 +63,26 @@ pnpm seed:transcribe apply --force "<draft.md>"
 
 Several drafts may be passed at once — but pass only **authoritative** ones: two drafts
 naming the same country+field with different prose is a hard error, not a last-wins merge.
+
+The drafts live **outside this repo**, so from the repo root every path starts with
+`../Owner's Inbox/…`.
+
+### What every lane refuses to do
+
+These four refusals are shared by all three lanes' shells (`country-runner.ts`, the climate runner,
+the prose runner) and a new lane has to carry all four. Each one closes a **false green**
+that was reproduced, not imagined — the whole point of this tool is that its `exit 0` can
+be trusted without re-reading the seed:
+
+| Situation | Behaviour |
+| --- | --- |
+| The wave target list is empty; or (country lane) a draft this tool understood no field in | `exit 1` — it will not print "checked 0 field(s)" and call that a pass. Measured on what was UNDERSTOOD, not on what survived de-duplication: passing the same draft twice is legal and stays green |
+| The committed seed source does not parse | `exit 1` before any mode runs — `ts.createSourceFile` is error-tolerant, so the fold would silently lose rows and `check` would compare against a hole |
+| A draft path cannot be read | `exit 1`, naming **every** unreadable path with a reason — never a `node:fs` stack trace, which reads like a tool crash. A leading UTF-8 BOM is stripped rather than allowed to hide the first section |
+| The parser performed a no-separator line join | **Reported** on stdout in `check` as well as `emit`, and deliberately NOT a failure — both sides of `check` run the same parser, so a wrongly glued join agrees with itself |
+
+The first three fail loud; only the last is reporting-only, because the join heuristic is
+right far more often than not and a hard failure would train people around the gate.
 
 ### `apply` refuses to revert a correction
 

@@ -10,8 +10,8 @@
  * byte-for-byte against the committed seed by `check`.
  *
  * USAGE (reviewer-reproducible — pass the ONE authoritative N2 draft):
- *   node tools/seed-transcription/oneoff-n2-province-climate.ts emit  "Owner's Inbox/iklim-N2/draft.md"
- *   node tools/seed-transcription/oneoff-n2-province-climate.ts check "Owner's Inbox/iklim-N2/draft.md"
+ *   node tools/seed-transcription/oneoff-n2-province-climate.ts emit  "../Owner's Inbox/iklim-N2/draft.md"
+ *   node tools/seed-transcription/oneoff-n2-province-climate.ts check "../Owner's Inbox/iklim-N2/draft.md"
  *
  * `emit`  prints the `climateNarrativeTr:` concatenation snippet for each of the 10 provinces.
  * `check` folds the committed value out of `province.seed-data.ts` and byte-diffs it against the

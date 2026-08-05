@@ -221,9 +221,9 @@ describe('runProse — the exit-code contract', () => {
    * failure-path cases below do not write real bytes into a green test run. Mirrors the sibling
    * climate spec's helper.
    */
-  const run = (
+  const runWithPaths = (
     mode: 'emit' | 'check',
-    markdown: string,
+    draftPaths: readonly string[],
     seedFile: string,
     targets: readonly ProseTarget[] = TARGETS,
   ): { code: number; stdout: string; stderr: string } => {
@@ -238,18 +238,21 @@ describe('runProse — the exit-code contract', () => {
       return true;
     });
     try {
-      const code = runProse({
-        mode,
-        draftPaths: [writeTemp('draft-fixture.md', markdown)],
-        targets,
-        seedFile,
-      });
-      return { code, stdout, stderr };
+      return { code: runProse({ mode, draftPaths, targets, seedFile }), stdout, stderr };
     } finally {
       outSpy.mockRestore();
       errSpy.mockRestore();
     }
   };
+
+  /** The common case: one fixture draft, written to disk because `runProse` takes PATHS. */
+  const run = (
+    mode: 'emit' | 'check',
+    markdown: string,
+    seedFile: string,
+    targets: readonly ProseTarget[] = TARGETS,
+  ): { code: number; stdout: string; stderr: string } =>
+    runWithPaths(mode, [writeTemp('draft-fixture.md', markdown)], seedFile, targets);
 
   it('exits 0 when every committed value is byte-identical to the draft', () => {
     const { code, stdout } = run('check', FULL_DRAFT, writeSeed(SEEDED));
@@ -312,6 +315,34 @@ describe('runProse — the exit-code contract', () => {
     expect(code).toBe(0);
     expect(stdout).toContain('No-space line joins performed');
     expect(stdout).toContain('90 Testiye.hydrographyNoteTr:');
+  });
+
+  it('refuses to run at all when the committed seed does not parse', () => {
+    // `ts.createSourceFile` is error-tolerant: a missing comma yields a silently incomplete index
+    // and a "0 drifted" green. The refusal shipped with PR #92; nothing pinned it until now.
+    const broken = writeTemp(
+      'broken-seed.ts',
+      `export const ROWS = [\n  { plateCode: '90', nameTr: 'Testiye' \n];\n`,
+    );
+    const { code, stdout, stderr } = run('check', FULL_DRAFT, broken);
+    expect(code).toBe(1);
+    expect(stderr).toContain('seed source does not parse');
+    expect(stdout).toBe('');
+  });
+
+  it("answers a typo'd draft path with a readable message, not a node:fs stack trace", () => {
+    // Its own tmpdir (no fixed shared-tmpdir name), and the FULL rendered line: the substring
+    // "no such file" also appears in the raw node message this replaces, so asserting only that
+    // would pass under the regressed form too.
+    const missing = path.join(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'prose-runner-gone-')),
+      'no-such-draft.md',
+    );
+    const { code, stderr } = runWithPaths('check', [missing], writeSeed(SEEDED));
+    expect(code).toBe(1);
+    expect(stderr).toContain('cannot read draft file(s)');
+    expect(stderr).toContain(`${missing} — no such file`);
+    expect(stderr).not.toContain('ENOENT');
   });
 
   it('surfaces a non-fatal parser warning instead of dropping it', () => {
