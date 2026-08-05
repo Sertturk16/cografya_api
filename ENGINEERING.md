@@ -228,6 +228,10 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   for the country/province/concept base data — the platform's most critical seed. Seed
   discipline notes belong on the entity (e.g. `plate_code` is zero-padded to 2 chars so
   the lexical `ORDER BY plate_code` stays correct). No secrets or PII in seeds.
+  **`neighborIsoCodes` array order is a PUBLISHED render order** (the web detail page
+  iterates it unsorted): the house rule is narrative/geographic order mirroring the row's
+  own `introTr`, and on sovereignty-sensitive rows the order is deliberate — **never sort
+  these arrays alphabetically as a "tidy-up"** (Atlas ruling AS-1/AS-6c, PR #92).
 
 ---
 
@@ -274,8 +278,11 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   route asserts the forbidden and unauthenticated paths, not only the happy path.
 - **Narrative-content seed PRs are transcribed by tool, never by hand.** Hand-typing prose
   into the `+`-concatenation idiom is what caused PR #43's dropped spaces — don't. There are
-  **TWO transcription lanes, and they are not interchangeable**; using the wrong one reports a
-  false green, because each lane can only see the seed file it knows about.
+  **THREE transcription lanes, and they are not interchangeable**; using the wrong one reports a
+  false green, because each lane can only see the seed file it knows about. The shared
+  exit-code contract now lives in three entry points and two runner copies
+  (`oneoff-province-climate-runner.ts` + `oneoff-province-prose-runner.ts`) — a new lane
+  author must replicate the same invariant, not assume one copy guards all.
   - **Countries — `pnpm seed:transcribe`.** `apply <draft.md>` writes fact-checked prose into
     the wave files under `src/database/seeds/countries/*.countries.ts`, `check <draft.md>`
     verifies it. **That directory is the tool's ENTIRE world** (`cli.ts` → `SEED_DIR`): it
@@ -298,6 +305,10 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
     the `check` gate cannot weaken in one wave without failing in all of them. Adding a wave =
     a new target list + a new entry point, deliberately NOT a generalisation of the country
     pipeline (Atlas ruling 2026-07-25).
+  - **Province PROSE (non-climate narrative fields) — `oneoff-p<wave>-province-prose.ts`**,
+    field-parametric, run directly with `node` exactly like the climate lane; shares the same
+    exit-code contract via its own runner (`oneoff-province-prose-runner.ts`). The climate lane
+    remains `climateNarrativeTr`-only. P1 (PR #92) is the shipped precedent.
   - **Both lanes share ONE exit-code contract** (below) and both reuse the property-tested
     lossless emitter, which is the part that actually kills the PR #43 bug class. Neither
     entry point is wired into a CI job — the drafts live outside the repo, under
