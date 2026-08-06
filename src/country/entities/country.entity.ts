@@ -358,6 +358,44 @@ export class Country {
   @Column({ name: 'governance_note_tr', type: 'text', nullable: true })
   governanceNoteTr!: string | null;
 
+  /**
+   * Nüfus kaynağı — the institution that PUBLISHED `population`, TR + EN, in the exact
+   * SENTENCE-READY form the web credit line renders (no trailing period, no "Kaynak:"
+   * prefix, the English article baked into the value itself, e.g. `the World Bank`,
+   * `the TRNC Statistical Institute's projection`). Institution names are, AS A RULE, never
+   * translated — each locale carries the institution's own name in that language
+   * (`Grønlands Statistik` / `Statistics Greenland`), not a machine translation. ONE NAMED
+   * EXCEPTION (PR #98 review, CR98-M10): TR's EN value is `TÜİK (ADNKS)`, the same untranslated
+   * abbreviation as the TR value — deliberately NOT rendered into an English institution name,
+   * because the 81 province EN pages already publish "population from TÜİK (ADNKS)" as their
+   * own credit form (`ProvinceDetail`/`Climate.sourceLine` precedent); translating it here would
+   * make the one country-level TÜİK credit inconsistent with every province-level one.
+   *
+   * NULLABLE, and populated on exactly FIVE rows today (GL, CY, QN, TW, TR) — every other
+   * row leaves both columns absent and the service resolves the corpus default ("Dünya
+   * Bankası" / "the World Bank", `DEFAULT_POPULATION_SOURCE_NAME`) at read time. This
+   * mirrors the `statusLabelTr/En` precedent exactly (DEC 2026-08-01m): approved credit
+   * copy lives WITH the row it credits, never derived from `entityType` or any other
+   * column, because the institution that published a figure is a fact about that row, not
+   * a function of its shape.
+   *
+   * WHY NOT NOT-NULL + a stored default (the `entityType` pattern): that would force this
+   * table's one `population === null` row (Antarktika) to carry a source name for a figure
+   * it does not publish — the same "not applicable is not zero" class guard rule 3 already
+   * protects for `population` itself. `population === null` is the ONLY reason this pair is
+   * nullable; the service's `resolvePopulationSourceName` enforces "no population → no
+   * source name" as the single structural promise this field makes to `cografya_web`.
+   *
+   * Do not cache or hardcode a resolved value client-side — this pair (or its resolved
+   * service-layer form) is the single source of truth.
+   */
+  @Column({ name: 'population_source_name_tr', type: 'varchar', length: 120, nullable: true })
+  populationSourceNameTr!: string | null;
+
+  /** Nüfus kaynağı (EN) — same row, same rule as {@link populationSourceNameTr}. */
+  @Column({ name: 'population_source_name_en', type: 'varchar', length: 120, nullable: true })
+  populationSourceNameEn!: string | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 

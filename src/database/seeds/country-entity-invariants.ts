@@ -50,7 +50,7 @@ import type { CountrySeed } from './country.seed-data';
  *
  * ## Two scopes, deliberately separated
  *
- *  - {@link assertCountryEntityInvariants} — ROW-level rules (1-5, 7a). True of any row in
+ *  - {@link assertCountryEntityInvariants} — ROW-level rules (1-5, 7a, 10a/10b). True of any row in
  *    isolation, therefore safe on the WRITE path: `seedWorld` accepts arbitrary batches (the
  *    e2e suite and any future partial re-seed pass their own), so this runs over whatever is
  *    actually about to be written, not only over the reviewed corpus.
@@ -229,6 +229,39 @@ export function assertCountryEntityInvariants(countries: readonly CountrySeed[])
           `locales need a routing key or the page cannot be generated.`,
       );
     }
+
+    // 10a — POPULATION SOURCE NAME IS BOTH-OR-NEITHER (kaynak-satırı micro). A row that sets
+    // only one locale would silently fall back to the corpus default in the OTHER locale —
+    // exactly the half-localized mis-credit DEC 2026-08-05j fixed on the TR page, reintroduced
+    // in EN. `isBlank`, not `isAbsent`: a whitespace-only override is not "the field is unset",
+    // it is a stored value that would render as blank credit copy.
+    if (isBlank(seed.populationSourceNameTr) !== isBlank(seed.populationSourceNameEn)) {
+      throw new CountrySeedInvariantError(
+        `${label(seed)} sets populationSourceNameTr/En on only ONE locale ` +
+          `(tr=${JSON.stringify(seed.populationSourceNameTr)}, ` +
+          `en=${JSON.stringify(seed.populationSourceNameEn)}) — a half-localized source name ` +
+          `falls back to the corpus default in the other locale, silently. Set both or neither.`,
+      );
+    }
+
+    // 10b — NO SOURCE NAME WITHOUT A POPULATION. A row whose `population` is absent publishes no
+    // "Nüfus" card at all (row-rule 3), so a source name on that row credits a figure the page
+    // never renders. Sibling of rule 3. `isAbsent`, NOT `isBlank` (PR #98 review, CR98-M2): this
+    // is a MUST-be-absent rule exactly like invariants 2 and 5 — the guard's job here is to
+    // catch ANY stored value beside a missing population, including a whitespace-only one. A
+    // `'   '` source name would pass `isBlank` as "not set" and reach the resolver as a real
+    // stored string, which is precisely the shape the resolver must independently defend
+    // against (`population-source.ts`, I1) — this rule is the seed-time half of that defence,
+    // not a substitute for it.
+    if (
+      (seed.population === null || seed.population === undefined) &&
+      (!isAbsent(seed.populationSourceNameTr) || !isAbsent(seed.populationSourceNameEn))
+    ) {
+      throw new CountrySeedInvariantError(
+        `${label(seed)} sets a populationSourceNameTr/En but leaves population absent — a row ` +
+          `with no published population credits no institution for one (mirrors row-rule 3).`,
+      );
+    }
   }
 }
 
@@ -241,6 +274,7 @@ export function assertCountryEntityInvariants(countries: readonly CountrySeed[])
  *  - 7b — the corpus actually contains the typed rows the model was built for.
  *  - 8 — the four unique keys do not repeat (alpha-3 over its non-null values).
  *  - 9 — every NON-`special` row publishes a population (the converse of row-rule 3).
+ *  - 10c — at least one row actually carries a populationSourceNameTr/En pair.
  */
 export function assertCountryCorpusInvariants(countries: readonly CountrySeed[]): void {
   // 6 — EXACTLY ONE TÜRKİYE. Two TR rows would be a duplicate page; zero would mean the profile
@@ -365,6 +399,24 @@ export function assertCountryCorpusInvariants(countries: readonly CountrySeed[])
         `${missingPopulation.map(label).join(', ')}. Only an entityType "special" row may leave ` +
         `it absent (row-rule 3: the concept does not apply). Everywhere else the page simply ` +
         `drops its "Nüfus" card in silence, which is why this is asserted rather than noticed.`,
+    );
+  }
+
+  // 10c — RULE 10 IS NOT VACUOUS. Row-rules 10a/10b only constrain a row that HAS a
+  // populationSourceNameTr/En pair; a corpus that deleted all five override rows would pass
+  // every row-level and every other corpus-level check here (PR #98 review, CR98-M4, author's
+  // call: taken). Counted, never named — exactly like 7b, this pins no institution↔country
+  // pairing (CONVENTIONS §4 forbids naming e.g. "CY must be CYSTAT" in a corpus-wide rule); it
+  // only proves the field is not dead weight.
+  const withOverride = countries.filter(
+    (seed) => !isBlank(seed.populationSourceNameTr) || !isBlank(seed.populationSourceNameEn),
+  );
+  if (withOverride.length === 0) {
+    throw new CountrySeedInvariantError(
+      `the corpus contains no row carrying a populationSourceNameTr/En pair — rule 10 ` +
+        `(both-or-neither, no-source-without-population) is otherwise satisfiable by a corpus ` +
+        `that never sets the field at all, which would make the columns and the resolver's ` +
+        `override branch dead code with no test able to notice.`,
     );
   }
 }

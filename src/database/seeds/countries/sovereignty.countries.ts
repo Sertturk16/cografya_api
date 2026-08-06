@@ -66,6 +66,15 @@ import type { CountrySeed } from '../country.seed-data';
  *      IL]: EG/JO are physical borders, IL is the occupation/control relationship, not an
  *      ordinary neighbour (nuance lives in the prose). IL is seeded HERE, so it also
  *      resolves the pre-existing dangling SY→IL reference from the pilot.
+ *   7. POPULATION SOURCE NAME (kaynak-satırı micro, 2026-08-06, AK-9): CY/QN/TW are three of
+ *      the corpus's five `populationSourceNameTr/En` exceptions (the other two are GL and
+ *      TR, seeded elsewhere) — the `population` figures above were never a World Bank
+ *      publication, so the row now carries its own institution's name rather than letting the
+ *      service resolve the corpus default. QN's pair additionally carries the mandatory
+ *      "projection" qualifier INSIDE the stored value (not a separate note), and its EN form
+ *      is a platform-consistency derivation from our own `nameEn`, not a verified
+ *      self-designation — see the field-level comment on the QN row and
+ *      `nova-q2-teyit.md` §A.3. IL and PS are ordinary World Bank rows and carry neither field.
  *
  * COMMON TO ALL 6: populationYear null (world-scale ruling, DEC 2026-07-13); areaKm2 is
  *   whole km² (entity is integer; KKTC 3.241,68 → 3.242 rounded to nearest); slugs by the
@@ -85,6 +94,10 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     unSubregionTr: 'Batı Asya',
     population: 983_000,
     populationYear: null,
+    // Kaynak-satırı istisnası (AK-9): kısa marka adı, parantezli açılım YOK — DEC 05j'nin
+    //   kendi örneği "CYSTAT"; kurum Türkçe bir öz-ad yayımlamaz (çevrilmez).
+    populationSourceNameTr: 'CYSTAT',
+    populationSourceNameEn: 'CYSTAT',
     areaKm2: 5_896,
     capitalNameTr: 'Lefkoşa',
     capitalNameEn: 'Nicosia',
@@ -144,6 +157,18 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     // 2024 yıl sonu revize PROJEKSİYON (son gerçek sayım 2011: 294.906) — data dictionary §2.
     population: 489_308,
     populationYear: null,
+    // Kaynak-satırı istisnası (AK-9, sovereignty-escalated inceleme): "projeksiyon"
+    //   niteleyicisi SAKLANAN DEĞERİN İÇİNDE. EN biçimi kurumun kendi öz-adlandırması
+    //   DEĞİL — [KAYNAK DOĞRULANAMADI]: `TRNC` kendi `nameEn`'imizden türetilmiş
+    //   platform-içi tutarlılık kararıdır, kurumsal iddia değil (nova-q2-teyit.md §A.3).
+    //   YIL BİLEREK DÜŞÜRÜLDÜ (AK-10, PR #98 filtre turu — bir kural düzeltmesi DEĞİL, bir
+    //   house-style tercihi): QN korpusun 199 satırı içinde yıl taşıyan TEK satırdı; bu onu
+    //   tanınmayan tek satırın aynı zamanda hem yıllı hem [KAYNAK DOĞRULANAMADI] etiketli tek
+    //   satır olmasına getiriyordu. "projeksiyon"/"projection" niteleyicisi ZORUNLU kalır
+    //   (AK-8 Q4) ve [KAYNAK DOĞRULANAMADI] etiketi de kalır — o etiket EN biçimin kurum-adı
+    //   türetimine bağlıdır, yıla değil.
+    populationSourceNameTr: "KKTC İstatistik Kurumu'nun projeksiyonu",
+    populationSourceNameEn: "the TRNC Statistical Institute's projection",
     areaKm2: 3_242,
     capitalNameTr: 'Lefkoşa',
     capitalNameEn: 'Nicosia',
@@ -341,6 +366,12 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     unSubregionTr: 'Doğu Asya',
     population: 23_299_132,
     populationYear: null,
+    // Kaynak-satırı istisnası (AK-9): EN, dairenin kendi İngilizce öz-adlandırmasından
+    //   türetildi (ris.gov.tw/app/en — "Dept. of Household Registration. Ministry of the
+    //   Interior."), nova-q2-teyit.md §A.4 ile teyitli.
+    populationSourceNameTr: 'Tayvan İçişleri Bakanlığı Nüfus Kayıt Dairesi',
+    populationSourceNameEn:
+      "Taiwan's Ministry of the Interior, Department of Household Registration",
     areaKm2: 36_197,
     capitalNameTr: 'Taipei',
     capitalNameEn: 'Taipei',

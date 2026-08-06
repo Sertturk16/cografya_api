@@ -276,20 +276,101 @@ describe('invariant 7a — a non-country row still needs both localized slugs', 
   });
 });
 
-describe('assertCountryCorpusInvariants — invariants 6, 7b, 8 and 9', () => {
+describe('invariant 10a — population source name is both-or-neither', () => {
+  it('REFUSES a row that sets only the TR or only the EN source name', () => {
+    expect(() =>
+      assertCountryEntityInvariants([{ ...CLEAN, populationSourceNameTr: 'Test Kurumu' }]),
+    ).toThrow(/only ONE locale/u);
+    expect(() =>
+      assertCountryEntityInvariants([{ ...CLEAN, populationSourceNameEn: 'Test Institute' }]),
+    ).toThrow(/only ONE locale/u);
+  });
+
+  it('REFUSES a whitespace-only value paired with a REAL value — blank does not count as filled', () => {
+    // Without `isBlank` (a plain existence check) this pairing would read as "both set" and slip
+    // through; `isBlank` correctly reads the whitespace side as unfilled, so the pair mismatches.
+    expect(() =>
+      assertCountryEntityInvariants([
+        { ...CLEAN, populationSourceNameTr: '   ', populationSourceNameEn: 'Test Institute' },
+      ]),
+    ).toThrow(/only ONE locale/u);
+  });
+
+  it('ACCEPTS a row with both locales set, or neither', () => {
+    expect(() => assertCountryEntityInvariants([CLEAN])).not.toThrow();
+    expect(() =>
+      assertCountryEntityInvariants([
+        {
+          ...CLEAN,
+          population: 1_000,
+          populationSourceNameTr: 'Test Kurumu',
+          populationSourceNameEn: 'Test Institute',
+        },
+      ]),
+    ).not.toThrow();
+  });
+});
+
+describe('invariant 10b — no population source name without a population', () => {
+  it('REFUSES a source name pair on a row with no population', () => {
+    expect(() =>
+      assertCountryEntityInvariants([
+        {
+          ...CLEAN_SPECIAL,
+          populationSourceNameTr: 'Test Kurumu',
+          populationSourceNameEn: 'Test Institute',
+        },
+      ]),
+    ).toThrow(/leaves population absent/u);
+  });
+
+  it('ACCEPTS a source name pair on a row that publishes a population', () => {
+    expect(() =>
+      assertCountryEntityInvariants([
+        {
+          ...CLEAN,
+          population: 1_000,
+          populationSourceNameTr: 'Test Kurumu',
+          populationSourceNameEn: 'Test Institute',
+        },
+      ]),
+    ).not.toThrow();
+  });
+
+  it('REFUSES a WHITESPACE-ONLY source name beside an absent population — blank is not absent', () => {
+    // PR #98 review, CR98-M2: this rule must use `isAbsent`, not `isBlank`. A `'   '` value is a
+    // real stored string that would reach the resolver looking like a set override; only
+    // `isAbsent` catches it here. Before the fix this row passed BOTH row-level rules silently
+    // (10a: both sides equally "blank" by `isBlank`'s own reading, so no asymmetry; 10b: a
+    // whitespace value read as "not set") — the resolver's own defence (I1) is a second,
+    // independent line, not a substitute for this one.
+    expect(() =>
+      assertCountryEntityInvariants([
+        { ...CLEAN_SPECIAL, populationSourceNameTr: '   ', populationSourceNameEn: '   ' },
+      ]),
+    ).toThrow(/leaves population absent/u);
+  });
+});
+
+describe('assertCountryCorpusInvariants — invariants 6, 7b, 8, 9 and 10c', () => {
   // These are statements about the WHOLE published set, so they are tested over synthetic
   // corpora rather than being placed on the write path, where every legitimate partial batch
   // would trip them. See the module header for the scope split.
   //
   // `TR` carries a population for the same reason `CLEAN_TERRITORY` does: invariant 9 applies to
   // every non-`special` row, so a corpus fixture without one would trip a rule these cases are
-  // not about. Arbitrary placeholder value, no fact asserted.
+  // not about. It ALSO carries a populationSourceNameTr/En pair — a structural placeholder, no
+  // institution↔country fact asserted (CONVENTIONS §4) — purely so `FULL` satisfies invariant
+  // 10c and every unrelated `not.toThrow()` case below (6/7b/8/9) is not tripped by a corpus that
+  // happens to carry zero overrides.
   const TR: CountrySeed = {
     ...CLEAN,
     isoCode: 'TR',
     slugTr: 'turkiye',
     slugEn: 'turkey',
     population: 1_000,
+    populationSourceNameTr: 'Test Kurumu',
+    populationSourceNameEn: 'Test Institute',
   };
   const FULL: readonly CountrySeed[] = [TR, CLEAN_TERRITORY, CLEAN_SPECIAL];
 
@@ -408,6 +489,23 @@ describe('assertCountryCorpusInvariants — invariants 6, 7b, 8 and 9', () => {
     // population on `CLEAN_SPECIAL`, so rule 9 has to exempt exactly that row — otherwise the
     // corpus would be unable to satisfy both at once and Antarktika could never be seeded.
     expect(() => assertCountryEntityInvariants([CLEAN_SPECIAL])).not.toThrow();
+    expect(() => assertCountryCorpusInvariants(FULL)).not.toThrow();
+  });
+
+  it('10c — REFUSES a corpus where no row carries a populationSourceNameTr/En pair', () => {
+    // PR #98 review, CR98-M4 (author's call: taken). Row-rules 10a/10b only constrain a row
+    // that already carries the pair, so a corpus that deletes all five real override rows
+    // would otherwise pass everything — this is the fact-free (CONVENTIONS §4) check that
+    // catches that regression, mirroring how 7b catches a corpus that dropped every typed row.
+    const noOverrideTR: CountrySeed = { ...TR };
+    delete noOverrideTR.populationSourceNameTr;
+    delete noOverrideTR.populationSourceNameEn;
+    expect(() =>
+      assertCountryCorpusInvariants([noOverrideTR, CLEAN_TERRITORY, CLEAN_SPECIAL]),
+    ).toThrow(/no row carrying a populationSourceNameTr\/En pair/u);
+  });
+
+  it('10c — ACCEPTS a corpus where at least one row carries the pair', () => {
     expect(() => assertCountryCorpusInvariants(FULL)).not.toThrow();
   });
 });

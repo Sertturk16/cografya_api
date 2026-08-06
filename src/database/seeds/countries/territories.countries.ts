@@ -37,6 +37,8 @@ import type { CountrySeed } from '../country.seed-data';
  *   • `independenceNoteTr` NULL (ruling S4): the concept does not apply to a territory, and
  *     guard 5 enforces it. The governance story lives in its own section instead.
  *   • `sovereigntyNoteTr` NULL (DEC 2026-08-01q) — Greenland's status is not disputed.
+ *   • `populationSourceNameTr/En` — kaynak-satırı micro (AK-9): `Grønlands Statistik` /
+ *     `Statistics Greenland`, the institution's own two names, not a translated pair.
  *
  * ANTARKTİKA (AQ) — `special`
  *   • `population` NULL and **never 0**. "The concept does not apply here" is not "zero people
@@ -71,6 +73,10 @@ export const TERRITORY_COUNTRIES: readonly CountrySeed[] = [
     unSubregionTr: null,
     population: 56_740,
     populationYear: null,
+    // Kaynak-satırı istisnası (kaynak-satırı micro, AK-9): kurumun kendi iki adı, çeviri
+    //   değil (provenance/legacy… sat. 1661/1674, tablo BEXSTA).
+    populationSourceNameTr: 'Grønlands Statistik',
+    populationSourceNameEn: 'Statistics Greenland',
     areaKm2: 2_166_086,
     capitalNameTr: 'Nuuk',
     capitalNameEn: 'Nuuk',

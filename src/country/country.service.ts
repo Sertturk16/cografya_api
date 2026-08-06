@@ -5,6 +5,7 @@ import { Country } from './entities/country.entity';
 import { CountryDetailDto } from './dto/country-detail.dto';
 import { CountryListItemDto } from './dto/country-list-item.dto';
 import { CountryMapSummaryDto } from './dto/country-map-summary.dto';
+import { resolvePopulationSourceName } from './population-source';
 
 /**
  * Komşu ülke sayısı — the count of neighbouring countries, DERIVED from the stored
@@ -102,6 +103,7 @@ export class CountryService {
   }
 
   private toDetail(row: Country): CountryDetailDto {
+    const populationSourceName = resolvePopulationSourceName(row);
     return {
       isoCode: row.isoCode,
       isoCodeAlpha3: row.isoCodeAlpha3,
@@ -117,6 +119,8 @@ export class CountryService {
       introTr: row.introTr,
       population: row.population,
       populationYear: row.populationYear,
+      populationSourceNameTr: populationSourceName.tr,
+      populationSourceNameEn: populationSourceName.en,
       areaKm2: row.areaKm2,
       areaIsApproximate: row.areaIsApproximate,
       neighborCount: computeNeighborCount(row.neighborIsoCodes),
