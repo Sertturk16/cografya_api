@@ -110,6 +110,32 @@ export interface ProvinceSeed {
   climateKoppen: string;
   climateClassTr: string;
   climateNoteTr: string;
+  /**
+   * MÜFREDAT iklim adı (the `climate_curriculum_name_tr` column) — REQUIRED on the seed, one
+   * of the eight canonical names, while the DB column stays nullable.
+   *
+   * The asymmetry is deliberate and is the entity's standing rule: only structural
+   * identity/routing fields are NOT NULL in the schema, and a research-derived field stays
+   * nullable there even when today's data happens to fill all 81 rows (`climate_koppen` is
+   * the same shape). The obligation lives one level up, where it can produce a NAMED error:
+   * required here makes "a new province row without a curriculum name" a compile error, and
+   * `assertCurriculumMappingInvariant` (seed-geography.ts) makes a wrong or empty value a
+   * loud seed abort rather than a DB constraint violation.
+   *
+   * TYPED as the closed union, not `string`: a typo is a compile error, not a page.
+   */
+  climateCurriculumNameTr: CurriculumClimateNameTr;
+  /**
+   * Müfredat adına eşlik eden açıklama notu (the `climate_curriculum_note_tr` column) —
+   * OPTIONAL, exactly like the PR-5a detail fields below. Absent (undefined) reads as "this
+   * province needs no explanation" and is normalised to null in `rowMatchesSeed` /
+   * `withExplicitDetailNulls`.
+   *
+   * Fourteen provinces carry it (→ DEC 2026-08-05f #3/#4); the rest are null BY DESIGN, not
+   * by omission — see the entity column's note. Transcribed through the P5 prose lane
+   * (`tools/seed-transcription/oneoff-p5-province-prose.ts`), never hand-typed.
+   */
+  climateCurriculumNoteTr?: string | null;
   landformNoteTr: string | null;
   /**
    * Climate NARRATIVE (the `climate_narrative_tr` column, exposed since PR A2) — the
@@ -180,6 +206,49 @@ const CLIMATE_CLASS_TR = 'Akdeniz iklimi';
  * classifications (Thornthwaite/Erinç/De Martonne/Aydeniz) diverge. NOT invented —
  * every clause is sourced from the fact-checked dictionary. Province-specific
  * divergences (Ankara, Van) are appended per-province below.
+ *
+ * ## THE A-2 SENTENCE (2026-08-06, Atlas ruling AK-4 / AT-10)
+ * The final sentence — "Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları
+ * iki ayrı sistemdir…" — was added to the SHARED, code-agnostic body of ALL EIGHT caveat
+ * constants when the curriculum climate name shipped (`climateCurriculumNameTr`). It is the
+ * ONE place the Köppen-vs-curriculum tension is stated, for all 81 provinces at once.
+ *
+ * Why it belongs here and not in 81 per-province notes: the existing body already names the
+ * limitation but scopes it to "İç Anadolu ile Doğu Anadolu gibi bölgeler", which does not
+ * cover the reverse direction (Çankırı/Çorum/Afyonkarahisar read as Köppen "Karadeniz iklimi"
+ * while the curriculum calls them karasal) nor the coastal Csa rows (Trabzon, Sinop). For
+ * Çankırı, Trabzon and Sinop this sentence is the ONLY explanation the page carries — their
+ * `climateCurriculumNoteTr` is deliberately NULL. (Çorum and Afyonkarahisar do carry a note,
+ * but for the unrelated out-of-region reason of DEC 2026-08-05f #4.)
+ *
+ * It is written to be CODE-AGNOSTIC and stays that way: it names no province, no number and
+ * no Köppen code, so all eight constants carry it VERBATIM and
+ * `assertKoppenCaveatInvariant`'s "each note names its own code" correspondence check is
+ * untouched (the opening clause still carries the only code in each string). The invariant
+ * itself was NOT modified by this change. Both properties are pinned by tests in
+ * `test/province.e2e-spec.ts`.
+ *
+ * Source of the text: NOVA's `Owner's Inbox/koppen-sablon-gecisi/cumle-taslaklari.md` §3,
+ * transcribed with the seed-transcription emitter's own chunker — never retyped by hand.
+ *
+ * ## SIDE EFFECT ON ANKARA (06) AND VAN (65) — REPAIRED IN THE APPENDICES (Atlas AK-6)
+ * Those two rows append their own divergence sentence AFTER this shared body. Once A-2 sat
+ * BETWEEN the "Thornthwaite, Erinç, De Martonne ve Aydeniz" clause and that appendix, the
+ * appendix's original back-reference ("bu alternatif sınıflandırmalarda") had A-2's "ders
+ * kitaplarındaki bölgesel iklim adları" as its NEAREST antecedent — so it could be read as
+ * "the curriculum classifies Ankara as semi-arid steppe", the opposite of what the same page's
+ * own header says. The PR #97 fact-check leg demonstrated that reading is live (FC97-I3), so
+ * AK-6 revised the earlier "leave it to a prose-cleanup wave" call and the fix landed here.
+ *
+ * THE FIX IS IN THE TWO PER-PROVINCE APPENDICES, NOT IN THIS SHARED BODY: the demonstrative
+ * became "ölçüme dayalı bu sınıflandırmalarda" — "ölçüme dayalı" (index-computed from measured
+ * precipitation and temperature) is what the four named methods share and what the textbook's
+ * regional names are NOT, so the wrong antecedent stops fitting. Predicate, adjective and
+ * punctuation are unchanged; no new factual claim was added. The methods are deliberately NOT
+ * named one by one (NOVA, `cumle-taslaklari.md` §3.2): naming a subset would assert what
+ * Thornthwaite or Erinç specifically produce for Ankara, which no source in hand states, and
+ * Van's "göl-etkili" is not a class name in ANY of them. A-2 itself is untouched by the repair,
+ * so its byte-identity across all eight constants still holds.
  */
 const MGM_KOPPEN_CAVEAT_TR =
   "MGM'nin 2023 Köppen sınıflandırması bu ili Csa (Akdeniz iklimi) olarak verir. " +
@@ -187,7 +256,10 @@ const MGM_KOPPEN_CAVEAT_TR =
   "Türkiye'deki 254 istasyonun yaklaşık %65'ini 'Cs' (Akdeniz tipi) çıkardığını ve " +
   'İç Anadolu ile Doğu Anadolu gibi bölgelerde ayırt ediciliğinin sınırlı kaldığını ' +
   'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
-  'bu iller farklı iklim tiplerine ayrışabilir.';
+  'bu iller farklı iklim tiplerine ayrışabilir. ' +
+  'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları iki ayrı sistemdir ve ' +
+  'her zaman örtüşmez: bir ilin Köppen kodu Akdeniz tipini gösterirken müfredat aynı ili karasal ' +
+  'ya da Karadeniz iklimi alanında sayabilir, tersi de görülür.';
 
 /**
  * ── Cfa (Batch 2 wave-2, Kocaeli + Sakarya ONLY) ──────────────────────────────
@@ -232,7 +304,10 @@ const MGM_KOPPEN_CAVEAT_CFA_TR =
   "Türkiye'deki 254 istasyonun yaklaşık %65'ini 'Cs' (Akdeniz tipi) çıkardığını ve " +
   'İç Anadolu ile Doğu Anadolu gibi bölgelerde ayırt ediciliğinin sınırlı kaldığını ' +
   'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
-  'bu iller farklı iklim tiplerine ayrışabilir.';
+  'bu iller farklı iklim tiplerine ayrışabilir. ' +
+  'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları iki ayrı sistemdir ve ' +
+  'her zaman örtüşmez: bir ilin Köppen kodu Akdeniz tipini gösterirken müfredat aynı ili karasal ' +
+  'ya da Karadeniz iklimi alanında sayabilir, tersi de görülür.';
 
 /**
  * ── Csb (Batch 2 wave-3, Kütahya ONLY) ────────────────────────────────────────
@@ -279,7 +354,10 @@ const MGM_KOPPEN_CAVEAT_CSB_TR =
   "Türkiye'deki 254 istasyonun yaklaşık %65'ini 'Cs' (Akdeniz tipi) çıkardığını ve " +
   'İç Anadolu ile Doğu Anadolu gibi bölgelerde ayırt ediciliğinin sınırlı kaldığını ' +
   'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
-  'bu iller farklı iklim tiplerine ayrışabilir.';
+  'bu iller farklı iklim tiplerine ayrışabilir. ' +
+  'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları iki ayrı sistemdir ve ' +
+  'her zaman örtüşmez: bir ilin Köppen kodu Akdeniz tipini gösterirken müfredat aynı ili karasal ' +
+  'ya da Karadeniz iklimi alanında sayabilir, tersi de görülür.';
 
 /**
  * ── Cfb (Batch 2 wave-6d, Karadeniz-B iç/yüksek-rakımlı iller) ─────────────────
@@ -329,7 +407,10 @@ const MGM_KOPPEN_CAVEAT_CFB_TR =
   "Türkiye'deki 254 istasyonun yaklaşık %65'ini 'Cs' (Akdeniz tipi) çıkardığını ve " +
   'İç Anadolu ile Doğu Anadolu gibi bölgelerde ayırt ediciliğinin sınırlı kaldığını ' +
   'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
-  'bu iller farklı iklim tiplerine ayrışabilir.';
+  'bu iller farklı iklim tiplerine ayrışabilir. ' +
+  'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları iki ayrı sistemdir ve ' +
+  'her zaman örtüşmez: bir ilin Köppen kodu Akdeniz tipini gösterirken müfredat aynı ili karasal ' +
+  'ya da Karadeniz iklimi alanında sayabilir, tersi de görülür.';
 
 /**
  * ── D-group + BSk (Batch 2 wave-6b, Doğu Anadolu) ─────────────────────────────
@@ -378,7 +459,10 @@ const MGM_KOPPEN_CAVEAT_DFB_TR =
   "Türkiye'deki 254 istasyonun yaklaşık %65'ini 'Cs' (Akdeniz tipi) çıkardığını ve " +
   'İç Anadolu ile Doğu Anadolu gibi bölgelerde ayırt ediciliğinin sınırlı kaldığını ' +
   'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
-  'bu iller farklı iklim tiplerine ayrışabilir.';
+  'bu iller farklı iklim tiplerine ayrışabilir. ' +
+  'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları iki ayrı sistemdir ve ' +
+  'her zaman örtüşmez: bir ilin Köppen kodu Akdeniz tipini gösterirken müfredat aynı ili karasal ' +
+  'ya da Karadeniz iklimi alanında sayabilir, tersi de görülür.';
 
 const MGM_KOPPEN_CAVEAT_DSB_TR =
   "MGM'nin 2023 Köppen sınıflandırması bu ili Dsb (Karasal iklim, kışı şiddetli, yazı kurak " +
@@ -387,7 +471,10 @@ const MGM_KOPPEN_CAVEAT_DSB_TR =
   "Türkiye'deki 254 istasyonun yaklaşık %65'ini 'Cs' (Akdeniz tipi) çıkardığını ve " +
   'İç Anadolu ile Doğu Anadolu gibi bölgelerde ayırt ediciliğinin sınırlı kaldığını ' +
   'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
-  'bu iller farklı iklim tiplerine ayrışabilir.';
+  'bu iller farklı iklim tiplerine ayrışabilir. ' +
+  'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları iki ayrı sistemdir ve ' +
+  'her zaman örtüşmez: bir ilin Köppen kodu Akdeniz tipini gösterirken müfredat aynı ili karasal ' +
+  'ya da Karadeniz iklimi alanında sayabilir, tersi de görülür.';
 
 const MGM_KOPPEN_CAVEAT_DSA_TR =
   "MGM'nin 2023 Köppen sınıflandırması bu ili Dsa (Karasal iklim, kışı şiddetli, yazı kurak " +
@@ -396,7 +483,10 @@ const MGM_KOPPEN_CAVEAT_DSA_TR =
   "Türkiye'deki 254 istasyonun yaklaşık %65'ini 'Cs' (Akdeniz tipi) çıkardığını ve " +
   'İç Anadolu ile Doğu Anadolu gibi bölgelerde ayırt ediciliğinin sınırlı kaldığını ' +
   'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
-  'bu iller farklı iklim tiplerine ayrışabilir.';
+  'bu iller farklı iklim tiplerine ayrışabilir. ' +
+  'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları iki ayrı sistemdir ve ' +
+  'her zaman örtüşmez: bir ilin Köppen kodu Akdeniz tipini gösterirken müfredat aynı ili karasal ' +
+  'ya da Karadeniz iklimi alanında sayabilir, tersi de görülür.';
 
 const MGM_KOPPEN_CAVEAT_BSK_TR =
   "MGM'nin 2023 Köppen sınıflandırması bu ili BSk (Yarı Kurak Step İklimi, soğuk alt-tipi) " +
@@ -405,7 +495,81 @@ const MGM_KOPPEN_CAVEAT_BSK_TR =
   "Türkiye'deki 254 istasyonun yaklaşık %65'ini 'Cs' (Akdeniz tipi) çıkardığını ve " +
   'İç Anadolu ile Doğu Anadolu gibi bölgelerde ayırt ediciliğinin sınırlı kaldığını ' +
   'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
-  'bu iller farklı iklim tiplerine ayrışabilir.';
+  'bu iller farklı iklim tiplerine ayrışabilir. ' +
+  'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları iki ayrı sistemdir ve ' +
+  'her zaman örtüşmez: bir ilin Köppen kodu Akdeniz tipini gösterirken müfredat aynı ili karasal ' +
+  'ya da Karadeniz iklimi alanında sayabilir, tersi de görülür.';
+
+/**
+ * ── MÜFREDAT İKLİM ADLARI (MEB Coğrafya 9, Harita 1.39) — the eight canonical names ────────
+ *
+ * A SEPARATE EDITORIAL LAYER, not a second spelling of the MGM class name above. The two
+ * differ on 38 of 81 provinces and the difference is the point: MGM's simplified Köppen rule
+ * puts Ankara, Sivas, Van and Diyarbakır in the "Akdeniz iklimi" class, while every Turkish
+ * textbook calls them karasal. The header the web renders shows BOTH
+ * ("<müfredat adı> · Köppen: <kod>", → DEC 2026-08-05c) so the page stops contradicting the
+ * curriculum without touching, softening, or re-labelling MGM's attributed value (K1).
+ *
+ * WHERE THE VALUES COME FROM — no name below was invented here. NOVA derived all 81 rows in
+ * `Owner's Inbox/koppen-mufredat-eslemesi/brief.md`: the textbook's own type list (§2.1), the
+ * per-province derivation rule (§2.3: MEB body text wins; else the province's MGM il-merkezi
+ * station's polygon on Harita 1.39; cross-checked against MGM's Şekil 4), and the 81-row
+ * tables of §3. Seventy-one rows are NET; the ten the two maps disagree on are BELİRSİZ and
+ * were ruled individually (Isparta/Burdur → DEC 2026-08-05f #1; Kütahya, Amasya, Tokat →
+ * DEC 2026-08-06a; the other five follow NOVA's §5 recommendations under DEC 2026-08-05f #3).
+ *
+ * THE MAPPING HAS ITS OWN FIDELITY GATE, because no range/ordering invariant can see a
+ * plausible-but-wrong name ("Çorum → Karadeniz iklimi" would satisfy every structural rule
+ * and still be false on the page). ENGINEERING §5 requires a write-path check on any line
+ * that publishes values, so the brief's §3 tables are re-parsed and compared against this
+ * seed — including the Köppen column, 81/81 — by:
+ *
+ *   node tools/seed-transcription/oneoff-m1-province-curriculum.ts check \
+ *     "../Owner's Inbox/koppen-mufredat-eslemesi/brief.md"
+ *
+ * WHY EXPORTED CONSTANTS RATHER THAN INLINE STRINGS: eight values repeated across 81 rows is
+ * the archetypal typo surface, and a typo here is a wrong public label that no test can spot.
+ * The cost is real and is accepted with open eyes — a constant reference is NOT a foldable
+ * string-literal chain, so the AST-folding transcription lanes structurally cannot verify
+ * this field, which is exactly why the checker above exists instead.
+ *
+ * SPELLING follows brief §2.1: only proper nouns are capitalised ("İç Anadolu karasal
+ * iklimi", not "İç Anadolu Karasal İklimi").
+ *
+ * EN equivalents are deliberately NOT added this wave: six of the eight carry `[TEYİT GEREK]`
+ * in brief §7.4, and an unverified translation must stay absent (Atlas ruling AK-1).
+ */
+export const CURRICULUM_AKDENIZ = 'Akdeniz iklimi';
+export const CURRICULUM_KARADENIZ = 'Karadeniz iklimi';
+export const CURRICULUM_IC_ANADOLU = 'İç Anadolu karasal iklimi';
+export const CURRICULUM_DOGU_ANADOLU = 'Doğu Anadolu karasal iklimi';
+export const CURRICULUM_GUNEYDOGU_ANADOLU = 'Güneydoğu Anadolu karasal iklimi';
+export const CURRICULUM_TRAKYA = 'Trakya karasal iklimi';
+export const CURRICULUM_MARMARA_GECIS = 'Marmara geçiş iklimi';
+export const CURRICULUM_GOLLER_YORESI = 'Göller Yöresi geçiş iklimi';
+
+/**
+ * The closed vocabulary, as data AND as a type.
+ *
+ * The array is the RUNTIME half — `assertCurriculumMappingInvariant` (seed-geography.ts)
+ * membership-tests against it, so a value that reaches the column through any path other
+ * than this file still fails. The union is the COMPILE-TIME half. Neither replaces the
+ * other: the type cannot see a value written by a future admin endpoint, and the array
+ * cannot stop a typo before it runs.
+ */
+export const CURRICULUM_CLIMATE_NAMES_TR = [
+  CURRICULUM_AKDENIZ,
+  CURRICULUM_KARADENIZ,
+  CURRICULUM_IC_ANADOLU,
+  CURRICULUM_DOGU_ANADOLU,
+  CURRICULUM_GUNEYDOGU_ANADOLU,
+  CURRICULUM_TRAKYA,
+  CURRICULUM_MARMARA_GECIS,
+  CURRICULUM_GOLLER_YORESI,
+] as const;
+
+/** One of the eight canonical müfredat climate names. */
+export type CurriculumClimateNameTr = (typeof CURRICULUM_CLIMATE_NAMES_TR)[number];
 
 /**
  * Pilot 5 provinces. Neighbour names come from the dictionary (§2.1); they are
@@ -434,6 +598,7 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_MARMARA_GECIS,
     // ── İstanbul deep-content pilot (see the İSTANBUL DEEP-CONTENT PILOT note above).
     //    Seven values transcribed from the fact-checked draft. The four prose fields
     //    (introTr, landformNoteTr, hydrographyNoteTr, settlementNoteTr) carry NOVA's
@@ -548,7 +713,8 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr:
       MGM_KOPPEN_CAVEAT_TR +
-      ' Ankara, bu alternatif sınıflandırmalarda yarı-kurak step iklimi olarak ayrışır.',
+      ' Ankara, ölçüme dayalı bu sınıflandırmalarda yarı-kurak step iklimi olarak ayrışır.',
+    climateCurriculumNameTr: CURRICULUM_IC_ANADOLU,
     // ── Ankara deep content (wave-1 — see the WAVE-1 DEEP CONTENT note above). Seven detail
     //    fields transcribed from NOVA's fact-checked "Dalga 1" draft. İç Anadolu / karasal
     //    framing: plato character + Tuz Gölü closed basin (landform); Sakarya/Kızılırmak +
@@ -633,6 +799,7 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_AKDENIZ,
     // ── İzmir deep content (wave-1 — see the WAVE-1 DEEP CONTENT note above). Ege / graben-
     //    horst framing: horst-graben relief + the 30 Ekim 2020 Sisam quake (landform, dual
     //    Kandilli 6,9 / AFAD 6,6 magnitudes preserved as sourced); Gediz delta + İZSU dams
@@ -711,7 +878,8 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr:
       MGM_KOPPEN_CAVEAT_TR +
-      ' Van, bu alternatif sınıflandırmalarda karasal/göl-etkili iklim olarak ayrışır.',
+      ' Van, ölçüme dayalı bu sınıflandırmalarda karasal/göl-etkili iklim olarak ayrışır.',
+    climateCurriculumNameTr: CURRICULUM_DOGU_ANADOLU,
     // ── Van deep content (wave-1 — see the WAVE-1 DEEP CONTENT note above). Doğu Anadolu /
     //    volkanik + kapalı havza framing: Van Gölü as a Nemrut volcanic-dam lake + the 2011
     //    2011 Tabanlı/Edremit quakes (landform); the göl's sodalı physical properties + DSİ
@@ -807,6 +975,7 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_AKDENIZ,
     // ── Antalya deep content (wave-1 — see the WAVE-1 DEEP CONTENT note above). Akdeniz /
     //    karstic framing: the Toros/Bey Dağları coastal squeeze + karst forms (düden/obruk/
     //    polye) and Kızlarsivrisi=3.086 m (the fact-check factual correction from 3.070 m);
@@ -985,6 +1154,7 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_GUNEYDOGU_ANADOLU,
     // ── Adıyaman deep content (wave-5 Tier-B). 6-field set from the fact-checked "Dalga 5"
     //    draft (introTr + shortened landform/hydrography + urbanizationRate + netMigrationRate +
     //    economyIndicator). `hydrographyFeatures` + `settlementNoteTr` DELIBERATELY OMITTED
@@ -1035,6 +1205,7 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_GUNEYDOGU_ANADOLU,
     // ── Batman deep content (wave-5 Tier-B). 6-field set (hydrographyFeatures + settlementNoteTr
     //    DELIBERATELY OMITTED, Tier-B scope). urbanizationRate=84.12 is a REAL rate
     //    (non-büyükşehir — no 6360 note). GSYH share %0,4. The idiomatic "adını taşıyan Batman
@@ -1082,6 +1253,7 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_GUNEYDOGU_ANADOLU,
     // ── Diyarbakır deep content (wave-5 Tier-A). Full 8-field set from the fact-checked "Dalga 5"
     //    draft. Dicle vadisi + Karacadağ kalkan volkanı (landform); Dicle Nehri + Kralkızı/Dicle/
     //    Devegeçidi barajları (hydrography). urbanizationRate=100 is the 6360 büyükşehir artifact
@@ -1152,6 +1324,12 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_AKDENIZ,
+    climateCurriculumNoteTr:
+      "Gaziantep, Güneydoğu Anadolu Bölgesi'nde yer alır; iklim bakımından Akdeniz iklimi " +
+      'alanının doğu ucundadır. Ders kitabı bu alanı tarif ederken sınırı Gaziantep ve Kilis ' +
+      'çevresinden başlatır. Bölgenin diğer illerinden yedisi Güneydoğu Anadolu karasal iklimi ' +
+      'adını alır.',
     // ── Gaziantep deep content (wave-5 Tier-A). Full 8-field set from the fact-checked "Dalga 5"
     //    draft. Gaziantep Platosu + 6 Şubat 2023 deprem paragrafı (landform, factual/short, AFAD +
     //    resmi açıklama sourced — Hatay/wave-4 emsali); Fırat/Nizip/Karasu + Kayacık Barajı
@@ -1225,6 +1403,12 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_AKDENIZ,
+    climateCurriculumNoteTr:
+      "MEB'in TYT konu özeti, Akdeniz iklimi görülen iller arasında Kilis'i adıyla sayar. Ders " +
+      'kitabı da bu alanın doğu sınırını Kilis ile Gaziantep çevresinden başlatır. Kilis ' +
+      "Güneydoğu Anadolu Bölgesi'ndedir, iklim adı ise bölgenin adını taşımaz. Türkiye içindeki " +
+      'tek komşusu Gaziantep de aynı adı alır.',
     // ── Kilis deep content (wave-5 Tier-B). 6-field set (hydrographyFeatures + settlementNoteTr
     //    DELIBERATELY OMITTED, Tier-B scope). urbanizationRate=79.93 is a REAL rate
     //    (non-büyükşehir — no 6360 note). GSYH share %0,1 (lowest of the nine il — pure scale, a
@@ -1270,6 +1454,7 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_GUNEYDOGU_ANADOLU,
     // ── Mardin deep content (wave-5 Tier-B, SPECIAL EXCEPTION → DEC 2026-07-12 "Tier-B büyükşehir
     //    caveat exception"). Tier-B depth (shortened landform/hydrography, `hydrographyFeatures`
     //    still OMITTED), BUT Mardin is legally büyükşehir since 2012 (6360 sayılı Kanun), so
@@ -1326,6 +1511,7 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_GUNEYDOGU_ANADOLU,
     // ── Siirt deep content (wave-5 Tier-B). 6-field set (hydrographyFeatures + settlementNoteTr
     //    DELIBERATELY OMITTED, Tier-B scope). urbanizationRate=69.56 is a REAL rate
     //    (non-büyükşehir — no 6360 note). netMigrationRate=-33.96 is the LARGEST-magnitude value
@@ -1374,6 +1560,7 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_GUNEYDOGU_ANADOLU,
     // ── Şanlıurfa deep content (wave-5 Tier-A). Full 8-field set from the fact-checked "Dalga 5"
     //    draft. Arap Platformu/karstik plato + Karacadağ bazalt (landform); Fırat + Atatürk/Birecik/
     //    Karkamış barajları + Urfa Tüneli (hydrography). urbanizationRate=100 is the 6360 büyükşehir
@@ -1447,6 +1634,7 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_GUNEYDOGU_ANADOLU,
     // ── Şırnak deep content (wave-5 Tier-B). 6-field set (hydrographyFeatures + settlementNoteTr
     //    DELIBERATELY OMITTED, Tier-B scope). urbanizationRate=68.33 is a REAL rate and the LOWEST
     //    of the nine il (non-büyükşehir — no 6360 note). Habur Sınır Kapısı / Cudi Dağı / Dicle
@@ -1556,6 +1744,12 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_MARMARA_GECIS,
+    climateCurriculumNoteTr:
+      "Balıkesir'in iki denize açılan kıyıları iki ayrı iklim alanına da denk gelir: Edremit " +
+      'Körfezi çevresi ders kitabı haritasında Akdeniz iklimi alanına, Marmara kıyısı geçiş ' +
+      'alanına düşer. Her iki harita da il merkezini geçiş alanı içinde gösterir. Buradaki ad bu ' +
+      'ortak okumaya dayanır.',
     // ── Balıkesir deep content (wave-2 — see the WAVE-2 DEEP CONTENT note above). Çift deniz
     //    (Marmara + Ege) kimliği + 2025 Sındırgı depremleri (Kandilli/AFAD 6,1 çift-teyit).
     //    Büyükşehir: urbanizationRate=100 is the 6360 legal artifact, framed in settlementNoteTr.
@@ -1624,6 +1818,7 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_MARMARA_GECIS,
     // ── Bilecik deep content (wave-2). Söğüt/Ertuğrul (TDV kaynak-eleştirisiyle) + en küçük
     //    nüfus + denize kıyısı olmayan tek Marmara ili. NON-büyükşehir: urbanizationRate=84.11
     //    is a GENUINE computed rate — settlementNoteTr carries NO 6360 note (it does not apply).
@@ -1692,6 +1887,7 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_MARMARA_GECIS,
     // ── Bursa deep content (wave-2). Uludağ buzul-jeomorfolojisi + 1855 depremleri (SHEEC
     //    katalog değeri) + tektonik göller (İznik/Uluabat). "Horst" terimi bilinçli KULLANILMADI
     //    (MTA: metamorfik çekirdek karmaşığı). Büyükşehir: urbanizationRate=100 = 6360 artifact.
@@ -1763,6 +1959,12 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_MARMARA_GECIS,
+    climateCurriculumNoteTr:
+      "MGM, Marmara geçiş iklimini Marmara Bölgesi'nin kuzey Ege'yi de içine alan güney " +
+      'kesiminde tanımlar. Çanakkale tam bu tarifin içine düşer. Ders kitabı haritasında ise ' +
+      'ilin güney kıyı şeridi Akdeniz iklimi alanına yaklaşır, kuzey yakası geçiş alanında ' +
+      'kalır.',
     // ── Çanakkale deep content (wave-2). Boğaz/iki yarımada + UNESCO Truva + Gelibolu. Boğaz
     //    en dar noktası bilinçli olarak bir ARALIK (1,2-1,4 km); Kazdağı zirve rakamı Balıkesir
     //    tarafında olduğu için YAZILMADI. NON-büyükşehir: urbanizationRate=62.03, genuine rate.
@@ -1828,6 +2030,7 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_TRAKYA,
     // ── Edirne deep content (wave-2). İki ülke sınırı (Bulgaristan/Yunanistan) + nehir buluşması
     //    (Meriç/Tunca/Arda/Ergene) + Gala Gölü Milli Parkı (Edirne'de, Çanakkale'de DEĞİL). Kadıköy
     //    Barajı Edirne'ye ait (Tier-1 SYGM). NON-büyükşehir: urbanizationRate=77.06, genuine rate.
@@ -1899,6 +2102,7 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_TRAKYA,
     // ── Kırklareli deep content (wave-2). Neolitik Aşağıpınar Höyüğü + Yıldız Dağları/İğneada
     //    longoz ormanı. hydrographyFeatures BİLİNÇLİ olarak TEK maddeye indirildi (İstanbul
     //    su-transferi iddiası doğrulanamadı). NON-büyükşehir: urbanizationRate=74.04, genuine.
@@ -1963,6 +2167,7 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CFA,
     climateClassTr: CLIMATE_CLASS_CFA_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
+    climateCurriculumNameTr: CURRICULUM_KARADENIZ,
     // ── Kocaeli deep content (wave-2). İzmit Körfezi/KAF kuzey kolu + 1999 depremi (Kandilli
     //    7,4 / USGS 7,6 çift-rakam, ulusal toll bir ARALIK: 17.480-18.373). Kişi başına GSYH
     //    ulusal #2 introTr'da. Büyükşehir: urbanizationRate=100 = 6360 artifact.
@@ -2034,6 +2239,7 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CFA,
     climateClassTr: CLIMATE_CLASS_CFA_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
+    climateCurriculumNameTr: CURRICULUM_KARADENIZ,
     // ── Sakarya deep content (wave-2). Ad nehirden gelir (savaştan DEĞİL) + Adapazarı 1999
     //    zemin sıvılaşması (Kocaeli'nin fay-yakınlığından kasıtlı farklı) + tektonik Sapanca
     //    Gölü. Büyükşehir: urbanizationRate=100 = 6360 artifact.
@@ -2105,6 +2311,11 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_MARMARA_GECIS,
+    climateCurriculumNoteTr:
+      "Tekirdağ, Trakya'nın iki iklim alanı arasında bölünür. Yıldız Dağları'na yaslanan kuzey " +
+      'kesimi ders kitabı haritasında Trakya karasal iklimi alanına düşer, Marmara kıyısındaki ' +
+      'güney şeridi ise geçiş alanında kalır. Sayfadaki ad il merkezine göre belirlendi.',
     // ── Tekirdağ deep content (wave-2). Trakya bağcılık merkezi (Şarköy %89) + Ganos Fayı/1912
     //    Mürefte depremi. Kadıköy Barajı BİLİNÇLİ olarak listede DEĞİL (Edirne'ye ait). Büyükşehir:
     //    urbanizationRate=100 = 6360 artifact. netMigrationRate national #2 (+13.09 ‰, Yalova sonrası).
@@ -2169,6 +2380,7 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_MARMARA_GECIS,
     // ── Yalova deep content (wave-2). Türkiye'nin en küçük ili (798 km²) + 1995 kuruluşu +
     //    1999 ağır hasarı. NON-büyükşehir: urbanizationRate=72.35, genuine rate — no 6360 note.
     //    netMigrationRate is the NATIONAL #1 (+15.59 ‰, all 81 il), asserted in settlementNoteTr.
@@ -2321,6 +2533,11 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CFA,
     climateClassTr: CLIMATE_CLASS_CFA_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
+    climateCurriculumNameTr: CURRICULUM_IC_ANADOLU,
+    climateCurriculumNoteTr:
+      "Afyonkarahisar, 1.034 metredeki merkeziyle kıyı Ege'den yüksek bir eşikle ayrılır. Ege " +
+      "Bölgesi'nde olmasına karşın ders kitabı ve MGM haritalarının ikisi de ili İç Anadolu " +
+      'karasal iklimi alanına koyar. Aynı ad, kuzey komşusu Kütahya için de kullanılır.',
     // ── Afyonkarahisar deep content (wave-3 Tier-B). The tiered 6-field set from the
     //    fact-checked "Dalga 3" draft: introTr + (shortened) landformNoteTr + hydrographyNoteTr +
     //    urbanizationRate + netMigrationRate + economyIndicator. `hydrographyFeatures` AND
@@ -2376,6 +2593,7 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_AKDENIZ,
     // ── Aydın deep content (wave-3 Tier-A). Full 8-field detail set from the fact-checked
     //    "Dalga 3" draft. Büyük Menderes grabeni + Madran Dağı (landform); Büyük Menderes /
     //    Çine Çayı + Çine (Adnan Menderes) barajı + Bafa Gölü (hydrography). urbanizationRate=100
@@ -2451,6 +2669,20 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    // DEC 2026-08-06b: the mapping brief's Denizli row went back to BELİRSİZ and the owner ruled
+    // the textbook map (Harita 1.39 draws the province inside the Göller Yöresi polygon) over the
+    // TYT summary's Akdeniz list — the SAME conflict Isparta/Burdur carry, previously resolved
+    // the opposite way here with no recorded reason (PR #97 review, FC97-I2). Köppen stays Csa
+    // (K1). `(Ege, Göller Yöresi geçiş iklimi)` is deliberately NOT in `EXPECTED_REGION_PAIRS`,
+    // so the seed invariant demands the note below (Atlas ruling AK-7).
+    climateCurriculumNameTr: CURRICULUM_GOLLER_YORESI,
+    climateCurriculumNoteTr:
+      "Denizli'nin müfredat iklim adı iki MEB kaynağında farklı çıkar. Ders kitabı haritası ili " +
+      'Göller Yöresi geçiş iklimi alanı içinde gösterir, TYT konu özeti ise Akdeniz iklimi ' +
+      'görülen iller arasında adıyla sayar. Bu farkta harita esas alındı; aynı çelişki, adı ' +
+      "paylaşan Burdur ve Isparta'da da aynı yönde çözüldü. Denizli Ege Bölgesi'ndedir, adındaki " +
+      'yöre ise ilin Afyonkarahisar sınırındaki Acıgöl ile başlayıp doğuya uzanan göller ' +
+      'alanıdır.',
     // ── Denizli deep content (wave-3 Tier-A). Full 8-field detail set from the fact-checked
     //    "Dalga 3" draft. Pamukkale traverten + Honaz Dağı 2.571 m (Ege's highest point) +
     //    Çürüksu grabeni (landform); Büyük Menderes / Çürüksu + Adıgüzel/Cindere barajları +
@@ -2527,6 +2759,13 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSB,
     climateClassTr: CLIMATE_CLASS_CSB_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CSB_TR,
+    climateCurriculumNameTr: CURRICULUM_IC_ANADOLU,
+    climateCurriculumNoteTr:
+      "Başlıktaki iklim adı, Kütahya'nın doğusundaki İç Anadolu'yu işaret eder; ilin kendisi Ege " +
+      "Bölgesi'ndedir. İki kaynak ili farklı alanlara koyar: ders kitabı haritası Marmara geçiş " +
+      'alanının güney ucuna, MGM haritası İç Anadolu karasal alanının batı ucuna. Sayfada ikinci ' +
+      'okuma izlendi, çünkü 969 metredeki il merkezi ve ortalama 1.200 metrelik yayla ili kıyı ' +
+      "Ege'den ayırır. Aynı ad, güney komşusu Afyonkarahisar için de kullanılır.",
     // ── Kütahya deep content (wave-3 Tier-B). Tiered 6-field set from the fact-checked "Dalga 3"
     //    draft (introTr + shortened landform/hydrography + urbanizationRate + netMigrationRate +
     //    economyIndicator). `hydrographyFeatures` + `settlementNoteTr` DELIBERATELY OMITTED
@@ -2580,6 +2819,7 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_AKDENIZ,
     // ── Manisa deep content (wave-3 Tier-A — see the WAVE-3 DEEP CONTENT note above). The
     //    full 8-field detail set, transcribed from NOVA's fact-checked "Dalga 3" draft.
     //    Spil Dağı milli parkı + Gediz (Alaşehir) grabeni (landform); Gediz Nehri + Demirköprü
@@ -2657,6 +2897,7 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_AKDENIZ,
     // ── Muğla deep content (wave-3 Tier-A). Full 8-field detail set from the fact-checked
     //    "Dalga 3" draft. Ege/Akdeniz geçiş kuşağı + parçalı karstik kıyı (landform); Dalaman /
     //    Eşen Çayı + Akköprü barajı + Köyceğiz haliç gölü (hydrography). netMigrationRate=+11,64
@@ -2735,6 +2976,7 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_AKDENIZ,
     // ── Uşak deep content (wave-3 Tier-B). Tiered 6-field set from the fact-checked "Dalga 3"
     //    draft (introTr + shortened landform/hydrography + urbanizationRate + netMigrationRate +
     //    economyIndicator). `hydrographyFeatures` + `settlementNoteTr` DELIBERATELY OMITTED
@@ -2866,6 +3108,7 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_AKDENIZ,
     // ── Adana deep content (wave-4 Tier-A). Full 8-field detail set from the fact-checked
     //    "Dalga 4" (Akdeniz) draft. Çukurova alüvyal ovası + Aladağlar (landform); Seyhan/
     //    Ceyhan nehirleri + Seyhan/Çatalan barajları + Akyatan/Tuzla lagünleri (hydrography).
@@ -2946,6 +3189,13 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_GOLLER_YORESI,
+    climateCurriculumNoteTr:
+      'Ders kitabı haritasında Burdur Gölü çevresi, Göller Yöresi geçiş iklimi alanı olarak ayrı ' +
+      "işaretlenir. MEB'in TYT konu özeti Burdur'u Akdeniz iklimi listesine koyar, MGM'nin bölge " +
+      'haritasında ise ayrı bir Göller Yöresi alanı bulunmaz. İki MEB kaynağı arasındaki bu ' +
+      'farkta, en ayrıntılı olan ders kitabı haritası esas alındı. Bu adı taşıyan diğer iki il ' +
+      "Isparta ve Denizli'dir.",
     // ── Burdur deep content (wave-4 Tier-B). The tiered 6-field set from the fact-checked
     //    "Dalga 4" draft: introTr + (shortened) landformNoteTr + hydrographyNoteTr +
     //    urbanizationRate + netMigrationRate + economyIndicator. `hydrographyFeatures` AND
@@ -2998,6 +3248,7 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_AKDENIZ,
     // ── Hatay deep content (wave-4 Tier-A). Full 8-field set from the fact-checked "Dalga 4"
     //    draft. Amanos Dağları/Amik Ovası + the 6 Şubat 2023 depremleri paragraph (landform,
     //    AFAD-sourced, same factual register as İstanbul's KAF / İzmir's Sisam quake); Asi
@@ -3081,6 +3332,13 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_GOLLER_YORESI,
+    climateCurriculumNoteTr:
+      "Isparta, Eğirdir Gölü kıyısında, Göller Yöresi'nin ortasındadır. Ders kitabı haritası bu " +
+      "yöreyi ayrı bir geçiş alanı olarak ayırır ve sayfadaki ad bu haritaya dayanır. MEB'in TYT " +
+      "konu özeti ise Isparta'yı Akdeniz iklimi görülen iller arasında adıyla sayar. Denize " +
+      'kıyısı olmayan ilin merkezi 997 metre yüksekliktedir. Burdur ve Denizli de aynı adı ' +
+      'taşır.',
     // ── Isparta deep content (wave-4 Tier-B). 6-field set (hydrographyFeatures +
     //    settlementNoteTr DELIBERATELY OMITTED, Tier-B scope — see block header). Batı Toroslar
     //    + Dedegöl Dağı 2.992 m (landform); Eğirdir Gölü (hydrography, area/depth given as
@@ -3134,6 +3392,7 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_AKDENIZ,
     // ── Kahramanmaraş deep content (wave-4 Tier-A). Full 8-field set from the fact-checked
     //    "Dalga 4" draft. Ahır/Nurhak dağları + Elbistan Ovası + the 6 Şubat 2023 depremleri
     //    (landform, AFAD-sourced fault-segment detail — this il was the true epicentre). NB:
@@ -3215,6 +3474,7 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_AKDENIZ,
     // ── Mersin deep content (wave-4 Tier-A). Full 8-field set from the fact-checked "Dalga 4"
     //    draft. ~%87 dağlık Toros kıyısı + Medetsiz Tepesi 3.524 m + Cennet/Cehennem karstic
     //    obrukları (landform); Göksu deltası + Berdan Çayı/Barajı (hydrography). Two fact-check
@@ -3284,6 +3544,7 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_AKDENIZ,
     // ── Osmaniye deep content (wave-4 Tier-B). 6-field set (hydrographyFeatures +
     //    settlementNoteTr DELIBERATELY OMITTED, Tier-B scope — see block header). Amanos/Toros
     //    yükseltileri + Düldül Dağı 2.400 m (landform, Osmaniye Valiliği Tier-1); Ceyhan Nehri
@@ -3395,6 +3656,12 @@ export const WAVE6D_KARADENIZ_B_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_KARADENIZ,
+    climateCurriculumNoteTr:
+      "Tokat'ın güneyi, Karadeniz ile İç Anadolu'yu ayıran dağlık kuşak üzerindedir; iklim " +
+      'sınırı da bu kuşak boyunca geçer. Ders kitabı haritası il merkezini Karadeniz iklimi ' +
+      'alanının güney kenarında gösterir. Kuzeydeki Niksar ve Erbaa ovaları, Yeşilırmak ve ' +
+      'Kelkit vadileriyle kıyıya bağlanır. Komşu Amasya için de aynı ad kullanıldı.',
     // ── Tokat deep content (wave-6d Tier-B). 6-field set; hydrographyFeatures + settlementNoteTr
     //    DELIBERATELY omitted (Tier-B scope cut). Kervan yolu / Yeşilırmak-Kelkit vadisi hook.
     //    urbanizationRate 66.55 is a REAL non-büyükşehir rate; netMigrationRate +10.41 is the
@@ -3442,6 +3709,11 @@ export const WAVE6D_KARADENIZ_B_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CFB,
     climateClassTr: CLIMATE_CLASS_CFB_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFB_TR,
+    climateCurriculumNameTr: CURRICULUM_IC_ANADOLU,
+    climateCurriculumNoteTr:
+      'Çorum, 776 metredeki merkeziyle Kızılırmak havzasına açılan yüksek bir platodadır. İl ' +
+      "Karadeniz Bölgesi'ndedir, iklim adı ise güneydeki İç Anadolu'yu gösterir. Her iki iklim " +
+      'haritasında da Çorum, İç Anadolu karasal iklimi alanının kuzey ucunda kalır.',
     // ── Çorum deep content (wave-6d Tier-B). Cfb (inland/highland, warm-summer subtype). Hitit /
     //    Hattuşa UNESCO hook. GSYH share %0,4; netMigrationRate -12.82.
     landformNoteTr:
@@ -3492,6 +3764,7 @@ export const WAVE6D_KARADENIZ_B_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_KARADENIZ,
     // ── Sinop deep content (wave-6d Tier-B). Csa (region's least-rainy coast — genuine MGM reading,
     //    NOT forced). En kuzey nokta / İnceburun hook. GSYH share %0,2 (wave's lowest).
     landformNoteTr:
@@ -3536,6 +3809,7 @@ export const WAVE6D_KARADENIZ_B_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CFB,
     climateClassTr: CLIMATE_CLASS_CFB_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFB_TR,
+    climateCurriculumNameTr: CURRICULUM_KARADENIZ,
     // ── Kastamonu deep content (wave-6d Tier-B). Cfb (highland, 800 m). Küre/Ilgaz orman-dağ geçiş
     //    kuşağı hook. netMigrationRate -12.90 (wave's highest negative alongside Karabük). GSYH %0,3.
     landformNoteTr:
@@ -3580,6 +3854,7 @@ export const WAVE6D_KARADENIZ_B_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CFA,
     climateClassTr: CLIMATE_CLASS_CFA_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
+    climateCurriculumNameTr: CURRICULUM_KARADENIZ,
     // ── Zonguldak deep content (wave-6d Tier-B). Cfa (coastal). Taşkömürü jeolojisi / Ereğli hook.
     //    GSYH share %0,5 (wave's highest); netMigrationRate -5.93.
     landformNoteTr:
@@ -3625,6 +3900,7 @@ export const WAVE6D_KARADENIZ_B_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CFA,
     climateClassTr: CLIMATE_CLASS_CFA_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
+    climateCurriculumNameTr: CURRICULUM_KARADENIZ,
     // ── Bartın deep content (wave-6d Tier-B). Cfa (coastal). Bartın Çayı vadisi hook; introTr carries
     //    the fact-check CORRECTION ("üçüncü en küçük il", after Yalova + Kilis — NOT "en küçük").
     //    urbanizationRate 49.73 is the wave's lowest; netMigrationRate -0.63 the most balanced.
@@ -3671,6 +3947,7 @@ export const WAVE6D_KARADENIZ_B_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CFA,
     climateClassTr: CLIMATE_CLASS_CFA_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
+    climateCurriculumNameTr: CURRICULUM_KARADENIZ,
     // ── Karabük deep content (wave-6d Tier-B). Cfa (coastal-influenced). Demir-çelik sanayii hook.
     //    urbanizationRate 77.69 is the wave's highest; netMigrationRate -14.31 the wave's highest
     //    negative. GSYH share %0,2.
@@ -3717,6 +3994,7 @@ export const WAVE6D_KARADENIZ_B_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CFA,
     climateClassTr: CLIMATE_CLASS_CFA_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
+    climateCurriculumNameTr: CURRICULUM_KARADENIZ,
     // ── Düzce deep content (wave-6d Tier-B). Cfa (coastal-influenced). 1999 Kuzey Anadolu Fayı /
     //    deprem kuşağı hook. urbanizationRate 70.60; netMigrationRate +3.89; GSYH share %0,4.
     landformNoteTr:
@@ -3763,6 +4041,7 @@ export const WAVE6D_KARADENIZ_B_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CFB,
     climateClassTr: CLIMATE_CLASS_CFB_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFB_TR,
+    climateCurriculumNameTr: CURRICULUM_KARADENIZ,
     // ── Bolu deep content (wave-6d Tier-B). Cfb (highland, 743 m). Göl / otoyol geçiş kuşağı hook;
     //    introTr is the JARGON-SCRUBBED version (internal "bu dalgadaki 9 il" phrasing removed by the
     //    fact-check, fact 8-komşu preserved). urbanizationRate 74.19; netMigrationRate +1.55; GSYH %0,4.
@@ -3866,6 +4145,7 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_DSB,
     climateClassTr: CLIMATE_CLASS_D_GROUP_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_DSB_TR,
+    climateCurriculumNameTr: CURRICULUM_DOGU_ANADOLU,
     // ── Ağrı deep content (wave-6b Tier-B). 6-field set (hydrographyFeatures + settlementNoteTr
     //    OMITTED). urbanizationRate=62.76 is a REAL rate (non-büyükşehir). netMigrationRate
     //    -32.59 is among the wave's most-negative (near Siirt's -33.96 record). GSYH share %0,2.
@@ -3911,6 +4191,7 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_DSB,
     climateClassTr: CLIMATE_CLASS_D_GROUP_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_DSB_TR,
+    climateCurriculumNameTr: CURRICULUM_DOGU_ANADOLU,
     // ── Ardahan deep content (wave-6b Tier-B). 6-field set. urbanizationRate=45.19 is the
     //    wave's LOWEST — a REAL (non-büyükşehir) rate, not a legal artifact. GSYH share %0,1.
     landformNoteTr:
@@ -3954,6 +4235,7 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_DOGU_ANADOLU,
     // ── Bingöl deep content (wave-6b Tier-B). 6-field set. Karlıova is the KAF-DAF fault
     //    junction, framed strictly as geology (Erzincan/İzmir/Kocaeli precedent). urbanizationRate
     //    70.55 is a REAL rate (non-büyükşehir). GSYH share %0,2.
@@ -3999,6 +4281,7 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_DSA,
     climateClassTr: CLIMATE_CLASS_D_GROUP_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_DSA_TR,
+    climateCurriculumNameTr: CURRICULUM_DOGU_ANADOLU,
     // ── Bitlis deep content (wave-6b Tier-B). 6-field set. The Nemrut Dağı here is the Bitlis
     //    crater-lake volcano — a DIFFERENT, homonymous mountain from Adıyaman's UNESCO Nemrut
     //    (wave-5). urbanizationRate 66.88 is a REAL rate. GSYH share %0,2.
@@ -4043,6 +4326,7 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_BSK,
     climateClassTr: CLIMATE_CLASS_BSK_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_BSK_TR,
+    climateCurriculumNameTr: CURRICULUM_DOGU_ANADOLU,
     // ── Elazığ deep content (wave-6b Tier-B). 6-field set. Keban Barajı figures are the
     //    fact-check CORRECTION (1.330 MW / 6,6 milyar kWh per EÜAŞ — the Belediye source's
     //    134 MW / 7,5 milyar kWh were both wrong). urbanizationRate 80.09 is a REAL rate. GSYH %0,5.
@@ -4088,6 +4372,7 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_DOGU_ANADOLU,
     // ── Erzincan deep content (wave-6b Tier-B). 6-field set. The 1939 quake is handled factual/
     //    short (Kandilli/AFAD-sourced, KAF context — Kocaeli/İzmir precedent). urbanizationRate
     //    75.99 is a REAL rate (non-büyükşehir). GSYH share %0,2.
@@ -4134,6 +4419,7 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_DFB,
     climateClassTr: CLIMATE_CLASS_D_GROUP_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_DFB_TR,
+    climateCurriculumNameTr: CURRICULUM_DOGU_ANADOLU,
     // ── Erzurum deep content (wave-6b Tier-B + büyükşehir EXCEPTION → DEC 2026-07-12, Mardin
     //    precedent). Tier-B depth (hydrographyFeatures OMITTED), BUT büyükşehir, so
     //    urbanizationRate=100 is the 6360 legal artifact carrying ONLY the single-sentence
@@ -4187,6 +4473,7 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_DSA,
     climateClassTr: CLIMATE_CLASS_D_GROUP_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_DSA_TR,
+    climateCurriculumNameTr: CURRICULUM_DOGU_ANADOLU,
     // ── Hakkari deep content (wave-6b Tier-B). 6-field set. Türkiye içinde SADECE 2 komşu (Van,
     //    Şırnak — both symmetric). Cilo-Sat is stated as "one of the highest massifs", no exact
     //    ranking claim (deliberate). urbanizationRate 66.55 is a REAL rate. GSYH share %0,2.
@@ -4233,6 +4520,7 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_BSK,
     climateClassTr: CLIMATE_CLASS_BSK_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_BSK_TR,
+    climateCurriculumNameTr: CURRICULUM_DOGU_ANADOLU,
     // ── Iğdır deep content (wave-6b Tier-B). 6-field set. Türkiye içinde SADECE 2 komşu (both
     //    symmetric). The Iğdır Ovası microclimate makes it Doğu Anadolu's lowest plain.
     //    urbanizationRate 59.56 is a REAL rate (non-büyükşehir). GSYH share %0,1.
@@ -4278,6 +4566,7 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_DFB,
     climateClassTr: CLIMATE_CLASS_D_GROUP_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_DFB_TR,
+    climateCurriculumNameTr: CURRICULUM_DOGU_ANADOLU,
     // ── Kars deep content (wave-6b Tier-B). 6-field set. hydrographyNoteTr from the Tier-1 Kars
     //    İl Kültür ve Turizm Müdürlüğü "Akarsular" page. urbanizationRate 55.19 is a REAL rate.
     //    GSYH share %0,2.
@@ -4323,6 +4612,7 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_BSK,
     climateClassTr: CLIMATE_CLASS_BSK_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_BSK_TR,
+    climateCurriculumNameTr: CURRICULUM_DOGU_ANADOLU,
     // ── Malatya deep content (wave-6b Tier-B + büyükşehir EXCEPTION → DEC 2026-07-12, Mardin
     //    precedent). Tier-B depth (hydrographyFeatures OMITTED), BUT büyükşehir, so
     //    urbanizationRate=100 carries ONLY the single-sentence settlementNoteTr. The wave's SOLE
@@ -4374,6 +4664,7 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_DSA,
     climateClassTr: CLIMATE_CLASS_D_GROUP_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_DSA_TR,
+    climateCurriculumNameTr: CURRICULUM_DOGU_ANADOLU,
     // ── Muş deep content (wave-6b Tier-B). 6-field set. The Nemrut here only bounds the Muş Ovası;
     //    the mountain itself is administratively in Bitlis (not presented as Muş's landform).
     //    urbanizationRate 51.26 is a REAL rate (non-büyükşehir). GSYH share %0,2.
@@ -4420,6 +4711,7 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_DOGU_ANADOLU,
     // ── Tunceli deep content (wave-6b Tier-B). 6-field set. Türkiye's least-populous il after
     //    Bayburt (85.083). neighborPlateCodes is 3 (Sivas 58 removed by the fact-check — geojson +
     //    both il's own Wikipedia pages disagree). urbanizationRate 67.04 is a REAL rate. GSYH %0,1.
@@ -4524,6 +4816,7 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_BSK,
     climateClassTr: CLIMATE_CLASS_BSK_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_BSK_TR,
+    climateCurriculumNameTr: CURRICULUM_IC_ANADOLU,
     // ── Konya deep content (wave-6a Tier-A). Full 8-field set. Bozkır platosu + Toros
     //    uzantıları + Karacadağ/Karadağ volkanik kütleleri (landform); Türkiye'nin en büyük
     //    kapalı havzası, Çarşamba Çayı/Çumra Sulaması + Beyşehir/Tuz gölleri (hydrography).
@@ -4594,6 +4887,7 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_IC_ANADOLU,
     // ── Kayseri deep content (wave-6a Tier-A). Full 8-field set. Erciyes stratovolkanı
     //    (3.917 m, İç Anadolu'nun en yüksek noktası; volkanizma yaşı ~2,5-3 milyon yıl, MTA
     //    kaynaklı fact-check düzeltmesi) + Sultansazlığı (landform); Zamantı/Sarımsaklı +
@@ -4663,6 +4957,7 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_BSK,
     climateClassTr: CLIMATE_CLASS_BSK_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_BSK_TR,
+    climateCurriculumNameTr: CURRICULUM_IC_ANADOLU,
     // ── Eskişehir deep content (wave-6a Tier-B + büyükşehir EXCEPTION → DEC 2026-07-12).
     //    Nüfus 927,956 (<1M → Tier-B depth: shortened landform/hydrography, NO
     //    hydrographyFeatures), BUT büyükşehir since 1993, so urbanizationRate=100 is the 6360
@@ -4717,6 +5012,7 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSB,
     climateClassTr: CLIMATE_CLASS_CSB_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CSB_TR,
+    climateCurriculumNameTr: CURRICULUM_IC_ANADOLU,
     // ── Sivas deep content (wave-6a Tier-B). 6-field set (hydrographyFeatures +
     //    settlementNoteTr DELIBERATELY OMITTED, Tier-B scope — non-büyükşehir, no 6360 note).
     //    Kızılırmak yukarı havzası, Türkiye'nin en yüksek il merkezlerinden biri (1.294 m) +
@@ -4767,6 +5063,7 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSB,
     climateClassTr: CLIMATE_CLASS_CSB_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CSB_TR,
+    climateCurriculumNameTr: CURRICULUM_IC_ANADOLU,
     // ── Yozgat deep content (wave-6a Tier-B). 6-field set (hydrographyFeatures +
     //    settlementNoteTr omitted, Tier-B). Yozgat Çamlığı = Türkiye'nin ilk milli parkı
     //    (5 Şubat 1958). introTr opening re-sequenced by fact-check so it does NOT share
@@ -4812,6 +5109,7 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_IC_ANADOLU,
     // ── Kırşehir deep content (wave-6a Tier-B). 6-field set (hydrographyFeatures +
     //    settlementNoteTr omitted, Tier-B). Ahilik merkezi + Kaman-Kalehöyük (intro);
     //    Hirfanlı Baraj Gölü + Seyfe Gölü (1994 Ramsar, ~320.000 flamingo). net göç -4,57 ‰;
@@ -4859,6 +5157,7 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_IC_ANADOLU,
     // ── Nevşehir deep content (wave-6a Tier-B). 6-field set (hydrographyFeatures +
     //    settlementNoteTr omitted, Tier-B). Kapadokya peribacaları + Göreme Milli Parkı 1985
     //    UNESCO + Derinkuyu/Kaymaklı yeraltı şehirleri; İç Anadolu'nun en kurak illerinden
@@ -4906,6 +5205,7 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_BSK,
     climateClassTr: CLIMATE_CLASS_BSK_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_BSK_TR,
+    climateCurriculumNameTr: CURRICULUM_IC_ANADOLU,
     // ── Niğde deep content (wave-6a Tier-B). 6-field set (hydrographyFeatures +
     //    settlementNoteTr omitted, Tier-B). Patates üretiminde Türkiye 1.si (2024 rekoltesi
     //    >1 milyon ton) + Hasan Dağı (kuzey volkanik) / Bolkar-Aladağlar (güney Toros).
@@ -4952,6 +5252,7 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_BSK,
     climateClassTr: CLIMATE_CLASS_BSK_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_BSK_TR,
+    climateCurriculumNameTr: CURRICULUM_IC_ANADOLU,
     // ── Aksaray deep content (wave-6a Tier-B). 6-field set (hydrographyFeatures +
     //    settlementNoteTr omitted, Tier-B). Ihlara Vadisi + Tuz Gölü güneybatı kıyısı (intro);
     //    Hasan Dağı volkanik tüf + Melendiz Çayı'nın oyduğu kanyon. net göç -2,10 ‰;
@@ -5000,6 +5301,7 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_BSK,
     climateClassTr: CLIMATE_CLASS_BSK_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_BSK_TR,
+    climateCurriculumNameTr: CURRICULUM_IC_ANADOLU,
     // ── Karaman deep content (wave-6a Tier-B). 6-field set (hydrographyFeatures +
     //    settlementNoteTr omitted, Tier-B). 1989'da Konya'dan ayrıldı + Karamanoğulları +
     //    Karadağ/Binbirkilise; step-Toros geçiş kuşağı; Ermenek Çayı (Akdeniz havzası).
@@ -5048,6 +5350,7 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_BSK,
     climateClassTr: CLIMATE_CLASS_BSK_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_BSK_TR,
+    climateCurriculumNameTr: CURRICULUM_IC_ANADOLU,
     // ── Kırıkkale deep content (wave-6a Tier-B). 6-field set (hydrographyFeatures +
     //    settlementNoteTr omitted, Tier-B). 1925 Top ve Tüfek Fabrikası ile kurulan planlı
     //    savunma sanayii şehri (MKE); Kızılırmak + Delice Irmağı. net göç -11,58 ‰;
@@ -5091,6 +5394,7 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CFA,
     climateClassTr: CLIMATE_CLASS_CFA_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
+    climateCurriculumNameTr: CURRICULUM_IC_ANADOLU,
     // ── Çankırı deep content (wave-6a Tier-B). 6-field set (hydrographyFeatures +
     //    settlementNoteTr omitted, Tier-B). Karadeniz'e geçiş kuşağı (Cfa) + Kaya Tuzu
     //    Mağarası; Ilgaz Dağı Milli Parkı (Büyükhacet 2.587 m) + tuz/jips platosu;
@@ -5209,6 +5513,13 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_KARADENIZ,
+    climateCurriculumNoteTr:
+      "Amasya, Karadeniz Bölgesi'nin iç kesiminde, Yeşilırmak vadisinin açtığı koridordadır. " +
+      'Ders kitabı haritasında Karadeniz iklimi alanının iç sınırına çok yakın okunur; sınırın ' +
+      'hemen güneyi İç Anadolu karasal iklimi alanıdır. Haritanın ölçeği bu sınırı il düzeyinde ' +
+      'kesinleştirmeye elvermez. Sayfadaki ad ilin bölge içindeki konumuna dayanır. Aynı sınır ' +
+      'kuşağındaki doğu komşusu Tokat da bu adı alır.',
     // ── Amasya deep content (wave-6c plain Tier-B). 6-field set (hydrographyFeatures +
     //    settlementNoteTr DELIBERATELY OMITTED → null, Tier-B scope). urbanizationRate=75.80 is
     //    a REAL rate (non-büyükşehir) and the highest Tier-B rate of the batch; net göç -1,65 is
@@ -5257,6 +5568,7 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CFB,
     climateClassTr: CLIMATE_CLASS_CFB_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFB_TR,
+    climateCurriculumNameTr: CURRICULUM_KARADENIZ,
     // ── Artvin deep content (wave-6c plain Tier-B). The platform's FIRST Cfb il (→ "Karadeniz
     //    iklimi", same label as Cfa, DEC 2026-07-12). 6-field set (hydrographyFeatures +
     //    settlementNoteTr null). urbanizationRate=65.27 REAL; net göç -16,00; GSYH share %0,1.
@@ -5305,6 +5617,14 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_DSB,
     climateClassTr: CLIMATE_CLASS_D_GROUP_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_DSB_TR,
+    climateCurriculumNameTr: CURRICULUM_DOGU_ANADOLU,
+    climateCurriculumNoteTr:
+      "Bayburt idari olarak Karadeniz Bölgesi'ndedir, iklim adı ise Doğu Anadolu'yu anar. İki " +
+      "sınıflandırma burada aynı yönü gösterir: MGM'nin Köppen kodu da ili kışı şiddetli karasal " +
+      "gruba koyar. İl merkezi 1.584 metre yükseklikte, Çoruh'un yukarı havzasındadır. Adı " +
+      'belirsiz bırakan tek nokta, ders kitabı haritasında ilin iki alanın sınırında ' +
+      "okunmasıdır. Kuzey Anadolu Dağları'nın güney yüzündeki batı komşusu Gümüşhane de aynı adı " +
+      'paylaşır.',
     // ── Bayburt deep content (wave-6c plain Tier-B). The platform's FIRST Dsb / "D" main-group il
     //    (→ "Karasal iklim", DEC 2026-07-12). 6-field set (hydrographyFeatures + settlementNoteTr
     //    null). urbanizationRate=65.95 REAL; net göç -35,16 is the platform's 2ND-largest magnitude
@@ -5355,6 +5675,7 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CFA,
     climateClassTr: CLIMATE_CLASS_CFA_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
+    climateCurriculumNameTr: CURRICULUM_KARADENIZ,
     // ── Giresun deep content (wave-6c plain Tier-B, Cfa). 6-field set (hydrographyFeatures +
     //    settlementNoteTr null). urbanizationRate=67.73 REAL; net göç -12,17; GSYH share %0,3.
     landformNoteTr:
@@ -5400,6 +5721,13 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSB,
     climateClassTr: CLIMATE_CLASS_CSB_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CSB_TR,
+    climateCurriculumNameTr: CURRICULUM_DOGU_ANADOLU,
+    climateCurriculumNoteTr:
+      'MGM Karadeniz iklimini kıyı şeridi ile dağların kuzeye bakan kesimlerinde tanımlar. ' +
+      "Gümüşhane bu sıradağların güney yüzünde kaldığı için, Karadeniz Bölgesi'nde bulunmasına " +
+      "karşın Doğu Anadolu'nun karasal iklim alanına girer. Ders kitabı haritası ili iki alanın " +
+      'tam sınırında gösterir; 1.216 metredeki il merkezi ve güneydeki Kelkit yaylası ile ' +
+      'karasal taraf ağır basar. Aynı ad, doğu komşusu Bayburt için de kullanılır.',
     // ── Gümüşhane deep content (wave-6c plain Tier-B, Csb — the wave-3 third class). 6-field set
     //    (hydrographyFeatures + settlementNoteTr null). urbanizationRate=61.03 REAL and the LOWEST
     //    of the batch; net göç -42,80 is the platform's LARGEST-magnitude value (new record). GSYH
@@ -5450,6 +5778,7 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CFA,
     climateClassTr: CLIMATE_CLASS_CFA_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
+    climateCurriculumNameTr: CURRICULUM_KARADENIZ,
     // ── Ordu deep content (wave-6c Tier-B + büyükşehir EXCEPTION → DEC 2026-07-12, same as Mardin).
     //    Tier-B depth (hydrographyFeatures null) BUT legally büyükşehir, so urbanizationRate=100 is
     //    the 6360 legal artifact and carries a settlementNoteTr holding ONLY the single 6360 caveat
@@ -5506,6 +5835,7 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CFA,
     climateClassTr: CLIMATE_CLASS_CFA_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
+    climateCurriculumNameTr: CURRICULUM_KARADENIZ,
     // ── Rize deep content (wave-6c plain Tier-B, Cfa). 6-field set (hydrographyFeatures +
     //    settlementNoteTr null). urbanizationRate=68.02 REAL; net göç -11,87; GSYH share %0,3.
     //    Türkiye's rainiest il — the natural condition for its tea agriculture.
@@ -5563,6 +5893,7 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CFA,
     climateClassTr: CLIMATE_CLASS_CFA_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_CFA_TR,
+    climateCurriculumNameTr: CURRICULUM_KARADENIZ,
     // ── Samsun deep content (wave-6c Tier-A — the batch's SOLE ≥1M il). FULL 8-field set incl.
     //    hydrographyFeatures. Büyükşehir → urbanizationRate=100 is the 6360 artifact, framed in a
     //    FULL settlementNoteTr (unlike the Trabzon/Ordu minimal-caveat exception). netMigrationRate
@@ -5631,6 +5962,7 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
+    climateCurriculumNameTr: CURRICULUM_KARADENIZ,
     // ── Trabzon deep content (wave-6c Tier-B + büyükşehir EXCEPTION → DEC 2026-07-12, same as
     //    Mardin/Ordu). Tier-B depth (hydrographyFeatures null) BUT legally büyükşehir, so
     //    urbanizationRate=100 is the 6360 artifact and carries a settlementNoteTr holding ONLY the

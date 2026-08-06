@@ -8,7 +8,9 @@ import { DataSource } from 'typeorm';
 import { applyGlobalPrefix } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import {
+  assertCurriculumMappingInvariant,
   assertKoppenCaveatInvariant,
+  isUnexpectedRegionPair,
   seedGeography,
   type SeedGeographyResult,
 } from '../src/database/seeds/seed-geography';
@@ -16,6 +18,7 @@ import {
 // phases below (a code-path input): empty→pilot then the full set, one representative
 // mixed transition rather than one phase per historical wave.
 import {
+  CURRICULUM_CLIMATE_NAMES_TR,
   PILOT_PROVINCES,
   SEED_PROVINCES,
   type ProvinceSeed,
@@ -167,6 +170,7 @@ describe('Province (e2e)', () => {
       'AddContinentAntarctica1785945600000',
       'AddCountryEntityType1785949200000',
       'AddCountryDetailSections1785952800000',
+      'AddProvinceClimateCurriculum1785974400000',
     ]);
   });
 
@@ -223,6 +227,129 @@ describe('Province (e2e)', () => {
     }
     const withNarrative = provinces.filter((province) => province.climateNarrativeTr !== null);
     expect(withNarrative).toHaveLength(CLIMATE_NARRATIVE_PLATES.size);
+  });
+
+  it('serves a curriculum climate name for every province, from the closed vocabulary', async () => {
+    // STRUCTURAL, not per-il (→ CONVENTIONS §2): no `it()` here says "Ankara is İç Anadolu
+    // karasal". The mapping's own correctness is checked against its source by the M1 lane
+    // (`oneoff-m1-province-curriculum.ts check`), which is where a wrong NAME belongs; this
+    // proves the column survives the migration + entity mapping + the seed round-trip, and
+    // that no row can reach Postgres carrying a name outside the eight.
+    const rows = await dataSource.getRepository(Province).find();
+    const vocabulary = new Set<string>(CURRICULUM_CLIMATE_NAMES_TR);
+
+    expect(rows).toHaveLength(81);
+    for (const row of rows) {
+      // The header the web renders pairs the two; a Köppen code without a name renders half.
+      if (row.climateKoppen !== null && row.climateKoppen !== '') {
+        expect(typeof row.climateCurriculumNameTr).toBe('string');
+        expect(vocabulary.has(row.climateCurriculumNameTr ?? '')).toBe(true);
+      }
+    }
+    // Every one of the eight names is actually IN USE. A vocabulary entry no row carries is
+    // either a dead constant or, far worse, a rename that silently emptied a class — and the
+    // membership loop above cannot see either, because "no row uses it" passes it trivially.
+    const used = new Set(rows.map((row) => row.climateCurriculumNameTr));
+    for (const name of CURRICULUM_CLIMATE_NAMES_TR) expect(used.has(name)).toBe(true);
+  });
+
+  it('serves an explanation note for every out-of-region name, and for at least 15 rows', async () => {
+    // The structural form of DEC 2026-08-05f #4, expressed through the same
+    // `isUnexpectedRegionPair` table the seed invariant uses — so this asserts the RULE holds
+    // end to end (seed -> Postgres -> entity), not a list of province names.
+    const rows = await dataSource.getRepository(Province).find();
+    const seedByPlate = new Map(SEED_PROVINCES.map((seed) => [seed.plateCode, seed]));
+
+    const unexpected = rows.filter((row) => {
+      const seed = seedByPlate.get(row.plateCode);
+      return seed !== undefined && isUnexpectedRegionPair(seed);
+    });
+    // FLOOR, not equality (the PR #96 precedent): growth is free, SHRINKAGE is the danger. If a
+    // future rename moved a province into an "expected" pair the loop below would quietly check
+    // fewer rows, with no failure anywhere. The floor therefore TRACKS the set: today's set is
+    // EIGHT (brief §6, Denizli added by DEC 2026-08-06b), so the floor is eight. Leaving it at
+    // the seven this guard shipped with would have left room for exactly one province to drop
+    // out unnoticed — which is the failure the floor exists to catch (→ PR #97 review, Atlas
+    // approved raising it). Raise it with the set whenever §6 grows.
+    expect(unexpected.length).toBeGreaterThanOrEqual(8);
+    for (const row of unexpected) {
+      expect(typeof row.climateCurriculumNoteTr).toBe('string');
+      expect((row.climateCurriculumNoteTr ?? '').trim().length).toBeGreaterThan(0);
+    }
+
+    // The eleven boundary-reading notes (DEC 2026-08-05f #3 + DEC 2026-08-06b) cannot be derived
+    // from the data — see `assertCurriculumMappingInvariant`'s docblock — so the only guard
+    // against them being dropped WHOLESALE is a floor count. Eleven boundary rows + eight
+    // out-of-region rows, four provinces in both = 15.
+    const withNote = rows.filter((row) => row.climateCurriculumNoteTr !== null);
+    expect(withNote.length).toBeGreaterThanOrEqual(15);
+    for (const row of withNote) {
+      // A note without a name is an orphan paragraph on the page — and an EMPTY name renders the
+      // same orphan, so the assertion is on content, not on the JS type (→ PR #97, TA97-M1).
+      expect((row.climateCurriculumNameTr ?? '').trim().length).toBeGreaterThan(0);
+      expect((row.climateCurriculumNoteTr ?? '').trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it('carries the shared A-2 sentence on every Köppen caveat, and only there', async () => {
+    // A-2 (→ AT-10 / Atlas AK-4) states the Köppen-vs-curriculum tension ONCE, class-level, for
+    // all 81 provinces — which is why Trabzon, Sinop and Çankırı need no per-province note. Two
+    // properties make that true, and both are asserted rather than assumed:
+    //   1. EVERY caveat carries it (otherwise the provinces relying on it are uncovered), and
+    //   2. it is CODE-AGNOSTIC — no Köppen code, no province name, no number. That is what lets
+    //      all eight caveat constants share one body, and it is precisely what keeps
+    //      `assertKoppenCaveatInvariant`'s "each note names its own code" check meaningful: if
+    //      this sentence named a code, every note would contain a code it does not belong to.
+    const rows = await dataSource.getRepository(Province).find();
+    const A2_OPENING = 'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları';
+    // THE WHOLE SENTENCE, not just its opening (→ PR #97 review, CR97-M6 / SFH97-M1). The
+    // derivation below can only prove the eight constants AGREE with each other, and the real
+    // append was one mechanical edit across all eight — the failure it cannot see is that same
+    // edit pasting a wrong-but-uniform text. No transcription lane covers shared constants by
+    // construction (they are not per-row prose), so this literal is the only place the A-2 text
+    // itself is pinned. It is class-level editorial copy, not a per-province fact, so pinning it
+    // does not collide with the "tests check structure, not facts" rule. Source of truth:
+    // `Owner's Inbox/koppen-sablon-gecisi/cumle-taslaklari.md` §3.
+    const A2_SENTENCE =
+      'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları iki ayrı sistemdir ' +
+      've her zaman örtüşmez: bir ilin Köppen kodu Akdeniz tipini gösterirken müfredat aynı ili ' +
+      'karasal ya da Karadeniz iklimi alanında sayabilir, tersi de görülür.';
+
+    expect(rows).toHaveLength(81);
+    const tails: string[] = [];
+    for (const row of rows) {
+      const note = row.climateNoteTr ?? '';
+      const at = note.indexOf(A2_OPENING);
+      expect(at).toBeGreaterThan(-1);
+      tails.push(note.slice(at));
+    }
+
+    // THE TAILS ARE NOT ALL EQUAL, and asserting that they were is what this case got wrong on
+    // its first CI run. Two provinces (Ankara, Van) append their OWN divergence sentence to the
+    // shared caveat, so their note continues past A-2. The property that actually matters is
+    // narrower and is the one asserted: the shared sentence is a common PREFIX of every tail,
+    // and anything after it is an APPENDED sentence — never an edit of the shared body.
+    const sentence = tails.reduce((shortest, tail) =>
+      tail.length <= shortest.length ? tail : shortest,
+    );
+    expect(sentence).toBe(A2_SENTENCE);
+    expect(sentence.endsWith('.')).toBe(true);
+    for (const tail of tails) {
+      expect(tail.startsWith(sentence)).toBe(true);
+      // A per-province appendix begins with the space that separates two sentences. Without
+      // this, a tail that merely started with the shared text but then RAN ON inside the same
+      // sentence would pass — which is the drift a per-class copy-paste actually produces.
+      if (tail.length > sentence.length) expect(tail[sentence.length]).toBe(' ');
+    }
+
+    // Code-agnostic, mechanically: no Köppen code and no digit anywhere in the shared sentence.
+    for (const code of ['Csa', 'Cfa', 'Csb', 'Cfb', 'Dfb', 'Dsb', 'Dsa', 'BSk']) {
+      expect(sentence).not.toContain(code);
+    }
+    expect(sentence).not.toMatch(/\d/u);
+    // …and it names no province (checked against the seed's own name list, so a future province
+    // rename cannot make this stale).
+    for (const seed of SEED_PROVINCES) expect(sentence).not.toContain(seed.nameTr);
   });
 
   it('phase 1 — seeding the pilot-5 into an empty DB inserts exactly those 5', () => {
@@ -344,6 +471,76 @@ describe('Province (e2e)', () => {
     expect(await repo.count()).toBe(81);
   });
 
+  it('re-seed detects a climateCurriculumNameTr drift and RESTORES it (isolates the new line)', async () => {
+    // Same isolation argument as the climateNarrativeTr case above, for the FIRST of the two
+    // comparator lines PR #97 added to `rowMatchesSeed`. Mutate ONLY the curriculum name and
+    // re-seed: without its comparison line every other field still matches, so the row would be
+    // counted `unchanged` and a corrected name would never reach the database — silently. The
+    // expected value is read from the seed, never written as a literal here, so this asserts the
+    // MECHANISM and states no per-province fact (→ CONVENTIONS §2).
+    const repo = dataSource.getRepository(Province);
+    const seed = SEED_PROVINCES.find((p) => p.plateCode === '34');
+    if (!seed) throw new Error('İstanbul seed (plate 34) not found');
+    // A different member of the same closed vocabulary — the realistic drift is a WRONG name,
+    // not a malformed one, and a wrong name is exactly what no structural invariant can see.
+    const wrong = CURRICULUM_CLIMATE_NAMES_TR.find((n) => n !== seed.climateCurriculumNameTr);
+    if (wrong === undefined) throw new Error('the closed vocabulary has fewer than two names');
+    await repo.update({ plateCode: '34' }, { climateCurriculumNameTr: wrong });
+
+    const result = await seedGeography(dataSource);
+    expect(result).toEqual({ inserted: 0, updated: 1, unchanged: 80, total: 81 });
+    expect((await repo.findOneByOrFail({ plateCode: '34' })).climateCurriculumNameTr).toBe(
+      seed.climateCurriculumNameTr,
+    );
+    // A genuine no-op on re-run — the restore must not churn `updated_at` forever.
+    expect(await seedGeography(dataSource)).toEqual({
+      inserted: 0,
+      updated: 0,
+      unchanged: 81,
+      total: 81,
+    });
+    expect(await repo.count()).toBe(81);
+  });
+
+  it('re-seed detects a climateCurriculumNoteTr drift in BOTH directions (comparator + omit⇒null)', async () => {
+    // The SECOND comparator line PR #97 added, and it needs both directions because the field is
+    // null on most rows by design: a province that HAS a note must have a corrupted note
+    // refreshed, and a province whose note is null by design must have a spurious note CLEARED
+    // (the `withExplicitDetailNulls` half — without it TypeORM's merge would leave the stale
+    // value and re-flag the row `updated` on every future re-seed). One test, two rows, so the
+    // counts themselves prove both lines fired. Plates are taken from the seed by PROPERTY (has
+    // a note / has none), not hard-coded, so a later wave that moves notes around cannot make
+    // this case silently test the same direction twice.
+    const repo = dataSource.getRepository(Province);
+    const withNote = SEED_PROVINCES.find(
+      (p) => typeof p.climateCurriculumNoteTr === 'string' && p.climateCurriculumNoteTr !== '',
+    );
+    const withoutNote = SEED_PROVINCES.find(
+      (p) => p.climateCurriculumNoteTr === undefined || p.climateCurriculumNoteTr === null,
+    );
+    if (!withNote || !withoutNote) throw new Error('need one province with a note and one without');
+
+    await repo.update({ plateCode: withNote.plateCode }, { climateCurriculumNoteTr: 'DRIFTED' });
+    await repo.update({ plateCode: withoutNote.plateCode }, { climateCurriculumNoteTr: 'DRIFTED' });
+
+    const result = await seedGeography(dataSource);
+    expect(result).toEqual({ inserted: 0, updated: 2, unchanged: 79, total: 81 });
+
+    expect(
+      (await repo.findOneByOrFail({ plateCode: withNote.plateCode })).climateCurriculumNoteTr,
+    ).toBe(withNote.climateCurriculumNoteTr);
+    expect(
+      (await repo.findOneByOrFail({ plateCode: withoutNote.plateCode })).climateCurriculumNoteTr,
+    ).toBeNull();
+    expect(await seedGeography(dataSource)).toEqual({
+      inserted: 0,
+      updated: 0,
+      unchanged: 81,
+      total: 81,
+    });
+    expect(await repo.count()).toBe(81);
+  });
+
   it('GET /api/provinces returns all 81, plate-ordered, lean (no detail leak)', async () => {
     const res = await request(app.getHttpServer()).get('/api/provinces').expect(200);
     const body = res.body as Array<Record<string, unknown>>;
@@ -446,6 +643,12 @@ describe('Province (e2e)', () => {
     expect(body[0]).not.toHaveProperty('population');
     expect(body[0]).not.toHaveProperty('latitude');
     expect(body[0]).not.toHaveProperty('climateNoteTr');
+    // The müfredat fields are DETAIL-ONLY (Atlas ruling AK-2): the il hub renders no climate
+    // header, so adding them here would widen a projection PR #67 deliberately kept lean. If a
+    // later product decision puts the name on the hub, this line is where the decision is made
+    // visible — not a place to delete quietly.
+    expect(body[0]).not.toHaveProperty('climateCurriculumNameTr');
+    expect(body[0]).not.toHaveProperty('climateCurriculumNoteTr');
     // The W2.1 derived field is PRESENT on every row and, since this suite seeds geography
     // WITHOUT loading any climate series, is null for all 81 — the genuine "seeded, no
     // publishable series" state (distinct from the climate-contract suite's manufactured null).
@@ -697,6 +900,18 @@ describe('Province (e2e)', () => {
       slugEn: sample.slugEn,
       nameTr: sample.nameTr,
     });
+    // The two müfredat fields are on the DETAIL payload (Atlas ruling AK-2 keeps them off the
+    // list and map-summary DTOs). Asserted as the CONTRACT — both keys present, values equal to
+    // the row, note allowed to be null — so no per-il fact is hardcoded and the "web reads the
+    // parts and composes the header itself" agreement cannot silently lose a part.
+    const detail = res.body as Record<string, unknown>;
+    expect(detail).toHaveProperty('climateCurriculumNameTr');
+    expect(detail).toHaveProperty('climateCurriculumNoteTr');
+    expect(detail['climateCurriculumNameTr']).toBe(sample.climateCurriculumNameTr);
+    expect(detail['climateCurriculumNoteTr']).toBe(sample.climateCurriculumNoteTr);
+    // The API never publishes a pre-joined "<ad> · Köppen: <kod>" string — the separator and the
+    // typography are the web's decisions and differ in EN (plan-api §1.5).
+    expect(sample.climateCurriculumNameTr ?? '').not.toContain('Köppen');
   });
 
   /**
@@ -845,6 +1060,10 @@ describe('assertKoppenCaveatInvariant', () => {
     // The caveat must NAME its own code (correspondence check) — a real caveat always
     // does ("…bu ili Csa …"), so the fixture mirrors that, not a code-free stub.
     climateNoteTr: "MGM'nin 2023 Köppen sınıflandırması bu ili Csa olarak verir (uyarı).",
+    // Required on the seed since the müfredat wave. Marmara + "Marmara geçiş iklimi" is an
+    // EXPECTED pair, so this fixture needs no explanation note — chosen so the Köppen block
+    // below keeps testing only what it is about.
+    climateCurriculumNameTr: 'Marmara geçiş iklimi',
     landformNoteTr: null,
   };
 
@@ -1025,6 +1244,163 @@ describe('assertKoppenCaveatInvariant', () => {
     expect(() =>
       assertKoppenCaveatInvariant([{ ...VALID_SEED, climateKoppen: '', climateNoteTr: '' }]),
     ).not.toThrow();
+  });
+
+  /**
+   * A SECOND invariant, deliberately not an extension of the one above — the Köppen caveat
+   * guards MGM's attributed quotation (K1, → DEC 2026-08-04a), the müfredat mapping guards OUR
+   * editorial layer, and one failure message must not answer for two authorities.
+   *
+   * NESTED INSIDE the Köppen suite rather than beside it, so it can reuse that suite's
+   * `VALID_SEED` fixture and the two blocks cannot drift apart. Jest therefore reports these
+   * cases as `assertKoppenCaveatInvariant > assertCurriculumMappingInvariant > …` — noted
+   * because the report path reads like one invariant owns the other, which it does not
+   * (→ PR #97 review, CR97-M7; un-nesting would mean hoisting the fixture and re-indenting
+   * ~130 lines for a naming-only gain).
+   */
+  describe('assertCurriculumMappingInvariant', () => {
+    // Ege + "İç Anadolu karasal iklimi": an OUT-OF-REGION pair, i.e. the shape that requires a
+    // note. Built from the same fixture so the two blocks cannot drift apart.
+    const OUT_OF_REGION: ProvinceSeed = {
+      ...VALID_SEED,
+      region: GeographicRegion.Ege,
+      climateCurriculumNameTr: 'İç Anadolu karasal iklimi',
+      climateCurriculumNoteTr: 'Bölge dışı adın gerekçesi.',
+    };
+
+    it('passes the clean case (expected pair, no note needed)', () => {
+      expect(() => assertCurriculumMappingInvariant([VALID_SEED])).not.toThrow();
+    });
+
+    it('passes an out-of-region pair that carries its explanation note', () => {
+      expect(() => assertCurriculumMappingInvariant([OUT_OF_REGION])).not.toThrow();
+    });
+
+    /** An empty name is only reachable past the union type by an explicit cast — as here. */
+    const NAMELESS: ProvinceSeed = {
+      ...VALID_SEED,
+      climateCurriculumNameTr: '' as ProvinceSeed['climateCurriculumNameTr'],
+    };
+
+    it('throws when a Köppen code carries no curriculum name (a half-rendered header)', () => {
+      expect(() => assertCurriculumMappingInvariant([NAMELESS])).toThrow(
+        /has Köppen code Csa but no curriculum climate name/u,
+      );
+    });
+
+    it('throws on a PADDED canonical name (the raw value is compared, not a trimmed copy)', () => {
+      // Reachable only past the union by a cast — which is exactly the caller rule 2 guards.
+      // Before PR #97's review fix the membership test trimmed while `isUnexpectedRegionPair`
+      // did not, so a padded name passed the vocabulary check, was written to the column WITH
+      // its padding, and separately false-flagged the row as out-of-region (CR97-M3).
+      expect(() =>
+        assertCurriculumMappingInvariant([
+          {
+            ...VALID_SEED,
+            climateCurriculumNameTr:
+              'Marmara geçiş iklimi ' as ProvinceSeed['climateCurriculumNameTr'],
+          },
+        ]),
+      ).toThrow(/is not one of the eight/u);
+    });
+
+    it('throws on a name outside the closed vocabulary (the runtime half of the union)', () => {
+      // The union type cannot see a value produced by a cast or a plain-JS caller; this can.
+      // A near-miss spelling is the realistic case, so the fixture uses one.
+      expect(() =>
+        assertCurriculumMappingInvariant([
+          {
+            ...VALID_SEED,
+            climateCurriculumNameTr:
+              'İç Anadolu Karasal İklimi' as ProvinceSeed['climateCurriculumNameTr'],
+          },
+        ]),
+      ).toThrow(/is not one of the eight/u);
+    });
+
+    it('throws when an out-of-region pair has NO explanation note (DEC 2026-08-05f #4)', () => {
+      expect(() =>
+        assertCurriculumMappingInvariant([{ ...OUT_OF_REGION, climateCurriculumNoteTr: null }]),
+      ).toThrow(/out-of-region pair and MUST carry climateCurriculumNoteTr/u);
+    });
+
+    it('throws when the note is present but whitespace-only (an empty paragraph on the page)', () => {
+      expect(() =>
+        assertCurriculumMappingInvariant([{ ...VALID_SEED, climateCurriculumNoteTr: '   ' }]),
+      ).toThrow(/present but whitespace-only/u);
+    });
+
+    it('does NOT demand a note for an expected pair (the rule is out-of-region, not "always")', () => {
+      // Guards the guard: if `EXPECTED_REGION_PAIRS` were ever emptied "to be safe", every one
+      // of the 81 rows would demand a note and the seed would abort — a failure that looks like
+      // a data problem while being a table problem.
+      expect(() =>
+        assertCurriculumMappingInvariant([{ ...VALID_SEED, climateCurriculumNoteTr: null }]),
+      ).not.toThrow();
+    });
+
+    it('reports EVERY offending row in one message, not just the first', () => {
+      // A seed run should be fixable in one pass; naming one row per run is how a batch defect
+      // becomes N review cycles. Same posture as the Köppen invariant's joined list.
+      expect(() =>
+        assertCurriculumMappingInvariant([
+          { ...NAMELESS, plateCode: '97', nameTr: 'Bir' },
+          { ...NAMELESS, plateCode: '98', nameTr: 'İki' },
+        ]),
+      ).toThrow(/97 Bir[\s\S]*98 İki/u);
+    });
+  });
+
+  describe('isUnexpectedRegionPair', () => {
+    it('treats a sub-area name as belonging to its parent region (Trakya, Göller Yöresi)', () => {
+      // Both look "out of region" to a naive label comparison and are NOT: Trakya is part of the
+      // Marmara region and Göller Yöresi part of the Akdeniz region. This is the case the
+      // two-part exemption test in `EXPECTED_REGION_PAIRS` exists to settle.
+      expect(
+        isUnexpectedRegionPair({
+          ...VALID_SEED,
+          region: GeographicRegion.Marmara,
+          climateCurriculumNameTr: 'Trakya karasal iklimi',
+        }),
+      ).toBe(false);
+      expect(
+        isUnexpectedRegionPair({
+          ...VALID_SEED,
+          region: GeographicRegion.Akdeniz,
+          climateCurriculumNameTr: 'Göller Yöresi geçiş iklimi',
+        }),
+      ).toBe(false);
+    });
+
+    it('exempts the two source-backed cases (Ege→Akdeniz, Marmara→Karadeniz)', () => {
+      // Exemption 1: MGM assigns "Ege Bölgesi'nin büyük bir bölümü" to the Akdeniz type.
+      // Exemption 2: MGM's Karadeniz definition names "Marmara Bölgesi'nin Karadeniz kıyı
+      // kuşağı" outright. Neither is editorial taste; both are the source's own wording.
+      expect(
+        isUnexpectedRegionPair({
+          ...VALID_SEED,
+          region: GeographicRegion.Ege,
+          climateCurriculumNameTr: 'Akdeniz iklimi',
+        }),
+      ).toBe(false);
+      expect(
+        isUnexpectedRegionPair({
+          ...VALID_SEED,
+          region: GeographicRegion.Marmara,
+          climateCurriculumNameTr: 'Karadeniz iklimi',
+        }),
+      ).toBe(false);
+    });
+
+    it('flags a pair neither exemption covers', () => {
+      expect(
+        isUnexpectedRegionPair({
+          ...VALID_SEED,
+          region: GeographicRegion.GuneydoguAnadolu,
+          climateCurriculumNameTr: 'Akdeniz iklimi',
+        }),
+      ).toBe(true);
+    });
   });
 });
 

@@ -183,7 +183,12 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   invariants cannot detect a plausible-but-wrong value. This is a requirement on any new publishing
   line, not a claim that every existing line already satisfies it — the climate line's rule is
   written below; marine and air-quality carry their own acceptance criteria and are not audited
-  against this wording here.
+  against this wording here. **The rule is not about NUMBERS specifically — it is about any
+  per-row value derived from an external source**, because "plausible but wrong" is a property
+  of the derivation, not of the datatype. `climateCurriculumNameTr` (the MEB-curriculum climate
+  name, 81 provinces) is the first non-numeric line to need it: seeding one province the wrong
+  climate name satisfies every structural invariant and is still false on the page, so its
+  write-path check is the M1 mapping lane (§8).
   - **The climate line is `pnpm db:import:era5 --phase=fetch|load` (`src/database/era5/`)**, against
     a BINARY source (Copernicus CDS, ERA5-Land monthly means, NetCDF4/HDF5). It is the ONLY climate
     import; the retired MGM line (`db:import:climate`, `src/database/climate/`, `data/climate/`)
@@ -278,18 +283,22 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   route asserts the forbidden and unauthenticated paths, not only the happy path.
 - **Narrative-content seed PRs are transcribed by tool, never by hand.** Hand-typing prose
   into the `+`-concatenation idiom is what caused PR #43's dropped spaces — don't. There are
-  **THREE transcription lanes, and they are not interchangeable**; using the wrong one reports a
-  false green, because each lane can only see the seed file it knows about. The shared
-  exit-code contract lives in **three runner copies** (`country-runner.ts` +
-  `oneoff-province-climate-runner.ts` + `oneoff-province-prose-runner.ts`) driven by seven
-  entry points (`cli.ts`, `oneoff-n1`, `oneoff-n2`, `oneoff-p1`, `oneoff-p2`,
-  `oneoff-p3`, `oneoff-p4`) — a new
+  **FOUR verification lanes, and they are not interchangeable**; using the wrong one reports a
+  false green, because each lane can only see the seed file (and the field shape) it knows
+  about. Three are TRANSCRIPTION lanes (country / province climate / province prose); the
+  fourth (**M1, the müfredat mapping**) is a MAPPING lane and is described at the end of this
+  list — it exists because a value stored as a shared-constant REFERENCE is invisible to every
+  AST-folding byte-compare, and still needs the §5 fidelity rule. The shared
+  exit-code contract lives in **four runner copies** (`country-runner.ts` +
+  `oneoff-province-climate-runner.ts` + `oneoff-province-prose-runner.ts` +
+  `oneoff-province-curriculum-runner.ts`) driven by their entry points (`cli.ts`,
+  `oneoff-n1`, `oneoff-n2`, `oneoff-p1`…`oneoff-p5`, `oneoff-m1`) — a new
   lane author must replicate the same invariant, not assume one copy guards all. **The
   runner/entry-point split is structural, not stylistic:** the runner is deliberately
   `import.meta`-free so a CommonJS (ts-jest) spec can import it, and the entry point owns
   `import.meta.dirname`, argv and the usage banner. A refusal written into an entry point
-  cannot be pinned at all. **Direct-invocation guards in the four province-lane entry
-  points go through the shared, spec-pinned `isDirectInvocation` helper
+  cannot be pinned at all. **Direct-invocation guards in EVERY province-lane entry
+  point go through the shared, spec-pinned `isDirectInvocation` helper
   (`oneoff-province-climate-runner.ts`) — never a raw `import.meta.url ===
   pathToFileURL(argv[1])` compare, which silently no-ops the whole gate (exit 0, no
   output) on any symlinked path (PR #94 review, SFH94-I1).** The caller passes its
@@ -320,8 +329,9 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
     field-parametric, run directly with `node` exactly like the climate lane; shares the same
     exit-code contract via its own runner (`oneoff-province-prose-runner.ts`). The climate lane
     remains `climateNarrativeTr`-only. P1 (PR #92), P2 (PR #94, `hydrographyNoteTr`),
-    P3 (PR #95, now 19 fields / 16 provinces after the Mersin transfer) and P4 (PR #96,
-    13 fields) are the shipped precedents; each wave = its own committed entry point
+    P3 (PR #95, now 19 fields / 16 provinces after the Mersin transfer), P4 (PR #96,
+    13 fields) and P5 (the müfredat `climateCurriculumNoteTr`, 15 fields) are the shipped
+    precedents; each wave = its own committed entry point
     (Atlas ruling AS-3, option C). **Wave target lists live in the shared
     `import.meta`-free targets module (`oneoff-province-prose-targets` + its spec) —
     keyed on the `(plate, field)` PAIR. Ownership model (PR #96): exactly ONE wave owns
@@ -329,15 +339,32 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
     correction MOVES the entry (target list AND draft section together), never
     duplicates it; the CI-pinned invariants are non-overlap + the `HISTORICALLY_OWNED`
     superset (no pair ever ends up owned by no wave), NOT immutability.**
-  - **All THREE lanes share ONE exit-code contract** (below) and all three reuse the
-    property-tested lossless emitter, which is the part that actually kills the PR #43 bug
-    class. No entry point is wired into a CI job — the drafts live outside the repo, under
+  - **The müfredat MAPPING lane — `oneoff-m1-province-curriculum.ts`**, the §5 fidelity rule for
+    `climateCurriculumNameTr` (the MEB-curriculum climate name, 81 provinces). It is NOT a
+    transcription lane and deliberately does not reuse the emitter: the seed stores the value as
+    a reference to one of eight shared `CURRICULUM_*` constants — so a typo is a compile error,
+    and so no AST-folding byte-compare can see the value at all. Pointing a prose lane at it
+    reports `unfoldable`; pointing `pnpm seed:transcribe` at it reports the classic false green.
+    Instead it re-parses the SOURCE tables (`Owner's Inbox/koppen-mufredat-eslemesi/brief.md`
+    §3) and runs three joins against the committed seed: name→curriculum name for the NET rows,
+    the eleven `BELİRSİZ` rows against an explicit owner-ruling override table (checked in BOTH
+    directions, so a brief revision that resolves a row fails the now-stale override), and the
+    brief's Köppen column against `climateKoppen` 81/81 — which is the join that catches a
+    row-shifted table, the failure mode plausible names hide. `check` is the gate; `emit`
+    regenerates the 81 seed property lines so a reviewer can diff instead of eyeballing.
+  - **All FOUR lanes share ONE exit-code contract** (below); the three TRANSCRIPTION lanes also
+    reuse the property-tested lossless emitter, which is the part that actually kills the PR #43
+    bug class. No entry point is wired into a CI job — the sources live outside the repo, under
     `Owner's Inbox/` — so the reviewing code-reviewer still runs the matching command by hand.
     **Run the lane that owns the seed file the PR touches:** a province wave verified with
     `pnpm seed:transcribe` reports nothing wrong because that pipeline never reads
     `province.seed-data.ts` (this happened in a PR #70 review).
-  - **The three shells also share FOUR REFUSALS, and a new lane must carry all four**
-    (PR #93, Atlas ruling AS-7). Each is a false green somebody reproduced, not a
+  - **The shells also share FOUR REFUSALS, and a new lane must carry all four**
+    (PR #93, Atlas ruling AS-7) — or state, at the refusal's site, why it has no analogue.
+    (The M1 lane carries 1-3 verbatim; refusal 4 has no analogue there because that lane
+    reconstructs nothing from multiple lines, so no join heuristic exists to agree with itself.
+    "No analogue" is only acceptable when it is written down where the next reader will look.)
+    Each is a false green somebody reproduced, not a
     hypothetical: (1) **nothing expected** — an empty wave target list fails instead of
     printing "checked 0". The country lane, which has no wave target table, additionally
     refuses a draft it understood no field in; the province lanes have no twin of that

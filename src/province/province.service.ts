@@ -253,6 +253,8 @@ export class ProvinceService {
       climateKoppen: row.climateKoppen,
       climateClassTr: row.climateClassTr,
       climateNoteTr: row.climateNoteTr,
+      climateCurriculumNameTr: row.climateCurriculumNameTr,
+      climateCurriculumNoteTr: row.climateCurriculumNoteTr,
       climate: buildClimate(row.climateNormals, row.plateCode),
       climateNarrativeTr: row.climateNarrativeTr,
       landformNoteTr: row.landformNoteTr,

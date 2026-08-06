@@ -41,12 +41,22 @@
  *
  * `settlementNoteTr` / `economyNoteTr` / `governanceNoteTr` are the dalga-1 additions and sort
  * last, matching where their columns sit on the entity.
+ *
+ * `climateCurriculumNoteTr` joined in the P5 wave (the müfredat climate name). It is a
+ * PROVINCE-only field, added to a list the COUNTRY lane also reads — the same shape as
+ * `settlementNoteTr` (shared) and `independenceNoteTr` (country-only), so mixing is the
+ * established norm, not a new one. It costs the country lane nothing: no committed country
+ * draft carries an `### \`climateCurriculumNoteTr\`` header, so `apply` and `check` see no new
+ * work anywhere in that corpus, and the insertion-anchor chain is unchanged because the new
+ * name only ever becomes an anchor candidate for a field no country row has. It sorts right
+ * after `climateNoteTr`, which is where its column sits on the province entity.
  */
 export const NARRATIVE_FIELDS = [
   'independenceNoteTr',
   'introTr',
   'landformNoteTr',
   'climateNoteTr',
+  'climateCurriculumNoteTr',
   'hydrographyNoteTr',
   'sovereigntyNoteTr',
   'settlementNoteTr',

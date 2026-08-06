@@ -214,6 +214,7 @@ describe('Country (e2e)', () => {
       'AddContinentAntarctica1785945600000',
       'AddCountryEntityType1785949200000',
       'AddCountryDetailSections1785952800000',
+      'AddProvinceClimateCurriculum1785974400000',
     ]);
   });
 
