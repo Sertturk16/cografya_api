@@ -3,15 +3,19 @@
 Before task actions, read `ENGINEERING.md` completely. It is the provider-neutral,
 binding backend handbook.
 
-For shared process and product state, use the assigned task context manifest and read
-only its exact headings from:
+For shared process and product state, start from the assigned task context manifest. It
+routes you to:
 
 - the orchestration-root `ATLAS-OPERATIONS.md`
 - the orchestration-root `CONVENTIONS.md`
+- the orchestration-root `CONTENT-STYLE.md` for any reader-facing seeded narrative
 - the exact `TASKS.md` entry when task state matters
 - the root policy sections named by the manifest
 
-Never load full `CONVENTIONS.md`, `TASKS.md`, or history ledgers by default.
+The manifest is a starting point, not a ceiling. Read `CONVENTIONS.md` and `CONTENT-STYLE.md` as far as the task needs; economise on
+history ledgers by grepping the heading. **Reading more is not the failure mode; missing a
+binding rule is** (→ DEC 2026-08-06w). Any seeded narrative a reader sees obliges
+`CONTENT-STYLE.md`, cited or not.
 
 Codex-specific execution uses the `cografya_backend_dev` profile from
 the orchestration root's `.codex/agents/`. Deniz is the single writer. Never edit the sibling `cografya_web` repo; coordinate
