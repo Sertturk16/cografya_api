@@ -364,7 +364,8 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     //   türetildi (ris.gov.tw/app/en — "Dept. of Household Registration. Ministry of the
     //   Interior."), nova-q2-teyit.md §A.4 ile teyitli.
     populationSourceNameTr: 'Tayvan İçişleri Bakanlığı Nüfus Kayıt Dairesi',
-    populationSourceNameEn: "Taiwan's Ministry of the Interior, Department of Household Registration",
+    populationSourceNameEn:
+      "Taiwan's Ministry of the Interior, Department of Household Registration",
     areaKm2: 36_197,
     capitalNameTr: 'Taipei',
     capitalNameEn: 'Taipei',

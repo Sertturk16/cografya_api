@@ -20,6 +20,7 @@ import { AddContinentAntarctica1785945600000 } from './migrations/1785945600000-
 import { AddCountryEntityType1785949200000 } from './migrations/1785949200000-AddCountryEntityType';
 import { AddCountryDetailSections1785952800000 } from './migrations/1785952800000-AddCountryDetailSections';
 import { AddProvinceClimateCurriculum1785974400000 } from './migrations/1785974400000-AddProvinceClimateCurriculum';
+import { AddCountryPopulationSourceName1786060800000 } from './migrations/1786060800000-AddCountryPopulationSourceName';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -207,6 +208,7 @@ export function buildDataSourceOptions(
       AddCountryEntityType1785949200000,
       AddCountryDetailSections1785952800000,
       AddProvinceClimateCurriculum1785974400000,
+      AddCountryPopulationSourceName1786060800000,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,
