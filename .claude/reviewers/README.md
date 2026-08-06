@@ -21,5 +21,6 @@ These files contain the role-specific mandate and checklists only:
 
 Reviewers never modify code/content/state, delete files, run tests, or touch the
 consolidated report. Each may write only the unique raw recovery checkpoint Atlas
-assigns under `pr-reviews/`, and returns the same structured findings to Atlas. Atlas
-alone writes and checkpoints the consolidated `pr-reviews/{PR}.md` after every wave.
+assigns under `pr-reviews/`, and returns only the canonical policy's path/hash/count
+digest to Atlas. Atlas reads each full checkpoint once and alone writes/checkpoints the
+consolidated `pr-reviews/{PR}.md` after every wave.

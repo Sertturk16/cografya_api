@@ -3,12 +3,15 @@
 Before task actions, read `ENGINEERING.md` completely. It is the provider-neutral,
 binding backend handbook.
 
-For shared process and product state, also read:
+For shared process and product state, use the assigned task context manifest and read
+only its exact headings from:
 
 - the orchestration-root `ATLAS-OPERATIONS.md`
 - the orchestration-root `CONVENTIONS.md`
-- the orchestration-root `TASKS.md` when task state matters
-- the relevant root policy documents
+- the exact `TASKS.md` entry when task state matters
+- the root policy sections named by the manifest
+
+Never load full `CONVENTIONS.md`, `TASKS.md`, or history ledgers by default.
 
 Codex-specific execution uses the `cografya_backend_dev` profile from
 the orchestration root's `.codex/agents/`. Deniz is the single writer. Never edit the sibling `cografya_web` repo; coordinate
