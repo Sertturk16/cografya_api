@@ -266,10 +266,12 @@ describe('Province (e2e)', () => {
     });
     // FLOOR, not equality (the PR #96 precedent): growth is free, SHRINKAGE is the danger. If a
     // future rename moved a province into an "expected" pair the loop below would quietly check
-    // fewer rows, with no failure anywhere. Today's set is EIGHT (brief §6, Denizli added by
-    // DEC 2026-08-06b); the floor stays at seven, which is the number the owner-ruled §6 list
-    // stood at when the guard was written.
-    expect(unexpected.length).toBeGreaterThanOrEqual(7);
+    // fewer rows, with no failure anywhere. The floor therefore TRACKS the set: today's set is
+    // EIGHT (brief §6, Denizli added by DEC 2026-08-06b), so the floor is eight. Leaving it at
+    // the seven this guard shipped with would have left room for exactly one province to drop
+    // out unnoticed — which is the failure the floor exists to catch (→ PR #97 review, Atlas
+    // approved raising it). Raise it with the set whenever §6 grows.
+    expect(unexpected.length).toBeGreaterThanOrEqual(8);
     for (const row of unexpected) {
       expect(typeof row.climateCurriculumNoteTr).toBe('string');
       expect((row.climateCurriculumNoteTr ?? '').trim().length).toBeGreaterThan(0);
