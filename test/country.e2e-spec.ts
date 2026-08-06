@@ -13,6 +13,7 @@ import { Continent } from '../src/common/continent.enum';
 import { CountryEntityType } from '../src/common/country-entity-type.enum';
 import { Country } from '../src/country/entities/country.entity';
 import { computeNeighborCount } from '../src/country/country.service';
+import { DEFAULT_POPULATION_SOURCE_NAME } from '../src/country/population-source';
 import { INTERNAL_REQUEST_HEADER } from '../src/common/throttler/trusted-client';
 
 // 44-char dummy secret used ONLY to exercise the REAL trusted-client throttle exemption
@@ -39,9 +40,12 @@ const TEST_INTERNAL_TOKEN = 'e2e-trusted-client-token-0123456789-abcdefgh';
 
 // Synthetic fixtures — clearly non-real placeholder ISO alpha-2 codes (ZZ is a formally
 // user-assigned/reserved ISO 3166-1 code; ZX/ZY are unassigned — none is a real country):
-//   ZX — 1 neighbour, minimal optionals (base-data shape).
-//   ZY — island: EMPTY neighbour array (count 0), all optionals absent → null.
-//   ZZ — full: 2 neighbours + every optional set (round-trip / detail shape).
+//   ZX — 1 neighbour, minimal optionals (base-data shape), BUT carries a `population` with NO
+//     source-name override — the "kaynak-satırı micro" default-resolution branch (§6.3 case 2).
+//   ZY — island: EMPTY neighbour array (count 0), all optionals absent → null, incl. no
+//     `population` — the source-name null-invariant branch (§6.3 case 3).
+//   ZZ — full: 2 neighbours + every optional set (round-trip / detail shape), incl. a
+//     `populationSourceNameTr/En` OVERRIDE — the source-name override branch (§6.3 case 1).
 // ISO-ASC order is ZX, ZY, ZZ — the deterministic order the endpoints must return.
 // CONVENTION (keep this as real batches grow): this suite's synthetic fixtures use exactly
 // FIVE ISO 3166-1 private-use codes — ZX, ZY, ZZ (Z-block) and XA, XB (X-block) — none of
@@ -60,6 +64,9 @@ const ZX: CountrySeed = {
   slugEn: 'test-country-zx',
   continent: Continent.Asia,
   neighborIsoCodes: ['ZZ'],
+  // NO populationSourceNameTr/En override — proves the service falls back to the corpus
+  // default (kaynak-satırı §6.3 case 2). Synthetic value, no real country fact.
+  population: 2_000_000,
 };
 const ZY: CountrySeed = {
   isoCode: 'ZY',
@@ -82,6 +89,10 @@ const ZZ: CountrySeed = {
   unSubregionTr: 'Test Alt-Bölgesi',
   population: 1_000_000,
   populationYear: 2024,
+  // Synthetic override, no real institution — proves the row-level branch of
+  // `resolvePopulationSourceName` (kaynak-satırı §6.3 case 1).
+  populationSourceNameTr: 'Test Kurumu',
+  populationSourceNameEn: 'Test Institute',
   areaKm2: 500,
   areaIsApproximate: true,
   capitalNameTr: 'Test Başkenti',
@@ -215,6 +226,7 @@ describe('Country (e2e)', () => {
       'AddCountryEntityType1785949200000',
       'AddCountryDetailSections1785952800000',
       'AddProvinceClimateCurriculum1785974400000',
+      'AddCountryPopulationSourceName1786060800000',
     ]);
   });
 
@@ -498,6 +510,9 @@ describe('Country (e2e)', () => {
     // "not applicable" is ABSENT, never 0 — the guard's invariant 3, visible on the payload.
     expect(body.population).toBeNull();
     expect(body.independenceNoteTr).toBeNull();
+    // no population ⇒ no source name either (kaynak-satırı §6.3 case 3, mirrors AQ).
+    expect(body.populationSourceNameTr).toBeNull();
+    expect(body.populationSourceNameEn).toBeNull();
 
     // Clean up so the fixture-count assertions below still describe exactly 3 rows.
     await repo.delete({ isoCode: 'XA' });
@@ -530,6 +545,9 @@ describe('Country (e2e)', () => {
     expect(body[0]).not.toHaveProperty('statusLabelTr');
     expect(body[0]).not.toHaveProperty('statusLabelEn');
     expect(body[0]).not.toHaveProperty('areaIsApproximate');
+    // the kaynak-satırı fields are detail-only too (lean-projection rule, PR #67).
+    expect(body[0]).not.toHaveProperty('populationSourceNameTr');
+    expect(body[0]).not.toHaveProperty('populationSourceNameEn');
     expect(Object.keys(body[0] ?? {}).sort()).toEqual([
       'continent',
       'isoCode',
@@ -596,6 +614,10 @@ describe('Country (e2e)', () => {
     expect(zz).not.toHaveProperty('settlementNoteTr');
     expect(zz).not.toHaveProperty('economyNoteTr');
     expect(zz).not.toHaveProperty('governanceNoteTr');
+    // the kaynak-satırı source-name pair is detail-only too — the hover card never credits a
+    // source (§3 of the approved plan: `CountryMapSummaryDto` deliberately excludes it).
+    expect(zz).not.toHaveProperty('populationSourceNameTr');
+    expect(zz).not.toHaveProperty('populationSourceNameEn');
   });
 
   it('GET /api/countries/:slug round-trips transformers + derives neighborCount (full row)', async () => {
@@ -640,6 +662,23 @@ describe('Country (e2e)', () => {
     expect(body.entityType).toBe('country');
     expect(body.statusLabelTr).toBeNull();
     expect(body.statusLabelEn).toBeNull();
+    // kaynak-satırı §6.3 case 1 — a row WITH an override returns that override, verbatim, both
+    // locales, NOT the corpus default.
+    expect(body.populationSourceNameTr).toBe('Test Kurumu');
+    expect(body.populationSourceNameEn).toBe('Test Institute');
+  });
+
+  it('GET /api/countries/:slug resolves the corpus DEFAULT source name when the row carries none', async () => {
+    // ZX carries a population but no populationSourceNameTr/En override — kaynak-satırı §6.3
+    // case 2. Asserted against the EXPORTED constant (not a duplicated string literal) so this
+    // test cannot silently drift from `resolvePopulationSourceName`'s own source of truth.
+    const res = await request(app.getHttpServer()).get('/api/countries/test-ulkesi-zx').expect(200);
+    const body = res.body as Record<string, unknown>;
+
+    expect(body.isoCode).toBe('ZX');
+    expect(body.population).toBe(2_000_000);
+    expect(body.populationSourceNameTr).toBe(DEFAULT_POPULATION_SOURCE_NAME.tr);
+    expect(body.populationSourceNameEn).toBe(DEFAULT_POPULATION_SOURCE_NAME.en);
   });
 
   it('GET /api/countries/:slug resolves the EN slug too, and nulls serialise as null', async () => {
@@ -655,6 +694,10 @@ describe('Country (e2e)', () => {
     // every unset optional is null.
     expect(body.isoCodeAlpha3).toBeNull();
     expect(body.population).toBeNull();
+    // kaynak-satırı §6.3 case 3 — `population === null` ⇒ BOTH source-name locales null, never
+    // the corpus default. This is the ONE structural reason the DTO pair is nullable at all.
+    expect(body.populationSourceNameTr).toBeNull();
+    expect(body.populationSourceNameEn).toBeNull();
     expect(body.capitalNameTr).toBeNull();
     expect(body.capitalLatitude).toBeNull();
     expect(body.officialLanguagesTr).toBeNull();

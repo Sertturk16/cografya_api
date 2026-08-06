@@ -171,6 +171,7 @@ describe('Province (e2e)', () => {
       'AddCountryEntityType1785949200000',
       'AddCountryDetailSections1785952800000',
       'AddProvinceClimateCurriculum1785974400000',
+      'AddCountryPopulationSourceName1786060800000',
     ]);
   });
 

@@ -276,6 +276,68 @@ describe('invariant 7a — a non-country row still needs both localized slugs', 
   });
 });
 
+describe('invariant 10a — population source name is both-or-neither', () => {
+  it('REFUSES a row that sets only the TR or only the EN source name', () => {
+    expect(() =>
+      assertCountryEntityInvariants([{ ...CLEAN, populationSourceNameTr: 'Test Kurumu' }]),
+    ).toThrow(/only ONE locale/u);
+    expect(() =>
+      assertCountryEntityInvariants([{ ...CLEAN, populationSourceNameEn: 'Test Institute' }]),
+    ).toThrow(/only ONE locale/u);
+  });
+
+  it('REFUSES a whitespace-only value paired with a REAL value — blank does not count as filled', () => {
+    // Without `isBlank` (a plain existence check) this pairing would read as "both set" and slip
+    // through; `isBlank` correctly reads the whitespace side as unfilled, so the pair mismatches.
+    expect(() =>
+      assertCountryEntityInvariants([
+        { ...CLEAN, populationSourceNameTr: '   ', populationSourceNameEn: 'Test Institute' },
+      ]),
+    ).toThrow(/only ONE locale/u);
+  });
+
+  it('ACCEPTS a row with both locales set, or neither', () => {
+    expect(() => assertCountryEntityInvariants([CLEAN])).not.toThrow();
+    expect(() =>
+      assertCountryEntityInvariants([
+        {
+          ...CLEAN,
+          population: 1_000,
+          populationSourceNameTr: 'Test Kurumu',
+          populationSourceNameEn: 'Test Institute',
+        },
+      ]),
+    ).not.toThrow();
+  });
+});
+
+describe('invariant 10b — no population source name without a population', () => {
+  it('REFUSES a source name pair on a row with no population', () => {
+    expect(() =>
+      assertCountryEntityInvariants([
+        {
+          ...CLEAN_SPECIAL,
+          populationSourceNameTr: 'Test Kurumu',
+          populationSourceNameEn: 'Test Institute',
+        },
+      ]),
+    ).toThrow(/leaves population absent/u);
+  });
+
+  it('ACCEPTS a source name pair on a row that publishes a population', () => {
+    expect(() =>
+      assertCountryEntityInvariants([
+        {
+          ...CLEAN,
+          population: 1_000,
+          populationSourceNameTr: 'Test Kurumu',
+          populationSourceNameEn: 'Test Institute',
+        },
+      ]),
+    ).not.toThrow();
+  });
+});
+
 describe('assertCountryCorpusInvariants — invariants 6, 7b, 8 and 9', () => {
   // These are statements about the WHOLE published set, so they are tested over synthetic
   // corpora rather than being placed on the write path, where every legitimate partial batch

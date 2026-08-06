@@ -48,6 +48,8 @@ function rowMatchesSeed(row: Country, seed: CountrySeed): boolean {
     (row.unSubregionTr ?? null) === (seed.unSubregionTr ?? null) &&
     (row.population ?? null) === (seed.population ?? null) &&
     (row.populationYear ?? null) === (seed.populationYear ?? null) &&
+    (row.populationSourceNameTr ?? null) === (seed.populationSourceNameTr ?? null) &&
+    (row.populationSourceNameEn ?? null) === (seed.populationSourceNameEn ?? null) &&
     (row.areaKm2 ?? null) === (seed.areaKm2 ?? null) &&
     (row.capitalNameTr ?? null) === (seed.capitalNameTr ?? null) &&
     (row.capitalNameEn ?? null) === (seed.capitalNameEn ?? null) &&
@@ -98,6 +100,8 @@ function normalizeSeed(seed: CountrySeed): CountrySeed {
     unSubregionTr: seed.unSubregionTr ?? null,
     population: seed.population ?? null,
     populationYear: seed.populationYear ?? null,
+    populationSourceNameTr: seed.populationSourceNameTr ?? null,
+    populationSourceNameEn: seed.populationSourceNameEn ?? null,
     areaKm2: seed.areaKm2 ?? null,
     capitalNameTr: seed.capitalNameTr ?? null,
     capitalNameEn: seed.capitalNameEn ?? null,

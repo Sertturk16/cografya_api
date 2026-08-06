@@ -50,6 +50,16 @@ export interface CountrySeed {
   unSubregionTr?: string | null;
   population?: number | null;
   populationYear?: number | null;
+  /**
+   * Nüfus kaynağı override (TR/EN) — absent on ~186 rows (service resolves the corpus
+   * default, "Dünya Bankası" / "the World Bank"); populated only on the five rows whose
+   * `population` was NOT published by the World Bank (GL, CY, QN, TW, TR — see the file
+   * header PROVENANCE block). ALWAYS both-or-neither (guard rule 10, leg 1) and NEVER set
+   * on a row whose `population` is absent (guard rule 10, leg 2 — AQ). Values are
+   * transcribed byte-for-byte from `provenance/territories.md`, never invented.
+   */
+  populationSourceNameTr?: string | null;
+  populationSourceNameEn?: string | null;
   areaKm2?: number | null;
   capitalNameTr?: string | null;
   capitalNameEn?: string | null;
@@ -87,20 +97,25 @@ export interface CountrySeed {
  *   • Ad TR/EN + başkent TR/EN + ISO alpha-2/3  → T.C. Dışişleri Bakanlığı (MFA), 2026
  *   • Nüfus                                      → Dünya Bankası (World Bank) for the ordinary
  *       country rows — year DELIBERATELY NOT asserted at world scale (owner ruling, 2026-07-13).
- *       FOUR ROWS ARE NOT WORLD BANK, and this is by ruling, not by drift:
+ *       FIVE ROWS ARE NOT WORLD BANK, and this is by ruling, not by drift:
  *         - Grönland (GL)  56.740   → Grønlands Statistik, 1 Oca 2026 (DEC 2026-08-01l)
  *         - Kıbrıs (CY)    983.000  → CYSTAT, government-controlled area ONLY — deliberately
  *                                     NOT the World Bank whole-island 1,36 M (DEC 2026-07-13)
  *         - KKTC (QN)      489.308  → TRNC 2024 year-end revised projection; the World Bank
  *                                     publishes no series for an unrecognised state
  *         - Tayvan (TW) 23.299.132  → absent from `SP.POP.TOTL` altogether
- *       Georgia USED to be a fifth (Geostat) and was retired on 2026-08-05 once the World Bank
+ *         - Türkiye (TR) 86.092.168 → TÜİK ADNKS 2025 (Bülten no. 53899); no World Bank
+ *                                     `SP.POP.TOTL` vintage (2023/2024/2025) equals this figure
+ *                                     (found 2026-08-06, kaynak-satırı micro §1.3 — the same
+ *                                     defect class as the other four, previously unmeasured)
+ *       Georgia USED to be a sixth (Geostat) and was retired on 2026-08-05 once the World Bank
  *       series caught up and began publishing that exact figure — see the GE row.
- *       CONSEQUENCE, STATED PLAINLY BECAUSE IT IS STILL OPEN: the generic "Kaynak: Dünya
- *       Bankası" credit the pages render is therefore still WRONG on those four pages. Retiring
- *       Georgia's exception narrowed FENER47-I1; it did not close it. The corpus-wide credit
- *       fix is tracked by Atlas as its own item — do not read this block as "all rows are World
- *       Bank" (an earlier version of this comment claimed exactly that, and was false).
+ *       CLOSED, not merely tracked: the kaynak-satırı micro (2026-08-06, AK-8/AK-9) gave every
+ *       row above (plus every ordinary row) a `population_source_name_tr/en` pair the service
+ *       resolves at read time (`resolvePopulationSourceName`, `src/country/population-source.ts`)
+ *       — so the generic "Kaynak: Dünya Bankası" credit the pages render is no longer WRONG on
+ *       these five pages once `cografya_web`'s matching PR consumes the field. FENER47-I1 is
+ *       closed by this wave, not merely narrowed.
  *   • Yüzölçümü (km²)                            → Dünya Bankası (AG.LND.TOTL.K2, 2023)
  *   • Kıta + BM alt-bölgesi (M49)                → UNSD M49 standard
  *   • Komşu ülkeler, yönetim biçimi, para birimi, resmi dil, bağımsızlık, fiziki coğrafya

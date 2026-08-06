@@ -58,6 +58,11 @@ import type { CountrySeed } from '../country.seed-data';
  *   • `settlement/economy/governanceNoteTr` NULL, on purpose (SPEC §3.3). Those are the
  *     province layer's job, and leaving them empty is exactly what keeps this profile from
  *     becoming a duplicate of the `/turkiye` hub (DEC 2026-08-01j).
+ *   • `populationSourceNameTr/En` — kaynak-satırı micro (2026-08-06, AK-8 Q1): Türkiye is the
+ *     FIFTH `populationSourceName` exception (with GL/CY/QN/TW). The page previously credited
+ *     the generic corpus default ("Dünya Bankası") for a TÜİK figure — the same mis-credit
+ *     class DEC 2026-08-05j fixed on the other four rows, found by direct World Bank API
+ *     measurement (`SP.POP.TOTL`, TUR: no 2023/2024/2025 vintage equals 86.092.168).
  */
 export const TURKIYE_COUNTRY: readonly CountrySeed[] = [
   {
@@ -82,6 +87,12 @@ export const TURKIYE_COUNTRY: readonly CountrySeed[] = [
     unSubregionTr: 'Batı Asya',
     population: 86_092_168,
     populationYear: null,
+    // Kaynak-satırı istisnası (kaynak-satırı micro, 2026-08-06, AK-8 Q1): TÜİK ADNKS 2025,
+    //   Bülten no. 53899 — hiçbir World Bank SP.POP.TOTL vintage'ı bu değeri yayımlamaz
+    //   (ölçüldü, bkz. plan §1.3). İl sayfasının mevcut kredi biçimiyle (ProvinceDetail.sources)
+    //   birebir aynı — platform içi tutarlılık.
+    populationSourceNameTr: 'TÜİK (ADNKS)',
+    populationSourceNameEn: 'TÜİK (ADNKS)',
     areaKm2: 783_562,
     capitalNameTr: 'Ankara',
     capitalNameEn: 'Ankara',

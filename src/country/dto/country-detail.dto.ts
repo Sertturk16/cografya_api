@@ -100,6 +100,35 @@ export class CountryDetailDto {
   populationYear!: number | null;
 
   @ApiProperty({
+    type: String,
+    nullable: true,
+    example: 'Dünya Bankası',
+    description:
+      'Nüfus kaynağı (TR) — the institution `population` was published by, already ' +
+      'RESOLVED (sıradan satırlarda "Dünya Bankası", istisnalarda gerçek kurum adı). ' +
+      'CÜMLE İÇİ TAM BİÇİMDİR: sonda nokta yok, başta "Kaynak:" yok — doğrudan bir şablona ' +
+      '("… nüfus {populationSourceNameTr}; …") yerleştirilebilir. `null` ANCAK VE ANCAK ' +
+      '`population` de `null` ise gelir (bugün yalnız Antarktika) — bu durumda nüfus yan ' +
+      'cümlesi tamamen çıkarılmalı, "kaynak yok" yazılmamalı. İstemcide sabitlemeyin veya ' +
+      'kendi varsayılanınızı eklemeyin (`?? "Dünya Bankası"`) — tek doğruluk kaynağı burasıdır ' +
+      '(`areaIsApproximate` emsali).',
+  })
+  populationSourceNameTr!: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: 'the World Bank',
+    description:
+      'Nüfus kaynağı (EN) — `populationSourceNameTr` ile AYNI kural ve AYNI null-invaryantı. ' +
+      'İngilizce gereken artikel değerin İÇİNDEDİR (`the World Bank`, `the TRNC Statistical ' +
+      "Institute's 2024 projection`) — istemci artikel eklemez. Kurum adları ÇEVRİLMEZ; " +
+      "locale'e göre doğru ad zaten burada gelir (ör. `Grønlands Statistik` ↔ " +
+      '`Statistics Greenland`, kurumun kendi iki adı, bir çeviri çifti değil).',
+  })
+  populationSourceNameEn!: string | null;
+
+  @ApiProperty({
     type: Number,
     nullable: true,
     example: 783562,

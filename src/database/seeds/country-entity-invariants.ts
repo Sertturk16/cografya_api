@@ -50,7 +50,7 @@ import type { CountrySeed } from './country.seed-data';
  *
  * ## Two scopes, deliberately separated
  *
- *  - {@link assertCountryEntityInvariants} — ROW-level rules (1-5, 7a). True of any row in
+ *  - {@link assertCountryEntityInvariants} — ROW-level rules (1-5, 7a, 10a/10b). True of any row in
  *    isolation, therefore safe on the WRITE path: `seedWorld` accepts arbitrary batches (the
  *    e2e suite and any future partial re-seed pass their own), so this runs over whatever is
  *    actually about to be written, not only over the reviewed corpus.
@@ -227,6 +227,33 @@ export function assertCountryEntityInvariants(countries: readonly CountrySeed[])
         `${label(seed)} is entityType "${entityType}" but is missing a localized slug ` +
           `(slugTr ${JSON.stringify(seed.slugTr)}, slugEn ${JSON.stringify(seed.slugEn)}) — both ` +
           `locales need a routing key or the page cannot be generated.`,
+      );
+    }
+
+    // 10a — POPULATION SOURCE NAME IS BOTH-OR-NEITHER (kaynak-satırı micro). A row that sets
+    // only one locale would silently fall back to the corpus default in the OTHER locale —
+    // exactly the half-localized mis-credit DEC 2026-08-05j fixed on the TR page, reintroduced
+    // in EN. `isBlank`, not `isAbsent`: a whitespace-only override is not "the field is unset",
+    // it is a stored value that would render as blank credit copy.
+    if (isBlank(seed.populationSourceNameTr) !== isBlank(seed.populationSourceNameEn)) {
+      throw new CountrySeedInvariantError(
+        `${label(seed)} sets populationSourceNameTr/En on only ONE locale ` +
+          `(tr=${JSON.stringify(seed.populationSourceNameTr)}, ` +
+          `en=${JSON.stringify(seed.populationSourceNameEn)}) — a half-localized source name ` +
+          `falls back to the corpus default in the other locale, silently. Set both or neither.`,
+      );
+    }
+
+    // 10b — NO SOURCE NAME WITHOUT A POPULATION. A row whose `population` is absent publishes no
+    // "Nüfus" card at all (row-rule 3), so a source name on that row credits a figure the page
+    // never renders. Sibling of rule 3.
+    if (
+      (seed.population === null || seed.population === undefined) &&
+      (!isBlank(seed.populationSourceNameTr) || !isBlank(seed.populationSourceNameEn))
+    ) {
+      throw new CountrySeedInvariantError(
+        `${label(seed)} sets a populationSourceNameTr/En but leaves population absent — a row ` +
+          `with no published population credits no institution for one (mirrors row-rule 3).`,
       );
     }
   }
