@@ -6,12 +6,17 @@
  * "the 81 published names still correspond to their source", which is only worth anything if
  * its refusals are pinned.
  */
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
+
 import {
   BELIRSIZ_OVERRIDES,
   compare,
   parseBriefRows,
   parseCurriculumArgs,
   readSeedConstants,
+  runCurriculum,
   type BelirsizOverride,
   type BriefRow,
   type CommittedCurriculumRow,
@@ -249,28 +254,245 @@ describe('compare', () => {
   });
 
   it('matches names across diacritic spellings, both directions', () => {
-    // The seed writes `Hakkari` while sources write `Hakkâri`; the fold exists for exactly that.
+    // Sources spell some province names with a circumflex the seed drops; the fold exists for
+    // exactly that. The pair is SYNTHETIC on purpose — the real Hakkâri/Hakkari pair would put a
+    // province name into a fixture file that is otherwise entirely invented (→ PR #97, TA97-M2).
     const problems = compare(
-      [briefRow({ name: 'Hakkâri' })],
-      [seedRow({ plate: '30', nameTr: 'Hakkari' })],
+      [briefRow({ name: 'Örnekâbat' })],
+      [seedRow({ plate: '30', nameTr: 'Örnekabat' })],
       [OVERRIDE],
     );
     expect(problems.some((problem) => problem.includes('no seed row of that name'))).toBe(false);
   });
+
+  it('reports a province the brief lists TWICE, even when both copies agree with the seed', () => {
+    // The duplicate is invisible to every other join: both rows are compared against the same
+    // seed row, so agreeing copies produce a green while the brief claims the province twice.
+    const problems = compare([briefRow(), briefRow({ line: 42 })], [seedRow()], [OVERRIDE]);
+    expect(problems).toContain(
+      '  Alfa (brief line 42) — appears more than once in the §3 tables; the source must name ' +
+        'each province exactly once',
+    );
+  });
 });
 
 describe('BELIRSIZ_OVERRIDES', () => {
-  it('covers exactly the ten rows the brief leaves undecided, each with a ruling', () => {
+  it('covers exactly the eleven rows the brief leaves undecided, each with a ruling', () => {
     // Not a fact assertion: the SIZE and the shape are the wave's bookkeeping. A row silently
     // dropped here would make its BELİRSİZ brief row fail loudly — good — but a row ADDED here
     // for a province the brief resolved would quietly outrank its own source, which is the case
-    // `compare` reports as stale and this pins from the other side.
-    expect(BELIRSIZ_OVERRIDES).toHaveLength(10);
-    expect(new Set(BELIRSIZ_OVERRIDES.map((o) => o.name)).size).toBe(10);
+    // `compare` reports as stale and this pins from the other side. Eleven since DEC 2026-08-06b
+    // returned the Denizli row to BELİRSİZ.
+    expect(BELIRSIZ_OVERRIDES).toHaveLength(11);
+    expect(new Set(BELIRSIZ_OVERRIDES.map((o) => o.name)).size).toBe(11);
     for (const override of BELIRSIZ_OVERRIDES) {
       expect(override.ruling).toMatch(/^DEC \d{4}-\d{2}-\d{2}/u);
       expect(override.curriculumName.length).toBeGreaterThan(0);
     }
+  });
+});
+
+/**
+ * The ORCHESTRATOR, not the leaves — this is where the four shared refusals (ENGINEERING §8,
+ * Atlas ruling AS-7) and the exit-code contract actually live, and until PR #97's review nothing
+ * reached them: the cases above stop at `compare`/`parseBriefRows`, so a refusal reordered or
+ * deleted would compile, typecheck and leave `Test (unit)` green while the gate silently stopped
+ * gating (TA97-I1 / SFH97-I1). This lane is wired into NO CI job by design, so this suite is the
+ * only automated evidence the gate still refuses what it promises to refuse. Mirrors the sibling
+ * `runProse — the exit-code contract` suite.
+ *
+ * Every fixture is synthetic: invented province names, invented plate codes, invented values.
+ */
+describe('runCurriculum — the shared refusals and the exit-code contract', () => {
+  function writeTemp(name: string, contents: string): string {
+    const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'curriculum-runner-')), name);
+    fs.writeFileSync(file, contents, 'utf8');
+    return file;
+  }
+
+  /** A seed fixture shaped like the real one: the two compared fields are CONSTANT references. */
+  function writeSeed(
+    rows: readonly { plate: string; nameTr: string; koppen?: string; curriculum?: string }[],
+  ): string {
+    const literals = rows.map((row) => {
+      const parts = [
+        `    plateCode: ${JSON.stringify(row.plate)},`,
+        `    nameTr: ${JSON.stringify(row.nameTr)},`,
+      ];
+      if (row.koppen !== undefined) parts.push(`    climateKoppen: ${row.koppen},`);
+      if (row.curriculum !== undefined) {
+        parts.push(`    climateCurriculumNameTr: ${row.curriculum},`);
+      }
+      return `  {\n${parts.join('\n')}\n  },`;
+    });
+    return writeTemp(
+      'seed-fixture.ts',
+      [
+        "const KOPPEN_CSA = 'Csa';",
+        "const CURRICULUM_AKDENIZ = 'Akdeniz iklimi';",
+        "const CURRICULUM_MARMARA_GECIS = 'Marmara geçiş iklimi';",
+        `export const ROWS = [\n${literals.join('\n')}\n];`,
+        '',
+      ].join('\n'),
+    );
+  }
+
+  const SEEDED = [
+    { plate: '01', nameTr: 'Alfa', koppen: 'KOPPEN_CSA', curriculum: 'CURRICULUM_AKDENIZ' },
+    { plate: '02', nameTr: 'Beta', koppen: 'KOPPEN_CSA', curriculum: 'CURRICULUM_MARMARA_GECIS' },
+  ];
+
+  const AGREEING_BRIEF = briefWith(
+    '| Alfa | Akdeniz iklimi | Csa | K-1m | NET | = |',
+    '| Beta | **BELİRSİZ** — Marmara geçiş / Akdeniz | Csa | K-1m | BELİRSİZ | — |',
+  );
+
+  /** Run with stdout/stderr captured, so both the exit code and the report can be asserted. */
+  const runWithPaths = (
+    mode: 'emit' | 'check',
+    briefPaths: readonly string[],
+    seedFile: string,
+    overrides: readonly BelirsizOverride[] = [OVERRIDE],
+  ): { code: number; stdout: string; stderr: string } => {
+    let stdout = '';
+    let stderr = '';
+    const outSpy = jest.spyOn(process.stdout, 'write').mockImplementation((chunk) => {
+      stdout += String(chunk);
+      return true;
+    });
+    const errSpy = jest.spyOn(process.stderr, 'write').mockImplementation((chunk) => {
+      stderr += String(chunk);
+      return true;
+    });
+    try {
+      return { code: runCurriculum({ mode, briefPaths, seedFile, overrides }), stdout, stderr };
+    } finally {
+      outSpy.mockRestore();
+      errSpy.mockRestore();
+    }
+  };
+
+  const run = (
+    mode: 'emit' | 'check',
+    markdown: string,
+    seedFile: string,
+    overrides: readonly BelirsizOverride[] = [OVERRIDE],
+  ): { code: number; stdout: string; stderr: string } =>
+    runWithPaths(mode, [writeTemp('brief-fixture.md', markdown)], seedFile, overrides);
+
+  it('exits 0 when the brief, the overrides and the seed all agree', () => {
+    const { code, stdout } = run('check', AGREEING_BRIEF, writeSeed(SEEDED));
+    expect(code).toBe(0);
+    // The count line is the human-readable half of the gate; pin its semantics, not just the code.
+    expect(stdout).toContain('checked 2 brief row(s) against 2 seed row(s): 0 disagreement(s)');
+  });
+
+  it('exits 1 on a disagreement — the gate cannot be read by eye', () => {
+    const drifted = writeSeed([
+      { ...SEEDED[0]!, curriculum: 'CURRICULUM_MARMARA_GECIS' },
+      SEEDED[1]!,
+    ]);
+    const { code, stdout } = run('check', AGREEING_BRIEF, drifted);
+    expect(code).toBe(1);
+    expect(stdout).toContain('1 disagreement(s)');
+    expect(stdout).toContain('DISAGREEMENTS:');
+  });
+
+  it('REFUSAL 1a — exits 1 on an empty override table rather than deciding nothing', () => {
+    const { code, stderr } = run('check', AGREEING_BRIEF, writeSeed(SEEDED), []);
+    expect(code).toBe(1);
+    expect(stderr).toContain('override table is empty');
+  });
+
+  it('REFUSAL 1b — exits 1 when the file parses to ZERO §3 rows (the wrong-file false green)', () => {
+    // The literal "pointed at the authored draft instead of the brief" case: a markdown file the
+    // parser understands nothing in must never print "checked 0" and exit 0.
+    const { code, stdout, stderr } = run(
+      'check',
+      '# Bir özet\n\nHiç tablo yok.\n',
+      writeSeed(SEEDED),
+    );
+    expect(code).toBe(1);
+    expect(stderr).toContain('no §3 province rows parsed');
+    expect(stdout).toBe('');
+  });
+
+  it('REFUSAL 2 — refuses to run at all when the committed seed does not parse', () => {
+    // `ts.createSourceFile` is error-tolerant: a missing comma yields a silently incomplete index
+    // and a "0 disagreements" green off half the rows.
+    const broken = writeTemp(
+      'broken-seed.ts',
+      `export const ROWS = [\n  { plateCode: '01', nameTr: 'Alfa' \n];\n`,
+    );
+    const { code, stdout, stderr } = run('check', AGREEING_BRIEF, broken);
+    expect(code).toBe(1);
+    expect(stderr).toContain('seed source does not parse');
+    expect(stdout).toBe('');
+  });
+
+  it("REFUSAL 3 — answers a typo'd brief path with a readable message, not an fs stack trace", () => {
+    // The FULL rendered line: the substring "no such file" also appears in the raw node message
+    // this replaces, so asserting only that would pass under the regressed form too.
+    const missing = path.join(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'curriculum-runner-gone-')),
+      'no-such-brief.md',
+    );
+    const { code, stderr } = runWithPaths('check', [missing], writeSeed(SEEDED));
+    expect(code).toBe(1);
+    expect(stderr).toContain('cannot read draft file(s)');
+    expect(stderr).toContain(`${missing} — no such file`);
+    expect(stderr).not.toContain('ENOENT');
+  });
+
+  it('exits 1 when the §3 table header changed shape (the positional read is refused)', () => {
+    const reordered = AGREEING_BRIEF.replace(
+      HEADER,
+      '| İl | Köppen | Müfredat iklim adı | Kaynak | Durum | ⚑ |',
+    );
+    const { code, stderr } = run('check', reordered, writeSeed(SEEDED));
+    expect(code).toBe(1);
+    expect(stderr).toContain('the §3 table header changed shape');
+  });
+
+  it('exits 1 when the seed file carries no province rows at all', () => {
+    const empty = writeTemp('empty-seed.ts', 'export const ROWS = [];\n');
+    const { code, stderr } = run('check', AGREEING_BRIEF, empty);
+    expect(code).toBe(1);
+    expect(stderr).toContain('no province rows found in the seed');
+  });
+
+  it('emit prints one property line per row, and reports how many it produced', () => {
+    // CR97-M5: rows the emitter cannot resolve are skipped, so a SHORT run must not look like a
+    // complete one. The count goes to stderr; stdout stays a clean diffable block.
+    const { code, stdout, stderr } = run('emit', AGREEING_BRIEF, writeSeed(SEEDED));
+    expect(code).toBe(0);
+    expect(stdout.match(/^ {4}climateCurriculumNameTr:/gmu)).toHaveLength(2);
+    expect(stdout).toContain('climateCurriculumNameTr: CURRICULUM_AKDENIZ,');
+    expect(stderr).toContain('emitted 2 line(s) for 2 brief row(s)');
+  });
+
+  it('emit refuses when no CURRICULUM_* constant holds the value it would write', () => {
+    // The seed row is fine; the CONSTANT is missing, so the emitter would have to invent an
+    // identifier. It reports instead — the whole point of looking the name up in the seed.
+    const seedFile = writeTemp(
+      'no-constant-seed.ts',
+      [
+        "const KOPPEN_CSA = 'Csa';",
+        "const CURRICULUM_AKDENIZ = 'Akdeniz iklimi';",
+        'export const ROWS = [',
+        "  { plateCode: '02', nameTr: 'Beta', climateKoppen: KOPPEN_CSA,",
+        '    climateCurriculumNameTr: CURRICULUM_AKDENIZ },',
+        '];',
+        '',
+      ].join('\n'),
+    );
+    const brief = briefWith(
+      '| Beta | **BELİRSİZ** — Marmara geçiş / Akdeniz | Csa | K-1m | BELİRSİZ | — |',
+    );
+    const { code, stderr } = run('emit', brief, seedFile);
+    expect(code).toBe(1);
+    expect(stderr).toContain('cannot emit');
+    expect(stderr).toContain('CURRICULUM_* constants hold');
   });
 });
 

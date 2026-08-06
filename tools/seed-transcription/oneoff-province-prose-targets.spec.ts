@@ -133,14 +133,14 @@ describe('prose wave target lists — cross-wave invariants', () => {
     expect(P5_TARGETS.every((target) => target.field === 'climateCurriculumNoteTr')).toBe(true);
   });
 
-  it('P5 covers the fourteen provinces the two owner rulings demand a note for', () => {
+  it('P5 covers the fifteen provinces the owner rulings demand a note for', () => {
     // The wave's SIZE is the thing no other check can see: the runner refuses an empty list and
     // the seed invariant refuses a missing out-of-region note, but neither notices a boundary
     // note (DEC 2026-08-05f #3) quietly dropped from the list — that class of loss is silent
-    // everywhere else. Ten boundary readings + seven out-of-region names, three provinces in
-    // both sets, = 14.
-    expect(P5_TARGETS).toHaveLength(14);
-    expect(new Set(P5_TARGETS.map((target) => target.plate)).size).toBe(14);
+    // everywhere else. Eleven boundary readings + eight out-of-region names, four provinces in
+    // both sets, = 15 (Denizli joined both sets with DEC 2026-08-06b).
+    expect(P5_TARGETS).toHaveLength(15);
+    expect(new Set(P5_TARGETS.map((target) => target.plate)).size).toBe(15);
   });
 
   it('every pair any wave has EVER owned is still owned by some wave (no orphaned field)', () => {

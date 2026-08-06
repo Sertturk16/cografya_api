@@ -1,12 +1,13 @@
 /**
  * ONE-OFF — wave P5 province PROSE transcription (NOT a tool generalization).
  *
- * Scope: the FOURTEEN `climateCurriculumNoteTr` notes that ship alongside the müfredat climate
- * name (`climateCurriculumNameTr`), per DEC 2026-08-05c, DEC 2026-08-05f #3/#4 and
- * DEC 2026-08-06a, as scoped by Atlas rulings AK-1 and AK-4. Ten notes explain a boundary
- * reading the textbook map cannot resolve at its scale; seven explain a name whose geographic
- * label is not the province's own region; three provinces (Kütahya, Gümüşhane, Bayburt) need
- * both and get ONE flowing paragraph, which is why the entity carries a single note column.
+ * Scope: the FIFTEEN `climateCurriculumNoteTr` notes that ship alongside the müfredat climate
+ * name (`climateCurriculumNameTr`), per DEC 2026-08-05c, DEC 2026-08-05f #3/#4, DEC 2026-08-06a
+ * and DEC 2026-08-06b, as scoped by Atlas rulings AK-1, AK-4 and AK-7. Eleven notes explain a
+ * boundary reading the textbook map cannot resolve at its scale; eight explain a name whose
+ * geographic label is not the province's own region; four provinces (Kütahya, Gümüşhane,
+ * Bayburt, Denizli) need both and get ONE flowing paragraph, which is why the entity carries a
+ * single note column.
  *
  * WHY THE NAME FIELD IS NOT IN THIS WAVE, and what covers it instead. `climateCurriculumNameTr`
  * is not prose: its 81 values are references to eight shared constants, and a constant reference
@@ -20,7 +21,7 @@
  * Both commands must be run; neither substitutes for the other.
  *
  * NO OWNERSHIP TRANSFER IN THIS WAVE. `climateCurriculumNoteTr` is a brand-new column, so all
- * fourteen `(plate, field)` pairs are new and P1-P4 are untouched — the non-overlap invariant
+ * fifteen `(plate, field)` pairs are new and P1-P4 are untouched — the non-overlap invariant
  * holds without moving an entry out of an earlier list (contrast PR #96's Mersin move; see the
  * ownership note in `oneoff-province-prose-targets.ts`).
  *
@@ -28,9 +29,11 @@
  * `koppen-sablon-gecisi/cumle-taslaklari.md`, whose §2 blocks head each note with a `###`
  * heading carrying the rendered title string — a shape this lane's parser reads as "any other
  * heading", i.e. it would find zero fields. Rather than edit another author's deliverable, the
- * fourteen blockquote paragraphs were copied byte-for-byte into the lane's own format as
+ * fifteen blockquote paragraphs were copied byte-for-byte into the lane's own format as
  * `seed-draft-provinces-p5.md`, beside it in the same task folder. Nothing was retyped and
- * nothing was reworded; the two files' §2 blockquote bodies are byte-identical.
+ * nothing was reworded; the two files' §2 blockquote bodies are byte-identical. The PR #97
+ * review round re-derived that file mechanically from the same §2 blocks after NOVA revised
+ * five of them — the derivation is a script's output, never a hand edit.
  *
  * It gets a committed entry point rather than a throwaway script for the same reason P1-P4 did:
  * `ENGINEERING.md` §8 defines the content-fidelity gate as a command the REVIEWING code-reviewer

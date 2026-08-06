@@ -125,25 +125,27 @@ export const P4_TARGETS: readonly ProseTarget[] = [
 ];
 
 /**
- * P5 — the fourteen `climateCurriculumNoteTr` notes that ship with the müfredat climate name
- * (→ DEC 2026-08-05c, DEC 2026-08-05f #3/#4, DEC 2026-08-06a; Atlas ruling AK-1/AK-4).
+ * P5 — the fifteen `climateCurriculumNoteTr` notes that ship with the müfredat climate name
+ * (→ DEC 2026-08-05c, DEC 2026-08-05f #3/#4, DEC 2026-08-06a, DEC 2026-08-06b; Atlas ruling
+ * AK-1/AK-4/AK-7).
  *
  * Draft: `Owner's Inbox/koppen-sablon-gecisi/seed-draft-provinces-p5.md` — the lane-format
  * transcription of NOVA's `cumle-taslaklari.md` §2 blocks (see that file's header).
  *
- * TWO KINDS OF NOTE, ONE FIELD. Ten provinces sit on a boundary the textbook map cannot
+ * TWO KINDS OF NOTE, ONE FIELD. Eleven provinces sit on a boundary the textbook map cannot
  * resolve at its ~1:10.000.000 scale (Tekirdağ, Çanakkale, Balıkesir, Kütahya, Isparta,
- * Burdur, Amasya, Tokat, Gümüşhane, Bayburt); seven carry a name whose geographic label is
- * not their own region (Gaziantep, Kilis, Afyonkarahisar, Çorum, Kütahya, Gümüşhane,
- * Bayburt). The three in both sets get ONE flowing paragraph rather than two glued blocks —
- * the reason the entity has a single note column.
+ * Burdur, Amasya, Tokat, Gümüşhane, Bayburt, Denizli); eight carry a name whose geographic
+ * label is not their own region (Gaziantep, Kilis, Afyonkarahisar, Çorum, Kütahya, Gümüşhane,
+ * Bayburt, Denizli). The four in both sets get ONE flowing paragraph rather than two glued
+ * blocks — the reason the entity has a single note column.
  *
  * ZERO OWNERSHIP TRANSFERS: every pair here is a field no wave has ever owned (the column
  * did not exist until this PR), so the non-overlap invariant holds without moving anything
  * out of P1-P4.
  */
 export const P5_TARGETS: readonly ProseTarget[] = [
-  // The ten boundary readings (DEC 2026-08-05f #3).
+  // The eleven boundary readings (DEC 2026-08-05f #3; Denizli joined them with
+  // DEC 2026-08-06b, which returned its mapping row to BELİRSİZ).
   { name: 'Tekirdağ', plate: '59', field: 'climateCurriculumNoteTr' },
   { name: 'Çanakkale', plate: '17', field: 'climateCurriculumNoteTr' },
   { name: 'Balıkesir', plate: '10', field: 'climateCurriculumNoteTr' },
@@ -154,8 +156,9 @@ export const P5_TARGETS: readonly ProseTarget[] = [
   { name: 'Tokat', plate: '60', field: 'climateCurriculumNoteTr' },
   { name: 'Gümüşhane', plate: '29', field: 'climateCurriculumNoteTr' },
   { name: 'Bayburt', plate: '69', field: 'climateCurriculumNoteTr' },
-  // The out-of-region names (DEC 2026-08-05f #4). Kütahya, Gümüşhane and Bayburt are also
-  // in the list above — their single note answers both, so they appear ONCE.
+  { name: 'Denizli', plate: '20', field: 'climateCurriculumNoteTr' },
+  // The out-of-region names (DEC 2026-08-05f #4). Kütahya, Gümüşhane, Bayburt and Denizli are
+  // also in the list above — their single note answers both, so they appear ONCE.
   { name: 'Gaziantep', plate: '27', field: 'climateCurriculumNoteTr' },
   { name: 'Kilis', plate: '79', field: 'climateCurriculumNoteTr' },
   { name: 'Afyonkarahisar', plate: '03', field: 'climateCurriculumNoteTr' },
@@ -251,6 +254,7 @@ export const HISTORICALLY_OWNED: readonly string[] = [
   '60 climateCurriculumNoteTr',
   '29 climateCurriculumNoteTr',
   '69 climateCurriculumNoteTr',
+  '20 climateCurriculumNoteTr',
   '27 climateCurriculumNoteTr',
   '79 climateCurriculumNoteTr',
   '03 climateCurriculumNoteTr',

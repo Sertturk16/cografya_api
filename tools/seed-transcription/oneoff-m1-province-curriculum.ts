@@ -3,7 +3,7 @@
  *
  * Scope: the 81 `climateCurriculumNameTr` values in `province.seed-data.ts`, checked against
  * NOVA's `Owner's Inbox/koppen-mufredat-eslemesi/brief.md` §3 tables plus the owner rulings for
- * the ten BELİRSİZ rows. The reasoning for why this lane exists — and why no prose lane can do
+ * the eleven BELİRSİZ rows. The reasoning for why this lane exists — and why no prose lane can do
  * its job — lives in `oneoff-province-curriculum-runner.ts`; the short form is that the seed
  * stores constant REFERENCES, which no AST-folding byte-compare can see, while ENGINEERING §5
  * still requires a write-path fidelity rule on a line that publishes per-province values.
@@ -22,7 +22,13 @@
  *
  * This entry point is wired into NO CI job — the brief lives outside the repo, under
  * `Owner's Inbox/` — so it is covered by `typecheck` only. The logic it drives IS covered:
- * `oneoff-province-curriculum-runner.ts` carries a unit spec.
+ * `oneoff-province-curriculum-runner.ts` carries a unit spec that exercises the leaf functions
+ * (`parseBriefRows`, `readSeedConstants`, `compare`, `parseCurriculumArgs`) AND drives
+ * `runCurriculum` itself over temp files, so the four shared refusals and the exit-code contract
+ * are pinned rather than merely present. That claim was NOT true when this lane shipped — the
+ * spec stopped at the leaves while the refusals live in the orchestrator, and the docblock said
+ * otherwise (→ PR #97 review, TA97-I1 / SFH97-I1). Keep it true: a refusal added to
+ * `runCurriculum` without a case in that suite is a gate nothing watches.
  *
  * `isDirectInvocation` comes from the CLIMATE runner deliberately, exactly as the P-waves take
  * it: it is lane-agnostic and already spec-pinned there, and it must never be re-implemented as

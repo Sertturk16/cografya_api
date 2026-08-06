@@ -20,7 +20,7 @@
  * WHAT IS CHECKED — three joins, over all 81 rows:
  *   1. **name -> curriculum name.** Every NET row of the brief's §3 tables must equal the
  *      committed seed's value for that province.
- *   2. **the ten BELİRSİZ rows -> the OWNER DECISION.** The brief deliberately refuses to pick
+ *   2. **the eleven BELİRSİZ rows -> the OWNER DECISION.** The brief deliberately refuses to pick
  *      a name for those; the decision lives in `BELIRSIZ_OVERRIDES` below, next to the ruling
  *      that made it. The check is two-sided: the seed must match the override AND the brief's
  *      cell must still SAY `BELİRSİZ` — so if the brief is ever revised to resolve a row, the
@@ -55,12 +55,12 @@ import { foldProvinceName } from './oneoff-province-climate-extract.ts';
 import { foldStringConcat, syntaxErrorsIn } from './seed-reader.ts';
 
 /**
- * The ten rows the brief marks `BELİRSİZ`, with the name the OWNER ruled and the ruling that
+ * The eleven rows the brief marks `BELİRSİZ`, with the name the OWNER ruled and the ruling that
  * ruled it. This table IS the decision; the brief only supplies the candidates and the evidence.
  *
  * Kept here rather than derived from the seed on purpose: deriving it would make the check
  * circular (the seed would be verified against itself). A reviewer reading this file should be
- * able to trace every one of the ten to a dated ruling without opening anything else.
+ * able to trace every one of the eleven to a dated ruling without opening anything else.
  */
 export interface BelirsizOverride {
   readonly name: string;
@@ -75,6 +75,9 @@ export const BELIRSIZ_OVERRIDES: readonly BelirsizOverride[] = [
   // each province's note rather than hidden.
   { name: 'Isparta', curriculumName: 'Göller Yöresi geçiş iklimi', ruling: 'DEC 2026-08-05f #1' },
   { name: 'Burdur', curriculumName: 'Göller Yöresi geçiş iklimi', ruling: 'DEC 2026-08-05f #1' },
+  // Denizli carries the IDENTICAL conflict and was first resolved the other way with no recorded
+  // reason (PR #97 review, FC97-I2); the owner closed it in the same direction as the two above.
+  { name: 'Denizli', curriculumName: 'Göller Yöresi geçiş iklimi', ruling: 'DEC 2026-08-06b' },
   // The two maps place the province in different areas; the owner closed these three by name.
   { name: 'Kütahya', curriculumName: 'İç Anadolu karasal iklimi', ruling: 'DEC 2026-08-06a #1' },
   { name: 'Amasya', curriculumName: 'Karadeniz iklimi', ruling: 'DEC 2026-08-06a #2' },
@@ -119,7 +122,7 @@ function stripEmphasis(cell: string): string {
 }
 
 /** A `### 3.<n>` heading opens a province table; `### 3.8` (the distribution summary) closes it. */
-const TABLE_SECTION_RE = /^###\s+3\.(?<index>[1-7])\s/u;
+const TABLE_SECTION_RE = /^###\s+3\.[1-7]\s/u;
 const ANY_SECTION_RE = /^###?\s/u;
 
 /**
@@ -267,6 +270,23 @@ export function compare(
   const seedByName = new Map(committed.map((row) => [foldProvinceName(row.nameTr), row]));
   const matchedNames = new Set<string>();
 
+  // A province listed TWICE (in two §3 region tables, or twice in one) is a defect in the source
+  // document, and it is invisible to every other join: both copies are compared against the same
+  // single seed row, so if they agree the check reports a green while the brief quietly claims
+  // the province belongs to two regions (→ PR #97 review, SFH97-M2). Detected here rather than
+  // in `parseBriefRows` so it also covers a name duplicated ACROSS the files passed on argv.
+  const seenNames = new Set<string>();
+  for (const briefRow of briefRows) {
+    const folded = foldProvinceName(briefRow.name);
+    if (seenNames.has(folded)) {
+      problems.push(
+        `  ${briefRow.name} (brief line ${briefRow.line}) — appears more than once in the §3 ` +
+          `tables; the source must name each province exactly once`,
+      );
+    }
+    seenNames.add(folded);
+  }
+
   for (const briefRow of briefRows) {
     const folded = foldProvinceName(briefRow.name);
     const seedRow = seedByName.get(folded);
@@ -360,6 +380,12 @@ export interface CurriculumRunOptions {
  * The constant NAME is looked up in the seed's own constant table rather than a second hard-coded
  * map: exactly one identifier may hold each of the eight names, so a duplicate or a missing
  * constant is reported instead of guessed.
+ *
+ * Rows the emitter cannot produce a line for (no seed row of that name, or a BELİRSİZ row with no
+ * override) are SKIPPED — `check` is the gate and reports both as failures, so `emit` stays a
+ * convenience. It therefore returns its own count, which the caller prints on stderr: a reviewer
+ * diffing generated-vs-committed lines sees only the lines that WERE produced, and a short run
+ * must not look like a complete one (→ PR #97 review, CR97-M5).
  */
 function emitLines(
   briefRows: readonly BriefRow[],
@@ -478,6 +504,11 @@ export function runCurriculum({
       return 1;
     }
     process.stdout.write(`${lines.join('\n')}\n`);
+    // On STDERR so stdout stays a clean, diffable block. Two numbers, because "fewer lines than
+    // brief rows" is the only signal that rows were skipped (see `emitLines`).
+    process.stderr.write(
+      `emitted ${lines.length / 2} line(s) for ${briefRows.length} brief row(s)\n`,
+    );
     return 0;
   }
 

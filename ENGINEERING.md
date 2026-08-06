@@ -330,7 +330,7 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
     exit-code contract via its own runner (`oneoff-province-prose-runner.ts`). The climate lane
     remains `climateNarrativeTr`-only. P1 (PR #92), P2 (PR #94, `hydrographyNoteTr`),
     P3 (PR #95, now 19 fields / 16 provinces after the Mersin transfer), P4 (PR #96,
-    13 fields) and P5 (the müfredat `climateCurriculumNoteTr`, 14 fields) are the shipped
+    13 fields) and P5 (the müfredat `climateCurriculumNoteTr`, 15 fields) are the shipped
     precedents; each wave = its own committed entry point
     (Atlas ruling AS-3, option C). **Wave target lists live in the shared
     `import.meta`-free targets module (`oneoff-province-prose-targets` + its spec) —
@@ -347,7 +347,7 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
     reports `unfoldable`; pointing `pnpm seed:transcribe` at it reports the classic false green.
     Instead it re-parses the SOURCE tables (`Owner's Inbox/koppen-mufredat-eslemesi/brief.md`
     §3) and runs three joins against the committed seed: name→curriculum name for the NET rows,
-    the ten `BELİRSİZ` rows against an explicit owner-ruling override table (checked in BOTH
+    the eleven `BELİRSİZ` rows against an explicit owner-ruling override table (checked in BOTH
     directions, so a brief revision that resolves a row fails the now-stale override), and the
     brief's Köppen column against `climateKoppen` 81/81 — which is the join that catches a
     row-shifted table, the failure mode plausible names hide. `check` is the gate; `emit`

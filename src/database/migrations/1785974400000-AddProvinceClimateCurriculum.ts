@@ -32,7 +32,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * constraints and silently dropped a column default. Only the two `ADD COLUMN` statements are
  * kept, matching the hand-authored sibling migrations (ENGINEERING §5).
  *
- * SCHEMA ONLY — no rows are written here. The 81 names and 14 notes land through
+ * SCHEMA ONLY — no rows are written here. The 81 names and 15 notes land through
  * `db:seed:geography` (`province.seed-data.ts`), which is where their invariants live.
  *
  * `down()` drops both columns — exactly reversible.

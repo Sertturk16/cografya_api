@@ -951,8 +951,8 @@
           "climateCurriculumNoteTr": {
             "type": "string",
             "nullable": true,
-            "example": "Çorum, 776 metredeki merkeziyle Kızılırmak havzasına açılan yüksek bir platodadır. İl Karadeniz Bölgesi’ndedir, iklim adı ise güneydeki İç Anadolu’yu gösterir.",
-            "description": "Müfredat adına eşlik eden açıklama notu (TR). Yalnız 14 ilde dolu, geri kalanında NULL — bu bir eksiklik değil, tasarım: not ya adın harita sınırındaki bir okuma olduğunu ya da addaki coğrafi etiketin ilin kendi bölgesinden farklı olduğunu açıklar. Köppen ile müfredat arasındaki genel gerilim BURADA DEĞİL, tüm illerde ortak olan `climateNoteTr` uyarısının içinde tek seferde karşılanır."
+            "example": "Çorum, 776 metredeki merkeziyle Kızılırmak havzasına açılan yüksek bir platodadır. İl Karadeniz Bölgesi'ndedir, iklim adı ise güneydeki İç Anadolu'yu gösterir.",
+            "description": "Müfredat adına eşlik eden açıklama notu (TR). Yalnız 15 ilde dolu, geri kalanında NULL — bu bir eksiklik değil, tasarım: not ya adın harita sınırındaki bir okuma olduğunu ya da addaki coğrafi etiketin ilin kendi bölgesinden farklı olduğunu açıklar. Köppen ile müfredat arasındaki genel gerilim BURADA DEĞİL, tüm illerde ortak olan `climateNoteTr` uyarısının içinde tek seferde karşılanır."
           },
           "climate": {
             "nullable": true,

@@ -216,8 +216,10 @@ const CLIMATE_CLASS_TR = 'Akdeniz iklimi';
  * Why it belongs here and not in 81 per-province notes: the existing body already names the
  * limitation but scopes it to "İç Anadolu ile Doğu Anadolu gibi bölgeler", which does not
  * cover the reverse direction (Çankırı/Çorum/Afyonkarahisar read as Köppen "Karadeniz iklimi"
- * while the curriculum calls them karasal) nor the coastal Csa rows (Trabzon, Sinop). Those
- * five are exactly the provinces whose `climateCurriculumNoteTr` is deliberately NULL.
+ * while the curriculum calls them karasal) nor the coastal Csa rows (Trabzon, Sinop). For
+ * Çankırı, Trabzon and Sinop this sentence is the ONLY explanation the page carries — their
+ * `climateCurriculumNoteTr` is deliberately NULL. (Çorum and Afyonkarahisar do carry a note,
+ * but for the unrelated out-of-region reason of DEC 2026-08-05f #4.)
  *
  * It is written to be CODE-AGNOSTIC and stays that way: it names no province, no number and
  * no Köppen code, so all eight constants carry it VERBATIM and
@@ -229,19 +231,24 @@ const CLIMATE_CLASS_TR = 'Akdeniz iklimi';
  * Source of the text: NOVA's `Owner's Inbox/koppen-sablon-gecisi/cumle-taslaklari.md` §3,
  * transcribed with the seed-transcription emitter's own chunker — never retyped by hand.
  *
- * ## KNOWN SIDE EFFECT ON ANKARA (06) AND VAN (65) — surfaced, not fixed here
- * Those two rows append their own divergence sentence AFTER this shared body ("Ankara, bu
- * alternatif sınıflandırmalarda yarı-kurak step iklimi olarak ayrışır."). The A-2 sentence
- * now sits BETWEEN the "Thornthwaite, Erinç, De Martonne ve Aydeniz" clause and that
- * appendix, so the appendix's "bu alternatif sınıflandırmalarda" has to reach back one
- * sentence further for its antecedent. Nothing became FALSE — the sentence in between is
- * about a different pair of systems (Köppen vs the curriculum), not about the alternative
- * classifications — but the reference is looser than it was.
+ * ## SIDE EFFECT ON ANKARA (06) AND VAN (65) — REPAIRED IN THE APPENDICES (Atlas AK-6)
+ * Those two rows append their own divergence sentence AFTER this shared body. Once A-2 sat
+ * BETWEEN the "Thornthwaite, Erinç, De Martonne ve Aydeniz" clause and that appendix, the
+ * appendix's original back-reference ("bu alternatif sınıflandırmalarda") had A-2's "ders
+ * kitaplarındaki bölgesel iklim adları" as its NEAREST antecedent — so it could be read as
+ * "the curriculum classifies Ankara as semi-arid steppe", the opposite of what the same page's
+ * own header says. The PR #97 fact-check leg demonstrated that reading is live (FC97-I3), so
+ * AK-6 revised the earlier "leave it to a prose-cleanup wave" call and the fix landed here.
  *
- * NOT repaired in this PR on purpose: the placement was ruled (append to the shared body,
- * AT-10 / AK-4) and rewording published prose is the content line's call, not the seed
- * author's. Routed to Atlas as a follow-up for NOVA; the candidate repair is to name the
- * classifications explicitly in the two appendices instead of pointing at them.
+ * THE FIX IS IN THE TWO PER-PROVINCE APPENDICES, NOT IN THIS SHARED BODY: the demonstrative
+ * became "ölçüme dayalı bu sınıflandırmalarda" — "ölçüme dayalı" (index-computed from measured
+ * precipitation and temperature) is what the four named methods share and what the textbook's
+ * regional names are NOT, so the wrong antecedent stops fitting. Predicate, adjective and
+ * punctuation are unchanged; no new factual claim was added. The methods are deliberately NOT
+ * named one by one (NOVA, `cumle-taslaklari.md` §3.2): naming a subset would assert what
+ * Thornthwaite or Erinç specifically produce for Ankara, which no source in hand states, and
+ * Van's "göl-etkili" is not a class name in ANY of them. A-2 itself is untouched by the repair,
+ * so its byte-identity across all eight constants still holds.
  */
 const MGM_KOPPEN_CAVEAT_TR =
   "MGM'nin 2023 Köppen sınıflandırması bu ili Csa (Akdeniz iklimi) olarak verir. " +
@@ -706,7 +713,7 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr:
       MGM_KOPPEN_CAVEAT_TR +
-      ' Ankara, bu alternatif sınıflandırmalarda yarı-kurak step iklimi olarak ayrışır.',
+      ' Ankara, ölçüme dayalı bu sınıflandırmalarda yarı-kurak step iklimi olarak ayrışır.',
     climateCurriculumNameTr: CURRICULUM_IC_ANADOLU,
     // ── Ankara deep content (wave-1 — see the WAVE-1 DEEP CONTENT note above). Seven detail
     //    fields transcribed from NOVA's fact-checked "Dalga 1" draft. İç Anadolu / karasal
@@ -871,7 +878,7 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr:
       MGM_KOPPEN_CAVEAT_TR +
-      ' Van, bu alternatif sınıflandırmalarda karasal/göl-etkili iklim olarak ayrışır.',
+      ' Van, ölçüme dayalı bu sınıflandırmalarda karasal/göl-etkili iklim olarak ayrışır.',
     climateCurriculumNameTr: CURRICULUM_DOGU_ANADOLU,
     // ── Van deep content (wave-1 — see the WAVE-1 DEEP CONTENT note above). Doğu Anadolu /
     //    volkanik + kapalı havza framing: Van Gölü as a Nemrut volcanic-dam lake + the 2011
@@ -2662,7 +2669,20 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
     climateKoppen: KOPPEN_CSA,
     climateClassTr: CLIMATE_CLASS_TR,
     climateNoteTr: MGM_KOPPEN_CAVEAT_TR,
-    climateCurriculumNameTr: CURRICULUM_AKDENIZ,
+    // DEC 2026-08-06b: the mapping brief's Denizli row went back to BELİRSİZ and the owner ruled
+    // the textbook map (Harita 1.39 draws the province inside the Göller Yöresi polygon) over the
+    // TYT summary's Akdeniz list — the SAME conflict Isparta/Burdur carry, previously resolved
+    // the opposite way here with no recorded reason (PR #97 review, FC97-I2). Köppen stays Csa
+    // (K1). `(Ege, Göller Yöresi geçiş iklimi)` is deliberately NOT in `EXPECTED_REGION_PAIRS`,
+    // so the seed invariant demands the note below (Atlas ruling AK-7).
+    climateCurriculumNameTr: CURRICULUM_GOLLER_YORESI,
+    climateCurriculumNoteTr:
+      "Denizli'nin müfredat iklim adı iki MEB kaynağında farklı çıkar. Ders kitabı haritası ili " +
+      'Göller Yöresi geçiş iklimi alanı içinde gösterir, TYT konu özeti ise Akdeniz iklimi ' +
+      'görülen iller arasında adıyla sayar. Bu farkta harita esas alındı; aynı çelişki, adı ' +
+      "paylaşan Burdur ve Isparta'da da aynı yönde çözüldü. Denizli Ege Bölgesi'ndedir, adındaki " +
+      'yöre ise ilin Afyonkarahisar sınırındaki Acıgöl ile başlayıp doğuya uzanan göller ' +
+      'alanıdır.',
     // ── Denizli deep content (wave-3 Tier-A). Full 8-field detail set from the fact-checked
     //    "Dalga 3" draft. Pamukkale traverten + Honaz Dağı 2.571 m (Ege's highest point) +
     //    Çürüksu grabeni (landform); Büyük Menderes / Çürüksu + Adıgüzel/Cindere barajları +
@@ -3174,7 +3194,8 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
       'Ders kitabı haritasında Burdur Gölü çevresi, Göller Yöresi geçiş iklimi alanı olarak ayrı ' +
       "işaretlenir. MEB'in TYT konu özeti Burdur'u Akdeniz iklimi listesine koyar, MGM'nin bölge " +
       'haritasında ise ayrı bir Göller Yöresi alanı bulunmaz. İki MEB kaynağı arasındaki bu ' +
-      'farkta, en ayrıntılı olan ders kitabı haritası esas alındı. Isparta da aynı adı taşır.',
+      'farkta, en ayrıntılı olan ders kitabı haritası esas alındı. Bu adı taşıyan diğer iki il ' +
+      "Isparta ve Denizli'dir.",
     // ── Burdur deep content (wave-4 Tier-B). The tiered 6-field set from the fact-checked
     //    "Dalga 4" draft: introTr + (shortened) landformNoteTr + hydrographyNoteTr +
     //    urbanizationRate + netMigrationRate + economyIndicator. `hydrographyFeatures` AND
@@ -3315,10 +3336,9 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     climateCurriculumNoteTr:
       "Isparta, Eğirdir Gölü kıyısında, Göller Yöresi'nin ortasındadır. Ders kitabı haritası bu " +
       "yöreyi ayrı bir geçiş alanı olarak ayırır ve sayfadaki ad bu haritaya dayanır. MEB'in TYT " +
-      "konu özeti ise Isparta'yı Akdeniz iklimi görülen iller arasında adıyla sayar. MGM Akdeniz " +
-      "iklimini Toros Dağları'nın güneye bakan kesimlerinde tanımlar; 997 metredeki Isparta " +
-      'merkezi bu kıyı yamaçlarının gerisindedir. Aynı ad, yörenin diğer ili Burdur için de ' +
-      'geçerlidir.',
+      "konu özeti ise Isparta'yı Akdeniz iklimi görülen iller arasında adıyla sayar. Denize " +
+      'kıyısı olmayan ilin merkezi 997 metre yüksekliktedir. Burdur ve Denizli de aynı adı ' +
+      'taşır.',
     // ── Isparta deep content (wave-4 Tier-B). 6-field set (hydrographyFeatures +
     //    settlementNoteTr DELIBERATELY OMITTED, Tier-B scope — see block header). Batı Toroslar
     //    + Dedegöl Dağı 2.992 m (landform); Eğirdir Gölü (hydrography, area/depth given as
@@ -5498,7 +5518,8 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
       "Amasya, Karadeniz Bölgesi'nin iç kesiminde, Yeşilırmak vadisinin açtığı koridordadır. " +
       'Ders kitabı haritasında Karadeniz iklimi alanının iç sınırına çok yakın okunur; sınırın ' +
       'hemen güneyi İç Anadolu karasal iklimi alanıdır. Haritanın ölçeği bu sınırı il düzeyinde ' +
-      'kesinleştirmeye elvermez. Sayfadaki ad ilin bölge içindeki konumuna dayanır.',
+      'kesinleştirmeye elvermez. Sayfadaki ad ilin bölge içindeki konumuna dayanır. Aynı sınır ' +
+      'kuşağındaki doğu komşusu Tokat da bu adı alır.',
     // ── Amasya deep content (wave-6c plain Tier-B). 6-field set (hydrographyFeatures +
     //    settlementNoteTr DELIBERATELY OMITTED → null, Tier-B scope). urbanizationRate=75.80 is
     //    a REAL rate (non-büyükşehir) and the highest Tier-B rate of the batch; net göç -1,65 is
@@ -5602,7 +5623,8 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
       "sınıflandırma burada aynı yönü gösterir: MGM'nin Köppen kodu da ili kışı şiddetli karasal " +
       "gruba koyar. İl merkezi 1.584 metre yükseklikte, Çoruh'un yukarı havzasındadır. Adı " +
       'belirsiz bırakan tek nokta, ders kitabı haritasında ilin iki alanın sınırında ' +
-      'okunmasıdır.',
+      "okunmasıdır. Kuzey Anadolu Dağları'nın güney yüzündeki batı komşusu Gümüşhane de aynı adı " +
+      'paylaşır.',
     // ── Bayburt deep content (wave-6c plain Tier-B). The platform's FIRST Dsb / "D" main-group il
     //    (→ "Karasal iklim", DEC 2026-07-12). 6-field set (hydrographyFeatures + settlementNoteTr
     //    null). urbanizationRate=65.95 REAL; net göç -35,16 is the platform's 2ND-largest magnitude

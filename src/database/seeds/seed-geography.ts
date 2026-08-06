@@ -87,29 +87,45 @@ function regionNameKey(region: GeographicRegion, curriculumName: string): string
  * region, UNLESS one of these holds:
  *
  *   1. **The source assigns the province's WHOLE REGION to that climate type.** MGM defines the
- *      Akdeniz type for "Ege Bölgesi'nin büyük bir bölümü"; MEB's TYT summary names Manisa and
- *      Denizli outright and the textbook uses İzmir as the type's worked example. Six of the
- *      Ege region's eight provinces carry the name, so it is the region's RULE, not its
- *      exception → İzmir, Manisa, Aydın, Muğla, Denizli, Uşak are exempt.
+ *      Akdeniz type for "Ege Bölgesi'nin büyük bir bölümü"; MEB's TYT summary names Manisa
+ *      outright and the textbook uses İzmir as the type's worked example. Five of the Ege
+ *      region's eight provinces carry the name, so it is the region's RULE, not its
+ *      exception → İzmir, Manisa, Aydın, Muğla, Uşak are exempt. (Denizli left this set with
+ *      DEC 2026-08-06b; see the eighth row of the list below.)
  *   2. **The province is itself on the coast the type is named after, and the source names that
  *      coastal strip.** MGM's Karadeniz definition explicitly includes "Marmara Bölgesi'nin
  *      Karadeniz kıyı kuşağı"; Kocaeli and Sakarya have Black Sea coastline → both exempt.
  *
  * The same test explains the two pairs that look like exceptions but are not: Trakya is a
  * sub-area of the Marmara region (Edirne, Kırklareli) and Göller Yöresi is a sub-area of the
- * Akdeniz region (Isparta, Burdur) — neither name points at a DIFFERENT region.
+ * Akdeniz region (Isparta, Burdur) — neither name points at a DIFFERENT region. That reasoning
+ * is REGION-RELATIVE and does not travel: Denizli carries the same Göller Yöresi name from Ege,
+ * where the yöre is not a sub-area of its own region, so its pair is unlisted and DOES demand
+ * a note (DEC 2026-08-06b, Atlas ruling AK-7).
  *
- * Applied to today's data this table yields exactly the seven provinces brief §6 lists:
+ * Applied to today's data this table yields exactly the eight provinces brief §6 lists:
  * Gaziantep, Kilis (Güneydoğu Anadolu / Akdeniz iklimi), Afyonkarahisar, Kütahya (Ege / İç
  * Anadolu karasal), Çorum (Karadeniz / İç Anadolu karasal), Gümüşhane, Bayburt (Karadeniz /
- * Doğu Anadolu karasal). Each of those DOES fail both exemptions: no source assigns Güneydoğu
- * Anadolu to the Akdeniz type — the textbook says the type's edge *starts at* Gaziantep and
- * Kilis, i.e. the source itself frames them as the exception — the Ege region is nowhere
- * assigned to İç Anadolu karasal, and MGM limits the Karadeniz type to the mountains'
- * NORTH-facing slopes while Gümüşhane and Bayburt sit on the southern face.
+ * Doğu Anadolu karasal), Denizli (Ege / Göller Yöresi geçiş). Each of those DOES fail both
+ * exemptions: no source assigns Güneydoğu Anadolu to the Akdeniz type — the textbook says the
+ * type's edge *starts at* Gaziantep and Kilis, i.e. the source itself frames them as the
+ * exception — the Ege region is nowhere assigned to İç Anadolu karasal nor to Göller Yöresi
+ * geçiş, and MGM limits the Karadeniz type to the mountains' NORTH-facing slopes while
+ * Gümüşhane and Bayburt sit on the southern face.
  *
  * WHEN A NAME CHANGES, apply the two-part test above rather than adding a line to keep the
  * seed green: an unlisted pair firing is the table doing its job.
+ *
+ * THE TABLE'S GRANULARITY IS THE REGION, AND EXEMPTION 2 IS NOT (→ PR #97 review, CR97-M1).
+ * `(Marmara, Karadeniz iklimi)` is listed because Kocaeli and Sakarya have Black Sea coastline,
+ * but the key carries no plate code, so the exemption reads as region-wide: were a landlocked
+ * Marmara province ever renamed "Karadeniz iklimi", this table would stay silent and no note
+ * would be demanded. Deliberately NOT fixed by keying on the province — a per-plate table is
+ * the hard-coded list DEC 2026-08-05f #4 was expressed structurally to avoid, and three other
+ * nets already cover that rename (the M1 mapping lane re-reads the brief's own name column, the
+ * P5 target list pins which provinces carry a note, and the e2e floor counts). What is NOT
+ * claimed, therefore, is that every rename fires here by itself; what IS claimed is that a
+ * rename into a pair NO province of that region already uses fires here by itself.
  */
 const EXPECTED_REGION_PAIRS: ReadonlySet<string> = new Set([
   regionNameKey(GeographicRegion.Ege, CURRICULUM_AKDENIZ),
@@ -141,16 +157,24 @@ export function isUnexpectedRegionPair(seed: ProvinceSeed): boolean {
  * Four rules, none of which names a province:
  *   1. **A Köppen code implies a curriculum name.** The header the web renders puts the two
  *      side by side, so a row with a code and no name renders half a header.
- *   2. **The name is one of the eight canonical values.** A runtime membership test on top of
- *      the compile-time union, because the type cannot see a value written by a future admin
- *      endpoint or a hand-run SQL statement.
+ *   2. **The name is one of the eight canonical values, verbatim.** A runtime membership test on
+ *      top of the compile-time union. It does NOT reach a future admin endpoint or a hand-run
+ *      SQL statement — this function only ever sees `ProvinceSeed[]` from `seedGeography` — so
+ *      what it actually guards is the caller the union cannot type-check: an `as` cast (the
+ *      shape the tests use) or a plain-JS caller. The comparison is on the RAW value, not a
+ *      trimmed copy, so a padded `'Akdeniz iklimi '` fails here rather than being written to
+ *      the column with its padding while quietly reading as out-of-region in rule 3
+ *      (→ PR #97 review, CR97-M3). The trimmed copy is used only to tell "empty" apart from
+ *      "wrong", because those two deserve different messages.
  *   3. **An UNEXPECTED (region, name) pair implies an explanation note** — the structural form
  *      of DEC 2026-08-05f #4, expressed entirely through `EXPECTED_REGION_PAIRS` so no plate
- *      code is hard-coded. Rename a province's climate and this fires by itself.
+ *      code is hard-coded. Rename a province into a pair no province of its region already
+ *      uses and this fires by itself; the table's region-level granularity and the one rename
+ *      it therefore cannot see are documented at `EXPECTED_REGION_PAIRS`.
  *   4. **A note implies a name**, and neither field may be whitespace-only.
  *
  * WHAT THIS DELIBERATELY CANNOT ENFORCE, recorded rather than papered over: DEC 2026-08-05f #3
- * ("each of the ten BELİRSİZ provinces carries a transition note") is not derivable from the
+ * ("each of the eleven BELİRSİZ provinces carries a transition note") is not derivable from the
  * data — "the textbook map is ambiguous here" is a fact about the SOURCE, not a column. Encoding
  * it would mean a third column (`climateCurriculumCertainty`) that nothing renders and that
  * exists only to feed a test, which is the abstraction-for-nobody the repo's rules reject. Two
@@ -172,8 +196,13 @@ export function assertCurriculumMappingInvariant(seeds: readonly ProvinceSeed[])
           ? `${label} — curriculum name is empty/whitespace`
           : `${label} — has Köppen code ${seed.climateKoppen} but no curriculum climate name`,
       );
-    } else if (!canonical.has(name)) {
-      problems.push(`${label} — curriculum name ${JSON.stringify(name)} is not one of the eight`);
+    } else if (!canonical.has(seed.climateCurriculumNameTr)) {
+      // The RAW value, so surrounding whitespace is reported here (with the padding visible in
+      // the quoted string) instead of slipping into the column — see rule 2 above.
+      problems.push(
+        `${label} — curriculum name ${JSON.stringify(seed.climateCurriculumNameTr)} is not one ` +
+          `of the eight`,
+      );
     }
 
     if (name !== '' && isUnexpectedRegionPair(seed) && note === '') {

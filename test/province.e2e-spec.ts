@@ -253,7 +253,7 @@ describe('Province (e2e)', () => {
     for (const name of CURRICULUM_CLIMATE_NAMES_TR) expect(used.has(name)).toBe(true);
   });
 
-  it('serves an explanation note for every out-of-region name, and for at least 14 rows', async () => {
+  it('serves an explanation note for every out-of-region name, and for at least 15 rows', async () => {
     // The structural form of DEC 2026-08-05f #4, expressed through the same
     // `isUnexpectedRegionPair` table the seed invariant uses — so this asserts the RULE holds
     // end to end (seed -> Postgres -> entity), not a list of province names.
@@ -266,22 +266,25 @@ describe('Province (e2e)', () => {
     });
     // FLOOR, not equality (the PR #96 precedent): growth is free, SHRINKAGE is the danger. If a
     // future rename moved a province into an "expected" pair the loop below would quietly check
-    // fewer rows, with no failure anywhere. Seven is today's set (brief §6).
+    // fewer rows, with no failure anywhere. Today's set is EIGHT (brief §6, Denizli added by
+    // DEC 2026-08-06b); the floor stays at seven, which is the number the owner-ruled §6 list
+    // stood at when the guard was written.
     expect(unexpected.length).toBeGreaterThanOrEqual(7);
     for (const row of unexpected) {
       expect(typeof row.climateCurriculumNoteTr).toBe('string');
       expect((row.climateCurriculumNoteTr ?? '').trim().length).toBeGreaterThan(0);
     }
 
-    // The ten boundary-reading notes (DEC 2026-08-05f #3) cannot be derived from the data — see
-    // `assertCurriculumMappingInvariant`'s docblock — so the only guard against them being
-    // dropped WHOLESALE is a floor count. Ten boundary rows + seven out-of-region rows, three
-    // provinces in both = 14.
+    // The eleven boundary-reading notes (DEC 2026-08-05f #3 + DEC 2026-08-06b) cannot be derived
+    // from the data — see `assertCurriculumMappingInvariant`'s docblock — so the only guard
+    // against them being dropped WHOLESALE is a floor count. Eleven boundary rows + eight
+    // out-of-region rows, four provinces in both = 15.
     const withNote = rows.filter((row) => row.climateCurriculumNoteTr !== null);
-    expect(withNote.length).toBeGreaterThanOrEqual(14);
+    expect(withNote.length).toBeGreaterThanOrEqual(15);
     for (const row of withNote) {
-      // A note without a name is an orphan paragraph on the page.
-      expect(typeof row.climateCurriculumNameTr).toBe('string');
+      // A note without a name is an orphan paragraph on the page — and an EMPTY name renders the
+      // same orphan, so the assertion is on content, not on the JS type (→ PR #97, TA97-M1).
+      expect((row.climateCurriculumNameTr ?? '').trim().length).toBeGreaterThan(0);
       expect((row.climateCurriculumNoteTr ?? '').trim().length).toBeGreaterThan(0);
     }
   });
@@ -297,6 +300,18 @@ describe('Province (e2e)', () => {
     //      this sentence named a code, every note would contain a code it does not belong to.
     const rows = await dataSource.getRepository(Province).find();
     const A2_OPENING = 'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları';
+    // THE WHOLE SENTENCE, not just its opening (→ PR #97 review, CR97-M6 / SFH97-M1). The
+    // derivation below can only prove the eight constants AGREE with each other, and the real
+    // append was one mechanical edit across all eight — the failure it cannot see is that same
+    // edit pasting a wrong-but-uniform text. No transcription lane covers shared constants by
+    // construction (they are not per-row prose), so this literal is the only place the A-2 text
+    // itself is pinned. It is class-level editorial copy, not a per-province fact, so pinning it
+    // does not collide with the "tests check structure, not facts" rule. Source of truth:
+    // `Owner's Inbox/koppen-sablon-gecisi/cumle-taslaklari.md` §3.
+    const A2_SENTENCE =
+      'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları iki ayrı sistemdir ' +
+      've her zaman örtüşmez: bir ilin Köppen kodu Akdeniz tipini gösterirken müfredat aynı ili ' +
+      'karasal ya da Karadeniz iklimi alanında sayabilir, tersi de görülür.';
 
     expect(rows).toHaveLength(81);
     const tails: string[] = [];
@@ -315,7 +330,7 @@ describe('Province (e2e)', () => {
     const sentence = tails.reduce((shortest, tail) =>
       tail.length <= shortest.length ? tail : shortest,
     );
-    expect(sentence.length).toBeGreaterThan(0);
+    expect(sentence).toBe(A2_SENTENCE);
     expect(sentence.endsWith('.')).toBe(true);
     for (const tail of tails) {
       expect(tail.startsWith(sentence)).toBe(true);
@@ -445,6 +460,76 @@ describe('Province (e2e)', () => {
     // The field was actually re-written from the seed — here, cleared back to null.
     expect((await repo.findOneByOrFail({ plateCode: '34' })).climateNarrativeTr).toBe(seeded);
     // A genuine no-op on re-run (the restored value does not churn `updated` forever).
+    expect(await seedGeography(dataSource)).toEqual({
+      inserted: 0,
+      updated: 0,
+      unchanged: 81,
+      total: 81,
+    });
+    expect(await repo.count()).toBe(81);
+  });
+
+  it('re-seed detects a climateCurriculumNameTr drift and RESTORES it (isolates the new line)', async () => {
+    // Same isolation argument as the climateNarrativeTr case above, for the FIRST of the two
+    // comparator lines PR #97 added to `rowMatchesSeed`. Mutate ONLY the curriculum name and
+    // re-seed: without its comparison line every other field still matches, so the row would be
+    // counted `unchanged` and a corrected name would never reach the database — silently. The
+    // expected value is read from the seed, never written as a literal here, so this asserts the
+    // MECHANISM and states no per-province fact (→ CONVENTIONS §2).
+    const repo = dataSource.getRepository(Province);
+    const seed = SEED_PROVINCES.find((p) => p.plateCode === '34');
+    if (!seed) throw new Error('İstanbul seed (plate 34) not found');
+    // A different member of the same closed vocabulary — the realistic drift is a WRONG name,
+    // not a malformed one, and a wrong name is exactly what no structural invariant can see.
+    const wrong = CURRICULUM_CLIMATE_NAMES_TR.find((n) => n !== seed.climateCurriculumNameTr);
+    if (wrong === undefined) throw new Error('the closed vocabulary has fewer than two names');
+    await repo.update({ plateCode: '34' }, { climateCurriculumNameTr: wrong });
+
+    const result = await seedGeography(dataSource);
+    expect(result).toEqual({ inserted: 0, updated: 1, unchanged: 80, total: 81 });
+    expect((await repo.findOneByOrFail({ plateCode: '34' })).climateCurriculumNameTr).toBe(
+      seed.climateCurriculumNameTr,
+    );
+    // A genuine no-op on re-run — the restore must not churn `updated_at` forever.
+    expect(await seedGeography(dataSource)).toEqual({
+      inserted: 0,
+      updated: 0,
+      unchanged: 81,
+      total: 81,
+    });
+    expect(await repo.count()).toBe(81);
+  });
+
+  it('re-seed detects a climateCurriculumNoteTr drift in BOTH directions (comparator + omit⇒null)', async () => {
+    // The SECOND comparator line PR #97 added, and it needs both directions because the field is
+    // null on most rows by design: a province that HAS a note must have a corrupted note
+    // refreshed, and a province whose note is null by design must have a spurious note CLEARED
+    // (the `withExplicitDetailNulls` half — without it TypeORM's merge would leave the stale
+    // value and re-flag the row `updated` on every future re-seed). One test, two rows, so the
+    // counts themselves prove both lines fired. Plates are taken from the seed by PROPERTY (has
+    // a note / has none), not hard-coded, so a later wave that moves notes around cannot make
+    // this case silently test the same direction twice.
+    const repo = dataSource.getRepository(Province);
+    const withNote = SEED_PROVINCES.find(
+      (p) => typeof p.climateCurriculumNoteTr === 'string' && p.climateCurriculumNoteTr !== '',
+    );
+    const withoutNote = SEED_PROVINCES.find(
+      (p) => p.climateCurriculumNoteTr === undefined || p.climateCurriculumNoteTr === null,
+    );
+    if (!withNote || !withoutNote) throw new Error('need one province with a note and one without');
+
+    await repo.update({ plateCode: withNote.plateCode }, { climateCurriculumNoteTr: 'DRIFTED' });
+    await repo.update({ plateCode: withoutNote.plateCode }, { climateCurriculumNoteTr: 'DRIFTED' });
+
+    const result = await seedGeography(dataSource);
+    expect(result).toEqual({ inserted: 0, updated: 2, unchanged: 79, total: 81 });
+
+    expect(
+      (await repo.findOneByOrFail({ plateCode: withNote.plateCode })).climateCurriculumNoteTr,
+    ).toBe(withNote.climateCurriculumNoteTr);
+    expect(
+      (await repo.findOneByOrFail({ plateCode: withoutNote.plateCode })).climateCurriculumNoteTr,
+    ).toBeNull();
     expect(await seedGeography(dataSource)).toEqual({
       inserted: 0,
       updated: 0,
@@ -1162,9 +1247,14 @@ describe('assertKoppenCaveatInvariant', () => {
   /**
    * A SECOND invariant, deliberately not an extension of the one above — the Köppen caveat
    * guards MGM's attributed quotation (K1, → DEC 2026-08-04a), the müfredat mapping guards OUR
-   * editorial layer, and one failure message must not answer for two authorities. Kept in this
-   * file, beside its sibling, because splitting the two into different suites would split the
-   * reader; both are pure functions and neither needs the DB.
+   * editorial layer, and one failure message must not answer for two authorities.
+   *
+   * NESTED INSIDE the Köppen suite rather than beside it, so it can reuse that suite's
+   * `VALID_SEED` fixture and the two blocks cannot drift apart. Jest therefore reports these
+   * cases as `assertKoppenCaveatInvariant > assertCurriculumMappingInvariant > …` — noted
+   * because the report path reads like one invariant owns the other, which it does not
+   * (→ PR #97 review, CR97-M7; un-nesting would mean hoisting the fixture and re-indenting
+   * ~130 lines for a naming-only gain).
    */
   describe('assertCurriculumMappingInvariant', () => {
     // Ege + "İç Anadolu karasal iklimi": an OUT-OF-REGION pair, i.e. the shape that requires a
@@ -1196,9 +1286,25 @@ describe('assertKoppenCaveatInvariant', () => {
       );
     });
 
+    it('throws on a PADDED canonical name (the raw value is compared, not a trimmed copy)', () => {
+      // Reachable only past the union by a cast — which is exactly the caller rule 2 guards.
+      // Before PR #97's review fix the membership test trimmed while `isUnexpectedRegionPair`
+      // did not, so a padded name passed the vocabulary check, was written to the column WITH
+      // its padding, and separately false-flagged the row as out-of-region (CR97-M3).
+      expect(() =>
+        assertCurriculumMappingInvariant([
+          {
+            ...VALID_SEED,
+            climateCurriculumNameTr:
+              'Marmara geçiş iklimi ' as ProvinceSeed['climateCurriculumNameTr'],
+          },
+        ]),
+      ).toThrow(/is not one of the eight/u);
+    });
+
     it('throws on a name outside the closed vocabulary (the runtime half of the union)', () => {
-      // The union type cannot see a value written by a future admin endpoint or a hand-run SQL
-      // statement; this can. A near-miss spelling is the realistic case, so the fixture uses one.
+      // The union type cannot see a value produced by a cast or a plain-JS caller; this can.
+      // A near-miss spelling is the realistic case, so the fixture uses one.
       expect(() =>
         assertCurriculumMappingInvariant([
           {

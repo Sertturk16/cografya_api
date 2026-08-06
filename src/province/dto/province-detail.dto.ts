@@ -151,10 +151,12 @@ export class ProvinceDetailDto {
   @ApiProperty({
     type: String,
     nullable: true,
+    // The example quotes the seeded Çorum note verbatim, straight apostrophes included — an
+    // example that silently re-types the value it illustrates is a small lie about the payload.
     example:
-      'Çorum, 776 metredeki merkeziyle Kızılırmak havzasına açılan yüksek bir platodadır. İl Karadeniz Bölgesi’ndedir, iklim adı ise güneydeki İç Anadolu’yu gösterir.',
+      "Çorum, 776 metredeki merkeziyle Kızılırmak havzasına açılan yüksek bir platodadır. İl Karadeniz Bölgesi'ndedir, iklim adı ise güneydeki İç Anadolu'yu gösterir.",
     description:
-      'Müfredat adına eşlik eden açıklama notu (TR). Yalnız 14 ilde dolu, geri kalanında NULL — ' +
+      'Müfredat adına eşlik eden açıklama notu (TR). Yalnız 15 ilde dolu, geri kalanında NULL — ' +
       'bu bir eksiklik değil, tasarım: not ya adın harita sınırındaki bir okuma olduğunu ya da ' +
       'addaki coğrafi etiketin ilin kendi bölgesinden farklı olduğunu açıklar. Köppen ile ' +
       'müfredat arasındaki genel gerilim BURADA DEĞİL, tüm illerde ortak olan `climateNoteTr` ' +
