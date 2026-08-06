@@ -161,8 +161,14 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     //   niteleyicisi SAKLANAN DEĞERİN İÇİNDE. EN biçimi kurumun kendi öz-adlandırması
     //   DEĞİL — [KAYNAK DOĞRULANAMADI]: `TRNC` kendi `nameEn`'imizden türetilmiş
     //   platform-içi tutarlılık kararıdır, kurumsal iddia değil (nova-q2-teyit.md §A.3).
-    populationSourceNameTr: "KKTC İstatistik Kurumu'nun 2024 projeksiyonu",
-    populationSourceNameEn: "the TRNC Statistical Institute's 2024 projection",
+    //   YIL BİLEREK DÜŞÜRÜLDÜ (AK-10, PR #98 filtre turu — bir kural düzeltmesi DEĞİL, bir
+    //   house-style tercihi): QN korpusun 199 satırı içinde yıl taşıyan TEK satırdı; bu onu
+    //   tanınmayan tek satırın aynı zamanda hem yıllı hem [KAYNAK DOĞRULANAMADI] etiketli tek
+    //   satır olmasına getiriyordu. "projeksiyon"/"projection" niteleyicisi ZORUNLU kalır
+    //   (AK-8 Q4) ve [KAYNAK DOĞRULANAMADI] etiketi de kalır — o etiket EN biçimin kurum-adı
+    //   türetimine bağlıdır, yıla değil.
+    populationSourceNameTr: "KKTC İstatistik Kurumu'nun projeksiyonu",
+    populationSourceNameEn: "the TRNC Statistical Institute's projection",
     areaKm2: 3_242,
     capitalNameTr: 'Lefkoşa',
     capitalNameEn: 'Nicosia',

@@ -122,9 +122,12 @@ export class CountryDetailDto {
     description:
       'Nüfus kaynağı (EN) — `populationSourceNameTr` ile AYNI kural ve AYNI null-invaryantı. ' +
       'İngilizce gereken artikel değerin İÇİNDEDİR (`the World Bank`, `the TRNC Statistical ' +
-      "Institute's 2024 projection`) — istemci artikel eklemez. Kurum adları ÇEVRİLMEZ; " +
-      "locale'e göre doğru ad zaten burada gelir (ör. `Grønlands Statistik` ↔ " +
-      '`Statistics Greenland`, kurumun kendi iki adı, bir çeviri çifti değil).',
+      "Institute's projection`) — istemci artikel eklemez. Kurum adları KURAL OLARAK " +
+      "ÇEVRİLMEZ; locale'e göre doğru ad zaten burada gelir (ör. `Grønlands Statistik` ↔ " +
+      '`Statistics Greenland`, kurumun kendi iki adı, bir çeviri çifti değil). TEK İSTİSNA ' +
+      '(PR #98 inceleme, CR98-M10): TR satırının EN değeri de `TÜİK (ADNKS)`dir — 81 il EN ' +
+      'sayfasının zaten aynı kısaltmayı kullanmasıyla (`population from TÜİK (ADNKS)`) ' +
+      'platform-içi tutarlılık için bilinçli olarak çevrilmemiştir.',
   })
   populationSourceNameEn!: string | null;
 

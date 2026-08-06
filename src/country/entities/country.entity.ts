@@ -362,9 +362,14 @@ export class Country {
    * Nüfus kaynağı — the institution that PUBLISHED `population`, TR + EN, in the exact
    * SENTENCE-READY form the web credit line renders (no trailing period, no "Kaynak:"
    * prefix, the English article baked into the value itself, e.g. `the World Bank`,
-   * `the TRNC Statistical Institute's 2024 projection`). Institution names are never
+   * `the TRNC Statistical Institute's projection`). Institution names are, AS A RULE, never
    * translated — each locale carries the institution's own name in that language
-   * (`Grønlands Statistik` / `Statistics Greenland`), not a machine translation.
+   * (`Grønlands Statistik` / `Statistics Greenland`), not a machine translation. ONE NAMED
+   * EXCEPTION (PR #98 review, CR98-M10): TR's EN value is `TÜİK (ADNKS)`, the same untranslated
+   * abbreviation as the TR value — deliberately NOT rendered into an English institution name,
+   * because the 81 province EN pages already publish "population from TÜİK (ADNKS)" as their
+   * own credit form (`ProvinceDetail`/`Climate.sourceLine` precedent); translating it here would
+   * make the one country-level TÜİK credit inconsistent with every province-level one.
    *
    * NULLABLE, and populated on exactly FIVE rows today (GL, CY, QN, TW, TR) — every other
    * row leaves both columns absent and the service resolves the corpus default ("Dünya

@@ -25,7 +25,10 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * migration): #97 lands first in the merge order, so its migration must apply first in
  * both production and CI.
  *
- * `down()` drops both columns — exactly reversible.
+ * `down()` drops both columns — SCHEMA-reversible only (PR #98 review, CR98-M8). Any values
+ * `db:seed:world` has since written into them are discarded, not preserved; a `down` + `up`
+ * round-trip restores the empty columns, not the five seeded credit-line values. Re-running
+ * `db:seed:world` after `up()` restores the data.
  */
 export class AddCountryPopulationSourceName1786060800000 implements MigrationInterface {
   name = 'AddCountryPopulationSourceName1786060800000';

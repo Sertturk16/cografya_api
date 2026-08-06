@@ -51,12 +51,24 @@ export interface CountrySeed {
   population?: number | null;
   populationYear?: number | null;
   /**
-   * Nüfus kaynağı override (TR/EN) — absent on ~186 rows (service resolves the corpus
-   * default, "Dünya Bankası" / "the World Bank"); populated only on the five rows whose
-   * `population` was NOT published by the World Bank (GL, CY, QN, TW, TR — see the file
-   * header PROVENANCE block). ALWAYS both-or-neither (guard rule 10, leg 1) and NEVER set
-   * on a row whose `population` is absent (guard rule 10, leg 2 — AQ). Values are
-   * transcribed byte-for-byte from `provenance/territories.md`, never invented.
+   * Nüfus kaynağı override (TR/EN) — absent on ~193 of the corpus's 199 seeded rows (service
+   * resolves the corpus default, "Dünya Bankası" / "the World Bank"); populated only on the
+   * five rows whose `population` was NOT published by the World Bank (GL, CY, QN, TW, TR —
+   * see the file header PROVENANCE block). ALWAYS both-or-neither (guard rule 10, leg 1) and
+   * NEVER set on a row whose `population` is absent (guard rule 10, leg 2 — AQ).
+   *
+   * Values are transcribed from the actual records, not from `provenance/territories.md` —
+   * that file is a short ROUTER with no institution names in it (see its own text). The real
+   * records are `provenance/legacy/data-provenance-pre-split-2026-08-06.md` (GL L1661, TR
+   * L1666, TW L1674) and `Owner's Inbox/dunya-haritasi-sovereignty/sovereignty-data-dictionary.md`
+   * (CY L57, QN L80, TW L169) — see `closing-summary.md` §2 for the per-row table. "Never
+   * invented" holds for the SOURCE FACTS (an institution's real name/figure is never
+   * fabricated), not for every character of every value: CY's parenthetical Turkish gloss was
+   * deliberately DROPPED (AK-9 — the institution does not publish a Turkish self-name), and
+   * QN's "projeksiyon"/"projection" qualifier is COMPOSED into the stored value per AK-8 Q4,
+   * not a verbatim quotation. QN's EN form is additionally labelled `[KAYNAK
+   * DOĞRULANAMADI]` at its own row (`sovereignty.countries.ts`) — a platform-consistency
+   * derivation from our own `nameEn`, not the institution's verified self-designation.
    */
   populationSourceNameTr?: string | null;
   populationSourceNameEn?: string | null;
@@ -110,12 +122,15 @@ export interface CountrySeed {
  *                                     defect class as the other four, previously unmeasured)
  *       Georgia USED to be a sixth (Geostat) and was retired on 2026-08-05 once the World Bank
  *       series caught up and began publishing that exact figure — see the GE row.
- *       CLOSED, not merely tracked: the kaynak-satırı micro (2026-08-06, AK-8/AK-9) gave every
- *       row above (plus every ordinary row) a `population_source_name_tr/en` pair the service
- *       resolves at read time (`resolvePopulationSourceName`, `src/country/population-source.ts`)
- *       — so the generic "Kaynak: Dünya Bankası" credit the pages render is no longer WRONG on
- *       these five pages once `cografya_web`'s matching PR consumes the field. FENER47-I1 is
- *       closed by this wave, not merely narrowed.
+ *       API-SIDE ONLY, still OPEN on the rendered page: the kaynak-satırı micro (2026-08-06,
+ *       AK-8/AK-9) gave every row above (plus every ordinary row) a
+ *       `population_source_name_tr/en` pair the service resolves at read time
+ *       (`resolvePopulationSourceName`, `src/country/population-source.ts`) — but nothing in
+ *       THIS repo renders it: `cografya_web`'s `CountryDetail.sources` is a static string with
+ *       no interpolation slot (PR #98 review, I3), so every page still credits "Kaynak: Dünya
+ *       Bankası" for these five rows exactly as before. FENER47-I1 is NARROWED by this wave —
+ *       the data the fix needs now exists and is contract-visible — NOT closed; it closes only
+ *       once `cografya_web`'s matching PR consumes the field (board row `WEB-SOURCE-LINE`).
  *   • Yüzölçümü (km²)                            → Dünya Bankası (AG.LND.TOTL.K2, 2023)
  *   • Kıta + BM alt-bölgesi (M49)                → UNSD M49 standard
  *   • Komşu ülkeler, yönetim biçimi, para birimi, resmi dil, bağımsızlık, fiziki coğrafya
