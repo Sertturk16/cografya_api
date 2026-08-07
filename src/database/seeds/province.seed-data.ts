@@ -207,11 +207,13 @@ const CLIMATE_CLASS_TR = 'Akdeniz iklimi';
  * every clause is sourced from the fact-checked dictionary. Province-specific
  * divergences (Ankara, Van) are appended per-province below.
  *
- * ## THE A-2 SENTENCE (2026-08-06, Atlas ruling AK-4 / AT-10)
- * The final sentence — "Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları
+ * ## THE A-2 BLOCK (2026-08-06, Atlas ruling AK-4 / AT-10; corrected 2026-08-07 → DEC 2026-08-06v)
+ * The closing block — "Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları
  * iki ayrı sistemdir…" — was added to the SHARED, code-agnostic body of ALL EIGHT caveat
  * constants when the curriculum climate name shipped (`climateCurriculumNameTr`). It is the
  * ONE place the Köppen-vs-curriculum tension is stated, for all 81 provinces at once.
+ * It shipped as ONE sentence and is TWO since the correction recorded below — "A-2" now names
+ * a two-sentence block, not a sentence.
  *
  * Why it belongs here and not in 81 per-province notes: the existing body already names the
  * limitation but scopes it to "İç Anadolu ile Doğu Anadolu gibi bölgeler", which does not
@@ -228,8 +230,57 @@ const CLIMATE_CLASS_TR = 'Akdeniz iklimi';
  * itself was NOT modified by this change. Both properties are pinned by tests in
  * `test/province.e2e-spec.ts`.
  *
- * Source of the text: NOVA's `Owner's Inbox/koppen-sablon-gecisi/cumle-taslaklari.md` §3,
- * transcribed with the seed-transcription emitter's own chunker — never retyped by hand.
+ * Source of the ORIGINAL text: NOVA's `Owner's Inbox/koppen-sablon-gecisi/cumle-taslaklari.md`
+ * §3, transcribed with the seed-transcription emitter's own chunker — never retyped by hand.
+ * That draft still carries the PRE-CORRECTION wording; §3 is not the current text and the
+ * back-port is Atlas's (it is an Inbox artifact, outside this repo). No lane reads it, so
+ * nothing goes red if it stays stale — which is exactly why it is written down here.
+ *
+ * ## THE TWO DEFECTS A-2 SHIPPED WITH, AND THEIR CORRECTION (2026-08-07, → DEC 2026-08-06v)
+ * PR #51 fixed both defect CLASSES in the web message catalogue, nobody grepped this seed for
+ * the same claim, and both survived here — on 81 indexable pages, inside a box DEC 2026-08-05c
+ * renders OPEN BY DEFAULT. Atlas found them eyeballing #51's own sample frames; five review
+ * legs had not. What changed:
+ *
+ *   THE RETIRED WORDINGS ARE DESCRIBED, NEVER QUOTED VERBATIM BELOW. REVIEW-POLICY now asks
+ *   for a cross-repo same-claim grep whenever a changed string corrects a claim — a comment
+ *   carrying a copy of the retired phrase would answer that grep forever, and the next auditor
+ *   would have to decide whether the hit is live text or a footnote. It is cheaper to describe.
+ *
+ *   1. The absolute "her zaman"-class quantifier → "illerin çoğunda örtüşmez" (the I2 class).
+ *      Measured against the shipped seed, `climateClassTr` and `climateCurriculumNameTr` are
+ *      string-identical for 26/81, differ for 55/81 and differ at climate-FAMILY level for
+ *      47/81 — divergence is the MAJORITY case, so the old quantifier sold the rule as the
+ *      exception. Its second Turkish reading ("hiç örtüşmez") was false for the 26 identical
+ *      rows: weak in one direction,
+ *      over-strong in the other. The replacement is the wording the owner approved at #51's
+ *      sample gate and that `messages/tr.json`'s `climatePlainNote` already ships, so the two
+ *      sentences a reader meets four lines apart now AGREE on frequency instead of
+ *      contradicting each other. NO NUMBER is written into the text: a corpus statistic on a
+ *      per-province page goes stale with the next seed, no lane verifies it, and the digit ban
+ *      below is part of what keeps one body shareable by eight constants.
+ *   2. The "müfredat"-class attribution → "ders kitabı … gösterebilir" (the I3 class). In-force
+ *      öğretim programı (Türkiye Yüzyılı Maarif Modeli 2024, COĞ.9.3.1-9.3.4 — provenance
+ *      künye K-5) names ZERO climate types; the eight names exist only in MEB's Coğrafya 9
+ *      textbook, Harita 1.39 (künye K-1). The block's own OPENING already said "ders
+ *      kitaplarındaki", so it contradicted itself two clauses later. "gösterebilir" replaces
+ *      "sayabilir" because the mechanism is a map polygon, not a tally.
+ *
+ * WHAT DELIBERATELY DID NOT CHANGE: the field name `climateCurriculumNameTr`, the eight
+ * `CURRICULUM_*` constants and GLOSSARY §4.1's "müfredat iklim adları" heading all stay.
+ * "Müfredat" remains the project's INTERNAL term while "ders kitabı" is the READER-FACING
+ * attribution — the same split PR #51 shipped (`sourcesClimateCurriculum` = "ders kitabı iklim
+ * adı MEB (Coğrafya 9)" beside a field still called `…Curriculum…`). No Köppen code, class
+ * name, curriculum name or province value moved, and `openapi.json` is byte-identical.
+ *
+ * The colon became a full stop in the same edit: as ONE sentence the block carried four
+ * independent facts (two systems · frequency · example direction · reverse direction) against
+ * CONTENT-STYLE §16's ceiling of two. Split, each half carries two. The paragraph's semicolon
+ * count is unchanged at one and no em-dash was added (§16, §17).
+ *
+ * NOT fixed here, on purpose: the 46-word MGM sentence above is an attributed paraphrase of
+ * MGM's own 2023 report (K1, → DEC 2026-08-04a). Re-composing it would make US the author of a
+ * claim attributed to MGM, so it stays exactly as shipped despite the same §16 pressure.
  *
  * ## SIDE EFFECT ON ANKARA (06) AND VAN (65) — REPAIRED IN THE APPENDICES (Atlas AK-6)
  * Those two rows append their own divergence sentence AFTER this shared body. Once A-2 sat
@@ -249,6 +300,13 @@ const CLIMATE_CLASS_TR = 'Akdeniz iklimi';
  * Thornthwaite or Erinç specifically produce for Ankara, which no source in hand states, and
  * Van's "göl-etkili" is not a class name in ANY of them. A-2 itself is untouched by the repair,
  * so its byte-identity across all eight constants still holds.
+ *
+ * RE-VERIFIED after the DEC 2026-08-06v correction (both composed bodies read end to end, not
+ * inferred): the appendix's antecedent is still the PLURAL, measurement-derived "Thornthwaite,
+ * Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda" clause, which the appendix even
+ * echoes in its verb ("ayrışabilir" → "ayrışır"). The correction moved the competing antecedent
+ * further away from fitting rather than closer: the nearest noun is now "ders kitabı", a single
+ * book, which reads as a "sınıflandırma" even less naturally than "müfredat" did.
  */
 const MGM_KOPPEN_CAVEAT_TR =
   "MGM'nin 2023 Köppen sınıflandırması bu ili Csa (Akdeniz iklimi) olarak verir. " +
@@ -258,8 +316,8 @@ const MGM_KOPPEN_CAVEAT_TR =
   'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
   'bu iller farklı iklim tiplerine ayrışabilir. ' +
   'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları iki ayrı sistemdir ve ' +
-  'her zaman örtüşmez: bir ilin Köppen kodu Akdeniz tipini gösterirken müfredat aynı ili karasal ' +
-  'ya da Karadeniz iklimi alanında sayabilir, tersi de görülür.';
+  'illerin çoğunda örtüşmez. Bir ilin Köppen kodu Akdeniz tipini gösterirken ders kitabı aynı ' +
+  'ili karasal ya da Karadeniz iklimi alanında gösterebilir, tersi de görülür.';
 
 /**
  * ── Cfa (Batch 2 wave-2, Kocaeli + Sakarya ONLY) ──────────────────────────────
@@ -306,8 +364,8 @@ const MGM_KOPPEN_CAVEAT_CFA_TR =
   'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
   'bu iller farklı iklim tiplerine ayrışabilir. ' +
   'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları iki ayrı sistemdir ve ' +
-  'her zaman örtüşmez: bir ilin Köppen kodu Akdeniz tipini gösterirken müfredat aynı ili karasal ' +
-  'ya da Karadeniz iklimi alanında sayabilir, tersi de görülür.';
+  'illerin çoğunda örtüşmez. Bir ilin Köppen kodu Akdeniz tipini gösterirken ders kitabı aynı ' +
+  'ili karasal ya da Karadeniz iklimi alanında gösterebilir, tersi de görülür.';
 
 /**
  * ── Csb (Batch 2 wave-3, Kütahya ONLY) ────────────────────────────────────────
@@ -356,8 +414,8 @@ const MGM_KOPPEN_CAVEAT_CSB_TR =
   'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
   'bu iller farklı iklim tiplerine ayrışabilir. ' +
   'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları iki ayrı sistemdir ve ' +
-  'her zaman örtüşmez: bir ilin Köppen kodu Akdeniz tipini gösterirken müfredat aynı ili karasal ' +
-  'ya da Karadeniz iklimi alanında sayabilir, tersi de görülür.';
+  'illerin çoğunda örtüşmez. Bir ilin Köppen kodu Akdeniz tipini gösterirken ders kitabı aynı ' +
+  'ili karasal ya da Karadeniz iklimi alanında gösterebilir, tersi de görülür.';
 
 /**
  * ── Cfb (Batch 2 wave-6d, Karadeniz-B iç/yüksek-rakımlı iller) ─────────────────
@@ -409,8 +467,8 @@ const MGM_KOPPEN_CAVEAT_CFB_TR =
   'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
   'bu iller farklı iklim tiplerine ayrışabilir. ' +
   'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları iki ayrı sistemdir ve ' +
-  'her zaman örtüşmez: bir ilin Köppen kodu Akdeniz tipini gösterirken müfredat aynı ili karasal ' +
-  'ya da Karadeniz iklimi alanında sayabilir, tersi de görülür.';
+  'illerin çoğunda örtüşmez. Bir ilin Köppen kodu Akdeniz tipini gösterirken ders kitabı aynı ' +
+  'ili karasal ya da Karadeniz iklimi alanında gösterebilir, tersi de görülür.';
 
 /**
  * ── D-group + BSk (Batch 2 wave-6b, Doğu Anadolu) ─────────────────────────────
@@ -461,8 +519,8 @@ const MGM_KOPPEN_CAVEAT_DFB_TR =
   'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
   'bu iller farklı iklim tiplerine ayrışabilir. ' +
   'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları iki ayrı sistemdir ve ' +
-  'her zaman örtüşmez: bir ilin Köppen kodu Akdeniz tipini gösterirken müfredat aynı ili karasal ' +
-  'ya da Karadeniz iklimi alanında sayabilir, tersi de görülür.';
+  'illerin çoğunda örtüşmez. Bir ilin Köppen kodu Akdeniz tipini gösterirken ders kitabı aynı ' +
+  'ili karasal ya da Karadeniz iklimi alanında gösterebilir, tersi de görülür.';
 
 const MGM_KOPPEN_CAVEAT_DSB_TR =
   "MGM'nin 2023 Köppen sınıflandırması bu ili Dsb (Karasal iklim, kışı şiddetli, yazı kurak " +
@@ -473,8 +531,8 @@ const MGM_KOPPEN_CAVEAT_DSB_TR =
   'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
   'bu iller farklı iklim tiplerine ayrışabilir. ' +
   'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları iki ayrı sistemdir ve ' +
-  'her zaman örtüşmez: bir ilin Köppen kodu Akdeniz tipini gösterirken müfredat aynı ili karasal ' +
-  'ya da Karadeniz iklimi alanında sayabilir, tersi de görülür.';
+  'illerin çoğunda örtüşmez. Bir ilin Köppen kodu Akdeniz tipini gösterirken ders kitabı aynı ' +
+  'ili karasal ya da Karadeniz iklimi alanında gösterebilir, tersi de görülür.';
 
 const MGM_KOPPEN_CAVEAT_DSA_TR =
   "MGM'nin 2023 Köppen sınıflandırması bu ili Dsa (Karasal iklim, kışı şiddetli, yazı kurak " +
@@ -485,8 +543,8 @@ const MGM_KOPPEN_CAVEAT_DSA_TR =
   'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
   'bu iller farklı iklim tiplerine ayrışabilir. ' +
   'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları iki ayrı sistemdir ve ' +
-  'her zaman örtüşmez: bir ilin Köppen kodu Akdeniz tipini gösterirken müfredat aynı ili karasal ' +
-  'ya da Karadeniz iklimi alanında sayabilir, tersi de görülür.';
+  'illerin çoğunda örtüşmez. Bir ilin Köppen kodu Akdeniz tipini gösterirken ders kitabı aynı ' +
+  'ili karasal ya da Karadeniz iklimi alanında gösterebilir, tersi de görülür.';
 
 const MGM_KOPPEN_CAVEAT_BSK_TR =
   "MGM'nin 2023 Köppen sınıflandırması bu ili BSk (Yarı Kurak Step İklimi, soğuk alt-tipi) " +
@@ -497,8 +555,8 @@ const MGM_KOPPEN_CAVEAT_BSK_TR =
   'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
   'bu iller farklı iklim tiplerine ayrışabilir. ' +
   'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları iki ayrı sistemdir ve ' +
-  'her zaman örtüşmez: bir ilin Köppen kodu Akdeniz tipini gösterirken müfredat aynı ili karasal ' +
-  'ya da Karadeniz iklimi alanında sayabilir, tersi de görülür.';
+  'illerin çoğunda örtüşmez. Bir ilin Köppen kodu Akdeniz tipini gösterirken ders kitabı aynı ' +
+  'ili karasal ya da Karadeniz iklimi alanında gösterebilir, tersi de görülür.';
 
 /**
  * ── MÜFREDAT İKLİM ADLARI (MEB Coğrafya 9, Harita 1.39) — the eight canonical names ────────
