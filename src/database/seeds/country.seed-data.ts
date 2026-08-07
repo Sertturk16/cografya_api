@@ -66,9 +66,17 @@ export interface CountrySeed {
    * fabricated), not for every character of every value: CY's parenthetical Turkish gloss was
    * deliberately DROPPED (AK-9 — the institution does not publish a Turkish self-name), and
    * QN's "projeksiyon"/"projection" qualifier is COMPOSED into the stored value per AK-8 Q4,
-   * not a verbatim quotation. QN's EN form is additionally labelled `[KAYNAK
-   * DOĞRULANAMADI]` at its own row (`sovereignty.countries.ts`) — a platform-consistency
-   * derivation from our own `nameEn`, not the institution's verified self-designation.
+   * not a verbatim quotation. QN's EN form USED TO carry a provenance marker at its own row,
+   * on the basis that it was derived from our own `nameEn` rather than from the institution.
+   * An independent fact-check disproved that basis on 2026-08-07 — the institution publishes
+   * its own English name and uses the abbreviation in its own address line — so the marker
+   * was removed (→ PR #102). Read the QN row in `sovereignty.countries.ts` before touching
+   * that value: it carries the evidence and the one nuance that survives, namely that the
+   * contiguous English form is our composition of two components the institution does
+   * publish, rather than a verbatim quotation.
+   * The marker's NAME is deliberately not spelled here, for the same reason it is not spelled
+   * there: it is still live elsewhere in the corpus, and an auditor sweeping for values that
+   * are still unverified must not be answered by a paragraph describing one that no longer is.
    */
   populationSourceNameTr?: string | null;
   populationSourceNameEn?: string | null;
@@ -111,8 +119,10 @@ export interface CountrySeed {
  *       country rows — year DELIBERATELY NOT asserted at world scale (owner ruling, 2026-07-13).
  *       FIVE ROWS ARE NOT WORLD BANK, and this is by ruling, not by drift:
  *         - Grönland (GL)  56.740   → Grønlands Statistik, 1 Oca 2026 (DEC 2026-08-01l)
- *         - Kıbrıs (CY)    983.000  → CYSTAT, government-controlled area ONLY — deliberately
- *                                     NOT the World Bank whole-island 1,36 M (DEC 2026-07-13)
+ *         - Kıbrıs (CY)    983.000  → CYSTAT's own year-end ESTIMATE (not a census), for the
+ *                                     government-controlled area ONLY — deliberately NOT the
+ *                                     World Bank whole-island 1,36 M (DEC 2026-07-13); the
+ *                                     method word is part of the credit since DEC 2026-08-07b
  *         - KKTC (QN)      489.308  → TRNC 2024 year-end revised projection; the World Bank
  *                                     publishes no series for an unrecognised state
  *         - Tayvan (TW) 23.299.132  → absent from `SP.POP.TOTL` altogether
