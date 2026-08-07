@@ -219,7 +219,7 @@ const CLIMATE_CLASS_TR = 'Akdeniz iklimi';
  * limitation but scopes it to "İç Anadolu ile Doğu Anadolu gibi bölgeler", which does not
  * cover the reverse direction (Çankırı/Çorum/Afyonkarahisar read as Köppen "Karadeniz iklimi"
  * while the curriculum calls them karasal) nor the coastal Csa rows (Trabzon, Sinop). For
- * Çankırı, Trabzon and Sinop this sentence is the ONLY explanation the page carries — their
+ * Çankırı, Trabzon and Sinop this block is the ONLY explanation the page carries — their
  * `climateCurriculumNoteTr` is deliberately NULL. (Çorum and Afyonkarahisar do carry a note,
  * but for the unrelated out-of-region reason of DEC 2026-08-05f #4.)
  *
@@ -247,31 +247,46 @@ const CLIMATE_CLASS_TR = 'Akdeniz iklimi';
  *   carrying a copy of the retired phrase would answer that grep forever, and the next auditor
  *   would have to decide whether the hit is live text or a footnote. It is cheaper to describe.
  *
- *   1. The absolute "her zaman"-class quantifier → "illerin çoğunda örtüşmez" (the I2 class).
- *      Measured against the shipped seed, `climateClassTr` and `climateCurriculumNameTr` are
+ *   1. The absolute always-quantifier → "illerin çoğunda örtüşmez" (the I2 class). Measured
+ *      against the shipped seed, `climateClassTr` and `climateCurriculumNameTr` are
  *      string-identical for 26/81, differ for 55/81 and differ at climate-FAMILY level for
  *      47/81 — divergence is the MAJORITY case, so the old quantifier sold the rule as the
- *      exception. Its second Turkish reading ("hiç örtüşmez") was false for the 26 identical
- *      rows: weak in one direction,
- *      over-strong in the other. The replacement is the wording the owner approved at #51's
- *      sample gate and that `messages/tr.json`'s `climatePlainNote` already ships, so the two
- *      sentences a reader meets four lines apart now AGREE on frequency instead of
- *      contradicting each other. NO NUMBER is written into the text: a corpus statistic on a
- *      per-province page goes stale with the next seed, no lane verifies it, and the digit ban
- *      below is part of what keeps one body shareable by eight constants.
- *   2. The "müfredat"-class attribution → "ders kitabı … gösterebilir" (the I3 class). In-force
- *      öğretim programı (Türkiye Yüzyılı Maarif Modeli 2024, COĞ.9.3.1-9.3.4 — provenance
- *      künye K-5) names ZERO climate types; the eight names exist only in MEB's Coğrafya 9
- *      textbook, Harita 1.39 (künye K-1). The block's own OPENING already said "ders
- *      kitaplarındaki", so it contradicted itself two clauses later. "gösterebilir" replaces
- *      "sayabilir" because the mechanism is a map polygon, not a tally.
+ *      exception. Its second Turkish reading ("never coincides") was false for the 26
+ *      identical rows: weak in one direction, over-strong in the other. The replacement is the
+ *      wording the owner approved at #51's sample gate and that `messages/tr.json`'s
+ *      `climatePlainNote` already ships, so the two sentences a reader meets four lines apart
+ *      now AGREE on frequency instead of contradicting each other. NO NUMBER is written into
+ *      the text: a corpus statistic on a per-province page goes stale with the next seed, no
+ *      lane verifies it, and the no-number rule stated in the CODE-AGNOSTIC paragraph ABOVE is
+ *      part of what keeps one body shareable by eight constants.
+ *   2. The attribution to the curriculum → "ders kitabı" + a map verb (the I3 class). The
+ *      in-force öğretim programı (Türkiye Yüzyılı Maarif Modeli 2024, COĞ.9.3.1-9.3.4 —
+ *      provenance künye K-5) names ZERO climate types; the eight names exist only in MEB's
+ *      Coğrafya 9 textbook, Harita 1.39 (künye K-1). The block's own OPENING already said
+ *      "ders kitaplarındaki", so it contradicted itself two clauses later. The retired tally
+ *      verb was replaced because the mechanism is a map polygon, not a count.
  *
  * WHAT DELIBERATELY DID NOT CHANGE: the field name `climateCurriculumNameTr`, the eight
  * `CURRICULUM_*` constants and GLOSSARY §4.1's "müfredat iklim adları" heading all stay.
- * "Müfredat" remains the project's INTERNAL term while "ders kitabı" is the READER-FACING
- * attribution — the same split PR #51 shipped (`sourcesClimateCurriculum` = "ders kitabı iklim
- * adı MEB (Coğrafya 9)" beside a field still called `…Curriculum…`). No Köppen code, class
- * name, curriculum name or province value moved, and `openapi.json` is byte-identical.
+ * "Müfredat" is the project's INTERNAL term; the READER-FACING attribution for the climate
+ * NAME is "ders kitabı", which is what PR #51 shipped on the web side
+ * (`sourcesClimateCurriculum` = "ders kitabı iklim adı MEB (Coğrafya 9)" beside a field still
+ * called `…Curriculum…`). No Köppen code, class name, curriculum name or province value moved,
+ * and `openapi.json` is byte-identical.
+ *
+ * THAT SPLIT IS APPLIED IN THIS BLOCK — IT IS NOT YET A CORPUS INVARIANT, and the paragraph
+ * above must not be read as one (→ PR #101 review, CR101-I1; reached independently by three
+ * legs). Three reader-facing values still attribute to the müfredat. Denizli's
+ * `climateCurriculumNoteTr` attributes the climate NAME itself, which is the same I3
+ * mis-attribution DEC 2026-08-06v retires; Çorum's and Sivas's `hydrographyNoteTr` credit a
+ * river figure to MEB müfredat sources, a weaker instance of the same break. All three are
+ * reader-facing PROSE owned by the content author, so this PR deliberately leaves them alone;
+ * they are handed to Atlas as `FU-MUFREDAT-RESIDUE`.
+ *
+ * Why that hand-off is written HERE rather than only on a board: an auditor who follows DEC
+ * 2026-08-06v's own lesson comes to this docblock first. A line claiming the split is settled
+ * would end the sweep before it reached Denizli — a load-bearing comment that suppresses the
+ * search which would find the residue.
  *
  * The colon became a full stop in the same edit: as ONE sentence the block carried four
  * independent facts (two systems · frequency · example direction · reverse direction) against
