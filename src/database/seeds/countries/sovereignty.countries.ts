@@ -110,8 +110,12 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     populationYear: null,
     // Kaynak-satırı istisnası (AK-9): kısa marka adı, parantezli açılım YOK — DEC 05j'nin
     //   kendi örneği "CYSTAT"; kurum Türkçe bir öz-ad yayımlamaz (çevrilmez). "tahmini" bir
-    //   AÇILIM DEĞİL, bir YÖNTEM niteleyicisidir: 05j'nin yasağı akronimin parantezli
-    //   açılımınadır ve bu değer onu ihlal etmez.
+    //   AÇILIM DEĞİL, bir YÖNTEM niteleyicisidir, dolayısıyla bu satırın "parantezli açılım
+    //   YOK" kuralını ihlal etmez. DİKKAT — o kural DEC 05j'nin METNİNDE YOK: 05j yalnızca
+    //   kaynak satırının veri-güdümlü olmasını ve özel kaynaklı satırlarda gerçek kurum adının
+    //   yazılmasını hükme bağlıyor ("ör. Kıbrıs 'nüfus CYSTAT'"). Açılım yasağı bu yorumun
+    //   kendi house-style glossudur; 05j'ye atfetmek, bu PR'ın CY kredisinde düzelttiği yanlış
+    //   merci atfının aynısı olurdu (→ PR #102 review, CR102-M1).
     //   YÖNTEM SÖZCÜĞÜ (DEC 2026-08-07b + Ek-1, owner-ruled): 983.000 bir SAYIM DEĞİL.
     //   CYSTAT'ın kendi cümlesi "is estimated at 983,0 thousand at the end of 2024", kendi
     //   metodoloji notu "Population estimates are based on Census results updated annually
@@ -184,16 +188,21 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     continent: Continent.Asia,
     unSubregionTr: 'Batı Asya',
     // 2024 yıl sonu revize PROJEKSİYON — data dictionary §2. Taban sayım 4 Aralık 2011:
-    //   kurumun kendi Tablo B1'i ("Sayım Yıllarına Göre Nüfus, 1901-2011") ve 2011 sayımının
-    //   kendi XLS tabloları 286.257 veriyor — tablo başlığının kendi tanımıyla "sürekli
-    //   ikamet eden nüfus", yani de jure.
-    //   DÜZELTİLDİ (2026-08-07, bağımsız fact-check §5): bu yorum daha önce ~8.600 kişi daha
-    //   yüksek, de facto (sayım anında ülkede bulunan) bir rakam veriyordu. O değer HİÇBİR
-    //   KURUM YAYININDA BULUNAMADI, yalnız haber kaynaklarında geçiyor; birebir yazılmıyor ki
-    //   ileride bir taramada canlı bir iddia gibi görünmesin (tam değer git geçmişinde ve
-    //   `provenance/corrections.md` satırında). Cins bu ikilide rakamı değiştirdiği için
-    //   açıkça yazılıyor: CY tarafının 923.381'i de de jure, dolayısıyla karşılaştırılabilir
-    //   olan 286.257'dir.
+    //   kurumun kendi Tablo B1'i (sayım yıllarına göre nüfus serisi, 1901-2011) ve 2011
+    //   sayımının kendi XLS tabloları 286.257 veriyor — tabloların kendi tanımıyla "sürekli
+    //   ikamet eden nüfus", yani de jure. Tablo başlığı burada TARİF ediliyor, tırnak içinde
+    //   alıntılanmıyor: elimizdeki iki bağımsız kayıt başlığı birbirinden az farklı
+    //   aktarıyor, dolayısıyla birebir biçim bizde doğrulanmış değil.
+    //   DÜZELTİLDİ (2026-08-07, bağımsız fact-check
+    //   `Owner's Inbox/kaynak-satiri/factcheck-cy-2026-08-07.md` §5): bu yorum daha önce
+    //   ~8.600 kişi daha yüksek, de facto (sayım anında ülkede bulunan) bir rakam veriyordu.
+    //   O rakam, fact-check'in ERİŞEBİLDİĞİ kurum yayınlarının hiçbirinde bulunamadı ve yalnız
+    //   haber kaynaklarında geçiyor; burada birebir yazılmıyor ki ileride bir taramada canlı
+    //   bir iddia gibi görünmesin. Tam değeri tutan kayıt `provenance/territories.md`, QN
+    //   satırı, OPEN QUESTION 1; `corrections.md` satırı ise defterin kendi sırasına göre bu
+    //   iş indikten SONRA açılacak — yani bugün henüz yok, borçlu.
+    //   Cins bu ikilide rakamı değiştirdiği için açıkça yazılıyor: CY tarafının 923.381'i de
+    //   de jure, dolayısıyla karşılaştırılabilir olan 286.257'dir.
     population: 489_308,
     populationYear: null,
     // Kaynak-satırı istisnası (AK-9, sovereignty-escalated inceleme): "projeksiyon"
