@@ -251,7 +251,8 @@ const CLIMATE_CLASS_TR = 'Akdeniz iklimi';
  *      against the shipped seed, `climateClassTr` and `climateCurriculumNameTr` are
  *      string-identical for 26/81, differ for 55/81 and differ at climate-FAMILY level for
  *      47/81 — divergence is the MAJORITY case, so the old quantifier sold the rule as the
- *      exception. Its second Turkish reading ("never coincides") was false for the 26
+ *      exception. Read a second way the Turkish also asserted "never coincides" (translated
+ *      here, so the retired phrase itself stays out of the corpus), which was false for the 26
  *      identical rows: weak in one direction, over-strong in the other. The replacement is the
  *      wording the owner approved at #51's sample gate and that `messages/tr.json`'s
  *      `climatePlainNote` already ships, so the two sentences a reader meets four lines apart
@@ -259,7 +260,7 @@ const CLIMATE_CLASS_TR = 'Akdeniz iklimi';
  *      the text: a corpus statistic on a per-province page goes stale with the next seed, no
  *      lane verifies it, and the no-number rule stated in the CODE-AGNOSTIC paragraph ABOVE is
  *      part of what keeps one body shareable by eight constants.
- *   2. The attribution to the curriculum → "ders kitabı" + a map verb (the I3 class). The
+ *   2. The attribution to the curriculum → "ders kitabı … gösterebilir" (the I3 class). The
  *      in-force öğretim programı (Türkiye Yüzyılı Maarif Modeli 2024, COĞ.9.3.1-9.3.4 —
  *      provenance künye K-5) names ZERO climate types; the eight names exist only in MEB's
  *      Coğrafya 9 textbook, Harita 1.39 (künye K-1). The block's own OPENING already said
