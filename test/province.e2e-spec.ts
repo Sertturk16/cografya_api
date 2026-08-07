@@ -292,7 +292,7 @@ describe('Province (e2e)', () => {
     }
   });
 
-  it('carries the shared A-2 sentence on every Köppen caveat, and only there', async () => {
+  it('carries the shared A-2 block on every Köppen caveat, and only there', async () => {
     // A-2 (→ AT-10 / Atlas AK-4) states the Köppen-vs-curriculum tension ONCE, class-level, for
     // all 81 provinces — which is why Trabzon, Sinop and Çankırı need no per-province note. Two
     // properties make that true, and both are asserted rather than assumed:
@@ -300,21 +300,26 @@ describe('Province (e2e)', () => {
     //   2. it is CODE-AGNOSTIC — no Köppen code, no province name, no number. That is what lets
     //      all eight caveat constants share one body, and it is precisely what keeps
     //      `assertKoppenCaveatInvariant`'s "each note names its own code" check meaningful: if
-    //      this sentence named a code, every note would contain a code it does not belong to.
+    //      this block named a code, every note would contain a code it does not belong to.
+    // A-2 shipped as one sentence and is TWO since DEC 2026-08-06v; every property below is
+    // stated over the whole shared BLOCK, so the split changed the literal and nothing else.
     const rows = await dataSource.getRepository(Province).find();
     const A2_OPENING = 'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları';
-    // THE WHOLE SENTENCE, not just its opening (→ PR #97 review, CR97-M6 / SFH97-M1). The
+    // THE WHOLE BLOCK, not just its opening (→ PR #97 review, CR97-M6 / SFH97-M1). The
     // derivation below can only prove the eight constants AGREE with each other, and the real
     // append was one mechanical edit across all eight — the failure it cannot see is that same
     // edit pasting a wrong-but-uniform text. No transcription lane covers shared constants by
     // construction (they are not per-row prose), so this literal is the only place the A-2 text
     // itself is pinned. It is class-level editorial copy, not a per-province fact, so pinning it
-    // does not collide with the "tests check structure, not facts" rule. Source of truth:
-    // `Owner's Inbox/koppen-sablon-gecisi/cumle-taslaklari.md` §3.
-    const A2_SENTENCE =
+    // does not collide with the "tests check structure, not facts" rule — and DEC 2026-08-06v is
+    // what that pin is for: the wrong-but-uniform text sat on 81 pages for a day.
+    // Source of truth: the `MGM_KOPPEN_CAVEAT_*_TR` docblock in `province.seed-data.ts`, which
+    // records the correction. `Owner's Inbox/koppen-sablon-gecisi/cumle-taslaklari.md` §3 is the
+    // ORIGINAL draft and still carries the pre-correction wording; it is not the current text.
+    const A2_BLOCK =
       'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları iki ayrı sistemdir ' +
-      've her zaman örtüşmez: bir ilin Köppen kodu Akdeniz tipini gösterirken müfredat aynı ili ' +
-      'karasal ya da Karadeniz iklimi alanında sayabilir, tersi de görülür.';
+      've illerin çoğunda örtüşmez. Bir ilin Köppen kodu Akdeniz tipini gösterirken ders kitabı ' +
+      'aynı ili karasal ya da Karadeniz iklimi alanında gösterebilir, tersi de görülür.';
 
     expect(rows).toHaveLength(81);
     const tails: string[] = [];
@@ -328,29 +333,29 @@ describe('Province (e2e)', () => {
     // THE TAILS ARE NOT ALL EQUAL, and asserting that they were is what this case got wrong on
     // its first CI run. Two provinces (Ankara, Van) append their OWN divergence sentence to the
     // shared caveat, so their note continues past A-2. The property that actually matters is
-    // narrower and is the one asserted: the shared sentence is a common PREFIX of every tail,
+    // narrower and is the one asserted: the shared block is a common PREFIX of every tail,
     // and anything after it is an APPENDED sentence — never an edit of the shared body.
-    const sentence = tails.reduce((shortest, tail) =>
+    const block = tails.reduce((shortest, tail) =>
       tail.length <= shortest.length ? tail : shortest,
     );
-    expect(sentence).toBe(A2_SENTENCE);
-    expect(sentence.endsWith('.')).toBe(true);
+    expect(block).toBe(A2_BLOCK);
+    expect(block.endsWith('.')).toBe(true);
     for (const tail of tails) {
-      expect(tail.startsWith(sentence)).toBe(true);
+      expect(tail.startsWith(block)).toBe(true);
       // A per-province appendix begins with the space that separates two sentences. Without
       // this, a tail that merely started with the shared text but then RAN ON inside the same
       // sentence would pass — which is the drift a per-class copy-paste actually produces.
-      if (tail.length > sentence.length) expect(tail[sentence.length]).toBe(' ');
+      if (tail.length > block.length) expect(tail[block.length]).toBe(' ');
     }
 
-    // Code-agnostic, mechanically: no Köppen code and no digit anywhere in the shared sentence.
+    // Code-agnostic, mechanically: no Köppen code and no digit anywhere in the shared block.
     for (const code of ['Csa', 'Cfa', 'Csb', 'Cfb', 'Dfb', 'Dsb', 'Dsa', 'BSk']) {
-      expect(sentence).not.toContain(code);
+      expect(block).not.toContain(code);
     }
-    expect(sentence).not.toMatch(/\d/u);
+    expect(block).not.toMatch(/\d/u);
     // …and it names no province (checked against the seed's own name list, so a future province
     // rename cannot make this stale).
-    for (const seed of SEED_PROVINCES) expect(sentence).not.toContain(seed.nameTr);
+    for (const seed of SEED_PROVINCES) expect(block).not.toContain(seed.nameTr);
   });
 
   it('phase 1 — seeding the pilot-5 into an empty DB inserts exactly those 5', () => {
