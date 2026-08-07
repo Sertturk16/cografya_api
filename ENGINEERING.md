@@ -477,3 +477,36 @@ The §11.1 helper fixes **git transport only**. The **`gh` CLI itself** keys off
 - A new personal-data surface, a new upload path, a new external provider, or a new
   breaking contract change each trigger the relevant Atlas-coordinated review pass before
   merge (§3.6, §4).
+
+---
+
+## Kim neyi okur — kapsam sözleşmesi
+
+This table is the sole owner of this document's read scope. Role definitions do not
+restate it; they carry the anchor id from the last column, and
+`Team/scripts/read-contract-lint.sh` verifies each id is still present in every named
+definition file (→ DEC 2026-08-07a).
+
+<!-- read-contract -->
+
+| Rol | Okur | Ne zaman | Tanım dosyası | Anchor |
+|---|---|---|---|---|
+| **Deniz** (single writer) | **Mandatory:** the header block (precedence, single-writer, sister-repo boundary, not-multi-tenant) + §3 + §5 + §7 + §8 + §9 + §10 + §12. **On demand:** §1 (env/zod schema, Redis/upstream, OpenAPI tooling, scheduled work), §2 (a new or changed endpoint, DTO tier, list envelope), §4 (any DTO, route or `openapi.json` change), §6 (a TR+EN field, a slug, a user-facing message), §11.1 (a fresh clone or a new sibling repo), §11.2 (before every `gh` invocation — PR create, checks, anything else) | The mandatory set before writing anything in this repo, on every task; an on-demand section the moment the task reaches the trigger named beside it | `.claude/agents/cografya-backend-dev.md` `.codex/agents/cografya_backend_dev.toml` | `READ-ENG-API` |
+| **Review legs** (`code-reviewer`, `security-privacy-reviewer`, validator) | §1 stack lock, §3, §5 and §8 — the repo engineering truth a finding is scored against — plus §2 and §4 when the diff carries API surface or contract. §10 for context only: it is the author's half of the loop and a leg never acts on it | On every `cografya_api` review leg, before assigning a severity to a finding | `.claude/agents/pr-reviewer-high.md` `.claude/agents/pr-reviewer-medium.md` `.claude/agents/pr-validator.md` | `READ-ENG-API-REVIEWER` |
+
+<!-- /read-contract -->
+
+**Why the split falls there.** The mandatory set is the part whose violation is invisible
+from the diff surface: §3 and §5 are broken by changes that do not look like security or
+data changes (a helper refactor that reorders a published array, a hand-run key drifting
+into the boot schema), and §7–§10 plus §12 govern how any change lands at all — including
+§8's verification lanes, which no CI job runs for you. The on-demand set is keyed to a
+trigger the task itself makes visible (an endpoint, a DTO, `openapi.json`, a TR+EN field),
+and part of it has a machine gate behind that catches a miss: §1's strict-TypeScript half
+is held by the `Typecheck & Lint` job and its env half by boot-time validation, while §4
+is held by `openapi-check`. **§11.2 is the exception in that set** — its trigger is an
+action rather than a diff surface, because a PR opened under the wrong GitHub identity
+leaves no trace in the diff at all.
+
+Deniz's obligations toward `CONTENT-STYLE.md`, `SEO-POLICY.md` Part A, `GLOSSARY.md` and
+the provenance ledger are owned by those documents' own tables, not by this one.
