@@ -70,11 +70,25 @@ import type { CountrySeed } from '../country.seed-data';
  *      the corpus's five `populationSourceNameTr/En` exceptions (the other two are GL and
  *      TR, seeded elsewhere) — the `population` figures above were never a World Bank
  *      publication, so the row now carries its own institution's name rather than letting the
- *      service resolve the corpus default. QN's pair additionally carries the mandatory
- *      "projection" qualifier INSIDE the stored value (not a separate note), and its EN form
- *      is a platform-consistency derivation from our own `nameEn`, not a verified
- *      self-designation — see the field-level comment on the QN row and
- *      `nova-q2-teyit.md` §A.3. IL and PS are ordinary World Bank rows and carry neither field.
+ *      service resolve the corpus default. IL and PS are ordinary World Bank rows and carry
+ *      neither field.
+ *
+ *      CY AND QN NOW READ AS ONE PAIR (DEC 2026-08-07b + Ek-1, owner-ruled, 2026-08-07):
+ *      both figures are NON-CENSUS and both are 2024 year-end, so both credit lines state
+ *      their method in the same shape, `<kurum>'ın <yöntem>i`. CY gained "tahmini"/"estimate"
+ *      (CYSTAT's own word); QN keeps "projeksiyonu"/"projection" (its own table heading).
+ *      The method words are NOT merged: the products genuinely differ (CY updates a 2021 base
+ *      with registered events, QN projects from a 2011 base on assumed trends). Before this,
+ *      the bare "CYSTAT" was not neutral — with "projeksiyonu" sitting on the neighbouring
+ *      row it implied CY's figure was a CENSUS.
+ *
+ *      QN's EN form: the provenance tag marking that value as source-unverified was REMOVED
+ *      on the same date (tag name not spelled here — it is still live elsewhere in the
+ *      corpus, so an auditor's sweep for unverified values must not hit this record). Its
+ *      stated basis (that `TRNC` was derived from our own `nameEn`) was factually wrong — the
+ *      institution prints its own English name and uses `TRNC` in its own address line. The
+ *      residual nuance is recorded on the QN row itself: the contiguous string is our
+ *      composition of two self-published components, not a verbatim quotation.
  *
  * COMMON TO ALL 6: populationYear null (world-scale ruling, DEC 2026-07-13); areaKm2 is
  *   whole km² (entity is integer; KKTC 3.241,68 → 3.242 rounded to nearest); slugs by the
@@ -95,9 +109,24 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     population: 983_000,
     populationYear: null,
     // Kaynak-satırı istisnası (AK-9): kısa marka adı, parantezli açılım YOK — DEC 05j'nin
-    //   kendi örneği "CYSTAT"; kurum Türkçe bir öz-ad yayımlamaz (çevrilmez).
-    populationSourceNameTr: 'CYSTAT',
-    populationSourceNameEn: 'CYSTAT',
+    //   kendi örneği "CYSTAT"; kurum Türkçe bir öz-ad yayımlamaz (çevrilmez). "tahmini" bir
+    //   AÇILIM DEĞİL, bir YÖNTEM niteleyicisidir: 05j'nin yasağı akronimin parantezli
+    //   açılımınadır ve bu değer onu ihlal etmez.
+    //   YÖNTEM SÖZCÜĞÜ (DEC 2026-08-07b + Ek-1, owner-ruled): 983.000 bir SAYIM DEĞİL.
+    //   CYSTAT'ın kendi cümlesi "is estimated at 983,0 thousand at the end of 2024", kendi
+    //   metodoloji notu "Population estimates are based on Census results updated annually
+    //   to take account of the components of change, births, deaths and net migration",
+    //   taban sayım 2021 (923.381, 01.10.2021, de jure). Çıplak "CYSTAT" NÖTR DEĞİLDİ:
+    //   komşu QN satırı "projeksiyonu" dediği için okura bu rakamın SAYIM olduğunu ima
+    //   ediyordu — eksik niteleyici bir iddiada bulunuyordu ve iddia yanlıştı. Sözcük
+    //   kurumun kendi sözcüğüdür, bizim eklediğimiz bir ihtiyat payı değil.
+    //   İki satır artık aynı kalıpta: <kurum>'ın <yöntem>i. Yöntem sözcükleri BİRLEŞTİRİLMEZ
+    //   ("tahmin" ve "projeksiyon" gerçek bir metodoloji farkı taşır: CY 3 yıllık tabana
+    //   kayıtlı olayları işler, QN 13 yıllık tabandan varsayım temelli model üretir).
+    //   Yıl girmez (AK-10): iki rakam da 2024 yıl sonu vintage'lı, yıl ya ikisine birden
+    //   girer ya hiçbirine.
+    populationSourceNameTr: "CYSTAT'ın tahmini",
+    populationSourceNameEn: "CYSTAT's estimate",
     areaKm2: 5_896,
     capitalNameTr: 'Lefkoşa',
     capitalNameEn: 'Nicosia',
@@ -154,19 +183,42 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     slugEn: 'turkish-republic-of-northern-cyprus',
     continent: Continent.Asia,
     unSubregionTr: 'Batı Asya',
-    // 2024 yıl sonu revize PROJEKSİYON (son gerçek sayım 2011: 294.906) — data dictionary §2.
+    // 2024 yıl sonu revize PROJEKSİYON — data dictionary §2. Taban sayım 4 Aralık 2011:
+    //   kurumun kendi Tablo B1'i ("Sayım Yıllarına Göre Nüfus, 1901-2011") ve 2011 sayımının
+    //   kendi XLS tabloları 286.257 veriyor — tablo başlığının kendi tanımıyla "sürekli
+    //   ikamet eden nüfus", yani de jure.
+    //   DÜZELTİLDİ (2026-08-07, bağımsız fact-check §5): bu yorum daha önce ~8.600 kişi daha
+    //   yüksek, de facto (sayım anında ülkede bulunan) bir rakam veriyordu. O değer HİÇBİR
+    //   KURUM YAYININDA BULUNAMADI, yalnız haber kaynaklarında geçiyor; birebir yazılmıyor ki
+    //   ileride bir taramada canlı bir iddia gibi görünmesin (tam değer git geçmişinde ve
+    //   `provenance/corrections.md` satırında). Cins bu ikilide rakamı değiştirdiği için
+    //   açıkça yazılıyor: CY tarafının 923.381'i de de jure, dolayısıyla karşılaştırılabilir
+    //   olan 286.257'dir.
     population: 489_308,
     populationYear: null,
     // Kaynak-satırı istisnası (AK-9, sovereignty-escalated inceleme): "projeksiyon"
-    //   niteleyicisi SAKLANAN DEĞERİN İÇİNDE. EN biçimi kurumun kendi öz-adlandırması
-    //   DEĞİL — [KAYNAK DOĞRULANAMADI]: `TRNC` kendi `nameEn`'imizden türetilmiş
-    //   platform-içi tutarlılık kararıdır, kurumsal iddia değil (nova-q2-teyit.md §A.3).
+    //   niteleyicisi SAKLANAN DEĞERİN İÇİNDE ve ZORUNLU kalır (AK-8 Q4) — kurumun kendi tablo
+    //   başlığı zaten bu sözcüğü kullanıyor ("2024 31 Aralık (Projeksiyon)", Tablo B2).
+    //   BU DEĞERİ "kaynak doğrulanamadı" DİYE İŞARETLEYEN PROVENANCE ETİKETİ KALDIRILDI
+    //   (2026-08-07, bağımsız fact-check
+    //   `Owner's Inbox/kaynak-satiri/factcheck-cy-2026-08-07.md` §6). Etiket adı burada
+    //   birebir yazılmıyor: o etiket korpusta hâlâ CANLI olarak kullanılıyor
+    //   (`africa.countries.ts`, `governmentFormTr`), ve bir denetçinin "hangi değerler hâlâ
+    //   doğrulanmamış" taraması bu kaydı yanlış pozitif olarak döndürmemeli. Dayanağı
+    //   "`TRNC` bizim `nameEn`'imizden türetilmiş, kurumsal iddia değil" idi; bu OLGUSAL
+    //   OLARAK YANLIŞ çıktı. Kurumun İstatistik Yıllığı 2024 künyesi kendi İngilizce adını
+    //   basıyor (`Turkish Republic of Northern Cyprus` / `Statistical Institute`), her sayfa
+    //   üstbilgisinde `STATISTICAL INSTITUTE` geçiyor ve `TRNC` kurumun kendi adres
+    //   satırındadır (`99010 Nicosia -TRNC`).
+    //   KALAN NÜANS, dürüstlük gereği yazılı: `TRNC Statistical Institute` BİTİŞİK DİZGİ
+    //   olarak yıllıkta hiç geçmiyor (§6.1, tam metin arandı). Değer, kurumun kendi
+    //   yayımladığı iki bileşenin BİZİM birleşimimizdir. Etiketin sınıfı bu yüzden düştü
+    //   (doğrulanamama → birleştirme), kayıt bu yüzden duruyor: "doğrulandı" demek yeni bir
+    //   yanlış beyan olurdu.
     //   YIL BİLEREK DÜŞÜRÜLDÜ (AK-10, PR #98 filtre turu — bir kural düzeltmesi DEĞİL, bir
-    //   house-style tercihi): QN korpusun 199 satırı içinde yıl taşıyan TEK satırdı; bu onu
-    //   tanınmayan tek satırın aynı zamanda hem yıllı hem [KAYNAK DOĞRULANAMADI] etiketli tek
-    //   satır olmasına getiriyordu. "projeksiyon"/"projection" niteleyicisi ZORUNLU kalır
-    //   (AK-8 Q4) ve [KAYNAK DOĞRULANAMADI] etiketi de kalır — o etiket EN biçimin kurum-adı
-    //   türetimine bağlıdır, yıla değil.
+    //   house-style tercihi): QN korpusun 199 satırı içinde yıl taşıyan TEK satırdı. DEC
+    //   2026-08-07b ile CY de yöntem sözcüğü kazandığından iki satır artık aynı kalıpta
+    //   (<kurum>'ın <yöntem>i); yıl ya ikisine birden girer ya hiçbirine (bugün: hiçbirine).
     populationSourceNameTr: "KKTC İstatistik Kurumu'nun projeksiyonu",
     populationSourceNameEn: "the TRNC Statistical Institute's projection",
     areaKm2: 3_242,
