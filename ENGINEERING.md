@@ -292,7 +292,7 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   exit-code contract lives in **four runner copies** (`country-runner.ts` +
   `oneoff-province-climate-runner.ts` + `oneoff-province-prose-runner.ts` +
   `oneoff-province-curriculum-runner.ts`) driven by their entry points (`cli.ts`,
-  `oneoff-n1`, `oneoff-n2`, `oneoff-p1`…`oneoff-p5`, `oneoff-m1`) — a new
+  `oneoff-n1`, `oneoff-n2`, `oneoff-p1`…`oneoff-p6`, `oneoff-m1`) — a new
   lane author must replicate the same invariant, not assume one copy guards all. **The
   runner/entry-point split is structural, not stylistic:** the runner is deliberately
   `import.meta`-free so a CommonJS (ts-jest) spec can import it, and the entry point owns
@@ -329,16 +329,53 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
     field-parametric, run directly with `node` exactly like the climate lane; shares the same
     exit-code contract via its own runner (`oneoff-province-prose-runner.ts`). The climate lane
     remains `climateNarrativeTr`-only. P1 (PR #92), P2 (PR #94, `hydrographyNoteTr`),
-    P3 (PR #95, now 19 fields / 16 provinces after the Mersin transfer), P4 (PR #96,
-    13 fields) and P5 (the müfredat `climateCurriculumNoteTr`, 15 fields) are the shipped
-    precedents; each wave = its own committed entry point
-    (Atlas ruling AS-3, option C). **Wave target lists live in the shared
+    P3 (PR #95, now **17 fields** after the Mersin transfer to P4 and the Ankara +
+    İstanbul-`hydrographyNoteTr` transfers to P6), P4 (PR #96, now **12 fields** after
+    the Samsun transfer to P6), P5 (the müfredat `climateCurriculumNoteTr`, 15 fields)
+    and P6 (prose-cleanup wave-1 / W1, 10 fields) are the shipped precedents; each wave =
+    its own committed entry point (Atlas ruling AS-3, option C). **Wave target lists live in the shared
     `import.meta`-free targets module (`oneoff-province-prose-targets` + its spec) —
     keyed on the `(plate, field)` PAIR. Ownership model (PR #96): exactly ONE wave owns
     a pair at a time — lists say who owns a field NOW, not who ever touched it. A later
     correction MOVES the entry (target list AND draft section together), never
     duplicates it; the CI-pinned invariants are non-overlap + the `HISTORICALLY_OWNED`
     superset (no pair ever ends up owned by no wave), NOT immutability.**
+    **A MOVE IS NOT ALWAYS AVAILABLE, and the fallback is the back-port.** When the pair
+    is the SOLE entry of its current wave, moving it empties that list — which trips the
+    spec's `$label is non-empty` case and refusal 1 together, turning a green gate
+    permanently red on a PR that improves the very prose it guards. In that case the
+    correction is back-ported into the OWNING wave's draft and ownership does not move
+    (the `apply`-refusal rule below, applied to a draft that is stale rather than wrong).
+    P6 is the precedent: ten of W1's twelve fields moved or were added normally, while
+    Çorum/19 and Sivas/58 `hydrographyNoteTr` — the single entries of P1 and P2 — were
+    back-ported instead. **Verifying such a PR therefore means running the older waves'
+    gates too**, since that is where those fields' fidelity is actually asserted.
+    **The country lane has no equivalent registry**, so there a later correction simply
+    supersedes the older draft. Three rules follow, and all three were learned the
+    expensive way in the PR #103 review:
+    - **Find the claimants before you allocate, don't assume them.** With no registry there
+      is no list to consult, so the sweep is manual and mandatory: `grep -rl` the ISO code
+      across `Owner's Inbox/**/*.md`, then run `check` on **every** file that names it, one
+      invocation per draft (never several at once — that is the "pass only the authoritative
+      draft" refusal). Record each file's exit code BEFORE choosing where the correction
+      lands. PR #103 skipped this for two fields its own plan had marked `teyit edilmedi`
+      and turned a 28/28 green wave draft red.
+    - **Back-port only buys what the owning draft's gate is worth.** Prefer back-porting
+      into the draft that currently owns the field — but the ONLY thing that preference buys
+      is that draft's `exit 0`, so check the colour first. If the owning draft is already red
+      for an unrelated field, back-porting there asserts nothing: the corrected prose ends up
+      with no green gate anywhere, and its fidelity can then only be "read off the DRIFT
+      list", which this section forbids two bullets down. In that case claim the field in a
+      draft whose gate IS green and say so in both files' headers — that note is the
+      registry this lane does not have. (PR #103: `EG introTr` back-ported into a shim that
+      had been red on `JO introTr` since PR #94.)
+    - **Never `apply --force` an invocation carrying any section beyond the one you are
+      landing.** Not "a multi-country draft" — the country count is not the hazard.
+      `cli.ts` parses `--force` once over the whole argv and `country-runner.ts` hands the
+      same flag to every planned file, so the divergence refusal in `apply.ts` is suppressed
+      for **every diverging field in every draft passed**, in a single-country draft and a
+      multi-draft invocation alike. Each one is force-reverted to whatever its draft still
+      says. Narrow the invocation to a draft carrying only the section being landed.
   - **The müfredat MAPPING lane — `oneoff-m1-province-curriculum.ts`**, the §5 fidelity rule for
     `climateCurriculumNameTr` (the MEB-curriculum climate name, 81 provinces). It is NOT a
     transcription lane and deliberately does not reuse the emitter: the seed stores the value as

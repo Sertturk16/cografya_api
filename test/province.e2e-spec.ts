@@ -946,6 +946,32 @@ describe('Province (e2e)', () => {
     `(kentleştiği anlamına ${CAVEAT_NEGATION_FORMS}|bir sonucudur)\\.$`,
     'u',
   );
+  /**
+   * THE SAME SECOND HALF, WIDENED TO EVERY PHRASING THE CORPUS USES — the fragment the guard
+   * below is built from (PR #103 review, TA103-M3).
+   *
+   * `CAVEAT_NEGATED_CLAUSE` above is deliberately narrow: it polices the EXEMPTION rows, whose
+   * whole content is the shared caveat, so one canonical wording is appropriate there. This
+   * fragment polices every OTHER row that cites 6360, and those are full narrative notes that
+   * state the same idea three different ways today ("…kentleştiği anlamına gelmez",
+   * "…fiilî kentleşme düzeyini ölçmez", "…fiilen tamamen kentleştiğini göstermez"). Two of the
+   * three arrived with PR #103's PC-35 rewrite, whose OWN stated goal was structural variance
+   * (`CONTENT-STYLE.md` §18/B12) — so a single-wording guard here would forbid the property the
+   * content rules demand.
+   *
+   * Every alternative is a NEGATIVE verb form and each one's positive twin is excluded for the
+   * reason given above (`ölçer`/`ölçmektedir`, `gösterir`/`göstermektedir`, `gelmektedir`): the
+   * defect this guards is a MISSING negation, and a pattern a negation flip satisfies guards
+   * nothing.
+   */
+  const CAVEAT_SECOND_HALF = new RegExp(
+    [
+      `kentleştiği anlamına ${CAVEAT_NEGATION_FORMS}`,
+      'kentleşme düzeyini ölçm(ez|üyor|emekte)',
+      'kentleştiğini gösterm(ez|iyor|emekte)',
+    ].join('|'),
+    'u',
+  );
 
   it('every büyükşehir-caveat-exception province serves the caveat and NOTHING else (rule, not per-il)', async () => {
     // The Tier-B-but-büyükşehir settlementNoteTr EXCEPTION (→ DEC 2026-07-12) as a RULE-level
@@ -1019,6 +1045,40 @@ describe('Province (e2e)', () => {
       expect(lower).toMatch(CAVEAT_ENDING);
       // The %100 urbanizationRate is the legal artifact the caveat frames.
       expect(p.urbanizationRate).toBe(100);
+    }
+  });
+
+  it('every province that cites the 6360 caveat states its SECOND half too (not only the exempt ones)', async () => {
+    // THE REGRESSION GUARD FOR PC-35's DEFECT CLASS (PR #103 review, TA103-M3). The rule above
+    // covers only the EXEMPTION rows — `settlementNoteTr` populated while `hydrographyFeatures`
+    // is null. Every province PR #103 repaired (Balıkesir/10, Bursa/16, Tekirdağ/59, Samsun/55)
+    // carries a populated `hydrographyFeatures`, so all four sit OUTSIDE that set: four pages of
+    // this bug class were fixed with no CI assertion touching their caveat text at all.
+    //
+    // THE DEFECT: a row states the %100 figure and cites 6360 as its cause, then STOPS —
+    // publishing "this province is 100% urban, by law" with the "…which does not mean it is
+    // actually fully urbanised" half missing. Samsun shipped exactly that (see `P4_TARGETS`'
+    // docblock: it "carries it with the caveat's second half missing entirely", which is also
+    // why no string search could find it — a truncated caveat holds no anchor text). It is a
+    // misleading claim to a student reader, and it is invisible to every other gate: the
+    // transcription lanes only prove the seed matches its own draft, and a draft can be
+    // truncated too.
+    //
+    // WHAT IS DELIBERATELY *NOT* ASSERTED: the qualifier "büyükşehir statüsündeki illerde".
+    // The review proposed it, and it is false today — Adana/01, Hatay/31 and Kahramanmaraş/46
+    // carry the same idea as "büyükşehir statüsündeki illerin çoğunda olduğu gibi", "diğer
+    // büyükşehirlerde olduğu gibi" and "büyükşehir statüsündeki illerin ortak özelliği".
+    // Pinning one of those would convert a legitimate rewording into a red build, which is the
+    // proxy-instead-of-invariant mistake the rule above already had to be rescued from once.
+    // The negated clause is the invariant; the qualifier's wording is not.
+    const rows = await dataSource.getRepository(Province).find();
+    const citing = rows.filter((p) => p.settlementNoteTr?.includes('6360') === true);
+    // Guard against a vacuous pass, and specifically against the set SHRINKING: a row that
+    // silently loses both the citation and the caveat drops out of this filter and would be
+    // checked by nothing. 30 rows carry it today; growth stays free, exactly as above.
+    expect(citing.length).toBeGreaterThanOrEqual(30);
+    for (const p of citing) {
+      expect((p.settlementNoteTr as string).toLocaleLowerCase('tr')).toMatch(CAVEAT_SECOND_HALF);
     }
   });
 

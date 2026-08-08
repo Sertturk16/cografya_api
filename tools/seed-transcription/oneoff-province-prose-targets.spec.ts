@@ -24,6 +24,7 @@ import {
   P3_TARGETS,
   P4_TARGETS,
   P5_TARGETS,
+  P6_TARGETS,
   PROSE_WAVES,
   targetKey,
 } from './oneoff-province-prose-targets.ts';
@@ -32,13 +33,14 @@ describe('prose wave target lists — per-wave shape', () => {
   it('covers every shipped wave (the table the other cases iterate is complete)', () => {
     // A wave added to the module but forgotten in PROSE_WAVES would be invisible to every
     // assertion below — unguarded while looking guarded, which is worse than no spec.
-    expect(PROSE_WAVES.map((w) => w.label)).toEqual(['P1', 'P2', 'P3', 'P4', 'P5']);
+    expect(PROSE_WAVES.map((w) => w.label)).toEqual(['P1', 'P2', 'P3', 'P4', 'P5', 'P6']);
     expect(PROSE_WAVES.map((w) => w.targets)).toEqual([
       P1_TARGETS,
       P2_TARGETS,
       P3_TARGETS,
       P4_TARGETS,
       P5_TARGETS,
+      P6_TARGETS,
     ]);
   });
 
@@ -133,6 +135,56 @@ describe('prose wave target lists — cross-wave invariants', () => {
     expect(P5_TARGETS.every((target) => target.field === 'climateCurriculumNoteTr')).toBe(true);
   });
 
+  it('P6 owns its three transferred pairs and P3/P4 no longer do (ownership MOVED)', () => {
+    // Same shape as the Mersin case above, three pairs at once: Ankara/06 and İstanbul/34 come
+    // from P3, Samsun/55 from P4. Pinned in both directions for the same asymmetric reason —
+    // leaving a pair behind turns the older wave's gate permanently red, dropping it from both
+    // leaves the field with no wave asserting it at all.
+    const moved = [
+      {
+        previous: P3_TARGETS,
+        key: targetKey({ name: 'Ankara', plate: '06', field: 'settlementNoteTr' }),
+      },
+      {
+        previous: P3_TARGETS,
+        key: targetKey({ name: 'İstanbul', plate: '34', field: 'hydrographyNoteTr' }),
+      },
+      {
+        previous: P4_TARGETS,
+        key: targetKey({ name: 'Samsun', plate: '55', field: 'settlementNoteTr' }),
+      },
+    ];
+    for (const { previous, key } of moved) {
+      expect(P6_TARGETS.map(targetKey)).toContain(key);
+      expect(previous.map(targetKey)).not.toContain(key);
+    }
+  });
+
+  it('P6 does NOT claim the two pairs that were back-ported to P1/P2 instead', () => {
+    // The structural reason this wave is ten pairs and not twelve. Çorum/19 and Sivas/58
+    // `hydrographyNoteTr` are the SOLE entries of P1 and P2, so moving them would empty those
+    // lists — tripping the `$label is non-empty` case above and the runner's "nothing expected"
+    // refusal together. Their corrections were back-ported into the P1/P2 DRAFTS instead, which
+    // is invisible from this file; this case is what tells the next reader that the omission is
+    // deliberate rather than a forgotten entry, and fails if someone "completes" the wave.
+    const backPorted = [
+      targetKey({ name: 'Çorum', plate: '19', field: 'hydrographyNoteTr' }),
+      targetKey({ name: 'Sivas', plate: '58', field: 'hydrographyNoteTr' }),
+    ];
+    for (const key of backPorted) expect(P6_TARGETS.map(targetKey)).not.toContain(key);
+    expect(P1_TARGETS.map(targetKey)).toContain(backPorted[0]!);
+    expect(P2_TARGETS.map(targetKey)).toContain(backPorted[1]!);
+  });
+
+  it('P6 is exactly the ten pairs of W1 that were not back-ported', () => {
+    // Same reason P5 carries a length: the wave's SIZE is what no other check can see. Non-overlap
+    // and the historical superset both stay green if an eleventh pair is appended or a tenth
+    // quietly dropped, and the seed itself cannot object — a field simply stops being asserted.
+    // The two structural cases above pin WHICH pairs must and must not be here; this pins HOW
+    // MANY, which is the half that catches a boundary edit neither of them names.
+    expect(P6_TARGETS).toHaveLength(10);
+  });
+
   it('P5 covers the fifteen provinces the owner rulings demand a note for', () => {
     // The wave's SIZE is the thing no other check can see: the runner refuses an empty list and
     // the seed invariant refuses a missing out-of-region note, but neither notices a boundary
@@ -148,10 +200,28 @@ describe('prose wave target lists — cross-wave invariants', () => {
     // edits; the second is unguarded. Drop it and the field becomes an orphan: corrected prose
     // in the seed that no draft asserts, so no lane's `check` ever reads it again and it can
     // drift silently forever — the one failure in this toolchain that produces NO red anywhere.
-    // Superset only: a wave may add pairs freely, it just may not lose one.
     const live = new Set(PROSE_WAVES.flatMap((wave) => wave.targets.map(targetKey)));
     const orphaned = HISTORICALLY_OWNED.filter((key) => !live.has(key));
     expect(orphaned).toEqual([]);
+  });
+
+  it('the historical record covers every live pair (the list a new wave is appended to BY HAND)', () => {
+    // THE OTHER DIRECTION, and the one PR #103 found missing (TA103-M1). The case above is a
+    // superset check: it can only fail when a pair LEAVES the waves. But `HISTORICALLY_OWNED`
+    // is maintained by hand — a new wave appends its own new pairs — and appending six of seven
+    // failed NOTHING, because a short historical list satisfies "subset of live" perfectly.
+    //
+    // Why that matters rather than being mere bookkeeping: this list is the SOLE input to the
+    // orphan check above, which is the only assertion in this toolchain that can detect a field
+    // no wave asserts any more. A pair missing from the record is invisible to it forever — so
+    // the guard against orphans silently stops guarding the pair most likely to become one.
+    //
+    // Deliberately NOT folded into one equality assertion with the case above: the two
+    // directions fail for different reasons (a dropped transfer half vs. a forgotten append),
+    // and a single `toEqual` would report either as the same opaque set difference.
+    const recorded = new Set(HISTORICALLY_OWNED);
+    const live = PROSE_WAVES.flatMap((wave) => wave.targets.map(targetKey));
+    expect(live.filter((key) => !recorded.has(key))).toEqual([]);
   });
 
   it('the historical record has no duplicate entries', () => {
