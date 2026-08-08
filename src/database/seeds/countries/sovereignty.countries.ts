@@ -325,14 +325,14 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
       'aylarında düşer ve kuzeyden güneye doğru azalır: kuzeyde yılda 1.000 milimetreyi aşan ' +
       "yağış, Necef'in güneyinde 30 milimetrenin altına iner.",
     hydrographyNoteTr:
-      "İsrail'in en önemli tatlı su kaynağı, kuzeydoğuda deniz seviyesinin yaklaşık 210 metre " +
-      "altında yer alan Celile Denizi'dir (Taberiye Gölü / Kineret); ülkenin en büyük tatlı su " +
+      "Taberiye Gölü (Celile Denizi), İsrail'in kuzeydoğusunda deniz seviyesinin yaklaşık 210 " +
+      "metre altında yer alır. İsrail'in en önemli tatlı su kaynağı ve ülkenin en büyük tatlı su " +
       "gölüdür. Bu gölden çıkan Şeria (Ürdün) Nehri güneye doğru akarak Lut Gölü'ne dökülür ve " +
-      'yolunun bir bölümünde ülkenin doğu sınırını çizer. Yaklaşık 320 kilometrelik Şeria ' +
-      'Nehri bölgenin en uzun akarsuyudur, ancak suyunun büyük bölümü sulama ve içme amacıyla ' +
+      'yolunun bir bölümünde ülkenin doğu sınırını çizer. Yaklaşık 320 kilometrelik Şeria Nehri ' +
+      'bölgenin en uzun akarsuyudur, ancak suyunun büyük bölümü sulama ve içme amacıyla ' +
       'çekildiğinden alt kesimlerinde debisi belirgin biçimde azalır. Lut Gölü, deniz suyunun ' +
-      'yaklaşık on katı tuzluluğuyla dünyanın en tuzlu su kütlelerinden biridir; su seviyesi ' +
-      'her yıl yaklaşık bir metre düşmektedir.',
+      'yaklaşık on katı tuzluluğuyla dünyanın en tuzlu su kütlelerinden biridir; su seviyesi her ' +
+      'yıl yaklaşık bir metre düşmektedir.',
     // Owner'ın başkent-notu, kelimesi kelimesine (verbatim).
     sovereigntyNoteTr:
       "İsrail Kudüs'ü 'bölünmez başkenti' ilan etmiş olsa da, Birleşmiş Milletler ve " +

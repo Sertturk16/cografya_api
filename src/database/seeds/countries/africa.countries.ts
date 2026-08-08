@@ -2160,8 +2160,9 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     landformNoteTr:
       "Assal Gölü, Cibuti kentinin yaklaşık 120 kilometre batısında, Tadjoura Körfezi'nin batı " +
       'kolu olan Ghoubbet-el-Kharab koyuna yalnızca 10 kilometre uzaklıktadır. Göl yüzeyi deniz ' +
-      "seviyesinin 155 metre altında kalır. Bu değer onu Afrika'nın en alçak noktası, dünyada " +
-      "ise Lut Gölü (Ölü Deniz) ve Celile Gölü'nün ardından üçüncü en alçak nokta yapar." +
+      "seviyesinin 155 metre altında kalır. Bu değer onu Afrika'nın en alçak noktası yapar. " +
+      'Dünya sıralamasında ilk sırada Lut Gölü (Ölü Deniz) bulunur. Taberiye Gölü (Celile ' +
+      'Denizi) ikinci, Assal Gölü ise üçüncü sıradadır.' +
       '\n\n' +
       'Yüksek buharlaşma nedeniyle gölün tuzluluğu deniz suyunun on katına ulaşır. Gölü ' +
       "çevreleyen volkanik bazalt oluşumları, Afar Üçlü Kavşağı'nın jeolojik hareketliliğini " +
