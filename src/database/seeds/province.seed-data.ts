@@ -843,6 +843,21 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     ],
     urbanizationRate: 100.0,
     netMigrationRate: 8.91,
+    // CROSS-ROW COUPLING, DELIBERATE AND DECLARED (PR #103 review, FENER-PC34). Same class as
+    // the Antalya declaration below, and introduced by the same PR that repaired this sentence:
+    // "Aldığı göç sayısıyla İstanbul'un ardından ikinci sırada" is a RANK, so it is a claim
+    // about OTHER ROWS, not about this one. It rests on İSTANBUL's 395.485 (plateCode '34',
+    // stated in that row's own prose, `:760`) being first, and on no third province exceeding
+    // Ankara's 202.402 — İzmir's 117.889 is the runner-up. All three figures are TÜİK "İç Göç
+    // İstatistikleri 2024", Bülten 54082, and all three already sit in their own rows; the
+    // sentence adds no new number. IF A LATER WAVE REVISES ANY RECEIVED-MIGRATION FIGURE, THIS
+    // RANK GOES STALE IN SILENCE: no gate joins the rows, because the transcription check only
+    // proves each seed value matches its own draft. Left as prose rather than computed, for the
+    // same reason as Antalya (a seed is a flat published record), but recorded so whoever edits
+    // an "kişi aldı" figure knows to grep for "ikinci sırada". THIS REPLACED a rank claim on
+    // the RATE axis that the seed's own netMigrationRate values disproved (PC-34) — the axis
+    // moved to where the ordering is real, and the ordering is declared here rather than
+    // assumed.
     settlementNoteTr:
       "Ankara'da da TÜİK'in il/ilçe merkezi nüfus oranı %100 çıkıyor — büyükşehir statüsündeki " +
       'illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +

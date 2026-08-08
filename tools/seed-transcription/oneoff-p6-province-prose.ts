@@ -2,10 +2,14 @@
  * ONE-OFF — wave P6 province PROSE transcription (NOT a tool generalization).
  *
  * Scope: the W1 half of the prose-cleanup wave-1, ten `(plate, field)` pairs across nine
- * provinces — register items PC-34, PC-35, PC-36, PC-17, PC-18, PC-06, PC-07 and PC-04, as
- * scoped by owner ruling AY-1 (`QUESTIONS.md`, 2026-08-06). Two are factual corrections
- * (PC-34's migration ranking, PC-36's over-broad "longest river" claim); the rest close
- * `CONTENT-STYLE.md` ceiling violations and one content gap.
+ * provinces, as scoped by owner ruling AY-1 (`QUESTIONS.md`, 2026-08-06). Two are factual
+ * corrections (PC-34's migration ranking, PC-36's over-broad "longest river" claim); the rest
+ * close `CONTENT-STYLE.md` ceiling violations and one content gap.
+ *
+ * THE TEN PAIRS IMPLEMENT FIVE REGISTER ITEMS, not W1's whole item list: PC-34 ×1, PC-35 ×4,
+ * PC-36 ×2, PC-17 ×2, PC-04 ×1. PC-18 and PC-07 land entirely through the P1/P2 back-ports
+ * below, and PC-06 spans the two halves (Sivas `introTr` here, Sivas `hydrographyNoteTr`
+ * there). See `oneoff-province-prose-targets.ts`'s P6 docblock (PR #103 review, CR-M2).
  *
  * WHY TEN AND NOT TWELVE, which is the thing to understand before editing this wave. W1
  * corrects twelve province fields, but two of them — Çorum/19 and Sivas/58
@@ -38,9 +42,19 @@
  * NOTE THE FILENAME: pass `seed-draft-provinces-p6.md`, not `wave1-taslaklar.md`. The latter
  * is NOVA's authored deliverable, whose `#### \`field\`` headings and trailing commentary
  * blockquotes this lane's parser does not read as a wave draft — it would find zero fields,
- * which the "no draft body found" guard reports loudly by design. The lane draft is a
- * MECHANICAL derivation of that file's §2 blockquotes (`build-p6-drafts.mjs`, published in
- * the closing summary); nothing was retyped, which is the whole point of this tool existing.
+ * which the "no draft body found" guard reports loudly by design.
+ *
+ * HOW THE LANE DRAFT RELATES TO NOVA'S FILE, stated as something a reviewer can CHECK. The
+ * lane draft was sliced out of `wave1-taslaklar.md` §2 by a throwaway script, and an earlier
+ * version of this docblock offered that script as the guarantee — but it was never committed
+ * and no longer exists, so "nothing was retyped" rested on an artifact nobody could obtain
+ * (PR #103 review, CR-M3). The guarantee is now the PROPERTY rather than the provenance:
+ * every blockquote in the lane draft is BYTE-IDENTICAL to the first blockquote under the
+ * matching `#### \`field\`` heading in `wave1-taslaklar.md`. That is verifiable after the
+ * fact, by anyone, with no access to whatever produced it; the replay command is published in
+ * `Owner's Inbox/prose-cleanup/closing-summary.md` §9 and reports 12/12 (10 province + 2
+ * country). A property a third party can re-derive is worth more than a script they must
+ * trust — which was the point of the tool existing in the first place.
  *
  * WHICH LANE OWNS WHICH FILE (the §8 false-green rule): this lane owns
  * `province.seed-data.ts`. `pnpm seed:transcribe` owns `src/database/seeds/countries/` and

@@ -172,8 +172,17 @@ describe('prose wave target lists — cross-wave invariants', () => {
       targetKey({ name: 'Sivas', plate: '58', field: 'hydrographyNoteTr' }),
     ];
     for (const key of backPorted) expect(P6_TARGETS.map(targetKey)).not.toContain(key);
-    expect(P1_TARGETS.map(targetKey)).toContain(backPorted[0]);
-    expect(P2_TARGETS.map(targetKey)).toContain(backPorted[1]);
+    expect(P1_TARGETS.map(targetKey)).toContain(backPorted[0]!);
+    expect(P2_TARGETS.map(targetKey)).toContain(backPorted[1]!);
+  });
+
+  it('P6 is exactly the ten pairs of W1 that were not back-ported', () => {
+    // Same reason P5 carries a length: the wave's SIZE is what no other check can see. Non-overlap
+    // and the historical superset both stay green if an eleventh pair is appended or a tenth
+    // quietly dropped, and the seed itself cannot object — a field simply stops being asserted.
+    // The two structural cases above pin WHICH pairs must and must not be here; this pins HOW
+    // MANY, which is the half that catches a boundary edit neither of them names.
+    expect(P6_TARGETS).toHaveLength(10);
   });
 
   it('P5 covers the fifteen provinces the owner rulings demand a note for', () => {
@@ -191,10 +200,28 @@ describe('prose wave target lists — cross-wave invariants', () => {
     // edits; the second is unguarded. Drop it and the field becomes an orphan: corrected prose
     // in the seed that no draft asserts, so no lane's `check` ever reads it again and it can
     // drift silently forever — the one failure in this toolchain that produces NO red anywhere.
-    // Superset only: a wave may add pairs freely, it just may not lose one.
     const live = new Set(PROSE_WAVES.flatMap((wave) => wave.targets.map(targetKey)));
     const orphaned = HISTORICALLY_OWNED.filter((key) => !live.has(key));
     expect(orphaned).toEqual([]);
+  });
+
+  it('the historical record covers every live pair (the list a new wave is appended to BY HAND)', () => {
+    // THE OTHER DIRECTION, and the one PR #103 found missing (TA103-M1). The case above is a
+    // superset check: it can only fail when a pair LEAVES the waves. But `HISTORICALLY_OWNED`
+    // is maintained by hand — a new wave appends its own new pairs — and appending six of seven
+    // failed NOTHING, because a short historical list satisfies "subset of live" perfectly.
+    //
+    // Why that matters rather than being mere bookkeeping: this list is the SOLE input to the
+    // orphan check above, which is the only assertion in this toolchain that can detect a field
+    // no wave asserts any more. A pair missing from the record is invisible to it forever — so
+    // the guard against orphans silently stops guarding the pair most likely to become one.
+    //
+    // Deliberately NOT folded into one equality assertion with the case above: the two
+    // directions fail for different reasons (a dropped transfer half vs. a forgotten append),
+    // and a single `toEqual` would report either as the same opaque set difference.
+    const recorded = new Set(HISTORICALLY_OWNED);
+    const live = PROSE_WAVES.flatMap((wave) => wave.targets.map(targetKey));
+    expect(live.filter((key) => !recorded.has(key))).toEqual([]);
   });
 
   it('the historical record has no duplicate entries', () => {

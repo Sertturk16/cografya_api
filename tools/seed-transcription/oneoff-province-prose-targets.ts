@@ -80,7 +80,13 @@ export const P3_TARGETS: readonly ProseTarget[] = [
   // three paragraphs (CONTENT-STYLE §20, zero words changed), so OWNERSHIP MOVED — see the
   // "one owner per pair" note in this module's docblock. The plate stays in this wave on a
   // DIFFERENT field (`landformNoteTr` above); the key is the PAIR, never the plate.
-  // The A.6 single-rule repair, eleven provinces (Van is fixed by its own block above).
+  // The A.6 single-rule repair. NINE entries below — and the count is arithmetic, not a
+  // headline, because in this module a comment IS the ownership record and a stale number is
+  // what the next reader trusts. A.6 repaired ELEVEN provinces; Van is carried by its own
+  // block above, and two have since MOVED to a later wave: Mersin/33 to P4 (PR #96) and
+  // Ankara/06 to P6 (PR-P6). 11 − 1 (Van) − 2 (moved) = 9. Both moves are noted at the exact
+  // line the entry used to occupy, so re-deriving this count never requires leaving the file.
+  //
   // Ankara/06 `settlementNoteTr` stood here until PR-P6, which corrects the same field again
   // (PC-34: the migration sentence framed +8,91 as "behind İstanbul", which this seed's own
   // netMigrationRate values contradict — İstanbul is +1,66). Ownership MOVED to P6.
@@ -173,9 +179,19 @@ export const P5_TARGETS: readonly ProseTarget[] = [
 ];
 
 /**
- * P6 (PR-P6) — the prose-cleanup wave-1 W1 half: NOVA's `Owner's Inbox/prose-cleanup/`
- * register items PC-34, PC-35, PC-36, PC-17, PC-18, PC-06, PC-07 and PC-04, as scoped by
- * owner ruling AY-1 (`QUESTIONS.md`, 2026-08-06).
+ * P6 (PR-P6) — the prose-cleanup wave-1 W1 half, as scoped by owner ruling AY-1
+ * (`QUESTIONS.md`, 2026-08-06).
+ *
+ * WHICH REGISTER ITEMS THIS TABLE ACTUALLY IMPLEMENTS, which is NOT the same list as W1's
+ * scope (PR #103 review, CR-M2 — the two were conflated here). The ten pairs below are
+ * accounted for by FIVE items: PC-34 ×1 (Ankara), PC-35 ×4, PC-36 ×2, PC-17 ×2, PC-04 ×1.
+ * Three further W1 items are NOT implemented by any entry in this list:
+ *   - PC-18 (Çorum `hydrographyNoteTr`) and PC-07 (Sivas `hydrographyNoteTr`) land entirely
+ *     through the P1/P2 back-ports described below — their pairs stay owned by P1 and P2;
+ *   - PC-06 SPANS both halves: its Sivas `introTr` side is here (jointly with PC-36), its
+ *     Sivas `hydrographyNoteTr` side is in the P2 back-port.
+ * Stating the wave's scope here instead would make this docblock claim assertions the table
+ * does not carry, which is the one thing a target list must never do.
  *
  * Draft: `Owner's Inbox/prose-cleanup/seed-draft-provinces-p6.md`. The W2 half of the same
  * wave is FOUR COUNTRY fields and rides the country lane in its own drafts — a country

@@ -292,7 +292,7 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   exit-code contract lives in **four runner copies** (`country-runner.ts` +
   `oneoff-province-climate-runner.ts` + `oneoff-province-prose-runner.ts` +
   `oneoff-province-curriculum-runner.ts`) driven by their entry points (`cli.ts`,
-  `oneoff-n1`, `oneoff-n2`, `oneoff-p1`…`oneoff-p5`, `oneoff-m1`) — a new
+  `oneoff-n1`, `oneoff-n2`, `oneoff-p1`…`oneoff-p6`, `oneoff-m1`) — a new
   lane author must replicate the same invariant, not assume one copy guards all. **The
   runner/entry-point split is structural, not stylistic:** the runner is deliberately
   `import.meta`-free so a CommonJS (ts-jest) spec can import it, and the entry point owns
@@ -351,9 +351,31 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
     back-ported instead. **Verifying such a PR therefore means running the older waves'
     gates too**, since that is where those fields' fidelity is actually asserted.
     **The country lane has no equivalent registry**, so there a later correction simply
-    supersedes the older draft; prefer back-porting into the draft that currently owns the
-    field, and never `apply --force` a multi-country draft to land a single field — the
-    other sections would be force-reverted to whatever that draft still says.
+    supersedes the older draft. Three rules follow, and all three were learned the
+    expensive way in the PR #103 review:
+    - **Find the claimants before you allocate, don't assume them.** With no registry there
+      is no list to consult, so the sweep is manual and mandatory: `grep -rl` the ISO code
+      across `Owner's Inbox/**/*.md`, then run `check` on **every** file that names it, one
+      invocation per draft (never several at once — that is the "pass only the authoritative
+      draft" refusal). Record each file's exit code BEFORE choosing where the correction
+      lands. PR #103 skipped this for two fields its own plan had marked `teyit edilmedi`
+      and turned a 28/28 green wave draft red.
+    - **Back-port only buys what the owning draft's gate is worth.** Prefer back-porting
+      into the draft that currently owns the field — but the ONLY thing that preference buys
+      is that draft's `exit 0`, so check the colour first. If the owning draft is already red
+      for an unrelated field, back-porting there asserts nothing: the corrected prose ends up
+      with no green gate anywhere, and its fidelity can then only be "read off the DRIFT
+      list", which this section forbids two bullets down. In that case claim the field in a
+      draft whose gate IS green and say so in both files' headers — that note is the
+      registry this lane does not have. (PR #103: `EG introTr` back-ported into a shim that
+      had been red on `JO introTr` since PR #94.)
+    - **Never `apply --force` an invocation carrying any section beyond the one you are
+      landing.** Not "a multi-country draft" — the country count is not the hazard.
+      `cli.ts` parses `--force` once over the whole argv and `country-runner.ts` hands the
+      same flag to every planned file, so the divergence refusal in `apply.ts` is suppressed
+      for **every diverging field in every draft passed**, in a single-country draft and a
+      multi-draft invocation alike. Each one is force-reverted to whatever its draft still
+      says. Narrow the invocation to a draft carrying only the section being landed.
   - **The müfredat MAPPING lane — `oneoff-m1-province-curriculum.ts`**, the §5 fidelity rule for
     `climateCurriculumNameTr` (the MEB-curriculum climate name, 81 provinces). It is NOT a
     transcription lane and deliberately does not reuse the emitter: the seed stores the value as
