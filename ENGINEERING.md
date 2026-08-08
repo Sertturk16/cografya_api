@@ -329,16 +329,31 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
     field-parametric, run directly with `node` exactly like the climate lane; shares the same
     exit-code contract via its own runner (`oneoff-province-prose-runner.ts`). The climate lane
     remains `climateNarrativeTr`-only. P1 (PR #92), P2 (PR #94, `hydrographyNoteTr`),
-    P3 (PR #95, now 19 fields / 16 provinces after the Mersin transfer), P4 (PR #96,
-    13 fields) and P5 (the müfredat `climateCurriculumNoteTr`, 15 fields) are the shipped
-    precedents; each wave = its own committed entry point
-    (Atlas ruling AS-3, option C). **Wave target lists live in the shared
+    P3 (PR #95, now **17 fields** after the Mersin transfer to P4 and the Ankara +
+    İstanbul-`hydrographyNoteTr` transfers to P6), P4 (PR #96, now **12 fields** after
+    the Samsun transfer to P6), P5 (the müfredat `climateCurriculumNoteTr`, 15 fields)
+    and P6 (prose-cleanup wave-1 / W1, 10 fields) are the shipped precedents; each wave =
+    its own committed entry point (Atlas ruling AS-3, option C). **Wave target lists live in the shared
     `import.meta`-free targets module (`oneoff-province-prose-targets` + its spec) —
     keyed on the `(plate, field)` PAIR. Ownership model (PR #96): exactly ONE wave owns
     a pair at a time — lists say who owns a field NOW, not who ever touched it. A later
     correction MOVES the entry (target list AND draft section together), never
     duplicates it; the CI-pinned invariants are non-overlap + the `HISTORICALLY_OWNED`
     superset (no pair ever ends up owned by no wave), NOT immutability.**
+    **A MOVE IS NOT ALWAYS AVAILABLE, and the fallback is the back-port.** When the pair
+    is the SOLE entry of its current wave, moving it empties that list — which trips the
+    spec's `$label is non-empty` case and refusal 1 together, turning a green gate
+    permanently red on a PR that improves the very prose it guards. In that case the
+    correction is back-ported into the OWNING wave's draft and ownership does not move
+    (the `apply`-refusal rule below, applied to a draft that is stale rather than wrong).
+    P6 is the precedent: ten of W1's twelve fields moved or were added normally, while
+    Çorum/19 and Sivas/58 `hydrographyNoteTr` — the single entries of P1 and P2 — were
+    back-ported instead. **Verifying such a PR therefore means running the older waves'
+    gates too**, since that is where those fields' fidelity is actually asserted.
+    **The country lane has no equivalent registry**, so there a later correction simply
+    supersedes the older draft; prefer back-porting into the draft that currently owns the
+    field, and never `apply --force` a multi-country draft to land a single field — the
+    other sections would be force-reverted to whatever that draft still says.
   - **The müfredat MAPPING lane — `oneoff-m1-province-curriculum.ts`**, the §5 fidelity rule for
     `climateCurriculumNameTr` (the MEB-curriculum climate name, 81 provinces). It is NOT a
     transcription lane and deliberately does not reuse the emitter: the seed stores the value as

@@ -724,14 +724,16 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
       'yakasında Ömerli, Darlık ve Elmalı; Avrupa yakasında Terkos, Büyükçekmece, Sazlıdere, ' +
       'Pabuçdere, Alibey, Kazandere ve Istrancalar. Bu barajların toplam aktif biriktirme hacmi ' +
       "yaklaşık 868 milyon m³, yıllık ortalama su verimi ise yaklaşık 905 milyon m³'tür. Ayrıca " +
-      "Melen Sistemi üzerinden Düzce'den de trans-havza su aktarımı yapılır. İstanbul " +
-      "Boğazı'nda, dünyada nadir görülen iki katmanlı bir akıntı sistemi vardır: yüzeyde " +
-      "Karadeniz kökenli az tuzlu su Marmara'ya doğru, dipte ise Marmara ve Akdeniz kökenli daha " +
-      "tuzlu ve yoğun su Karadeniz'e doğru akar. Boğazın Avrupa yakasında Kağıthane ve Alibeyköy " +
-      "dereleri Haliç'te birleşir. İlin batı kesiminde, Küçükçekmece ve Büyükçekmece adlarını " +
-      'taşıyan iki kıyı gölü (lagün) bulunur. Büyükçekmece aynı zamanda bir İSKİ barajı olarak ' +
-      'işletilir. Küçükçekmece ise denizle bağlantısı nedeniyle tuzlu su içerir ve içme suyu ' +
-      'kaynağı olarak kullanılmaz.',
+      "Melen Sistemi üzerinden Düzce'den de trans-havza su aktarımı yapılır." +
+      '\n\n' +
+      "İstanbul Boğazı'nda, dünyada nadir görülen iki katmanlı bir akıntı sistemi vardır: " +
+      "yüzeyde Karadeniz kökenli az tuzlu su Marmara'ya doğru, dipte ise Marmara ve Akdeniz " +
+      "kökenli daha tuzlu ve yoğun su Karadeniz'e doğru akar. Boğazın Avrupa yakasında Kağıthane " +
+      "ve Alibeyköy dereleri Haliç'te birleşir." +
+      '\n\n' +
+      'İlin batı kesiminde, Küçükçekmece ve Büyükçekmece adlarını taşıyan iki kıyı gölü (lagün) ' +
+      'bulunur. Büyükçekmece aynı zamanda bir İSKİ barajı olarak işletilir. Küçükçekmece ise ' +
+      'denizle bağlantısı nedeniyle tuzlu su içerir ve içme suyu kaynağı olarak kullanılmaz.',
     hydrographyFeatures: [
       { name: 'Ömerli Barajı', type: HydrographyFeatureType.Baraj },
       { name: 'Terkos Barajı', type: HydrographyFeatureType.Baraj },
@@ -845,8 +847,8 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
       "Ankara'da da TÜİK'in il/ilçe merkezi nüfus oranı %100 çıkıyor — büyükşehir statüsündeki " +
       'illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +
       'sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. Ankara 2024 yılında ' +
-      "202.402 kişi aldı, 150.373 kişi verdi; net göç hızı binde +8,91 ile İstanbul'un ardından " +
-      "Türkiye'nin en yüksek pozitif değerlerinden birine ulaştı.",
+      "202.402 kişi aldı, 150.373 kişi verdi. Aldığı göç sayısıyla İstanbul'un ardından ikinci " +
+      'sırada yer aldı; net göç hızı binde +8,91 oldu.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%10,5',
@@ -1715,11 +1717,12 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     //    havzası framed strictly as infrastructure/geography (task's geography-angle-only note).
     //    GSYH share %0,4.
     landformNoteTr:
-      'Şırnak toprakları, batıdan doğuya belirgin bir yükselme gösterir: batıdaki Cizre ve Silopi ' +
-      'ilçeleri 400-550 metre dolayında alçak ovalarla kaplıyken, merkez ilçe ve doğudaki ' +
-      'Uludere-Beytüşşebap kesimi 1.000 metrenin üzerinde, sarp ve dağlık bir arazi yapısındadır. ' +
-      "İlin başlıca dağları Cudi, Gabar, Namaz ve Altın dağlarıdır; elips biçimindeki Cudi Dağı'nın " +
-      'üzerinde 2.000 metreyi aşan dört doruk bulunur, bunların en yükseği 2.114 metredir.',
+      'Şırnak toprakları batıdan doğuya belirgin bir yükselme gösterir. Batıdaki Cizre ve Silopi ' +
+      'ilçeleri 400-550 metre dolayında alçak ovalarla kaplıdır. Merkez ilçe ve doğudaki ' +
+      'Uludere-Beytüşşebap kesimi ise 1.000 metrenin üzerinde, sarp ve dağlık bir arazi ' +
+      'yapısındadır. İlin başlıca dağları Cudi, Gabar, Namaz ve Altın dağlarıdır. Elips ' +
+      "biçimindeki Cudi Dağı'nın üzerinde 2.000 metreyi aşan dört doruk bulunur; en yükseği " +
+      '2.114 metredir.',
     introTr:
       "İlin güneyindeki Habur Sınır Kapısı, Türkiye'nin Irak'a açılan başlıca kara sınır " +
       "kapısıdır. Şırnak, Güneydoğu Toroslar'ın en dağlık kesiminde, Türkiye'nin Irak ve Suriye " +
@@ -1862,10 +1865,10 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 100.0,
     netMigrationRate: 3.5,
     settlementNoteTr:
-      "Balıkesir'de de büyükşehir statüsünün getirdiği yapısal sonuç geçerlidir: TÜİK il/ilçe " +
-      "merkezi nüfus oranı %100'dür, çünkü belde ve köylerin idari tüzel kişiliği 6360 sayılı " +
-      "Kanun'la kaldırılmıştır. 2024 yılında 44.834 kişi aldı, 40.371 kişi verdi; net göç " +
-      "hızı binde +3,50'dir.",
+      "Balıkesir'in TÜİK il/ilçe merkezi nüfus oranı %100'dür. Bu, büyükşehir statüsündeki " +
+      "illerde belde ve köylerin idari tüzel kişiliğinin 6360 sayılı Kanun'la kaldırılmasının " +
+      'sonucudur ve ilin fiilen tamamen kentleştiği anlamına gelmez. 2024 yılında 44.834 kişi ' +
+      "aldı, 40.371 kişi verdi; net göç hızı binde +3,50'dir.",
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%1,3',
@@ -2003,10 +2006,11 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 100.0,
     netMigrationRate: 4.71,
     settlementNoteTr:
-      "Bursa'da da büyükşehir statüsünün getirdiği yapısal sonuç geçerlidir: TÜİK il/ilçe " +
-      "merkezi nüfus oranı %100'dür, çünkü belde ve köylerin idari tüzel kişiliği 6360 sayılı " +
-      "Kanun'la kaldırılmıştır. 2024 yılında 81.656 kişi aldı, 66.440 kişi verdi; net göç " +
-      'hızı binde +4,71 ile ölçülü ama istikrarlı bir göç kazancı gösteriyor.',
+      'Büyükşehir statüsündeki illerde belde ve köylerin idari tüzel kişiliği 6360 sayılı ' +
+      "Kanun'la kaldırıldığı için Bursa'nın TÜİK il/ilçe merkezi nüfus oranı da %100'dür. İdari " +
+      'bir tanımdan doğan bu oran, fiilî kentleşme düzeyini ölçmez. Bursa 2024 yılında 81.656 ' +
+      'kişi aldı, 66.440 kişi verdi; net göç hızı binde +4,71 ile ölçülü ama istikrarlı bir göç ' +
+      'kazancı gösteriyor.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%3,8',
@@ -2423,11 +2427,11 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 100.0,
     netMigrationRate: 13.09,
     settlementNoteTr:
-      "Tekirdağ'da da büyükşehir statüsünün getirdiği yapısal sonuç geçerlidir: TÜİK il/ilçe " +
-      "merkezi nüfus oranı %100'dür, çünkü belde ve köylerin idari tüzel kişiliği 6360 sayılı " +
-      "Kanun'la kaldırılmıştır. 2024 yılında 53.439 kişi aldı, 37.996 kişi verdi; net göç " +
-      "hızı binde +13,09 ile Yalova'nın ardından Türkiye'nin en yüksek ikinci net göç hızına " +
-      'ulaştı.',
+      "Tekirdağ'ın TÜİK il/ilçe merkezi nüfus oranı %100 görünür. Bunun nedeni, büyükşehir " +
+      "statüsündeki illerde belde ve köylerin idari tüzel kişiliğinin 6360 sayılı Kanun'la " +
+      'kaldırılmasıdır. Rakam idari bir sonuçtur ve ilin fiilen tamamen kentleştiğini göstermez. ' +
+      '2024 yılında 53.439 kişi aldı, 37.996 kişi verdi; net göç hızı binde +13,09 ile ' +
+      "Yalova'nın ardından Türkiye'nin en yüksek ikinci net göç hızına ulaştı.",
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%1,6',
@@ -3805,7 +3809,7 @@ export const WAVE6D_KARADENIZ_B_PROVINCES: readonly ProvinceSeed[] = [
       "bir bölümünü Çorum'da geçirir. Su Yönetimi Genel Müdürlüğü nehrin uzunluğunu 1.151 " +
       "kilometre verir. Millî Eğitim Bakanlığı'nın müfredat kaynaklarında yerleşik değer ise " +
       "1.355 kilometredir. İlin güneyini kateden Delice Irmağı, Kızılırmak'a katılan başlıca " +
-      'koldur; ildeki ruhsatlı çeltik alanlarının beşte dördü ise kuzeydeki Kızılırmak boyunca ' +
+      'koldur; ildeki ruhsatlı çeltik alanlarının beşte dördü kuzeydeki Kızılırmak boyunca ' +
       'uzanır.',
     urbanizationRate: 76.82,
     netMigrationRate: -12.82,
@@ -4120,10 +4124,11 @@ export const WAVE6D_KARADENIZ_B_PROVINCES: readonly ProvinceSeed[] = [
     //    introTr is the JARGON-SCRUBBED version (internal "bu dalgadaki 9 il" phrasing removed by the
     //    fact-check, fact 8-komşu preserved). urbanizationRate 74.19; netMigrationRate +1.55; GSYH %0,4.
     landformNoteTr:
-      'Köroğlu Dağları, 2.499 metrelik zirvesiyle ilin en yüksek dağ sırasıdır; neojen volkanik ' +
-      'seriden oluşur, lav yapısında andezit ağırlıklıdır. Abant Dağları ise 1.785 metre ' +
-      'yükseklikte, kireçtaşı ana kayalı bir silsile olup Karadeniz kıyısına bağlı öksin flora ile İç ' +
-      "Anadolu'ya bağlı step (İran-Turan) florası arasında bir geçiş sınırı oluşturur.",
+      'Köroğlu Dağları, 2.499 metrelik zirvesiyle ilin en yüksek dağ sırasıdır. Neojen volkanik ' +
+      'seriden oluşur ve lav yapısında andezit ağırlıklıdır. Abant Dağları ise 1.785 metre ' +
+      'yüksekliğinde, kireçtaşı ana kayalı bir silsiledir. Bu silsile, Karadeniz kıyısına bağlı ' +
+      "öksin flora ile İç Anadolu'ya bağlı İran-Turan step florası arasında bir geçiş sınırı " +
+      'oluşturur.',
     introTr:
       "Bolu, İstanbul ile Ankara'yı bağlayan D-100 karayolu ve TEM otoyolunun geçtiği, Marmara ile " +
       'Karadeniz bölgeleri arasındaki en işlek geçiş kuşaklarından birinde yer alır. Abant Dağları ' +
@@ -5098,16 +5103,15 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
       "nedenidir. İlin kuzeyi Karadeniz'e geçiş bölgesindeki dağlık arazi, güneyi ise İç " +
       'Anadolu step karakterindeki düzlüklerdir.',
     introTr:
-      "Sivas, 1.294 metre rakımıyla Türkiye'nin en yüksek il merkezlerinden biridir. " +
-      "Türkiye'nin en uzun nehri Kızılırmak, ilin doğusundaki İmranlı ilçesinde, Kızıldağ'ın " +
-      '2.000 metreyi aşan yükseltilerinden doğar. Divriği ilçesindeki Ulu Cami ve Darüşşifa, ' +
-      "1985'te Türkiye'den UNESCO Dünya Mirası Listesi'ne giren ilk mimari eserdir.",
+      "Sivas, 1.294 metre rakımıyla Türkiye'nin en yüksek il merkezlerinden biridir. Türkiye " +
+      'sınırları içinde tamamen akan en uzun nehir olan Kızılırmak, kaynağını il topraklarından ' +
+      "alır. Divriği ilçesindeki Ulu Cami ve Darüşşifa, 1985'te Türkiye'den UNESCO Dünya Mirası " +
+      "Listesi'ne giren ilk mimari eserdir.",
     hydrographyNoteTr:
-      'Kızılırmak, İmranlı ilçesindeki Kızıldağ kaynaklarından doğar ve Türkiye sınırları içinde ' +
-      'tamamen akan en uzun nehirdir. Sivas topraklarından geçtikten sonra Kayseri, Kırşehir, ' +
-      "Kırıkkale, Ankara, Aksaray, Nevşehir, Çorum ve Samsun'dan geçerek Karadeniz'e dökülür. " +
-      'Millî Eğitim Bakanlığı müfredat kaynakları bu güzergâh için 1.355 kilometre rakamını ' +
-      'kullanır.',
+      "Kızılırmak, İmranlı ilçesinde Kızıldağ'ın 2.000 metreyi aşan yükseltilerinden doğar. " +
+      'Sivas topraklarından geçtikten sonra Kayseri, Kırşehir, Kırıkkale, Ankara, Aksaray, ' +
+      "Nevşehir, Çorum ve Samsun'dan geçerek Karadeniz'e dökülür. Millî Eğitim Bakanlığı " +
+      'müfredat kaynakları nehrin toplam uzunluğu için 1.355 kilometre rakamını kullanır.',
     urbanizationRate: 77.38,
     netMigrationRate: -21.14,
     economyIndicator: {
@@ -5988,15 +5992,15 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
       "19 Mayıs 1919'da Mustafa Kemal'in Samsun'a çıkışı, Kurtuluş Savaşı'nın fiilen başladığı " +
       'tarih olarak kabul edilir.',
     hydrographyNoteTr:
-      "Türkiye'nin en uzun akarsuyu Kızılırmak, Bafra ilçesi yakınlarında Karadeniz'e dökülür; " +
-      "nehrin taşıdığı alüvyonların oluşturduğu Kızılırmak Deltası, 1998'de Ramsar " +
-      "Sözleşmesi'ne dahil edilmiş, Anadolu'nun ikinci büyük Ramsar alanıdır. Delta içindeki " +
-      'Balık, Uzun, Cernek, Liman, Karaboğaz ve Mülk gölleri acı su özelliği taşır; alanda 358 ' +
-      'kuş türü tespit edilmiştir.\n\n' +
+      'Türkiye sınırları içinde tamamen akan en uzun nehir olan Kızılırmak, Bafra ilçesi ' +
+      "yakınlarında Karadeniz'e dökülür. Nehrin taşıdığı alüvyonların oluşturduğu Kızılırmak " +
+      "Deltası, 1998'de Ramsar Sözleşmesi'ne dahil edilmiş, Anadolu'nun ikinci büyük Ramsar " +
+      'alanıdır. Delta içindeki Balık, Uzun, Cernek, Liman, Karaboğaz ve Mülk gölleri acı su ' +
+      'özelliği taşır; alanda 358 kuş türü tespit edilmiştir.' +
+      '\n\n' +
       'İlin doğusunda Yeşilırmak, Çarşamba ilçesi yakınlarında kendi deltasını oluşturarak ' +
       'denize ulaşır. İçme suyu ihtiyacının büyük bölümü, Abdal Deresi üzerinde 1985-1988 ' +
-      "arasında inşa edilen ve yaklaşık 580 milyon m³ kapasiteli Çakmak Barajı'ndan " +
-      'karşılanır.',
+      "arasında inşa edilen ve yaklaşık 580 milyon m³ kapasiteli Çakmak Barajı'ndan karşılanır.",
     hydrographyFeatures: [
       { name: 'Kızılırmak', type: HydrographyFeatureType.Nehir },
       { name: 'Yeşilırmak', type: HydrographyFeatureType.Nehir },
@@ -6006,10 +6010,10 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 100.0,
     netMigrationRate: 2.6,
     settlementNoteTr:
-      "Samsun'da da büyükşehir statüsünün yapısal sonucu geçerlidir: TÜİK il/ilçe merkezi nüfus " +
-      "oranı %100'dür, çünkü belde ve köylerin idari tüzel kişiliği 6360 sayılı Kanun'la " +
-      'kaldırılmıştır. 2024 yılında 46.841 kişi aldı, 43.246 kişi verdi; net göç hızı binde ' +
-      '+2,60 ile pozitif kaldı.',
+      "Samsun'da da TÜİK il/ilçe merkezi nüfus oranı %100'dür, çünkü büyükşehir statüsündeki " +
+      "illerde belde ve köylerin idari tüzel kişiliği 6360 sayılı Kanun'la kaldırılmıştır. Oran " +
+      'yasal bir tanımı yansıtır ve ilin fiilen tamamen kentleştiği anlamına gelmez. 2024 ' +
+      'yılında 46.841 kişi aldı, 43.246 kişi verdi; net göç hızı binde +2,60 ile pozitif kaldı.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%1,2',

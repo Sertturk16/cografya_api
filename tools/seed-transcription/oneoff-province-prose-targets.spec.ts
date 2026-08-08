@@ -24,6 +24,7 @@ import {
   P3_TARGETS,
   P4_TARGETS,
   P5_TARGETS,
+  P6_TARGETS,
   PROSE_WAVES,
   targetKey,
 } from './oneoff-province-prose-targets.ts';
@@ -32,13 +33,14 @@ describe('prose wave target lists — per-wave shape', () => {
   it('covers every shipped wave (the table the other cases iterate is complete)', () => {
     // A wave added to the module but forgotten in PROSE_WAVES would be invisible to every
     // assertion below — unguarded while looking guarded, which is worse than no spec.
-    expect(PROSE_WAVES.map((w) => w.label)).toEqual(['P1', 'P2', 'P3', 'P4', 'P5']);
+    expect(PROSE_WAVES.map((w) => w.label)).toEqual(['P1', 'P2', 'P3', 'P4', 'P5', 'P6']);
     expect(PROSE_WAVES.map((w) => w.targets)).toEqual([
       P1_TARGETS,
       P2_TARGETS,
       P3_TARGETS,
       P4_TARGETS,
       P5_TARGETS,
+      P6_TARGETS,
     ]);
   });
 
@@ -131,6 +133,47 @@ describe('prose wave target lists — cross-wave invariants', () => {
     );
     expect(P5_TARGETS.filter((target) => earlier.has(targetKey(target)))).toEqual([]);
     expect(P5_TARGETS.every((target) => target.field === 'climateCurriculumNoteTr')).toBe(true);
+  });
+
+  it('P6 owns its three transferred pairs and P3/P4 no longer do (ownership MOVED)', () => {
+    // Same shape as the Mersin case above, three pairs at once: Ankara/06 and İstanbul/34 come
+    // from P3, Samsun/55 from P4. Pinned in both directions for the same asymmetric reason —
+    // leaving a pair behind turns the older wave's gate permanently red, dropping it from both
+    // leaves the field with no wave asserting it at all.
+    const moved = [
+      {
+        previous: P3_TARGETS,
+        key: targetKey({ name: 'Ankara', plate: '06', field: 'settlementNoteTr' }),
+      },
+      {
+        previous: P3_TARGETS,
+        key: targetKey({ name: 'İstanbul', plate: '34', field: 'hydrographyNoteTr' }),
+      },
+      {
+        previous: P4_TARGETS,
+        key: targetKey({ name: 'Samsun', plate: '55', field: 'settlementNoteTr' }),
+      },
+    ];
+    for (const { previous, key } of moved) {
+      expect(P6_TARGETS.map(targetKey)).toContain(key);
+      expect(previous.map(targetKey)).not.toContain(key);
+    }
+  });
+
+  it('P6 does NOT claim the two pairs that were back-ported to P1/P2 instead', () => {
+    // The structural reason this wave is ten pairs and not twelve. Çorum/19 and Sivas/58
+    // `hydrographyNoteTr` are the SOLE entries of P1 and P2, so moving them would empty those
+    // lists — tripping the `$label is non-empty` case above and the runner's "nothing expected"
+    // refusal together. Their corrections were back-ported into the P1/P2 DRAFTS instead, which
+    // is invisible from this file; this case is what tells the next reader that the omission is
+    // deliberate rather than a forgotten entry, and fails if someone "completes" the wave.
+    const backPorted = [
+      targetKey({ name: 'Çorum', plate: '19', field: 'hydrographyNoteTr' }),
+      targetKey({ name: 'Sivas', plate: '58', field: 'hydrographyNoteTr' }),
+    ];
+    for (const key of backPorted) expect(P6_TARGETS.map(targetKey)).not.toContain(key);
+    expect(P1_TARGETS.map(targetKey)).toContain(backPorted[0]);
+    expect(P2_TARGETS.map(targetKey)).toContain(backPorted[1]);
   });
 
   it('P5 covers the fifteen provinces the owner rulings demand a note for', () => {

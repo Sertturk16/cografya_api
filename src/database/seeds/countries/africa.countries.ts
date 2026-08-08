@@ -127,9 +127,9 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "kıtalar arası konum, Afrika ülkeleri arasında yalnızca Mısır'a özgüdür. Kuzeyde " +
       "Akdeniz'e, doğuda Kızıldeniz'e kıyısı vardır; batıda Libya, güneyde Sudan ile komşudur. " +
       "Sina'nın doğu kenarı boyunca İsrail'le, bu kenarın Akdeniz'e ulaştığı Refah'ta ise " +
-      "Filistin'in Gazze Şeridi'yle sınırdaştır. Topraklarının neredeyse tamamı çöldür — nüfusun " +
-      'büyük kısmı, ülke yüzölçümünün yalnızca yaklaşık yirmide birini oluşturan Nil Vadisi ve ' +
-      "Deltası'nda yaşar.",
+      "Filistin'in Gazze Şeridi'yle sınırdaştır. Topraklarının neredeyse tamamı çöl olduğu için " +
+      'nüfusun büyük kısmı, ülke yüzölçümünün yalnızca yaklaşık yirmide birini oluşturan Nil ' +
+      "Vadisi ve Deltası'nda yaşar.",
     landformNoteTr:
       "Nil'in batısında kalan geniş Batı Çölü, Sahra'nın bir uzantısı olarak ülke " +
       'topraklarının üçte ikisinden fazlasını kaplar ve içinde Kattara Çukurluğu gibi deniz ' +
@@ -1443,7 +1443,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "Dağları'na doğru yükselir. Kuzeyden güneye gidildikçe bitki örtüsü de Sahel kuşağına " +
       'yakın açık savanlardan, güneydeki daha yoğun orman parçalarına doğru değişir.',
     landformNoteTr:
-      'Ülkenin büyük bölümünü kaplayan bu plato, güneybatıdan kuzeydoğuya uzanan bir sırt ' +
+      'Ülkenin büyük bölümünü kaplayan dalgalı plato, güneybatıdan kuzeydoğuya uzanan bir sırt ' +
       'boyunca Çad Gölü ve Kongo Nehri havzaları arasındaki ana su bölümü çizgisini oluşturur. ' +
       "Kuzeydoğuda, Bongo Masifi 1.330 metrelik Toussoro Dağı'na kadar yükselir; ülkenin " +
       "doğusunda ise benzer bir yükselti Tondou Masifi'nde görülür." +
@@ -2158,12 +2158,14 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'metre yükseklikteki platolara yükselir. Ülkenin en alçak noktası olan Assal Gölü, Afrika ' +
       'kıtasının da en alçak noktasıdır.',
     landformNoteTr:
-      "Cibuti kentinin yaklaşık 120 kilometre batısında, Tadjoura Körfezi'nin batı kolu olan " +
-      'Ghoubbet-el-Kharab koyuna yalnızca 10 kilometre uzaklıkta yer alan Assal Gölü, deniz ' +
-      "seviyesinin 155 metre altındadır; bu değer onu Afrika'nın en alçak noktası, dünyanın ise " +
-      "Lut Gölü (Ölü Deniz) ve Celile Gölü'nün ardından üçüncü en alçak noktası yapar. Yüksek " +
-      'buharlaşma nedeniyle gölün tuzluluğu deniz suyunun on katına ulaşır. Gölü çevreleyen ' +
-      "volkanik bazalt oluşumları, Afar Üçlü Kavşağı'nın jeolojik hareketliliğini yansıtır." +
+      "Assal Gölü, Cibuti kentinin yaklaşık 120 kilometre batısında, Tadjoura Körfezi'nin batı " +
+      'kolu olan Ghoubbet-el-Kharab koyuna yalnızca 10 kilometre uzaklıktadır. Göl yüzeyi deniz ' +
+      "seviyesinin 155 metre altında kalır. Bu değer onu Afrika'nın en alçak noktası, dünyada " +
+      "ise Lut Gölü (Ölü Deniz) ve Celile Gölü'nün ardından üçüncü en alçak nokta yapar." +
+      '\n\n' +
+      'Yüksek buharlaşma nedeniyle gölün tuzluluğu deniz suyunun on katına ulaşır. Gölü ' +
+      "çevreleyen volkanik bazalt oluşumları, Afar Üçlü Kavşağı'nın jeolojik hareketliliğini " +
+      'yansıtır.' +
       '\n\n' +
       "Güneyde, Etiyopya sınırındaki Abbe Gölü'nün çevresinde, derin jeotermal sulardan beslenen " +
       've 50 metreye ulaşan kireçtaşı bacalar yükselir; bu oluşumlar, göle ulaşan Etiyopya ' +
@@ -2176,10 +2178,10 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'yıllar süren kuraklıkların ardından birkaç saat içinde sel baskınlarına yol açabilir.',
     hydrographyNoteTr:
       "Cibuti'de kalıcı akan bir nehir yoktur; iç kesimdeki mevsimsel vadiler yalnızca yağış " +
-      "sonrası kısa süreliğine su taşır. Assal Gölü'nün çıkışı yoktur — Tadjoura Körfezi'nden " +
-      'yer altından sızan deniz suyu ve sınırlı tatlı su girdisi, yalnızca buharlaşmayla ' +
-      'dengelenir; bu, gölün aşırı tuzluluğunun kaynağıdır. Etiyopya sınırındaki Abbe Gölü ise ' +
-      "düzensiz akışlı Auş Nehri'nden beslenir.",
+      "sonrası kısa süreliğine su taşır. Assal Gölü'nün çıkışı yoktur. Tadjoura Körfezi'nden yer " +
+      'altından sızan deniz suyu ve sınırlı tatlı su girdisi yalnızca buharlaşmayla dengelenir, ' +
+      'gölün aşırı tuzluluğu da buradan gelir. Etiyopya sınırındaki Abbe Gölü ise düzensiz ' +
+      "akışlı Auş Nehri'nden beslenir.",
   },
   {
     isoCode: 'ER',
