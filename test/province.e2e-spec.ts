@@ -172,6 +172,10 @@ describe('Province (e2e)', () => {
       'AddCountryDetailSections1785952800000',
       'AddProvinceClimateCurriculum1785974400000',
       'AddCountryPopulationSourceName1786060800000',
+      // The earthquake E1 contract PR. `earthquake_events` carries a foreign key to
+      // `provinces(plate_code)`, so its migration MUST stay ordered after `InitProvince`.
+      'InitEarthquakeEvents1786492800000',
+      'InitEarthquakeIngestRuns1786496400000',
     ]);
   });
 

@@ -2868,6 +2868,320 @@
           "pollutants",
           "tieBreakOrder"
         ]
+      },
+      "EarthquakeEventDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Our identifier. Stable across revisions of the same event."
+          },
+          "providerEventId": {
+            "type": "string",
+            "example": "725329",
+            "description": "The provider's own event id, as a string. Increasing but with gaps — it orders nothing."
+          },
+          "occurredAtUtc": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-08-11T11:03:34.000Z",
+            "description": "Origin time — when the source ruptured — in UTC, ALWAYS ending in \"Z\". Never a local time: the provider publishes UTC without a timezone suffix while its own web page shows the same event shifted +3 hours, so reading it as local time would publish every earthquake three hours wrong. Converting to Turkish time is the web layer, once."
+          },
+          "magnitude": {
+            "type": "number",
+            "minimum": -1,
+            "maximum": 10,
+            "example": 1.8,
+            "description": "Magnitude — the energy released at the source. One number per earthquake, independent of where it is measured. NOT intensity, which varies by place and is not published here."
+          },
+          "magnitudeType": {
+            "enum": [
+              "ML",
+              "Mw",
+              "Ms",
+              "mb",
+              "Md",
+              "Mwp",
+              "other"
+            ],
+            "type": "string",
+            "example": "ML",
+            "description": "Normalised magnitude-type token. \"other\" is part of the set, not an error state: a method we have not seen before is published rather than rejected."
+          },
+          "magnitudeTypeRaw": {
+            "type": "string",
+            "example": "ML",
+            "description": "The provider's raw type string, untouched — the provider's casing is inconsistent (\"ML\", \"MW\", \"Md\" all measured), so the normalised token is never the only record."
+          },
+          "depthKm": {
+            "type": "number",
+            "example": 6.95,
+            "description": "Focal depth in km. CAN BE NEGATIVE (−0.014 km measured) — do not treat a negative value as invalid and do not clamp it to zero."
+          },
+          "latitude": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "example": 38.05222
+          },
+          "longitude": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "example": 36.63111
+          },
+          "placeNameTr": {
+            "type": "string",
+            "example": "Göksun (Kahramanmaraş)",
+            "description": "Reader-facing place name, parsed from the provider's \"location\" — the part before its distance bracket. Derived data, not authored copy."
+          },
+          "providerLocationRaw": {
+            "type": "string",
+            "example": "Ege Denizi - [56.72 km] Bodrum (Muğla)",
+            "description": "The provider's \"location\" string verbatim, for auditability. Do NOT print it: the \"[56.72 km]\" fragment is a provider-internal format, not a reader-facing label."
+          },
+          "bindingKind": {
+            "enum": [
+              "inside",
+              "offshore_near",
+              "across_border"
+            ],
+            "type": "string",
+            "example": "inside",
+            "description": "HOW this event relates to the province it is filed under, and it is mandatory. The provider's province field means \"the nearest Turkish province\", not \"where this happened\": an Iranian event arrives tagged \"Ağrı\" and an Azerbaijani one 137 km away as \"Iğdır\". Rendering either as \"an earthquake in <province>\" is factually wrong."
+          },
+          "bindingPlateCode": {
+            "type": "string",
+            "nullable": true,
+            "example": "46",
+            "description": "Zero-padded plate code of the province page this event appears on, or null for none. Read together with bindingKind, never alone."
+          },
+          "bindingDistanceKm": {
+            "type": "number",
+            "nullable": true,
+            "example": 11.15,
+            "description": "Distance in km parsed from the provider's bracket, or null when it carried none. It is the distance to the nearest district CENTRE, not to a border, and it is not a scope signal."
+          },
+          "providerCountry": {
+            "type": "string",
+            "nullable": true,
+            "example": "Türkiye",
+            "description": "The provider's country. Three-valued: Türkiye, a neighbouring country, or null for genuinely open-water events."
+          },
+          "isRevised": {
+            "type": "boolean",
+            "example": false,
+            "description": "Whether the provider has revised this solution. Revisions are real and can be late — measured at 8.5 hours and 3 days for the two 2023 M7+ events."
+          },
+          "providerUpdatedAtUtc": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "example": "2026-08-06T12:56:14.719Z",
+            "description": "When the provider last revised it, UTC. Null if never revised."
+          },
+          "revisionCount": {
+            "type": "number",
+            "minimum": 0,
+            "example": 0,
+            "description": "How many times WE have seen a value change on this event. Re-ingesting an unchanged payload does not move it."
+          }
+        },
+        "required": [
+          "id",
+          "providerEventId",
+          "occurredAtUtc",
+          "magnitude",
+          "magnitudeType",
+          "magnitudeTypeRaw",
+          "depthKm",
+          "latitude",
+          "longitude",
+          "placeNameTr",
+          "providerLocationRaw",
+          "bindingKind",
+          "bindingPlateCode",
+          "bindingDistanceKm",
+          "providerCountry",
+          "isRevised",
+          "providerUpdatedAtUtc",
+          "revisionCount"
+        ]
+      },
+      "EarthquakeFilterEchoDto": {
+        "type": "object",
+        "properties": {
+          "minMagnitude": {
+            "type": "number",
+            "minimum": -1,
+            "maximum": 10,
+            "example": 2.5,
+            "description": "The magnitude floor applied. The default is 2.5 (QUESTIONS.md D-2) and it is applied at DISPLAY time, never at ingest — everything is stored, so \"show all\" finds real data (DEC 2026-08-12k D-C)."
+          },
+          "plateCode": {
+            "type": "string",
+            "nullable": true,
+            "example": "46",
+            "description": "The province filter applied, as a zero-padded plate code, or null for none."
+          },
+          "fromUtc": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-08-04T00:00:00.000Z",
+            "description": "Start of the window applied, UTC. Always concrete — a defaulted window is resolved to real instants here rather than echoed as \"the last 7 days\"."
+          },
+          "toUtc": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-08-11T23:59:59.000Z",
+            "description": "End of the window applied, UTC."
+          }
+        },
+        "required": [
+          "minMagnitude",
+          "plateCode",
+          "fromUtc",
+          "toUtc"
+        ]
+      },
+      "EarthquakeAttributionDto": {
+        "type": "object",
+        "properties": {
+          "providerId": {
+            "type": "string",
+            "enum": [
+              "afad"
+            ],
+            "description": "Machine token for the source. AFAD is the sole Faz-1 provider."
+          },
+          "providerName": {
+            "type": "string",
+            "description": "Provider name as credited. Verbatim from the provenance ledger (\"AFAD TDVMS earthquakes\" in provenance/integrations.md); never translated or shortened."
+          },
+          "requiredNoticeTr": {
+            "type": "string",
+            "description": "The required attribution line, verbatim and untranslated. Its canonical text lives in provenance/integrations.md and is byte-pinned by a spec when it lands in E3. Display is the web repo's decision; carrying it on every response removes \"it was not shown\" as a possibility."
+          },
+          "regulationReference": {
+            "type": "string",
+            "description": "The regulation the attribution duty arises from, verbatim. Same untouchable class as the notice."
+          },
+          "licenceUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "Always null for AFAD, deliberately: there is no CC-style licence URL, because the obligation arises from a regulation rather than a licence. Inventing a plausible URL would be a false statement about the terms."
+          }
+        },
+        "required": [
+          "providerId",
+          "providerName",
+          "requiredNoticeTr",
+          "regulationReference",
+          "licenceUrl"
+        ]
+      },
+      "EarthquakeListMetaDto": {
+        "type": "object",
+        "properties": {
+          "filter": {
+            "description": "The filter actually applied, defaults resolved.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EarthquakeFilterEchoDto"
+              }
+            ]
+          },
+          "dataUpdatedAtUtc": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "example": "2026-08-11T12:30:00.000Z",
+            "description": "When our last SUCCESSFUL contact with the provider finished, UTC; null before the first one. This — not build time — is what a dateModified or a sitemap lastmod derives from. Distinct from latestEventAtUtc on purpose: a quiet hour and an outage look identical from the newest event alone."
+          },
+          "latestEventAtUtc": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "example": "2026-08-11T11:03:34.000Z",
+            "description": "Origin time of the newest event we hold, UTC; null when the store is empty. A concrete fact for the page description (SEO-POLICY Part A2), not a freshness claim."
+          },
+          "dataStatus": {
+            "enum": [
+              "ok",
+              "stale",
+              "unavailable"
+            ],
+            "type": "string",
+            "example": "ok",
+            "description": "Structural freshness verdict. The API ships this token and absolute timestamps; the sentence shown to the reader is the web layer's, and it is never a standing promise like \"updated every 5 minutes\" — a fixed promise becomes a lie the moment the provider goes quiet (DEC 2026-08-12k D-F)."
+          },
+          "attributions": {
+            "description": "Required provider attribution, populated on EVERY response — including the cold path and every dataStatus. A licence notice that blinks with provider health does not discharge the obligation.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EarthquakeAttributionDto"
+            }
+          }
+        },
+        "required": [
+          "filter",
+          "dataUpdatedAtUtc",
+          "latestEventAtUtc",
+          "dataStatus",
+          "attributions"
+        ]
+      },
+      "EarthquakeListDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number",
+            "minimum": 1,
+            "example": 1,
+            "description": "Requested page, 1-based."
+          },
+          "pageSize": {
+            "type": "number",
+            "minimum": 1,
+            "example": 50,
+            "description": "Requested page size. Each endpoint documents its own ceiling."
+          },
+          "total": {
+            "type": "number",
+            "minimum": 0,
+            "example": 630,
+            "description": "Total rows matching the applied filter, across all pages."
+          },
+          "hasMore": {
+            "type": "boolean",
+            "example": true,
+            "description": "Whether a further page exists after this one."
+          },
+          "items": {
+            "description": "The page of events, newest first, tie-broken by providerEventId so a row cannot appear on two pages. Empty on the cold path — which is a 200 with meta.dataStatus \"unavailable\", never an error.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EarthquakeEventDto"
+            }
+          },
+          "meta": {
+            "description": "This endpoint's extension to the shared envelope: applied filter, data freshness and the mandatory attribution. Not part of the core five and not inherited by any other list.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EarthquakeListMetaDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "page",
+          "pageSize",
+          "total",
+          "hasMore",
+          "items",
+          "meta"
+        ]
       }
     }
   }
