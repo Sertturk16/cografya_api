@@ -2,6 +2,8 @@ import type { DataSourceOptions } from 'typeorm';
 import { AirQualityProvinceSeries } from '../air-quality/entities/air-quality-province-series.entity';
 import { AirQualityRun } from '../air-quality/entities/air-quality-run.entity';
 import { Country } from '../country/entities/country.entity';
+import { EarthquakeEvent } from '../earthquake/entities/earthquake-event.entity';
+import { EarthquakeIngestRun } from '../earthquake/entities/earthquake-ingest-run.entity';
 import { MarineEcmwfCycle } from '../marine/entities/marine-ecmwf-cycle.entity';
 import { MarineEcmwfPointSeries } from '../marine/entities/marine-ecmwf-point-series.entity';
 import { MarinePoint } from '../marine/entities/marine-point.entity';
@@ -21,6 +23,8 @@ import { AddCountryEntityType1785949200000 } from './migrations/1785949200000-Ad
 import { AddCountryDetailSections1785952800000 } from './migrations/1785952800000-AddCountryDetailSections';
 import { AddProvinceClimateCurriculum1785974400000 } from './migrations/1785974400000-AddProvinceClimateCurriculum';
 import { AddCountryPopulationSourceName1786060800000 } from './migrations/1786060800000-AddCountryPopulationSourceName';
+import { InitEarthquakeEvents1786492800000 } from './migrations/1786492800000-InitEarthquakeEvents';
+import { InitEarthquakeIngestRuns1786496400000 } from './migrations/1786496400000-InitEarthquakeIngestRuns';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -192,6 +196,8 @@ export function buildDataSourceOptions(
       MarineEcmwfPointSeries,
       AirQualityRun,
       AirQualityProvinceSeries,
+      EarthquakeEvent,
+      EarthquakeIngestRun,
     ],
     migrations: [
       InitProvince1783382400000,
@@ -209,6 +215,8 @@ export function buildDataSourceOptions(
       AddCountryDetailSections1785952800000,
       AddProvinceClimateCurriculum1785974400000,
       AddCountryPopulationSourceName1786060800000,
+      InitEarthquakeEvents1786492800000,
+      InitEarthquakeIngestRuns1786496400000,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,

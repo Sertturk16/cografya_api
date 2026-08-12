@@ -76,8 +76,26 @@ dated ruling in `DECISIONS.md`. It is the local source of truth for how code lan
 - **Response envelope + pagination.** Faz-1 list endpoints that are bounded and small
   (e.g. the 81 provinces) return a plain typed array — no envelope, no pagination, by
   deliberate choice (a fixed, fully-cacheable set). The **first unbounded/growing list**
-  (blog, topics) introduces the shared response-envelope + pagination helper; establish it
-  once, then it is binding for every list after. Record the shape here when it lands.
+  introduces the shared response-envelope + pagination helper; establish it once, then it
+  is binding for every list after.
+  **It landed with the earthquake list (E1, `PaginationEnvelopeDto`), and the shape is:**
+  > A list response carries **exactly** `items`, `page`, `pageSize`, `total` and `hasMore`
+  > at the top level. Every endpoint-specific field lives inside **one** named `meta`
+  > object. A list with no endpoint-specific fields carries **no `meta` at all**.
+
+  Core five ruled by `DEC 2026-08-12k` §2; the `meta` form by §7. `page`/`pageSize`/
+  `total`/`hasMore` are inherited from `src/common/dto/pagination-envelope.dto.ts`;
+  `items` is declared per list DTO because `@ApiProperty({ type: [X] })` needs the concrete
+  item type. **Why `meta` is nested rather than five more top-level keys is a measured
+  constraint, not taste:** `@nestjs/swagger` emits a subclass schema FLAT — no `allOf`, no
+  `$ref` to the base, and the base is absent from `components.schemas` unless registered
+  separately — so inheritance alone enforces the core in TypeScript while leaving the
+  published contract an undifferentiated list of keys. Nesting is the only form in which
+  the boundary survives into `openapi.json`. Blog and topic lists follow this; they do not
+  inherit any endpoint's `meta`. Accepted trade-off recorded with the ruling: offset
+  pagination can repeat a row across pages when new rows land mid-read; cursor pagination
+  fixes that and breaks the stable `?page=2` addresses the web repo's canonical strategy
+  depends on.
 - **Global `/api` prefix** for content routes; `/health` stays bare (see
   `src/common/bootstrap.ts`). The OpenAPI generator applies the same prefix so the spec's
   paths always match what the app serves.
@@ -173,6 +191,14 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   (`dist/database/data-source.js`).
 - **Public entities carry `slug_tr` + `slug_en`** (the web repo's localized-slug routing
   depends on them). Slug columns are indexed for the lookup path.
+  - **One ruled exception: `earthquake_events` (E1).** The rule's reason is routing, and
+    `DEC 2026-08-12k` D-E rules there is **no per-event page** — ~33 000 near-identical thin
+    pages a year is the shape `SEO-POLICY.md` §12.1 (scaled content abuse) targets, and that
+    penalty lands site-wide rather than page-by-page. With no page there is no route, so a
+    slug would be a column nothing resolves. The exception is scoped to that table and dies
+    with its premise: if D-E is ever reopened, the slug columns and their migration land in
+    the PR that opens it. **A public entity WITHOUT its own page is the only case this
+    covers** — never "it felt unnecessary".
 - **External data imports are TWO-PHASE, and the phases are not interchangeable.** `fetch`/`probe`
   is the only thing that touches the network: run BY HAND, polite by construction (serial, spaced,
   timed out, identifying UA), and it writes committed, reviewable artifacts. `load` is offline,
