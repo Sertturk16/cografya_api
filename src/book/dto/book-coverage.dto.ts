@@ -49,9 +49,10 @@ export class BookCoverageDto {
     minimum: 1,
     example: 40,
     description:
-      'How many denemeler the BOOK contains — a künye fact, not a coverage figure, and never ' +
-      'equal to videoCount by construction. Non-nullable: the owner checked the book (K-E), and ' +
-      'denemeler 14 and 22 DO exist there — only their solution videos are missing.',
+      'How many denemeler the BOOK contains — a künye fact, not a coverage figure. It is not ' +
+      'derived from videoCount, and nothing forces the two apart: a fully covered book makes ' +
+      'them equal. Non-nullable: the owner checked the book (K-E), and denemeler 14 and 22 DO ' +
+      'exist there — only their solution videos are missing.',
   })
   denemeCount!: number;
 }

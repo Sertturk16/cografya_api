@@ -3288,7 +3288,7 @@
             "type": "number",
             "minimum": 1,
             "example": 40,
-            "description": "How many denemeler the BOOK contains — a künye fact, not a coverage figure, and never equal to videoCount by construction. Non-nullable: the owner checked the book (K-E), and denemeler 14 and 22 DO exist there — only their solution videos are missing."
+            "description": "How many denemeler the BOOK contains — a künye fact, not a coverage figure. It is not derived from videoCount, and nothing forces the two apart: a fully covered book makes them equal. Non-nullable: the owner checked the book (K-E), and denemeler 14 and 22 DO exist there — only their solution videos are missing."
           }
         },
         "required": [
@@ -3350,7 +3350,7 @@
             "type": "number",
             "minimum": 1,
             "example": 368,
-            "description": "Duration in seconds, parsed. Equal to durationIso by construction — a row that does not round-trip is refused rather than stored."
+            "description": "Duration in seconds, parsed from durationIso. B4 obligation, not an existing guarantee: the write path re-derives the ISO string from this integer and refuses a row that does not round-trip. No write path exists yet, so read the equality as a specified invariant."
           },
           "embeddable": {
             "type": "boolean",

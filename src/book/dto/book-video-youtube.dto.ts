@@ -72,8 +72,9 @@ export class BookVideoYoutubeDto {
     minimum: 1,
     example: 368,
     description:
-      'Duration in seconds, parsed. Equal to durationIso by construction — a row that does not ' +
-      'round-trip is refused rather than stored.',
+      'Duration in seconds, parsed from durationIso. B4 obligation, not an existing guarantee: ' +
+      'the write path re-derives the ISO string from this integer and refuses a row that does ' +
+      'not round-trip. No write path exists yet, so read the equality as a specified invariant.',
   })
   durationSeconds!: number;
 

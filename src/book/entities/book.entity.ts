@@ -167,6 +167,14 @@ export class Book {
    * receives, stores or serves a byte of image data on this leg — there is no upload surface
    * (playbook §3.4 is not triggered, SPEC §4.3).
    *
+   * **The seed rule that alphabet imposes on B2** (playbook §5: seed discipline belongs on the
+   * entity). It is ASCII only, so Turkish diacritics, spaces, `%`, `+` and parentheses are all
+   * refused — `/kitaplar/ağrı-kapak.jpg` and `/kitaplar/kapak 1.jpg` do not fit it. **Slugify the
+   * filename before copying it into `public/`**, exactly as the shipped cover path already is. The
+   * refusal is fail-closed, so a wrong name is rejected at seed time rather than stored and broken
+   * later; the point of writing it here is that otherwise the rule exists only inside a regex on a
+   * Turkish-language project.
+   *
    * The file itself is owner-supplied (480×758, ruled sufficient — K-K, → DEC 2026-08-15c §1).
    */
   @Column({ name: 'cover_image_path', type: 'varchar', length: 200, nullable: true })

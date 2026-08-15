@@ -13,13 +13,15 @@
  *
  * ## Why these sets are TypeScript enums and not database CHECK constraints
  * The E1 precedent (`magnitude_type`) is followed deliberately: the column is a plain `varchar` and
- * the closed set lives here plus in the published OpenAPI `enum`. For `examTrack` that is the
- * STRONGER guard rather than the weaker one — every value is written by our own seed, so the enum
- * makes a wrong track a COMPILE error instead of a runtime insert failure, the same reasoning that
- * put the eight `CURRICULUM_*` climate names behind shared constants (playbook §8, M1 lane). For
- * {@link YoutubeThumbnailKey} it also avoids handing a fail-soft ingest loop a constraint that can
- * abort a row: the value can only ever come from our own ordered selection ladder, so a violation
- * would mean a code defect, and B4 handles a rejected row by counting it and continuing.
+ * the closed set lives here — plus, for a PUBLISHED field, in the OpenAPI `enum`. That second half
+ * is `examTrack` only; {@link YoutubeThumbnailKey} is published nowhere (see its own note), so its
+ * set lives here and nowhere else. For `examTrack` the enum is the STRONGER guard rather than the
+ * weaker one — every value is written by our own seed, so it makes a wrong track a COMPILE error
+ * instead of a runtime insert failure, the same reasoning that put the eight `CURRICULUM_*`
+ * climate names behind shared constants (playbook §8, M1 lane). For {@link YoutubeThumbnailKey} it
+ * avoids handing a fail-soft ingest loop a constraint that can abort a row: the value can only
+ * ever come from our own ordered selection ladder, so a violation would mean a code defect, and B4
+ * handles a rejected row by counting it and continuing.
  *
  * **Nothing here is a price, a currency, an availability state or an offer.** `CONVENTIONS.md` §4
  * bars commercial packages and pricing, and the absence is structural: publishing one would

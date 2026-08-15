@@ -57,8 +57,10 @@ export class BookVideoQuestion {
 
   /**
    * Where this question's solution begins in the video, in whole seconds
-   * (`GLOSSARY.md` §4.2, `başlangıç saniyesi (startSecond)`); handed to the player as
-   * `?start=<seconds>`.
+   * (`GLOSSARY.md` §4.2, `başlangıç saniyesi (startSecond)`) — the jump target handed to the
+   * player. Moving between questions happens INSIDE the loaded player through the IFrame Player
+   * API, not by rebuilding the embed URL per question (→ DEC 2026-08-15d); `?start=` stays legal
+   * for the INITIAL load only.
    *
    * **It is not safe to assume the first question starts at 0.** The measured set of first-question
    * seconds is `{0, 2, 6, 11, 94}`, so no code path may treat "the first mark" as the video's

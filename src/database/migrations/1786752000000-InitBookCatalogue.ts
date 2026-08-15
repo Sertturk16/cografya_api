@@ -52,10 +52,16 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * ## Constraints
  * - `CHK_books_isbn13` pins exactly 13 digits. `char(13)` blank-pads a short value, and the padded
  *   value fails this pattern, so the padding cannot produce a silently accepted row.
- * - `CHK_books_author_names` requires at least one author. `cardinality()` rather than
- *   `array_length(…, 1)`, which returns NULL for `'{}'` — and a CHECK whose expression is NULL is
- *   NOT a violation, so the obvious form would accept exactly the value it was written to reject.
- *   The credit line is an attribution obligation, so an authorless row is a seeding defect rather
+ * - `CHK_books_author_names` requires at least one ENTRY, which is not the same as at least one
+ *   author. `cardinality()` rather than `array_length(…, 1)`, which returns NULL for `'{}'` — and
+ *   a CHECK whose expression is NULL is NOT a violation, so the obvious form would accept exactly
+ *   the value it was written to reject. **What it rejects is `'{}'` and nothing else.** `{''}`,
+ *   `{'   '}` and `{NULL}` are ACCEPTED — measured on Postgres 16.15 by three review legs, with
+ *   `{'Murat Çakır'}` as the positive control proving the expression is not vacuously false. A
+ *   blank entry is a **B2 seeding defect** the database deliberately does not chase: a content
+ *   guard would have no precedent in this schema, the column is filled by four hand-typed rows,
+ *   and the published contract states no `minItems` (playbook §12, YAGNI is the default). The
+ *   credit line is an attribution obligation, so a row crediting nobody is a seeding defect rather
  *   than a state.
  * - `CHK_books_cover_image_path` is an ALLOWLIST — `~ '^/[A-Za-z0-9._~/-]+$'` together with
  *   `NOT LIKE '//%'` — and it is written that way because the obvious form is not enough. The pair
@@ -69,8 +75,13 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  *   `//cdn.example.com/kapak.jpg`, `/\cdn.example.com/kapak.jpg`, `https://cdn.example.com/x.jpg`,
  *   `kapak.jpg` (no leading slash) and `/` alone — with
  *   `/kitaplar/ayt-cografya-konu-ozetli-brans-denemeleri.jpg` as the positive control proving the
- *   expression is not vacuously false. B3 owns the automated version: SPEC §16 stages the e2e
- *   invariants there, so until it lands this matrix is re-run by hand.
+ *   expression is not vacuously false. **What the alphabet deliberately ADMITS**, measured in the
+ *   same way: `/../../../etc/passwd`, `/./../evil`, `/.//cdn.example.com/x.jpg` and
+ *   `/a//cdn.example.com/x.jpg`. None of them reaches a foreign origin — a reference whose second
+ *   character is not `/` is path-absolute and inherits the base authority under the WHATWG URL
+ *   parser — so traversal inside the web repo's own `public/` is a seed-review question there, not
+ *   an SSRF surface here. The acceptance side is written down so the next reader can tell "allowed
+ *   on purpose" from "not considered".
  * - `CHK_books_purchase_url` requires `https://`. The value becomes an `href` on a public page, so
  *   `javascript:`, `data:` and protocol-relative destinations are refused by the database rather
  *   than by whichever renderer happens to read it — and plain `http://` is refused because
@@ -87,6 +98,12 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  *   bounds the number at 1..999 and the rest is a **B2 seed obligation**: refuse a `denemeNo`
  *   greater than its book's `denemeCount`, where both values are hand-read from the same künye and
  *   a mismatch means one of the two readings is wrong.
+ *
+ * **B3 owns the automated version of every matrix above, not only the cover path.** SPEC §16 stages
+ * the e2e constraint invariants there, so until B3 lands they are re-run by hand and this comment
+ * is their written specification — which is why each one states both what it refuses and what it
+ * admits. A matrix recorded with only its rejections leaves the next author unable to tell a
+ * deliberate allowance from an unconsidered one.
  *
  * `down()` drops the three tables in dependency order, which takes their indexes and constraints
  * with them.

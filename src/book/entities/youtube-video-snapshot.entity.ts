@@ -23,7 +23,8 @@ import { YoutubeThumbnailKey } from '../book.types';
  * ## Three ages, three behaviours (B4, SPEC §8.3)
  * Younger than the soft threshold (600 h ≈ 25 days) the snapshot is served. Between soft and hard
  * it is **not served** — the contract says so by publishing `youtube: null`. Past the hard
- * threshold (720 h = 30 days, the policy ceiling, enforced as a BOOT check on the env schema) the
+ * threshold (720 h = 30 days, the policy ceiling the env schema **must** refuse to exceed at boot —
+ * a B4 obligation and not yet written, since `env.schema.ts` is untouched by this PR) the
  * row is deleted by a purge timer that is gated by `BOOKS_ENABLED` and deliberately NOT by the
  * sync flag: deleting is an obligation, and an obligation may not hang off a feature's switch or
  * off a provider being reachable.

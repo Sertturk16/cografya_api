@@ -37,7 +37,10 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  *   a snapshot exists must FAIL rather than cascade: this row describes the OLD video — its
  *   duration, its thumbnail, its publication instant — so carrying it to a new id would silently
  *   republish one video's provider data under another's. The FK error is the correct outcome; the
- *   operator deletes the snapshot and lets the next tour refetch. **B4 obligation:**
+ *   operator deletes the snapshot and lets the next tour refetch. Verified on Postgres 16.15 in
+ *   the PR #107 round-2 review rather than argued from the clause: the `UPDATE` raises the foreign
+ *   key violation, and the same update on a video carrying no snapshot succeeds. **B4
+ *   obligation:**
  *   an FK violation on one id is that ROW's failure and the tour continues — a structural
  *   guarantee that can halt a fail-soft loop trades one failure mode for a worse one (the E1
  *   lesson, stated again here because it applies verbatim).
@@ -55,10 +58,19 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  *   nonsensical dimension belongs in B4's response validation, where it can be counted and
  *   skipped fail-soft rather than raising inside a tour. **B4 obligation:** reject a
  *   non-positive width or height at parse time.
- * - **`thumbnail_key` and `privacy_status` are plain `varchar` with no CHECK**, following the E1
- *   `magnitude_type` precedent: the closed set lives in `book.types.ts` and in the published
- *   OpenAPI enum. A database constraint here would hand a fail-soft ingest loop something that can
- *   abort a row, and the value can only come from our own selection ladder anyway.
+ * - **`thumbnail_key` and `privacy_status` are plain `varchar` with no CHECK, and NEITHER is
+ *   published.** Both are absent from `openapi.json` (0 hits, against 2 for the sibling
+ *   `thumbnailWidth`), so no OpenAPI enum stands behind either one and the E1 `magnitude_type`
+ *   precedent — a published seven-member enum — transfers only in its "no DDL constraint" half.
+ *   Their reasons differ and are not interchangeable. `thumbnail_key` has a closed set in
+ *   TypeScript (`YoutubeThumbnailKey` in `book.types.ts`) and its value can only come from our own
+ *   ordered selection ladder, so a wrong value is a code defect the enum already catches at
+ *   compile time. `privacy_status` has **no closed set anywhere** — the entity declares it
+ *   `string` because it is verbatim provider data, and pinning a provider's vocabulary in DDL is
+ *   what that precedent argues against. **B4 obligation:** treat `privacy_status` as an open
+ *   string and never branch on it without a default; this column will hold whatever the provider
+ *   returns, up to 16 characters. In both cases a CHECK would additionally hand a fail-soft ingest
+ *   loop something that can abort a row.
  * - **`missing_since_utc` marks a video that stopped being returned; the row is not deleted.** The
  *   snapshot stops being served while the deneme and its questions keep being served, so a dead
  *   video costs the embed and nothing else. This is also what satisfies "verify at least every 30
