@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from '@jest/globals';
 import { z } from 'zod';
 import { checkEnvBound, type EnvBoundCheck, type EnvIssueCollector } from './env-bounds';
@@ -10,6 +12,10 @@ import { checkEnvBound, type EnvBoundCheck, type EnvIssueCollector } from './env
  * actually drop into `env.schema.ts`'s `superRefine`. If zod's context ever stops fitting, this
  * line stops compiling and `Typecheck & Lint` says so, instead of the mismatch surfacing during
  * the conversion.
+ *
+ * `Typecheck & Lint` is named deliberately: `tsconfig.unit-spec.json` sets `isolatedModules: true`,
+ * so ts-jest transpiles without type-checking and `Test (unit)` holds NOTHING of this proof. A
+ * green unit run is not evidence for the line below; the typecheck job is.
  */
 const acceptsARealRefinementContext: (ctx: z.core.$RefinementCtx) => EnvIssueCollector = (ctx) =>
   ctx;
@@ -37,6 +43,29 @@ function issuesFor(check: EnvBoundCheck): RecordedIssue[] {
   checkEnvBound(ctx, check);
   return issues;
 }
+
+/**
+ * `env.schema.ts`, with its string-concatenation seams folded away and whitespace collapsed.
+ *
+ * The schema writes each message as `'… — a single ' + 'call cannot …'` across two source lines,
+ * so a raw substring search would miss every one of them. Removing the `' + '` seam and
+ * collapsing runs of whitespace reconstructs exactly the string the file composes at runtime,
+ * without evaluating it.
+ */
+const FOLDED_SCHEMA_SOURCE = readFileSync(join(__dirname, 'env.schema.ts'), 'utf8')
+  .replace(/'\s*\+\s*'/g, '')
+  .replace(/\s+/g, ' ');
+
+/**
+ * A bound message as the schema shapes one: `<VAR>[ + <VAR>…] <phrase> <VAR>`.
+ *
+ * Anchored on the variable names so that the same phrase appearing in an explanatory COMMENT
+ * ("a tour budget must not exceed the tour that hosts it") is not miscounted as a rule. Verified
+ * against a deliberately perturbed copy: adding a fourteenth cross-check moves the count, adding
+ * the sentence above to a comment does not.
+ */
+const BOUND_MESSAGE =
+  /[A-Z][A-Z0-9_]*(?: \+ [A-Z][A-Z0-9_]*)* (?:must not exceed|must be smaller than|must be shorter than) [A-Z][A-Z0-9_]*/g;
 
 /**
  * The thirteen cross-checks `env.schema.ts` runs today, each with values that BREACH it and the
@@ -241,6 +270,32 @@ describe('checkEnvBound', () => {
     expect(SCHEMA_CROSS_CHECKS).toHaveLength(13);
   });
 
+  /**
+   * The link this table did not have, and the reason the type docblock used to overstate its own
+   * gate: `toHaveLength(13)` sees a SHRINKING table, and nothing here ever opened `env.schema.ts`.
+   * So the table was a hand transcription that could drift from the schema in either direction
+   * while every case below stayed green.
+   *
+   * Both checks assert a CORRESPONDENCE between two files, never a value read off one of them —
+   * so neither hardcodes a fact, and a reworded message must be reworded in both places or the
+   * suite says so.
+   */
+  it('every table message still occurs in `env.schema.ts` — a reword cannot pass silently', () => {
+    const missing = SCHEMA_CROSS_CHECKS.filter(
+      ({ message }) => !FOLDED_SCHEMA_SOURCE.includes(message.replace(/\s+/g, ' ')),
+    ).map(({ check }) => `${check.subject} vs ${check.limit}`);
+
+    expect(missing).toEqual([]);
+  });
+
+  it('and `env.schema.ts` composes no bound message this table has not got', () => {
+    // The direction `toHaveLength(13)` structurally cannot see: a FOURTEENTH cross-check added to
+    // the schema leaves the table at thirteen and every case below still passing.
+    expect(FOLDED_SCHEMA_SOURCE.match(BOUND_MESSAGE) ?? []).toHaveLength(
+      SCHEMA_CROSS_CHECKS.length,
+    );
+  });
+
   for (const { check, message } of SCHEMA_CROSS_CHECKS) {
     it(`reproduces the schema message for ${check.subject} vs ${check.limit}`, () => {
       expect(issuesFor(check).map((issue) => issue.message)).toEqual([message]);
@@ -302,5 +357,45 @@ describe('checkEnvBound', () => {
       const holds: EnvBoundCheck = { ...check, subjectValue: 1, limitValue: 1_000_000_000 };
       expect(issuesFor(holds)).toEqual([]);
     }
+  });
+
+  describe('a non-finite operand REFUSES rather than reporting the bound sound', () => {
+    const base = {
+      kind: 'must-not-exceed',
+      subject: 'A_MS',
+      limit: 'B_MS',
+      reason: 'because the second must contain the first',
+    } as const;
+
+    it.each([
+      ['NaN subject', Number.NaN, 100],
+      ['NaN limit', 100, Number.NaN],
+      ['Infinite subject', Number.POSITIVE_INFINITY, 100],
+      ['Infinite limit', 100, Number.POSITIVE_INFINITY],
+    ])('%s', (_label, subjectValue, limitValue) => {
+      // Without the guard this is the SILENT case: `NaN > x` and `NaN >= x` are both false, so a
+      // bound whose operands could not be computed would report itself sound and the boot would
+      // continue on a configuration nobody checked.
+      expect(issuesFor({ ...base, subjectValue, limitValue })).toEqual([
+        {
+          code: 'custom',
+          path: ['A_MS'],
+          message: 'A_MS could not be compared with B_MS — one of the two is not a finite number.',
+        },
+      ]);
+    });
+
+    it('does not borrow the reason sentence, which would not apply', () => {
+      const [issue] = issuesFor({ ...base, subjectValue: Number.NaN, limitValue: 100 });
+      expect(issue?.message).not.toContain(base.reason);
+    });
+
+    it('still attaches to the explicit path when the subject is an expression', () => {
+      const sum = SCHEMA_CROSS_CHECKS.find((entry) => entry.check.subject.includes('+'));
+      expect(sum).toBeDefined();
+      expect(issuesFor({ ...sum!.check, subjectValue: Number.NaN })[0]?.path).toEqual([
+        'ECMWF_TOUR_BUDGET_MS',
+      ]);
+    });
   });
 });

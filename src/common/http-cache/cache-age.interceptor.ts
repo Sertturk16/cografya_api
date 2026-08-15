@@ -27,6 +27,30 @@ import { type Observable, tap } from 'rxjs';
  * be machinery guarding a case the routing already forbids (`ENGINEERING.md` §12: YAGNI is the
  * default). If a single response body is ever composed from both legs, that is the moment to
  * revisit this, and the moment it would first be true.
+ *
+ * The trade that collapse makes, stated so the revisit trigger above is not the only record of it:
+ * each predecessor carried its OWN symbol, so a leg mix-up used to produce an ABSENT header, which
+ * is visible. With one symbol a mix-up would publish the other leg's age instead — a wrong value,
+ * published silently. Not reachable today, and worth knowing before the second body composition
+ * arrives.
+ *
+ * ## NAME COLLISION — the wiring round must delete the marine pair in the SAME commit
+ * `src/marine/marine-cache-age.interceptor.ts:36,52` exports `withCacheAge` and `readCacheAge`
+ * with identical names and identical signatures to the two below, keyed on a DIFFERENT module
+ * -private symbol. Importing one and reading with the other is not a type error and not a unit
+ * failure: `readCacheAge` simply returns `null` and the header disappears. And it disappears
+ * loudly in the wrong direction — `main.ts:33` advertises `X-Marine-Cache-Age` in the CORS
+ * `exposedHeaders`, so the browser is offered a header that never arrives and cannot tell "cache
+ * age unknown" from "there is no cache behind this response".
+ *
+ * (The air-quality leg is not exposed to this: its functions are named
+ * `withAirQualityCacheAge` / `readAirQualityCacheAge`, so a mixed import there is a compile error.)
+ *
+ * So the marine conversion is one commit, not two: switch `marine-values.service.ts` and
+ * `marine.controller.ts` to these functions AND delete `marine-cache-age.interceptor.ts`'s
+ * `withCacheAge`/`readCacheAge` in the same change, keeping its `MARINE_CACHE_AGE_HEADER` export.
+ * `test/marine-values.e2e-spec.ts:474,529,643` assert the header, so `Test (e2e)` catches a
+ * half-done conversion — but it catches it after the fact, and this note is how it is not made.
  */
 
 /**

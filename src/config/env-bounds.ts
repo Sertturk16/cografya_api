@@ -36,8 +36,17 @@
  * - `must-not-exceed` — equality is fine; only a greater subject is refused (`subject > limit`).
  * - `must-be-smaller-than` — equality is refused too (`subject >= limit`). For quantities.
  * - `must-be-shorter-than` — the same comparison, for DURATIONS. A separate member only because
- *   the schema's existing messages say "shorter" where they talk about time, and those messages
- *   are pinned verbatim by `env.schema.spec.ts`.
+ *   the schema's existing messages say "shorter" where they talk about time.
+ *
+ * **What actually guards that wording, stated precisely, because the loose version was wrong.**
+ * `env.schema.spec.ts` does NOT pin these messages verbatim: it asserts with fragment regexes, no
+ * bound message appears there in full, and the four air-quality cross-checks match on the variable
+ * name alone — `/AIR_QUALITY_INGEST_DEADLINE_MS/` is satisfied by two different messages, so it
+ * cannot even tell which rule refused the boot. The word "shorter" survives in exactly one place
+ * (`/shorter than MARINE_WARMUP_INTERVAL_SECONDS/`) and "smaller" in one other; every remaining
+ * wording is unguarded there. The real link is in `env-bounds.spec.ts`, which reads
+ * `env.schema.ts` as text and requires each of its thirteen table messages to occur in that file —
+ * a correspondence between two files rather than a value asserted from memory.
  */
 export type EnvBoundKind = 'must-not-exceed' | 'must-be-smaller-than' | 'must-be-shorter-than';
 
@@ -82,9 +91,16 @@ export interface EnvBoundCheck {
  * without building a parse payload. `env-bounds.spec.ts` holds a compile-time proof that a real
  * refinement context satisfies this interface, so the decoupling cannot silently stop fitting the
  * call site.
+ *
+ * `addIssue` is declared as a PROPERTY, not with method shorthand, and that is load-bearing rather
+ * than cosmetic: TypeScript checks method parameters BIVARIANTLY even under `strictFunctionTypes`,
+ * so with `addIssue(issue: …): void` the proof above keeps compiling against a zod major that
+ * NARROWED the parameter — exactly the case it exists to catch. Measured both ways against a
+ * context demanding an extra required issue field: the method form compiles, the property form
+ * fails with TS2322.
  */
 export interface EnvIssueCollector {
-  addIssue(issue: { code: 'custom'; path: string[]; message: string }): void;
+  readonly addIssue: (issue: { code: 'custom'; path: string[]; message: string }) => void;
 }
 
 /**
@@ -92,8 +108,32 @@ export interface EnvIssueCollector {
  *
  * The composed message is `<subject> <phrase> <limit> — <reason>.`, which is what all thirteen
  * hand-written blocks print today, character for character.
+ *
+ * ## A non-finite operand REFUSES, and does not compose the normal message
+ * `NaN > x` and `NaN >= x` are both `false`, so without this a bound whose operands could not be
+ * computed reports itself SOUND and the boot continues — the one outcome a boot guard must never
+ * produce. No caller can reach it today (all nineteen operands are
+ * `z.coerce.number().int().positive()`, and a field that fails never reaches `superRefine` at
+ * all), so this is hardening rather than a repair; it lives here because this function is the
+ * single funnel every present and future cross-check passes through.
+ *
+ * It gets its own wording on purpose. "Could not be compared" is a different fact from "this
+ * configuration cannot mean what it says", and reusing the {@link EnvBoundCheck.reason} sentence
+ * would print an explanation that does not apply — the failure this file's own contract docblock
+ * warns about.
  */
 export function checkEnvBound(ctx: EnvIssueCollector, check: EnvBoundCheck): void {
+  const path = [...(check.path ?? [check.subject])];
+
+  if (!Number.isFinite(check.subjectValue) || !Number.isFinite(check.limitValue)) {
+    ctx.addIssue({
+      code: 'custom',
+      path,
+      message: `${check.subject} could not be compared with ${check.limit} — one of the two is not a finite number.`,
+    });
+    return;
+  }
+
   const breached =
     check.kind === 'must-not-exceed'
       ? check.subjectValue > check.limitValue
@@ -103,7 +143,7 @@ export function checkEnvBound(ctx: EnvIssueCollector, check: EnvBoundCheck): voi
 
   ctx.addIssue({
     code: 'custom',
-    path: [...(check.path ?? [check.subject])],
+    path,
     message: `${check.subject} ${PHRASE[check.kind]} ${check.limit} — ${check.reason}.`,
   });
 }

@@ -165,6 +165,9 @@ describe('withDataSource', () => {
 
     expect(result).toEqual({ inserted: 81 });
     expect(source.calls).toEqual(['initialize', 'body', 'destroy']);
+    // The negative half. Without it, a helper that logged on EVERY teardown would pass this whole
+    // file, since the two failure cases only assert `toHaveLength(1)`.
+    expect(errors).toHaveLength(0);
   });
 
   it('waits for the body before destroying', async () => {
@@ -215,7 +218,7 @@ describe('withDataSource', () => {
     expect(errors).toHaveLength(1);
   });
 
-  it('does not swallow a failure to OPEN the connection', async () => {
+  it('does not swallow a failure to OPEN the connection, and does not try to close it', async () => {
     const failure = new Error('ECONNREFUSED');
     const source: ClosableDataSource = {
       initialize: () => Promise.reject(failure),
@@ -225,5 +228,12 @@ describe('withDataSource', () => {
     await expect(withDataSource('db:seed:world', source, () => Promise.resolve())).rejects.toBe(
       failure,
     );
+
+    // The fake's `destroy` asserts an intent this case could not otherwise observe: its rejection
+    // is exactly what the inner `catch` absorbs, so moving `initialize()` inside the `try` would
+    // keep the line above green. The teardown log is the one thing that WOULD change — the sibling
+    // case two above proves the spy fires when `destroy` rejects — so its absence is the real
+    // assertion that `initialize` runs outside the `try`.
+    expect(errors).toHaveLength(0);
   });
 });

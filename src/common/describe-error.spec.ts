@@ -70,7 +70,14 @@ describe('the contract both forms owe', () => {
     // `Error` globals and answer `false` for the same value. Pinning either literal would make
     // this suite assert something untrue of the other environment; pinning the RELATIONSHIP is
     // true in both, and it is the property the conversion actually needs — that swapping a
-    // hand-written `instanceof` check for this helper changes no behaviour anywhere.
+    // hand-written `instanceof` check takes the same BRANCH at every site.
+    //
+    // What that costs, recorded so the conversion round is not surprised: nothing now pins that a
+    // real `AbortSignal.timeout()` abort renders as `AbortError: The operation was aborted`. In
+    // this realm the `DOMException` below evaluates `instanceof Error` as `false`, so the property
+    // is unpinnable here at all — it is not a gap that a better assertion would close. And the
+    // branch is only half the swap: what the ELSE branch RETURNS is not inherited, which is why
+    // `describe-error.ts` names the sites whose fallback must not be converted.
     const candidates: readonly unknown[] = [
       new Error('plain'),
       new TypeError('typed'),
@@ -81,6 +88,10 @@ describe('the contract both forms owe', () => {
       undefined,
       { message: 'looks like an error, is not one' },
     ];
+
+    // Guards the guard, the way both sibling specs in this PR guard their tables: an emptied
+    // `candidates` would leave this case passing having asserted nothing at all.
+    expect(candidates).toHaveLength(8);
 
     for (const candidate of candidates) {
       expect(describeError(candidate)).toBe(

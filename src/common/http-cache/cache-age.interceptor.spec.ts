@@ -14,6 +14,29 @@ describe('withCacheAge / readCacheAge', () => {
     expect(Object.keys(body)).toEqual(['points']);
   });
 
+  it('keeps the property NON-ENUMERABLE, which the two assertions above cannot see', () => {
+    // Measured: `JSON.stringify` and `Object.keys` both ignore a symbol-keyed property whatever
+    // its descriptor says, so both lines above pass unchanged against a helper that had lost
+    // `enumerable: false`. Spread is what discriminates — it copies enumerable symbol-keyed own
+    // properties — and spread is also how a controller would compose `{ ...body, extra }`, which
+    // is the route by which an enumerable age would start travelling with the payload.
+    const body = withCacheAge({ points: [1, 2] }, 1_234);
+    const copy = { ...body };
+
+    expect(Object.getOwnPropertySymbols(copy)).toEqual([]);
+    expect(readCacheAge(copy)).toBeNull();
+  });
+
+  it('keeps the property CONFIGURABLE, so a second attach replaces rather than throws', () => {
+    // The other untested descriptor option. With `configurable: false` the second
+    // `Object.defineProperty` raises a TypeError — inside a response path, on a body some
+    // future caller attached to twice.
+    const body = withCacheAge({ points: [1, 2] }, 1_234);
+
+    expect(() => withCacheAge(body, 7)).not.toThrow();
+    expect(readCacheAge(body)).toBe(7);
+  });
+
   it('rounds and floors at zero, so a clock skew cannot publish a negative age', () => {
     expect(readCacheAge(withCacheAge({}, 12.6))).toBe(13);
     expect(readCacheAge(withCacheAge({}, -5))).toBe(0);

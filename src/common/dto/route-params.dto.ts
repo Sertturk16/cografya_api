@@ -16,11 +16,27 @@ import { Length, Matches } from 'class-validator';
  * reading of the format would allow — the principle `MarinePointSlugParams` recorded first and
  * the reason it has never misfired on real data.
  *
- * Measured against the committed seeds before this file was written: of 586 `slugTr`/`slugEn`
- * literals under `src/database/seeds/`, every single one is lowercase kebab-case, and the longest
- * is 35 characters (`turkish-republic-of-northern-cyprus`). The length ceiling below is therefore
- * loose by more than a factor of three, deliberately: it is a denial-of-service bound on the
- * lookup key, not a claim about naming.
+ * That claim is not made from a count written here. `route-params.dto.spec.ts` re-runs it against
+ * the committed seeds on every CI run, where it cannot rot: a seed wave introducing a slug this
+ * pattern would reject turns that spec red before it can turn a page into a 400. A literal tally
+ * in this comment would have been stale one merge later — the first version of it was, inside a
+ * single merge. The length ceiling below is loose by roughly a factor of three against the longest
+ * real slug, deliberately: it is a denial-of-service bound on the lookup key, not a claim about
+ * naming.
+ *
+ * ## Binding these to a route is a CONTRACT change (`ENGINEERING.md` §4)
+ * The swagger CLI plugin's `classValidatorShim` is on, so a bound DTO publishes its constraints.
+ * The already-converted marine route proves it: `/api/marine/points/{slug}/conditions` publishes
+ * `pattern`, `minLength` and `maxLength` on its path parameter, while `/api/provinces/{slug}` and
+ * `/api/countries/{slug}` — still `@Param('slug') slug: string` — publish only `type: string`.
+ *
+ * So converting `province.controller.ts:55` and `country.controller.ts:55` does two things at
+ * once, and BOTH must be flagged to Atlas for Vera before they land:
+ *
+ * 1. `openapi/openapi.json` gains `pattern`/`minLength`/`maxLength` on two path parameters —
+ *    additive, but it is a published schema change and regenerating the artifact is mandatory.
+ * 2. A malformed slug on those two routes stops being a 404 and becomes a 400. Those are two
+ *    INDEXABLE route families, and a crawler treats the two answers differently.
  */
 
 /**

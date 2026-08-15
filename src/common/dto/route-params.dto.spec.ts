@@ -31,19 +31,38 @@ describe('SlugParams', () => {
    *
    * A pattern tighter than the data does not make the API stricter, it makes a wrong PAGE: a real
    * slug that fails validation returns 400 where 404 belongs, and a crawler treats those as two
-   * different answers. So the rule is checked against every slug the platform actually publishes,
-   * not against a sample — and it keeps being checked, so a future seed wave cannot introduce a
-   * slug this pattern would reject without turning this test red first.
+   * different answers. So the rule is checked against the seeded corpus rather than a sample — and
+   * it keeps being checked, so a future seed wave cannot introduce a slug this pattern would
+   * reject without turning this test red first.
+   *
+   * ## What this corpus is, and what it is NOT
+   * It is the PROVINCE and COUNTRY seeds. It is deliberately not called "every slug the platform
+   * publishes", because two populations sit outside it and a comment claiming otherwise would be
+   * false the moment either grew:
+   *
+   * - **`SEED_BOOKS`** (`src/database/seeds/books.seed-data.ts`, arriving with B2). Add it to the
+   *   spread below once this branch sits on a `dev` that carries it — its slugs are the longest in
+   *   the repo and are exactly the kind this ceiling should be measured against.
+   * - **The marine point slugs** in `data/marine/marine-points-probe.json`, which are import
+   *   artifacts rather than seed modules and cannot be imported here.
+   *
+   * Both were checked by hand against this pattern when the note was written and both pass, so
+   * nothing is broken today — the gap is in what this test can SEE, not in what it found.
    */
-  it('accepts EVERY slug in the committed seeds — both languages, provinces and countries', () => {
+  it('accepts EVERY province and country slug in the committed seeds, both languages', () => {
     const seeded = [
       ...SEED_PROVINCES.flatMap((province) => [province.slugTr, province.slugEn]),
       ...SEED_COUNTRIES.flatMap((country) => [country.slugTr, country.slugEn]),
     ];
 
-    // Guards the guard: if an import ever resolves to an empty corpus, "nothing failed" would be
-    // a false green rather than a result.
-    expect(seeded.length).toBeGreaterThan(500);
+    // Guards the guard, in the two ways it can go wrong. The expected length is DERIVED from the
+    // two imports, so a spread that silently dropped one population — or one language — fails
+    // here, where the round `> 500` it replaces had enough slack to pass. And each import is
+    // separately required to be non-empty, so one resolving to `[]` reads as a failure rather
+    // than as "nothing was rejected". Neither number is written down, so neither can rot.
+    expect(seeded).toHaveLength((SEED_PROVINCES.length + SEED_COUNTRIES.length) * 2);
+    expect(SEED_PROVINCES).not.toHaveLength(0);
+    expect(SEED_COUNTRIES).not.toHaveLength(0);
 
     const rejected = seeded.filter((slug) => slugErrors(slug).length > 0);
     expect(rejected).toEqual([]);

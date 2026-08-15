@@ -1,10 +1,15 @@
 /**
  * The SKELETON shared by the repo's hand-run command-line tools — and nothing else.
  *
- * Eight entry points (`db:seed:geography`, `db:seed:world`, the four `db:import:*` tools, the ERA5
- * importer and the OpenAPI generator, with `db:seed:books` arriving as a ninth) end with the same
- * six lines, parse the same `--phase=` flag with the same two lines, and open/close a data source
- * with the same nested `finally`. That is the whole of what is shared here.
+ * EVERY hand-run entry point in the repo — the seed CLIs, the `db:import:*` tools, the ERA5
+ * importer and the OpenAPI generator — ends with the same six lines; the two-phase importers parse
+ * the same `--phase=` flag with the same two lines; and the ones that talk to Postgres open and
+ * close a data source with the same nested `finally`. That is the whole of what is shared here.
+ *
+ * Deliberately stated as CLASSES rather than as three tallies. The first draft counted them, and
+ * all three counts were stale one merge later when `books.cli.ts` landed — a number in a comment
+ * describing a growing set is wrong on a schedule. `git grep -l 'process.exitCode = 1' src` names
+ * the current set, and it is correct whenever it is run.
  *
  * ## What deliberately stays in each tool
  * `ENGINEERING.md` §5 requires every two-phase import tool to defend ITS OWN gates — path
@@ -33,8 +38,17 @@
  * non-zero having printed only part of the reason. Setting `exitCode` lets Node drain and exit
  * naturally.
  *
+ * ## Call it as `void runCli(...)`
+ * ```ts
+ * void runCli('db:seed:world', main);
+ * ```
+ * `runCli` is `async`, and the sites it replaces end with `main().catch(…)`, which
+ * `@typescript-eslint/no-floating-promises` treats as handled. A bare `runCli('…', main);` is not,
+ * and fails `Typecheck & Lint`. The `void` says what is already true — this never rejects — rather
+ * than suppressing anything.
+ *
  * ## The entry-point guard stays at the CALL SITE
- * Three of the tools wrap this in `if (require.main === module)` so that importing the module
+ * Some of the tools wrap this in `if (require.main === module)` so that importing the module
  * (which their unit specs do, to reach the parser) does not execute `main` against Jest's argv.
  * That guard CANNOT move in here: `module` is per-module in CommonJS, so a helper compares its
  * own identity and would answer `false` for every caller. It is one line at the call site and it
@@ -102,10 +116,18 @@ export function parsePhaseFlag<TPhase extends string>(
   // `Object.hasOwn` rather than a plain lookup: `--phase=toString` would otherwise reach
   // `Object.prototype.toString` through the record and throw an Error whose message is a
   // stringified function. A hand-typed flag must not be able to do that.
+  //
+  // The explanation is then READ before it is thrown. `Object.hasOwn` proves the key exists, not
+  // that its value is a string, and under `noUncheckedIndexedAccess` the lookup is
+  // `string | undefined` — which `new Error(undefined)` accepts, producing a refusal with an empty
+  // message. Falling through to the usage line instead means the worst case is a less specific
+  // refusal rather than a silent one.
   const rejected = options.rejected;
-  if (value !== undefined && rejected !== undefined && Object.hasOwn(rejected, value)) {
-    throw new Error(rejected[value]);
-  }
+  const explanation =
+    value !== undefined && rejected !== undefined && Object.hasOwn(rejected, value)
+      ? rejected[value]
+      : undefined;
+  if (explanation !== undefined) throw new Error(explanation);
 
   throw new Error(`Usage: ${options.usage} (got ${JSON.stringify(value ?? '')})`);
 }
@@ -136,9 +158,15 @@ export interface ClosableDataSource {
  *
  * ## A teardown-only failure is loud, and still a success
  * When `body` succeeded and only `destroy()` failed, the error is printed and the result is
- * returned: the work landed, and the process ends zero. That is the behaviour of all four
- * hand-written copies today and it is inherited on purpose — failing a completed seed because a
+ * returned: the work landed, and the process ends zero. That is the behaviour of every
+ * hand-written copy today and it is inherited on purpose — failing a completed seed because a
  * socket would not close would make an idempotent tool look broken.
+ *
+ * ## Converting a tool: leave the `[label] done` line INSIDE the body
+ * Every hand-written copy logs its success line inside the `try`, before the teardown runs. A
+ * conversion that lifts it out — `const result = await withDataSource(…); console.log('… done')` —
+ * moves it AFTER the "failed to close the data source" line in exactly the case above, so a tool
+ * that succeeded reads on stdout as though it failed afterwards. Pass the log inside `body`.
  *
  * `body` receives the SAME source that was passed in, with its concrete type intact, so a caller
  * keeps every repository and manager a real `DataSource` offers.

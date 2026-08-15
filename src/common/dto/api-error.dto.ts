@@ -28,10 +28,13 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
  *   → {"message":["a must be x"],"error":"Bad Request","statusCode":400}
  * ```
  *
- * That measurement decides two fields. `error` is OPTIONAL because the argument-less form omits
- * it entirely — and five of the nine responses this describes are thrown that way
- * (`marine-values.service.ts`, `air-quality-read.service.ts`, `marine-enabled.guard.ts`), so a
- * required `error` would be a false declaration for the majority of them. `message` is
+ * That measurement decides two fields. `error` is OPTIONAL because the argument-less form omits it
+ * entirely — and FIVE THROW SITES (`marine-values.service.ts:137,156`,
+ * `air-quality-read.service.ts:165,194`, `marine-enabled.guard.ts:25`) reach FOUR of the nine
+ * declared responses that way: the three marine 404s, which the guard alone can produce, and the
+ * air-quality 404. The two counts are not the same number and the distinction matters here,
+ * because a required `error` would be a false declaration for every one of those four —
+ * one would be enough. `message` is
  * `string | string[]` because that is what `ValidationPipe` actually produces when several fields
  * fail at once. A DTO that hid either would be worse than no DTO: a wrong type is trusted, a
  * missing one is at least known to be missing.
