@@ -285,7 +285,7 @@ describe('Book read path (e2e, real Postgres)', () => {
       }
     });
 
-    it('serves youtube: null on every video — the designed B3 state, not a gap', async () => {
+    it('serves youtube: null on every video while the snapshot table is EMPTY', async () => {
       app = await bootApp();
       const list = await request(app.getHttpServer()).get('/api/books').expect(200);
       const first = (list.body as ListEnvelope).items[0];
@@ -294,9 +294,15 @@ describe('Book read path (e2e, real Postgres)', () => {
         await request(app.getHttpServer()).get(`/api/books/${first.slugTr}`).expect(200)
       ).body as Detail;
 
-      // `DEC 2026-08-15h` item 2: the snapshot serving path is B4's. Asserted rather than left
-      // implicit so that the day B4 starts populating it, this case fails and forces a decision
-      // instead of letting the change land unnoticed.
+      // The PRECONDITION is what keeps this case a test. B4 landed the serving path, so `null` is
+      // no longer unconditional: it is what an empty store yields, which this suite never fills.
+      // Stating the premise here is the difference between an assertion and a case that quietly
+      // became vacuous (the same reason the attribution case below asserts the count first).
+      // `test/book-youtube.e2e-spec.ts` owns the populated states.
+      const snapshotCount = await dataSource.query<{ count: string }[]>(
+        'SELECT COUNT(*)::text AS count FROM youtube_video_snapshots',
+      );
+      expect(snapshotCount[0]?.count).toBe('0');
       expect(body.videos.length).toBeGreaterThan(0);
       expect(body.videos.every((video) => video.youtube === null)).toBe(true);
     });

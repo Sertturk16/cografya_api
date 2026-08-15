@@ -16,16 +16,36 @@ import { BookSlugParams } from './dto/book-slug.params';
 /**
  * The `Cache-Control` both book reads publish.
  *
- * The same value the province and country content reads carry, and the sameness is reasoned rather
- * than copied: every byte of these responses is seed-derived, written only by a `pnpm db:seed:books`
- * run, so there is no provider-freshness dimension and none of the marine / air-quality `s-maxage`
- * tiers apply. `no-store` would be wrong for the opposite reason — an empty catalogue is a SEED
- * state, not an outage (`QUESTIONS.md` H-7), and caching it is correct.
+ * The same value the province and country content reads carry. **Most of these responses are
+ * seed-derived** — künye, denemeler, questions and start seconds are written only by a
+ * `pnpm db:seed:books` run — but since B4 the nested `youtube` object carries YouTube API Data held
+ * under a retention cap, so this is no longer a purely seed-derived body and the value cannot be
+ * inherited on that argument alone. `no-store` would still be wrong for the opposite reason — an
+ * empty catalogue is a SEED state, not an outage (`QUESTIONS.md` H-7), and caching it is correct.
  *
- * **B4 obligation, recorded here where it will be read:** once the sync leg starts serving
- * snapshots, these responses begin carrying YouTube API Data under a 30-calendar-day retention cap.
- * The 86 400 s stale-while-revalidate window sits far below the 600 h soft threshold, so this value
- * still looks right — but B4 must confirm that rather than inherit it.
+ * ## B4's obligation, discharged: the arithmetic that binds this window to the retention ceiling
+ * A body is generated only while its snapshot is younger than the SOFT threshold
+ * (`YOUTUBE_API_DATA_SOFT_MAX_AGE_HOURS`); the row is deleted at the HARD one
+ * (`YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS`). A CDN may keep serving a generated body for
+ * `max-age + stale-while-revalidate` after that. So the value republished latest is at most
+ *
+ * > `soft + max-age + stale-while-revalidate`
+ *
+ * and it stays inside the ceiling exactly while
+ *
+ * > `max-age + stale-while-revalidate < hard − soft`.
+ *
+ * At the defaults that is `300 s + 86 400 s ≈ 24.1 h` against `720 h − 600 h = 120 h`: ~5× of
+ * margin, and the worst-case republication lands at ~624.1 h against a 720 h ceiling. The window is
+ * therefore confirmed rather than inherited.
+ *
+ * **The residual, recorded rather than guarded.** Both thresholds are operator-configurable, and a
+ * lowered ceiling narrows that margin: at `hard = 24` / `soft = 12` the margin is 12 h and the
+ * ~24.1 h window would exceed it, so a body could be served after its row was deleted. Nothing in
+ * the boot schema refuses that combination and nothing here should — a sixth `checkEnvBound` was
+ * considered at the #111 review and rejected as YAGNI (`ENGINEERING.md` §12): the defaults hold with
+ * 5× of room, and the only configuration that breaks the invariant is one an operator has to set by
+ * hand. An operator who lowers the ceiling must lower this constant with it.
  */
 const BOOK_CACHE_CONTROL = 'public, max-age=300, stale-while-revalidate=86400';
 

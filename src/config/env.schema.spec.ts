@@ -454,3 +454,133 @@ describe('validateEnv — the air-quality (CAMS/ADS) block', () => {
     );
   });
 });
+
+describe('validateEnv — the book video-solution (YouTube Data API) block', () => {
+  it('boots with the leg OFF and carries the SPEC §14 defaults', () => {
+    const env = validateEnv({ ...BASE });
+
+    // Both switches OFF and no key required to boot: dev, CI and the web build must all start on a
+    // machine that has never heard of the YouTube Data API.
+    expect(env.BOOKS_ENABLED).toBe(false);
+    expect(env.BOOKS_YOUTUBE_SYNC_ENABLED).toBe(false);
+    expect(env.YOUTUBE_API_KEY).toBeUndefined();
+    expect(env.YOUTUBE_DATA_API_BASE_URL).toBe('https://www.googleapis.com/youtube/v3');
+    expect(env.YOUTUBE_SYNC_INTERVAL_SECONDS).toBe(86_400);
+    expect(env.YOUTUBE_SYNC_DEADLINE_MS).toBe(60_000);
+    expect(env.YOUTUBE_SYNC_TOUR_BUDGET_MS).toBe(30_000);
+    expect(env.YOUTUBE_SINGLE_CALL_TIMEOUT_MS).toBe(10_000);
+    expect(env.YOUTUBE_RESPONSE_MAX_BYTES).toBe(2_097_152);
+    expect(env.YOUTUBE_API_DATA_SOFT_MAX_AGE_HOURS).toBe(600);
+    expect(env.YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS).toBe(720);
+    expect(env.BOOKS_PURGE_INTERVAL_SECONDS).toBe(3_600);
+    // The defaults must satisfy their own cross-checks with room to spare — a default set that only
+    // just squeezes in makes every operator adjustment a boot failure.
+    expect(env.YOUTUBE_API_DATA_SOFT_MAX_AGE_HOURS).toBeLessThan(
+      env.YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS,
+    );
+  });
+
+  it('REQUIRES the key once the sync is enabled (SPEC §13 item 13)', () => {
+    expect(() => validateEnv({ ...BASE, BOOKS_YOUTUBE_SYNC_ENABLED: 'true' })).toThrow(
+      /YOUTUBE_API_KEY/,
+    );
+    expect(() =>
+      validateEnv({ ...BASE, BOOKS_YOUTUBE_SYNC_ENABLED: 'true', YOUTUBE_API_KEY: 'a-key' }),
+    ).not.toThrow();
+  });
+
+  it('REFUSES a hard ceiling above 720 h — the policy is a boot check (SPEC §13 item 14)', () => {
+    // Developer Policies III.E.4.d caps Non-Authorized API Data at 30 calendar days. An operator
+    // must be able to LOWER the ceiling and must not be able to raise it past the policy with an
+    // export line.
+    expect(() => validateEnv({ ...BASE, YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS: '721' })).toThrow(
+      /YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS/,
+    );
+    expect(() => validateEnv({ ...BASE, YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS: '8760' })).toThrow(
+      /III\.E\.4\.d/,
+    );
+    // Lowering it is legitimate — and lowering it means lowering BOTH, which is the interaction
+    // worth pinning: a hard ceiling dropped to 168 h under the default 600 h soft threshold is
+    // refused by the neighbouring rule, because the serve threshold would then sit past the
+    // deletion one and no snapshot could ever be both servable and present.
+    expect(() => validateEnv({ ...BASE, YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS: '168' })).toThrow(
+      /YOUTUBE_API_DATA_SOFT_MAX_AGE_HOURS/,
+    );
+    const lowered = validateEnv({
+      ...BASE,
+      YOUTUBE_API_DATA_SOFT_MAX_AGE_HOURS: '120',
+      YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS: '168',
+    });
+    expect(lowered.YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS).toBe(168);
+    // …and the default purge interval still fits underneath the lowered ceiling.
+    expect(lowered.BOOKS_PURGE_INTERVAL_SECONDS * 24).toBeLessThan(
+      lowered.YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS * 3600,
+    );
+  });
+
+  it('refuses a soft threshold at or above the hard one', () => {
+    // Without this the middle state — old enough to stop serving, young enough to keep — does not
+    // exist, and `youtube: null` would only ever appear after deletion.
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        YOUTUBE_API_DATA_SOFT_MAX_AGE_HOURS: '720',
+        YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS: '720',
+      }),
+    ).toThrow(/YOUTUBE_API_DATA_SOFT_MAX_AGE_HOURS/);
+  });
+
+  it('refuses a budget chain that contradicts itself', () => {
+    // one call <= tour slice <= tour deadline < interval between tours.
+    expect(() => validateEnv({ ...BASE, YOUTUBE_SINGLE_CALL_TIMEOUT_MS: '40000' })).toThrow(
+      /YOUTUBE_SINGLE_CALL_TIMEOUT_MS/,
+    );
+    expect(() => validateEnv({ ...BASE, YOUTUBE_SYNC_TOUR_BUDGET_MS: '90000' })).toThrow(
+      /YOUTUBE_SYNC_TOUR_BUDGET_MS/,
+    );
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        YOUTUBE_SYNC_DEADLINE_MS: '60000',
+        YOUTUBE_SYNC_INTERVAL_SECONDS: '30',
+      }),
+    ).toThrow(/YOUTUBE_SYNC_DEADLINE_MS/);
+  });
+
+  it('refuses a purge that runs rarely relative to the ceiling it enforces', () => {
+    // Otherwise "at most 30 days" is really 30 days plus one purge interval.
+    expect(() => validateEnv({ ...BASE, BOOKS_PURGE_INTERVAL_SECONDS: '200000' })).toThrow(
+      /BOOKS_PURGE_INTERVAL_SECONDS/,
+    );
+  });
+
+  it('REQUIRES Redis in production once the sync is enabled (E1, stated for the third leg)', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        NODE_ENV: 'production',
+        BOOKS_YOUTUBE_SYNC_ENABLED: 'true',
+        YOUTUBE_API_KEY: 'a-key',
+      }),
+    ).toThrow(/REDIS_URL/);
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        NODE_ENV: 'production',
+        BOOKS_YOUTUBE_SYNC_ENABLED: 'true',
+        YOUTUBE_API_KEY: 'a-key',
+        REDIS_URL: 'redis://cache:6379',
+      }),
+    ).not.toThrow();
+  });
+
+  it('lets the purge half boot with the sync half off — the asymmetry SPEC §8.1 is built on', () => {
+    // `BOOKS_ENABLED=true` alone is a legitimate, keyless configuration: the purge timer runs and
+    // the refresh timer does not. If this ever required a key, deleting expired data would have
+    // become conditional on holding a credential.
+    const env = validateEnv({ ...BASE, BOOKS_ENABLED: 'true' });
+    expect(env.BOOKS_ENABLED).toBe(true);
+    expect(env.BOOKS_YOUTUBE_SYNC_ENABLED).toBe(false);
+    expect(env.YOUTUBE_API_KEY).toBeUndefined();
+  });
+});

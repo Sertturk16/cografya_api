@@ -21,11 +21,12 @@ import { ApiProperty } from '@nestjs/swagger';
  * the contract, for the same reason in both places: the perishable half can be deleted whole,
  * without a column list that can go stale.
  *
- * **PUBLISHED BUT NEVER POPULATED YET.** B3 serves the parent object on every detail response with
- * `youtube: null` on every video — the snapshot serving path and its age thresholds are B4's
- * (`DEC 2026-08-15h` item 2). So this schema describes a shape the contract guarantees and no
- * response carries today; that is the null state the parent already documents, arrived at because
- * the sync has never run, not because anything failed.
+ * **POPULATED SINCE B4.** B3 shipped this schema with `youtube: null` on every video, because the
+ * serving path and its age thresholds were B4's (`DEC 2026-08-15h` item 2). B4 landed them: the sync
+ * leg writes `youtube_video_snapshots` on its own timer and `BookService` serves this object for
+ * every video whose snapshot is inside the soft threshold. `null` remains the designed normal path
+ * for the other four states — no snapshot yet, aged past soft, stopped being returned, already
+ * purged — and none of them is an error.
  */
 export class BookVideoYoutubeDto {
   @ApiProperty({
@@ -76,9 +77,9 @@ export class BookVideoYoutubeDto {
     minimum: 1,
     example: 368,
     description:
-      'Duration in seconds, parsed from durationIso. B4 obligation, not an existing guarantee: ' +
-      'the write path re-derives the ISO string from this integer and refuses a row that does ' +
-      'not round-trip. No write path exists yet, so read the equality as a specified invariant.',
+      'Duration in seconds, parsed from durationIso. The write path re-derives the ISO string ' +
+      'from this integer and refuses a row that does not round-trip, so the two fields are ' +
+      'guaranteed to agree on every served object.',
   })
   durationSeconds!: number;
 

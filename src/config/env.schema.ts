@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { checkEnvBound } from './env-bounds';
 
 /**
  * Boot-time environment schema (single source of truth for `process.env`).
@@ -315,6 +316,66 @@ export const envSchema = z
     AIR_QUALITY_RATELIMIT_TTL_SECONDS: z.coerce.number().int().positive().default(300),
     AIR_QUALITY_CLIENT_ERROR_TTL_SECONDS: z.coerce.number().int().positive().default(900),
     AIR_QUALITY_SCHEMA_ERROR_TTL_SECONDS: z.coerce.number().int().positive().default(300),
+
+    // ── Book video solutions: the YouTube Data API v3 sync leg (SPEC §8, §14) ───
+    // Master switch for the book leg's INGEST half — and ONLY that half. The two public endpoints
+    // stay registered and answer from Postgres either way: an empty catalogue is a SEED state, not
+    // an ingest health state (`DEC 2026-08-15h` item 1, the air-quality Q5 / `QUESTIONS.md` H-7
+    // precedent). `false` by default so a fresh deployment reaches no provider until somebody
+    // decides it should.
+    BOOKS_ENABLED: envBoolean('false'),
+    // The refresh tour's own switch, on top of the master one. Turning it off stops the provider
+    // calls and deliberately does NOT stop the purge, which runs on `BOOKS_ENABLED` alone: deleting
+    // expired API Data is an obligation (Developer Policies III.E.4.d), and an obligation may not
+    // hang off a feature's switch.
+    BOOKS_YOUTUBE_SYNC_ENABLED: envBoolean('false'),
+    // The YouTube Data API credential. OPTIONAL here and REQUIRED by the cross-check below once the
+    // sync is on: a keyless deployment with the sync off must still boot (dev, CI, the web build).
+    // SECRET — never logged, never in an artifact, never in the OpenAPI spec. It travels in the
+    // `X-goog-api-key` REQUEST HEADER, so it never enters a URL, a query string or an `Error.cause`
+    // chain (the header form was verified live against Data API v3, SPEC §8.4).
+    YOUTUBE_API_KEY: z.string().min(1).optional(),
+    // API root; `/videos` is appended by the URL builder. Declared so an e2e can point the leg at a
+    // fake server (the `ECMWF_BASE_URL` precedent).
+    YOUTUBE_DATA_API_BASE_URL: z.url().default('https://www.googleapis.com/youtube/v3'),
+    // Once a day. The whole catalogue fits one 50-id call, so a tour costs ONE quota unit against a
+    // daily allocation of 10 000 — and a daily cadence is also what discharges "verify at least
+    // every 30 days that the video has not been deleted".
+    YOUTUBE_SYNC_INTERVAL_SECONDS: z.coerce.number().int().positive().default(86_400),
+    // The tour's own budget (background work, so the request path's deadline does not apply), the
+    // slice of it the provider calls may consume, and the cap on any single call. The chain is
+    // checked at boot below.
+    YOUTUBE_SYNC_DEADLINE_MS: z.coerce.number().int().positive().default(60_000),
+    YOUTUBE_SYNC_TOUR_BUDGET_MS: z.coerce.number().int().positive().default(30_000),
+    YOUTUBE_SINGLE_CALL_TIMEOUT_MS: z.coerce.number().int().positive().default(10_000),
+    // Byte ceiling for ONE response — the numeric form of "no unbounded external call" (§3.5). A
+    // 50-video `snippet,contentDetails,status` body is tens of kilobytes; 2 MiB is orders of
+    // magnitude of headroom and still a bound.
+    YOUTUBE_RESPONSE_MAX_BYTES: z.coerce.number().int().positive().default(2_097_152),
+    // The SOFT ageing threshold (SPEC §8.3): past this age a snapshot stops being SERVED and the
+    // contract publishes `youtube: null`, so the page falls back to a typographic facade and emits
+    // no `VideoObject`. 600 h ≈ 25 days, deliberately below the deletion ceiling: a few failed tours
+    // must not put us straight against the policy wall.
+    YOUTUBE_API_DATA_SOFT_MAX_AGE_HOURS: z.coerce.number().int().positive().default(600),
+    // The HARD threshold: past this age the row is DELETED. 720 h = 30 calendar days, which is the
+    // ceiling Developer Policies III.E.4.d sets for Non-Authorized API Data — so `.max(720)` is not
+    // a taste, it is the policy enforced as a boot check rather than as a comment. The knob exists
+    // so the ceiling can be LOWERED; it cannot be raised past the policy.
+    YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .max(
+        720,
+        'YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS above 720 h would breach the 30-calendar-day ceiling ' +
+          'YouTube Developer Policies III.E.4.d places on Non-Authorized API Data — the ceiling is ' +
+          'a boot check, not an env flip',
+      )
+      .default(720),
+    // How often the purge tour runs. Its own variable rather than a share of the sync interval,
+    // because the two timers are independent by design (SPEC §8.1) and this one must stay far below
+    // the hard ceiling — otherwise "at most 30 days" is really 30 days plus one purge interval.
+    BOOKS_PURGE_INTERVAL_SECONDS: z.coerce.number().int().positive().default(3_600),
   })
   .superRefine((env, ctx) => {
     // ── E1 (owner ruling, DEC 2026-07-29b): production + marine enabled ⇒ Redis is REQUIRED ──
@@ -508,6 +569,103 @@ export const envSchema = z
         message:
           'AIR_QUALITY_VALUE_TTL_SECONDS must not exceed AIR_QUALITY_STALE_MAX_SECONDS — ' +
           'otherwise a value can breach the staleness ceiling while still being labelled fresh.',
+      });
+    }
+
+    // ── Book / YouTube sync cross-checks (SPEC §14) ──────────────────────────────
+    // These five compose their messages through `checkEnvBound` (`src/config/env-bounds.ts`), the
+    // shared helper that landed for exactly this shape: the same nine lines of ceremony around two
+    // operands, a comparison and a REASON. The thirteen older blocks above are left alone on
+    // purpose — converting them is a separate change with its own review, and this leg has no
+    // business rewriting the marine and air-quality boot rules while adding its own.
+    //
+    // 1. The leg cannot reach a keyed provider without its key. Without this the failure surfaces as
+    //    a 403 on every tour, hours after the deploy that caused it (the `ADS_API_KEY` precedent).
+    if (env.BOOKS_YOUTUBE_SYNC_ENABLED && env.YOUTUBE_API_KEY === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['YOUTUBE_API_KEY'],
+        message:
+          'YOUTUBE_API_KEY is REQUIRED when BOOKS_YOUTUBE_SYNC_ENABLED=true — every YouTube Data ' +
+          'API v3 call is authenticated. Provide it, or start with BOOKS_YOUTUBE_SYNC_ENABLED=false.',
+      });
+    }
+
+    // 2. The budget chain: one call ≤ the tour slice ≤ the tour deadline < the interval between
+    //    tours. Any inversion is a timer that cannot finish the work it schedules.
+    checkEnvBound(ctx, {
+      kind: 'must-not-exceed',
+      subject: 'YOUTUBE_SINGLE_CALL_TIMEOUT_MS',
+      subjectValue: env.YOUTUBE_SINGLE_CALL_TIMEOUT_MS,
+      limit: 'YOUTUBE_SYNC_TOUR_BUDGET_MS',
+      limitValue: env.YOUTUBE_SYNC_TOUR_BUDGET_MS,
+      reason: 'a single call cannot be allowed more time than the whole tour slice it runs in',
+    });
+    checkEnvBound(ctx, {
+      kind: 'must-not-exceed',
+      subject: 'YOUTUBE_SYNC_TOUR_BUDGET_MS',
+      subjectValue: env.YOUTUBE_SYNC_TOUR_BUDGET_MS,
+      limit: 'YOUTUBE_SYNC_DEADLINE_MS',
+      limitValue: env.YOUTUBE_SYNC_DEADLINE_MS,
+      reason: 'the provider slice cannot be allowed more time than the tour that hosts it',
+    });
+    checkEnvBound(ctx, {
+      kind: 'must-be-shorter-than',
+      subject: 'YOUTUBE_SYNC_DEADLINE_MS',
+      subjectValue: env.YOUTUBE_SYNC_DEADLINE_MS,
+      limit: 'YOUTUBE_SYNC_INTERVAL_SECONDS',
+      limitValue: env.YOUTUBE_SYNC_INTERVAL_SECONDS * 1000,
+      reason: 'a tour that can outlive its own interval overlaps the next one',
+    });
+
+    // 3. The two ageing thresholds, in the order the rule reads them. The ceiling half (≤ 720 h)
+    //    lives on the field itself, so it refuses even when nothing else is configured.
+    checkEnvBound(ctx, {
+      kind: 'must-be-smaller-than',
+      subject: 'YOUTUBE_API_DATA_SOFT_MAX_AGE_HOURS',
+      subjectValue: env.YOUTUBE_API_DATA_SOFT_MAX_AGE_HOURS,
+      limit: 'YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS',
+      limitValue: env.YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS,
+      reason:
+        'the age at which a snapshot stops being served must come before the age at which it is ' +
+        'deleted, or the middle state the contract publishes as `youtube: null` does not exist',
+    });
+
+    // 4. The purge must run OBVIOUSLY often relative to the ceiling it enforces.
+    //    Stated precisely, because the loose version overclaimed: this check does NOT remove the
+    //    "30 days plus one purge interval" overrun — a timer cannot — it BOUNDS it. A row is deleted
+    //    on the first tour after it crosses the ceiling, so the worst case is
+    //    `hard + BOOKS_PURGE_INTERVAL_SECONDS`, and this bound caps that interval at a twenty-fourth
+    //    of the ceiling: up to 30 h at the default 720 h. At the DEFAULT interval (1 h) the real
+    //    worst case is 721 h; an operator who raises the interval to a legal-but-lax 29 h buys
+    //    himself 749 h. Removing the overrun entirely would take a much tighter bound (the soft/hard
+    //    gap), which is a mechanism change and not this check's job.
+    checkEnvBound(ctx, {
+      kind: 'must-be-smaller-than',
+      subject: 'BOOKS_PURGE_INTERVAL_SECONDS',
+      subjectValue: env.BOOKS_PURGE_INTERVAL_SECONDS,
+      limit: 'a twenty-fourth of YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS',
+      limitValue: (env.YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS * 3600) / 24,
+      reason:
+        'a purge that runs rarely relative to the retention ceiling turns "at most 30 days" into ' +
+        '30 days plus one purge interval',
+    });
+
+    // 5. E1 stated for the third leg: production + a scheduled upstream leg ⇒ Redis. Without it the
+    //    cross-instance tour lock does not exist and every instance runs its own tour.
+    if (
+      env.NODE_ENV === 'production' &&
+      env.BOOKS_YOUTUBE_SYNC_ENABLED &&
+      env.REDIS_URL === undefined
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['REDIS_URL'],
+        message:
+          'REDIS_URL is REQUIRED when NODE_ENV=production and BOOKS_YOUTUBE_SYNC_ENABLED=true (the ' +
+          'same owner ruling E1 / DEC 2026-07-29b that binds the marine and air-quality legs): ' +
+          'without Redis the cross-instance tour lock does not exist, so every instance would run ' +
+          'its own YouTube tour. Provision Redis, or start with BOOKS_YOUTUBE_SYNC_ENABLED=false.',
       });
     }
   });

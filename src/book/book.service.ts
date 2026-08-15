@@ -1,15 +1,22 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, In, Repository } from 'typeorm';
 import { buildBookAttribution } from './book-attribution.catalogue';
 import { BookVideoQuestion } from './entities/book-video-question.entity';
 import { BookVideo } from './entities/book-video.entity';
 import { Book } from './entities/book.entity';
+import { YoutubeVideoSnapshot } from './entities/youtube-video-snapshot.entity';
 import type { BookDetailDto } from './dto/book-detail.dto';
 import type { BookListItemDto } from './dto/book-list-item.dto';
 import type { BookListQueryDto } from './dto/book-list-query.dto';
 import type { BookListDto } from './dto/book-list.dto';
 import type { BookVideoDto } from './dto/book-video.dto';
+import type { BookVideoYoutubeDto } from './dto/book-video-youtube.dto';
+import { isSnapshotServable } from './youtube/youtube-serving';
+import {
+  BOOK_YOUTUBE_SERVE_CONFIG,
+  type BookYoutubeServeConfig,
+} from './youtube/youtube-sync.config';
 
 /**
  * Per-book aggregates, as they come back from the grouped query.
@@ -63,11 +70,12 @@ export function latestUpdatedAt(bookUpdatedAt: Date, childrenUpdatedAt: Date | n
  * The two public book reads — `/kitaplar` hub and `/kitaplar/{slug}` detail.
  *
  * ## Postgres and nothing else
- * Neither path opens a socket (`ENGINEERING.md` §3.5). The provider-sourced half of the contract
- * lives in `youtube_video_snapshots` and is not read here at all: **B3 serves `youtube: null` on
- * every video**, which is the designed normal path rather than a gap (`DEC 2026-08-15h` item 2).
- * B4 adds the serving path with its own age thresholds; the page is complete without it, and that
- * was B1's whole thesis.
+ * Neither path opens a socket (`ENGINEERING.md` §3.5, SPEC §8.5). The provider-sourced half of the
+ * contract lives in `youtube_video_snapshots`, which B4 now READS here — never fetches. The sync
+ * leg writes that table on its own timer, hours away from any request, so the worst a total YouTube
+ * outage can do to a visitor is cost them a thumbnail and a `VideoObject`. `youtube: null` stays
+ * the designed normal path (`DEC 2026-08-15h` item 2) and is what the reader gets whenever the sync
+ * has never run, the snapshot aged past the soft threshold, or the video stopped being returned.
  *
  * ## No TypeORM relations, and that is deliberate
  * The three entities carry plain `uuid` columns and no `@ManyToOne`/`@OneToMany` — the foreign keys
@@ -90,6 +98,16 @@ export class BookService {
     private readonly books: Repository<Book>,
     @InjectRepository(BookVideo)
     private readonly videos: Repository<BookVideo>,
+    /**
+     * The soft ageing threshold, and NOTHING else about the sync leg.
+     *
+     * A one-field config rather than the sync object next to it: the public read path has no
+     * business holding the API key, the base URL or the tour cadence, and injecting the whole thing
+     * would hand every future edit of this class a reference to the secret. Authority is what a
+     * surface can reach (the air-quality read-store precedent, A2b decision D-A2b-1).
+     */
+    @Inject(BOOK_YOUTUBE_SERVE_CONFIG)
+    private readonly youtubeServeConfig: BookYoutubeServeConfig,
   ) {}
 
   /**
@@ -183,6 +201,23 @@ export class BookService {
       }
     }
 
+    // Read INSIDE the same REPEATABLE READ snapshot as the three queries above: a purge committing
+    // between them would otherwise let this payload serve a row the transaction can no longer see.
+    // Keyed by `youtube_video_id`, which is this table's primary key AND its foreign key.
+    const snapshots =
+      videos.length === 0
+        ? []
+        : await manager.getRepository(YoutubeVideoSnapshot).find({
+            where: { youtubeVideoId: In(videos.map((video) => video.youtubeVideoId)) },
+          });
+    const snapshotsByVideoId = new Map(
+      snapshots.map((snapshot) => [snapshot.youtubeVideoId, snapshot]),
+    );
+    // ONE instant for the whole payload. Reading the clock per video would let two videos of the
+    // same response fall on opposite sides of the soft threshold — a payload that disagrees with
+    // itself, and one that no test could reproduce.
+    const nowMs = Date.now();
+
     const videoDtos: BookVideoDto[] = videos.map((video) => ({
       denemeNo: video.denemeNo,
       youtubeVideoId: video.youtubeVideoId,
@@ -190,9 +225,7 @@ export class BookService {
         questionNo: question.questionNo,
         startSecond: question.startSecond,
       })),
-      // Always null in B3 — see the class docblock. Not a gap: the reader gets a typographic
-      // facade and no `VideoObject`, and every other field on this object is unaffected.
-      youtube: null,
+      youtube: this.toYoutubeDto(snapshotsByVideoId.get(video.youtubeVideoId), nowMs),
     }));
 
     // ONE computation feeding both the inherited top-level counts and `coverage`. Two queries for
@@ -231,6 +264,43 @@ export class BookService {
       // attribution obligation rather than a degraded widget, which is why the rows are compiled
       // constants and not seed data.
       attribution: buildBookAttribution(book.youtubeChannelId),
+    };
+  }
+
+  /**
+   * One video's provider-sourced enrichment, or `null` — the three-step ageing rule at the point of
+   * publication (SPEC §8.3).
+   *
+   * `null` is returned for four different situations, and none of them is an error: no snapshot
+   * exists (the sync has never reached this video), the snapshot aged past the soft threshold, the
+   * id stopped coming back from `videos.list`, or the row was already deleted by the purge. The
+   * reader gets a typographic facade in every one of them and the page stays complete — which is
+   * also why omitting `VideoObject` is the correct response rather than emitting one with invented
+   * fields (`SEO-POLICY.md` §B5 5.8 makes a fabricated structured-data field a BLOCKER, while
+   * omitting the block is only a lost enrichment).
+   *
+   * **Nothing is computed here.** `thumbnailUrl` is republished exactly as the provider returned it
+   * and is never rebuilt from the video id (Developer Policies III.E.5); the duration is served in
+   * both stored forms, whose agreement the write path already proved.
+   */
+  private toYoutubeDto(
+    snapshot: YoutubeVideoSnapshot | undefined,
+    nowMs: number,
+  ): BookVideoYoutubeDto | null {
+    if (snapshot === undefined) return null;
+    if (!isSnapshotServable(snapshot, nowMs, this.youtubeServeConfig.softMaxAgeHours)) return null;
+
+    return {
+      thumbnailUrl: snapshot.thumbnailUrl,
+      thumbnailWidth: snapshot.thumbnailWidth,
+      thumbnailHeight: snapshot.thumbnailHeight,
+      publishedAtUtc: snapshot.publishedAtUtc.toISOString(),
+      durationIso: snapshot.durationIso,
+      durationSeconds: snapshot.durationSeconds,
+      embeddable: snapshot.embeddable,
+      // Published as an absolute instant, never as a promise about update frequency: it is the
+      // moment the 30-day retention clock started for this row.
+      dataFetchedAtUtc: snapshot.fetchedAtUtc.toISOString(),
     };
   }
 
