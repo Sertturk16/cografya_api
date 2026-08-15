@@ -2,7 +2,7 @@ import type { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, type OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { BookAttributionDto } from '../book/dto/book-attribution.dto';
 import { BookDetailDto } from '../book/dto/book-detail.dto';
-import { BookListItemDto } from '../book/dto/book-list-item.dto';
+import { BookListDto } from '../book/dto/book-list.dto';
 import { EarthquakeAttributionDto } from '../earthquake/dto/earthquake-attribution.dto';
 import { EarthquakeListDto } from '../earthquake/dto/earthquake-list.dto';
 
@@ -21,15 +21,18 @@ import { EarthquakeListDto } from '../earthquake/dto/earthquake-list.dto';
  *
  * Only TOP-LEVEL types are listed. Anything they reference is pulled in transitively, so
  * `EarthquakeEventDto`, `EarthquakeListMetaDto` and `EarthquakeFilterEchoDto` arrive through
- * `EarthquakeListDto`, and `BookCoverageDto`, `BookVideoDto`, `BookVideoQuestionDto` and
- * `BookVideoYoutubeDto` through `BookDetailDto`. Three entries are named anyway and for two
- * different reasons:
- *  - `EarthquakeAttributionDto` and `BookAttributionDto` are reachable only through an array
- *    property, and they are the schemas whose absence would be a licence problem rather than a
- *    typing problem;
- *  - `BookListItemDto` is **not** reachable at all. `BookDetailDto` extends it, and swagger emits
- *    a subclass FLAT — no `allOf`, no `$ref` to the base — so the base would be absent from
- *    `components.schemas` while `GET /api/books` is specified to return an array of exactly it.
+ * `EarthquakeListDto`; `BookCoverageDto`, `BookVideoDto`, `BookVideoQuestionDto` and
+ * `BookVideoYoutubeDto` through `BookDetailDto`; and `BookListItemDto` through `BookListDto.items`.
+ * Two entries are named anyway for one reason: `EarthquakeAttributionDto` and
+ * `BookAttributionDto` are reachable only through an array property, and they are the schemas
+ * whose absence would be a licence problem rather than a typing problem.
+ *
+ * `BookListItemDto` was listed here while `GET /api/books` was specified to return a bare array of
+ * it — it was then reachable from nothing, because `BookDetailDto` merely extends it and swagger
+ * emits a subclass FLAT, with no `$ref` back to the base. `DEC 2026-08-15e` moved that endpoint to
+ * the envelope, so `BookListDto.items` now references it and the entry became redundant. Verified
+ * after regeneration rather than assumed: the schema is still in `components.schemas`, and
+ * `book.contract.spec.ts` asserts it on every CI run.
  *
  * **This list shrinks as endpoints land.** When E3 and B3 serve these types from real routes, the
  * scanner finds them and the entries become redundant — remove them then; a permanent extra-model
@@ -38,7 +41,7 @@ import { EarthquakeListDto } from '../earthquake/dto/earthquake-list.dto';
 const ROUTELESS_CONTRACT_MODELS = [
   EarthquakeListDto,
   EarthquakeAttributionDto,
-  BookListItemDto,
+  BookListDto,
   BookDetailDto,
   BookAttributionDto,
 ];

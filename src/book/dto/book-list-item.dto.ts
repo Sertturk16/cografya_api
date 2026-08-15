@@ -4,17 +4,12 @@ import { ExamTrack } from '../book.types';
 /**
  * Lean list payload for the `/kitaplar` hub — one card.
  *
- * ## `GET /api/books` returns a PLAIN ARRAY of these, with no envelope and no pagination
- * That is an Atlas ruling for the repo, not a per-endpoint preference (→ DEC 2026-08-15c §3). The
- * repo's `PaginationEnvelopeDto` was established by the earthquake list and playbook §2 binds it
- * to every list AFTER it — but the same section keeps the bounded-and-small case as a deliberate
- * plain array (the 81 provinces). The book tier is a fixed four-row set by that same ruling
- * (`DEC 2026-08-15c` §3, "4 satırlık sabit küme"), fully cacheable, where
- * `page: 1, pageSize: 50, total: 1, hasMore: false` would be furniture that never says anything
- * else. The bound is a RULING, not a product convention — `CONVENTIONS.md` §5 carries the book
- * tier's IA row and no row ceiling, so it is not what this rests on. The cost is recorded rather
- * than glossed: if this tier ever outgrows four rows, moving to the envelope is a BREAKING
- * contract change.
+ * ## `GET /api/books` returns the shared ENVELOPE, and this is one item inside it
+ * The response type is {@link BookListDto} — playbook §2's core five, no `meta`. B1 first froze a
+ * plain array on the premise that the book tier is a fixed four-row set; the owner overturned the
+ * premise (*"onlarca kitap bile olabilir"*, → DEC 2026-08-15e), so this is an unbounded growing
+ * list and §2 applies in its ordinary form. The bounded-and-small case §2 keeps — the 81
+ * provinces — is untouched and is not what this endpoint is.
  *
  * ## DTO tiers here are List + Detail, and no more
  * Playbook §2: no Response tier, because there is no write endpoint and nothing to echo. There is

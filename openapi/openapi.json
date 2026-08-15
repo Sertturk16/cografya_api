@@ -3254,6 +3254,48 @@
           "displayOrder"
         ]
       },
+      "BookListDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number",
+            "minimum": 1,
+            "example": 1,
+            "description": "Requested page, 1-based."
+          },
+          "pageSize": {
+            "type": "number",
+            "minimum": 1,
+            "example": 50,
+            "description": "Requested page size. Each endpoint documents its own ceiling."
+          },
+          "total": {
+            "type": "number",
+            "minimum": 0,
+            "example": 630,
+            "description": "Total rows matching the applied filter, across all pages."
+          },
+          "hasMore": {
+            "type": "boolean",
+            "example": true,
+            "description": "Whether a further page exists after this one."
+          },
+          "items": {
+            "description": "The page of books, ordered by displayOrder ascending and tie-broken by slugTr. The tie-break is not decoration: displayOrder is hand-assigned and may repeat, and offset pagination without a total order can serve the same book on two pages. slugTr carries a UNIQUE constraint, which is what makes the ordering total rather than merely intended.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookListItemDto"
+            }
+          }
+        },
+        "required": [
+          "page",
+          "pageSize",
+          "total",
+          "hasMore",
+          "items"
+        ]
+      },
       "BookCoverageDto": {
         "type": "object",
         "properties": {

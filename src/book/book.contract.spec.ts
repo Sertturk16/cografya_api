@@ -35,7 +35,7 @@ describe('openapi/openapi.json — book contract', () => {
     document.components.schemas[name] as SchemaObject;
 
   /**
-   * Every field the seven schemas publish, by schema — the FIELD-level half of this guard.
+   * Every field the eight schemas publish, by schema — the FIELD-level half of this guard.
    *
    * The case below pins whole SCHEMAS, which leaves almost every field open: emptying
    * `BookVideoQuestionDto` to `{"type": "object"}` keeps the schema in `components.schemas` and
@@ -50,6 +50,9 @@ describe('openapi/openapi.json — book contract', () => {
    * declare them itself.
    */
   const PUBLISHED_FIELDS: Record<string, readonly string[]> = {
+    // The core five (`DEC 2026-08-12k` §2), which is the whole reason this schema is pinned by
+    // field rather than by presence: losing `hasMore` or `total` is a silent envelope defect.
+    BookListDto: ['items', 'page', 'pageSize', 'total', 'hasMore'],
     BookListItemDto: [
       'slugTr',
       'slugEn',
@@ -121,11 +124,15 @@ describe('openapi/openapi.json — book contract', () => {
     BookAttributionDto: ['licenceUrl', 'channelUrl'],
   };
 
-  it('publishes all 7 book schemas (the B1 frozen set)', () => {
+  it('publishes all 8 book schemas (the B1 frozen set)', () => {
     // B1 registers three of these through `ROUTELESS_CONTRACT_MODELS` and reaches the rest
     // transitively. A refactor that drops an `extraModels` entry, or that stops a nested DTO from
     // being referenced, removes a schema from the artifact while every other gate stays green.
+    // `BookListItemDto` is the live case: it lost its own `extraModels` entry when
+    // `DEC 2026-08-15e` moved the endpoint to the envelope, and now reaches the artifact ONLY
+    // through `BookListDto.items`.
     for (const schema of [
+      'BookListDto',
       'BookListItemDto',
       'BookDetailDto',
       'BookCoverageDto',
@@ -142,8 +149,8 @@ describe('openapi/openapi.json — book contract', () => {
 
   it('every published FIELD is still present, required and nullable exactly as frozen', () => {
     // The case above is satisfied by `null`, `{}` or a schema whose properties were emptied, so on
-    // its own it pins presence and nothing else. This one closes that: 56 published entries across
-    // the seven schemas, each asserted for presence, required-ness and nullability.
+    // its own it pins presence and nothing else. This one closes that: 61 published entries across
+    // the eight schemas, each asserted for presence, required-ness and nullability.
     const entries = Object.entries(PUBLISHED_FIELDS);
     // The "nothing expected" refusal (playbook §8): an emptied table must FAIL, never report that
     // it checked zero fields and pass.

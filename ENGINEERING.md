@@ -83,22 +83,12 @@ dated ruling in `DECISIONS.md`. It is the local source of truth for how code lan
   > at the top level. Every endpoint-specific field lives inside **one** named `meta`
   > object. A list with no endpoint-specific fields carries **no `meta` at all**.
 
-  **"Every list after" has one ruled exception so far, and it is the bounded case above rather
-  than a new rule:** `GET /api/books` returns a **plain typed array** of `BookListItemDto`, no
-  envelope, no pagination. The book tier is a fixed four-row set by that same ruling
-  (`DEC 2026-08-15c` §3, "4 satırlık sabit küme"), fully cacheable, where the four envelope keys
-  would never say anything but `page: 1, pageSize: 50, total: N, hasMore: false`. **The test is
-  BOUNDED-BY-RULING, not "small today"** — the provinces (81) and the books (≤4) are each bounded
-  by something outside the endpoint, while blog posts, topics and events are not. **The bound is
-  the ruling itself; `CONVENTIONS.md` §5 carries the book tier's IA row and no row ceiling**, so a
-  citation pointing there for the ceiling is a dangling one. The cost is recorded with the ruling:
-  if a tier like this ever outgrows its ceiling — a fifth book is a partner decision, not a
-  product impossibility — moving it to the envelope is a BREAKING contract change.
-
   Core five ruled by `DEC 2026-08-12k` §2; the `meta` form by §7. `page`/`pageSize`/
   `total`/`hasMore` are inherited from `src/common/dto/pagination-envelope.dto.ts`;
   `items` is declared per list DTO because `@ApiProperty({ type: [X] })` needs the concrete
-  item type. **Why `meta` is nested rather than five more top-level keys is a measured
+  item type — its **presence** is nonetheless forced from the base, which declares
+  `abstract items`, so a list DTO that omits it does not compile.
+  **Why `meta` is nested rather than five more top-level keys is a measured
   constraint, not taste:** `@nestjs/swagger` emits a subclass schema FLAT — no `allOf`, no
   `$ref` to the base, and the base is absent from `components.schemas` unless registered
   separately — so inheritance alone enforces the core in TypeScript while leaving the
@@ -214,7 +204,8 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
       content abuse) targets, and that penalty lands site-wide rather than page-by-page.
     - `book_videos` and `book_video_questions` (B1). `Owner's Inbox/kitap-video-cozumler/SPEC.md`
       §4.3 rules there is **no per-deneme and no per-question page** — 30 near-identical thin
-      pages per book and 120 across the four-book ceiling is the same §12.1 shape. Deep links
+      pages PER BOOK on a tier with no ceiling (`DEC 2026-08-15e`) is the same §12.1 shape, and
+      the exposure grows with every book rather than stopping at a total. Deep links
       into a deneme or a question are served by **fragments** (`#deneme-12`,
       `#deneme-12-soru-3`), the pattern `DEC 2026-08-04i` §2 already set with `#iller` /
       `#ulkeler`. The book itself DOES have a page and carries both slugs.

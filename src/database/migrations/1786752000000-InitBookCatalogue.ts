@@ -30,17 +30,24 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  *   UNIQUE constraint below already creates a unique B-tree index on exactly those columns in
  *   exactly that order, so SPEC §5.2's and §5.3's index lines are satisfied — a second identical
  *   index would pay twice for one access path.
- * - **No index on `books` beyond its unique constraints.** The tier is a fixed four-row set by
- *   dated ruling (`DEC 2026-08-15c` §3, "4 satırlık sabit küme"), so a `display_order` index would
- *   be pure write cost. The citation matters: `CONVENTIONS.md` §5 carries the book tier's IA row
- *   and no row ceiling, so it cannot be what bounds this table.
+ * - **No index on `books` beyond its unique constraints, and the reason is cost rather than a
+ *   ceiling.** The four-row bound this bullet used to rest on is gone (→ DEC 2026-08-15e: the tier
+ *   is unbounded), so the decision was taken again from scratch. The list path is
+ *   `ORDER BY display_order, slug_tr` with `LIMIT`/`OFFSET` over a hand-seeded catalogue whose only
+ *   writer is a seed run: at the sizes this table has any path to, the planner sorts the whole
+ *   relation in well under a millisecond and would not choose an index anyway, while the response
+ *   is additionally HTTP-cacheable. So the index buys nothing measurable and costs write
+ *   amplification — playbook §12, YAGNI is the default. The escape is cheap and worth stating: if
+ *   this tier ever reaches a size where that sort shows up in a query plan, adding the index is one
+ *   migration with **zero contract impact**, which is exactly why it is not worth pre-paying.
  *
  * ## What is deliberately NOT here
  * - **No `slug_tr` / `slug_en` on `book_videos` or `book_video_questions`.** Playbook §5 requires
  *   them on public entities because the web repo routes on them; SPEC §4.3 rules there is no
- *   per-deneme and no per-question page — 30 near-identical thin pages per book, 120 across four,
- *   is the shape `SEO-POLICY.md` §12.1 targets — and deep links are fragments instead. No page, no
- *   route, no slug to resolve. This PR widens playbook §5's recorded exception from
+ *   per-deneme and no per-question page — 30 near-identical thin pages PER BOOK, on a tier with no
+ *   ceiling (→ DEC 2026-08-15e), is the shape `SEO-POLICY.md` §12.1 targets, and the exposure grows
+ *   with every book rather than stopping at a total — and deep links are fragments instead. No
+ *   page, no route, no slug to resolve. This PR widens playbook §5's recorded exception from
  *   `earthquake_events` to the class all three tables share.
  * - **No video title column.** `timestamps.json` carries YouTube's title; the loader does not read
  *   it. Storing it would make a permanent row hold API Data, and `hl` can return that title
