@@ -83,6 +83,15 @@ dated ruling in `DECISIONS.md`. It is the local source of truth for how code lan
   > at the top level. Every endpoint-specific field lives inside **one** named `meta`
   > object. A list with no endpoint-specific fields carries **no `meta` at all**.
 
+  **"Every list after" has one ruled exception so far, and it is the bounded case above rather
+  than a new rule:** `GET /api/books` returns a **plain typed array** of `BookListItemDto`, no
+  envelope, no pagination (→ `DEC 2026-08-15c` §3). The book tier is a fixed set with a ceiling of
+  four rows (`CONVENTIONS.md` §5), fully cacheable, where the four envelope keys would never say
+  anything but `page: 1, pageSize: 50, total: N, hasMore: false`. **The test is BOUNDED-BY-RULING,
+  not "small today"** — the provinces (81) and the books (≤4) are both fixed by a product rule,
+  while blog posts, topics and events are not. The cost is recorded with the ruling: if a tier like
+  this ever outgrows its ceiling, moving it to the envelope is a BREAKING contract change.
+
   Core five ruled by `DEC 2026-08-12k` §2; the `meta` form by §7. `page`/`pageSize`/
   `total`/`hasMore` are inherited from `src/common/dto/pagination-envelope.dto.ts`;
   `items` is declared per list DTO because `@ApiProperty({ type: [X] })` needs the concrete
@@ -191,14 +200,21 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   (`dist/database/data-source.js`).
 - **Public entities carry `slug_tr` + `slug_en`** (the web repo's localized-slug routing
   depends on them). Slug columns are indexed for the lookup path.
-  - **One ruled exception: `earthquake_events` (E1).** The rule's reason is routing, and
-    `DEC 2026-08-12k` D-E rules there is **no per-event page** — ~33 000 near-identical thin
-    pages a year is the shape `SEO-POLICY.md` §12.1 (scaled content abuse) targets, and that
-    penalty lands site-wide rather than page-by-page. With no page there is no route, so a
-    slug would be a column nothing resolves. The exception is scoped to that table and dies
-    with its premise: if D-E is ever reopened, the slug columns and their migration land in
-    the PR that opens it. **A public entity WITHOUT its own page is the only case this
-    covers** — never "it felt unnecessary".
+  - **The exception is a CLASS, not a table list: a public entity WITHOUT its own page.** The
+    rule's reason is routing, so where a ruling says there is no page, there is no route, and a
+    slug would be a column nothing resolves. Each member is admitted by a dated ruling, each
+    dies with its premise (if the ruling is reopened, the slug columns and their migration land
+    in the PR that reopens it), and **"it felt unnecessary" is never a member**. The rule still
+    binds every entity that does have a page.
+    - `earthquake_events` (E1). `DEC 2026-08-12k` D-E rules there is **no per-event page** —
+      ~33 000 near-identical thin pages a year is the shape `SEO-POLICY.md` §12.1 (scaled
+      content abuse) targets, and that penalty lands site-wide rather than page-by-page.
+    - `book_videos` and `book_video_questions` (B1). `Owner's Inbox/kitap-video-cozumler/SPEC.md`
+      §4.3 rules there is **no per-deneme and no per-question page** — 30 near-identical thin
+      pages per book and 120 across the four-book ceiling is the same §12.1 shape. Deep links
+      into a deneme or a question are served by **fragments** (`#deneme-12`,
+      `#deneme-12-soru-3`), the pattern `DEC 2026-08-04i` §2 already set with `#iller` /
+      `#ulkeler`. The book itself DOES have a page and carries both slugs.
 - **External data imports are TWO-PHASE, and the phases are not interchangeable.** `fetch`/`probe`
   is the only thing that touches the network: run BY HAND, polite by construction (serial, spaced,
   timed out, identifying UA), and it writes committed, reviewable artifacts. `load` is offline,

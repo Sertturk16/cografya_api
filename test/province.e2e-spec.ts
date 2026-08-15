@@ -176,6 +176,11 @@ describe('Province (e2e)', () => {
       // `provinces(plate_code)`, so its migration MUST stay ordered after `InitProvince`.
       'InitEarthquakeEvents1786492800000',
       'InitEarthquakeIngestRuns1786496400000',
+      // The book/video-solution B1 contract PR. `youtube_video_snapshots` carries a foreign key
+      // to `book_videos(youtube_video_id)`, so its migration MUST stay ordered after
+      // `InitBookCatalogue`.
+      'InitBookCatalogue1786752000000',
+      'InitYoutubeVideoSnapshots1786755600000',
     ]);
   });
 
