@@ -12,8 +12,8 @@ import { ApiProperty } from '@nestjs/swagger';
  * surface — we do not hold the question texts, so any cross-link would have to be invented
  * (SPEC §11.3).
  *
- * **NOT SERVED BY ANY B1 ENDPOINT** — a frozen contract published for codegen; the public
- * endpoints land in B3 (SPEC §16).
+ * Served inside `BookDetailDto` since B3, ascending by `questionNo`, ordered in SQL rather than in
+ * the mapper so the e2e assertion on the SERVED order is a guard that can actually fail.
  */
 export class BookVideoQuestionDto {
   @ApiProperty({

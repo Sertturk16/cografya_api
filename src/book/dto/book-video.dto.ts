@@ -9,8 +9,8 @@ import { BookVideoYoutubeDto } from './book-video-youtube.dto';
  * a few kilobytes — so there is deliberately **no `/api/books/{slug}/videos` endpoint**: the SSG
  * build makes one round trip (SPEC §6.1).
  *
- * **NOT SERVED BY ANY B1 ENDPOINT** — a frozen contract published for codegen; B3 serves it
- * (SPEC §16).
+ * Served inside `BookDetailDto` since B3, with {@link youtube} `null` on every video until B4 lands
+ * the snapshot serving path (`DEC 2026-08-15h` item 2).
  */
 export class BookVideoDto {
   @ApiProperty({

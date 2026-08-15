@@ -5,8 +5,8 @@ import { BookListItemDto } from './book-list-item.dto';
 /**
  * A paginated book list — the response shape of `GET /api/books`, which lands in B3.
  *
- * **NOT SERVED BY ANY B1 ENDPOINT.** Published in this contract PR so the web repo can codegen and
- * build against a mock while B2 seeds the store and B3 lands the endpoints (SPEC §16).
+ * Served by `GET /api/books` since B3. Published ahead of its endpoint in B1 so the web repo could
+ * codegen and build against a mock while B2 seeded the store (SPEC §16).
  *
  * ## Why the envelope, when B1 first froze a plain array (→ DEC 2026-08-15e)
  * The plain array rested on one premise — that the book tier is a fixed four-row set — and the

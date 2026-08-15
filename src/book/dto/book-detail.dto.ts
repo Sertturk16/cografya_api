@@ -32,8 +32,10 @@ import { BookVideoDto } from './book-video.dto';
  *   it owns; question labels, duration formats, the "video unavailable" state and the coverage
  *   sentence are all `messages/*.json` under `CONTENT-STYLE.md` §22 (SPEC §10).
  *
- * **NOT SERVED BY ANY B1 ENDPOINT** — a frozen contract published for codegen; B3 serves it
- * (SPEC §16).
+ * Served by `GET /api/books/{slug}` since B3. **`videos[].youtube` is `null` on every video today**
+ * and that is the designed path rather than a gap (`DEC 2026-08-15h` item 2): the snapshot serving
+ * path and its age thresholds are B4's, and the page is complete without them — the künye, the
+ * denemeler, the questions and the start seconds are all ours.
  */
 export class BookDetailDto extends BookListItemDto {
   @ApiProperty({

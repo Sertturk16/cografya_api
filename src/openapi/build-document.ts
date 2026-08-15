@@ -1,8 +1,6 @@
 import type { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, type OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { BookAttributionDto } from '../book/dto/book-attribution.dto';
-import { BookDetailDto } from '../book/dto/book-detail.dto';
-import { BookListDto } from '../book/dto/book-list.dto';
 import { EarthquakeAttributionDto } from '../earthquake/dto/earthquake-attribution.dto';
 import { EarthquakeListDto } from '../earthquake/dto/earthquake-list.dto';
 
@@ -21,28 +19,29 @@ import { EarthquakeListDto } from '../earthquake/dto/earthquake-list.dto';
  *
  * Only TOP-LEVEL types are listed. Anything they reference is pulled in transitively, so
  * `EarthquakeEventDto`, `EarthquakeListMetaDto` and `EarthquakeFilterEchoDto` arrive through
- * `EarthquakeListDto`; `BookCoverageDto`, `BookVideoDto`, `BookVideoQuestionDto` and
- * `BookVideoYoutubeDto` through `BookDetailDto`; and `BookListItemDto` through `BookListDto.items`.
- * Two entries are named anyway for one reason: `EarthquakeAttributionDto` and
- * `BookAttributionDto` are reachable only through an array property, and they are the schemas
- * whose absence would be a licence problem rather than a typing problem.
+ * `EarthquakeListDto`. One entry is named anyway for one reason: `EarthquakeAttributionDto` is
+ * reachable only through an array property, and it is the schema whose absence would be a licence
+ * problem rather than a typing problem.
  *
- * `BookListItemDto` was listed here while `GET /api/books` was specified to return a bare array of
- * it — it was then reachable from nothing, because `BookDetailDto` merely extends it and swagger
- * emits a subclass FLAT, with no `$ref` back to the base. `DEC 2026-08-15e` moved that endpoint to
- * the envelope, so `BookListDto.items` now references it and the entry became redundant. Verified
- * after regeneration rather than assumed: the schema is still in `components.schemas`, and
- * `book.contract.spec.ts` asserts it on every CI run.
+ * **This list shrinks as endpoints land, and B3 is the first time it did.** `BookListDto` and
+ * `BookDetailDto` left it when `GET /api/books` and `GET /api/books/{slug}` started serving them:
+ * the scanner now reaches both through `@ApiOkResponse`, and every book schema below them arrives
+ * transitively — `BookListItemDto` through `BookListDto.items`, and `BookCoverageDto`,
+ * `BookVideoDto`, `BookVideoQuestionDto` and `BookVideoYoutubeDto` through `BookDetailDto`. A
+ * permanent extra-model list would quietly hide a DTO that no longer has a route at all, which is
+ * the whole reason entries are removed rather than left as insurance.
  *
- * **This list shrinks as endpoints land.** When E3 and B3 serve these types from real routes, the
- * scanner finds them and the entries become redundant — remove them then; a permanent extra-model
- * list would quietly hide a DTO that no longer has a route at all.
+ * `BookAttributionDto` STAYS, and its reason is unchanged by the endpoints landing: it is reachable
+ * only through an array property, and it is the one book schema whose disappearance would be a
+ * licence problem. `EarthquakeListDto` and its attribution stay because E3 has not landed.
+ *
+ * Verified after regeneration rather than assumed: the schema SET in `components.schemas` is
+ * unchanged by this removal, every pre-existing schema body is byte-identical, and
+ * `book.contract.spec.ts` asserts all eight book schemas plus both new paths on every CI run.
  */
 const ROUTELESS_CONTRACT_MODELS = [
   EarthquakeListDto,
   EarthquakeAttributionDto,
-  BookListDto,
-  BookDetailDto,
   BookAttributionDto,
 ];
 

@@ -82,10 +82,26 @@ export const SEED_BOOKS: readonly BookSeed[] = [
     // machine-filled (`SEO-POLICY.md` §B14 14.2). The EN twin renders the TR title.
     titleEn: null,
     publisherName: 'Coğrafya Gurmesi Yayınları',
-    // PRINTED order. Alphabetising this array as a tidy-up changes what the credit says
-    // (playbook §5). Also this repo's first column holding real people's names — the credit is
-    // seeded exactly as the book prints it and the surface is not widened (FU-BOOKS-AUTHOR-PII).
-    authorNames: ['Murat Çakır', 'Murat Karagöz'],
+    // A SUBSET of the cover, in the cover's own relative order — and both halves of that
+    // sentence are owner rulings (2026-08-15), not readings of the scan.
+    //
+    // The cover prints FOUR names, left to right: MURAT KARAGÖZ · MURAT ÇAKIR · FATMA DOĞAN ·
+    // YUSUF ÖKSÜZ. The owner ruled that only the first two are this book's AUTHORS; the other two
+    // are credited in a different role, so they are deliberately absent rather than missed. The
+    // two we carry keep the order the cover gives them — Karagöz before Çakır.
+    //
+    // This array is a PUBLISHED RENDER ORDER: the web detail page iterates it unsorted, so
+    // alphabetising it as a tidy-up changes what the credit says (playbook §5, the
+    // `neighborIsoCodes` rule, Atlas ruling AS-1/AS-6c). B3 corrected the order, which until then
+    // had Çakır first while the comment above it claimed the array was "seeded exactly as the book
+    // prints it" — an identity that did not hold in either direction. It is written out here so
+    // the next reader comparing this line against the cover scan finds the answer instead of
+    // rediscovering the discrepancy.
+    //
+    // This is also the repo's first column holding real people's names. The owner ruled the same
+    // day that they DO publish on the public endpoint and the book page (`FU-BOOKS-AUTHOR-PII`,
+    // closed); the surface is not widened beyond what the cover already prints.
+    authorNames: ['Murat Karagöz', 'Murat Çakır'],
     isbn13: '9786259490069',
     pageCount: 144,
     examTrack: ExamTrack.Ayt,
