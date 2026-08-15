@@ -147,6 +147,11 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       const stamps = await dataSource
         .getRepository(BookVideoQuestion)
         .find({ order: { questionNo: 'ASC' } });
+      // The BOOK row's own stamp, which is the one that actually feeds sitemap `lastmod`. Read
+      // before the run so the comparison below is against a value this test observed, not inferred.
+      const bookBefore = await dataSource
+        .getRepository(Book)
+        .findOneByOrFail({ slugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR });
 
       const result = await seedBooks(dataSource, {
         books: [OWNER],
@@ -154,6 +159,16 @@ describe('Book seed write path (e2e, real Postgres)', () => {
         ownerSlugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR,
       });
 
+      // **The `books` counters, not only the children.** This case is NAMED for invariant 2 and
+      // asserted nothing about the book row until PR #110's review (`TEST110-I1`). The gap was not
+      // theoretical: a later `BookSeed` field whose comparator does not round-trip through Postgres
+      // makes `rowMatchesSeed` false on every run, so the seed rewrites the book row for ever,
+      // `books.updated_at` advances each time, and the sitemap tells search engines the page
+      // changed when it did not — exactly what `SEO-POLICY.md` §B6 6.9 refuses. The whole suite
+      // stayed green through that.
+      expect(result.books.updated).toBe(0);
+      expect(result.books.inserted).toBe(0);
+      expect(result.books.unchanged).toBe(1);
       expect(result.videos.updated).toBe(0);
       expect(result.questions.updated).toBe(0);
       expect(result.videos.unchanged).toBeGreaterThan(0);
@@ -162,6 +177,11 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       // `updated_at` must not move on a no-op run: `Book.updatedAt` feeds sitemap `lastmod`, so a
       // seed that rewrote identical values would tell search engines the page changed every time
       // anybody ran it.
+      const bookAfter = await dataSource
+        .getRepository(Book)
+        .findOneByOrFail({ slugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR });
+      expect(bookAfter.updatedAt.toISOString()).toBe(bookBefore.updatedAt.toISOString());
+
       const after = await dataSource
         .getRepository(BookVideoQuestion)
         .find({ order: { questionNo: 'ASC' } });
@@ -184,6 +204,32 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       });
       expect(result.questions.updated).toBe(1);
       expect(result.questions.removed).toBe(0);
+      // A child-only change must leave the BOOK row alone — which is also what makes the derived
+      // `updatedAt` a GREATEST over three tables rather than a read of one.
+      expect(result.books.updated).toBe(0);
+    });
+
+    it('POSITIVE CONTROL: a changed BOOK field moves the book row and its stamp', async () => {
+      // The counterpart control for the `result.books` assertions above. Without it,
+      // `books.updated === 0` and `books.unchanged === 1` would also hold for a seed that had
+      // stopped comparing the book row at all — the exact failure `TEST110-I1` describes.
+      const bookBefore = await dataSource
+        .getRepository(Book)
+        .findOneByOrFail({ slugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR });
+
+      const result = await seedBooks(dataSource, {
+        books: [{ ...OWNER, pageCount: OWNER.pageCount + 1 }],
+        artifact: BASE,
+        ownerSlugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR,
+      });
+
+      expect(result.books.updated).toBe(1);
+      expect(result.books.unchanged).toBe(0);
+      const bookAfter = await dataSource
+        .getRepository(Book)
+        .findOneByOrFail({ slugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR });
+      expect(bookAfter.pageCount).toBe(OWNER.pageCount + 1);
+      expect(bookAfter.updatedAt.getTime()).toBeGreaterThan(bookBefore.updatedAt.getTime());
     });
 
     it('REFUSES to drop a deneme without the flag, and rolls the whole run back', async () => {
@@ -206,9 +252,12 @@ describe('Book seed write path (e2e, real Postgres)', () => {
 
       // The refusal has to name the deneme AND the cascade, or an operator cannot tell how much a
       // re-run with the flag would delete.
+      // Anchored, not a bare digit: `toContain('3')` matched the '3' in any number, any uuid or any
+      // other line of a multi-line refusal, so it asserted almost nothing (`SFH110-M4`).
       expect(cause.message).toMatch(/allow-removals/);
-      expect(cause.message).toContain('3');
-      expect(cause.message).toMatch(/question row\(s\)/);
+      expect(cause.message).toMatch(/deneme\(s\) 3\b/);
+      expect(cause.message).toMatch(/\b1 video row\(s\)/);
+      expect(cause.message).toMatch(/\b2 question row\(s\)/);
 
       // Nothing written: the refusal happens inside the transaction, so the rollback covers the
       // whole run rather than only the deletion.
@@ -322,6 +371,11 @@ describe('Book seed write path (e2e, real Postgres)', () => {
         { denemeNo: 4, youtubeVideoId: '__park00001', questions: [9] },
       ]);
 
+      const before = await counts();
+      const idsBefore = (await repo.find({ order: { denemeNo: 'ASC' } })).map(
+        (row) => `${String(row.denemeNo)}:${row.youtubeVideoId}`,
+      );
+
       const { cause } = await seedRefusal({
         books: [OWNER],
         artifact: swapped,
@@ -331,6 +385,17 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       // It must name the ids it refused to use, or "inspect the leftover row" is an instruction
       // with nothing to act on.
       expect(cause.message).toContain('__park00001');
+
+      // **The ROLLBACK, which this case did not assert** (`TEST110-M5`). The refusal fires midway
+      // through `seedVideoRows`, after the book row has been touched and possibly after some rows
+      // were parked — so "it threw" is not the same as "it left nothing behind". A half-parked
+      // table is precisely the state the refusal message tells an operator to go inspect.
+      expect(await counts()).toEqual(before);
+      expect(
+        (await repo.find({ order: { denemeNo: 'ASC' } })).map(
+          (row) => `${String(row.denemeNo)}:${row.youtubeVideoId}`,
+        ),
+      ).toEqual(idsBefore);
     });
   });
 
@@ -358,6 +423,25 @@ describe('Book seed write path (e2e, real Postgres)', () => {
         .findOneByOrFail({ slugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR });
       bookId = book.id;
     }, 120_000);
+
+    /**
+     * Restore the row every case mutates, BEFORE each case rather than after.
+     *
+     * These cases probe constraints by writing values and reading the refusal, so each one leaves
+     * the row dirty and used to clean up on its own last line — which only runs when the case
+     * PASSES. One failure mid-case therefore leaked its value into every later case and turned one
+     * red into a cascade whose first failure was the only real one (`TEST110-M5`). Resetting up
+     * front makes each case independent of its predecessors' outcomes, not just of their intentions.
+     */
+    beforeEach(async () => {
+      await dataSource.query(
+        `UPDATE books SET cover_image_path = NULL, purchase_url = NULL, isbn13 = $2,
+           page_count = $3, deneme_count = $4, author_names = $5 WHERE id = $1`,
+        [bookId, OWNER.isbn13, OWNER.pageCount, OWNER.denemeCount, [...OWNER.authorNames]],
+      );
+      await dataSource.query('DELETE FROM book_videos WHERE deneme_no >= 700');
+      await dataSource.query('DELETE FROM book_video_questions WHERE question_no >= 50');
+    });
 
     /** Sets one column on the seeded book row; resolves true when Postgres accepted the value. */
     async function accepts(column: string, value: unknown): Promise<boolean> {
@@ -392,7 +476,15 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       // What the alphabet deliberately ADMITS, recorded so a later reader can tell "allowed on
       // purpose" from "not considered". None reaches a foreign origin: a reference whose second
       // character is not `/` is path-absolute and inherits our own authority.
-      for (const value of ['/../../../etc/passwd', '/./../evil', '/.//cdn.example.com/x.jpg']) {
+      for (const value of [
+        '/../../../etc/passwd',
+        '/./../evil',
+        '/.//cdn.example.com/x.jpg',
+        // The fourth cell the migration records and this suite had omitted (`TEST110-M1`): a
+        // non-empty first segment makes the reference path-absolute, so it inherits our own
+        // authority rather than reaching `cdn.example.com`.
+        '/a//cdn.example.com/x.jpg',
+      ]) {
         expect(`${value} accepted=${String(await accepts('cover_image_path', value))}`).toBe(
           `${value} accepted=true`,
         );
@@ -421,8 +513,12 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       // the value it was written to reject.
       expect(await accepts('author_names', [])).toBe(false);
       // Admitted by design: a blank entry is a SEEDING defect the database deliberately does not
-      // chase, and the acceptance is recorded rather than discovered.
+      // chase, and the acceptance is recorded rather than discovered. All three documented accept
+      // cells now run — `{''}`, `{'   '}` and `{NULL}` — because "what it deliberately admits" is
+      // half the matrix and the half a later reader cannot reconstruct (`TEST110-M1`).
       expect(await accepts('author_names', [''])).toBe(true);
+      expect(await accepts('author_names', ['   '])).toBe(true);
+      expect(await accepts('author_names', [null])).toBe(true);
       expect(await accepts('author_names', ['Fixture'])).toBe(true);
     });
 
@@ -455,8 +551,10 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       // The same video under a second deneme: one set of start seconds would be published twice and
       // only one could be right.
       expect(await insert(704, 'okvideoid01')).toBe(false);
-      // Range bound on the deneme number itself.
+      // Range bound on the deneme number itself — BOTH ends. Only the upper one ran before
+      // (`TEST110-M1`), and a `CHECK (deneme_no <= 999)` typo would have passed that half.
       expect(await insert(1000, 'okvideoid02')).toBe(false);
+      expect(await insert(0, 'okvideoid03')).toBe(false);
 
       await dataSource.query('DELETE FROM book_videos WHERE deneme_no >= 700');
     });

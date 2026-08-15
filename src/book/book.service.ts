@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { EntityManager, In, Repository } from 'typeorm';
 import { buildBookAttribution } from './book-attribution.catalogue';
 import { BookVideoQuestion } from './entities/book-video-question.entity';
 import { BookVideo } from './entities/book-video.entity';
@@ -78,13 +78,18 @@ export function latestUpdatedAt(bookUpdatedAt: Date, childrenUpdatedAt: Date | n
  */
 @Injectable()
 export class BookService {
+  /**
+   * Only two repositories are injected, and the third is deliberately absent: since the detail path
+   * moved inside a transaction it reaches every table through that transaction's `EntityManager`,
+   * so a `BookVideoQuestion` repository bound to the default connection would be a dependency
+   * nothing uses — and one a later edit could reach for by reflex, silently stepping outside the
+   * snapshot {@link findBySlug} exists to hold. `BookModule` still registers all three entities.
+   */
   constructor(
     @InjectRepository(Book)
     private readonly books: Repository<Book>,
     @InjectRepository(BookVideo)
     private readonly videos: Repository<BookVideo>,
-    @InjectRepository(BookVideoQuestion)
-    private readonly questions: Repository<BookVideoQuestion>,
   ) {}
 
   /**
@@ -121,25 +126,49 @@ export class BookService {
    * matched (the `ProvinceController.findBySlug` precedent). Unknown slug → 404 with a stable
    * message KEY, never authored prose: full i18n wiring lands with the first end-user-facing
    * message surface (`ENGINEERING.md` §6).
+   *
+   * ## One REPEATABLE READ snapshot across all three reads, and why READ COMMITTED is not enough
+   * This payload is assembled from three queries. Under the default READ COMMITTED, each statement
+   * takes its OWN snapshot, so a seed committing between them yields a response that is internally
+   * consistent and externally wrong — künye from before the write, question index from after, with
+   * nothing in the payload marking it. Wrapping the three in one transaction does not fix that on
+   * its own; the ISOLATION LEVEL is the part that does, because REPEATABLE READ pins one snapshot
+   * for the whole transaction.
+   *
+   * It is worth the connection this holds. The failure is silent, it reaches a public SEO page, and
+   * `Cache-Control: max-age=300` can pin the mixed payload in a CDN for five minutes — so the
+   * window being small does not bound the damage. "The only writer is a hand-run seed" is also a
+   * premise that dies the day an admin path lands, and it is not what this read should depend on.
    */
   async findBySlug(slug: string): Promise<BookDetailDto> {
-    const book = await this.books.findOne({ where: [{ slugTr: slug }, { slugEn: slug }] });
+    return this.books.manager.transaction('REPEATABLE READ', async (manager) => {
+      const book = await manager
+        .getRepository(Book)
+        .findOne({ where: [{ slugTr: slug }, { slugEn: slug }] });
 
-    if (book === null) {
-      throw new NotFoundException('errors.book.notFound');
-    }
+      if (book === null) {
+        // Thrown inside the transaction: TypeORM rolls back and rethrows, and a read-only
+        // transaction has nothing to undo. The 404 reaches the client unchanged.
+        throw new NotFoundException('errors.book.notFound');
+      }
 
+      return this.buildDetail(manager, book);
+    });
+  }
+
+  /** Assembles the detail payload from one consistent snapshot — see {@link findBySlug}. */
+  private async buildDetail(manager: EntityManager, book: Book): Promise<BookDetailDto> {
     // Ordered in SQL, and NOT re-sorted in the mapper. The e2e asserts that the SERVED arrays
     // ascend; if the mapper sorted them too, that assertion could never fail and the guard would be
     // one that cannot fire. Order is established once, here, and the test checks the result.
-    const videos = await this.videos.find({
+    const videos = await manager.getRepository(BookVideo).find({
       where: { bookId: book.id },
       order: { denemeNo: 'ASC' },
     });
     const questions =
       videos.length === 0
         ? []
-        : await this.questions.find({
+        : await manager.getRepository(BookVideoQuestion).find({
             where: { bookVideoId: In(videos.map((video) => video.id)) },
             order: { bookVideoId: 'ASC', questionNo: 'ASC' },
           });

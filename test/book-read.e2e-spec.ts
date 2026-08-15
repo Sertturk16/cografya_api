@@ -336,19 +336,74 @@ describe('Book read path (e2e, real Postgres)', () => {
     });
 
     it('resolves the TR slug and the EN slug to the same book', async () => {
-      app = await bootApp();
-      const list = await request(app.getHttpServer()).get('/api/books').expect(200);
-      const first = (list.body as ListEnvelope).items[0];
-      if (first === undefined) throw new Error('no book seeded');
+      // **This case needs a book whose two slugs DIFFER, and the seeded one does not have that.**
+      // The committed book carries `slugTr === slugEn` deliberately (a product name is not
+      // translated), so asking twice with `first.slugTr` and `first.slugEn` sent the identical
+      // string twice: the EN branch of the `where: [{slugTr}, {slugEn}]` lookup was never
+      // exercised and the case could not fail (PR #110 review, `SFH110-M3`). A dedicated fixture
+      // is what makes it a test.
+      const repo = dataSource.getRepository(Book);
+      await repo.save(
+        repo.create({
+          slugTr: 'zz-iki-slug-tr',
+          slugEn: 'zz-two-slugs-en',
+          titleTr: 'Slug fixture',
+          titleEn: null,
+          publisherName: 'Fixture',
+          authorNames: ['Ada Lovelace'],
+          isbn13: '9999999999993',
+          pageCount: 1,
+          examTrack: ExamTrack.Ayt,
+          denemeCount: 1,
+          coverImagePath: null,
+          purchaseUrl: null,
+          introTr: 'Fixture.',
+          introEn: null,
+          metaTitleTr: 'Fixture',
+          metaDescriptionTr: 'Fixture',
+          youtubePlaylistId: null,
+          youtubeChannelId: 'UC_fixture_channel',
+          displayOrder: 9998,
+        }),
+      );
 
+      app = await bootApp();
       const viaTr = (
-        await request(app.getHttpServer()).get(`/api/books/${first.slugTr}`).expect(200)
+        await request(app.getHttpServer()).get('/api/books/zz-iki-slug-tr').expect(200)
       ).body as Detail;
       const viaEn = (
-        await request(app.getHttpServer()).get(`/api/books/${first.slugEn}`).expect(200)
+        await request(app.getHttpServer()).get('/api/books/zz-two-slugs-en').expect(200)
       ).body as Detail;
+
+      // The two requests sent DIFFERENT strings, so this equality is evidence rather than tautology.
       expect(viaTr.isbn13).toBe(viaEn.isbn13);
-      expect(viaEn.slugTr).toBe(first.slugTr);
+      expect(viaEn.slugTr).toBe('zz-iki-slug-tr');
+      expect(viaTr.slugEn).toBe('zz-two-slugs-en');
+    });
+
+    it('serves a book with NO videos as a complete payload, not an error', async () => {
+      // The service has an explicit `videos.length === 0` branch (it skips the `IN ()` query, which
+      // is invalid SQL) and an `EMPTY_STATS` fallback for a book absent from the aggregate — and no
+      // test reached either, though fixtures without videos already existed (`TEST110-M3`).
+      // A künye seeded before its question index is a real, ordinary state, not a defect.
+      app = await bootApp();
+      const body = (await request(app.getHttpServer()).get('/api/books/zz-iki-slug-tr').expect(200))
+        .body as Detail;
+
+      expect(body.videos).toEqual([]);
+      expect(body.videoCount).toBe(0);
+      expect(body.questionCount).toBe(0);
+      expect(body.coverage.videoCount).toBe(0);
+      expect(body.coverage.questionCount).toBe(0);
+      expect(body.coverage.denemeNumbers).toEqual([]);
+      // `denemeCount` is a künye fact and must NOT collapse with coverage: the book still has its
+      // denemeler, we simply index none of their solutions.
+      expect(body.coverage.denemeCount).toBeGreaterThan(0);
+      // The credit does not depend on there being videos to credit.
+      expect(body.attribution.map((row) => row.providerId).sort()).toEqual(['partner', 'youtube']);
+      // With no child rows, `updatedAt` collapses to the book row's own stamp — still a real
+      // instant, never null or a build time.
+      expect(Number.isNaN(new Date(body.updatedAt).getTime())).toBe(false);
     });
 
     it('makes ZERO external calls on either request path', async () => {

@@ -82,21 +82,25 @@ export const SEED_BOOKS: readonly BookSeed[] = [
     // machine-filled (`SEO-POLICY.md` §B14 14.2). The EN twin renders the TR title.
     titleEn: null,
     publisherName: 'Coğrafya Gurmesi Yayınları',
-    // A SUBSET of the cover, in the cover's own relative order — and both halves of that
-    // sentence are owner rulings (2026-08-15), not readings of the scan.
+    // A SUBSET of the cover, in the cover's own relative order — and the two halves have DIFFERENT
+    // standing, which is worth separating rather than blurring into "both are rulings"
+    // (PR #110 review, `FID110-M2`).
     //
     // The cover prints FOUR names, left to right: MURAT KARAGÖZ · MURAT ÇAKIR · FATMA DOĞAN ·
-    // YUSUF ÖKSÜZ. The owner ruled that only the first two are this book's AUTHORS; the other two
-    // are credited in a different role, so they are deliberately absent rather than missed. The
-    // two we carry keep the order the cover gives them — Karagöz before Çakır.
+    // YUSUF ÖKSÜZ.
+    //   - The SET is an owner RULING: only the first two are this book's authors, so the other two
+    //     are deliberately absent rather than missed. Nothing in the scan says that; the owner did.
+    //   - The ORDER is a READING of the scan — the cover prints Karagöz first — which the ruling
+    //     then ratified as the published order (`DEC 2026-08-15i` md.1). A reading can be wrong in
+    //     a way a ruling cannot, and this one already was: it said Çakır first until the scan was
+    //     read properly. Anyone re-checking it re-reads the cover, not a decision log.
     //
-    // This array is a PUBLISHED RENDER ORDER: the web detail page iterates it unsorted, so
-    // alphabetising it as a tidy-up changes what the credit says (playbook §5, the
-    // `neighborIsoCodes` rule, Atlas ruling AS-1/AS-6c). B3 corrected the order, which until then
-    // had Çakır first while the comment above it claimed the array was "seeded exactly as the book
-    // prints it" — an identity that did not hold in either direction. It is written out here so
-    // the next reader comparing this line against the cover scan finds the answer instead of
-    // rediscovering the discrepancy.
+    // This array is a PUBLISHED RENDER ORDER, so alphabetising it as a tidy-up changes what the
+    // credit says (playbook §5, the `neighborIsoCodes` rule, Atlas ruling AS-1/AS-6c). The consumer
+    // that iterates it unsorted today is `cografya_web`'s `lib/seo/json-ld.tsx` (the `Book`
+    // structured data's `author` array, verified 2026-08-15); the book DETAIL PAGE does not exist
+    // yet and lands in W1, so naming it here as the consumer — as this comment did — pointed at
+    // something no reader could open (`FID110-M1`).
     //
     // This is also the repo's first column holding real people's names. The owner ruled the same
     // day that they DO publish on the public endpoint and the book page (`FU-BOOKS-AUTHOR-PII`,
@@ -120,8 +124,14 @@ export const SEED_BOOKS: readonly BookSeed[] = [
     purchaseUrl:
       'https://www.kitapisler.com/cografya-gurmesi-yayinlari-ayt-cografya-konu-ozetli-brans-denemeleri_106636.html',
     // ── The three editorial strings (K-J). One literal each, no concatenation. ──
+    // The author order here matches `authorNames` above, and that agreement is the point: before
+    // 2026-08-15 this sentence read "Murat Çakır ve Murat Karagöz'ün" while the array had already
+    // been corrected to the cover's order, so ONE response credited the same two people in two
+    // different orders and the page would have printed both (PR #110 review, `FID110-I3`). The
+    // approved source was revised first and this string re-seeded from it, so the source is never
+    // behind the data. The prose bytes were never the defect — the source's own justification was.
     introTr:
-      "Coğrafya Gurmesi Yayınları'nın AYT Coğrafya Konu Özetli Branş Denemeleri, Murat Çakır ve Murat Karagöz'ün hazırladığı 144 sayfalık bir deneme kitabıdır. Kitapta 40 branş denemesi yer alır ve her deneme yalnızca coğrafya sorularından oluşur.\n\nDenemelerin video çözümleri yayıncının kendi kanalında yayımlanıyor; her video bir denemeye ayrılmış. Bir videoda o denemenin soruları sırayla çözülüyor ve her çözümün videoda başladığı an ayrıca belirlendi.",
+      "Coğrafya Gurmesi Yayınları'nın AYT Coğrafya Konu Özetli Branş Denemeleri, Murat Karagöz ve Murat Çakır'ın hazırladığı 144 sayfalık bir deneme kitabıdır. Kitapta 40 branş denemesi yer alır ve her deneme yalnızca coğrafya sorularından oluşur.\n\nDenemelerin video çözümleri yayıncının kendi kanalında yayımlanıyor; her video bir denemeye ayrılmış. Bir videoda o denemenin soruları sırayla çözülüyor ve her çözümün videoda başladığı an ayrıca belirlendi.",
     // Null, and it stays null: the EN page carries no narrative rather than a machine-translated
     // one (`SEO-POLICY.md` §B14), and the EN twin is permanently `noindex` (K-C).
     introEn: null,

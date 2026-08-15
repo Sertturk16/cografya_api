@@ -1,6 +1,5 @@
 import type { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, type OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
-import { BookAttributionDto } from '../book/dto/book-attribution.dto';
 import { EarthquakeAttributionDto } from '../earthquake/dto/earthquake-attribution.dto';
 import { EarthquakeListDto } from '../earthquake/dto/earthquake-list.dto';
 
@@ -19,9 +18,7 @@ import { EarthquakeListDto } from '../earthquake/dto/earthquake-list.dto';
  *
  * Only TOP-LEVEL types are listed. Anything they reference is pulled in transitively, so
  * `EarthquakeEventDto`, `EarthquakeListMetaDto` and `EarthquakeFilterEchoDto` arrive through
- * `EarthquakeListDto`. One entry is named anyway for one reason: `EarthquakeAttributionDto` is
- * reachable only through an array property, and it is the schema whose absence would be a licence
- * problem rather than a typing problem.
+ * `EarthquakeListDto`.
  *
  * **This list shrinks as endpoints land, and B3 is the first time it did.** `BookListDto` and
  * `BookDetailDto` left it when `GET /api/books` and `GET /api/books/{slug}` started serving them:
@@ -31,19 +28,22 @@ import { EarthquakeListDto } from '../earthquake/dto/earthquake-list.dto';
  * permanent extra-model list would quietly hide a DTO that no longer has a route at all, which is
  * the whole reason entries are removed rather than left as insurance.
  *
- * `BookAttributionDto` STAYS, and its reason is unchanged by the endpoints landing: it is reachable
- * only through an array property, and it is the one book schema whose disappearance would be a
- * licence problem. `EarthquakeListDto` and its attribution stay because E3 has not landed.
+ * **`BookAttributionDto` left too, and the entry it used to have was justified by a claim this same
+ * docblock refutes three sentences earlier.** It read "reachable only through an array property" —
+ * but `BookDetailDto.videos` and `BookListDto.items` are array properties as well, and both arrive
+ * transitively without an entry. An array property is not a barrier to the scanner; the real reason
+ * that entry existed was belt-and-braces for a licence-bearing schema (PR #110 review,
+ * `CODE110-M3`). Belt-and-braces is exactly what this list must not become: a permanent entry keeps
+ * publishing a schema after the field that referenced it is gone, which is the failure the removal
+ * rule exists to prevent. `book.contract.spec.ts` pins `BookDetailDto.attribution` and all eight
+ * book schemas on every CI run, so the guard is a test rather than a list entry — and unlike an
+ * entry, a test can fail. Verified after regeneration: the schema set is unchanged.
  *
- * Verified after regeneration rather than assumed: the schema SET in `components.schemas` is
- * unchanged by this removal, every pre-existing schema body is byte-identical, and
- * `book.contract.spec.ts` asserts all eight book schemas plus both new paths on every CI run.
+ * `EarthquakeListDto` and `EarthquakeAttributionDto` stay because E3 has not landed and neither has
+ * a route. The attribution entry there carries the same weak justification and should be re-read
+ * when E3 removes the list entry — flagged, not fixed here, because that file is E3's range.
  */
-const ROUTELESS_CONTRACT_MODELS = [
-  EarthquakeListDto,
-  EarthquakeAttributionDto,
-  BookAttributionDto,
-];
+const ROUTELESS_CONTRACT_MODELS = [EarthquakeListDto, EarthquakeAttributionDto];
 
 /**
  * Builds the OpenAPI document. Single source of truth for the spec, shared by:

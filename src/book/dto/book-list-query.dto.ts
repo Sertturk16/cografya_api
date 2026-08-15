@@ -53,7 +53,11 @@ export const BOOK_LIST_MAX_PAGE_SIZE = 100;
 export class BookListQueryDto {
   /** 1-based page index. */
   @ApiPropertyOptional({
-    type: Number,
+    // `'integer'` rather than `Number`: the validator enforces `@IsInt()`, and a contract that
+    // published `number` would let a consumer generate `1.5` as a legal page and receive a 400 for
+    // a request its own types called valid (PR #110 review, `CODE110-M2`/`SEC110-M1`).
+    type: 'integer',
+    format: 'int32',
     minimum: 1,
     maximum: BOOK_LIST_MAX_PAGE,
     default: BOOK_LIST_DEFAULT_PAGE,
@@ -76,7 +80,8 @@ export class BookListQueryDto {
    * published ceiling is what tells them how many round trips that is.
    */
   @ApiPropertyOptional({
-    type: Number,
+    type: 'integer',
+    format: 'int32',
     minimum: 1,
     maximum: BOOK_LIST_MAX_PAGE_SIZE,
     default: BOOK_LIST_DEFAULT_PAGE_SIZE,

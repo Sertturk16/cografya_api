@@ -17,6 +17,14 @@ const SLUG_PATTERN = /^[a-z0-9-]+$/;
  * ## What the two rules are anchored to
  * - The alphabet is `GLOSSARY.md` §5 rule 4's output (`a-z0-9-`) — the same folding that produced
  *   the book's own slug, positive-controlled there against seven locked province examples.
+ *   **It is a deliberate SUPERSET of the seed's shape gate, and the two are not interchangeable.**
+ *   `book-seed-invariants.ts` uses `/^[a-z0-9]+(?:-[a-z0-9]+)*$/`, which additionally refuses a
+ *   leading, trailing or doubled hyphen — correct there, because that gate decides what may be
+ *   WRITTEN and a malformed slug becomes a permanent address. This pattern decides only what is
+ *   worth a database lookup, and `--foo-` is not dangerous, merely unmatchable: it answers 404 like
+ *   any other unknown slug. Tightening this one to match would convert a 404 into a 400 for a value
+ *   no book can hold either way, so the difference is kept and named rather than "fixed" (PR #110
+ *   review, `SEC110-M2`).
  * - The length ceiling is `books.slug_tr varchar(140)`. A value longer than the column can hold
  *   cannot match a row, so bounding it here refuses the request instead of sending an
  *   unmatchable string to Postgres and logging it on the way.

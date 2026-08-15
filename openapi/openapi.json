@@ -460,9 +460,10 @@
             "schema": {
               "minimum": 1,
               "maximum": 10000,
+              "format": "int32",
               "default": 1,
               "example": 1,
-              "type": "number"
+              "type": "integer"
             }
           },
           {
@@ -473,9 +474,10 @@
             "schema": {
               "minimum": 1,
               "maximum": 100,
+              "format": "int32",
               "default": 50,
               "example": 50,
-              "type": "number"
+              "type": "integer"
             }
           }
         ],
@@ -3352,10 +3354,10 @@
           },
           "authorNames": {
             "example": [
-              "Murat Çakır",
-              "Murat Karagöz"
+              "Ada Lovelace",
+              "Grace Hopper"
             ],
-            "description": "Authors in the order the BOOK prints them. This is a published render order — iterate it as given and never sort it alphabetically as a tidy-up.",
+            "description": "Authors in the order the BOOK prints them. This is a published render order — iterate it as given and never sort it alphabetically as a tidy-up. The example above is a placeholder, not real seeded data.",
             "type": "array",
             "items": {
               "type": "string"

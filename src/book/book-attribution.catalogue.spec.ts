@@ -78,6 +78,10 @@ describe('book attribution catalogue', () => {
     // (lowercase t) is the one a keyboard produces by accident and the one no structural check
     // would ever see — it is the same defect class as the CAMS capital-I.
     expect(YOUTUBE_PROVIDER_NAME).toBe('YouTube');
+    // The non-empty guard its sibling case carries, and this one lacked (`TEST110-M4`): `for…of`
+    // over an empty array passes every assertion inside it, so a `servedStrings()` that silently
+    // returned nothing would report this brand check green.
+    expect(servedStrings().length).toBeGreaterThan(0);
     for (const value of servedStrings()) {
       expect(`${value} → ${String(/\bYoutube\b|\bYT\b|You-Tube/.test(value))}`).toBe(
         `${value} → false`,
