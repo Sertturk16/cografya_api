@@ -31,6 +31,7 @@
     "migration:create": "typeorm migration:create",
     "db:seed:geography": "pnpm build && node dist/database/seeds/geography.cli.js",
     "db:seed:world": "pnpm build && node dist/database/seeds/world.cli.js",
+    "db:seed:books": "pnpm build && node dist/database/seeds/books.cli.js",
     "db:import:marine-points": "pnpm build && node dist/database/marine/marine-points.cli.js",
     "db:import:marine-ecmwf": "pnpm build && node dist/database/marine/marine-ecmwf.cli.js",
     "db:import:marine-cmems": "pnpm build && node dist/database/marine/marine-cmems.cli.js",
