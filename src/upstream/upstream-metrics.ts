@@ -223,7 +223,37 @@ export type UpstreamMetricName =
    */
   | 'ingest.corrupt_row_skipped'
   /** An unexpected exception escaped the ingest's own handling — OUR bug, counted loudly. */
-  | 'ingest.bug';
+  | 'ingest.bug'
+  // ── Book video-solution sync (B4). Same convention as the two legs above: the provider
+  // dimension is the `providerId` argument, so these names stay leg-neutral in shape. ──
+  /** Snapshots written or refreshed by a tour — incremented BY the row count. */
+  | 'books.snapshot_written'
+  /**
+   * A returned item this leg refused to store: a duration that does not survive the seconds round
+   * trip, a non-positive thumbnail dimension, a field past its column width. Counted rather than
+   * thrown, because one odd video must not stop a tour refreshing twenty-nine others — and counted
+   * at all, because refusing every row silently would look exactly like a healthy quiet tour.
+   */
+  | 'books.snapshot_refused'
+  /** The database refused ONE row (an FK violation against a corrected `book_videos` id). */
+  | 'books.row_write_failed'
+  /**
+   * Ids that stopped coming back from `videos.list` — the dead-video health check (risk R1),
+   * incremented BY the count of rows newly stamped. Non-zero means a video was deleted or
+   * re-uploaded, and the correction is an owner's job: the new id's start seconds must be measured
+   * again before anything can be published for it.
+   */
+  | 'books.video_missing'
+  /** Snapshots deleted for breaching the 30-day ceiling — incremented BY the row count. */
+  | 'books.snapshot_purged'
+  /**
+   * The purge statement itself failed. Its own counter because this is the mechanism that keeps us
+   * inside a POLICY ceiling: every other failure in this leg costs a thumbnail, this one costs
+   * compliance if it persists.
+   */
+  | 'books.purge_failed'
+  /** An unexpected exception escaped the sync tour's own handling — OUR bug. */
+  | 'books.sync_bug';
 
 /**
  * Counters + structured logs for the upstream layer.
