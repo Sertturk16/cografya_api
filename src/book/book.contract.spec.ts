@@ -34,6 +34,93 @@ describe('openapi/openapi.json — book contract', () => {
   const schemaOf = (name: string): SchemaObject =>
     document.components.schemas[name] as SchemaObject;
 
+  /**
+   * Every field the seven schemas publish, by schema — the FIELD-level half of this guard.
+   *
+   * The case below pins whole SCHEMAS, which leaves almost every field open: emptying
+   * `BookVideoQuestionDto` to `{"type": "object"}` keeps the schema in `components.schemas` and
+   * that case stays green. The same holds for a dropped FIELD whose type is registered separately —
+   * `BookDetailDto.attribution` can disappear while `BookAttributionDto` stays in the artifact,
+   * because `ROUTELESS_CONTRACT_MODELS` registers it independently.
+   *
+   * Every entry here is pinned on purpose: B1's deliverable is a FROZEN contract, so removing a
+   * field is a breaking change that goes to Atlas (playbook §4). ADDING a field is additive and
+   * needs no edit here. `BookDetailDto` repeats the nine inherited keys because swagger emits the
+   * subclass FLAT — the artifact records no inheritance, so the published schema really does
+   * declare them itself.
+   */
+  const PUBLISHED_FIELDS: Record<string, readonly string[]> = {
+    BookListItemDto: [
+      'slugTr',
+      'slugEn',
+      'titleTr',
+      'publisherName',
+      'examTrack',
+      'coverImagePath',
+      'videoCount',
+      'questionCount',
+      'displayOrder',
+    ],
+    BookDetailDto: [
+      'slugTr',
+      'slugEn',
+      'titleTr',
+      'publisherName',
+      'examTrack',
+      'coverImagePath',
+      'videoCount',
+      'questionCount',
+      'displayOrder',
+      'titleEn',
+      'authorNames',
+      'isbn13',
+      'pageCount',
+      'denemeCount',
+      'introTr',
+      'introEn',
+      'metaTitleTr',
+      'metaDescriptionTr',
+      'youtubeChannelId',
+      'youtubePlaylistId',
+      'purchaseUrl',
+      'coverage',
+      'videos',
+      'attribution',
+    ],
+    BookCoverageDto: ['videoCount', 'questionCount', 'denemeNumbers', 'denemeCount'],
+    BookVideoDto: ['denemeNo', 'youtubeVideoId', 'questions', 'youtube'],
+    BookVideoQuestionDto: ['questionNo', 'startSecond'],
+    BookVideoYoutubeDto: [
+      'thumbnailUrl',
+      'thumbnailWidth',
+      'thumbnailHeight',
+      'publishedAtUtc',
+      'durationIso',
+      'durationSeconds',
+      'embeddable',
+      'dataFetchedAtUtc',
+    ],
+    BookAttributionDto: [
+      'providerId',
+      'providerName',
+      'requiredNoticeTr',
+      'licenceUrl',
+      'channelUrl',
+    ],
+  };
+
+  /**
+   * The subset published as `nullable`, by schema. Every field NOT listed here must be
+   * non-nullable, so a later edit widening a field to `T | null` is a red test rather than a
+   * silent contract change the consumer has to discover at runtime.
+   */
+  const PUBLISHED_NULLABLE: Record<string, readonly string[]> = {
+    BookListItemDto: ['coverImagePath'],
+    BookDetailDto: ['coverImagePath', 'titleEn', 'introEn', 'youtubePlaylistId', 'purchaseUrl'],
+    BookVideoDto: ['youtube'],
+    BookAttributionDto: ['licenceUrl', 'channelUrl'],
+  };
+
   it('publishes all 7 book schemas (the B1 frozen set)', () => {
     // B1 registers three of these through `ROUTELESS_CONTRACT_MODELS` and reaches the rest
     // transitively. A refactor that drops an `extraModels` entry, or that stops a nested DTO from
@@ -53,6 +140,42 @@ describe('openapi/openapi.json — book contract', () => {
     }
   });
 
+  it('every published FIELD is still present, required and nullable exactly as frozen', () => {
+    // The case above is satisfied by `null`, `{}` or a schema whose properties were emptied, so on
+    // its own it pins presence and nothing else. This one closes that: 56 published entries across
+    // the seven schemas, each asserted for presence, required-ness and nullability.
+    const entries = Object.entries(PUBLISHED_FIELDS);
+    // The "nothing expected" refusal (playbook §8): an emptied table must FAIL, never report that
+    // it checked zero fields and pass.
+    expect(entries.length).toBeGreaterThan(0);
+    for (const [schemaName, fields] of entries) {
+      expect(`${schemaName}:fields=${String(fields.length > 0)}`).toBe(`${schemaName}:fields=true`);
+      const schema = schemaOf(schemaName);
+      const properties = schema.properties ?? {};
+      const required = new Set(schema.required ?? []);
+      const nullable = new Set(PUBLISHED_NULLABLE[schemaName] ?? []);
+      // A nullable entry naming a field the table above does not carry would assert nothing at
+      // all — the same dead-guard class this whole case exists to close.
+      for (const name of nullable) {
+        expect(`${schemaName}.${name}:inFieldTable=${String(fields.includes(name))}`).toBe(
+          `${schemaName}.${name}:inFieldTable=true`,
+        );
+      }
+      for (const field of fields) {
+        const published = properties[field];
+        expect(`${schemaName}.${field}:present=${String(published !== undefined)}`).toBe(
+          `${schemaName}.${field}:present=true`,
+        );
+        expect(`${schemaName}.${field}:required=${String(required.has(field))}`).toBe(
+          `${schemaName}.${field}:required=true`,
+        );
+        expect(`${schemaName}.${field}:nullable=${String(published?.nullable === true)}`).toBe(
+          `${schemaName}.${field}:nullable=${String(nullable.has(field))}`,
+        );
+      }
+    }
+  });
+
   it('BookVideoDto.youtube is published as REQUIRED and NULLABLE, both halves', () => {
     // The provider-sourced object is absent in three normal states (never synced, aged past the
     // soft threshold, video no longer returned) and the contract expresses all three as `null`.
@@ -69,8 +192,10 @@ describe('openapi/openapi.json — book contract', () => {
     // `BookDetailDto extends BookListItemDto` and swagger emits a subclass FLAT — no `allOf`, no
     // `$ref` to the base — so the two schemas are related by nothing the artifact records. The
     // inheritance is real only in TypeScript; in the published contract it is an invariant that
-    // has to be asserted, or a key removed from the list item stops being served by the detail
-    // response with no gate noticing.
+    // has to be asserted. What this case catches is DE-INHERITANCE — a broken `extends`, an
+    // `OmitType`, a hand-written detail schema. It does NOT catch a key removed from the BASE:
+    // that key then disappears from both sides and the comparison still passes, which is the
+    // field-level table's job above.
     const listItem = schemaOf('BookListItemDto');
     const detail = schemaOf('BookDetailDto');
     const listKeys = Object.keys(listItem.properties ?? {});
@@ -94,7 +219,13 @@ describe('openapi/openapi.json — book contract', () => {
       name.startsWith('Book'),
     );
     expect(bookSchemas.length).toBeGreaterThan(0);
-    const banned = /^(price|priceCurrency|currency|availability|offer|offers|stock|inStock)$/i;
+    // UNANCHORED, like the air-quality sibling's own scan and for the same reason: an anchored
+    // pattern passes `listPrice`, `salePrice`, `priceTry`, `availabilityStatus`, `offerUrl` and
+    // `stockCount`, and a compound name is precisely the accident the docblock's "not even by
+    // accident" claim is about. `priceCurrency`, `offers` and `inStock` are gone from the
+    // alternation because unanchored they are subsumed by `price`, `offer` and `stock` — the ban
+    // is wider than it was, not narrower.
+    const banned = /price|currency|availability|offer|stock/i;
     for (const [schemaName, schema] of bookSchemas) {
       const properties = (schema as SchemaObject).properties ?? {};
       for (const fieldName of Object.keys(properties)) {
