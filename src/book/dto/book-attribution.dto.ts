@@ -40,7 +40,8 @@ import {
  * repo's existing `endorsement-guard` denylist runs over every string this leg serves once B3
  * serves any.
  *
- * **NOT SERVED BY ANY B1 ENDPOINT** — a frozen contract published for codegen (SPEC §16).
+ * Served on every `GET /api/books/{slug}` response since B3. The strings now exist as compiled
+ * constants in `book-attribution.catalogue.ts`, copied from the ledger and byte-pinned by its spec.
  */
 export class BookAttributionDto {
   @ApiProperty({
@@ -65,7 +66,7 @@ export class BookAttributionDto {
     type: String,
     description:
       'The required attribution line, verbatim and untranslated. Its canonical text lives in ' +
-      'provenance/integrations.md and is byte-pinned by a spec when it lands in B3. Display is ' +
+      'provenance/integrations.md and is byte-pinned by a spec beside the catalogue. Display is ' +
       'the web repo\'s decision; carrying it on every response removes "it was not shown" as a ' +
       'possibility.',
   })

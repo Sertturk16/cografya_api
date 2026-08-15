@@ -24,7 +24,9 @@ import { INTERNAL_REQUEST_HEADER, isTrustedClientRequest } from './trusted-clien
  * header + the zod-validated secret into it.
  *
  * Safe-method scope: the exemption's documented safety rationale (the exempted endpoints
- * are public, auth-less, PII-free, cheap, cacheable reads) holds only for reads. The roadmap
+ * are public, auth-less, cheap, cacheable reads — see `trusted-client.ts`, which owns the posture
+ * and records why the retired "PII-free" clause does not change the conclusion) holds only for
+ * reads. The roadmap
  * already commits admin CRUD, auth panels and an AI-vision POST (ENGINEERING.md §3); a leaked
  * token must never silently exempt a write/upload/brute-force surface from throttling.
  * Restricting the exemption to GET/HEAD enforces a claim the exemption already makes about

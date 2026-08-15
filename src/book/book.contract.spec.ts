@@ -63,6 +63,7 @@ describe('openapi/openapi.json — book contract', () => {
       'videoCount',
       'questionCount',
       'displayOrder',
+      'updatedAt',
     ],
     BookDetailDto: [
       'slugTr',
@@ -74,6 +75,7 @@ describe('openapi/openapi.json — book contract', () => {
       'videoCount',
       'questionCount',
       'displayOrder',
+      'updatedAt',
       'titleEn',
       'authorNames',
       'isbn13',
@@ -143,6 +145,46 @@ describe('openapi/openapi.json — book contract', () => {
     ]) {
       expect(`${schema}:${String(document.components.schemas[schema] !== undefined)}`).toBe(
         `${schema}:true`,
+      );
+    }
+  });
+
+  it('publishes both book paths, with the list query contract on the hub', () => {
+    // B1 shipped these schemas with NO route, and `build-document.ts` carried `BookListDto` and
+    // `BookDetailDto` as `extraModels` to get them into the artifact at all. B3 landed the routes
+    // and REMOVED those entries, so the schemas now reach the spec only through the scanner. This
+    // case is what makes that removal safe to have made: if a route is ever renamed, moved behind a
+    // different prefix, or dropped, the schemas silently leave the artifact with it, and the field
+    // table below would then be asserting over `undefined`.
+    const list = document.paths['/api/books'] as { get?: { parameters?: unknown[] } } | undefined;
+    expect(`/api/books:${String(list?.get !== undefined)}`).toBe('/api/books:true');
+    expect(`/api/books/{slug}:${String(document.paths['/api/books/{slug}'] !== undefined)}`).toBe(
+      '/api/books/{slug}:true',
+    );
+
+    // The web repo pages until `hasMore` is false, so the CEILING and the DEFAULT are contract, not
+    // implementation detail (`kitap-video-web/SPEC.md` §6 E2 asked for exactly this). A default
+    // that lived only in a service expression would be invisible here.
+    const parameters = (list?.get?.parameters ?? []) as {
+      name?: string;
+      in?: string;
+      required?: boolean;
+      schema?: { default?: number; maximum?: number; minimum?: number };
+    }[];
+    const byName = new Map(parameters.map((parameter) => [parameter.name, parameter]));
+    expect([...byName.keys()].sort()).toEqual(['page', 'pageSize']);
+    for (const [name, parameter] of byName) {
+      expect(`${String(name)}.in=${String(parameter.in)}`).toBe(`${String(name)}.in=query`);
+      // Optional, with a published default — a required query parameter would be a BREAKING
+      // request change, which is the one class §15 says this leg must not ship.
+      expect(`${String(name)}.required=${String(parameter.required === true)}`).toBe(
+        `${String(name)}.required=false`,
+      );
+      expect(`${String(name)}.hasDefault=${String(parameter.schema?.default !== undefined)}`).toBe(
+        `${String(name)}.hasDefault=true`,
+      );
+      expect(`${String(name)}.hasMaximum=${String(parameter.schema?.maximum !== undefined)}`).toBe(
+        `${String(name)}.hasMaximum=true`,
       );
     }
   });

@@ -26,14 +26,20 @@ import { BookVideoDto } from './book-video.dto';
  * - **No price, currency, availability or offer** — `CONVENTIONS.md` §4, reaffirmed by the ruling
  *   that authorised {@link purchaseUrl}. `Product`/`offers` structured data cannot be assembled
  *   from this contract even by accident (SPEC §12.6); `Book` is the schema type for this page.
- * - **No PDF, no downloadable asset, no transcript** — owner rule and SPEC §4.3. There is no
- *   auth surface, no role and no personal data on this leg at all.
+ * - **No PDF, no downloadable asset, no transcript** — owner rule and SPEC §4.3. There is no auth
+ *   surface and no role on this leg. **There IS personal data**: {@link authorNames} publishes named
+ *   individuals, by owner ruling (`FU-BOOKS-AUTHOR-PII`, closed) — künye facts printed on the
+ *   book's own cover, nothing derived or enriched, and none of it logged. The claim that this leg
+ *   carries "no personal data at all" was true until B3 served this DTO and is retired here rather
+ *   than left standing; playbook §3.6 binds anything added after those two names.
  * - **No reader-facing sentence.** The api carries numbers, tokens and the two editorial strings
  *   it owns; question labels, duration formats, the "video unavailable" state and the coverage
  *   sentence are all `messages/*.json` under `CONTENT-STYLE.md` §22 (SPEC §10).
  *
- * **NOT SERVED BY ANY B1 ENDPOINT** — a frozen contract published for codegen; B3 serves it
- * (SPEC §16).
+ * Served by `GET /api/books/{slug}` since B3. **`videos[].youtube` is `null` on every video today**
+ * and that is the designed path rather than a gap (`DEC 2026-08-15h` item 2): the snapshot serving
+ * path and its age thresholds are B4's, and the page is complete without them — the künye, the
+ * denemeler, the questions and the start seconds are all ours.
  */
 export class BookDetailDto extends BookListItemDto {
   @ApiProperty({
@@ -46,12 +52,26 @@ export class BookDetailDto extends BookListItemDto {
   })
   titleEn!: string | null;
 
+  /**
+   * The example is a PLACEHOLDER, and deliberately not the real authors.
+   *
+   * It used to carry the seeded pair, in an order a later ruling made false (`DEC 2026-08-15i`
+   * md.1 — the published order is the cover's). The seed was corrected and the example was not, so
+   * the artifact contradicted itself and served a false claim about two named living people from
+   * an ungated `/docs` on a PUBLIC repository (PR #110 review, `FID110-I1`/`SEC110-I1`).
+   *
+   * Fixing the order would have fixed this instance; using non-real names fixes the CLASS. An
+   * example's job is to show an ordered array of strings — it does not need to be these people, and
+   * a placeholder cannot drift out of step with a ruling about them again. Same shape
+   * `book-seed-invariants.spec.ts` already uses for its fixtures.
+   */
   @ApiProperty({
     type: [String],
-    example: ['Murat Çakır', 'Murat Karagöz'],
+    example: ['Ada Lovelace', 'Grace Hopper'],
     description:
       'Authors in the order the BOOK prints them. This is a published render order — iterate it ' +
-      'as given and never sort it alphabetically as a tidy-up.',
+      'as given and never sort it alphabetically as a tidy-up. The example above is a placeholder, ' +
+      'not real seeded data.',
   })
   authorNames!: string[];
 

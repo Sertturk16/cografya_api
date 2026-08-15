@@ -62,7 +62,7 @@ needs no change to it.
 | --- | ---: | --- |
 | `metaTitleTr` | 57 | `859c9064ac9b388ad0ee02ccf7abbbf643adcc218fd932ade28da8aec75f7bd3` |
 | `metaDescriptionTr` | 151 | `1d92939960cd8f731d9ae3cf02f2c4b82c9a0b24945d968feb65290c18069a4b` |
-| `introTr` | 449 | `c75f29e9531bb182cf76d54d9c0c8fe404e9683d9efce003f1318d86b51f2356` |
+| `introTr` | 449 | `4969c3ba0103707b6a231ba3f47368e33c73ef4714ccd50da9eb2f875e9dcd56` |
 
 Re-derive the seeded side from the compiled build, from the repo root:
 
@@ -78,6 +78,12 @@ for (const field of ["metaTitleTr", "metaDescriptionTr", "introTr"]) {
 
 Three equal hex strings is the verification. It replaces reading 657 characters of Turkish prose
 character by character, which is the check a human silently fails.
+
+**`introTr`'s hash changed on 2026-08-15 and the length did not** (PR #110 review, `FID110-I3`):
+the author credit was reordered to the cover's order, and `Murat Karagöz ve Murat Çakır'ın` happens
+to be exactly as long as `Murat Çakır ve Murat Karagöz'ün` — 31 code points either way. So the
+count stayed 449 while the bytes moved. That is the case this table exists for: a length column
+alone would have reported "unchanged" on a real edit, and only the hash sees it.
 
 ## What the seed refuses
 

@@ -16,7 +16,8 @@ import { ApiProperty } from '@nestjs/swagger';
  * object states what exists and asserts nothing about what does not; how it is presented is
  * Vera's, under `DESIGN.md`.
  *
- * **NOT SERVED BY ANY B1 ENDPOINT** — a frozen contract published for codegen (SPEC §16).
+ * Served inside `BookDetailDto` since B3, computed from the SAME loaded arrays the response
+ * publishes — never from a second set of queries, which is how two paths to one number drift.
  */
 export class BookCoverageDto {
   @ApiProperty({

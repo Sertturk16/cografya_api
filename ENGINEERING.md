@@ -98,6 +98,26 @@ dated ruling in `DECISIONS.md`. It is the local source of truth for how code lan
   pagination can repeat a row across pages when new rows land mid-read; cursor pagination
   fixes that and breaks the stable `?page=2` addresses the web repo's canonical strategy
   depends on.
+- **Request DTOs — query parameters carry their ceiling, and the ceiling is per endpoint.**
+  A paginated list takes a `@Query()` DTO class (`BookListQueryDto` is the first, B3) whose
+  `page`/`pageSize` bounds and defaults live in `class-validator` decorators AND in
+  `@ApiPropertyOptional`, so the published contract states them. **The default belongs in the
+  property initialiser, never behind a `?? 50` in the service:** the web repo pages until
+  `hasMore` is false and reads both the default and the maximum out of `openapi.json`, where a
+  service-side default is invisible. Declare each number **once**, as an exported constant —
+  it appears in two decorators that no tool cross-checks, and the e2e imports it rather than
+  retyping it.
+  **There is no shared base query DTO, and this is a property of the tooling rather than a
+  preference:** class-validator decorators accumulate through inheritance, so a subclass can
+  only ever TIGHTEN a base `@Max` and never loosen it. A base would have to carry the lowest
+  ceiling any endpoint will ever want, and any endpoint needing a higher one would have to stop
+  extending it. On **an endpoint that takes a query DTO**, unknown query parameters are therefore
+  **rejected** (400) rather than ignored — that is §3.2's global pipe doing its job, and such an
+  endpoint does not carve itself an exception. The asymmetry is worth knowing: a route with no
+  query DTO (every province, country and marine read today) never validates its query string at
+  all, so it ignores unknown parameters instead. That is a consequence of where DTOs exist, not a
+  second policy — but it means "unknown parameters are rejected" is true of the surface that has a
+  DTO, and only that surface.
 - **Global `/api` prefix** for content routes; `/health` stays bare (see
   `src/common/bootstrap.ts`). The OpenAPI generator applies the same prefix so the spec's
   paths always match what the app serves.

@@ -102,9 +102,11 @@ export class Book {
    * The authors, **in the order the book prints them** — never sorted.
    *
    * The same discipline as `Country.neighborIsoCodes` (playbook §5): this array is a PUBLISHED
-   * render order, the web detail page iterates it unsorted, and alphabetising it as a "tidy-up"
-   * changes what the credit says. For this book the printed order is Murat Çakır, then Murat
-   * Karagöz.
+   * render order, the consumer iterates it unsorted, and alphabetising it as a "tidy-up" changes
+   * what the credit says. For this book the printed order is **Murat Karagöz, then Murat Çakır** —
+   * the cover's order, ruled published by `DEC 2026-08-15i` md.1. (This sentence named the reverse
+   * until 2026-08-15; the cover scan refuted it. Playbook §5 makes the entity the canonical home
+   * for seed discipline notes, so a stale one here is the first wrong answer the next reader gets.)
    *
    * At least one entry, enforced by `CHK_books_author_names`: the credit is an attribution
    * obligation, so a row with nobody credited is a seeding defect rather than a state. A

@@ -21,7 +21,11 @@ import { ApiProperty } from '@nestjs/swagger';
  * the contract, for the same reason in both places: the perishable half can be deleted whole,
  * without a column list that can go stale.
  *
- * **NOT SERVED BY ANY B1 ENDPOINT** — the frozen contract; B3 serves it, B4 fills it (SPEC §16).
+ * **PUBLISHED BUT NEVER POPULATED YET.** B3 serves the parent object on every detail response with
+ * `youtube: null` on every video — the snapshot serving path and its age thresholds are B4's
+ * (`DEC 2026-08-15h` item 2). So this schema describes a shape the contract guarantees and no
+ * response carries today; that is the null state the parent already documents, arrived at because
+ * the sync has never run, not because anything failed.
  */
 export class BookVideoYoutubeDto {
   @ApiProperty({
