@@ -110,15 +110,30 @@ export const SEED_BOOKS: readonly BookSeed[] = [
     pageCount: 144,
     examTrack: ExamTrack.Ayt,
     denemeCount: 40,
-    // NULL because the file does not exist yet, and null is the state the contract defines for
-    // that: `BookListItemDto.coverImagePath` says "null means there is no cover to render".
-    // `cografya_web` has no `public/` directory at all today (measured 2026-08-15), so seeding a
-    // path would publish an address for a file nobody can serve and the hub card would render
-    // broken the day B3 lands. The owner supplies the file (K-K, → DEC 2026-08-15c §1); the PR
-    // that lands it sets this to `/kitaplar/ayt-cografya-konu-ozetli-brans-denemeleri.jpg` — a
-    // data change on a nullable column, not a contract change. The filename must stay inside
-    // `CHK_books_cover_image_path`'s ASCII alphabet, so slugify before copying into `public/`.
-    coverImagePath: null,
+    // The published address of the cover, inside `cografya_web`'s `public/` — a data change on a
+    // nullable column, NOT a contract change (`Owner's Inbox/kitap-video-web/SPEC.md` §6 E3).
+    //
+    // **The extension is `.webp` and that is the whole point of the E3 finding.** `closing-summary-b2`
+    // and this comment's earlier text both predicted `.jpg`, because they were written before the
+    // file existed. What W0 actually committed (web PR #61, `941d0f3`) is
+    // `public/kitaplar/ayt-cografya-konu-ozetli-brans-denemeleri.webp` — the WebP derivative whose
+    // SHA-256 is `8d119f51…` in `provenance/datasets.md`'s 2026-08-15 cover entry, re-derived here
+    // from the committed file rather than copied from that entry. Two sides writing two different
+    // strings does not fail anything loudly: the column and the DTO stay valid and the cover simply
+    // renders blank.
+    //
+    // Licence: publisher-provided (Coğrafya Gurmesi Yayınları), `QUESTIONS.md` V-3 as a USE
+    // PERMISSION rather than a licence transfer, recorded in `provenance/datasets.md` and ruled in
+    // `DEC 2026-08-15j` — which is the `CONVENTIONS.md` §4 exception this path relies on. No separate
+    // visible credit string is owed, so none is minted here.
+    //
+    // The value is path-absolute and stays inside `CHK_books_cover_image_path`'s ASCII alphabet
+    // (mirrored as `COVER_IMAGE_PATH_PATTERN` in `book-seed-invariants.ts`), which is why the
+    // filename is the slug and not the book's title. The consumers that read it today are
+    // `cografya_web`'s `app/[locale]/kitaplar/page.tsx` and `app/[locale]/kitaplar/[slug]/page.tsx`,
+    // which pass it straight to `next/image` as `src` (verified 2026-08-16); `null` remains the
+    // contract's "there is no cover to render" for every later book that has no file.
+    coverImagePath: '/kitaplar/ayt-cografya-konu-ozetli-brans-denemeleri.webp',
     // Outbound seller link, no price anywhere (→ DEC 2026-08-15c §1). `https://` is enforced by
     // `CHK_books_purchase_url` because this value becomes an `href` on a public page.
     purchaseUrl:
