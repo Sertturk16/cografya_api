@@ -38,10 +38,14 @@ describe('describeErrorWithName', () => {
     expect(describeErrorWithName(new TypeError('fetch failed'))).toBe('TypeError: fetch failed');
   });
 
-  it('reports the RUNTIME name, so a DOMException reads as its own kind', () => {
+  it('reports the RUNTIME name, so an aborted call reads as its own kind', () => {
     // The distinction the ingest and warmup targets exist to log: an aborted call and a broken
     // one demand different responses from whoever reads the line.
-    expect(describeErrorWithName(new DOMException('The operation was aborted', 'AbortError'))).toBe(
+    class AbortError extends Error {
+      override readonly name = 'AbortError';
+    }
+
+    expect(describeErrorWithName(new AbortError('The operation was aborted'))).toBe(
       'AbortError: The operation was aborted',
     );
   });
@@ -54,5 +58,37 @@ describe('describeErrorWithName', () => {
   it('differs from the short form ONLY by the name prefix', () => {
     const error = new RangeError('index out of range');
     expect(describeErrorWithName(error)).toBe(`${error.name}: ${describeError(error)}`);
+  });
+});
+
+describe('the contract both forms owe', () => {
+  it('never disagrees with `instanceof Error` — which is exactly what the call sites do today', () => {
+    // Stated as a relationship rather than as fixed strings, because one of these candidates is
+    // environment-dependent. A `DOMException` IS an Error in Node (measured: `new
+    // DOMException('x', 'AbortError') instanceof Error === true`, and an aborted
+    // AbortController's `reason` likewise), but Jest's sandbox can hand the two sides different
+    // `Error` globals and answer `false` for the same value. Pinning either literal would make
+    // this suite assert something untrue of the other environment; pinning the RELATIONSHIP is
+    // true in both, and it is the property the conversion actually needs — that swapping a
+    // hand-written `instanceof` check for this helper changes no behaviour anywhere.
+    const candidates: readonly unknown[] = [
+      new Error('plain'),
+      new TypeError('typed'),
+      new DOMException('The operation was aborted', 'AbortError'),
+      'a thrown string',
+      42,
+      null,
+      undefined,
+      { message: 'looks like an error, is not one' },
+    ];
+
+    for (const candidate of candidates) {
+      expect(describeError(candidate)).toBe(
+        candidate instanceof Error ? candidate.message : 'unknown',
+      );
+      expect(describeErrorWithName(candidate)).toBe(
+        candidate instanceof Error ? `${candidate.name}: ${candidate.message}` : 'unknown',
+      );
+    }
   });
 });

@@ -25,6 +25,17 @@
  * (`describeTransport` in `src/upstream/upstream-http.client.ts`, which has answered this same
  * question privately, with a constant fallback, since the marine work).
  *
+ * ## The `instanceof Error` test is inherited exactly, including its edges
+ * Both forms are precisely `error instanceof Error`, with no special cases layered on top — so
+ * replacing a hand-written check with one of these can never change what a call site logs. Worth
+ * knowing about the sharpest edge: an `AbortError` from `AbortSignal.timeout()` is a
+ * `DOMException`, which in Node IS an `Error` and therefore reads as `AbortError: …` — but the
+ * relationship, not that string, is what the unit spec pins, because a test sandbox can answer
+ * differently for the same value. Where the ABORT REASON itself must drive behaviour rather than
+ * text, the answer is not this module: see `describeTransport` in
+ * `src/upstream/upstream-http.client.ts`, which matches `DOMException` by name FIRST and maps it
+ * to `'timed out'` / `'aborted'` before ever reaching the generic form.
+ *
  * ## What this is NOT for
  * A caught value that carries structured fields a caller needs SEPARATELY — the fork/IPC reply in
  * `src/marine/ecmwf/grib/grib-decode-child.ts`, which sends `name` and `message` as two payload
