@@ -499,11 +499,23 @@ describe('validateEnv — the book video-solution (YouTube Data API) block', () 
     expect(() => validateEnv({ ...BASE, YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS: '8760' })).toThrow(
       /III\.E\.4\.d/,
     );
-    // Lowering it is legitimate, and the purge interval default still fits underneath.
-    expect(
-      validateEnv({ ...BASE, YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS: '168' })
-        .YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS,
-    ).toBe(168);
+    // Lowering it is legitimate — and lowering it means lowering BOTH, which is the interaction
+    // worth pinning: a hard ceiling dropped to 168 h under the default 600 h soft threshold is
+    // refused by the neighbouring rule, because the serve threshold would then sit past the
+    // deletion one and no snapshot could ever be both servable and present.
+    expect(() => validateEnv({ ...BASE, YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS: '168' })).toThrow(
+      /YOUTUBE_API_DATA_SOFT_MAX_AGE_HOURS/,
+    );
+    const lowered = validateEnv({
+      ...BASE,
+      YOUTUBE_API_DATA_SOFT_MAX_AGE_HOURS: '120',
+      YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS: '168',
+    });
+    expect(lowered.YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS).toBe(168);
+    // …and the default purge interval still fits underneath the lowered ceiling.
+    expect(lowered.BOOKS_PURGE_INTERVAL_SECONDS * 24).toBeLessThan(
+      lowered.YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS * 3600,
+    );
   });
 
   it('refuses a soft threshold at or above the hard one', () => {

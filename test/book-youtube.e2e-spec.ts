@@ -1,14 +1,12 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it, jest } from '@jest/globals';
-import { ValidationPipe, type INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
+import { type INestApplication } from '@nestjs/common';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
 import { YoutubeThumbnailKey } from '../src/book/book.types';
 import { BookVideo } from '../src/book/entities/book-video.entity';
 import { YoutubeVideoSnapshot } from '../src/book/entities/youtube-video-snapshot.entity';
-import { YoutubePurgeTarget } from '../src/book/youtube/youtube-purge.target';
-import { applyGlobalPrefix } from '../src/common/bootstrap';
+import type { YoutubePurgeTarget } from '../src/book/youtube/youtube-purge.target';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { seedBooks } from '../src/database/seeds/seed-books';
 
@@ -69,20 +67,37 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
   let videoIds: string[];
 
   /**
-   * Boot a fresh application with the env this case needs, and nothing left over from the last.
+   * Boot an application with the env this case needs, from a FRESH module registry.
    *
-   * Every switch is written EXPLICITLY rather than deleted and left to its default. `ConfigModule`
-   * also reads a `.env` file when one exists, and a developer's local `.env` legitimately holds a
-   * real `YOUTUBE_API_KEY` — so a case that relied on "the default is false" could boot the sync ON
-   * against the real provider on one machine and OFF in CI. An explicit value cannot diverge.
+   * ## Why the registry is reset, and why this is not ceremony
+   * `ConfigModule.forRoot` validates `process.env` EAGERLY, while `app.module` is being imported —
+   * so with Node's module cache in place the first boot of this file would freeze the configuration
+   * for every case after it, and a case that set a different threshold would silently assert
+   * against the first case's numbers. The `marine-values` phase-H precedent does exactly this, for
+   * exactly this reason, and the failure it prevents is a green test that measured nothing.
+   *
+   * Everything the app touches is re-required from that fresh registry, INCLUDING the class used as
+   * a provider token below: after a reset, the statically imported `YoutubePurgeTarget` is a
+   * different object from the one the container registered, and `app.get` would not find it.
+   *
+   * Every switch is also written EXPLICITLY rather than left to its default. `ConfigModule` merges
+   * a `.env` file when one exists, and a developer's local `.env` legitimately holds a real
+   * `YOUTUBE_API_KEY` — so a case relying on "the default is false" could boot the sync ON against
+   * the real provider on one machine and OFF in CI. An explicit value cannot diverge.
    */
-  async function bootApp(env: Record<string, string> = {}): Promise<INestApplication> {
+  async function bootApp(env: Record<string, string> = {}): Promise<{
+    app: INestApplication;
+    purgeTarget: YoutubePurgeTarget | null;
+  }> {
     Object.assign(process.env, {
       BOOKS_ENABLED: 'false',
       BOOKS_YOUTUBE_SYNC_ENABLED: 'false',
       YOUTUBE_DATA_API_BASE_URL: FAKE_API_BASE_URL,
       YOUTUBE_API_DATA_SOFT_MAX_AGE_HOURS: '600',
       YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS: '720',
+      // Restated on every boot rather than left from the last one: `process.env` is process-wide,
+      // so a case that lowers a value would otherwise silently configure every case after it.
+      BOOKS_PURGE_INTERVAL_SECONDS: '3600',
       ...env,
     });
     // Cleared unless the case asked for one. Note the honest limit: `ConfigModule` also merges the
@@ -91,18 +106,45 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
     // key's absence — the cases assert what is observable, and the purge case counts `fetch`.
     if (env.YOUTUBE_API_KEY === undefined) delete process.env.YOUTUBE_API_KEY;
 
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const appModule = require('../src/app.module') as typeof import('../src/app.module');
-    const moduleRef = await Test.createTestingModule({ imports: [appModule.AppModule] }).compile();
+    jest.resetModules();
+    /* eslint-disable @typescript-eslint/no-require-imports */
+    const { AppModule } = require('../src/app.module') as typeof import('../src/app.module');
+    const { Test: FreshTest } = require('@nestjs/testing') as typeof import('@nestjs/testing');
+    const { ValidationPipe: FreshValidationPipe } =
+      require('@nestjs/common') as typeof import('@nestjs/common');
+    const { applyGlobalPrefix: freshApplyGlobalPrefix } =
+      require('../src/common/bootstrap') as typeof import('../src/common/bootstrap');
+    const { YoutubePurgeTarget: FreshPurgeTarget } =
+      require('../src/book/youtube/youtube-purge.target') as typeof import('../src/book/youtube/youtube-purge.target');
+    /* eslint-enable @typescript-eslint/no-require-imports */
+
+    const moduleRef = await FreshTest.createTestingModule({ imports: [AppModule] }).compile();
     const created = moduleRef.createNestApplication();
-    applyGlobalPrefix(created);
+    freshApplyGlobalPrefix(created);
     created.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
+      new FreshValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
     );
     await created.init();
     fetchSpy = jest.spyOn(globalThis, 'fetch');
     fetchSpy.mockClear();
-    return created;
+
+    // `null` while `BOOKS_ENABLED=false`: the factory does not build a target the tour would never
+    // run. That is itself the switch working, so it is a legitimate return rather than a failure.
+    return { app: created, purgeTarget: created.get<YoutubePurgeTarget | null>(FreshPurgeTarget) };
+  }
+
+  /**
+   * Run the purge tour once — and REFUSE a target that was never built.
+   *
+   * Without this guard a boot that quietly left `BOOKS_ENABLED` off would hand back `null`, the
+   * delete would never happen, and every assertion after it would pass for the wrong reason: "the
+   * row survived" reads identically whether the purge spared it or never ran.
+   */
+  async function purgeOnce(target: YoutubePurgeTarget | null): Promise<void> {
+    if (target === null) {
+      throw new Error('the purge target was not built — BOOKS_ENABLED was off for this boot');
+    }
+    await target.refresh();
   }
 
   /** Write one snapshot for `youtubeVideoId`, aged `hoursAgo`, missing since `missingHoursAgo`. */
@@ -201,7 +243,7 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
       if (first === undefined) throw new Error('no seeded video');
       await writeSnapshot(first, 1);
 
-      app = await bootApp();
+      ({ app } = await bootApp());
       const body = await fetchDetail();
       const served = body.videos.find((video) => video.youtubeVideoId === first);
 
@@ -238,7 +280,7 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
       // EXISTS and is deliberately not served. That middle state is why there are two numbers.
       await writeSnapshot(first, 700);
 
-      app = await bootApp();
+      ({ app } = await bootApp());
       const body = await fetchDetail();
       const served = body.videos.find((video) => video.youtubeVideoId === first);
 
@@ -254,7 +296,7 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
       if (first === undefined) throw new Error('no seeded video');
       await writeSnapshot(first, 100);
 
-      app = await bootApp({ YOUTUBE_API_DATA_SOFT_MAX_AGE_HOURS: '24' });
+      ({ app } = await bootApp({ YOUTUBE_API_DATA_SOFT_MAX_AGE_HOURS: '24' }));
       const body = await fetchDetail();
 
       // The identical row was served in the first case of this block at one hour old; at 100 hours
@@ -269,7 +311,7 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
       // absence stamp is what stops it.
       await writeSnapshot(first, 1, 1);
 
-      app = await bootApp();
+      ({ app } = await bootApp());
       const body = await fetchDetail();
       const served = body.videos.find((video) => video.youtubeVideoId === first);
 
@@ -293,8 +335,9 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
       // BOOKS_ENABLED on, BOOKS_YOUTUBE_SYNC_ENABLED off. This configuration is the entire claim of
       // SPEC §8.1: deleting is an obligation, so it may not depend on the feature's switch or on a
       // provider being reachable.
-      app = await bootApp({ BOOKS_ENABLED: 'true' });
-      await app.get(YoutubePurgeTarget).refresh();
+      const booted = await bootApp({ BOOKS_ENABLED: 'true' });
+      app = booted.app;
+      await purgeOnce(booted.purgeTarget);
 
       const remaining = await dataSource.getRepository(YoutubeVideoSnapshot).find();
       expect(remaining.map((row) => row.youtubeVideoId)).toEqual([second]);
@@ -308,8 +351,9 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
       if (first === undefined) throw new Error('no seeded video');
       await writeSnapshot(first, 700); // past SOFT, inside HARD
 
-      app = await bootApp({ BOOKS_ENABLED: 'true' });
-      await app.get(YoutubePurgeTarget).refresh();
+      const booted = await bootApp({ BOOKS_ENABLED: 'true' });
+      app = booted.app;
+      await purgeOnce(booted.purgeTarget);
 
       // Not served (the previous block proves that) and NOT deleted: the two thresholds do
       // different jobs, and a purge that used the soft one would destroy a recoverable row.
@@ -321,12 +365,17 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
       if (first === undefined) throw new Error('no seeded video');
       await writeSnapshot(first, 100);
 
-      app = await bootApp({
+      const booted = await bootApp({
         BOOKS_ENABLED: 'true',
         YOUTUBE_API_DATA_SOFT_MAX_AGE_HOURS: '12',
         YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS: '24',
+        // The boot cross-check bites here and the test has to respect it: a 24-hour ceiling
+        // demands a purge interval below (24 × 3600) / 24 = 3600 s, and the default sits exactly
+        // ON that limit. Lowering the ceiling really does mean purging more often.
+        BOOKS_PURGE_INTERVAL_SECONDS: '600',
       });
-      await app.get(YoutubePurgeTarget).refresh();
+      app = booted.app;
+      await purgeOnce(booted.purgeTarget);
 
       expect(await dataSource.getRepository(YoutubeVideoSnapshot).count()).toBe(0);
     });
@@ -342,12 +391,12 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
       // tours constructed and registered. B3's spy ran with the leg absent; this one runs with it
       // built, which is the state SPEC §8.5 is actually about. The base URL is unroutable, so even
       // a defect could not reach a provider from CI.
-      app = await bootApp({
+      ({ app } = await bootApp({
         BOOKS_ENABLED: 'true',
         BOOKS_YOUTUBE_SYNC_ENABLED: 'true',
         YOUTUBE_API_KEY: FAKE_KEY,
         YOUTUBE_DATA_API_BASE_URL: FAKE_API_BASE_URL,
-      });
+      }));
 
       // The spy is installed at boot and cleared there; the scheduled tour's first run is ten
       // seconds away, far beyond the life of these two requests.
