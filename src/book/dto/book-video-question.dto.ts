@@ -31,8 +31,9 @@ export class BookVideoQuestionDto {
     minimum: 0,
     example: 94,
     description:
-      "Whole seconds from the start of the video to this question's solution; handed to the " +
-      'player as ?start=<seconds>. DO NOT assume the first question starts at 0 — the measured ' +
+      "Whole seconds from the start of the video to this question's solution — the jump target " +
+      'handed to the player (DEC 2026-08-15d: the jump happens inside the loaded player, not by ' +
+      'rebuilding the embed URL). DO NOT assume the first question starts at 0 — the measured ' +
       'set of first-question seconds is {0, 2, 6, 11, 94}, so 0 is an ordinary value and not a ' +
       'sentinel.',
   })

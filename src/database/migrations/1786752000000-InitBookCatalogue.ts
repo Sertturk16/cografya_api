@@ -30,8 +30,10 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  *   UNIQUE constraint below already creates a unique B-tree index on exactly those columns in
  *   exactly that order, so SPEC §5.2's and §5.3's index lines are satisfied — a second identical
  *   index would pay twice for one access path.
- * - **No index on `books` beyond its unique constraints.** The table's ceiling is four rows
- *   (`CONVENTIONS.md` §5 fixes the book tier), so a `display_order` index would be pure write cost.
+ * - **No index on `books` beyond its unique constraints.** The tier is a fixed four-row set by
+ *   dated ruling (`DEC 2026-08-15c` §3, "4 satırlık sabit küme"), so a `display_order` index would
+ *   be pure write cost. The citation matters: `CONVENTIONS.md` §5 carries the book tier's IA row
+ *   and no row ceiling, so it cannot be what bounds this table.
  *
  * ## What is deliberately NOT here
  * - **No `slug_tr` / `slug_en` on `book_videos` or `book_video_questions`.** Playbook §5 requires
@@ -50,8 +52,25 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * ## Constraints
  * - `CHK_books_isbn13` pins exactly 13 digits. `char(13)` blank-pads a short value, and the padded
  *   value fails this pattern, so the padding cannot produce a silently accepted row.
- * - `CHK_books_cover_image_path` refuses anything that is not a host-less absolute path. It is
- *   what stops the column from ever becoming a remote image proxy; the api serves no image bytes.
+ * - `CHK_books_author_names` requires at least one author. `cardinality()` rather than
+ *   `array_length(…, 1)`, which returns NULL for `'{}'` — and a CHECK whose expression is NULL is
+ *   NOT a violation, so the obvious form would accept exactly the value it was written to reject.
+ *   The credit line is an attribution obligation, so an authorless row is a seeding defect rather
+ *   than a state.
+ * - `CHK_books_cover_image_path` is an ALLOWLIST — `~ '^/[A-Za-z0-9._~/-]+$'` together with
+ *   `NOT LIKE '//%'` — and it is written that way because the obvious form is not enough. The pair
+ *   `LIKE '/%' AND NOT LIKE '%://%'` reads as "absolute path, no scheme" and still ACCEPTS
+ *   `//cdn.example.com/kapak.jpg`, which every browser resolves as a remote URL; `/\host/x.jpg`
+ *   too, since the WHATWG URL parser treats `/\` as `//` for special schemes. This alphabet has no
+ *   `:`, no `\`, no `%` and no `@`, so it cannot express an authority at all, and the second
+ *   conjunct closes the empty-first-segment form the alphabet alone would still allow. That is what
+ *   stops the column from ever becoming a remote image proxy; the api serves no image bytes.
+ *   **The matrix this constraint must keep rejecting**, verified by hand against Postgres 16:
+ *   `//cdn.example.com/kapak.jpg`, `/\cdn.example.com/kapak.jpg`, `https://cdn.example.com/x.jpg`,
+ *   `kapak.jpg` (no leading slash) and `/` alone — with
+ *   `/kitaplar/ayt-cografya-konu-ozetli-brans-denemeleri.jpg` as the positive control proving the
+ *   expression is not vacuously false. B3 owns the automated version: SPEC §16 stages the e2e
+ *   invariants there, so until it lands this matrix is re-run by hand.
  * - `CHK_books_purchase_url` requires `https://`. The value becomes an `href` on a public page, so
  *   `javascript:`, `data:` and protocol-relative destinations are refused by the database rather
  *   than by whichever renderer happens to read it — and plain `http://` is refused because
@@ -62,6 +81,12 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  *   under two denemeler would publish one set of start seconds twice, and only one could be right.
  * - Both foreign keys are `ON DELETE CASCADE`: a deneme has no meaning without its book, and a
  *   start second none without its video.
+ * - **`book_videos.deneme_no <= books.deneme_count` is NOT enforced here, and cannot be.** A CHECK
+ *   sees one row of one table; the cross-table form needs a trigger, and a trigger is machinery
+ *   this catalogue has not earned (playbook §12: YAGNI is the default). `CHK_book_videos_deneme_no`
+ *   bounds the number at 1..999 and the rest is a **B2 seed obligation**: refuse a `denemeNo`
+ *   greater than its book's `denemeCount`, where both values are hand-read from the same künye and
+ *   a mismatch means one of the two readings is wrong.
  *
  * `down()` drops the three tables in dependency order, which takes their indexes and constraints
  * with them.
@@ -98,13 +123,17 @@ export class InitBookCatalogue1786752000000 implements MigrationInterface {
         CONSTRAINT "UQ_books_slug_tr" UNIQUE ("slug_tr"),
         CONSTRAINT "UQ_books_slug_en" UNIQUE ("slug_en"),
         CONSTRAINT "UQ_books_isbn13" UNIQUE ("isbn13"),
+        CONSTRAINT "CHK_books_author_names" CHECK (cardinality("author_names") > 0),
         CONSTRAINT "CHK_books_isbn13" CHECK ("isbn13" ~ '^[0-9]{13}$'),
         CONSTRAINT "CHK_books_page_count" CHECK ("page_count" > 0),
         CONSTRAINT "CHK_books_deneme_count" CHECK ("deneme_count" > 0),
         CONSTRAINT "CHK_books_cover_image_path"
           CHECK (
             "cover_image_path" IS NULL
-            OR ("cover_image_path" LIKE '/%' AND "cover_image_path" NOT LIKE '%://%')
+            OR (
+              "cover_image_path" ~ '^/[A-Za-z0-9._~/-]+$'
+              AND "cover_image_path" NOT LIKE '//%'
+            )
           ),
         CONSTRAINT "CHK_books_purchase_url"
           CHECK ("purchase_url" IS NULL OR "purchase_url" LIKE 'https://%')

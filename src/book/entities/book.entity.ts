@@ -16,9 +16,15 @@ import { ExamTrack } from '../book.types';
  * III.E.4.d). That boundary is written into the SCHEMA rather than into a comment — this table,
  * `book_videos` and `book_video_questions` are ours and never expire, while every API-sourced
  * field lives in `youtube_video_snapshots` and is deleted unconditionally. The payoff is
- * mechanical: "delete what is older than 30 days" is a `DELETE FROM`, so ADDING A COLUMN HERE CAN
- * NEVER WEAKEN THE POLICY. Had the API fields been nullable columns on these rows, the purge
- * would have been an `UPDATE … SET … = NULL` whose column list silently goes stale.
+ * mechanical: "delete what is older than 30 days" is a `DELETE FROM`, so no column added to the
+ * SNAPSHOT table can weaken the purge. Had the API fields been nullable columns on these rows, the
+ * purge would have been an `UPDATE … SET … = NULL` whose column list silently goes stale.
+ *
+ * What that does NOT buy — stated because the earlier wording claimed it did: adding a column
+ * **here** is not automatically safe. Putting an API-sourced value on this permanent table would
+ * put API Data outside the purge's reach entirely, which is a worse failure than a stale column
+ * list. The rule the split enforces is "API-sourced values live in the perishable table", and it
+ * is enforced by review, not by the schema.
  *
  * The consequence worth stating: the page is COMPLETE without the API. The künye, the denemeler,
  * the questions and the 180 start seconds are all ours; a total YouTube outage costs the
@@ -99,6 +105,10 @@ export class Book {
    * render order, the web detail page iterates it unsorted, and alphabetising it as a "tidy-up"
    * changes what the credit says. For this book the printed order is Murat Çakır, then Murat
    * Karagöz.
+   *
+   * At least one entry, enforced by `CHK_books_author_names`: the credit is an attribution
+   * obligation, so a row with nobody credited is a seeding defect rather than a state. A
+   * publisher-authored title is credited the way the book credits it (`Komisyon`), never as `[]`.
    */
   @Column({ name: 'author_names', type: 'text', array: true })
   authorNames!: string[];
@@ -148,9 +158,12 @@ export class Book {
   /**
    * Path to the cover image **inside the web repo's `public/`** — a relative path and nothing else.
    *
-   * The check constraint (`LIKE '/%'` and `NOT LIKE '%://%'`) is the point of the column rather
-   * than decoration: it makes it structurally impossible for this field to become a remote URL,
-   * and therefore impossible for it to turn into an image proxy or an SSRF surface. The api never
+   * The check constraint is the point of the column rather than decoration: an allowlist
+   * (`~ '^/[A-Za-z0-9._~/-]+$'` plus `NOT LIKE '//%'`) whose alphabet cannot express an authority,
+   * so this field cannot become a remote URL and therefore cannot turn into an image proxy or an
+   * SSRF surface. The obvious formulation would NOT have held — `LIKE '/%' AND NOT LIKE '%://%'`
+   * accepts `//cdn.example.com/kapak.jpg` and `/\cdn.example.com/kapak.jpg`, both of which a
+   * browser resolves remotely; the migration records the full rejection matrix. The api never
    * receives, stores or serves a byte of image data on this leg — there is no upload surface
    * (playbook §3.4 is not triggered, SPEC §4.3).
    *

@@ -31,7 +31,13 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * - **`youtube_video_id` is the primary key AND a foreign key** to
  *   `book_videos.youtube_video_id` (which carries its own UNIQUE constraint, so it is a legal
  *   target), `ON DELETE CASCADE`. A perishable row cannot outlive its permanent row: removing a
- *   deneme must not leave orphaned API Data ageing with nothing pointing at it. **B4 obligation:**
+ *   deneme must not leave orphaned API Data ageing with nothing pointing at it.
+ *   **`ON UPDATE` is deliberately absent, which leaves the `NO ACTION` default, and the asymmetry
+ *   with `ON DELETE` is the point.** Correcting a mis-seeded `book_videos.youtube_video_id` while
+ *   a snapshot exists must FAIL rather than cascade: this row describes the OLD video — its
+ *   duration, its thumbnail, its publication instant — so carrying it to a new id would silently
+ *   republish one video's provider data under another's. The FK error is the correct outcome; the
+ *   operator deletes the snapshot and lets the next tour refetch. **B4 obligation:**
  *   an FK violation on one id is that ROW's failure and the tour continues — a structural
  *   guarantee that can halt a fail-soft loop trades one failure mode for a worse one (the E1
  *   lesson, stated again here because it applies verbatim).

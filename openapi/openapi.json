@@ -3311,7 +3311,7 @@
             "type": "number",
             "minimum": 0,
             "example": 94,
-            "description": "Whole seconds from the start of the video to this question's solution; handed to the player as ?start=<seconds>. DO NOT assume the first question starts at 0 — the measured set of first-question seconds is {0, 2, 6, 11, 94}, so 0 is an ordinary value and not a sentinel."
+            "description": "Whole seconds from the start of the video to this question's solution — the jump target handed to the player (DEC 2026-08-15d: the jump happens inside the loaded player, not by rebuilding the embed URL). DO NOT assume the first question starts at 0 — the measured set of first-question seconds is {0, 2, 6, 11, 94}, so 0 is an ordinary value and not a sentinel."
           }
         },
         "required": [
@@ -3385,7 +3385,7 @@
           "youtubeVideoId": {
             "type": "string",
             "example": "dQw4w9WgXcQ",
-            "description": "The YouTube video id, 11 characters. Build the embed as https://www.youtube.com/embed/{id}?start={startSecond}. Load the iframe only on a click or key press, never on hover, and place nothing on top of it once it is in."
+            "description": "The YouTube video id, 11 characters — the identifier the embed is built from. Load the player only on a click or key press, never on hover, and place nothing on top of it once it is in. Moving between questions happens INSIDE the loaded player through the IFrame Player API, not by rebuilding the embed URL per question (owner ruling DEC 2026-08-15d): six questions per video would otherwise cost six full player reloads."
           },
           "questions": {
             "description": "The question index for this deneme, ascending by questionNo and by startSecond. It must be readable and clickable WITHOUT JavaScript: SEO-POLICY §12.2.b treats a page whose body exists to send the visitor elsewhere as a BLOCKER, and this index is what keeps the page on the right side of that line.",

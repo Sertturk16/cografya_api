@@ -8,10 +8,13 @@ import { ExamTrack } from '../book.types';
  * That is an Atlas ruling for the repo, not a per-endpoint preference (→ DEC 2026-08-15c §3). The
  * repo's `PaginationEnvelopeDto` was established by the earthquake list and playbook §2 binds it
  * to every list AFTER it — but the same section keeps the bounded-and-small case as a deliberate
- * plain array (the 81 provinces). The book tier is a fixed set with a ceiling of four rows
- * (`CONVENTIONS.md` §5), fully cacheable, where `page: 1, pageSize: 50, total: 1, hasMore: false`
- * would be furniture that never says anything else. The cost is recorded rather than glossed: if
- * this tier ever outgrows four rows, moving to the envelope is a BREAKING contract change.
+ * plain array (the 81 provinces). The book tier is a fixed four-row set by that same ruling
+ * (`DEC 2026-08-15c` §3, "4 satırlık sabit küme"), fully cacheable, where
+ * `page: 1, pageSize: 50, total: 1, hasMore: false` would be furniture that never says anything
+ * else. The bound is a RULING, not a product convention — `CONVENTIONS.md` §5 carries the book
+ * tier's IA row and no row ceiling, so it is not what this rests on. The cost is recorded rather
+ * than glossed: if this tier ever outgrows four rows, moving to the envelope is a BREAKING
+ * contract change.
  *
  * ## DTO tiers here are List + Detail, and no more
  * Playbook §2: no Response tier, because there is no write endpoint and nothing to echo. There is

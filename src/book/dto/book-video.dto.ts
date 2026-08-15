@@ -28,9 +28,11 @@ export class BookVideoDto {
     type: String,
     example: 'dQw4w9WgXcQ',
     description:
-      'The YouTube video id, 11 characters. Build the embed as ' +
-      'https://www.youtube.com/embed/{id}?start={startSecond}. Load the iframe only on a click ' +
-      'or key press, never on hover, and place nothing on top of it once it is in.',
+      'The YouTube video id, 11 characters — the identifier the embed is built from. Load the ' +
+      'player only on a click or key press, never on hover, and place nothing on top of it once ' +
+      'it is in. Moving between questions happens INSIDE the loaded player through the IFrame ' +
+      'Player API, not by rebuilding the embed URL per question (owner ruling DEC 2026-08-15d): ' +
+      'six questions per video would otherwise cost six full player reloads.',
   })
   youtubeVideoId!: string;
 

@@ -85,12 +85,15 @@ dated ruling in `DECISIONS.md`. It is the local source of truth for how code lan
 
   **"Every list after" has one ruled exception so far, and it is the bounded case above rather
   than a new rule:** `GET /api/books` returns a **plain typed array** of `BookListItemDto`, no
-  envelope, no pagination (→ `DEC 2026-08-15c` §3). The book tier is a fixed set with a ceiling of
-  four rows (`CONVENTIONS.md` §5), fully cacheable, where the four envelope keys would never say
-  anything but `page: 1, pageSize: 50, total: N, hasMore: false`. **The test is BOUNDED-BY-RULING,
-  not "small today"** — the provinces (81) and the books (≤4) are both fixed by a product rule,
-  while blog posts, topics and events are not. The cost is recorded with the ruling: if a tier like
-  this ever outgrows its ceiling, moving it to the envelope is a BREAKING contract change.
+  envelope, no pagination. The book tier is a fixed four-row set by that same ruling
+  (`DEC 2026-08-15c` §3, "4 satırlık sabit küme"), fully cacheable, where the four envelope keys
+  would never say anything but `page: 1, pageSize: 50, total: N, hasMore: false`. **The test is
+  BOUNDED-BY-RULING, not "small today"** — the provinces (81) and the books (≤4) are each bounded
+  by something outside the endpoint, while blog posts, topics and events are not. **The bound is
+  the ruling itself; `CONVENTIONS.md` §5 carries the book tier's IA row and no row ceiling**, so a
+  citation pointing there for the ceiling is a dangling one. The cost is recorded with the ruling:
+  if a tier like this ever outgrows its ceiling — a fifth book is a partner decision, not a
+  product impossibility — moving it to the envelope is a BREAKING contract change.
 
   Core five ruled by `DEC 2026-08-12k` §2; the `meta` form by §7. `page`/`pageSize`/
   `total`/`hasMore` are inherited from `src/common/dto/pagination-envelope.dto.ts`;
