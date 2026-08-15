@@ -107,9 +107,13 @@ export class YoutubeRefreshTarget implements ScheduledWarmupTarget {
 
     const usableIds = ids.filter((id) => VIDEO_ID_PATTERN.test(id));
     if (usableIds.length !== ids.length) {
+      // The ids are NAMED, not merely counted. They are catalogue data — the same strings the
+      // public payload already carries — so nothing here is a secret, and a count alone leaves the
+      // operator to find the offending row by hand in a table of thirty near-identical ones.
+      const unusable = ids.filter((id) => !VIDEO_ID_PATTERN.test(id));
       this.logger.error(
-        `refresh tour: ${String(ids.length - usableIds.length)} catalogue id(s) do not match the ` +
-          'expected 11-character shape and were not sent',
+        `refresh tour: ${String(unusable.length)} catalogue id(s) do not match the expected ` +
+          `11-character shape and were not sent: ${JSON.stringify(unusable)}`,
       );
     }
     if (usableIds.length === 0) return;
@@ -124,89 +128,128 @@ export class YoutubeRefreshTarget implements ScheduledWarmupTarget {
     let written = 0;
     let refused = 0;
     let writeFailed = 0;
+    let notReturned = 0;
     let newlyMissing = 0;
     let chunksFailed = 0;
     let chunksSkipped = 0;
 
-    for (const chunk of chunkIds(usableIds, VIDEOS_LIST_MAX_IDS)) {
-      if (deadline.hasExpired()) {
-        chunksSkipped += 1;
-        continue;
-      }
+    // Everything below runs inside a `try`, and the accounting below it inside the matching
+    // `finally`, because a store failure late in the loop would otherwise discard the whole tour's
+    // counters: a tour that wrote thirty rows and then threw would report `snapshot_written = 0`
+    // beside one `sync_bug` ERROR. Misreported is worse than lost — the numbers are what an
+    // operator reads to decide whether the leg is healthy.
+    try {
+      for (const chunk of chunkIds(usableIds, VIDEOS_LIST_MAX_IDS)) {
+        if (deadline.hasExpired()) {
+          chunksSkipped += 1;
+          continue;
+        }
 
-      const outcome = await this.deps.client.request<ParsedVideosList>({
-        providerId: YOUTUBE_DATA_PROVIDER,
-        label: 'youtube.videos.list',
-        url: this.buildVideosListUrl(chunk),
-        deadline,
-        limits: config.budget,
-        singleCallTimeoutMs: config.singleCallTimeoutMs,
-        maxResponseBytes: config.responseMaxBytes,
-        // The key travels in the header, never in the query string — the form verified live against
-        // Data API v3 (SPEC §8.4). Nothing else about the request identifies us; the shared client
-        // adds the User-Agent and the Accept header.
-        headers: { 'X-goog-api-key': config.apiKey },
-        // A provider that echoes a rejected credential into an error body would otherwise put it in
-        // a line logged at ERROR: the pattern-based redactor cannot see a bare key.
-        redactBody: this.redact,
-        parse: (body: string) => ({ kind: 'ok', value: parseVideosListResponse(body) }),
-      });
+        const outcome = await this.deps.client.request<ParsedVideosList>({
+          providerId: YOUTUBE_DATA_PROVIDER,
+          label: 'youtube.videos.list',
+          url: this.buildVideosListUrl(chunk),
+          deadline,
+          limits: config.budget,
+          singleCallTimeoutMs: config.singleCallTimeoutMs,
+          maxResponseBytes: config.responseMaxBytes,
+          // The key travels in the header, never in the query string — the form verified live
+          // against Data API v3 (SPEC §8.4). Nothing else about the request identifies us; the
+          // shared client adds the User-Agent and the Accept header.
+          headers: { 'X-goog-api-key': config.apiKey },
+          // A provider that echoes a rejected credential into an error body would otherwise put it
+          // in a line logged at ERROR: the pattern-based redactor cannot see a bare key.
+          redactBody: this.redact,
+          parse: (body: string) => ({ kind: 'ok', value: parseVideosListResponse(body) }),
+        });
 
-      if (outcome.kind !== 'ok') {
-        // Already logged by the shared client with the provider, the label and the redacted reason.
-        // NOT marked missing — see the class note.
-        chunksFailed += 1;
-        continue;
-      }
+        if (outcome.kind !== 'ok') {
+          // Already logged by the shared client with the provider, the label and the redacted
+          // reason. NOT marked missing — see the class note.
+          chunksFailed += 1;
+          continue;
+        }
 
-      const fetchedAtUtc = new Date(this.now());
-      for (const input of outcome.value.accepted) {
-        try {
-          await this.deps.store.upsertSnapshot(input, fetchedAtUtc);
-          written += 1;
-        } catch (error: unknown) {
-          writeFailed += 1;
-          this.deps.metrics.increment('books.row_write_failed', YOUTUBE_DATA_PROVIDER);
+        const fetchedAtUtc = new Date(this.now());
+        for (const input of outcome.value.accepted) {
+          try {
+            await this.deps.store.upsertSnapshot(input, fetchedAtUtc);
+            written += 1;
+          } catch (error: unknown) {
+            writeFailed += 1;
+            this.deps.metrics.increment('books.row_write_failed', YOUTUBE_DATA_PROVIDER);
+            this.logger.warn(
+              `snapshot for ${input.youtubeVideoId} was not written — ${this.describe(error)}`,
+            );
+          }
+        }
+
+        for (const rejection of outcome.value.rejected) {
+          refused += 1;
+          this.deps.metrics.increment('books.snapshot_refused', YOUTUBE_DATA_PROVIDER);
           this.logger.warn(
-            `snapshot for ${input.youtubeVideoId} was not written — ${this.describe(error)}`,
+            `snapshot for ${rejection.youtubeVideoId} refused — ${this.redact(rejection.reason)}`,
           );
         }
+
+        // Asked and not returned AT ALL. An id the response carried but this leg refused is a data
+        // quality failure, already counted above, and must not be recorded as a disappearance.
+        const returned = new Set([
+          ...outcome.value.accepted.map((row) => row.youtubeVideoId),
+          ...outcome.value.rejected.map((row) => row.youtubeVideoId),
+        ]);
+        const absent = chunk.filter((id) => !returned.has(id));
+        if (absent.length > 0) {
+          // TWO counts, deliberately not one (#111 CODE111-I1). `newlyMissing` is what `markMissing`
+          // touched — UPDATE-affected rows — so an id with no snapshot row at all (a seed typo, or a
+          // video deleted before the first successful tour, or one whose row the purge has since
+          // removed) affects zero rows and moves nothing. That is the SILENT case: the health check
+          // SPEC §4.1 item 4 exists for would report a byte-identical healthy line forever.
+          // `notReturned` counts what was ASKED and did not come back, whatever the store did with
+          // it, and it is what the WARN predicate below reads.
+          notReturned += absent.length;
+          // Named for the same reason as the malformed ids above: catalogue data, not a secret, and
+          // the absent ids appeared in no log line anywhere in the tour before this one.
+          this.logger.warn(
+            `refresh tour: ${String(absent.length)} requested id(s) were not returned by ` +
+              `videos.list: ${JSON.stringify(absent)}`,
+          );
+          newlyMissing += await this.deps.store.markMissing(absent, fetchedAtUtc);
+        }
+      }
+    } finally {
+      this.deps.metrics.increment('books.snapshot_written', YOUTUBE_DATA_PROVIDER, written);
+      this.deps.metrics.increment('books.video_missing', YOUTUBE_DATA_PROVIDER, newlyMissing);
+
+      const summary =
+        `refresh tour done — ${String(written)} written, ${String(refused)} refused, ` +
+        `${String(writeFailed)} write-failed, ${String(notReturned)} not returned, ` +
+        `${String(newlyMissing)} newly missing, ${String(chunksFailed)} chunk(s) failed, ` +
+        `${String(chunksSkipped)} chunk(s) skipped`;
+      // "Not returned" is the dead-video health check (SPEC §4.1 item 4, risk R1) and the correction
+      // is NOT automatic: a re-uploaded video is a new id whose 6 start seconds must be measured
+      // again, which is an owner's job. So it is stated at WARN, where it is looked at, not at debug.
+      // `newlyMissing > 0` is deliberately NOT a term here: it can only be non-zero when
+      // `notReturned` already is, so it would be a condition that cannot decide anything.
+      if (notReturned > 0 || writeFailed > 0 || chunksFailed > 0) {
+        this.logger.warn(summary);
+      } else {
+        this.logger.log(summary);
       }
 
-      for (const rejection of outcome.value.rejected) {
-        refused += 1;
-        this.deps.metrics.increment('books.snapshot_refused', YOUTUBE_DATA_PROVIDER);
-        this.logger.warn(
-          `snapshot for ${rejection.youtubeVideoId} refused — ${this.redact(rejection.reason)}`,
+      // One bad row and a broken write path produce the same per-row WARNs, thirty times a day,
+      // and never an ERROR — while every page silently loses its enrichment at twenty-five days.
+      // Nothing written AND something refused by the database is the shape only the systemic
+      // failure has (a tour with no accepted rows at all reaches neither branch).
+      // No counter of its own: `books.row_write_failed` already counts every refusal, and reusing
+      // `books.sync_bug` — which means "an exception escaped our handling" — would make two
+      // different facts indistinguishable. The LEVEL is the escalation.
+      if (written === 0 && writeFailed > 0) {
+        this.logger.error(
+          `refresh tour wrote NOTHING while the database refused ${String(writeFailed)} row(s) — ` +
+            'this is a systemic write failure, not one bad row',
         );
       }
-
-      // Asked and not returned AT ALL. An id the response carried but this leg refused is a data
-      // quality failure, already counted above, and must not be recorded as a disappearance.
-      const returned = new Set([
-        ...outcome.value.accepted.map((row) => row.youtubeVideoId),
-        ...outcome.value.rejected.map((row) => row.youtubeVideoId),
-      ]);
-      const absent = chunk.filter((id) => !returned.has(id));
-      if (absent.length > 0) {
-        newlyMissing += await this.deps.store.markMissing(absent, fetchedAtUtc);
-      }
-    }
-
-    this.deps.metrics.increment('books.snapshot_written', YOUTUBE_DATA_PROVIDER, written);
-    this.deps.metrics.increment('books.video_missing', YOUTUBE_DATA_PROVIDER, newlyMissing);
-
-    const summary =
-      `refresh tour done — ${String(written)} written, ${String(refused)} refused, ` +
-      `${String(writeFailed)} write-failed, ${String(newlyMissing)} newly missing, ` +
-      `${String(chunksFailed)} chunk(s) failed, ${String(chunksSkipped)} chunk(s) skipped`;
-    // Newly missing is the dead-video health check (SPEC §4.1 item 4, risk R1) and the correction is
-    // NOT automatic: a re-uploaded video is a new id whose 6 start seconds must be measured again,
-    // which is an owner's job. So it is stated at WARN, where it is looked at, not at debug.
-    if (newlyMissing > 0 || writeFailed > 0 || chunksFailed > 0) {
-      this.logger.warn(summary);
-    } else {
-      this.logger.log(summary);
     }
   }
 

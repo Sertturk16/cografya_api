@@ -60,15 +60,26 @@ export interface BookYoutubeSyncConfig {
    */
   readonly refreshEnabled: boolean;
   /**
-   * `BOOKS_ENABLED` alone — and the asymmetry with {@link refreshEnabled} is the most important
-   * decision in this leg (SPEC §8.1).
+   * **Always `true` — the purge is gated on NOTHING**, and the asymmetry with
+   * {@link refreshEnabled} is the most important decision in this leg (SPEC §8.1).
    *
    * Deleting expired API Data is an OBLIGATION, not a feature, so it may not hang off the feature's
    * switch: were the purge a step of the refresh tour, it would stop silently in the two states
    * where it matters most — a provider outage (the tour fails before reaching it) and the kill
    * switch being thrown (the tour never runs). Both would let data pass 30 calendar days.
+   *
+   * This field read `BOOKS_ENABLED` until the #111 review, and that was the same mistake one level
+   * up: an operator retiring the feature through the documented switch would have stopped the
+   * compliance delete while the rows stayed in Postgres, with no log, counter or symptom to say so.
+   * The SPEC said `BOOKS_ENABLED` in §8.1's table and "koşulsuz" in §4.1 and §9.1 — it contradicted
+   * itself, and the Atlas ruling of 2026-08-15 resolved it towards the unconditional reading and
+   * corrected the table.
+   *
+   * It stays a FIELD rather than becoming a literal at the construction site because it is the one
+   * place this decision is written as code: a future ruling that re-gates the purge changes this
+   * line, and every reader of the leg passes through here.
    */
-  readonly purgeEnabled: boolean;
+  readonly purgeEnabled: true;
   /** API root; `/videos` is appended by the URL builder. */
   readonly baseUrl: string;
   /**
@@ -124,7 +135,8 @@ export function buildBookYoutubeSyncConfig(
   return {
     refreshEnabled:
       booksEnabled && config.getOrThrow('BOOKS_YOUTUBE_SYNC_ENABLED', { infer: true }),
-    purgeEnabled: booksEnabled,
+    // Deliberately NOT `booksEnabled`, and deliberately not any other env value — see the field.
+    purgeEnabled: true,
     baseUrl: config.getOrThrow('YOUTUBE_DATA_API_BASE_URL', { infer: true }),
     apiKey: config.get('YOUTUBE_API_KEY', { infer: true }) ?? null,
     intervalSeconds: config.getOrThrow('YOUTUBE_SYNC_INTERVAL_SECONDS', { infer: true }),

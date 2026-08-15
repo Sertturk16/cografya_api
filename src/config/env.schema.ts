@@ -631,8 +631,15 @@ export const envSchema = z
         'deleted, or the middle state the contract publishes as `youtube: null` does not exist',
     });
 
-    // 4. The purge must run OBVIOUSLY often relative to the ceiling it enforces. Otherwise "at most
-    //    30 days" is really 30 days plus however long the next purge takes to arrive.
+    // 4. The purge must run OBVIOUSLY often relative to the ceiling it enforces.
+    //    Stated precisely, because the loose version overclaimed: this check does NOT remove the
+    //    "30 days plus one purge interval" overrun — a timer cannot — it BOUNDS it. A row is deleted
+    //    on the first tour after it crosses the ceiling, so the worst case is
+    //    `hard + BOOKS_PURGE_INTERVAL_SECONDS`, and this bound caps that interval at a twenty-fourth
+    //    of the ceiling: up to 30 h at the default 720 h. At the DEFAULT interval (1 h) the real
+    //    worst case is 721 h; an operator who raises the interval to a legal-but-lax 29 h buys
+    //    himself 749 h. Removing the overrun entirely would take a much tighter bound (the soft/hard
+    //    gap), which is a mechanism change and not this check's job.
     checkEnvBound(ctx, {
       kind: 'must-be-smaller-than',
       subject: 'BOOKS_PURGE_INTERVAL_SECONDS',

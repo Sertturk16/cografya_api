@@ -1,11 +1,13 @@
 /**
  * The "this number may not pass that number" cross-check, written once.
  *
- * `src/config/env.schema.ts` runs thirteen of them in one `superRefine`: a single call against an
+ * `src/config/env.schema.ts` runs eighteen of them in one `superRefine`: a single call against an
  * operation budget, a tour slice against the tour that hosts it, a value TTL against the staleness
- * ceiling, a deadline against the interval that repeats it. Each is nine to eleven lines and only
- * four things differ between them — the two operands, the comparison, and the sentence explaining
- * WHY the configuration cannot mean what it says.
+ * ceiling, a deadline against the interval that repeats it. Thirteen are still written out by hand
+ * — each nine to eleven lines, of which only four things differ: the two operands, the comparison,
+ * and the sentence explaining WHY the configuration cannot mean what it says — while the five the
+ * book leg added (B4) go through this helper. Both counts are pinned in `env-bounds.spec.ts`, one
+ * per form, so neither can grow silently.
  *
  * ## The reason is a PARAMETER, never a template
  * That explanation is the valuable half. "A single call cannot be allowed more time than the whole
@@ -112,10 +114,11 @@ export interface EnvIssueCollector {
  * ## A non-finite operand REFUSES, and does not compose the normal message
  * `NaN > x` and `NaN >= x` are both `false`, so without this a bound whose operands could not be
  * computed reports itself SOUND and the boot continues — the one outcome a boot guard must never
- * produce. No caller can reach it today (all nineteen operands are
+ * produce. No caller can reach it today (every operand the schema passes is declared
  * `z.coerce.number().int().positive()`, and a field that fails never reaches `superRefine` at
  * all), so this is hardening rather than a repair; it lives here because this function is the
- * single funnel every present and future cross-check passes through.
+ * single funnel every present and future cross-check passes through. The count of those operands is
+ * deliberately not stated: it moves with every leg, and a number here would rot rather than guard.
  *
  * It gets its own wording on purpose. "Could not be compared" is a different fact from "this
  * configuration cannot mean what it says", and reusing the {@link EnvBoundCheck.reason} sentence

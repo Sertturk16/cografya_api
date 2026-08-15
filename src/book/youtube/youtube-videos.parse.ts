@@ -21,8 +21,10 @@ import { parseDurationWithRoundTrip } from './iso8601-duration';
  *  - the id is present, is the 11-character YouTube shape and fits `varchar(16)`;
  *  - `contentDetails.duration` parses AND survives the round trip (SPEC §5.4), and is > 0 — the
  *    table's own `CHECK` says a zero-length video solution is a defect, not a state;
- *  - a thumbnail rung exists with a non-empty URL and POSITIVE integer dimensions (the facade
- *    reserves its box from them, so a zero would ship a layout shift);
+ *  - a thumbnail rung exists with a bounded `https` URL and POSITIVE integer dimensions (the facade
+ *    reserves its box from them, so a zero would ship a layout shift; the URL is the one provider
+ *    string this leg republishes to a reader, so it is the one that carries a scheme and a length
+ *    check);
  *  - `snippet.publishedAt` is a real instant;
  *  - `status.embeddable` is a boolean and `status.privacyStatus` a non-empty string that fits
  *    `varchar(16)`.
@@ -166,7 +168,14 @@ function readItem(item: unknown): YoutubeSnapshotInput | RejectedVideo {
   if (typeof publishedAtRaw !== 'string') return reject('`snippet.publishedAt` is not a string');
   const publishedAtUtc = new Date(publishedAtRaw);
   if (Number.isNaN(publishedAtUtc.getTime())) {
-    return reject(`\`snippet.publishedAt\` is not a readable instant: "${publishedAtRaw}"`);
+    // SLICED and ESCAPED, in that order. This reason reaches a WARN line, and a provider value can
+    // be any length and carry any byte: unbounded it is a giant log line (up to 50 a tour), and
+    // un-escaped a newline forges a second log entry. `JSON.stringify` quotes and escapes;
+    // `slice(64)` is the repo's own `ads-jobs.ts` discipline, at a width that still shows what
+    // arrived. A timestamp needs 20 characters, so nothing diagnostic is lost.
+    return reject(
+      `\`snippet.publishedAt\` is not a readable instant: ${JSON.stringify(publishedAtRaw.slice(0, 64))}`,
+    );
   }
 
   const durationIso: unknown = contentDetails.duration;
@@ -224,13 +233,47 @@ interface SelectedThumbnail {
 }
 
 /**
+ * The ceiling on a thumbnail URL, in characters.
+ *
+ * The column is `text` — unbounded — and this value is REPUBLISHED into the public payload and into
+ * `VideoObject` structured data, so it is the one provider string that reaches a reader. A real rung
+ * URL is around seventy characters (`https://i.ytimg.com/vi/<11 chars>/maxresdefault.jpg`); 512
+ * leaves an order of magnitude of headroom and is still a bound.
+ */
+const MAX_THUMBNAIL_URL_LENGTH = 512;
+
+/**
+ * A URL we are willing to store and republish: parseable, `https:`, and inside the ceiling.
+ *
+ * `https` specifically, not "a valid URL": the payload is embedded in an HTTPS page, so an `http:`
+ * address is a mixed-content image that will not load, and a `javascript:` or `data:` one is a
+ * provider-controlled string arriving where a reader's browser resolves it. Nothing downstream
+ * re-validates — `book.service.ts` republishes the column exactly as stored, by design — so this is
+ * the only gate on the path.
+ */
+function isPublishableThumbnailUrl(url: string): boolean {
+  if (url.length > MAX_THUMBNAIL_URL_LENGTH) return false;
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return false;
+  }
+  return parsed.protocol === 'https:';
+}
+
+/**
  * The first rung of the ladder the provider actually returned, complete.
  *
- * "Complete" is the operative word: a rung whose dimensions are missing, zero or fractional is
- * SKIPPED rather than repaired, and the walk continues down the ladder. A smaller cover is a
- * cosmetic loss; a fabricated dimension is a layout shift on every visit, and a constructed URL
- * would breach Developer Policies III.E.5 outright — which is why nothing here ever builds an
- * address from the video id (SPEC §4.4).
+ * "Complete" is the operative word: a rung whose dimensions are missing, zero or fractional — or
+ * whose URL is not a bounded `https` address — is SKIPPED rather than repaired, and the walk
+ * continues down the ladder. A smaller cover is a cosmetic loss; a fabricated dimension is a layout
+ * shift on every visit, and a constructed URL would breach Developer Policies III.E.5 outright —
+ * which is why nothing here ever builds an address from the video id (SPEC §4.4).
+ *
+ * **Refusing DOWN the ladder rather than refusing the item** is deliberate: one odd rung costs a
+ * sharper cover, while rejecting the video costs its whole enrichment. The item is only refused when
+ * no rung survives, which is the existing behaviour.
  */
 function selectThumbnail(thumbnails: unknown): SelectedThumbnail | null {
   if (!isRecord(thumbnails)) return null;
@@ -243,6 +286,7 @@ function selectThumbnail(thumbnails: unknown): SelectedThumbnail | null {
     const width: unknown = rung.width;
     const height: unknown = rung.height;
     if (typeof url !== 'string' || url.length === 0) continue;
+    if (!isPublishableThumbnailUrl(url)) continue;
     if (typeof width !== 'number' || !Number.isInteger(width) || width <= 0) continue;
     if (typeof height !== 'number' || !Number.isInteger(height) || height <= 0) continue;
 

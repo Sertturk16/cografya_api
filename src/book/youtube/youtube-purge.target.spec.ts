@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from '@jest/globals';
 import { UpstreamMetrics } from '../../upstream/upstream-metrics';
 import type { YoutubeSnapshotStorePort } from './youtube-snapshot.store';
-import { YoutubePurgeTarget } from './youtube-purge.target';
+import { YoutubePurgeTarget, type YoutubePurgeTargetDeps } from './youtube-purge.target';
 import { YOUTUBE_DATA_BUDGET, YOUTUBE_DATA_PROVIDER } from './youtube-sync.config';
 import type { BookYoutubeSyncConfig } from './youtube-sync.config';
 
@@ -103,12 +103,31 @@ describe('YoutubePurgeTarget', () => {
     expect(metrics.get('books.purge_failed', YOUTUBE_DATA_PROVIDER)).toBe(1);
   });
 
+  it('counts that it RAN even when it deleted nothing — the liveness half', async () => {
+    // `books.snapshot_purged` stays at zero forever on a healthy leg, which reads exactly like a
+    // purge that was never scheduled. This counter is the difference, and it is the only positive
+    // compliance evidence the leg emits: the healthy no-op logs at DEBUG, off in production.
+    await tour(build());
+    expect(metrics.get('books.purge_ran', YOUTUBE_DATA_PROVIDER)).toBe(1);
+    expect(metrics.get('books.snapshot_purged', YOUTUBE_DATA_PROVIDER)).toBe(0);
+
+    store.shouldThrow = true;
+    await tour(build());
+    // A FAILED statement is not a run. The two counters diverging is the alarm.
+    expect(metrics.get('books.purge_ran', YOUTUBE_DATA_PROVIDER)).toBe(1);
+    expect(metrics.get('books.purge_failed', YOUTUBE_DATA_PROVIDER)).toBe(1);
+  });
+
   it('is structurally incapable of an external call — it has no client to make one with', () => {
     // SPEC §8.1 gives the purge tour "network: no". That is not a promise this class keeps, it is
-    // a shape it cannot break: the dependency does not exist. Asserted through the constructor's
-    // own surface so the day somebody adds a client, this line stops compiling.
-    const deps = { store, config: CONFIG, metrics, now: () => NOW_MS };
-    expect(Object.keys(deps).sort()).toEqual(['config', 'metrics', 'now', 'store']);
-    expect(build()).toBeInstanceOf(YoutubePurgeTarget);
+    // a shape it cannot break: the dependency does not exist.
+    //
+    // The guard is the TYPE ANNOTATION, not an assertion. `Object.keys` over a literal this test
+    // wrote could only ever return what this test put in it — a tautology that would keep passing
+    // while `YoutubePurgeTargetDeps` grew a client (PR #111 TEST111-M4). Annotated, adding a
+    // required dependency stops this file compiling, and `Typecheck & Lint` is where that surfaces.
+    // The honest limit: an OPTIONAL new dependency would still compile.
+    const deps: YoutubePurgeTargetDeps = { store, config: CONFIG, metrics, now: () => NOW_MS };
+    expect(new YoutubePurgeTarget(deps)).toBeInstanceOf(YoutubePurgeTarget);
   });
 });

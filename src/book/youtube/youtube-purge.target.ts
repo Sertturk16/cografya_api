@@ -23,14 +23,17 @@ export interface YoutubePurgeTargetDeps {
  * call" is not a promise this class keeps — it is a shape it cannot break. The one thing it needs is
  * the database.
  *
- * ## Why it is a SEPARATE tour from the refresh
+ * ## Why it is a SEPARATE tour from the refresh, and gated on NOTHING
  * This is the most important structural decision in the leg. As a step of the refresh tour, the
  * delete would stop silently in exactly the two states where the 30-day ceiling matters: a provider
  * outage (the tour fails before reaching it) and the kill switch being thrown
  * (`BOOKS_YOUTUBE_SYNC_ENABLED=false` — the tour never runs). Deleting expired API Data is an
  * OBLIGATION under Developer Policies III.E.4.d, and an obligation may not hang off a feature's
- * switch or off a provider being reachable. So it runs on its own timer, gated by `BOOKS_ENABLED`
- * alone, at its own interval, and it is proved independent by an e2e that turns the sync OFF.
+ * switch or off a provider being reachable. So it runs on its own timer, at its own interval, on
+ * **no switch at all** — not even `BOOKS_ENABLED`, which would have reintroduced the same defect
+ * one level up (Atlas ruling 2026-08-15, PR #111 SEC111-I1) — and it takes **no Redis lock**, since
+ * a lock that protects nothing here would still suspend the delete when Redis is unreachable
+ * (SEC111-I2). The e2e boots with every book switch OFF and asserts the row is still deleted.
  *
  * The honest limit, recorded rather than solved: an application that does not run for 30 days
  * deletes nothing. It also publishes nothing in that period, so no expired snapshot is served — the
@@ -60,6 +63,11 @@ export class YoutubePurgeTarget implements ScheduledWarmupTarget {
 
     try {
       const deleted = await this.deps.store.purgeOlderThan(cutoffUtc);
+      // Incremented BEFORE the zero branch returns, and that ordering is the whole point: "the
+      // purge ran and found nothing" and "the purge has not run since the deploy" were otherwise
+      // indistinguishable from outside the process, because the healthy no-op below logs at DEBUG
+      // and DEBUG is off in production. This counter is the leg's positive compliance evidence.
+      this.deps.metrics.increment('books.purge_ran', YOUTUBE_DATA_PROVIDER);
       if (deleted === 0) {
         // The steady state on a healthy leg: a daily refresh keeps every row far below the ceiling,
         // so nothing to delete is the NORMAL outcome and must not fill the log.

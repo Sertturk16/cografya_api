@@ -1,4 +1,5 @@
-import { beforeEach, describe, expect, it } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { Logger } from '@nestjs/common';
 import { CircuitBreaker } from '../../upstream/circuit-breaker';
 import { OperationDeadline } from '../../upstream/operation-deadline';
 import { ProviderBudget } from '../../upstream/provider-budget';
@@ -75,6 +76,15 @@ class FakeStore implements YoutubeSnapshotStorePort {
   readonly purged: Date[] = [];
   failWritesFor = new Set<string>();
   listShouldThrow = false;
+  /**
+   * What `markMissing` reports as AFFECTED, or `null` to report "all of them".
+   *
+   * Configurable because the default — returning `ids.length` — is a lie the real store cannot
+   * tell: the UPDATE carries `AND missing_since_utc IS NULL`, so an id with no snapshot row at all,
+   * or one already stamped, affects ZERO rows. Hard-coding `ids.length` made this suite
+   * structurally incapable of observing the case CODE111-I1 is about.
+   */
+  markMissingAffected: number | null = null;
 
   constructor(private readonly ids: string[]) {}
 
@@ -93,7 +103,7 @@ class FakeStore implements YoutubeSnapshotStorePort {
 
   markMissing(youtubeVideoIds: readonly string[]): Promise<number> {
     this.markedMissing.push([...youtubeVideoIds]);
-    return Promise.resolve(youtubeVideoIds.length);
+    return Promise.resolve(this.markMissingAffected ?? youtubeVideoIds.length);
   }
 
   purgeOlderThan(cutoffUtc: Date): Promise<number> {
@@ -173,6 +183,10 @@ describe('YoutubeRefreshTarget', () => {
     expect(store.upserted.map((row) => row.input.youtubeVideoId)).toEqual(ids);
     expect(store.upserted[0]?.input.thumbnailKey).toBe(YoutubeThumbnailKey.Maxres);
     expect(store.markedMissing).toEqual([]);
+    // The COUNTER, not only the store call: it is what an operator watches, and a counter that
+    // silently stays at zero is the failure mode this leg has already produced once.
+    expect(metrics.get('books.snapshot_written', YOUTUBE_DATA_PROVIDER)).toBe(3);
+    expect(metrics.get('books.video_missing', YOUTUBE_DATA_PROVIDER)).toBe(0);
   });
 
   it('stamps every row of one tour with the SAME fetched instant', async () => {
@@ -254,6 +268,39 @@ describe('YoutubeRefreshTarget', () => {
       await tour(build(store, () => ok([apiItem(ids[0] ?? '')])));
 
       expect(store.markedMissing).toEqual([[videoId(2)]]);
+      expect(metrics.get('books.video_missing', YOUTUBE_DATA_PROVIDER)).toBe(1);
+    });
+
+    it('names the absent ids in a WARN, and still reports the tour when the store stamped NOTHING', async () => {
+      // CODE111-I1, at the level the defect lives. `markMissing` returns rows AFFECTED, so an id
+      // with no snapshot row — a seed typo, or a video whose row the purge already removed — stamps
+      // zero. Everything downstream used to read that number, so the health check the SPEC §4.1
+      // item 4 asks for reported a byte-identical healthy line forever and the absent id appeared
+      // in no log line anywhere in the tour.
+      const ids = [videoId(1), videoId(2)];
+      const store = new FakeStore(ids);
+      store.markMissingAffected = 0;
+
+      const warnings: string[] = [];
+      const warnSpy = jest
+        .spyOn(Logger.prototype, 'warn')
+        .mockImplementation((message: unknown) => {
+          warnings.push(String(message));
+        });
+      try {
+        await tour(build(store, () => ok([apiItem(ids[0] ?? '')])));
+      } finally {
+        warnSpy.mockRestore();
+      }
+
+      // The id itself, not a count.
+      expect(warnings.some((line) => line.includes(videoId(2)))).toBe(true);
+      // And the tour summary is a WARN carrying BOTH counts, distinct: one asked-and-not-returned,
+      // zero newly stamped. Reporting only the second is what made the health check silent.
+      const summary = warnings.find((line) => line.startsWith('refresh tour done'));
+      expect(summary).toBeDefined();
+      expect(summary ?? '').toContain('1 not returned');
+      expect(summary ?? '').toContain('0 newly missing');
     });
 
     it('does NOT mark anything when the call FAILED — the outage that would blank the site', async () => {

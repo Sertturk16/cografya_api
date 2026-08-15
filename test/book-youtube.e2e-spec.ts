@@ -7,6 +7,10 @@ import { YoutubeThumbnailKey } from '../src/book/book.types';
 import { BookVideo } from '../src/book/entities/book-video.entity';
 import { YoutubeVideoSnapshot } from '../src/book/entities/youtube-video-snapshot.entity';
 import type { YoutubePurgeTarget } from '../src/book/youtube/youtube-purge.target';
+import {
+  YoutubeSnapshotStore,
+  type YoutubeSnapshotStorePort,
+} from '../src/book/youtube/youtube-snapshot.store';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { seedBooks } from '../src/database/seeds/seed-books';
 
@@ -65,6 +69,20 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
   let fetchSpy: jest.SpiedFunction<typeof fetch> | null = null;
   let bookSlug: string;
   let videoIds: string[];
+  /**
+   * The PRODUCTION store, against the container's Postgres.
+   *
+   * Every snapshot this file writes goes through it. Until the #111 review the helper below
+   * hand-copied the production INSERT instead, which meant `upsertSnapshot`'s twelve-column
+   * `orUpdate` conflict target, `listVideoIds`'s raw alias and `markMissing`'s WHERE clause ran
+   * against no database anywhere in CI — one wrong string in `UPSERT_OVERWRITE_COLUMNS` would have
+   * made every upsert throw, every tour complete "healthy", and every video serve `youtube: null`
+   * (CODE111-I3 / TEST111-I1; `ENGINEERING.md` §8: e2e uses real Postgres, not mocks).
+   *
+   * Constructed from the test's own `DataSource` rather than resolved from the container, so it is
+   * available before any application boots. The DI-resolved instance is exercised separately below.
+   */
+  let store: YoutubeSnapshotStorePort;
 
   /**
    * Boot an application with the env this case needs, from a FRESH module registry.
@@ -87,7 +105,8 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
    */
   async function bootApp(env: Record<string, string> = {}): Promise<{
     app: INestApplication;
-    purgeTarget: YoutubePurgeTarget | null;
+    purgeTarget: YoutubePurgeTarget;
+    injectedStore: YoutubeSnapshotStorePort;
   }> {
     Object.assign(process.env, {
       BOOKS_ENABLED: 'false',
@@ -116,6 +135,10 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
       require('../src/common/bootstrap') as typeof import('../src/common/bootstrap');
     const { YoutubePurgeTarget: FreshPurgeTarget } =
       require('../src/book/youtube/youtube-purge.target') as typeof import('../src/book/youtube/youtube-purge.target');
+    // The token is a `Symbol`, so after a registry reset the statically imported one is a different
+    // object from the one the container registered and `app.get` would not find it.
+    const { YOUTUBE_SNAPSHOT_STORE: FreshStoreToken } =
+      require('../src/book/youtube/youtube-snapshot.store') as typeof import('../src/book/youtube/youtube-snapshot.store');
     /* eslint-enable @typescript-eslint/no-require-imports */
 
     const moduleRef = await FreshTest.createTestingModule({ imports: [AppModule] }).compile();
@@ -128,37 +151,31 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
     fetchSpy = jest.spyOn(globalThis, 'fetch');
     fetchSpy.mockClear();
 
-    // `null` while `BOOKS_ENABLED=false`: the factory does not build a target the tour would never
-    // run. That is itself the switch working, so it is a legitimate return rather than a failure.
-    return { app: created, purgeTarget: created.get<YoutubePurgeTarget | null>(FreshPurgeTarget) };
+    // ALWAYS a target: since the #111 ruling the purge is gated on nothing, so the factory builds
+    // and registers it in every configuration. A `null` here would be the ruling not holding.
+    return {
+      app: created,
+      purgeTarget: created.get<YoutubePurgeTarget>(FreshPurgeTarget),
+      injectedStore: created.get<YoutubeSnapshotStorePort>(FreshStoreToken),
+    };
   }
 
   /**
-   * Run the purge tour once — and REFUSE a target that was never built.
+   * Write one snapshot for `youtubeVideoId`, aged `hoursAgo`, missing since `missingHoursAgo`.
    *
-   * Without this guard a boot that quietly left `BOOKS_ENABLED` off would hand back `null`, the
-   * delete would never happen, and every assertion after it would pass for the wrong reason: "the
-   * row survived" reads identically whether the purge spared it or never ran.
+   * Through the PRODUCTION store, not a hand-copied INSERT — so every case in this file exercises
+   * `upsertSnapshot`'s real statement, including the `orUpdate` conflict target that a re-write
+   * takes. The absence stamp goes through `markMissing` for the same reason; it accepts the instant
+   * as a parameter, so a past one is enough and no clock has to be faked.
    */
-  async function purgeOnce(target: YoutubePurgeTarget | null): Promise<void> {
-    if (target === null) {
-      throw new Error('the purge target was not built — BOOKS_ENABLED was off for this boot');
-    }
-    await target.refresh();
-  }
-
-  /** Write one snapshot for `youtubeVideoId`, aged `hoursAgo`, missing since `missingHoursAgo`. */
   async function writeSnapshot(
     youtubeVideoId: string,
     hoursAgo: number,
     missingHoursAgo: number | null = null,
   ): Promise<void> {
     const now = Date.now();
-    await dataSource
-      .getRepository(YoutubeVideoSnapshot)
-      .createQueryBuilder()
-      .insert()
-      .values({
+    await store.upsertSnapshot(
+      {
         youtubeVideoId,
         thumbnailKey: YoutubeThumbnailKey.Maxres,
         thumbnailUrl: 'https://example.invalid/thumb.jpg',
@@ -169,27 +186,12 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
         durationSeconds: 476,
         embeddable: true,
         privacyStatus: 'public',
-        fetchedAtUtc: new Date(now - hoursAgo * HOUR_MS),
-        missingSinceUtc:
-          missingHoursAgo === null ? null : new Date(now - missingHoursAgo * HOUR_MS),
-      })
-      .orUpdate(
-        [
-          'thumbnail_key',
-          'thumbnail_url',
-          'thumbnail_width',
-          'thumbnail_height',
-          'published_at_utc',
-          'duration_iso',
-          'duration_seconds',
-          'embeddable',
-          'privacy_status',
-          'fetched_at_utc',
-          'missing_since_utc',
-        ],
-        ['youtube_video_id'],
-      )
-      .execute();
+      },
+      new Date(now - hoursAgo * HOUR_MS),
+    );
+    if (missingHoursAgo !== null) {
+      await store.markMissing([youtubeVideoId], new Date(now - missingHoursAgo * HOUR_MS));
+    }
   }
 
   async function clearSnapshots(): Promise<void> {
@@ -212,6 +214,7 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
     await dataSource.initialize();
     await dataSource.runMigrations();
     await seedBooks(dataSource);
+    store = new YoutubeSnapshotStore(dataSource);
 
     const videos = await dataSource.getRepository(BookVideo).find({ order: { denemeNo: 'ASC' } });
     videoIds = videos.map((video) => video.youtubeVideoId);
@@ -326,18 +329,21 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
   });
 
   describe('the purge (SPEC §8.1, §13 item 10)', () => {
-    it('deletes a row past the HARD threshold while the sync is OFF', async () => {
+    it('deletes a row past the HARD threshold with EVERY book switch off', async () => {
       const [first, second] = videoIds;
       if (first === undefined || second === undefined) throw new Error('need two seeded videos');
       await writeSnapshot(first, 800); // past 720 h
       await writeSnapshot(second, 1); // fresh
 
-      // BOOKS_ENABLED on, BOOKS_YOUTUBE_SYNC_ENABLED off. This configuration is the entire claim of
-      // SPEC §8.1: deleting is an obligation, so it may not depend on the feature's switch or on a
-      // provider being reachable.
-      const booted = await bootApp({ BOOKS_ENABLED: 'true' });
+      // `bootApp()`'s defaults are `BOOKS_ENABLED=false` AND `BOOKS_YOUTUBE_SYNC_ENABLED=false` —
+      // the deployment of an operator who retired the book feature through the documented switch.
+      // This configuration is the entire claim of SPEC §8.1 as the #111 ruling settled it: deleting
+      // is an obligation, so it may not depend on the feature's switch, on a second switch, or on a
+      // provider being reachable. The previous version of this case turned `BOOKS_ENABLED` ON, so
+      // it could not have failed when the purge was gated on it.
+      const booted = await bootApp();
       app = booted.app;
-      await purgeOnce(booted.purgeTarget);
+      await booted.purgeTarget.refresh();
 
       const remaining = await dataSource.getRepository(YoutubeVideoSnapshot).find();
       expect(remaining.map((row) => row.youtubeVideoId)).toEqual([second]);
@@ -353,7 +359,7 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
 
       const booted = await bootApp({ BOOKS_ENABLED: 'true' });
       app = booted.app;
-      await purgeOnce(booted.purgeTarget);
+      await booted.purgeTarget.refresh();
 
       // Not served (the previous block proves that) and NOT deleted: the two thresholds do
       // different jobs, and a purge that used the soft one would destroy a recoverable row.
@@ -375,9 +381,59 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
         BOOKS_PURGE_INTERVAL_SECONDS: '600',
       });
       app = booted.app;
-      await purgeOnce(booted.purgeTarget);
+      await booted.purgeTarget.refresh();
 
       expect(await dataSource.getRepository(YoutubeVideoSnapshot).count()).toBe(0);
+    });
+  });
+
+  describe('the snapshot store against the real schema (ENGINEERING.md §8)', () => {
+    it('lists, upserts, marks an absence exactly once, and lets a re-write undo it', async () => {
+      const [first] = videoIds;
+      if (first === undefined) throw new Error('no seeded video');
+      await writeSnapshot(first, 1);
+
+      const booted = await bootApp({ BOOKS_ENABLED: 'true' });
+      app = booted.app;
+      // The DI-resolved instance, not one this file constructed: the wiring is part of what is
+      // unverified otherwise.
+      const injected = booted.injectedStore;
+
+      // `listVideoIds` — the raw `getRawMany` alias, the DISTINCT and the ORDER BY, against
+      // Postgres. Compared as a SET: the ordering is the database's collation and nothing in the
+      // leg depends on it, so asserting it would pin a fact rather than a rule.
+      const listed = await injected.listVideoIds();
+      expect([...listed].sort()).toEqual([...videoIds].sort());
+
+      // `upsertSnapshot` wrote a row a request can read back — which is what proves the twelve
+      // column names in the `orUpdate` conflict target are the ones the table has.
+      const beforeMarking = await fetchDetail();
+      expect(
+        beforeMarking.videos.find((video) => video.youtubeVideoId === first)?.youtube,
+      ).not.toBeNull();
+
+      // `markMissing` returns rows AFFECTED, and the WHERE carries `missing_since_utc IS NULL`:
+      // the FIRST absence is stamped and no later tour overwrites it. One, then zero — the number
+      // the refresh tour reports as "newly missing", and the reason it may not be the only count it
+      // reports (CODE111-I1).
+      expect(await injected.markMissing([first], new Date())).toBe(1);
+      expect(await injected.markMissing([first], new Date())).toBe(0);
+      // An id with no row at all affects nothing — the case the unit suite's fake could not produce.
+      expect(await injected.markMissing(['zzzzzzzzzzz'], new Date())).toBe(0);
+
+      const afterMarking = await fetchDetail();
+      expect(
+        afterMarking.videos.find((video) => video.youtubeVideoId === first)?.youtube,
+      ).toBeNull();
+
+      // The id came back, so the absence is over (SPEC §8.2 step 4): the conflict path must reset
+      // `missing_since_utc`, and one row must remain rather than two.
+      await writeSnapshot(first, 1);
+      const afterRewrite = await fetchDetail();
+      expect(
+        afterRewrite.videos.find((video) => video.youtubeVideoId === first)?.youtube,
+      ).not.toBeNull();
+      expect(await dataSource.getRepository(YoutubeVideoSnapshot).count()).toBe(1);
     });
   });
 

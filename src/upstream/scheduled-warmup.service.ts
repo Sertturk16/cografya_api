@@ -70,6 +70,19 @@ export interface ScheduledWarmupOptions {
    * cheaper than being misled once.
    */
   disabledBy: string;
+  /**
+   * How the boot line describes the ABSENCE of a cross-instance lock, when that absence is a
+   * DECISION rather than a deployment fact.
+   *
+   * Without it a `null` Redis client always prints "OFF — single instance", which is true of the
+   * marine and air-quality legs (no Redis configured ⇒ one instance by definition) and false of a
+   * leg that was handed `null` on purpose while Redis is provisioned and every other tour locks
+   * through it. An operator reading that line would conclude the deployment is single-instance and
+   * be wrong about the whole process (#111 SEC111-I2, validator's fix caveat).
+   *
+   * Set it to the reason; leave it unset to keep the deployment-fact wording.
+   */
+  locklessReason?: string;
   intervalSeconds: number;
   deadlineMs: number;
   /** Injected in tests. */
@@ -140,6 +153,12 @@ const BOOT_DELAY_MS = 10_000;
  * the logs to show for it. Without Redis there is no lock, because that mode is single-instance
  * by definition and says so loudly at boot.
  *
+ * A leg may also pass `null` DELIBERATELY, and one does: the book purge tour makes no upstream call
+ * and its DELETE is idempotent, so the lock protects nothing there while a Redis fault would
+ * suspend a retention obligation. Such a leg states its reason through
+ * {@link ScheduledWarmupOptions.locklessReason}, so the boot line does not report a provisioned
+ * deployment as single-instance.
+ *
  * ## Its own deadline
  * The tour's `deadlineMs` (marine: 120 s), not the request path's 6 s. Nobody is waiting for this
  * tour; conflating background work with a user request in one budget was SPEC v1's underlying
@@ -209,8 +228,14 @@ export class ScheduledWarmupService implements OnApplicationBootstrap, OnModuleD
     this.logger.log(
       `warmup scheduled every ${String(this.options.intervalSeconds)} s ` +
         `(first tour in ${String(BOOT_DELAY_MS / 1000)} s, per-tour deadline ` +
-        `${String(this.options.deadlineMs)} ms, lock ${this.redis === null ? 'OFF — single instance' : 'ON'})`,
+        `${String(this.options.deadlineMs)} ms, lock ${this.describeLock()})`,
     );
+  }
+
+  /** `ON`, the stated reason this tour is deliberately unlocked, or the deployment fact. */
+  private describeLock(): string {
+    if (this.redis !== null) return 'ON';
+    return this.options.locklessReason ?? 'OFF — single instance';
   }
 
   onModuleDestroy(): void {

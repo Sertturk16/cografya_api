@@ -23,11 +23,20 @@ describe('redactYoutubeKey', () => {
   });
 
   it('removes the PERCENT-ENCODED form too, because a key echoed inside a URL arrives escaped', () => {
-    const encoded = encodeURIComponent(FAKE_KEY);
-    const text = `refused https://provider.invalid/videos?key=${encoded}&id=x`;
+    // A DIFFERENT fixture, and the reason is that this case was vacuous with the one above:
+    // `AIzaSyFAKE_not_a_real_key_000000000000` contains nothing `encodeURIComponent` escapes, so
+    // `encoded` was the identical string and the encoded branch of the redactor never ran (PR #111
+    // TEST111-M1). The redactor is bound to a VALUE and does not care about shape, so a fixture
+    // that actually encodes is a legitimate one to bind it to.
+    const escapable = 'fake secret/with+escapable=chars';
+    const encoded = encodeURIComponent(escapable);
+    // The positive control this case lacked: assert the fixture really is encodable, so the two
+    // expectations below cannot both be satisfied by the plain-text branch alone.
+    expect(encoded).not.toBe(escapable);
 
-    expect(redactYoutubeKey(text, encoded)).not.toContain(encoded);
-    expect(redactYoutubeKey(text, FAKE_KEY)).not.toContain(FAKE_KEY);
+    const text = `refused https://provider.invalid/videos?key=${encoded}&id=x`;
+    expect(redactYoutubeKey(text, escapable)).not.toContain(encoded);
+    expect(redactYoutubeKey(text, escapable)).toContain('[REDACTED]');
   });
 
   it('removes EVERY occurrence, not only the first', () => {

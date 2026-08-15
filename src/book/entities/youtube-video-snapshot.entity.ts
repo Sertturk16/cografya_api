@@ -23,15 +23,20 @@ import { YoutubeThumbnailKey } from '../book.types';
  * ## Three ages, three behaviours (B4, SPEC §8.3)
  * Younger than the soft threshold (600 h ≈ 25 days) the snapshot is served. Between soft and hard
  * it is **not served** — the contract says so by publishing `youtube: null`. Past the hard
- * threshold (720 h = 30 days, the policy ceiling the env schema **must** refuse to exceed at boot —
- * a B4 obligation and not yet written, since `env.schema.ts` is untouched by this PR) the
- * row is deleted by a purge timer that is gated by `BOOKS_ENABLED` and deliberately NOT by the
- * sync flag: deleting is an obligation, and an obligation may not hang off a feature's switch or
- * off a provider being reachable.
+ * threshold (720 h = 30 days) the row is deleted by a purge timer that is gated by **nothing at
+ * all** — not `BOOKS_ENABLED`, not the sync flag, and not a Redis lock: deleting is an obligation,
+ * and an obligation may not hang off a feature's switch, off a provider being reachable, or off a
+ * cache being up (Atlas ruling 2026-08-15, PR #111).
  *
- * ## B1 scope
- * Schema and contract only. No client, no scheduler, no env key: `app.module.ts` and
- * `env.schema.ts` are untouched by this PR by design (SPEC §16).
+ * 720 h is the policy ceiling `env.schema.ts` refuses to exceed at boot —
+ * `YOUTUBE_API_DATA_HARD_MAX_AGE_HOURS` carries `.max(720)`, so the ceiling is a boot check rather
+ * than a comment. That was a B4 obligation this table's docblock recorded while it was still
+ * unwritten; B4 wrote it.
+ *
+ * ## B1 scope, and what B4 added
+ * B1 landed the schema and the contract only — no client, no scheduler, no env key. B4 added all
+ * three: the two tours in `book.module.ts`, the twelve keys and five cross-checks in
+ * `env.schema.ts`, and the store that writes this table.
  */
 @Entity('youtube_video_snapshots')
 // The purge's access path — `fetched_at_utc` is what the retention clock reads.

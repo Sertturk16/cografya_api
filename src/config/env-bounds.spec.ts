@@ -57,15 +57,39 @@ const FOLDED_SCHEMA_SOURCE = readFileSync(join(__dirname, 'env.schema.ts'), 'utf
   .replace(/\s+/g, ' ');
 
 /**
- * A bound message as the schema shapes one: `<VAR>[ + <VAR>…] <phrase> <VAR>`.
+ * A HAND-WRITTEN bound message as the schema shapes one: `<VAR>[ + <VAR>…] <phrase> <VAR>`.
  *
  * Anchored on the variable names so that the same phrase appearing in an explanatory COMMENT
  * ("a tour budget must not exceed the tour that hosts it") is not miscounted as a rule. Verified
- * against a deliberately perturbed copy: adding a fourteenth cross-check moves the count, adding
- * the sentence above to a comment does not.
+ * against a deliberately perturbed copy: adding a fourteenth hand-written cross-check moves the
+ * count, adding the sentence above to a comment does not.
+ *
+ * **What it cannot see, and why the second pattern below exists.** A bound expressed through
+ * `checkEnvBound` composes its message at RUNTIME, so no bound sentence appears in the source at
+ * all. When B4 added five such call sites this regex still returned thirteen, and every case in
+ * this file stayed green while the schema ran eighteen bounds — the exact blindness the
+ * reverse-direction case was written to remove, in a form it could not detect (PR #111 CODE111-M3).
  */
 const BOUND_MESSAGE =
   /[A-Z][A-Z0-9_]*(?: \+ [A-Z][A-Z0-9_]*)* (?:must not exceed|must be smaller than|must be shorter than) [A-Z][A-Z0-9_]*/g;
+
+/**
+ * A bound expressed through the helper instead. One match per call site.
+ *
+ * The import (`import { checkEnvBound } from './env-bounds'`) carries no opening parenthesis, so it
+ * is not counted — verified with a positive control: the pattern reports 5 against the file today
+ * and 6 against a copy with one call site duplicated.
+ */
+const HELPER_BOUND_CALL = /checkEnvBound\(/g;
+
+/**
+ * How many bounds `env.schema.ts` expresses through the helper today.
+ *
+ * A DECLARED number rather than a derived one, on purpose: the whole job of the two counts below is
+ * to fail when somebody adds a bound without recording it here, and a number read off the file it
+ * is meant to guard could never do that.
+ */
+const HELPER_BOUND_COUNT = 5;
 
 /**
  * The thirteen cross-checks `env.schema.ts` runs today, each with values that BREACH it and the
@@ -288,12 +312,20 @@ describe('checkEnvBound', () => {
     expect(missing).toEqual([]);
   });
 
-  it('and `env.schema.ts` composes no bound message this table has not got', () => {
-    // The direction `toHaveLength(13)` structurally cannot see: a FOURTEENTH cross-check added to
-    // the schema leaves the table at thirteen and every case below still passing.
+  it('and `env.schema.ts` composes no HAND-WRITTEN bound message this table has not got', () => {
+    // The direction `toHaveLength(13)` structurally cannot see: a FOURTEENTH hand-written
+    // cross-check added to the schema leaves the table at thirteen and every case below still
+    // passing.
     expect(FOLDED_SCHEMA_SOURCE.match(BOUND_MESSAGE) ?? []).toHaveLength(
       SCHEMA_CROSS_CHECKS.length,
     );
+  });
+
+  it('and every bound the schema runs THROUGH the helper is accounted for too', () => {
+    // The half the regex above is structurally blind to. Without this, a sixth `checkEnvBound` call
+    // — a whole new boot rule — lands with no number in this file moving, which is how five of the
+    // eighteen bounds the schema runs today went uncounted for a whole PR.
+    expect(FOLDED_SCHEMA_SOURCE.match(HELPER_BOUND_CALL) ?? []).toHaveLength(HELPER_BOUND_COUNT);
   });
 
   for (const { check, message } of SCHEMA_CROSS_CHECKS) {

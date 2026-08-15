@@ -247,6 +247,16 @@ export type UpstreamMetricName =
   /** Snapshots deleted for breaching the 30-day ceiling — incremented BY the row count. */
   | 'books.snapshot_purged'
   /**
+   * The purge statement COMPLETED — once per tour, whatever it deleted.
+   *
+   * Its own counter because `books.snapshot_purged` cannot answer the question that matters here:
+   * on a healthy leg it stays at zero forever, which reads identically to a purge that was never
+   * scheduled at all. This one is the liveness half — a flat `books.purge_ran` is the signal that
+   * the retention mechanism has stopped running, and it is the only positive compliance evidence
+   * the leg produces (the healthy no-op logs at DEBUG, which is off in production).
+   */
+  | 'books.purge_ran'
+  /**
    * The purge statement itself failed. Its own counter because this is the mechanism that keeps us
    * inside a POLICY ceiling: every other failure in this leg costs a thumbnail, this one costs
    * compliance if it persists.

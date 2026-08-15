@@ -116,6 +116,30 @@ describe('parseVideosListResponse — one item', () => {
     expect(row?.thumbnailKey).toBe(YoutubeThumbnailKey.Standard);
   });
 
+  it('SKIPS a rung whose URL is not a bounded `https` address, and keeps walking', () => {
+    // The thumbnail URL is the one provider string this leg republishes to a reader — into the
+    // payload and into `VideoObject` — and it lands in an unbounded `text` column that nothing
+    // downstream re-validates. So the rung carries a scheme and a length check, and failing either
+    // costs a sharper cover rather than the whole video (PR #111 SEC111-M1).
+    const badRungs = item({
+      snippet: {
+        publishedAt: '2026-05-07T12:50:41Z',
+        thumbnails: {
+          // Mixed content: it would not load on an HTTPS page.
+          maxres: { url: 'http://example.invalid/x.jpg', width: 1280, height: 720 },
+          // Not an address at all.
+          standard: { url: 'javascript:alert(1)', width: 640, height: 480 },
+          // Past the 512-character ceiling.
+          high: { url: `https://example.invalid/${'a'.repeat(600)}.jpg`, width: 480, height: 360 },
+          medium: { url: 'https://example.invalid/m.jpg', width: 320, height: 180 },
+        },
+      },
+    });
+    const [row] = parseVideosListResponse(body([badRungs])).accepted;
+    expect(row?.thumbnailKey).toBe(YoutubeThumbnailKey.Medium);
+    expect(row?.thumbnailUrl).toBe('https://example.invalid/m.jpg');
+  });
+
   it('rejects the item when NO rung is usable', () => {
     const noThumbnails = item({
       snippet: { publishedAt: '2026-05-07T12:50:41Z', thumbnails: { maxres: { url: '' } } },
@@ -123,6 +147,21 @@ describe('parseVideosListResponse — one item', () => {
     const parsed = parseVideosListResponse(body([noThumbnails]));
     expect(parsed.accepted).toEqual([]);
     expect(parsed.rejected[0]?.youtubeVideoId).toBe('aaaaaaaaaaa');
+  });
+
+  it('rejects the item when every rung fails the URL gate — refusing down the ladder has an end', () => {
+    const allInsecure = item({
+      snippet: {
+        publishedAt: '2026-05-07T12:50:41Z',
+        thumbnails: {
+          maxres: { url: 'http://example.invalid/x.jpg', width: 1280, height: 720 },
+          medium: { url: 'http://example.invalid/m.jpg', width: 320, height: 180 },
+        },
+      },
+    });
+    const parsed = parseVideosListResponse(body([allInsecure]));
+    expect(parsed.accepted).toEqual([]);
+    expect(parsed.rejected[0]?.reason).toContain('thumbnail');
   });
 });
 
@@ -176,5 +215,30 @@ describe('parseVideosListResponse — a bad item is a counted row, never a throw
       'aaaaaaaaaaa',
       '(unreadable id)',
     ]);
+  });
+
+  it('BOUNDS and ESCAPES the provider value it quotes back into the reason', () => {
+    // The reason reaches a WARN line, up to fifty a tour. Unbounded it is a giant log entry; with a
+    // raw newline in it, it is a forged second entry (PR #111 SEC111-M2 — the repo's own
+    // `ads-jobs.ts` `slice(0, 128)` is the discipline this restates).
+    // The newline sits INSIDE the first 64 characters on purpose: past the slice it would be
+    // dropped by the bound alone, and the escape half would go untested.
+    const hostile = `${'x'.repeat(20)}\nWARN a line nobody logged\n${'y'.repeat(500)}`;
+    const parsed = parseVideosListResponse(
+      body([
+        item({
+          snippet: {
+            publishedAt: hostile,
+            thumbnails: { high: { url: 'https://example.invalid/h.jpg', width: 480, height: 360 } },
+          },
+        }),
+      ]),
+    );
+
+    const reason = parsed.rejected[0]?.reason ?? '';
+    expect(reason).not.toContain('\n');
+    // Comfortably under one line: the quoted value is capped at 64 characters plus the sentence.
+    expect(reason.length).toBeLessThan(160);
+    expect(reason).toContain('xxxx');
   });
 });
