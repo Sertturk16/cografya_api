@@ -1,6 +1,10 @@
 import type { DataSourceOptions } from 'typeorm';
 import { AirQualityProvinceSeries } from '../air-quality/entities/air-quality-province-series.entity';
 import { AirQualityRun } from '../air-quality/entities/air-quality-run.entity';
+import { BookVideoQuestion } from '../book/entities/book-video-question.entity';
+import { BookVideo } from '../book/entities/book-video.entity';
+import { Book } from '../book/entities/book.entity';
+import { YoutubeVideoSnapshot } from '../book/entities/youtube-video-snapshot.entity';
 import { Country } from '../country/entities/country.entity';
 import { EarthquakeEvent } from '../earthquake/entities/earthquake-event.entity';
 import { EarthquakeIngestRun } from '../earthquake/entities/earthquake-ingest-run.entity';
@@ -25,6 +29,8 @@ import { AddProvinceClimateCurriculum1785974400000 } from './migrations/17859744
 import { AddCountryPopulationSourceName1786060800000 } from './migrations/1786060800000-AddCountryPopulationSourceName';
 import { InitEarthquakeEvents1786492800000 } from './migrations/1786492800000-InitEarthquakeEvents';
 import { InitEarthquakeIngestRuns1786496400000 } from './migrations/1786496400000-InitEarthquakeIngestRuns';
+import { InitBookCatalogue1786752000000 } from './migrations/1786752000000-InitBookCatalogue';
+import { InitYoutubeVideoSnapshots1786755600000 } from './migrations/1786755600000-InitYoutubeVideoSnapshots';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -198,6 +204,10 @@ export function buildDataSourceOptions(
       AirQualityProvinceSeries,
       EarthquakeEvent,
       EarthquakeIngestRun,
+      Book,
+      BookVideo,
+      BookVideoQuestion,
+      YoutubeVideoSnapshot,
     ],
     migrations: [
       InitProvince1783382400000,
@@ -217,6 +227,8 @@ export function buildDataSourceOptions(
       AddCountryPopulationSourceName1786060800000,
       InitEarthquakeEvents1786492800000,
       InitEarthquakeIngestRuns1786496400000,
+      InitBookCatalogue1786752000000,
+      InitYoutubeVideoSnapshots1786755600000,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,
