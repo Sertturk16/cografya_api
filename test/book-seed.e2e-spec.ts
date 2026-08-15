@@ -83,6 +83,37 @@ describe('Book seed write path (e2e, real Postgres)', () => {
     questions: await dataSource.getRepository(BookVideoQuestion).count(),
   });
 
+  /**
+   * Runs a seed that MUST refuse, and returns the refusal's own error — the `cause`.
+   *
+   * **The two layers are asserted separately because they carry different things, and a test that
+   * checked only the outer one would have missed the half that matters.** `seedBooks` wraps any
+   * per-book failure in `Seeding book [slug] failed — see cause.`, which names the offending row;
+   * the refusal's own message, the one telling an operator to re-run with `--allow-removals`, is on
+   * `cause`. That instruction does reach a human: `books.cli.ts` hands the whole Error object to
+   * `console.error`, and Node prints the `[cause]` chain with it.
+   */
+  async function seedRefusal(
+    options: Parameters<typeof seedBooks>[1],
+  ): Promise<{ outer: Error; cause: Error }> {
+    let thrown: unknown;
+    try {
+      await seedBooks(dataSource, options);
+    } catch (error: unknown) {
+      thrown = error;
+    }
+    if (!(thrown instanceof Error)) {
+      throw new Error('expected the seed to refuse, but it resolved');
+    }
+    // The wrapper names the row it failed on — without this the operator reads the SQL to find out.
+    expect(thrown.message).toMatch(/Seeding book \[.+\] failed/);
+    const { cause } = thrown;
+    if (!(cause instanceof Error)) {
+      throw new Error(`refusal carried no Error cause: ${JSON.stringify(thrown.message)}`);
+    }
+    return { outer: thrown, cause };
+  }
+
   beforeAll(async () => {
     container = await new PostgreSqlContainer('postgres:16-alpine').start();
     const url = container.getConnectionUri();
@@ -167,13 +198,17 @@ describe('Book seed write path (e2e, real Postgres)', () => {
         { denemeNo: 2, youtubeVideoId: 'bbbbbbbbbbb', questions: [5, 40] },
       ]);
 
-      await expect(
-        seedBooks(dataSource, {
-          books: [OWNER],
-          artifact: shorter,
-          ownerSlugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR,
-        }),
-      ).rejects.toThrow(/allow-removals/);
+      const { cause } = await seedRefusal({
+        books: [OWNER],
+        artifact: shorter,
+        ownerSlugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR,
+      });
+
+      // The refusal has to name the deneme AND the cascade, or an operator cannot tell how much a
+      // re-run with the flag would delete.
+      expect(cause.message).toMatch(/allow-removals/);
+      expect(cause.message).toContain('3');
+      expect(cause.message).toMatch(/question row\(s\)/);
 
       // Nothing written: the refusal happens inside the transaction, so the rollback covers the
       // whole run rather than only the deletion.
@@ -212,13 +247,13 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       ]);
       const before = await counts();
 
-      await expect(
-        seedBooks(dataSource, {
-          books: [OWNER],
-          artifact: trimmed,
-          ownerSlugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR,
-        }),
-      ).rejects.toThrow(/allow-removals/);
+      const { cause } = await seedRefusal({
+        books: [OWNER],
+        artifact: trimmed,
+        ownerSlugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR,
+      });
+      expect(cause.message).toMatch(/allow-removals/);
+      expect(cause.message).toMatch(/question\(s\)/);
       expect(await counts()).toEqual(before);
 
       const result = await seedBooks(dataSource, {
@@ -271,24 +306,31 @@ describe('Book seed write path (e2e, real Postgres)', () => {
         .findOneByOrFail({ slugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR });
       // A row left over from an interrupted run. Parking ids are reserved and never seeded, so a
       // row holding one must be inspected rather than silently overwritten.
-      await repo.save(
-        repo.create({ bookId: book.id, denemeNo: 900, youtubeVideoId: '__park00001' }),
-      );
+      //
+      // **The fixture has to keep this row OUT of the removal pass, and getting that wrong is what
+      // makes the test vacuous.** Removals run BEFORE the parking check, so a leftover row whose
+      // deneme is absent from the artefact is simply deleted (with `--allow-removals`) or turns
+      // this into a removal refusal (without it) — either way the parking guard never runs. So the
+      // artefact carries deneme 4 holding that very id: the row is then neither stale nor a mover,
+      // and it survives to collide with the parking id the two SWAPPED rows need.
+      await repo.save(repo.create({ bookId: book.id, denemeNo: 4, youtubeVideoId: '__park00001' }));
 
       const swapped = artifact([
         { denemeNo: 1, youtubeVideoId: 'bbbbbbbbbbb', questions: [0, 30] },
         { denemeNo: 2, youtubeVideoId: 'aaaaaaaaaaa', questions: [5, 40] },
         { denemeNo: 3, youtubeVideoId: 'ccccccccccc', questions: [7, 50] },
+        { denemeNo: 4, youtubeVideoId: '__park00001', questions: [9] },
       ]);
 
-      await expect(
-        seedBooks(dataSource, {
-          books: [OWNER],
-          artifact: swapped,
-          ownerSlugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR,
-          allowRemovals: true,
-        }),
-      ).rejects.toThrow(/parking id/);
+      const { cause } = await seedRefusal({
+        books: [OWNER],
+        artifact: swapped,
+        ownerSlugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR,
+      });
+      expect(cause.message).toMatch(/parking id/);
+      // It must name the ids it refused to use, or "inspect the leftover row" is an instruction
+      // with nothing to act on.
+      expect(cause.message).toContain('__park00001');
     });
   });
 
