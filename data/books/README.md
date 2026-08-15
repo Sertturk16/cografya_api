@@ -6,7 +6,8 @@ One file, and it is a **byte copy**:
 | --- | --- | --- | ---: |
 | `ayt-cografya-brans-denemeleri.timestamps.json` | `Owner's Inbox/kitap-video-cozumler/timestamps.json` | `pnpm db:seed:books` | 18 101 B |
 
-Nothing in this repo writes it. It is copied in, never regenerated, and never hand-edited.
+Nothing in this repo writes it. It is copied in, never regenerated, and never hand-edited — and
+`.prettierignore` carries `data/books/*.json` so `pnpm format` cannot quietly rewrite it either.
 
 ---
 
@@ -46,6 +47,14 @@ this repository can see the Inbox source — it lives outside the repo, which is
 this and why the command above is run by the reviewer, by hand. The runtime pin catches exactly one
 thing: somebody "correcting" a mark in the committed file instead of re-measuring it.
 
+**The pin also does not catch a TRUNCATED artefact**, and that is what
+`COMMITTED_ARTIFACT_COVERAGE_FLOOR` is for. Updating the pin is the *documented* procedure for a
+re-measurement, so a partial export whose records are each perfectly valid passes every refusal, and
+the seed then deletes the difference from the published index and cascades the questions with it.
+The floor is a second constant that a recomputation cannot discharge: lowering it is a deliberate
+line in a diff saying "this book now publishes fewer denemeler". A re-measurement that ADDS denemeler
+needs no change to it.
+
 **The three editorial strings** (`books.seed-data.ts`, from
 `Owner's Inbox/kitap-video-cozumler/kitap-editoryal-metin.md`, the approved v2 revision block):
 
@@ -79,5 +88,17 @@ anything here:
 - **The artefact carries no question number.** `questionNo` is derived from array position, so the
   `"Soru {n}"` tag is the *independent witness* that the marks were not dropped, duplicated or
   reordered. Position and tag must agree for every mark, or nothing is written.
-- **`--check` needs no database.** `pnpm db:seed:books --check` validates everything and opens no
-  connection; the closing criterion is its **exit code**, never the counts it prints.
+- **`--check` needs no database, and runs exactly the write path's refusals.** Both call one
+  `validateBookSeedCorpus`, so what `--check` validates and what the write refuses are the same list
+  by construction. The closing criterion is its **exit code**, never the counts it prints. The one
+  thing it cannot see is anything that depends on database state — whether a run would DELETE rows
+  is not knowable without the rows, which is why `--allow-removals` exists on the write path only:
+
+  ```sh
+  pnpm db:seed:books                    # validate, then write (idempotent)
+  pnpm db:seed:books --check            # validate only; writes nothing, opens no connection
+  pnpm db:seed:books --allow-removals   # additionally authorises DELETING rows the artefact dropped
+  ```
+
+  Without the flag, a run that would delete a deneme or a question **refuses by name and rolls the
+  whole transaction back**. A deletion is an operator decision, never a number in a log line.

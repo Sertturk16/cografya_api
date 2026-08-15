@@ -30,6 +30,26 @@ import { z } from 'zod';
  *
  * When the timestamps are legitimately re-measured, the artefact AND this constant move together in
  * one PR. Forgetting the constant fails loudly and names both values; that is the intended cost.
+ *
+ * ## Playbook §8's four shared refusals on a JSON-artefact lane
+ * §8 requires a new lane to carry all four "or state, at the refusal's site, why it has no
+ * analogue" — and "'No analogue' is only acceptable when it is written down where the next reader
+ * will look". This is that statement, for the two that are not cited elsewhere in this file:
+ *
+ * - **Refusal 2 ("the committed seed does not parse") has no analogue.** Its reason is that
+ *   `ts.createSourceFile` is ERROR-TOLERANT, so a transcription lane would silently read a partial
+ *   index. Nothing here parses TypeScript: the künye corpus is a module whose parse failure is a
+ *   compile error, and this artefact goes through `JSON.parse`, which throws rather than returning
+ *   a partial document — and that throw is caught and renamed by {@link readBookTimestampsArtifact}.
+ *   There is no error-tolerant parser on this lane for the refusal to guard.
+ * - **Refusal 4 ("tight joins reported in `check`, not only in `emit`") has no analogue.** Its
+ *   reason is that a lane reconstructing prose from several source lines can glue two of them
+ *   together and then AGREE WITH ITSELF, because both sides of `check` run the same parser. This
+ *   lane reconstructs nothing: every value is read from one JSON scalar. With no join heuristic
+ *   there is nothing that could agree with itself.
+ *
+ * Refusal 1 is carried at {@link artifactSchema} and in `book-seed-invariants.ts`; refusal 3 is
+ * carried by {@link BookTimestampsArtifactError}, which names the file in every message.
  */
 
 /** Where the committed artefact lives, relative to the repo root (the `data/era5-land` pattern). */
@@ -46,6 +66,75 @@ export function bookTimestampsArtifactPath(): string {
  */
 export const EXPECTED_ARTIFACT_SHA256 =
   'be6f529401e616225d41345ce858eeb7d0eb93b6434c28c1eb94b46a5d499a55';
+
+/** The two counts {@link assertArtifactMeetsCoverageFloor} refuses to see the artefact fall below. */
+export interface ArtifactCoverageFloor {
+  readonly videos: number;
+  readonly questions: number;
+}
+
+/**
+ * The coverage the COMMITTED artefact must never silently fall below.
+ *
+ * ## Why the SHA-256 pin does not already cover this
+ * The pin's own documented procedure for a legitimate re-measurement is "the artefact AND the
+ * constant move together in one PR". So a truncated artefact — three records instead of thirty,
+ * from a partial export or an interrupted copy — turns the pin red, and the author then updates the
+ * pin, which is the CORRECT procedure applied to a defective input. Every one of the seven refusals
+ * passes on the remainder (three valid records, unique ids, unique denemeler, ascending seconds,
+ * tags agreeing with positions), the seed deletes the other twenty-seven videos, `ON DELETE
+ * CASCADE` takes their questions, and the run exits 0 — the same exit code as a run that changed
+ * nothing, while playbook §8 makes the exit code what the run is judged by.
+ *
+ * A FLOOR is the one thing in that chain that cannot be discharged by recomputation. Lowering it is
+ * a deliberate line in a diff that says "this book now publishes fewer denemeler", which is exactly
+ * the sentence a reviewer needs to see. It is a floor rather than an equality so that ADDING a
+ * re-measured deneme — the growth direction, which loses nothing — stays a one-constant change.
+ *
+ * Playbook §5 states the strong form of this for the ERA5 line ("Completeness is absolute — 81 of
+ * 81, or nothing is written"). This is the same idea for a corpus whose true size is a künye
+ * reading rather than a fixed 81.
+ */
+export const COMMITTED_ARTIFACT_COVERAGE_FLOOR: ArtifactCoverageFloor = {
+  videos: 30,
+  questions: 180,
+};
+
+/**
+ * Refuses an artefact that covers less than {@link COMMITTED_ARTIFACT_COVERAGE_FLOOR}.
+ *
+ * Applied to the COMMITTED artefact only — never to an injected one, exactly like the hash pin,
+ * because an injected artefact is a caller's fixture and its size is the caller's business.
+ */
+export function assertArtifactMeetsCoverageFloor(
+  artifact: BookTimestampsArtifact,
+  floor: ArtifactCoverageFloor = COMMITTED_ARTIFACT_COVERAGE_FLOOR,
+): void {
+  const problems: string[] = [];
+
+  if (artifact.videos.length < floor.videos) {
+    problems.push(
+      `${String(artifact.videos.length)} videos, below the pinned floor of ${String(floor.videos)}.`,
+    );
+  }
+  if (artifact.questionCount < floor.questions) {
+    problems.push(
+      `${String(artifact.questionCount)} marks, below the pinned floor of ` +
+        `${String(floor.questions)}.`,
+    );
+  }
+
+  if (problems.length > 0) {
+    throw new BookTimestampsArtifactError(
+      `the committed artefact covers LESS than it did when the floor was pinned:\n  ` +
+        `${problems.join('\n  ')}\n` +
+        `Seeding it would DELETE the difference from the published index, and cascade the ` +
+        `questions with it. If the coverage genuinely shrank, lower ` +
+        `COMMITTED_ARTIFACT_COVERAGE_FLOOR in the same PR and say why; if it did not, the ` +
+        `artefact you are holding is truncated.`,
+    );
+  }
+}
 
 /**
  * Every refusal on this path throws THIS type, and every message names the artefact path.
@@ -89,15 +178,22 @@ const recordSchema = z.strictObject({
   videoId: z.string().regex(YOUTUBE_VIDEO_ID_PATTERN),
   deneme: z.number().int().min(1).max(999),
   title: z.string(),
-  timestamps: z.array(markSchema).min(1),
+  // `.max(99)` mirrors `CHK_book_video_questions_question_no CHECK (question_no BETWEEN 1 AND 99)`,
+  // the same way the `videoId` pattern above mirrors `CHK_book_videos_youtube_video_id`.
+  // `questionNo` is derived from array position, so a 100th mark is a value the database refuses
+  // and this loader would otherwise hand it — and a CHECK violation surfaces mid-transaction as raw
+  // SQL rather than as a refusal naming the rule.
+  timestamps: z.array(markSchema).min(1).max(99),
 });
 
 /**
  * Refusal 1, first half: an EMPTY artefact fails rather than reporting "0 checked".
  *
  * Playbook §8's first shared refusal, in its seed-loader form: a gate whose expected set is empty
- * reports a green it did not earn. The second half — a non-empty mark total — is asserted in
- * {@link assertArtifactIsSeedable}, because zod can bound each array but not their product.
+ * reports a green it did not earn. Note that `.min(1)` here TOGETHER with `timestamps.min(1)` above
+ * already bounds the product — at least one record carrying at least one mark — so the mark-total
+ * branch in {@link assertArtifactIsSeedable} is a belt held by this line rather than an independent
+ * guard, and is labelled as such at its own site.
  */
 const artifactSchema = z.array(recordSchema).min(1);
 
@@ -209,8 +305,12 @@ function assertArtifactIsSeedable(records: readonly z.infer<typeof recordSchema>
     });
   }
 
-  // Refusal 1, second half: a set of records that somehow carries no marks at all must fail rather
-  // than let the CLI print a count of zero and exit 0.
+  // Refusal 1, second half — and it is a BELT, not the thing that catches this today. The zod
+  // schema above already makes `markTotal === 0` unreachable: `.min(1)` on the record array and
+  // `.min(1)` on `timestamps` together guarantee at least one mark, and this function runs only
+  // after `safeParse` succeeds. It is kept because it becomes the backstop the moment either
+  // `.min(1)` is relaxed, and it is labelled because an unlabelled branch that cannot go red reads
+  // as coverage it does not provide (the same reasoning refusal 4 carries below).
   if (markTotal === 0) {
     problems.push('the artefact carries no marks at all — nothing to seed, and that is a failure.');
   }
@@ -278,9 +378,14 @@ export async function readBookTimestampsArtifact(
   path: string = bookTimestampsArtifactPath(),
   expectedSha256: string = EXPECTED_ARTIFACT_SHA256,
 ): Promise<BookTimestampsArtifact> {
-  let contents: string;
+  // Read as BYTES and hash the bytes. Hashing the decoded string instead would silently be a
+  // different check from the `sha256sum` the constant's doc-comment and `data/books/README.md`
+  // document, because Node substitutes U+FFFD for an invalid UTF-8 sequence on decode — so two
+  // distinct byte files can share one text hash, and the byte a hand-edit corrupted could sit in a
+  // `title` field, the one free-form string this loader discards.
+  let bytes: Buffer;
   try {
-    contents = await readFile(path, 'utf8');
+    bytes = await readFile(path);
   } catch (cause: unknown) {
     throw new BookTimestampsArtifactError(
       `cannot read the question-index artefact at ${path}. It is a COMMITTED file — run from the ` +
@@ -289,7 +394,7 @@ export async function readBookTimestampsArtifact(
     );
   }
 
-  const actualSha256 = createHash('sha256').update(contents, 'utf8').digest('hex');
+  const actualSha256 = createHash('sha256').update(bytes).digest('hex');
   if (actualSha256 !== expectedSha256) {
     throw new BookTimestampsArtifactError(
       `${path} does not match its pinned SHA-256.\n` +
@@ -303,7 +408,7 @@ export async function readBookTimestampsArtifact(
 
   let data: unknown;
   try {
-    data = JSON.parse(contents);
+    data = JSON.parse(bytes.toString('utf8'));
   } catch (cause: unknown) {
     throw new BookTimestampsArtifactError(`${path} is not valid JSON`, { cause });
   }

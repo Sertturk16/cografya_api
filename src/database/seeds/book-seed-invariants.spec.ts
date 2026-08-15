@@ -6,6 +6,7 @@ import {
   assertBookSeedInvariants,
   BookSeedInvariantError,
   collectBookSeedNotes,
+  validateBookSeedCorpus,
 } from './book-seed-invariants';
 import type { BookTimestampsArtifact } from './book-timestamps.artifact';
 import { SEED_BOOKS, type BookSeed } from './books.seed-data';
@@ -48,10 +49,32 @@ function book(overrides: Partial<BookSeed> = {}): BookSeed {
     metaDescriptionTr:
       'Örnek yayınevinin 100 sayfalık örnek deneme kitabı. Deneme çözümleri video olarak burada; her sorunun başladığı an ayrı ayrı işaretli.',
     youtubePlaylistId: null,
-    youtubeChannelId: 'UC00000000000000000000',
+    // UC + 22 characters, the shape every YouTube channel id has. The fixture carried a 22-character
+    // value before the id shape was pinned, which is the fixture-side half of why it was pinned.
+    youtubeChannelId: 'UC0000000000000000000000',
     displayOrder: 1,
     ...overrides,
   };
+}
+
+/**
+ * A genuinely SECOND book — different slug, different ISBN and different prose.
+ *
+ * Two rows built from one `book()` share their three editorial strings byte for byte, which is now
+ * a refusal in its own right (two indexable pages must not ship one `<title>`). A fixture for
+ * "two valid books" therefore has to look like two books.
+ */
+function secondBook(overrides: Partial<BookSeed> = {}): BookSeed {
+  return book({
+    slugTr: 'ikinci-kitap',
+    slugEn: 'ikinci-kitap',
+    isbn13: '9999999999999',
+    introTr: 'Bu ikinci örnek anlatıdır ve ilkinden başka sözcüklerle yazılmıştır.',
+    metaTitleTr: 'İkinci Örnek Kitap Video Çözümleri',
+    metaDescriptionTr:
+      'İkinci yayınevinin 120 sayfalık örnek deneme kitabı. Çözümler video olarak burada; her sorunun başladığı an ayrı ayrı işaretli.',
+    ...overrides,
+  });
 }
 
 function artifact(denemeNumbers: readonly number[]): BookTimestampsArtifact {
@@ -142,7 +165,7 @@ describe('assertBookSeedInvariants — künye shape', () => {
     expect(() => {
       assertBookSeedInvariants([
         book({ coverImagePath: '/kitaplar/ornek-kitap.jpg' }),
-        book({ slugTr: 'ikinci', slugEn: 'ikinci', isbn13: '9999999999999', coverImagePath: null }),
+        secondBook({ coverImagePath: null }),
       ]);
     }).not.toThrow();
   });
@@ -184,6 +207,80 @@ describe('assertBookSeedInvariants — künye shape', () => {
     expect(() => {
       assertBookSeedInvariants([book(), book({ slugTr: 'ikinci', slugEn: 'ikinci' })]);
     }).toThrow(/is claimed by rows/);
+  });
+
+  it('accepts two genuinely different books (positive control for the cross-row refusals)', () => {
+    expect(() => {
+      assertBookSeedInvariants([book(), secondBook()]);
+    }).not.toThrow();
+  });
+
+  it.each<[string, BookSeed]>([
+    ['metaTitleTr', secondBook({ metaTitleTr: book().metaTitleTr })],
+    ['metaDescriptionTr', secondBook({ metaDescriptionTr: book().metaDescriptionTr })],
+    ['introTr', secondBook({ introTr: book().introTr })],
+  ])('refuses two books shipping a byte-identical %s', (_field, second) => {
+    expect(() => {
+      assertBookSeedInvariants([book(), second]);
+    }).toThrow(/byte-identical on rows/);
+  });
+});
+
+describe('assertBookSeedInvariants — required strings and column lengths', () => {
+  // The database accepts every one of these. `CHK_books_*` mirrors shapes, not emptiness, so an
+  // empty `metaTitleTr` publishes an empty `<title>` on an indexable page with nothing red anywhere.
+  it.each<[string, BookSeed]>([
+    ['titleTr', book({ titleTr: '' })],
+    ['publisherName', book({ publisherName: '' })],
+    ['introTr', book({ introTr: '' })],
+    ['metaTitleTr', book({ metaTitleTr: '' })],
+    ['metaDescriptionTr', book({ metaDescriptionTr: '' })],
+    ['youtubeChannelId', book({ youtubeChannelId: '' })],
+  ])('refuses an empty %s, which the database would accept', (field, seed) => {
+    expect(() => {
+      assertBookSeedInvariants([seed]);
+    }).toThrow(new RegExp(`${field} is empty`));
+  });
+
+  it.each<[string, BookSeed]>([
+    ['titleTr', book({ titleTr: 'a'.repeat(201) })],
+    ['publisherName', book({ publisherName: 'a'.repeat(121) })],
+    ['metaTitleTr', book({ metaTitleTr: 'a'.repeat(201) })],
+    ['metaDescriptionTr', book({ metaDescriptionTr: 'a'.repeat(401) })],
+  ])('refuses a %s longer than its column', (_field, seed) => {
+    expect(() => {
+      assertBookSeedInvariants([seed]);
+    }).toThrow(/the column holds/);
+  });
+
+  it('measures column length in CODE POINTS, as Postgres varchar does', () => {
+    // 200 multi-byte letters is 200 characters to `varchar(200)` and 400 bytes. A byte reading
+    // would refuse a value the column accepts.
+    expect(() => {
+      assertBookSeedInvariants([book({ titleTr: 'ğ'.repeat(200) })]);
+    }).not.toThrow();
+  });
+
+  it('refuses an empty string in a NULLABLE column, where the contract defines null', () => {
+    expect(() => {
+      assertBookSeedInvariants([book({ youtubePlaylistId: '' })]);
+    }).toThrow(/is an empty string/);
+  });
+
+  it.each([
+    ['too short', 'UC000000000000000000000'],
+    ['too long', 'UC00000000000000000000000'],
+    ['not a channel id at all', 'PLeiAoU-22Kr8em2axwmDvHB48pqxQL2Po'],
+  ])('refuses a youtubeChannelId that is %s', (_label, youtubeChannelId) => {
+    expect(() => {
+      assertBookSeedInvariants([book({ youtubeChannelId })]);
+    }).toThrow(/is not a channel id/);
+  });
+
+  it('accepts a playlist id of any family, which is why no pattern is pinned on it', () => {
+    expect(() => {
+      assertBookSeedInvariants([book({ youtubePlaylistId: 'UUH7D1zOgHykrHfx5Q7WERmw' })]);
+    }).not.toThrow();
   });
 });
 
@@ -244,6 +341,27 @@ describe('assertBookSeedInvariants — CONTENT-STYLE ceilings', () => {
     }).not.toThrow();
   });
 
+  it('refuses an empty paragraph, which an even run of newlines slips past the lone-\\n check', () => {
+    // Four newlines are consumed as two `\n\n` pairs, so the lone-newline check passes them while
+    // `paragraphsOf` yields an empty paragraph and `ProseNote` renders an empty block.
+    expect(() => {
+      assertBookSeedInvariants([book({ introTr: 'Birinci.\n\n\n\nİkinci.' })]);
+    }).toThrow(/empty paragraph/);
+  });
+
+  it('accepts ALL CAPS in titleTr, because a printed title is quoted and not restyled', () => {
+    // The boundary is deliberate: `PROSE_FIELDS` binds the three editorial strings and not the
+    // künye's quoted names. Asserted so the next reader meets a decision rather than an omission —
+    // and paired with its opposite, so the assertion is not vacuous.
+    expect(() => {
+      assertBookSeedInvariants([book({ titleTr: 'ÖRNEK KİTAP' })]);
+    }).not.toThrow();
+
+    expect(() => {
+      assertBookSeedInvariants([book({ metaTitleTr: 'ÖRNEK KİTAP Video Çözümleri' })]);
+    }).toThrow(/ALL CAPS/);
+  });
+
   it('refuses a newline inside metaTitleTr, which becomes an HTML head value', () => {
     expect(() => {
       assertBookSeedInvariants([book({ metaTitleTr: 'Birinci satır\nİkinci satır' })]);
@@ -290,9 +408,57 @@ describe('assertArtifactMatchesBook', () => {
   });
 
   it('refuses more videos than the book has denemeler', () => {
+    // Reachable only through the INJECTED-artefact seam: a duplicate deneme is refused earlier on
+    // the parsed path, which is why this fixture has to carry one.
     expect(() => {
       assertArtifactMatchesBook(book({ denemeCount: 2 }), artifact([1, 2, 2]));
     }).toThrow(/coverage cannot exceed the book/);
+  });
+
+  it('refuses an artefact carrying no videos, because that means "delete the whole index"', () => {
+    // `parseBookTimestampsArtifact` refuses an empty artefact by schema, but the injected seam
+    // bypasses the parser — and down that seam an empty artefact makes every deneme stale.
+    expect(() => {
+      assertArtifactMatchesBook(book({ denemeCount: 10 }), artifact([]));
+    }).toThrow(/no videos at all/);
+  });
+});
+
+describe('validateBookSeedCorpus — one list for `--check` and the write path', () => {
+  /**
+   * The refusals this function composes were two hand-written lists that had already diverged:
+   * `--check` ran the corpus invariants and the artefact read, and the write path additionally ran
+   * the owner lookup and the artefact↔künye join. The cases below drive the two refusals that used
+   * to be write-path-only, through the function BOTH paths now call.
+   */
+  it('accepts the committed corpus against the committed artefact', async () => {
+    await expect(validateBookSeedCorpus()).resolves.toMatchObject({
+      owner: { slugTr: SEED_BOOKS[0]?.slugTr },
+    });
+  });
+
+  it('refuses a corpus that does not contain the artefact owner', async () => {
+    await expect(
+      validateBookSeedCorpus({
+        books: [book()],
+        ownerSlugTr: 'baska-kitap',
+        artifact: artifact([1]),
+      }),
+    ).rejects.toThrow(/which is not in the seed corpus/);
+  });
+
+  it('refuses an artefact that does not fit the owner it belongs to', async () => {
+    await expect(
+      validateBookSeedCorpus({
+        books: [book({ denemeCount: 2 })],
+        ownerSlugTr: 'ornek-kitap',
+        artifact: artifact([1, 5]),
+      }),
+    ).rejects.toThrow(/greater than the book's denemeCount/);
+  });
+
+  it('refuses a defective corpus before it ever reaches the artefact', async () => {
+    await expect(validateBookSeedCorpus({ books: [] })).rejects.toThrow(/corpus is empty/);
   });
 });
 

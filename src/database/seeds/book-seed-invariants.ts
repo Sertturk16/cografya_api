@@ -1,5 +1,9 @@
-import type { BookTimestampsArtifact } from './book-timestamps.artifact';
-import type { BookSeed } from './books.seed-data';
+import {
+  assertArtifactMeetsCoverageFloor,
+  readBookTimestampsArtifact,
+  type BookTimestampsArtifact,
+} from './book-timestamps.artifact';
+import { BOOK_TIMESTAMPS_OWNER_SLUG_TR, SEED_BOOKS, type BookSeed } from './books.seed-data';
 
 /**
  * The structural rules a book row must satisfy BEFORE anything is written — the seed-side half of
@@ -28,6 +32,16 @@ import type { BookSeed } from './books.seed-data';
  * decision the owner already ruled on. They are surfaced as NOTES instead —
  * {@link collectBookSeedNotes} — which the seed CLI prints on every run, so the policy is visible
  * at the moment somebody edits a string rather than at audit time.
+ *
+ * ## Which HALF of each CONTENT-STYLE section is pinned, so the gate's silence is not read as cover
+ * Only the parts that are ARITHMETIC are here, and §16 is the section where that split matters:
+ * its second limit ("bir paragrafta en fazla 1 noktalı virgül") is counted below, while its FIRST
+ * ("bir cümlede en fazla 2 bağımsız olgu") is not — counting independent facts in a sentence is
+ * judgement, and a wrong count would either veto correct prose or license a false green. §12
+ * (sentence-length uniformity), §9 (mechanical parallelism) and §13 (repeated openers) are absent
+ * for the same reason. **A green `pnpm db:seed:books --check` therefore does NOT mean "the
+ * CONTENT-STYLE ceilings hold"** — it means the machine-checkable ones hold. The rest is the
+ * content-fidelity review leg's, on the draft, before the string reaches this file.
  */
 
 /** Slug alphabet after `GLOSSARY.md` §5's four folding rules: only `a-z0-9-` survives. */
@@ -58,11 +72,64 @@ const COVER_IMAGE_PATH_PATTERN = /^\/[A-Za-z0-9._~/-]+$/;
  */
 const SHOUTED_WORD_PATTERN = /[A-ZÇĞİÖŞÜ]{4,}/;
 
-/** Fields on a book row that a reader sees as prose, and which the ceilings therefore bind. */
+/**
+ * The YouTube CHANNEL id shape — `UC` plus 22 characters of the same alphabet the video id uses.
+ *
+ * Pinned for the reason `CHK_book_videos_youtube_video_id` pins the 11-character video id: this
+ * value builds the reader-facing attribution link (SPEC §10) and is REQUIRED in the published
+ * contract, so an id one character short is a dead link that every other check passes.
+ *
+ * `youtubePlaylistId` deliberately gets NO pattern: playlist ids come in several families (`PL`,
+ * `UU`, `OL`, `RD`, …) of differing lengths, so a pattern would refuse legitimate values, and the
+ * column is nullable and attribution-only. Its non-empty and length checks below are the whole
+ * guard, and that is a decision rather than an omission.
+ */
+const YOUTUBE_CHANNEL_ID_PATTERN = /^UC[A-Za-z0-9_-]{22}$/;
+
+/**
+ * Fields on a book row that a reader sees as prose, and which the ceilings therefore bind.
+ *
+ * `titleTr` and `publisherName` are reader-facing too and are deliberately OUTSIDE this list: a
+ * printed book title and a publisher name are quoted from the cover, so the §2 ALL-CAPS ceiling
+ * and the §16/§17 paragraph ceilings would bind us to restyle somebody else's name. They still
+ * carry the structural checks in {@link collectKunyeProblems} (non-empty, column length) and the
+ * No-Endorsement guard. The boundary is asserted by a spec case so the next reader meets a
+ * decision rather than an omission.
+ */
 const PROSE_FIELDS = ['introTr', 'metaTitleTr', 'metaDescriptionTr'] as const;
 
 /** Prose fields that are single-line by nature: a newline inside a `<title>`/`<meta>` is a defect. */
 const SINGLE_LINE_PROSE_FIELDS = ['metaTitleTr', 'metaDescriptionTr'] as const;
+
+/**
+ * Every REQUIRED string column, with the `varchar` length the migration gives it.
+ *
+ * Mirrored for the reason `CHK_books_cover_image_path` is mirrored above: a value the database
+ * rejects arrives as a constraint violation mid-transaction, while a value rejected here names the
+ * field and the rule — and `--check`, which opens no connection, can see it at all. The database
+ * has NO guard for the other half of this list: an empty `metaTitleTr` satisfies every CHECK and
+ * every invariant, and publishes an empty `<title>` on an indexable page.
+ *
+ * `null` is the entry for `intro_tr`, whose column is `text` and therefore unbounded.
+ */
+const REQUIRED_STRING_FIELDS = [
+  ['slugTr', 140],
+  ['slugEn', 140],
+  ['titleTr', 200],
+  ['publisherName', 120],
+  ['introTr', null],
+  ['metaTitleTr', 200],
+  ['metaDescriptionTr', 400],
+  ['youtubeChannelId', 32],
+] as const satisfies readonly (readonly [keyof BookSeed, number | null])[];
+
+/** Nullable string columns, with their `varchar` lengths. A `null` value skips both checks. */
+const OPTIONAL_STRING_FIELDS = [
+  ['titleEn', 200],
+  ['coverImagePath', 200],
+  ['purchaseUrl', 300],
+  ['youtubePlaylistId', 64],
+] as const satisfies readonly (readonly [keyof BookSeed, number])[];
 
 export class BookSeedInvariantError extends Error {
   constructor(message: string) {
@@ -102,6 +169,16 @@ function collectProseProblems(book: BookSeed): string[] {
       problems.push(
         `${field}: contains a single newline. Paragraphs are separated by a blank line ` +
           `(\\n\\n) — a lone \\n is not a paragraph break (CONTENT-STYLE §20).`,
+      );
+    }
+    // §20's other side, and the case the check above cannot see: a run of FOUR newlines is
+    // consumed as two `\n\n` pairs and passes it, while `paragraphsOf` then yields an empty
+    // paragraph and the web repo's `ProseNote` renders an empty block. Testing the OUTPUT of the
+    // split rather than the raw string closes every run length at once.
+    if (paragraphsOf(value).some((paragraph) => paragraph.trim().length === 0)) {
+      problems.push(
+        `${field}: contains an empty paragraph (a run of four or more newlines). One blank ` +
+          `line separates two paragraphs (CONTENT-STYLE §20).`,
       );
     }
     if (SHOUTED_WORD_PATTERN.test(value)) {
@@ -156,6 +233,51 @@ function collectProseProblems(book: BookSeed): string[] {
 function collectKunyeProblems(book: BookSeed): string[] {
   const problems: string[] = [];
   const label = book.slugTr || '(no slugTr)';
+
+  for (const [field, maxLength] of REQUIRED_STRING_FIELDS) {
+    const value = book[field];
+
+    if (value.trim().length === 0) {
+      problems.push(
+        `${label}: ${field} is empty. It is NOT NULL in the schema and required in the published ` +
+          `contract — the database accepts an empty string and the page publishes it.`,
+      );
+    }
+    if (maxLength !== null && [...value].length > maxLength) {
+      problems.push(
+        `${label}: ${field} is ${String([...value].length)} characters; the column holds ` +
+          `${String(maxLength)}. Postgres would refuse it mid-transaction as "value too long".`,
+      );
+    }
+  }
+
+  for (const [field, maxLength] of OPTIONAL_STRING_FIELDS) {
+    const value = book[field];
+
+    if (value === null) {
+      continue;
+    }
+    if (value.trim().length === 0) {
+      problems.push(
+        `${label}: ${field} is an empty string. A value we do not have is \`null\`, never \`''\` — ` +
+          `the contract defines the null case and defines no empty-string case.`,
+      );
+    }
+    if ([...value].length > maxLength) {
+      problems.push(
+        `${label}: ${field} is ${String([...value].length)} characters; the column holds ` +
+          `${String(maxLength)}. Postgres would refuse it mid-transaction as "value too long".`,
+      );
+    }
+  }
+
+  if (!YOUTUBE_CHANNEL_ID_PATTERN.test(book.youtubeChannelId)) {
+    problems.push(
+      `${label}: youtubeChannelId ${JSON.stringify(book.youtubeChannelId)} is not a channel id ` +
+        `(UC + 22 characters). It becomes the attribution link on a public page, so a truncated ` +
+        `id is a dead link nothing else would catch.`,
+    );
+  }
 
   for (const [field, value] of [
     ['slugTr', book.slugTr],
@@ -242,6 +364,16 @@ export function assertBookSeedInvariants(books: readonly BookSeed[]): void {
   // collision the check exists for, so it would have been a gate that never goes red.
   const seenSlugs = new Map<string, number>();
   const seenIsbns = new Map<string, number>();
+  // One map PER prose field, keyed the same way and for the same reason. Unlike the two above,
+  // this refusal mirrors NO database constraint: `meta_title_tr` carries no UNIQUE, and it should
+  // not — it is an editorial rule (`SEO-POLICY.md` §B10.1/10.2, two indexable pages must not ship
+  // one `<title>` or one description), and the book tier has no row ceiling (→ DEC 2026-08-15e).
+  // It is the BYTE-level floor and nothing more: the realistic copy-paste failure is skeleton-level
+  // (same shape, künye slots swapped), which no exact comparison can see and which a masking
+  // comparator over a corpus of one would be speculative generality to build.
+  const seenProse = new Map<string, Map<string, number>>(
+    PROSE_FIELDS.map((field) => [field, new Map<string, number>()]),
+  );
 
   for (const [index, book] of books.entries()) {
     problems.push(...collectKunyeProblems(book), ...collectProseProblems(book));
@@ -272,6 +404,23 @@ export function assertBookSeedInvariants(books: readonly BookSeed[]): void {
     } else {
       seenIsbns.set(book.isbn13, index);
     }
+
+    for (const field of PROSE_FIELDS) {
+      const seen = seenProse.get(field);
+      if (seen === undefined) {
+        continue;
+      }
+      const proseOwner = seen.get(book[field]);
+      if (proseOwner !== undefined) {
+        problems.push(
+          `${field} is byte-identical on rows ${String(proseOwner + 1)} and ` +
+            `${String(index + 1)}. Two indexable book pages must not ship one ${field} ` +
+            `(SEO-POLICY §B10) — write the second book's text, do not copy the first's.`,
+        );
+      } else {
+        seen.set(book[field], index);
+      }
+    }
   }
 
   if (problems.length > 0) {
@@ -292,6 +441,17 @@ export function assertBookSeedInvariants(books: readonly BookSeed[]): void {
 export function assertArtifactMatchesBook(book: BookSeed, artifact: BookTimestampsArtifact): void {
   const problems: string[] = [];
 
+  // Playbook §8 refusal 1 on the INJECTED path. `parseBookTimestampsArtifact` refuses an empty
+  // artefact by schema, but `seedBooks(ds, { artifact })` bypasses the parser entirely, and an
+  // empty artefact down that seam means "every deneme is stale": the whole index is deleted and
+  // the run reports it as a successful removal. B3 drives that seam with fixtures, so the refusal
+  // lives here, where BOTH paths reach it.
+  if (artifact.videos.length === 0) {
+    problems.push(
+      'the artefact carries no videos at all — nothing to seed, and that is a failure.',
+    );
+  }
+
   for (const video of artifact.videos) {
     if (video.denemeNo > book.denemeCount) {
       problems.push(
@@ -301,6 +461,10 @@ export function assertArtifactMatchesBook(book: BookSeed, artifact: BookTimestam
     }
   }
 
+  // Unreachable on a PARSED artefact and deliberately kept: refusal 3 makes `deneme` unique and
+  // the loop above bounds each one by `denemeCount`, so at most `denemeCount` distinct values can
+  // exist. What it still guards is the injected seam, where no uniqueness refusal ran — which is
+  // also why its spec case has to construct a duplicate deneme the parser would refuse.
   if (artifact.videos.length > book.denemeCount) {
     problems.push(
       `${String(artifact.videos.length)} videos for a book with ${String(book.denemeCount)} ` +
@@ -313,6 +477,71 @@ export function assertArtifactMatchesBook(book: BookSeed, artifact: BookTimestam
       `the question index does not fit ${book.slugTr}:\n  ${problems.join('\n  ')}`,
     );
   }
+}
+
+/** What a corpus reduces to once every refusal has passed. */
+export interface ValidatedBookSeedCorpus {
+  readonly books: readonly BookSeed[];
+  readonly artifact: BookTimestampsArtifact;
+  /** The row the question index belongs to — resolved here so no caller re-derives it. */
+  readonly owner: BookSeed;
+}
+
+export interface ValidateBookSeedCorpusOptions {
+  /** Defaults to the committed corpus. */
+  books?: readonly BookSeed[];
+  /** Defaults to reading, hash-checking and floor-checking the committed artefact. */
+  artifact?: BookTimestampsArtifact;
+  /** Which book the artefact belongs to. */
+  ownerSlugTr?: string;
+}
+
+/**
+ * EVERY refusal that stands between an input and the database, in one place.
+ *
+ * ## Why this is one exported function and not two call sites that "do the same thing"
+ * They did not do the same thing. `--check` used to run the corpus invariants and the artefact
+ * read, while the write path additionally ran the owner-existence refusal and
+ * {@link assertArtifactMatchesBook} — so a künye whose `denemeCount` disagreed with the artefact
+ * passed `--check` with exit 0 and was refused by the write, and three documents claimed the
+ * opposite (PR #109 review, `CODE109-I1` = `TA109-I2` = `SFH109-I1`; measured at `denemeCount=25`).
+ * The two lists were hand-duplicated, which is how they could diverge at all. One list cannot.
+ *
+ * Nothing here opens a connection, imports an entity or touches TypeORM — which is what makes
+ * "`--check` needs no database" a structural property of this module rather than a promise in a
+ * comment. Adding a refusal here adds it to both paths by construction.
+ *
+ * The floor and the hash pin apply to the COMMITTED artefact only. An injected artefact is a
+ * caller's fixture (B3's e2e drives insert/update/no-op/remove through it), and its size and bytes
+ * are the caller's business — but every CROSS-ROW refusal in this module still binds it.
+ */
+export async function validateBookSeedCorpus(
+  options: ValidateBookSeedCorpusOptions = {},
+): Promise<ValidatedBookSeedCorpus> {
+  const books = options.books ?? SEED_BOOKS;
+  const ownerSlugTr = options.ownerSlugTr ?? BOOK_TIMESTAMPS_OWNER_SLUG_TR;
+
+  assertBookSeedInvariants(books);
+
+  let artifact: BookTimestampsArtifact;
+  if (options.artifact === undefined) {
+    artifact = await readBookTimestampsArtifact();
+    assertArtifactMeetsCoverageFloor(artifact);
+  } else {
+    artifact = options.artifact;
+  }
+
+  const owner = books.find((book) => book.slugTr === ownerSlugTr);
+  if (owner === undefined) {
+    throw new BookSeedInvariantError(
+      `the question index belongs to ${ownerSlugTr}, which is not in the seed corpus. The artefact ` +
+        `and the künye row land together or not at all.`,
+    );
+  }
+
+  assertArtifactMatchesBook(owner, artifact);
+
+  return { books, artifact, owner };
 }
 
 /**
