@@ -252,7 +252,12 @@ export class Book {
   @Column({ name: 'youtube_playlist_id', type: 'varchar', length: 64, nullable: true })
   youtubePlaylistId!: string | null;
 
-  /** The channel the solutions are published on — attribution and the channel link. */
+  /**
+   * The channel the solutions are published on, published as-is on the detail response.
+   *
+   * It does NOT build the reader-facing channel link: `DEC 2026-08-17b` made that address the
+   * handle constant in `book/book-attribution.catalogue.ts`, which a channel id cannot compose.
+   */
   @Column({ name: 'youtube_channel_id', type: 'varchar', length: 32 })
   youtubeChannelId!: string;
 

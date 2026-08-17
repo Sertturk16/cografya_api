@@ -5,21 +5,14 @@ import {
   buildBookAttribution,
   PARTNER_PROVIDER_NAME,
   PARTNER_REQUIRED_NOTICE_TR,
+  YOUTUBE_CHANNEL_URL,
   YOUTUBE_PROVIDER_NAME,
   YOUTUBE_REQUIRED_NOTICE_TR,
-  youtubeChannelUrl,
 } from './book-attribution.catalogue';
-
-/**
- * A SYNTHETIC channel id. The real one is a fact that belongs to the seed and the ledger, and
- * re-typing it here would make this spec assert a fact rather than a shape. Everything below that
- * involves the id is derived from this value, so the cases stay structural.
- */
-const TEST_CHANNEL_ID = 'UC_test_channel';
 
 /** Every string the module actually serves, flattened — the corpus the guards below run over. */
 function servedStrings(): string[] {
-  return buildBookAttribution(TEST_CHANNEL_ID)
+  return buildBookAttribution()
     .flatMap((row) => Object.values(row))
     .filter((value): value is string => typeof value === 'string');
 }
@@ -33,7 +26,11 @@ function servedStrings(): string[] {
  * verbatim string is not a claim ABOUT the world that a separate fact-check owns — it IS the
  * artifact under test. One changed letter breaks the obligation, and no structural assertion can
  * see that. The accepted text is `provenance/integrations.md`, "YouTube attribution — canonical
- * strings" and "Other `BookAttributionDto` values sourced from this ledger".
+ * strings" and "Other `BookAttributionDto` values sourced from this ledger" — plus, for
+ * `channelUrl` alone, `DEC 2026-08-17b` and the verification note it was conditional on, because
+ * the ledger deliberately carries no row for that field. A ruled address is the same kind of
+ * artifact as a mandated notice: one changed character serves a link to somebody else's channel,
+ * or to nothing.
  *
  * The exception is narrow: it covers ledger-sourced verbatim strings and nothing else. Do not cite
  * it to hardcode a deneme count, a start second or any other measured number.
@@ -52,14 +49,15 @@ describe('book attribution catalogue', () => {
     expect(PARTNER_REQUIRED_NOTICE_TR).toBe(
       "Video çözümler Coğrafya Gurmesi kanalına, kitap Coğrafya Gurmesi Yayınları'na aittir.",
     );
+    expect(YOUTUBE_CHANNEL_URL).toBe('https://www.youtube.com/@cografyagurmesi');
 
-    expect(buildBookAttribution(TEST_CHANNEL_ID)).toEqual([
+    expect(buildBookAttribution()).toEqual([
       {
         providerId: 'youtube',
         providerName: 'YouTube',
         requiredNoticeTr: 'Video kaynağı: YouTube',
         licenceUrl: null,
-        channelUrl: `https://www.youtube.com/channel/${TEST_CHANNEL_ID}`,
+        channelUrl: 'https://www.youtube.com/@cografyagurmesi',
       },
       {
         providerId: 'partner',
@@ -67,7 +65,7 @@ describe('book attribution catalogue', () => {
         requiredNoticeTr:
           "Video çözümler Coğrafya Gurmesi kanalına, kitap Coğrafya Gurmesi Yayınları'na aittir.",
         licenceUrl: null,
-        channelUrl: `https://www.youtube.com/channel/${TEST_CHANNEL_ID}`,
+        channelUrl: 'https://www.youtube.com/@cografyagurmesi',
       },
     ]);
   });
@@ -99,20 +97,24 @@ describe('book attribution catalogue', () => {
     }
   });
 
-  it('composes channelUrl from the column rather than storing an address', () => {
-    // `DEC 2026-08-15h` item 4: the attribution STRINGS are the ledger's, a URL FORM is not.
-    // Asserted through the id this test owns, so the case says "the id reaches the URL" without
-    // pinning which channel the catalogue happens to be used for.
-    expect(youtubeChannelUrl(TEST_CHANNEL_ID)).toContain(TEST_CHANNEL_ID);
-    expect(youtubeChannelUrl('UC_other')).toBe('https://www.youtube.com/channel/UC_other');
-    for (const row of buildBookAttribution(TEST_CHANNEL_ID)) {
-      expect(row.channelUrl).toBe(youtubeChannelUrl(TEST_CHANNEL_ID));
+  it('serves ONE ruled channel address on both rows, and never a composed one', () => {
+    // The predecessor case asserted the opposite — that the id reached the URL — and `DEC
+    // 2026-08-17b` reversed its premise: a handle cannot be derived from an id, so the address is
+    // now a compiled constant. What is worth asserting is therefore that the two rows do not
+    // drift apart, and that neither carries the retired `/channel/<id>` form.
+    expect(YOUTUBE_CHANNEL_URL.includes('/channel/')).toBe(false);
+    const rows = buildBookAttribution();
+    // Cannot pass on nothing: `for…of` over an empty array satisfies every assertion inside it
+    // (`TEST110-M4`, the same lesson the brand case learned).
+    expect(rows.length).toBeGreaterThan(0);
+    for (const row of rows) {
+      expect(row.channelUrl).toBe(YOUTUBE_CHANNEL_URL);
     }
   });
 
   it('hands every response its own row objects (no shared mutable state)', () => {
-    const first = buildBookAttribution(TEST_CHANNEL_ID);
-    const second = buildBookAttribution(TEST_CHANNEL_ID);
+    const first = buildBookAttribution();
+    const second = buildBookAttribution();
     expect(first).not.toBe(second);
     expect(first[0]).not.toBe(second[0]);
     expect(first).toEqual(second);

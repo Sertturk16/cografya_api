@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
+import { YOUTUBE_CHANNEL_URL } from '../src/book/book-attribution.catalogue';
 import { ExamTrack } from '../src/book/book.types';
 import {
   BOOK_LIST_DEFAULT_PAGE,
@@ -336,8 +337,11 @@ describe('Book read path (e2e, real Postgres)', () => {
         expect(`${row.providerId}.name=${String(row.providerName.length > 0)}`).toBe(
           `${row.providerId}.name=true`,
         );
-        // Composed from the stored channel id (`DEC 2026-08-15h` item 4).
-        expect(row.channelUrl).toContain(body.youtubeChannelId);
+        // The ONE ruled channel address (`DEC 2026-08-17b`), imported rather than retyped for the
+        // reason the four pagination numbers are: a copy here would keep passing the day the
+        // served constant changed. It is no longer composed from `youtubeChannelId`, so asserting
+        // containment of that id would now be asserting the retired form.
+        expect(row.channelUrl).toBe(YOUTUBE_CHANNEL_URL);
       }
     });
 

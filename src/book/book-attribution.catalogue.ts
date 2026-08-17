@@ -11,13 +11,19 @@ import type { BookAttributionDto } from './dto/book-attribution.dto';
  * change plus a fresh NOVA verification plus a `provenance/integrations.md` entry. No operator ever
  * edits them by hand, and an unseeded database cannot serve the content uncredited.
  *
- * ## Every value here is COPIED from the ledger, none is minted
+ * ## Every value here is COPIED from the ledger, none is minted — with ONE stated exception
  * `provenance/integrations.md` is the canonical home, and it carries two tables inside its
  * attribution block: "YouTube attribution — canonical strings" for the two notices, and "Other
  * `BookAttributionDto` values sourced from this ledger" for `providerName` and `licenceUrl`. The
  * second table exists because those two fields' own `@ApiProperty` descriptions named the ledger
  * while the ledger carried no row for them — B3 closed that gap by extending the ledger, not by
  * inventing values here (Atlas ruling, 2026-08-15).
+ *
+ * The exception is {@link YOUTUBE_CHANNEL_URL}: the ledger states it "deliberately has no row
+ * here" and names the two rulings it was waiting on. Its source is therefore `DEC 2026-08-17b`
+ * plus the verification note that ruling made it conditional on, both cited at the constant. The
+ * ledger paragraph is filled by NOVA on the next provenance touch (the ruling's own
+ * implementation line) — `provenance/` is not this repo's to edit.
  *
  * The notices are the **untouchable class** of `CONTENT-STYLE.md` §22: copied exactly, never
  * translated, shortened or reworded. `book-attribution.catalogue.spec.ts` pins every served string
@@ -42,10 +48,13 @@ import type { BookAttributionDto } from './dto/book-attribution.dto';
  *
  * ## One partner, and the boundary is guarded rather than abstracted
  * `PARTNER_REQUIRED_NOTICE_TR` names Coğrafya Gurmesi by name, so it is correct for exactly the
- * books that channel publishes. No abstraction is built for a second partner (`ENGINEERING.md` §12,
- * YAGNI), but the boundary is not left silent either: the spec asserts every seeded book shares one
- * `youtubeChannelId`, which carries no fact literal, cannot pass on an empty corpus, and fails the
- * build the moment a book from another channel is seeded (`FU-BOOK-ATTRIBUTION-MULTIPARTNER`).
+ * books that channel publishes. **Since `DEC 2026-08-17b`, {@link YOUTUBE_CHANNEL_URL} is in that
+ * same class** — a handle cannot be derived from an id, so the address is a compiled per-channel
+ * value rather than a function of the column. No abstraction is built for a second partner
+ * (`ENGINEERING.md` §12, YAGNI), but the boundary is not left silent either: the spec asserts every
+ * seeded book shares one `youtubeChannelId`, which carries no fact literal, cannot pass on an empty
+ * corpus, and fails the build the moment a book from another channel is seeded
+ * (`FU-BOOK-ATTRIBUTION-MULTIPARTNER` — whose scope now covers the address as well as the notice).
  */
 
 /** `providerName` for the YouTube row — the brand's own form; never `YT`, `You-Tube` or `Youtube`. */
@@ -69,20 +78,32 @@ export const PARTNER_REQUIRED_NOTICE_TR =
   "Video çözümler Coğrafya Gurmesi kanalına, kitap Coğrafya Gurmesi Yayınları'na aittir.";
 
 /**
- * The canonical channel address, composed from the stored id.
+ * The channel address both attribution rows point at — the HANDLE form, owner-ruled.
  *
- * `DEC 2026-08-15h` item 4: composed from the column, because an attribution *string* belongs to
- * the ledger while a URL FORM does not. The `@handle` form is deliberately not used — it was never
- * verified as the channel's canonical address, and settling that needs a network round this leg has
- * not spent.
+ * `DEC 2026-08-17b` hüküm 1 sets the served form to the handle, replacing the `/channel/<id>` form
+ * composed from the column under `DEC 2026-08-15h` item 4. **That ruling was conditional and the
+ * condition was discharged before this constant landed:**
+ * `Owner's Inbox/kitap-video-web/channelurl-verification.md` establishes handle and
+ * `UCH7D1zOgHykrHfx5Q7WERmw` as the same channel in BOTH directions — the handle page carries the
+ * id in `<meta itemprop="identifier">`, the id page carries `"canonicalBaseUrl":"/@cografyagurmesi"`
+ * — and both addresses answered 200 with no redirect. That note also closes the older docblock's
+ * open flag: the address is no longer merely a shape, it was fetched.
  *
- * **Flagged and staying flagged:** that this URL actually RESOLVES is unverified — zero network on
- * this leg, verified at first real use. The shape being ruled is not the same as the address being
- * reachable.
+ * **A constant rather than a composition, and that is the ruling's real content.** A handle cannot
+ * be derived from a channel id, so the address stops being a function of the column. What that
+ * costs is stated where it can be acted on: a book seeded from another channel would now receive
+ * this channel's address as well as this channel's credit, and the guard for both is the same
+ * seeded-corpus invariant in the spec beside this file, not anything checkable here at runtime.
+ *
+ * **Two risks the owner took knowingly, recorded rather than smoothed:**
+ * - YouTube "reserves the right to change, reclaim, or remove a handle at any time" (its own help
+ *   page, quoted in the verification note K5). A channel id is not exposed to that. The ruling
+ *   weighs it against a one-line correction and accepts it.
+ * - NOVA's recommendation was the id form, because YouTube's own `<link rel="canonical">` prints
+ *   that form on both pages. The owner ruled the handle on the reference product's precedent. The
+ *   recommendation is recorded here so the next reader reads a decision, not an oversight.
  */
-export function youtubeChannelUrl(youtubeChannelId: string): string {
-  return `https://www.youtube.com/channel/${youtubeChannelId}`;
-}
+export const YOUTUBE_CHANNEL_URL = 'https://www.youtube.com/@cografyagurmesi';
 
 /**
  * Builds both attribution rows for one book.
@@ -91,15 +112,16 @@ export function youtubeChannelUrl(youtubeChannelId: string): string {
  * frozen structure would make any future mutation by a consumer a cross-request bug (the CAMS
  * `noticeKeys` precedent).
  *
- * Both rows point at the same channel URL. The DTO's own description allows "the channel or the
- * publisher"; we hold a channel id and no publisher URL, and inventing one is exactly what the
- * `licenceUrl = null` reasoning forbids.
+ * Both rows point at the same channel address. The DTO's own description allows "the channel or the
+ * publisher"; we hold a channel and no publisher URL, and inventing one is exactly what the
+ * `licenceUrl = null` reasoning forbids. Which of the two the `partner` row ought to point at is
+ * the second question `provenance/integrations.md` records as open, and `DEC 2026-08-17b` settled
+ * the address FORM only — so it stays open and is not settled here by default.
  *
- * @param youtubeChannelId the book's `youtube_channel_id` column.
+ * Takes no argument: since `DEC 2026-08-17b` nothing in either row is derived from the book, and a
+ * parameter kept for looks would read as a per-book value that no longer exists.
  */
-export function buildBookAttribution(youtubeChannelId: string): BookAttributionDto[] {
-  const channelUrl = youtubeChannelUrl(youtubeChannelId);
-
+export function buildBookAttribution(): BookAttributionDto[] {
   return [
     {
       providerId: BOOK_ATTRIBUTION_PROVIDER_YOUTUBE,
@@ -110,7 +132,7 @@ export function buildBookAttribution(youtubeChannelId: string): BookAttributionD
       // grant with a canonical address of the CC-BY kind. Pointing this at a ToS page would publish
       // a licence that does not exist.
       licenceUrl: null,
-      channelUrl,
+      channelUrl: YOUTUBE_CHANNEL_URL,
     },
     {
       providerId: BOOK_ATTRIBUTION_PROVIDER_PARTNER,
@@ -120,7 +142,7 @@ export function buildBookAttribution(youtubeChannelId: string): BookAttributionD
       // `CONVENTIONS.md` §7 — the commissioning party is the content owner, so no third party
       // licensed anything and there is no licence URL to publish.
       licenceUrl: null,
-      channelUrl,
+      channelUrl: YOUTUBE_CHANNEL_URL,
     },
   ];
 }

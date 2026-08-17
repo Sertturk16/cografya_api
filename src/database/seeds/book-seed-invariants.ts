@@ -76,8 +76,16 @@ const SHOUTED_WORD_PATTERN = /[A-ZÇĞİÖŞÜ]{4,}/;
  * The YouTube CHANNEL id shape — `UC` plus 22 characters of the same alphabet the video id uses.
  *
  * Pinned for the reason `CHK_book_videos_youtube_video_id` pins the 11-character video id: this
- * value builds the reader-facing attribution link (SPEC §10) and is REQUIRED in the published
- * contract, so an id one character short is a dead link that every other check passes.
+ * value is REQUIRED in the published contract (`BookDetailDto.youtubeChannelId`), so an id one
+ * character short ships to every consumer of that field and every other check passes it.
+ *
+ * **Its older justification — that this value builds the reader-facing attribution link — is no
+ * longer true and the pattern outlives it.** `DEC 2026-08-17b` made the served address the handle
+ * constant in `book/book-attribution.catalogue.ts`, so nothing composes a link from this id any
+ * more. The `^UC` half is what now earns its keep on its own: the channel's RSS feed prints
+ * `<yt:channelId>` with the `UC` prefix DROPPED (22 characters instead of 24), so an id copied from
+ * there looks entirely plausible and is refused here — the trap recorded in
+ * `Owner's Inbox/kitap-video-web/channelurl-verification.md` K3.
  *
  * `youtubePlaylistId` deliberately gets NO pattern: playlist ids come in several families (`PL`,
  * `UU`, `OL`, `RD`, …) of differing lengths, so a pattern would refuse legitimate values, and the
@@ -274,8 +282,9 @@ function collectKunyeProblems(book: BookSeed): string[] {
   if (!YOUTUBE_CHANNEL_ID_PATTERN.test(book.youtubeChannelId)) {
     problems.push(
       `${label}: youtubeChannelId ${JSON.stringify(book.youtubeChannelId)} is not a channel id ` +
-        `(UC + 22 characters). It becomes the attribution link on a public page, so a truncated ` +
-        `id is a dead link nothing else would catch.`,
+        `(UC + 22 characters). It is published on the book detail response, and an RSS feed's ` +
+        `yt:channelId drops the UC prefix, so a truncated id is plausible and nothing else ` +
+        `would catch it.`,
     );
   }
 
