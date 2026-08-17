@@ -138,7 +138,10 @@ export class BookDetailDto extends BookListItemDto {
   @ApiProperty({
     type: String,
     example: 'UCH7D1zOgHykrHfx5Q7WERmw',
-    description: 'The channel the solutions are published on — attribution and the channel link.',
+    description:
+      'The channel the solutions are published on. The attribution rows carry the channel ' +
+      'address themselves in channelUrl; it is not composed from this id, so do not build a ' +
+      'link out of it.',
   })
   youtubeChannelId!: string;
 

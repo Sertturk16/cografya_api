@@ -263,7 +263,7 @@ export class BookService {
       // Populated on EVERY response, in every data state — an empty array would be a breach of the
       // attribution obligation rather than a degraded widget, which is why the rows are compiled
       // constants and not seed data.
-      attribution: buildBookAttribution(book.youtubeChannelId),
+      attribution: buildBookAttribution(),
     };
   }
 
