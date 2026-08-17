@@ -352,6 +352,59 @@ export const envSchema = z
     AIR_QUALITY_CLIENT_ERROR_TTL_SECONDS: z.coerce.number().int().positive().default(900),
     AIR_QUALITY_SCHEMA_ERROR_TTL_SECONDS: z.coerce.number().int().positive().default(300),
 
+    // ── Earthquakes: AFAD TDVMS ingest (deprem SPEC §14) ───────────────────────
+    // Master kill switch for the leg's UPSTREAM half. `false` by default so a fresh deployment
+    // never polls AFAD before somebody decided it should. E2 ships the ingest only; when E3's
+    // public endpoints land they stay registered either way and degrade honestly from Postgres.
+    EARTHQUAKE_ENABLED: envBoolean('false'),
+    // The tours' second switch, so ingest can be stopped without taking the feature down.
+    EARTHQUAKE_INGEST_ENABLED: envBoolean('true'),
+    // API ROOT. It points at `servisnet` DIRECTLY and that is the whole handling of the measured
+    // 302: `deprem.afad.gov.tr/apiv2/...` redirects here, and the shared client refuses redirects
+    // outright (`redirect: 'error'`), so aiming at the redirecting host would turn every tour into
+    // a transient failure. If AFAD ever moves again, the fix is this value — never the policy.
+    AFAD_EVENT_API_BASE_URL: z
+      .url()
+      .default('https://servisnet.afad.gov.tr/apigateway/deprem/apiv2'),
+    // D-G: 300 s. AFAD documents no rate limit, so the cadence is a courtesy decision rather than
+    // a technical one — 2.5× the alternative's frequency buys ≤3 min freshness.
+    EARTHQUAKE_INGEST_INTERVAL_SECONDS: z.coerce.number().int().positive().default(300),
+    // ONE deadline for both tours; the cross-checks below compare it against BOTH intervals.
+    EARTHQUAKE_INGEST_DEADLINE_MS: z.coerce.number().int().positive().default(120_000),
+    // The frequent tour's window. Wider than the interval on purpose (cross-check 3): overlapping
+    // windows are what make a missed tour self-healing rather than a permanent hole.
+    EARTHQUAKE_RECENT_WINDOW_HOURS: z.coerce.number().int().positive().default(6),
+    // The reconcile cadence and its window. 7 days covers Elbistan M7.6's three-day revision
+    // (measured); a revision later than that is an accepted residual risk, stated in the SPEC.
+    EARTHQUAKE_RECONCILE_INTERVAL_SECONDS: z.coerce.number().int().positive().default(21_600),
+    EARTHQUAKE_RECONCILE_WINDOW_DAYS: z.coerce.number().int().positive().default(7),
+    // `end` is asked for slightly in the future: if our clock trails AFAD's, `end = now` misses the
+    // newest event for a whole cycle. A future `end` is accepted (measured).
+    EARTHQUAKE_CLOCK_SKEW_SECONDS: z.coerce.number().int().nonnegative().default(300),
+    // The slowest measured call was 0.43 s; 15 s is ~35× that.
+    EARTHQUAKE_SINGLE_CALL_TIMEOUT_MS: z.coerce.number().int().positive().default(15_000),
+    EARTHQUAKE_TOUR_BUDGET_MS: z.coerce.number().int().positive().default(60_000),
+    // Byte ceiling for ONE response, applied to the DECOMPRESSED body (Node's fetch requests gzip
+    // itself and inflates before we count). The measured 7-day window is 203 KB inflated, so 4 MiB
+    // is ~20× reality. Deliberately tighter than the SPEC's proposed 16 MiB: the body is parsed as
+    // JSON in this process, so this is a HEAP ceiling, and the air-quality precedent decides the
+    // direction — a tight ceiling fails loudly and early, a generous one fails as an OOM of the
+    // whole API.
+    EARTHQUAKE_RESPONSE_MAX_BYTES: z.coerce.number().int().positive().default(4_194_304),
+    // The overflow ALARM, never a "give me the last N" selector: AFAD applies `limit` BEFORE
+    // `orderby` (measured), so a small limit returns the OLDEST rows of the window. A response that
+    // reaches this number is treated as a possibly truncated window and refused.
+    EARTHQUAKE_SAFETY_LIMIT: z.coerce.number().int().positive().default(20_000),
+    // D-B, revised from 150 km to 200 km by DEC 2026-08-17k md.4 on this leg's own measurement: a
+    // recorded North Aegean open-water event sits 178.7 km from the national outline, i.e. exactly
+    // the case QUESTIONS.md D-1 warned would be dropped.
+    EARTHQUAKE_SCOPE_BUFFER_KM: z.coerce.number().int().positive().default(200),
+    // Retention for the ingest-run ledger (`FU-EQ-RUNS-PRUNE`). At the 300 s cadence the table
+    // takes ~107 000 rows a year; 14 days keeps ~4 000 while leaving a fortnight of history to
+    // diagnose from. The newest SUCCESSFUL run is never pruned, whatever its age — it is the
+    // freshness anchor, and deleting it would turn "the data is stale" into "there is no data".
+    EARTHQUAKE_RUN_RETENTION_DAYS: z.coerce.number().int().positive().default(14),
+
     // ── Book video solutions: the YouTube Data API v3 sync leg (SPEC §8, §14) ───
     // Master switch for the book leg's INGEST half — and ONLY that half. The two public endpoints
     // stay registered and answer from Postgres either way: an empty catalogue is a SEED state, not
@@ -722,6 +775,83 @@ export const envSchema = z
           'its own YouTube tour. Provision Redis, or start with BOOKS_YOUTUBE_SYNC_ENABLED=false.',
       });
     }
+
+    // ── Earthquakes: the AFAD TDVMS ingest (SPEC §14) ──────────────────────────
+    //
+    // 1. The same production+Redis rule as the three legs above, for the same reason — and here it
+    //    covers TWO tours, since this leg schedules `recent` and `reconcile` separately.
+    if (env.NODE_ENV === 'production' && env.EARTHQUAKE_ENABLED && env.REDIS_URL === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['REDIS_URL'],
+        message:
+          'REDIS_URL is REQUIRED when NODE_ENV=production and EARTHQUAKE_ENABLED=true (the same ' +
+          'owner ruling E1 / DEC 2026-07-29b that binds the marine, air-quality and book legs): ' +
+          'without Redis neither the `recent` nor the `reconcile` tour has a cross-instance lock, ' +
+          'so every instance would poll AFAD on its own. Provision Redis, or start with ' +
+          'EARTHQUAKE_ENABLED=false.',
+      });
+    }
+
+    // 2. The time chain: one call ≤ the provider slice ≤ the tour, and the tour shorter than BOTH
+    //    intervals it is scheduled on.
+    checkEnvBound(ctx, {
+      kind: 'must-not-exceed',
+      subject: 'EARTHQUAKE_SINGLE_CALL_TIMEOUT_MS',
+      subjectValue: env.EARTHQUAKE_SINGLE_CALL_TIMEOUT_MS,
+      limit: 'EARTHQUAKE_TOUR_BUDGET_MS',
+      limitValue: env.EARTHQUAKE_TOUR_BUDGET_MS,
+      reason: 'a single call cannot be allowed more time than the whole tour slice it runs in',
+    });
+    checkEnvBound(ctx, {
+      kind: 'must-not-exceed',
+      subject: 'EARTHQUAKE_TOUR_BUDGET_MS',
+      subjectValue: env.EARTHQUAKE_TOUR_BUDGET_MS,
+      limit: 'EARTHQUAKE_INGEST_DEADLINE_MS',
+      limitValue: env.EARTHQUAKE_INGEST_DEADLINE_MS,
+      reason: 'the provider slice cannot be allowed more time than the tour that hosts it',
+    });
+    checkEnvBound(ctx, {
+      kind: 'must-be-shorter-than',
+      subject: 'EARTHQUAKE_INGEST_DEADLINE_MS',
+      subjectValue: env.EARTHQUAKE_INGEST_DEADLINE_MS,
+      limit: 'EARTHQUAKE_INGEST_INTERVAL_SECONDS',
+      limitValue: env.EARTHQUAKE_INGEST_INTERVAL_SECONDS * 1000,
+      reason: 'a tour that can outlive its own interval overlaps the next one',
+    });
+    checkEnvBound(ctx, {
+      kind: 'must-be-shorter-than',
+      subject: 'EARTHQUAKE_INGEST_DEADLINE_MS',
+      subjectValue: env.EARTHQUAKE_INGEST_DEADLINE_MS,
+      limit: 'EARTHQUAKE_RECONCILE_INTERVAL_SECONDS',
+      limitValue: env.EARTHQUAKE_RECONCILE_INTERVAL_SECONDS * 1000,
+      reason:
+        'the same deadline governs the reconcile tour, so it must also fit inside the reconcile ' +
+        'interval',
+    });
+
+    // 3. Each window must be WIDER than the cadence that repeats it. This is the check that keeps
+    //    events from vanishing: with a window narrower than its interval, the stretch of time
+    //    between the end of one window and the start of the next is never queried by anybody, and
+    //    an event that happened in it is simply never seen again — no error, no gap, no trace.
+    checkEnvBound(ctx, {
+      kind: 'must-be-smaller-than',
+      subject: 'EARTHQUAKE_INGEST_INTERVAL_SECONDS',
+      subjectValue: env.EARTHQUAKE_INGEST_INTERVAL_SECONDS,
+      limit: 'EARTHQUAKE_RECENT_WINDOW_HOURS',
+      limitValue: env.EARTHQUAKE_RECENT_WINDOW_HOURS * 3600,
+      reason:
+        'a window narrower than the interval that repeats it leaves an unqueried gap between tours ' +
+        'and events inside that gap are lost silently',
+    });
+    checkEnvBound(ctx, {
+      kind: 'must-be-smaller-than',
+      subject: 'EARTHQUAKE_RECONCILE_INTERVAL_SECONDS',
+      subjectValue: env.EARTHQUAKE_RECONCILE_INTERVAL_SECONDS,
+      limit: 'EARTHQUAKE_RECONCILE_WINDOW_DAYS',
+      limitValue: env.EARTHQUAKE_RECONCILE_WINDOW_DAYS * 86_400,
+      reason: 'the reconcile window must cover more ground than the interval that repeats it',
+    });
   });
 
 /** `"a, b"` → `['a', 'b']`; blanks dropped. The one place the allowlist string is split. */

@@ -109,6 +109,29 @@ interface UpstreamRequestOptionsBase {
    */
   expectedContentType?: string | readonly string[];
   /**
+   * Let the caller re-classify a 5xx by reading its BODY.
+   *
+   * Absent (the default) = today's behaviour, byte for byte: `classifyHttpStatus` maps every
+   * `>= 500` to `transient` before any body is examined, and every existing caller keeps that.
+   *
+   * It exists because one wired provider contradicts itself. AFAD TDVMS answers a malformed
+   * query with **HTTP 500 while the JSON body says `"status": 400`** (measured 2026-08-11,
+   * earthquake SPEC §3.6). A client that believes only the transport code files OUR bad query as
+   * a provider fault: it is retried, it re-arms the breaker on innocent evidence, it is logged at
+   * WARN as "upstream call failed", and — the expensive part — the same bad query goes out again
+   * on every tour, forever, because nothing in that path is ever wrong for a reason we could fix.
+   *
+   * The hook is deliberately NARROW: it may only escalate to `client_error`, and returning `null`
+   * leaves the outcome exactly as it was. It cannot invent `ok`, cannot suppress a real outage,
+   * and cannot reach any status below 500.
+   *
+   * The excerpt it receives is the same 200-byte, leniently decoded, REDACTED excerpt the 4xx
+   * branch embeds in its reason — redacted first, so a classifier can never be the thing that
+   * moves an unmasked secret somewhere new. A truncated body is a real possibility at 200 bytes,
+   * so a classifier must not assume the excerpt parses as whole JSON.
+   */
+  serverErrorBodyClassifier?: (excerpt: string) => 'client_error' | null;
+  /**
    * Treat HTTP 404 and 410 as `no_data` instead of `client_error`.
    *
    * OPT-IN, for callers probing a resource whose absence is an expected, legitimate state —
@@ -459,6 +482,21 @@ export class UpstreamHttpClient {
       };
     }
     if (statusClass === 'transient') {
+      // The caller-declared inversion (see `serverErrorBodyClassifier`). Scoped to `>= 500` so a
+      // 1xx/3xx — which reaches this branch for a different reason and carries no meaningful body
+      // — can never be re-classified by it.
+      if (options.serverErrorBodyClassifier !== undefined && response.status >= 500) {
+        const excerpt = redactSecrets(applyBodyRedaction(options.redactBody, decodeExcerpt(body)));
+        if (options.serverErrorBodyClassifier(excerpt) === 'client_error') {
+          return {
+            kind: 'client_error',
+            httpStatus: response.status,
+            reason:
+              `${label}: HTTP ${String(response.status)} from ${safeUrl}, but the BODY reports a ` +
+              `client error — OUR request was rejected. Body starts: ${excerpt}`,
+          };
+        }
+      }
       return {
         kind: 'transient',
         reason: `${label}: HTTP ${String(response.status)} from ${safeUrl}`,
