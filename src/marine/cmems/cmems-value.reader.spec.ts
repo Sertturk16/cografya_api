@@ -178,8 +178,11 @@ describe('CmemsValueReader', () => {
     stacCache = new CmemsStacResolutionCache(null, metrics, () => nowMs);
   });
 
-  it('without a stored STAC resolution the refresh answers transient and NEVER fetches — no STAC call on a value path', async () => {
+  it('without a stored STAC resolution the refresh answers transient and NEVER fetches — no STAC call on a value path, and it says so once PER PRODUCT', async () => {
     const reader = build(() => new Response('unreachable', { status: 500 }));
+    const unresolvedLines = (): { level: string; message: string }[] =>
+      events.filter((event) => event.message.includes('no STAC resolution yet'));
+
     const outcome = await reader.refreshValue(
       BLACK_SEA_POINT,
       'seaSurfaceTemperature',
@@ -188,10 +191,11 @@ describe('CmemsValueReader', () => {
     expect(outcome).toMatchObject({ kind: 'transient' });
     expect(fetches).toEqual([]);
 
-    // FU-SST-UNAVAIL: this is the only non-ok outcome on the value path that reaches no
-    // provider, so none of `UpstreamHttpClient.record`'s per-kind lines covers it. Unlogged, it
-    // publishes `unavailable` with a populated `fetchedAtUtc` and no trace anywhere a human
-    // looks — measured as ZERO log lines on a cold conditions read.
+    // FU-SST-UNAVAIL: of the three branches here that reach no provider — so that none of
+    // `UpstreamHttpClient.record`'s per-kind lines covers them — this was the only one that
+    // also emitted nothing of its own. Unlogged, the field publishes with a populated
+    // `fetchedAtUtc` and leaves no trace anywhere a human looks: measured as ZERO log lines
+    // on a cold conditions read.
     expect(events).toContainEqual(
       expect.objectContaining({
         level: 'warn',
@@ -199,16 +203,38 @@ describe('CmemsValueReader', () => {
       }),
     );
 
-    // …and exactly once per product inside the window: the sweep visits 78 keys over four
-    // products, and one standing fact must not become 78 lines.
-    await reader.refreshValue(
-      BLACK_SEA_POINT,
+    // The throttle KEY is the property under test, not merely "an identical call is quiet":
+    // the spy captures `(level, message)` and never the key, so repeating the SAME (point,
+    // field) would pass under every candidate key — global, per product, per point — and both
+    // wrong choices are damaging (a global key re-silences 3 of 4 products; a per-point key
+    // emits up to 78 lines a sweep). The two calls below discriminate between them.
+    //
+    // NOTE: the window itself rides REAL `Date.now()` (`UpstreamMetrics.throttledEvent`), not
+    // this harness's injected `nowMs`. Advancing `nowMs` here would NOT reopen the window;
+    // expiry is pinned in `upstream-metrics.spec.ts` with a stubbed clock, and only the
+    // suppression half belongs at this call site.
+
+    // (a) Same product, different point — the Marmara SST sub-model lives in the BLKSEA PHY
+    // document — so a per-point key would emit a second line. It must stay at one.
+    const sameProduct = await reader.refreshValue(
+      MARMARA_POINT,
       'seaSurfaceTemperature',
       new OperationDeadline(6_000, () => nowMs),
     );
-    expect(events.filter((event) => event.message.includes('no STAC resolution yet'))).toHaveLength(
-      1,
+    expect(sameProduct).toMatchObject({ kind: 'transient' });
+    expect(fetches).toEqual([]);
+    expect(unresolvedLines()).toHaveLength(1);
+
+    // (b) Different product (BLKSEA WAV) — a single global key would swallow this one, which
+    // is the mutation that restores the original silence for three of the four products.
+    const otherProduct = await reader.refreshValue(
+      BLACK_SEA_POINT,
+      'waveHeight',
+      new OperationDeadline(6_000, () => nowMs),
     );
+    expect(otherProduct).toMatchObject({ kind: 'transient' });
+    expect(fetches).toEqual([]);
+    expect(unresolvedLines()).toHaveLength(2);
   });
 
   it('a resolution whose selector matched nothing answers schema_error, fail-closed, no fetch', async () => {
@@ -255,6 +281,15 @@ describe('CmemsValueReader', () => {
     expect(fetches[0]).toContain(encodeURIComponent(`${BLKSEA_PHY}/${BLKSEA_PHY_DATASET}`));
     // The explicit hour-aligned time= is always sent (never defaulted).
     expect(fetches[0]).toContain('time=');
+
+    // The negative control for the unresolved-STAC WARN: a RESOLVED product must stay silent.
+    // Without this, moving that `throttledEvent` above its `if (stored === null)` guard keeps
+    // every other assertion in this file green while every healthy warmup tour reports the
+    // catalogue unresolved — a permanent false alarm on the one signal FU-SST-UNAVAIL added,
+    // and the kind an operator learns to filter out.
+    expect(events.filter((event) => event.message.includes('no STAC resolution yet'))).toHaveLength(
+      0,
+    );
   });
 
   it('logs the clamp signal when the temporal extent moves the instant off the nearest hour (M-SFH-1)', async () => {

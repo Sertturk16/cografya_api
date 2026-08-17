@@ -120,23 +120,33 @@ export class CmemsValueReader {
       // waits for a STAC fetch (plan §3.2: no STAC call on the request path).
       //
       // ## Why this branch has to say something (FU-SST-UNAVAIL)
-      // It is the ONLY non-ok outcome on the whole CMEMS value path that reaches no provider
-      // and therefore passes through none of `UpstreamHttpClient.record`'s per-kind log lines.
-      // The published field is then `unavailable` with a POPULATED `fetchedAtUtc` (the negative
-      // entry's own write time) and `MarineValueDto` carries no `reason`, so the only copy of
-      // the explanation lived inside a Redis value that expires in 60 s. Measured cost of that
-      // silence: a cold `/api/marine/points/{slug}/conditions` answered `unavailable` in 25 ms
-      // and added exactly ZERO log lines, which is indistinguishable from a provider outage.
+      // Three branches in this function reach no provider and so pass through none of
+      // `UpstreamHttpClient.record`'s per-kind log lines; this was the only one that ALSO
+      // emitted no signal of its own (the two around it each log their own ERROR). Downstream
+      // the field is typically published `unavailable` with a POPULATED `fetchedAtUtc` (the
+      // negative entry's own write time) while `MarineValueDto` carries no `reason`, so the
+      // only copy of the explanation lived inside a Redis value that expires in 60 s. Measured
+      // cost of that silence: a cold `/api/marine/points/{slug}/conditions` answered
+      // `unavailable` in 25 ms and added exactly ZERO log lines — indistinguishable from a
+      // provider outage.
+      //
       // WARN, not ERROR: for the first seconds after boot this is the EXPECTED transitional
       // state (the tour resolves the catalogue at t+10 s), and an ERROR here would bury a real
       // fault in routine noise. Throttled per PRODUCT, because a 78-key sweep would otherwise
-      // turn one fact into 78 lines — the same reasoning, and the same shape, as the clamp
-      // signal below.
+      // turn one fact into 78 lines — the same REASONING as the clamp signal below, but not
+      // its shape: the clamp carries product-scoped labels only, while `point`/`field` here
+      // are one sample of up to ~30 suppressed siblings on the same product, which is the
+      // `cmems.sweep-entry-failed` pattern (`cmems-warmup.target.ts`). The message says so,
+      // because a per-key label under a per-product throttle otherwise reads as a per-point
+      // fault. It also states what this branch DECIDED rather than what a later layer will
+      // publish: on the stale-while-revalidate path the visitor has already been answered with
+      // a real stale value, and a line claiming `unavailable` would be false exactly there.
       this.metrics.throttledEvent(
         'warn',
         `cmems.stac-unresolved:${selector.productId}`,
         60_000,
-        'CMEMS value refresh has no STAC resolution yet — publishing unavailable without a call',
+        'CMEMS value refresh has no STAC resolution yet — answering transient without a call ' +
+          '(throttled per product; point/field name one sample)',
         {
           provider: MARINE_PROVIDER.cmems,
           product: selector.productId,
