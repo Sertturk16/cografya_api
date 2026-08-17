@@ -50,7 +50,13 @@ describe('validateEnv — defaults', () => {
     expect(env.CMEMS_STAC_BASE_URL).toBe('https://stac.marine.copernicus.eu/metadata');
     // 6 s, not the shared 3 s marine default: a session's FIRST call measured 2.54 s (cold TLS).
     expect(env.CMEMS_SINGLE_CALL_TIMEOUT_MS).toBe(6_000);
+    // The catalogue call is a DIFFERENT number, and that difference is the SST fix's M1: ≤4 calls
+    // a tour whose failure darkens a whole basin, against 78 whose failure costs one point.
+    expect(env.CMEMS_STAC_CALL_TIMEOUT_MS).toBe(25_000);
     expect(env.CMEMS_TOUR_BUDGET_MS).toBe(60_000);
+    // Two attempts (the shared client's own retry) must still fit the slice at the defaults —
+    // this is the arithmetic that ruled out 30 s, kept where it can fail if a default moves.
+    expect(env.CMEMS_STAC_CALL_TIMEOUT_MS * 2).toBeLessThan(env.CMEMS_TOUR_BUDGET_MS);
     expect(env.CMEMS_STAC_TTL_SECONDS).toBe(21_600);
     // The two tour slices must fit the tour with room to spare AT THE DEFAULTS — a default set
     // that only just squeezes in would make every operator adjustment a boot failure.
@@ -323,6 +329,27 @@ describe('validateEnv — configurations that cannot mean what they say', () => 
         CMEMS_TOUR_BUDGET_MS: '60000',
       }),
     ).toThrow(/CMEMS_SINGLE_CALL_TIMEOUT_MS must not exceed CMEMS_TOUR_BUDGET_MS/);
+  });
+
+  it('refuses a CMEMS STAC call timeout above the CMEMS tour slice', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        CMEMS_STAC_CALL_TIMEOUT_MS: '70000',
+        CMEMS_TOUR_BUDGET_MS: '60000',
+      }),
+    ).toThrow(/CMEMS_STAC_CALL_TIMEOUT_MS must not exceed CMEMS_TOUR_BUDGET_MS/);
+  });
+
+  it('ACCEPTS a STAC call timeout above the request deadline — no request path fetches STAC', () => {
+    // The negative of the rule above: the catalogue cap is deliberately NOT bound by
+    // MARINE_UPSTREAM_DEADLINE_MS, and the default set (25 000 vs 6 000) already relies on it.
+    const env = validateEnv({
+      ...BASE,
+      MARINE_UPSTREAM_DEADLINE_MS: '6000',
+      CMEMS_STAC_CALL_TIMEOUT_MS: '25000',
+    });
+    expect(env.CMEMS_STAC_CALL_TIMEOUT_MS).toBeGreaterThan(env.MARINE_UPSTREAM_DEADLINE_MS);
   });
 
   it('refuses a per-tour byte cap above the per-cycle one', () => {

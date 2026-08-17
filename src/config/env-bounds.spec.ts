@@ -77,8 +77,8 @@ const BOUND_MESSAGE =
  * A bound expressed through the helper instead. One match per call site.
  *
  * The import (`import { checkEnvBound } from './env-bounds'`) carries no opening parenthesis, so it
- * is not counted — verified with a positive control: the pattern reports 5 against the file today
- * and 6 against a copy with one call site duplicated.
+ * is not counted — verified with a positive control: the pattern reports 6 against the file today
+ * and 7 against a copy with one call site duplicated.
  */
 const HELPER_BOUND_CALL = /checkEnvBound\(/g;
 
@@ -89,7 +89,7 @@ const HELPER_BOUND_CALL = /checkEnvBound\(/g;
  * to fail when somebody adds a bound without recording it here, and a number read off the file it
  * is meant to guard could never do that.
  */
-const HELPER_BOUND_COUNT = 5;
+const HELPER_BOUND_COUNT = 6;
 
 /**
  * The thirteen cross-checks `env.schema.ts` runs today, each with values that BREACH it and the

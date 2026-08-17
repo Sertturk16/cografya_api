@@ -46,6 +46,7 @@ function emptySummary(): CmemsTourSummary {
     resolutionsRefreshed: 0,
     resolutionsFailed: 0,
     resolutionsSkipped: 0,
+    resolutionRetries: 0,
     refreshed: 0,
     failed: 0,
     skippedFresh: 0,
@@ -96,6 +97,7 @@ function makeConfig(): MarineUpstreamConfig {
       wmtsBaseUrl: 'https://wmts.test/teroWmts',
       stacBaseUrl: 'https://stac.test/metadata',
       singleCallTimeoutMs: 6_000,
+      stacCallTimeoutMs: 25_000,
       tourBudgetMs: 60_000,
       stacTtlSeconds: 21_600,
     },
@@ -143,7 +145,11 @@ function pointForUrl(url: string): CmemsPointRef {
 
 describe('CmemsWarmupTarget', () => {
   let metrics: UpstreamMetrics;
-  let events: { level: string; message: string }[];
+  let events: {
+    level: string;
+    message: string;
+    context: Readonly<Record<string, string | number | boolean | null>>;
+  }[];
   let fetches: string[];
   let store: InProcessCacheStore;
   let cache: UpstreamCacheService;
@@ -151,7 +157,12 @@ describe('CmemsWarmupTarget', () => {
   let nowMs: number;
   let wmtsStatus: (url: string) => number;
   let stacStamp: number;
-  let stacStatus: number;
+  /**
+   * The STAC status as a function of WHICH stac call this is (1-based), so "the first ask fails
+   * and the second lands" is expressible — the exact case the missing-resolution retry exists
+   * for. A constant status cannot describe it.
+   */
+  let stacStatusFor: (stacCall: number) => number;
 
   function build(pointsOverride?: CmemsPointRef[]): {
     target: CmemsWarmupTarget;
@@ -171,8 +182,11 @@ describe('CmemsWarmupTarget', () => {
           typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
         fetches.push(url);
         if (url.includes('/product.stac.json')) {
-          if (stacStatus !== 200) {
-            return Promise.resolve(new Response('upstream broken', { status: stacStatus }));
+          // Counted from `fetches`, which this call has already been pushed onto, so the first
+          // catalogue call of a test is call 1.
+          const status = stacStatusFor(stacCalls());
+          if (status !== 200) {
+            return Promise.resolve(new Response('upstream broken', { status }));
           }
           const productId = url.split('/').at(-2) ?? '';
           return Promise.resolve(
@@ -232,6 +246,7 @@ describe('CmemsWarmupTarget', () => {
       stacBaseUrl: 'https://stac.test/metadata',
       limits: makeConfig().budgets.cmems,
       singleCallTimeoutMs: 6_000,
+      stacCallTimeoutMs: 25_000,
     });
     const reader = new CmemsValueReader(
       cache,
@@ -259,13 +274,13 @@ describe('CmemsWarmupTarget', () => {
   beforeEach(() => {
     metrics = new UpstreamMetrics();
     events = [];
-    jest.spyOn(metrics, 'event').mockImplementation((level, message) => {
-      events.push({ level, message });
+    jest.spyOn(metrics, 'event').mockImplementation((level, message, context) => {
+      events.push({ level, message, context });
     });
     fetches = [];
     nowMs = NOW;
     stacStamp = 202511;
-    stacStatus = 200;
+    stacStatusFor = () => 200;
     wmtsStatus = () => 200;
     store = new InProcessCacheStore(() => nowMs);
     cache = new UpstreamCacheService(store, new InProcessSingleFlight(metrics), metrics, {
@@ -454,11 +469,64 @@ describe('CmemsWarmupTarget', () => {
 
   it('a broken STAC upstream lands in resolutionsFailed, by name (validator note)', async () => {
     const { target } = build();
-    stacStatus = 500;
+    stacStatusFor = () => 500;
     const summary = emptySummary();
     await target.refreshResolutions(new OperationDeadline(240_000, () => nowMs), summary);
     expect(summary.resolutionsRefreshed).toBe(0);
     expect(summary.resolutionsFailed).toBe(4);
+    // MISSING resolutions, so each product is asked a SECOND time in the same tour (SST fix M2):
+    // 4 products × (2 asks × 2 client attempts) = 16 catalogue calls, and four retries counted.
+    expect(summary.resolutionRetries).toBe(4);
+    expect(stacCalls()).toBe(16);
+  });
+
+  it('does NOT retry a product whose stored resolution is merely stale (missing ≠ stale)', async () => {
+    const { target } = build();
+    await target.refreshResolutions(new OperationDeadline(240_000, () => nowMs));
+    fetches = [];
+
+    // Past the 6 h STAC TTL: all four are due again, but each one HAS a stored resolution that
+    // keeps serving, so a failed re-ask costs nobody anything and buys no second call.
+    nowMs += 21_601_000;
+    stacStatusFor = () => 500;
+    const summary = emptySummary();
+    await target.refreshResolutions(new OperationDeadline(240_000, () => nowMs), summary);
+
+    expect(summary.resolutionsFailed).toBe(4);
+    expect(summary.resolutionRetries).toBe(0);
+    // 4 products × 2 client attempts, and no third: the retry pass is empty.
+    expect(stacCalls()).toBe(8);
+  });
+
+  it('a missing resolution that fails once and lands on the retry counts as REFRESHED', async () => {
+    const { target } = build();
+    // The first pass is 4 products × 2 client attempts = 8 calls; everything after it is the
+    // retry pass, which succeeds on its first attempt.
+    stacStatusFor = (call) => (call <= 8 ? 500 : 200);
+    const summary = emptySummary();
+    await target.refreshResolutions(new OperationDeadline(240_000, () => nowMs), summary);
+
+    expect(summary.resolutionsRefreshed).toBe(4);
+    expect(summary.resolutionsFailed).toBe(0);
+    expect(summary.resolutionRetries).toBe(4);
+    expect(stacCalls()).toBe(12);
+  });
+
+  it('skips the retry pass when the slice ran out, and still counts the product failed', async () => {
+    const { target } = build();
+    const deadline = new OperationDeadline(10_000, () => nowMs);
+    stacStatusFor = (call) => {
+      // The slice expires exactly as the first pass ends (call 8 = product 4, attempt 2).
+      if (call === 8) nowMs += 10_001;
+      return 500;
+    };
+    const summary = emptySummary();
+    await target.refreshResolutions(deadline, summary);
+
+    expect(stacCalls()).toBe(8);
+    expect(summary.resolutionRetries).toBe(0);
+    expect(summary.resolutionsFailed).toBe(4);
+    expect(summary.resolutionsSkipped).toBe(0);
   });
 
   it('an exhausted deadline COUNTS the products the resolution phase leaves behind (M-VAL-1)', async () => {
@@ -470,5 +538,34 @@ describe('CmemsWarmupTarget', () => {
     expect(stacCalls()).toBe(0);
     expect(summary.resolutionsSkipped).toBe(4);
     expect(summary.resolutionsFailed).toBe(0);
+  });
+
+  it('says the SCALE of a resolution failure at WARN, once per tour (SST fix M3)', async () => {
+    const { target } = build();
+    stacStatusFor = () => 500;
+
+    await target.refresh(new OperationDeadline(240_000, () => nowMs));
+
+    const scaleLines = events.filter((event) =>
+      event.message.includes('CMEMS STAC resolution failed this tour'),
+    );
+    expect(scaleLines).toHaveLength(1);
+    expect(scaleLines[0]?.level).toBe('warn');
+    // The counters are the point: an operator greping for warnings could previously see only
+    // per-key lines and read a 21-point outage as a single point.
+    expect(scaleLines[0]?.context).toEqual(
+      expect.objectContaining({ resolutionsFailed: 4, resolutionRetries: 4 }),
+    );
+  });
+
+  it('and stays silent on a healthy tour — the same assertion, with nothing to find', async () => {
+    const { target } = build();
+    await target.refresh(new OperationDeadline(240_000, () => nowMs));
+
+    expect(
+      events.filter((event) => event.message.includes('CMEMS STAC resolution failed this tour')),
+    ).toHaveLength(0);
+    // Proof the tour really ran rather than the filter looking in an empty list.
+    expect(events.some((event) => event.message.includes('CMEMS warmup slice done'))).toBe(true);
   });
 });

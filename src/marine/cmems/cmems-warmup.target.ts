@@ -25,12 +25,24 @@ interface SweepEntry {
   readonly field: CmemsLayerField;
 }
 
+/** Every selector one product document serves — what a resolution call is made for. */
+type ProductSelectors = readonly {
+  readonly key: string;
+  readonly selector: CmemsDatasetSelector;
+}[];
+
 /** What one tour's slice did — the summary log's shape, and what the unit tests assert. */
 export interface CmemsTourSummary {
   resolutionsRefreshed: number;
   resolutionsFailed: number;
   /** Products the resolution phase left behind because the slice expired (review #82 M-VAL-1). */
   resolutionsSkipped: number;
+  /**
+   * Second asks issued this tour for a product whose resolution was MISSING (never for a stale
+   * one). Counted because a successful retry is otherwise invisible — `resolutionsFailed` drops
+   * back to 0 and no line would name the extra provider call this target chose to make.
+   */
+  resolutionRetries: number;
   refreshed: number;
   failed: number;
   skippedFresh: number;
@@ -42,7 +54,8 @@ export interface CmemsTourSummary {
 /**
  * The CMEMS warmup target (plan §4.3) — the SECOND target on the marine tour, behind the ECMWF
  * ingest. Per tour it (1) re-asks the STAC catalogue for any stale product resolution (≤4
- * calls — five selectors share four product documents) and (2) sweeps the stale/missing value
+ * calls — five selectors share four product documents — plus at most one RETRY per product whose
+ * resolution is missing, so ≤8 in the worst tour) and (2) sweeps the stale/missing value
  * keys (≤78 calls). Intermediate tours are no-ops by construction: a 3 600 s value TTL against
  * a 900 s tour interval means only every fourth tour finds anything due (ADDENDUM §3.4).
  *
@@ -121,6 +134,7 @@ export class CmemsWarmupTarget implements ScheduledWarmupTarget {
       resolutionsRefreshed: 0,
       resolutionsFailed: 0,
       resolutionsSkipped: 0,
+      resolutionRetries: 0,
       refreshed: 0,
       failed: 0,
       skippedFresh: 0,
@@ -142,6 +156,33 @@ export class CmemsWarmupTarget implements ScheduledWarmupTarget {
       });
     }
 
+    // The SCALE of a resolution failure, at a level a WARN/ERROR sweep can see (the SST fix, M3).
+    // The counters were already published on the LOG line below and only there, so the one field
+    // that says "21 points went dark" was invisible to every alert that greps for warnings. At
+    // most one line per tour, so no throttle: this is a 15-minute cadence by construction.
+    //
+    // The message states the DIFFERENCE rather than a single consequence, because the two cases
+    // do not have the same one: a product whose resolution was MISSING publishes `unavailable`
+    // on every point it serves until a later tour lands one, while a failed re-ask of a stored
+    // resolution changes nothing at all — the stored one keeps serving. The failing product is
+    // NOT named here on purpose: the shared client already logs `upstream call failed` at WARN
+    // with `label: cmems.stac.<productId>` for each one. What was missing was the count.
+    if (summary.resolutionsFailed > 0) {
+      this.options.metrics.event(
+        'warn',
+        'CMEMS STAC resolution failed this tour — a MISSING resolution darkens every point of ' +
+          'its product until a later tour lands one; a failed re-ask of a stored resolution ' +
+          'keeps the stored one (see the per-call `upstream call failed` lines for which product)',
+        {
+          provider: MARINE_PROVIDER.cmems,
+          resolutionsFailed: summary.resolutionsFailed,
+          resolutionsRefreshed: summary.resolutionsRefreshed,
+          resolutionsSkipped: summary.resolutionsSkipped,
+          resolutionRetries: summary.resolutionRetries,
+        },
+      );
+    }
+
     this.options.metrics.event('log', 'CMEMS warmup slice done', {
       provider: MARINE_PROVIDER.cmems,
       ...summary,
@@ -152,8 +193,24 @@ export class CmemsWarmupTarget implements ScheduledWarmupTarget {
    * Phase 1: re-ask the catalogue for every product whose stored resolution is missing or
    * older than `CMEMS_STAC_TTL_SECONDS`. A failed re-ask KEEPS the old resolution — serving a
    * stale dataset id beats darkening a basin over a catalogue blip (`cmems-stac.cache.ts`).
+   *
+   * ## MISSING is not STALE, and only one of them is retried (the SST fix, M2)
+   * The two states arrive at the same `due` and had the same handling, while their consequences
+   * are opposite. A failed re-ask of a STALE resolution costs nothing: the stored one keeps
+   * serving for its seven-day retention. A failed ask for a MISSING one darkens every point the
+   * product serves until a LATER tour resolves it — measured on 2026-08-17 at 21 of 30 points
+   * for 14 min 45 s, since the request path deliberately refuses to fetch STAC inline
+   * (`cmems-value.reader.ts`). So a missing resolution gets ONE more ask in the same tour.
+   *
+   * ## Why the retries run as a SECOND PASS rather than immediately
+   * The slice is bounded. Retrying in place would put a failed product's SECOND ask ahead of a
+   * product that has not been asked ONCE — and a first ask is always worth more than a second.
+   * The second pass also re-checks the deadline, so an exhausted slice simply skips it and the
+   * product is counted failed (not `resolutionsSkipped`, which means "never asked at all").
    */
   async refreshResolutions(deadline: OperationDeadline, summary?: CmemsTourSummary): Promise<void> {
+    const missingAndFailed: { productId: string; selectors: ProductSelectors }[] = [];
+
     for (const [productId, selectors] of this.selectorsByProduct) {
       if (deadline.hasExpired()) {
         // Counted, not silently returned (review #82 M-VAL-1): the map iterates in a FIXED
@@ -169,6 +226,28 @@ export class CmemsWarmupTarget implements ScheduledWarmupTarget {
         this.options.stacCache.isStale(stored, this.options.config.cmems.stacTtlSeconds);
       if (!due) continue;
       const landed = await this.options.reader.forceResolveProduct(productId, selectors, deadline);
+      if (landed) {
+        if (summary !== undefined) summary.resolutionsRefreshed += 1;
+        continue;
+      }
+      if (stored === null) {
+        // Deliberately counted NEITHER way yet — this product's outcome is decided by the
+        // second pass below, which keeps `resolutionsFailed` from having to be decremented.
+        missingAndFailed.push({ productId, selectors });
+        continue;
+      }
+      if (summary !== undefined) summary.resolutionsFailed += 1;
+    }
+
+    for (const { productId, selectors } of missingAndFailed) {
+      if (deadline.hasExpired()) {
+        if (summary !== undefined) summary.resolutionsFailed += 1;
+        continue;
+      }
+      if (summary !== undefined) summary.resolutionRetries += 1;
+      // No extra backoff here: the shared client already paused between its own two attempts,
+      // and this is a fresh draw from the provider's queue rather than a hammer.
+      const landed = await this.options.reader.forceResolveProduct(productId, selectors, deadline);
       if (summary !== undefined) {
         if (landed) summary.resolutionsRefreshed += 1;
         else summary.resolutionsFailed += 1;
@@ -182,6 +261,7 @@ export class CmemsWarmupTarget implements ScheduledWarmupTarget {
       resolutionsRefreshed: 0,
       resolutionsFailed: 0,
       resolutionsSkipped: 0,
+      resolutionRetries: 0,
       refreshed: 0,
       failed: 0,
       skippedFresh: 0,

@@ -45,8 +45,25 @@ export interface CmemsClientOptions {
    * Passed PER REQUEST via the shared client's `singleCallTimeoutMs` override (the review #80
    * I8 seam) rather than by constructing a second client instance — the ECMWF second-instance
    * pattern predates that seam.
+   *
+   * This is the VALUE call's cap, and it is the one a visitor waits behind. It is unchanged by
+   * the STAC knob below: raising it would raise every request path's worst case with it.
    */
   readonly singleCallTimeoutMs: number;
+  /**
+   * `CMEMS_STAC_CALL_TIMEOUT_MS` (25 000): the CATALOGUE call's own, longer cap.
+   *
+   * Two calls with genuinely different time shapes and different blast radii were sharing one
+   * default. Measured 2026-08-17: the product STAC document's queue latency exceeded 6 s in 7 of
+   * 20 draws (max 27.20 s), and ONE such timeout published `unavailable` on 21 of 30 points for a
+   * full warmup interval — because a product document serves every point of its basin, and
+   * Marmara SST rides the Black Sea product. A value call's timeout costs one point.
+   *
+   * The same review #80 I8 override carries it, so this is one more argument at one call site —
+   * no second client instance, no change to the guard order, and no change to what a request
+   * path may spend (nothing on a request path fetches STAC at all).
+   */
+  readonly stacCallTimeoutMs: number;
   /**
    * ~10–15 KB text documents; a cap far above them, and TIGHTER than the shared request-path
    * default (`UPSTREAM_MAX_RESPONSE_BYTES`, 2 MB) rather than below some larger one. An earlier
@@ -138,7 +155,8 @@ export class CmemsClient {
       url: buildCmemsProductStacUrl(this.options.stacBaseUrl, request.productId),
       deadline: request.deadline,
       limits: this.options.limits,
-      singleCallTimeoutMs: this.options.singleCallTimeoutMs,
+      // The catalogue's own cap, NOT the value cap — the whole of M1 is this one line.
+      singleCallTimeoutMs: this.options.stacCallTimeoutMs,
       expectedContentType: 'application/json',
       maxResponseBytes: this.options.maxResponseBytes ?? DEFAULT_MAX_RESPONSE_BYTES,
       // Selector misses inside a well-formed document are PER-SELECTION results, not a parse

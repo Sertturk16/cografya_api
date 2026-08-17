@@ -134,8 +134,17 @@ export interface EcmwfIngestConfig {
 export interface CmemsAdapterConfig {
   readonly wmtsBaseUrl: string;
   readonly stacBaseUrl: string;
-  /** Per-call cap. Its own knob: a session's first call measured 2.54 s (cold TLS). */
+  /** Per-call cap for a VALUE call. Its own knob: a session's first call measured 2.54 s. */
   readonly singleCallTimeoutMs: number;
+  /**
+   * Per-call cap for a STAC CATALOGUE call — longer, and a separate knob for a measured reason.
+   *
+   * The resolution phase is ≤4 calls per tour whose failure darkens every point of a product
+   * (21 of 30, measured), while a value call is one of 78 whose failure costs one point. The
+   * ceiling on this number is the tour slice, not the request budget: no request path fetches
+   * STAC. See `CMEMS_STAC_CALL_TIMEOUT_MS` in the env schema for the full arithmetic.
+   */
+  readonly stacCallTimeoutMs: number;
   /** The slice of one warmup tour CMEMS may consume (M4b target). */
   readonly tourBudgetMs: number;
   /** How long a STAC dataset-id resolution is trusted (M4b warmup refresh cadence). */
@@ -176,6 +185,7 @@ export function buildMarineUpstreamConfig(config: ConfigService<Env, true>): Mar
       wmtsBaseUrl: config.getOrThrow('CMEMS_WMTS_BASE_URL', { infer: true }),
       stacBaseUrl: config.getOrThrow('CMEMS_STAC_BASE_URL', { infer: true }),
       singleCallTimeoutMs: config.getOrThrow('CMEMS_SINGLE_CALL_TIMEOUT_MS', { infer: true }),
+      stacCallTimeoutMs: config.getOrThrow('CMEMS_STAC_CALL_TIMEOUT_MS', { infer: true }),
       tourBudgetMs: config.getOrThrow('CMEMS_TOUR_BUDGET_MS', { infer: true }),
       stacTtlSeconds: config.getOrThrow('CMEMS_STAC_TTL_SECONDS', { infer: true }),
     },

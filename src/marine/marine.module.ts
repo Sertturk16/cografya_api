@@ -184,9 +184,10 @@ export const MARINE_WARMUP = Symbol('MARINE_WARMUP');
       useFactory: (redis: RedisClientPort | null, metrics: UpstreamMetrics) =>
         new CmemsStacResolutionCache(redis, metrics),
     },
-    // The SHARED HTTP client (guard order lives there once); the CMEMS-specific 6 s per-call
-    // cap rides the per-request `singleCallTimeoutMs` override (review #80 I8 seam) instead of
-    // a second client instance — the ECMWF second instance predates that seam.
+    // The SHARED HTTP client (guard order lives there once); the CMEMS-specific per-call caps
+    // ride the per-request `singleCallTimeoutMs` override (review #80 I8 seam) instead of a
+    // second client instance — the ECMWF second instance predates that seam. TWO caps since the
+    // SST fix: 6 s for a value call, 25 s for a catalogue call (see `CmemsClientOptions`).
     {
       provide: CmemsClient,
       inject: [UpstreamHttpClient, MARINE_UPSTREAM_CONFIG],
@@ -196,6 +197,7 @@ export const MARINE_WARMUP = Symbol('MARINE_WARMUP');
           stacBaseUrl: marineConfig.cmems.stacBaseUrl,
           limits: marineConfig.budgets.cmems,
           singleCallTimeoutMs: marineConfig.cmems.singleCallTimeoutMs,
+          stacCallTimeoutMs: marineConfig.cmems.stacCallTimeoutMs,
         }),
     },
     {
