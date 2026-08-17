@@ -240,7 +240,14 @@ export class EarthquakeIngestStore implements EarthquakeIngestStorePort {
    */
   async pruneRuns(retentionDays: number, now: Date): Promise<number> {
     const cutoff = new Date(now.getTime() - retentionDays * 86_400_000);
-    const result = await this.dataSource.query<unknown[]>(
+    // A DELETE does NOT hand back its rows the way every other statement in this file does:
+    // TypeORM's postgres runner switches on the command tag and returns `[rows, rowCount]` for
+    // DELETE and UPDATE, and the rows alone for everything else
+    // (`node_modules/typeorm/driver/postgres/PostgresQueryRunner.js:214-220`). Reading `.length`
+    // off the outer array therefore reported **2 for every prune, whatever it deleted** — which
+    // the first retention test could not see, because it expected 2. The second one, the case
+    // that matters, is what caught it (CI run 1 of PR #118).
+    const [deletedRows] = await this.dataSource.query<[{ id: string }[], number]>(
       `DELETE FROM "earthquake_ingest_runs"
         WHERE "started_at_utc" < $1
           AND "id" IS DISTINCT FROM (
@@ -251,7 +258,7 @@ export class EarthquakeIngestStore implements EarthquakeIngestStorePort {
         RETURNING "id"`,
       [cutoff],
     );
-    return result.length;
+    return deletedRows.length;
   }
 
   /**

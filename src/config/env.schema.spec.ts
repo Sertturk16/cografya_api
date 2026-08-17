@@ -692,8 +692,17 @@ describe('validateEnv — the earthquake (AFAD TDVMS) block', () => {
       /EARTHQUAKE_INGEST_INTERVAL_SECONDS/,
     );
 
-    expect(() => validateEnv({ ...BASE, EARTHQUAKE_RECONCILE_WINDOW_DAYS: '1' })).toThrow(
-      /EARTHQUAKE_RECONCILE_INTERVAL_SECONDS/,
-    );
+    // The reconcile pair needs BOTH values moved to breach: the window's minimum is one whole
+    // day (86 400 s) and the default interval is 21 600 s, so no legal window alone can be
+    // narrower than the cadence. Raising the interval past the window is the real shape of the
+    // misconfiguration — and finding that out is why this case is written with two values
+    // rather than one.
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        EARTHQUAKE_RECONCILE_INTERVAL_SECONDS: '172800',
+        EARTHQUAKE_RECONCILE_WINDOW_DAYS: '1',
+      }),
+    ).toThrow(/EARTHQUAKE_RECONCILE_INTERVAL_SECONDS/);
   });
 });
