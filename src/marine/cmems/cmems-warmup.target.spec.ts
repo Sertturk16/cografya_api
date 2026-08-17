@@ -415,6 +415,9 @@ describe('CmemsWarmupTarget', () => {
       resolutionsRefreshed: 0,
       resolutionsFailed: 0,
       resolutionsSkipped: 0,
+      // The sweep issues no catalogue ask at all, so the resolution-phase retry counter stays 0
+      // here — but it is named, because this assertion's job is the WHOLE shape (M-TEST-2).
+      resolutionRetries: 0,
       refreshed: 4,
       failed: 0,
       skippedFresh: 0,
