@@ -1,8 +1,12 @@
-// The timezone is set BEFORE anything imports a Date-using module, and it is set to a zone with a
-// non-zero offset ON PURPOSE. The bug this whole file guards against — reading AFAD's suffix-less
-// UTC string as local time — is INVISIBLE when the process runs in UTC, which is exactly what CI
-// containers do by default. Under `Europe/Istanbul` a naive `new Date(raw)` is three hours off,
-// so every assertion below would fail loudly if the parser ever regressed to one.
+// Asking for a non-UTC process timezone: the bug this file guards against — reading AFAD's
+// suffix-less UTC stamp as LOCAL time — is invisible in UTC, which is exactly what a CI container
+// runs in. This is BEST-EFFORT and nothing below depends on it: `import` statements are hoisted
+// above this line and Node caches the zone at first use, so the assignment may simply not take —
+// it did not, on CI, which is how the first version of the control below turned red.
+//
+// So the control is written to be ZONE-INDEPENDENT instead: it compares our answer with the
+// Turkish-local reading spelled out explicitly (`+03:00`), which is the same comparison in every
+// timezone on earth and stays meaningful whatever the runner does.
 process.env.TZ = 'Europe/Istanbul';
 
 import { describe, expect, it } from '@jest/globals';
@@ -15,13 +19,17 @@ describe('parseAfadUtc', () => {
     expect(parsed?.fractionDigits).toBe(0);
   });
 
-  it('is not what a naive Date constructor would produce in this timezone', () => {
-    // The control for the assertion above: it proves the local-time reading really is different
-    // here, so the first test is testing something rather than passing by coincidence.
-    const naive = new Date('2026-08-10T10:07:59').getTime();
+  it('is three hours away from the Turkish-local reading of the same string', () => {
+    // The control for the assertion above, and the whole reason this parser exists. AFAD's own
+    // page shows this event under a `Tarih(TS)` heading — Turkish local time — while the API sends
+    // the same instant with no suffix at all. Reading the API's string as Turkish local time
+    // yields an instant three hours EARLIER than the truth, and no range, ordering or count
+    // invariant anywhere can see the difference.
+    const asTurkishLocal = new Date('2026-08-10T10:07:59+03:00').getTime();
     const parsed = parseAfadUtc('2026-08-10T10:07:59');
-    expect(parsed?.instant.getTime()).not.toBe(naive);
-    expect(naive - (parsed?.instant.getTime() ?? 0)).toBe(-3 * 3_600_000);
+
+    expect(parsed?.instant.getTime()).not.toBe(asTurkishLocal);
+    expect((parsed?.instant.getTime() ?? 0) - asTurkishLocal).toBe(3 * 3_600_000);
   });
 
   it('keeps a fractional second and reports its width', () => {
