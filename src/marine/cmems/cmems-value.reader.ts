@@ -118,6 +118,32 @@ export class CmemsValueReader {
     if (stored === null) {
       // 60 s negative TTL, then the warmup's resolution phase fills this — a request never
       // waits for a STAC fetch (plan §3.2: no STAC call on the request path).
+      //
+      // ## Why this branch has to say something (FU-SST-UNAVAIL)
+      // It is the ONLY non-ok outcome on the whole CMEMS value path that reaches no provider
+      // and therefore passes through none of `UpstreamHttpClient.record`'s per-kind log lines.
+      // The published field is then `unavailable` with a POPULATED `fetchedAtUtc` (the negative
+      // entry's own write time) and `MarineValueDto` carries no `reason`, so the only copy of
+      // the explanation lived inside a Redis value that expires in 60 s. Measured cost of that
+      // silence: a cold `/api/marine/points/{slug}/conditions` answered `unavailable` in 25 ms
+      // and added exactly ZERO log lines, which is indistinguishable from a provider outage.
+      // WARN, not ERROR: for the first seconds after boot this is the EXPECTED transitional
+      // state (the tour resolves the catalogue at t+10 s), and an ERROR here would bury a real
+      // fault in routine noise. Throttled per PRODUCT, because a 78-key sweep would otherwise
+      // turn one fact into 78 lines — the same reasoning, and the same shape, as the clamp
+      // signal below.
+      this.metrics.throttledEvent(
+        'warn',
+        `cmems.stac-unresolved:${selector.productId}`,
+        60_000,
+        'CMEMS value refresh has no STAC resolution yet — publishing unavailable without a call',
+        {
+          provider: MARINE_PROVIDER.cmems,
+          product: selector.productId,
+          point: point.slugTr,
+          field,
+        },
+      );
       return {
         kind: 'transient',
         reason:

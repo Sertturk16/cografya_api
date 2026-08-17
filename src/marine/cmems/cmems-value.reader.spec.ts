@@ -187,6 +187,28 @@ describe('CmemsValueReader', () => {
     );
     expect(outcome).toMatchObject({ kind: 'transient' });
     expect(fetches).toEqual([]);
+
+    // FU-SST-UNAVAIL: this is the only non-ok outcome on the value path that reaches no
+    // provider, so none of `UpstreamHttpClient.record`'s per-kind lines covers it. Unlogged, it
+    // publishes `unavailable` with a populated `fetchedAtUtc` and no trace anywhere a human
+    // looks — measured as ZERO log lines on a cold conditions read.
+    expect(events).toContainEqual(
+      expect.objectContaining({
+        level: 'warn',
+        message: expect.stringContaining('no STAC resolution yet'),
+      }),
+    );
+
+    // …and exactly once per product inside the window: the sweep visits 78 keys over four
+    // products, and one standing fact must not become 78 lines.
+    await reader.refreshValue(
+      BLACK_SEA_POINT,
+      'seaSurfaceTemperature',
+      new OperationDeadline(6_000, () => nowMs),
+    );
+    expect(events.filter((event) => event.message.includes('no STAC resolution yet'))).toHaveLength(
+      1,
+    );
   });
 
   it('a resolution whose selector matched nothing answers schema_error, fail-closed, no fetch', async () => {
