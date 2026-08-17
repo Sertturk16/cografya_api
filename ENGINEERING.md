@@ -293,7 +293,9 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   video-solution rows). Each runs against the compiled build, assumes `migration:run`
   has already created the schema, and reads `DATABASE_URL` straight from the environment
   — these CLIs run outside Nest's DI, so there is no `ConfigService` and no `.env` is
-  loaded for them.
+  loaded for them. The one exception is `db:seed:books --check`, which validates the
+  committed corpus and returns before touching `DATABASE_URL` or opening a connection at
+  all (`books.cli.ts`) — so it is the one seed command that runs without a database.
   Seed discipline notes belong on the entity (e.g. `plate_code` is zero-padded to 2 chars
   so the lexical `ORDER BY plate_code` stays correct). No secrets or PII in seeds.
   **`neighborIsoCodes` array order is a PUBLISHED render order** (the web detail page
