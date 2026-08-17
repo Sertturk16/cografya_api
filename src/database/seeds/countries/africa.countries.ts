@@ -2011,11 +2011,11 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'nispeten nemli kalır.',
     hydrographyNoteTr:
       "Ülkenin en uzun nehri olan Orange (Lesotho'daki adıyla Senqu), Lesotho Yaylaları'nda " +
-      '3.300 metre yükseklikte doğar ve batıya doğru 2.432 kilometre akarak Atlantik ' +
-      "Okyanusu'na, Alexander Körfezi'nde dökülür. Yol boyunca güneyde Kalahari'nin, " +
-      "kuzeyde ise Namib Çölü'nün sınırını çizer. En büyük kolu olan Vaal Nehri, " +
-      "Mpumalanga'da Hint Okyanusu'na yalnızca yaklaşık 240 kilometre uzaklıkta doğar, " +
-      "ama tersine batıya akarak Kimberley yakınında Orange'a katılır.",
+      "3.300 metre yükseklikte doğar ve batıya doğru 2.432 kilometre akarak Atlas Okyanusu'na, " +
+      "Alexander Körfezi'nde dökülür. Yol boyunca güneyde Kalahari'nin, kuzeyde ise Namib " +
+      "Çölü'nün sınırını çizer. En büyük kolu olan Vaal Nehri, Mpumalanga'da Hint Okyanusu'na " +
+      'yalnızca yaklaşık 240 kilometre uzaklıkta doğar, ama tersine batıya akarak Kimberley ' +
+      "yakınında Orange'a katılır.",
   },
   {
     isoCode: 'BI',
