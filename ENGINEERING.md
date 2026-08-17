@@ -285,10 +285,19 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   - The corollary binds BOTH kinds — a key is redacted from every log line, scanned for
     before any artifact is written, and asserted absent by a `no-key-material` structural
     check.
-- **Seeds** are split: `db:seed` / `db:seed:dev`, plus a dedicated **`db:seed:geography`**
-  for the country/province/concept base data — the platform's most critical seed. Seed
-  discipline notes belong on the entity (e.g. `plate_code` is zero-padded to 2 chars so
-  the lexical `ORDER BY plate_code` stays correct). No secrets or PII in seeds.
+- **Seeds are split PER CORPUS — one `package.json` script each. There is no umbrella
+  `db:seed` and no `db:seed:dev`**; a doc or a setup recipe naming either is stale, and
+  following it runs a command that does not exist. The three that do exist are
+  **`db:seed:geography`** (the 81 provinces — the platform's most critical seed),
+  **`db:seed:world`** (the country corpus) and **`db:seed:books`** (books plus their
+  video-solution rows). Each runs against the compiled build, assumes `migration:run`
+  has already created the schema, and reads `DATABASE_URL` straight from the environment
+  — these CLIs run outside Nest's DI, so there is no `ConfigService` and no `.env` is
+  loaded for them. The one exception is `db:seed:books --check`, which validates the
+  committed corpus and returns before touching `DATABASE_URL` or opening a connection at
+  all (`books.cli.ts`) — so it is the one seed command that runs without a database.
+  Seed discipline notes belong on the entity (e.g. `plate_code` is zero-padded to 2 chars
+  so the lexical `ORDER BY plate_code` stays correct). No secrets or PII in seeds.
   **`neighborIsoCodes` array order is a PUBLISHED render order** (the web detail page
   iterates it unsorted): the house rule is narrative/geographic order mirroring the row's
   own `introTr`, and on sovereignty-sensitive rows the order is deliberate — **never sort
