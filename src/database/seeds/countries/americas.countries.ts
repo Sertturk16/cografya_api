@@ -74,15 +74,15 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'kalan geniş bir tundra ve sürekli donmuş toprak kuşağı başlar; bu bölgede tarım neredeyse ' +
       'imkansızdır.',
     hydrographyNoteTr:
-      'Ülkenin güneydoğusunda, Amerika Birleşik Devletleri ile paylaşılan Büyük Göller, yüzölçümü ' +
-      'bakımından dünyanın en büyük tatlı su göl grubunu oluşturur; suları Saint Lawrence Nehri ' +
-      "aracılığıyla Atlantik Okyanusu'na ulaşır. Kuzeyde ülkenin en uzun akarsuyu olan Mackenzie " +
-      "Nehri, Büyük Köle Gölü'nden çıkıp yaklaşık 1.738 kilometre boyunca kuzeybatıya akarak Arktik " +
-      "Okyanusu'na dökülür ve havzasıyla ülke topraklarının yaklaşık beşte birini sular. Doğuda " +
-      '1.230.000 kilometrekarelik yüzeyiyle Hudson Körfezi, dünyanın en büyük tuzlu su körfezlerinden ' +
-      "biridir; drenaj havzası Kanada'nın altı eyalet ve bölgesine yayılır. Kanada, HydroLAKES " +
-      'veritabanına dayanan 2016 tarihli bir araştırmaya göre, tek başına dünyadaki herhangi bir başka ' +
-      'ülkeden daha fazla göle sahiptir.',
+      'Ülkenin güneydoğusunda, Amerika Birleşik Devletleri ile paylaşılan Büyük Göller, ' +
+      'yüzölçümü bakımından dünyanın en büyük tatlı su göl grubunu oluşturur; suları Saint ' +
+      "Lawrence Nehri aracılığıyla Atlas Okyanusu'na ulaşır. Kuzeyde ülkenin en uzun akarsuyu " +
+      "olan Mackenzie Nehri, Büyük Köle Gölü'nden çıkıp yaklaşık 1.738 kilometre boyunca " +
+      "kuzeybatıya akarak Arktik Okyanusu'na dökülür ve havzasıyla ülke topraklarının yaklaşık " +
+      'beşte birini sular. Doğuda 1.230.000 kilometrekarelik yüzeyiyle Hudson Körfezi, dünyanın ' +
+      "en büyük tuzlu su körfezlerinden biridir; drenaj havzası Kanada'nın altı eyalet ve " +
+      'bölgesine yayılır. Kanada, HydroLAKES veritabanına dayanan 2016 tarihli bir araştırmaya ' +
+      'göre, tek başına dünyadaki herhangi bir başka ülkeden daha fazla göle sahiptir.',
   },
   {
     isoCode: 'US',
@@ -664,12 +664,12 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
     independenceNoteTr: "10 Temmuz 1973'te Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      "Bahamalar, Karayip Denizi'nde değil Atlantik Okyanusu'nda, Küba'nın ve Florida'nın " +
-      "kuzeyinde yer alan bir takımadadır; 700'den fazla ada ve 2.000'den fazla küçük kayalık " +
-      'adacıktan (cay) oluşur, bunların yalnızca otuz kadarı kalıcı olarak yerleşiktir. Ülke, ' +
-      'karbonat kayaçlardan oluşan sığ deniz platformları — Büyük ve Küçük Bahama Bankaları — ' +
-      'üzerine kuruludur. Adaların hiçbiri volkanik kökenli değildir; tamamı, milyonlarca yıl ' +
-      'boyunca sığ tropikal denizlerde birikmiş mercan ve kireçtaşı katmanlarından oluşur.',
+      "Bahamalar, Karayip Denizi'nde değil Atlas Okyanusu'nda, Küba'nın ve Florida'nın kuzeyinde " +
+      "yer alan bir takımadadır; 700'den fazla ada ve 2.000'den fazla küçük kayalık adacıktan " +
+      '(cay) oluşur, bunların yalnızca otuz kadarı kalıcı olarak yerleşiktir. Ülke, karbonat ' +
+      'kayaçlardan oluşan sığ deniz platformları — Büyük ve Küçük Bahama Bankaları — üzerine ' +
+      'kuruludur. Adaların hiçbiri volkanik kökenli değildir; tamamı, milyonlarca yıl boyunca ' +
+      'sığ tropikal denizlerde birikmiş mercan ve kireçtaşı katmanlarından oluşur.',
     landformNoteTr:
       "Bahamalar'ın tamamı alçak ve düzdür; ülkenin en yüksek noktası, Cat Adası'ndaki yalnızca " +
       "63 metrelik Mount Alvernia'dır — bu rakım, egemen bir ülkenin en yüksek noktası olarak " +
@@ -1392,10 +1392,10 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal başkanlık cumhuriyeti',
     independenceNoteTr: "7 Eylül 1822'de Portekiz'den bağımsız oldu.",
     introTr:
-      "Güney Amerika kıtasının yaklaşık %47'sini kaplayan Brezilya, kıtanın yüzölçümce en " +
-      'büyük ülkesidir. Şili ve Ekvador dışındaki her Güney Amerika ülkesiyle kara sınırı ' +
-      "paylaşır. Doğuda Atlantik Okyanusu'na kıyısı vardır; kuzeyini Amazon Havzası, güney " +
-      've orta kesimini ise geniş bir yayla kaplar.',
+      "Güney Amerika kıtasının yaklaşık %47'sini kaplayan Brezilya, kıtanın yüzölçümce en büyük " +
+      'ülkesidir. Şili ve Ekvador dışındaki her Güney Amerika ülkesiyle kara sınırı paylaşır. ' +
+      "Doğuda Atlas Okyanusu'na kıyısı vardır; kuzeyini Amazon Havzası, güney ve orta kesimini " +
+      'ise geniş bir yayla kaplar.',
     landformNoteTr:
       'Ülkenin güney ve orta kesimini, ortalama 1.000 metre yükseklikteki Brezilya Yaylası ' +
       '(Planalto Brasileiro) kaplar; bu yaylanın karakteristik bitki örtüsü, geniş bir ' +
@@ -1630,13 +1630,13 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'Eylül-Ekim arası kurak mevsimlerdir. Kıyı ovasında yıllık yağış 2.000 milimetreyi aşarken, iç ' +
       'kesimdeki Rupununi savanında bu rakam yaklaşık 1.800 milimetreye iner.',
     hydrographyNoteTr:
-      "Ülkenin en uzun akarsuyu olan Essequibo Nehri, güneydeki Acarai Dağları'nda doğar ve yaklaşık " +
-      "1.014 kilometre boyunca kuzeye akarak Atlantik Okyanusu'na dökülür; havzasıyla ülke " +
-      "topraklarının yaklaşık %73'ünü sular. Demerara ve Berbice nehirleri kıyı ovasındaki diğer büyük " +
-      "akarsulardır ve adlarını başkent Georgetown'ın da içinde bulunduğu bölgelere vermiştir. Kıyı " +
-      'ovası, yüksek gelgit sırasında deniz seviyesinin yaklaşık 1,7 metre altında kalır; bu düşük ' +
-      'kesim beton ve toprak setlerle korunur, kanallar ve savaklar yağış sularının alçak gelgitte ' +
-      'denize boşaltılmasını sağlar.',
+      "Ülkenin en uzun akarsuyu olan Essequibo Nehri, güneydeki Acarai Dağları'nda doğar ve " +
+      "yaklaşık 1.014 kilometre boyunca kuzeye akarak Atlas Okyanusu'na dökülür; havzasıyla ülke " +
+      "topraklarının yaklaşık %73'ünü sular. Demerara ve Berbice nehirleri kıyı ovasındaki diğer " +
+      "büyük akarsulardır ve adlarını başkent Georgetown'ın da içinde bulunduğu bölgelere " +
+      'vermiştir. Kıyı ovası, yüksek gelgit sırasında deniz seviyesinin yaklaşık 1,7 metre ' +
+      'altında kalır; bu düşük kesim beton ve toprak setlerle korunur, kanallar ve savaklar ' +
+      'yağış sularının alçak gelgitte denize boşaltılmasını sağlar.',
   },
   {
     isoCode: 'PY',
@@ -1899,10 +1899,9 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       've Karakas çevresinde ise ılıman bir dağ iklimi görülür — Mérida eyaletindeki en ' +
       'yüksek kesimlerde sıcaklık eksi 11 santigrat dereceye kadar düşebilir.',
     hydrographyNoteTr:
-      "Debi bakımından Güney Amerika'da Amazon'dan sonra en büyük, dünya genelinde ise " +
-      "üçüncü büyük nehir olan Orinoco, Guyana Yaylası'nda doğar ve yaklaşık 2.140 " +
-      "kilometre sonra Atlantik Okyanusu'na ulaşır. Guyana Yaylası'ndan inen Caroní Nehri " +
-      "de Orinoco'ya katılır; güzergahı boyunca Angel Şelalesi dahil çok sayıda şelale " +
-      'barındırır.',
+      "Debi bakımından Güney Amerika'da Amazon'dan sonra en büyük, dünya genelinde ise üçüncü " +
+      "büyük nehir olan Orinoco, Guyana Yaylası'nda doğar ve yaklaşık 2.140 kilometre sonra " +
+      "Atlas Okyanusu'na ulaşır. Guyana Yaylası'ndan inen Caroní Nehri de Orinoco'ya katılır; " +
+      'güzergahı boyunca Angel Şelalesi dahil çok sayıda şelale barındırır.',
   },
 ];
