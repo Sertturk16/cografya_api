@@ -616,6 +616,18 @@
             "nullable": true,
             "example": 14.2,
             "description": "Yıllık ortalama sıcaklık (°C) — 12 aylık ortalamanın ortalaması, 1 ondalık. Detay DTO’sundaki climate.derived.annualMeanTempC ile AYNI türetilmiş değerdir (tek kaynak: climate-derivations.ts; liste yolunda yeniden türetilmez, aynı buildClimate çağrısıyla canlı hesaplanır). Benzer-iklim bloğunun \"en yakın 5\" seçimi (→ DEC 2026-07-20b) ve çapa metnindeki \"il adı + °C\" bu alan olmadan kurulamaz. İlin yayınlanabilir iklim serisi yoksa null. Saf toplama, kırıcı değil."
+          },
+          "latitude": {
+            "type": "number",
+            "nullable": true,
+            "example": 40.9819,
+            "description": "İl merkezi enlemi (decimal degrees) — MGM il-merkez istasyonu. Detay DTO’sundaki `latitude` ile AYNI sütun, aynı değer; liste yolunda hiçbir türetme yok. CBS ölçüm araçlarının (mesafe / koordinat) 81’lik il seçimi bu alan olmadan kurulamaz — ve poligon merkezinden türetmek bir alternatif DEĞİL: `GLOSSARY.md` §1 alan ağırlık merkezini il merkeziyle karıştırmayı adıyla yasaklıyor, ve iki nokta arasındaki fark ölçülen mesafeye doğrudan geçer. Saf toplama, kırıcı değil."
+          },
+          "longitude": {
+            "type": "number",
+            "nullable": true,
+            "example": 28.8208,
+            "description": "İl merkezi boylamı (decimal degrees) — MGM il-merkez istasyonu. Gerekçesi ve kaynağı `latitude` ile aynı; ikisi tek bir noktanın iki yarısıdır ve birlikte eklenir."
           }
         },
         "required": [
@@ -625,7 +637,9 @@
           "slugTr",
           "slugEn",
           "climateKoppen",
-          "climateAnnualMeanTempC"
+          "climateAnnualMeanTempC",
+          "latitude",
+          "longitude"
         ]
       },
       "ProvinceMapSummaryDto": {

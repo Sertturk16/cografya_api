@@ -51,4 +51,29 @@ export class ProvinceListItemDto {
       'yoksa null. Saf toplama, kırıcı değil.',
   })
   climateAnnualMeanTempC!: number | null;
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    example: 40.9819,
+    description:
+      'İl merkezi enlemi (decimal degrees) — MGM il-merkez istasyonu. Detay DTO’sundaki ' +
+      '`latitude` ile AYNI sütun, aynı değer; liste yolunda hiçbir türetme yok. CBS ölçüm ' +
+      'araçlarının (mesafe / koordinat) 81’lik il seçimi bu alan olmadan kurulamaz — ve ' +
+      'poligon merkezinden türetmek bir alternatif DEĞİL: `GLOSSARY.md` §1 alan ağırlık ' +
+      'merkezini il merkeziyle karıştırmayı adıyla yasaklıyor, ve iki nokta arasındaki fark ' +
+      'ölçülen mesafeye doğrudan geçer. Saf toplama, kırıcı değil.',
+  })
+  latitude!: number | null;
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    example: 28.8208,
+    description:
+      'İl merkezi boylamı (decimal degrees) — MGM il-merkez istasyonu. Gerekçesi ve ' +
+      'kaynağı `latitude` ile aynı; ikisi tek bir noktanın iki yarısıdır ve birlikte ' +
+      'eklenir.',
+  })
+  longitude!: number | null;
 }
