@@ -1,3 +1,4 @@
+import { GRID_MAPPING_EARTH_RADIUS_KM } from '../../common/geo/earth-radius';
 import { Era5ContractError } from './era5.errors';
 
 /**
@@ -97,8 +98,15 @@ export const FALLBACK_MAX_DISTANCE_KM = 25;
  */
 export const FALLBACK_SEARCH_RADIUS_CELLS = 3;
 
-/** Great-circle Earth radius, km (the value `marine/geo.ts` and `cams-grid.ts` both use). */
-const EARTH_RADIUS_KM = 6371;
+/**
+ * Great-circle Earth radius, km — the GRID-MAPPING value, imported rather than declared.
+ *
+ * The comment this replaces claimed `marine/geo.ts` used the same number. It does not, and never
+ * did: that module re-exports `cmems-geo`'s haversine, which runs on the published IUGG radius
+ * (measured 2026-08-19). `src/common/geo/earth-radius.ts` now holds both values, the reason they
+ * differ, and the rule for moving a line from one to the other.
+ */
+const EARTH_RADIUS_KM = GRID_MAPPING_EARTH_RADIUS_KM;
 
 export interface Era5AxisAnalysis {
   /** Signed step, derived from the axis itself — never a literal. */

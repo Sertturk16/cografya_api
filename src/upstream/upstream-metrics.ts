@@ -319,7 +319,35 @@ export type UpstreamMetricName =
   /** Retention pruning failed. Housekeeping; it never fails a tour. */
   | 'eq.prune_failed'
   /** An unexpected exception escaped the ingest tour's own handling — OUR bug. */
-  | 'eq.ingest_bug';
+  | 'eq.ingest_bug'
+  // ── Elevation profile: the terrain-tile leg (CBS-P2 E2). Same convention — the provider
+  // dimension is the `providerId` argument, so the names stay leg-neutral in shape. ──
+  /** A tile fetch joined one already in flight instead of opening a second socket for it. */
+  | 'elevation.tile_joined'
+  /**
+   * A tile arrived with NO `x-amz-meta-x-imagery-sources` header.
+   *
+   * Accepted rather than refused (a metadata change is not a licence change), so this counter is
+   * the only way the condition is visible at all after the first warning.
+   */
+  | 'elevation.imagery_sources_absent'
+  /**
+   * A tile was REFUSED because its imagery sources are not the ones our published attribution
+   * credits — or because a sea-depth source reappeared at the sampling zoom.
+   *
+   * The licence tripwire firing. Never a routine condition: any non-zero value here means the
+   * upstream source mix moved and the attribution surface has to be re-decided.
+   */
+  | 'elevation.imagery_sources_refused'
+  /**
+   * A profile request hit `ELEVATION_MAX_TILES_PER_REQUEST` and was refused before fetching.
+   *
+   * Structurally unreachable while the ceiling stays above the sample count, so a non-zero value
+   * means the ceiling was configured below what one request legitimately needs.
+   */
+  | 'elevation.tile_ceiling_refused'
+  /** A profile was answered with fewer resolved samples than it asked for (the warming path). */
+  | 'elevation.profile_partial';
 
 /**
  * Counters + structured logs for the upstream layer.

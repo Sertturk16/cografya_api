@@ -45,11 +45,15 @@ describe('great-circle geometry', () => {
     // green under ANY radius, because each compares two distances computed with the same
     // constant. So nothing else in this file can see a change to it. Meanwhile the module's
     // own docblock says the web repo holds a second copy of this formula whose RESULT must not
-    // diverge, and this repo already carries three different values of the constant
-    // (`cmems-geo.ts` 6371.0088, `cams-grid.ts` and `era5-grid.ts` 6371) — so a well-meant
-    // "harmonise the constants" commit is a live edit, not a hypothesis. At 6378.137 the
-    // İzmir–Van line moves +1.58 km with every assertion below still passing
-    // (review #122, TA122-I2).
+    // diverge, and this repo carried the constant as four scattered literals at two different
+    // values — so a well-meant "harmonise the constants" commit is a live edit, not a
+    // hypothesis. At 6378.137 the İzmir–Van line moves +1.58 km with every assertion below
+    // still passing (review #122, TA122-I2).
+    //
+    // The literals are now one module (`src/common/geo/earth-radius.ts`), which names both
+    // values and measures why the grid-mapping lines keep the other one. This pin stays here
+    // as well as there: it is the assertion that fails if a future edit re-points THIS module
+    // at the grid constant.
     //
     // `cografya_web/lib/map/measure.ts` must hold this same value.
     expect(EARTH_MEAN_RADIUS_KM).toBe(6371.0088);

@@ -1,7 +1,14 @@
 {
-  // Jest config for the unit tests — `tools/` AND the pure `src/` modules with a
-  // `.spec.ts` sibling (today: the MGM climate parser and its import assertions, which
-  // need no database and so must not sit in the Testcontainers e2e suite).
+  // Jest config for the unit tests — `tools/` AND every pure `src/` module with a `.spec.ts`
+  // sibling: a module that needs no database belongs here rather than in the Testcontainers
+  // e2e suite, which exists for code that genuinely needs Postgres (`ENGINEERING.md` §8).
+  //
+  // The parenthetical this replaces named "the MGM climate parser and its import assertions" as
+  // the whole of that set. It had been wrong for a while in both directions: the MGM climate
+  // line was REMOVED with its artifacts when MGM left production (→ DEC 2026-07-30l,
+  // DEC 2026-08-04c), and the set has since grown to cover the upstream, marine, air-quality,
+  // book, earthquake and elevation modules. A comment that enumerates a moving set is a comment
+  // that rots, so this one states the RULE instead and names no members.
   //
   // `isolatedModules: true` puts ts-jest in transpile-only mode. That is deliberate, not a
   // shortcut: tools source imports siblings with explicit `.ts` extensions (Node's native

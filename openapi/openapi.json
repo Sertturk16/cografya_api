@@ -769,6 +769,87 @@
           "earthquakes"
         ]
       }
+    },
+    "/api/elevation/profile": {
+      "get": {
+        "description": "Samples the great circle between the two endpoints at a fixed, server-chosen number of points and returns two parallel arrays: distance along the line and whole-metre elevation. The client downloads no tiles. Endpoints are rounded to 3 decimals before anything else happens and echoed back as from/to, so the caller always knows which line was measured. A cold cache on a very long line may answer a PARTIAL profile — resolvedSampleCount below sampleCount, Cache-Control: no-store — which is a warming step rather than an error: the tiles it fetched stay resident, so the next request for the same line resolves more. A provider outage is 200 with dataAvailable: false, never a 5xx. Returns 404 while the feature is disabled. Every response carries the full attribution block, including on the cold path — the licence notices attach to the section, not to whether a value resolved.",
+        "operationId": "ElevationController_getProfile",
+        "parameters": [
+          {
+            "name": "fromLat",
+            "required": true,
+            "in": "query",
+            "description": "Hattın başlangıç enlemi (decimal degrees). Çerçeve, Türkiye sınırlarının yastıklanmış hâlidir; dışarısı 400 döner. Değer sunucuda 3 ondalığa yuvarlanır ve yanıtta `from` olarak geri verilir.",
+            "schema": {
+              "minimum": 35.5,
+              "maximum": 42.5,
+              "example": 41.287,
+              "type": "number"
+            }
+          },
+          {
+            "name": "fromLon",
+            "required": true,
+            "in": "query",
+            "description": "Hattın başlangıç boylamı (decimal degrees). Aynı çerçeve ve aynı yuvarlama.",
+            "schema": {
+              "minimum": 25,
+              "maximum": 45.5,
+              "example": 36.33,
+              "type": "number"
+            }
+          },
+          {
+            "name": "toLat",
+            "required": true,
+            "in": "query",
+            "description": "Hattın bitiş enlemi (decimal degrees).",
+            "schema": {
+              "minimum": 35.5,
+              "maximum": 42.5,
+              "example": 39.904,
+              "type": "number"
+            }
+          },
+          {
+            "name": "toLon",
+            "required": true,
+            "in": "query",
+            "description": "Hattın bitiş boylamı (decimal degrees). Yuvarlamadan sonra iki uç aynı noktaya düşerse 400 döner: sıfır uzunlukta bir hattın kesiti yoktur.",
+            "schema": {
+              "minimum": 25,
+              "maximum": 45.5,
+              "example": 41.277,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ElevationProfileDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A coordinate is outside the Türkiye frame, missing or malformed; a query parameter is not recognised (unknown parameters are rejected, not ignored); or the two endpoints collapse to the same point once rounded."
+          },
+          "404": {
+            "description": "The elevation feature is not enabled on this deployment."
+          },
+          "429": {
+            "description": "The per-client rate limit for this route was exceeded. Tighter than the global limit because this route can reach an external provider."
+          }
+        },
+        "summary": "Elevation profile along a line inside the Türkiye frame.",
+        "tags": [
+          "elevation"
+        ]
+      }
     }
   },
   "info": {
@@ -4277,6 +4358,200 @@
           "latestEventAtUtc",
           "dataStatus",
           "attributions"
+        ]
+      },
+      "ElevationPointDto": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "example": 41.287,
+            "description": "Enlem (decimal degrees), 3 ondalığa yuvarlanmış hâliyle — profilin gerçekten ölçüldüğü nokta budur, istemcinin gönderdiği ham değer değil."
+          },
+          "longitude": {
+            "type": "number",
+            "example": 36.33,
+            "description": "Boylam (decimal degrees), aynı yuvarlama ile."
+          }
+        },
+        "required": [
+          "latitude",
+          "longitude"
+        ]
+      },
+      "ElevationAttributionDto": {
+        "type": "object",
+        "properties": {
+          "providerName": {
+            "type": "string",
+            "example": "Terrain Tiles (Mapzen, a Linux Foundation project)",
+            "description": "Sağlayıcı adı — AWS Open Data kaydının `ManagedBy` alanından."
+          },
+          "datasetUrl": {
+            "type": "string",
+            "example": "https://registry.opendata.aws/terrain-tiles/",
+            "description": "AWS Open Data kayıt adresi."
+          },
+          "licenceUrl": {
+            "type": "string",
+            "example": "https://github.com/tilezen/joerd/blob/master/docs/attribution.md",
+            "description": "Atıf yükümlülüğünü tanımlayan belge. Kaydın `License:` alanı bir lisans ADI değil, bu belgeye işaret eder."
+          },
+          "requiredNoticesEn": {
+            "description": "Borçlu olunan atıf satırları, BİREBİR ve İngilizce. Çevrilmez, kısaltılmaz, yeniden yazılmaz, sırası değiştirilmez. Profili gösteren HER yüzeyde — PNG dışa aktarımı dahil — okunabilir biçimde görünmek zorundadır.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "navigationLimitEn": {
+            "type": "string",
+            "example": "Not to be used for navigation",
+            "description": "NOAA’nın ETOPO1 için koyduğu ayrı sınır, birebir. DENİZ DERİNLİĞİ gösteren her yüzeyde yazılır; `seaDepthIncluded` bu yanıtın o sınıfa girip girmediğini söyler."
+          },
+          "seaDepthIncluded": {
+            "type": "boolean",
+            "example": false,
+            "description": "Bu yanıt deniz derinliği içeriyor mu. Örnekleme zoom’u lisans gereği z12’ye sabit ve orada deniz tam 0 m okunur (ölçüldü), dolayısıyla yapısal olarak `false` — `navigationLimitEn` bu yanıt için tetiklenmez. Alan sözleşmede duruyor ki derinlik gösteren bir yüzey doğduğunda kuralı aramak zorunda kalmasın."
+          },
+          "methodNoteTr": {
+            "type": "string",
+            "description": "Yöntem beyanı (TR) — GMTED2010’un değiştirme-beyanı yükümlülüğü ve CLMS veri politikasının 2. koşulu. Yayımlanan türetilmiş rakımın yanında durur ve KISALTILAMAZ."
+          },
+          "methodNoteEn": {
+            "type": "string",
+            "description": "Yöntem beyanının İngilizce ikizi."
+          },
+          "accuracyNoteTr": {
+            "type": "string",
+            "description": "Doğruluk çekincesi (TR). Kullanım noktasında gösterilir: ızgara verisi sivri zirveleri sistematik olarak alçaltır (Erciyes’te ölçülen fark ~88 m)."
+          },
+          "accuracyNoteEn": {
+            "type": "string",
+            "description": "Doğruluk çekincesinin İngilizce ikizi."
+          },
+          "explanationTr": {
+            "type": "string",
+            "description": "Kaynağı Türkçe anlatan bilgilendirme cümlesi. İngilizce bildirimlerin YERİNE GEÇMEZ, yanlarında durur."
+          }
+        },
+        "required": [
+          "providerName",
+          "datasetUrl",
+          "licenceUrl",
+          "requiredNoticesEn",
+          "navigationLimitEn",
+          "seaDepthIncluded",
+          "methodNoteTr",
+          "methodNoteEn",
+          "accuracyNoteTr",
+          "accuracyNoteEn",
+          "explanationTr"
+        ]
+      },
+      "ElevationProfileDto": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "description": "Hattın başlangıcı — YUVARLANMIŞ hâliyle. İstemcinin gönderdiği ham koordinat değil, profilin gerçekten hesaplandığı nokta.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ElevationPointDto"
+              }
+            ]
+          },
+          "to": {
+            "description": "Hattın bitişi, aynı yuvarlama ile.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ElevationPointDto"
+              }
+            ]
+          },
+          "lengthKm": {
+            "type": "number",
+            "example": 511.4,
+            "description": "Yuvarlanmış hattın büyük daire uzunluğu (km)."
+          },
+          "sampleCount": {
+            "type": "integer",
+            "example": 200,
+            "description": "Hat boyunca örneklenen nokta sayısı. SUNUCU sabiti: istekte seçilemez, çünkü bir isteğin dokunabileceği ayrık karo sayısı bu sayıyı aşamaz — maliyet tavanı böylece bir ayar değil, aritmetik bir gerçektir. Yanıtta yayımlanır ki istemci varsaymak zorunda kalmasın."
+          },
+          "sampleZoom": {
+            "type": "integer",
+            "example": 12,
+            "description": "Örneklemenin yapıldığı karo yakınlaştırma düzeyi. Bir performans ayarı DEĞİL, lisans kaldıracıdır: daha düşük bir düzeyde karışıma deniz derinliği taşıyan bir kaynak girer ve atıf yükümlülüğü değişir. Kodda sabittir."
+          },
+          "dataAvailable": {
+            "type": "boolean",
+            "example": true,
+            "description": "Hiç değilse bir örnek çözülebildi mi. `false` ise iki dizi de boştur ve yanıt `Cache-Control: no-store` taşır — ISR/SSG bu hâli kaydetmemelidir."
+          },
+          "resolvedSampleCount": {
+            "type": "integer",
+            "example": 200,
+            "description": "Gerçekten çözülen örnek sayısı. `sampleCount`’tan KÜÇÜKSE profil kısmidir: yanıt bir hata değil, bir ısınma adımıdır — o istekte çekilen karolar sunucuda kaldığı için aynı hattın ikinci isteği daha çoğunu çözer. Soğuk önbellekte çok uzun hatlarda bu BEKLENEN hâldir, istisna değil; istemci yeniden deneme durumunu buna göre tasarlar. Kısmi yanıt da `no-store` taşır ve önbelleğe yazılmaz."
+          },
+          "distancesKm": {
+            "example": [
+              0,
+              2.57,
+              5.14
+            ],
+            "description": "Hat başlangıcından itibaren mesafeler (km), artan. Uzunluğu `sampleCount` kadardır ve `elevationsM` ile aynı indekslenir.",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "elevationsM": {
+            "nullable": true,
+            "example": [
+              12,
+              34,
+              null
+            ],
+            "description": "TAM SAYI metre rakımlar; çözülemeyen nokta `null`. Ondalık YAYIMLANMAZ: kaynak ızgaranın kendi hatası onlarca metre mertebesinde olduğu için ondalık göstermek olmayan bir hassasiyet iddia eder (SPEC §6.6).",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "minElevationM": {
+            "type": "number",
+            "nullable": true,
+            "example": 12,
+            "description": "Çözülen örneklerin en küçüğü (m). Hiç örnek çözülemediyse `null`."
+          },
+          "maxElevationM": {
+            "type": "number",
+            "nullable": true,
+            "example": 3061,
+            "description": "Çözülen örneklerin en büyüğü (m). Hiç örnek çözülemediyse `null`."
+          },
+          "attribution": {
+            "description": "Lisans yüzeyi. HER yanıtta doludur — `dataAvailable: false` olan yanıtlarda da — çünkü bildirim yayımlanan bölüme iliştirilir, tek tek değerlerin sağlığına değil.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ElevationAttributionDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "lengthKm",
+          "sampleCount",
+          "sampleZoom",
+          "dataAvailable",
+          "resolvedSampleCount",
+          "distancesKm",
+          "elevationsM",
+          "minElevationM",
+          "maxElevationM",
+          "attribution"
         ]
       }
     }

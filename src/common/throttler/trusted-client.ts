@@ -26,6 +26,26 @@ export const INTERNAL_REQUEST_HEADER = 'x-internal-request-token';
  * the conclusion is personal data reachable only through this exemption; there is none, and the
  * safe-method restriction in the guard is what keeps it that way.
  *
+ * **"cheap" is no longer true either, and that one needs a real argument** (CBS-P2 E2).
+ * `GET /api/elevation/profile` is the first public read that can cost genuine upstream work: on a
+ * cold cache it fetches up to `ELEVATION_MAX_TILES_PER_REQUEST` tiles from a third-party bucket.
+ * The conclusion is again unchanged, and here is why, because "it is probably fine" is not an
+ * argument about a bypass secret:
+ *   - **Nothing presents the token on that path.** The only holder is the web SSG build, which
+ *     renders no profile: the profile is drawn by a visitor's interaction and reaches this API
+ *     through a thin web proxy route handler that deliberately does NOT forward the token and DOES
+ *     forward the real client IP (Atlas ruling AK-25 md.3). So the exemption and this endpoint do
+ *     not meet in any live call path.
+ *   - **The expensive guards are token-BLIND.** The per-request tile ceiling and the provider
+ *     budget are enforced inside the upstream client and know nothing about throttling, so an
+ *     exempt caller cannot exceed either. What the exemption can bypass is only the per-client
+ *     REQUEST rate — the weakest of that endpoint's four brakes, and the one an attacker could
+ *     evade anyway by changing IP.
+ * The residual risk of a leaked token is therefore "more requests against a cache that mostly
+ * answers them for free", not "unbounded provider cost". If a future endpoint's cost survives its
+ * own budget guard, this paragraph is where that stops being true and the exemption needs a
+ * per-route opt-out rather than another exception.
+ *
  *   - **Fail-closed:** with NO server-side secret configured, nothing is trusted — every
  *     request stays subject to the global limit. An absent presented token is likewise never
  *     trusted. The exemption does not exist until a secret is deliberately set.

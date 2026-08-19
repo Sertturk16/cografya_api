@@ -100,8 +100,14 @@ const HELPER_BOUND_CALL = /checkEnvBound\(/g;
  * 12 → 13 with E3: the same leg's READ path added one, `EARTHQUAKE_INGEST_INTERVAL_SECONDS` against
  * `EARTHQUAKE_STALE_MAX_SECONDS`, so a healthy leg cannot stamp its own data stale between two
  * ordinary tours.
+ *
+ * 13 → 16 with the elevation leg (CBS-P2 E2): one call/request-budget bound, one that keeps the
+ * per-request tile ceiling from being configured BELOW the fixed sample count, and one that keeps
+ * the tile cache from being smaller than a single request. The middle one is the only bound in the
+ * schema whose SUBJECT is a compile-time constant rather than a variable, which is the whole
+ * reason it is worth checking: an operator can lower the ceiling and cannot lower the count.
  */
-const HELPER_BOUND_COUNT = 13;
+const HELPER_BOUND_COUNT = 16;
 
 /**
  * The thirteen cross-checks `env.schema.ts` runs today, each with values that BREACH it and the

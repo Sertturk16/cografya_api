@@ -688,7 +688,13 @@ describe('Province (e2e)', () => {
   // neither number would look wrong on its own. Structural, not factual — it asserts that
   // two endpoints agree, never that a particular il sits at a particular latitude, so a
   // legitimate coordinate correction in the seed keeps this green.
-  it('publishes the SAME il-merkezi point on the list and the detail, for all 81', async () => {
+  //
+  // FU-120-TEST-MINORS closes here (TEST120-M1/M2/M3, raised at PR #120 and carried since):
+  // the title used to claim "for all 81" while the body compared three plates (M1), and both
+  // sides of that comparison read the SAME transformer path, so a defect shared by the list and
+  // the detail mapper stayed invisible (M2). The DB cross-check below is the `storedByPlate`
+  // pattern the map-summary case already uses.
+  it('publishes the il-merkezi point on the list, agreeing with the DB for all 81 and with the detail on a spread', async () => {
     const listRes = await request(app.getHttpServer()).get('/api/provinces').expect(200);
     const list = listRes.body as Array<Record<string, unknown>>;
     expect(list).toHaveLength(81);
@@ -700,13 +706,31 @@ describe('Province (e2e)', () => {
       expect(typeof row.longitude).toBe('number');
     }
 
-    // Compare against the detail for a spread of plates rather than all 81: the projection is
-    // one code path, so three rows exercise it exactly as well as eighty-one, and the suite
-    // does not spend 81 HTTP round trips proving one mapper.
+    // ALL 81 against the STORED rows (M1 + M2). This is the assertion the title can honestly
+    // claim, and it is the one a shared-path defect cannot survive: the comparison leaves the
+    // API's own transformers on one side and the database on the other, so a swapped or
+    // truncated coordinate has to break one of them.
+    const storedByPlate = new Map(
+      (await dataSource.getRepository(Province).find()).map((province) => [
+        province.plateCode,
+        province,
+      ]),
+    );
+    for (const row of list) {
+      const stored = storedByPlate.get(row.plateCode as string);
+      expect(stored).toBeDefined();
+      if (!stored) continue; // strict narrowing; the toBeDefined above is the real guard
+      expect(row.latitude).toBe(stored.latitude);
+      expect(row.longitude).toBe(stored.longitude);
+    }
+
+    // Compare against the detail for a spread of plates rather than all 81: that comparison is
+    // about two ENDPOINTS agreeing, one code path each, so three rows exercise it exactly as
+    // well as eighty-one and the suite does not spend 81 HTTP round trips proving one mapper.
     for (const plateCode of ['01', '34', '81']) {
       const listRow = list.find((row) => row.plateCode === plateCode);
       expect(listRow).toBeDefined();
-      if (!listRow) continue; // strict narrowing; the toBeDefined above is the real guard
+      if (!listRow) continue;
 
       const detailRes = await request(app.getHttpServer())
         .get(`/api/provinces/${String(listRow.slugTr)}`)
@@ -715,6 +739,48 @@ describe('Province (e2e)', () => {
 
       expect(listRow.latitude).toBe(detail.latitude);
       expect(listRow.longitude).toBe(detail.longitude);
+    }
+  });
+
+  /**
+   * The NULLABLE half of the coordinate contract (FU-120-TEST-MINORS / TEST120-M3).
+   *
+   * The case above only ever observes the non-null state, because all 81 seeded provinces carry a
+   * researched point. So the published contract's `nullable: true` was asserted by nothing: a
+   * projection that silently substituted `0`, or a DTO that dropped the nullability, would look
+   * identical on every seeded row. This uses the same throwaway-fixture technique the round-trip
+   * case below does — a plate that is not a real province, deleted in `finally`, so the other
+   * cases still see exactly the 81 seeded rows.
+   */
+  it('serialises a missing il-merkezi point as JSON null on the list, never as 0', async () => {
+    const repo = dataSource.getRepository(Province);
+    const fixture = repo.create({
+      plateCode: '98',
+      nameTr: 'Koordinatsız Test İli',
+      slugTr: 'coordinate-null-fixture',
+      slugEn: 'coordinate-null-fixture-en',
+      region: GeographicRegion.Marmara,
+      latitude: null,
+      longitude: null,
+    });
+    await repo.save(fixture);
+
+    try {
+      const res = await request(app.getHttpServer()).get('/api/provinces').expect(200);
+      const row = (res.body as Array<Record<string, unknown>>).find(
+        (candidate) => candidate.plateCode === '98',
+      );
+      expect(row).toBeDefined();
+      // `toBeNull`, not `toBeFalsy`: the failure being guarded is a coordinate that arrives as 0,
+      // which is a real point in the Gulf of Guinea and falsy in JavaScript.
+      expect(row?.latitude).toBeNull();
+      expect(row?.longitude).toBeNull();
+      // The keys must still be PRESENT — a consumer distinguishing "unknown" from "not published"
+      // reads the key, and OpenAPI marks both as required-and-nullable.
+      expect(row).toHaveProperty('latitude');
+      expect(row).toHaveProperty('longitude');
+    } finally {
+      await repo.delete({ plateCode: '98' });
     }
   });
 
@@ -838,6 +904,11 @@ describe('Province (e2e)', () => {
     // and NO derived density (density is a detail-page concern, not the hover-card).
     const istanbul = body.find((p) => p.plateCode === '34');
     expect(istanbul).not.toHaveProperty('latitude');
+    // The `longitude` twin (FU-120-TEST-MINORS / TEST120-P1). The two are one point, added to the
+    // LIST payload together in PR-E0, and a guard that names only half of them would let a
+    // widening slip through on the other half — which is likelier now that both fields exist one
+    // DTO away.
+    expect(istanbul).not.toHaveProperty('longitude');
     expect(istanbul).not.toHaveProperty('climateNoteTr');
     expect(istanbul).not.toHaveProperty('neighborPlateCodes');
     expect(istanbul).not.toHaveProperty('populationDensity');

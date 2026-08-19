@@ -158,6 +158,28 @@ interface UpstreamRequestOptionsBase {
   singleCallTimeoutMs?: number;
 }
 
+/**
+ * The RESPONSE HEADERS, handed to `parse` as a second argument.
+ *
+ * ## Why `parse` sees them at all (Atlas ruling AK-25 md.5)
+ * A provider can put contract-bearing metadata in a header rather than in the body, and one wired
+ * provider does: the AWS terrain-tile bucket reports which DEM a tile was built from in
+ * `x-amz-meta-x-imagery-sources`, which is the only runtime signal that the licence notices we
+ * publish still match the data we are serving (`provenance/integrations.md`, Terrain Tiles row;
+ * SPEC §8.2's tripwire). Without this the check would have to live in a hand-run probe, i.e.
+ * nowhere near the request that publishes the credit.
+ *
+ * ## Why it is a widening rather than a new option
+ * TypeScript assigns a FEWER-parameter function to a more-parameter signature, so every existing
+ * caller — all of which take `(body)` only — compiles and behaves byte-identically, and the guard
+ * order above is untouched. That is the whole delta: one extra argument at one call site.
+ *
+ * `Headers` is passed as-is rather than copied into a plain object: it is already read-only in
+ * practice, its lookups are case-insensitive (an HTTP fact a `Record` would silently drop), and
+ * copying would invent a second shape for callers to learn.
+ */
+export type UpstreamResponseHeaders = Headers;
+
 /** A textual response (the default): the body reaches `parse` as a UTF-8 string. */
 export interface UpstreamTextRequestOptions<T> extends UpstreamRequestOptionsBase {
   responseKind?: 'text';
@@ -166,15 +188,19 @@ export interface UpstreamTextRequestOptions<T> extends UpstreamRequestOptionsBas
    *
    * Throw {@link UpstreamSchemaError} when the body is not the promised shape; return
    * `{ kind: 'no_data' }` when the provider legitimately has no value here.
+   *
+   * `headers` carries the response headers — see {@link UpstreamResponseHeaders}. A callback that
+   * declares only `(body)` is still valid and is what every caller but the terrain tile client
+   * does.
    */
-  parse: (body: string) => UpstreamParseResult<T>;
+  parse: (body: string, headers: UpstreamResponseHeaders) => UpstreamParseResult<T>;
 }
 
 /** A binary response: the body reaches `parse` as raw bytes, never decoded. */
 export interface UpstreamBytesRequestOptions<T> extends UpstreamRequestOptionsBase {
   responseKind: 'bytes';
   /** Same contract as the text `parse`, over bytes. */
-  parse: (body: Uint8Array) => UpstreamParseResult<T>;
+  parse: (body: Uint8Array, headers: UpstreamResponseHeaders) => UpstreamParseResult<T>;
 }
 
 /**
@@ -514,11 +540,13 @@ export class UpstreamHttpClient {
     }
 
     try {
-      // The ONE place the two branches diverge — after every guard above has already run.
+      // The ONE place the two branches diverge — after every guard above has already run. Both
+      // branches hand `parse` the response headers as a second argument (AK-25 md.5); callers
+      // that declare only `(body)` ignore it, which is every caller but the terrain tile client.
       const parsed =
         options.responseKind === 'bytes'
-          ? options.parse(body)
-          : options.parse(new TextDecoder('utf-8').decode(body));
+          ? options.parse(body, response.headers)
+          : options.parse(new TextDecoder('utf-8').decode(body), response.headers);
       if (parsed.kind === 'no_data') {
         return { kind: 'no_data', reason: parsed.reason };
       }

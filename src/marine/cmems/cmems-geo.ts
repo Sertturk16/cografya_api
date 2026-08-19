@@ -10,14 +10,23 @@
  * imports `marine.types` the same way) and there is ONE implementation.
  *
  * Kept dependency-free and pure so the unit suite can exercise it against synthetic inputs
- * with no network and no database (repo playbook §8).
+ * with no network and no database (repo playbook §8) — the one import below is a bare numeric
+ * constant, which changes neither property.
  */
+
+import { EARTH_MEAN_RADIUS_KM } from '../../common/geo/earth-radius';
 
 /** WMTS tiles are 256 px square in every EPSG:3857 tile matrix set we use. */
 export const TILE_SIZE_PX = 256;
 
-/** Mean Earth radius, km (IUGG). Used by {@link haversineKm}. */
-const EARTH_RADIUS_KM = 6371.0088;
+/**
+ * Mean Earth radius, km (IUGG R1). Used by {@link haversineKm}.
+ *
+ * Imported rather than declared: the value and the argument for it live once, in
+ * `src/common/geo/earth-radius.ts`. The distances this module produces are PUBLISHED
+ * (`MarineValueDto.distanceKm`), which is the half of that file's rule this leg falls under.
+ */
+const EARTH_RADIUS_KM = EARTH_MEAN_RADIUS_KM;
 
 /** Web Mercator's reachable latitude limit; poles map to `y → ±∞`. */
 const MAX_MERCATOR_LATITUDE = 85.0511287798066;

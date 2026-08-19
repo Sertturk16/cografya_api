@@ -1,3 +1,4 @@
+import { GRID_MAPPING_EARTH_RADIUS_KM } from '../../common/geo/earth-radius';
 import { AcagContractError } from './acag.errors';
 
 /**
@@ -219,7 +220,11 @@ export function distanceKm(
   longitudeB: number,
 ): number {
   const toRadians = (degrees: number): number => (degrees * Math.PI) / 180;
-  const earthRadiusKm = 6371;
+  // The GRID-MAPPING radius, imported rather than declared. `src/common/geo/earth-radius.ts`
+  // carries the measurement that pins THIS line in particular: `acag-assertions.ts` re-derives
+  // every province's `cellDistanceKm` at a 1 mm tolerance, and the published radius would leave
+  // that gate 2.4 % of margin on the committed artifact.
+  const earthRadiusKm = GRID_MAPPING_EARTH_RADIUS_KM;
   const dLat = toRadians(latitudeB - latitudeA);
   const dLon = toRadians(longitudeB - longitudeA);
   const a =
