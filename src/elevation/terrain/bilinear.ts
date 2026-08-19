@@ -47,6 +47,18 @@ export function bilinearSample(
     );
   }
 
+  // Non-finite coordinates are refused, not averaged. Without this, `fractionX`/`fractionY`
+  // become NaN and the function returns NaN — which `Number(x.toFixed(2))` keeps as NaN and
+  // `JSON.stringify` then writes as `null`, making a poisoned sample byte-identical to a tile
+  // that simply failed to fetch (review #122, SFH122-M6). The `?? 0` fallbacks below cannot
+  // help there: they satisfy `noUncheckedIndexedAccess` on reads that are already in range,
+  // and their only live effect under NaN would be to substitute sea level.
+  if (!Number.isFinite(pixelX) || !Number.isFinite(pixelY)) {
+    throw new RangeError(
+      `bilinearSample needs finite coordinates, received x=${String(pixelX)} y=${String(pixelY)}`,
+    );
+  }
+
   // Shift from "position in the tile" to "position in the lattice of cell centres".
   const x = pixelX - 0.5;
   const y = pixelY - 0.5;

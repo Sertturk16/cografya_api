@@ -52,11 +52,24 @@ describe('bilinear sampling', () => {
     expect(bilinearSample(grid, 0, 2, 2)).toBeCloseTo(30, 10);
   });
 
-  it('is continuous — a tiny move in position makes a tiny move in value', () => {
+  it('is continuous ACROSS the cell seam, where continuity could actually break', () => {
+    // The probe points straddle 1.5, which is where `Math.floor` changes its answer after the
+    // half-pixel shift. The earlier version of this case probed 0.999/1.001 — both floor to
+    // the same cell, so it was asserting linearity inside one cell, which cannot be
+    // discontinuous (review #122, TA122-M5).
     const grid = gridFrom([0, 1000, 0, 1000], 2);
-    const before = bilinearSample(grid, 0.999, 1, 2);
-    const after = bilinearSample(grid, 1.001, 1, 2);
+    const before = bilinearSample(grid, 1.4999, 1, 2);
+    const after = bilinearSample(grid, 1.5001, 1, 2);
     expect(Math.abs(after - before)).toBeLessThan(5);
+  });
+
+  it('refuses a non-finite coordinate instead of returning NaN', () => {
+    // NaN survives `toFixed` and `JSON.stringify` turns it into `null`, which is exactly what
+    // an unfetched tile also looks like — so a poisoned sample would be indistinguishable from
+    // missing data in the artifact and in the future response (review #122, SFH122-M6).
+    const grid = gridFrom([1, 2, 3, 4], 2);
+    expect(() => bilinearSample(grid, Number.NaN, 0.5, 2)).toThrow(RangeError);
+    expect(() => bilinearSample(grid, 0.5, Number.POSITIVE_INFINITY, 2)).toThrow(RangeError);
   });
 
   it('refuses a grid whose length does not match the declared size', () => {

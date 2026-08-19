@@ -75,8 +75,22 @@ function chunk(type: string, data: Uint8Array): Uint8Array {
   return out;
 }
 
-/** Encode one elevation in metres back into the three terrarium channels. */
+/**
+ * Encode one elevation in metres back into the three terrarium channels.
+ *
+ * REFUSES anything outside the encodable range instead of emitting wrong bytes. The masks
+ * below are silent on overflow — `encodeTerrariumPixel(32768)` used to produce `(0, 0, 0)`,
+ * i.e. the floor, and `encodeTerrariumPixel(-32769)` produced `(255, 255, 0)` — so a fixture
+ * built from an out-of-range value would have tested the decoder against bytes that mean
+ * something else entirely, and passed (review #122, TA122-I3). A test helper that lies is
+ * worse than no helper.
+ */
 export function encodeTerrariumPixel(metres: number): [number, number, number] {
+  if (!Number.isFinite(metres) || metres < -32768 || metres > 32767.99609375) {
+    throw new RangeError(
+      `terrarium cannot encode ${String(metres)} m; the range is -32768 … 32767.996`,
+    );
+  }
   const biased = Math.round((metres + TERRARIUM_OFFSET_M) * 256);
   return [(biased >> 16) & 0xff, (biased >> 8) & 0xff, biased & 0xff];
 }

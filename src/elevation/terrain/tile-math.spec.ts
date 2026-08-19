@@ -1,4 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
+import { bilinearSample } from './bilinear';
 import {
   TERRAIN_SAMPLE_ZOOM,
   TILE_SIZE,
@@ -73,6 +74,35 @@ describe('tile math', () => {
 
     const north = lonLatToTilePixel(0, 89, TERRAIN_SAMPLE_ZOOM);
     expect(north.tileY).toBe(0);
+
+    // The second half of the documented contract: the pixel offset stays INSIDE the tile it
+    // was clamped into. Only the tile index was pinned before, so a differently written clamp
+    // could have left `pixelX` outside [0, TILE_SIZE] with every assertion above still green
+    // (review #122, TA122-M4).
+    expect(east.pixelX).toBeGreaterThanOrEqual(0);
+    expect(east.pixelX).toBeLessThanOrEqual(TILE_SIZE);
+    expect(south.pixelY).toBeGreaterThanOrEqual(0);
+    expect(south.pixelY).toBeLessThanOrEqual(TILE_SIZE);
+  });
+
+  it('hands the pyramid edge to the sampler without stepping outside the grid', () => {
+    // The COMPOSED path the two docblocks promise between them: lon +180 lands at pixelX
+    // exactly TILE_SIZE, and `bilinearSample` clamps there rather than reading a cell that
+    // does not exist. Covered in pieces before this, never end to end (TA122-M4).
+    const edge = lonLatToTilePixel(180, 0, TERRAIN_SAMPLE_ZOOM);
+    const grid = new Int16Array(TILE_SIZE * TILE_SIZE);
+    grid[TILE_SIZE * TILE_SIZE - 1] = 1234;
+
+    const sampled = bilinearSample(grid, edge.pixelX, edge.pixelY);
+    expect(Number.isFinite(sampled)).toBe(true);
+  });
+
+  it('refuses a non-finite coordinate rather than returning a NaN tile index', () => {
+    // `tileX: NaN` becomes the literal string "NaN" in a tile URL, and the resulting 404 reads
+    // downstream as "the provider has no data here" (review #122, TA122-M2 / SFH122-M6).
+    expect(() => lonLatToTilePixel(Number.NaN, 39, TERRAIN_SAMPLE_ZOOM)).toThrow(RangeError);
+    expect(() => lonLatToTilePixel(32, Number.NaN, TERRAIN_SAMPLE_ZOOM)).toThrow(RangeError);
+    expect(() => lonLatToTilePixel(32, 39, Number.POSITIVE_INFINITY)).toThrow(RangeError);
   });
 
   it('moves east and south monotonically across tiles', () => {

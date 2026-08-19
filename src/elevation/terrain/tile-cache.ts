@@ -25,8 +25,10 @@
  * cost from the tile count at 3 a.m.
  */
 
+import { TILE_SIZE } from './tile-math';
+
 /** Bytes one decoded grid occupies: 256 × 256 cells × 2 bytes (`Int16Array`). */
-export const BYTES_PER_DECODED_TILE = 256 * 256 * 2;
+export const BYTES_PER_DECODED_TILE = TILE_SIZE * TILE_SIZE * 2;
 
 export interface TileCacheStats {
   readonly size: number;
@@ -71,6 +73,19 @@ export class TerrainTileCache {
   }
 
   set(key: string, grid: Int16Array): void {
+    // The ceiling is counted in TILES while the budget it defends is measured in BYTES, so the
+    // two only agree while every entry really is one decoded tile. Without this check the
+    // "256 tiles ≈ 33.5 MB" figure the memory budget rests on is a convention rather than an
+    // invariant, and a caller storing a differently sized grid would break it with no test
+    // failing (review #122, CODE122-M6). Today the only producer is `decodeTerrainTile`, which
+    // is geometry-locked — this keeps that true by construction rather than by hope.
+    if (grid.length !== TILE_SIZE * TILE_SIZE) {
+      throw new RangeError(
+        `a cached grid must hold ${String(TILE_SIZE * TILE_SIZE)} cells, received ` +
+          `${String(grid.length)}`,
+      );
+    }
+
     this.entries.delete(key);
     this.entries.set(key, grid);
 

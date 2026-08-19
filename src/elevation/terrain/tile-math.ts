@@ -75,6 +75,19 @@ export function tileKey(zoom: number, tileX: number, tileY: number): string {
  * refusal validates first.
  */
 export function lonLatToTilePixel(lon: number, lat: number, zoom: number): TilePixelPosition {
+  // A non-finite input is refused rather than clamped. Clamping is right for a legal-but-extreme
+  // coordinate; NaN is not extreme, it is absent — and it propagates through every step here to
+  // produce `tileX: NaN`, which becomes the string "NaN" in a tile URL and a run of nulls in a
+  // profile that reads as "the provider had no data" (review #122, TA122-M2 / SFH122-M6). The
+  // request DTO still owes its own validation in PR-E2; this is the floor beneath it, and it
+  // matches the refusals `sampleGreatCircleLine` and `TerrainTileCache` already make.
+  if (!Number.isFinite(lon) || !Number.isFinite(lat) || !Number.isFinite(zoom)) {
+    throw new RangeError(
+      `lonLatToTilePixel needs finite arguments, received lon=${String(lon)} lat=${String(lat)} ` +
+        `zoom=${String(zoom)}`,
+    );
+  }
+
   const axis = tilesPerAxis(zoom);
   const maxPixel = axis * TILE_SIZE;
 

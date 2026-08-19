@@ -7,6 +7,16 @@
  * by accident: the two run in different processes and one cannot import the other, and the
  * shared alternative is a published package nobody wants to own. What must not diverge is
  * the RESULT, so both sides use the same mean-radius constant, stated below.
+ *
+ * ## Domain
+ * Latitude −90 … 90, longitude −180 … 180, decimal degrees, both FINITE. Longitude is not
+ * wrapped and does not need to be: everything here works in trigonometric space or in 3D
+ * vectors, so a pair spanning the ±180 seam behaves exactly like the equivalent pair near
+ * zero — pinned in the spec rather than asserted here, because a "simplification" to linear
+ * longitude arithmetic would break the seam silently.
+ *
+ * Antipodal and near-antipodal pairs are REFUSED by {@link interpolateGreatCircle}; see the
+ * guard there.
  */
 
 /**
@@ -18,6 +28,15 @@
  * number against another site's.
  */
 export const EARTH_MEAN_RADIUS_KM = 6371.0088;
+
+/**
+ * How close to π counts as antipodal, in radians.
+ *
+ * 1e-9 rad is ~6 mm on the ground — far below any input precision this service accepts, so it
+ * cannot refuse a line a user could meaningfully draw, while still catching the band where the
+ * slerp weights become meaningless.
+ */
+const ANTIPODAL_EPSILON_RAD = 1e-9;
 
 export interface GeoPoint {
   readonly lat: number;
@@ -93,6 +112,23 @@ export function interpolateGreatCircle(a: GeoPoint, b: GeoPoint, fraction: numbe
   // function from returning NaN for a degenerate line. The endpoint is returned as-is.
   if (angularDistance === 0) {
     return { lat: a.lat, lon: a.lon };
+  }
+
+  // The OTHER degeneracy, and the dangerous one. At (near-)antipodal separation there is no
+  // unique great circle between the points, and `sin(pi)` is 1.22e-16 rather than 0 — so the
+  // weights blow up to ~8.2e15 and the formula returns a FINITE, arbitrary point on some
+  // perpendicular circle instead of NaN. Verified: (45, 0) → (−45, 180) at fraction 0.5
+  // returns (0, 90). Nothing downstream can notice, because every individual coordinate looks
+  // plausible and the whole path is wrong — precisely the failure this module's slerp exists to
+  // prevent (review #122, CODE122-M9 / SFH122-M7).
+  //
+  // Refused rather than given a convention: picking one of infinitely many circles would be
+  // inventing an answer. No line inside the Türkiye frame comes near this, so the refusal costs
+  // nothing real and keeps the module honest for whatever calls it next.
+  if (Math.PI - angularDistance < ANTIPODAL_EPSILON_RAD) {
+    throw new RangeError(
+      'the two points are (near-)antipodal, so no unique great circle joins them',
+    );
   }
 
   const weightA = Math.sin((1 - fraction) * angularDistance) / Math.sin(angularDistance);

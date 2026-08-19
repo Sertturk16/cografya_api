@@ -53,6 +53,18 @@ describe('terrarium fixture builder', () => {
     expect(encodeTerrariumPixel(1)).toEqual([128, 1, 0]);
   });
 
+  it('REFUSES to encode a value outside the terrarium range', () => {
+    // The masks are silent on overflow: 32768 used to emit (0,0,0) — the FLOOR — and -32769
+    // emitted (255,255,0). A fixture built from such a value would have tested the decoder
+    // against bytes meaning something else entirely, and passed (review #122, TA122-I3).
+    expect(() => encodeTerrariumPixel(32768)).toThrow(RangeError);
+    expect(() => encodeTerrariumPixel(-32769)).toThrow(RangeError);
+    expect(() => encodeTerrariumPixel(Number.NaN)).toThrow(RangeError);
+    // Both ends of the legal range still encode.
+    expect(encodeTerrariumPixel(-32768)).toEqual([0, 0, 0]);
+    expect(encodeTerrariumPixel(32767.99609375)).toEqual([255, 255, 255]);
+  });
+
   it('builds a bomb whose declared body is small and whose inflated body is not', () => {
     const bomb = buildOversizedIdatPng(8 * 1024 * 1024);
     expect(bomb.length).toBeLessThan(100_000);

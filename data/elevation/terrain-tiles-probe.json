@@ -1,5 +1,5 @@
 {
-  "generatedAtUtc": "2026-08-19T14:21:43.433Z",
+  "generatedAtUtc": "2026-08-19T15:12:14.406Z",
   "baseUrl": "https://s3.amazonaws.com/elevation-tiles-prod",
   "zoom": 12,
   "userAgent": "CografyaPlatformBot/1.0 (educational geography platform)",
@@ -12,13 +12,51 @@
     "pinnedSha256": "2ce4d3414b4592d17ad56a5af57feb480686ddcfb0a3e4ea0b566d28cde13567",
     "matchesPin": true
   },
+  "attributionError": null,
+  "assertions": [
+    {
+      "name": "sampling zoom reached",
+      "passed": true,
+      "detail": "9 tile(s) returned 200 at z12"
+    },
+    {
+      "name": "imagery sources reported",
+      "passed": true,
+      "detail": "eudem, gmted"
+    },
+    {
+      "name": "no unexpected source family at the sampling zoom",
+      "passed": true,
+      "detail": "all within 3dep, eudem, gmted, ned, srtm"
+    },
+    {
+      "name": "no etopo1 at the sampling zoom",
+      "passed": true,
+      "detail": "absent, as the z12 pin requires"
+    },
+    {
+      "name": "no sea depth above z10",
+      "passed": true,
+      "detail": "every z >= 11 offshore sample reads exactly 0 m"
+    },
+    {
+      "name": "decoder agrees with the independent measurement",
+      "passed": true,
+      "detail": "Tuz Gölü 0 m · Van Gölü 0.5 m · Erciyes zirve -0.28 m"
+    },
+    {
+      "name": "attribution document matches the pinned hash",
+      "passed": true,
+      "detail": "unchanged since provenance/datasets.md pinned it"
+    }
+  ],
   "tiles": [
     {
       "tile": "12/2427/1568",
       "zoom": 12,
       "httpStatus": 200,
       "bytes": 901,
-      "elapsedMs": 929,
+      "elapsedMs": 490,
       "contentType": "image/png",
       "lastModified": "Fri, 17 Nov 2017 01:16:29 GMT",
       "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif"
@@ -28,7 +66,7 @@
       "zoom": 12,
       "httpStatus": 200,
       "bytes": 890,
-      "elapsedMs": 571,
+      "elapsedMs": 165,
       "contentType": "image/png",
       "lastModified": "Fri, 17 Nov 2017 11:22:26 GMT",
       "imagerySources": "eudem/eudem_dem_5deg_n35e040.tif"
@@ -38,7 +76,7 @@
       "zoom": 12,
       "httpStatus": 200,
       "bytes": 133078,
-      "elapsedMs": 1017,
+      "elapsedMs": 632,
       "contentType": "image/png",
       "lastModified": "Fri, 17 Nov 2017 04:11:11 GMT",
       "imagerySources": "eudem/eudem_dem_5deg_n35e035.tif"
@@ -48,7 +86,7 @@
       "zoom": 12,
       "httpStatus": 200,
       "bytes": 109867,
-      "elapsedMs": 690,
+      "elapsedMs": 342,
       "contentType": "image/png",
       "lastModified": "Fri, 17 Nov 2017 01:39:43 GMT",
       "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif"
@@ -58,7 +96,7 @@
       "zoom": 12,
       "httpStatus": 200,
       "bytes": 54758,
-      "elapsedMs": 619,
+      "elapsedMs": 219,
       "contentType": "image/png",
       "lastModified": "Thu, 16 Nov 2017 20:11:23 GMT",
       "imagerySources": "eudem/eudem_dem_5deg_n35e025.tif"
@@ -68,7 +106,7 @@
       "zoom": 12,
       "httpStatus": 200,
       "bytes": 757,
-      "elapsedMs": 591,
+      "elapsedMs": 176,
       "contentType": "image/png",
       "lastModified": "Thu, 16 Nov 2017 22:59:43 GMT",
       "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif, gmted/30N030E_20101117_gmted_mea075.tif"
@@ -78,7 +116,7 @@
       "zoom": 12,
       "httpStatus": 200,
       "bytes": 757,
-      "elapsedMs": 607,
+      "elapsedMs": 153,
       "contentType": "image/png",
       "lastModified": "Fri, 17 Nov 2017 04:03:02 GMT",
       "imagerySources": "gmted/30N030E_20101117_gmted_mea075.tif"
@@ -88,7 +126,7 @@
       "zoom": 12,
       "httpStatus": 200,
       "bytes": 757,
-      "elapsedMs": 640,
+      "elapsedMs": 225,
       "contentType": "image/png",
       "lastModified": "Thu, 16 Nov 2017 20:09:30 GMT",
       "imagerySources": "gmted/30N000E_20101117_gmted_mea075.tif"
@@ -98,7 +136,7 @@
       "zoom": 12,
       "httpStatus": 200,
       "bytes": 757,
-      "elapsedMs": 674,
+      "elapsedMs": 155,
       "contentType": "image/png",
       "lastModified": "Thu, 16 Nov 2017 22:46:44 GMT",
       "imagerySources": "gmted/30N000E_20101117_gmted_mea075.tif"
@@ -108,7 +146,7 @@
       "zoom": 8,
       "httpStatus": 200,
       "bytes": 134856,
-      "elapsedMs": 695,
+      "elapsedMs": 165,
       "contentType": "image/png",
       "lastModified": "Thu, 16 Nov 2017 22:55:56 GMT",
       "imagerySources": "srtm/N36E030.tif, srtm/N36E029.tif, gmted/30N030E_20101117_gmted_mea075.tif, gmted/30N000E_20101117_gmted_mea075.tif, etopo1/ETOPO1_Bed_g.tif"
@@ -118,7 +156,7 @@
       "zoom": 9,
       "httpStatus": 200,
       "bytes": 134582,
-      "elapsedMs": 763,
+      "elapsedMs": 150,
       "contentType": "image/png",
       "lastModified": "Thu, 16 Nov 2017 22:58:38 GMT",
       "imagerySources": "gmted/30N030E_20101117_gmted_mea075.tif, etopo1/ETOPO1_Bed_g.tif"
@@ -128,7 +166,7 @@
       "zoom": 10,
       "httpStatus": 200,
       "bytes": 133137,
-      "elapsedMs": 857,
+      "elapsedMs": 232,
       "contentType": "image/png",
       "lastModified": "Thu, 16 Nov 2017 22:59:31 GMT",
       "imagerySources": "gmted/30N030E_20101117_gmted_mea075.tif, etopo1/ETOPO1_Bed_g.tif"
@@ -138,7 +176,7 @@
       "zoom": 11,
       "httpStatus": 200,
       "bytes": 757,
-      "elapsedMs": 830,
+      "elapsedMs": 196,
       "contentType": "image/png",
       "lastModified": "Thu, 16 Nov 2017 22:59:41 GMT",
       "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif, gmted/30N030E_20101117_gmted_mea075.tif"
@@ -148,7 +186,7 @@
       "zoom": 13,
       "httpStatus": 200,
       "bytes": 757,
-      "elapsedMs": 1554,
+      "elapsedMs": 195,
       "contentType": "image/png",
       "lastModified": "Thu, 16 Nov 2017 22:59:43 GMT",
       "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif, gmted/30N030E_20101117_gmted_mea075.tif"
@@ -278,37 +316,43 @@
       "label": "Akdeniz açığı",
       "zoom": 8,
       "metres": -1491.34,
-      "imagerySources": "srtm/N36E030.tif, srtm/N36E029.tif, gmted/30N030E_20101117_gmted_mea075.tif, gmted/30N000E_20101117_gmted_mea075.tif, etopo1/ETOPO1_Bed_g.tif"
+      "imagerySources": "srtm/N36E030.tif, srtm/N36E029.tif, gmted/30N030E_20101117_gmted_mea075.tif, gmted/30N000E_20101117_gmted_mea075.tif, etopo1/ETOPO1_Bed_g.tif",
+      "error": null
     },
     {
       "label": "Akdeniz açığı",
       "zoom": 9,
       "metres": -1493.27,
-      "imagerySources": "gmted/30N030E_20101117_gmted_mea075.tif, etopo1/ETOPO1_Bed_g.tif"
+      "imagerySources": "gmted/30N030E_20101117_gmted_mea075.tif, etopo1/ETOPO1_Bed_g.tif",
+      "error": null
     },
     {
       "label": "Akdeniz açığı",
       "zoom": 10,
       "metres": -1490.62,
-      "imagerySources": "gmted/30N030E_20101117_gmted_mea075.tif, etopo1/ETOPO1_Bed_g.tif"
+      "imagerySources": "gmted/30N030E_20101117_gmted_mea075.tif, etopo1/ETOPO1_Bed_g.tif",
+      "error": null
     },
     {
       "label": "Akdeniz açığı",
       "zoom": 11,
       "metres": 0,
-      "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif, gmted/30N030E_20101117_gmted_mea075.tif"
+      "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif, gmted/30N030E_20101117_gmted_mea075.tif",
+      "error": null
     },
     {
       "label": "Akdeniz açığı",
       "zoom": 12,
       "metres": 0,
-      "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif, gmted/30N030E_20101117_gmted_mea075.tif"
+      "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif, gmted/30N030E_20101117_gmted_mea075.tif",
+      "error": null
     },
     {
       "label": "Akdeniz açığı",
       "zoom": 13,
       "metres": 0,
-      "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif, gmted/30N030E_20101117_gmted_mea075.tif"
+      "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif, gmted/30N030E_20101117_gmted_mea075.tif",
+      "error": null
     }
   ],
   "imagerySourceTokens": [
@@ -372,9 +416,9 @@
   },
   "samplingZoomLatencyStats": {
     "count": 9,
-    "minMs": 571,
-    "maxMs": 1017,
-    "medianMs": 640,
-    "p95Ms": 929
+    "minMs": 153,
+    "maxMs": 632,
+    "medianMs": 219,
+    "p95Ms": 490
   }
 }

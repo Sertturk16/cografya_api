@@ -1,5 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 import {
+  EARTH_MEAN_RADIUS_KM,
   haversineKm,
   interpolateGreatCircle,
   sampleGreatCircleLine,
@@ -36,6 +37,48 @@ describe('great-circle geometry', () => {
     const distance = haversineKm(north, antipode);
     expect(Number.isNaN(distance)).toBe(false);
     expect(distance).toBeGreaterThan(0);
+  });
+
+  it('pins the Earth radius, because every other assertion here is scale-invariant', () => {
+    // NOT a tautology, and the same argument as the sampling-zoom pin in tile-math.spec.ts.
+    // Symmetry, the triangle inequality, the midpoint, the uniform ramp — all of them stay
+    // green under ANY radius, because each compares two distances computed with the same
+    // constant. So nothing else in this file can see a change to it. Meanwhile the module's
+    // own docblock says the web repo holds a second copy of this formula whose RESULT must not
+    // diverge, and this repo already carries three different values of the constant
+    // (`cmems-geo.ts` 6371.0088, `cams-grid.ts` and `era5-grid.ts` 6371) — so a well-meant
+    // "harmonise the constants" commit is a live edit, not a hypothesis. At 6378.137 the
+    // İzmir–Van line moves +1.58 km with every assertion below still passing
+    // (review #122, TA122-I2).
+    //
+    // `cografya_web/lib/map/measure.ts` must hold this same value.
+    expect(EARTH_MEAN_RADIUS_KM).toBe(6371.0088);
+  });
+
+  it('treats the ±180 seam like any other span', () => {
+    // No wrapping anywhere in this module, and this is what says so. A future
+    // "simplification" to linear longitude arithmetic (or a `Math.abs(lon2 - lon1)` shortcut)
+    // breaks exactly here and nowhere else (review #122, TA122-M3).
+    const acrossSeam = haversineKm({ lat: 0, lon: 179 }, { lat: 0, lon: -179 });
+    const nearZero = haversineKm({ lat: 0, lon: -1 }, { lat: 0, lon: 1 });
+    expect(acrossSeam).toBeCloseTo(nearZero, 9);
+
+    const atLatitude = haversineKm({ lat: 41, lon: 179.5 }, { lat: 41, lon: -179.5 });
+    const atLatitudeNearZero = haversineKm({ lat: 41, lon: -0.5 }, { lat: 41, lon: 0.5 });
+    expect(atLatitude).toBeCloseTo(atLatitudeNearZero, 9);
+  });
+
+  it('REFUSES a (near-)antipodal interpolation instead of inventing a path', () => {
+    // `sin(pi)` is 1.22e-16, not 0, so the unguarded slerp returns a finite but arbitrary
+    // point — (45,0) → (−45,180) at 0.5 used to yield (0, 90), a plausible-looking coordinate
+    // on a path nobody asked for. Refusing is the only honest answer: infinitely many great
+    // circles join an antipodal pair (review #122, CODE122-M9 / SFH122-M7).
+    expect(() => interpolateGreatCircle({ lat: 45, lon: 0 }, { lat: -45, lon: 180 }, 0.5)).toThrow(
+      RangeError,
+    );
+    expect(() => sampleGreatCircleLine({ lat: 39, lon: 35 }, { lat: -39, lon: -145 }, 5)).toThrow(
+      RangeError,
+    );
   });
 
   it('returns the endpoints exactly at fractions 0 and 1', () => {
@@ -102,6 +145,9 @@ describe('great-circle geometry', () => {
   it('spaces samples evenly on the GROUND, not just in the index', () => {
     // The ramp above is arithmetic on `totalKm`; this checks the actual points it returned.
     const samples = sampleGreatCircleLine(izmir, van, 20);
+    // Without this the whole body is inside a loop that runs zero times if the function
+    // regressed to returning an empty array, and the case would pass vacuously (TA122-M9).
+    expect(samples).toHaveLength(20);
     for (let index = 1; index < samples.length; index += 1) {
       const previous = samples[index - 1];
       const current = samples[index];

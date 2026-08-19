@@ -17,6 +17,16 @@ undecided and nobody had measured the provider from this codebase.
 This artifact is what replaces the guesses with measurements a reviewer can check. It is
 evidence, never a runtime input — nothing loads it, and no code path degrades if it is stale.
 
+## The run gates itself, and the exit code is the answer
+
+Every property below is also a PASS/FAIL gate evaluated by `evaluateProbeAssertions`, printed
+by the CLI and recorded in `assertions[]`. A failing gate sets a non-zero exit code and the
+artifact must not be committed as evidence. Read the exit code, never the printed counts — the
+rule `ENGINEERING.md` §8 sets for the content-fidelity lanes, for the same reason.
+
+Before the #122 review none of this existed: a run where every tile answered 403 printed
+`tiles 200: 0`, wrote an artifact full of nulls, and exited 0.
+
 ## The four things a reader should look at first
 
 1. **`attribution.matchesPin`.** `provenance/datasets.md` pinned the SHA-256 of Tilezen's
@@ -44,12 +54,19 @@ evidence, never a runtime input — nothing loads it, and no code path degrades 
 
 - **Production latency.** The timings are from whichever machine ran the probe. They bound the
   arithmetic (a tile is hundreds of milliseconds, not tens), and they are not a production SLO.
+  They measure **transfer time only**: the 400 ms politeness gap sits outside the measurement.
+  It did not always — the first committed artifact folded the sleep into every reading and
+  published a median of 640 ms where the transfer took 219 ms, which is the number PR-E2's
+  request deadline would have been sized from (review #122, CODE122-I2).
 - **A full-coverage source census.** It samples a handful of tiles. The tripwire's allow-list
   must therefore be the set of families the two published attribution lines actually cover, with
   this artifact as evidence for the sampling zoom rather than as the whole census.
 - **Anything about the byte size of a SEA tile being representative.** Sea tiles at the sampling
   zoom are a flat 0 m and compress to under a kilobyte; land tiles measure two orders of
-  magnitude larger. A per-request byte estimate uses the land figure.
+  magnitude larger. `samplingZoomByteStats.meanBytes` therefore sits far below the ~121 kB a
+  land line averages, because several sampled points are offshore. **A per-request byte estimate
+  uses `maxBytes` or the land figure, never the mean.** The scoping in that field is by ZOOM; the
+  skew is by TERRAIN, and the two are independent.
 
 ## Politeness
 

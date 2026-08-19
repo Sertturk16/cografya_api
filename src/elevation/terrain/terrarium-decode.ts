@@ -44,6 +44,10 @@ const BYTES_PER_PIXEL = 3;
  */
 const TERRARIUM_OFFSET_M = 32768;
 
+/** The storage range of the decoded grid. Exported so the spec pins the saturation boundary. */
+export const INT16_MIN = -32768;
+export const INT16_MAX = 32767;
+
 /** Raised for any body that is not the tile shape we contracted for. */
 export class TerrainTileFormatError extends Error {
   constructor(message: string) {
@@ -204,6 +208,21 @@ function unfilterScanlines(raw: Uint8Array, width: number, height: number): Uint
  *
  * Türkiye's range (0 … ~5137 m) sits far inside `Int16`, and so does the terrarium floor
  * (−32768 exactly).
+ *
+ * ## The CEILING is saturated, not wrapped — and that is a security property
+ * The encoding's top pixel `(255, 255, 255)` decodes to 32767.996 m, which rounds to 32768:
+ * one past `Int16`'s maximum, where a plain typed-array store WRAPS to −32768. That is the
+ * one number this module must never produce by accident, because −32768 is also the
+ * legitimate terrarium floor — so a hostile or corrupt pixel would arrive downstream
+ * disguised as a valid reading, in a module whose entire design is loud refusal (review #122
+ * CODE122-M1 / SFH122-M5 / TA122-I3, verified: `Math.round(32767.996)` stored in an
+ * `Int16Array` yields −32768).
+ *
+ * Saturation rather than refusal is deliberate. Refusing the tile would need a physical
+ * plausibility band, and the floor value is a legitimate no-data marker in this encoding — a
+ * band tight enough to reject 32768 m would also reject a tile that is honestly full of
+ * floor markers. Clamping removes the sign flip, which is the actual defect: an absurd
+ * reading stays absurd and stays positive, instead of impersonating the floor.
  */
 export function decodeTerrainTile(body: Uint8Array): Int16Array {
   if (!hasPngSignature(body)) {
@@ -288,7 +307,9 @@ export function decodeTerrainTile(body: Uint8Array): Int16Array {
       pixels[base + 1] ?? 0,
       pixels[base + 2] ?? 0,
     );
-    grid[index] = Math.round(metres);
+    // Saturating store. See the docblock: without the upper clamp the encoding's top pixel
+    // wraps to the floor value and an absurd reading becomes indistinguishable from a valid one.
+    grid[index] = Math.max(INT16_MIN, Math.min(INT16_MAX, Math.round(metres)));
   }
 
   return grid;

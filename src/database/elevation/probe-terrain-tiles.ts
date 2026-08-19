@@ -48,6 +48,47 @@ import { UPSTREAM_USER_AGENT } from '../../upstream/upstream-http.helpers';
 
 const DEFAULT_BASE_URL = 'https://s3.amazonaws.com/elevation-tiles-prod';
 
+/** Raised when a request the probe depends on did not succeed. */
+export class TerrainProbeError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'TerrainProbeError';
+  }
+}
+
+/**
+ * The terrain source families we expect AT THE SAMPLING ZOOM, and the set the tripwire's
+ * allow-list is derived from.
+ *
+ * These are the families the two attribution lines we publish actually cover: EU-DEM (the
+ * Copernicus line) plus GMTED2010, SRTM and 3DEP/NED (the USGS line). `etopo1` is deliberately
+ * ABSENT and must stay absent — its absence above z10 is what keeps NOAA's "Not to be used for
+ * navigation" limit from arising and removes a third attribution line from what the page owes
+ * (SPEC §8.2). A run that sees a family outside this set has watched the tile mix move under
+ * us, and must stop rather than write an artifact somebody configures a tripwire from.
+ *
+ * The measured z12 set is a SUBSET of this (`eudem`, `gmted` in the recorded run); the other
+ * three are listed because the ledger measured them on Turkish tiles at other zooms and the
+ * published attribution lines already cover them, so meeting one is not evidence of drift.
+ */
+export const EXPECTED_SAMPLING_ZOOM_FAMILIES: readonly string[] = [
+  '3dep',
+  'eudem',
+  'gmted',
+  'ned',
+  'srtm',
+];
+
+/** The families a `x-amz-meta-x-imagery-sources` header value names: each entry's path prefix. */
+export function imagerySourceFamilies(headerValue: string): string[] {
+  const families: string[] = [];
+  for (const entry of headerValue.split(',')) {
+    const family = entry.trim().split('/')[0];
+    if (family !== undefined && family !== '') families.push(family);
+  }
+  return families;
+}
+
 /**
  * The attribution document `provenance/datasets.md` pins. Fetched RAW — the rendered GitHub
  * page carries markup whose hash would differ from the pinned one for reasons that have
@@ -61,16 +102,16 @@ const PINNED_ATTRIBUTION_SHA256 =
   '2ce4d3414b4592d17ad56a5af57feb480686ddcfb0a3e4ea0b566d28cde13567';
 
 /** Gap between requests. Serial + spaced is the whole politeness contract. */
-const REQUEST_SPACING_MS = 400;
+export const REQUEST_SPACING_MS = 400;
 
 /** Ceiling on one request, so a stalled socket cannot hang a hand-run script indefinitely. */
-const REQUEST_TIMEOUT_MS = 30_000;
+export const REQUEST_TIMEOUT_MS = 30_000;
 
 /**
  * Refuse a body larger than this. A conforming tile measured ~121 kB (SPEC §7.1); 2 MB is far
  * above anything legitimate and far below anything that could hurt the operator's machine.
  */
-const MAX_BODY_BYTES = 2 * 1024 * 1024;
+export const MAX_BODY_BYTES = 2 * 1024 * 1024;
 
 interface ProbePoint {
   readonly label: string;
@@ -178,13 +219,29 @@ export interface TerrainProbeArtifact {
     readonly pinnedSha256: string;
     readonly matchesPin: boolean;
   } | null;
+  /** Why the attribution document could not be read, when it could not. */
+  readonly attributionError: string | null;
+  /**
+   * The run's own PASS/FAIL gates.
+   *
+   * A probe that writes an artifact and exits 0 having measured nothing is the shape
+   * `ENGINEERING.md` §5 forbids, and this is what makes the failure loud instead. Modelled on
+   * `probe-air-quality.ts`, which records its assertions in the artifact and exits non-zero.
+   */
+  readonly assertions: readonly {
+    readonly name: string;
+    readonly passed: boolean;
+    readonly detail: string;
+  }[];
   readonly tiles: readonly TileFetchRecord[];
   readonly points: readonly PointRecord[];
   readonly bathymetryByZoom: readonly {
     readonly label: string;
     readonly zoom: number;
     readonly metres: number | null;
+    /** The `x-amz-meta-x-imagery-sources` header value. NEVER an error message. */
     readonly imagerySources: string | null;
+    readonly error: string | null;
   }[];
   /** Every source family seen anywhere in the run, across ALL probed zooms. Context only. */
   readonly imagerySourceTokens: readonly string[];
@@ -207,9 +264,15 @@ export interface TerrainProbeArtifact {
   /**
    * Byte and latency distributions for the SAMPLING ZOOM only.
    *
-   * Scoped deliberately: the endpoint fetches z12 and nothing else, so a mean that folded in
-   * a 757-byte low-zoom sea tile would understate the byte cap and the per-request budget the
-   * numbers exist to set.
+   * Scoped deliberately: the endpoint fetches z12 and nothing else, so folding in a low-zoom
+   * tile would describe traffic this service never generates.
+   *
+   * **The scoping is by ZOOM and the byte skew is by TERRAIN, and the two are independent** —
+   * an earlier version of this comment claimed the zoom scoping removed the skew, and the
+   * artifact refutes it: several of the sampling-zoom tiles here are offshore, where a flat
+   * 0 m surface compresses to under a kilobyte, so `meanBytes` sits far below the ~121 kB a
+   * land line averages (SPEC §7.1). Size a per-request byte budget from `maxBytes` or from the
+   * land figure in `data/elevation/README.md`, never from this mean (review #122, CODE122-M4).
    */
   readonly samplingZoomByteStats: {
     readonly count: number;
@@ -234,38 +297,205 @@ function tileUrl(baseUrl: string, zoom: number, x: number, y: number): string {
   return `${baseUrl}/terrarium/${String(zoom)}/${String(x)}/${String(y)}.png`;
 }
 
-interface FetchedBody {
+export interface FetchedBody {
   readonly status: number;
   readonly bytes: Uint8Array;
   readonly elapsedMs: number;
   readonly headers: Headers;
 }
 
-/** One polite GET with a byte cap and a timeout. */
-async function politeGet(url: string): Promise<FetchedBody> {
+/**
+ * One polite GET with a byte cap and a timeout.
+ *
+ * ## The spacing sleep is OUTSIDE the measurement, and in a `finally`
+ * Two defects lived in the three lines below, and both were the same mistake in different
+ * costumes — treating the politeness gap as part of the request (review #122, CODE122-I2,
+ * CODE122-M2 / SFH122-M3):
+ *
+ * 1. `elapsedMs` was computed AFTER `await sleep(400)`, so every published latency carried a
+ *    fixed +400 ms. The artifact's median read 640 ms where the transfer took ~240 ms, and
+ *    PR-E2's request deadline is sized off exactly that number — a 2.7× overstatement that
+ *    would fire the partial-profile path on lines that complete comfortably. A constant offset
+ *    is proportionally worst on the fast tiles, which are most of them.
+ * 2. The sleep sat on the SUCCESS path, so a timeout, a refused redirect or an over-cap body
+ *    skipped it — the probe hammered the provider precisely when the provider was unwell.
+ *    `ENGINEERING.md` §5 says polite *by construction*, which cannot mean "polite while
+ *    nothing goes wrong".
+ */
+export async function politeGet(url: string): Promise<FetchedBody> {
   const startedAt = Date.now();
-  const response = await fetch(url, {
-    headers: { 'User-Agent': UPSTREAM_USER_AGENT },
-    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-    redirect: 'error',
-  });
+  try {
+    const response = await fetch(url, {
+      headers: { 'User-Agent': UPSTREAM_USER_AGENT },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      redirect: 'error',
+    });
 
-  const buffer = await response.arrayBuffer();
-  const bytes = new Uint8Array(buffer);
-  if (bytes.byteLength > MAX_BODY_BYTES) {
-    throw new Error(`${url} returned ${String(bytes.byteLength)} bytes, over the probe cap`);
+    // Refuse on the DECLARED size before reading, so an oversized body is never materialised.
+    // The post-read check below stays as the belt: `content-length` is optional and a hostile
+    // server can lie about it, so this bounds the honest case and the belt bounds the rest.
+    // (A fully streaming read would bound both; deferred deliberately — see CODE122-M3 in the
+    // review notes. This is a hand-run script making ~15 requests against a known public
+    // bucket, and the streaming version is more moving parts than that risk earns.)
+    const declared = Number(response.headers.get('content-length'));
+    if (Number.isFinite(declared) && declared > MAX_BODY_BYTES) {
+      throw new Error(`${url} declares ${String(declared)} bytes, over the probe cap`);
+    }
+
+    const buffer = await response.arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+    // Measured BEFORE the spacing sleep: this is transfer time, not transfer time plus our own
+    // politeness.
+    const elapsedMs = Date.now() - startedAt;
+
+    if (bytes.byteLength > MAX_BODY_BYTES) {
+      throw new Error(`${url} returned ${String(bytes.byteLength)} bytes, over the probe cap`);
+    }
+
+    return { status: response.status, bytes, elapsedMs, headers: response.headers };
+  } finally {
+    // Every exit path pays the gap, including the failing ones.
+    await sleep(REQUEST_SPACING_MS);
   }
-
-  await sleep(REQUEST_SPACING_MS);
-  return {
-    status: response.status,
-    bytes,
-    elapsedMs: Date.now() - startedAt,
-    headers: response.headers,
-  };
 }
 
-function percentile(sorted: readonly number[], fraction: number): number {
+/** One PASS/FAIL gate, as recorded in the artifact and printed by the CLI. */
+export interface ProbeAssertion {
+  readonly name: string;
+  readonly passed: boolean;
+  readonly detail: string;
+}
+
+/** How far this decoder may sit from SPEC §7.3's independent measurement, in metres. */
+export const DECODER_CONTROL_TOLERANCE_M = 2;
+
+/**
+ * Turn a finished run into PASS/FAIL gates.
+ *
+ * ## Why this exists, in one sentence per gate
+ * Every one of these was a way for a failed or drifting run to produce a committable artifact
+ * and exit 0 (review #122, SFH122-I1 / SFH122-I2 / SFH122-I3, CODE122-I3):
+ *
+ * - **sampling-zoom coverage** — on a network where S3 answers 403 the old run printed
+ *   `tiles 200: 0`, wrote nulls everywhere and exited 0. The artifact then said
+ *   `samplingZoomSourceTokens: []`, which is indistinguishable from "the provider reported no
+ *   imagery sources" — and that file is what a tripwire allow-list gets built from.
+ * - **known source families** — the CLI docblock promised an unexpected-family check that was
+ *   never written, so the operator was told a check runs that does not run.
+ * - **no `etopo1` at the sampling zoom** — this is the whole licence argument (SPEC §8.2). It
+ *   was asserted by two prose comments and nothing else.
+ * - **no bathymetry above z10** — the other half of the same argument, measured rather than
+ *   inherited.
+ * - **the decoder control** — the residuals against SPEC §7.3's INDEPENDENT decoder were
+ *   computed, written to the artifact, and read by nothing. A reversed channel order or a
+ *   provider silently serving a different RGB elevation encoding (same geometry, so every
+ *   structural refusal passes) would leave the unit suite green, because the encoder and the
+ *   decoder here are a matched pair that only prove they agree with each other.
+ *
+ * Pure and separately exported so the spec can drive it without a network run.
+ */
+export function evaluateProbeAssertions(input: {
+  readonly samplingZoomTileCount: number;
+  readonly samplingZoomSourceTokens: readonly string[];
+  readonly bathymetryByZoom: readonly { readonly zoom: number; readonly metres: number | null }[];
+  readonly points: readonly {
+    readonly label: string;
+    readonly specMeasuredM: number | null;
+    readonly differenceM: number | null;
+  }[];
+  readonly attribution: { readonly matchesPin: boolean } | null;
+}): ProbeAssertion[] {
+  const assertions: ProbeAssertion[] = [];
+
+  assertions.push({
+    name: 'sampling zoom reached',
+    passed: input.samplingZoomTileCount > 0,
+    detail: `${String(input.samplingZoomTileCount)} tile(s) returned 200 at z${String(
+      TERRAIN_SAMPLE_ZOOM,
+    )}`,
+  });
+
+  assertions.push({
+    name: 'imagery sources reported',
+    passed: input.samplingZoomSourceTokens.length > 0,
+    detail:
+      input.samplingZoomSourceTokens.length > 0
+        ? input.samplingZoomSourceTokens.join(', ')
+        : 'no x-amz-meta-x-imagery-sources header seen at the sampling zoom',
+  });
+
+  const unexpected = input.samplingZoomSourceTokens.filter(
+    (family) => !EXPECTED_SAMPLING_ZOOM_FAMILIES.includes(family),
+  );
+  assertions.push({
+    name: 'no unexpected source family at the sampling zoom',
+    passed: unexpected.length === 0,
+    detail:
+      unexpected.length === 0
+        ? `all within ${EXPECTED_SAMPLING_ZOOM_FAMILIES.join(', ')}`
+        : `UNEXPECTED: ${unexpected.join(', ')} — the tile mix moved; attribution may be incomplete`,
+  });
+
+  // Stated separately from the one above even though `etopo1` would also trip it. This gate is
+  // the licence argument itself, so it is named in the output rather than being an implication
+  // of a more general check nobody reads that way.
+  assertions.push({
+    name: 'no etopo1 at the sampling zoom',
+    passed: !input.samplingZoomSourceTokens.includes('etopo1'),
+    detail: input.samplingZoomSourceTokens.includes('etopo1')
+      ? 'etopo1 IS in the mix: NOAA’s navigation limit and its attribution line now apply'
+      : 'absent, as the z12 pin requires',
+  });
+
+  const shallowAboveThreshold = input.bathymetryByZoom.filter(
+    (row) => row.zoom >= 11 && (row.metres === null || row.metres !== 0),
+  );
+  assertions.push({
+    name: 'no sea depth above z10',
+    passed: input.bathymetryByZoom.length > 0 && shallowAboveThreshold.length === 0,
+    detail:
+      input.bathymetryByZoom.length === 0
+        ? 'the bathymetry sweep produced no rows'
+        : shallowAboveThreshold.length === 0
+          ? 'every z >= 11 offshore sample reads exactly 0 m'
+          : `depth present at ${shallowAboveThreshold.map((row) => `z${String(row.zoom)}`).join(', ')}`,
+  });
+
+  const controls = input.points.filter((point) => point.specMeasuredM !== null);
+  const drifted = controls.filter(
+    (point) =>
+      point.differenceM === null || Math.abs(point.differenceM) > DECODER_CONTROL_TOLERANCE_M,
+  );
+  assertions.push({
+    name: 'decoder agrees with the independent measurement',
+    passed: controls.length > 0 && drifted.length === 0,
+    detail:
+      controls.length === 0
+        ? 'no control point produced a residual'
+        : drifted.length === 0
+          ? controls
+              .map((point) => `${point.label} ${String(point.differenceM ?? 0)} m`)
+              .join(' · ')
+          : `OUTSIDE ±${String(DECODER_CONTROL_TOLERANCE_M)} m: ${drifted
+              .map((point) => `${point.label} ${String(point.differenceM ?? Number.NaN)}`)
+              .join(' · ')}`,
+  });
+
+  assertions.push({
+    name: 'attribution document matches the pinned hash',
+    passed: input.attribution?.matchesPin === true,
+    detail:
+      input.attribution === null
+        ? 'the document could not be read — NOT the same signal as a changed licence'
+        : input.attribution.matchesPin
+          ? 'unchanged since provenance/datasets.md pinned it'
+          : 'DIFFERS from the pin: the licence text moved, stop and escalate',
+  });
+
+  return assertions;
+}
+
+export function percentile(sorted: readonly number[], fraction: number): number {
   if (sorted.length === 0) return 0;
   const index = Math.min(sorted.length - 1, Math.floor(fraction * (sorted.length - 1)));
   return sorted[index] ?? 0;
@@ -284,13 +514,17 @@ export async function runTerrainProbe(baseUrl: string): Promise<TerrainProbeArti
   const decodedTiles = new Map<string, Int16Array>();
   let requestCount = 0;
 
-  async function loadTile(zoom: number, x: number, y: number): Promise<Int16Array | null> {
+  async function loadTile(zoom: number, x: number, y: number): Promise<Int16Array> {
     const key = tileKey(zoom, x, y);
     const cached = decodedTiles.get(key);
     if (cached !== undefined) return cached;
 
-    const response = await politeGet(tileUrl(baseUrl, zoom, x, y));
+    // Counted BEFORE the await, so a request that throws is still counted. `requestCount` is
+    // the artifact's own evidence of how much traffic the run produced, and under-reporting it
+    // exactly when requests are failing makes the artifact wrong about its own behaviour in
+    // the one case a reviewer needs it right (review #122, CODE122-M2 / SFH122-M3).
     requestCount += 1;
+    const response = await politeGet(tileUrl(baseUrl, zoom, x, y));
 
     const sources = response.headers.get('x-amz-meta-x-imagery-sources');
     tiles.push({
@@ -308,17 +542,23 @@ export async function runTerrainProbe(baseUrl: string): Promise<TerrainProbeArti
       // Record the SOURCE FAMILY (the path prefix), which is what the tripwire's allow-list
       // is keyed on — the individual file names change with the tile, the families do not.
       const perZoom = imagerySourceTokensByZoom.get(zoom) ?? new Set<string>();
-      for (const entry of sources.split(',')) {
-        const family = entry.trim().split('/')[0];
-        if (family !== undefined && family !== '') {
-          imagerySourceTokens.add(family);
-          perZoom.add(family);
-        }
+      for (const family of imagerySourceFamilies(sources)) {
+        imagerySourceTokens.add(family);
+        perZoom.add(family);
       }
       imagerySourceTokensByZoom.set(zoom, perZoom);
     }
 
-    if (response.status !== 200) return null;
+    // A non-200 is an ERROR, not an empty result. Returning null here meant the caller's catch
+    // never fired, so the point row was written with `error: null` — the field whose entire job
+    // is to say what went wrong — and the run exited 0 having measured nothing. On a network
+    // where S3 answers 403 that produced a committable artifact of a failed run, which is the
+    // shape ENGINEERING.md §5 exists to forbid (review #122, SFH122-I1).
+    if (response.status !== 200) {
+      throw new TerrainProbeError(
+        `${tileUrl(baseUrl, zoom, x, y)} returned HTTP ${String(response.status)}`,
+      );
+    }
 
     const grid = decodeTerrainTile(response.bytes);
     decodedTiles.set(key, grid);
@@ -331,11 +571,9 @@ export async function runTerrainProbe(baseUrl: string): Promise<TerrainProbeArti
     const key = tileKey(TERRAIN_SAMPLE_ZOOM, position.tileX, position.tileY);
     try {
       const grid = await loadTile(TERRAIN_SAMPLE_ZOOM, position.tileX, position.tileY);
-      const decoded = grid === null ? null : bilinearSample(grid, position.pixelX, position.pixelY);
+      const decoded = bilinearSample(grid, position.pixelX, position.pixelY);
       const nearest =
-        grid === null
-          ? null
-          : (grid[Math.floor(position.pixelY) * TILE_SIZE + Math.floor(position.pixelX)] ?? null);
+        grid[Math.floor(position.pixelY) * TILE_SIZE + Math.floor(position.pixelX)] ?? null;
       points.push({
         label: point.label,
         kind: point.kind,
@@ -343,7 +581,7 @@ export async function runTerrainProbe(baseUrl: string): Promise<TerrainProbeArti
         lon: point.lon,
         zoom: TERRAIN_SAMPLE_ZOOM,
         tile: key,
-        decodedM: decoded === null ? null : Number(decoded.toFixed(2)),
+        decodedM: Number(decoded.toFixed(2)),
         decodedNearestM: nearest,
         specMeasuredM: point.specMeasuredM ?? null,
         differenceM:
@@ -380,22 +618,29 @@ export async function runTerrainProbe(baseUrl: string): Promise<TerrainProbeArti
       try {
         const grid = await loadTile(zoom, position.tileX, position.tileY);
         const key = tileKey(zoom, position.tileX, position.tileY);
-        const record = tiles.find((tile) => tile.tile === key);
+        // `findLast`, not `find`: a failed attempt pushes a record and is not cached, so a
+        // retried tile has TWO records under one key and `find` returns the FAILED one — which
+        // would quote a null source list beside a successfully decoded depth, reading as "the
+        // provider reported no imagery sources at this zoom". That is a claim the licence
+        // argument turns on (review #122, SFH122-M8).
+        const record = tiles.findLast((tile) => tile.tile === key);
         bathymetryByZoom.push({
           label: offshore.label,
           zoom,
-          metres:
-            grid === null
-              ? null
-              : Number(bilinearSample(grid, position.pixelX, position.pixelY).toFixed(2)),
+          metres: Number(bilinearSample(grid, position.pixelX, position.pixelY).toFixed(2)),
           imagerySources: record?.imagerySources ?? null,
+          error: null,
         });
       } catch (error: unknown) {
         bathymetryByZoom.push({
           label: offshore.label,
           zoom,
           metres: null,
-          imagerySources: error instanceof Error ? `ERROR: ${error.message}` : 'ERROR',
+          // The error goes in its OWN field. It used to be written into `imagerySources`,
+          // where any reader tokenising that field would parse "ERROR: fetch failed" as a
+          // terrain source family (review #122, CODE122-M5 / SFH122-M4).
+          imagerySources: null,
+          error: error instanceof Error ? error.message : 'unknown failure',
         });
       }
     }
@@ -428,9 +673,17 @@ export async function runTerrainProbe(baseUrl: string): Promise<TerrainProbeArti
   // NOT the same signal as "DIFFERS". Collapsing the two would let a network blip read as a
   // licence change, or worse, the reverse.
   let attribution: TerrainProbeArtifact['attribution'];
+  let attributionError: string | null = null;
   try {
-    const response = await politeGet(ATTRIBUTION_DOC_URL);
     requestCount += 1;
+    const response = await politeGet(ATTRIBUTION_DOC_URL);
+    // A non-200 body is an ERROR PAGE, and hashing it reports `matchesPin: false` — i.e. "the
+    // licence document changed" — for a routine 429 from raw.githubusercontent.com. That is
+    // exactly the collapse the comment above forbids, in the direction that cries wolf until
+    // an operator stops believing a signal meant to be a hard stop (review #122, SFH122-M1).
+    if (response.status !== 200) {
+      throw new TerrainProbeError(`attribution document returned HTTP ${String(response.status)}`);
+    }
     const sha256 = createHash('sha256').update(response.bytes).digest('hex');
     attribution = {
       url: ATTRIBUTION_DOC_URL,
@@ -440,8 +693,11 @@ export async function runTerrainProbe(baseUrl: string): Promise<TerrainProbeArti
       pinnedSha256: PINNED_ATTRIBUTION_SHA256,
       matchesPin: sha256 === PINNED_ATTRIBUTION_SHA256,
     };
-  } catch {
+  } catch (error: unknown) {
+    // The reason is KEPT. A bare `catch {}` left "NOT FETCHED" unable to say whether it was a
+    // timeout, DNS, a refused redirect or a 429.
     attribution = null;
+    attributionError = error instanceof Error ? error.message : 'unknown failure';
   }
 
   const samplingZoomTiles = tiles.filter(
@@ -457,6 +713,15 @@ export async function runTerrainProbe(baseUrl: string): Promise<TerrainProbeArti
     tokensByZoom[String(zoom)] = [...families].sort();
   }
 
+  const samplingZoomSourceTokens = tokensByZoom[String(TERRAIN_SAMPLE_ZOOM)] ?? [];
+  const assertions = evaluateProbeAssertions({
+    samplingZoomTileCount: samplingZoomTiles.length,
+    samplingZoomSourceTokens,
+    bathymetryByZoom,
+    points,
+    attribution,
+  });
+
   return {
     generatedAtUtc: new Date().toISOString(),
     baseUrl,
@@ -464,12 +729,14 @@ export async function runTerrainProbe(baseUrl: string): Promise<TerrainProbeArti
     userAgent: UPSTREAM_USER_AGENT,
     requestCount,
     attribution,
+    attributionError,
+    assertions,
     tiles,
     points,
     bathymetryByZoom,
     imagerySourceTokens: [...imagerySourceTokens].sort(),
     imagerySourceTokensByZoom: tokensByZoom,
-    samplingZoomSourceTokens: tokensByZoom[String(TERRAIN_SAMPLE_ZOOM)] ?? [],
+    samplingZoomSourceTokens,
     lines,
     samplingZoomByteStats:
       byteValues.length === 0
