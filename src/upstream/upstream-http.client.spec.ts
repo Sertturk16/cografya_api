@@ -281,6 +281,68 @@ describe('UpstreamHttpClient', () => {
     expect(metrics.get('upstream.deadline_exceeded', 'provider')).toBe(3);
   });
 
+  it('records NO breaker evidence when the shared budget expires MID-FLIGHT', async () => {
+    // The guard above only covers a budget spent BEFORE a call. A caller that runs many calls
+    // concurrently under one shared deadline aborts every in-flight socket at once when the budget
+    // runs out, and each abort arrives here as an ordinary `transient` — so a leg DESIGNED to
+    // exhaust its budget (the elevation profile's warming path, six tiles in flight) used to open
+    // the circuit on a provider that had answered every call it finished (review #124 SFH124-C1).
+    const fetchImpl = jest.fn<typeof fetch>(
+      () =>
+        new Promise((_resolve, reject) => {
+          setTimeout(() => {
+            reject(new DOMException('This operation was aborted', 'AbortError'));
+          }, 40);
+        }),
+    );
+    const client = build(fetchImpl);
+    const shared = new OperationDeadline(20);
+
+    const outcomes = await Promise.all(
+      ['tile.a', 'tile.b', 'tile.c', 'tile.d'].map((label) =>
+        client.request({
+          providerId: 'provider',
+          label,
+          url: URL_UNDER_TEST,
+          deadline: shared,
+          limits: LIMITS,
+          parse: parseValue,
+        }),
+      ),
+    );
+
+    // They really did leave the process — this is the mid-flight case, not the pre-call one.
+    expect(fetchImpl).toHaveBeenCalledTimes(4);
+    for (const outcome of outcomes) expect(outcome.kind).toBe('transient');
+    expect(breaker.state('provider')).toBe('closed');
+    expect(metrics.get('breaker.opened', 'provider')).toBe(0);
+    expect(metrics.get('upstream.deadline_exceeded', 'provider')).toBe(4);
+  });
+
+  it('and the same four failures DO open it while the budget still has room', async () => {
+    // The positive control for the case above: without it, "the breaker stayed closed" and "this
+    // harness cannot open a breaker at all" are the same output.
+    const fetchImpl = jest.fn<typeof fetch>(() =>
+      Promise.reject(new Error('ECONNRESET from the provider')),
+    );
+    const client = build(fetchImpl);
+    const roomy = new OperationDeadline(60_000);
+
+    for (const label of ['tile.a', 'tile.b', 'tile.c', 'tile.d']) {
+      await client.request({
+        providerId: 'provider',
+        label,
+        url: URL_UNDER_TEST,
+        deadline: roomy,
+        limits: LIMITS,
+        parse: parseValue,
+      });
+    }
+
+    expect(breaker.state('provider')).toBe('open');
+    expect(metrics.get('upstream.deadline_exceeded', 'provider')).toBe(0);
+  });
+
   it('does not consume the half-open trial for a call the deadline already refused', async () => {
     // The half of N1 that is the same family as the validated CRITICAL: `canAttempt` is a
     // WITHDRAWAL, not a question. A call that never leaves the process must not spend the one

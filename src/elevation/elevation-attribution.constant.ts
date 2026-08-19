@@ -154,17 +154,28 @@ export const TERRAIN_TILES_ACCURACY_NOTE_EN =
  * The informational Turkish rendering of where the data comes from.
  *
  * It stands ALONGSIDE the English notices and can never replace them (the marine `explanationTr`
- * precedent). It names the families the tiles are actually built from AT THE SAMPLING ZOOM — the
- * probe measured `eudem` and `gmted` there, and the tile client admits the families the notices
- * credit — so it deliberately does not list ETOPO1, which the notices credit for the surface as a
- * whole and which this zoom never reads. The two are not inconsistent: one is the licence text
- * owed, the other describes what the reader is looking at.
+ * precedent). One is the licence text owed; this one describes what the reader is looking at.
+ *
+ * ## The list is the LEDGER's measurement, minus the one family this zoom cannot read
+ * `provenance/integrations.md`'s Terrain Tiles row measured Türkiye's surface rather than inferring
+ * it, and records the mix as *"EU-DEM, SRTM, GMTED2010 and ETOPO1 all appear in real tile headers
+ * over Turkey"*. Those four are the whole population; the published sentence is that set minus
+ * ETOPO1, which is the sea-depth family the z12 pin exists to keep out and which the tile client
+ * refuses outright (see {@link ELEVATION_SEA_DEPTH_INCLUDED}).
+ *
+ * It is NOT derived from `ATTRIBUTION_COVERED_SOURCE_FAMILIES`, and the distinction is the whole
+ * finding this docblock was rewritten for (review #124, CF124-I1). That constant answers *"which
+ * families would our published credit already cover if one appeared?"* — a deliberately permissive
+ * superset, which is why it carries `3dep` and `ned`. This sentence answers *"what is the reader's
+ * own number made of?"*, and 3DEP is a United States programme that appears in no measurement over
+ * Türkiye at any zoom. Publishing the superset as an affirmative claim stated a source we do not
+ * read, in the reader's language, on a licence-adjacent surface.
  *
  * §16: one fact per sentence, no semicolon. §17: no em-dash.
  */
 export const TERRAIN_TILES_EXPLANATION_TR =
   'Rakım verisi, AWS Open Data üzerinden yayımlanan Terrain Tiles arazi karolarından okunur. ' +
-  'Karolar EU-DEM, SRTM, GMTED2010 ve 3DEP verilerini birleştirir.';
+  'Karolar EU-DEM, SRTM ve GMTED2010 verilerini birleştirir.';
 
 /**
  * The attribution block carried by EVERY response of this leg — including the ones where nothing

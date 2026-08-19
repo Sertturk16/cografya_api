@@ -4506,17 +4506,17 @@
             }
           },
           "elevationsM": {
-            "nullable": true,
+            "type": "array",
+            "items": {
+              "type": "number",
+              "nullable": true
+            },
             "example": [
               12,
               34,
               null
             ],
-            "description": "TAM SAYI metre rakımlar; çözülemeyen nokta `null`. Ondalık YAYIMLANMAZ: kaynak ızgaranın kendi hatası onlarca metre mertebesinde olduğu için ondalık göstermek olmayan bir hassasiyet iddia eder (SPEC §6.6).",
-            "type": "array",
-            "items": {
-              "type": "number"
-            }
+            "description": "TAM SAYI metre rakımlar; çözülemeyen nokta `null`. Ondalık YAYIMLANMAZ: kaynak ızgaranın kendi hatası onlarca metre mertebesinde olduğu için ondalık göstermek olmayan bir hassasiyet iddia eder (SPEC §6.6)."
           },
           "minElevationM": {
             "type": "number",

@@ -89,8 +89,15 @@ export class ElevationProfileDto {
   distancesKm!: number[];
 
   @ApiProperty({
-    type: [Number],
-    nullable: true,
+    // Raw schema, NOT `type: [Number]` + `nullable: true`: on an `@ApiProperty` ARRAY, `nullable`
+    // marks the array nullable and never its items — so the published contract promised
+    // `number[] | null` (which this endpoint never returns) while forbidding the per-sample `null`
+    // its own `example` carries and its own `resolvedSampleCount` documents as EXPECTED. Vera
+    // codegens from this file, so the mistake lands as `NaN` on every partial profile. The house
+    // form is `src/marine/dto/marine-series.dto.ts`'s, and the reason it exists is this one
+    // (review #124, CODE124-I1).
+    type: 'array',
+    items: { type: 'number', nullable: true },
     example: [12, 34, null],
     description:
       'TAM SAYI metre rakımlar; çözülemeyen nokta `null`. Ondalık YAYIMLANMAZ: kaynak ızgaranın ' +

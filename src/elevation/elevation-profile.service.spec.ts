@@ -47,6 +47,25 @@ function flatGrid(metres: number): TerrainTileGrid {
 }
 
 /**
+ * A grid whose value varies with BOTH pixel axes.
+ *
+ * Every fixture in this file used to be flat, which made the service's own arithmetic
+ * unobservable: sampling, interpolation and the running min/max all produce the same number for
+ * every point whatever the composition does, so swapping `minElevationM` with `maxElevationM` or
+ * inverting the comparison shipped green (review #124, TA124-I3). The values are arbitrary and are
+ * never asserted as facts — only the invariants between them are.
+ */
+function gradientGrid(): TerrainTileGrid {
+  const grid = new Int16Array(TILE_SIZE * TILE_SIZE);
+  for (let index = 0; index < grid.length; index += 1) {
+    const row = Math.floor(index / TILE_SIZE);
+    const column = index % TILE_SIZE;
+    grid[index] = row * 4 + column;
+  }
+  return grid;
+}
+
+/**
  * A tile client stand-in that answers from a rule, counts its calls, and can fail on demand.
  *
  * A fake rather than the real client over a fake `fetch`: this spec is about the SERVICE's
@@ -198,6 +217,28 @@ describe('ElevationProfileService', () => {
     }
   });
 
+  it('reports min/max that BELONG to the samples it published, on a grid that is not flat', async () => {
+    // Structural only: no literal elevation is asserted. What is asserted is the relationship the
+    // published summary claims — that the two headline numbers are the extremes of the array beside
+    // them, that they are not the same number, and that the sampling really does move across the
+    // grid. A flat fixture satisfies all of this vacuously, which is why it could not see a
+    // swapped min/max or an inverted comparison (review #124, TA124-I3).
+    const { service } = serviceWith(
+      new FakeTileClient(() => ({ kind: 'ok', value: gradientGrid(), validAtMs: null })),
+    );
+    const { profile } = await service.getProfile(SHORT_LINE);
+
+    const values = profile.elevationsM.filter((value): value is number => value !== null);
+    const min = profile.minElevationM;
+    const max = profile.maxElevationM;
+    expect(values.length).toBeGreaterThan(1);
+    expect(min).toBe(Math.min(...values));
+    expect(max).toBe(Math.max(...values));
+    expect(min).not.toBe(max);
+    expect(Number(min)).toBeLessThan(Number(max));
+    expect(new Set(values).size).toBeGreaterThan(1);
+  });
+
   it('marks a complete profile cacheable and answers the second request with ZERO fetches', async () => {
     const { service } = serviceWith(client);
     const first = await service.getProfile(SHORT_LINE);
@@ -259,6 +300,40 @@ describe('ElevationProfileService', () => {
     expect(profile.elevationsM).toEqual([]);
     expect(profile.minElevationM).toBeNull();
     expect(profile.maxElevationM).toBeNull();
+  });
+
+  it('says so ONCE when every tile it fetched answered no_data, and not when one succeeded', async () => {
+    // A 404 per tile is a legitimate coordinate at the edge of coverage: quiet log, breaker
+    // SUCCESS, nothing cached. A 404 on EVERY tile is what a renamed prefix or a retired bucket
+    // looks like, and nothing told the two apart (review #124, VAL124-M2).
+    const wholesale = serviceWith(
+      new FakeTileClient(() => ({ kind: 'no_data', reason: 'tile absent from the pyramid' })),
+    );
+    await wholesale.service.getProfile(SHORT_LINE);
+    expect(
+      wholesale.metrics.get('elevation.tiles_all_no_data', ELEVATION_PROVIDER_TERRAIN_TILES),
+    ).toBe(1);
+
+    // Throttled: a caller looping the same line does not turn a standing provider state into a
+    // per-request log stream.
+    await wholesale.service.getProfile(SHORT_LINE);
+    expect(
+      wholesale.metrics.get('elevation.tiles_all_no_data', ELEVATION_PROVIDER_TERRAIN_TILES),
+    ).toBe(1);
+
+    // The discriminating half: one answered tile means the bucket is there, so the signal is
+    // silent — otherwise it would fire on every ordinary coverage-edge line.
+    const partial = serviceWith(
+      new FakeTileClient((index) =>
+        index === 0
+          ? { kind: 'ok', value: flatGrid(700), validAtMs: null }
+          : { kind: 'no_data', reason: 'tile absent from the pyramid' },
+      ),
+    );
+    await partial.service.getProfile(SHORT_LINE);
+    expect(
+      partial.metrics.get('elevation.tiles_all_no_data', ELEVATION_PROVIDER_TERRAIN_TILES),
+    ).toBe(0);
   });
 
   it('carries the full attribution block even when nothing resolved', async () => {

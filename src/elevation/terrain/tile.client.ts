@@ -75,19 +75,44 @@ export interface TerrainTileClientOptions {
  * leading token, so a reshaped value produces an UNKNOWN family and is refused rather than
  * silently treated as empty — an empty parse of a present header would be the quietest possible
  * way for this guard to stop working.
+ *
+ * ## Two measured holes this shape had, and why each is closed the way it is
+ * Both were reproduced against the real functions in the #124 review, and both need only a
+ * one-character change upstream — which is exactly the reshape this tripwire exists for.
+ *
+ * - **The separator is a CLASS, not a comma** (VAL124-M1). Splitting on `,` alone meant
+ *   `eudem/x.tif etopo1/ETOPO1_Bed_g.tif` parsed to `['eudem']`: a plausible, fully credited set,
+ *   with the sea-depth family invisible behind the first entry. That is worse than an empty parse,
+ *   because the tile is then SAMPLED. Whitespace, `;` and `|` split too.
+ * - **An entry whose leading segment is empty keeps its whole token** (SFH124-I1). The old trailing
+ *   `.filter(family.length > 0)` dropped `/etopo1/x.tif` to nothing, and the caller accepted the
+ *   tile with no refusal and no counter. Falling back to the entry itself makes it an unknown
+ *   family, which {@link refuseImagerySources} refuses and names in the log.
  */
 export function parseImagerySourceFamilies(headerValue: string): string[] {
   const families = headerValue
-    .split(',')
-    .map((entry) => entry.trim())
+    .split(/[\s,;|]+/)
     .filter((entry) => entry.length > 0)
-    .map((entry) => (entry.split('/')[0] ?? entry).trim().toLowerCase())
-    .filter((family) => family.length > 0);
+    .map((entry) => {
+      const leading = entry.split('/')[0];
+      return (leading === undefined || leading === '' ? entry : leading).toLowerCase();
+    });
   return [...new Set(families)];
 }
 
-/** Why a set of families is unacceptable — or `null` when it is fine. */
+/**
+ * Why a set of families is unacceptable — or `null` when it is fine.
+ *
+ * The caller only reaches this with a PRESENT, non-blank header ({@link
+ * TerrainTileClient.checkImagerySources} returns before it otherwise), so an empty set here does
+ * not mean "no header" — it means a header we did not understand at all, which is an unknown
+ * source and refused as one (review #124, SFH124-I1).
+ */
 export function refuseImagerySources(families: readonly string[]): string | null {
+  if (families.length === 0) {
+    return 'imagery sources header was present but named no source family';
+  }
+
   const seaDepth = families.filter((family) => SEA_DEPTH_SOURCE_FAMILIES.includes(family));
   if (seaDepth.length > 0) {
     return (
@@ -243,6 +268,10 @@ export class TerrainTileClient {
    *   take the whole feature down the day AWS reorganises its object metadata, for a risk that is
    *   not licence risk. So the tile is accepted, a counter moves, and the first occurrence warns
    *   once — visible without being a flood.
+   * - **A PRESENT header we cannot parse into any family** belongs to the first class, not the
+   *   second: the metadata is there and says something, and we cannot tell what. It is refused
+   *   (review #124, SFH124-I1). The line between the two is drawn HERE, by the early return below,
+   *   so `refuseImagerySources` never sees the missing-header case at all.
    */
   private checkImagerySources(key: string, headerValue: string | null): void {
     if (headerValue === null || headerValue.trim() === '') {

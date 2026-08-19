@@ -90,6 +90,32 @@ describe('parseImagerySourceFamilies', () => {
     // a PRESENT header is the quietest possible way for this guard to stop working.
     expect(parseImagerySourceFamilies('something-new')).toEqual(['something-new']);
   });
+
+  it('splits on whitespace and the other plausible separators, not on the comma alone', () => {
+    // The hole that hid a source behind the first one: with a comma-only split this value parsed to
+    // `['eudem']` and the sea-depth family was invisible while the tile was sampled anyway
+    // (review #124, VAL124-M1).
+    expect(parseImagerySourceFamilies('eudem/x.tif etopo1/ETOPO1_Bed_g.tif')).toEqual([
+      'eudem',
+      'etopo1',
+    ]);
+    expect(parseImagerySourceFamilies('eudem/x.tif; etopo1/y.tif')).toEqual(['eudem', 'etopo1']);
+    expect(parseImagerySourceFamilies('eudem/x.tif|gmted/y.tif')).toEqual(['eudem', 'gmted']);
+  });
+
+  it('keeps the whole entry when its leading path segment is empty', () => {
+    // One leading slash used to erase the token entirely, so the tile was accepted with no refusal
+    // and no counter — the guard silently off (review #124, SFH124-I1).
+    expect(parseImagerySourceFamilies('/etopo1/ETOPO1_Bed_g.tif')).toEqual([
+      '/etopo1/etopo1_bed_g.tif',
+    ]);
+    expect(parseImagerySourceFamilies('/')).toEqual(['/']);
+  });
+
+  it('returns an empty list only when the value holds nothing but separators', () => {
+    expect(parseImagerySourceFamilies(',')).toEqual([]);
+    expect(parseImagerySourceFamilies(' , ')).toEqual([]);
+  });
 });
 
 describe('refuseImagerySources', () => {
@@ -122,8 +148,18 @@ describe('refuseImagerySources', () => {
     expect(refuseImagerySources(['aster', 'etopo1'])).toContain('sea depth');
   });
 
-  it('accepts an empty family list, because that is the missing-header path’s business', () => {
-    expect(refuseImagerySources([])).toBeNull();
+  it('refuses an empty family list — it can only come from a header we did not understand', () => {
+    // The case this replaces asserted the opposite and described a caller that does not exist:
+    // `checkImagerySources` returns BEFORE this function for a null or blank header, so an empty
+    // set here has exactly one reachable origin — a present header that parsed to nothing
+    // (review #124, SFH124-I1). The old case pinned the hole rather than a safe path.
+    expect(refuseImagerySources([])).toContain('named no source family');
+  });
+
+  it('refuses an entry whose leading segment is empty, naming the token it could not read', () => {
+    const refusal = refuseImagerySources(parseImagerySourceFamilies('/etopo1/ETOPO1_Bed_g.tif'));
+    expect(refusal).not.toBeNull();
+    expect(refusal).toContain('/etopo1/etopo1_bed_g.tif');
   });
 });
 
@@ -186,6 +222,27 @@ describe('TerrainTileClient', () => {
     expect(metrics.get('elevation.imagery_sources_absent', ELEVATION_PROVIDER_TERRAIN_TILES)).toBe(
       1,
     );
+  });
+
+  it('REFUSES a tile whose PRESENT header does not parse into a known family', async () => {
+    // The provider reshaping its object metadata by one character (`etopo1/…` → `/etopo1/…`) used
+    // to disable the tripwire silently: no refusal, no counter, no log — and, if `etopo1` returned
+    // at z12, sea-floor depths published as elevations under `seaDepthIncluded:false`
+    // (review #124, SFH124-I1).
+    const reshaped = clientWith({ imagerySources: '/etopo1/ETOPO1_Bed_g.tif' });
+    const first = await reshaped.client.fetchTile(TERRAIN_SAMPLE_ZOOM, 1, 2, deadline);
+    expect(first.kind).toBe('schema_error');
+    expect(
+      reshaped.metrics.get('elevation.imagery_sources_refused', ELEVATION_PROVIDER_TERRAIN_TILES),
+    ).toBe(1);
+    // And it is NOT filed as the accepted missing-header case: the header was there.
+    expect(
+      reshaped.metrics.get('elevation.imagery_sources_absent', ELEVATION_PROVIDER_TERRAIN_TILES),
+    ).toBe(0);
+
+    const separatorsOnly = clientWith({ imagerySources: ',' });
+    const second = await separatorsOnly.client.fetchTile(TERRAIN_SAMPLE_ZOOM, 1, 2, deadline);
+    expect(second.kind).toBe('schema_error');
   });
 
   it('turns a malformed body into schema_error rather than letting it escape as our bug', async () => {

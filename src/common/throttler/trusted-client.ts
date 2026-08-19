@@ -36,11 +36,17 @@ export const INTERNAL_REQUEST_HEADER = 'x-internal-request-token';
  *     through a thin web proxy route handler that deliberately does NOT forward the token and DOES
  *     forward the real client IP (Atlas ruling AK-25 md.3). So the exemption and this endpoint do
  *     not meet in any live call path.
- *   - **The expensive guards are token-BLIND.** The per-request tile ceiling and the provider
- *     budget are enforced inside the upstream client and know nothing about throttling, so an
- *     exempt caller cannot exceed either. What the exemption can bypass is only the per-client
- *     REQUEST rate — the weakest of that endpoint's four brakes, and the one an attacker could
- *     evade anyway by changing IP.
+ *   - **The expensive guards are token-BLIND.** Both are enforced BELOW the throttle layer and know
+ *     nothing about it: the provider budget inside the shared upstream client
+ *     (`UpstreamHttpClient.attemptLoop` consumes it before every attempt) and the per-request tile
+ *     ceiling in `ElevationProfileService.compute`, which refuses before any fetch. An auditor
+ *     checking this argument should find each where it is named — the ceiling never reaches the
+ *     shared client at all (review #124, CODE124-M5). What the exemption can bypass is only the
+ *     REQUEST rate, the weakest of that endpoint's four brakes. Note what that rate is NOT today:
+ *     `ThrottlerGuard` tracks on `req.ip` and this service sets no `trust proxy`, so behind a proxy
+ *     it is one shared bucket rather than a per-visitor one — a deliberately deferred first-deploy
+ *     item (DEC 2026-08-15f D2, recorded in `ENGINEERING.md` §3.1), not something this exemption
+ *     changes in either direction (review #124, SEC124-I1).
  * The residual risk of a leaked token is therefore "more requests against a cache that mostly
  * answers them for free", not "unbounded provider cost". If a future endpoint's cost survives its
  * own budget guard, this paragraph is where that stops being true and the exemption needs a

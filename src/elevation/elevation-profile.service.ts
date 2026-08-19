@@ -30,6 +30,12 @@ import { lonLatToTilePixel, TERRAIN_SAMPLE_ZOOM, tileKey } from './terrain/tile-
  */
 const PROFILE_KEY_VERSION = 'v1';
 
+/**
+ * How often the wholesale-`no_data` warning may repeat. One minute, matching the route's own
+ * throttle window, so a client looping at the ceiling produces at most one line per window.
+ */
+const WHOLESALE_NO_DATA_LOG_EVERY_MS = 60_000;
+
 /** Round a coordinate to the quantisation grid the cache key is built on. */
 export function quantiseCoordinate(value: number): number {
   const factor = 10 ** ELEVATION_COORDINATE_DECIMALS;
@@ -298,6 +304,8 @@ export class ElevationProfileService {
 
     const deadline = new OperationDeadline(this.config.requestDeadlineMs);
     let cursor = 0;
+    let attempted = 0;
+    let answeredNoData = 0;
 
     const worker = async (): Promise<void> => {
       for (;;) {
@@ -316,9 +324,12 @@ export class ElevationProfileService {
           job.tileY,
           deadline,
         );
+        attempted += 1;
         if (outcome.kind === 'ok') {
           this.tileCache.set(job.key, outcome.value);
           resolved.set(job.key, outcome.value);
+        } else if (outcome.kind === 'no_data') {
+          answeredNoData += 1;
         }
         // Every other outcome leaves the tile unresolved on purpose. The shared client has already
         // counted and logged it at the right level, so there is nothing to add here — and turning
@@ -330,7 +341,41 @@ export class ElevationProfileService {
     const workerCount = Math.min(this.config.tileFetchConcurrency, missing.length);
     await Promise.all(Array.from({ length: workerCount }, () => worker()));
 
+    this.reportWholesaleNoData(attempted, answeredNoData);
+
     return resolved;
+  }
+
+  /**
+   * Say something ONCE when every tile a request fetched answered `no_data`.
+   *
+   * The tile client passes `missingMeansNoData`, so a 404 is read as a coordinate at the edge of
+   * coverage: debug-level log, breaker SUCCESS, nothing negative cached. That is correct for one
+   * tile at the frame's edge, and it is also exactly what a bucket-wide 404 looks like — a renamed
+   * prefix or a retired bucket, the provider's recorded continuity risk (`provenance/
+   * integrations.md`: *"no written continuity commitment"*). Told apart by nothing, a total
+   * provider loss serves an empty profile forever while the breaker sees an unbroken run of
+   * successes (review #124, VAL124-M2).
+   *
+   * "Every tile we ASKED for" rather than "the profile is empty": a request answered partly from
+   * the tile cache would otherwise hide the same upstream silence behind its own warm tiles.
+   * Throttled, and the counter is gated on the throttle so it stays a count of the condition rather
+   * than of the traffic.
+   */
+  private reportWholesaleNoData(attempted: number, answeredNoData: number): void {
+    if (attempted === 0 || answeredNoData !== attempted) return;
+
+    const emitted = this.metrics.throttledEvent(
+      'warn',
+      'elevation.tiles-all-no-data',
+      WHOLESALE_NO_DATA_LOG_EVERY_MS,
+      'every terrain tile of a profile request answered no_data — either the line sits outside ' +
+        'the tile pyramid, or the bucket prefix this leg reads has moved',
+      { provider: ELEVATION_PROVIDER_TERRAIN_TILES, tiles: attempted },
+    );
+    if (emitted) {
+      this.metrics.increment('elevation.tiles_all_no_data', ELEVATION_PROVIDER_TERRAIN_TILES);
+    }
   }
 
   /** The stored payload plus the licence surface, which is rebuilt fresh on every response. */

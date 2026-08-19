@@ -347,7 +347,23 @@ export type UpstreamMetricName =
    */
   | 'elevation.tile_ceiling_refused'
   /** A profile was answered with fewer resolved samples than it asked for (the warming path). */
-  | 'elevation.profile_partial';
+  | 'elevation.profile_partial'
+  /**
+   * EVERY tile a request actually fetched came back `no_data` — the bucket-disappearance signal.
+   *
+   * `missingMeansNoData` treats a 404 as a legitimate coordinate at the edge of coverage: quiet
+   * log, breaker SUCCESS, no negative entry. That is right for one tile and indistinguishable from
+   * the provider's continuity risk (a prefix rename or a retired bucket — `provenance/
+   * integrations.md`, risk R1) when it is EVERY tile, which is how a total provider loss could be
+   * served as an empty profile indefinitely with nothing above debug level anywhere
+   * (review #124, VAL124-M2).
+   *
+   * ## Cadence: once per THROTTLE WINDOW, never per request
+   * The condition is a standing provider state observed once per request, so the counter is gated
+   * on `throttledEvent`'s return value — it counts the condition, not the traffic
+   * (the `airq.cached_run_unusable` convention above).
+   */
+  | 'elevation.tiles_all_no_data';
 
 /**
  * Counters + structured logs for the upstream layer.

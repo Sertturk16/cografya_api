@@ -15,6 +15,13 @@ import {
   ELEVATION_BBOX_MIN_LON,
   ELEVATION_PROFILE_SAMPLE_COUNT,
 } from '../src/elevation/elevation.types';
+import {
+  TERRAIN_TILES_EXPLANATION_TR,
+  TERRAIN_TILES_METHOD_NOTE_EN,
+  TERRAIN_TILES_METHOD_NOTE_TR,
+  TERRAIN_TILES_NAVIGATION_LIMIT_EN,
+  TERRAIN_TILES_REQUIRED_NOTICES_EN,
+} from '../src/elevation/elevation-attribution.constant';
 import { IMAGERY_SOURCES_HEADER } from '../src/elevation/terrain/tile.client';
 import { buildTerrariumTilePng } from '../src/elevation/terrain/terrarium-fixture.builder';
 import { TERRAIN_SAMPLE_ZOOM } from '../src/elevation/terrain/tile-math';
@@ -217,18 +224,24 @@ describe('Elevation profile (e2e)', () => {
       const res = await profile(SHORT_LINE).expect(200);
       const attribution = (res.body as { attribution: Record<string, unknown> }).attribution;
 
-      expect(attribution.requiredNoticesEn).toHaveLength(3);
+      // The licence-bearing fields are compared to the constants they must carry, not merely to
+      // `typeof === 'string'`: a swapped `methodNoteTr`/`methodNoteEn`, a `datasetUrl` in the
+      // `licenceUrl` slot or a `requiredNoticesEn` built from the wrong array all satisfy a length
+      // check and all breach the ledger's go-live obligation (review #124, TA124-I2). This is a
+      // correspondence between the response and a constant in this repo, not a hardcoded fact.
+      expect(attribution.requiredNoticesEn).toEqual([...TERRAIN_TILES_REQUIRED_NOTICES_EN]);
+      expect(attribution.navigationLimitEn).toBe(TERRAIN_TILES_NAVIGATION_LIMIT_EN);
+      expect(attribution.methodNoteTr).toBe(TERRAIN_TILES_METHOD_NOTE_TR);
+      expect(attribution.methodNoteEn).toBe(TERRAIN_TILES_METHOD_NOTE_EN);
+      expect(attribution.explanationTr).toBe(TERRAIN_TILES_EXPLANATION_TR);
       expect(attribution.seaDepthIncluded).toBe(false);
+
       for (const field of [
         'providerName',
         'datasetUrl',
         'licenceUrl',
-        'navigationLimitEn',
-        'methodNoteTr',
-        'methodNoteEn',
         'accuracyNoteTr',
         'accuracyNoteEn',
-        'explanationTr',
       ]) {
         expect(typeof attribution[field]).toBe('string');
         expect(String(attribution[field]).length).toBeGreaterThan(0);

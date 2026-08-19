@@ -93,6 +93,38 @@ describe('terrain tile attribution — the pinned licence text', () => {
         'below the true value.',
     );
   });
+
+  it('pins the provenance sentence, including WHICH families it names', () => {
+    // The one served Turkish string that used to carry no byte pin, so its wording could be
+    // rewritten with the suite green — and it was wrong: it named 3DEP, a United States programme
+    // absent from every measurement over Türkiye (review #124, CF124-I1 + CF124-M2). The list is
+    // the ledger's measured Türkiye mix minus ETOPO1, which the z12 pin keeps out.
+    expect(TERRAIN_TILES_EXPLANATION_TR).toBe(
+      'Rakım verisi, AWS Open Data üzerinden yayımlanan Terrain Tiles arazi karolarından okunur. ' +
+        'Karolar EU-DEM, SRTM ve GMTED2010 verilerini birleştirir.',
+    );
+  });
+
+  it('maps every pinned constant into the field the response actually serves', () => {
+    // Every pin above is on a CONSTANT. What the endpoint serves is this OBJECT, and nothing read
+    // the mapping between them: `methodNoteTr: …_NOTE_EN`, `datasetUrl` swapped with `licenceUrl`,
+    // or `requiredNoticesEn` built from the wrong array all type-check (every field is a `string`)
+    // and ship with a fully green CI (review #124, TA124-I2). This is a correspondence between two
+    // places in the repo, not a claim about the world.
+    expect(buildElevationAttribution()).toEqual({
+      providerName: TERRAIN_TILES_PROVIDER_NAME,
+      datasetUrl: TERRAIN_TILES_DATASET_URL,
+      licenceUrl: TERRAIN_TILES_LICENCE_URL,
+      requiredNoticesEn: [...TERRAIN_TILES_REQUIRED_NOTICES_EN],
+      navigationLimitEn: TERRAIN_TILES_NAVIGATION_LIMIT_EN,
+      seaDepthIncluded: ELEVATION_SEA_DEPTH_INCLUDED,
+      methodNoteTr: TERRAIN_TILES_METHOD_NOTE_TR,
+      methodNoteEn: TERRAIN_TILES_METHOD_NOTE_EN,
+      accuracyNoteTr: TERRAIN_TILES_ACCURACY_NOTE_TR,
+      accuracyNoteEn: TERRAIN_TILES_ACCURACY_NOTE_EN,
+      explanationTr: TERRAIN_TILES_EXPLANATION_TR,
+    });
+  });
 });
 
 describe('terrain tile attribution — the house rules every served string is under', () => {

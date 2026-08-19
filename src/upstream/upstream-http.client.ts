@@ -392,6 +392,31 @@ export class UpstreamHttpClient {
       await this.sleepImpl(RETRY_BACKOFF_MS);
     }
 
+    // ── A transient failure that lands with the budget ALREADY SPENT is OUR brake, not evidence
+    //    about the provider ──
+    //
+    // The guard at the top of `request` states this principle for a deadline that expired BEFORE
+    // the call. This is the same principle for one that expired DURING it, and it needs its own
+    // branch because the two are indistinguishable from inside `attempt`: `signalFor` composes the
+    // per-call cap and the operation ceiling into ONE signal, so an abort at the budget's last
+    // millisecond arrives here as an ordinary `transient`.
+    //
+    // It becomes reachable in bulk with a caller that runs many calls concurrently under one shared
+    // deadline. The elevation leg fans out to `ELEVATION_TILE_FETCH_CONCURRENCY` tiles and is
+    // DESIGNED to exhaust its budget on a long line (the partial profile is its warming path), so
+    // every such request aborted as many sockets at once as it had in flight — more consecutive
+    // failures than the breaker's threshold — and opened the circuit on a provider that had
+    // answered every call it finished (review #124, SFH124-C1).
+    //
+    // Narrow on purpose. Only `transient` is excused: `schema_error`, `client_error` and
+    // `rate_limited` describe what the provider SENT, and that is as true at the end of a budget as
+    // at the start. A genuinely slow provider is still recorded, because its calls abort at their
+    // own per-call cap while the operation budget still has room.
+    if (lastFailure.kind === 'transient' && deadline.hasExpired()) {
+      this.metrics.increment('upstream.deadline_exceeded', providerId);
+      return this.record(providerId, label, lastFailure);
+    }
+
     this.breaker.recordFailure(
       providerId,
       lastFailure.kind,
