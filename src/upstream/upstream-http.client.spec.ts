@@ -933,4 +933,100 @@ describe('UpstreamHttpClient', () => {
       expect(reason).toContain('excerpt withheld');
     });
   });
+  describe('the 5xx body classifier (opt-in)', () => {
+    /**
+     * The measured AFAD contradiction: HTTP 500 with `"status": 400` in the body. Without the
+     * hook the transport code wins, our own malformed query is filed as a provider outage, and it
+     * is retried on every tour forever at WARN.
+     */
+    const CONTRADICTING_BODY =
+      '{"timestamp":1786451618,"status":400,"error":"Parameter Exception",' +
+      '"message":"Start-End Time is required"}';
+
+    function requestWith(
+      client: UpstreamHttpClient,
+      classifier?: (excerpt: string) => 'client_error' | null,
+      redactBody?: (excerpt: string) => string,
+    ) {
+      return client.request({
+        providerId: 'provider',
+        label: 'provider.value',
+        url: URL_UNDER_TEST,
+        deadline: new OperationDeadline(6_000),
+        limits: LIMITS,
+        ...(classifier === undefined ? {} : { serverErrorBodyClassifier: classifier }),
+        ...(redactBody === undefined ? {} : { redactBody }),
+        parse: parseValue,
+      });
+    }
+
+    it('leaves a 5xx transient when NO classifier is supplied', async () => {
+      // The compatibility control: every existing caller must behave exactly as before.
+      const fetchImpl = jest.fn(() =>
+        Promise.resolve(jsonResponse(CONTRADICTING_BODY, 500)),
+      ) as unknown as typeof fetch;
+      const outcome = await requestWith(build(fetchImpl));
+      expect(outcome.kind).toBe('transient');
+    });
+
+    it('escalates to client_error when the classifier says the body reports one', async () => {
+      const fetchImpl = jest.fn(() =>
+        Promise.resolve(jsonResponse(CONTRADICTING_BODY, 500)),
+      ) as unknown as typeof fetch;
+      const outcome = await requestWith(build(fetchImpl), () => 'client_error');
+
+      expect(outcome.kind).toBe('client_error');
+      if (outcome.kind === 'client_error') {
+        expect(outcome.httpStatus).toBe(500);
+        expect(outcome.reason).toContain('the BODY reports a client error');
+      }
+      // And it is NOT retried: a query the provider cannot answer will not answer differently.
+      expect(sleeps).toHaveLength(0);
+    });
+
+    it('leaves the outcome alone when the classifier declines', async () => {
+      const fetchImpl = jest.fn(() =>
+        Promise.resolve(jsonResponse('{"status":503}', 503)),
+      ) as unknown as typeof fetch;
+      const outcome = await requestWith(build(fetchImpl), () => null);
+      expect(outcome.kind).toBe('transient');
+    });
+
+    it('never reaches a status below 500, whatever the classifier would say', async () => {
+      // A 4xx already has its own loud branch; letting the hook see it would give one status two
+      // different paths to the same verdict, with different messages.
+      const fetchImpl = jest.fn(() =>
+        Promise.resolve(jsonResponse('{"status":400}', 400)),
+      ) as unknown as typeof fetch;
+      let seen = 0;
+      const outcome = await requestWith(build(fetchImpl), () => {
+        seen += 1;
+        return 'client_error';
+      });
+      expect(outcome.kind).toBe('client_error');
+      expect(seen).toBe(0);
+    });
+
+    it('hands the classifier a REDACTED excerpt', async () => {
+      // Defence in depth: a classifier is a pure predicate and has no business seeing a secret,
+      // and the excerpt it returns a verdict on is the one that ends up in the logged reason.
+      const secret = 'super-secret-value';
+      const fetchImpl = jest.fn(() =>
+        Promise.resolve(jsonResponse(`{"status":400,"detail":"${secret}"}`, 500)),
+      ) as unknown as typeof fetch;
+      let received = '';
+      const outcome = await requestWith(
+        build(fetchImpl),
+        (excerpt) => {
+          received = excerpt;
+          return 'client_error';
+        },
+        (excerpt) => excerpt.split(secret).join('***'),
+      );
+
+      expect(received).not.toContain(secret);
+      const reason = outcome.kind === 'client_error' ? outcome.reason : '';
+      expect(reason).not.toContain(secret);
+    });
+  });
 });

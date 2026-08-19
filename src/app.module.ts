@@ -11,6 +11,7 @@ import { TrustedClientThrottlerGuard } from './common/throttler/trusted-client-t
 import { buildDataSourceOptions } from './database/data-source-options';
 import { type Env, validateEnv } from './config/env.schema';
 import { CountryModule } from './country/country.module';
+import { EarthquakeModule } from './earthquake/earthquake.module';
 import { HealthModule } from './health/health.module';
 import { MarineModule } from './marine/marine.module';
 import { ProvinceModule } from './province/province.module';
@@ -63,6 +64,9 @@ export const THROTTLE_LIMIT = 120;
     MarineModule,
     AirQualityModule,
     BookModule,
+    // E2: the AFAD ingest only — no controller, no route. With EARTHQUAKE_ENABLED=false (the
+    // default) it constructs no target and schedules no timer.
+    EarthquakeModule,
   ],
   providers: [
     // Rate limit every route by default; opt out per-route with @SkipThrottle,

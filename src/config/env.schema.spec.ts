@@ -611,3 +611,98 @@ describe('validateEnv — the book video-solution (YouTube Data API) block', () 
     expect(env.YOUTUBE_API_KEY).toBeUndefined();
   });
 });
+
+describe('validateEnv — the earthquake (AFAD TDVMS) block', () => {
+  it('ships every default the ingest reads, with the leg OFF', () => {
+    const env = validateEnv({ ...BASE });
+
+    // Off by default: a fresh deployment must never poll a public institution's endpoint before
+    // somebody decided it should.
+    expect(env.EARTHQUAKE_ENABLED).toBe(false);
+    expect(env.EARTHQUAKE_INGEST_ENABLED).toBe(true);
+    // Straight at `servisnet`, because the shared client refuses redirects and the older host
+    // answers with a 302.
+    expect(env.AFAD_EVENT_API_BASE_URL).toBe(
+      'https://servisnet.afad.gov.tr/apigateway/deprem/apiv2',
+    );
+    expect(env.EARTHQUAKE_INGEST_INTERVAL_SECONDS).toBe(300);
+    expect(env.EARTHQUAKE_RECONCILE_INTERVAL_SECONDS).toBe(21_600);
+    expect(env.EARTHQUAKE_RECENT_WINDOW_HOURS).toBe(6);
+    expect(env.EARTHQUAKE_RECONCILE_WINDOW_DAYS).toBe(7);
+    expect(env.EARTHQUAKE_SAFETY_LIMIT).toBe(20_000);
+    // 200 km, not 150: DEC 2026-08-17k md.4 raised the buffer after a measured North Aegean
+    // open-water event landed 178.7 km from the national outline.
+    expect(env.EARTHQUAKE_SCOPE_BUFFER_KM).toBe(200);
+    expect(env.EARTHQUAKE_RUN_RETENTION_DAYS).toBe(14);
+  });
+
+  it('needs no credential at all — the endpoint is anonymous', () => {
+    // Recorded as a property of the leg rather than an omission: if AFAD ever introduces a key,
+    // ENGINEERING.md §5's server-boot-key rule applies and this expectation is what will fail.
+    const env = validateEnv({ ...BASE, EARTHQUAKE_ENABLED: 'true' });
+    expect(env.EARTHQUAKE_ENABLED).toBe(true);
+  });
+
+  it('refuses production with the leg on and no Redis', () => {
+    expect(() =>
+      validateEnv({ ...BASE, NODE_ENV: 'production', EARTHQUAKE_ENABLED: 'true' }),
+    ).toThrow(/REDIS_URL/);
+
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        NODE_ENV: 'production',
+        EARTHQUAKE_ENABLED: 'true',
+        REDIS_URL: 'redis://cache:6379',
+      }),
+    ).not.toThrow();
+  });
+
+  it('refuses a single call allowed more time than its own tour slice', () => {
+    expect(() => validateEnv({ ...BASE, EARTHQUAKE_SINGLE_CALL_TIMEOUT_MS: '90000' })).toThrow(
+      /EARTHQUAKE_SINGLE_CALL_TIMEOUT_MS/,
+    );
+  });
+
+  it('refuses a tour slice larger than the tour that hosts it', () => {
+    expect(() => validateEnv({ ...BASE, EARTHQUAKE_TOUR_BUDGET_MS: '200000' })).toThrow(
+      /EARTHQUAKE_TOUR_BUDGET_MS/,
+    );
+  });
+
+  it('refuses a tour that can outlive either interval it is scheduled on', () => {
+    expect(() => validateEnv({ ...BASE, EARTHQUAKE_INGEST_INTERVAL_SECONDS: '60' })).toThrow(
+      /EARTHQUAKE_INGEST_DEADLINE_MS/,
+    );
+
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        EARTHQUAKE_RECONCILE_INTERVAL_SECONDS: '60',
+        EARTHQUAKE_RECONCILE_WINDOW_DAYS: '1',
+      }),
+    ).toThrow(/EARTHQUAKE_INGEST_DEADLINE_MS/);
+  });
+
+  it('refuses a window narrower than the cadence that repeats it', () => {
+    // The silent-loss check: with a window shorter than its interval, the stretch between one
+    // window's end and the next one's start is queried by nobody, and events inside it are never
+    // seen again — no error, no gap, no trace.
+    expect(() => validateEnv({ ...BASE, EARTHQUAKE_INGEST_INTERVAL_SECONDS: '30000' })).toThrow(
+      /EARTHQUAKE_INGEST_INTERVAL_SECONDS/,
+    );
+
+    // The reconcile pair needs BOTH values moved to breach: the window's minimum is one whole
+    // day (86 400 s) and the default interval is 21 600 s, so no legal window alone can be
+    // narrower than the cadence. Raising the interval past the window is the real shape of the
+    // misconfiguration — and finding that out is why this case is written with two values
+    // rather than one.
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        EARTHQUAKE_RECONCILE_INTERVAL_SECONDS: '172800',
+        EARTHQUAKE_RECONCILE_WINDOW_DAYS: '1',
+      }),
+    ).toThrow(/EARTHQUAKE_RECONCILE_INTERVAL_SECONDS/);
+  });
+});

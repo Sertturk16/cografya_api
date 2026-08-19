@@ -1,0 +1,332 @@
+{
+  "probeVersion": 1,
+  "generatedAtUtc": "2026-08-17T15:06:31.595Z",
+  "userAgent": "CografyaPlatformBot/1.0 (educational geography platform)",
+  "nodeVersion": "v24.19.0",
+  "baseUrl": "https://servisnet.afad.gov.tr/apigateway/deprem/apiv2",
+  "spacingSeconds": 3,
+  "requests": [
+    {
+      "label": "one-day window (the `recent` tour shape)",
+      "url": "https://servisnet.afad.gov.tr/apigateway/deprem/apiv2/event/filter?start=2026-08-16T15:06:08&end=2026-08-17T15:06:08&limit=20000",
+      "requestedAtUtc": "2026-08-17T15:06:08.147Z",
+      "httpStatus": 200,
+      "durationMs": 2337,
+      "headers": {
+        "content-type": "application/json;charset=utf-8",
+        "content-encoding": "gzip",
+        "content-length": "4222",
+        "cache-control": null,
+        "etag": null,
+        "last-modified": null,
+        "vary": "Accept-Encoding"
+      },
+      "byteLength": 26138,
+      "sha256": "128bad3959c148bf769504f7a002050c7ff6312222bdbe4aa786503176d86d16",
+      "recordCount": 81,
+      "fieldNames": [
+        "country",
+        "date",
+        "depth",
+        "district",
+        "eventID",
+        "isEventUpdate",
+        "lastUpdateDate",
+        "latitude",
+        "location",
+        "longitude",
+        "magnitude",
+        "neighborhood",
+        "province",
+        "rms",
+        "type"
+      ],
+      "magnitudeTypes": [
+        "ML",
+        "MW"
+      ],
+      "parsed": {
+        "accepted": 81,
+        "rejected": 0,
+        "rejectionReasons": []
+      },
+      "sampleRows": [
+        {
+          "rms": "0.64",
+          "eventID": "725716",
+          "location": "Sındırgı (Balıkesir)",
+          "latitude": "39.25917",
+          "longitude": "28.10183",
+          "depth": "11.01",
+          "type": "ML",
+          "magnitude": "1.5",
+          "country": "Türkiye",
+          "province": "Balıkesir",
+          "district": "Sındırgı",
+          "neighborhood": "Karagür",
+          "date": "2026-08-16T15:39:55",
+          "isEventUpdate": false,
+          "lastUpdateDate": null
+        },
+        {
+          "rms": "0.22",
+          "eventID": "725717",
+          "location": "Merkez (Bolu)",
+          "latitude": "40.76783",
+          "longitude": "31.54283",
+          "depth": "12.6",
+          "type": "ML",
+          "magnitude": "1.1",
+          "country": "Türkiye",
+          "province": "Bolu",
+          "district": "Merkez",
+          "neighborhood": "Ağaçcılar",
+          "date": "2026-08-16T15:47:31",
+          "isEventUpdate": false,
+          "lastUpdateDate": null
+        }
+      ]
+    },
+    {
+      "label": "seven-day window (the `reconcile` tour shape, and the volume measurement)",
+      "url": "https://servisnet.afad.gov.tr/apigateway/deprem/apiv2/event/filter?start=2026-08-10T15:06:08&end=2026-08-17T15:06:08&limit=20000",
+      "requestedAtUtc": "2026-08-17T15:06:13.489Z",
+      "httpStatus": 200,
+      "durationMs": 8931,
+      "headers": {
+        "content-type": "application/json;charset=utf-8",
+        "content-encoding": "gzip",
+        "content-length": "22727",
+        "cache-control": null,
+        "etag": null,
+        "last-modified": null,
+        "vary": "Accept-Encoding"
+      },
+      "byteLength": 171409,
+      "sha256": "e3d9d92bfa591c461fedaf6426ed8d8cc0907951037705bc121f0cd961f6bcff",
+      "recordCount": 530,
+      "fieldNames": [
+        "country",
+        "date",
+        "depth",
+        "district",
+        "eventID",
+        "isEventUpdate",
+        "lastUpdateDate",
+        "latitude",
+        "location",
+        "longitude",
+        "magnitude",
+        "neighborhood",
+        "province",
+        "rms",
+        "type"
+      ],
+      "magnitudeTypes": [
+        "ML",
+        "MW"
+      ],
+      "parsed": {
+        "accepted": 530,
+        "rejected": 0,
+        "rejectionReasons": []
+      },
+      "sampleRows": [
+        {
+          "rms": "0.2",
+          "eventID": "725484",
+          "location": "Bergama (İzmir)",
+          "latitude": "38.94117",
+          "longitude": "27.03467",
+          "depth": "8.15",
+          "type": "ML",
+          "magnitude": "1.6",
+          "country": "Türkiye",
+          "province": "İzmir",
+          "district": "Bergama",
+          "neighborhood": "Zeytindağ",
+          "date": "2026-08-13T12:49:26",
+          "isEventUpdate": false,
+          "lastUpdateDate": null
+        },
+        {
+          "rms": "0.55",
+          "eventID": "725577",
+          "location": "Merkez (Adıyaman)",
+          "latitude": "37.80367",
+          "longitude": "38.39033",
+          "depth": "7",
+          "type": "ML",
+          "magnitude": "1.4",
+          "country": "Türkiye",
+          "province": "Adıyaman",
+          "district": "Merkez",
+          "neighborhood": "Gözebaşı",
+          "date": "2026-08-14T13:21:51",
+          "isEventUpdate": false,
+          "lastUpdateDate": null
+        }
+      ]
+    },
+    {
+      "label": "small limit=3 over the same day — evidence that limit precedes orderby",
+      "url": "https://servisnet.afad.gov.tr/apigateway/deprem/apiv2/event/filter?start=2026-08-16T15:06:08&end=2026-08-17T15:06:08&limit=3",
+      "requestedAtUtc": "2026-08-17T15:06:25.425Z",
+      "httpStatus": 200,
+      "durationMs": 2017,
+      "headers": {
+        "content-type": "application/json;charset=utf-8",
+        "content-encoding": "gzip",
+        "content-length": "394",
+        "cache-control": null,
+        "etag": null,
+        "last-modified": null,
+        "vary": "Accept-Encoding"
+      },
+      "byteLength": 963,
+      "sha256": "d9c8717793af6476c97841a8fdfa287e4fbac953849bb8f4a9c08c254133b4bc",
+      "recordCount": 3,
+      "fieldNames": [
+        "country",
+        "date",
+        "depth",
+        "district",
+        "eventID",
+        "isEventUpdate",
+        "lastUpdateDate",
+        "latitude",
+        "location",
+        "longitude",
+        "magnitude",
+        "neighborhood",
+        "province",
+        "rms",
+        "type"
+      ],
+      "magnitudeTypes": [
+        "ML"
+      ],
+      "parsed": {
+        "accepted": 3,
+        "rejected": 0,
+        "rejectionReasons": []
+      },
+      "sampleRows": [
+        {
+          "rms": "0.64",
+          "eventID": "725716",
+          "location": "Sındırgı (Balıkesir)",
+          "latitude": "39.25917",
+          "longitude": "28.10183",
+          "depth": "11.01",
+          "type": "ML",
+          "magnitude": "1.5",
+          "country": "Türkiye",
+          "province": "Balıkesir",
+          "district": "Sındırgı",
+          "neighborhood": "Karagür",
+          "date": "2026-08-16T15:39:55",
+          "isEventUpdate": false,
+          "lastUpdateDate": null
+        },
+        {
+          "rms": "0.22",
+          "eventID": "725717",
+          "location": "Merkez (Bolu)",
+          "latitude": "40.76783",
+          "longitude": "31.54283",
+          "depth": "12.6",
+          "type": "ML",
+          "magnitude": "1.1",
+          "country": "Türkiye",
+          "province": "Bolu",
+          "district": "Merkez",
+          "neighborhood": "Ağaçcılar",
+          "date": "2026-08-16T15:47:31",
+          "isEventUpdate": false,
+          "lastUpdateDate": null
+        }
+      ]
+    },
+    {
+      "label": "a known revised event day (2023-02-06, minmag=7)",
+      "url": "https://servisnet.afad.gov.tr/apigateway/deprem/apiv2/event/filter?start=2023-02-06T00:00:00&end=2023-02-06T23:59:59&limit=20000&minmag=7",
+      "requestedAtUtc": "2026-08-17T15:06:30.445Z",
+      "httpStatus": 200,
+      "durationMs": 1149,
+      "headers": {
+        "content-type": "application/json;charset=utf-8",
+        "content-encoding": "gzip",
+        "content-length": "345",
+        "cache-control": null,
+        "etag": null,
+        "last-modified": null,
+        "vary": "Accept-Encoding"
+      },
+      "byteLength": 717,
+      "sha256": "3b55cf238a9326abf7c40c384b4adfa5e11062e3d48bf7b729169b3608dd295a",
+      "recordCount": 2,
+      "fieldNames": [
+        "country",
+        "date",
+        "depth",
+        "district",
+        "eventID",
+        "isEventUpdate",
+        "lastUpdateDate",
+        "latitude",
+        "location",
+        "longitude",
+        "magnitude",
+        "neighborhood",
+        "province",
+        "rms",
+        "type"
+      ],
+      "magnitudeTypes": [
+        "MW"
+      ],
+      "parsed": {
+        "accepted": 2,
+        "rejected": 0,
+        "rejectionReasons": []
+      },
+      "sampleRows": [
+        {
+          "rms": "1.92",
+          "eventID": "543428",
+          "location": "Pazarcık (Kahramanmaraş)",
+          "latitude": "37.27728",
+          "longitude": "37.03996",
+          "depth": "8.6",
+          "type": "MW",
+          "magnitude": "7.7",
+          "country": "Türkiye",
+          "province": "Kahramanmaraş",
+          "district": "Pazarcık",
+          "neighborhood": "Karahüyük",
+          "date": "2023-02-06T01:17:32",
+          "isEventUpdate": true,
+          "lastUpdateDate": "2023-02-06T09:46:31.642742"
+        },
+        {
+          "rms": "0.58",
+          "eventID": "543593",
+          "location": "Elbistan (Kahramanmaraş)",
+          "latitude": "38.078",
+          "longitude": "37.23097",
+          "depth": "7",
+          "type": "MW",
+          "magnitude": "7.6",
+          "country": "Türkiye",
+          "province": "Kahramanmaraş",
+          "district": "Elbistan",
+          "neighborhood": "Gümüşdöven",
+          "date": "2023-02-06T10:24:47",
+          "isEventUpdate": true,
+          "lastUpdateDate": "2023-02-09T14:38:53.19449"
+        }
+      ]
+    }
+  ]
+}

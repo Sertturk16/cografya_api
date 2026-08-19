@@ -263,7 +263,63 @@ export type UpstreamMetricName =
    */
   | 'books.purge_failed'
   /** An unexpected exception escaped the sync tour's own handling — OUR bug. */
-  | 'books.sync_bug';
+  | 'books.sync_bug'
+  // ── Earthquake (AFAD TDVMS) ingest events (E2). Same convention: the provider dimension is the
+  // `providerId` argument. The two cadences are NOT separate counter names — they are two
+  // instances of one target and the `recent`/`reconcile` split is a log-context concern; giving
+  // each its own name would double every counter below to answer a question nobody asks. ──
+  /** Rows inserted for the first time. */
+  | 'eq.rows_inserted'
+  /** Rows whose stored values actually changed. An unchanged row writes nothing and counts here
+   * not at all — which is exactly what keeps `updated_at` usable as a modification date. */
+  | 'eq.rows_updated'
+  /** Rows stored with `in_scope = false`: kept for the archive, served on no endpoint. */
+  | 'eq.rows_out_of_scope'
+  /**
+   * A row the PARSER refused — a malformed number, an impossible timestamp, a location that
+   * cannot be split, a fidelity mismatch. Counted apart from `eq.row_write_failed` because this
+   * one is the provider's payload disagreeing with the contract, not our database refusing.
+   */
+  | 'eq.row_rejected'
+  /** A row the DATABASE refused (an FK violation, a constraint). That row's failure, not the tour's. */
+  | 'eq.row_write_failed'
+  /**
+   * An event carried a province name that matched no row in `provinces`.
+   *
+   * Its own counter because the consequence is silent and partial: the event is still published,
+   * it simply loses the cross-link to a province page, and nothing on the page looks broken.
+   */
+  | 'eq.plate_unresolved'
+  /**
+   * A stored event inside a reconcile window stopped being returned by the provider. Nothing is
+   * ever deleted (SPEC §7.3); this counter is how the disappearance becomes visible at all.
+   */
+  | 'eq.rows_absent_upstream'
+  /**
+   * A store READ the tour could not proceed without failed — today, the province lookup.
+   *
+   * Its own counter rather than `eq.ingest_bug`, because it is the opposite diagnosis: OUR database
+   * was unreachable, not our code wrong, and sending an operator to the code is a wasted hour.
+   */
+  | 'eq.store_read_failed'
+  /**
+   * The reconcile tour's disappearance check could not run. Diagnosis lost, tour intact — the whole
+   * point of guarding it separately from the writes it follows.
+   */
+  | 'eq.absent_check_failed'
+  /**
+   * A tour ended before making its call because its slice was below the assumed cost of one call.
+   *
+   * Reachable today only by configuring `EARTHQUAKE_TOUR_BUDGET_MS` under that cost — which boots
+   * cleanly and then makes the leg permanently dark, so it needs a count of its own.
+   */
+  | 'eq.slice_skipped'
+  /** The run ledger could not be written — the tour worked, its freshness anchor did not. */
+  | 'eq.run_record_failed'
+  /** Retention pruning failed. Housekeeping; it never fails a tour. */
+  | 'eq.prune_failed'
+  /** An unexpected exception escaped the ingest tour's own handling — OUR bug. */
+  | 'eq.ingest_bug';
 
 /**
  * Counters + structured logs for the upstream layer.

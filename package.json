@@ -19,7 +19,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tools/tsconfig.json",
-    "test:unit": "jest --config test/jest-unit.json",
+    "test:unit": "TZ=Europe/Istanbul jest --config test/jest-unit.json",
     "seed:transcribe": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tools/seed-transcription/cli.ts",
     "test": "jest --config test/jest-e2e.json",
     "test:e2e": "jest --config test/jest-e2e.json",
@@ -37,6 +37,7 @@
     "db:import:marine-cmems": "pnpm build && node dist/database/marine/marine-cmems.cli.js",
     "db:import:air-quality": "pnpm build && node dist/database/air-quality/air-quality.cli.js",
     "db:import:era5": "pnpm build && node dist/database/era5/era5.cli.js",
+    "db:import:earthquakes": "pnpm build && node dist/database/earthquake/earthquake.cli.js",
     "openapi:generate": "pnpm build && node dist/openapi/generate-openapi.js",
     "openapi:check": "pnpm run openapi:generate && git diff --exit-code -- openapi/openapi.json",
     "prepare": "husky"
