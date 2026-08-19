@@ -38,6 +38,7 @@
     "db:import:air-quality": "pnpm build && node dist/database/air-quality/air-quality.cli.js",
     "db:import:era5": "pnpm build && node dist/database/era5/era5.cli.js",
     "db:import:earthquakes": "pnpm build && node dist/database/earthquake/earthquake.cli.js",
+    "db:import:terrain": "pnpm build && node dist/database/elevation/elevation.cli.js",
     "openapi:generate": "pnpm build && node dist/openapi/generate-openapi.js",
     "openapi:check": "pnpm run openapi:generate && git diff --exit-code -- openapi/openapi.json",
     "prepare": "husky"

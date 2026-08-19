@@ -1,0 +1,380 @@
+{
+  "generatedAtUtc": "2026-08-19T14:21:43.433Z",
+  "baseUrl": "https://s3.amazonaws.com/elevation-tiles-prod",
+  "zoom": 12,
+  "userAgent": "CografyaPlatformBot/1.0 (educational geography platform)",
+  "requestCount": 15,
+  "attribution": {
+    "url": "https://raw.githubusercontent.com/tilezen/joerd/master/docs/attribution.md",
+    "httpStatus": 200,
+    "bytes": 12300,
+    "sha256": "2ce4d3414b4592d17ad56a5af57feb480686ddcfb0a3e4ea0b566d28cde13567",
+    "pinnedSha256": "2ce4d3414b4592d17ad56a5af57feb480686ddcfb0a3e4ea0b566d28cde13567",
+    "matchesPin": true
+  },
+  "tiles": [
+    {
+      "tile": "12/2427/1568",
+      "zoom": 12,
+      "httpStatus": 200,
+      "bytes": 901,
+      "elapsedMs": 929,
+      "contentType": "image/png",
+      "lastModified": "Fri, 17 Nov 2017 01:16:29 GMT",
+      "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif"
+    },
+    {
+      "tile": "12/2535/1571",
+      "zoom": 12,
+      "httpStatus": 200,
+      "bytes": 890,
+      "elapsedMs": 571,
+      "contentType": "image/png",
+      "lastModified": "Fri, 17 Nov 2017 11:22:26 GMT",
+      "imagerySources": "eudem/eudem_dem_5deg_n35e040.tif"
+    },
+    {
+      "tile": "12/2451/1572",
+      "zoom": 12,
+      "httpStatus": 200,
+      "bytes": 133078,
+      "elapsedMs": 1017,
+      "contentType": "image/png",
+      "lastModified": "Fri, 17 Nov 2017 04:11:11 GMT",
+      "imagerySources": "eudem/eudem_dem_5deg_n35e035.tif"
+    },
+    {
+      "tile": "12/2421/1551",
+      "zoom": 12,
+      "httpStatus": 200,
+      "bytes": 109867,
+      "elapsedMs": 690,
+      "contentType": "image/png",
+      "lastModified": "Fri, 17 Nov 2017 01:39:43 GMT",
+      "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif"
+    },
+    {
+      "tile": "12/2356/1573",
+      "zoom": 12,
+      "httpStatus": 200,
+      "bytes": 54758,
+      "elapsedMs": 619,
+      "contentType": "image/png",
+      "lastModified": "Thu, 16 Nov 2017 20:11:23 GMT",
+      "imagerySources": "eudem/eudem_dem_5deg_n35e025.tif"
+    },
+    {
+      "tile": "12/2395/1615",
+      "zoom": 12,
+      "httpStatus": 200,
+      "bytes": 757,
+      "elapsedMs": 591,
+      "contentType": "image/png",
+      "lastModified": "Thu, 16 Nov 2017 22:59:43 GMT",
+      "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif, gmted/30N030E_20101117_gmted_mea075.tif"
+    },
+    {
+      "tile": "12/2434/1512",
+      "zoom": 12,
+      "httpStatus": 200,
+      "bytes": 757,
+      "elapsedMs": 607,
+      "contentType": "image/png",
+      "lastModified": "Fri, 17 Nov 2017 04:03:02 GMT",
+      "imagerySources": "gmted/30N030E_20101117_gmted_mea075.tif"
+    },
+    {
+      "tile": "12/2338/1579",
+      "zoom": 12,
+      "httpStatus": 200,
+      "bytes": 757,
+      "elapsedMs": 640,
+      "contentType": "image/png",
+      "lastModified": "Thu, 16 Nov 2017 20:09:30 GMT",
+      "imagerySources": "gmted/30N000E_20101117_gmted_mea075.tif"
+    },
+    {
+      "tile": "12/2369/1540",
+      "zoom": 12,
+      "httpStatus": 200,
+      "bytes": 757,
+      "elapsedMs": 674,
+      "contentType": "image/png",
+      "lastModified": "Thu, 16 Nov 2017 22:46:44 GMT",
+      "imagerySources": "gmted/30N000E_20101117_gmted_mea075.tif"
+    },
+    {
+      "tile": "8/149/100",
+      "zoom": 8,
+      "httpStatus": 200,
+      "bytes": 134856,
+      "elapsedMs": 695,
+      "contentType": "image/png",
+      "lastModified": "Thu, 16 Nov 2017 22:55:56 GMT",
+      "imagerySources": "srtm/N36E030.tif, srtm/N36E029.tif, gmted/30N030E_20101117_gmted_mea075.tif, gmted/30N000E_20101117_gmted_mea075.tif, etopo1/ETOPO1_Bed_g.tif"
+    },
+    {
+      "tile": "9/299/201",
+      "zoom": 9,
+      "httpStatus": 200,
+      "bytes": 134582,
+      "elapsedMs": 763,
+      "contentType": "image/png",
+      "lastModified": "Thu, 16 Nov 2017 22:58:38 GMT",
+      "imagerySources": "gmted/30N030E_20101117_gmted_mea075.tif, etopo1/ETOPO1_Bed_g.tif"
+    },
+    {
+      "tile": "10/598/403",
+      "zoom": 10,
+      "httpStatus": 200,
+      "bytes": 133137,
+      "elapsedMs": 857,
+      "contentType": "image/png",
+      "lastModified": "Thu, 16 Nov 2017 22:59:31 GMT",
+      "imagerySources": "gmted/30N030E_20101117_gmted_mea075.tif, etopo1/ETOPO1_Bed_g.tif"
+    },
+    {
+      "tile": "11/1197/807",
+      "zoom": 11,
+      "httpStatus": 200,
+      "bytes": 757,
+      "elapsedMs": 830,
+      "contentType": "image/png",
+      "lastModified": "Thu, 16 Nov 2017 22:59:41 GMT",
+      "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif, gmted/30N030E_20101117_gmted_mea075.tif"
+    },
+    {
+      "tile": "13/4790/3230",
+      "zoom": 13,
+      "httpStatus": 200,
+      "bytes": 757,
+      "elapsedMs": 1554,
+      "contentType": "image/png",
+      "lastModified": "Thu, 16 Nov 2017 22:59:43 GMT",
+      "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif, gmted/30N030E_20101117_gmted_mea075.tif"
+    }
+  ],
+  "points": [
+    {
+      "label": "Tuz Gölü",
+      "kind": "land",
+      "lat": 38.7833,
+      "lon": 33.3833,
+      "zoom": 12,
+      "tile": "12/2427/1568",
+      "decodedM": 904,
+      "decodedNearestM": 904,
+      "specMeasuredM": 904,
+      "differenceM": 0,
+      "error": null
+    },
+    {
+      "label": "Van Gölü",
+      "kind": "land",
+      "lat": 38.6167,
+      "lon": 42.8833,
+      "zoom": 12,
+      "tile": "12/2535/1571",
+      "decodedM": 1648,
+      "decodedNearestM": 1648,
+      "specMeasuredM": 1647.5,
+      "differenceM": 0.5,
+      "error": null
+    },
+    {
+      "label": "Erciyes zirve",
+      "kind": "land",
+      "lat": 38.5325,
+      "lon": 35.4489,
+      "zoom": 12,
+      "tile": "12/2451/1572",
+      "decodedM": 3825.59,
+      "decodedNearestM": 3829,
+      "specMeasuredM": 3829.28,
+      "differenceM": -0.28,
+      "error": null
+    },
+    {
+      "label": "Ankara",
+      "kind": "land",
+      "lat": 39.9208,
+      "lon": 32.8541,
+      "zoom": 12,
+      "tile": "12/2421/1551",
+      "decodedM": 870,
+      "decodedNearestM": 870,
+      "specMeasuredM": null,
+      "differenceM": null,
+      "error": null
+    },
+    {
+      "label": "İzmir",
+      "kind": "land",
+      "lat": 38.4192,
+      "lon": 27.1287,
+      "zoom": 12,
+      "tile": "12/2356/1573",
+      "decodedM": 9.57,
+      "decodedNearestM": 10,
+      "specMeasuredM": null,
+      "differenceM": null,
+      "error": null
+    },
+    {
+      "label": "Akdeniz açığı",
+      "kind": "sea",
+      "lat": 35.5,
+      "lon": 30.5,
+      "zoom": 12,
+      "tile": "12/2395/1615",
+      "decodedM": 0,
+      "decodedNearestM": 0,
+      "specMeasuredM": null,
+      "differenceM": null,
+      "error": null
+    },
+    {
+      "label": "Karadeniz açığı",
+      "kind": "sea",
+      "lat": 42.5,
+      "lon": 34,
+      "zoom": 12,
+      "tile": "12/2434/1512",
+      "decodedM": 0,
+      "decodedNearestM": 0,
+      "specMeasuredM": null,
+      "differenceM": null,
+      "error": null
+    },
+    {
+      "label": "Ege açığı",
+      "kind": "sea",
+      "lat": 38,
+      "lon": 25.5,
+      "zoom": 12,
+      "tile": "12/2338/1579",
+      "decodedM": 0,
+      "decodedNearestM": 0,
+      "specMeasuredM": null,
+      "differenceM": null,
+      "error": null
+    },
+    {
+      "label": "Marmara",
+      "kind": "sea",
+      "lat": 40.7,
+      "lon": 28.3,
+      "zoom": 12,
+      "tile": "12/2369/1540",
+      "decodedM": 0,
+      "decodedNearestM": 0,
+      "specMeasuredM": null,
+      "differenceM": null,
+      "error": null
+    }
+  ],
+  "bathymetryByZoom": [
+    {
+      "label": "Akdeniz açığı",
+      "zoom": 8,
+      "metres": -1491.34,
+      "imagerySources": "srtm/N36E030.tif, srtm/N36E029.tif, gmted/30N030E_20101117_gmted_mea075.tif, gmted/30N000E_20101117_gmted_mea075.tif, etopo1/ETOPO1_Bed_g.tif"
+    },
+    {
+      "label": "Akdeniz açığı",
+      "zoom": 9,
+      "metres": -1493.27,
+      "imagerySources": "gmted/30N030E_20101117_gmted_mea075.tif, etopo1/ETOPO1_Bed_g.tif"
+    },
+    {
+      "label": "Akdeniz açığı",
+      "zoom": 10,
+      "metres": -1490.62,
+      "imagerySources": "gmted/30N030E_20101117_gmted_mea075.tif, etopo1/ETOPO1_Bed_g.tif"
+    },
+    {
+      "label": "Akdeniz açığı",
+      "zoom": 11,
+      "metres": 0,
+      "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif, gmted/30N030E_20101117_gmted_mea075.tif"
+    },
+    {
+      "label": "Akdeniz açığı",
+      "zoom": 12,
+      "metres": 0,
+      "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif, gmted/30N030E_20101117_gmted_mea075.tif"
+    },
+    {
+      "label": "Akdeniz açığı",
+      "zoom": 13,
+      "metres": 0,
+      "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif, gmted/30N030E_20101117_gmted_mea075.tif"
+    }
+  ],
+  "imagerySourceTokens": [
+    "etopo1",
+    "eudem",
+    "gmted",
+    "srtm"
+  ],
+  "imagerySourceTokensByZoom": {
+    "8": [
+      "etopo1",
+      "gmted",
+      "srtm"
+    ],
+    "9": [
+      "etopo1",
+      "gmted"
+    ],
+    "10": [
+      "etopo1",
+      "gmted"
+    ],
+    "11": [
+      "eudem",
+      "gmted"
+    ],
+    "12": [
+      "eudem",
+      "gmted"
+    ],
+    "13": [
+      "eudem",
+      "gmted"
+    ]
+  },
+  "samplingZoomSourceTokens": [
+    "eudem",
+    "gmted"
+  ],
+  "lines": [
+    {
+      "label": "Samsun→Erzurum",
+      "lengthKm": 445,
+      "sampleCount": 200,
+      "distinctTiles": 73,
+      "predictedTiles": 60
+    },
+    {
+      "label": "İzmir→Van",
+      "lengthKm": 1415.8,
+      "sampleCount": 200,
+      "distinctTiles": 186,
+      "predictedTiles": 185
+    }
+  ],
+  "samplingZoomByteStats": {
+    "count": 9,
+    "minBytes": 757,
+    "maxBytes": 133078,
+    "meanBytes": 33614
+  },
+  "samplingZoomLatencyStats": {
+    "count": 9,
+    "minMs": 571,
+    "maxMs": 1017,
+    "medianMs": 640,
+    "p95Ms": 929
+  }
+}
