@@ -111,6 +111,9 @@ describe('buildMarineUpstreamConfig', () => {
         CMEMS_WMTS_BASE_URL: 'https://wmts.example/teroWmts',
         CMEMS_STAC_BASE_URL: 'https://stac.example/metadata',
         CMEMS_SINGLE_CALL_TIMEOUT_MS: '111',
+        // Distinct from the value cap on purpose: the two knobs must not be read from one
+        // variable, which is the whole point of the SST fix's M1.
+        CMEMS_STAC_CALL_TIMEOUT_MS: '1111',
         CMEMS_TOUR_BUDGET_MS: '2222',
         CMEMS_STAC_TTL_SECONDS: '333',
       }),
@@ -120,6 +123,7 @@ describe('buildMarineUpstreamConfig', () => {
       wmtsBaseUrl: 'https://wmts.example/teroWmts',
       stacBaseUrl: 'https://stac.example/metadata',
       singleCallTimeoutMs: 111,
+      stacCallTimeoutMs: 1111,
       tourBudgetMs: 2222,
       stacTtlSeconds: 333,
     });

@@ -198,7 +198,42 @@ export const envSchema = z
     CMEMS_STAC_BASE_URL: z.url().default('https://stac.marine.copernicus.eu/metadata'),
     // A session's FIRST call measured 2.54 s (cold TLS); the shared 3 s marine single-call
     // default would manufacture false timeouts there. Warm calls are 0.19–0.43 s.
+    // This is the VALUE path's cap (GetFeatureInfo) and it is what the request path spends;
+    // the catalogue call has its own, longer one below.
     CMEMS_SINGLE_CALL_TIMEOUT_MS: z.coerce.number().int().positive().default(6_000),
+    // The STAC CATALOGUE call's own cap — deliberately NOT the value cap above.
+    //
+    // ## Why the two are different numbers (measured 2026-08-17, `Owner's Inbox/sst-teshis/`)
+    // The resolution phase is at most FOUR cheap calls per tour and a single failure darkens
+    // every point the product serves (measured: one BLKSEA document timing out published
+    // `unavailable` on 21 of 30 points for 14 min 45 s, because Marmara SST rides the same
+    // product). A value call is one of 78 and its failure costs ONE point. Sharing one 6 s cap
+    // was a default, not a decision: the catalogue's queue latency exceeded 6 s in 7 of 20
+    // samples (BLKSEA max 19.45 s, MEDSEA max 27.20 s).
+    //
+    // ## Why 25 s, and why not more
+    // 25 s covers the BLKSEA measured maximum with 5.5 s to spare and — stated only as far as
+    // the samples support — **at least 19 of the 20 measured draws**; the single 27.20 s draw is
+    // the one known to exceed it, and the published table (min/median/max plus a ">6 s" count)
+    // cannot resolve the individual draws between 6 s and 19.45 s, so a stronger claim than
+    // "≥19/20" is not derivable from it. Covering 20/20 would need ≥27.3 s, and what rules that
+    // out is arithmetic rather than taste: the shared client already makes two attempts (250 ms
+    // apart), so a 27.3 s cap wants 54.85 s while the resolution phase's own sub-budget is two
+    // thirds of `CMEMS_TOUR_BUDGET_MS` — 40 000 ms at the defaults (`cmems-warmup.target.ts`,
+    // `cmemsResolutionBudgetMs`). At 25 s the first attempt gets its full cap and the retry still
+    // gets ~14.75 s, comfortably above both measured medians (3.52 s / 4.65 s); past ~27 s the
+    // retry is squeezed under 13 s for no measured gain.
+    //
+    // What this cap can NO LONGER do, since review #117 (SFH117-I1): consume the whole tour slice
+    // and starve the 78-key value sweep. The phase runs on the sub-budget above, so an
+    // over-generous cap costs the LATER PRODUCTS of the resolution phase, never the sweep. That is
+    // why the boot bound below still measures ONE attempt rather than the pair.
+    //
+    // NOT cross-checked against `MARINE_UPSTREAM_DEADLINE_MS` on purpose: no request path ever
+    // fetches STAC (`cmems-value.reader.ts` answers `transient` instead of fetching the
+    // catalogue inline), so the request budget is not this call's ceiling — and writing that
+    // check would forbid exactly the configuration this knob exists to allow.
+    CMEMS_STAC_CALL_TIMEOUT_MS: z.coerce.number().int().positive().default(25_000),
     // The slice of ONE warmup tour CMEMS may consume (the M4b target's budget; the ECMWF slice
     // has its own above): a full 78-call sweep at concurrency 4 is ~8 s warm, 20–40 s cold —
     // 60 s leaves ~2× headroom while keeping the ECMWF targets fed (cross-check below).
@@ -474,6 +509,25 @@ export const envSchema = z
           'cannot be allowed more time than the whole tour slice it runs in.',
       });
     }
+    // The catalogue cap has the tour-slice bound and ONLY that one, for the reason written at
+    // the field: the request path never fetches STAC, so `MARINE_UPSTREAM_DEADLINE_MS` is not
+    // its ceiling. Composed through `checkEnvBound` rather than as a fourteenth hand-written
+    // block — that helper is the funnel every new cross-check goes through.
+    //
+    // ONE attempt is the right operand here even though the client makes two (review #117,
+    // SFH117-M3). Bounding the PAIR would forbid configurations that are provably harmless: the
+    // resolution phase runs on its own sub-budget inside the slice, so an over-generous cap can
+    // only cost the later products of that phase, never the value sweep it used to be able to
+    // starve. A bound that only outlaws harmless settings is scaffolding.
+    checkEnvBound(ctx, {
+      kind: 'must-not-exceed',
+      subject: 'CMEMS_STAC_CALL_TIMEOUT_MS',
+      subjectValue: env.CMEMS_STAC_CALL_TIMEOUT_MS,
+      limit: 'CMEMS_TOUR_BUDGET_MS',
+      limitValue: env.CMEMS_TOUR_BUDGET_MS,
+      reason:
+        'a single catalogue call cannot be allowed more time than the whole tour slice it runs in',
+    });
     if (env.ECMWF_TOUR_MAX_BYTES > env.ECMWF_CYCLE_MAX_BYTES) {
       ctx.addIssue({
         code: 'custom',

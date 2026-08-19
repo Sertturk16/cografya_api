@@ -66,6 +66,7 @@ function makeConfig(): MarineUpstreamConfig {
       wmtsBaseUrl: 'https://wmts.test/teroWmts',
       stacBaseUrl: 'https://stac.test/metadata',
       singleCallTimeoutMs: 6_000,
+      stacCallTimeoutMs: 25_000,
       tourBudgetMs: 60_000,
       stacTtlSeconds: 21_600,
     },

@@ -77,6 +77,7 @@ function makeConfig(): MarineUpstreamConfig {
       wmtsBaseUrl: 'https://wmts.test/teroWmts',
       stacBaseUrl: 'https://stac.test/metadata',
       singleCallTimeoutMs: 6_000,
+      stacCallTimeoutMs: 25_000,
       tourBudgetMs: 60_000,
       stacTtlSeconds: 21_600,
     },
@@ -159,6 +160,7 @@ describe('CmemsValueReader', () => {
       stacBaseUrl: 'https://stac.test/metadata',
       limits: makeConfig().budgets.cmems,
       singleCallTimeoutMs: 6_000,
+      stacCallTimeoutMs: 25_000,
     });
     return new CmemsValueReader(cache, client, stacCache, makeConfig(), metrics, () => nowMs);
   }

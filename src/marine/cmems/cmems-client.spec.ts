@@ -67,7 +67,13 @@ describe('CmemsClient', () => {
     });
     const budget = new ProviderBudget(metrics, null, () => nowMs);
     const http = new UpstreamHttpClient(metrics, budget, breaker, {
-      singleCallTimeoutMs: 6_000,
+      // PRODUCTION's shared marine default (`MARINE_SINGLE_CALL_TIMEOUT_MS`, 3 000 —
+      // `upstream.module.ts`), deliberately NOT 6 000. With 6 000 here the value-direction test
+      // below could not tell the CMEMS per-request override from this fallback: deleting the
+      // override at the value call site would leave `signalFor` still receiving 6 000 and the
+      // suite still green, while production silently dropped to 3 s — below the measured 2.54 s
+      // cold-TLS first call plus jitter (review #117, TEST117-M1).
+      singleCallTimeoutMs: 3_000,
       userAgent: 'TestBot/1.0',
       fetchImpl,
       sleepImpl: () => Promise.resolve(),
@@ -78,10 +84,11 @@ describe('CmemsClient', () => {
       stacBaseUrl: 'https://stac.marine.copernicus.eu/metadata',
       limits: MARINE_PROVIDER_BUDGETS.cmems,
       singleCallTimeoutMs: 6_000,
+      stacCallTimeoutMs: 25_000,
     });
   }
 
-  function fetchValue(client: CmemsClient) {
+  function fetchValue(client: CmemsClient, deadline = new OperationDeadline(6_000)) {
     return client.fetchPointValue({
       field: 'waveHeight',
       latitude: 41.1,
@@ -90,7 +97,7 @@ describe('CmemsClient', () => {
       maxGridDistanceKm: 2.1,
       timeIso: '2026-08-02T14:00:00Z',
       validAtMs: Date.parse('2026-08-02T14:00:00Z'),
-      deadline: new OperationDeadline(6_000),
+      deadline,
     });
   }
 
@@ -204,6 +211,60 @@ describe('CmemsClient', () => {
     const [hit, miss] = outcome.value.selections;
     expect(hit?.selection.datasetId).toBe('cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511');
     expect(miss?.selection.datasetId).toBeNull();
+  });
+
+  /**
+   * The two per-call caps, asserted where they are actually SELECTED (the SST fix, M1).
+   *
+   * `OperationDeadline.signalFor` is the single place a cap becomes an abort signal
+   * (`upstream-http.client.ts` calls it once per attempt), so spying on it pins which knob
+   * reached the socket without needing timers or a real slow provider.
+   */
+  it('gives the STAC catalogue call its own, longer cap', async () => {
+    const doc = JSON.stringify({
+      id: 'BLKSEA_ANALYSISFORECAST_PHY_007_001',
+      license: 'proprietary',
+      extent: { temporal: { interval: [['2021-01-01T00:00:00Z', '2026-08-10T00:00:00Z']] } },
+      properties: { admp_updated: '2026-08-01T11:06:46Z' },
+      links: [
+        { rel: 'item', href: 'cmems_mod_blk_phy-temp_anfc_2.5km_PT1H-m_202511/dataset.stac.json' },
+      ],
+    });
+    const fetchImpl = jest.fn<typeof fetch>(() =>
+      Promise.resolve(response(doc, 200, 'application/json')),
+    );
+    // A TOUR slice, not a request budget: no request path fetches STAC (`cmems-value.reader.ts`).
+    const deadline = new OperationDeadline(60_000, () => nowMs);
+    const signalFor = jest.spyOn(deadline, 'signalFor');
+
+    const outcome = await build(fetchImpl).fetchProductResolution({
+      productId: 'BLKSEA_ANALYSISFORECAST_PHY_007_001',
+      selectors: [],
+      deadline,
+    });
+
+    expect(outcome.kind).toBe('ok');
+    expect(signalFor).toHaveBeenCalledWith(25_000);
+    // The symmetric negative: the value cap must not reach the catalogue call either.
+    expect(signalFor).not.toHaveBeenCalledWith(6_000);
+  });
+
+  it('leaves the VALUE call on the shorter cap — the request path is untouched', async () => {
+    const fetchImpl = jest.fn<typeof fetch>(() =>
+      Promise.resolve(response(MEASURED_200, 200, 'application/json;charset=UTF-8')),
+    );
+    const deadline = new OperationDeadline(6_000, () => nowMs);
+    const signalFor = jest.spyOn(deadline, 'signalFor');
+
+    const outcome = await fetchValue(build(fetchImpl), deadline);
+
+    // 6 000 can only come from the CMEMS per-request override: the shared client's own default
+    // is production's 3 000, so this assertion fails the moment that override is dropped.
+    expect(outcome.kind).toBe('ok');
+    expect(signalFor).toHaveBeenCalledWith(6_000);
+    // The negative half of the same fact — and it is only meaningful because the test above
+    // proves this exact assertion DOES fire when the catalogue cap is the one in play.
+    expect(signalFor).not.toHaveBeenCalledWith(25_000);
   });
 
   it('surfaces a malformed STAC document as schema_error (alarm class)', async () => {
