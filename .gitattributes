@@ -1,0 +1,17 @@
+# Source files are TEXT, whatever their bytes happen to look like.
+#
+# Git classifies a file as binary when it finds a NUL in the first 8000 bytes. A single
+# unescaped control character inside a string literal is enough — and PR #122 shipped exactly
+# that: `terrarium-decode.spec.ts` carried one raw NUL while testing a PNG chunk name, so git
+# rendered the file as `Binary files … differ` and the only spec guarding the hand-written
+# decoder's untrusted-input refusals became invisible to every diff review, on GitHub and in
+# `git diff` alike (review #122, CODE122-I1 / TA122-I1).
+#
+# The escape was restored at the source, which fixes that file. This attribute is the belt: it
+# stops the same accident from silently reclassifying any future source file. `diff` forces a
+# textual diff even where the heuristic would refuse one, so a reviewer always sees lines.
+*.ts text diff
+*.mjs text diff
+*.js text diff
+*.json text diff
+*.md text diff

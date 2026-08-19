@@ -17,6 +17,7 @@
     "**/*.e2e-spec.ts",
     "src/air-quality/cams/netcdf3-fixture.builder.ts",
     "src/database/era5/era5-fixture.builder.ts",
+    "src/elevation/terrain/terrarium-fixture.builder.ts",
     "src/common/attribution/endorsement-guard.ts"
   ]
 }
