@@ -9,6 +9,7 @@ import { EarthquakeIngestJobKind } from './earthquake.types';
 import { AFAD_TDVMS_PROVIDER, type EarthquakeUpstreamConfig } from './earthquake-upstream.config';
 import { classifyAfadServerErrorBody } from './afad/afad-outcome';
 import { parseAfadEventsBody, type AfadParsedPayload } from './afad/afad-event.parse';
+import { quoteProviderText } from './afad/afad-log-safe';
 import { buildAfadEventFilterUrl, buildAfadWindow, type AfadWindow } from './afad/afad-window';
 import type { EarthquakeIngestStorePort } from './earthquake-ingest.store';
 import { buildEarthquakeRow } from './earthquake-row';
@@ -91,7 +92,15 @@ export class EarthquakeIngestTarget implements ScheduledWarmupTarget {
 
     const sliceBudgetMs = Math.min(config.tourBudgetMs, tourDeadline.remainingMs());
     if (sliceBudgetMs < ESTIMATED_CALL_COST_MS) {
-      this.logger.log('tour slice too small for one call — yielding to the rest of the tour');
+      // WARN, counted, and named for what it is. This branch writes no run row at all, so a leg
+      // whose budget is configured below the assumed call cost goes permanently dark; at `log`
+      // level with no counter, its only trace was a line that also claimed to be yielding to a
+      // tour that hosts exactly one target (review #118 SFH118-M1).
+      this.deps.metrics.increment('eq.slice_skipped', AFAD_TDVMS_PROVIDER);
+      this.logger.warn(
+        `tour slice of ${String(sliceBudgetMs)} ms is below the ${String(ESTIMATED_CALL_COST_MS)} ms ` +
+          'one call is assumed to need — no call made, and no run recorded',
+      );
       return;
     }
     const deadline = new OperationDeadline(sliceBudgetMs, this.now);
@@ -123,6 +132,11 @@ export class EarthquakeIngestTarget implements ScheduledWarmupTarget {
         skippedOutOfScopeCount: 0,
         errorReason: outcome.reason,
       });
+      // Retention runs on the FAILING path too. A leg failing at the 300 s cadence is exactly the
+      // deployment whose ledger fills up — and it was the one deployment retention never reached,
+      // because `prune` was called only from the success path (review #118 CODE118-M3). Pruning is
+      // independent of the tour's outcome and already fail-soft.
+      await this.prune(new Date(this.now()));
       return;
     }
 
@@ -135,7 +149,39 @@ export class EarthquakeIngestTarget implements ScheduledWarmupTarget {
     payload: AfadParsedPayload,
   ): Promise<void> {
     const { store, config } = this.deps;
-    const plateCodes = await store.loadProvincePlateCodes();
+
+    // The province lookup is a store READ the tour cannot proceed without — but an unguarded throw
+    // here escaped all the way to `refresh`, where it was filed under `eq.ingest_bug` ("OUR bug")
+    // and left NO run row at all, so the ledger could not tell "this tour failed" from "this tour
+    // never ran" (review #118 CODE118-M4 / SFH118-I1). A database hiccup is now recorded as the
+    // transient failure it is, with a reason saying plainly it was ours to read, not AFAD's.
+    let plateCodes: Map<string, string>;
+    try {
+      plateCodes = await store.loadProvincePlateCodes();
+    } catch (error: unknown) {
+      this.deps.metrics.increment('eq.store_read_failed', AFAD_TDVMS_PROVIDER);
+      this.logger.error(
+        `the province lookup failed, so this tour classified nothing — ${describeErrorWithName(error)}`,
+      );
+      await this.recordRun(startedAtUtc, window, 'transient', {
+        fetchedCount: payload.fetchedCount,
+        insertedCount: 0,
+        updatedCount: 0,
+        skippedOutOfScopeCount: 0,
+        errorReason: `the provider answered, but OUR province lookup failed — ${describeErrorWithName(error)}`,
+      });
+      await this.prune(new Date(this.now()));
+      return;
+    }
+    if (plateCodes.size === 0) {
+      // The scheduled analogue of the backfill's refusal (`earthquake.cli.ts`): an empty province
+      // table means the geography seed has not run, so every row lands with no cross-link and only
+      // the last 6 hours / 7 days are ever revisited (review #118 SFH118-M2).
+      this.logger.error(
+        'the provinces table is empty — every event in this tour will be stored without a ' +
+          'province cross-link; run `pnpm db:seed:geography`',
+      );
+    }
     const writtenAt = new Date(this.now());
 
     let insertedCount = 0;
@@ -161,28 +207,53 @@ export class EarthquakeIngestTarget implements ScheduledWarmupTarget {
         writeFailedCount += 1;
         this.deps.metrics.increment('eq.row_write_failed', AFAD_TDVMS_PROVIDER);
         this.logger.warn(
-          `event ${row.providerEventId} was not written — ${describeErrorWithName(error)}`,
+          `event ${quoteProviderText(row.providerEventId)} was not written — ` +
+            describeErrorWithName(error),
         );
       }
     }
 
+    const rejectionReasons = new Set<string>();
     for (const rejection of payload.rejected) {
+      rejectionReasons.add(rejection.reason);
       this.deps.metrics.increment('eq.row_rejected', AFAD_TDVMS_PROVIDER);
-      this.logger.warn(
-        `event ${rejection.providerEventId ?? '(id unreadable)'} rejected — ${rejection.reason}`,
-      );
+      const id =
+        rejection.providerEventId === null
+          ? '(id unreadable)'
+          : quoteProviderText(rejection.providerEventId);
+      this.logger.warn(`event ${id} rejected — ${rejection.reason}`);
     }
 
     if (this.deps.jobKind === EarthquakeIngestJobKind.Reconcile) {
-      await this.reportDisappearances(window, payload);
+      // Wrapped, because this is the ONE store call in this method that is purely diagnostic. An
+      // unguarded rejection here unwound past the ledger write, all four counters, the summary and
+      // the systemic-write alarm — so a reconcile tour that had already committed ~630 rows left no
+      // trace and was filed as OUR bug (review #118 SFH118-I1). A diagnosis may only ever cost the
+      // diagnosis.
+      try {
+        await this.reportDisappearances(window, payload);
+      } catch (error: unknown) {
+        this.deps.metrics.increment('eq.absent_check_failed', AFAD_TDVMS_PROVIDER);
+        this.logger.warn(
+          `the disappearance check could not run for this window — ${describeErrorWithName(error)}`,
+        );
+      }
     }
 
-    await this.recordRun(startedAtUtc, window, 'ok', {
+    const ledgerDiagnosis = this.diagnoseTour(payload, {
+      insertedCount,
+      updatedCount,
+      unchangedCount,
+      writeFailedCount,
+      rejectionReasons,
+    });
+
+    await this.recordRun(startedAtUtc, window, ledgerDiagnosis.outcome, {
       fetchedCount: payload.fetchedCount,
       insertedCount,
       updatedCount,
       skippedOutOfScopeCount,
-      errorReason: null,
+      errorReason: ledgerDiagnosis.errorReason,
     });
 
     this.deps.metrics.increment('eq.rows_inserted', AFAD_TDVMS_PROVIDER, insertedCount);
@@ -199,19 +270,73 @@ export class EarthquakeIngestTarget implements ScheduledWarmupTarget {
       `${String(updatedCount)} updated, ${String(unchangedCount)} unchanged, ` +
       `${String(skippedOutOfScopeCount)} out of scope, ${String(payload.rejected.length)} rejected, ` +
       `${String(writeFailedCount)} write-failed, ${String(plateUnresolvedCount)} without a plate code`;
-    if (payload.rejected.length > 0 || writeFailedCount > 0) this.logger.warn(summary);
-    else this.logger.log(summary);
-
-    // One bad row and a broken write path produce the same per-row WARNs. Nothing written while
-    // the database refused something is the shape only the systemic failure has.
-    if (insertedCount === 0 && updatedCount === 0 && writeFailedCount > 0) {
-      this.logger.error(
-        `tour wrote NOTHING while the database refused ${String(writeFailedCount)} row(s) — ` +
-          'this is a systemic write failure, not one bad row',
-      );
-    }
+    // The summary carries the whole operational signal today (there is no metrics exporter yet),
+    // so its LEVEL is the alarm. ERROR whenever the ledger row above is not a clean `ok` — carrying
+    // the same diagnosis the ledger stored, so the log and the ledger cannot disagree; WARN also
+    // when every row lost its province join, the systemic shape of a missing geography seed
+    // (review #118 SFH118-M2).
+    if (ledgerDiagnosis.errorReason !== null) {
+      this.logger.error(`${summary} — ${ledgerDiagnosis.errorReason}`);
+    } else if (payload.rejected.length > 0 || writeFailedCount > 0 || plateUnresolvedCount > 0) {
+      this.logger.warn(summary);
+    } else this.logger.log(summary);
 
     await this.prune(writtenAt);
+  }
+
+  /**
+   * What the ledger row should SAY about a tour that reached the store.
+   *
+   * The ledger is the freshness anchor — E3 derives `dataStatus` and the published data age from
+   * the newest `ok` run — so the two ways a tour can do all its work and store nothing must not
+   * both be recorded as a clean success (review #118 CODE118-I2 and SFH118-I2). Neither needs a
+   * migration: `error_reason` is nullable `text`, truncated on the write path.
+   *
+   * - **The write path is broken.** Nothing reached the store at all — not one insert, update or
+   *   confirmed-unchanged row — while the database refused at least one. `schema_error` is the
+   *   closest word the shared `UpstreamOutcomeKind` vocabulary has. `unchangedCount` is part of the
+   *   test on purpose: a reconcile tour that confirmed 629 rows and lost one to an FK violation has
+   *   a working write path, and recording THAT as a failed tour would be the same lie in the other
+   *   direction.
+   * - **The parser accepted nothing.** The provider returned rows and not one survived — a field
+   *   renamed upstream, a type changed. The envelope is still a JSON array, so the tour-level
+   *   `schema_error` alarm never fires and the events table simply stops growing while the ledger
+   *   keeps saying `ok`. The outcome word STAYS `ok` because it describes the CALL, which really
+   *   did succeed; what was missing is any durable trace of why nothing landed.
+   */
+  private diagnoseTour(
+    payload: AfadParsedPayload,
+    counts: {
+      insertedCount: number;
+      updatedCount: number;
+      unchangedCount: number;
+      writeFailedCount: number;
+      rejectionReasons: ReadonlySet<string>;
+    },
+  ): { outcome: UpstreamOutcomeKind; errorReason: string | null } {
+    const nothingReachedTheStore =
+      counts.insertedCount === 0 && counts.updatedCount === 0 && counts.unchangedCount === 0;
+
+    if (nothingReachedTheStore && counts.writeFailedCount > 0) {
+      return {
+        outcome: 'schema_error',
+        errorReason:
+          `the database refused all ${String(counts.writeFailedCount)} row(s) this tour tried to ` +
+          'write — this is a systemic write failure, not one bad row',
+      };
+    }
+
+    if (payload.fetchedCount > 0 && payload.accepted.length === 0) {
+      const reasons = [...counts.rejectionReasons].sort();
+      return {
+        outcome: 'ok',
+        errorReason:
+          `the provider returned ${String(payload.fetchedCount)} row(s) and the parser accepted ` +
+          `none; refusal reasons: ${reasons.join(' | ')}`,
+      };
+    }
+
+    return { outcome: 'ok', errorReason: null };
   }
 
   /**
@@ -245,6 +370,17 @@ export class EarthquakeIngestTarget implements ScheduledWarmupTarget {
     );
   }
 
+  /**
+   * Write the tour's ledger row.
+   *
+   * ## Exactly ONE row, written when the tour ENDS
+   * E1's migration docblock describes `finished_at_utc`/`outcome` as "nullable together: a row is
+   * written when the tour STARTS, so a crashed process leaves visible evidence rather than no row
+   * at all". E2 deliberately does not do that (plan §6.6): one row, at the end, both columns always
+   * populated — so a process killed mid-tour leaves no ledger trace, the accepted cost of not
+   * paying two writes per tour. Recorded here because this is where the next reader looks; the
+   * migration's own wording is Atlas's to correct (review #118 CODE118-M6).
+   */
   private async recordRun(
     startedAtUtc: Date,
     window: AfadWindow,

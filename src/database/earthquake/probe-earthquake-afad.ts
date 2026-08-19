@@ -3,7 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { parseAfadEvent } from '../../earthquake/afad/afad-event.parse';
 import { toAfadQueryStamp } from '../../earthquake/afad/afad-time';
-import { UPSTREAM_USER_AGENT } from '../../upstream/upstream-http.helpers';
+import { readBodyCapped, UPSTREAM_USER_AGENT } from '../../upstream/upstream-http.helpers';
 import type { AfadProbeArtifact, AfadProbeRequestRecord } from './earthquake-artifact.types';
 
 /**
@@ -38,6 +38,16 @@ const SPACING_MS = 3_000;
 
 /** Per-call ceiling. The slowest measured call was 0.43 s. */
 const TIMEOUT_MS = 20_000;
+
+/**
+ * Byte ceiling per response. `AbortSignal.timeout` bounds TIME, not payload.
+ *
+ * The one runtime primitive a hand-run tool may not drop or re-implement is response byte metering
+ * (recorded precedent, review #75 → `probe-marine-ecmwf.ts` / `probe-air-quality.ts`); this probe
+ * had dropped it, which is why review #118 SEC118-M2 exists. 16 MiB is the same figure the backfill
+ * uses, derived from `PROBE_LIMIT` rows at the ~330 B/row measured density.
+ */
+const MAX_RESPONSE_BYTES = 16 * 1024 * 1024;
 
 /** Overflow ceiling for the probe's own calls — the same alarm the ingest uses. */
 const PROBE_LIMIT = 20_000;
@@ -132,7 +142,7 @@ async function measure(
     // choose. A 302 here is a finding to record, not something to chase.
     redirect: 'error',
   });
-  const body = await response.text();
+  const body = await readBodyCapped(response, url, MAX_RESPONSE_BYTES);
   const durationMs = now() - startedMs;
 
   let parsedBody: unknown;

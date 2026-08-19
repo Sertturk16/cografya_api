@@ -1,16 +1,24 @@
-// Asking for a non-UTC process timezone: the bug this file guards against — reading AFAD's
-// suffix-less UTC stamp as LOCAL time — is invisible in UTC, which is exactly what a CI container
-// runs in. This is BEST-EFFORT and nothing below depends on it: `import` statements are hoisted
-// above this line and Node caches the zone at first use, so the assignment may simply not take —
-// it did not, on CI, which is how the first version of the control below turned red.
+// The zone this file needs is pinned where Node actually reads it: `pnpm test:unit` runs jest as
+// `TZ=Europe/Istanbul jest …`, so the variable is set before the process starts and before any
+// `Date` can cache the zone. Setting `process.env.TZ` HERE does not work and the attempt is not
+// repeated — `import` statements are hoisted above any statement in the module body, so the
+// assignment ran too late and CI (a UTC runner) silently ignored it (review #118 TA118-I2).
 //
-// So the control is written to be ZONE-INDEPENDENT instead: it compares our answer with the
-// Turkish-local reading spelled out explicitly (`+03:00`), which is the same comparison in every
-// timezone on earth and stays meaningful whatever the runner does.
-process.env.TZ = 'Europe/Istanbul';
+// It matters because the regression this file exists to catch — reading AFAD's suffix-less UTC
+// stamp as LOCAL time — produces the CORRECT instant when the process zone IS UTC. A broken parser
+// therefore passes on a UTC runner and fails here.
 
 import { describe, expect, it } from '@jest/globals';
 import { formatAfadUtc, parseAfadUtc, toAfadQueryStamp } from './afad-time';
+
+describe('the timezone this suite runs in', () => {
+  it('is not UTC, which is the precondition the regression detector below depends on', () => {
+    // This is the pin's own control. If the `TZ=` prefix is ever dropped from `test:unit`, this
+    // case fails FIRST and says why, rather than leaving the naive-constructor comparison to fail
+    // with an arithmetic message that reads like a parser bug.
+    expect(new Date('2026-08-10T10:07:59').getTimezoneOffset()).toBe(-180);
+  });
+});
 
 describe('parseAfadUtc', () => {
   it('reads a suffix-less provider stamp as UTC, not as local time', () => {
@@ -25,11 +33,19 @@ describe('parseAfadUtc', () => {
     // the same instant with no suffix at all. Reading the API's string as Turkish local time
     // yields an instant three hours EARLIER than the truth, and no range, ordering or count
     // invariant anywhere can see the difference.
+    //
+    // TWO comparisons, deliberately, because each catches what the other cannot:
+    // - the `+03:00` one is ZONE-INDEPENDENT and stays meaningful wherever this runs;
+    // - the naive-constructor one is the actual REGRESSION DETECTOR. `new Date(raw)` is the exact
+    //   refactor that would reintroduce the bug, and asserting we disagree with it is only a real
+    //   assertion in a non-UTC zone — hence the pin above.
+    const raw = '2026-08-10T10:07:59';
     const asTurkishLocal = new Date('2026-08-10T10:07:59+03:00').getTime();
-    const parsed = parseAfadUtc('2026-08-10T10:07:59');
+    const parsed = parseAfadUtc(raw);
 
     expect(parsed?.instant.getTime()).not.toBe(asTurkishLocal);
     expect((parsed?.instant.getTime() ?? 0) - asTurkishLocal).toBe(3 * 3_600_000);
+    expect(parsed?.instant.getTime()).not.toBe(new Date(raw).getTime());
   });
 
   it('keeps a fractional second and reports its width', () => {

@@ -77,8 +77,11 @@ const BOUND_MESSAGE =
  * A bound expressed through the helper instead. One match per call site.
  *
  * The import (`import { checkEnvBound } from './env-bounds'`) carries no opening parenthesis, so it
- * is not counted — verified with a positive control: the pattern reports 6 against the file today
- * and 7 against a copy with one call site duplicated.
+ * is not counted — verified with a positive control: the pattern reports 12 against the file today
+ * and 13 against a copy with one call site duplicated. (The figure was left behind when the
+ * earthquake leg moved the constant below, so the control's own evidence disagreed with the
+ * constant it validates and no reader could tell which of the two had rotted — review #118
+ * CODE118-M1.)
  */
 const HELPER_BOUND_CALL = /checkEnvBound\(/g;
 

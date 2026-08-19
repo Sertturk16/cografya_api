@@ -41,6 +41,11 @@ describe('buildAfadWindow', () => {
   it('always covers more ground than the cadence that repeats it', () => {
     // The invariant behind the boot cross-check: a window narrower than its interval would leave a
     // stretch of time nobody ever queries, and events in it would disappear without a trace.
+    //
+    // Read what this case can and cannot see (review #118 TA118-M4). Its numbers come from the
+    // spec-local `CONFIG` above, so it pins the RELATIONSHIP `buildAfadWindow` computes — not the
+    // production defaults, which it cannot go red for. The gate on those is the boot cross-check in
+    // `env.schema.ts`, and `env.schema.spec.ts` exercises it in both directions.
     const recent = buildAfadWindow(EarthquakeIngestJobKind.Recent, NOW, CONFIG);
     const recentSpanMs = recent.endUtc.getTime() - recent.startUtc.getTime();
     expect(recentSpanMs).toBeGreaterThan(CONFIG.recentIntervalSeconds * 1000);

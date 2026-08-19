@@ -1,5 +1,6 @@
 import type { AfadParsedEvent } from './afad-event.parse';
 import { formatAfadUtc } from './afad-time';
+import { quoteProviderText } from './afad-log-safe';
 
 /**
  * The write-path fidelity rule for the earthquake line (`ENGINEERING.md` §5, SPEC §13.1).
@@ -28,7 +29,7 @@ export function checkAfadFidelity(
   const roundTripped = formatAfadUtc(event.occurredAtUtc, fractionDigits);
   if (roundTripped !== rawDate) {
     // The three-hour class of bug lands EXACTLY here and nowhere else.
-    return `fidelity: occurredAtUtc re-serialises to "${roundTripped}" but the provider sent "${rawDate}"`;
+    return `fidelity: occurredAtUtc re-serialises to "${roundTripped}" but the provider sent ${quoteProviderText(rawDate)}`;
   }
 
   for (const [key, stored] of [
@@ -42,7 +43,7 @@ export function checkAfadFidelity(
     // `Number` is safe here BECAUSE the parser already refused anything that is not a plain
     // decimal — this is the confirming read, not the parsing read.
     if (Number(raw) !== stored) {
-      return `fidelity: ${key} stored as ${String(stored)} but the provider sent "${raw}"`;
+      return `fidelity: ${key} stored as ${String(stored)} but the provider sent ${quoteProviderText(raw)}`;
     }
   }
 
@@ -53,7 +54,47 @@ export function checkAfadFidelity(
   if (!rawLocation.trimStart().startsWith(event.placeNameTr)) {
     // The derived label must be a PREFIX of what the provider said — never a rewrite, never a
     // string assembled from somewhere else.
-    return `fidelity: derived placeNameTr "${event.placeNameTr}" is not a prefix of the provider location`;
+    return `fidelity: derived placeNameTr ${quoteProviderText(event.placeNameTr)} is not a prefix of the provider location`;
+  }
+
+  // The verbatim STRINGS, checked by name for the same reason the numbers are: `provider_province`
+  // is the SOLE input to the province cross-link, so reading `district` into it — or shifting the
+  // three reads by one key — publishes a plausible, in-range, correctly-shaped wrong province on
+  // every event, which no range or count invariant can see (`ENGINEERING.md` §5, review #118
+  // SFH118-M4). `readNullableString` folds an absent value and an empty one to the same `null`, so
+  // the expectation folds them the same way rather than assuming one of them.
+  for (const [key, stored] of [
+    ['type', event.magnitudeTypeRaw],
+    ['country', event.providerCountry],
+    ['province', event.providerProvince],
+    ['district', event.providerDistrict],
+  ] as const) {
+    const raw = record[key];
+    const expected = raw === null || raw === undefined || raw === '' ? null : raw;
+    if (expected !== stored) {
+      return `fidelity: ${key} stored as ${quoteProviderText(stored)} but the provider sent ${quoteProviderText(raw)}`;
+    }
+  }
+
+  const rawIsUpdate = record['isEventUpdate'];
+  if (rawIsUpdate !== event.isRevised) {
+    return `fidelity: isRevised stored as ${String(event.isRevised)} but the provider sent ${quoteProviderText(rawIsUpdate)}`;
+  }
+
+  const rawUpdatedAt = record['lastUpdateDate'];
+  const updatedAtAbsent = rawUpdatedAt === null || rawUpdatedAt === undefined;
+  if (updatedAtAbsent !== (event.providerUpdatedAtUtc === null)) {
+    return 'fidelity: providerUpdatedAtUtc and the provider lastUpdateDate disagree about existing';
+  }
+  if (typeof rawUpdatedAt === 'string' && event.providerUpdatedAtUtc !== null) {
+    // A byte round trip is not available here on purpose: this field is MEASURED with microsecond
+    // precision and a JS Date holds milliseconds, so the tail is a stated, deliberate truncation
+    // (`afad-event.parse.ts`). The whole-second prefix is the strongest check that stays true of
+    // that truncation — and it is the part a three-hour shift or a wrong-key read would break.
+    const wholeSecond = formatAfadUtc(event.providerUpdatedAtUtc, 0);
+    if (!rawUpdatedAt.startsWith(wholeSecond)) {
+      return `fidelity: providerUpdatedAtUtc re-serialises to "${wholeSecond}" which is not how the provider's lastUpdateDate starts`;
+    }
   }
 
   return null;

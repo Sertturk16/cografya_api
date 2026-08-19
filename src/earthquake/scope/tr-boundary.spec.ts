@@ -152,4 +152,33 @@ describe('isWithinTrScope', () => {
     expect(isWithinTrScope(Number.NaN, 40, bufferKm)).toBe(false);
     expect(isWithinTrScope(30, Number.POSITIVE_INFINITY, bufferKm)).toBe(false);
   });
+
+  it('includes the buffer EDGE itself, and excludes anything past it', () => {
+    // The grid case above computes its expectation with the same `<=` the function uses, so it can
+    // only see an edge regression if a grid point lands at exactly the buffer distance — none does
+    // (review #118 TA118-M7). This constructs the edge from the function under test instead: a
+    // point whose distance IS the buffer must be in scope, and the same point one step tighter
+    // must not.
+    const lon = TR_BOUNDARY_BBOX.maxLon + 2;
+    const lat = TR_BOUNDARY_BBOX.minLat - 1;
+    const distance = distanceToTrBoundaryKm(lon, lat);
+
+    // The control: this point is genuinely OUTSIDE, so the comparison is doing work.
+    expect(distance).toBeGreaterThan(0);
+    expect(isWithinTrScope(lon, lat, distance)).toBe(true);
+    expect(isWithinTrScope(lon, lat, distance * (1 - 1e-12))).toBe(false);
+  });
+
+  it('treats a zero buffer as inside-only, and a negative one as no scope at all', () => {
+    const ring = TR_BOUNDARY_RINGS[0];
+    const lon = ring?.[0];
+    const lat = ring?.[1];
+    expect(lon).toBeDefined();
+    expect(lat).toBeDefined();
+    // A vertex sits at distance 0, so a zero buffer still admits it — "inside or on the outline".
+    expect(isWithinTrScope(lon ?? 0, lat ?? 0, 0)).toBe(true);
+    // A negative buffer is not a tighter scope, it is a nonsense value, and it is refused.
+    expect(isWithinTrScope(lon ?? 0, lat ?? 0, -1)).toBe(false);
+    expect(isWithinTrScope(30, 39, -1)).toBe(false);
+  });
 });

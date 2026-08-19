@@ -43,6 +43,36 @@ describe('resolveBindingKind', () => {
     ).toBe(EarthquakeBindingKind.OffshoreNear);
   });
 
+  it.each(['Akdeniz', 'Karadeniz'])(
+    'files a bracketed %s event as offshore, not as an earthquake in the coastal province',
+    (sea) => {
+      // The CRITICAL of review #118. AFAD sends `country: "Türkiye"` for a coastal/territorial-water
+      // event (SPEC §3.10 — null is open sea only, 6/630), so `Akdeniz - [31.40 km] Kumluca
+      // (Antalya)` arrived here as Turkish + bracketed and was filed `inside`. E3 would then have
+      // published a Mediterranean earthquake as "a quake in Antalya".
+      expect(
+        resolveBindingKind({
+          providerCountry: 'Türkiye',
+          hasDistanceBracket: true,
+          placeNameTr: sea,
+        }),
+      ).toBe(EarthquakeBindingKind.OffshoreNear);
+    },
+  );
+
+  it('still files Mersin’s Akdeniz DISTRICT as inside — the compound rule cannot reach it', () => {
+    // `placeNameTr` is the PRE-bracket part, and an unbracketed Turkish row returns `inside`
+    // before the water list is consulted at all. Pinned so the fix above cannot later be widened
+    // into a token match and quietly move a land district out to sea.
+    expect(
+      resolveBindingKind({
+        providerCountry: 'Türkiye',
+        hasDistanceBracket: false,
+        placeNameTr: 'Akdeniz (Mersin)',
+      }),
+    ).toBe(EarthquakeBindingKind.Inside);
+  });
+
   it('files the residual case — Turkish, bracketed, on land — as inside', () => {
     // The combination the SPEC's original table did not cover, ruled `inside` by Atlas on
     // 2026-08-12. The alternative would label a land event "offshore", which is precisely the
@@ -92,7 +122,11 @@ describe('resolveBindingKind', () => {
 describe('isWaterBodyName', () => {
   it.each([
     ['Ege Denizi', true],
-    ['Akdeniz', false],
+    // ONE compound word, and one of the four seas around Türkiye: the token list structurally
+    // cannot see it, which is why the compound list exists (review #118 CODE118-C1).
+    ['Akdeniz', true],
+    ['Karadeniz', true],
+    ['AKDENİZ', true],
     ['Van Gölü', true],
     ['Keban Barajı', true],
     ['İstanbul Boğazı', true],
@@ -107,6 +141,15 @@ describe('isWaterBodyName', () => {
     // `Gölbaşı` and `Denizli` are settlements. A substring match would file both as offshore.
     expect(isWaterBodyName('Gölbaşı')).toBe(false);
     expect(isWaterBodyName('Denizli')).toBe(false);
+  });
+
+  it('matches a compound sea name as a WHOLE name, so a settlement carrying it stays land', () => {
+    // The reason `akdeniz`/`karadeniz` are a separate full-name list rather than two more tokens:
+    // `Karadeniz Ereğli` is a town and `Akdeniz` is one of Mersin's districts. A token match would
+    // file both as offshore — inventing a sea event on land, the mirror of the bug being fixed.
+    expect(isWaterBodyName('Karadeniz Ereğli')).toBe(false);
+    expect(isWaterBodyName('Akdeniz (Mersin)')).toBe(false);
+    expect(isWaterBodyName('Akdeniz Mahallesi')).toBe(false);
   });
 });
 

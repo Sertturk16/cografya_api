@@ -19,7 +19,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tools/tsconfig.json",
-    "test:unit": "jest --config test/jest-unit.json",
+    "test:unit": "TZ=Europe/Istanbul jest --config test/jest-unit.json",
     "seed:transcribe": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tools/seed-transcription/cli.ts",
     "test": "jest --config test/jest-e2e.json",
     "test:e2e": "jest --config test/jest-e2e.json",

@@ -31,19 +31,31 @@ export function classifyAfadServerErrorBody(excerpt: string): 'client_error' | n
 
 function readDeclaredStatus(excerpt: string): number | null {
   // Whole-JSON first: it cannot mistake a nested field for the envelope's own status.
+  const fromJson = readStatusFromJson(excerpt);
+  if (fromJson !== null) return fromJson;
+
+  // The fallback runs whenever the JSON path produced no usable status — not only when `JSON.parse`
+  // THREW. Both are the same situation from here: we hold an excerpt whose own top-level `status`
+  // we could not read. A truncated body is the common one (the hook is handed at most 200 bytes, so
+  // a longer error body arrives mid-JSON), but a body that parses into a shape we did not expect —
+  // `[{"status":400,…}]`, `{"error":{"status":400}}`, a truncation landing on a complete smaller
+  // value — used to skip the pattern entirely and file our own malformed query as a provider
+  // outage, the precise failure this hook exists to prevent (review #118 SFH118-M7).
+  const matched = STATUS_FIELD.exec(excerpt);
+  return matched?.[1] === undefined ? null : Number(matched[1]);
+}
+
+/** The envelope's OWN top-level `status`, or `null` for anything else — including unparseable. */
+function readStatusFromJson(excerpt: string): number | null {
+  let parsed: unknown;
   try {
-    const parsed: unknown = JSON.parse(excerpt);
-    if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
-      const status = (parsed as Record<string, unknown>)['status'];
-      if (typeof status === 'number' && Number.isInteger(status)) return status;
-      if (typeof status === 'string' && /^\d{3}$/.test(status)) return Number(status);
-    }
-    return null;
+    parsed = JSON.parse(excerpt);
   } catch {
-    // Expected, not exceptional: the hook is handed at most 200 bytes, so a longer error body
-    // arrives truncated mid-JSON. Falling back to the field pattern is what makes the guard work
-    // on the real payload rather than only on the tidy one.
-    const matched = STATUS_FIELD.exec(excerpt);
-    return matched?.[1] === undefined ? null : Number(matched[1]);
+    return null;
   }
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return null;
+  const status = (parsed as Record<string, unknown>)['status'];
+  if (typeof status === 'number' && Number.isInteger(status)) return status;
+  if (typeof status === 'string' && /^\d{3}$/.test(status)) return Number(status);
+  return null;
 }

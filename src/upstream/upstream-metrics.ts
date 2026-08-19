@@ -295,6 +295,25 @@ export type UpstreamMetricName =
    * ever deleted (SPEC §7.3); this counter is how the disappearance becomes visible at all.
    */
   | 'eq.rows_absent_upstream'
+  /**
+   * A store READ the tour could not proceed without failed — today, the province lookup.
+   *
+   * Its own counter rather than `eq.ingest_bug`, because it is the opposite diagnosis: OUR database
+   * was unreachable, not our code wrong, and sending an operator to the code is a wasted hour.
+   */
+  | 'eq.store_read_failed'
+  /**
+   * The reconcile tour's disappearance check could not run. Diagnosis lost, tour intact — the whole
+   * point of guarding it separately from the writes it follows.
+   */
+  | 'eq.absent_check_failed'
+  /**
+   * A tour ended before making its call because its slice was below the assumed cost of one call.
+   *
+   * Reachable today only by configuring `EARTHQUAKE_TOUR_BUDGET_MS` under that cost — which boots
+   * cleanly and then makes the leg permanently dark, so it needs a count of its own.
+   */
+  | 'eq.slice_skipped'
   /** The run ledger could not be written — the tour worked, its freshness anchor did not. */
   | 'eq.run_record_failed'
   /** Retention pruning failed. Housekeeping; it never fails a tour. */

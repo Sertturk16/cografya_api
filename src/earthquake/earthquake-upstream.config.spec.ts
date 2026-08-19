@@ -36,7 +36,55 @@ const VALUES: Record<string, unknown> = {
   EARTHQUAKE_RUN_RETENTION_DAYS: 14,
 };
 
+/**
+ * The same 15 keys with a DISTINCT value each, so a mis-wiring is visible.
+ *
+ * Twelve of the fifteen fields are plain `number`, so swapping two of them — `responseMaxBytes`
+ * wired to `EARTHQUAKE_SAFETY_LIMIT`, say, which would cap every response at 20 KB against a
+ * measured 203 KB reconcile payload — compiles, type-checks and passes any spec asserting a subset
+ * with production-shaped values (review #118 TA118-M3). Distinct values are what make the
+ * whole-object comparison below able to see it.
+ */
+const DISTINCT: Record<string, unknown> = {
+  EARTHQUAKE_ENABLED: true,
+  EARTHQUAKE_INGEST_ENABLED: true,
+  AFAD_EVENT_API_BASE_URL: 'https://example.invalid/apiv2',
+  EARTHQUAKE_INGEST_INTERVAL_SECONDS: 11,
+  EARTHQUAKE_RECONCILE_INTERVAL_SECONDS: 22,
+  EARTHQUAKE_INGEST_DEADLINE_MS: 33,
+  EARTHQUAKE_RECENT_WINDOW_HOURS: 44,
+  EARTHQUAKE_RECONCILE_WINDOW_DAYS: 55,
+  EARTHQUAKE_CLOCK_SKEW_SECONDS: 66,
+  EARTHQUAKE_SINGLE_CALL_TIMEOUT_MS: 77,
+  EARTHQUAKE_TOUR_BUDGET_MS: 88,
+  EARTHQUAKE_RESPONSE_MAX_BYTES: 99,
+  EARTHQUAKE_SAFETY_LIMIT: 111,
+  EARTHQUAKE_SCOPE_BUFFER_KM: 222,
+  EARTHQUAKE_RUN_RETENTION_DAYS: 333,
+};
+
 describe('buildEarthquakeUpstreamConfig', () => {
+  it('maps each env key onto its OWN field — the whole object, with no two values alike', () => {
+    expect(buildEarthquakeUpstreamConfig(configFrom(DISTINCT))).toEqual({
+      enabled: true,
+      ingestEnabled: true,
+      baseUrl: 'https://example.invalid/apiv2',
+      recentIntervalSeconds: 11,
+      reconcileIntervalSeconds: 22,
+      tourDeadlineMs: 33,
+      recentWindowHours: 44,
+      reconcileWindowDays: 55,
+      clockSkewSeconds: 66,
+      singleCallTimeoutMs: 77,
+      tourBudgetMs: 88,
+      responseMaxBytes: 99,
+      safetyLimit: 111,
+      scopeBufferKm: 222,
+      runRetentionDays: 333,
+      budget: AFAD_TDVMS_BUDGET,
+    });
+  });
+
   it('resolves every value the ingest needs, once', () => {
     const config = buildEarthquakeUpstreamConfig(configFrom(VALUES));
     expect(config.enabled).toBe(true);

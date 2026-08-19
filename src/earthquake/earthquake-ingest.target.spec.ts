@@ -71,18 +71,25 @@ class FakeStore implements EarthquakeIngestStorePort {
   readonly upserted: EarthquakeEventUpsert[] = [];
   readonly runs: RecordRunInput[] = [];
   prunedWith: { retentionDays: number; now: Date } | null = null;
+  pruneCallCount = 0;
   storedIds = new Set<string>();
   failOnEventId: string | null = null;
+  failEveryWrite = false;
+  failPlateCodes = false;
+  failWindowRead = false;
+  failRecordRun = false;
+  failPrune = false;
   result: EarthquakeUpsertResult = { kind: 'inserted', revisionCount: 0 };
 
   constructor(private readonly plateCodes = new Map([['kahramanmaraş', '46']])) {}
 
   loadProvincePlateCodes(): Promise<Map<string, string>> {
+    if (this.failPlateCodes) return Promise.reject(new Error('connection terminated unexpectedly'));
     return Promise.resolve(this.plateCodes);
   }
 
   upsertEvent(row: EarthquakeEventUpsert): Promise<EarthquakeUpsertResult> {
-    if (this.failOnEventId === row.providerEventId) {
+    if (this.failEveryWrite || this.failOnEventId === row.providerEventId) {
       return Promise.reject(new Error('insert or update on table violates foreign key constraint'));
     }
     this.upserted.push(row);
@@ -90,16 +97,20 @@ class FakeStore implements EarthquakeIngestStorePort {
   }
 
   recordRun(input: RecordRunInput): Promise<void> {
+    if (this.failRecordRun) return Promise.reject(new Error('the ledger insert failed'));
     this.runs.push(input);
     return Promise.resolve();
   }
 
   pruneRuns(retentionDays: number, now: Date): Promise<number> {
+    this.pruneCallCount += 1;
+    if (this.failPrune) return Promise.reject(new Error('the retention delete failed'));
     this.prunedWith = { retentionDays, now };
     return Promise.resolve(0);
   }
 
   providerEventIdsInWindow(): Promise<Set<string>> {
+    if (this.failWindowRead) return Promise.reject(new Error('statement timeout'));
     return Promise.resolve(this.storedIds);
   }
 }
@@ -315,10 +326,155 @@ describe('EarthquakeIngestTarget', () => {
     for (const url of urls) expect(url).toContain('end=2026-08-11T12:05:00');
   });
 
-  it('never throws, whatever the store does', async () => {
+  it('never throws, and files a genuinely unexpected failure as OUR bug', async () => {
+    // Every EXPECTED failure now has its own guard, counter and ledger row, so this case has to
+    // reach past all of them: a collaborator that breaks its own contract, which is the only thing
+    // `refresh`'s last-resort catch is still there for. The warmup contract is that it resolves.
     const store = new FakeStore();
-    store.loadProvincePlateCodes = () => Promise.reject(new Error('database is on fire'));
-    await expect(tour(build(store, () => ok([providerRow()])))).resolves.toBeUndefined();
+    const brokenClient = {
+      request: () => {
+        throw new TypeError('the client broke its own contract');
+      },
+    } as unknown as UpstreamHttpClient;
+    const target = new EarthquakeIngestTarget({
+      client: brokenClient,
+      store,
+      config: CONFIG,
+      metrics,
+      jobKind: EarthquakeIngestJobKind.Recent,
+      now: () => NOW_MS,
+    });
+
+    await expect(tour(target)).resolves.toBeUndefined();
     expect(metrics.get('eq.ingest_bug', AFAD_TDVMS_PROVIDER)).toBe(1);
+    expect(store.runs).toHaveLength(0);
+  });
+
+  // ── The ledger must not say a tour succeeded when it stored nothing (review #118 CODE118-I2,
+  // SFH118-I2). E3 derives `dataStatus` and the published data age from the newest `ok` run, so an
+  // `ok` row with a null reason is the freshness anchor asserting health. ──
+
+  it('records a tour whose every write was refused as a FAILURE, with the count in the reason', async () => {
+    const store = new FakeStore();
+    store.failEveryWrite = true;
+    await tour(build(store, () => ok([providerRow(), providerRow({ eventID: '2' })])));
+
+    expect(store.runs).toHaveLength(1);
+    expect(store.runs[0]?.outcome).toBe('schema_error');
+    expect(store.runs[0]?.errorReason).toContain('refused all 2 row(s)');
+    expect(metrics.get('eq.row_write_failed', AFAD_TDVMS_PROVIDER)).toBe(2);
+  });
+
+  it('still records `ok` when rows were CONFIRMED unchanged and only one write failed', async () => {
+    // The other direction of the same lie, and the reason `unchangedCount` is part of the test: a
+    // reconcile tour that confirmed rows has a working write path, and calling it a failed tour
+    // would darken a healthy leg.
+    const store = new FakeStore();
+    store.result = { kind: 'unchanged' };
+    store.failOnEventId = '2';
+    await tour(
+      build(store, () =>
+        ok([providerRow(), providerRow({ eventID: '2' }), providerRow({ eventID: '3' })]),
+      ),
+    );
+
+    expect(store.runs[0]?.outcome).toBe('ok');
+    expect(store.runs[0]?.errorReason).toBeNull();
+  });
+
+  it('names the refusal reasons when the provider returned rows and the parser accepted none', async () => {
+    const store = new FakeStore();
+    await tour(
+      build(store, () =>
+        ok([providerRow({ magnitude: 'abc' }), providerRow({ eventID: '2', magnitude: 'xyz' })]),
+      ),
+    );
+
+    // The outcome word still describes the CALL, which really did succeed. What was missing is any
+    // durable trace of WHY the table stopped growing.
+    expect(store.runs[0]?.outcome).toBe('ok');
+    expect(store.runs[0]?.errorReason).toContain('returned 2 row(s) and the parser accepted none');
+    expect(store.runs[0]?.errorReason).toContain('magnitude');
+  });
+
+  it('leaves an ordinary empty window alone — no rows fetched is not a diagnosis', async () => {
+    // The control for the case above: a quiet tour is the NORMAL state at this cadence, and marking
+    // it would make the reason column meaningless.
+    const store = new FakeStore();
+    await tour(build(store, () => ok([])));
+
+    expect(store.runs[0]?.outcome).toBe('ok');
+    expect(store.runs[0]?.errorReason).toBeNull();
+  });
+
+  // ── A diagnostic or preparatory store read may only ever cost itself (review #118 SFH118-I1,
+  // CODE118-M4). ──
+
+  it('keeps the ledger, the counters and the pruning when the disappearance check fails', async () => {
+    const store = new FakeStore();
+    store.storedIds = new Set(['1', '99']);
+    store.failWindowRead = true;
+    await tour(build(store, () => ok([providerRow()]), {}, EarthquakeIngestJobKind.Reconcile));
+
+    expect(store.upserted).toHaveLength(1);
+    expect(store.runs).toHaveLength(1);
+    expect(store.runs[0]?.outcome).toBe('ok');
+    expect(metrics.get('eq.absent_check_failed', AFAD_TDVMS_PROVIDER)).toBe(1);
+    expect(metrics.get('eq.rows_inserted', AFAD_TDVMS_PROVIDER)).toBe(1);
+    expect(store.prunedWith).not.toBeNull();
+    // NOT our bug — the tour did its whole job.
+    expect(metrics.get('eq.ingest_bug', AFAD_TDVMS_PROVIDER)).toBe(0);
+  });
+
+  it('records a province-lookup failure as a transient run, not as OUR bug', async () => {
+    const store = new FakeStore();
+    store.failPlateCodes = true;
+    await tour(build(store, () => ok([providerRow()])));
+
+    expect(store.runs).toHaveLength(1);
+    expect(store.runs[0]?.outcome).toBe('transient');
+    expect(store.runs[0]?.errorReason).toContain('province lookup failed');
+    expect(metrics.get('eq.store_read_failed', AFAD_TDVMS_PROVIDER)).toBe(1);
+    expect(metrics.get('eq.ingest_bug', AFAD_TDVMS_PROVIDER)).toBe(0);
+    expect(store.upserted).toHaveLength(0);
+  });
+
+  // ── The remaining fail-soft branches, which no case reached before (review #118 TA118-M5). ──
+
+  it('survives a ledger write that fails, and counts it', async () => {
+    const store = new FakeStore();
+    store.failRecordRun = true;
+    await expect(tour(build(store, () => ok([providerRow()])))).resolves.toBeUndefined();
+
+    expect(store.upserted).toHaveLength(1);
+    expect(metrics.get('eq.run_record_failed', AFAD_TDVMS_PROVIDER)).toBe(1);
+    expect(metrics.get('eq.ingest_bug', AFAD_TDVMS_PROVIDER)).toBe(0);
+  });
+
+  it('survives retention pruning that fails, and counts it', async () => {
+    const store = new FakeStore();
+    store.failPrune = true;
+    await expect(tour(build(store, () => ok([providerRow()])))).resolves.toBeUndefined();
+
+    expect(store.runs).toHaveLength(1);
+    expect(metrics.get('eq.prune_failed', AFAD_TDVMS_PROVIDER)).toBe(1);
+  });
+
+  it('prunes after a FAILED tour too — the deployment whose ledger actually fills up', async () => {
+    const store = new FakeStore();
+    await tour(build(store, () => new Response('nope', { status: 503 })));
+
+    expect(store.runs[0]?.outcome).toBe('transient');
+    expect(store.pruneCallCount).toBe(1);
+  });
+
+  it('makes no call and records nothing when the slice is under one call’s assumed cost', async () => {
+    const store = new FakeStore();
+    await tour(build(store, () => ok([providerRow()]), { tourBudgetMs: 1_000 }));
+
+    expect(urls).toHaveLength(0);
+    expect(store.runs).toHaveLength(0);
+    // Counted, so a leg configured permanently dark is not invisible.
+    expect(metrics.get('eq.slice_skipped', AFAD_TDVMS_PROVIDER)).toBe(1);
   });
 });

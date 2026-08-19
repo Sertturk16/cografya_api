@@ -2,6 +2,7 @@ import { MagnitudeType } from '../earthquake.types';
 import { UpstreamSchemaError } from '../../upstream/upstream.types';
 import { parseAfadUtc } from './afad-time';
 import { checkAfadFidelity } from './afad-fidelity';
+import { quoteProviderText } from './afad-log-safe';
 
 /**
  * Turning one AFAD JSON row into the values we store — and refusing the ones we cannot vouch for.
@@ -37,6 +38,15 @@ const MAX_LENGTH = {
   providerLocationRaw: 160,
   placeNameTr: 160,
 } as const;
+
+/**
+ * What `binding_distance_km numeric(6,2)` can hold: four digits before the point, two after.
+ *
+ * The E1 column, not a measurement — the measured brackets run 1.57-160.82 km (SPEC §3.5) and a
+ * ceiling set from those would refuse a legitimately larger future value. This one refuses only
+ * what the database physically cannot store.
+ */
+const MAX_BINDING_DISTANCE_KM = 9_999.99;
 
 /** A decimal number as the provider writes it. No exponent, no whitespace, no `+`. */
 const DECIMAL = /^-?\d+(?:\.(\d+))?$/;
@@ -158,12 +168,15 @@ export function parseAfadEvent(row: unknown): AfadRowOutcome {
   if (rawDate === null) return reject(providerEventId, 'date is missing or not a string');
   const occurred = parseAfadUtc(rawDate);
   if (occurred === null) {
-    return reject(providerEventId, `date "${rawDate}" is not a valid UTC stamp`);
+    return reject(providerEventId, `date ${quoteProviderText(rawDate)} is not a valid UTC stamp`);
   }
   if (occurred.subMillisecondRemainder !== 0) {
     // Sub-millisecond precision we cannot store is precision we would be silently inventing on the
     // way out. Never measured on `date`; refused rather than rounded (SPEC §13.1).
-    return reject(providerEventId, `date "${rawDate}" carries sub-millisecond precision`);
+    return reject(
+      providerEventId,
+      `date ${quoteProviderText(rawDate)} carries sub-millisecond precision`,
+    );
   }
 
   const latitude = readDecimal(record, 'latitude', SCALE.latitude);
@@ -179,7 +192,8 @@ export function parseAfadEvent(row: unknown): AfadRowOutcome {
     if (parsed === null) {
       return reject(
         providerEventId,
-        `${field} "${String(record[field])}" is not a decimal our column can hold without rounding`,
+        `${field} ${quoteProviderText(record[field])} is not a decimal our column can hold ` +
+          'without rounding',
       );
     }
   }
@@ -216,7 +230,8 @@ export function parseAfadEvent(row: unknown): AfadRowOutcome {
   if (location === null) {
     return reject(
       providerEventId,
-      `location "${providerLocationRaw}" looks composite but does not match the known shape`,
+      `location ${quoteProviderText(providerLocationRaw)} looks composite but does not match the ` +
+        'known shape',
     );
   }
   if (location.placeNameTr.length > MAX_LENGTH.placeNameTr) {
@@ -227,6 +242,14 @@ export function parseAfadEvent(row: unknown): AfadRowOutcome {
     decimalScale(String(location.bindingDistanceKm)) > SCALE.bindingDistanceKm
   ) {
     return reject(providerEventId, 'bracket distance is finer than its column');
+  }
+  // The bracket distance was the one provider-derived number with no range refusal, so a glitched
+  // `... - [123456.78 km] X (Y)` passed the parser and was refused by `numeric(6,2)` at the insert
+  // instead — counted as `eq.row_write_failed` ("the DATABASE refused") when the payload was what
+  // disagreed with the contract (review #118 CODE118-M2). The four numbers above are refused by
+  // name here for exactly that reason.
+  if (location.bindingDistanceKm !== null && location.bindingDistanceKm > MAX_BINDING_DISTANCE_KM) {
+    return reject(providerEventId, 'bracket distance is larger than its column');
   }
 
   const providerCountry = readNullableString(record, 'country', MAX_LENGTH.providerCountry);
@@ -249,7 +272,10 @@ export function parseAfadEvent(row: unknown): AfadRowOutcome {
     }
     const updated = parseAfadUtc(rawUpdatedAt);
     if (updated === null) {
-      return reject(providerEventId, `lastUpdateDate "${rawUpdatedAt}" is not a valid UTC stamp`);
+      return reject(
+        providerEventId,
+        `lastUpdateDate ${quoteProviderText(rawUpdatedAt)} is not a valid UTC stamp`,
+      );
     }
     // Unlike `date`, this one is MEASURED with microsecond precision (`…:14.719149`). A JS Date
     // holds milliseconds, so the tail is truncated — a stated, deterministic precision loss on a

@@ -309,5 +309,50 @@ describe('Earthquake ingest store (e2e, real Postgres)', () => {
       expect(removed).toBe(2);
       expect(await runsRepository().count()).toBe(0);
     });
+
+    it('returns 0 when nothing is old enough to delete', async () => {
+      // The direction a constant cannot fake, and the remaining edge of the `6e93c26` defect class
+      // (review #118 TA118-M6): the pre-fix code read a DELETE's result as `.length` of
+      // `[rows, rowCount]`, i.e. 2 unconditionally, so only a case expecting something OTHER than 2
+      // could see it — and 0 is the one no row-count bug can produce by accident.
+      await seedRun(1, 'ok');
+      await seedRun(2, 'transient');
+
+      const removed = await store.pruneRuns(14, new Date(Date.UTC(2026, 7, 11)));
+      expect(removed).toBe(0);
+      expect(await runsRepository().count()).toBe(2);
+    });
+  });
+
+  describe('the reconcile window is inclusive at BOTH ends', () => {
+    // `providerEventIdsInWindow` compares `>= $2 AND <= $3`, and the only case exercising it used
+    // an event strictly inside. The bound decides whether an event sitting exactly on the boundary
+    // is reported as "vanished upstream" — flipping `<=` to `<` would raise a spurious
+    // `eq.rows_absent_upstream` warning on every tour, with no test signal (review #118 TA118-M6).
+    const windowStart = new Date('2026-08-11T06:00:00.000Z');
+    const windowEnd = new Date('2026-08-11T12:05:00.000Z');
+
+    it('returns events sitting exactly on the start and on the end', async () => {
+      const now = new Date();
+      await store.upsertEvent(
+        upsertRow({ providerEventId: 'start', occurredAtUtc: windowStart }),
+        now,
+      );
+      await store.upsertEvent(upsertRow({ providerEventId: 'end', occurredAtUtc: windowEnd }), now);
+      await store.upsertEvent(
+        upsertRow({
+          providerEventId: 'after',
+          occurredAtUtc: new Date(windowEnd.getTime() + 1_000),
+        }),
+        now,
+      );
+
+      const ids = await store.providerEventIdsInWindow(windowStart, windowEnd);
+
+      expect([...ids].sort()).toEqual(['end', 'start']);
+      // The control: the query really does exclude something, so the two hits above are the bounds
+      // answering rather than the filter being absent.
+      expect(ids.has('after')).toBe(false);
+    });
   });
 });

@@ -44,4 +44,25 @@ describe('classifyAfadServerErrorBody', () => {
   it('accepts a stringified status, since JSON envelopes vary on that', () => {
     expect(classifyAfadServerErrorBody('{"status":"404"}')).toBe('client_error');
   });
+
+  it.each([
+    ['[{"status":400,"error":"Parameter Exception"}]', 'an envelope wrapped in an array'],
+    ['{"error":{"status":400,"message":"nope"}}', 'a status nested one level down'],
+    ['{"status":null,"cause":{"status":404}}', 'a top-level status of the wrong type'],
+  ])('still escalates %s (%s)', (body) => {
+    // The JSON path reads the envelope's OWN top-level status and nothing else, on purpose — it
+    // must not mistake a nested field for the envelope's verdict. But when it finds no usable
+    // status the pattern fallback has to run: it used to run only when `JSON.parse` THREW, so a
+    // body that parsed into an unexpected shape filed our own malformed query as a provider outage
+    // — the precise failure this hook exists to prevent (review #118 SFH118-M7).
+    expect(classifyAfadServerErrorBody(body)).toBe('client_error');
+  });
+
+  it('does not invent a 4xx out of a body that has no status anywhere', () => {
+    // The control for the case above: the fallback now runs on far more bodies, so it has to stay
+    // silent on the ones that say nothing.
+    expect(classifyAfadServerErrorBody('{"detail":"upstream timeout"}')).toBeNull();
+    expect(classifyAfadServerErrorBody('[1,2,3]')).toBeNull();
+    expect(classifyAfadServerErrorBody('{"status":null,"trailing":"…"}')).toBeNull();
+  });
 });

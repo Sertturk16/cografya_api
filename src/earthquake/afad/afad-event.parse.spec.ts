@@ -76,6 +76,21 @@ describe('parseAfadEvent — numbers', () => {
     expect(rejectionFor({ latitude: '91.0' })).toContain('latitude');
     expect(rejectionFor({ longitude: '-181.0' })).toContain('longitude');
   });
+
+  it('refuses a bracket distance its column cannot hold, by name rather than at the insert', () => {
+    // `binding_distance_km numeric(6,2)` tops out at 9999.99. Without this refusal the row passed
+    // the parser and was refused by Postgres, so it was counted as `eq.row_write_failed` — "the
+    // DATABASE refused" — when the payload was what disagreed with the contract (review #118
+    // CODE118-M2). Those two counters are documented as answering different questions.
+    expect(rejectionFor({ location: 'Ege Denizi - [123456.78 km] Bodrum (Muğla)' })).toContain(
+      'bracket distance',
+    );
+
+    // The control: the same shape at a distance the column CAN hold is accepted, so the case above
+    // is the ceiling talking and not the composite parser refusing the string.
+    const wide = accept({ location: 'Ege Denizi - [9999.99 km] Bodrum (Muğla)' });
+    expect(wide.bindingDistanceKm).toBe(9999.99);
+  });
 });
 
 describe('parseAfadEvent — magnitude type', () => {

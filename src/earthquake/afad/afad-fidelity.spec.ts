@@ -18,7 +18,13 @@ const RAW: Record<string, unknown> = {
   longitude: '36.63111',
   depth: '6.95',
   magnitude: '1.8',
+  type: 'ML',
   location: 'Göksun (Kahramanmaraş)',
+  country: 'Türkiye',
+  province: 'Kahramanmaraş',
+  district: 'Göksun',
+  isEventUpdate: false,
+  lastUpdateDate: null,
 };
 
 function event(overrides: Partial<AfadParsedEvent> = {}): AfadParsedEvent {
@@ -71,5 +77,49 @@ describe('checkAfadFidelity', () => {
   it('catches a location string that was rewritten on the way in', () => {
     const rewritten = event({ providerLocationRaw: 'Goksun (Kahramanmaras)' });
     expect(checkAfadFidelity(RAW, rewritten, 0)).toContain('providerLocationRaw');
+  });
+
+  it('catches the province/district reads shifted by one key', () => {
+    // The failure that made the string fields worth checking at all (review #118 SFH118-M4):
+    // `provider_province` is the SOLE input to the province cross-link, so reading `district` into
+    // it publishes a plausible, in-range, correctly-shaped wrong province on every event.
+    const shifted = event({ providerProvince: 'Göksun', providerDistrict: 'Kahramanmaraş' });
+    expect(checkAfadFidelity(RAW, shifted, 0)).toContain('province');
+  });
+
+  it('catches a magnitude type stored as something the provider did not send', () => {
+    expect(checkAfadFidelity(RAW, event({ magnitudeTypeRaw: 'MW' }), 0)).toContain('type');
+  });
+
+  it('folds an absent country and an empty one together, the way the parser does', () => {
+    // `readNullableString` turns both `null` and `''` into `null`, so the check must too — or a
+    // legitimately country-less open-sea row would be refused by its own fidelity rule.
+    const openSea = event({ providerCountry: null });
+    expect(checkAfadFidelity({ ...RAW, country: null }, openSea, 0)).toBeNull();
+    expect(checkAfadFidelity({ ...RAW, country: '' }, openSea, 0)).toBeNull();
+    // The control: with the country present, storing null IS caught.
+    expect(checkAfadFidelity(RAW, openSea, 0)).toContain('country');
+  });
+
+  it('catches a revision flag that does not match the provider’s', () => {
+    expect(checkAfadFidelity(RAW, event({ isRevised: true }), 0)).toContain('isRevised');
+  });
+
+  it('catches a lastUpdateDate that exists on one side only', () => {
+    const claimed = event({ providerUpdatedAtUtc: new Date(Date.UTC(2026, 7, 11, 12, 0, 0)) });
+    expect(checkAfadFidelity(RAW, claimed, 0)).toContain('providerUpdatedAtUtc');
+
+    const dropped = { ...RAW, lastUpdateDate: '2026-08-11T12:00:00' };
+    expect(checkAfadFidelity(dropped, event(), 0)).toContain('providerUpdatedAtUtc');
+  });
+
+  it('accepts lastUpdateDate’s stated sub-millisecond truncation, and only that', () => {
+    const raw = { ...RAW, lastUpdateDate: '2026-08-06T12:56:14.719149' };
+    const stored = event({ providerUpdatedAtUtc: new Date(Date.UTC(2026, 7, 6, 12, 56, 14, 719)) });
+    expect(checkAfadFidelity(raw, stored, 0)).toBeNull();
+
+    // The same field shifted by three hours is NOT truncation, and is caught.
+    const shifted = event({ providerUpdatedAtUtc: new Date(Date.UTC(2026, 7, 6, 9, 56, 14, 719)) });
+    expect(checkAfadFidelity(raw, shifted, 0)).toContain('providerUpdatedAtUtc');
   });
 });
