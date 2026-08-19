@@ -42,8 +42,18 @@ export interface EarthquakePage {
 export interface EarthquakeReadStorePort {
   /** One page of servable events, newest first, with the total behind the same filter. */
   findPage(filter: EarthquakeListFilter): Promise<EarthquakePage>;
-  /** Finish time of the newest SUCCESSFUL ingest tour, or null when there has never been one. */
+  /**
+   * Finish time of the newest ingest tour that succeeded AND stored something, or null when there
+   * has never been one.
+   */
   newestSuccessfulRunFinishedAt(): Promise<Date | null>;
+  /**
+   * Whether the store holds ANY servable row — store-wide, never per province.
+   *
+   * Separate from {@link latestEventOccurredAt} on purpose: this one answers the freshness
+   * derivation's "do we hold anything", and it must not narrow to the province being requested.
+   */
+  hasAnyServableRow(): Promise<boolean>;
   /**
    * Origin time of the newest servable event, scoped to the PATH's universe (all in-scope rows on
    * the hub, that province's in-scope rows on the province path) and NOT to the request's filter.
@@ -104,6 +114,23 @@ export class EarthquakeReadStore implements EarthquakeReadStorePort {
     return { rows, total };
   }
 
+  /**
+   * ## `outcome = 'ok'` is NOT sufficient, and the ingest says so itself
+   * `EarthquakeIngestTarget.diagnoseTour` records "the provider returned N rows and the parser
+   * accepted none" as `outcome: 'ok'` WITH a non-null `error_reason` — the outcome word describes
+   * the CALL, which really did succeed, while the reason records that nothing landed. Its docblock
+   * names this consumer as the reason that state exists: the ledger is the freshness anchor, so the
+   * two ways a tour can do all its work and store nothing must not both read as a clean success
+   * (review #118 CODE118-I2/SFH118-I2).
+   *
+   * Reading the outcome alone put one of them back: a field renamed upstream would have every tour
+   * reject all ~600 rows, refresh this anchor every 300 s, and let the hub keep publishing
+   * `dataStatus: 'ok'` with a five-minute-old `dataUpdatedAtUtc` over a list frozen at the break —
+   * with a CDN republishing that claim, and only a server-side log line to show for it
+   * (review #121 SFH121-I1). `error_reason IS NULL` is the read-side discriminator; the ledger
+   * carries no `unchanged_count`, so counts cannot substitute (a healthy reconcile tour legitimately
+   * stores nothing new).
+   */
   async newestSuccessfulRunFinishedAt(): Promise<Date | null> {
     // Written as a query rather than `find({ order })` so the partial index
     // `IDX_earthquake_ingest_runs_ok_finished` is matched by its own predicate.
@@ -112,10 +139,25 @@ export class EarthquakeReadStore implements EarthquakeReadStorePort {
       .createQueryBuilder('run')
       .select('MAX(run.finishedAtUtc)', 'finishedAt')
       .where("run.outcome = 'ok'")
+      .andWhere('run.errorReason IS NULL')
       .andWhere('run.finishedAtUtc IS NOT NULL')
       .getRawOne<{ finishedAt: Date | null }>();
 
     return row?.finishedAt ?? null;
+  }
+
+  async hasAnyServableRow(): Promise<boolean> {
+    // `LIMIT 1` over the partial-scope index rather than a COUNT: the question is existence, and
+    // counting a growing archive to answer it would get slower every year for no gain.
+    const row = await this.dataSource
+      .getRepository(EarthquakeEvent)
+      .createQueryBuilder('event')
+      .select('1', 'present')
+      .where('event.inScope = true')
+      .limit(1)
+      .getRawOne<{ present: number }>();
+
+    return row !== undefined;
   }
 
   async latestEventOccurredAt(plateCode: string | null): Promise<Date | null> {

@@ -44,8 +44,11 @@ export class EarthquakeListMetaDto {
     nullable: true,
     example: '2026-08-11T11:03:34.000Z',
     description:
-      'Origin time of the newest event we hold, UTC; null when the store is empty. A concrete ' +
-      'fact for the page description (SEO-POLICY Part A2), not a freshness claim.',
+      'Origin time of the newest event this ENDPOINT holds, UTC. Scope follows the path: ' +
+      'store-wide on the hub, and the newest event bound to that province on ' +
+      '/api/earthquakes/provinces/{plateCode} — so null means "nothing on this path", which on a ' +
+      'province path is a quiet province and NOT an empty store. A concrete fact for the page ' +
+      'description (SEO-POLICY Part A2), not a freshness claim: read dataStatus for that.',
   })
   latestEventAtUtc!: string | null;
 

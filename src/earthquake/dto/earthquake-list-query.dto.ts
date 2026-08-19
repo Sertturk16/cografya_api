@@ -1,6 +1,15 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsInt, IsISO8601, IsNumber, IsOptional, Matches, Max, Min } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import {
+  IsInt,
+  IsISO8601,
+  IsNumber,
+  IsOptional,
+  Matches,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 /**
  * The numbers this endpoint's request contract is made of, each declared ONCE.
@@ -80,6 +89,16 @@ export const EARTHQUAKE_MAX_WINDOW_DAYS = 366;
 const ISO_WITH_EXPLICIT_ZONE = /(?:Z|[+-]\d{2}:?\d{2})$/;
 
 /**
+ * A denial-of-service bound on the two free-text parameters, not a claim about formats.
+ *
+ * The `SlugParams` precedent: a pattern says what is acceptable, a length ceiling says how much
+ * input the pattern is allowed to run over. Comfortably above the longest legal instant
+ * (`2026-08-19T12:00:00.000000+03:00` is 32 characters), so it can only ever reject input the
+ * format rules were going to reject anyway.
+ */
+const ISO_INSTANT_MAX_LENGTH = 64;
+
+/**
  * Query contract for `GET /api/earthquakes` and the per-province path.
  *
  * ## Defaults live in the property initialisers, not in the service
@@ -113,7 +132,17 @@ export class EarthquakeListQueryDto {
       'everything is stored, so lowering it returns real data rather than a hole. The applied ' +
       'value is echoed back in meta.filter.',
   })
-  @Type(() => Number)
+  // The conversion lives in `@Transform` rather than in `@Type(() => Number)`, and that is the fix
+  // for a measured defect rather than a style choice. `@Type` runs FIRST and coerces `''` to `0`
+  // (verified against this repo's own class-transformer: `?minMagnitude=` produced `0` with no
+  // validation error), so `?minMagnitude=` — the shape a template emits for an unset field —
+  // silently replaced the published 2.5 default with a floor of 0 and returned a far heavier page
+  // than the caller asked for (review #121 CODE121-M1). Converting here instead lets an empty value
+  // stay empty and be REFUSED, which is what `page` and `pageSize` already do, while an ABSENT
+  // parameter never enters this pipeline at all and keeps the initialiser below.
+  @Transform(({ value }): unknown =>
+    value === '' || value === undefined ? undefined : Number(value),
+  )
   @IsNumber()
   @Min(EARTHQUAKE_MIN_MAGNITUDE_FLOOR)
   @Max(EARTHQUAKE_MIN_MAGNITUDE_CEILING)
@@ -126,6 +155,12 @@ export class EarthquakeListQueryDto {
   @ApiPropertyOptional({
     type: String,
     format: 'date-time',
+    // Published from the SAME regex the validator runs, so the contract cannot promise a rule the
+    // server does not enforce — and, more to the point here, cannot leave a codegen'd client to
+    // discover the zone requirement through a 400 its own generated types called valid. That would
+    // be the three-hour timezone trap displaced one layer outward, onto the consumer.
+    pattern: ISO_WITH_EXPLICIT_ZONE.source,
+    maxLength: ISO_INSTANT_MAX_LENGTH,
     example: '2026-08-12T00:00:00.000Z',
     description:
       'Window start, inclusive. MUST carry an explicit zone (Z or ±HH:MM) — a timezone-less ' +
@@ -134,6 +169,7 @@ export class EarthquakeListQueryDto {
   })
   @IsOptional()
   @IsISO8601({ strict: true })
+  @MaxLength(ISO_INSTANT_MAX_LENGTH)
   @Matches(ISO_WITH_EXPLICIT_ZONE, {
     message: 'fromUtc must state its timezone explicitly (…Z or ±HH:MM)',
   })
@@ -143,6 +179,8 @@ export class EarthquakeListQueryDto {
   @ApiPropertyOptional({
     type: String,
     format: 'date-time',
+    pattern: ISO_WITH_EXPLICIT_ZONE.source,
+    maxLength: ISO_INSTANT_MAX_LENGTH,
     example: '2026-08-19T12:00:00.000Z',
     description:
       'Window end, inclusive, with the same explicit-zone rule as fromUtc. Defaults to now plus ' +
@@ -151,6 +189,7 @@ export class EarthquakeListQueryDto {
   })
   @IsOptional()
   @IsISO8601({ strict: true })
+  @MaxLength(ISO_INSTANT_MAX_LENGTH)
   @Matches(ISO_WITH_EXPLICIT_ZONE, {
     message: 'toUtc must state its timezone explicitly (…Z or ±HH:MM)',
   })

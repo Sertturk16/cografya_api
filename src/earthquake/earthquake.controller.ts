@@ -48,10 +48,16 @@ const COLD_CACHE_CONTROL = 'no-store';
  * administrative names. The provider's `neighborhood` field is neither stored nor served.
  *
  * ## COLD BEHAVIOUR (SPEC §12, binding)
- * Every endpoint answers **200 in every state** — cold, warm, provider down, flag off. An empty
- * store is `items: []` with `dataStatus: 'unavailable'` and `no-store`, never an error: an empty
- * store is a deploy-ordering fact, not an ingest health failure (the air-quality H-7 class). The
- * single 404 on this leg is a plate code that names no province.
+ * Every endpoint answers **200 in every state of the DATA** — cold, warm, provider down, flag off.
+ * An empty store is `items: []` with `dataStatus: 'unavailable'` and `no-store`, never an error: an
+ * empty store is a deploy-ordering fact, not an ingest health failure (the air-quality H-7 class).
+ * The single 404 on this leg is a plate code that names no province.
+ *
+ * **The one state that is NOT a 200, stated here so it is findable from the code:** if Postgres
+ * itself is unreachable the store call rejects and Nest answers **500**. SPEC §12 asks for a 503
+ * there, and this repo has no exception filter to produce one; a global filter is cross-cutting
+ * machinery that would change every endpoint, so it was deliberately ruled out of E3's range and
+ * sits on Atlas's board (plan-e3.md S8). A consumer must therefore still have a 5xx branch.
  *
  * ## `EARTHQUAKE_ENABLED` does not gate these routes
  * The kill switch governs the INGEST half only; the routes stay registered and degrade honestly.

@@ -569,7 +569,9 @@
             "in": "query",
             "description": "Window start, inclusive. MUST carry an explicit zone (Z or ±HH:MM) — a timezone-less timestamp is rejected rather than guessed. Defaults to 7 days before the window end; the window applied is echoed back as concrete instants in meta.filter.",
             "schema": {
+              "maxLength": 64,
               "format": "date-time",
+              "pattern": "(?:Z|[+-]\\d{2}:?\\d{2})$",
               "example": "2026-08-12T00:00:00.000Z",
               "type": "string"
             }
@@ -580,7 +582,9 @@
             "in": "query",
             "description": "Window end, inclusive, with the same explicit-zone rule as fromUtc. Defaults to now plus the clock-skew allowance, so an event stamped slightly ahead of our clock is still the newest row rather than an invisible one. The window may span at most 366 days.",
             "schema": {
+              "maxLength": 64,
               "format": "date-time",
+              "pattern": "(?:Z|[+-]\\d{2}:?\\d{2})$",
               "example": "2026-08-19T12:00:00.000Z",
               "type": "string"
             }
@@ -693,7 +697,9 @@
             "in": "query",
             "description": "Window start, inclusive. MUST carry an explicit zone (Z or ±HH:MM) — a timezone-less timestamp is rejected rather than guessed. Defaults to 7 days before the window end; the window applied is echoed back as concrete instants in meta.filter.",
             "schema": {
+              "maxLength": 64,
               "format": "date-time",
+              "pattern": "(?:Z|[+-]\\d{2}:?\\d{2})$",
               "example": "2026-08-12T00:00:00.000Z",
               "type": "string"
             }
@@ -704,7 +710,9 @@
             "in": "query",
             "description": "Window end, inclusive, with the same explicit-zone rule as fromUtc. Defaults to now plus the clock-skew allowance, so an event stamped slightly ahead of our clock is still the newest row rather than an invisible one. The window may span at most 366 days.",
             "schema": {
+              "maxLength": 64,
               "format": "date-time",
+              "pattern": "(?:Z|[+-]\\d{2}:?\\d{2})$",
               "example": "2026-08-19T12:00:00.000Z",
               "type": "string"
             }
@@ -3916,7 +3924,7 @@
             "nullable": true,
             "format": "date-time",
             "example": "2026-08-11T11:03:34.000Z",
-            "description": "Origin time of the newest event we hold, UTC; null when the store is empty. A concrete fact for the page description (SEO-POLICY Part A2), not a freshness claim."
+            "description": "Origin time of the newest event this ENDPOINT holds, UTC. Scope follows the path: store-wide on the hub, and the newest event bound to that province on /api/earthquakes/provinces/{plateCode} — so null means \"nothing on this path\", which on a province path is a quiet province and NOT an empty store. A concrete fact for the page description (SEO-POLICY Part A2), not a freshness claim: read dataStatus for that."
           },
           "dataStatus": {
             "enum": [

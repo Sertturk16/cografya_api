@@ -5,8 +5,8 @@ import { EarthquakeDataStatus } from './earthquake.types';
 const NOW = new Date('2026-08-19T12:00:00.000Z');
 const STALE_MAX_SECONDS = 10_800;
 
-/** An event time far from every run time below, so no assertion can pass by coincidence. */
-const AN_EVENT = new Date('2026-08-01T03:04:05.000Z');
+/** The store holds something servable. Store-wide, never scoped to one province. */
+const HOLDS_ROWS = true;
 
 describe('resolveEarthquakeFreshness', () => {
   it('is ok while the newest successful tour is inside the budget', () => {
@@ -14,7 +14,7 @@ describe('resolveEarthquakeFreshness', () => {
     expect(
       resolveEarthquakeFreshness({
         runFinishedAt: finished,
-        latestEventAt: AN_EVENT,
+        holdsServableRow: HOLDS_ROWS,
         now: NOW,
         staleMaxSeconds: STALE_MAX_SECONDS,
       }),
@@ -31,7 +31,7 @@ describe('resolveEarthquakeFreshness', () => {
     expect(
       resolveEarthquakeFreshness({
         runFinishedAt: onBudget,
-        latestEventAt: AN_EVENT,
+        holdsServableRow: HOLDS_ROWS,
         now: NOW,
         staleMaxSeconds: STALE_MAX_SECONDS,
       }).dataStatus,
@@ -40,7 +40,7 @@ describe('resolveEarthquakeFreshness', () => {
     expect(
       resolveEarthquakeFreshness({
         runFinishedAt: pastBudget,
-        latestEventAt: AN_EVENT,
+        holdsServableRow: HOLDS_ROWS,
         now: NOW,
         staleMaxSeconds: STALE_MAX_SECONDS,
       }).dataStatus,
@@ -52,7 +52,7 @@ describe('resolveEarthquakeFreshness', () => {
     expect(
       resolveEarthquakeFreshness({
         runFinishedAt: longAgo,
-        latestEventAt: AN_EVENT,
+        holdsServableRow: HOLDS_ROWS,
         now: NOW,
         staleMaxSeconds: STALE_MAX_SECONDS,
       }),
@@ -70,7 +70,7 @@ describe('resolveEarthquakeFreshness', () => {
     expect(
       resolveEarthquakeFreshness({
         runFinishedAt: null,
-        latestEventAt: AN_EVENT,
+        holdsServableRow: HOLDS_ROWS,
         now: NOW,
         staleMaxSeconds: STALE_MAX_SECONDS,
       }),
@@ -84,7 +84,7 @@ describe('resolveEarthquakeFreshness', () => {
     expect(
       resolveEarthquakeFreshness({
         runFinishedAt: null,
-        latestEventAt: null,
+        holdsServableRow: false,
         now: NOW,
         staleMaxSeconds: STALE_MAX_SECONDS,
       }),
@@ -103,7 +103,7 @@ describe('resolveEarthquakeFreshness', () => {
     expect(
       resolveEarthquakeFreshness({
         runFinishedAt: ahead,
-        latestEventAt: AN_EVENT,
+        holdsServableRow: HOLDS_ROWS,
         now: NOW,
         staleMaxSeconds: STALE_MAX_SECONDS,
       }).dataStatus,

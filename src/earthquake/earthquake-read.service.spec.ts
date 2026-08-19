@@ -9,10 +9,11 @@ import type {
 import type { EarthquakeUpstreamConfig } from './earthquake-upstream.config';
 import { AFAD_TDVMS_BUDGET } from './earthquake-upstream.config';
 import { EarthquakeEvent } from './entities/earthquake-event.entity';
-import { EarthquakeBindingKind, MagnitudeType } from './earthquake.types';
+import { EarthquakeBindingKind, EarthquakeDataStatus, MagnitudeType } from './earthquake.types';
 import {
   EARTHQUAKE_DEFAULT_MIN_MAGNITUDE,
   EARTHQUAKE_DEFAULT_WINDOW_DAYS,
+  EARTHQUAKE_LIST_MAX_PAGE,
   EARTHQUAKE_MAX_WINDOW_DAYS,
   EarthquakeListQueryDto,
 } from './dto/earthquake-list-query.dto';
@@ -78,12 +79,17 @@ function storedRow(overrides: Partial<EarthquakeEvent> = {}): EarthquakeEvent {
 class FakeReadStore implements EarthquakeReadStorePort {
   page: EarthquakePage = { rows: [], total: 0 };
   runFinishedAt: Date | null = null;
+  /** What the store holds, store-wide. Deliberately settable apart from {@link latestEventAt}. */
+  storeHoldsRows = false;
+  /** What THIS PATH holds — the published field. On a quiet province this is null while the
+   * store-wide answer above is still true, which is the state review #121 SFH121-I2 named. */
   latestEventAt: Date | null = null;
   provinceKnown = true;
 
   lastFilter: EarthquakeListFilter | null = null;
   latestEventPlateCodes: (string | null)[] = [];
   findPageCalls = 0;
+  hasAnyServableRowCalls = 0;
 
   findPage(filter: EarthquakeListFilter): Promise<EarthquakePage> {
     this.findPageCalls += 1;
@@ -93,6 +99,11 @@ class FakeReadStore implements EarthquakeReadStorePort {
 
   newestSuccessfulRunFinishedAt(): Promise<Date | null> {
     return Promise.resolve(this.runFinishedAt);
+  }
+
+  hasAnyServableRow(): Promise<boolean> {
+    this.hasAnyServableRowCalls += 1;
+    return Promise.resolve(this.storeHoldsRows);
   }
 
   latestEventOccurredAt(plateCode: string | null): Promise<Date | null> {
@@ -254,6 +265,28 @@ describe('EarthquakeReadService', () => {
       expect(past.items).toEqual([]);
     });
 
+    /**
+     * The envelope must not promise a page the request contract then refuses.
+     *
+     * At the published page ceiling with a small `pageSize`, `page * pageSize` can still be below
+     * `total`, so the documented "page until hasMore is false" loop would terminate on a 400
+     * instead of on the contract (review #121 CODE121-M3).
+     */
+    it('never promises a page past the published ceiling', async () => {
+      store.page = { rows: [storedRow()], total: 10_000_000 };
+
+      const atCeiling = await service.listEvents(
+        query({ page: EARTHQUAKE_LIST_MAX_PAGE, pageSize: 3 }),
+      );
+      expect(atCeiling.hasMore).toBe(false);
+
+      // One page below the ceiling the promise is still made, so the clamp is not blanket.
+      const belowCeiling = await service.listEvents(
+        query({ page: EARTHQUAKE_LIST_MAX_PAGE - 1, pageSize: 3 }),
+      );
+      expect(belowCeiling.hasMore).toBe(true);
+    });
+
     it('passes the page window straight through to the store', async () => {
       await service.listEvents(query({ page: 3, pageSize: 25 }));
       expect(store.lastFilter?.page).toBe(3);
@@ -273,13 +306,54 @@ describe('EarthquakeReadService', () => {
       expect(store.findPageCalls).toBe(0);
     });
 
-    it('filters and echoes the plate code, and scopes the freshness probe to it', async () => {
+    it('filters and echoes the plate code, and scopes the PUBLISHED newest-event to it', async () => {
       const body = await service.listProvinceEvents('46', query());
 
       expect(store.lastFilter?.plateCode).toBe('46');
       expect(body.meta.filter.plateCode).toBe('46');
-      // Scoped to the PATH rather than to the request filter — see the service.
+      // The published field is scoped to the path, not to the request filter.
       expect(store.latestEventPlateCodes).toEqual(['46']);
+    });
+
+    /**
+     * The defect review #121 SFH121-I2 named, pinned at the level where it was introduced.
+     *
+     * Before the fix the freshness derivation was fed `latestEventOccurredAt(plateCode)`, so a
+     * province holding no bound row answered `unavailable` — "no usable ingest at all", plus
+     * `Cache-Control: no-store` — while the hub served a full list from the same store. The state
+     * is reachable exactly when the run ledger is empty, which is what the hand-run backfill
+     * leaves behind (`FU-E2-BACKFILL-RUNROW`).
+     */
+    it('answers stale for a QUIET province while the store holds rows, never unavailable', async () => {
+      store.runFinishedAt = null;
+      store.storeHoldsRows = true;
+      store.latestEventAt = null;
+      store.page = { rows: [], total: 0 };
+
+      const body = await service.listProvinceEvents('39', query());
+
+      expect(body.meta.dataStatus).toBe(EarthquakeDataStatus.Stale);
+      expect(body.meta.latestEventAtUtc).toBeNull();
+      expect(body.items).toEqual([]);
+    });
+
+    it('still answers unavailable when the store itself holds nothing', async () => {
+      store.runFinishedAt = null;
+      store.storeHoldsRows = false;
+      store.latestEventAt = null;
+
+      const body = await service.listProvinceEvents('39', query());
+
+      expect(body.meta.dataStatus).toBe(EarthquakeDataStatus.Unavailable);
+    });
+
+    it('asks the store-wide probe on BOTH paths, never the province-scoped one', async () => {
+      await service.listEvents(query());
+      await service.listProvinceEvents('46', query());
+
+      expect(store.hasAnyServableRowCalls).toBe(2);
+      // The province-scoped query is still made — for the published field only.
+      expect(store.latestEventPlateCodes).toEqual([null, '46']);
     });
   });
 
@@ -301,6 +375,7 @@ describe('EarthquakeReadService', () => {
     });
 
     it('reports the newest event it holds, store-wide', async () => {
+      store.storeHoldsRows = true;
       store.latestEventAt = OCCURRED;
       const body = await service.getMeta();
 

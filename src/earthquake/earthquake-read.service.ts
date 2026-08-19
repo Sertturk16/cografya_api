@@ -16,6 +16,7 @@ import type { EarthquakeListDto } from './dto/earthquake-list.dto';
 import {
   EARTHQUAKE_DEFAULT_MIN_MAGNITUDE,
   EARTHQUAKE_DEFAULT_WINDOW_DAYS,
+  EARTHQUAKE_LIST_MAX_PAGE,
   EARTHQUAKE_MAX_WINDOW_DAYS,
   type EarthquakeListQueryDto,
 } from './dto/earthquake-list-query.dto';
@@ -109,14 +110,15 @@ export class EarthquakeReadService {
   /** The leg's standing facts plus the store's freshness. */
   async getMeta(): Promise<EarthquakeMetaDto> {
     const now = new Date();
-    const [runFinishedAt, latestEventAt] = await Promise.all([
+    const [runFinishedAt, holdsServableRow, latestEventAt] = await Promise.all([
       this.store.newestSuccessfulRunFinishedAt(),
+      this.store.hasAnyServableRow(),
       this.store.latestEventOccurredAt(null),
     ]);
 
     const freshness = resolveEarthquakeFreshness({
       runFinishedAt,
-      latestEventAt,
+      holdsServableRow,
       now,
       staleMaxSeconds: this.config.staleMaxSeconds,
     });
@@ -152,19 +154,23 @@ export class EarthquakeReadService {
       pageSize: query.pageSize,
     };
 
-    // Three independent reads, so they go in parallel: none of them feeds another.
-    const [page, runFinishedAt, latestEventAt] = await Promise.all([
+    // Four independent reads, so they go in parallel: none of them feeds another.
+    const [page, runFinishedAt, holdsServableRow, latestEventAt] = await Promise.all([
       this.store.findPage(filter),
       this.store.newestSuccessfulRunFinishedAt(),
-      // Scoped to the PATH, not to the filter: a request that filters everything out must still be
-      // able to say whether the store holds anything, or the freshness verdict below would read a
-      // narrow filter as an empty store.
+      // STORE-WIDE, on both paths. The freshness verdict answers "do we hold anything at all", and
+      // scoping that to the requested province made a quiet province indistinguishable from a cold
+      // deployment — `unavailable` plus `no-store` — while the hub served a full list from the same
+      // store (review #121 SFH121-I2).
+      this.store.hasAnyServableRow(),
+      // PATH-SCOPED, and published as `meta.latestEventAtUtc` only. Not scoped to the request's
+      // filter: a request that filters everything out must still report what the path holds.
       this.store.latestEventOccurredAt(plateCode),
     ]);
 
     const freshness = resolveEarthquakeFreshness({
       runFinishedAt,
-      latestEventAt,
+      holdsServableRow,
       now,
       staleMaxSeconds: this.config.staleMaxSeconds,
     });
@@ -175,7 +181,13 @@ export class EarthquakeReadService {
       pageSize: query.pageSize,
       total: page.total,
       // A page past the end is an empty `items` with `hasMore: false` and a 200 — never a 404.
-      hasMore: query.page * query.pageSize < page.total,
+      //
+      // Clamped at the published page ceiling as well, so the envelope cannot promise a page the
+      // request contract then refuses: at `page = EARTHQUAKE_LIST_MAX_PAGE` with a small
+      // `pageSize`, `page * pageSize` can still be below `total`, and the documented "page until
+      // hasMore is false" loop would terminate on a 400 instead of on the contract
+      // (review #121 CODE121-M3).
+      hasMore: query.page < EARTHQUAKE_LIST_MAX_PAGE && query.page * query.pageSize < page.total,
       meta: {
         filter: {
           minMagnitude: query.minMagnitude,

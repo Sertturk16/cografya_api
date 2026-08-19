@@ -12,12 +12,22 @@ import { EARTHQUAKE_PROVIDER_AFAD } from './earthquake.types';
  * byte-for-byte. An unseeded database would otherwise publish AFAD data uncredited. Consequence:
  * E3 ships no migration and no seed for attribution.
  *
- * ## The strings are copied VERBATIM from the provenance ledger
- * Canonical home: `provenance/integrations.md`, row "AFAD TDVMS earthquakes". They are an
- * untouchable class (`CONTENT-STYLE.md` §22: licence, liability and KVKK text), so they are never
- * translated, shortened, re-cased or re-punctuated. The separator in the notice is an EN DASH
- * (U+2013), not a hyphen-minus, and the spec asserts that code point on its own — a hyphen
- * substitution leaves every other byte correct and would pass a test written from memory.
+ * ## Each string is verbatim from ITS OWN recorded source, and the two sources differ
+ * All three are an untouchable class (`CONTENT-STYLE.md` §22: licence, liability and KVKK text) —
+ * never translated, shortened, re-cased or re-punctuated — but they do not all come from the same
+ * place, and saying they did sent the next reader to look for a string that is not there
+ * (review #121 CODE121-M5):
+ *
+ * - `AFAD_REQUIRED_NOTICE_TR` and `AFAD_PROVIDER_NAME` — **the provenance ledger**,
+ *   `provenance/integrations.md`, row "AFAD TDVMS earthquakes". Byte-comparable against it.
+ * - `AFAD_REGULATION_REFERENCE` — **SPEC §9.2 and DEC 2026-07-30j**, which fix this citation form.
+ *   The ledger states the same legal basis as prose ("TDVMS Yönetmeliği, RG 28.08.2015/29459 —
+ *   m.5/1-f serves the data …; m.9/4 makes attribution mandatory"), so a byte comparison against
+ *   the ledger fails by construction and must not be attempted.
+ *
+ * The separator in the notice is an EN DASH (U+2013), not a hyphen-minus, and the spec asserts that
+ * code point on its own — a hyphen substitution leaves every other byte correct and would pass a
+ * test written from memory.
  *
  * `QUESTIONS.md` D-3 carries an abbreviated variant ("AFAD – TDVMS"). The dated ruling wins
  * (DEC 2026-07-30j); the short form is not published anywhere on this leg.
@@ -40,7 +50,12 @@ export const AFAD_PROVIDER_NAME = 'T.C. İçişleri Bakanlığı AFAD';
 export const AFAD_REQUIRED_NOTICE_TR =
   'Kaynak: T.C. İçişleri Bakanlığı AFAD – Türkiye Deprem Veri Merkezi Sistemi (TDVMS)';
 
-/** The regulation the duty arises from, verbatim. Same untouchable class as the notice. */
+/**
+ * The regulation the duty arises from, in the citation form SPEC §9.2 and DEC 2026-07-30j fix.
+ *
+ * Same untouchable class as the notice, but a different source — see the file docblock. Do not
+ * "correct" it toward the ledger's prose sentence.
+ */
 export const AFAD_REGULATION_REFERENCE = 'TDVMS Yönetmeliği, RG 28.08.2015/29459, m.9/4';
 
 /**

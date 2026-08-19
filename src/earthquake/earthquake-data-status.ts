@@ -9,10 +9,19 @@ export interface EarthquakeFreshness {
 
 /** What {@link resolveEarthquakeFreshness} needs to decide. */
 export interface EarthquakeFreshnessInput {
-  /** `MAX(finished_at_utc)` over successful runs, or null. */
+  /** `MAX(finished_at_utc)` over successful runs that stored something, or null. */
   readonly runFinishedAt: Date | null;
-  /** Origin time of the newest in-scope row this path can serve, or null when it holds none. */
-  readonly latestEventAt: Date | null;
+  /**
+   * Whether the STORE holds any servable row at all — store-wide, never scoped to one province.
+   *
+   * A boolean rather than the newest event's timestamp, and store-wide rather than path-scoped,
+   * because both narrowings were live defects rather than hypotheses. Reusing the published
+   * `latestEventAtUtc` here made a province with no bound events answer `unavailable` — "no usable
+   * ingest at all", plus `no-store` — while the hub served a full list from the same store
+   * (review #121 SFH121-I2). A dedicated input cannot be re-narrowed by a later refactor without
+   * changing its name and its type.
+   */
+  readonly holdsServableRow: boolean;
   readonly now: Date;
   readonly staleMaxSeconds: number;
 }
@@ -34,7 +43,9 @@ export interface EarthquakeFreshnessInput {
  * `stale` is the honest token there, and it is what the vocabulary already says: `Stale` is
  * "populated, but the last successful contact is older than the budget", and no contact at all is
  * a contact infinitely old. `Unavailable` keeps its own meaning — "no usable ingest at all", i.e.
- * a store with nothing to serve.
+ * a store with nothing to serve. **"Nothing to serve" is a fact about the STORE, not about the
+ * province being asked for**: a quiet province is not a cold deployment, and answering one as the
+ * other tells a CDN not to keep a page whose content is perfectly stable.
  *
  * The ledger gap itself is an INGEST defect and is tracked as `FU-E2-BACKFILL-RUNROW`; this
  * function is the read side answering honestly in the meantime, not the fix.
@@ -45,13 +56,12 @@ export interface EarthquakeFreshnessInput {
  * built out of when an earthquake happened.
  */
 export function resolveEarthquakeFreshness(input: EarthquakeFreshnessInput): EarthquakeFreshness {
-  const { runFinishedAt, latestEventAt, now, staleMaxSeconds } = input;
+  const { runFinishedAt, holdsServableRow, now, staleMaxSeconds } = input;
 
   if (runFinishedAt === null) {
     return {
       dataUpdatedAtUtc: null,
-      dataStatus:
-        latestEventAt === null ? EarthquakeDataStatus.Unavailable : EarthquakeDataStatus.Stale,
+      dataStatus: holdsServableRow ? EarthquakeDataStatus.Stale : EarthquakeDataStatus.Unavailable,
     };
   }
 
