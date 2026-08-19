@@ -634,6 +634,9 @@ describe('validateEnv — the earthquake (AFAD TDVMS) block', () => {
     // open-water event landed 178.7 km from the national outline.
     expect(env.EARTHQUAKE_SCOPE_BUFFER_KM).toBe(200);
     expect(env.EARTHQUAKE_RUN_RETENTION_DAYS).toBe(14);
+    // The one READ-path number in this block (E3): 3 hours, i.e. 36× the polling cadence, so a
+    // handful of failed tours is absorbed before the reader is told the data has aged.
+    expect(env.EARTHQUAKE_STALE_MAX_SECONDS).toBe(10_800);
   });
 
   it('needs no credential at all — the endpoint is anonymous', () => {
@@ -682,6 +685,22 @@ describe('validateEnv — the earthquake (AFAD TDVMS) block', () => {
         EARTHQUAKE_RECONCILE_WINDOW_DAYS: '1',
       }),
     ).toThrow(/EARTHQUAKE_INGEST_DEADLINE_MS/);
+  });
+
+  it('refuses a staleness budget shorter than the cadence that refreshes it', () => {
+    // A freshness warning that fires while the leg is perfectly healthy is one readers learn to
+    // ignore before the outage it exists for, so the configuration is refused at boot instead.
+    expect(() => validateEnv({ ...BASE, EARTHQUAKE_STALE_MAX_SECONDS: '60' })).toThrow(
+      /EARTHQUAKE_STALE_MAX_SECONDS/,
+    );
+
+    // Equality is refused too: a budget exactly one interval long expires on the tick the next
+    // tour starts.
+    expect(() => validateEnv({ ...BASE, EARTHQUAKE_STALE_MAX_SECONDS: '300' })).toThrow(
+      /EARTHQUAKE_STALE_MAX_SECONDS/,
+    );
+
+    expect(() => validateEnv({ ...BASE, EARTHQUAKE_STALE_MAX_SECONDS: '301' })).not.toThrow();
   });
 
   it('refuses a window narrower than the cadence that repeats it', () => {

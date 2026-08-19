@@ -42,6 +42,8 @@ const CONFIG: EarthquakeUpstreamConfig = {
   safetyLimit: 20_000,
   scopeBufferKm: 200,
   runRetentionDays: 14,
+  // Read-path only (E3); no ingest behaviour reads it. Present because the interface requires it.
+  staleMaxSeconds: 10_800,
   budget: AFAD_TDVMS_BUDGET,
 };
 

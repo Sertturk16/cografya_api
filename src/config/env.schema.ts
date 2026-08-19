@@ -404,6 +404,12 @@ export const envSchema = z
     // diagnose from. The newest SUCCESSFUL run is never pruned, whatever its age — it is the
     // freshness anchor, and deleting it would turn "the data is stale" into "there is no data".
     EARTHQUAKE_RUN_RETENTION_DAYS: z.coerce.number().int().positive().default(14),
+    // READ-PATH freshness budget (E3): how old the newest SUCCESSFUL tour may be before the public
+    // endpoints publish `dataStatus: 'stale'`. The data keeps being served either way — hiding
+    // stale data is the twin of the early-warning implication this leg is forbidden to make, since
+    // a reader takes an old quiet list for a quiet present. 3 hours is 36× the 300 s cadence, so a
+    // handful of consecutive failed tours is absorbed before the reader is told anything.
+    EARTHQUAKE_STALE_MAX_SECONDS: z.coerce.number().int().positive().default(10_800),
 
     // ── Book video solutions: the YouTube Data API v3 sync leg (SPEC §8, §14) ───
     // Master switch for the book leg's INGEST half — and ONLY that half. The two public endpoints
@@ -851,6 +857,21 @@ export const envSchema = z
       limit: 'EARTHQUAKE_RECONCILE_WINDOW_DAYS',
       limitValue: env.EARTHQUAKE_RECONCILE_WINDOW_DAYS * 86_400,
       reason: 'the reconcile window must cover more ground than the interval that repeats it',
+    });
+
+    // 4. The staleness budget must outlast the cadence that refreshes it. Set the other way round,
+    //    a perfectly healthy leg stamps its own data `stale` between two consecutive tours — and a
+    //    freshness warning that fires while nothing is wrong is one readers learn to ignore before
+    //    the outage it exists for.
+    checkEnvBound(ctx, {
+      kind: 'must-be-smaller-than',
+      subject: 'EARTHQUAKE_INGEST_INTERVAL_SECONDS',
+      subjectValue: env.EARTHQUAKE_INGEST_INTERVAL_SECONDS,
+      limit: 'EARTHQUAKE_STALE_MAX_SECONDS',
+      limitValue: env.EARTHQUAKE_STALE_MAX_SECONDS,
+      reason:
+        'a staleness budget shorter than the polling interval marks healthy data stale between ' +
+        'two ordinary tours',
     });
   });
 
