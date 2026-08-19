@@ -80,14 +80,30 @@ export class OperationDeadline {
    * `true` for every abort that leg can ever produce and disarm its breaker outright. The
    * `cmems` leg is exactly this shape at stock defaults — `CMEMS_SINGLE_CALL_TIMEOUT_MS` (6 000)
    * equals `MARINE_UPSTREAM_DEADLINE_MS` (6 000), a recorded decision (`MarineValuesService`,
-   * review #81 M5) — and the elevation leg becomes it the moment an operator sets
-   * `ELEVATION_SINGLE_CALL_TIMEOUT_MS` to the whole 12 s the env schema allows.
+   * review #81 M5).
    *
    * The honest reading of that configuration is the opposite one: an operator who lets ONE call
    * spend the entire budget has declared the budget to be that call's allowance, so a call that
    * spends all of it and answers nothing IS evidence about the provider. Two indistinguishable
    * cases must resolve toward recording, not toward excusing — a breaker that never opens is the
    * failure mode with no upper bound.
+   *
+   * ## …and that reading holds ONLY where every call really gets the whole window
+   * It is an argument about one call per operation, or a handful fired together at t≈0 — the
+   * marine shape, where each of the ≤3 CMEMS keys does receive all 6 000 ms. It is FALSE for a leg
+   * that drains a QUEUE across one shared budget: there {@link signalFor} hands the late calls
+   * `min(cap, remaining)`, a few hundred milliseconds rather than "the entire budget", so `false`
+   * here would excuse nothing and the whole in-flight wave would reach the breaker as provider
+   * evidence at once — past the failure threshold, against a provider that answered every call it
+   * finished (review #124, SFH124-C1 and CODE124R3-I1).
+   *
+   * The invariant this short-circuit rests on is therefore a property of the CALLER, and it is
+   * enforced where a caller's shape is fixed: at boot. The elevation leg is the fan-out shape
+   * (`ElevationProfileService` mints one deadline for `ELEVATION_TILE_FETCH_CONCURRENCY` workers),
+   * so its env cross-check refuses a cap equal to the budget outright instead of allowing it as
+   * the marine pair does — see the elevation block in `env.schema.ts`. **A NEW leg that fans out
+   * under one shared deadline must do the same**: give it a strict cross-check, or this line will
+   * quietly take that leg's breaker off the wall.
    */
   cutsCallShort(singleCallTimeoutMs: number): boolean {
     if (singleCallTimeoutMs >= this.budgetMs) return false;

@@ -772,14 +772,24 @@ describe('validateEnv — the elevation (AWS terrain tiles) block', () => {
     // describe above and is not repeated here.
   });
 
-  it('refuses one tile fetch allowed more time than the whole request budget', () => {
+  it('refuses one tile fetch allowed as much time as the whole request budget', () => {
     expect(() => validateEnv({ ...BASE, ELEVATION_SINGLE_CALL_TIMEOUT_MS: '20000' })).toThrow(
       /ELEVATION_SINGLE_CALL_TIMEOUT_MS/,
     );
 
-    // Equality is legal here: a single call may consume the whole budget, it simply leaves nothing
-    // for a second one.
-    expect(() => validateEnv({ ...BASE, ELEVATION_SINGLE_CALL_TIMEOUT_MS: '12000' })).not.toThrow();
+    // Equality is refused too, and ONLY on this leg — the marine and CMEMS pairs keep it. A cap
+    // equal to the budget is what `OperationDeadline.cutsCallShort` reads as "this leg hands every
+    // call the whole window", after which it stops distinguishing our own ceiling from a provider
+    // fault. True of CMEMS (≤3 keys, all fired at t≈0); false here, where the tile workers drain a
+    // queue across one budget, so the late tiles are ended by OUR brake and would be recorded as
+    // provider failures until the circuit opened (review #124, CODE124R3-I1).
+    expect(() => validateEnv({ ...BASE, ELEVATION_SINGLE_CALL_TIMEOUT_MS: '12000' })).toThrow(
+      /ELEVATION_SINGLE_CALL_TIMEOUT_MS/,
+    );
+
+    // The positive control for both refusals: one millisecond under the budget still boots, so a
+    // red line here would mean the bound refuses everything rather than refusing equality.
+    expect(() => validateEnv({ ...BASE, ELEVATION_SINGLE_CALL_TIMEOUT_MS: '11999' })).not.toThrow();
   });
 
   it('refuses a per-request tile ceiling below the fixed sample count', () => {

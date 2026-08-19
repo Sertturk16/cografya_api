@@ -959,14 +959,35 @@ export const envSchema = z
       });
     }
 
-    // 2. One tile fetch cannot be allowed more time than the request it runs inside.
+    // 2. One tile fetch is bounded by the request it runs inside — and STRICTLY here, unlike the
+    //    marine and CMEMS call/deadline pairs above, which deliberately allow the two to be equal.
+    //
+    //    The asymmetry is the shape of the leg, not a preference. Equality says "one call may
+    //    spend the whole budget", and that sentence is honest only where every call of the
+    //    operation really is handed the whole window: `MarineValuesService` fires its ≤3 CMEMS
+    //    keys together at t≈0 and each one genuinely gets all 6 000 ms (review #81 M5). This leg
+    //    is the other shape — `ElevationProfileService` mints ONE `OperationDeadline` and drains a
+    //    tile queue across it with `ELEVATION_TILE_FETCH_CONCURRENCY` workers, so the LATE tiles
+    //    are handed `min(cap, remaining)`, a few hundred milliseconds, and are ended by OUR
+    //    ceiling rather than by the provider.
+    //
+    //    `OperationDeadline.cutsCallShort` is what tells those two apart, and it answers `false`
+    //    unconditionally once the cap reaches the budget — the clause that keeps the CMEMS breaker
+    //    armed. On a fan-out leg that same clause turns the client's "our brake, not provider
+    //    evidence" branch into dead code: the whole in-flight wave aborts at the ceiling, is
+    //    recorded as provider failure, and the circuit opens against a bucket that answered every
+    //    call it finished. Refusing equality is what keeps that predicate honest on this leg
+    //    (review #124, SFH124-C1 and CODE124R3-I1).
     checkEnvBound(ctx, {
-      kind: 'must-not-exceed',
+      kind: 'must-be-shorter-than',
       subject: 'ELEVATION_SINGLE_CALL_TIMEOUT_MS',
       subjectValue: env.ELEVATION_SINGLE_CALL_TIMEOUT_MS,
       limit: 'ELEVATION_UPSTREAM_DEADLINE_MS',
       limitValue: env.ELEVATION_UPSTREAM_DEADLINE_MS,
-      reason: 'a single tile fetch cannot be allowed more time than the whole request budget',
+      reason:
+        'the tile fetches drain one shared budget, so a cap equal to it can never be honoured by ' +
+        'the late tiles and turns our own ceiling aborts into circuit-breaker evidence against a ' +
+        'healthy provider',
     });
 
     // 3. The per-request tile ceiling may not sit below the number of tiles a request can
