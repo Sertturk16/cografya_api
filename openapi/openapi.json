@@ -4341,6 +4341,11 @@
             "example": "ok",
             "description": "Structural freshness verdict for the store as a whole. \"stale\" still serves data — stale data is shown with its age, never hidden."
           },
+          "disclaimerTr": {
+            "type": "string",
+            "example": "Bu sayfa, AFAD'ın yayımladığı gerçekleşmiş deprem kayıtlarını gösterir. Erken uyarı sistemi değildir; gelecek depremler hakkında bilgi vermez.",
+            "description": "The early-warning disclaimer, in Turkish, owner-ruled and VERBATIM (DEC 2026-08-19l). Render it wherever earthquake data is shown; never translate, shorten or re-word it. It is a liability note rather than interface copy, which is why the API publishes the sentence itself while every other reader-facing string on this leg is the web repo to author. Constant, so it is served on the cold path too."
+          },
           "attributions": {
             "description": "Required provider attribution, populated on EVERY response including this one and including the cold path. A licence notice that blinks with provider health does not discharge the obligation.",
             "type": "array",
@@ -4357,6 +4362,7 @@
           "dataUpdatedAtUtc",
           "latestEventAtUtc",
           "dataStatus",
+          "disclaimerTr",
           "attributions"
         ]
       },

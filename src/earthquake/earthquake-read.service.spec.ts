@@ -6,6 +6,7 @@ import type {
   EarthquakePage,
   EarthquakeReadStorePort,
 } from './earthquake-read.store';
+import { EARTHQUAKE_DISCLAIMER_TR } from './earthquake-disclaimer.constant';
 import type { EarthquakeUpstreamConfig } from './earthquake-upstream.config';
 import { AFAD_TDVMS_BUDGET } from './earthquake-upstream.config';
 import { EarthquakeEvent } from './entities/earthquake-event.entity';
@@ -370,8 +371,28 @@ describe('EarthquakeReadService', () => {
       expect(body.attributions).toHaveLength(1);
     });
 
-    it('does not carry disclaimerTr — that lands in E4 with its approved text', async () => {
-      expect(await service.getMeta()).not.toHaveProperty('disclaimerTr');
+    /**
+     * E3 asserted this field's ABSENCE; E4 landed it with its owner ruling, so the assertion is
+     * inverted rather than deleted — the point of the original case was that the field may not
+     * appear by accident, and that is still what this one says.
+     *
+     * The value is compared against the CONSTANT, never against a literal retyped here: the
+     * literal lives once, in `earthquake-disclaimer.constant.spec.ts`, where the byte pin and the
+     * apostrophe code point are asserted. Retyping it in a second place would create a copy that
+     * can agree with itself while both drift from the ruling.
+     */
+    it('carries the owner-ruled disclaimer, verbatim from the constant', async () => {
+      expect((await service.getMeta()).disclaimerTr).toBe(EARTHQUAKE_DISCLAIMER_TR);
+    });
+
+    /** Constant, so it does not depend on the store's health — the cold path publishes it too. */
+    it('publishes the disclaimer on a cold store as well', async () => {
+      store.storeHoldsRows = false;
+      store.runFinishedAt = null;
+      const body = await service.getMeta();
+
+      expect(body.dataStatus).toBe(EarthquakeDataStatus.Unavailable);
+      expect(body.disclaimerTr).toBe(EARTHQUAKE_DISCLAIMER_TR);
     });
 
     it('reports the newest event it holds, store-wide', async () => {
