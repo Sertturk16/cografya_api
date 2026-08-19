@@ -544,6 +544,223 @@
           "books"
         ]
       }
+    },
+    "/api/earthquakes": {
+      "get": {
+        "description": "Returns the shared list envelope, newest first, tie-broken so a row cannot appear on two pages. Reads the local store only and NEVER waits for AFAD. The default window is the last 7 days at magnitude 2.5 and up; the window and threshold actually applied come back in meta.filter. On a cold store the response is 200 with an empty items array, meta.dataStatus \"unavailable\" and Cache-Control: no-store, which ISR/SSG must not commit. These are RECORDED earthquakes: nothing here predicts, forecasts or warns.",
+        "operationId": "EarthquakeController_listEvents",
+        "parameters": [
+          {
+            "name": "minMagnitude",
+            "required": false,
+            "in": "query",
+            "description": "Only events at or above this magnitude. Applied at display time, never at ingest — everything is stored, so lowering it returns real data rather than a hole. The applied value is echoed back in meta.filter.",
+            "schema": {
+              "minimum": -1,
+              "maximum": 10,
+              "default": 2.5,
+              "example": 2.5,
+              "type": "number"
+            }
+          },
+          {
+            "name": "fromUtc",
+            "required": false,
+            "in": "query",
+            "description": "Window start, inclusive. MUST carry an explicit zone (Z or ±HH:MM) — a timezone-less timestamp is rejected rather than guessed. Defaults to 7 days before the window end; the window applied is echoed back as concrete instants in meta.filter.",
+            "schema": {
+              "format": "date-time",
+              "example": "2026-08-12T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "toUtc",
+            "required": false,
+            "in": "query",
+            "description": "Window end, inclusive, with the same explicit-zone rule as fromUtc. Defaults to now plus the clock-skew allowance, so an event stamped slightly ahead of our clock is still the newest row rather than an invisible one. The window may span at most 366 days.",
+            "schema": {
+              "format": "date-time",
+              "example": "2026-08-19T12:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page to read, 1-based. A page past the end answers 200 with an empty items array, never 404.",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "format": "int32",
+              "default": 1,
+              "example": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "description": "Rows per page. Read a whole window by paging until hasMore is false; this ceiling is the contract that bounds how many requests that takes.",
+            "schema": {
+              "minimum": 1,
+              "maximum": 200,
+              "format": "int32",
+              "default": 50,
+              "example": 50,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EarthquakeListDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A query parameter is out of range, malformed, or not recognised — unknown parameters are rejected rather than ignored. Also returned when fromUtc is later than toUtc, when either omits its timezone, or when the window spans more than 366 days."
+          }
+        },
+        "summary": "Recent earthquakes in Türkiye and its surroundings, paginated (the /deprem hub).",
+        "tags": [
+          "earthquakes"
+        ]
+      }
+    },
+    "/api/earthquakes/meta": {
+      "get": {
+        "description": "Structural values only: the default magnitude floor, the scope buffer the stored rows were classified with, the window bounds, and how fresh the store is. The labels a reader sees belong to the web repo — this endpoint carries no interface copy and no i18n key. Served from the local store and constants; never calls AFAD.",
+        "operationId": "EarthquakeController_getMeta",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EarthquakeMetaDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Defaults, scope and data freshness for the earthquake endpoints.",
+        "tags": [
+          "earthquakes"
+        ]
+      }
+    },
+    "/api/earthquakes/provinces/{plateCode}": {
+      "get": {
+        "description": "The same envelope as the hub, filtered to the events bound to this province. Read bindingKind on every item before writing a sentence about it: the provider files an event under the NEAREST Turkish province, so an event across the border arrives tagged with a Turkish province and rendering it as \"an earthquake in <province>\" is factually wrong. A plate code that names no province is a 404; a malformed one is a 400.",
+        "operationId": "EarthquakeController_listProvinceEvents",
+        "parameters": [
+          {
+            "name": "plateCode",
+            "required": true,
+            "in": "path",
+            "description": "Two-digit zero-padded province plate code.",
+            "schema": {
+              "pattern": "^\\d{2}$",
+              "example": "46",
+              "type": "string"
+            }
+          },
+          {
+            "name": "minMagnitude",
+            "required": false,
+            "in": "query",
+            "description": "Only events at or above this magnitude. Applied at display time, never at ingest — everything is stored, so lowering it returns real data rather than a hole. The applied value is echoed back in meta.filter.",
+            "schema": {
+              "minimum": -1,
+              "maximum": 10,
+              "default": 2.5,
+              "example": 2.5,
+              "type": "number"
+            }
+          },
+          {
+            "name": "fromUtc",
+            "required": false,
+            "in": "query",
+            "description": "Window start, inclusive. MUST carry an explicit zone (Z or ±HH:MM) — a timezone-less timestamp is rejected rather than guessed. Defaults to 7 days before the window end; the window applied is echoed back as concrete instants in meta.filter.",
+            "schema": {
+              "format": "date-time",
+              "example": "2026-08-12T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "toUtc",
+            "required": false,
+            "in": "query",
+            "description": "Window end, inclusive, with the same explicit-zone rule as fromUtc. Defaults to now plus the clock-skew allowance, so an event stamped slightly ahead of our clock is still the newest row rather than an invisible one. The window may span at most 366 days.",
+            "schema": {
+              "format": "date-time",
+              "example": "2026-08-19T12:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page to read, 1-based. A page past the end answers 200 with an empty items array, never 404.",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "format": "int32",
+              "default": 1,
+              "example": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "description": "Rows per page. Read a whole window by paging until hasMore is false; this ceiling is the contract that bounds how many requests that takes.",
+            "schema": {
+              "minimum": 1,
+              "maximum": 200,
+              "format": "int32",
+              "default": 50,
+              "example": 50,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EarthquakeListDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "plateCode is not exactly two digits, or a query parameter is out of range, malformed or not recognised."
+          },
+          "404": {
+            "description": "No province carries this plate code."
+          }
+        },
+        "summary": "Recent earthquakes bound to one province.",
+        "tags": [
+          "earthquakes"
+        ]
+      }
     }
   },
   "info": {
@@ -3776,6 +3993,72 @@
           "hasMore",
           "items",
           "meta"
+        ]
+      },
+      "EarthquakeMetaDto": {
+        "type": "object",
+        "properties": {
+          "minMagnitudeDefault": {
+            "type": "number",
+            "example": 2.5,
+            "description": "The magnitude floor applied when a list request names none. Published so the web repo can say what the reader is looking at without hardcoding the number."
+          },
+          "scopeBufferKm": {
+            "type": "number",
+            "example": 200,
+            "description": "How far beyond the national outline of Türkiye, in km, an event still belongs on these pages. This is the SAME buffer the stored rows were classified with, not a second copy of it — the structural half of the scope label the web repo writes."
+          },
+          "defaultWindowDays": {
+            "type": "number",
+            "example": 7,
+            "description": "Width in days of the window a list request gets when it names neither end."
+          },
+          "maxWindowDays": {
+            "type": "number",
+            "example": 366,
+            "description": "The widest window a single list request may ask for; wider is a 400."
+          },
+          "dataUpdatedAtUtc": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "example": "2026-08-19T11:55:00.000Z",
+            "description": "When our last SUCCESSFUL contact with the provider finished, UTC; null before there has been one. This — not build time — is what a dateModified or a sitemap lastmod derives from."
+          },
+          "latestEventAtUtc": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "example": "2026-08-19T10:31:07.000Z",
+            "description": "Origin time of the newest event we hold, UTC; null when the store holds none. A concrete fact for a page description, not a freshness claim — a quiet hour and an outage look identical from this field alone, which is why dataUpdatedAtUtc exists beside it."
+          },
+          "dataStatus": {
+            "enum": [
+              "ok",
+              "stale",
+              "unavailable"
+            ],
+            "type": "string",
+            "example": "ok",
+            "description": "Structural freshness verdict for the store as a whole. \"stale\" still serves data — stale data is shown with its age, never hidden."
+          },
+          "attributions": {
+            "description": "Required provider attribution, populated on EVERY response including this one and including the cold path. A licence notice that blinks with provider health does not discharge the obligation.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EarthquakeAttributionDto"
+            }
+          }
+        },
+        "required": [
+          "minMagnitudeDefault",
+          "scopeBufferKm",
+          "defaultWindowDays",
+          "maxWindowDays",
+          "dataUpdatedAtUtc",
+          "latestEventAtUtc",
+          "dataStatus",
+          "attributions"
         ]
       }
     }

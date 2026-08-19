@@ -1,7 +1,10 @@
 import type { INestApplication } from '@nestjs/common';
-import { DocumentBuilder, type OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
-import { EarthquakeAttributionDto } from '../earthquake/dto/earthquake-attribution.dto';
-import { EarthquakeListDto } from '../earthquake/dto/earthquake-list.dto';
+import {
+  DocumentBuilder,
+  type OpenAPIObject,
+  type SwaggerDocumentOptions,
+  SwaggerModule,
+} from '@nestjs/swagger';
 
 /**
  * Schemas published WITHOUT a route.
@@ -39,11 +42,20 @@ import { EarthquakeListDto } from '../earthquake/dto/earthquake-list.dto';
  * book schemas on every CI run, so the guard is a test rather than a list entry — and unlike an
  * entry, a test can fail. Verified after regeneration: the schema set is unchanged.
  *
- * `EarthquakeListDto` and `EarthquakeAttributionDto` stay because E3 has not landed and neither has
- * a route. The attribution entry there carries the same weak justification and should be re-read
- * when E3 removes the list entry — flagged, not fixed here, because that file is E3's range.
+ * **E3 emptied it, which is the rule working rather than the rule expiring.** `EarthquakeListDto`
+ * left when the hub and province routes started returning it, and `EarthquakeAttributionDto` left
+ * with it: the scanner now reaches every earthquake schema through a `$ref` chain —
+ * `EarthquakeEventDto`, `EarthquakeListMetaDto` and `EarthquakeFilterEchoDto` through
+ * `EarthquakeListDto`, and the attribution through both that chain and `EarthquakeMetaDto`. Keeping
+ * the attribution entry "for safety" was already identified as belt-and-braces above, and belt-and
+ * braces is what makes this list publish schemas nothing references. Verified by regenerating: the
+ * schema set gained `EarthquakeMetaDto` and lost nothing.
+ *
+ * The empty array is deliberate rather than a deleted option: the next contract-first PR needs the
+ * mechanism, and finding it here — with the reasoning above — is cheaper than rediscovering that
+ * `extraModels` is the only way to publish a schema without a route.
  */
-const ROUTELESS_CONTRACT_MODELS = [EarthquakeListDto, EarthquakeAttributionDto];
+const ROUTELESS_CONTRACT_MODELS: NonNullable<SwaggerDocumentOptions['extraModels']> = [];
 
 /**
  * Builds the OpenAPI document. Single source of truth for the spec, shared by:

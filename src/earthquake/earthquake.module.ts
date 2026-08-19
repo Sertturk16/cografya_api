@@ -15,7 +15,14 @@ import { UpstreamMetrics } from '../upstream/upstream-metrics';
 import { UpstreamModule } from '../upstream/upstream.module';
 import { EarthquakeEvent } from './entities/earthquake-event.entity';
 import { EarthquakeIngestRun } from './entities/earthquake-ingest-run.entity';
+import { EarthquakeController } from './earthquake.controller';
 import { EarthquakeIngestJobKind } from './earthquake.types';
+import { EarthquakeReadService } from './earthquake-read.service';
+import {
+  EarthquakeReadStore,
+  EARTHQUAKE_READ_STORE,
+  type EarthquakeReadStorePort,
+} from './earthquake-read.store';
 import {
   buildEarthquakeUpstreamConfig,
   EARTHQUAKE_UPSTREAM_CONFIG,
@@ -53,23 +60,40 @@ export const EARTHQUAKE_RECENT_TARGET = Symbol('EARTHQUAKE_RECENT_TARGET');
 export const EARTHQUAKE_RECONCILE_TARGET = Symbol('EARTHQUAKE_RECONCILE_TARGET');
 
 /**
- * The earthquake leg (E2 — ingest only).
- *
- * ## No controller, and that is the whole scope
- * E2 fills the store; E3 opens the endpoints (SPEC §16). The order is deliberate: when the public
- * routes arrive the store is already warm, so the first real request never lands on a cold path.
+ * The earthquake leg: ingest (E2) plus the public read path (E3).
  *
  * ## `EARTHQUAKE_ENABLED` gates the UPSTREAM half only
  * With the default (`false`) a fresh deployment schedules nothing at all — not "registers no
  * targets while a timer keeps waking the process". The target is not even constructed, so there is
  * no path on which a registered target could still reach AFAD.
+ *
+ * **The controller and the read providers are registered UNCONDITIONALLY**, on both sides of that
+ * switch. A kill switch that also removed the routes would turn a data-freshness problem into a
+ * 404 storm across the web build, and the honest cold answer (`dataStatus: 'unavailable'` +
+ * `no-store`) is what a consumer can actually act on. The consequence is the go-live rider: the
+ * web `/deprem` page must not ship while the flag is off.
+ *
+ * ## Two ports over the same two tables, deliberately
+ * `EARTHQUAKE_INGEST_STORE` writes, prunes and records runs; `EARTHQUAKE_READ_STORE` only reads.
+ * The public request path is given the second one, so no request handler holds the authority to
+ * delete a row (`ENGINEERING.md` §3).
  */
 @Module({
   imports: [
+    // `Province` is read by the province path's 404 check; it was registered in E2 and unused until
+    // now (`CODE118-M5`).
     TypeOrmModule.forFeature([EarthquakeEvent, EarthquakeIngestRun, Province]),
     UpstreamModule,
   ],
+  controllers: [EarthquakeController],
   providers: [
+    EarthquakeReadService,
+    {
+      provide: EARTHQUAKE_READ_STORE,
+      inject: [DataSource],
+      useFactory: (dataSource: DataSource): EarthquakeReadStorePort =>
+        new EarthquakeReadStore(dataSource),
+    },
     {
       provide: EARTHQUAKE_UPSTREAM_CONFIG,
       inject: [ConfigService],
@@ -182,6 +206,7 @@ export const EARTHQUAKE_RECONCILE_TARGET = Symbol('EARTHQUAKE_RECONCILE_TARGET')
   exports: [
     EARTHQUAKE_UPSTREAM_CONFIG,
     EARTHQUAKE_INGEST_STORE,
+    EARTHQUAKE_READ_STORE,
     EARTHQUAKE_RECENT_WARMUP,
     EARTHQUAKE_RECONCILE_WARMUP,
   ],

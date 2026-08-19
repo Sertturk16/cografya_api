@@ -33,7 +33,14 @@ export const AFAD_TDVMS_PROVIDER = 'afad-tdvms';
  */
 export const AFAD_TDVMS_BUDGET: ProviderBudgetLimits = { perMinute: 10, perHour: 60, perDay: 600 };
 
-/** Everything the earthquake ingest needs from env, resolved ONCE (the marine/air-quality shape). */
+/**
+ * Everything the earthquake LEG needs from env, resolved ONCE (the marine/air-quality shape).
+ *
+ * Ingest-only until E3, which added `staleMaxSeconds`. The read path shares this object rather than
+ * getting a second one deliberately: it must publish the SAME `scopeBufferKm` the stored rows were
+ * classified with, and two config objects reading two env variables is exactly how those two
+ * numbers would drift apart.
+ */
 export interface EarthquakeUpstreamConfig {
   /** `EARTHQUAKE_ENABLED` — the leg's master switch for everything upstream. */
   readonly enabled: boolean;
@@ -63,6 +70,13 @@ export interface EarthquakeUpstreamConfig {
   /** D-B, revised to 200 km by `DEC 2026-08-17k` md.4 (was 150 in `DEC 2026-08-12k`). */
   readonly scopeBufferKm: number;
   readonly runRetentionDays: number;
+  /**
+   * READ PATH: how old the newest successful tour may be before responses publish
+   * `dataStatus: 'stale'`. The data keeps being served — a stale list is shown with its age, never
+   * hidden, because an old quiet list read as the present is the misreading this leg exists to
+   * avoid. Boot refuses a value at or below `EARTHQUAKE_INGEST_INTERVAL_SECONDS`.
+   */
+  readonly staleMaxSeconds: number;
   readonly budget: ProviderBudgetLimits;
 }
 
@@ -91,6 +105,7 @@ export function buildEarthquakeUpstreamConfig(
     safetyLimit: config.getOrThrow('EARTHQUAKE_SAFETY_LIMIT', { infer: true }),
     scopeBufferKm: config.getOrThrow('EARTHQUAKE_SCOPE_BUFFER_KM', { infer: true }),
     runRetentionDays: config.getOrThrow('EARTHQUAKE_RUN_RETENTION_DAYS', { infer: true }),
+    staleMaxSeconds: config.getOrThrow('EARTHQUAKE_STALE_MAX_SECONDS', { infer: true }),
     budget: AFAD_TDVMS_BUDGET,
   };
 }

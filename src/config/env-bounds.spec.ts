@@ -77,11 +77,11 @@ const BOUND_MESSAGE =
  * A bound expressed through the helper instead. One match per call site.
  *
  * The import (`import { checkEnvBound } from './env-bounds'`) carries no opening parenthesis, so it
- * is not counted — verified with a positive control: the pattern reports 12 against the file today
- * and 13 against a copy with one call site duplicated. (The figure was left behind when the
+ * is not counted — verified with a positive control: the pattern reports 13 against the file today
+ * and 14 against a copy with one call site duplicated. (The figure was left behind when the
  * earthquake leg moved the constant below, so the control's own evidence disagreed with the
  * constant it validates and no reader could tell which of the two had rotted — review #118
- * CODE118-M1.)
+ * CODE118-M1. Re-measured, not re-typed, when E3 added the thirteenth helper bound.)
  */
 const HELPER_BOUND_CALL = /checkEnvBound\(/g;
 
@@ -96,8 +96,12 @@ const HELPER_BOUND_CALL = /checkEnvBound\(/g;
  * checked against BOTH of that leg's intervals, and one window-wider-than-its-cadence check per
  * cadence. The gate fired exactly as designed when they landed — the number was not adjusted in
  * advance, it was adjusted because the assertion went red.
+ *
+ * 12 → 13 with E3: the same leg's READ path added one, `EARTHQUAKE_INGEST_INTERVAL_SECONDS` against
+ * `EARTHQUAKE_STALE_MAX_SECONDS`, so a healthy leg cannot stamp its own data stale between two
+ * ordinary tours.
  */
-const HELPER_BOUND_COUNT = 12;
+const HELPER_BOUND_COUNT = 13;
 
 /**
  * The thirteen cross-checks `env.schema.ts` runs today, each with values that BREACH it and the

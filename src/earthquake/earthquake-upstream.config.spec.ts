@@ -34,12 +34,13 @@ const VALUES: Record<string, unknown> = {
   EARTHQUAKE_SAFETY_LIMIT: 20_000,
   EARTHQUAKE_SCOPE_BUFFER_KM: 200,
   EARTHQUAKE_RUN_RETENTION_DAYS: 14,
+  EARTHQUAKE_STALE_MAX_SECONDS: 10_800,
 };
 
 /**
- * The same 15 keys with a DISTINCT value each, so a mis-wiring is visible.
+ * The same 16 keys with a DISTINCT value each, so a mis-wiring is visible.
  *
- * Twelve of the fifteen fields are plain `number`, so swapping two of them — `responseMaxBytes`
+ * Thirteen of the sixteen fields are plain `number`, so swapping two of them — `responseMaxBytes`
  * wired to `EARTHQUAKE_SAFETY_LIMIT`, say, which would cap every response at 20 KB against a
  * measured 203 KB reconcile payload — compiles, type-checks and passes any spec asserting a subset
  * with production-shaped values (review #118 TA118-M3). Distinct values are what make the
@@ -61,6 +62,7 @@ const DISTINCT: Record<string, unknown> = {
   EARTHQUAKE_SAFETY_LIMIT: 111,
   EARTHQUAKE_SCOPE_BUFFER_KM: 222,
   EARTHQUAKE_RUN_RETENTION_DAYS: 333,
+  EARTHQUAKE_STALE_MAX_SECONDS: 444,
 };
 
 describe('buildEarthquakeUpstreamConfig', () => {
@@ -81,6 +83,7 @@ describe('buildEarthquakeUpstreamConfig', () => {
       safetyLimit: 111,
       scopeBufferKm: 222,
       runRetentionDays: 333,
+      staleMaxSeconds: 444,
       budget: AFAD_TDVMS_BUDGET,
     });
   });
