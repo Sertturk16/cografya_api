@@ -67,3 +67,19 @@ yarn-error.log*
 *.swp
 .vscode/*
 !.vscode/extensions.json
+
+# ACAG SatPM2.5 raw downloads — the same BELT as the ERA5/CAMS entries above.
+# `db:import:acag --phase=fetch` REQUIRES an explicit absolute `--raw-dir` and DELETES each
+# ~450 MB global `.nc` right after extracting its window, so the 27-file corpus normally never
+# comes near the repo. This entry catches the operator who points `--raw-dir` here deliberately
+# (or passes `--keep-raw`). The committed artifacts next to it (`acag-manifest.json`,
+# `acag-province-pm25.json`) identify every one of those files by SHA-256 forever.
+/data/acag-pm25/raw/
+/data/acag-pm25/*.nc
+/data/acag-pm25/*.nc.part
+
+# The artifacts of a FAILED run. Both committed artifacts are written as `<name>.part` and
+# renamed only after BOTH are complete, so a crash mid-write cannot leave a series file
+# beside a manifest whose `seriesSha256` no longer describes it. The `.part` remains are by
+# definition incomplete, so they must never be committable.
+/data/acag-pm25/*.json.part

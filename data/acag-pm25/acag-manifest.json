@@ -1,0 +1,398 @@
+{
+  "schemaVersion": 1,
+  "generatedAtUtc": "2026-08-19T14:54:54.580Z",
+  "sourceMode": "download",
+  "userAgent": "cografya-platform/1.0 (+https://github.com/Sertturk16; contact o.can.sertturk@gmail.com)",
+  "datasetVersion": "V6.GL.03",
+  "datasetUrl": "https://www.satpm.org/v6-gl-03",
+  "licenceName": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+  "licenceUrl": "https://creativecommons.org/licenses/by/4.0/?ref=chooser-v1",
+  "bucketBaseUrl": "http://satpmdata.s3.amazonaws.com",
+  "decoder": {
+    "package": "h5wasm",
+    "version": "0.10.3"
+  },
+  "window": {
+    "fullLatitudeLength": 13000,
+    "fullLongitudeLength": 36000,
+    "rowOffset": 9529,
+    "columnOffset": 20529,
+    "rowCount": 742,
+    "columnCount": 1992,
+    "latitudeStep": 0.009998321533203125,
+    "longitudeStep": 0.010000228881835938,
+    "latitudeFirst": 35.29499816894531,
+    "latitudeLast": 42.70500183105469,
+    "longitudeFirst": 25.295000076293945,
+    "longitudeLast": 45.20500183105469
+  },
+  "files": [
+    {
+      "year": 1998,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.199801-199812.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.199801-199812.nc",
+      "fileName": "V6GL03.CNNPM25.GL.199801-199812.nc",
+      "bytes": 424990555,
+      "sha256": "f775495ce8ce5ce909e374577918d22c7e7cc856f2495398074aedda499c9d47",
+      "timeCoverageAttribute": "1998",
+      "downloadMs": 81646,
+      "decodeMs": 176,
+      "rawDeleted": false
+    },
+    {
+      "year": 1999,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.199901-199912.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.199901-199912.nc",
+      "fileName": "V6GL03.CNNPM25.GL.199901-199912.nc",
+      "bytes": 424689177,
+      "sha256": "1fbb33489d05691ef37bc713e8850721a6256fed6a44fab432966266a1e55d19",
+      "timeCoverageAttribute": "1999",
+      "downloadMs": 64567,
+      "decodeMs": 67,
+      "rawDeleted": false
+    },
+    {
+      "year": 2000,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.200001-200012.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.200001-200012.nc",
+      "fileName": "V6GL03.CNNPM25.GL.200001-200012.nc",
+      "bytes": 426841260,
+      "sha256": "e85400aebfd0a62083a7bde65e70a7463f32c94703f09041807a99594efd0698",
+      "timeCoverageAttribute": "2000",
+      "downloadMs": 67338,
+      "decodeMs": 70,
+      "rawDeleted": false
+    },
+    {
+      "year": 2001,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.200101-200112.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.200101-200112.nc",
+      "fileName": "V6GL03.CNNPM25.GL.200101-200112.nc",
+      "bytes": 426151186,
+      "sha256": "ebd71f289e69634e34505ee27f31640166319e3498178f69d51a6b7b44ebc695",
+      "timeCoverageAttribute": "2001",
+      "downloadMs": 66346,
+      "decodeMs": 68,
+      "rawDeleted": false
+    },
+    {
+      "year": 2002,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.200201-200212.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.200201-200212.nc",
+      "fileName": "V6GL03.CNNPM25.GL.200201-200212.nc",
+      "bytes": 423570293,
+      "sha256": "a43254d29f813a75b6ea52f75b61ce786bed548d73ab643ce75be44564a61588",
+      "timeCoverageAttribute": "2002",
+      "downloadMs": 68284,
+      "decodeMs": 66,
+      "rawDeleted": false
+    },
+    {
+      "year": 2003,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.200301-200312.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.200301-200312.nc",
+      "fileName": "V6GL03.CNNPM25.GL.200301-200312.nc",
+      "bytes": 423203251,
+      "sha256": "513e42482c99bdba8115392969e93d8effc746635de7b745c059422d0fdfd03e",
+      "timeCoverageAttribute": "2003",
+      "downloadMs": 47751,
+      "decodeMs": 80,
+      "rawDeleted": false
+    },
+    {
+      "year": 2004,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.200401-200412.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.200401-200412.nc",
+      "fileName": "V6GL03.CNNPM25.GL.200401-200412.nc",
+      "bytes": 427360375,
+      "sha256": "de111b3255ab2b83f1806e72aff14c9df621088bec4b487c400d714fce3e0ddc",
+      "timeCoverageAttribute": "2004",
+      "downloadMs": 48655,
+      "decodeMs": 65,
+      "rawDeleted": false
+    },
+    {
+      "year": 2005,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.200501-200512.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.200501-200512.nc",
+      "fileName": "V6GL03.CNNPM25.GL.200501-200512.nc",
+      "bytes": 433910837,
+      "sha256": "2493ed898ab10410e8d20174df124a34e06d59ac69c0d3a36d3c6cd1ce5050c9",
+      "timeCoverageAttribute": "2005",
+      "downloadMs": 74309,
+      "decodeMs": 66,
+      "rawDeleted": false
+    },
+    {
+      "year": 2006,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.200601-200612.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.200601-200612.nc",
+      "fileName": "V6GL03.CNNPM25.GL.200601-200612.nc",
+      "bytes": 437135937,
+      "sha256": "7b8af2b190bac442f0b9d263df27607c883df2b11283099975950c54f0bf4da4",
+      "timeCoverageAttribute": "2006",
+      "downloadMs": 48152,
+      "decodeMs": 63,
+      "rawDeleted": false
+    },
+    {
+      "year": 2007,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.200701-200712.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.200701-200712.nc",
+      "fileName": "V6GL03.CNNPM25.GL.200701-200712.nc",
+      "bytes": 439445034,
+      "sha256": "8690db03fb3d58390e8f21395e6ee699f977359815c624741e90a2fabddc8e4e",
+      "timeCoverageAttribute": "2007",
+      "downloadMs": 46627,
+      "decodeMs": 60,
+      "rawDeleted": false
+    },
+    {
+      "year": 2008,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.200801-200812.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.200801-200812.nc",
+      "fileName": "V6GL03.CNNPM25.GL.200801-200812.nc",
+      "bytes": 440181659,
+      "sha256": "1b8c07814dbf94766fe53da42da7966bee79321eb6d3cf6029dc057cddc7d0fc",
+      "timeCoverageAttribute": "2008",
+      "downloadMs": 38099,
+      "decodeMs": 59,
+      "rawDeleted": false
+    },
+    {
+      "year": 2009,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.200901-200912.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.200901-200912.nc",
+      "fileName": "V6GL03.CNNPM25.GL.200901-200912.nc",
+      "bytes": 441896001,
+      "sha256": "357d2b1c04da99640c082aa8545a697fe6e890c09c656c7646c0b9c0577ec833",
+      "timeCoverageAttribute": "2009",
+      "downloadMs": 41426,
+      "decodeMs": 64,
+      "rawDeleted": false
+    },
+    {
+      "year": 2010,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.201001-201012.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.201001-201012.nc",
+      "fileName": "V6GL03.CNNPM25.GL.201001-201012.nc",
+      "bytes": 443594760,
+      "sha256": "31683f2ac0bc46925ed2b4d61ba73d8a8035afe04c9921bd26bf7eaa2a69280c",
+      "timeCoverageAttribute": "2010",
+      "downloadMs": 64601,
+      "decodeMs": 68,
+      "rawDeleted": false
+    },
+    {
+      "year": 2011,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.201101-201112.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.201101-201112.nc",
+      "fileName": "V6GL03.CNNPM25.GL.201101-201112.nc",
+      "bytes": 441487841,
+      "sha256": "6af6a78537dc21d329c10771f850f47f3e19fb6ffe6c48d5b8c7f94cf50e21ff",
+      "timeCoverageAttribute": "2011",
+      "downloadMs": 61320,
+      "decodeMs": 59,
+      "rawDeleted": false
+    },
+    {
+      "year": 2012,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.201201-201212.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.201201-201212.nc",
+      "fileName": "V6GL03.CNNPM25.GL.201201-201212.nc",
+      "bytes": 443106480,
+      "sha256": "fc2941387275c2f4dd9f2eccb986b119724cac229d3092db6de7a2df26417919",
+      "timeCoverageAttribute": "2012",
+      "downloadMs": 38127,
+      "decodeMs": 65,
+      "rawDeleted": false
+    },
+    {
+      "year": 2013,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.201301-201312.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.201301-201312.nc",
+      "fileName": "V6GL03.CNNPM25.GL.201301-201312.nc",
+      "bytes": 446648779,
+      "sha256": "2a51b7642251f7388c58d7c272ad820a7628e0fcd61835a736ac2be8062029f5",
+      "timeCoverageAttribute": "2013",
+      "downloadMs": 59282,
+      "decodeMs": 59,
+      "rawDeleted": false
+    },
+    {
+      "year": 2014,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.201401-201412.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.201401-201412.nc",
+      "fileName": "V6GL03.CNNPM25.GL.201401-201412.nc",
+      "bytes": 446983809,
+      "sha256": "39da5eab5c67ab02fb7faca6127f8b716ed7e6ecacdd89a444a7c191be0b6953",
+      "timeCoverageAttribute": "2014",
+      "downloadMs": 37296,
+      "decodeMs": 65,
+      "rawDeleted": false
+    },
+    {
+      "year": 2015,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.201501-201512.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.201501-201512.nc",
+      "fileName": "V6GL03.CNNPM25.GL.201501-201512.nc",
+      "bytes": 444524136,
+      "sha256": "edfec1857d7e6f4154e5c3934cf3260763f21701ab533af354633576ca8005c5",
+      "timeCoverageAttribute": "2015",
+      "downloadMs": 92863,
+      "decodeMs": 74,
+      "rawDeleted": false
+    },
+    {
+      "year": 2016,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.201601-201612.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.201601-201612.nc",
+      "fileName": "V6GL03.CNNPM25.GL.201601-201612.nc",
+      "bytes": 448217726,
+      "sha256": "ef34aa3d8084ca622cc6fdc3f7b7d7baee3cce38724611508260aa9a822bac86",
+      "timeCoverageAttribute": "2016",
+      "downloadMs": 67882,
+      "decodeMs": 76,
+      "rawDeleted": false
+    },
+    {
+      "year": 2017,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.201701-201712.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.201701-201712.nc",
+      "fileName": "V6GL03.CNNPM25.GL.201701-201712.nc",
+      "bytes": 451739600,
+      "sha256": "b8042893a2af171a24a3950559b6c71ce7884c60484d72fd85b2b872b972735e",
+      "timeCoverageAttribute": "2017",
+      "downloadMs": 64068,
+      "decodeMs": 79,
+      "rawDeleted": false
+    },
+    {
+      "year": 2018,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.201801-201812.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.201801-201812.nc",
+      "fileName": "V6GL03.CNNPM25.GL.201801-201812.nc",
+      "bytes": 450795280,
+      "sha256": "61e507f353b36cdbc61e5c46812945facf25f8a8c4e731e6b0ae5e48b2c20d7c",
+      "timeCoverageAttribute": "2018",
+      "downloadMs": 50295,
+      "decodeMs": 62,
+      "rawDeleted": false
+    },
+    {
+      "year": 2019,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.201901-201912.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.201901-201912.nc",
+      "fileName": "V6GL03.CNNPM25.GL.201901-201912.nc",
+      "bytes": 451769696,
+      "sha256": "aad4e88c9bb35d29ae32c91b7e2349235c9620ba291ca7eadaed76758a303d96",
+      "timeCoverageAttribute": "2019",
+      "downloadMs": 45230,
+      "decodeMs": 63,
+      "rawDeleted": false
+    },
+    {
+      "year": 2020,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.202001-202012.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.202001-202012.nc",
+      "fileName": "V6GL03.CNNPM25.GL.202001-202012.nc",
+      "bytes": 451561053,
+      "sha256": "22dc65b34400281cc3ee20d69839c02f1b08f42a941bb4cbd8cdff28a7c77e71",
+      "timeCoverageAttribute": "2020",
+      "downloadMs": 44676,
+      "decodeMs": 64,
+      "rawDeleted": false
+    },
+    {
+      "year": 2021,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.202101-202112.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.202101-202112.nc",
+      "fileName": "V6GL03.CNNPM25.GL.202101-202112.nc",
+      "bytes": 451881541,
+      "sha256": "35030532015e8d1e113afa31cdc1160f2df4c57782baabca30fa170680bcedc9",
+      "timeCoverageAttribute": "2021",
+      "downloadMs": 83162,
+      "decodeMs": 60,
+      "rawDeleted": false
+    },
+    {
+      "year": 2022,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.202201-202212.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.202201-202212.nc",
+      "fileName": "V6GL03.CNNPM25.GL.202201-202212.nc",
+      "bytes": 452580946,
+      "sha256": "0c0c1933f5d5e178fad3e770ef9c6c7cfa6daa2842fdad58c70ece60f3a2d3c1",
+      "timeCoverageAttribute": "2022",
+      "downloadMs": 39368,
+      "decodeMs": 59,
+      "rawDeleted": false
+    },
+    {
+      "year": 2023,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.202301-202312.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.202301-202312.nc",
+      "fileName": "V6GL03.CNNPM25.GL.202301-202312.nc",
+      "bytes": 448263138,
+      "sha256": "38a4157eb195706b6f6bd72a557002083ce7f8280211f004a958e1a6c141cf9a",
+      "timeCoverageAttribute": "2023",
+      "downloadMs": 37174,
+      "decodeMs": 61,
+      "rawDeleted": false
+    },
+    {
+      "year": 2024,
+      "objectKey": "V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.202401-202412.nc",
+      "url": "http://satpmdata.s3.amazonaws.com/V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.202401-202412.nc",
+      "fileName": "V6GL03.CNNPM25.GL.202401-202412.nc",
+      "bytes": 450250436,
+      "sha256": "9f1059f6a7d675a53f987e8b6ccc6981c3c29a867cc3a2324043a4eff2c19928",
+      "timeCoverageAttribute": "2024",
+      "downloadMs": 70867,
+      "decodeMs": 60,
+      "rawDeleted": false
+    }
+  ],
+  "seriesSha256": "3f93eee3e26af6669581c93ecc123a1f014fd2397dfb8b70784cc9847a54198b",
+  "assertions": [
+    {
+      "id": "A-01",
+      "passed": true,
+      "detail": "81 province record(s) (expected 81)."
+    },
+    {
+      "id": "A-04",
+      "passed": true,
+      "detail": "every cell is within half a cell of its province centre (worst 0.707 km, distances recomputed from the stored coordinates)."
+    },
+    {
+      "id": "A-05",
+      "passed": true,
+      "detail": "2187 value(s), all finite and in [1, 1000] µg/m³."
+    },
+    {
+      "id": "A-06",
+      "passed": true,
+      "detail": "both artifacts pin V6.GL.03. NOTE: in the FETCH phase this is tautological — the run wrote both values from this same constant. It becomes a real check at LOAD, against the committed files."
+    },
+    {
+      "id": "A-07",
+      "passed": true,
+      "detail": "27 year(s), 1998-2024, identical on all provinces and files."
+    },
+    {
+      "id": "A-08a",
+      "passed": true,
+      "detail": "both artifacts declare schema v1."
+    },
+    {
+      "id": "A-08b",
+      "passed": true,
+      "detail": "27 file(s), each with a SHA-256."
+    },
+    {
+      "id": "A-08c",
+      "passed": true,
+      "detail": "27 of 27 file(s) had a readable TIMECOVERAGE attribute; every one equals its file year."
+    }
+  ]
+}

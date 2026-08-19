@@ -6,7 +6,16 @@ import { computeClimateDerived } from './climate-derivations';
 import { ProvinceDetailDto } from './dto/province-detail.dto';
 import { ProvinceListItemDto } from './dto/province-list-item.dto';
 import { ProvinceMapSummaryDto } from './dto/province-map-summary.dto';
-import { CLIMATE_SOURCE_ERA5_LAND_MONTHLY, type Climate } from './province.types';
+import {
+  CLIMATE_SOURCE_ERA5_LAND_MONTHLY,
+  PM25_READING_POINT_PROVINCE_CENTRE,
+  PM25_SOURCE_ACAG_SATPM25,
+  type Climate,
+  type Pm25Annual,
+  type Pm25AnnualValue,
+} from './province.types';
+import { Pm25AnnualDto } from './dto/pm25-annual.dto';
+import { buildAcagAttribution } from './acag-attribution.constant';
 
 /**
  * Nüfus yoğunluğu (kişi/km²) from two verified values. A single source of truth
@@ -30,6 +39,7 @@ export function computePopulationDensity(
 
 /** Module-scoped logger for the one observable data-integrity signal `buildClimate` emits. */
 const climateLogger = new Logger('ProvinceClimate');
+const pm25Logger = new Logger('ProvincePm25');
 
 /**
  * Build the served climate payload from a stored series: the series itself PLUS the derived
@@ -107,6 +117,119 @@ export function buildClimate(
     return null;
   }
   return { ...normals, derived };
+}
+
+/**
+ * Build the published long-term PM2.5 payload, or `null` when there is nothing publishable.
+ *
+ * The two `latest*` fields are DERIVED here and never persisted, exactly as the climate
+ * derivations are: a stored copy of "the last year" would go stale the moment the series is
+ * refreshed, and the staleness would be invisible because both values would look plausible.
+ *
+ * The defensive branches are not decoration. This value comes out of a `jsonb` column, where the
+ * TypeScript type is an assertion about what the loader wrote, never a guarantee about what is
+ * there — the same reasoning `buildClimate` documents above. A malformed document is served as
+ * `null` (the section disappears) rather than as a payload the OpenAPI contract does not describe.
+ *
+ * ## Every published field is validated, and the object is built FIELD BY FIELD
+ * (review CODE123-I2 / SFH123-M4). This used to check `source` and `years` and then spread
+ * `...stored`, which broke the promise above in both directions. The precondition is not exotic —
+ * a hand-written `UPDATE` on this column is this line's own documented operational mode (the
+ * published kill switch is exactly that, and the e2e drives three malformed cases with
+ * `jsonb_set`):
+ *   - a document missing one required field still passed both checks, and the endpoint served
+ *     200 with the field absent while `openapi.json` declares it required and non-nullable — the
+ *     web repo's generated client types it non-optional, so the SSG build dereferences
+ *     `undefined`;
+ *   - any EXTRA key in the jsonb document was copied verbatim onto a public contract, because a
+ *     spread is not filtered by anything (this repo has no `ClassSerializerInterceptor` and no
+ *     `excludeExtraneousValues`, and `toDetail` returns a plain object literal).
+ * Naming every field is what makes the served shape exactly `Pm25AnnualDto` and nothing else.
+ */
+function buildServedPm25Annual(stored: Pm25Annual | null, plateCode: string): Pm25AnnualDto | null {
+  if (stored == null) {
+    return null;
+  }
+
+  // Widened to `string`: `Pm25Source` is a single-member literal type, so comparing it directly
+  // against its only member is a no-overlap error (TS2367).
+  const storedSource: string = stored.source;
+  if (storedSource !== PM25_SOURCE_ACAG_SATPM25) {
+    pm25Logger.warn(
+      `province ${plateCode}: pm25_annual names source ${JSON.stringify(storedSource)}, but this ` +
+        `build only serves ${JSON.stringify(PM25_SOURCE_ACAG_SATPM25)} — serving pm25Annual: ` +
+        `null rather than a payload whose shape the OpenAPI contract no longer declares.`,
+    );
+    return null;
+  }
+
+  const years = Array.isArray(stored.years) ? stored.years : [];
+  const usable = years.filter(
+    (entry): entry is Pm25AnnualValue =>
+      typeof entry === 'object' &&
+      entry !== null &&
+      Number.isFinite(entry.year) &&
+      Number.isFinite(entry.valueUgM3),
+  );
+  if (usable.length !== years.length || usable.length === 0) {
+    pm25Logger.warn(
+      `province ${plateCode}: pm25_annual carries ${String(years.length)} year entr(ies) of which ` +
+        `${String(usable.length)} are usable — serving pm25Annual: null. The import cannot ` +
+        `produce this, so the row was written by some other path and needs inspection.`,
+    );
+    return null;
+  }
+
+  // Ascending by year is a contract promise (`years` is documented as ascending), so it is
+  // ESTABLISHED here rather than assumed of the stored document.
+  const ascending = [...usable].sort((a, b) => a.year - b.year);
+  const latest = ascending[ascending.length - 1];
+  if (latest === undefined) {
+    return null;
+  }
+
+  // The remaining nine required fields. A missing or wrong-typed one degrades the section to
+  // `null` rather than serving a payload the published contract does not describe.
+  const readingPoint: string = stored.readingPoint;
+  if (
+    typeof stored.datasetVersion !== 'string' ||
+    stored.datasetVersion === '' ||
+    typeof stored.sourceUrl !== 'string' ||
+    stored.sourceUrl === '' ||
+    typeof stored.unit !== 'string' ||
+    stored.unit === '' ||
+    readingPoint !== PM25_READING_POINT_PROVINCE_CENTRE ||
+    !Number.isFinite(stored.gridCellSizeDeg) ||
+    !Number.isFinite(stored.cellLatitude) ||
+    !Number.isFinite(stored.cellLongitude) ||
+    !Number.isFinite(stored.cellDistanceKm)
+  ) {
+    pm25Logger.warn(
+      `province ${plateCode}: pm25_annual is missing or mistyping a required field — serving ` +
+        'pm25Annual: null rather than a payload the OpenAPI contract declares as complete. The ' +
+        'import cannot produce this, so the row was written by some other path.',
+    );
+    return null;
+  }
+
+  return {
+    source: PM25_SOURCE_ACAG_SATPM25,
+    datasetVersion: stored.datasetVersion,
+    sourceUrl: stored.sourceUrl,
+    gridCellSizeDeg: stored.gridCellSizeDeg,
+    unit: stored.unit,
+    readingPoint: PM25_READING_POINT_PROVINCE_CENTRE,
+    cellLatitude: stored.cellLatitude,
+    cellLongitude: stored.cellLongitude,
+    cellDistanceKm: stored.cellDistanceKm,
+    // Rebuilt ENTRY BY ENTRY too (review CODE123R2-M1 / SFH123R2-M2). `usable`'s type predicate
+    // narrows the type but returns the ORIGINAL objects, so a stray key inside a year entry
+    // survived the top-level rebuild and reached the public contract one level down.
+    years: ascending.map((entry) => ({ year: entry.year, valueUgM3: entry.valueUgM3 })),
+    latestYear: latest.year,
+    latestValueUgM3: latest.valueUgM3,
+    attribution: buildAcagAttribution(),
+  };
 }
 
 @Injectable()
@@ -267,6 +390,7 @@ export class ProvinceService {
       climateCurriculumNameTr: row.climateCurriculumNameTr,
       climateCurriculumNoteTr: row.climateCurriculumNoteTr,
       climate: buildClimate(row.climateNormals, row.plateCode),
+      pm25Annual: buildServedPm25Annual(row.pm25Annual, row.plateCode),
       climateNarrativeTr: row.climateNarrativeTr,
       landformNoteTr: row.landformNoteTr,
       hydrographyNoteTr: row.hydrographyNoteTr,

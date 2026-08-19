@@ -236,6 +236,7 @@ describe('Country (e2e)', () => {
       // `InitBookCatalogue`.
       'InitBookCatalogue1786752000000',
       'InitYoutubeVideoSnapshots1786755600000',
+      'AddProvincePm25Annual1787149250651',
     ]);
   });
 

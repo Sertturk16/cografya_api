@@ -31,6 +31,7 @@ import { InitEarthquakeEvents1786492800000 } from './migrations/1786492800000-In
 import { InitEarthquakeIngestRuns1786496400000 } from './migrations/1786496400000-InitEarthquakeIngestRuns';
 import { InitBookCatalogue1786752000000 } from './migrations/1786752000000-InitBookCatalogue';
 import { InitYoutubeVideoSnapshots1786755600000 } from './migrations/1786755600000-InitYoutubeVideoSnapshots';
+import { AddProvincePm25Annual1787149250651 } from './migrations/1787149250651-AddProvincePm25Annual';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -229,6 +230,7 @@ export function buildDataSourceOptions(
       InitEarthquakeIngestRuns1786496400000,
       InitBookCatalogue1786752000000,
       InitYoutubeVideoSnapshots1786755600000,
+      AddProvincePm25Annual1787149250651,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,

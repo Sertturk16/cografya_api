@@ -3,6 +3,7 @@ import { GeographicRegion } from '../../common/geographic-region.enum';
 import { ClimateDto } from './climate.dto';
 import { EconomyIndicatorDto } from './economy-indicator.dto';
 import { HydrographyFeatureDto } from './hydrography-feature.dto';
+import { Pm25AnnualDto } from './pm25-annual.dto';
 
 /**
  * Full detail payload for an il detay sayfası (SSG source).
@@ -183,6 +184,17 @@ export class ProvinceDetailDto {
       '(kilitli MGM Köppen uyarısı) DEĞİL; ayrı bir alandır. İçerik dalgaları doldurana kadar null.',
   })
   climateNarrativeTr!: string | null;
+
+  @ApiProperty({
+    type: Pm25AnnualDto,
+    nullable: true,
+    description:
+      'Uzun dönem hava kirliliği — ACAG SatPM2.5 yıllık ortalama PM2.5 serisi, il merkezine ' +
+      'düşen ~1 km hücreden okunur (il ORTALAMASI değildir). Null = yayınlanabilir seri yok → ' +
+      'web bölümü hiç render etmez. Canlı hava kalitesi endeksiyle (`/api/air-quality/...`) ' +
+      'KARIŞTIRILMAMALI: bu yıllık bir derişim, o saatlik bir endekstir.',
+  })
+  pm25Annual!: Pm25AnnualDto | null;
 
   @ApiProperty({
     type: String,
