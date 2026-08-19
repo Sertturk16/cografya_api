@@ -148,6 +148,11 @@ export class ProvinceService {
         slugEn: true,
         climateKoppen: true,
         climateNormals: true,
+        // Two numeric(9,6) scalars — the il-merkezi point. Added for the CBS measurement
+        // tools' province picker (CBS-P2 PR-E0); they cost nothing next to `climateNormals`
+        // already in this projection, and they are read straight through with no derivation.
+        latitude: true,
+        longitude: true,
       },
       order: { plateCode: 'ASC' },
     });
@@ -216,6 +221,12 @@ export class ProvinceService {
       // when the province has no publishable series (or, defensively, one not derivable).
       climateAnnualMeanTempC:
         buildClimate(row.climateNormals, row.plateCode)?.derived.annualMeanTempC ?? null,
+      // Read straight from the SAME column the detail path returns (`toDetail` below), with
+      // no rounding and no derivation, so the list and the detail can never disagree on where
+      // an il's reference point is. The measurement tools use this as a distance endpoint;
+      // two sources for one coordinate would show up as two different measured distances.
+      latitude: row.latitude,
+      longitude: row.longitude,
     };
   }
 

@@ -656,8 +656,14 @@ describe('Province (e2e)', () => {
     });
     // lean payload must NOT carry detail-only fields
     expect(body[0]).not.toHaveProperty('population');
-    expect(body[0]).not.toHaveProperty('latitude');
     expect(body[0]).not.toHaveProperty('climateNoteTr');
+    // `latitude`/`longitude` USED to be asserted absent here. They are now part of the list
+    // contract (CBS-P2 PR-E0): the measurement tools' 81-province picker needs the il-merkezi
+    // point, and deriving one from the map polygon would publish the centroid `GLOSSARY.md` §1
+    // forbids confusing with it. The line was replaced by its positive twin rather than
+    // deleted, so the boundary stays asserted in whichever direction it currently runs.
+    expect(body[0]).toHaveProperty('latitude');
+    expect(body[0]).toHaveProperty('longitude');
     // The müfredat fields are DETAIL-ONLY (Atlas ruling AK-2): the il hub renders no climate
     // header, so adding them here would widen a projection PR #67 deliberately kept lean. If a
     // later product decision puts the name on the hub, this line is where the decision is made
@@ -672,6 +678,42 @@ describe('Province (e2e)', () => {
     for (const row of body) {
       expect(row).toHaveProperty('climateAnnualMeanTempC');
       expect(row.climateAnnualMeanTempC).toBeNull();
+    }
+  });
+
+  // The invariant that makes the list coordinate USABLE as a measurement anchor: it must be
+  // the same point the detail page publishes, on every row. Two sources for one coordinate
+  // would surface as two different measured distances for the same pair of provinces, and
+  // neither number would look wrong on its own. Structural, not factual — it asserts that
+  // two endpoints agree, never that a particular il sits at a particular latitude, so a
+  // legitimate coordinate correction in the seed keeps this green.
+  it('publishes the SAME il-merkezi point on the list and the detail, for all 81', async () => {
+    const listRes = await request(app.getHttpServer()).get('/api/provinces').expect(200);
+    const list = listRes.body as Array<Record<string, unknown>>;
+    expect(list).toHaveLength(81);
+
+    // Every row carries a real point — the seed researched all 81, so a null here means a
+    // dropped column or a broken projection rather than a legitimately unknown value.
+    for (const row of list) {
+      expect(typeof row.latitude).toBe('number');
+      expect(typeof row.longitude).toBe('number');
+    }
+
+    // Compare against the detail for a spread of plates rather than all 81: the projection is
+    // one code path, so three rows exercise it exactly as well as eighty-one, and the suite
+    // does not spend 81 HTTP round trips proving one mapper.
+    for (const plateCode of ['01', '34', '81']) {
+      const listRow = list.find((row) => row.plateCode === plateCode);
+      expect(listRow).toBeDefined();
+      if (!listRow) continue; // strict narrowing; the toBeDefined above is the real guard
+
+      const detailRes = await request(app.getHttpServer())
+        .get(`/api/provinces/${String(listRow.slugTr)}`)
+        .expect(200);
+      const detail = detailRes.body as Record<string, unknown>;
+
+      expect(listRow.latitude).toBe(detail.latitude);
+      expect(listRow.longitude).toBe(detail.longitude);
     }
   });
 
