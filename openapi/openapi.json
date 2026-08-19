@@ -866,6 +866,191 @@
           "derived"
         ]
       },
+      "Pm25AnnualValueDto": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "number",
+            "example": 2024,
+            "description": "Veri yılı."
+          },
+          "valueUgM3": {
+            "type": "number",
+            "example": 22.74,
+            "description": "O yılın ortalama PM2.5 değeri (µg/m³) — ham sayı, biçimlenmiş dize değil. Biçimleme web deposunun işidir."
+          }
+        },
+        "required": [
+          "year",
+          "valueUgM3"
+        ]
+      },
+      "Pm25AttributionDto": {
+        "type": "object",
+        "properties": {
+          "providerName": {
+            "type": "string",
+            "example": "Atmospheric Composition Analysis Group, Washington University in St. Louis",
+            "description": "Kurum adı — kurumun kendi yazdığı hâliyle. Çevrilmez."
+          },
+          "workTitle": {
+            "type": "string",
+            "example": "SatPM₂.₅ V6.GL.03",
+            "description": "Lisanslanan eserin adı — sağlayıcının lisans cümlesinden BİREBİR. Alt simgeler (U+2082, U+2085) alıntının parçasıdır; ASCII'ye düzleştirmek alıntıyı bozar."
+          },
+          "datasetVersion": {
+            "type": "string",
+            "example": "V6.GL.03",
+            "description": "Veri seti sürümü."
+          },
+          "datasetUrl": {
+            "type": "string",
+            "example": "https://www.satpm.org/v6-gl-03",
+            "description": "Sağlayıcının sürüm sayfası."
+          },
+          "licenceName": {
+            "type": "string",
+            "example": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+            "description": "Lisans adı. Çevrilmez."
+          },
+          "licenceUrl": {
+            "type": "string",
+            "example": "https://creativecommons.org/licenses/by/4.0/?ref=chooser-v1",
+            "description": "Sağlayıcının lisans cümlesindeki bağlantının birebir hâli."
+          },
+          "referenceCitation": {
+            "type": "string",
+            "description": "Referans yayın — sağlayıcının kendi biçiminde, BİREBİR. Çevrilmez."
+          },
+          "referenceUrl": {
+            "type": "string",
+            "description": "Referans yayının DOI bağlantısı."
+          },
+          "methodNoticeText": {
+            "type": "string",
+            "description": "SAĞLAYICININ KENDİ ÇEKİNCESİ — birebir ve çevrilmeden yayımlanır. Izgara 1 km'dir ama sağlayıcı her gradyanı çözemediğini kendisi yazar; bu cümle yayımlanan her sayıya eşlik etmek zorundadır."
+          },
+          "noticeKeys": {
+            "example": [
+              "airPollution.notice.satelliteDerived",
+              "airPollution.notice.provinceCentrePoint"
+            ],
+            "description": "Editoryal uyarıların i18n ANAHTARLARI — api metin yayımlamaz, anahtar yayımlar; karşılıklarını web deposu yazar.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "providerName",
+          "workTitle",
+          "datasetVersion",
+          "datasetUrl",
+          "licenceName",
+          "licenceUrl",
+          "referenceCitation",
+          "referenceUrl",
+          "methodNoticeText",
+          "noticeKeys"
+        ]
+      },
+      "Pm25AnnualDto": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "acag_satpm25"
+            ],
+            "example": "acag_satpm25",
+            "description": "Serinin kaynak kimliği."
+          },
+          "datasetVersion": {
+            "type": "string",
+            "example": "V6.GL.03",
+            "description": "Veri seti sürümü. ZORUNLU alan: yenileme yılda bir ve elle yapıldığı için tüketicinin verinin ne kadar eski olduğunu ikinci bir kaynağa bakmadan görebilmesi gerekir."
+          },
+          "sourceUrl": {
+            "type": "string",
+            "example": "https://www.satpm.org/v6-gl-03",
+            "description": "81 ilde aynı olan sağlayıcı sürüm sayfası."
+          },
+          "gridCellSizeDeg": {
+            "type": "number",
+            "example": 0.01,
+            "description": "Izgara hücre boyutu (derece) — dosyanın kendi ekseninden türetilir."
+          },
+          "unit": {
+            "type": "string",
+            "example": "µg/m3",
+            "description": "Değerlerin birimi, sağlayıcının yazdığı hâliyle."
+          },
+          "readingPoint": {
+            "type": "string",
+            "enum": [
+              "province_centre"
+            ],
+            "example": "province_centre",
+            "description": "Değerin OKUNDUĞU nokta. `province_centre` = il merkezine düşen tek hücre; bu bir il ORTALAMASI DEĞİLDİR (→ DEC 2026-08-19d md.1). Arayüz bunu ima etmemelidir."
+          },
+          "cellLatitude": {
+            "type": "number",
+            "example": 39.975,
+            "description": "Okunan hücrenin merkez enlemi."
+          },
+          "cellLongitude": {
+            "type": "number",
+            "example": 32.865,
+            "description": "Okunan hücrenin merkez boylamı."
+          },
+          "cellDistanceKm": {
+            "type": "number",
+            "example": 0.279,
+            "description": "İl merkezi ile hücre merkezi arasındaki uzaklık (km) — künyede gösterilebilir."
+          },
+          "years": {
+            "description": "Yıla göre ARTAN sırada, en az bir girdi.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Pm25AnnualValueDto"
+            }
+          },
+          "latestYear": {
+            "type": "number",
+            "example": 2024,
+            "description": "Serinin EN SON yılı — `years` dizisinin son girdisinden TÜRETİLİR, saklanmaz. Verinin bayatlığı bu alandan tek bakışta görülür."
+          },
+          "latestValueUgM3": {
+            "type": "number",
+            "example": 22.74,
+            "description": "En son yılın değeri (µg/m³) — `years`'ten türetilir, saklanmaz."
+          },
+          "attribution": {
+            "description": "Lisans/atıf bloğu. Bölüm yayımlandığında HER ZAMAN yayımlanır — bildirim bir değere değil, yayımlanan bölüme iliştirilir.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Pm25AttributionDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "source",
+          "datasetVersion",
+          "sourceUrl",
+          "gridCellSizeDeg",
+          "unit",
+          "readingPoint",
+          "cellLatitude",
+          "cellLongitude",
+          "cellDistanceKm",
+          "years",
+          "latestYear",
+          "latestValueUgM3",
+          "attribution"
+        ]
+      },
       "HydrographyFeatureDto": {
         "type": "object",
         "properties": {
@@ -1067,6 +1252,16 @@
             "nullable": true,
             "description": "NOVA'nın il-il yazdığı iklim yorumu (TR) — mekanizma anlatan gerçek düzyazı. `climateNoteTr` (kilitli MGM Köppen uyarısı) DEĞİL; ayrı bir alandır. İçerik dalgaları doldurana kadar null."
           },
+          "pm25Annual": {
+            "nullable": true,
+            "description": "Uzun dönem hava kirliliği — ACAG SatPM2.5 yıllık ortalama PM2.5 serisi, il merkezine düşen ~1 km hücreden okunur (il ORTALAMASI değildir). Null = yayınlanabilir seri yok → web bölümü hiç render etmez. Canlı hava kalitesi endeksiyle (`/api/air-quality/...`) KARIŞTIRILMAMALI: bu yıllık bir derişim, o saatlik bir endekstir.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Pm25AnnualDto"
+              }
+            ]
+          },
           "landformNoteTr": {
             "type": "string",
             "nullable": true,
@@ -1146,6 +1341,7 @@
           "climateCurriculumNoteTr",
           "climate",
           "climateNarrativeTr",
+          "pm25Annual",
           "landformNoteTr",
           "hydrographyNoteTr",
           "hydrographyFeatures",

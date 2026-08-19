@@ -206,3 +206,79 @@ export interface ClimateDerived {
 export interface Climate extends ClimateNormals {
   derived: ClimateDerived;
 }
+
+/**
+ * The ONE source identifier a long-term PM2.5 series may carry.
+ *
+ * A single-member string-literal type, for the same reason `ClimateSource` is one: it names the
+ * SERIES, and swapping the source later should cost one constant plus one import run rather than
+ * an `ALTER TYPE`. It is deliberately NOT the live air-quality source — that leg publishes a
+ * CAMS-modelled hourly index ("hava kalitesi"), this one publishes a satellite-derived annual
+ * concentration ("hava kirliliği"). Two different claims, two different provenances, and neither
+ * may ever be relabelled as the other.
+ */
+export const PM25_SOURCE_ACAG_SATPM25 = 'acag_satpm25';
+export type Pm25Source = typeof PM25_SOURCE_ACAG_SATPM25;
+
+/** Where a published value is read from. Names the reading POINT, so the payload cannot imply
+ * a provincial average it is not (DEC 2026-08-19d md.1: the value IS the centre cell). */
+export const PM25_READING_POINT_PROVINCE_CENTRE = 'province_centre';
+export type Pm25ReadingPoint = typeof PM25_READING_POINT_PROVINCE_CENTRE;
+
+/** One year of a province's annual-mean PM2.5. */
+export interface Pm25AnnualValue {
+  year: number;
+  /**
+   * Annual mean PM2.5, µg/m³ — a RAW number, never a pre-formatted string: formatting is the web
+   * repo's `next-intl` concern and a number cannot carry a locale bug across the contract.
+   */
+  valueUgM3: number;
+}
+
+/**
+ * A province's long-term PM2.5 series — the shape stored in `provinces.pm25_annual` (`jsonb`) and
+ * mirrored by `Pm25AnnualDto`.
+ *
+ * ## Why `jsonb` on the province row and not a child table
+ * The same two reasons that carried `climate_normals`, and the first is the load-bearing one:
+ * writing to the province row trips the existing `@UpdateDateColumn`, so the page's
+ * `dateModified` and the sitemap's `lastmod` stay correct for free. A child table would NOT trip
+ * it, and every annual refresh would leave the page's advertised modification date silently
+ * stale — a defect the child table would have INTRODUCED. Second, there is one fixed-shape
+ * document per province, which is exactly what `climateNormals` and `hydrographyFeatures`
+ * already occupy.
+ *
+ * ## Every field here is self-describing on purpose
+ * `datasetVersion` and the year set are MANDATORY, never optional: the refresh is annual and
+ * hand-run, so a consumer (and a reviewer) must be able to see how old the data is without
+ * consulting a second source. That is the staleness-visibility condition attached to
+ * DEC 2026-08-19f. `cellLatitude`/`cellLongitude`/`cellDistanceKm` travel with the value because
+ * the reader is being shown a single 1 km cell, not a provincial mean, and the künye has to be
+ * able to say exactly which cell.
+ *
+ * NOT stored here: the latest year and its value. Both are DERIVED at serialization time from
+ * `years` (`province.service.ts`), never persisted — a derivation cannot go stale against the
+ * data it is derived from.
+ *
+ * NULL means "no publishable series" — the web renders no section at all. The kill-switch is one
+ * statement: `UPDATE provinces SET pm25_annual = NULL`.
+ */
+export interface Pm25Annual {
+  source: Pm25Source;
+  /** e.g. `V6.GL.03`. Pinned by DEC 2026-08-19f; a mixed-version series is refused at load. */
+  datasetVersion: string;
+  /** The provider's version landing page — identical across all 81 provinces. */
+  sourceUrl: string;
+  /** Grid cell size in degrees (0.01 on this product), derived from the file's own axes. */
+  gridCellSizeDeg: number;
+  /** Unit of every `valueUgM3`, as the provider states it. */
+  unit: string;
+  readingPoint: Pm25ReadingPoint;
+  /** Centre coordinate of the cell the values were read from. */
+  cellLatitude: number;
+  cellLongitude: number;
+  /** Distance from the province centre to that cell's centre, km. */
+  cellDistanceKm: number;
+  /** Ascending by year, at least one entry. */
+  years: Pm25AnnualValue[];
+}

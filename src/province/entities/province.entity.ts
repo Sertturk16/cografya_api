@@ -8,7 +8,12 @@ import {
   type ValueTransformer,
 } from 'typeorm';
 import { GEOGRAPHIC_REGION_DB_ENUM, GeographicRegion } from '../../common/geographic-region.enum';
-import type { ClimateNormals, EconomyIndicator, HydrographyFeature } from '../province.types';
+import type {
+  ClimateNormals,
+  EconomyIndicator,
+  HydrographyFeature,
+  Pm25Annual,
+} from '../province.types';
 
 /**
  * Postgres `numeric`/`decimal` values come back from the driver as strings (to
@@ -251,6 +256,26 @@ export class Province {
    */
   @Column({ name: 'climate_narrative_tr', type: 'text', nullable: true })
   climateNarrativeTr!: string | null;
+
+  /**
+   * Uzun dönem yıllık ortalama PM2.5 serisi — ACAG SatPM2.5 V6.GL.03, il merkezine düşen
+   * ~1 km hücreden okunur (→ DEC 2026-08-19d md.1, DEC 2026-08-19f).
+   *
+   * `jsonb` on the province row for the SAME reason `climate_normals` is: writing here trips
+   * `@UpdateDateColumn`, so the page's `dateModified` and the sitemap's `lastmod` follow the data
+   * automatically. A child table would not, and every annual refresh would silently advertise a
+   * stale modification date.
+   *
+   * **This is NOT the live air-quality leg.** `src/air-quality/` publishes a CAMS-modelled hourly
+   * index from its own tables; this column is a satellite-derived annual concentration. The two
+   * are different claims with different provenance and different attribution, and neither may be
+   * rendered or relabelled as the other.
+   *
+   * Nullable by the entity's standing rule: every research-derived field stays nullable even when
+   * the import fills all 81 rows. NULL renders no section.
+   */
+  @Column({ name: 'pm25_annual', type: 'jsonb', nullable: true })
+  pm25Annual!: Pm25Annual | null;
 
   /** Öne çıkan yer şekilleri / jeoloji notu — short free text (TR). */
   @Column({ name: 'landform_note_tr', type: 'text', nullable: true })
