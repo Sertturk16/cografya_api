@@ -322,9 +322,9 @@ describe('checkEnvBound', () => {
   });
 
   it('and every bound the schema runs THROUGH the helper is accounted for too', () => {
-    // The half the regex above is structurally blind to. Without this, a sixth `checkEnvBound` call
-    // — a whole new boot rule — lands with no number in this file moving, which is how five of the
-    // eighteen bounds the schema runs today went uncounted for a whole PR.
+    // The half the regex above is structurally blind to. Without this, a seventh `checkEnvBound`
+    // call — a whole new boot rule — lands with no number in this file moving, which is how five of
+    // the nineteen bounds the schema runs today went uncounted for a whole PR.
     expect(FOLDED_SCHEMA_SOURCE.match(HELPER_BOUND_CALL) ?? []).toHaveLength(HELPER_BOUND_COUNT);
   });
 

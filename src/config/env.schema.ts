@@ -216,11 +216,18 @@ export const envSchema = z
     // the samples support — **at least 19 of the 20 measured draws**; the single 27.20 s draw is
     // the one known to exceed it, and the published table (min/median/max plus a ">6 s" count)
     // cannot resolve the individual draws between 6 s and 19.45 s, so a stronger claim than
-    // "≥19/20" is not derivable from it. Covering 20/20 would need ≥27.3 s, and the ceiling that
-    // rules that out is arithmetic rather than taste: the shared client already makes two
-    // attempts (250 ms apart), so 30 s costs 60.25 s of a 60 000 ms `CMEMS_TOUR_BUDGET_MS` — one
-    // hanging product would consume the entire slice and the other three would never be asked at
-    // all. At 25 s the pair costs 50.25 s and still fits.
+    // "≥19/20" is not derivable from it. Covering 20/20 would need ≥27.3 s, and what rules that
+    // out is arithmetic rather than taste: the shared client already makes two attempts (250 ms
+    // apart), so a 27.3 s cap wants 54.85 s while the resolution phase's own sub-budget is two
+    // thirds of `CMEMS_TOUR_BUDGET_MS` — 40 000 ms at the defaults (`cmems-warmup.target.ts`,
+    // `cmemsResolutionBudgetMs`). At 25 s the first attempt gets its full cap and the retry still
+    // gets ~14.75 s, comfortably above both measured medians (3.52 s / 4.65 s); past ~27 s the
+    // retry is squeezed under 13 s for no measured gain.
+    //
+    // What this cap can NO LONGER do, since review #117 (SFH117-I1): consume the whole tour slice
+    // and starve the 78-key value sweep. The phase runs on the sub-budget above, so an
+    // over-generous cap costs the LATER PRODUCTS of the resolution phase, never the sweep. That is
+    // why the boot bound below still measures ONE attempt rather than the pair.
     //
     // NOT cross-checked against `MARINE_UPSTREAM_DEADLINE_MS` on purpose: no request path ever
     // fetches STAC (`cmems-value.reader.ts` answers `transient` instead of fetching the
@@ -506,6 +513,12 @@ export const envSchema = z
     // the field: the request path never fetches STAC, so `MARINE_UPSTREAM_DEADLINE_MS` is not
     // its ceiling. Composed through `checkEnvBound` rather than as a fourteenth hand-written
     // block — that helper is the funnel every new cross-check goes through.
+    //
+    // ONE attempt is the right operand here even though the client makes two (review #117,
+    // SFH117-M3). Bounding the PAIR would forbid configurations that are provably harmless: the
+    // resolution phase runs on its own sub-budget inside the slice, so an over-generous cap can
+    // only cost the later products of that phase, never the value sweep it used to be able to
+    // starve. A bound that only outlaws harmless settings is scaffolding.
     checkEnvBound(ctx, {
       kind: 'must-not-exceed',
       subject: 'CMEMS_STAC_CALL_TIMEOUT_MS',

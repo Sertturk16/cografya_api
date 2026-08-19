@@ -7,7 +7,7 @@ import { OperationDeadline } from '../../upstream/operation-deadline';
 import { ProviderBudget } from '../../upstream/provider-budget';
 import { UpstreamHttpClient } from '../../upstream/upstream-http.client';
 import { UpstreamMetrics } from '../../upstream/upstream-metrics';
-import type { MarineUpstreamConfig } from '../marine-upstream.config';
+import { MARINE_PROVIDER, type MarineUpstreamConfig } from '../marine-upstream.config';
 import { MarineUnit, SeaBasin } from '../marine.types';
 import { CmemsClient } from './cmems-client';
 import type { CmemsPointValue } from './cmems-response';
@@ -15,7 +15,11 @@ import { toTilePixel } from './cmems-geo';
 import { CMEMS_SELECTOR_ENTRIES } from './cmems-routing';
 import { CmemsStacResolutionCache } from './cmems-stac.cache';
 import { CmemsValueReader, type CmemsPointRef } from './cmems-value.reader';
-import { CmemsWarmupTarget, type CmemsTourSummary } from './cmems-warmup.target';
+import {
+  CmemsWarmupTarget,
+  cmemsResolutionBudgetMs,
+  type CmemsTourSummary,
+} from './cmems-warmup.target';
 import { CMEMS_VARIABLE_IDS, CMEMS_ZOOM, type CmemsLayerField } from './cmems.constants';
 
 /**
@@ -46,7 +50,7 @@ function emptySummary(): CmemsTourSummary {
     resolutionsRefreshed: 0,
     resolutionsFailed: 0,
     resolutionsSkipped: 0,
-    resolutionRetries: 0,
+    resolutionsRetried: 0,
     refreshed: 0,
     failed: 0,
     skippedFresh: 0,
@@ -417,7 +421,7 @@ describe('CmemsWarmupTarget', () => {
       resolutionsSkipped: 0,
       // The sweep issues no catalogue ask at all, so the resolution-phase retry counter stays 0
       // here — but it is named, because this assertion's job is the WHOLE shape (M-TEST-2).
-      resolutionRetries: 0,
+      resolutionsRetried: 0,
       refreshed: 4,
       failed: 0,
       skippedFresh: 0,
@@ -479,7 +483,7 @@ describe('CmemsWarmupTarget', () => {
     expect(summary.resolutionsFailed).toBe(4);
     // MISSING resolutions, so each product is asked a SECOND time in the same tour (SST fix M2):
     // 4 products × (2 asks × 2 client attempts) = 16 catalogue calls, and four retries counted.
-    expect(summary.resolutionRetries).toBe(4);
+    expect(summary.resolutionsRetried).toBe(4);
     expect(stacCalls()).toBe(16);
   });
 
@@ -496,7 +500,7 @@ describe('CmemsWarmupTarget', () => {
     await target.refreshResolutions(new OperationDeadline(240_000, () => nowMs), summary);
 
     expect(summary.resolutionsFailed).toBe(4);
-    expect(summary.resolutionRetries).toBe(0);
+    expect(summary.resolutionsRetried).toBe(0);
     // 4 products × 2 client attempts, and no third: the retry pass is empty.
     expect(stacCalls()).toBe(8);
   });
@@ -511,7 +515,7 @@ describe('CmemsWarmupTarget', () => {
 
     expect(summary.resolutionsRefreshed).toBe(4);
     expect(summary.resolutionsFailed).toBe(0);
-    expect(summary.resolutionRetries).toBe(4);
+    expect(summary.resolutionsRetried).toBe(4);
     expect(stacCalls()).toBe(12);
   });
 
@@ -527,7 +531,7 @@ describe('CmemsWarmupTarget', () => {
     await target.refreshResolutions(deadline, summary);
 
     expect(stacCalls()).toBe(8);
-    expect(summary.resolutionRetries).toBe(0);
+    expect(summary.resolutionsRetried).toBe(0);
     expect(summary.resolutionsFailed).toBe(4);
     expect(summary.resolutionsSkipped).toBe(0);
   });
@@ -555,10 +559,18 @@ describe('CmemsWarmupTarget', () => {
     expect(scaleLines).toHaveLength(1);
     expect(scaleLines[0]?.level).toBe('warn');
     // The counters are the point: an operator greping for warnings could previously see only
-    // per-key lines and read a 21-point outage as a single point.
-    expect(scaleLines[0]?.context).toEqual(
-      expect.objectContaining({ resolutionsFailed: 4, resolutionRetries: 4 }),
-    );
+    // per-key lines and read a 21-point outage as a single point. Asserted as the WHOLE payload
+    // (the file's own M-TEST-2 precedent, review #117 TEST117-M3): a refactor that publishes the
+    // wrong counter into this line, or drops `provider`, leaves the alarm wrong and an
+    // `objectContaining` green — and the alarm's payload is the entire reason M3 exists.
+    expect(scaleLines[0]?.context).toEqual({
+      provider: MARINE_PROVIDER.cmems,
+      resolutionsFailed: 4,
+      resolutionsRefreshed: 0,
+      resolutionsSkipped: 0,
+      resolutionsRetried: 4,
+      deadlineSkipped: 0,
+    });
   });
 
   it('and stays silent on a healthy tour — the same assertion, with nothing to find', async () => {
@@ -570,5 +582,136 @@ describe('CmemsWarmupTarget', () => {
     ).toHaveLength(0);
     // Proof the tour really ran rather than the filter looking in an empty list.
     expect(events.some((event) => event.message.includes('CMEMS warmup slice done'))).toBe(true);
+  });
+
+  it('stays silent when the resolution phase only SKIPPED — the line speaks about failures (TEST117-M4)', async () => {
+    const { target } = build();
+    // One slow-but-SUCCESSFUL catalogue ask spends the resolution sub-budget; the other three
+    // products are never asked. `resolutionsFailed` is 0, so the M3 line — whose body talks only
+    // about failed asks — must not fire, and the skipped three ride the summary LOG line instead.
+    // The intended silence was previously unrecorded in either direction.
+    stacStatusFor = () => {
+      nowMs += 45_000;
+      return 200;
+    };
+
+    await target.refresh(new OperationDeadline(240_000, () => nowMs));
+
+    const done = events.find((event) => event.message === 'CMEMS warmup slice done');
+    expect(done?.context).toEqual(
+      expect.objectContaining({
+        resolutionsRefreshed: 1,
+        resolutionsFailed: 0,
+        resolutionsSkipped: 3,
+      }),
+    );
+    // Paired with the M3 test above, where this exact filter DOES return a line.
+    expect(
+      events.filter((event) => event.message.includes('CMEMS STAC resolution failed this tour')),
+    ).toHaveLength(0);
+  });
+
+  // ── Review #117 SFH117-I1 — the resolution phase's sub-budget inside the slice. ──
+
+  it('splits the slice: two thirds bound the resolution phase, the last third is the sweep reserve', () => {
+    // Pure arithmetic, so the reserve is pinned as a number rather than only as a tour outcome.
+    expect(cmemsResolutionBudgetMs(60_000)).toBe(40_000); // the default slice
+    expect(60_000 - cmemsResolutionBudgetMs(60_000)).toBe(20_000); // 2.5× the ~8 s warm sweep
+    expect(cmemsResolutionBudgetMs(90_000)).toBe(60_000); // a ratio, so it follows a retune
+    expect(cmemsResolutionBudgetMs(30_000)).toBe(20_000);
+    // Degenerate slices: the reserve rounds up, and the budget never reaches 0 — `OperationDeadline`
+    // rejects a non-positive budget, so a 1 ms slice must not throw its way out of a tour.
+    expect(cmemsResolutionBudgetMs(3)).toBe(2);
+    expect(cmemsResolutionBudgetMs(2)).toBe(1);
+    expect(cmemsResolutionBudgetMs(1)).toBe(1);
+    for (const sliceMs of [1, 2, 3, 999, 30_000, 60_000, 240_000]) {
+      expect(cmemsResolutionBudgetMs(sliceMs)).toBeGreaterThan(0);
+      expect(cmemsResolutionBudgetMs(sliceMs)).toBeLessThanOrEqual(sliceMs);
+    }
+  });
+
+  it('a hanging catalogue can no longer starve the value sweep (SFH117-I1)', async () => {
+    const { target } = build();
+    await target.refresh(new OperationDeadline(240_000, () => nowMs)); // cold tour: 4 resolutions
+    fetches = [];
+    events = [];
+
+    // The incident shape: the four resolutions EXIST and their dataset ids are still valid, the
+    // WMTS value endpoint is healthy, and only the catalogue surface hangs. Past the 6 h STAC TTL
+    // all four are due again, and a failed re-ask never moves `storedAtMs`, so they stay due on
+    // every following tour too.
+    nowMs += 21_601_000;
+    stacStatusFor = () => {
+      nowMs += 25_000; // one attempt at the full CMEMS_STAC_CALL_TIMEOUT_MS cap
+      return 500;
+    };
+
+    await target.refresh(new OperationDeadline(240_000, () => nowMs));
+
+    // Product 1 alone spends the 40 000 ms sub-budget (2 attempts × 25 s) and the other three
+    // are left unasked. The harness's fetch ignores the abort signal, so that second attempt runs
+    // past the budget instead of being clamped to 14.75 s — production therefore leaves the sweep
+    // AT LEAST as much room as this test does.
+    expect(stacCalls()).toBe(2);
+    const done = events.find((event) => event.message === 'CMEMS warmup slice done');
+    expect(done?.context).toEqual(
+      expect.objectContaining({
+        resolutionsFailed: 1,
+        resolutionsSkipped: 3,
+        resolutionsRetried: 0,
+        // The half this fix exists for: the sweep still ran, on the stored ids, against a healthy
+        // WMTS. On the undivided slice the same hang left every key here and `refreshed` at 0 —
+        // six hours of which publishes `unavailable` on every point.
+        deadlineSkipped: 0,
+        refreshed: EXPECTED_VALUE_CALLS,
+      }),
+    );
+    expect(wmtsCalls()).toBe(EXPECTED_VALUE_CALLS);
+  });
+
+  it('carries deadlineSkipped into the WARN, so a starved sweep is audible (SFH117-I1)', async () => {
+    const { target, reader } = build(MANY_POINTS); // 18-entry sweep queue
+    stacStatusFor = () => 500; // catalogue down, failing FAST — the phase costs no time
+    jest.spyOn(reader, 'refreshValue').mockImplementation(() => {
+      // One value call outlasts the whole slice: the four in-flight entries land and the
+      // remaining fourteen are skipped (the review #82 I1 model, reused).
+      nowMs += 70_000;
+      return Promise.resolve(okOutcome());
+    });
+
+    await target.refresh(new OperationDeadline(240_000, () => nowMs));
+
+    const warn = events.find((event) =>
+      event.message.includes('CMEMS STAC resolution failed this tour'),
+    );
+    // A starved sweep used to be visible only as `deadlineSkipped` inside the LOG-level summary,
+    // which no WARN/ERROR grep sees. Non-zero here, and 0 in the M3 test above — the same field,
+    // both directions.
+    expect(warn?.context).toEqual({
+      provider: MARINE_PROVIDER.cmems,
+      resolutionsFailed: 4,
+      resolutionsRefreshed: 0,
+      resolutionsSkipped: 0,
+      resolutionsRetried: 4,
+      deadlineSkipped: 14,
+    });
+  });
+
+  it('keeps the retry bookkeeping per PRODUCT when the outcomes interleave (TEST117-M5)', async () => {
+    const { target } = build();
+    // First pass: products 1 and 3 fail (two client attempts each), products 2 and 4 land on
+    // their first attempt. Retry pass: product 1 lands, product 3 fails twice more.
+    stacStatusFor = (call) => (call === 3 || call === 6 || call === 7 ? 200 : 500);
+    const summary = emptySummary();
+
+    await target.refreshResolutions(new OperationDeadline(240_000, () => nowMs), summary);
+
+    // 2 + 1 + 2 + 1 first-pass calls, then 1 + 2 retry calls: the two retried products are the
+    // two that failed, and neither took the other's outcome.
+    expect(stacCalls()).toBe(9);
+    expect(summary.resolutionsRetried).toBe(2);
+    expect(summary.resolutionsRefreshed).toBe(3);
+    expect(summary.resolutionsFailed).toBe(1);
+    expect(summary.resolutionsSkipped).toBe(0);
   });
 });

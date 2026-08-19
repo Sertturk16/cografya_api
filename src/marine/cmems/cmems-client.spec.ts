@@ -67,7 +67,13 @@ describe('CmemsClient', () => {
     });
     const budget = new ProviderBudget(metrics, null, () => nowMs);
     const http = new UpstreamHttpClient(metrics, budget, breaker, {
-      singleCallTimeoutMs: 6_000,
+      // PRODUCTION's shared marine default (`MARINE_SINGLE_CALL_TIMEOUT_MS`, 3 000 —
+      // `upstream.module.ts`), deliberately NOT 6 000. With 6 000 here the value-direction test
+      // below could not tell the CMEMS per-request override from this fallback: deleting the
+      // override at the value call site would leave `signalFor` still receiving 6 000 and the
+      // suite still green, while production silently dropped to 3 s — below the measured 2.54 s
+      // cold-TLS first call plus jitter (review #117, TEST117-M1).
+      singleCallTimeoutMs: 3_000,
       userAgent: 'TestBot/1.0',
       fetchImpl,
       sleepImpl: () => Promise.resolve(),
@@ -239,6 +245,8 @@ describe('CmemsClient', () => {
 
     expect(outcome.kind).toBe('ok');
     expect(signalFor).toHaveBeenCalledWith(25_000);
+    // The symmetric negative: the value cap must not reach the catalogue call either.
+    expect(signalFor).not.toHaveBeenCalledWith(6_000);
   });
 
   it('leaves the VALUE call on the shorter cap — the request path is untouched', async () => {
@@ -250,6 +258,8 @@ describe('CmemsClient', () => {
 
     const outcome = await fetchValue(build(fetchImpl), deadline);
 
+    // 6 000 can only come from the CMEMS per-request override: the shared client's own default
+    // is production's 3 000, so this assertion fails the moment that override is dropped.
     expect(outcome.kind).toBe('ok');
     expect(signalFor).toHaveBeenCalledWith(6_000);
     // The negative half of the same fact — and it is only meaningful because the test above
