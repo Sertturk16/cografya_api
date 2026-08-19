@@ -362,17 +362,17 @@
     {
       "id": "A-04",
       "passed": true,
-      "detail": "every cell is within half a cell of its province centre (worst 0.707 km)."
+      "detail": "every cell is within half a cell of its province centre (worst 0.707 km, distances recomputed from the stored coordinates)."
     },
     {
       "id": "A-05",
       "passed": true,
-      "detail": "2187 value(s), all finite and in (0, 1000] µg/m³."
+      "detail": "2187 value(s), all finite and in [1, 1000] µg/m³."
     },
     {
       "id": "A-06",
       "passed": true,
-      "detail": "both artifacts pin V6.GL.03."
+      "detail": "both artifacts pin V6.GL.03. NOTE: in the FETCH phase this is tautological — the run wrote both values from this same constant. It becomes a real check at LOAD, against the committed files."
     },
     {
       "id": "A-07",
@@ -392,7 +392,7 @@
     {
       "id": "A-08c",
       "passed": true,
-      "detail": "every readable TIMECOVERAGE attribute equals the file year."
+      "detail": "27 of 27 file(s) had a readable TIMECOVERAGE attribute; every one equals its file year."
     }
   ]
 }

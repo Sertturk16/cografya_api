@@ -93,6 +93,10 @@ const BARE_FLAGS: Record<'fetch' | 'load', readonly string[]> = {
 function assertNoUnknownFlags(argv: readonly string[], phase: 'fetch' | 'load'): void {
   const valueFlags = VALUE_FLAGS[phase];
   const bareFlags = BARE_FLAGS[phase];
+  // A DUPLICATE is refused too (review SFH123R2-M3): each entry used to be judged independently,
+  // so `--phase=fetch --phase=load` was accepted and silently resolved to whichever `find()` hit
+  // first. Two contradictory values for one flag is never a request anybody meant.
+  const seen = new Set<string>();
   for (const entry of argv) {
     if (!entry.startsWith('--')) {
       throw new Error(`unexpected argument ${JSON.stringify(entry)}. ${USAGE}`);
@@ -100,6 +104,10 @@ function assertNoUnknownFlags(argv: readonly string[], phase: 'fetch' | 'load'):
     const [rawName] = entry.slice(2).split('=');
     const name = rawName ?? '';
     const hasValue = entry.includes('=');
+    if (seen.has(name)) {
+      throw new Error(`--${name} was given more than once. ${USAGE}`);
+    }
+    seen.add(name);
     if (hasValue && valueFlags.includes(name)) continue;
     if (!hasValue && bareFlags.includes(name)) continue;
     if (hasValue && bareFlags.includes(name)) {
@@ -204,8 +212,11 @@ async function main(): Promise<void> {
       ? '[db:import:acag] fetch phase, --from-dir — decoding raw files already on disk. Zero ' +
           'network calls, zero database writes.'
       : '[db:import:acag] fetch phase — 27 annual GLOBAL files, serial and spaced. Each is ' +
-          'downloaded, hashed, windowed, extracted and then DELETED, so peak disk is one file. ' +
-          'Touches no database; CI never runs this.',
+          'downloaded, hashed, windowed and extracted' +
+          (args.keepRaw
+            ? ', and KEPT (--keep-raw): the corpus needs ~12 GB of disk.'
+            : ', then DELETED, so peak disk is one file.') +
+          ' Touches no database; CI never runs this.',
   );
   const result = await runAcagFetch({
     rawDir: args.rawDir,

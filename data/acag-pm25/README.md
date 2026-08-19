@@ -4,8 +4,15 @@ These two files are the reviewable output of one hand-run
 `pnpm db:import:acag --phase=fetch`. They are **evidence and offline input**, never runtime
 data: the server never reads them, and CI never regenerates them.
 
-| File | What it is |
-|---|---|
+| File                                                                                             | What it is |
+| ------------------------------------------------------------------------------------------------ | ---------- |
+| The `assertions` block in the manifest is **reconciled at load**: `--phase=load` recomputes the  |
+| gate from the committed artifacts and REFUSES to run if the recorded block disagrees with it, so |
+| these strings cannot quietly describe a gate that no longer exists (assertion `A-10`). It also   |
+| means a hand-edited `passed: true` is unloadable. When the gate's wording changes, the block is  |
+| regenerated **offline** from the two committed files — no re-download, because the assertions    |
+| depend only on the artifacts.                                                                    |
+
 | `acag-manifest.json` | Provenance: the pinned dataset version, every annual file's S3 key + size + **SHA-256** + its own `TIMECOVERAGE` attribute, the decode timings, the decoder identity read from the installed package, the hyperslab window and the axis facts derived from it, the series artifact's SHA-256, and the structural assertion results from the run. |
 | `acag-province-pm25.json` | 81 provinces × 27 years = 2 187 published values, plus each province's grid cell: the requested province-centre coordinate, the full-array indices, the cell centre and the distance between the two. |
 
@@ -42,7 +49,7 @@ transfer). The fetch CLI requires an explicit absolute `--raw-dir` outside the r
 `--keep-raw` is passed**, deletes each file right after extracting its window — so the default
 peak disk is one file. `.gitignore` carries a `*.nc` belt for the operator who points `--raw-dir`
 here anyway. The manifest identifies every one of those files forever by SHA-256 and size, so a
-copy can always be proven to be *the* copy.
+copy can always be proven to be _the_ copy.
 
 **The committed run used `--keep-raw`** (the manifest records `rawDeleted: false` on all 27 files,
 which is the honest per-file evidence), because it followed a run that had failed late and the

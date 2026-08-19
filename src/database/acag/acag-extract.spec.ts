@@ -5,6 +5,7 @@ import {
   readYearValues,
   selectAcagCells,
   PM25_ABSURD_CEILING_UG_M3,
+  PM25_ABSURD_FLOOR_UG_M3,
 } from './acag-extract';
 import type { AcagWindow } from './acag-hdf5.adapter';
 import { AcagContractError } from './acag.errors';
@@ -119,6 +120,11 @@ describe('readYearValues', () => {
     ['zero', 0],
     ['negative', -3],
     ['absurd', PM25_ABSURD_CEILING_UG_M3 + 1],
+    // The FLOOR's own case (review CODE123R2-M3): every value above threw under the previous
+    // `raw <= 0` condition too, so none of them could tell the floor apart from its predecessor.
+    // 0.02 µg/m³ is what an annual mean looks like if the provider switches to mg/m³ — positive,
+    // finite, under the ceiling, and caught only by the floor.
+    ['sub-floor (a ÷1000 unit change)', PM25_ABSURD_FLOOR_UG_M3 / 50],
   ])('THROWS on a %s value', (_label, value) => {
     const badWindow = buildWindow();
     const target = selections[0];

@@ -85,6 +85,18 @@ describe('parseAcagCliArgs', () => {
     expect(() => parseAcagCliArgs(['--phase=load', 'extra'])).toThrow(/unexpected argument/);
   });
 
+  it('REFUSES a duplicated flag, including two contradictory --phase values', () => {
+    // Judged per entry, `--phase=fetch --phase=load` used to resolve to whichever `find()` hit
+    // first (review SFH123R2-M3).
+    expect(() => parseAcagCliArgs(['--phase=fetch', '--phase=load'])).toThrow(/more than once/);
+    expect(() => parseAcagCliArgs(['--phase=fetch', '--raw-dir=/abs', '--raw-dir=/other'])).toThrow(
+      /more than once/,
+    );
+    expect(() =>
+      parseAcagCliArgs(['--phase=fetch', '--raw-dir=/abs', '--keep-raw', '--keep-raw']),
+    ).toThrow(/more than once/);
+  });
+
   it('refuses --from-dir pointing at a directory that does not exist', () => {
     expect(() =>
       parseAcagCliArgs([

@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from '@jest/globals';
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import type { NextFunction, Request, Response } from 'express';
@@ -304,6 +304,27 @@ describe('Long-term PM2.5 contract (e2e)', () => {
       expect(saved.size).toBe(touched.length);
     });
 
+    /**
+     * PER-CASE restore, not just per-block (review CODE123R2-I1).
+     *
+     * Restoring only in `afterAll` satisfied "no permanent mutation" while leaving the cases
+     * contaminating EACH OTHER, and two of them then could not fail:
+     *   - the "ONE year entry is malformed" case ran `jsonb_set(…,'{years,0,valueUgM3}',…)`
+     *     against a `years` array a previous case had already emptied. Postgres returns the
+     *     target UNCHANGED when an intermediate path element is missing, so it re-tested the
+     *     empty-series arm instead of the partially-malformed one;
+     *   - the "REQUIRED field missing" case ran against a row whose `source` a previous case had
+     *     already broken, so the guard it exists to prove was never reached.
+     * Both are the only tests of an accepted finding, so both were gates that could not close.
+     */
+    beforeEach(async () => {
+      for (const [slugTr, document] of saved) {
+        await dataSource
+          .getRepository(Province)
+          .update({ slugTr }, { pm25Annual: document as Province['pm25Annual'] });
+      }
+    });
+
     afterAll(async () => {
       for (const [slugTr, document] of saved) {
         await dataSource
@@ -349,9 +370,28 @@ describe('Long-term PM2.5 contract (e2e)', () => {
      * arms — "no usable entries" and "some entries unusable" — and only the first was exercised.
      */
     it('serves pm25Annual: null when ONE year entry is malformed', async () => {
+      // PRE-STATE: prove the mutation below lands on a POPULATED array, so this case exercises
+      // the `usable.length !== years.length` arm and not the empty-series arm next door.
+      const before = await dataSource
+        .getRepository(Province)
+        .findOneOrFail({ where: { slugTr: 'duzce' } });
+      expect(before.pm25Annual?.years).toHaveLength(
+        ACAG_EXPECTED_LAST_YEAR - ACAG_EXPECTED_FIRST_YEAR + 1,
+      );
+
       await dataSource.query(
         `UPDATE provinces SET pm25_annual = jsonb_set(pm25_annual, '{years,0,valueUgM3}', 'null') WHERE slug_tr = 'duzce'`,
       );
+      // The mutation landed: 27 entries still, one of them unusable.
+      const mutated = await dataSource
+        .getRepository(Province)
+        .findOneOrFail({ where: { slugTr: 'duzce' } });
+      expect(mutated.pm25Annual?.years).toHaveLength(
+        ACAG_EXPECTED_LAST_YEAR - ACAG_EXPECTED_FIRST_YEAR + 1,
+      );
+
+      // RED-CAPABILITY PROVEN: with the guard narrowed to `usable.length === 0` only, this case
+      // fails (the endpoint serves a 27-entry series with a silent gap instead of null).
       const detail = await fetchDetail('duzce');
       expect(detail.pm25Annual).toBeNull();
     });
@@ -362,9 +402,21 @@ describe('Long-term PM2.5 contract (e2e)', () => {
      * generated client a `unit: string` that is `undefined` at runtime. Absent beats wrong.
      */
     it('serves pm25Annual: null when a REQUIRED field is missing from the stored document', async () => {
+      // PRE-STATE: `source` must still be the ACAG token, or the guard this case targets is never
+      // reached — the service checks `source` first and would return null for the wrong reason.
+      const before = await dataSource
+        .getRepository(Province)
+        .findOneOrFail({ where: { slugTr: 'bolu' } });
+      expect(before.pm25Annual?.source).toBe(PM25_SOURCE_ACAG_SATPM25);
+      expect(before.pm25Annual?.unit).toBeDefined();
+
       await dataSource.query(
         `UPDATE provinces SET pm25_annual = pm25_annual - 'unit' WHERE slug_tr = 'bolu'`,
       );
+
+      // RED-CAPABILITY PROVEN: reverting the field-by-field rebuild to `{ ...stored }` (i.e.
+      // deleting the nine-field guard) makes this case fail — the endpoint then serves 200 with
+      // `unit` absent while `openapi.json` declares it required and non-nullable.
       const detail = await fetchDetail('bolu');
       expect(detail.pm25Annual).toBeNull();
     });

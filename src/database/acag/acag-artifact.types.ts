@@ -48,6 +48,16 @@ export interface AcagFileRecord {
    * assumed to match.
    */
   timeCoverageAttribute: string | null;
+  /**
+   * Whether the written size was checked against the provider's own `Content-Length`
+   * (review SFH123R2-M4).
+   *
+   * `true` verified · `false` the header was absent (or the body arrived content-encoded, where
+   * the two figures legitimately differ) · `null` no download happened at all (`--from-dir`).
+   * OPTIONAL because artifacts written before this field existed do not carry it, and an absent
+   * value must read as "unknown", never as "verified".
+   */
+  contentLengthVerified?: boolean | null;
   downloadMs: number;
   decodeMs: number;
   /** Whether the raw file was deleted after extraction (peak-disk discipline). */

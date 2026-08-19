@@ -37,6 +37,26 @@ describe('ACAG attribution constants — byte pins', () => {
   });
 
   /**
+   * The work title is the ONE published string that still carries the version as an independent
+   * literal (review CODE123R2-I2 / SFH123R2-I2), and it is the string CC BY actually requires:
+   * the name of the licensed work.
+   *
+   * It is deliberately NOT derived by interpolation — the title is a verbatim quotation from the
+   * provider's licence sentence, the next version's page may word it differently, and fabricating
+   * a quotation would be worse than the defect it fixed. So the binding is a REFUSAL rather than a
+   * derivation: these two lines go red the moment the künye stops naming the version the artifacts
+   * carry, which is exactly the annual-refresh path where the byte pin above stays green.
+   */
+  it('names the SAME version the artifacts and the S3 keys carry', () => {
+    expect(ACAG_WORK_TITLE).toContain(ACAG_DATASET_VERSION);
+  });
+
+  it('points at the provider page for that same version', () => {
+    // `V6.GL.03` → `v6-gl-03` is the provider's own URL spelling; asserted, not generated.
+    expect(ACAG_DATASET_URL).toContain(ACAG_DATASET_VERSION.toLowerCase().replaceAll('.', '-'));
+  });
+
+  /**
    * The subscripts are part of the quote and a reviewer cannot see them by eye, so the code points
    * are asserted rather than the rendered glyphs. Flattening to ASCII "PM2.5" would make the
    * quotation no longer verbatim — the ledger flags this explicitly, and the V6.GL.02.04-era
@@ -96,6 +116,9 @@ describe('buildAcagAttribution', () => {
     expect(attribution.workTitle).toBe(ACAG_WORK_TITLE);
     expect(attribution.datasetVersion).toBe(ACAG_DATASET_VERSION);
     expect(attribution.datasetUrl).toBe(ACAG_DATASET_URL);
+    // Belt and braces at the PUBLISHED-object level: the served künye cannot name one version in
+    // `datasetVersion` and another inside `workTitle`.
+    expect(attribution.workTitle).toContain(attribution.datasetVersion);
     expect(attribution.licenceName).toBe(ACAG_LICENCE_NAME);
     expect(attribution.licenceUrl).toBe(ACAG_LICENCE_URL);
     expect(attribution.referenceCitation).toBe(ACAG_REFERENCE_CITATION);

@@ -1,5 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 import { distanceKm } from './acag-grid';
+import { acagFileNameForYear, acagObjectKeyForYear } from './acag-fetch';
 import { ACAG_DATASET_URL, ACAG_DATASET_VERSION } from '../../province/acag-attribution.constant';
 import {
   ACAG_EXPECTED_FIRST_YEAR,
@@ -61,11 +62,14 @@ function buildSeries(overrides: Partial<AcagSeriesArtifact> = {}): AcagSeriesArt
 }
 
 function buildFiles(): AcagFileRecord[] {
+  // Derived exactly as production derives them (review CODE123R2-M7): hardcoded `V6GL03`
+  // literals here would keep naming the old release after a version bump, so the fixture would
+  // stop describing what the code builds.
   return YEARS.map((year) => ({
     year,
-    objectKey: `V6GL03/FineResolution/GL/Annual/V6GL03.CNNPM25.GL.${String(year)}01-${String(year)}12.nc`,
+    objectKey: acagObjectKeyForYear(year),
     url: '',
-    fileName: `V6GL03.CNNPM25.GL.${String(year)}01-${String(year)}12.nc`,
+    fileName: acagFileNameForYear(year),
     bytes: 450_000_000,
     sha256: 'a'.repeat(64),
     timeCoverageAttribute: String(year),
@@ -346,8 +350,20 @@ describe('assertAllPassed', () => {
 });
 
 describe('assertAcagLoadIsSafe', () => {
+  /**
+   * The gate now reconciles the manifest's RECORDED assertion block against a fresh computation
+   * (A-10, review SFH123R2-I1), so a consistent fixture must carry the recorded block too.
+   */
+  const consistentManifest = (): AcagManifest => {
+    const manifest = buildManifest();
+    return {
+      ...manifest,
+      assertions: runAcagStructuralAssertions({ manifest, series: buildSeries() }),
+    };
+  };
+
   const base = (): Parameters<typeof assertAcagLoadIsSafe>[0] => ({
-    manifest: buildManifest(),
+    manifest: consistentManifest(),
     series: buildSeries(),
     provinceRows: dbRows(),
     seriesSha256Actual: 'b'.repeat(64),
@@ -355,6 +371,63 @@ describe('assertAcagLoadIsSafe', () => {
 
   it('accepts a consistent artifact/database pair', () => {
     expect(() => assertAcagLoadIsSafe(base())).not.toThrow();
+  });
+
+  /**
+   * A-10 — the committed evidence must describe the gate that is running (review SFH123R2-I1).
+   *
+   * This matters beyond bookkeeping: A-08c's floor tolerates SOME unreadable attributes, so what
+   * distinguishes "1 of 27 verified" from "27 of 27" is the recorded detail STRING. A stale string
+   * can tell a reviewer the year was verified against every file when it was verified against one.
+   */
+  it('refuses a manifest whose recorded assertion DETAIL no longer matches the gate', () => {
+    const manifest = consistentManifest();
+    const [first, ...rest] = manifest.assertions;
+    if (first === undefined) throw new Error('unreachable');
+    expect(() =>
+      assertAcagLoadIsSafe({
+        ...base(),
+        manifest: {
+          ...manifest,
+          assertions: [
+            { ...first, detail: 'every readable TIMECOVERAGE attribute equals…' },
+            ...rest,
+          ],
+        },
+      }),
+    ).toThrow(/no longer describes this build's gate/);
+  });
+
+  it('refuses a hand-set passed: true in the recorded block', () => {
+    // The marine precedent's own test: a recorded `passed` that disagrees with the recomputation
+    // must be unloadable, or the file grades itself.
+    const manifest = consistentManifest();
+    const doctored = manifest.assertions.map((entry) =>
+      entry.id === 'A-01' ? { ...entry, passed: false } : entry,
+    );
+    expect(() =>
+      assertAcagLoadIsSafe({ ...base(), manifest: { ...manifest, assertions: doctored } }),
+    ).toThrow(/no longer describes this build's gate/);
+  });
+
+  it('refuses a manifest that records an assertion this build no longer computes', () => {
+    const manifest = consistentManifest();
+    expect(() =>
+      assertAcagLoadIsSafe({
+        ...base(),
+        manifest: {
+          ...manifest,
+          assertions: [...manifest.assertions, { id: 'A-99', passed: true, detail: 'gone' }],
+        },
+      }),
+    ).toThrow(/no longer computes it/);
+  });
+
+  it('refuses a manifest with an EMPTY recorded block', () => {
+    const manifest = consistentManifest();
+    expect(() =>
+      assertAcagLoadIsSafe({ ...base(), manifest: { ...manifest, assertions: [] } }),
+    ).toThrow(/absent from the manifest/);
   });
 
   it('A-08 refuses a series file edited after the fetch run', () => {
@@ -419,7 +492,8 @@ describe('assertAcagLoadIsSafe', () => {
     expect(() =>
       assertAcagLoadIsSafe({
         ...base(),
-        manifest: buildManifest({ datasetUrl: `${ACAG_DATASET_URL}-stale` }),
+        // Consistent recorded block, so A-10 does not fire first and mask the URL check.
+        manifest: { ...consistentManifest(), datasetUrl: `${ACAG_DATASET_URL}-stale` },
       }),
     ).toThrow(/is not the URL this build publishes/);
   });

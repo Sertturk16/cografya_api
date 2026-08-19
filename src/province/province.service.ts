@@ -222,7 +222,10 @@ function buildServedPm25Annual(stored: Pm25Annual | null, plateCode: string): Pm
     cellLatitude: stored.cellLatitude,
     cellLongitude: stored.cellLongitude,
     cellDistanceKm: stored.cellDistanceKm,
-    years: ascending,
+    // Rebuilt ENTRY BY ENTRY too (review CODE123R2-M1 / SFH123R2-M2). `usable`'s type predicate
+    // narrows the type but returns the ORIGINAL objects, so a stray key inside a year entry
+    // survived the top-level rebuild and reached the public contract one level down.
+    years: ascending.map((entry) => ({ year: entry.year, valueUgM3: entry.valueUgM3 })),
     latestYear: latest.year,
     latestValueUgM3: latest.valueUgM3,
     attribution: buildAcagAttribution(),

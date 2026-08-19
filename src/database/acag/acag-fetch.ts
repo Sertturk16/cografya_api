@@ -192,7 +192,7 @@ async function downloadYear(
   year: number,
   target: string,
   log: (m: string) => void,
-): Promise<number> {
+): Promise<{ bytes: number; contentLengthVerified: boolean }> {
   const url = acagUrlForYear(year);
   const partial = `${target}.part`;
   // A leftover `.part` from an earlier interrupted run must not be appended to or mistaken for
@@ -202,6 +202,7 @@ async function downloadYear(
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
   let declaredBytes: number | null = null;
+  let encodingSkipped: string | null = null;
   try {
     const response = await fetch(url, {
       signal: controller.signal,
@@ -216,8 +217,14 @@ async function downloadYear(
       throw new AcagContractError(`GET ${url} returned no body.`);
     }
     const contentLength = response.headers.get('content-length');
-    if (contentLength !== null && /^\d+$/.test(contentLength)) {
+    // A content-encoded body is decompressed transparently by `fetch`, so `Content-Length`
+    // describes the COMPRESSED bytes and would not match what we write (review SFH123R2-M7).
+    // Comparing them would be a loud FALSE failure on a healthy download.
+    const contentEncoding = response.headers.get('content-encoding');
+    if (contentEncoding === null && contentLength !== null && /^\d+$/.test(contentLength)) {
       declaredBytes = Number(contentLength);
+    } else if (contentEncoding !== null) {
+      encodingSkipped = contentEncoding;
     }
     // Streamed to disk: a 450 MB body must never be buffered whole in the heap.
     await pipeline(
@@ -246,9 +253,13 @@ async function downloadYear(
   await rename(partial, target);
   log(
     `  downloaded ${String(size)} B` +
-      (declaredBytes === null ? ' (no Content-Length to verify against)' : ' (Content-Length OK)'),
+      (declaredBytes !== null
+        ? ' (Content-Length OK)'
+        : encodingSkipped !== null
+          ? ` (Content-Length not comparable: content-encoding ${encodingSkipped})`
+          : ' (no Content-Length to verify against)'),
   );
-  return size;
+  return { bytes: size, contentLengthVerified: declaredBytes !== null };
 }
 
 /** Decode one year's window, with the raw file already on disk. */
@@ -300,7 +311,10 @@ export async function runAcagFetch(options: AcagFetchOptions): Promise<AcagFetch
   // Resolved once, up front, and reused when the manifest is written.
   const decoder = readDecoderIdentity();
   // The artifacts are written at the very end; prove now that they CAN be.
-  const writeProbe = join(outputDir, '.acag-write-probe');
+  // Named with the `.part` suffix the belt already ignores (review CODE123R2-M5 / SFH123R2-M6),
+  // so a probe left behind by a crash can never become a committable file in this tracked
+  // directory.
+  const writeProbe = join(outputDir, 'acag-write-probe.json.part');
   try {
     await writeFile(writeProbe, '', 'utf8');
   } catch (error: unknown) {
@@ -327,6 +341,8 @@ export async function runAcagFetch(options: AcagFetchOptions): Promise<AcagFetch
 
     let downloadMs = 0;
     let bytes: number;
+    // `null` = no download happened (`--from-dir`), so nothing could be verified.
+    let contentLengthVerified: boolean | null = null;
     if (fromDir) {
       const stats = await stat(rawPath).catch(() => null);
       if (stats === null) {
@@ -339,7 +355,9 @@ export async function runAcagFetch(options: AcagFetchOptions): Promise<AcagFetch
     } else {
       if (index > 0) await sleep(REQUEST_SPACING_MS);
       const startedAt = Date.now();
-      bytes = await downloadYear(year, rawPath, log);
+      const downloaded = await downloadYear(year, rawPath, log);
+      bytes = downloaded.bytes;
+      contentLengthVerified = downloaded.contentLengthVerified;
       downloadMs = Date.now() - startedAt;
     }
 
@@ -370,6 +388,7 @@ export async function runAcagFetch(options: AcagFetchOptions): Promise<AcagFetch
       bytes,
       sha256,
       timeCoverageAttribute: window.timeCoverageAttribute,
+      contentLengthVerified,
       downloadMs,
       decodeMs,
       rawDeleted: false,
@@ -410,6 +429,11 @@ export async function runAcagFetch(options: AcagFetchOptions): Promise<AcagFetch
   const series: AcagSeriesArtifact = {
     schemaVersion: ACAG_ARTIFACT_SCHEMA_VERSION,
     datasetVersion: ACAG_DATASET_VERSION,
+    // ASSERTED, not measured: this is the unit the provider's page states for this product, not
+    // a value read from the file's `units` attribute (review SFH123R2-M1). The asymmetry that
+    // leaves is bounded by `PM25_ABSURD_FLOOR_UG_M3`/`PM25_ABSURD_CEILING_UG_M3`, which catch a
+    // ×1000 and a ÷1000 unit change respectively. Reading the attribute would need a new artifact
+    // field, i.e. a 12 GB re-fetch — recorded as deferred rather than silently skipped.
     unit: 'µg/m3',
     gridCellSizeDeg: referenceGeometry.cellSizeDeg,
     years,
@@ -457,9 +481,15 @@ export async function runAcagFetch(options: AcagFetchOptions): Promise<AcagFetch
   assertAllPassed(assertions, 'fetch phase');
 
   // Both artifacts are written to `.part` and renamed only after BOTH are complete
-  // (review CODE123-M11, the `era5-fetch.ts` choreography). A crash between two direct writes
-  // would leave a new series file beside an old manifest whose `seriesSha256` no longer describes
-  // it — recoverable from git, but a confusing state that also clobbers committed evidence.
+  // (review CODE123-M11, the `era5-fetch.ts` choreography). A crash between the two WRITES now
+  // leaves the committed pair untouched, which is the common case and the one worth buying.
+  //
+  // Stated precisely (review SFH123R2-M5): two renames are not one atomic step, so a crash
+  // BETWEEN them can still leave a new series beside an old manifest. That window is two
+  // filesystem operations wide instead of two multi-hundred-KB writes wide, it fails CLOSED
+  // (A-08's SHA-256 pin refuses the mismatch at load), and `git status` names exactly which file
+  // moved. Closing it completely would need a directory-level rename, which costs more than the
+  // remaining window is worth on a hand-run annual import.
   const seriesPath = join(outputDir, ACAG_SERIES_FILE_NAME);
   const manifestPath = join(outputDir, ACAG_MANIFEST_FILE_NAME);
   const seriesJson = `${JSON.stringify(series, null, 2)}\n`;

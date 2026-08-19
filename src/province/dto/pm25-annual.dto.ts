@@ -63,16 +63,20 @@ export class Pm25AnnualDto implements Pm25Annual {
   @ApiProperty({
     example: 0.009998,
     description:
-      'Izgara hücre boyutu (derece) — sağlayıcının andığı 0,01° DEĞİL, dosyanın kendi ekseninden ' +
-      'ÖLÇÜLEN adım, 6 ondalığa yuvarlanmış. Sağlayıcı ızgarayı 0,01° × 0,01° diye anar ' +
-      '(künyedeki çekince metninde de öyle geçer); buradaki sayı o ızgaranın float32 eksende ' +
-      'ölçülen gerçek adımıdır. İkisi birbirinin yerine geçmez.',
+      'Izgara hücre boyutu (derece) — sağlayıcının andığı 0,01° DEĞİL, dosyanın ENLEM ekseninden ' +
+      'ÖLÇÜLEN adım, 6 ondalığa yuvarlanmış. İki eksen bu hassasiyette birebir aynı değildir ' +
+      '(boylam adımı manifestte ayrıca kayıtlıdır); yayımlanan tek sayı enlem adımıdır. ' +
+      'Sağlayıcı ızgarayı 0,01° × 0,01° diye anar (künyedeki çekince metninde de öyle geçer); ' +
+      'buradaki sayı o ızgaranın float32 eksende ölçülen gerçek adımıdır. Biri diğerinin yerine ' +
+      'geçmez.',
   })
   gridCellSizeDeg!: number;
 
   @ApiProperty({
     example: 'µg/m3',
-    description: 'Değerlerin birimi, sağlayıcının yazdığı hâliyle.',
+    description:
+      'Değerlerin birimi. Bu hattın SABİTİDİR — dosyanın `units` özniteliğinden okunmaz; ' +
+      'sağlayıcının ürün sayfasında bildirdiği birimdir.',
   })
   unit!: string;
 

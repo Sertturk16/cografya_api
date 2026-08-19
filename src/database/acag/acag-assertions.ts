@@ -279,7 +279,46 @@ export interface AcagLoadGateInput {
 export function assertAcagLoadIsSafe(input: AcagLoadGateInput): void {
   const { manifest, series, provinceRows, seriesSha256Actual } = input;
 
-  assertAllPassed(runAcagStructuralAssertions({ manifest, series }), 'load gate');
+  const recomputed = runAcagStructuralAssertions({ manifest, series });
+  assertAllPassed(recomputed, 'load gate');
+
+  // A-10 — the manifest's RECORDED assertion block must still describe the gate that is running
+  // (review SFH123R2-I1).
+  //
+  // Nothing used to read `manifest.assertions` back, so the block silently rotted the moment an
+  // assertion's wording or meaning changed — and that block is the human-facing evidence
+  // `data/acag-pm25/README.md` points a reviewer at. It matters more than bookkeeping here
+  // because A-08c's floor deliberately tolerates SOME unreadable attributes: what distinguishes
+  // "1 of 27 verified" from "27 of 27 verified" is the detail STRING, so a stale string can tell
+  // a reader the year was verified against every file when it was verified against one.
+  //
+  // This is the pattern the sibling lines already use (`era5-load-assertions.ts`,
+  // `marine-assertions.ts` build a recorded-by-id map and compare). It also makes a hand-edited
+  // `passed: true` unloadable.
+  const recordedById = new Map(manifest.assertions.map((entry) => [entry.id, entry]));
+  const divergent: string[] = [];
+  for (const fresh of recomputed) {
+    const recorded = recordedById.get(fresh.id);
+    if (recorded === undefined) {
+      divergent.push(`${fresh.id} (absent from the manifest)`);
+      continue;
+    }
+    if (recorded.passed !== fresh.passed || recorded.detail !== fresh.detail) {
+      divergent.push(`${fresh.id} (recorded "${recorded.detail}" vs current "${fresh.detail}")`);
+    }
+  }
+  const unknownRecorded = manifest.assertions
+    .filter((entry) => !recomputed.some((fresh) => fresh.id === entry.id))
+    .map((entry) => `${entry.id} (recorded but this build no longer computes it)`);
+  const allDivergences = [...divergent, ...unknownRecorded];
+  if (allDivergences.length > 0) {
+    throw new AcagLoadError(
+      `the manifest's recorded assertion block no longer describes this build's gate — ` +
+        `${allDivergences.join('; ')}. The committed evidence and the code must agree, because ` +
+        'that block is what a reviewer reads instead of re-running the import. Regenerate the ' +
+        'assertion block from the committed artifacts (offline; no re-download is needed).',
+    );
+  }
 
   // A-09 — the artifact's dataset URL must be the one this build's LICENCE BLOCK points at
   // (review CODE123-I1 / SFH123-I1).
@@ -308,8 +347,10 @@ export function assertAcagLoadIsSafe(input: AcagLoadGateInput): void {
   if (manifest.seriesSha256 !== seriesSha256Actual) {
     throw new AcagLoadError(
       `the series artifact's SHA-256 (${seriesSha256Actual}) does not match the manifest's ` +
-        `(${manifest.seriesSha256}). The artifact was edited after the fetch run; re-run ` +
-        '`--phase=fetch` rather than loading a file whose provenance is broken.',
+        `(${manifest.seriesSha256}). Either the artifact was edited after the fetch run, or the ` +
+        'run was interrupted between the two artifact renames — `git status` will show which ' +
+        'file moved. Re-run `--phase=fetch` rather than loading a file whose provenance is ' +
+        'broken.',
     );
   }
 
