@@ -1233,7 +1233,7 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       "sınırları içinde tamamen akan en uzun nehir olan Helmand, Hindukuş'ta doğar ve yaklaşık " +
       "1.150 kilometre sonra güneybatıdaki Sistan Havzası'nın tuzlu göllerinde son bulur; bu " +
       'nehir hiçbir denize ulaşmaz. Kabil Nehri ise başkentten geçtikten sonra doğuya akarak ' +
-      "Pakistan'da Indus Nehri'ne katılır — ülkenin denize ulaşan tek büyük su yolu budur.",
+      "Pakistan'da İndus Nehri'ne katılır — ülkenin denize ulaşan tek büyük su yolu budur.",
   },
   {
     isoCode: 'BD',
@@ -1373,7 +1373,7 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     landformNoteTr:
       "Ülkenin kuzeyini boydan boya kateden Himalayalar, Hindistan'ın en yüksek noktası olan " +
       "8.586 metrelik Kanchenjunga'yı barındırır; dünyanın en yüksek zirvesi Everest ise " +
-      'sınırın Nepal tarafında kalır. Himalayaların güneyinde, Indus, Ganj ve Brahmaputra ' +
+      'sınırın Nepal tarafında kalır. Himalayaların güneyinde, İndus, Ganj ve Brahmaputra ' +
       'nehirlerinin taşıdığı alüvyonla oluşan Indo-Gangetik Ovası, ülkenin kuzey ve doğusunu ' +
       'bir uçtan diğerine kat eder. Ovanın güneyinde, ortalama 300-700 metre yükseklikteki ' +
       'üçgen biçimli Dekkan Platosu yükselir; platoyu batıdan Batı Ghatlar, doğudan Doğu ' +
@@ -1392,7 +1392,7 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       "Ganj Nehri, Himalayalar'daki Gangotri buzulundan doğar ve yaklaşık 2.525 kilometre " +
       "boyunca doğuya akarak Bangladeş'te Brahmaputra ile birleşir. Yalnızca Hindistan " +
       "toprakları içinde akan en uzun nehir ise Godavari'dir; Deccan Platosu'nda doğar ve " +
-      "yaklaşık 1.465 kilometre sonra Bengal Körfezi'ne ulaşır. Indus Nehri, kaynağını " +
+      "yaklaşık 1.465 kilometre sonra Bengal Körfezi'ne ulaşır. İndus Nehri, kaynağını " +
       "Tibet'te alıp önce Hindistan'ın kuzeyinden, ardından Pakistan topraklarından geçerek " +
       "Arap Denizi'ne ulaşır. Yamuna, Ganj'ın en büyük kolu olarak Himalayalar'dan iner ve " +
       "Allahabad'da (Prayagraj) ana nehirle birleşir.",
@@ -1532,29 +1532,29 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       "Güney Asya'nın kuzeybatı ucunda yer alan Pakistan, doğuda Hindistan, kuzeyde Çin, " +
       "batıda Afganistan ve İran ile komşudur. Güneyde Arap Denizi'ne kıyısı vardır. Ülke " +
       'toprakları, kuzeyde 8.611 metreye ulaşan Karakoram zirvelerinden güneyde deniz ' +
-      'seviyesindeki Indus Nehri deltasına kadar uzanır.',
+      'seviyesindeki İndus Nehri deltasına kadar uzanır.',
     landformNoteTr:
       "Kuzey Pakistan'da Karakoram, Himalaya ve Hindukuş sıradağları kesişir; dünyanın en " +
       "yüksek ikinci zirvesi olan 8.611 metrelik K2, Çin sınırına yakın Karakoram'da yükselir. " +
       'Bu üç sıradağ aynı zamanda kutup bölgeleri dışındaki en büyük buzul kütlesini ' +
-      "barındırır. Ülkenin ortasını, Indus Nehri'nin taşıdığı alüvyonla oluşan geniş ve " +
-      'verimli Indus Ovası kaplar; Pencap ve Sind eyaletlerinin tarımı bu ovaya dayanır. ' +
+      "barındırır. Ülkenin ortasını, İndus Nehri'nin taşıdığı alüvyonla oluşan geniş ve " +
+      'verimli İndus Ovası kaplar; Pencap ve Sind eyaletlerinin tarımı bu ovaya dayanır. ' +
       'Güneybatıda, 600-3.000 metre yükseklikteki Beluçistan Platosu kurak ve dağlık bir arazi ' +
       "sunar. Doğuda, Hindistan sınırına yayılan Thar Çölü'nün Pakistan tarafı Cholistan " +
       'olarak bilinir.',
     climateNoteTr:
       'Pakistan topraklarının yaklaşık dörtte üçünde kurak ve yarı kurak iklim hakimdir; bu ' +
-      "kuşak Indus Ovası'nın büyük bölümünü ve Beluçistan Platosu'nu kapsar. Pencap ve Sind'de " +
+      "kuşak İndus Ovası'nın büyük bölümünü ve Beluçistan Platosu'nu kapsar. Pencap ve Sind'de " +
       'Temmuz-Eylül arasındaki güneybatı musonu yılın esas yağış dönemidir. Kuzeydeki ' +
       'Karakoram ve Himalaya yükseltilerinde soğuk, karlı bir dağ iklimi görülür, buzullar yıl ' +
       "boyunca erimez. Kıyı şeridi boyunca Arap Denizi'nden gelen deniz esintisi sıcaklığı bir " +
       'miktar yumuşatır.',
     hydrographyNoteTr:
-      "Tibet'te doğan Indus Nehri, Pakistan topraklarında yaklaşık 2.750 kilometre kat ederek " +
-      'Arap Denizi\'ne dökülür. Pencap — "beş nehir ülkesi" — adını, Indus\'a katılan Jhelum, ' +
+      "Tibet'te doğan İndus Nehri, Pakistan topraklarında yaklaşık 2.750 kilometre kat ederek " +
+      'Arap Denizi\'ne dökülür. Pencap — "beş nehir ülkesi" — adını, İndus\'a katılan Jhelum, ' +
       'Chenab, Ravi, Beas ve Sutlej nehirlerinden alır; bu kolların dördü (Beas hariç) ' +
       'Pakistan topraklarından geçer. Mithankot yakınlarında bu nehirler Panjnad adı altında ' +
-      "birleşip Indus'a katılır. 1960 tarihli Indus Suları Antlaşması, batı kollarının (Indus, " +
+      "birleşip İndus'a katılır. 1960 tarihli Indus Suları Antlaşması, batı kollarının (İndus, " +
       "Jhelum, Chenab) sularını Pakistan'a, doğu kollarının (Ravi, Beas, Sutlej) sularını ise " +
       "Hindistan'a tahsis eder.",
   },
