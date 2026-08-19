@@ -57,6 +57,23 @@ export class TerrainProbeError extends Error {
 }
 
 /**
+ * Raised when the run completed but one of its gates failed.
+ *
+ * It CARRIES the artifact, so a caller that has to refuse the run can still show the operator
+ * the same per-gate summary a passing run prints. Without that, the one path where the detail
+ * matters most would be the path that prints least.
+ */
+export class TerrainProbeGateError extends TerrainProbeError {
+  constructor(
+    message: string,
+    readonly artifact: TerrainProbeArtifact,
+  ) {
+    super(message);
+    this.name = 'TerrainProbeGateError';
+  }
+}
+
+/**
  * The terrain source families we expect AT THE SAMPLING ZOOM, and the set the tripwire's
  * allow-list is derived from.
  *
@@ -79,12 +96,23 @@ export const EXPECTED_SAMPLING_ZOOM_FAMILIES: readonly string[] = [
   'srtm',
 ];
 
-/** The families a `x-amz-meta-x-imagery-sources` header value names: each entry's path prefix. */
+/**
+ * The families a `x-amz-meta-x-imagery-sources` header value names: each entry's path prefix.
+ *
+ * An entry whose prefix is EMPTY falls back to the whole trimmed entry rather than being
+ * dropped. Dropping it made every licence gate downstream fail OPEN: if the provider ever
+ * switched to absolute paths (`/etopo1/ETOPO1_Bed_g.tif`), every prefix would be the empty
+ * string, every family would vanish, and `no etopo1 at the sampling zoom` would pass with
+ * nothing left to object to (review #122, CR122R2-M5). An entry we cannot parse must reach
+ * the gates as an unexpected family and trip them — never disappear before they run.
+ */
 export function imagerySourceFamilies(headerValue: string): string[] {
   const families: string[] = [];
   for (const entry of headerValue.split(',')) {
-    const family = entry.trim().split('/')[0];
-    if (family !== undefined && family !== '') families.push(family);
+    const trimmed = entry.trim();
+    if (trimmed === '') continue;
+    const prefix = trimmed.split('/')[0];
+    families.push(prefix === undefined || prefix === '' ? trimmed : prefix);
   }
   return families;
 }
@@ -447,18 +475,32 @@ export function evaluateProbeAssertions(input: {
       : 'absent, as the z12 pin requires',
   });
 
-  const shallowAboveThreshold = input.bathymetryByZoom.filter(
-    (row) => row.zoom >= 11 && (row.metres === null || row.metres !== 0),
-  );
+  // The population this gate is ABOUT is the z >= 11 rows, so that is what the vacuity guard
+  // counts. Guarding on the total row count let a sweep narrowed to z8-z10 pass while printing
+  // "every z >= 11 offshore sample reads exactly 0 m" about samples that did not exist — a
+  // clean result indistinguishable from having searched the wrong place (review #122,
+  // CR122R2-M3).
+  const aboveThreshold = input.bathymetryByZoom.filter((row) => row.zoom >= 11);
+  // "Could not measure" and "measured a depth" are SEPARATE outcomes. Collapsing them made a
+  // transient 5xx on one offshore tile print `depth present at z11` — a statement of the
+  // licence-critical fact, produced by a network blip. That is the same collapse the
+  // attribution fetch was corrected for two hundred lines below, in the same direction: an
+  // escalation signal that cries wolf stops being believed (review #122, CR122R2-M4).
+  const unmeasured = aboveThreshold.filter((row) => row.metres === null);
+  const withDepth = aboveThreshold.filter((row) => row.metres !== null && row.metres !== 0);
   assertions.push({
     name: 'no sea depth above z10',
-    passed: input.bathymetryByZoom.length > 0 && shallowAboveThreshold.length === 0,
+    passed: aboveThreshold.length > 0 && unmeasured.length === 0 && withDepth.length === 0,
     detail:
-      input.bathymetryByZoom.length === 0
-        ? 'the bathymetry sweep produced no rows'
-        : shallowAboveThreshold.length === 0
-          ? 'every z >= 11 offshore sample reads exactly 0 m'
-          : `depth present at ${shallowAboveThreshold.map((row) => `z${String(row.zoom)}`).join(', ')}`,
+      aboveThreshold.length === 0
+        ? 'the bathymetry sweep produced no rows at or above z11'
+        : withDepth.length > 0
+          ? `depth present at ${withDepth.map((row) => `z${String(row.zoom)}`).join(', ')}`
+          : unmeasured.length > 0
+            ? `NOT MEASURED at ${unmeasured
+                .map((row) => `z${String(row.zoom)}`)
+                .join(', ')} — a failed fetch, not evidence of depth`
+            : 'every z >= 11 offshore sample reads exactly 0 m',
   });
 
   const controls = input.points.filter((point) => point.specMeasuredM !== null);
@@ -782,8 +824,30 @@ export async function runTerrainProbePhase(options: {
 
   const artifact = await runTerrainProbe(options.baseUrl ?? DEFAULT_BASE_URL);
 
+  // Written FIRST, and unconditionally: a failed run's evidence is exactly what a human needs
+  // to diagnose it.
   await mkdir(dirname(options.outputPath), { recursive: true });
   await writeFile(options.outputPath, `${JSON.stringify(artifact, null, 2)}\n`, 'utf8');
+
+  // …and then the refusal, from the RUNNER rather than from the entry point.
+  //
+  // The previous round wired the non-zero exit into `main()` alone, which is un-exported and
+  // runs only behind `require.main === module` — so no spec could reach it, and the exported
+  // function every programmatic caller uses RESOLVED NORMALLY for a run that failed all seven
+  // gates. PR-E2's tripwire allow-list is born from this probe (`plan-api.md` §9.1), so the
+  // realistic caller is one that awaits this and reads the artifact as evidence. Throwing here
+  // makes that impossible to get wrong, and makes the contract pinnable — the same
+  // runner/entry-point reasoning `ENGINEERING.md` §8 states for the seed lanes, and what
+  // `probe-air-quality.ts` already does (review #122, CR122R2-M2 / TA122R2-M5).
+  const failed = artifact.assertions.filter((assertion) => !assertion.passed);
+  if (failed.length > 0) {
+    throw new TerrainProbeGateError(
+      `${String(failed.length)} probe gate(s) FAILED: ` +
+        `${failed.map((assertion) => assertion.name).join(', ')}. The artifact at ` +
+        `${options.outputPath} was written for diagnosis and MUST NOT be committed as evidence.`,
+      artifact,
+    );
+  }
 
   return artifact;
 }

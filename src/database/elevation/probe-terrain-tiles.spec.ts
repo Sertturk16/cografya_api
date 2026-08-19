@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it } from '@jest/globals';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { buildTerrariumTilePng } from '../../elevation/terrain/terrarium-fixture.builder';
 import {
   DECODER_CONTROL_TOLERANCE_M,
   MAX_BODY_BYTES,
@@ -11,6 +13,8 @@ import {
   evaluateProbeAssertions,
   imagerySourceFamilies,
   percentile,
+  runTerrainProbePhase,
+  TerrainProbeGateError,
   type TerrainProbeArtifact,
 } from './probe-terrain-tiles';
 
@@ -125,6 +129,39 @@ describe('terrain probe', () => {
     it('FAILS the bathymetry gate when the sweep produced nothing', () => {
       // Vacuity guard: "no depth found" must not pass because nothing was measured.
       expect(gate({ ...healthyInput, bathymetryByZoom: [] }, 'no sea depth above z10')).toBe(false);
+    });
+
+    it('FAILS when the sweep covers only the zooms BELOW the threshold', () => {
+      // The guard counts the population the gate is about. Counting total rows instead let a
+      // sweep narrowed to z8-z10 pass while printing a sentence about z >= 11 samples that
+      // were never taken — clean and wrong (review #122, CR122R2-M3).
+      expect(
+        gate(
+          {
+            ...healthyInput,
+            bathymetryByZoom: [
+              { zoom: 8, metres: -1491 },
+              { zoom: 9, metres: -1493 },
+              { zoom: 10, metres: -1490 },
+            ],
+          },
+          'no sea depth above z10',
+        ),
+      ).toBe(false);
+    });
+
+    it('does not call an unmeasured z11 sample "depth present"', () => {
+      // A failed fetch and a measured depth are different facts. Collapsing them made a
+      // transient 5xx print the licence-critical claim, which is the false alarm that trains
+      // an operator to discount a hard stop (review #122, CR122R2-M4 / TA122R2-M4).
+      const assertion = evaluateProbeAssertions({
+        ...healthyInput,
+        bathymetryByZoom: [{ zoom: 11, metres: null }],
+      }).find((entry) => entry.name === 'no sea depth above z10');
+
+      expect(assertion?.passed).toBe(false);
+      expect(assertion?.detail).toMatch(/NOT MEASURED/);
+      expect(assertion?.detail).not.toMatch(/depth present/);
     });
 
     it('FAILS when the decoder drifts from the independent measurement', () => {
@@ -254,6 +291,43 @@ describe('terrain probe', () => {
     });
   });
 
+  describe('the runner refuses a run that failed its gates', () => {
+    // The contract nothing pinned before: `runTerrainProbePhase` is the exported function every
+    // programmatic caller uses, and it used to RESOLVE NORMALLY for a run that failed all seven
+    // gates — the exit code lived only inside the un-exported `main()`, behind
+    // `require.main === module`, where no spec can reach it (review #122, CR122R2-M2 /
+    // TA122R2-M5).
+    //
+    // Driven end to end against a fake provider, because that is the only way to prove the
+    // WRITE-then-REFUSE order: the artifact must exist for diagnosis, and the promise must
+    // still reject. The run makes ~16 spaced requests, hence the raised timeout.
+    const realFetch = globalThis.fetch;
+
+    afterEach(() => {
+      globalThis.fetch = realFetch;
+    });
+
+    it('writes the artifact and THEN rejects, so no caller can read a failed run as evidence', async () => {
+      // A structurally valid tile carrying a flat elevation: every geometry refusal passes,
+      // so the run completes — and the decoder control then fails, because a flat tile does
+      // not match the independently measured control points.
+      const tile = buildTerrariumTilePng(() => 0);
+      globalThis.fetch = (): Promise<Response> =>
+        // `slice()` yields a fresh, plain ArrayBuffer-backed view, which is what `Response`
+        // accepts as a body; the builder's view is not assignable to `BodyInit` directly.
+        Promise.resolve(new Response(tile.slice().buffer, { status: 200 }));
+
+      const outputPath = join(mkdtempSync(join(tmpdir(), 'terrain-probe-')), 'probe.json');
+
+      await expect(runTerrainProbePhase({ outputPath })).rejects.toThrow(TerrainProbeGateError);
+
+      // The evidence is on disk anyway — a failed run's artifact is what a human diagnoses
+      // from — and it records the failure rather than hiding it.
+      const written = JSON.parse(readFileSync(outputPath, 'utf8')) as TerrainProbeArtifact;
+      expect(written.assertions.some((assertion) => !assertion.passed)).toBe(true);
+    }, 30_000);
+  });
+
   describe('the pure derivations', () => {
     it('splits a source header into families, ignoring the file names', () => {
       expect(
@@ -261,12 +335,27 @@ describe('terrain probe', () => {
       ).toEqual(['eudem', 'gmted']);
     });
 
-    it('keeps a repeated family once per entry and drops empty segments', () => {
+    it('keeps a repeated family once per entry and ignores empty entries', () => {
       // The caller de-duplicates through a Set; this function's job is to report what the
       // header said, so a dropped family here would silently shrink the allow-list.
       expect(imagerySourceFamilies('srtm/a.tif, srtm/b.tif')).toEqual(['srtm', 'srtm']);
       expect(imagerySourceFamilies('')).toEqual([]);
       expect(imagerySourceFamilies(' , eudem/a.tif , ')).toEqual(['eudem']);
+    });
+
+    it('surfaces an entry it cannot parse instead of dropping it', () => {
+      // If the provider ever switched to absolute paths, every prefix would be empty and the
+      // old parser returned NOTHING — so `no etopo1 at the sampling zoom` would have passed
+      // with nothing left to object to. An unparseable entry has to reach the gates and trip
+      // them (review #122, CR122R2-M5).
+      const families = imagerySourceFamilies('/etopo1/ETOPO1_Bed_g.tif, /eudem/a.tif');
+      expect(families).toEqual(['/etopo1/ETOPO1_Bed_g.tif', '/eudem/a.tif']);
+      expect(
+        gate(
+          { ...healthyInput, samplingZoomSourceTokens: families },
+          'no unexpected source family at the sampling zoom',
+        ),
+      ).toBe(false);
     });
 
     it('reports percentiles from a sorted series without stepping off either end', () => {
@@ -280,8 +369,16 @@ describe('terrain probe', () => {
   });
 
   describe('the committed artifact', () => {
+    // Resolved from the MODULE, not from `process.cwd()` — the `era5-artifact.spec.ts:23`
+    // pattern this block cites. `test/jest-unit.json` sets `rootDir: ".."`, which fixes module
+    // resolution and says nothing about the working directory, so a cwd-relative path makes
+    // these licence-critical invariants vanish under any invocation from elsewhere
+    // (review #122, CR122R2-M9 / TA122R2-M6).
     const artifact = JSON.parse(
-      readFileSync(join(process.cwd(), 'data', 'elevation', 'terrain-tiles-probe.json'), 'utf8'),
+      readFileSync(
+        join(__dirname, '..', '..', '..', 'data', 'elevation', 'terrain-tiles-probe.json'),
+        'utf8',
+      ),
     ) as TerrainProbeArtifact;
 
     it('records a run that actually reached the sampling zoom', () => {
@@ -342,12 +439,13 @@ describe('terrain probe', () => {
     });
 
     it('measures latency without the politeness sleep folded in', () => {
-      // A structural check on the MEASUREMENT, not on the network: the spacing gap is 400 ms,
-      // so a distribution whose minimum sits above it means the sleep is inside the timing
-      // again — the defect this artifact was re-run to correct (review #122, CODE122-I2).
+      // A structural check on the MEASUREMENT, not on the network: a distribution whose
+      // minimum sits above one spacing gap means the sleep is inside the timing again — the
+      // defect this artifact was re-run to correct (review #122, CODE122-I2). The threshold is
+      // the SYMBOL, so retuning the gap cannot silently void the check (TA122R2-M3).
       const stats = artifact.samplingZoomLatencyStats;
       expect(stats).not.toBeNull();
-      expect(stats?.minMs ?? Number.POSITIVE_INFINITY).toBeLessThan(400);
+      expect(stats?.minMs ?? Number.POSITIVE_INFINITY).toBeLessThan(REQUEST_SPACING_MS);
     });
   });
 });

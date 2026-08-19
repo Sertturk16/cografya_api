@@ -219,10 +219,21 @@ function unfilterScanlines(raw: Uint8Array, width: number, height: number): Uint
  * `Int16Array` yields −32768).
  *
  * Saturation rather than refusal is deliberate. Refusing the tile would need a physical
- * plausibility band, and the floor value is a legitimate no-data marker in this encoding — a
- * band tight enough to reject 32768 m would also reject a tile that is honestly full of
- * floor markers. Clamping removes the sign flip, which is the actual defect: an absurd
+ * plausibility band, and −32768 is the encoding's exact floor — `(0, 0, 0)` — so any band
+ * tight enough to reject 32768 m would sit uncomfortably close to a value the encoding can
+ * legitimately produce. Clamping removes the sign flip, which is the actual defect: an absurd
  * reading stays absurd and stays positive, instead of impersonating the floor.
+ *
+ * (An earlier draft of this paragraph justified the choice by calling the floor "a legitimate
+ * no-data marker in this encoding". That is a claim about the PROVIDER, and nothing in
+ * `provenance/datasets.md`'s Terrain Tiles row or in SPEC §7.3 establishes it — review #122
+ * CR122R2-M8. The decision is unchanged, because it holds on the arithmetic above; the
+ * unverified reason is gone.)
+ *
+ * Only the UPPER bound is clamped. The lower one is unreachable by construction: the channels
+ * are bytes, so the smallest value `decodeTerrariumMetres` can return is exactly −32768, and
+ * `Math.round` cannot take it lower. A `Math.max` there would be a branch no test could ever
+ * distinguish from its own absence (review #122, TA122R2-M1).
  */
 export function decodeTerrainTile(body: Uint8Array): Int16Array {
   if (!hasPngSignature(body)) {
@@ -307,9 +318,10 @@ export function decodeTerrainTile(body: Uint8Array): Int16Array {
       pixels[base + 1] ?? 0,
       pixels[base + 2] ?? 0,
     );
-    // Saturating store. See the docblock: without the upper clamp the encoding's top pixel
-    // wraps to the floor value and an absurd reading becomes indistinguishable from a valid one.
-    grid[index] = Math.max(INT16_MIN, Math.min(INT16_MAX, Math.round(metres)));
+    // Saturating store, UPPER bound only. Without it the encoding's top pixel wraps to the
+    // floor value and an absurd reading becomes indistinguishable from a valid one. There is
+    // no lower clamp because there is nothing to clamp: the floor IS `INT16_MIN` exactly.
+    grid[index] = Math.min(INT16_MAX, Math.round(metres));
   }
 
   return grid;

@@ -1,5 +1,10 @@
 import { join } from 'node:path';
-import { runTerrainProbePhase, TERRAIN_DEFAULT_BASE_URL } from './probe-terrain-tiles';
+import {
+  runTerrainProbePhase,
+  TERRAIN_DEFAULT_BASE_URL,
+  TerrainProbeGateError,
+  type TerrainProbeArtifact,
+} from './probe-terrain-tiles';
 
 /**
  * CLI for `pnpm db:import:terrain --phase=probe` (run against the COMPILED build, like every
@@ -57,11 +62,29 @@ async function main(): Promise<void> {
       'touches no database and reads no secret.',
   );
 
-  const artifact = await runTerrainProbePhase({
-    outputPath: ARTIFACT_PATH,
-    baseUrl: TERRAIN_DEFAULT_BASE_URL,
-  });
+  // The RUNNER decides whether the run may be trusted, and refuses by throwing — so this
+  // entry point cannot forget the check and neither can any programmatic caller (PR-E2 is the
+  // obvious one). What is left here is presentation: on a failed run the error carries the
+  // artifact, so the operator sees the same per-gate summary either way. The exit code is set
+  // from the same fact, not re-derived.
+  let artifact: TerrainProbeArtifact;
+  try {
+    artifact = await runTerrainProbePhase({
+      outputPath: ARTIFACT_PATH,
+      baseUrl: TERRAIN_DEFAULT_BASE_URL,
+    });
+  } catch (error: unknown) {
+    if (!(error instanceof TerrainProbeGateError)) throw error;
+    printSummary(error.artifact);
+    console.error(`[db:import:terrain] ${error.message}`);
+    process.exitCode = 1;
+    return;
+  }
 
+  printSummary(artifact);
+}
+
+function printSummary(artifact: TerrainProbeArtifact): void {
   const okTiles = artifact.tiles.filter((tile) => tile.httpStatus === 200).length;
   const controls = artifact.points.filter((point) => point.specMeasuredM !== null);
 
@@ -103,19 +126,6 @@ async function main(): Promise<void> {
       ),
     ].join('\n'),
   );
-
-  // The artifact is written either way — a failed run's evidence is exactly what a human needs
-  // to diagnose it — but the EXIT CODE tells the truth. §8's rule for the fidelity lanes is the
-  // one being applied here: read the exit code, never the printed counts.
-  const failed = artifact.assertions.filter((assertion) => !assertion.passed);
-  if (failed.length > 0) {
-    console.error(
-      `[db:import:terrain] ${String(failed.length)} gate(s) FAILED: ` +
-        `${failed.map((assertion) => assertion.name).join(', ')}. ` +
-        'The artifact was written for diagnosis and MUST NOT be committed as evidence.',
-    );
-    process.exitCode = 1;
-  }
 }
 
 // Only run when this file IS the entry point: importing it (the unit spec reaches

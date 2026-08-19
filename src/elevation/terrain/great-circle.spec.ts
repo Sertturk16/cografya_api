@@ -157,6 +157,19 @@ describe('great-circle geometry', () => {
     }
   });
 
+  it('refuses a non-finite coordinate rather than returning NaN samples', () => {
+    // The module's "## Domain" docblock claims finite inputs; this is what makes the claim
+    // true. Without it a NaN latitude produced 200 samples of NaN, and the failure surfaced
+    // two modules later (review #122, CR122R2-M7).
+    expect(() => haversineKm({ lat: Number.NaN, lon: 32 }, ankara)).toThrow(RangeError);
+    expect(() => interpolateGreatCircle(ankara, { lat: 39, lon: Number.NaN }, 0.5)).toThrow(
+      RangeError,
+    );
+    expect(() =>
+      sampleGreatCircleLine({ lat: Number.POSITIVE_INFINITY, lon: 32 }, ankara, 10),
+    ).toThrow(RangeError);
+  });
+
   it('refuses a sample count below two instead of returning a non-profile', () => {
     expect(() => sampleGreatCircleLine(izmir, van, 1)).toThrow(RangeError);
     expect(() => sampleGreatCircleLine(izmir, van, 0)).toThrow(RangeError);

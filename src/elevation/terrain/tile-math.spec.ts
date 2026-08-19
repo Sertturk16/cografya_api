@@ -88,13 +88,25 @@ describe('tile math', () => {
   it('hands the pyramid edge to the sampler without stepping outside the grid', () => {
     // The COMPOSED path the two docblocks promise between them: lon +180 lands at pixelX
     // exactly TILE_SIZE, and `bilinearSample` clamps there rather than reading a cell that
-    // does not exist. Covered in pieces before this, never end to end (TA122-M4).
+    // does not exist.
+    //
+    // The assertion is on the VALUE, and that is the whole point. The first version of this
+    // case seeded the marker in the far corner and asserted `Number.isFinite(sampled)` — but
+    // the composed path reads row 0, column 255, so the marker was never touched and the
+    // assertion reduced to "did not throw and is not NaN". A regression that dropped
+    // `clampIndex` would read `grid[256]`, hit the `?? 0` fallback, return 0, and pass
+    // (review #122, CR122R2-M6 / TA122R2-M2). Reading the marker is what makes the clamp
+    // load-bearing here.
     const edge = lonLatToTilePixel(180, 0, TERRAIN_SAMPLE_ZOOM);
-    const grid = new Int16Array(TILE_SIZE * TILE_SIZE);
-    grid[TILE_SIZE * TILE_SIZE - 1] = 1234;
+    expect(edge.pixelX).toBe(TILE_SIZE);
+    expect(edge.pixelY).toBe(0);
 
-    const sampled = bilinearSample(grid, edge.pixelX, edge.pixelY);
-    expect(Number.isFinite(sampled)).toBe(true);
+    const grid = new Int16Array(TILE_SIZE * TILE_SIZE);
+    grid[TILE_SIZE - 1] = 1234;
+
+    // x clamps to column 255 (both sides of the interpolation) and y clamps to row 0, so a
+    // correct sampler returns the marker exactly.
+    expect(bilinearSample(grid, edge.pixelX, edge.pixelY)).toBeCloseTo(1234, 10);
   });
 
   it('refuses a non-finite coordinate rather than returning a NaN tile index', () => {

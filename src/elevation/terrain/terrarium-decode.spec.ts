@@ -96,10 +96,14 @@ describe('terrarium decoding', () => {
       expect(grid[0]).not.toBe(INT16_MIN);
     });
 
-    it('saturates at the bottom too, so the clamp is symmetric', () => {
-      const png = buildTerrariumTilePng(() => -32768);
-      expect(decodeTerrainTile(png)[0]).toBe(INT16_MIN);
-    });
+    // There is deliberately NO bottom-saturation case. One was added in the first fix round
+    // and removed here: it built a −32768 tile and expected −32768, which is byte-identical
+    // to the floor test above and stays GREEN on the unclamped code the round was fixing —
+    // so it pinned nothing. The reason no such test can exist is structural: the channels are
+    // bytes, the encoding's minimum is exactly −32768, and no decoded value can fall below
+    // it, so the lower branch is unreachable and is now absent from the production code too
+    // (review #122, TA122R2-M1). A test whose name claims a symmetry the suite cannot
+    // demonstrate teaches the next reader that the clamp was never load-bearing.
 
     it('refuses a body that is not a PNG at all', () => {
       expect(() => decodeTerrainTile(Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8, 9]))).toThrow(

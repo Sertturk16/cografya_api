@@ -2,9 +2,13 @@
 
 One file, written by `pnpm db:import:terrain --phase=probe`, read by **nothing at runtime**.
 
-| File                       | Written by                                        | Read by                                         |   Size |
-| -------------------------- | ------------------------------------------------- | ----------------------------------------------- | -----: |
-| `terrain-tiles-probe.json` | `pnpm db:import:terrain --phase=probe` (hand-run) | humans, and the PR that configures the endpoint | ~15 KB |
+| File                       | Written by                                        | Read by                                                                        |
+| -------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `terrain-tiles-probe.json` | `pnpm db:import:terrain --phase=probe` (hand-run) | humans, `probe-terrain-tiles.spec.ts`, and the PR that configures the endpoint |
+
+(No size column. It said "~15 KB" against a file that was 9.6 KB when written and is 10.8 KB
+now, and it would rot on every re-run: a measurable fact is produced by a check or it is not
+stated — review #122, CODE122-M8.)
 
 ## What it is for
 

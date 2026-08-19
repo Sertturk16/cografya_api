@@ -57,6 +57,30 @@ function toDegrees(radians: number): number {
 }
 
 /**
+ * Enforce the domain the module docblock claims.
+ *
+ * It used to only CLAIM it. A NaN latitude flowed through every guard here — `angularDistance
+ * === 0` and the near-π check are both false under NaN — and `sampleGreatCircleLine` returned
+ * 200 samples of NaN without complaint; the first `lonLatToTilePixel` call downstream then
+ * threw, so the request would have failed naming the wrong module (review #122, CR122R2-M7).
+ * The two sibling modules already refuse non-finite input, and this one already refuses a bad
+ * sample count, so validating the count while ignoring the coordinates was the odd asymmetry.
+ */
+function assertFinitePoints(a: GeoPoint, b: GeoPoint): void {
+  if (
+    !Number.isFinite(a.lat) ||
+    !Number.isFinite(a.lon) ||
+    !Number.isFinite(b.lat) ||
+    !Number.isFinite(b.lon)
+  ) {
+    throw new RangeError(
+      `great-circle geometry needs finite coordinates, received ` +
+        `(${String(a.lat)}, ${String(a.lon)}) and (${String(b.lat)}, ${String(b.lon)})`,
+    );
+  }
+}
+
+/**
  * Great-circle distance between two points, in kilometres.
  *
  * Haversine rather than the spherical law of cosines: the latter loses precision for small
@@ -65,6 +89,7 @@ function toDegrees(radians: number): number {
  * apart.
  */
 export function haversineKm(a: GeoPoint, b: GeoPoint): number {
+  assertFinitePoints(a, b);
   const lat1 = toRadians(a.lat);
   const lat2 = toRadians(b.lat);
   const deltaLat = toRadians(b.lat - a.lat);
@@ -90,6 +115,7 @@ export function haversineKm(a: GeoPoint, b: GeoPoint): number {
  * `fraction` 0 returns `a`, 1 returns `b`.
  */
 export function interpolateGreatCircle(a: GeoPoint, b: GeoPoint, fraction: number): GeoPoint {
+  assertFinitePoints(a, b);
   const lat1 = toRadians(a.lat);
   const lon1 = toRadians(a.lon);
   const lat2 = toRadians(b.lat);

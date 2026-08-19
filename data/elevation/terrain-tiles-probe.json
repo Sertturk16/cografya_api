@@ -1,5 +1,5 @@
 {
-  "generatedAtUtc": "2026-08-19T15:12:14.406Z",
+  "generatedAtUtc": "2026-08-19T18:33:54.349Z",
   "baseUrl": "https://s3.amazonaws.com/elevation-tiles-prod",
   "zoom": 12,
   "userAgent": "CografyaPlatformBot/1.0 (educational geography platform)",
@@ -56,7 +56,7 @@
       "zoom": 12,
       "httpStatus": 200,
       "bytes": 901,
-      "elapsedMs": 490,
+      "elapsedMs": 485,
       "contentType": "image/png",
       "lastModified": "Fri, 17 Nov 2017 01:16:29 GMT",
       "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif"
@@ -66,7 +66,7 @@
       "zoom": 12,
       "httpStatus": 200,
       "bytes": 890,
-      "elapsedMs": 165,
+      "elapsedMs": 198,
       "contentType": "image/png",
       "lastModified": "Fri, 17 Nov 2017 11:22:26 GMT",
       "imagerySources": "eudem/eudem_dem_5deg_n35e040.tif"
@@ -76,7 +76,7 @@
       "zoom": 12,
       "httpStatus": 200,
       "bytes": 133078,
-      "elapsedMs": 632,
+      "elapsedMs": 1449,
       "contentType": "image/png",
       "lastModified": "Fri, 17 Nov 2017 04:11:11 GMT",
       "imagerySources": "eudem/eudem_dem_5deg_n35e035.tif"
@@ -86,7 +86,7 @@
       "zoom": 12,
       "httpStatus": 200,
       "bytes": 109867,
-      "elapsedMs": 342,
+      "elapsedMs": 730,
       "contentType": "image/png",
       "lastModified": "Fri, 17 Nov 2017 01:39:43 GMT",
       "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif"
@@ -96,7 +96,7 @@
       "zoom": 12,
       "httpStatus": 200,
       "bytes": 54758,
-      "elapsedMs": 219,
+      "elapsedMs": 533,
       "contentType": "image/png",
       "lastModified": "Thu, 16 Nov 2017 20:11:23 GMT",
       "imagerySources": "eudem/eudem_dem_5deg_n35e025.tif"
@@ -106,7 +106,7 @@
       "zoom": 12,
       "httpStatus": 200,
       "bytes": 757,
-      "elapsedMs": 176,
+      "elapsedMs": 209,
       "contentType": "image/png",
       "lastModified": "Thu, 16 Nov 2017 22:59:43 GMT",
       "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif, gmted/30N030E_20101117_gmted_mea075.tif"
@@ -116,7 +116,7 @@
       "zoom": 12,
       "httpStatus": 200,
       "bytes": 757,
-      "elapsedMs": 153,
+      "elapsedMs": 175,
       "contentType": "image/png",
       "lastModified": "Fri, 17 Nov 2017 04:03:02 GMT",
       "imagerySources": "gmted/30N030E_20101117_gmted_mea075.tif"
@@ -126,7 +126,7 @@
       "zoom": 12,
       "httpStatus": 200,
       "bytes": 757,
-      "elapsedMs": 225,
+      "elapsedMs": 160,
       "contentType": "image/png",
       "lastModified": "Thu, 16 Nov 2017 20:09:30 GMT",
       "imagerySources": "gmted/30N000E_20101117_gmted_mea075.tif"
@@ -136,7 +136,7 @@
       "zoom": 12,
       "httpStatus": 200,
       "bytes": 757,
-      "elapsedMs": 155,
+      "elapsedMs": 254,
       "contentType": "image/png",
       "lastModified": "Thu, 16 Nov 2017 22:46:44 GMT",
       "imagerySources": "gmted/30N000E_20101117_gmted_mea075.tif"
@@ -146,7 +146,7 @@
       "zoom": 8,
       "httpStatus": 200,
       "bytes": 134856,
-      "elapsedMs": 165,
+      "elapsedMs": 1146,
       "contentType": "image/png",
       "lastModified": "Thu, 16 Nov 2017 22:55:56 GMT",
       "imagerySources": "srtm/N36E030.tif, srtm/N36E029.tif, gmted/30N030E_20101117_gmted_mea075.tif, gmted/30N000E_20101117_gmted_mea075.tif, etopo1/ETOPO1_Bed_g.tif"
@@ -156,7 +156,7 @@
       "zoom": 9,
       "httpStatus": 200,
       "bytes": 134582,
-      "elapsedMs": 150,
+      "elapsedMs": 690,
       "contentType": "image/png",
       "lastModified": "Thu, 16 Nov 2017 22:58:38 GMT",
       "imagerySources": "gmted/30N030E_20101117_gmted_mea075.tif, etopo1/ETOPO1_Bed_g.tif"
@@ -166,7 +166,7 @@
       "zoom": 10,
       "httpStatus": 200,
       "bytes": 133137,
-      "elapsedMs": 232,
+      "elapsedMs": 807,
       "contentType": "image/png",
       "lastModified": "Thu, 16 Nov 2017 22:59:31 GMT",
       "imagerySources": "gmted/30N030E_20101117_gmted_mea075.tif, etopo1/ETOPO1_Bed_g.tif"
@@ -176,7 +176,7 @@
       "zoom": 11,
       "httpStatus": 200,
       "bytes": 757,
-      "elapsedMs": 196,
+      "elapsedMs": 186,
       "contentType": "image/png",
       "lastModified": "Thu, 16 Nov 2017 22:59:41 GMT",
       "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif, gmted/30N030E_20101117_gmted_mea075.tif"
@@ -186,7 +186,7 @@
       "zoom": 13,
       "httpStatus": 200,
       "bytes": 757,
-      "elapsedMs": 195,
+      "elapsedMs": 238,
       "contentType": "image/png",
       "lastModified": "Thu, 16 Nov 2017 22:59:43 GMT",
       "imagerySources": "eudem/eudem_dem_5deg_n35e030.tif, gmted/30N030E_20101117_gmted_mea075.tif"
@@ -416,9 +416,9 @@
   },
   "samplingZoomLatencyStats": {
     "count": 9,
-    "minMs": 153,
-    "maxMs": 632,
-    "medianMs": 219,
-    "p95Ms": 490
+    "minMs": 160,
+    "maxMs": 1449,
+    "medianMs": 254,
+    "p95Ms": 730
   }
 }
