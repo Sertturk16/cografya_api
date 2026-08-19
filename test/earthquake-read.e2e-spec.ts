@@ -530,7 +530,11 @@ describe('Earthquake public endpoints (e2e, real Postgres)', () => {
 
       // WHICH ids land on page 1, not merely how many: this is what shows the LIMIT is applied
       // after the ORDER BY across distinct timestamps (review #121 TA121-M8).
-      expect(firstIds).toEqual(['900001', '900003']);
+      //
+      // The id set differs from the default-threshold case above BECAUSE this one asks for
+      // `minMagnitude: 0`: the 1.4 row (900002, NOW-2h) is filtered out there and included here, so
+      // the two newest servable rows are 900001 (NOW-1h) and 900002 — not 900001 and 900003.
+      expect(firstIds).toEqual(['900001', '900002']);
       expect((first.body as ListBody).hasMore).toBe(true);
       expect(secondIds).toHaveLength(1);
       expect((second.body as ListBody).hasMore).toBe(false);
