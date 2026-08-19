@@ -132,17 +132,25 @@ export class EarthquakeListQueryDto {
       'everything is stored, so lowering it returns real data rather than a hole. The applied ' +
       'value is echoed back in meta.filter.',
   })
-  // The conversion lives in `@Transform` rather than in `@Type(() => Number)`, and that is the fix
-  // for a measured defect rather than a style choice. `@Type` runs FIRST and coerces `''` to `0`
-  // (verified against this repo's own class-transformer: `?minMagnitude=` produced `0` with no
-  // validation error), so `?minMagnitude=` — the shape a template emits for an unset field —
-  // silently replaced the published 2.5 default with a floor of 0 and returned a far heavier page
-  // than the caller asked for (review #121 CODE121-M1). Converting here instead lets an empty value
-  // stay empty and be REFUSED, which is what `page` and `pageSize` already do, while an ABSENT
-  // parameter never enters this pipeline at all and keeps the initialiser below.
-  @Transform(({ value }): unknown =>
-    value === '' || value === undefined ? undefined : Number(value),
-  )
+  // The conversion lives in `@Transform` rather than in `@Type(() => Number)`, and it accepts only
+  // a well-formed numeric STRING. Both halves are fixes for measured defects rather than style.
+  //
+  // `@Type` runs FIRST and coerces `''` to `0`, which sits inside the published range, so
+  // `?minMagnitude=` — the shape a template emits for an unset field — silently replaced the
+  // published 2.5 default with a floor of 0 and returned a far heavier page than the caller asked
+  // for (review #121 CODE121-M1). Guarding `value === ''` alone then left the identical defect
+  // reachable one character differently: `Number(x)` is also 0 for every whitespace-only string
+  // (`%20`, a `+` that qs decodes to a space, a tab) and for `['']` (`?minMagnitude[]=`), and no
+  // validator fired for any of them (review #121 R2, SFH121R2-M1 — both measured against this
+  // repo's own class-transformer).
+  //
+  // So: a non-string or a blank string becomes `undefined` and is REFUSED by `@IsNumber()`, which
+  // is what `page` and `pageSize` already do with an empty value, while an ABSENT parameter never
+  // enters this pipeline at all and keeps the initialiser below.
+  @Transform(({ value }): unknown => {
+    if (typeof value !== 'string' || value.trim() === '') return undefined;
+    return Number(value);
+  })
   @IsNumber()
   @Min(EARTHQUAKE_MIN_MAGNITUDE_FLOOR)
   @Max(EARTHQUAKE_MIN_MAGNITUDE_CEILING)
@@ -208,7 +216,9 @@ export class EarthquakeListQueryDto {
     example: EARTHQUAKE_LIST_DEFAULT_PAGE,
     description:
       'Page to read, 1-based. A page past the end answers 200 with an empty items array, never ' +
-      '404.',
+      '404. NOTE: hasMore is also false AT this ceiling, even when total is larger — compare ' +
+      'page * pageSize with total to tell an exhausted result from an exhausted address space. ' +
+      'Reachable only at very small page sizes over a very wide window.',
   })
   @Type(() => Number)
   @IsInt()

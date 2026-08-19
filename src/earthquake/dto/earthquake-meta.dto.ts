@@ -68,8 +68,10 @@ export class EarthquakeMetaDto {
     nullable: true,
     example: '2026-08-19T11:55:00.000Z',
     description:
-      'When our last SUCCESSFUL contact with the provider finished, UTC; null before there has ' +
-      'been one. This — not build time — is what a dateModified or a sitemap lastmod derives from.',
+      'When our last ingest tour that actually LANDED data finished, UTC; null when no such tour ' +
+      'has run. A tour that reached the provider but stored nothing does NOT refresh it, so a ' +
+      'frozen value points at our own pipeline rather than at the provider. This — not build ' +
+      'time — is what a dateModified or a sitemap lastmod derives from.',
   })
   dataUpdatedAtUtc!: string | null;
 

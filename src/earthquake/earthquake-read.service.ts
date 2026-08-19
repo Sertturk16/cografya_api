@@ -165,6 +165,14 @@ export class EarthquakeReadService {
       this.store.hasAnyServableRow(),
       // PATH-SCOPED, and published as `meta.latestEventAtUtc` only. Not scoped to the request's
       // filter: a request that filters everything out must still report what the path holds.
+      //
+      // These two probes are NOT atomic: concurrent queries take their own snapshots, so at the
+      // instant the store gains its first in-scope row a single response can pair
+      // `dataStatus: 'unavailable'` with a non-null `latestEventAtUtc`. Recorded rather than
+      // closed (review #121 R2, SFH121R2-M4): the window is milliseconds, it can occur once in a
+      // store's lifetime, the body carries `no-store` so nothing caches it — and the available fix,
+      // deriving the boolean from this value on the hub, is the one-value-two-purposes coupling
+      // that produced SFH121-I2 in the first place.
       this.store.latestEventOccurredAt(plateCode),
     ]);
 

@@ -593,7 +593,7 @@
             "name": "page",
             "required": false,
             "in": "query",
-            "description": "Page to read, 1-based. A page past the end answers 200 with an empty items array, never 404.",
+            "description": "Page to read, 1-based. A page past the end answers 200 with an empty items array, never 404. NOTE: hasMore is also false AT this ceiling, even when total is larger — compare page * pageSize with total to tell an exhausted result from an exhausted address space. Reachable only at very small page sizes over a very wide window.",
             "schema": {
               "minimum": 1,
               "maximum": 10000,
@@ -721,7 +721,7 @@
             "name": "page",
             "required": false,
             "in": "query",
-            "description": "Page to read, 1-based. A page past the end answers 200 with an empty items array, never 404.",
+            "description": "Page to read, 1-based. A page past the end answers 200 with an empty items array, never 404. NOTE: hasMore is also false AT this ceiling, even when total is larger — compare page * pageSize with total to tell an exhausted result from an exhausted address space. Reachable only at very small page sizes over a very wide window.",
             "schema": {
               "minimum": 1,
               "maximum": 10000,
@@ -3917,7 +3917,7 @@
             "nullable": true,
             "format": "date-time",
             "example": "2026-08-11T12:30:00.000Z",
-            "description": "When our last SUCCESSFUL contact with the provider finished, UTC; null before the first one. This — not build time — is what a dateModified or a sitemap lastmod derives from. Distinct from latestEventAtUtc on purpose: a quiet hour and an outage look identical from the newest event alone."
+            "description": "When our last ingest tour that actually LANDED data finished, UTC; null when no such tour has run. A tour that reached the provider but stored nothing — a renamed upstream field, say — does NOT refresh this, so a frozen value here points at our own pipeline rather than at the provider. This — not build time — is what a dateModified or a sitemap lastmod derives from. Distinct from latestEventAtUtc on purpose: a quiet hour and an outage look identical from the newest event alone."
           },
           "latestEventAtUtc": {
             "type": "string",
@@ -4031,7 +4031,7 @@
             "nullable": true,
             "format": "date-time",
             "example": "2026-08-19T11:55:00.000Z",
-            "description": "When our last SUCCESSFUL contact with the provider finished, UTC; null before there has been one. This — not build time — is what a dateModified or a sitemap lastmod derives from."
+            "description": "When our last ingest tour that actually LANDED data finished, UTC; null when no such tour has run. A tour that reached the provider but stored nothing does NOT refresh it, so a frozen value points at our own pipeline rather than at the provider. This — not build time — is what a dateModified or a sitemap lastmod derives from."
           },
           "latestEventAtUtc": {
             "type": "string",

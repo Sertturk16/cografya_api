@@ -2,7 +2,10 @@ import { EarthquakeDataStatus } from './earthquake.types';
 
 /** The freshness half of every list/meta response, derived from two facts and the clock. */
 export interface EarthquakeFreshness {
-  /** Finish time of the newest SUCCESSFUL ingest tour, or null when there has never been one. */
+  /**
+   * Finish time of the newest ingest tour that succeeded AND stored something, or null when there
+   * has never been one. A tour that reached the provider and stored nothing does not move it.
+   */
   readonly dataUpdatedAtUtc: string | null;
   readonly dataStatus: EarthquakeDataStatus;
 }

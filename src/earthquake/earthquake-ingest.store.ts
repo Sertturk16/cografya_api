@@ -231,9 +231,23 @@ export class EarthquakeIngestStore implements EarthquakeIngestStorePort {
    *
    * Two things are load-bearing here and neither is style:
    *
-   * 1. **The newest `ok` run is exempt.** It is the anchor the served freshness is computed from.
-   *    Prune it after a long outage and the API stops saying "the data is stale" and starts saying
-   *    "there is no data" — a different, and false, statement.
+   * 1. **The newest CLEAN `ok` run is exempt** — `outcome = 'ok'` AND `error_reason IS NULL`. It is
+   *    the anchor the served freshness is computed from. Prune it after a long outage and the API
+   *    stops saying "the data is stale" and starts saying "there is no data" — a different, and
+   *    false, statement.
+   *
+   *    **The two halves of that predicate must stay identical to
+   *    `EarthquakeReadStore.newestSuccessfulRunFinishedAt`**, because this exemption exists for no
+   *    other purpose than to protect the row that method reads. They diverged for exactly one
+   *    review round: E3 added `error_reason IS NULL` to the read side (a tour can succeed as a CALL
+   *    and store nothing, and the ingest records that as `ok` WITH a reason), while this subquery
+   *    kept the old definition. The consequence was invisible for 14 days and then silent: through
+   *    a parser break every tour writes a DEGRADED `ok`, so the row protected here is a recent
+   *    degraded run that retention would never have reached anyway, while the last CLEAN run — the
+   *    one the API actually publishes — crosses the cutoff unprotected and is deleted. From that
+   *    request onward `dataUpdatedAtUtc` is `null`, whose published meaning is "we have never
+   *    successfully contacted the provider", while the tour is contacting it every 300 s
+   *    (review #121 R2, SFH121R2-I1).
    * 2. **`IS DISTINCT FROM`, not `<>`.** With no successful run yet the subquery is NULL, and
    *    `id <> NULL` is NULL, so a plain `<>` would quietly delete nothing at all, forever, on
    *    exactly the deployment whose table is filling up with failures.
@@ -252,7 +266,7 @@ export class EarthquakeIngestStore implements EarthquakeIngestStorePort {
         WHERE "started_at_utc" < $1
           AND "id" IS DISTINCT FROM (
             SELECT "id" FROM "earthquake_ingest_runs"
-             WHERE "outcome" = 'ok' AND "finished_at_utc" IS NOT NULL
+             WHERE "outcome" = 'ok' AND "error_reason" IS NULL AND "finished_at_utc" IS NOT NULL
              ORDER BY "finished_at_utc" DESC
              LIMIT 1)
         RETURNING "id"`,

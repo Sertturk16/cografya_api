@@ -31,10 +31,12 @@ export class EarthquakeListMetaDto {
     nullable: true,
     example: '2026-08-11T12:30:00.000Z',
     description:
-      'When our last SUCCESSFUL contact with the provider finished, UTC; null before the first ' +
-      'one. This — not build time — is what a dateModified or a sitemap lastmod derives from. ' +
-      'Distinct from latestEventAtUtc on purpose: a quiet hour and an outage look identical ' +
-      'from the newest event alone.',
+      'When our last ingest tour that actually LANDED data finished, UTC; null when no such tour ' +
+      'has run. A tour that reached the provider but stored nothing — a renamed upstream field, ' +
+      'say — does NOT refresh this, so a frozen value here points at our own pipeline rather ' +
+      'than at the provider. This — not build time — is what a dateModified or a sitemap lastmod ' +
+      'derives from. Distinct from latestEventAtUtc on purpose: a quiet hour and an outage look ' +
+      'identical from the newest event alone.',
   })
   dataUpdatedAtUtc!: string | null;
 

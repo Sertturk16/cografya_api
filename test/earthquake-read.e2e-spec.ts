@@ -27,9 +27,13 @@ import {
   type EarthquakeEventUpsert,
 } from '../src/earthquake/earthquake-ingest.store';
 import {
+  AFAD_TDVMS_BUDGET,
   EARTHQUAKE_UPSTREAM_CONFIG,
   type EarthquakeUpstreamConfig,
 } from '../src/earthquake/earthquake-upstream.config';
+import { AFAD_UPSTREAM_CLIENT } from '../src/earthquake/earthquake.module';
+import { OperationDeadline } from '../src/upstream/operation-deadline';
+import type { UpstreamHttpClient } from '../src/upstream/upstream-http.client';
 
 /**
  * E3 e2e: the three public endpoints against a REAL Postgres, through E1's migrations.
@@ -79,6 +83,12 @@ const META_CACHE_CONTROL = 'public, max-age=300, s-maxage=3600, stale-while-reva
 const PLATE_KAHRAMANMARAS = '46';
 const PLATE_ANKARA = '06';
 const PLATE_UNASSIGNED = '99';
+/**
+ * A real province that NO fixture in this file may bind a row to — the quiet-province case reads
+ * it as "this province holds nothing". Named rather than inlined so a later fixture that wants a
+ * plate has one obvious reason not to pick this one (review #121 R2, R2CODE121-M7).
+ */
+const PLATE_WITHOUT_EVENTS = '34';
 
 const NOW = Date.now();
 
@@ -174,6 +184,8 @@ describe('Earthquake public endpoints (e2e, real Postgres)', () => {
   let fetchSpy: jest.SpiedFunction<typeof fetch>;
   /** Read from the running app's own config, never retyped (`ENGINEERING.md` §2). */
   let staleMaxSeconds: number;
+  /** The leg's REAL upstream client, so the spy's control goes through the path a call would. */
+  let upstreamClient: UpstreamHttpClient;
 
   const events = () => dataSource.getRepository(EarthquakeEvent);
   const runs = () => dataSource.getRepository(EarthquakeIngestRun);
@@ -243,6 +255,7 @@ describe('Earthquake public endpoints (e2e, real Postgres)', () => {
     const config = moduleRef.get<EarthquakeUpstreamConfig>(EARTHQUAKE_UPSTREAM_CONFIG);
     expect(config.enabled).toBe(false);
     staleMaxSeconds = config.staleMaxSeconds;
+    upstreamClient = moduleRef.get<UpstreamHttpClient>(AFAD_UPSTREAM_CLIENT);
   }, 300_000);
 
   beforeEach(() => {
@@ -259,13 +272,30 @@ describe('Earthquake public endpoints (e2e, real Postgres)', () => {
   /**
    * The positive control for every `expect(fetchSpy).not.toHaveBeenCalled()` below.
    *
-   * Without it a clean result cannot be told apart from a spy wired to nothing — which is exactly
-   * what the previous ordering produced. This case makes a call through the same `globalThis.fetch`
-   * the client captured and proves the counter moves.
+   * It calls through the leg's REAL `UpstreamHttpClient` rather than through `globalThis.fetch`
+   * directly, and that distinction is the whole value of the case. A direct call proves only that
+   * the spy exists; this one proves the spy sees the transport THE CLIENT CAPTURED — which is false
+   * whenever the spy is installed after `compile()`, i.e. it discriminates the exact regression
+   * TA121-I1 was about. Move `jest.spyOn` back into `beforeEach` (where four sibling suites still
+   * have it, so it will look like house style) and this case goes red instead of the suite quietly
+   * returning to its old blindness (review #121 R2, R2CODE121-M5).
+   *
+   * A dead loopback port, so nothing leaves the machine and the outcome is a transport failure
+   * rather than a request to anybody.
    */
-  it('has a fetch spy that actually fires — the control for every zero-call assertion', async () => {
-    await expect(fetch('http://127.0.0.1:1/never')).rejects.toThrow();
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  it('has a fetch spy the real client uses — the control for every zero-call assertion', async () => {
+    const outcome = await upstreamClient.request<null>({
+      providerId: 'e2e-control',
+      label: 'e2e.spy-control',
+      url: 'http://127.0.0.1:1/never',
+      deadline: new OperationDeadline(2_000, () => Date.now()),
+      limits: AFAD_TDVMS_BUDGET,
+      singleCallTimeoutMs: 1_000,
+      parse: () => ({ kind: 'ok', value: null }),
+    });
+
+    expect(outcome.kind).not.toBe('ok');
+    expect(fetchSpy).toHaveBeenCalled();
   });
 
   describe('phase 0 — cold store (no events, no runs)', () => {
@@ -656,6 +686,26 @@ describe('Earthquake public endpoints (e2e, real Postgres)', () => {
     });
 
     /**
+     * …and every other shape that JavaScript coerces to zero.
+     *
+     * The first version of the fix guarded the empty string alone, which left the identical defect
+     * reachable one character differently: `Number(x)` is 0 for a space, for a `+` that decodes to
+     * a space, for a tab, and for a single-element array whose element is empty — and 0 is inside
+     * the published range, so nothing fired (review #121 R2, SFH121R2-M1).
+     */
+    it('400s whitespace-only and array-shaped parameters, not just the empty string', async () => {
+      for (const raw of ['%20', '+', '%09', '%0A']) {
+        await request(app.getHttpServer()).get(`/api/earthquakes?minMagnitude=${raw}`).expect(400);
+      }
+      await request(app.getHttpServer()).get('/api/earthquakes?minMagnitude[]=').expect(400);
+      // A well-formed value inside an array is still not a number, and is refused rather than
+      // silently unwrapped.
+      await request(app.getHttpServer()).get('/api/earthquakes?minMagnitude[]=3.1').expect(400);
+      // Control: the same parameter with a plain value still works, so the rule is about SHAPE.
+      await request(app.getHttpServer()).get('/api/earthquakes?minMagnitude=3.1').expect(200);
+    });
+
+    /**
      * Error responses carry NO `Cache-Control`, because the handler's assignment never runs on a
      * throw. A 404 that a CDN could cache would keep a province missing for the whole `s-maxage`
      * after a seed correction (review #121 TA121-M7).
@@ -847,13 +897,13 @@ describe('Earthquake public endpoints (e2e, real Postgres)', () => {
      * This is the response that used to be byte-identical to a completely cold deployment: a
      * province holding no bound row read its own emptiness as "no usable ingest at all" and
      * answered `no-store`, while the hub served a full list from the same store in the same second
-     * (review #121 SFH121-I2). Plate 34 holds no row in this fixture; plate 46 does.
+     * (review #121 SFH121-I2). `PLATE_WITHOUT_EVENTS` holds no row in this fixture; plate 46 does.
      */
     it('answers a province with no rows as stale while the store holds rows', async () => {
       await runs().clear();
 
       const quiet = await request(app.getHttpServer())
-        .get('/api/earthquakes/provinces/34')
+        .get(`/api/earthquakes/provinces/${PLATE_WITHOUT_EVENTS}`)
         .expect(200);
       const quietBody = quiet.body as ListBody;
 

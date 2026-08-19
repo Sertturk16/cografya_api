@@ -61,8 +61,15 @@ describe('openapi/openapi.json — earthquake contract', () => {
    * Pinning whole schemas alone leaves almost every field open: emptying `EarthquakeEventDto` to
    * `{"type": "object"}` keeps the schema in `components.schemas` and a presence-only case stays
    * green. Removing a field is a BREAKING contract change that goes to Atlas (`ENGINEERING.md`
-   * §4); ADDING one is additive and needs no edit here — which is exactly how E4's `disclaimerTr`
-   * will land.
+   * §4).
+   *
+   * **Adding a field is additive FOR CONSUMERS but is not free HERE, and E4 should expect that.**
+   * The map below is a freeze, asserted with `toEqual` against the artifact's own key set and again
+   * against its `required` list, so publishing `disclaimerTr` on `EarthquakeMetaDto` turns two
+   * cases red until the field is added to this map (measured: exactly two). That is the guard doing
+   * its job rather than getting in the way — a schema must not gain a published field without
+   * somebody writing it down — but the earlier wording here promised the opposite ("needs no edit"),
+   * which would have met E4's author as a surprise CI failure (review #121 R2, R2CODE121-M2).
    *
    * `EarthquakeListDto` repeats the four inherited envelope keys because `@nestjs/swagger` emits
    * the subclass FLAT: the artifact records no inheritance, so the published schema really does
@@ -186,6 +193,61 @@ describe('openapi/openapi.json — earthquake contract', () => {
    * is itself breaking here — it can break an exhaustive `switch` in the consumer — so this pins
    * the members rather than merely their presence.
    */
+  /**
+   * The fields whose published TYPE is worth pinning, and why only these.
+   *
+   * `ENGINEERING.md` §4 names "a changed type" as breaking, and the field-set cases above cannot
+   * see it: retyping `magnitude` from `number` to `string` keeps every key, every `required` entry
+   * and every nullable flag intact (measured in a mutation matrix — that mutation and a dropped
+   * `format: date-time` were the only two of twelve that passed everything; review #121 R2,
+   * R2CODE121-M1).
+   *
+   * Deliberately NOT a type map over all fifty-odd published fields. These eight are where the
+   * blast radius is: the five columns Postgres stores as `numeric` — which TypeORM hands back as
+   * STRINGS unless a transformer intervenes, so "publish them as strings" is the single most
+   * plausible wrong fix a future precision complaint could produce — and the three instants whose
+   * `date-time` format is what tells a generated client to parse rather than to concatenate. A
+   * whole-map version would add fifty hand-written literals whose only failure mode is rotting.
+   */
+  interface PinnedType {
+    readonly schema: string;
+    readonly field: string;
+    readonly type: string;
+    readonly format?: string;
+  }
+
+  const DATE_TIME = 'date-time';
+  const PINNED_TYPES: readonly PinnedType[] = [
+    { schema: 'EarthquakeEventDto', field: 'magnitude', type: 'number' },
+    { schema: 'EarthquakeEventDto', field: 'depthKm', type: 'number' },
+    { schema: 'EarthquakeEventDto', field: 'latitude', type: 'number' },
+    { schema: 'EarthquakeEventDto', field: 'longitude', type: 'number' },
+    { schema: 'EarthquakeEventDto', field: 'bindingDistanceKm', type: 'number' },
+    { schema: 'EarthquakeEventDto', field: 'occurredAtUtc', type: 'string', format: DATE_TIME },
+    {
+      schema: 'EarthquakeEventDto',
+      field: 'providerUpdatedAtUtc',
+      type: 'string',
+      format: DATE_TIME,
+    },
+    {
+      schema: 'EarthquakeListMetaDto',
+      field: 'dataUpdatedAtUtc',
+      type: 'string',
+      format: DATE_TIME,
+    },
+  ];
+
+  it('freezes the published type of every numeric and instant field', () => {
+    for (const pin of PINNED_TYPES) {
+      const property = schemaOf(pin.schema).properties?.[pin.field];
+      expect(property?.type).toBe(pin.type);
+      if (pin.format !== undefined) {
+        expect(property).toHaveProperty('format', pin.format);
+      }
+    }
+  });
+
   it('freezes the magnitudeType and bindingKind vocabularies', () => {
     expect(schemaOf('EarthquakeEventDto').properties?.magnitudeType?.enum).toEqual([
       'ML',

@@ -258,7 +258,11 @@ describe('Earthquake ingest store (e2e, real Postgres)', () => {
     const day = (offsetDays: number): Date =>
       new Date(Date.UTC(2026, 7, 11) - offsetDays * 86_400_000);
 
-    async function seedRun(offsetDays: number, outcome: 'ok' | 'transient'): Promise<void> {
+    async function seedRun(
+      offsetDays: number,
+      outcome: 'ok' | 'transient',
+      errorReason: string | null = null,
+    ): Promise<void> {
       await store.recordRun({
         jobKind: EarthquakeIngestJobKind.Recent,
         startedAtUtc: day(offsetDays),
@@ -270,7 +274,7 @@ describe('Earthquake ingest store (e2e, real Postgres)', () => {
         insertedCount: 0,
         updatedCount: 0,
         skippedOutOfScopeCount: 0,
-        errorReason: null,
+        errorReason,
       });
     }
 
@@ -297,6 +301,32 @@ describe('Earthquake ingest store (e2e, real Postgres)', () => {
       const survivors = await runsRepository().find();
       expect(survivors).toHaveLength(1);
       expect(survivors[0]?.outcome).toBe('ok');
+    });
+
+    /**
+     * The exemption protects the row the READ PATH anchors on — which is the newest `ok` run
+     * **with no `error_reason`**, not merely the newest `ok` run.
+     *
+     * The two definitions agree in a healthy store and diverge in exactly the incident they exist
+     * for: through a parser break every tour lands `ok` WITH a reason, so the newest `ok` row is a
+     * recent degraded run that retention would never reach anyway, while the last CLEAN run — the
+     * one the API publishes as `dataUpdatedAtUtc` — crosses the cutoff. Before this fix it was
+     * deleted on day 14 and the endpoints began publishing "we have never contacted the provider"
+     * while tours ran every 300 s (review #121 R2, SFH121R2-I1).
+     */
+    it('exempts the newest CLEAN ok run, not a newer degraded one', async () => {
+      await seedRun(90, 'ok');
+      await seedRun(20, 'ok', 'the provider returned 612 row(s) and the parser accepted none');
+      await seedRun(19, 'ok', 'the provider returned 610 row(s) and the parser accepted none');
+
+      const removed = await store.pruneRuns(14, new Date(Date.UTC(2026, 7, 11)));
+
+      // The two degraded runs are past the cutoff and unprotected; the ancient clean one survives.
+      expect(removed).toBe(2);
+      const survivors = await runsRepository().find();
+      expect(survivors).toHaveLength(1);
+      expect(survivors[0]?.errorReason).toBeNull();
+      expect(survivors[0]?.startedAtUtc.toISOString()).toBe(day(90).toISOString());
     });
 
     it('still prunes when no successful run exists at all', async () => {

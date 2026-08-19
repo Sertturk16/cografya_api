@@ -130,6 +130,11 @@ export class EarthquakeReadStore implements EarthquakeReadStorePort {
    * (review #121 SFH121-I1). `error_reason IS NULL` is the read-side discriminator; the ledger
    * carries no `unchanged_count`, so counts cannot substitute (a healthy reconcile tour legitimately
    * stores nothing new).
+   *
+   * **This predicate is paired with `EarthquakeIngestStore.pruneRuns`'s retention exemption and the
+   * two must not drift.** That subquery exists solely to keep this row alive past its retention
+   * window; if it protects a different row, retention deletes the anchor mid-incident and this
+   * method starts answering `null` — see the invariant written at that call site.
    */
   async newestSuccessfulRunFinishedAt(): Promise<Date | null> {
     // Written as a query rather than `find({ order })` so the partial index
@@ -147,8 +152,11 @@ export class EarthquakeReadStore implements EarthquakeReadStorePort {
   }
 
   async hasAnyServableRow(): Promise<boolean> {
-    // `LIMIT 1` over the partial-scope index rather than a COUNT: the question is existence, and
-    // counting a growing archive to answer it would get slower every year for no gain.
+    // `LIMIT 1` rather than a COUNT: the question is existence, and counting a growing archive to
+    // answer it would get slower every year for no gain. Served by
+    // `IDX_earthquake_events_scope_time`, whose LEADING column is `in_scope` — a plain three-column
+    // index, not a partial one. (The partial index on this table is
+    // `IDX_earthquake_events_plate_time`, which this query cannot use: it has no plate predicate.)
     const row = await this.dataSource
       .getRepository(EarthquakeEvent)
       .createQueryBuilder('event')
