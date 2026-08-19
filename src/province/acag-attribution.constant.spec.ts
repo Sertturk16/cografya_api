@@ -87,20 +87,33 @@ describe('ACAG attribution constants — byte pins', () => {
 });
 
 describe('buildAcagAttribution', () => {
-  it('publishes every element the licence needs', () => {
+  it('publishes every element the licence needs, each wired to its OWN constant', () => {
+    // Every field→constant identity is pinned (review CODE123-M9). Four of them were previously
+    // unasserted, so a wiring swap — `datasetUrl: ACAG_LICENCE_URL`, say — passed the whole file
+    // even though both constants were individually byte-pinned.
     const attribution = buildAcagAttribution();
     expect(attribution.providerName).toBe(ACAG_PROVIDER_NAME);
     expect(attribution.workTitle).toBe(ACAG_WORK_TITLE);
     expect(attribution.datasetVersion).toBe(ACAG_DATASET_VERSION);
+    expect(attribution.datasetUrl).toBe(ACAG_DATASET_URL);
+    expect(attribution.licenceName).toBe(ACAG_LICENCE_NAME);
     expect(attribution.licenceUrl).toBe(ACAG_LICENCE_URL);
+    expect(attribution.referenceCitation).toBe(ACAG_REFERENCE_CITATION);
+    expect(attribution.referenceUrl).toBe(ACAG_REFERENCE_URL);
     expect(attribution.methodNoticeText).toBe(ACAG_METHOD_NOTICE_TEXT);
     expect(attribution.noticeKeys).toEqual([...ACAG_NOTICE_KEYS]);
   });
 
   it('hands out a COPY of the notice keys, never the shared array', () => {
+    // Asserted as a NEGATIVE (review TEST123-M2). Comparing against `[...ACAG_NOTICE_KEYS]` after
+    // the push was circular: if the builder returned the shared array, the push would have
+    // mutated the constant too and BOTH sides would have contained 'mutated'.
+    const expectedBefore = [...ACAG_NOTICE_KEYS];
     const first = buildAcagAttribution();
     first.noticeKeys.push('mutated');
-    expect(buildAcagAttribution().noticeKeys).toEqual([...ACAG_NOTICE_KEYS]);
+    expect(buildAcagAttribution().noticeKeys).not.toContain('mutated');
+    expect(ACAG_NOTICE_KEYS).not.toContain('mutated');
+    expect(buildAcagAttribution().noticeKeys).toEqual(expectedBefore);
   });
 
   it('ships i18n KEYS, not authored text (the api never publishes prose)', () => {

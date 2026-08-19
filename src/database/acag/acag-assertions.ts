@@ -1,5 +1,6 @@
-import { PM25_ABSURD_CEILING_UG_M3 } from './acag-extract';
-import { distanceThresholdKm } from './acag-grid';
+import { PM25_ABSURD_CEILING_UG_M3, PM25_ABSURD_FLOOR_UG_M3 } from './acag-extract';
+import { distanceKm, distanceThresholdKm } from './acag-grid';
+import { ACAG_DATASET_URL, ACAG_DATASET_VERSION } from '../../province/acag-attribution.constant';
 import type { AcagAssertionResult, AcagManifest, AcagSeriesArtifact } from './acag-artifact.types';
 import { ACAG_ARTIFACT_SCHEMA_VERSION } from './acag-artifact.types';
 import { AcagLoadError } from './acag.errors';
@@ -16,10 +17,21 @@ import { AcagLoadError } from './acag.errors';
  * time series for this version ("for the entire time series", its own page), so a series mixing
  * versions is a fabricated trend. `A-06` is what makes that unshippable rather than merely
  * discouraged.
+ *
+ * Since the review, the pin is an ALIAS of the attribution module's `ACAG_DATASET_VERSION`
+ * (CODE123-I1 / SFH123-I1), which gives A-06 a second job: it is also the check binding the
+ * artifact's version to the licence block the payload is served beside. An artifact carrying a
+ * version this build's künye does not name cannot be loaded.
  */
 
 export const ACAG_EXPECTED_PROVINCE_COUNT = 81;
-export const ACAG_PINNED_DATASET_VERSION = 'V6.GL.03';
+/**
+ * The pinned version, re-exported from its SINGLE source in the attribution module
+ * (review CODE123-I1 / SFH123-I1). It used to be a third independent literal, so a refresh
+ * could bump the artifacts while the served licence block still named the previous release.
+ * The name is kept because it reads correctly at the call sites that pin an artifact.
+ */
+export const ACAG_PINNED_DATASET_VERSION = ACAG_DATASET_VERSION;
 export const ACAG_EXPECTED_FIRST_YEAR = 1998;
 export const ACAG_EXPECTED_LAST_YEAR = 2024;
 
@@ -53,25 +65,51 @@ export function runAcagStructuralAssertions(input: AcagStructuralInput): AcagAss
   );
 
   // A-04 — every cell sits within half a cell diagonal of its province centre.
+  //
+  // The distance is RECOMPUTED from the four coordinates in the artifact rather than read from
+  // its own `cellDistanceKm` (review CODE123-M5): this module's whole premise is that trusting a
+  // recorded result means trusting a file to grade itself, and all four operands are already
+  // here. A hand-edited `cellDistanceKm` now fails both the threshold check and the agreement
+  // check below.
+  const RECOMPUTE_TOLERANCE_KM = 1e-6;
+  const disagreeing: string[] = [];
+  let worst = 0;
   const farProvinces = series.provinces.filter((province) => {
+    const recomputed = distanceKm(
+      province.requestedLatitude,
+      province.requestedLongitude,
+      province.cellLatitude,
+      province.cellLongitude,
+    );
+    worst = Math.max(worst, recomputed);
+    if (Math.abs(recomputed - province.cellDistanceKm) > RECOMPUTE_TOLERANCE_KM) {
+      disagreeing.push(province.plateCode);
+    }
     const threshold = distanceThresholdKm(
       province.requestedLatitude,
       series.gridCellSizeDeg,
       series.gridCellSizeDeg,
     );
-    return !(province.cellDistanceKm <= threshold);
+    return !(recomputed <= threshold);
   });
-  const worst = series.provinces.reduce(
-    (max, province) => Math.max(max, province.cellDistanceKm),
-    0,
-  );
+  const a04Passed = farProvinces.length === 0 && disagreeing.length === 0;
   results.push(
     result(
       'A-04',
-      farProvinces.length === 0,
-      farProvinces.length === 0
-        ? `every cell is within half a cell of its province centre (worst ${worst.toFixed(3)} km).`
-        : `province(s) beyond the threshold: ${farProvinces.map((p) => p.plateCode).join(', ')}.`,
+      a04Passed,
+      a04Passed
+        ? `every cell is within half a cell of its province centre (worst ${worst.toFixed(3)} km, ` +
+            'distances recomputed from the stored coordinates).'
+        : [
+            farProvinces.length > 0
+              ? `beyond the threshold: ${farProvinces.map((p) => p.plateCode).join(', ')}.`
+              : '',
+            disagreeing.length > 0
+              ? `recorded cellDistanceKm disagrees with the recomputed distance: ${disagreeing.join(', ')}.`
+              : '',
+          ]
+            .filter((part) => part !== '')
+            .join(' '),
     ),
   );
 
@@ -82,7 +120,7 @@ export function runAcagStructuralAssertions(input: AcagStructuralInput): AcagAss
       if (
         typeof entry.valueUgM3 !== 'number' ||
         !Number.isFinite(entry.valueUgM3) ||
-        entry.valueUgM3 <= 0 ||
+        entry.valueUgM3 < PM25_ABSURD_FLOOR_UG_M3 ||
         entry.valueUgM3 > PM25_ABSURD_CEILING_UG_M3
       ) {
         badValues.push(`${province.plateCode}/${String(entry.year)}`);
@@ -95,7 +133,8 @@ export function runAcagStructuralAssertions(input: AcagStructuralInput): AcagAss
       'A-05',
       badValues.length === 0,
       badValues.length === 0
-        ? `${String(valueCount)} value(s), all finite and in (0, ${String(PM25_ABSURD_CEILING_UG_M3)}] µg/m³.`
+        ? `${String(valueCount)} value(s), all finite and in [${String(PM25_ABSURD_FLOOR_UG_M3)}, ` +
+            `${String(PM25_ABSURD_CEILING_UG_M3)}] µg/m³.`
         : `non-sane value(s): ${badValues.slice(0, 10).join(', ')}.`,
     ),
   );
@@ -109,7 +148,9 @@ export function runAcagStructuralAssertions(input: AcagStructuralInput): AcagAss
       'A-06',
       versionMatches,
       versionMatches
-        ? `both artifacts pin ${ACAG_PINNED_DATASET_VERSION}.`
+        ? `both artifacts pin ${ACAG_PINNED_DATASET_VERSION}. NOTE: in the FETCH phase this is ` +
+            'tautological — the run wrote both values from this same constant. It becomes a real ' +
+            'check at LOAD, against the committed files.'
         : `manifest="${manifest.datasetVersion}", series="${series.datasetVersion}", expected ` +
             `"${ACAG_PINNED_DATASET_VERSION}" — a mixed-version series is a fabricated trend.`,
     ),
@@ -176,14 +217,30 @@ export function runAcagStructuralAssertions(input: AcagStructuralInput): AcagAss
       file.timeCoverageAttribute !== null &&
       file.timeCoverageAttribute.trim() !== String(file.year),
   );
+  // The FLOOR is the point (review SFH123-I2). Written as a mismatch filter alone, this assertion
+  // passes vacuously when NO file has a readable attribute — 27 nulls report exactly what 1 null
+  // reports, and the manifest then records "every readable … equals the file year" after
+  // comparing zero files. A-08c is the only check binding a file's CONTENT to the year it is
+  // published under (the ledger's AÇIK 2), and it is gated on a nullable per-file field, so no
+  // sibling assertion fences it the way A-01 fences A-04/A-05. The tolerance for an unreadable
+  // attribute stays — an `h5wasm` bump could legitimately change the attribute shape — but the
+  // count is now published in the detail string and a ZERO-readable run fails outright.
+  const readable = manifest.files.filter((file) => file.timeCoverageAttribute !== null);
+  const a08cPassed = timeCoverageMismatch.length === 0 && readable.length > 0;
   results.push(
     result(
       'A-08c',
-      timeCoverageMismatch.length === 0,
-      timeCoverageMismatch.length === 0
-        ? 'every readable TIMECOVERAGE attribute equals the file year.'
-        : `TIMECOVERAGE disagrees with the file year for: ` +
-            `${timeCoverageMismatch.map((f) => f.fileName).join(', ')}.`,
+      a08cPassed,
+      timeCoverageMismatch.length > 0
+        ? `TIMECOVERAGE disagrees with the file year for: ` +
+            `${timeCoverageMismatch.map((f) => f.fileName).join(', ')}.`
+        : readable.length === 0
+          ? `NO file had a readable TIMECOVERAGE attribute (0 of ${String(manifest.files.length)}) ` +
+            '— the year could not be verified against the files at all, which is what this ' +
+            "assertion exists to do. Check the decoder against the provider's current " +
+            'attribute layout before publishing.'
+          : `${String(readable.length)} of ${String(manifest.files.length)} file(s) had a readable ` +
+            'TIMECOVERAGE attribute; every one equals its file year.',
     ),
   );
 
@@ -224,6 +281,29 @@ export function assertAcagLoadIsSafe(input: AcagLoadGateInput): void {
 
   assertAllPassed(runAcagStructuralAssertions({ manifest, series }), 'load gate');
 
+  // A-09 — the artifact's dataset URL must be the one this build's LICENCE BLOCK points at
+  // (review CODE123-I1 / SFH123-I1).
+  //
+  // `pm25Annual.sourceUrl` comes from the committed manifest; the sibling
+  // `pm25Annual.attribution.datasetUrl` comes from `acag-attribution.constant.ts`. Nothing else
+  // reads `manifest.datasetUrl` — it was the one published string with no assertion of any kind
+  // behind it — so a new artifact loaded against an old build (or the reverse) would serve one
+  // object pointing at two different provider pages.
+  //
+  // **The VERSION half of this check is deliberately absent, and that is not an omission.**
+  // `ACAG_PINNED_DATASET_VERSION` is now an alias of `ACAG_DATASET_VERSION` (the attribution
+  // module's constant), so A-06 — which compares BOTH artifacts against that pin — is already the
+  // binding between the artifact's version and the served licence block. A second version check
+  // here would be a branch no input can reach, i.e. an assertion that can never fail and can
+  // never be tested. The binding is A-06's; this comment is where a reader looking for it lands.
+  if (manifest.datasetUrl !== ACAG_DATASET_URL) {
+    throw new AcagLoadError(
+      `the manifest's datasetUrl (${manifest.datasetUrl}) is not the URL this build publishes ` +
+        `(${ACAG_DATASET_URL}). That URL is served as pm25Annual.sourceUrl, beside an ` +
+        'attribution block pointing somewhere else.',
+    );
+  }
+
   // A-08 — the series file is the one the fetch phase produced.
   if (manifest.seriesSha256 !== seriesSha256Actual) {
     throw new AcagLoadError(
@@ -254,6 +334,8 @@ export function assertAcagLoadIsSafe(input: AcagLoadGateInput): void {
   }
 
   // A-03 — the fidelity rule.
+  /** `numeric(9,6)` is the column's scale; compare both sides there. See A-03 below. */
+  const atColumnScale = (value: number): number => Number(value.toFixed(6));
   const byPlate = new Map(provinceRows.map((row) => [row.plateCode, row]));
   const drifted: string[] = [];
   for (const province of series.provinces) {
@@ -263,10 +345,17 @@ export function assertAcagLoadIsSafe(input: AcagLoadGateInput): void {
       drifted.push(`${province.plateCode} (database coordinate is NULL)`);
       continue;
     }
-    // Exact equality is right here: both sides are the SAME seeded decimal, not a computation.
+    // Compared AT THE COLUMN'S OWN SCALE, not bit-exactly (review CODE123-M6).
+    //
+    // Both sides are the same seeded decimal, but only one of them has been through
+    // `numeric(9,6)`. Every current seed coordinate has at most 4 decimals, so exact equality
+    // happens to hold today — and would start rejecting EVERY load the day a coordinate
+    // correction carries 7+ decimals (`41.0138889` is stored as `41.013889`), blocking the line
+    // over a 1e-7 round-trip difference. Six decimals is ~11 cm: far below the 0.01° (~1 km) cell
+    // this line resolves, so nothing a drift check needs to catch can hide under it.
     if (
-      row.latitude !== province.requestedLatitude ||
-      row.longitude !== province.requestedLongitude
+      atColumnScale(row.latitude) !== atColumnScale(province.requestedLatitude) ||
+      atColumnScale(row.longitude) !== atColumnScale(province.requestedLongitude)
     ) {
       drifted.push(
         `${province.plateCode} (artifact ${String(province.requestedLatitude)},` +

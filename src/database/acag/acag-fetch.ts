@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
-import { createWriteStream } from 'node:fs';
-import { mkdir, rm, stat, writeFile, readFile } from 'node:fs/promises';
+import { createReadStream, createWriteStream } from 'node:fs';
+import { mkdir, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
@@ -8,10 +8,16 @@ import { SEED_PROVINCES } from '../seeds/province.seed-data';
 import {
   ACAG_EXPECTED_FIRST_YEAR,
   ACAG_EXPECTED_LAST_YEAR,
-  ACAG_PINNED_DATASET_VERSION,
+  ACAG_EXPECTED_PROVINCE_COUNT,
   assertAllPassed,
   runAcagStructuralAssertions,
 } from './acag-assertions';
+import {
+  ACAG_DATASET_URL,
+  ACAG_DATASET_VERSION,
+  ACAG_LICENCE_NAME,
+  ACAG_LICENCE_URL,
+} from '../../province/acag-attribution.constant';
 import {
   ACAG_ARTIFACT_SCHEMA_VERSION,
   ACAG_MANIFEST_FILE_NAME,
@@ -61,8 +67,18 @@ import { AcagContractError } from './acag.errors';
 /** The bucket the AWS Registry of Open Data record points at (`surface-pm2-5-v6gl`). */
 export const ACAG_BUCKET_BASE_URL = 'http://satpmdata.s3.amazonaws.com';
 
-/** The provider's version landing page — the `sourceUrl` the payload publishes. */
-export const ACAG_DATASET_URL = 'https://www.satpm.org/v6-gl-03';
+/**
+ * The provider's own dot-free spelling of the version, as it appears in S3 keys and file names
+ * (`V6.GL.03` → `V6GL03`).
+ *
+ * DERIVED from {@link ACAG_DATASET_VERSION} rather than written out, so the version identity has
+ * exactly one editable home (review CODE123-I1). Bumping the version constant moves the download
+ * path, the file names, the artifact pins and the published attribution together; before this,
+ * an operator could bump the three in `src/database/acag/` and leave the licence block naming the
+ * previous release. The spec pins the derivation's current output so the transformation itself
+ * cannot drift silently.
+ */
+export const ACAG_VERSION_TOKEN = ACAG_DATASET_VERSION.replaceAll('.', '');
 
 /**
  * The GLOBAL fine-resolution annual series.
@@ -72,7 +88,7 @@ export const ACAG_DATASET_URL = 'https://www.satpm.org/v6-gl-03';
  * Bayburt, Bingöl, Bitlis, Erzurum, Iğdır, Kars, Muş, Rize, Van) are covered by NO tile. Only the
  * global file reaches 81/81.
  */
-export const ACAG_KEY_PREFIX = 'V6GL03/FineResolution/GL/Annual';
+export const ACAG_KEY_PREFIX = `${ACAG_VERSION_TOKEN}/FineResolution/GL/Annual`;
 
 /** Spacing between two downloads. Nothing here is time-critical; the provider is a university. */
 export const REQUEST_SPACING_MS = 2_000;
@@ -100,7 +116,7 @@ export const ACAG_WINDOW = {
 } as const;
 
 export function acagFileNameForYear(year: number): string {
-  return `V6GL03.CNNPM25.GL.${String(year)}01-${String(year)}12.nc`;
+  return `${ACAG_VERSION_TOKEN}.CNNPM25.GL.${String(year)}01-${String(year)}12.nc`;
 }
 
 export function acagObjectKeyForYear(year: number): string {
@@ -140,20 +156,52 @@ export interface AcagFetchResult {
 
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
+/**
+ * SHA-256 of a file, STREAMED (review CODE123-M13 / SFH123-M3).
+ *
+ * The previous form was `hash.update(await readFile(path))`, which buffers the whole ~450 MB file
+ * into the heap — in the module that streams the download precisely to avoid that, and whose
+ * adapter argues the entire `h5wasm`-over-`jsfive` choice on a memory budget.
+ */
 async function sha256OfFile(path: string): Promise<string> {
   const hash = createHash('sha256');
-  hash.update(await readFile(path));
+  await pipeline(createReadStream(path), hash);
   return hash.digest('hex');
 }
 
+/**
+ * Download one year to a `.part` file, VERIFY it, then rename it into place
+ * (review CODE123-I3 / SFH123-M5).
+ *
+ * ## Why the rename is the whole point
+ * Writing straight to the final name makes an interrupted transfer indistinguishable from a
+ * complete one. That is not a hypothetical on this line: 27 files × ~450 MB over ~70 minutes is a
+ * run where a dropped connection is the ORDINARY failure. The operator then does the documented
+ * thing — re-run with `--from-dir`, the offline half — and `stat()` finds the truncated file under
+ * its final name, `assertHdf5Magic` passes (the superblock is at byte 0), and `sha256OfFile`
+ * writes the truncated file's digest into the manifest as that year's permanent provenance. If the
+ * truncation fell past the Türkiye window the decode even succeeds, and 81 values are published
+ * from a partial file whose recorded hash matches nothing the provider ever served — making the
+ * README's "a copy can always be proven to be *the* copy" false, silently.
+ *
+ * A partial file now never carries the final name, so `--from-dir` cannot see one. This is the
+ * `era5-fetch.ts` choreography, which the `.gitignore` entry added by this line already
+ * anticipated (`*.nc.part`).
+ */
 async function downloadYear(
   year: number,
   target: string,
   log: (m: string) => void,
 ): Promise<number> {
   const url = acagUrlForYear(year);
+  const partial = `${target}.part`;
+  // A leftover `.part` from an earlier interrupted run must not be appended to or mistaken for
+  // this run's bytes.
+  await rm(partial, { force: true });
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  let declaredBytes: number | null = null;
   try {
     const response = await fetch(url, {
       signal: controller.signal,
@@ -167,16 +215,39 @@ async function downloadYear(
     if (response.body === null) {
       throw new AcagContractError(`GET ${url} returned no body.`);
     }
+    const contentLength = response.headers.get('content-length');
+    if (contentLength !== null && /^\d+$/.test(contentLength)) {
+      declaredBytes = Number(contentLength);
+    }
     // Streamed to disk: a 450 MB body must never be buffered whole in the heap.
     await pipeline(
       Readable.fromWeb(response.body as Parameters<typeof Readable.fromWeb>[0]),
-      createWriteStream(target),
+      createWriteStream(partial),
     );
   } finally {
     clearTimeout(timer);
   }
-  const { size } = await stat(target);
-  log(`  downloaded ${String(size)} B`);
+
+  const { size } = await stat(partial);
+  if (size === 0) {
+    throw new AcagContractError(`GET ${url} wrote 0 bytes.`);
+  }
+  // The provider's own declaration is the only independent statement of how big the file should
+  // be; `stat()` alone can only say what we happened to write. When the header is absent the run
+  // says so on the log line below rather than claiming a verification it did not perform.
+  if (declaredBytes !== null && declaredBytes !== size) {
+    throw new AcagContractError(
+      `GET ${url}: wrote ${String(size)} B but the provider declared ` +
+        `Content-Length ${String(declaredBytes)} B — the transfer was truncated. The partial file ` +
+        `is left at ${partial} and is NOT usable by --from-dir.`,
+    );
+  }
+
+  await rename(partial, target);
+  log(
+    `  downloaded ${String(size)} B` +
+      (declaredBytes === null ? ' (no Content-Length to verify against)' : ' (Content-Length OK)'),
+  );
   return size;
 }
 
@@ -206,6 +277,40 @@ export async function runAcagFetch(options: AcagFetchOptions): Promise<AcagFetch
     longitude: province.longitude,
   }));
   log(`[acag] ${String(points.length)} province centre point(s) from the geography seed.`);
+
+  // ── EVERYTHING BELOW THIS LINE IS CHECKED BEFORE A SINGLE BYTE IS DOWNLOADED ──
+  //
+  // (review SFH123-I3.) All of it depends only on constants and `node_modules`, so failing on it
+  // AFTER the loop would spend ~70 minutes and ~12.2 GB of a university's bandwidth and then throw
+  // — and because the loop deletes each raw file as it goes, nothing in that window is recoverable
+  // with `--from-dir`, so the only recovery is a second 12.2 GB pull. ENGINEERING §5 requires this
+  // phase to be "polite by construction"; a preventable double-download is the opposite.
+  //
+  // This is the SAME class of defect this line already paid for once: the decoder identity used to
+  // resolve by specifier, which decoded 27 files correctly and then threw while writing the
+  // manifest (see the adapter's docblock). The mechanism was fixed then; the PLACEMENT is fixed
+  // here.
+  if (points.length !== ACAG_EXPECTED_PROVINCE_COUNT) {
+    throw new AcagContractError(
+      `the geography seed carries ${String(points.length)} province(s), expected ` +
+        `${String(ACAG_EXPECTED_PROVINCE_COUNT)}. A-01 would fail at the end of the run; ` +
+        'refusing to download 12 GB first.',
+    );
+  }
+  // Resolved once, up front, and reused when the manifest is written.
+  const decoder = readDecoderIdentity();
+  // The artifacts are written at the very end; prove now that they CAN be.
+  const writeProbe = join(outputDir, '.acag-write-probe');
+  try {
+    await writeFile(writeProbe, '', 'utf8');
+  } catch (error: unknown) {
+    throw new AcagContractError(
+      `${outputDir} is not writable, and the artifacts are written only at the END of the run.`,
+      { cause: error },
+    );
+  } finally {
+    await rm(writeProbe, { force: true });
+  }
 
   const years = acagYears();
   const files: AcagFileRecord[] = [];
@@ -304,7 +409,7 @@ export async function runAcagFetch(options: AcagFetchOptions): Promise<AcagFetch
 
   const series: AcagSeriesArtifact = {
     schemaVersion: ACAG_ARTIFACT_SCHEMA_VERSION,
-    datasetVersion: ACAG_PINNED_DATASET_VERSION,
+    datasetVersion: ACAG_DATASET_VERSION,
     unit: 'µg/m3',
     gridCellSizeDeg: referenceGeometry.cellSizeDeg,
     years,
@@ -316,12 +421,12 @@ export async function runAcagFetch(options: AcagFetchOptions): Promise<AcagFetch
     generatedAtUtc: new Date().toISOString(),
     sourceMode: fromDir ? 'from-dir' : 'download',
     userAgent: ACAG_USER_AGENT,
-    datasetVersion: ACAG_PINNED_DATASET_VERSION,
+    datasetVersion: ACAG_DATASET_VERSION,
     datasetUrl: ACAG_DATASET_URL,
-    licenceName: 'Creative Commons Attribution 4.0 International (CC BY 4.0)',
-    licenceUrl: 'https://creativecommons.org/licenses/by/4.0/?ref=chooser-v1',
+    licenceName: ACAG_LICENCE_NAME,
+    licenceUrl: ACAG_LICENCE_URL,
     bucketBaseUrl: ACAG_BUCKET_BASE_URL,
-    decoder: readDecoderIdentity(),
+    decoder,
     window: {
       fullLatitudeLength: referenceWindow.fullShape.latitudeLength,
       fullLongitudeLength: referenceWindow.fullShape.longitudeLength,
@@ -351,14 +456,21 @@ export async function runAcagFetch(options: AcagFetchOptions): Promise<AcagFetch
   });
   assertAllPassed(assertions, 'fetch phase');
 
+  // Both artifacts are written to `.part` and renamed only after BOTH are complete
+  // (review CODE123-M11, the `era5-fetch.ts` choreography). A crash between two direct writes
+  // would leave a new series file beside an old manifest whose `seriesSha256` no longer describes
+  // it — recoverable from git, but a confusing state that also clobbers committed evidence.
   const seriesPath = join(outputDir, ACAG_SERIES_FILE_NAME);
-  const seriesJson = `${JSON.stringify(series, null, 2)}\n`;
-  await writeFile(seriesPath, seriesJson, 'utf8');
-  const seriesSha256 = createHash('sha256').update(seriesJson, 'utf8').digest('hex');
-
-  const manifest: AcagManifest = { ...manifestWithoutHash, seriesSha256, assertions };
   const manifestPath = join(outputDir, ACAG_MANIFEST_FILE_NAME);
-  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+  const seriesJson = `${JSON.stringify(series, null, 2)}\n`;
+  const seriesSha256 = createHash('sha256').update(seriesJson, 'utf8').digest('hex');
+  const manifest: AcagManifest = { ...manifestWithoutHash, seriesSha256, assertions };
+  const manifestJson = `${JSON.stringify(manifest, null, 2)}\n`;
+
+  await writeFile(`${seriesPath}.part`, seriesJson, 'utf8');
+  await writeFile(`${manifestPath}.part`, manifestJson, 'utf8');
+  await rename(`${seriesPath}.part`, seriesPath);
+  await rename(`${manifestPath}.part`, manifestPath);
 
   return { manifest, series, manifestPath, seriesPath };
 }

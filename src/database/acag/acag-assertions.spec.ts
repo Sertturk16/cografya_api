@@ -1,4 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
+import { distanceKm } from './acag-grid';
+import { ACAG_DATASET_URL, ACAG_DATASET_VERSION } from '../../province/acag-attribution.constant';
 import {
   ACAG_EXPECTED_FIRST_YEAR,
   ACAG_EXPECTED_LAST_YEAR,
@@ -29,17 +31,31 @@ function buildSeries(overrides: Partial<AcagSeriesArtifact> = {}): AcagSeriesArt
     unit: 'µg/m3',
     gridCellSizeDeg: 0.01,
     years: [...YEARS],
-    provinces: PLATE_CODES.map((plateCode, index) => ({
-      plateCode,
-      requestedLatitude: 36 + index * 0.05,
-      requestedLongitude: 32 + index * 0.05,
-      latitudeIndex: 9000 + index,
-      longitudeIndex: 20000 + index,
-      cellLatitude: 36 + index * 0.05,
-      cellLongitude: 32 + index * 0.05,
-      cellDistanceKm: 0.3,
-      values: YEARS.map((year) => ({ year, valueUgM3: 20 })),
-    })),
+    // The fixture is SELF-CONSISTENT on purpose: A-04 now recomputes the haversine from the four
+    // stored coordinates (review CODE123-M5), so a hand-written `cellDistanceKm` that its own
+    // coordinates do not produce is a failure — as it should be.
+    provinces: PLATE_CODES.map((plateCode, index) => {
+      const requestedLatitude = 36 + index * 0.05;
+      const requestedLongitude = 32 + index * 0.05;
+      const cellLatitude = requestedLatitude + 0.002;
+      const cellLongitude = requestedLongitude + 0.002;
+      return {
+        plateCode,
+        requestedLatitude,
+        requestedLongitude,
+        latitudeIndex: 9000 + index,
+        longitudeIndex: 20000 + index,
+        cellLatitude,
+        cellLongitude,
+        cellDistanceKm: distanceKm(
+          requestedLatitude,
+          requestedLongitude,
+          cellLatitude,
+          cellLongitude,
+        ),
+        values: YEARS.map((year) => ({ year, valueUgM3: 20 })),
+      };
+    }),
     ...overrides,
   };
 }
@@ -66,7 +82,7 @@ function buildManifest(overrides: Partial<AcagManifest> = {}): AcagManifest {
     sourceMode: 'download',
     userAgent: 'cografya-platform/1.0',
     datasetVersion: ACAG_PINNED_DATASET_VERSION,
-    datasetUrl: 'https://www.satpm.org/v6-gl-03',
+    datasetUrl: ACAG_DATASET_URL,
     licenceName: 'Creative Commons Attribution 4.0 International (CC BY 4.0)',
     licenceUrl: 'https://creativecommons.org/licenses/by/4.0/?ref=chooser-v1',
     bucketBaseUrl: 'http://satpmdata.s3.amazonaws.com',
@@ -110,7 +126,19 @@ describe('runAcagStructuralAssertions', () => {
       series: buildSeries(),
     });
     expect(idsOf(results, false)).toEqual([]);
-    expect(results.length).toBeGreaterThanOrEqual(7);
+    // The EXACT count, not a floor (review TEST123-M4): a floor of 7 let the whole A-08a block be
+    // deleted with every remaining assertion still green.
+    expect(results).toHaveLength(8);
+    expect(results.map((entry) => entry.id)).toEqual([
+      'A-01',
+      'A-04',
+      'A-05',
+      'A-06',
+      'A-07',
+      'A-08a',
+      'A-08b',
+      'A-08c',
+    ]);
   });
 
   it('A-01 fails when a province is missing', () => {
@@ -168,6 +196,98 @@ describe('runAcagStructuralAssertions', () => {
       series: { ...series, provinces: [{ ...first, values: first.values.slice(1) }, ...rest] },
     });
     expect(idsOf(results, false)).toContain('A-07');
+  });
+
+  it('A-08a fails when an artifact declares a schema version this build cannot read', () => {
+    const results = runAcagStructuralAssertions({
+      manifest: buildManifest({
+        schemaVersion: (ACAG_ARTIFACT_SCHEMA_VERSION + 1) as typeof ACAG_ARTIFACT_SCHEMA_VERSION,
+      }),
+      series: buildSeries(),
+    });
+    expect(idsOf(results, false)).toContain('A-08a');
+  });
+
+  /**
+   * A-07 is a conjunction of three independent sub-conditions and only the per-province one had a
+   * negative test (review TEST123-M5) — either of the other two could be deleted with the suite
+   * still green.
+   */
+  it('A-07 fails when the manifest is missing a YEAR FILE', () => {
+    const results = runAcagStructuralAssertions({
+      manifest: buildManifest({ files: buildFiles().slice(1) }),
+      series: buildSeries(),
+    });
+    expect(idsOf(results, false)).toContain('A-07');
+  });
+
+  it('A-07 fails when the series year set is short', () => {
+    const results = runAcagStructuralAssertions({
+      manifest: buildManifest(),
+      series: buildSeries({ years: YEARS.slice(1) }),
+    });
+    expect(idsOf(results, false)).toContain('A-07');
+  });
+
+  /**
+   * The A-08c FLOOR (review SFH123-I2). One unreadable attribute is tolerated; ALL of them
+   * unreadable means the year was never verified against the files at all, which is the one thing
+   * this assertion exists to do.
+   */
+  it('A-08c FAILS when no file has a readable TIMECOVERAGE attribute', () => {
+    const results = runAcagStructuralAssertions({
+      manifest: buildManifest({
+        files: buildFiles().map((file) => ({ ...file, timeCoverageAttribute: null })),
+      }),
+      series: buildSeries(),
+    });
+    expect(idsOf(results, false)).toContain('A-08c');
+    const detail = results.find((entry) => entry.id === 'A-08c')?.detail ?? '';
+    expect(detail).toMatch(/NO file had a readable/);
+  });
+
+  it('A-08c states HOW MANY files it actually verified', () => {
+    const files = buildFiles();
+    const [first, ...rest] = files;
+    if (first === undefined) throw new Error('unreachable');
+    const results = runAcagStructuralAssertions({
+      manifest: buildManifest({ files: [{ ...first, timeCoverageAttribute: null }, ...rest] }),
+      series: buildSeries(),
+    });
+    const entry = results.find((item) => item.id === 'A-08c');
+    expect(entry?.passed).toBe(true);
+    // The count is what distinguishes 26-of-27 verified from 0-of-27 verified.
+    expect(entry?.detail).toMatch(/26 of 27/);
+  });
+
+  /**
+   * A-04 recomputes the haversine rather than re-reading the artifact's own number
+   * (review CODE123-M5) — a hand-edited `cellDistanceKm` is now caught.
+   */
+  it('A-04 fails when the recorded cellDistanceKm disagrees with the coordinates', () => {
+    const series = buildSeries();
+    const [first, ...rest] = series.provinces;
+    if (first === undefined) throw new Error('unreachable');
+    const results = runAcagStructuralAssertions({
+      manifest: buildManifest(),
+      series: { ...series, provinces: [{ ...first, cellDistanceKm: 0.0001 }, ...rest] },
+    });
+    expect(idsOf(results, false)).toContain('A-04');
+    expect(results.find((entry) => entry.id === 'A-04')?.detail).toMatch(/disagrees/);
+  });
+
+  it('A-05 fails on a value below the plausibility FLOOR (a ÷1000 unit change)', () => {
+    const series = buildSeries();
+    const [first, ...rest] = series.provinces;
+    if (first === undefined) throw new Error('unreachable');
+    const results = runAcagStructuralAssertions({
+      manifest: buildManifest(),
+      series: {
+        ...series,
+        provinces: [{ ...first, values: [{ year: 2024, valueUgM3: 0.02 }] }, ...rest],
+      },
+    });
+    expect(idsOf(results, false)).toContain('A-05');
   });
 
   it('A-08b fails when a file record has no real SHA-256', () => {
@@ -272,6 +392,61 @@ describe('assertAcagLoadIsSafe', () => {
       assertAcagLoadIsSafe({
         ...base(),
         provinceRows: [{ ...first, latitude: (first.latitude ?? 0) + 0.5 }, ...rest],
+      }),
+    ).toThrow(/FIDELITY RULE \(A-03\)/);
+  });
+
+  /**
+   * A-09 — the artifact's provenance must agree with the licence block it is served beside
+   * (review CODE123-I1 / SFH123-I1). Single-sourcing the constants makes them agree when
+   * everything is rebuilt together; this catches the case it cannot — a new artifact against an
+   * old build, or the reverse.
+   */
+  it('refuses an artifact whose version disagrees with the served attribution block', () => {
+    // A-06 is the binding: its pin is an alias of the attribution module's constant, so an
+    // artifact naming a version this build's künye does not name cannot load.
+    expect(() =>
+      assertAcagLoadIsSafe({ ...base(), series: buildSeries({ datasetVersion: 'V6.GL.04' }) }),
+    ).toThrow(/A-06/);
+  });
+
+  it('binds the version pin to the SAME constant the served attribution block publishes', () => {
+    // The single-sourcing itself, asserted rather than assumed (review CODE123-I1 / SFH123-I1).
+    expect(ACAG_PINNED_DATASET_VERSION).toBe(ACAG_DATASET_VERSION);
+  });
+
+  it('refuses a manifest whose datasetUrl is not the URL this build publishes', () => {
+    expect(() =>
+      assertAcagLoadIsSafe({
+        ...base(),
+        manifest: buildManifest({ datasetUrl: `${ACAG_DATASET_URL}-stale` }),
+      }),
+    ).toThrow(/is not the URL this build publishes/);
+  });
+
+  it('accepts the manifest URL the attribution block actually publishes', () => {
+    // The positive half: the fixture's URL is the constant, not a literal that happens to match.
+    expect(buildManifest().datasetUrl).toBe(ACAG_DATASET_URL);
+  });
+
+  /**
+   * A-03 compares at the column's own scale (review CODE123-M6): a 7-decimal seed coordinate
+   * must not block every load over a `numeric(9,6)` round-trip difference.
+   */
+  it('A-03 tolerates a difference below the column scale, and still catches a real drift', () => {
+    const rows = dbRows();
+    const [first, ...rest] = rows;
+    if (first === undefined) throw new Error('unreachable');
+    expect(() =>
+      assertAcagLoadIsSafe({
+        ...base(),
+        provinceRows: [{ ...first, latitude: (first.latitude ?? 0) + 1e-8 }, ...rest],
+      }),
+    ).not.toThrow();
+    expect(() =>
+      assertAcagLoadIsSafe({
+        ...base(),
+        provinceRows: [{ ...first, latitude: (first.latitude ?? 0) + 1e-4 }, ...rest],
       }),
     ).toThrow(/FIDELITY RULE \(A-03\)/);
   });

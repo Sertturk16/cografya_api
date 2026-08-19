@@ -116,6 +116,11 @@ describe('readDecoderIdentity', () => {
    * depend on the resolver at all.
    */
   it('does not depend on require.resolve, which cannot see an ESM-only package', () => {
+    // NOTE (review TEST123-M9): the first line asserts a property of the DEPENDENCY's `exports`
+    // map, not of our code. If h5wasm ever publishes a `require` condition this goes red with no
+    // defect on our side — a red here means "re-check the constraint this walk-up exists for",
+    // not "our code broke". It is kept because that constraint is the entire reason the resolver
+    // is not used, and a silent change to it should be seen.
     expect(() => require.resolve('h5wasm')).toThrow();
     expect(readDecoderIdentity().version).toMatch(/^\d+\.\d+\.\d+/);
   });

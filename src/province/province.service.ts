@@ -8,6 +8,7 @@ import { ProvinceListItemDto } from './dto/province-list-item.dto';
 import { ProvinceMapSummaryDto } from './dto/province-map-summary.dto';
 import {
   CLIMATE_SOURCE_ERA5_LAND_MONTHLY,
+  PM25_READING_POINT_PROVINCE_CENTRE,
   PM25_SOURCE_ACAG_SATPM25,
   type Climate,
   type Pm25Annual,
@@ -129,8 +130,23 @@ export function buildClimate(
  * TypeScript type is an assertion about what the loader wrote, never a guarantee about what is
  * there — the same reasoning `buildClimate` documents above. A malformed document is served as
  * `null` (the section disappears) rather than as a payload the OpenAPI contract does not describe.
+ *
+ * ## Every published field is validated, and the object is built FIELD BY FIELD
+ * (review CODE123-I2 / SFH123-M4). This used to check `source` and `years` and then spread
+ * `...stored`, which broke the promise above in both directions. The precondition is not exotic —
+ * a hand-written `UPDATE` on this column is this line's own documented operational mode (the
+ * published kill switch is exactly that, and the e2e drives three malformed cases with
+ * `jsonb_set`):
+ *   - a document missing one required field still passed both checks, and the endpoint served
+ *     200 with the field absent while `openapi.json` declares it required and non-nullable — the
+ *     web repo's generated client types it non-optional, so the SSG build dereferences
+ *     `undefined`;
+ *   - any EXTRA key in the jsonb document was copied verbatim onto a public contract, because a
+ *     spread is not filtered by anything (this repo has no `ClassSerializerInterceptor` and no
+ *     `excludeExtraneousValues`, and `toDetail` returns a plain object literal).
+ * Naming every field is what makes the served shape exactly `Pm25AnnualDto` and nothing else.
  */
-function buildPm25Annual(stored: Pm25Annual | null, plateCode: string): Pm25AnnualDto | null {
+function buildServedPm25Annual(stored: Pm25Annual | null, plateCode: string): Pm25AnnualDto | null {
   if (stored == null) {
     return null;
   }
@@ -172,8 +188,40 @@ function buildPm25Annual(stored: Pm25Annual | null, plateCode: string): Pm25Annu
     return null;
   }
 
+  // The remaining nine required fields. A missing or wrong-typed one degrades the section to
+  // `null` rather than serving a payload the published contract does not describe.
+  const readingPoint: string = stored.readingPoint;
+  if (
+    typeof stored.datasetVersion !== 'string' ||
+    stored.datasetVersion === '' ||
+    typeof stored.sourceUrl !== 'string' ||
+    stored.sourceUrl === '' ||
+    typeof stored.unit !== 'string' ||
+    stored.unit === '' ||
+    readingPoint !== PM25_READING_POINT_PROVINCE_CENTRE ||
+    !Number.isFinite(stored.gridCellSizeDeg) ||
+    !Number.isFinite(stored.cellLatitude) ||
+    !Number.isFinite(stored.cellLongitude) ||
+    !Number.isFinite(stored.cellDistanceKm)
+  ) {
+    pm25Logger.warn(
+      `province ${plateCode}: pm25_annual is missing or mistyping a required field — serving ` +
+        'pm25Annual: null rather than a payload the OpenAPI contract declares as complete. The ' +
+        'import cannot produce this, so the row was written by some other path.',
+    );
+    return null;
+  }
+
   return {
-    ...stored,
+    source: PM25_SOURCE_ACAG_SATPM25,
+    datasetVersion: stored.datasetVersion,
+    sourceUrl: stored.sourceUrl,
+    gridCellSizeDeg: stored.gridCellSizeDeg,
+    unit: stored.unit,
+    readingPoint: PM25_READING_POINT_PROVINCE_CENTRE,
+    cellLatitude: stored.cellLatitude,
+    cellLongitude: stored.cellLongitude,
+    cellDistanceKm: stored.cellDistanceKm,
     years: ascending,
     latestYear: latest.year,
     latestValueUgM3: latest.valueUgM3,
@@ -328,7 +376,7 @@ export class ProvinceService {
       climateCurriculumNameTr: row.climateCurriculumNameTr,
       climateCurriculumNoteTr: row.climateCurriculumNoteTr,
       climate: buildClimate(row.climateNormals, row.plateCode),
-      pm25Annual: buildPm25Annual(row.pm25Annual, row.plateCode),
+      pm25Annual: buildServedPm25Annual(row.pm25Annual, row.plateCode),
       climateNarrativeTr: row.climateNarrativeTr,
       landformNoteTr: row.landformNoteTr,
       hydrographyNoteTr: row.hydrographyNoteTr,

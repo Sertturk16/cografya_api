@@ -5,7 +5,9 @@ import {
   distanceThresholdKm,
   mapCoordinateToIndex,
   readbackToleranceFor,
+  AXIS_EQUAL_STEP_TOLERANCE,
   LOCAL_SEARCH_RADIUS,
+  READBACK_EXTRA_TOLERANCE,
 } from './acag-grid';
 import { AcagContractError } from './acag.errors';
 
@@ -102,8 +104,12 @@ describe('mapCoordinateToIndex', () => {
     expect(Math.abs(mapping.snapped - requested)).toBeLessThanOrEqual(
       readbackToleranceFor(longAnalysis.step),
     );
-    // The refinement is load-bearing: the naive estimate is not always the answer.
-    expect(Math.abs(mapping.index - naiveIndex)).toBeLessThanOrEqual(LOCAL_SEARCH_RADIUS);
+    // The refinement is load-bearing: the naive estimate is NOT the answer here. The previous
+    // form of this line compared the distance against LOCAL_SEARCH_RADIUS, which the refinement
+    // loop guarantees by construction and which therefore could not fail (review TEST123-M1).
+    // Asserting inequality fails the moment the fixture stops reproducing the drift — which is
+    // exactly when a maintainer needs to know.
+    expect(mapping.index).not.toBe(naiveIndex);
   });
 
   it('returns outside_domain (never throws) for a coordinate beyond the axis', () => {
@@ -129,6 +135,30 @@ describe('mapCoordinateToIndex', () => {
     expect(() => mapCoordinateToIndex(axis, analysis, Number.NaN, 'lat')).toThrow(
       AcagContractError,
     );
+  });
+});
+
+/**
+ * The tolerance constants are pinned ABSOLUTELY here (review TEST123-I2).
+ *
+ * Every other tolerance assertion in this file is relative — it calls `readbackToleranceFor`,
+ * the very function whose constant a "harmonise the three grid modules" cleanup would widen — so
+ * the whole suite would stay green while the read-back guard loosened 10×. That guard is the
+ * mechanism that caught Sinop and the one standing between a wrong cell and 81 published pages,
+ * and this module's own docblock claims the fix left it "exactly as strict as it was". These
+ * assertions are what make that claim machine-checked, exactly as `era5-grid.spec.ts` and
+ * `cams-grid.spec.ts` already do for their own copies.
+ */
+describe('guard strictness is pinned, not merely documented', () => {
+  it('pins the read-back tolerance at the ACAG cell size', () => {
+    expect(readbackToleranceFor(0.01)).toBeCloseTo(0.0051, 12);
+    expect(readbackToleranceFor(-0.01)).toBeCloseTo(0.0051, 12);
+  });
+
+  it('pins the two tolerance constants and the search radius', () => {
+    expect(READBACK_EXTRA_TOLERANCE).toBe(1e-4);
+    expect(AXIS_EQUAL_STEP_TOLERANCE).toBe(1e-4);
+    expect(LOCAL_SEARCH_RADIUS).toBe(2);
   });
 });
 

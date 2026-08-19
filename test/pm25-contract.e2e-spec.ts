@@ -184,6 +184,38 @@ describe('Long-term PM2.5 contract (e2e)', () => {
         expect(Number.isFinite(entry.valueUgM3)).toBe(true);
         expect(entry.valueUgM3).toBeGreaterThan(0);
       }
+
+      // EVERY required property of the generated contract is present and typed — presence and
+      // type only, never a literal value (review TEST123-M3). `unit` in particular is declared
+      // required and non-nullable in `openapi.json`, is rendered beside every number the web
+      // shows, and was asserted nowhere in the diff's entire test surface.
+      expect(typeof pm25.unit).toBe('string');
+      expect(pm25.unit.length).toBeGreaterThan(0);
+      expect(typeof pm25.cellLatitude).toBe('number');
+      expect(typeof pm25.cellLongitude).toBe('number');
+      expect(typeof pm25.latestValueUgM3).toBe('number');
+      expect(Number.isFinite(pm25.latestValueUgM3)).toBe(true);
+      expect(typeof pm25.attribution).toBe('object');
+
+      // And NOTHING beyond the declared shape: the served object is built field by field, so a
+      // stray key in the stored jsonb document cannot reach a public contract (CODE123-I2).
+      expect(Object.keys(pm25).sort()).toEqual(
+        [
+          'attribution',
+          'cellDistanceKm',
+          'cellLatitude',
+          'cellLongitude',
+          'datasetVersion',
+          'gridCellSizeDeg',
+          'latestValueUgM3',
+          'latestYear',
+          'readingPoint',
+          'source',
+          'sourceUrl',
+          'unit',
+          'years',
+        ].sort(),
+      );
     }
   }, 120_000);
 
@@ -242,37 +274,136 @@ describe('Long-term PM2.5 contract (e2e)', () => {
       expect(Math.abs(stored.cellLongitude - (row.longitude ?? 0))).toBeLessThan(0.02);
       expect(stored.cellDistanceKm).toBeLessThan(1.5);
     }
+
+    // The title says SERVES, so the projection is exercised too (review TEST123-M7): the body
+    // used to read only the stored document, and the served coordinates were asserted nowhere.
+    const sample = await dataSource
+      .getRepository(Province)
+      .findOneOrFail({ where: { slugTr: 'istanbul' } });
+    const served = (await fetchDetail('istanbul')).pm25Annual;
+    expect(served?.cellLatitude).toBe(sample.pm25Annual?.cellLatitude);
+    expect(served?.cellLongitude).toBe(sample.pm25Annual?.cellLongitude);
+    expect(served?.cellDistanceKm).toBe(sample.pm25Annual?.cellDistanceKm);
   });
 
   /**
-   * Graceful degradation: NULL is the documented kill switch
-   * (`UPDATE provinces SET pm25_annual = NULL`), and it must remove the section rather than break
-   * the page — this is a public SEO route.
+   * The mutating cases live in their own block and RESTORE what they touch (review TEST123-M8).
+   * They previously mutated three rows permanently, and the suite was correct only because Jest
+   * happens to run `it` blocks in declaration order and all three sat last — a dependency nothing
+   * in the file recorded.
    */
-  it('serves pm25Annual: null (200, no crash) when a province has no series', async () => {
-    await dataSource.getRepository(Province).update({ slugTr: 'yalova' }, { pm25Annual: null });
-    const detail = await fetchDetail('yalova');
-    expect(detail.pm25Annual).toBeNull();
+  describe('degradation and derivation on hand-edited rows', () => {
+    const touched = ['yalova', 'bolu', 'duzce', 'edirne'];
+    let saved: Map<string, unknown>;
 
-    // The rest of the payload is untouched.
-    expect(detail.plateCode).toBe('77');
-  });
+    beforeAll(async () => {
+      const rows = await dataSource
+        .getRepository(Province)
+        .find({ where: touched.map((slugTr) => ({ slugTr })) });
+      saved = new Map(rows.map((row) => [row.slugTr, row.pm25Annual]));
+      expect(saved.size).toBe(touched.length);
+    });
 
-  it('serves pm25Annual: null when the stored document names a source this build does not serve', async () => {
-    // A jsonb column's TypeScript type is an assertion about what we wrote, never a guarantee
-    // about what is there. Absent beats wrong on a public contract.
-    await dataSource.query(
-      `UPDATE provinces SET pm25_annual = jsonb_set(pm25_annual, '{source}', '"some_other_source"') WHERE slug_tr = 'bolu'`,
-    );
-    const detail = await fetchDetail('bolu');
-    expect(detail.pm25Annual).toBeNull();
-  });
+    afterAll(async () => {
+      for (const [slugTr, document] of saved) {
+        await dataSource
+          .getRepository(Province)
+          .update({ slugTr }, { pm25Annual: document as Province['pm25Annual'] });
+      }
+    });
 
-  it('serves pm25Annual: null when the stored series is empty', async () => {
-    await dataSource.query(
-      `UPDATE provinces SET pm25_annual = jsonb_set(pm25_annual, '{years}', '[]') WHERE slug_tr = 'duzce'`,
-    );
-    const detail = await fetchDetail('duzce');
-    expect(detail.pm25Annual).toBeNull();
+    /**
+     * Graceful degradation: NULL is the documented kill switch
+     * (`UPDATE provinces SET pm25_annual = NULL`), and it must remove the section rather than
+     * break the page — this is a public SEO route.
+     */
+    it('serves pm25Annual: null (200, no crash) when a province has no series', async () => {
+      await dataSource.getRepository(Province).update({ slugTr: 'yalova' }, { pm25Annual: null });
+      const detail = await fetchDetail('yalova');
+      expect(detail.pm25Annual).toBeNull();
+
+      // The rest of the payload is untouched.
+      expect(detail.plateCode).toBe('77');
+    });
+
+    it('serves pm25Annual: null when the stored document names a source this build does not serve', async () => {
+      // A jsonb column's TypeScript type is an assertion about what we wrote, never a guarantee
+      // about what is there. Absent beats wrong on a public contract.
+      await dataSource.query(
+        `UPDATE provinces SET pm25_annual = jsonb_set(pm25_annual, '{source}', '"some_other_source"') WHERE slug_tr = 'bolu'`,
+      );
+      const detail = await fetchDetail('bolu');
+      expect(detail.pm25Annual).toBeNull();
+    });
+
+    it('serves pm25Annual: null when the stored series is empty', async () => {
+      await dataSource.query(
+        `UPDATE provinces SET pm25_annual = jsonb_set(pm25_annual, '{years}', '[]') WHERE slug_tr = 'duzce'`,
+      );
+      const detail = await fetchDetail('duzce');
+      expect(detail.pm25Annual).toBeNull();
+    });
+
+    /**
+     * The PARTIALLY malformed arm (review TEST123-M6). `buildServedPm25Annual` has two series
+     * arms — "no usable entries" and "some entries unusable" — and only the first was exercised.
+     */
+    it('serves pm25Annual: null when ONE year entry is malformed', async () => {
+      await dataSource.query(
+        `UPDATE provinces SET pm25_annual = jsonb_set(pm25_annual, '{years,0,valueUgM3}', 'null') WHERE slug_tr = 'duzce'`,
+      );
+      const detail = await fetchDetail('duzce');
+      expect(detail.pm25Annual).toBeNull();
+    });
+
+    /**
+     * A required field removed by hand (review CODE123-I2). `unit` is declared required and
+     * non-nullable in `openapi.json`, so serving the object without it hands the web repo's
+     * generated client a `unit: string` that is `undefined` at runtime. Absent beats wrong.
+     */
+    it('serves pm25Annual: null when a REQUIRED field is missing from the stored document', async () => {
+      await dataSource.query(
+        `UPDATE provinces SET pm25_annual = pm25_annual - 'unit' WHERE slug_tr = 'bolu'`,
+      );
+      const detail = await fetchDetail('bolu');
+      expect(detail.pm25Annual).toBeNull();
+    });
+
+    /**
+     * THE SORT IS LOAD-BEARING AND UNTIL NOW UNTESTED (review TEST123-I1).
+     *
+     * `buildServedPm25Annual` deliberately does not trust the stored ordering — it sorts, then
+     * derives `latestYear`/`latestValueUgM3` from the last element. Every other test feeds it an
+     * already-ascending series, so the sort was a provable no-op in every assertion and deleting
+     * it would have kept the suite green. `latestYear` is the field DEC 2026-08-19f requires to
+     * be trustworthy, so it is the one field that must not rest on input that happened to be
+     * ordered.
+     */
+    it('serves an ASCENDING series and a true latest year even when the stored order is reversed', async () => {
+      const before = await dataSource
+        .getRepository(Province)
+        .findOneOrFail({ where: { slugTr: 'edirne' } });
+      const stored = before.pm25Annual;
+      expect(stored).not.toBeNull();
+      if (stored === null) throw new Error('unreachable');
+
+      const reversed = [...stored.years].reverse();
+      expect(reversed[0]?.year).toBeGreaterThan(reversed[reversed.length - 1]?.year ?? 0);
+      await dataSource.query(
+        `UPDATE provinces SET pm25_annual = jsonb_set(pm25_annual, '{years}', $1::jsonb) WHERE slug_tr = 'edirne'`,
+        [JSON.stringify(reversed)],
+      );
+
+      const served = (await fetchDetail('edirne')).pm25Annual;
+      expect(served).not.toBeNull();
+      if (served === null) throw new Error('unreachable');
+
+      const years = served.years.map((entry) => entry.year);
+      expect(years).toEqual([...years].sort((a, b) => a - b));
+      expect(served.latestYear).toBe(Math.max(...years));
+      expect(served.latestYear).toBe(ACAG_EXPECTED_LAST_YEAR);
+      const latestEntry = stored.years.find((entry) => entry.year === served.latestYear);
+      expect(served.latestValueUgM3).toBe(latestEntry?.valueUgM3);
+    });
   });
 });

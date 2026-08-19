@@ -155,6 +155,20 @@ export function selectAcagCells(
  */
 export const PM25_ABSURD_CEILING_UG_M3 = 1000;
 
+/**
+ * The matching FLOOR (review CODE123-M10).
+ *
+ * The ceiling alone is asymmetric: it catches a provider switching to a ×1000 unit, and misses a
+ * switch the other way. Annual means expressed in mg/m³ would arrive as ~0.02 and pass a bare
+ * `> 0` check, republishing every figure under a unit the file no longer states — and `unit` is
+ * a hardcoded literal on this line rather than a measured attribute, so nothing else would notice.
+ *
+ * 1 µg/m³ is a NONSENSE bound, not a claim about anyone's air: the cleanest inhabited places on
+ * this dataset's own global scale sit above it, and the lowest value in the committed Türkiye
+ * corpus is an order of magnitude higher.
+ */
+export const PM25_ABSURD_FLOOR_UG_M3 = 1;
+
 export function readYearValues(
   window: AcagWindow,
   selections: readonly AcagCellSelection[],
@@ -179,7 +193,7 @@ export function readYearValues(
           'value IS the centre cell (DEC 2026-08-19d md.1). Stop and surface this to Atlas.',
       );
     }
-    if (!Number.isFinite(raw) || raw <= 0 || raw > PM25_ABSURD_CEILING_UG_M3) {
+    if (!Number.isFinite(raw) || raw < PM25_ABSURD_FLOOR_UG_M3 || raw > PM25_ABSURD_CEILING_UG_M3) {
       throw new AcagContractError(
         `province ${selection.plateCode}, year ${String(year)}: value ${String(raw)} µg/m³ is ` +
           'not a physically sane annual mean — refusing to publish.',

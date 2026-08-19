@@ -66,13 +66,34 @@ async function readJsonFile<T>(path: string): Promise<{ parsed: T; raw: string }
 }
 
 /**
- * Build the stored document for one province.
+ * Grid cell size, rounded to the precision the CONTRACT publishes (review CODE123-M1).
+ *
+ * The artifact keeps the raw measurement — the float32 median step, `0.009998321533203125` — and
+ * that is right: the step is derived from the file's own axis and never from the provider's
+ * `LAT_DELTA` claim. Publishing 18 significant digits of float32 decode noise as "the grid's cell
+ * size" is the part that was wrong. Six decimals is finer than any difference between the two
+ * axes' measured steps and coarser than the decode noise, so the served figure describes the grid
+ * without pretending to a precision the measurement does not carry.
+ *
+ * Rounded HERE, at the publish boundary, rather than in the fetch phase: the committed artifact
+ * stays the raw evidence, and no re-fetch is needed to change a presentation decision.
+ */
+export function publishedGridCellSizeDeg(measured: number): number {
+  return Number(measured.toFixed(6));
+}
+
+/**
+ * Build the STORED document for one province.
+ *
+ * Named `buildStored…` against the service's `buildServedPm25Annual` (review CODE123-M7): the two
+ * sit at opposite ends of the pipeline with different signatures and different return types, and
+ * a single shared name made `grep` return two unrelated hits.
  *
  * Everything published here comes from the artifact; nothing is invented at load time. The two
  * literals are the type-level tokens (`source`, `readingPoint`) whose whole purpose is to name
  * what the numbers are.
  */
-export function buildPm25Annual(
+export function buildStoredPm25Annual(
   series: AcagSeriesArtifact,
   province: AcagSeriesArtifact['provinces'][number],
   datasetUrl: string,
@@ -81,7 +102,7 @@ export function buildPm25Annual(
     source: PM25_SOURCE_ACAG_SATPM25,
     datasetVersion: series.datasetVersion,
     sourceUrl: datasetUrl,
-    gridCellSizeDeg: series.gridCellSizeDeg,
+    gridCellSizeDeg: publishedGridCellSizeDeg(series.gridCellSizeDeg),
     unit: series.unit,
     readingPoint: PM25_READING_POINT_PROVINCE_CENTRE,
     cellLatitude: province.cellLatitude,
@@ -123,7 +144,7 @@ export async function loadAcagPm25(
       // Re-read inside the transaction: the gate above proved existence, this read is the one the
       // write is based on.
       const province = await repo.findOneOrFail({ where: { plateCode: record.plateCode } });
-      const document = buildPm25Annual(series, record, manifest.datasetUrl);
+      const document = buildStoredPm25Annual(series, record, manifest.datasetUrl);
 
       if (canonicalJson(province.pm25Annual) === canonicalJson(document)) {
         unchanged += 1;

@@ -65,12 +65,45 @@ export const ACAG_PROVIDER_NAME =
  */
 export const ACAG_WORK_TITLE = 'SatPM₂.₅ V6.GL.03';
 
-/** The dataset version this line publishes. Pinned by DEC 2026-08-19f. */
+/**
+ * The dataset version this line publishes. Pinned by DEC 2026-08-19f.
+ *
+ * **THIS IS THE SINGLE SOURCE of the version identity for the whole line** (review CODE123-I1 /
+ * SFH123-I1). It was previously declared three times — here, as `ACAG_PINNED_DATASET_VERSION` in
+ * the assertions, and implicitly inside the S3 key prefix and file-name builders — with nothing
+ * binding them. The failure that mattered was not theoretical: on the next annual refresh an
+ * operator bumps whatever the download needs in `src/database/acag/`, every assertion passes
+ * (A-06 compares the two artifacts against the same bumped constant, so it cannot see this file),
+ * and all 81 indexable pages then serve new numbers under a CC BY block naming the OLD licensed
+ * work, beside a provider caveat quoted verbatim for a version whose wording the ledger records
+ * as different. The import line now imports this constant, derives its file-name token from it,
+ * and the LOAD GATE refuses an artifact whose version/URL disagree with it.
+ */
 export const ACAG_DATASET_VERSION = 'V6.GL.03';
 
-/** The provider's version landing page — its own `og:url`. */
+/**
+ * The provider's version landing page — its own `og:url`.
+ *
+ * Also single-sourced: the fetch phase writes it into the manifest and the load phase publishes
+ * it as `pm25Annual.sourceUrl`, so both sides of the served object now trace to this line.
+ */
 export const ACAG_DATASET_URL = 'https://www.satpm.org/v6-gl-03';
 
+/**
+ * The licence name — a COMPOSITION, not a single verbatim quote, and the one string in this file
+ * that is (review CODE123-M3).
+ *
+ * Both halves are the licensor's own naming, joined in the conventional way:
+ * - `Creative Commons Attribution 4.0 International` is the licence's full name as the AWS
+ *   Registry of Open Data record for this dataset states it (`provenance/datasets.md`, ACAG row,
+ *   "İKİNCİ BİRİNCİL TEYİT" segment);
+ * - `CC BY 4.0` is the short form the provider's own licence sentence uses ("…are licensed under
+ *   CC BY 4.0", same ledger row, "ATIF ÖĞELERİ — V6.GL.03").
+ *
+ * The joined form appears in neither source, so it is labelled here rather than presented as a
+ * quotation. It names the licence; it is not part of the attribution the licence *requires*
+ * (that is {@link ACAG_WORK_TITLE} + {@link ACAG_LICENCE_URL} + the citation).
+ */
 export const ACAG_LICENCE_NAME = 'Creative Commons Attribution 4.0 International (CC BY 4.0)';
 
 /** The exact href the provider's licence sentence links to, chooser query string included. */

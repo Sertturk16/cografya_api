@@ -77,3 +77,9 @@ yarn-error.log*
 /data/acag-pm25/raw/
 /data/acag-pm25/*.nc
 /data/acag-pm25/*.nc.part
+
+# The artifacts of a FAILED run. Both committed artifacts are written as `<name>.part` and
+# renamed only after BOTH are complete, so a crash mid-write cannot leave a series file
+# beside a manifest whose `seriesSha256` no longer describes it. The `.part` remains are by
+# definition incomplete, so they must never be committable.
+/data/acag-pm25/*.json.part

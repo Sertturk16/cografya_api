@@ -16,7 +16,10 @@
 
 /** The file (or our reading of it) violates the provider contract. */
 export class AcagContractError extends Error {
-  constructor(message: string, options?: { cause?: unknown; unexpected?: boolean }) {
+  // `options` carries `cause` only. An earlier draft also declared an `unexpected` flag that
+  // nothing read and no caller passed (review CODE123-M8) — a dead option in a public constructor
+  // invites a caller to set it and expect an effect.
+  constructor(message: string, options?: { cause?: unknown }) {
     super(`[acag] ${message}`, options?.cause === undefined ? undefined : { cause: options.cause });
     this.name = 'AcagContractError';
   }

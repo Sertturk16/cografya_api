@@ -61,8 +61,12 @@ export class Pm25AnnualDto implements Pm25Annual {
   sourceUrl!: string;
 
   @ApiProperty({
-    example: 0.01,
-    description: 'Izgara hücre boyutu (derece) — dosyanın kendi ekseninden türetilir.',
+    example: 0.009998,
+    description:
+      'Izgara hücre boyutu (derece) — sağlayıcının andığı 0,01° DEĞİL, dosyanın kendi ekseninden ' +
+      'ÖLÇÜLEN adım, 6 ondalığa yuvarlanmış. Sağlayıcı ızgarayı 0,01° × 0,01° diye anar ' +
+      '(künyedeki çekince metninde de öyle geçer); buradaki sayı o ızgaranın float32 eksende ' +
+      'ölçülen gerçek adımıdır. İkisi birbirinin yerine geçmez.',
   })
   gridCellSizeDeg!: number;
 

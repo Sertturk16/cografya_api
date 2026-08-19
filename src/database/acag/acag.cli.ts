@@ -69,6 +69,52 @@ function hasFlag(argv: readonly string[], name: string): boolean {
   return argv.includes(`--${name}`);
 }
 
+/** Flags each phase understands: `--name=value` and bare `--name` respectively. */
+const VALUE_FLAGS: Record<'fetch' | 'load', readonly string[]> = {
+  fetch: ['phase', 'raw-dir'],
+  load: ['phase'],
+};
+const BARE_FLAGS: Record<'fetch' | 'load', readonly string[]> = {
+  fetch: ['from-dir', 'keep-raw'],
+  load: [],
+};
+
+/**
+ * Refuse anything the resolved phase does not understand (review CODE123-M4 / SFH123-M2).
+ *
+ * This file's stated principle is that a flag belonging to the other phase is REFUSED rather than
+ * ignored, "because silently accepting a flag that does nothing is how an operator concludes the
+ * run did something it did not" — and unknown or mis-shaped flags were nonetheless ignored
+ * silently. The shapes matter here because the two forms are mixed on one command line:
+ * `--phase=` and `--raw-dir=` train the operator on `key=value`, so `--keep-raw=true` is the
+ * natural thing to type — and it used to parse as `keepRaw: false`, running the full ~70 minute /
+ * 12 GB download and then deleting all 27 raw files the operator had explicitly asked to keep.
+ */
+function assertNoUnknownFlags(argv: readonly string[], phase: 'fetch' | 'load'): void {
+  const valueFlags = VALUE_FLAGS[phase];
+  const bareFlags = BARE_FLAGS[phase];
+  for (const entry of argv) {
+    if (!entry.startsWith('--')) {
+      throw new Error(`unexpected argument ${JSON.stringify(entry)}. ${USAGE}`);
+    }
+    const [rawName] = entry.slice(2).split('=');
+    const name = rawName ?? '';
+    const hasValue = entry.includes('=');
+    if (hasValue && valueFlags.includes(name)) continue;
+    if (!hasValue && bareFlags.includes(name)) continue;
+    if (hasValue && bareFlags.includes(name)) {
+      throw new Error(
+        `--${name} is a bare flag and takes no value (got ${JSON.stringify(entry)}). ` +
+          `Pass --${name} on its own. ${USAGE}`,
+      );
+    }
+    if (!hasValue && valueFlags.includes(name)) {
+      throw new Error(`--${name} requires a value in the form --${name}=<value>. ${USAGE}`);
+    }
+    throw new Error(`unknown flag ${JSON.stringify(entry)} for --phase=${phase}. ${USAGE}`);
+  }
+}
+
 export function parseAcagCliArgs(argv: readonly string[]): AcagCliArgs {
   const phase = readFlag(argv, 'phase');
 
@@ -84,12 +130,14 @@ export function parseAcagCliArgs(argv: readonly string[]): AcagCliArgs {
           `artifacts in data/acag-pm25/. ${USAGE}`,
       );
     }
+    assertNoUnknownFlags(argv, 'load');
     return { phase };
   }
 
   if (phase !== 'fetch') {
     throw new Error(`${USAGE} (got --phase=${JSON.stringify(phase ?? '')})`);
   }
+  assertNoUnknownFlags(argv, 'fetch');
 
   const rawDir = readFlag(argv, 'raw-dir');
   if (rawDir === null || rawDir === '') {

@@ -38,10 +38,17 @@ the way the ERA5 line does. See `src/database/acag/acag-hdf5.adapter.ts`.
 ## Where the raw files are
 
 **Not here, and never will be.** Each annual global file is ~450 MB (27 of them ≈ 12.2 GB of
-transfer). The fetch CLI requires an explicit absolute `--raw-dir` outside the repo and deletes
-each file right after extracting its window, so peak disk is one file; `.gitignore` carries a
-`*.nc` belt for the operator who points `--raw-dir` here anyway. The manifest identifies every
-one of those files forever by SHA-256 and size, so a copy can always be proven to be *the* copy.
+transfer). The fetch CLI requires an explicit absolute `--raw-dir` outside the repo and, **unless
+`--keep-raw` is passed**, deletes each file right after extracting its window — so the default
+peak disk is one file. `.gitignore` carries a `*.nc` belt for the operator who points `--raw-dir`
+here anyway. The manifest identifies every one of those files forever by SHA-256 and size, so a
+copy can always be proven to be *the* copy.
+
+**The committed run used `--keep-raw`** (the manifest records `rawDeleted: false` on all 27 files,
+which is the honest per-file evidence), because it followed a run that had failed late and the
+files were kept to make an offline `--from-dir` re-run possible. The 11.89 GB was deleted by hand
+after the artifacts were verified. Do not read the paragraph above as a description of what this
+particular run did — read the manifest.
 
 ## Update cadence
 
