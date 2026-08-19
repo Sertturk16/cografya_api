@@ -287,16 +287,18 @@ describe('UpstreamHttpClient', () => {
     // runs out, and each abort arrives here as an ordinary `transient` — so a leg DESIGNED to
     // exhaust its budget (the elevation profile's warming path, six tiles in flight) used to open
     // the circuit on a provider that had answered every call it finished (review #124 SFH124-C1).
-    const fetchImpl = jest.fn<typeof fetch>(
-      () =>
-        new Promise((_resolve, reject) => {
-          setTimeout(() => {
-            reject(new DOMException('This operation was aborted', 'AbortError'));
-          }, 40);
-        }),
-    );
+    //
+    // Shaped like the leg that produced it, because the excuse is only honest in that shape: a
+    // per-call cap SMALLER than the budget (5 000 of 12 000) and a wave of tiles that starts after
+    // earlier waves have already spent most of it. The opposite shape — one call allowed the whole
+    // budget — is the test below, and it must reach the breaker (SFH124R2-I1).
+    const fetchImpl = jest.fn<typeof fetch>(() => {
+      nowMs += 2_000; // the operation ceiling, not the 5 000 ms cap, ends this socket
+      return Promise.reject(new DOMException('This operation was aborted', 'AbortError'));
+    });
     const client = build(fetchImpl);
-    const shared = new OperationDeadline(20);
+    const shared = new OperationDeadline(12_000, () => nowMs);
+    nowMs += 10_000; // earlier waves have already spent 10 s of the 12 s budget
 
     const outcomes = await Promise.all(
       ['tile.a', 'tile.b', 'tile.c', 'tile.d'].map((label) =>
@@ -306,6 +308,7 @@ describe('UpstreamHttpClient', () => {
           url: URL_UNDER_TEST,
           deadline: shared,
           limits: LIMITS,
+          singleCallTimeoutMs: 5_000,
           parse: parseValue,
         }),
       ),
@@ -317,6 +320,117 @@ describe('UpstreamHttpClient', () => {
     expect(breaker.state('provider')).toBe('closed');
     expect(metrics.get('breaker.opened', 'provider')).toBe(0);
     expect(metrics.get('upstream.deadline_exceeded', 'provider')).toBe(4);
+  });
+
+  it('DOES record it when the leg allows ONE call the whole budget — the cap == budget leg', async () => {
+    // SFH124R2-I1: `signalFor` clamps the per-call cap to the remaining budget, so on a leg where
+    // the cap is not smaller than the budget EVERY call aborts at the operation ceiling. `cmems`
+    // is that leg at stock defaults — CMEMS_SINGLE_CALL_TIMEOUT_MS (6 000) ==
+    // MARINE_UPSTREAM_DEADLINE_MS (6 000), a recorded decision (review #81 M5) — and the env
+    // schema blesses the same equality for elevation. Excusing those aborts disarms the breaker
+    // outright: a provider that accepts connections and never answers would be re-called on every
+    // request forever, with no `breaker.opened` and no cooldown anywhere in the logs.
+    //
+    // Fired in parallel because that is how the marine request path reads a point's ≤3 CMEMS keys
+    // on one shared budget; sequentially the second key would be refused by the pre-call guard.
+    const fetchImpl = jest.fn<typeof fetch>(() => {
+      nowMs += 6_000; // hung for the entire budget, then aborted
+      return Promise.reject(new DOMException('This operation was aborted', 'AbortError'));
+    });
+    const client = build(fetchImpl);
+    const shared = new OperationDeadline(6_000, () => nowMs);
+
+    const outcomes = await Promise.all(
+      ['cmems.thetao', 'cmems.vhm0', 'cmems.vmdr'].map((label) =>
+        client.request({
+          providerId: 'provider',
+          label,
+          url: URL_UNDER_TEST,
+          deadline: shared,
+          limits: LIMITS,
+          singleCallTimeoutMs: 6_000,
+          parse: parseValue,
+        }),
+      ),
+    );
+
+    expect(fetchImpl).toHaveBeenCalledTimes(3);
+    for (const outcome of outcomes) expect(outcome.kind).toBe('transient');
+    expect(breaker.state('provider')).toBe('open');
+    expect(metrics.get('breaker.opened', 'provider')).toBe(1);
+    expect(metrics.get('upstream.deadline_exceeded', 'provider')).toBe(0);
+  });
+
+  it('re-arms the cooldown when the half-open trial hangs on such a leg', async () => {
+    // The other half of SFH124R2-I1. An excused trial reports no outcome, so `openUntilMs` never
+    // moves: the circuit stays half-open and hands a fresh probe to EVERY request instead of one
+    // per cooldown — the throttle-becomes-a-ban escalation the breaker exists to prevent.
+    const fetchImpl = jest.fn<typeof fetch>(() => {
+      nowMs += 6_000;
+      return Promise.reject(new DOMException('This operation was aborted', 'AbortError'));
+    });
+    const client = build(fetchImpl);
+
+    breaker.recordFailure('provider', 'transient');
+    breaker.recordFailure('provider', 'transient');
+    breaker.recordFailure('provider', 'transient');
+    nowMs += 10_001; // the cooldown elapsed → this call takes the half-open trial
+    expect(breaker.state('provider')).toBe('half_open');
+
+    await client.request({
+      providerId: 'provider',
+      label: 'cmems.thetao',
+      url: URL_UNDER_TEST,
+      deadline: new OperationDeadline(6_000, () => nowMs),
+      limits: LIMITS,
+      singleCallTimeoutMs: 6_000,
+      parse: parseValue,
+    });
+
+    expect(breaker.state('provider')).toBe('open');
+    expect(breaker.canAttempt('provider')).toBe(false);
+  });
+
+  it('releases the half-open trial QUIETLY when the budget cut the call short', async () => {
+    // SFH124R2-I2: the excused path returned without telling the breaker, so `request`'s `finally`
+    // reached `abandonTrial` — an ERROR line asserting that an exception escaped when nothing
+    // threw, and a `breaker.trial_abandoned` count on a routine condition. That counter's whole
+    // value is that a non-zero reading means WE have a bug above the client.
+    const fetchImpl = jest.fn<typeof fetch>(() => {
+      nowMs += 2_000;
+      return Promise.reject(new DOMException('This operation was aborted', 'AbortError'));
+    });
+    const client = build(fetchImpl);
+
+    breaker.recordFailure('provider', 'transient');
+    breaker.recordFailure('provider', 'transient');
+    breaker.recordFailure('provider', 'transient');
+    nowMs += 10_001; // half-open: this call takes the trial
+
+    const shared = new OperationDeadline(12_000, () => nowMs);
+    nowMs += 10_000; // an earlier wave already spent most of the budget
+
+    const outcome = await client.request({
+      providerId: 'provider',
+      label: 'tile.late',
+      url: URL_UNDER_TEST,
+      deadline: shared,
+      limits: LIMITS,
+      singleCallTimeoutMs: 5_000,
+      parse: parseValue,
+    });
+
+    expect(outcome.kind).toBe('transient');
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    // Nothing threw, so the alarm that says something did must not have fired…
+    expect(metrics.get('breaker.trial_abandoned', 'provider')).toBe(0);
+    expect(
+      events.filter((event) => event.message === 'half-open trial abandoned without an outcome'),
+    ).toHaveLength(0);
+    expect(events.filter((event) => event.level === 'error')).toHaveLength(0);
+    // …and the trial the excused call wasted is handed back rather than left in flight.
+    expect(metrics.get('breaker.trial_released', 'provider')).toBe(1);
+    expect(breaker.canAttempt('provider')).toBe(true);
   });
 
   it('and the same four failures DO open it while the budget still has room', async () => {
@@ -452,6 +566,16 @@ describe('UpstreamHttpClient', () => {
     // The provider must still be reachable, and the release must NOT have counted as a failure.
     expect(breaker.canAttempt('provider')).toBe(true);
     expect(metrics.get('breaker.trial_abandoned', 'provider')).toBe(1);
+    // The positive control for the excused-path test above: this is the ONE condition that may
+    // raise that counter and print the alarm, and here it really does (review #124 SFH124R2-I2).
+    expect(
+      events.filter(
+        (event) =>
+          event.level === 'error' &&
+          event.message === 'half-open trial abandoned without an outcome',
+      ),
+    ).toHaveLength(1);
+    expect(metrics.get('breaker.trial_released', 'provider')).toBe(0);
   });
 
   it('refuses to follow a redirect, so a provider cannot choose the host we talk to', async () => {

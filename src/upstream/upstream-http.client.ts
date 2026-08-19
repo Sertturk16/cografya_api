@@ -344,12 +344,18 @@ export class UpstreamHttpClient {
 
   private async attemptLoop<T>(options: UpstreamRequestOptions<T>): Promise<UpstreamOutcome<T>> {
     const { providerId, label, deadline } = options;
+    const singleCallCapMs = this.singleCallCapMs(options);
 
     // Typed as the FAILURE subset so the breaker call below cannot be handed an `ok` kind.
     let lastFailure: Exclude<UpstreamOutcome<T>, { kind: 'ok' }> = {
       kind: 'transient',
       reason: 'no attempt was made',
     };
+
+    // Whether the LAST attempt started with less budget left than its own per-call cap. Read
+    // before the attempt, because afterwards the budget is spent and every call looks alike; see
+    // the branch at the end of the loop for what it decides.
+    let budgetCutTheCallShort = false;
 
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
       const decision = await this.budget.tryConsume(
@@ -371,6 +377,7 @@ export class UpstreamHttpClient {
         });
       }
 
+      budgetCutTheCallShort = deadline.cutsCallShort(singleCallCapMs);
       const outcome = await this.attempt(options, attempt);
 
       if (outcome.kind === 'ok' || outcome.kind === 'no_data') {
@@ -401,18 +408,39 @@ export class UpstreamHttpClient {
     // per-call cap and the operation ceiling into ONE signal, so an abort at the budget's last
     // millisecond arrives here as an ordinary `transient`.
     //
-    // It becomes reachable in bulk with a caller that runs many calls concurrently under one shared
-    // deadline. The elevation leg fans out to `ELEVATION_TILE_FETCH_CONCURRENCY` tiles and is
-    // DESIGNED to exhaust its budget on a long line (the partial profile is its warming path), so
-    // every such request aborted as many sockets at once as it had in flight — more consecutive
-    // failures than the breaker's threshold — and opened the circuit on a provider that had
-    // answered every call it finished (review #124, SFH124-C1).
+    // It becomes reachable in bulk with a caller that runs many calls concurrently under one
+    // shared deadline — which is why it is narrowed in TWO independent ways, both load-bearing.
     //
-    // Narrow on purpose. Only `transient` is excused: `schema_error`, `client_error` and
-    // `rate_limited` describe what the provider SENT, and that is as true at the end of a budget as
-    // at the start. A genuinely slow provider is still recorded, because its calls abort at their
-    // own per-call cap while the operation budget still has room.
-    if (lastFailure.kind === 'transient' && deadline.hasExpired()) {
+    // 1. Only `transient` is excused: `schema_error`, `client_error` and `rate_limited` describe
+    //    what the provider SENT, and that is as true at the end of a budget as at the start.
+    //
+    // 2. Only a call the OPERATION ceiling cut short of its own per-call cap
+    //    (`OperationDeadline.cutsCallShort`, read before the attempt). "An expired deadline" alone
+    //    is not that test, and assuming it was is how the first version of this branch disarmed a
+    //    breaker it never meant to touch: `signalFor` CLAMPS the per-call cap to the remaining
+    //    budget, so on any leg whose cap is not smaller than its budget every call aborts at the
+    //    operation ceiling and would be excused forever — `cmems` is exactly that shape at stock
+    //    defaults (6 000 ms cap on a 6 000 ms budget, review #81 M5), and a hanging CMEMS would
+    //    then be re-called on every request with no `breaker.opened`, no cooldown, and a half-open
+    //    circuit that can never re-arm (review #124, SFH124R2-I1).
+    //
+    // What survives is the shape this branch was built for: the elevation leg fans out to
+    // `ELEVATION_TILE_FETCH_CONCURRENCY` tiles under one budget it is DESIGNED to exhaust on a long
+    // line (the partial profile is its warming path), so its late tiles are handed a fraction of
+    // their 5 000 ms cap and abort together — more consecutive failures than the breaker's
+    // threshold, against a provider that answered every call it finished (SFH124-C1). A genuinely
+    // slow provider is still recorded on that same leg, because the first wave of tiles gets its
+    // full cap while the budget still has room.
+    if (lastFailure.kind === 'transient' && deadline.hasExpired() && budgetCutTheCallShort) {
+      // Told to the breaker EXPLICITLY, rather than left to `request`'s `finally`. That fallback
+      // is `abandonTrial`, whose ERROR line asserts an exception escaped — and nothing threw here.
+      // Reporting a routine condition through the bug alarm both lies in the log and retires
+      // `breaker.trial_abandoned` as a signal (SFH124R2-I2). A no-op unless this call held the
+      // half-open trial.
+      this.breaker.releaseTrial(
+        providerId,
+        `the operation budget ended ${label} before its own per-call cap — not provider evidence`,
+      );
       this.metrics.increment('upstream.deadline_exceeded', providerId);
       return this.record(providerId, label, lastFailure);
     }
@@ -456,7 +484,7 @@ export class UpstreamHttpClient {
             : { 'Content-Type': options.requestBody.contentType }),
           ...options.headers,
         },
-        signal: deadline.signalFor(options.singleCallTimeoutMs ?? this.options.singleCallTimeoutMs),
+        signal: deadline.signalFor(this.singleCallCapMs(options)),
         // NOT `follow`. A redirect is the one way a provider (or anyone who can answer as one:
         // a hijacked route, an expired domain, a compromised CDN) can choose the host this
         // server talks to from INSIDE the deployment network — cloud metadata endpoints being
@@ -586,6 +614,18 @@ export class UpstreamHttpClient {
       // codebase keeps designing against.
       throw error;
     }
+  }
+
+  /**
+   * The cap ONE call may use: the per-request override when the caller set one, else the
+   * instance-level cap.
+   *
+   * One expression, one home. `attempt` turns it into an abort signal and `attemptLoop` asks the
+   * deadline whether the ceiling will cut it short; the two answers have to be about the same
+   * number, and a second copy of the `??` is exactly how they would stop being.
+   */
+  private singleCallCapMs(options: UpstreamRequestOptionsBase): number {
+    return options.singleCallTimeoutMs ?? this.options.singleCallTimeoutMs;
   }
 
   /** One place for the per-outcome counter and its log line, so no path can skip either. */

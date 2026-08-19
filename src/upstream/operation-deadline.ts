@@ -64,6 +64,37 @@ export class OperationDeadline {
   }
 
   /**
+   * Would a call starting NOW be ended by the OPERATION ceiling before it ever reached its own
+   * per-call cap?
+   *
+   * ## Why this question needs an answer at all
+   * {@link signalFor} clamps the cap to the remaining budget, so a call cut short that way aborts
+   * AT the operation ceiling — and from inside the call that is indistinguishable from a provider
+   * that hung for its full cap. `UpstreamHttpClient` needs the difference: the first is OUR brake
+   * and says nothing about the provider, the second is provider evidence and must reach the
+   * circuit breaker (review #124, SFH124R2-I1).
+   *
+   * ## A cap that is NOT smaller than the budget answers `false`, always
+   * There the clamp binds on every call by construction: `remainingMs()` is below the cap from the
+   * first millisecond of work that precedes the call, so a "was it clamped?" test would answer
+   * `true` for every abort that leg can ever produce and disarm its breaker outright. The
+   * `cmems` leg is exactly this shape at stock defaults — `CMEMS_SINGLE_CALL_TIMEOUT_MS` (6 000)
+   * equals `MARINE_UPSTREAM_DEADLINE_MS` (6 000), a recorded decision (`MarineValuesService`,
+   * review #81 M5) — and the elevation leg becomes it the moment an operator sets
+   * `ELEVATION_SINGLE_CALL_TIMEOUT_MS` to the whole 12 s the env schema allows.
+   *
+   * The honest reading of that configuration is the opposite one: an operator who lets ONE call
+   * spend the entire budget has declared the budget to be that call's allowance, so a call that
+   * spends all of it and answers nothing IS evidence about the provider. Two indistinguishable
+   * cases must resolve toward recording, not toward excusing — a breaker that never opens is the
+   * failure mode with no upper bound.
+   */
+  cutsCallShort(singleCallTimeoutMs: number): boolean {
+    if (singleCallTimeoutMs >= this.budgetMs) return false;
+    return this.remainingMs() < singleCallTimeoutMs;
+  }
+
+  /**
    * The signal for ONE call: aborts at whichever comes first — the per-call cap, the remaining
    * operation budget, or the operation ceiling itself.
    */

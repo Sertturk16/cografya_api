@@ -66,6 +66,44 @@ describe('OperationDeadline', () => {
     expect(signal.aborted).toBe(true);
   });
 
+  describe('cutsCallShort — telling OUR brake from a provider hang (review #124 SFH124R2-I1)', () => {
+    it('is false while the budget can still pay for a full per-call cap', () => {
+      const clock = clockFrom(0);
+      const deadline = new OperationDeadline(12_000, clock.now);
+
+      expect(deadline.cutsCallShort(5_000)).toBe(false);
+      clock.advance(7_000); // exactly one cap left: the call still gets all of it
+      expect(deadline.remainingMs()).toBe(5_000);
+      expect(deadline.cutsCallShort(5_000)).toBe(false);
+    });
+
+    it('is true once less than one cap is left — the elevation leg’s late tiles', () => {
+      const clock = clockFrom(0);
+      const deadline = new OperationDeadline(12_000, clock.now);
+
+      clock.advance(10_000);
+      expect(deadline.cutsCallShort(5_000)).toBe(true);
+    });
+
+    it('is FALSE at every point of a budget whose cap is the whole budget — the boundary', () => {
+      // `CMEMS_SINGLE_CALL_TIMEOUT_MS` (6 000) == `MARINE_UPSTREAM_DEADLINE_MS` (6 000) is a
+      // recorded decision (review #81 M5), and the env schema blesses the same equality on the
+      // elevation leg. There the clamp binds on every call, so a "was it clamped?" answer of
+      // `true` would excuse every abort that leg can produce and disarm its breaker for good.
+      const clock = clockFrom(0);
+      const deadline = new OperationDeadline(6_000, clock.now);
+
+      expect(deadline.cutsCallShort(6_000)).toBe(false);
+      clock.advance(1); // one millisecond of our own work already clamps the cap
+      expect(deadline.cutsCallShort(6_000)).toBe(false);
+      clock.advance(5_999);
+      expect(deadline.hasExpired()).toBe(true);
+      expect(deadline.cutsCallShort(6_000)).toBe(false);
+      // A cap LARGER than the budget is the same case, not a stronger one.
+      expect(deadline.cutsCallShort(9_000)).toBe(false);
+    });
+  });
+
   it('aborts every outstanding call signal once the operation ceiling elapses', async () => {
     const deadline = new OperationDeadline(20);
     const first = deadline.signalFor(10_000);

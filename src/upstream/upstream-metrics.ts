@@ -47,6 +47,16 @@ export type UpstreamMetricName =
   | 'breaker.closed'
   /** A half-open trial was released without an outcome — an exception crossed a boundary. */
   | 'breaker.trial_abandoned'
+  /**
+   * A half-open trial was released because the call carried no evidence about the provider: OUR
+   * operation budget ended it before its own per-call cap.
+   *
+   * Separate from `breaker.trial_abandoned` on purpose. That one means we have a bug above the
+   * client and is alertable for exactly that reason; this one is a routine, expected condition on
+   * a leg designed to spend its whole budget, and folding the two together would retire the bug
+   * signal (review #124, SFH124R2-I2).
+   */
+  | 'breaker.trial_released'
   /** Redis was unreachable and the call degraded to the in-process path. */
   | 'redis.degraded'
   // ── Scheduled-ingest events (M3b). Provider-neutral names: the provider dimension is the
