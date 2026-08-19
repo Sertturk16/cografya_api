@@ -17,17 +17,20 @@
  *
  * Antipodal and near-antipodal pairs are REFUSED by {@link interpolateGreatCircle}; see the
  * guard there.
+ *
+ * ## The radius is imported, not declared here
+ * Mean Earth radius, kilometres (IUGG R1) — not the equatorial radius. The choice matters more
+ * than it looks: over Türkiye's ~1500 km diagonal, the equatorial radius would stretch every
+ * distance by ~0.1 % (~1.6 km on that diagonal), which is invisible on a chart and very visible
+ * when a student compares our number against another site's. The value and the argument for it
+ * now live once, in `src/common/geo/earth-radius.ts`, beside the measurement that explains why
+ * the three grid-mapping lines deliberately hold a different one. This module re-exports the
+ * name it has always exported, so every caller and this file's own pin stay put.
  */
 
-/**
- * Mean Earth radius, kilometres (IUGG R1). Not the equatorial radius.
- *
- * The choice matters more than it looks: over Türkiye's ~1500 km diagonal, using the
- * equatorial radius instead would stretch every distance by ~0.1 % (~1.6 km on that
- * diagonal). That is invisible on a chart and very visible when a student compares our
- * number against another site's.
- */
-export const EARTH_MEAN_RADIUS_KM = 6371.0088;
+import { EARTH_MEAN_RADIUS_KM } from '../../common/geo/earth-radius';
+
+export { EARTH_MEAN_RADIUS_KM };
 
 /**
  * How close to π counts as antipodal, in radians.

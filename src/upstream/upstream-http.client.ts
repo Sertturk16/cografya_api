@@ -158,6 +158,28 @@ interface UpstreamRequestOptionsBase {
   singleCallTimeoutMs?: number;
 }
 
+/**
+ * The RESPONSE HEADERS, handed to `parse` as a second argument.
+ *
+ * ## Why `parse` sees them at all (Atlas ruling AK-25 md.5)
+ * A provider can put contract-bearing metadata in a header rather than in the body, and one wired
+ * provider does: the AWS terrain-tile bucket reports which DEM a tile was built from in
+ * `x-amz-meta-x-imagery-sources`, which is the only runtime signal that the licence notices we
+ * publish still match the data we are serving (`provenance/integrations.md`, Terrain Tiles row;
+ * SPEC §8.2's tripwire). Without this the check would have to live in a hand-run probe, i.e.
+ * nowhere near the request that publishes the credit.
+ *
+ * ## Why it is a widening rather than a new option
+ * TypeScript assigns a FEWER-parameter function to a more-parameter signature, so every existing
+ * caller — all of which take `(body)` only — compiles and behaves byte-identically, and the guard
+ * order above is untouched. That is the whole delta: one extra argument at one call site.
+ *
+ * `Headers` is passed as-is rather than copied into a plain object: it is already read-only in
+ * practice, its lookups are case-insensitive (an HTTP fact a `Record` would silently drop), and
+ * copying would invent a second shape for callers to learn.
+ */
+export type UpstreamResponseHeaders = Headers;
+
 /** A textual response (the default): the body reaches `parse` as a UTF-8 string. */
 export interface UpstreamTextRequestOptions<T> extends UpstreamRequestOptionsBase {
   responseKind?: 'text';
@@ -166,15 +188,19 @@ export interface UpstreamTextRequestOptions<T> extends UpstreamRequestOptionsBas
    *
    * Throw {@link UpstreamSchemaError} when the body is not the promised shape; return
    * `{ kind: 'no_data' }` when the provider legitimately has no value here.
+   *
+   * `headers` carries the response headers — see {@link UpstreamResponseHeaders}. A callback that
+   * declares only `(body)` is still valid and is what every caller but the terrain tile client
+   * does.
    */
-  parse: (body: string) => UpstreamParseResult<T>;
+  parse: (body: string, headers: UpstreamResponseHeaders) => UpstreamParseResult<T>;
 }
 
 /** A binary response: the body reaches `parse` as raw bytes, never decoded. */
 export interface UpstreamBytesRequestOptions<T> extends UpstreamRequestOptionsBase {
   responseKind: 'bytes';
   /** Same contract as the text `parse`, over bytes. */
-  parse: (body: Uint8Array) => UpstreamParseResult<T>;
+  parse: (body: Uint8Array, headers: UpstreamResponseHeaders) => UpstreamParseResult<T>;
 }
 
 /**
@@ -318,12 +344,18 @@ export class UpstreamHttpClient {
 
   private async attemptLoop<T>(options: UpstreamRequestOptions<T>): Promise<UpstreamOutcome<T>> {
     const { providerId, label, deadline } = options;
+    const singleCallCapMs = this.singleCallCapMs(options);
 
     // Typed as the FAILURE subset so the breaker call below cannot be handed an `ok` kind.
     let lastFailure: Exclude<UpstreamOutcome<T>, { kind: 'ok' }> = {
       kind: 'transient',
       reason: 'no attempt was made',
     };
+
+    // Whether the LAST attempt started with less budget left than its own per-call cap. Read
+    // before the attempt, because afterwards the budget is spent and every call looks alike; see
+    // the branch at the end of the loop for what it decides.
+    let budgetCutTheCallShort = false;
 
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
       const decision = await this.budget.tryConsume(
@@ -345,6 +377,7 @@ export class UpstreamHttpClient {
         });
       }
 
+      budgetCutTheCallShort = deadline.cutsCallShort(singleCallCapMs);
       const outcome = await this.attempt(options, attempt);
 
       if (outcome.kind === 'ok' || outcome.kind === 'no_data') {
@@ -364,6 +397,52 @@ export class UpstreamHttpClient {
 
       this.metrics.increment('upstream.retry', providerId);
       await this.sleepImpl(RETRY_BACKOFF_MS);
+    }
+
+    // ── A transient failure that lands with the budget ALREADY SPENT is OUR brake, not evidence
+    //    about the provider ──
+    //
+    // The guard at the top of `request` states this principle for a deadline that expired BEFORE
+    // the call. This is the same principle for one that expired DURING it, and it needs its own
+    // branch because the two are indistinguishable from inside `attempt`: `signalFor` composes the
+    // per-call cap and the operation ceiling into ONE signal, so an abort at the budget's last
+    // millisecond arrives here as an ordinary `transient`.
+    //
+    // It becomes reachable in bulk with a caller that runs many calls concurrently under one
+    // shared deadline — which is why it is narrowed in TWO independent ways, both load-bearing.
+    //
+    // 1. Only `transient` is excused: `schema_error`, `client_error` and `rate_limited` describe
+    //    what the provider SENT, and that is as true at the end of a budget as at the start.
+    //
+    // 2. Only a call the OPERATION ceiling cut short of its own per-call cap
+    //    (`OperationDeadline.cutsCallShort`, read before the attempt). "An expired deadline" alone
+    //    is not that test, and assuming it was is how the first version of this branch disarmed a
+    //    breaker it never meant to touch: `signalFor` CLAMPS the per-call cap to the remaining
+    //    budget, so on any leg whose cap is not smaller than its budget every call aborts at the
+    //    operation ceiling and would be excused forever — `cmems` is exactly that shape at stock
+    //    defaults (6 000 ms cap on a 6 000 ms budget, review #81 M5), and a hanging CMEMS would
+    //    then be re-called on every request with no `breaker.opened`, no cooldown, and a half-open
+    //    circuit that can never re-arm (review #124, SFH124R2-I1).
+    //
+    // What survives is the shape this branch was built for: the elevation leg fans out to
+    // `ELEVATION_TILE_FETCH_CONCURRENCY` tiles under one budget it is DESIGNED to exhaust on a long
+    // line (the partial profile is its warming path), so its late tiles are handed a fraction of
+    // their 5 000 ms cap and abort together — more consecutive failures than the breaker's
+    // threshold, against a provider that answered every call it finished (SFH124-C1). A genuinely
+    // slow provider is still recorded on that same leg, because the first wave of tiles gets its
+    // full cap while the budget still has room.
+    if (lastFailure.kind === 'transient' && deadline.hasExpired() && budgetCutTheCallShort) {
+      // Told to the breaker EXPLICITLY, rather than left to `request`'s `finally`. That fallback
+      // is `abandonTrial`, whose ERROR line asserts an exception escaped — and nothing threw here.
+      // Reporting a routine condition through the bug alarm both lies in the log and retires
+      // `breaker.trial_abandoned` as a signal (SFH124R2-I2). A no-op unless this call held the
+      // half-open trial.
+      this.breaker.releaseTrial(
+        providerId,
+        `the operation budget ended ${label} before its own per-call cap — not provider evidence`,
+      );
+      this.metrics.increment('upstream.deadline_exceeded', providerId);
+      return this.record(providerId, label, lastFailure);
     }
 
     this.breaker.recordFailure(
@@ -405,7 +484,7 @@ export class UpstreamHttpClient {
             : { 'Content-Type': options.requestBody.contentType }),
           ...options.headers,
         },
-        signal: deadline.signalFor(options.singleCallTimeoutMs ?? this.options.singleCallTimeoutMs),
+        signal: deadline.signalFor(this.singleCallCapMs(options)),
         // NOT `follow`. A redirect is the one way a provider (or anyone who can answer as one:
         // a hijacked route, an expired domain, a compromised CDN) can choose the host this
         // server talks to from INSIDE the deployment network — cloud metadata endpoints being
@@ -514,11 +593,13 @@ export class UpstreamHttpClient {
     }
 
     try {
-      // The ONE place the two branches diverge — after every guard above has already run.
+      // The ONE place the two branches diverge — after every guard above has already run. Both
+      // branches hand `parse` the response headers as a second argument (AK-25 md.5); callers
+      // that declare only `(body)` ignore it, which is every caller but the terrain tile client.
       const parsed =
         options.responseKind === 'bytes'
-          ? options.parse(body)
-          : options.parse(new TextDecoder('utf-8').decode(body));
+          ? options.parse(body, response.headers)
+          : options.parse(new TextDecoder('utf-8').decode(body), response.headers);
       if (parsed.kind === 'no_data') {
         return { kind: 'no_data', reason: parsed.reason };
       }
@@ -533,6 +614,18 @@ export class UpstreamHttpClient {
       // codebase keeps designing against.
       throw error;
     }
+  }
+
+  /**
+   * The cap ONE call may use: the per-request override when the caller set one, else the
+   * instance-level cap.
+   *
+   * One expression, one home. `attempt` turns it into an abort signal and `attemptLoop` asks the
+   * deadline whether the ceiling will cut it short; the two answers have to be about the same
+   * number, and a second copy of the `??` is exactly how they would stop being.
+   */
+  private singleCallCapMs(options: UpstreamRequestOptionsBase): number {
+    return options.singleCallTimeoutMs ?? this.options.singleCallTimeoutMs;
   }
 
   /** One place for the per-outcome counter and its log line, so no path can skip either. */

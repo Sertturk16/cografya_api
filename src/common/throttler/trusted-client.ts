@@ -26,6 +26,32 @@ export const INTERNAL_REQUEST_HEADER = 'x-internal-request-token';
  * the conclusion is personal data reachable only through this exemption; there is none, and the
  * safe-method restriction in the guard is what keeps it that way.
  *
+ * **"cheap" is no longer true either, and that one needs a real argument** (CBS-P2 E2).
+ * `GET /api/elevation/profile` is the first public read that can cost genuine upstream work: on a
+ * cold cache it fetches up to `ELEVATION_MAX_TILES_PER_REQUEST` tiles from a third-party bucket.
+ * The conclusion is again unchanged, and here is why, because "it is probably fine" is not an
+ * argument about a bypass secret:
+ *   - **Nothing presents the token on that path.** The only holder is the web SSG build, which
+ *     renders no profile: the profile is drawn by a visitor's interaction and reaches this API
+ *     through a thin web proxy route handler that deliberately does NOT forward the token and DOES
+ *     forward the real client IP (Atlas ruling AK-25 md.3). So the exemption and this endpoint do
+ *     not meet in any live call path.
+ *   - **The expensive guards are token-BLIND.** Both are enforced BELOW the throttle layer and know
+ *     nothing about it: the provider budget inside the shared upstream client
+ *     (`UpstreamHttpClient.attemptLoop` consumes it before every attempt) and the per-request tile
+ *     ceiling in `ElevationProfileService.compute`, which refuses before any fetch. An auditor
+ *     checking this argument should find each where it is named — the ceiling never reaches the
+ *     shared client at all (review #124, CODE124-M5). What the exemption can bypass is only the
+ *     REQUEST rate, the weakest of that endpoint's four brakes. Note what that rate is NOT today:
+ *     `ThrottlerGuard` tracks on `req.ip` and this service sets no `trust proxy`, so behind a proxy
+ *     it is one shared bucket rather than a per-visitor one — a deliberately deferred first-deploy
+ *     item (DEC 2026-08-15f D2, recorded in `ENGINEERING.md` §3.1), not something this exemption
+ *     changes in either direction (review #124, SEC124-I1).
+ * The residual risk of a leaked token is therefore "more requests against a cache that mostly
+ * answers them for free", not "unbounded provider cost". If a future endpoint's cost survives its
+ * own budget guard, this paragraph is where that stops being true and the exemption needs a
+ * per-route opt-out rather than another exception.
+ *
  *   - **Fail-closed:** with NO server-side secret configured, nothing is trusted — every
  *     request stays subject to the global limit. An absent presented token is likewise never
  *     trusted. The exemption does not exist until a secret is deliberately set.

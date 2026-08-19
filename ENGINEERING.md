@@ -145,6 +145,18 @@ ship an unguarded write, an unvalidated input, or an unbounded external call.
   a dev instance. It carries a `TODO(first-deploy)` to gate behind a non-production check
   before the first real deployment — the full API surface must not be publicly browsable
   in prod. This is a first-deploy acceptance criterion (Atlas-tracked).
+- **`trust proxy` is UNSET, and every rate limit here is therefore per SOCKET, not per visitor**
+  — the second `TODO(first-deploy)` item (→ DEC 2026-08-15f D2). `ThrottlerGuard` tracks on
+  `req.ip`, which Express resolves through `trust proxy`; with no value set, every request that
+  arrives via a proxy shares one bucket, so the global 120/min and any route ceiling (the
+  elevation profile's 10/min is the first) apply to the proxy rather than to the caller. It is
+  not fixable today and the reason is written into the ruling: the correct value depends on the
+  undecided hosting target, and a blanket `true` makes `x-forwarded-for` caller-controlled, which
+  removes the ceiling entirely instead of scoping it. **First-deploy criterion:** set a bounded
+  hop count (or an explicit `getTracker`) together with the hosting choice, and only then may a
+  docblock describe any of these limits as per-client. The web half is already bound — Atlas
+  ruling AK-25 md.3 requires the proxy route handler to carry the real client IP forward — so
+  what is missing is the api half that reads it.
 
 ### 3.2 Input validation — on every DTO
 - The global `ValidationPipe` runs with **`whitelist: true` + `forbidNonWhitelisted:

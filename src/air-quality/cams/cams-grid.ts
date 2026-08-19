@@ -1,3 +1,4 @@
+import { GRID_MAPPING_EARTH_RADIUS_KM } from '../../common/geo/earth-radius';
 import { CamsContractError } from './cams.errors';
 
 /**
@@ -172,7 +173,10 @@ export function distanceKm(
   longitudeB: number,
 ): number {
   const toRadians = (degrees: number): number => (degrees * Math.PI) / 180;
-  const earthRadiusKm = 6371;
+  // The GRID-MAPPING radius, imported rather than declared: see `src/common/geo/earth-radius.ts`
+  // for why this line deliberately holds a different value from the published-geodesy one, and
+  // for the measurement that decides it. Moving it is a fidelity-gate change, not a tidy-up.
+  const earthRadiusKm = GRID_MAPPING_EARTH_RADIUS_KM;
   const dLat = toRadians(latitudeB - latitudeA);
   const dLon = toRadians(longitudeB - longitudeA);
   const a =

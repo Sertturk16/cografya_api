@@ -145,6 +145,34 @@ export class CircuitBreaker {
   }
 
   /**
+   * Release a half-open trial for a call that carried no PROVIDER evidence — quietly.
+   *
+   * ## Same mechanics as {@link abandonTrial}, deliberately a different voice
+   * `abandonTrial` is an ALARM: it means an exception crossed a boundary that is designed to
+   * convert every provider fault into a value, and `breaker.trial_abandoned` is alertable
+   * precisely because a non-zero reading means WE have a bug. This one is the ordinary, expected
+   * case — the caller decided the outcome says nothing about the provider, because our own
+   * operation budget ended the call (`UpstreamHttpClient`'s excused path). Routing it through
+   * `abandonTrial` would print "an exception escaped …" while nothing threw and would raise that
+   * counter with normal traffic, which is how a bug signal stops being one (review #124,
+   * SFH124R2-I2).
+   *
+   * `openUntilMs` deliberately does not move: the trial was wasted rather than answered, so the
+   * next call gets it back.
+   */
+  releaseTrial(providerId: string, reason: string): void {
+    const circuit = this.circuits.get(providerId);
+    if (circuit === undefined || !circuit.trialInFlight) return;
+
+    circuit.trialInFlight = false;
+    this.metrics.increment('breaker.trial_released', providerId);
+    this.metrics.event('debug', 'half-open trial released without provider evidence', {
+      provider: providerId,
+      reason,
+    });
+  }
+
+  /**
    * @param retryAfterSeconds honoured for a `rate_limited` failure — the provider knows better
    *   than our default when it wants us back — but FLOORED at `openMs`; see below.
    */

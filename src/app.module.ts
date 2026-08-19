@@ -12,6 +12,7 @@ import { buildDataSourceOptions } from './database/data-source-options';
 import { type Env, validateEnv } from './config/env.schema';
 import { CountryModule } from './country/country.module';
 import { EarthquakeModule } from './earthquake/earthquake.module';
+import { ElevationModule } from './elevation/elevation.module';
 import { HealthModule } from './health/health.module';
 import { MarineModule } from './marine/marine.module';
 import { ProvinceModule } from './province/province.module';
@@ -67,6 +68,10 @@ export const THROTTLE_LIMIT = 120;
     // E2: the AFAD ingest only — no controller, no route. With EARTHQUAKE_ENABLED=false (the
     // default) it constructs no target and schedules no timer.
     EarthquakeModule,
+    // CBS-P2 E2: one public read endpoint over the AWS terrain-tile bucket. No entity, no
+    // migration, no seed, no scheduled work. With ELEVATION_ENABLED=false (the default) its guard
+    // answers 404 and no branch reaches the provider.
+    ElevationModule,
   ],
   providers: [
     // Rate limit every route by default; opt out per-route with @SkipThrottle,

@@ -47,6 +47,16 @@ export type UpstreamMetricName =
   | 'breaker.closed'
   /** A half-open trial was released without an outcome — an exception crossed a boundary. */
   | 'breaker.trial_abandoned'
+  /**
+   * A half-open trial was released because the call carried no evidence about the provider: OUR
+   * operation budget ended it before its own per-call cap.
+   *
+   * Separate from `breaker.trial_abandoned` on purpose. That one means we have a bug above the
+   * client and is alertable for exactly that reason; this one is a routine, expected condition on
+   * a leg designed to spend its whole budget, and folding the two together would retire the bug
+   * signal (review #124, SFH124R2-I2).
+   */
+  | 'breaker.trial_released'
   /** Redis was unreachable and the call degraded to the in-process path. */
   | 'redis.degraded'
   // ── Scheduled-ingest events (M3b). Provider-neutral names: the provider dimension is the
@@ -319,7 +329,51 @@ export type UpstreamMetricName =
   /** Retention pruning failed. Housekeeping; it never fails a tour. */
   | 'eq.prune_failed'
   /** An unexpected exception escaped the ingest tour's own handling — OUR bug. */
-  | 'eq.ingest_bug';
+  | 'eq.ingest_bug'
+  // ── Elevation profile: the terrain-tile leg (CBS-P2 E2). Same convention — the provider
+  // dimension is the `providerId` argument, so the names stay leg-neutral in shape. ──
+  /** A tile fetch joined one already in flight instead of opening a second socket for it. */
+  | 'elevation.tile_joined'
+  /**
+   * A tile arrived with NO `x-amz-meta-x-imagery-sources` header.
+   *
+   * Accepted rather than refused (a metadata change is not a licence change), so this counter is
+   * the only way the condition is visible at all after the first warning.
+   */
+  | 'elevation.imagery_sources_absent'
+  /**
+   * A tile was REFUSED because its imagery sources are not the ones our published attribution
+   * credits — or because a sea-depth source reappeared at the sampling zoom.
+   *
+   * The licence tripwire firing. Never a routine condition: any non-zero value here means the
+   * upstream source mix moved and the attribution surface has to be re-decided.
+   */
+  | 'elevation.imagery_sources_refused'
+  /**
+   * A profile request hit `ELEVATION_MAX_TILES_PER_REQUEST` and was refused before fetching.
+   *
+   * Structurally unreachable while the ceiling stays above the sample count, so a non-zero value
+   * means the ceiling was configured below what one request legitimately needs.
+   */
+  | 'elevation.tile_ceiling_refused'
+  /** A profile was answered with fewer resolved samples than it asked for (the warming path). */
+  | 'elevation.profile_partial'
+  /**
+   * EVERY tile a request actually fetched came back `no_data` — the bucket-disappearance signal.
+   *
+   * `missingMeansNoData` treats a 404 as a legitimate coordinate at the edge of coverage: quiet
+   * log, breaker SUCCESS, no negative entry. That is right for one tile and indistinguishable from
+   * the provider's continuity risk (a prefix rename or a retired bucket — `provenance/
+   * integrations.md`, risk R1) when it is EVERY tile, which is how a total provider loss could be
+   * served as an empty profile indefinitely with nothing above debug level anywhere
+   * (review #124, VAL124-M2).
+   *
+   * ## Cadence: once per THROTTLE WINDOW, never per request
+   * The condition is a standing provider state observed once per request, so the counter is gated
+   * on `throttledEvent`'s return value — it counts the condition, not the traffic
+   * (the `airq.cached_run_unusable` convention above).
+   */
+  | 'elevation.tiles_all_no_data';
 
 /**
  * Counters + structured logs for the upstream layer.

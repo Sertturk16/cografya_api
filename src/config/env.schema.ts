@@ -1,5 +1,11 @@
 import { z } from 'zod';
 import { checkEnvBound } from './env-bounds';
+// A dependency-free constants module (no imports of its own), pulled in so the boot check below
+// compares against the REAL sample count rather than a second copy of the number. The alternative
+// — a literal here plus a test asserting the two agree — is the drift class this repo names in
+// three other files, and it would be a strange thing to introduce in the file whose whole job is
+// to refuse configurations that cannot mean what they say.
+import { ELEVATION_PROFILE_SAMPLE_COUNT } from '../elevation/elevation.types';
 
 /**
  * Boot-time environment schema (single source of truth for `process.env`).
@@ -470,6 +476,64 @@ export const envSchema = z
     // because the two timers are independent by design (SPEC §8.1) and this one must stay far below
     // the hard ceiling — otherwise "at most 30 days" is really 30 days plus one purge interval.
     BOOKS_PURGE_INTERVAL_SECONDS: z.coerce.number().int().positive().default(3_600),
+
+    // ── Elevation profile: the AWS terrain-tile leg (CBS-P2, plan-api.md §7) ────
+    // Master switch. `false` by default so a fresh deployment reaches no provider until somebody
+    // decides it should — and here the switch also removes the ROUTE (404), because unlike the
+    // earthquake leg there is no local store to degrade to.
+    ELEVATION_ENABLED: envBoolean('false'),
+    // The us-east-1 Open Data bucket. Verified live (SPEC §20.7); the EU bucket answered 403 and
+    // its correct address form is unknown, so it is deliberately not the default. Declared as a
+    // variable so an e2e can point the leg at a fake server (the `ECMWF_BASE_URL` precedent).
+    ELEVATION_BASE_URL: z.url().default('https://s3.amazonaws.com/elevation-tiles-prod'),
+    // Total upstream budget for ONE user request — every tile, every retry, together. Not a
+    // per-call timeout, which cannot bound an operation that makes an unknown number of calls.
+    //
+    // ARGUED FROM MEASUREMENT (`data/elevation/terrain-tiles-probe.json`, 2026-08-19): at the
+    // sampling zoom the probe measured a median 254 ms and p95 730 ms per tile, and the widest
+    // realistic line it counted (Samsun→Erzurum) needs 73 distinct tiles. At the concurrency
+    // below that closes in ~8.9 s at p95 and ~3.1 s at the median, so 12 s is the smallest round
+    // value that finishes a measured long line at measured p95 latency with ~35 % headroom. The
+    // longest line measured (İzmir→Van, 186 tiles) does NOT fit at p95 — it resolves ~98 tiles
+    // and returns a partial profile, which is the designed warming path rather than a failure.
+    //
+    // **[VARSAYIM] on transfer:** the latency was measured from a development machine to
+    // us-east-1. Hosting is undecided (`ENGINEERING.md` §8), so the production network path is
+    // not the one behind these numbers.
+    ELEVATION_UPSTREAM_DEADLINE_MS: z.coerce.number().int().positive().default(12_000),
+    // Ceiling on ONE tile fetch. The slowest single tile the probe measured was 1 449 ms, so this
+    // is ~3.4× the worst observed — enough that a congested moment is not a manufactured timeout,
+    // tight enough that one hung socket cannot eat the request budget above.
+    ELEVATION_SINGLE_CALL_TIMEOUT_MS: z.coerce.number().int().positive().default(5_000),
+    // LOUD-stop ceiling on the tiles ONE request may touch. The structural maximum is the sample
+    // count (a request cannot touch more distinct tiles than it samples points), and the widest
+    // line measured touched 186. 220 sits just above the structural 200: reaching it means the
+    // arithmetic that guarantee rests on has changed, which is worth stopping for.
+    ELEVATION_MAX_TILES_PER_REQUEST: z.coerce.number().int().positive().default(220),
+    // How many tile fetches one request may have in flight. Six keeps a single request to a
+    // handful of sockets against one host while still closing a 73-tile line inside the budget;
+    // 200 parallel sockets would be a burst the provider has every reason to refuse.
+    ELEVATION_TILE_FETCH_CONCURRENCY: z.coerce.number().int().positive().default(6),
+    // Byte ceiling for ONE tile response — the numeric form of "no unbounded external call". The
+    // probe measured 757 B (sea) to 133 kB (mountain) at the sampling zoom, so 512 KiB is ~4×
+    // the largest real tile. A body past it is a contract surprise, not a retry.
+    ELEVATION_TILE_MAX_RESPONSE_BYTES: z.coerce.number().int().positive().default(524_288),
+    // The in-process decoded-tile LRU, in tiles. One decoded grid is 256 × 256 × 2 B = 128 KiB
+    // exactly, so 256 tiles ≈ 33.5 MB. That holds the widest measured line (186 tiles) plus two
+    // typical ones (~26 tiles each) without either evicting the other.
+    // **[VARSAYIM]** the "typical load" this is sized for is not measured; no traffic figure
+    // exists for an undeployed site.
+    ELEVATION_TILE_CACHE_MAX_TILES: z.coerce.number().int().positive().default(256),
+    // Freshness horizon of a cached PROFILE. Long because the tiles behind it are immutable — the
+    // bucket's own `Last-Modified` is 2017-11-17 — so the only thing that can change the answer is
+    // our own sampling formula, and that carries a version segment in the cache key.
+    ELEVATION_PROFILE_TTL_SECONDS: z.coerce.number().int().positive().default(86_400),
+    // Negative TTLs, in the marine table's shape. `schema_error` is the SHORTEST because on this
+    // leg it is where the imagery-source tripwire lands: a licence-relevant surprise must be
+    // re-checked soon rather than parked for a quarter of an hour.
+    ELEVATION_ERROR_TTL_SECONDS: z.coerce.number().int().positive().default(60),
+    ELEVATION_CLIENT_ERROR_TTL_SECONDS: z.coerce.number().int().positive().default(900),
+    ELEVATION_SCHEMA_ERROR_TTL_SECONDS: z.coerce.number().int().positive().default(300),
   })
   .superRefine((env, ctx) => {
     // ── E1 (owner ruling, DEC 2026-07-29b): production + marine enabled ⇒ Redis is REQUIRED ──
@@ -872,6 +936,89 @@ export const envSchema = z
       reason:
         'a staleness budget shorter than the polling interval marks healthy data stale between ' +
         'two ordinary tours',
+    });
+
+    // ── Elevation profile: the AWS terrain-tile leg (CBS-P2) ───────────────────
+    //
+    // 1. The same production+Redis rule as the four legs above (Atlas ruling AK-25 md.7). It is
+    //    STRONGER here than anywhere else, and the reason is worth stating rather than inheriting:
+    //    this is the first endpoint that is both wall-less and capable of real upstream work, and
+    //    the provider budget — the guard that bounds every request in the process together — is
+    //    only shared across instances through Redis. Without it, N instances mean N separate
+    //    budgets and the ceiling an operator configured is not the ceiling that applies.
+    if (env.NODE_ENV === 'production' && env.ELEVATION_ENABLED && env.REDIS_URL === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['REDIS_URL'],
+        message:
+          'REDIS_URL is REQUIRED when NODE_ENV=production and ELEVATION_ENABLED=true (the same ' +
+          'owner ruling E1 / DEC 2026-07-29b that binds the marine, air-quality, book and ' +
+          'earthquake legs): without Redis the provider budget is per-instance, so N instances ' +
+          'multiply the ceiling this endpoint is protected by, and no profile is shared between ' +
+          'them. Provision Redis, or start with ELEVATION_ENABLED=false.',
+      });
+    }
+
+    // 2. One tile fetch is bounded by the request it runs inside — and STRICTLY here, unlike the
+    //    marine and CMEMS call/deadline pairs above, which deliberately allow the two to be equal.
+    //
+    //    The asymmetry is the shape of the leg, not a preference. Equality says "one call may
+    //    spend the whole budget", and that sentence is honest only where every call of the
+    //    operation really is handed the whole window: `MarineValuesService` fires its ≤3 CMEMS
+    //    keys together at t≈0 and each one genuinely gets all 6 000 ms (review #81 M5). This leg
+    //    is the other shape — `ElevationProfileService` mints ONE `OperationDeadline` and drains a
+    //    tile queue across it with `ELEVATION_TILE_FETCH_CONCURRENCY` workers, so the LATE tiles
+    //    are handed `min(cap, remaining)`, a few hundred milliseconds, and are ended by OUR
+    //    ceiling rather than by the provider.
+    //
+    //    `OperationDeadline.cutsCallShort` is what tells those two apart, and it answers `false`
+    //    unconditionally once the cap reaches the budget — the clause that keeps the CMEMS breaker
+    //    armed. On a fan-out leg that same clause turns the client's "our brake, not provider
+    //    evidence" branch into dead code: the whole in-flight wave aborts at the ceiling, is
+    //    recorded as provider failure, and the circuit opens against a bucket that answered every
+    //    call it finished. Refusing equality is what keeps that predicate honest on this leg
+    //    (review #124, SFH124-C1 and CODE124R3-I1).
+    checkEnvBound(ctx, {
+      kind: 'must-be-shorter-than',
+      subject: 'ELEVATION_SINGLE_CALL_TIMEOUT_MS',
+      subjectValue: env.ELEVATION_SINGLE_CALL_TIMEOUT_MS,
+      limit: 'ELEVATION_UPSTREAM_DEADLINE_MS',
+      limitValue: env.ELEVATION_UPSTREAM_DEADLINE_MS,
+      reason:
+        'the tile fetches drain one shared budget, so a cap equal to it can never be honoured by ' +
+        'the late tiles and turns our own ceiling aborts into circuit-breaker evidence against a ' +
+        'healthy provider',
+    });
+
+    // 3. The per-request tile ceiling may not sit below the number of tiles a request can
+    //    legitimately need. The subject is a COMPILE-TIME constant, not a variable — which is
+    //    exactly why the check exists: an operator can lower the ceiling but cannot lower the
+    //    sample count, so a ceiling under it makes every long line fail loudly for a reason that
+    //    is not the operator's fault. The issue attaches to the key they can actually edit.
+    checkEnvBound(ctx, {
+      kind: 'must-not-exceed',
+      subject: 'ELEVATION_PROFILE_SAMPLE_COUNT',
+      subjectValue: ELEVATION_PROFILE_SAMPLE_COUNT,
+      limit: 'ELEVATION_MAX_TILES_PER_REQUEST',
+      limitValue: env.ELEVATION_MAX_TILES_PER_REQUEST,
+      reason:
+        'the fixed sample count is the structural maximum of distinct tiles one request can ' +
+        'touch, so a ceiling below it refuses work the endpoint is designed to do',
+    });
+
+    // 4. The tile cache must be able to hold one whole request's worth of tiles. Below that, a
+    //    single long line evicts its OWN earlier tiles while it is still running, so the warming
+    //    that makes a partial profile complete on the next attempt never happens — the cache would
+    //    be configured, busy and useless.
+    checkEnvBound(ctx, {
+      kind: 'must-not-exceed',
+      subject: 'ELEVATION_MAX_TILES_PER_REQUEST',
+      subjectValue: env.ELEVATION_MAX_TILES_PER_REQUEST,
+      limit: 'ELEVATION_TILE_CACHE_MAX_TILES',
+      limitValue: env.ELEVATION_TILE_CACHE_MAX_TILES,
+      reason:
+        'a tile cache smaller than one request evicts that request’s own tiles while it is still ' +
+        'running, so a partial profile can never warm into a complete one',
     });
   });
 

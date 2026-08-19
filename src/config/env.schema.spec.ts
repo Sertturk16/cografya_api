@@ -725,3 +725,86 @@ describe('validateEnv — the earthquake (AFAD TDVMS) block', () => {
     ).toThrow(/EARTHQUAKE_RECONCILE_INTERVAL_SECONDS/);
   });
 });
+
+/**
+ * The elevation leg's four boot rules, which nothing asserted (review #124, TA124-I1).
+ *
+ * `env-bounds.spec.ts` counts `checkEnvBound(` call sites, so it can see that three bounds EXIST
+ * and cannot see what they are wired to — a swapped subject and limit keeps the count at sixteen —
+ * and it cannot see the hand-written Redis rule at all, whose message does not match the helper's
+ * shape. These are the cases that read the rules from outside, as `ConfigModule` does.
+ */
+describe('validateEnv — the elevation (AWS terrain tiles) block', () => {
+  it('ships every default the leg reads, with the leg OFF', () => {
+    const env = validateEnv({ ...BASE });
+
+    // Off by default: this switch also removes the ROUTE, so a fresh deployment answers 404 rather
+    // than reaching a third-party bucket before anybody decided it should.
+    expect(env.ELEVATION_ENABLED).toBe(false);
+    expect(env.ELEVATION_BASE_URL).toBe('https://s3.amazonaws.com/elevation-tiles-prod');
+    expect(env.ELEVATION_UPSTREAM_DEADLINE_MS).toBe(12_000);
+    expect(env.ELEVATION_SINGLE_CALL_TIMEOUT_MS).toBe(5_000);
+    expect(env.ELEVATION_MAX_TILES_PER_REQUEST).toBe(220);
+    expect(env.ELEVATION_TILE_FETCH_CONCURRENCY).toBe(6);
+    expect(env.ELEVATION_TILE_MAX_RESPONSE_BYTES).toBe(524_288);
+    expect(env.ELEVATION_TILE_CACHE_MAX_TILES).toBe(256);
+    expect(env.ELEVATION_PROFILE_TTL_SECONDS).toBe(86_400);
+  });
+
+  it('refuses production with the leg on and no Redis', () => {
+    // Stronger here than on any other leg: this is the first endpoint that is both wall-less and
+    // capable of real upstream work, and the provider budget is only shared across instances
+    // through Redis — so without it the ceiling an operator configured is not the one that applies.
+    expect(() =>
+      validateEnv({ ...BASE, NODE_ENV: 'production', ELEVATION_ENABLED: 'true' }),
+    ).toThrow(/REDIS_URL/);
+
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        NODE_ENV: 'production',
+        ELEVATION_ENABLED: 'true',
+        REDIS_URL: 'redis://cache:6379',
+      }),
+    ).not.toThrow();
+
+    // The other half of the pair — production alone, with every leg off — is asserted by the E1
+    // describe above and is not repeated here.
+  });
+
+  it('refuses one tile fetch allowed as much time as the whole request budget', () => {
+    expect(() => validateEnv({ ...BASE, ELEVATION_SINGLE_CALL_TIMEOUT_MS: '20000' })).toThrow(
+      /ELEVATION_SINGLE_CALL_TIMEOUT_MS/,
+    );
+
+    // Equality is refused too, and ONLY on this leg — the marine and CMEMS pairs keep it. A cap
+    // equal to the budget is what `OperationDeadline.cutsCallShort` reads as "this leg hands every
+    // call the whole window", after which it stops distinguishing our own ceiling from a provider
+    // fault. True of CMEMS (≤3 keys, all fired at t≈0); false here, where the tile workers drain a
+    // queue across one budget, so the late tiles are ended by OUR brake and would be recorded as
+    // provider failures until the circuit opened (review #124, CODE124R3-I1).
+    expect(() => validateEnv({ ...BASE, ELEVATION_SINGLE_CALL_TIMEOUT_MS: '12000' })).toThrow(
+      /ELEVATION_SINGLE_CALL_TIMEOUT_MS/,
+    );
+
+    // The positive control for both refusals: one millisecond under the budget still boots, so a
+    // red line here would mean the bound refuses everything rather than refusing equality.
+    expect(() => validateEnv({ ...BASE, ELEVATION_SINGLE_CALL_TIMEOUT_MS: '11999' })).not.toThrow();
+  });
+
+  it('refuses a per-request tile ceiling below the fixed sample count', () => {
+    // The subject is a compile-time constant an operator cannot lower, so a ceiling under it makes
+    // every long line fail loudly for a reason that is not their doing.
+    expect(() => validateEnv({ ...BASE, ELEVATION_MAX_TILES_PER_REQUEST: '100' })).toThrow(
+      /ELEVATION_MAX_TILES_PER_REQUEST/,
+    );
+  });
+
+  it('refuses a tile cache that cannot hold one request’s worth of tiles', () => {
+    // The misconfiguration that looks like it works: the cache is configured, busy, and evicts the
+    // running request's own tiles, so a partial profile can never warm into a complete one.
+    expect(() => validateEnv({ ...BASE, ELEVATION_TILE_CACHE_MAX_TILES: '8' })).toThrow(
+      /ELEVATION_TILE_CACHE_MAX_TILES/,
+    );
+  });
+});

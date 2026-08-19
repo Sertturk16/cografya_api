@@ -168,6 +168,37 @@ describe('CircuitBreaker', () => {
     });
   });
 
+  describe('releaseTrial', () => {
+    it('hands the trial back WITHOUT the abandon alarm or its counter', () => {
+      // The excused path of `UpstreamHttpClient` reports no outcome, and routing that through
+      // `abandonTrial` printed "an exception escaped …" while nothing threw — and moved the one
+      // counter whose non-zero reading is defined to mean we have a bug (review #124,
+      // SFH124R2-I2).
+      const breaker = build(1, 5_000);
+      breaker.recordFailure('cmems', 'transient');
+      nowMs += 5_001;
+      expect(breaker.canAttempt('cmems')).toBe(true); // takes the trial
+      expect(breaker.canAttempt('cmems')).toBe(false); // trial in flight
+
+      breaker.releaseTrial('cmems', 'the operation budget ended the call');
+
+      expect(breaker.canAttempt('cmems')).toBe(true); // the next caller gets the trial back
+      expect(metrics.get('breaker.trial_released', 'cmems')).toBe(1);
+      expect(metrics.get('breaker.trial_abandoned', 'cmems')).toBe(0);
+      expect(metrics.get('breaker.opened', 'cmems')).toBe(1); // unchanged — no failure recorded
+    });
+
+    it('is a no-op when no trial is in flight, so an ordinary path cannot double-release', () => {
+      const breaker = build(3);
+      breaker.releaseTrial('cmems', 'nothing to release');
+      breaker.recordFailure('cmems', 'transient');
+      breaker.releaseTrial('cmems', 'still nothing');
+
+      expect(metrics.get('breaker.trial_released', 'cmems')).toBe(0);
+      expect(breaker.state('cmems')).toBe('closed');
+    });
+  });
+
   it('keeps providers independent — one being down must not take the other off the page', () => {
     const breaker = build(1);
     breaker.recordFailure('cmems', 'transient');
