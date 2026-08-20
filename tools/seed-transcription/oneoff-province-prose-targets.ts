@@ -232,6 +232,33 @@ export const P6_TARGETS: readonly ProseTarget[] = [
 ];
 
 /**
+ * P7 (PR-W8) — the province half of the prose-cleanup W8-VOLKAN wave: the four `landformNoteTr`
+ * rows whose "sönmüş" (extinct) classification contradicts the institutions the same sentence
+ * cites (register item PC-37; owner greenlight DEC 2026-08-19d, Atlas ruling AK-34 for the Konya
+ * sentence's final form).
+ *
+ * Draft: `Owner's Inbox/prose-cleanup/seed-draft-provinces-p7.md`. The FOUR country rows of the
+ * same wave ride the country lane in their own drafts — a country section is unparseable here.
+ *
+ * ZERO OWNERSHIP TRANSFERS, and that is measured rather than assumed: no `(plate, landformNoteTr)`
+ * pair for 21, 38, 42 or 70 appears in `HISTORICALLY_OWNED` below. Three of those plates ARE owned
+ * by P3 — on `settlementNoteTr` — which is exactly the case the module docblock calls out: the key
+ * is the PAIR, never the plate. So this wave empties no list and reddens no earlier gate.
+ *
+ * WHY 21/38/42 CHANGE AND 70 IS DIFFERENT IN KIND, worth recording because the next reader will
+ * assume all four are the same fix. Diyarbakır, Kayseri and Konya each CONTRADICT a source their
+ * own sentence names (MTA keeps Karaca Dağ, Erciyes and the Karapınar field on its active list).
+ * Karaman contradicts nothing: no institution classifies Karadağ at all, so the correction is the
+ * removal of one unsourced adjective, not a factual repair (draft §2).
+ */
+export const P7_TARGETS: readonly ProseTarget[] = [
+  { name: 'Diyarbakır', plate: '21', field: 'landformNoteTr' },
+  { name: 'Kayseri', plate: '38', field: 'landformNoteTr' },
+  { name: 'Konya', plate: '42', field: 'landformNoteTr' },
+  { name: 'Karaman', plate: '70', field: 'landformNoteTr' },
+];
+
+/**
  * EVERY shipped prose wave, in landing order.
  *
  * The spec iterates THIS, so adding a wave above without appending it here would leave the new
@@ -247,6 +274,7 @@ export const PROSE_WAVES: readonly {
   { label: 'P4', targets: P4_TARGETS },
   { label: 'P5', targets: P5_TARGETS },
   { label: 'P6', targets: P6_TARGETS },
+  { label: 'P7', targets: P7_TARGETS },
 ];
 
 /** The `(plate, field)` identity of a target — the only key a cross-wave collision means. */
@@ -338,4 +366,10 @@ export const HISTORICALLY_OWNED: readonly string[] = [
   '55 hydrographyNoteTr',
   '73 landformNoteTr',
   '14 landformNoteTr',
+  // P7 (PR-W8, prose-cleanup W8-VOLKAN). All four pairs are NEW — 21, 38 and 42 appear above
+  // only on `settlementNoteTr` (P3), and plate 70 appears here for the first time.
+  '21 landformNoteTr',
+  '38 landformNoteTr',
+  '42 landformNoteTr',
+  '70 landformNoteTr',
 ];

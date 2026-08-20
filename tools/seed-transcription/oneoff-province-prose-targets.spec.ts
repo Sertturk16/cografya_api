@@ -25,6 +25,7 @@ import {
   P4_TARGETS,
   P5_TARGETS,
   P6_TARGETS,
+  P7_TARGETS,
   PROSE_WAVES,
   targetKey,
 } from './oneoff-province-prose-targets.ts';
@@ -33,7 +34,7 @@ describe('prose wave target lists — per-wave shape', () => {
   it('covers every shipped wave (the table the other cases iterate is complete)', () => {
     // A wave added to the module but forgotten in PROSE_WAVES would be invisible to every
     // assertion below — unguarded while looking guarded, which is worse than no spec.
-    expect(PROSE_WAVES.map((w) => w.label)).toEqual(['P1', 'P2', 'P3', 'P4', 'P5', 'P6']);
+    expect(PROSE_WAVES.map((w) => w.label)).toEqual(['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7']);
     expect(PROSE_WAVES.map((w) => w.targets)).toEqual([
       P1_TARGETS,
       P2_TARGETS,
@@ -41,6 +42,7 @@ describe('prose wave target lists — per-wave shape', () => {
       P4_TARGETS,
       P5_TARGETS,
       P6_TARGETS,
+      P7_TARGETS,
     ]);
   });
 
@@ -183,6 +185,28 @@ describe('prose wave target lists — cross-wave invariants', () => {
     // The two structural cases above pin WHICH pairs must and must not be here; this pins HOW
     // MANY, which is the half that catches a boundary edit neither of them names.
     expect(P6_TARGETS).toHaveLength(10);
+  });
+
+  it('P7 transfers nothing — every pair it claims is one no earlier wave ever owned', () => {
+    // The claim P7's docblock makes, pinned rather than trusted. Three of its four plates ARE
+    // owned by P3 on `settlementNoteTr`, so "this wave takes nothing from anyone" is exactly the
+    // kind of statement that reads true and can be false; the PAIR is what has to be checked.
+    const earlier = new Set(
+      [P1_TARGETS, P2_TARGETS, P3_TARGETS, P4_TARGETS, P5_TARGETS, P6_TARGETS].flatMap((wave) =>
+        wave.map(targetKey),
+      ),
+    );
+    expect(P7_TARGETS.filter((target) => earlier.has(targetKey(target)))).toEqual([]);
+    // …and the control that keeps the assertion above honest: the same plates DO collide when
+    // the key is the plate alone, which is the mistake this lane's identity rule exists to stop.
+    const earlierPlates = new Set([...earlier].map((key) => key.split(' ')[0]));
+    expect(P7_TARGETS.filter((target) => earlierPlates.has(target.plate))).toHaveLength(3);
+  });
+
+  it('P7 is exactly the four W8-VOLKAN province rows', () => {
+    // Same reason P5 and P6 carry a length: the wave's SIZE is what no other check can see.
+    expect(P7_TARGETS).toHaveLength(4);
+    expect(P7_TARGETS.every((target) => target.field === 'landformNoteTr')).toBe(true);
   });
 
   it('P5 covers the fifteen provinces the owner rulings demand a note for', () => {

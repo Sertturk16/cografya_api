@@ -360,7 +360,9 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       "merkezi platoyu geçen ve güneydeki volkanik sıradağı da yararak Büyük Okyanus'a dökülen " +
       "Lempa Nehri'dir; ülke topraklarının yaklaşık yarısı bu nehir ve kolları tarafından " +
       'sulanır. Lempa, ülkenin gemi taşımacılığına elverişli tek akarsuyudur. İç kesimdeki ' +
-      'Coatepeque ve Ilopango gölleri, sönmüş volkanik kalderaların su tutmasıyla oluşmuştur.',
+      'Coatepeque ve Ilopango gölleri, volkanik kalderaların su tutmasıyla oluşmuştur. Ilopango ' +
+      "kalderası 1879-1880'de yeniden püskürmüştür ve gölün ortasındaki Islas Quemadas " +
+      'adacıkları bu püskürmenin ürünüdür.',
   },
   {
     isoCode: 'GT',

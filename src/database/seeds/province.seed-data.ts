@@ -1353,13 +1353,15 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     landformNoteTr:
       'Diyarbakır, dağlarla çevrili, ortası hafif çukurlaşmış bir arazi yapısına sahiptir; bu ' +
       'çukur alanın eksenini batı-doğu doğrultulu geniş Dicle Vadisi oluşturur. Vadi tabanı, ' +
-      'kent merkezinin bulunduğu kesimde deniz seviyesinden yaklaşık 600 metreye iner.\n\n' +
+      'kent merkezinin bulunduğu kesimde deniz seviyesinden yaklaşık 600 metreye iner.' +
+      '\n\n' +
       'İlin batısında, Diyarbakır ile Şanlıurfa arasında yükselen Karacadağ, Kolubaba zirvesiyle ' +
-      "1.957 metreye ulaşan, sönmüş bir kalkan volkanıdır. MTA'nın kayıtlarına göre Geç " +
-      "Miyosen'den Kuvaterner'e uzanan bir süreçte etkinlik göstermiş olan Karacadağ, yaklaşık " +
-      "10.000 km²'lik bir alanı kaplayan bazalt lav örtüsüyle Akdeniz çevresindeki en geniş taban " +
-      "alanına sahip volkanlardan biridir. Bu bazalt örtü doğu yönünde Dicle Vadisi'ne kadar " +
-      'uzanır ve kent merkezindeki tarihi surların yapı malzemesini oluşturur.',
+      "1.957 metreye ulaşan bir kalkan volkanıdır. Volkanik faaliyet Geç Miyosen'de başlar, Geç " +
+      "Pliyosen ve Kuvaterner'de de sürer. MTA, bazı lavların Holosen'e ait olduğunu " +
+      "değerlendirir ve Karacadağ'ı Türkiye'nin aktif volkanları arasında sayar. Yaklaşık 10.000 " +
+      "km²'lik bazalt lav örtüsü, dağı Akdeniz çevresindeki en geniş taban alanına sahip " +
+      "volkanlardan biri yapar. Bu örtü doğu yönünde Dicle Vadisi'ne kadar uzanır ve kent " +
+      'merkezindeki tarihi surların yapı malzemesini oluşturur.',
     introTr:
       "Diyarbakır'ın kent merkezini çevreleyen 5.800 metre uzunluğundaki bazalt sur, Dicle " +
       "kıyısındaki Hevsel Bahçeleri ile birlikte 2015'te UNESCO Dünya Mirası Listesi'ne " +
@@ -4917,13 +4919,16 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     //    urbanizationRate=100 is the 6360 büyükşehir artifact framed in settlementNoteTr
     //    (büyükşehir since 1989); net göç -0,97 ‰; GSYH share %2,1.
     landformNoteTr:
-      "Konya toprakları, İç Anadolu'nun bozkır platosu karakterini taşıyan geniş, düz " +
-      'ovalardan oluşur; ilin ortalama yükseltisi 1.000-1.050 metre bandındadır. Çumra ve ' +
-      'Ereğli ovaları, ilin en geniş tarım alanlarını oluşturur.\n\n' +
-      "İlin güneyinde, Toros Dağları'nın kuzey uzantıları başlar — Seydişehir, Hadim ve " +
-      'Taşkent ilçelerinde 2.000 metreyi aşan yükseltiler görülür. Kuzeydoğuda, Aksaray ' +
-      'sınırındaki Karacadağ ve Karadağ (Hotamış) volkanik kütleleri, ilin platosuna serpilmiş ' +
-      'sönmüş yanardağlardır.',
+      "Konya toprakları, İç Anadolu'nun bozkır platosu karakterini taşıyan geniş, düz ovalardan " +
+      'oluşur; ilin ortalama yükseltisi 1.000-1.050 metre bandındadır. Çumra ve Ereğli ovaları, ' +
+      'ilin en geniş tarım alanlarını oluşturur.' +
+      '\n\n' +
+      "İlin güneyinde, Toros Dağları'nın kuzey uzantıları başlar — Seydişehir, Hadim ve Taşkent " +
+      'ilçelerinde 2.000 metreyi aşan yükseltiler görülür. Doğuda Karapınar çevresindeki ' +
+      'Karacadağ ve güneyde Karaman sınırındaki Karadağ volkanik kütleleri, ilin platosuna ' +
+      "serpilmiştir. MTA, Karacadağ'ı da içine alan Karapınar volkanik alanını Türkiye'nin aktif " +
+      'volkanları arasında sayar; alanda Nasuhpınarı çevresinde ve Acıgöl maarında volkanik ' +
+      'kökenli gaz çıkışları vardır.',
     introTr:
       "Konya, 40.838 kilometrekarelik yüzölçümüyle Türkiye'nin en büyük ilidir. İç Anadolu " +
       "Bölgesi'nin güneyinde, geniş bir bozkır platosu üzerinde kuruludur. İl merkezindeki " +
@@ -4989,14 +4994,15 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     //    düzeltildi). urbanizationRate=100 6360 büyükşehir artifact; net göç +0,92 ‰; GSYH %1,4.
     landformNoteTr:
       "Kayseri'nin en belirgin yer şekli, kentin 25 kilometre güneybatısında yükselen " +
-      "Erciyes'tir — sönmüş bir stratovolkan olan dağ, 3.917 metreyle İç Anadolu Bölgesi'nin " +
-      'en yüksek noktasıdır. Yaklaşık 2,5-3 milyon yıl önce başlayan ve günümüze yakın ' +
-      'dönemlere kadar süren volkanik faaliyet sonucu oluşan Erciyes, günümüzde kayak ' +
-      'turizmine ev sahipliği yapar.\n\n' +
+      "Erciyes'tir. 3.917 metrelik bu stratovolkan, İç Anadolu Bölgesi'nin en yüksek noktasıdır. " +
+      "Yaklaşık 2,5-3 milyon yıl önce başlayan volkanik faaliyet Holosen'de de sürmüştür ve " +
+      "bilinen son püskürme MÖ 6880 dolaylarında gerçekleşmiştir. MTA, Erciyes'i Türkiye'nin " +
+      'aktif volkanları arasında sayar. Dağ bugün kayak turizmine ev sahipliği yapar.' +
+      '\n\n' +
       'İlin geri kalanı, ortalama 1.050 metre yükseklikteki bir plato üzerindedir. Kuzeyde ' +
-      'Sultansazlığı bataklık-göl kompleksinin çevresindeki düzlükler, güneyde ise ' +
-      "Erciyes'in eteklerinden başlayıp Niğde sınırına uzanan step arazisi ilin diğer ana " +
-      'yer şekli gruplarıdır.',
+      "Sultansazlığı bataklık-göl kompleksinin çevresindeki düzlükler, güneyde ise Erciyes'in " +
+      'eteklerinden başlayıp Niğde sınırına uzanan step arazisi ilin diğer ana yer şekli ' +
+      'gruplarıdır.',
     introTr:
       "Kayseri, İç Anadolu'nun sanayi ağırlıklı illerinden biridir; kentin güneybatısında " +
       "yükselen 3.917 metrelik Erciyes, bölgenin en yüksek dağıdır. Erciyes'in " +
@@ -5400,10 +5406,9 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     //    Karadağ/Binbirkilise; step-Toros geçiş kuşağı; Ermenek Çayı (Akdeniz havzası).
     //    net göç -5,79 ‰; GSYH share %0,3.
     landformNoteTr:
-      "Karaman, kuzeyde İç Anadolu'nun step platosu ile güneyde Toros Dağları'nın başladığı " +
-      'bir geçiş kuşağındadır. İlin kuzeyindeki Karadağ, sönmüş bir volkanik kütledir; ' +
-      "güneydeki Ermenek ve Sarıveliler ilçelerinde ise Toros'un dik, ormanlık dağlık arazisi " +
-      'başlar.',
+      "Karaman, kuzeyde İç Anadolu'nun step platosu ile güneyde Toros Dağları'nın başladığı bir " +
+      'geçiş kuşağındadır. İlin kuzeyindeki Karadağ volkanik bir kütledir; güneydeki Ermenek ve ' +
+      "Sarıveliler ilçelerinde ise Toros'un dik, ormanlık dağlık arazisi başlar.",
     introTr:
       "Karaman, 1989'da Konya'dan ayrılarak ayrı bir il olmuştur; 13-16. yüzyıllar arasında " +
       "Anadolu'nun güçlü beyliklerinden Karamanoğulları'na başkentlik yapmıştır. İlin " +
