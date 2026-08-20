@@ -63,8 +63,12 @@ describe('resolveEarthquakeFreshness', () => {
   });
 
   /**
-   * The branch SPEC §8.3's table does not contain: rows loaded by the hand-run backfill, which
-   * writes no run row. Deriving from the ledger alone would stamp a full list `unavailable`.
+   * The branch SPEC §8.3's table does not contain: a store whose rows outlive its ledger.
+   *
+   * The hand-run backfill used to produce it on every go-live by writing no run row; E4 closed
+   * that (`FU-E2-BACKFILL-RUNROW`). The state itself remains reachable — run retention and a
+   * restore from a data-only dump both reach it — and deriving from the ledger alone would stamp
+   * a full list `unavailable`, so the branch and this case stay.
    */
   it('is stale — not unavailable — when rows exist but no tour has ever succeeded', () => {
     expect(

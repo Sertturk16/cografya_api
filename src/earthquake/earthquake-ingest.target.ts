@@ -5,7 +5,7 @@ import type { ScheduledWarmupTarget } from '../upstream/scheduled-warmup.service
 import type { UpstreamHttpClient } from '../upstream/upstream-http.client';
 import type { UpstreamMetrics } from '../upstream/upstream-metrics';
 import type { UpstreamOutcomeKind } from '../upstream/upstream.types';
-import { EarthquakeIngestJobKind } from './earthquake.types';
+import { EarthquakeIngestJobKind, type EarthquakeIngestCadence } from './earthquake.types';
 import { AFAD_TDVMS_PROVIDER, type EarthquakeUpstreamConfig } from './earthquake-upstream.config';
 import { classifyAfadServerErrorBody } from './afad/afad-outcome';
 import { parseAfadEventsBody, type AfadParsedPayload } from './afad/afad-event.parse';
@@ -31,7 +31,8 @@ export interface EarthquakeIngestTargetDeps {
   readonly store: EarthquakeIngestStorePort;
   readonly config: EarthquakeUpstreamConfig;
   readonly metrics: UpstreamMetrics;
-  readonly jobKind: EarthquakeIngestJobKind;
+  /** A CADENCE, never the hand-run backfill: this class is the scheduled half of the ingest. */
+  readonly jobKind: EarthquakeIngestCadence;
   /** Injected in tests. */
   readonly now?: () => number;
 }

@@ -322,8 +322,9 @@ describe('EarthquakeReadService', () => {
      * Before the fix the freshness derivation was fed `latestEventOccurredAt(plateCode)`, so a
      * province holding no bound row answered `unavailable` — "no usable ingest at all", plus
      * `Cache-Control: no-store` — while the hub served a full list from the same store. The state
-     * is reachable exactly when the run ledger is empty, which is what the hand-run backfill
-     * leaves behind (`FU-E2-BACKFILL-RUNROW`).
+     * is reachable exactly when the run ledger is empty, which the hand-run backfill used to leave
+     * behind on every go-live until E4 made it write its own row (`FU-E2-BACKFILL-RUNROW`); run
+     * retention and a restore from a data-only dump still reach it.
      */
     it('answers stale for a QUIET province while the store holds rows, never unavailable', async () => {
       store.runFinishedAt = null;

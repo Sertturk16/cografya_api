@@ -4,7 +4,11 @@ import { OperationDeadline } from '../upstream/operation-deadline';
 import { ProviderBudget } from '../upstream/provider-budget';
 import { UpstreamHttpClient } from '../upstream/upstream-http.client';
 import { UpstreamMetrics } from '../upstream/upstream-metrics';
-import { EarthquakeBindingKind, EarthquakeIngestJobKind } from './earthquake.types';
+import {
+  EarthquakeBindingKind,
+  EarthquakeIngestJobKind,
+  type EarthquakeIngestCadence,
+} from './earthquake.types';
 import {
   AFAD_TDVMS_BUDGET,
   AFAD_TDVMS_PROVIDER,
@@ -130,7 +134,7 @@ describe('EarthquakeIngestTarget', () => {
     store: EarthquakeIngestStorePort,
     respond: () => Response,
     overrides: Partial<EarthquakeUpstreamConfig> = {},
-    jobKind: EarthquakeIngestJobKind = EarthquakeIngestJobKind.Recent,
+    jobKind: EarthquakeIngestCadence = EarthquakeIngestJobKind.Recent,
   ): EarthquakeIngestTarget {
     const fetchImpl = ((input: RequestInfo | URL): Promise<Response> => {
       urls.push(requestUrl(input));

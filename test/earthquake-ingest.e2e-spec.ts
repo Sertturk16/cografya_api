@@ -14,6 +14,7 @@ import {
   EarthquakeIngestStore,
   type EarthquakeEventUpsert,
 } from '../src/earthquake/earthquake-ingest.store';
+import { EarthquakeReadStore } from '../src/earthquake/earthquake-read.store';
 
 /**
  * E2 e2e: the earthquake ingest store against a REAL Postgres, through E1's migrations.
@@ -24,7 +25,9 @@ import {
  *  - the upsert really does write NOTHING when nothing changed, so `updated_at` stays honest;
  *  - `revision_count` moves for a revision and stands still for a re-ingest;
  *  - the foreign key to `provinces` holds, and a row-level violation is a ROW's problem;
- *  - retention prunes without ever removing the freshness anchor (`FU-EQ-RUNS-PRUNE`).
+ *  - retention prunes without ever removing the freshness anchor (`FU-EQ-RUNS-PRUNE`);
+ *  - a `backfill` run row is storable in `job_kind varchar(16)` and anchors the published
+ *    freshness exactly as a tour's does, while an abandoned one does not (`FU-E2-BACKFILL-RUNROW`).
  *
  * Structural only (`CONVENTIONS.md` §2): every value below is synthetic and nothing asserts that
  * any earthquake ever had any property.
@@ -233,6 +236,71 @@ describe('Earthquake ingest store (e2e, real Postgres)', () => {
       new Date('2026-08-02T00:00:00.000Z'),
     );
     expect(otherWindow.size).toBe(0);
+  });
+
+  /**
+   * The backfill's ledger row, end to end — `FU-E2-BACKFILL-RUNROW`, E4.
+   *
+   * Two things only real Postgres can settle, and both are the kind that pass in a fake:
+   *  - `'backfill'` fits `job_kind varchar(16)` and survives the round trip. E1's migration has no
+   *    CHECK constraint on that column, so a value too long or otherwise unacceptable would be a
+   *    runtime error at go-live rather than a compile error here.
+   *  - the READ path's freshness query does not filter by `job_kind`, so a load anchors
+   *    `dataUpdatedAtUtc` exactly as a tour does. The whole point of the fix is that a full store
+   *    stops publishing "we have never contacted the provider", and the assertion below is that
+   *    claim rather than a restatement of the insert.
+   */
+  it('lets a hand-run backfill row anchor the published freshness, like any successful tour', async () => {
+    const finishedAt = new Date('2026-08-20T09:12:00.000Z');
+    await store.recordRun({
+      jobKind: EarthquakeIngestJobKind.Backfill,
+      startedAtUtc: new Date('2026-08-20T09:00:00.000Z'),
+      finishedAtUtc: finishedAt,
+      outcome: 'ok',
+      windowStartUtc: new Date('2025-08-20T00:00:00.000Z'),
+      windowEndUtc: new Date('2026-08-20T00:00:00.000Z'),
+      fetchedCount: 12,
+      insertedCount: 12,
+      updatedCount: 0,
+      skippedOutOfScopeCount: 3,
+      errorReason: null,
+    });
+
+    const runs = await runsRepository().find();
+    expect(runs).toHaveLength(1);
+    expect(runs[0]?.jobKind).toBe(EarthquakeIngestJobKind.Backfill);
+
+    const readStore = new EarthquakeReadStore(dataSource);
+    expect((await readStore.newestSuccessfulRunFinishedAt())?.toISOString()).toBe(
+      finishedAt.toISOString(),
+    );
+  });
+
+  /**
+   * The other half: an ABANDONED load must not anchor anything.
+   *
+   * `transient` is what `buildBackfillRunInput` files a load that stopped part-way as, and the
+   * freshness query's `outcome = 'ok'` predicate is what has to exclude it. Without this case the
+   * one above would pass equally well against a query that ignored `outcome` altogether — the
+   * positive control for the assertion, not decoration.
+   */
+  it('does not let an abandoned backfill anchor freshness', async () => {
+    await store.recordRun({
+      jobKind: EarthquakeIngestJobKind.Backfill,
+      startedAtUtc: new Date('2026-08-20T09:00:00.000Z'),
+      finishedAtUtc: new Date('2026-08-20T09:04:00.000Z'),
+      outcome: 'transient',
+      windowStartUtc: new Date('2025-08-20T00:00:00.000Z'),
+      windowEndUtc: new Date('2026-08-20T00:00:00.000Z'),
+      fetchedCount: 5,
+      insertedCount: 5,
+      updatedCount: 0,
+      skippedOutOfScopeCount: 0,
+      errorReason: 'backfill stopped at 2025-11-04 00:00:00: HTTP 503.',
+    });
+
+    const readStore = new EarthquakeReadStore(dataSource);
+    expect(await readStore.newestSuccessfulRunFinishedAt()).toBeNull();
   });
 
   it('truncates an over-long error reason instead of failing the insert that records it', async () => {

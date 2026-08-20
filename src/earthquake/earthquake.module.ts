@@ -16,7 +16,7 @@ import { UpstreamModule } from '../upstream/upstream.module';
 import { EarthquakeEvent } from './entities/earthquake-event.entity';
 import { EarthquakeIngestRun } from './entities/earthquake-ingest-run.entity';
 import { EarthquakeController } from './earthquake.controller';
-import { EarthquakeIngestJobKind } from './earthquake.types';
+import { EarthquakeIngestJobKind, type EarthquakeIngestCadence } from './earthquake.types';
 import { EarthquakeReadService } from './earthquake-read.service';
 import {
   EarthquakeReadStore,
@@ -220,7 +220,7 @@ export class EarthquakeModule {}
  * no timer is scheduled, so "disabled" cannot degrade into "runs but writes nothing".
  */
 function registerTarget(
-  jobKind: EarthquakeIngestJobKind,
+  jobKind: EarthquakeIngestCadence,
   deps: {
     client: UpstreamHttpClient;
     store: EarthquakeIngestStorePort;

@@ -3,9 +3,14 @@ import { DataSource } from 'typeorm';
 import { parseAfadEventsBody } from '../../earthquake/afad/afad-event.parse';
 import { quoteProviderText } from '../../earthquake/afad/afad-log-safe';
 import { toAfadQueryStamp } from '../../earthquake/afad/afad-time';
-import { EarthquakeIngestStore } from '../../earthquake/earthquake-ingest.store';
+import {
+  EarthquakeIngestStore,
+  type RecordRunInput,
+} from '../../earthquake/earthquake-ingest.store';
 import { buildEarthquakeRow } from '../../earthquake/earthquake-row';
+import { EarthquakeIngestJobKind } from '../../earthquake/earthquake.types';
 import { readBodyCapped, UPSTREAM_USER_AGENT } from '../../upstream/upstream-http.helpers';
+import type { UpstreamOutcomeKind } from '../../upstream/upstream.types';
 import { buildDataSourceOptions } from '../data-source-options';
 import { generateTrScopeBoundary } from './generate-tr-scope-boundary';
 import { runEarthquakeProbePhase } from './probe-earthquake-afad';
@@ -73,6 +78,93 @@ export const DEFAULT_SCOPE_BUFFER_KM = 200;
 export const DEFAULT_SAFETY_LIMIT = 20_000;
 
 export type EarthquakePhase = 'probe' | 'boundary' | 'backfill';
+
+/** What one backfill did, accumulated across its windows. */
+export interface BackfillTally {
+  readonly windows: number;
+  readonly fetched: number;
+  readonly inserted: number;
+  readonly updated: number;
+  readonly unchanged: number;
+  readonly rejected: number;
+  /** Rows written with `in_scope = false` — stored, and servable on no public path. */
+  readonly skippedOutOfScope: number;
+}
+
+/** The loop's own view of {@link BackfillTally}. Only `runBackfill` holds one. */
+type MutableBackfillTally = { -readonly [K in keyof BackfillTally]: BackfillTally[K] };
+
+/**
+ * Turn a finished (or abandoned) load into its `earthquake_ingest_runs` row.
+ *
+ * Pure and exported so the ledger's SEMANTICS are unit-testable without a database or a provider
+ * — the write itself goes through `EarthquakeIngestStore.recordRun`, which the ingest e2e already
+ * exercises against real Postgres.
+ *
+ * ## Three outcomes, and only one of them anchors published freshness
+ * The read path treats a row as the freshness anchor when `outcome = 'ok'` AND
+ * `error_reason IS NULL` (`EarthquakeReadStore.newestSuccessfulRunFinishedAt`), so this function
+ * has to agree with `EarthquakeIngestTarget.diagnoseTour` about what those two columns mean:
+ *
+ * - **The load finished and rows reached the store** → `ok`, no reason. This is the row that makes
+ *   the store's freshness honest right after the historical load (`FU-E2-BACKFILL-RUNROW`).
+ * - **The load finished, the provider returned rows, and NOT ONE reached the store** → `ok` with a
+ *   reason. The CALL succeeded, which is what the outcome word describes; what is missing is any
+ *   durable trace of why nothing landed, and a clean `ok` there would let a broken parser refresh
+ *   the anchor forever (review #121 SFH121-I1, the same shape).
+ * - **The load stopped part-way** → `transient` plus the message. `transient` rather than a finer
+ *   kind because the load aborts on HTTP failures, byte-cap refusals, schema errors and database
+ *   errors alike, and this function cannot tell them apart from the message; guessing a kind would
+ *   put a false statement about AFAD's health into the ledger. It is not `ok`, so it anchors
+ *   nothing either way — which is the property that actually matters.
+ *
+ * A load whose provider returned NOTHING at all (`fetched === 0`) is left as a clean `ok`: an
+ * empty historical range is a fact about the range, not a fault, and the scheduled tours' own
+ * `fetchedCount === 0` question is a separate open follow-up rather than something to answer
+ * differently in two places.
+ */
+export function buildBackfillRunInput(input: {
+  readonly startedAtUtc: Date;
+  readonly finishedAtUtc: Date;
+  readonly windowStartUtc: Date;
+  readonly windowEndUtc: Date;
+  readonly tally: BackfillTally;
+  /** The message that stopped the load, or `null` when it ran to the end. */
+  readonly failure: string | null;
+  readonly rejectionReasons: ReadonlySet<string>;
+}): RecordRunInput {
+  const { tally } = input;
+  const nothingReachedTheStore =
+    tally.inserted === 0 && tally.updated === 0 && tally.unchanged === 0;
+
+  let outcome: UpstreamOutcomeKind = 'ok';
+  let errorReason: string | null = null;
+  if (input.failure !== null) {
+    outcome = 'transient';
+    errorReason = input.failure;
+  } else if (tally.fetched > 0 && nothingReachedTheStore) {
+    errorReason =
+      `the provider returned ${String(tally.fetched)} row(s) over ${String(tally.windows)} ` +
+      'window(s) and not one reached the store; refusal reasons: ' +
+      ([...input.rejectionReasons].sort().join(' | ') || '(none recorded)');
+  }
+
+  return {
+    jobKind: EarthquakeIngestJobKind.Backfill,
+    startedAtUtc: input.startedAtUtc,
+    finishedAtUtc: input.finishedAtUtc,
+    outcome,
+    // The range the OPERATOR asked for, not the last chunk: the ledger's window column exists so a
+    // gap in coverage is auditable afterwards, and one load covers one range.
+    windowStartUtc: input.windowStartUtc,
+    windowEndUtc: input.windowEndUtc,
+    fetchedCount: tally.fetched,
+    insertedCount: tally.inserted,
+    updatedCount: tally.updated,
+    skippedOutOfScopeCount: tally.skippedOutOfScope,
+    errorReason,
+  };
+}
 
 const USAGE =
   'Usage: pnpm db:import:earthquakes --phase=probe | ' +
@@ -194,11 +286,27 @@ async function main(): Promise<void> {
  * and it is not something a scheduled loop should ever decide to do on its own. It is a decision
  * somebody makes once, at go-live, watching it run.
  *
- * ## It writes NO run rows
- * The `earthquake_ingest_runs` ledger answers "when did we last make successful contact", and the
- * freshness the API publishes is derived from it. A hand-run load of 2019's earthquakes is not
- * evidence that the feed is alive today, and writing it there would make the ledger lie in the
- * one direction it exists to prevent.
+ * ## It writes ONE run row, and the earlier reasoning for writing none was wrong
+ * E2 shipped this load writing nothing to `earthquake_ingest_runs` (plan-e2 §6.11), on the
+ * argument that "a hand-run load of 2019's earthquakes is not evidence that the feed is alive
+ * today". That confuses the events' ORIGIN times with the CONTACT the ledger actually records: a
+ * backfill fetches from AFAD live, now, and stores what it gets, so the contact is exactly as
+ * recent as the tour's would be. The measured consequence of the omission was the state E3 had to
+ * absorb on the read side — tens of thousands of genuine rows in the store, an empty ledger, and
+ * a public `dataStatus: 'stale'` with `dataUpdatedAtUtc: null`, whose published meaning is "we
+ * have never successfully contacted the provider" (`FU-E2-BACKFILL-RUNROW`, E3 plan S5). E3
+ * answered it honestly rather than fixing it, because the fix belongs here; this is the fix.
+ *
+ * **ONE row for the whole load, not one per window.** The ledger's unit is a decision to contact
+ * the provider, and this is one such decision covering `--from`…`--to`. Fifty-two rows would also
+ * flood the retention window the tours share.
+ *
+ * **The failure path writes one too.** A load that stops at HTTP 500 halfway has still stored
+ * everything before that point, and a ledger that cannot tell "this load failed" from "no load
+ * ever ran" is the defect review #118 CODE118-M4 closed on the tour side. Its outcome is not `ok`,
+ * so it anchors nothing.
+ *
+ * **Writing the row is fail-soft.** Losing the ledger must not fail a load that wrote 33 000 rows.
  *
  * Idempotent by construction: the upsert writes nothing when nothing changed, so a re-run over the
  * same range costs requests and changes no row.
@@ -247,14 +355,19 @@ async function runBackfill(argv: readonly string[]): Promise<void> {
       throw new Error('the provinces table is empty — run `pnpm db:seed:geography` first.');
     }
 
-    let inserted = 0;
-    let updated = 0;
-    let unchanged = 0;
-    let rejected = 0;
-    let windows = 0;
+    const tally: MutableBackfillTally = {
+      windows: 0,
+      fetched: 0,
+      inserted: 0,
+      updated: 0,
+      unchanged: 0,
+      rejected: 0,
+      skippedOutOfScope: 0,
+    };
     // Every distinct refusal the load hit, so a partially loaded archive is diagnosable from the
     // final line rather than only from a scrollback nobody kept.
     const rejectionReasons = new Set<string>();
+    const startedAtUtc = new Date();
 
     // The effective knobs, printed before the first call: a run whose classification is silently
     // different from the running server's is the failure CODE118-I1 names, and the banner is what
@@ -264,69 +377,108 @@ async function runBackfill(argv: readonly string[]): Promise<void> {
         `${String(safetyLimit)} rows, ${String(chunkDays)}-day windows, base ${baseUrl}`,
     );
 
-    for (let cursor = from.getTime(); cursor < to.getTime(); cursor += chunkDays * 86_400_000) {
-      if (windows > 0) await new Promise((resolve) => setTimeout(resolve, BACKFILL_SPACING_MS));
-      windows += 1;
-      const windowStart = new Date(cursor);
-      const windowEnd = new Date(Math.min(cursor + chunkDays * 86_400_000, to.getTime()));
+    let failure: string | null = null;
+    try {
+      for (let cursor = from.getTime(); cursor < to.getTime(); cursor += chunkDays * 86_400_000) {
+        if (tally.windows > 0) {
+          await new Promise((resolve) => setTimeout(resolve, BACKFILL_SPACING_MS));
+        }
+        tally.windows += 1;
+        const windowStart = new Date(cursor);
+        const windowEnd = new Date(Math.min(cursor + chunkDays * 86_400_000, to.getTime()));
 
-      const url =
-        `${baseUrl}/event/filter?start=${toAfadQueryStamp(windowStart)}` +
-        `&end=${toAfadQueryStamp(windowEnd)}&limit=${String(safetyLimit)}`;
-      const response = await fetch(url, {
-        headers: { 'User-Agent': UPSTREAM_USER_AGENT, Accept: 'application/json' },
-        signal: AbortSignal.timeout(BACKFILL_TIMEOUT_MS),
-        redirect: 'error',
-      });
-      if (!response.ok) {
-        throw new Error(
-          `backfill stopped at ${toAfadQueryStamp(windowStart)}: HTTP ${String(response.status)}. ` +
-            'Nothing already written is lost — re-run from this day.',
+        const url =
+          `${baseUrl}/event/filter?start=${toAfadQueryStamp(windowStart)}` +
+          `&end=${toAfadQueryStamp(windowEnd)}&limit=${String(safetyLimit)}`;
+        const response = await fetch(url, {
+          headers: { 'User-Agent': UPSTREAM_USER_AGENT, Accept: 'application/json' },
+          signal: AbortSignal.timeout(BACKFILL_TIMEOUT_MS),
+          redirect: 'error',
+        });
+        if (!response.ok) {
+          throw new Error(
+            `backfill stopped at ${toAfadQueryStamp(windowStart)}: HTTP ${String(response.status)}. ` +
+              'Nothing already written is lost — re-run from this day.',
+          );
+        }
+
+        let body: string;
+        try {
+          body = await readBodyCapped(response, url, BACKFILL_MAX_RESPONSE_BYTES);
+        } catch (error: unknown) {
+          throw new Error(
+            `backfill stopped at ${toAfadQueryStamp(windowStart)}: ${error instanceof Error ? error.message : String(error)} ` +
+              'Nothing already written is lost — re-run from this day, with a smaller --chunk-days.',
+            { cause: error },
+          );
+        }
+
+        const payload = parseAfadEventsBody(body, { safetyLimit });
+        tally.fetched += payload.fetchedCount;
+        const writtenAt = new Date();
+        for (const event of payload.accepted) {
+          const row = buildEarthquakeRow(event, plateCodes, scopeBufferKm);
+          // Counted for the ledger row, exactly as the scheduled tour counts it: an out-of-scope
+          // event IS written (D-C keeps everything) and is servable on no public path, so
+          // `skipped_out_of_scope_count` means "stored but unpublishable" here too.
+          if (!row.inScope) tally.skippedOutOfScope += 1;
+          const result = await store.upsertEvent(row, writtenAt);
+          if (result.kind === 'inserted') tally.inserted += 1;
+          else if (result.kind === 'updated') tally.updated += 1;
+          else tally.unchanged += 1;
+        }
+        // The permanent archive's ONLY filler used to discard every refusal with no id and no
+        // reason, so a class of historical rows could be missing with nothing saying which or why
+        // — and the load is run once (review #118 SFH118-I3). The scheduled tour logs each
+        // rejection; so does this now.
+        for (const rejection of payload.rejected) {
+          rejectionReasons.add(rejection.reason);
+          const id =
+            rejection.providerEventId === null
+              ? '(id unreadable)'
+              : quoteProviderText(rejection.providerEventId);
+          console.warn(`rejected ${id} — ${rejection.reason}`);
+        }
+        tally.rejected += payload.rejected.length;
+        console.log(
+          `${toAfadQueryStamp(windowStart)} → ${toAfadQueryStamp(windowEnd)}: ` +
+            `${String(payload.fetchedCount)} fetched, ${String(payload.rejected.length)} rejected`,
         );
       }
+    } catch (error: unknown) {
+      failure = error instanceof Error ? error.message : String(error);
+    }
 
-      let body: string;
-      try {
-        body = await readBodyCapped(response, url, BACKFILL_MAX_RESPONSE_BYTES);
-      } catch (error: unknown) {
-        throw new Error(
-          `backfill stopped at ${toAfadQueryStamp(windowStart)}: ${error instanceof Error ? error.message : String(error)} ` +
-            'Nothing already written is lost — re-run from this day, with a smaller --chunk-days.',
-          { cause: error },
-        );
-      }
-
-      const payload = parseAfadEventsBody(body, { safetyLimit });
-      const writtenAt = new Date();
-      for (const event of payload.accepted) {
-        const row = buildEarthquakeRow(event, plateCodes, scopeBufferKm);
-        const result = await store.upsertEvent(row, writtenAt);
-        if (result.kind === 'inserted') inserted += 1;
-        else if (result.kind === 'updated') updated += 1;
-        else unchanged += 1;
-      }
-      // The permanent archive's ONLY filler used to discard every refusal with no id and no reason,
-      // so a class of historical rows could be missing with nothing saying which or why — and the
-      // load is run once (review #118 SFH118-I3). The scheduled tour logs each rejection; so does
-      // this now.
-      for (const rejection of payload.rejected) {
-        rejectionReasons.add(rejection.reason);
-        const id =
-          rejection.providerEventId === null
-            ? '(id unreadable)'
-            : quoteProviderText(rejection.providerEventId);
-        console.warn(`rejected ${id} — ${rejection.reason}`);
-      }
-      rejected += payload.rejected.length;
+    // The ledger row goes in on BOTH paths, before the failure is re-thrown — see the function
+    // docblock. It is fail-soft: losing the ledger must not fail a load that stored real rows.
+    const runInput = buildBackfillRunInput({
+      startedAtUtc,
+      finishedAtUtc: new Date(),
+      windowStartUtc: from,
+      windowEndUtc: to,
+      tally,
+      failure,
+      rejectionReasons,
+    });
+    try {
+      await store.recordRun(runInput);
       console.log(
-        `${toAfadQueryStamp(windowStart)} → ${toAfadQueryStamp(windowEnd)}: ` +
-          `${String(payload.fetchedCount)} fetched, ${String(payload.rejected.length)} rejected`,
+        `ingest run recorded — job_kind ${runInput.jobKind}, outcome ${runInput.outcome}` +
+          (runInput.errorReason === null ? '' : `, reason: ${runInput.errorReason}`),
+      );
+    } catch (error: unknown) {
+      console.error(
+        'the ingest run row could not be recorded; the loaded events are unaffected, but the ' +
+          `published freshness will not see this load — ${error instanceof Error ? error.message : String(error)}`,
       );
     }
 
+    if (failure !== null) throw new Error(failure);
+
     console.log(
-      `backfill done — ${String(windows)} window(s), ${String(inserted)} inserted, ` +
-        `${String(updated)} updated, ${String(unchanged)} unchanged, ${String(rejected)} rejected`,
+      `backfill done — ${String(tally.windows)} window(s), ${String(tally.inserted)} inserted, ` +
+        `${String(tally.updated)} updated, ${String(tally.unchanged)} unchanged, ` +
+        `${String(tally.rejected)} rejected, ${String(tally.skippedOutOfScope)} out of scope`,
     );
     if (rejectionReasons.size > 0) {
       console.warn(

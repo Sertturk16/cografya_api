@@ -37,11 +37,17 @@ export interface EarthquakeFreshnessInput {
  *
  * ## The third branch: rows with no run ledger behind them
  * SPEC §8.3 treats "no successful ingest" and "empty store" as the same state. They are not, and
- * the gap is real rather than hypothetical: the hand-run backfill (`--phase=backfill`) writes
- * events WITHOUT writing an `earthquake_ingest_runs` row, so after the one-off historical load the
- * store can hold tens of thousands of genuine rows while the ledger is empty. Deriving the status
- * from the ledger alone would then stamp a full list `unavailable` and answer `no-store`,
+ * the gap was real rather than hypothetical: the hand-run backfill (`--phase=backfill`) used to
+ * write events WITHOUT writing an `earthquake_ingest_runs` row, so after the one-off historical
+ * load the store held tens of thousands of genuine rows while the ledger was empty. Deriving the
+ * status from the ledger alone would then stamp a full list `unavailable` and answer `no-store`,
  * publishing real data while telling the reader we have none.
+ *
+ * **E4 closed that particular producer** (`FU-E2-BACKFILL-RUNROW`): the load now writes its own
+ * row, so the branch is no longer reached the day after a backfill. It stays, and deleting it
+ * would be a mistake — the state is reachable from any store whose rows outlive its ledger, which
+ * retention (`EARTHQUAKE_RUN_RETENTION_DAYS`) and a restore from a data-only dump both produce.
+ * The branch was never really about the backfill; the backfill was how we found it.
  *
  * `stale` is the honest token there, and it is what the vocabulary already says: `Stale` is
  * "populated, but the last successful contact is older than the budget", and no contact at all is
@@ -50,8 +56,8 @@ export interface EarthquakeFreshnessInput {
  * province being asked for**: a quiet province is not a cold deployment, and answering one as the
  * other tells a CDN not to keep a page whose content is perfectly stable.
  *
- * The ledger gap itself is an INGEST defect and is tracked as `FU-E2-BACKFILL-RUNROW`; this
- * function is the read side answering honestly in the meantime, not the fix.
+ * This function is the read side answering honestly whenever the state occurs; the E4 ingest fix
+ * removed its most frequent cause, not the state itself.
  *
  * ## `dataUpdatedAtUtc` stays null in that branch, deliberately
  * It means "our last successful contact with the provider", and inventing one from the newest
