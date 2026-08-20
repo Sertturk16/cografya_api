@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { EarthquakeDataStatus } from '../earthquake.types';
+import { EARTHQUAKE_DISCLAIMER_TR } from '../earthquake-disclaimer.constant';
 import { EarthquakeAttributionDto } from './earthquake-attribution.dto';
 
 /**
@@ -17,11 +18,11 @@ import { EarthquakeAttributionDto } from './earthquake-attribution.dto';
  * authored copy that belongs to Vera and `CONTENT-STYLE.md` §22. The API also ships no i18n key on
  * this leg: it carries the structural token and the web picks the words.
  *
- * ## No `disclaimerTr` here yet, and that is a sequencing decision rather than an omission
- * The early-warning disclaimer is a liability text (untouchable class), so it lands with its
- * owner/Atlas approval in E4 — as an ADDITIVE field on this schema, api before web, exactly like
- * every other contract change on this leg. Publishing an unapproved draft into an artifact the web
- * repo codegens from is the cheaper mistake to avoid than the round trip.
+ * ## `disclaimerTr` landed here in E4, additively, and the sequencing was the point
+ * The early-warning disclaimer is a liability text (untouchable class), so it waited for its owner
+ * ruling (`DEC 2026-08-19l`) rather than shipping as a draft into an artifact the web repo
+ * codegens from. It arrives as an ADDITIVE field, api before web — no consumer breaks, and the
+ * web `/deprem` page cannot render the note before the field exists to carry it.
  *
  * ## Nothing future-tense, by construction
  * No prediction, probability, risk score or alert level, here or anywhere on this leg — a ruling
@@ -95,6 +96,18 @@ export class EarthquakeMetaDto {
       'data is shown with its age, never hidden.',
   })
   dataStatus!: EarthquakeDataStatus;
+
+  @ApiProperty({
+    type: String,
+    example: EARTHQUAKE_DISCLAIMER_TR,
+    description:
+      'The early-warning disclaimer, in Turkish, owner-ruled and VERBATIM (DEC 2026-08-19l). ' +
+      'Render it wherever earthquake data is shown; never translate, shorten or re-word it. It ' +
+      'is a liability note rather than interface copy, which is why the API publishes the ' +
+      'sentence itself while every other reader-facing string on this leg is the web repo to ' +
+      'author. Constant, so it is served on the cold path too.',
+  })
+  disclaimerTr!: string;
 
   @ApiProperty({
     type: EarthquakeAttributionDto,

@@ -1,11 +1,17 @@
 import { isAbsolute, join } from 'node:path';
 import { DataSource } from 'typeorm';
+import { describeError, describeErrorWithName } from '../../common/describe-error';
 import { parseAfadEventsBody } from '../../earthquake/afad/afad-event.parse';
 import { quoteProviderText } from '../../earthquake/afad/afad-log-safe';
 import { toAfadQueryStamp } from '../../earthquake/afad/afad-time';
-import { EarthquakeIngestStore } from '../../earthquake/earthquake-ingest.store';
+import {
+  EarthquakeIngestStore,
+  type RecordRunInput,
+} from '../../earthquake/earthquake-ingest.store';
 import { buildEarthquakeRow } from '../../earthquake/earthquake-row';
+import { EarthquakeIngestJobKind } from '../../earthquake/earthquake.types';
 import { readBodyCapped, UPSTREAM_USER_AGENT } from '../../upstream/upstream-http.helpers';
+import type { UpstreamOutcomeKind } from '../../upstream/upstream.types';
 import { buildDataSourceOptions } from '../data-source-options';
 import { generateTrScopeBoundary } from './generate-tr-scope-boundary';
 import { runEarthquakeProbePhase } from './probe-earthquake-afad';
@@ -71,8 +77,139 @@ const BACKFILL_MAX_RESPONSE_BYTES = 16 * 1024 * 1024;
  */
 export const DEFAULT_SCOPE_BUFFER_KM = 200;
 export const DEFAULT_SAFETY_LIMIT = 20_000;
+export const DEFAULT_STALE_MAX_SECONDS = 10_800;
 
 export type EarthquakePhase = 'probe' | 'boundary' | 'backfill';
+
+/** What one backfill did, accumulated across its windows. */
+export interface BackfillTally {
+  readonly windows: number;
+  readonly fetched: number;
+  readonly inserted: number;
+  readonly updated: number;
+  readonly unchanged: number;
+  readonly rejected: number;
+  /** Rows written with `in_scope = false` — stored, and servable on no public path. */
+  readonly skippedOutOfScope: number;
+}
+
+/** The loop's own view of {@link BackfillTally}. Only `runBackfill` holds one. */
+type MutableBackfillTally = { -readonly [K in keyof BackfillTally]: BackfillTally[K] };
+
+/**
+ * Turn a finished (or abandoned) load into its `earthquake_ingest_runs` row.
+ *
+ * Pure and exported so the ledger's SEMANTICS are unit-testable without a database or a provider
+ * — the write itself goes through `EarthquakeIngestStore.recordRun`, which the ingest e2e already
+ * exercises against real Postgres.
+ *
+ * ## Three outcomes, and only one of them anchors published freshness
+ * The read path treats a row as the freshness anchor when `outcome = 'ok'` AND
+ * `error_reason IS NULL` (`EarthquakeReadStore.newestSuccessfulRunFinishedAt`), so this function
+ * has to agree with `EarthquakeIngestTarget.diagnoseTour` about what those two columns mean:
+ *
+ * - **The load finished and rows reached the store** → `ok`, no reason. This is the row that makes
+ *   the store's freshness honest right after the historical load (`FU-E2-BACKFILL-RUNROW`).
+ * - **The load finished, the provider returned rows, and NOT ONE reached the store** → `ok` with a
+ *   reason. The CALL succeeded, which is what the outcome word describes; what is missing is any
+ *   durable trace of why nothing landed, and a clean `ok` there would let a broken parser refresh
+ *   the anchor forever (review #121 SFH121-I1, the same shape).
+ * - **The load stopped part-way** → `transient` plus the message. `transient` rather than a finer
+ *   kind because the load aborts on HTTP failures, byte-cap refusals, schema errors and database
+ *   errors alike, and this function cannot tell them apart from the message; guessing a kind would
+ *   put a false statement about AFAD's health into the ledger. It is not `ok`, so it anchors
+ *   nothing either way — which is the property that actually matters.
+ *
+ * A load whose provider returned NOTHING at all (`fetched === 0`) is left as a clean `ok`: an
+ * empty historical range is a fact about the range, not a fault, and the scheduled tours' own
+ * `fetchedCount === 0` question is a separate open follow-up rather than something to answer
+ * differently in two places.
+ *
+ * ## A load can succeed and still be the wrong thing to anchor freshness on
+ * The ledger's unit is CONTACT, and by that unit a historical repair run at 09:00 today really did
+ * reach AFAD at 09:00 today. But the value the read path derives from that row is published as
+ * DATA freshness — `EarthquakeMetaDto.dataUpdatedAtUtc`, and `dataStatus` on top of it — and the
+ * two coincide only because a TOUR always asks for a window ending now. A backfill's window is
+ * whatever the operator typed. `--from=2025-11-01 --to=2025-12-01`, run to repair an archive gap
+ * while the scheduled ingest has been failing for two days, would otherwise flip the public pages
+ * from an honest `stale` to `ok` with `dataUpdatedAtUtc` = now — over a list frozen two days ago,
+ * for the whole freshness budget plus a CDN hour (review #125 SFH125-I1; the shape SFH121-I1 and
+ * the `pruneRuns` anchor divergence already fixed twice on the read side).
+ *
+ * So a completed load whose window ENDS more than `staleMaxSeconds` before it FINISHED keeps
+ * `outcome: 'ok'` — the call did succeed, which is what the outcome word describes — and carries a
+ * reason. That is the same discriminator the anchor query already excludes on, so it needs no
+ * migration and no read-side change: the row records contact, and says in the one column a reader
+ * and the query both see that it does not claim current coverage.
+ */
+export function buildBackfillRunInput(input: {
+  readonly startedAtUtc: Date;
+  readonly finishedAtUtc: Date;
+  readonly windowStartUtc: Date;
+  readonly windowEndUtc: Date;
+  readonly tally: BackfillTally;
+  /** The message that stopped the load, or `null` when it ran to the end. */
+  readonly failure: string | null;
+  readonly rejectionReasons: ReadonlySet<string>;
+  /**
+   * The READ side's own freshness budget (`EARTHQUAKE_STALE_MAX_SECONDS`), in seconds.
+   *
+   * Deliberately the same number `resolveEarthquakeFreshness` uses, because the question this
+   * function has to answer is exactly the read side's: if this row anchored, would the coverage
+   * behind it already be older than the budget the published `ok` promises?
+   */
+  readonly staleMaxSeconds: number;
+}): RecordRunInput {
+  const { tally } = input;
+  const nothingReachedTheStore =
+    tally.inserted === 0 && tally.updated === 0 && tally.unchanged === 0;
+
+  let outcome: UpstreamOutcomeKind = 'ok';
+  // Collected rather than assigned, so a load that hit BOTH degradations records both instead of
+  // whichever branch happens to be tested first. `recordRun` truncates at 500 chars keeping the
+  // LEADING text, so the order here is the order of importance.
+  const reasons: string[] = [];
+  if (input.failure !== null) {
+    outcome = 'transient';
+    reasons.push(input.failure);
+  } else {
+    if (tally.fetched > 0 && nothingReachedTheStore) {
+      reasons.push(
+        `the provider returned ${String(tally.fetched)} row(s) over ${String(tally.windows)} ` +
+          'window(s) and not one reached the store; refusal reasons: ' +
+          ([...input.rejectionReasons].sort().join(' | ') || '(none recorded)'),
+      );
+    }
+    const coverageLagSeconds =
+      (input.finishedAtUtc.getTime() - input.windowEndUtc.getTime()) / 1000;
+    if (coverageLagSeconds > input.staleMaxSeconds) {
+      reasons.push(
+        `this load covered ${input.windowStartUtc.toISOString()}..${input.windowEndUtc.toISOString()}, ` +
+          `which ends ${String(Math.round(coverageLagSeconds / 3600))} h before the load finished; ` +
+          'it records contact with the provider, not current coverage',
+      );
+    }
+  }
+
+  return {
+    jobKind: EarthquakeIngestJobKind.Backfill,
+    startedAtUtc: input.startedAtUtc,
+    finishedAtUtc: input.finishedAtUtc,
+    outcome,
+    // The range the OPERATOR asked for, not the last chunk: the ledger's window column exists so a
+    // gap in coverage is auditable afterwards, and one load covers one range. On a load that
+    // stopped part-way these two columns still record what was ASKED for — where it actually got
+    // to rides in `errorReason`, which `runBackfill` prefixes with `backfill stopped at <stamp>`
+    // for every abort class (review #125 CODE125-I1).
+    windowStartUtc: input.windowStartUtc,
+    windowEndUtc: input.windowEndUtc,
+    fetchedCount: tally.fetched,
+    insertedCount: tally.inserted,
+    updatedCount: tally.updated,
+    skippedOutOfScopeCount: tally.skippedOutOfScope,
+    errorReason: reasons.length === 0 ? null : reasons.join('; '),
+  };
+}
 
 const USAGE =
   'Usage: pnpm db:import:earthquakes --phase=probe | ' +
@@ -194,11 +331,27 @@ async function main(): Promise<void> {
  * and it is not something a scheduled loop should ever decide to do on its own. It is a decision
  * somebody makes once, at go-live, watching it run.
  *
- * ## It writes NO run rows
- * The `earthquake_ingest_runs` ledger answers "when did we last make successful contact", and the
- * freshness the API publishes is derived from it. A hand-run load of 2019's earthquakes is not
- * evidence that the feed is alive today, and writing it there would make the ledger lie in the
- * one direction it exists to prevent.
+ * ## It writes ONE run row, and the earlier reasoning for writing none was wrong
+ * E2 shipped this load writing nothing to `earthquake_ingest_runs` (plan-e2 §6.11), on the
+ * argument that "a hand-run load of 2019's earthquakes is not evidence that the feed is alive
+ * today". That confuses the events' ORIGIN times with the CONTACT the ledger actually records: a
+ * backfill fetches from AFAD live, now, and stores what it gets, so the contact is exactly as
+ * recent as the tour's would be. The measured consequence of the omission was the state E3 had to
+ * absorb on the read side — tens of thousands of genuine rows in the store, an empty ledger, and
+ * a public `dataStatus: 'stale'` with `dataUpdatedAtUtc: null`, whose published meaning is "we
+ * have never successfully contacted the provider" (`FU-E2-BACKFILL-RUNROW`, E3 plan S5). E3
+ * answered it honestly rather than fixing it, because the fix belongs here; this is the fix.
+ *
+ * **ONE row for the whole load, not one per window.** The ledger's unit is a decision to contact
+ * the provider, and this is one such decision covering `--from`…`--to`. Fifty-two rows would also
+ * flood the retention window the tours share.
+ *
+ * **The failure path writes one too.** A load that stops at HTTP 500 halfway has still stored
+ * everything before that point, and a ledger that cannot tell "this load failed" from "no load
+ * ever ran" is the defect review #118 CODE118-M4 closed on the tour side. Its outcome is not `ok`,
+ * so it anchors nothing.
+ *
+ * **Writing the row is fail-soft.** Losing the ledger must not fail a load that wrote 33 000 rows.
  *
  * Idempotent by construction: the upsert writes nothing when nothing changed, so a re-run over the
  * same range costs requests and changes no row.
@@ -228,6 +381,14 @@ async function runBackfill(argv: readonly string[]): Promise<void> {
     'EARTHQUAKE_SAFETY_LIMIT',
     DEFAULT_SAFETY_LIMIT,
   );
+  // Read for the same reason and from the same environment: the ledger row this load writes decides
+  // whether the PUBLIC freshness claim moves, and the budget that claim is measured against is the
+  // server's, not a second number invented here (see `buildBackfillRunInput`).
+  const staleMaxSeconds = readPositiveIntEnv(
+    process.env,
+    'EARTHQUAKE_STALE_MAX_SECONDS',
+    DEFAULT_STALE_MAX_SECONDS,
+  );
 
   // These CLIs run outside Nest's DI, so there is no ConfigService and no `.env` is loaded —
   // `DATABASE_URL` is read straight from the environment (`ENGINEERING.md` §5, the seed rule).
@@ -247,14 +408,19 @@ async function runBackfill(argv: readonly string[]): Promise<void> {
       throw new Error('the provinces table is empty — run `pnpm db:seed:geography` first.');
     }
 
-    let inserted = 0;
-    let updated = 0;
-    let unchanged = 0;
-    let rejected = 0;
-    let windows = 0;
+    const tally: MutableBackfillTally = {
+      windows: 0,
+      fetched: 0,
+      inserted: 0,
+      updated: 0,
+      unchanged: 0,
+      rejected: 0,
+      skippedOutOfScope: 0,
+    };
     // Every distinct refusal the load hit, so a partially loaded archive is diagnosable from the
     // final line rather than only from a scrollback nobody kept.
     const rejectionReasons = new Set<string>();
+    const startedAtUtc = new Date();
 
     // The effective knobs, printed before the first call: a run whose classification is silently
     // different from the running server's is the failure CODE118-I1 names, and the banner is what
@@ -264,69 +430,133 @@ async function runBackfill(argv: readonly string[]): Promise<void> {
         `${String(safetyLimit)} rows, ${String(chunkDays)}-day windows, base ${baseUrl}`,
     );
 
-    for (let cursor = from.getTime(); cursor < to.getTime(); cursor += chunkDays * 86_400_000) {
-      if (windows > 0) await new Promise((resolve) => setTimeout(resolve, BACKFILL_SPACING_MS));
-      windows += 1;
-      const windowStart = new Date(cursor);
-      const windowEnd = new Date(Math.min(cursor + chunkDays * 86_400_000, to.getTime()));
+    let failure: string | null = null;
+    // The window the loop is inside, so the outer catch can say WHERE the load stopped. Two of the
+    // four abort classes composed their own `backfill stopped at …` prefix and two did not — a
+    // parser refusal and a database error landed in `error_reason` with no position at all, so the
+    // only durable record of a partial load claimed the operator's whole range and the resume point
+    // survived nowhere (review #125 CODE125-I1). Composed in ONE place now, for all four.
+    let stoppedAtWindowStart: Date | null = null;
+    try {
+      for (let cursor = from.getTime(); cursor < to.getTime(); cursor += chunkDays * 86_400_000) {
+        if (tally.windows > 0) {
+          await new Promise((resolve) => setTimeout(resolve, BACKFILL_SPACING_MS));
+        }
+        tally.windows += 1;
+        const windowStart = new Date(cursor);
+        stoppedAtWindowStart = windowStart;
+        const windowEnd = new Date(Math.min(cursor + chunkDays * 86_400_000, to.getTime()));
 
-      const url =
-        `${baseUrl}/event/filter?start=${toAfadQueryStamp(windowStart)}` +
-        `&end=${toAfadQueryStamp(windowEnd)}&limit=${String(safetyLimit)}`;
-      const response = await fetch(url, {
-        headers: { 'User-Agent': UPSTREAM_USER_AGENT, Accept: 'application/json' },
-        signal: AbortSignal.timeout(BACKFILL_TIMEOUT_MS),
-        redirect: 'error',
-      });
-      if (!response.ok) {
-        throw new Error(
-          `backfill stopped at ${toAfadQueryStamp(windowStart)}: HTTP ${String(response.status)}. ` +
-            'Nothing already written is lost — re-run from this day.',
+        const url =
+          `${baseUrl}/event/filter?start=${toAfadQueryStamp(windowStart)}` +
+          `&end=${toAfadQueryStamp(windowEnd)}&limit=${String(safetyLimit)}`;
+        const response = await fetch(url, {
+          headers: { 'User-Agent': UPSTREAM_USER_AGENT, Accept: 'application/json' },
+          signal: AbortSignal.timeout(BACKFILL_TIMEOUT_MS),
+          redirect: 'error',
+        });
+        if (!response.ok) {
+          // No `backfill stopped at …` prefix here or below: the outer catch composes it for every
+          // abort class from `stoppedAtWindowStart`, so this message says only what went wrong.
+          throw new Error(
+            `HTTP ${String(response.status)}. Nothing already written is lost — re-run from this day.`,
+          );
+        }
+
+        let body: string;
+        try {
+          body = await readBodyCapped(response, url, BACKFILL_MAX_RESPONSE_BYTES);
+        } catch (error: unknown) {
+          throw new Error(
+            `${describeError(error)} Nothing already written is lost — re-run from this day, ` +
+              'with a smaller --chunk-days.',
+            { cause: error },
+          );
+        }
+
+        const payload = parseAfadEventsBody(body, { safetyLimit });
+        tally.fetched += payload.fetchedCount;
+        const writtenAt = new Date();
+        for (const event of payload.accepted) {
+          const row = buildEarthquakeRow(event, plateCodes, scopeBufferKm);
+          // Counted for the ledger row, exactly as the scheduled tour counts it: an out-of-scope
+          // event IS written (D-C keeps everything) and is servable on no public path, so
+          // `skipped_out_of_scope_count` means "stored but unpublishable" here too.
+          if (!row.inScope) tally.skippedOutOfScope += 1;
+          const result = await store.upsertEvent(row, writtenAt);
+          if (result.kind === 'inserted') tally.inserted += 1;
+          else if (result.kind === 'updated') tally.updated += 1;
+          else tally.unchanged += 1;
+        }
+        // The permanent archive's ONLY filler used to discard every refusal with no id and no
+        // reason, so a class of historical rows could be missing with nothing saying which or why
+        // — and the load is run once (review #118 SFH118-I3). The scheduled tour logs each
+        // rejection; so does this now.
+        for (const rejection of payload.rejected) {
+          rejectionReasons.add(rejection.reason);
+          const id =
+            rejection.providerEventId === null
+              ? '(id unreadable)'
+              : quoteProviderText(rejection.providerEventId);
+          console.warn(`rejected ${id} — ${rejection.reason}`);
+        }
+        tally.rejected += payload.rejected.length;
+        console.log(
+          `${toAfadQueryStamp(windowStart)} → ${toAfadQueryStamp(windowEnd)}: ` +
+            `${String(payload.fetchedCount)} fetched, ${String(payload.rejected.length)} rejected`,
         );
       }
+    } catch (error: unknown) {
+      // `describeErrorWithName`, as the scheduled tour does it: this string is the load's only
+      // durable diagnosis, and the CLASS is the half that tells an upstream fault from one of ours
+      // — `QueryFailedError: …` under `outcome: 'transient'` is the reader's warning not to read
+      // that outcome as a statement about AFAD's health.
+      const message = describeErrorWithName(error);
+      failure =
+        stoppedAtWindowStart === null
+          ? message
+          : `backfill stopped at ${toAfadQueryStamp(stoppedAtWindowStart)}: ${message}`;
+    }
 
-      let body: string;
-      try {
-        body = await readBodyCapped(response, url, BACKFILL_MAX_RESPONSE_BYTES);
-      } catch (error: unknown) {
-        throw new Error(
-          `backfill stopped at ${toAfadQueryStamp(windowStart)}: ${error instanceof Error ? error.message : String(error)} ` +
-            'Nothing already written is lost — re-run from this day, with a smaller --chunk-days.',
-          { cause: error },
-        );
-      }
-
-      const payload = parseAfadEventsBody(body, { safetyLimit });
-      const writtenAt = new Date();
-      for (const event of payload.accepted) {
-        const row = buildEarthquakeRow(event, plateCodes, scopeBufferKm);
-        const result = await store.upsertEvent(row, writtenAt);
-        if (result.kind === 'inserted') inserted += 1;
-        else if (result.kind === 'updated') updated += 1;
-        else unchanged += 1;
-      }
-      // The permanent archive's ONLY filler used to discard every refusal with no id and no reason,
-      // so a class of historical rows could be missing with nothing saying which or why — and the
-      // load is run once (review #118 SFH118-I3). The scheduled tour logs each rejection; so does
-      // this now.
-      for (const rejection of payload.rejected) {
-        rejectionReasons.add(rejection.reason);
-        const id =
-          rejection.providerEventId === null
-            ? '(id unreadable)'
-            : quoteProviderText(rejection.providerEventId);
-        console.warn(`rejected ${id} — ${rejection.reason}`);
-      }
-      rejected += payload.rejected.length;
+    // The ledger row goes in on BOTH paths, before the failure is re-thrown — see the function
+    // docblock. It is fail-soft: losing the ledger must not fail a load that stored real rows.
+    const runInput = buildBackfillRunInput({
+      startedAtUtc,
+      finishedAtUtc: new Date(),
+      windowStartUtc: from,
+      windowEndUtc: to,
+      tally,
+      failure,
+      rejectionReasons,
+      staleMaxSeconds,
+    });
+    let ledgerRecorded = true;
+    try {
+      await store.recordRun(runInput);
       console.log(
-        `${toAfadQueryStamp(windowStart)} → ${toAfadQueryStamp(windowEnd)}: ` +
-          `${String(payload.fetchedCount)} fetched, ${String(payload.rejected.length)} rejected`,
+        `ingest run recorded — job_kind ${runInput.jobKind}, outcome ${runInput.outcome}` +
+          (runInput.errorReason === null ? '' : `, reason: ${runInput.errorReason}`),
+      );
+    } catch (error: unknown) {
+      ledgerRecorded = false;
+      console.error(
+        'the ingest run row could not be recorded; the loaded events are unaffected, but the ' +
+          `published freshness will not see this load — ${describeErrorWithName(error)}`,
       );
     }
 
+    if (failure !== null) throw new Error(failure);
+
     console.log(
-      `backfill done — ${String(windows)} window(s), ${String(inserted)} inserted, ` +
-        `${String(updated)} updated, ${String(unchanged)} unchanged, ${String(rejected)} rejected`,
+      `backfill done — ${String(tally.windows)} window(s), ${String(tally.inserted)} inserted, ` +
+        `${String(tally.updated)} updated, ${String(tally.unchanged)} unchanged, ` +
+        `${String(tally.rejected)} rejected, ${String(tally.skippedOutOfScope)} out of scope` +
+        // The one thing the operator must not scroll past. The `console.error` above prints BEFORE
+        // this success banner, and the go-live runbook chains the next step off this command, so
+        // without the repeat the last line read says the load is done and says nothing about the
+        // ledger it failed to write (review #125 SFH125-M1 / CODE125-M3). The exit code stays 0 on
+        // purpose: fail-soft is the ruled behaviour for this write.
+        (ledgerRecorded ? '' : ' — WITHOUT an ingest run row; see the error above'),
     );
     if (rejectionReasons.size > 0) {
       console.warn(

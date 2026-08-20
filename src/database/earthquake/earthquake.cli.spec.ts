@@ -1,11 +1,15 @@
 import { describe, expect, it } from '@jest/globals';
 import { validateEnv } from '../../config/env.schema';
+import { EarthquakeIngestJobKind } from '../../earthquake/earthquake.types';
 import {
+  buildBackfillRunInput,
   DEFAULT_SAFETY_LIMIT,
   DEFAULT_SCOPE_BUFFER_KM,
+  DEFAULT_STALE_MAX_SECONDS,
   parseEarthquakePhase,
   parseIsoDay,
   readPositiveIntEnv,
+  type BackfillTally,
 } from './earthquake.cli';
 
 /**
@@ -123,5 +127,178 @@ describe('the backfill’s fallbacks match the boot schema', () => {
 
   it('uses the schema default for the safety limit', () => {
     expect(DEFAULT_SAFETY_LIMIT).toBe(schemaDefaults.EARTHQUAKE_SAFETY_LIMIT);
+  });
+
+  it('uses the schema default for the freshness budget', () => {
+    // Same invariant, applied to the budget the ledger verdict is measured against: a backfill
+    // judging its own coverage by 3 h while the server publishes `ok` for 6 h would anchor rows the
+    // read side would then call fresh, or refuse rows it would not.
+    expect(DEFAULT_STALE_MAX_SECONDS).toBe(schemaDefaults.EARTHQUAKE_STALE_MAX_SECONDS);
+  });
+});
+
+/**
+ * The ledger row the historical load writes — `FU-E2-BACKFILL-RUNROW`'s permanent fix.
+ *
+ * The property under test is not "a row exists" but WHICH of the two columns the read path keys on
+ * it sets. `EarthquakeReadStore.newestSuccessfulRunFinishedAt` publishes freshness from rows with
+ * `outcome = 'ok'` AND `error_reason IS NULL`, so every case below is really an assertion about
+ * whether this load is allowed to anchor `dataUpdatedAtUtc`.
+ */
+describe('buildBackfillRunInput', () => {
+  const STARTED = new Date('2026-08-20T09:00:00.000Z');
+  const FINISHED = new Date('2026-08-20T09:12:00.000Z');
+  // The go-live shape the runbook now spells out: `--to` is TOMORROW's midnight, so the load's
+  // coverage runs past the moment it finishes. `--to=<today>` would end 9 h before it — a gap the
+  // freshness case below is about, not the default this fixture should encode.
+  const FROM = new Date('2025-08-21T00:00:00.000Z');
+  const TO = new Date('2026-08-21T00:00:00.000Z');
+
+  const tally = (overrides: Partial<BackfillTally> = {}): BackfillTally => ({
+    windows: 53,
+    fetched: 33_000,
+    inserted: 33_000,
+    updated: 0,
+    unchanged: 0,
+    rejected: 0,
+    skippedOutOfScope: 120,
+    ...overrides,
+  });
+
+  const build = (
+    overrides: {
+      tally?: BackfillTally;
+      failure?: string | null;
+      rejectionReasons?: ReadonlySet<string>;
+      windowStartUtc?: Date;
+      windowEndUtc?: Date;
+    } = {},
+  ): ReturnType<typeof buildBackfillRunInput> =>
+    buildBackfillRunInput({
+      startedAtUtc: STARTED,
+      finishedAtUtc: FINISHED,
+      windowStartUtc: overrides.windowStartUtc ?? FROM,
+      windowEndUtc: overrides.windowEndUtc ?? TO,
+      tally: overrides.tally ?? tally(),
+      failure: overrides.failure ?? null,
+      rejectionReasons: overrides.rejectionReasons ?? new Set<string>(),
+      staleMaxSeconds: DEFAULT_STALE_MAX_SECONDS,
+    });
+
+  it('files the load under its own job kind, never under a cadence', () => {
+    // A backfill recorded as `recent` would be indistinguishable from a 5-minute tour in the
+    // ledger, which is the one place the difference is auditable afterwards.
+    expect(build().jobKind).toBe(EarthquakeIngestJobKind.Backfill);
+  });
+
+  it('records the OPERATOR-requested range as the window, not the last chunk', () => {
+    const input = build();
+    expect(input.windowStartUtc).toBe(FROM);
+    expect(input.windowEndUtc).toBe(TO);
+  });
+
+  it('anchors freshness on a completed load — clean ok, no reason', () => {
+    const input = build();
+    expect(input.outcome).toBe('ok');
+    expect(input.errorReason).toBeNull();
+    expect(input.fetchedCount).toBe(33_000);
+    expect(input.insertedCount).toBe(33_000);
+    expect(input.skippedOutOfScopeCount).toBe(120);
+  });
+
+  it('anchors nothing when the load stopped part-way', () => {
+    const input = build({ failure: 'backfill stopped at 2025-11-04 00:00:00: HTTP 503.' });
+    // Not `ok`, so the read path skips it — while the row still records that a load ran and how
+    // far it got, which is what tells "this load failed" from "no load ever ran".
+    expect(input.outcome).toBe('transient');
+    expect(input.errorReason).toContain('HTTP 503');
+    expect(input.insertedCount).toBe(33_000);
+  });
+
+  it('refuses to anchor a load whose rows all bounced off the store', () => {
+    // The parser-break shape: the provider answered, nothing landed. The CALL succeeded, so the
+    // outcome word stays `ok` — the reason is what keeps it out of the freshness query.
+    const input = build({
+      // `skippedOutOfScope: 0` is not decoration: the counter is incremented immediately before the
+      // `upsertEvent` that increments one of the three store counters, so a tally with rows out of
+      // scope AND nothing in the store is a state the producer cannot reach (review #125 TA125-M2).
+      tally: tally({
+        inserted: 0,
+        updated: 0,
+        unchanged: 0,
+        rejected: 33_000,
+        skippedOutOfScope: 0,
+      }),
+      rejectionReasons: new Set(['date is missing or not a string', 'type is longer than allowed']),
+    });
+    expect(input.outcome).toBe('ok');
+    expect(input.errorReason).toContain('33000 row(s)');
+    // The window count has no other consumer, so without this the message could count anything.
+    expect(input.errorReason).toContain('53 window(s)');
+    expect(input.errorReason).toContain('date is missing or not a string');
+  });
+
+  it('treats an empty historical range as a clean load, not a fault', () => {
+    // Nothing fetched and nothing stored is a fact about the range asked for. Flagging it would
+    // make a legitimately quiet window look like a broken pipeline.
+    const input = build({
+      tally: tally({ fetched: 0, inserted: 0, updated: 0, unchanged: 0, skippedOutOfScope: 0 }),
+    });
+    expect(input.outcome).toBe('ok');
+    expect(input.errorReason).toBeNull();
+  });
+
+  it('counts a re-run that changed nothing as having reached the store', () => {
+    // The load is idempotent, so a second run over the same range legitimately writes no row at
+    // all. Reading that as "nothing reached the store" would file a healthy re-run as degraded.
+    const input = build({ tally: tally({ inserted: 0, updated: 0, unchanged: 33_000 }) });
+    expect(input.outcome).toBe('ok');
+    expect(input.errorReason).toBeNull();
+  });
+
+  it('refuses to anchor a HISTORICAL repair, whose coverage is nowhere near the run', () => {
+    // Review #125 SFH125-I1. `--from=2025-11-01 --to=2025-12-01` run during a two-day ingest
+    // outage: the call succeeds, so the outcome word stays `ok`, but letting it anchor would flip
+    // the public pages from an honest `stale` to `ok` with `dataUpdatedAtUtc` = now over a list
+    // frozen two days ago. The reason is what keeps it out of the freshness query.
+    const input = build({
+      windowStartUtc: new Date('2025-11-01T00:00:00.000Z'),
+      windowEndUtc: new Date('2025-12-01T00:00:00.000Z'),
+    });
+    expect(input.outcome).toBe('ok');
+    expect(input.errorReason).toContain('not current coverage');
+    expect(input.errorReason).toContain('2025-12-01T00:00:00.000Z');
+    // Still a full record of what the load did — it is the ANCHOR that is withheld, not the row.
+    expect(input.insertedCount).toBe(33_000);
+  });
+
+  it('still anchors a load whose coverage ends exactly on the freshness budget', () => {
+    // The boundary belongs to the side that does not raise an alarm, matching
+    // `resolveEarthquakeFreshness`'s own `<=` at the other end of the same budget.
+    const input = build({
+      windowEndUtc: new Date(FINISHED.getTime() - DEFAULT_STALE_MAX_SECONDS * 1000),
+    });
+    expect(input.outcome).toBe('ok');
+    expect(input.errorReason).toBeNull();
+  });
+
+  it('records BOTH degradations when a stale-coverage load also stored nothing', () => {
+    // The two reasons are independent, and the parser break is the louder one — `recordRun`
+    // truncates at 500 chars keeping the leading text, so it has to come first.
+    const input = build({
+      windowStartUtc: new Date('2025-11-01T00:00:00.000Z'),
+      windowEndUtc: new Date('2025-12-01T00:00:00.000Z'),
+      tally: tally({
+        inserted: 0,
+        updated: 0,
+        unchanged: 0,
+        rejected: 33_000,
+        skippedOutOfScope: 0,
+      }),
+      rejectionReasons: new Set(['date is missing or not a string']),
+    });
+    expect(input.outcome).toBe('ok');
+    expect(input.errorReason).toMatch(/^the provider returned 33000 row\(s\)/);
+    expect(input.errorReason).toContain('not current coverage');
   });
 });

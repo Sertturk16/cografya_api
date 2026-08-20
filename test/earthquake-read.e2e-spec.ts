@@ -22,6 +22,7 @@ import {
   EarthquakeIngestJobKind,
   MagnitudeType,
 } from '../src/earthquake/earthquake.types';
+import { EARTHQUAKE_DISCLAIMER_TR } from '../src/earthquake/earthquake-disclaimer.constant';
 import {
   EarthquakeIngestStore,
   type EarthquakeEventUpsert,
@@ -143,6 +144,7 @@ interface MetaBody {
   dataUpdatedAtUtc: string | null;
   latestEventAtUtc: string | null;
   dataStatus: string;
+  disclaimerTr: string;
   attributions: Attribution[];
 }
 
@@ -336,6 +338,9 @@ describe('Earthquake public endpoints (e2e, real Postgres)', () => {
       const body = meta.body as MetaBody;
       expect(body.dataStatus).toBe(STATUS_UNAVAILABLE);
       expect(body.attributions).toHaveLength(1);
+      // The disclaimer is published on the COLD path too, for the same reason the attribution is:
+      // it is a standing statement about what this leg is, not a property of the store's health.
+      expect(body.disclaimerTr).toBe(EARTHQUAKE_DISCLAIMER_TR);
       expect(meta.headers['cache-control']).toBe('no-store');
       expect(fetchSpy).not.toHaveBeenCalled();
     });
@@ -628,8 +633,11 @@ describe('Earthquake public endpoints (e2e, real Postgres)', () => {
       expect(body.scopeBufferKm).toBeGreaterThan(0);
       expect(body.dataStatus).toBe(STATUS_OK);
       expect(body.attributions).toHaveLength(1);
-      // E4 adds `disclaimerTr` with its approved text; E3 ships without it deliberately.
-      expect(body).not.toHaveProperty('disclaimerTr');
+      // E3 asserted this field's ABSENCE; E4 landed it with its owner ruling (DEC 2026-08-19l), so
+      // the assertion is inverted rather than dropped. Compared against the CONSTANT, not a
+      // retyped literal: the byte pin lives once, in `earthquake-disclaimer.constant.spec.ts`.
+      // What only THIS layer can prove is that the string survives the serializer intact.
+      expect(body.disclaimerTr).toBe(EARTHQUAKE_DISCLAIMER_TR);
     });
 
     it('makes no external call on any endpoint, in any state', async () => {
@@ -873,9 +881,10 @@ describe('Earthquake public endpoints (e2e, real Postgres)', () => {
     });
 
     it('reads a filled store with NO run ledger as stale, never unavailable', async () => {
-      // The state the hand-run backfill leaves behind: tens of thousands of real rows and an empty
-      // ledger (`FU-E2-BACKFILL-RUNROW`). Deriving from the ledger alone would stamp a full list
-      // `unavailable` and answer `no-store`.
+      // A store whose rows outlive its ledger. The hand-run backfill used to produce it on every
+      // go-live by writing no run row; E4 closed that (`FU-E2-BACKFILL-RUNROW`). The state itself
+      // remains reachable — run retention and a restore from a data-only dump both reach it — and
+      // deriving from the ledger alone would stamp a full list `unavailable` and answer `no-store`.
       await runs().clear();
 
       const response = await request(app.getHttpServer()).get('/api/earthquakes').expect(200);

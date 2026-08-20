@@ -34,7 +34,7 @@ export class EarthquakeIngestRun {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  /** Which cadence this tour belongs to. See {@link EarthquakeIngestJobKind}. */
+  /** Which cadence — or the hand-run load — wrote this row. See {@link EarthquakeIngestJobKind}. */
   @Column({ name: 'job_kind', type: 'varchar', length: 16 })
   jobKind!: EarthquakeIngestJobKind;
 

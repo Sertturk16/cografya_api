@@ -1,4 +1,4 @@
-import { EarthquakeIngestJobKind } from '../earthquake.types';
+import { EarthquakeIngestJobKind, type EarthquakeIngestCadence } from '../earthquake.types';
 import type { EarthquakeUpstreamConfig } from '../earthquake-upstream.config';
 import { toAfadQueryStamp } from './afad-time';
 
@@ -20,9 +20,14 @@ export interface AfadWindow {
  * `recent` is the narrow, frequent tour. `reconcile` is the wide, rare one that catches late
  * revisions — Pazarcık M7.7 was revised 8.5 hours later, Elbistan M7.6 three days later
  * (SPEC §3.8), and those are precisely the rows that get read the most.
+ *
+ * ## The parameter is the CADENCE type, not the whole job-kind set
+ * The span is chosen with `=== Recent ? … : …`, so any third member would silently take the
+ * reconcile branch. `EarthquakeIngestCadence` excludes the hand-run backfill, which builds its
+ * windows from `--from`/`--to` and must never reach this function.
  */
 export function buildAfadWindow(
-  jobKind: EarthquakeIngestJobKind,
+  jobKind: EarthquakeIngestCadence,
   nowMs: number,
   config: EarthquakeUpstreamConfig,
 ): AfadWindow {

@@ -1,6 +1,7 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { buildEarthquakeAttributions } from './earthquake-attribution.constant';
 import { resolveEarthquakeFreshness } from './earthquake-data-status';
+import { EARTHQUAKE_DISCLAIMER_TR } from './earthquake-disclaimer.constant';
 import {
   EARTHQUAKE_READ_STORE,
   type EarthquakeListFilter,
@@ -134,6 +135,10 @@ export class EarthquakeReadService {
       dataUpdatedAtUtc: freshness.dataUpdatedAtUtc,
       latestEventAtUtc: latestEventAt?.toISOString() ?? null,
       dataStatus: freshness.dataStatus,
+      // Unconditional, exactly like the attribution beside it: the early-warning denial is a
+      // liability note, and one that appeared only when the store happened to be healthy would be
+      // absent from precisely the response a reader is most likely to misread.
+      disclaimerTr: EARTHQUAKE_DISCLAIMER_TR,
       attributions: buildEarthquakeAttributions(),
     };
   }

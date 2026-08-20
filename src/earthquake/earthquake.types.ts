@@ -107,16 +107,44 @@ export enum EarthquakeDataStatus {
 }
 
 /**
- * Which of the two ingest cadences produced a run (SPEC §7.2) — stored, never published.
+ * What produced a run row (SPEC §7.2) — stored, never published.
  *
- * Two cadences rather than one because the revision window is measured in MINUTES for small
- * events and in DAYS for large ones: Pazarcık M7.7 was revised 8.5 hours later and Elbistan M7.6
- * three days later (SPEC §3.8). A single short polling window would miss precisely the rows that
- * are read the most.
+ * The two CADENCES are the reason the set exists: the revision window is measured in MINUTES for
+ * small events and in DAYS for large ones (Pazarcık M7.7 was revised 8.5 hours later, Elbistan
+ * M7.6 three days later — SPEC §3.8), so a single short polling window would miss precisely the
+ * rows that are read the most. The third member is the hand-run load and is NOT a cadence; see its
+ * own note.
  */
 export enum EarthquakeIngestJobKind {
   /** The frequent, narrow-window tour that picks up new events. */
   Recent = 'recent',
   /** The infrequent, wide-window tour that catches late revisions. */
   Reconcile = 'reconcile',
+  /**
+   * The hand-run historical load (`db:import:earthquakes --phase=backfill`) — not a cadence.
+   *
+   * It is a member of this set because the ledger's question is "when did we last make successful
+   * contact", and a backfill DOES make contact: it fetches from AFAD live, now, and stores what it
+   * gets. What is historical about it is the events' origin times, which the ledger never asks
+   * about. Leaving it out is what made the store fill up while the ledger stayed empty, and the
+   * read side had to answer `stale` over tens of thousands of genuine rows (`FU-E2-BACKFILL-RUNROW`).
+   *
+   * **Adding this member needed no migration and is no contract change.** `job_kind` is a plain
+   * `varchar(16)` with no CHECK constraint (E1's `InitEarthquakeIngestRuns` migration), and this
+   * enum is stored and never published — unlike {@link MagnitudeType} and
+   * {@link EarthquakeBindingKind}, it appears in no DTO and in no `openapi.json` schema.
+   */
+  Backfill = 'backfill',
 }
+
+/**
+ * The two members that really are CADENCES — the scheduled tours, and nothing else.
+ *
+ * It exists because {@link EarthquakeIngestJobKind.Backfill} would otherwise be accepted by
+ * `buildAfadWindow`, which chooses its span with `=== Recent ? recentWindow : reconcileWindow` and
+ * would therefore hand a backfill a silent 7-day window. The hand-run load builds its own windows
+ * from `--from`/`--to`, so the fix is to make that call impossible to write rather than to add a
+ * branch nothing reaches.
+ */
+export type EarthquakeIngestCadence =
+  EarthquakeIngestJobKind.Recent | EarthquakeIngestJobKind.Reconcile;

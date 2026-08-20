@@ -63,13 +63,14 @@ describe('openapi/openapi.json — earthquake contract', () => {
    * green. Removing a field is a BREAKING contract change that goes to Atlas (`ENGINEERING.md`
    * §4).
    *
-   * **Adding a field is additive FOR CONSUMERS but is not free HERE, and E4 should expect that.**
+   * **Adding a field is additive FOR CONSUMERS but is not free HERE, and E4 duly paid it.**
    * The map below is a freeze, asserted with `toEqual` against the artifact's own key set and again
-   * against its `required` list, so publishing `disclaimerTr` on `EarthquakeMetaDto` turns two
-   * cases red until the field is added to this map (measured: exactly two). That is the guard doing
-   * its job rather than getting in the way — a schema must not gain a published field without
-   * somebody writing it down — but the earlier wording here promised the opposite ("needs no edit"),
-   * which would have met E4's author as a surprise CI failure (review #121 R2, R2CODE121-M2).
+   * against its `required` list, so publishing `disclaimerTr` on `EarthquakeMetaDto` turned two
+   * cases red until the field was added to this map (predicted: exactly two; observed: exactly
+   * those two). That is the guard doing its job rather than getting in the way — a schema must not
+   * gain a published field without somebody writing it down. An earlier wording here promised the
+   * opposite ("needs no edit"), which would have met E4's author as a surprise CI failure
+   * (review #121 R2, R2CODE121-M2); the deliberate edit is the one below.
    *
    * `EarthquakeListDto` repeats the four inherited envelope keys because `@nestjs/swagger` emits
    * the subclass FLAT: the artifact records no inheritance, so the published schema really does
@@ -122,6 +123,10 @@ describe('openapi/openapi.json — earthquake contract', () => {
       'dataUpdatedAtUtc',
       'latestEventAtUtc',
       'dataStatus',
+      // E4, additive: the owner-ruled early-warning note (DEC 2026-08-19l). Non-nullable, and
+      // absent from PUBLISHED_NULLABLE for that reason — a liability note that could arrive as
+      // `null` would let a consumer compile against a page with no disclaimer on it.
+      'disclaimerTr',
       'attributions',
     ],
   };
