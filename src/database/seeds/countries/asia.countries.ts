@@ -1439,10 +1439,12 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     landformNoteTr:
       'İran topraklarının büyük bölümü, yüksek kenar dağlarıyla çevrili bir iç plato ' +
       'karakterindedir. Ülkeyi kuzeybatıdan güneydoğuya kat eden Zagros Dağları birbirine ' +
-      'paralel sıralardan oluşur; güney-orta kesimde birçok zirve 4.000 metrenin üzerine ' +
-      "çıkar. Hazar Denizi kıyısını izleyen dar ama yüksek Elburz Dağları'nın ortasında " +
-      "yükselen 5.610 metrelik Damavend, İran'ın en yüksek noktasıdır ve Hindukuş'un " +
-      "batısında Avrasya'nın en yüksek ikinci zirvesidir; sönmüş bir yanardağdır." +
+      'paralel sıralardan oluşur; güney-orta kesimde birçok zirve 4.000 metrenin üzerine çıkar. ' +
+      "Hazar Denizi kıyısını izleyen dar ama yüksek Elburz Dağları'nın ortasında 5.610 metrelik " +
+      "Damavend yükselir. Bu stratovolkan İran'ın en yüksek noktasıdır ve Hindukuş'un batısında " +
+      "Avrasya'nın en yüksek ikinci zirvesidir. Tarihsel kayıtlara geçmiş bir püskürmesi yoktur. " +
+      'En genç lav akıntıları yaklaşık 7.000 yıl öncesine tarihlenir, zirve kraterinde bugün de ' +
+      'fümaroller görülür.' +
       '\n\n' +
       'Bu dağ kuşaklarının içinde kalan Merkezi Plato, birbirinden ayrık kapalı havzalardan ' +
       'oluşur. Bunların en bilineni, yaz aylarında dünyanın en sıcak yerlerinden biri haline ' +
@@ -1698,10 +1700,11 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'olmayan tek ülkesidir. Kuzeyde Gürcistan, doğuda Azerbaycan, güneyde İran, batıda ' +
       'Türkiye ile sınır komşusudur.',
     landformNoteTr:
-      "Ermenistan'ın coğrafyasına Küçük Kafkas Dağları hakimdir; bu sıradağ ülkenin " +
-      'kuzeyinden geçerek Sevan Gölü ile Azerbaycan sınırı arasında güneydoğuya uzanır ve ' +
-      'İran sınırına kadar devam eder. Ülkenin en yüksek noktası, sönmüş bir yanardağ olan ' +
-      "4.090 metrelik Aragats Dağı'dır." +
+      "Ermenistan'ın coğrafyasına Küçük Kafkas Dağları hakimdir; bu sıradağ ülkenin kuzeyinden " +
+      'geçerek Sevan Gölü ile Azerbaycan sınırı arasında güneydoğuya uzanır ve İran sınırına ' +
+      "kadar devam eder. Ülkenin en yüksek noktası, 4.090 metrelik Aragats Dağı'dır. Buzullarla " +
+      'yarılmış bu stratovolkanın ana kütlesi Pliyosen-Pleistosen yaşlıdır ve Smithsonian, ' +
+      "Aragats'ı Holosen'de etkinlik göstermiş volkanlar arasında listeler." +
       '\n\n' +
       'Ülke topraklarının neredeyse tamamı engebeli dağlar ve derin vadilerden oluşur; düzlük ' +
       "alanlar sınırlıdır, en genişi güneybatıdaki Ararat Ovası'dır.",
