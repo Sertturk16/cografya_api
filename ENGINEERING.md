@@ -382,11 +382,26 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   `import.meta`-derived path; both sides are realpath'd.
   - **Countries — `pnpm seed:transcribe`.** `apply <draft.md>` writes fact-checked prose into
     the wave files under `src/database/seeds/countries/*.countries.ts`, `check <draft.md>`
-    verifies it. **That directory is the tool's ENTIRE world** (`cli.ts` → `SEED_DIR`): it
-    never opens `country.seed-data.ts`, so the 8 pilot rows living there are invisible to it
-    and a new wave's rows must be created inside `countries/` to be transcribable at all.
+    verifies it. **That directory is the tool's ENTIRE world** (`cli.ts` → `SEED_DIR`): a row
+    must LIVE inside `countries/` to be transcribable at all, and a row declared anywhere else
+    is invisible to every mode. `country.seed-data.ts` now declares NO rows — it holds the
+    `CountrySeed` shape and the `SEED_COUNTRIES` composition only. It used to declare the 8
+    "pilot" rows (GR/BG/GE/AM/AZ/IR/IQ/SY), and that is exactly what this rule cost: their
+    prose sat outside every gate until FU-PILOT-RETIRE moved them into the wave files, and
+    two of them kept a factually wrong sentence through a wave that corrected six others.
     Country-only **by construction**: the pipeline keys rows on `isoCode`. See
     `tools/seed-transcription/README.md` for the join rule and the design rationale.
+  - **A DRAFT FIELD NAME OUTSIDE `NARRATIVE_FIELDS` IS A WARNING, NOT AN ERROR — so the gate
+    counts past it.** `draft-parser.ts` skips such a section and prints `ignoring <name> —
+    not a narrative field`; the `checked N field(s)` line then never mentions it and `exit 0`
+    says nothing about that prose. The live example is the pilot draft's merged
+    `landformClimateNoteTr`, which the seed splits into `landformNoteTr` + `climateNoteTr`
+    (see that file's FIELD-MAPPING DECISION 1): eight sections, sixteen field values, gated by
+    nothing. **Read the warnings beside the count, not only the exit code** — a green gate
+    over half a draft is the one false green the exit-code contract cannot express. Bringing
+    such a section under the gate means re-heading it into the seed's own field names, which
+    is a mechanical re-heading and must leave the prose byte-identical (FU-PILOT-RETIRE did
+    this for all eight: `checked 32 field(s): 32 identical`).
   - **Provinces — a per-wave ONE-OFF script, not a `package.json` command.** Provinces are
     keyed on `plateCode`, so they are driven by their own wave entry point run directly with
     `node`:

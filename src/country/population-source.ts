@@ -12,10 +12,13 @@
  * this constant — the five named exceptions below are the only rows publishing a different
  * institution's number. The plan's own §1.2 per-row source scan measured 185/190 over the
  * 191-row count in §1.1 (four base-data continents + sovereignty + territories + Türkiye);
- * that denominator omitted the 8 pilot rows that live directly in `country.seed-data.ts`
- * (outside `countries/*.countries.ts`, so invisible to `pnpm seed:transcribe`'s world) —
- * GR/BG/GE/AM/AZ/IR/IQ/SY. Those 8 are independently corroborated World-Bank-sourced by
- * `Owner's Inbox/dunya-haritasi-pilot/country-data-dictionary.md`, not by this scan
+ * that denominator omitted the 8 pilot rows — GR/BG/GE/AM/AZ/IR/IQ/SY — which at the time
+ * were declared directly in `country.seed-data.ts`, outside `countries/*.countries.ts` and
+ * therefore invisible to `pnpm seed:transcribe`'s world. They now live in the Asia and
+ * Europe/Oceania wave files (FU-PILOT-RETIRE), so a sweep of `countries/` reaches them
+ * today; 185/190 is left standing as the historical measurement and is deliberately NOT
+ * restated against the new shape. Those 8 are independently corroborated World-Bank-sourced
+ * by `Owner's Inbox/dunya-haritasi-pilot/country-data-dictionary.md`, not by that scan
  * (CR98-M7 / SG98-I2, PR #98 review).
  */
 export const DEFAULT_POPULATION_SOURCE_NAME = {
