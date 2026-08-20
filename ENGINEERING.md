@@ -400,8 +400,11 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
     nothing. **Read the warnings beside the count, not only the exit code** — a green gate
     over half a draft is the one false green the exit-code contract cannot express. Bringing
     such a section under the gate means re-heading it into the seed's own field names, which
-    is a mechanical re-heading and must leave the prose byte-identical (FU-PILOT-RETIRE did
-    this for all eight: `checked 32 field(s): 32 identical`).
+    is a mechanical re-heading and must leave the prose byte-identical. FU-PILOT-RETIRE
+    (PR #127) is the worked precedent for all eight pilot sections; **the gate output it
+    reports is reproducible only against the matching `Owner's Inbox/` draft revision**, which
+    lives in the orchestration root and not in this repo, so this rule states the METHOD and
+    deliberately pins no number here — re-run the lane and read your own exit code.
   - **Provinces — a per-wave ONE-OFF script, not a `package.json` command.** Provinces are
     keyed on `plateCode`, so they are driven by their own wave entry point run directly with
     `node`:

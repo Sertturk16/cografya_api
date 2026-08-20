@@ -16,7 +16,13 @@ import type { CountrySeed } from '../country.seed-data';
  *   and two of them kept a factually wrong sentence through a wave that corrected six
  *   others. They were moved here BYTE-IDENTICALLY (IR and AM then took their `landformNoteTr`
  *   correction through the tool, in a separate commit), each into the position its own
- *   `unSubregionTr` + English name gives it, which is this file's existing order rule. Their
+ *   `unSubregionTr` + English name gives it — matching the alphabetical-by-English-name order
+ *   the base-data source doc uses inside each of the subregion groups that received a row.
+ *   That is NOT a rule this file obeys everywhere: `Doğu Asya` is committed as China, Japan,
+ *   Mongolia, South Korea, North Korea, which is the source doc's order and not alphabetical.
+ *   The order rule here is "follow the source doc", so do not "fix" an existing group to match
+ *   the sentence above — that is the gratuitous re-ordering §5 forbids for `neighborIsoCodes`.
+ *   Their
  *   provenance block stays in `../country.seed-data.ts`.
  */
 export const ASIA_COUNTRIES: readonly CountrySeed[] = [

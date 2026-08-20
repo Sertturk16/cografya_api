@@ -141,7 +141,9 @@ export interface CountrySeed {
  *                                     (found 2026-08-06, kaynak-satırı micro §1.3 — the same
  *                                     defect class as the other four, previously unmeasured)
  *       Georgia USED to be a sixth (Geostat) and was retired on 2026-08-05 once the World Bank
- *       series caught up and began publishing that exact figure — see the GE row.
+ *       series caught up and began publishing that exact figure — see the GE row, which now
+ *       lives in `./countries/asia.countries.ts` (moved by FU-PILOT-RETIRE; this file declares
+ *       no rows).
  *       API-SIDE ONLY, still OPEN on the rendered page: the kaynak-satırı micro (2026-08-06,
  *       AK-8/AK-9) gave every row above (plus every ordinary row) a
  *       `population_source_name_tr/en` pair the service resolves at read time

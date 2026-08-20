@@ -44,8 +44,15 @@
  * (`pnpm seed:transcribe`), which keys on `isoCode` and cannot parse a `## 21. Diyarbakır`
  * heading, while this lane cannot parse a country section. Only two of those four landed:
  * `RU landformNoteTr` in `seed-draft-countries-w8.md` and `SV hydrographyNoteTr` back-ported into
- * the draft that already owns it. `IR` and `AM` live in `country.seed-data.ts`, which is outside
- * the country lane's `SEED_DIR` entirely (§8) — they are escalated to Atlas, not hand-edited.
+ * the draft that already owns it. `IR` and `AM` did NOT land in this wave: at the time they were
+ * declared in `country.seed-data.ts`, outside the country lane's `SEED_DIR` entirely (§8), so no
+ * `check` gate could reach them — they were escalated to Atlas rather than hand-edited.
+ * THAT IS NO LONGER THE STATE, and the difference decides which tool you reach for:
+ * FU-PILOT-RETIRE (PR #127, AK-36) moved all eight pilot rows into
+ * `src/database/seeds/countries/`, so both rows ARE inside the country lane's world now and
+ * both corrections landed there through `pnpm seed:transcribe apply --force`. A further IR/AM
+ * prose fix is an ordinary COUNTRY-lane wave — never a hand edit of `asia.countries.ts`, which
+ * is the PR #43 dropped-space path §8 forbids.
  *
  * WHICH LANE OWNS WHICH FILE (the §8 false-green rule): this lane owns `province.seed-data.ts`.
  * `pnpm seed:transcribe` owns `src/database/seeds/countries/` and cannot see this file, so

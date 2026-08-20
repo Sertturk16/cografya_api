@@ -16,7 +16,12 @@ import type { CountrySeed } from '../country.seed-data';
  *   reason. Until FU-PILOT-RETIRE they lived in `../country.seed-data.ts`, invisible to
  *   `pnpm seed:transcribe` (`ENGINEERING.md` §8), so their prose had no gate. Moved here
  *   BYTE-IDENTICALLY, each into the position its own `unSubregionTr` + English name gives
- *   it. Their provenance block stays in `../country.seed-data.ts`.
+ *   it — matching the alphabetical-by-English-name order the base-data source doc uses inside
+ *   Güney Avrupa and Doğu Avrupa. That is NOT a rule this file obeys everywhere: `Batı Avrupa`
+ *   is committed as Austria, Germany, Belgium, France … and `Mikronezya` puts Marshall Islands
+ *   before Micronesia, both of which follow the source doc rather than the alphabet. The order
+ *   rule here is "follow the source doc", so do not re-order an existing group to match the
+ *   sentence above. Their provenance block stays in `../country.seed-data.ts`.
  *
  * Avusturya (AT) — NOVA backfilled the source block (Section 3.1, Tier-1 MFA-verified) after
  *   the first sweep omitted it; seeded here with real data. Its independence field uses the
