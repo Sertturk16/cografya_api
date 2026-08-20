@@ -10,6 +10,13 @@ Nothing in this repo writes it. It is copied in, never regenerated, and never ha
 `.prettierignore` carries `data/reference/*.json` so `pnpm format` cannot quietly rewrite it either.
 The file has **no trailing newline**; that is part of the byte copy.
 
+> **The copy's own `_meta.statu` still reads `DRAFT — provenance defter satırı inmeden seed inmez`,
+> and that precondition IS met.** The two `provenance/datasets.md` rows (both 2026-08-20 — the TÜİK
+> source row and the MGM verification-only row) landed before this seed did. The line is stale
+> rather than wrong-at-the-time, and it is left untouched on purpose: a byte copy that gets edited
+> to read better is no longer a byte copy, and the hash below is what makes that rule enforceable.
+> Re-stamping the Inbox artefact is its author's, not this repo's.
+
 ---
 
 ## Why it is a copy and not a `.ts` seed array
