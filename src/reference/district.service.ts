@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Province } from '../province/entities/province.entity';
 import { DistrictDto } from './dto/district.dto';
 import { District } from './entities/district.entity';
 
@@ -45,23 +46,37 @@ export class DistrictService {
   ) {}
 
   /**
-   * The ilçe of one il, in Turkish alphabetical order.
+   * The ilçe of one il, in Turkish alphabetical order, addressed by the il's PLATE CODE.
    *
-   * An il with no rows — or a well-formed uuid matching no il at all — returns an EMPTY ARRAY, not
-   * a 404: `provinceId` is a filter, and "no ilçe matched" is a legitimate answer to a filter. A
-   * 404 would claim the route does not exist.
+   * ## The lookup key and the storage key are deliberately different
+   * `districts.province_id` is a uuid foreign key and stays one; the public contract takes
+   * `plateCode` because that is the only province key this api publishes (→ `DEC 2026-08-21c`).
+   * Translating between them is precisely a service's job, and doing it in ONE query keeps that
+   * translation from costing a round trip: an inner join against `provinces` resolves the key and
+   * filters in the same statement (the `book.service.ts` `leftJoin(BookVideoQuestion, …)`
+   * precedent). It also keeps this module's `forFeature` at a single entity, which matters because
+   * the plan's PR-2 hangs two repository-less constant lists off the same module.
+   *
+   * ## An unknown plate code returns an EMPTY ARRAY, not a 404
+   * The inner join simply matches nothing, which is the right answer twice over: `plateCode` is a
+   * filter rather than a resource id, and "this il has no ilçe row yet" and "this il does not
+   * exist" are the same thing to a form that is trying to populate a select. A 404 would claim the
+   * route does not exist. A MALFORMED code never reaches here — the global pipe answers 400 from
+   * `DistrictListQueryDto`.
    *
    * `select` is explicit so the timestamps and the foreign key never leave the process. The SQL
    * `ORDER BY` is not the published order — the collator below is — but it is kept so the input to
    * the sort is deterministic: `Array.prototype.sort` is stable, so without it two names the
    * collator considers equal would come back in whatever order the planner chose.
    */
-  async findByProvince(provinceId: string): Promise<DistrictDto[]> {
-    const rows = await this.districtRepository.find({
-      where: { provinceId },
-      select: { id: true, nameTr: true },
-      order: { nameTr: 'ASC' },
-    });
+  async findByProvincePlateCode(plateCode: string): Promise<DistrictDto[]> {
+    const rows = await this.districtRepository
+      .createQueryBuilder('district')
+      .innerJoin(Province, 'province', 'province.id = district.provinceId')
+      .where('province.plateCode = :plateCode', { plateCode })
+      .select(['district.id', 'district.nameTr'])
+      .orderBy('district.nameTr', 'ASC')
+      .getMany();
 
     return rows
       .sort((left, right) => TURKISH_COLLATOR.compare(left.nameTr, right.nameTr))

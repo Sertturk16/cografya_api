@@ -206,7 +206,7 @@ describe('Reference — districts (e2e)', () => {
       const istanbul = provinceByPlate('34');
       const response = await request(app.getHttpServer())
         .get('/api/reference/districts')
-        .query({ provinceId: istanbul.id })
+        .query({ plateCode: istanbul.plateCode })
         .expect(200);
 
       expect(Array.isArray(response.body)).toBe(true);
@@ -220,7 +220,7 @@ describe('Reference — districts (e2e)', () => {
     it('serves exactly id and nameTr — no foreign key, no timestamps', async () => {
       const response = await request(app.getHttpServer())
         .get('/api/reference/districts')
-        .query({ provinceId: provinceByPlate('01').id })
+        .query({ plateCode: '01' })
         .expect(200);
 
       for (const district of response.body as ServedDistrict[]) {
@@ -248,7 +248,7 @@ describe('Reference — districts (e2e)', () => {
         });
         const response = await request(app.getHttpServer())
           .get('/api/reference/districts')
-          .query({ provinceId: province.id })
+          .query({ plateCode: province.plateCode })
           .expect(200);
 
         const servedNames = (response.body as ServedDistrict[]).map((district) => district.nameTr);
@@ -275,34 +275,56 @@ describe('Reference — districts (e2e)', () => {
       // account.
       await request(app.getHttpServer())
         .get('/api/reference/districts')
-        .query({ provinceId: provinceByPlate('06').id })
+        .query({ plateCode: '06' })
         .expect(200);
     });
 
-    it('answers 400 when provinceId is missing', async () => {
+    it('answers 400 when plateCode is missing', async () => {
       await request(app.getHttpServer()).get('/api/reference/districts').expect(400);
     });
 
-    it('answers 400 when provinceId is not a uuid', async () => {
-      await request(app.getHttpServer())
+    it('answers 400 when plateCode is not exactly two zero-padded digits', async () => {
+      // `6` is not a lenient spelling of `06`: `provinces.plate_code` is a two-character string so
+      // that its lexical ordering stays correct, which makes an unpadded code a different key.
+      for (const malformed of ['6', '345', 'ab', '3 4', '']) {
+        await request(app.getHttpServer())
+          .get('/api/reference/districts')
+          .query({ plateCode: malformed })
+          .expect(400);
+      }
+    });
+
+    it('answers 400 to the RETIRED provinceId parameter instead of ignoring it', async () => {
+      // Half of `DEC 2026-08-21c` is that the old call shape must not be silently accepted. Without
+      // a query DTO an unknown parameter is dropped and the request degrades to "no filter at all";
+      // with one, `forbidNonWhitelisted` refuses it by name. Asserted with a real province uuid so
+      // the rejection cannot be blamed on the value being nonsense — it is the PARAMETER that is
+      // gone.
+      const istanbul = provinceByPlate('34');
+      const response = await request(app.getHttpServer())
         .get('/api/reference/districts')
-        .query({ provinceId: '34' })
+        .query({ provinceId: istanbul.id })
         .expect(400);
+
+      const body = response.body as { message: string[] };
+      expect(body.message).toEqual(expect.arrayContaining([expect.stringContaining('provinceId')]));
     });
 
     it('answers 400 on an unknown query parameter rather than ignoring it', async () => {
       await request(app.getHttpServer())
         .get('/api/reference/districts')
-        .query({ provinceId: provinceByPlate('34').id, utm_source: 'x' })
+        .query({ plateCode: '34', utm_source: 'x' })
         .expect(400);
     });
 
-    it('answers 200 with an empty array for a well-formed uuid that matches no province', async () => {
+    it('answers 200 with an empty array for a well-formed plate code that names no province', async () => {
       // A query parameter is a FILTER, not a resource id: "no ilçe matched" is a legitimate answer,
-      // and 404 would claim the route does not exist.
+      // and 404 would claim the route does not exist. `99` is well-formed and Türkiye has 81
+      // provinces — deliberately NOT pinned to 01–81 in the pattern, because a contract tighter
+      // than the data would 400 a lawful 82nd plate code before its seed could land.
       const response = await request(app.getHttpServer())
         .get('/api/reference/districts')
-        .query({ provinceId: '00000000-0000-4000-8000-000000000000' })
+        .query({ plateCode: '99' })
         .expect(200);
 
       expect(response.body).toEqual([]);

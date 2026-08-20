@@ -18,7 +18,7 @@ import { DistrictDto } from './dto/district.dto';
  * is stated separately because a shared cache is where this list should actually live.
  *
  * It rides `@CacheControl` rather than `@Header` so it is set on SUCCESS ONLY — a 400 for a
- * malformed `provinceId` must not be cached for a day, or a client that fixes its bug keeps being
+ * malformed `plateCode` must not be cached for a day, or a client that fixes its bug keeps being
  * served the error.
  */
 const DISTRICT_CACHE_CONTROL =
@@ -49,20 +49,23 @@ export class DistrictController {
   @Get('districts')
   @CacheControl(DISTRICT_CACHE_CONTROL)
   @ApiOperation({
-    summary: "List one province's districts (ilçe), Turkish-alphabetical.",
+    summary: "List one province's districts (ilçe) by plate code, Turkish-alphabetical.",
     description:
       'A plain typed array — no envelope and no pagination, the bounded-set rule ' +
       '`ENGINEERING.md` §2 already applies to the 81 provinces: the largest province has fewer ' +
-      'than 40 ilçe and the whole set is 973. The order is the order to render.',
+      'than 40 ilçe and the whole set is 973. The order is the order to render. The province is ' +
+      'addressed by the two-digit plate code published on every province payload; the internal ' +
+      'uuid is never part of this contract.',
   })
   @ApiOkResponse({ type: DistrictDto, isArray: true })
   @ApiBadRequestResponse({
     description:
-      'provinceId is missing or is not a well-formed uuid, or an unrecognised query parameter was ' +
-      'sent — unknown parameters are rejected rather than ignored. Distinct from an empty array, ' +
-      'which means the parameter was well-formed and matched no ilçe.',
+      'plateCode is missing or is not exactly two zero-padded digits, or an unrecognised query ' +
+      'parameter was sent — unknown parameters are rejected rather than ignored, and that ' +
+      'includes the retired provinceId. Distinct from an empty array, which means the parameter ' +
+      'was well-formed and matched no ilçe.',
   })
   findDistricts(@Query() query: DistrictListQueryDto): Promise<DistrictDto[]> {
-    return this.districtService.findByProvince(query.provinceId);
+    return this.districtService.findByProvincePlateCode(query.plateCode);
   }
 }

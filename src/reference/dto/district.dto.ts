@@ -9,11 +9,13 @@ import { ApiProperty } from '@nestjs/swagger';
  * has no page (`DEC 2026-08-20i` md.2), so there is no detail view to size a second tier for, and
  * the entity stores nothing this shape omits except its timestamps and its foreign key.
  *
- * ## `provinceId` is deliberately NOT echoed back
- * The caller supplied it — it is the required query parameter of the only route that returns this
- * type — so echoing it would add 973 copies of a value the client already holds to the only
- * response shape that carries it. `ENGINEERING.md` §2 admits a "Response" tier where a write echo
- * genuinely needs one; this is a read, and it does not.
+ * ## The owning il is deliberately NOT echoed back
+ * The caller supplied it — `plateCode` is the required query parameter of the only route that
+ * returns this type — so echoing it would repeat a value the client already holds on every one of
+ * up to 39 items. `ENGINEERING.md` §2 admits a "Response" tier where a write echo genuinely needs
+ * one; this is a read, and it does not. The uuid foreign key is not echoed either, and for a
+ * second reason on top of that one: `provinces.id` is not part of any published contract
+ * (→ `DEC 2026-08-21c`), so putting it in a response body would publish it by the back door.
  */
 export class DistrictDto {
   @ApiProperty({
