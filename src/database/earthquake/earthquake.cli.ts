@@ -1,5 +1,6 @@
 import { isAbsolute, join } from 'node:path';
 import { DataSource } from 'typeorm';
+import { describeError, describeErrorWithName } from '../../common/describe-error';
 import { parseAfadEventsBody } from '../../earthquake/afad/afad-event.parse';
 import { quoteProviderText } from '../../earthquake/afad/afad-log-safe';
 import { toAfadQueryStamp } from '../../earthquake/afad/afad-time';
@@ -76,6 +77,7 @@ const BACKFILL_MAX_RESPONSE_BYTES = 16 * 1024 * 1024;
  */
 export const DEFAULT_SCOPE_BUFFER_KM = 200;
 export const DEFAULT_SAFETY_LIMIT = 20_000;
+export const DEFAULT_STALE_MAX_SECONDS = 10_800;
 
 export type EarthquakePhase = 'probe' | 'boundary' | 'backfill';
 
@@ -122,6 +124,23 @@ type MutableBackfillTally = { -readonly [K in keyof BackfillTally]: BackfillTall
  * empty historical range is a fact about the range, not a fault, and the scheduled tours' own
  * `fetchedCount === 0` question is a separate open follow-up rather than something to answer
  * differently in two places.
+ *
+ * ## A load can succeed and still be the wrong thing to anchor freshness on
+ * The ledger's unit is CONTACT, and by that unit a historical repair run at 09:00 today really did
+ * reach AFAD at 09:00 today. But the value the read path derives from that row is published as
+ * DATA freshness — `EarthquakeMetaDto.dataUpdatedAtUtc`, and `dataStatus` on top of it — and the
+ * two coincide only because a TOUR always asks for a window ending now. A backfill's window is
+ * whatever the operator typed. `--from=2025-11-01 --to=2025-12-01`, run to repair an archive gap
+ * while the scheduled ingest has been failing for two days, would otherwise flip the public pages
+ * from an honest `stale` to `ok` with `dataUpdatedAtUtc` = now — over a list frozen two days ago,
+ * for the whole freshness budget plus a CDN hour (review #125 SFH125-I1; the shape SFH121-I1 and
+ * the `pruneRuns` anchor divergence already fixed twice on the read side).
+ *
+ * So a completed load whose window ENDS more than `staleMaxSeconds` before it FINISHED keeps
+ * `outcome: 'ok'` — the call did succeed, which is what the outcome word describes — and carries a
+ * reason. That is the same discriminator the anchor query already excludes on, so it needs no
+ * migration and no read-side change: the row records contact, and says in the one column a reader
+ * and the query both see that it does not claim current coverage.
  */
 export function buildBackfillRunInput(input: {
   readonly startedAtUtc: Date;
@@ -132,21 +151,44 @@ export function buildBackfillRunInput(input: {
   /** The message that stopped the load, or `null` when it ran to the end. */
   readonly failure: string | null;
   readonly rejectionReasons: ReadonlySet<string>;
+  /**
+   * The READ side's own freshness budget (`EARTHQUAKE_STALE_MAX_SECONDS`), in seconds.
+   *
+   * Deliberately the same number `resolveEarthquakeFreshness` uses, because the question this
+   * function has to answer is exactly the read side's: if this row anchored, would the coverage
+   * behind it already be older than the budget the published `ok` promises?
+   */
+  readonly staleMaxSeconds: number;
 }): RecordRunInput {
   const { tally } = input;
   const nothingReachedTheStore =
     tally.inserted === 0 && tally.updated === 0 && tally.unchanged === 0;
 
   let outcome: UpstreamOutcomeKind = 'ok';
-  let errorReason: string | null = null;
+  // Collected rather than assigned, so a load that hit BOTH degradations records both instead of
+  // whichever branch happens to be tested first. `recordRun` truncates at 500 chars keeping the
+  // LEADING text, so the order here is the order of importance.
+  const reasons: string[] = [];
   if (input.failure !== null) {
     outcome = 'transient';
-    errorReason = input.failure;
-  } else if (tally.fetched > 0 && nothingReachedTheStore) {
-    errorReason =
-      `the provider returned ${String(tally.fetched)} row(s) over ${String(tally.windows)} ` +
-      'window(s) and not one reached the store; refusal reasons: ' +
-      ([...input.rejectionReasons].sort().join(' | ') || '(none recorded)');
+    reasons.push(input.failure);
+  } else {
+    if (tally.fetched > 0 && nothingReachedTheStore) {
+      reasons.push(
+        `the provider returned ${String(tally.fetched)} row(s) over ${String(tally.windows)} ` +
+          'window(s) and not one reached the store; refusal reasons: ' +
+          ([...input.rejectionReasons].sort().join(' | ') || '(none recorded)'),
+      );
+    }
+    const coverageLagSeconds =
+      (input.finishedAtUtc.getTime() - input.windowEndUtc.getTime()) / 1000;
+    if (coverageLagSeconds > input.staleMaxSeconds) {
+      reasons.push(
+        `this load covered ${input.windowStartUtc.toISOString()}..${input.windowEndUtc.toISOString()}, ` +
+          `which ends ${String(Math.round(coverageLagSeconds / 3600))} h before the load finished; ` +
+          'it records contact with the provider, not current coverage',
+      );
+    }
   }
 
   return {
@@ -155,14 +197,17 @@ export function buildBackfillRunInput(input: {
     finishedAtUtc: input.finishedAtUtc,
     outcome,
     // The range the OPERATOR asked for, not the last chunk: the ledger's window column exists so a
-    // gap in coverage is auditable afterwards, and one load covers one range.
+    // gap in coverage is auditable afterwards, and one load covers one range. On a load that
+    // stopped part-way these two columns still record what was ASKED for — where it actually got
+    // to rides in `errorReason`, which `runBackfill` prefixes with `backfill stopped at <stamp>`
+    // for every abort class (review #125 CODE125-I1).
     windowStartUtc: input.windowStartUtc,
     windowEndUtc: input.windowEndUtc,
     fetchedCount: tally.fetched,
     insertedCount: tally.inserted,
     updatedCount: tally.updated,
     skippedOutOfScopeCount: tally.skippedOutOfScope,
-    errorReason,
+    errorReason: reasons.length === 0 ? null : reasons.join('; '),
   };
 }
 
@@ -336,6 +381,14 @@ async function runBackfill(argv: readonly string[]): Promise<void> {
     'EARTHQUAKE_SAFETY_LIMIT',
     DEFAULT_SAFETY_LIMIT,
   );
+  // Read for the same reason and from the same environment: the ledger row this load writes decides
+  // whether the PUBLIC freshness claim moves, and the budget that claim is measured against is the
+  // server's, not a second number invented here (see `buildBackfillRunInput`).
+  const staleMaxSeconds = readPositiveIntEnv(
+    process.env,
+    'EARTHQUAKE_STALE_MAX_SECONDS',
+    DEFAULT_STALE_MAX_SECONDS,
+  );
 
   // These CLIs run outside Nest's DI, so there is no ConfigService and no `.env` is loaded —
   // `DATABASE_URL` is read straight from the environment (`ENGINEERING.md` §5, the seed rule).
@@ -378,6 +431,12 @@ async function runBackfill(argv: readonly string[]): Promise<void> {
     );
 
     let failure: string | null = null;
+    // The window the loop is inside, so the outer catch can say WHERE the load stopped. Two of the
+    // four abort classes composed their own `backfill stopped at …` prefix and two did not — a
+    // parser refusal and a database error landed in `error_reason` with no position at all, so the
+    // only durable record of a partial load claimed the operator's whole range and the resume point
+    // survived nowhere (review #125 CODE125-I1). Composed in ONE place now, for all four.
+    let stoppedAtWindowStart: Date | null = null;
     try {
       for (let cursor = from.getTime(); cursor < to.getTime(); cursor += chunkDays * 86_400_000) {
         if (tally.windows > 0) {
@@ -385,6 +444,7 @@ async function runBackfill(argv: readonly string[]): Promise<void> {
         }
         tally.windows += 1;
         const windowStart = new Date(cursor);
+        stoppedAtWindowStart = windowStart;
         const windowEnd = new Date(Math.min(cursor + chunkDays * 86_400_000, to.getTime()));
 
         const url =
@@ -396,9 +456,10 @@ async function runBackfill(argv: readonly string[]): Promise<void> {
           redirect: 'error',
         });
         if (!response.ok) {
+          // No `backfill stopped at …` prefix here or below: the outer catch composes it for every
+          // abort class from `stoppedAtWindowStart`, so this message says only what went wrong.
           throw new Error(
-            `backfill stopped at ${toAfadQueryStamp(windowStart)}: HTTP ${String(response.status)}. ` +
-              'Nothing already written is lost — re-run from this day.',
+            `HTTP ${String(response.status)}. Nothing already written is lost — re-run from this day.`,
           );
         }
 
@@ -407,8 +468,8 @@ async function runBackfill(argv: readonly string[]): Promise<void> {
           body = await readBodyCapped(response, url, BACKFILL_MAX_RESPONSE_BYTES);
         } catch (error: unknown) {
           throw new Error(
-            `backfill stopped at ${toAfadQueryStamp(windowStart)}: ${error instanceof Error ? error.message : String(error)} ` +
-              'Nothing already written is lost — re-run from this day, with a smaller --chunk-days.',
+            `${describeError(error)} Nothing already written is lost — re-run from this day, ` +
+              'with a smaller --chunk-days.',
             { cause: error },
           );
         }
@@ -446,7 +507,15 @@ async function runBackfill(argv: readonly string[]): Promise<void> {
         );
       }
     } catch (error: unknown) {
-      failure = error instanceof Error ? error.message : String(error);
+      // `describeErrorWithName`, as the scheduled tour does it: this string is the load's only
+      // durable diagnosis, and the CLASS is the half that tells an upstream fault from one of ours
+      // — `QueryFailedError: …` under `outcome: 'transient'` is the reader's warning not to read
+      // that outcome as a statement about AFAD's health.
+      const message = describeErrorWithName(error);
+      failure =
+        stoppedAtWindowStart === null
+          ? message
+          : `backfill stopped at ${toAfadQueryStamp(stoppedAtWindowStart)}: ${message}`;
     }
 
     // The ledger row goes in on BOTH paths, before the failure is re-thrown — see the function
@@ -459,6 +528,7 @@ async function runBackfill(argv: readonly string[]): Promise<void> {
       tally,
       failure,
       rejectionReasons,
+      staleMaxSeconds,
     });
     try {
       await store.recordRun(runInput);
