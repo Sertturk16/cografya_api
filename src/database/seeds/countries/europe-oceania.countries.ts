@@ -2039,9 +2039,10 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'kalan Orta Sibirya Platosu, derin vadilerle yarılmış bir yayla karakterindedir.' +
       '\n\n' +
       "Ülkenin güneyinde, Gürcistan sınırına yakın Kafkas Dağları'nda yükselen 5.642 metrelik " +
-      "Elbruz, hem Rusya'nın hem Avrupa'nın en yüksek noktasıdır — sönmüş bir stratovolkandır. " +
-      "Uzak Doğu'da ise Kamçatka Yarımadası'nın etkin yanardağları ve Sibirya'nın dağlık " +
-      'kuşakları, ülkenin en engebeli kesimlerinden bazılarını oluşturur.',
+      "Elbruz, hem Rusya'nın hem Avrupa'nın en yüksek noktasıdır. Bu stratovolkanın bilinen son " +
+      'püskürmesi MS 50 dolaylarındadır ve zirvesi çevresinde zayıf solfatar etkinliği rapor ' +
+      "edilmiştir. Uzak Doğu'da ise Kamçatka Yarımadası'nın etkin yanardağları ve Sibirya'nın " +
+      'dağlık kuşakları, ülkenin en engebeli kesimlerinden bazılarını oluşturur.',
     climateNoteTr:
       'Ülkenin devasa yüzölçümü ve denizden uzaklığı, iklimi kuzeyden güneye altı geniş kuşağa ' +
       'ayırır: kutup çölü, tundra, tayga, karışık-yapraklı orman, orman-bozkır ve bozkır. Kuzey ' +
