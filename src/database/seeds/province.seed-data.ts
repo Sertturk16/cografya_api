@@ -5407,8 +5407,9 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     //    net göç -5,79 ‰; GSYH share %0,3.
     landformNoteTr:
       "Karaman, kuzeyde İç Anadolu'nun step platosu ile güneyde Toros Dağları'nın başladığı bir " +
-      'geçiş kuşağındadır. İlin kuzeyindeki Karadağ volkanik bir kütledir; güneydeki Ermenek ve ' +
-      "Sarıveliler ilçelerinde ise Toros'un dik, ormanlık dağlık arazisi başlar.",
+      'geçiş kuşağındadır. İlin kuzeyinde, Konya sınırındaki Karadağ volkanik bir kütledir; ' +
+      "güneydeki Ermenek ve Sarıveliler ilçelerinde ise Toros'un dik, ormanlık dağlık arazisi " +
+      'başlar.',
     introTr:
       "Karaman, 1989'da Konya'dan ayrılarak ayrı bir il olmuştur; 13-16. yüzyıllar arasında " +
       "Anadolu'nun güçlü beyliklerinden Karamanoğulları'na başkentlik yapmıştır. İlin " +
