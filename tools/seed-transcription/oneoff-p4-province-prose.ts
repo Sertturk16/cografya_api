@@ -47,8 +47,11 @@
  *
  * WHICH LANE OWNS WHICH FILE (the §8 false-green rule): this lane owns `province.seed-data.ts`.
  * `pnpm seed:transcribe` owns `src/database/seeds/countries/` and cannot see this file. This PR
- * also re-attributes Georgia's population comment in `country.seed-data.ts` — a COMMENT, no value
- * and no prose changed there, so no country-lane transcription is involved.
+ * also re-attributes Georgia's population comment, which at the time sat in
+ * `country.seed-data.ts` and now travels with the GE row in
+ * `../../src/database/seeds/countries/asia.countries.ts` (moved by FU-PILOT-RETIRE) —
+ * a COMMENT, no value and no prose changed there, so no country-lane transcription is
+ * involved.
  *
  * The draft lives OUTSIDE the repo (`Owner's Inbox/`), so the path is a CLI argument and this
  * ENTRY POINT is wired into NO CI job (it is covered by `typecheck` only). The logic it drives IS

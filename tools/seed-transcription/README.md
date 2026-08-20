@@ -4,7 +4,8 @@ Deterministic transcription of fact-checked narrative drafts into the country se
 
 > **This CLI is the COUNTRY lane. Provinces have a separate one.**
 > `pnpm seed:transcribe` resolves rows by `isoCode` and only ever reads
-> `src/database/seeds/country.seed-data.ts`. Province narrative waves are keyed on
+> `src/database/seeds/countries/*.countries.ts` (`cli.ts` → `SEED_DIR`) — never
+> `country.seed-data.ts`, which declares no rows. Province narrative waves are keyed on
 > `plateCode` and are driven by a per-wave one-off entry point run directly with `node`:
 >
 > ```bash
