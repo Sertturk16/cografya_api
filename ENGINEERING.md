@@ -299,15 +299,23 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
     check.
 - **Seeds are split PER CORPUS — one `package.json` script each. There is no umbrella
   `db:seed` and no `db:seed:dev`**; a doc or a setup recipe naming either is stale, and
-  following it runs a command that does not exist. The three that do exist are
+  following it runs a command that does not exist. The four that do exist are
   **`db:seed:geography`** (the 81 provinces — the platform's most critical seed),
-  **`db:seed:world`** (the country corpus) and **`db:seed:books`** (books plus their
-  video-solution rows). Each runs against the compiled build, assumes `migration:run`
+  **`db:seed:world`** (the country corpus), **`db:seed:books`** (books plus their
+  video-solution rows) and **`db:seed:reference`** (the 973 ilçe the registration form's
+  "İlçe" select reads). Each runs against the compiled build, assumes `migration:run`
   has already created the schema, and reads `DATABASE_URL` straight from the environment
   — these CLIs run outside Nest's DI, so there is no `ConfigService` and no `.env` is
-  loaded for them. The one exception is `db:seed:books --check`, which validates the
-  committed corpus and returns before touching `DATABASE_URL` or opening a connection at
-  all (`books.cli.ts`) — so it is the one seed command that runs without a database.
+  loaded for them. **`db:seed:reference` additionally requires `db:seed:geography` to have
+  run first**, because every ilçe hangs off a province row and its first gate refuses a run
+  against an empty `provinces`; skipping it leaves `districts` empty, and an empty table is
+  not an error anywhere — the endpoint answers `200 []` for every plate code and the
+  registration form's select comes up blank. There are **two** exceptions to the
+  `DATABASE_URL` requirement: `db:seed:books --check` and `db:seed:reference --check`, each
+  of which validates the committed corpus and returns before touching `DATABASE_URL` or
+  opening a connection at all (`books.cli.ts`, `reference.cli.ts`) — so those are the two
+  seed commands that run without a database, and the ones a reviewer can run on any
+  machine.
   Seed discipline notes belong on the entity (e.g. `plate_code` is zero-padded to 2 chars
   so the lexical `ORDER BY plate_code` stays correct). No secrets or PII in seeds.
   **`neighborIsoCodes` array order is a PUBLISHED render order** (the web detail page

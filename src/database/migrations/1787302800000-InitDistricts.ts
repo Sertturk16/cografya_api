@@ -49,15 +49,20 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  *   Postgres ARE, and `$` still anchors at end-of-string), any Unicode letter, digits, punctuation,
  *   and an ALL-CAPS name. The last one matters most and is the reason this constraint stops where
  *   it does — `BOĞAZİÇİ` and an `i` carrying an invisible U+0307 are defects of the SOURCE
- *   TRANSFORMATION (`DEC 2026-08-20m` md.6; a locale-blind lowercase converter produces U+0307 in
- *   308 of these 973 names, measured), and a transformation is judged in the load phase, where the
+ *   TRANSFORMATION (`DEC 2026-08-20p` md.5, the ruling that extends `DEC 2026-08-20m` md.6 to
+ *   these 973 names and binds the STORED value; a locale-blind lowercase converter produces U+0307
+ *   in 308 of them, measured), and a transformation is judged in the load phase, where the
  *   error message can name the source file and the offending row. They are refused in
  *   `src/database/seeds/district.artifact.ts`. A CHECK constraint that half-guarded them would
  *   invite the belief that the column guarantees a writing form it does not.
  *
- * `down()` drops the table, which takes its index and constraints with it. It is genuinely
- * reversible: every row is reproducible from the committed artefact by re-running the seed (plan
- * §9, M1).
+ * `down()` drops the table, which takes its index and constraints with it. Every row's CONTENT is
+ * reproducible from the committed artefact by re-running the seed (plan §9, M1) — but the
+ * IDENTIFIERS are not: `id` defaults to `gen_random_uuid()`, so a down/up/re-seed cycle mints 973
+ * new uuids. That is harmless today, because nothing references this table and the api never
+ * publishes a district id it did not just read. It stops being harmless the moment the plan's PR-3
+ * adds `users.district_id`, and the same property already governs a RENAME (a removal plus an
+ * insert — see `seed-reference.ts`), so the PR that adds that column owns both cases.
  */
 export class InitDistricts1787302800000 implements MigrationInterface {
   name = 'InitDistricts1787302800000';

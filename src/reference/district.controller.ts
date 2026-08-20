@@ -33,8 +33,10 @@ const DISTRICT_CACHE_CONTROL =
  * role on this leg at all. Rows change only through a seed run.
  *
  * **No personal data passes through here** (`ENGINEERING.md` §3.6): a request carries one province
- * id and the response carries place names. This route is the reason the form CAN avoid a free-text
- * ilçe field, which is the KVKK-cheaper shape.
+ * PLATE CODE — a two-digit public administrative fact, not an identifier of anybody — and the
+ * response carries place names. Since `DEC 2026-08-21c` it is not even a province uuid: the
+ * surrogate key stays unpublished. This route is the reason the form CAN avoid a free-text ilçe
+ * field, which is the KVKK-cheaper shape.
  *
  * The controller path is `reference` rather than `districts` because the plan's PR-2 adds
  * `/api/reference/universities` and `/api/reference/departments` beside it — one prefix for "lists

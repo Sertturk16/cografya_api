@@ -119,7 +119,10 @@ number this artefact carries and the one the load phase enforces against
 anything here:
 
 - **The writing form is checked, and the database deliberately does not check it.** `DEC
-  2026-08-20m` md.6 rules the reader sees `Kadıköy`, not `KADIKÖY`. The source is ALL-CAPS, so
+  2026-08-20p` md.5 rules the reader sees `Kadıköy`, not `KADIKÖY`, for all 973 of these names —
+  it is the ruling that extends `DEC 2026-08-20m` md.6 (written for university and department
+  names, and carrying a "store the source form, convert only on screen" half that would say the
+  opposite here) to this list. The source is ALL-CAPS, so
   every name went through a hand-written `İ`→`i` / `I`→`ı` mapping; a ready-made converter puts an
   invisible U+0307 into **308** of these 973 names. The load phase refuses both an ALL-CAPS
   leftover and a U+0307, because a transformation is judged where the error message can name the

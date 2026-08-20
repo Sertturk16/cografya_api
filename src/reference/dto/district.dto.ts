@@ -31,7 +31,7 @@ export class DistrictDto {
     example: 'Kadıköy',
     maxLength: 100,
     description:
-      'İlçe adı (TR), okurun gördüğü yazımla — "Kadıköy", "KADIKÖY" değil (DEC 2026-08-20m md.6). ' +
+      'İlçe adı (TR), okurun gördüğü yazımla — "Kadıköy", "KADIKÖY" değil (DEC 2026-08-20p md.5). ' +
       'Kaynak: TÜİK Coğrafi İstatistik Portalı (bkz. provenance/datasets.md, 2026-08-20 satırı).',
   })
   nameTr!: string;

@@ -69,8 +69,17 @@ describe('districts.tuik.json (committed artefact)', () => {
 
   describe('the committed file itself', () => {
     it('reads, hash-checks and validates through the real load path', () => {
+      // The province figure IS an equality: Türkiye has exactly 81 plate codes and the next test
+      // asserts the whole set, so a 82nd would be a different fact from a truncated export.
       expect(artifact.provinces).toHaveLength(ARTIFACT_COVERAGE_FLOOR.provinces);
-      expect(artifact.districtCount).toBe(ARTIFACT_COVERAGE_FLOOR.districts);
+      // The district figure is a FLOOR, and asserting equality here contradicted the constant's own
+      // docblock ("These are floors, not equalities … equality would turn a lawful new ilçe into a
+      // red gate"). Under equality, the PR that lands a newly created ilçe turns `Test (unit)` red
+      // for a change the production code accepts, and the cheapest green is to move the floor —
+      // which makes it a moving target and retires the one thing it exists to catch, a truncated
+      // export. Two independent witnesses of the exact number already pass in this file
+      // (`_meta.toplamIlce`, and the per-province `districtCount` agreement), so nothing is lost.
+      expect(artifact.districtCount).toBeGreaterThanOrEqual(ARTIFACT_COVERAGE_FLOOR.districts);
     });
 
     it('carries every plate code from 01 to 81, zero-padded', () => {
@@ -105,14 +114,15 @@ describe('districts.tuik.json (committed artefact)', () => {
     });
   });
 
-  describe('the writing-form refusals (DEC 2026-08-20m md.6)', () => {
-    it('every committed name is in normal writing, trimmed, and free of U+0307', () => {
-      // The rule stated positively over the whole corpus. The three tests below are its positive
+  describe('the writing-form refusals (DEC 2026-08-20p md.5)', () => {
+    it('every committed name is in normal writing, trimmed, NFC, and free of U+0307', () => {
+      // The rule stated positively over the whole corpus. The tests below are its positive
       // controls: they prove each clause can fail.
       for (const province of artifact.provinces) {
         for (const name of province.districtNamesTr) {
           expect(name).toBe(name.trim());
           expect(name).not.toContain('\u0307');
+          expect(name).toBe(name.normalize('NFC'));
           expect(name === name.toLocaleUpperCase('tr')).toBe(false);
         }
       }
@@ -146,6 +156,44 @@ describe('districts.tuik.json (committed artefact)', () => {
           if (district) district.nameTr = ` ${district.nameTr}`;
         }),
       ).toThrow(/leading\/trailing whitespace/);
+    });
+
+    it('refuses a name the source case-conversion only PARTLY transformed', () => {
+      // `KADIköy` — what a half-working converter emits. The whole-name ALL-CAPS test above cannot
+      // see it, and neither can any other refusal on this lane.
+      expect(
+        parseMutated((json) => {
+          const district = provincesOf(json)[0]?.districts[0];
+          if (district) {
+            const { nameTr } = district;
+            district.nameTr = nameTr.slice(0, 3).toLocaleUpperCase('tr') + nameTr.slice(3);
+          }
+        }),
+      ).toThrow(/only PARTLY converted/);
+    });
+
+    it('refuses a decomposed (non-NFC) name, which is invisible in every diff', () => {
+      // 404 of these 973 names change under NFD. A consistently-decomposed corpus would satisfy
+      // every count gate, every join and the unique constraint, and still publish 404 names as a
+      // different byte string from the one a reader types.
+      expect(
+        parseMutated((json) => {
+          const district = provincesOf(json)[0]?.districts[0];
+          if (district) district.nameTr = district.nameTr.normalize('NFD');
+        }),
+      ).toThrow(/not in Unicode NFC/);
+    });
+
+    it('refuses a doubled space', () => {
+      // The fifth clause of `assertWritingForm`, and the one that had no red-side mutation while
+      // the other four did. `19 Mayıs` is the only name carrying a space at all, so a doubled one
+      // is a transformation slip rather than a spelling.
+      expect(
+        parseMutated((json) => {
+          const district = provincesOf(json)[0]?.districts[0];
+          if (district) district.nameTr = `${district.nameTr}  x`;
+        }),
+      ).toThrow(/doubled space/);
     });
 
     it('refuses a whitespace character that is not a plain space', () => {

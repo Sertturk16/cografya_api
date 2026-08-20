@@ -56,6 +56,16 @@ const TURKISH_COLLATOR = new Intl.Collator('tr');
 const TEST_INTERNAL_TOKEN = 'e2e-trusted-client-token-0123456789-abcdefgh';
 
 /**
+ * Test-only opt-out from the trusted-client middleware below — the `marine.e2e-spec.ts` precedent
+ * (`ANONYMOUS_MARKER_HEADER` there), copied rather than reinvented.
+ *
+ * It exists because that suite shipped the defect this one reproduced: stamping the internal token
+ * on EVERY request left the test named "needs no authentication" unable to make an anonymous call at
+ * all, so it asserted nothing about the path real CDN and browser traffic takes.
+ */
+const ANONYMOUS_MARKER_HEADER = 'x-e2e-anonymous';
+
+/**
  * The name every schema probe inserts and every probe cleanup deletes.
  *
  * A single constant so the cleanup cannot miss a row a probe wrote: a stray probe row would be
@@ -127,8 +137,15 @@ describe('Reference — districts (e2e)', () => {
     );
     // Every request presents the internal token exactly as the web SSG build will, so the
     // PRODUCTION guard path is what this suite covers — not a fake ThrottlerStorage.
+    //
+    // A request may OPT OUT with `ANONYMOUS_MARKER_HEADER`, which is what makes the "needs no
+    // credentials" test below mean anything: without the opt-out that request travelled the trusted
+    // path like every other one, and its assertion degraded to "a trusted client gets 200", which
+    // six other tests here already prove.
     app.use((req: Request, _res: Response, next: NextFunction) => {
-      req.headers[INTERNAL_REQUEST_HEADER] = TEST_INTERNAL_TOKEN;
+      if (req.headers[ANONYMOUS_MARKER_HEADER] === undefined) {
+        req.headers[INTERNAL_REQUEST_HEADER] = TEST_INTERNAL_TOKEN;
+      }
       next();
     });
     await app.init();
@@ -223,7 +240,12 @@ describe('Reference — districts (e2e)', () => {
         .query({ plateCode: '01' })
         .expect(200);
 
-      for (const district of response.body as ServedDistrict[]) {
+      const body = response.body as ServedDistrict[];
+      // The loop below is the whole assertion, so an EMPTY body would pass it without touching a
+      // single field. The expected length is read from the province row rather than typed here,
+      // for the reason the file header gives.
+      expect(body).toHaveLength(provinceByPlate('01').districtCount ?? -1);
+      for (const district of body) {
         expect(Object.keys(district).sort()).toEqual(['id', 'nameTr']);
       }
     });
@@ -268,14 +290,20 @@ describe('Reference — districts (e2e)', () => {
       expect(reordered).toBeGreaterThan(0);
     });
 
-    it('needs no credentials — it is public content by design', async () => {
+    it('needs no credentials — served to a genuinely ANONYMOUS caller', async () => {
       // The "unauthenticated path" half of playbook §8's authz rule. There is no role-forbidden
       // path to assert because this route carries no guard at all, which is the deliberate posture
       // recorded at the controller: the registration form reads this list BEFORE anybody has an
       // account.
+      //
+      // The marker opts this ONE request out of the suite's trusted-client middleware, so it
+      // travels the untrusted, throttled path a real browser takes. Without it the request carried
+      // the internal token like every other one here and this test could not reach the anonymous
+      // path at all.
       await request(app.getHttpServer())
         .get('/api/reference/districts')
         .query({ plateCode: '06' })
+        .set(ANONYMOUS_MARKER_HEADER, '1')
         .expect(200);
     });
 
@@ -404,6 +432,15 @@ describe('Reference — districts (e2e)', () => {
   });
 
   describe('the seed gates (destructive — restores the table before finishing)', () => {
+    // The block above carries an `afterEach`; this one restores inline, which only runs on the happy
+    // path. An assertion that throws mid-test would leave the table mutated for whatever runs next —
+    // today nothing does, because this block is last, but "last" is a property of file order rather
+    // than of anything asserted. The re-seed is a no-op when the inline restore already succeeded.
+    afterAll(async () => {
+      await seedReference(dataSource, { allowRemovals: true });
+      await expect(countDistricts()).resolves.toBe(artifact.districtCount);
+    });
+
     it('writes NOTHING when a single province disagrees with its published district_count', async () => {
       // The plan's PR-1 acceptance criterion 4, exercised: "bir il bile tutmazsa tohum hiçbir şey
       // yazmadan hata verir". One province loses one ilçe; 80 of 81 still agree.

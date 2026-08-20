@@ -119,6 +119,12 @@ const PLATE_CODE_PATTERN = /^(0[1-9]|[1-7][0-9]|8[01])$/;
  * ready-made converter puts it in **308** of them (`ilce-listesi.md` §5A). The artefact was built
  * with a hand-written `İ`→`i` / `I`→`ı` mapping instead, and carries 0. This constant is what makes
  * that a checked fact rather than a claim in a dossier.
+ *
+ * **It is deliberately NOT the whole invisible-character rule** — see the NFC clause in
+ * {@link assertWritingForm}, which owns the class this constant is one member of. The two do not
+ * subsume each other in either direction: `i` + U+0307 has no precomposed form, so it is already in
+ * NFC and the normalisation clause cannot see it (measured: `'i\u0307'.normalize('NFC')` is
+ * unchanged), while a decomposed `ğ` is perfectly composable and this constant cannot see that.
  */
 const COMBINING_DOT_ABOVE = '̇';
 
@@ -223,6 +229,24 @@ function formatIssues(error: z.ZodError): string {
 }
 
 /**
+ * An uppercase letter anywhere but the first character or immediately after a space.
+ *
+ * Split out of {@link assertWritingForm} only because the whole-name ALL-CAPS test and this one are
+ * mutually exclusive by construction — a fully-uppercase name trivially satisfies both — and running
+ * them as `if/else if` keeps one defect from being reported twice under two names.
+ */
+function hasInteriorUpperCase(name: string): boolean {
+  for (let index = 1; index < name.length; index += 1) {
+    const character = name[index] ?? '';
+    const isCased = character !== character.toLocaleLowerCase('tr');
+    if (isCased && character === character.toLocaleUpperCase('tr') && name[index - 1] !== ' ') {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * The writing-form refusals — the ones the database deliberately does not carry.
  *
  * `CHK_districts_name_tr` rejects padding and the empty string; it admits an ALL-CAPS name and an
@@ -237,10 +261,24 @@ function formatIssues(error: z.ZodError): string {
  *    (`19 Mayıs`), and it is a single U+0020.
  * 3. **U+0307** — see {@link COMBINING_DOT_ABOVE}. 308 of these names would carry it under a
  *    ready-made converter.
- * 4. **ALL-CAPS** — the source is ALL-CAPS and `DEC 2026-08-20m` md.6 rules the reader sees normal
- *    writing, so a name that survived unconverted is an untransformed row rather than a style
- *    choice. The `!== lower` clause is what keeps the rule from firing on a name with no cased
- *    letters at all.
+ * 4. **Not in Unicode NFC** — the class U+0307 is one member of. A name whose `ğ`/`ö`/`ü`/`ç`/`ş`
+ *    arrives DECOMPOSED (base letter + a combining mark) looks identical in every editor, is a
+ *    different string from the same name typed normally, and would therefore sort wrongly, compare
+ *    unequal and let `UQ_districts_province_name_tr` hold what a reader sees as one ilçe twice.
+ *    Measured over this artefact: **404 of the 973** names change under NFD, and **0** are
+ *    currently non-NFC — so the clause is satisfied today and is what keeps it so.
+ * 5. **ALL-CAPS, whole or partial** — the source is ALL-CAPS and `DEC 2026-08-20p` md.5 rules the
+ *    reader sees normal writing for all 973 of these names (it is the ruling that extends
+ *    `DEC 2026-08-20m` md.6 — written for university and department names — to this list, and it
+ *    binds the STORED value, naming `IĞDIR`→`Iğdır`, `ŞIRNAK`→`Şırnak` and `ONİKİŞUBAT`'s
+ *    invisible U+0307 as the traps). A name that survived unconverted is an untransformed row
+ *    rather than a style choice. Two clauses, because one does not imply the other: the whole-name
+ *    test (`=== upper`, with a `!== lower` guard so it cannot fire on a name with no cased letters)
+ *    misses `KADIköy`, which a half-working converter produces and which no other refusal here
+ *    would see. The partial test allows an uppercase letter only as the first character or after a
+ *    space — measured over this artefact, **0 of 973** violate it, and the two names that could
+ *    plausibly have (`Kahramankazan`, which TÜİK itself ships as `KahramanKAZAN`, and `19 Mayıs`,
+ *    the only name containing a space at all) both pass.
  */
 function assertWritingForm(plateCode: string, names: readonly string[], problems: string[]): void {
   for (const name of names) {
@@ -262,9 +300,22 @@ function assertWritingForm(plateCode: string, names: readonly string[], problems
           'with English casing rules instead of the İ→i / I→ı mapping',
       );
     }
+    if (name !== name.normalize('NFC')) {
+      problems.push(
+        `${label} — is not in Unicode NFC: a Turkish letter arrived decomposed (base letter + a ` +
+          'combining mark), which is invisible on screen but is a different string from the same ' +
+          'name typed normally',
+      );
+    }
     if (name === name.toLocaleUpperCase('tr') && name !== name.toLocaleLowerCase('tr')) {
       problems.push(
-        `${label} — is still in the source's ALL-CAPS form; DEC 2026-08-20m md.6 rules the reader ` +
+        `${label} — is still in the source's ALL-CAPS form; DEC 2026-08-20p md.5 rules the reader ` +
+          'sees normal writing',
+      );
+    } else if (hasInteriorUpperCase(name)) {
+      problems.push(
+        `${label} — carries an uppercase letter that neither starts the name nor follows a space, ` +
+          'so the ALL-CAPS source was only PARTLY converted; DEC 2026-08-20p md.5 rules the reader ' +
           'sees normal writing',
       );
     }

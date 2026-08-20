@@ -87,10 +87,21 @@ export interface SeedReferenceOptions {
  * The post-write half of the count gate: what is IN the table, per province, against the
  * `district_count` the province pages publish.
  *
- * It runs inside the transaction, after the inserts and deletes, so it sees the state the run is
- * about to commit — including rows this seed neither wrote nor removed. That is the case the
- * pre-write gate structurally cannot cover: it walks the artefact and the province rows, and a
- * stray district row appears in neither.
+ * It runs inside the transaction, after the inserts and deletes, so it judges the state the run is
+ * about to COMMIT rather than the input it started from — which is what `ENGINEERING.md` §5's
+ * fidelity rule asks of a line that publishes values ("a check on the WRITE path").
+ *
+ * **What it can actually catch, stated honestly, because an earlier revision of this comment
+ * overstated it.** A stray row present BEFORE the run is not the case: such a row is in `existing`
+ * and not in `declared`, so it goes down the removal path and is either refused by name or deleted.
+ * Follow that through and the table this gate re-counts holds exactly `declared`, which gate 1 has
+ * already joined against `district_count` — so on a single, uncontended run gate 2 cannot fire, and
+ * that is a property of gate 1 being CORRECT rather than of gate 2 being decoration. What is left
+ * for it: a row committed by a concurrent writer between the two gates (this transaction is READ
+ * COMMITTED, so gate 1 never saw it and gate 2 does), and any future edit that makes the write loop
+ * disagree with the set gate 1 approved. It has no red-side test for the same reason: reaching it
+ * means constructing a state the code path forbids. That is recorded rather than fixed — removing
+ * the gate would trade a cheap re-count for the claim that gate 1's reasoning can never be wrong.
  */
 async function assertWrittenCountsMatchProvinces(
   manager: EntityManager,

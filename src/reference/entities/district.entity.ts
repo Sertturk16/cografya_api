@@ -62,8 +62,10 @@ export class District {
   provinceId!: string;
 
   /**
-   * İlçe adı (TR), in the form a reader sees — `Boğaziçi`, never `BOĞAZİÇİ` (`DEC 2026-08-20m`
-   * md.6).
+   * İlçe adı (TR), in the form a reader sees — `Kadıköy`, never `KADIKÖY` (`DEC 2026-08-20p` md.5,
+   * which extends `DEC 2026-08-20m` md.6 from university/department names to all 973 of these; md.6
+   * alone does not cover this list, and its "store the source form, convert only on screen" half
+   * would say the opposite of what is stored here).
    *
    * `varchar(100)` matches `provinces.name_tr` exactly, so the two administrative-name columns
    * cannot disagree on what a Turkish place name may be. It is far above the measured maximum

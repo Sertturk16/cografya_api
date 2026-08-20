@@ -96,6 +96,23 @@ The CLI runs against the compiled build (`dist/database/data-source.js`) on plai
 > After generating a migration, **add it to the `migrations` array** in
 > `data-source-options.ts` and hand-review the SQL before committing.
 
+### Seeding a fresh database
+
+Seeds are split per corpus — there is no umbrella `db:seed`. After `pnpm migration:run`,
+run them in this order (`db:seed:geography` first: the country, book and reference corpora
+all hang off province rows):
+
+```bash
+pnpm db:seed:geography          # the 81 provinces
+pnpm db:seed:world              # the country corpus
+pnpm db:seed:books              # books + their video-solution rows
+pnpm db:seed:reference          # the 973 ilçe the registration form reads
+```
+
+Each runs against the compiled build and reads `DATABASE_URL` straight from the environment
+(these CLIs run outside Nest's DI, so no `.env` is loaded for them). `pnpm db:seed:books --check`
+and `pnpm db:seed:reference --check` validate the committed corpus without a database at all.
+
 ## OpenAPI contract
 
 The api owns the shared DTO/type contract. `openapi/openapi.json` is a **committed
@@ -120,6 +137,7 @@ fails the build. Prettier ignores `openapi/`; the generator is its sole authorit
 | `pnpm format`          | Prettier write                                 |
 | `pnpm test:e2e`        | Jest + Testcontainers e2e (needs Docker; CI)   |
 | `pnpm migration:run`   | Apply DB migrations (see Database & migrations) |
+| `pnpm db:seed:*`       | Seed one corpus (see Seeding a fresh database) |
 | `pnpm openapi:generate`| Regenerate the committed OpenAPI spec          |
 
 ## Quality gates

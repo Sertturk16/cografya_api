@@ -26,11 +26,36 @@ import { District } from './entities/district.entity';
  * At most 39 rows per request (İstanbul), 973 in the whole table, on a response that carries a long
  * `Cache-Control`. This is not a sort that needs an index.
  *
+ * ## Why the resolution is ASSERTED rather than assumed
+ * The argument above rejects `COLLATE "tr-TR-x-icu"` because it can fall back silently on a server
+ * built without ICU — and `Intl.Collator('tr')` has the same failure mode on a Node built without
+ * full ICU, where it resolves to the root locale and returns a DIFFERENT published order with no
+ * error anywhere. Rejecting one option for a hazard and then not checking for it in the option
+ * taken is the gap this guard closes. It throws at module load, which is the same fail-fast posture
+ * `ENGINEERING.md` §1 takes for a missing environment variable: an api that cannot collate Turkish
+ * must not serve a wrong order for a day at the CDN plus a week of `stale-while-revalidate`.
+ *
  * **This ordering is a PUBLISHED render order.** The web repo drops the array into a select in the
  * order it arrives; re-ordering it — or "tidying" it into an `ORDER BY id` — changes what a user
  * sees. It is pinned by a structural e2e assertion for exactly that reason.
  */
-const TURKISH_COLLATOR = new Intl.Collator('tr');
+function requireTurkishCollator(): Intl.Collator {
+  const collator = new Intl.Collator('tr');
+  const { locale } = collator.resolvedOptions();
+
+  if (locale !== 'tr' && !locale.startsWith('tr-')) {
+    throw new Error(
+      `this Node build cannot collate Turkish: new Intl.Collator('tr') resolved to "${locale}". ` +
+        'It was built without full ICU, so the ilçe list would be published in root-locale order ' +
+        '(ç, ğ, ı, ö, ş and ü all misplaced) with nothing anywhere to signal it. Use a Node build ' +
+        'with full ICU, or set NODE_ICU_DATA.',
+    );
+  }
+
+  return collator;
+}
+
+const TURKISH_COLLATOR = requireTurkishCollator();
 
 /**
  * Reads the ilçe reference list.

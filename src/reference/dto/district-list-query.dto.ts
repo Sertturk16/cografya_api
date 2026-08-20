@@ -2,6 +2,17 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Matches } from 'class-validator';
 
 /**
+ * The plate-code shape, declared ONCE for both the published contract and the runtime check.
+ *
+ * File-local rather than exported: nothing outside this DTO needs it, and exporting it would widen
+ * a surface this task has no reason to widen. Named SHAPE rather than PATTERN to keep it distinct
+ * from the constant of that name in `district.artifact.ts`, which deliberately DOES pin 01–81 — a
+ * seed may assert how many provinces exist, a request contract may not. The three sibling
+ * statements of this shape are discussed in the property docblock below.
+ */
+const PLATE_CODE_SHAPE = /^\d{2}$/;
+
+/**
  * Query contract for `GET /api/reference/districts` — **the first request DTO in this repository
  * whose parameter is REQUIRED**.
  *
@@ -62,23 +73,34 @@ export class DistrictListQueryDto {
    * exists, a pinned pattern 400s a well-formed request before the seed can land. The membership
    * question is answered by the join, which returns an empty array.
    *
-   * ## This is a SECOND statement of the same shape, and the alternative was weighed
-   * `PlateCodeParams.plateCode` carries the identical `^\d{2}$`. Exporting one shared constant was
-   * considered and NOT taken: it would change the published surface of a shared `common/dto` file
-   * that this task did not otherwise touch, and `ENGINEERING.md` §2 keeps query DTOs per-endpoint
-   * on purpose (a shared base can only ever tighten). The drift this leaves is bounded and worth
-   * naming rather than hiding — if the two patterns ever disagree, one route 400s where the other
-   * answers 200 with an empty array, for a plate code that names no province either way. Should a
-   * third statement of this shape ever be needed, that is the moment to export the constant.
+   * ## This is the FOURTH statement of the same shape, and the alternative was weighed
+   * Measured across the repo after this PR, `^\d{2}$` stands in four places:
+   * `route-params.dto.ts` (`PlateCodeParams`), `marine-params.dto.ts`, `air-quality-params.dto.ts`
+   * and here. An earlier revision of this docblock said "second" and named one sibling; that was
+   * wrong, and it also set a threshold — "export the constant at the third statement" — which the
+   * repo had already crossed BEFORE this PR. Both halves are corrected here rather than quietly
+   * dropped.
+   *
+   * Exporting one shared constant is still NOT taken **in this PR**: it would change the published
+   * surface of a shared `common/dto` file that this task did not otherwise touch, and doing it as a
+   * review-round side effect is exactly the "while I was in there" change the process forbids.
+   * `ENGINEERING.md` §2 keeps query DTOs per-endpoint on purpose (a shared base can only ever
+   * tighten), so the shared thing would be the PATTERN, not a base class. The drift this leaves is
+   * bounded and worth naming rather than hiding — if two of the four ever disagree, one route 400s
+   * where another answers 200 with an empty array, for a plate code that names no province either
+   * way. The consolidation is handed to Atlas as its own change with its own review.
    */
   @ApiProperty({
     example: '34',
-    pattern: '^\\d{2}$',
+    // The published contract and the enforced rule are ONE declaration, read two ways: `pattern`
+    // takes a string, `@Matches` takes the RegExp. Written as two literals they could disagree
+    // silently, and the published one is what the web repo codegens against.
+    pattern: PLATE_CODE_SHAPE.source,
     description:
       'İlin plaka kodu, iki hane ve başı sıfırla dolgulu ("06", "6" değil) — GET /api/provinces ' +
       'yanıtındaki plateCode. Zorunlu: ilçe listesi her zaman bir ile göredir. Biçimi bozuksa ya ' +
       'da eksikse 400; biçimi doğru ama karşılığı olmayan bir kod için boş dizi.',
   })
-  @Matches(/^\d{2}$/, { message: 'plateCode must be exactly two digits (zero-padded)' })
+  @Matches(PLATE_CODE_SHAPE, { message: 'plateCode must be exactly two digits (zero-padded)' })
   plateCode!: string;
 }
