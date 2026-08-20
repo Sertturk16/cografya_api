@@ -21,9 +21,11 @@ import type { CountrySeed } from '../country.seed-data';
  *   That is NOT a rule this file obeys everywhere: `Doğu Asya` is committed as China, Japan,
  *   Mongolia, South Korea, North Korea, which is the source doc's order and not alphabetical.
  *   The order rule here is "follow the source doc", so do not "fix" an existing group to match
- *   the sentence above — that is the gratuitous re-ordering §5 forbids for `neighborIsoCodes`.
- *   Their
- *   provenance block stays in `../country.seed-data.ts`.
+ *   the sentence above — the same gratuitous re-ordering §5 bans for `neighborIsoCodes`, for
+ *   the same reason: the order carries information the alphabet does not. (Only an ANALOGY —
+ *   §5's ban rests on `neighborIsoCodes` being a PUBLISHED render order, whereas row order is
+ *   never published: `country.service.ts` reads `order: { isoCode: 'ASC' }`.)
+ *   Their provenance block stays in `../country.seed-data.ts`.
  */
 export const ASIA_COUNTRIES: readonly CountrySeed[] = [
   {
@@ -1848,7 +1850,10 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     // kuralın uygulandığı olgu değişti. Ders: vintage'a bağlı bir kaynak istisnasının son
     // kullanma tarihi vardır (AT-11d) — data-provenance.md'ye Gürcistan girdisi merge
     // propagasyonunda eklenir. Bu satırın istisnası kalktı; korpusta DÖRT istisna
-    // (Grönland · Kıbrıs · KKTC · Tayvan) DURUYOR — bkz. dosya başlığındaki nüfus bloğu.
+    // (Grönland · Kıbrıs · KKTC · Tayvan) DURUYOR — bkz. `../country.seed-data.ts`
+    // başlığındaki nüfus bloğu. Bu satır FU-PILOT-RETIRE ile buraya taşındı, blok ise
+    // kasten orada kaldı (S-2: tek ev, ayrışacak ikinci kopya yok) — bu dosyanın başlığında
+    // nüfus bloğu YOKTUR ve buraya bir kopyası açılmamalıdır.
     population: 3_935_766,
     populationYear: null,
     areaKm2: 69_490,

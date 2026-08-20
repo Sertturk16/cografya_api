@@ -19,7 +19,9 @@ import type { CountrySeed } from '../country.seed-data';
  *   it — matching the alphabetical-by-English-name order the base-data source doc uses inside
  *   Güney Avrupa and Doğu Avrupa. That is NOT a rule this file obeys everywhere: `Batı Avrupa`
  *   is committed as Austria, Germany, Belgium, France … and `Mikronezya` puts Marshall Islands
- *   before Micronesia, both of which follow the source doc rather than the alphabet. The order
+ *   before `Federated States of Micronesia` (the committed `nameEn` — under the short name the
+ *   group would read alphabetical, so check the counter-example against the field value, not
+ *   the common name). Both follow the source doc rather than the alphabet. The order
  *   rule here is "follow the source doc", so do not re-order an existing group to match the
  *   sentence above. Their provenance block stays in `../country.seed-data.ts`.
  *

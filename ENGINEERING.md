@@ -394,10 +394,13 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
   - **A DRAFT FIELD NAME OUTSIDE `NARRATIVE_FIELDS` IS A WARNING, NOT AN ERROR — so the gate
     counts past it.** `draft-parser.ts` skips such a section and prints `ignoring <name> —
     not a narrative field`; the `checked N field(s)` line then never mentions it and `exit 0`
-    says nothing about that prose. The live example is the pilot draft's merged
-    `landformClimateNoteTr`, which the seed splits into `landformNoteTr` + `climateNoteTr`
-    (see that file's FIELD-MAPPING DECISION 1): eight sections, sixteen field values, gated by
-    nothing. **Read the warnings beside the count, not only the exit code** — a green gate
+    says nothing about that prose. The example this rule was written from is the pilot draft's
+    THEN-merged `landformClimateNoteTr`, which the seed splits into `landformNoteTr` +
+    `climateNoteTr` (see FIELD-MAPPING DECISION 1 in `src/database/seeds/country.seed-data.ts`,
+    not in the draft): every field value under those sections was gated by nothing until
+    PR #127 re-headed them. **The hazard did not go with the example** — `draft-parser.ts`
+    still warns and still exits 0 on any field name outside `NARRATIVE_FIELDS`.
+    **Read the warnings beside the count, not only the exit code** — a green gate
     over half a draft is the one false green the exit-code contract cannot express. Bringing
     such a section under the gate means re-heading it into the seed's own field names, which
     is a mechanical re-heading and must leave the prose byte-identical. FU-PILOT-RETIRE
