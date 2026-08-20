@@ -881,9 +881,10 @@ describe('Earthquake public endpoints (e2e, real Postgres)', () => {
     });
 
     it('reads a filled store with NO run ledger as stale, never unavailable', async () => {
-      // The state the hand-run backfill leaves behind: tens of thousands of real rows and an empty
-      // ledger (`FU-E2-BACKFILL-RUNROW`). Deriving from the ledger alone would stamp a full list
-      // `unavailable` and answer `no-store`.
+      // A store whose rows outlive its ledger. The hand-run backfill used to produce it on every
+      // go-live by writing no run row; E4 closed that (`FU-E2-BACKFILL-RUNROW`). The state itself
+      // remains reachable — run retention and a restore from a data-only dump both reach it — and
+      // deriving from the ledger alone would stamp a full list `unavailable` and answer `no-store`.
       await runs().clear();
 
       const response = await request(app.getHttpServer()).get('/api/earthquakes').expect(200);

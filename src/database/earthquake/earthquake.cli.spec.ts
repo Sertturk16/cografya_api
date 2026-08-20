@@ -219,11 +219,22 @@ describe('buildBackfillRunInput', () => {
     // The parser-break shape: the provider answered, nothing landed. The CALL succeeded, so the
     // outcome word stays `ok` — the reason is what keeps it out of the freshness query.
     const input = build({
-      tally: tally({ inserted: 0, updated: 0, unchanged: 0, rejected: 33_000 }),
+      // `skippedOutOfScope: 0` is not decoration: the counter is incremented immediately before the
+      // `upsertEvent` that increments one of the three store counters, so a tally with rows out of
+      // scope AND nothing in the store is a state the producer cannot reach (review #125 TA125-M2).
+      tally: tally({
+        inserted: 0,
+        updated: 0,
+        unchanged: 0,
+        rejected: 33_000,
+        skippedOutOfScope: 0,
+      }),
       rejectionReasons: new Set(['date is missing or not a string', 'type is longer than allowed']),
     });
     expect(input.outcome).toBe('ok');
     expect(input.errorReason).toContain('33000 row(s)');
+    // The window count has no other consumer, so without this the message could count anything.
+    expect(input.errorReason).toContain('53 window(s)');
     expect(input.errorReason).toContain('date is missing or not a string');
   });
 
@@ -277,7 +288,13 @@ describe('buildBackfillRunInput', () => {
     const input = build({
       windowStartUtc: new Date('2025-11-01T00:00:00.000Z'),
       windowEndUtc: new Date('2025-12-01T00:00:00.000Z'),
-      tally: tally({ inserted: 0, updated: 0, unchanged: 0, rejected: 33_000 }),
+      tally: tally({
+        inserted: 0,
+        updated: 0,
+        unchanged: 0,
+        rejected: 33_000,
+        skippedOutOfScope: 0,
+      }),
       rejectionReasons: new Set(['date is missing or not a string']),
     });
     expect(input.outcome).toBe('ok');

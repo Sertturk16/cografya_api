@@ -530,6 +530,7 @@ async function runBackfill(argv: readonly string[]): Promise<void> {
       rejectionReasons,
       staleMaxSeconds,
     });
+    let ledgerRecorded = true;
     try {
       await store.recordRun(runInput);
       console.log(
@@ -537,9 +538,10 @@ async function runBackfill(argv: readonly string[]): Promise<void> {
           (runInput.errorReason === null ? '' : `, reason: ${runInput.errorReason}`),
       );
     } catch (error: unknown) {
+      ledgerRecorded = false;
       console.error(
         'the ingest run row could not be recorded; the loaded events are unaffected, but the ' +
-          `published freshness will not see this load — ${error instanceof Error ? error.message : String(error)}`,
+          `published freshness will not see this load — ${describeErrorWithName(error)}`,
       );
     }
 
@@ -548,7 +550,13 @@ async function runBackfill(argv: readonly string[]): Promise<void> {
     console.log(
       `backfill done — ${String(tally.windows)} window(s), ${String(tally.inserted)} inserted, ` +
         `${String(tally.updated)} updated, ${String(tally.unchanged)} unchanged, ` +
-        `${String(tally.rejected)} rejected, ${String(tally.skippedOutOfScope)} out of scope`,
+        `${String(tally.rejected)} rejected, ${String(tally.skippedOutOfScope)} out of scope` +
+        // The one thing the operator must not scroll past. The `console.error` above prints BEFORE
+        // this success banner, and the go-live runbook chains the next step off this command, so
+        // without the repeat the last line read says the load is done and says nothing about the
+        // ledger it failed to write (review #125 SFH125-M1 / CODE125-M3). The exit code stays 0 on
+        // purpose: fail-soft is the ruled behaviour for this write.
+        (ledgerRecorded ? '' : ' — WITHOUT an ingest run row; see the error above'),
     );
     if (rejectionReasons.size > 0) {
       console.warn(
