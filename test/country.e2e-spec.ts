@@ -237,6 +237,9 @@ describe('Country (e2e)', () => {
       'InitBookCatalogue1786752000000',
       'InitYoutubeVideoSnapshots1786755600000',
       'AddProvincePm25Annual1787149250651',
+      // Üyelik PR-1: `districts` carries a foreign key to `provinces(id)`, so its migration MUST
+      // stay ordered after `InitProvince`.
+      'InitDistricts1787302800000',
     ]);
   });
 

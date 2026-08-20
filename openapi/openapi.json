@@ -850,6 +850,47 @@
           "elevation"
         ]
       }
+    },
+    "/api/reference/districts": {
+      "get": {
+        "description": "A plain typed array — no envelope and no pagination, the bounded-set rule `ENGINEERING.md` §2 already applies to the 81 provinces: the largest province has fewer than 40 ilçe and the whole set is 973. The order is the order to render.",
+        "operationId": "DistrictController_findDistricts",
+        "parameters": [
+          {
+            "name": "provinceId",
+            "required": true,
+            "in": "query",
+            "description": "İlin kimliği (GET /api/provinces yanıtındaki uuid). Zorunlu: ilçe listesi her zaman bir ile göredir. Geçersiz ya da eksikse 400; geçerli ama karşılığı olmayan bir uuid için boş dizi.",
+            "schema": {
+              "format": "uuid",
+              "example": "6b3f6f5a-6f5a-4f5a-8f5a-6f5a6f5a6f5a",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DistrictDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "provinceId is missing or is not a well-formed uuid, or an unrecognised query parameter was sent — unknown parameters are rejected rather than ignored. Distinct from an empty array, which means the parameter was well-formed and matched no ilçe."
+          }
+        },
+        "summary": "List one province's districts (ilçe), Turkish-alphabetical.",
+        "tags": [
+          "reference"
+        ]
+      }
     }
   },
   "info": {
@@ -4558,6 +4599,27 @@
           "minElevationM",
           "maxElevationM",
           "attribution"
+        ]
+      },
+      "DistrictDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "6b3f6f5a-6f5a-4f5a-8f5a-6f5a6f5a6f5a",
+            "description": "İlçenin kimliği — kayıt formunun gönderdiği değer. Kalıcıdır, ama bir ilçe yeniden adlandırılırsa değişir (yeniden adlandırma bir silme + eklemedir)."
+          },
+          "nameTr": {
+            "type": "string",
+            "example": "Kadıköy",
+            "maxLength": 100,
+            "description": "İlçe adı (TR), okurun gördüğü yazımla — \"Kadıköy\", \"KADIKÖY\" değil (DEC 2026-08-20m md.6). Kaynak: TÜİK Coğrafi İstatistik Portalı (bkz. provenance/datasets.md, 2026-08-20 satırı)."
+          }
+        },
+        "required": [
+          "id",
+          "nameTr"
         ]
       }
     }

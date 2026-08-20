@@ -1,0 +1,4473 @@
+{
+ "_meta": {
+  "kaynak": "TÜİK Coğrafi İstatistik Portalı — cip.tuik.gov.tr/assets/geometri/nuts4.json (Düzey-4/ilçe geometrisi)",
+  "ikinciKaynak": "MGM — servis.mgm.gov.tr/web/merkezler/ililcesi?il=<il> (81 il, tahmin merkezleri)",
+  "erisimTarihi": "2026-08-20",
+  "toplamIlce": 973,
+  "mgmIleDogrulanan": 969,
+  "ilIlceEslemesi": "TÜİK nuts4 ilçe poligonları, TÜİK nuts3 il poligonlarına nokta-içinde-poligon ile eşlendi; ADALAR (İstanbul) el ile atandı (ada, il poligonu dışında).",
+  "yaziBicimi": "TÜİK kaynağı BÜYÜK HARF verir; adlar Türkçe başlık biçimine çevrildi (İ→i, I→ı eşlemesi elle).",
+  "statu": "DRAFT — provenance defter satırı inmeden seed inmez."
+ },
+ "iller": [
+  {
+   "plateCode": "01",
+   "provinceNameTr": "Adana",
+   "districtCount": 15,
+   "districts": [
+    {
+     "nameTr": "Aladağ",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ceyhan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Feke",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karaisalı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karataş",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kozan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Pozantı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Saimbeyli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sarıçam",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Seyhan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tufanbeyli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yumurtalık",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yüreğir",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çukurova",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İmamoğlu",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "02",
+   "provinceNameTr": "Adıyaman",
+   "districtCount": 9,
+   "districts": [
+    {
+     "nameTr": "Besni",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gerger",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gölbaşı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kahta",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Samsat",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sincik",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tut",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çelikhan",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "03",
+   "provinceNameTr": "Afyonkarahisar",
+   "districtCount": 18,
+   "districts": [
+    {
+     "nameTr": "Bayat",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Başmakçı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bolvadin",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Dazkırı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Dinar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Emirdağ",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Evciler",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hocalar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kızılören",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sandıklı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sinanpaşa",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sultandağı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çay",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çobanlar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İhsaniye",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İscehisar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Şuhut",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "04",
+   "provinceNameTr": "Ağrı",
+   "districtCount": 8,
+   "districts": [
+    {
+     "nameTr": "Diyadin",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Doğubayazıt",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Eleşkirt",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hamur",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Patnos",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Taşlıçay",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tutak",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "05",
+   "provinceNameTr": "Amasya",
+   "districtCount": 7,
+   "districts": [
+    {
+     "nameTr": "Göynücek",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gümüşhacıköy",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hamamözü",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merzifon",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Suluova",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Taşova",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "06",
+   "provinceNameTr": "Ankara",
+   "districtCount": 25,
+   "districts": [
+    {
+     "nameTr": "Akyurt",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Altındağ",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ayaş",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bala",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Beypazarı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Elmadağ",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Etimesgut",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Evren",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gölbaşı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Güdül",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Haymana",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kahramankazan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kalecik",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Keçiören",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kızılcahamam",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Mamak",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Nallıhan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Polatlı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Pursaklar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sincan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yenimahalle",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çamlıdere",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çankaya",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çubuk",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Şereflikoçhisar",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "07",
+   "provinceNameTr": "Antalya",
+   "districtCount": 19,
+   "districts": [
+    {
+     "nameTr": "Akseki",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Aksu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Alanya",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Demre",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Döşemealtı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Elmalı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Finike",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gazipaşa",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gündoğmuş",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kaş",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kemer",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kepez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Konyaaltı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Korkuteli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kumluca",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Manavgat",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Muratpaşa",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Serik",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İbradı",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "08",
+   "provinceNameTr": "Artvin",
+   "districtCount": 9,
+   "districts": [
+    {
+     "nameTr": "Ardanuç",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Arhavi",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Borçka",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hopa",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kemalpaşa",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Murgul",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yusufeli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Şavşat",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "09",
+   "provinceNameTr": "Aydın",
+   "districtCount": 17,
+   "districts": [
+    {
+     "nameTr": "Bozdoğan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Buharkent",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Didim",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Efeler",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Germencik",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karacasu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karpuzlu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Koçarlı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kuyucak",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kuşadası",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Köşk",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Nazilli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sultanhisar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Söke",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yenipazar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çine",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İncirliova",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "10",
+   "provinceNameTr": "Balıkesir",
+   "districtCount": 20,
+   "districts": [
+    {
+     "nameTr": "Altıeylül",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ayvalık",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Balya",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bandırma",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bigadiç",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Burhaniye",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Dursunbey",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Edremit",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Erdek",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gömeç",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gönen",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Havran",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karesi",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kepsut",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Manyas",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Marmara",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Savaştepe",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Susurluk",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sındırgı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İvrindi",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "11",
+   "provinceNameTr": "Bilecik",
+   "districtCount": 8,
+   "districts": [
+    {
+     "nameTr": "Bozüyük",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gölpazarı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Osmaneli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Pazaryeri",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Söğüt",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yenipazar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İnhisar",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "12",
+   "provinceNameTr": "Bingöl",
+   "districtCount": 8,
+   "districts": [
+    {
+     "nameTr": "Adaklı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Genç",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karlıova",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kiğı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Solhan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yayladere",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yedisu",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "13",
+   "provinceNameTr": "Bitlis",
+   "districtCount": 7,
+   "districts": [
+    {
+     "nameTr": "Adilcevaz",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ahlat",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Güroymak",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hizan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Mutki",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tatvan",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "14",
+   "provinceNameTr": "Bolu",
+   "districtCount": 9,
+   "districts": [
+    {
+     "nameTr": "Dörtdivan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gerede",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Göynük",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kıbrıscık",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Mengen",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Mudurnu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Seben",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yeniçağa",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "15",
+   "provinceNameTr": "Burdur",
+   "districtCount": 11,
+   "districts": [
+    {
+     "nameTr": "Altınyayla",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ağlasun",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bucak",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gölhisar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karamanlı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kemer",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tefenni",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yeşilova",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çavdır",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çeltikçi",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "16",
+   "provinceNameTr": "Bursa",
+   "districtCount": 17,
+   "districts": [
+    {
+     "nameTr": "Büyükorhan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gemlik",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gürsu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Harmancık",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karacabey",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Keles",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kestel",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Mudanya",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Mustafakemalpaşa",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Nilüfer",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Orhaneli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Orhangazi",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Osmangazi",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yenişehir",
+     "mgmConfirmed": false
+    },
+    {
+     "nameTr": "Yıldırım",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İnegöl",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İznik",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "17",
+   "provinceNameTr": "Çanakkale",
+   "districtCount": 12,
+   "districts": [
+    {
+     "nameTr": "Ayvacık",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bayramiç",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Biga",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bozcaada",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Eceabat",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ezine",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gelibolu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gökçeada",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Lapseki",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yenice",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çan",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "18",
+   "provinceNameTr": "Çankırı",
+   "districtCount": 12,
+   "districts": [
+    {
+     "nameTr": "Atkaracalar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bayramören",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Eldivan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ilgaz",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Korgun",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kurşunlu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kızılırmak",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Orta",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yapraklı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çerkeş",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Şabanözü",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "19",
+   "provinceNameTr": "Çorum",
+   "districtCount": 14,
+   "districts": [
+    {
+     "nameTr": "Alaca",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bayat",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Boğazkale",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Dodurga",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kargı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Laçin",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Mecitözü",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ortaköy",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Osmancık",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Oğuzlar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sungurlu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Uğurludağ",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İskilip",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "20",
+   "provinceNameTr": "Denizli",
+   "districtCount": 19,
+   "districts": [
+    {
+     "nameTr": "Acıpayam",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Babadağ",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Baklan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bekilli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Beyağaç",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bozkurt",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Buldan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Güney",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Honaz",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kale",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkezefendi",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Pamukkale",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sarayköy",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Serinhisar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tavas",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çal",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çameli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çardak",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çivril",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "21",
+   "provinceNameTr": "Diyarbakır",
+   "districtCount": 17,
+   "districts": [
+    {
+     "nameTr": "Bağlar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bismil",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Dicle",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ergani",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Eğil",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hani",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hazro",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kayapınar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kocaköy",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kulp",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Lice",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Silvan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sur",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yenişehir",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çermik",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çüngüş",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çınar",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "22",
+   "provinceNameTr": "Edirne",
+   "districtCount": 9,
+   "districts": [
+    {
+     "nameTr": "Enez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Havsa",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Keşan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Lalapaşa",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Meriç",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Süloğlu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Uzunköprü",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İpsala",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "23",
+   "provinceNameTr": "Elazığ",
+   "districtCount": 11,
+   "districts": [
+    {
+     "nameTr": "Alacakaya",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Arıcak",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ağın",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Baskil",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karakoçan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Keban",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kovancılar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Maden",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Palu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sivrice",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "24",
+   "provinceNameTr": "Erzincan",
+   "districtCount": 9,
+   "districts": [
+    {
+     "nameTr": "Kemah",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kemaliye",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Otlukbeli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Refahiye",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tercan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çayırlı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Üzümlü",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İliç",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "25",
+   "provinceNameTr": "Erzurum",
+   "districtCount": 20,
+   "districts": [
+    {
+     "nameTr": "Aziziye",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Aşkale",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Horasan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hınıs",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karayazı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karaçoban",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Köprüköy",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Narman",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Oltu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Olur",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Palandöken",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Pasinler",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Pazaryolu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tekman",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tortum",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Uzundere",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yakutiye",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çat",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İspir",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Şenkaya",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "26",
+   "provinceNameTr": "Eskişehir",
+   "districtCount": 14,
+   "districts": [
+    {
+     "nameTr": "Alpu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Beylikova",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Günyüzü",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Han",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Mahmudiye",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Mihalgazi",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Mihalıççık",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Odunpazarı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sarıcakaya",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Seyitgazi",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sivrihisar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tepebaşı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çifteler",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İnönü",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "27",
+   "provinceNameTr": "Gaziantep",
+   "districtCount": 9,
+   "districts": [
+    {
+     "nameTr": "Araban",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karkamış",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Nizip",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Nurdağı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Oğuzeli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yavuzeli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İslahiye",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Şahinbey",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Şehitkamil",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "28",
+   "provinceNameTr": "Giresun",
+   "districtCount": 16,
+   "districts": [
+    {
+     "nameTr": "Alucra",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bulancak",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Dereli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Doğankent",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Espiye",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Eynesil",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Görele",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Güce",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Keşap",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Piraziz",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tirebolu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yağlıdere",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çamoluk",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çanakçı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Şebinkarahisar",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "29",
+   "provinceNameTr": "Gümüşhane",
+   "districtCount": 6,
+   "districts": [
+    {
+     "nameTr": "Kelkit",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Köse",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kürtün",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Torul",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Şiran",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "30",
+   "provinceNameTr": "Hakkari",
+   "districtCount": 5,
+   "districts": [
+    {
+     "nameTr": "Derecik",
+     "mgmConfirmed": false
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yüksekova",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çukurca",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Şemdinli",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "31",
+   "provinceNameTr": "Hatay",
+   "districtCount": 15,
+   "districts": [
+    {
+     "nameTr": "Altınözü",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Antakya",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Arsuz",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Belen",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Defne",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Dörtyol",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Erzin",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hassa",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kumlu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kırıkhan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Payas",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Reyhanlı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Samandağ",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yayladağı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İskenderun",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "32",
+   "provinceNameTr": "Isparta",
+   "districtCount": 13,
+   "districts": [
+    {
+     "nameTr": "Aksu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Atabey",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Eğirdir",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gelendost",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gönen",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Keçiborlu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Senirkent",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sütçüler",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Uluborlu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yalvaç",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yenişarbademli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Şarkikaraağaç",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "33",
+   "provinceNameTr": "Mersin",
+   "districtCount": 13,
+   "districts": [
+    {
+     "nameTr": "Akdeniz",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Anamur",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Aydıncık",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bozyazı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Erdemli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gülnar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Mezitli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Mut",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Silifke",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tarsus",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Toroslar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yenişehir",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çamlıyayla",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "34",
+   "provinceNameTr": "İstanbul",
+   "districtCount": 39,
+   "districts": [
+    {
+     "nameTr": "Adalar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Arnavutköy",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ataşehir",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Avcılar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bahçelievler",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bakırköy",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bayrampaşa",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bağcılar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Başakşehir",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Beykoz",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Beylikdüzü",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Beyoğlu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Beşiktaş",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Büyükçekmece",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Esenler",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Esenyurt",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Eyüpsultan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Fatih",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gaziosmanpaşa",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Güngören",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kadıköy",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kartal",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kağıthane",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Küçükçekmece",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Maltepe",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Pendik",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sancaktepe",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sarıyer",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Silivri",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sultanbeyli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sultangazi",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tuzla",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Zeytinburnu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çatalca",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çekmeköy",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ümraniye",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Üsküdar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Şile",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Şişli",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "35",
+   "provinceNameTr": "İzmir",
+   "districtCount": 30,
+   "districts": [
+    {
+     "nameTr": "Aliağa",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Balçova",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bayraklı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bayındır",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bergama",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Beydağ",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bornova",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Buca",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Dikili",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Foça",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gaziemir",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Güzelbahçe",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karabağlar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karaburun",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karşıyaka",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kemalpaşa",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kiraz",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Konak",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kınık",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Menderes",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Menemen",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Narlıdere",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Seferihisar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Selçuk",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tire",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Torbalı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Urla",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çeşme",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çiğli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ödemiş",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "36",
+   "provinceNameTr": "Kars",
+   "districtCount": 8,
+   "districts": [
+    {
+     "nameTr": "Akyaka",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Arpaçay",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Digor",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kağızman",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sarıkamış",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Selim",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Susuz",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "37",
+   "provinceNameTr": "Kastamonu",
+   "districtCount": 20,
+   "districts": [
+    {
+     "nameTr": "Abana",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Araç",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Azdavay",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ağlı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bozkurt",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Cide",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Daday",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Devrekani",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Doğanyurt",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hanönü",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Küre",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Pınarbaşı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Seydiler",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Taşköprü",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tosya",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çatalzeytin",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İhsangazi",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İnebolu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Şenpazar",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "38",
+   "provinceNameTr": "Kayseri",
+   "districtCount": 16,
+   "districts": [
+    {
+     "nameTr": "Akkışla",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bünyan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Develi",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Felahiye",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hacılar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kocasinan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Melikgazi",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Pınarbaşı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sarıoğlan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sarız",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Talas",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tomarza",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yahyalı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yeşilhisar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Özvatan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İncesu",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "39",
+   "provinceNameTr": "Kırklareli",
+   "districtCount": 8,
+   "districts": [
+    {
+     "nameTr": "Babaeski",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Demirköy",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kofçaz",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Lüleburgaz",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Pehlivanköy",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Pınarhisar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Vize",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "40",
+   "provinceNameTr": "Kırşehir",
+   "districtCount": 7,
+   "districts": [
+    {
+     "nameTr": "Akpınar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Akçakent",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Boztepe",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kaman",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Mucur",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çiçekdağı",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "41",
+   "provinceNameTr": "Kocaeli",
+   "districtCount": 12,
+   "districts": [
+    {
+     "nameTr": "Başiskele",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Darıca",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Derince",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Dilovası",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gebze",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gölcük",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kandıra",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karamürsel",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kartepe",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Körfez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çayırova",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İzmit",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "42",
+   "provinceNameTr": "Konya",
+   "districtCount": 31,
+   "districts": [
+    {
+     "nameTr": "Ahırlı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Akören",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Akşehir",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Altınekin",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Beyşehir",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bozkır",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Cihanbeyli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Derbent",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Derebucak",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Doğanhisar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Emirgazi",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ereğli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Güneysınır",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hadim",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Halkapınar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hüyük",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ilgın",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kadınhanı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karapınar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karatay",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kulu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Meram",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sarayönü",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Selçuklu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Seydişehir",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Taşkent",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tuzlukçu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yalıhüyük",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yunak",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çeltik",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çumra",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "43",
+   "provinceNameTr": "Kütahya",
+   "districtCount": 13,
+   "districts": [
+    {
+     "nameTr": "Altıntaş",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Aslanapa",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Domaniç",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Dumlupınar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Emet",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gediz",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hisarcık",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Pazarlar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Simav",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tavşanlı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çavdarhisar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Şaphane",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "44",
+   "provinceNameTr": "Malatya",
+   "districtCount": 13,
+   "districts": [
+    {
+     "nameTr": "Akçadağ",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Arapgir",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Arguvan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Battalgazi",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Darende",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Doğanyol",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Doğanşehir",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hekimhan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kale",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kuluncak",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Pütürge",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yazıhan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yeşilyurt",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "45",
+   "provinceNameTr": "Manisa",
+   "districtCount": 17,
+   "districts": [
+    {
+     "nameTr": "Ahmetli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Akhisar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Alaşehir",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Demirci",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gölmarmara",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gördes",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kula",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Köprübaşı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kırkağaç",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Salihli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Saruhanlı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sarıgöl",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Selendi",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Soma",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Turgutlu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yunusemre",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Şehzadeler",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "46",
+   "provinceNameTr": "Kahramanmaraş",
+   "districtCount": 11,
+   "districts": [
+    {
+     "nameTr": "Afşin",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Andırın",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Dulkadiroğlu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ekinözü",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Elbistan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Göksun",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Nurhak",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Onikişubat",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Pazarcık",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Türkoğlu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çağlayancerit",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "47",
+   "provinceNameTr": "Mardin",
+   "districtCount": 10,
+   "districts": [
+    {
+     "nameTr": "Artuklu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Dargeçit",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Derik",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kızıltepe",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Mazıdağı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Midyat",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Nusaybin",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Savur",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yeşilli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ömerli",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "48",
+   "provinceNameTr": "Muğla",
+   "districtCount": 13,
+   "districts": [
+    {
+     "nameTr": "Bodrum",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Dalaman",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Datça",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Fethiye",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kavaklıdere",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Köyceğiz",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Marmaris",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Menteşe",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Milas",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ortaca",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Seydikemer",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ula",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yatağan",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "49",
+   "provinceNameTr": "Muş",
+   "districtCount": 6,
+   "districts": [
+    {
+     "nameTr": "Bulanık",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hasköy",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Korkut",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Malazgirt",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Varto",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "50",
+   "provinceNameTr": "Nevşehir",
+   "districtCount": 8,
+   "districts": [
+    {
+     "nameTr": "Acıgöl",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Avanos",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Derinkuyu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gülşehir",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hacıbektaş",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kozaklı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ürgüp",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "51",
+   "provinceNameTr": "Niğde",
+   "districtCount": 6,
+   "districts": [
+    {
+     "nameTr": "Altunhisar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bor",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ulukışla",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çamardı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çiftlik",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "52",
+   "provinceNameTr": "Ordu",
+   "districtCount": 19,
+   "districts": [
+    {
+     "nameTr": "Akkuş",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Altınordu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Aybastı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Fatsa",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gölköy",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gülyalı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gürgentepe",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kabadüz",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kabataş",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Korgan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kumru",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Mesudiye",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Perşembe",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ulubey",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çamaş",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çatalpınar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çaybaşı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ünye",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İkizce",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "53",
+   "provinceNameTr": "Rize",
+   "districtCount": 12,
+   "districts": [
+    {
+     "nameTr": "Ardeşen",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Derepazarı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Fındıklı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Güneysu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hemşin",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kalkandere",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Pazar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çamlıhemşin",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çayeli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İkizdere",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İyidere",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "54",
+   "provinceNameTr": "Sakarya",
+   "districtCount": 16,
+   "districts": [
+    {
+     "nameTr": "Adapazarı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Akyazı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Arifiye",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Erenler",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ferizli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Geyve",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hendek",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karapürçek",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karasu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kaynarca",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kocaali",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Pamukova",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sapanca",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Serdivan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Söğütlü",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Taraklı",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "55",
+   "provinceNameTr": "Samsun",
+   "districtCount": 17,
+   "districts": [
+    {
+     "nameTr": "19 Mayıs",
+     "mgmConfirmed": false
+    },
+    {
+     "nameTr": "Alaçam",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Asarcık",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Atakum",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ayvacık",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bafra",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Canik",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Havza",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kavak",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ladik",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Salıpazarı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tekkeköy",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Terme",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Vezirköprü",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yakakent",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çarşamba",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İlkadım",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "56",
+   "provinceNameTr": "Siirt",
+   "districtCount": 7,
+   "districts": [
+    {
+     "nameTr": "Baykan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Eruh",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kurtalan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Pervari",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tillo",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Şirvan",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "57",
+   "provinceNameTr": "Sinop",
+   "districtCount": 9,
+   "districts": [
+    {
+     "nameTr": "Ayancık",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Boyabat",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Dikmen",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Durağan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Erfelek",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gerze",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Saraydüzü",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Türkeli",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "58",
+   "provinceNameTr": "Sivas",
+   "districtCount": 17,
+   "districts": [
+    {
+     "nameTr": "Akıncılar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Altınyayla",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Divriği",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Doğanşar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gemerek",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gölova",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gürün",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hafik",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kangal",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Koyulhisar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Suşehri",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ulaş",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yıldızeli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Zara",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İmranlı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Şarkışla",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "59",
+   "provinceNameTr": "Tekirdağ",
+   "districtCount": 11,
+   "districts": [
+    {
+     "nameTr": "Ergene",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hayrabolu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kapaklı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Malkara",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Marmaraereğlisi",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Muratlı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Saray",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Süleymanpaşa",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çerkezköy",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çorlu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Şarköy",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "60",
+   "provinceNameTr": "Tokat",
+   "districtCount": 12,
+   "districts": [
+    {
+     "nameTr": "Almus",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Artova",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Başçiftlik",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Erbaa",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Niksar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Pazar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Reşadiye",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sulusaray",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Turhal",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yeşilyurt",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Zile",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "61",
+   "provinceNameTr": "Trabzon",
+   "districtCount": 18,
+   "districts": [
+    {
+     "nameTr": "Akçaabat",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Araklı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Arsin",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Beşikdüzü",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Dernekpazarı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Düzköy",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hayrat",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Köprübaşı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Maçka",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Of",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ortahisar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sürmene",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tonya",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Vakfıkebir",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yomra",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çarşıbaşı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çaykara",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Şalpazarı",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "62",
+   "provinceNameTr": "Tunceli",
+   "districtCount": 8,
+   "districts": [
+    {
+     "nameTr": "Hozat",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Mazgirt",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Nazımiye",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ovacık",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Pertek",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Pülümür",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çemişgezek",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "63",
+   "provinceNameTr": "Şanlıurfa",
+   "districtCount": 13,
+   "districts": [
+    {
+     "nameTr": "Akçakale",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Birecik",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Bozova",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ceylanpınar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Eyyübiye",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Halfeti",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Haliliye",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Harran",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hilvan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karaköprü",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Siverek",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Suruç",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Viranşehir",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "64",
+   "provinceNameTr": "Uşak",
+   "districtCount": 6,
+   "districts": [
+    {
+     "nameTr": "Banaz",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Eşme",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karahallı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sivaslı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ulubey",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "65",
+   "provinceNameTr": "Van",
+   "districtCount": 13,
+   "districts": [
+    {
+     "nameTr": "Bahçesaray",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Başkale",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Edremit",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Erciş",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gevaş",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gürpınar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Muradiye",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Saray",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tuşba",
+     "mgmConfirmed": false
+    },
+    {
+     "nameTr": "Çaldıran",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çatak",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Özalp",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İpekyolu",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "66",
+   "provinceNameTr": "Yozgat",
+   "districtCount": 14,
+   "districts": [
+    {
+     "nameTr": "Akdağmadeni",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Aydıncık",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Boğazlıyan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kadışehri",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Saraykent",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sarıkaya",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sorgun",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yenifakılı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yerköy",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çandır",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çayıralan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çekerek",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Şefaatli",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "67",
+   "provinceNameTr": "Zonguldak",
+   "districtCount": 8,
+   "districts": [
+    {
+     "nameTr": "Alaplı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Devrek",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ereğli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gökçebey",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kilimli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kozlu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çaycuma",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "68",
+   "provinceNameTr": "Aksaray",
+   "districtCount": 8,
+   "districts": [
+    {
+     "nameTr": "Ağaçören",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Eskil",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gülağaç",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Güzelyurt",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ortaköy",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sarıyahşi",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sultanhanı",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "69",
+   "provinceNameTr": "Bayburt",
+   "districtCount": 3,
+   "districts": [
+    {
+     "nameTr": "Aydıntepe",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Demirözü",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "70",
+   "provinceNameTr": "Karaman",
+   "districtCount": 6,
+   "districts": [
+    {
+     "nameTr": "Ayrancı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Başyayla",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ermenek",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kazımkarabekir",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sarıveliler",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "71",
+   "provinceNameTr": "Kırıkkale",
+   "districtCount": 9,
+   "districts": [
+    {
+     "nameTr": "Bahşili",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Balışeyh",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Delice",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karakeçili",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Keskin",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sulakyurt",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yahşihan",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çelebi",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "72",
+   "provinceNameTr": "Batman",
+   "districtCount": 6,
+   "districts": [
+    {
+     "nameTr": "Beşiri",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gercüş",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hasankeyf",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kozluk",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sason",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "73",
+   "provinceNameTr": "Şırnak",
+   "districtCount": 7,
+   "districts": [
+    {
+     "nameTr": "Beytüşşebap",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Cizre",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Güçlükonak",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Silopi",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Uludere",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "İdil",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "74",
+   "provinceNameTr": "Bartın",
+   "districtCount": 4,
+   "districts": [
+    {
+     "nameTr": "Amasra",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kurucaşile",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ulus",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "75",
+   "provinceNameTr": "Ardahan",
+   "districtCount": 6,
+   "districts": [
+    {
+     "nameTr": "Damal",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Göle",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hanak",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Posof",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çıldır",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "76",
+   "provinceNameTr": "Iğdır",
+   "districtCount": 4,
+   "districts": [
+    {
+     "nameTr": "Aralık",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Karakoyunlu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Tuzluca",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "77",
+   "provinceNameTr": "Yalova",
+   "districtCount": 6,
+   "districts": [
+    {
+     "nameTr": "Altınova",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Armutlu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Termal",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çiftlikköy",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çınarcık",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "78",
+   "provinceNameTr": "Karabük",
+   "districtCount": 6,
+   "districts": [
+    {
+     "nameTr": "Eflani",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Eskipazar",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Ovacık",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Safranbolu",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yenice",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "79",
+   "provinceNameTr": "Kilis",
+   "districtCount": 4,
+   "districts": [
+    {
+     "nameTr": "Elbeyli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Musabeyli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Polateli",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "80",
+   "provinceNameTr": "Osmaniye",
+   "districtCount": 7,
+   "districts": [
+    {
+     "nameTr": "Bahçe",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Düziçi",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Hasanbeyli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kadirli",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Sumbas",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Toprakkale",
+     "mgmConfirmed": true
+    }
+   ]
+  },
+  {
+   "plateCode": "81",
+   "provinceNameTr": "Düzce",
+   "districtCount": 8,
+   "districts": [
+    {
+     "nameTr": "Akçakoca",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Cumayeri",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gölyaka",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Gümüşova",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Kaynaşlı",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Merkez",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Yığılca",
+     "mgmConfirmed": true
+    },
+    {
+     "nameTr": "Çilimli",
+     "mgmConfirmed": true
+    }
+   ]
+  }
+ ]
+}
