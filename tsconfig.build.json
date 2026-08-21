@@ -18,6 +18,12 @@
     "src/air-quality/cams/netcdf3-fixture.builder.ts",
     "src/database/era5/era5-fixture.builder.ts",
     "src/elevation/terrain/terrarium-fixture.builder.ts",
-    "src/common/attribution/endorsement-guard.ts"
+    "src/common/attribution/endorsement-guard.ts",
+    // The ALL-CAPS → reader's-writing conversion behind the two generated reference lists. It runs
+    // when those lists are REGENERATED and when `reference-lists.spec.ts` re-derives them to check
+    // that they still match the archived source; no request path reaches it, because the published
+    // names are already committed constants. Same class as the fixture builders above — it lives in
+    // `src/` so the unit lane collects its checks, and must not ship to `dist/`.
+    "src/reference/reference-writing-form.ts"
   ]
 }

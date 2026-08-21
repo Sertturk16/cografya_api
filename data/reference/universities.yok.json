@@ -1,0 +1,1579 @@
+[
+ {
+  "ad": "ABDULLAH GÜL ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Kayseri",
+  "ilKaynakBicimi": "KAYSERİ"
+ },
+ {
+  "ad": "ACIBADEM MEHMET ALİ AYDINLAR ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "ADA KENT ÜNİVERSİTESİ",
+  "tur": "KKTC",
+  "kapsam": "KKTC",
+  "il": null,
+  "ilKaynakBicimi": "KIBRIS",
+  "kktcSehir": "GAZİMAĞUSA"
+ },
+ {
+  "ad": "ADANA ALPARSLAN TÜRKEŞ BİLİM VE TEKNOLOJİ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Adana",
+  "ilKaynakBicimi": "ADANA"
+ },
+ {
+  "ad": "ADIYAMAN ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Adıyaman",
+  "ilKaynakBicimi": "ADIYAMAN"
+ },
+ {
+  "ad": "AFYON KOCATEPE ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Afyonkarahisar",
+  "ilKaynakBicimi": "AFYONKARAHİSAR"
+ },
+ {
+  "ad": "AFYONKARAHİSAR SAĞLIK BİLİMLERİ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Afyonkarahisar",
+  "ilKaynakBicimi": "AFYONKARAHİSAR"
+ },
+ {
+  "ad": "AĞRI İBRAHİM ÇEÇEN ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Ağrı",
+  "ilKaynakBicimi": "AĞRI"
+ },
+ {
+  "ad": "AKDENİZ KARPAZ ÜNİVERSİTESİ",
+  "tur": "KKTC",
+  "kapsam": "KKTC",
+  "il": null,
+  "ilKaynakBicimi": "KIBRIS",
+  "kktcSehir": "LEFKOŞA"
+ },
+ {
+  "ad": "AKDENİZ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Antalya",
+  "ilKaynakBicimi": "ANTALYA"
+ },
+ {
+  "ad": "AKSARAY ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Aksaray",
+  "ilKaynakBicimi": "AKSARAY"
+ },
+ {
+  "ad": "ALANYA ALAADDİN KEYKUBAT ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Antalya",
+  "ilKaynakBicimi": "ANTALYA"
+ },
+ {
+  "ad": "ALANYA ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Antalya",
+  "ilKaynakBicimi": "ANTALYA"
+ },
+ {
+  "ad": "ALTINBAŞ ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "AMASYA ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Amasya",
+  "ilKaynakBicimi": "AMASYA"
+ },
+ {
+  "ad": "ANADOLU ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Eskişehir",
+  "ilKaynakBicimi": "ESKİŞEHİR"
+ },
+ {
+  "ad": "ANKARA BİLİM ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "ANKARA HACI BAYRAM VELİ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "ANKARA MEDİPOL ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "ANKARA MÜZİK VE GÜZEL SANATLAR ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "ANKARA SOSYAL BİLİMLER ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "ANKARA ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "ANKARA YILDIRIM BEYAZIT ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "ANTALYA BELEK ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Antalya",
+  "ilKaynakBicimi": "ANTALYA"
+ },
+ {
+  "ad": "ANTALYA BİLİM ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Antalya",
+  "ilKaynakBicimi": "ANTALYA"
+ },
+ {
+  "ad": "ARDAHAN ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Ardahan",
+  "ilKaynakBicimi": "ARDAHAN"
+ },
+ {
+  "ad": "ARKIN YARATICI SANATLAR VE TASARIM ÜNİVERSİTESİ",
+  "tur": "KKTC",
+  "kapsam": "KKTC",
+  "il": null,
+  "ilKaynakBicimi": "KIBRIS",
+  "kktcSehir": "GİRNE"
+ },
+ {
+  "ad": "ARTVİN ÇORUH ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Artvin",
+  "ilKaynakBicimi": "ARTVİN"
+ },
+ {
+  "ad": "ATAŞEHİR ADIGÜZEL MESLEK YÜKSEKOKULU",
+  "tur": "Vakıf MYO",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "ATATÜRK ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Erzurum",
+  "ilKaynakBicimi": "ERZURUM"
+ },
+ {
+  "ad": "ATILIM ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "AVRASYA ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Trabzon",
+  "ilKaynakBicimi": "TRABZON"
+ },
+ {
+  "ad": "AYDIN ADNAN MENDERES ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Aydın",
+  "ilKaynakBicimi": "AYDIN"
+ },
+ {
+  "ad": "BAHÇEŞEHİR KIBRIS ÜNİVERSİTESİ",
+  "tur": "KKTC",
+  "kapsam": "KKTC",
+  "il": null,
+  "ilKaynakBicimi": "KIBRIS",
+  "kktcSehir": "LEFKOŞA"
+ },
+ {
+  "ad": "BAHÇEŞEHİR ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "BALIKESİR ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Balıkesir",
+  "ilKaynakBicimi": "BALIKESİR"
+ },
+ {
+  "ad": "BANDIRMA ONYEDİ EYLÜL ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Balıkesir",
+  "ilKaynakBicimi": "BALIKESİR"
+ },
+ {
+  "ad": "BARTIN ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Bartın",
+  "ilKaynakBicimi": "BARTIN"
+ },
+ {
+  "ad": "BAŞKENT ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "BATMAN ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Batman",
+  "ilKaynakBicimi": "BATMAN"
+ },
+ {
+  "ad": "BAYBURT ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Bayburt",
+  "ilKaynakBicimi": "BAYBURT"
+ },
+ {
+  "ad": "BEYKOZ ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "BEZM-İ ÂLEM VAKIF ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "BİLECİK ŞEYH EDEBALİ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Bilecik",
+  "ilKaynakBicimi": "BİLECİK"
+ },
+ {
+  "ad": "BİNGÖL ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Bingöl",
+  "ilKaynakBicimi": "BİNGÖL"
+ },
+ {
+  "ad": "BİRUNİ ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "BİTLİS EREN ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Bitlis",
+  "ilKaynakBicimi": "BİTLİS"
+ },
+ {
+  "ad": "BOĞAZİÇİ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "BOLU ABANT İZZET BAYSAL ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Bolu",
+  "ilKaynakBicimi": "BOLU"
+ },
+ {
+  "ad": "BURDUR MEHMET AKİF ERSOY ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Burdur",
+  "ilKaynakBicimi": "BURDUR"
+ },
+ {
+  "ad": "BURSA TEKNİK ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Bursa",
+  "ilKaynakBicimi": "BURSA"
+ },
+ {
+  "ad": "BURSA ULUDAĞ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Bursa",
+  "ilKaynakBicimi": "BURSA"
+ },
+ {
+  "ad": "ÇAĞ ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Mersin",
+  "ilKaynakBicimi": "MERSİN"
+ },
+ {
+  "ad": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Çanakkale",
+  "ilKaynakBicimi": "ÇANAKKALE"
+ },
+ {
+  "ad": "ÇANKAYA ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "ÇANKIRI KARATEKİN ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Çankırı",
+  "ilKaynakBicimi": "ÇANKIRI"
+ },
+ {
+  "ad": "ÇUKUROVA ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Adana",
+  "ilKaynakBicimi": "ADANA"
+ },
+ {
+  "ad": "DEMİROĞLU BİLİM ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "DİCLE ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Diyarbakır",
+  "ilKaynakBicimi": "DİYARBAKIR"
+ },
+ {
+  "ad": "DOĞU AKDENİZ ÜNİVERSİTESİ",
+  "tur": "KKTC",
+  "kapsam": "KKTC",
+  "il": null,
+  "ilKaynakBicimi": "KIBRIS",
+  "kktcSehir": "GAZİMAĞUSA"
+ },
+ {
+  "ad": "DOĞUŞ ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "DOKUZ EYLÜL ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "İzmir",
+  "ilKaynakBicimi": "İZMİR"
+ },
+ {
+  "ad": "DÜZCE ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Düzce",
+  "ilKaynakBicimi": "DÜZCE"
+ },
+ {
+  "ad": "EGE ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "İzmir",
+  "ilKaynakBicimi": "İZMİR"
+ },
+ {
+  "ad": "ERCİYES ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Kayseri",
+  "ilKaynakBicimi": "KAYSERİ"
+ },
+ {
+  "ad": "ERZİNCAN BİNALİ YILDIRIM ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Erzincan",
+  "ilKaynakBicimi": "ERZİNCAN"
+ },
+ {
+  "ad": "ERZURUM TEKNİK ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Erzurum",
+  "ilKaynakBicimi": "ERZURUM"
+ },
+ {
+  "ad": "ESKİŞEHİR OSMANGAZİ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Eskişehir",
+  "ilKaynakBicimi": "ESKİŞEHİR"
+ },
+ {
+  "ad": "ESKİŞEHİR TEKNİK ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Eskişehir",
+  "ilKaynakBicimi": "ESKİŞEHİR"
+ },
+ {
+  "ad": "FATİH SULTAN MEHMET VAKIF ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "FENERBAHÇE ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "FIRAT ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Elazığ",
+  "ilKaynakBicimi": "ELAZIĞ"
+ },
+ {
+  "ad": "GALATASARAY ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "GAZİ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "GAZİANTEP İSLAM BİLİM VE TEKNOLOJİ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Gaziantep",
+  "ilKaynakBicimi": "GAZİANTEP"
+ },
+ {
+  "ad": "GAZİANTEP ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Gaziantep",
+  "ilKaynakBicimi": "GAZİANTEP"
+ },
+ {
+  "ad": "GEBZE TEKNİK ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Kocaeli",
+  "ilKaynakBicimi": "KOCAELİ"
+ },
+ {
+  "ad": "GİRESUN ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Giresun",
+  "ilKaynakBicimi": "GİRESUN"
+ },
+ {
+  "ad": "GİRNE AMERİKAN ÜNİVERSİTESİ",
+  "tur": "KKTC",
+  "kapsam": "KKTC",
+  "il": null,
+  "ilKaynakBicimi": "KIBRIS",
+  "kktcSehir": "GİRNE"
+ },
+ {
+  "ad": "GİRNE ÜNİVERSİTESİ",
+  "tur": "KKTC",
+  "kapsam": "KKTC",
+  "il": null,
+  "ilKaynakBicimi": "KIBRIS",
+  "kktcSehir": "GİRNE"
+ },
+ {
+  "ad": "GÜMÜŞHANE ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Gümüşhane",
+  "ilKaynakBicimi": "GÜMÜŞHANE"
+ },
+ {
+  "ad": "HACETTEPE ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "HAKKARİ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Hakkari",
+  "ilKaynakBicimi": "HAKKARİ"
+ },
+ {
+  "ad": "HALİÇ ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "HARRAN ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Şanlıurfa",
+  "ilKaynakBicimi": "ŞANLIURFA"
+ },
+ {
+  "ad": "HASAN KALYONCU ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Gaziantep",
+  "ilKaynakBicimi": "GAZİANTEP"
+ },
+ {
+  "ad": "HATAY MUSTAFA KEMAL ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Hatay",
+  "ilKaynakBicimi": "HATAY"
+ },
+ {
+  "ad": "HİTİT ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Çorum",
+  "ilKaynakBicimi": "ÇORUM"
+ },
+ {
+  "ad": "IĞDIR ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Iğdır",
+  "ilKaynakBicimi": "IĞDIR"
+ },
+ {
+  "ad": "ISPARTA UYGULAMALI BİLİMLER ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Isparta",
+  "ilKaynakBicimi": "ISPARTA"
+ },
+ {
+  "ad": "IŞIK ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İBN HALDUN ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İHSAN DOĞRAMACI BİLKENT ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "İNÖNÜ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Malatya",
+  "ilKaynakBicimi": "MALATYA"
+ },
+ {
+  "ad": "İSKENDERUN TEKNİK ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Hatay",
+  "ilKaynakBicimi": "HATAY"
+ },
+ {
+  "ad": "İSTANBUL 29 MAYIS ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL AREL ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL ATLAS ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL AYDIN ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL BEYKENT ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL BİLGİ ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL ESENYURT ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL GALATA ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL GEDİK ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL GELİŞİM ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL KENT ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL KÜLTÜR ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL MEDENİYET ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL MEDİPOL ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL NİŞANTAŞI ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL OKAN ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL RUMELİ ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL SABAHATTİN ZAİM ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL SAĞLIK VE SOSYAL BİLİMLER MESLEK YÜKSEKOKULU",
+  "tur": "Vakıf MYO",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL SAĞLIK VE TEKNOLOJİ ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL ŞİŞLİ MESLEK YÜKSEKOKULU",
+  "tur": "Vakıf MYO",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL TEKNİK ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL TİCARET ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL TOPKAPI ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL ÜNİVERSİTESİ-CERRAHPAŞA",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTANBUL YENİ YÜZYIL ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İSTİNYE ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "İZMİR BAKIRÇAY ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "İzmir",
+  "ilKaynakBicimi": "İZMİR"
+ },
+ {
+  "ad": "İZMİR DEMOKRASİ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "İzmir",
+  "ilKaynakBicimi": "İZMİR"
+ },
+ {
+  "ad": "İZMİR EKONOMİ ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İzmir",
+  "ilKaynakBicimi": "İZMİR"
+ },
+ {
+  "ad": "İZMİR KATİP ÇELEBİ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "İzmir",
+  "ilKaynakBicimi": "İZMİR"
+ },
+ {
+  "ad": "İZMİR KONAK MESLEK YÜKSEKOKULU",
+  "tur": "Vakıf MYO",
+  "kapsam": "Türkiye",
+  "il": "İzmir",
+  "ilKaynakBicimi": "İZMİR"
+ },
+ {
+  "ad": "İZMİR TINAZTEPE ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İzmir",
+  "ilKaynakBicimi": "İZMİR"
+ },
+ {
+  "ad": "İZMİR YÜKSEK TEKNOLOJİ ENSTİTÜSÜ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "İzmir",
+  "ilKaynakBicimi": "İZMİR"
+ },
+ {
+  "ad": "KADİR HAS ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "KAFKAS ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Kars",
+  "ilKaynakBicimi": "KARS"
+ },
+ {
+  "ad": "KAHRAMANMARAŞ İSTİKLAL ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Kahramanmaraş",
+  "ilKaynakBicimi": "KAHRAMANMARAŞ"
+ },
+ {
+  "ad": "KAHRAMANMARAŞ SÜTÇÜ İMAM ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Kahramanmaraş",
+  "ilKaynakBicimi": "KAHRAMANMARAŞ"
+ },
+ {
+  "ad": "KAPADOKYA ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Nevşehir",
+  "ilKaynakBicimi": "NEVŞEHİR"
+ },
+ {
+  "ad": "KARABÜK ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Karabük",
+  "ilKaynakBicimi": "KARABÜK"
+ },
+ {
+  "ad": "KARADENİZ TEKNİK ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Trabzon",
+  "ilKaynakBicimi": "TRABZON"
+ },
+ {
+  "ad": "KARAMANOĞLU MEHMETBEY ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Karaman",
+  "ilKaynakBicimi": "KARAMAN"
+ },
+ {
+  "ad": "KASTAMONU ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Kastamonu",
+  "ilKaynakBicimi": "KASTAMONU"
+ },
+ {
+  "ad": "KAYSERİ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Kayseri",
+  "ilKaynakBicimi": "KAYSERİ"
+ },
+ {
+  "ad": "KIBRIS AMERİKAN ÜNİVERSİTESİ",
+  "tur": "KKTC",
+  "kapsam": "KKTC",
+  "il": null,
+  "ilKaynakBicimi": "KIBRIS",
+  "kktcSehir": "LEFKOŞA"
+ },
+ {
+  "ad": "KIBRIS AYDIN ÜNİVERSİTESİ",
+  "tur": "KKTC",
+  "kapsam": "KKTC",
+  "il": null,
+  "ilKaynakBicimi": "KIBRIS",
+  "kktcSehir": "GİRNE"
+ },
+ {
+  "ad": "KIBRIS BATI ÜNİVERSİTESİ",
+  "tur": "KKTC",
+  "kapsam": "KKTC",
+  "il": null,
+  "ilKaynakBicimi": "KIBRIS",
+  "kktcSehir": "GAZİMAĞUSA"
+ },
+ {
+  "ad": "KIBRIS SAĞLIK VE TOPLUM BİLİMLERİ ÜNİVERSİTESİ",
+  "tur": "KKTC",
+  "kapsam": "KKTC",
+  "il": null,
+  "ilKaynakBicimi": "KIBRIS",
+  "kktcSehir": "GÜZELYURT"
+ },
+ {
+  "ad": "KIRIKKALE ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Kırıkkale",
+  "ilKaynakBicimi": "KIRIKKALE"
+ },
+ {
+  "ad": "KIRKLARELİ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Kırklareli",
+  "ilKaynakBicimi": "KIRKLARELİ"
+ },
+ {
+  "ad": "KIRŞEHİR AHİ EVRAN ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Kırşehir",
+  "ilKaynakBicimi": "KIRŞEHİR"
+ },
+ {
+  "ad": "KİLİS 7 ARALIK ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Kilis",
+  "ilKaynakBicimi": "KİLİS"
+ },
+ {
+  "ad": "KOCAELİ SAĞLIK VE TEKNOLOJİ ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Kocaeli",
+  "ilKaynakBicimi": "KOCAELİ"
+ },
+ {
+  "ad": "KOCAELİ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Kocaeli",
+  "ilKaynakBicimi": "KOCAELİ"
+ },
+ {
+  "ad": "KOÇ ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "KONYA GIDA VE TARIM ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Konya",
+  "ilKaynakBicimi": "KONYA"
+ },
+ {
+  "ad": "KONYA TEKNİK ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Konya",
+  "ilKaynakBicimi": "KONYA"
+ },
+ {
+  "ad": "KTO KARATAY ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Konya",
+  "ilKaynakBicimi": "KONYA"
+ },
+ {
+  "ad": "KÜTAHYA DUMLUPINAR ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Kütahya",
+  "ilKaynakBicimi": "KÜTAHYA"
+ },
+ {
+  "ad": "KÜTAHYA SAĞLIK BİLİMLERİ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Kütahya",
+  "ilKaynakBicimi": "KÜTAHYA"
+ },
+ {
+  "ad": "LEFKE AVRUPA ÜNİVERSİTESİ",
+  "tur": "KKTC",
+  "kapsam": "KKTC",
+  "il": null,
+  "ilKaynakBicimi": "KIBRIS",
+  "kktcSehir": "LEFKE"
+ },
+ {
+  "ad": "LOKMAN HEKİM ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "MALATYA TURGUT ÖZAL ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Malatya",
+  "ilKaynakBicimi": "MALATYA"
+ },
+ {
+  "ad": "MALTEPE ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "MANİSA CELÂL BAYAR ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Manisa",
+  "ilKaynakBicimi": "MANİSA"
+ },
+ {
+  "ad": "MARDİN ARTUKLU ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Mardin",
+  "ilKaynakBicimi": "MARDİN"
+ },
+ {
+  "ad": "MARMARA ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "MEF ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "MERSİN ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Mersin",
+  "ilKaynakBicimi": "MERSİN"
+ },
+ {
+  "ad": "MİMAR SİNAN GÜZEL SANATLAR ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "MUDANYA ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Bursa",
+  "ilKaynakBicimi": "BURSA"
+ },
+ {
+  "ad": "MUĞLA SITKI KOÇMAN ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Muğla",
+  "ilKaynakBicimi": "MUĞLA"
+ },
+ {
+  "ad": "MUNZUR ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Tunceli",
+  "ilKaynakBicimi": "TUNCELİ"
+ },
+ {
+  "ad": "MUŞ ALPARSLAN ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Muş",
+  "ilKaynakBicimi": "MUŞ"
+ },
+ {
+  "ad": "NECMETTİN ERBAKAN ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Konya",
+  "ilKaynakBicimi": "KONYA"
+ },
+ {
+  "ad": "NEVŞEHİR HACI BEKTAŞ VELİ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Nevşehir",
+  "ilKaynakBicimi": "NEVŞEHİR"
+ },
+ {
+  "ad": "NİĞDE ÖMER HALİSDEMİR ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Niğde",
+  "ilKaynakBicimi": "NİĞDE"
+ },
+ {
+  "ad": "NUH NACİ YAZGAN ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Kayseri",
+  "ilKaynakBicimi": "KAYSERİ"
+ },
+ {
+  "ad": "ONDOKUZ MAYIS ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Samsun",
+  "ilKaynakBicimi": "SAMSUN"
+ },
+ {
+  "ad": "ORDU ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Ordu",
+  "ilKaynakBicimi": "ORDU"
+ },
+ {
+  "ad": "ORTA DOĞU TEKNİK ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "OSMANİYE KORKUT ATA ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Osmaniye",
+  "ilKaynakBicimi": "OSMANİYE"
+ },
+ {
+  "ad": "OSTİM TEKNİK ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "ÖZYEĞİN ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "PAMUKKALE ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Denizli",
+  "ilKaynakBicimi": "DENİZLİ"
+ },
+ {
+  "ad": "PİRİ REİS ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "RAUF DENKTAŞ ÜNİVERSİTESİ",
+  "tur": "KKTC",
+  "kapsam": "KKTC",
+  "il": null,
+  "ilKaynakBicimi": "KIBRIS",
+  "kktcSehir": "LEFKOŞA"
+ },
+ {
+  "ad": "RECEP TAYYİP ERDOĞAN ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Rize",
+  "ilKaynakBicimi": "RİZE"
+ },
+ {
+  "ad": "SABANCI ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "SAKARYA UYGULAMALI BİLİMLER ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Sakarya",
+  "ilKaynakBicimi": "SAKARYA"
+ },
+ {
+  "ad": "SAKARYA ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Sakarya",
+  "ilKaynakBicimi": "SAKARYA"
+ },
+ {
+  "ad": "SAMSUN ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Samsun",
+  "ilKaynakBicimi": "SAMSUN"
+ },
+ {
+  "ad": "SANKO ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Gaziantep",
+  "ilKaynakBicimi": "GAZİANTEP"
+ },
+ {
+  "ad": "SELÇUK ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Konya",
+  "ilKaynakBicimi": "KONYA"
+ },
+ {
+  "ad": "SİİRT ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Siirt",
+  "ilKaynakBicimi": "SİİRT"
+ },
+ {
+  "ad": "SİNOP ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Sinop",
+  "ilKaynakBicimi": "SİNOP"
+ },
+ {
+  "ad": "SİVAS BİLİM VE TEKNOLOJİ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Sivas",
+  "ilKaynakBicimi": "SİVAS"
+ },
+ {
+  "ad": "SİVAS CUMHURİYET ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Sivas",
+  "ilKaynakBicimi": "SİVAS"
+ },
+ {
+  "ad": "SÜLEYMAN DEMİREL ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Isparta",
+  "ilKaynakBicimi": "ISPARTA"
+ },
+ {
+  "ad": "ŞIRNAK ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Şırnak",
+  "ilKaynakBicimi": "ŞIRNAK"
+ },
+ {
+  "ad": "TARSUS ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Mersin",
+  "ilKaynakBicimi": "MERSİN"
+ },
+ {
+  "ad": "TED ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "TEKİRDAĞ NAMIK KEMAL ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Tekirdağ",
+  "ilKaynakBicimi": "TEKİRDAĞ"
+ },
+ {
+  "ad": "TOBB EKONOMİ VE TEKNOLOJİ ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "TOKAT GAZİOSMANPAŞA ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Tokat",
+  "ilKaynakBicimi": "TOKAT"
+ },
+ {
+  "ad": "TOROS ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Mersin",
+  "ilKaynakBicimi": "MERSİN"
+ },
+ {
+  "ad": "TRABZON ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Trabzon",
+  "ilKaynakBicimi": "TRABZON"
+ },
+ {
+  "ad": "TRAKYA ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Edirne",
+  "ilKaynakBicimi": "EDİRNE"
+ },
+ {
+  "ad": "TÜRK HAVA KURUMU ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "TÜRK-ALMAN ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "TÜRK-JAPON BİLİM VE TEKNOLOJİ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "TÜRKİYE ULUSLARARASI İSLAM, BİLİM VE TEKNOLOJİ ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "UFUK ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "ULUSLARARASI FİNAL ÜNİVERSİTESİ",
+  "tur": "KKTC",
+  "kapsam": "KKTC",
+  "il": null,
+  "ilKaynakBicimi": "KIBRIS",
+  "kktcSehir": "GİRNE"
+ },
+ {
+  "ad": "ULUSLARARASI KIBRIS ÜNİVERSİTESİ",
+  "tur": "KKTC",
+  "kapsam": "KKTC",
+  "il": null,
+  "ilKaynakBicimi": "KIBRIS",
+  "kktcSehir": "LEFKOŞA"
+ },
+ {
+  "ad": "UŞAK ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Uşak",
+  "ilKaynakBicimi": "UŞAK"
+ },
+ {
+  "ad": "ÜSKÜDAR ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "VAN YÜZÜNCÜ YIL ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Van",
+  "ilKaynakBicimi": "VAN"
+ },
+ {
+  "ad": "YAKIN DOĞU ÜNİVERSİTESİ",
+  "tur": "KKTC",
+  "kapsam": "KKTC",
+  "il": null,
+  "ilKaynakBicimi": "KIBRIS",
+  "kktcSehir": "LEFKOŞA"
+ },
+ {
+  "ad": "YALOVA ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Yalova",
+  "ilKaynakBicimi": "YALOVA"
+ },
+ {
+  "ad": "YAŞAR ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İzmir",
+  "ilKaynakBicimi": "İZMİR"
+ },
+ {
+  "ad": "YEDİTEPE ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "YILDIZ TEKNİK ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "İstanbul",
+  "ilKaynakBicimi": "İSTANBUL"
+ },
+ {
+  "ad": "YOZGAT BOZOK ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Yozgat",
+  "ilKaynakBicimi": "YOZGAT"
+ },
+ {
+  "ad": "YÜKSEK İHTİSAS ÜNİVERSİTESİ",
+  "tur": "Vakıf",
+  "kapsam": "Türkiye",
+  "il": "Ankara",
+  "ilKaynakBicimi": "ANKARA"
+ },
+ {
+  "ad": "ZONGULDAK BÜLENT ECEVİT ÜNİVERSİTESİ",
+  "tur": "Devlet",
+  "kapsam": "Türkiye",
+  "il": "Zonguldak",
+  "ilKaynakBicimi": "ZONGULDAK"
+ }
+]

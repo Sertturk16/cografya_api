@@ -1,14 +1,28 @@
-# `data/reference/` — the committed ilçe artefact
+# `data/reference/` — the committed reference artefacts
 
-One file, and it is a **byte copy**:
+Three files, and every one of them is a **byte copy** of a collected artefact that lives in
+`Owner's Inbox/`:
 
-| File | Source | Read by | Size |
-| --- | --- | --- | ---: |
-| `districts.tuik.json` | `Owner's Inbox/oturum-lite/ilce-listesi.json` | `pnpm db:seed:reference` | 73 638 B |
+| File                        | Source                                           | Read by                                 |     Size |
+| --------------------------- | ------------------------------------------------ | --------------------------------------- | -------: |
+| `districts.tuik.json`       | `Owner's Inbox/oturum-lite/ilce-listesi.json`    | `pnpm db:seed:reference`                | 73 638 B |
+| `universities.yok.json`     | `Owner's Inbox/oturum-lite/universiteler.json`   | `src/reference/reference-lists.spec.ts` | 32 447 B |
+| `departments.yokatlas.json` | `Owner's Inbox/oturum-lite/bolumler-lisans.json` | `src/reference/reference-lists.spec.ts` | 10 165 B |
 
-Nothing in this repo writes it. It is copied in, never regenerated, and never hand-edited — and
-`.prettierignore` carries `data/reference/*.json` so `pnpm format` cannot quietly rewrite it either.
-The file has **no trailing newline**; that is part of the byte copy.
+Nothing in this repo writes them. They are copied in, never regenerated, and never hand-edited — and
+`.prettierignore` carries `data/reference/*.json` so `pnpm format` cannot quietly rewrite them
+either. **None has a trailing newline**; that is part of the byte copy.
+
+**The two lists differ from the ilçe list in one way that matters: nothing reads them at runtime.**
+The ilçe list is read from disk by the seed; the üniversite and bölüm lists are compiled into
+`src/reference/university.data.ts` and `src/reference/department.data.ts` instead, because `nest
+build` does not copy asset files into `dist/` (`FU-SPEC-71-PATH`) and those two endpoints answer
+from memory with no seed and no table behind them. The copies here are the **archive** and the
+in-repo side of the fidelity check — see "The üniversite and bölüm lists" below.
+
+**`bolumler-onlisans.json` is deliberately absent.** `DEC 2026-08-20p` md.4 rules the 261 önlisans
+programme names out of the registration form's scope; a file that is out of scope should not be
+sitting here waiting to be wired in by somebody who did not read the ruling.
 
 > **The copy's own `_meta.statu` still reads `DRAFT — provenance defter satırı inmeden seed inmez`,
 > and that precondition IS met.** The two `provenance/datasets.md` rows (both 2026-08-20 — the TÜİK
@@ -19,7 +33,7 @@ The file has **no trailing newline**; that is part of the byte copy.
 
 ---
 
-## Why it is a copy and not a `.ts` seed array
+## The ilçe list — why it is a copy and not a `.ts` seed array
 
 `ENGINEERING.md` §8's most expensive lesson is that content seeds are transcribed by tool, never by
 hand: PR #43's dropped spaces came from hand-typing prose into the `+`-concatenation idiom.
@@ -31,7 +45,7 @@ A byte copy plus load-time validation makes that class structurally impossible r
 unlikely: there is no transcription step, so there is nothing to transcribe wrongly. That is also
 why this leg adds no `tools/seed-transcription/` lane. It is the `data/books/` design, second use.
 
-## Provenance and licence
+## The ilçe list — provenance and licence
 
 **Source (published):** TÜİK Coğrafi İstatistik Portalı — Düzey-4 (ilçe) and Düzey-3 (il) geometry,
 `https://cip.tuik.gov.tr/assets/geometri/nuts4.json` + `.../nuts3.json`, accessed **2026-08-20**.
@@ -66,7 +80,7 @@ flag is a research record and `src/database/seeds/district.artifact.ts` discards
 `normalizeArtifact`, so "nothing from MGM reaches a column" is a structural property rather than a
 promise.
 
-## The hash, and exactly what it proves
+## The ilçe list — the hash, and exactly what it proves
 
 **Artefact (SHA-256 of the whole file):**
 
@@ -91,35 +105,35 @@ here, since TÜİK itself ships `KahramanKAZAN` and this repo publishes `Kahrama
 repository, so no runtime check and no CI job here can reach it, and the command above is run by the
 reviewer, by hand.
 
-The pin also does not catch a **truncated** artefact — updating the pin is the *documented*
+The pin also does not catch a **truncated** artefact — updating the pin is the _documented_
 procedure for a re-collection, so a partial export whose rows are each perfectly valid would pass.
 `ARTIFACT_COVERAGE_FLOOR` (81 provinces / 973 districts) is the second constant a recomputation
 cannot discharge. It is a FLOOR, not an equality: an ilçe is created by law, so the real total can
 rise, and equality would turn a lawful new ilçe into a red gate while the floor turns a truncated
 export into one.
 
-## The numbers, and why 973 rather than 975 or 922
+## The ilçe list — why 973 rather than 975 or 922
 
 Three totals were in circulation and all three are explained in the dossier §2:
 
-| Number | Where it stood | Verdict |
-| --- | --- | --- |
-| **973** | TÜİK's own Düzey-4 geometry; `provinces.district_count` since the geography seed | **correct for us** |
-| 922 | İçişleri Bakanlığı, "Mülki İdare Bölümleri Envanteri" | correct, counts something else — it omits the 51 non-metropolitan provinces' `Merkez` ilçe (30 büyükşehir + 51 il = 81) |
-| 975 | the SPEC, taken from the reference product | wrong — Antalya's `Aksu` and `Kumluca` also appear under Artvin there |
+| Number  | Where it stood                                                                   | Verdict                                                                                                                 |
+| ------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| **973** | TÜİK's own Düzey-4 geometry; `provinces.district_count` since the geography seed | **correct for us**                                                                                                      |
+| 922     | İçişleri Bakanlığı, "Mülki İdare Bölümleri Envanteri"                            | correct, counts something else — it omits the 51 non-metropolitan provinces' `Merkez` ilçe (30 büyükşehir + 51 il = 81) |
+| 975     | the SPEC, taken from the reference product                                       | wrong — Antalya's `Aksu` and `Kumluca` also appear under Artvin there                                                   |
 
 The registration form needs every ilçe a user can select, `Merkez` included, so **973** is the
 number this artefact carries and the one the load phase enforces against
 `provinces.district_count`.
 
-## What the seed refuses
+## The ilçe list — what the seed refuses
 
 `src/database/seeds/district.artifact.ts` carries the artefact refusals and
 `src/database/seeds/seed-reference.ts` the two province gates. Four are worth knowing before editing
 anything here:
 
 - **The writing form is checked, and the database deliberately does not check it.** `DEC
-  2026-08-20p` md.5 rules the reader sees `Kadıköy`, not `KADIKÖY`, for all 973 of these names —
+2026-08-20p` md.5 rules the reader sees `Kadıköy`, not `KADIKÖY`, for all 973 of these names —
   it is the ruling that extends `DEC 2026-08-20m` md.6 (written for university and department
   names, and carrying a "store the source form, convert only on screen" half that would say the
   opposite here) to this list. The source is ALL-CAPS, so
@@ -147,3 +161,107 @@ anything here:
 
   Without the flag, a run that would delete an ilçe **refuses by name and rolls the whole
   transaction back**. A deletion is an operator decision, never a number in a log line.
+
+---
+
+## The üniversite and bölüm lists (PR-2)
+
+Two more byte copies, and — unlike the ilçe list — **no seed, no table and no runtime file read**.
+They feed `GET /api/reference/universities` and `GET /api/reference/departments`, which answer from
+the committed constants `src/reference/university.data.ts` and `src/reference/department.data.ts`.
+
+### What is derived, and what is archived
+
+`universities.yok.json` holds YÖK's own **ALL-CAPS** spelling. `DEC 2026-08-20m` md.6 rules two
+things in one sentence — the reader sees normal writing ("Boğaziçi Üniversitesi"), and the source
+data is kept exactly as YÖK wrote it — and the two halves land in two files: the archive here keeps
+the capitals, the published constant carries the reader's form. `src/reference/reference-writing-form.ts`
+is the conversion, and it is written out character by character rather than calling
+`toLocaleLowerCase('tr')`, because that is the defect: `DEC 2026-08-20p` md.5 names it, and NOVA
+measured it on the sibling ilçe list, where a ready-made converter puts an invisible U+0307 into
+308 of 973 names and turns `IĞDIR` into `Iğdir`.
+
+`departments.yokatlas.json` needs **no** conversion — its source already arrives in the reader's
+writing. The check runs the same function over it anyway and requires a no-op, which is what pins
+the two lists to one convention instead of two that merely happen to agree today.
+
+Two exception classes exist and both are small enough to read:
+
+- **Initialisms keep their capitals** — `KTO`, `MEF`, `OSTİM`, `SANKO`, `TOBB`, `TED`. This is the
+  second trap `DEC 2026-08-20p` md.5 names (`ODTÜ` → `Odtü`). Neither `ODTÜ` nor `İTÜ` occurs in
+  this artefact — YÖK publishes both institutions under their full names — but these six do. The
+  list is closed and the check refuses a member the source no longer contains.
+- **A one-letter part after a hyphen stays small** — `BEZM-İ ÂLEM` → `Bezm-i Âlem`, the izafet
+  suffix. A part of two or more letters is a word and is capitalised: `TÜRK-ALMAN` → `Türk-Alman`,
+  `ÜNİVERSİTESİ-CERRAHPAŞA` → `Üniversitesi-Cerrahpaşa`.
+
+### The gate
+
+`src/reference/reference-lists.spec.ts` runs in `Test (unit)` — no Postgres, no network, both sides
+committed. It has three legs and they are deliberately not the same check three times: it
+**re-derives** each published list from the archive and compares row for row; it judges every
+published name against **independent** writing-form invariants that never call the conversion; and
+it checks a short **hand-written** table of the named traps. Every refusal is exercised against a
+deliberately broken in-memory copy, so a check that stopped looking turns the file red instead of
+leaving a green nobody earned.
+
+Regenerating a list after a re-collection means applying that same conversion and the
+`tur` → `UniversityType` map the spec declares; the spec is what says whether you got it right.
+
+### Provenance and licence — read this before adding a source line anywhere
+
+Both rows are in `provenance/datasets.md` (2026-08-20 for the üniversite list, 2026-08-21 for the
+bölüm list) and both carry **`[KAYNAK DOĞRULANAMADI]`**. That marker is not a formality:
+
+- **The üniversite source publishes no usage terms at all.** No "Telif", no "Tüm hakları", no
+  "Kullanım Şartları" anywhere in the page body; the footer carries only, verbatim and untranslated:
+
+  > `© 2026 Yükseköğretim Kurulu Bilgi İşlem Daire Başkanlığı`
+
+  `robots.txt` is `User-agent: *` with an empty `Disallow`. **Silence is not permission**, and the
+  ledger row refuses to record it as one.
+
+- **The bölüm source publishes no usage terms either** and its `robots.txt` cannot be read (HTTP 200,
+  but the body is a React Native source file).
+
+So what we hold is "not forbidden", never "permitted", and the basis for using either list is a
+different one: **institution and programme names are facts, and facts are not protected**
+(`DEC 2026-08-20h` md.3 for the üniversite names; `DEC 2026-08-21a` for the bölüm list, where the
+owner decided with the gap in full view). `DEC 2026-08-21a` also measured what was NOT taken: the
+list came from a 611-row, three-field name endpoint, not from the 12 265-row derived table
+`DEC 2026-08-20h` md.3 was worried about — **no score, rank, quota, occupancy, tuition or
+university-programme pairing was collected**, and `z.strictObject` in the spec is what keeps a
+future re-collection from smuggling one in.
+
+Two obligations follow and both are open, tracked in the ledger rows: `FU-UNI-LISTE-KAYNAK` (whether
+a visible source line belongs on the registration form is a product decision — nothing in the api
+renders one today, and no endpoint here publishes a licence string) and `FU-BOLUM-KAYNAK-OSYM`
+(rebuild the programme names from ÖSYM's own guide, which is the publisher).
+
+### The hashes, and exactly what they prove
+
+```
+5b90dd8c3a6608835ead0b561a76cd81bd34facc1e98170c4a707bd01e626829  universities.yok.json
+6100c8f7a832b9b3c620d29f23edf9c7a970d86a4c3905d8a91783e91a8fcba0  departments.yokatlas.json
+```
+
+Re-verify both sides from the repo root:
+
+```sh
+sha256sum data/reference/universities.yok.json \
+          "../Owner's Inbox/oturum-lite/universiteler.json"
+cmp data/reference/universities.yok.json \
+    "../Owner's Inbox/oturum-lite/universiteler.json"
+
+sha256sum data/reference/departments.yokatlas.json \
+          "../Owner's Inbox/oturum-lite/bolumler-lisans.json"
+cmp data/reference/departments.yokatlas.json \
+    "../Owner's Inbox/oturum-lite/bolumler-lisans.json"
+```
+
+The same hashes are pinned in `reference-lists.spec.ts`. As with the ilçe pin, they catch **exactly
+one thing** — somebody editing a committed copy by hand — and they do **not** prove the copy still
+matches the Inbox source, which lives outside this repository where no CI job can reach it. The
+commands above are the reviewer's, run by hand. The coverage floors in the same spec are the second
+constant a recomputation cannot discharge: a truncated export would otherwise pass every per-row
+check and simply publish a shorter list.

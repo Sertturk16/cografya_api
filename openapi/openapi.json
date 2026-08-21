@@ -891,6 +891,58 @@
           "reference"
         ]
       }
+    },
+    "/api/reference/universities": {
+      "get": {
+        "description": "A plain typed array — no envelope and no pagination, the bounded-set rule `ENGINEERING.md` §2 states for the 81 provinces. The set is fixed at build time and the order is the order to render. Names are in the reader’s writing (\"Boğaziçi Üniversitesi\"); KKTC institutions are marked by `type`. No logo, founding year, score, quota or university-programme pairing is published — none of it was collected.",
+        "operationId": "ReferenceConstantsController_findUniversities",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UniversityDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List every university the registration form offers, Turkish-alphabetical.",
+        "tags": [
+          "reference"
+        ]
+      }
+    },
+    "/api/reference/departments": {
+      "get": {
+        "description": "A plain typed array, Turkish-alphabetical, on the same bounded-set rule as the university list. Lisans only — önlisans programme names are out of scope (DEC 2026-08-20p md.4). No score, quota or university pairing is published; the source list carries none.",
+        "operationId": "ReferenceConstantsController_findDepartments",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DepartmentDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List every bachelor-level programme name the registration form offers.",
+        "tags": [
+          "reference"
+        ]
+      }
     }
   },
   "info": {
@@ -4619,6 +4671,44 @@
         },
         "required": [
           "id",
+          "nameTr"
+        ]
+      },
+      "UniversityDto": {
+        "type": "object",
+        "properties": {
+          "nameTr": {
+            "type": "string",
+            "example": "Boğaziçi Üniversitesi",
+            "description": "Üniversite adı (TR), okurun gördüğü yazımla — \"Boğaziçi Üniversitesi\", \"BOĞAZİÇİ ÜNİVERSİTESİ\" değil (DEC 2026-08-20m md.6). Kaynağın büyük harfli hâli bu depoda data/reference/universities.yok.json içinde bozulmadan durur. Kaynak: YÖK (bkz. provenance/datasets.md, 2026-08-20 satırı)."
+          },
+          "type": {
+            "enum": [
+              "DEVLET",
+              "VAKIF",
+              "VAKIF_MYO",
+              "KKTC"
+            ],
+            "type": "string",
+            "example": "DEVLET",
+            "description": "Kurum türü — YÖK’ün kendi dörtlü ayrımı. KKTC kurumları bu alanla ayrılır; TR etiketleri web tarafında."
+          }
+        },
+        "required": [
+          "nameTr",
+          "type"
+        ]
+      },
+      "DepartmentDto": {
+        "type": "object",
+        "properties": {
+          "nameTr": {
+            "type": "string",
+            "example": "Coğrafya Öğretmenliği",
+            "description": "Bölüm/program adı (TR), kaynağın yazdığı gibi — kaynak zaten okurun gördüğü yazımı veriyor, bu yüzden bir dönüşüm uygulanmıyor (DEC 2026-08-20m md.6). Yalnız lisans programları; önlisans kapsam dışı (DEC 2026-08-20p md.4). Kaynak: YÖK Atlas program adları (bkz. provenance/datasets.md, 2026-08-21 satırı)."
+          }
+        },
+        "required": [
           "nameTr"
         ]
       }
