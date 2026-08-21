@@ -12,3 +12,9 @@ openapi
 # invariant and make the seed refuse with "never hand-edited" — pointing the operator at
 # the wrong cause. Same argument as `openapi` above, for a hash pin instead of a drift gate.
 data/books/*.json
+
+# Committed byte copy of the TÜİK ilçe list, pinned by SHA-256 in `district.artifact.ts`. Same
+# argument as `data/books/*.json` above: `pnpm format` rewriting it would break the byte-copy
+# invariant and make the seed refuse with "never hand-edited", pointing the operator at the wrong
+# cause.
+data/reference/*.json

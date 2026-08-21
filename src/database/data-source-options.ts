@@ -12,6 +12,7 @@ import { MarineEcmwfCycle } from '../marine/entities/marine-ecmwf-cycle.entity';
 import { MarineEcmwfPointSeries } from '../marine/entities/marine-ecmwf-point-series.entity';
 import { MarinePoint } from '../marine/entities/marine-point.entity';
 import { Province } from '../province/entities/province.entity';
+import { District } from '../reference/entities/district.entity';
 import { InitProvince1783382400000 } from './migrations/1783382400000-InitProvince';
 import { AddProvinceClimateNote1783513986800 } from './migrations/1783513986800-AddProvinceClimateNote';
 import { AddProvinceDetailSections1783701664849 } from './migrations/1783701664849-AddProvinceDetailSections';
@@ -32,6 +33,7 @@ import { InitEarthquakeIngestRuns1786496400000 } from './migrations/178649640000
 import { InitBookCatalogue1786752000000 } from './migrations/1786752000000-InitBookCatalogue';
 import { InitYoutubeVideoSnapshots1786755600000 } from './migrations/1786755600000-InitYoutubeVideoSnapshots';
 import { AddProvincePm25Annual1787149250651 } from './migrations/1787149250651-AddProvincePm25Annual';
+import { InitDistricts1787302800000 } from './migrations/1787302800000-InitDistricts';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -209,6 +211,7 @@ export function buildDataSourceOptions(
       BookVideo,
       BookVideoQuestion,
       YoutubeVideoSnapshot,
+      District,
     ],
     migrations: [
       InitProvince1783382400000,
@@ -231,6 +234,7 @@ export function buildDataSourceOptions(
       InitBookCatalogue1786752000000,
       InitYoutubeVideoSnapshots1786755600000,
       AddProvincePm25Annual1787149250651,
+      InitDistricts1787302800000,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,

@@ -16,6 +16,7 @@ import { ElevationModule } from './elevation/elevation.module';
 import { HealthModule } from './health/health.module';
 import { MarineModule } from './marine/marine.module';
 import { ProvinceModule } from './province/province.module';
+import { ReferenceModule } from './reference/reference.module';
 
 /**
  * Baseline rate limit for the public API: a single window of 120 requests per
@@ -72,6 +73,10 @@ export const THROTTLE_LIMIT = 120;
     // migration, no seed, no scheduled work. With ELEVATION_ENABLED=false (the default) its guard
     // answers 404 and no branch reaches the provider.
     ElevationModule,
+    // Üyelik PR-1: the ilçe reference list behind the registration form's "İlçe" select. One
+    // public read route, one seeded table, no scheduled work and no provider — it is here because
+    // its rows must exist before the auth core's `users.district_id` can point at them.
+    ReferenceModule,
   ],
   providers: [
     // Rate limit every route by default; opt out per-route with @SkipThrottle,
