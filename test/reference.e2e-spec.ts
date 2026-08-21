@@ -16,9 +16,19 @@ import { seedGeography } from '../src/database/seeds/seed-geography';
 import { seedReference, type SeedReferenceResult } from '../src/database/seeds/seed-reference';
 import { Province } from '../src/province/entities/province.entity';
 import { District } from '../src/reference/entities/district.entity';
+import { DEPARTMENTS } from '../src/reference/department.data';
+import { UniversityType } from '../src/reference/dto/university.dto';
+import { UNIVERSITIES } from '../src/reference/university.data';
 
 /**
- * PR-1 e2e — the ilçe table, its seed and `GET /api/reference/districts`, against a REAL Postgres.
+ * The reference module's e2e — the ilçe table, its seed and all three
+ * `GET /api/reference/*` routes, against a REAL Postgres.
+ *
+ * PR-2 added the üniversite and bölüm legs here rather than in a file of their own. Those two
+ * endpoints need no database at all, but they must be proven wired into the REAL `AppModule` with
+ * the real global pipe, interceptors and throttler — a hand-assembled testing module can pass while
+ * the running app never registers the controller. This suite already boots exactly that app, so the
+ * alternative was a second Testcontainers image to serve two constant reads.
  *
  * ## Structural only (`CONVENTIONS.md` §2)
  * Nothing here asserts an ilçe fact. Not a name, not a count typed into this file. Every expected
@@ -39,6 +49,16 @@ import { District } from '../src/reference/entities/district.entity';
  * because both sides read the same constant.
  */
 const DISTRICT_CACHE_CONTROL =
+  'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800';
+
+/**
+ * The same window, restated for the two constant lists — deliberately a SECOND constant.
+ *
+ * The two are equal today and are not the same contract: `ReferenceConstantsController` records why
+ * it does not share the ilçe route's constant. Pinning them separately means a future change to one
+ * fails only the tests that describe it, instead of quietly moving both.
+ */
+const REFERENCE_LIST_CACHE_CONTROL =
   'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800';
 
 /** Turkish alphabetical order — the property the served order must have, not a list to compare to. */
@@ -356,6 +376,126 @@ describe('Reference — districts (e2e)', () => {
         .expect(200);
 
       expect(response.body).toEqual([]);
+    });
+  });
+
+  describe('GET /api/reference/universities and /departments', () => {
+    /**
+     * Both routes read a compile-time constant, so nothing here can be about seeding or state. What
+     * an e2e CAN see, and `reference-lists.spec.ts` cannot, is the wiring: that the controller is
+     * registered on the real app, that the response is a plain array rather than an envelope, that
+     * the cache header is set, and that the throttled anonymous path reaches it.
+     *
+     * The expected lengths come from the constants themselves in this same run — the file header's
+     * rule. A number typed here would need editing by the PR that lands a newly founded university.
+     */
+    it('serve plain arrays with the long cache window', async () => {
+      const universities = await request(app.getHttpServer())
+        .get('/api/reference/universities')
+        .expect(200);
+      expect(Array.isArray(universities.body)).toBe(true);
+      expect(universities.body as unknown[]).toHaveLength(UNIVERSITIES.length);
+      expect(universities.headers['cache-control']).toBe(REFERENCE_LIST_CACHE_CONTROL);
+
+      const departments = await request(app.getHttpServer())
+        .get('/api/reference/departments')
+        .expect(200);
+      expect(Array.isArray(departments.body)).toBe(true);
+      expect(departments.body as unknown[]).toHaveLength(DEPARTMENTS.length);
+      expect(departments.headers['cache-control']).toBe(REFERENCE_LIST_CACHE_CONTROL);
+    });
+
+    it('serve exactly the published fields — no city, no logo, no score, no quota', async () => {
+      // The plan's kabul ölçütü 4, asserted at the HTTP boundary. The artefact's `il`,
+      // `ilKaynakBicimi` and `kktcSehir` must not reach a response, and nothing may have been added
+      // on the way out by a serializer.
+      const universities = await request(app.getHttpServer())
+        .get('/api/reference/universities')
+        .expect(200);
+      const universityBody = universities.body as Record<string, unknown>[];
+      expect(universityBody.length).toBeGreaterThan(0);
+      for (const row of universityBody) {
+        expect(Object.keys(row).sort()).toEqual(['nameTr', 'type']);
+      }
+
+      const departments = await request(app.getHttpServer())
+        .get('/api/reference/departments')
+        .expect(200);
+      const departmentBody = departments.body as Record<string, unknown>[];
+      expect(departmentBody.length).toBeGreaterThan(0);
+      for (const row of departmentBody) {
+        expect(Object.keys(row)).toEqual(['nameTr']);
+      }
+    });
+
+    it('serve the constant’s own order, and it survives the wire in Turkish collation', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/api/reference/universities')
+        .expect(200);
+      const served = (response.body as { nameTr: string }[]).map((row) => row.nameTr);
+
+      // Two claims. The first is that serialization changed nothing about the ORDER — the published
+      // render order is what the web drops into a select. The second is the property that order is
+      // supposed to have, asserted rather than produced: nothing here sorts and compares.
+      expect(served).toEqual(UNIVERSITIES.map((row) => row.nameTr));
+      for (let index = 1; index < served.length; index += 1) {
+        expect(
+          TURKISH_COLLATOR.compare(served[index - 1] ?? '', served[index] ?? ''),
+        ).toBeLessThanOrEqual(0);
+      }
+    });
+
+    it('marks the KKTC institutions on the wire', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/api/reference/universities')
+        .expect(200);
+      const body = response.body as { type: string }[];
+
+      // The enum value has to survive JSON, or "KKTC ayrı işaretli" is true in TypeScript only.
+      // The wire side is deliberately typed `string` — an untrusted payload, not our enum — so the
+      // expected value is widened once here rather than the body being asserted into the type this
+      // very test is checking for.
+      const kktcOnTheWire: string = UniversityType.Kktc;
+      const kktc = body.filter((row) => row.type === kktcOnTheWire);
+      expect(kktc).toHaveLength(
+        UNIVERSITIES.filter((row) => row.type === UniversityType.Kktc).length,
+      );
+      expect(kktc.length).toBeGreaterThan(0);
+    });
+
+    it('need no credentials — served to genuinely ANONYMOUS callers', async () => {
+      // The "unauthenticated path" half of playbook §8's authz rule. There is no role-forbidden path
+      // to assert: neither route carries a guard, deliberately, because the registration form reads
+      // both BEFORE anybody has an account. The marker opts these requests out of the suite's
+      // trusted-client middleware so they travel the throttled path a real browser takes.
+      await request(app.getHttpServer())
+        .get('/api/reference/universities')
+        .set(ANONYMOUS_MARKER_HEADER, '1')
+        .expect(200);
+      await request(app.getHttpServer())
+        .get('/api/reference/departments')
+        .set(ANONYMOUS_MARKER_HEADER, '1')
+        .expect(200);
+    });
+
+    it('ignore an unknown query parameter TODAY, because neither route has a query DTO', async () => {
+      // Not an inconsistency to fix — and not a second policy either. `ENGINEERING.md` §2 says of
+      // this asymmetry that it "is a consequence of where DTOs exist, not a second policy", so
+      // pinning it as a documented CONTRACT would invert the sentence it comes from. A route with
+      // no `@Query()` DTO never validates its query string at all; these two have no parameters to
+      // validate, while the ilçe route has a DTO and therefore answers 400 to the same shape
+      // (asserted above). What is pinned here is the witness to that difference, not a promise
+      // about it: the day either route legitimately gains a `@Query()` DTO — a `?type=DEVLET`
+      // filter, say — this test is expected to move with it, and that is a tightening rather than
+      // a regression.
+      await request(app.getHttpServer())
+        .get('/api/reference/universities')
+        .query({ utm_source: 'x' })
+        .expect(200);
+      await request(app.getHttpServer())
+        .get('/api/reference/departments')
+        .query({ utm_source: 'x' })
+        .expect(200);
     });
   });
 

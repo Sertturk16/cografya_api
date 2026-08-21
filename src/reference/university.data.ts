@@ -1,0 +1,292 @@
+import { UniversityType, type UniversityDto } from './dto/university.dto';
+
+/**
+ * The published üniversite list — **GENERATED, never hand-edited** (üyelik plan §3, PR-2).
+ *
+ * ## Where every row comes from
+ * `data/reference/universities.yok.json` is a byte copy of the collected YÖK artefact and is the
+ * only source of truth for this file. Each row here is that row's `ad` put through
+ * `toDisplayWritingForm` (`reference-writing-form.ts`) and its `tur` mapped onto
+ * {@link UniversityType}. `reference-lists.spec.ts` re-derives the whole array from that JSON on
+ * every CI run and fails on any disagreement, so a name 'corrected' here instead of at the source
+ * turns the build red rather than shipping.
+ *
+ * ## Why the names are stored in the reader's writing and the source is stored elsewhere
+ * `DEC 2026-08-20m` md.6 rules both halves at once: the reader sees 'Boğaziçi Üniversitesi', and
+ * the source data is kept as YÖK wrote it. The archive keeps YÖK's ALL-CAPS form intact; this file
+ * is the published form. Doing the conversion once, here, rather than in the browser is what keeps
+ * the api's answer and the user's stored declaration the same string, and it keeps the üniversite
+ * and bölüm lists on one convention — the bölüm source already arrives in the reader's writing, so
+ * a converter applied at render time would have to know which list it was looking at.
+ *
+ * ## Why a TypeScript constant and not a JSON read
+ * `nest build` does not copy asset files into `dist/` (the trap is recorded as `FU-SPEC-71-PATH`),
+ * so a runtime `readFile` of `data/` would work in development and fail in a built image. A
+ * constant is compiled, type-checked, and leaves the endpoint a pure in-memory read with no I/O.
+ * The `province.seed-data.ts` precedent, applied to a list with no table behind it.
+ *
+ * These rows are module-private on purpose. {@link UNIVERSITIES} below is the published value
+ * and it is the frozen one; a regeneration replaces THIS literal and touches nothing else, so
+ * every generated line keeps its own indentation and the diff stays a data diff.
+ */
+const UNIVERSITY_ROWS: UniversityDto[] = [
+  { nameTr: 'Abdullah Gül Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Acıbadem Mehmet Ali Aydınlar Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Ada Kent Üniversitesi', type: UniversityType.Kktc },
+  { nameTr: 'Adana Alparslan Türkeş Bilim ve Teknoloji Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Adıyaman Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Afyon Kocatepe Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Afyonkarahisar Sağlık Bilimleri Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Ağrı İbrahim Çeçen Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Akdeniz Karpaz Üniversitesi', type: UniversityType.Kktc },
+  { nameTr: 'Akdeniz Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Aksaray Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Alanya Alaaddin Keykubat Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Alanya Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Altınbaş Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Amasya Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Anadolu Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Ankara Bilim Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Ankara Hacı Bayram Veli Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Ankara Medipol Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Ankara Müzik ve Güzel Sanatlar Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Ankara Sosyal Bilimler Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Ankara Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Ankara Yıldırım Beyazıt Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Antalya Belek Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Antalya Bilim Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Ardahan Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Arkın Yaratıcı Sanatlar ve Tasarım Üniversitesi', type: UniversityType.Kktc },
+  { nameTr: 'Artvin Çoruh Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Ataşehir Adıgüzel Meslek Yüksekokulu', type: UniversityType.VakifMyo },
+  { nameTr: 'Atatürk Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Atılım Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Avrasya Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Aydın Adnan Menderes Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Bahçeşehir Kıbrıs Üniversitesi', type: UniversityType.Kktc },
+  { nameTr: 'Bahçeşehir Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Balıkesir Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Bandırma Onyedi Eylül Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Bartın Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Başkent Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Batman Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Bayburt Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Beykoz Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Bezm-i Âlem Vakıf Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Bilecik Şeyh Edebali Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Bingöl Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Biruni Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Bitlis Eren Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Boğaziçi Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Bolu Abant İzzet Baysal Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Burdur Mehmet Akif Ersoy Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Bursa Teknik Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Bursa Uludağ Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Çağ Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Çanakkale Onsekiz Mart Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Çankaya Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Çankırı Karatekin Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Çukurova Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Demiroğlu Bilim Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Dicle Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Doğu Akdeniz Üniversitesi', type: UniversityType.Kktc },
+  { nameTr: 'Doğuş Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Dokuz Eylül Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Düzce Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Ege Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Erciyes Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Erzincan Binali Yıldırım Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Erzurum Teknik Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Eskişehir Osmangazi Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Eskişehir Teknik Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Fatih Sultan Mehmet Vakıf Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Fenerbahçe Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Fırat Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Galatasaray Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Gazi Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Gaziantep İslam Bilim ve Teknoloji Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Gaziantep Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Gebze Teknik Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Giresun Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Girne Amerikan Üniversitesi', type: UniversityType.Kktc },
+  { nameTr: 'Girne Üniversitesi', type: UniversityType.Kktc },
+  { nameTr: 'Gümüşhane Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Hacettepe Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Hakkari Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Haliç Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Harran Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Hasan Kalyoncu Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Hatay Mustafa Kemal Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Hitit Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Iğdır Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Isparta Uygulamalı Bilimler Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Işık Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İbn Haldun Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İhsan Doğramacı Bilkent Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İnönü Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'İskenderun Teknik Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'İstanbul 29 Mayıs Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İstanbul Arel Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İstanbul Atlas Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İstanbul Aydın Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İstanbul Beykent Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İstanbul Bilgi Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İstanbul Esenyurt Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İstanbul Galata Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İstanbul Gedik Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İstanbul Gelişim Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İstanbul Kent Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İstanbul Kültür Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İstanbul Medeniyet Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'İstanbul Medipol Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İstanbul Nişantaşı Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İstanbul Okan Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İstanbul Rumeli Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İstanbul Sabahattin Zaim Üniversitesi', type: UniversityType.Vakif },
+  {
+    nameTr: 'İstanbul Sağlık ve Sosyal Bilimler Meslek Yüksekokulu',
+    type: UniversityType.VakifMyo,
+  },
+  { nameTr: 'İstanbul Sağlık ve Teknoloji Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İstanbul Şişli Meslek Yüksekokulu', type: UniversityType.VakifMyo },
+  { nameTr: 'İstanbul Teknik Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'İstanbul Ticaret Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İstanbul Topkapı Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İstanbul Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'İstanbul Üniversitesi-Cerrahpaşa', type: UniversityType.Devlet },
+  { nameTr: 'İstanbul Yeni Yüzyıl Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İstinye Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İzmir Bakırçay Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'İzmir Demokrasi Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'İzmir Ekonomi Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İzmir Katip Çelebi Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'İzmir Konak Meslek Yüksekokulu', type: UniversityType.VakifMyo },
+  { nameTr: 'İzmir Tınaztepe Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'İzmir Yüksek Teknoloji Enstitüsü', type: UniversityType.Devlet },
+  { nameTr: 'Kadir Has Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Kafkas Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Kahramanmaraş İstiklal Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Kahramanmaraş Sütçü İmam Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Kapadokya Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Karabük Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Karadeniz Teknik Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Karamanoğlu Mehmetbey Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Kastamonu Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Kayseri Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Kıbrıs Amerikan Üniversitesi', type: UniversityType.Kktc },
+  { nameTr: 'Kıbrıs Aydın Üniversitesi', type: UniversityType.Kktc },
+  { nameTr: 'Kıbrıs Batı Üniversitesi', type: UniversityType.Kktc },
+  { nameTr: 'Kıbrıs Sağlık ve Toplum Bilimleri Üniversitesi', type: UniversityType.Kktc },
+  { nameTr: 'Kırıkkale Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Kırklareli Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Kırşehir Ahi Evran Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Kilis 7 Aralık Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Kocaeli Sağlık ve Teknoloji Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Kocaeli Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Koç Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Konya Gıda ve Tarım Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Konya Teknik Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'KTO Karatay Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Kütahya Dumlupınar Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Kütahya Sağlık Bilimleri Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Lefke Avrupa Üniversitesi', type: UniversityType.Kktc },
+  { nameTr: 'Lokman Hekim Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Malatya Turgut Özal Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Maltepe Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Manisa Celâl Bayar Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Mardin Artuklu Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Marmara Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'MEF Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Mersin Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Mimar Sinan Güzel Sanatlar Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Mudanya Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Muğla Sıtkı Koçman Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Munzur Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Muş Alparslan Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Necmettin Erbakan Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Nevşehir Hacı Bektaş Veli Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Niğde Ömer Halisdemir Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Nuh Naci Yazgan Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Ondokuz Mayıs Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Ordu Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Orta Doğu Teknik Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Osmaniye Korkut Ata Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'OSTİM Teknik Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Özyeğin Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Pamukkale Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Piri Reis Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Rauf Denktaş Üniversitesi', type: UniversityType.Kktc },
+  { nameTr: 'Recep Tayyip Erdoğan Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Sabancı Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Sağlık Bilimleri Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Sakarya Uygulamalı Bilimler Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Sakarya Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Samsun Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'SANKO Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Selçuk Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Siirt Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Sinop Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Sivas Bilim ve Teknoloji Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Sivas Cumhuriyet Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Süleyman Demirel Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Şırnak Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Tarsus Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'TED Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Tekirdağ Namık Kemal Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'TOBB Ekonomi ve Teknoloji Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Tokat Gaziosmanpaşa Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Toros Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Trabzon Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Trakya Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Türk Hava Kurumu Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Türk-Alman Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Türk-Japon Bilim ve Teknoloji Üniversitesi', type: UniversityType.Devlet },
+  {
+    nameTr: 'Türkiye Uluslararası İslam, Bilim ve Teknoloji Üniversitesi',
+    type: UniversityType.Devlet,
+  },
+  { nameTr: 'Ufuk Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Uluslararası Final Üniversitesi', type: UniversityType.Kktc },
+  { nameTr: 'Uluslararası Kıbrıs Üniversitesi', type: UniversityType.Kktc },
+  { nameTr: 'Uşak Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Üsküdar Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Van Yüzüncü Yıl Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Yakın Doğu Üniversitesi', type: UniversityType.Kktc },
+  { nameTr: 'Yalova Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Yaşar Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Yeditepe Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Yıldız Teknik Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Yozgat Bozok Üniversitesi', type: UniversityType.Devlet },
+  { nameTr: 'Yüksek İhtisas Üniversitesi', type: UniversityType.Vakif },
+  { nameTr: 'Zonguldak Bülent Ecevit Üniversitesi', type: UniversityType.Devlet },
+];
+
+/**
+ * The published constant, frozen to the depth the endpoint actually needs.
+ *
+ * ## Why the rows are frozen and not only the array
+ * `Object.freeze` on its own freezes the CONTAINER: `push`, `splice` and index assignment throw,
+ * but each row object stays writable, so `UNIVERSITIES[0].nameTr = ...` would succeed SILENTLY
+ * and `Object.isFrozen(UNIVERSITIES[0])` would be `false`. That gap is not academic here: this
+ * array is handed to the serializer BY REFERENCE on every request, so one write would corrupt
+ * the published list for every later caller for the lifetime of the process, and the route’s
+ * `s-maxage=86400, stale-while-revalidate=604800` window would carry the corrupted body at the
+ * CDN for up to eight days. Freezing each row makes the write a no-op instead: measured on the
+ * BUILT artefact, after `UNIVERSITIES[0].nameTr = 'MUTATED'` the row still reads
+ * `'Abdullah Gül Üniversitesi'`. Whether it also THROWS depends on the strict-mode status of the
+ * code doing the writing, not of this file — every compiled module in this repo is strict, so a
+ * write from our own code raises `TypeError`; the published value is protected either way, and
+ * that protection is the point.
+ *
+ * These are the repo’s first module-level shared response bodies, and `cache-age.interceptor.ts`
+ * names exactly this composition in its own warning: a cached body must be REQUEST-OWNED, never
+ * a shared instance. `reference-lists.spec.ts` asserts BOTH depths, so a later regeneration
+ * cannot drop the guarantee without turning the build red.
+ *
+ * **The order is the PUBLISHED render order** — Turkish alphabetical, inherited from the artefact,
+ * asserted (never re-sorted) by `reference-lists.spec.ts`. The web drops the array into a select in
+ * the order it arrives.
+ */
+export const UNIVERSITIES: readonly UniversityDto[] = Object.freeze(
+  UNIVERSITY_ROWS.map((row) => Object.freeze(row)),
+);
