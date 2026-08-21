@@ -4691,7 +4691,7 @@
             ],
             "type": "string",
             "example": "DEVLET",
-            "description": "Kurum türü — YÖK’ün kendi dörtlü ayrımı. KKTC kurumları bu alanla ayrılır; TR etiketleri web tarafında."
+            "description": "Kurum türü — YÖK’ün yok.gov.tr/university adresinde 2026-08-20 toplamasında yayımladığı dört liste (type=1 Devlet, type=2 Vakıf, type=3 Vakıf MYO, type=6 KKTC). KKTC kurumları bu alanla ayrılır. Okurun gördüğü TR grup başlıkları web tarafındadır ve GLOSSARY.md §7.2/§7.3 ile hükme bağlıdır (DEC 2026-08-21h): type=KKTC ise “KKTC”, değilse “Türkiye”; “Yurt dışı” kullanılmaz."
           }
         },
         "required": [

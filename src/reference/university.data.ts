@@ -25,14 +25,11 @@ import { UniversityType, type UniversityDto } from './dto/university.dto';
  * constant is compiled, type-checked, and leaves the endpoint a pure in-memory read with no I/O.
  * The `province.seed-data.ts` precedent, applied to a list with no table behind it.
  *
- * The array is frozen: it is handed to the serializer by reference on every request, and the one
- * thing that must never happen to a published reference list is a caller mutating it in place.
- *
- * **The order is the PUBLISHED render order** — Turkish alphabetical, inherited from the artefact,
- * asserted (never re-sorted) by `reference-lists.spec.ts`. The web drops the array into a select in
- * the order it arrives.
+ * These rows are module-private on purpose. {@link UNIVERSITIES} below is the published value
+ * and it is the frozen one; a regeneration replaces THIS literal and touches nothing else, so
+ * every generated line keeps its own indentation and the diff stays a data diff.
  */
-export const UNIVERSITIES: readonly UniversityDto[] = Object.freeze([
+const UNIVERSITY_ROWS: UniversityDto[] = [
   { nameTr: 'Abdullah Gül Üniversitesi', type: UniversityType.Devlet },
   { nameTr: 'Acıbadem Mehmet Ali Aydınlar Üniversitesi', type: UniversityType.Vakif },
   { nameTr: 'Ada Kent Üniversitesi', type: UniversityType.Kktc },
@@ -262,4 +259,34 @@ export const UNIVERSITIES: readonly UniversityDto[] = Object.freeze([
   { nameTr: 'Yozgat Bozok Üniversitesi', type: UniversityType.Devlet },
   { nameTr: 'Yüksek İhtisas Üniversitesi', type: UniversityType.Vakif },
   { nameTr: 'Zonguldak Bülent Ecevit Üniversitesi', type: UniversityType.Devlet },
-]);
+];
+
+/**
+ * The published constant, frozen to the depth the endpoint actually needs.
+ *
+ * ## Why the rows are frozen and not only the array
+ * `Object.freeze` on its own freezes the CONTAINER: `push`, `splice` and index assignment throw,
+ * but each row object stays writable, so `UNIVERSITIES[0].nameTr = ...` would succeed SILENTLY
+ * and `Object.isFrozen(UNIVERSITIES[0])` would be `false`. That gap is not academic here: this
+ * array is handed to the serializer BY REFERENCE on every request, so one write would corrupt
+ * the published list for every later caller for the lifetime of the process, and the route’s
+ * `s-maxage=86400, stale-while-revalidate=604800` window would carry the corrupted body at the
+ * CDN for up to eight days. Freezing each row makes the write a no-op instead: measured on the
+ * BUILT artefact, after `UNIVERSITIES[0].nameTr = 'MUTATED'` the row still reads
+ * `'Abdullah Gül Üniversitesi'`. Whether it also THROWS depends on the strict-mode status of the
+ * code doing the writing, not of this file — every compiled module in this repo is strict, so a
+ * write from our own code raises `TypeError`; the published value is protected either way, and
+ * that protection is the point.
+ *
+ * These are the repo’s first module-level shared response bodies, and `cache-age.interceptor.ts`
+ * names exactly this composition in its own warning: a cached body must be REQUEST-OWNED, never
+ * a shared instance. `reference-lists.spec.ts` asserts BOTH depths, so a later regeneration
+ * cannot drop the guarantee without turning the build red.
+ *
+ * **The order is the PUBLISHED render order** — Turkish alphabetical, inherited from the artefact,
+ * asserted (never re-sorted) by `reference-lists.spec.ts`. The web drops the array into a select in
+ * the order it arrives.
+ */
+export const UNIVERSITIES: readonly UniversityDto[] = Object.freeze(
+  UNIVERSITY_ROWS.map((row) => Object.freeze(row)),
+);

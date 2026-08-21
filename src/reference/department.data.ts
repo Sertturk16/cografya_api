@@ -22,10 +22,10 @@ import type { DepartmentDto } from './dto/department.dto';
  * together with the owner's decision to seed the list anyway and the follow-up to rebuild it from
  * ÖSYM's own guide (`FU-BOLUM-KAYNAK-OSYM`).
  *
- * The array is frozen for the same reason the üniversite list is, and **its order is the PUBLISHED
- * render order** — Turkish alphabetical, inherited from the artefact, asserted (never re-sorted).
+ * These rows are module-private on purpose, for the reason `university.data.ts` records:
+ * {@link DEPARTMENTS} below is the published value and it is the frozen one.
  */
-export const DEPARTMENTS: readonly DepartmentDto[] = Object.freeze([
+const DEPARTMENT_ROWS: DepartmentDto[] = [
   { nameTr: 'Abaza Dili ve Edebiyatı' },
   { nameTr: 'Acil Yardım ve Afet Yönetimi' },
   { nameTr: 'Adli Bilimler' },
@@ -371,4 +371,17 @@ export const DEPARTMENTS: readonly DepartmentDto[] = Object.freeze([
   { nameTr: 'Yunan Dili ve Edebiyatı' },
   { nameTr: 'Zaza Dili ve Edebiyatı' },
   { nameTr: 'Zootekni' },
-]);
+];
+
+/**
+ * The published constant, frozen to the same depth and for the same reason as the üniversite
+ * list — `university.data.ts` carries the full argument, and it is not restated here so the two
+ * cannot drift into two explanations. In short: freezing the array alone leaves every row
+ * writable, and this array is served by reference behind a one-day CDN window.
+ *
+ * **Its order is the PUBLISHED render order** — Turkish alphabetical, inherited from the
+ * artefact, asserted (never re-sorted) by `reference-lists.spec.ts`.
+ */
+export const DEPARTMENTS: readonly DepartmentDto[] = Object.freeze(
+  DEPARTMENT_ROWS.map((row) => Object.freeze(row)),
+);

@@ -8,6 +8,7 @@ import { UniversityType } from './dto/university.dto';
 import {
   ACRONYM_WORDS,
   COMBINING_DOT_ABOVE,
+  INVISIBLE_FORMAT_CHARACTERS,
   toDisplayWritingForm,
   writingFormProblems,
 } from './reference-writing-form';
@@ -29,7 +30,13 @@ import { UNIVERSITIES } from './university.data';
  *    runs that function on both sides and would agree with itself — the hazard
  *    `district.artifact.ts` names in its refusal 4.
  * 2. **Independent invariants.** `writingFormProblems` never calls the conversion; it describes
- *    what a correctly written Turkish name looks like, so a broken conversion fails it.
+ *    what a correctly written Turkish name looks like, so a broken conversion fails it — but the
+ *    independence is from the conversion's LOGIC, not from its data. It reads the same two lookup
+ *    tables the conversion reads, `TURKISH_UPPER_TO_LOWER` and `ACRONYM_WORDS`, so a defect in
+ *    EITHER table sits on both sides of the comparison and this leg cannot see it. Measured: with
+ *    `I: 'ı'` flipped to `I: 'i'` — the İ/ı trap `DEC 2026-08-20p` md.5 names by name — leg 2
+ *    stays green and only leg 3 fires. Leg 2 does catch other conversion defects, which is why it
+ *    is here; it is leg 3 that holds this particular ground.
  * 3. **Literal pins.** A short hand-written table of the named traps — `IĞDIR`, `ŞIRNAK`, the
  *    initialisms, the hyphen cases. Written by a person reading the source, so it is the one leg
  *    that shares no code with the thing it checks.
@@ -39,13 +46,27 @@ import { UNIVERSITIES } from './university.data';
  * exercised against a deliberately broken copy, and every mutation is made in memory: **no control
  * token is ever written into the artefact it measures.**
  *
- * ## What this file deliberately does NOT assert
- * No fact about the corpus is typed in as a number. Not "223 universities", not "16 in the KKTC",
- * not "129 state institutions". `CONVENTIONS.md` §2 keeps coverage on structural invariants, and
- * every expected count below is read from the artefact in the same run. The fact-check record is
+ * ## What this file deliberately does NOT assert — and the three things it deliberately DOES
+ * No count about the corpus is typed in as an expected value. Not "223 universities", not "16 in
+ * the KKTC", not "129 state institutions": every expected count below is read from the artefact in
+ * the same run. `CONVENTIONS.md` §2 keeps coverage on structural and rule-level invariants rather
+ * than per-entity literal fact assertions, and the fact-check record lives elsewhere — in
  * `Owner's Inbox/oturum-lite/universite-bolum-listesi.md` and the two YÖK rows in
  * `provenance/datasets.md`. A test that retyped a count would need editing by the PR that lands a
- * newly founded university — which is precisely how a fidelity test turns into a rubber stamp.
+ * newly founded university, which is precisely how a fidelity test turns into a rubber stamp.
+ *
+ * Three tables ARE written out by hand, each because nothing a recomputation produces can
+ * discharge what it guards, and none of them asserts a fact about an institution:
+ *
+ * - **`COVERAGE_FLOOR`** — two numbers, and the only numbers here. §2's rule is about per-entity
+ *   facts; these are a corpus floor that generalizes over every row, and why a floor is the one
+ *   guard a hash pin cannot replace is argued at its own declaration. **Do not delete it on the
+ *   strength of the paragraph above** — a closure that drops the corpus by one turns this red, and
+ *   deleting the floor to go green is exactly the failure the floor exists to prevent.
+ * - **`RULED_OUT_INSTITUTIONS`** — the owner-ruled scope boundary. No source can re-derive which
+ *   institutions were ruled out of it, so nothing but a written table can hold that line.
+ * - **`PINS`**, and the literal `ACRONYM_WORDS` membership beside it — the named conversion traps
+ *   and the hand-made judgement list. This is the leg that shares no code with what it checks.
  */
 
 /** Where the committed byte copies live, relative to the repo root. */
@@ -126,6 +147,46 @@ const departmentsSourceSchema = z.array(z.string().min(1)).min(1);
 
 type UniversitySource = z.infer<typeof universitySourceSchema>;
 
+/**
+ * The institutions the owner ruled OUT of this list, each with a word from its own name.
+ *
+ * The boundary is `FU-UNI-LISTE-EKSIK-KURUMLAR`, closed 2026-08-20 by the owner: MSÜ, Polis
+ * Akademisi and JSGA out, the sixteen KKTC institutions in, the six abroad out.
+ *
+ * **Why this is a table of names and not a count.** The coverage floor below catches a list that
+ * got SHORTER; nothing catches one that got WIDER along the ruled boundary. The live path is
+ * concrete: `FU-UNI-LISTE-KAYNAK` is open, `data/reference/README.md` documents regenerating the
+ * list, and the repo's own docs name a second official surface (YÖK Atlas, 228 rows) — which is
+ * exactly where the six abroad live. A re-collection from that surface would restore them, move
+ * the hash pin by the documented procedure, clear the floor at 229 and pass every other gate.
+ *
+ * This is a SCOPE pin, not a per-entity fact assertion: it verifies nothing about any institution,
+ * it says the published boundary did not move, and it generalizes over every row in the artefact.
+ * It is the same class as the hand-written PINS table below — the leg that shares no code with
+ * what it checks.
+ */
+const RULED_OUT_INSTITUTIONS: readonly (readonly [string, string])[] = [
+  // Abroad, on the YÖK Atlas surface but not on `yok.gov.tr` (dosya §5.2).
+  ['Kırgızistan-Türkiye Manas Üniversitesi', 'MANAS'],
+  ['Hoca Ahmet Yesevi Uluslararası Türk-Kazak Üniversitesi', 'YESEVİ'],
+  ['Uluslararası Saraybosna Üniversitesi', 'SARAYBOSNA'],
+  ['Uluslararası Balkan Üniversitesi', 'BALKAN'],
+  ['Tiran New York Üniversitesi', 'TİRAN'],
+  ['Azerbaycan Devlet Pedagoji Üniversitesi', 'PEDAGOJİ'],
+  // Military and police, absent from BOTH official lists — here the ruling and the source agree
+  // (dosya §7.1).
+  ['Millî Savunma Üniversitesi', 'SAVUNMA'],
+  ['Polis Akademisi', 'POLİS'],
+  ['Jandarma ve Sahil Güvenlik Akademisi', 'JANDARMA'],
+];
+
+/** Every ruled-out institution the given source names would publish. */
+function ruledOutMatches(sourceNames: readonly string[]): string[] {
+  return RULED_OUT_INSTITUTIONS.filter(([, token]) =>
+    sourceNames.some((name) => name.includes(token)),
+  ).map(([institution]) => institution);
+}
+
 function readArtifactBytes(filename: string): Buffer {
   return readFileSync(artifactPath(filename));
 }
@@ -169,6 +230,29 @@ function isTurkishSorted(names: readonly string[]): boolean {
 function deadAcronyms(allowlist: ReadonlySet<string>, sourceNames: readonly string[]): string[] {
   const words = new Set(sourceNames.flatMap((name) => name.split(' ')));
   return [...allowlist].filter((acronym) => !words.has(acronym));
+}
+
+/**
+ * Every allowlist member that no literal pin covers.
+ *
+ * `deadAcronyms` asserts a member still OCCURS in the source; nothing asserted that a member is
+ * PINNED. The gap is reachable by a code change rather than a data change: a PR adds a seventh
+ * member without a matching pin, that member is later dropped or misspelt, leg 1 agrees with
+ * itself, leg 2 shares the same set and stays green, and leg 3 has nothing to say — so a
+ * title-cased name ships. A member must appear as a whole word on BOTH sides of some pin;
+ * requiring only the source side would accept a pin that never asserts the initialism survives.
+ */
+function acronymsWithoutPin(
+  allowlist: ReadonlySet<string>,
+  pins: readonly (readonly [string, string])[],
+): string[] {
+  return [...allowlist].filter(
+    (acronym) =>
+      !pins.some(
+        ([source, expected]) =>
+          source.split(' ').includes(acronym) && expected.split(' ').includes(acronym),
+      ),
+  );
 }
 
 describe('reference lists — the committed byte copies', () => {
@@ -238,6 +322,19 @@ describe('UNIVERSITIES (published constant)', () => {
     );
   });
 
+  it('carries none of the institutions the owner ruled out — the boundary, not the count', () => {
+    // Read on the ARCHIVE, in the source's own writing: the archive is what a re-collection
+    // replaces, and the leg above already proves the published list equals its derivation.
+    const sourceNames = universitySource.map((row) => row.ad);
+    expect(sourceNames.length).toBeGreaterThan(0);
+    expect(ruledOutMatches(sourceNames)).toEqual([]);
+
+    // The control: one fabricated row carrying one of the tokens must be reported by name. Built
+    // in memory — the token never enters `data/reference/universities.yok.json`.
+    const widened = [...sourceNames, 'KIRGIZISTAN-TÜRKİYE MANAS ÜNİVERSİTESİ'];
+    expect(ruledOutMatches(widened)).toEqual(['Kırgızistan-Türkiye Manas Üniversitesi']);
+  });
+
   it('is served in Turkish alphabetical order, and the check can tell a wrong order apart', () => {
     const names = UNIVERSITIES.map((row) => row.nameTr);
     // The ORDER IS ASSERTED, never produced: nothing here sorts the list and compares. The
@@ -293,11 +390,39 @@ describe('DEPARTMENTS (published constant)', () => {
   });
 });
 
+describe('the published constants — frozen to the ROW, not only to the array', () => {
+  it('freezes the container AND every row, and can tell a container-only freeze apart', () => {
+    // `Object.freeze([...])` alone freezes the container: `push` throws, but every row stays
+    // writable. Both handlers return these arrays BY REFERENCE, so a row write would corrupt the
+    // published list for the lifetime of the process. This is the gate on that guarantee: without
+    // it a regeneration could drop `.map(Object.freeze)` and nothing would notice.
+    const published: readonly (readonly object[])[] = [UNIVERSITIES, DEPARTMENTS];
+    for (const list of published) {
+      expect(list.length).toBeGreaterThan(0);
+      expect(Object.isFrozen(list)).toBe(true);
+      expect(list.filter((row) => !Object.isFrozen(row))).toEqual([]);
+    }
+
+    // The control: a copy frozen the way the container-only form freezes it. The same predicate
+    // must report its row, or "frozen" above would also be the answer for a check that had stopped
+    // looking past the container. The row is a copy-local fabrication and never enters a shipped
+    // constant.
+    const containerOnly = Object.freeze([{ nameTr: 'Zzzq Üniversitesi' }]);
+    expect(Object.isFrozen(containerOnly)).toBe(true);
+    expect(containerOnly.filter((row) => !Object.isFrozen(row))).toHaveLength(1);
+  });
+});
+
 describe('the conversion itself — the traps, pinned by hand', () => {
   /**
    * Written by reading the source, not by running the conversion. This is the leg that shares no
    * code with what it checks; every other assertion in this file would survive a conversion that
    * was wrong in a self-consistent way.
+   *
+   * **Do not prune this table as duplication.** It is the ONLY guard over `TURKISH_UPPER_TO_LOWER`
+   * and `ACRONYM_WORDS`: legs 1 and 2 both read those tables, so a defect in one is invisible to
+   * both (see the file docblock's leg 2). An edit to the İ/ı rows with this table shortened would
+   * ship `Igdir Üniversitesi` with the whole suite green.
    */
   const PINS: readonly (readonly [string, string])[] = [
     // The İ/ı trap, both directions. A ready-made converter answers `Iğdir` and `Şirnak`.
@@ -342,6 +467,18 @@ describe('the conversion itself — the traps, pinned by hand', () => {
     }
   });
 
+  it('emits none of the invisible zero-width or format characters', () => {
+    const all = [...UNIVERSITIES.map((row) => row.nameTr), ...DEPARTMENTS.map((row) => row.nameTr)];
+    for (const [character] of INVISIBLE_FORMAT_CHARACTERS) {
+      expect(all.filter((name) => name.includes(character))).toEqual([]);
+    }
+
+    // The control: the same scan over a copy carrying one, so a clean result cannot also mean the
+    // scan stopped looking. In memory; nothing is written to a published constant.
+    const tampered = [...all, `Bo\u200bğaziçi Üniversitesi`];
+    expect(tampered.filter((name) => name.includes('\u200b'))).toHaveLength(1);
+  });
+
   it('never emits the invisible combining dot above', () => {
     const all = [...UNIVERSITIES.map((row) => row.nameTr), ...DEPARTMENTS.map((row) => row.nameTr)];
     expect(all.filter((name) => name.includes(COMBINING_DOT_ABOVE))).toEqual([]);
@@ -369,6 +506,34 @@ describe('the conversion itself — the traps, pinned by hand', () => {
         universitySource.map((row) => row.ad),
       ),
     ).toEqual(['ZZZQ']);
+  });
+
+  it('pins the allowlist itself, so a membership change is a line in a diff', () => {
+    // The test above guards ONE direction — a member the source stopped containing. The other
+    // direction is likelier and it reaches the reader: an ORDINARY word admitted as an initialism
+    // ships ALL-CAPS. `reference-writing-form.ts` names five words that would do exactly that
+    // (`ADA`, `ATA`, `HAS`, `AHİ`, `IŞIK`) and nothing was watching for them. This list is a
+    // hand-made judgement, so every change to it should be a deliberate line here.
+    expect([...ACRONYM_WORDS].sort()).toEqual(['KTO', 'MEF', 'OSTİM', 'SANKO', 'TED', 'TOBB']);
+
+    // The control: one ordinary word added must break the same expectation. In memory — `ATA`
+    // never enters the allowlist the app ships.
+    expect([...new Set([...ACRONYM_WORDS, 'ATA'])].sort()).not.toEqual([
+      'KTO',
+      'MEF',
+      'OSTİM',
+      'SANKO',
+      'TED',
+      'TOBB',
+    ]);
+  });
+
+  it('gives every allowlist member a literal pin, so leg 3 covers the whole set', () => {
+    expect(acronymsWithoutPin(ACRONYM_WORDS, PINS)).toEqual([]);
+
+    // The control: a member with no pin must be named. The token is a copy-local fabrication and
+    // never enters the shipped allowlist.
+    expect(acronymsWithoutPin(new Set([...ACRONYM_WORDS, 'ZZZQ']), PINS)).toEqual(['ZZZQ']);
   });
 });
 
@@ -403,6 +568,21 @@ describe('writingFormProblems — each rule, watched failing', () => {
   it('rejects a decomposed Turkish letter', () => {
     // `ğ` written as `g` + U+0306. Identical on screen, a different string to everything else.
     expect(writingFormProblems('Bog\u0306aziçi Üniversitesi').join('\n')).toContain('NFC');
+  });
+
+  it('rejects every invisible character it lists — each member watched failing', () => {
+    // Fed INSIDE a word, which is the placement nothing else reaches: before this rule existed
+    // `writingFormProblems` returned [] for exactly this shape. (Two other placements happen to be
+    // caught by the interior-capital rule, which is luck, not coverage.)
+    for (const [character, description] of INVISIBLE_FORMAT_CHARACTERS) {
+      expect(writingFormProblems(`Bo${character}ğaziçi Üniversitesi`).join('\n')).toContain(
+        description,
+      );
+    }
+
+    // The negative control: the same sentence without the character stays clean, so what fires
+    // above is the character and not the shape of the name.
+    expect(writingFormProblems('Boğaziçi Üniversitesi')).toEqual([]);
   });
 
   it('rejects padding, a doubled space and an exotic space', () => {

@@ -88,7 +88,11 @@ promise.
 5963b103e2a5a0ac9e0fdf7ac9d11ca206fd2f52fd3c854381483b1c48afc9df
 ```
 
-Re-verify both sides from the repo root:
+Re-verify both sides. **Both paths resolve from the current directory and the second one leaves
+the repository, so `..` has to be the orchestration root** — run this from a checkout of this
+branch that sits directly inside it. From a linked worktree (`cografya_api-wt/<task>/`) `..` is
+the worktree parent, the Inbox file is not there, and the command exits 1 on a missing operand;
+point at the orchestration root explicitly in that case.
 
 ```sh
 sha256sum data/reference/districts.tuik.json \
@@ -177,9 +181,12 @@ things in one sentence — the reader sees normal writing ("Boğaziçi Üniversi
 data is kept exactly as YÖK wrote it — and the two halves land in two files: the archive here keeps
 the capitals, the published constant carries the reader's form. `src/reference/reference-writing-form.ts`
 is the conversion, and it is written out character by character rather than calling
-`toLocaleLowerCase('tr')`, because that is the defect: `DEC 2026-08-20p` md.5 names it, and NOVA
-measured it on the sibling ilçe list, where a ready-made converter puts an invisible U+0307 into
-308 of 973 names and turns `IĞDIR` into `Iğdir`.
+`toLocaleLowerCase('tr')`, because that is the defect. `DEC 2026-08-20p` md.5 names the trap
+classes and the two halves were measured on two different corpora. The U+0307 half is the sibling
+ilçe list's: a ready-made converter puts an invisible combining dot into 308 of those 973 names.
+The İ/ı half is **this** artefact's — `Iğdır` and `Şırnak` are province names and appear nowhere
+among the 973 ilçe names, while `IĞDIR ÜNİVERSİTESİ` and `ŞIRNAK ÜNİVERSİTESİ` are rows here, and
+a ready-made converter answers `Iğdir` and `Şirnak`.
 
 `departments.yokatlas.json` needs **no** conversion — its source already arrives in the reader's
 writing. The check runs the same function over it anyway and requires a no-op, which is what pins
@@ -245,7 +252,11 @@ renders one today, and no endpoint here publishes a licence string) and `FU-BOLU
 6100c8f7a832b9b3c620d29f23edf9c7a970d86a4c3905d8a91783e91a8fcba0  departments.yokatlas.json
 ```
 
-Re-verify both sides from the repo root:
+Re-verify both sides. **Both paths resolve from the current directory and the second one leaves
+the repository, so `..` has to be the orchestration root** — run this from a checkout of this
+branch that sits directly inside it. From a linked worktree (`cografya_api-wt/<task>/`) `..` is
+the worktree parent, the Inbox file is not there, and the command exits 1 on a missing operand;
+point at the orchestration root explicitly in that case.
 
 ```sh
 sha256sum data/reference/universities.yok.json \

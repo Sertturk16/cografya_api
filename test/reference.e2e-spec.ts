@@ -478,11 +478,16 @@ describe('Reference — districts (e2e)', () => {
         .expect(200);
     });
 
-    it('IGNORE an unknown query parameter, where the ilçe route rejects it', async () => {
-      // Not an inconsistency to fix — playbook §2's measured asymmetry, pinned so the difference is
-      // a documented contract rather than a surprise for the web repo. A route with no `@Query()`
-      // DTO never validates its query string at all; these two have no parameters to validate.
-      // The ilçe route has a DTO and therefore answers 400 to the same shape (asserted above).
+    it('ignore an unknown query parameter TODAY, because neither route has a query DTO', async () => {
+      // Not an inconsistency to fix — and not a second policy either. `ENGINEERING.md` §2 says of
+      // this asymmetry that it "is a consequence of where DTOs exist, not a second policy", so
+      // pinning it as a documented CONTRACT would invert the sentence it comes from. A route with
+      // no `@Query()` DTO never validates its query string at all; these two have no parameters to
+      // validate, while the ilçe route has a DTO and therefore answers 400 to the same shape
+      // (asserted above). What is pinned here is the witness to that difference, not a promise
+      // about it: the day either route legitimately gains a `@Query()` DTO — a `?type=DEVLET`
+      // filter, say — this test is expected to move with it, and that is a tightening rather than
+      // a regression.
       await request(app.getHttpServer())
         .get('/api/reference/universities')
         .query({ utm_source: 'x' })
