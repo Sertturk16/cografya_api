@@ -2,12 +2,13 @@
  * ONE-OFF — wave P4 province PROSE transcription (NOT a tool generalization).
  *
  * Scope: `Owner's Inbox/icerik-duzeltme-mikro/p4-ek-brief.md` Part 1 §2 + Part 3 §4.3, as
- * scoped by Atlas rulings AT-11a-d. Thirteen `settlementNoteTr` fields, all FULL-field blocks:
+ * scoped by Atlas rulings AT-11a-d. Eight `settlementNoteTr` fields remain here, all FULL-field
+ * blocks. The wave originally held thirteen fields; Samsun moved to P6, then Kocaeli, Sakarya,
+ * Adana and Mersin moved to P8 for CONTENT-W4:
  *
- *   - the TWELVE B17 survivors P3's scan could not see (İzmir · Kocaeli · Sakarya · Aydın ·
- *     Denizli · Manisa · Adana · Kahramanmaraş · Eskişehir · Ordu · Trabzon · Samsun);
- *   - the last three internal wave-name leaks, which are the SAME EDIT as the B17 repair in
- *     Adana and Kahramanmaraş and a standalone one in Mersin (Part 3 / AT-11b).
+ *   - eight retained B17 survivors (İzmir · Aydın · Denizli · Manisa · Kahramanmaraş ·
+ *     Eskişehir · Ordu · Trabzon);
+ *   - Kahramanmaraş also carries its internal wave-name-leak repair (Part 3 / AT-11b).
  *
  * WHY A SECOND B17 ROUND EXISTS — the lesson this wave records. P3 scanned with one literal
  * string, which made that string's loudest marker (`sonucu,` + present-tense `gelmiyor`) stand in
@@ -26,10 +27,10 @@
  * tamamen kentleştiği anlamına gelmez" reads as if the ABOLITION were what does not mean full
  * urbanisation. The repair gives the second clause its subject back (`Bu oran,`).
  *
- * MERSİN/33 IS OWNED HERE, NOT BY P3. P3 repaired its B17 tail; this wave drops its
- * "dalganın en yüksek ikinci pozitif değeri" wave-name leak, so the pair MOVED lists (and moved
- * out of P3's draft). See the ownership note in `oneoff-province-prose-targets.ts`: one owner per
- * `(plate, field)` is what lets P1…P4 all be green at the same time.
+ * MERSİN/33 MOVED HERE FROM P3, THEN TO P8. P3 repaired its B17 tail; this wave dropped its
+ * "dalganın en yüksek ikinci pozitif değeri" wave-name leak. CONTENT-W4 corrected the same
+ * field's tense and moved the pair onward to P8. See the ownership note in
+ * `oneoff-province-prose-targets.ts`: one live owner per `(plate, field)` keeps every gate green.
  *
  * It gets a committed entry point rather than a throwaway script for the same reason P1-P3 did:
  * `ENGINEERING.md` §8 defines the content-fidelity gate as a command the REVIEWING code-reviewer

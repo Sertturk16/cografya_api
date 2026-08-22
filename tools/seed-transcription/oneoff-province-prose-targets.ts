@@ -75,23 +75,21 @@ export const P3_TARGETS: readonly ProseTarget[] = [
   { name: 'Uşak', plate: '64', field: 'introTr' },
   { name: 'Rize', plate: '53', field: 'introTr' },
   { name: 'Rize', plate: '53', field: 'hydrographyNoteTr' },
-  { name: 'İstanbul', plate: '34', field: 'landformNoteTr' },
+  // İstanbul/34 `landformNoteTr` stood here until P8. CONTENT-W4 corrects the same field's
+  // tense, so ownership MOVED to P8 rather than being duplicated.
   // İstanbul/34 `hydrographyNoteTr` stood here until PR-P6. P6 splits that same field into
   // three paragraphs (CONTENT-STYLE §20, zero words changed), so OWNERSHIP MOVED — see the
-  // "one owner per pair" note in this module's docblock. The plate stays in this wave on a
-  // DIFFERENT field (`landformNoteTr` above); the key is the PAIR, never the plate.
-  // The A.6 single-rule repair. NINE entries below — and the count is arithmetic, not a
-  // headline, because in this module a comment IS the ownership record and a stale number is
-  // what the next reader trusts. A.6 repaired ELEVEN provinces; Van is carried by its own
-  // block above, and two have since MOVED to a later wave: Mersin/33 to P4 (PR #96) and
-  // Ankara/06 to P6 (PR-P6). 11 − 1 (Van) − 2 (moved) = 9. Both moves are noted at the exact
-  // line the entry used to occupy, so re-deriving this count never requires leaving the file.
+  // "one owner per pair" note in this module's docblock. CONTENT-W4 later moved the plate's
+  // DIFFERENT `landformNoteTr` pair to P8; the key is the PAIR, never the plate.
+  // The A.6 single-rule repair. SIX entries remain below. Mersin/33 moved to P4 (PR #96),
+  // Ankara/06 moved to P6 (PR-P6), and Gaziantep/27 plus Konya/42 plus Kayseri/38 moved to P8
+  // (CONTENT-W4). Each move is noted at the exact line the entry used to occupy.
   //
   // Ankara/06 `settlementNoteTr` stood here until PR-P6, which corrects the same field again
   // (PC-34: the migration sentence framed +8,91 as "behind İstanbul", which this seed's own
   // netMigrationRate values contradict — İstanbul is +1,66). Ownership MOVED to P6.
   { name: 'Diyarbakır', plate: '21', field: 'settlementNoteTr' },
-  { name: 'Gaziantep', plate: '27', field: 'settlementNoteTr' },
+  // Gaziantep/27 `settlementNoteTr` stood here until P8; ownership MOVED.
   { name: 'Mardin', plate: '47', field: 'settlementNoteTr' },
   { name: 'Şanlıurfa', plate: '63', field: 'settlementNoteTr' },
   { name: 'Hatay', plate: '31', field: 'settlementNoteTr' },
@@ -100,8 +98,7 @@ export const P3_TARGETS: readonly ProseTarget[] = [
   // "one owner per pair" note in this module's docblock.
   { name: 'Erzurum', plate: '25', field: 'settlementNoteTr' },
   { name: 'Malatya', plate: '44', field: 'settlementNoteTr' },
-  { name: 'Konya', plate: '42', field: 'settlementNoteTr' },
-  { name: 'Kayseri', plate: '38', field: 'settlementNoteTr' },
+  // Konya/42 and Kayseri/38 `settlementNoteTr` stood here until P8; ownership MOVED.
 ];
 
 /**
@@ -116,25 +113,25 @@ export const P3_TARGETS: readonly ProseTarget[] = [
  * NOVA re-scanned STRUCTURALLY (independent clause + comma + independent clause across all 280
  * prose fields) and cross-checked against the narrow anchor; the two passes agree on this set.
  *
- * Mersin/33 is here rather than in P3 because P4 corrects it AGAIN — P3 repaired its B17 tail,
- * this wave drops its "dalganın en yüksek ikinci" wave-name leak. See the ownership note above.
+ * Mersin/33 moved here from P3 because P4 corrected it again — P3 repaired its B17 tail, while
+ * this wave dropped its "dalganın en yüksek ikinci" wave-name leak. CONTENT-W4 later moved the
+ * pair from P4 to P8. See the ownership note above.
  */
 export const P4_TARGETS: readonly ProseTarget[] = [
   { name: 'İzmir', plate: '35', field: 'settlementNoteTr' },
-  { name: 'Kocaeli', plate: '41', field: 'settlementNoteTr' },
-  { name: 'Sakarya', plate: '54', field: 'settlementNoteTr' },
+  // Kocaeli/41 and Sakarya/54 `settlementNoteTr` stood here until P8; ownership MOVED.
   { name: 'Aydın', plate: '09', field: 'settlementNoteTr' },
   { name: 'Denizli', plate: '20', field: 'settlementNoteTr' },
   { name: 'Manisa', plate: '45', field: 'settlementNoteTr' },
-  { name: 'Adana', plate: '01', field: 'settlementNoteTr' },
+  // Adana/01 `settlementNoteTr` stood here until P8; ownership MOVED.
   { name: 'Kahramanmaraş', plate: '46', field: 'settlementNoteTr' },
   { name: 'Eskişehir', plate: '26', field: 'settlementNoteTr' },
   { name: 'Ordu', plate: '52', field: 'settlementNoteTr' },
   { name: 'Trabzon', plate: '61', field: 'settlementNoteTr' },
   // Samsun/55 `settlementNoteTr` stood here until PR-P6. P6 corrects the same field again
   // (PC-35: this row's caveat was missing its whole second half AND the "büyükşehir
-  // statüsündeki illerde" qualifier), so OWNERSHIP MOVED — same rule as Mersin below.
-  { name: 'Mersin', plate: '33', field: 'settlementNoteTr' },
+  // statüsündeki illerde" qualifier), so OWNERSHIP MOVED — the same transfer rule.
+  // Mersin/33 `settlementNoteTr` stood here until P8; ownership MOVED.
 ];
 
 /**
@@ -183,8 +180,9 @@ export const P5_TARGETS: readonly ProseTarget[] = [
  * (`QUESTIONS.md`, 2026-08-06).
  *
  * WHICH REGISTER ITEMS THIS TABLE ACTUALLY IMPLEMENTS, which is NOT the same list as W1's
- * scope (PR #103 review, CR-M2 — the two were conflated here). The ten pairs below are
+ * scope (PR #103 review, CR-M2 — the two were conflated here). The original ten pairs were
  * accounted for by FIVE items: PC-34 ×1 (Ankara), PC-35 ×4, PC-36 ×2, PC-17 ×2, PC-04 ×1.
+ * CONTENT-W4 moved Ankara/06 (PC-34) and Bursa/16 (one PC-35 row) to P8, so eight pairs remain.
  * Three further W1 items are NOT implemented by any entry in this list:
  *   - PC-18 (Çorum `hydrographyNoteTr`) and PC-07 (Sivas `hydrographyNoteTr`) land entirely
  *     through the P1/P2 back-ports described below — their pairs stay owned by P1 and P2;
@@ -197,7 +195,8 @@ export const P5_TARGETS: readonly ProseTarget[] = [
  * wave is FOUR COUNTRY fields and rides the country lane in its own drafts — a country
  * section is unparseable here and a province section is unparseable there (§8).
  *
- * TEN PAIRS, NOT TWELVE — and the two missing ones are the interesting part. W1 corrects
+ * THE ORIGINAL LANDING WAS TEN PAIRS, NOT TWELVE — and the two missing ones are the interesting
+ * part. W1 corrects
  * twelve province fields, but Çorum/19 and Sivas/58 `hydrographyNoteTr` are the SOLE entries
  * of `P1_TARGETS` and `P2_TARGETS`. Moving them the ordinary way would EMPTY both lists, and
  * an empty list is not a quiet no-op here: it trips the spec's `$label is non-empty` case and
@@ -206,19 +205,19 @@ export const P5_TARGETS: readonly ProseTarget[] = [
  * the P1/P2 drafts instead (`ENGINEERING.md` §8, "back-port the fix to the draft"), leaving
  * ownership exactly where it was. This wave never claims them.
  *
- * THREE PAIRS DO MOVE HERE (P3 -> P6: Ankara/06 `settlementNoteTr`, İstanbul/34
+ * WHEN P6 LANDED, THREE PAIRS MOVED HERE (P3 -> P6: Ankara/06 `settlementNoteTr`, İstanbul/34
  * `hydrographyNoteTr`; P4 -> P6: Samsun/55 `settlementNoteTr`), because P3 and P4 are
  * multi-entry and do not empty. Each move is two edits — delete there, add here — plus the
  * draft-section deletion that keeps the older wave's `check` green. `HISTORICALLY_OWNED`
  * needs NO edit for a move: it is append-only and deliberately keeps a pair listed after it
- * changes hands. The seven NEW pairs below are what extends it.
+ * changes hands. The seven pairs that were new when P6 landed are what extended it; the later P8
+ * transfers of Ankara/06 and Bursa/16 add no duplicate historical entries.
  */
 export const P6_TARGETS: readonly ProseTarget[] = [
-  // PC-34 (fact) — the migration sentence whose ranking the seed's own data contradicts.
-  { name: 'Ankara', plate: '06', field: 'settlementNoteTr' },
+  // Ankara/06 `settlementNoteTr` stood here until P8; ownership MOVED.
   // PC-35 — four büyükşehir rows carrying only the first half of the shared 6360 caveat.
   { name: 'Balıkesir', plate: '10', field: 'settlementNoteTr' },
-  { name: 'Bursa', plate: '16', field: 'settlementNoteTr' },
+  // Bursa/16 `settlementNoteTr` stood here until P8; ownership MOVED.
   { name: 'Tekirdağ', plate: '59', field: 'settlementNoteTr' },
   { name: 'Samsun', plate: '55', field: 'settlementNoteTr' },
   // PC-36 (fact) — the loose "Türkiye'nin en uzun nehri" scope, on its two remaining pages.
@@ -259,6 +258,31 @@ export const P7_TARGETS: readonly ProseTarget[] = [
 ];
 
 /**
+ * P8 (CONTENT-W4 PR-1) — seventeen province narrative fields whose structural/geographic prose
+ * uses present tense where `CONTENT-STYLE.md` §23 requires simple present (or Gaziantep's ruled
+ * past-tense result). Ten pairs transfer from P3/P4/P6 and seven pairs receive first ownership.
+ */
+export const P8_TARGETS: readonly ProseTarget[] = [
+  { name: 'İstanbul', plate: '34', field: 'landformNoteTr' },
+  { name: 'Ankara', plate: '06', field: 'settlementNoteTr' },
+  { name: 'Gaziantep', plate: '27', field: 'settlementNoteTr' },
+  { name: 'Bilecik', plate: '11', field: 'settlementNoteTr' },
+  { name: 'Bursa', plate: '16', field: 'settlementNoteTr' },
+  { name: 'Çanakkale', plate: '17', field: 'settlementNoteTr' },
+  { name: 'Edirne', plate: '22', field: 'settlementNoteTr' },
+  { name: 'Kırklareli', plate: '39', field: 'settlementNoteTr' },
+  { name: 'Kocaeli', plate: '41', field: 'settlementNoteTr' },
+  { name: 'Sakarya', plate: '54', field: 'settlementNoteTr' },
+  { name: 'Yalova', plate: '77', field: 'settlementNoteTr' },
+  { name: 'Adana', plate: '01', field: 'settlementNoteTr' },
+  { name: 'Mersin', plate: '33', field: 'settlementNoteTr' },
+  { name: 'Konya', plate: '42', field: 'settlementNoteTr' },
+  { name: 'Kayseri', plate: '38', field: 'settlementNoteTr' },
+  { name: 'Ordu', plate: '52', field: 'hydrographyNoteTr' },
+  { name: 'Trabzon', plate: '61', field: 'hydrographyNoteTr' },
+];
+
+/**
  * EVERY shipped prose wave, in landing order.
  *
  * The spec iterates THIS, so adding a wave above without appending it here would leave the new
@@ -275,6 +299,7 @@ export const PROSE_WAVES: readonly {
   { label: 'P5', targets: P5_TARGETS },
   { label: 'P6', targets: P6_TARGETS },
   { label: 'P7', targets: P7_TARGETS },
+  { label: 'P8', targets: P8_TARGETS },
 ];
 
 /** The `(plate, field)` identity of a target — the only key a cross-wave collision means. */
@@ -304,7 +329,7 @@ export const HISTORICALLY_OWNED: readonly string[] = [
   '19 hydrographyNoteTr',
   // P2 (PR #94)
   '58 hydrographyNoteTr',
-  // P3 (PR #95) — 33 settlementNoteTr was P3's and moved to P4 in PR #96; it stays listed here.
+  // P3 (PR #95) — 33 settlementNoteTr moved to P4, then P8; it stays listed here.
   '65 settlementNoteTr',
   '65 landformNoteTr',
   '07 settlementNoteTr',
@@ -355,10 +380,10 @@ export const HISTORICALLY_OWNED: readonly string[] = [
   '03 climateCurriculumNoteTr',
   '19 climateCurriculumNoteTr',
   // P6 (PR-P6, prose-cleanup wave-1 / W1). Only the SEVEN pairs no wave had owned before are
-  // listed. The three P6 also claims — '06 settlementNoteTr', '34 hydrographyNoteTr' (both
-  // from P3) and '55 settlementNoteTr' (from P4) — are already recorded above under the wave
-  // that first owned them, and this list deliberately keeps a pair where it first appeared
-  // when it changes hands. Adding them again would break the no-duplicates invariant.
+  // listed. Its transferred pairs — '06 settlementNoteTr', '34 hydrographyNoteTr' (both from P3)
+  // and '55 settlementNoteTr' (from P4) — were already recorded under their first owner. P8 has
+  // since taken '06 settlementNoteTr'; the append-only record deliberately does not move or
+  // duplicate it.
   '10 settlementNoteTr',
   '16 settlementNoteTr',
   '59 settlementNoteTr',
@@ -372,4 +397,13 @@ export const HISTORICALLY_OWNED: readonly string[] = [
   '38 landformNoteTr',
   '42 landformNoteTr',
   '70 landformNoteTr',
+  // P8 (CONTENT-W4 PR-1). Only the SEVEN first-owned pairs are appended. The ten transfers
+  // already appear under P3/P4/P6 and must not be duplicated in this append-only record.
+  '11 settlementNoteTr',
+  '17 settlementNoteTr',
+  '22 settlementNoteTr',
+  '39 settlementNoteTr',
+  '77 settlementNoteTr',
+  '52 hydrographyNoteTr',
+  '61 hydrographyNoteTr',
 ];
