@@ -1,17 +1,17 @@
 /**
  * ONE-OFF — wave P6 province PROSE transcription (NOT a tool generalization).
  *
- * Scope: the W1 half of the prose-cleanup wave-1, ten `(plate, field)` pairs across nine
- * provinces, as scoped by owner ruling AY-1 (`QUESTIONS.md`, 2026-08-06). Two are factual
- * corrections (PC-34's migration ranking, PC-36's over-broad "longest river" claim); the rest
- * close `CONTENT-STYLE.md` ceiling violations and one content gap.
+ * Scope: the W1 half of prose-cleanup wave-1. Eight `(plate, field)` pairs across seven provinces
+ * remain here after CONTENT-W4 moved Ankara/06 and Bursa/16 `settlementNoteTr` to P8. The
+ * retained set carries PC-35, PC-36, PC-17 and PC-04 work; PC-34 now belongs to P8.
  *
- * THE TEN PAIRS IMPLEMENT FIVE REGISTER ITEMS, not W1's whole item list: PC-34 ×1, PC-35 ×4,
- * PC-36 ×2, PC-17 ×2, PC-04 ×1. PC-18 and PC-07 land entirely through the P1/P2 back-ports
+ * THE ORIGINAL TEN PAIRS IMPLEMENTED FIVE REGISTER ITEMS, not W1's whole item list: PC-34 ×1,
+ * PC-35 ×4, PC-36 ×2, PC-17 ×2, PC-04 ×1. After the two P8 transfers, eight pairs and four
+ * of those items remain here. PC-18 and PC-07 land entirely through the P1/P2 back-ports
  * below, and PC-06 spans the two halves (Sivas `introTr` here, Sivas `hydrographyNoteTr`
  * there). See `oneoff-province-prose-targets.ts`'s P6 docblock (PR #103 review, CR-M2).
  *
- * WHY TEN AND NOT TWELVE, which is the thing to understand before editing this wave. W1
+ * WHY THE ORIGINAL LANDING WAS TEN AND NOT TWELVE, which still matters when editing this wave. W1
  * corrects twelve province fields, but two of them — Çorum/19 and Sivas/58
  * `hydrographyNoteTr` — are the SOLE entries of `P1_TARGETS` and `P2_TARGETS`. Moving them
  * here the ordinary way would empty both lists, and an empty target list is not a quiet
@@ -23,11 +23,12 @@
  * never moved. Verifying this PR therefore means running the P1 and P2 gates too: they are
  * where those two fields' fidelity is actually asserted.
  *
- * THREE PAIRS DO MOVE (P3 -> P6: Ankara/06 `settlementNoteTr`, İstanbul/34
+ * WHEN P6 LANDED, THREE PAIRS MOVED (P3 -> P6: Ankara/06 `settlementNoteTr`, İstanbul/34
  * `hydrographyNoteTr`; P4 -> P6: Samsun/55 `settlementNoteTr`). P3 and P4 are multi-entry, so
  * they do not empty. Each move is the target-list edit plus the older draft's section
  * deletion — run `oneoff-p3`/`oneoff-p4 check` after this wave to prove the second half
- * landed. İstanbul stays in P3 on `landformNoteTr`: the key is the PAIR, not the plate.
+ * landed. CONTENT-W4 later moved Ankara/06 and İstanbul/34 `landformNoteTr` to P8; the latter
+ * came from P3, not P6. The key is the PAIR, not the plate.
  *
  * THE W2 HALF OF THIS WAVE IS NOT HERE. Four country fields (DJ, EG, CF) ride the COUNTRY
  * lane (`pnpm seed:transcribe`) in their own drafts, because that lane keys on `isoCode` and
@@ -52,8 +53,9 @@
  * every blockquote in the lane draft is BYTE-IDENTICAL to the first blockquote under the
  * matching `#### \`field\`` heading in `wave1-taslaklar.md`. That is verifiable after the
  * fact, by anyone, with no access to whatever produced it; the replay command is published in
- * `Owner's Inbox/prose-cleanup/closing-summary.md` §9 and reports 12/12 (10 province + 2
- * country). A property a third party can re-derive is worth more than a script they must
+ * `Owner's Inbox/prose-cleanup/closing-summary.md` §9; after the two P8 transfers the live
+ * replay scope is 10/10 (8 province + 2 country). A property a third party can re-derive is
+ * worth more than a script they must
  * trust — which was the point of the tool existing in the first place.
  *
  * WHICH LANE OWNS WHICH FILE (the §8 false-green rule): this lane owns

@@ -714,7 +714,7 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
       'fay sistemlerinden biri olan KAF, toplam 1.500 km uzunluğunda, sağ yanal doğrultu atımlı ' +
       'bir kırık hattıdır. Fayın Marmara Denizi içinden geçen kolu — Adalar, Silivri, ' +
       'Marmaraereğlisi ve Tekirdağ arasındaki segment — yüksek deprem üretme potansiyeli taşıyan ' +
-      'bir kuşak olarak izleniyor.',
+      'bir kuşak olarak izlenir.',
     introTr:
       "İstanbul, Karadeniz'i Marmara Denizi'ne bağlayan İstanbul Boğazı'nın iki yakasında, hem " +
       'Avrupa hem de Asya kıtası üzerinde kuruludur. Roma, Bizans ve Osmanlı imparatorluklarına ' +
@@ -859,7 +859,7 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     // moved to where the ordering is real, and the ordering is declared here rather than
     // assumed.
     settlementNoteTr:
-      "Ankara'da da TÜİK'in il/ilçe merkezi nüfus oranı %100 çıkıyor — büyükşehir statüsündeki " +
+      "Ankara'da da TÜİK'in il/ilçe merkezi nüfus oranı %100 çıkar — büyükşehir statüsündeki " +
       'illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +
       'sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. Ankara 2024 yılında ' +
       "202.402 kişi aldı, 150.373 kişi verdi. Aldığı göç sayısıyla İstanbul'un ardından ikinci " +
@@ -1469,7 +1469,7 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
       "Kanun) bir sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. TÜİK'in " +
       '2024 iç göç verilerine göre il aynı yıl 56.097 kişi aldı, 49.330 kişi verdi; net göç hızı ' +
       'binde +3,09 oldu — bölgedeki komşu illerin çoğunun aksine Gaziantep göç açısından pozitif ' +
-      'bir tablo çiziyor.',
+      'bir tablo çizdi.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%1,9',
@@ -1953,7 +1953,7 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     settlementNoteTr:
       "Bilecik'te büyükşehir statüsü bulunmadığından TÜİK'in il/ilçe merkezi nüfus oranı " +
       "gerçek bir kentleşme düzeyi gösterir: 2025 verilerine göre nüfusun %84,11'i il ve ilçe " +
-      'merkezlerinde yaşıyor. 2024 yılında 10.023 kişi aldı, 10.038 kişi verdi; net göç hızı ' +
+      'merkezlerinde yaşar. 2024 yılında 10.023 kişi aldı, 10.038 kişi verdi; net göç hızı ' +
       'binde -0,07 ile aradaki 15 kişilik farkla aldığından hafifçe daha fazla göç verdi.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
@@ -2027,7 +2027,7 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
       "Kanun'la kaldırıldığı için Bursa'nın TÜİK il/ilçe merkezi nüfus oranı da %100'dür. İdari " +
       'bir tanımdan doğan bu oran, fiilî kentleşme düzeyini ölçmez. Bursa 2024 yılında 81.656 ' +
       'kişi aldı, 66.440 kişi verdi; net göç hızı binde +4,71 ile ölçülü ama istikrarlı bir göç ' +
-      'kazancı gösteriyor.',
+      'kazancı gösterir.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%3,8',
@@ -2097,7 +2097,7 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     settlementNoteTr:
       'Çanakkale, büyükşehir olmayan bir il olarak gerçek bir kentleşme oranı gösterir: 2025 ' +
       "TÜİK verilerine göre nüfusun %62,03'ü il ve ilçe merkezlerinde, kalan bölüm belde ve " +
-      'köylerde yaşıyor. 2024 yılında 24.714 kişi aldı, 21.211 kişi verdi; net göç hızı binde ' +
+      'köylerde yaşar. 2024 yılında 24.714 kişi aldı, 21.211 kişi verdi; net göç hızı binde ' +
       "+6,18'dir.",
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
@@ -2167,7 +2167,7 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     settlementNoteTr:
       "Edirne'de büyükşehir statüsü bulunmadığı için TÜİK'in il/ilçe merkezi nüfus oranı " +
       "gerçek bir kentleşme düzeyini yansıtır: 2025 verilerine göre nüfusun %77,06'sı il ve " +
-      'ilçe merkezlerinde yaşıyor. 2024 yılında 17.332 kişi aldı, 16.323 kişi verdi; net göç ' +
+      'ilçe merkezlerinde yaşar. 2024 yılında 17.332 kişi aldı, 16.323 kişi verdi; net göç ' +
       "hızı binde +2,40'tır.",
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
@@ -2230,7 +2230,7 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     settlementNoteTr:
       "Kırklareli'de büyükşehir statüsü bulunmadığından TÜİK'in il/ilçe merkezi nüfus oranı " +
       "gerçek bir kentleşme düzeyi gösterir: 2025 verilerine göre nüfusun %74,04'ü il ve ilçe " +
-      'merkezlerinde yaşıyor. 2024 yılında 15.265 kişi aldı, 14.128 kişi verdi; net göç hızı ' +
+      'merkezlerinde yaşar. 2024 yılında 15.265 kişi aldı, 14.128 kişi verdi; net göç hızı ' +
       "binde +3,00'dür.",
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
@@ -2306,7 +2306,7 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
       "illerde belde ve köylerin idari tüzel kişiliğinin 6360 sayılı Kanun'la kaldırılmasının " +
       'bir sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. 2024 yılında ' +
       '80.804 kişi aldı, 63.593 kişi verdi; net göç hızı binde +8,11 ile sanayi istihdamının ' +
-      'çektiği net bir göç kazancına işaret ediyor.',
+      'çektiği net bir göç kazancına işaret eder.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%3,8',
@@ -2379,7 +2379,7 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
       "oranı %100 görünür; bu, belde ve köylerin idari tüzel kişiliğinin 6360 sayılı Kanun'la " +
       'kaldırılmasının bir sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. ' +
       '2024 yılında 37.116 kişi aldı, 30.501 kişi verdi. Net göç hızı binde +5,97 ile pozitif ' +
-      'bir dengeye işaret ediyor.',
+      'bir dengeye işaret eder.',
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%1,2',
@@ -2513,7 +2513,7 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     settlementNoteTr:
       "Yalova, büyükşehir olmayan bir il olduğu için TÜİK'in il/ilçe merkezi nüfus oranı " +
       "burada %100'ün altındadır: 2025 verilerine göre nüfusun %72,35'i il ve ilçe " +
-      'merkezlerinde, kalanı belde ve köylerde yaşıyor. 2024 yılında 17.812 kişi aldı, 13.049 ' +
+      'merkezlerinde, kalanı belde ve köylerde yaşar. 2024 yılında 17.812 kişi aldı, 13.049 ' +
       "kişi verdi; net göç hızı binde +15,59 ile Türkiye'nin 81 ili arasında en yüksek değere " +
       'ulaştı.',
     economyIndicator: {
@@ -3254,7 +3254,7 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     netMigrationRate: -0.34,
     settlementNoteTr:
       "Adana'da da, büyükşehir statüsündeki illerin çoğunda olduğu gibi, TÜİK il/ilçe merkezi " +
-      'nüfus oranı %100 çıkıyor; bu, belde ve köylerin idari tüzel kişiliğinin kaldırılmasının ' +
+      'nüfus oranı %100 çıkar; bu, belde ve köylerin idari tüzel kişiliğinin kaldırılmasının ' +
       '(6360 sayılı Kanun) bir sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına ' +
       'gelmez. 2024 yılında il 55.342 kişi aldı, 56.108 kişi verdi. Net göç hızı binde -0,34 ile ' +
       'sıfıra çok yakın kaldı.',
@@ -3609,7 +3609,7 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 100.0,
     netMigrationRate: 3.01,
     settlementNoteTr:
-      "TÜİK il/ilçe merkezi nüfus oranı Mersin'de de %100 çıkıyor; büyükşehir statüsündeki " +
+      "TÜİK il/ilçe merkezi nüfus oranı Mersin'de de %100 çıkar; büyükşehir statüsündeki " +
       'illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +
       'sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. Mersin 2024 yılında ' +
       '60.574 kişi aldı, 54.703 kişi verdi. Net göç hızı binde +3,01 ile pozitif kaldı.',
@@ -4956,7 +4956,7 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 100.0,
     netMigrationRate: -0.97,
     settlementNoteTr:
-      "Konya'da da TÜİK'in il/ilçe merkezi nüfus oranı %100 çıkıyor — büyükşehir statüsündeki " +
+      "Konya'da da TÜİK'in il/ilçe merkezi nüfus oranı %100 çıkar — büyükşehir statüsündeki " +
       'illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +
       'sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. Konya 2024 yılında ' +
       '53.971 kişi aldı, 56.234 kişi verdi; net göç hızı binde -0,97 ile hafif negatif kaldı.',
@@ -5026,7 +5026,7 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 100.0,
     netMigrationRate: 0.92,
     settlementNoteTr:
-      "Kayseri'de de TÜİK'in il/ilçe merkezi nüfus oranı %100 çıkıyor — büyükşehir statüsündeki " +
+      "Kayseri'de de TÜİK'in il/ilçe merkezi nüfus oranı %100 çıkar — büyükşehir statüsündeki " +
       'illerde belde ve köylerin idari tüzel kişiliğinin kaldırılmasının (6360 sayılı Kanun) bir ' +
       'sonucudur. Bu oran, ilin fiilen tamamen kentleştiği anlamına gelmez. Kayseri 2024 yılında ' +
       '37.960 kişi aldı, 36.622 kişi verdi; net göç hızı binde +0,92 ile hemen hemen dengede ' +
@@ -5898,7 +5898,7 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
       "Karadeniz'e dökülen Melet Irmağı'dır. Kıyı boyunca sıralanan çok sayıda küçük dere, dik " +
       'eğimli havzalarından kaynaklanan ani taşkınlarla bilinir; bu derelerin havza yapısı, ' +
       "DSİ'nin bölgedeki yüzey suyu araştırmalarının (Melet Irmağı Havzası Yüzey Araştırması) " +
-      'konusunu oluşturuyor.',
+      'konusunu oluşturur.',
     urbanizationRate: 100.0,
     netMigrationRate: -7.25,
     settlementNoteTr:
@@ -6083,7 +6083,7 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
       'derenin (Solaklı, Yomra, Değirmendere, Sera, Foldere) oluşturduğu bir örüntüdür. İçme ve ' +
       "kullanma suyu ihtiyacının önemli bir bölümü Atasu Barajı'ndan karşılanır. Kent merkezinden " +
       'geçen Değirmendere, tarihsel olarak taşkın riski taşıyan bir vadi koridorudur; DSİ ve ' +
-      'Trabzon Büyükşehir Belediyesi bu vadide taşkın kontrolü çalışmaları yürütüyor.',
+      'Trabzon Büyükşehir Belediyesi bu vadide taşkın kontrolü çalışmaları yürütür.',
     urbanizationRate: 100.0,
     netMigrationRate: -3.78,
     settlementNoteTr:

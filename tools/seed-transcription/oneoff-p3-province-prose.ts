@@ -3,10 +3,11 @@
  *
  * Scope: the content-fix micro pass NOVA specified in
  * `Owner's Inbox/icerik-duzeltme-mikro/brief.md` PART A, as scoped by Atlas rulings AT-5..AT-9.
- * Nineteen fields across sixteen provinces, in three deterministic classes. (This wave landed as
- * TWENTY fields across seventeen: Mersin/33 `settlementNoteTr` was P3's until PR #96 corrected
- * the same field again and ownership MOVED to P4 — see `oneoff-province-prose-targets.ts`. The
- * count here tracks what this entry point CHECKS today, not what it shipped.)
+ * Thirteen fields remain in this entry point after later ownership transfers. This wave landed
+ * with twenty fields: Mersin/33 moved to P4; Ankara/06 and İstanbul/34 `hydrographyNoteTr`
+ * moved to P6; CONTENT-W4 then moved İstanbul/34 `landformNoteTr` plus Gaziantep/27,
+ * Konya/42 and Kayseri/38 `settlementNoteTr` to P8. The count here tracks what this entry point
+ * CHECKS today, not what it originally shipped.
  *
  *   - B4 internal-jargon leaks ("dört pilot il", "bu dalgada incelenen yedi il") removed from
  *     Van/Antalya/Muğla `settlementNoteTr` and Uşak `introTr` — the last of which is the first
@@ -15,8 +16,8 @@
  *     Bitlis page, `Erçiş` -> `Erciş`, the wrong district attribution for the 2011 epicentre,
  *     "üçüncü EN yüksek") and the broken `settlementNoteTr` template that turned out to sit in
  *     TWELVE provinces, not just the one the UX tour walked (Van carries NOVA's fuller block;
- *     the other eleven took the single deterministic A.6 swap, ten of which this wave still
- *     owns). That count was itself an undercount — a literal-string scan cannot see the variants
+ *     six of the deterministic A.6 swaps remain owned here after later transfers). That count
+ *     was itself an undercount — a literal-string scan cannot see the variants
  *     PR #96 (P4) repairs;
  *   - B15 Rize (AT-7 option A: the unsourceable ">2.250 mm" figure leaves the prose, the
  *     qualitative "Türkiye'nin en yağışlı ili" claim stays, verified against our own 81-province

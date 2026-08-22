@@ -26,6 +26,7 @@ import {
   P5_TARGETS,
   P6_TARGETS,
   P7_TARGETS,
+  P8_TARGETS,
   PROSE_WAVES,
   targetKey,
 } from './oneoff-province-prose-targets.ts';
@@ -34,7 +35,16 @@ describe('prose wave target lists — per-wave shape', () => {
   it('covers every shipped wave (the table the other cases iterate is complete)', () => {
     // A wave added to the module but forgotten in PROSE_WAVES would be invisible to every
     // assertion below — unguarded while looking guarded, which is worse than no spec.
-    expect(PROSE_WAVES.map((w) => w.label)).toEqual(['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7']);
+    expect(PROSE_WAVES.map((w) => w.label)).toEqual([
+      'P1',
+      'P2',
+      'P3',
+      'P4',
+      'P5',
+      'P6',
+      'P7',
+      'P8',
+    ]);
     expect(PROSE_WAVES.map((w) => w.targets)).toEqual([
       P1_TARGETS,
       P2_TARGETS,
@@ -43,6 +53,7 @@ describe('prose wave target lists — per-wave shape', () => {
       P5_TARGETS,
       P6_TARGETS,
       P7_TARGETS,
+      P8_TARGETS,
     ]);
   });
 
@@ -163,7 +174,8 @@ describe('prose wave target lists — cross-wave invariants', () => {
   });
 
   it('P6 does NOT claim the two pairs that were back-ported to P1/P2 instead', () => {
-    // The structural reason this wave is ten pairs and not twelve. Çorum/19 and Sivas/58
+    // The structural reason this wave originally landed with ten pairs and not twelve. Çorum/19
+    // and Sivas/58
     // `hydrographyNoteTr` are the SOLE entries of P1 and P2, so moving them would empty those
     // lists — tripping the `$label is non-empty` case above and the runner's "nothing expected"
     // refusal together. Their corrections were back-ported into the P1/P2 DRAFTS instead, which
@@ -178,13 +190,13 @@ describe('prose wave target lists — cross-wave invariants', () => {
     expect(P2_TARGETS.map(targetKey)).toContain(backPorted[1]!);
   });
 
-  it('P6 is exactly the ten pairs of W1 that were not back-ported', () => {
+  it('P6 retains exactly eight pairs after its two CONTENT-W4 transfers to P8', () => {
     // Same reason P5 carries a length: the wave's SIZE is what no other check can see. Non-overlap
-    // and the historical superset both stay green if an eleventh pair is appended or a tenth
-    // quietly dropped, and the seed itself cannot object — a field simply stops being asserted.
+    // and the historical superset both stay green if a ninth pair is appended or an eighth quietly
+    // dropped, and the seed itself cannot object — a field simply stops being asserted.
     // The two structural cases above pin WHICH pairs must and must not be here; this pins HOW
     // MANY, which is the half that catches a boundary edit neither of them names.
-    expect(P6_TARGETS).toHaveLength(10);
+    expect(P6_TARGETS).toHaveLength(8);
   });
 
   it('P7 transfers nothing — every pair it claims is one no earlier wave ever owned', () => {
@@ -207,6 +219,76 @@ describe('prose wave target lists — cross-wave invariants', () => {
     // Same reason P5 and P6 carry a length: the wave's SIZE is what no other check can see.
     expect(P7_TARGETS).toHaveLength(4);
     expect(P7_TARGETS.every((target) => target.field === 'landformNoteTr')).toBe(true);
+  });
+
+  it('P8 owns exactly the ten pairs transferred from P3/P4/P6', () => {
+    const moved = [
+      {
+        previous: P3_TARGETS,
+        key: targetKey({ name: 'İstanbul', plate: '34', field: 'landformNoteTr' }),
+      },
+      {
+        previous: P3_TARGETS,
+        key: targetKey({ name: 'Gaziantep', plate: '27', field: 'settlementNoteTr' }),
+      },
+      {
+        previous: P3_TARGETS,
+        key: targetKey({ name: 'Konya', plate: '42', field: 'settlementNoteTr' }),
+      },
+      {
+        previous: P3_TARGETS,
+        key: targetKey({ name: 'Kayseri', plate: '38', field: 'settlementNoteTr' }),
+      },
+      {
+        previous: P4_TARGETS,
+        key: targetKey({ name: 'Kocaeli', plate: '41', field: 'settlementNoteTr' }),
+      },
+      {
+        previous: P4_TARGETS,
+        key: targetKey({ name: 'Sakarya', plate: '54', field: 'settlementNoteTr' }),
+      },
+      {
+        previous: P4_TARGETS,
+        key: targetKey({ name: 'Adana', plate: '01', field: 'settlementNoteTr' }),
+      },
+      {
+        previous: P4_TARGETS,
+        key: targetKey({ name: 'Mersin', plate: '33', field: 'settlementNoteTr' }),
+      },
+      {
+        previous: P6_TARGETS,
+        key: targetKey({ name: 'Ankara', plate: '06', field: 'settlementNoteTr' }),
+      },
+      {
+        previous: P6_TARGETS,
+        key: targetKey({ name: 'Bursa', plate: '16', field: 'settlementNoteTr' }),
+      },
+    ];
+
+    for (const { previous, key } of moved) {
+      expect(P8_TARGETS.map(targetKey)).toContain(key);
+      expect(previous.map(targetKey)).not.toContain(key);
+      expect(HISTORICALLY_OWNED.filter((historical) => historical === key)).toHaveLength(1);
+    }
+
+    expect(P3_TARGETS).toHaveLength(13);
+    expect(P4_TARGETS).toHaveLength(8);
+    expect(P6_TARGETS).toHaveLength(8);
+    expect(P8_TARGETS).toHaveLength(17);
+  });
+
+  it('P8 appends historical ownership for only its seven first-owned pairs', () => {
+    const firstOwned = [
+      '11 settlementNoteTr',
+      '17 settlementNoteTr',
+      '22 settlementNoteTr',
+      '39 settlementNoteTr',
+      '77 settlementNoteTr',
+      '52 hydrographyNoteTr',
+      '61 hydrographyNoteTr',
+    ];
+    expect(HISTORICALLY_OWNED.slice(-firstOwned.length)).toEqual(firstOwned);
+    expect(P8_TARGETS.filter((target) => firstOwned.includes(targetKey(target)))).toHaveLength(7);
   });
 
   it('P5 covers the fifteen provinces the owner rulings demand a note for', () => {
