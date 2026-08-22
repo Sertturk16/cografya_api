@@ -124,16 +124,16 @@ describe('prose wave target lists — cross-wave invariants', () => {
     expect(reclaimed).toEqual([]);
   });
 
-  it('P4 owns Mersin/33 settlementNoteTr and P3 no longer does (ownership MOVED, not shared)', () => {
-    // The first ownership transfer (PR #96). P4 corrects a field P3 already published, so the
-    // entry was deleted from P3 — list AND draft — rather than duplicated. Pinned in both
+  it('P8 owns Mersin/33 settlementNoteTr and P3/P4 no longer do (ownership MOVED)', () => {
+    // Mersin first moved from P3 to P4 (PR #96), then from P4 to P8 (CONTENT-W4). Pinned in both
     // directions, because the failure mode is asymmetric and each half is silent on its own:
-    // leaving it in P3 too would put P3's draft at odds with the seed and turn P3's mandated
-    // gate permanently red, while removing it from P3 without adding it here would leave the
-    // field with NO wave asserting it, which no gate anywhere can notice.
+    // leaving it in an older wave would put that draft at odds with the seed and turn its mandated
+    // gate permanently red, while removing it from the older waves without adding it to P8 would
+    // leave the field with NO wave asserting it, which no gate anywhere can notice.
     const MERSIN = targetKey({ name: 'Mersin', plate: '33', field: 'settlementNoteTr' });
-    expect(P4_TARGETS.map(targetKey)).toContain(MERSIN);
+    expect(P8_TARGETS.map(targetKey)).toContain(MERSIN);
     expect(P3_TARGETS.map(targetKey)).not.toContain(MERSIN);
+    expect(P4_TARGETS.map(targetKey)).not.toContain(MERSIN);
   });
 
   it('P5 transfers nothing — every pair it claims is a field no earlier wave ever owned', () => {
@@ -148,16 +148,11 @@ describe('prose wave target lists — cross-wave invariants', () => {
     expect(P5_TARGETS.every((target) => target.field === 'climateCurriculumNoteTr')).toBe(true);
   });
 
-  it('P6 owns its three transferred pairs and P3/P4 no longer do (ownership MOVED)', () => {
-    // Same shape as the Mersin case above, three pairs at once: Ankara/06 and İstanbul/34 come
-    // from P3, Samsun/55 from P4. Pinned in both directions for the same asymmetric reason —
-    // leaving a pair behind turns the older wave's gate permanently red, dropping it from both
-    // leaves the field with no wave asserting it at all.
-    const moved = [
-      {
-        previous: P3_TARGETS,
-        key: targetKey({ name: 'Ankara', plate: '06', field: 'settlementNoteTr' }),
-      },
+  it('P6 retains two earlier-wave transfers while P8 owns Ankara/06 (ownership MOVED)', () => {
+    // İstanbul/34 remains transferred from P3 to P6 and Samsun/55 from P4 to P6. Ankara/06 moved
+    // from P3 to P6 and then to P8 in CONTENT-W4. Each current owner and previous non-owner is
+    // pinned so a stale claimant cannot put its draft at odds with the seed.
+    const retainedByP6 = [
       {
         previous: P3_TARGETS,
         key: targetKey({ name: 'İstanbul', plate: '34', field: 'hydrographyNoteTr' }),
@@ -167,10 +162,15 @@ describe('prose wave target lists — cross-wave invariants', () => {
         key: targetKey({ name: 'Samsun', plate: '55', field: 'settlementNoteTr' }),
       },
     ];
-    for (const { previous, key } of moved) {
+    for (const { previous, key } of retainedByP6) {
       expect(P6_TARGETS.map(targetKey)).toContain(key);
       expect(previous.map(targetKey)).not.toContain(key);
     }
+
+    const ANKARA = targetKey({ name: 'Ankara', plate: '06', field: 'settlementNoteTr' });
+    expect(P8_TARGETS.map(targetKey)).toContain(ANKARA);
+    expect(P3_TARGETS.map(targetKey)).not.toContain(ANKARA);
+    expect(P6_TARGETS.map(targetKey)).not.toContain(ANKARA);
   });
 
   it('P6 does NOT claim the two pairs that were back-ported to P1/P2 instead', () => {
@@ -199,20 +199,20 @@ describe('prose wave target lists — cross-wave invariants', () => {
     expect(P6_TARGETS).toHaveLength(8);
   });
 
-  it('P7 transfers nothing — every pair it claims is one no earlier wave ever owned', () => {
+  it('P7 transfers nothing — every pair it claims is one no other live wave owns', () => {
     // The claim P7's docblock makes, pinned rather than trusted. Three of its four plates ARE
-    // owned by P3 on `settlementNoteTr`, so "this wave takes nothing from anyone" is exactly the
-    // kind of statement that reads true and can be false; the PAIR is what has to be checked.
-    const earlier = new Set(
-      [P1_TARGETS, P2_TARGETS, P3_TARGETS, P4_TARGETS, P5_TARGETS, P6_TARGETS].flatMap((wave) =>
-        wave.map(targetKey),
+    // owned by P3 or P8 on `settlementNoteTr`, so "this wave takes nothing from anyone" is exactly
+    // the kind of statement that reads true and can be false; the PAIR is what has to be checked.
+    const otherWaves = new Set(
+      [P1_TARGETS, P2_TARGETS, P3_TARGETS, P4_TARGETS, P5_TARGETS, P6_TARGETS, P8_TARGETS].flatMap(
+        (wave) => wave.map(targetKey),
       ),
     );
-    expect(P7_TARGETS.filter((target) => earlier.has(targetKey(target)))).toEqual([]);
+    expect(P7_TARGETS.filter((target) => otherWaves.has(targetKey(target)))).toEqual([]);
     // …and the control that keeps the assertion above honest: the same plates DO collide when
     // the key is the plate alone, which is the mistake this lane's identity rule exists to stop.
-    const earlierPlates = new Set([...earlier].map((key) => key.split(' ')[0]));
-    expect(P7_TARGETS.filter((target) => earlierPlates.has(target.plate))).toHaveLength(3);
+    const otherWavePlates = new Set([...otherWaves].map((key) => key.split(' ')[0]));
+    expect(P7_TARGETS.filter((target) => otherWavePlates.has(target.plate))).toHaveLength(3);
   });
 
   it('P7 is exactly the four W8-VOLKAN province rows', () => {
