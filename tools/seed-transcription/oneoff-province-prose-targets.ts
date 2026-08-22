@@ -261,8 +261,6 @@ export const P7_TARGETS: readonly ProseTarget[] = [
  * P8 (CONTENT-W4 PR-1) — seventeen province narrative fields whose structural/geographic prose
  * uses present tense where `CONTENT-STYLE.md` §23 requires simple present (or Gaziantep's ruled
  * past-tense result). Ten pairs transfer from P3/P4/P6 and seven pairs receive first ownership.
- * Manisa/45 `landformNoteTr` remains a measured continuing process; Bayburt/69
- * `hydrographyNoteTr` is outside W4 pending separate provenance work. Neither pair is claimed.
  */
 export const P8_TARGETS: readonly ProseTarget[] = [
   { name: 'İstanbul', plate: '34', field: 'landformNoteTr' },

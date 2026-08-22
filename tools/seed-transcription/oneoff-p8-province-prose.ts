@@ -3,8 +3,7 @@
  *
  * Scope: CONTENT-W4 PR-1, seventeen province narrative fields. The source draft folds each
  * committed field and changes only the exact tense ruled in the approved W4 implementation SPEC:
- * ten pairs transfer from P3/P4/P6 and seven pairs receive first ownership. Manisa/45
- * `landformNoteTr` and Bayburt/69 `hydrographyNoteTr` remain entirely outside this wave.
+ * ten pairs transfer from P3/P4/P6 and seven pairs receive first ownership.
  *
  * USAGE (reviewer-reproducible — pass the ONE authoritative P8 draft):
  *   node tools/seed-transcription/oneoff-p8-province-prose.ts emit  "../Owner's Inbox/prose-cleanup/seed-draft-provinces-p8.md"
