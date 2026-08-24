@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from '@jest/globals';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { DataSource, QueryFailedError } from 'typeorm';
@@ -6,7 +6,16 @@ import { AccountRole, AccountStatus } from '../src/auth/account.types';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 
 const SYNTHETIC_PASSWORD_HASH = '$argon2id$synthetic-e2e-shape-only';
-const THIRTY_TWO_BYTE_HASH = Buffer.alloc(32, 7);
+/**
+ * A FRESH 32-byte buffer per call, not a shared constant — `sessions.token_hash` and
+ * `password_reset_tokens.token_hash` both carry a UNIQUE constraint, so two helper calls
+ * within the same test that both fall back to a shared default would collide on it (SC6's
+ * two-session rotation chain is exactly that shape). A test that needs the SAME hash across
+ * calls on purpose (E2E-SC8's bucket) passes it explicitly instead of relying on the default.
+ */
+function randomHash32(): Buffer {
+  return randomBytes(32);
+}
 
 /**
  * `test/auth-schema.e2e-spec.ts` (PR-1) — schema/constraint/cascade only, over the FOUR new
@@ -64,7 +73,7 @@ describe('Auth-primitives schema (e2e)', () => {
     const now = new Date();
     const input: SessionInsert = {
       familyId: randomUUID(),
-      tokenHash: Buffer.from(THIRTY_TWO_BYTE_HASH),
+      tokenHash: randomHash32(),
       issuedAt: now,
       expiresAt: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000),
       revokedAt: null,
@@ -108,7 +117,7 @@ describe('Auth-primitives schema (e2e)', () => {
     overrides: Partial<VerificationCodeInsert> & { userId: string },
   ): Promise<{ id: string }> {
     const input: VerificationCodeInsert = {
-      codeHash: Buffer.from(THIRTY_TWO_BYTE_HASH),
+      codeHash: randomHash32(),
       expiresAt: new Date(Date.now() + 10 * 60 * 1000),
       attemptCount: 0,
       consumedAt: null,
@@ -138,7 +147,7 @@ describe('Auth-primitives schema (e2e)', () => {
     overrides: Partial<ResetTokenInsert> & { userId: string },
   ): Promise<{ id: string }> {
     const input: ResetTokenInsert = {
-      tokenHash: Buffer.from(THIRTY_TWO_BYTE_HASH),
+      tokenHash: randomHash32(),
       expiresAt: new Date(Date.now() + 30 * 60 * 1000),
       consumedAt: null,
       ...overrides,
@@ -169,7 +178,7 @@ describe('Auth-primitives schema (e2e)', () => {
   }> {
     const input: RateLimitInsert = {
       scope: 'LOGIN_EMAIL',
-      subjectHash: Buffer.from(THIRTY_TWO_BYTE_HASH),
+      subjectHash: randomHash32(),
       windowStart: new Date(Math.floor(Date.now() / (15 * 60 * 1000)) * (15 * 60 * 1000)),
       attemptCount: 1,
       ...overrides,
@@ -410,7 +419,7 @@ describe('Auth-primitives schema (e2e)', () => {
 
   it('E2E-SC8: the (scope, subject_hash, window_start) bucket is unique and increments atomically', async () => {
     const windowStart = new Date(Math.floor(Date.now() / (15 * 60 * 1000)) * (15 * 60 * 1000));
-    const subjectHash = Buffer.from(THIRTY_TWO_BYTE_HASH);
+    const subjectHash = randomHash32();
 
     const first = await insertRateLimit({ subjectHash, windowStart, attemptCount: 1 });
     expect(first.attempt_count).toBe(1);
