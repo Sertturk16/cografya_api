@@ -97,6 +97,10 @@ import {
     `("status" = 'ACTIVE' AND "email_verified_at" IS NOT NULL) OR ` +
     `"status" IN ('DISABLED', 'PENDING_DELETION')`,
 )
+// ATLAS ADDENDUM 1 (UYELIK-02 PR-1, §12.1 madde 33): the ONLY change this file carries this
+// turn is `tokenVersion` below plus this one `@Check`. Every other column, `@Check` and
+// docblock sentence in this file is UYELIK-01's, byte for byte.
+@Check('CHK_users_token_version', `"token_version" >= 0`)
 export class User {
   @PrimaryGeneratedColumn('uuid', { primaryKeyConstraintName: 'PK_users' })
   id!: string;
@@ -154,4 +158,13 @@ export class User {
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
   updatedAt!: Date;
+
+  /**
+   * Added by UYELIK-02 PR-1 (ATLAS ADDENDUM 1). Compared against the access JWT's `sv` claim
+   * (`access-token.service.ts`, `AccessTokenGuard` in PR-2): incrementing it invalidates every
+   * live access token for this user at once. It is bumped in exactly two places — reuse
+   * detection (§5.2.3) and password reset (§5.4.3) — never on ordinary login or refresh.
+   */
+  @Column({ name: 'token_version', type: 'integer', default: 0 })
+  tokenVersion!: number;
 }

@@ -188,6 +188,7 @@ describe('Province (e2e)', () => {
       // Üyelik UYELIK-01: `users` carries a foreign key to `districts(id)`, so its migration
       // MUST stay ordered after `InitDistricts`.
       'InitUsers1787562000000',
+      'InitAuthSessions1787565600000',
     ]);
   });
 

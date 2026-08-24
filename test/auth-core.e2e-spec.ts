@@ -173,7 +173,11 @@ describe('Auth core schema (e2e)', () => {
     await container?.stop();
   });
 
-  it('creates only the approved users auth table with the named schema boundary', async () => {
+  it('creates the users auth table plus the UYELIK-02 auth-primitives tables', async () => {
+    // UYELIK-01 pinned these three to `null` (it deliberately tested their ABSENCE). UYELIK-02
+    // PR-1 lands them, so the pin flips to the table names — the negative pin becomes the
+    // positive one rather than being deleted, so a future revert of that migration is caught
+    // here exactly as the original absence was.
     const relationRows = await dataSource.query<
       {
         users: string | null;
@@ -190,9 +194,9 @@ describe('Auth core schema (e2e)', () => {
     `);
     expect(relationRows[0]).toEqual({
       users: 'users',
-      sessions: null,
-      verify_codes: null,
-      reset_tokens: null,
+      sessions: 'sessions',
+      verify_codes: 'email_verification_codes',
+      reset_tokens: 'password_reset_tokens',
     });
 
     const columns = await dataSource.query<{ column_name: string }[]>(`
@@ -219,6 +223,7 @@ describe('Auth core schema (e2e)', () => {
       'email_verified_at',
       'created_at',
       'updated_at',
+      'token_version',
     ]);
 
     const constraints = await dataSource.query<{ conname: string }[]>(`
@@ -243,6 +248,7 @@ describe('Auth core schema (e2e)', () => {
         'CHK_users_study_stream',
         'CHK_users_university_name',
         'CHK_users_verification_state',
+        'CHK_users_token_version',
         'FK_users_district',
         'PK_users',
         'UQ_users_email',
@@ -377,22 +383,73 @@ describe('Auth core schema (e2e)', () => {
     expect(instanceToPlain(explicitlySelected)).toEqual({});
   });
 
-  it('reverts and reapplies only on an empty synthetic users table', async () => {
+  it('reverts and reapplies the latest migration (InitAuthSessions) on an empty synthetic table', async () => {
+    // The migration under revert here is now `InitAuthSessions` — `InitUsers` sits one migration
+    // further back, so `undoLastMigration` no longer touches the `users` TABLE at all. This test
+    // moved from asserting `users` disappears to asserting exactly what `InitAuthSessions.down()`
+    // actually does: the four new tables go away and `users` loses `token_version`, while `users`
+    // itself and every UYELIK-01 column/constraint stay untouched.
     const counts = await dataSource.query<{ count: string }[]>(
       `SELECT count(*)::text AS count FROM users`,
     );
     expect(counts[0]?.count).toBe('0');
 
     await dataSource.undoLastMigration();
-    const afterDown = await dataSource.query<{ relation: string | null }[]>(
-      `SELECT to_regclass('public.users')::text AS relation`,
-    );
-    expect(afterDown[0]?.relation).toBeNull();
+
+    const afterDown = await dataSource.query<
+      {
+        users: string | null;
+        sessions: string | null;
+        verify_codes: string | null;
+        reset_tokens: string | null;
+      }[]
+    >(`
+      SELECT
+        to_regclass('public.users')::text AS users,
+        to_regclass('public.sessions')::text AS sessions,
+        to_regclass('public.email_verification_codes')::text AS verify_codes,
+        to_regclass('public.password_reset_tokens')::text AS reset_tokens
+    `);
+    expect(afterDown[0]).toEqual({
+      users: 'users',
+      sessions: null,
+      verify_codes: null,
+      reset_tokens: null,
+    });
+
+    const columnsAfterDown = await dataSource.query<{ column_name: string }[]>(`
+      SELECT column_name FROM information_schema.columns
+      WHERE table_schema = 'public' AND table_name = 'users' AND column_name = 'token_version'
+    `);
+    expect(columnsAfterDown).toEqual([]);
 
     await dataSource.runMigrations();
-    const afterUp = await dataSource.query<{ relation: string | null }[]>(
-      `SELECT to_regclass('public.users')::text AS relation`,
-    );
-    expect(afterUp[0]?.relation).toBe('users');
+
+    const afterUp = await dataSource.query<
+      {
+        users: string | null;
+        sessions: string | null;
+        verify_codes: string | null;
+        reset_tokens: string | null;
+      }[]
+    >(`
+      SELECT
+        to_regclass('public.users')::text AS users,
+        to_regclass('public.sessions')::text AS sessions,
+        to_regclass('public.email_verification_codes')::text AS verify_codes,
+        to_regclass('public.password_reset_tokens')::text AS reset_tokens
+    `);
+    expect(afterUp[0]).toEqual({
+      users: 'users',
+      sessions: 'sessions',
+      verify_codes: 'email_verification_codes',
+      reset_tokens: 'password_reset_tokens',
+    });
+
+    const columnsAfterUp = await dataSource.query<{ column_name: string }[]>(`
+      SELECT column_name FROM information_schema.columns
+      WHERE table_schema = 'public' AND table_name = 'users' AND column_name = 'token_version'
+    `);
+    expect(columnsAfterUp).toHaveLength(1);
   });
 });
