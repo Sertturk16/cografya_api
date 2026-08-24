@@ -5,6 +5,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AirQualityModule } from './air-quality/air-quality.module';
+import { AuthModule } from './auth/auth.module';
 import { BookModule } from './book/book.module';
 import { CacheControlInterceptor } from './common/http-cache/cache-control.interceptor';
 import { TrustedClientThrottlerGuard } from './common/throttler/trusted-client-throttler.guard';
@@ -77,6 +78,9 @@ export const THROTTLE_LIMIT = 120;
     // public read route, one seeded table, no scheduled work and no provider — it is here because
     // its rows must exist before the auth core's `users.district_id` can point at them.
     ReferenceModule,
+    // UYELIK-01: identity/profile persistence and the Argon2id provider only. This module has no
+    // controller, guard, session/token flow or route; those boundaries belong to UYELIK-02.
+    AuthModule,
   ],
   providers: [
     // Rate limit every route by default; opt out per-route with @SkipThrottle,
