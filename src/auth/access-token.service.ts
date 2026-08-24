@@ -96,6 +96,15 @@ export class AccessTokenService {
         clockTolerance: 0,
       });
     } catch {
+      // Deliberately WIDE — do not narrow to `if (error instanceof JsonWebTokenError) …; throw
+      // error;`. `jsonwebtoken`'s underlying `jws` dependency parses the payload segment with an
+      // UNPROTECTED `JSON.parse` before the signature is ever checked, so a token whose payload
+      // is valid base64url but invalid JSON throws a raw `SyntaxError` — not a
+      // `JsonWebTokenError` — and that `SyntaxError`'s `message` embeds the first bytes of the
+      // attacker-supplied payload (measured against the pinned dependency versions, VAL135-I1).
+      // A narrower catch would let that error — and the leaked bytes inside it — escape
+      // unwrapped. Pinned by the "payload segment is valid base64url but not valid JSON" case in
+      // access-token.service.spec.ts, which must stay red under any such narrowing.
       throw new AccessTokenVerificationError();
     }
 

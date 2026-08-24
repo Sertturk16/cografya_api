@@ -289,4 +289,31 @@ describe('AccessTokenService.verify', () => {
 
     await expect(service.verify(token)).rejects.toBeInstanceOf(AccessTokenVerificationError);
   });
+
+  it(
+    'rejects a payload segment that is valid base64url but NOT valid JSON — the pre-signature ' +
+      '`SyntaxError` this throws stays wrapped, and pins the `catch` against being narrowed to ' +
+      '`JsonWebTokenError` only (VAL135-I1)',
+    async () => {
+      const service = buildService();
+      const header = base64UrlJson({ alg: 'HS256', typ: 'JWT' });
+      // `jws`'s verify step runs `JSON.parse` on this segment BEFORE the signature is checked,
+      // so this never needs to be signed correctly to reach that parse — any signature segment
+      // reproduces the same raw `SyntaxError` this test is pinning against.
+      const payload = Buffer.from('not-json-at-all').toString('base64url');
+      const malformedToken = `${header}.${payload}.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA`;
+
+      try {
+        await service.verify(malformedToken);
+        throw new Error('expected verify() to reject a non-JSON payload segment');
+      } catch (error) {
+        // The load-bearing assertion: if a future refactor narrows the `catch` in
+        // `AccessTokenService.verify` to `if (error instanceof JsonWebTokenError) …; throw
+        // error;`, this raw `SyntaxError` — whose message embeds attacker-supplied payload
+        // bytes — escapes unwrapped, and this line goes red.
+        expect(error).toBeInstanceOf(AccessTokenVerificationError);
+        expect(error).not.toBeInstanceOf(SyntaxError);
+      }
+    },
+  );
 });

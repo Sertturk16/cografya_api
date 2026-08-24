@@ -62,7 +62,23 @@ export class AuthRateLimitService {
       [scope, subjectHash, windowStart],
     );
 
-    const attemptCount = Number(rows[0]?.attempt_count ?? 0);
+    // Fail-CLOSED on an unexpected result shape. `rows[0]` is missing, or `attempt_count` is
+    // not a finite number, exactly when the underlying driver stops returning a bare row array
+    // for this statement (e.g. a future refactor that turns this INSERT into an
+    // `UPDATE … RETURNING` — TypeORM's `PostgresQueryRunner` keys the `[rows, rowCount]` vs.
+    // bare-`rows` shape off the command tag, and UPDATE/DELETE take the tuple branch the DELETE
+    // five lines above already exercises). Reading that as "zero attempts so far" would silently
+    // turn every identity-axis limiter (LOGIN_EMAIL, REGISTER_EMAIL, PASSWORD_RESET_EMAIL …)
+    // into an unlimited one. This method has no `catch`, so throwing here propagates to the
+    // caller instead of returning `allowed: true` — the same fail-closed posture the write path
+    // above already has.
+    const rawAttemptCount = rows[0]?.attempt_count;
+    if (typeof rawAttemptCount !== 'number' || !Number.isFinite(rawAttemptCount)) {
+      throw new Error(
+        'AuthRateLimitService.consume: rate-limit counter query returned an unexpected result shape — refusing to fail open.',
+      );
+    }
+    const attemptCount = rawAttemptCount;
     const allowed = attemptCount <= rule.limit;
     const retryAfterSeconds = allowed
       ? 0
