@@ -286,13 +286,23 @@ describe('Auth core schema (e2e)', () => {
     await expectRejected(graduate({ universityName: null }));
     await expectRejected(graduate({ studyStream: StudyStream.Sayisal }));
 
-    // Three-valued SQL logic: with `education_level` NULL every branch comparison is UNKNOWN,
-    // and a Postgres CHECK accepts UNKNOWN. The constraint's outer `IS TRUE` folds that to
-    // FALSE. All three rows below are accepted by the pre-fix constraint and rejected by the
+    // Three-valued SQL logic: with `education_level` NULL, a branch reaches UNKNOWN only when
+    // its remaining `IS [NOT] NULL` conditions all hold too (a complete field set with no
+    // declared level) — otherwise `UNKNOWN AND FALSE` is FALSE. A Postgres CHECK accepts
+    // UNKNOWN. All three rows below are accepted by the pre-fix constraint and rejected by the
     // fixed one, so each is a real positive control (PR #133 review, SEC133-I1).
-    await expectRejected(secondary({ educationLevel: null }));
-    await expectRejected(undergraduate({ educationLevel: null }));
-    await expectRejected(graduate({ educationLevel: null }));
+    // They name the rejecting constraint rather than going through `expectRejected`, which
+    // only sees the `QueryFailedError` class: the guard is that one wrapper, so a constraint
+    // added later must not keep these green for a different reason (round 2, CODE133R2-M1).
+    await expect(insertUser(secondary({ educationLevel: null }))).rejects.toThrow(
+      /CHK_users_profile_shape/,
+    );
+    await expect(insertUser(undergraduate({ educationLevel: null }))).rejects.toThrow(
+      /CHK_users_profile_shape/,
+    );
+    await expect(insertUser(graduate({ educationLevel: null }))).rejects.toThrow(
+      /CHK_users_profile_shape/,
+    );
   });
 
   it('accepts lifecycle states only with their allowed verification timestamps', async () => {
