@@ -561,14 +561,13 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'yol ve köprü bulunmayan yoğun bir yağmur ormanıyla kaplıdır — Amerika kıtalarını ' +
       "uçtan uca bağlayan Pan-Amerikan Otoyolu'nun tek kesintiye uğradığı yer burasıdır.",
     landformNoteTr:
-      'Kosta Rika sınırından başlayıp ülkenin ortasına kadar uzanan Cordillera Central, ' +
-      "Orta Amerika'nın ana dağ sisteminin güney ucudur ve Panama'nın tek büyük " +
-      'sıradağıdır. Ülkenin en yüksek noktası, bu sıradağ üzerindeki 3.474 metrelik Volcán ' +
-      "Barú'dur; son patlamasının üzerinden yüzyıllar geçmiş olsa da jeologlar onu hâlâ " +
-      'etkin bir stratovolkan olarak sınıflandırıyor. Doğuda, Kolombiya sınırına kadar ' +
-      'uzanan Darién bölgesi alçak, sarp ve yoğun ormanlıktır; bu coğrafya bölgeyi kara ' +
-      "yoluyla neredeyse geçilmez kılar. Ülke boyunca 500'e yakın nehir, dar kıstağı kuzey " +
-      've güney kıyılarına bağlar.',
+      'Kosta Rika sınırından başlayıp ülkenin ortasına kadar uzanan Cordillera Central, Orta ' +
+      "Amerika'nın ana dağ sisteminin güney ucudur ve Panama'nın tek büyük sıradağıdır. Ülkenin " +
+      "en yüksek noktası, bu sıradağ üzerindeki 3.474 metrelik Volcán Barú'dur; son patlamasının " +
+      'üzerinden yüzyıllar geçmiş olsa da jeologlar onu hâlâ etkin bir stratovolkan olarak ' +
+      'sınıflandırır. Doğuda, Kolombiya sınırına kadar uzanan Darién bölgesi alçak, sarp ve ' +
+      'yoğun ormanlıktır; bu coğrafya bölgeyi kara yoluyla neredeyse geçilmez kılar. Ülke ' +
+      "boyunca 500'e yakın nehir, dar kıstağı kuzey ve güney kıyılarına bağlar.",
     climateNoteTr:
       "Panama'da yıl boyunca sıcaklık farkı azdır; iklimi asıl belirleyen unsur yağış " +
       'rejimidir. Nisan-Aralık arasındaki yağışlı mevsimde neredeyse tüm yıllık yağış ' +

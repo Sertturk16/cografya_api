@@ -2997,11 +2997,11 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       "Pam'ın yol açtığı gibi, uzaktaki bir siklonun oluşturduğu dalga ve deniz kabarması bile " +
       'alçak adaları su altında bırakabilir.',
     hydrographyNoteTr:
-      "Tuvalu'da hiçbir nehir, göl ya da dere bulunmaz. Beş atol geniş birer lagün barındırsa da bu " +
-      'lagünler tatlı su sağlamaz; tek tatlı su kaynağı yağışın çatılarda toplanması ve adaların ' +
-      'altında biriken ince bir yeraltı su merceğidir. Bilimsel modellemeler, deniz seviyesinin 25 ' +
-      'santimetre yükselmesinin bu mercekleri yaklaşık %25, 50 santimetrelik bir yükselişin ise ' +
-      'yaklaşık %50 oranında küçültebileceğini gösteriyor — adaların tatlı su güvenliği, deniz ' +
-      'seviyesindeki her küçük değişikliğe doğrudan bağlıdır.',
+      "Tuvalu'da hiçbir nehir, göl ya da dere bulunmaz. Beş atol geniş birer lagün barındırsa da " +
+      'bu lagünler tatlı su sağlamaz; tek tatlı su kaynağı yağışın çatılarda toplanması ve ' +
+      'adaların altında biriken ince bir yeraltı su merceğidir. Bilimsel modellemeler, deniz ' +
+      'seviyesinin 25 santimetre yükselmesinin bu mercekleri yaklaşık %25, 50 santimetrelik bir ' +
+      'yükselişin ise yaklaşık %50 oranında küçültebileceğini gösterir — adaların tatlı su ' +
+      'güvenliği, deniz seviyesindeki her küçük değişikliğe doğrudan bağlıdır.',
   },
 ];
