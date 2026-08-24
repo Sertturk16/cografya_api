@@ -662,12 +662,12 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'kuzeyde Burkina Faso, doğuda Togo ile komşudur.',
     landformNoteTr:
       'Volta Havzası, Voltaian kumtaşı zemininin oluşturduğu geniş ve genellikle alçak bir ' +
-      'arazidir; kuzey kesiminde yükseklik 150-215 metre arasında değişir. Havzanın ' +
-      "güneybatı ucunda, Aşanti Yaylaları'nın bir parçası olan Kwahu Platosu yükselir. " +
-      'Doğuda, Togo sınırına yakın Akwapim-Togo sıradağlarında yükselen Afadjato Dağı, ' +
-      'geleneksel olarak 885 metreyle ülkenin en yüksek noktası kabul edilir; güncel ' +
-      'ölçümler bu rakam ve unvan konusunda belirsizlik olduğunu gösteriyor. Güney kıyı ' +
-      'şeridi boyunca alçak ovalar ve lagünler uzanır.',
+      'arazidir; kuzey kesiminde yükseklik 150-215 metre arasında değişir. Havzanın güneybatı ' +
+      "ucunda, Aşanti Yaylaları'nın bir parçası olan Kwahu Platosu yükselir. Doğuda, Togo " +
+      'sınırına yakın Akwapim-Togo sıradağlarında yükselen Afadjato Dağı, geleneksel olarak 885 ' +
+      'metreyle ülkenin en yüksek noktası kabul edilir; güncel ölçümler bu rakam ve unvan ' +
+      'konusunda belirsizlik olduğunu gösterir. Güney kıyı şeridi boyunca alçak ovalar ve ' +
+      'lagünler uzanır.',
     climateNoteTr:
       "Gana'da bölgeden bölgeye belirgin iklim farkları görülse de, genel karakter " +
       'tropikaldir: doğu kıyı şeridi sıcak ve nispeten kurak, güneybatı köşesi sıcak ve ' +
@@ -1349,7 +1349,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "Gölün yüzölçümü 1960'larda yaklaşık 25.000-26.000 kilometrekareyken, 1970-80'lerdeki " +
       'büyük Sahel kuraklığı döneminde 2.000 kilometrekareye kadar gerilemiştir. Son yirmi yılın ' +
       'uydu ölçümleri, artan yağışla birlikte gölün büyük ölçüde eski genişliğine döndüğünü ve ' +
-      '2024 itibarıyla yaklaşık 24.500 kilometrekareye ulaştığını gösteriyor; havzadaki güncel ' +
+      '2024 itibarıyla yaklaşık 24.500 kilometrekareye ulaştığını gösterir; havzadaki güncel ' +
       'risk artık gölün küçülmesi değil, aşırı yağış dönemlerinde yaşanan taşkınlardır.' +
       '\n\n' +
       "Chari Nehri, Orta Afrika Cumhuriyeti'nde doğan kollarla beslenerek Çad topraklarına girer " +
@@ -2625,11 +2625,10 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'Su bölümü çizgisinin batısında kalan beşte birlik dilim ise Kivu Gölü ve onu güneyden ' +
       'boşaltan Ruzizi Nehri üzerinden Kongo havzasına akar. Kivu, Ruanda ile Kongo Demokratik ' +
       'Cumhuriyeti arasında paylaşılan ve 480 metre derinliğe ulaşan bir rift gölüdür; göl ' +
-      'tabanında büyük miktarda çözünmüş metan ve karbondioksit birikmiştir. Bu özellik ' +
-      "Kivu'yu, geçmişte patlayarak yüzlerce can alan Kamerun'daki Nyos ve Monoun gölleriyle " +
-      'aynı, dünyada yalnızca birkaç örneği bilinen "limnik patlama" riski olan göller arasına ' +
-      'sokar; bugün gölün Ruanda kıyısında bu metan gazı elektrik üretimi için ticari olarak ' +
-      'çekiliyor.',
+      "tabanında büyük miktarda çözünmüş metan ve karbondioksit birikmiştir. Bu özellik Kivu'yu, " +
+      "geçmişte patlayarak yüzlerce can alan Kamerun'daki Nyos ve Monoun gölleriyle aynı, " +
+      'dünyada yalnızca birkaç örneği bilinen "limnik patlama" riski olan göller arasına sokar; ' +
+      'bugün gölün Ruanda kıyısında bu metan gazı elektrik üretimi için ticari olarak çekilir.',
   },
   {
     isoCode: 'SC',

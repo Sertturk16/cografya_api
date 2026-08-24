@@ -1284,14 +1284,13 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'dışında, deniz seviyesine yakın alçak bir ova görünümündedir.',
     landformNoteTr:
       'Ganj, Brahmaputra ve Meghna nehirlerinin taşıdığı tortularla oluşan ' +
-      'Ganj-Brahmaputra-Meghna Deltası, yaklaşık 105.000 kilometrekarelik yüzölçümüyle ' +
-      'dünyanın en büyük nehir deltasıdır ve Bangladeş topraklarının büyük bölümünü kaplar. ' +
-      'Deltanın güneyinde, Hindistan ile paylaşılan Sundarbans, dünyanın en büyük mangrov ' +
-      "ormanıdır. Ülkenin tek dağlık bölgesi, güneydoğudaki Chittagong Tepeleri'dir; burada " +
-      "sıradağlar 200-1.000 metre arasında paralel sırtlar halinde uzanır. Bangladeş'in en " +
-      'yüksek noktası konusunda kaynaklar tam örtüşmüyor: resmi olarak uzun süre Tazing Dong ' +
-      "kabul edilmişti, ama güncel ölçümler bu unvanı Saka Haphong'a (yaklaşık 1.063 metre) " +
-      'veriyor.',
+      'Ganj-Brahmaputra-Meghna Deltası, yaklaşık 105.000 kilometrekarelik yüzölçümüyle dünyanın ' +
+      'en büyük nehir deltasıdır ve Bangladeş topraklarının büyük bölümünü kaplar. Deltanın ' +
+      'güneyinde, Hindistan ile paylaşılan Sundarbans, dünyanın en büyük mangrov ormanıdır. ' +
+      "Ülkenin tek dağlık bölgesi, güneydoğudaki Chittagong Tepeleri'dir; burada sıradağlar " +
+      "200-1.000 metre arasında paralel sırtlar halinde uzanır. Bangladeş'in en yüksek noktası " +
+      'konusunda kaynaklar tam örtüşmez: resmi olarak uzun süre Tazing Dong kabul edilmişti, ama ' +
+      "güncel ölçümler bu unvanı Saka Haphong'a (yaklaşık 1.063 metre) verir.",
     climateNoteTr:
       'Bangladeş tropikal bir muson iklimine sahiptir ve üç mevsim yaşanır: Ekim-Mart arasında ' +
       'serin ve kurak kış, Mart-Mayıs arasında sıcak ve nemli bir geçiş dönemi, Haziran-Eylül ' +
@@ -1676,8 +1675,8 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       "düzensiz olduğu Kurak Bölge'de, MÖ 3. yüzyıldan itibaren inşa edilen binlerce yapay " +
       'göletten ("wewa") oluşan basamaklı bir rezervuar ağı, mevsimlik akışları depolayarak ' +
       'kuraklık dönemlerinde tarımı sürdürülebilir kılmıştır. Bugün ülke genelinde bu ağdan ' +
-      'kalan yaklaşık 18.000 rezervuar hâlâ işlevini sürdürüyor; tarihi zirvesinde toplam gölet ' +
-      "sayısının 30.000'e ulaştığı tahmin ediliyor.",
+      'kalan yaklaşık 18.000 rezervuar hâlâ işlevini sürdürür; tarihi zirvesinde toplam gölet ' +
+      "sayısının 30.000'e ulaştığı tahmin edilir.",
   },
   {
     isoCode: 'AM',
@@ -1828,7 +1827,7 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'tarlalarını sulamış, inci dalgıçlığı döneminde gemilere tatlı su sağlamıştır. Aşırı çekim ' +
       've deniz suyu sızması nedeniyle bu kaynaklar bugün büyük ölçüde tuzlanmış durumdadır. ' +
       'Ülkede kalıcı akan bir nehir yoktur; günümüzde tatlı su ihtiyacının yaklaşık beşte üçü, ' +
-      'doğal gazla çalışan deniz suyu arıtma tesislerinden karşılanıyor.',
+      'doğal gazla çalışan deniz suyu arıtma tesislerinden karşılanır.',
   },
   {
     isoCode: 'GE',
@@ -2130,18 +2129,17 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'Yarımadası, Birleşik Arap Emirlikleri topraklarıyla ana kara parçasından ayrılmış bir ' +
       'eksklavdır. Suudi Arabistan, BAE ve Yemen ile komşudur.',
     landformNoteTr:
-      "Musandam'dan ülkenin doğu kıyısına kadar yaklaşık 700 kilometre uzanan Hacer " +
-      "Dağları, Arap Yarımadası'nın en yüksek sıradağlarından biridir; yaklaşık 100 " +
-      'kilometre genişliğindeki bu kuşağın en yüksek noktası, Jabal Ahdar kütlesinin bir ' +
-      "parçası olan 3.009 metrelik Jabal Şems'tir. Ülke topraklarının yaklaşık %82'sini " +
-      "vadiler ve çöl, %15'ini dağlar, yalnızca %3'ünü ise dar kıyı ovası (Batına) " +
-      'oluşturur.' +
+      "Musandam'dan ülkenin doğu kıyısına kadar yaklaşık 700 kilometre uzanan Hacer Dağları, " +
+      "Arap Yarımadası'nın en yüksek sıradağlarından biridir; yaklaşık 100 kilometre " +
+      'genişliğindeki bu kuşağın en yüksek noktası, Jabal Ahdar kütlesinin bir parçası olan ' +
+      "3.009 metrelik Jabal Şems'tir. Ülke topraklarının yaklaşık %82'sini vadiler ve çöl, " +
+      "%15'ini dağlar, yalnızca %3'ünü ise dar kıyı ovası (Batına) oluşturur." +
       '\n\n' +
-      "Batıda ve iç kesimde ülke toprakları, dünyanın en büyük kum çölü olan Rubalhali'nin " +
-      "bir uzantısıyla birleşir. Musandam Yarımadası'nın kıyısı ise ülkenin geri kalanından " +
-      "tamamen farklı bir karakter taşır: Arap Levhası'nın bu kesimde Avrasya Levhası'nın " +
-      'altına dalması nedeniyle kıyı çizgisi çöküyor, bu da "Arabistan\'ın Norveç\'i" olarak ' +
-      'anılan fiyort benzeri girintili bir kıyı oluşturuyor.',
+      "Batıda ve iç kesimde ülke toprakları, dünyanın en büyük kum çölü olan Rubalhali'nin bir " +
+      "uzantısıyla birleşir. Musandam Yarımadası'nın kıyısı ise ülkenin geri kalanından tamamen " +
+      "farklı bir karakter taşır: Arap Levhası'nın bu kesimde Avrasya Levhası'nın altına dalması " +
+      'nedeniyle kıyı çizgisi çöküyor, bu da "Arabistan\'ın Norveç\'i" olarak anılan fiyort ' +
+      'benzeri girintili bir kıyı oluşturur.',
     climateNoteTr:
       "Jabal Ahdar'ın 2.000 metreyi aşan kesimleri dışında, ülke genelinde sıcak ve kurak " +
       'bir çöl iklimi hakimdir. Bu yükseklerde iklim tamamen değişir: yıllık yağış 500 ' +
@@ -2202,11 +2200,11 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'üzerine çıkarır. Yıllık yağış oldukça düşüktür ve neredeyse tamamı kış aylarındaki ' +
       'kısa, düzensiz sağanaklardan oluşur.',
     hydrographyNoteTr:
-      "Katar'da kalıcı nehir ya da doğal tatlı su gölü bulunmaz; sınırlı yeraltı suyu " +
-      'kaynakları aşırı çekim nedeniyle tükenme eğilimindedir. İçme suyunun neredeyse tamamı ' +
-      "deniz suyu arıtmasıyla karşılanıyor; 2023'te üretilen 0,7 milyar metreküp arıtılmış " +
-      'su, bu bağımlılığın ölçüsünü gösteriyor. Güneydeki Hor el-Adid, çölün ortasında ' +
-      'denizle birleşen gelgit koyu yapısıyla ülkenin en ayırt edici su kütlesidir.',
+      "Katar'da kalıcı nehir ya da doğal tatlı su gölü bulunmaz; sınırlı yeraltı suyu kaynakları " +
+      'aşırı çekim nedeniyle tükenme eğilimindedir. İçme suyunun neredeyse tamamı deniz suyu ' +
+      "arıtmasıyla karşılanır; 2023'te üretilen 0,7 milyar metreküp arıtılmış su, bu " +
+      'bağımlılığın ölçüsünü gösterir. Güneydeki Hor el-Adid, çölün ortasında denizle birleşen ' +
+      'gelgit koyu yapısıyla ülkenin en ayırt edici su kütlesidir.',
   },
   {
     isoCode: 'SA',
@@ -2354,11 +2352,11 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'kesimlerde ve çölde ise hava daha kuru, gece-gündüz sıcaklık farkı daha belirgindir. ' +
       "Hacer Dağları'nın yüksek kesimlerinde rakım etkisiyle sıcaklıklar bir ölçüde düşer.",
     hydrographyNoteTr:
-      "Ülkede kalıcı akan bir nehir ya da doğal göl yoktur; Hacer Dağları'nın eteklerinde " +
-      'yer yer yağmur sonrası dolan vadiler bulunur. Yüzyıllardır kullanılan eflec sistemi, ' +
-      'yeraltı suyunu yükseklerden yerçekimiyle kilometrelerce taşıyarak vaha tarımını ' +
-      'besler. Bugün Al Ain ve Liva gibi iç vahaların içme suyu ihtiyacı tamamen deniz suyu ' +
-      'arıtma tesislerinden karşılanıyor.',
+      "Ülkede kalıcı akan bir nehir ya da doğal göl yoktur; Hacer Dağları'nın eteklerinde yer " +
+      'yer yağmur sonrası dolan vadiler bulunur. Yüzyıllardır kullanılan eflec sistemi, yeraltı ' +
+      'suyunu yükseklerden yerçekimiyle kilometrelerce taşıyarak vaha tarımını besler. Bugün Al ' +
+      'Ain ve Liva gibi iç vahaların içme suyu ihtiyacı tamamen deniz suyu arıtma tesislerinden ' +
+      'karşılanır.',
   },
   {
     isoCode: 'YE',
