@@ -12,6 +12,19 @@ const BASE = {
   DATABASE_URL: 'postgresql://user:pass@localhost:5432/db',
 };
 
+/**
+ * D6 (üyelik UYELIK-02, plan §11) made `JWT_SECRET`/`AUTH_HMAC_PEPPER` REQUIRED in production
+ * — the same class of change `REDIS_URL`'s own E1 rule was. Every pre-existing "boots in
+ * production" assertion below (written before D6 landed) needed these spread in alongside its
+ * own REDIS_URL, exactly as it already carries REDIS_URL for E1 — not because this file's
+ * point moved, but because production boot now has a second precondition. Not added to `BASE`
+ * itself: several tests above assert `JWT_SECRET`/`AUTH_HMAC_PEPPER` stay OPTIONAL by default.
+ */
+const PRODUCTION_AUTH_SECRETS = {
+  JWT_SECRET: 'a'.repeat(32),
+  AUTH_HMAC_PEPPER: 'b'.repeat(32),
+};
+
 describe('validateEnv — defaults', () => {
   it('boots on NODE_ENV + DATABASE_URL alone, with the marine feature OFF', () => {
     const env = validateEnv({ ...BASE });
@@ -283,6 +296,7 @@ describe('validateEnv — E1: Redis is mandatory in production (DEC 2026-07-29b)
   it('boots in production with the feature on once REDIS_URL is present', () => {
     const env = validateEnv({
       ...BASE,
+      ...PRODUCTION_AUTH_SECRETS,
       NODE_ENV: 'production',
       MARINE_ENABLED: 'true',
       REDIS_URL: 'redis://cache:6379',
@@ -291,7 +305,9 @@ describe('validateEnv — E1: Redis is mandatory in production (DEC 2026-07-29b)
   });
 
   it('boots in production WITHOUT Redis while the feature is off — nothing calls a provider', () => {
-    expect(() => validateEnv({ ...BASE, NODE_ENV: 'production' })).not.toThrow();
+    expect(() =>
+      validateEnv({ ...BASE, ...PRODUCTION_AUTH_SECRETS, NODE_ENV: 'production' }),
+    ).not.toThrow();
   });
 
   it('leaves Redis optional in development and test', () => {
@@ -521,6 +537,7 @@ describe('validateEnv — the air-quality (CAMS/ADS) block', () => {
     expect(() =>
       validateEnv({
         ...BASE,
+        ...PRODUCTION_AUTH_SECRETS,
         NODE_ENV: 'production',
         AIR_QUALITY_ENABLED: 'true',
         ADS_API_KEY: 'a-key',
@@ -684,6 +701,7 @@ describe('validateEnv — the book video-solution (YouTube Data API) block', () 
     expect(() =>
       validateEnv({
         ...BASE,
+        ...PRODUCTION_AUTH_SECRETS,
         NODE_ENV: 'production',
         BOOKS_YOUTUBE_SYNC_ENABLED: 'true',
         YOUTUBE_API_KEY: 'a-key',
@@ -745,6 +763,7 @@ describe('validateEnv — the earthquake (AFAD TDVMS) block', () => {
     expect(() =>
       validateEnv({
         ...BASE,
+        ...PRODUCTION_AUTH_SECRETS,
         NODE_ENV: 'production',
         EARTHQUAKE_ENABLED: 'true',
         REDIS_URL: 'redis://cache:6379',
@@ -853,6 +872,7 @@ describe('validateEnv — the elevation (AWS terrain tiles) block', () => {
     expect(() =>
       validateEnv({
         ...BASE,
+        ...PRODUCTION_AUTH_SECRETS,
         NODE_ENV: 'production',
         ELEVATION_ENABLED: 'true',
         REDIS_URL: 'redis://cache:6379',

@@ -367,7 +367,11 @@ describe('Auth-primitives schema (e2e)', () => {
     );
     expect(remaining[0]?.count).toBe('0');
 
-    // UYELIK-01's district RESTRICT is unbroken by this migration.
+    // UYELIK-01's district RESTRICT is unbroken by this migration. A SEPARATE user (not the one
+    // just deleted above) must still reference `districtId` here — RESTRICT only blocks a
+    // deletion while a referencing row exists, and the whole file shares one `districtId` from
+    // `beforeAll`, so actually deleting it here would break every test that runs after this one.
+    await insertUser();
     await expect(
       dataSource.query(`DELETE FROM districts WHERE id = $1`, [districtId]),
     ).rejects.toBeInstanceOf(QueryFailedError);
