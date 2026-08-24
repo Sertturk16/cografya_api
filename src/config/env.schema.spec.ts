@@ -182,6 +182,97 @@ describe('validateEnv — INTERNAL_REQUEST_TOKEN is a wire contract, not just a 
   });
 });
 
+describe('validateEnv — JWT_SECRET / AUTH_HMAC_PEPPER (üyelik UYELIK-02, plan §11, D6)', () => {
+  // A 32-char visible-ASCII stand-in, the shape `openssl rand -hex 32` produces. Not a secret.
+  const VALID_SECRET = 'jwt-secret-0123456789-abcdefghij';
+  const VALID_PEPPER = 'hmac-pepper-0123456789-abcdefghi';
+
+  it('both stay OPTIONAL in development/test', () => {
+    const env = validateEnv({ ...BASE });
+    expect(env.JWT_SECRET).toBeUndefined();
+    expect(env.AUTH_HMAC_PEPPER).toBeUndefined();
+  });
+
+  it('accept a visible-ASCII value of at least 32 characters', () => {
+    const env = validateEnv({
+      ...BASE,
+      JWT_SECRET: VALID_SECRET,
+      AUTH_HMAC_PEPPER: VALID_PEPPER,
+    });
+    expect(env.JWT_SECRET).toBe(VALID_SECRET);
+    expect(env.AUTH_HMAC_PEPPER).toBe(VALID_PEPPER);
+  });
+
+  it('refuse a value shorter than 32 characters', () => {
+    expect(() => validateEnv({ ...BASE, JWT_SECRET: 'short' })).toThrow(/at least 32 characters/);
+    expect(() => validateEnv({ ...BASE, AUTH_HMAC_PEPPER: 'short' })).toThrow(
+      /at least 32 characters/,
+    );
+  });
+
+  it('draw the length line at EXACTLY 32', () => {
+    expect(() => validateEnv({ ...BASE, JWT_SECRET: 'a'.repeat(31) })).toThrow(
+      /at least 32 characters/,
+    );
+    expect(validateEnv({ ...BASE, JWT_SECRET: 'a'.repeat(32) }).JWT_SECRET).toHaveLength(32);
+  });
+
+  it('refuse whitespace and control/non-ASCII characters — the wire-contract shape (§11)', () => {
+    for (const value of [
+      ` ${VALID_SECRET}`,
+      `${VALID_SECRET} `,
+      `${VALID_SECRET.slice(0, 16)}\n${VALID_SECRET.slice(16)}`,
+      `${VALID_SECRET}\u0000`,
+    ]) {
+      expect(() => validateEnv({ ...BASE, JWT_SECRET: value })).toThrow(/visible ASCII/);
+    }
+  });
+
+  it('REFUSE TO BOOT in production with either secret missing', () => {
+    expect(() =>
+      validateEnv({ ...BASE, NODE_ENV: 'production', AUTH_HMAC_PEPPER: VALID_PEPPER }),
+    ).toThrow(/JWT_SECRET is REQUIRED/);
+    expect(() =>
+      validateEnv({ ...BASE, NODE_ENV: 'production', JWT_SECRET: VALID_SECRET }),
+    ).toThrow(/AUTH_HMAC_PEPPER is REQUIRED/);
+    expect(() => validateEnv({ ...BASE, NODE_ENV: 'production' })).toThrow(
+      /Invalid environment configuration/,
+    );
+  });
+
+  it('boots in production once BOTH secrets are present', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        NODE_ENV: 'production',
+        JWT_SECRET: VALID_SECRET,
+        AUTH_HMAC_PEPPER: VALID_PEPPER,
+      }),
+    ).not.toThrow();
+  });
+
+  it('leave both optional in development and test even though NODE_ENV is set', () => {
+    expect(() => validateEnv({ ...BASE, NODE_ENV: 'development' })).not.toThrow();
+    expect(() => validateEnv({ ...BASE, NODE_ENV: 'test' })).not.toThrow();
+  });
+});
+
+describe('validateEnv — MAIL_TRANSPORT (üyelik UYELIK-02, plan §11)', () => {
+  it('defaults to "noop"', () => {
+    expect(validateEnv({ ...BASE }).MAIL_TRANSPORT).toBe('noop');
+  });
+
+  it('accepts the only declared value explicitly', () => {
+    expect(validateEnv({ ...BASE, MAIL_TRANSPORT: 'noop' }).MAIL_TRANSPORT).toBe('noop');
+  });
+
+  it('refuses any value outside the closed enum — there is no real provider yet', () => {
+    expect(() => validateEnv({ ...BASE, MAIL_TRANSPORT: 'smtp' })).toThrow(
+      /Invalid environment configuration/,
+    );
+  });
+});
+
 describe('validateEnv — E1: Redis is mandatory in production (DEC 2026-07-29b)', () => {
   it('REFUSES TO BOOT in production with the marine feature on and no REDIS_URL', () => {
     expect(() => validateEnv({ ...BASE, NODE_ENV: 'production', MARINE_ENABLED: 'true' })).toThrow(

@@ -1,6 +1,10 @@
 import type { DataSourceOptions } from 'typeorm';
 import { AirQualityProvinceSeries } from '../air-quality/entities/air-quality-province-series.entity';
 import { AirQualityRun } from '../air-quality/entities/air-quality-run.entity';
+import { AuthRateLimit } from '../auth/entities/auth-rate-limit.entity';
+import { EmailVerificationCode } from '../auth/entities/email-verification-code.entity';
+import { PasswordResetToken } from '../auth/entities/password-reset-token.entity';
+import { Session } from '../auth/entities/session.entity';
 import { User } from '../auth/entities/user.entity';
 import { BookVideoQuestion } from '../book/entities/book-video-question.entity';
 import { BookVideo } from '../book/entities/book-video.entity';
@@ -36,6 +40,7 @@ import { InitYoutubeVideoSnapshots1786755600000 } from './migrations/17867556000
 import { AddProvincePm25Annual1787149250651 } from './migrations/1787149250651-AddProvincePm25Annual';
 import { InitDistricts1787302800000 } from './migrations/1787302800000-InitDistricts';
 import { InitUsers1787562000000 } from './migrations/1787562000000-InitUsers';
+import { InitAuthSessions1787565600000 } from './migrations/1787565600000-InitAuthSessions';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -215,6 +220,10 @@ export function buildDataSourceOptions(
       YoutubeVideoSnapshot,
       District,
       User,
+      Session,
+      EmailVerificationCode,
+      PasswordResetToken,
+      AuthRateLimit,
     ],
     migrations: [
       InitProvince1783382400000,
@@ -239,6 +248,7 @@ export function buildDataSourceOptions(
       AddProvincePm25Annual1787149250651,
       InitDistricts1787302800000,
       InitUsers1787562000000,
+      InitAuthSessions1787565600000,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,

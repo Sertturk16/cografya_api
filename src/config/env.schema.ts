@@ -94,6 +94,42 @@ export const envSchema = z
       )
       .optional(),
 
+    // ── Auth signing secrets (üyelik UYELIK-02, plan §11, D6) ───────────────────
+    // The access JWT's HS256 signing/verification key. OPTIONAL in development/test — see the
+    // superRefine below, and `AuthSecretsProvider`, which mints a process-lifetime ephemeral
+    // key when this is unset and says so loudly at boot (never logging the value). REQUIRED in
+    // production: the `REDIS_URL` E1 shape, applied to a new domain. Character class MIRRORS
+    // `INTERNAL_REQUEST_TOKEN` above for the same reason — this value is a signing secret, not
+    // a wire header, but the same failure classes (an edge whitespace character silently
+    // trimmed somewhere downstream, a control/non-ASCII byte) are worth refusing the same way.
+    JWT_SECRET: z
+      .string()
+      .min(32, 'JWT_SECRET must be at least 32 characters when set')
+      .regex(
+        /^[\x21-\x7E]+$/,
+        'JWT_SECRET must contain only visible ASCII characters (no whitespace, no control or ' +
+          'non-ASCII characters) when set',
+      )
+      .optional(),
+    // Pepper for the email-verification-code and rate-limit-subject HMAC digests (§5.3, §9.2).
+    // ONE secret shared across both purposes — a domain tag prefix at the call site (`"verify:"`,
+    // `"rate:"`) keeps the two digests from ever colliding on the same plaintext (S8). Same shape
+    // and same OPTIONAL/production-required rule as `JWT_SECRET` above.
+    AUTH_HMAC_PEPPER: z
+      .string()
+      .min(32, 'AUTH_HMAC_PEPPER must be at least 32 characters when set')
+      .regex(
+        /^[\x21-\x7E]+$/,
+        'AUTH_HMAC_PEPPER must contain only visible ASCII characters (no whitespace, no control ' +
+          'or non-ASCII characters) when set',
+      )
+      .optional(),
+    // The mail transport selector (§8, §11). `'noop'` is the only valid value this turn —
+    // `NoopMailerAdapter` sends nothing anywhere. A real provider adds a new enum member here
+    // plus its own `optional()` + feature-gated cross-check (the `ADS_API_KEY` precedent), never
+    // a silent default swap.
+    MAIL_TRANSPORT: z.enum(['noop']).default('noop'),
+
     // ── Cache infrastructure ────────────────────────────────────────────────────
     // Redis connection string for the upstream cache, the single-flight lock and the shared
     // provider-budget counters. OPTIONAL in development and test, where the app falls back to an
@@ -551,6 +587,33 @@ export const envSchema = z
           'E1 / DEC 2026-07-29b). The in-process LRU fallback is a development-only mode: it is ' +
           'single-instance, it is emptied by every deploy, and single-flight does not work across ' +
           'instances. Provision Redis, or start with MARINE_ENABLED=false.',
+      });
+    }
+
+    // ── D6 (üyelik UYELIK-02, plan §11): production requires BOTH auth signing secrets ──
+    // The `REDIS_URL` E1 shape, applied to a new domain: `AuthSecretsProvider`'s ephemeral
+    // per-process fallback is acceptable in development/test (tokens simply do not survive a
+    // restart) and unacceptable in production, where it would invalidate every live session on
+    // every deploy and let the actual signing key never be evidenced anywhere durable. Checked
+    // independently so a deployment missing exactly one of the two still gets a message naming
+    // which one.
+    if (env.NODE_ENV === 'production' && env.JWT_SECRET === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['JWT_SECRET'],
+        message:
+          'JWT_SECRET is REQUIRED when NODE_ENV=production (üyelik UYELIK-02 plan §11, D6). ' +
+          'The ephemeral per-process fallback is a development/test-only mode — it does not ' +
+          'survive a restart and leaves the real signing key unrecorded anywhere durable.',
+      });
+    }
+    if (env.NODE_ENV === 'production' && env.AUTH_HMAC_PEPPER === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['AUTH_HMAC_PEPPER'],
+        message:
+          'AUTH_HMAC_PEPPER is REQUIRED when NODE_ENV=production (üyelik UYELIK-02 plan §11, ' +
+          'D6). The ephemeral per-process fallback is a development/test-only mode.',
       });
     }
 
