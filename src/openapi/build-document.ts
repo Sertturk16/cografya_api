@@ -71,6 +71,10 @@ export function buildOpenApiDocument(app: INestApplication): OpenAPIObject {
     .setTitle('Coğrafya API')
     .setDescription('Backend API for the Coğrafya education platform.')
     .setVersion('0.0.1')
+    // UYELIK-02 PR-2: the FIRST security scheme this spec ever publishes.
+    // `GET /api/auth/session` is the only route that carries it (`@ApiBearerAuth('access-token')`
+    // on the controller method) — every other auth route is unauthenticated by design.
+    .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }, 'access-token')
     .build();
 
   return SwaggerModule.createDocument(app, config, {

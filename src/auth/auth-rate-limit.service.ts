@@ -16,6 +16,28 @@ export interface AuthRateLimitOutcome {
 }
 
 /**
+ * Thrown when the rate-limit counter query returns a result shape `consume` cannot interpret
+ * (PR-2, §3.4(a) / `TA135R2-I1` ≡ `SEC135R2-M2`).
+ *
+ * A NAMED class rather than a bare `Error`, following this package's own pattern
+ * (`AccessTokenVerificationError`, `PasswordHashingError`, `PasswordHashVerificationError`): the
+ * fail-closed intent used to be encoded only in prose ("this method has no `catch`, so throwing
+ * here propagates"), which a caller could still catch generically and turn into a fail-OPEN
+ * "limiter unavailable, proceed anyway" swallow without the type system objecting
+ * (`SEC135R2-M2`'s named hazard). PR-2's five service callers are the first callers this class
+ * exists to bind (Y16, D19): none of them may swallow this into "proceed anyway". Argument-less
+ * constructor and a fixed message —
+ * the message never carries a scope, a subject hash or any other call-site value, matching the
+ * message this class replaces.
+ */
+export class AuthRateLimitUnavailableError extends Error {
+  constructor() {
+    super('Rate-limit counter query returned an unexpected result shape.');
+    this.name = 'AuthRateLimitUnavailableError';
+  }
+}
+
+/**
  * The identity-axis rate limiter (§9.2, D10/D11/D12): fixed-window, keyed on
  * `(scope, subjectHash, windowStart)`, persisted in `auth_rate_limits` — the counter of
  * record (SPEC §2.3: Redis is an accelerator layered in later, not built this turn).
@@ -74,9 +96,7 @@ export class AuthRateLimitService {
     // above already has.
     const rawAttemptCount = rows[0]?.attempt_count;
     if (typeof rawAttemptCount !== 'number' || !Number.isFinite(rawAttemptCount)) {
-      throw new Error(
-        'AuthRateLimitService.consume: rate-limit counter query returned an unexpected result shape — refusing to fail open.',
-      );
+      throw new AuthRateLimitUnavailableError();
     }
     const attemptCount = rawAttemptCount;
     const allowed = attemptCount <= rule.limit;

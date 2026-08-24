@@ -57,6 +57,11 @@ describe('PasswordHasherService', () => {
       expect(cause).toBeUndefined();
       expect(stack).not.toContain(malformed);
       expect(stack).not.toContain(password);
+      // `TA134-M1`: the two `not.toContain` assertions above pass just as happily on `''` —
+      // `String(undefined)` is exactly `'undefined'`, which contains neither `malformed` nor
+      // `password` either. This asserts the channel this pin claims to inspect is actually
+      // populated with THIS error's own trace, not merely absent of the two secrets.
+      expect(stack).toContain('PasswordHashVerificationError');
     }
   });
 
@@ -84,6 +89,8 @@ describe('PasswordHasherService', () => {
       expect(message).not.toContain(password);
       expect(cause).toBeUndefined();
       expect(stack).not.toContain(password);
+      // `TA134-M1`: see the verify-path pin above — the same `'undefined'` gap applies here.
+      expect(stack).toContain('PasswordHashingError');
     }
 
     expect(hashSpy).toHaveBeenCalledTimes(1);

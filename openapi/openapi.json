@@ -943,6 +943,393 @@
           "reference"
         ]
       }
+    },
+    "/api/auth/register": {
+      "post": {
+        "description": "Always 202, body-less — the response never reveals whether the address already existed (§6.2 anti-enumeration). A verification e-posta is sent for a genuinely new address; a known UNVERIFIED address gets a fresh code (cooldown permitting); a known ACTIVE address gets an \"account exists\" notice; DISABLED/PENDING_DELETION sends nothing.",
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": ""
+          },
+          "400": {
+            "description": "DTO şekli, profil matrisi, parola veya ilçe↔il uyuşmazlığı.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "errors.auth.rateLimited — IP ekseni tavanı (route-level @Throttle) aşıldı.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Register a new account.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/verify-email": {
+      "post": {
+        "description": "Correct code → 200 + a fresh token pair, exactly like login. Wrong/expired/consumed all answer the same 400.",
+        "operationId": "AuthController_verifyEmail",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyEmailRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResultDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "errors.verify.codeInvalid — yanlış, süresi geçmiş ya da tüketilmiş kod.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Confirm a 6-digit e-posta doğrulama kodu and open a session.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/verify-email/resend": {
+      "post": {
+        "description": "Always 202, body-less, whatever the address is. A fresh code is minted only for a known UNVERIFIED address, and only if the cooldown/daily identity-axis limits allow it.",
+        "operationId": "AuthController_resendVerification",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendVerificationRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Resend the verification code.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "description": "Unknown address and wrong password answer the SAME 401 (a real Argon2 verify runs even for an unknown address, to normalize timing). A correct password on an UNVERIFIED or disabled account answers 403 — reachable only by someone who already knows the password, so it is not enumeration.",
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResultDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "errors.auth.invalidCredentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "errors.auth.emailNotVerified ya da errors.auth.accountDisabled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "errors.auth.tooManyAttempts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Log in with e-posta + parola.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "description": "Reused, expired, unknown or account-inactive tokens all answer the SAME 401 (errors.auth.sessionExpired). A reused token revokes its ENTIRE family and bumps the user's token_version, invalidating every live access token at once.",
+        "operationId": "AuthController_refresh",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResultDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Rotate a refresh token for a fresh access + refresh pair.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "description": "Always 204, even for a token this api does not recognise (indistinguishable).",
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Log out — revoke the presented refresh token’s whole family.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/password-reset/request": {
+      "post": {
+        "description": "Always 202, body-less — a known and an unknown address are indistinguishable.",
+        "operationId": "AuthController_requestPasswordReset",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Request a password-reset e-posta (\"forgot password\").",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/password-reset/confirm": {
+      "post": {
+        "description": "Password-policy validation runs BEFORE the token is even read (the DTO decorator fires inside the global ValidationPipe, ahead of this handler), so a weak-password 400 never confirms or denies the token. Success revokes every live session and does NOT open a new one — the user logs in again.",
+        "operationId": "AuthController_confirmPasswordReset",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetConfirmDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "errors.register.weakPassword (checked first) ya da errors.password.resetTokenInvalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Confirm a password reset with the opaque token + a new password.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/session": {
+      "get": {
+        "description": "id, firstName, accountRole ONLY. No e-posta, telefon, soyad or education fields.",
+        "operationId": "AuthController_session",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "errors.auth.unauthenticated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "The current authenticated user — the minimum PII set (§7.3).",
+        "tags": [
+          "auth"
+        ]
+      }
     }
   },
   "info": {
@@ -954,6 +1341,13 @@
   "tags": [],
   "servers": [],
   "components": {
+    "securitySchemes": {
+      "access-token": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
     "schemas": {
       "HealthResponseDto": {
         "type": "object",
@@ -4710,6 +5104,349 @@
         },
         "required": [
           "nameTr"
+        ]
+      },
+      "RegisterRequestDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Ayşe",
+            "description": "Ad — trim edilir, boş olamaz."
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Yılmaz",
+            "description": "Soyad — trim edilir, boş olamaz."
+          },
+          "phone": {
+            "type": "string",
+            "example": "+905551234567",
+            "description": "Türkiye cep telefonu, E.164. Yaygın yazımlar (0532…, 90532…, boşluk/tire/parantezli) kabul edilip +90 biçimine katlanır; sonuç bu biçime uymuyorsa 400."
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "format": "email",
+            "example": "reader@example.test",
+            "description": "E-posta — trim + küçük harfe çevrilir (canonical form), ASCII-only, RFC şekli."
+          },
+          "password": {
+            "type": "string",
+            "writeOnly": true,
+            "minLength": 6,
+            "maxLength": 128,
+            "description": "En az bir küçük harf, bir büyük harf ve bir rakam içermeli (`DEC 2026-08-20g` md.1 #5). Hiçbir yanıtta, örnekte ya da logda dönmez."
+          },
+          "accountRole": {
+            "enum": [
+              "STUDENT",
+              "TEACHER"
+            ],
+            "type": "string",
+            "example": "STUDENT",
+            "description": "Beyan edilen hesap rolü — yetki değildir (`GLOSSARY.md` §7.1)."
+          },
+          "educationLevel": {
+            "enum": [
+              "SECONDARY",
+              "UNDERGRADUATE",
+              "GRADUATE"
+            ],
+            "type": "string",
+            "example": "SECONDARY",
+            "description": "Yalnız accountRole=STUDENT gönderir; TEACHER bu alanı hiç göndermez (profil matrisi, §6.4)."
+          },
+          "gradeLevel": {
+            "enum": [
+              "GRADE_5",
+              "GRADE_6",
+              "GRADE_7",
+              "GRADE_8",
+              "GRADE_9",
+              "GRADE_10",
+              "GRADE_11",
+              "GRADE_12",
+              "MEZUN",
+              "KPSS",
+              "DIGER"
+            ],
+            "type": "string",
+            "example": "GRADE_12",
+            "description": "Yalnız educationLevel=SECONDARY gönderir."
+          },
+          "studyStream": {
+            "enum": [
+              "SAYISAL",
+              "SOZEL",
+              "ESIT_AGIRLIK",
+              "TYT",
+              "DIL",
+              "LGS",
+              "MSU",
+              "ARA_SINIF",
+              "KPSS",
+              "DIGER"
+            ],
+            "type": "string",
+            "example": "SAYISAL",
+            "description": "Yalnız educationLevel=SECONDARY gönderir."
+          },
+          "universityName": {
+            "type": "string",
+            "example": "Boğaziçi Üniversitesi",
+            "description": "Yalnız educationLevel=UNDERGRADUATE|GRADUATE gönderir; `GET /api/reference/universities`'ün nameTr kümesinde olmak zorunda."
+          },
+          "departmentName": {
+            "type": "string",
+            "example": "Coğrafya Öğretmenliği",
+            "description": "Yalnız educationLevel=UNDERGRADUATE gönderir (GRADUATE için opsiyonel); `GET /api/reference/departments`'ın nameTr kümesinde olmak zorunda."
+          },
+          "districtId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "6b3f6f5a-6f5a-4f5a-8f5a-6f5a6f5a6f5a",
+            "description": "`GET /api/reference/districts?plateCode=…`'ün döndürdüğü id. Var olduğu ve provincePlateCode ile ait olduğu RegistrationService tarafından tek sorguyla doğrulanır (D15)."
+          },
+          "provincePlateCode": {
+            "type": "string",
+            "example": "34",
+            "pattern": "^[0-9]{2}$",
+            "description": "İlin plaka kodu, iki hane ve başı sıfırla dolgulu — districtId ile birlikte doğrulanır."
+          },
+          "locale": {
+            "default": "tr",
+            "enum": [
+              "tr",
+              "en"
+            ],
+            "type": "string",
+            "description": "Form alanı değil — doğrulama e-postasının dili. Belirtilmezse tr."
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "phone",
+          "email",
+          "password",
+          "accountRole",
+          "districtId",
+          "provincePlateCode"
+        ]
+      },
+      "ApiErrorDto": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "number",
+            "example": 404,
+            "description": "HTTP status code, repeated in the body by the framework default error shape."
+          },
+          "message": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ],
+            "example": "Not Found",
+            "description": "A single message, or one message per failed field when request validation rejects several at once."
+          },
+          "error": {
+            "type": "string",
+            "example": "Not Found",
+            "description": "The status reason phrase. Present only when the exception was raised with an explicit message; an argument-less `NotFoundException` omits this key entirely."
+          }
+        },
+        "required": [
+          "statusCode",
+          "message"
+        ]
+      },
+      "VerifyEmailRequestDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "format": "email",
+            "example": "reader@example.test",
+            "description": "E-posta — trim + küçük harfe çevrilir (canonical form)."
+          },
+          "code": {
+            "type": "string",
+            "writeOnly": true,
+            "description": "Tam 6 haneli doğrulama kodu (§5.3). Hiçbir yanıtta, örnekte ya da logda dönmez."
+          }
+        },
+        "required": [
+          "email",
+          "code"
+        ]
+      },
+      "AuthResultDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "Kısa ömürlü access JWT (§5.1) — `Authorization: Bearer <token>` ile sunulur."
+          },
+          "accessTokenExpiresInSeconds": {
+            "type": "number",
+            "example": 900,
+            "description": "accessToken kaç saniye içinde geçersiz olur (ACCESS_TOKEN_TTL_SECONDS)."
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Opak refresh token (§5.2.1) — sonraki `/api/auth/refresh` çağrısının gövdesinde sunulur."
+          },
+          "refreshTokenExpiresInSeconds": {
+            "type": "number",
+            "example": 2592000,
+            "description": "refreshToken kaç saniye içinde geçersiz olur (REFRESH_TOKEN_TTL_DAYS × 86400)."
+          }
+        },
+        "required": [
+          "accessToken",
+          "accessTokenExpiresInSeconds",
+          "refreshToken",
+          "refreshTokenExpiresInSeconds"
+        ]
+      },
+      "ResendVerificationRequestDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "format": "email",
+            "example": "reader@example.test",
+            "description": "E-posta — trim + küçük harfe çevrilir (canonical form)."
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "LoginRequestDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "format": "email",
+            "example": "reader@example.test",
+            "description": "E-posta — trim + küçük harfe çevrilir (canonical form)."
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "writeOnly": true,
+            "description": "Hiçbir yanıtta, örnekte ya da logda dönmez."
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "RefreshRequestDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "writeOnly": true,
+            "description": "Opak refresh token (§5.2.1). Hiçbir yanıtta, örnekte ya da logda dönmez."
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "LogoutRequestDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "writeOnly": true,
+            "description": "Opak refresh token (§5.2.1). Hiçbir yanıtta, örnekte ya da logda dönmez."
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "PasswordResetRequestDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "format": "email",
+            "example": "reader@example.test",
+            "description": "E-posta — trim + küçük harfe çevrilir (canonical form)."
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "PasswordResetConfirmDto": {
+        "type": "object",
+        "properties": {
+          "resetToken": {
+            "type": "string",
+            "writeOnly": true,
+            "description": "Opak şifre sıfırlama jetonu (§5.4). Hiçbir yanıtta, örnekte ya da logda dönmez."
+          },
+          "password": {
+            "type": "string",
+            "writeOnly": true,
+            "minLength": 6,
+            "maxLength": 128,
+            "description": "Yeni parola — aynı politika register ile paylaşılır (`DEC 2026-08-20g` md.1 #5). Hiçbir yanıtta, örnekte ya da logda dönmez."
+          }
+        },
+        "required": [
+          "resetToken",
+          "password"
+        ]
+      },
+      "SessionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "users.id."
+          },
+          "firstName": {
+            "type": "string",
+            "example": "Ayşe",
+            "description": "Selamlama için — soyad, e-posta ya da telefon yok."
+          },
+          "accountRole": {
+            "enum": [
+              "STUDENT",
+              "TEACHER"
+            ],
+            "type": "string",
+            "example": "STUDENT",
+            "description": "Beyan edilen hesap rolü — yetki değildir (`GLOSSARY.md` §7.1)."
+          }
+        },
+        "required": [
+          "id",
+          "firstName",
+          "accountRole"
         ]
       }
     }

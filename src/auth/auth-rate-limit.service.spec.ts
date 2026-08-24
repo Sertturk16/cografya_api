@@ -1,6 +1,6 @@
 import type { DataSource } from 'typeorm';
 import { afterEach, describe, expect, it, jest } from '@jest/globals';
-import { AuthRateLimitService } from './auth-rate-limit.service';
+import { AuthRateLimitService, AuthRateLimitUnavailableError } from './auth-rate-limit.service';
 import { AuthRateLimitScope, AUTH_RATE_LIMIT_RULES } from './auth.types';
 import type { AuthSecretsProvider } from './auth-secrets.provider';
 
@@ -19,6 +19,23 @@ function stubDataSource(attemptCount: number): {
     .mockResolvedValueOnce([])
     // 2nd call: the INSERT … ON CONFLICT … RETURNING.
     .mockResolvedValueOnce([{ attempt_count: attemptCount }]);
+  return { dataSource: { query: queryMock } as unknown as DataSource, queryMock };
+}
+
+/**
+ * The `TA135R2-I1` fixture: a `DataSource` stand-in whose SECOND call (the INSERT … RETURNING)
+ * resolves to an arbitrary, caller-supplied shape — including every malformed shape the fail-closed
+ * branch exists to catch. `stubDataSource` above can only ever produce a WELL-FORMED row, which is
+ * exactly why the round-2 review found the six pre-existing cases never exercised `throw` at all.
+ */
+function stubDataSourceWithInsertResult(insertResult: unknown): {
+  dataSource: DataSource;
+  queryMock: jest.Mock;
+} {
+  const queryMock = jest
+    .fn<() => Promise<unknown>>()
+    .mockResolvedValueOnce([])
+    .mockResolvedValueOnce(insertResult);
   return { dataSource: { query: queryMock } as unknown as DataSource, queryMock };
 }
 
@@ -107,5 +124,69 @@ describe('AuthRateLimitService.consume', () => {
     const registerHash = await capture(AuthRateLimitScope.RegisterEmail);
     const loginHash = await capture(AuthRateLimitScope.LoginEmail);
     expect(registerHash.equals(loginHash)).toBe(false);
+  });
+
+  describe('fail-closed on an unexpected INSERT … RETURNING result shape (`TA135R2-I1`)', () => {
+    it('rejects with AuthRateLimitUnavailableError on an empty row array', async () => {
+      const { dataSource } = stubDataSourceWithInsertResult([]);
+      const service = new AuthRateLimitService(dataSource, stubSecrets());
+
+      await expect(
+        service.consume(AuthRateLimitScope.LoginEmail, 'reader@example.test'),
+      ).rejects.toBeInstanceOf(AuthRateLimitUnavailableError);
+    });
+
+    it('rejects with AuthRateLimitUnavailableError on a row missing attempt_count', async () => {
+      const { dataSource } = stubDataSourceWithInsertResult([{}]);
+      const service = new AuthRateLimitService(dataSource, stubSecrets());
+
+      await expect(
+        service.consume(AuthRateLimitScope.LoginEmail, 'reader@example.test'),
+      ).rejects.toBeInstanceOf(AuthRateLimitUnavailableError);
+    });
+
+    it('rejects with AuthRateLimitUnavailableError when attempt_count is an int8-as-string', async () => {
+      // Postgres `int8`/`bigint` columns come back as STRING through node-postgres by default;
+      // `attempt_count` is `integer` today, but a future column-type change reaching this shape
+      // must fail loudly rather than silently coerce.
+      const { dataSource } = stubDataSourceWithInsertResult([{ attempt_count: '3' }]);
+      const service = new AuthRateLimitService(dataSource, stubSecrets());
+
+      await expect(
+        service.consume(AuthRateLimitScope.LoginEmail, 'reader@example.test'),
+      ).rejects.toBeInstanceOf(AuthRateLimitUnavailableError);
+    });
+
+    it('rejects with AuthRateLimitUnavailableError when attempt_count is null', async () => {
+      const { dataSource } = stubDataSourceWithInsertResult([{ attempt_count: null }]);
+      const service = new AuthRateLimitService(dataSource, stubSecrets());
+
+      await expect(
+        service.consume(AuthRateLimitScope.LoginEmail, 'reader@example.test'),
+      ).rejects.toBeInstanceOf(AuthRateLimitUnavailableError);
+    });
+
+    it('rejects with AuthRateLimitUnavailableError on the TypeORM `[rows, rowCount]` tuple shape', async () => {
+      // The shape `PostgresQueryRunner` returns for an UPDATE/DELETE command tag — the docblock's
+      // own named hazard (a future refactor turning this INSERT into an `UPDATE … RETURNING`).
+      // `rows[0]` here is the tuple's first ELEMENT (an array), not a row object, so
+      // `rawAttemptCount` reads as `undefined` and the fail-closed branch fires.
+      const { dataSource } = stubDataSourceWithInsertResult([[{ attempt_count: 3 }], 1]);
+      const service = new AuthRateLimitService(dataSource, stubSecrets());
+
+      await expect(
+        service.consume(AuthRateLimitScope.LoginEmail, 'reader@example.test'),
+      ).rejects.toBeInstanceOf(AuthRateLimitUnavailableError);
+    });
+
+    it('POSITIVE CONTROL: a well-formed numeric result still resolves and computes `allowed` correctly', async () => {
+      const rule = AUTH_RATE_LIMIT_RULES[AuthRateLimitScope.LoginEmail];
+      const { dataSource } = stubDataSourceWithInsertResult([{ attempt_count: rule.limit }]);
+      const service = new AuthRateLimitService(dataSource, stubSecrets());
+
+      const outcome = await service.consume(AuthRateLimitScope.LoginEmail, 'reader@example.test');
+      expect(outcome.allowed).toBe(true);
+      expect(outcome.retryAfterSeconds).toBe(0);
+    });
   });
 });

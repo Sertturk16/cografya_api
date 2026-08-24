@@ -1,0 +1,99 @@
+import {
+  registerDecorator,
+  ValidatorConstraint,
+  type ValidationArguments,
+  type ValidationOptions,
+  type ValidatorConstraintInterface,
+} from 'class-validator';
+import { AccountRole, EducationLevel } from '../account.types';
+
+/** The fields of `RegisterRequestDto` the profile-shape matrix reasons about. */
+export interface ProfileShapeCandidate {
+  readonly accountRole?: AccountRole;
+  readonly educationLevel?: EducationLevel | null;
+  readonly gradeLevel?: unknown;
+  readonly studyStream?: unknown;
+  readonly universityName?: unknown;
+  readonly departmentName?: unknown;
+}
+
+const isNil = (value: unknown): boolean => value === undefined || value === null;
+
+/**
+ * §6.4's profile matrix, evaluated in TypeScript — the exact same four branches
+ * `CHK_users_profile_shape` (`../entities/user.entity.ts`) enforces in SQL. Two independent
+ * enforcements of one rule is deliberate (the DB CHECK is the backstop this class cannot
+ * bypass even if it has a bug), so this function's four branches must never diverge from that
+ * CHECK's four branches:
+ *  - TEACHER: no education field at all.
+ *  - STUDENT + SECONDARY: gradeLevel + studyStream required; university/department forbidden.
+ *  - STUDENT + UNDERGRADUATE: university + department required; grade/stream forbidden.
+ *  - STUDENT + GRADUATE: university required, department OPTIONAL; grade/stream forbidden.
+ */
+export function isProfileShapeValid(candidate: ProfileShapeCandidate): boolean {
+  const { accountRole, educationLevel, gradeLevel, studyStream, universityName, departmentName } =
+    candidate;
+
+  if (accountRole === AccountRole.Teacher) {
+    return (
+      isNil(educationLevel) &&
+      isNil(gradeLevel) &&
+      isNil(studyStream) &&
+      isNil(universityName) &&
+      isNil(departmentName)
+    );
+  }
+
+  if (accountRole === AccountRole.Student) {
+    if (educationLevel === EducationLevel.Secondary) {
+      return (
+        !isNil(gradeLevel) && !isNil(studyStream) && isNil(universityName) && isNil(departmentName)
+      );
+    }
+    if (educationLevel === EducationLevel.Undergraduate) {
+      return (
+        isNil(gradeLevel) && isNil(studyStream) && !isNil(universityName) && !isNil(departmentName)
+      );
+    }
+    if (educationLevel === EducationLevel.Graduate) {
+      return isNil(gradeLevel) && isNil(studyStream) && !isNil(universityName);
+    }
+    return false;
+  }
+
+  return false;
+}
+
+@ValidatorConstraint({ name: 'profileShapeValid', async: false })
+class ProfileShapeConstraint implements ValidatorConstraintInterface {
+  validate(_value: unknown, args: ValidationArguments): boolean {
+    return isProfileShapeValid(args.object);
+  }
+
+  defaultMessage(): string {
+    return (
+      'profile fields do not match the required combination for the declared accountRole/' +
+      'educationLevel (teacher: no education fields; secondary: gradeLevel+studyStream only; ' +
+      'undergraduate: university+department only; graduate: university required, department optional)'
+    );
+  }
+}
+
+/**
+ * Applied to `accountRole` — the natural discriminator field — but validates the WHOLE request
+ * object via `args.object`, not just that one property. class-validator's public API has no true
+ * class-level decorator; attaching a whole-object rule to one of its own fields (rather than an
+ * unrelated sentinel property) is the standard working pattern, and it puts the rule beside the
+ * field that drives its branch for a reader scanning the DTO top-to-bottom.
+ */
+export function ProfileShapeValid(validationOptions?: ValidationOptions): PropertyDecorator {
+  return function (object: object, propertyName: string | symbol): void {
+    registerDecorator({
+      name: 'profileShapeValid',
+      target: object.constructor,
+      propertyName: propertyName as string,
+      options: validationOptions,
+      validator: ProfileShapeConstraint,
+    });
+  };
+}

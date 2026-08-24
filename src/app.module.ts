@@ -78,8 +78,8 @@ export const THROTTLE_LIMIT = 120;
     // public read route, one seeded table, no scheduled work and no provider — it is here because
     // its rows must exist before the auth core's `users.district_id` can point at them.
     ReferenceModule,
-    // UYELIK-01: identity/profile persistence and the Argon2id provider only. This module has no
-    // controller, guard, session/token flow or route; those boundaries belong to UYELIK-02.
+    // UYELIK-01/02: identity/profile persistence, the Argon2id provider, and (PR-2) the nine
+    // auth endpoints, the opt-in AccessTokenGuard and the four request-handling services.
     AuthModule,
   ],
   providers: [
