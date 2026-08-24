@@ -285,6 +285,14 @@ describe('Auth core schema (e2e)', () => {
     await expectRejected(undergraduate({ gradeLevel: GradeLevel.Grade12 }));
     await expectRejected(graduate({ universityName: null }));
     await expectRejected(graduate({ studyStream: StudyStream.Sayisal }));
+
+    // Three-valued SQL logic: with `education_level` NULL every branch comparison is UNKNOWN,
+    // and a Postgres CHECK accepts UNKNOWN. The constraint's outer `IS TRUE` folds that to
+    // FALSE. All three rows below are accepted by the pre-fix constraint and rejected by the
+    // fixed one, so each is a real positive control (PR #133 review, SEC133-I1).
+    await expectRejected(secondary({ educationLevel: null }));
+    await expectRejected(undergraduate({ educationLevel: null }));
+    await expectRejected(graduate({ educationLevel: null }));
   });
 
   it('accepts lifecycle states only with their allowed verification timestamps', async () => {
@@ -342,7 +350,12 @@ describe('Auth core schema (e2e)', () => {
     const defaultSelected = await dataSource.getRepository(User).findOneByOrFail({
       id: inserted.id,
     });
-    expect(Object.prototype.hasOwnProperty.call(defaultSelected, 'passwordHash')).toBe(false);
+    // NOT an own-property assertion: the ES2023 class-field form declares `passwordHash` on
+    // every instance, so `hasOwnProperty` measures the class shape rather than the query. The
+    // `select: false` contract is that the DEFAULT query loads no value — and the explicit
+    // `addSelect` block below is the positive control that proves the value would be there if
+    // it were selected. Neither half means anything alone (PR #133 review, TA133-I2).
+    expect(defaultSelected.passwordHash).toBeUndefined();
 
     const explicitlySelected = await dataSource
       .getRepository(User)

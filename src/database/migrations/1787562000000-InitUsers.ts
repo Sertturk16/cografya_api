@@ -14,6 +14,16 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * district removal/rename fail while an account points at it; the safe path is
  * a separately reviewed mapping migration, never an orphan or cascade delete.
  *
+ * `CHK_users_profile_shape` closes with an outer `IS TRUE`, and that wrapper is
+ * load-bearing rather than decoration. `education_level` is nullable, so on a
+ * `STUDENT` row with a NULL level every branch comparison is UNKNOWN; SQL's
+ * three-valued logic then makes the whole predicate UNKNOWN, and a Postgres
+ * CHECK accepts UNKNOWN. The wrapper folds UNKNOWN to FALSE, so the approved
+ * profile matrix is fail-closed for every three-valued comparison it contains —
+ * today's and any added later. `User`'s `@Check` metadata carries the same
+ * expression token for token (whitespace aside); nothing machine-compares the
+ * two, so they change together by hand.
+ *
  * DATA-LOSS WARNING: `down()` drops `users`. It is safe only on an empty or
  * synthetic database. Once a real account exists, reverting this migration
  * permanently deletes PII and account access; production correction must use a
@@ -93,34 +103,36 @@ export class InitUsers1787562000000 implements MigrationInterface {
         CONSTRAINT "CHK_users_profile_shape"
           CHECK (
             (
-              "account_role" = 'TEACHER' AND
-              "education_level" IS NULL AND
-              "grade_level" IS NULL AND
-              "study_stream" IS NULL AND
-              "university_name" IS NULL AND
-              "department_name" IS NULL
-            ) OR (
-              "account_role" = 'STUDENT' AND (
-                (
-                  "education_level" = 'SECONDARY' AND
-                  "grade_level" IS NOT NULL AND
-                  "study_stream" IS NOT NULL AND
-                  "university_name" IS NULL AND
-                  "department_name" IS NULL
-                ) OR (
-                  "education_level" = 'UNDERGRADUATE' AND
-                  "grade_level" IS NULL AND
-                  "study_stream" IS NULL AND
-                  "university_name" IS NOT NULL AND
-                  "department_name" IS NOT NULL
-                ) OR (
-                  "education_level" = 'GRADUATE' AND
-                  "grade_level" IS NULL AND
-                  "study_stream" IS NULL AND
-                  "university_name" IS NOT NULL
+              (
+                "account_role" = 'TEACHER' AND
+                "education_level" IS NULL AND
+                "grade_level" IS NULL AND
+                "study_stream" IS NULL AND
+                "university_name" IS NULL AND
+                "department_name" IS NULL
+              ) OR (
+                "account_role" = 'STUDENT' AND (
+                  (
+                    "education_level" = 'SECONDARY' AND
+                    "grade_level" IS NOT NULL AND
+                    "study_stream" IS NOT NULL AND
+                    "university_name" IS NULL AND
+                    "department_name" IS NULL
+                  ) OR (
+                    "education_level" = 'UNDERGRADUATE' AND
+                    "grade_level" IS NULL AND
+                    "study_stream" IS NULL AND
+                    "university_name" IS NOT NULL AND
+                    "department_name" IS NOT NULL
+                  ) OR (
+                    "education_level" = 'GRADUATE' AND
+                    "grade_level" IS NULL AND
+                    "study_stream" IS NULL AND
+                    "university_name" IS NOT NULL
+                  )
                 )
               )
-            )
+            ) IS TRUE
           ),
         CONSTRAINT "CHK_users_verification_state"
           CHECK (

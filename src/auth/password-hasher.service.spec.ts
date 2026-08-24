@@ -1,12 +1,17 @@
-import { describe, expect, it } from '@jest/globals';
+import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import {
   PASSWORD_HASH_OPTIONS,
   PasswordHasherService,
+  PasswordHashingError,
   PasswordHashVerificationError,
 } from './password-hasher.service';
 
 describe('PasswordHasherService', () => {
   const service = new PasswordHasherService();
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
 
   it('writes an Argon2id PHC string carrying the reviewed parameters', async () => {
     const encoded = await service.hash('Synthetic-Password-1');
@@ -44,5 +49,29 @@ describe('PasswordHasherService', () => {
       expect(message).not.toContain(malformed);
       expect(message).not.toContain(password);
     }
+  });
+
+  it('wraps an argon2 hashing failure without echoing the password', async () => {
+    // `import * as argon2` compiles to TypeScript's `__importStar` interop, which hands each
+    // importer a namespace object whose members are NON-CONFIGURABLE getters onto the one real
+    // `module.exports`. Spying on that namespace throws; spying on the module object itself is
+    // seen through the getters, including by the service under test. `jest.requireActual` reads
+    // the same active CJS registry entry a normal `require` would.
+    const argon2Module = jest.requireActual<typeof import('argon2')>('argon2');
+    const password = 'Synthetic-Password-5';
+    const hashSpy = jest
+      .spyOn(argon2Module, 'hash')
+      .mockImplementation(() => Promise.reject(new Error('synthetic native argon2 failure')));
+
+    try {
+      await service.hash(password);
+      throw new Error('expected the hashing failure to be wrapped');
+    } catch (error) {
+      expect(error).toBeInstanceOf(PasswordHashingError);
+      const message = error instanceof Error ? error.message : String(error);
+      expect(message).not.toContain(password);
+    }
+
+    expect(hashSpy).toHaveBeenCalledTimes(1);
   });
 });

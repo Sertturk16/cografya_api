@@ -240,6 +240,9 @@ describe('Country (e2e)', () => {
       // Üyelik PR-1: `districts` carries a foreign key to `provinces(id)`, so its migration MUST
       // stay ordered after `InitProvince`.
       'InitDistricts1787302800000',
+      // Üyelik UYELIK-01: `users` carries a foreign key to `districts(id)`, so its migration
+      // MUST stay ordered after `InitDistricts`.
+      'InitUsers1787562000000',
     ]);
   });
 

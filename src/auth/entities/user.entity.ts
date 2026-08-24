@@ -64,9 +64,14 @@ import {
     `"department_name" <> '' AND "department_name" = btrim("department_name"))`,
 )
 @Check('CHK_users_status', `"status" IN ('UNVERIFIED', 'ACTIVE', 'DISABLED', 'PENDING_DELETION')`)
+// The outer `IS TRUE` is load-bearing: with `education_level` NULL the STUDENT branch
+// evaluates to UNKNOWN and a Postgres CHECK accepts UNKNOWN, so the matrix would admit a
+// student carrying branch fields but no declared education level. Folding UNKNOWN to FALSE
+// keeps it fail-closed. Mirrored token for token in
+// `src/database/migrations/1787562000000-InitUsers.ts`; nothing machine-compares the two.
 @Check(
   'CHK_users_profile_shape',
-  `(` +
+  `((` +
     `"account_role" = 'TEACHER' AND ` +
     `"education_level" IS NULL AND "grade_level" IS NULL AND "study_stream" IS NULL AND ` +
     `"university_name" IS NULL AND "department_name" IS NULL` +
@@ -84,7 +89,7 @@ import {
     `"study_stream" IS NULL AND "university_name" IS NOT NULL` +
     `)` +
     `)` +
-    `)`,
+    `)) IS TRUE`,
 )
 @Check(
   'CHK_users_verification_state',
