@@ -10,8 +10,12 @@
 # - protobufjs: its postinstall only generates CLI helpers we do not use — denied.
 # - unrs-resolver: napi resolver that ships prebuilt platform binaries via optional
 #   deps; the postinstall is a no-op fallback we do not need — denied.
+# - argon2: exact v0.45.1 native password-hash binding. Its declared install script runs
+#   node-gyp-build to resolve the reviewed packaged prebuild/build path; runtime loads the
+#   same native binding. Approved narrowly — no wildcard or transitive-package approval.
 allowBuilds:
   '@scarf/scarf': false
+  argon2: true
   cpu-features: false
   protobufjs: false
   ssh2: false
