@@ -45,9 +45,18 @@ describe('PasswordHasherService', () => {
       throw new Error('expected malformed hash verification to fail');
     } catch (error) {
       expect(error).toBeInstanceOf(PasswordHashVerificationError);
+      // A secret reaches a caller through three serialisable channels, not one: `message`,
+      // the `cause` chain and `stack`. Pinning only `message` leaves a later
+      // `super(message, { cause })` or a `stack` append free to reopen this boundary with
+      // the test still green (PR #133 round 2, SEC133R2-M1).
       const message = error instanceof Error ? error.message : String(error);
+      const cause = error instanceof Error ? error.cause : undefined;
+      const stack = error instanceof Error ? String(error.stack) : '';
       expect(message).not.toContain(malformed);
       expect(message).not.toContain(password);
+      expect(cause).toBeUndefined();
+      expect(stack).not.toContain(malformed);
+      expect(stack).not.toContain(password);
     }
   });
 
@@ -68,8 +77,13 @@ describe('PasswordHasherService', () => {
       throw new Error('expected the hashing failure to be wrapped');
     } catch (error) {
       expect(error).toBeInstanceOf(PasswordHashingError);
+      // Same three-channel pin as the verify path above (SEC133R2-M1).
       const message = error instanceof Error ? error.message : String(error);
+      const cause = error instanceof Error ? error.cause : undefined;
+      const stack = error instanceof Error ? String(error.stack) : '';
       expect(message).not.toContain(password);
+      expect(cause).toBeUndefined();
+      expect(stack).not.toContain(password);
     }
 
     expect(hashSpy).toHaveBeenCalledTimes(1);

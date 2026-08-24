@@ -16,13 +16,23 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  *
  * `CHK_users_profile_shape` closes with an outer `IS TRUE`, and that wrapper is
  * load-bearing rather than decoration. `education_level` is nullable, so on a
- * `STUDENT` row with a NULL level every branch comparison is UNKNOWN; SQL's
- * three-valued logic then makes the whole predicate UNKNOWN, and a Postgres
- * CHECK accepts UNKNOWN. The wrapper folds UNKNOWN to FALSE, so the approved
- * profile matrix is fail-closed for every three-valued comparison it contains —
- * today's and any added later. `User`'s `@Check` metadata carries the same
- * expression token for token (whitespace aside); nothing machine-compares the
- * two, so they change together by hand.
+ * `STUDENT` row with a NULL level each branch's `education_level` equality test
+ * is UNKNOWN. That alone does not open the predicate: a branch whose remaining
+ * `IS [NOT] NULL` conditions do not all hold is FALSE regardless, because
+ * `UNKNOWN AND FALSE` is FALSE. The predicate reaches UNKNOWN only on a
+ * `STUDENT` row carrying a COMPLETE branch field set but no declared level.
+ * Taking the four remaining profile columns as NULL / non-NULL, that is three
+ * of the sixteen `STUDENT` + NULL-level shapes, not all sixteen: a Postgres
+ * CHECK accepts UNKNOWN, so those three were admitted before this wrapper,
+ * while the other thirteen were already FALSE and already rejected. Read the
+ * pre-wrapper fail-open set as those three shapes, never as "every student row
+ * with a NULL level" — measured on this file's own constraint text against
+ * Postgres 16.15 at the PR #133 round-2 review, and pinned one case per shape
+ * in `test/auth-core.e2e-spec.ts`. The wrapper folds UNKNOWN to FALSE, so the
+ * approved profile matrix is fail-closed for every three-valued comparison it
+ * contains — today's and any added later. `User`'s `@Check` metadata carries
+ * the same expression token for token (whitespace aside); nothing
+ * machine-compares the two, so they change together by hand.
  *
  * DATA-LOSS WARNING: `down()` drops `users`. It is safe only on an empty or
  * synthetic database. Once a real account exists, reverting this migration
