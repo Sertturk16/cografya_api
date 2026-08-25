@@ -76,7 +76,9 @@ export class AuthModule implements NestModule {
    * before guards, and it was the guard-rejected 401/429 responses that were measurably leaving
    * without the header (`CODE136-I2`, `TA136-I1`). `forRoutes(AuthController)` binds it to that
    * controller's paths only — no other route's caching behaviour changes.
-   * `AuthNoStoreMiddleware`'s docblock carries the one class this cannot reach and why.
+   * `AuthNoStoreMiddleware`'s docblock carries the TWO classes this cannot reach and why (a
+   * malformed JSON body, and a CORS preflight `OPTIONS` request — PR #136 round 3,
+   * `CODE136R2-I4`).
    */
   configure(consumer: MiddlewareConsumer): void {
     consumer.apply(AuthNoStoreMiddleware).forRoutes(AuthController);

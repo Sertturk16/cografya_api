@@ -1301,9 +1301,11 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
    * written for, and two whole classes were silently missing it. The criterion now states what
    * the middleware actually holds, and both halves are pinned here — the covered classes above
    * (G1's guard 401, T3's throttler 429) and elsewhere in the suite (200/202/204/400 across
-   * `auth-endpoints.e2e-spec.ts`), and the ONE uncovered class below.
+   * `auth-endpoints.e2e-spec.ts`), and the TWO uncovered classes below (N9b, N9c — PR #136 round
+   * 3, `CODE136R2-I4`: a CORS preflight is the SECOND uncovered class, measured and pinned
+   * negatively in N9c, alongside N9b's pre-existing malformed-JSON-body pin).
    */
-  describe('N9 — Cache-Control: no-store, and the single measured exception', () => {
+  describe('N9 — Cache-Control: no-store, and the two measured exceptions', () => {
     it('N9a — a service-thrown 401 carries no-store (the class that always worked)', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/auth/refresh')
@@ -1327,6 +1329,30 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
         .set('Content-Type', 'application/json')
         .send('{"refreshToken": ')
         .expect(HttpStatus.BAD_REQUEST);
+      expect(response.headers['cache-control']).toBeUndefined();
+    });
+
+    it('N9c — a CORS preflight is the SECOND uncovered class, and it is pinned negatively', async () => {
+      // NEGATIVE pin, the same shape as N9b. Two INDEPENDENT causes measured against the
+      // installed framework (`AuthNoStoreMiddleware`'s own docblock carries the full argument):
+      // `cors@2.8.6` answers and ends a preflight itself, before any module middleware runs; and,
+      // independently, `@nestjs/core`'s `MiddlewareModule` binds this middleware to each route's
+      // OWN declared method (POST/GET), so an `OPTIONS` request never matches any of them even if
+      // `cors` did not answer first.
+      //
+      // This is asserted rather than ignored so that the day the boundary MOVES, this test goes
+      // red and the docblock gets corrected with it, instead of drifting the way the original
+      // criterion did.
+      const response = await request(app.getHttpServer())
+        .options('/api/auth/login')
+        .set('Origin', 'http://localhost:3000')
+        .set('Access-Control-Request-Method', 'POST');
+
+      // Positive control: what was measured really IS a preflight, not a 404 or a CORS-less
+      // response — either of which would ALSO lack `cache-control`, telling us nothing.
+      expect(response.status).toBe(HttpStatus.NO_CONTENT);
+      expect(response.headers['access-control-allow-origin']).toBeDefined();
+
       expect(response.headers['cache-control']).toBeUndefined();
     });
   });
