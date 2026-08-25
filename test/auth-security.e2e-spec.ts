@@ -221,15 +221,24 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
         'errors.auth.sessionExpired',
       );
 
-      const family1Rows = await dataSource.getRepository(Session).find({
-        where: { userId },
-      });
-      const originalFamilyId = family1Rows[0]?.familyId;
-      const thisFamilyRows = family1Rows.filter((row) => row.familyId === originalFamilyId);
+      // `userId` carries TWO families (family1First + family2, minted in beforeAll) — `find`
+      // with no ORDER BY does not guarantee row order, so the family under test is identified
+      // by its OWN familyId (read off the row this test itself rotated), never by array index.
+      const family1OriginalRow = await dataSource
+        .getRepository(Session)
+        .findOneOrFail({ where: { tokenHash: sha256(family1First.refreshToken) } });
+      const thisFamilyRows = await dataSource
+        .getRepository(Session)
+        .find({ where: { familyId: family1OriginalRow.familyId } });
       expect(thisFamilyRows.length).toBeGreaterThan(0);
-      expect(
-        thisFamilyRows.every((row) => row.revokedReason === SessionRevocationReason.ReuseDetected),
-      ).toBe(true);
+      // "the whole family dies" (§5.2.3) means every row ends up REVOKED — it does NOT mean
+      // every row shares one revokedReason: the algorithm's own `WHERE revoked_at IS NULL`
+      // clause only touches rows that were still LIVE at reuse time (§5.2.3 step 1), so a row
+      // already revoked earlier (this one, ROTATED by this very test seconds ago) keeps its
+      // original reason. The row that WAS live — the rotated t2 — is the one asserted by name.
+      expect(thisFamilyRows.every((row) => row.revokedAt !== null)).toBe(true);
+      const rotatedRow = thisFamilyRows.find((row) => row.tokenHash.equals(sha256(family1Rotated)));
+      expect(rotatedRow?.revokedReason).toBe(SessionRevocationReason.ReuseDetected);
 
       const after = await dataSource
         .getRepository(User)
