@@ -192,8 +192,12 @@ export class EmailVerificationService {
    *    race past the `CHECK (attempt_count <= 5)` into a 500;
    *  - two candidates for one address could otherwise materialize two `users` rows and collide on
    *    `UQ_users_email` at commit;
-   *  - the group DELETE that follows a successful materialization has to be atomic with it, or a
-   *    sibling candidate would survive an address that now has a real account.
+   *  - the group DELETE that follows a successful materialization has to be atomic with the SELECT
+   *    that locked it, or it could reach a row this transaction never held — the 20/20 deadlock
+   *    shape `VAL136R3-DL2` measured on the un-atomic form. Atomicity bounds the DELETE to what
+   *    was locked; it does NOT prevent every sibling candidate from surviving — one that becomes
+   *    visible INSIDE the lock window is deliberately left standing (C6 pins the survivor; see the
+   *    DELETE's own comment ~100 lines below, and `DEC 2026-08-25r` Q8).
    *
    * **A code is tested against each live candidate and belongs to exactly one.** The digest input
    * binds the candidate's own id, so there is no cross-matching to design around: the loop is a
@@ -295,10 +299,18 @@ export class EmailVerificationService {
         // What survives, stated rather than left to be discovered: a candidate that became visible
         // INSIDE that window is not deleted here (C6's own survivor assertion). It cannot become a
         // second account — the read at :197-199 refuses an address that already owns one and
-        // `UQ_users_email` catches the concurrent case (C2 pins the uniqueness half) — and it dies
-        // at its own expiry, swept by the next `insertCandidate` for this address (the same DELETE
-        // V2 already pins). The guard is required, not defensive: TypeORM rejects an empty
-        // criterion with `TypeORMError` (`EntityManager.js:466-469`).
+        // `UQ_users_email` catches the concurrent case (C2 pins the uniqueness half). Its lifetime
+        // is NOT bounded by "the next `insertCandidate` for this address": because the address now
+        // owns a `users` row, `register`'s own `existing` branch returns before ever reaching
+        // `issueCandidateCode`/`insertCandidate` again for it (`registration.service.ts:69-86`), so
+        // the only call left that can still touch this row is a `resend` for an already-verified
+        // address — and while the row is still LIVE that call does not sweep it, it CLONES it and
+        // mails a fresh code to an address that already has an account (`CODE136R4-M3`). The row is
+        // removed only by `insertCandidate`'s own expired-row delete (below in this file, :463),
+        // and only once it has expired; until then it can sit indefinitely. That retention question
+        // belongs to `DEC 2026-08-25n` AS-2, not to this method (measured, no test gate — PR #136
+        // round 5, `VAL136R4-OR1`/`OR5`). The guard is required, not defensive: TypeORM rejects an
+        // empty criterion with `TypeORMError` (`EntityManager.js:466-469`).
         if (candidates.length > 0) {
           await repo.delete(candidates.map((candidate) => candidate.id));
         }
@@ -364,9 +376,15 @@ export class EmailVerificationService {
    * **The daily cap counts every mail PLUS every refusal this class does NOT refund** — the
    * ceiling, "nothing live to clone" and contention all still spend the caller's
    * `VERIFY_RESEND_DAILY` unit (T4's honest-address case pins this). The ONE refusal that gets
-   * refunded is credential ambiguity, and only because a THIRD PARTY, not the caller, is what put
-   * the address in that state — `RegistrationService.resendVerification` owns the refund itself
-   * (T4's contested-address case pins the refund).
+   * refunded is credential ambiguity — `RegistrationService.resendVerification` owns the refund
+   * itself (T4's contested-address case pins the refund). It is NOT only a third party who can put
+   * an address in that state: Argon2id salts every call, so the address's OWN owner submitting
+   * `register` twice hashes the same password to two different digests and produces the identical
+   * ambiguous group (measured on the installed `argon2` package, PR #136 round 5,
+   * `VAL136R4-RF3`). The reachable set is narrower than "any address", though: `register`'s own
+   * `existing` branch returns before ever reaching `issueCandidateCode` for an address that
+   * already owns a `users` row (`registration.service.ts:69-86`), so an ACTIVE account can never
+   * be put into this state.
    *
    * **The clone source may be a candidate whose attempt budget an attacker burned.** That is
    * deliberate for a SINGLE-IDENTITY group: the clone gets its own counter, so exhausting such a

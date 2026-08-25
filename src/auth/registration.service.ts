@@ -117,6 +117,20 @@ export class RegistrationService {
    * the owner is locked out for 24 hours despite doing nothing wrong (`SFH136R3-I2`, measured on
    * live Postgres in round 4's Phase 1). T4 pins both sides: the honest single-identity address
    * still spends its unit, the contested address does not.
+   *
+   * **Residual, measured rather than assumed (PR #136 round 5, `VAL136R4-RF1`/`RF2`):** because
+   * this branch refunds EVERY call that reaches it, an ambiguous address's counter is put back to
+   * what it was before the call each time — T4 pins that per-call mechanism on both sides — so
+   * across repeated calls the counter never climbs past the one request in flight and the
+   * `if (!daily.allowed) return` guard above never fires for that address. The only identity-axis
+   * brake left on that address is the 60-second `VerifyResendCooldown` above; a single-identity
+   * address that reaches the daily ceiling gets THAT early return, while an ambiguous address
+   * keeps running the full locking `insertCandidate` transaction on every call. This is neither
+   * harmless nor an attack, and both halves were measured, not assumed: on a 200k-row table the
+   * transaction the ambiguous branch still pays for is `LockRows → Sort → Index Scan`, ~0.110ms,
+   * scoped to the address's own rows only; the caller pays exactly one HTTP request per
+   * transaction (no amplification); and the route's own per-socket throttle
+   * (`verifyEmailResend`, `auth.controller.ts`) is already tighter than this identity axis.
    */
   async resendVerification(dto: ResendVerificationRequestDto): Promise<void> {
     const cooldown = await this.rateLimiter.consume(

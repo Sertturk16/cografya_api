@@ -116,8 +116,14 @@ export class AuthRateLimitService {
 
   /**
    * Gives ONE spent unit back to the window `consume` returned. Never creates a row and never
-   * goes below zero, so it can only ever undo an increment THIS same request made — it cannot
-   * grant an address more room than `consume` itself would.
+   * goes below zero, so it can only ever undo an increment THIS same request made
+   * (`auth-rate-limit.service.spec.ts`'s `GREATEST(attempt_count - 1, 0)` / no-INSERT case pins
+   * this). What that does NOT mean: a call site that reaches this on EVERY call along some branch
+   * removes that branch's ceiling on this scope entirely, for every subject that reaches it — this
+   * method cannot see how often it is called, so whether a given branch's axis still binds is the
+   * call site's own obligation to state, not a guarantee `refund` can make (PR #136 round 5,
+   * `VAL136R4-RF4`; the one caller today writes that residual at its own call site — see
+   * `RegistrationService.resendVerification`'s docblock).
    *
    * `windowStart` is CARRIED from the matching `consume` outcome rather than recomputed here:
    * recomputing would target a different row for a call that straddles a window boundary
