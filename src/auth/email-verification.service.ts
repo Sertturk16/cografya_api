@@ -73,11 +73,29 @@ export type PendingRegistrationDraft = Pick<
 type VerifyOutcome = { verified: false } | { verified: true; userId: string };
 
 /**
+ * Why `insertCandidate` produced no code. Only `'ambiguous-source'` is refundable — the caller
+ * (`RegistrationService.resendVerification`) is the one place that decides that, from the
+ * {@link ResendOutcome} `resendCandidateCode` derives from this type below.
+ */
+type CandidateOutcome =
+  | { issued: true; code: string; locale: PendingRegistration['locale'] }
+  | { issued: false; reason: 'ceiling' | 'ambiguous-source' | 'no-live-candidate' | 'contention' };
+
+/**
+ * `resendCandidateCode`'s own public outcome. `'declined'` collapses every non-refundable
+ * {@link CandidateOutcome} reason (`ceiling`, `no-live-candidate`, `contention`) into one value —
+ * `RegistrationService` only ever branches on the ambiguous case, so a caller does not get to
+ * (mis)handle a reason it has no refund rule for.
+ */
+export type ResendOutcome = 'issued' | 'ambiguous-source' | 'declined';
+
+/**
  * Code MECHANICS over `pending_registrations` — mint, hash, resend, consume, attempt cap (§5.3) —
  * plus the MATERIALIZATION of the `users` row in `verify`'s transaction. `RegistrationService`
  * owns the FLOW decisions (which endpoint, which rate-limit scope, what the anti-enumeration
- * response looks like); this class never decides whether a code should be sent, only how one is
- * produced, stored, checked, and what happens when it is right.
+ * response looks like); this class DECIDES and REPORTS an outcome — {@link CandidateOutcome} /
+ * {@link ResendOutcome} — but never what that outcome COSTS the caller (a rate-limit unit spent
+ * or refunded is `RegistrationService`'s call, pinned by T4).
  *
  * ## The write surface, stated as a property rather than left to be inferred (`SEC136-C1`)
  * A caller that does not hold a valid code can reach exactly three writes here, and **none of
@@ -269,47 +287,64 @@ export class EmailVerificationService {
    * Creates a NEW candidate for `draft`'s address and mails its code. Called from `register`'s
    * unknown-address branch — the only place a candidate's credentials originate.
    *
-   * Silently does nothing when the address already holds {@link PENDING_REGISTRATION_MAX_ACTIVE}
-   * unexpired candidates. Silence is the contract: the endpoint answers the same body-less 202 in
-   * both cases, because a distinguishable answer is a new enumeration channel (§6.2).
+   * `register`'s own response never varies by one byte on account of WHY no code was issued: the
+   * {@link CandidateOutcome} `reason` is deliberately ignored here, unlike in
+   * {@link resendCandidateCode}. Silently does nothing when the address already holds
+   * {@link PENDING_REGISTRATION_MAX_ACTIVE} unexpired candidates. Silence is the contract: the
+   * endpoint answers the same body-less 202 in both cases, because a distinguishable answer is a
+   * new enumeration channel (§6.2).
    */
   async issueCandidateCode(draft: PendingRegistrationDraft): Promise<void> {
-    const issued = await this.insertCandidate(draft);
-    if (!issued) return;
-    await this.sendCodeFailSoft(draft.email, draft.locale, issued.code);
+    const outcome = await this.insertCandidate(draft);
+    if (!outcome.issued) return;
+    await this.sendCodeFailSoft(draft.email, draft.locale, outcome.code);
   }
 
   /**
    * `POST /api/auth/verify-email/resend` (§6.1 #3). Adds a CLONE of the address's newest candidate
    * — same credentials, same profile, same locale, a fresh id, a fresh code and a fresh attempt
-   * budget — and mails it.
+   * budget — and mails it. Returns a {@link ResendOutcome} so `RegistrationService` can act on WHY
+   * no mail went out, instead of re-deriving the reason (`CODE136R3-M3`).
    *
    * **It deletes nothing and mutates nothing** (`VAL136-I1`). The previous implementation replaced
    * the address's active code, which handed any caller who merely knew an address a way to
    * invalidate the code its owner was in the middle of typing, and — because register shared the
    * resend counters — to spend the daily budget until the owner could not get a code at all for
-   * 24 hours. Cloning removes both halves: every code already in the mailbox stays valid, and the
-   * only thing the daily cap now limits is mail volume.
+   * 24 hours. Cloning removes both halves: every code already in the mailbox stays valid.
+   *
+   * **The daily cap counts every mail PLUS every refusal this class does NOT refund** — the
+   * ceiling, "nothing live to clone" and contention all still spend the caller's
+   * `VERIFY_RESEND_DAILY` unit (T4's honest-address case pins this). The ONE refusal that gets
+   * refunded is credential ambiguity, and only because a THIRD PARTY, not the caller, is what put
+   * the address in that state — `RegistrationService.resendVerification` owns the refund itself
+   * (T4's contested-address case pins the refund).
    *
    * **The clone source may be a candidate whose attempt budget an attacker burned.** That is
-   * deliberate: the clone gets its own counter, so exhausting a candidate's guesses can no longer
-   * strand the honest owner — they resend and are back in business, without needing a new
-   * `register` call.
+   * deliberate for a SINGLE-IDENTITY group: the clone gets its own counter, so exhausting such a
+   * candidate's guesses can no longer strand the honest owner — they resend and are back in
+   * business. **This does NOT hold for an ambiguous group** — there the resend itself is refused
+   * (`'ambiguous-source'` below, never a clone), and the only escape is a fresh `register`, which
+   * always mails and always sweeps the address's expired rows (pinned by V6b / V2's shared DELETE
+   * statement), bounded by `REGISTER_EMAIL` (3/day) and by needing the OTHER party's candidate to
+   * have already expired (two measured limits, §5.4 of PR #136 round 4's plan).
    */
-  async resendCandidateCode(email: string): Promise<void> {
-    const issued = await this.insertCandidate(email);
-    if (!issued) return;
-    await this.sendCodeFailSoft(email, issued.locale, issued.code);
+  async resendCandidateCode(email: string): Promise<ResendOutcome> {
+    const outcome = await this.insertCandidate(email);
+    if (!outcome.issued) {
+      return outcome.reason === 'ambiguous-source' ? 'ambiguous-source' : 'declined';
+    }
+    await this.sendCodeFailSoft(email, outcome.locale, outcome.code);
+    return 'issued';
   }
 
   /**
    * The single INSERT path, shared by a fresh registration (`draft`) and a resend (an address,
-   * whose newest live candidate is cloned). Returns `null` — silently, never distinguishably —
-   * when the address is at its ceiling, when a resend has nothing to clone, or when a resend's
-   * candidates carry more than one credential identity (D2, `SEC136R2-I3` — see the FIRST
-   * `if (typeof source === 'string')` block below, which runs BEFORE the expired sweep so a
-   * refused resend writes nothing; the SECOND such block, after the ceiling check, is unchanged
-   * and only ever picks a clone source).
+   * whose newest live candidate is cloned). Returns a {@link CandidateOutcome} — `issued: false`
+   * silently, never distinguishably from the caller's own RESPONSE — when the address is at its
+   * ceiling, when a resend has nothing to clone, or when a resend's candidates carry more than one
+   * credential identity (D2, `SEC136R2-I3` — see the FIRST `if (typeof source === 'string')` block
+   * below, which runs BEFORE the expired sweep so a refused resend writes nothing; the SECOND such
+   * block, after the ceiling check, is unchanged and only ever picks a clone source).
    *
    * The expired-row cleanup is bounded to THIS address and is an address-scoped hygiene step, not
    * a retention policy: how long an expired candidate's PII may persist across the whole table is
@@ -317,7 +352,7 @@ export class EmailVerificationService {
    */
   private async insertCandidate(
     source: PendingRegistrationDraft | string,
-  ): Promise<{ code: string; locale: PendingRegistration['locale'] } | null> {
+  ): Promise<CandidateOutcome> {
     const email = typeof source === 'string' ? source : source.email;
     const id = randomUUID();
     const code = mintVerificationCode();
@@ -368,7 +403,7 @@ export class EmailVerificationService {
           const credentialIdentities = new Set(group.map((row) => row.passwordHash));
           if (credentialIdentities.size > 1) {
             this.logger.warn('pending.resend outcome=ambiguous-source');
-            return null;
+            return { issued: false, reason: 'ambiguous-source' };
           }
         }
 
@@ -378,12 +413,14 @@ export class EmailVerificationService {
         // this first.
         if (expiredIds.length > 0) await repo.delete(expiredIds);
 
-        if (live.length >= PENDING_REGISTRATION_MAX_ACTIVE) return null;
+        if (live.length >= PENDING_REGISTRATION_MAX_ACTIVE) {
+          return { issued: false, reason: 'ceiling' };
+        }
 
         let draft: PendingRegistrationDraft;
         if (typeof source === 'string') {
           const newest = live[live.length - 1];
-          if (!newest) return null; // resend for an address with no live candidate.
+          if (!newest) return { issued: false, reason: 'no-live-candidate' };
           draft = {
             email: newest.email,
             passwordHash: newest.passwordHash,
@@ -405,12 +442,12 @@ export class EmailVerificationService {
 
         const expiresAt = new Date(now.getTime() + EMAIL_VERIFICATION_TTL_MINUTES * 60_000);
         await repo.insert({ id, ...draft, codeHash, expiresAt, attemptCount: 0 });
-        return { code, locale: draft.locale };
+        return { issued: true, code, locale: draft.locale };
       });
     } catch (error) {
       if (isContentionFailure(error)) {
         this.logger.warn('pending.insert outcome=contention');
-        return null;
+        return { issued: false, reason: 'contention' };
       }
       throw error;
     }

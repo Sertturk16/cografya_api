@@ -110,6 +110,13 @@ export class RegistrationService {
    * candidate (`VAL136-I1`). The mail's language comes from the cloned candidate, so a resend now
    * honours the language the original `register` asked for — the old code had nowhere to store it
    * and defaulted every bare resend to `tr`.
+   *
+   * **A credential-ambiguity refusal REFUNDS the daily unit it just spent.** Without this, an
+   * address a third party made ambiguous (`SEC136R2-I3`) burns the owner's `VERIFY_RESEND_DAILY`
+   * budget on every honest resend attempt even though none of them ever mails — five calls and
+   * the owner is locked out for 24 hours despite doing nothing wrong (`SFH136R3-I2`, measured on
+   * live Postgres in round 4's Phase 1). T4 pins both sides: the honest single-identity address
+   * still spends its unit, the contested address does not.
    */
   async resendVerification(dto: ResendVerificationRequestDto): Promise<void> {
     const cooldown = await this.rateLimiter.consume(
@@ -120,7 +127,31 @@ export class RegistrationService {
     const daily = await this.rateLimiter.consume(AuthRateLimitScope.VerifyResendDaily, dto.email);
     if (!daily.allowed) return;
 
-    await this.emailVerification.resendCandidateCode(dto.email);
+    const outcome = await this.emailVerification.resendCandidateCode(dto.email);
+    if (outcome === 'ambiguous-source') {
+      // The refusal is not the caller's fault and it produced no mail, so it must not spend the
+      // owner's 5/day budget — round 3 measured an honest user locked out for 24 hours by a
+      // branch a third party can open with ONE register (`SFH136R3-I2`/`VAL136R3-RS2`).
+      //
+      // The COOLDOWN axis above is still spent unconditionally: it is the brute-force brake, and
+      // refunding it would let one address be probed without limit. Not asserted refunded by T4
+      // on purpose — if a later change refunds it too, T4 stays green, because cooldown is a
+      // separate contract from the daily cap this refund targets.
+      //
+      // Fail-SOFT on purpose, and the reason is the anti-enumeration contract, not convenience:
+      // if this write threw, only an AMBIGUOUS address could produce a 500 — a response class no
+      // other address can produce, i.e. exactly the oracle §6.2 exists to prevent. The cost of a
+      // failed refund is one lost slot, which is today's behaviour anyway.
+      try {
+        await this.rateLimiter.refund(
+          AuthRateLimitScope.VerifyResendDaily,
+          dto.email,
+          daily.windowStart,
+        );
+      } catch {
+        this.logger.warn('pending.resend outcome=refund-failed');
+      }
+    }
   }
 
   private async assertDistrictBelongsToProvince(

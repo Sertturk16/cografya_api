@@ -13,7 +13,7 @@ import { join } from 'node:path';
 import { AUTH_ROUTE_THROTTLES } from '../src/auth/auth.controller';
 import { AUTH_ERROR_KEYS } from '../src/auth/auth-error-keys';
 import { AUTH_TOKEN_AUDIENCE, AUTH_TOKEN_ISSUER } from '../src/auth/auth.constants';
-import { SessionRevocationReason } from '../src/auth/auth.types';
+import { AuthRateLimitScope, SessionRevocationReason } from '../src/auth/auth.types';
 import { AuthSecretsProvider } from '../src/auth/auth-secrets.provider';
 import { applyGlobalPrefix, buildCorsOptions } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
@@ -25,7 +25,10 @@ import { MAILER_PORT } from '../src/auth/mail/mailer.port';
 import { seedGeography } from '../src/database/seeds/seed-geography';
 import { seedReference } from '../src/database/seeds/seed-reference';
 import { District } from '../src/reference/entities/district.entity';
-import { EmailVerificationService } from '../src/auth/email-verification.service';
+import {
+  EmailVerificationService,
+  type ResendOutcome,
+} from '../src/auth/email-verification.service';
 import { PasswordHasherService } from '../src/auth/password-hasher.service';
 import { Province } from '../src/province/entities/province.entity';
 import { RegistrationService } from '../src/auth/registration.service';
@@ -36,6 +39,17 @@ import { RecordingMailer } from './support/recording-mailer';
 
 const SYNTHETIC_PASSWORD_HASH =
   '$argon2id$v=19$m=19456,p=1,t=2$APrKX34k6VE7WGm0QyxNUA$fUFGautIsXjwaF9PfALc5EeetF5UHJq43ElafSQOVPM';
+
+/**
+ * A SECOND synthetic hash, distinct from {@link SYNTHETIC_PASSWORD_HASH} — the "attacker" identity
+ * in every scenario where a candidate group must carry MORE THAN ONE credential identity (D2,
+ * `SEC136R2-I3`). Hoisted to module scope (PR #136 round 4, plan §9.3): V6/V6b each declared it
+ * locally, but T4 (a DIFFERENT top-level `describe`) needs the identical literal, and duplicating
+ * it risks the two drifting into the SAME string by a future edit, which would silently stop
+ * testing D2.
+ */
+const ATTACKER_PASSWORD_HASH =
+  '$argon2id$v=19$m=19456,p=1,t=2$ZGlmZmVyZW50c2FsdA$ZGlmZmVyZW50aGFzaHZhbHVlZGlmZg';
 
 interface AuthResultBody {
   accessToken: string;
@@ -668,15 +682,19 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
      * own resend must never hand an attacker's credentials back into the victim's own mailbox.
      * The B-side (a single-identity group still clones, exactly as before) is already pinned by
      * V5 above; this case does not duplicate it.
+     *
+     * **Tightened in PR #136 round 4** (plan §9.2): `resendCandidateCode` used to return `void`,
+     * so the only observable proof of a refusal was the absence of a write. It now returns a
+     * {@link ResendOutcome}, and this case pins the REASON, not merely the absence of a throw.
      */
     it('V6 — resend for an address with MORE THAN ONE credential identity writes and mails nothing', async () => {
       const email = nextEmail();
       const victim = await insertCandidate(email, '616161', {
         passwordHash: SYNTHETIC_PASSWORD_HASH,
       });
-      const attackerHash =
-        '$argon2id$v=19$m=19456,p=1,t=2$ZGlmZmVyZW50c2FsdA$ZGlmZmVyZW50aGFzaHZhbHVlZGlmZg';
-      const attacker = await insertCandidate(email, '626262', { passwordHash: attackerHash });
+      const attacker = await insertCandidate(email, '626262', {
+        passwordHash: ATTACKER_PASSWORD_HASH,
+      });
 
       // Positive control: the two candidates really DO carry different credentials — otherwise
       // this case measures nothing.
@@ -685,7 +703,7 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
       const beforeCount = (await candidatesOf(email)).length;
       const beforeMailCount = mailer.sentTo(email).length;
 
-      await expect(emailVerification.resendCandidateCode(email)).resolves.toBeUndefined();
+      await expect(emailVerification.resendCandidateCode(email)).resolves.toBe('ambiguous-source');
 
       expect(await candidatesOf(email)).toHaveLength(beforeCount);
       expect(mailer.sentTo(email)).toHaveLength(beforeMailCount);
@@ -701,24 +719,24 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
      */
     it('V6b — a refused resend deletes NOTHING, so the same refusal still holds on the next call', async () => {
       const email = nextEmail();
-      const attackerHash =
-        '$argon2id$v=19$m=19456,p=1,t=2$ZGlmZmVyZW50c2FsdA$ZGlmZmVyZW50aGFzaHZhbHVlZGlmZg';
       const victim = await insertCandidate(email, '616162', {
         passwordHash: SYNTHETIC_PASSWORD_HASH,
         expiresInMs: -1_000, // ALREADY DEAD — the shape V6 cannot see.
       });
-      const attacker = await insertCandidate(email, '626263', { passwordHash: attackerHash });
+      const attacker = await insertCandidate(email, '626263', {
+        passwordHash: ATTACKER_PASSWORD_HASH,
+      });
       // Positive control: the two candidates really DO carry different credentials.
       expect(victim.passwordHash).not.toBe(attacker.passwordHash);
 
       const before = (await candidatesOf(email)).map((row) => row.id).sort();
-      await expect(emailVerification.resendCandidateCode(email)).resolves.toBeUndefined();
+      await expect(emailVerification.resendCandidateCode(email)).resolves.toBe('ambiguous-source');
       expect((await candidatesOf(email)).map((row) => row.id).sort()).toEqual(before);
 
       // The SECOND call is the point: round 3's order swept the victim's DEAD row on the FIRST
       // refusal, so this second call saw a single-identity group and mailed the ATTACKER's clone.
       const mailsBefore = mailer.sentTo(email).length;
-      await expect(emailVerification.resendCandidateCode(email)).resolves.toBeUndefined();
+      await expect(emailVerification.resendCandidateCode(email)).resolves.toBe('ambiguous-source');
       expect(mailer.sentTo(email)).toHaveLength(mailsBefore);
       expect((await candidatesOf(email)).map((row) => row.id).sort()).toEqual(before);
     });
@@ -1072,7 +1090,7 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
       expect(physicalOrder.map((row) => row.id)).toEqual([idB, idA, idLive]);
       expect(await candidatesOf(email)).toHaveLength(3);
 
-      let resendPromise: Promise<void> | undefined;
+      let resendPromise: Promise<ResendOutcome> | undefined;
       await withHeldRowLock([idA], async (lockNext) => {
         // The stand-in for a concurrent `verify`: `E_a` is `created_at ASC`'s FIRST row, the
         // same first lock the fixed `insertCandidate` will also try to take.
@@ -1089,9 +1107,12 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
 
       // The test transaction's rollback (inside `withHeldRowLock`) released both locks, so the
       // app's queued statement can now finish: it acquires every lock in the SAME `created_at ASC`
-      // order, sweeps the expired pair, and writes its clone.
+      // order, sweeps the expired pair, and writes its clone. `resendCandidateCode` now returns a
+      // `ResendOutcome` (PR #136 round 4, plan §5.3(a)); this group is single-identity (all three
+      // rows share `SYNTHETIC_PASSWORD_HASH`), so the reorder in item 2 does not refuse it — it
+      // still issues.
       if (!resendPromise) throw new Error('resend was never triggered');
-      await expect(resendPromise).resolves.toBeUndefined();
+      await expect(resendPromise).resolves.toBe('issued');
 
       const after = await candidatesOf(email);
       expect(after).toHaveLength(2);
@@ -1283,7 +1304,7 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
 
   // ── T-series — throttling ────────────────────────────────────────────────────────────────
 
-  describe('T1-T3 — identity-axis and IP-axis throttling', () => {
+  describe('T1-T4 — identity-axis and IP-axis throttling', () => {
     it('T1 — the 4th register on the SAME address (24h REGISTER_EMAIL cap = 3) sends no new mail, still 202s', async () => {
       const email = nextEmail();
       const payload = {
@@ -1367,6 +1388,45 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
       expect(throttledBody.message).toBe(AUTH_ERROR_KEYS.rateLimited);
       // CODE136-I2/TA136-I1: the throttler is a guard, so this header was absent too.
       expect(throttled?.headers['cache-control']).toBe('no-store');
+    });
+
+    /**
+     * T4 pins item 3 (`SFH136R3-I2`/`VAL136R3-RS2`, PR #136 round 4, plan §5.6): a resend refused
+     * for credential ambiguity must NOT spend `VERIFY_RESEND_DAILY` — it produced no mail and the
+     * refusal is not the caller's fault. Pinned from BOTH sides in one case, which is what stops a
+     * later "fix" from refunding EVERY refusal: the honest, single-identity address (POSITIVE
+     * control — the budget really IS spendable) still spends its unit, and only the contested
+     * address is refunded.
+     */
+    it('T4 — a resend refused for credential ambiguity leaves the daily budget untouched; one that mails spends it', async () => {
+      const dailyCount = async (email: string): Promise<number> => {
+        const rows = await dataSource.query<{ attempt_count: number }[]>(
+          `SELECT "attempt_count" FROM "auth_rate_limits" WHERE "scope" = $1 AND "subject_hash" = $2`,
+          [
+            AuthRateLimitScope.VerifyResendDaily,
+            hmacSha256(hmacPepper, `rate:${AuthRateLimitScope.VerifyResendDaily}:${email}`),
+          ],
+        );
+        return rows[0]?.attempt_count ?? 0;
+      };
+
+      // POSITIVE CONTROL first, on a single-identity address: the budget really IS spendable, so
+      // a zero on the ambiguous address below means "refunded", not "this counter never moves".
+      const honest = nextEmail();
+      await insertCandidate(honest, '515152');
+      await registration.resendVerification({ email: honest });
+      expect(await dailyCount(honest)).toBe(1);
+      expect(mailer.sentTo(honest)).toHaveLength(1);
+
+      const contested = nextEmail();
+      await insertCandidate(contested, '535354', { passwordHash: SYNTHETIC_PASSWORD_HASH });
+      await insertCandidate(contested, '545455', { passwordHash: ATTACKER_PASSWORD_HASH });
+      await registration.resendVerification({ email: contested });
+      expect(await dailyCount(contested)).toBe(0);
+      expect(mailer.sentTo(contested)).toHaveLength(0);
+
+      // The cooldown axis is deliberately NOT asserted here — it is a SEPARATE contract (spent on
+      // every call regardless), and if a later change also refunds it, this case must stay green.
     });
   });
 

@@ -9,10 +9,17 @@ import { AuthSecretsProvider } from './auth-secrets.provider';
 import { AUTH_RATE_LIMIT_RULES, type AuthRateLimitScope } from './auth.types';
 import { hmacSha256 } from './token-digest';
 
-/** `allowed: false` carries how long the CALLER should wait before the window frees up. */
+/**
+ * `allowed: false` carries how long the CALLER should wait before the window frees up.
+ * `windowStart` is the exact row `consume` incremented — a caller that later needs to give one
+ * unit back (`refund`, below) passes this value BACK rather than recomputing it, because
+ * recomputing at a different instant can target a different row for a call that straddles a
+ * window boundary (PR #136 round 4, `DEC 2026-08-25n` Q3).
+ */
 export interface AuthRateLimitOutcome {
   readonly allowed: boolean;
   readonly retryAfterSeconds: number;
+  readonly windowStart: Date;
 }
 
 /**
@@ -104,6 +111,33 @@ export class AuthRateLimitService {
       ? 0
       : Math.max(0, Math.ceil((windowStartMs + rule.windowMs - nowMs) / 1000));
 
-    return { allowed, retryAfterSeconds };
+    return { allowed, retryAfterSeconds, windowStart };
+  }
+
+  /**
+   * Gives ONE spent unit back to the window `consume` returned. Never creates a row and never
+   * goes below zero, so it can only ever undo an increment THIS same request made — it cannot
+   * grant an address more room than `consume` itself would.
+   *
+   * `windowStart` is CARRIED from the matching `consume` outcome rather than recomputed here:
+   * recomputing would target a different row for a call that straddles a window boundary
+   * (PR #136 round 4, `DEC 2026-08-25n` Q3). The one caller today
+   * (`RegistrationService.resendVerification`) refunds `VerifyResendDaily` on an ambiguous-source
+   * refusal only; see that call site for why the write is wrapped fail-soft there rather than
+   * here — this method itself still propagates a genuine query failure, matching `consume`'s own
+   * posture.
+   */
+  async refund(
+    scope: AuthRateLimitScope,
+    canonicalEmail: string,
+    windowStart: Date,
+  ): Promise<void> {
+    const subjectHash = hmacSha256(this.secrets.getHmacPepper(), `rate:${scope}:${canonicalEmail}`);
+    await this.dataSource.query(
+      `UPDATE "auth_rate_limits"
+          SET "attempt_count" = GREATEST("attempt_count" - 1, 0), "updated_at" = now()
+        WHERE "scope" = $1 AND "subject_hash" = $2 AND "window_start" = $3`,
+      [scope, subjectHash, windowStart],
+    );
   }
 }

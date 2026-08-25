@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import { AuthRateLimitService, AuthRateLimitUnavailableError } from './auth-rate-limit.service';
 import { AuthRateLimitScope, AUTH_RATE_LIMIT_RULES } from './auth.types';
 import type { AuthSecretsProvider } from './auth-secrets.provider';
+import { hmacSha256 } from './token-digest';
 
 function stubSecrets(): AuthSecretsProvider {
   return { getHmacPepper: () => 'test-pepper' } as unknown as AuthSecretsProvider;
@@ -66,7 +67,7 @@ describe('AuthRateLimitService.consume', () => {
     expect(outcome.retryAfterSeconds).toBeGreaterThan(0);
   });
 
-  it('computes windowStart as floor(now / windowMs) * windowMs, in both SQL calls', async () => {
+  it('computes windowStart as floor(now / windowMs) * windowMs, in both SQL calls AND the returned outcome', async () => {
     const rule = AUTH_RATE_LIMIT_RULES[AuthRateLimitScope.VerifyResendCooldown]; // 60s window
     const fixedNowMs = new Date('2026-08-24T10:00:37.000Z').getTime();
     jest.spyOn(Date, 'now').mockReturnValue(fixedNowMs);
@@ -75,13 +76,19 @@ describe('AuthRateLimitService.consume', () => {
     const { dataSource, queryMock } = stubDataSource(1);
     const service = new AuthRateLimitService(dataSource, stubSecrets());
 
-    await service.consume(AuthRateLimitScope.VerifyResendCooldown, 'reader@example.test');
+    const outcome = await service.consume(
+      AuthRateLimitScope.VerifyResendCooldown,
+      'reader@example.test',
+    );
 
     expect(queryMock).toHaveBeenCalledTimes(2);
     const deleteParams = queryMock.mock.calls[0]?.[1] as unknown[];
     const insertParams = queryMock.mock.calls[1]?.[1] as unknown[];
     expect((deleteParams[2] as Date).getTime()).toBe(expectedWindowStartMs);
     expect((insertParams[2] as Date).getTime()).toBe(expectedWindowStartMs);
+    // PR #136 round 4, §9.5 item 3: the value a caller would later hand back to `refund` is the
+    // SAME value the two SQL calls already received, not a value recomputed at refund time.
+    expect(outcome.windowStart.getTime()).toBe(expectedWindowStartMs);
   });
 
   it('lands exactly on a window boundary instant without drifting into the next window', async () => {
@@ -188,5 +195,49 @@ describe('AuthRateLimitService.consume', () => {
       expect(outcome.allowed).toBe(true);
       expect(outcome.retryAfterSeconds).toBe(0);
     });
+  });
+});
+
+describe('AuthRateLimitService.refund', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  /** A `DataSource` stand-in whose ONE call is the `refund` UPDATE. */
+  function stubDataSourceForRefund(): { dataSource: DataSource; queryMock: jest.Mock } {
+    const queryMock = jest.fn<() => Promise<unknown[]>>().mockResolvedValueOnce([]);
+    return { dataSource: { query: queryMock } as unknown as DataSource, queryMock };
+  }
+
+  it('issues exactly ONE UPDATE, carrying the windowStart it was given and the same subjectHash consume derives for that scope+address', async () => {
+    const { dataSource, queryMock } = stubDataSourceForRefund();
+    const service = new AuthRateLimitService(dataSource, stubSecrets());
+    const windowStart = new Date('2026-08-24T10:00:00.000Z');
+
+    await service.refund(AuthRateLimitScope.VerifyResendDaily, 'reader@example.test', windowStart);
+
+    expect(queryMock).toHaveBeenCalledTimes(1);
+    const [sql, params] = queryMock.mock.calls[0] as [string, unknown[]];
+    expect(sql).toContain('UPDATE');
+    expect(params[0]).toBe(AuthRateLimitScope.VerifyResendDaily);
+    // The SAME derivation `consume` uses — never a raw address, never a recomputed window.
+    const expectedSubjectHash = hmacSha256(
+      'test-pepper',
+      `rate:${AuthRateLimitScope.VerifyResendDaily}:reader@example.test`,
+    );
+    expect((params[1] as Buffer).equals(expectedSubjectHash)).toBe(true);
+    expect((params[2] as Date).getTime()).toBe(windowStart.getTime());
+  });
+
+  it('is a bare UPDATE with GREATEST(attempt_count - 1, 0) — it never INSERTs, so a subject with no row is a no-op', async () => {
+    const { dataSource, queryMock } = stubDataSourceForRefund();
+    const service = new AuthRateLimitService(dataSource, stubSecrets());
+
+    await service.refund(AuthRateLimitScope.VerifyResendDaily, 'reader@example.test', new Date());
+
+    const [sql] = queryMock.mock.calls[0] as [string, unknown[]];
+    expect(sql).toContain('UPDATE');
+    expect(sql).toContain('GREATEST');
+    expect(sql).not.toContain('INSERT');
   });
 });
