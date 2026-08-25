@@ -31,14 +31,25 @@ const UNIQUE_VIOLATION_SQLSTATE = '23505';
  * `statement_timeout` (`data-source-options.ts` sets 30_000ms and no `lock_timeout` — Y18), which
  * under contention IS a lock wait but can also be any other slow statement on an unhealthy
  * database. Swallowing it means such a statement fails silently instead of surfacing as a 500 —
- * which is why the `warn` log line at each call site is part of the remedy, not decoration: the
- * response stays contractual and an operator can still see it happened. Returning a 500 instead
- * would both break the contract and itself be a distinguishable, enumeration-capable answer.
+ * which is why the `warn` log line at each call site NAMES the SQLSTATE (PR #136 round 4,
+ * `SFH136R3-M1`): the response stays contractual and an operator can still tell `40P01` (this
+ * class's own deadlock, i.e. a code defect if it keeps recurring) apart from `57014`
+ * (infrastructure — a slow/unhealthy database). Returning a 500 instead would both break the
+ * contract and itself be a distinguishable, enumeration-capable answer.
+ *
+ * **`40001` and `55P03` are members of this allowlist but UNREACHABLE with this connection's own
+ * settings** (`SFH136R3-M3`): `40001` (`serialization_failure`) is a SERIALIZABLE-isolation error
+ * and every transaction in this class runs at TypeORM's default (READ COMMITTED); `55P03`
+ * (`lock_not_available`) only fires when a lock statement carries `NOWAIT`, and
+ * `.setLock('pessimistic_write')` here never does — it blocks and waits, exactly like every
+ * `SELECT … FOR UPDATE` in this class. Both stay in the allowlist rather than being removed: a
+ * future isolation-level or lock-mode change would silently re-open them, and an allowlist that
+ * already names them costs nothing to keep.
  */
 const CONTENTION_SQLSTATES = new Set([
   '40P01', // deadlock_detected
-  '40001', // serialization_failure
-  '55P03', // lock_not_available
+  '40001', // serialization_failure — unreachable today, see the docblock above
+  '55P03', // lock_not_available — unreachable today, see the docblock above
   '57014', // query_canceled — statement_timeout, which under contention IS a lock wait
 ]);
 
@@ -46,6 +57,40 @@ function isContentionFailure(error: unknown): boolean {
   if (!(error instanceof QueryFailedError)) return false;
   const sqlState = (error as QueryFailedError & { code?: string }).code;
   return typeof sqlState === 'string' && CONTENTION_SQLSTATES.has(sqlState);
+}
+
+/**
+ * Logs which SQLSTATE actually fired, as plain literals (never an interpolated value — the
+ * `auth-log-redaction.spec.ts` AST gate requires it, `SFH136R3-M1`). The distinction that
+ * justifies this at all is `40P01` (this class's OWN deadlock — a code defect if it keeps
+ * recurring) versus `57014` (infrastructure — a slow/unhealthy database, see
+ * {@link CONTENTION_SQLSTATES}'s own docblock). `40001`/`55P03` are unreachable with this
+ * connection's settings (same docblock) and fall into the same defensive `other` literal `57014`
+ * would ALSO fall into if it were ever removed from the allowlist — there is no third reachable
+ * value to distinguish today.
+ */
+function logContentionOutcome(
+  logger: Logger,
+  verbAndClass: 'verify' | 'pending.insert',
+  sqlState: string | undefined,
+): void {
+  if (verbAndClass === 'verify') {
+    if (sqlState === '40P01') {
+      logger.warn('verify outcome=contention sqlstate=40P01');
+    } else if (sqlState === '57014') {
+      logger.warn('verify outcome=contention sqlstate=57014');
+    } else {
+      logger.warn('verify outcome=contention sqlstate=other');
+    }
+    return;
+  }
+  if (sqlState === '40P01') {
+    logger.warn('pending.insert outcome=contention sqlstate=40P01');
+  } else if (sqlState === '57014') {
+    logger.warn('pending.insert outcome=contention sqlstate=57014');
+  } else {
+    logger.warn('pending.insert outcome=contention sqlstate=other');
+  }
 }
 
 /**
@@ -271,7 +316,11 @@ export class EmailVerificationService {
         throw new BadRequestException(AUTH_ERROR_KEYS.verifyCodeInvalid);
       }
       if (isContentionFailure(error)) {
-        this.logger.warn('verify outcome=contention');
+        logContentionOutcome(
+          this.logger,
+          'verify',
+          (error as QueryFailedError & { code?: string }).code,
+        );
         throw new BadRequestException(AUTH_ERROR_KEYS.verifyCodeInvalid);
       }
       throw error;
@@ -446,7 +495,11 @@ export class EmailVerificationService {
       });
     } catch (error) {
       if (isContentionFailure(error)) {
-        this.logger.warn('pending.insert outcome=contention');
+        logContentionOutcome(
+          this.logger,
+          'pending.insert',
+          (error as QueryFailedError & { code?: string }).code,
+        );
         return { issued: false, reason: 'contention' };
       }
       throw error;
