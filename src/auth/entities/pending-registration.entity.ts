@@ -42,13 +42,19 @@ import type { MailLocale } from '../mail/mailer.port';
  * which meant a victim's OWN resend — triggered after an attacker had silently registered the same
  * address — carried the attacker's credentials into the victim's own mailbox, defeating the one
  * working mitigation (temporal correlation: a resend right after YOUR OWN register is trustworthy).
- * `insertCandidate` now refuses to write or mail anything when the address's locked candidate group
- * carries more than one distinct `password_hash` — closing the whole "attacker registers, then the
- * real owner's resend hands them the attacker's password" class. The residual this leaves: if the
- * victim's own candidate has ALREADY expired and been swept by the time they resend, the attacker's
- * is the address's only live candidate and the clone is still theirs. Only D1 (binding the resend
- * request to a credential the caller can prove, e.g. a password check) closes that residual, and D1
- * did not land this round — it is a separate, Atlas-tracked follow-up.
+ * `insertCandidate` now refuses to write OR MAIL ANYTHING when the address's locked candidate group
+ * carries more than one distinct `password_hash` — the refusal runs BEFORE the expired-row sweep, so
+ * it cannot even delete the evidence it just refused on (round 3's own order did exactly that and
+ * turned the protection into a one-call defence — `SEC136R3-I1`/`SFH136R3-I3`, pinned by V6b's
+ * two-call assertion) — closing the whole "attacker registers, then the real owner's resend hands
+ * them the attacker's password" class. The residual this leaves, at the width `DEC 2026-08-25p`
+ * accepts: an ambiguous group stops being ambiguous only once something SWEEPS the expired row, and
+ * the one thing that sweeps it is a `register` for that same address — which an attacker can trigger
+ * by spending ONE of their own three daily `REGISTER_EMAIL` slots. Once that sweep runs, the
+ * attacker's is the address's only live candidate and the clone is still theirs (measured: scenario
+ * S7, PR #136 round 4 Phase 1). Only D1 (binding the resend request to a credential the caller can
+ * prove, e.g. a password check) closes that residual, and D1 did not land this round — it is a
+ * separate, Atlas-tracked follow-up (`FU-AUTH-RESEND-PROOF`).
  *
  * ## Column set
  * Every column below is a straight copy target for `users` — materialization is a field-for-field

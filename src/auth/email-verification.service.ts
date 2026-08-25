@@ -306,8 +306,10 @@ export class EmailVerificationService {
    * The single INSERT path, shared by a fresh registration (`draft`) and a resend (an address,
    * whose newest live candidate is cloned). Returns `null` — silently, never distinguishably —
    * when the address is at its ceiling, when a resend has nothing to clone, or when a resend's
-   * candidates carry more than one credential identity (D2, `SEC136R2-I3` — see the
-   * `if (typeof source === 'string')` branch below).
+   * candidates carry more than one credential identity (D2, `SEC136R2-I3` — see the FIRST
+   * `if (typeof source === 'string')` block below, which runs BEFORE the expired sweep so a
+   * refused resend writes nothing; the SECOND such block, after the ceiling check, is unchanged
+   * and only ever picks a clone source).
    *
    * The expired-row cleanup is bounded to THIS address and is an address-scoped hygiene step, not
    * a retention policy: how long an expired candidate's PII may persist across the whole table is
@@ -344,13 +346,6 @@ export class EmailVerificationService {
           .filter((row) => row.expiresAt.getTime() <= now.getTime())
           .map((row) => row.id);
 
-        // Deleting rows this transaction ALREADY holds: the statement's scan order cannot
-        // matter, because it acquires no lock it does not have.
-        if (expiredIds.length > 0) await repo.delete(expiredIds);
-
-        if (live.length >= PENDING_REGISTRATION_MAX_ACTIVE) return null;
-
-        let draft: PendingRegistrationDraft;
         if (typeof source === 'string') {
           // A resend carries NO caller identity — the request body is the address and nothing
           // else — so the ONLY safe rule is to send a code when there is nothing to get wrong.
@@ -358,14 +353,35 @@ export class EmailVerificationService {
           // register→resend→resend chain stays ONE identity, while a second party's register is
           // a second one (Argon2id salts per call, so two registers never collide).
           //
-          // The set is read from the group as it was LOCKED — before the expired sweep above
-          // removed anything — so a candidate that died minutes ago still counts as evidence
-          // that this address is contested.
+          // The set is read from the group AS IT WAS LOCKED. The refusal now runs BEFORE the
+          // expired sweep below, so a refused resend writes NOTHING — round 3's order deleted the
+          // very rows it refused on and committed them, which made the protection last exactly
+          // one call (`SEC136R3-I1`/`SFH136R3-I3`, reproduced on live Postgres in round 4's
+          // Phase 1; pinned by V6b's two-call assertion).
+          //
+          // This is a PRICE, not a WALL, and `DEC 2026-08-25p` accepts it at that width: an
+          // attacker can still sweep the evidence by spending ONE of their three daily `register`
+          // slots for this address, after which the victim's own next resend clones the
+          // attacker's credentials (measured: scenario S7, Phase 1 §13.2). Only D1 — a credential
+          // proof in the resend body — closes the class, and D1 is a follow-up
+          // (`FU-AUTH-RESEND-PROOF`).
           const credentialIdentities = new Set(group.map((row) => row.passwordHash));
           if (credentialIdentities.size > 1) {
             this.logger.warn('pending.resend outcome=ambiguous-source');
             return null;
           }
+        }
+
+        // Deleting rows this transaction ALREADY holds: the statement's scan order cannot
+        // matter, because it acquires no lock it does not have. Runs AFTER the ambiguity refusal
+        // above on purpose — see that block's own comment for what round 3 got wrong by running
+        // this first.
+        if (expiredIds.length > 0) await repo.delete(expiredIds);
+
+        if (live.length >= PENDING_REGISTRATION_MAX_ACTIVE) return null;
+
+        let draft: PendingRegistrationDraft;
+        if (typeof source === 'string') {
           const newest = live[live.length - 1];
           if (!newest) return null; // resend for an address with no live candidate.
           draft = {

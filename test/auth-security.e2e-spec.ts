@@ -690,6 +690,38 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
       expect(await candidatesOf(email)).toHaveLength(beforeCount);
       expect(mailer.sentTo(email)).toHaveLength(beforeMailCount);
     });
+
+    /**
+     * V6b closes the gap V6 itself cannot see (PR #136 round 4, plan §4.5, §9.2): V6's victim
+     * candidate is LIVE (the helper's default `expiresInMs` is 10 minutes), so `insertCandidate`'s
+     * expired-row sweep never runs and round 3's defect — the refusal deleting the very evidence
+     * it refused on — was invisible to every round's V6. Here the victim's candidate is EXPIRED,
+     * which is exactly the shape `SEC136R3-I1`/`SFH136R3-I3` broke: a refused resend must write
+     * NOTHING, so the SAME refusal still holds on the very next call.
+     */
+    it('V6b — a refused resend deletes NOTHING, so the same refusal still holds on the next call', async () => {
+      const email = nextEmail();
+      const attackerHash =
+        '$argon2id$v=19$m=19456,p=1,t=2$ZGlmZmVyZW50c2FsdA$ZGlmZmVyZW50aGFzaHZhbHVlZGlmZg';
+      const victim = await insertCandidate(email, '616162', {
+        passwordHash: SYNTHETIC_PASSWORD_HASH,
+        expiresInMs: -1_000, // ALREADY DEAD — the shape V6 cannot see.
+      });
+      const attacker = await insertCandidate(email, '626263', { passwordHash: attackerHash });
+      // Positive control: the two candidates really DO carry different credentials.
+      expect(victim.passwordHash).not.toBe(attacker.passwordHash);
+
+      const before = (await candidatesOf(email)).map((row) => row.id).sort();
+      await expect(emailVerification.resendCandidateCode(email)).resolves.toBeUndefined();
+      expect((await candidatesOf(email)).map((row) => row.id).sort()).toEqual(before);
+
+      // The SECOND call is the point: round 3's order swept the victim's DEAD row on the FIRST
+      // refusal, so this second call saw a single-identity group and mailed the ATTACKER's clone.
+      const mailsBefore = mailer.sentTo(email).length;
+      await expect(emailVerification.resendCandidateCode(email)).resolves.toBeUndefined();
+      expect(mailer.sentTo(email)).toHaveLength(mailsBefore);
+      expect((await candidatesOf(email)).map((row) => row.id).sort()).toEqual(before);
+    });
   });
 
   // ── A-series — anti-enumeration ─────────────────────────────────────────────────────────
