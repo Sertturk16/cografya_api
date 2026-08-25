@@ -37,6 +37,14 @@ const SYNTHETIC_TIMING_HASH =
   '$argon2id$v=19$m=19456,p=1,t=2$APrKX34k6VE7WGm0QyxNUA$fUFGautIsXjwaF9PfALc5EeetF5UHJq43ElafSQOVPM';
 
 /**
+ * `refresh`'s transaction callback returns this instead of throwing — see the method's own
+ * docblock for why a reject branch must still COMMIT its revocation writes.
+ */
+type RefreshOutcome =
+  | { rejected: true }
+  | { rejected: false; userId: string; tokenVersion: number; refreshTokenPlain: string };
+
+/**
  * Login / refresh (rotation + reuse detection) / logout / current-session (§5.2, §6.1 #4,#5,#6,#9).
  */
 @Injectable()
@@ -100,11 +108,19 @@ export class SessionService {
    * §6.1 #5, §5.2.2/§5.2.3. One transaction, `SELECT … FOR UPDATE` on the presented row.
    * Every reject branch — no row, reuse, expired, inactive account — throws the SAME 401
    * `errors.auth.sessionExpired`, indistinguishable by response shape (§5.2.3).
+   *
+   * **The reject exception is thrown AFTER the transaction commits, never from inside it.**
+   * `dataSource.transaction`'s callback ROLLS BACK the whole transaction when it throws — so a
+   * `throw` inside the REUSE branch would silently undo the very family-revoke and
+   * `token_version` bump that branch just wrote, leaving the reuse undetected on every
+   * subsequent call even though this ONE response still (correctly) answered 401. The callback
+   * therefore returns a plain discriminated outcome and commits normally on every branch; only
+   * the caller, after the commit, decides whether to throw.
    */
   async refresh(presentedToken: string): Promise<AuthResultDto> {
     const presentedHash = sha256(presentedToken);
 
-    return this.dataSource.transaction(async (manager) => {
+    const outcome = await this.dataSource.transaction(async (manager): Promise<RefreshOutcome> => {
       const sessionRepo = manager.getRepository(Session);
 
       const existing = await sessionRepo
@@ -114,7 +130,7 @@ export class SessionService {
         .getOne();
 
       if (!existing) {
-        throw new UnauthorizedException(AUTH_ERROR_KEYS.sessionExpired);
+        return { rejected: true };
       }
 
       if (existing.revokedAt !== null) {
@@ -125,7 +141,7 @@ export class SessionService {
           { revokedAt: new Date(), revokedReason: SessionRevocationReason.ReuseDetected },
         );
         await manager.getRepository(User).increment({ id: existing.userId }, 'tokenVersion', 1);
-        throw new UnauthorizedException(AUTH_ERROR_KEYS.sessionExpired);
+        return { rejected: true };
       }
 
       if (existing.expiresAt.getTime() <= Date.now()) {
@@ -133,7 +149,7 @@ export class SessionService {
           { id: existing.id },
           { revokedAt: new Date(), revokedReason: SessionRevocationReason.Expired },
         );
-        throw new UnauthorizedException(AUTH_ERROR_KEYS.sessionExpired);
+        return { rejected: true };
       }
 
       const user = await manager.getRepository(User).findOne({
@@ -145,7 +161,7 @@ export class SessionService {
           { familyId: existing.familyId, revokedAt: IsNull() },
           { revokedAt: new Date(), revokedReason: SessionRevocationReason.AccountInactive },
         );
-        throw new UnauthorizedException(AUTH_ERROR_KEYS.sessionExpired);
+        return { rejected: true };
       }
 
       const rotatedTokenPlain = mintOpaqueToken();
@@ -167,14 +183,25 @@ export class SessionService {
         { revokedAt: issuedAt, revokedReason: SessionRevocationReason.Rotated },
       );
 
-      const accessToken = await this.accessTokens.mint(user.id, user.tokenVersion);
       return {
-        accessToken,
-        accessTokenExpiresInSeconds: ACCESS_TOKEN_TTL_SECONDS,
-        refreshToken: rotatedTokenPlain,
-        refreshTokenExpiresInSeconds: REFRESH_TOKEN_TTL_SECONDS,
+        rejected: false,
+        userId: user.id,
+        tokenVersion: user.tokenVersion,
+        refreshTokenPlain: rotatedTokenPlain,
       };
     });
+
+    if (outcome.rejected) {
+      throw new UnauthorizedException(AUTH_ERROR_KEYS.sessionExpired);
+    }
+
+    const accessToken = await this.accessTokens.mint(outcome.userId, outcome.tokenVersion);
+    return {
+      accessToken,
+      accessTokenExpiresInSeconds: ACCESS_TOKEN_TTL_SECONDS,
+      refreshToken: outcome.refreshTokenPlain,
+      refreshTokenExpiresInSeconds: REFRESH_TOKEN_TTL_SECONDS,
+    };
   }
 
   /** §6.1 #6. Always 204 — an unrecognised token is indistinguishable from a known one (D-safe). */

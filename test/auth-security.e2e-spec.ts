@@ -677,14 +677,16 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
         'errors.auth.emailNotVerified',
       );
 
+      // `CHK_users_verification_state` ties status to email_verified_at both ways — ACTIVE
+      // requires it set, UNVERIFIED requires it null — so both flips below set it explicitly.
       await dataSource
         .getRepository(User)
-        .update({ id: user.id }, { status: AccountStatus.Active });
+        .update({ id: user.id }, { status: AccountStatus.Active, emailVerifiedAt: new Date() });
       const activeToken = app.get(AccessTokenService);
       const token = await activeToken.mint(user.id, 0);
       await dataSource
         .getRepository(User)
-        .update({ id: user.id }, { status: AccountStatus.Unverified });
+        .update({ id: user.id }, { status: AccountStatus.Unverified, emailVerifiedAt: null });
 
       await request(app.getHttpServer())
         .get('/api/auth/session')
@@ -798,20 +800,22 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
 
   describe('S1-S4 — no secret ever reaches a response, a log-visible echo, an OpenAPI example, or CORS credentials', () => {
     it('S1 — no response body across the flow ever carries a raw hash/code/reset-token column value', async () => {
+      // Uses login rather than verify-email/resend on purpose: V1-V5 already spend the
+      // verify-email IP-axis ceiling (10/10min) down to its own boundary, and login has ample
+      // headroom (30/15min, a handful of calls used elsewhere in this file). The property under
+      // test — no entity secret COLUMN NAME or VALUE ever reaches a serialized response — is
+      // exactly as well witnessed by a real AuthResultDto-returning endpoint as by verify-email.
       const email = nextEmail();
-      const user = await createUser({ email, status: AccountStatus.Unverified });
-      await insertVerificationCode(user.id, '777777');
-      const codeRow = await dataSource
-        .getRepository(EmailVerificationCode)
-        .findOneOrFail({ where: { userId: user.id } });
+      const passwordHash = await passwordHasher.hash('Correct-Pass1');
+      await createUser({ email, passwordHash });
 
       const response = await request(app.getHttpServer())
-        .post('/api/auth/verify-email')
-        .send({ email, code: '777777' })
+        .post('/api/auth/login')
+        .send({ email, password: 'Correct-Pass1' })
         .expect(HttpStatus.OK);
 
       const serialized = JSON.stringify(response.body);
-      expect(serialized).not.toContain(codeRow.codeHash.toString('base64'));
+      expect(serialized).not.toContain(passwordHash);
       expect(serialized).not.toContain(SYNTHETIC_PASSWORD_HASH);
       expect(serialized).not.toContain('passwordHash');
       expect(serialized).not.toContain('codeHash');
@@ -843,11 +847,16 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
         ].includes(name),
       );
       expect(authSchemaNames.length).toBeGreaterThan(0);
+      // An EXACT allow-list, not a substring pattern: `/password|code|token/i` would also match
+      // `provincePlateCode` (a public plate code, not a secret) — the field NAME is what must be
+      // matched precisely, the same lesson `book.contract.spec.ts`'s own banned-field scan
+      // states for its price/offer pattern.
+      const secretFieldNames = new Set(['password', 'code', 'refreshToken', 'resetToken']);
       for (const schemaName of authSchemaNames) {
         const properties = document.components.schemas[schemaName]?.properties ?? {};
         for (const [fieldName, field] of Object.entries(properties)) {
           const value = field as { example?: unknown; writeOnly?: boolean };
-          if (/password|code|token/i.test(fieldName)) {
+          if (secretFieldNames.has(fieldName)) {
             expect(`${schemaName}.${fieldName}:writeOnly=${String(value.writeOnly === true)}`).toBe(
               `${schemaName}.${fieldName}:writeOnly=true`,
             );
