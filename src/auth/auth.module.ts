@@ -70,15 +70,21 @@ import { SessionService } from './session.service';
 })
 export class AuthModule implements NestModule {
   /**
-   * `Cache-Control: no-store` on every response this application produces for an auth route.
+   * `Cache-Control: no-store` on every response that reaches Nest's module-middleware stage on a
+   * `(path, method)` pair `AuthController` registers.
    *
    * Registered as MIDDLEWARE rather than as nine `@Header` decorators because middleware runs
    * before guards, and it was the guard-rejected 401/429 responses that were measurably leaving
-   * without the header (`CODE136-I2`, `TA136-I1`). `forRoutes(AuthController)` binds it to that
-   * controller's paths only — no other route's caching behaviour changes.
-   * `AuthNoStoreMiddleware`'s docblock carries the TWO classes this cannot reach and why (a
-   * malformed JSON body, and a CORS preflight `OPTIONS` request — PR #136 round 3,
-   * `CODE136R2-I4`).
+   * without the header (`CODE136-I2`, `TA136-I1`). `forRoutes(AuthController)` binds it PER
+   * (path, method) pair that controller registers — no other route's caching behaviour changes,
+   * and neither does a pair this controller does NOT register: Nest's own 404 for such a pair
+   * (e.g. `GET /api/auth/login`, or the bare `GET`/`POST /api/auth`) is produced without this
+   * middleware running, which is the one measured gap this binding leaves — 404, unlike 400, is
+   * heuristically cacheable under RFC 9110 §15.1. The one-line fix (`forRoutes({ path:
+   * 'auth{/*splat}', method: RequestMethod.ALL })`) is measured and recorded as a follow-up
+   * (`FU-AUTH-NOSTORE-BINDING`, PR #136 round 4 §6.3, Q2) rather than landed this round.
+   * `AuthNoStoreMiddleware`'s own docblock carries the full mechanism and every class it cannot
+   * reach, stated once so it never needs to be counted again (`VAL136R3-NS1`).
    */
   configure(consumer: MiddlewareConsumer): void {
     consumer.apply(AuthNoStoreMiddleware).forRoutes(AuthController);

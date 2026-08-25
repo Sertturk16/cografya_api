@@ -72,27 +72,28 @@ export const AUTH_ROUTE_THROTTLES = {
  * `@CacheControl` remains the wrong tool for the original reason (its interceptor writes only on
  * the success branch) and `src/common/http-cache/**` is still untouched (Y17).
  *
- * **The amended guarantee, stated at the boundary it actually holds — acceptance criterion #15
- * as corrected.** *Every response THIS APPLICATION produces for an auth route — success, DTO
- * validation 400, service 4xx, guard 401 and throttler 429 alike — carries
- * `Cache-Control: no-store`. There are TWO measured exceptions (PR #136 round 3,
- * `CODE136R2-I4`): a malformed JSON body, which Express's body parser rejects before any module
- * middleware runs (`NestApplication.init` registers the parser ahead of `registerModules`); and a
- * CORS preflight `OPTIONS` request, which the `cors` package answers and ends itself before any
- * module middleware runs, and which — independently — targets a method no `AuthController`
- * handler is registered for, so this application's own middleware routing would skip it even if
- * `cors` did not answer first. Neither is reachable while `src/main.ts` is frozen.* Both
- * exceptions are bounded rather than waved away: the malformed-JSON 400's body carries neither
- * token nor PII, and RFC 9110 §15.1 / RFC 9111 §3 put 400 — like 401 and 429 — outside the
- * heuristically cacheable set, so storing it requires a non-conforming intermediary; the CORS
- * preflight's body is EMPTY and this application sends no `Access-Control-Max-Age`.
- * `AuthNoStoreMiddleware`'s own docblock carries the full argument for both, including why a
- * global exception filter (which WOULD cover the first) was rejected: `ENGINEERING.md` §6 and
- * plan §6.3 rule this api writes none.
+ * **The amended guarantee, restated as a MECHANISM rather than a count — acceptance criterion
+ * #15 as corrected (PR #136 round 4, `VAL136R3-NS1`: the count was wrong three rounds running).**
+ * *Every response that reaches Nest's module-middleware stage on a `(path, method)` pair
+ * `AuthController` registers carries `Cache-Control: no-store` — handler, pipe, guard, throttler
+ * and exception filter alike. Nothing answered before that stage carries it (the responses
+ * Express's body parser produces, and the preflight the `cors` package answers itself), and
+ * nothing on an unregistered `(path, method)` pair under `/api/auth` carries it: Nest's 404 for
+ * such a pair is produced without the middleware running, and 404 — unlike 400 — is
+ * heuristically cacheable under RFC 9110 §15.1.* Every one of those classes is bounded rather
+ * than waved away — the malformed-JSON 400's body carries neither token nor PII and 400 is
+ * outside the heuristically cacheable set; the CORS preflight is bounded by RFC 9110 §9.3.7
+ * itself ("Responses to the OPTIONS method are not cacheable"); the unregistered-route 404 is
+ * the one genuinely uncovered case and is recorded as a follow-up rather than closed this round
+ * (`FU-AUTH-NOSTORE-BINDING`, PR #136 round 4 §6.3, Q2) — `AuthNoStoreMiddleware`'s own docblock
+ * carries the full argument, including why a global exception filter was rejected:
+ * `Owner's Inbox/uyelik-ve-giris-yol-haritasi/UYELIK-02-plan.md` §6.3 and `DEC 2026-08-25h` R3
+ * rule this api writes none (`ENGINEERING.md` §6 is the i18n content model, not this rule — the
+ * earlier citation was wrong, `VAL136R3-NSP1`).
  *
- * `test/auth-security.e2e-spec.ts` pins both boundaries from both sides — present on the covered
- * classes, absent on the body-parser 400 (N9b) and on a CORS preflight (N9c) — so the day either
- * moves, the suite says so.
+ * `test/auth-security.e2e-spec.ts` pins every boundary from both sides — present on the covered
+ * classes, absent on the body-parser 400 (N9b), absent on a CORS preflight (N9c), and absent on
+ * the two unregistered-pair 404s (N9d/N9e) — so the day any of them moves, the suite says so.
  *
  * **`@ThrottlerErrorMessage(AUTH_ERROR_KEYS.rateLimited)` at class level** makes the published
  * 429 contract true (`CODE136-I1`/`SEC136-I4`). The key was declared in `auth-error-keys.ts` and

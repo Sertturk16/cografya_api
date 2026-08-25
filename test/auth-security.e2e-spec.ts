@@ -1433,16 +1433,18 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
   // ── N9 — the no-store boundary, from BOTH sides ─────────────────────────────────────────
 
   /**
-   * Acceptance criterion #15, as CORRECTED by the PR #136 review. Its original wording
-   * ("every auth response, success and error alike") was not satisfiable by the mechanism it was
-   * written for, and two whole classes were silently missing it. The criterion now states what
-   * the middleware actually holds, and both halves are pinned here — the covered classes above
+   * Acceptance criterion #15, as CORRECTED by the PR #136 review and restated as a MECHANISM in
+   * round 4 (`VAL136R3-NS1`: the count was wrong three rounds running — see
+   * `AuthNoStoreMiddleware`'s own docblock for the full argument). The criterion states what the
+   * middleware actually holds, and every side of it is pinned here — the covered classes above
    * (G1's guard 401, T3's throttler 429) and elsewhere in the suite (200/202/204/400 across
-   * `auth-endpoints.e2e-spec.ts`), and the TWO uncovered classes below (N9b, N9c — PR #136 round
-   * 3, `CODE136R2-I4`: a CORS preflight is the SECOND uncovered class, measured and pinned
-   * negatively in N9c, alongside N9b's pre-existing malformed-JSON-body pin).
+   * `auth-endpoints.e2e-spec.ts`), the two classes answered BEFORE the middleware stage (N9b, N9c
+   * — PR #136 round 3, `CODE136R2-I4`), and Nest's own 404 for an UNREGISTERED `(path, method)`
+   * pair under `/api/auth` (N9d, N9e — a class this file's earlier rounds never measured, PR #136
+   * round 4 §6.2), plus the blast-radius check that a non-auth 404 carries nothing either way
+   * (N9f).
    */
-  describe('N9 — Cache-Control: no-store, and the two measured exceptions', () => {
+  describe('N9 — Cache-Control: no-store, stated as a mechanism and pinned from every side', () => {
     it('N9a — a service-thrown 401 carries no-store (the class that always worked)', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/auth/refresh')
@@ -1490,6 +1492,45 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
       expect(response.status).toBe(HttpStatus.NO_CONTENT);
       expect(response.headers['access-control-allow-origin']).toBeDefined();
 
+      expect(response.headers['cache-control']).toBeUndefined();
+    });
+
+    it("N9d — GET /api/auth/login is a (path, method) pair AuthController does NOT register: Nest's own 404, no header", async () => {
+      // NEGATIVE pin, and the class N9b/N9c never covered: `forRoutes(AuthController)` binds by
+      // (path, method) pair, and this controller registers `POST /auth/login`, never `GET`. The
+      // one-line fix (`auth{/*splat}`) is measured but NOT landed this round — recorded as
+      // `FU-AUTH-NOSTORE-BINDING` (PR #136 round 4, Q2) — so this pin is deliberately NEGATIVE
+      // today. Reverting the binding is not what turns this red; the binding is UNCHANGED this
+      // round. What turns this red is the day someone lands the follow-up without updating this
+      // test to its (then) POSITIVE form.
+      const response = await request(app.getHttpServer()).get('/api/auth/login');
+
+      // Positive control: this really is Nest's OWN 404 for an unmatched route, not some other
+      // response that would also lack the header and tell us nothing.
+      expect(response.status).toBe(HttpStatus.NOT_FOUND);
+      expect((response.body as { statusCode?: number }).statusCode).toBe(404);
+      expect(response.headers['cache-control']).toBeUndefined();
+    });
+
+    it("N9e — GET /api/auth (the bare prefix) is ALSO an unregistered pair: Nest's own 404, no header", async () => {
+      // The case that distinguishes the two candidate binding patterns: `auth/{*splat}` (measured
+      // incomplete, PR #136 round 4 §6.2) still misses the bare prefix; only `auth{/*splat}` would
+      // cover it, and that is the follow-up, not this round's code.
+      const response = await request(app.getHttpServer()).get('/api/auth');
+
+      expect(response.status).toBe(HttpStatus.NOT_FOUND);
+      expect((response.body as { statusCode?: number }).statusCode).toBe(404);
+      expect(response.headers['cache-control']).toBeUndefined();
+    });
+
+    it('N9f — a 404 on a NON-auth path never carries the header either way (blast-radius check)', async () => {
+      // Positive/negative pair with N9d/N9e: this middleware is bound to AuthController's own
+      // paths only, so a 404 outside `/api/auth` must stay header-free under EITHER binding
+      // pattern — reverting `forRoutes(AuthController)` to something wider would be what turns
+      // this red, and this round makes no such change.
+      const response = await request(app.getHttpServer()).get('/api/provinces/does-not-exist');
+
+      expect(response.status).toBe(HttpStatus.NOT_FOUND);
       expect(response.headers['cache-control']).toBeUndefined();
     });
   });
