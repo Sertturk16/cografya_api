@@ -3,15 +3,17 @@
 This file is the binding engineering playbook for the **`cografya_api`** repo — the
 NestJS backend of the Coğrafya platform (an SEO-first, free, TR+EN geography education
 site). On repo-specific engineering questions it **overrides** the Deniz persona and
-orchestrator summaries (per `ATLAS-OPERATIONS.md` "Engineering ground truth"); it never
-overrides `CONVENTIONS.md` on cross-repo product/process rules, the live board, or a
-dated ruling in `DECISIONS.md`. It is the local source of truth for how code lands here.
+orchestrator summaries (per `ATLAS.md`'s **Delivery and canonical homes** section, which
+names this file as the repo-engineering home); it never overrides `CONVENTIONS.md` on
+cross-repo product/process rules, the live board, or a dated ruling in `DECISIONS.md`. It
+is the local source of truth for how code lands here.
 
 - **Single writer:** Deniz. No one else commits to this repo.
 - **Precedence:** this file wins over the Deniz persona on repo specifics. For
   cross-team *process* (routing, delivery, the review-loop ownership), the
-  orchestration-root `ATLAS-OPERATIONS.md` + `CONVENTIONS.md` remain authoritative — this file does
-  not restate or override them, it implements the api half.
+  orchestration-root `ATLAS.md` (**Routing and acceptance**, **Review**, **Delivery and
+  canonical homes**) + `CONVENTIONS.md` remain authoritative — this file does not restate
+  or override them, it implements the api half.
 - **Sister repo:** `cografya_web` (Vera, single writer). We share **one contract**: the
   OpenAPI spec this repo generates. Never edit the web repo; coordinate contract changes
   through Atlas (see §4).
@@ -575,7 +577,7 @@ API-specific filter boundary:
 - this file and `CONVENTIONS.md` beat a conflicting review suggestion;
 - route security, KVKK, upload, and provider-boundary findings back to Atlas for the
   dedicated deeper pass;
-- hand follow-ups to Atlas; Deniz never edits `TASKS.md`.
+- hand follow-ups to Atlas; Deniz never writes `STATE.md`, the Atlas-only live board.
 
 ---
 
@@ -628,14 +630,17 @@ The §11.1 helper fixes **git transport only**. The **`gh` CLI itself** keys off
 This table is the sole owner of this document's read scope. Role definitions do not
 restate it; they carry the anchor id from the last column, and
 `Team/scripts/read-contract-lint.sh` verifies each id is still present in every named
-definition file (→ DEC 2026-08-07a).
+definition file (→ DEC 2026-08-07a). The gate is bound into `Team/scripts/tests/run.sh`
+and wind-down runs that suite fail-closed, but there is no root `pre-commit` hook — it
+fires at wind-down and on demand, not per commit, so a broken anchor can survive until the
+next wind-down (→ DEC 2026-08-25m).
 
 <!-- read-contract -->
 
 | Rol | Okur | Ne zaman | Tanım dosyası | Anchor |
 |---|---|---|---|---|
-| **Deniz** (single writer) | **Mandatory:** the header block (precedence, single-writer, sister-repo boundary, not-multi-tenant) + §3 + §5 + §7 + §8 + §9 + §10 + §12. **On demand:** §1 (env/zod schema, Redis/upstream, OpenAPI tooling, scheduled work), §2 (a new or changed endpoint, DTO tier, list envelope), §4 (any DTO, route or `openapi.json` change), §6 (a TR+EN field, a slug, a user-facing message), §11.1 (a fresh clone or a new sibling repo), §11.2 (before every `gh` invocation — PR create, checks, anything else) | The mandatory set before writing anything in this repo, on every task; an on-demand section the moment the task reaches the trigger named beside it | `.claude/agents/cografya-backend-dev.md` `.codex/agents/cografya-backend-dev.toml` | `READ-ENG-API` |
-| **Review legs** (`code-reviewer`, `security-privacy-reviewer`, validator) | §1 stack lock, §3, §5 and §8 — the repo engineering truth a finding is scored against — plus §2 and §4 when the diff carries API surface or contract. §10 for context only: it is the author's half of the loop and a leg never acts on it | On every `cografya_api` review leg, before assigning a severity to a finding | `.claude/agents/pr-reviewer-critical.md` `.claude/agents/pr-reviewer-routine.md` `.claude/agents/pr-validator.md` `.codex/agents/pr-reviewer-critical.toml` `.codex/agents/pr-reviewer-routine.toml` `.codex/agents/pr-validator.toml` | `READ-ENG-API-REVIEWER` |
+| **Deniz** (single writer) | **Mandatory:** the header block (precedence, single-writer, sister-repo boundary, not-multi-tenant) + §3 + §5 + §7 + §8 + §9 + §10 + §12. **On demand:** §1 (env/zod schema, Redis/upstream, OpenAPI tooling, scheduled work), §2 (a new or changed endpoint, DTO tier, list envelope), §4 (any DTO, route or `openapi.json` change), §6 (a TR+EN field, a slug, a user-facing message), §11.1 (a fresh clone or a new sibling repo), §11.2 (before every `gh` invocation — PR create, checks, anything else) | The mandatory set before writing anything in this repo, on every task; an on-demand section the moment the task reaches the trigger named beside it | `Team/roles/deniz.md` | `READ-ENG-API` |
+| **Review legs** (`code-reviewer`, `security-privacy-reviewer`, validator) | §1 stack lock, §3, §5 and §8 — the repo engineering truth a finding is scored against — plus §2 and §4 when the diff carries API surface or contract. §10 for context only: it is the author's half of the loop and a leg never acts on it | On every `cografya_api` review leg, before assigning a severity to a finding | `Team/roles/reviewer-critical.md` `Team/roles/reviewer-routine.md` `Team/roles/validator.md` | `READ-ENG-API-REVIEWER` |
 
 <!-- /read-contract -->
 
