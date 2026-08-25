@@ -5,10 +5,12 @@ import {
   InjectThrottlerOptions,
   InjectThrottlerStorage,
   ThrottlerGuard,
+  type ThrottlerLimitDetail,
   type ThrottlerModuleOptions,
   type ThrottlerStorage,
 } from '@nestjs/throttler';
 import { type Env } from '../../config/env.schema';
+import { NO_TRUSTED_CLIENT_EXEMPTION, THROTTLER_ERROR_MESSAGE } from './throttler-metadata';
 import { INTERNAL_REQUEST_HEADER, isTrustedClientRequest } from './trusted-client';
 
 /**
@@ -31,6 +33,12 @@ import { INTERNAL_REQUEST_HEADER, isTrustedClientRequest } from './trusted-clien
  * token must never silently exempt a write/upload/brute-force surface from throttling.
  * Restricting the exemption to GET/HEAD enforces a claim the exemption already makes about
  * itself, and changes no live behaviour (every current route is GET).
+ *
+ * **Safe-method scope is no longer sufficient on its own, which is why `@NoTrustedClientExemption`
+ * exists** (`SEC136-I3`). `GET /api/auth/session` is the first authenticated, PII-returning GET in
+ * this repo: the method check waves it through, because a method is not a statement about what a
+ * route reads. The per-route opt-out below is the narrowing `trusted-client.ts`'s own posture
+ * paragraph asks for by name, and it is checked FIRST — see `shouldSkip`.
  *
  * `@SkipThrottle()` (e.g. `/health`) is NOT preserved by the `super.shouldSkip()` call: in
  * `@nestjs/throttler@6.5.0` the base `shouldSkip` is literally `return false` and never
@@ -72,7 +80,21 @@ export class TrustedClientThrottlerGuard extends ThrottlerGuard implements OnMod
   }
 
   protected async shouldSkip(context: ExecutionContext): Promise<boolean> {
-    // Forward to the base first. NOTE: this does NOT preserve @SkipThrottle() (see the class
+    // The per-route opt-out is read BEFORE anything else, and returns without consulting the
+    // base class. Order is load-bearing, not stylistic: `super.shouldSkip` is literally
+    // `return false` in @nestjs/throttler@6.5.0, but the forwarding call below exists precisely
+    // because that may change — and if it ever returns true for some future reason, an opt-out
+    // route would be skipped before this class looked at its own metadata. Checking first makes
+    // the opt-out hold whatever the base does (SEC136-I3).
+    const optedOut = this.reflector.getAllAndOverride<boolean | undefined>(
+      NO_TRUSTED_CLIENT_EXEMPTION,
+      [context.getHandler(), context.getClass()],
+    );
+    if (optedOut === true) {
+      return false;
+    }
+
+    // Forward to the base. NOTE: this does NOT preserve @SkipThrottle() (see the class
     // docblock) — it is forward-compatible defensive forwarding.
     if (await super.shouldSkip(context)) {
       return true;
@@ -98,5 +120,26 @@ export class TrustedClientThrottlerGuard extends ThrottlerGuard implements OnMod
       presentedToken,
       this.config.get('INTERNAL_REQUEST_TOKEN', { infer: true }),
     );
+  }
+
+  /**
+   * Lets a route (or a whole controller) declare the i18n key its 429 body carries, instead of
+   * `@nestjs/throttler`'s built-in English prose (`CODE136-I1`/`SEC136-I4`).
+   *
+   * Falls through to `super` — i.e. the framework default — for every route that declares
+   * nothing, so this is additive: no existing 429 body changes.
+   */
+  protected async getErrorMessage(
+    context: ExecutionContext,
+    throttlerLimitDetail: ThrottlerLimitDetail,
+  ): Promise<string> {
+    const declared = this.reflector.getAllAndOverride<string | undefined>(THROTTLER_ERROR_MESSAGE, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (typeof declared === 'string' && declared.length > 0) {
+      return declared;
+    }
+    return super.getErrorMessage(context, throttlerLimitDetail);
   }
 }

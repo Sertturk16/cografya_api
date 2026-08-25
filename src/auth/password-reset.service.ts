@@ -15,10 +15,10 @@ import { PasswordHasherService } from './password-hasher.service';
 import { sha256 } from './token-digest';
 
 /**
- * Şifre sıfırlama: forgot (§6.1 #7) + confirm (§6.1 #8, §5.4.3). `confirm`'ün parola-politikası
+ * Şifre sıfırlama: forgot (§6.1 #7) + confirm (§6.1 #8, §5.4.3). `confirm`'ün şifre politikası
  * kontrolü BU sınıfta yaşamaz — `PasswordResetConfirmDto.password`'ün
  * `IsPasswordPolicyCompliant()` dekoratörü, global `ValidationPipe` tarafından bu servis hiç
- * çağrılmadan ÖNCE çalışır, yani §6.2'nin "parola politikası jetondan önce kontrol edilir"
+ * çağrılmadan ÖNCE çalışır, yani §6.2'nin "şifre politikası jetondan önce kontrol edilir"
  * sırası DTO doğrulamasının kendi çalışma zamanından doğal olarak gelir (ayrı bir sıralama kodu
  * gerekmez).
  */

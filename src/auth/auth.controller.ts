@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Header,
-  HttpCode,
-  HttpStatus,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import {
   ApiBadRequestResponse,
@@ -22,6 +13,11 @@ import {
 } from '@nestjs/swagger';
 import { AccessTokenGuard } from './access-token.guard';
 import { ApiErrorDto } from '../common/dto/api-error.dto';
+import { AUTH_ERROR_KEYS } from './auth-error-keys';
+import {
+  NoTrustedClientExemption,
+  ThrottlerErrorMessage,
+} from '../common/throttler/throttler-metadata';
 import { AuthenticatedUser } from './authenticated-user';
 import { CurrentUser } from './current-user.decorator';
 import { AuthResultDto } from './dto/auth-result.dto';
@@ -64,33 +60,43 @@ export const AUTH_ROUTE_THROTTLES = {
 /**
  * The nine auth endpoints (§6.1).
  *
- * **D13 — `Cache-Control: no-store` is set with `@Header`, not `@CacheControl`, on EVERY
- * method.** `@CacheControl`'s own docblock (`src/common/http-cache/cache-control.decorator.ts:
- * 13-14`) names auth/mutating routes as exactly what it must NOT be used on, and its
- * interceptor sets the header only inside `next.handle().pipe(tap(...))` — the SUCCESS branch —
- * so a 400/401/403/429 response would carry no `Cache-Control` at all under that mechanism, and
- * E2E-N9's "every response, success and error alike" could not be satisfied. `@Header` sets the
- * header BEFORE the handler runs (`cache-control.decorator.ts`'s own comment: "sets the header
- * BEFORE the handler runs, so it also rides 5xx error responses"), which is exactly the property
- * this route class needs: `no-store` surviving an error path is the DESIRED behaviour here, the
- * mirror image of `@CacheControl`'s PR #23 concern (a caching intermediary must never be
- * ALLOWED to outlive a resolved outage — `no-store` is the opposite of allowing, so that concern
- * never fires for this value). `src/common/http-cache/**` is therefore untouched by this PR
- * (Y17): the decorator and interceptor are correct for what they were built for, and this class
- * simply does not use them.
+ * **D13, AMENDED — `Cache-Control: no-store` is written by `AuthNoStoreMiddleware`, not by nine
+ * `@Header` decorators.** D13's original mechanism claimed to cover "every response, success or
+ * error", and the PR #136 review measured that claim false: `@Header`'s metadata is applied by
+ * `setHeaders`, which `router-execution-context.js` reaches only AFTER awaiting every guard, so a
+ * guard that throws never gets there. `AccessTokenGuard`'s 401 on `GET /api/auth/session` and
+ * `ThrottlerGuard`'s 429 on all nine routes were both leaving without the header (`CODE136-I2`,
+ * `TA136-I1`). Middleware runs before guards, so one registration in `AuthModule.configure`
+ * covers what nine decorators could not; the decorators are gone rather than kept beside it,
+ * because two mechanisms for one guarantee is how the weaker one ends up being the one described.
+ * `@CacheControl` remains the wrong tool for the original reason (its interceptor writes only on
+ * the success branch) and `src/common/http-cache/**` is still untouched (Y17).
  *
- * **Applied per-METHOD, not at class level (a measured correction to the plan's "sınıf
- * düzeyinde" text — flagged as a `CLAIMS_REQUIRING_VERIFICATION` candidate in the return).**
- * `@Header`'s installed implementation (`@nestjs/common`) destructures `descriptor.value`
- * unconditionally — `(target, key, descriptor) => { …descriptor.value…; return descriptor; }`
- * — so it compiles and runs only as a METHOD decorator; a class application passes no
- * `descriptor` and fails at the type level (measured: `tsc` refuses it). Nine identical
- * `@Header('Cache-Control', 'no-store')` lines below carry the exact same guarantee `@Header`
- * would have carried at class level — every response, success or error, from every one of the
- * nine routes.
+ * **The amended guarantee, stated at the boundary it actually holds — acceptance criterion #15
+ * as corrected.** *Every response THIS APPLICATION produces for an auth route — success, DTO
+ * validation 400, service 4xx, guard 401 and throttler 429 alike — carries
+ * `Cache-Control: no-store`. The single exception is a malformed JSON body, which Express's body
+ * parser rejects before any module middleware runs (`NestApplication.init` registers the parser
+ * ahead of `registerModules`), and which cannot be reached while `src/main.ts` is frozen.* That
+ * exception is bounded rather than waved away: RFC 9110 §15.1 and RFC 9111 §3 put 400 — like 401
+ * and 429 — outside the heuristically cacheable set, so storing it requires a non-conforming
+ * intermediary, and the body carries neither token nor PII. `AuthNoStoreMiddleware`'s own
+ * docblock carries the full argument, including why a global exception filter (which WOULD cover
+ * it) was rejected: `ENGINEERING.md` §6 and plan §6.3 rule this api writes none.
+ *
+ * `test/auth-security.e2e-spec.ts` pins that boundary from both sides — present on the covered
+ * classes, absent on the body-parser 400 — so the day it moves, the suite says so.
+ *
+ * **`@ThrottlerErrorMessage(AUTH_ERROR_KEYS.rateLimited)` at class level** makes the published
+ * 429 contract true (`CODE136-I1`/`SEC136-I4`). The key was declared in `auth-error-keys.ts` and
+ * documented on `register`'s 429, but no code path produced it: the body was
+ * `@nestjs/throttler`'s English prose. The marker is read by
+ * `TrustedClientThrottlerGuard.getErrorMessage` and scoped to this controller — every other
+ * route in the app keeps the framework default untouched.
  */
 @ApiTags('auth')
 @Controller('auth')
+@ThrottlerErrorMessage(AUTH_ERROR_KEYS.rateLimited)
 export class AuthController {
   constructor(
     private readonly registration: RegistrationService,
@@ -101,19 +107,20 @@ export class AuthController {
 
   @Post('register')
   @HttpCode(HttpStatus.ACCEPTED)
-  @Header('Cache-Control', 'no-store')
   @Throttle({ default: AUTH_ROUTE_THROTTLES.register })
   @ApiOperation({
     summary: 'Register a new account.',
     description:
       'Always 202, body-less — the response never reveals whether the address already existed ' +
-      '(§6.2 anti-enumeration). A verification e-posta is sent for a genuinely new address; a ' +
-      'known UNVERIFIED address gets a fresh code (cooldown permitting); a known ACTIVE address ' +
-      'gets an "account exists" notice; DISABLED/PENDING_DELETION sends nothing.',
+      '(§6.2 anti-enumeration). An address with no account becomes a PENDING registration and ' +
+      'receives a verification e-posta; the account itself is created only when that code is ' +
+      'confirmed, so submitting the same address again never overwrites an earlier submission ' +
+      'and never activates one. A known ACTIVE address gets an "account exists" notice instead; ' +
+      'a disabled account sends nothing.',
   })
   @ApiBadRequestResponse({
     type: ApiErrorDto,
-    description: 'DTO şekli, profil matrisi, parola veya ilçe↔il uyuşmazlığı.',
+    description: 'DTO şekli, profil matrisi, şifre veya ilçe↔il uyuşmazlığı.',
   })
   @ApiTooManyRequestsResponse({
     type: ApiErrorDto,
@@ -125,18 +132,20 @@ export class AuthController {
 
   @Post('verify-email')
   @HttpCode(HttpStatus.OK)
-  @Header('Cache-Control', 'no-store')
   @Throttle({ default: AUTH_ROUTE_THROTTLES.verifyEmail })
   @ApiOperation({
     summary: 'Confirm a 6-digit e-posta doğrulama kodu and open a session.',
     description:
-      'Correct code → 200 + a fresh token pair, exactly like login. Wrong/expired/consumed all ' +
-      'answer the same 400.',
+      'The correct code CREATES the account from the pending registration that code belongs to, ' +
+      'then answers 200 + a fresh token pair, exactly like login. Wrong, expired, ' +
+      'attempt-exhausted and already-used codes all answer the same 400.',
   })
   @ApiOkResponse({ type: AuthResultDto })
   @ApiBadRequestResponse({
     type: ApiErrorDto,
-    description: 'errors.verify.codeInvalid — yanlış, süresi geçmiş ya da tüketilmiş kod.',
+    description:
+      'errors.verify.codeInvalid — yanlış, süresi geçmiş, deneme hakkı tükenmiş ya da ' +
+      'kullanılmış kod.',
   })
   @ApiTooManyRequestsResponse({ type: ApiErrorDto })
   async verifyEmail(@Body() dto: VerifyEmailRequestDto): Promise<AuthResultDto> {
@@ -145,13 +154,14 @@ export class AuthController {
 
   @Post('verify-email/resend')
   @HttpCode(HttpStatus.ACCEPTED)
-  @Header('Cache-Control', 'no-store')
   @Throttle({ default: AUTH_ROUTE_THROTTLES.verifyEmailResend })
   @ApiOperation({
     summary: 'Resend the verification code.',
     description:
-      'Always 202, body-less, whatever the address is. A fresh code is minted only for a known ' +
-      'UNVERIFIED address, and only if the cooldown/daily identity-axis limits allow it.',
+      'Always 202, body-less, whatever the address is. A fresh code is issued only for an ' +
+      'address that has a pending registration, and only if the cooldown/daily identity-axis ' +
+      'limits allow it. Codes already in flight stay valid — a resend ADDS one, it never ' +
+      'cancels an earlier one.',
   })
   @ApiBadRequestResponse({ type: ApiErrorDto })
   async resendVerification(@Body() dto: ResendVerificationRequestDto): Promise<void> {
@@ -160,10 +170,9 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @Header('Cache-Control', 'no-store')
   @Throttle({ default: AUTH_ROUTE_THROTTLES.login })
   @ApiOperation({
-    summary: 'Log in with e-posta + parola.',
+    summary: 'Log in with e-posta + şifre.',
     description:
       'Unknown address and wrong password answer the SAME 401 (a real Argon2 verify runs even ' +
       'for an unknown address, to normalize timing). A correct password on an UNVERIFIED or ' +
@@ -183,7 +192,6 @@ export class AuthController {
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  @Header('Cache-Control', 'no-store')
   @Throttle({ default: AUTH_ROUTE_THROTTLES.refresh })
   @ApiOperation({
     summary: 'Rotate a refresh token for a fresh access + refresh pair.',
@@ -200,7 +208,6 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Header('Cache-Control', 'no-store')
   @Throttle({ default: AUTH_ROUTE_THROTTLES.logout })
   @ApiOperation({
     summary: 'Log out — revoke the presented refresh token’s whole family.',
@@ -214,7 +221,6 @@ export class AuthController {
 
   @Post('password-reset/request')
   @HttpCode(HttpStatus.ACCEPTED)
-  @Header('Cache-Control', 'no-store')
   @Throttle({ default: AUTH_ROUTE_THROTTLES.passwordResetRequest })
   @ApiOperation({
     summary: 'Request a password-reset e-posta ("forgot password").',
@@ -227,7 +233,6 @@ export class AuthController {
 
   @Post('password-reset/confirm')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Header('Cache-Control', 'no-store')
   @Throttle({ default: AUTH_ROUTE_THROTTLES.passwordResetConfirm })
   @ApiOperation({
     summary: 'Confirm a password reset with the opaque token + a new password.',
@@ -249,7 +254,12 @@ export class AuthController {
 
   @Get('session')
   @UseGuards(AccessTokenGuard)
-  @Header('Cache-Control', 'no-store')
+  // SEC136-I3: the repo's first authenticated, PII-returning GET must not fall inside the
+  // trusted-client throttle exemption, which scopes itself by HTTP METHOD and would otherwise
+  // wave it through. This route carries no `@Throttle` of its own by design (plan §9.1 assigns
+  // it the global 120/min) — and adding one would NOT be a substitute: `shouldSkip` returning
+  // true skips every named throttler at once, route ceiling included.
+  @NoTrustedClientExemption()
   @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: 'The current authenticated user — the minimum PII set (§7.3).',

@@ -189,6 +189,10 @@ describe('Province (e2e)', () => {
       // MUST stay ordered after `InitDistricts`.
       'InitUsers1787562000000',
       'InitAuthSessions1787565600000',
+      // UYELIK-02 PR-2 review (`SEC136-C1`): `pending_registrations` replaces
+      // `email_verification_codes`. It carries a foreign key to `districts(id)` — NOT to
+      // `users` — so its migration MUST stay ordered after `InitDistricts`.
+      'InitPendingRegistrations1787652000000',
     ]);
   });
 

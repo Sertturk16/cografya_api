@@ -28,8 +28,8 @@ import ts from 'typescript';
  * allow-list) is a violation.
  *
  * Independently of that shape check, every identifier appearing anywhere inside a log call's
- * arguments — EXPANDED through same-file `const`/`let` bindings to a fixpoint (`buildBindingMap`
- * + `collectExpanded`, `TA135-I2`) — is scanned against {@link FORBIDDEN_IDENTIFIER_NAMES}. This
+ * arguments — EXPANDED through same-file bindings to a fixpoint (`buildBindingMap` +
+ * `collectExpanded`, `TA135-I2`) — is scanned against {@link FORBIDDEN_IDENTIFIER_NAMES}. This
  * is what catches a forbidden name reaching the call through a local rebind the shape check would
  * otherwise wave through (`const locale = user.email` then `${locale}` — `locale` is itself an
  * allow-listed interpolation name, so only following the binding back to `email` sees the leak).
@@ -39,11 +39,27 @@ import ts from 'typescript';
  * POSITIVE, never a false negative, and a real collision is resolved by renaming the offending
  * local rather than by narrowing the scan.
  *
+ * **THREE binding forms feed that map, not one** (`SEC136-I2`/`VAL136-L3` — the first version
+ * claimed all three and implemented only the first):
+ *  1. a simple declaration, `const locale = user.email`;
+ *  2. a DESTRUCTURING declaration, `const { email: scope } = user` or `const [locale] = [u.email]`
+ *     — the bound name takes the initializer's identifiers PLUS its own binding element's
+ *     property name, which is where `email` lives in the object form and is the only place the
+ *     forbidden word appears at all;
+ *  3. a plain ASSIGNMENT to an existing name, `locale = user.email`, which is a
+ *     `BinaryExpression` and not a declaration, so the declaration-only walk never saw it.
+ * All three were measured SILENT before this round and FIRE after it; each has its own case
+ * below, each paired with the clean form it must NOT flag.
+ *
  * **What this gate still cannot see, named rather than left implicit:** a logger reference (or a
- * tainted value) passed as an ARGUMENT to a helper function and logged from inside that helper.
- * Seeing through that needs type information this AST-only scan does not have — it is a
- * recorded, standing limitation, not an oversight, and it does not shrink the two delika this
- * file was widened to close.
+ * tainted value) passed as an ARGUMENT to a helper function and logged from inside that helper;
+ * a value reaching a log line through a class FIELD (`this.something`) rather than a local
+ * binding; and a sink shape outside the enumeration above (a bare function call, element access
+ * such as `this.logger['warn'](…)`, or a target name that neither is `log` nor ends in `logger`,
+ * e.g. `this.loggerService`). Seeing through the first two needs type/flow information this
+ * AST-only scan does not have; the third is a deliberate boundary on the sink enumeration. All
+ * are recorded, standing limitations rather than oversights, and none of them shrinks the three
+ * binding forms this file now covers.
  */
 
 /** `fatal`/`info`/`trace` widen the five Nest `Logger` methods to also cover a custom logger's
@@ -119,26 +135,73 @@ function collectIdentifierNames(node: ts.Node, into: Set<string>): void {
 }
 
 /**
- * Maps every `const`/`let` bound NAME in the file to the set of identifier names appearing in
- * its initializer — unioned across every declaration of that name anywhere in the file. This is
- * deliberately NOT scope-aware (`TA135-I2`): a dirty binding of a name in one function taints
- * every occurrence of that name everywhere, which can only widen what fires, never narrow it.
+ * Maps every bound NAME in the file to the set of identifier names it can carry — unioned across
+ * every binding of that name anywhere in the file. This is deliberately NOT scope-aware
+ * (`TA135-I2`): a dirty binding of a name in one function taints every occurrence of that name
+ * everywhere, which can only widen what fires, never narrow it.
+ *
+ * Three binding forms are recognised; see the file docblock for why each is here and which
+ * measurement added it.
  */
 function buildBindingMap(sourceFile: ts.SourceFile): Map<string, Set<string>> {
   const bindings = new Map<string, Set<string>>();
 
-  const visit = (node: ts.Node): void => {
-    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer) {
-      const names = new Set<string>();
-      collectIdentifierNames(node.initializer, names);
-      const boundName = node.name.text;
-      const existing = bindings.get(boundName);
-      if (existing) {
-        for (const name of names) existing.add(name);
+  const bind = (boundName: string, names: Set<string>): void => {
+    const existing = bindings.get(boundName);
+    if (existing) {
+      for (const name of names) existing.add(name);
+    } else {
+      bindings.set(boundName, new Set(names));
+    }
+  };
+
+  /**
+   * Walks a destructuring pattern, binding each element's LOCAL name to the initializer's
+   * identifiers plus that element's own `propertyName`.
+   *
+   * The per-element treatment is the load-bearing part: folding the WHOLE pattern's identifiers
+   * into every bound name would make `const { email, locale } = draft` taint `locale` with
+   * `email`, i.e. a false positive on ordinary clean code, and this file's own design promise is
+   * that widening never costs correctness elsewhere.
+   */
+  const bindPattern = (pattern: ts.BindingPattern, initializerNames: Set<string>): void => {
+    for (const element of pattern.elements) {
+      if (!ts.isBindingElement(element)) continue; // an array hole (`const [, b] = …`)
+      const elementNames = new Set(initializerNames);
+      if (element.propertyName && !ts.isComputedPropertyName(element.propertyName)) {
+        elementNames.add(element.propertyName.text);
+      }
+      if (ts.isIdentifier(element.name)) {
+        bind(element.name.text, elementNames);
       } else {
-        bindings.set(boundName, names);
+        bindPattern(element.name, elementNames);
       }
     }
+  };
+
+  const visit = (node: ts.Node): void => {
+    if (ts.isVariableDeclaration(node) && node.initializer) {
+      const names = new Set<string>();
+      collectIdentifierNames(node.initializer, names);
+      if (ts.isIdentifier(node.name)) {
+        bind(node.name.text, names);
+      } else {
+        bindPattern(node.name, names);
+      }
+    }
+
+    // A rebind of an ALREADY-declared name is an assignment, not a declaration, so the branch
+    // above never sees it: `let locale = 'tr'; locale = user.email;`.
+    if (
+      ts.isBinaryExpression(node) &&
+      node.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
+      ts.isIdentifier(node.left)
+    ) {
+      const names = new Set<string>();
+      collectIdentifierNames(node.right, names);
+      bind(node.left.text, names);
+    }
+
     ts.forEachChild(node, visit);
   };
 
@@ -436,6 +499,127 @@ describe('src/auth/** log redaction (§10)', () => {
         }
       `;
       expect(checkSource('vaka-k.ts', clean)).toEqual([]);
+    });
+  });
+
+  /**
+   * `SEC136-I2`/`VAL136-L3`: the docblock claimed the expansion followed every same-file binding,
+   * but `buildBindingMap` only matched `VariableDeclaration`s with an `Identifier` name — so the
+   * two forms below reached a log line SILENTLY, and both are the same class of hole the file was
+   * widened to close in the first place.
+   *
+   * This is not a hypothetical shape. `SFH136-I2`'s own remedy — the logger `SessionService`
+   * gained this round — is a log line in a method that holds a `user`, and
+   * `const { email: scope } = user;` is a plausible way to write it. The gate had to see it
+   * BEFORE that logger landed, which is why both changes are in the same round.
+   */
+  describe('SEC136-I2 — bindings the declaration-only walk never saw', () => {
+    it('FIRES on an object destructuring rename (const { email: scope } = user)', () => {
+      const dirty = `
+        class Dirty {
+          private readonly logger = new Logger('AUTH');
+          send(user: { email: string }): void {
+            const { email: scope } = user;
+            this.logger.warn(\`login.verify scope=\${scope}\`);
+          }
+        }
+      `;
+      const violations = checkSource('vaka-l.ts', dirty);
+      expect(violations.length).toBeGreaterThan(0);
+      expect(violations.some((violation) => violation.reason.includes('"email"'))).toBe(true);
+    });
+
+    it('FIRES on an array destructuring binding (const [locale] = [user.email])', () => {
+      const dirty = `
+        class Dirty {
+          private readonly logger = new Logger('AUTH');
+          send(user: { email: string }): void {
+            const [locale] = [user.email];
+            this.logger.log(\`x \${locale}\`);
+          }
+        }
+      `;
+      const violations = checkSource('vaka-m.ts', dirty);
+      expect(violations.length).toBeGreaterThan(0);
+      expect(violations.some((violation) => violation.reason.includes('"email"'))).toBe(true);
+    });
+
+    it('FIRES on a NESTED destructuring rename (const { user: { email: outcome } } = ctx)', () => {
+      const dirty = `
+        class Dirty {
+          private readonly logger = new Logger('AUTH');
+          send(ctx: { user: { email: string } }): void {
+            const { user: { email: outcome } } = ctx;
+            this.logger.log(\`x \${outcome}\`);
+          }
+        }
+      `;
+      const violations = checkSource('vaka-n.ts', dirty);
+      expect(violations.length).toBeGreaterThan(0);
+      expect(violations.some((violation) => violation.reason.includes('"email"'))).toBe(true);
+    });
+
+    it('FIRES on an assignment rebind after declaration (let locale = "tr"; locale = user.email)', () => {
+      const dirty = `
+        class Dirty {
+          private readonly logger = new Logger('AUTH');
+          send(user: { email: string }): void {
+            let locale = 'tr';
+            locale = user.email;
+            this.logger.log(\`x \${locale}\`);
+          }
+        }
+      `;
+      const violations = checkSource('vaka-o.ts', dirty);
+      expect(violations.length).toBeGreaterThan(0);
+      expect(violations.some((violation) => violation.reason.includes('"email"'))).toBe(true);
+    });
+
+    it('FIRES through an assignment rebind chained onto a destructured name', () => {
+      const dirty = `
+        class Dirty {
+          private readonly logger = new Logger('AUTH');
+          send(user: { email: string }): void {
+            const { email: mid } = user;
+            let outcome = 'ok';
+            outcome = mid;
+            this.logger.log(\`x \${outcome}\`);
+          }
+        }
+      `;
+      const violations = checkSource('vaka-p.ts', dirty);
+      expect(violations.length).toBeGreaterThan(0);
+      expect(violations.some((violation) => violation.reason.includes('"email"'))).toBe(true);
+    });
+
+    it('POSITIVE CONTROL: a clean destructuring of allow-listed names stays SILENT', () => {
+      // The widening must not cost correctness on ordinary code: destructuring is how this
+      // package reads a `MailMessage`, and `const { template, locale } = message` must never
+      // cross-contaminate the two bound names with each other's siblings.
+      const clean = `
+        class Clean {
+          private readonly logger = new Logger('AUTH');
+          send(message: { template: string; locale: string; email: string }): void {
+            const { template, locale } = message;
+            this.logger.log(\`mail.noop template=\${template} locale=\${locale}\`);
+          }
+        }
+      `;
+      expect(checkSource('vaka-q.ts', clean)).toEqual([]);
+    });
+
+    it('POSITIVE CONTROL: a clean assignment rebind stays SILENT', () => {
+      const clean = `
+        class Clean {
+          private readonly logger = new Logger('AUTH');
+          send(message: { template: string }): void {
+            let outcome = 'ok';
+            outcome = 'failed';
+            this.logger.log(\`mail.send template=\${message.template} outcome=\${outcome}\`);
+          }
+        }
+      `;
+      expect(checkSource('vaka-r.ts', clean)).toEqual([]);
     });
   });
 });

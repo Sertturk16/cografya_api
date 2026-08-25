@@ -10,7 +10,7 @@ const ASCII_ONLY = /^[\x21-\x7E]+$/;
  * `POST /api/auth/login`'in request body'si (§6.1).
  *
  * `password` burada `IsPasswordPolicyCompliant()` TAŞIMAZ, kasıtlı: login mevcut bir hash'e karşı
- * doğrulama yapar, gelecekte politika sıkılaşırsa eski (ama geçerli) bir parola login'i
+ * doğrulama yapar, gelecekte politika sıkılaşırsa eski (ama geçerli) bir şifre login'i
  * kilitlemez. Yalnız `PASSWORD_MAX_LENGTH` ile bounded — Argon2'nin `verify` çağrısına sınırsız
  * girdi verilmez.
  */

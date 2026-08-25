@@ -11,12 +11,13 @@ import { AccessTokenService } from '../src/auth/access-token.service';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { AUTH_ROUTE_THROTTLES } from '../src/auth/auth.controller';
+import { AUTH_ERROR_KEYS } from '../src/auth/auth-error-keys';
 import { AUTH_TOKEN_AUDIENCE, AUTH_TOKEN_ISSUER } from '../src/auth/auth.constants';
 import { SessionRevocationReason } from '../src/auth/auth.types';
 import { AuthSecretsProvider } from '../src/auth/auth-secrets.provider';
-import { applyGlobalPrefix } from '../src/common/bootstrap';
+import { applyGlobalPrefix, buildCorsOptions } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
-import { EmailVerificationCode } from '../src/auth/entities/email-verification-code.entity';
+import { PendingRegistration } from '../src/auth/entities/pending-registration.entity';
 import { PasswordResetToken } from '../src/auth/entities/password-reset-token.entity';
 import { Session } from '../src/auth/entities/session.entity';
 import { User } from '../src/auth/entities/user.entity';
@@ -24,8 +25,11 @@ import { MAILER_PORT } from '../src/auth/mail/mailer.port';
 import { seedGeography } from '../src/database/seeds/seed-geography';
 import { seedReference } from '../src/database/seeds/seed-reference';
 import { District } from '../src/reference/entities/district.entity';
+import { EmailVerificationService } from '../src/auth/email-verification.service';
 import { PasswordHasherService } from '../src/auth/password-hasher.service';
 import { Province } from '../src/province/entities/province.entity';
+import { RegistrationService } from '../src/auth/registration.service';
+import type { RegisterRequestDto } from '../src/auth/dto/register-request.dto';
 import { SessionService } from '../src/auth/session.service';
 import { hmacSha256, sha256 } from '../src/auth/token-digest';
 import { RecordingMailer } from './support/recording-mailer';
@@ -47,16 +51,18 @@ interface AuthResultBody {
  * **Fixture strategy, stated because it is what keeps this file inside the IP-axis throttle
  * budget (§9.1, Y5 — no POST route may bypass it, not even with the trusted-client token):**
  * every scenario that does not itself test register/login/verify/resend creates its User /
- * Session / EmailVerificationCode / PasswordResetToken rows DIRECTLY via repository (or via
- * `SessionService`/`PasswordHasherService` pulled straight from the app's DI container — real
- * production code, called without an HTTP hop), never by first walking through `/register` or
- * `/login`. Only A1/A5 (register), A2/G3/G4 (login), A3/P-series (password-reset/request),
- * A4/T2 (verify-email/resend), V1-V5/T3 (verify-email/logout) exercise the ROUTE they assert
- * on. Register calls in this file: A1 (2) + A5 (2, concurrent) + T1 (4) = 8, under the 10/hour
- * ceiling with headroom. verify-email calls: V1-V5 (10 total) — exactly the 10/10min ceiling,
- * confirmed against `@nestjs/throttler`'s own counter (`totalHits > limit` blocks, so N calls at
- * `limit === N` all succeed). T3 deliberately exceeds `logout`'s ceiling (60/15min, otherwise
- * unused in this file) rather than any lower-ceiling route already in use elsewhere here.
+ * Session / PendingRegistration / PasswordResetToken rows DIRECTLY via repository (or via
+ * `SessionService`/`PasswordHasherService`/`EmailVerificationService` pulled straight from the
+ * app's DI container — real production code, called without an HTTP hop), never by first walking
+ * through `/register` or `/login`. Only A1/A5 (register), A2/G3/G4 (login), A3/P-series
+ * (password-reset/request), A4/T2/V5 (verify-email/resend), V1-V3/V5 (verify-email), N9b
+ * (refresh) and T3 (logout) exercise the ROUTE they assert on. Register calls in this file:
+ * A1 (2) + A5 (2, concurrent) + T1 (4) = 8, under the 10/hour ceiling with headroom.
+ * verify-email calls: V1 (2) + V2 (1) + V3 (5) + V5 (1) = 9, under the 10/10min ceiling — the
+ * C-series deliberately calls `EmailVerificationService.verify` through DI instead, because its
+ * scenarios are about the transaction's own concurrency and would otherwise spend a budget the
+ * V-series needs. T3 deliberately exceeds `logout`'s ceiling (60/15min, otherwise unused in this
+ * file) rather than any lower-ceiling route already in use elsewhere here.
  */
 describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throttle, secrets (e2e)', () => {
   let container: StartedPostgreSqlContainer;
@@ -64,6 +70,8 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
   let app: INestApplication;
   let mailer: RecordingMailer;
   let sessionService: SessionService;
+  let emailVerification: EmailVerificationService;
+  let registration: RegistrationService;
   let passwordHasher: PasswordHasherService;
   let jwtSecret: string;
   let hmacPepper: string;
@@ -103,6 +111,9 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
       .useValue(mailer)
       .compile();
     app = moduleRef.createNestApplication();
+    // CODE136-I5: S4 asserts a CORS property, so this application must actually HAVE a CORS
+    // layer — built from the shared option shape, not from a hand-copied literal.
+    app.enableCors(buildCorsOptions('http://localhost:3000'));
     applyGlobalPrefix(app);
     app.useGlobalPipes(
       new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
@@ -110,6 +121,8 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
     await app.init();
 
     sessionService = app.get(SessionService);
+    emailVerification = app.get(EmailVerificationService);
+    registration = app.get(RegistrationService);
     passwordHasher = app.get(PasswordHasherService);
     const secrets = app.get(AuthSecretsProvider);
     jwtSecret = secrets.getJwtSecret();
@@ -149,19 +162,52 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
     );
   }
 
-  async function insertVerificationCode(
-    userId: string,
+  /**
+   * A `pending_registrations` candidate carrying a KNOWN code, inserted directly.
+   *
+   * Replaces the old `insertVerificationCode(userId, …)`: a code no longer belongs to a `users`
+   * row, it belongs to a candidate that carries its own credentials, and its digest binds that
+   * candidate's own primary key (`SEC136-C1`). The id is generated HERE for the same reason the
+   * service generates it — the digest cannot be computed after the database has chosen the key.
+   */
+  async function insertCandidate(
+    email: string,
     code: string,
-    options: { expiresInMs?: number; attemptCount?: number; consumed?: boolean } = {},
-  ): Promise<void> {
-    const codeHash = hmacSha256(hmacPepper, `verify:${userId}:${code}`);
-    await dataSource.getRepository(EmailVerificationCode).insert({
-      userId,
-      codeHash,
+    options: {
+      expiresInMs?: number;
+      attemptCount?: number;
+      passwordHash?: string;
+      firstName?: string;
+    } = {},
+  ): Promise<PendingRegistration> {
+    const id = randomUUID();
+    const repo = dataSource.getRepository(PendingRegistration);
+    await repo.insert({
+      id,
+      email,
+      passwordHash: options.passwordHash ?? SYNTHETIC_PASSWORD_HASH,
+      firstName: options.firstName ?? 'Sec',
+      lastName: 'Test',
+      phone: '+905000000001',
+      accountRole: AccountRole.Teacher,
+      educationLevel: null,
+      gradeLevel: null,
+      studyStream: null,
+      universityName: null,
+      departmentName: null,
+      districtId,
+      locale: 'tr',
+      codeHash: hmacSha256(hmacPepper, `pending:${id}:${code}`),
       expiresAt: new Date(Date.now() + (options.expiresInMs ?? 10 * 60_000)),
       attemptCount: options.attemptCount ?? 0,
-      consumedAt: options.consumed ? new Date() : null,
     });
+    return repo.findOneOrFail({ where: { id } });
+  }
+
+  function candidatesOf(email: string): Promise<PendingRegistration[]> {
+    return dataSource
+      .getRepository(PendingRegistration)
+      .find({ where: { email }, order: { createdAt: 'ASC' } });
   }
 
   async function mintAccessTokenVariant(overrides: {
@@ -420,39 +466,54 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
 
   // ── V-series — verification code mechanics ──────────────────────────────────────────────
 
-  describe('V1-V5 — verification code: one-time, expiring, attempt-capped, hashed, resend replaces', () => {
-    it('V1 — a code cannot verify twice (already consumed)', async () => {
+  describe('V1-V5 — verification code: one-time, expiring, attempt-capped, hashed, resend CLONES', () => {
+    it('V1 — a code cannot verify twice: the second attempt finds the group already gone', async () => {
       const email = nextEmail();
-      const user = await createUser({ email, status: AccountStatus.Unverified });
-      await insertVerificationCode(user.id, '111111', { consumed: true });
+      await insertCandidate(email, '111111');
 
-      const response = await request(app.getHttpServer())
+      await request(app.getHttpServer())
+        .post('/api/auth/verify-email')
+        .send({ email, code: '111111' })
+        .expect(HttpStatus.OK);
+
+      // "One-time" is now enforced by the candidate group being DELETED with the account's
+      // creation, rather than by a `consumed_at` stamp on a surviving row.
+      expect(await candidatesOf(email)).toHaveLength(0);
+
+      const replay = await request(app.getHttpServer())
         .post('/api/auth/verify-email')
         .send({ email, code: '111111' })
         .expect(HttpStatus.BAD_REQUEST);
-      expect((response.body as { message: string }).message).toBe('errors.verify.codeInvalid');
+      expect((replay.body as { message: string }).message).toBe('errors.verify.codeInvalid');
     });
 
-    it('V2 — an expired code 400s AND the row is deleted', async () => {
+    it('V2 — an expired code 400s, stays unusable, and is swept by the next insert for that address', async () => {
       const email = nextEmail();
-      const user = await createUser({ email, status: AccountStatus.Unverified });
-      await insertVerificationCode(user.id, '222222', { expiresInMs: -1_000 });
+      await insertCandidate(email, '222222', { expiresInMs: -1_000 });
 
       await request(app.getHttpServer())
         .post('/api/auth/verify-email')
         .send({ email, code: '222222' })
         .expect(HttpStatus.BAD_REQUEST);
 
-      const remaining = await dataSource
-        .getRepository(EmailVerificationCode)
-        .find({ where: { userId: user.id } });
-      expect(remaining).toHaveLength(0);
+      // The row is NOT deleted by the failed verify — that is the deliberate change: no caller
+      // without a valid code may remove a row. It is filtered out by time instead, and swept by
+      // the bounded, same-address cleanup on the next insert path (the `AuthRateLimitService`
+      // D12 pattern). Driven through DI rather than the resend ROUTE, to leave the
+      // verify-email/resend budget to A4/T2/V5.
+      expect(await candidatesOf(email)).toHaveLength(1);
+
+      await emailVerification.resendCandidateCode(email);
+
+      // Swept, and NOT replaced: an address whose only candidate had expired has nothing to
+      // clone, so a resend must not conjure credentials out of nowhere.
+      expect(await candidatesOf(email)).toHaveLength(0);
+      expect(mailer.sentTo(email)).toHaveLength(0);
     });
 
-    it('V3 — the 5th wrong attempt destroys the code; the 6th call 400s with none left', async () => {
+    it('V3 — the 5th wrong attempt kills the CODE while the candidate survives to expiry', async () => {
       const email = nextEmail();
-      const user = await createUser({ email, status: AccountStatus.Unverified });
-      await insertVerificationCode(user.id, '333333');
+      await insertCandidate(email, '333333');
 
       for (let attempt = 1; attempt <= 5; attempt += 1) {
         await request(app.getHttpServer())
@@ -461,69 +522,96 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
           .expect(HttpStatus.BAD_REQUEST);
       }
 
-      const afterFive = await dataSource
-        .getRepository(EmailVerificationCode)
-        .find({ where: { userId: user.id } });
-      expect(afterFive).toHaveLength(0);
+      // The row is still THERE — the old table deleted it, and that deletion was a primitive any
+      // caller who knew an address could reach. What dies is the code: the counter is at its
+      // ceiling, so `verify` no longer considers the row, and the CHECK is not violated.
+      const afterFive = await candidatesOf(email);
+      expect(afterFive).toHaveLength(1);
+      expect(afterFive[0]?.attemptCount).toBe(5);
 
-      await request(app.getHttpServer())
-        .post('/api/auth/verify-email')
-        .send({ email, code: '333333' }) // even the ORIGINALLY correct code no longer matches anything
-        .expect(HttpStatus.BAD_REQUEST);
+      // Even the originally CORRECT code no longer matches anything. Asserted through DI rather
+      // than a 6th HTTP call: this file's verify-email budget is spent by design and the
+      // property under test is the service's, not the route's.
+      await expect(emailVerification.verify(email, '333333')).rejects.toMatchObject({
+        message: 'errors.verify.codeInvalid',
+      });
+
+      // …and the honest owner is NOT stranded: a resend clones the burned candidate's
+      // credentials with a fresh code and a fresh budget. Before the rework, exhausting the
+      // attempts destroyed the only copy of the submitted credentials.
+      await emailVerification.resendCandidateCode(email);
+      const afterResend = await candidatesOf(email);
+      expect(afterResend).toHaveLength(2);
+      const clone = afterResend.find((candidate) => candidate.id !== afterFive[0]?.id);
+      expect(clone?.attemptCount).toBe(0);
+      expect(clone?.passwordHash).toBe(afterFive[0]?.passwordHash);
     });
 
-    it('V4 — the stored digest is neither the plain code nor its bare SHA-256; an un-peppered HMAC disagrees', async () => {
+    it('V4 — the stored digest is neither the plain code nor its bare SHA-256, and it binds the ROW id', async () => {
       const email = nextEmail();
-      const user = await createUser({ email, status: AccountStatus.Unverified });
-      await insertVerificationCode(user.id, '444444');
+      const candidate = await insertCandidate(email, '444444');
 
-      const row = await dataSource
-        .getRepository(EmailVerificationCode)
-        .findOneOrFail({ where: { userId: user.id } });
-
-      expect(row.codeHash.equals(Buffer.from('444444'))).toBe(false);
-      expect(row.codeHash.equals(sha256(`verify:${user.id}:444444`))).toBe(false);
+      expect(candidate.codeHash.equals(Buffer.from('444444'))).toBe(false);
+      expect(candidate.codeHash.equals(sha256(`pending:${candidate.id}:444444`))).toBe(false);
       expect(
-        row.codeHash.equals(
-          hmacSha256('wrong-pepper-not-the-real-one', `verify:${user.id}:444444`),
+        candidate.codeHash.equals(
+          hmacSha256('wrong-pepper-not-the-real-one', `pending:${candidate.id}:444444`),
         ),
       ).toBe(false);
-      expect(row.codeHash.equals(hmacSha256(hmacPepper, `verify:${user.id}:444444`))).toBe(true);
+      expect(
+        candidate.codeHash.equals(hmacSha256(hmacPepper, `pending:${candidate.id}:444444`)),
+      ).toBe(true);
+
+      // NON-TRANSFERABILITY, structurally: the same code under a SIBLING candidate's id produces
+      // a different digest, which is what stops one candidate's code from materializing another.
+      const sibling = await insertCandidate(email, '999999');
+      expect(
+        candidate.codeHash.equals(hmacSha256(hmacPepper, `pending:${sibling.id}:444444`)),
+      ).toBe(false);
     });
 
-    it('V5 — resend replaces the old code: the old code 400s, the new one verifies', async () => {
+    it('V5 — resend ADDS a code and cancels nothing: the code already in flight still verifies', async () => {
+      // The inversion of what this case used to assert, and the reason is `VAL136-I1`: replacing
+      // the active code handed anyone who merely knew an address the power to invalidate the code
+      // its owner was typing. A resend now clones.
       const email = nextEmail();
-      const user = await createUser({ email, status: AccountStatus.Unverified });
-      await insertVerificationCode(user.id, '555555');
+      const original = await insertCandidate(email, '555555');
 
       await request(app.getHttpServer())
         .post('/api/auth/verify-email/resend')
         .send({ email })
         .expect(HttpStatus.ACCEPTED);
 
-      const rows = await dataSource
-        .getRepository(EmailVerificationCode)
-        .find({ where: { userId: user.id } });
-      expect(rows).toHaveLength(1);
+      const rows = await candidatesOf(email);
+      expect(rows).toHaveLength(2);
+      const clone = rows.find((row) => row.id !== original.id);
+      expect(clone).toBeDefined();
+      // Same credentials, different id, therefore a different digest.
+      expect(clone?.passwordHash).toBe(original.passwordHash);
+      expect(clone?.firstName).toBe(original.firstName);
+      expect(clone?.id).not.toBe(original.id);
+      expect(clone?.codeHash.equals(original.codeHash)).toBe(false);
 
+      const sent = mailer.lastOfTemplate(email, 'verify-email');
+      expect(sent).toBeDefined();
+
+      // The ORIGINAL code — the one a third party would have destroyed — still works.
       await request(app.getHttpServer())
         .post('/api/auth/verify-email')
         .send({ email, code: '555555' })
-        .expect(HttpStatus.BAD_REQUEST);
-
-      const sent = mailer.lastOfTemplate(email, 'verify-email');
-      if (!sent) throw new Error('no verify-email message recorded from resend');
-      await request(app.getHttpServer())
-        .post('/api/auth/verify-email')
-        .send({ email, code: sent.variables.code })
         .expect(HttpStatus.OK);
+
+      // …and it created the account, taking the whole group — clone included — with it.
+      const user = await dataSource.getRepository(User).findOneOrFail({ where: { email } });
+      expect(user.status).toBe(AccountStatus.Active);
+      expect(await candidatesOf(email)).toHaveLength(0);
     });
   });
 
   // ── A-series — anti-enumeration ─────────────────────────────────────────────────────────
 
   describe('A1-A5 — anti-enumeration: known and unknown addresses are indistinguishable', () => {
-    it('A1 — register: an unknown and a known-UNVERIFIED address answer IDENTICAL 202s', async () => {
+    it('A1 — register: an unknown address and one that already has a candidate answer IDENTICAL 202s', async () => {
       const unknownEmail = nextEmail();
       const unknownResponse = await request(app.getHttpServer())
         .post('/api/auth/register')
@@ -540,7 +628,10 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
         .expect(HttpStatus.ACCEPTED);
 
       const knownEmail = nextEmail();
-      await createUser({ email: knownEmail, status: AccountStatus.Unverified });
+      // The interesting "known" case is no longer an UNVERIFIED `users` row — that state is
+      // unreachable now — but an address that already carries a pending candidate, which is the
+      // branch a second registration for the same address actually takes.
+      await insertCandidate(knownEmail, '654321');
       const knownResponse = await request(app.getHttpServer())
         .post('/api/auth/register')
         .send({
@@ -592,9 +683,9 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
       expect(knownResponse.body).toEqual(unknownResponse.body);
     });
 
-    it('A4 — resend: known-UNVERIFIED, unknown, and already-ACTIVE addresses all answer the SAME 202', async () => {
+    it('A4 — resend: pending, unknown, and already-ACTIVE addresses all answer the SAME 202', async () => {
       const unverifiedEmail = nextEmail();
-      await createUser({ email: unverifiedEmail, status: AccountStatus.Unverified });
+      await insertCandidate(unverifiedEmail, '777777');
       const activeEmail = nextEmail();
       await createUser({ email: activeEmail, status: AccountStatus.Active });
 
@@ -613,12 +704,16 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
 
       expect(unverifiedResponse.body).toEqual(unknownResponse.body);
       expect(unverifiedResponse.body).toEqual(activeResponse.body);
-      // Only the genuinely UNVERIFIED address actually received a code — asserted separately
-      // from the response shape, which by design says nothing about it.
+      // Only the address with a pending candidate actually received a code — asserted separately
+      // from the response shape, which by design says nothing about it. An address that already
+      // owns an account has no candidate to clone, so nothing goes out and, crucially, nothing
+      // about that account is touched.
       expect(mailer.sentTo(activeEmail)).toHaveLength(0);
+      expect(await candidatesOf(activeEmail)).toHaveLength(0);
+      expect(mailer.sentTo(unverifiedEmail).length).toBeGreaterThan(0);
     });
 
-    it('A5 — a concurrent unique-violation race never 500s, never repeats, and creates exactly one user', async () => {
+    it('A5 — concurrent registers for one address never 500 and never leak the address', async () => {
       const email = nextEmail();
       const payload = {
         firstName: 'A5',
@@ -641,16 +736,174 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
       expect(JSON.stringify(first.body)).not.toContain('@');
       expect(JSON.stringify(second.body)).not.toContain('@');
 
+      // No account exists yet — registering does not create one any more — and the second call
+      // did NOT silently discard its submission the way the old one-slot flow did. The
+      // `UQ_users_email` race this case used to exercise moved to `verify`, where C2 drives it.
+      expect(await dataSource.getRepository(User).find({ where: { email } })).toHaveLength(0);
+      expect(await candidatesOf(email)).toHaveLength(2);
+    });
+  });
+
+  // ── C-series — SEC136-C1: no submission is ever discarded or overwritten ────────────────
+
+  /**
+   * The CRITICAL finding's own pins. Before this rework, a second `register` for an address that
+   * already had an unverified row hashed the new password, threw it away, and answered the same
+   * 202 — so whoever registered an address FIRST owned its credentials, and the victim who later
+   * confirmed their own mailbox activated the attacker's password on their own verified address.
+   *
+   * These run through DI rather than the routes on purpose (the file docblock's fixture
+   * strategy): they are about the verify TRANSACTION's own behaviour under concurrency, and
+   * driving them over HTTP would spend a throttle budget the V-series needs without measuring
+   * anything extra.
+   */
+  describe('C1-C3 — two candidates coexist, and the code that is used decides the account', () => {
+    function registerPayload(
+      email: string,
+      password: string,
+      firstName: string,
+    ): RegisterRequestDto {
+      return {
+        firstName,
+        lastName: 'Aday',
+        phone: '+905000000020',
+        email,
+        password,
+        accountRole: AccountRole.Teacher,
+        districtId,
+        provincePlateCode: '34',
+        locale: 'tr',
+      };
+    }
+
+    async function readPasswordHash(email: string): Promise<string> {
+      const user = await dataSource
+        .getRepository(User)
+        .createQueryBuilder('user')
+        .addSelect('user.passwordHash')
+        .where('user.email = :email', { email })
+        .getOneOrFail();
+      return user.passwordHash;
+    }
+
+    it('C1 — the CONSUMED code decides whose password and profile become the account', async () => {
+      const email = nextEmail();
+
+      // "Attacker first": a candidate nobody asked for, created with the attacker's credentials.
+      await registration.register(registerPayload(email, 'Attacker-Pass1', 'Saldiran'));
+      // The real owner then registers with their OWN password. Nothing is discarded, nothing is
+      // overwritten — a SECOND candidate appears beside the first.
+      await registration.register(registerPayload(email, 'Victim-Pass1', 'Kurban'));
+
+      const candidates = await candidatesOf(email);
+      expect(candidates).toHaveLength(2);
+      // Identified by their own field, never by array position: `created_at` is a transaction
+      // timestamp and two rows written microseconds apart can tie, so index order is not a fact
+      // this file may assume (the `R1` lesson, applied here).
+      const attackerCandidate = candidates.find((row) => row.firstName === 'Saldiran');
+      const victimCandidate = candidates.find((row) => row.firstName === 'Kurban');
+      expect(attackerCandidate).toBeDefined();
+      expect(victimCandidate).toBeDefined();
+      // The control that makes the assertion below mean something: the two candidates really do
+      // carry different credentials, so "the right one materialized" is a real choice.
+      expect(attackerCandidate?.passwordHash).not.toBe(victimCandidate?.passwordHash);
+
+      const codes = mailer
+        .sentTo(email)
+        .filter((message) => message.template === 'verify-email')
+        .map((message) => (message as { variables: { code: string } }).variables.code);
+      expect(codes).toHaveLength(2);
+      const victimCode = codes[1];
+      if (victimCode === undefined) throw new Error('no second verification code recorded');
+
+      await emailVerification.verify(email, victimCode);
+
       const users = await dataSource.getRepository(User).find({ where: { email } });
       expect(users).toHaveLength(1);
+      expect(users[0]?.firstName).toBe('Kurban');
+      expect(users[0]?.status).toBe(AccountStatus.Active);
+
+      // The decisive assertion: the account opens with the password of the candidate whose code
+      // was used, and NOT with the other one's. This is the exact chain `VAL136-C1` walked.
+      const storedHash = await readPasswordHash(email);
+      expect(storedHash).toBe(victimCandidate?.passwordHash);
+      await expect(passwordHasher.verify(storedHash, 'Victim-Pass1')).resolves.toBe(true);
+      await expect(passwordHasher.verify(storedHash, 'Attacker-Pass1')).resolves.toBe(false);
+
+      // The rival candidate died with the group rather than lingering against a real account.
+      expect(await candidatesOf(email)).toHaveLength(0);
+    });
+
+    it('C2 — two CONCURRENT verifies for one address create exactly one account, and never 500', async () => {
+      // The `UQ_users_email` race moved here from `register` when registration stopped writing
+      // `users`. The group lock serializes the pair; the loser sees an empty group and answers
+      // the same 400 every other failure answers — and, like the old register race, it never
+      // echoes the address (`E2E-A5`'s property, at its new home).
+      const email = nextEmail();
+      await insertCandidate(email, '101010');
+      await insertCandidate(email, '202020');
+
+      const outcomes = await Promise.allSettled([
+        emailVerification.verify(email, '101010'),
+        emailVerification.verify(email, '202020'),
+      ]);
+      const fulfilled = outcomes.filter((outcome) => outcome.status === 'fulfilled');
+      const rejected = outcomes.filter((outcome) => outcome.status === 'rejected');
+      expect(fulfilled).toHaveLength(1);
+      expect(rejected).toHaveLength(1);
+      for (const outcome of rejected) {
+        expect(JSON.stringify(outcome.reason)).not.toContain('@');
+      }
+
+      expect(await dataSource.getRepository(User).find({ where: { email } })).toHaveLength(1);
+      expect(await candidatesOf(email)).toHaveLength(0);
+    });
+
+    it('C3 — SFH136-I1: a wrong guess charges every live candidate exactly once, even concurrently', async () => {
+      const email = nextEmail();
+      await insertCandidate(email, '303030');
+      await insertCandidate(email, '404040');
+
+      // The lost-update half. Before the row lock, two concurrent wrong guesses both read the
+      // same counter and both wrote the same value, so the cap of 5 quietly never arrived.
+      const concurrent = await Promise.allSettled([
+        emailVerification.verify(email, '999999'),
+        emailVerification.verify(email, '888888'),
+      ]);
+      expect(concurrent.every((outcome) => outcome.status === 'rejected')).toBe(true);
+      const afterConcurrent = await candidatesOf(email);
+      expect(afterConcurrent.map((candidate) => candidate.attemptCount)).toEqual([2, 2]);
+
+      // The ceiling half. The reviewed remedy (`+ 1` then a separate DELETE) could produce 6 and
+      // trip `CHK_pending_registrations_attempts` into a 500; the counter is clamped instead, and
+      // the extra guesses below would have overflowed it.
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        await expect(emailVerification.verify(email, '777777')).rejects.toMatchObject({
+          message: 'errors.verify.codeInvalid',
+        });
+      }
+      const afterCeiling = await candidatesOf(email);
+      expect(afterCeiling.map((candidate) => candidate.attemptCount)).toEqual([5, 5]);
+
+      // Both codes are dead, and both rows are still THERE — no caller without a valid code
+      // removed anything.
+      await expect(emailVerification.verify(email, '303030')).rejects.toMatchObject({
+        message: 'errors.verify.codeInvalid',
+      });
+      expect(await candidatesOf(email)).toHaveLength(2);
     });
   });
 
   // ── G-series — guard boundary ────────────────────────────────────────────────────────────
 
   describe('G1-G4 — AccessTokenGuard boundary', () => {
-    it('G1 — no Authorization header 401s', async () => {
-      await request(app.getHttpServer()).get('/api/auth/session').expect(HttpStatus.UNAUTHORIZED);
+    it('G1 — no Authorization header 401s, and that 401 carries Cache-Control: no-store', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/api/auth/session')
+        .expect(HttpStatus.UNAUTHORIZED);
+      // CODE136-I2/TA136-I1: this header was measurably ABSENT before `AuthNoStoreMiddleware`,
+      // because `@Header` metadata is applied after guards and `AccessTokenGuard` throws first.
+      expect(response.headers['cache-control']).toBe('no-store');
     });
 
     it('G2 — every malformed-token variant 401s: signature, iss, aud, alg, typ', async () => {
@@ -760,18 +1013,22 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
         .expect(HttpStatus.ACCEPTED);
 
       const beforeFourth = mailer.sentTo(email).length;
+      const candidatesBeforeFourth = (await candidatesOf(email)).length;
       await request(app.getHttpServer())
         .post('/api/auth/register')
         .send(payload)
         .expect(HttpStatus.ACCEPTED);
       const afterFourth = mailer.sentTo(email).length;
       expect(afterFourth).toBe(beforeFourth);
+      // The refused call also writes nothing: the identity-axis limiter is what bounds how many
+      // candidates one address can accumulate, which is the derivation
+      // `PENDING_REGISTRATION_MAX_ACTIVE` rests on.
+      expect(await candidatesOf(email)).toHaveLength(candidatesBeforeFourth);
     });
 
     it('T2 — resend cooldown (60s): a second immediate resend sends no new mail, still 202s', async () => {
       const email = nextEmail();
-      const user = await createUser({ email, status: AccountStatus.Unverified });
-      await insertVerificationCode(user.id, '666666');
+      await insertCandidate(email, '666666');
 
       await request(app.getHttpServer())
         .post('/api/auth/verify-email/resend')
@@ -788,20 +1045,66 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
       expect(afterSecond).toBe(afterFirst);
     });
 
-    it('T3 — the IP-axis ceiling 429s even for an otherwise-valid request, no trusted-client bypass on POST', async () => {
+    it('T3 — the IP-axis 429 carries the published i18n key AND no-store; no trusted-client bypass on POST', async () => {
       const limit = AUTH_ROUTE_THROTTLES.logout.limit;
-      let sawTooManyRequests = false;
+      let throttled: request.Response | undefined;
       for (let attempt = 0; attempt < limit + 1; attempt += 1) {
         const response = await request(app.getHttpServer())
           .post('/api/auth/logout')
           .send({ refreshToken: 'synthetic-unknown-token-for-throttle-probe' });
         if (Number(response.status) === Number(HttpStatus.TOO_MANY_REQUESTS)) {
-          sawTooManyRequests = true;
+          throttled = response;
           break;
         }
         expect(response.status).toBe(HttpStatus.NO_CONTENT);
       }
-      expect(sawTooManyRequests).toBe(true);
+      expect(throttled).toBeDefined();
+
+      // CODE136-I1/SEC136-I4: `errors.auth.rateLimited` was published in the contract and thrown
+      // by nothing — the body was `@nestjs/throttler`'s English prose. This is the PRODUCTION
+      // control the contract spec structurally cannot provide: it reads a real 429 body.
+      const throttledBody = throttled?.body as { message?: string };
+      expect(throttledBody.message).toBe(AUTH_ERROR_KEYS.rateLimited);
+      // CODE136-I2/TA136-I1: the throttler is a guard, so this header was absent too.
+      expect(throttled?.headers['cache-control']).toBe('no-store');
+    });
+  });
+
+  // ── N9 — the no-store boundary, from BOTH sides ─────────────────────────────────────────
+
+  /**
+   * Acceptance criterion #15, as CORRECTED by the PR #136 review. Its original wording
+   * ("every auth response, success and error alike") was not satisfiable by the mechanism it was
+   * written for, and two whole classes were silently missing it. The criterion now states what
+   * the middleware actually holds, and both halves are pinned here — the covered classes above
+   * (G1's guard 401, T3's throttler 429) and elsewhere in the suite (200/202/204/400 across
+   * `auth-endpoints.e2e-spec.ts`), and the ONE uncovered class below.
+   */
+  describe('N9 — Cache-Control: no-store, and the single measured exception', () => {
+    it('N9a — a service-thrown 401 carries no-store (the class that always worked)', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/auth/refresh')
+        .send({ refreshToken: 'synthetic-unknown-refresh-token-for-no-store-probe' })
+        .expect(HttpStatus.UNAUTHORIZED);
+      expect(response.headers['cache-control']).toBe('no-store');
+    });
+
+    it('N9b — a MALFORMED JSON body 400 does NOT carry it, and that boundary is asserted on purpose', async () => {
+      // NEGATIVE pin. Express's body parser runs before any module middleware
+      // (`NestApplication.init` registers it ahead of `registerModules`), so this response leaves
+      // before `AuthNoStoreMiddleware` is reached — and `src/main.ts`, the only place the parser
+      // could be reconfigured, is frozen. RFC 9110 §15.1 / 9111 §3 bound the exposure: 400 is
+      // not heuristically cacheable, and the body carries neither token nor PII.
+      //
+      // This is asserted rather than ignored so that the day the boundary MOVES — a global
+      // exception filter, a parser change, a `main.ts` unfreeze — this test goes red and the
+      // docblock gets corrected with it, instead of drifting the way the original criterion did.
+      const response = await request(app.getHttpServer())
+        .post('/api/auth/refresh')
+        .set('Content-Type', 'application/json')
+        .send('{"refreshToken": ')
+        .expect(HttpStatus.BAD_REQUEST);
+      expect(response.headers['cache-control']).toBeUndefined();
     });
   });
 
@@ -889,6 +1192,12 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
         .options('/api/auth/login')
         .set('Origin', 'http://localhost:3000')
         .set('Access-Control-Request-Method', 'POST');
+
+      // POSITIVE CONTROL, and the reason this case is worth anything at all now (`CODE136-I5`):
+      // the CORS layer is genuinely installed, so the preflight DOES answer with an
+      // allow-origin header. Without this line the credentials assertion below would once again
+      // be a check nothing can break.
+      expect(response.headers['access-control-allow-origin']).toBe('http://localhost:3000');
       expect(response.headers['access-control-allow-credentials']).toBeUndefined();
     });
   });

@@ -178,11 +178,17 @@ describe('Auth core schema (e2e)', () => {
     // PR-1 lands them, so the pin flips to the table names — the negative pin becomes the
     // positive one rather than being deleted, so a future revert of that migration is caught
     // here exactly as the original absence was.
+    //
+    // `email_verification_codes` then went the OTHER way: `InitPendingRegistrations` dropped it
+    // and `pending_registrations` took its place (`SEC136-C1`), so its pin is `null` again — and
+    // that null is an assertion, not an omission. It is what fails if the drop is ever quietly
+    // reverted and two code tables end up coexisting.
     const relationRows = await dataSource.query<
       {
         users: string | null;
         sessions: string | null;
         verify_codes: string | null;
+        pending: string | null;
         reset_tokens: string | null;
       }[]
     >(`
@@ -190,12 +196,14 @@ describe('Auth core schema (e2e)', () => {
         to_regclass('public.users')::text AS users,
         to_regclass('public.sessions')::text AS sessions,
         to_regclass('public.email_verification_codes')::text AS verify_codes,
+        to_regclass('public.pending_registrations')::text AS pending,
         to_regclass('public.password_reset_tokens')::text AS reset_tokens
     `);
     expect(relationRows[0]).toEqual({
       users: 'users',
       sessions: 'sessions',
-      verify_codes: 'email_verification_codes',
+      verify_codes: null,
+      pending: 'pending_registrations',
       reset_tokens: 'password_reset_tokens',
     });
 
@@ -383,66 +391,87 @@ describe('Auth core schema (e2e)', () => {
     expect(instanceToPlain(explicitlySelected)).toEqual({});
   });
 
-  it('reverts and reapplies the latest migration (InitAuthSessions) on an empty synthetic table', async () => {
-    // The migration under revert here is now `InitAuthSessions` — `InitUsers` sits one migration
-    // further back, so `undoLastMigration` no longer touches the `users` TABLE at all. This test
-    // moved from asserting `users` disappears to asserting exactly what `InitAuthSessions.down()`
-    // actually does: the four new tables go away and `users` loses `token_version`, while `users`
-    // itself and every UYELIK-01 column/constraint stay untouched.
+  it('reverts and reapplies the latest migration (InitPendingRegistrations) on an empty synthetic table', async () => {
+    // The migration under revert MOVED again: `InitPendingRegistrations` is now the last one, so
+    // `undoLastMigration` no longer touches `sessions`, `password_reset_tokens`,
+    // `auth_rate_limits` or `users.token_version` at all — `InitAuthSessions` sits one further
+    // back and stays applied. What this asserts is exactly what the new `down()` does: swap the
+    // two code tables back, leaving everything else in place.
+    //
+    // Both directions matter here. `down()` re-creating `email_verification_codes` is the half a
+    // revert on a live database depends on, and nothing else in the suite exercises it.
     const counts = await dataSource.query<{ count: string }[]>(
       `SELECT count(*)::text AS count FROM users`,
     );
     expect(counts[0]?.count).toBe('0');
 
+    const relationSnapshot = async (): Promise<Record<string, string | null> | undefined> => {
+      const rows = await dataSource.query<
+        {
+          users: string | null;
+          sessions: string | null;
+          verify_codes: string | null;
+          pending: string | null;
+          reset_tokens: string | null;
+        }[]
+      >(`
+        SELECT
+          to_regclass('public.users')::text AS users,
+          to_regclass('public.sessions')::text AS sessions,
+          to_regclass('public.email_verification_codes')::text AS verify_codes,
+          to_regclass('public.pending_registrations')::text AS pending,
+          to_regclass('public.password_reset_tokens')::text AS reset_tokens
+      `);
+      return rows[0];
+    };
+
+    expect(await relationSnapshot()).toEqual({
+      users: 'users',
+      sessions: 'sessions',
+      verify_codes: null,
+      pending: 'pending_registrations',
+      reset_tokens: 'password_reset_tokens',
+    });
+
     await dataSource.undoLastMigration();
 
-    const afterDown = await dataSource.query<
-      {
-        users: string | null;
-        sessions: string | null;
-        verify_codes: string | null;
-        reset_tokens: string | null;
-      }[]
-    >(`
-      SELECT
-        to_regclass('public.users')::text AS users,
-        to_regclass('public.sessions')::text AS sessions,
-        to_regclass('public.email_verification_codes')::text AS verify_codes,
-        to_regclass('public.password_reset_tokens')::text AS reset_tokens
-    `);
-    expect(afterDown[0]).toEqual({
+    // The swap, and ONLY the swap: `sessions`, `password_reset_tokens` and `token_version` are
+    // one migration further back and must be untouched by this revert.
+    expect(await relationSnapshot()).toEqual({
       users: 'users',
-      sessions: null,
-      verify_codes: null,
-      reset_tokens: null,
+      sessions: 'sessions',
+      verify_codes: 'email_verification_codes',
+      pending: null,
+      reset_tokens: 'password_reset_tokens',
     });
 
     const columnsAfterDown = await dataSource.query<{ column_name: string }[]>(`
       SELECT column_name FROM information_schema.columns
       WHERE table_schema = 'public' AND table_name = 'users' AND column_name = 'token_version'
     `);
-    expect(columnsAfterDown).toEqual([]);
+    expect(columnsAfterDown).toHaveLength(1);
+
+    // The re-created table must come back with its partial unique index, not merely with its
+    // columns — that index is what `down()` hand-authors and what a naive `CREATE TABLE` would
+    // silently omit.
+    const revertedIndexes = await dataSource.query<{ indexname: string }[]>(`
+      SELECT indexname FROM pg_indexes
+      WHERE schemaname = 'public' AND tablename = 'email_verification_codes'
+      ORDER BY indexname
+    `);
+    expect(revertedIndexes.map(({ indexname }) => indexname)).toEqual([
+      'IDX_email_verification_codes_expires_at',
+      'PK_email_verification_codes',
+      'UQ_email_verification_codes_active',
+    ]);
 
     await dataSource.runMigrations();
 
-    const afterUp = await dataSource.query<
-      {
-        users: string | null;
-        sessions: string | null;
-        verify_codes: string | null;
-        reset_tokens: string | null;
-      }[]
-    >(`
-      SELECT
-        to_regclass('public.users')::text AS users,
-        to_regclass('public.sessions')::text AS sessions,
-        to_regclass('public.email_verification_codes')::text AS verify_codes,
-        to_regclass('public.password_reset_tokens')::text AS reset_tokens
-    `);
-    expect(afterUp[0]).toEqual({
+    expect(await relationSnapshot()).toEqual({
       users: 'users',
       sessions: 'sessions',
-      verify_codes: 'email_verification_codes',
+      verify_codes: null,
+      pending: 'pending_registrations',
       reset_tokens: 'password_reset_tokens',
     });
 

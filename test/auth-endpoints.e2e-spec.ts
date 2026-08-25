@@ -8,7 +8,7 @@ import { DataSource } from 'typeorm';
 import { AccountStatus } from '../src/auth/account.types';
 import { applyGlobalPrefix } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
-import { EmailVerificationCode } from '../src/auth/entities/email-verification-code.entity';
+import { PendingRegistration } from '../src/auth/entities/pending-registration.entity';
 import { PasswordResetToken } from '../src/auth/entities/password-reset-token.entity';
 import { Session } from '../src/auth/entities/session.entity';
 import { User } from '../src/auth/entities/user.entity';
@@ -24,6 +24,13 @@ import { RecordingMailer } from './support/recording-mailer';
 /**
  * E2E-N1..N9 (D16 moves N10, the sözleşme guard, to the UNIT lane as `AUTH-C1`) — happy paths,
  * DTO/validation wiring, and the guard's 200/401 boundary, against a REAL Postgres.
+ *
+ * **`register` no longer creates the account** (`SEC136-C1`): it creates a
+ * `pending_registrations` candidate, and `verify-email` materializes the `users` row from the
+ * candidate whose code was presented. Every case below that used to read `users` straight after a
+ * register now walks the code, which is also what makes the profile-matrix cases (N7) assert the
+ * thing that actually matters — that the profile the caller SUBMITTED is the profile that becomes
+ * the account.
  *
  * **Register call budget, stated because it is a real constraint (§9.1, Y5):** IP-axis
  * `@Throttle` cannot be bypassed by the trusted-client token on ANY POST route
@@ -104,6 +111,22 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
     await container?.stop();
   });
 
+  /**
+   * Walks the code the api just mailed and returns the created account.
+   *
+   * verify-email call budget in this file: N2 (1) + N2b (1) + N7 (4) = 6, under the 10/10min
+   * IP-axis ceiling with headroom.
+   */
+  async function verifyLatestCode(email: string): Promise<User> {
+    const sent = mailer.lastOfTemplate(email, 'verify-email');
+    if (!sent) throw new Error(`no verify-email message recorded for ${email}`);
+    await request(app.getHttpServer())
+      .post('/api/auth/verify-email')
+      .send({ email, code: sent.variables.code })
+      .expect(HttpStatus.OK);
+    return dataSource.getRepository(User).findOneOrFail({ where: { email } });
+  }
+
   function teacherPayload(email: string, districtId: string): Record<string, unknown> {
     return {
       firstName: 'Ayşe',
@@ -124,7 +147,7 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
     let refreshToken: string;
     let currentSessionRowId: string;
 
-    it('N1 — register creates an UNVERIFIED user, one active code, and sends verify-email', async () => {
+    it('N1 — register creates a PENDING candidate and NO account, and sends verify-email', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/auth/register')
         .send(teacherPayload(email, istanbulDistrictId))
@@ -133,22 +156,30 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
       expect(response.body).toEqual({});
       expect(response.headers['cache-control']).toBe('no-store');
 
-      const user = await dataSource.getRepository(User).findOneOrFail({ where: { email } });
-      userId = user.id;
-      expect(user.status).toBe(AccountStatus.Unverified);
+      // The account does NOT exist yet, and that is the whole point of the rework: an
+      // unconfirmed registration owns no `users` row, so it is not a slot anyone can claim.
+      const users = await dataSource.getRepository(User).find({ where: { email } });
+      expect(users).toHaveLength(0);
 
-      const activeCodes = await dataSource
-        .getRepository(EmailVerificationCode)
-        .find({ where: { userId } });
-      expect(activeCodes).toHaveLength(1);
-      expect(activeCodes[0]?.consumedAt).toBeNull();
+      const candidates = await dataSource
+        .getRepository(PendingRegistration)
+        .find({ where: { email } });
+      expect(candidates).toHaveLength(1);
+      const candidate = candidates[0];
+      expect(candidate?.attemptCount).toBe(0);
+      // The submitted credentials and profile are held on the candidate, not thrown away.
+      expect(candidate?.firstName).toBe('Ayşe');
+      expect(candidate?.passwordHash.startsWith('$argon2id$')).toBe(true);
+      // …and the plain code lives in no column: only its peppered digest does.
+      expect(candidate?.codeHash).toHaveLength(32);
 
       const sent = mailer.lastOfTemplate(email, 'verify-email');
       expect(sent).toBeDefined();
       expect(sent?.variables.code).toMatch(/^[0-9]{6}$/);
+      expect(candidate?.codeHash.equals(Buffer.from(sent?.variables.code ?? ''))).toBe(false);
     });
 
-    it('N2 — verify-email with the correct code opens a fresh session', async () => {
+    it('N2 — verify-email CREATES the account from the candidate and opens a fresh session', async () => {
       const sent = mailer.lastOfTemplate(email, 'verify-email');
       if (!sent) throw new Error('no verify-email message recorded');
 
@@ -165,15 +196,21 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
       refreshToken = body.refreshToken;
       void accessToken;
 
-      const user = await dataSource.getRepository(User).findOneOrFail({ where: { id: userId } });
+      const user = await dataSource.getRepository(User).findOneOrFail({ where: { email } });
+      userId = user.id;
+      // Straight to ACTIVE: there is no UNVERIFIED step any more, because there was no row.
       expect(user.status).toBe(AccountStatus.Active);
       expect(user.emailVerifiedAt).not.toBeNull();
+      // The profile that materialized is the one N1 submitted, field for field.
+      expect(user.firstName).toBe('Ayşe');
+      expect(user.lastName).toBe('Yılmaz');
+      expect(user.districtId).toBe(istanbulDistrictId);
 
-      const codes = await dataSource
-        .getRepository(EmailVerificationCode)
-        .find({ where: { userId } });
-      expect(codes).toHaveLength(1);
-      expect(codes[0]?.consumedAt).not.toBeNull();
+      // The whole candidate group for this address is gone with the account's creation.
+      const candidates = await dataSource
+        .getRepository(PendingRegistration)
+        .find({ where: { email } });
+      expect(candidates).toHaveLength(0);
 
       const sessions = await dataSource.getRepository(Session).find({ where: { userId } });
       expect(sessions).toHaveLength(1);
@@ -298,14 +335,20 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
     });
   });
 
-  describe('N7 — all four profile-matrix branches register successfully; a malformed one 400s', () => {
+  /**
+   * Each branch now registers AND verifies, because that is where the profile lands: the
+   * candidate carries it, `verify` copies it into `users`, and only the second half proves the
+   * matrix survived the copy. Asserting the candidate alone would re-test the DTO and leave
+   * materialization — the step this rework introduced — unmeasured.
+   */
+  describe('N7 — all four profile-matrix branches register and materialize; a malformed one 400s', () => {
     it('registers a TEACHER (educationLevel/grade/stream/university/department all absent)', async () => {
       const email = nextEmail();
       await request(app.getHttpServer())
         .post('/api/auth/register')
         .send(teacherPayload(email, istanbulDistrictId))
         .expect(HttpStatus.ACCEPTED);
-      const user = await dataSource.getRepository(User).findOneOrFail({ where: { email } });
+      const user = await verifyLatestCode(email);
       expect(user.accountRole).toBe('TEACHER');
       expect(user.educationLevel).toBeNull();
     });
@@ -328,7 +371,7 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
           provincePlateCode: '34',
         })
         .expect(HttpStatus.ACCEPTED);
-      const user = await dataSource.getRepository(User).findOneOrFail({ where: { email } });
+      const user = await verifyLatestCode(email);
       expect(user.gradeLevel).toBe('GRADE_9');
       expect(user.studyStream).toBe('SAYISAL');
     });
@@ -351,7 +394,7 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
           provincePlateCode: '34',
         })
         .expect(HttpStatus.ACCEPTED);
-      const user = await dataSource.getRepository(User).findOneOrFail({ where: { email } });
+      const user = await verifyLatestCode(email);
       expect(user.universityName).toBe(university);
       expect(user.departmentName).toBe(department);
     });
@@ -373,7 +416,7 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
           provincePlateCode: '34',
         })
         .expect(HttpStatus.ACCEPTED);
-      const user = await dataSource.getRepository(User).findOneOrFail({ where: { email } });
+      const user = await verifyLatestCode(email);
       expect(user.universityName).toBe(university);
       expect(user.departmentName).toBeNull();
     });

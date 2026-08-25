@@ -106,7 +106,21 @@ describe('openapi/openapi.json — auth contract (AUTH-C1)', () => {
     }
   });
 
-  it('publishes every one of the ten i18n error keys (§6.3) somewhere in the contract', () => {
+  /**
+   * **What this case measures, stated because it was once read as more than it is**
+   * (`SEC136-I4`). `raw.includes(key)` proves a key is DECLARED somewhere in the published
+   * document — nothing more. It cannot tell a key that some code path throws from a key that only
+   * appears inside a prose description, and for `errors.auth.rateLimited` that difference was
+   * real: the key was published on `register`'s 429 while the actual body carried
+   * `@nestjs/throttler`'s English prose.
+   *
+   * The gap is closed where it can be closed — by a control that reads a real response body:
+   * `test/auth-security.e2e-spec.ts`'s T3 drives a genuine 429 and asserts its `message` equals
+   * `AUTH_ERROR_KEYS.rateLimited`, and the remaining nine keys are each asserted on the response
+   * that produces them across the endpoint and security suites. This case keeps its narrower job,
+   * which is a contract-publication check, and now says so instead of implying the wider one.
+   */
+  it('DECLARES every one of the ten i18n error keys (§6.3) somewhere in the contract', () => {
     const values = Object.values(AUTH_ERROR_KEYS);
     expect(values.length).toBe(10);
     for (const key of values) {

@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, QueryFailedError, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { AccountStatus } from './account.types';
 import { AuthRateLimitScope } from './auth.types';
 import { AuthRateLimitService } from './auth-rate-limit.service';
@@ -12,16 +12,20 @@ import { MAILER_PORT, type MailerPort, type MailMessage } from './mail/mailer.po
 import { MAIL_SEND_TIMEOUT_MS } from './auth.constants';
 import { PasswordHasherService } from './password-hasher.service';
 
-/** Postgres unique-violation SQLSTATE — `users.email`'s `UQ_users_email` (E2E-A5). */
-const UNIQUE_VIOLATION_SQLSTATE = '23505';
-
 /**
  * `POST /api/auth/register` and `POST /api/auth/verify-email/resend` — "register + resend akışı"
  * (§6.1, §6.2, D15). Ownership split from `EmailVerificationService`: this class decides WHAT
  * happens for a given address/status combination (the anti-enumeration branching and the
- * identity-axis rate-limit scopes) — `EmailVerificationService` owns HOW a code is minted,
- * hashed, stored and consumed, so `issueVerificationCode` is called from both this class' two
- * flows and never duplicated.
+ * identity-axis rate-limit scopes) — `EmailVerificationService` owns HOW a candidate is stored,
+ * how its code is hashed and consumed, and how a verified candidate becomes a `users` row.
+ *
+ * **This class no longer writes to `users` at all** (`SEC136-C1`). Registering used to INSERT an
+ * UNVERIFIED account immediately, which made the row a one-slot resource an unauthenticated
+ * caller could claim and made every later submission for the same address a silent no-op. The
+ * account is now created in `verify`'s transaction, from the candidate whose code was presented.
+ * `grep -rn "passwordHash" src/ --include=*.ts` therefore finds exactly two writers left:
+ * `EmailVerificationService.verify` (INSERT) and `PasswordResetService.confirmReset` (UPDATE, a
+ * proof-of-mailbox path).
  */
 @Injectable()
 export class RegistrationService {
@@ -39,6 +43,12 @@ export class RegistrationService {
   /**
    * §6.1 #1, §6.2's `register` row. Always 202, gövdesiz — every branch below returns `void`
    * rather than a distinguishable result.
+   *
+   * **Register spends `REGISTER_EMAIL` and nothing else.** It used to fall through to the resend
+   * helper for a known-unverified address and spend `VERIFY_RESEND_COOLDOWN` +
+   * `VERIFY_RESEND_DAILY` as well, which is what let a third party exhaust the daily resend budget
+   * and leave the real owner unable to register for 24 hours (`VAL136-I1`). The two axes are now
+   * structurally separate: nothing on this path touches a resend counter.
    */
   async register(dto: RegisterRequestDto): Promise<void> {
     // D15: districtId must exist and belong to provincePlateCode — one query, no class-validator
@@ -56,97 +66,61 @@ export class RegistrationService {
 
     const existing = await this.users.findOne({ where: { email: dto.email } });
 
-    if (!existing) {
-      const created = await this.createUnverifiedUser(dto, passwordHash);
-      if (!created) return; // unique-violation race — treated as "address exists", silently.
-      await this.emailVerification.issueVerificationCode(created, dto.locale);
+    if (existing) {
+      if (existing.status === AccountStatus.Active) {
+        await this.sendMailFailSoft({
+          template: 'account-exists',
+          to: existing.email,
+          locale: dto.locale,
+          variables: {},
+        });
+      }
+      // ACTIVE got its notice above. DISABLED / PENDING_DELETION send nothing.
+      //
+      // UNVERIFIED is now a state no code path can CREATE — `verify` inserts accounts straight to
+      // ACTIVE — so reaching it means a row that predates the `pending_registrations` migration.
+      // Nothing is sent and, above all, nothing is written: an existing account's credentials are
+      // never touched by an unauthenticated call, whatever its status. The migration's own
+      // docblock carries the deploy preflight that counts such rows.
       return;
     }
 
-    if (existing.status === AccountStatus.Unverified) {
-      await this.regenerateCodeForUnverifiedUser(existing.email, dto.locale);
-      return;
-    }
-
-    if (existing.status === AccountStatus.Active) {
-      await this.sendMailFailSoft({
-        template: 'account-exists',
-        to: existing.email,
-        locale: dto.locale,
-        variables: {},
-      });
-      return;
-    }
-
-    // DISABLED / PENDING_DELETION — nothing goes out, nothing is written.
-  }
-
-  /** §6.1 #3, §6.2's `resend` row. Always 202, gövdesiz. */
-  async resendVerification(dto: ResendVerificationRequestDto): Promise<void> {
-    await this.regenerateCodeForUnverifiedUser(dto.email, 'tr');
+    await this.emailVerification.issueCandidateCode({
+      email: dto.email,
+      passwordHash,
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+      phone: dto.phone,
+      accountRole: dto.accountRole,
+      educationLevel: dto.educationLevel ?? null,
+      gradeLevel: dto.gradeLevel ?? null,
+      studyStream: dto.studyStream ?? null,
+      universityName: dto.universityName ?? null,
+      departmentName: dto.departmentName ?? null,
+      districtId: dto.districtId,
+      locale: dto.locale,
+    });
   }
 
   /**
-   * Shared by `register`'s known-UNVERIFIED branch and the dedicated resend endpoint: the
-   * cooldown/daily gate, then a fresh code via `EmailVerificationService.issueVerificationCode`.
+   * §6.1 #3, §6.2's `resend` row. Always 202, gövdesiz.
    *
-   * `locale` defaults to `'tr'` on the bare resend path: neither `ResendVerificationRequestDto`
-   * nor `User` carries a stored locale (the entity has none — UYELIK-01's shape), so a resend
-   * triggered outside a fresh `register` call has no recorded language to honour. This is a
-   * self-contained default, not a plan gap: `RegisterRequestDto.locale` already defaults to
-   * `'tr'` for the same reason.
+   * The cooldown/daily gate is this class' call; the clone itself is
+   * `EmailVerificationService.resendCandidateCode`, which never deletes or mutates a live
+   * candidate (`VAL136-I1`). The mail's language comes from the cloned candidate, so a resend now
+   * honours the language the original `register` asked for — the old code had nowhere to store it
+   * and defaulted every bare resend to `tr`.
    */
-  private async regenerateCodeForUnverifiedUser(
-    email: string,
-    locale: MailMessage['locale'],
-  ): Promise<void> {
-    const cooldown = await this.rateLimiter.consume(AuthRateLimitScope.VerifyResendCooldown, email);
+  async resendVerification(dto: ResendVerificationRequestDto): Promise<void> {
+    const cooldown = await this.rateLimiter.consume(
+      AuthRateLimitScope.VerifyResendCooldown,
+      dto.email,
+    );
     if (!cooldown.allowed) return;
-    const daily = await this.rateLimiter.consume(AuthRateLimitScope.VerifyResendDaily, email);
+    const daily = await this.rateLimiter.consume(AuthRateLimitScope.VerifyResendDaily, dto.email);
     if (!daily.allowed) return;
 
-    const user = await this.users.findOne({ where: { email } });
-    if (!user || user.status !== AccountStatus.Unverified) return;
-
-    await this.emailVerification.issueVerificationCode(user, locale);
-  }
-
-  /**
-   * Inserts the new row. Returns `null` on a `users.email` unique-violation race instead of
-   * throwing: Postgres's own `detail` on that error carries the address
-   * (`Key (email)=(…)`), so this catch is the ONE place that error is allowed to reach — it is
-   * neither logged nor re-thrown (E2E-A5).
-   */
-  private async createUnverifiedUser(
-    dto: RegisterRequestDto,
-    passwordHash: string,
-  ): Promise<User | null> {
-    try {
-      return await this.users.save(
-        this.users.create({
-          firstName: dto.firstName,
-          lastName: dto.lastName,
-          phone: dto.phone,
-          email: dto.email,
-          passwordHash,
-          accountRole: dto.accountRole,
-          educationLevel: dto.educationLevel ?? null,
-          gradeLevel: dto.gradeLevel ?? null,
-          studyStream: dto.studyStream ?? null,
-          universityName: dto.universityName ?? null,
-          departmentName: dto.departmentName ?? null,
-          districtId: dto.districtId,
-          status: AccountStatus.Unverified,
-          emailVerifiedAt: null,
-        }),
-      );
-    } catch (error) {
-      const sqlState = (error as QueryFailedError & { code?: string }).code;
-      if (error instanceof QueryFailedError && sqlState === UNIQUE_VIOLATION_SQLSTATE) {
-        return null;
-      }
-      throw error;
-    }
+    await this.emailVerification.resendCandidateCode(dto.email);
   }
 
   private async assertDistrictBelongsToProvince(

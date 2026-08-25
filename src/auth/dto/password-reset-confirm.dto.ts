@@ -6,7 +6,7 @@ import { IsPasswordPolicyCompliant } from '../password-policy';
 /**
  * `POST /api/auth/password-reset/confirm`'ün request body'si (§6.1, §5.4.3).
  *
- * §6.2'nin anti-enumeration matrisi gereği parola politikası kontrolü JETONDAN ÖNCE çalışır —
+ * §6.2'nin anti-enumeration matrisi gereği şifre politikası kontrolü JETONDAN ÖNCE çalışır —
  * bu sıra `PasswordResetService`'in işidir, DTO'nun değil; DTO yalnız iki alanı da doğrular.
  */
 export class PasswordResetConfirmDto {
@@ -23,7 +23,7 @@ export class PasswordResetConfirmDto {
     minLength: PASSWORD_MIN_LENGTH,
     maxLength: PASSWORD_MAX_LENGTH,
     description:
-      'Yeni parola — aynı politika register ile paylaşılır (`DEC 2026-08-20g` md.1 #5). ' +
+      'Yeni şifre — aynı politika register ile paylaşılır (`DEC 2026-08-20g` md.1 #5). ' +
       'Hiçbir yanıtta, örnekte ya da logda dönmez.',
   })
   @IsPasswordPolicyCompliant()

@@ -946,7 +946,7 @@
     },
     "/api/auth/register": {
       "post": {
-        "description": "Always 202, body-less — the response never reveals whether the address already existed (§6.2 anti-enumeration). A verification e-posta is sent for a genuinely new address; a known UNVERIFIED address gets a fresh code (cooldown permitting); a known ACTIVE address gets an \"account exists\" notice; DISABLED/PENDING_DELETION sends nothing.",
+        "description": "Always 202, body-less — the response never reveals whether the address already existed (§6.2 anti-enumeration). An address with no account becomes a PENDING registration and receives a verification e-posta; the account itself is created only when that code is confirmed, so submitting the same address again never overwrites an earlier submission and never activates one. A known ACTIVE address gets an \"account exists\" notice instead; a disabled account sends nothing.",
         "operationId": "AuthController_register",
         "parameters": [],
         "requestBody": {
@@ -964,7 +964,7 @@
             "description": ""
           },
           "400": {
-            "description": "DTO şekli, profil matrisi, parola veya ilçe↔il uyuşmazlığı.",
+            "description": "DTO şekli, profil matrisi, şifre veya ilçe↔il uyuşmazlığı.",
             "content": {
               "application/json": {
                 "schema": {
@@ -992,7 +992,7 @@
     },
     "/api/auth/verify-email": {
       "post": {
-        "description": "Correct code → 200 + a fresh token pair, exactly like login. Wrong/expired/consumed all answer the same 400.",
+        "description": "The correct code CREATES the account from the pending registration that code belongs to, then answers 200 + a fresh token pair, exactly like login. Wrong, expired, attempt-exhausted and already-used codes all answer the same 400.",
         "operationId": "AuthController_verifyEmail",
         "parameters": [],
         "requestBody": {
@@ -1017,7 +1017,7 @@
             }
           },
           "400": {
-            "description": "errors.verify.codeInvalid — yanlış, süresi geçmiş ya da tüketilmiş kod.",
+            "description": "errors.verify.codeInvalid — yanlış, süresi geçmiş, deneme hakkı tükenmiş ya da kullanılmış kod.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1045,7 +1045,7 @@
     },
     "/api/auth/verify-email/resend": {
       "post": {
-        "description": "Always 202, body-less, whatever the address is. A fresh code is minted only for a known UNVERIFIED address, and only if the cooldown/daily identity-axis limits allow it.",
+        "description": "Always 202, body-less, whatever the address is. A fresh code is issued only for an address that has a pending registration, and only if the cooldown/daily identity-axis limits allow it. Codes already in flight stay valid — a resend ADDS one, it never cancels an earlier one.",
         "operationId": "AuthController_resendVerification",
         "parameters": [],
         "requestBody": {
@@ -1136,7 +1136,7 @@
             }
           }
         },
-        "summary": "Log in with e-posta + parola.",
+        "summary": "Log in with e-posta + şifre.",
         "tags": [
           "auth"
         ]
@@ -5412,7 +5412,7 @@
             "writeOnly": true,
             "minLength": 6,
             "maxLength": 128,
-            "description": "Yeni parola — aynı politika register ile paylaşılır (`DEC 2026-08-20g` md.1 #5). Hiçbir yanıtta, örnekte ya da logda dönmez."
+            "description": "Yeni şifre — aynı politika register ile paylaşılır (`DEC 2026-08-20g` md.1 #5). Hiçbir yanıtta, örnekte ya da logda dönmez."
           }
         },
         "required": [

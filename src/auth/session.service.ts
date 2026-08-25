@@ -4,6 +4,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -19,7 +20,7 @@ import type { SessionDto } from './dto/session.dto';
 import { Session } from './entities/session.entity';
 import { User } from './entities/user.entity';
 import { mintOpaqueToken } from './opaque-token';
-import { PasswordHasherService } from './password-hasher.service';
+import { PasswordHasherService, PasswordHashVerificationError } from './password-hasher.service';
 import { sha256 } from './token-digest';
 
 const REFRESH_TOKEN_TTL_MS = REFRESH_TOKEN_TTL_DAYS * 24 * 60 * 60 * 1000;
@@ -49,6 +50,15 @@ type RefreshOutcome =
  */
 @Injectable()
 export class SessionService {
+  /**
+   * The ONE observability signal this class owns (`SFH136-I2`): the credential-verification
+   * integrity branch below. Every line it writes is a bare string literal with no interpolation
+   * at all — not merely "no PII", but no substitution point a later edit could quietly fill with
+   * an address (`ENGINEERING.md` §3.6; §10's structural gate, whose own scan is what would catch
+   * a regression here).
+   */
+  private readonly logger = new Logger('AUTH');
+
   constructor(
     @InjectRepository(User) private readonly users: Repository<User>,
     @InjectRepository(Session) private readonly sessions: Repository<Session>,
@@ -82,10 +92,22 @@ export class SessionService {
       throw new UnauthorizedException(AUTH_ERROR_KEYS.invalidCredentials);
     }
 
+    // `PasswordHasherService.verify` RETURNS `false` for a wrong password and THROWS only on an
+    // internal integrity failure — a corrupt PHC string in the column, or Argon2 failing to
+    // allocate its 19 MiB under load. The previous body-less `catch` collapsed that distinction
+    // into the same silent 401, so a systemic outage was indistinguishable from ordinary
+    // wrong-password traffic and produced not one log line anywhere (`SFH136-I2`).
+    //
+    // The RESPONSE deliberately does not change: this branch stays fail-closed and answers the
+    // same `errors.auth.invalidCredentials`, because telling a caller "your hash is broken" is
+    // both an oracle and useless to them. What changes is that an operator can now see it. Any
+    // OTHER error propagates instead of being swallowed.
     let passwordMatches: boolean;
     try {
       passwordMatches = await this.passwordHasher.verify(user.passwordHash, password);
-    } catch {
+    } catch (error) {
+      if (!(error instanceof PasswordHashVerificationError)) throw error;
+      this.logger.warn('login.verify outcome=hash-integrity-failure');
       passwordMatches = false;
     }
     if (!passwordMatches) {

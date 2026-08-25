@@ -2,8 +2,8 @@ import type { DataSourceOptions } from 'typeorm';
 import { AirQualityProvinceSeries } from '../air-quality/entities/air-quality-province-series.entity';
 import { AirQualityRun } from '../air-quality/entities/air-quality-run.entity';
 import { AuthRateLimit } from '../auth/entities/auth-rate-limit.entity';
-import { EmailVerificationCode } from '../auth/entities/email-verification-code.entity';
 import { PasswordResetToken } from '../auth/entities/password-reset-token.entity';
+import { PendingRegistration } from '../auth/entities/pending-registration.entity';
 import { Session } from '../auth/entities/session.entity';
 import { User } from '../auth/entities/user.entity';
 import { BookVideoQuestion } from '../book/entities/book-video-question.entity';
@@ -41,6 +41,7 @@ import { AddProvincePm25Annual1787149250651 } from './migrations/1787149250651-A
 import { InitDistricts1787302800000 } from './migrations/1787302800000-InitDistricts';
 import { InitUsers1787562000000 } from './migrations/1787562000000-InitUsers';
 import { InitAuthSessions1787565600000 } from './migrations/1787565600000-InitAuthSessions';
+import { InitPendingRegistrations1787652000000 } from './migrations/1787652000000-InitPendingRegistrations';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -221,7 +222,7 @@ export function buildDataSourceOptions(
       District,
       User,
       Session,
-      EmailVerificationCode,
+      PendingRegistration,
       PasswordResetToken,
       AuthRateLimit,
     ],
@@ -249,6 +250,7 @@ export function buildDataSourceOptions(
       InitDistricts1787302800000,
       InitUsers1787562000000,
       InitAuthSessions1787565600000,
+      InitPendingRegistrations1787652000000,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,

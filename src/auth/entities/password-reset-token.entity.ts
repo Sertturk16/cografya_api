@@ -11,11 +11,16 @@ import {
 /**
  * A 256-bit opaque password-reset token (`GLOSSARY.md` §7: şifre = password), §5.4.
  *
- * Deliberately its OWN table rather than reusing `email_verification_codes`'s shape: the
+ * Deliberately its OWN table rather than reusing the verification code's shape (that code lived
+ * in `email_verification_codes` and now lives on `pending_registrations` — `SEC136-C1`): the
  * reset flow is a higher-value target (it changes `password_hash` and revokes every live
  * session, §5.4.3), so it gets its own shorter TTL, its own opaque-token format (not a
  * 6-digit code) and its own attempt-free design — there is no "wrong guess" counter here
  * because the token is 256 bits of entropy, not a 6-digit space.
+ *
+ * That separation is worth more after the rework, not less: this flow acts on an EXISTING
+ * account and is the only remaining path that UPDATEs `users.password_hash`, while the
+ * verification code now creates an account and never rewrites one.
  *
  * The MIGRATION is the schema truth; these decorators are declared so the access paths read
  * beside the columns.
