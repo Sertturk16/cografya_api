@@ -740,6 +740,68 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
       expect(mailer.sentTo(email)).toHaveLength(mailsBefore);
       expect((await candidatesOf(email)).map((row) => row.id).sort()).toEqual(before);
     });
+
+    /**
+     * V7 pins `TA136R3-M2`: the clone-source re-indexing (`live[live.length - 1]`) had never been
+     * exercised with MORE THAN ONE live SAME-identity candidate, so a misbinding of that index
+     * (e.g. `live[0]`) would have broken nothing in the suite. Built with a raw, timestamp-explicit
+     * insert (the `C4` pattern) so `createdAt` ordering is deterministic rather than a same-millisecond
+     * race between two ordinary inserts.
+     */
+    it('V7 — resend clones the NEWEST live candidate when more than one shares the identity (TA136R3-M2)', async () => {
+      const email = nextEmail();
+      const now = Date.now();
+      const idOlder = randomUUID();
+      const idNewer = randomUUID();
+
+      async function rawInsertLivePending(id: string, createdAtMs: number, firstName: string) {
+        await dataSource.query(
+          `INSERT INTO pending_registrations
+             (id, email, password_hash, first_name, last_name, phone, account_role,
+              education_level, grade_level, study_stream, university_name, department_name,
+              district_id, locale, code_hash, expires_at, attempt_count, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
+          [
+            id,
+            email,
+            SYNTHETIC_PASSWORD_HASH,
+            firstName,
+            'Test',
+            '+905000000001',
+            AccountRole.Teacher,
+            null,
+            null,
+            null,
+            null,
+            null,
+            districtId,
+            'tr',
+            hmacSha256(hmacPepper, `pending:${id}:000000`),
+            new Date(now + 10 * 60_000), // LIVE
+            0,
+            new Date(createdAtMs),
+          ],
+        );
+      }
+
+      // SAME identity (SYNTHETIC_PASSWORD_HASH), different `created_at`, both LIVE.
+      await rawInsertLivePending(idOlder, now - 10 * 60_000, 'Older');
+      await rawInsertLivePending(idNewer, now - 1_000, 'Newer');
+
+      // Positive control: `created_at ASC` really does put the "Newer" row LAST.
+      const ordered = await candidatesOf(email);
+      expect(ordered.map((row) => row.firstName)).toEqual(['Older', 'Newer']);
+
+      await expect(emailVerification.resendCandidateCode(email)).resolves.toBe('issued');
+
+      const after = await candidatesOf(email);
+      expect(after).toHaveLength(3);
+      const clone = after.find((row) => row.id !== idOlder && row.id !== idNewer);
+      expect(clone).toBeDefined();
+      // The decisive assertion: the clone carries "Newer"'s profile, not "Older"'s — pinning
+      // `live[live.length - 1]`, not `live[0]`.
+      expect(clone?.firstName).toBe('Newer');
+    });
   });
 
   // ── A-series — anti-enumeration ─────────────────────────────────────────────────────────
@@ -891,7 +953,7 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
    * driving them over HTTP would spend a throttle budget the V-series needs without measuring
    * anything extra.
    */
-  describe('C1-C6 — two candidates coexist, and the code that is used decides the account', () => {
+  describe('C1-C7 — two candidates coexist, and the code that is used decides the account', () => {
     function registerPayload(
       email: string,
       password: string,
@@ -1212,6 +1274,48 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
         await dataSource.query('DROP TRIGGER IF EXISTS c6_pause_users ON "users"');
         await dataSource.query('DROP FUNCTION IF EXISTS pg_temp_pause_users()');
       }
+    });
+
+    /**
+     * C7 pins `TA136R3-M1` (alias `SFH136R3-M4`): `verify`'s OWN contention branch (the
+     * `isContentionFailure` catch inside `EmailVerificationService.verify`, distinct from C5's
+     * target inside `insertCandidate`) had been executed by NO case in this suite — reverting it,
+     * or misbinding which SQLSTATE it names, broke nothing. Same construction as C5, aimed at
+     * `verify` instead of `resend`, and — unlike C5 — driven through DI (this file's
+     * `verify-email` ROUTE budget is spent elsewhere; the property under test is the SERVICE's).
+     */
+    it('C7 — a genuine deadlock INSIDE verify itself still answers the same 400, never 500 (TA136R3-M1)', async () => {
+      const email = nextEmail();
+      const r1 = await insertCandidate(email, '717172');
+      const r2 = await insertCandidate(email, '727273');
+      const beforeCount = (await candidatesOf(email)).length;
+      expect(beforeCount).toBe(2);
+
+      let verifyPromise: Promise<unknown> | undefined;
+      await withHeldRowLock([r2.id], async (lockNext) => {
+        // The CORRECT code for `r1` — the point is that contention, not a wrong code, is what
+        // swallows this call.
+        verifyPromise = expect(emailVerification.verify(email, '717172')).rejects.toMatchObject({
+          message: 'errors.verify.codeInvalid',
+        });
+
+        // Positive control: the app is really BLOCKED — it already holds `r1`'s lock (`created_at
+        // ASC`'s first row, the same lock order `verify` and `insertCandidate` share) and is
+        // waiting on `r2`, which this transaction holds.
+        await waitForBlockedWaiter();
+
+        // Locking `r1` FROM HERE closes the cycle, exactly as in C5.
+        await lockNext(r1.id);
+      });
+
+      if (!verifyPromise) throw new Error('verify was never triggered');
+      await verifyPromise;
+
+      // The 400 above is a SWALLOWED contention, not "the code was actually wrong": no account was
+      // created and both candidates are still there — the deadlock killed `verify`'s OWN
+      // transaction before it could write anything.
+      expect(await dataSource.getRepository(User).findOne({ where: { email } })).toBeNull();
+      expect(await candidatesOf(email)).toHaveLength(beforeCount);
     });
   });
 
