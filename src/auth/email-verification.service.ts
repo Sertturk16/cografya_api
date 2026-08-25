@@ -88,7 +88,7 @@ type VerifyOutcome = { verified: false } | { verified: true; userId: string };
  *     It is bounded by the cap and touches no other column;
  *  3. `DELETE` of the id list this transaction has ALREADY locked and classified as expired
  *     against one `now` — the bounded, same-subject cleanup `AuthRateLimitService` (D12)
- *     established instead of a scheduler. It cannot reach a live row, because the classification
+ *     established. It cannot reach a live row, because the classification
  *     and the delete share the same snapshot and the same clock.
  * There is **no UPDATE of any credential column anywhere in this repo** — a candidate's `email`,
  * `password_hash` and profile are written once, by the INSERT that creates the row, and never
@@ -150,9 +150,12 @@ export class EmailVerificationService {
         const now = new Date();
 
         // The ORDER BY is not cosmetic: BOTH write paths against this table lock an address's
-        // whole candidate group in ONE statement, in `created_at ASC, id ASC` order — and neither
-        // transaction takes any OTHER row lock on this table. That shared order is what keeps two
-        // concurrent writers from deadlocking rather than queueing.
+        // whole candidate group in ONE statement, in `created_at ASC, id ASC` order — that shared
+        // order is what keeps two concurrent writers from deadlocking rather than queueing.
+        // Neither transaction acquires a row lock it does not ALREADY hold: the group DELETE
+        // below names only the ids this same locking SELECT returned, so it can never reach a
+        // row a concurrent writer committed after this SELECT ran (pinned by C6, PR #136 round 4,
+        // `VAL136R3-DL2`).
         const candidates = await repo
           .createQueryBuilder('pending')
           .setLock('pessimistic_write')
@@ -218,9 +221,24 @@ export class EmailVerificationService {
           emailVerifiedAt: now,
         });
 
-        // The address now has an account, so every sibling candidate is moot — including any
-        // an attacker created. They die with the group, inside the same transaction.
-        await repo.delete({ email });
+        // The address now has an account, so every sibling candidate this transaction LOCKED is
+        // moot — including any an attacker created. The id list is not decoration: `delete({ email })`
+        // opened its OWN statement snapshot and could ask for a row committed after the locking
+        // SELECT at :156-162, i.e. a row this transaction does not hold. Measured on live Postgres
+        // 16.15: that shape deadlocked 20/20 in a constructed race against `insertCandidate`'s
+        // ordered lock, this shape 0/20 (PR #136 round 4, `VAL136R3-DL2`) — the same differential
+        // C6 pins as a positive/negative pair against this line.
+        //
+        // What survives, stated rather than left to be discovered: a candidate that became visible
+        // INSIDE that window is not deleted here (C6's own survivor assertion). It cannot become a
+        // second account — the read at :197-199 refuses an address that already owns one and
+        // `UQ_users_email` catches the concurrent case (C2 pins the uniqueness half) — and it dies
+        // at its own expiry, swept by the next `insertCandidate` for this address (the same DELETE
+        // V2 already pins). The guard is required, not defensive: TypeORM rejects an empty
+        // criterion with `TypeORMError` (`EntityManager.js:466-469`).
+        if (candidates.length > 0) {
+          await repo.delete(candidates.map((candidate) => candidate.id));
+        }
 
         return { verified: true, userId };
       });

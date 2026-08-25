@@ -841,7 +841,7 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
    * driving them over HTTP would spend a throttle budget the V-series needs without measuring
    * anything extra.
    */
-  describe('C1-C5 — two candidates coexist, and the code that is used decides the account', () => {
+  describe('C1-C6 — two candidates coexist, and the code that is used decides the account', () => {
     function registerPayload(
       email: string,
       password: string,
@@ -1114,6 +1114,51 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
       expect(resendResponse.status).toBe(HttpStatus.ACCEPTED);
       // The 202 above is a SWALLOWED contention, not a success: no new row was written.
       expect(await candidatesOf(email)).toHaveLength(beforeCount);
+    });
+
+    /**
+     * C6 pins item 1 (`VAL136R3-DL2`, PR #136 round 4): `verify`'s group DELETE must name only
+     * the ids ITS OWN locking SELECT returned. A fresh `WHERE email` statement (round 3's shape)
+     * opens its OWN snapshot and can see — and delete — a row committed AFTER that SELECT ran.
+     * The window is opened DETERMINISTICALLY with a test-scoped `BEFORE INSERT ON users` trigger,
+     * de-risked end to end on live Postgres 16.15 in Phase 1 (plan §13.3): the pause really opens
+     * (measured 1003 ms), the racing row really commits inside it, and survival flips exactly with
+     * the delete shape.
+     */
+    it('C6 — verify deletes only the candidates it LOCKED; one that commits inside the window survives', async () => {
+      const email = nextEmail();
+      const code = '717171';
+      await insertCandidate(email, code);
+
+      // A test-scoped pause INSIDE verify's transaction, between its locking SELECT and its group
+      // DELETE: `verify` inserts the `users` row in between, so a BEFORE INSERT trigger on `users`
+      // is the one deterministic hook available without touching production code. Scoped to this
+      // address by its WHEN clause, and dropped in `finally`.
+      await dataSource.query(`
+        CREATE OR REPLACE FUNCTION pg_temp_pause_users() RETURNS trigger LANGUAGE plpgsql AS $$
+        BEGIN PERFORM pg_sleep(1); RETURN NEW; END; $$;
+      `);
+      await dataSource.query(
+        `CREATE TRIGGER c6_pause_users BEFORE INSERT ON "users" FOR EACH ROW
+           WHEN (NEW."email" = '${email}') EXECUTE FUNCTION pg_temp_pause_users();`,
+      );
+      try {
+        const verifyPromise = emailVerification.verify(email, code);
+        await new Promise((resolve) => setTimeout(resolve, 300)); // verify is now inside the pause
+        const racer = await insertCandidate(email, '818181'); // commits INSIDE the window
+        await expect(verifyPromise).resolves.toBeDefined();
+
+        // Positive control: the account really WAS materialized, so the DELETE really did run —
+        // otherwise "the row survived" would only mean "verify never got there".
+        const user = await dataSource.getRepository(User).findOneOrFail({ where: { email } });
+        expect(user.status).toBe(AccountStatus.Active);
+
+        const left = await candidatesOf(email);
+        expect(left.map((row) => row.id)).toEqual([racer.id]);
+      } finally {
+        await dataSource.query('DROP TRIGGER IF EXISTS c6_pause_users ON "users"');
+        await dataSource.query('DROP FUNCTION IF EXISTS pg_temp_pause_users()');
+      }
     });
   });
 
