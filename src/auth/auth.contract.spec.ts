@@ -199,6 +199,24 @@ describe('openapi/openapi.json — auth contract (AUTH-C1)', () => {
     }
   });
 
+  /**
+   * `CODE136R2-I5`/`SEC136R2-M2` (PR #136 round 3). `login`'s 429 is thrown from TWO independent
+   * axes — `SessionService.login`'s identity-axis cap (`AUTH_ERROR_KEYS.tooManyAttempts`) and the
+   * class-level `@ThrottlerErrorMessage`'s IP-axis cap (`AUTH_ERROR_KEYS.rateLimited`) — but the
+   * published `description` used to name only one. **Pinned as a POSITIVE control on the
+   * REVERTED code**: at head `4498e95` this case is RED (the description names only
+   * `AUTH_ERROR_KEYS.tooManyAttempts`); it goes green only once the description names both keys.
+   */
+  it('publishes BOTH i18n keys login’s 429 can carry, not only one axis', () => {
+    type OperationWith429 = {
+      responses?: Record<string, { description?: string } | undefined>;
+    };
+    const loginPost = document.paths['/api/auth/login']?.post as OperationWith429 | undefined;
+    const description = loginPost?.responses?.['429']?.description ?? '';
+    expect(description).toContain(AUTH_ERROR_KEYS.tooManyAttempts);
+    expect(description).toContain(AUTH_ERROR_KEYS.rateLimited);
+  });
+
   it('never publishes an example on a secret-bearing field, and every one is writeOnly', () => {
     const secretFieldsBySchema: Record<string, string[]> = {
       RegisterRequestDto: ['password'],

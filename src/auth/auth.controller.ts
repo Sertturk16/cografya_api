@@ -192,7 +192,12 @@ export class AuthController {
     type: ApiErrorDto,
     description: 'errors.auth.emailNotVerified ya da errors.auth.accountDisabled.',
   })
-  @ApiTooManyRequestsResponse({ type: ApiErrorDto, description: 'errors.auth.tooManyAttempts.' })
+  @ApiTooManyRequestsResponse({
+    type: ApiErrorDto,
+    description:
+      'errors.auth.tooManyAttempts — kimlik ekseni tavanı (adres başına, SessionService içinden); ' +
+      'errors.auth.rateLimited — IP ekseni tavanı (route-level @Throttle + sınıf düzeyli @ThrottlerErrorMessage).',
+  })
   async login(@Body() dto: LoginRequestDto): Promise<AuthResultDto> {
     return this.sessions.login(dto.email, dto.password);
   }

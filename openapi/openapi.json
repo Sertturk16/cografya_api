@@ -1126,7 +1126,7 @@
             }
           },
           "429": {
-            "description": "errors.auth.tooManyAttempts.",
+            "description": "errors.auth.tooManyAttempts — kimlik ekseni tavanı (adres başına, SessionService içinden); errors.auth.rateLimited — IP ekseni tavanı (route-level @Throttle + sınıf düzeyli @ThrottlerErrorMessage).",
             "content": {
               "application/json": {
                 "schema": {
