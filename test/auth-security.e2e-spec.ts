@@ -55,13 +55,16 @@ interface AuthResultBody {
  * `SessionService`/`PasswordHasherService`/`EmailVerificationService` pulled straight from the
  * app's DI container — real production code, called without an HTTP hop), never by first walking
  * through `/register` or `/login`. Only A1/A5 (register), A2/G3/G4 (login), A3/P-series
- * (password-reset/request), A4/T2/V5 (verify-email/resend), V1-V3/V5 (verify-email), N9b
+ * (password-reset/request), A4/T2/V5/C5 (verify-email/resend), V1-V3/V5 (verify-email), N9b
  * (refresh) and T3 (logout) exercise the ROUTE they assert on. Register calls in this file:
  * A1 (2) + A5 (2, concurrent) + T1 (4) = 8, under the 10/hour ceiling with headroom.
  * verify-email calls: V1 (2) + V2 (1) + V3 (5) + V5 (1) = 9, under the 10/10min ceiling — the
  * C-series deliberately calls `EmailVerificationService.verify` through DI instead, because its
  * scenarios are about the transaction's own concurrency and would otherwise spend a budget the
- * V-series needs. T3 deliberately exceeds `logout`'s ceiling (60/15min, otherwise unused in this
+ * V-series needs. verify-email/resend calls: A4 (3) + V5 (1) + T2 (2) + C5 (1, PR #136 round 3 —
+ * the ONE case in the C-series that genuinely needs the ROUTE, because it pins the response the
+ * ROUTE HANDLER's own contention catch produces) = 7, under the 10/hour ceiling. T3 deliberately
+ * exceeds `logout`'s ceiling (60/15min, otherwise unused in this
  * file) rather than any lower-ceiling route already in use elsewhere here.
  */
 describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throttle, secrets (e2e)', () => {
@@ -208,6 +211,58 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
     return dataSource
       .getRepository(PendingRegistration)
       .find({ where: { email }, order: { createdAt: 'ASC' } });
+  }
+
+  /** Holds a row lock from a SEPARATE connection — the stand-in for a concurrent `verify`. */
+  async function withHeldRowLock<T>(
+    ids: readonly string[],
+    body: (lockNext: (id: string) => Promise<void>) => Promise<T>,
+  ): Promise<T> {
+    const runner = dataSource.createQueryRunner();
+    await runner.connect();
+    await runner.startTransaction();
+    try {
+      for (const id of ids) {
+        await runner.query('SELECT id FROM pending_registrations WHERE id = $1 FOR UPDATE', [id]);
+      }
+      return await body(async (id) => {
+        await runner.query('SELECT id FROM pending_registrations WHERE id = $1 FOR UPDATE', [id]);
+      });
+    } finally {
+      await runner.rollbackTransaction();
+      await runner.release();
+    }
+  }
+
+  /**
+   * Positive control: the app really is WAITING on a row lock of this table, not merely slow.
+   *
+   * **Measured correction against the plan's own literal query** (`grep`-verifiable against real
+   * Postgres 16, two independent `psql` sessions): a `SELECT … FOR UPDATE` waiting on a row
+   * another live transaction holds does NOT surface in `pg_locks` as an ungranted `relation`-type
+   * lock — that lock (`RowShareLock`) is a table-level intent lock and is granted immediately,
+   * whatever row it targets. The wait itself is a `transactionid`-type lock on the HOLDING
+   * transaction's own xid, and `pg_locks.relation` is NULL for that row — so
+   * `WHERE NOT granted AND relation = 'pending_registrations'::regclass` can never match. Joined
+   * against `pg_stat_activity` on `pid` to keep the check scoped to a backend whose own query
+   * names this table, rather than any ungranted lock anywhere in the instance.
+   */
+  async function waitForBlockedWaiter(): Promise<void> {
+    for (let attempt = 0; attempt < 200; attempt += 1) {
+      const rows = await dataSource.query<{ n: string }[]>(
+        `SELECT count(*)::int AS n
+           FROM pg_locks l
+           JOIN pg_stat_activity a ON a.pid = l.pid
+          WHERE NOT l.granted
+            AND l.locktype = 'transactionid'
+            AND a.query ILIKE '%pending_registrations%'`,
+      );
+      if (Number(rows[0]?.n ?? 0) > 0) return;
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+    throw new Error(
+      'no blocked waiter appeared — the contention this case measures was never set up',
+    );
   }
 
   async function mintAccessTokenVariant(overrides: {
@@ -466,7 +521,7 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
 
   // ── V-series — verification code mechanics ──────────────────────────────────────────────
 
-  describe('V1-V5 — verification code: one-time, expiring, attempt-capped, hashed, resend CLONES', () => {
+  describe('V1-V6 — verification code: one-time, expiring, attempt-capped, hashed, resend CLONES', () => {
     it('V1 — a code cannot verify twice: the second attempt finds the group already gone', async () => {
       const email = nextEmail();
       await insertCandidate(email, '111111');
@@ -605,6 +660,35 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
       const user = await dataSource.getRepository(User).findOneOrFail({ where: { email } });
       expect(user.status).toBe(AccountStatus.Active);
       expect(await candidatesOf(email)).toHaveLength(0);
+    });
+
+    /**
+     * V6 pins D2 (`SEC136R2-I3`/`VAL136R2-I1`): once an address's candidate group carries MORE
+     * THAN ONE credential identity, `resend` must write nothing and mail nothing — the victim's
+     * own resend must never hand an attacker's credentials back into the victim's own mailbox.
+     * The B-side (a single-identity group still clones, exactly as before) is already pinned by
+     * V5 above; this case does not duplicate it.
+     */
+    it('V6 — resend for an address with MORE THAN ONE credential identity writes and mails nothing', async () => {
+      const email = nextEmail();
+      const victim = await insertCandidate(email, '616161', {
+        passwordHash: SYNTHETIC_PASSWORD_HASH,
+      });
+      const attackerHash =
+        '$argon2id$v=19$m=19456,p=1,t=2$ZGlmZmVyZW50c2FsdA$ZGlmZmVyZW50aGFzaHZhbHVlZGlmZg';
+      const attacker = await insertCandidate(email, '626262', { passwordHash: attackerHash });
+
+      // Positive control: the two candidates really DO carry different credentials — otherwise
+      // this case measures nothing.
+      expect(victim.passwordHash).not.toBe(attacker.passwordHash);
+
+      const beforeCount = (await candidatesOf(email)).length;
+      const beforeMailCount = mailer.sentTo(email).length;
+
+      await expect(emailVerification.resendCandidateCode(email)).resolves.toBeUndefined();
+
+      expect(await candidatesOf(email)).toHaveLength(beforeCount);
+      expect(mailer.sentTo(email)).toHaveLength(beforeMailCount);
     });
   });
 
@@ -757,7 +841,7 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
    * driving them over HTTP would spend a throttle budget the V-series needs without measuring
    * anything extra.
    */
-  describe('C1-C3 — two candidates coexist, and the code that is used decides the account', () => {
+  describe('C1-C5 — two candidates coexist, and the code that is used decides the account', () => {
     function registerPayload(
       email: string,
       password: string,
@@ -891,6 +975,145 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
         message: 'errors.verify.codeInvalid',
       });
       expect(await candidatesOf(email)).toHaveLength(2);
+    });
+
+    /**
+     * C4 pins defect A (`SFH136R2-I1`/`VAL136R2-DL1`): the fix's whole claim is that ONE ordered
+     * locking statement — not an unordered DELETE followed by an ordered SELECT — is what a
+     * concurrent `verify` can never deadlock against, REGARDLESS of the group's physical row
+     * order. This case builds that mismatch DIRECTLY (a row's physical position drifting away
+     * from its `created_at` is what cleanup + autovacuum + FSM reuse produce naturally over time,
+     * measured in Faz 1 at roughly 1 in 860 pairs) rather than trying to reproduce that rate: a
+     * CI gate cannot assert a frequency, only a mechanism, so the case is DETERMINISTIC by
+     * construction, not a replay of the natural odds.
+     */
+    it('C4 — a reversed physical row order still locks group-wide in ONE created_at ASC statement: no deadlock', async () => {
+      const email = nextEmail();
+      const now = Date.now();
+      const idB = randomUUID();
+      const idA = randomUUID();
+      const idLive = randomUUID();
+
+      async function rawInsertPending(id: string, createdAtMs: number, expiresInMs: number) {
+        await dataSource.query(
+          `INSERT INTO pending_registrations
+             (id, email, password_hash, first_name, last_name, phone, account_role,
+              education_level, grade_level, study_stream, university_name, department_name,
+              district_id, locale, code_hash, expires_at, attempt_count, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
+          [
+            id,
+            email,
+            SYNTHETIC_PASSWORD_HASH,
+            'Sec',
+            'Test',
+            '+905000000001',
+            AccountRole.Teacher,
+            null,
+            null,
+            null,
+            null,
+            null,
+            districtId,
+            'tr',
+            hmacSha256(hmacPepper, `pending:${id}:000000`),
+            new Date(now + expiresInMs),
+            0,
+            new Date(createdAtMs),
+          ],
+        );
+      }
+
+      // Physically FIRST (lowest ctid, inserted first), logically LAST (later `created_at`).
+      await rawInsertPending(idB, now - 5 * 60_000, -60_000);
+      // Physically SECOND, logically FIRST (earlier `created_at`).
+      await rawInsertPending(idA, now - 10 * 60_000, -60_000);
+      // A LIVE row — the clone source once the expired pair is swept.
+      await rawInsertPending(idLive, now - 1_000, 10 * 60_000);
+
+      // Positive control #1: physical order really IS the reverse of `created_at` order. If this
+      // fails, the case has not built the mismatch it claims to measure against.
+      const physicalOrder = await dataSource.query<{ id: string }[]>(
+        `SELECT id FROM pending_registrations WHERE email = $1 ORDER BY ctid`,
+        [email],
+      );
+      expect(physicalOrder.map((row) => row.id)).toEqual([idB, idA, idLive]);
+      expect(await candidatesOf(email)).toHaveLength(3);
+
+      let resendPromise: Promise<void> | undefined;
+      await withHeldRowLock([idA], async (lockNext) => {
+        // The stand-in for a concurrent `verify`: `E_a` is `created_at ASC`'s FIRST row, the
+        // same first lock the fixed `insertCandidate` will also try to take.
+        resendPromise = emailVerification.resendCandidateCode(email);
+
+        // Positive control #2: the app is really BLOCKED on a row lock of this table.
+        await waitForBlockedWaiter();
+
+        // Lock `E_b` too, from the SAME test transaction — this succeeds immediately, because the
+        // app's single locking statement is still queued behind `E_a` and has not reached `E_b`
+        // yet. No cycle forms: the app only ever waits ON the test, never the reverse.
+        await lockNext(idB);
+      });
+
+      // The test transaction's rollback (inside `withHeldRowLock`) released both locks, so the
+      // app's queued statement can now finish: it acquires every lock in the SAME `created_at ASC`
+      // order, sweeps the expired pair, and writes its clone.
+      if (!resendPromise) throw new Error('resend was never triggered');
+      await expect(resendPromise).resolves.toBeUndefined();
+
+      const after = await candidatesOf(email);
+      expect(after).toHaveLength(2);
+      const clone = after.find((row) => row.id !== idLive);
+      expect(clone).toBeDefined();
+    });
+
+    /**
+     * C5 pins defect B (`SFH136R2-I1`'s second half): even against the FIXED, single-statement
+     * lock order, a genuinely adversarial concurrent locker can still complete a classic two-party
+     * deadlock cycle — the fix's job was never to make a deadlock impossible, only to make the
+     * SAME-shaped writers (this class's own `insertCandidate`/`verify` pair) stop forming one, and
+     * to make sure that when Postgres does kill a side, the route answers its published 202/400
+     * rather than a 500 (`§6.2`'s anti-enumeration surface). Differs from C4 in building the loop
+     * AGAINST the fixed code ON PURPOSE — a third party violating the lock-order convention is
+     * always structurally possible — so the two cases pin two independent remedies.
+     */
+    it('C5 — a genuine deadlock against the fixed lock order still answers 202, never 500', async () => {
+      const email = nextEmail();
+      const r1 = await insertCandidate(email, '515151');
+      const r2 = await insertCandidate(email, '525252');
+      const beforeCount = (await candidatesOf(email)).length;
+      expect(beforeCount).toBe(2);
+
+      let resendPromise: Promise<request.Response> | undefined;
+      await withHeldRowLock([r2.id], async (lockNext) => {
+        // `supertest`'s `Test` object is LAZY: it does not actually dispatch the HTTP request
+        // until something invokes `.then()`/`.end()` on it. Wrapping it in a `new Promise` whose
+        // executor runs SYNCHRONOUSLY is what forces dispatch to happen NOW, inside this body,
+        // rather than only once the outer test finally awaits `resendPromise` below — by which
+        // point `withHeldRowLock`'s own rollback would already have released every lock and there
+        // would be nothing left to contend with.
+        resendPromise = new Promise<request.Response>((resolve, reject) => {
+          request(app.getHttpServer())
+            .post('/api/auth/verify-email/resend')
+            .send({ email })
+            .then(resolve, reject);
+        });
+
+        // Positive control: the app is really BLOCKED — it already holds `r1`'s lock (`created_at
+        // ASC`'s first row) and is waiting on `r2`, which this transaction holds.
+        await waitForBlockedWaiter();
+
+        // Locking `r1` FROM HERE closes the cycle: the app waits on this transaction's `r2`, this
+        // transaction now waits on the app's `r1`. Postgres's own deadlock detector breaks it —
+        // measured 8/8 in Faz 1 as killing the FIRST waiter, i.e. the app.
+        await lockNext(r1.id);
+      });
+
+      if (!resendPromise) throw new Error('resend route call was never captured');
+      const resendResponse = await resendPromise;
+      expect(resendResponse.status).toBe(HttpStatus.ACCEPTED);
+      // The 202 above is a SWALLOWED contention, not a success: no new row was written.
+      expect(await candidatesOf(email)).toHaveLength(beforeCount);
     });
   });
 

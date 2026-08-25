@@ -37,6 +37,19 @@ import type { MailLocale } from '../mail/mailer.port';
  * this table's. What this table removes is the SILENT half: nothing is overwritten, nothing is
  * discarded, and the code the user types decides which credentials become the account.
  *
+ * **`resend` additionally refuses to clone across a credential mismatch (D2, `SEC136R2-I3`,
+ * PR #136 round 3).** The previous behaviour cloned the address's newest candidate unconditionally,
+ * which meant a victim's OWN resend — triggered after an attacker had silently registered the same
+ * address — carried the attacker's credentials into the victim's own mailbox, defeating the one
+ * working mitigation (temporal correlation: a resend right after YOUR OWN register is trustworthy).
+ * `insertCandidate` now refuses to write or mail anything when the address's locked candidate group
+ * carries more than one distinct `password_hash` — closing the whole "attacker registers, then the
+ * real owner's resend hands them the attacker's password" class. The residual this leaves: if the
+ * victim's own candidate has ALREADY expired and been swept by the time they resend, the attacker's
+ * is the address's only live candidate and the clone is still theirs. Only D1 (binding the resend
+ * request to a credential the caller can prove, e.g. a password check) closes that residual, and D1
+ * did not land this round — it is a separate, Atlas-tracked follow-up.
+ *
  * ## Column set
  * Every column below is a straight copy target for `users` — materialization is a field-for-field
  * INSERT with no transformation — plus the four code-mechanics columns and `locale`. `locale` is

@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
-import { DataSource, LessThanOrEqual, QueryFailedError } from 'typeorm';
+import { DataSource, QueryFailedError } from 'typeorm';
 import { AccountStatus } from './account.types';
 import { AUTH_ERROR_KEYS } from './auth-error-keys';
 import {
@@ -20,6 +20,33 @@ import { constantTimeEquals, hmacSha256 } from './token-digest';
 
 /** Postgres unique-violation SQLSTATE — `users.email`'s `UQ_users_email` (E2E-A5). */
 const UNIQUE_VIOLATION_SQLSTATE = '23505';
+
+/**
+ * SQLSTATEs a CONTENDED transaction dies with. None of them is a caller error and none of them
+ * is a state a caller can ask about: mapping them to the route's published answer is what keeps
+ * a 500 — a response only an address with several candidates can produce — out of §6.2's
+ * anti-enumeration surface. The set is an allowlist on purpose; anything else still propagates.
+ *
+ * **`57014` is a recorded trade-off, not an oversight.** It fires whenever a statement crosses
+ * `statement_timeout` (`data-source-options.ts` sets 30_000ms and no `lock_timeout` — Y18), which
+ * under contention IS a lock wait but can also be any other slow statement on an unhealthy
+ * database. Swallowing it means such a statement fails silently instead of surfacing as a 500 —
+ * which is why the `warn` log line at each call site is part of the remedy, not decoration: the
+ * response stays contractual and an operator can still see it happened. Returning a 500 instead
+ * would both break the contract and itself be a distinguishable, enumeration-capable answer.
+ */
+const CONTENTION_SQLSTATES = new Set([
+  '40P01', // deadlock_detected
+  '40001', // serialization_failure
+  '55P03', // lock_not_available
+  '57014', // query_canceled — statement_timeout, which under contention IS a lock wait
+]);
+
+function isContentionFailure(error: unknown): boolean {
+  if (!(error instanceof QueryFailedError)) return false;
+  const sqlState = (error as QueryFailedError & { code?: string }).code;
+  return typeof sqlState === 'string' && CONTENTION_SQLSTATES.has(sqlState);
+}
 
 /**
  * Everything a candidate registration carries EXCEPT the code mechanics: the caller assembles it
@@ -59,9 +86,10 @@ type VerifyOutcome = { verified: false } | { verified: true; userId: string };
  *  2. `UPDATE … SET attempt_count = …` on the candidates a wrong guess was tested against —
  *     §5.3's attempt cap, whose whole purpose is to be reachable by an unauthenticated guesser.
  *     It is bounded by the cap and touches no other column;
- *  3. `DELETE` of that same address's ALREADY-EXPIRED rows, inside the insert transaction — the
- *     bounded, same-subject cleanup `AuthRateLimitService` (D12) established instead of a
- *     scheduler. It is a `WHERE expires_at <= now()` delete: it cannot reach a live row.
+ *  3. `DELETE` of the id list this transaction has ALREADY locked and classified as expired
+ *     against one `now` — the bounded, same-subject cleanup `AuthRateLimitService` (D12)
+ *     established instead of a scheduler. It cannot reach a live row, because the classification
+ *     and the delete share the same snapshot and the same clock.
  * There is **no UPDATE of any credential column anywhere in this repo** — a candidate's `email`,
  * `password_hash` and profile are written once, by the INSERT that creates the row, and never
  * again. That is the property the rejected "overwrite the UNVERIFIED row" repair would have
@@ -121,9 +149,10 @@ export class EmailVerificationService {
         const repo = manager.getRepository(PendingRegistration);
         const now = new Date();
 
-        // The ORDER BY is not cosmetic: two concurrent verifies for one address lock the SAME
-        // rows, and a deterministic lock order is what keeps that from being a deadlock rather
-        // than a queue.
+        // The ORDER BY is not cosmetic: BOTH write paths against this table lock an address's
+        // whole candidate group in ONE statement, in `created_at ASC, id ASC` order — and neither
+        // transaction takes any OTHER row lock on this table. That shared order is what keeps two
+        // concurrent writers from deadlocking rather than queueing.
         const candidates = await repo
           .createQueryBuilder('pending')
           .setLock('pessimistic_write')
@@ -205,6 +234,10 @@ export class EmailVerificationService {
       if (error instanceof QueryFailedError && sqlState === UNIQUE_VIOLATION_SQLSTATE) {
         throw new BadRequestException(AUTH_ERROR_KEYS.verifyCodeInvalid);
       }
+      if (isContentionFailure(error)) {
+        this.logger.warn('verify outcome=contention');
+        throw new BadRequestException(AUTH_ERROR_KEYS.verifyCodeInvalid);
+      }
       throw error;
     }
 
@@ -254,11 +287,13 @@ export class EmailVerificationService {
   /**
    * The single INSERT path, shared by a fresh registration (`draft`) and a resend (an address,
    * whose newest live candidate is cloned). Returns `null` — silently, never distinguishably —
-   * when the address is at its ceiling or, for a resend, has nothing to clone.
+   * when the address is at its ceiling, when a resend has nothing to clone, or when a resend's
+   * candidates carry more than one credential identity (D2, `SEC136R2-I3` — see the
+   * `if (typeof source === 'string')` branch below).
    *
-   * The expired-row cleanup is bounded to THIS address and to rows that are already dead by time;
-   * it is the `AuthRateLimitService` (D12) pattern, chosen for the same reason: a scheduler is
-   * machinery this repo does not add without a real need (`ENGINEERING.md` §1/§12).
+   * The expired-row cleanup is bounded to THIS address and is an address-scoped hygiene step, not
+   * a retention policy: how long an expired candidate's PII may persist across the whole table is
+   * a separate, Atlas-gated follow-up (`ENGINEERING.md` §12).
    */
   private async insertCandidate(
     source: PendingRegistrationDraft | string,
@@ -267,52 +302,84 @@ export class EmailVerificationService {
     const id = randomUUID();
     const code = mintVerificationCode();
     const codeHash = hmacSha256(this.secrets.getHmacPepper(), `pending:${id}:${code}`);
-    const expiresAt = new Date(Date.now() + EMAIL_VERIFICATION_TTL_MINUTES * 60_000);
 
-    return this.dataSource.transaction(async (manager) => {
-      const repo = manager.getRepository(PendingRegistration);
+    try {
+      return await this.dataSource.transaction(async (manager) => {
+        const repo = manager.getRepository(PendingRegistration);
 
-      await repo.delete({ email, expiresAt: LessThanOrEqual(new Date()) });
+        // ONE ordered locking statement — the same order `verify` uses. Nothing else in this
+        // transaction acquires a row lock on this table, so the two write paths cannot take
+        // this address's rows in two different orders.
+        const group = await repo
+          .createQueryBuilder('pending')
+          .setLock('pessimistic_write')
+          .where('pending.email = :email', { email })
+          .orderBy('pending.createdAt', 'ASC')
+          .addOrderBy('pending.id', 'ASC')
+          .getMany();
 
-      // Newest first, with `id` as a deterministic tie-break: `created_at` is `now()`, i.e. the
-      // TRANSACTION timestamp, so two candidates written microseconds apart can tie. Either is an
-      // equally valid clone source — what must not be left open is WHICH one, because a
-      // non-deterministic pick is a behaviour no test can pin.
-      const live = await repo
-        .createQueryBuilder('pending')
-        .setLock('pessimistic_write')
-        .where('pending.email = :email', { email })
-        .orderBy('pending.createdAt', 'DESC')
-        .addOrderBy('pending.id', 'DESC')
-        .getMany();
-      if (live.length >= PENDING_REGISTRATION_MAX_ACTIVE) return null;
+        // ONE clock for the whole transaction: the ceiling, the clone source and the delete all
+        // classify the same rows the same way.
+        const now = new Date();
+        const live = group.filter((row) => row.expiresAt.getTime() > now.getTime());
+        const expiredIds = group
+          .filter((row) => row.expiresAt.getTime() <= now.getTime())
+          .map((row) => row.id);
 
-      let draft: PendingRegistrationDraft;
-      if (typeof source === 'string') {
-        const newest = live[0];
-        if (!newest) return null; // resend for an address with no candidate — nothing to clone.
-        draft = {
-          email: newest.email,
-          passwordHash: newest.passwordHash,
-          firstName: newest.firstName,
-          lastName: newest.lastName,
-          phone: newest.phone,
-          accountRole: newest.accountRole,
-          educationLevel: newest.educationLevel,
-          gradeLevel: newest.gradeLevel,
-          studyStream: newest.studyStream,
-          universityName: newest.universityName,
-          departmentName: newest.departmentName,
-          districtId: newest.districtId,
-          locale: newest.locale,
-        };
-      } else {
-        draft = source;
+        // Deleting rows this transaction ALREADY holds: the statement's scan order cannot
+        // matter, because it acquires no lock it does not have.
+        if (expiredIds.length > 0) await repo.delete(expiredIds);
+
+        if (live.length >= PENDING_REGISTRATION_MAX_ACTIVE) return null;
+
+        let draft: PendingRegistrationDraft;
+        if (typeof source === 'string') {
+          // A resend carries NO caller identity — the request body is the address and nothing
+          // else — so the ONLY safe rule is to send a code when there is nothing to get wrong.
+          // `passwordHash` is the credential-lineage key: a clone copies it verbatim, so a
+          // register→resend→resend chain stays ONE identity, while a second party's register is
+          // a second one (Argon2id salts per call, so two registers never collide).
+          //
+          // The set is read from the group as it was LOCKED — before the expired sweep above
+          // removed anything — so a candidate that died minutes ago still counts as evidence
+          // that this address is contested.
+          const credentialIdentities = new Set(group.map((row) => row.passwordHash));
+          if (credentialIdentities.size > 1) {
+            this.logger.warn('pending.resend outcome=ambiguous-source');
+            return null;
+          }
+          const newest = live[live.length - 1];
+          if (!newest) return null; // resend for an address with no live candidate.
+          draft = {
+            email: newest.email,
+            passwordHash: newest.passwordHash,
+            firstName: newest.firstName,
+            lastName: newest.lastName,
+            phone: newest.phone,
+            accountRole: newest.accountRole,
+            educationLevel: newest.educationLevel,
+            gradeLevel: newest.gradeLevel,
+            studyStream: newest.studyStream,
+            universityName: newest.universityName,
+            departmentName: newest.departmentName,
+            districtId: newest.districtId,
+            locale: newest.locale,
+          };
+        } else {
+          draft = source;
+        }
+
+        const expiresAt = new Date(now.getTime() + EMAIL_VERIFICATION_TTL_MINUTES * 60_000);
+        await repo.insert({ id, ...draft, codeHash, expiresAt, attemptCount: 0 });
+        return { code, locale: draft.locale };
+      });
+    } catch (error) {
+      if (isContentionFailure(error)) {
+        this.logger.warn('pending.insert outcome=contention');
+        return null;
       }
-
-      await repo.insert({ id, ...draft, codeHash, expiresAt, attemptCount: 0 });
-      return { code, locale: draft.locale };
-    });
+      throw error;
+    }
   }
 
   private async sendCodeFailSoft(
