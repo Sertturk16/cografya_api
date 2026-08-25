@@ -16,10 +16,14 @@ export function sha256(input: string | Buffer): Buffer {
  * HMAC-SHA256 digest of `input` under `pepper`, as raw bytes.
  *
  * `AUTH_HMAC_PEPPER` (§11) is shared across purposes on purpose (S8): every caller MUST
- * prefix `input` with a fixed domain tag (`"verify:"` for §5.3's verification code,
+ * prefix `input` with a fixed domain tag (`"pending:"` for §5.3's verification code,
  * `"rate:"` for §9.2's rate-limit subject) so the same pepper cannot be replayed from one
  * purpose into another — two different domain-tagged inputs never collide on the same
  * plaintext by construction.
+ *
+ * The verification tag reads `"pending:"` rather than the earlier `"verify:"` because the id it
+ * binds changed with the table: it is the `pending_registrations` row's own primary key, not a
+ * `users.id` (`SEC136-C1`). The tag names the domain, so it moved with the domain.
  */
 export function hmacSha256(pepper: string | Buffer, input: string | Buffer): Buffer {
   return createHmac('sha256', pepper).update(input).digest();

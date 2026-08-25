@@ -2,8 +2,13 @@ import { describe, expect, it } from '@jest/globals';
 import { type ExecutionContext } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
-import { type ThrottlerModuleOptions, type ThrottlerStorage } from '@nestjs/throttler';
+import {
+  type ThrottlerLimitDetail,
+  type ThrottlerModuleOptions,
+  type ThrottlerStorage,
+} from '@nestjs/throttler';
 import { type Env } from '../../config/env.schema';
+import { NoTrustedClientExemption, ThrottlerErrorMessage } from './throttler-metadata';
 import { INTERNAL_REQUEST_HEADER } from './trusted-client';
 import { TrustedClientThrottlerGuard } from './trusted-client-throttler.guard';
 
@@ -35,10 +40,15 @@ describe('TrustedClientThrottlerGuard.shouldSkip (glue + deny paths)', () => {
     } as unknown as ConfigService<Env, true>;
   }
 
-  // Expose the protected shouldSkip for the test (a subclass legitimately sees it).
+  // Expose the protected shouldSkip/getErrorMessage for the test (a subclass legitimately
+  // sees both).
   class TestableGuard extends TrustedClientThrottlerGuard {
     runShouldSkip(context: ExecutionContext): Promise<boolean> {
       return this.shouldSkip(context);
+    }
+
+    runGetErrorMessage(context: ExecutionContext): Promise<string> {
+      return this.getErrorMessage(context, {} as ThrottlerLimitDetail);
     }
   }
 
@@ -46,15 +56,55 @@ describe('TrustedClientThrottlerGuard.shouldSkip (glue + deny paths)', () => {
     return new TestableGuard(options, storageStub, new Reflector(), makeConfig(token));
   }
 
-  // shouldSkip only reads switchToHttp().getRequest(); a partial context suffices.
+  interface ReflectorTargets {
+    handler: () => void;
+    classRef: new () => object;
+  }
+
+  /**
+   * `Reflector` reads metadata off the handler FUNCTION and the class, so a context has to expose
+   * real decorated targets rather than plain objects.
+   *
+   * The handler is read out of the property DESCRIPTOR rather than as `Prototype.method`: an
+   * unbound method reference is exactly what `@typescript-eslint/unbound-method` exists to stop,
+   * and the descriptor's `value` is the same function object the decorator wrote its metadata on.
+   */
+  function handlerOf(classRef: new () => object): () => void {
+    const descriptor = Object.getOwnPropertyDescriptor(classRef.prototype, 'method');
+    if (!descriptor) throw new Error('fixture class carries no `method`');
+    return descriptor.value as () => void;
+  }
+
+  function undecoratedTargets(): ReflectorTargets {
+    class Plain {
+      method(): void {}
+    }
+    return { handler: handlerOf(Plain), classRef: Plain };
+  }
+
+  function exemptionOptedOutTargets(): ReflectorTargets {
+    class OptedOut {
+      method(): void {}
+    }
+    const descriptor = Object.getOwnPropertyDescriptor(OptedOut.prototype, 'method');
+    if (!descriptor) throw new Error('fixture class carries no `method`');
+    NoTrustedClientExemption()(OptedOut.prototype, 'method', descriptor);
+    return { handler: handlerOf(OptedOut), classRef: OptedOut };
+  }
+
+  // shouldSkip reads switchToHttp().getRequest() plus (since SEC136-I3) the route metadata; a
+  // partial context carrying both suffices.
   function makeContext(
     method: string,
     headers: Record<string, string | string[] | undefined>,
+    targets = undecoratedTargets(),
   ): ExecutionContext {
     return {
       switchToHttp: () => ({
         getRequest: () => ({ method, headers }),
       }),
+      getHandler: () => targets.handler,
+      getClass: () => targets.classRef,
     } as unknown as ExecutionContext;
   }
 
@@ -105,5 +155,50 @@ describe('TrustedClientThrottlerGuard.shouldSkip (glue + deny paths)', () => {
       makeContext('GET', { [INTERNAL_REQUEST_HEADER]: SECRET }),
     );
     expect(skip).toBe(false);
+  });
+
+  describe('SEC136-I3 — the per-route opt-out', () => {
+    it('does NOT skip an opted-out GET even with a valid token (the whole point)', async () => {
+      const skip = await makeGuard(SECRET).runShouldSkip(
+        makeContext('GET', { [INTERNAL_REQUEST_HEADER]: SECRET }, exemptionOptedOutTargets()),
+      );
+      expect(skip).toBe(false);
+    });
+
+    it('POSITIVE CONTROL: the SAME request without the marker IS skipped', async () => {
+      // Without this pair the assertion above could pass for any unrelated reason (a broken
+      // header read, a wrong method), and the opt-out would look like it works while doing
+      // nothing. Only the two together show the marker is what changed the answer.
+      const skip = await makeGuard(SECRET).runShouldSkip(
+        makeContext('GET', { [INTERNAL_REQUEST_HEADER]: SECRET }, undecoratedTargets()),
+      );
+      expect(skip).toBe(true);
+    });
+  });
+
+  describe('CODE136-I1/SEC136-I4 — the declared 429 message', () => {
+    function errorMessageTargets(message: string): ReflectorTargets {
+      class Declared {
+        method(): void {}
+      }
+      ThrottlerErrorMessage(message)(Declared);
+      return { handler: handlerOf(Declared), classRef: Declared };
+    }
+
+    it('returns the class-declared i18n key instead of the framework default', async () => {
+      const message = await makeGuard(SECRET).runGetErrorMessage(
+        makeContext('POST', {}, errorMessageTargets('errors.auth.rateLimited')),
+      );
+      expect(message).toBe('errors.auth.rateLimited');
+    });
+
+    it('POSITIVE CONTROL: a route declaring nothing keeps the framework default untouched', async () => {
+      // The additive half of the finding's fix: no existing 429 body may change. The expected
+      // value is @nestjs/throttler's own `throttlerMessage` constant.
+      const message = await makeGuard(SECRET).runGetErrorMessage(
+        makeContext('POST', {}, undecoratedTargets()),
+      );
+      expect(message).toBe('ThrottlerException: Too Many Requests');
+    });
   });
 });

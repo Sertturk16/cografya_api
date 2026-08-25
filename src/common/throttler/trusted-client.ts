@@ -26,6 +26,24 @@ export const INTERNAL_REQUEST_HEADER = 'x-internal-request-token';
  * the conclusion is personal data reachable only through this exemption; there is none, and the
  * safe-method restriction in the guard is what keeps it that way.
  *
+ * **"public, auth-less" stopped being true, this paragraph is where that was supposed to be caught,
+ * and it was not** (`SEC136-I3`, PR #136 review). UYELIK-02 PR-2 landed
+ * `GET /api/auth/session` — the repo's first NON-public GET: it carries `@UseGuards(AccessTokenGuard)`
+ * and returns `id`, `firstName`, `accountRole` for the authenticated caller. The safe-method
+ * restriction did not keep it out, because a METHOD is not a statement about what a route reads, and
+ * the sentence above silently became false. The correction is the one this file already named as the
+ * right shape ("the exemption needs a per-route opt-out rather than another exception"), so the
+ * remedy is a narrowing rather than a new exception:
+ *   - `GET /api/auth/session` carries `@NoTrustedClientExemption()` (`throttler-metadata.ts`), which
+ *     `TrustedClientThrottlerGuard.shouldSkip` reads FIRST and answers `false` to. The route is
+ *     therefore back under the global 120/min the plan's throttle table always claimed for it.
+ *   - The claim this paragraph makes is now bounded to what it can defend: **every endpoint the
+ *     exemption still covers is public and auth-less.** Any future authenticated or PII-bearing
+ *     route must carry the same marker, and adding one without it is the regression this paragraph
+ *     exists to stop for the second time.
+ *   - `@SkipThrottle()` is NOT the tool for this and must not be reached for: it removes the
+ *     throttle, which is the opposite of what a PII route needs.
+ *
  * **"cheap" is no longer true either, and that one needs a real argument** (CBS-P2 E2).
  * `GET /api/elevation/profile` is the first public read that can cost genuine upstream work: on a
  * cold cache it fetches up to `ELEVATION_MAX_TILES_PER_REQUEST` tiles from a third-party bucket.

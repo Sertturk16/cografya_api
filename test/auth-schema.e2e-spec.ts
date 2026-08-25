@@ -18,10 +18,16 @@ function randomHash32(): Buffer {
 }
 
 /**
- * `test/auth-schema.e2e-spec.ts` (PR-1) — schema/constraint/cascade only, over the FOUR new
- * tables `1787565600000-InitAuthSessions.ts` creates: E2E-SC1..SC8 (plan §14.2). No token
- * minting, no rate-limit service, no crypto: every row here is inserted by raw, parameterised
- * SQL so the assertions are about what POSTGRES enforces, independent of any service code.
+ * `test/auth-schema.e2e-spec.ts` (PR-1) — schema/constraint/cascade only, over the four auth
+ * tables that exist after `1787565600000-InitAuthSessions.ts` and
+ * `1787652000000-InitPendingRegistrations.ts`: E2E-SC1..SC8 (plan §14.2). No token minting, no
+ * rate-limit service, no crypto: every row here is inserted by raw, parameterised SQL so the
+ * assertions are about what POSTGRES enforces, independent of any service code.
+ *
+ * **The `email_verification_codes` half moved to `pending_registrations` (`SEC136-C1`).** The old
+ * table is DROPPED, so every case that asserted its columns, constraints, cascade or partial
+ * unique index now asserts the equivalent — or, for SC4, the deliberately OPPOSITE — property on
+ * the new one.
  */
 describe('Auth-primitives schema (e2e)', () => {
   let container: StartedPostgreSqlContainer;
@@ -105,34 +111,75 @@ describe('Auth-primitives schema (e2e)', () => {
     return row;
   }
 
-  interface VerificationCodeInsert {
-    userId: string;
+  interface PendingRegistrationInsert {
+    email: string;
     codeHash: Buffer;
     expiresAt: Date;
     attemptCount: number;
-    consumedAt: Date | null;
+    districtId: string;
+    accountRole: string;
+    educationLevel: string | null;
+    gradeLevel: string | null;
+    studyStream: string | null;
+    universityName: string | null;
+    departmentName: string | null;
+    locale: string;
+    passwordHash: string;
   }
 
-  async function insertVerificationCode(
-    overrides: Partial<VerificationCodeInsert> & { userId: string },
+  /**
+   * `pending_registrations` replaced `email_verification_codes` in
+   * `1787652000000-InitPendingRegistrations.ts`: an unconfirmed registration is no longer a
+   * `users` row, so the code row carries the submitted credentials and hangs off `districts`
+   * rather than `users` (`SEC136-C1`). Every assertion below moved with it.
+   */
+  async function insertPendingRegistration(
+    overrides: Partial<PendingRegistrationInsert> = {},
   ): Promise<{ id: string }> {
-    const input: VerificationCodeInsert = {
+    emailSequence += 1;
+    const input: PendingRegistrationInsert = {
+      email: `synthetic.pending.${emailSequence}@example.test`,
       codeHash: randomHash32(),
       expiresAt: new Date(Date.now() + 10 * 60 * 1000),
       attemptCount: 0,
-      consumedAt: null,
+      districtId,
+      accountRole: AccountRole.Teacher,
+      educationLevel: null,
+      gradeLevel: null,
+      studyStream: null,
+      universityName: null,
+      departmentName: null,
+      locale: 'tr',
+      passwordHash: SYNTHETIC_PASSWORD_HASH,
       ...overrides,
     };
     const rows = await dataSource.query<{ id: string }[]>(
       `
-        INSERT INTO email_verification_codes (user_id, code_hash, expires_at, attempt_count, consumed_at)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO pending_registrations (
+          email, password_hash, first_name, last_name, phone, account_role, education_level,
+          grade_level, study_stream, university_name, department_name, district_id, locale,
+          code_hash, expires_at, attempt_count
+        ) VALUES ($1, $2, 'Synthetic', 'Pending', '+905000000000', $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
         RETURNING id
       `,
-      [input.userId, input.codeHash, input.expiresAt, input.attemptCount, input.consumedAt],
+      [
+        input.email,
+        input.passwordHash,
+        input.accountRole,
+        input.educationLevel,
+        input.gradeLevel,
+        input.studyStream,
+        input.universityName,
+        input.departmentName,
+        input.districtId,
+        input.locale,
+        input.codeHash,
+        input.expiresAt,
+        input.attemptCount,
+      ],
     );
     const row = rows[0];
-    if (!row) throw new Error('synthetic verification code insert returned no row');
+    if (!row) throw new Error('synthetic pending registration insert returned no row');
     return row;
   }
 
@@ -220,9 +267,11 @@ describe('Auth-primitives schema (e2e)', () => {
   }, 300_000);
 
   afterEach(async () => {
-    // FK cascade from `users` clears the three auth tables; `auth_rate_limits` has no FK so it
-    // is cleared independently.
+    // FK cascade from `users` clears `sessions` and `password_reset_tokens`.
+    // `auth_rate_limits` has no FK, and `pending_registrations` hangs off `districts` rather
+    // than `users` — both are cleared independently.
     await dataSource.query(`DELETE FROM users`);
+    await dataSource.query(`DELETE FROM pending_registrations`);
     await dataSource.query(`DELETE FROM auth_rate_limits`);
   });
 
@@ -261,15 +310,32 @@ describe('Auth-primitives schema (e2e)', () => {
       'rotated_from_id',
       'created_at',
     ]);
-    expect(await columnsOf('email_verification_codes')).toEqual([
+    expect(await columnsOf('pending_registrations')).toEqual([
       'id',
-      'user_id',
+      'email',
+      'password_hash',
+      'first_name',
+      'last_name',
+      'phone',
+      'account_role',
+      'education_level',
+      'grade_level',
+      'study_stream',
+      'university_name',
+      'department_name',
+      'district_id',
+      'locale',
       'code_hash',
       'expires_at',
       'attempt_count',
-      'consumed_at',
       'created_at',
     ]);
+    // The table this one replaced is GONE, not merely unused — a dead table with a live FK and a
+    // one-slot unique index is exactly the debt the rework existed to remove.
+    const droppedRelation = await dataSource.query<{ relation: string | null }[]>(`
+      SELECT to_regclass('public.email_verification_codes')::text AS relation
+    `);
+    expect(droppedRelation[0]?.relation).toBeNull();
     expect(await columnsOf('password_reset_tokens')).toEqual([
       'id',
       'user_id',
@@ -327,12 +393,43 @@ describe('Auth-primitives schema (e2e)', () => {
       dataSource.query(`UPDATE sessions SET rotated_from_id = id WHERE id = $1`, [sessionId]),
     ).rejects.toThrow(/CHK_sessions_not_self_rotated/);
 
-    // email_verification_codes.CHK_email_verification_codes_attempts — out of [0, 5].
-    await expect(insertVerificationCode({ userId, attemptCount: 6 })).rejects.toThrow(
-      /CHK_email_verification_codes_attempts/,
+    // pending_registrations.CHK_pending_registrations_attempts — out of [0, 5]. This is the
+    // constraint `SFH136-I1` measured a concurrent increment pair could violate into a 500; the
+    // service now holds a row lock and clamps at the ceiling, and the constraint stays as the belt.
+    await expect(insertPendingRegistration({ attemptCount: 6 })).rejects.toThrow(
+      /CHK_pending_registrations_attempts/,
     );
-    await expect(insertVerificationCode({ userId, attemptCount: -1 })).rejects.toThrow(
-      /CHK_email_verification_codes_attempts/,
+    await expect(insertPendingRegistration({ attemptCount: -1 })).rejects.toThrow(
+      /CHK_pending_registrations_attempts/,
+    );
+
+    // pending_registrations.CHK_pending_registrations_profile_shape — the users mirror. A TEACHER
+    // carrying a student-only field is the branch whose UNKNOWN-folding `IS TRUE` matters.
+    await expect(
+      insertPendingRegistration({ accountRole: AccountRole.Teacher, gradeLevel: 'GRADE_9' }),
+    ).rejects.toThrow(/CHK_pending_registrations_profile_shape/);
+    // …and a STUDENT with no declared education level, the case a bare CHECK would accept as
+    // UNKNOWN.
+    await expect(
+      insertPendingRegistration({ accountRole: 'STUDENT', educationLevel: null }),
+    ).rejects.toThrow(/CHK_pending_registrations_profile_shape/);
+
+    // pending_registrations.CHK_pending_registrations_password_hash — the users mirror: a
+    // candidate that could not satisfy `users` must fail HERE, not after the user typed a
+    // correct code.
+    await expect(
+      insertPendingRegistration({ passwordHash: 'synthetic-not-argon2id' }),
+    ).rejects.toThrow(/CHK_pending_registrations_password_hash/);
+
+    // pending_registrations.CHK_pending_registrations_email_canonical — a non-canonical address
+    // would never be found by `verify`, which looks the group up by exact match.
+    await expect(
+      insertPendingRegistration({ email: 'Uppercase.Pending@example.test' }),
+    ).rejects.toThrow(/CHK_pending_registrations_email_canonical/);
+
+    // pending_registrations.CHK_pending_registrations_locale — closed set.
+    await expect(insertPendingRegistration({ locale: 'de' })).rejects.toThrow(
+      /CHK_pending_registrations_locale/,
     );
 
     // auth_rate_limits.CHK_auth_rate_limits_count — negative counter.
@@ -346,21 +443,36 @@ describe('Auth-primitives schema (e2e)', () => {
     );
   });
 
-  it('E2E-SC4: UQ_email_verification_codes_active is a PARTIAL unique index on active codes only', async () => {
-    const userId = await insertUser();
+  it('E2E-SC4: one address may hold SEVERAL live candidates, but two rows may never share a digest', async () => {
+    // The INVERSION of what this case used to assert, and the inversion is the point.
+    // `UQ_email_verification_codes_active` made "at most one active code per user" a schema
+    // invariant — which is precisely the one-slot rule that let whoever registered an address
+    // FIRST own its credentials (`SEC136-C1`). Several candidates for one address must now
+    // coexist, each with its own credentials and its own code.
+    const email = 'synthetic.multi.candidate@example.test';
+    await insertPendingRegistration({ email });
+    await expect(insertPendingRegistration({ email })).resolves.toBeDefined();
+    await expect(insertPendingRegistration({ email })).resolves.toBeDefined();
 
-    await insertVerificationCode({ userId });
-    // A second ACTIVE (unconsumed) code for the same user is rejected.
-    await expect(insertVerificationCode({ userId })).rejects.toBeInstanceOf(QueryFailedError);
+    const rows = await dataSource.query<{ count: string }[]>(
+      `SELECT count(*)::text AS count FROM pending_registrations WHERE email = $1`,
+      [email],
+    );
+    expect(rows[0]?.count).toBe('3');
 
-    // But a second CONSUMED code for the same user is accepted — the index does not cover it.
-    await expect(insertVerificationCode({ userId, consumedAt: new Date() })).resolves.toBeDefined();
+    // The uniqueness that REMAINS: no two candidates may carry the same digest. It is redundant
+    // with binding the row's own id into the HMAC input and is kept as the structural belt, in
+    // the same shape `sessions.token_hash` uses.
+    const sharedHash = randomHash32();
+    await insertPendingRegistration({ codeHash: sharedHash });
+    await expect(insertPendingRegistration({ codeHash: sharedHash })).rejects.toBeInstanceOf(
+      QueryFailedError,
+    );
   });
 
-  it('E2E-SC5: deleting the user CASCADEs the three auth tables; district deletion still RESTRICTs', async () => {
+  it('E2E-SC5: deleting the user CASCADEs its two auth tables; district deletion still RESTRICTs', async () => {
     const userId = await insertUser();
     const { id: sessionId } = await insertSession({ userId });
-    const { id: codeId } = await insertVerificationCode({ userId });
     const { id: tokenId } = await insertResetToken({ userId });
 
     await dataSource.query(`DELETE FROM users WHERE id = $1`, [userId]);
@@ -369,14 +481,13 @@ describe('Auth-primitives schema (e2e)', () => {
       `
         SELECT
           (SELECT count(*) FROM sessions WHERE id = $1) +
-          (SELECT count(*) FROM email_verification_codes WHERE id = $2) +
-          (SELECT count(*) FROM password_reset_tokens WHERE id = $3) AS count
+          (SELECT count(*) FROM password_reset_tokens WHERE id = $2) AS count
       `,
-      [sessionId, codeId, tokenId],
+      [sessionId, tokenId],
     );
     expect(remaining[0]?.count).toBe('0');
 
-    // UYELIK-01's district RESTRICT is unbroken by this migration. A SEPARATE user (not the one
+    // UYELIK-01's district RESTRICT is unbroken by either migration. A SEPARATE user (not the one
     // just deleted above) must still reference `districtId` here — RESTRICT only blocks a
     // deletion while a referencing row exists, and the whole file shares one `districtId` from
     // `beforeAll`, so actually deleting it here would break every test that runs after this one.
@@ -384,6 +495,28 @@ describe('Auth-primitives schema (e2e)', () => {
     await expect(
       dataSource.query(`DELETE FROM districts WHERE id = $1`, [districtId]),
     ).rejects.toBeInstanceOf(QueryFailedError);
+
+    // `pending_registrations` hangs off `districts` with CASCADE, not RESTRICT, and the asymmetry
+    // is deliberate: a real account's location must never be silently removed under it, while a
+    // candidate pointing at a removed ilçe could not materialize anyway. Proven on a THROWAWAY
+    // district so the shared one above stays intact.
+    const throwawayDistricts = await dataSource.query<{ id: string }[]>(
+      `INSERT INTO districts (province_id, name_tr)
+       SELECT province_id, 'Synthetic Cascade District' FROM districts WHERE id = $1
+       RETURNING id`,
+      [districtId],
+    );
+    const throwawayDistrictId = throwawayDistricts[0]?.id;
+    if (!throwawayDistrictId) throw new Error('throwaway district insert returned no row');
+    const { id: pendingId } = await insertPendingRegistration({
+      districtId: throwawayDistrictId,
+    });
+    await dataSource.query(`DELETE FROM districts WHERE id = $1`, [throwawayDistrictId]);
+    const survivingPending = await dataSource.query<{ count: string }[]>(
+      `SELECT count(*)::text AS count FROM pending_registrations WHERE id = $1`,
+      [pendingId],
+    );
+    expect(survivingPending[0]?.count).toBe('0');
   });
 
   it('E2E-SC6: sessions.rotated_from_id is SET NULL when the referenced row is deleted', async () => {
@@ -406,8 +539,8 @@ describe('Auth-primitives schema (e2e)', () => {
     await expect(insertSession({ userId, tokenHash: Buffer.alloc(31, 1) })).rejects.toThrow(
       /CHK_sessions_token_hash_length/,
     );
-    await expect(insertVerificationCode({ userId, codeHash: Buffer.alloc(16, 2) })).rejects.toThrow(
-      /CHK_email_verification_codes_hash_length/,
+    await expect(insertPendingRegistration({ codeHash: Buffer.alloc(16, 2) })).rejects.toThrow(
+      /CHK_pending_registrations_code_hash_length/,
     );
     await expect(insertResetToken({ userId, tokenHash: Buffer.alloc(20, 3) })).rejects.toThrow(
       /CHK_password_reset_tokens_hash_length/,
