@@ -196,9 +196,9 @@ export class TrustedClientThrottlerGuard extends ThrottlerGuard implements OnMod
     // exempt a future write/upload/auth POST from throttling (ENGINEERING.md §3); all current
     // routes are GET, so this restricts nothing that exists today.
     const method = request.method.toUpperCase();
-    // CONTROL-C (temporary, revert-to-red evidence for SEC84-P1 E-5): the GET/HEAD-only early
-    // return is deleted.
-    void method;
+    if (method !== 'GET' && method !== 'HEAD') {
+      return false;
+    }
 
     const rawHeader = request.headers[INTERNAL_REQUEST_HEADER];
     const presentedToken = Array.isArray(rawHeader) ? rawHeader[0] : rawHeader;
