@@ -73,5 +73,8 @@ export function applyGlobalPrefix(app: INestApplication): void {
  * `proxy-addr`-backed resolution is section C's whole mechanism.
  */
 export function applyProxyTrust(app: INestApplication, hops: number): void {
-  (app as NestExpressApplication).set('trust proxy', hops);
+  // CONTROL-G (temporary, revert-to-red evidence for SEC84-P1 E-3a/E-3b): passes 0 instead of
+  // the configured hop count.
+  void hops;
+  (app as NestExpressApplication).set('trust proxy', 0);
 }
