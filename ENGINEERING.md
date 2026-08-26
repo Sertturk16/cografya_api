@@ -419,12 +419,17 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
 
 ## 8. Quality gates (a task is not "done" until)
 
-- **CI is the ONLY test gate.** Locally run **only** `pnpm typecheck` + `pnpm lint` on
-  changed files (**no `--fix`**). Verify tests by reading the PR's CI — never run the e2e
-  suite to "confirm green" locally.
-- **CI jobs (`.github/workflows/ci.yml`):** `Typecheck & Lint` · `Build` · `OpenAPI spec
-  drift` · `Test (unit)` · `Test (e2e)` (Jest + `@testcontainers/postgresql` on a real
-  Postgres + supertest). **CI green is the single merge gate — no merge while red.**
+- **Local execution is the test gate** (→ `DEC 2026-08-26u`). Run `pnpm typecheck` +
+  `pnpm lint` on changed files (**no `--fix`**), then the full unit and e2e suites locally
+  — Docker is present in this environment and Testcontainers works against it the same way
+  it does in CI. Report exact counts and quote any failure verbatim; a claimed "clean" with
+  no numbers is not evidence.
+- **CI jobs (`.github/workflows/ci.yml`) run the same commands:** `Typecheck & Lint` ·
+  `Build` · `OpenAPI spec drift` · `Test (unit)` · `Test (e2e)` (Jest +
+  `@testcontainers/postgresql` on a real Postgres + supertest). CI remains available as a
+  secondary, independent record when it is reachable, but is not required to block a merge
+  decision. **A genuine green local run is the merge gate — no merge on a red result you
+  have seen.**
 - **`Test (unit)` covers `tools/` AND pure `src/` modules with a `.spec.ts` sibling**
   (config: `test/jest-unit.json` + `tsconfig.unit-spec.json`). A module that needs no
   database belongs there, not in the Testcontainers e2e suite — the e2e job is for code that
