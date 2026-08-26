@@ -207,7 +207,7 @@ export class SessionService {
             return {
               rejected: false,
               userId: user.id,
-              tokenVersion: user.tokenVersion + 1,
+              tokenVersion: user.tokenVersion,
               refreshTokenPlain: recoveredTokenPlain,
             };
           }
