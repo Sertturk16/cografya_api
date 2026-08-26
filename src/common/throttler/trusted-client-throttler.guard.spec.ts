@@ -379,6 +379,10 @@ describe('TrustedClientThrottlerGuard.shouldSkip (glue + deny paths)', () => {
         }
       });
 
+      // SEC139R3-M4 — unit-covered only. Unlike the env-schema collision refusal added this same
+      // round (control L1), no revert-to-red push was attempted for this case: nobody reverted
+      // the Date.now() → performance.now() fix and observed this test go red against it. The
+      // assertions below are believed correct on inspection, not proven by an observed failure.
       it('CODE139R2-M4 — a BACKWARD jump in Date.now() does not suppress the cooldown re-emit: the cooldown reads a monotonic clock, not the wall clock', async () => {
         // performance.now() is the clock under test and is left free-running by the elapsed
         // window below; Date.now() is stepped BACKWARD by ten cooldown windows to simulate an

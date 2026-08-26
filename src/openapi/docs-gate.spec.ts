@@ -177,6 +177,10 @@ describe('applyDocsGate', () => {
     expect(setupSwagger).not.toHaveBeenCalled();
   });
 
+  // SEC139R3-M4 — unit-covered only. No revert-to-red push was attempted for this ordering
+  // check: nobody reverted `applyDocsGate`'s two 'gated'-branch statements and observed this
+  // test go red against the swapped order. The assertion below is believed correct on
+  // inspection, not proven by an observed failure.
   it("SEC139R2-M2 — 'gated' with a token: the auth middleware is mounted BEFORE setupSwagger is called, never after", () => {
     // The four `useCalls`/call-count assertions above hold even if the two statements inside
     // the 'gated' branch were swapped — they check WHAT was called, not in what ORDER. This test

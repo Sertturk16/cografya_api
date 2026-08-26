@@ -112,17 +112,20 @@ function extractBasicPassword(authorizationHeader: string | undefined): string |
  * UNTHROTTLED public path is itself a flood and disk-fill vector, which is a worse failure mode
  * than the one it would report.
  *
- * **`SEC139R2-M3` corrects a factual claim this docblock made about a pattern the SAME commit
- * changed.** It previously said mirroring `TrustedClientThrottlerGuard`'s logging pattern here
- * "would give it zero brute-force detection value: every attempt after the first would be
- * silenced anyway" — true of the `Set`-based, once-per-process version that guard used to have,
- * and false of the `Map` + cooldown version it was rewritten to in this same round
- * (`TRACKER_REASON_LOG_COOLDOWN_MS` = 15 minutes, `CODE139R2-M4`), which re-emits every window
- * rather than staying silent forever. The corrected reason mirroring it here still does not
- * change: once per 15 minutes is not a brute-force DEFENCE against an attacker making many
- * guesses per minute — it would report the attempt long after it had already succeeded or
- * failed, not prevent it. A genuine brute-force defence here would mean putting an actual rate
- * limit on this path, which is a larger change than this fix round's scope.
+ * **`SEC139R2-M3` corrects a factual claim this docblock made about a pattern a PRIOR round had
+ * already changed — and `CODE139R3-M3` corrects a second error the SEC139R2-M3 fix itself
+ * introduced into the correction.** The original sentence said mirroring
+ * `TrustedClientThrottlerGuard`'s logging pattern here "would give it zero brute-force detection
+ * value: every attempt after the first would be silenced anyway" — true of the guard's original
+ * `Set`-based, once-per-process version, and false of the `Map` + cooldown version the guard was
+ * rewritten to ONE ROUND EARLIER (`TRACKER_REASON_LOG_COOLDOWN_MS` = 15 minutes, `VALH139-I1` —
+ * see the guard's own docblock for that attribution), not "in this same round" and not
+ * `CODE139R2-M4` (which names a DIFFERENT, later change to the same guard — `Date.now()` to
+ * `performance.now()` — not the `Map`'s introduction). The corrected reason mirroring it here
+ * still does not change: once per 15 minutes is not a brute-force DEFENCE against an attacker
+ * making many guesses per minute — it would report the attempt long after it had already
+ * succeeded or failed, not prevent it. A genuine brute-force defence here would mean putting an
+ * actual rate limit on this path, which is a larger change than this fix round's scope.
  */
 export function buildDocsAuthMiddleware(
   token: string,
@@ -179,12 +182,21 @@ export interface DocsGateApp {
  * suite (`test/throttle.e2e-spec.ts`, `test/auth-security.e2e-spec.ts`, fifteen e2e suites
  * respectively) so their runtime wiring into `main.ts` is exercised end-to-end — nothing in this
  * repo pins that `main.ts` actually calls THIS function, or that it hands it
- * `resolveDocsExposure`'s real output rather than a constant. If the `applyDocsGate(...)` call at
- * `main.ts:79` were deleted, or `docsExposure` were replaced with a hardcoded `'open'`, every
- * unit test and the whole e2e suite would stay green, and `/docs` would mount unconditionally in
- * production even with `DOCS_ACCESS_TOKEN` unset. Closing this needs an e2e test that boots
- * `main.ts` itself (the e2e bootstrap uses `moduleRef.createNestApplication()` and never runs
- * it) — a bigger change than this fix round's scope.
+ * `resolveDocsExposure`'s real output rather than a constant. If the `applyDocsGate(...)` call
+ * `bootstrap()` makes in `src/main.ts` were deleted, or `docsExposure` were replaced with a
+ * hardcoded `'open'`, every unit test and the whole e2e suite would stay green, and `/docs`
+ * would mount unconditionally in production even with `DOCS_ACCESS_TOKEN` unset. Closing this
+ * needs an e2e test that boots `main.ts` itself (the e2e bootstrap uses
+ * `moduleRef.createNestApplication()` and never runs it) — a bigger change than this fix round's
+ * scope.
+ *
+ * **Deliberately named by FUNCTION, not by line number (`SEC139R3-M3`).** An earlier version of
+ * this note cited `main.ts:79`; the very commit that added it also grew an unrelated comment
+ * block above that call by 22 lines, moving it to `main.ts:101` before the citation was ever
+ * read back — the same "a docblock states a fact the same commit already made false" class
+ * `SEC139R2-M3` closed elsewhere in this file, in miniature. A line number in a permanent
+ * docblock is a claim that goes stale on any unrelated edit above it; naming the function
+ * instead cannot.
  */
 export function applyDocsGate(
   app: DocsGateApp,
