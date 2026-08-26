@@ -695,7 +695,11 @@ export const envSchema = z
     // authenticated forwarding call. Checked independently, and only when BOTH sides are set, so
     // the message names exactly which variable collided.
     if (
-      env.VISITOR_FORWARD_TOKEN !== undefined &&
+      // CONTROL-D (temporary, revert-to-red evidence for SEC84-P1): the collision condition is
+      // negated on its first guard, which makes the whole condition unsatisfiable (a defined
+      // VISITOR_FORWARD_TOKEN can never equal `undefined`) — surgically disabling only THIS
+      // check, never firing where it should not.
+      env.VISITOR_FORWARD_TOKEN === undefined &&
       env.INTERNAL_REQUEST_TOKEN !== undefined &&
       env.VISITOR_FORWARD_TOKEN === env.INTERNAL_REQUEST_TOKEN
     ) {
