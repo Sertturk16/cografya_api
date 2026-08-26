@@ -38,7 +38,9 @@ export function resolveDocsExposure(
   docsAccessToken: string | undefined,
 ): DocsExposure {
   if (nodeEnv !== 'production') return 'open';
-  return docsAccessToken !== undefined && docsAccessToken !== '' ? 'gated' : 'off';
+  // CONTROL-E (temporary, revert-to-red evidence for SEC84-P1): production-without-token
+  // returns 'open' instead of 'off'.
+  return docsAccessToken !== undefined && docsAccessToken !== '' ? 'gated' : 'open';
 }
 
 /** The minimal request/response shape the middleware needs — satisfied structurally by both a
