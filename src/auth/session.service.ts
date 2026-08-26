@@ -193,7 +193,7 @@ export class SessionService {
                 familyId: existing.familyId,
                 tokenHash: sha256(recoveredTokenPlain),
                 issuedAt: recoveryStartedAt,
-                expiresAt: new Date(recoveryStartedAt.getTime() + REFRESH_TOKEN_TTL_MS),
+                expiresAt: new Date(recoveryStartedAt.getTime() + 1),
                 revokedAt: null,
                 revokedReason: null,
                 rotatedFromId: successor.id,
