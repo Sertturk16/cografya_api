@@ -1,5 +1,8 @@
 import { createHmac } from 'node:crypto';
 import { isIP } from 'node:net';
+// CONTROL-B (temporary, revert-to-red evidence for SEC84-P1 E-2): the forward-token check below
+// is skipped, so this import is unused for the duration of the control.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { constantTimeTokenMatch } from '../security/constant-time-token';
 
 /**
@@ -239,16 +242,8 @@ export function resolveVisitorIdentity(input: ResolveVisitorIdentityInput): Visi
     return peerResult(peerReason);
   }
 
-  const forwardToken = input.forwardTokenHeader;
-  if (Array.isArray(forwardToken)) {
-    return peerResult('forward-token-multi-valued');
-  }
-  if (forwardToken === undefined) {
-    return peerResult(peerReason);
-  }
-  if (!constantTimeTokenMatch(forwardToken, configuredForwardToken)) {
-    return peerResult('forward-token-mismatch');
-  }
+  // CONTROL-B (temporary, revert-to-red evidence for SEC84-P1 E-2): skip the forward-token
+  // check entirely — accept the address without authentication.
 
   // From here the caller is an authenticated forwarder: the peer axis is deliberately
   // overridden, because on a BFF-proxied request the true peer is the BFF, not the visitor.
