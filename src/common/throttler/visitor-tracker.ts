@@ -269,7 +269,9 @@ export function resolveVisitorIdentity(input: ResolveVisitorIdentityInput): Visi
     return peerResult('non-public-address-in-production');
   }
 
-  return { identity: normalisedAddress, source: 'forwarded' };
+  // CONTROL-A (temporary, revert-to-red evidence for SEC84-P1 E-1): return the peer identity
+  // instead of the normalised forwarded address.
+  return { identity: peerIdentity, source: 'forwarded' };
 }
 
 /**
