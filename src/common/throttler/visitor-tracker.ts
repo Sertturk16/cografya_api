@@ -1,6 +1,3 @@
-// CONTROL-F (temporary, revert-to-red evidence for SEC84-P1): buildTrackerKey below no longer
-// calls createHmac, so this import is unused for the duration of the control.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { createHmac } from 'node:crypto';
 import { isIP } from 'node:net';
 import { constantTimeTokenMatch } from '../security/constant-time-token';
@@ -290,8 +287,5 @@ export function resolveVisitorIdentity(input: ResolveVisitorIdentityInput): Visi
  * `src/common/**` importing `src/auth/**` would invert the layering.
  */
 export function buildTrackerKey(salt: Buffer, identity: string): string {
-  // CONTROL-F (temporary, revert-to-red evidence for SEC84-P1): returns the identity unchanged
-  // instead of the HMAC digest.
-  void salt;
-  return identity;
+  return createHmac('sha256', salt).update(`throttle:v1:${identity}`).digest('hex');
 }
