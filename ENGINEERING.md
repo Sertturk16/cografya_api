@@ -143,22 +143,27 @@ ship an unguarded write, an unvalidated input, or an unbounded external call.
   (single-instance day-0; a Redis-backed store is layered in at horizontal scale — surface
   to Atlas first). `/health` is exempt via `@SkipThrottle`. Per-user/upload endpoints get
   their own tighter throttle when they land.
-- **`/docs` (Swagger UI + `/docs-json`)** is currently ungated so web can codegen against
-  a dev instance. It carries a `TODO(first-deploy)` to gate behind a non-production check
-  before the first real deployment — the full API surface must not be publicly browsable
-  in prod. This is a first-deploy acceptance criterion (Atlas-tracked).
-- **`trust proxy` is UNSET, and every rate limit here is therefore per SOCKET, not per visitor**
-  — the second `TODO(first-deploy)` item (→ DEC 2026-08-15f D2). `ThrottlerGuard` tracks on
-  `req.ip`, which Express resolves through `trust proxy`; with no value set, every request that
-  arrives via a proxy shares one bucket, so the global 120/min and any route ceiling (the
-  elevation profile's 10/min is the first) apply to the proxy rather than to the caller. It is
-  not fixable today and the reason is written into the ruling: the correct value depends on the
-  undecided hosting target, and a blanket `true` makes `x-forwarded-for` caller-controlled, which
-  removes the ceiling entirely instead of scoping it. **First-deploy criterion:** set a bounded
-  hop count (or an explicit `getTracker`) together with the hosting choice, and only then may a
-  docblock describe any of these limits as per-client. The web half is already bound — Atlas
-  ruling AK-25 md.3 requires the proxy route handler to carry the real client IP forward — so
-  what is missing is the api half that reads it.
+- **`/docs` (Swagger UI + `/docs-json` + `/docs-yaml`)** is gated in production behind
+  `DOCS_ACCESS_TOKEN` (SEC84-P1, `src/openapi/docs-gate.ts`): unset in production means the
+  surface is **not mounted at all** (fail-closed), set means it answers behind HTTP Basic auth.
+  Outside production it stays open, exactly as before, so the web repo keeps codegenning against
+  a dev instance. The former `TODO(first-deploy)` on this item is closed.
+- **`trust proxy` — SEC84-P1 took BOTH branches the prior first-deploy criterion named, and they
+  are not alternatives.** The peer axis gets a bounded hop count of exactly 1
+  (`TRUSTED_PROXY_HOPS`, default `0`, applied via the shared `applyProxyTrust(app, hops)`) —
+  sound only under the ingress restriction `DEC 2026-08-26o` states: the api is not reachable
+  except through the single trusted L7 terminator. The forwarded axis gets an explicit
+  `getTracker` override on `TrustedClientThrottlerGuard`
+  (`src/common/throttler/visitor-tracker.ts`), which believes a caller's `x-visitor-address` only
+  when it also authenticates with `VISITOR_FORWARD_TOKEN`. `trust proxy: true` and any unbounded
+  or unmeasured hop count stay forbidden without exception — `max(1)` in the env schema is what
+  makes "bounded" a property of the code rather than of an intention. **The first-deploy criterion
+  stays open, restated rather than closed:** no docblock may describe any limit here as
+  per-visitor until BOTH the web forwarding change (Vera, later) and the deploy-path verification
+  that the deployed terminator behaves as assumed have happened — landing the api half alone
+  proves the resolution *logic*, not what a deployed socket receives. See
+  `Owner's Inbox/uyelik-ve-giris-yol-haritasi/UYELIK-04-SEC84-P1-api-plan.md` for the full design
+  and `test/throttle.e2e-spec.ts` E-1…E-5 for what is actually measured today.
 
 ### 3.2 Input validation — on every DTO
 - The global `ValidationPipe` runs with **`whitelist: true` + `forbidNonWhitelisted:

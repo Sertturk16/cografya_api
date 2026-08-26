@@ -25,6 +25,16 @@ const PRODUCTION_AUTH_SECRETS = {
   AUTH_HMAC_PEPPER: 'b'.repeat(32),
 };
 
+/**
+ * SEC84-P1 added a THIRD production precondition alongside E1/D6: `WEB_ORIGIN` must not be a
+ * loopback host in production (`BASE` carries no `WEB_ORIGIN`, so it defaults to
+ * `http://localhost:3000` — a public-api accident the new check refuses). Every pre-existing
+ * "boots in production" assertion below needed this spread in alongside `PRODUCTION_AUTH_SECRETS`
+ * for the same reason that block's own comment names: production boot now has one more
+ * precondition, not because any of those assertions' own point moved.
+ */
+const PRODUCTION_WEB_ORIGIN = { WEB_ORIGIN: 'https://api.cografya.example' };
+
 describe('validateEnv — defaults', () => {
   it('boots on NODE_ENV + DATABASE_URL alone, with the marine feature OFF', () => {
     const env = validateEnv({ ...BASE });
@@ -257,6 +267,7 @@ describe('validateEnv — JWT_SECRET / AUTH_HMAC_PEPPER (üyelik UYELIK-02, plan
     expect(() =>
       validateEnv({
         ...BASE,
+        ...PRODUCTION_WEB_ORIGIN,
         NODE_ENV: 'production',
         JWT_SECRET: VALID_SECRET,
         AUTH_HMAC_PEPPER: VALID_PEPPER,
@@ -267,6 +278,172 @@ describe('validateEnv — JWT_SECRET / AUTH_HMAC_PEPPER (üyelik UYELIK-02, plan
   it('leave both optional in development and test even though NODE_ENV is set', () => {
     expect(() => validateEnv({ ...BASE, NODE_ENV: 'development' })).not.toThrow();
     expect(() => validateEnv({ ...BASE, NODE_ENV: 'test' })).not.toThrow();
+  });
+});
+
+describe('validateEnv — VISITOR_FORWARD_TOKEN is a wire contract, not just a length (SEC84-P1)', () => {
+  // A 44-char visible-ASCII stand-in, mirroring INTERNAL_REQUEST_TOKEN's own test fixture shape.
+  const VALID = 'visitor-forward-token-0123456789-abcdefghij';
+
+  it('stays OPTIONAL — the forwarding mechanism is fail-closed and dev/test/CI boot without it', () => {
+    expect(validateEnv({ ...BASE }).VISITOR_FORWARD_TOKEN).toBeUndefined();
+  });
+
+  it('accepts a visible-ASCII value of at least 32 characters', () => {
+    expect(validateEnv({ ...BASE, VISITOR_FORWARD_TOKEN: VALID }).VISITOR_FORWARD_TOKEN).toBe(
+      VALID,
+    );
+  });
+
+  it('still refuses a value shorter than 32 characters', () => {
+    expect(() => validateEnv({ ...BASE, VISITOR_FORWARD_TOKEN: 'short' })).toThrow(
+      /at least 32 characters/,
+    );
+    expect(() => validateEnv({ ...BASE, VISITOR_FORWARD_TOKEN: '' })).toThrow(
+      /at least 32 characters/,
+    );
+  });
+
+  it('draws the length line at EXACTLY 32 — one character either side of it', () => {
+    expect(() => validateEnv({ ...BASE, VISITOR_FORWARD_TOKEN: 'a'.repeat(31) })).toThrow(
+      /at least 32 characters/,
+    );
+    expect(
+      validateEnv({ ...BASE, VISITOR_FORWARD_TOKEN: 'a'.repeat(32) }).VISITOR_FORWARD_TOKEN,
+    ).toHaveLength(32);
+  });
+
+  it('REFUSES whitespace — the api and the web would then hold different bytes', () => {
+    for (const value of [` ${VALID}`, `${VALID} `, `${VALID.slice(0, 20)}\n${VALID.slice(20)}`]) {
+      expect(() => validateEnv({ ...BASE, VISITOR_FORWARD_TOKEN: value })).toThrow(/visible ASCII/);
+    }
+  });
+
+  it('REFUSES control and non-ASCII characters that a `\\S` check would admit', () => {
+    for (const suffix of ['\u0000', '\u007F', 'ş', '🌍']) {
+      expect(() => validateEnv({ ...BASE, VISITOR_FORWARD_TOKEN: VALID + suffix })).toThrow(
+        /visible ASCII/,
+      );
+    }
+  });
+});
+
+describe('validateEnv — TRUSTED_PROXY_HOPS is a bounded numeric knob, not a credential (SEC84-P1)', () => {
+  it("defaults to 0 — reproduces today's behaviour exactly (no request header can influence req.ip)", () => {
+    expect(validateEnv({ ...BASE }).TRUSTED_PROXY_HOPS).toBe(0);
+  });
+
+  it('parses "1" to the number 1 — the only other permitted value', () => {
+    expect(validateEnv({ ...BASE, TRUSTED_PROXY_HOPS: '1' }).TRUSTED_PROXY_HOPS).toBe(1);
+  });
+
+  it('refuses anything outside {0, 1}, and the above-1 message states the bound and its reason', () => {
+    expect(() => validateEnv({ ...BASE, TRUSTED_PROXY_HOPS: '2' })).toThrow(
+      /TRUSTED_PROXY_HOPS above 1 is not a configuration choice/,
+    );
+    for (const value of ['-1', '1.5', 'true', 'many']) {
+      expect(() => validateEnv({ ...BASE, TRUSTED_PROXY_HOPS: value })).toThrow(
+        /Invalid environment configuration/,
+      );
+    }
+  });
+});
+
+describe('validateEnv — the three VISITOR_FORWARD_TOKEN collision refusals (SEC84-P1 §B)', () => {
+  const FORWARD_TOKEN = 'visitor-forward-token-0123456789-abcdefghij';
+
+  it('refuses VISITOR_FORWARD_TOKEN === INTERNAL_REQUEST_TOKEN, naming both variables', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        VISITOR_FORWARD_TOKEN: FORWARD_TOKEN,
+        INTERNAL_REQUEST_TOKEN: FORWARD_TOKEN,
+      }),
+    ).toThrow(/VISITOR_FORWARD_TOKEN must not equal INTERNAL_REQUEST_TOKEN/);
+  });
+
+  it('refuses VISITOR_FORWARD_TOKEN === JWT_SECRET, naming both variables', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        VISITOR_FORWARD_TOKEN: FORWARD_TOKEN,
+        JWT_SECRET: FORWARD_TOKEN,
+      }),
+    ).toThrow(/VISITOR_FORWARD_TOKEN must not equal JWT_SECRET/);
+  });
+
+  it('refuses VISITOR_FORWARD_TOKEN === AUTH_HMAC_PEPPER, naming both variables', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        VISITOR_FORWARD_TOKEN: FORWARD_TOKEN,
+        AUTH_HMAC_PEPPER: FORWARD_TOKEN,
+      }),
+    ).toThrow(/VISITOR_FORWARD_TOKEN must not equal AUTH_HMAC_PEPPER/);
+  });
+
+  it('does not refuse when only ONE side is set — a collision needs both', () => {
+    expect(() => validateEnv({ ...BASE, VISITOR_FORWARD_TOKEN: FORWARD_TOKEN })).not.toThrow();
+  });
+});
+
+describe('validateEnv — DOCS_ACCESS_TOKEN is a wire contract, not just a length (SEC84-P1)', () => {
+  const VALID = 'docs-access-token-0123456789-abcdefghijkl';
+
+  it('stays OPTIONAL — outside production `/docs` is open regardless', () => {
+    expect(validateEnv({ ...BASE }).DOCS_ACCESS_TOKEN).toBeUndefined();
+  });
+
+  it('accepts a visible-ASCII value of at least 32 characters', () => {
+    expect(validateEnv({ ...BASE, DOCS_ACCESS_TOKEN: VALID }).DOCS_ACCESS_TOKEN).toBe(VALID);
+  });
+
+  it('refuses a value shorter than 32 characters', () => {
+    expect(() => validateEnv({ ...BASE, DOCS_ACCESS_TOKEN: 'short' })).toThrow(
+      /at least 32 characters/,
+    );
+  });
+
+  it('refuses whitespace and control/non-ASCII characters — the same wire-contract shape', () => {
+    expect(() => validateEnv({ ...BASE, DOCS_ACCESS_TOKEN: ` ${VALID}` })).toThrow(/visible ASCII/);
+    expect(() => validateEnv({ ...BASE, DOCS_ACCESS_TOKEN: `${VALID} ` })).toThrow(/visible ASCII/);
+  });
+});
+
+describe('validateEnv — WEB_ORIGIN must not be a loopback host in production (SEC84-P1)', () => {
+  it('REFUSES a loopback WEB_ORIGIN (the default) in production', () => {
+    expect(() =>
+      validateEnv({ ...BASE, ...PRODUCTION_AUTH_SECRETS, NODE_ENV: 'production' }),
+    ).toThrow(/WEB_ORIGIN must not be a loopback host/);
+  });
+
+  it('REFUSES an explicit loopback WEB_ORIGIN (127.0.0.1, ::1) in production too', () => {
+    for (const origin of ['http://127.0.0.1:3000', 'http://[::1]:3000']) {
+      expect(() =>
+        validateEnv({
+          ...BASE,
+          ...PRODUCTION_AUTH_SECRETS,
+          NODE_ENV: 'production',
+          WEB_ORIGIN: origin,
+        }),
+      ).toThrow(/WEB_ORIGIN must not be a loopback host/);
+    }
+  });
+
+  it('accepts the SAME loopback origin OUTSIDE production — the default is fine for local dev', () => {
+    expect(() => validateEnv({ ...BASE, NODE_ENV: 'development' })).not.toThrow();
+    expect(() => validateEnv({ ...BASE, NODE_ENV: 'test' })).not.toThrow();
+  });
+
+  it('accepts a real, non-loopback origin in production', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        ...PRODUCTION_AUTH_SECRETS,
+        ...PRODUCTION_WEB_ORIGIN,
+        NODE_ENV: 'production',
+      }),
+    ).not.toThrow();
   });
 });
 
@@ -297,6 +474,7 @@ describe('validateEnv — E1: Redis is mandatory in production (DEC 2026-07-29b)
     const env = validateEnv({
       ...BASE,
       ...PRODUCTION_AUTH_SECRETS,
+      ...PRODUCTION_WEB_ORIGIN,
       NODE_ENV: 'production',
       MARINE_ENABLED: 'true',
       REDIS_URL: 'redis://cache:6379',
@@ -306,7 +484,12 @@ describe('validateEnv — E1: Redis is mandatory in production (DEC 2026-07-29b)
 
   it('boots in production WITHOUT Redis while the feature is off — nothing calls a provider', () => {
     expect(() =>
-      validateEnv({ ...BASE, ...PRODUCTION_AUTH_SECRETS, NODE_ENV: 'production' }),
+      validateEnv({
+        ...BASE,
+        ...PRODUCTION_AUTH_SECRETS,
+        ...PRODUCTION_WEB_ORIGIN,
+        NODE_ENV: 'production',
+      }),
     ).not.toThrow();
   });
 
@@ -538,6 +721,7 @@ describe('validateEnv — the air-quality (CAMS/ADS) block', () => {
       validateEnv({
         ...BASE,
         ...PRODUCTION_AUTH_SECRETS,
+        ...PRODUCTION_WEB_ORIGIN,
         NODE_ENV: 'production',
         AIR_QUALITY_ENABLED: 'true',
         ADS_API_KEY: 'a-key',
@@ -702,6 +886,7 @@ describe('validateEnv — the book video-solution (YouTube Data API) block', () 
       validateEnv({
         ...BASE,
         ...PRODUCTION_AUTH_SECRETS,
+        ...PRODUCTION_WEB_ORIGIN,
         NODE_ENV: 'production',
         BOOKS_YOUTUBE_SYNC_ENABLED: 'true',
         YOUTUBE_API_KEY: 'a-key',
@@ -764,6 +949,7 @@ describe('validateEnv — the earthquake (AFAD TDVMS) block', () => {
       validateEnv({
         ...BASE,
         ...PRODUCTION_AUTH_SECRETS,
+        ...PRODUCTION_WEB_ORIGIN,
         NODE_ENV: 'production',
         EARTHQUAKE_ENABLED: 'true',
         REDIS_URL: 'redis://cache:6379',
@@ -873,6 +1059,7 @@ describe('validateEnv — the elevation (AWS terrain tiles) block', () => {
       validateEnv({
         ...BASE,
         ...PRODUCTION_AUTH_SECRETS,
+        ...PRODUCTION_WEB_ORIGIN,
         NODE_ENV: 'production',
         ELEVATION_ENABLED: 'true',
         REDIS_URL: 'redis://cache:6379',

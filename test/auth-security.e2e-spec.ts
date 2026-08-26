@@ -1720,7 +1720,7 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
       expect(afterSecond).toBe(afterFirst);
     });
 
-    it('T3 — the IP-axis 429 carries the published i18n key AND no-store; no trusted-client bypass on POST', async () => {
+    it('T3 — the IP-axis 429 carries the published i18n key AND no-store (SEC84-P1: the trusted-client-bypass claim this title used to make is measured for real by test/throttle.e2e-spec.ts E-5 — this body never sets x-internal-request-token, so it cannot measure that)', async () => {
       const limit = AUTH_ROUTE_THROTTLES.logout.limit;
       let throttled: request.Response | undefined;
       for (let attempt = 0; attempt < limit + 1; attempt += 1) {

@@ -20,10 +20,15 @@ import { ProvinceModule } from './province/province.module';
 import { ReferenceModule } from './reference/reference.module';
 
 /**
- * Baseline rate limit for the public API: a single window of 120 requests per
- * minute per client. In-memory storage is fine for a single instance; a
- * Redis-backed store is layered in when the API scales horizontally (surface to
- * Atlas first). `/health` is exempt (see HealthController @SkipThrottle).
+ * Baseline rate limit for the public API: a window of 120 requests per minute PER CLIENT AND
+ * HANDLER — not one app-wide window. `@nestjs/throttler`'s `generateKey` composes the bucket key
+ * from the controller class name, the handler name AND the tracked identity (measured,
+ * `TrustedClientThrottlerGuard`'s own docblock), so `GET /api/provinces` and
+ * `POST /api/auth/logout` are separate counters that merely share one tracked identity. E-1's
+ * per-handler isolation note (`test/throttle.e2e-spec.ts`) is the gate this sentence names.
+ * In-memory storage is fine for a single instance; a Redis-backed store is layered in when the
+ * API scales horizontally (surface to Atlas first). `/health` is exempt (see HealthController
+ * @SkipThrottle).
  *
  * The limit deliberately stays at 120 for anonymous callers. The one legitimate
  * high-volume client — the web SSG build, whose full-site fetch burst (81 provinces
@@ -32,6 +37,11 @@ import { ReferenceModule } from './reference/reference.module';
  * TrustedClientThrottlerGuard (a shared secret in the `x-internal-request-token`
  * header). Distinguishing the trusted build beats raising the global number, which
  * would weaken every client's protection and be a treadmill as content grows.
+ *
+ * SEC84-P1 — the TRACKED IDENTITY this window and every `@Throttle` route ceiling share is now
+ * resolved by `TrustedClientThrottlerGuard.getTracker` (`src/common/throttler/visitor-tracker.ts`),
+ * not by `req.ip` directly. See that guard's docblock for the two-axis resolution; this
+ * exemption's own boundary (GET/HEAD-only, `shouldSkip`) is untouched.
  *
  * EXPORTED so `test/throttle.e2e-spec.ts` can pin the BEHAVIOUR without restating the
  * numbers: a test that hardcoded `120` would silently stop testing the real window the

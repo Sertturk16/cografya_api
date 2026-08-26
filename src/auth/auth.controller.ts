@@ -43,8 +43,15 @@ import { SessionService } from './session.service';
  * `src/auth/auth.constants.ts` deliberately does NOT carry these: that file is crypto/lifetime
  * constants, these are route ceilings.
  *
- * **These are per SOCKET, not per visitor** — `trust proxy` is unset (`ENGINEERING.md` §3.1,
- * `DEC 2026-08-15f` D2, a first-deploy item this plan does not open).
+ * **SEC84-P1 — the tracked identity is no longer simply "per socket".** It is the PEER identity —
+ * the raw socket with `TRUSTED_PROXY_HOPS=0` (the default), or the address the single trusted L7
+ * terminator supplied with `TRUSTED_PROXY_HOPS=1` (`DEC 2026-08-26o`) — EXCEPT for an
+ * authenticated forwarder's well-formed `x-visitor-address`, which is tracked instead
+ * (`src/common/throttler/visitor-tracker.ts`). Whether either axis actually yields a PER-VISITOR
+ * ceiling on these routes still depends on two things that have NOT landed: the web forwarding
+ * change (Vera, later) and the deployed ingress restriction's verification. Until both land, the
+ * honest claim is "per resolved identity", not "per visitor". Gate:
+ * `test/throttle.e2e-spec.ts` E-1/E-2/E-3a.
  */
 export const AUTH_ROUTE_THROTTLES = {
   register: { limit: 10, ttl: 60 * 60 * 1000 },

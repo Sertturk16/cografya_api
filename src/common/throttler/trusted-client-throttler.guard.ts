@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { type ExecutionContext, Injectable, Logger, type OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
@@ -12,6 +13,22 @@ import {
 import { type Env } from '../../config/env.schema';
 import { NO_TRUSTED_CLIENT_EXEMPTION, THROTTLER_ERROR_MESSAGE } from './throttler-metadata';
 import { INTERNAL_REQUEST_HEADER, isTrustedClientRequest } from './trusted-client';
+import {
+  buildTrackerKey,
+  resolveVisitorIdentity,
+  VISITOR_ADDRESS_HEADER,
+  VISITOR_FORWARD_TOKEN_HEADER,
+  type TrackerFallbackReason,
+} from './visitor-tracker';
+
+/** The request shape `getTracker` reads. Narrower than the base class's `Record<string, any>` —
+ * TypeScript checks method parameters BIVARIANTLY, so this narrowing type-checks even though it
+ * would not for a plain function-typed property (SEC84-P1 §C). */
+interface VisitorTrackerRequest {
+  readonly ip?: string;
+  readonly socket?: { readonly remoteAddress?: string };
+  readonly headers: Record<string, string | string[] | undefined>;
+}
 
 /**
  * Global rate-limit guard with ONE added exemption: a trusted first-party caller (the web
@@ -49,10 +66,34 @@ import { INTERNAL_REQUEST_HEADER, isTrustedClientRequest } from './trusted-clien
  * Fail-closed: with `INTERNAL_REQUEST_TOKEN` unset the exemption does not exist and every
  * request is throttled. A single boot-time log line records which state is active (no
  * per-request logging, never the secret value). Security posture is in `trusted-client.ts`.
+ *
+ * **SEC84-P1 — identity and bypass are two DIFFERENT methods reading two DIFFERENT
+ * variables, and that separation is structural, not a convention.** `shouldSkip` (above,
+ * UNCHANGED by this plan) decides the bypass and reads `INTERNAL_REQUEST_TOKEN`; `getTracker`
+ * (below, new) decides the TRACKED IDENTITY and reads `VISITOR_FORWARD_TOKEN`. A caller that
+ * proves its `VISITOR_FORWARD_TOKEN` gets its OWN throttle bucket instead of sharing the peer's —
+ * it never gets `shouldSkip === true`, because `getTracker` cannot influence `shouldSkip` and
+ * `shouldSkip`'s GET/HEAD-only, fail-closed logic above is untouched. See `visitor-tracker.ts`
+ * for the two-axis resolution (peer vs. forwarded) `getTracker` delegates to.
  */
 @Injectable()
 export class TrustedClientThrottlerGuard extends ThrottlerGuard implements OnModuleInit {
   private readonly exemptionLogger = new Logger('TrustedClientThrottle');
+
+  /**
+   * One 32-byte random salt per PROCESS, minted once here and never logged, persisted or
+   * configurable. `getTracker` HMACs the resolved identity under it (`buildTrackerKey`) so the
+   * value handed to `ThrottlerLimitDetail.tracker` — and anything a future error message or heap
+   * dump could reach — is meaningless outside this process. This is defence in depth: the
+   * throttler already sha256's the composite bucket key before it reaches storage, so the raw
+   * address never reached the store even without this salt (SEC84-P1 §F).
+   */
+  private readonly trackerSalt = randomBytes(32);
+
+  /** At most one log line per process PER REASON CODE — a `Set` over the closed seven-member
+   * `TrackerFallbackReason` union, never a growing map, so the log surface is structurally
+   * bounded rather than timer- or volume-limited (SEC84-P1 §F). */
+  private readonly loggedTrackerReasons = new Set<TrackerFallbackReason>();
 
   constructor(
     @InjectThrottlerOptions() options: ThrottlerModuleOptions,
@@ -66,7 +107,9 @@ export class TrustedClientThrottlerGuard extends ThrottlerGuard implements OnMod
   /**
    * MUST call `super.onModuleInit()` first: the base `ThrottlerGuard` builds its internal
    * `throttlers` array there, so skipping it would silently leave the limiter uninitialised.
-   * The added line is the single observability signal for the exemption (I5).
+   * The added lines are the observability signal for the exemption (I5) and, since SEC84-P1, for
+   * the separate visitor-forwarding mechanism — two independent boot states, two independent log
+   * lines, neither ever printing the secret.
    */
   async onModuleInit(): Promise<void> {
     await super.onModuleInit();
@@ -77,6 +120,50 @@ export class TrustedClientThrottlerGuard extends ThrottlerGuard implements OnMod
         ? 'trusted-client throttle exemption: active'
         : 'trusted-client throttle exemption: inactive (INTERNAL_REQUEST_TOKEN not set)',
     );
+
+    const configuredForwardToken = this.config.get('VISITOR_FORWARD_TOKEN', { infer: true });
+    const forwardingActive = configuredForwardToken !== undefined && configuredForwardToken !== '';
+    this.exemptionLogger.log(
+      forwardingActive
+        ? 'visitor-forwarding tracker: active'
+        : 'visitor-forwarding tracker: inactive (VISITOR_FORWARD_TOKEN not set)',
+    );
+  }
+
+  /**
+   * SEC84-P1 — overrides the base `ThrottlerGuard.getTracker` (default: `return req.ip`) for
+   * EVERY throttled route (the global window and every `@Throttle` ceiling alike — `getTracker`
+   * becomes `commonOptions.getTracker` because `ThrottlerModule.forRoot` is called with an
+   * array). Resolution is delegated entirely to the pure `resolveVisitorIdentity`
+   * (`visitor-tracker.ts`); this method only wires the request/env into it and HMACs the result
+   * under {@link trackerSalt} so no raw address is ever the literal tracker string.
+   *
+   * The fallback reason (when the caller is not an authenticated forwarder, or its forwarded
+   * value is invalid) is logged AT MOST ONCE PER PROCESS PER CODE, and never for the two normal
+   * cases (no forwarding token configured; a direct caller sending none) — those carry no
+   * `reason` at all, by design (§F).
+   */
+  // NOT `async`, deliberately: every step is pure/synchronous (`resolveVisitorIdentity`,
+  // `buildTrackerKey`), so an `async` body here would be flagged by
+  // `@typescript-eslint/require-await` for having no `await`. The base class's own signature is
+  // `Promise<string>` (it awaits `getTracker` in `handleRequest`), so the value is wrapped rather
+  // than the method marked `async` for nothing.
+  protected getTracker(req: VisitorTrackerRequest): Promise<string> {
+    const result = resolveVisitorIdentity({
+      resolvedPeer: req.ip,
+      rawSocketAddress: req.socket?.remoteAddress,
+      forwardTokenHeader: req.headers[VISITOR_FORWARD_TOKEN_HEADER],
+      addressHeader: req.headers[VISITOR_ADDRESS_HEADER],
+      configuredForwardToken: this.config.get('VISITOR_FORWARD_TOKEN', { infer: true }),
+      isProduction: this.config.get('NODE_ENV', { infer: true }) === 'production',
+    });
+
+    if (result.reason !== undefined && !this.loggedTrackerReasons.has(result.reason)) {
+      this.loggedTrackerReasons.add(result.reason);
+      this.exemptionLogger.warn(`visitor tracker fell back to the peer identity: ${result.reason}`);
+    }
+
+    return Promise.resolve(buildTrackerKey(this.trackerSalt, result.identity));
   }
 
   protected async shouldSkip(context: ExecutionContext): Promise<boolean> {
