@@ -40,18 +40,21 @@ const INCOMPLETE_CACHE_CONTROL = 'no-store';
  * own ceiling. 10 per minute is well above what drawing lines by hand produces and far below what
  * a script would.
  *
- * ## WHOSE ten per minute, stated rather than assumed (review #124, SEC124-I1)
- * `ThrottlerGuard` tracks on `req.ip`, and Express resolves that through `trust proxy`, which this
- * service does not set — deliberately, and not by omission: `DEC 2026-08-15f` D2 ruled the correct
- * value undecidable until the hosting target is chosen (a blanket `trust proxy: true` makes
- * `x-forwarded-for` caller-controlled and removes the ceiling altogether), and ordered the gap
- * recorded as a first-deploy acceptance criterion instead. It now stands in `ENGINEERING.md` §3.1's
- * `TODO(first-deploy)` list beside the `/docs` item.
+ * ## WHOSE ten per minute, stated rather than assumed (review #124, SEC124-I1; corrected SEC84-P1)
+ * The `trust proxy` decision named here as undecided HAS LANDED: `DEC 2026-08-26o` rules a
+ * bounded single hop (`TRUSTED_PROXY_HOPS`), and `TrustedClientThrottlerGuard.getTracker`
+ * (`src/common/throttler/visitor-tracker.ts`) resolves the tracked identity from it — the PEER
+ * identity (raw socket at `0`, the single trusted terminator's address at `1`), except for an
+ * authenticated forwarder's well-formed `x-visitor-address`. `ENGINEERING.md` §3.1's former
+ * `TODO(first-deploy)` list is gone; what remains open is narrower and stated where it can be
+ * checked: the DEPLOY-PATH verification that the deployed terminator behaves as `DEC 2026-08-26o`
+ * assumes (the only route to the api; it overwrites rather than appends `X-Forwarded-For`).
  *
- * So, until that criterion is met: behind a proxy this is ONE bucket for everything arriving on the
- * proxy's socket, not a per-visitor ceiling. AK-25 md.3 binds the web proxy route handler to carry
- * the real client IP forward, and that is the half that makes a per-visitor reading true — but it
- * is the api half that has to read it, and today the api reads nothing.
+ * So, until that verification has run: whether this ceiling is per-visitor or per-terminator-hop
+ * depends on a deployment this repo cannot measure. AK-25 md.3 binds the web proxy route handler
+ * to carry the real client IP forward, and the api side that reads it is `visitor-tracker.ts`'s
+ * forwarded axis — but that axis needs the web-side change to land too (SEC84-P1 plan, landing
+ * order: api → web forwarding → deploy-path verification).
  *
  * It is one of FOUR independent brakes and the weakest of them by design: the per-request tile
  * ceiling bounds one request structurally, the provider budget bounds every request in the process
@@ -75,7 +78,10 @@ const PROFILE_THROTTLE_TTL_MS = 60_000;
  * (Atlas ruling AK-25 md.3), so the proxy cannot lend its exemption to anonymous traffic. The
  * ruling's other condition — the handler carries the real client IP forward — is about the
  * throttle rather than about privacy, and what this service does with it is stated at
- * {@link PROFILE_THROTTLE_LIMIT}: nothing, until the first-deploy `trust proxy` decision lands.
+ * {@link PROFILE_THROTTLE_LIMIT}: the same two-axis statement that field's own docblock carries —
+ * the `trust proxy` decision has landed (`DEC 2026-08-26o`, one bounded hop) and the open
+ * first-deploy item is now the deploy-path verification. Gate: `test/throttle.e2e-spec.ts`
+ * E-1/E-2/E-3a/E-3b.
  *
  * ## Fail-soft, never 5xx, for a provider fault
  * A provider outage comes back as `dataAvailable: false` with `no-store`, because degrading the

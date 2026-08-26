@@ -133,32 +133,96 @@ sensitivity)**, accept **user image uploads**, and **proxy third-party feeds**. 
 ship an unguarded write, an unvalidated input, or an unbounded external call.
 
 ### 3.1 HTTP hardening (current posture — `src/main.ts`)
-- **helmet** on globally. CSP is intentionally **off** and documented at the call site
-  (this service serves JSON, not HTML; the only HTML surface is the dev-only `/docs`). All
-  other helmet protections (HSTS, noSniff, frameguard, …) stay on. Keep this decision
-  loud, never silent.
+- **helmet** on globally. CSP is intentionally **off** and documented at the call site: this
+  service serves JSON, not HTML, on its public content routes, and the one HTML surface —
+  `/docs` (Swagger UI) — is **not dev-only** (CODE139-I1/SEC139-M6, fix round). Since SEC84-P1
+  it is served in production too, behind HTTP Basic auth when `DOCS_ACCESS_TOKEN` is set (the
+  `/docs` bullet below), and not mounted at all when it is unset.
+
+  The CSP-off decision was **re-evaluated a third time**
+  (`SEC139R3-M1`/`SEC139R3-M2`/`CODE139R3-M1`/`CODE139R3-M2`): the previous rewrite's premise —
+  that Swagger UI needs inline scripts helmet's default CSP would block — was measured **false**
+  in round 2 and holds on independent re-measurement here too. What this round found wrong
+  instead was the remaining-risk paragraph's OWN counts, and — more importantly — its
+  conclusion, which claimed more than either count supports.
+
+  Measured against the served page (`@nestjs/swagger@11.4.5`'s `buildSwaggerHTML`, invoked with
+  no custom `swaggerOptions` by the `SwaggerModule.setup('docs', app, document)` call inside the
+  closure `applyDocsGate` runs in `src/main.ts` — not by `applyDocsGate` itself, which only
+  decides whether to run that closure): three `<script src="...">` tags to same-origin files
+  (`swagger-ui-bundle.js`, `swagger-ui-standalone-preset.js`, `swagger-ui-init.js`) and **zero**
+  inline `<script>` tags or `on*` attribute handlers. `helmet@8.2.0`'s own default `script-src`
+  is the explicit `['self']`, which already permits those three same-origin files, and its
+  default `style-src` already permits the page's two inline `<style>` blocks — so the specific
+  blocker the earlier rewrite named does not exist.
+
+  The remaining-risk paragraph named two items and both counts were wrong. The served page loads
+  two `swagger-ui-dist@5.32.8` files (`swagger-ui-bundle.js`, `swagger-ui-standalone-preset.js`);
+  each contains exactly **one** `new Function(` call, for **two** total, not one — and both are
+  the identical webpack `globalThis` polyfill: `if("object"==typeof globalThis)return
+  globalThis;try{return this||new Function("return this")()}catch(s){if("object"==typeof
+  window)return window}`. `swagger-ui-bundle.js` separately references
+  `https://validator.swagger.io/validator` **three** times, not one — two `void
+  0===x?<default>:x` fallbacks plus the frozen default-config entry — all belonging to the
+  single `validatorUrl` default its bundled `OnlineValidatorBadge` ships with. The
+  `script-src`/`connect-src` sentence in the previous version was also imprecise: `script-src`
+  is already explicit (measured above) and does not fall back to anything; only `connect-src`,
+  absent from helmet's default directive list, falls back to `default-src 'self'`. None of this
+  is pinned by a test or a type in this repo — it is an observation about the installed
+  packages' current contents, not a guarantee that anything here turns red if a future
+  `swagger-ui-dist` or `@nestjs/swagger` upgrade changes it.
+
+  Read directly rather than left open, the `new Function(` call **resolves**, and does not need
+  a browser render to settle: `typeof globalThis === 'object'` is true in every currently
+  shipping browser (Chrome 71+, Firefox 65+, Safari 12.1+, Edge 79+ — all years old), so the
+  branch containing `new Function(` is never reached under normal execution. In a browser old
+  enough to lack `globalThis`, the call sits inside a `try`/`catch` that falls back to `window`
+  on any thrown error, so a `script-src` without `'unsafe-eval'` blocking that call is caught and
+  absorbed rather than surfacing as a broken page. The `validator.swagger.io` reference is a
+  separate, `connect-src` question: if a CSP with no explicit `connect-src` were ever applied
+  here, the online-validator badge's request would be blocked and the badge would fail — the
+  page would not.
+
+  What this measurement supports: the three objections raised against the served `/docs` page
+  across three rounds — required inline scripts, an insufficient `script-src`, and a blocking
+  `new Function(` call — are each refuted, independently re-measured for the third time. What it
+  does **not** support is "therefore CSP stays off": `app.use(helmet({ contentSecurityPolicy:
+  false }))` is a **global** setting, and every compatibility question measured above and by the
+  two prior rounds is scoped to the one `/docs` HTML surface. Nothing measured here says
+  anything about why CSP is off on the JSON routes, where no such question exists at all — the
+  only thing that has ever carried over there is the older observation that CSP is *harmless* on
+  JSON, not that anything above makes it *necessary*. CSP therefore stays off today because it
+  has never been evaluated as a global setting, not because this paragraph defends it as one;
+  enabling it — narrowly for `/docs`, more broadly, or not at all — remains a separate,
+  evidenced decision this PR does not make in either direction. All other helmet protections
+  (HSTS, noSniff, frameguard, …) stay on. Keep this decision loud, never silent.
 - **CORS** allows only the configured `WEB_ORIGIN`; `credentials: false` until cookie auth
   exists (revisit CORS + credentials together when auth cookies are introduced).
 - **Rate limit:** global `ThrottlerGuard`, 120 req/min per client, in-memory store
   (single-instance day-0; a Redis-backed store is layered in at horizontal scale — surface
   to Atlas first). `/health` is exempt via `@SkipThrottle`. Per-user/upload endpoints get
   their own tighter throttle when they land.
-- **`/docs` (Swagger UI + `/docs-json`)** is currently ungated so web can codegen against
-  a dev instance. It carries a `TODO(first-deploy)` to gate behind a non-production check
-  before the first real deployment — the full API surface must not be publicly browsable
-  in prod. This is a first-deploy acceptance criterion (Atlas-tracked).
-- **`trust proxy` is UNSET, and every rate limit here is therefore per SOCKET, not per visitor**
-  — the second `TODO(first-deploy)` item (→ DEC 2026-08-15f D2). `ThrottlerGuard` tracks on
-  `req.ip`, which Express resolves through `trust proxy`; with no value set, every request that
-  arrives via a proxy shares one bucket, so the global 120/min and any route ceiling (the
-  elevation profile's 10/min is the first) apply to the proxy rather than to the caller. It is
-  not fixable today and the reason is written into the ruling: the correct value depends on the
-  undecided hosting target, and a blanket `true` makes `x-forwarded-for` caller-controlled, which
-  removes the ceiling entirely instead of scoping it. **First-deploy criterion:** set a bounded
-  hop count (or an explicit `getTracker`) together with the hosting choice, and only then may a
-  docblock describe any of these limits as per-client. The web half is already bound — Atlas
-  ruling AK-25 md.3 requires the proxy route handler to carry the real client IP forward — so
-  what is missing is the api half that reads it.
+- **`/docs` (Swagger UI + `/docs-json` + `/docs-yaml`)** is gated in production behind
+  `DOCS_ACCESS_TOKEN` (SEC84-P1, `src/openapi/docs-gate.ts`): unset in production means the
+  surface is **not mounted at all** (fail-closed), set means it answers behind HTTP Basic auth.
+  Outside production it stays open, exactly as before, so the web repo keeps codegenning against
+  a dev instance. The former `TODO(first-deploy)` on this item is closed.
+- **`trust proxy` — SEC84-P1 took BOTH branches the prior first-deploy criterion named, and they
+  are not alternatives.** The peer axis gets a bounded hop count of exactly 1
+  (`TRUSTED_PROXY_HOPS`, default `0`, applied via the shared `applyProxyTrust(app, hops)`) —
+  sound only under the ingress restriction `DEC 2026-08-26o` states: the api is not reachable
+  except through the single trusted L7 terminator. The forwarded axis gets an explicit
+  `getTracker` override on `TrustedClientThrottlerGuard`
+  (`src/common/throttler/visitor-tracker.ts`), which believes a caller's `x-visitor-address` only
+  when it also authenticates with `VISITOR_FORWARD_TOKEN`. `trust proxy: true` and any unbounded
+  or unmeasured hop count stay forbidden without exception — `max(1)` in the env schema is what
+  makes "bounded" a property of the code rather than of an intention. **The first-deploy criterion
+  stays open, restated rather than closed:** no docblock may describe any limit here as
+  per-visitor until BOTH the web forwarding change (Vera, later) and the deploy-path verification
+  that the deployed terminator behaves as assumed have happened — landing the api half alone
+  proves the resolution *logic*, not what a deployed socket receives. See
+  `Owner's Inbox/uyelik-ve-giris-yol-haritasi/UYELIK-04-SEC84-P1-api-plan.md` for the full design
+  and `test/throttle.e2e-spec.ts` E-1…E-5 for what is actually measured today.
 
 ### 3.2 Input validation — on every DTO
 - The global `ValidationPipe` runs with **`whitelist: true` + `forbidNonWhitelisted:

@@ -56,6 +56,31 @@ export const envSchema = z
     // Browser origin of the web app, allowed by CORS. Defaults to the typical
     // local Next.js dev origin; production sets the real domain once it's decided.
     WEB_ORIGIN: z.url().default('http://localhost:3000'),
+
+    // ── SEC84-P1: the peer-axis proxy trust bound ───────────────────────────────
+    // How many hops of `X-Forwarded-For` Express's `trust proxy` trusts, applied by the shared
+    // `applyProxyTrust(app, hops)` (`src/common/bootstrap.ts`). ONLY 0 or 1 — never `true`, never
+    // an unbounded count: `max(1)` is the whole point, because a bounded single hop is sound
+    // ONLY under the precondition `DEC 2026-08-26o` states and this schema cannot verify — the
+    // api must not be reachable except through the single trusted L7 terminator. If that ingress
+    // restriction is ever lifted, this must go back to `0` in the SAME change; a directly
+    // reachable api with one trusted hop hands every caller a self-declared identity. `0` (the
+    // default) reproduces today's behaviour EXACTLY: `req.ip` is the raw socket peer and no
+    // request header can influence it — so a deployment that forgets the terminator degrades to
+    // one shared bucket rather than to a forgeable one. This is a BOUNDED NUMERIC KNOB, not a
+    // credential: it carries no entropy and belongs in `.env.example` with a real value.
+    TRUSTED_PROXY_HOPS: z.coerce
+      .number()
+      .int()
+      .min(0)
+      .max(
+        1,
+        'TRUSTED_PROXY_HOPS above 1 is not a configuration choice — the count is trusted only ' +
+          'because exactly one known terminator fronts the api (DEC 2026-08-26o), so a larger ' +
+          'number is a claim about a network topology nobody has measured, not a tuning knob',
+      )
+      .default(0),
+
     // Shared secret that exempts a trusted first-party caller (the web SSG build) from
     // the global rate limit — presented in the `x-internal-request-token` header and
     // matched constant-time by TrustedClientThrottlerGuard. OPTIONAL and fail-closed: when
@@ -90,6 +115,51 @@ export const envSchema = z
       .regex(
         /^[\x21-\x7E]+$/,
         'INTERNAL_REQUEST_TOKEN must contain only visible ASCII characters (no whitespace, no ' +
+          'control or non-ASCII characters) when set',
+      )
+      .optional(),
+
+    // ── SEC84-P1: the forwarded-axis identity secret ────────────────────────────
+    // Authenticates a caller (the web BFF) as a trusted forwarder of `x-visitor-address`
+    // (`src/common/throttler/visitor-tracker.ts`). OPTIONAL and fail-closed, exactly like
+    // `INTERNAL_REQUEST_TOKEN` above: unset means the forwarding mechanism does not exist and
+    // every caller is tracked on the peer axis, which is today's behaviour.
+    //
+    // Deliberately a SEPARATE variable from `INTERNAL_REQUEST_TOKEN`, not a reuse — the SEC84-P1
+    // plan's §B records the full reasoning; the one sentence worth repeating at the field itself:
+    // `INTERNAL_REQUEST_TOKEN`'s leak buys a throttle-bypass on public GET/HEAD reads, while this
+    // one's leak buys the ability to NAME THE VISITOR on every route including auth POSTs — a
+    // strictly wider blast radius, so merging the two would let the narrower secret's leak buy the
+    // wider grant. Same shape as `INTERNAL_REQUEST_TOKEN` for the same wire-contract reason (this
+    // value also rides an HTTP header, `x-visitor-forward-token`, and the web repo's
+    // `lib/env.server.ts` must mirror this rule byte for byte). It is a SECRET like the others —
+    // never logged, never in the OpenAPI spec, held only by the web build's SERVER-SIDE runtime
+    // (never the browser) — but it is READ, unlike `TRUSTED_PROXY_HOPS` above, which is why it
+    // lives in this block and not that one.
+    VISITOR_FORWARD_TOKEN: z
+      .string()
+      .min(32, 'VISITOR_FORWARD_TOKEN must be at least 32 characters when set')
+      .regex(
+        /^[\x21-\x7E]+$/,
+        'VISITOR_FORWARD_TOKEN must contain only visible ASCII characters (no whitespace, no ' +
+          'control or non-ASCII characters) when set',
+      )
+      .optional(),
+
+    // ── SEC84-P1: the `/docs` gate (production only) ────────────────────────────
+    // Gates `/docs`, `/docs-json` and `/docs-yaml` behind HTTP Basic auth in production
+    // (`src/openapi/docs-gate.ts`), closing the `TODO(first-deploy)` `src/main.ts` used to carry.
+    // OPTIONAL: unset in production means the surface is NOT MOUNTED AT ALL (fail-closed), not
+    // silently open. Outside production this variable is not consulted — `/docs` stays open there
+    // exactly as it is today, so the web repo keeps codegenning against a dev instance. Same
+    // shape as the other secrets in this file, though its blast radius is narrower: it gates a
+    // READ-ONLY surface (the published API spec), nothing else.
+    DOCS_ACCESS_TOKEN: z
+      .string()
+      .min(32, 'DOCS_ACCESS_TOKEN must be at least 32 characters when set')
+      .regex(
+        /^[\x21-\x7E]+$/,
+        'DOCS_ACCESS_TOKEN must contain only visible ASCII characters (no whitespace, no ' +
           'control or non-ASCII characters) when set',
       )
       .optional(),
@@ -617,6 +687,152 @@ export const envSchema = z
       });
     }
 
+    // ── SEC84-P1: VISITOR_FORWARD_TOKEN must not collide with any existing secret ───────────
+    // A shared value cannot mean what it says: against INTERNAL_REQUEST_TOKEN it silently
+    // re-merges the two blast radii §B deliberately separated (a bypass secret vs. an
+    // identity-forwarding secret); against JWT_SECRET or AUTH_HMAC_PEPPER it would put a secret
+    // that is supposed to NEVER leave this process onto the wire, in a header, on every
+    // authenticated forwarding call. Checked independently, and only when BOTH sides are set, so
+    // the message names exactly which variable collided.
+    if (
+      env.VISITOR_FORWARD_TOKEN !== undefined &&
+      env.INTERNAL_REQUEST_TOKEN !== undefined &&
+      env.VISITOR_FORWARD_TOKEN === env.INTERNAL_REQUEST_TOKEN
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['VISITOR_FORWARD_TOKEN'],
+        message:
+          'VISITOR_FORWARD_TOKEN must not equal INTERNAL_REQUEST_TOKEN — the two guard different ' +
+          'blast radii (a throttle-bypass secret vs. an identity-forwarding secret) and a shared ' +
+          'value re-merges what SEC84-P1 §B deliberately separated.',
+      });
+    }
+    if (
+      env.VISITOR_FORWARD_TOKEN !== undefined &&
+      env.JWT_SECRET !== undefined &&
+      env.VISITOR_FORWARD_TOKEN === env.JWT_SECRET
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['VISITOR_FORWARD_TOKEN'],
+        message:
+          'VISITOR_FORWARD_TOKEN must not equal JWT_SECRET — a signing secret that never leaves ' +
+          'this process must not also travel on the wire in an HTTP header on every ' +
+          'authenticated-forwarder call.',
+      });
+    }
+    if (
+      env.VISITOR_FORWARD_TOKEN !== undefined &&
+      env.AUTH_HMAC_PEPPER !== undefined &&
+      env.VISITOR_FORWARD_TOKEN === env.AUTH_HMAC_PEPPER
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['VISITOR_FORWARD_TOKEN'],
+        message:
+          'VISITOR_FORWARD_TOKEN must not equal AUTH_HMAC_PEPPER — a pepper that never leaves ' +
+          'this process must not also travel on the wire in an HTTP header on every ' +
+          'authenticated-forwarder call.',
+      });
+    }
+
+    // ── SEC84-P1 fix round (SEC139-M1/CODE139-M1): DOCS_ACCESS_TOKEN gets the SAME collision
+    // refusal VISITOR_FORWARD_TOKEN got above ────────────────────────────────────────────────
+    // The wire-contract argument above applies word-for-word to this PR's OTHER new secret:
+    // `DOCS_ACCESS_TOKEN` also travels on the wire, in the `Authorization: Basic` header of
+    // every `/docs` request (`docs-gate.ts`'s `buildDocsAuthMiddleware`), so a value shared with
+    // a process-only signing secret puts that secret on the wire too. Three independent checks,
+    // each `!== undefined`-guarded on BOTH sides — deliberately NOT a generic all-pairs
+    // distinctness loop over every optional secret: two UNSET optional secrets both read
+    // `undefined`, and a loop comparing them for equality would refuse boot on a fresh clone
+    // that configures neither.
+    if (
+      env.DOCS_ACCESS_TOKEN !== undefined &&
+      env.INTERNAL_REQUEST_TOKEN !== undefined &&
+      env.DOCS_ACCESS_TOKEN === env.INTERNAL_REQUEST_TOKEN
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['DOCS_ACCESS_TOKEN'],
+        message:
+          'DOCS_ACCESS_TOKEN must not equal INTERNAL_REQUEST_TOKEN — the two guard different ' +
+          'blast radii (a throttle-bypass secret vs. a /docs Basic-auth credential) and a ' +
+          'shared value re-merges what they are meant to keep separate.',
+      });
+    }
+    if (
+      env.DOCS_ACCESS_TOKEN !== undefined &&
+      env.JWT_SECRET !== undefined &&
+      env.DOCS_ACCESS_TOKEN === env.JWT_SECRET
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['DOCS_ACCESS_TOKEN'],
+        message:
+          'DOCS_ACCESS_TOKEN must not equal JWT_SECRET — a signing secret that never leaves ' +
+          'this process must not also travel on the wire in an HTTP Basic-auth header on every ' +
+          '/docs request.',
+      });
+    }
+    if (
+      env.DOCS_ACCESS_TOKEN !== undefined &&
+      env.AUTH_HMAC_PEPPER !== undefined &&
+      env.DOCS_ACCESS_TOKEN === env.AUTH_HMAC_PEPPER
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['DOCS_ACCESS_TOKEN'],
+        message:
+          'DOCS_ACCESS_TOKEN must not equal AUTH_HMAC_PEPPER — a pepper that never leaves this ' +
+          'process must not also travel on the wire in an HTTP Basic-auth header on every ' +
+          '/docs request.',
+      });
+    }
+
+    // ── SEC139R2-M1/CODE139R2-M1 (fix round) — the PR's OWN two new secrets, checked against
+    // EACH OTHER, not only against the three pre-existing secrets above ─────────────────────────
+    // The three blocks above check `DOCS_ACCESS_TOKEN` against `INTERNAL_REQUEST_TOKEN` /
+    // `JWT_SECRET` / `AUTH_HMAC_PEPPER`, and the three blocks further above check
+    // `VISITOR_FORWARD_TOKEN` against the same three — but neither checks `DOCS_ACCESS_TOKEN`
+    // against `VISITOR_FORWARD_TOKEN`, even though both were born in this same PR and both
+    // travel on the wire on every request that uses them (the `/docs` Basic-auth header and the
+    // `x-visitor-forward-token` header respectively). A shared value re-merges the two blast
+    // radii — a `/docs` credential guess and a throttle-bucket-selection credential guess — for
+    // exactly the reason the checks above already state. `!== undefined`-guarded on both sides,
+    // matching every block above: two UNSET optional secrets both read `undefined`, and a naive
+    // equality check would refuse boot on a fresh clone that configures neither.
+    if (
+      env.DOCS_ACCESS_TOKEN !== undefined &&
+      env.VISITOR_FORWARD_TOKEN !== undefined &&
+      env.DOCS_ACCESS_TOKEN === env.VISITOR_FORWARD_TOKEN
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['DOCS_ACCESS_TOKEN'],
+        message:
+          'DOCS_ACCESS_TOKEN must not equal VISITOR_FORWARD_TOKEN — one is a /docs Basic-auth ' +
+          'credential and the other is a throttle-bucket-selection credential; a shared value ' +
+          'means a single leaked header (either one) hands over both surfaces at once.',
+      });
+    }
+
+    // ── SEC84-P1: a public api must not allowlist a developer's own machine as a browser origin ──
+    // WEB_ORIGIN defaults to http://localhost:3000 for local dev; on a public, deployed api that
+    // default is precisely "inheriting an accident" (DEC 2026-08-26m/o). Checked only in
+    // production, and only against the URL's HOST — a real production origin that merely
+    // contains the word "localhost" elsewhere is not what this refuses.
+    if (env.NODE_ENV === 'production' && isLoopbackOrigin(env.WEB_ORIGIN)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['WEB_ORIGIN'],
+        message:
+          'WEB_ORIGIN must not be a loopback host (localhost / 127.0.0.1 / ::1) when ' +
+          'NODE_ENV=production — the default silently allowlists a developer machine as a ' +
+          'browser origin on a public api (SEC84-P1).',
+      });
+    }
+
     // A single-call cap above the total operation budget is a configuration that cannot mean what
     // it says — the operation would end before the call it is waiting for could time out.
     if (env.MARINE_SINGLE_CALL_TIMEOUT_MS > env.MARINE_UPSTREAM_DEADLINE_MS) {
@@ -1084,6 +1300,52 @@ export const envSchema = z
         'running, so a partial profile can never warm into a complete one',
     });
   });
+
+/**
+ * SEC84-P1 — true when `url`'s HOST (not its full string) is `localhost`, `127.0.0.1` or `::1`.
+ *
+ * **Two claims this docblock used to make were wrong, and both are corrected here rather than
+ * silently dropped (SFH139-M3/VAL139-SD7, measured against this repo's own zod 4.4.3).**
+ *
+ * First: `url` is NOT already validated by the time this runs. `WEB_ORIGIN`'s own `z.url()`
+ * check and this object-level `superRefine` both read the SAME raw field, and a sub-field
+ * failing its own check does not stop `superRefine` from running on this repo's zod 4.4.3 —
+ * **observed** in a one-off probe against the installed package:
+ * `z.object({ WEB_ORIGIN: z.url().default(...) }).superRefine(fn).safeParse({ WEB_ORIGIN: 'not
+ * a url' })` calls `fn` once, and the value it receives is the literal unparsed string `'not a
+ * url'`. **This is an observation about the installed zod version's behaviour, not a guarantee
+ * pinned by a test in this repo (`TA139R2-M1`): no case in `env.schema.spec.ts` feeds a
+ * malformed `WEB_ORIGIN` in production, so nothing here turns red if a future zod upgrade
+ * changes this execution order.** What the `try`/`catch` below protects against is real either
+ * way — this function CAN run against a value `new URL()` throws on — so it stays load-bearing,
+ * not defensive boilerplate for a case that "cannot happen".
+ *
+ * Second: the `catch` below does NOT "mirror" `REDIS_URL`'s refinement above — it is the
+ * OPPOSITE polarity. There, `catch { return false }` means "invalid", and the caller (a
+ * `.refine`) turns `false` into a parse failure — closed direction: an unparseable value stops
+ * boot. Here, `catch { return false }` means "not a loopback host", and the caller only adds an
+ * issue when the result is `true` — open direction: an unparseable value passes this specific
+ * check SILENTLY and lets boot continue (on the strength of the sentence above: the overall
+ * parse still fails downstream, from `WEB_ORIGIN`'s own `z.url()` issue, so nothing ships today —
+ * but that is a fact about the OUTER result, not about this function's own polarity, and must
+ * not be copied by a future caller on the strength of a "mirrors REDIS_URL" claim that was never
+ * true).
+ *
+ * **Measured, load-bearing:** `new URL('http://[::1]:3000').hostname` is the literal string
+ * `'[::1]'` — WITH the brackets — not `'::1'`. A bracket-naive comparison would silently never
+ * match the IPv6 loopback form, so the brackets are stripped before comparing.
+ */
+function isLoopbackOrigin(url: string): boolean {
+  try {
+    let hostname = new URL(url).hostname.toLowerCase();
+    if (hostname.startsWith('[') && hostname.endsWith(']')) {
+      hostname = hostname.slice(1, -1);
+    }
+    return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
+  } catch {
+    return false;
+  }
+}
 
 /** `"a, b"` → `['a', 'b']`; blanks dropped. The one place the allowlist string is split. */
 export function parseHostList(raw: string): string[] {

@@ -1,5 +1,6 @@
-import { describe, expect, it } from '@jest/globals';
-import { type ExecutionContext } from '@nestjs/common';
+import { describe, expect, it, jest } from '@jest/globals';
+import { performance } from 'node:perf_hooks';
+import { type ExecutionContext, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import {
@@ -10,7 +11,11 @@ import {
 import { type Env } from '../../config/env.schema';
 import { NoTrustedClientExemption, ThrottlerErrorMessage } from './throttler-metadata';
 import { INTERNAL_REQUEST_HEADER } from './trusted-client';
-import { TrustedClientThrottlerGuard } from './trusted-client-throttler.guard';
+import {
+  TRACKER_REASON_LOG_COOLDOWN_MS,
+  TrustedClientThrottlerGuard,
+} from './trusted-client-throttler.guard';
+import { VISITOR_ADDRESS_HEADER, VISITOR_FORWARD_TOKEN_HEADER } from './visitor-tracker';
 
 /**
  * DB-free coverage of the guard's GLUE around the pure `isTrustedClientRequest` decision:
@@ -40,8 +45,16 @@ describe('TrustedClientThrottlerGuard.shouldSkip (glue + deny paths)', () => {
     } as unknown as ConfigService<Env, true>;
   }
 
-  // Expose the protected shouldSkip/getErrorMessage for the test (a subclass legitimately
-  // sees both).
+  /** The minimal shape `getTracker` reads — structurally identical to (but independent of) the
+   * guard's own private `VisitorTrackerRequest`; TS matches the two by shape, not by name. */
+  interface TrackerTestRequest {
+    ip?: string;
+    socket?: { remoteAddress?: string };
+    headers: Record<string, string | string[] | undefined>;
+  }
+
+  // Expose the protected shouldSkip/getErrorMessage/getTracker for the test (a subclass
+  // legitimately sees all three).
   class TestableGuard extends TrustedClientThrottlerGuard {
     runShouldSkip(context: ExecutionContext): Promise<boolean> {
       return this.shouldSkip(context);
@@ -50,10 +63,48 @@ describe('TrustedClientThrottlerGuard.shouldSkip (glue + deny paths)', () => {
     runGetErrorMessage(context: ExecutionContext): Promise<string> {
       return this.getErrorMessage(context, {} as ThrottlerLimitDetail);
     }
+
+    runGetTracker(req: TrackerTestRequest): Promise<string> {
+      return this.getTracker(req);
+    }
   }
 
   function makeGuard(token: string | undefined): TestableGuard {
     return new TestableGuard(options, storageStub, new Reflector(), makeConfig(token));
+  }
+
+  /**
+   * SEC84-P1 — a config double covering BOTH secrets `getTracker` reads. `NODE_ENV` defaults to
+   * `'test'`, which keeps the private/loopback rejection list (§C step 9) off unless a case
+   * explicitly opts in, matching how the e2e harness runs.
+   */
+  function makeFullConfig(values: {
+    internalToken?: string;
+    forwardToken?: string;
+    nodeEnv?: Env['NODE_ENV'];
+  }): ConfigService<Env, true> {
+    return {
+      get: (key: string): unknown => {
+        switch (key) {
+          case 'INTERNAL_REQUEST_TOKEN':
+            return values.internalToken;
+          case 'VISITOR_FORWARD_TOKEN':
+            return values.forwardToken;
+          case 'NODE_ENV':
+            return values.nodeEnv ?? 'test';
+          default:
+            return undefined;
+        }
+      },
+    } as unknown as ConfigService<Env, true>;
+  }
+
+  function makeFullGuard(values: {
+    internalToken?: string;
+    forwardToken?: string;
+    nodeEnv?: Env['NODE_ENV'];
+  }): TestableGuard {
+    return new TestableGuard(options, storageStub, new Reflector(), makeFullConfig(values));
   }
 
   interface ReflectorTargets {
@@ -199,6 +250,169 @@ describe('TrustedClientThrottlerGuard.shouldSkip (glue + deny paths)', () => {
         makeContext('POST', {}, undecoratedTargets()),
       );
       expect(message).toBe('ThrottlerException: Too Many Requests');
+    });
+  });
+
+  describe('SEC84-P1 — identity (getTracker) never widens the bypass (shouldSkip)', () => {
+    const FORWARD_SECRET = 'visitor-forward-token-0123456789-abcdefghij';
+    const forwardingHeaders = {
+      [VISITOR_FORWARD_TOKEN_HEADER]: FORWARD_SECRET,
+      [VISITOR_ADDRESS_HEADER]: '198.51.100.20',
+    };
+
+    it('a POST carrying a valid INTERNAL_REQUEST_TOKEN AND a valid forwarding pair still yields shouldSkip === false', async () => {
+      const skip = await makeFullGuard({
+        internalToken: SECRET,
+        forwardToken: FORWARD_SECRET,
+      }).runShouldSkip(
+        makeContext('POST', { [INTERNAL_REQUEST_HEADER]: SECRET, ...forwardingHeaders }),
+      );
+      expect(skip).toBe(false);
+    });
+
+    it('a GET carrying a valid forwarding pair but NO internal token yields shouldSkip === false', async () => {
+      const skip = await makeFullGuard({ forwardToken: FORWARD_SECRET }).runShouldSkip(
+        makeContext('GET', { ...forwardingHeaders }),
+      );
+      expect(skip).toBe(false);
+    });
+
+    it('POSITIVE CONTROL: a GET carrying a valid internal token (no forwarding involved) still skips', async () => {
+      // Without this the two cases above could pass because the whole exemption broke, not
+      // because identity and bypass are actually separated.
+      const skip = await makeFullGuard({ internalToken: SECRET }).runShouldSkip(
+        makeContext('GET', { [INTERNAL_REQUEST_HEADER]: SECRET }),
+      );
+      expect(skip).toBe(true);
+    });
+
+    it('@NoTrustedClientExemption still wins on a GET even when a valid forwarding pair rides along with a valid internal token', async () => {
+      const skip = await makeFullGuard({
+        internalToken: SECRET,
+        forwardToken: FORWARD_SECRET,
+      }).runShouldSkip(
+        makeContext(
+          'GET',
+          { [INTERNAL_REQUEST_HEADER]: SECRET, ...forwardingHeaders },
+          exemptionOptedOutTargets(),
+        ),
+      );
+      expect(skip).toBe(false);
+    });
+
+    describe('getTracker glue — measured through the guard, not the pure resolveVisitorIdentity', () => {
+      const PEER_REQUEST: TrackerTestRequest = {
+        ip: '203.0.113.10',
+        socket: { remoteAddress: '203.0.113.10' },
+        headers: {},
+      };
+      const FORWARDED_REQUEST: TrackerTestRequest = {
+        ip: '203.0.113.10',
+        socket: { remoteAddress: '203.0.113.10' },
+        headers: forwardingHeaders,
+      };
+
+      it('with NO forwarding token configured, forwarding headers change nothing: same key as a plain peer request', async () => {
+        // A single guard instance, so the process-lifetime salt is fixed and the two keys are
+        // comparable — the salt is per-instance, not injectable, so cross-instance keys are
+        // never comparable by design (SEC84-P1 §F).
+        const guard = makeFullGuard({});
+        const withoutForwarding = await guard.runGetTracker(PEER_REQUEST);
+        const withForwardingHeadersButNoToken = await guard.runGetTracker(FORWARDED_REQUEST);
+        expect(withForwardingHeadersButNoToken).toBe(withoutForwarding);
+      });
+
+      it('with a valid forwarding pair AND a configured token, the key DIFFERS from the same peer request', async () => {
+        const guard = makeFullGuard({ forwardToken: FORWARD_SECRET });
+        const peerKey = await guard.runGetTracker(PEER_REQUEST);
+        const forwardedKey = await guard.runGetTracker(FORWARDED_REQUEST);
+        expect(forwardedKey).not.toBe(peerKey);
+      });
+    });
+
+    describe('VALH139-I1 — the fallback-reason WARN re-emits after a cooldown, not just once per process', () => {
+      const MISMATCHED_REQUEST: TrackerTestRequest = {
+        ip: '203.0.113.10',
+        socket: { remoteAddress: '203.0.113.10' },
+        headers: {
+          [VISITOR_FORWARD_TOKEN_HEADER]: `${FORWARD_SECRET}-wrong`,
+          [VISITOR_ADDRESS_HEADER]: '198.51.100.20',
+        },
+      };
+
+      function mismatchWarnCount(warnSpy: jest.SpiedFunction<Logger['warn']>): number {
+        return warnSpy.mock.calls.filter((call) =>
+          String(call[0]).includes('forward-token-mismatch'),
+        ).length;
+      }
+
+      it('logs on the first occurrence, stays silent on an immediate repeat, and re-emits once the cooldown elapses', async () => {
+        // Every request below carries a WRONG forward token — resolveVisitorIdentity keeps
+        // returning `reason: 'forward-token-mismatch'` each time, so this measures the guard's
+        // OWN suppression window, not a change in what is being reported. `performance.now` is
+        // spied directly (CODE139R2-M4: the guard reads a monotonic clock, not `Date.now`)
+        // rather than via `jest.useFakeTimers()`, so only the clock this guard actually reads
+        // moves.
+        const warnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+        let simulatedNowMs = 1_000_000_000;
+        const nowSpy = jest.spyOn(performance, 'now').mockImplementation(() => simulatedNowMs);
+
+        try {
+          const guard = makeFullGuard({ forwardToken: FORWARD_SECRET });
+
+          await guard.runGetTracker(MISMATCHED_REQUEST);
+          expect(mismatchWarnCount(warnSpy)).toBe(1);
+
+          await guard.runGetTracker(MISMATCHED_REQUEST);
+          expect(mismatchWarnCount(warnSpy)).toBe(1);
+
+          simulatedNowMs += TRACKER_REASON_LOG_COOLDOWN_MS - 1;
+          await guard.runGetTracker(MISMATCHED_REQUEST);
+          expect(mismatchWarnCount(warnSpy)).toBe(1);
+
+          simulatedNowMs += 1;
+          await guard.runGetTracker(MISMATCHED_REQUEST);
+          expect(mismatchWarnCount(warnSpy)).toBe(2);
+        } finally {
+          warnSpy.mockRestore();
+          nowSpy.mockRestore();
+        }
+      });
+
+      // SEC139R3-M4 — unit-covered only. Unlike the env-schema collision refusal added this same
+      // round (control L1), no revert-to-red push was attempted for this case: nobody reverted
+      // the Date.now() → performance.now() fix and observed this test go red against it. The
+      // assertions below are believed correct on inspection, not proven by an observed failure.
+      it('CODE139R2-M4 — a BACKWARD jump in Date.now() does not suppress the cooldown re-emit: the cooldown reads a monotonic clock, not the wall clock', async () => {
+        // performance.now() is the clock under test and is left free-running by the elapsed
+        // window below; Date.now() is stepped BACKWARD by ten cooldown windows to simulate an
+        // NTP step correction or a host clock reset. A wall-clock-based implementation would
+        // read a large NEGATIVE delta from that step and stay silent well past the real window;
+        // this guard must not be affected, because it never reads Date.now() for this decision.
+        const warnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+        let simulatedPerfMs = 1_000_000_000;
+        const perfSpy = jest.spyOn(performance, 'now').mockImplementation(() => simulatedPerfMs);
+        const dateSpy = jest.spyOn(Date, 'now').mockReturnValue(2_000_000_000);
+
+        try {
+          const guard = makeFullGuard({ forwardToken: FORWARD_SECRET });
+
+          await guard.runGetTracker(MISMATCHED_REQUEST);
+          expect(mismatchWarnCount(warnSpy)).toBe(1);
+
+          // Wall clock steps BACKWARD by ten cooldown windows; monotonic clock advances FORWARD
+          // by exactly one cooldown window.
+          dateSpy.mockReturnValue(2_000_000_000 - TRACKER_REASON_LOG_COOLDOWN_MS * 10);
+          simulatedPerfMs += TRACKER_REASON_LOG_COOLDOWN_MS;
+
+          await guard.runGetTracker(MISMATCHED_REQUEST);
+          expect(mismatchWarnCount(warnSpy)).toBe(2);
+        } finally {
+          warnSpy.mockRestore();
+          perfSpy.mockRestore();
+          dateSpy.mockRestore();
+        }
+      });
     });
   });
 });

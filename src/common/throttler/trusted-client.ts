@@ -1,4 +1,4 @@
-import { createHash, timingSafeEqual } from 'node:crypto';
+import { constantTimeTokenMatch } from '../security/constant-time-token';
 
 /**
  * HTTP header a trusted first-party caller (today: the web SSG build) presents to be
@@ -60,11 +60,18 @@ export const INTERNAL_REQUEST_HEADER = 'x-internal-request-token';
  *     ceiling in `ElevationProfileService.compute`, which refuses before any fetch. An auditor
  *     checking this argument should find each where it is named — the ceiling never reaches the
  *     shared client at all (review #124, CODE124-M5). What the exemption can bypass is only the
- *     REQUEST rate, the weakest of that endpoint's four brakes. Note what that rate is NOT today:
- *     `ThrottlerGuard` tracks on `req.ip` and this service sets no `trust proxy`, so behind a proxy
- *     it is one shared bucket rather than a per-visitor one — a deliberately deferred first-deploy
- *     item (DEC 2026-08-15f D2, recorded in `ENGINEERING.md` §3.1), not something this exemption
- *     changes in either direction (review #124, SEC124-I1).
+ *     REQUEST rate, the weakest of that endpoint's four brakes. Note what that rate is today
+ *     (SEC84-P1, replacing the `req.ip`/no-`trust proxy` paragraph this used to carry):
+ *     `TrustedClientThrottlerGuard.getTracker` no longer tracks the raw `req.ip` directly — it
+ *     resolves a TWO-AXIS identity (`visitor-tracker.ts`): the PEER axis, which is the raw socket
+ *     with `TRUSTED_PROXY_HOPS=0` (the default) or the address the single trusted terminator
+ *     supplied with `TRUSTED_PROXY_HOPS=1` (`DEC 2026-08-26o`), and separately the FORWARDED axis,
+ *     which is believed only from a caller that also authenticates itself with
+ *     `VISITOR_FORWARD_TOKEN`. Neither axis changes what this paragraph concludes, in either
+ *     direction (review #124, SEC124-I1): the exemption still only ever removes the REQUEST-rate
+ *     brake, and whether either axis actually yields a per-visitor ceiling on THIS route depends on
+ *     the web forwarding change and the deployed ingress restriction landing — see
+ *     `elevation.controller.ts`'s own docblock for the open half of that claim.
  * The residual risk of a leaked token is therefore "more requests against a cache that mostly
  * answers them for free", not "unbounded provider cost". If a future endpoint's cost survives its
  * own budget guard, this paragraph is where that stops being true and the exemption needs a
@@ -81,11 +88,5 @@ export function isTrustedClientRequest(
   presentedToken: string | undefined,
   configuredToken: string | undefined,
 ): boolean {
-  if (configuredToken === undefined || configuredToken === '' || presentedToken === undefined) {
-    return false;
-  }
-
-  const presentedDigest = createHash('sha256').update(presentedToken).digest();
-  const configuredDigest = createHash('sha256').update(configuredToken).digest();
-  return timingSafeEqual(presentedDigest, configuredDigest);
+  return constantTimeTokenMatch(presentedToken, configuredToken);
 }
