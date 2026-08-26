@@ -163,7 +163,6 @@ export class SessionService {
         const recoveryStartedAt = new Date();
         const rotatedWithinGrace =
           existing.revokedReason === SessionRevocationReason.Rotated &&
-          existing.rotationGraceUsedAt === null &&
           existing.revokedAt.getTime() + REFRESH_ROTATION_GRACE_WINDOW_MS >=
             recoveryStartedAt.getTime();
 
