@@ -802,9 +802,11 @@ export const envSchema = z
     // exactly the reason the checks above already state. `!== undefined`-guarded on both sides,
     // matching every block above: two UNSET optional secrets both read `undefined`, and a naive
     // equality check would refuse boot on a fresh clone that configures neither.
-    // CONTROL K2 (temporary, SEC84-P1 fix round 3) -- mutated OFF to prove the new test
-    // catches its own regression. Reverted in the very next commit.
-    if (false as boolean) {
+    if (
+      env.DOCS_ACCESS_TOKEN !== undefined &&
+      env.VISITOR_FORWARD_TOKEN !== undefined &&
+      env.DOCS_ACCESS_TOKEN === env.VISITOR_FORWARD_TOKEN
+    ) {
       ctx.addIssue({
         code: 'custom',
         path: ['DOCS_ACCESS_TOKEN'],
