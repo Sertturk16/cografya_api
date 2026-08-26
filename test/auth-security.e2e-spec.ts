@@ -468,6 +468,13 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
         }),
       ).toMatchObject({ tokenVersion: before.tokenVersion });
 
+      // Positive control for the persisted one-use marker: restore the direct successor to the
+      // otherwise-qualifying live state. The next request must still reject because the old row
+      // consumed its grace; removing that guard makes this request return 200.
+      await dataSource
+        .getRepository(Session)
+        .update({ id: successorRow.id }, { revokedAt: null, revokedReason: null });
+
       await request(app.getHttpServer())
         .post('/api/auth/refresh')
         .send({ refreshToken: original.refreshToken })
