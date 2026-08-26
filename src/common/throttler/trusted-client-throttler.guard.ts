@@ -186,9 +186,7 @@ export class TrustedClientThrottlerGuard extends ThrottlerGuard implements OnMod
     if (result.reason !== undefined) {
       const lastLoggedAt = this.loggedTrackerReasons.get(result.reason);
       const now = Date.now();
-      // CONTROL-H (temporary, revert-to-red evidence for VALH139-I1): drops the cooldown
-      // re-check, reproducing the pre-fix "log once, ever" behaviour.
-      if (lastLoggedAt === undefined) {
+      if (lastLoggedAt === undefined || now - lastLoggedAt >= TRACKER_REASON_LOG_COOLDOWN_MS) {
         this.loggedTrackerReasons.set(result.reason, now);
         this.exemptionLogger.warn(
           `visitor tracker fell back to the peer identity: ${result.reason}`,
