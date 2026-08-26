@@ -167,13 +167,10 @@ export function applyDocsGate(
   docsAccessToken: string | undefined,
   setupSwagger: () => void,
 ): void {
-  // CONTROL-J (temporary, revert-to-red evidence for VAL139-SD8): the exact regression this
-  // extraction exists to catch — `else if (docsExposure === 'open')` collapsed to a plain
-  // `else`, so 'off' now falls through to setupSwagger too.
   if (docsExposure === 'gated' && docsAccessToken !== undefined) {
     app.use(DOCS_PATHS, buildDocsAuthMiddleware(docsAccessToken));
     setupSwagger();
-  } else {
+  } else if (docsExposure === 'open') {
     setupSwagger();
   }
   // 'off' → setupSwagger is deliberately NOT called: every docs path 404s and the surface is not
