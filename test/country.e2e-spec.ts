@@ -248,6 +248,7 @@ describe('Country (e2e)', () => {
       // `email_verification_codes`. It carries a foreign key to `districts(id)` — NOT to
       // `users` — so its migration MUST stay ordered after `InitDistricts`.
       'InitPendingRegistrations1787652000000',
+      'AddSessionRotationGrace1787655600000',
     ]);
   });
 

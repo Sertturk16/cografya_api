@@ -391,15 +391,10 @@ describe('Auth core schema (e2e)', () => {
     expect(instanceToPlain(explicitlySelected)).toEqual({});
   });
 
-  it('reverts and reapplies the latest migration (InitPendingRegistrations) on an empty synthetic table', async () => {
-    // The migration under revert MOVED again: `InitPendingRegistrations` is now the last one, so
-    // `undoLastMigration` no longer touches `sessions`, `password_reset_tokens`,
-    // `auth_rate_limits` or `users.token_version` at all — `InitAuthSessions` sits one further
-    // back and stays applied. What this asserts is exactly what the new `down()` does: swap the
-    // two code tables back, leaving everything else in place.
-    //
-    // Both directions matter here. `down()` re-creating `email_verification_codes` is the half a
-    // revert on a live database depends on, and nothing else in the suite exercises it.
+  it('reverts and reapplies the latest migration (AddSessionRotationGrace) on an empty synthetic table', async () => {
+    // The latest migration is intentionally narrow: undoing it removes only the recovery marker
+    // and its CHECK, leaving all auth tables and the earlier pending-registration migration in
+    // place. Both directions matter because the down path must not widen rotation recovery.
     const counts = await dataSource.query<{ count: string }[]>(
       `SELECT count(*)::text AS count FROM users`,
     );
@@ -433,37 +428,33 @@ describe('Auth core schema (e2e)', () => {
       reset_tokens: 'password_reset_tokens',
     });
 
+    const rotationGraceColumn = async (): Promise<string | null> => {
+      const rows = await dataSource.query<{ column_name: string }[]>(`
+        SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'sessions'
+          AND column_name = 'rotation_grace_used_at'
+      `);
+      return rows[0]?.column_name ?? null;
+    };
+    expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
+
     await dataSource.undoLastMigration();
 
-    // The swap, and ONLY the swap: `sessions`, `password_reset_tokens` and `token_version` are
-    // one migration further back and must be untouched by this revert.
+    // The marker, and ONLY the marker, is removed; the auth table topology stays unchanged.
     expect(await relationSnapshot()).toEqual({
       users: 'users',
       sessions: 'sessions',
-      verify_codes: 'email_verification_codes',
-      pending: null,
+      verify_codes: null,
+      pending: 'pending_registrations',
       reset_tokens: 'password_reset_tokens',
     });
+    expect(await rotationGraceColumn()).toBeNull();
 
     const columnsAfterDown = await dataSource.query<{ column_name: string }[]>(`
       SELECT column_name FROM information_schema.columns
       WHERE table_schema = 'public' AND table_name = 'users' AND column_name = 'token_version'
     `);
     expect(columnsAfterDown).toHaveLength(1);
-
-    // The re-created table must come back with its partial unique index, not merely with its
-    // columns — that index is what `down()` hand-authors and what a naive `CREATE TABLE` would
-    // silently omit.
-    const revertedIndexes = await dataSource.query<{ indexname: string }[]>(`
-      SELECT indexname FROM pg_indexes
-      WHERE schemaname = 'public' AND tablename = 'email_verification_codes'
-      ORDER BY indexname
-    `);
-    expect(revertedIndexes.map(({ indexname }) => indexname)).toEqual([
-      'IDX_email_verification_codes_expires_at',
-      'PK_email_verification_codes',
-      'UQ_email_verification_codes_active',
-    ]);
 
     await dataSource.runMigrations();
 
@@ -474,6 +465,7 @@ describe('Auth core schema (e2e)', () => {
       pending: 'pending_registrations',
       reset_tokens: 'password_reset_tokens',
     });
+    expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
 
     const columnsAfterUp = await dataSource.query<{ column_name: string }[]>(`
       SELECT column_name FROM information_schema.columns
