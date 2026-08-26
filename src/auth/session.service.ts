@@ -12,7 +12,11 @@ import { DataSource, IsNull, Repository } from 'typeorm';
 import { AccountStatus } from './account.types';
 import { AccessTokenService } from './access-token.service';
 import { AUTH_ERROR_KEYS } from './auth-error-keys';
-import { ACCESS_TOKEN_TTL_SECONDS, REFRESH_TOKEN_TTL_DAYS } from './auth.constants';
+import {
+  ACCESS_TOKEN_TTL_SECONDS,
+  REFRESH_ROTATION_GRACE_WINDOW_MS,
+  REFRESH_TOKEN_TTL_DAYS,
+} from './auth.constants';
 import { AuthRateLimitScope, SessionRevocationReason } from './auth.types';
 import { AuthRateLimitService } from './auth-rate-limit.service';
 import type { AuthResultDto } from './dto/auth-result.dto';
@@ -157,7 +161,11 @@ export class SessionService {
 
       if (existing.revokedAt !== null) {
         const recoveryStartedAt = new Date();
-        const rotatedWithinGrace = existing.revokedReason === SessionRevocationReason.Rotated;
+        const rotatedWithinGrace =
+          existing.revokedReason === SessionRevocationReason.Rotated &&
+          existing.rotationGraceUsedAt === null &&
+          existing.revokedAt.getTime() + REFRESH_ROTATION_GRACE_WINDOW_MS >=
+            recoveryStartedAt.getTime();
 
         if (rotatedWithinGrace) {
           const successors = await sessionRepo
