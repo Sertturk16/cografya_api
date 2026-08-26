@@ -18,6 +18,7 @@ import { HealthModule } from './health/health.module';
 import { MarineModule } from './marine/marine.module';
 import { ProvinceModule } from './province/province.module';
 import { ReferenceModule } from './reference/reference.module';
+import { VideoProgressModule } from './video-progress/video-progress.module';
 
 /**
  * Baseline rate limit for the public API: a window of 120 requests per minute PER CLIENT AND
@@ -91,6 +92,9 @@ export const THROTTLE_LIMIT = 120;
     // UYELIK-01/02: identity/profile persistence, the Argon2id provider, and (PR-2) the nine
     // auth endpoints, the opt-in AccessTokenGuard and the four request-handling services.
     AuthModule,
+    // UYELIK-05: protected read-one/upsert-one video-progress endpoints. No scheduled work, no
+    // external provider, no new env key — a plain guarded CRUD-shaped surface over its own table.
+    VideoProgressModule,
   ],
   providers: [
     // Rate limit every route by default; opt out per-route with @SkipThrottle,

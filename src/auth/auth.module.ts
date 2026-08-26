@@ -20,6 +20,16 @@ import { RegistrationService } from './registration.service';
 import { SessionService } from './session.service';
 
 /**
+ * `Repository<User>` as its OWN dynamic module, so it can be exported and re-imported rather than
+ * duplicated. `AccessTokenGuard`'s two dependencies are `AccessTokenService` and this repository
+ * — a plain class export is not enough for the second one (a `TypeOrmModule.forFeature` provider
+ * is only visible to modules that import the SAME dynamic-module instance that declared it), so
+ * this module is imported here AND re-exported below (UYELIK-05, the first consumer of the guard
+ * outside this module).
+ */
+const UserRepositoryModule = TypeOrmModule.forFeature([User]);
+
+/**
  * Authentication PRIMITIVES (UYELIK-02 PR-1) plus the nine ENDPOINTS, the access-token guard and
  * the four request-handling services (PR-2). `AuthController` is registered; the module has a
  * route now.
@@ -40,11 +50,12 @@ import { SessionService } from './session.service';
  */
 @Module({
   imports: [
+    UserRepositoryModule,
     // `PendingRegistration` is deliberately NOT here: no class injects its repository — every
     // write to it runs inside a transaction and goes through `manager.getRepository(...)` — so a
     // `forFeature` entry would register a provider nothing resolves. The entity is registered
     // where entities belong, in `data-source-options.ts`'s explicit list.
-    TypeOrmModule.forFeature([User, Session, PasswordResetToken, AuthRateLimit]),
+    TypeOrmModule.forFeature([Session, PasswordResetToken, AuthRateLimit]),
     JwtModule.register({}),
   ],
   controllers: [AuthController],
@@ -66,6 +77,14 @@ import { SessionService } from './session.service';
     AccessTokenService,
     AuthRateLimitService,
     MAILER_PORT,
+    // UYELIK-05: the first consumer outside this module (VideoProgressModule) reuses the SAME
+    // guard instance rather than redeclaring `AccessTokenGuard` as a second provider. Both of
+    // ITS dependencies must be reachable from the importer's own resolution path — `AccessTokenService`
+    // is already exported above; `UserRepositoryModule` is what makes `Repository<User>` reachable
+    // too (a bare `AccessTokenGuard` export alone left `Repository<User>` unresolved — measured in
+    // `test/video-progress.e2e-spec.ts`'s bootstrap).
+    AccessTokenGuard,
+    UserRepositoryModule,
   ],
 })
 export class AuthModule implements NestModule {
