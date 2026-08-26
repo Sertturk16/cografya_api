@@ -81,7 +81,12 @@ interface AuthResultBody {
  * scenarios are about the transaction's own concurrency and would otherwise spend a budget the
  * V-series needs. verify-email/resend calls: A4 (3) + V5 (1) + T2 (2) + C5 (1, PR #136 round 3 —
  * the ONE case in the C-series that genuinely needs the ROUTE, because it pins the response the
- * ROUTE HANDLER's own contention catch produces) = 7, under the 10/hour ceiling. T3 deliberately
+ * ROUTE HANDLER's own contention catch produces) = 7, under the 10/hour ceiling. refresh calls:
+ * R1 (3) + R2 (1) + R4 (1) + R5a (3) + R5 (3) + R6 (2) + R7 (8, ×4 reasons) + R7b (2) + R8
+ * (4, ×2 cases) + R9 (3) + P3 (2) + N9a (1) = 33, under `AUTH_ROUTE_THROTTLES.refresh`'s 60/15min
+ * ceiling — N9b also POSTs the route but its malformed body 400s at Express's own parser before
+ * the request ever reaches the guard (the same boundary N9b's own inline comment traces for
+ * `AuthNoStoreMiddleware`), so it spends nothing from the budget. T3 deliberately
  * exceeds `logout`'s ceiling (60/15min, otherwise unused in this
  * file) rather than any lower-ceiling route already in use elsewhere here.
  */
@@ -440,6 +445,42 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
         .expect(HttpStatus.OK);
       return { user, original, successor: (response.body as AuthResultBody).refreshToken };
     }
+
+    it('R5a — the recovered pair is USABLE: its access token opens a session and its refresh token rotates again', async () => {
+      const { user, original } = await rotateForRecovery();
+
+      const recovered = await request(app.getHttpServer())
+        .post('/api/auth/refresh')
+        .send({ refreshToken: original.refreshToken })
+        .expect(HttpStatus.OK);
+      const pair = recovered.body as AuthResultBody;
+
+      // ACCESS-TOKEN LEG: status alone is a tautology — mirrors R4's own pattern (line 420). The
+      // returned session must belong to THIS user, not merely to some ACTIVE user.
+      const session = await request(app.getHttpServer())
+        .get('/api/auth/session')
+        .set('Authorization', `Bearer ${pair.accessToken}`)
+        .expect(HttpStatus.OK);
+      expect((session.body as { id: string }).id).toBe(user.id);
+
+      // REFRESH-TOKEN LEG: the recovered refresh token must still rotate — an ordinary,
+      // family-continuous rotation, not a second recovery.
+      const rotated = await request(app.getHttpServer())
+        .post('/api/auth/refresh')
+        .send({ refreshToken: pair.refreshToken })
+        .expect(HttpStatus.OK);
+      const rotatedBody = rotated.body as AuthResultBody;
+
+      const recoveredRow = await dataSource
+        .getRepository(Session)
+        .findOneOrFail({ where: { tokenHash: sha256(pair.refreshToken) } });
+      const rotatedRow = await dataSource
+        .getRepository(Session)
+        .findOneOrFail({ where: { tokenHash: sha256(rotatedBody.refreshToken) } });
+      expect(recoveredRow.revokedReason).toBe(SessionRevocationReason.Rotated);
+      expect(rotatedRow.revokedAt).toBeNull();
+      expect(rotatedRow.familyId).toBe(recoveredRow.familyId);
+    });
 
     it('R5 — recovery is one-use and leaves token_version unchanged until a second replay', async () => {
       const { user, original, successor } = await rotateForRecovery();
