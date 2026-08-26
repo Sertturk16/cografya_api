@@ -282,7 +282,9 @@ describe('validateEnv — JWT_SECRET / AUTH_HMAC_PEPPER (üyelik UYELIK-02, plan
 });
 
 describe('validateEnv — VISITOR_FORWARD_TOKEN is a wire contract, not just a length (SEC84-P1)', () => {
-  // A 44-char visible-ASCII stand-in, mirroring INTERNAL_REQUEST_TOKEN's own test fixture shape.
+  // A 43-char visible-ASCII stand-in, mirroring INTERNAL_REQUEST_TOKEN's own test fixture shape.
+  // (CODE139-M4: measured, not copied — the prior "44-char" comment described a DIFFERENT
+  // string this one was derived from by editing, not this literal's own length.)
   const VALID = 'visitor-forward-token-0123456789-abcdefghij';
 
   it('stays OPTIONAL — the forwarding mechanism is fail-closed and dev/test/CI boot without it', () => {
@@ -407,6 +409,55 @@ describe('validateEnv — DOCS_ACCESS_TOKEN is a wire contract, not just a lengt
   it('refuses whitespace and control/non-ASCII characters — the same wire-contract shape', () => {
     expect(() => validateEnv({ ...BASE, DOCS_ACCESS_TOKEN: ` ${VALID}` })).toThrow(/visible ASCII/);
     expect(() => validateEnv({ ...BASE, DOCS_ACCESS_TOKEN: `${VALID} ` })).toThrow(/visible ASCII/);
+  });
+});
+
+// SEC139-M1/CODE139-M1 (fix round) — DOCS_ACCESS_TOKEN gets the same three collision refusals
+// VISITOR_FORWARD_TOKEN already had (the describe block above, "the three VISITOR_FORWARD_TOKEN
+// collision refusals"). Before this describe block existed, `env.schema.spec.ts` measured the
+// collision refusal for one new secret and not the other — the asymmetry CODE139-M1's positive
+// control named.
+describe('validateEnv — the three DOCS_ACCESS_TOKEN collision refusals (SEC84-P1 fix round)', () => {
+  const DOCS_TOKEN = 'docs-access-token-0123456789-abcdefghijkl';
+
+  it('refuses DOCS_ACCESS_TOKEN === INTERNAL_REQUEST_TOKEN, naming both variables', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        DOCS_ACCESS_TOKEN: DOCS_TOKEN,
+        INTERNAL_REQUEST_TOKEN: DOCS_TOKEN,
+      }),
+    ).toThrow(/DOCS_ACCESS_TOKEN must not equal INTERNAL_REQUEST_TOKEN/);
+  });
+
+  it('refuses DOCS_ACCESS_TOKEN === JWT_SECRET, naming both variables', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        DOCS_ACCESS_TOKEN: DOCS_TOKEN,
+        JWT_SECRET: DOCS_TOKEN,
+      }),
+    ).toThrow(/DOCS_ACCESS_TOKEN must not equal JWT_SECRET/);
+  });
+
+  it('refuses DOCS_ACCESS_TOKEN === AUTH_HMAC_PEPPER, naming both variables', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        DOCS_ACCESS_TOKEN: DOCS_TOKEN,
+        AUTH_HMAC_PEPPER: DOCS_TOKEN,
+      }),
+    ).toThrow(/DOCS_ACCESS_TOKEN must not equal AUTH_HMAC_PEPPER/);
+  });
+
+  it('does not refuse when only ONE side is set — a collision needs both', () => {
+    expect(() => validateEnv({ ...BASE, DOCS_ACCESS_TOKEN: DOCS_TOKEN })).not.toThrow();
+  });
+
+  it('does not refuse when both optional secrets are UNSET — undefined must never equal undefined', () => {
+    // The exact regression a generic all-pairs distinctness loop would introduce: guards this
+    // dispatch's remedy so a boot with no secrets configured stays green.
+    expect(() => validateEnv({ ...BASE })).not.toThrow();
   });
 });
 

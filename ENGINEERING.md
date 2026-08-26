@@ -133,10 +133,17 @@ sensitivity)**, accept **user image uploads**, and **proxy third-party feeds**. 
 ship an unguarded write, an unvalidated input, or an unbounded external call.
 
 ### 3.1 HTTP hardening (current posture — `src/main.ts`)
-- **helmet** on globally. CSP is intentionally **off** and documented at the call site
-  (this service serves JSON, not HTML; the only HTML surface is the dev-only `/docs`). All
-  other helmet protections (HSTS, noSniff, frameguard, …) stay on. Keep this decision
-  loud, never silent.
+- **helmet** on globally. CSP is intentionally **off** and documented at the call site: this
+  service serves JSON, not HTML, on its public content routes, and the one HTML surface —
+  `/docs` (Swagger UI) — is **not dev-only** (CODE139-I1/SEC139-M6, fix round). Since SEC84-P1
+  it is served in production too, behind HTTP Basic auth when `DOCS_ACCESS_TOKEN` is set (the
+  `/docs` bullet below), and not mounted at all when it is unset. The CSP-off decision was
+  **re-evaluated** against that production HTML surface, not only the pre-SEC84-P1 dev-only one,
+  and it stands: the surface is authenticated and read-only, and helmet's default CSP would block
+  the inline scripts Swagger UI itself needs to render — enabling CSP here would need a
+  `/docs`-scoped exception, not a blanket toggle, and that is future work if it is ever
+  undertaken, never a silent default. All other helmet protections (HSTS, noSniff, frameguard,
+  …) stay on. Keep this decision loud, never silent.
 - **CORS** allows only the configured `WEB_ORIGIN`; `credentials: false` until cookie auth
   exists (revisit CORS + credentials together when auth cookies are introduced).
 - **Rate limit:** global `ThrottlerGuard`, 120 req/min per client, in-memory store

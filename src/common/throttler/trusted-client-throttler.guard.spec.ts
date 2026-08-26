@@ -1,5 +1,5 @@
-import { describe, expect, it } from '@jest/globals';
-import { type ExecutionContext } from '@nestjs/common';
+import { describe, expect, it, jest } from '@jest/globals';
+import { type ExecutionContext, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import {
@@ -10,7 +10,10 @@ import {
 import { type Env } from '../../config/env.schema';
 import { NoTrustedClientExemption, ThrottlerErrorMessage } from './throttler-metadata';
 import { INTERNAL_REQUEST_HEADER } from './trusted-client';
-import { TrustedClientThrottlerGuard } from './trusted-client-throttler.guard';
+import {
+  TRACKER_REASON_LOG_COOLDOWN_MS,
+  TrustedClientThrottlerGuard,
+} from './trusted-client-throttler.guard';
 import { VISITOR_ADDRESS_HEADER, VISITOR_FORWARD_TOKEN_HEADER } from './visitor-tracker';
 
 /**
@@ -323,6 +326,55 @@ describe('TrustedClientThrottlerGuard.shouldSkip (glue + deny paths)', () => {
         const peerKey = await guard.runGetTracker(PEER_REQUEST);
         const forwardedKey = await guard.runGetTracker(FORWARDED_REQUEST);
         expect(forwardedKey).not.toBe(peerKey);
+      });
+    });
+
+    describe('VALH139-I1 — the fallback-reason WARN re-emits after a cooldown, not just once per process', () => {
+      const MISMATCHED_REQUEST: TrackerTestRequest = {
+        ip: '203.0.113.10',
+        socket: { remoteAddress: '203.0.113.10' },
+        headers: {
+          [VISITOR_FORWARD_TOKEN_HEADER]: `${FORWARD_SECRET}-wrong`,
+          [VISITOR_ADDRESS_HEADER]: '198.51.100.20',
+        },
+      };
+
+      function mismatchWarnCount(warnSpy: jest.SpiedFunction<Logger['warn']>): number {
+        return warnSpy.mock.calls.filter((call) =>
+          String(call[0]).includes('forward-token-mismatch'),
+        ).length;
+      }
+
+      it('logs on the first occurrence, stays silent on an immediate repeat, and re-emits once the cooldown elapses', async () => {
+        // Every request below carries a WRONG forward token — resolveVisitorIdentity keeps
+        // returning `reason: 'forward-token-mismatch'` each time, so this measures the guard's
+        // OWN suppression window, not a change in what is being reported. `Date.now` is spied
+        // directly (the pattern `auth-rate-limit.service.spec.ts` already uses) rather than via
+        // `jest.useFakeTimers()`, so only the clock this guard actually reads moves.
+        const warnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+        let simulatedNowMs = 1_000_000_000;
+        const nowSpy = jest.spyOn(Date, 'now').mockImplementation(() => simulatedNowMs);
+
+        try {
+          const guard = makeFullGuard({ forwardToken: FORWARD_SECRET });
+
+          await guard.runGetTracker(MISMATCHED_REQUEST);
+          expect(mismatchWarnCount(warnSpy)).toBe(1);
+
+          await guard.runGetTracker(MISMATCHED_REQUEST);
+          expect(mismatchWarnCount(warnSpy)).toBe(1);
+
+          simulatedNowMs += TRACKER_REASON_LOG_COOLDOWN_MS - 1;
+          await guard.runGetTracker(MISMATCHED_REQUEST);
+          expect(mismatchWarnCount(warnSpy)).toBe(1);
+
+          simulatedNowMs += 1;
+          await guard.runGetTracker(MISMATCHED_REQUEST);
+          expect(mismatchWarnCount(warnSpy)).toBe(2);
+        } finally {
+          warnSpy.mockRestore();
+          nowSpy.mockRestore();
+        }
       });
     });
   });

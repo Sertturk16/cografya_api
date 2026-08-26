@@ -21,6 +21,17 @@ import {
   type TrackerFallbackReason,
 } from './visitor-tracker';
 
+/**
+ * VALH139-I1 — minimum interval between repeated WARN log lines for the SAME
+ * `TrackerFallbackReason`. A module constant, deliberately NOT an env knob: no real
+ * configuration need exists yet, and `ENGINEERING.md` §12 forbids building a machine for a
+ * hypothetical one. Keeps the log surface bounded (at most one line per reason per window,
+ * still at most seven live entries) while letting an ONGOING degradation re-surface instead of
+ * being permanently silenced by whichever request — attacker, stray bot, or our own staging
+ * instance — happens to trip the reason code first.
+ */
+export const TRACKER_REASON_LOG_COOLDOWN_MS = 15 * 60 * 1000;
+
 /** The request shape `getTracker` reads. Narrower than the base class's `Record<string, any>` —
  * TypeScript checks method parameters BIVARIANTLY, so this narrowing type-checks even though it
  * would not for a plain function-typed property (SEC84-P1 §C). */
@@ -90,10 +101,23 @@ export class TrustedClientThrottlerGuard extends ThrottlerGuard implements OnMod
    */
   private readonly trackerSalt = randomBytes(32);
 
-  /** At most one log line per process PER REASON CODE — a `Set` over the closed seven-member
-   * `TrackerFallbackReason` union, never a growing map, so the log surface is structurally
-   * bounded rather than timer- or volume-limited (SEC84-P1 §F). */
-  private readonly loggedTrackerReasons = new Set<TrackerFallbackReason>();
+  /** Last time (ms since epoch) each reason code was logged — a `Map` over the closed
+   * seven-member `TrackerFallbackReason` union (never a growing map: at most seven entries ever
+   * exist), re-emitted after {@link TRACKER_REASON_LOG_COOLDOWN_MS} rather than silenced for the
+   * rest of the process's life. §F's structural bound (no PII, no flood, no unbounded growth) is
+   * preserved — a `Map` over a closed seven-member union adds only a timestamp per existing key,
+   * it does not grow (VALH139-I1, replacing the previous `Set`).
+   *
+   * **Residue this does NOT close, recorded rather than silently left (VALH139-I1).** The far
+   * more likely drift shape is a forwarding BFF that simply STOPS SENDING the forwarding
+   * headers, not one that sends a wrong token: `resolveVisitorIdentity` treats "no forwarding
+   * headers at all" as a normal, unauthenticated-direct-caller case and returns no `reason` at
+   * all (`visitor-tracker.ts` §F: "the two normal cases log nothing at all"), so neither this
+   * `Map` nor the cooldown ever sees that shape — there is no reason code to cool down. That half
+   * of the class cannot be closed from inside this repo; it is a precondition on the web PR that
+   * writes the header and on the deploy-path check that confirms it is actually being sent.
+   */
+  private readonly loggedTrackerReasons = new Map<TrackerFallbackReason, number>();
 
   constructor(
     @InjectThrottlerOptions() options: ThrottlerModuleOptions,
@@ -139,9 +163,10 @@ export class TrustedClientThrottlerGuard extends ThrottlerGuard implements OnMod
    * under {@link trackerSalt} so no raw address is ever the literal tracker string.
    *
    * The fallback reason (when the caller is not an authenticated forwarder, or its forwarded
-   * value is invalid) is logged AT MOST ONCE PER PROCESS PER CODE, and never for the two normal
-   * cases (no forwarding token configured; a direct caller sending none) — those carry no
-   * `reason` at all, by design (§F).
+   * value is invalid) is logged at most once per {@link TRACKER_REASON_LOG_COOLDOWN_MS} PER CODE
+   * (VALH139-I1 — re-emitted after the cooldown rather than silenced for the process's whole
+   * life), and never for the two normal cases (no forwarding token configured; a direct caller
+   * sending none) — those carry no `reason` at all, by design (§F).
    */
   // NOT `async`, deliberately: every step is pure/synchronous (`resolveVisitorIdentity`,
   // `buildTrackerKey`), so an `async` body here would be flagged by
@@ -158,9 +183,15 @@ export class TrustedClientThrottlerGuard extends ThrottlerGuard implements OnMod
       isProduction: this.config.get('NODE_ENV', { infer: true }) === 'production',
     });
 
-    if (result.reason !== undefined && !this.loggedTrackerReasons.has(result.reason)) {
-      this.loggedTrackerReasons.add(result.reason);
-      this.exemptionLogger.warn(`visitor tracker fell back to the peer identity: ${result.reason}`);
+    if (result.reason !== undefined) {
+      const lastLoggedAt = this.loggedTrackerReasons.get(result.reason);
+      const now = Date.now();
+      if (lastLoggedAt === undefined || now - lastLoggedAt >= TRACKER_REASON_LOG_COOLDOWN_MS) {
+        this.loggedTrackerReasons.set(result.reason, now);
+        this.exemptionLogger.warn(
+          `visitor tracker fell back to the peer identity: ${result.reason}`,
+        );
+      }
     }
 
     return Promise.resolve(buildTrackerKey(this.trackerSalt, result.identity));

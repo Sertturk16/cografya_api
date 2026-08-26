@@ -35,8 +35,24 @@ export const MAX_VISITOR_ADDRESS_LENGTH = 45;
 
 /**
  * The closed set of reasons `resolveVisitorIdentity` may fall back to the peer identity for.
- * Exactly seven members — the guard logs each AT MOST ONCE PER PROCESS (a `Set` over this union,
- * never a growing map), so the log surface is structurally bounded (§F).
+ * Exactly seven members — the guard logs each reason code AT MOST ONCE PER COOLDOWN WINDOW (a
+ * `Map` over this union, re-emitting after a fixed interval rather than a growing structure —
+ * see `TrustedClientThrottlerGuard`'s `loggedTrackerReasons`), so the log surface is structurally
+ * bounded (§F) without being silenced for the rest of the process's life (VALH139-I1).
+ *
+ * **Two of the seven are unreachable over real HTTP — corrected here, not removed
+ * (VAL139N-V2/SFH139-M1, measured against a raw socket).** `forward-token-multi-valued` and
+ * `address-multi-valued` exist because `req.headers`'s TYPE is `string | string[] | undefined`
+ * for every header (the `set-cookie` exception forces this on ALL of them — see
+ * {@link RawHeaderValue}), but Node's own HTTP parser never actually hands a non-special header,
+ * including the two this module reads, back as an array: two instances of the SAME header
+ * arrive joined into one string with `", "`. A real doubled `x-visitor-forward-token` therefore
+ * reports `forward-token-mismatch` — the joined string fails the constant-time match, which is
+ * correctly closed-direction, just not under the dedicated code — and a real doubled
+ * `x-visitor-address` reports `address-malformed` (the joined string trips the comma check in
+ * {@link normaliseAddressCandidate}). The two array-shaped branches stay: removing them would
+ * mean taking `[0]` off an array Node can never actually produce for these headers, which is the
+ * exact class of mistake the union's type keeps a caller from making.
  */
 export type TrackerFallbackReason =
   | 'forward-token-multi-valued'
@@ -47,7 +63,12 @@ export type TrackerFallbackReason =
   | 'non-public-address-in-production'
   | 'peer-address-malformed';
 
-/** A raw HTTP header value as Node hands it to us: absent, one string, or several (sent twice). */
+/** A raw HTTP header value as `req.headers` TYPES it (`string | string[] | undefined`) — the
+ * array member exists only because Node types EVERY header this way to accommodate `set-cookie`.
+ * Node's HTTP parser never actually produces an array for a non-special header (CODE139-M3,
+ * measured against a raw socket): two instances of the SAME header arrive joined into one string
+ * with `", "`. See {@link TrackerFallbackReason}'s docblock for what that means for the two
+ * array-shaped reason codes. */
 export type RawHeaderValue = string | string[] | undefined;
 
 export interface ResolveVisitorIdentityInput {
@@ -157,9 +178,26 @@ function isPrivateIpv6(address: string): boolean {
 }
 
 /**
- * The closed rejection list for the FORWARDED axis in production (§C step 9): loopback, private,
- * link-local, unique-local, unspecified. `address` must already be `normaliseAddressCandidate`'d
- * (lowercased, `::ffff:`-stripped) — this function does not validate shape.
+ * The private/loopback/link-local/unique-local/unspecified rejection list the FORWARDED axis
+ * consults in production (§C step 9). `address` must already be `normaliseAddressCandidate`'d
+ * (lowercased, and `::ffff:`-stripped ONLY when the remainder is dotted-quad IPv4) — this
+ * function does not validate shape.
+ *
+ * **This is a TEXT match, not an ADDRESS match — measured, and no longer described as "closed"
+ * (VAL139N-V1, folding in SFH139-M4/CODE139-M2/SEC139-M4).** The list matches the NORMALISED
+ * TEXTUAL form, so two textual spellings of the SAME 128-bit address can receive opposite
+ * decisions. Concretely, all of these are ACCEPTED here (measured, `isProduction: true`) despite
+ * naming a loopback or private address: the IPv4-mapped HEX family — `::ffff:7f00:1` (=
+ * 127.0.0.1), `::ffff:c0a8:101` (= 192.168.1.1), `::ffff:a00:1` (= 10.0.0.1) — because
+ * `normaliseAddressCandidate` strips the `::ffff:` prefix ONLY when the remainder is already
+ * dotted-quad (the dotted-quad twin, `::ffff:127.0.0.1`, IS correctly rejected); and any
+ * EXPANDED, non-zero-compressed IPv6 spelling — `0:0:0:0:0:0:0:1`, `0000:0000:0000:0000:0000:
+ * 0000:0000:0001`, `0:0:0:0:0:ffff:10.0.0.7`, `::10.0.0.7` — because `isPrivateIpv6` matches
+ * fixed textual prefixes on the ALREADY-lowercased, non-canonicalised form (the already-accepted
+ * R-IPV6 limitation: no zero-compression canonicalisation is attempted anywhere in this module).
+ * This is reachable ONLY by a caller that has already proven `VISITOR_FORWARD_TOKEN` — i.e. our
+ * own web BFF, not an attacker, who gains nothing here a plain public address does not already
+ * give them — and its only effect is one extra throttle bucket, never a bypass of anything.
  */
 function isNonPublicAddress(address: string): boolean {
   return isIP(address) === 4 ? isPrivateIpv4(address) : isPrivateIpv6(address);

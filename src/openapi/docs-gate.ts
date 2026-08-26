@@ -18,6 +18,13 @@ import { constantTimeTokenMatch } from '../common/security/constant-time-token';
  * `@nestjs/swagger@11.4.5`'s `SwaggerModule.setup`: with no options, `raw` defaults to `true` so
  * BOTH `/docs-json` and `/docs-yaml` are served alongside the UI). A gate covering only `/docs`
  * would leave the full spec publicly readable at `/docs-json`.
+ *
+ * **No test in this repo pins this array's EXHAUSTIVENESS against what `@nestjs/swagger` itself
+ * mounts (CODE139-M5).** `docs-gate.spec.ts` measures `resolveDocsExposure` and
+ * `buildDocsAuthMiddleware`; neither reads this constant. A future `@nestjs/swagger` upgrade that
+ * publishes a fourth default path would silently leave that path outside the gate, and CI would
+ * stay green. Recorded rather than closed: closing it means asserting against the installed
+ * package's own route table, which is a bigger change than this fix round's scope.
  */
 export const DOCS_PATHS: readonly string[] = ['/docs', '/docs-json', '/docs-yaml'];
 
@@ -93,6 +100,21 @@ function extractBasicPassword(authorizationHeader: string | undefined): string |
  * Failure answers `401` with `WWW-Authenticate: Basic realm="cografya-api docs",
  * charset="UTF-8"`, an EMPTY body, no log line and never the presented value. Success calls
  * `next()` exactly once and writes no status of its own.
+ *
+ * **Deliberately outside the global throttler AND deliberately silent on every failed attempt —
+ * both are decisions, not gaps (SEC139-M5).** This middleware runs as `app.use(...)`, mounted
+ * BEFORE Nest's own request pipeline, so `TrustedClientThrottlerGuard` (an `APP_GUARD`, which
+ * only sees Nest routes) never sees it; a brute-force attempt against the token is not rate
+ * limited. The remedy judged here is the DOCUMENTATION branch only, not a log line, for two
+ * reasons: first, the surface this credential protects is already world-readable regardless —
+ * `openapi/openapi.json` is committed in this repo, which is public — so a successful guess buys
+ * nothing a `git clone` does not already give away; second, a WARN per failed attempt on an
+ * UNTHROTTLED public path is itself a flood and disk-fill vector, which is a worse failure mode
+ * than the one it would report, and the once-per-process-per-reason pattern this repo uses
+ * elsewhere (`TrustedClientThrottlerGuard`) would give it zero brute-force detection value: every
+ * attempt after the first would be silenced anyway. A genuine brute-force defence here would mean
+ * putting an actual rate limit on this path, which is a larger change than this fix round's
+ * scope.
  */
 export function buildDocsAuthMiddleware(
   token: string,
@@ -108,4 +130,49 @@ export function buildDocsAuthMiddleware(
     res.statusCode = 401;
     res.end();
   };
+}
+
+/** The minimal app shape {@link applyDocsGate} needs — a real `INestApplication` satisfies this
+ * structurally (its `use` method is a strict superset), so no `@nestjs/common` import is needed
+ * here, and `docs-gate.spec.ts` can pass a plain object with no real Nest app or Testcontainers
+ * boot required. */
+export interface DocsGateApp {
+  use(
+    paths: readonly string[],
+    middleware: (req: DocsAuthRequest, res: DocsAuthResponse, next: DocsAuthNext) => void,
+  ): unknown;
+}
+
+/**
+ * VAL139-SD8 — the mounting decision `src/main.ts` used to inline as a three-way `if`/`else
+ * if`/(implicit else), extracted so it can be MEASURED by a test in this repo, the same
+ * `CODE136-I5` pattern `applyProxyTrust` / `buildCorsOptions` / `applyGlobalPrefix` already use
+ * (`src/common/bootstrap.ts`). Before this extraction the branch was invisible to every test run
+ * in this repo — `main.ts` is never executed by the e2e bootstrap
+ * (`moduleRef.createNestApplication()`) — so an edit turning `else if (docsExposure === 'open')`
+ * into a plain `else` would have called `setupSwagger` unconditionally, mounting Swagger UNGATED
+ * even when `resolveDocsExposure` said `'off'`, and nothing in this repo would have turned red.
+ *
+ * `setupSwagger` is a caller-supplied closure rather than a direct `SwaggerModule.setup(...)`
+ * call so this function needs no real `OpenAPIObject` or `@nestjs/swagger` internals to
+ * unit-test — `docs-gate.spec.ts` passes a `jest.fn()` and asserts it is called (or not) for
+ * each {@link DocsExposure}. The behaviour is UNCHANGED from what `main.ts` inlined: `'gated'`
+ * mounts the Basic-auth middleware then calls `setupSwagger`; `'open'` calls `setupSwagger`
+ * alone; `'off'` calls neither — every docs path 404s and the surface is not advertised
+ * (fail-closed by construction, per `resolveDocsExposure`'s own docblock).
+ */
+export function applyDocsGate(
+  app: DocsGateApp,
+  docsExposure: DocsExposure,
+  docsAccessToken: string | undefined,
+  setupSwagger: () => void,
+): void {
+  if (docsExposure === 'gated' && docsAccessToken !== undefined) {
+    app.use(DOCS_PATHS, buildDocsAuthMiddleware(docsAccessToken));
+    setupSwagger();
+  } else if (docsExposure === 'open') {
+    setupSwagger();
+  }
+  // 'off' → setupSwagger is deliberately NOT called: every docs path 404s and the surface is not
+  // advertised.
 }

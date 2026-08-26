@@ -15,9 +15,10 @@ import {
 // 44-char dummy secret, visible ASCII (what `env.schema.ts` requires). Not a production secret.
 const TEST_INTERNAL_TOKEN = 'e2e-trusted-client-token-0123456789-abcdefgh';
 
-// SEC84-P1 — a DISTINCT 44-char visible-ASCII stand-in for VISITOR_FORWARD_TOKEN. Must differ
-// from TEST_INTERNAL_TOKEN: the two guard different blast radii and `env.schema.ts` refuses a
-// boot where they collide.
+// SEC84-P1 — a DISTINCT 45-char visible-ASCII stand-in for VISITOR_FORWARD_TOKEN (CODE139-M4:
+// measured, not copied from TEST_INTERNAL_TOKEN's comment above). Must differ from
+// TEST_INTERNAL_TOKEN: the two guard different blast radii and `env.schema.ts` refuses a boot
+// where they collide.
 const TEST_FORWARD_TOKEN = 'e2e-visitor-forward-token-0123456789-abcdefgh';
 
 // The peer axis under test: exactly one trusted hop, the deployed value under `DEC 2026-08-26o`.

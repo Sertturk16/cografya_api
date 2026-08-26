@@ -1,13 +1,17 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import {
+  applyDocsGate,
   buildDocsAuthMiddleware,
+  DOCS_PATHS,
   resolveDocsExposure,
   type DocsAuthRequest,
   type DocsAuthResponse,
+  type DocsExposure,
+  type DocsGateApp,
 } from './docs-gate';
 import { type Env } from '../config/env.schema';
 
-const TOKEN = 'docs-access-token-0123456789-abcdefghijkl'; // 42-char visible-ASCII stand-in
+const TOKEN = 'docs-access-token-0123456789-abcdefghijkl'; // 41-char visible-ASCII stand-in (CODE139-M4: measured)
 
 function fakeResponse(): DocsAuthResponse & { setHeader: jest.Mock; end: jest.Mock } {
   return {
@@ -114,4 +118,71 @@ describe('buildDocsAuthMiddleware', () => {
     expect(res.setHeader).not.toHaveBeenCalled();
     expect(res.end).not.toHaveBeenCalled();
   });
+});
+
+/**
+ * VAL139-SD8 — the mounting decision `src/main.ts` used to inline, now measurable: this is the
+ * gate that catches `else if (docsExposure === 'open')` silently becoming a plain `else` (which
+ * would mount Swagger UNGATED in the 'off' case). `app.use` is a bare recorder, never a real
+ * Nest/Express app, so this needs no Testcontainers boot — the decision under test is pure glue,
+ * not I/O.
+ */
+describe('applyDocsGate', () => {
+  function fakeApp(): DocsGateApp & { useCalls: Array<readonly string[]> } {
+    const useCalls: Array<readonly string[]> = [];
+    return {
+      useCalls,
+      use: (paths) => {
+        useCalls.push(paths);
+      },
+    };
+  }
+
+  it("'gated' with a token: mounts the auth middleware on DOCS_PATHS, then calls setupSwagger", () => {
+    const app = fakeApp();
+    const setupSwagger = jest.fn();
+
+    applyDocsGate(app, 'gated', TOKEN, setupSwagger);
+
+    expect(app.useCalls).toEqual([DOCS_PATHS]);
+    expect(setupSwagger).toHaveBeenCalledTimes(1);
+  });
+
+  it("'open': calls setupSwagger and mounts NO auth middleware", () => {
+    const app = fakeApp();
+    const setupSwagger = jest.fn();
+
+    applyDocsGate(app, 'open', undefined, setupSwagger);
+
+    expect(app.useCalls).toEqual([]);
+    expect(setupSwagger).toHaveBeenCalledTimes(1);
+  });
+
+  it("'off': calls setupSwagger NEVER and mounts NO auth middleware — the fail-closed branch this extraction exists to protect", () => {
+    const app = fakeApp();
+    const setupSwagger = jest.fn();
+
+    applyDocsGate(app, 'off', undefined, setupSwagger);
+
+    expect(app.useCalls).toEqual([]);
+    expect(setupSwagger).not.toHaveBeenCalled();
+  });
+
+  it("'gated' with NO token (defensively impossible via resolveDocsExposure, guarded anyway): behaves like 'off'", () => {
+    const app = fakeApp();
+    const setupSwagger = jest.fn();
+
+    applyDocsGate(app, 'gated', undefined, setupSwagger);
+
+    expect(app.useCalls).toEqual([]);
+    expect(setupSwagger).not.toHaveBeenCalled();
+  });
+
+  it.each<DocsExposure>(['gated', 'open', 'off'])(
+    'exhaustiveness: every DocsExposure value is handled explicitly (%s)',
+    (docsExposure) => {
+      const app = fakeApp();
+      expect(() => applyDocsGate(app, docsExposure, TOKEN, jest.fn())).not.toThrow();
+    },
+  );
 });

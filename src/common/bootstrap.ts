@@ -67,6 +67,19 @@ export function applyGlobalPrefix(app: INestApplication): void {
  * request header can influence it, so a deployment that forgets the terminator degrades to one
  * shared bucket rather than to a forgeable one.
  *
+ * **That last sentence names no gate of its own — recorded here rather than left implicit
+ * (VALH139-M1).** No test in this repo runs `applyProxyTrust` at `hops = 0` against a forged
+ * `X-Forwarded-For` header; `test/throttle.e2e-spec.ts` E-3a/E-3b run only at `hops = 1` (the
+ * deployed value, `DEC 2026-08-26o`), and `0` is exercised only at the schema level
+ * (`env.schema.spec.ts`'s "defaults to 0" case, no Express involved). The property is protected
+ * COMPOSITELY rather than directly: any regression class that would make `0` behave like a
+ * caller-controlled `X-Forwarded-For` — passing the boolean `true` instead of the numeric `hops`,
+ * or an off-by-one in the numeric predicate — changes the SAME code path that also decides
+ * `hops = 1`'s behaviour, and E-3b's own assertion (the rightmost `X-Forwarded-For` entry wins,
+ * not the caller-supplied leftmost one) already fails under exactly those mutations. This was
+ * measured, not assumed: passing `true` here makes E-3b read the spoofed leftmost address instead
+ * of the real rightmost one, turning that assertion red.
+ *
  * `(app as NestExpressApplication).set('trust proxy', hops)` is the documented Nest wrapper
  * around Express's own `app.set('trust proxy', …)` — see `NestExpressApplication`'s own example.
  * No hand-rolled `X-Forwarded-For` parser is written anywhere in this repo; Express's own

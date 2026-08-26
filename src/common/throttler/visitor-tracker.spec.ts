@@ -12,7 +12,8 @@ import {
  * `trusted-client.spec.ts` already uses for the exemption's own decision.
  */
 
-// A 44-char visible-ASCII stand-in, the shape `openssl rand -hex 32` produces. Not a secret.
+// A 43-char visible-ASCII stand-in, the shape `openssl rand -hex 32` produces. Not a secret.
+// (CODE139-M4: measured length, not copied from another fixture's comment.)
 const CONFIGURED_TOKEN = 'visitor-forward-token-0123456789-abcdefghij';
 
 function baseInput(
@@ -132,6 +133,14 @@ describe("resolveVisitorIdentity — §C's decision ladder", () => {
     expect(upper).toEqual(lower);
   });
 
+  // VAL139N-V1 — these labels each test ONE representative textual spelling, not the full
+  // address space. For the six IPv4 rows above this IS a faithful summary: `isPrivateIpv4` does
+  // real bitmask arithmetic over the whole numeric range, so any address inside it behaves the
+  // same regardless of which one is picked. The four IPv6 rows below do NOT have that property —
+  // `isPrivateIpv6` matches fixed, non-canonicalised TEXTUAL prefixes (`isNonPublicAddress`'s own
+  // docblock in `visitor-tracker.ts` names the uncovered spellings: the `::ffff:<hex>` IPv4-mapped
+  // family and any expanded, non-zero-compressed form). The labels below are relabelled to say
+  // exactly that, so a reader cannot mistake "one spelling tested" for "the whole range covered".
   describe.each<[string, string]>([
     ['0.0.0.0', '0.0.0.0'],
     ['10.0.0.0/8', '10.1.2.3'],
@@ -139,11 +148,11 @@ describe("resolveVisitorIdentity — §C's decision ladder", () => {
     ['169.254.0.0/16', '169.254.1.1'],
     ['172.16.0.0/12', '172.20.1.1'],
     ['192.168.0.0/16', '192.168.1.1'],
-    ['::', '::'],
-    ['::1', '::1'],
-    ['fc00::/7', 'fd12:3456::1'],
-    ['fe80::/10', 'fe80::1'],
-  ])('the %s rejection-list range', (_label, address) => {
+    [':: (exact literal, not a range)', '::'],
+    ['::1 (exact literal, not a range)', '::1'],
+    ['fc00::/7 — one uncanonicalised textual spelling, not the full range', 'fd12:3456::1'],
+    ['fe80::/10 — one uncanonicalised textual spelling, not the full range', 'fe80::1'],
+  ])('the %s rejection-list case', (_label, address) => {
     it('is refused in production — peer, non-public-address-in-production', () => {
       expect(
         resolveVisitorIdentity({ ...authenticatedInput(address), isProduction: true }),

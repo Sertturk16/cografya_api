@@ -7,17 +7,25 @@ import { applyGlobalPrefix, applyProxyTrust, buildCorsOptions } from './common/b
 import { AppModule } from './app.module';
 import { type Env } from './config/env.schema';
 import { buildOpenApiDocument } from './openapi/build-document';
-import { buildDocsAuthMiddleware, DOCS_PATHS, resolveDocsExposure } from './openapi/docs-gate';
+import { applyDocsGate, resolveDocsExposure } from './openapi/docs-gate';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
   const configService = app.get<ConfigService<Env, true>>(ConfigService);
 
   // Baseline HTTP hardening. CSP is intentionally left OFF: this service serves
-  // JSON, not HTML pages — CSP protects the browser-rendered web app, which is
-  // the separate `cografya_web` repo's concern. The only HTML surface here is
-  // the dev-only Swagger UI at /docs, which needs inline scripts. All other
-  // helmet protections (HSTS, noSniff, frameguard, …) stay on.
+  // JSON, not HTML pages, for its public content routes — CSP protects the
+  // browser-rendered web app, which is the separate `cografya_web` repo's concern.
+  // The one HTML surface here, Swagger UI at /docs, is NOT dev-only (CODE139-I1/
+  // SEC139-M6): since SEC84-P1 it answers in production too, behind HTTP Basic
+  // auth when DOCS_ACCESS_TOKEN is set (applyDocsGate below / docs-gate.ts), and
+  // is not mounted at all when it is unset. The CSP-off decision was RE-EVALUATED
+  // against that production HTML surface, not only the old dev-only one, and it
+  // stands: the surface is authenticated, read-only, and needs the inline scripts
+  // helmet's default CSP would block — enabling a CSP here would need a
+  // /docs-scoped exception, not a blanket toggle, and that is future work if ever
+  // undertaken, never a silent default. All other helmet protections (HSTS,
+  // noSniff, frameguard, …) stay on.
   app.use(helmet({ contentSecurityPolicy: false }));
 
   // SEC84-P1 — the PEER axis of the visitor-scoped throttle tracker. Bounded to {0, 1} by the
@@ -60,22 +68,17 @@ async function bootstrap(): Promise<void> {
   // production when `DOCS_ACCESS_TOKEN` is set, and NOT MOUNTED AT ALL in production when it is
   // unset — fail-closed by construction. This closes the `TODO(first-deploy)` this call site used
   // to carry: going public (`DEC 2026-08-26m`) made the full API surface a real exposure rather
-  // than a hypothetical one. The decision itself is `resolveDocsExposure`'s
-  // (`src/openapi/docs-gate.ts`), unit-tested there in full; this is only the wiring, and the
-  // auth middleware is mounted BEFORE `SwaggerModule.setup` so it runs first on every docs path.
+  // than a hypothetical one. The decision itself is `resolveDocsExposure`'s and the mounting
+  // decision is `applyDocsGate`'s (both `src/openapi/docs-gate.ts`, unit-tested there in full —
+  // VAL139-SD8: this branch used to be inlined here, where no test in this repo could reach it).
   const docsAccessToken = configService.get('DOCS_ACCESS_TOKEN', { infer: true });
   const docsExposure = resolveDocsExposure(
     configService.get('NODE_ENV', { infer: true }),
     docsAccessToken,
   );
-  if (docsExposure === 'gated' && docsAccessToken !== undefined) {
-    app.use(DOCS_PATHS, buildDocsAuthMiddleware(docsAccessToken));
+  applyDocsGate(app, docsExposure, docsAccessToken, () => {
     SwaggerModule.setup('docs', app, document);
-  } else if (docsExposure === 'open') {
-    SwaggerModule.setup('docs', app, document);
-  }
-  // 'off' → SwaggerModule.setup is deliberately NOT called: every docs path 404s and the surface
-  // is not advertised.
+  });
 
   const port = configService.get('PORT', { infer: true });
   await app.listen(port);

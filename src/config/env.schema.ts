@@ -737,6 +737,59 @@ export const envSchema = z
       });
     }
 
+    // ── SEC84-P1 fix round (SEC139-M1/CODE139-M1): DOCS_ACCESS_TOKEN gets the SAME collision
+    // refusal VISITOR_FORWARD_TOKEN got above ────────────────────────────────────────────────
+    // The wire-contract argument above applies word-for-word to this PR's OTHER new secret:
+    // `DOCS_ACCESS_TOKEN` also travels on the wire, in the `Authorization: Basic` header of
+    // every `/docs` request (`docs-gate.ts`'s `buildDocsAuthMiddleware`), so a value shared with
+    // a process-only signing secret puts that secret on the wire too. Three independent checks,
+    // each `!== undefined`-guarded on BOTH sides — deliberately NOT a generic all-pairs
+    // distinctness loop over every optional secret: two UNSET optional secrets both read
+    // `undefined`, and a loop comparing them for equality would refuse boot on a fresh clone
+    // that configures neither.
+    if (
+      env.DOCS_ACCESS_TOKEN !== undefined &&
+      env.INTERNAL_REQUEST_TOKEN !== undefined &&
+      env.DOCS_ACCESS_TOKEN === env.INTERNAL_REQUEST_TOKEN
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['DOCS_ACCESS_TOKEN'],
+        message:
+          'DOCS_ACCESS_TOKEN must not equal INTERNAL_REQUEST_TOKEN — the two guard different ' +
+          'blast radii (a throttle-bypass secret vs. a /docs Basic-auth credential) and a ' +
+          'shared value re-merges what they are meant to keep separate.',
+      });
+    }
+    if (
+      env.DOCS_ACCESS_TOKEN !== undefined &&
+      env.JWT_SECRET !== undefined &&
+      env.DOCS_ACCESS_TOKEN === env.JWT_SECRET
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['DOCS_ACCESS_TOKEN'],
+        message:
+          'DOCS_ACCESS_TOKEN must not equal JWT_SECRET — a signing secret that never leaves ' +
+          'this process must not also travel on the wire in an HTTP Basic-auth header on every ' +
+          '/docs request.',
+      });
+    }
+    if (
+      env.DOCS_ACCESS_TOKEN !== undefined &&
+      env.AUTH_HMAC_PEPPER !== undefined &&
+      env.DOCS_ACCESS_TOKEN === env.AUTH_HMAC_PEPPER
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['DOCS_ACCESS_TOKEN'],
+        message:
+          'DOCS_ACCESS_TOKEN must not equal AUTH_HMAC_PEPPER — a pepper that never leaves this ' +
+          'process must not also travel on the wire in an HTTP Basic-auth header on every ' +
+          '/docs request.',
+      });
+    }
+
     // ── SEC84-P1: a public api must not allowlist a developer's own machine as a browser origin ──
     // WEB_ORIGIN defaults to http://localhost:3000 for local dev; on a public, deployed api that
     // default is precisely "inheriting an accident" (DEC 2026-08-26m/o). Checked only in
@@ -1223,9 +1276,28 @@ export const envSchema = z
 
 /**
  * SEC84-P1 — true when `url`'s HOST (not its full string) is `localhost`, `127.0.0.1` or `::1`.
- * `url` is already `z.url()`-validated by the time the boot check reaches this, but the try/catch
- * mirrors the same defensive shape `REDIS_URL`'s own refinement above uses rather than assuming
- * a second validation pass can never fail.
+ *
+ * **Two claims this docblock used to make were wrong, and both are corrected here rather than
+ * silently dropped (SFH139-M3/VAL139-SD7, measured against this repo's own zod 4.4.3).**
+ *
+ * First: `url` is NOT already validated by the time this runs. `WEB_ORIGIN`'s own `z.url()`
+ * check and this object-level `superRefine` both read the SAME raw field, and a sub-field
+ * failing its own check does not stop `superRefine` from running — measured directly:
+ * `z.object({ WEB_ORIGIN: z.url().default(...) }).superRefine(fn).safeParse({ WEB_ORIGIN: 'not
+ * a url' })` still calls `fn`, and the value it receives is the literal unparsed string `'not a
+ * url'`. This function CAN and DOES sometimes run against a value `new URL()` throws on; the
+ * `try`/`catch` is load-bearing, not defensive boilerplate for a case that "cannot happen".
+ *
+ * Second: the `catch` below does NOT "mirror" `REDIS_URL`'s refinement above — it is the
+ * OPPOSITE polarity. There, `catch { return false }` means "invalid", and the caller (a
+ * `.refine`) turns `false` into a parse failure — closed direction: an unparseable value stops
+ * boot. Here, `catch { return false }` means "not a loopback host", and the caller only adds an
+ * issue when the result is `true` — open direction: an unparseable value passes this specific
+ * check SILENTLY and lets boot continue (on the strength of the sentence above: the overall
+ * parse still fails downstream, from `WEB_ORIGIN`'s own `z.url()` issue, so nothing ships today —
+ * but that is a fact about the OUTER result, not about this function's own polarity, and must
+ * not be copied by a future caller on the strength of a "mirrors REDIS_URL" claim that was never
+ * true).
  *
  * **Measured, load-bearing:** `new URL('http://[::1]:3000').hostname` is the literal string
  * `'[::1]'` — WITH the brackets — not `'::1'`. A bracket-naive comparison would silently never
