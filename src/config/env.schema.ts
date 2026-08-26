@@ -747,47 +747,29 @@ export const envSchema = z
     // distinctness loop over every optional secret: two UNSET optional secrets both read
     // `undefined`, and a loop comparing them for equality would refuse boot on a fresh clone
     // that configures neither.
+    // CONTROL-I (temporary, revert-to-red evidence for SEC139-M1/CODE139-M1): each condition
+    // below still evaluates normally, but the resulting issue is never added, disabling all
+    // three DOCS_ACCESS_TOKEN collision refusals.
     if (
       env.DOCS_ACCESS_TOKEN !== undefined &&
       env.INTERNAL_REQUEST_TOKEN !== undefined &&
       env.DOCS_ACCESS_TOKEN === env.INTERNAL_REQUEST_TOKEN
     ) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['DOCS_ACCESS_TOKEN'],
-        message:
-          'DOCS_ACCESS_TOKEN must not equal INTERNAL_REQUEST_TOKEN — the two guard different ' +
-          'blast radii (a throttle-bypass secret vs. a /docs Basic-auth credential) and a ' +
-          'shared value re-merges what they are meant to keep separate.',
-      });
+      // ctx.addIssue(...) intentionally disabled by CONTROL-I.
     }
     if (
       env.DOCS_ACCESS_TOKEN !== undefined &&
       env.JWT_SECRET !== undefined &&
       env.DOCS_ACCESS_TOKEN === env.JWT_SECRET
     ) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['DOCS_ACCESS_TOKEN'],
-        message:
-          'DOCS_ACCESS_TOKEN must not equal JWT_SECRET — a signing secret that never leaves ' +
-          'this process must not also travel on the wire in an HTTP Basic-auth header on every ' +
-          '/docs request.',
-      });
+      // ctx.addIssue(...) intentionally disabled by CONTROL-I.
     }
     if (
       env.DOCS_ACCESS_TOKEN !== undefined &&
       env.AUTH_HMAC_PEPPER !== undefined &&
       env.DOCS_ACCESS_TOKEN === env.AUTH_HMAC_PEPPER
     ) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['DOCS_ACCESS_TOKEN'],
-        message:
-          'DOCS_ACCESS_TOKEN must not equal AUTH_HMAC_PEPPER — a pepper that never leaves this ' +
-          'process must not also travel on the wire in an HTTP Basic-auth header on every ' +
-          '/docs request.',
-      });
+      // ctx.addIssue(...) intentionally disabled by CONTROL-I.
     }
 
     // ── SEC84-P1: a public api must not allowlist a developer's own machine as a browser origin ──
