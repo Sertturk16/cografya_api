@@ -14,15 +14,21 @@ import {
  *
  * ## Access path is the unique constraint, not a second index
  * `UQ_video_progress_user_book_video` IS the access-path index for both endpoints
- * (`WHERE user_id = ? AND book_video_id = ?`) — no second index duplicates it, following the
- * `book_videos`/`book_video_questions` precedent of not paying for the same physical index twice.
- * It is also what makes the upsert idempotent AND concurrency-safe: `INSERT … ON CONFLICT` is
- * atomic at the Postgres row-lock level, so two concurrent upserts for the same pair serialize
- * inside Postgres rather than racing to create two rows.
+ * (`WHERE user_id = ? AND book_video_id = ?`). No standalone `book_video_id` index is added either
+ * — the only reader of one would be the referential-integrity check `pnpm db:seed:books
+ * --allow-removals` runs on delete, a rare hand-run maintenance command, not a request-path query
+ * (full reasoning: the migration's own docblock). It is also what makes the upsert idempotent AND
+ * concurrency-safe: `INSERT … ON CONFLICT` is atomic at the Postgres row-lock level, so two
+ * concurrent upserts for the same pair serialize inside Postgres rather than racing to create two
+ * rows.
  *
- * ## Both FKs `ON DELETE CASCADE`
- * A progress row has no meaning without its user or its video — the same reasoning already
- * recorded on `sessions.user_id` and `book_video_questions.book_video_id`.
+ * ## The two FKs are deliberately ASYMMETRIC
+ * `user_id` is `ON DELETE CASCADE` (a progress row has no meaning without its user, and an account
+ * deletion is the data owner's own act). `book_video_id` is `ON DELETE RESTRICT`, governed by the
+ * `users.district_id` precedent rather than `book_video_questions.book_video_id`: progress rows are
+ * user-produced and derivable from nothing, so `pnpm db:seed:books --allow-removals` retiring a
+ * `book_videos` row must fail loudly and roll back rather than silently cascade away another user's
+ * saved position (full reasoning: the migration's own docblock).
  *
  * ## No `slug_tr` / `slug_en`
  * `ENGINEERING.md` §5's slug rule binds PUBLIC entities the web repo routes to; this table is
@@ -51,7 +57,11 @@ export class VideoProgress {
   @Column({ name: 'user_id', type: 'uuid' })
   userId!: string;
 
-  /** Owning video. `ON DELETE CASCADE`: a progress row has no meaning without its video. */
+  /**
+   * Owning video. `ON DELETE RESTRICT`: unlike `user_id`, a progress row must NOT silently
+   * disappear when a `book_videos` row is retired by `pnpm db:seed:books --allow-removals` — see
+   * the entity's own docblock and the migration's for the full reasoning.
+   */
   @Column({ name: 'book_video_id', type: 'uuid' })
   bookVideoId!: string;
 

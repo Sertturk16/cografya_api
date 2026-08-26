@@ -3,7 +3,7 @@ import { ValidationPipe, type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
-import { DataSource } from 'typeorm';
+import { DataSource, QueryFailedError } from 'typeorm';
 import { AccountRole, AccountStatus } from '../src/auth/account.types';
 import { AccessTokenService } from '../src/auth/access-token.service';
 import { User } from '../src/auth/entities/user.entity';
@@ -104,9 +104,9 @@ describe('Video progress (e2e, real Postgres)', () => {
       .findOneOrFail({ where: { provinceId: istanbul.id } });
 
     videos = await dataSource.getRepository(BookVideo).find({ order: { id: 'ASC' } });
-    // One dedicated slot per case below (14 today) — a book seed with 40 denemeler across even
+    // One dedicated slot per case below (15 today) — a book seed with 40 denemeler across even
     // one book already exceeds this by a wide margin.
-    expect(videos.length).toBeGreaterThanOrEqual(14);
+    expect(videos.length).toBeGreaterThanOrEqual(15);
 
     store = new YoutubeSnapshotStore(dataSource);
 
@@ -147,6 +147,42 @@ describe('Video progress (e2e, real Postgres)', () => {
         .put(`/api/video-progress/${video.id}`)
         .send({ lastPositionSeconds: 10, watched: false })
         .expect(401);
+    });
+  });
+
+  describe('schema — FK delete rules (PR #141 round-1 CRITICAL fix, CASCADE -> RESTRICT)', () => {
+    it('FK_video_progress_user is ON DELETE CASCADE, FK_video_progress_book_video is ON DELETE RESTRICT', async () => {
+      // Read straight from `information_schema.referential_constraints` rather than trusting the
+      // entity/migration docblocks — a query that can't see the table (or a renamed constraint) at
+      // all must fail RED here, not silently pass (the `auth-schema.e2e-spec.ts` `E2E-SC5` pattern).
+      const rows = await dataSource.query<{ constraint_name: string; delete_rule: string }[]>(`
+        SELECT constraint_name, delete_rule
+        FROM information_schema.referential_constraints
+        WHERE constraint_name IN ('FK_video_progress_user', 'FK_video_progress_book_video')
+      `);
+      const rules = Object.fromEntries(rows.map((row) => [row.constraint_name, row.delete_rule]));
+      expect(rules).toEqual({
+        FK_video_progress_user: 'CASCADE',
+        FK_video_progress_book_video: 'RESTRICT',
+      });
+    });
+
+    it('deleting a book_video that still has progress is rejected (23503), never cascaded away', async () => {
+      const video = nextVideo();
+      await request(app.getHttpServer())
+        .put(`/api/video-progress/${video.id}`)
+        .set(bearer(userAToken))
+        .send({ lastPositionSeconds: 5, watched: false })
+        .expect(200);
+
+      await expect(
+        dataSource.query(`DELETE FROM book_videos WHERE id = $1`, [video.id]),
+      ).rejects.toBeInstanceOf(QueryFailedError);
+
+      const stillThere = await dataSource
+        .getRepository(VideoProgress)
+        .count({ where: { bookVideoId: video.id } });
+      expect(stillThere).toBe(1);
     });
   });
 
@@ -262,7 +298,17 @@ describe('Video progress (e2e, real Postgres)', () => {
         .expect(200);
     });
 
-    it('PUT beyond the fallback ceiling with NO snapshot present -> 400', async () => {
+    it('PUT AT the fallback ceiling with no snapshot present -> 200 (boundary)', async () => {
+      // This sends EXACTLY `VIDEO_PROGRESS_MAX_POSITION_SECONDS`, not beyond it — the previous
+      // title claimed 400, which this case has never actually asserted. The service-level
+      // `positionExceedsDuration` rejection on the UNKNOWN-duration branch (i.e. a value strictly
+      // GREATER than the fallback ceiling, with no snapshot present) is architecturally
+      // untestable via e2e beyond this boundary: the DTO's `@Max(VIDEO_PROGRESS_MAX_POSITION_SECONDS)`
+      // ceiling and the service's fallback ceiling read the same exported constant, so any request
+      // body that exceeds it is already rejected by the global `ValidationPipe` before the handler
+      // (and this branch) ever runs — see the case above this one, which pins exactly that framework
+      // gate. Only the unit test (`resolveMaxAllowedPosition(null)` in
+      // `video-progress-duration.spec.ts`) actually pins this branch's return value.
       const video = nextVideo();
       const response = await request(app.getHttpServer())
         .put(`/api/video-progress/${video.id}`)

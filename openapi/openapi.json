@@ -1342,7 +1342,8 @@
             "in": "path",
             "description": "book_videos.id.",
             "schema": {
-              "format": "uuid"
+              "format": "uuid",
+              "type": "string"
             }
           }
         ],
@@ -1398,7 +1399,8 @@
             "in": "path",
             "description": "book_videos.id.",
             "schema": {
-              "format": "uuid"
+              "format": "uuid",
+              "type": "string"
             }
           }
         ],

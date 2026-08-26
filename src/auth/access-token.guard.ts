@@ -4,14 +4,12 @@ import {
   type CanActivate,
   type ExecutionContext,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import type { Request } from 'express';
-import { Repository } from 'typeorm';
 import { AccountStatus } from './account.types';
 import { AccessTokenService, type AccessTokenPayload } from './access-token.service';
 import { AUTH_ERROR_KEYS } from './auth-error-keys';
+import { AuthUserLookupService } from './auth-user-lookup.service';
 import { AUTHENTICATED_USER_REQUEST_KEY, type AuthenticatedUser } from './authenticated-user';
-import { User } from './entities/user.entity';
 
 const BEARER_PREFIX = 'Bearer ';
 
@@ -34,8 +32,7 @@ type RequestWithAuthenticatedUser = Request &
 export class AccessTokenGuard implements CanActivate {
   constructor(
     private readonly accessTokens: AccessTokenService,
-    @InjectRepository(User)
-    private readonly users: Repository<User>,
+    private readonly userLookup: AuthUserLookupService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -60,11 +57,9 @@ export class AccessTokenGuard implements CanActivate {
       throw new UnauthorizedException(AUTH_ERROR_KEYS.unauthenticated);
     }
 
-    // Step 3 — one indexed PK read, minimal columns.
-    const user = await this.users.findOne({
-      where: { id: payload.sub },
-      select: { id: true, status: true, tokenVersion: true },
-    });
+    // Step 3 — one indexed PK read, minimal columns (delegated to AuthUserLookupService so this
+    // guard's cross-module dependency is a narrow-purpose service, never the raw Repository<User>).
+    const user = await this.userLookup.findAuthProfile(payload.sub);
     if (!user) {
       throw new UnauthorizedException(AUTH_ERROR_KEYS.unauthenticated);
     }

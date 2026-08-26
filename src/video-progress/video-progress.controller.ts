@@ -17,7 +17,7 @@ import { ApiErrorDto } from '../common/dto/api-error.dto';
 import { NoTrustedClientExemption } from '../common/throttler/throttler-metadata';
 import { UpsertVideoProgressRequestDto } from './dto/upsert-video-progress-request.dto';
 import { VideoProgressDto } from './dto/video-progress.dto';
-import { VideoProgressParams } from './dto/video-progress.params';
+import { VideoProgressParams } from './dto/video-progress-params.dto';
 import { VIDEO_PROGRESS_ERROR_KEYS } from './video-progress-error-keys';
 import { VideoProgressService } from './video-progress.service';
 

@@ -43,9 +43,14 @@ export class VideoProgressService {
    * `UQ_video_progress_user_book_video` makes this idempotent AND concurrency-safe with no
    * app-level lock — two concurrent upserts for the same pair serialize inside Postgres.
    *
-   * No transaction wraps the two reads and the write (plan §5.4): `book_videos` has no runtime
-   * delete path (books are seed-only), so the TOCTOU window this would close is not a live risk —
-   * a conscious simplification, not an oversight.
+   * No transaction wraps the two reads and the write (plan §5.4): `book_videos` has no
+   * REQUEST-PATH delete (books are seed-only), but it does have a real one — `pnpm db:seed:books
+   * --allow-removals`, a hand-run, offline, operator-authorised maintenance command. That command
+   * is safer BECAUSE of `FK_video_progress_book_video`'s `ON DELETE RESTRICT`, not despite the
+   * missing transaction here: a delete blocked mid-run rolls the seed's own all-or-nothing
+   * transaction back cleanly, it does not race this endpoint's read-then-write into a
+   * half-applied state. The TOCTOU window an app-level transaction would close is therefore still
+   * not a live risk — a conscious simplification, not an oversight.
    */
   async upsert(
     userId: string,
