@@ -461,6 +461,33 @@ describe('validateEnv — the three DOCS_ACCESS_TOKEN collision refusals (SEC84-
   });
 });
 
+// SEC139R2-M1/CODE139R2-M1 (fix round) — the PR's own two new secrets, checked against EACH
+// OTHER. Before this block existed, the four collision describe blocks above checked
+// DOCS_ACCESS_TOKEN and VISITOR_FORWARD_TOKEN against the three PRE-EXISTING secrets each, but
+// never against each other — the asymmetry SEC139R2-M1 named.
+describe('validateEnv — DOCS_ACCESS_TOKEN must not collide with VISITOR_FORWARD_TOKEN (SEC139R2-M1 fix round)', () => {
+  const SHARED_TOKEN = 'shared-secret-value-0123456789-abcdefghijkl';
+
+  it('refuses DOCS_ACCESS_TOKEN === VISITOR_FORWARD_TOKEN, naming both variables', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        DOCS_ACCESS_TOKEN: SHARED_TOKEN,
+        VISITOR_FORWARD_TOKEN: SHARED_TOKEN,
+      }),
+    ).toThrow(/DOCS_ACCESS_TOKEN must not equal VISITOR_FORWARD_TOKEN/);
+  });
+
+  it('does not refuse when only ONE side is set — a collision needs both', () => {
+    expect(() => validateEnv({ ...BASE, DOCS_ACCESS_TOKEN: SHARED_TOKEN })).not.toThrow();
+    expect(() => validateEnv({ ...BASE, VISITOR_FORWARD_TOKEN: SHARED_TOKEN })).not.toThrow();
+  });
+
+  it('does not refuse when both are UNSET — undefined must never equal undefined', () => {
+    expect(() => validateEnv({ ...BASE })).not.toThrow();
+  });
+});
+
 describe('validateEnv — WEB_ORIGIN must not be a loopback host in production (SEC84-P1)', () => {
   it('REFUSES a loopback WEB_ORIGIN (the default) in production', () => {
     expect(() =>

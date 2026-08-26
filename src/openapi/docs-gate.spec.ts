@@ -6,7 +6,6 @@ import {
   resolveDocsExposure,
   type DocsAuthRequest,
   type DocsAuthResponse,
-  type DocsExposure,
   type DocsGateApp,
 } from './docs-gate';
 import { type Env } from '../config/env.schema';
@@ -178,11 +177,24 @@ describe('applyDocsGate', () => {
     expect(setupSwagger).not.toHaveBeenCalled();
   });
 
-  it.each<DocsExposure>(['gated', 'open', 'off'])(
-    'exhaustiveness: every DocsExposure value is handled explicitly (%s)',
-    (docsExposure) => {
-      const app = fakeApp();
-      expect(() => applyDocsGate(app, docsExposure, TOKEN, jest.fn())).not.toThrow();
-    },
-  );
+  it("SEC139R2-M2 — 'gated' with a token: the auth middleware is mounted BEFORE setupSwagger is called, never after", () => {
+    // The four `useCalls`/call-count assertions above hold even if the two statements inside
+    // the 'gated' branch were swapped — they check WHAT was called, not in what ORDER. This test
+    // measures the order directly: both `app.use` and `setupSwagger` push onto the SAME shared
+    // array, so a swap in `applyDocsGate` (setupSwagger before app.use) flips this array and
+    // fails the assertion, where none of the four tests above would notice.
+    const order: string[] = [];
+    const app: DocsGateApp = {
+      use: () => {
+        order.push('use');
+      },
+    };
+    const setupSwagger = jest.fn(() => {
+      order.push('setupSwagger');
+    });
+
+    applyDocsGate(app, 'gated', TOKEN, setupSwagger);
+
+    expect(order).toEqual(['use', 'setupSwagger']);
+  });
 });

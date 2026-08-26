@@ -1,4 +1,5 @@
 import { describe, expect, it, jest } from '@jest/globals';
+import { performance } from 'node:perf_hooks';
 import { type ExecutionContext, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
@@ -348,12 +349,13 @@ describe('TrustedClientThrottlerGuard.shouldSkip (glue + deny paths)', () => {
       it('logs on the first occurrence, stays silent on an immediate repeat, and re-emits once the cooldown elapses', async () => {
         // Every request below carries a WRONG forward token — resolveVisitorIdentity keeps
         // returning `reason: 'forward-token-mismatch'` each time, so this measures the guard's
-        // OWN suppression window, not a change in what is being reported. `Date.now` is spied
-        // directly (the pattern `auth-rate-limit.service.spec.ts` already uses) rather than via
-        // `jest.useFakeTimers()`, so only the clock this guard actually reads moves.
+        // OWN suppression window, not a change in what is being reported. `performance.now` is
+        // spied directly (CODE139R2-M4: the guard reads a monotonic clock, not `Date.now`)
+        // rather than via `jest.useFakeTimers()`, so only the clock this guard actually reads
+        // moves.
         const warnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
         let simulatedNowMs = 1_000_000_000;
-        const nowSpy = jest.spyOn(Date, 'now').mockImplementation(() => simulatedNowMs);
+        const nowSpy = jest.spyOn(performance, 'now').mockImplementation(() => simulatedNowMs);
 
         try {
           const guard = makeFullGuard({ forwardToken: FORWARD_SECRET });
@@ -374,6 +376,37 @@ describe('TrustedClientThrottlerGuard.shouldSkip (glue + deny paths)', () => {
         } finally {
           warnSpy.mockRestore();
           nowSpy.mockRestore();
+        }
+      });
+
+      it('CODE139R2-M4 — a BACKWARD jump in Date.now() does not suppress the cooldown re-emit: the cooldown reads a monotonic clock, not the wall clock', async () => {
+        // performance.now() is the clock under test and is left free-running by the elapsed
+        // window below; Date.now() is stepped BACKWARD by ten cooldown windows to simulate an
+        // NTP step correction or a host clock reset. A wall-clock-based implementation would
+        // read a large NEGATIVE delta from that step and stay silent well past the real window;
+        // this guard must not be affected, because it never reads Date.now() for this decision.
+        const warnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+        let simulatedPerfMs = 1_000_000_000;
+        const perfSpy = jest.spyOn(performance, 'now').mockImplementation(() => simulatedPerfMs);
+        const dateSpy = jest.spyOn(Date, 'now').mockReturnValue(2_000_000_000);
+
+        try {
+          const guard = makeFullGuard({ forwardToken: FORWARD_SECRET });
+
+          await guard.runGetTracker(MISMATCHED_REQUEST);
+          expect(mismatchWarnCount(warnSpy)).toBe(1);
+
+          // Wall clock steps BACKWARD by ten cooldown windows; monotonic clock advances FORWARD
+          // by exactly one cooldown window.
+          dateSpy.mockReturnValue(2_000_000_000 - TRACKER_REASON_LOG_COOLDOWN_MS * 10);
+          simulatedPerfMs += TRACKER_REASON_LOG_COOLDOWN_MS;
+
+          await guard.runGetTracker(MISMATCHED_REQUEST);
+          expect(mismatchWarnCount(warnSpy)).toBe(2);
+        } finally {
+          warnSpy.mockRestore();
+          perfSpy.mockRestore();
+          dateSpy.mockRestore();
         }
       });
     });

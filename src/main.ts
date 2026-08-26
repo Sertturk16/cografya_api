@@ -19,13 +19,35 @@ async function bootstrap(): Promise<void> {
   // The one HTML surface here, Swagger UI at /docs, is NOT dev-only (CODE139-I1/
   // SEC139-M6): since SEC84-P1 it answers in production too, behind HTTP Basic
   // auth when DOCS_ACCESS_TOKEN is set (applyDocsGate below / docs-gate.ts), and
-  // is not mounted at all when it is unset. The CSP-off decision was RE-EVALUATED
-  // against that production HTML surface, not only the old dev-only one, and it
-  // stands: the surface is authenticated, read-only, and needs the inline scripts
-  // helmet's default CSP would block — enabling a CSP here would need a
-  // /docs-scoped exception, not a blanket toggle, and that is future work if ever
-  // undertaken, never a silent default. All other helmet protections (HSTS,
-  // noSniff, frameguard, …) stay on.
+  // is not mounted at all when it is unset.
+  //
+  // The CSP-off decision was RE-EVALUATED a SECOND time (SEC139R2-I1): the
+  // previous rewrite's premise — that Swagger UI needs inline scripts helmet's
+  // default CSP would block — was measured FALSE and is retracted here, not
+  // repeated. Measured against the served page (`@nestjs/swagger@11.4.5`'s
+  // `buildSwaggerHTML`, called with no custom `swaggerOptions`, which is exactly
+  // how `applyDocsGate` below calls it): three `<script src="...">` tags to
+  // same-origin files (`swagger-ui-bundle.js`, `swagger-ui-standalone-preset.js`,
+  // `swagger-ui-init.js`) and ZERO inline `<script>` tags or `on*` attribute
+  // handlers. `helmet@8.2.0`'s own default `script-src` is `['self']`, which
+  // already permits those three same-origin files, and its default `style-src`
+  // already permits the page's two inline `<style>` blocks — so the specific
+  // blocker the previous sentence named does not exist.
+  //
+  // What stays UNMEASURED here, and is left open rather than asserted either
+  // way: whether the default CSP is fully compatible with the bundled
+  // `swagger-ui-dist@5.32.8` client once it runs in a browser. That bundle
+  // contains one `new Function(` call and one hardcoded reference to
+  // `https://validator.swagger.io` (its default spec-validator badge); CSP's
+  // `script-src`/`connect-src` fall back to `default-src 'self'` when not set
+  // explicitly, which would block either of those IF actually exercised on this
+  // render path — but no browser render was performed in this session to settle
+  // whether it is. CSP therefore stays off for the reason that survives
+  // measurement — untested compatibility with this one HTML surface, not a
+  // confirmed technical blocker — and enabling it is future work behind an
+  // actual compatibility check, scoped to /docs, never a blanket toggle or a
+  // silent default. All other helmet protections (HSTS, noSniff, frameguard,
+  // …) stay on.
   app.use(helmet({ contentSecurityPolicy: false }));
 
   // SEC84-P1 — the PEER axis of the visitor-scoped throttle tracker. Bounded to {0, 1} by the

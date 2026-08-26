@@ -790,6 +790,33 @@ export const envSchema = z
       });
     }
 
+    // ── SEC139R2-M1/CODE139R2-M1 (fix round) — the PR's OWN two new secrets, checked against
+    // EACH OTHER, not only against the three pre-existing secrets above ─────────────────────────
+    // The three blocks above check `DOCS_ACCESS_TOKEN` against `INTERNAL_REQUEST_TOKEN` /
+    // `JWT_SECRET` / `AUTH_HMAC_PEPPER`, and the three blocks further above check
+    // `VISITOR_FORWARD_TOKEN` against the same three — but neither checks `DOCS_ACCESS_TOKEN`
+    // against `VISITOR_FORWARD_TOKEN`, even though both were born in this same PR and both
+    // travel on the wire on every request that uses them (the `/docs` Basic-auth header and the
+    // `x-visitor-forward-token` header respectively). A shared value re-merges the two blast
+    // radii — a `/docs` credential guess and a throttle-bucket-selection credential guess — for
+    // exactly the reason the checks above already state. `!== undefined`-guarded on both sides,
+    // matching every block above: two UNSET optional secrets both read `undefined`, and a naive
+    // equality check would refuse boot on a fresh clone that configures neither.
+    if (
+      env.DOCS_ACCESS_TOKEN !== undefined &&
+      env.VISITOR_FORWARD_TOKEN !== undefined &&
+      env.DOCS_ACCESS_TOKEN === env.VISITOR_FORWARD_TOKEN
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['DOCS_ACCESS_TOKEN'],
+        message:
+          'DOCS_ACCESS_TOKEN must not equal VISITOR_FORWARD_TOKEN — one is a /docs Basic-auth ' +
+          'credential and the other is a throttle-bucket-selection credential; a shared value ' +
+          'means a single leaked header (either one) hands over both surfaces at once.',
+      });
+    }
+
     // ── SEC84-P1: a public api must not allowlist a developer's own machine as a browser origin ──
     // WEB_ORIGIN defaults to http://localhost:3000 for local dev; on a public, deployed api that
     // default is precisely "inheriting an accident" (DEC 2026-08-26m/o). Checked only in
@@ -1282,11 +1309,16 @@ export const envSchema = z
  *
  * First: `url` is NOT already validated by the time this runs. `WEB_ORIGIN`'s own `z.url()`
  * check and this object-level `superRefine` both read the SAME raw field, and a sub-field
- * failing its own check does not stop `superRefine` from running — measured directly:
+ * failing its own check does not stop `superRefine` from running on this repo's zod 4.4.3 —
+ * **observed** in a one-off probe against the installed package:
  * `z.object({ WEB_ORIGIN: z.url().default(...) }).superRefine(fn).safeParse({ WEB_ORIGIN: 'not
- * a url' })` still calls `fn`, and the value it receives is the literal unparsed string `'not a
- * url'`. This function CAN and DOES sometimes run against a value `new URL()` throws on; the
- * `try`/`catch` is load-bearing, not defensive boilerplate for a case that "cannot happen".
+ * a url' })` calls `fn` once, and the value it receives is the literal unparsed string `'not a
+ * url'`. **This is an observation about the installed zod version's behaviour, not a guarantee
+ * pinned by a test in this repo (`TA139R2-M1`): no case in `env.schema.spec.ts` feeds a
+ * malformed `WEB_ORIGIN` in production, so nothing here turns red if a future zod upgrade
+ * changes this execution order.** What the `try`/`catch` below protects against is real either
+ * way — this function CAN run against a value `new URL()` throws on — so it stays load-bearing,
+ * not defensive boilerplate for a case that "cannot happen".
  *
  * Second: the `catch` below does NOT "mirror" `REDIS_URL`'s refinement above — it is the
  * OPPOSITE polarity. There, `catch { return false }` means "invalid", and the caller (a

@@ -137,13 +137,30 @@ ship an unguarded write, an unvalidated input, or an unbounded external call.
   service serves JSON, not HTML, on its public content routes, and the one HTML surface —
   `/docs` (Swagger UI) — is **not dev-only** (CODE139-I1/SEC139-M6, fix round). Since SEC84-P1
   it is served in production too, behind HTTP Basic auth when `DOCS_ACCESS_TOKEN` is set (the
-  `/docs` bullet below), and not mounted at all when it is unset. The CSP-off decision was
-  **re-evaluated** against that production HTML surface, not only the pre-SEC84-P1 dev-only one,
-  and it stands: the surface is authenticated and read-only, and helmet's default CSP would block
-  the inline scripts Swagger UI itself needs to render — enabling CSP here would need a
-  `/docs`-scoped exception, not a blanket toggle, and that is future work if it is ever
-  undertaken, never a silent default. All other helmet protections (HSTS, noSniff, frameguard,
-  …) stay on. Keep this decision loud, never silent.
+  `/docs` bullet below), and not mounted at all when it is unset.
+
+  The CSP-off decision was **re-evaluated a second time** (`SEC139R2-I1`): the previous rewrite's
+  premise — that Swagger UI needs inline scripts helmet's default CSP would block — was measured
+  **false** and is retracted here, not repeated. Measured against the served page
+  (`@nestjs/swagger@11.4.5`'s `buildSwaggerHTML`, called with no custom `swaggerOptions`, which
+  is exactly how `applyDocsGate` calls it in `src/main.ts`): three `<script src="...">` tags to
+  same-origin files (`swagger-ui-bundle.js`, `swagger-ui-standalone-preset.js`,
+  `swagger-ui-init.js`) and **zero** inline `<script>` tags or `on*` attribute handlers.
+  `helmet@8.2.0`'s own default `script-src` is `['self']`, which already permits those three
+  same-origin files, and its default `style-src` already permits the page's two inline `<style>`
+  blocks — so the specific blocker the previous sentence named does not exist.
+
+  What stays **unmeasured**, and is left open rather than asserted either way: whether the
+  default CSP is fully compatible with the bundled `swagger-ui-dist@5.32.8` client once it runs
+  in a browser. That bundle contains one `new Function(` call and one hardcoded reference to
+  `https://validator.swagger.io` (its default spec-validator badge); CSP's
+  `script-src`/`connect-src` fall back to `default-src 'self'` when not set explicitly, which
+  would block either of those **if** actually exercised on this render path — but no browser
+  render was performed to settle whether it is. CSP therefore stays off for the reason that
+  survives measurement — untested compatibility with this one HTML surface, not a confirmed
+  technical blocker — and enabling it is future work behind an actual compatibility check,
+  scoped to `/docs`, never a blanket toggle or a silent default. All other helmet protections
+  (HSTS, noSniff, frameguard, …) stay on. Keep this decision loud, never silent.
 - **CORS** allows only the configured `WEB_ORIGIN`; `credentials: false` until cookie auth
   exists (revisit CORS + credentials together when auth cookies are introduced).
 - **Rate limit:** global `ThrottlerGuard`, 120 req/min per client, in-memory store

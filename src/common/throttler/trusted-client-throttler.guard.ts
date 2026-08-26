@@ -1,4 +1,5 @@
 import { randomBytes } from 'node:crypto';
+import { performance } from 'node:perf_hooks';
 import { type ExecutionContext, Injectable, Logger, type OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
@@ -101,21 +102,32 @@ export class TrustedClientThrottlerGuard extends ThrottlerGuard implements OnMod
    */
   private readonly trackerSalt = randomBytes(32);
 
-  /** Last time (ms since epoch) each reason code was logged — a `Map` over the closed
-   * seven-member `TrackerFallbackReason` union (never a growing map: at most seven entries ever
-   * exist), re-emitted after {@link TRACKER_REASON_LOG_COOLDOWN_MS} rather than silenced for the
-   * rest of the process's life. §F's structural bound (no PII, no flood, no unbounded growth) is
-   * preserved — a `Map` over a closed seven-member union adds only a timestamp per existing key,
-   * it does not grow (VALH139-I1, replacing the previous `Set`).
+  /** Last time (ms, MONOTONIC — {@link performance.now}, immune to a wall-clock step; CODE139R2-M4)
+   * each reason code was logged — a `Map` over the closed seven-member `TrackerFallbackReason`
+   * union (never a growing map: at most seven entries ever exist), re-emitted after
+   * {@link TRACKER_REASON_LOG_COOLDOWN_MS} rather than silenced for the rest of the process's
+   * life. §F's structural bound (no PII, no flood, no unbounded growth) is preserved — a `Map`
+   * over a closed seven-member union adds only a timestamp per existing key, it does not grow
+   * (VALH139-I1, replacing the previous `Set`).
+   *
+   * **`performance.now()`, not `Date.now()` (CODE139R2-M4).** `Date.now()` is a wall clock and
+   * can step BACKWARD (an NTP step correction, a container/VM clock reset, a manual host clock
+   * fix) — a backward step of Δ would have suppressed the re-emit for up to
+   * {@link TRACKER_REASON_LOG_COOLDOWN_MS} + Δ instead of the intended window.
+   * `performance.now()` is monotonic for the life of the process and cannot step backward, so the
+   * cooldown window this class promises is actually the window it measures.
    *
    * **Residue this does NOT close, recorded rather than silently left (VALH139-I1).** The far
    * more likely drift shape is a forwarding BFF that simply STOPS SENDING the forwarding
    * headers, not one that sends a wrong token: `resolveVisitorIdentity` treats "no forwarding
    * headers at all" as a normal, unauthenticated-direct-caller case and returns no `reason` at
-   * all (`visitor-tracker.ts` §F: "the two normal cases log nothing at all"), so neither this
-   * `Map` nor the cooldown ever sees that shape — there is no reason code to cool down. That half
-   * of the class cannot be closed from inside this repo; it is a precondition on the web PR that
-   * writes the header and on the deploy-path check that confirms it is actually being sent.
+   * all — the two cases `visitor-tracker.ts:256`'s own §F note calls "normal" and says carry no
+   * reason of their own (`CODE139R2-M3`: this docblock previously quoted that sentence as coming
+   * from `visitor-tracker.ts` itself; the actual quoted sentence lives in this PR's own
+   * out-of-repo plan draft, not in that file) — so neither this `Map` nor the cooldown ever sees
+   * that shape — there is no reason code to cool down. That half of the class cannot be closed
+   * from inside this repo; it is a precondition on the web PR that writes the header and on the
+   * deploy-path check that confirms it is actually being sent.
    */
   private readonly loggedTrackerReasons = new Map<TrackerFallbackReason, number>();
 
@@ -185,7 +197,9 @@ export class TrustedClientThrottlerGuard extends ThrottlerGuard implements OnMod
 
     if (result.reason !== undefined) {
       const lastLoggedAt = this.loggedTrackerReasons.get(result.reason);
-      const now = Date.now();
+      // performance.now(), not Date.now() — see loggedTrackerReasons' own docblock
+      // (CODE139R2-M4): a wall clock can step backward, a monotonic clock cannot.
+      const now = performance.now();
       if (lastLoggedAt === undefined || now - lastLoggedAt >= TRACKER_REASON_LOG_COOLDOWN_MS) {
         this.loggedTrackerReasons.set(result.reason, now);
         this.exemptionLogger.warn(

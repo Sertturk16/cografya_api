@@ -110,11 +110,19 @@ function extractBasicPassword(authorizationHeader: string | undefined): string |
  * `openapi/openapi.json` is committed in this repo, which is public — so a successful guess buys
  * nothing a `git clone` does not already give away; second, a WARN per failed attempt on an
  * UNTHROTTLED public path is itself a flood and disk-fill vector, which is a worse failure mode
- * than the one it would report, and the once-per-process-per-reason pattern this repo uses
- * elsewhere (`TrustedClientThrottlerGuard`) would give it zero brute-force detection value: every
- * attempt after the first would be silenced anyway. A genuine brute-force defence here would mean
- * putting an actual rate limit on this path, which is a larger change than this fix round's
- * scope.
+ * than the one it would report.
+ *
+ * **`SEC139R2-M3` corrects a factual claim this docblock made about a pattern the SAME commit
+ * changed.** It previously said mirroring `TrustedClientThrottlerGuard`'s logging pattern here
+ * "would give it zero brute-force detection value: every attempt after the first would be
+ * silenced anyway" — true of the `Set`-based, once-per-process version that guard used to have,
+ * and false of the `Map` + cooldown version it was rewritten to in this same round
+ * (`TRACKER_REASON_LOG_COOLDOWN_MS` = 15 minutes, `CODE139R2-M4`), which re-emits every window
+ * rather than staying silent forever. The corrected reason mirroring it here still does not
+ * change: once per 15 minutes is not a brute-force DEFENCE against an attacker making many
+ * guesses per minute — it would report the attempt long after it had already succeeded or
+ * failed, not prevent it. A genuine brute-force defence here would mean putting an actual rate
+ * limit on this path, which is a larger change than this fix round's scope.
  */
 export function buildDocsAuthMiddleware(
   token: string,
@@ -159,7 +167,24 @@ export interface DocsGateApp {
  * each {@link DocsExposure}. The behaviour is UNCHANGED from what `main.ts` inlined: `'gated'`
  * mounts the Basic-auth middleware then calls `setupSwagger`; `'open'` calls `setupSwagger`
  * alone; `'off'` calls neither — every docs path 404s and the surface is not advertised
- * (fail-closed by construction, per `resolveDocsExposure`'s own docblock).
+ * (fail-closed by construction, per `resolveDocsExposure`'s own docblock). The RELATIVE ORDER in
+ * the `'gated'` branch is security-carrying, not stylistic (`SEC139R2-M2`): the auth middleware
+ * MUST be mounted before `setupSwagger` runs, because Express resolves a single ordered router
+ * stack — if the two statements were swapped, the Swagger route would register before the auth
+ * middleware and `/docs` would answer unauthenticated. `docs-gate.spec.ts` asserts this ordering
+ * directly, not only the independent counts of each call.
+ *
+ * **Not yet closed, recorded rather than silently left (`CODE139R2-M5`).** Unlike
+ * `applyProxyTrust` / `buildCorsOptions` / `applyGlobalPrefix` — each also called from an e2e
+ * suite (`test/throttle.e2e-spec.ts`, `test/auth-security.e2e-spec.ts`, fifteen e2e suites
+ * respectively) so their runtime wiring into `main.ts` is exercised end-to-end — nothing in this
+ * repo pins that `main.ts` actually calls THIS function, or that it hands it
+ * `resolveDocsExposure`'s real output rather than a constant. If the `applyDocsGate(...)` call at
+ * `main.ts:79` were deleted, or `docsExposure` were replaced with a hardcoded `'open'`, every
+ * unit test and the whole e2e suite would stay green, and `/docs` would mount unconditionally in
+ * production even with `DOCS_ACCESS_TOKEN` unset. Closing this needs an e2e test that boots
+ * `main.ts` itself (the e2e bootstrap uses `moduleRef.createNestApplication()` and never runs
+ * it) — a bigger change than this fix round's scope.
  */
 export function applyDocsGate(
   app: DocsGateApp,
