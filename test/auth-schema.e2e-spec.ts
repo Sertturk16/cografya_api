@@ -312,6 +312,7 @@ describe('Auth-primitives schema (e2e)', () => {
       'revoked_reason',
       'rotated_from_id',
       'created_at',
+      'rotation_grace_used_at',
     ]);
     expect(await columnsOf('pending_registrations')).toEqual([
       'id',
