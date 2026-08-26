@@ -71,6 +71,7 @@ describe('Auth-primitives schema (e2e)', () => {
     revokedAt: Date | null;
     revokedReason: string | null;
     rotatedFromId: string | null;
+    rotationGraceUsedAt: Date | null;
   }
 
   async function insertSession(overrides: Partial<SessionInsert> & { userId: string }): Promise<{
@@ -85,14 +86,15 @@ describe('Auth-primitives schema (e2e)', () => {
       revokedAt: null,
       revokedReason: null,
       rotatedFromId: null,
+      rotationGraceUsedAt: null,
       ...overrides,
     };
     const rows = await dataSource.query<{ id: string }[]>(
       `
         INSERT INTO sessions (
           user_id, family_id, token_hash, issued_at, expires_at, revoked_at, revoked_reason,
-          rotated_from_id
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+          rotated_from_id, rotation_grace_used_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         RETURNING id
       `,
       [
@@ -104,6 +106,7 @@ describe('Auth-primitives schema (e2e)', () => {
         input.revokedAt,
         input.revokedReason,
         input.rotatedFromId,
+        input.rotationGraceUsedAt,
       ],
     );
     const row = rows[0];
@@ -550,7 +553,27 @@ describe('Auth-primitives schema (e2e)', () => {
     );
   });
 
-  it('E2E-SC8: the (scope, subject_hash, window_start) bucket is unique and increments atomically', async () => {
+  it('E2E-SC8: rotation_grace_used_at is allowed only on a ROTATED session row', async () => {
+    const userId = await insertUser();
+    await expect(
+      insertSession({
+        userId,
+        revokedAt: new Date(),
+        revokedReason: 'LOGOUT',
+        rotationGraceUsedAt: new Date(),
+      }),
+    ).rejects.toThrow(/CHK_sessions_rotation_grace_reason/);
+    await expect(
+      insertSession({
+        userId,
+        revokedAt: new Date(),
+        revokedReason: 'ROTATED',
+        rotationGraceUsedAt: new Date(),
+      }),
+    ).resolves.toBeDefined();
+  });
+
+  it('E2E-SC9: the (scope, subject_hash, window_start) bucket is unique and increments atomically', async () => {
     const windowStart = new Date(Math.floor(Date.now() / (15 * 60 * 1000)) * (15 * 60 * 1000));
     const subjectHash = randomHash32();
 

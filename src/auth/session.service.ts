@@ -12,7 +12,11 @@ import { DataSource, IsNull, Repository } from 'typeorm';
 import { AccountStatus } from './account.types';
 import { AccessTokenService } from './access-token.service';
 import { AUTH_ERROR_KEYS } from './auth-error-keys';
-import { ACCESS_TOKEN_TTL_SECONDS, REFRESH_TOKEN_TTL_DAYS } from './auth.constants';
+import {
+  ACCESS_TOKEN_TTL_SECONDS,
+  REFRESH_ROTATION_GRACE_WINDOW_MS,
+  REFRESH_TOKEN_TTL_DAYS,
+} from './auth.constants';
 import { AuthRateLimitScope, SessionRevocationReason } from './auth.types';
 import { AuthRateLimitService } from './auth-rate-limit.service';
 import type { AuthResultDto } from './dto/auth-result.dto';
@@ -128,7 +132,7 @@ export class SessionService {
 
   /**
    * §6.1 #5, §5.2.2/§5.2.3. One transaction, `SELECT … FOR UPDATE` on the presented row.
-   * Every reject branch — no row, reuse, expired, inactive account — throws the SAME 401
+   * Every reject branch — no row, non-qualifying reuse, expired, inactive account — throws the SAME 401
    * `errors.auth.sessionExpired`, indistinguishable by response shape (§5.2.3).
    *
    * **The reject exception is thrown AFTER the transaction commits, never from inside it.**
@@ -156,6 +160,59 @@ export class SessionService {
       }
 
       if (existing.revokedAt !== null) {
+        const recoveryStartedAt = new Date();
+        const rotatedWithinGrace =
+          existing.revokedReason === SessionRevocationReason.Rotated &&
+          existing.rotationGraceUsedAt === null &&
+          existing.revokedAt.getTime() + REFRESH_ROTATION_GRACE_WINDOW_MS >=
+            recoveryStartedAt.getTime();
+
+        if (rotatedWithinGrace) {
+          const successors = await sessionRepo
+            .createQueryBuilder('successor')
+            .setLock('pessimistic_write')
+            .where('successor.rotatedFromId = :rotatedFromId', { rotatedFromId: existing.id })
+            .andWhere('successor.familyId = :familyId', { familyId: existing.familyId })
+            .andWhere('successor.userId = :userId', { userId: existing.userId })
+            .getMany();
+          const successor = successors.length === 1 ? successors[0] : undefined;
+          const user = await manager.getRepository(User).findOne({
+            where: { id: existing.userId },
+            select: { id: true, status: true, tokenVersion: true },
+          });
+
+          if (successor?.revokedAt === null && user?.status === AccountStatus.Active) {
+            const recoveredTokenPlain = mintOpaqueToken();
+            await sessionRepo.update(
+              { id: existing.id, rotationGraceUsedAt: IsNull() },
+              { rotationGraceUsedAt: recoveryStartedAt },
+            );
+            await sessionRepo.save(
+              sessionRepo.create({
+                userId: existing.userId,
+                familyId: existing.familyId,
+                tokenHash: sha256(recoveredTokenPlain),
+                issuedAt: recoveryStartedAt,
+                expiresAt: new Date(recoveryStartedAt.getTime() + REFRESH_TOKEN_TTL_MS),
+                revokedAt: null,
+                revokedReason: null,
+                rotatedFromId: successor.id,
+                rotationGraceUsedAt: null,
+              }),
+            );
+            await sessionRepo.update(
+              { id: successor.id, revokedAt: IsNull() },
+              { revokedAt: recoveryStartedAt, revokedReason: SessionRevocationReason.Rotated },
+            );
+            return {
+              rejected: false,
+              userId: user.id,
+              tokenVersion: user.tokenVersion,
+              refreshTokenPlain: recoveredTokenPlain,
+            };
+          }
+        }
+
         // REUSE DETECTED (§5.2.3): the WHOLE family dies, and the user's token_version bumps so
         // every live access token — not just this family's — is invalidated at once.
         await sessionRepo.update(
@@ -198,6 +255,7 @@ export class SessionService {
           revokedAt: null,
           revokedReason: null,
           rotatedFromId: existing.id,
+          rotationGraceUsedAt: null,
         }),
       );
       await sessionRepo.update(
@@ -276,6 +334,7 @@ export class SessionService {
       revokedAt: null,
       revokedReason: null,
       rotatedFromId: null,
+      rotationGraceUsedAt: null,
     });
 
     const accessToken = await this.accessTokens.mint(userId, tokenVersion);

@@ -21,6 +21,14 @@ export const ACCESS_TOKEN_TTL_SECONDS = 900;
 /** Refresh token family lifetime, in days; rotation TAZELER (slides) this window (§5.2.1). */
 export const REFRESH_TOKEN_TTL_DAYS = 30;
 
+/**
+ * One-use recovery window for a refresh response that committed but was lost before the BFF
+ * received it. It matches the BFF's sole auth-attempt timeout; it is a security boundary, not
+ * an operator-tunable env value. `R5` in `auth-security.e2e-spec.ts` pins the one-use and
+ * elapsed-window guards.
+ */
+export const REFRESH_ROTATION_GRACE_WINDOW_MS = 15_000;
+
 /** Email verification code lifetime, in minutes (§5.3). */
 export const EMAIL_VERIFICATION_TTL_MINUTES = 10;
 

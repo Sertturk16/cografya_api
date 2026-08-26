@@ -42,6 +42,7 @@ import { InitDistricts1787302800000 } from './migrations/1787302800000-InitDistr
 import { InitUsers1787562000000 } from './migrations/1787562000000-InitUsers';
 import { InitAuthSessions1787565600000 } from './migrations/1787565600000-InitAuthSessions';
 import { InitPendingRegistrations1787652000000 } from './migrations/1787652000000-InitPendingRegistrations';
+import { AddSessionRotationGrace1787655600000 } from './migrations/1787655600000-AddSessionRotationGrace';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -251,6 +252,7 @@ export function buildDataSourceOptions(
       InitUsers1787562000000,
       InitAuthSessions1787565600000,
       InitPendingRegistrations1787652000000,
+      AddSessionRotationGrace1787655600000,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,

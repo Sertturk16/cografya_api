@@ -210,8 +210,10 @@ export class AuthController {
     summary: 'Rotate a refresh token for a fresh access + refresh pair.',
     description:
       'Reused, expired, unknown or account-inactive tokens all answer the SAME 401 ' +
-      '(errors.auth.sessionExpired). A reused token revokes its ENTIRE family and bumps the ' +
-      "user's token_version, invalidating every live access token at once.",
+      '(errors.auth.sessionExpired). One just-rotated token may recover exactly once within ' +
+      '15 seconds when its prior response was lost; every other reuse revokes its ENTIRE family ' +
+      "and bumps the user's token_version, invalidating every live access token at once. R5 in " +
+      'auth-security.e2e-spec.ts pins this bounded exception.',
   })
   @ApiOkResponse({ type: AuthResultDto })
   @ApiUnauthorizedResponse({ type: ApiErrorDto })

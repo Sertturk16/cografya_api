@@ -12,7 +12,11 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { AUTH_ROUTE_THROTTLES } from '../src/auth/auth.controller';
 import { AUTH_ERROR_KEYS } from '../src/auth/auth-error-keys';
-import { AUTH_TOKEN_AUDIENCE, AUTH_TOKEN_ISSUER } from '../src/auth/auth.constants';
+import {
+  AUTH_TOKEN_AUDIENCE,
+  AUTH_TOKEN_ISSUER,
+  REFRESH_ROTATION_GRACE_WINDOW_MS,
+} from '../src/auth/auth.constants';
 import { AuthRateLimitScope, SessionRevocationReason } from '../src/auth/auth.types';
 import { AuthSecretsProvider } from '../src/auth/auth-secrets.provider';
 import { applyGlobalPrefix, buildCorsOptions } from '../src/common/bootstrap';
@@ -308,6 +312,7 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
     let userId: string;
     let family1First: AuthResultBody;
     let family1Rotated: string;
+    let family1Recovered: string;
     let family2: AuthResultBody;
 
     beforeAll(async () => {
@@ -317,7 +322,7 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
       family2 = await sessionService.mintSessionForUser(userId);
     });
 
-    it('R1 — rotates once, then reusing the OLD token 401s, revokes the WHOLE family, bumps token_version', async () => {
+    it('R1 — a just-rotated token recovers once, then its second replay 401s, revokes the WHOLE family, bumps token_version', async () => {
       const rotateResponse = await request(app.getHttpServer())
         .post('/api/auth/refresh')
         .send({ refreshToken: family1First.refreshToken })
@@ -327,6 +332,22 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
       const before = await dataSource
         .getRepository(User)
         .findOneOrFail({ where: { id: userId }, select: { id: true, tokenVersion: true } });
+
+      const recoveryResponse = await request(app.getHttpServer())
+        .post('/api/auth/refresh')
+        .send({ refreshToken: family1First.refreshToken })
+        .expect(HttpStatus.OK);
+      family1Recovered = (recoveryResponse.body as AuthResultBody).refreshToken;
+
+      const afterRecovery = await dataSource
+        .getRepository(User)
+        .findOneOrFail({ where: { id: userId }, select: { id: true, tokenVersion: true } });
+      expect(afterRecovery.tokenVersion).toBe(before.tokenVersion);
+
+      const recoveredOriginal = await dataSource
+        .getRepository(Session)
+        .findOneOrFail({ where: { tokenHash: sha256(family1First.refreshToken) } });
+      expect(recoveredOriginal.rotationGraceUsedAt).not.toBeNull();
 
       const reuseResponse = await request(app.getHttpServer())
         .post('/api/auth/refresh')
@@ -352,8 +373,10 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
       // already revoked earlier (this one, ROTATED by this very test seconds ago) keeps its
       // original reason. The row that WAS live — the rotated t2 — is the one asserted by name.
       expect(thisFamilyRows.every((row) => row.revokedAt !== null)).toBe(true);
-      const rotatedRow = thisFamilyRows.find((row) => row.tokenHash.equals(sha256(family1Rotated)));
-      expect(rotatedRow?.revokedReason).toBe(SessionRevocationReason.ReuseDetected);
+      const recoveredRow = thisFamilyRows.find((row) =>
+        row.tokenHash.equals(sha256(family1Recovered)),
+      );
+      expect(recoveredRow?.revokedReason).toBe(SessionRevocationReason.ReuseDetected);
 
       const after = await dataSource
         .getRepository(User)
@@ -398,6 +421,185 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
         .set('Authorization', `Bearer ${body.accessToken}`)
         .expect(HttpStatus.OK);
       expect((freshSession.body as { id: string }).id).toBe(userId);
+    });
+  });
+
+  // ── R5-R9 — bounded refresh rotation recovery ───────────────────────────────────────────
+
+  describe('R5-R9 — one-use refresh rotation recovery remains fail-closed outside its window', () => {
+    async function rotateForRecovery(): Promise<{
+      user: User;
+      original: AuthResultBody;
+      successor: string;
+    }> {
+      const user = await createUser({ email: nextEmail() });
+      const original = await sessionService.mintSessionForUser(user.id);
+      const response = await request(app.getHttpServer())
+        .post('/api/auth/refresh')
+        .send({ refreshToken: original.refreshToken })
+        .expect(HttpStatus.OK);
+      return { user, original, successor: (response.body as AuthResultBody).refreshToken };
+    }
+
+    it('R5 — recovery is one-use and leaves token_version unchanged until a second replay', async () => {
+      const { user, original, successor } = await rotateForRecovery();
+      const before = await dataSource
+        .getRepository(User)
+        .findOneOrFail({ where: { id: user.id }, select: { id: true, tokenVersion: true } });
+
+      const recovered = await request(app.getHttpServer())
+        .post('/api/auth/refresh')
+        .send({ refreshToken: original.refreshToken })
+        .expect(HttpStatus.OK);
+      const recoveredToken = (recovered.body as AuthResultBody).refreshToken;
+
+      const originalRow = await dataSource
+        .getRepository(Session)
+        .findOneOrFail({ where: { tokenHash: sha256(original.refreshToken) } });
+      const successorRow = await dataSource
+        .getRepository(Session)
+        .findOneOrFail({ where: { tokenHash: sha256(successor) } });
+      expect(originalRow.rotationGraceUsedAt).not.toBeNull();
+      expect(successorRow.revokedReason).toBe(SessionRevocationReason.Rotated);
+      expect(
+        await dataSource.getRepository(User).findOneOrFail({
+          where: { id: user.id },
+          select: { id: true, tokenVersion: true },
+        }),
+      ).toMatchObject({ tokenVersion: before.tokenVersion });
+
+      await request(app.getHttpServer())
+        .post('/api/auth/refresh')
+        .send({ refreshToken: original.refreshToken })
+        .expect(HttpStatus.UNAUTHORIZED);
+      const recoveredRow = await dataSource
+        .getRepository(Session)
+        .findOneOrFail({ where: { tokenHash: sha256(recoveredToken) } });
+      expect(recoveredRow.revokedReason).toBe(SessionRevocationReason.ReuseDetected);
+    });
+
+    it('R6 — an out-of-window ROTATED predecessor takes the strict family-revoke path', async () => {
+      const { user, original, successor } = await rotateForRecovery();
+      await dataSource
+        .getRepository(Session)
+        .update(
+          { tokenHash: sha256(original.refreshToken) },
+          { revokedAt: new Date(Date.now() - REFRESH_ROTATION_GRACE_WINDOW_MS - 1) },
+        );
+
+      await request(app.getHttpServer())
+        .post('/api/auth/refresh')
+        .send({ refreshToken: original.refreshToken })
+        .expect(HttpStatus.UNAUTHORIZED);
+
+      const successorRow = await dataSource
+        .getRepository(Session)
+        .findOneOrFail({ where: { tokenHash: sha256(successor) } });
+      const after = await dataSource
+        .getRepository(User)
+        .findOneOrFail({ where: { id: user.id }, select: { id: true, tokenVersion: true } });
+      expect(successorRow.revokedReason).toBe(SessionRevocationReason.ReuseDetected);
+      expect(after.tokenVersion).toBe(1);
+    });
+
+    it.each([
+      SessionRevocationReason.Logout,
+      SessionRevocationReason.PasswordReset,
+      SessionRevocationReason.Expired,
+      SessionRevocationReason.AccountInactive,
+    ])('R7 — %s never receives rotation recovery', async (reason) => {
+      const { user, original, successor } = await rotateForRecovery();
+      await dataSource
+        .getRepository(Session)
+        .update({ tokenHash: sha256(original.refreshToken) }, { revokedReason: reason });
+
+      await request(app.getHttpServer())
+        .post('/api/auth/refresh')
+        .send({ refreshToken: original.refreshToken })
+        .expect(HttpStatus.UNAUTHORIZED);
+
+      const successorRow = await dataSource
+        .getRepository(Session)
+        .findOneOrFail({ where: { tokenHash: sha256(successor) } });
+      const after = await dataSource
+        .getRepository(User)
+        .findOneOrFail({ where: { id: user.id }, select: { id: true, tokenVersion: true } });
+      expect(successorRow.revokedReason).toBe(SessionRevocationReason.ReuseDetected);
+      expect(after.tokenVersion).toBe(1);
+    });
+
+    it('R7b — an account made inactive after rotation cannot use recovery', async () => {
+      const { user, original, successor } = await rotateForRecovery();
+      await dataSource
+        .getRepository(User)
+        .update({ id: user.id }, { status: AccountStatus.Disabled });
+
+      await request(app.getHttpServer())
+        .post('/api/auth/refresh')
+        .send({ refreshToken: original.refreshToken })
+        .expect(HttpStatus.UNAUTHORIZED);
+
+      const successorRow = await dataSource
+        .getRepository(Session)
+        .findOneOrFail({ where: { tokenHash: sha256(successor) } });
+      const after = await dataSource
+        .getRepository(User)
+        .findOneOrFail({ where: { id: user.id }, select: { id: true, tokenVersion: true } });
+      expect(successorRow.revokedReason).toBe(SessionRevocationReason.ReuseDetected);
+      expect(after.tokenVersion).toBe(1);
+    });
+
+    it.each(['missing', 'non-live'] as const)(
+      'R8 — a %s direct successor takes the strict family-revoke path',
+      async (caseName) => {
+        const { user, original, successor } = await rotateForRecovery();
+        if (caseName === 'missing') {
+          await dataSource.getRepository(Session).delete({ tokenHash: sha256(successor) });
+        } else {
+          await dataSource
+            .getRepository(Session)
+            .update(
+              { tokenHash: sha256(successor) },
+              { revokedAt: new Date(), revokedReason: SessionRevocationReason.Logout },
+            );
+        }
+
+        await request(app.getHttpServer())
+          .post('/api/auth/refresh')
+          .send({ refreshToken: original.refreshToken })
+          .expect(HttpStatus.UNAUTHORIZED);
+
+        const after = await dataSource
+          .getRepository(User)
+          .findOneOrFail({ where: { id: user.id }, select: { id: true, tokenVersion: true } });
+        expect(after.tokenVersion).toBe(1);
+      },
+    );
+
+    it('R9 — concurrent recovery serializes: one succeeds, its paired replay strictly revokes', async () => {
+      const { user, original } = await rotateForRecovery();
+      const [left, right] = await Promise.all([
+        request(app.getHttpServer())
+          .post('/api/auth/refresh')
+          .send({ refreshToken: original.refreshToken }),
+        request(app.getHttpServer())
+          .post('/api/auth/refresh')
+          .send({ refreshToken: original.refreshToken }),
+      ]);
+      expect([left.status, right.status].sort()).toEqual([HttpStatus.OK, HttpStatus.UNAUTHORIZED]);
+
+      const originalRow = await dataSource
+        .getRepository(Session)
+        .findOneOrFail({ where: { tokenHash: sha256(original.refreshToken) } });
+      const familyRows = await dataSource
+        .getRepository(Session)
+        .find({ where: { familyId: originalRow.familyId } });
+      const after = await dataSource
+        .getRepository(User)
+        .findOneOrFail({ where: { id: user.id }, select: { id: true, tokenVersion: true } });
+      expect(originalRow.rotationGraceUsedAt).not.toBeNull();
+      expect(familyRows.every((row) => row.revokedAt !== null)).toBe(true);
+      expect(after.tokenVersion).toBe(1);
     });
   });
 

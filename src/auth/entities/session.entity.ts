@@ -43,6 +43,10 @@ import type { SessionRevocationReason } from '../auth.types';
 )
 @Check('CHK_sessions_expiry', `"expires_at" > "issued_at"`)
 @Check('CHK_sessions_not_self_rotated', `"rotated_from_id" IS NULL OR "rotated_from_id" <> "id"`)
+@Check(
+  'CHK_sessions_rotation_grace_reason',
+  `("rotation_grace_used_at" IS NULL OR "revoked_reason" = 'ROTATED') IS TRUE`,
+)
 export class Session {
   @PrimaryGeneratedColumn('uuid', { primaryKeyConstraintName: 'PK_sessions' })
   id!: string;
@@ -78,6 +82,10 @@ export class Session {
   /** The row this one replaced during rotation; an adjudication/forensic trail, never read for auth. */
   @Column({ name: 'rotated_from_id', type: 'uuid', nullable: true })
   rotatedFromId!: string | null;
+
+  /** Single-use marker for the bounded lost-response recovery; no token material is retained. */
+  @Column({ name: 'rotation_grace_used_at', type: 'timestamptz', nullable: true })
+  rotationGraceUsedAt!: Date | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
