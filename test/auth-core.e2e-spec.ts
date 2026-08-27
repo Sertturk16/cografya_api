@@ -391,10 +391,14 @@ describe('Auth core schema (e2e)', () => {
     expect(instanceToPlain(explicitlySelected)).toEqual({});
   });
 
-  it('reverts and reapplies the latest migration (AddSessionRotationGrace) on an empty synthetic table', async () => {
-    // The latest migration is intentionally narrow: undoing it removes only the recovery marker
-    // and its CHECK, leaving all auth tables and the earlier pending-registration migration in
-    // place. Both directions matter because the down path must not widen rotation recovery.
+  it('reverts and reapplies the latest migration (InitVideoProgress) on an empty synthetic table', async () => {
+    // UYELIK-05 made `InitVideoProgress` the new latest migration, superseding
+    // `AddSessionRotationGrace` as the one this test exercises — the same living-test pattern
+    // `province.e2e-spec.ts`/`country.e2e-spec.ts` name explicitly ("adding a migration means
+    // editing" the test that pins the latest one). It is intentionally narrow: undoing it drops
+    // only `video_progress`, leaving every auth table — INCLUDING the earlier
+    // `AddSessionRotationGrace` column — in place. Both directions matter because the down path
+    // must not touch anything outside this migration's own table.
     const counts = await dataSource.query<{ count: string }[]>(
       `SELECT count(*)::text AS count FROM users`,
     );
@@ -408,6 +412,7 @@ describe('Auth core schema (e2e)', () => {
           verify_codes: string | null;
           pending: string | null;
           reset_tokens: string | null;
+          video_progress: string | null;
         }[]
       >(`
         SELECT
@@ -415,7 +420,8 @@ describe('Auth core schema (e2e)', () => {
           to_regclass('public.sessions')::text AS sessions,
           to_regclass('public.email_verification_codes')::text AS verify_codes,
           to_regclass('public.pending_registrations')::text AS pending,
-          to_regclass('public.password_reset_tokens')::text AS reset_tokens
+          to_regclass('public.password_reset_tokens')::text AS reset_tokens,
+          to_regclass('public.video_progress')::text AS video_progress
       `);
       return rows[0];
     };
@@ -426,6 +432,7 @@ describe('Auth core schema (e2e)', () => {
       verify_codes: null,
       pending: 'pending_registrations',
       reset_tokens: 'password_reset_tokens',
+      video_progress: 'video_progress',
     });
 
     const rotationGraceColumn = async (): Promise<string | null> => {
@@ -436,19 +443,24 @@ describe('Auth core schema (e2e)', () => {
       `);
       return rows[0]?.column_name ?? null;
     };
+    // Present throughout — proving THIS migration's down path never touches the earlier one's
+    // column, the same invariant the pre-UYELIK-05 version of this test pinned the other way
+    // round (undoing AddSessionRotationGrace itself).
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
 
     await dataSource.undoLastMigration();
 
-    // The marker, and ONLY the marker, is removed; the auth table topology stays unchanged.
+    // ONLY `video_progress` disappears; every other auth table (including the earlier
+    // rotation-grace column) stays unchanged.
     expect(await relationSnapshot()).toEqual({
       users: 'users',
       sessions: 'sessions',
       verify_codes: null,
       pending: 'pending_registrations',
       reset_tokens: 'password_reset_tokens',
+      video_progress: null,
     });
-    expect(await rotationGraceColumn()).toBeNull();
+    expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
 
     const columnsAfterDown = await dataSource.query<{ column_name: string }[]>(`
       SELECT column_name FROM information_schema.columns
@@ -464,6 +476,7 @@ describe('Auth core schema (e2e)', () => {
       verify_codes: null,
       pending: 'pending_registrations',
       reset_tokens: 'password_reset_tokens',
+      video_progress: 'video_progress',
     });
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
 

@@ -18,6 +18,7 @@ import { MarineEcmwfPointSeries } from '../marine/entities/marine-ecmwf-point-se
 import { MarinePoint } from '../marine/entities/marine-point.entity';
 import { Province } from '../province/entities/province.entity';
 import { District } from '../reference/entities/district.entity';
+import { VideoProgress } from '../video-progress/entities/video-progress.entity';
 import { InitProvince1783382400000 } from './migrations/1783382400000-InitProvince';
 import { AddProvinceClimateNote1783513986800 } from './migrations/1783513986800-AddProvinceClimateNote';
 import { AddProvinceDetailSections1783701664849 } from './migrations/1783701664849-AddProvinceDetailSections';
@@ -43,6 +44,7 @@ import { InitUsers1787562000000 } from './migrations/1787562000000-InitUsers';
 import { InitAuthSessions1787565600000 } from './migrations/1787565600000-InitAuthSessions';
 import { InitPendingRegistrations1787652000000 } from './migrations/1787652000000-InitPendingRegistrations';
 import { AddSessionRotationGrace1787655600000 } from './migrations/1787655600000-AddSessionRotationGrace';
+import { InitVideoProgress1787800000000 } from './migrations/1787800000000-InitVideoProgress';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -226,6 +228,7 @@ export function buildDataSourceOptions(
       PendingRegistration,
       PasswordResetToken,
       AuthRateLimit,
+      VideoProgress,
     ],
     migrations: [
       InitProvince1783382400000,
@@ -253,6 +256,7 @@ export function buildDataSourceOptions(
       InitAuthSessions1787565600000,
       InitPendingRegistrations1787652000000,
       AddSessionRotationGrace1787655600000,
+      InitVideoProgress1787800000000,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,

@@ -7,6 +7,7 @@ import { AuthNoStoreMiddleware } from './auth-no-store.middleware';
 import { AuthController } from './auth.controller';
 import { AuthRateLimitService } from './auth-rate-limit.service';
 import { AuthSecretsProvider } from './auth-secrets.provider';
+import { AuthUserLookupService } from './auth-user-lookup.service';
 import { AuthRateLimit } from './entities/auth-rate-limit.entity';
 import { PasswordResetToken } from './entities/password-reset-token.entity';
 import { Session } from './entities/session.entity';
@@ -18,6 +19,24 @@ import { PasswordHasherService } from './password-hasher.service';
 import { PasswordResetService } from './password-reset.service';
 import { RegistrationService } from './registration.service';
 import { SessionService } from './session.service';
+
+/**
+ * `Repository<User>` as its OWN dynamic module — internal wiring only, never exported. Every
+ * provider in THIS module that needs `Repository<User>` (`AuthUserLookupService`,
+ * `RegistrationService`, `SessionService`, `PasswordResetService`) resolves it by importing this
+ * module the ordinary way; a `TypeOrmModule.forFeature` provider is only visible to modules that
+ * import the SAME dynamic-module instance that declared it, which is why this exists as a named
+ * constant rather than an inline `imports` entry repeated per consumer.
+ *
+ * **Deliberately NOT in `exports` (PR #141 round-1 review IMPORTANT finding, corrected from an
+ * earlier draft that did export it).** `AccessTokenGuard` is the only thing an importer outside
+ * this module ever needs, and as of UYELIK-05 it depends on `AuthUserLookupService` — a
+ * narrow-purpose service exposing exactly one restricted read — rather than on this repository
+ * directly. Exporting `UserRepositoryModule` too would hand every future importer of `AuthModule`
+ * the full `Repository<User>` (every column, every write method), which is exactly the widened DI
+ * surface that finding named.
+ */
+const UserRepositoryModule = TypeOrmModule.forFeature([User]);
 
 /**
  * Authentication PRIMITIVES (UYELIK-02 PR-1) plus the nine ENDPOINTS, the access-token guard and
@@ -40,11 +59,12 @@ import { SessionService } from './session.service';
  */
 @Module({
   imports: [
+    UserRepositoryModule,
     // `PendingRegistration` is deliberately NOT here: no class injects its repository — every
     // write to it runs inside a transaction and goes through `manager.getRepository(...)` — so a
     // `forFeature` entry would register a provider nothing resolves. The entity is registered
     // where entities belong, in `data-source-options.ts`'s explicit list.
-    TypeOrmModule.forFeature([User, Session, PasswordResetToken, AuthRateLimit]),
+    TypeOrmModule.forFeature([Session, PasswordResetToken, AuthRateLimit]),
     JwtModule.register({}),
   ],
   controllers: [AuthController],
@@ -55,6 +75,7 @@ import { SessionService } from './session.service';
     AuthRateLimitService,
     { provide: MAILER_PORT, useClass: NoopMailerAdapter },
     AccessTokenGuard,
+    AuthUserLookupService,
     RegistrationService,
     EmailVerificationService,
     SessionService,
@@ -66,6 +87,17 @@ import { SessionService } from './session.service';
     AccessTokenService,
     AuthRateLimitService,
     MAILER_PORT,
+    // UYELIK-05: the first consumer outside this module (VideoProgressModule) reuses the SAME
+    // guard instance rather than redeclaring `AccessTokenGuard` as a second provider. Both of ITS
+    // dependencies must be reachable from the importer's own resolution path — `AccessTokenService`
+    // is already exported above, and `AuthUserLookupService` is exported here for the same reason
+    // (NestJS instantiates a fresh `AccessTokenGuard` scoped to the CONSUMING module for
+    // `@UseGuards()`, so its constructor deps must resolve from that module's own scope). Only
+    // `AuthUserLookupService` — one narrow, restricted-column read method — crosses the boundary;
+    // `UserRepositoryModule`/`Repository<User>` deliberately does not (PR #141 round-1 review
+    // IMPORTANT finding — an earlier draft exported the raw repository instead and was corrected).
+    AccessTokenGuard,
+    AuthUserLookupService,
   ],
 })
 export class AuthModule implements NestModule {

@@ -194,6 +194,9 @@ describe('Province (e2e)', () => {
       // `users` — so its migration MUST stay ordered after `InitDistricts`.
       'InitPendingRegistrations1787652000000',
       'AddSessionRotationGrace1787655600000',
+      // UYELIK-05: `video_progress` carries foreign keys to both `users(id)` and
+      // `book_videos(id)`, so its migration MUST stay ordered after both.
+      'InitVideoProgress1787800000000',
     ]);
   });
 
