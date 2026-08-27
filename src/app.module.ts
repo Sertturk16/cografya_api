@@ -15,6 +15,7 @@ import { CountryModule } from './country/country.module';
 import { EarthquakeModule } from './earthquake/earthquake.module';
 import { ElevationModule } from './elevation/elevation.module';
 import { FavoritesModule } from './favorites/favorites.module';
+import { GameRoundsModule } from './game-rounds/game-rounds.module';
 import { HealthModule } from './health/health.module';
 import { MarineModule } from './marine/marine.module';
 import { ProvinceModule } from './province/province.module';
@@ -101,6 +102,11 @@ export const THROTTLE_LIMIT = 120;
     // the favorites API is keyed externally on plateCode/isoCode and never surfaces either
     // entity's internal uuid (plan §5.1).
     FavoritesModule,
+    // UYELIK-09: protected submit/list-mine game-round endpoints. No scheduled work, no
+    // external provider, no new env key, and no relation to any other entity — mode and
+    // clientRoundId are opaque values the client supplies and the API never resolves against a
+    // second table (plan §5.1).
+    GameRoundsModule,
   ],
   providers: [
     // Rate limit every route by default; opt out per-route with @SkipThrottle,

@@ -14,6 +14,8 @@ import { Country } from '../country/entities/country.entity';
 import { EarthquakeEvent } from '../earthquake/entities/earthquake-event.entity';
 import { EarthquakeIngestRun } from '../earthquake/entities/earthquake-ingest-run.entity';
 import { Favorite } from '../favorites/entities/favorite.entity';
+import { GameRoundSubmitRateLimit } from '../game-rounds/entities/game-round-submit-rate-limit.entity';
+import { GameRound } from '../game-rounds/entities/game-round.entity';
 import { MarineEcmwfCycle } from '../marine/entities/marine-ecmwf-cycle.entity';
 import { MarineEcmwfPointSeries } from '../marine/entities/marine-ecmwf-point-series.entity';
 import { MarinePoint } from '../marine/entities/marine-point.entity';
@@ -47,6 +49,8 @@ import { InitPendingRegistrations1787652000000 } from './migrations/178765200000
 import { AddSessionRotationGrace1787655600000 } from './migrations/1787655600000-AddSessionRotationGrace';
 import { InitVideoProgress1787800000000 } from './migrations/1787800000000-InitVideoProgress';
 import { InitFavorites1787900000000 } from './migrations/1787900000000-InitFavorites';
+import { InitGameRounds1788000000000 } from './migrations/1788000000000-InitGameRounds';
+import { InitGameRoundSubmitRateLimits1788003600000 } from './migrations/1788003600000-InitGameRoundSubmitRateLimits';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -232,6 +236,8 @@ export function buildDataSourceOptions(
       AuthRateLimit,
       VideoProgress,
       Favorite,
+      GameRound,
+      GameRoundSubmitRateLimit,
     ],
     migrations: [
       InitProvince1783382400000,
@@ -261,6 +267,8 @@ export function buildDataSourceOptions(
       AddSessionRotationGrace1787655600000,
       InitVideoProgress1787800000000,
       InitFavorites1787900000000,
+      InitGameRounds1788000000000,
+      InitGameRoundSubmitRateLimits1788003600000,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,
