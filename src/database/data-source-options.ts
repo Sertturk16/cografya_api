@@ -13,6 +13,7 @@ import { YoutubeVideoSnapshot } from '../book/entities/youtube-video-snapshot.en
 import { Country } from '../country/entities/country.entity';
 import { EarthquakeEvent } from '../earthquake/entities/earthquake-event.entity';
 import { EarthquakeIngestRun } from '../earthquake/entities/earthquake-ingest-run.entity';
+import { Favorite } from '../favorites/entities/favorite.entity';
 import { MarineEcmwfCycle } from '../marine/entities/marine-ecmwf-cycle.entity';
 import { MarineEcmwfPointSeries } from '../marine/entities/marine-ecmwf-point-series.entity';
 import { MarinePoint } from '../marine/entities/marine-point.entity';
@@ -45,6 +46,7 @@ import { InitAuthSessions1787565600000 } from './migrations/1787565600000-InitAu
 import { InitPendingRegistrations1787652000000 } from './migrations/1787652000000-InitPendingRegistrations';
 import { AddSessionRotationGrace1787655600000 } from './migrations/1787655600000-AddSessionRotationGrace';
 import { InitVideoProgress1787800000000 } from './migrations/1787800000000-InitVideoProgress';
+import { InitFavorites1787900000000 } from './migrations/1787900000000-InitFavorites';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -229,6 +231,7 @@ export function buildDataSourceOptions(
       PasswordResetToken,
       AuthRateLimit,
       VideoProgress,
+      Favorite,
     ],
     migrations: [
       InitProvince1783382400000,
@@ -257,6 +260,7 @@ export function buildDataSourceOptions(
       InitPendingRegistrations1787652000000,
       AddSessionRotationGrace1787655600000,
       InitVideoProgress1787800000000,
+      InitFavorites1787900000000,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,

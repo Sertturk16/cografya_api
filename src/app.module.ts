@@ -14,6 +14,7 @@ import { type Env, validateEnv } from './config/env.schema';
 import { CountryModule } from './country/country.module';
 import { EarthquakeModule } from './earthquake/earthquake.module';
 import { ElevationModule } from './elevation/elevation.module';
+import { FavoritesModule } from './favorites/favorites.module';
 import { HealthModule } from './health/health.module';
 import { MarineModule } from './marine/marine.module';
 import { ProvinceModule } from './province/province.module';
@@ -95,6 +96,11 @@ export const THROTTLE_LIMIT = 120;
     // UYELIK-05: protected read-one/upsert-one video-progress endpoints. No scheduled work, no
     // external provider, no new env key — a plain guarded CRUD-shaped surface over its own table.
     VideoProgressModule,
+    // UYELIK-07: protected list/add/remove favorites endpoints (province + country). No scheduled
+    // work, no external provider, no new env key, and no change to any Province/Country DTO —
+    // the favorites API is keyed externally on plateCode/isoCode and never surfaces either
+    // entity's internal uuid (plan §5.1).
+    FavoritesModule,
   ],
   providers: [
     // Rate limit every route by default; opt out per-route with @SkipThrottle,

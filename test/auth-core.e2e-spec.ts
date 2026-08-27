@@ -391,14 +391,15 @@ describe('Auth core schema (e2e)', () => {
     expect(instanceToPlain(explicitlySelected)).toEqual({});
   });
 
-  it('reverts and reapplies the latest migration (InitVideoProgress) on an empty synthetic table', async () => {
-    // UYELIK-05 made `InitVideoProgress` the new latest migration, superseding
-    // `AddSessionRotationGrace` as the one this test exercises — the same living-test pattern
+  it('reverts and reapplies the latest migration (InitFavorites) on an empty synthetic table', async () => {
+    // UYELIK-07 made `InitFavorites` the new latest migration, superseding `InitVideoProgress`
+    // as the one this test exercises — the same living-test pattern
     // `province.e2e-spec.ts`/`country.e2e-spec.ts` name explicitly ("adding a migration means
     // editing" the test that pins the latest one). It is intentionally narrow: undoing it drops
-    // only `video_progress`, leaving every auth table — INCLUDING the earlier
-    // `AddSessionRotationGrace` column — in place. Both directions matter because the down path
-    // must not touch anything outside this migration's own table.
+    // only `favorites`, leaving every other table — INCLUDING `video_progress` (the PREVIOUS
+    // latest migration's own table, itself carrying two of the same FK-target tables this one
+    // does) and the earlier `AddSessionRotationGrace` column — in place. Both directions matter
+    // because the down path must not touch anything outside this migration's own table.
     const counts = await dataSource.query<{ count: string }[]>(
       `SELECT count(*)::text AS count FROM users`,
     );
@@ -413,6 +414,7 @@ describe('Auth core schema (e2e)', () => {
           pending: string | null;
           reset_tokens: string | null;
           video_progress: string | null;
+          favorites: string | null;
         }[]
       >(`
         SELECT
@@ -421,7 +423,8 @@ describe('Auth core schema (e2e)', () => {
           to_regclass('public.email_verification_codes')::text AS verify_codes,
           to_regclass('public.pending_registrations')::text AS pending,
           to_regclass('public.password_reset_tokens')::text AS reset_tokens,
-          to_regclass('public.video_progress')::text AS video_progress
+          to_regclass('public.video_progress')::text AS video_progress,
+          to_regclass('public.favorites')::text AS favorites
       `);
       return rows[0];
     };
@@ -433,6 +436,7 @@ describe('Auth core schema (e2e)', () => {
       pending: 'pending_registrations',
       reset_tokens: 'password_reset_tokens',
       video_progress: 'video_progress',
+      favorites: 'favorites',
     });
 
     const rotationGraceColumn = async (): Promise<string | null> => {
@@ -443,22 +447,23 @@ describe('Auth core schema (e2e)', () => {
       `);
       return rows[0]?.column_name ?? null;
     };
-    // Present throughout — proving THIS migration's down path never touches the earlier one's
-    // column, the same invariant the pre-UYELIK-05 version of this test pinned the other way
+    // Present throughout — proving THIS migration's down path never touches an earlier one's
+    // column, the same invariant the pre-UYELIK-07 version of this test pinned the other way
     // round (undoing AddSessionRotationGrace itself).
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
 
     await dataSource.undoLastMigration();
 
-    // ONLY `video_progress` disappears; every other auth table (including the earlier
-    // rotation-grace column) stays unchanged.
+    // ONLY `favorites` disappears; every other table — including `video_progress`, the PREVIOUS
+    // latest migration's own table, and the earlier rotation-grace column — stays unchanged.
     expect(await relationSnapshot()).toEqual({
       users: 'users',
       sessions: 'sessions',
       verify_codes: null,
       pending: 'pending_registrations',
       reset_tokens: 'password_reset_tokens',
-      video_progress: null,
+      video_progress: 'video_progress',
+      favorites: null,
     });
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
 
@@ -477,6 +482,7 @@ describe('Auth core schema (e2e)', () => {
       pending: 'pending_registrations',
       reset_tokens: 'password_reset_tokens',
       video_progress: 'video_progress',
+      favorites: 'favorites',
     });
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
 

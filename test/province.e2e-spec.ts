@@ -197,6 +197,9 @@ describe('Province (e2e)', () => {
       // UYELIK-05: `video_progress` carries foreign keys to both `users(id)` and
       // `book_videos(id)`, so its migration MUST stay ordered after both.
       'InitVideoProgress1787800000000',
+      // UYELIK-07: `favorites` carries foreign keys to `users(id)`, `provinces(id)` and
+      // `countries(id)`, so its migration MUST stay ordered after all three.
+      'InitFavorites1787900000000',
     ]);
   });
 

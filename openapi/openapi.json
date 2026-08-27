@@ -1466,6 +1466,249 @@
           "video-progress"
         ]
       }
+    },
+    "/api/favorites": {
+      "get": {
+        "description": "A plain, unpaginated array — bounded at at most 81 provinces + ~199 countries = 280 rows per user, ever, the same \"bounded and small\" shape `ENGINEERING.md` §2 already uses for the province/country lists themselves.",
+        "operationId": "FavoritesController_listMine",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FavoriteDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "errors.auth.unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "The caller's own favorited provinces and countries.",
+        "tags": [
+          "favorites"
+        ]
+      }
+    },
+    "/api/favorites/provinces/{plateCode}": {
+      "put": {
+        "description": "Always 200, never 201 — the resource's final state is identical whether this call created or found the row, matching video_progress's idempotent-upsert convention. No request body: the target comes entirely from the route param and the auth context.",
+        "operationId": "FavoritesController_addProvince",
+        "parameters": [
+          {
+            "name": "plateCode",
+            "required": true,
+            "in": "path",
+            "description": "Two-digit zero-padded province plate code.",
+            "schema": {
+              "pattern": "^\\d{2}$",
+              "example": "34",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FavoriteDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "errors.auth.unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "errors.favorites.provinceNotFound",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Idempotent add — favorite one province.",
+        "tags": [
+          "favorites"
+        ]
+      },
+      "delete": {
+        "description": "204 unconditionally: whether the row was favorited and removed, was never favorited, or plateCode is well-formed but names no real province at all. No 404 branch on this route at all — \"remove\" never needs to distinguish those cases from the caller's point of view.",
+        "operationId": "FavoritesController_removeProvince",
+        "parameters": [
+          {
+            "name": "plateCode",
+            "required": true,
+            "in": "path",
+            "description": "Two-digit zero-padded province plate code.",
+            "schema": {
+              "pattern": "^\\d{2}$",
+              "example": "34",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Removed, already absent, or plateCode names no province — all answer identically."
+          },
+          "401": {
+            "description": "errors.auth.unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Idempotent remove — unfavorite one province.",
+        "tags": [
+          "favorites"
+        ]
+      }
+    },
+    "/api/favorites/countries/{isoCode}": {
+      "put": {
+        "description": "Mirrors the province add route exactly, substituting isoCode/countryNotFound.",
+        "operationId": "FavoritesController_addCountry",
+        "parameters": [
+          {
+            "name": "isoCode",
+            "required": true,
+            "in": "path",
+            "description": "ISO 3166-1 alpha-2 country code.",
+            "schema": {
+              "pattern": "^[A-Z]{2}$",
+              "example": "TR",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FavoriteDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "errors.auth.unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "errors.favorites.countryNotFound",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Idempotent add — favorite one country.",
+        "tags": [
+          "favorites"
+        ]
+      },
+      "delete": {
+        "description": "Mirrors the province remove route exactly, substituting isoCode.",
+        "operationId": "FavoritesController_removeCountry",
+        "parameters": [
+          {
+            "name": "isoCode",
+            "required": true,
+            "in": "path",
+            "description": "ISO 3166-1 alpha-2 country code.",
+            "schema": {
+              "pattern": "^[A-Z]{2}$",
+              "example": "TR",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Removed, already absent, or isoCode names no country — all answer identically."
+          },
+          "401": {
+            "description": "errors.auth.unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Idempotent remove — unfavorite one country.",
+        "tags": [
+          "favorites"
+        ]
+      }
     }
   },
   "info": {
@@ -5646,6 +5889,42 @@
         "required": [
           "lastPositionSeconds",
           "watched"
+        ]
+      },
+      "FavoriteDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": [
+              "province",
+              "country"
+            ],
+            "type": "string",
+            "description": "Which kind of target this favorite names."
+          },
+          "plateCode": {
+            "type": "string",
+            "nullable": true,
+            "example": "34",
+            "description": "provinces.plate_code. Set iff type === \"province\"; null otherwise."
+          },
+          "isoCode": {
+            "type": "string",
+            "nullable": true,
+            "example": "TR",
+            "description": "countries.iso_code. Set iff type === \"country\"; null otherwise."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When this favorite was created, UTC."
+          }
+        },
+        "required": [
+          "type",
+          "plateCode",
+          "isoCode",
+          "createdAt"
         ]
       }
     }
