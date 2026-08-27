@@ -169,7 +169,13 @@ describe('Country (e2e)', () => {
     realSeed = await seedWorld(dataSource); // default SEED_COUNTRIES — the real pilot batch
     // Clear the real rows so the MECHANISM phases below run on synthetic fixtures in isolation
     //   (their exact-count and ISO-order assertions must not see the real countries).
-    await repo.clear();
+    // `{ cascade: true }` is required as of UYELIK-07: `favorites.country_id` now references
+    // `countries(id)` (RESTRICT), and a plain TRUNCATE refuses when ANY table references the
+    // target — regardless of the FK's own ON DELETE action or whether it holds zero rows, which
+    // it always does here (this point in the suite predates the app boot, so nothing has ever
+    // written to `favorites`). CASCADE truncates the still-empty `favorites` table too — no data
+    // loss, since there is none to lose.
+    await repo.clear({ cascade: true });
     insertSeed = await seedWorld(dataSource, FIXTURES);
     zzUpdatedAtAfterInsert = (
       await repo.findOneByOrFail({ isoCode: 'ZZ' })
@@ -252,6 +258,9 @@ describe('Country (e2e)', () => {
       // UYELIK-05: `video_progress` carries foreign keys to both `users(id)` and
       // `book_videos(id)`, so its migration MUST stay ordered after both.
       'InitVideoProgress1787800000000',
+      // UYELIK-07: `favorites` carries foreign keys to `users(id)`, `provinces(id)` and
+      // `countries(id)`, so its migration MUST stay ordered after all three.
+      'InitFavorites1787900000000',
     ]);
   });
 
