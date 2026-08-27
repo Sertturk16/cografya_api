@@ -136,17 +136,24 @@ describe('Video progress (e2e, real Postgres)', () => {
   });
 
   describe('the auth boundary', () => {
-    it('GET with no Authorization header -> 401', async () => {
+    it('GET with no Authorization header -> 401, and that 401 STILL carries Cache-Control: no-store', async () => {
+      // The guard-rejected half of `VideoProgressNoStoreMiddleware`'s own claim — middleware runs
+      // BEFORE guards, so this must not depend on the handler ever running (PR #141 round-1 IMPORTANT
+      // fix; the `@Header()` decorator this replaces would have missed exactly this response).
       const video = nextVideo();
-      await request(app.getHttpServer()).get(`/api/video-progress/${video.id}`).expect(401);
+      const response = await request(app.getHttpServer())
+        .get(`/api/video-progress/${video.id}`)
+        .expect(401);
+      expect(response.headers['cache-control']).toBe('no-store');
     });
 
-    it('PUT with no Authorization header -> 401', async () => {
+    it('PUT with no Authorization header -> 401, and that 401 STILL carries Cache-Control: no-store', async () => {
       const video = nextVideo();
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .put(`/api/video-progress/${video.id}`)
         .send({ lastPositionSeconds: 10, watched: false })
         .expect(401);
+      expect(response.headers['cache-control']).toBe('no-store');
     });
   });
 
@@ -202,6 +209,9 @@ describe('Video progress (e2e, real Postgres)', () => {
       .set(bearer(userAToken))
       .send({ lastPositionSeconds: 120, watched: false })
       .expect(200);
+    // The success-path half of `VideoProgressNoStoreMiddleware`'s claim — per-user progress must
+    // never be cached (plan §5.7's personal-data flag).
+    expect(putResponse.headers['cache-control']).toBe('no-store');
 
     const body = putResponse.body as Record<string, unknown>;
     expect(Object.keys(body).sort()).toEqual([
@@ -224,6 +234,7 @@ describe('Video progress (e2e, real Postgres)', () => {
       .set(bearer(userAToken))
       .expect(200);
     expect(getResponse.body).toEqual(body);
+    expect(getResponse.headers['cache-control']).toBe('no-store');
   });
 
   it('PUT the identical payload twice -> 200 both times, exactly one row (idempotency)', async () => {
