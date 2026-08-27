@@ -33,6 +33,12 @@ re-asserted, `token_version` bumped to invalidate any previously-issued access t
 than erroring or duplicating — the row's `id` is stable across resets, so any `video_progress`
 rows already saved under it survive.
 
+**Caveat:** `--password`/`AUDIT_ACCOUNT_PASSWORD` carry the password through this process's own
+argv/environ for the run's duration, which another local user on the same machine could read
+(`ps aux`, `/proc/<pid>/environ`) — unlike the default no-argument path, which only ever writes
+the password to this run's own stdout. Accepted for a single-developer local machine and a
+synthetic audit account; prefer the no-argument default when possible.
+
 See the file's own header for the full reasoning, including why it duplicates rather than
 imports the app's Argon2 profile and password policy (`credential-fixture.ts`'s header) and why
 the local-only check is DNS-resolved rather than string-only (`local-database-guard.ts`'s

@@ -46,11 +46,21 @@ export function isLoopbackHostname(rawHostname: string): boolean {
   return ALLOWED_LOOPBACK_HOSTNAMES.has(hostname);
 }
 
-/** True only for a resolved address inside the loopback range: `127.0.0.0/8` or `::1`. */
+/** One 0-255 octet, no leading zero required or forbidden — matches how `dns.lookup()` renders it. */
+const OCTET = '(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])';
+const LOOPBACK_V4_PATTERN = new RegExp(`^127\\.${OCTET}\\.${OCTET}\\.${OCTET}$`);
+
+/**
+ * True only for a resolved address inside the loopback range: `127.0.0.0/8` or `::1`. Each
+ * trailing octet is bounded to its real 0-255 range (defense in depth — today's only callers
+ * are real `dns.lookup()` output or test literals, so an out-of-range octet never actually
+ * reaches this function, but an unbounded `\d{1,3}` would silently call e.g. `127.999.999.999`
+ * loopback too).
+ */
 export function isLoopbackAddress(address: string): boolean {
   if (address === '::1') return true;
   const ipv4 = address.startsWith('::ffff:') ? address.slice('::ffff:'.length) : address;
-  return /^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ipv4);
+  return LOOPBACK_V4_PATTERN.test(ipv4);
 }
 
 /** Injectable so the spec can pin both the positive and the "hostname lies" negative case. */

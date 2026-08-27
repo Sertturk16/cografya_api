@@ -20,10 +20,12 @@ describe('isPasswordPolicyCompliant', () => {
   });
 
   it('accepts exactly at the boundary lengths', () => {
-    expect(isPasswordPolicyCompliant('Ab1defg'.slice(0, PASSWORD_MIN_LENGTH))).toBe(
-      isPasswordPolicyCompliant('Ab1defg'.slice(0, PASSWORD_MIN_LENGTH)),
-    );
+    expect(isPasswordPolicyCompliant('Ab1defg'.slice(0, PASSWORD_MIN_LENGTH))).toBe(true);
     expect(isPasswordPolicyCompliant('Ab1' + 'a'.repeat(PASSWORD_MAX_LENGTH - 3))).toBe(true);
+  });
+
+  it('rejects exactly one character short of the minimum length', () => {
+    expect(isPasswordPolicyCompliant('Ab1defg'.slice(0, PASSWORD_MIN_LENGTH - 1))).toBe(false);
   });
 });
 

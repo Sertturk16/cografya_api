@@ -25,6 +25,10 @@ describe('isLoopbackHostname', () => {
     expect(isLoopbackHostname('db.production.example.com')).toBe(false);
     expect(isLoopbackHostname('10.0.0.5')).toBe(false);
   });
+
+  it('rejects a percent-encoded spelling of "localhost" (TA143-M3) — `new URL` never decodes it, so it never reaches this function as the plain string', () => {
+    expect(isLoopbackHostname('%6c%6f%63%61%6c%68%6f%73%74')).toBe(false);
+  });
 });
 
 describe('isLoopbackAddress', () => {
@@ -39,6 +43,12 @@ describe('isLoopbackAddress', () => {
     expect(isLoopbackAddress('10.0.0.5')).toBe(false);
     expect(isLoopbackAddress('192.168.1.1')).toBe(false);
     expect(isLoopbackAddress('::ffff:c0a8:101')).toBe(false);
+  });
+
+  it('rejects an out-of-range octet even though it starts with the loopback prefix (SEC143-M2)', () => {
+    expect(isLoopbackAddress('127.999.999.999')).toBe(false);
+    expect(isLoopbackAddress('127.0.0.256')).toBe(false);
+    expect(isLoopbackAddress('127.300.0.1')).toBe(false);
   });
 });
 
@@ -68,6 +78,17 @@ describe('assertLocalDatabaseUrl', () => {
       lookup,
     );
     expect(target.host).toBe('[::1]');
+  });
+
+  it('REFUSES a percent-encoded spelling of "localhost" outright, without ever calling DNS (TA143-M3)', async () => {
+    const lookup = jest.fn<ReturnType<DnsLookupFn>, Parameters<DnsLookupFn>>();
+    await expect(
+      assertLocalDatabaseUrl(
+        'postgresql://cografya:cografya_dev@%6c%6f%63%61%6c%68%6f%73%74:5433/cografya',
+        lookup,
+      ),
+    ).rejects.toThrow(NonLocalDatabaseError);
+    expect(lookup).not.toHaveBeenCalled();
   });
 
   it('REFUSES a non-local hostname outright, without ever calling DNS', async () => {
