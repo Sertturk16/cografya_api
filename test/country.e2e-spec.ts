@@ -261,6 +261,9 @@ describe('Country (e2e)', () => {
       // UYELIK-07: `favorites` carries foreign keys to `users(id)`, `provinces(id)` and
       // `countries(id)`, so its migration MUST stay ordered after all three.
       'InitFavorites1787900000000',
+      // UYELIK-09: `game_rounds` carries a foreign key to `users(id)` only, so its migration
+      // MUST stay ordered after `InitUsers`.
+      'InitGameRounds1788000000000',
     ]);
   });
 

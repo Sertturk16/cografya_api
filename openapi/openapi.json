@@ -1709,6 +1709,129 @@
           "favorites"
         ]
       }
+    },
+    "/api/game-rounds": {
+      "post": {
+        "description": "Always 200, never 201 — the resource's final state is identical whether this call created or found the row, matching this repo's established idempotent-write convention (video-progress/favorites). Resubmitting the same clientRoundId for the same caller returns the ORIGINAL recorded values, even if the resubmitted body differs.",
+        "operationId": "GameRoundsController_submit",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitGameRoundRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameRoundDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "errors.gameRounds.invalidSummary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "errors.auth.unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Idempotent submit — record the result of a completed or player-ended-early round.",
+        "tags": [
+          "game-rounds"
+        ]
+      },
+      "get": {
+        "description": "The shared pagination envelope, not a plain array — this is the first genuinely unbounded per-user list in this repo (a round-history row is created per played round, with no corpus ceiling).",
+        "operationId": "GameRoundsController_listMine",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page to read, 1-based. A page past the end answers 200 with an empty items array.",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "format": "int32",
+              "default": 1,
+              "example": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "description": "Rows per page, most-recent-first.",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "format": "int32",
+              "default": 20,
+              "example": 20,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GameRoundListDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "errors.auth.unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "The caller's own round history, paginated, most-recent-first.",
+        "tags": [
+          "game-rounds"
+        ]
+      }
     }
   },
   "info": {
@@ -5925,6 +6048,192 @@
           "plateCode",
           "isoCode",
           "createdAt"
+        ]
+      },
+      "SubmitGameRoundRequestDto": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40,
+            "pattern": "^[a-z][a-z0-9-]{0,39}$",
+            "example": "provinces",
+            "description": "Opaque game-mode tag, echoed back unchanged. Never validated against a closed set."
+          },
+          "clientRoundId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "example": "018f2f3a-9c3e-7b2a-8b9d-2e6f1a7c9d40",
+            "description": "Opaque, client-generated per-round id. Together with the caller, this is the idempotency key: resubmitting the same value returns the row as it was first recorded."
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "example": 87
+          },
+          "found": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000,
+            "example": 70
+          },
+          "firstTry": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000,
+            "example": 60
+          },
+          "total": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000,
+            "example": 81
+          },
+          "poolTotal": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000,
+            "example": 81
+          },
+          "totalWrongs": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100000,
+            "example": 12
+          },
+          "endedEarly": {
+            "type": "boolean",
+            "example": false
+          },
+          "completionTimeSeconds": {
+            "type": "number",
+            "nullable": true,
+            "minimum": 0,
+            "maximum": 21600,
+            "example": null,
+            "description": "Elapsed seconds, if the caller has one to send. The current client engine tracks no clock (`DEC 2026-07-30m/30n`) and omits this field entirely — omitted or explicit null are both accepted and stored as null."
+          }
+        },
+        "required": [
+          "mode",
+          "clientRoundId",
+          "score",
+          "found",
+          "firstTry",
+          "total",
+          "poolTotal",
+          "totalWrongs",
+          "endedEarly"
+        ]
+      },
+      "GameRoundDto": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "example": "provinces"
+          },
+          "clientRoundId": {
+            "type": "string",
+            "example": "018f2f3a-9c3e-7b2a-8b9d-2e6f1a7c9d40"
+          },
+          "score": {
+            "type": "number",
+            "example": 87
+          },
+          "found": {
+            "type": "number",
+            "example": 70
+          },
+          "firstTry": {
+            "type": "number",
+            "example": 60
+          },
+          "total": {
+            "type": "number",
+            "example": 81
+          },
+          "poolTotal": {
+            "type": "number",
+            "example": 81
+          },
+          "totalWrongs": {
+            "type": "number",
+            "example": 12
+          },
+          "endedEarly": {
+            "type": "boolean",
+            "example": false
+          },
+          "completionTimeSeconds": {
+            "type": "number",
+            "nullable": true,
+            "example": null,
+            "description": "Elapsed seconds, or null when the submission carried none."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When this round was recorded, UTC."
+          }
+        },
+        "required": [
+          "mode",
+          "clientRoundId",
+          "score",
+          "found",
+          "firstTry",
+          "total",
+          "poolTotal",
+          "totalWrongs",
+          "endedEarly",
+          "createdAt"
+        ]
+      },
+      "GameRoundListDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number",
+            "minimum": 1,
+            "example": 1,
+            "description": "Requested page, 1-based."
+          },
+          "pageSize": {
+            "type": "number",
+            "minimum": 1,
+            "example": 50,
+            "description": "Requested page size. Each endpoint documents its own ceiling."
+          },
+          "total": {
+            "type": "number",
+            "minimum": 0,
+            "example": 630,
+            "description": "Total rows matching the applied filter, across all pages."
+          },
+          "hasMore": {
+            "type": "boolean",
+            "example": true,
+            "description": "Whether a further page exists after this one."
+          },
+          "items": {
+            "description": "The page of the caller's own rounds, ordered by createdAt DESCENDING (most recent first).",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GameRoundDto"
+            }
+          }
+        },
+        "required": [
+          "page",
+          "pageSize",
+          "total",
+          "hasMore",
+          "items"
         ]
       }
     }
