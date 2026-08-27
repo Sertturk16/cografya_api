@@ -4348,6 +4348,11 @@
       "BookVideoDto": {
         "type": "object",
         "properties": {
+          "bookVideoId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "book_videos.id — the identifier both video-progress endpoints (GET/PUT /api/video-progress/{bookVideoId}) key on for this exact video."
+          },
           "denemeNo": {
             "type": "number",
             "minimum": 1,
@@ -4378,6 +4383,7 @@
           }
         },
         "required": [
+          "bookVideoId",
           "denemeNo",
           "youtubeVideoId",
           "questions",

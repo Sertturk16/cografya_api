@@ -93,7 +93,7 @@ describe('openapi/openapi.json — book contract', () => {
       'attribution',
     ],
     BookCoverageDto: ['videoCount', 'questionCount', 'denemeNumbers', 'denemeCount'],
-    BookVideoDto: ['denemeNo', 'youtubeVideoId', 'questions', 'youtube'],
+    BookVideoDto: ['bookVideoId', 'denemeNo', 'youtubeVideoId', 'questions', 'youtube'],
     BookVideoQuestionDto: ['questionNo', 'startSecond'],
     BookVideoYoutubeDto: [
       'thumbnailUrl',

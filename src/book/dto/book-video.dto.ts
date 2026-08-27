@@ -14,6 +14,14 @@ import { BookVideoYoutubeDto } from './book-video-youtube.dto';
  */
 export class BookVideoDto {
   @ApiProperty({
+    format: 'uuid',
+    description:
+      'book_videos.id — the identifier both video-progress endpoints ' +
+      '(GET/PUT /api/video-progress/{bookVideoId}) key on for this exact video.',
+  })
+  bookVideoId!: string;
+
+  @ApiProperty({
     type: Number,
     minimum: 1,
     example: 12,
