@@ -245,6 +245,27 @@ describe('Favorites (e2e, real Postgres)', () => {
       expect(count).toBe(1);
     });
 
+    it('a concurrent PUT + DELETE on the same never-before-favorited province -> the PUT never surfaces a raw 500 (SFH144-I1 race)', async () => {
+      // Pre-fix, `addProvince` committed a plain INSERT then re-read the row with a separate
+      // `findOneOrFail` — a concurrent DELETE on the exact same (user, target) pair could land in
+      // the window between those two statements and remove the row, so the re-read found nothing
+      // and an uncaught `EntityNotFoundError` surfaced as a bogus 500. The fix collapses both
+      // statements into one atomic `INSERT ... ON CONFLICT DO UPDATE ... RETURNING`, so no such
+      // window exists any more regardless of which side of the race wins.
+      const province = nextProvince();
+      const [putResponse, deleteResponse] = await Promise.all([
+        request(app.getHttpServer())
+          .put(`/api/favorites/provinces/${province.plateCode}`)
+          .set(bearer(userAToken)),
+        request(app.getHttpServer())
+          .delete(`/api/favorites/provinces/${province.plateCode}`)
+          .set(bearer(userAToken)),
+      ]);
+
+      expect(putResponse.status).toBe(200);
+      expect(deleteResponse.status).toBe(204);
+    });
+
     it('PUT a well-formed but nonexistent plateCode -> 404 errors.favorites.provinceNotFound', async () => {
       const response = await request(app.getHttpServer())
         .put('/api/favorites/provinces/99')
@@ -320,6 +341,21 @@ describe('Favorites (e2e, real Postgres)', () => {
         .getRepository(Favorite)
         .count({ where: { userId: userAId, countryId: country.id } });
       expect(count).toBe(1);
+    });
+
+    it('a concurrent PUT + DELETE on the same never-before-favorited country -> the PUT never surfaces a raw 500 (SFH144-I1 race, country mirror)', async () => {
+      const country = nextCountry();
+      const [putResponse, deleteResponse] = await Promise.all([
+        request(app.getHttpServer())
+          .put(`/api/favorites/countries/${country.isoCode}`)
+          .set(bearer(userAToken)),
+        request(app.getHttpServer())
+          .delete(`/api/favorites/countries/${country.isoCode}`)
+          .set(bearer(userAToken)),
+      ]);
+
+      expect(putResponse.status).toBe(200);
+      expect(deleteResponse.status).toBe(204);
     });
 
     it('PUT a well-formed but nonexistent isoCode -> 404 errors.favorites.countryNotFound', async () => {
@@ -516,6 +552,41 @@ describe('Favorites (e2e, real Postgres)', () => {
         .expect(200);
       const aItems = getA.body as Record<string, unknown>[];
       expect(aItems.some((item) => item.plateCode === province.plateCode)).toBe(true);
+    });
+
+    // TA144-M1: the block above only ever exercised the province DELETE surface; this is the
+    // dedicated country mirror the finding asked for.
+    it("B never sees A's favorited country; B's DELETE on the same isoCode returns 204 but leaves A's row in place", async () => {
+      const country = nextCountry();
+      await request(app.getHttpServer())
+        .put(`/api/favorites/countries/${country.isoCode}`)
+        .set(bearer(userAToken))
+        .expect(200);
+
+      const getB = await request(app.getHttpServer())
+        .get('/api/favorites')
+        .set(bearer(userBToken))
+        .expect(200);
+      const bItems = getB.body as Record<string, unknown>[];
+      expect(bItems.some((item) => item.isoCode === country.isoCode)).toBe(false);
+
+      // B's delete of the SAME isoCode A favorited — must not touch A's row.
+      await request(app.getHttpServer())
+        .delete(`/api/favorites/countries/${country.isoCode}`)
+        .set(bearer(userBToken))
+        .expect(204);
+
+      const stillThere = await dataSource
+        .getRepository(Favorite)
+        .findOne({ where: { userId: userAId, countryId: country.id } });
+      expect(stillThere).not.toBeNull();
+
+      const getA = await request(app.getHttpServer())
+        .get('/api/favorites')
+        .set(bearer(userAToken))
+        .expect(200);
+      const aItems = getA.body as Record<string, unknown>[];
+      expect(aItems.some((item) => item.isoCode === country.isoCode)).toBe(true);
     });
   });
 

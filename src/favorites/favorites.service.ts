@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository } from 'typeorm';
 import { Country } from '../country/entities/country.entity';
@@ -16,6 +16,8 @@ import { FAVORITES_ERROR_KEYS } from './favorites-error-keys';
  */
 @Injectable()
 export class FavoritesService {
+  private readonly logger = new Logger('Favorites');
+
   constructor(
     @InjectRepository(Favorite)
     private readonly favorites: Repository<Favorite>,
@@ -50,40 +52,84 @@ export class FavoritesService {
     const plateCodeById = new Map(provinces.map((province) => [province.id, province.plateCode]));
     const isoCodeById = new Map(countries.map((country) => [country.id, country.isoCode]));
 
-    return rows.map((row) =>
-      toDto(
-        row,
-        row.provinceId === null ? null : (plateCodeById.get(row.provinceId) ?? null),
-        row.countryId === null ? null : (isoCodeById.get(row.countryId) ?? null),
-      ),
-    );
+    return rows.map((row) => {
+      // `province_id`/`country_id` are `ON DELETE RESTRICT` (favorite.entity.ts), and neither
+      // `seedGeography` nor `seedWorld` ever deletes a row (plan §2) — so a dangling reference
+      // here should be structurally impossible via this API surface today. It is handled
+      // defensively anyway (SFH144-M1): a lookup miss falls back to `null` rather than throwing,
+      // but that fallback is now LOUD, matching `ProvinceClimate`'s own "this should never happen,
+      // serve null and log" convention (`province.service.ts`) rather than silently minting a
+      // `FavoriteDto` that violates its own documented contract with no signal anywhere.
+      const plateCode =
+        row.provinceId === null ? null : (plateCodeById.get(row.provinceId) ?? null);
+      if (row.provinceId !== null && plateCode === null) {
+        this.logger.warn(
+          `favorites row ${row.id} references province_id ${row.provinceId}, which no longer ` +
+            `resolves to a provinces row (province_id is ON DELETE RESTRICT — this should never ` +
+            `happen). Serving plateCode: null rather than throwing.`,
+        );
+      }
+      const isoCode = row.countryId === null ? null : (isoCodeById.get(row.countryId) ?? null);
+      if (row.countryId !== null && isoCode === null) {
+        this.logger.warn(
+          `favorites row ${row.id} references country_id ${row.countryId}, which no longer ` +
+            `resolves to a countries row (country_id is ON DELETE RESTRICT — this should never ` +
+            `happen). Serving isoCode: null rather than throwing.`,
+        );
+      }
+      return toDto(
+        row.provinceId !== null ? FavoriteTargetType.Province : FavoriteTargetType.Country,
+        plateCode,
+        isoCode,
+        row.createdAt,
+      );
+    });
   }
 
   /**
    * `PUT .../provinces/{plateCode}` — idempotent add. Resolves `plateCode` to the real row BEFORE
-   * any write touches `favorites` (404 if unknown), then a plain `INSERT … ON CONFLICT (user_id,
-   * province_id) DO NOTHING` (plan §5.3): there is nothing to update on conflict — no column
-   * changes value on a repeat add — so `DO NOTHING` is the correct, simpler idiom here, not
-   * `video_progress`'s `DO UPDATE`. Concurrency-safe for the same reason: `ON CONFLICT` is atomic
-   * at the Postgres row-lock level, so two concurrent adds for the same pair serialize inside
-   * Postgres and never produce two rows. Because `DO NOTHING` returns no row on a conflict, the
-   * row is always re-read by `(userId, provinceId)` afterward to build the echoed `FavoriteDto`
-   * (identical pattern to `VideoProgressService.upsert`'s post-write `findOneOrFail`).
+   * any write touches `favorites` (404 if unknown), then a SINGLE atomic `INSERT … ON CONFLICT
+   * (user_id, province_id) DO UPDATE … RETURNING` (plan §5.3, race fix `SFH144-I1`/round 2).
+   *
+   * This used to be `DO NOTHING` followed by a separate re-read (`findOneOrFail`) to fetch the
+   * row for the echoed `FavoriteDto`, on the reasoning that `DO NOTHING` returns no row on
+   * conflict. That reasoning was correct but incomplete: the window between the INSERT committing
+   * and the follow-up SELECT running was NOT safe here the way it is in
+   * `VideoProgressService.upsert` (which this was copied from) — `video_progress` has no
+   * `@Delete()` route, so no concurrent request can ever remove the row in that window, while
+   * `removeProvince` below is exactly such a route for the exact same `(user_id, province_id)`
+   * pair. A concurrent add + remove could land the DELETE inside that window, so the re-read found
+   * no row and threw an uncaught `EntityNotFoundError` — surfacing as a bogus 500 on a request
+   * that had, in fact, already been satisfied.
+   *
+   * `DO UPDATE SET "user_id" = EXCLUDED."user_id"` is a no-op write on conflict (every column that
+   * matters — `created_at` — is left untouched, so a repeat add still echoes the ORIGINAL creation
+   * timestamp) whose only purpose is making `RETURNING` fire on both branches: the statement now
+   * always inserts-or-updates and returns exactly one row in one round trip, so there is no window
+   * left for a concurrent `DELETE` on the same pair to land in between two separate statements —
+   * this is the same atomic upsert-and-return idiom `AuthRateLimitService.consume` already uses
+   * (`auth-rate-limit.service.ts`), not a new pattern.
    */
   async addProvince(userId: string, plateCode: string): Promise<FavoriteDto> {
     const province = await this.provinces.findOne({ where: { plateCode } });
     if (province === null) throw new NotFoundException(FAVORITES_ERROR_KEYS.provinceNotFound);
 
-    await this.dataSource.query(
+    const rows = await this.dataSource.query<{ created_at: Date }[]>(
       `INSERT INTO "favorites" ("user_id", "province_id")
        VALUES ($1, $2)
-       ON CONFLICT ("user_id", "province_id") DO NOTHING`,
+       ON CONFLICT ("user_id", "province_id") DO UPDATE SET "user_id" = EXCLUDED."user_id"
+       RETURNING "created_at"`,
       [userId, province.id],
     );
-    const row = await this.favorites.findOneOrFail({
-      where: { userId, provinceId: province.id },
-    });
-    return toDto(row, province.plateCode, null);
+    const [row] = rows;
+    if (row === undefined) {
+      // Cannot happen for an `INSERT … ON CONFLICT DO UPDATE` (unlike the plain-INSERT
+      // `AuthRateLimitService` case this mirrors, there is no DO-NOTHING branch here that could
+      // legitimately return zero rows) — kept as a fail-closed guard against
+      // `noUncheckedIndexedAccess`, not a reachable runtime path.
+      throw new Error('favorites: province upsert returned no row');
+    }
+    return toDto(FavoriteTargetType.Province, province.plateCode, null, row.created_at);
   }
 
   /**
@@ -100,19 +146,50 @@ export class FavoritesService {
     await this.favorites.delete({ userId, provinceId: province.id });
   }
 
-  /** `PUT .../countries/{isoCode}` — idempotent add, mirroring {@link addProvince} exactly. */
+  /**
+   * `PUT .../countries/{isoCode}` — idempotent add. Resolves `isoCode` to the real row BEFORE any
+   * write touches `favorites` (404 if unknown), then a SINGLE atomic `INSERT … ON CONFLICT
+   * (user_id, country_id) DO UPDATE … RETURNING` (plan §5.3, race fix `SFH144-I1`/round 2).
+   *
+   * This used to be `DO NOTHING` followed by a separate re-read (`findOneOrFail`) to fetch the
+   * row for the echoed `FavoriteDto`, on the reasoning that `DO NOTHING` returns no row on
+   * conflict. That reasoning was correct but incomplete: the window between the INSERT committing
+   * and the follow-up SELECT running was NOT safe here the way it is in
+   * `VideoProgressService.upsert` (which this was copied from) — `video_progress` has no
+   * `@Delete()` route, so no concurrent request can ever remove the row in that window, while
+   * `removeCountry` below is exactly such a route for the exact same `(user_id, country_id)` pair.
+   * A concurrent add + remove could land the DELETE inside that window, so the re-read found no
+   * row and threw an uncaught `EntityNotFoundError` — surfacing as a bogus 500 on a request that
+   * had, in fact, already been satisfied.
+   *
+   * `DO UPDATE SET "user_id" = EXCLUDED."user_id"` is a no-op write on conflict (every column that
+   * matters — `created_at` — is left untouched, so a repeat add still echoes the ORIGINAL creation
+   * timestamp) whose only purpose is making `RETURNING` fire on both branches: the statement now
+   * always inserts-or-updates and returns exactly one row in one round trip, so there is no window
+   * left for a concurrent `DELETE` on the same pair to land in between two separate statements —
+   * this is the same atomic upsert-and-return idiom `AuthRateLimitService.consume` already uses
+   * (`auth-rate-limit.service.ts`), not a new pattern.
+   */
   async addCountry(userId: string, isoCode: string): Promise<FavoriteDto> {
     const country = await this.countries.findOne({ where: { isoCode } });
     if (country === null) throw new NotFoundException(FAVORITES_ERROR_KEYS.countryNotFound);
 
-    await this.dataSource.query(
+    const rows = await this.dataSource.query<{ created_at: Date }[]>(
       `INSERT INTO "favorites" ("user_id", "country_id")
        VALUES ($1, $2)
-       ON CONFLICT ("user_id", "country_id") DO NOTHING`,
+       ON CONFLICT ("user_id", "country_id") DO UPDATE SET "user_id" = EXCLUDED."user_id"
+       RETURNING "created_at"`,
       [userId, country.id],
     );
-    const row = await this.favorites.findOneOrFail({ where: { userId, countryId: country.id } });
-    return toDto(row, null, country.isoCode);
+    const [row] = rows;
+    if (row === undefined) {
+      // Cannot happen for an `INSERT … ON CONFLICT DO UPDATE` (unlike the plain-INSERT
+      // `AuthRateLimitService` case this mirrors, there is no DO-NOTHING branch here that could
+      // legitimately return zero rows) — kept as a fail-closed guard against
+      // `noUncheckedIndexedAccess`, not a reachable runtime path.
+      throw new Error('favorites: country upsert returned no row');
+    }
+    return toDto(FavoriteTargetType.Country, null, country.isoCode, row.created_at);
   }
 
   /** `DELETE .../countries/{isoCode}` — unconditionally idempotent, mirroring {@link removeProvince}. */
@@ -123,11 +200,11 @@ export class FavoritesService {
   }
 }
 
-function toDto(row: Favorite, plateCode: string | null, isoCode: string | null): FavoriteDto {
-  return {
-    type: row.provinceId !== null ? FavoriteTargetType.Province : FavoriteTargetType.Country,
-    plateCode,
-    isoCode,
-    createdAt: row.createdAt.toISOString(),
-  };
+function toDto(
+  type: FavoriteTargetType,
+  plateCode: string | null,
+  isoCode: string | null,
+  createdAt: Date,
+): FavoriteDto {
+  return { type, plateCode, isoCode, createdAt: createdAt.toISOString() };
 }
