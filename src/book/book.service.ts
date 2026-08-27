@@ -219,6 +219,7 @@ export class BookService {
     const nowMs = Date.now();
 
     const videoDtos: BookVideoDto[] = videos.map((video) => ({
+      bookVideoId: video.id,
       denemeNo: video.denemeNo,
       youtubeVideoId: video.youtubeVideoId,
       questions: (questionsByVideo.get(video.id) ?? []).map((question) => ({

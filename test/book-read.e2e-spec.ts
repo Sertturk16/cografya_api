@@ -84,6 +84,7 @@ interface Detail extends ListItem {
     denemeCount: number;
   };
   videos: {
+    bookVideoId: string;
     denemeNo: number;
     youtubeVideoId: string;
     questions: { questionNo: number; startSecond: number }[];
@@ -284,6 +285,33 @@ describe('Book read path (e2e, real Postgres)', () => {
         // SPEC §13 invariant 4, on the served id rather than on the column.
         expect(video.youtubeVideoId).toMatch(/^[A-Za-z0-9_-]{11}$/);
       }
+    });
+
+    it('publishes bookVideoId on every video, matching book_videos.id exactly', async () => {
+      app = await bootApp();
+      const list = await request(app.getHttpServer()).get('/api/books').expect(200);
+      const first = (list.body as ListEnvelope).items[0];
+      if (first === undefined) throw new Error('no book seeded');
+      const bookRow = await dataSource
+        .getRepository(Book)
+        .findOneByOrFail({ slugTr: first.slugTr });
+      const body = (
+        await request(app.getHttpServer()).get(`/api/books/${first.slugTr}`).expect(200)
+      ).body as Detail;
+
+      expect(body.videos.length).toBeGreaterThan(0);
+      for (const video of body.videos) {
+        expect(video.bookVideoId).toMatch(
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+        );
+        const entityRow = await dataSource
+          .getRepository(BookVideo)
+          .findOneOrFail({ where: { bookId: bookRow.id, denemeNo: video.denemeNo } });
+        expect(video.bookVideoId).toBe(entityRow.id);
+      }
+      // Distinct per video within one book — a mapping bug that served the same id twice would
+      // still pass the per-row equality checks above.
+      expect(new Set(body.videos.map((v) => v.bookVideoId)).size).toBe(body.videos.length);
     });
 
     it('serves youtube: null on every video while the snapshot table is EMPTY', async () => {
