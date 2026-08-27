@@ -11,7 +11,14 @@ import { applyGlobalPrefix } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { seedGeography } from '../src/database/seeds/seed-geography';
 import { seedReference } from '../src/database/seeds/seed-reference';
+import {
+  GAME_ROUND_COMPLETION_TIME_SECONDS_MAX,
+  GAME_ROUND_COUNTER_MAX,
+  GAME_ROUND_TOTAL_WRONGS_MAX,
+} from '../src/game-rounds/dto/submit-game-round-request.dto';
 import { GameRound } from '../src/game-rounds/entities/game-round.entity';
+import { GAME_ROUND_SUBMIT_RATE_LIMIT } from '../src/game-rounds/game-round-submit-rate-limit.service';
+import { GAME_ROUNDS_ERROR_KEYS } from '../src/game-rounds/game-rounds-error-keys';
 import { Province } from '../src/province/entities/province.entity';
 import { District } from '../src/reference/entities/district.entity';
 
@@ -322,15 +329,27 @@ describe('Game rounds (e2e, real Postgres)', () => {
   });
 
   describe('submit — out-of-range values (400)', () => {
+    // `%s = %d -> 400` — lower AND upper bounds for every field that has both (CODE145-M1,
+    // PR #145 fix-round-2: this table used to test only the lower bound for every field except
+    // `score`). The three MAX constants are the SAME exported constants the DTO's own decorators
+    // use (`GAME_ROUND_COUNTER_MAX`/`GAME_ROUND_TOTAL_WRONGS_MAX`/
+    // `GAME_ROUND_COMPLETION_TIME_SECONDS_MAX`), declared once and reused here — the
+    // `BOOK_LIST_*` precedent the DTO's own docblock names.
     it.each([
       ['score', 101],
       ['score', -1],
       ['found', -1],
+      ['found', GAME_ROUND_COUNTER_MAX + 1],
       ['firstTry', -1],
+      ['firstTry', GAME_ROUND_COUNTER_MAX + 1],
       ['total', -1],
+      ['total', GAME_ROUND_COUNTER_MAX + 1],
       ['poolTotal', -1],
+      ['poolTotal', GAME_ROUND_COUNTER_MAX + 1],
       ['totalWrongs', -1],
+      ['totalWrongs', GAME_ROUND_TOTAL_WRONGS_MAX + 1],
       ['completionTimeSeconds', -1],
+      ['completionTimeSeconds', GAME_ROUND_COMPLETION_TIME_SECONDS_MAX + 1],
     ])('%s = %d -> 400', async (field, value) => {
       await request(app.getHttpServer())
         .post('/api/game-rounds')
@@ -366,6 +385,78 @@ describe('Game rounds (e2e, real Postgres)', () => {
         .send(validBody({ completionTimeSeconds: 340 }))
         .expect(200);
       expect(response.body).toMatchObject({ completionTimeSeconds: 340 });
+    });
+  });
+
+  describe('the per-user submission rate limit (PR #145 fix-round-2, SEC145-I1/VAL145-I1)', () => {
+    /**
+     * The SAME fixed-window formula `GameRoundSubmitRateLimitService.consume` uses
+     * (`Math.floor(now / windowMs) * windowMs`) — used here only to pre-seed
+     * `game_round_submit_rate_limits` directly via SQL, so a boundary case does not need
+     * `GAME_ROUND_SUBMIT_RATE_LIMIT.limit` (300) real HTTP round-trips to set up. The window is
+     * an HOUR wide, so the gap between computing this value and firing the immediate next
+     * request below (milliseconds) never crosses a window boundary in practice.
+     */
+    function currentWindowStart(): Date {
+      return new Date(
+        Math.floor(Date.now() / GAME_ROUND_SUBMIT_RATE_LIMIT.windowMs) *
+          GAME_ROUND_SUBMIT_RATE_LIMIT.windowMs,
+      );
+    }
+
+    async function seedAtCeiling(userId: string): Promise<void> {
+      await dataSource.query(
+        `INSERT INTO "game_round_submit_rate_limits"
+           ("user_id", "window_start", "attempt_count", "updated_at")
+         VALUES ($1, $2, $3, now())`,
+        [userId, currentWindowStart(), GAME_ROUND_SUBMIT_RATE_LIMIT.limit],
+      );
+    }
+
+    it('a fresh user well under the ceiling submits normally (200)', async () => {
+      const user = await createUser('game-rounds-ratelimit-fresh@example.test');
+      const token = await mintFor(user);
+
+      await request(app.getHttpServer())
+        .post('/api/game-rounds')
+        .set(bearer(token))
+        .send(validBody())
+        .expect(200);
+    });
+
+    it('at the ceiling, the next submission in the same window -> 429 tooManySubmissions, Cache-Control: no-store', async () => {
+      const user = await createUser('game-rounds-ratelimit-at-ceiling@example.test');
+      const token = await mintFor(user);
+      await seedAtCeiling(user.id);
+
+      const response = await request(app.getHttpServer())
+        .post('/api/game-rounds')
+        .set(bearer(token))
+        .send(validBody())
+        .expect(429);
+      expect((response.body as { message: string }).message).toBe(
+        GAME_ROUNDS_ERROR_KEYS.tooManySubmissions,
+      );
+      expect(response.headers['cache-control']).toBe('no-store');
+    });
+
+    it("a different user's counter is independent: one user at the ceiling (429) does not affect a second user's own submit (200) in the SAME window", async () => {
+      const throttledUser = await createUser('game-rounds-ratelimit-cross-a@example.test');
+      const throttledToken = await mintFor(throttledUser);
+      await seedAtCeiling(throttledUser.id);
+      await request(app.getHttpServer())
+        .post('/api/game-rounds')
+        .set(bearer(throttledToken))
+        .send(validBody())
+        .expect(429);
+
+      const freeUser = await createUser('game-rounds-ratelimit-cross-b@example.test');
+      const freeToken = await mintFor(freeUser);
+      await request(app.getHttpServer())
+        .post('/api/game-rounds')
+        .set(bearer(freeToken))
+        .send(validBody())
+        .expect(200);
     });
   });
 

@@ -1755,6 +1755,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "errors.gameRounds.tooManySubmissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           }
         },
         "security": [

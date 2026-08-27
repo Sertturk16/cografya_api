@@ -391,16 +391,15 @@ describe('Auth core schema (e2e)', () => {
     expect(instanceToPlain(explicitlySelected)).toEqual({});
   });
 
-  it('reverts and reapplies the latest migration (InitGameRounds) on an empty synthetic table', async () => {
-    // UYELIK-09 made `InitGameRounds` the new latest migration, superseding `InitFavorites`
-    // as the one this test exercises — the same living-test pattern
-    // `province.e2e-spec.ts`/`country.e2e-spec.ts` name explicitly ("adding a migration means
-    // editing" the test that pins the latest one). It is intentionally narrow: undoing it drops
-    // only `game_rounds`, leaving every other table — INCLUDING `favorites` (the PREVIOUS
-    // latest migration's own table) and `video_progress` (itself carrying two of the same
-    // FK-target tables `favorites` does) and the earlier `AddSessionRotationGrace` column — in
-    // place. Both directions matter because the down path must not touch anything outside this
-    // migration's own table.
+  it('reverts and reapplies the latest migration (InitGameRoundSubmitRateLimits) on an empty synthetic table', async () => {
+    // UYELIK-09 fix-round-2 made `InitGameRoundSubmitRateLimits` the new latest migration,
+    // superseding `InitGameRounds` as the one this test exercises — the same living-test
+    // pattern `province.e2e-spec.ts`/`country.e2e-spec.ts` name explicitly ("adding a migration
+    // means editing" the test that pins the latest one). It is intentionally narrow: undoing it
+    // drops only `game_round_submit_rate_limits`, leaving every other table — INCLUDING
+    // `game_rounds` (the PREVIOUS latest migration's own table), `favorites`, `video_progress`
+    // and the earlier `AddSessionRotationGrace` column — in place. Both directions matter
+    // because the down path must not touch anything outside this migration's own table.
     const counts = await dataSource.query<{ count: string }[]>(
       `SELECT count(*)::text AS count FROM users`,
     );
@@ -417,6 +416,7 @@ describe('Auth core schema (e2e)', () => {
           video_progress: string | null;
           favorites: string | null;
           game_rounds: string | null;
+          game_round_submit_rate_limits: string | null;
         }[]
       >(`
         SELECT
@@ -427,7 +427,8 @@ describe('Auth core schema (e2e)', () => {
           to_regclass('public.password_reset_tokens')::text AS reset_tokens,
           to_regclass('public.video_progress')::text AS video_progress,
           to_regclass('public.favorites')::text AS favorites,
-          to_regclass('public.game_rounds')::text AS game_rounds
+          to_regclass('public.game_rounds')::text AS game_rounds,
+          to_regclass('public.game_round_submit_rate_limits')::text AS game_round_submit_rate_limits
       `);
       return rows[0];
     };
@@ -441,6 +442,7 @@ describe('Auth core schema (e2e)', () => {
       video_progress: 'video_progress',
       favorites: 'favorites',
       game_rounds: 'game_rounds',
+      game_round_submit_rate_limits: 'game_round_submit_rate_limits',
     });
 
     const rotationGraceColumn = async (): Promise<string | null> => {
@@ -458,9 +460,9 @@ describe('Auth core schema (e2e)', () => {
 
     await dataSource.undoLastMigration();
 
-    // ONLY `game_rounds` disappears; every other table — including `favorites`, the PREVIOUS
-    // latest migration's own table, `video_progress`, and the earlier rotation-grace column —
-    // stays unchanged.
+    // ONLY `game_round_submit_rate_limits` disappears; every other table — including
+    // `game_rounds`, the PREVIOUS latest migration's own table, `favorites`, `video_progress`
+    // and the earlier rotation-grace column — stays unchanged.
     expect(await relationSnapshot()).toEqual({
       users: 'users',
       sessions: 'sessions',
@@ -469,7 +471,8 @@ describe('Auth core schema (e2e)', () => {
       reset_tokens: 'password_reset_tokens',
       video_progress: 'video_progress',
       favorites: 'favorites',
-      game_rounds: null,
+      game_rounds: 'game_rounds',
+      game_round_submit_rate_limits: null,
     });
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
 
@@ -490,6 +493,7 @@ describe('Auth core schema (e2e)', () => {
       video_progress: 'video_progress',
       favorites: 'favorites',
       game_rounds: 'game_rounds',
+      game_round_submit_rate_limits: 'game_round_submit_rate_limits',
     });
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
 

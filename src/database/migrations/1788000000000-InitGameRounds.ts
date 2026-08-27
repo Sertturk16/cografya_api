@@ -14,7 +14,13 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * ## `UQ_game_rounds_user_client_round` is also the `ON CONFLICT` target and the access-path index
  * It leads with `user_id`, so it already serves `WHERE user_id = ?` (the history read's own
  * filter) — no separate `IDX_game_rounds_user_id` is added. `GameRoundsService.submit` targets
- * this constraint by name in its atomic `INSERT … ON CONFLICT (…) DO UPDATE … RETURNING`.
+ * this constraint's COLUMN LIST — `ON CONFLICT ("user_id", "client_round_id")`, not
+ * `ON CONFLICT ON CONSTRAINT "UQ_game_rounds_user_client_round"` — in its atomic
+ * `INSERT … ON CONFLICT (…) DO UPDATE … RETURNING`; Postgres resolves the column-list form to
+ * whichever unique constraint or index matches those columns exactly, which today is this one
+ * (`CODE145-M2`, PR #145 fix-round-2: an earlier revision of this paragraph said "by name",
+ * which describes `ON CONFLICT ON CONSTRAINT`, a syntax this migration's own `submit` call does
+ * not use).
  *
  * ## Considered and explicitly deferred: a `(user_id, created_at)` composite index
  * Unlike `favorites` (bounded at <= 280 rows/user), this table's row count is unbounded per user

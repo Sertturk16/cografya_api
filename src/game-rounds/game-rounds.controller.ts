@@ -14,6 +14,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiTooManyRequestsResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { AccessTokenGuard } from '../auth/access-token.guard';
@@ -26,6 +27,7 @@ import { GameRoundListQueryDto } from './dto/game-round-list-query.dto';
 import { GameRoundListDto } from './dto/game-round-list.dto';
 import { GameRoundDto } from './dto/game-round.dto';
 import { SubmitGameRoundRequestDto } from './dto/submit-game-round-request.dto';
+import { GameRoundSubmitRateLimitGuard } from './game-round-submit-rate-limit.guard';
 import { GAME_ROUNDS_ERROR_KEYS } from './game-rounds-error-keys';
 import { GameRoundsService } from './game-rounds.service';
 
@@ -39,6 +41,15 @@ import { GameRoundsService } from './game-rounds.service';
  * `@NoTrustedClientExemption()` is present, each write touches only the caller's own row, is
  * idempotent, makes no external call, and has no fan-out cost.
  *
+ * **`submit` ALSO carries `GameRoundSubmitRateLimitGuard`, chained AFTER `AccessTokenGuard`
+ * (UYELIK-09 fix-round-2, `SEC145-I1`/`VAL145-I1`) — `listMine` does not.** The global
+ * IP-derived throttle above bounds request RATE per resolved identity, but not per
+ * AUTHENTICATED user — a single account fanned out across many IPs could otherwise grow
+ * `game_rounds` (the first genuinely unbounded per-user table in this repo) at an effectively
+ * unbounded rate. `listMine` is a read that creates no row, so it is out of that finding's
+ * scope and carries no second guard. See {@link GameRoundSubmitRateLimitGuard}'s own docblock
+ * for why the ordering is load-bearing and what it does and does not overlap with.
+ *
  * Every query in {@link GameRoundsService} filters by the `userId` taken from `@CurrentUser()`,
  * never from a client-supplied field — no DTO's request shape carries a `userId` at all, so
  * there is no field a caller could even attempt to override (the cross-user-isolation
@@ -51,7 +62,7 @@ export class GameRoundsController {
 
   @Post()
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard, GameRoundSubmitRateLimitGuard)
   @NoTrustedClientExemption()
   @ApiBearerAuth('access-token')
   @ApiOperation({
@@ -67,6 +78,10 @@ export class GameRoundsController {
   @ApiBadRequestResponse({
     type: ApiErrorDto,
     description: GAME_ROUNDS_ERROR_KEYS.invalidSummary,
+  })
+  @ApiTooManyRequestsResponse({
+    type: ApiErrorDto,
+    description: GAME_ROUNDS_ERROR_KEYS.tooManySubmissions,
   })
   async submit(
     @CurrentUser() user: AuthenticatedUser,

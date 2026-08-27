@@ -203,6 +203,11 @@ describe('Province (e2e)', () => {
       // UYELIK-09: `game_rounds` carries a foreign key to `users(id)` only, so its migration
       // MUST stay ordered after `InitUsers`.
       'InitGameRounds1788000000000',
+      // UYELIK-09 fix-round-2: `game_round_submit_rate_limits` carries a foreign key to
+      // `users(id)` only, so its migration MUST stay ordered after `InitUsers` — it does not
+      // need to stay ordered after `InitGameRounds`, but it is placed there anyway to keep the
+      // UYELIK-09 feature's two migrations adjacent.
+      'InitGameRoundSubmitRateLimits1788003600000',
     ]);
   });
 
