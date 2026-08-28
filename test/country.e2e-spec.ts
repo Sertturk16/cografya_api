@@ -269,6 +269,9 @@ describe('Country (e2e)', () => {
       // need to stay ordered after `InitGameRounds`, but it is placed there anyway to keep the
       // UYELIK-09 feature's two migrations adjacent.
       'InitGameRoundSubmitRateLimits1788003600000',
+      // UYELIK-11: `measurements` carries a foreign key to `users(id)` only, so its migration
+      // MUST stay ordered after `InitUsers`.
+      'InitMeasurements1788007200000',
     ]);
   });
 

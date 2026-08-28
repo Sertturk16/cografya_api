@@ -18,6 +18,7 @@ import { FavoritesModule } from './favorites/favorites.module';
 import { GameRoundsModule } from './game-rounds/game-rounds.module';
 import { HealthModule } from './health/health.module';
 import { MarineModule } from './marine/marine.module';
+import { MeasurementsModule } from './measurements/measurements.module';
 import { ProvinceModule } from './province/province.module';
 import { ReferenceModule } from './reference/reference.module';
 import { VideoProgressModule } from './video-progress/video-progress.module';
@@ -107,6 +108,12 @@ export const THROTTLE_LIMIT = 120;
     // clientRoundId are opaque values the client supplies and the API never resolves against a
     // second table (plan §5.1).
     GameRoundsModule,
+    // UYELIK-11: protected create/list/get/update-title/delete measurement endpoints (distance/
+    // area/coordinate). No scheduled work, no external provider, no new env key, and no relation
+    // to any other entity — type and points are opaque values the client supplies and the API
+    // never resolves against a second table (plan §5.1). The OpenAPI precondition for UYELIK-12
+    // (cografya_web consumption, a separate future task).
+    MeasurementsModule,
   ],
   providers: [
     // Rate limit every route by default; opt out per-route with @SkipThrottle,
