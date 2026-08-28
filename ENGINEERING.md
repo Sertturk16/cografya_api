@@ -11,8 +11,8 @@ is the local source of truth for how code lands here.
 - **Single writer:** Deniz. No one else commits to this repo.
 - **Precedence:** this file wins over the Deniz persona on repo specifics. For
   cross-team *process* (routing, delivery, the review-loop ownership), the
-  orchestration-root `ATLAS.md` (**Routing and acceptance**, **Review**, **Delivery and
-  canonical homes**) + `CONVENTIONS.md` remain authoritative — this file does not restate
+  orchestration-root `ATLAS.md` (**Routing and acceptance**, **Delivery and canonical
+  homes**, **Review**) + `CONVENTIONS.md` remain authoritative — this file does not restate
   or override them, it implements the api half.
 - **Sister repo:** `cografya_web` (Vera, single writer). We share **one contract**: the
   OpenAPI spec this repo generates. Never edit the web repo; coordinate contract changes
