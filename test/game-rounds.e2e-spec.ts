@@ -424,11 +424,12 @@ describe('Game rounds (e2e, real Postgres)', () => {
         .expect(200);
     });
 
-    it('at the ceiling, the next submission in the same window -> 429 tooManySubmissions, Cache-Control: no-store', async () => {
+    it('at the ceiling, the next submission in the same window -> 429 tooManySubmissions, Cache-Control: no-store, Retry-After', async () => {
       const user = await createUser('game-rounds-ratelimit-at-ceiling@example.test');
       const token = await mintFor(user);
       await seedAtCeiling(user.id);
 
+      const beforeMs = Date.now();
       const response = await request(app.getHttpServer())
         .post('/api/game-rounds')
         .set(bearer(token))
@@ -438,6 +439,28 @@ describe('Game rounds (e2e, real Postgres)', () => {
         GAME_ROUNDS_ERROR_KEYS.tooManySubmissions,
       );
       expect(response.headers['cache-control']).toBe('no-store');
+
+      // SEC145R2-M1: `retryAfterSeconds`, already computed correctly by
+      // `GameRoundSubmitRateLimitService.consume`, must actually reach the client — as the
+      // standard `Retry-After` header (seconds), the same signal this app's own global throttler
+      // already sets on its 429s. Numerically correct means: a whole, positive number of seconds
+      // (never 0 — this response IS the blocked one) that does not exceed the window width (an
+      // hour), and — independently, without trusting the guard's own arithmetic — that it lands
+      // within the exact second range the fixed window's own end time allows for a request fired
+      // between `beforeMs` and now.
+      const retryAfterHeader = response.headers['retry-after'];
+      expect(retryAfterHeader).toBeDefined();
+      expect(retryAfterHeader).toMatch(/^\d+$/);
+      const retryAfterSeconds = Number(retryAfterHeader);
+      expect(retryAfterSeconds).toBeGreaterThan(0);
+      expect(retryAfterSeconds).toBeLessThanOrEqual(GAME_ROUND_SUBMIT_RATE_LIMIT.windowMs / 1000);
+
+      const windowEndMs = currentWindowStart().getTime() + GAME_ROUND_SUBMIT_RATE_LIMIT.windowMs;
+      const afterMs = Date.now();
+      const expectedMin = Math.ceil((windowEndMs - afterMs) / 1000);
+      const expectedMax = Math.ceil((windowEndMs - beforeMs) / 1000);
+      expect(retryAfterSeconds).toBeGreaterThanOrEqual(expectedMin);
+      expect(retryAfterSeconds).toBeLessThanOrEqual(expectedMax);
     });
 
     it("a different user's counter is independent: one user at the ceiling (429) does not affect a second user's own submit (200) in the SAME window", async () => {
