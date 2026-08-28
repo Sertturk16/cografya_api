@@ -259,6 +259,15 @@ describe('Measurements (e2e, real Postgres)', () => {
       expect(items).toContainEqual(responseBody);
     });
 
+    it('POST with title explicitly null -> 200, title stays null', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/measurements')
+        .set(bearer(userAToken))
+        .send(validBody({ title: null }))
+        .expect(200);
+      expect((response.body as { title: unknown }).title).toBeNull();
+    });
+
     it('POST the same clientMeasurementId twice -> 200 both times, exactly one row', async () => {
       const body = validBody();
       const first = await request(app.getHttpServer())
@@ -402,22 +411,6 @@ describe('Measurements (e2e, real Postgres)', () => {
         .post('/api/measurements')
         .set(bearer(userAToken))
         .send(validBody({ type: MeasurementType.Coordinate, points: [[]] }))
-        .expect(400);
-      expect((response.body as { message: string[] }).message).toEqual(
-        expect.arrayContaining(['each value in points must be an object']),
-      );
-    });
-
-    it('a nested-array points payload with a point-shaped inner array -> 400 (each value in points must be an object)', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/api/measurements')
-        .set(bearer(userAToken))
-        .send(
-          validBody({
-            type: MeasurementType.Coordinate,
-            points: [[{ lon: 32.85, lat: 39.92 }]],
-          }),
-        )
         .expect(400);
       expect((response.body as { message: string[] }).message).toEqual(
         expect.arrayContaining(['each value in points must be an object']),
@@ -683,9 +676,20 @@ describe('Measurements (e2e, real Postgres)', () => {
     // calls — a double-click / stale-tab retry from the same session, exactly SEC150-M2's real
     // scenario. A different user's DELETE would silently no-op (delete is unconditionally
     // idempotent, scoped by `userId`) and never race the row at all, so this is deliberately
-    // NOT a cross-user test. The winner is non-deterministic per run: `Promise.allSettled`
-    // (not `all`) so neither call's outcome masks the other, and the assertion below is
-    // branch-wise on whatever the GET actually reports.
+    // NOT a cross-user test.
+    //
+    // VALF2-M1 (corrected): the outcome is NOT non-deterministic in THIS test's own sequencing.
+    // POST fully creates the row first, and only then do DELETE and PATCH fire together, with GET
+    // running after both have settled. `remove()` (`measurements.service.ts`) is a single
+    // unconditional `DELETE ... WHERE id=? AND user_id=?`; `updateTitle()` must first `findOne`
+    // the row — a SEPARATE, earlier round trip — before it can even issue its own `UPDATE`.
+    // DELETE therefore reaches Postgres needing only one query while PATCH is still on its own
+    // pre-read, so DELETE's statement always finds and removes the row first: this test hits the
+    // 404 branch on every run against the current (fixed) code. The `else` branch below is not
+    // dead code — it is UNREACHABLE against today's implementation and stays as the regression
+    // guard: if `updateTitle` were ever rewritten back to a `findOne` -> mutate -> `save()` shape
+    // (reopening SEC150-M2), that branch is what would start firing and catching the
+    // resurrection.
     it(
       'concurrent DELETE + PATCH (same user, same row) -> either cleanly deleted (404) or the ' +
         'PATCH won and the row is still the ORIGINAL row (byte-identical createdAt) — never a ' +

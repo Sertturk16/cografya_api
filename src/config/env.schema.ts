@@ -195,9 +195,14 @@ export const envSchema = z
       )
       .optional(),
     // The mail transport selector (§8, §11). `'noop'` is the only valid value this turn —
-    // `NoopMailerAdapter` sends nothing anywhere. A real provider adds a new enum member here
+    // `NoopMailerAdapter` sends nothing anywhere, and says so loudly at boot
+    // (`NoopMailerAdapter`'s own constructor). A real provider adds a new enum member here
     // plus its own `optional()` + feature-gated cross-check (the `ADS_API_KEY` precedent), never
     // a silent default swap.
+    // TODO(first-deploy): production must not boot on `noop`. No hard cross-check exists today
+    // because `'noop'` is currently the ONLY valid enum value (a hard check would make the api
+    // entirely undeployable) — add the cross-check in the SAME PR that adds the second, real
+    // enum member (SFH135-I3).
     MAIL_TRANSPORT: z.enum(['noop']).default('noop'),
 
     // ── Cache infrastructure ────────────────────────────────────────────────────

@@ -8,7 +8,15 @@ describe('NoopMailerAdapter', () => {
     jest.restoreAllMocks();
   });
 
+  it('warns loudly, once, at construction — outbound mail is dropped', () => {
+    const warnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+    new NoopMailerAdapter();
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(warnSpy.mock.calls[0]?.[0]).toContain('mail transport is noop');
+  });
+
   it('logs exactly template and locale, and nothing else', async () => {
+    jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
     const logSpy = jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
     const adapter = new NoopMailerAdapter();
     const message: MailMessage = {
@@ -27,6 +35,7 @@ describe('NoopMailerAdapter', () => {
   });
 
   it('never includes the address, the code or the reset token in the log line', async () => {
+    jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
     const logSpy = jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
     const adapter = new NoopMailerAdapter();
 
