@@ -26,12 +26,22 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * decorator, TypeORM's raw diff proposed NONE of these four foreign keys; they are added here
  * by hand to close that gap, in the same shape as `FK_users_district`/`FK_districts_province`.
  *
- * **`UQ_email_verification_codes_active` is a hand-authored PARTIAL unique index, not
- * TypeORM-generated.** `@Unique`/`@Index` on the entity cannot express a `WHERE` clause in a
- * form the raw diff picks up (`email-verification-code.entity.ts`'s own docblock records
- * this), so it does not appear in either direction of a future `migration:generate` diff —
- * this migration is its only home. It enforces "at most one ACTIVE code per user" as a
- * database invariant, not a service-layer courtesy.
+ * **`UQ_email_verification_codes_active` was a hand-authored PARTIAL unique index, not
+ * TypeORM-generated — and this paragraph's original claims about it were wrong (`CODE135-I2`,
+ * corrected here).** `IndexOptions.where?: string` (TypeORM's own `@Index`/`@Unique` decorator
+ * options) DOES support a partial-index `WHERE` clause; the real reason this SQL was
+ * hand-written rather than entity-driven is that no entity ever declared
+ * `@Index(..., { where: ... })` for it — a choice, not a tooling limitation. The "future
+ * `migration:generate` diff" concern this paragraph raised is now moot for a different, later
+ * reason: this whole table — and the `email-verification-code.entity.ts` file this paragraph
+ * used to point to — no longer exist.
+ * `1787652000000-InitPendingRegistrations.ts` (`SEC136-C1`) DROPPED `email_verification_codes`
+ * (this index included) and replaced it with `pending_registrations`, which enforces no such
+ * one-slot rule at all (see that migration's own docblock). Once that later migration has run,
+ * there is no `email_verification_codes` table left in the live schema for any future
+ * `migration:generate` diff to react to, in either direction. While the table existed, this
+ * index enforced "at most one ACTIVE code per user" as a database invariant, not a
+ * service-layer courtesy.
  *
  * ## What this migration does NOT do
  * No existing row is read, updated, deleted or backfilled. `users` gains exactly one column

@@ -1,4 +1,22 @@
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
+
+/**
+ * `randomInt` is a Node built-in whose property is non-configurable, so `jest.spyOn` throws
+ * `Cannot redefine property: randomInt` at runtime (measured, `api-housekeeping-batch-2-plan.md`
+ * §5.4). `jest.mock` replaces the whole module in the registry instead — the mock DELEGATES to
+ * the real `randomInt` by default so every other test below still exercises genuine entropy; only
+ * the one deterministic case overrides it, and only for its own single call.
+ */
+const actualCrypto = jest.requireActual<typeof import('node:crypto')>('node:crypto');
+const randomIntMock = jest.fn<(min: number, max: number) => number>((min, max) =>
+  actualCrypto.randomInt(min, max),
+);
+
+jest.mock('node:crypto', () => ({
+  ...jest.requireActual<typeof import('node:crypto')>('node:crypto'),
+  randomInt: (min: number, max: number) => randomIntMock(min, max),
+}));
+
 import { mintOpaqueToken, mintVerificationCode } from './opaque-token';
 
 describe('mintOpaqueToken', () => {
@@ -27,17 +45,9 @@ describe('mintVerificationCode', () => {
     }
   });
 
-  it('can produce "000000" — a leading-zero code is a valid code, not an empty one', () => {
-    // `randomInt(0, 1_000_000)` is deterministic under a fixed seed only via mocking; assert
-    // the padding logic directly rather than waiting on a 1-in-a-million draw.
-    const original = globalThis.Math.random;
-    try {
-      // Not used by mintVerificationCode (it uses crypto.randomInt), but asserting the pure
-      // padding behaviour in isolation keeps this test from depending on unlikely draws.
-      expect((0).toString().padStart(6, '0')).toBe('000000');
-    } finally {
-      globalThis.Math.random = original;
-    }
+  it('produces "000000" when the underlying randomInt draws zero — a leading-zero code is a valid code, not an empty one', () => {
+    randomIntMock.mockReturnValueOnce(0);
+    expect(mintVerificationCode()).toBe('000000');
   });
 
   it('shows no modulo bias across the leading digit in 100k draws', () => {
@@ -48,9 +58,6 @@ describe('mintVerificationCode', () => {
       const leadingDigit = Number(code[0]);
       leadingDigitCounts[leadingDigit] = (leadingDigitCounts[leadingDigit] ?? 0) + 1;
     }
-    // Every one of the ten leading digits must appear (a biased/broken generator could
-    // structurally skip one), and each should land within a generous band of the ~10,000
-    // expected count — loose enough to avoid Jest flakiness, tight enough to catch a real bias.
     for (const count of leadingDigitCounts) {
       expect(count).toBeGreaterThan(samples / 10 - 1_500);
       expect(count).toBeLessThan(samples / 10 + 1_500);

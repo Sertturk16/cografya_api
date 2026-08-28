@@ -616,4 +616,22 @@ describe('Auth-primitives schema (e2e)', () => {
       insertRateLimit({ subjectHash, windowStart: otherWindowStart, attemptCount: 1 }),
     ).resolves.toBeDefined();
   });
+
+  it('E2E-SC10: sessions.token_hash rejects a duplicate value across two rows', async () => {
+    const userId = await insertUser();
+    const sharedHash = randomHash32();
+    await insertSession({ userId, tokenHash: sharedHash });
+    await expect(insertSession({ userId, tokenHash: sharedHash })).rejects.toBeInstanceOf(
+      QueryFailedError,
+    );
+  });
+
+  it('E2E-SC11: password_reset_tokens.token_hash rejects a duplicate value across two rows', async () => {
+    const userId = await insertUser();
+    const sharedHash = randomHash32();
+    await insertResetToken({ userId, tokenHash: sharedHash });
+    await expect(insertResetToken({ userId, tokenHash: sharedHash })).rejects.toBeInstanceOf(
+      QueryFailedError,
+    );
+  });
 });
