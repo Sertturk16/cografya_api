@@ -44,6 +44,12 @@ export class MeasurementsService {
    * `hashtext(userId)` values only ever costs a harmless serialization, never a false PASS of the
    * quota check below. The existence check runs BEFORE the quota check so a retry (idempotent
    * replay) is never quota-limited.
+   *
+   * The lock is taken unconditionally, including by a request that will end up 403 for already
+   * being at quota — the quota-rejection branch never skips it. Measured against real Postgres
+   * 16: the 403-bound path costs ~1.0 ms total, of which the lock itself accounts for ~0.56 ms
+   * (`pr-reviews/150.md` VAL150-M1/SEC150-I1) — cheap enough that no dedicated per-user rate
+   * limit is warranted for this path alone.
    */
   async create(userId: string, body: CreateMeasurementRequestDto): Promise<MeasurementDto> {
     validateMeasurementShape(body.type, body.points);
@@ -67,7 +73,7 @@ export class MeasurementsService {
           clientMeasurementId: body.clientMeasurementId,
           type: body.type,
           points: body.points,
-          title: body.title ?? null,
+          title: normalizeTitle(body.title),
         }),
       );
       return toDto(saved);
@@ -102,19 +108,30 @@ export class MeasurementsService {
   /**
    * `PATCH /api/measurements/:id` — title-only rename (plan §5.6). Same ownership/404 shape as
    * {@link getOne}, not `remove`'s unconditional shape: a 404 on someone else's id, not a
-   * 200-no-op. `type`/`points`/`clientMeasurementId` are never touched here; `updated_at` advances
-   * via `@UpdateDateColumn` on save.
+   * 200-no-op. `type`/`points`/`clientMeasurementId` are never touched here.
+   *
+   * A single ownership-scoped `UPDATE … WHERE id = ? AND user_id = ?` (SEC150-M2) — never
+   * `findOne` -> mutate -> `save()`: `save()` on a loaded entity re-reads the row and, finding it
+   * gone under a concurrent `DELETE`, reclassifies the write as an INSERT rather than a no-op,
+   * resurrecting a row the caller had just deleted. A plain `UPDATE` has no such branch — it can
+   * only touch an existing row — so `affected === 0` means exactly "no row for this id and this
+   * caller," the same case the ownership miss already produces. `updated_at` is set explicitly in
+   * the same statement: `Repository.update()`, unlike `.save()`, does not auto-populate
+   * `@UpdateDateColumn`s.
    */
   async updateTitle(
     userId: string,
     id: string,
     body: UpdateMeasurementTitleRequestDto,
   ): Promise<MeasurementDto> {
+    const title = normalizeTitle(body.title);
+    const result = await this.measurements.update({ id, userId }, { title, updatedAt: new Date() });
+    if ((result.affected ?? 0) === 0) {
+      throw new NotFoundException(MEASUREMENTS_ERROR_KEYS.notFound);
+    }
     const row = await this.measurements.findOne({ where: { id, userId } });
     if (row === null) throw new NotFoundException(MEASUREMENTS_ERROR_KEYS.notFound);
-    row.title = body.title;
-    const saved = await this.measurements.save(row);
-    return toDto(saved);
+    return toDto(row);
   }
 
   /**
@@ -126,6 +143,16 @@ export class MeasurementsService {
   async remove(userId: string, id: string): Promise<void> {
     await this.measurements.delete({ id, userId });
   }
+}
+
+/**
+ * Empty-after-trim collapses to `null`, matching `MeasurementDto.title`'s own published "null
+ * when no title was set or the title was cleared" contract, on both write paths (CODE150-M1/
+ * SEC150-M1). The DTO layer trims; this is the one place that decides what an all-whitespace
+ * result means.
+ */
+function normalizeTitle(title: string | null | undefined): string | null {
+  return title === undefined || title === null || title.length === 0 ? null : title;
 }
 
 function toDto(row: Measurement): MeasurementDto {

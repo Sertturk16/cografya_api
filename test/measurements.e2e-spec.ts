@@ -8,7 +8,7 @@ import { AccountRole, AccountStatus } from '../src/auth/account.types';
 import { AccessTokenService } from '../src/auth/access-token.service';
 import { User } from '../src/auth/entities/user.entity';
 import { applyGlobalPrefix } from '../src/common/bootstrap';
-import { buildDataSourceOptions } from '../src/database/data-source-options';
+import { buildDataSourceOptions, DATABASE_POOL_SIZE } from '../src/database/data-source-options';
 import { seedGeography } from '../src/database/seeds/seed-geography';
 import { seedReference } from '../src/database/seeds/seed-reference';
 import {
@@ -357,17 +357,23 @@ describe('Measurements (e2e, real Postgres)', () => {
       ['lat', -91],
     ];
     it.each(outOfRangeCases)(
-      'an out-of-range %s = %d -> 400, and the response never echoes the raw value',
+      'an out-of-range %s = %d -> 400, and the response never echoes any coordinate sent in the request',
       async (axis, value) => {
         const [first, second] = distancePoints();
         const badPoint = { ...first, [axis]: value };
+        const otherAxis: keyof Point = axis === 'lon' ? 'lat' : 'lon';
         const response = await request(app.getHttpServer())
           .post('/api/measurements')
           .set(bearer(userAToken))
           .send(validBody({ points: [badPoint, second] }))
           .expect(400);
-        // §5.11's PII posture, executable: the 400 body never echoes the submitted value.
-        expect(JSON.stringify(response.body)).not.toContain(String(value));
+        const body = JSON.stringify(response.body);
+        // §5.11's PII posture, executable: the 400 body echoes neither the invalid value (already
+        // asserted) NOR any of the other, VALID coordinates sent in the same request (SEC150-M3).
+        expect(body).not.toContain(String(value));
+        expect(body).not.toContain(String(badPoint[otherAxis]));
+        expect(body).not.toContain(String(second.lon));
+        expect(body).not.toContain(String(second.lat));
       },
     );
 
@@ -396,6 +402,22 @@ describe('Measurements (e2e, real Postgres)', () => {
         .post('/api/measurements')
         .set(bearer(userAToken))
         .send(validBody({ type: MeasurementType.Coordinate, points: [[]] }))
+        .expect(400);
+      expect((response.body as { message: string[] }).message).toEqual(
+        expect.arrayContaining(['each value in points must be an object']),
+      );
+    });
+
+    it('a nested-array points payload with a point-shaped inner array -> 400 (each value in points must be an object)', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/measurements')
+        .set(bearer(userAToken))
+        .send(
+          validBody({
+            type: MeasurementType.Coordinate,
+            points: [[{ lon: 32.85, lat: 39.92 }]],
+          }),
+        )
         .expect(400);
       expect((response.body as { message: string[] }).message).toEqual(
         expect.arrayContaining(['each value in points must be an object']),
@@ -455,15 +477,15 @@ describe('Measurements (e2e, real Postgres)', () => {
         const user = await createUser('measurements-quota-race@example.test');
         const token = await mintFor(user);
 
-        // 5 + 5 = 10, matching `DATABASE_POOL_SIZE` (`data-source-options.ts`) exactly: each
+        // Split derived from `DATABASE_POOL_SIZE` (`data-source-options.ts`), not hand-picked: each
         // concurrent create opens its own transaction for the advisory-lock hold, so this stays
         // within the pool's real concurrent-connection capacity rather than forcing extra
         // requests to queue for a checkout — measured directly against this suite (a higher
         // count, e.g. 15, reliably produces spurious local `ECONNRESET`s once requests start
         // queueing for a pooled connection, which is an environment/pool-sizing artifact, not a
         // product defect the advisory lock is responsible for).
-        const remainingRoom = 5;
-        const extraAttempts = 5;
+        const remainingRoom = DATABASE_POOL_SIZE / 2;
+        const extraAttempts = DATABASE_POOL_SIZE / 2;
         // Seeded up to (MAX - remainingRoom); the race itself is fired as real, concurrent HTTP
         // requests exactly at the boundary — this is what actually exercises the advisory-lock
         // mechanism (plan §5.3/§10), not the bulk seed below it.
@@ -703,10 +725,10 @@ describe('Measurements (e2e, real Postgres)', () => {
         .set(bearer(userAToken))
         .send(validBody({ clientMeasurementId, title: 'first' }))
         .expect(200);
-      const firstId = (first.body as { id: string }).id;
+      const firstBody = first.body as { id: string; createdAt: string };
 
       await request(app.getHttpServer())
-        .delete(`/api/measurements/${firstId}`)
+        .delete(`/api/measurements/${firstBody.id}`)
         .set(bearer(userAToken))
         .expect(204);
 
@@ -715,9 +737,10 @@ describe('Measurements (e2e, real Postgres)', () => {
         .set(bearer(userAToken))
         .send(validBody({ clientMeasurementId, title: 'second' }))
         .expect(200);
-      const secondBody = second.body as { id: string; title: string };
-      expect(secondBody.id).not.toBe(firstId);
+      const secondBody = second.body as { id: string; title: string; createdAt: string };
+      expect(secondBody.id).not.toBe(firstBody.id);
       expect(secondBody.title).toBe('second');
+      expect(secondBody.createdAt).not.toBe(firstBody.createdAt);
     });
   });
 

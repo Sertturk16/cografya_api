@@ -128,7 +128,7 @@ const DATABASE_CONNECTION_TIMEOUT_MS = 10_000;
  * `DATABASE_CONNECTION_TIMEOUT_MS` before it is rejected. A number that arithmetic depends on
  * should not be an invisible library default (review #86 CR86-I1).
  */
-const DATABASE_POOL_SIZE = 10;
+export const DATABASE_POOL_SIZE = 10;
 
 /**
  * TypeORM's slow-query threshold — a LOG ONLY, it does NOT cancel the query.

@@ -131,6 +131,10 @@ export class MeasurementsController {
   })
   @ApiOkResponse({ type: MeasurementDto })
   @ApiUnauthorizedResponse({ type: ApiErrorDto, description: AUTH_ERROR_KEYS.unauthenticated })
+  @ApiBadRequestResponse({
+    type: ApiErrorDto,
+    description: 'A missing or over-length title, or a malformed request body / id.',
+  })
   @ApiNotFoundResponse({ type: ApiErrorDto, description: MEASUREMENTS_ERROR_KEYS.notFound })
   async updateTitle(
     @CurrentUser() user: AuthenticatedUser,
