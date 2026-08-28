@@ -1842,6 +1842,279 @@
           "game-rounds"
         ]
       }
+    },
+    "/api/measurements": {
+      "post": {
+        "description": "Always 200, never 201 — the resource's final state is identical whether this call created or found the row, matching this repo's established idempotent-write convention. Resubmitting the same clientMeasurementId for the same caller returns the ORIGINAL recorded values, even if the resubmitted body differs.",
+        "operationId": "MeasurementsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMeasurementRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeasurementDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "errors.measurements.invalidShape",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "errors.auth.unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "errors.measurements.quotaExceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Idempotent create — save a measurement, quota-gated.",
+        "tags": [
+          "measurements"
+        ]
+      },
+      "get": {
+        "description": "A plain, unpaginated array — the quota hard-caps the corpus at MEASUREMENTS_PER_USER_MAX rows per user, ever, the same \"bounded and small\" shape `ENGINEERING.md` §2 already uses for `favorites`. Ordered most-recently-saved first.",
+        "operationId": "MeasurementsController_listMine",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MeasurementDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "errors.auth.unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "The caller's own saved measurements.",
+        "tags": [
+          "measurements"
+        ]
+      }
+    },
+    "/api/measurements/{id}": {
+      "get": {
+        "description": "One undifferentiated 404 whether id names no row at all or the row belongs to another user — nothing about another user's row is ever observable.",
+        "operationId": "MeasurementsController_getOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "measurements.id.",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeasurementDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "errors.auth.unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "errors.measurements.notFound",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "One of the caller's own saved measurements.",
+        "tags": [
+          "measurements"
+        ]
+      },
+      "patch": {
+        "description": "Only `title` is mutable — send a bounded string or explicit null; omitting `title` entirely 400s. `type`/`points`/`clientMeasurementId` are never touched by this route.",
+        "operationId": "MeasurementsController_updateTitle",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "measurements.id.",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMeasurementTitleRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeasurementDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "errors.auth.unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "errors.measurements.notFound",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Rename (or clear) a saved measurement's title. Geometry is immutable.",
+        "tags": [
+          "measurements"
+        ]
+      },
+      "delete": {
+        "description": "204 unconditionally: whether the row existed and was removed, never existed, or belongs to another caller — \"remove\" never needs to distinguish those cases, and this can never reveal another user's row's existence.",
+        "operationId": "MeasurementsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "measurements.id.",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted, already absent, or another caller's id — all answer identically."
+          },
+          "401": {
+            "description": "errors.auth.unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Unconditionally idempotent delete.",
+        "tags": [
+          "measurements"
+        ]
+      }
     }
   },
   "info": {
@@ -6244,6 +6517,140 @@
           "total",
           "hasMore",
           "items"
+        ]
+      },
+      "MeasurementPointDto": {
+        "type": "object",
+        "properties": {
+          "lon": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "example": 32.85
+          },
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "example": 39.92
+          }
+        },
+        "required": [
+          "lon",
+          "lat"
+        ]
+      },
+      "CreateMeasurementRequestDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": [
+              "distance",
+              "area",
+              "coordinate"
+            ],
+            "type": "string",
+            "example": "distance",
+            "description": "Which kind of measurement this geometry represents."
+          },
+          "points": {
+            "minItems": 1,
+            "maxItems": 20,
+            "description": "The geometry, in order. The type-dependent minimum (1 for coordinate, 2 for distance, 3 for area) is enforced server-side, not by this array bound alone.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MeasurementPointDto"
+            }
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "example": "İstanbul - Ankara mesafesi",
+            "description": "Optional label. Omit for no title."
+          },
+          "clientMeasurementId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "example": "018f2f3a-9c3e-7b2a-8b9d-2e6f1a7c9d40",
+            "description": "Opaque, client-generated per-measurement id. Together with the caller, this is the idempotency key: resubmitting the same value returns the row as it was first recorded."
+          }
+        },
+        "required": [
+          "type",
+          "points",
+          "clientMeasurementId"
+        ]
+      },
+      "MeasurementDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "enum": [
+              "distance",
+              "area",
+              "coordinate"
+            ],
+            "type": "string",
+            "example": "distance"
+          },
+          "points": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MeasurementPointDto"
+            }
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "example": "İstanbul - Ankara mesafesi",
+            "description": "null when no title was set or the title was cleared."
+          },
+          "clientMeasurementId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "example": "018f2f3a-9c3e-7b2a-8b9d-2e6f1a7c9d40",
+            "description": "The idempotency key this measurement was created with."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When this measurement was first saved, UTC."
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When this row last changed (creation, or a subsequent title rename), UTC."
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "points",
+          "clientMeasurementId",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "UpdateMeasurementTitleRequestDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 200,
+            "example": "İstanbul - Ankara mesafesi",
+            "description": "A bounded string to rename, or explicit null to clear the title."
+          }
+        },
+        "required": [
+          "title"
         ]
       }
     }

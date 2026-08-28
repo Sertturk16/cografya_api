@@ -19,6 +19,7 @@ import { GameRound } from '../game-rounds/entities/game-round.entity';
 import { MarineEcmwfCycle } from '../marine/entities/marine-ecmwf-cycle.entity';
 import { MarineEcmwfPointSeries } from '../marine/entities/marine-ecmwf-point-series.entity';
 import { MarinePoint } from '../marine/entities/marine-point.entity';
+import { Measurement } from '../measurements/entities/measurement.entity';
 import { Province } from '../province/entities/province.entity';
 import { District } from '../reference/entities/district.entity';
 import { VideoProgress } from '../video-progress/entities/video-progress.entity';
@@ -51,6 +52,7 @@ import { InitVideoProgress1787800000000 } from './migrations/1787800000000-InitV
 import { InitFavorites1787900000000 } from './migrations/1787900000000-InitFavorites';
 import { InitGameRounds1788000000000 } from './migrations/1788000000000-InitGameRounds';
 import { InitGameRoundSubmitRateLimits1788003600000 } from './migrations/1788003600000-InitGameRoundSubmitRateLimits';
+import { InitMeasurements1788007200000 } from './migrations/1788007200000-InitMeasurements';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -238,6 +240,7 @@ export function buildDataSourceOptions(
       Favorite,
       GameRound,
       GameRoundSubmitRateLimit,
+      Measurement,
     ],
     migrations: [
       InitProvince1783382400000,
@@ -269,6 +272,7 @@ export function buildDataSourceOptions(
       InitFavorites1787900000000,
       InitGameRounds1788000000000,
       InitGameRoundSubmitRateLimits1788003600000,
+      InitMeasurements1788007200000,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,
