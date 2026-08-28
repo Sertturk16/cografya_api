@@ -34,7 +34,12 @@ export function buildCorsOptions(webOrigin: string): CorsOptions {
     credentials: false,
     // Custom response headers are invisible to browser JavaScript unless they are exposed.
     // `X-Marine-Cache-Age` carries only an integer age (no PII, no provider detail, no key).
-    exposedHeaders: [MARINE_CACHE_AGE_HEADER],
+    // `Retry-After` (not in the Fetch/CORS 'safelisted' seven) is the throttle/rate-limit
+    // guards' existing wait-time signal — global `TrustedClientThrottlerGuard` and
+    // `GameRoundSubmitRateLimitGuard` both already set it on a 429 (PR #146, `SEC146-M1`
+    // follow-up). No browser calls this api directly today (`src/main.ts`'s own measured
+    // comment), so this closes a pre-existing, harmless gap ahead of the day one does.
+    exposedHeaders: [MARINE_CACHE_AGE_HEADER, 'Retry-After'],
   };
 }
 
