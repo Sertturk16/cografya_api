@@ -110,28 +110,41 @@ export class MeasurementsService {
    * {@link getOne}, not `remove`'s unconditional shape: a 404 on someone else's id, not a
    * 200-no-op. `type`/`points`/`clientMeasurementId` are never touched here.
    *
-   * A single ownership-scoped `UPDATE … WHERE id = ? AND user_id = ?` (SEC150-M2) — never
-   * `findOne` -> mutate -> `save()`: `save()` on a loaded entity re-reads the row and, finding it
-   * gone under a concurrent `DELETE`, reclassifies the write as an INSERT rather than a no-op,
-   * resurrecting a row the caller had just deleted. A plain `UPDATE` has no such branch — it can
-   * only touch an existing row — so `affected === 0` means exactly "no row for this id and this
-   * caller," the same case the ownership miss already produces. `updated_at` is set explicitly in
-   * the same statement: `Repository.update()`, unlike `.save()`, does not auto-populate
-   * `@UpdateDateColumn`s.
+   * **Pre-read -> `UPDATE` -> respond from the pre-read + the exact values just written — never a
+   * post-write re-read (TA151-I1 / CODE151-M1 / SFH151-M1).** A post-write `findOne` can observe a
+   * concurrent SECOND writer's row (a same-user double-click or a stale-tab retry racing this same
+   * request): the response would then echo a title/`updatedAt` this request never wrote, silently
+   * misattributing the other writer's result to the caller who issued THIS request. Reading the
+   * immutable fields (`type`, `points`, `clientMeasurementId`, `createdAt`) before the write and
+   * reusing them removes the second read entirely, so there is nothing left for a concurrent writer
+   * to be observed through.
+   *
+   * This does not reopen SEC150-M2: the pre-read is a plain `findOne`, never fed into a
+   * `save()`/mutate-then-persist path, so ownership/404 is still decided solely by the single
+   * ownership-scoped `UPDATE … WHERE id = ? AND user_id = ?` + `affected === 0` branch below. A
+   * plain `UPDATE` has no INSERT-reclassification branch — it can only touch an existing row — so a
+   * concurrent `DELETE` still makes `affected === 0` -> 404, never a resurrecting `save()`.
+   *
+   * `updatedAt` is computed exactly ONCE, into a local `const`, and that same value is both written
+   * by the `UPDATE` and echoed in the response — never two separate `new Date()` calls, which could
+   * disagree with what was actually persisted.
    */
   async updateTitle(
     userId: string,
     id: string,
     body: UpdateMeasurementTitleRequestDto,
   ): Promise<MeasurementDto> {
+    const before = await this.measurements.findOne({ where: { id, userId } });
+    if (before === null) throw new NotFoundException(MEASUREMENTS_ERROR_KEYS.notFound);
+
     const title = normalizeTitle(body.title);
-    const result = await this.measurements.update({ id, userId }, { title, updatedAt: new Date() });
+    const updatedAt = new Date();
+    const result = await this.measurements.update({ id, userId }, { title, updatedAt });
     if ((result.affected ?? 0) === 0) {
       throw new NotFoundException(MEASUREMENTS_ERROR_KEYS.notFound);
     }
-    const row = await this.measurements.findOne({ where: { id, userId } });
-    if (row === null) throw new NotFoundException(MEASUREMENTS_ERROR_KEYS.notFound);
-    return toDto(row);
+
+    return toDto({ ...before, title, updatedAt });
   }
 
   /**

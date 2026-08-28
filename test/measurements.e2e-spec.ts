@@ -676,6 +676,62 @@ describe('Measurements (e2e, real Postgres)', () => {
         .send({})
         .expect(400);
     });
+
+    // TA151-I1: the SEC150-M2 delete-race fix (a plain ownership-scoped `UPDATE`, no
+    // `findOne` -> mutate -> `save()`) has no dedicated concurrency test. This fires a real
+    // concurrent DELETE + PATCH against the SAME row using the SAME user's own token for both
+    // calls — a double-click / stale-tab retry from the same session, exactly SEC150-M2's real
+    // scenario. A different user's DELETE would silently no-op (delete is unconditionally
+    // idempotent, scoped by `userId`) and never race the row at all, so this is deliberately
+    // NOT a cross-user test. The winner is non-deterministic per run: `Promise.allSettled`
+    // (not `all`) so neither call's outcome masks the other, and the assertion below is
+    // branch-wise on whatever the GET actually reports.
+    it(
+      'concurrent DELETE + PATCH (same user, same row) -> either cleanly deleted (404) or the ' +
+        'PATCH won and the row is still the ORIGINAL row (byte-identical createdAt) — never a ' +
+        'resurrection (a fresh createdAt would mean a re-INSERT, the SEC150-M2 defect signature)',
+      async () => {
+        const created = await request(app.getHttpServer())
+          .post('/api/measurements')
+          .set(bearer(userAToken))
+          .send(validBody({ title: 'Before the race' }))
+          .expect(200);
+        const createdBody = created.body as { id: string; createdAt: string };
+        const id = createdBody.id;
+
+        const [deleteResult, patchResult] = await Promise.allSettled([
+          request(app.getHttpServer()).delete(`/api/measurements/${id}`).set(bearer(userAToken)),
+          request(app.getHttpServer())
+            .patch(`/api/measurements/${id}`)
+            .set(bearer(userAToken))
+            .send({ title: 'Raced rename' }),
+        ]);
+        // Both calls complete at the HTTP layer regardless of which wins the race underneath —
+        // a rejected promise here would be a network-level failure, not a legitimate outcome.
+        expect(deleteResult.status).toBe('fulfilled');
+        expect(patchResult.status).toBe('fulfilled');
+
+        const getResponse = await request(app.getHttpServer())
+          .get(`/api/measurements/${id}`)
+          .set(bearer(userAToken));
+
+        if (getResponse.status === 404) {
+          // The DELETE won cleanly: the row is gone, nothing left to assert.
+          expect((getResponse.body as { message: string }).message).toBe(
+            MEASUREMENTS_ERROR_KEYS.notFound,
+          );
+        } else {
+          // The PATCH won (or ran after the DELETE observed nothing to delete): the row must
+          // still be the SAME row the test created, never a resurrection. A resurrection would
+          // re-INSERT and mint a NEW id/createdAt — the actual signature of the SEC150-M2 defect
+          // class reopening, which byte-identical createdAt is the one check that catches.
+          expect(getResponse.status).toBe(200);
+          const getBody = getResponse.body as { id: string; createdAt: string };
+          expect(getBody.id).toBe(id);
+          expect(getBody.createdAt).toBe(createdBody.createdAt);
+        }
+      },
+    );
   });
 
   describe('delete — unconditional idempotent 204', () => {
