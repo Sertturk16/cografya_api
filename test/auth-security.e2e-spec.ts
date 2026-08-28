@@ -21,6 +21,7 @@ import { AuthRateLimitScope, SessionRevocationReason } from '../src/auth/auth.ty
 import { AuthSecretsProvider } from '../src/auth/auth-secrets.provider';
 import { applyGlobalPrefix, buildCorsOptions } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
+import { MARINE_CACHE_AGE_HEADER } from '../src/marine/marine-cache-age.interceptor';
 import { PendingRegistration } from '../src/auth/entities/pending-registration.entity';
 import { PasswordResetToken } from '../src/auth/entities/password-reset-token.entity';
 import { Session } from '../src/auth/entities/session.entity';
@@ -1980,6 +1981,13 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
       // be a check nothing can break.
       expect(response.headers['access-control-allow-origin']).toBe('http://localhost:3000');
       expect(response.headers['access-control-allow-credentials']).toBeUndefined();
+      // TEST149-M1 / TEST149-PE1: the preflight also carries `Access-Control-Expose-Headers`
+      // (the `cors` package emits it on the OPTIONS branch too, not only on the actual
+      // response), and both rate-limit/marine-cache signals `buildCorsOptions` exposes must
+      // actually be present in it, not just declared in the option shape.
+      const exposedHeaders = response.headers['access-control-expose-headers'];
+      expect(exposedHeaders).toContain('Retry-After');
+      expect(exposedHeaders).toContain(MARINE_CACHE_AGE_HEADER);
     });
   });
 });
