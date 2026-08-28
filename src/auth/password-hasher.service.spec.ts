@@ -51,16 +51,20 @@ describe('PasswordHasherService', () => {
       // the test still green (PR #133 round 2, SEC133R2-M1).
       const message = error instanceof Error ? error.message : String(error);
       const cause = error instanceof Error ? error.cause : undefined;
-      const stack = error instanceof Error ? String(error.stack) : '';
+      const rawStack = error instanceof Error ? error.stack : undefined;
+      // `TA134-M1`: assert the precondition the `stack` pin below actually depends on,
+      // BEFORE the `String()` cast — `String(undefined)` is exactly `'undefined'`, which
+      // contains neither `malformed` nor `password` either, so an undefined `stack` would
+      // let the two `not.toContain` assertions below pass without ever having measured a
+      // populated trace. Not a live bug today (V8 always populates `.stack` here), but the
+      // pin itself did not assert that precondition until this hardening.
+      expect(rawStack).toBeTruthy();
+      const stack = String(rawStack);
       expect(message).not.toContain(malformed);
       expect(message).not.toContain(password);
       expect(cause).toBeUndefined();
       expect(stack).not.toContain(malformed);
       expect(stack).not.toContain(password);
-      // `TA134-M1`: the two `not.toContain` assertions above pass just as happily on `''` —
-      // `String(undefined)` is exactly `'undefined'`, which contains neither `malformed` nor
-      // `password` either. This asserts the channel this pin claims to inspect is actually
-      // populated with THIS error's own trace, not merely absent of the two secrets.
       expect(stack).toContain('PasswordHashVerificationError');
     }
   });
@@ -85,11 +89,15 @@ describe('PasswordHasherService', () => {
       // Same three-channel pin as the verify path above (SEC133R2-M1).
       const message = error instanceof Error ? error.message : String(error);
       const cause = error instanceof Error ? error.cause : undefined;
-      const stack = error instanceof Error ? String(error.stack) : '';
+      const rawStack = error instanceof Error ? error.stack : undefined;
+      // `TA134-M1`: see the verify-path pin above — assert the `stack` precondition before
+      // the `String()` cast so an undefined `stack` fails loudly instead of degenerating to
+      // the literal `'undefined'` string, which would still pass the checks below.
+      expect(rawStack).toBeTruthy();
+      const stack = String(rawStack);
       expect(message).not.toContain(password);
       expect(cause).toBeUndefined();
       expect(stack).not.toContain(password);
-      // `TA134-M1`: see the verify-path pin above — the same `'undefined'` gap applies here.
       expect(stack).toContain('PasswordHashingError');
     }
 
