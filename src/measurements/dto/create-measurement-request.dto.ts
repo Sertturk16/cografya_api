@@ -70,15 +70,16 @@ export class CreateMeasurementRequestDto {
 
   @ApiPropertyOptional({
     type: String,
+    nullable: true,
     maxLength: MEASUREMENT_TITLE_MAX_LENGTH,
     example: 'İstanbul - Ankara mesafesi',
-    description: 'Optional label. Omit for no title.',
+    description: 'Optional label. Omit for no title, or send null.',
   })
   @IsOptional()
   @Transform(({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value))
   @IsString()
   @MaxLength(MEASUREMENT_TITLE_MAX_LENGTH)
-  title?: string;
+  title?: string | null;
 
   @ApiProperty({
     type: String,

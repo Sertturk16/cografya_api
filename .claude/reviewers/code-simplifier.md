@@ -40,8 +40,9 @@ your lens — but a required non-negotiable is not "complexity to remove."
 - **Duplication of existing helpers:** a hand-rolled version of something the repo already
   centralizes — `buildCorsOptions`/`applyGlobalPrefix`/`applyProxyTrust`
   (`src/common/bootstrap.ts`), the pagination-envelope base
-  (`src/common/dto/pagination-envelope.dto.ts`), an existing role-guard helper, an
-  existing upstream-cache/circuit-breaker helper, or an existing shared query-DTO
+  (`src/common/dto/pagination-envelope.dto.ts`), the shared `AccessTokenGuard`
+  (`src/auth/access-token.guard.ts`), an existing upstream-cache/circuit-breaker helper, or an
+  existing shared query-DTO
   constant — collapse to the shared path (this doubles as a contract-correctness win when
   it removes a value declared in two places that no tool cross-checks, e.g. a
   `page`/`pageSize` bound repeated instead of imported — flag it even though it looks like

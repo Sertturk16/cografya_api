@@ -2044,6 +2044,16 @@
               }
             }
           },
+          "400": {
+            "description": "A missing or over-length title, or a malformed request body / id.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
           "401": {
             "description": "errors.auth.unauthenticated",
             "content": {
@@ -6564,9 +6574,10 @@
           },
           "title": {
             "type": "string",
+            "nullable": true,
             "maxLength": 200,
             "example": "İstanbul - Ankara mesafesi",
-            "description": "Optional label. Omit for no title."
+            "description": "Optional label. Omit for no title, or send null."
           },
           "clientMeasurementId": {
             "type": "string",

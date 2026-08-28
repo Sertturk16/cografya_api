@@ -44,6 +44,12 @@ export class MeasurementsService {
    * `hashtext(userId)` values only ever costs a harmless serialization, never a false PASS of the
    * quota check below. The existence check runs BEFORE the quota check so a retry (idempotent
    * replay) is never quota-limited.
+   *
+   * The lock is taken unconditionally, including by a request that will end up 403 for already
+   * being at quota — the quota-rejection branch never skips it. Measured against real Postgres
+   * 16: the 403-bound path costs ~1.0 ms total, of which the lock itself accounts for ~0.56 ms
+   * (`pr-reviews/150.md` VAL150-M1/SEC150-I1) — cheap enough that no dedicated per-user rate
+   * limit is warranted for this path alone.
    */
   async create(userId: string, body: CreateMeasurementRequestDto): Promise<MeasurementDto> {
     validateMeasurementShape(body.type, body.points);
@@ -67,7 +73,7 @@ export class MeasurementsService {
           clientMeasurementId: body.clientMeasurementId,
           type: body.type,
           points: body.points,
-          title: body.title ?? null,
+          title: normalizeTitle(body.title),
         }),
       );
       return toDto(saved);
@@ -102,19 +108,43 @@ export class MeasurementsService {
   /**
    * `PATCH /api/measurements/:id` — title-only rename (plan §5.6). Same ownership/404 shape as
    * {@link getOne}, not `remove`'s unconditional shape: a 404 on someone else's id, not a
-   * 200-no-op. `type`/`points`/`clientMeasurementId` are never touched here; `updated_at` advances
-   * via `@UpdateDateColumn` on save.
+   * 200-no-op. `type`/`points`/`clientMeasurementId` are never touched here.
+   *
+   * **Pre-read -> `UPDATE` -> respond from the pre-read + the exact values just written — never a
+   * post-write re-read (TA151-I1 / CODE151-M1 / SFH151-M1).** A post-write `findOne` can observe a
+   * concurrent SECOND writer's row (a same-user double-click or a stale-tab retry racing this same
+   * request): the response would then echo a title/`updatedAt` this request never wrote, silently
+   * misattributing the other writer's result to the caller who issued THIS request. Reading the
+   * immutable fields (`type`, `points`, `clientMeasurementId`, `createdAt`) before the write and
+   * reusing them removes the second read entirely, so there is nothing left for a concurrent writer
+   * to be observed through.
+   *
+   * This does not reopen SEC150-M2: the pre-read is a plain `findOne`, never fed into a
+   * `save()`/mutate-then-persist path, so ownership/404 is still decided solely by the single
+   * ownership-scoped `UPDATE … WHERE id = ? AND user_id = ?` + `affected === 0` branch below. A
+   * plain `UPDATE` has no INSERT-reclassification branch — it can only touch an existing row — so a
+   * concurrent `DELETE` still makes `affected === 0` -> 404, never a resurrecting `save()`.
+   *
+   * `updatedAt` is computed exactly ONCE, into a local `const`, and that same value is both written
+   * by the `UPDATE` and echoed in the response — never two separate `new Date()` calls, which could
+   * disagree with what was actually persisted.
    */
   async updateTitle(
     userId: string,
     id: string,
     body: UpdateMeasurementTitleRequestDto,
   ): Promise<MeasurementDto> {
-    const row = await this.measurements.findOne({ where: { id, userId } });
-    if (row === null) throw new NotFoundException(MEASUREMENTS_ERROR_KEYS.notFound);
-    row.title = body.title;
-    const saved = await this.measurements.save(row);
-    return toDto(saved);
+    const before = await this.measurements.findOne({ where: { id, userId } });
+    if (before === null) throw new NotFoundException(MEASUREMENTS_ERROR_KEYS.notFound);
+
+    const title = normalizeTitle(body.title);
+    const updatedAt = new Date();
+    const result = await this.measurements.update({ id, userId }, { title, updatedAt });
+    if ((result.affected ?? 0) === 0) {
+      throw new NotFoundException(MEASUREMENTS_ERROR_KEYS.notFound);
+    }
+
+    return toDto({ ...before, title, updatedAt });
   }
 
   /**
@@ -126,6 +156,16 @@ export class MeasurementsService {
   async remove(userId: string, id: string): Promise<void> {
     await this.measurements.delete({ id, userId });
   }
+}
+
+/**
+ * Empty-after-trim collapses to `null`, matching `MeasurementDto.title`'s own published "null
+ * when no title was set or the title was cleared" contract, on both write paths (CODE150-M1/
+ * SEC150-M1). The DTO layer trims; this is the one place that decides what an all-whitespace
+ * result means.
+ */
+function normalizeTitle(title: string | null | undefined): string | null {
+  return title === undefined || title === null || title.length === 0 ? null : title;
 }
 
 function toDto(row: Measurement): MeasurementDto {

@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import { IsString, MaxLength, ValidateIf } from 'class-validator';
 import { MEASUREMENT_TITLE_MAX_LENGTH } from './create-measurement-request.dto';
 
@@ -20,6 +21,7 @@ export class UpdateMeasurementTitleRequestDto {
     description: 'A bounded string to rename, or explicit null to clear the title.',
   })
   @ValidateIf((_, value: unknown) => value !== null)
+  @Transform(({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value))
   @IsString()
   @MaxLength(MEASUREMENT_TITLE_MAX_LENGTH)
   title!: string | null;
