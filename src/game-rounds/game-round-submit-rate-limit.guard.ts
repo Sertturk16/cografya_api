@@ -6,7 +6,7 @@ import {
   type CanActivate,
   type ExecutionContext,
 } from '@nestjs/common';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 import { AUTHENTICATED_USER_REQUEST_KEY, type AuthenticatedUser } from '../auth/authenticated-user';
 import { GAME_ROUNDS_ERROR_KEYS } from './game-rounds-error-keys';
 import { GameRoundSubmitRateLimitService } from './game-round-submit-rate-limit.service';
@@ -55,6 +55,19 @@ export class GameRoundSubmitRateLimitGuard implements CanActivate {
 
     const outcome = await this.rateLimiter.consume(user.id);
     if (!outcome.allowed) {
+      // `Retry-After` (seconds), set BEFORE throwing — SEC145R2-M1. This is the SAME header
+      // this app's own global `TrustedClientThrottlerGuard`/`@nestjs/throttler` base already sets
+      // on its 429 (`throttler.guard.js`'s `handleRequest`: `res.header('Retry-After',
+      // timeToBlockExpire)`) — the one retry-signalling mechanism this codebase already ships,
+      // followed here rather than inventing a response-body field. `outcome.retryAfterSeconds` was
+      // already computed correctly by `GameRoundSubmitRateLimitService.consume`; it previously
+      // reached nowhere. Setting it on the response object here (not via `@Header(...)`, which
+      // Nest applies only on the success path) works for the identical reason
+      // `GameRoundsNoStoreMiddleware`/`CacheControlInterceptor` rely on: the base exception filter
+      // calls `response.status(...).json(...)`, which never clears a header set earlier on the
+      // same response.
+      const response = context.switchToHttp().getResponse<Response>();
+      response.setHeader('Retry-After', String(outcome.retryAfterSeconds));
       throw new HttpException(
         GAME_ROUNDS_ERROR_KEYS.tooManySubmissions,
         HttpStatus.TOO_MANY_REQUESTS,
