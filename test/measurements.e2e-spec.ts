@@ -386,6 +386,21 @@ describe('Measurements (e2e, real Postgres)', () => {
         .send(validBody({ title: 'x'.repeat(MEASUREMENT_TITLE_MAX_LENGTH + 1) }))
         .expect(400);
     });
+
+    // VAL150-I1 (originally CODE150-C1): a nested array as a `points` element must not slip past
+    // `@ValidateNested`/`@ArrayMaxSize` — `type: coordinate` is used because the outer array has
+    // exactly one element, which satisfies `measurement-shape.validator.ts`'s outer-length check
+    // and isolates this assertion to the DTO-level `@IsObject({ each: true })` guard.
+    it('a nested-array points payload -> 400 (each value in points must be an object)', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/measurements')
+        .set(bearer(userAToken))
+        .send(validBody({ type: MeasurementType.Coordinate, points: [[]] }))
+        .expect(400);
+      expect((response.body as { message: string[] }).message).toEqual(
+        expect.arrayContaining(['each value in points must be an object']),
+      );
+    });
   });
 
   describe('create — quota (403)', () => {

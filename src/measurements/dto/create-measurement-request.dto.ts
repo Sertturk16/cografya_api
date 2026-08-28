@@ -4,6 +4,7 @@ import {
   ArrayMaxSize,
   ArrayMinSize,
   IsEnum,
+  IsObject,
   IsOptional,
   IsString,
   Length,
@@ -57,6 +58,14 @@ export class CreateMeasurementRequestDto {
   @Type(() => MeasurementPointDto)
   @ArrayMinSize(1)
   @ArrayMaxSize(MEASUREMENT_POINTS_MAX)
+  // VAL150-I1 (originally CODE150-C1): class-transformer preserves a nested array element's own
+  // arrayness instead of coercing it to `MeasurementPointDto`, and class-validator's `each: true`
+  // then happily validates that nested array's own elements — so `points: [[]]` or
+  // `points: [[{lon,lat}]]` slipped past `@ValidateNested`/`@ArrayMaxSize` and both
+  // `measurement-shape.validator.ts` (outer-length-only) and `CHK_measurements_points_array`
+  // (outer-non-empty-array-only). `isObject` returns `false` for an array, so this rejects any
+  // nested-array element while a flat array of real point objects still passes unchanged.
+  @IsObject({ each: true })
   points!: MeasurementPointDto[];
 
   @ApiPropertyOptional({
