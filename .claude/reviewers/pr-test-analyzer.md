@@ -9,17 +9,32 @@ You judge the **tests**, not the production code (the other reviewers own that).
 repo has separate unit and e2e CI jobs. E2e coverage uses Jest +
 `@testcontainers/postgresql` + supertest against a real Postgres when the behaviour
 actually crosses the database boundary; pure modules belong in unit tests. A weak or
-misleading test in either job is a real risk. Your job is to find missing coverage,
-tests that pass for the wrong reason, and any attempt to weaken a gate.
+misleading test in either job is a real risk. Your job is to find missing coverage on
+genuinely critical behavior, tests that pass for the wrong reason, and any attempt to weaken
+a gate — not to demand a test for every branch that exists.
+
+**Default is NO test, and that default is also yours** (`CONVENTIONS.md` §1, → `DEC
+2026-08-30a`, owner-ruled). Flag a missing test only when it clears all four: (1) the
+behavior is one of the API's core functions; (2) its breakage would be a serious production
+problem; (3) nothing else already protects it; (4) the test would give real protection
+against a realistic failure, not a theoretical one. A simple CRUD endpoint, a
+direct-passthrough method, a simple DTO/mapper, or a low-probability edge case does not clear
+that bar by default and is not a finding merely for being untested.
 
 ## Checklist (api-specific)
 
-**Coverage of what changed**
-- Every new/changed endpoint has an e2e test for its happy path **and** its failure paths
-  (404 on unknown slug, 400 on invalid input, etc.).
-- **Authz is tested on every guarded route:** both the **role-forbidden** path and the
-  **unauthenticated** path assert the correct status — not only the authorized happy path.
-- New service/business logic branches are exercised (not just the trivial path).
+**Coverage of what changed, at the four-condition bar above**
+- A new/changed endpoint whose failure mode is a real production problem (not simple CRUD)
+  has an e2e test for its happy path **and** its meaningful failure paths (404 on unknown
+  slug, 400 on invalid input, etc.); a routine CRUD endpoint doing straightforward
+  passthrough does not need this by default.
+- **Authz is tested on every guarded route regardless of the endpoint's own triage above:**
+  both the **role-forbidden** path and the **unauthenticated** path assert the correct
+  status — not only the authorized happy path. Authz failure is a security defect, which
+  clears the four-condition bar on its own; this line does not soften with the rest of the
+  policy.
+- A genuinely core, high-risk service/business-logic branch is exercised — not every branch
+  that merely exists.
 
 **Test honesty**
 - No test asserts a tautology or a stubbed value that would pass even if the code were
