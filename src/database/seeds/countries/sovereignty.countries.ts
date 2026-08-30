@@ -98,9 +98,9 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
   {
     isoCode: 'CY',
     isoCodeAlpha3: 'CYP',
-    nameTr: 'Kıbrıs Cumhuriyeti',
+    nameTr: 'Güney Kıbrıs Rum Yönetimi',
     nameEn: 'Republic of Cyprus',
-    slugTr: 'kibris-cumhuriyeti',
+    slugTr: 'guney-kibris-rum-yonetimi',
     slugEn: 'republic-of-cyprus',
     continent: Continent.Asia,
     // M49 istatistik standardı Kıbrıs'ı Batı Asya'ya koyar (Avrupa değil) — bilinçli,
@@ -142,8 +142,8 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'EUR',
     governmentFormTr: 'Başkanlık cumhuriyeti',
     introTr:
-      "Kıbrıs Cumhuriyeti, Doğu Akdeniz'in Sicilya ve Sardinya'dan sonra en büyük üçüncü adası " +
-      "olan Kıbrıs'ın güney kesiminde yer alır. Ülke topraklarının çatısını, adanın tümüne " +
+      "Güney Kıbrıs Rum Yönetimi, Doğu Akdeniz'in Sicilya ve Sardinya'dan sonra en büyük üçüncü " +
+      "adası olan Kıbrıs'ın güney kesiminde yer alır. Ülke topraklarının çatısını, adanın tümüne " +
       'yüksekliğiyle egemen olan Troodos Dağları oluşturur. Dağların eteklerinde ve güney ' +
       "kıyısında ise verimli ovalar ile alçak kıyı düzlükleri Akdeniz'e iner.",
     landformNoteTr:
@@ -156,8 +156,8 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
       "Ovası'nın güney kenarı başlar. Güneyde ise Limasol ve Larnaka çevresindeki alçak kıyı " +
       'ovaları denize doğru alçalır.',
     climateNoteTr:
-      "Kıbrıs Cumhuriyeti'nde yazları sıcak ve kurak, kışları ılık ve yağışlı geçen tipik bir " +
-      'Akdeniz iklimi görülür. Kıyı ovalarında yaz sıcaklıkları düzenli olarak 35 santigrat ' +
+      "Güney Kıbrıs Rum Yönetimi'nde yazları sıcak ve kurak, kışları ılık ve yağışlı geçen tipik " +
+      'bir Akdeniz iklimi görülür. Kıyı ovalarında yaz sıcaklıkları düzenli olarak 35 santigrat ' +
       'derecenin üzerine çıkar; iç kesimdeki Mesarya Ovası yazın adanın en sıcak noktasıdır. ' +
       "Yağışın büyük bölümü kasım ile mart arasında düşer ve asıl olarak Troodos'un yüksek " +
       'kesimlerinde toplanır. Zirve çevresi yılın birkaç ayı kar altında kalır, bu da kurak ' +
@@ -172,11 +172,12 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
       "kıyısında, Larnaka ve Akrotiri'deki tuz gölleri kışın suyla dolup yazın kuruyan sığ " +
       'çanaklardır.',
     sovereigntyNoteTr:
-      'Kıbrıs Cumhuriyeti, uluslararası alanda adanın tamamını temsilen tanınan ancak ' +
-      "fiilen güneyi yöneten devlettir. 1974'te yaşanan olayların ardından ada fiilen ikiye " +
-      "bölünmüş; Birleşmiş Milletler'in denetlediği bir tampon hattı, Kıbrıs Cumhuriyeti'nin " +
-      "yönettiği güney kesimi kuzeydeki Kuzey Kıbrıs Türk Cumhuriyeti'nden ayırır. Avrupa " +
-      'Birliği müktesebatı da yalnızca adanın güneyinde fiilen uygulanır.',
+      'Güney Kıbrıs Rum Yönetimi, uluslararası alanda adanın tamamını temsil eden devlet olarak ' +
+      "tanınır. Fiilen ise yalnızca adanın güneyini yönetir. 1974'te yaşanan olayların ardından " +
+      "ada fiilen ikiye bölünmüş; Birleşmiş Milletler'in denetlediği bir tampon hattı, Güney " +
+      "Kıbrıs Rum Yönetimi'nin yönettiği güney kesimi kuzeydeki Kuzey Kıbrıs Türk " +
+      "Cumhuriyeti'nden ayırır. Avrupa Birliği müktesebatı da yalnızca adanın güneyinde fiilen " +
+      'uygulanır.',
   },
   {
     isoCode: 'QN',
