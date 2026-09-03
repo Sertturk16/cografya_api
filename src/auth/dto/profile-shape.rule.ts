@@ -45,6 +45,13 @@ export function isProfileShapeValid(candidate: ProfileShapeCandidate): boolean {
   }
 
   if (accountRole === AccountRole.Student) {
+    // Minimal registration (Decision 2-B, DEC 2026-09-03a md.1): student can register
+    // without education fields pending post-registration profile onboarding.
+    if (isNil(educationLevel)) {
+      return (
+        isNil(gradeLevel) && isNil(studyStream) && isNil(universityName) && isNil(departmentName)
+      );
+    }
     if (educationLevel === EducationLevel.Secondary) {
       return (
         !isNil(gradeLevel) && !isNil(studyStream) && isNil(universityName) && isNil(departmentName)

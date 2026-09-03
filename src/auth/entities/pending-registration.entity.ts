@@ -135,6 +135,9 @@ import type { MailLocale } from '../mail/mailer.port';
     `) OR (` +
     `"account_role" = 'STUDENT' AND (` +
     `(` +
+    `"education_level" IS NULL AND "grade_level" IS NULL AND "study_stream" IS NULL AND ` +
+    `"university_name" IS NULL AND "department_name" IS NULL` +
+    `) OR (` +
     `"education_level" = 'SECONDARY' AND "grade_level" IS NOT NULL AND ` +
     `"study_stream" IS NOT NULL AND "university_name" IS NULL AND "department_name" IS NULL` +
     `) OR (` +
