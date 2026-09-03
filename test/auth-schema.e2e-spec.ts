@@ -412,8 +412,15 @@ describe('Auth-primitives schema (e2e)', () => {
     await expect(
       insertPendingRegistration({ accountRole: AccountRole.Teacher, gradeLevel: 'GRADE_9' }),
     ).rejects.toThrow(/CHK_pending_registrations_profile_shape/);
-    // …and a STUDENT with no declared education level carrying branch fields, the case a bare CHECK would accept as
-    // UNKNOWN.
+    // …and a STUDENT with no declared education level carrying a branch field. NOTE: this row is
+    // FALSE under the predicate, not UNKNOWN, so a bare CHECK would reject it too and the outer
+    // `IS TRUE` wrapper carries no load here. The minimal branch fails on `grade_level IS NULL`,
+    // and every level-specific branch fails on a conjunct OTHER than `education_level` (SECONDARY
+    // on `study_stream IS NOT NULL`, UNDERGRADUATE and GRADUATE on `grade_level IS NULL`), so no
+    // branch survives to UNKNOWN. It stays here as a valid negative case for the constraint — it
+    // is simply not a positive control for the wrapper. The real UNKNOWN positive controls are in
+    // `auth-core.e2e-spec.ts` ('rejects cross-role, missing and leftover profile fields'): a
+    // COMPLETE field set with no declared level, on `users`.
     await expect(
       insertPendingRegistration({
         accountRole: 'STUDENT',

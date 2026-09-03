@@ -35,8 +35,10 @@ import { RecordingMailer } from './support/recording-mailer';
  * **Register call budget, stated because it is a real constraint (§9.1, Y5):** IP-axis
  * `@Throttle` cannot be bypassed by the trusted-client token on ANY POST route
  * (`TrustedClientThrottlerGuard.shouldSkip` restricts the exemption to GET/HEAD by design), and
- * `register`'s own ceiling is 10/hour. This file makes exactly 9 `/register` calls across every
- * `describe` block — under the ceiling with one call of headroom. Exhaustive profile-matrix
+ * `register`'s own ceiling is 10/hour. This file makes exactly 10 `/register` calls across every
+ * `describe` block — AT the ceiling, with ZERO headroom. An 11th `/register` call anywhere in
+ * this file 429s, and the failure presents as a product bug rather than a budget overflow, so a
+ * new case must REPLACE an existing call rather than add one. Exhaustive profile-matrix
  * negatives already live at the unit level (`profile-shape.rule.spec.ts`, U-PS1); this file
  * proves the WIRING (one representative negative per concern), not the matrix itself again.
  */
@@ -114,8 +116,9 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
   /**
    * Walks the code the api just mailed and returns the created account.
    *
-   * verify-email call budget in this file: N2 (1) + N2b (1) + N7 (4) = 6, under the 10/10min
-   * IP-axis ceiling with headroom.
+   * verify-email call budget in this file: N2 (1) + N2b (1) + N7 (5) = 7, under the 10/10min
+   * IP-axis ceiling with 3 calls of headroom. Count call sites × INVOCATIONS, not `grep` of the
+   * route: this helper is one of the three call sites and N7 invokes it five times.
    */
   async function verifyLatestCode(email: string): Promise<User> {
     const sent = mailer.lastOfTemplate(email, 'verify-email');

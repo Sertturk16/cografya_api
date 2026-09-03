@@ -9,9 +9,15 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * ROLLBACK HAZARD WARNING: `down()` restores the strict 4-branch CHECK constraints.
  * Because `ALTER TABLE ... ADD CONSTRAINT` validates all existing rows, `down()` will fail with
  * SQLSTATE 23514 check_violation if any student row with null education fields exists in `users`
- * or `pending_registrations`. Reverting is safe only if:
- * `SELECT count(*) FROM users WHERE account_role = 'STUDENT' AND education_level IS NULL;`
- * returns 0. Any non-zero count requires an owner decision and forward remediation.
+ * or `pending_registrations`. Reverting is safe only if BOTH counts below are 0:
+ * `SELECT (SELECT count(*) FROM users`
+ * `         WHERE account_role = 'STUDENT' AND education_level IS NULL) AS users,`
+ * `       (SELECT count(*) FROM pending_registrations`
+ * `         WHERE account_role = 'STUDENT' AND education_level IS NULL) AS pending;`
+ * `pending_registrations` is not self-clearing: expired candidate rows are deleted only when a
+ * fresh registration attempt arrives for the SAME address (`email-verification.service.ts`), and
+ * there is no scheduled global sweep — so an address that is never retried keeps its row
+ * indefinitely. Any non-zero count requires an owner decision and forward remediation.
  */
 export class AllowStudentMinimalRegistrationProfileShape1788100000000 implements MigrationInterface {
   name = 'AllowStudentMinimalRegistrationProfileShape1788100000000';
