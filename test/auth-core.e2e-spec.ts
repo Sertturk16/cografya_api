@@ -276,8 +276,14 @@ describe('Auth core schema (e2e)', () => {
     }
   });
 
-  it('accepts teacher, undergraduate and both graduate profile shapes', async () => {
+  it('accepts teacher, minimal student, undergraduate and both graduate profile shapes', async () => {
     await expect(insertUser(teacher())).resolves.toBeDefined();
+    await expect(
+      insertUser({
+        ...teacher(),
+        accountRole: AccountRole.Student,
+      }),
+    ).resolves.toBeDefined();
     await expect(insertUser(undergraduate())).resolves.toBeDefined();
     await expect(insertUser(graduate({ departmentName: null }))).resolves.toBeDefined();
     await expect(

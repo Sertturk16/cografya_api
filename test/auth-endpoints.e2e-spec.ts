@@ -341,7 +341,7 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
    * matrix survived the copy. Asserting the candidate alone would re-test the DTO and leave
    * materialization — the step this rework introduced — unmeasured.
    */
-  describe('N7 — all four profile-matrix branches register and materialize; a malformed one 400s', () => {
+  describe('N7 — all five profile-matrix branches register and materialize; a malformed one 400s', () => {
     it('registers a TEACHER (educationLevel/grade/stream/university/department all absent)', async () => {
       const email = nextEmail();
       await request(app.getHttpServer())
@@ -351,6 +351,30 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
       const user = await verifyLatestCode(email);
       expect(user.accountRole).toBe('TEACHER');
       expect(user.educationLevel).toBeNull();
+    });
+
+    it('registers a STUDENT with minimal registration (no education fields, pending onboarding)', async () => {
+      const email = nextEmail();
+      await request(app.getHttpServer())
+        .post('/api/auth/register')
+        .send({
+          firstName: 'Ali',
+          lastName: 'Yılmaz',
+          phone: '0532 111 22 77',
+          email,
+          password: 'Synthetic-Pass1',
+          accountRole: 'STUDENT',
+          districtId: istanbulDistrictId,
+          provincePlateCode: '34',
+        })
+        .expect(HttpStatus.ACCEPTED);
+      const user = await verifyLatestCode(email);
+      expect(user.accountRole).toBe('STUDENT');
+      expect(user.educationLevel).toBeNull();
+      expect(user.gradeLevel).toBeNull();
+      expect(user.studyStream).toBeNull();
+      expect(user.universityName).toBeNull();
+      expect(user.departmentName).toBeNull();
     });
 
     it('registers a STUDENT/SECONDARY (gradeLevel + studyStream)', async () => {

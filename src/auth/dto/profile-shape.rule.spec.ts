@@ -3,7 +3,7 @@ import { AccountRole, EducationLevel, GradeLevel, StudyStream } from '../account
 import { isProfileShapeValid, type ProfileShapeCandidate } from './profile-shape.rule';
 
 /**
- * U-PS1: the four branches' full positive matrix, plus every missing/extra-field negative per
+ * U-PS1: the five branches' full positive matrix, plus every missing/extra-field negative per
  * branch — mirrors `CHK_users_profile_shape` (`../entities/user.entity.ts`) case for case.
  */
 describe('isProfileShapeValid (§6.4 profile matrix)', () => {
@@ -132,6 +132,15 @@ describe('isProfileShapeValid (§6.4 profile matrix)', () => {
   describe('malformed input', () => {
     it('rejects an accountRole outside the closed set', () => {
       expect(isProfileShapeValid({ accountRole: undefined })).toBe(false);
+    });
+
+    it('rejects a STUDENT with an unrecognized educationLevel', () => {
+      expect(
+        isProfileShapeValid({
+          accountRole: AccountRole.Student,
+          educationLevel: 'UNKNOWN' as EducationLevel,
+        }),
+      ).toBe(false);
     });
   });
 });

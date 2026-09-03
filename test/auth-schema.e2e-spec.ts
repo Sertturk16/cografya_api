@@ -412,11 +412,20 @@ describe('Auth-primitives schema (e2e)', () => {
     await expect(
       insertPendingRegistration({ accountRole: AccountRole.Teacher, gradeLevel: 'GRADE_9' }),
     ).rejects.toThrow(/CHK_pending_registrations_profile_shape/);
-    // …and a STUDENT with no declared education level, the case a bare CHECK would accept as
+    // …and a STUDENT with no declared education level carrying branch fields, the case a bare CHECK would accept as
     // UNKNOWN.
     await expect(
-      insertPendingRegistration({ accountRole: 'STUDENT', educationLevel: null }),
+      insertPendingRegistration({
+        accountRole: 'STUDENT',
+        educationLevel: null,
+        gradeLevel: 'GRADE_9',
+      }),
     ).rejects.toThrow(/CHK_pending_registrations_profile_shape/);
+
+    // Minimal student registration (Decision 2-B, DEC 2026-09-03a md.1): all education fields null is accepted
+    await expect(
+      insertPendingRegistration({ accountRole: 'STUDENT', educationLevel: null }),
+    ).resolves.toBeDefined();
 
     // pending_registrations.CHK_pending_registrations_password_hash — the users mirror: a
     // candidate that could not satisfy `users` must fail HERE, not after the user typed a

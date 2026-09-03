@@ -211,6 +211,7 @@ describe('Province (e2e)', () => {
       // UYELIK-11: `measurements` carries a foreign key to `users(id)` only, so its migration
       // MUST stay ordered after `InitUsers`.
       'InitMeasurements1788007200000',
+      'AllowStudentMinimalRegistrationProfileShape1788100000000',
     ]);
   });
 

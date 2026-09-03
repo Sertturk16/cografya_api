@@ -53,6 +53,7 @@ import { InitFavorites1787900000000 } from './migrations/1787900000000-InitFavor
 import { InitGameRounds1788000000000 } from './migrations/1788000000000-InitGameRounds';
 import { InitGameRoundSubmitRateLimits1788003600000 } from './migrations/1788003600000-InitGameRoundSubmitRateLimits';
 import { InitMeasurements1788007200000 } from './migrations/1788007200000-InitMeasurements';
+import { AllowStudentMinimalRegistrationProfileShape1788100000000 } from './migrations/1788100000000-AllowStudentMinimalRegistrationProfileShape';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -273,6 +274,7 @@ export function buildDataSourceOptions(
       InitGameRounds1788000000000,
       InitGameRoundSubmitRateLimits1788003600000,
       InitMeasurements1788007200000,
+      AllowStudentMinimalRegistrationProfileShape1788100000000,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,
