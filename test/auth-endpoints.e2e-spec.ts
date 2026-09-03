@@ -35,8 +35,10 @@ import { RecordingMailer } from './support/recording-mailer';
  * **Register call budget, stated because it is a real constraint (§9.1, Y5):** IP-axis
  * `@Throttle` cannot be bypassed by the trusted-client token on ANY POST route
  * (`TrustedClientThrottlerGuard.shouldSkip` restricts the exemption to GET/HEAD by design), and
- * `register`'s own ceiling is 10/hour. This file makes exactly 9 `/register` calls across every
- * `describe` block — under the ceiling with one call of headroom. Exhaustive profile-matrix
+ * `register`'s own ceiling is 10/hour. This file makes exactly 10 `/register` calls across every
+ * `describe` block — AT the ceiling, with ZERO headroom. An 11th `/register` call anywhere in
+ * this file 429s, and the failure presents as a product bug rather than a budget overflow, so a
+ * new case must REPLACE an existing call rather than add one. Exhaustive profile-matrix
  * negatives already live at the unit level (`profile-shape.rule.spec.ts`, U-PS1); this file
  * proves the WIRING (one representative negative per concern), not the matrix itself again.
  */
@@ -114,8 +116,9 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
   /**
    * Walks the code the api just mailed and returns the created account.
    *
-   * verify-email call budget in this file: N2 (1) + N2b (1) + N7 (4) = 6, under the 10/10min
-   * IP-axis ceiling with headroom.
+   * verify-email call budget in this file: N2 (1) + N2b (1) + N7 (5) = 7, under the 10/10min
+   * IP-axis ceiling with 3 calls of headroom. Count call sites × INVOCATIONS, not `grep` of the
+   * route: this helper is one of the three call sites and N7 invokes it five times.
    */
   async function verifyLatestCode(email: string): Promise<User> {
     const sent = mailer.lastOfTemplate(email, 'verify-email');
@@ -341,7 +344,7 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
    * matrix survived the copy. Asserting the candidate alone would re-test the DTO and leave
    * materialization — the step this rework introduced — unmeasured.
    */
-  describe('N7 — all four profile-matrix branches register and materialize; a malformed one 400s', () => {
+  describe('N7 — all five profile-matrix branches register and materialize; a malformed one 400s', () => {
     it('registers a TEACHER (educationLevel/grade/stream/university/department all absent)', async () => {
       const email = nextEmail();
       await request(app.getHttpServer())
@@ -351,6 +354,30 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
       const user = await verifyLatestCode(email);
       expect(user.accountRole).toBe('TEACHER');
       expect(user.educationLevel).toBeNull();
+    });
+
+    it('registers a STUDENT with minimal registration (no education fields, pending onboarding)', async () => {
+      const email = nextEmail();
+      await request(app.getHttpServer())
+        .post('/api/auth/register')
+        .send({
+          firstName: 'Ali',
+          lastName: 'Yılmaz',
+          phone: '0532 111 22 77',
+          email,
+          password: 'Synthetic-Pass1',
+          accountRole: 'STUDENT',
+          districtId: istanbulDistrictId,
+          provincePlateCode: '34',
+        })
+        .expect(HttpStatus.ACCEPTED);
+      const user = await verifyLatestCode(email);
+      expect(user.accountRole).toBe('STUDENT');
+      expect(user.educationLevel).toBeNull();
+      expect(user.gradeLevel).toBeNull();
+      expect(user.studyStream).toBeNull();
+      expect(user.universityName).toBeNull();
+      expect(user.departmentName).toBeNull();
     });
 
     it('registers a STUDENT/SECONDARY (gradeLevel + studyStream)', async () => {

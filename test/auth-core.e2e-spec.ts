@@ -276,8 +276,14 @@ describe('Auth core schema (e2e)', () => {
     }
   });
 
-  it('accepts teacher, undergraduate and both graduate profile shapes', async () => {
+  it('accepts teacher, minimal student, undergraduate and both graduate profile shapes', async () => {
     await expect(insertUser(teacher())).resolves.toBeDefined();
+    await expect(
+      insertUser({
+        ...teacher(),
+        accountRole: AccountRole.Student,
+      }),
+    ).resolves.toBeDefined();
     await expect(insertUser(undergraduate())).resolves.toBeDefined();
     await expect(insertUser(graduate({ departmentName: null }))).resolves.toBeDefined();
     await expect(
@@ -391,20 +397,42 @@ describe('Auth core schema (e2e)', () => {
     expect(instanceToPlain(explicitlySelected)).toEqual({});
   });
 
-  it('reverts and reapplies the latest migration (InitMeasurements) on an empty synthetic table', async () => {
-    // UYELIK-11 made `InitMeasurements` the new latest migration, superseding
-    // `InitGameRoundSubmitRateLimits` as the one this test exercises — the same living-test
-    // pattern `province.e2e-spec.ts`/`country.e2e-spec.ts` name explicitly ("adding a migration
-    // means editing" the test that pins the latest one). It is intentionally narrow: undoing it
-    // drops only `measurements`, leaving every other table — INCLUDING
-    // `game_round_submit_rate_limits` (the PREVIOUS latest migration's own table), `game_rounds`,
-    // `favorites`, `video_progress` and the earlier `AddSessionRotationGrace` column — in place.
-    // Both directions matter because the down path must not touch anything outside this
-    // migration's own table.
-    const counts = await dataSource.query<{ count: string }[]>(
-      `SELECT count(*)::text AS count FROM users`,
+  it('reverts and reapplies the latest migration (AllowStudentMinimalRegistrationProfileShape) on empty synthetic tables', async () => {
+    // The authority for "which migration is latest" is the explicit `migrations` array in
+    // `src/database/data-source-options.ts`, never a directory listing or a timestamp sort
+    // (`ENGINEERING.md` §5: "no globs — every migration is registered on purpose"). Its last
+    // entry is now `AllowStudentMinimalRegistrationProfileShape1788100000000`, which pushed
+    // `InitMeasurements` — the migration this test used to exercise — one place up. This is the
+    // same living-test pattern `province.e2e-spec.ts`/`country.e2e-spec.ts` name explicitly
+    // ("adding a migration means editing" the lists that pin it); this file is the third pin of
+    // that class, and the one that exercises the up/down path rather than the order.
+    //
+    // The retarget changes WHAT can be observed. Every previous latest migration created and
+    // dropped a table, so `to_regclass` could see it. This one creates and drops no relation at
+    // all: it only rewrites `CHK_users_profile_shape` and its `pending_registrations` twin from
+    // four branches to five, adding the minimal-student branch. The observable quantity is
+    // therefore the constraint DEFINITION TEXT, read with `pg_get_constraintdef` — and
+    // `relationSnapshot()` must come back IDENTICAL in all three states, `measurements:
+    // 'measurements'` included. That identity is not an oversight; it is the invariant this test
+    // exists for — the down path must not touch anything outside this migration's own objects.
+    // It is asserted against ONE hoisted const three times, so "identical in all three states" is
+    // an explicit property rather than three object literals that happen to agree.
+    //
+    // The emptiness precondition below is LOAD-BEARING, not narrative. `down()` re-adds the
+    // strict 4-branch constraint; `ALTER TABLE ... ADD CONSTRAINT` validates every existing row,
+    // so a single minimal-shaped student row in EITHER `users` or `pending_registrations` fails
+    // the revert with SQLSTATE 23514 — exactly the hazard this migration's own docblock warns
+    // about. Both tables are asserted empty here rather than letting the revert fail obscurely.
+    //
+    // A mid-test failure leaves this container's schema in the reverted 4-branch state. That is
+    // acceptable and deliberate: this is the last `it` in the file, and `afterAll` destroys the
+    // DataSource and stops the container, so no later test can observe it. Do NOT "fix" that
+    // with a try/finally that re-applies the migration — it would hide a real failure.
+    const counts = await dataSource.query<{ users: string; pending: string }[]>(
+      `SELECT (SELECT count(*)::text FROM users) AS users,
+              (SELECT count(*)::text FROM pending_registrations) AS pending`,
     );
-    expect(counts[0]?.count).toBe('0');
+    expect(counts[0]).toEqual({ users: '0', pending: '0' });
 
     const relationSnapshot = async (): Promise<Record<string, string | null> | undefined> => {
       const rows = await dataSource.query<
@@ -436,7 +464,8 @@ describe('Auth core schema (e2e)', () => {
       return rows[0];
     };
 
-    expect(await relationSnapshot()).toEqual({
+    // Asserted unchanged in ALL THREE states, `measurements` included — see the header comment.
+    const expectedRelations = {
       users: 'users',
       sessions: 'sessions',
       verify_codes: null,
@@ -447,7 +476,46 @@ describe('Auth core schema (e2e)', () => {
       game_rounds: 'game_rounds',
       game_round_submit_rate_limits: 'game_round_submit_rate_limits',
       measurements: 'measurements',
-    });
+    };
+
+    // The `conrelid` predicate is not decoration: `conname` is not unique across tables in
+    // `pg_constraint`, so a same-named constraint added on another table later would make an
+    // unpinned scalar subquery ERROR OUT rather than fail meaningfully.
+    const profileShapeDefs = async (): Promise<{ users: string; pending: string }> => {
+      const rows = await dataSource.query<{ users: string | null; pending: string | null }[]>(`
+        SELECT
+          (SELECT pg_get_constraintdef(oid) FROM pg_constraint
+            WHERE conname = 'CHK_users_profile_shape'
+              AND conrelid = 'public.users'::regclass) AS users,
+          (SELECT pg_get_constraintdef(oid) FROM pg_constraint
+            WHERE conname = 'CHK_pending_registrations_profile_shape'
+              AND conrelid = 'public.pending_registrations'::regclass) AS pending
+      `);
+      const row = rows[0];
+      if (!row?.users || !row.pending) {
+        throw new Error('profile-shape CHECK constraint definitions not found');
+      }
+      return { users: row.users, pending: row.pending };
+    };
+
+    // Names WHICH branch appeared and disappeared, without pinning the ~880-character deparse as
+    // a golden string. The 5-branch form contains `(education_level IS NULL)` TWICE — once in the
+    // TEACHER branch, once in the new STUDENT-minimal branch — and the 4-branch form once; the
+    // extra occurrence IS the branch this migration adds. A full-text pin would be unreadable and
+    // would break on a Postgres normalization change for the wrong reason, against
+    // `CONVENTIONS.md` §2's structural-invariant preference. The coupling to the deparse is
+    // deliberate and bounded: it is measured on `postgres:16-alpine`, the image this suite
+    // starts, and if a future upgrade renormalizes it this assertion fails loudly while the
+    // round-trip equality below stays valid regardless.
+    const MINIMAL_BRANCH_MARKER = '(education_level IS NULL)';
+    const branchMarkers = (definition: string): number =>
+      definition.split(MINIMAL_BRANCH_MARKER).length - 1;
+
+    expect(await relationSnapshot()).toEqual(expectedRelations);
+
+    const beforeUndo = await profileShapeDefs();
+    expect(branchMarkers(beforeUndo.users)).toBe(2);
+    expect(branchMarkers(beforeUndo.pending)).toBe(2);
 
     const rotationGraceColumn = async (): Promise<string | null> => {
       const rows = await dataSource.query<{ column_name: string }[]>(`
@@ -464,22 +532,28 @@ describe('Auth core schema (e2e)', () => {
 
     await dataSource.undoLastMigration();
 
-    // ONLY `measurements` disappears; every other table — including
-    // `game_round_submit_rate_limits`, the PREVIOUS latest migration's own table, `game_rounds`,
-    // `favorites`, `video_progress` and the earlier rotation-grace column — stays unchanged.
-    expect(await relationSnapshot()).toEqual({
-      users: 'users',
-      sessions: 'sessions',
-      verify_codes: null,
-      pending: 'pending_registrations',
-      reset_tokens: 'password_reset_tokens',
-      video_progress: 'video_progress',
-      favorites: 'favorites',
-      game_rounds: 'game_rounds',
-      game_round_submit_rate_limits: 'game_round_submit_rate_limits',
-      measurements: null,
-    });
+    // NOTHING disappears — this migration owns no relation. `measurements` in particular STAYS,
+    // unlike under the previous target; so do `game_round_submit_rate_limits`, `game_rounds`,
+    // `favorites`, `video_progress` and the earlier rotation-grace column.
+    expect(await relationSnapshot()).toEqual(expectedRelations);
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
+
+    // The revert genuinely changed the constraints — state 2 is not a no-op — and it changed
+    // them in the one direction that matters: the minimal-student branch is gone from both
+    // tables.
+    const afterUndo = await profileShapeDefs();
+    expect(afterUndo).not.toEqual(beforeUndo);
+    expect(branchMarkers(afterUndo.users)).toBe(1);
+    expect(branchMarkers(afterUndo.pending)).toBe(1);
+
+    // What that text change MEANS, in the one form the next reader cannot misread: under the
+    // reverted 4-branch rule the pre-PR#155 semantics are back and a minimal student row is
+    // rejected. It matches the constraint NAME rather than going through `expectRejected`, which
+    // only sees the `QueryFailedError` class — the same reasoning as the UNKNOWN positive
+    // controls above.
+    await expect(insertUser({ ...teacher(), accountRole: AccountRole.Student })).rejects.toThrow(
+      /CHK_users_profile_shape/,
+    );
 
     const columnsAfterDown = await dataSource.query<{ column_name: string }[]>(`
       SELECT column_name FROM information_schema.columns
@@ -489,19 +563,19 @@ describe('Auth core schema (e2e)', () => {
 
     await dataSource.runMigrations();
 
-    expect(await relationSnapshot()).toEqual({
-      users: 'users',
-      sessions: 'sessions',
-      verify_codes: null,
-      pending: 'pending_registrations',
-      reset_tokens: 'password_reset_tokens',
-      video_progress: 'video_progress',
-      favorites: 'favorites',
-      game_rounds: 'game_rounds',
-      game_round_submit_rate_limits: 'game_round_submit_rate_limits',
-      measurements: 'measurements',
-    });
+    expect(await relationSnapshot()).toEqual(expectedRelations);
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
+
+    // The strongest available statement about the round trip, and the one carrying no hardcoded
+    // SQL at all: up → down → up returns BOTH constraints to a byte-identical normalized
+    // definition.
+    const afterRedo = await profileShapeDefs();
+    expect(afterRedo).toEqual(beforeUndo);
+
+    // …and the insert the reverted schema rejected is accepted again.
+    await expect(
+      insertUser({ ...teacher(), accountRole: AccountRole.Student }),
+    ).resolves.toBeDefined();
 
     const columnsAfterUp = await dataSource.query<{ column_name: string }[]>(`
       SELECT column_name FROM information_schema.columns

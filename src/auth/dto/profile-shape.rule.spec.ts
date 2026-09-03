@@ -3,7 +3,7 @@ import { AccountRole, EducationLevel, GradeLevel, StudyStream } from '../account
 import { isProfileShapeValid, type ProfileShapeCandidate } from './profile-shape.rule';
 
 /**
- * U-PS1: the four branches' full positive matrix, plus every missing/extra-field negative per
+ * U-PS1: the five branches' full positive matrix, plus every missing/extra-field negative per
  * branch — mirrors `CHK_users_profile_shape` (`../entities/user.entity.ts`) case for case.
  */
 describe('isProfileShapeValid (§6.4 profile matrix)', () => {
@@ -111,18 +111,36 @@ describe('isProfileShapeValid (§6.4 profile matrix)', () => {
     });
   });
 
+  describe('STUDENT (Minimal Registration — Decision 2-B, DEC 2026-09-03a md.1)', () => {
+    const base: ProfileShapeCandidate = {
+      accountRole: AccountRole.Student,
+    };
+
+    it('accepts a student with no education fields at all pending onboarding', () => {
+      expect(isProfileShapeValid(base)).toBe(true);
+      expect(isProfileShapeValid({ ...base, educationLevel: null })).toBe(true);
+    });
+
+    it('rejects a minimal student carrying any education field without an educationLevel', () => {
+      expect(isProfileShapeValid({ ...base, gradeLevel: GradeLevel.Grade9 })).toBe(false);
+      expect(isProfileShapeValid({ ...base, studyStream: StudyStream.Sayisal })).toBe(false);
+      expect(isProfileShapeValid({ ...base, universityName: 'Boğaziçi Üniversitesi' })).toBe(false);
+      expect(isProfileShapeValid({ ...base, departmentName: 'Coğrafya' })).toBe(false);
+    });
+  });
+
   describe('malformed input', () => {
-    it('rejects a STUDENT with no recognised educationLevel', () => {
+    it('rejects an accountRole outside the closed set', () => {
+      expect(isProfileShapeValid({ accountRole: undefined })).toBe(false);
+    });
+
+    it('rejects a STUDENT with an unrecognized educationLevel', () => {
       expect(
         isProfileShapeValid({
           accountRole: AccountRole.Student,
-          educationLevel: undefined,
+          educationLevel: 'UNKNOWN' as EducationLevel,
         }),
       ).toBe(false);
-    });
-
-    it('rejects an accountRole outside the closed set', () => {
-      expect(isProfileShapeValid({ accountRole: undefined })).toBe(false);
     });
   });
 });
