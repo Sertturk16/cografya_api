@@ -30,6 +30,7 @@
     "migration:generate": "pnpm build && typeorm migration:generate -d dist/database/data-source.js",
     "migration:create": "typeorm migration:create",
     "db:seed:geography": "pnpm build && node dist/database/seeds/geography.cli.js",
+    "db:seed:regions": "pnpm build && node dist/database/seeds/regions.cli.js",
     "db:seed:world": "pnpm build && node dist/database/seeds/world.cli.js",
     "db:seed:books": "pnpm build && node dist/database/seeds/books.cli.js",
     "db:seed:reference": "pnpm build && node dist/database/seeds/reference.cli.js",

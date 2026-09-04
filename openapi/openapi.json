@@ -195,6 +195,67 @@
         ]
       }
     },
+    "/api/regions": {
+      "get": {
+        "operationId": "RegionController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RegionListItemDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List all seven geographic regions (lean payload for hub and comparative views).",
+        "tags": [
+          "regions"
+        ]
+      }
+    },
+    "/api/regions/{slug}": {
+      "get": {
+        "operationId": "RegionController_findBySlug",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "description": "URL slug of the region (e.g. marmara, ege, akdeniz).",
+            "schema": {
+              "example": "marmara",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegionDetailDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No region matches the given slug."
+          }
+        },
+        "summary": "Get one geographic region by its canonical URL slug (full 15-section detail).",
+        "tags": [
+          "regions"
+        ]
+      }
+    },
     "/api/marine/points": {
       "get": {
         "description": "Plain array, bounded and small. Points are OFFSHORE coordinates deliberately outside straits and narrow gulfs, where regional models measurably disagree; the three two-sea provinces (İstanbul, Çanakkale, Balıkesir) each return two entries.",
@@ -3395,6 +3456,501 @@
           "settlementNoteTr",
           "economyNoteTr",
           "governanceNoteTr",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "RegionListItemDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "example": "marmara",
+            "description": "URL identifier slug."
+          },
+          "nameTr": {
+            "type": "string",
+            "example": "Marmara Bölgesi",
+            "description": "Tam bölge adı."
+          },
+          "headingName": {
+            "type": "string",
+            "example": "Marmara",
+            "description": "Kısa başlık adı."
+          },
+          "region": {
+            "enum": [
+              "MARMARA",
+              "EGE",
+              "AKDENIZ",
+              "IC_ANADOLU",
+              "KARADENIZ",
+              "DOGU_ANADOLU",
+              "GUNEYDOGU_ANADOLU"
+            ],
+            "type": "string",
+            "description": "Coğrafi bölge enum anahtarı."
+          },
+          "provinceCount": {
+            "type": "number",
+            "example": 11,
+            "description": "Bölgedeki il sayısı."
+          },
+          "districtCount": {
+            "type": "number",
+            "example": 158,
+            "description": "Bölgedeki toplam ilçe sayısı."
+          },
+          "population": {
+            "type": "number",
+            "example": 26711525,
+            "description": "Bölgenin toplam nüfusu."
+          },
+          "populationSharePercent": {
+            "type": "number",
+            "example": 31.03,
+            "description": "Türkiye nüfusu içindeki payı (%)."
+          },
+          "areaKm2": {
+            "type": "number",
+            "example": 72666,
+            "description": "Bölgenin toplam yüzölçümü (km²)."
+          },
+          "areaSharePercent": {
+            "type": "number",
+            "example": 9.32,
+            "description": "Türkiye yüzölçümü içindeki payı (%)."
+          },
+          "populationDensity": {
+            "type": "number",
+            "example": 368,
+            "description": "Aritmetik nüfus yoğunluğu (kişi/km²)."
+          },
+          "gdpShareApproxPercent": {
+            "type": "number",
+            "nullable": true,
+            "example": 43,
+            "description": "Bölgenin yaklaşık GSYH payı (%)."
+          }
+        },
+        "required": [
+          "slug",
+          "nameTr",
+          "headingName",
+          "region",
+          "provinceCount",
+          "districtCount",
+          "population",
+          "populationSharePercent",
+          "areaKm2",
+          "areaSharePercent",
+          "populationDensity",
+          "gdpShareApproxPercent"
+        ]
+      },
+      "RegionProvinceItemDto": {
+        "type": "object",
+        "properties": {
+          "plateCode": {
+            "type": "string",
+            "example": "34",
+            "description": "Plaka kodu."
+          },
+          "nameTr": {
+            "type": "string",
+            "example": "İstanbul",
+            "description": "İl adı."
+          },
+          "slugTr": {
+            "type": "string",
+            "example": "istanbul",
+            "description": "İl URL slugı."
+          },
+          "population": {
+            "type": "number",
+            "nullable": true,
+            "example": 15754053,
+            "description": "İl nüfusu."
+          },
+          "areaKm2": {
+            "type": "number",
+            "nullable": true,
+            "example": 5461,
+            "description": "İl yüzölçümü (km²)."
+          },
+          "climateNameTr": {
+            "type": "string",
+            "nullable": true,
+            "example": "Marmara geçiş iklimi",
+            "description": "Müfredat iklim adı."
+          },
+          "climateKoppen": {
+            "type": "string",
+            "nullable": true,
+            "example": "Csa",
+            "description": "Köppen iklim kodu."
+          }
+        },
+        "required": [
+          "plateCode",
+          "nameTr",
+          "slugTr",
+          "population",
+          "areaKm2",
+          "climateNameTr",
+          "climateKoppen"
+        ]
+      },
+      "RegionComparisonItemDto": {
+        "type": "object",
+        "properties": {
+          "nameTr": {
+            "type": "string",
+            "example": "Marmara",
+            "description": "Bölge adı."
+          },
+          "slug": {
+            "type": "string",
+            "example": "marmara",
+            "description": "Bölge slugı."
+          },
+          "provinceCount": {
+            "type": "number",
+            "example": 11,
+            "description": "İl sayısı."
+          },
+          "population": {
+            "type": "number",
+            "example": 26711525,
+            "description": "Nüfus."
+          },
+          "populationSharePercent": {
+            "type": "number",
+            "example": 31.03,
+            "description": "Nüfus payı (%)."
+          },
+          "areaKm2": {
+            "type": "number",
+            "example": 72666,
+            "description": "Yüzölçümü (km²)."
+          },
+          "populationDensity": {
+            "type": "number",
+            "example": 368,
+            "description": "Nüfus yoğunluğu (kişi/km²)."
+          }
+        },
+        "required": [
+          "nameTr",
+          "slug",
+          "provinceCount",
+          "population",
+          "populationSharePercent",
+          "areaKm2",
+          "populationDensity"
+        ]
+      },
+      "RegionFaqDto": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string",
+            "example": "Marmara Bölgesi'nde kaç il var?",
+            "description": "Soru metni."
+          },
+          "answer": {
+            "type": "string",
+            "example": "Marmara Bölgesi'nde 11 il bulunur...",
+            "description": "Cevap metni."
+          }
+        },
+        "required": [
+          "question",
+          "answer"
+        ]
+      },
+      "RegionDetailDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "example": "marmara",
+            "description": "URL identifier slug."
+          },
+          "nameTr": {
+            "type": "string",
+            "example": "Marmara Bölgesi",
+            "description": "Tam bölge adı."
+          },
+          "headingName": {
+            "type": "string",
+            "example": "Marmara",
+            "description": "Kısa başlık adı."
+          },
+          "region": {
+            "enum": [
+              "MARMARA",
+              "EGE",
+              "AKDENIZ",
+              "IC_ANADOLU",
+              "KARADENIZ",
+              "DOGU_ANADOLU",
+              "GUNEYDOGU_ANADOLU"
+            ],
+            "type": "string",
+            "description": "Coğrafi bölge enum anahtarı."
+          },
+          "metaTitle": {
+            "type": "string",
+            "example": "Marmara Bölgesi: 11 İl, İklim ve Ekonomik Ağırlık",
+            "description": "Bölüm 1 SEO başlığı."
+          },
+          "metaDescription": {
+            "type": "string",
+            "example": "Marmara Bölgesi'nin 11 ilinde 26,7 milyon kişi yaşar...",
+            "description": "Bölüm 1 meta açıklama."
+          },
+          "h1": {
+            "type": "string",
+            "example": "Marmara Bölgesi",
+            "description": "H1 başlığı."
+          },
+          "introTr": {
+            "type": "string",
+            "example": "Marmara Bölgesi, adını ortasındaki denizden alır...",
+            "description": "Bölüm 2 H1 altı giriş paragrafı."
+          },
+          "provinceCount": {
+            "type": "number",
+            "example": 11,
+            "description": "Bölgedeki il sayısı."
+          },
+          "districtCount": {
+            "type": "number",
+            "example": 158,
+            "description": "Bölgedeki toplam ilçe sayısı."
+          },
+          "population": {
+            "type": "number",
+            "example": 26711525,
+            "description": "Bölgenin toplam nüfusu."
+          },
+          "populationSharePercent": {
+            "type": "number",
+            "example": 31.03,
+            "description": "Türkiye nüfusu içindeki payı (%)."
+          },
+          "areaKm2": {
+            "type": "number",
+            "example": 72666,
+            "description": "Bölgenin toplam yüzölçümü (km²)."
+          },
+          "areaSharePercent": {
+            "type": "number",
+            "example": 9.32,
+            "description": "Türkiye yüzölçümü içindeki payı (%)."
+          },
+          "populationDensity": {
+            "type": "number",
+            "example": 368,
+            "description": "Aritmetik nüfus yoğunluğu (kişi/km²)."
+          },
+          "gdpShareApproxPercent": {
+            "type": "number",
+            "nullable": true,
+            "example": 43,
+            "description": "Bölgenin yaklaşık GSYH payı (%)."
+          },
+          "highestPointName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Uludağ",
+            "description": "Bölgenin en yüksek noktasının adı."
+          },
+          "highestPointElevationM": {
+            "type": "number",
+            "nullable": true,
+            "example": 2543,
+            "description": "Bölgenin en yüksek noktasının rakımı (metre)."
+          },
+          "highestPointProvince": {
+            "type": "string",
+            "nullable": true,
+            "example": "Bursa",
+            "description": "En yüksek noktanın bulunduğu il."
+          },
+          "coastalSeas": {
+            "example": [
+              "Karadeniz",
+              "Marmara Denizi",
+              "Ege Denizi"
+            ],
+            "description": "Kıyısı olan denizler.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "neighborRegions": {
+            "example": [
+              "Ege",
+              "Karadeniz",
+              "İç Anadolu"
+            ],
+            "description": "Komşu coğrafi bölgeler.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "neighborCountries": {
+            "example": [
+              "Bulgaristan",
+              "Yunanistan"
+            ],
+            "description": "Komşu ülkeler.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "subregionCount": {
+            "type": "number",
+            "example": 4,
+            "description": "Bölgeye ait coğrafi bölüm sayısı."
+          },
+          "subregions": {
+            "example": [
+              "Yıldız Dağları Bölümü",
+              "Ergene Bölümü",
+              "Çatalca-Kocaeli Bölümü",
+              "Güney Marmara Bölümü"
+            ],
+            "description": "1941 Coğrafya Kongresi bölümleri listesi.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "footnotes": {
+            "example": [
+              "Şerh: TÜİK İBBS Düzey-1 sınıflandırması..."
+            ],
+            "description": "Künye altındaki metodolojik şerhler ve dipnotlar.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "locationAndBordersTr": {
+            "type": "string",
+            "description": "Bölüm 4: Konum ve Sınırlar gövde metni."
+          },
+          "landformsTr": {
+            "type": "string",
+            "description": "Bölüm 5: Yeryüzü Şekilleri gövde metni."
+          },
+          "climateAndVegetationTr": {
+            "type": "string",
+            "description": "Bölüm 6: İklim ve Bitki Örtüsü gövde metni."
+          },
+          "hydrographyTr": {
+            "type": "string",
+            "description": "Bölüm 7: Hidrografya gövde metni."
+          },
+          "settlementAndPopulationTr": {
+            "type": "string",
+            "description": "Bölüm 8: Nüfus ve Yerleşme gövde metni."
+          },
+          "economyTr": {
+            "type": "string",
+            "description": "Bölüm 9: Ekonomik Ağırlık gövde metni."
+          },
+          "subregionsTr": {
+            "type": "string",
+            "description": "Bölüm 10: Coğrafi Bölümleri gövde metni."
+          },
+          "provinces": {
+            "description": "Bölüm 11: Bölgedeki illerin canlı veri tablosu.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RegionProvinceItemDto"
+            }
+          },
+          "disasterAndEarthquakeTr": {
+            "type": "string",
+            "description": "Bölüm 12: Deprem ve Afet Riski gövde metni."
+          },
+          "comparisonTr": {
+            "type": "string",
+            "description": "Bölüm 13: Karşılaştırma tanıtım metni."
+          },
+          "comparisonTable": {
+            "description": "Bölüm 13: 7 bölgenin karşılaştırma tablosu.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RegionComparisonItemDto"
+            }
+          },
+          "faqs": {
+            "description": "Bölüm 14: SSS listesi (FAQPage JSON-LD taşıyıcısı).",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RegionFaqDto"
+            }
+          },
+          "sourcesNoteTr": {
+            "type": "string",
+            "description": "Bölüm 15: Kaynakça notu."
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2026-09-04T12:00:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2026-09-04T12:00:00.000Z"
+          }
+        },
+        "required": [
+          "slug",
+          "nameTr",
+          "headingName",
+          "region",
+          "metaTitle",
+          "metaDescription",
+          "h1",
+          "introTr",
+          "provinceCount",
+          "districtCount",
+          "population",
+          "populationSharePercent",
+          "areaKm2",
+          "areaSharePercent",
+          "populationDensity",
+          "gdpShareApproxPercent",
+          "highestPointName",
+          "highestPointElevationM",
+          "highestPointProvince",
+          "coastalSeas",
+          "neighborRegions",
+          "neighborCountries",
+          "subregionCount",
+          "subregions",
+          "footnotes",
+          "locationAndBordersTr",
+          "landformsTr",
+          "climateAndVegetationTr",
+          "hydrographyTr",
+          "settlementAndPopulationTr",
+          "economyTr",
+          "subregionsTr",
+          "provinces",
+          "disasterAndEarthquakeTr",
+          "comparisonTr",
+          "comparisonTable",
+          "faqs",
+          "sourcesNoteTr",
           "createdAt",
           "updatedAt"
         ]
