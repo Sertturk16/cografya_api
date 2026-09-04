@@ -21,6 +21,7 @@ import { MarineModule } from './marine/marine.module';
 import { MeasurementsModule } from './measurements/measurements.module';
 import { ProvinceModule } from './province/province.module';
 import { ReferenceModule } from './reference/reference.module';
+import { RegionModule } from './region/region.module';
 import { VideoProgressModule } from './video-progress/video-progress.module';
 
 /**
@@ -78,6 +79,7 @@ export const THROTTLE_LIMIT = 120;
     HealthModule,
     ProvinceModule,
     CountryModule,
+    RegionModule,
     MarineModule,
     AirQualityModule,
     BookModule,

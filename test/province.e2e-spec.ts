@@ -212,6 +212,7 @@ describe('Province (e2e)', () => {
       // MUST stay ordered after `InitUsers`.
       'InitMeasurements1788007200000',
       'AllowStudentMinimalRegistrationProfileShape1788100000000',
+      'InitRegions1788200000000',
     ]);
   });
 

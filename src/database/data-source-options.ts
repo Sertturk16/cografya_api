@@ -21,6 +21,7 @@ import { MarineEcmwfPointSeries } from '../marine/entities/marine-ecmwf-point-se
 import { MarinePoint } from '../marine/entities/marine-point.entity';
 import { Measurement } from '../measurements/entities/measurement.entity';
 import { Province } from '../province/entities/province.entity';
+import { Region } from '../region/entities/region.entity';
 import { District } from '../reference/entities/district.entity';
 import { VideoProgress } from '../video-progress/entities/video-progress.entity';
 import { InitProvince1783382400000 } from './migrations/1783382400000-InitProvince';
@@ -54,6 +55,7 @@ import { InitGameRounds1788000000000 } from './migrations/1788000000000-InitGame
 import { InitGameRoundSubmitRateLimits1788003600000 } from './migrations/1788003600000-InitGameRoundSubmitRateLimits';
 import { InitMeasurements1788007200000 } from './migrations/1788007200000-InitMeasurements';
 import { AllowStudentMinimalRegistrationProfileShape1788100000000 } from './migrations/1788100000000-AllowStudentMinimalRegistrationProfileShape';
+import { InitRegions1788200000000 } from './migrations/1788200000000-InitRegions';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -242,6 +244,7 @@ export function buildDataSourceOptions(
       GameRound,
       GameRoundSubmitRateLimit,
       Measurement,
+      Region,
     ],
     migrations: [
       InitProvince1783382400000,
@@ -275,6 +278,7 @@ export function buildDataSourceOptions(
       InitGameRoundSubmitRateLimits1788003600000,
       InitMeasurements1788007200000,
       AllowStudentMinimalRegistrationProfileShape1788100000000,
+      InitRegions1788200000000,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,
