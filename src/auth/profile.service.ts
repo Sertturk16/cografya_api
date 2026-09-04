@@ -98,7 +98,7 @@ export class ProfileService {
       throw new BadRequestException(PROFILE_SHAPE_MESSAGE);
     }
 
-    await this.users.update(
+    const result = await this.users.update(
       { id: userId },
       {
         educationLevel,
@@ -108,6 +108,10 @@ export class ProfileService {
         departmentName,
       },
     );
+
+    if (!result.affected) {
+      throw new UnauthorizedException(AUTH_ERROR_KEYS.unauthenticated);
+    }
 
     return {
       accountRole: user.accountRole,

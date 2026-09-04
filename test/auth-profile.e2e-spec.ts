@@ -1,9 +1,9 @@
-import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
+import { afterAll, beforeAll, describe, expect, it, jest } from '@jest/globals';
 import { ValidationPipe, type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
-import { DataSource } from 'typeorm';
+import { DataSource, type Repository } from 'typeorm';
 import {
   AccountRole,
   AccountStatus,
@@ -12,8 +12,10 @@ import {
   StudyStream,
 } from '../src/auth/account.types';
 import { AccessTokenService } from '../src/auth/access-token.service';
+import { AUTH_ERROR_KEYS } from '../src/auth/auth-error-keys';
 import { PROFILE_SHAPE_MESSAGE } from '../src/auth/dto/profile-shape.rule';
 import { User } from '../src/auth/entities/user.entity';
+import { ProfileService } from '../src/auth/profile.service';
 import { applyGlobalPrefix } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { seedGeography } from '../src/database/seeds/seed-geography';
@@ -414,5 +416,32 @@ describe('Auth Profile (e2e, real Postgres)', () => {
 
     expect(res.status).toBe(400);
     expect(res.body.message).toBe(PROFILE_SHAPE_MESSAGE);
+  });
+
+  // SFH156-I1: Zero rows affected throws 401 unauthenticated
+  it('SFH156-I1: returns 401 unauthenticated when update affects 0 rows', async () => {
+    const profileService = app.get(ProfileService);
+    const usersRepo = (profileService as unknown as { users: Repository<User> }).users;
+    const updateSpy = jest.spyOn(usersRepo, 'update').mockResolvedValueOnce({
+      affected: 0,
+      raw: [],
+      generatedMaps: [],
+    });
+
+    const res = await request(app.getHttpServer())
+      .put('/api/auth/profile')
+      .set(bearer(tokenA))
+      .send(
+        axis({
+          educationLevel: EducationLevel.Secondary,
+          gradeLevel: GradeLevel.Grade12,
+          studyStream: StudyStream.Sayisal,
+        }),
+      );
+
+    expect(updateSpy).toHaveBeenCalled();
+    expect(res.status).toBe(401);
+    expect(res.body.message).toBe(AUTH_ERROR_KEYS.unauthenticated);
+    updateSpy.mockRestore();
   });
 });

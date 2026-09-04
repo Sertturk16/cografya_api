@@ -68,7 +68,7 @@ export const AUTH_ROUTE_THROTTLES = {
 } as const;
 
 /**
- * The nine auth endpoints (§6.1).
+ * The eleven auth endpoints (ten paths, eleven operations; §6.1, plan-api.md §5.2).
  *
  * **D13, AMENDED — `Cache-Control: no-store` is written by `AuthNoStoreMiddleware`, not by nine
  * `@Header` decorators.** D13's original mechanism claimed to cover "every response, success or

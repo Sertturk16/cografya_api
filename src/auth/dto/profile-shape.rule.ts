@@ -86,12 +86,12 @@ export const PROFILE_SHAPE_MESSAGE =
  */
 export function isProfileComplete(
   accountRole: AccountRole,
-  educationLevel: EducationLevel | null | undefined,
+  educationLevel: EducationLevel | null,
 ): boolean {
   if (accountRole === AccountRole.Teacher) {
     return true;
   }
-  return educationLevel !== null && educationLevel !== undefined;
+  return educationLevel !== null;
 }
 
 @ValidatorConstraint({ name: 'profileShapeValid', async: false })
