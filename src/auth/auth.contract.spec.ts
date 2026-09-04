@@ -27,30 +27,33 @@ describe('openapi/openapi.json — auth contract (AUTH-C1)', () => {
   type EnumProperty = { enum?: string[] };
   type SecretFieldProperty = { writeOnly?: boolean; example?: unknown };
 
-  it('publishes exactly the nine auth paths, with the right HTTP methods', () => {
-    const expected: Record<string, string> = {
-      '/api/auth/register': 'post',
-      '/api/auth/verify-email': 'post',
-      '/api/auth/verify-email/resend': 'post',
-      '/api/auth/login': 'post',
-      '/api/auth/refresh': 'post',
-      '/api/auth/logout': 'post',
-      '/api/auth/password-reset/request': 'post',
-      '/api/auth/password-reset/confirm': 'post',
-      '/api/auth/session': 'get',
+  it('publishes exactly the ten auth paths, with the right HTTP methods', () => {
+    const expected: Record<string, string[]> = {
+      '/api/auth/register': ['post'],
+      '/api/auth/verify-email': ['post'],
+      '/api/auth/verify-email/resend': ['post'],
+      '/api/auth/login': ['post'],
+      '/api/auth/refresh': ['post'],
+      '/api/auth/logout': ['post'],
+      '/api/auth/password-reset/request': ['post'],
+      '/api/auth/password-reset/confirm': ['post'],
+      '/api/auth/session': ['get'],
+      '/api/auth/profile': ['get', 'put'],
     };
     const entries = Object.entries(expected);
-    expect(entries.length).toBe(9);
-    for (const [path, method] of entries) {
+    expect(entries.length).toBe(10);
+    for (const [path, methods] of entries) {
       const operations = document.paths[path];
       expect(`${path}:present=${String(operations !== undefined)}`).toBe(`${path}:present=true`);
-      expect(`${path}:${method}=${String(operations?.[method] !== undefined)}`).toBe(
-        `${path}:${method}=true`,
-      );
+      for (const method of methods) {
+        expect(`${path}:${method}=${String(operations?.[method] !== undefined)}`).toBe(
+          `${path}:${method}=true`,
+        );
+      }
     }
   });
 
-  it('publishes exactly the ten DTO schema names §13.3 froze', () => {
+  it('publishes exactly the twelve DTO schema names §13.3 froze', () => {
     const expectedSchemas = [
       'RegisterRequestDto',
       'VerifyEmailRequestDto',
@@ -62,8 +65,10 @@ describe('openapi/openapi.json — auth contract (AUTH-C1)', () => {
       'PasswordResetConfirmDto',
       'AuthResultDto',
       'SessionDto',
+      'ProfileDto',
+      'UpdateProfileRequestDto',
     ];
-    expect(expectedSchemas.length).toBe(10);
+    expect(expectedSchemas.length).toBe(12);
     for (const name of expectedSchemas) {
       expect(`${name}:${String(document.components.schemas[name] !== undefined)}`).toBe(
         `${name}:true`,
@@ -128,20 +133,34 @@ describe('openapi/openapi.json — auth contract (AUTH-C1)', () => {
     }
   });
 
-  it('publishes the access-token bearer security scheme, used only by GET /api/auth/session', () => {
+  it('publishes the access-token bearer security scheme, used only by the three authenticated auth operations', () => {
     const scheme = document.components.securitySchemes?.['access-token'];
     expect(scheme).toEqual({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' });
 
-    const sessionSecurity = document.paths['/api/auth/session']?.get as
-      OperationWithSecurity | undefined;
-    expect(sessionSecurity?.security).toEqual([{ 'access-token': [] }]);
+    const AUTHENTICATED_AUTH_OPERATIONS = new Set([
+      '/api/auth/session:get',
+      '/api/auth/profile:get',
+      '/api/auth/profile:put',
+    ]);
 
-    // No OTHER auth route carries a security requirement — every one of the other eight is
+    for (const opKey of AUTHENTICATED_AUTH_OPERATIONS) {
+      const [path, method] = opKey.split(':') as [string, string];
+      const op = document.paths[path]?.[method] as OperationWithSecurity | undefined;
+      expect(`${opKey}:security=${JSON.stringify(op?.security)}`).toBe(
+        `${opKey}:security=[{"access-token":[]}]`,
+      );
+    }
+
+    // No OTHER auth route carries a security requirement — every other auth operation is
     // unauthenticated by design (D3, D8: the guard is opt-in, never global).
     for (const [path, operations] of Object.entries(document.paths)) {
-      if (!path.startsWith('/api/auth/') || path === '/api/auth/session') continue;
-      for (const operation of Object.values(operations)) {
-        expect((operation as { security?: unknown }).security).toBeUndefined();
+      if (!path.startsWith('/api/auth/')) continue;
+      for (const [method, operation] of Object.entries(operations)) {
+        const opKey = `${path}:${method}`;
+        if (AUTHENTICATED_AUTH_OPERATIONS.has(opKey)) continue;
+        expect(
+          `${opKey}:security=${JSON.stringify((operation as { security?: unknown }).security)}`,
+        ).toBe(`${opKey}:security=undefined`);
       }
     }
   });

@@ -1331,6 +1331,100 @@
         ]
       }
     },
+    "/api/auth/profile": {
+      "get": {
+        "description": "Returns the caller’s declared education profile fields and isComplete derivation (`plan-api.md` §5.3.1, §5.3.2).",
+        "operationId": "AuthController_getProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "errors.auth.unauthenticated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Read the declared education profile of the authenticated caller.",
+        "tags": [
+          "auth"
+        ]
+      },
+      "put": {
+        "description": "Replaces the caller’s entire declared education profile (`plan-api.md` §5.3.1, §5.3.3). All five keys are required; explicit null clears a field. Idempotent.",
+        "operationId": "AuthController_replaceProfile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing required key, unknown property, or profile matrix violation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "errors.auth.unauthenticated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Replace the declared education profile of the authenticated caller (full replacement).",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/api/video-progress/{bookVideoId}": {
       "get": {
         "description": "One undifferentiated 404 whether bookVideoId names no video at all or the caller simply has no saved progress for a valid one — a client asking \"do I have progress here\" gets the same actionable answer (no) regardless of which is true.",
@@ -6248,6 +6342,161 @@
           "id",
           "firstName",
           "accountRole"
+        ]
+      },
+      "ProfileDto": {
+        "type": "object",
+        "properties": {
+          "accountRole": {
+            "enum": [
+              "STUDENT",
+              "TEACHER"
+            ],
+            "type": "string",
+            "example": "STUDENT",
+            "description": "Beyan edilen hesap rolü — yetki değildir (`GLOSSARY.md` §7.1)."
+          },
+          "educationLevel": {
+            "nullable": true,
+            "enum": [
+              "SECONDARY",
+              "UNDERGRADUATE",
+              "GRADUATE"
+            ],
+            "type": "string",
+            "example": "SECONDARY",
+            "description": "Eğitim düzeyi — null: henüz beyan edilmedi veya öğretmen hesabı."
+          },
+          "gradeLevel": {
+            "nullable": true,
+            "enum": [
+              "GRADE_5",
+              "GRADE_6",
+              "GRADE_7",
+              "GRADE_8",
+              "GRADE_9",
+              "GRADE_10",
+              "GRADE_11",
+              "GRADE_12",
+              "MEZUN",
+              "KPSS",
+              "DIGER"
+            ],
+            "type": "string",
+            "example": "GRADE_12",
+            "description": "Sınıf seviyesi — yalnızca educationLevel = SECONDARY iken geçerlidir."
+          },
+          "studyStream": {
+            "nullable": true,
+            "enum": [
+              "SAYISAL",
+              "SOZEL",
+              "ESIT_AGIRLIK",
+              "TYT",
+              "DIL",
+              "LGS",
+              "MSU",
+              "ARA_SINIF",
+              "KPSS",
+              "DIGER"
+            ],
+            "type": "string",
+            "example": "SAYISAL",
+            "description": "Öğrenim alanı / kolu — yalnızca educationLevel = SECONDARY iken geçerlidir."
+          },
+          "universityName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Boğaziçi Üniversitesi",
+            "description": "Üniversite adı — yalnızca UNDERGRADUATE / GRADUATE iken geçerlidir."
+          },
+          "departmentName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Coğrafya Öğretmenliği",
+            "description": "Bölüm / program adı — UNDERGRADUATE için zorunlu, GRADUATE için isteğe bağlıdır."
+          },
+          "isComplete": {
+            "type": "boolean",
+            "example": true,
+            "description": "Profilin tamamlanma durumu — TEACHER için true, STUDENT için educationLevel !== null."
+          }
+        },
+        "required": [
+          "accountRole",
+          "educationLevel",
+          "gradeLevel",
+          "studyStream",
+          "universityName",
+          "departmentName",
+          "isComplete"
+        ]
+      },
+      "UpdateProfileRequestDto": {
+        "type": "object",
+        "properties": {
+          "educationLevel": {
+            "nullable": true,
+            "enum": [
+              "SECONDARY",
+              "UNDERGRADUATE",
+              "GRADUATE"
+            ],
+            "type": "string",
+            "description": "Eğitim düzeyi. null değeri alanı temizlemek için kullanılır."
+          },
+          "gradeLevel": {
+            "nullable": true,
+            "enum": [
+              "GRADE_5",
+              "GRADE_6",
+              "GRADE_7",
+              "GRADE_8",
+              "GRADE_9",
+              "GRADE_10",
+              "GRADE_11",
+              "GRADE_12",
+              "MEZUN",
+              "KPSS",
+              "DIGER"
+            ],
+            "type": "string",
+            "description": "Sınıf seviyesi (SECONDARY için). null değeri alanı temizlemek için kullanılır."
+          },
+          "studyStream": {
+            "nullable": true,
+            "enum": [
+              "SAYISAL",
+              "SOZEL",
+              "ESIT_AGIRLIK",
+              "TYT",
+              "DIL",
+              "LGS",
+              "MSU",
+              "ARA_SINIF",
+              "KPSS",
+              "DIGER"
+            ],
+            "type": "string",
+            "description": "Öğrenim alanı (SECONDARY için). null değeri alanı temizlemek için kullanılır."
+          },
+          "universityName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Üniversite adı (UNDERGRADUATE / GRADUATE için). null değeri alanı temizlemek için kullanılır."
+          },
+          "departmentName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Bölüm adı (UNDERGRADUATE / GRADUATE için). null değeri alanı temizlemek için kullanılır."
+          }
+        },
+        "required": [
+          "educationLevel",
+          "gradeLevel",
+          "studyStream",
+          "universityName",
+          "departmentName"
         ]
       },
       "VideoProgressDto": {
