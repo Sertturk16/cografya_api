@@ -1,6 +1,10 @@
 import { describe, expect, it } from '@jest/globals';
 import { AccountRole, EducationLevel, GradeLevel, StudyStream } from '../account.types';
-import { isProfileShapeValid, type ProfileShapeCandidate } from './profile-shape.rule';
+import {
+  isProfileComplete,
+  isProfileShapeValid,
+  type ProfileShapeCandidate,
+} from './profile-shape.rule';
 
 /**
  * U-PS1: the five branches' full positive matrix, plus every missing/extra-field negative per
@@ -141,6 +145,22 @@ describe('isProfileShapeValid (§6.4 profile matrix)', () => {
           educationLevel: 'UNKNOWN' as EducationLevel,
         }),
       ).toBe(false);
+    });
+  });
+
+  describe('isProfileComplete', () => {
+    it('reports true for TEACHER regardless of educationLevel', () => {
+      expect(isProfileComplete(AccountRole.Teacher, null)).toBe(true);
+    });
+
+    it('reports false for STUDENT when educationLevel is null', () => {
+      expect(isProfileComplete(AccountRole.Student, null)).toBe(false);
+    });
+
+    it('reports true for STUDENT when educationLevel is set', () => {
+      expect(isProfileComplete(AccountRole.Student, EducationLevel.Secondary)).toBe(true);
+      expect(isProfileComplete(AccountRole.Student, EducationLevel.Undergraduate)).toBe(true);
+      expect(isProfileComplete(AccountRole.Student, EducationLevel.Graduate)).toBe(true);
     });
   });
 });
