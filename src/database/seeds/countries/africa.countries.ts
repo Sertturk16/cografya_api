@@ -74,30 +74,39 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "5 Temmuz 1962'de Fransa'dan bağımsız oldu (1954-62 Bağımsızlık Savaşı, Évian Anlaşmaları).",
     introTr:
-      "Cezayir, Afrika'nın ve Arap dünyasının en büyük ülkesidir; kuzeyde Akdeniz'e dar bir " +
-      "kıyı şeridiyle açılır, topraklarının büyük bölümü ise güneye doğru Sahra'nın " +
-      'içlerine uzanır. Tunus, Libya, Nijer, Mali, Moritanya ve Fas olmak üzere altı ' +
-      'ülkeyle kara sınırı vardır. Kuzeydeki nüfus yoğun kıyı kuşağı ile güneydeki ' +
-      'neredeyse ıssız çöl arasında keskin bir tezat bulunur.',
+      "Cezayir, Akdeniz kıyılarından Sahra Çölü'nün derinliklerine uzanan topraklarıyla " +
+      'Afrika kıtasının ve Akdeniz havzasının yüzölçümü bakımından en büyük ülkesidir. ' +
+      '\n\n' +
+      'Ülke coğrafyası, yerleşim deseni açısından keskin bir karşıtlık barındırır: Kuzeydeki ' +
+      'verimli kıyı ve vadi şeridi nüfusun ezici çoğunluğunu barındırırken, yüzölçümünün ' +
+      'beşte dördünden fazlasını kaplayan güneydeki Sahra kuşağı kuraklığı nedeniyle son ' +
+      'derece seyrek bir vahalar düzenine sahiptir.',
     landformNoteTr:
-      "Ülkenin kuzeyini, kıyıya paralel uzanan iki sıradağ kaplar: Akdeniz'e yakın Tell " +
-      'Atlas ve ondan güneye, yüksek platolarla ayrılan Sahra Atlas. Bu iki sıradağın ' +
-      "güneyinde topraklar hızla alçalır ve Cezayir topraklarının %80'inden fazlasını " +
-      "oluşturan Sahra başlar. Sahra'nın derinliklerinde, güneydeki Hoggar (Ahaggar) " +
-      'Dağları volkanik kökenli bir yayla oluşturur; ülkenin en yüksek noktası, bu ' +
-      "yaylada 2.908 metreye ulaşan Tahat Dağı'dır.",
+      'Kuzey topoğrafyasını, Akdeniz kıyısına paralel uzanan iki ana dağ kuşağı şekillendirir: ' +
+      'Kıyı boyunca yükselen Tell Atlası ve daha güneyde Sahra sınırını çizen Sahra Atlası. Bu ' +
+      'iki sıradağ arasında, koyun yetiştiriciliğine elverişli step bitki örtüsü ve sığ tuz ' +
+      'gölleriyle (şat) kaplı yüksek platolar (Hautes Plaines) uzanır. ' +
+      '\n\n' +
+      "Sahra Atlası'nın güneyinde arazi devasa bir çöl düzlüğüne dönüşür. Güneydoğuda ise " +
+      'kristalin ve volkanik kütlelerden oluşan Hoggar (Ahaggar) Masifi yükselir; bu dağlık ' +
+      "alandaki 2.908 metrelik Tahat Dağı, Cezayir'in en yüksek noktasıdır.",
     climateNoteTr:
-      "Cezayir'de yağış, kuzeyden güneye çok kısa bir mesafede neredeyse sıfıra iner. " +
-      "Tell bölgesinin en doğusunda yıllık yağış 100 santimetreye yaklaşırken, Sahra'da " +
-      'bu rakam 10 santimetrenin altındadır. Kıyı kesiminde Akdeniz iklimi görülür; iç ' +
-      'bölgelerde ise sirokko adı verilen sıcak ve kurutucu bir rüzgar, tarımı doğrudan ' +
-      'etkileyen mevsimsel bir unsurdur.',
+      "Akdeniz'den gelen nemli hava kütleleri Tell Atlası'nın kuzey yamaçlarında tutulur; " +
+      'bu durum kıyı şeridine ılıman ve kışları bol yağışlı bir Akdeniz iklimi kazandırır. ' +
+      'Kuzeydoğu kıyılarında yıllık yağış 1.000 milimetreyi bulabilir. ' +
+      '\n\n' +
+      'Dağ silsileleri aşıldıkça yağış gölgesi etkisiyle iklim önce yarı kurak steplere, ' +
+      'ardından yıllık yağışın 100 milimetrenin altına indiği kavurucu Sahra çöl iklimine ' +
+      'dönüşür. Güneyden kuzeye esen kuru ve aşırı sıcak sirokko rüzgarı, sıcaklıkları aniden ' +
+      'fırlatarak kıyıdaki tarım ürünlerini dahi kavurabilir.',
     hydrographyNoteTr:
-      "Sahra Atlas'ta doğan Chelif Nehri, kuzeybatıya doğru yaklaşık 700 kilometre " +
-      "aktıktan sonra Mostaganem yakınlarında Akdeniz'e ulaşır; vadisi boyunca ülkenin en " +
-      "verimli tarım arazilerinden birini oluşturur. Sahra'daki vadiler (oued) ise yılın " +
-      'büyük bölümünde kurudur, yalnızca nadir yağmurlardan sonra kısa süreli sel ' +
-      'sularıyla dolar.',
+      "Ülkenin sürekli akış gösteren en uzun akarsuyu, Sahra Atlası'ndan doğup platoları " +
+      "aşarak Akdeniz'e dökülen yaklaşık 700 kilometrelik Chelif Nehri'dir. Chelif Vadisi, " +
+      "kuzey Cezayir'in en verimli tahıl ve meyve üretim havzalarından birini sular. " +
+      '\n\n' +
+      'Güneydeki Sahra kesiminde ise daimi akarsu bulunmaz. Drenaj, yalnızca ani ve şiddetli ' +
+      'sağanaklardan sonra sel sularıyla dolup hızla kuruyan vadi yatakları (oued) ile suların ' +
+      'buharlaşarak tuz kristalleri bıraktığı kapalı havza çukurluklarından (şat) ibarettir.',
   },
   {
     isoCode: 'EG',
@@ -123,34 +132,39 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "İngiltere'den kısmi bağımsızlık 28 Şubat 1922'de (Mısır Krallığı), tam egemenlik/cumhuriyet ilanı 18 Haziran 1953'te (1952 Devrimi sonrası).",
     introTr:
-      'Mısır topraklarının bir kısmı, Sina Yarımadası üzerinden Asya kıtasına uzanır — bu ' +
-      "kıtalar arası konum, Afrika ülkeleri arasında yalnızca Mısır'a özgüdür. Kuzeyde " +
-      "Akdeniz'e, doğuda Kızıldeniz'e kıyısı vardır; batıda Libya, güneyde Sudan ile komşudur. " +
-      "Sina'nın doğu kenarı boyunca İsrail'le, bu kenarın Akdeniz'e ulaştığı Refah'ta ise " +
-      "Filistin'in Gazze Şeridi'yle sınırdaştır. Topraklarının neredeyse tamamı çöl olduğu için " +
-      'nüfusun büyük kısmı, ülke yüzölçümünün yalnızca yaklaşık yirmide birini oluşturan Nil ' +
-      "Vadisi ve Deltası'nda yaşar.",
+      "Mısır, antik çağlardan bu yana Nil Nehri'nin taşıdığı su ve alüvyonlarla hayat bulan, " +
+      'neredeyse bütünüyle çöllerle kuşatılmış özgün bir vaha ülkesidir. ' +
+      '\n\n' +
+      "Topraklarının yüzde 95'inden fazlasını kaplayan kurak arazilerin ortasında Nil " +
+      'Vadisi ve Deltası, ülke nüfusunun neredeyse tamamının sıkıştığı son derece yoğun bir ' +
+      'yaşam ve tarım koridoru oluşturur.',
     landformNoteTr:
-      "Nil'in batısında kalan geniş Batı Çölü, Sahra'nın bir uzantısı olarak ülke " +
-      'topraklarının üçte ikisinden fazlasını kaplar ve içinde Kattara Çukurluğu gibi deniz ' +
-      'seviyesinin altına inen depresyonlar barındırır. Doğu Çölü, Nil ile Kızıldeniz ' +
-      "arasında Kızıldeniz Dağları'nın granit ve volkanik kütleleriyle yükselir. Sina " +
-      "Yarımadası'nda, iki denizin arasında kalan bu üçgen toprak parçasında ülkenin en " +
-      'yüksek noktası olan 2.642 metrelik Katerina Dağı bulunur. Nil Vadisi, bu üç çöl ' +
-      'bölgesinin ortasında dar bir yeşil şerit halinde güneyden kuzeye uzanır.',
+      'Ülke arazisi Nil Nehri tarafından belirgin jeomorfolojik ünitelere ayrılır. Nehrin ' +
+      'batısında uzanan Batı (Libya) Çölü, rüzgar aşındırmasıyla oyulmuş devasa kum denizleri ' +
+      've deniz seviyesinin 133 metre altına inen Kattara Çukurluğu gibi derin tektonik ' +
+      'depresyonları barındırır. ' +
+      '\n\n' +
+      'Nil ile Kızıldeniz arasında uzanan Doğu Çölü ise dik ve kayalık Kızıldeniz Dağları ile ' +
+      "yükselir. İki kıta kavşağındaki Sina Yarımadası'nda yükselen 2.642 metrelik Katerina " +
+      "Dağı, granit yapısıyla Mısır'ın en yüksek zirvesini oluşturur.",
     climateNoteTr:
-      "Mısır'ın iklimi, kuzeyden güneye keskin biçimde kuraklaşan bir çöl iklimidir. " +
-      'Akdeniz kıyısındaki İskenderiye yılda ortalama 175 milimetre yağış alırken, ' +
-      "Kahire'de bu rakam 25 milimetreye, güneydeki Asvan'da ise 3 milimetrenin altına " +
-      'düşer. Yazlar ülke genelinde çok sıcak ve kurak geçer; kışlar kıyı şeridinde ' +
-      'ılıman, iç kesimlerde ise gece-gündüz sıcaklık farkı belirgin biçimde artar.',
+      'Mısır genelinde aşırı kurak çöl iklimi egemendir; denizel ılımanlık yalnızca Akdeniz ' +
+      'kıyı şeridinde hissedilir. Kıyı kenti İskenderiye yılda ortalama 175 milimetre yağış ' +
+      "alırken, güneye inildikçe yağış miktarı Kahire'de 25 milimetreye, güneydeki Asvan'da " +
+      'ise 3 milimetrenin altına düşer. ' +
+      '\n\n' +
+      'Yaz ayları iç ve güney kesimlerde aşırı sıcak geçer. İlkbaharda güney çöllerinden ' +
+      'kuzeye doğru esen toz ve kum yüklü kavurucu Hamsin rüzgarı, görüş mesafesini sıfıra ' +
+      'indirerek günlük hayatı felce uğratabilir.',
     hydrographyNoteTr:
-      "Sudan'dan ülkeye giren Nil, Asvan'da Yüksek Baraj tarafından tutularak Nasır " +
-      "Gölü'nü oluşturur; gölün yaklaşık üçte ikisi Mısır, kalanı Sudan sınırları " +
-      'içindedir. Barajın ardından nehir, yaklaşık 1.500 kilometre boyunca kuzeye akarak ' +
-      "Yukarı Mısır'ın çöl manzarasını yarar ve Kahire yakınında Aşağı Mısır'ın geniş " +
-      "taşkın ovasına, Nil Deltası'na yayılır. Mısır'ın tek kalıcı akarsuyu olan Nil, " +
-      'ülkenin tarım alanlarının ve tatlı su kaynağının neredeyse tamamını sağlar.',
+      "Mısır'ın yegane sürekli akarsuyu ve can damarı Nil Nehri'dir. Sudan sınırından " +
+      'ülkeye giren nehir, Asvan Yüksek Barajı ile tutularak dünyanın en büyük yapay su ' +
+      "rezervuarlarından biri olan Nasır Gölü'nü oluşturur. Baraj, taşkınları önleyip yıl " +
+      'boyu sulama ve enerji sağlarken, alüvyon akışını kestiği için deltada kıyı erozyonu ve ' +
+      'toprak tuzlanmasına yol açmıştır. ' +
+      '\n\n' +
+      "Kahire'nin kuzeyinde Reşid ve Dimyat olmak üzere iki ana kola ayrılan nehir, zengin " +
+      "tarım arazilerini barındıran üçgen biçimli geniş Nil Deltası üzerinden Akdeniz'e dökülür.",
   },
   {
     isoCode: 'LY',
@@ -176,36 +190,40 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "24 Aralık 1951'de İtalya'dan bağımsız oldu (BM gözetiminde geçici yönetim sonrası).",
     introTr:
-      "Libya toprağının yaklaşık %90'ını Sahra Çölü kaplar; ülke coğrafi olarak üç bölgeye " +
-      'ayrılır: kıyıdaki Trablus, doğuda Bingazi çevresinde Sirenayka ve güneyde derin çöl ' +
-      "karakterindeki Fizan. Sirenayka'daki Cebel-i Ahdar (Yeşil Dağ), adını çevresindeki kurak " +
-      'araziden farklı olarak nispeten verimli topraklarından alır.',
-    landformNoteTr:
-      'Ülke sınırlarının büyük bölümünü çevreleyen kum denizleri (erg), Libya çölünün en ' +
-      'belirgin yüzey şekilleridir: doğuda Kalanşiyu, güneydoğuda Rebiyana, güneybatıda İdehan ' +
-      'Murzuk ve batıda İdehan Ubari kum denizleri, kimi noktalarda 500 metreyi aşan kum ' +
-      'tepeleriyle sıralanır. Ülkenin en yüksek noktası, güneyde Çad sınırına yakın Tibesti ' +
-      "sıradağının bir kolunda yükselen 2.267 metrelik Bikku Bitti'dir." +
+      'Libya, Akdeniz kıyısında geniş bir sahil şeridine sahip olmasına karşın topraklarının ' +
+      'yüzde doksanından fazlası Sahra Çölü tarafından yutulmuş devasa bir kuraklık ' +
+      'coğrafyasıdır. ' +
       '\n\n' +
-      'Merkezde, Al Haruc al Aswad adlı geniş dairesel volkanik kalkan sahası — halk arasında ' +
-      '"Kara Çöl" — siyah bazalt örtüsüyle kaplıdır; batıda, Tunus sınırına yakın Hamada ' +
-      'al-Hamra ise demir oksit içeriğiyle kızıla çalan taşlık bir plato oluşturur.',
+      'Ülke geleneksel ve morfolojik olarak üç ana bölgeye ayrılır: Kıyıdaki Trablusgarp ' +
+      '(Tripolitanya), doğudaki kireçtaşı platosuyla yağış alan Sirenayka (Barka) ve güneydeki ' +
+      'derin çöl vahalarından oluşan Fizan.',
+    landformNoteTr:
+      'Libya topoğrafyasına, yüzlerce metrelik kum tepeleriyle kaplı devasa ergler (kum ' +
+      'denizleri) ve aşınmış taşlık çöl platoları (hamada) hakimdir. Batıda kızıl taşlık Hamada ' +
+      'el-Hamra platosu, merkezde koyu bazalt lavlarıyla kaplı volkanik Al Haruc al-Aswad ' +
+      '(Kara Çöl) kalkanı, güneybatıda ise İdehan Murzuk ve İdehan Ubari kum denizleri uzanır. ' +
+      '\n\n' +
+      "Ülkenin en yüksek noktası, Çad sınırına doğru volkanik Tibesti Sıradağları'nın kuzey " +
+      'kolunda yükselen 2.267 metrelik Bikku Bitti zirvesidir. Kuzeydoğudaki Cebel-i Ahdar ' +
+      '(Yeşil Dağ) ise Akdeniz kıyısında verimli ve ormanlık bir istisna oluşturur.',
     climateNoteTr:
-      'Kıyı şeridinde Akdeniz iklimi görülür: yazlar 27-32 santigrat derece ortalama sıcaklıkla ' +
-      "geçer, ancak sıcaklık 40 derecenin üzerine çıkabilir; kışlar ılımandır. Trablus'ta " +
-      "yıllık yağış ortalama 380 milimetre, Bingazi'de 250 milimetredir; yalnızca Cebel-i " +
-      "Ahdar'ın yüksek kesimlerinde bu rakam 400-700 milimetreye ulaşır. İç kesimlerdeki Sahra " +
-      'ikliminde yıl içinde 200 gün boyunca hiç yağış düşmeyebilir; Sabha kentinde yıllık ' +
-      'ortalama yağış 10 milimetrenin altındadır, dünyanın en kurak istasyonlarından biri kabul ' +
-      'edilir. Gibli adlı sıcak ve kuru çöl rüzgarı, sıcaklığı birkaç saat içinde 15-20 derece ' +
-      'değiştirebilir.',
+      'Kuzey kıyılarında sıcak ve kuru yazlar ile ılıman kışların yaşandığı Akdeniz iklimi ' +
+      'görülür; Cebel-i Ahdar yamaçlarında yıllık yağış 400-700 milimetreye kadar çıkabilirken ' +
+      "Trablus'ta 380, Bingazi'de 250 milimetre civarındadır. " +
+      '\n\n' +
+      'Kıyıdan güneye geçildiği anda nem kaybolur ve yerini dünyanın en kurak Sahra çöl ' +
+      'iklimine bırakır; Sabha gibi iç çöl merkezlerinde yıllık yağış 10 milimetrenin ' +
+      'altındadır ve yıllarca yağmur yağmayabilir. Çölden kuzeye esen kavurucu ve tozlu Gibli ' +
+      'rüzgarı, sıcaklığı saatler içinde 15-20 derece yükseltebilir.',
     hydrographyNoteTr:
-      "Libya'da kalıcı akan bir nehir yoktur; yağış sonrası kısa süreliğine dolan vadiler " +
-      "dışında yüzey suyu neredeyse hiç bulunmaz, su ihtiyacının yaklaşık %97'si yeraltı " +
-      'kaynaklarından karşılanır. Bu ihtiyacı gidermek için inşa edilen Büyük Yapay Nehir, ' +
-      "güneydeki Nubian Kumtaşı Akiferi'nden — Libya, Mısır, Sudan ve Çad altında uzanan, on " +
-      'binlerce yıllık fosil su rezervi — çıkarılan suyu 2.800 kilometreyi aşan boru hattıyla ' +
-      'kıyı kentlerine taşır; dünyanın en büyük yeraltı su nakil projesi olarak kabul edilir.',
+      'Libya sınırları içinde yıl boyunca sürekli akış gösteren tek bir nehir dahi ' +
+      'bulunmaz; yüzey hidrografyası yalnızca yağış dönemlerinde kısa süreli su toplayan kuru ' +
+      'vadi yataklarından ibarettir. ' +
+      '\n\n' +
+      "Ülkenin su ihtiyacının ezici çoğunluğu, Sahra'nın derinliklerindeki Nubya Kumtaşı " +
+      'Akiferi\'nden çıkarılan fosil su rezervleriyle karşılanır. "Büyük Yapay Nehir" projesi ' +
+      'kapsamında inşa edilen binlerce kilometrelik boru hatları, bu yeraltı suyunu güneyden ' +
+      'kıyıdaki büyük şehirlere ve tarım alanlarına taşıyan yapay bir can damarıdır.',
   },
   {
     isoCode: 'MA',
@@ -230,31 +248,39 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Üniter parlamenter anayasal monarşi',
     independenceNoteTr: "2 Mart 1956'da Fransa'dan bağımsız oldu.",
     introTr:
-      "Fas, hem Atlas Okyanusu'na hem de Akdeniz'e kıyısı olan tek Afrika ülkesidir. " +
-      "Cebelitarık Boğazı'nın karşı kıyısında İspanya'yla, karada ise Cezayir'le komşudur. " +
-      'Ülke topraklarının omurgasını, kuzeydoğudan güneybatıya uzanan Atlas Dağları ' +
-      "oluşturur; bu sıradağ, kuzeybatıdaki verimli kıyı ovalarını güneydoğudaki Sahra'dan " +
-      'ayırır.',
+      "Fas, Afrika kıtasının kuzeybatı ucunda hem Atlas Okyanusu'na hem de Akdeniz'e kıyısı " +
+      "olan, Cebelitarık Boğazı üzerinden Avrupa'ya komşu stratejik bir Mağrip ülkesidir. " +
+      '\n\n' +
+      'Ülkenin coğrafi omurgasını oluşturan yüksek Atlas Dağları, batıdaki nemli ve verimli ' +
+      'Atlantik kıyı ovaları ile güneydoğudaki Sahra Çölü arasında devasa bir doğal set görevi ' +
+      'görür.',
     landformNoteTr:
-      'Atlas Dağları, Fas içinde Rif, Orta Atlas, Yüksek Atlas ve Anti Atlas olmak üzere ' +
-      'birbirine paralel dört ayrı sıradağa bölünür. Bunlardan Yüksek Atlas, ülkenin ve ' +
-      "tüm Kuzey Afrika'nın en yüksek noktası olan 4.167 metrelik Toubkal Dağı'nı içerir. " +
-      "Kuzeyde, Ceuta ve Melilla arasında yay çizen Rif Dağları'nın en yüksek noktası " +
-      "2.456 metrelik Tidirhine Dağı'dır. Atlas kuşağının güneyinde, Anti Atlas'ın " +
-      "ardından arazi giderek alçalır ve Sahra'nın kum ve çakıl düzlüklerine dönüşür.",
+      'Fas topoğrafyası, birbirine paralel uzanan dört büyük sıradağ silsilesiyle bölünür: ' +
+      'Kuzeyde Akdeniz kıyısına paralel bir yay çizen Rif Dağları (Tidirhine Dağı 2.456 m); ' +
+      "iç kesimlerde kireçtaşı platolarıyla yükselen Orta Atlas; ve tüm Kuzey Afrika'nın en " +
+      "yüksek doruğu olan 4.167 metrelik Toubkal Dağı'nı barındıran sarp Yüksek Atlas. " +
+      '\n\n' +
+      "Yüksek Atlas'ın güneyinde ise volkanik ve kristalin yapısıyla kurak Sahra düzlüklerine " +
+      'kademelenen Anti-Atlas kuşağı uzanır. Dağların güney yamaçlarından itibaren arazi taşlık ' +
+      've kumlu çöl alanlarına dönüşür.',
     climateNoteTr:
-      "Atlas Dağları, Sahra'dan gelen sıcak ve kuru rüzgarları büyük ölçüde tutar; bu " +
-      'sayede Atlantik kıyısı boyunca, enlemine göre beklenenden daha ılıman bir iklim ' +
-      'yaşanır. Kuzeybatıda Akdeniz tipi bir iklim görülür: yağışlar Eylül-Nisan arasında ' +
-      "yoğunlaşır, yüksek Atlas zirvelerinde bu dönemde kar yağışı yaygındır. Atlas'ın " +
-      'doğusuna ve güneyine geçildikçe yağış hızla azalır, iklim önce yarı kurak, ' +
-      "ardından Sahra'nın çöl koşullarına döner.",
+      "Atlas Dağları, Sahra'dan gelen kavurucu hava kütlelerini engelleyerek batı ovalarını " +
+      'korur. Atlantik kıyıları, serin Kanarya Akıntısı sayesinde ılıman ve dengeli bir ' +
+      'Akdeniz-okyanus iklimine sahiptir. ' +
+      '\n\n' +
+      'Kış aylarında Orta ve Yüksek Atlas zirveleri yoğun kar yağışı alarak ülkenin su ' +
+      'rezervlerini yeniler. Dağların güneydoğu yamaçlarına geçildiğinde fön etkisi ve yağış ' +
+      "gölgesi nedeniyle nem aniden düşer; iklim önce yarı kurak steplere, ardından Sahra'nın " +
+      'kavurucu çöl koşullarına döner.',
     hydrographyNoteTr:
-      "Draa, Fas'ın en uzun nehridir: Yüksek Atlas'ın güney yamaçlarında doğar ve " +
-      'güneydoğuya doğru yaklaşık 1.100 kilometre akar; alt kesiminde akışı düzensizdir, ' +
-      "yılın büyük bölümünde yatağı kurudur. Kuzeybatıda, Atlas'tan inen Sebou ve Oum " +
-      'Er-Rbia nehirleri, yaklaşık 500 kilometreye ulaşan uzunluklarıyla ülkenin en ' +
-      'önemli tarım vadilerini sular ve yıl boyunca düzenli bir akışa sahiptir.',
+      "Karlı Atlas Dağları, Fas'ı Kuzey Afrika'nın en zengin akarsu ağına sahip ülkesi " +
+      "yapar. Dağlardan beslenip Atlantik Okyanusu'na dökülen Sebou ve Oum Er-Rbia nehirleri, " +
+      'taşıdıkları düzenli debilerle ülkenin başlıca tarım havzalarını sular ve hidroelektrik ' +
+      'üretir. ' +
+      '\n\n' +
+      "Yüksek Atlas'ın güney yamaçlarından doğup güneydoğuya yönelen yaklaşık 1.100 kilometre " +
+      'uzunluğundaki Draa Nehri ise çölü aşmaya çalışırken alt çığırında kuma gömülür; akışı ' +
+      'mevsimsel olsa da vadisi boyunca sıralanan hurma vahalarına hayat verir.',
   },
   {
     isoCode: 'SD',
@@ -279,36 +305,40 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: null,
     independenceNoteTr: "1 Ocak 1956'da Birleşik Krallık-Mısır Kondominyumu'ndan bağımsız oldu.",
     introTr:
-      "Güneyden gelen Beyaz Nil ile Etiyopya yaylalarından inen Mavi Nil, başkent Hartum'da " +
-      'birleşerek Nil Nehri\'ni oluşturur; bu birleşme noktası Arapça\'da "el-Mogran" olarak ' +
-      "anılır. Ülkenin kuzeyi Sahra'nın bir parçası olan çöl arazisidir, güneye doğru savan " +
-      'bitki örtüsü artar. Doğuda Kızıldeniz kıyısı, batıda Darfur Platosu ülkenin coğrafi ' +
-      'çeşitliliğini tamamlar.',
-    landformNoteTr:
-      "Hartum'un kuzeyinde, Nubya Çölü olarak bilinen kayalık arazi Nil'in doğusunu kaplar; " +
-      "nehrin batısında ise kum tepeleriyle örtülü Libya Çölü — Sudan'ın en büyük çöl bölgesi — " +
-      "uzanır. Doğu sınırında, Kızıldeniz'e paralel uzanan Kızıldeniz Tepeleri, hızlı akan " +
-      'mevsimsel derelerle yarılmış engebeli bir kuşak oluşturur.' +
+      'Sudan, Doğu Afrika platoları ile Sahra Çölü arasında uzanan geniş bir havza ülkesidir ve ' +
+      'coğrafi karakterini bütünüyle Nil Nehri sisteminin iki dev kolunun buluşmasından alır. ' +
       '\n\n' +
-      "Batıda, Darfur Platosu'ndan yükselen Marra Dağları volkanik kökenlidir; sıradağın " +
-      'tepesindeki Deriba Krateri, 3.042 metreyle ülkenin en yüksek noktasıdır ve bir kaldera ' +
-      'gölü barındırır.',
+      "Başkent Hartum'da Etiyopya Platosu'ndan gelen Mavi Nil ile Orta Afrika göllerinden " +
+      "doğan Beyaz Nil bir araya gelerek kuzeye, Akdeniz'e doğru uzanan tek bir ana gövde " +
+      'oluşturur; bu akarsu koridoru ülkenin nüfus ve tarım omurgasını kurar.',
+    landformNoteTr:
+      'Ülke arazisi, kenarları yükseltilerle çevrili devasa ve sığ bir tortul havzadır. Kuzey ' +
+      'kesimini kum ve çakıl düzlüklerinden oluşan Nubya Çölü ile Libya Çölü kaplar; doğuda ' +
+      'Kızıldeniz kıyısı boyunca dik Kızıldeniz Tepeleri uzanır. ' +
+      '\n\n' +
+      'Batıda dalgalı Kordofan kumlu platoları yer alırken, Darfur bölgesinde volkanik ' +
+      'kökenli Marra Dağları yükselir. Bu kütlenin doruğunda yer alan ve içinde iki krater gölü ' +
+      "bulunduran 3.042 metrelik Deriba Kalderası, Sudan'ın en yüksek noktasıdır ve " +
+      'çevresine göre serin bir mikro-klima alanı yaratır.',
     climateNoteTr:
-      "Sudan'ın kuzeyi, Mısır ve Libya Sahrası'na benzer bir çöl iklimine sahiptir. Hartum'dan " +
-      'güneye inildikçe yıllık yağış kademeli olarak artar; yağmur mevsimi nisan-ekim arasına ' +
-      'denk gelir, süresi kuzeyde yaklaşık iki aya inerken güney sınıra yakın kesimlerde dört ' +
-      'aya çıkar. Hartum, yıllık ortalama 30,5 santigrat dereceyle dünyanın en sıcak ' +
-      'başkentlerinden biridir.',
+      'Sudan iklimi, kuzeydeki kavurucu Sahra çölünden güneydeki yağışlı savan kuşağına kadar ' +
+      'belirgin bir enlemsel kademelenme gösterir. Mısır sınırında neredeyse hiç yağış ' +
+      'görülmezken, güneye doğru inildikçe muson yağışlarının süresi ve miktarı kademeli olarak ' +
+      'artar. ' +
+      '\n\n' +
+      'Başkent Hartum, yıl boyu ortalama 30 derecenin üzerindeki sıcaklığıyla dünyanın en ' +
+      'sıcak başkentlerinden biridir; yaz başlangıcında Habub adı verilen şiddetli kum ve toz ' +
+      'fırtınaları kenti saatler içinde karanlığa gömebilir.',
     hydrographyNoteTr:
-      "Mavi Nil, Etiyopya'daki Tana Gölü'nden doğar ve Nil'in toplam su ve alüvyon yükünün " +
-      "yaklaşık %80'ini taşıyarak koyu renkli sularıyla bilinir; Beyaz Nil ise çok daha uzun " +
-      'bir güzergahla Uganda-Kongo sınırındaki kaynaklardan gelir ve daha berrak akar. İki ' +
-      "nehir Hartum'da birleştikten sonra kuzeye yönelen Nil, Mısır sınırına ulaşmadan önce " +
-      'altı büyük çağlayandan (katarakt) geçerek 375 metreden 90 metreye alçalır. Bu güzergahta ' +
-      'katılan son önemli kol olan Atbara Nehri mevsimseldir — aralık-mayıs arasında neredeyse ' +
-      "kurur, temmuz-ekim taşkınlarında ise Nil'in toplam debisinin beşte birinden fazlasını " +
-      "sağlar. Ülkenin en kuzeyinde, Asvan Barajı'nın oluşturduğu Nasır Gölü'nün yaklaşık üçte " +
-      "biri Sudan sınırları içinde kalır, kalanı Mısır'dadır.",
+      "Sudan hidrolojisi, Mavi ve Beyaz Nil'in zıt akış rejimleriyle şekillenir. Mavi Nil, " +
+      "Etiyopya'daki Tana Gölü'nden doğar; yaz musonlarıyla kabaran volkanik alüvyon yüklü " +
+      'sularıyla Nil sisteminin debisinin ve bereketli tortusunun yaklaşık yüzde seksenini ' +
+      'taşır. Ekvatoral göllerden gelen Beyaz Nil ise yıl boyu daha dengeli ve berrak akar. ' +
+      '\n\n' +
+      "Hartum'da birleştikten sonra kuzeye yönelen nehir, Mısır sınırına kadar altı büyük " +
+      'çağlayandan (katarakt) geçer; sisteme katılan son kol mevsimsel taşkınlarıyla ünlü ' +
+      "Atbara Nehri'dir. En kuzeyde ise Asvan Barajı'nın suları Sudan sınırına taşarak " +
+      'Nubya Gölü rezervuarını oluşturur.',
   },
   {
     isoCode: 'TN',
@@ -333,35 +363,42 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Üniter başkanlık tipi cumhuriyet',
     independenceNoteTr: "20 Mart 1956'da Fransa'dan bağımsız oldu.",
     introTr:
-      "Tunus'un en kuzey noktası olan Ras Ben Sakka, 2014'teki güncellenmiş jeodezik " +
-      'ölçümlerden bu yana kıtanın en kuzey noktası kabul edilir. Ülke toprakları kuzeyden ' +
-      'güneye üç ayrı arazi kuşağını art arda geçer: kuzeydeki dağlık Tell bölgesi, ortadaki ' +
-      "bozkır karakterindeki geçiş kuşağı ve güneydeki Sahra'nın eşiği. Doğuda Akdeniz'e uzun " +
-      'bir kıyı şeridiyle açılan ülke, batıda Cezayir, güneydoğuda Libya ile komşudur.',
-    landformNoteTr:
-      "Kuzeybatıdan güneydoğuya uzanan Tunus Dorsali, Sahra Atlasları'nın bir uzantısı olarak " +
-      'ülkenin dağlık omurgasını oluşturur; sıradağın en yüksek noktası, 1.544 metrelik Djebel ' +
-      "Chambi'dir. Dorsal'ın kuzeyinde, Cezayir'de doğan Medjerda Nehri'nin vadisi, eski göl " +
-      'tabanlarından oluşan verimli bir tahıl ovasıdır.' +
+      "Tunus, Afrika kıtasının Akdeniz'e en çok sokulan ve Sicilya Kanalı üzerinden Avrupa'ya " +
+      'en çok yaklaşan kuzeydoğu kalesidir; anakaranın en kuzey ucu olan Ras Ben Sakka Burnu da ' +
+      'bu topraklarda yer alır. ' +
       '\n\n' +
-      'Güneye inildikçe arazi alçalır ve chott ya da şat olarak adlandırılan bir dizi sığ tuz ' +
-      "gölü, Sahra'nın kuzey sınırını çizer. Bunların en büyüğü olan Chott el Djerid, yaklaşık " +
-      '7.000 kilometrekarelik alanıyla ülkenin en alçak noktasıdır (-17 m); yazın neredeyse ' +
-      "tamamen kurur. Gölün güneyinde, Büyük Doğu Erg'i adlı kum denizi başlar.",
+      'Küçük yüzölçümüne karşın ülke, kuzeydeki ormanlık Akdeniz tepelerinden orta kesimdeki ' +
+      'bozkırlara ve güneydeki Sahra kumullarına kadar kademelenen zengin bir topoğrafik ' +
+      'çeşitlilik sergiler.',
+    landformNoteTr:
+      "Ülkenin dağlık omurgasını, Cezayir'deki Sahra Atlasları'nın bir devamı olarak " +
+      'güneybatıdan kuzeydoğuya uzanan Tunus Sırtı (Dorsali) oluşturur; sıradağın doruğu olan ' +
+      "1.544 metrelik Cebel Şambi (Djebel Chambi), Tunus'un en yüksek noktasıdır. Dorsal'in " +
+      'kuzeyinde Medjerda Nehri vadisi ile Kroumirie meşe ormanlarıyla kaplı tepelik kuşak ' +
+      'uzanır. ' +
+      '\n\n' +
+      'Sırtın güneyine geçildikçe arazi alçalır ve "şat" adı verilen sığ tuz gölü çanakları ' +
+      'başlar. Bunların en büyüğü olan yaklaşık 7.000 kilometrekarelik Şat el-Cerid (Chott el ' +
+      'Djerid), deniz seviyesinin 17 metre altındaki tabanıyla ülkenin en alçak sahasıdır; bu ' +
+      "çanağın güneyinde Büyük Doğu Erg'i kumulları yükselir.",
     climateNoteTr:
-      "Tunus'ta iklim kuzeyden güneye keskin biçimde değişir. Kuzeyde Akdeniz iklimi hakimdir; " +
-      'yazlar sıcak ve kurak, kışlar ılıman ve yağışlı geçer, yıllık yağış kıyı kesiminde ' +
-      '400-1.000 milimetre arasındadır, kuzeybatıdaki Kroumirie tepelerinde ise 1.500 ' +
-      'milimetreye ulaşır. Orta kesimde yağış 380 milimetreye kadar düşer ve step bitki örtüsü ' +
-      'hakim olur. Güneydeki Sahra kuşağında yıllık yağış 100 milimetrenin altına iner; Tozeur ' +
-      've Douz gibi yerleşimlerde kışın gündüz 18-20 santigrat dereceye çıkan sıcaklıklar, gece ' +
-      '3-5 dereceye kadar düşer.',
+      "Tunus'ta iklim kuzeyden güneye Akdeniz ile Sahra dinamikleri arasında keskin biçimde " +
+      'değişir. Kuzey kıyılarında ve Kroumirie tepelerinde kışları ılık ve bol yağışlı ' +
+      'Akdeniz iklimi görülür; orografik etkiyle yıllık yağış burada 1.000-1.500 milimetreye ' +
+      'ulaşır. ' +
+      '\n\n' +
+      'Orta bozkırlarda yıllık yağış 300 milimetrenin altına inerken, güneydeki Sahra ' +
+      "kuşağında 100 milimetrenin de altına düşer. Yaz aylarında Sahra'dan esen sıcak ve kuru " +
+      'çöl rüzgarı (şili), sıcaklıkları kısa sürede 40 derecenin üzerine çıkarabilir.',
     hydrographyNoteTr:
-      "Ülkenin en uzun ve tek büyük kalıcı akarsuyu olan Medjerda, Cezayir'de doğar, 450 " +
-      "kilometre boyunca doğuya akar ve Tunus Körfezi'ne dökülür; vadisi ülkenin başlıca tahıl " +
-      "üretim alanıdır. Güneydeki chott'lar kalıcı göl değildir — Chott el Djerid gibi büyük " +
-      'depresyonlar yılın çoğunda kuru bir tuz kabuğuyla kaplıdır, yalnızca kışın kısa süreli ' +
-      'sığ sularla dolar. Bu dönemde gölün üzerinde sık sık serap görülür.',
+      'Ülkenin sürekli akış gösteren tek büyük akarsuyu, Cezayir sınırından doğup doğuya doğru ' +
+      "yaklaşık 450 kilometre akarak Tunus Körfezi'ne dökülen Medjerda Nehri'dir. Medjerda " +
+      'Vadisi, taşıdığı alüvyonlar ve sulama kanallarıyla ülkenin başlıca tahıl ambarı ' +
+      'konumundadır. ' +
+      '\n\n' +
+      'Güneydeki drenaj ise tamamen kapalı çanaklara bağımlıdır; Şat el-Cerid kışın sığ sel ' +
+      'sularıyla göllenirken yaz sıcağında buharlaşarak üzerinde serapların titreştiği devasa ' +
+      'bir tuz kabuğuna dönüşür.',
   },
   {
     isoCode: 'BJ',
@@ -386,37 +423,38 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "1 Ağustos 1960'ta Fransa'dan bağımsız oldu.",
     introTr:
-      'Benin toprakları güneyden kuzeye dört farklı kademede yükselir ve ülke ortalama ' +
-      'yükseltisi yalnızca 200 metredir. Dar bir kıyı ovasının ardından, kuzey-güney yönlü ' +
-      "vadilerle bölünmüş bir güney plato kuşağı gelir. Kuzeybatı sınırında, Togo'ya doğru " +
-      'uzanan Atakora sıradağları ülkenin en engebeli arazisini oluşturur.',
-    landformNoteTr:
-      'Güney kıyısındaki ova en fazla 10 metre yükseklikte, genişliği 10 kilometreyi geçmeyen ' +
-      'bataklık bir şerittir; göller ve lagünlerle noktalanır. Hemen kuzeyinde, 20-200 metre ' +
-      'arasında değişen güney platoları, Couffo, Zou ve Ouémé nehirlerinin kazdığı ' +
-      'kuzey-güney yönlü vadilerle parçalanır. Nikki ve Savé çevresindeki orta kesim ise ' +
-      'yüksekliği nadiren 400 metreyi bulan kayalık tepelerle noktalanmış, görece düz bir ' +
-      'arazidir.' +
+      'Gine Körfezi kıyılarından Nijer Nehri havzasına kadar kuzey-güney doğrultusunda uzanan ' +
+      "Benin, Batı Afrika'nın dar ve uzun kıyı devletlerinden biridir. " +
       '\n\n' +
-      'Kuzeybatıda, Togo sınırı boyunca uzanan Atakora sıradağları 300-600 metre arasında ' +
-      'yükselen, yoğun ormanlarla kaplı bir kütledir. Sıradağın en yüksek noktası olan ' +
-      'Sokbaro Dağı 658 metreye ulaşır; aynı dağ yapısı sınırın öte yakasında Togo ' +
-      'topraklarına doğru devam eder.',
+      'Ortalama 200 metre civarındaki mütevazı yükseltisiyle ülke toprakları, güneydeki ' +
+      "lagünlü kıyılardan başlayıp kuzeydeki savanlara ve sarp Atakora Dağları'na kadar " +
+      'kademeli olarak basamaklanır.',
+    landformNoteTr:
+      'Kıyı şeridi, deniz dalgalarının yığdığı kum setleri, mangrovlar ve Nokoué gibi sığ ' +
+      'lagünlerle kaplı alçak bir kıyı ovasıdır. Kıyının hemen ardında, Couffo, Zou ve Ouémé ' +
+      'nehirlerinin yardığı killi ve verimli güney platoları uzanır; orta kesimde arazi granit ' +
+      'kayalık tepelerle (inselberg) çeşitlenen dalgalı bir peneplen halini alır. ' +
+      '\n\n' +
+      'Kuzeybatıda, Togo sınırına paralel uzanan Atakora Sıradağları ülkenin en engebeli ' +
+      'topoğrafyasını oluşturur; kuvarsit ve kumtaşından oluşan bu kütle üzerindeki 658 ' +
+      "metrelik Sokbaro Dağı, Benin'in en yüksek noktasıdır.",
     climateNoteTr:
-      'Benin üç iklim kuşağından oluşur. Güneydeki Gine kıyı kuşağında yılda iki kez yağış ' +
-      'getiren bir düzen görülür; yağışlar nisan-haziran ve eylül-kasım aylarında yoğunlaşır, ' +
-      "yıllık toplam Cotonou'da yaklaşık 1.360 milimetredir. Orta kesimdeki Sudan-Gine geçiş " +
-      'kuşağında yağış tek bir mevsime toplanır ve yıllık 900-1.110 milimetre arasında ' +
-      'değişir. Kuzeydeki Sudan kuşağında ise yarı kurak bir iklim hakimdir; kısa yağmur ' +
-      'mevsimi mayıs-eylül arasına sıkışır, yıllık yağış 890 milimetre civarındadır ve ' +
-      "aralık-mart arasında Sahra'dan esen kuru harmattan rüzgarı etkilidir.",
+      "Benin'de iklim, güneydeki nemli tropikal kuşaktan kuzeydeki kurak Sudan savanına doğru " +
+      'kademelenir. Güney kıyılarında nisan-haziran ve eylül-kasım aylarında olmak üzere iki ' +
+      'ayrı yağışlı dönem yaşanır; yıllık yağış Cotonou çevresinde 1.300 milimetrenin ' +
+      'üzerindedir. ' +
+      '\n\n' +
+      'Kuzeye doğru gidildikçe yağışlı dönem tek bir yaz mevsimine (mayıs-eylül) sıkışır ve ' +
+      "yıllık miktar azalır. Aralık-mart ayları arasında Sahra'dan güneye doğru esen kuru ve " +
+      'toz yüklü Harmattan rüzgarı, hava nemini düşürerek kurutucu bir etki yaratır.',
     hydrographyNoteTr:
-      'Ülkenin en uzun nehri olan Ouémé orta kesimden doğar, güneye akarken Okpara ve Zou ' +
-      "kollarını alır ve Cotonou yakınında ikiye ayrılarak bir kolu Nokoué Gölü'ne, diğeri " +
-      'Porto-Novo lagününe dökülür. Nokoué Gölü, Ouémé ve Sô nehirlerinden beslenir ve kıyı ' +
-      'boyunca uzanan geniş bir lagün-göl sisteminin merkezini oluşturur. Kuzeydoğuda Nijer ' +
-      'Nehri, Mekrou, Alibori ve Sota kollarıyla beslenerek Nijer sınırının bir bölümünü ' +
-      'çizer; batıda ise Mono Nehri, Togo ile paylaşılan sınırın bir kesimini oluşturur.',
+      'Ülkenin ana akarsu eksenini, orta yaylalardan doğup güneye akan ve Atlas Okyanusu ' +
+      'kıyısındaki lagün sistemine dökülen Ouémé Nehri oluşturur; nehir, taşkın dönemlerinde ' +
+      "Nokoué Gölü'nü besleyerek göl üstüne kurulu ünlü kazıklı su köyü Ganvié'ye hayat verir. " +
+      '\n\n' +
+      'Kuzeydoğuda Mekrou, Alibori ve Sota kolları kuzeye yönelerek Nijer sınırını çizen büyük ' +
+      "Nijer Nehri'ne kavuşur; batıda ise Mono Nehri, Togo sınırının güney bölümünü " +
+      "oluşturarak Gine Körfezi'ne boşalır.",
   },
   {
     isoCode: 'BF',
@@ -441,38 +479,37 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: null,
     independenceNoteTr: "5 Ağustos 1960'ta Fransa'dan bağımsız oldu.",
     introTr:
-      "Burkina Faso, Sahra ile Gine Körfezi arasında, Nijer Nehri'nin büyük kıvrımının " +
-      'güneyinde yer alan denize kıyısı olmayan bir ülkedir. Topraklarının büyük bölümünü, ' +
-      '200-300 metre yükseklikte hafif dalgalı bir peneplen oluşturur. Ülkenin güneybatı ' +
-      'köşesinde, Mali sınırındaki bir kumtaşı kütlesi üzerinde ülkenin en yüksek noktası ' +
-      'yükselir.',
-    landformNoteTr:
-      'Ülke topraklarının büyük bölümü, prekambriyen bir kütlenin aşınmasıyla oluşmuş, hafif ' +
-      'dalgalı bir peneplendir; buradaki savan platosu 200-300 metre yükseklikte uzanır ve ' +
-      'yer yer yalnız kalmış kayalık tepelerle noktalanır.' +
+      "Batı Afrika'nın kalbinde yer alan ve denize kıyısı bulunmayan Burkina Faso, kurak Sahel " +
+      'ile daha nemli Sudan savanları arasında uzanan bir geçiş ülkesidir. ' +
       '\n\n' +
-      'Güneybatıda arazi, yüksekliği 150 metreye varan sarp kayalıklarla çevrili bir kumtaşı ' +
-      'kütlesine dönüşür. Bu kütlenin, Mali sınırı üzerinde yükselen Ténakourou Dağı 749 ' +
-      'metreyle ülkenin en yüksek noktasıdır; zirveden Mali ve Fildişi Sahili topraklarına ' +
-      "doğru geniş bir manzara görülür. Ténakourou'nun hemen yakınından, Kara Volta Nehri'nin " +
-      'kaynak suları doğar.',
+      'Eski Prekambriyen kristalin kalkanı üzerinde yer alan toprakları, şiddetli aşınma ' +
+      'süreçleriyle düzleşmiş, deniz seviyesinden ortalama 250-350 metre yüksekte dalgalanan ' +
+      'geniş platolardan oluşur.',
+    landformNoteTr:
+      'Ülke topoğrafyasının ezici çoğunluğu, yer yer aşınmaya dirençli lateritik sert kabuklar ' +
+      '(zırhlar) ve izole granit tepelerle kesintiye uğrayan geniş bir peneplendir. ' +
+      '\n\n' +
+      'En belirgin jeomorfolojik hareketlilik güneybatı kesiminde görülür; burada yükselen ' +
+      "kumtaşı masifi, dik yamaçlı Banfora Falezleri'ni ve ülkenin en yüksek noktası olan 749 " +
+      "metrelik Tenakourou Tepesi'ni meydana getirir.",
     climateNoteTr:
-      "Burkina Faso'da kurak tropikal bir iklim, kısa bir yağmur mevsimiyle uzun bir kurak " +
-      'mevsim arasında değişir. Ülke kuzeyden güneye üç yağış kuşağına ayrılır: kuzeydeki ' +
-      'Sahel kuşağında yıllık yağış 600 milimetrenin altında kalır, orta kesimdeki ' +
-      'kuzey-Sudan kuşağında 600-900 milimetre arasında değişir, güneydeki güney-Sudan ' +
-      'kuşağında ise 900 milimetreyi aşar. Yağmur mevsimi mayıs-haziran ile eylül arasında ' +
-      "yaşanır ve kuzeye doğru gidildikçe kısalır; kurak mevsimde Sahra'dan esen harmattan " +
-      'rüzgarı etkilidir.',
+      'Burkina Faso, kuzeydeki kurak Sahel kuşağından güneydeki daha nemli Sudan savanına ' +
+      'uzanan iki ana iklim bölgesine ayrılır. Kuzeyde yıllık yağış 300-600 milimetre arasında ' +
+      'kalırken, güneybatıda 900 milimetrenin üzerine çıkar. ' +
+      '\n\n' +
+      'Kasım ve mart ayları arasında Sahra üzerinden esen kuru ve toz yüklü Harmattan rüzgarı ' +
+      'hakimdir; yağışlar ise Güney Atlantik musonunun devreye girdiği mayıs-eylül ayları ' +
+      'arasına sıkışır. Yağış mevsiminin kısalığı ve düzensizliği, tarım alanları üzerinde ' +
+      'kronik kuraklık riski oluşturur.',
     hydrographyNoteTr:
-      "Ülkenin su ağı üç havzaya ayrılır. Topraklarının yaklaşık %63'ünü kaplayan Volta " +
-      'havzası merkez ve batı kesimde yer alır; burada doğan Kara Volta, Ak Volta ve Kızıl ' +
-      'Volta nehirleri — sırasıyla Mouhoun, Nakambé ve Nazinon adlarıyla da anılır — Gana ' +
-      "topraklarında birleşerek Volta Nehri'ni oluşturur. Nakambé, başkent Ouagadougou'nun " +
-      "içinden geçer. Doğu ve kuzeydeki Nijer havzası topraklarının yaklaşık %30'unu " +
-      "oluşturur ve sularını Nijer Nehri'ne aktarır. Güneybatıdaki Comoé havzası ise " +
-      "topraklarının yaklaşık %7'sini kaplar ve Fildişi Sahili üzerinden Gine Körfezi'ne " +
-      'ulaşır. Kara Volta ve Comoé, ülkenin yıl boyunca sürekli akan iki nehridir.',
+      'Ülke toprakları üç ana akarsu havzasına ayrılır. Yüzölçümünün yarısından fazlasını ' +
+      'toplayan Volta Havzası; Kara Volta (Mouhoun), Ak Volta (Nakambé) ve Kızıl Volta ' +
+      '(Nazinon) nehirlerinden oluşur ve bu sular güneyde Gana sınırına geçerek birleşir. ' +
+      '\n\n' +
+      "Ülkedeki tek yıl boyu kesintisiz akan büyük nehir batıdaki Mouhoun'dur; diğer kollar " +
+      'kurak mevsimde büyük ölçüde kuruyarak gölet dizilerine dönüşür. Doğudaki havzalar Nijer ' +
+      "Nehri'ne, güneybatıdaki akışlar ise Fildişi Sahili üzerinden denize dökülen Comoé " +
+      "Nehri'ne bağlanır.",
   },
   {
     isoCode: 'CV',
@@ -497,37 +534,40 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "5 Temmuz 1975'te Portekiz'den bağımsız oldu.",
     introTr:
-      "Cabo Verde, Senegal kıyısından yaklaşık 570 kilometre açıkta, Atlas Okyanusu'nda yer alan " +
-      'on adalı bir takımadadır. Adalar, rüzgâr yönüne göre kuzeydeki Barlavento ve güneydeki ' +
-      'Sotavento olmak üzere iki gruba ayrılır. Takımadanın tamamı volkanik kökenlidir; en ' +
-      "yüksek noktası, Fogo adasındaki hâlâ etkin bir stratovolkan olan Pico do Fogo'dur.",
-    landformNoteTr:
-      'Barlavento grubundaki Santo Antão, São Vicente ve São Nicolau ile Sotavento grubundaki ' +
-      'Fogo, Santiago ve Brava, derin vadiler ve sarp yamaçlarla yarılmış dağlık adalardır; ' +
-      "Santo Antão'da arazi 1.979 metreye kadar yükselir. Buna karşılık Sal, Boa Vista ve Maio " +
-      'düz, alçak ve çöl görünümlü adalardır; ekonomileri tarih boyunca tuz üretimine ' +
-      'dayanmıştır.' +
+      "Atlas Okyanusu'nda, Senegal kıyılarının yaklaşık 570 kilometre açığında hilal " +
+      'biçiminde sıralanan Cabo Verde, volkanik kökenli on ana ada ve sekiz adacıktan oluşan ' +
+      'bir takımada devletidir. ' +
       '\n\n' +
-      'Fogo adasının neredeyse tamamını tek bir volkan oluşturur; ada bu nedenle yaklaşık 25 ' +
-      'kilometre çapında, hemen hemen yuvarlak bir biçim alır. Adanın kuzeydoğu köşesine kaymış ' +
-      'geniş bir kalderanın içinde, Chã das Caldeiras köyü ve kalderanın ortasından yükselen ' +
-      '2.829 metrelik Pico do Fogo konisi yer alır. Volkanın en son patlaması 2014-2015 kışında ' +
-      '77 gün sürmüş, Portela ve Bangaeira yerleşimlerini lav akıntısı altında bırakmıştır.',
+      'Adalar hâkim alize rüzgarlarına göre kuzeydeki Rüzgarüstü (Barlavento) ve güneydeki ' +
+      'Rüzgaraltı (Sotavento) olmak üzere iki ana gruba ayrılır.',
+    landformNoteTr:
+      'Takımadada jeolojik yaşa ve aşınma derecesine göre iki zıt ada morfolojisi görülür: Doğu ' +
+      'grubundaki Sal, Boa Vista ve Maio adaları milyonlarca yıllık aşınmayla düzleşmiş, ' +
+      'kireçtaşları ve kumullarla kaplı alçak çöl adalarıdır. Batıdaki Santo Antão, Santiago ve ' +
+      'Fogo gibi adalar ise derin kanyonlar ve sarp falezlerle yarılmış yüksek dağlık ' +
+      'kütlelerdir. ' +
+      '\n\n' +
+      'Fogo adası bütünüyle devasa bir stratovolkan konisidir; adanın kalderasından yükselen ' +
+      '2.829 metrelik Pico do Fogo, ülkenin en yüksek zirvesidir ve 2014 yılındaki patlamasında ' +
+      'kaldera tabanındaki köyleri lav örtüsü altında bırakmıştır.',
     climateNoteTr:
-      'Cabo Verde, Sahra ile nemli tropikal kuşak arasındaki Sahel biriminde yer alır ve yarı ' +
-      'kurak bir iklime sahiptir. Yağış mevsimi kısadır ve ağustos-ekim aylarına sıkışır; geri ' +
-      'kalan aylar boyunca hemen hiç yağmur düşmez. Kuzeydeki Barlavento adalarında yıllık yağış ' +
-      '100 milimetrenin altında kalırken, dağlık Sotavento adalarında bu miktar 150-250 ' +
-      'milimetreye çıkar. Kasım-mayıs arasında Sahra kökenli harmattan rüzgârı etkili olur; ' +
-      'sıcaklıklar aralık-haziran arasında ortalama 21, temmuz-kasım arasında ise 27 santigrat ' +
-      'derece civarında seyreder.',
+      'Cabo Verde, okyanus ortasında yer almasına karşın kıtadaki Sahel kuşağının kurak ' +
+      "özelliklerini taşır. Yıl boyunca etkili olan kuzeydoğu alizeleri ve kışın Sahra'dan " +
+      'toz taşıyan Harmattan rüzgarı, adaları yarı kurak bir iklim döngüsünde tutar. ' +
+      '\n\n' +
+      'Yağışlar son derece düzensizdir ve yalnızca ağustos-ekim arasındaki kısa fırtınalarla ' +
+      "düşer; Sal ve Boa Vista'da yıllık yağış 100 milimetrenin altındayken, yüksek dağ " +
+      'adalarının rüzgar karşılayan yamaçlarında orografik sisler sayesinde yağış 250 ' +
+      'milimetreye kadar çıkabilir.',
     hydrographyNoteTr:
-      'Volkanik arazi ve kurak iklim nedeniyle takımadada kalıcı akan hiçbir nehir yoktur. ' +
-      "Dağlık adalarda, özellikle Santiago'da, yağış sonrası kısa süreliğine akan mevsimsel dere " +
-      "yatakları (ribeira) bulunur; bu akışları depolamak için 2006'da tamamlanan Poilão " +
-      'barajından başlayarak bugüne kadar yedi baraj inşa edilmiştir. Yeraltı suyu kaynakları ' +
-      'sınırlıdır ve çoğu zaman tuzludur; düz, çöl görünümlü Sal ve Boa Vista adalarında içme ' +
-      "suyunun %85'inden fazlası deniz suyu arıtma tesislerinden karşılanır.",
+      'Geçirimli volkanik bazalt zemin ve kurak iklim nedeniyle takımadada kalıcı akış ' +
+      'gösteren tek bir nehir dahi bulunmaz. Yağmur suları derin vadi yataklarından (ribeira) ' +
+      'hızla okyanusa akar; bu taşkın sularını tutmak amacıyla Santiago adasındaki Poilão gibi ' +
+      'küçük bent ve barajlar inşa edilmiştir. ' +
+      '\n\n' +
+      'Yeraltı sularının aşırı çekim nedeniyle tuzlanması yüzünden başta turizmin ' +
+      "yoğunlaştığı Sal ve Boa Vista olmak üzere ülke genelinde içme suyunun yüzde 85'inden " +
+      'fazlası deniz suyu arıtma (desalinizasyon) tesislerinden temin edilir.',
   },
   {
     isoCode: 'CI',
@@ -552,36 +592,40 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "7 Ağustos 1960'ta Fransa'dan bağımsız oldu.",
     introTr:
-      'Fildişi Sahili toprakları güneyden kuzeye üç kuşağa ayrılır: kıyı boyunca uzanan lagünlü ' +
-      'ova, bunun ardındaki yağmur ormanı kuşağı ve kuzeydeki yüksek savan. Ülkenin en yüksek ' +
-      "noktası, batı ucunda Gine sınırında yükselen Nimba Dağı'dır. Kıyı şeridi, güçlü dalgalar " +
-      've sualtı kum setleri nedeniyle denizden erişimi zor bir hat oluşturur.',
-    landformNoteTr:
-      'Kıyının doğu yarısı boyunca, Gana sınırından başlayıp yaklaşık 300 kilometre uzanan bir ' +
-      'dizi lagün sıralanır; bu sığ kıyı gölleri dar bir kum seti ile açık denizden ayrılır. ' +
-      'Lagünlerin hemen kuzeyinde, bir asır öncesine kadar 200 kilometre genişliğinde kesintisiz ' +
-      'bir kuşak oluşturan yoğun yağmur ormanı yer alır; günümüzde bu orman özellikle ' +
-      'güneybatıda yoğunluğunu korur.' +
+      'Gine Körfezi kıyısında yer alan Fildişi Sahili, kıyı lagünlerinden iç kesimlerdeki ' +
+      'yoğun tropikal yağmur ormanlarına ve oradan kuzeydeki geniş savan platolarına kadar ' +
+      'uzanan dengeli bir doğal kademelenmeye sahiptir. ' +
       '\n\n' +
-      'Ülkenin kuzey yarısı, deniz seviyesinden yaklaşık 300 metre yükseklikteki geniş bir savan ' +
-      'platosudur; bitki örtüsü kuzeye doğru seyrekleşir. Orman ve savan kuşakları arasında, ' +
-      'ikisinin özelliklerini bir arada barındıran bir geçiş bölgesi uzanır. Batı ucunda, Gine ' +
-      'sınırında yükselen Nimba Dağı 1.752 metreye ulaşır — ülkenin doruğu, aynı zamanda zengin ' +
-      "biyoçeşitliliği nedeniyle UNESCO Dünya Mirası listesinde yer alan, Liberya'ya doğru " +
-      'uzanan geniş bir doğa rezervinin parçasıdır.',
+      "Ülke, Batı Afrika'nın en üretken tarımsal ekonomilerinden birini besleyen zengin toprak " +
+      'yapısı ve su kaynaklarıyla bölgenin ekonomik merkezlerinden biridir.',
+    landformNoteTr:
+      'Kıyı kuşağı iki farklı jeomorfolojik yapı sergiler: Batıda dalgaların aşındırdığı dik ' +
+      'falezler yer alırken, doğuda kum setleriyle açık denizden ayrılan ve 300 kilometre ' +
+      'boyunca uzanan Ebrié gibi sığ kıyı lagünleri sıralanır. Kıyının ardında yükselen ' +
+      "dalgalı platolar kuşağı, güneybatıda Taï Milli Parkı'nın koruduğu bakir yağmur " +
+      'ormanlarıyla örtülüdür. ' +
+      '\n\n' +
+      'Kuzeye çıkıldıkça arazi ortalama 300-400 metre yüksekliğindeki açık savan düzlüklerine ' +
+      'evrilir. Ülkenin en batı ucunda, Gine ve Liberya sınırında yükselen Nimba Sıradağları ' +
+      'üzerindeki 1.752 metrelik doruk, dik kuvarsit yamaçlarıyla ülkenin en yüksek noktasını ' +
+      'oluşturur.',
     climateNoteTr:
-      "Fildişi Sahili'nde iklim güneyde nemli tropikal, kuzeyde ise daha kurak bir karaktere " +
-      'sahiptir. Güney kesiminde sıcaklıklar yıl boyunca 24-32 santigrat derece arasında ' +
-      'seyreder ve iki ayrı yağmur mevsimi görülür; bunlardan ilki mayıs-temmuz arasına denk ' +
-      'gelir. Kuzeye gidildikçe yağmur mevsimi tek bir döneme, genellikle yaz aylarına sıkışır ' +
-      've toplam yağış miktarı azalır.',
+      'İklim, Gine ekvatoral kuşağından kuzeydeki Sudan savan kuşağına doğru belirgin bir ' +
+      'geçiş gösterir. Güney kesiminde sıcaklık ve nem yıl boyu yüksektir; nisan-temmuz ve ' +
+      'eylül-kasım aylarında olmak üzere iki ayrı yağışlı dönem yaşanır ve yıllık yağış ' +
+      '1.500-2.000 milimetreyi bulur. ' +
+      '\n\n' +
+      'Kuzeye ilerledikçe yağışlı dönem tek bir yaz mevsimine (haziran-ekim) iner ve yıllık ' +
+      "miktar 1.000 milimetre civarına düşer; kış aylarında ise Sahra'dan esen tozlu Harmattan " +
+      'rüzgarı kuzey savanlarını kurutucu etkisi altına alır.',
     hydrographyNoteTr:
-      'Ülke topraklarını kuzeyden güneye kesen dört büyük nehir — Cavally, Sassandra, Bandama ' +
-      "ve Comoé — birbirine yakın, paralel güzergahlar izleyerek Atlas Okyanusu'na dökülür. " +
-      'Bunlardan en uzunu olan Sassandra, 650 kilometrelik akışı boyunca sulama ve ' +
-      'hidroelektrik üretimi için yoğun biçimde kullanılır. Nehirlerin çoğu, çeşitli noktalarda ' +
-      'çavlanlarla kesintiye uğradığı ve kurak mevsimde su seviyesi düştüğü için gemi ' +
-      'taşımacılığına elverişli değildir.',
+      "Ülke toprakları, kuzey platolarından doğup güneye Atlas Okyanusu'na doğru birbirine " +
+      'paralel akan dört büyük akarsu ile drene edilir: Comoé, Bandama, Sassandra ve Cavally. ' +
+      '\n\n' +
+      'Bu nehirlerin yatakları basamaklı plato eşiklerinde sık sık çağlayan ve şelalelerle ' +
+      'kesintiye uğradığı için iç kesimlere deniz ulaşımına elverişli değildir; ancak ' +
+      'üzerlerinde kurulan Kossou ve Buyo gibi büyük baraj gölleri sulama ve hidroelektrik ' +
+      'üretiminde hayati rol oynar.',
   },
   {
     isoCode: 'GM',
@@ -606,31 +650,38 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "18 Şubat 1965'te Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      'Gambiya, Atlas Okyanusu kıyısında, Senegal tarafından üç yandan çevrilen dar bir şerit ' +
-      "üzerinde yer alan, Afrika'nın ada olmayan en küçük ülkesidir. Ülke toprakları, " +
-      "ortasından geçen Gambiya Nehri'nin vadisini izleyerek uzanır. Arazide belirgin bir " +
-      'yükselti yoktur — Gambiya, kıtanın en alçak ulusal zirve noktasına sahip ülkesidir.',
+      "Gambiya, Atlas Okyanusu kıyısından başlayarak Gambiya Nehri'nin iki yakası boyunca " +
+      'doğuya doğru kıtanın içine sokulan, okyanus kıyısı hariç tamamen Senegal topraklarıyla ' +
+      'kuşatılmış dar bir kıyı-enklav devletidir. ' +
+      '\n\n' +
+      'Genişliği çoğu noktada 25 ila 50 kilometreyi aşmayan bu şerit biçimli ülke, sınırlarını ' +
+      'bütünüyle nehir vadisinin jeopolitik geçmişinden alır.',
     landformNoteTr:
-      'Gambiya Nehri ülkenin düz arazisine egemendir ve bir kumtaşı platosu üzerinden akar. ' +
-      'Nehrin aşağı kesimi boyunca yoğun mangrov bataklıkları, alçak kesimlerde ise tatlı su ' +
-      'bataklıkları ve tuzlu düzlükler uzanır; vadinin alüvyonlu toprakları pirinç tarımına, ' +
-      'daha yüksek yamaçları ise yer fıstığı yetiştiriciliğine elverişlidir. Ülkede dağ ya da ' +
-      'tepe sayılabilecek bir yükselti yoktur; arazi nehri yakından izleyerek yalnızca birkaç ' +
-      'önemsiz tepeye kadar yükselir. En yüksek nokta 53 metreyle kıtanın herhangi bir ' +
-      'ülkesindeki en alçak ulusal zirvedir.',
+      'Ülke bütünüyle alüvyon tabanlı alçak bir nehir vadisi ve onu çevreleyen kumtaşı ' +
+      'taraçalarından oluşur; arazide hiçbir belirgin dağ veya yükselti bulunmaz. Doğu ' +
+      'sınırına yakın en yüksek noktasının deniz seviyesinden yalnızca 53 metre yüksekte olması, ' +
+      "Gambiya'yı Afrika kıtasında ulusal doruk noktası en alçak ülke yapar. " +
+      '\n\n' +
+      'Nehrin aşağı kesiminde tuzlu suyun sokulduğu geniş mangrov bataklıkları yer alırken, ' +
+      'tatlı su taşıdığı orta kesimlerdeki taşkın düzlükleri (banto faros) geleneksel pirinç ' +
+      'tarımının, nehir boyundaki kumlu taraçalar ise yer fıstığı ekiminin merkezidir.',
     climateNoteTr:
-      "Gambiya'da Sahel tipi bir iklim görülür: kasım-mayıs arası uzun bir kurak mevsim, " +
-      'haziran-ekim arası ise kısa bir yağışlı mevsimdir. Ülke, batıdan doğuya dört ' +
-      'tarımsal-ekolojik kuşağa ayrılır; en batıda nispeten nemli bir Gine savanı, en doğuda ' +
-      'ise açık ağaçlık ve çalılıklarla kaplı bir Sahel savanı uzanır. Yıllık yağış iç ' +
-      'kesimlerde 920 milimetreden kıyıda 1.450 milimetreye kadar çıkar; kıyı boyunca ' +
-      'okyanusun etkisiyle sıcaklık ve nem daha ölçülüdür.',
+      "Sahel ile Sudan savanı arasındaki geçiş kuşağında yer alan Gambiya'da yıl belirgin iki " +
+      'mevsime bölünür: haziran-ekim arasındaki nemli yaz yağmurları dönemi ve kasım-mayıs ' +
+      'arasındaki uzun kurak dönem. ' +
+      '\n\n' +
+      'Yıllık yağış miktarı batı kıyısında okyanus neminin etkisiyle 1.400 milimetreye kadar ' +
+      'çıkarken, doğu iç kesimlerinde 900 milimetreye kadar düşer. Kurak mevsim boyunca iç ' +
+      'kesimlerden esen kuru ve toz yüklü Harmattan rüzgarı nem oranını hızla düşürür.',
     hydrographyNoteTr:
-      "Gambiya Nehri, kaynağını Gine'deki Fouta Djallon yaylasından alır ve ülke sınırları " +
-      'içinde yaklaşık 480 kilometre boyunca akar. Gelgit etkisi nehrin oldukça iç ' +
-      'kesimlerine kadar hissedilir; aşağı kesimde geniş mangrov bataklıkları, nehir ağzında ' +
-      'ise tuzlu su birikintileri oluşur. Ülkenin neredeyse tüm yerleşim ve tarım faaliyeti ' +
-      'bu tek nehrin vadisi çevresinde yoğunlaşır.',
+      "Ülkenin varlık sebebi ve tek ana drenaj ekseni Gambiya Nehri'dir; Gine'deki Fouta " +
+      'Djallon yaylalarından doğan nehir, ülke toprakları içinde menderesler çizerek yaklaşık ' +
+      '480 kilometre boyunca akar ve okyanusa kavuşur. ' +
+      '\n\n' +
+      'Nehir yatağının eğimi son derece düşüktür; bu nedenle okyanus gelgitlerinin etkisi ve ' +
+      'tuzlu su kıyıdan içeriye doğru 150 kilometreden fazla sokulur. Bu durum akarsuyun aşağı ' +
+      'çığırında geniş bir haliç-mangrov ekosistemi yaratırken tarımsal sulama olanaklarını ' +
+      'nehrin yukarı tatlı su kesimleriyle sınırlar.',
   },
   {
     isoCode: 'GH',
@@ -656,30 +707,38 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "6 Mart 1957'de Birleşik Krallık'tan bağımsız oldu (Sahra-altı Afrika'nın ilk bağımsız ülkesi).",
     introTr:
-      "Gana topraklarının yaklaşık yarısı, ülkeyi ortadan geçen Volta Nehri Havzası'nın " +
-      'içinde kalır; havzanın merkezinde, dünyanın yüzölçümü en büyük yapay gölü olan ' +
-      "Volta Gölü uzanır. Gine Körfezi'ne kıyısı olan Gana, batıda Fildişi Sahili, " +
-      'kuzeyde Burkina Faso, doğuda Togo ile komşudur.',
+      'Gine Körfezi kıyısında yer alan Gana, güneydeki yağmur ormanları ve lagünlü kıyılardan ' +
+      'kuzeydeki kurak savan platolarına kadar uzanan zengin bir Batı Afrika coğrafyasıdır. ' +
+      '\n\n' +
+      'Ülke yüzölçümünün neredeyse yarısını kaplayan devasa Volta Nehri Havzası ve havzanın ' +
+      "kalbinde yer alan yapay Volta Baraj Gölü, Gana'nın hidrolojik ve ekonomik can damarını " +
+      'oluşturur.',
     landformNoteTr:
-      'Volta Havzası, Voltaian kumtaşı zemininin oluşturduğu geniş ve genellikle alçak bir ' +
-      'arazidir; kuzey kesiminde yükseklik 150-215 metre arasında değişir. Havzanın güneybatı ' +
-      "ucunda, Aşanti Yaylaları'nın bir parçası olan Kwahu Platosu yükselir. Doğuda, Togo " +
-      'sınırına yakın Akwapim-Togo sıradağlarında yükselen Afadjato Dağı, geleneksel olarak 885 ' +
-      'metreyle ülkenin en yüksek noktası kabul edilir; güncel ölçümler bu rakam ve unvan ' +
-      'konusunda belirsizlik olduğunu gösterir. Güney kıyı şeridi boyunca alçak ovalar ve ' +
-      'lagünler uzanır.',
+      'Ülkenin orta ve doğu kesimlerini, kase biçimli sığ bir çöküntü sahası oluşturan kumtaşı ' +
+      'tabanlı Volta Havzası kaplar; havzanın güneybatı sınırını Aşanti Yaylası ve dik bir ' +
+      'basamak oluşturan Kwahu Platosu belirler. ' +
+      '\n\n' +
+      'Doğu sınırında, Togo boyunca uzanan Akwapim-Togo Sıradağları yükselir; bu dağlık şerit ' +
+      'üzerindeki 885 metrelik Afadjato Dağı geleneksel olarak ülkenin en yüksek noktası kabul ' +
+      'edilir. Güney kıyısı boyunca kumluk falezler, lagünler ve mangrov ormanları sıralanır.',
     climateNoteTr:
-      "Gana'da bölgeden bölgeye belirgin iklim farkları görülse de, genel karakter " +
-      'tropikaldir: doğu kıyı şeridi sıcak ve nispeten kurak, güneybatı köşesi sıcak ve ' +
-      'nemli, ülkenin kuzeyi ise sıcak ve yağışlı bir Guine savanı iklimine sahiptir. ' +
-      'Kuzeydeki yağış mevsimi tek bir yaz dönemine sıkışırken, güneybatıda yağışlar yıl ' +
-      'boyunca iki ayrı dönemde düşer.',
+      'Gana genelinde tropikal iklim hakimdir; ancak yağış dağılımı topoğrafya ve kıyı ' +
+      'morfolojisine bağlı olarak belirgin karşıtlıklar sergiler. Ülkenin güneybatı köşesi ' +
+      'yılda 2.000 milimetreyi aşan bol yağışıyla yoğun yağmur ormanlarını besler. ' +
+      '\n\n' +
+      "Buna karşılık başkent Akra'nın da yer aldığı güneydoğu kıyı şeridi, serin kıyı " +
+      'akıntıları ve rüzgar yönü nedeniyle yılda yalnızca 750-800 milimetre yağış alan kurak ' +
+      'bir savan kuşağı (Dahomey Boşluğu) oluşturur. Kuzey kesimlerde ise tek bir yaz yağmuru ' +
+      'mevsimi yaşanır ve kışın kurutucu Harmattan rüzgarları etkili olur.',
     hydrographyNoteTr:
-      "Kara Volta ve Ak Volta, Burkina Faso'dan güneye Gana'ya girer ve ülkenin ortasında " +
-      "birleşerek Volta Nehri'ni oluşturur. 1965'te tamamlanan Akosombo Barajı, bu nehrin " +
-      "akışını keserek yaklaşık 8.500 kilometrekarelik Volta Gölü'nü oluşturdu — dünyanın " +
-      'yüzölçümü en büyük, hacim bakımından ise dördüncü büyük yapay gölü. Göl, ülkenin ' +
-      'orta kesimini kuzeyden güneye kat eden başlıca iç su yoludur.',
+      "Ülke drenajına Volta Nehri sistemi egemendir; Burkina Faso'dan doğan Siyah Volta, " +
+      'Beyaz Volta ve Kırmızı Volta kolları Gana topraklarında birleşerek devasa bir akarsu ' +
+      'ağı kurar. ' +
+      '\n\n' +
+      '1965 yılında nehir boğazına inşa edilen Akosombo Barajı, yaklaşık 8.500 kilometrekarelik ' +
+      "yüzölçümüyle dünyanın alan bakımından en büyük yapay gölü olan Volta Gölü'nü meydana " +
+      'getirmiştir. Bu dev su kütlesi ülkenin kuzeyi ile güneyi arasında ucuz bir iç su yolu ' +
+      'bağlantısı sağlarken devasa bir hidroelektrik kaynağı üretir.',
   },
   {
     isoCode: 'GN',
@@ -704,37 +763,39 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: null,
     independenceNoteTr: "2 Ekim 1958'de Fransa'dan bağımsız oldu.",
     introTr:
-      'Gine, kıyıdan iç kesime doğru dört farklı coğrafi bölgeden oluşur: dar bir kıyı şeridi ' +
-      'olan Alt Gine, pastoral bir yayla olan Orta Gine (Fouta Djallon), kuzeydeki savan ' +
-      "kuşağı Üst Gine ve güneydoğudaki yağmur ormanı bölgesi Orman Gine. Batı Afrika'nın " +
-      'başlıca nehirlerinin yarıdan fazlası bu topraklardan doğduğu için ülke, bölgenin su ' +
-      'kulesi olarak anılır.',
-    landformNoteTr:
-      'Ülkenin ortasında yükselen Fouta Djallon, ortalama 900 metre yükseklikte, derin vadi ' +
-      've boğazlarla yarılmış basamaklı kumtaşı platolarından oluşur. Bu platonun kuzey ' +
-      "ucunda yükselen Loura Dağı (Tamgué), Fouta Djallon'un en yüksek noktasıdır ve yaklaşık " +
-      "1.540 metreye ulaşır. Buradan Gambiya, Senegal Nehri'nin ana kolu Bafing, Konkouré ve " +
-      'Büyük/Küçük Scarcies gibi nehirlerin kaynak suları doğar.' +
+      'Atlas Okyanusu kıyısından Batı Afrika içlerine doğru hilal biçiminde uzanan Gine, ' +
+      'yüksek topoğrafyası ve bol yağışları sayesinde haklı olarak "Batı Afrika\'nın Su ' +
+      'Kulesi" unvanını taşır. ' +
       '\n\n' +
-      'Ülkenin güneydoğu ucunda, Fildişi Sahili ve Liberya sınırına yakın Gine Yaylaları ' +
-      "uzanır; bu kuşak Nijer Nehri'nin asıl kaynağını barındırır. Yaylaların en yüksek " +
-      'noktası, Fildişi Sahili sınırındaki Nimba sıradağının zirvesidir; 1.752 metreye ulaşan ' +
-      "bu zirve, Gine'nin de ülke genelindeki en yüksek noktasıdır.",
+      'Ülke belirgin dört coğrafi bölgeye ayrılır: Mangrovlu Alt Gine kıyıları, basamaklı ' +
+      'kumtaşı yaylası Fouta Djallon (Orta Gine), açık savanların uzandığı Üst Gine ve ' +
+      'güneydoğudaki dağlık yağmur ormanlarını barındıran Orman Gine.',
+    landformNoteTr:
+      'Ülkenin merkezinde yükselen Fouta Djallon Platosu, derin kanyonlar ve çağlayanlarla ' +
+      'yarılmış basamaklı kumtaşı kütlelerinden oluşur; platonun kuzeyindeki 1.540 metrelik ' +
+      'Loura Dağı (Tamgué) bölgenin en heybetli yükseltisidir. ' +
+      '\n\n' +
+      "Güneydoğuya doğru arazi granit ve gnays kayalardan oluşan Gine Yaylaları'na bağlanır; " +
+      'burada Fildişi Sahili ve Liberya sınırında yükselen 1.752 metrelik Nimba Dağı, dik ' +
+      "kuvarsit sırtlarıyla Gine'nin en yüksek doruğunu oluşturur ve eşsiz endemik türleri " +
+      'barındırır.',
     climateNoteTr:
-      "Gine'de iklim bölgeden bölgeye büyük farklılıklar gösterir. Kıyı boyunca uzanan Alt " +
-      "Gine'de musonsu bir yağış rejimi hakimdir; yağmur mevsimi nisan-kasım arasını kapsar " +
-      "ve başkent Conakry'de yıllık yağış yaklaşık 3.800 milimetreye ulaşır — dünyanın en " +
-      "yağışlı kıyı kentlerinden biridir. Orta kesimdeki Fouta Djallon'da yağış daha az ve " +
-      'düzensizdir, yıllık 1.500-2.000 milimetre arasında değişir; kurak mevsimde günlük ' +
-      "sıcaklık farkı belirgin biçimde artar. Kuzeydeki Üst Gine'de yağmur mevsimi daha " +
-      'kısadır ve aralık-mayıs arasında Sahra kökenli harmattan rüzgarı eser.',
+      "Gine, Atlas Okyanusu'ndan gelen nemli Güneybatı Musonu'nun doğrudan çarptığı Batı " +
+      "Afrika'nın en yağışlı ülkelerinden biridir. Başkent Conakry'nin yer aldığı kıyı kuşağı " +
+      'yılda yaklaşık 3.800-4.000 milimetre yağış alarak dünyanın en nemli kıyı kentleri ' +
+      'arasındadır. ' +
+      '\n\n' +
+      "Yükseltinin arttığı Fouta Djallon'da yağışlar 1.500-2.000 milimetre civarında " +
+      'gerçekleşir ve geceler serin geçer; kuzeydoğudaki Üst Gine savanlarında ise yağışlı ' +
+      'mevsim kısalır ve kış aylarında esen kuru Harmattan rüzgarı egemen olur.',
     hydrographyNoteTr:
-      "Fouta Djallon, Batı Afrika'nın büyük nehirlerinin çoğuna kaynaklık ettiği için " +
-      'bölgenin su kulesi kabul edilir. Platonun orta kesiminden Gambiya Nehri, Senegal ' +
-      "Nehri'nin ana kolu Bafing ve Konkouré doğar; platonun doğu yamaçları ise Nijer " +
-      "Nehri'nin çeşitli kollarını besler. Güneydoğudaki Gine Yaylaları, Nijer'in asıl " +
-      "kaynağını barındırır. Kuzeybatıda, Büyük ve Küçük Scarcies nehirleri Sierra Leone'ye " +
-      'doğru akar.',
+      'Fouta Djallon ve Gine Yaylaları, Batı Afrika kıtasının ana nehir sistemlerinin ' +
+      'doğduğu devasa bir hidrolojik dağıtım merkezidir. Kıtayı binlerce kilometre kat eden ' +
+      "Nijer Nehri kaynaklarını güneydoğudaki Gine Yaylaları'ndan alırken, Senegal Nehri'nin " +
+      'ana kolu Bafing ile Gambiya Nehri Fouta Djallon platolarından fışkırır. ' +
+      '\n\n' +
+      "Ayrıca batıya, okyanusa yönelen Konkouré Nehri ve komşu Sierra Leone'ye akan Scarcies " +
+      'nehirleri, taşıdıkları yüksek debilerle devasa bir hidroelektrik potansiyeli yaratır.',
   },
   {
     isoCode: 'GW',
@@ -760,37 +821,40 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "24 Eylül 1973'te Portekiz'den bağımsızlık ilan edildi (Portekiz'in resmî tanıması 10 Eylül 1974).",
     introTr:
-      'Gine-Bissau toprakları, alçak kıyı ovaları ile iç kesimdeki hafif yüksek platolardan ' +
-      'oluşur; ülkede belirgin bir dağ silsilesi yoktur. Kıyı açığında, Geba ve Rio Grande de ' +
-      'Buba nehirlerinin eski deltasından oluşan Bijagós Takımadaları uzanır. Ülkenin ' +
-      "güneydoğusunda, Gine'deki Fouta Djallon yaylasına komşu Gabú Platosu yer alır.",
-    landformNoteTr:
-      'Kıyı boyunca uzanan alçak ovalar, Geba, Cacheu ve diğer nehirlerin geniş gelgit ' +
-      'halicileriyle derin biçimde kesilir; bu kesim mangrov ve tuzlu bataklıklarla kaplıdır. ' +
-      "İç kesimde arazi kademeli olarak yükselir ve merkezde Bafatá Platosu'na, güneydoğuda " +
-      "ise Gine sınırındaki Gabú Platosu'na ulaşır. Ülkenin en yüksek kesimleri bu güneydoğu " +
-      'platosunda, 260-300 metre arasında bir yüksekliğe çıkar; kaynaklarda tutarlı biçimde ' +
-      'öne çıkan tek bir zirve adı yok.' +
+      "Batı Afrika'nın en parçalı kıyı şeridine sahip ülkelerinden biri olan Gine-Bissau; " +
+      'derin nehir halicileri, kıyı bataklıkları ve açıkta yer alan 88 adalı Bijagós ' +
+      'Takımadası ile kara ve denizin iç içe geçtiği amfibik bir coğrafyadır. ' +
       '\n\n' +
-      'Kıyı açığındaki Bijagós Takımadaları, Geba ve Rio Grande de Buba nehirlerinin eski ' +
-      'deltasının sular altında kalmasıyla oluşmuş, yaklaşık 88 adadan oluşan bir ' +
-      "topluluktur. Bölgenin Afrika'nın en güçlü gelgitlerinden bazılarına sahip olması, " +
-      'kumsalları, dolambaçlı kanalları ve gelgit düzlüklerini sürekli yeniden şekillendirir. ' +
-      "Takımada, mangrovlardan kuru savanlara uzanan ekosistem çeşitliliği nedeniyle 1996'da " +
-      'UNESCO Biyosfer Rezervi ilan edildi.',
+      'Ülke toprakları okyanus kıyısındaki çamur düzlüklerinden doğudaki savan platolarına ' +
+      'doğru yumuşak bir eğimle yükselir.',
+    landformNoteTr:
+      'Ülke topoğrafyasının büyük bölümü deniz seviyesinden yalnızca birkaç metre yüksekteki ' +
+      'alçak kıyı ovalarından oluşur; toprakların neredeyse tamamı 100 metrenin altındadır. ' +
+      'Yalnızca doğuda, Gine sınırındaki Fouta Djallon kütlesinin en dış eteklerinde arazi ' +
+      'dalgalı tepelere dönüşerek 310 metrelik isimsiz bir dorukla ülkenin en yüksek noktasına ' +
+      'ulaşır. ' +
+      '\n\n' +
+      'Açıkta uzanan Bijagós Takımadası, eski bir nehir deltasının buzul çağı sonrasında sular ' +
+      "altında kalmasıyla oluşmuş batık bir ada grubudur; Afrika'nın en güçlü gelgitlerine " +
+      'maruz kalan bu adalar, zengin mangrovları ve deniz faunasıyla UNESCO Biyosfer Rezervi ' +
+      'olarak korunur.',
     climateNoteTr:
-      "Gine-Bissau'da tropikal muson iklimi görülür; ekvatora yakınlık nedeniyle sıcaklıklar " +
-      'yıl boyunca ortalama 26 santigrat derece civarında, az değişkenlikle seyreder. ' +
-      'Haziran-kasım arası yağışlı, aralık-mayıs arası kurak bir mevsim izlenir. Kıyı ' +
-      'kesiminde yıllık yağış 2.000-3.000 milimetreye ulaşırken, iç kesimler daha kuraktır. ' +
-      'Temmuz-eylül arasındaki yoğun yağışlar zaman zaman geniş çaplı taşkınlara yol açar.',
+      'Gine-Bissau genelinde sıcak ve çok nemli bir tropikal muson iklimi egemendir; sıcaklıklar ' +
+      'yıl boyu ortalama 26 derece civarında kalarak mevsimsel olarak çok az değişir. ' +
+      '\n\n' +
+      'Haziran ile kasım ayları arasındaki yağmur mevsiminde okyanustan gelen nem yüklü muson ' +
+      'rüzgarları kıyı kuşağına 2.000 ila 3.000 milimetre arasında yağış bırakır; bu dönemde ' +
+      'alçak vadi tabanları geniş çaplı taşkınlara uğrar. Aralık-mayıs ayları arasındaki kurak ' +
+      'dönemde ise iç kesimlerden esen Harmattan rüzgarları havayı kurutur.',
     hydrographyNoteTr:
-      'Kıyı şeridi, Geba, Cacheu, Mansôa, Cacine ve Rio Grande de Buba gibi huni biçimli ' +
-      'halicilerle derin biçimde parçalanmıştır; Geba halicinde gelgit farkı 7 metreye ' +
-      "ulaşır. Geba Nehri, Gine'deki Fouta Djallon'da doğar, Senegal topraklarından geçerek " +
-      "yaklaşık 550 kilometre sonra Gine-Bissau'da Atlas Okyanusu'na ulaşır. Ana kolu olan " +
-      "Corubal, kısa bir mesafe boyunca Gine ile sınırı oluşturduktan sonra Geba'ya katılır. " +
-      "Ülke, Batı Afrika'da tuzlu su nehirlerinin sayısı bakımından ilk sırada yer alır.",
+      'Ülke hidrografyasının en belirgin özelliği, okyanus gelgitlerinin nehir yataklarının ' +
+      'onlarca kilometre içerisine kadar sokulduğu devasa huni biçimli haliçlerdir. Geba, ' +
+      'Cacheu, Mansôa ve Rio Grande de Buba nehirlerinin ağızlarında gelgit farkı yer yer 7 ' +
+      'metreye ulaşır; bu durum deniz suyunun tatlı sularla karışmasına yol açarak ' +
+      "Gine-Bissau'yu kıtada tuzlu su akarsularının en yaygın olduğu ülke yapar. " +
+      '\n\n' +
+      "Ülkenin en önemli ana arteri olan ve Gine'den doğan Geba Nehri ile kolu Corubal, aşağı " +
+      "çığırında geniş mangrov bataklıkları arasından akarak Atlas Okyanusu'na boşalır.",
   },
   {
     isoCode: 'LR',
@@ -816,36 +880,41 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "26 Temmuz 1847'de kendi ilanıyla bağımsız oldu (bir Avrupa sömürge gücünden değil).",
     introTr:
-      'Liberya toprakları, kıyıdan iç kesime doğru sıralanan dört paralel kuşaktan oluşur: ' +
-      'alçak bir kıyı ovası, dalgalı bir tepelik kuşak, parçalı bir iç plato ve kuzeybatıda ' +
-      'dağınık düşük dağlar. Ülkenin en yüksek arazisi, Gine ve Fildişi Sahili sınırındaki ' +
-      'geniş yayla sisteminin bir uzantısı olan kuzeybatı dağlık kesimindedir. Başkent ' +
-      'Monrovia, dünyanın en yağışlı başkentlerinden biridir.',
-    landformNoteTr:
-      'Yaklaşık 560 kilometre uzunluğundaki kıyı ovası, çoğu yerde yalnızca 1-2 metre ' +
-      'yükseklikte, düz ve kumludur; kumsallar arasında kum setleriyle kapanmış lagünler ve ' +
-      'mangrov bataklıkları sıralanır. Bunun hemen ardında, genişliği yaklaşık 32 kilometreyi ' +
-      'bulan ve ortalama 90 metre yükseklikteki dalgalı bir tepelik kuşak uzanır.' +
+      "Batı Afrika'nın güneybatı kıyısında Atlas Okyanusu'na bakan Liberya, kıyı " +
+      'kumsallarından iç kesimlerdeki yağmur ormanlarına ve dağlık platolara doğru ' +
+      'basamaklanan yoğun nemli bir tropikal ülkedir. ' +
       '\n\n' +
-      'İç kesimde arazi, dağınık alçak dağlarla parçalanmış bir platoya dönüşür. Kuzeybatıda, ' +
-      'Lofa eyaletindeki Wologizi sırası üzerinde yükselen Wuteve Dağı, 1.447 metreyle ülke ' +
-      'topraklarının en yüksek noktasıdır. Nimba sıradağının 1.752 metrelik asıl zirvesi ise ' +
-      'Gine ve Fildişi Sahili sınırı üzerinde yükselir; Liberya toprakları bu geniş dağ ' +
-      'sistemine yalnızca komşudur.',
+      'Kıyı şeridi boyunca uzanan lagünler ve mangrovlar, ülkeyi boydan boya kat eden ' +
+      "nehirlerle birleşerek Batı Afrika'nın en iyi korunmuş kesintisiz orman örtülerinden " +
+      'birine zemin hazırlar.',
+    landformNoteTr:
+      'Ülke topoğrafyası kıyıdan içeriye doğru dört paralel jeomorfolojik kademe izler: ' +
+      'Yaklaşık 560 kilometre boyunca uzanan, lagünler ve kum setleriyle çevrili dar ve alçak ' +
+      'kıyı ovası; hemen ardından başlayan ve ortalama 90 metre yükseltideki dalgalı tepelik ' +
+      'orman kuşağı; iç kesimlerde 300-450 metreye çıkan aşınmış plato sahası; ve en kuzeyde ' +
+      'Gine sınırına dayanan dağlık kütleler. ' +
+      '\n\n' +
+      'Kuzeybatıdaki Wologizi Sıradağları üzerinde yükselen 1.447 metrelik Wuteve Dağı, ' +
+      "Liberya'nın en yüksek zirvesidir. Ülkenin kuzeydoğu sınırında yükselen demir zengini " +
+      'Nimba Masifi ise Gine ve Fildişi Sahili ile paylaşılan sarp bir sınır oluşturur.',
     climateNoteTr:
-      "Liberya'da yıl boyunca sıcak ve nemli tropikal bir iklim hakimdir; Afrika Musonu'nun " +
-      'etkisiyle nisan sonu-kasım ortası arası yağışlı bir mevsim yaşanır. Başkent Monrovia, ' +
-      'yıllık yaklaşık 5.000 milimetre yağışla dünyanın en yağışlı başkentlerinden biridir; ' +
-      'haziran ve temmuz aylarında bu miktarın önemli bir kısmı tek başına düşer. Kurak ' +
-      'mevsimde ise Sahra kökenli harmattan rüzgarı etkilidir.',
+      'Liberya bütünüyle sıcak ve aşırı nemli ekvatoral muson ikliminin etkisi altındadır. ' +
+      "Afrika Musonu'nun Atlas Okyanusu'ndan taşıdığı nemli hava kütleleri, mayıs ve kasım " +
+      'ayları arasında aralıksız şiddetli yağışlar bırakır. ' +
+      '\n\n' +
+      'Başkent Monrovia, yıllık ortalama 4.500-5.000 milimetreyi aşan yağış miktarıyla ' +
+      'dünyanın en çok yağış alan başkentleri arasındadır; bu yağışların önemli kısmı haziran ve ' +
+      "temmuz aylarında düşer. Yalnızca aralık-şubat ayları arasında kuraklaşan havada Sahra'dan " +
+      'sızan hafif Harmattan rüzgarı hissedilir.',
     hydrographyNoteTr:
-      'Gine yaylalarından inen altı ana nehir ülke topraklarını kat eder. Loffa, St. Paul, ' +
-      'St. John ve Cestos nehirlerinin aşağı kesimleri tamamen Liberya sınırları içinde ' +
-      'kalır. Batıda Mano Nehri, Sierra Leone ile paylaşılan sınırı çizer; doğuda ise ülkenin ' +
-      'en uzun nehri olan Cavalla (515 km), akışının güney kesimiyle Fildişi Sahili ile ' +
-      'paylaşılan sınırın büyük bölümünü oluşturur — kuzey kesimi ise sınıra değmeden tamamen ' +
-      'Liberya topraklarından geçer. Kıyıya yakın kesimlerde, kum setleriyle kapanan nehir ' +
-      'ağızları sık sık tatlı su lagünlerine dönüşür.',
+      "Gine Yaylaları'ndan doğan sular, Liberya topraklarını birbirine paralel hatlar " +
+      "boyunca kuzeydoğudan güneybatıya doğru keserek Atlas Okyanusu'na dökülen altı ana " +
+      'nehir sistemiyle drene edilir: Mano, Lofa, Saint Paul, Saint John, Cestos ve Cavalla. ' +
+      '\n\n' +
+      'Batıda Mano Nehri Sierra Leone ile, doğuda ise 515 kilometrelik uzunluğuyla ülkenin en ' +
+      'uzun akarsuyu olan Cavalla Nehri Fildişi Sahili ile doğal sınır oluşturur. Nehir ' +
+      'ağızları güçlü okyanus dalgalarının yığdığı kum setleriyle kapandığı için doğal liman ' +
+      'oluşumu sınırlıdır; ancak kıyı ardında zengin tatlı su lagünleri meydana gelir.',
   },
   {
     isoCode: 'ML',
@@ -870,34 +939,41 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: null,
     independenceNoteTr: "22 Eylül 1960'ta Fransa'dan bağımsız oldu.",
     introTr:
-      "Mali toprakları kuzeyden güneye üç kuşağa ayrılır: kuzeyde Sahra'nın çöl arazisi, ortada " +
-      'yarı kurak Sahel kuşağı ve güneyde Sudan tipi savan. Ülkenin ortasından geçen Nijer ' +
-      'Nehri, Timbuktu yakınında keskin bir kavis çizerek doğuya yönelir; bu kavisin hemen ' +
-      'öncesinde nehir, geniş bir iç deltaya yayılır.',
-    landformNoteTr:
-      'Kuzeydoğuda, Cezayir sınırına yakın Adrar des Ifoghas, Hoggar sıradağlar sisteminin bir ' +
-      'uzantısı olan aşınmış bir kumtaşı platosudur ve yaklaşık 800 metreye ulaşır. Ülkenin ' +
-      'orta-güney kesiminde, Hombori yakınlarındaki sarp kayalık masaların en yükseği olan ' +
-      '1.155 metrelik Hombori Tondo, ülkenin en yüksek noktasıdır.' +
+      "Batı Afrika'nın iç kesimlerinde denize kıyısı olmayan devasa bir kara ülkesi olan " +
+      'Mali, kuzeydeki Sahra Çölü ile güneydeki Sudan savanları arasında uzanır. ' +
       '\n\n' +
-      'Ülkenin can damarı olan Nijer Nehri, güneybatıdan Gine yaylalarının etkisiyle taşan ' +
-      "sularla beslenerek Mali'ye girer ve Timbuktu'ya yaklaşırken keskin bir dönüş yaparak " +
-      'doğuya yönelir; bu dönüşten önce nehir, kanallar, göller ve mevsimsel taşkın ovalarından ' +
-      "oluşan İç Nijer Deltası'na yayılır.",
+      'Ülkenin can damarını, çölün eşiğine kadar sokulup devasa bir kavis çizerek doğuya ' +
+      'yönelen Nijer Nehri ve bu nehrin ortasında hayat bulan İç Nijer Deltası oluşturur; ' +
+      'ülke nüfusunun ve ekonomik faaliyetlerinin büyük bölümü bu nehir koridorunda toplanmıştır.',
+    landformNoteTr:
+      'Mali arazisi genellikle deniz seviyesinden 200-500 metre yükseklikte uzanan geniş ve ' +
+      'hafif dalgalı kumtaşı platolarından meydana gelir. Kuzeydoğuda, Cezayir sınırına yakın ' +
+      'kesimde Hoggar sisteminin uzantısı olan aşınmış Adrar des Ifoghas kristalin masifi ' +
+      'yükselir. ' +
+      '\n\n' +
+      'Ülkenin orta kesiminde, Dogon halkının geleneksel köylerini barındıran sarp Bandiagara ' +
+      'Falezleri ile bunların doğusunda izole kuleler halinde yükselen Hombori Dağları yer alır; ' +
+      "bu kütlenin doruğu olan 1.155 metrelik Hombori Tondo masası, Mali'nin en yüksek " +
+      'noktasıdır.',
     climateNoteTr:
-      "Mali'de yıllık yağış kuzeyden güneye keskin bir gradyan izler: kuzeydeki Sahra kuşağında " +
-      'yağış neredeyse sıfıra iner, orta kesimdeki Sahel kuşağında 200-500 milimetre arasında ' +
-      'kalır, güneydeki Sudan kuşağında ise 500-1.800 milimetreye kadar çıkar. Kurak mevsimde, ' +
-      'kuzeydoğudan esen tozlu ve kuru harmattan rüzgarı ülkenin büyük bölümünü etkisi altına ' +
-      "alır. Yağışlı mevsim, Güneybatı Musonu'nun etkisiyle haziran-eylül arasına yoğunlaşır; " +
-      'bu dönem kuzeyde Timbuktu gibi yerleşimlerde bile kısa süreli yağışlara yol açar.',
+      'Mali iklimi güneyden kuzeye doğru sertleşen keskin bir kuraklık gradyanı sergiler. En ' +
+      'güneydeki Sudan savanı kuşağı yılda 1.000 milimetreyi aşan yağış alırken, başkent ' +
+      "Bamako'nun yer aldığı Sahel geçiş sahasında yağış 500-700 milimetreye iner; " +
+      "Timbuktu'nun kuzeyindeki Sahra kuşağında ise yağış neredeyse sıfırlanır. " +
+      '\n\n' +
+      'Kasım ve mayıs ayları arasında kuzeydoğudan esen kuru ve toz yüklü Harmattan rüzgarı ' +
+      'tüm ülkeyi etkisi altına alır; yağışlar ise haziran-eylül arasında Atlas Okyanusu ' +
+      'musonunun kuzeye sokulmasıyla kısa süreli fırtınalar şeklinde gerçekleşir.',
     hydrographyNoteTr:
-      'Nijer Nehri, Gine yaylalarında doğan sularla beslenerek ülkenin güneybatısından girer; ' +
-      "Timbuktu'ya yaklaşırken oluşturduğu İç Nijer Deltası, yaklaşık 425 kilometre uzunluğunda " +
-      've ortalama 80 kilometre genişliğinde, eylül-aralık arasında mevsimsel olarak taşan bir ' +
-      "sulak alan sistemidir. Ülkenin batısında, Gine'de doğan Bafing ve Bakoye nehirleri, " +
-      "Bafoulabé kasabası yakınında birleşerek Senegal Nehri'ni oluşturur ve buradan batıya, " +
-      'Senegal topraklarına doğru akar.',
+      "Ülke hidrolojisinin kalbi Nijer Nehri'dir; Gine Dağları'ndan doğup Mali'ye giren " +
+      'nehir, kurak arazinin ortasında kanallar, göller ve mevsimlik bataklıklardan oluşan ' +
+      'yaklaşık 400 kilometrelik devasa bir iç taşkın deltası (İç Nijer Deltası) meydana ' +
+      "getirir. Bu iç delta; kurak Sahel'in ortasında balıkçılık, pirinç tarımı ve göçebe " +
+      'hayvancılık için hayati bir yaşam alanı sunar. ' +
+      '\n\n' +
+      'Nehir deltadan çıktıktan sonra Timbuktu yakınlarında doğuya kıvrılarak Nijer ve ' +
+      "Nijerya'ya yönelir. Ülkenin batısında ise Gine'den gelen Bafing ve Bakoye nehirleri " +
+      "Bafoulabé kasabasında birleşerek büyük Senegal Nehri'ni oluşturur.",
   },
   {
     isoCode: 'MR',
@@ -922,43 +998,49 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "28 Kasım 1960'ta Fransa'dan bağımsız oldu.",
     introTr:
-      'Moritanya, kuzeyde Sahra çölü ile güneyde Sahel kuşağı arasında uzanan, topraklarının ' +
-      'tamamı 1.000 metre rakımın altında kalan dünyanın en büyük ülkesidir. Ülke dört coğrafi ' +
-      'kuşağa ayrılır: kuzeyde ve ortada Sahra, güneyde Sahel, güneybatıda Senegal Nehri vadisi ' +
-      've batıda dar bir kıyı şeridi. Ülkenin en yüksek noktası, kuzeyde demir cevheri ' +
-      "yataklarıyla tanınan Kediet ej Jill'dir.",
-    landformNoteTr:
-      'İç kesimde, Taoudeni havzasının güneybatı ucunu Adrar, Tagant ve Assaba adlı kumtaşı ' +
-      'platoları çevreler; bunların en yükseği olan Adrar Platosu yaklaşık 500 metreye ulaşır. ' +
-      'Platoların üzerinde, madence zengin, yalnız kalmış tepeler yükselir — küçükleri "guelb", ' +
-      'büyükleri "kedia" olarak adlandırılır. Bunların en büyüğü, kuzeyde Tiris Zemmour ' +
-      "bölgesindeki 915 metrelik Kediet ej Jill'dir; manyetit bakımından zengin olduğu için " +
-      "mavimsi bir renktedir ve 1952'den beri işletilen demir madenleri, 700 kilometrelik bir " +
-      'demiryoluyla Atlas kıyısındaki Nouadhibou limanına bağlanır.' +
+      "Sahra Çölü ile Atlas Okyanusu'nun buluştuğu Batı Afrika eşiğinde uzanan Moritanya; " +
+      'kuzeydeki uçsuz bucaksız kumulları, ortadaki çıplak kumtaşı platoları ve güneydeki ' +
+      'yarı kurak Sahel bozkırlarıyla kıtanın en zorlu coğrafyalarından biridir. ' +
       '\n\n' +
-      'Kıyı kesiminde, kilden düzlükler (reg) ile yer yer yer değiştiren kum tepeleri (erg) art ' +
-      "arda sıralanır. Nouakchott'un güneyinde, kıyı kum setleri ile Trarza ergine ait 5-20 " +
-      'metrelik kum sırtları arasında, deniz seviyesinin 1-5 metre altında kalan Aftout es ' +
-      'Saheli çöküntüsü uzanır; bu geniş sebkha ve kil-silt havzası kıyıya paralel olarak ' +
-      'yaklaşık 165 kilometre boyunca devam eder.',
+      'Ülke nüfusunun ve yerleşik hayatın büyük bölümü, güney sınırını çizen Senegal Nehri ' +
+      'vadisi boyunca uzanan verimli şerit ile serinletici okyanus rüzgarlarını alan batı ' +
+      'kıyı kesiminde yoğunlaşmıştır.',
+    landformNoteTr:
+      'İç kesimlerde Taoudeni havzasının güneybatı sınırını Adrar, Tagant ve Assaba kumtaşı ' +
+      'platoları kuşatır; bunların en yükseği olan Adrar Platosu yaklaşık 500 metreye erişir. ' +
+      'Rüzgar aşınımıyla düzleşen bu geniş arazide tekil kaya tepeleri yükselir; yerel dilde ' +
+      'küçüklerine "guelb", büyük masiflere ise "kedia" denir. Kuzeydeki Tiris Zemmour bölgesinde ' +
+      'yükselen 915 metrelik Kediet ej Jill, barındırdığı yoğun manyetit cevheri nedeniyle ' +
+      "mavimsi tonlara sahiptir; buradan çıkarılan demir cevheri, Sahra'yı aşan 700 " +
+      'kilometrelik ünlü çöl treniyle Atlas kıyısındaki Nouadhibou limanına taşınır. ' +
+      '\n\n' +
+      'Kıyı boyunca taşlık çöl düzlükleri (reg) ile rüzgarın yığdığı hareketli kumullar (erg) ' +
+      "ardışık sıralanır. Nouakchott'un güneyinde deniz seviyesinin altına inen Aftout es " +
+      'Saheli çöküntüsü, sahil kum setleriyle okyanustan ayrılan yaklaşık 165 kilometrelik tuzlu ' +
+      'balçık ve sebkha kuşağı oluşturur.',
     climateNoteTr:
-      "Moritanya'da sıcaklık uçları ve düzensiz, seyrek yağış hakimdir. Ülkenin kuzey iki bölü " +
-      'üçünü kaplayan Sahra kesiminde, mayıs-temmuz ayları arasında günlük sıcaklık sabah 16, ' +
-      'öğleden sonra 49 santigrat dereceye kadar çıkar. Güneydeki Sahel kesiminde iklim yarı çöl ' +
-      'niteliğindedir; yağmur mevsimi haziran-ekim arasına yayılır ve yıllık yağış buralarda 310 ' +
-      "milimetreye ulaşır, ağustosta tek başına 120 milimetreye çıkar. Başkent Nouakchott'ta " +
-      'yıllık yağış 100 milimetrenin altında kalır ve temmuz-eylül arasına sıkışır; kasım ' +
-      'sonu-mart ortası arasında etkili olan harmattan rüzgârı, ülkenin büyük bölümünde kum ve ' +
-      'toz taşırken, okyanus rüzgârlarının etkisindeki dar kıyı şeridinde bu etki daha zayıftır.',
+      'Moritanya iklimi, aşırı sıcaklık farkları ve düzensiz yağış rejimiyle belirlenir. ' +
+      'Ülkenin üçte ikisini kaplayan kuzeydeki Sahra bölgesinde mayıs-temmuz aylarında gündüz ' +
+      'sıcaklıkları 49 dereceyi aşarken gece ile gündüz arasındaki termal uçurum belirgindir. ' +
+      'Güneydeki Sahel kuşağında yağışlar haziran-ekim arasına toplanır ve yıllık 300 milimetreyi ' +
+      'aşarak kısa süreli yeşermelere olanak tanır. ' +
+      '\n\n' +
+      'Başkent Nouakchott çevresinde yıllık yağış 100 milimetrenin altında kalır; kasım ile mart ' +
+      'arasında iç kesimlerden esen kuru ve toz yüklü Harmattan rüzgarı tüm ülkede görüş ' +
+      'mesafesini düşürürken, dar kıyı şeridi serinletici okyanus meltemleriyle bu etkiyi ' +
+      'kısmen hafifletir.',
     hydrographyNoteTr:
-      'Ülkenin güney sınırının büyük bölümünü Senegal ile paylaşarak çizen Senegal Nehri, ' +
-      "Moritanya'nın tek kalıcı yüzey suyu kaynağıdır. Nehrin altından uzanan Senegalo-Moritanya " +
-      "Akiferi, 335.000 kilometrekarelik alanıyla Batı Afrika'nın en büyük sınır-ötesi yeraltı " +
-      "suyu sistemidir ve ülke topraklarının %84'ünün altında yer alır; kıyıdaki Trarza akiferi, " +
-      "kuyu alanlarıyla başkent Nouakchott'u besler. Senegal vadisinin dışında kalan güney Sahel " +
-      'kesiminde, yağmur sularını toplayan yaklaşık 20 küçük gölet ve tepe barajı yerel sulamaya ' +
-      'hizmet eder; kuzeydeki geniş Sahra kesiminde ise yüzey suyu neredeyse hiç yoktur, Adrar ' +
-      've Tagant platolarındaki kaynaklar ve kuyular yerleşim ve tarımın tek su kaynağıdır.',
+      "Ülkenin güney sınırını Senegal ile paylaşarak çizen Senegal Nehri, Moritanya'nın tek " +
+      'kalıcı yüzey suyu eksenidir ve taşkın yatağındaki tarımsal üretimi besler. Nehir havzası ' +
+      "altında uzanan 335.000 kilometrekarelik Senegalo-Moritanya Akiferi, Batı Afrika'nın en " +
+      "büyük sınır aşan yer altı suyu sistemidir ve ülke yüzölçümünün yüzde 80'inden fazlasının " +
+      "tabanında yer alır; kıyıdaki Trarza akifer kuyuları ise başkent Nouakchott'un içme " +
+      'suyunu karşılar. ' +
+      '\n\n' +
+      'Senegal vadisi dışındaki güney Sahel kesiminde yağmur sularını toplayan küçük tepe göletleri ' +
+      've bentler mevsimlik hayvancılığı destekler. Geniş Sahra kesiminde ise yüzey akışı ' +
+      'bulunmaz; vahalar ve yerleşimler yalnızca Adrar ile Tagant platolarının derin çatlaklarından ' +
+      'çıkan kaynak ve kuyularla ayakta kalır.',
   },
   {
     isoCode: 'NE',
@@ -983,46 +1065,46 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: null,
     independenceNoteTr: "3 Ağustos 1960'ta Fransa'dan bağımsız oldu.",
     introTr:
-      'Nijer toprakları, kuzeyden güneye üç iklim ve bitki örtüsü kuşağına ayrılır: kuzeydeki ' +
-      'Sahra çölü, ortadaki Sahel bozkırı ve güneydeki tarıma elverişli şerit. Ülke ' +
-      "topraklarının %80'inden fazlasını Sahra ve onun bir parçası olan Ténéré çölü kaplar. " +
-      'Ülkenin can damarı Nijer Nehri, topraklarının yalnızca güneybatı köşesinden geçer; bu ' +
-      "köşede nehir, Benin ve Burkina Faso ile paylaşılan W Milli Parkı'nı oluşturan " +
-      'karakteristik W biçimli kıvrımlar çizer.',
-    landformNoteTr:
-      "Ülkenin kuzey-orta kesiminde, Sahra'yı kuzey-güney yönünde dokuz ayrı kütle halinde delen " +
-      'Aïr Dağları yükselir; bu volkanik kökenli sıradağın Bagzane platosu üzerindeki ' +
-      "Idoukal-n-Taghès Dağı, 2.022 metreyle ülkenin en yüksek noktasıdır. Aïr'in doğusunda ve " +
-      'güneyinde, dünyanın en kurak bölgelerinden biri olan Ténéré çölü, Bilma ve Ténéré ' +
-      'erglerinin dev kum tepeleriyle uzanır. Ülkenin kuzeydoğu ucunda ise düz tepeli ' +
-      'kayalıkları, derin kanyonları ve eski volkanik oluşumlarıyla Djado Platosu yer alır.' +
+      'Denize kıyısı olmayan devasa bir Sahel ve çöl ülkesi olan Nijer; kuzeydeki kızgın kum ' +
+      'denizlerinden güneydeki tarıma elverişli yarı kurak bozkırlara kadar uzanır. ' +
       '\n\n' +
-      'Ülkenin orta-doğusunda, kuzey-güney yönünde uzanan ve 700 metreye kadar yükselen Termit ' +
-      'Masifi çevresinde, dünyanın kara yüzeyindeki en geniş doğa rezervlerinden birini ' +
-      "oluşturan bir koruma alanı bulunur. Güneybatıda ise Nijer Nehri'nin verimli taşkın ovası " +
-      'uzanır; nehrin Benin ve Burkina Faso sınırlarına yakın kesimde çizdiği W biçimli ' +
-      'kıvrımlar, kurak mevsimde yaban hayatının sığındığı geniş taşkın düzlükleri oluşturur.',
+      'Ülkeye adını veren Nijer Nehri, toprakların yalnızca güneybatı ucunu teğet geçse de ' +
+      'suladığı verimli taşkın ovaları ve komşularıyla paylaştığı W biçimli kıvrımlarıyla ' +
+      'nüfusun ve tarımsal üretimin ana eksenini oluşturur.',
+    landformNoteTr:
+      "Ülkenin kuzey-orta kesiminde Sahra Çölü'nün ortasından yükselen volkanik Aïr Dağları, " +
+      'karanlık granit masifleriyle çölü böler; bu sıradağın Bagzane Platosu üzerindeki ' +
+      "Idoukal-n-Taghès doruğu 2.022 metreyle Nijer'in en yüksek noktasıdır. Aïr'in doğusunda " +
+      've güneyinde, devasa kum tepeleri ve çöl fırtınalarıyla bilinen Ténéré Çölü ile Bilma ' +
+      'ergleri uzanır; kuzeydoğu ucunda ise sarp kanyonları ve aşınmış kaya kaleleriyle Djado ' +
+      'Platosu yer alır. ' +
+      '\n\n' +
+      'Orta-doğu kesimde 700 metreye kadar yükselen Termit Masifi, çöl faunasına ev sahipliği ' +
+      "yapan geniş bir koruma alanı barındırır. Güneybatıda ise arazi Nijer Nehri'nin geniş " +
+      'alüvyon vadisine doğru alçalır; nehrin Benin ve Burkina Faso sınırlarına yakın kesimde ' +
+      'çizdiği çift dirsekli W kıvrımları, kurak mevsimde yaban hayatını barındıran zengin ' +
+      'sulak taşkın düzlükleri meydana getirir.',
     climateNoteTr:
-      "Nijer'de yağış kuzeyden güneye keskin bir gradyan izler. Doğuda, Bilma çevresindeki çöl " +
-      "kesiminde yıllık yağış 20 milimetreyi geçmez; ortadaki Sahel kuşağında, Agadez'de yıllık " +
-      'ortalama 110 milimetreye ulaşan yağış yıldan yıla büyük farklılık gösterir. Güneydeki ' +
-      "Sahel-Sudan geçiş kuşağında ise başkent Niamey'de yıllık yağış yaklaşık 540 milimetreye, " +
-      "en güneydeki Gaya'da 800 milimetreye çıkar; yağışın büyük bölümü temmuz-ağustos aylarında " +
-      'düşer. Ekim-şubat arasında kuzeydoğudan esen kuru ve tozlu harmattan rüzgârı ülkenin ' +
-      "büyük bölümünü etkiler; Niamey'de günlük en yüksek sıcaklık nisanda 41, ağustosta ise 31 " +
-      'santigrat dereceye kadar geriler.',
+      "Nijer'de iklim, kuzeyden güneye keskinleşen bir kuraklık gradyanı izler. Kuzeydeki " +
+      'Ténéré Çölü ve Bilma vahalarında yıllık yağış 20 milimetrenin altında seyrederken, ' +
+      'orta kuşaktaki Agadez çevresinde 110 milimetre civarında düzensiz yaz yağışları görülür. ' +
+      'Güneydeki Sahel-Sudan tarım kuşağında ise başkent Niamey yıllık yaklaşık 540 milimetre, ' +
+      'en güneydeki Gaya kenti ise 800 milimetre civarında yağış alır. ' +
+      '\n\n' +
+      'Ekim ile şubat ayları arasında kuzeydoğudan esen kuru ve toz yüklü Harmattan rüzgarı ' +
+      'tüm ülkede gündüz sıcaklıklarını düşürürken yoğun bir toz pusu yaratır; mart-mayıs ' +
+      'aylarında ise termometreler 40 derecenin üzerine fırlar.',
     hydrographyNoteTr:
-      'Nijer Nehri, ülke topraklarını yalnızca güneybatı köşesinde, yaklaşık 550 kilometre ' +
-      'boyunca keser; bu merkez-dışı konumu nedeniyle nehir ülkenin genelini besleyemez. Sağ ' +
-      'kıyıdan katılan Goroual, Dargol, Sirba, Diamangou, Tapoa ve Mekrou gibi küçük Sahel ' +
-      'karakterli kollar, aralık-haziran arasında neredeyse tamamen kurur, yağmur mevsiminde ise ' +
-      "güçlü biçimde akar. Güneydoğuda, Nijerya'daki Hadejia ve Komadugu Gana nehirlerinin " +
-      'birleşmesiyle oluşan Komadugu Yobe, Nijer-Nijerya sınırının yaklaşık 150 kilometrelik bir ' +
-      "kesimini çizdikten sonra Çad Gölü'nün batı ucuna dökülür; gölün Nijer sınırları içinde " +
-      'kalan bölümü, göl seviyesine bağlı olarak mevsimden mevsime büyük ölçüde değişir. ' +
-      "Kuzeyde, Aïr Dağları'ndan inen " +
-      '"kori" adı verilen kuru vadilerde yüzey akışı yoktur, ancak kum tabakalarının altında ' +
-      'yeraltı suyu bulunur.',
+      'Nijer Nehri, ülke topraklarını yalnızca güneybatı kesiminde yaklaşık 550 kilometre ' +
+      'boyunca kateder ve ülkenin tek kalıcı büyük akarsuyudur. Sağ kıyıdan nehre katılan ' +
+      'Goroual, Dargol, Sirba ve Mekrou gibi Sahel kanyonları kurak mevsimde tamamen kururken ' +
+      'yağmur mevsiminde şiddetli taşkın suları taşır. ' +
+      '\n\n' +
+      "Güneydoğuda Nijerya'dan gelen Komadugu Yobe Nehri, yaklaşık 150 kilometre boyunca sınırı " +
+      "çizdikten sonra Çad Gölü'nün batı bataklıklarına dökülür; gölün Nijer sınırları içinde " +
+      'kalan sığ su aynası mevsimsel yağışlara bağlı olarak genişleyip daralır. Kuzeydeki Aïr ' +
+      'Dağları\'ndan inen ve "kori" adı verilen kuru vadilerde ise yüzey akışı olmasa da ' +
+      'kum tabakalarının hemen altındaki sığ taban suları vaha tarımına hayat verir.',
   },
   {
     isoCode: 'NG',
@@ -1047,30 +1129,42 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal başkanlık cumhuriyeti',
     independenceNoteTr: "1 Ekim 1960'ta Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      'Nijer ve Benue nehirleri, Nijerya topraklarını Lokoja kasabasında birleşerek Y ' +
-      'biçiminde ikiye ayırır; bu iki nehir vadisi, ülkenin en geniş topografik bölgesini ' +
-      'oluşturur. Batıda Benin, kuzeyde Nijer, kuzeydoğuda Çad, doğuda Kamerun ile komşu ' +
-      'olan ülke, Gine Körfezi kıyısında uzanır.',
+      'Gine Körfezi kıyısından iç kesimlerdeki Sahel eşiğine kadar uzanan Nijerya; kıyı ' +
+      'mangrovlarından tropikal yağmur ormanlarına, serin platolardan uçsuz bucaksız savanlara ' +
+      'uzanan geniş bir coğrafi çeşitliliğe sahiptir. ' +
+      '\n\n' +
+      'Ülkenin fiziki omurgasını, Lokoja kentinde birleşerek devasa bir Y harfi çizen Nijer ve ' +
+      'Benue nehir vadileri oluşturur; bu nehir koridorları hem ülkenin en verimli tarım ' +
+      'havzalarını sular hem de nüfus dağılımının doğal eksenini belirler.',
     landformNoteTr:
-      "Orta Nijerya'da, ortalama 1.280 metre yükseklikteki Jos Platosu, çevresindeki sıcak " +
-      'ovalardan farklı olarak serin bir iklime sahiptir. Ülkenin en yüksek noktası, ' +
-      "Kamerun sınırındaki Adamava Dağları'nda yükselen 2.419 metrelik Chappal Waddi'dir " +
-      "(Gangirwal). Güneyde, Nijer Nehri'nin Atlantik'e döküldüğü kesimde, dünyanın en " +
-      'büyük yelpaze biçimli nehir deltalarından biri olan Nijer Deltası uzanır; iç içe ' +
-      'geçmiş sayısız akarsu ve kanaldan oluşan mangrov bataklıkları kıyı şeridini kaplar.',
+      "Orta Nijerya'da taban araziden dik basamaklarla yükselen ve ortalama 1.280 metre rakıma " +
+      'sahip olan Jos Platosu, aşınmış granit tepeleri ve serin mikro-klimasıyla çevre ovalardan ' +
+      'keskin biçimde ayrılır. Ülkenin en yüksek kesimi, doğuda Kamerun sınırı boyunca uzanan ' +
+      'Adamawa sıradağlarıdır; bu dağlık kütlenin doruğu olan 2.419 metrelik Chappal Waddi ' +
+      "(Gangirwal), Nijerya'nın en yüksek noktasıdır. " +
+      '\n\n' +
+      'Güneyde Atlas Okyanusu kıyısında ise dünyanın en geniş yelpaze deltalarından biri olan ' +
+      'Nijer Deltası yer alır; petrol zengini bu alçak kıyı ovası, sayısız haliç, labirent kanallar ' +
+      've yoğun mangrov bataklıklarıyla kaplıdır.',
     climateNoteTr:
-      "Nijerya'nın iklimi güneyden kuzeye üç farklı kuşağa ayrılır: güney kıyı şeridinde " +
-      "yıl boyunca yağışlı ekvatoral iklim, ortada tropikal savan, kuzeyde ise Sahel'e " +
-      "yaklaşan yarı kurak koşullar görülür. Kasım-Mart arasında Sahra'dan esen tozlu ve " +
-      'kuru harmattan rüzgarı, özellikle kuzey ve orta bölgelerde havayı sisli bir ' +
-      'tabakayla kaplar. Yağışlı mevsim güneyde neredeyse yıl boyunca sürerken, kuzeyde ' +
-      'birkaç aya sıkışır.',
+      "Nijerya'da iklim güneyden kuzeye belirgin üç kuşağa ayrılır. Atlas Okyanusu kıyısındaki " +
+      'Gine kuşağı yıl boyu yüksek nem ve 2.000 ila 3.000 milimetreyi aşan muson yağışları ' +
+      'alırken; orta kesimlerdeki savan kuşağında yağışlar nisan-ekim arasına toplanır. Kuzeydeki ' +
+      'Sahel sınırında ise yağışlı mevsim üç aya kadar daralır ve yıllık toplam 500 milimetreye ' +
+      'kadar geriler. ' +
+      '\n\n' +
+      "Kasım ve mart ayları arasında Sahra Çölü'nden güneye inen kuru ve toz yüklü Harmattan " +
+      'rüzgarı, özellikle ülkenin kuzey ve orta kesimlerinde güneşi perdeleyen yoğun bir toz sisi ' +
+      've gece serinliği yaratır.',
     hydrographyNoteTr:
-      "Nijer Nehri ülkenin batısından, Benue ise Kamerun'dan gelerek Lokoja'da birleşir ve " +
-      "tek bir ana gövde halinde güneye, Atlantik'e doğru akar. Bu birleşim noktası, " +
-      'ülkenin iç su ulaşımının ve tarımının merkezi kabul edilir. Nijer, denize ' +
-      'ulaşmadan önce geniş bir delta oluşturur; deltadaki kanalların çoğu, mevsimsel su ' +
-      'seviyesi değişimlerine göre genişleyip daralan bir ağ kurar.',
+      'Batıdan gelen Nijer Nehri ile doğuda Kamerun dağlarından beslenen Benue Nehri, Lokoja ' +
+      'kavşağında birleşerek tek bir ulu gövde halinde güneye akar. Benue Nehri taşıdığı bol suyla ' +
+      "Nijer'in debisini neredeyse ikiye katlar ve nehir ulaşımının ana eksenini meydana getirir. " +
+      '\n\n' +
+      "Gine Körfezi'ne yaklaştıkça onlarca kola ayrılan nehir, yaklaşık 20.000 kilometrekarelik " +
+      "labirent biçimli Nijer Deltası'nı oluşturur; mevsimsel kabarmalar bu kollarda su " +
+      'seviyesini yükselterek kıyı taşkın ormanlarını besler. Ülkenin kuzeydoğusundaki sular ise ' +
+      'Komadugu Yobe sistemiyle Çad Gölü kapalı havzasına yönelir.',
   },
   {
     isoCode: 'SN',
@@ -1096,33 +1190,41 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "4 Nisan 1960'ta Mali Federasyonu olarak, 20 Ağustos 1960'ta ise tam bağımsız Senegal Cumhuriyeti olarak bağımsızlığını kazandı.",
     introTr:
-      "Senegal, büyük ölçüde düz bir arazi üzerinde, kuzeyde Sahra'nın eşiğindeki Sahel " +
-      'kuşağından güneyde daha yeşil Casamance bölgesine uzanan bir ülkedir. Ülkenin en yüksek ' +
-      'noktası, güneydoğuda Gine sınırındaki Fouta Djallon eteklerinde yer alır. Gambiya, ' +
-      'Senegal topraklarının ortasına giren dar bir koridor oluşturur.',
-    landformNoteTr:
-      "Kuzey ve orta Senegal, Sahel'in kumlu ve dalgalı ovalarından oluşur; bitki örtüsü kuzeye " +
-      'doğru inceldikçe seyrekleşir. Güneydoğuda arazi, Gine sınırındaki Fouta Djallon ' +
-      'yaylasının eteklerine doğru yavaşça yükselir; ülkenin en yüksek noktası burada, 648 ' +
-      'metrelik Baunez sırtındadır.' +
+      "Afrika kıtasının en batı ucu olan Yeşil Burun (Cap-Vert) Yarımadası'nda konumlanan " +
+      'Senegal; Atlantik kıyısındaki kumul düzlükleri, Sahel bozkırları ve güneydeki sulak ' +
+      'orman havzalarıyla dengeli bir geçiş coğrafyası sunar. ' +
       '\n\n' +
-      "Güneyde, Gambiya'nın güneyinde kalan Casamance bölgesi ülkenin geri kalanından belirgin " +
-      'biçimde farklıdır: yoğun ormanlar ve sulak alanlarla kaplı bu kesim, adını veren ' +
-      'Casamance Nehri boyunca uzanır.',
+      'Gambiya topraklarının bir koridor halinde içeri sokulmasıyla anakaradan kısmen ayrılan ' +
+      'güneydeki Casamance bölgesi; kuzeydeki kurak savanların aksine bol yağış alan tropikal ' +
+      'bitki örtüsü, pirinç tarlaları ve mangrov labirentleriyle ülkenin en özgün parçasıdır.',
+    landformNoteTr:
+      'Senegal arazisi genel olarak 100 metrenin altında seyreden hafif dalgalı killi ve kumlu ' +
+      "Sahel ovalarından meydana gelir. Başkent Dakar'ın kurulduğu Cap-Vert Yarımadası, " +
+      "Atlas Okyanusu'na doğru uzanan eski volkanik falezleriyle düz kıyı çizgisini kırar. " +
+      'Güneydoğuya doğru ilerlendikçe arazi kademeli olarak yükselir ve Gine sınırındaki Fouta ' +
+      "Djallon Yaylası'nın eteklerine bağlanır; 648 metrelik Baunez sırtı ülkenin doruk noktasıdır. " +
+      '\n\n' +
+      'Güneydeki Casamance bölgesi ise alçak kıyı bataklıkları, gelgit kanalları ve nehir taşkın ' +
+      'düzlükleriyle kaplıdır; bu nemli ova, ülkenin geri kalanındaki kurak kumul ve bozkır ' +
+      'arazisiyle güçlü bir tezat oluşturur.',
     climateNoteTr:
-      "Senegal'de iklim, Batı Afrika Musonu'nun etkisiyle kuzeyden güneye keskin biçimde " +
-      'değişir. Kuzeydeki Sahel kuşağında yağış az ve düzensizdir, kurak mevsim uzundur. Güneye ' +
-      "inildikçe yağış artar; Casamance'de yıllık yağış 1.400-1.600 milimetreye, Gine sınırına " +
-      'yakın kesimlerde yer yer 1.800 milimetreye ulaşır. Yağmurlar neredeyse tamamen ' +
-      'haziran-ekim arasında düşer.',
+      'Senegal iklimi, güneyden sokulan Batı Afrika Musonu ile kuzeyden inen kuru rüzgarların ' +
+      'döngüsüyle şekillenir. Kuzeydeki Sahel kuşağında yağışlı mevsim 2-3 ayla sınırlı kalıp ' +
+      'yıllık 300-400 milimetreyi aşmazken; güneye, Casamance ve Gine sınırına inildikçe yağışlar ' +
+      'haziran-ekim arasında 1.500 milimetrenin üzerine çıkar. ' +
+      '\n\n' +
+      'Kıyı kesimlerinde soğuk Kanarya Akıntısı ve okyanus meltemleri Dakar yarımadasında ılıman ve ' +
+      'ferahlatıcı bir mikro-klima yaratır; ancak iç kesimlerde kasım-mayıs arasında esen kuru ' +
+      'Harmattan rüzgarı sıcaklığı 40 derecenin üzerine taşır.',
     hydrographyNoteTr:
-      'Senegal Nehri, ülkenin kuzey sınırının büyük bölümünü Moritanya ile paylaşarak çizer; ' +
-      'aşağı kesiminde ikiye ayrılıp Île à Morfil adını verdiği bir ada oluşturur ve Langue de ' +
-      'Barbarie adlı uzun bir kumsal şeridinin ardındaki bir halice dökülür. Ülkenin orta-batı ' +
-      'kesiminde, Sine ve Saloum nehirlerinin birleştiği Saloum Deltası, gelgit kanalları, ' +
-      'adalar ve mangrov ormanlarından oluşan karmaşık bir sulak alan sistemidir. Güneyde ' +
-      'Gambiya Nehri ülkeyi doğu-batı yönünde keserek Gambiya topraklarından geçip Atlas ' +
-      "Okyanusu'na ulaşır.",
+      'Ülkenin kuzey sınırını oluşturan Senegal Nehri, Bafing ve Bakoye kollarının birleşmesiyle ' +
+      'büyük bir vadi açar; aşağı çığırında iki kola ayrılarak Île à Morfil adasını meydana ' +
+      "getirir ve Langue de Barbarie kum setinin ardından Atlas Okyanusu'na kavuşur. " +
+      '\n\n' +
+      'Orta-batı kıyısında Sine ve Saloum nehirlerinin birleştiği Saloum Deltası, yüzlerce ada ' +
+      've tuzlu mangrov ormanından oluşan devasa bir biyosfer rezervidir. Güneyde ise ' +
+      "Gine Dağları'ndan doğan Gambiya Nehri ülkenin güneydoğusunu suladıktan sonra Gambiya " +
+      'koridoruna geçer; en güneyde ise geniş haliçli Casamance Nehri kıyı tarımına hayat verir.',
   },
   {
     isoCode: 'SL',
@@ -1147,36 +1249,41 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "27 Nisan 1961'de Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      'Sierra Leone, kıyıdan iç kesime doğru dört farklı bölgeden oluşur: alçak bir kıyı ' +
-      'ovası, ormanlık tepelik kuşak, iç kesimdeki yüksek plato ve kuzeydoğudaki dağlık ' +
-      "bölge. Başkent Freetown'ın kurulu olduğu Sierra Leone Yarımadası, kendine özgü dağlık " +
-      "bir kütle oluşturur. Ülkenin en yüksek noktası, kuzeydoğudaki Loma Dağları'nda yer " +
-      'alır.',
-    landformNoteTr:
-      'Kıyı boyunca uzanan ova, genişliği 8-40 kilometre arasında değişen, sık sık su basan ' +
-      "bataklıklar, haliçler ve mangrovlarla kaplı alçak bir şerittir. Freetown'ın kurulu " +
-      'olduğu yarımada bu düz kıyıdan farklı olarak 888 metreye ulaşan dağlık bir kütledir ve ' +
-      'yaklaşık 40 kilometre uzunluğundadır.' +
+      "Gine Körfezi'nin kuzeybatısında Atlas Okyanusu'na açılan Sierra Leone; bataklık kıyı " +
+      'düzlüklerinden basamaklı orman tepelerine ve iç kesimlerdeki yüksek granit platolara ' +
+      'kadar kademeli yükselen bir topografyaya sahiptir. ' +
       '\n\n' +
-      'İç kesimde arazi, ormanlık tepelerden geçerek yükselen bir platoya dönüşür. ' +
-      "Kuzeydoğuda yükselen Loma Dağları'nın en yüksek noktası olan Bintumani (Loma Mansa), " +
-      '1.945 metreyle ülkenin en yüksek noktasıdır. Daha doğuda, Tingi Dağları 1.853 metreye ' +
-      'kadar yükselir.',
+      "Başkent Freetown'ın üzerinde yükseldiği sarp Sierra Leone Yarımadası dağları; düz ve alçak " +
+      'kıyı şeridinde istisnai bir doğal korunaklı derin liman sunarak ülkenin tarihi ve ticari ' +
+      'kalbini oluşturur.',
+    landformNoteTr:
+      'Kıyı boyunca genişliği 8 ila 40 kilometre arasında değişen, sık sık deniz gelgitleriyle ' +
+      'sular altında kalan bataklıklar, geniş haliçler ve mangrov şeritleri uzanır. Freetown ' +
+      'Yarımadası ise bu alçak kıyıdan aniden fışkıran ve 888 metreye erişen dağlık bir gabro ' +
+      'masifidir. ' +
+      '\n\n' +
+      'İç kesimlere doğru arazi ormanlık tepelik kuşağı aşarak 300-600 metre rakımlı geniş bir ' +
+      "granit platoya dönüşür. Kuzeydoğuda yükselen Loma Dağları'nın zirvesi olan 1.945 metrelik " +
+      "Bintumani (Loma Mansa), Sierra Leone'nin ve Batı Afrika orman kuşağının en yüksek " +
+      'noktasıdır; doğuda ise Tingi Dağları 1.853 metreye ulaşır.',
     climateNoteTr:
-      "Sierra Leone'de tropikal muson iklimi görülür; güneyde nisan, kuzeyde ise mayıs ayında " +
-      'başlayan yağmur mevsimi kasıma kadar sürer, kasım-nisan arası ise kurak geçer. Başkent ' +
-      'Freetown, yıllık ortalama 4.400 milimetre yağışla dünyanın en yağışlı kıyı ' +
-      'başkentlerinden biridir; en yağışlı ay olan temmuzda tek başına 600 milimetreye yakın ' +
-      'yağış düşer. Kurak mevsimde, özellikle ocak-mart arasında yağış neredeyse tamamen ' +
-      'kesilir.',
+      "Sierra Leone, Batı Afrika'nın en yoğun yağış alan tropikal muson iklimlerinden birine " +
+      'sahiptir. Mayıs ayından kasım ayına kadar Atlas Okyanusu musonunun getirdiği şiddetli ' +
+      'yağışlar ülkeyi kaplar; dağların rüzgarı karşıladığı başkent Freetown, yıllık 4.400 ' +
+      'milimetreyi aşan rekor yağışıyla dünyanın en ıslak kıyı kentleri arasındadır. ' +
+      '\n\n' +
+      'Aralık ile mart arasındaki kurak dönemde ise yağışlar neredeyse tamamen kesilir; Sahra ' +
+      'içlerinden esen kuru Harmattan rüzgarı havada tozlu bir sis tabakası oluşturarak gece ' +
+      'sıcaklıklarını düşürür.',
     hydrographyNoteTr:
-      'Ülkeyi kuzeydoğudan güneybatıya beş büyük nehir keser: Küçük Scarcies, Rokel, Jong, ' +
-      "Sewa ve Moa. Bunlardan Küçük ve Büyük Scarcies ile Moa kaynaklarını Gine'den alır; " +
-      "güneydoğudaki Mano Nehri ise Liberya'dan doğar ve iki ülke arasındaki sınırın bir " +
-      'bölümünü oluşturur. Nehirler yukarı kesimlerinde kayalık ve hızlı akışlıyken, aşağı ' +
-      'kesimde geniş haliçlere açılır; bu haliçleri 10.000 kilometrekareyi aşan mangrov ' +
-      "ormanları çevreler. Akış mevsimsel olarak büyük farklılık gösterir; Rokel Nehri'nde " +
-      'debi eylülde en yüksek seviyeye ulaşırken martta neredeyse sıfıra iner.',
+      "Gine Yaylaları'ndan doğan ve Sierra Leone arazisini kuzeydoğudan güneybatıya kateden " +
+      'beş ana nehir sistemi ülkeyi drene eder: Küçük Scarcies, Büyük Scarcies, Rokel (Seli), ' +
+      'Jong ve Moa. Güneydoğuda Mano Nehri ise Liberya sınırını çizer. ' +
+      '\n\n' +
+      'Yukarı çığırlarında sarp kanyonlar ve çağlayanlar üzerinden akan nehirler, kıyı düzlüğüne ' +
+      'ulaştıklarında genişleyerek mangrov bataklıklarıyla çevrili devasa haliçlere dökülür. ' +
+      'Nehirlerin debileri aşırı mevsimsel dalgalanma gösterir; muson döneminde devasa su kütleleri ' +
+      'taşıyan Rokel Nehri gibi akarsular, kurak mevsimde oldukça sığlaşır.',
   },
   {
     isoCode: 'TG',
@@ -1201,40 +1308,39 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: null,
     independenceNoteTr: "27 Nisan 1960'ta Fransa'dan bağımsız oldu.",
     introTr:
-      'Togo, kıyıdan kuzeye doğru uzanan dar ve uzun bir ülkedir; toprakları güneyden kuzeye ' +
-      "beş farklı kuşağa ayrılır. Kıyı boyunca alçak Ouatchi Platosu'nun ardından bir tabla " +
-      'arazi, ardından ülkeyi ortadan ikiye bölen Togo Dağları ve en kuzeyde geniş düzlükler ' +
-      "sıralanır. Togo Dağları, Gana'daki Akwapim Tepeleri ile Benin'deki Atakora " +
-      'sıradağlarıyla aynı jeolojik kuşağın bir parçasıdır.',
-    landformNoteTr:
-      'Yalnızca 56 kilometrelik kıyı şeridinin gerisinde, 60-90 metre yükseklikteki Ouatchi ' +
-      'Platosu yaklaşık 32 kilometre iç kesime uzanır. Bunun kuzeydoğusunda, 400-460 metre ' +
-      "yükseklikteki bir tabla arazi yer alır; bu bölgeyi Mono Nehri'nin kolları sular." +
+      'Gine Körfezi kıyısından kuzeye, Sahel sınırına doğru ince uzun bir koridor halinde uzanan ' +
+      'Togo; dar yüzölçümüne karşın kıyı lagünlerinden dağ sıralarına ve savan platolarına ' +
+      'kadar uzanan belirgin beş coğrafi basamağa ayrılır. ' +
       '\n\n' +
-      "Ülkeyi güneybatıdan kuzeydoğuya kat eden Togo Dağları, Gana'daki Akwapim Tepeleri'nden " +
-      "başlayıp Benin'deki Atakora sıradağlarına kadar uzanan geniş bir yapının orta " +
-      'parçasıdır; bu geniş kuşağın ortalama yüksekliği 700 metre civarındadır. Kuşağın en ' +
-      "yüksek noktası, Kpalimé yakınında yükselen ve 986 metreye ulaşan Agou Dağı'dır. " +
-      "Kuzeyde, Togo Dağları'nın ardından arazi tekrar alçalarak geniş düzlüklere dönüşür.",
+      'Ülkeyi güneybatı-kuzeydoğu ekseninde boydan boya kesen Togo Dağları, hem yer şekillerinin ' +
+      'omurgasını hem de iklimsel ve hidrolojik sınırları belirleyen temel yükseltidir.',
+    landformNoteTr:
+      'Yalnızca 56 kilometrelik dar kıyı şeridinin hemen ardında, verimli kırmızı topraklara ' +
+      'sahip 60-90 metre rakımlı alçak Ouatchi Platosu uzanır; bunun kuzeydoğusunda ise Mono Nehri ' +
+      'kollarıyla yarılan 400 metre yüksekliğinde bir tabla arazi başlar. ' +
+      '\n\n' +
+      "Ülkeyi çaprazlamasına kateden Togo Dağları, Gana'daki Akwapim Tepeleri ile Benin'deki " +
+      "Atakora Sıradağları'nı bağlayan antik kristalin zincirin merkezidir. Bu dağ kuşağının " +
+      "doruğu olan 986 metrelik Agou Dağı (Mont Agou), Togo'nun en yüksek noktasıdır; kuzeye " +
+      "doğru gidildikçe dağlar alçalarak Oti Nehri'nin kumtaşı savan düzlüklerine açılır.",
     climateNoteTr:
-      "Togo'nun büyük bölümünde tropikal savan iklimi görülür ve iklim Batı Afrika " +
-      "Musonu'ndan güçlü biçimde etkilenir. Güney kıyı şeridinde yılda iki yağmur mevsimi " +
-      'yaşanır — nisan-temmuz arası ana mevsim, eylül-kasım arası ise daha zayıf ikinci bir ' +
-      'mevsim — ancak buradaki yıllık yağış yalnızca 800 milimetre civarındadır; bölge, Gine ' +
-      'Körfezi kıyısındaki daha nemli ormanlık kuşağın ortasında görece kurak bir koridor ' +
-      'oluşturur. Orta kesimdeki plato ve dağlık bölgede iklim daha ölçülüdür, yağış tek bir ' +
-      'mevsime toplanır ve yıllık 1.400-1.600 milimetreye ulaşır. Kuzeyde yağmur mevsimi ' +
-      'mayıs-kasım arasına yayılır, aralık-mart arasında ise Sahra kökenli harmattan rüzgarı ' +
-      'eser.',
+      'Togo, Batı Afrika kıyısındaki nemli yağmur ormanı kuşağını kesintiye uğratan "Dahomey ' +
+      'Boşluğu" (Dahomey Gap) koridorunda yer alır. Bu özel atmosferik mekanizma nedeniyle Lomé ' +
+      'kıyısı yılda iki yağış dönemi yaşamasına karşın yalnızca 800 milimetre civarında yağış alır ' +
+      've orman yerine kıyı savanına bürünür. ' +
+      '\n\n' +
+      'İç kesimlerdeki Togo Dağları yamaçlarında yağış miktarı yıllık 1.500 milimetreye kadar ' +
+      'yükselir ve bitki örtüsü gürleşir. Kuzey savanlarında ise yağışlar mayıs-ekim arasına ' +
+      "sıkışır; kış aylarında Sahra'dan esen Harmattan rüzgarı havayı kurutup yoğun toz taşır.",
     hydrographyNoteTr:
-      'Ülkenin en uzun nehri olan Oti, kuzeyden gelip ülke topraklarını yaklaşık 100 ' +
-      'kilometre boyunca çaprazlamasına keser, ardından güneye dönerek yaklaşık 110 kilometre ' +
-      'boyunca Gana sınırını çizer; toplam uzunluğu kaynağa göre 520-550 kilometre arasında ' +
-      "verilir ve Volta Nehri'nin bir koludur. Güneyde Mono Nehri, aşağı kesiminde Benin ile " +
-      'paylaşılan sınırı oluşturarak yaklaşık 400 kilometre sonra kıyıdaki geniş lagün ' +
-      'sistemine dökülür. Bu sistemin en büyüğü olan Togo Gölü, Zio, Haho, Boko ve Mono ' +
-      'nehirlerinden beslenir ve doğuya doğru Vogan ve Aného lagünleriyle bağlantılıdır — ' +
-      'ülkenin en büyük doğal iç su kütlesidir.',
+      "Ülkenin kuzeyini sulayan 500 kilometreyi aşkın uzunluktaki Oti Nehri, Burkina Faso'dan " +
+      'gelip Togo topraklarını çapraz keser, Gana sınırını çizdikten sonra Volta sistemine ' +
+      'bağlanır. ' +
+      '\n\n' +
+      'Güneye yönelen Mono Nehri ise aşağı çığırında Benin ile sınırı oluşturarak kıyı ' +
+      'düzlüğündeki zengin lagün ağına kavuşur. Bu sistemin kalbinde yer alan sığ Togo Gölü; Zio ' +
+      've Haho nehirlerinden beslenir, sahil kumul setinin arkasında Vogan ve Aného lagünleriyle ' +
+      'bağlanarak ülkenin en büyük doğal su yüzeyini ve geleneksel balıkçılık alanını oluşturur.',
   },
   {
     isoCode: 'AO',
@@ -1259,35 +1365,41 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "11 Kasım 1975'te Portekiz'den bağımsız oldu.",
     introTr:
-      'Angola toprakları üç ana kuşağa ayrılır: dar bir kıyı ovası, bunun hemen ardından ' +
-      'yükselen bir yamaç kuşağı ve ülkenin büyük bölümünü kaplayan iç yüksek platosu ' +
-      "(planalto). Kuzeyde dar bir şeritle Kongo Nehri'ne komşu olan ülke, güneyde Namib " +
-      "Çölü'nün kuzey uzantısına doğru kurak bir kıyı iklimine geçer.",
-    landformNoteTr:
-      'Kıyı ovası Benguela yakınında yaklaşık 25 kilometre genişliğindeyken, Cuanza Nehri ' +
-      'vadisinde 150 kilometreyi aşacak kadar genişler; soğuk ve kuzeye akan Benguela Akıntısı ' +
-      'bu kıyı kuşağının kurak karakterini belirler. Kıyının hemen doğusunda arazi bir dizi ' +
-      "terasla hızla yükselir ve 1.520-1.830 metre arasında değişen Bié Platosu'na ulaşır. Bu " +
-      'platonun kuzeybatı ucunda, Huambo yakınlarında yükselen Moco Dağı 2.620 metreye ulaşarak ' +
-      'ülkenin doruk noktasını oluşturur.' +
+      "Güneybatı Afrika'nın Atlas Okyanusu kıyısında yer alan Angola; kurak kıyı şeridinden " +
+      'dik basamaklarla yükselen devasa iç platolarıyla (planalto) kıtanın en stratejik su ' +
+      'kulelerinden biridir. ' +
       '\n\n' +
-      'Bié Platosu, Kongo, Zambezi, Okavango, Kuanza ve Kunene nehirlerinin kaynak veya önemli ' +
-      'kollarını barındırdığı için bölgenin bir su kulesi işlevi görür; nehirler buradan farklı ' +
-      'yönlere, farklı okyanus ve iç havzalara dağılır.',
+      'Kuzeydeki petrol ve orman zengini Cabinda ekslavından güneydeki Namib Çölü uzantılarına ' +
+      'kadar uzanan ülke; soğuk okyanus akıntıları, basamaklı yükseltiler ve tropikal enlemlerin ' +
+      'şekillendirdiği çok yönlü bir coğrafyaya sahiptir.',
+    landformNoteTr:
+      'Kıyı ovası güneyde Benguela ve Namibe yakınlarında 20-30 kilometrelik dar bir şeritken, ' +
+      'Kuanza Nehri havzasında 150 kilometreyi aşan bir genişliğe ulaşır. Kıyının hemen ' +
+      'doğusunda arazi Serra da Chela gibi dik teraslarla hızla tırmanarak 1.500-1.800 metre ' +
+      "rakımlı Bié Platosu'na erişir. Bu platonun Huambo yakınındaki doruğu olan 2.620 metrelik " +
+      "Moco Dağı, Angola'nın en yüksek zirvesidir. " +
+      '\n\n' +
+      'Bié Platosu kıtanın ana su bölümü çizgisi konumundadır; buradan doğan akarsular farklı ' +
+      'yönlere dağılarak Kongo Havzası, Zambezi sistemi, Okavango Deltası ve Atlas Okyanusu ' +
+      'arasında hayati bir hidrolojik dağıtım merkezi oluşturur.',
     climateNoteTr:
-      "Angola'nın iklimi, kuzeyden güneye ve kıyıdan iç kesimlere doğru büyük farklılıklar " +
-      'gösterir. Yağışlar kasım-mart arasında yoğunlaşır, nisan-ekim arası genellikle kuraktır. ' +
-      'Kuzeydoğudaki Lunda bölgelerinde yıllık yağış 1.600 milimetreyi aşar. Güneydeki Namibe ' +
-      'eyaletinde ise bu rakam 40 milimetrenin altına iner. İç platonun yüksek kesimleri, ' +
-      'kıyıya göre daha serin ve daha yağışlıdır.',
+      'Angola iklimi, güneyden kuzeye sokulan soğuk Benguela Akıntısı ile iç kesimlerin yüksek ' +
+      'rakımı arasında dengelenir. Soğuk akıntı kıyı boyunca buharlaşmayı engelleyerek Luanda ve ' +
+      'güney sahilinde yağışları 50-300 milimetreye kadar düşürür ve çölleşmeye yol açar. ' +
+      '\n\n' +
+      'İç kesimlerdeki yüksek platolarda ise rakımın etkisiyle hava ılımanlaşır; yağışlı mevsim ' +
+      'ekim-nisan arasına yayılır. Kuzeydoğudaki Lunda ormanlarında yıllık yağış 1.600 milimetreyi ' +
+      'aşarken, güneydeki Namibe düzlüklerinde 50 milimetrenin altına iner.',
     hydrographyNoteTr:
-      "Angola'nın kendi sınırları içinde kalan en uzun nehri olan Kuanza, Bié Platosu'nda " +
-      "doğar, yaklaşık 960 kilometre kuzeye ve ardından batıya akarak Luanda'nın güneyinde " +
-      "Atlas Okyanusu'na dökülür. Huambo yakınlarında doğan Kunene Nehri ise güneye yönelir, " +
-      'ardından batıya dönerek Namibya sınırının bir bölümünü çizer ve okyanusa ulaşır. Ülkenin ' +
-      'kuzeyinde, Kongo Nehri kısa bir mesafe boyunca Angola-Kongo Demokratik Cumhuriyeti ' +
-      "sınırını oluşturur; Angola'nın ana nehir sistemleri bunun dışında büyük ölçüde Kuanza ve " +
-      'Kunene havzalarına dayanır.',
+      "Ülke sınırları içinde doğup Atlas Okyanusu'na dökülen en uzun akarsu olan 960 kilometrelik " +
+      "Kuanza (Cuanza) Nehri, Bié Platosu'ndan kaynaklanır; derin kanyonları ve hidroelektrik " +
+      "santralleri aşarak Luanda'nın güneyinde denize ulaşır. Güneyde doğan Kunene Nehri ise " +
+      'Namibya sınırını çizip Ruacana Çağlayanları üzerinden okyanusa kavuşur. ' +
+      '\n\n' +
+      'Angola toprakları aynı zamanda komşu ülkelerin can damarı olan devasa nehirlerin ' +
+      "doğum yeridir: Zambezi Nehri'nin yukarı kolları, Botsvana'daki ünlü deltaya hayat veren " +
+      "Okavango (Cubango) ve Kongo Nehri'ne karışan devasa Kasai sistemi sularını Angola " +
+      'platolarından toplar.',
   },
   {
     isoCode: 'TD',
@@ -1317,45 +1429,46 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: null,
     independenceNoteTr: "11 Ağustos 1960'ta Fransa'dan bağımsız oldu.",
     introTr:
-      "Çad, kuzeyde Sahra Çölü'nün derinliklerinden güneyde Sudan tipi savanlara uzanan, kıtanın " +
-      'en büyük iklim ve yer şekli çeşitliliğine sahip iç ülkelerinden biridir. Ülke ' +
-      "topraklarının büyük bölümü, adını taşıyan sığ ve çanak biçimli Çad Havzası'nın içinde " +
-      'kalır; bu havzanın kuzey ucunda volkanik Tibesti Sıradağları, kuzeydoğusunda ise ' +
-      'basamaklı kalker yapılı Ennedi Platosu yükselir. Havzanın merkezinde, bir zamanlar ' +
-      "Afrika'nın en büyük göllerinden biri olan Çad Gölü bulunur.",
+      "Kuzey Afrika'nın kurak Sahra çöllerinden kıtanın ortasındaki bereketli savanlara kadar " +
+      'uzanan Çad; denize kıyısı bulunmayan devasa bir kapalı havza ülkesidir. ' +
+      '\n\n' +
+      'Ülke topraklarının büyük kısmı, tektonik bir çanak niteliğindeki Çad Havzası içinde kalır; ' +
+      'kuzeydeki heybetli volkanik masifler, doğudaki rüzgar oymalı kumtaşı platoları ve ' +
+      'güneydeki nehir taşkın ovaları bu sığ iç çanağı çevreler.',
     landformNoteTr:
-      'Ülkenin kuzey ucunda yer alan Tibesti Sıradağları, Sahra Çölü içindeki en yüksek ve en ' +
-      'geniş volkanik kütledir; sıradağın güneydoğu ucundaki Emi Koussi, 3.415 metreyle hem ' +
-      "Çad'ın hem de tüm Sahra'nın en yüksek noktasıdır. Kuzeydoğuda, kalker tabakalarının " +
-      'aşınmayla basamak basamak yontulduğu Ennedi Platosu yer alır; platonun batısındaki Bodélé ' +
-      'Çöküntüsü, dünyanın en güçlü toz kaynaklarından biri olarak bilinir.' +
+      "Ülkenin kuzey ucunu kaplayan Tibesti Sıradağları, Sahra Çölü'nün en yüksek ve en geniş " +
+      'volkanik kütlesidir; masifin güneydoğusundaki devasa bir kalderaya sahip 3.415 metrelik ' +
+      "Emi Koussi Yanardağı, hem Çad'ın hem de tüm Sahra'nın zirvesidir. Kuzeydoğuda kalker ve " +
+      'kumtaşı kuleleriyle basamaklanan Ennedi Platosu yer alır; platonun hemen batısındaki ' +
+      'Bodélé Çöküntüsü ise taşıdığı rüzgar erozyonuyla dünyanın en büyük mineral toz kaynağı ' +
+      'olarak bilinir. ' +
       '\n\n' +
-      "Ülkenin orta ve güney kesimleri, Çad Havzası'nın çanak biçimli tabanını oluşturur. Bu " +
-      "geniş düzlük kuzeyde kumul tepeleriyle Sahra'ya, güneyde ise gittikçe yeşillenen otlak ve " +
-      'çalılıklarla Sahel kuşağına açılır; ülkenin en güneyinde, Logone ve Chari nehirleri ' +
-      'çevresinde mevsimlik bataklıklar ve daha nemli bir savan görülür.',
+      "Orta ve güney kesimler Çad Havzası'nın hafif eğimli tabanını oluşturur. Bu düzlük " +
+      'kuzeyde kum tepeleriyle çöle, güneye inildikçe akasya bozkırlarına ve Sahel otlaklarına ' +
+      'dönüşür; güney sınırında ise Chari ve Logone nehirlerinin şekillendirdiği nemli savan ' +
+      'ovaları başlar.',
     climateNoteTr:
-      "Çad'da iklim, kuzeyden güneye geniş kuşaklar halinde değişir. Kuzeydeki Sahra kesiminde " +
-      'yıllık yağış 200 milimetrenin altında kalır ve gündüz-gece sıcaklık farkı büyüktür. ' +
-      'Ülkenin orta kesimini oluşturan Sahel kuşağında yağış artar ama düzensizdir; kısa bir ' +
-      'yağmur mevsimi dışında yıl boyu kurak bir hava hakimdir. Güneydeki Sudan kuşağında ' +
-      'yağışlı mevsim uzar, bitki örtüsü savan ve açık ormana dönüşür — ülkenin nüfus ve tarım ' +
-      'açısından en yoğun kesimi burasıdır. Ülkenin en güneybatı ucunda, Logone Nehri ' +
-      'çevresindeki dar bir şeritte yıllık yağış 1.000 milimetreyi aşarak daha nemli, Gine ' +
-      'kuşağına yaklaşan bir bitki örtüsüne dönüşür.',
-    hydrographyNoteTr:
-      'Çad Gölü, Çad, Kamerun, Nijer ve Nijerya sınırlarının kesiştiği noktada yer alan sığ, ' +
-      "tatlı su gölüdür; gölün suyunun yaklaşık %80'i Chari-Logone nehir sisteminden gelir. " +
-      "Gölün yüzölçümü 1960'larda yaklaşık 25.000-26.000 kilometrekareyken, 1970-80'lerdeki " +
-      'büyük Sahel kuraklığı döneminde 2.000 kilometrekareye kadar gerilemiştir. Son yirmi yılın ' +
-      'uydu ölçümleri, artan yağışla birlikte gölün büyük ölçüde eski genişliğine döndüğünü ve ' +
-      '2024 itibarıyla yaklaşık 24.500 kilometrekareye ulaştığını gösterir; havzadaki güncel ' +
-      'risk artık gölün küçülmesi değil, aşırı yağış dönemlerinde yaşanan taşkınlardır.' +
+      "Çad'da iklim, kuzeyden güneye uzanan enlem derecelerine bağlı olarak üç ana kuşağa " +
+      'ayrılır. Sahra kesiminde yıllık yağış 50 milimetrenin altında kalırken gündüz ile gece ' +
+      'sıcaklıkları arasında 30 dereceyi bulan termal tezatlar yaşanır; orta Sahel kuşağında ' +
+      'yağışlar haziran-ağustos arasına sıkışarak 200-500 milimetre arasında seyreder. ' +
       '\n\n' +
-      "Chari Nehri, Orta Afrika Cumhuriyeti'nde doğan kollarla beslenerek Çad topraklarına girer " +
-      "ve Logone Nehri'yle birleşerek Çad Gölü'ne dökülür. Ülkenin kuzey yarısında ise kalıcı " +
-      'bir akarsu ağı bulunmaz; buradaki vadiler yalnızca nadir yağmurlardan sonra kısa ' +
-      'süreliğine su taşır.',
+      'Nüfusun ve tarımın yoğunlaştığı güneydeki Sudan savanlarında ise yağmur mevsimi beş aya ' +
+      "kadar uzar ve yıllık yağış 1.000 milimetreyi aşar. Kışın Sahra'dan esen Harmattan rüzgarı " +
+      "kuzeyi ve merkezi kurutup tozla kaplarken, yazın Gine Körfezi'nden sokulan nemli hava " +
+      'kütleleri güney ovalarında şiddetli fırtınalara yol açar.',
+    hydrographyNoteTr:
+      'Ülkenin kalbindeki Çad Gölü, Çad, Kamerun, Nijer ve Nijerya sınırlarının kavşağında yer ' +
+      "alan sığ ve kapalı bir tatlı su havzasıdır; göle ulaşan suyun yaklaşık yüzde 80'i güneyden " +
+      "gelen Chari-Logone nehir sistemi tarafından taşınır. 1970 ve 80'lerdeki şiddetli Sahel " +
+      'kuraklıklarında alanı 2.000 kilometrekareye kadar gerileyen göl, son yıllarda artan ' +
+      'muson yağışlarıyla toparlanarak 2024 uydu verilerine göre 24.500 kilometrekare ' +
+      'seviyesine ulaşmıştır. ' +
+      '\n\n' +
+      "Orta Afrika Cumhuriyeti platolarından doğup Çad'a giren Chari Nehri, başkent Encemine " +
+      'yakınlarında Logone ile birleşerek geniş taşkın yatakları açar. Ülkenin kuzeyindeki Sahra ' +
+      'bölgesinde kalıcı akarsu bulunmaz; Tibesti ve Ennedi\'den inen kuru vadiler ("enneri") ' +
+      'yalnızca seyrek sağanakların ardından kısa süreli sel suları taşır.',
   },
   {
     isoCode: 'CM',
@@ -1381,37 +1494,43 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "1 Ocak 1960'ta Fransa'dan bağımsız oldu (İngiliz Güney Kamerunu 1961'de birleşti).",
     introTr:
-      'Kamerun, Gine Körfezi kıyısındaki nemli ova ile ülkenin kuzeyindeki Sahel düzlükleri ' +
-      'arasında, kıtanın en çeşitli yer şekli ve iklim profillerinden birini barındırır. Batı ' +
-      "sınırı boyunca, Gine Körfezi'nden Çad Gölü'ne doğru uzanan volkanik bir hat üzerinde " +
-      "yükselen Kamerun Dağı, 4.095 metreyle hem ülkenin hem de Batı ve Orta Afrika'nın en " +
-      'yüksek noktasıdır. Ülkenin ortasında Adamawa Platosu, kuzey ile güneyi birbirinden ayıran ' +
-      'doğal bir eşik oluşturur.',
-    landformNoteTr:
-      'Güneybatı kıyısında, Wouri Halici ve mangrov bataklıklarıyla kaplı dar bir kıyı ovası ' +
-      'uzanır; bu ovanın hemen arkasında, hâlâ etkin bir yanardağ olan Kamerun Dağı yükselir. ' +
-      "Dağ, Gine Körfezi'ndeki Bioko ve São Tomé adalarını da içine alan Kamerun Volkanik " +
-      "Hattı'nın anakara üzerindeki en yüksek ve en genç parçasıdır. Bu hat üzerindeki Nyos Gölü " +
-      "gibi krater gölleri, 1986'da ölümcül bir gaz patlamasıyla dünya çapında tanınmıştı." +
+      '"Minyatür Afrika" olarak anılan Kamerun; Gine Körfezi\'nin nemli kıyı mangrovlarından ' +
+      'balta girmemiş ekvatoral yağmur ormanlarına, serin volkanik yaylalardan Çad ' +
+      "Havzası'nın kurak Sahel bozkırlarına kadar kıtanın hemen tüm ekosistemlerini barındırır. " +
       '\n\n' +
-      'Ülkenin ortasında, 750-1.350 metre yükseklikteki Adamawa Platosu doğu-batı doğrultusunda ' +
-      'uzanarak kuzey ile güney bölgeleri birbirinden ayırır. Platonun batısında, volkanik ' +
-      'kökenli Bamileke ve Grassfields yaylaları yer alır; kuzeyinde ise arazi kademeli biçimde ' +
-      "alçalarak Çad Havzası'nın güney ucundaki düz ovalara dönüşür.",
+      'Ülkenin coğrafi omurgasını, güneybatı kıyısından kuzeydoğuya bir hat boyunca uzanan ' +
+      'volkanik yükseltiler ile kuzey ve güney bölgeleri birbirinden ayıran geniş Adamawa ' +
+      'Platosu oluşturur.',
+    landformNoteTr:
+      'Güneybatıda Wouri Halici ve mangrov bataklıklarıyla çevrili dar kıyı ovasının hemen ' +
+      'gerisinde, 4.095 metreye yükselen etkin Kamerun Yanardağı (Mont Cameroun) Atlas ' +
+      "Okyanusu kıyısından aniden göğe yükselir. Bu devasa volkan, Gine Körfezi'ndeki adalardan " +
+      "kıtanın içlerine uzanan Kamerun Volkanik Hattı'nın anakaradaki en yüksek zirvesidir; " +
+      'aynı hat üzerinde yer alan Nyos ve Monoun gibi krater gölleri, derin tabanlarında biriken ' +
+      'karbondioksit gazıyla tanınır. ' +
+      '\n\n' +
+      'Ülkenin ortasında doğu-batı ekseninde uzanan 750-1.350 metre rakımlı Adamawa Platosu, ' +
+      'Orta Afrika ile Sahel arasında doğal bir geçiş basamağı kurar. Platonun batısında verimli ' +
+      'Bamileke ve Grassfields volkanik yaylaları yükselirken; kuzeye doğru arazi alçalarak ' +
+      "Mandara Dağları'nın ardından Çad Havzası taşkın düzlüklerine bağlanır.",
     climateNoteTr:
-      "Güneyden kuzeye gidildikçe Kamerun'un iklimi üç bölgede belirgin biçimde değişir. Güney " +
-      'kıyı kesimi ve yağmur ormanı bölgesi, yıl boyu yüksek nem ve sık yağışla ekvatoral bir ' +
-      'rejim yaşar; burada kısa ve uzun olmak üzere iki ayrı yağmur mevsimi görülür. Orta ' +
-      'kesimde, Adamawa çevresinde iklim tropikalleşir, tek bir uzun yağmur mevsimi ve daha ' +
-      "belirgin bir kurak dönem ortaya çıkar. Ülkenin en kuzeyinde, Çad Havzası'na yakın " +
-      'düzlüklerde yağış 600 milimetrenin altına iner ve Sahel kuşağına özgü kurak bir hava ' +
-      'hakim olur.',
+      "Kamerun'da iklim, ekvatoral kıyı kuşağından kurak Sahel sınırına doğru kademeli olarak " +
+      'değişir. Kamerun Dağı eteklerinde yer alan Debundscha kıyısı, yıllık 10.000 milimetreyi aşan ' +
+      'yağışıyla gezegenin en çok yağış alan noktalarından biridir; güney orman kuşağında yıl ' +
+      'boyu yüksek nem ve iki ayrı yağmur mevsimi görülür. ' +
+      '\n\n' +
+      "Adamawa Platosu'nda iklim serinleyip tek yağışlı mevsime dönerken; en kuzeydeki " +
+      'Çad Gölü sınırında yıllık yağış 500 milimetrenin altına iner ve kış aylarında Sahra ' +
+      'kökenli kuru Harmattan rüzgarlarının etkisi altına girer.',
     hydrographyNoteTr:
-      "Kamerun'un akarsuları dört ayrı su toplama sistemine ayrılır. Güneyde Sanaga, Wouri, " +
-      "Nyong ve Ntem nehirleri doğrudan Atlas Okyanusu'na dökülür; bunlardan Sanaga, ülkenin en " +
-      "uzun ve en yüksek debili nehridir. Kuzeyde Benoué Nehri batıya akarak Nijerya'da Nijer " +
-      "Nehri'ne katılır, Logone Nehri ise Çad Gölü havzasına yönelir. Güneydoğuda, Ngoko ve " +
-      "Sangha nehirleri ise Kongo Havzası'na bağlanan tek su yolunu oluşturur.",
+      'Kamerun, sularını dört farklı büyük su toplama havzasına gönderen istisnai bir ' +
+      'hidrolojik düğüm noktasıdır. Ülkenin en uzun ve yüksek debili akarsuyu olan Sanaga Nehri, ' +
+      "Wouri ve Nyong nehirleriyle birlikte doğrudan Atlas Okyanusu'na dökülür ve zengin hidroelektrik " +
+      'enerji üretir. ' +
+      '\n\n' +
+      "Kuzeyde Adamawa Platosu'ndan doğan Benue Nehri batıya akarak Nijerya'da Nijer sistemiyle " +
+      'birleşir; Logone Nehri ise Çad Gölü kapalı havzasına yönelir. Ülkenin güneydoğusundaki ' +
+      "Sangha ve Ngoko nehirleri ise gür taşkın ormanlarını aşarak Kongo Havzası'na katılır.",
   },
   {
     isoCode: 'CF',
@@ -1436,36 +1555,40 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "13 Ağustos 1960'ta Fransa'dan bağımsız oldu.",
     introTr:
-      'Orta Afrika Cumhuriyeti, adının da işaret ettiği gibi kıtanın tam ortasında, Çad Gölü ve ' +
-      'Kongo Nehri havzaları arasındaki su bölümü çizgisi üzerinde yer alan, denize kıyısı ' +
-      'olmayan bir yayla ülkesidir. Ülke topraklarının büyük bölümü 500 metre civarındaki ' +
-      "dalgalı bir plato biçimindedir; bu plato kuzeydoğuda Bongo Masifi'ne, batıda ise Karre " +
-      "Dağları'na doğru yükselir. Kuzeyden güneye gidildikçe bitki örtüsü de Sahel kuşağına " +
-      'yakın açık savanlardan, güneydeki daha yoğun orman parçalarına doğru değişir.',
-    landformNoteTr:
-      'Ülkenin büyük bölümünü kaplayan dalgalı plato, güneybatıdan kuzeydoğuya uzanan bir sırt ' +
-      'boyunca Çad Gölü ve Kongo Nehri havzaları arasındaki ana su bölümü çizgisini oluşturur. ' +
-      "Kuzeydoğuda, Bongo Masifi 1.330 metrelik Toussoro Dağı'na kadar yükselir; ülkenin " +
-      "doğusunda ise benzer bir yükselti Tondou Masifi'nde görülür." +
+      'Afrika kıtasının tam coğrafi kalbinde yer alan Orta Afrika Cumhuriyeti; Çad Gölü kapalı ' +
+      'havzası ile devasa Kongo Nehri havzası arasındaki ana su bölümü eşiğini oluşturan, ' +
+      'denize kıyısı olmayan bir yayla ülkesidir. ' +
       '\n\n' +
-      "Batıda arazi, granit yapılı Karre Dağları'na doğru tırmanır; bu sıradağın içindeki 1.410 " +
-      'metrelik Ngaoui Dağı, ülkenin en yüksek noktasıdır. Buradan doğuya doğru arazi yeniden ' +
-      "alçalarak kumtaşı platolarına dönüşür. Ülkenin güneybatı ucunda, Kongo Havzası'nın yağmur " +
-      'ormanı sınırı ülke topraklarına küçük bir dilim halinde sızar.',
+      'Ortalama 500-600 metre rakımlı geniş ve dalgalı platolar; kuzeydeki kurak Sahel eşiğinden ' +
+      'güneydeki yoğun ekvatoral yağmur ormanlarına geçiş sağlayan zengin bir savan kuşağına ' +
+      'ev sahipliği yapar.',
+    landformNoteTr:
+      'Ülke topraklarının büyük kısmını kaplayan aşınmış dalgalı plato, kıtanın iki devasa su ' +
+      'havzası arasındaki ana su bölümü çizgisini çizer. Batı kesimde arazi granit yapılı Karre ' +
+      "Dağları'na doğru tırmanır; Kamerun sınırındaki 1.410 metrelik Ngaoui Dağı, Orta Afrika " +
+      "Cumhuriyeti'nin en yüksek zirvesidir. " +
+      '\n\n' +
+      'Kuzeydoğuda Bongo Masifi 1.330 metrelik Toussoro Dağı ile yükselirken, doğuda Tondou ' +
+      'Masifi yer alır. Güneybatıya inildikçe platolar alçalır ve Sangha Nehri havzası boyunca ' +
+      "Kongo Havzası'nın yoğun ve bataklık yağmur ormanları ülke sınırlarına sokulur.",
     climateNoteTr:
-      "Orta Afrika Cumhuriyeti'nde yıllık yağış, kuzeyden güneye güçlü bir gradyan izler: " +
-      'ülkenin en kuzeyinde yıllık ortalama 700 milimetre civarındayken, güneyde bu rakam 1.700 ' +
-      'milimetreye kadar çıkar. Ülkenin büyük bölümü, kuzeyde Sahel kuşağına yaklaşan açık ' +
-      'savanlarla güneydeki daha nemli orman-savan karışımı arasında kalan Sudan tipi savan ' +
-      'iklimine sahiptir. Yağışlı mevsim Nisan-Ekim arasına yayılır, kısa bir kurak dönem ise ' +
-      'Kasım-Mart aylarında yaşanır.',
+      "Orta Afrika Cumhuriyeti'nde iklim, kuzeyden güneye belirginleşen tropikal bir yağış " +
+      'gradyanına sahiptir. En kuzeydeki Sahel geçiş kuşağında yağışlı mevsim kısa sürer ve ' +
+      'yıllık toplam 700 milimetre civarında kalırken; güneye inildikçe yağmur mevsimi sekiz ' +
+      'aya uzar ve yıllık yağış 1.700 milimetreyi aşar. ' +
+      '\n\n' +
+      "Ülke genelinde kasım ile mart ayları arasında kuru mevsim yaşanır; bu dönemde Sahra'dan " +
+      'güneye sokulan kuru Harmattan rüzgarları havayı sisli bir toz tabakasıyla kaplar ve ' +
+      'gündüz ile gece sıcaklık farkını artırır.',
     hydrographyNoteTr:
-      "Ülke topraklarının kuzey üçte biri, Çad Gölü'ne dökülen Chari Nehri'nin kollarıyla " +
-      'sulanır; bunların en önemlileri Bamingui, Gribingui ve en yüksek debiye sahip olan ' +
-      "Ouham'dır. Geri kalan güney üçte ikilik kesim ise Ubangi Nehri havzasına akar. Ubangi, " +
-      'ülkenin doğusunda Mbomou ve Uele nehirlerinin birleşmesiyle oluşur ve ülkenin güney ' +
-      'sınırının büyük bölümünü çizerek batıya akar; bu nehir aynı zamanda Kongo Nehri sistemine ' +
-      'bağlanan ana su yoludur.',
+      'Ülke suları iki ana yöne dağılır. Toprakların kuzeydeki üçte birlik kesimi, Çad Gölü ' +
+      'havzasına yönelen Chari Nehri kolları (Ouham, Bamingui ve Gribingui) tarafından sulanır; ' +
+      'bu akarsular kuzey savanlarına mevsimlik bereket taşır. ' +
+      '\n\n' +
+      "Güneydeki üçte ikilik alan ise Kongo Havzası'na dökülen Ubangi Nehri sistemine bağlıdır. " +
+      'Doğuda Mbomou ve Uele nehirlerinin birleşmesiyle doğan ulu Ubangi Nehri, ülkenin güney ' +
+      "sınırını çizerek batıya akar; başkent Bangui'nin önünden geçen nehir, ülkenin dış " +
+      'dünyaya açılan en stratejik su yolu koridorudur.',
   },
   {
     isoCode: 'CG',
@@ -1490,36 +1613,41 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "15 Ağustos 1960'ta Fransa'dan bağımsız oldu.",
     introTr:
-      "Kongo Cumhuriyeti, Gine Körfezi kıyısından iç kesimdeki Kongo Havzası'na doğru dört " +
-      'farklı yer şekli kuşağından geçilerek ulaşılan, ekvator çizgisinin hemen güneyinde yer ' +
-      'alan bir ülkedir. Dar kıyı ovasının ardından Mayombe Dağları yükselir, onu verimli Niari ' +
-      "Vadisi ve granit yapılı iç platolar izler; ülkenin kuzeyi ise Kongo Havzası'nın alçak, " +
-      'bataklık ormanlarına açılır. Başkent Brazzaville, Kongo Nehri kıyısında kuruludur.',
-    landformNoteTr:
-      'Atlas Okyanusu kıyısında, 40-50 kilometre genişliğindeki tortul bir kıyı ovası uzanır; bu ' +
-      'ovanın hemen ardında, 930 metreye kadar yükselen Mayombe Dağları kıyı şeridine paralel ' +
-      "bir sıradağ oluşturur. Mayombe'nin doğusunda, yaklaşık 200 kilometre genişliğindeki Niari " +
-      'Vadisi, iç platolarla kıyı arasındaki tarihi geçiş güzergâhını oluşturur.' +
+      "Atlas Okyanusu kıyısından başlayarak kıtanın içlerindeki devasa Kongo Havzası'na uzanan " +
+      'Kongo Cumhuriyeti; ekvator çizgisini kesen konumuyla yoğun tropikal ormanların ve zengin ' +
+      'akarsu ağlarının ülkesidir. ' +
       '\n\n' +
-      "Niari Vadisi'nin doğusunda Bembe Platosu, ondan sonra ise Brazzaville'den kuzeye Kongo " +
-      "Nehri boyunca uzanan Batéké Platosu yer alır. Ülkenin kuzey yarısı ise Kongo Havzası'nın " +
-      'bir parçasıdır; burada arazi büyük ölçüde düzleşir ve mevsimlik taşkın ormanlarıyla kaplı ' +
-      'geniş bir alçak alan oluşur.',
+      'Kıyı şeridi ile iç kesimler arasında yükselen Mayombe Dağları ve verimli Niari Vadisi ' +
+      'ülkenin ana yerleşim ve tarım kuşağını oluştururken; kuzey ve doğu kesimleri balta ' +
+      'girmemiş taşkın ormanları ve devasa turbalıklarla kaplıdır.',
+    landformNoteTr:
+      'Atlas Okyanusu kıyısında 40-50 kilometre genişliğinde alçak tortul bir kıyı ovası uzanır; ' +
+      'bu ovanın hemen ardında 930 metreye kadar yükselen kristalin Mayombe Dağları kıyıya ' +
+      'paralel bir set oluşturur. Dağların doğusunda uzanan 200 kilometrelik Niari Vadisi, ' +
+      'ülkenin en bereketli tarım havzası ve kıyı ile iç platolar arasındaki tarihi ulaşım ' +
+      'koridorudur. ' +
+      '\n\n' +
+      "Başkent Brazzaville'in kuzeyine doğru kumtaşı yapılı Batéké Platosu savanları uzanır; " +
+      'ülkenin kuzey yarısı ise sığ Kongo çanağının taşkın düzlüklerine açılır. Likouala ' +
+      'bölgesinde yer alan bu geniş alçak saha, dünyanın en geniş tropikal turbalık ' +
+      'bataklıklarını ve su basar yağmur ormanlarını barındırır.',
     climateNoteTr:
-      "Kongo Cumhuriyeti'nde iklim ekvatoral ile tropikal arasında değişir. Kuzeydeki Kongo " +
-      'Havzası kesiminde yıl boyunca yüksek sıcaklık ve nem hakimdir, kurak mevsim neredeyse ' +
-      'hissedilmez. Güneydeki kıyı ve Niari Vadisi kesiminde ise Haziran-Eylül arasına denk ' +
-      'gelen belirgin bir kurak mevsim yaşanır; yağışlar geri kalan aylara, biri kısa biri uzun ' +
-      'olmak üzere iki döneme yayılır. Yıllık yağış, kıyıda 1.200 milimetre civarındayken ' +
-      'kuzeydeki orman kuşağında 1.800 milimetreyi aşar.',
+      "Kongo Cumhuriyeti'nde iklim ekvatoral ve nemli tropikal rejimler arasında değişir. " +
+      'Kuzeydeki Kongo Havzası ve Likouala kesiminde yıl boyu yüksek sıcaklık ve yoğun nem ' +
+      'hakimdir; belirgin bir kurak mevsim görülmez ve yıllık yağış 1.800 milimetreyi aşar. ' +
+      '\n\n' +
+      "Güneydeki kıyı şeridinde ve Niari Vadisi'nde ise soğuk Benguela Akıntısı'nın etkisiyle " +
+      'haziran ile eylül ayları arasında serin ve bulutlu fakat yağışsız bir kurak dönem ' +
+      'yaşanır; kıyıda yıllık yağış 1.200 milimetre civarında kalır.',
     hydrographyNoteTr:
-      "Kongo Nehri, ülkenin doğu sınırının büyük bölümünü Kongo Demokratik Cumhuriyeti'yle " +
-      'paylaşılan bir hat olarak çizer; iki başkent Brazzaville ve Kinshasa bu nehrin karşılıklı ' +
-      'kıyılarında kuruludur. Ülkenin kuzeyinde, Sangha ve Likouala nehirleri geniş bataklık ' +
-      "ormanlarından süzülerek Kongo Nehri'ne katılır ve Kongo Havzası'nın su ağının bir " +
-      'parçasını oluşturur. Güneybatıda ise Kouilou-Niari Nehri, iç platolardan doğup Mayombe ' +
-      "Dağları'nı bir vadiyle yararak doğrudan Atlas Okyanusu'na ulaşır — ülkenin Kongo " +
-      'sistemine bağlı olmayan tek büyük akarsuyu.',
+      'Ülkenin doğu sınırını Kongo Demokratik Cumhuriyeti ile paylaşarak çizen heybetli Kongo ' +
+      "Nehri, başkent Brazzaville'in hemen önünde genişleyerek Malebo Havuzu'nu (Stanley Pool) " +
+      'oluşturur; Kinşasa ile Brazzaville bu havuzun karşılıklı kıyılarında konumlanmıştır. ' +
+      '\n\n' +
+      'Kuzeydeki Sangha ve Likouala nehirleri, balta girmemiş bataklık ormanlarından süzülerek ' +
+      "Kongo Nehri'ne karışır. Güneybatıda ise Kouilou-Niari Nehri, iç platolardan doğup Mayombe " +
+      "Dağları'nı derin bir vadiyle yararak doğrudan Atlas Okyanusu'na ulaşır; nehir, Kongo " +
+      'sistemine bağlanmayan en büyük bağımsız akarsudur.',
   },
   {
     isoCode: 'CD',
@@ -1544,37 +1672,44 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Yarı-başkanlık cumhuriyeti',
     independenceNoteTr: "30 Haziran 1960'ta Belçika'dan bağımsız oldu.",
     introTr:
-      'Kongo Demokratik Cumhuriyeti topraklarının büyük bölümü, ortalama yükseltisi yalnızca 44 ' +
-      "metre olan geniş bir çanak biçimindeki Kongo Havzası'nda yer alır; bu havza, Afrika'nın " +
-      "en büyük, dünyanın ise Amazon'dan sonra ikinci büyük yağmur ormanını barındırır. Havzayı " +
-      "çevreleyen yüksek platolar batıda ve güneyde savanlara, doğuda ise Büyük Rift Vadisi'nin " +
-      'dağlık arazisine dönüşür.',
-    landformNoteTr:
-      'Ülke topraklarının yaklaşık üçte birini oluşturan merkezi Kongo Havzası, 800.000 ' +
-      'kilometrekarelik alanıyla batıya doğru hafifçe alçalan, nehirlerle kesintiye uğrayan bir ' +
-      'yağmur ormanı platosudur. Havzanın kenarlarını, batıda dağlık teraslar, güney ve ' +
-      'güneybatıda ise savanlara açılan platolar çevreler.' +
+      "Afrika'nın yüzölçümü bakımından en büyük ikinci ülkesi olan Kongo Demokratik " +
+      "Cumhuriyeti; kıtanın kalbinde devasa bir çanak oluşturan Kongo Havzası'nı ve gezegenin " +
+      "Amazon'dan sonraki en geniş ikinci yağmur ormanı kütlesini bünyesinde barındırır. " +
       '\n\n' +
-      "Doğuda, Büyük Rift Vadisi'nin batı kolu boyunca ülkenin en engebeli arazisi yükselir; bu " +
-      "kuşak, Albert Gölü'nün kuzeyinden ülkenin güney ucuna kadar 1.500 kilometreden fazla " +
-      'uzanır. Bu hattın kuzey ucunda, Uganda sınırındaki Rwenzori sıradağları, 5.109 metrelik ' +
-      "Margherita Zirvesi ile Kongo'nun da en yüksek noktasını oluşturur; hemen güneyinde ise " +
-      'volkanik kökenli Virunga Dağları hâlâ etkin yanardağlar barındırır.',
+      "Batıda Atlas Okyanusu'na açılan dar bir koridordan doğuda Büyük Rift Vadisi'nin " +
+      'buzullarla taçlanmış karlı zirvelerine ve volkanlarına kadar uzanan ülke, benzersiz bir ' +
+      'biyoçeşitlilik ve yer altı-yer üstü zenginliğine sahiptir.',
+    landformNoteTr:
+      'Ülkenin kalbini oluşturan merkezi Kongo Havzası (Cuvette Centrale), yaklaşık 800.000 ' +
+      'kilometrekarelik alanıyla hafif eğimli, nehir labirentleriyle örülü devasa bir yağmur ' +
+      'ormanı ve turbalık çanağıdır. Havzayı güneyde ve batıda savanlarla kaplı geniş platolar ' +
+      'kuşatır; güneydeki mineral zengini Katanga Platosu 1.000 metrenin üzerine çıkar. ' +
+      '\n\n' +
+      "Doğu sınırı boyunca ise Büyük Rift Vadisi'nin batı kolu (Albertin Yarığı) uzanır; bu " +
+      'tektonik hatta Uganda sınırındaki buzullarla kaplı Rwenzori Dağları yükselir ve 5.109 ' +
+      'metrelik Margherita Zirvesi ile ülkenin en yüksek noktasını oluşturur. Hemen güneyindeki ' +
+      'Virunga Dağları ise Nyiragongo ve Nyamuragira gibi dünyanın en aktif lav göllerine sahip ' +
+      'yanardağlarını barındırır.',
     climateNoteTr:
-      "Kongo Demokratik Cumhuriyeti'nde iklim, ekvatoral yağmur ormanından güney platolarındaki " +
-      'tropikal kurak-yaş rejime, doğudaki 2.000 metrenin üzerindeki dağlık bölgelerde ise ' +
-      'serin bir yayla iklimine kadar geniş bir yelpazede değişir. Ülkenin ekvator çizgisinin ' +
-      'her iki yakasına yayılmış olması, kuzey ve güney kesimlerinde yağışlı mevsimlerin farklı ' +
-      'aylara denk gelmesine yol açar. Havzanın iç kesimlerinde nem ve sıcaklık yıl boyunca ' +
-      'yüksek seyreder.',
+      "Kongo Demokratik Cumhuriyeti'nin ekvator çizgisinin her iki yakasına geniş bir alanda " +
+      'yayılması, dünyada eşine az rastlanan bir hidro-klimatik denge yaratır; ekvatorun kuzeyi ' +
+      'ile güneyinde yağışlı mevsimler birbirini tamamlar ve yılın her ayı havzanın en az bir ' +
+      'yarısında şiddetli yağış görülür. ' +
+      '\n\n' +
+      'Merkezi havzada sıcaklık ve bağıl nem yıl boyu yüksek kalırken yıllık yağış 2.000 ' +
+      'milimetreyi aşar. Güneye doğru Katanga savanlarında belirgin bir kurak dönem görülürken, ' +
+      'doğudaki 2.000 metreyi aşan Rift dağlarında ise sisli ve serin bir yayla iklimi hakimdir.',
     hydrographyNoteTr:
-      "Kongo Nehri, Katanga'daki Lualaba ve Lufira kollarından beslenerek doğar ve yaklaşık " +
-      "4.700 kilometre boyunca akarak Atlas Okyanusu'na dökülür; ortalama debisi saniyede " +
-      "41.000 metreküple, dünyanın Amazon'dan sonra en yüksek debili ikinci nehridir. Doğudaki " +
-      'Rift Vadisi boyunca sıralanan Kivu, Tanganyika, Edward ve Albert gölleri, Büyük Afrika ' +
-      "Gölleri'nin bir bölümünü oluşturur. Kivu Gölü, Ruzizi Nehri aracılığıyla Tanganyika " +
-      "Gölü'ne bağlanır; Tanganyika ise Lukuga Nehri üzerinden Lualaba'ya, dolayısıyla Kongo " +
-      'sistemine akar. Edward ve Albert göllerinin suları ise kuzeye, Nil havzasına yönelir.',
+      'Katanga platolarından doğan Lualaba koluyla beslenen ulu Kongo Nehri, 4.700 kilometrelik ' +
+      "bir yay çizerek Atlas Okyanusu'na dökülür; saniyede ortalama 41.000 metreküplük debisiyle " +
+      "Amazon'dan sonra dünyanın en yüksek akımına sahip nehridir ve çift yarımküreli yağış " +
+      'sayesinde debisi yıl boyunca inanılmaz bir denge sergiler. ' +
+      '\n\n' +
+      'Doğu sınırında sıralanan Tanganyika, Kivu, Edward ve Albert gölleri Büyük Afrika ' +
+      'Gölleri sisteminin batı halkasını oluşturur. Dünyanın en derin ikinci gölü olan Tanganyika ' +
+      'sularını Lukuga Nehri üzerinden Kongo sistemine akıtırken, derin tabanında metan gazı ' +
+      "biriktiren Kivu Gölü Ruzizi Nehri ile Tanganyika'ya bağlanır; Edward ve Albert gölleri ise " +
+      "kuzeye, Nil Havzası'na su taşır.",
   },
   {
     isoCode: 'GQ',
@@ -1599,36 +1734,40 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "12 Ekim 1968'de İspanya'dan bağımsız oldu.",
     introTr:
-      "Ekvator Ginesi, kıta parçası Río Muni ile Gine Körfezi'ndeki Bioko ve Annobón adalarından " +
-      "oluşan, Orta Afrika'nın nadir kıta-ada karışımı ülkelerinden biridir. Anakaradan yaklaşık " +
-      '160 kilometre açıkta yer alan Bioko, volkanik kökenli bir adadır ve ülkenin başkenti ' +
-      "Malabo da bu adada kuruludur; Bioko'nun 595 kilometre güneybatısındaki küçük Annobón " +
-      'Adası ise ekvatorun güneyinde, São Tomé takımadalarına yakın bir konumdadır. Ülkenin en ' +
-      "yüksek noktası da anakarada değil, Bioko'daki bir yanardağın zirvesindedir.",
-    landformNoteTr:
-      'Río Muni, kıyı boyunca dar bir kumul şeridinin ardından iç kesimde alçak bir platoya ' +
-      'yükselen, neredeyse tamamı yağmur ormanıyla kaplı bir anakara parçasıdır; kıyı ile iç ' +
-      'plato arasındaki geçişi Sierra Cristal (Kristal Dağları) sıradağı oluşturur. Bioko Adası ' +
-      'ise bambaşka bir jeolojik kökene sahiptir: ada, bir vadiyle ikiye ayrılan iki büyük ' +
-      'volkanik kütleden oluşur; kuzeydeki kütlenin zirvesi olan Pico Basilé, 3.008 metreyle ' +
-      "ülkenin en yüksek noktasıdır ve aynı zamanda Kamerun Volkanik Hattı'nın bir parçasıdır." +
+      'Orta Afrika kıyısında anakara ile volkanik okyanus adalarını birleştiren Ekvator Ginesi; ' +
+      "kıtadaki Río Muni bölgesi ile Gine Körfezi'ne dağılmış Bioko ve Annobón adalarından " +
+      'meydana gelir. ' +
       '\n\n' +
-      'Annobón, ikisinden de bağımsız, küçük ve sarp bir volkanik ada olup 18 kilometrekarelik ' +
-      'yüzölçümüyle ülkenin en küçük parçasıdır; bu ada da aynı volkanik hattın güney ucunda yer ' +
-      'alır.',
+      "Başkent Malabo'nun anakarada değil, kıyıdan 160 kilometre açıkta Kamerun Dağı'nın deniz " +
+      "altındaki jeolojik devamı olan sarp Bioko Adası'nda yer alması; ülkenin siyasi ve " +
+      'ekonomik ağırlık merkezini Atlas Okyanusu açıklarına taşır.',
+    landformNoteTr:
+      'Anakara parçası Río Muni, kıyıdaki dar mangrov şeridinden iç kesimlere doğru yükselen ' +
+      'yoğun yağmur ormanı platosundan oluşur; kıyı ile plato arasındaki geçiş basamağını ' +
+      'Kristal Dağları (Sierra Cristal) sağlar. ' +
+      '\n\n' +
+      'Bioko Adası ise Kamerun Volkanik Hattı üzerinde yükselen iki heybetli volkanik masiften ' +
+      "oluşur; adanın kuzeyinde göğe yükselen 3.008 metrelik Pico Basilé, hem Ekvator Ginesi'nin " +
+      'en yüksek doruğudur hem de krater gölleri ve derin kalderalarla çevrilidir. Ekvatorun ' +
+      'güneyinde yer alan küçük ve sarp Annobón Adası ise bazaltik falezleriyle aynı volkanik ' +
+      'zincirin en güneydeki izole halkasını meydana getirir.',
     climateNoteTr:
-      "Ekvator Ginesi'nde iklim sıcak-nemli ekvatoral karakterdedir, ama anakara ile ada " +
-      "arasında mevsimler tuhaf biçimde ters yönde işler: Haziran-Ağustos ayları Río Muni'de " +
-      "kurak mevsim iken, aynı aylar Bioko'da yağışlı geçer; Aralık-Şubat arasında ise roller " +
-      "değişir. Yıllık yağış miktarı da adada uç noktalara ulaşır: başkent Malabo'da yaklaşık " +
-      "1.900 milimetreyken, adanın güney kıyısındaki San Antonio de Ureca'da 10.000 milimetreyi " +
-      "aşar — Afrika'nın en yağışlı noktalarından biri.",
+      'Ekvator Ginesi genelinde sıcak ve aşırı nemli ekvatoral iklim hüküm sürer; ancak anakara ' +
+      "ile adalar arasında şaşırtıcı bir mevsimsel zıtlık yaşanır. Río Muni'de haziran-ağustos " +
+      'dönemi kuru geçerken, aynı aylarda Bioko Adası muson rüzgarlarının taşıdığı en şiddetli ' +
+      'yağışları alır; aralık-şubat aylarında ise bu döngü tam tersine döner. ' +
+      '\n\n' +
+      "Bioko'nun güney kıyısında yer alan San Antonio de Ureca, yıllık 10.000 milimetreyi aşan " +
+      "yağışıyla tüm Afrika kıtasının en fazla yağış alan noktalarından biridir; başkent Malabo'da " +
+      'ise yıllık yağış 1.900 milimetre civarındadır.',
     hydrographyNoteTr:
-      "Río Muni'nin akarsuları kısa ve düzensiz debilidir; en önemlileri Mbini (Benito) ve Muni " +
-      "nehirleridir, ikisi de doğrudan Atlas Okyanusu'na dökülür ve Muni Nehri ağzındaki geniş " +
-      'haliç ülkenin güney sınırının bir bölümünü oluşturur. Bioko ve Annobón adalarında ise ' +
-      'kalıcı bir akarsu sistemi yoktur; volkanik yamaçlardan inen kısa ve sarp dereler, yağış ' +
-      'sonrası hızla denize ulaşır.',
+      "Anakara Río Muni'nin suları, yoğun yağmur ormanlarını yararak Atlas Okyanusu'na dökülen " +
+      "Mbini (Benito) ve Muni nehirleri tarafından drene edilir; Muni Nehri'nin geniş halici " +
+      'Gabon ile güney sınırını oluşturur. ' +
+      '\n\n' +
+      'Bioko ve Annobón adalarında ise kalıcı büyük nehirler bulunmaz; volkanik yamaçlardan inen ' +
+      'sayısız kısa ve coşkulu dere, derin kanyonlar ve şelaleler üzerinden doğrudan ' +
+      'okyanusa dökülür.',
   },
   {
     isoCode: 'GA',
@@ -1653,34 +1792,41 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "17 Ağustos 1960'ta Fransa'dan bağımsız oldu.",
     introTr:
-      'Gabon, ülke topraklarının yaklaşık dörtte üçünü kaplayan yoğun ekvatoral yağmur ormanıyla ' +
-      'tanınan, Gine Körfezi kıyısındaki bir Orta Afrika ülkesidir. Dar bir kıyı ovasının ' +
-      'ardından, kuzeybatı-güneydoğu doğrultusunda uzanan granit platolar iç kesimleri kaplar; ' +
-      'ülkeyi boydan boya kateden Ogooué Nehri, hem ülkenin ana ulaşım eksenini hem de en büyük ' +
-      'su havzasını oluşturur.',
-    landformNoteTr:
-      "Gabon'un kıyı ovası güneyde yalnızca 30 kilometre genişliğindedir; kumtaşı ve alüvyon " +
-      'yapılı bu düzlük kuzeye doğru genişleyerek 160 kilometreye ulaşır ve kireçtaşı-tebeşir ' +
-      'çıkıntıları barındırır. İç kesimde, 300-600 metre yükseklikteki granit platolar hakimdir; ' +
-      "ülkenin güneyinde bu platolar Şayyu (Chaillu) Masifi'nde 1.000 metrenin üzerine çıkar." +
+      'Gine Körfezi kıyısında ekvator çizgisi üzerinde yer alan Gabon; topraklarının yüzde ' +
+      'seksenini aşan balta girmemiş yoğun yağmur ormanları, zengin akarsu havzaları ve kıyı ' +
+      "lagünleriyle Afrika'nın ekolojik açıdan en bozulmamış ülkelerinden biridir. " +
       '\n\n' +
-      "Ülkenin en yüksek noktası ise Şayyu Masifi'nde değil, kuzeydoğuda Kongo Cumhuriyeti " +
-      "sınırına yakın Bengoué Dağı'ndadır; dağ 1.070 metreye ulaşır. Ogooué Nehri, iç kesimdeki " +
-      'kumtaşı platosunu bir eşikle aşarak Lambaréné yakınlarındaki granit kütleler arasından ' +
-      'alçalır ve geniş bir deltayla okyanusa ulaşır.',
+      'Ülkeyi doğudan batıya boydan boya kateden ulu Ogooué Nehri, iç platolardan doğup yağmur ' +
+      "ormanlarını aşarak okyanusa ulaşır ve Gabon'un hem ana yaşam koridorunu hem de " +
+      'coğrafi omurgasını oluşturur.',
+    landformNoteTr:
+      'Gabon kıyıları güneyde 30 kilometre genişliğinde alçak kumsallar ve lagünlerle ' +
+      'başlarken kuzeye doğru 160 kilometreye kadar genişleyen tortul bir ovaya dönüşür. Kıyı ' +
+      'düzlüğünün hemen ardından iç kesimlerde 300-600 metre rakımlı aşınmış granit platolar ' +
+      'yükselir; güneyde bu yükseltiler Chaillu Masifi ile 1.000 metrenin üzerine çıkar. ' +
+      '\n\n' +
+      'Ülkenin doruk noktası ise kuzeydoğuda Kongo Cumhuriyeti sınırına yakın kesimde yükselen ' +
+      "1.070 metrelik Bengoué Dağı'dır. Ogooué Nehri, bu sert kristalin platoları derin kanyonlar " +
+      've çağlayanlarla yararak Lambaréné yakınlarında alçalır ve Atlas kıyısında devasa bir ' +
+      'deltaya açılır.',
     climateNoteTr:
-      'Yıl boyunca yüksek sıcaklık ve nemin hakim olduğu tipik bir ekvatoral rejim, Gabon ' +
-      'iklimini baştan sona belirler; mevsimler arasındaki sıcaklık farkı azdır. Yağış miktarı ' +
-      "kıyı boyunca değişir: başkent Libreville'de yıllık ortalama 2.850 milimetreye ulaşırken, " +
-      'kuzeybatı kıyısında bu rakam 3.800 milimetreye kadar çıkar. Haziran-Eylül arasına denk ' +
-      'gelen görece serin ve kurak bir dönem dışında, yağışlar yılın geri kalanına yayılır.',
+      'Yıl boyunca yüksek sıcaklık ve yoğun nemin egemen olduğu klasik bir ekvatoral rejim Gabon ' +
+      'iklimini belirler; mevsimler arasındaki sıcaklık farkı 2-3 dereceyi geçmez. Başkent ' +
+      'Libreville yıllık yaklaşık 2.850 milimetre yağış alırken, kuzeybatı kıyılarında bu miktar ' +
+      '3.800 milimetrenin üzerine çıkar. ' +
+      '\n\n' +
+      'Ekvatoral rejim gereği eylül-aralık ve şubat-mayıs aylarında iki belirgin yağış zirvesi ' +
+      'görülür; güneyden sokulan soğuk Benguela Akıntısı ise haziran ile eylül ayları arasında ' +
+      'bulutlu fakat yağışsız ve serin bir kurak dönem yaratır.',
     hydrographyNoteTr:
-      'Ogooué Nehri, 1.200 kilometrelik uzunluğuyla ülke topraklarının yaklaşık dörtte üçünü ' +
-      'kapsayan bir havzaya sahiptir ve Ngounié, İvindo gibi büyük kollarıyla beslenir; nehir, ' +
-      "Port-Gentil yakınında geniş bir deltayla Atlas Okyanusu'na dökülür. Ülkenin kuzeyinde " +
-      'Ntem Nehri, Kamerun ve Ekvator Ginesi sınırının bir bölümünü çizerken, güneyde Nyanga ' +
-      'Nehri bağımsız bir kıyı havzası oluşturur. Başkent Libreville ise Ogooué sistemine değil, ' +
-      "Komo Nehri'nin oluşturduğu geniş bir halice kuruludur.",
+      'Yaklaşık 1.200 kilometre uzunluğundaki Ogooué Nehri, Ngounié ve İvindo gibi ulu kollarıyla ' +
+      'birlikte Gabon topraklarının dörtte üçünden fazlasını drene eder; İvindo kolu üzerindeki ' +
+      'Kougui ve Mingouli çağlayanları yağmur ormanı içinde muazzam su manzaraları oluşturur. ' +
+      'Nehir, Port-Gentil açıklarında geniş mangrov adalarından oluşan bir deltayla okyanusa kavuşur. ' +
+      '\n\n' +
+      'Kuzeyde Ntem Nehri Kamerun ve Ekvator Ginesi sınırının bir bölümünü çizerken, güneyde ' +
+      'Nyanga Nehri bağımsız bir kıyı havzası meydana getirir. Başkent Libreville ise Ogooué ' +
+      'sistemine değil, korunaklı Komo Halici kıyısına kurulmuştur.',
   },
   {
     isoCode: 'ST',
@@ -1705,38 +1851,41 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Yarı-başkanlık cumhuriyeti',
     independenceNoteTr: "12 Temmuz 1975'te Portekiz'den bağımsız oldu.",
     introTr:
-      "Sao Tome ve Principe, Gine Körfezi'nde ekvatorun hemen kuzeyinde yer alan, aynı adı " +
-      'taşıyan iki ana ada ile çok sayıda küçük kayalık adacıktan oluşan bir ülkedir. Her iki ' +
-      "ada da Kamerun Dağı'ndan güneybatıya uzanan Kamerun Volkanik Hattı'nın parçasıdır, ama " +
-      'son birkaç yüzyılda hiçbir volkanik etkinlik görülmemiştir. Adaların sarp, dağlık iç ' +
-      'kesimleri kıyıya doğru dik biçimde alçalır; bu da ülkeye çok kısa mesafelerde büyük iklim ' +
-      've bitki örtüsü farklılıkları kazandırır.',
-    landformNoteTr:
-      "São Tomé Adası'nın güney ve batı kesimlerinde, volkanik zirveler doğrudan denize dik " +
-      'biçimde iner; adanın en yüksek noktası olan São Tomé Zirvesi 2.024 metreye ulaşır. Adanın ' +
-      'iç kesiminde, dar bir volkanik boru içinde katılaşmış lavın aşınmayla ortaya çıkardığı ' +
-      '663 metrelik sivri kaya kütlesi Cão Grande Zirvesi, bölgenin en belirgin yer ' +
-      'şekillerinden biridir. Kuzeydoğuya doğru arazi kademeli biçimde alçalarak küçük ' +
-      'düzlüklere dönüşür; ülkenin başkenti de bu daha alçak kesimde kuruludur.' +
+      "Gine Körfezi'nin açık sularında ekvator çizgisinin hemen üzerinde yükselen Sao Tome ve " +
+      'Principe; okyanus tabanından fışkıran volkanik kökenli iki ana ada ile çevresindeki sarp ' +
+      'kayalıklardan meydana gelen tropikal bir ada ülkesidir. ' +
       '\n\n' +
-      "Principe Adası, São Tomé'den daha eski bir volkanik oluşumdur — yaklaşık 31 milyon yıl " +
-      "önce oluşmuşken São Tomé'nin lav akıntılarının büyük bölümü yaklaşık 13 milyon yıl önce " +
-      "ile günümüz arasında oluşmuştur; bu yaş farkı Principe'nin daha ileri düzeyde aşınmış, " +
-      'sivri ve dişli kütlelerine yansır. Adanın en yüksek noktası olan Pico Principe 948 ' +
-      'metreye ulaşır.',
+      "Kamerun Volkanik Hattı'nın okyanustaki halkaları olan bu adalar; bulut ormanlarıyla örtülü " +
+      'dik bazalt zirveleri, kanyonları, zengin volkanik toprakları ve kıyı falezleriyle daracık ' +
+      'bir alanda olağanüstü bir peyzaj çeşitliliği sunar.',
+    landformNoteTr:
+      "São Tomé Adası'nın güney ve batı kesimlerinde volkanik kütleler doğrudan denize dik " +
+      'falezler halinde iner; adanın merkezi doruğu olan 2.024 metrelik São Tomé Zirvesi ' +
+      '(Pico de São Tomé), sürekli bulutlarla kaplıdır. Adanın güneyinde eski bir yanardağ ' +
+      'bacasının lav tıkacı olarak aşınmayla açığa çıkmış olan 663 metrelik iğne biçimli Cão Grande ' +
+      'kayası, kıtanın en çarpıcı jeomorfolojik anıtlarındandır. ' +
+      '\n\n' +
+      'Kuzeydoğuya doğru arazi kademeli olarak alçalarak başkentin kurulu olduğu kıyı düzlüklerine ' +
+      'dönüşür. Yaklaşık 31 milyon yıllık daha yaşlı bir volkanik geçmişe sahip olan Príncipe ' +
+      'Adası ise derin aşınmış sarp dişli tepeleriyle tanınır; adanın en yüksek noktası 948 ' +
+      "metrelik Pico Príncipe'dir.",
     climateNoteTr:
-      "Sao Tome ve Principe'de iklim deniz etkili ve tropikaldir, ama adaların sarp topografyası " +
-      'çok kısa mesafelerde büyük mikro-iklim farkları yaratır. Güneybatıdan esen nemli ' +
-      "rüzgarlar dağlarda tutulduğu için São Tomé'nin güneybatı yamaçlarında yıllık yağış 5.000 " +
-      'milimetreye ulaşırken, adanın kuzey düzlüklerinde bu rakam 1.000 milimetrenin altına ' +
-      'iner. Sıcaklık yıl boyu ekvatoral karakteriyle uyumlu biçimde yüksek ve az değişken ' +
-      'kalır; yükseklikle birlikte iç kesimlerde hava belirgin biçimde serinler.',
+      'Adalarda deniz etkili nemli tropikal iklim hüküm sürer; ancak sarp topografya çok kısa ' +
+      'mesafelerde dramatik mikro-iklim zıtlıkları üretir. Güneybatıdan esen nem yüklü okyanus ' +
+      "rüzgarları dik dağ yamaçlarına çarptığında São Tomé'nin güneybatısında yıllık 5.000 " +
+      'milimetreyi aşan orografik yağışlara yol açar. ' +
+      '\n\n' +
+      'Buna karşılık dağların yağmur gölgesinde kalan kuzeydoğu kıyıları ve başkent çevresinde ' +
+      'yıllık yağış 1.000 milimetrenin altına kadar geriler. Yıl boyu yüksek seyreden sıcaklıklar, ' +
+      'dağların sisli yamaçlarına tırmandıkça yerini ferahlatıcı bir serinliğe bırakır.',
     hydrographyNoteTr:
-      'Adaların iç kesimindeki dağlık kaynak bölgelerinden denize doğru, her yönde kısa ve hızlı ' +
-      'akan onlarca dere iner; bu ışınsal drenaj deseni, adaların dairesel volkanik yapısının ' +
-      "doğrudan bir sonucudur. São Tomé Adası'nda 200'den fazla dere sayılır, ama hiçbiri gemi " +
-      'taşımacılığına elverişli büyüklükte değildir. Kalıcı göl ya da geniş nehir yatağı ' +
-      'bulunmaz; dereler şelaleler ve hızlı akıntılarla kısa mesafede denize ulaşır.',
+      'Adaların dairesel ve dik volkanik yapısı, dağ doruklarından her yöne denize doğru ' +
+      'ışınsal olarak inen yüzlerce kısa ve delişmen dereden oluşan bir drenaj ağı ortaya çıkarır. ' +
+      '\n\n' +
+      "São Tomé Adası'nda 200'e yakın akarsu sayılmasına karşın hiçbiri taşımacılığa elverişli " +
+      'büyüklükte değildir; sular dik kanyonlar ve çağlayanlar üzerinden çok kısa mesafede ' +
+      "Atlas Okyanusu'na dökülür. Adalarda kalıcı doğal göl bulunmaz; tatlı su dengesi gür yağmur " +
+      'ormanlarının tuttuğu zengin kaynak sularıyla sağlanır.',
   },
   {
     isoCode: 'BW',
@@ -1761,36 +1910,36 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "30 Eylül 1966'da Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      'Botsvana topraklarının yaklaşık dörtte üçünü Kalahari kaplar; ancak bu kesim kum ' +
-      'tepeleriyle kaplı klasik bir çölden çok, seyrek çalı ve otla örtülü yarı kurak bir savan ' +
-      'düzlüğüdür. Kuzeybatıda, Angola yaylalarından gelen Okavango Nehri denize hiç ulaşmadan ' +
-      'devasa bir iç deltada dağılır. Ülkenin doğusunda, kurumuş eski bir gölün kalıntısı olan ' +
-      'Makgadikgadi tuz düzlükleri yer alır.',
+      'Botsvana, Güney Afrika platosunun merkezinde yer alan ve topraklarının büyük bölümü ' +
+      'Kalahari çanağıyla örtülü kurak bir iç ülkedir. Bu geniş alan, klasik kum tepelerinden ' +
+      'ziyade seyrek çalı ve akasyalarla kaplı yarı kurak bir savan havzası niteliğindedir. ' +
+      'Kuzeybatıda Angola yaylalarından doğan Okavango Nehri, kızgın kumlara ulaştığında ' +
+      'denize dökülemeyip devasa bir iç deltaya yayılır; doğuda ise kadim bir iç denizin ' +
+      'kurumasıyla geriye kalan uçsuz bucaksız Makgadikgadi tuz tavaları uzanır.',
     landformNoteTr:
-      "Kalahari, Botsvana'nın güneybatısından kuzeydoğusuna kadar ülkenin büyük bölümünü " +
-      'kaplayan, ortalama 1.000 metre yükseklikte hafif dalgalı bir kum platosudur; toprak ' +
-      'altındaki kalın kum tabakası nedeniyle yüzey suyu neredeyse hiç tutulmaz. Ülkenin en ' +
-      'yüksek noktası bu platonun güneydoğu ucunda, Güney Afrika sınırına yakın Monalanong ' +
-      "Tepesi'dir; 2025'te yapılan GNSS ölçümleri, komşu Otse Tepesi'ni yalnızca yaklaşık 2 " +
-      'metre farkla geçen bu tepeyi kesin olarak ülkenin zirvesi ilan etti.' +
+      'Ülke coğrafyasının omurgasını oluşturan Kalahari Platosu, ortalama 1.000 metre yükseklikte ' +
+      'hafif dalgalı kumullar ve kireçli tortullarla örtülüdür; kalın kum tabakası yüzey suyunu ' +
+      'derhal tabana geçirdiği için arazide kalıcı akarsu vadileri gelişemez. Platonun güneydoğu ' +
+      'sınırında yükselen 1.491 metrelik Monalanong Tepesi, GNSS ölçümleriyle komşusu Otse ' +
+      "Tepesi'ni geride bırakarak ülkenin en yüksek doruğu olarak tescillenmiştir." +
       '\n\n' +
-      'Kuzeybatıda, Okavango Nehri bir tektonik çöküntüye ulaştığında hızını kaybeder ve ' +
-      'kanallar, göletler ve adacıklardan oluşan, kuru mevsimde yaklaşık 15.000 kilometrekareye ' +
-      'yayılan bir iç deltaya dönüşür. Deltaya giren suyun neredeyse tamamı buharlaşma ve ' +
-      'yeraltına sızma yoluyla kaybolur; denize ulaşan hiçbir kolu yoktur.',
+      "Kuzeybatıdaki tektonik çöküntü alanı, Okavango Nehri'nin akışını keserek suları binlerce " +
+      'kanal, lagün ve adacığa böler. Kuru mevsimde yaklaşık 15.000 kilometrekareye yayılan bu ' +
+      'iç delta, sularını okyanusa ulaştıramadan buharlaşma ve yeraltına sızma yoluyla kaybeder.',
     climateNoteTr:
-      "Botsvana'da yarı kurak bozkır ve tropikal savan iklimleri bir arada görülür; yıl boyunca " +
-      'sıcaklıklar genellikle 20-30 santigrat derece arasında seyreder. Yağışlar ekim-nisan ' +
-      'arasına yoğunlaşır ve düzensizdir; kuzey ve doğu kesimlerinde yıllık 500-700 milimetreye ' +
-      "ulaşırken, güneybatıdaki Kalahari'nin en kurak bölümlerinde bu miktar 250 milimetrenin " +
-      'altına iner. Kuraklık, ülkenin neredeyse her bölgesinde tekrarlayan bir risktir.',
+      'Ülkede yarı kurak step iklimi ile kuzey kesimlerdeki tropikal savan koşulları etkilidir; ' +
+      'yıllık sıcaklıklar genellikle 20 ile 30 derece arasında seyreder. Yağışlar ekim ile nisan ' +
+      'ayları arasındaki yaz döneminde düzensiz sağanaklar halinde düşer; kuzey ve doğuda yıllık ' +
+      "500-700 milimetreyi bulan yağış miktarı, güneybatı Kalahari'ye doğru 250 milimetrenin " +
+      'altına kadar geriler. Yüksek buharlaşma ve tekrarlayan kuraklık dönemleri, tarım ve ' +
+      'hayvancılık üzerinde sürekli bir su stresi yaratır.',
     hydrographyNoteTr:
-      "Botsvana'nın su ağı dört ayrı sisteme ayrılır. Kuzeybatıdaki Okavango, denize " +
-      'bağlanmayan kapalı bir havza oluşturur; deltadan taşan sular Boteti Nehri aracılığıyla ' +
-      'doğuya, Makgadikgadi tuz düzlüklerine ulaşır ve bu düzlükleri mevsimlik olarak sığ bir ' +
-      'göle çevirir. Kuzeyde, Namibya sınırı boyunca akan ve güzergahı boyunca Kwando, Linyanti ' +
-      "ve Chobe adlarını alan nehir, Kazungula yakınında Zambezi'ye katılır. Güneydoğuda ise " +
-      'Limpopo Nehri, kısa bir bölümde Güney Afrika ile sınırı çizer.',
+      'Yüzey suları bakımından son derece kısıtlı olan ülkede hidrolojik yaşam dört ayrı sisteme ' +
+      "dağılır. Okavango Deltası'ndan taşan mevsimlik sular, Boteti Nehri üzerinden doğudaki " +
+      'Makgadikgadi çanağına akarak kurak tuz tavalarını kısa süreli sığ göllere dönüştürür. ' +
+      'Kuzey sınırında Kwando, Linyanti ve Chobe adlarıyla kıvrılan nehir sistemi Kazungula ' +
+      "yakınında Zambezi'ye katılırken, güneydoğu sınırını Limpopo Nehri ve mevsimlik kolları " +
+      'belirler.',
   },
   {
     isoCode: 'SZ',
@@ -1815,37 +1964,36 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Mutlak monarşi',
     independenceNoteTr: "6 Eylül 1968'de Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      'Esvatini, batıdan doğuya doğru birbirini izleyen dört fiziki kuşaktan oluşur: dağlık ' +
-      'Highveld, orta yükseklikteki Middleveld, alçak ve sıcak Lowveld ve Mozambik sınırındaki ' +
-      "dar Lubombo sarp hattı. Ülke, güneydoğu Afrika'nın en küçük ve tamamen karayla çevrili " +
-      'krallıklarından biridir; Güney Afrika ve Mozambik dışında başka bir komşusu yoktur.',
+      'Esvatini, batıdaki sarp dağlardan doğudaki alçak vadilere doğru dört belirgin basamak ' +
+      'halinde kademelendiği için küçük yüzölçümüne karşın zengin bir coğrafi çeşitlilik sergiler. ' +
+      'Drakensberg sistemine yaslanan yüksek Highveld, tarım ve yerleşimin yoğunlaştığı Middleveld, ' +
+      'kurak çalı örtüsüyle kaplı Lowveld ve Mozambik sınırındaki Lubombo sarp sırtı bu yapıyı ' +
+      'oluşturur. Güney Afrika ve Mozambik arasına yerleşmiş olan ülke, kıtanın denize çıkışı ' +
+      'olmayan en küçük krallıklarındandır.',
     landformNoteTr:
-      "Ülke yüzölçümünün yaklaşık %30'unu kaplayan Highveld, granit ve daha eski metamorfik " +
-      'kayaçların aşınmasıyla oluşmuş, 1.370-1.980 metre yükseklikte engebeli bir dağlık ' +
-      "kuşaktır; başkent Mbabane bu bölgededir. Highveld'in kuzeybatı ucunda, Güney Afrika " +
-      'sınırındaki Emlembe Dağı 1.862 metreyle ülkenin en yüksek noktasıdır.' +
+      'Ülke topraklarının batıdaki üçte birini kaplayan Highveld kuşağı, 1.300 ile 1.900 metre ' +
+      'arasında değişen yükseltisi, derin yarılmış granit vadileri ve ormanlık yamaçlarıyla ' +
+      'belirginleşir; Güney Afrika sınırında 1.862 metreye ulaşan Emlembe Dağı ülkenin çatısıdır. ' +
+      'Başkent Mbabane bu serin ve sisli dağ basamağında kuruludur.' +
       '\n\n' +
-      'Doğuya doğru arazi kademeli olarak alçalır: ortalama 700 metre yükseklikteki Middleveld ' +
-      "ülkenin en kalabalık bölgesidir ve ticaret merkezi Manzini'yi barındırır; ortalama 250 " +
-      'metrelik Lowveld ise seyrek nüfuslu, çalı ve akasyalarla kaplı bir savandır. Mozambik ' +
-      'sınırı boyunca uzanan Lubombo sırtı, Lowveld düzlüklerinden yaklaşık 600 metre yükselen ' +
-      'dar ve belirgin bir sarptır.',
+      'Arazi doğuya doğru basamaklar halinde alçalır; 700 metre ortalama rakımlı Middleveld ' +
+      "verimli topraklarıyla ticaret merkezi Manzini'ye ve nüfusun çoğuna yurtluk eder. Yaklaşık " +
+      '250 metre rakımdaki Lowveld ise geniş akasya savanlarıyla sıcak bir çöküntüyü andırır. ' +
+      'Doğu sınırında bu ovayı aniden kesen Lubombo volkanik sırtı, yaklaşık 600 metrelik sarp ' +
+      'duvarlarıyla Mozambik kıyı düzlüklerine set çeker.',
     climateNoteTr:
-      "Esvatini'de subtropikal bir iklim görülür; yıllık yağışın %80'inden fazlası ekim-nisan " +
-      'arasındaki yaz mevsiminde, şiddetli gök gürültülü sağanaklar ve cephesel yağışlar ' +
-      'biçiminde düşer, kış ayları kuraktır. Yağış miktarı batıdan doğuya keskin biçimde ' +
-      "azalır: Highveld'de 700-1.500 milimetre, Middleveld'de 550-850 milimetre, Lowveld'de ise " +
-      "yalnızca yaklaşık 200 milimetredir. Sıcaklıklar da aynı yönde artar; Highveld'de " +
-      "ortalama 17 santigrat derece iken, Lowveld'de ortalama 22 dereceye, yaz aylarında 29 " +
-      'dereceye kadar çıkar.',
+      'Ülkede batıdan doğuya gidildikçe yükseltinin azalmasına bağlı olarak subtropikal iklim ' +
+      'belirgin biçimde sertleşir ve kuraklaşır. Yıllık yağışların büyük bölümü ekim-nisan ' +
+      'dönemindeki sıcak yaz aylarında şiddetli fırtınalarla düşer. Highveld platolarında yıllık ' +
+      'yağış orografik etkiyle 700-1.500 milimetreye çıkıp ortalama sıcaklık 17 derece civarında ' +
+      'kalırken, Lowveld ovalarında yağış 500 milimetrenin altına iner, yaz sıcaklıkları düzenli ' +
+      'olarak 30 derecenin üzerine tırmanır.',
     hydrographyNoteTr:
-      "Esvatini'yi batıdan doğuya, Highveld'den Mozambik'e doğru dört büyük nehir keser: " +
-      'kuzeyde Komati ve Mbuluzi, ortada Büyük Usutu (Lusutfu) ve güneyde Ngwavuma. Komati, ' +
-      'Usutu ve Lomati nehirlerinin kaynakları Güney Afrika topraklarındadır; bu paylaşılan ' +
-      "havzaların yönetimi SADC protokolleri ve 1992'de imzalanan bir antlaşmayla kurulan " +
-      'Komati Havzası Su İdaresi çerçevesinde yürütülür, Komati üzerindeki Maguga Barajı bu ' +
-      'işbirliğinin somut bir örneğidir. Nehirlerin tamamı, Lubombo sarp hattını dar vadilerle ' +
-      "yararak Mozambik'e geçer.",
+      'Esvatini, batıdaki yüksek dağlardan doğarak ülkeyi enlemesine kat eden ve Lubombo sarpını ' +
+      "derin kanyonlarla yararak Mozambik'e geçen güçlü nehirlerle beslenir. Komati, Mbuluzi, " +
+      'Büyük Usutu (Lusutfu) ve Ngwavuma nehirleri Güney Afrika yaylalarından doğar. Bu sınır ' +
+      'aşan akarsu havzaları, Komati üzerindeki Maguga Barajı örneğinde olduğu gibi ortak su ' +
+      'yönetimi protokolleriyle işletilerek kurak Lowveld tarımına can suyu sağlar.',
   },
   {
     isoCode: 'LS',
@@ -1870,40 +2018,35 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter anayasal monarşi',
     independenceNoteTr: "4 Ekim 1966'da Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      'Lesotho, topraklarının tamamı deniz seviyesinden 1.000 metrenin üzerinde kalan tek ' +
-      'bağımsız ülkedir. Batıda Caledon Nehri boyunca uzanan alçak düzlükler, orta ve doğu ' +
-      'kesimde Maloti-Drakensberg sıradağlarının oluşturduğu yüksek dağlık bölge ve ikisi ' +
-      'arasındaki geçiş kuşağı olan eteklik bölgesi olmak üzere üç coğrafi bölgeye ayrılır. ' +
-      'Ülke, tamamen Güney Afrika toprakları içinde kalan bir enklavdır.',
+      'Lesotho, bütün toprakları deniz seviyesinden 1.000 metrenin üzerinde yer alan dünyadaki ' +
+      'tek bağımsız devlettir ve bu sıra dışı topoğrafyası sebebiyle "Gökyüzü Krallığı" olarak ' +
+      'anılır. Batıda Caledon Nehri boyundaki tarımsal düzlükler, iç kesimlerdeki basamaklı ' +
+      'eteklikler ve orta ile doğuyu baştan başa kaplayan Maloti-Drakensberg dağ kütlesi ülkenin üç ' +
+      'ana fiziki bölgesidir. Güney Afrika Cumhuriyeti toprakları tarafından çepeçevre sarılmış olan ' +
+      'ülke, tam bir enklav konumundadır.',
     landformNoteTr:
-      'Ülkenin doğu ve güneydoğusunu kaplayan Maloti Sıradağları, 3.400 metreye varan yüksek ' +
-      "bir bazalt plato oluşturur ve doğuda Drakensberg sarp hattıyla Güney Afrika'ya doğru " +
-      'sona erer. Bu sıradağların en yüksek noktası olan 3.482 metrelik Thabana Ntlenyana, ' +
-      "yalnızca Lesotho'nun değil, Kilimanjaro'nun güneyinde kalan tüm Afrika'nın en yüksek " +
-      'zirvesidir.' +
+      'Ülkenin doğusunu ve merkezini kaplayan Maloti Sıradağları, bazalt lav katmanlarının akarsu ' +
+      've buzul süreçleriyle yarılmasıyla oluşmuş 3.000 metreyi aşan heybetli platolardan meydana ' +
+      'gelir. Bu kütlenin doruğunda yükselen 3.482 metrelik Thabana Ntlenyana, yalnızca ' +
+      "Lesotho'nun değil, Kilimanjaro'nun güneyinde kalan tüm Afrika kıtasının en yüksek zirvesidir." +
       '\n\n' +
-      'Ülkenin en alçak noktası, Güney Afrika sınırındaki Makhaleng ve Senqu (Orange) ' +
-      'nehirlerinin birleştiği yerde, yalnızca 1.400 metre yüksekliktedir — bu, dünyadaki ' +
-      'hiçbir ülkenin en alçak noktasının bu kadar yüksekte olmaması nedeniyle kayda değer bir ' +
-      'olgudur. Başkent Maseru, 1.600 metre yükseklikte, ülkenin nispeten alçak batı ' +
-      'düzlüklerinde kuruludur.',
+      'Ülkenin en alçak noktasının dahi güneybatı sınırında 1.400 metre rakımda bulunması, küresel ' +
+      'ölçekte eşi olmayan bir morfolojik tabandır. Nüfusun ve ekilebilir alanların toplandığı ' +
+      'başkent Maseru ve batı şeridi, 1.500-1.700 metre bandındaki kumtaşı platoları üzerinde yer alır.',
     climateNoteTr:
-      "Lesotho'da iklim büyük ölçüde rakıma bağlıdır. Doğu ve güneydoğudaki yüksek kesimlerde " +
-      'alpin bir iklim görülür; kışın sıcaklıklar -18 santigrat derecenin altına inebilir, kar ' +
-      've don sık görülen bir tehlikedir. Yaz aylarında (aralık-şubat) sıcaklıklar 10,8 ile ' +
-      '27,6 derece arasında değişir. Yağışlar ekim-nisan arasında yoğunlaşır ve ülke genelinde ' +
-      'yıllık ortalama yaklaşık 700 milimetreye ulaşırken, en yüksek sıradağlarda bu miktar ' +
-      '1.000 milimetreye yaklaşır.',
+      'Yüksek rakım nedeniyle ülkede Afrika kıtasının geneline tezat oluşturan ılıman ve dağlık ' +
+      'bir alpin iklim egemendir. Kış aylarında (mayıs-ağustos) Maloti doruklarında sıcaklıklar ' +
+      'sıfırın altında 18 dereceye kadar geriler; yoğun kar yağışları ve şiddetli don olayları dağ ' +
+      'geçitlerini ulaşıma kapatır. Yağışların büyük kısmı ekim-nisan döneminde yaz sağanaklarıyla ' +
+      'düşer; yıllık ortalama yağış batı ovalarında 700 milimetre iken yüksek doruklarda 1.000 ' +
+      'milimetrenin üzerine çıkar.',
     hydrographyNoteTr:
-      'Lesotho, çok sayıda önemli nehrin kaynağını oluşturması nedeniyle "Güney Afrika\'nın su ' +
-      'kulesi" olarak anılır. Senqu (Orange) Nehri\'nin başlıca kolları — Malibamatso, Matsoku ' +
-      've Senqunyane — ülkenin yüksek dağlarında, yaklaşık 3.300 metre rakımda doğar. Bu su ' +
-      "kaynağını Güney Afrika'ya aktarmak amacıyla kurulan Lesotho Yaylaları Su Projesi, " +
-      "Afrika'nın en büyük su transfer sistemidir; projenin parçası olan ve Malibamatso Nehri " +
-      "üzerinde 1996'da tamamlanan Katse Barajı, Afrika'nın Etiyopya'daki Tekeze Barajı'ndan " +
-      'sonra en büyük ikinci çift eğrilikli kemer barajıdır. Güney Afrika, bu su için ' +
-      "Lesotho'ya yıllık bir bedel ve kullanım miktarına bağlı bir telif ödemesi yapar. Ülkenin " +
-      'kuzeybatısında ise Caledon Nehri, düzlükler boyunca Güney Afrika sınırını çizer.',
+      "Lesotho, Güney Afrika'nın kurak iç platosunu besleyen ana akarsuların doğduğu yer olması " +
+      'sebebiyle bölgenin "su kulesi" niteliğindedir. Senqu (Orange) Nehri ve kolları olan ' +
+      'Malibamatso, Matsoku ile Senqunyane, 3.000 metreyi aşan bazalt yaylalarından doğar. Bu bol ' +
+      've berrak kaynakları Johannesburg sanayi havzasına aktarmak üzere inşa edilen Lesotho ' +
+      'Yaylaları Su Projesi ve Katse Barajı, tünel sistemleriyle çalışan dev bir transfer hattı ' +
+      'oluşturarak ülke ekonomisine hidroelektrik ve düzenli gelir sağlar.',
   },
   {
     isoCode: 'NA',
@@ -1928,40 +2071,37 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "21 Mart 1990'da Güney Afrika'dan bağımsız oldu.",
     introTr:
-      "Namibya'nın kıyı şeridi boyunca, dünyanın en yaşlı çölü kabul edilen Namib Çölü uzanır; " +
-      'iç kesimde ise ülkenin belkemiğini oluşturan Merkezi Plato yükselir. İkisini ayıran ' +
-      'Büyük Sarp (Great Escarpment), Gondwana kıtasının parçalanmasının ardından yaklaşık 80 ' +
-      'milyon yıl önce şekillenmiş, kesintili ama yer yer 1.000 metreye varan bir yükselti ' +
-      'hattıdır. Kuzeydoğuda, dar bir şerit halinde uzanan Caprivi (Zambezi Bölgesi), ülkenin ' +
-      'geri kalanından çok daha nemli bir coğrafyaya sahiptir.',
+      'Namibya, Atlas Okyanusu boyunca uzanan hiper-kurak kıyı çölü ile iç kısımdaki yüksek ' +
+      'platolar arasında keskin bir zıtlığa sahiptir. Kıyıdaki Namib Çölü ile iç kesimdeki ' +
+      "Merkezi Plato'yu birbirinden ayıran Büyük Sarp (Great Escarpment), Gondwana kıtasının " +
+      'parçalanışından kalan tektonik bir basamaktır. Kuzeydoğuda dar bir koridor gibi uzanan ' +
+      'Caprivi (Zambezi) Şeridi ise nehirleri ve taşkın ovalarıyla ülkenin kurak karakterine ' +
+      'bütünüyle aykırı, sulak bir coğrafya sunar.',
     landformNoteTr:
-      'Namib Çölü, kıyı boyunca değişen genişlikte, yer yer birkaç yüz kilometreye ulaşan ' +
-      'hiper-kurak çakıl düzlükleri ve kum tepelerinden oluşur; güneydeki kum denizinde ' +
-      'dünyanın en yüksek kum tepeleri bulunur. Bölge, yaklaşık 55-80 milyon yıldır kesintisiz ' +
-      'kurak veya yarı kurak koşullar altında kaldığı için dünyanın en yaşlı çölü sayılır. ' +
-      'Çölün içinde, kıyıya yakın granit bir inselberg olan Brandberg masifinin Königstein ' +
-      'zirvesi, yaklaşık 2.573 metreyle ülkenin en yüksek noktasını oluşturur.' +
+      'Yaklaşık 80 milyon yıldır kesintisiz kurak kalarak yeryüzünün en kadim çölü sayılan Namib, ' +
+      'kıyıdaki çakıllı düzlüklerden iç kesimdeki dev kızıl kumullara kadar uzanır; Sossusvlei ' +
+      'kumulları dünyanın en yüksek kumulları arasındadır. Çölün doğusunda tektonik bir yükselti ' +
+      'olarak beliren Brandberg masifindeki Königstein doruğu, 2.573 metrelik granit kütlesiyle ' +
+      'ülkenin en yüksek zirvesidir.' +
       '\n\n' +
-      "Ülkenin güneyinde, Fish Nehri'nin binlerce yıl boyunca aşındırdığı Fish Nehri Kanyonu, " +
-      "yaklaşık 160 kilometre uzunluğuyla Büyük Kanyon'dan sonra dünyanın ikinci büyük kanyonu " +
-      'kabul edilir. Kuzeyde ise yaklaşık 4.800 kilometrekarelik Etoşa Tuz Düzlüğü, yılın büyük ' +
-      'bölümünde kuru ve tuzlu bir arazi iken, bol yağışlı yıllarda yüzeyinin büyük bölümü sığ ' +
-      'bir su tabakasıyla kaplanarak geçici bir göle dönüşür.',
+      "Güneyde Fish Nehri'nin aşındırdığı 160 kilometre uzunluğundaki Fish Nehri Kanyonu, kıtanın " +
+      'en derin ve görkemli kanyon vadisidir. Kuzeydeki 4.800 kilometrekarelik Etoşa Çanağı ise ' +
+      'kuru mevsimde kireçli beyaz bir tuz tavasıyken, yağışlı dönemlerde sığ bir iç göle dönüşerek ' +
+      'büyük yaban hayatı sürülerini çeker.',
     climateNoteTr:
-      "Namibya'nın kıyı şeridindeki aşırı kuraklık, kıyı boyunca kuzeye akan soğuk Benguela " +
-      "Akıntısı'ndan kaynaklanır; akıntının soğuttuğu hava nem tutamaz, bunun yerine yılın " +
-      '180-200 günü kıyıyı saran yoğun bir sis oluşur. Yıllık yağış kıyıda birkaç milimetreyle ' +
-      'sınırlıyken iç kesimlere doğru artar; ülkenin en yağışlı bölgesi olan kuzeydoğudaki ' +
-      "Caprivi/Zambezi Bölgesi'nde bu miktar 700 milimetreye, bazı yıllarda 800 milimetreye " +
-      "ulaşır. Buna rağmen ülke topraklarının yaklaşık %70'i yıllık 400 milimetrenin altında " +
-      'yağış alır.',
+      'Kıyı şeridinin aşırı kuraklığı, Atlas Okyanusu boyunca kuzeye yönelen soğuk Benguela ' +
+      "Akıntısı'nın yarattığı sıcaklık terselmesinden (enversiyon) kaynaklanır. Soğuyan hava " +
+      'kütleleri yağış bırakamaz; buna karşılık yılın yaklaşık 200 günü kıyı boyunca içerilere ' +
+      'sokulan yoğun bir çöl sisi kuşağı oluşur. Yıllık yağış kıyıda neredeyse sıfırken, iç ' +
+      'kesimlere ve kuzeydoğudaki Zambezi bölgesine doğru 700 milimetreye kadar yükselir; buna ' +
+      'rağmen ülke topraklarının yüzde yetmişi ciddi su kıtlığı altındadır.',
     hydrographyNoteTr:
-      "Namibya'nın sürekli akan nehirlerinin tamamı sınır nehirleridir: kuzeybatıda Angola ile " +
-      "paylaşılan Kunene, orta kuzeyde Angola ve Botsvana'ya doğru akan Okavango, kuzeydoğuda " +
-      'Zambiya ve Zambezi havzasına bağlanan Kwando-Chobe sistemi ve güneyde Güney Afrika ile ' +
-      'paylaşılan Orange. Ülkenin iç kesimlerindeki nehirlerin tamamı mevsimlik akışlıdır; Fish ' +
-      'Nehri de dahil olmak üzere bu akarsular yağmurdan sonra kısa süre taşar, çoğunlukla ' +
-      'denize ulaşmadan kuma karışır ya da buharlaşır.',
+      "Namibya'nın iç kesimlerinde yıl boyu kesintisiz akan tek bir doğal nehir dahi bulunmaz; " +
+      'Fish Nehri dahil iç akarsuların tamamı yalnızca şiddetli sağanakların ardından kısa süreli ' +
+      'coşan ve suları kuma sızarak tükenen mevsimlik vadilerdir (omuramba). Ülkenin sürekli akan ' +
+      'nehirlerinin tamamı sınır hatlarını oluşturur: Kuzeyde Angola ile paylaşılan Kunene ve ' +
+      'Okavango, kuzeydoğuda Zambezi ve Kwando-Chobe sistemleri, güneyde ise Güney Afrika ' +
+      'sınırını çizen Orange Nehri yegane sürekli akarsulardır.',
   },
   {
     isoCode: 'ZA',
@@ -1987,35 +2127,36 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "Birleşik Krallık'tan çok aşamalı: 1910 Güney Afrika Birliği, 1931 Westminster Statüsü, 31 Mayıs 1961 Cumhuriyet ilanı.",
     introTr:
-      "Güney Afrika'nın üç ayrı başkenti vardır: idari başkent Pretoria, yasama başkenti " +
-      "Cape Town ve yargı başkenti Bloemfontein. Ülke, batıda Atlantik'e, güney ve doğuda " +
-      "Hint Okyanusu'na kıyısı olan, kıtanın en güney ucundaki topraktır. Namibya, " +
-      'Botsvana, Zimbabve, Mozambik ve Esvatini ile komşudur; toprakları içinde tamamen ' +
-      'çevrili bir enklav olan Lesotho da altıncı kara komşusudur.',
+      'Güney Afrika, iki okyanusun buluştuğu kıtanın güney ucunda yer alan, yönetimsel erklerini ' +
+      'Pretoria (idari), Cape Town (yasama) ve Bloemfontein (yargı) arasında paylaştırmış çok ' +
+      'merkezli bir ülkedir. Batıda Atlas, güney ve doğuda Hint Okyanusu ile kuşatılan coğrafya; ' +
+      'dar kıyı şeritlerinden kademelerle yükselen geniş iç platolara ve kurak havzalara sahiptir. ' +
+      'Topraklarının içine gömülü bağımsız Lesotho krallığıyla birlikte bölgenin fiziki ve ' +
+      'ekonomik çekim merkezidir.',
     landformNoteTr:
-      'Ülkenin iç kesimini, kenarları Büyük Sarp (Great Escarpment) ile çevrili yüksek bir ' +
-      'plato oluşturur. Bu sarp, doğuda Lesotho sınırı boyunca Drakensberg adını alır. ' +
-      'Güney Afrika topraklarının kendi sınırları içindeki en yüksek noktası, Lesotho ' +
-      "sınırındaki Mafadi Tepesi'dir; zirve 3.446 metreye ulaşır. Hemen yakınındaki 3.482 " +
-      'metrelik Thabana Ntlenyana ise sınırın Lesotho tarafında kalır ve tüm Güney Afrika ' +
-      'bölgesinin (kıtanın güney ucundaki bölgenin) en yüksek noktasıdır. Platonun ' +
-      "kuzeydoğu kesimi, 1.500-2.100 metre yükseklikteki Highveld'dir; ortasında ve " +
-      'güneybatısında ise kuru çalılık bitki örtüsüyle kaplı Karoo platosu uzanır, ' +
-      "kuzeybatıya doğru Kalahari Çölü'ne yaklaştıkça daha da kuraklaşır.",
+      'Ülke topoğrafyasını, kenarları Büyük Sarp (Great Escarpment) adı verilen dik dağ duvarlarıyla ' +
+      'çevrili yüksek bir iç plato biçimlendirir. Bu sarpın doğudaki en görkemli kesimini oluşturan ' +
+      "Drakensberg Sıradağları'nda yükselen 3.446 metrelik Mafadi Zirvesi, Güney Afrika'nın en " +
+      'yüksek noktasıdır.' +
+      '\n\n' +
+      'Platonun 1.500-2.100 metre rakımlı kuzeydoğu parçası verimli ve maden zengini Highveld ' +
+      'yaylasıdır; orta ve batı kesimlerde ise seyrek çalılarla kaplı geniş Karoo yarı çölü ile ' +
+      'kuzeybatıya doğru Kalahari kumulları uzanır. Güneybatı kıyısında Masa Dağı gibi dik kumtaşı ' +
+      'kütleleri okyanusla doğrudan kucaklaşır.',
     climateNoteTr:
-      "Güney Afrika'nın iklimi bölgeden bölgeye büyük farklılık gösterir. Cape Town " +
-      'çevresinde kışın yağışlı, yazın kurak geçen Akdeniz tipi bir iklim görülürken, ' +
-      "Highveld'de yağış büyük ölçüde yaz aylarındaki gök gürültülü sağanaklardan gelir. " +
-      'Karoo platosu yarı kurak bir karaktere sahiptir; yazları çok sıcak, kışları ise ' +
-      "donlu geçebilir. Doğu kıyı şeridi, Hint Okyanusu'nun ılıman etkisiyle yıl boyunca " +
-      'nispeten nemli kalır.',
+      'Ülkede okyanus akıntıları ve topoğrafya nedeniyle birden fazla iklim kuşağı iç içe geçer. ' +
+      'Güneybatıdaki Cape Yarımadası ve çevresi, kışları yağışlı ve yazları kurak Akdeniz iklimi ' +
+      'yaşarken, doğu kıyıları sıcak Agulhas Akıntısı sayesinde yıl boyu ılıman ve nemli bir ' +
+      'subtropikal karaktere sahiptir. İç kısımdaki Highveld yağışını yaz sağanaklarından alır; ' +
+      'batıdaki Karoo ve Kalahari içleri ise gündüzleri sıcak, geceleri don olaylarının görüldüğü ' +
+      'sert ve yarı kurak bir iklim sergiler.',
     hydrographyNoteTr:
-      "Ülkenin en uzun nehri olan Orange (Lesotho'daki adıyla Senqu), Lesotho Yaylaları'nda " +
-      "3.300 metre yükseklikte doğar ve batıya doğru 2.432 kilometre akarak Atlas Okyanusu'na, " +
-      "Alexander Körfezi'nde dökülür. Yol boyunca güneyde Kalahari'nin, kuzeyde ise Namib " +
-      "Çölü'nün sınırını çizer. En büyük kolu olan Vaal Nehri, Mpumalanga'da Hint Okyanusu'na " +
-      'yalnızca yaklaşık 240 kilometre uzaklıkta doğar, ama tersine batıya akarak Kimberley ' +
-      "yakınında Orange'a katılır.",
+      'Ülkenin ana su omurgası, Drakensberg dağlarından doğup batıya doğru 2.400 kilometreden fazla ' +
+      "yol alarak Atlas Okyanusu'na dökülen Orange (Senqu) Nehri ve en büyük kolu Vaal'dir. " +
+      'Kıtanın kurak güneyini boydan boya kateden bu sistem, tarımsal sulama ve kentsel tüketim için ' +
+      "vazgeçilmez bir kaynaktır. Buna karşılık Büyük Sarp'ın doğu yamacından Hint Okyanusu'na " +
+      'inen Tugela gibi akarsular ise çok daha kısa, yüksek debili ve derin kanyonlarla çağlayan ' +
+      'dik vadiler oluşturur.',
   },
   {
     isoCode: 'BI',
@@ -2040,42 +2181,35 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "1 Temmuz 1962'de Belçika'dan bağımsız oldu.",
     introTr:
-      'Burundi, Tanganyika Gölü kıyısındaki 772 metrelik Imbo ovasından başlayıp yalnızca ' +
-      'birkaç on kilometre içeride 2.600 metrenin üzerine çıkan bir iç ülkedir. Bu keskin ' +
-      'yükselti farkının tepesinde uzanan Kongo-Nil sırtı, ülkeyi boydan boya kat eden ana su ' +
-      "bölümü çizgisidir: batısındaki sular Kongo Nehri'ne, doğusundakiler ise Nil sistemine " +
-      'akar. Sırtın doğusunda arazi, aralıksız bir tepe-vadi dizisi halinde alçalır — ' +
-      'Burundi\'nin "bin tepe ülkesi" olarak anılmasının kaynağı da budur.',
+      "Burundi, Doğu Afrika Kırık Sistemi'nin tabanında yer alan Tanganyika Gölü kıyısından " +
+      'başlayıp yalnızca birkaç on kilometre içinde 2.600 metrenin üzerine tırmanan dik ve engebeli ' +
+      'bir yayla ülkesidir. Ülkenin omurgasını oluşturan Kongo-Nil su bölümü sırtı, yağmur sularını ' +
+      'iki büyük kıtasal havzaya dağıtır: Batı yamaçları Kongo sistemine, doğu yamaçları ise Nil ' +
+      "Havzası'na su taşır. Sırtın doğusunda birbirini izleyen binlerce dik tepe ve derin vadi " +
+      'dizisi, ülkeye "bin tepe diyarı" unvanını kazandırmıştır.',
     landformNoteTr:
-      "Batıda, Tanganyika Gölü kıyısı boyunca uzanan Imbo ovası, Afrika Rift Vadisi'nin " +
-      'tabanını oluşturan dar ve alçak bir çöküntüdür. Ovanın hemen doğusunda arazi, Mumirwa ' +
-      'olarak bilinen dik bir yamaç boyunca aniden yükselir; bu yamaç birkaç kilometre içinde ' +
-      '1.000 metreden fazla tırmanır. Yamacın tepesinde, ülkenin en yüksek noktası olan 2.684 ' +
-      "metrelik Heha Dağı'nın da üzerinde bulunduğu Kongo-Nil sırtı uzanır." +
+      'Batı sınırında Tanganyika Gölü boyunca uzanan 770 metre rakımlı dar Imbo grabeni, Rift ' +
+      "Vadisi'nin tabanıdır. Ovanın hemen doğusunda Mumirwa sarp yamaçları dik bir basamak " +
+      "halinde yükselerek 2.684 metrelik Heha Dağı'nı da barındıran Kongo-Nil Dağ Sırtı'na ulaşır." +
       '\n\n' +
-      'Sırtın doğusunda arazi, orta yükseklikteki dalgalı platolar halinde kademeli olarak ' +
-      'alçalır; ülke nüfusunun büyük bölümü bu bölgede yaşar. En doğuda ise arazi, Bugesera ve ' +
-      'Kumoso çöküntülerinde 1.000-1.300 metreye kadar iner — ülkenin en alçak ve en sıcak iç ' +
-      'kesimi burasıdır.',
+      'Sırtın doğusuna geçildiğinde arazi kademeli olarak alçalarak ortalama 1.500-1.800 metre ' +
+      'rakımlı dalgalı orta platolara dönüşür; nüfusun ve tarımsal faaliyetlerin büyük kısmı bu ' +
+      'tepelik yaylalarda yoğunlaşmıştır. En doğu kesimde ise Bugesera ve Kumoso çöküntüleri 1.200 ' +
+      'metreye kadar inen sıcak ve alçak vadi tabanlarını oluşturur.',
     climateNoteTr:
-      "Burundi'de iklim, alçak Imbo ovasından yüksek Kongo-Nil sırtına doğru keskin biçimde " +
-      "değişir. Tanganyika kıyısındaki Imbo'da yıllık yağış 800-950 milimetre arasında kalır, " +
-      'ortalama sıcaklık 23 derecenin üzerindedir. Mumirwa yamacında yağış 1.000-1.400 ' +
-      'milimetreye çıkar; sırtın kendisinde yıllık 1.500-2.000 milimetreye ulaşan en yüksek ' +
-      'yağış görülür, ama ortalama sıcaklık 14-15 dereceye kadar düşer. Orta platolarda yağış ' +
-      '1.200-1.500 milimetre civarındadır; en doğudaki Bugesera ve Kumoso çöküntülerinde ise ' +
-      '750-1.250 milimetreye geriler. Ülke genelinde yağmur mevsimi Ekim-Mayıs arasına yayılır, ' +
-      'Haziran-Eylül ise kurak geçer.',
+      'Ekvatora yakın konumuna karşın iklim dikey yükselti basamaklarıyla yumuşar. Göl kıyısındaki ' +
+      "Imbo Ovası'nda yıllık yağış 800-950 milimetre civarında kalıp hava sıcak ve boğucuyken, " +
+      '2.000 metreyi aşan Kongo-Nil dağ sırtında orografik bulutlar yıllık yağışı 1.500-2.000 ' +
+      'milimetreye çıkarır ve sıcaklıkları 15 dereceye kadar düşürür. Orta platolar 1.200-1.500 ' +
+      'milimetre yağışla tarım için elverişli bir serinliğe sahiptir; yağışlar ekim ile mayıs ' +
+      'arasına yayılırken haziran-eylül arası kurak bir soluklanma dönemidir.',
     hydrographyNoteTr:
-      "Tanganyika Gölü, Baykal'dan sonra dünyanın en derin ikinci tatlı su gölüdür ve Burundi, " +
-      "Tanzanya, Kongo Demokratik Cumhuriyeti ile Zambiya arasında paylaşılır; gölün Burundi'ye " +
-      'düşen kıyı payı yaklaşık 2.600 kilometrekaredir. Ülkenin en uzun nehri olan Ruvubu, ' +
-      "Kongo-Nil sırtının doğu yamaçlarında doğar ve kuzeydoğuya akarak Kagera Nehri'ne, oradan " +
-      'da Nil sistemine katılır.' +
-      '\n\n' +
-      "Ruvubu'nun kollarından Ruvyironza, Rutovu yakınlarındaki Kasumo kaynağından doğar. " +
-      "1937'de buraya dikilen taş bir anıt, kaynağı Nil'in en güneydeki başlangıç noktası " +
-      'olarak tanımlar.',
+      "Burundi, hidrolojik açıdan Nil Nehri'nin en güneydeki kaynaklarına ev sahipliği yapar. " +
+      'Ülkenin en uzun akarsuyu olan Ruvubu Nehri ve kolu Ruvyironza, Kongo-Nil sırtının doğu ' +
+      "yamaçlarından doğar; Rutovu yakınlarındaki Kasumo kaynağı Nil sisteminin Akdeniz'e en " +
+      'uzak memba noktası kabul edilir. Batı sınırında yer alan ve dünyanın en derin ikinci ' +
+      'tatlı su çanağı olan Tanganyika Gölü ise balıkçılığı ve ulaşım imkanlarıyla ülkenin batı ' +
+      'sınırını şekillendirir.',
   },
   {
     isoCode: 'KM',
@@ -2100,34 +2234,35 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal başkanlık cumhuriyeti',
     independenceNoteTr: "6 Temmuz 1975'te Fransa'dan bağımsız oldu.",
     introTr:
-      "Komorlar, Mozambik Kanalı'nın kuzey ucunda, Madagaskar ile Afrika anakarası arasında " +
-      'kuzeybatı-güneydoğu doğrultusunda dizilmiş dört volkanik adadan oluşur. Adalar, oluşum ' +
-      'yaşına göre belirgin bir sıra izler: en kuzeydoğudaki Grande Comore hâlâ etkin bir ' +
-      'yanardağa sahip en genç ada iken, en güneybatıdaki Mayotte volkanik etkinliğini çoktan ' +
-      'kaybetmiş en yaşlı adadır — bu ada bugün Fransa tarafından yönetiliyor. Anjouan ve ' +
-      'Moheli, yaş ve aşınma bakımından bu iki uç arasında yer alır.',
+      "Komorlar, Mozambik Kanalı'nın kuzey girişinde, Madagaskar ile Doğu Afrika kıyıları arasında " +
+      'yay biçiminde dizilmiş volkanik takımadalardan oluşur. Adalar jeolojik yaş bakımından ' +
+      'belirgin bir kronoloji sergiler: Kuzeybatıdaki Grande Comore hâlâ faal bir kalkan yanardağa ' +
+      'sahip en genç adayken, güneydoğuya doğru Anjouan, Moheli ve Fransa idaresindeki Mayotte ' +
+      'giderek daha yaşlı ve aşınmış morfolojileriyle sıralanır. Bu volkanik geçmiş adalara dik ' +
+      'kıyılar, siyah bazalt kayalıkları ve derin deniz çukurları kazandırmıştır.',
     landformNoteTr:
-      "Grande Comore'un kuzey üçte birini, artık etkin olmayan ve 1.000 metreye kadar yükselen " +
-      'La Grille yanardağı kaplar. Adanın güney üçte ikisini ise Karthala oluşturur; bu etkin ' +
-      "kalkan yanardağı 2.361 metreyle Komorlar'ın en yüksek noktasıdır ve 3x4 kilometrelik " +
-      "zirve kalderasıyla tanınır. 19. yüzyıldan bu yana 20'den fazla patlama kaydedilmiştir." +
+      "Takımadanın en büyük adası olan Grande Comore'un güneyini, 2.361 metre yüksekliğindeki " +
+      'devasa Karthala kalkan yanardağı kaplar; geniş zirve kalderası ve tekrarlayan lav ' +
+      'püskürmeleriyle ülkenin en devingen topoğrafyasıdır. Adanın kuzeyinde ise sönmüş La Grille ' +
+      'volkan konisi yükselir.' +
       '\n\n' +
-      'Anjouan, aşınmayla derin vadilere bölünmüş üçgen biçimli bir adadır; en yüksek noktası ' +
-      "1.595 metrelik Ntringui Dağı'dır. En küçük ve en aşınmış ada olan Moheli'de arazi daha " +
-      "alçaktır, en yüksek nokta 790 metrelik Mlédjélé Dağı'dır.",
+      'Buna karşılık Anjouan Adası derin akarsu vadileriyle yarılmış sivri sırtları ve 1.595 ' +
+      'metrelik Ntringui Zirvesi ile üçgen bir piramidi andırır. Grubun en küçük adası Moheli ise ' +
+      'alçak tepeleri ve mercan resifleriyle çok daha sakin bir aşınma evresindedir.',
     climateNoteTr:
-      "Komorlar'da iklim tropikal olup yıl iki mevsime ayrılır. Aralık-Nisan arası, kuzeybatı " +
-      'musonunun (kashkazi) getirdiği sıcak ve yağışlı bir dönem yaşanır; Mayıs-Kasım arası ise ' +
-      "güneydoğu ticaret rüzgarı kusi'nin hakim olduğu daha serin ve kurak bir dönem gelir. " +
-      "Yağış adadan adaya değişir; Moheli'deki Fomboni'de yıllık ortalama 2.100 milimetreyken, " +
-      "Anjouan'daki Ouani'de bu rakam 1.800 milimetreye iner. Ocak ayı, kıyı kesimlerinde 300 " +
-      'milimetreyi aşan yağışıyla en yağışlı ay olurken, Eylül-Kasım arası en kurak dönemdir.',
+      'Adalarda denizel etkilerin belirlediği tropikal muson iklimi hüküm sürer. Aralık-nisan ' +
+      'aylarında kuzeybatı musonunun (kashkazi) getirdiği sıcak ve nemli hava kütleleri şiddetli ' +
+      'sağanaklara yol açar; mayıs-kasım döneminde ise güneydoğu alizeleri (kusi) daha serin ve ' +
+      'kuru koşullar taşır. Yıllık yağış yamaçlarda 2.000 milimetrenin üzerine çıkarken ocak ayı ' +
+      'yağışın en yoğun olduğu dönemdir; ada mikroklimaları dağların rüzgar tutan cephelerine ' +
+      'göre büyük farklılıklar gösterir.',
     hydrographyNoteTr:
-      'Bol yağışa rağmen Komorlar kronik bir tatlı su sıkıntısı yaşar, çünkü genç volkanik ' +
-      "kayaç suyu hızla emer ve yüzey akışına izin vermez. Grande Comore'da kalıcı bir akarsu " +
-      'neredeyse hiç yoktur; adanın su ihtiyacı büyük ölçüde yağmur suyu toplama ve yeraltı ' +
-      "kaynaklarıyla karşılanır. Daha yaşlı ve daha aşınmış olan Anjouan ile Moheli'de " +
-      'mevsimlik dereler bulunur, ama bu adalarda da güvenilir bir yeraltı suyu kaynağı yoktur.',
+      'Adaların genç ve son derece gözenekli bazaltik lav örtüsü, düşen yoğun yağış sularını bir ' +
+      'sünger gibi emerek yüzey akışını engeller; bu jeolojik yapı bol yağışa rağmen takımadada ' +
+      "kronik bir tatlı su kıtlığı yaratır. Grande Comore'da sürekli akan tek bir nehir dahi " +
+      'bulunmaz; içme suyu ihtiyacı geleneksel yağmur sarnıçları ve kıyı kaynaklarıyla karşılanır. ' +
+      "Daha yaşlı ve killi topraklara sahip Anjouan ve Moheli'de kısa dereler görülse de adaların " +
+      'genelinde su tutma kapasitesi son derece sınırlıdır.',
   },
   {
     isoCode: 'DJ',
@@ -2152,37 +2287,35 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "27 Haziran 1977'de Fransa'dan bağımsız oldu.",
     introTr:
-      "Cibuti, Kızıldeniz Rifti, Aden Körfezi Rifti ve Doğu Afrika Rift Vadisi'nin kesiştiği " +
-      '"Afar Üçlü Kavşağı" üzerinde yer alır; bu konum ülkeye yoğun bir tektonik ve volkanik ' +
-      'karakter kazandırır. Kıyı boyunca dar bir şerit halinde uzanan arazi, iç kesimde 300-430 ' +
-      'metre yükseklikteki platolara yükselir. Ülkenin en alçak noktası olan Assal Gölü, Afrika ' +
-      'kıtasının da en alçak noktasıdır.',
+      'Cibuti, Kızıldeniz, Aden Körfezi ve Doğu Afrika rift sistemlerinin kesiştiği tektonik Afar ' +
+      'Üçlü Kavşağı üzerinde yer alan, yerkabuğunun en devingen ve çatlak arazilerinden biridir. ' +
+      'Kabuğun incelip okyanus tabanına dönüştüğü bu sert topoğrafyada bazalt lav ovaları, dumanı ' +
+      'tüten kanyonlar ve tuz çöküntüleri hakimdir. Ülkenin batı iç kesimindeki Assal Gölü ' +
+      'çanağı, deniz seviyesinin 155 metre altına inerek Afrika kıtasının en alçak noktasını oluşturur.',
     landformNoteTr:
-      "Assal Gölü, Cibuti kentinin yaklaşık 120 kilometre batısında, Tadjoura Körfezi'nin batı " +
-      'kolu olan Ghoubbet-el-Kharab koyuna yalnızca 10 kilometre uzaklıktadır. Göl yüzeyi deniz ' +
-      "seviyesinin 155 metre altında kalır. Bu değer onu Afrika'nın en alçak noktası yapar. " +
-      'Dünya sıralamasında ilk sırada Lut Gölü (Ölü Deniz) bulunur. Taberiye Gölü (Celile ' +
-      'Denizi) ikinci, Assal Gölü ise üçüncü sıradadır.' +
+      "Assal Gölü, Tadjoura Körfezi'nden yalnızca 10 kilometre içeride, levha kırılmalarıyla " +
+      'oluşmuş derin bir tektonik grabenin tabanında yer alır. Deniz seviyesinin 155 metre ' +
+      "altındaki rakımıyla Ölü Deniz ve Taberiye Gölü'nün ardından yeryüzünün en alçak üçüncü " +
+      'karasal çanağıdır; kavurucu buharlaşma nedeniyle göl yüzeyinde kalın beyaz bir tuz tabakası ' +
+      'birikmiştir.' +
       '\n\n' +
-      'Yüksek buharlaşma nedeniyle gölün tuzluluğu deniz suyunun on katına ulaşır. Gölü ' +
-      "çevreleyen volkanik bazalt oluşumları, Afar Üçlü Kavşağı'nın jeolojik hareketliliğini " +
-      'yansıtır.' +
-      '\n\n' +
-      "Güneyde, Etiyopya sınırındaki Abbe Gölü'nün çevresinde, derin jeotermal sulardan beslenen " +
-      've 50 metreye ulaşan kireçtaşı bacalar yükselir; bu oluşumlar, göle ulaşan Etiyopya ' +
-      "kökenli Auş Nehri'nin sularının jeotermal akışkanlarla karışmasıyla oluşur.",
+      'Güneybatıda Etiyopya sınırındaki Abbe Gölü çevresinde ise jeotermal bacalardan çıkan ' +
+      'gazların kireç çökeltmesiyle oluşmuş, 50 metreye varan traverten kuleleri yükselir. ' +
+      'Kuzeyde ise dik vadilerle yarılmış 1.500-2.000 metrelik Goda ve Mabla dağ kütleleri yer alır.',
     climateNoteTr:
-      'Cibuti, dünyanın en sıcak ülkeleri arasında sayılan sıcak ve yarı kurak bir iklime ' +
-      'sahiptir. Kıyı ve alçak kesimlerde gündüz sıcaklıkları 32-41 santigrat derece arasında ' +
-      'değişir, en sıcak ay temmuzdur. Yağış kıyıda yılda 130 milimetrenin altındadır; iç ' +
-      'kesimdeki yüksek platolarda bu rakam 200-410 milimetreye çıkar. Yağışlar düzensizdir ve ' +
-      'yıllar süren kuraklıkların ardından birkaç saat içinde sel baskınlarına yol açabilir.',
+      'Cibuti, dünyanın en sıcak ve kurak iklim kuşaklarından birine sahiptir. Kıyı şeridinde ve ' +
+      'çöküntü havzalarında yaz aylarında gölgede 40-45 dereceyi aşan sıcaklıklara yüksek nem ' +
+      'eşlik eder; kış aylarında dahi gündüz sıcaklıkları 30 derecenin altına nadiren iner. Kıyı ' +
+      'boyunca yıllık yağış 130 milimetrenin altında kalırken, yüksek platolarda 300 milimetreye ' +
+      'ulaşır. Yıllarca süren kuraklıklar, dağ yamaçlarından aniden inen yıkıcı vadi selleriyle ' +
+      'kesintiye uğrayabilir.',
     hydrographyNoteTr:
-      "Cibuti'de kalıcı akan bir nehir yoktur; iç kesimdeki mevsimsel vadiler yalnızca yağış " +
-      "sonrası kısa süreliğine su taşır. Assal Gölü'nün çıkışı yoktur. Tadjoura Körfezi'nden yer " +
-      'altından sızan deniz suyu ve sınırlı tatlı su girdisi yalnızca buharlaşmayla dengelenir, ' +
-      'gölün aşırı tuzluluğu da buradan gelir. Etiyopya sınırındaki Abbe Gölü ise düzensiz ' +
-      "akışlı Auş Nehri'nden beslenir.",
+      'Ülke sınırları dahilinde yıl boyu denize kesintisiz su taşıyan hiçbir kalıcı akarsu yoktur; ' +
+      'yağış sonrası dolan dik vadiler (wadiler) suları kısa sürede kumlara ve tuz düzlüklerine ' +
+      "akıtır. Assal Gölü'nün dışa akışı bütünüyle kapalıdır; Tadjoura Körfezi'nden yer altındaki " +
+      'lav kanalları aracılığıyla sızan deniz suyu, göl çanağındaki aşırı buharlaşmayla dengelenerek ' +
+      'suyu denizden on kat daha tuzlu hale getirir. Abbe Gölü ise Etiyopya dağlarından inen Auş ' +
+      "Nehri'nin son sularını toplayan kapalı bir son havzadır.",
   },
   {
     isoCode: 'ER',
@@ -2208,33 +2341,35 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "24 Mayıs 1993'te Etiyopya'dan bağımsızlığını ilan etti (Nisan 1993 referandumu sonrası).",
     introTr:
-      'Eritre, yaklaşık 1.000 kilometrelik Kızıldeniz kıyısı boyunca uzanan bir ülkedir. ' +
-      "Ülkenin omurgasını, başkent Asmara'nın 2.300 metre yükseklikte kurulu olduğu merkezi " +
-      'yayla oluşturur; bu yayla doğuda sarp bir yamaçla alçak ve sıcak kıyı ovasına iner. ' +
-      'Açıklarda, mercan resifleriyle çevrili Dahlak Takımadaları yer alır.',
+      'Eritre, Kızıldeniz boyunca uzanan yaklaşık 1.000 kilometrelik kurak kıyı şeridi ile iç ' +
+      'kesimlerde aniden 2.000 metrenin üzerine fırlayan serin yaylalar arasında olağanüstü bir ' +
+      "coğrafi zıtlığa kuruludur. Başkent Asmara'nın da yer aldığı merkezi plato, ülkenin nüfus " +
+      've tarım merkezidir; doğusunda derin tektonik uçurumlarla Kızıldeniz çölüne, güneydoğusunda ' +
+      'ise Danakil çöküntüsüne basamaklanır. Açıklarda mercan resifleri ve sığ lagünlerle bezeli ' +
+      'Dahlak Takımadaları uzanır.',
     landformNoteTr:
-      'Etiyopya platosunun bir uzantısı olan Eritre Yaylası, ülkenin nüfus ve tarımının ' +
-      'yoğunlaştığı serin ve verimli bir bölgedir; yaylanın güneyindeki 3.018 metrelik Amba ' +
-      "Soira, ülkenin en yüksek noktasıdır. Yayladan doğuya inen keskin yamaç, Kızıldeniz'e " +
-      'paralel dar bir kıyı ovasında sona erer.' +
+      'Etiyopya yüksek platolarının kuzey uzantısı olan Eritre Yaylası, ortalama 2.000 metre ' +
+      'rakımlı verimli bir kütledir; güneyde yükselen 3.018 metrelik Amba Soira doruğu ülkenin ' +
+      'en yüksek zirvesidir. Bu yayla doğu kenarında sarp fay duvarlarıyla yarılarak çok kısa ' +
+      'mesafede kıyıdaki Massava düzlüklerine iner.' +
       '\n\n' +
-      "Ülkenin güneydoğusunda, Etiyopya sınırına yakın kesimde arazi Danakil Çukurluğu'na doğru " +
-      'alçalır; deniz seviyesinin yaklaşık 125 metre altına inen bu volkanik ve tuz düzlüğü, ' +
-      "dünyanın en sıcak bölgelerinden biridir. Açıklarda, çoğu ıssız 200'den fazla adadan " +
-      'oluşan Dahlak Takımadaları, alçak mercan platformlarından oluşur; adaların çoğu ' +
-      'fosilleşmiş mercan kayalıklarıyla kaplıdır.',
+      'Güneydoğuda arazi, deniz seviyesinin 120 metre altına kadar inen tektonik Danakil ' +
+      "Çukurluğu'na gömülür; aktif volkanik bacalar ve tuz katmanlarıyla kaplı bu alan kıtanın " +
+      'en ıssız coğrafyalarındandır. Kıyı açıklarındaki Dahlak Takımadaları ise fosilleşmiş mercan ' +
+      'kalkerinden oluşan alçak ada platformlarıdır.',
     climateNoteTr:
-      "Eritre'de yükseklik, iklimi belirleyen temel etkendir. Asmara'da gündüz sıcaklıkları " +
-      'kışın 22-23 santigrat derece dolayında seyreder, yıllık yağış ortalama 500 milimetredir ' +
-      "ve neredeyse tamamı temmuz-ağustos aylarında düşer. Kızıldeniz kıyısındaki Massava'da " +
-      'ise sıcaklık yaz aylarında gündüz 40 dereceye, kimi günler 45 dereceye ulaşır; yıllık ' +
-      'yağış 200 milimetrenin altındadır. Güneydoğudaki Danakil Çukurluğu kesiminde sıcaklık ' +
-      'sık sık 50 dereceyi aşar.',
+      'Topoğrafik kademelenme iklimi birbirinden bütünüyle kopuk iki zıt dünyaya ayırır. 2.300 ' +
+      'metredeki Asmara ve çevre platolarda ılıman bir yayla iklimi hakimdir; sıcaklıklar yıl ' +
+      'boyu 20-25 derece bandında kalırken temmuz-ağustos aylarında bereketli yaz yağmurları ' +
+      'düşer. Buna karşılık Kızıldeniz kıyısındaki Massava ve Danakil havzalarında yaz ' +
+      'sıcaklıkları düzenli olarak 45 derecenin üzerine fırlar; bu kesim yeryüzünün yıllık ortalama ' +
+      'sıcaklığı en yüksek hiper-kurak kıyı kuşaklarındandır.',
     hydrographyNoteTr:
-      "Eritre'de kalıcı akan büyük bir nehir yoktur; Barka ve Gash gibi mevsimsel dereler, yaz " +
-      'yağmurlarının ardından kısa süreliğine dolar ve büyük ölçüde yeraltına sızarak ya da ' +
-      "komşu ülkelere doğru akarak kaybolur. Kızıldeniz kıyısı boyunca, Dahlak Takımadaları'nın " +
-      'çevresindeki sığ sular canlı mercan resifleriyle kaplıdır.',
+      'Eritre topraklarında yıl boyu kesintisiz denize ulaşan büyük bir akarsu bulunmaz. Yaylalardan ' +
+      'doğarak batıya, Sudan ovalarına doğru yönelen Barka ve Gash (Mareb) nehirleri, yalnızca yaz ' +
+      'yağmurları döneminde taşan mevsimlik akarsulardır; suları çoğunlukla alüvyon ovalarına ' +
+      "sızarak yer altı su tablasını besler. Doğu yamaçlarından Kızıldeniz'e inen kısa dereler ise " +
+      'dik kanyonlardan hızla akıp kıyı kumullarında kaybolur.',
   },
   {
     isoCode: 'ET',
@@ -2259,34 +2394,44 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal parlamenter cumhuriyet',
     independenceNoteTr: null,
     introTr:
-      "Etiyopya, 1993'te Eritre'nin bağımsızlığını kazanmasından bu yana kıyısı olmayan " +
-      "bir ülkedir. Afrika Boynuzu'nun merkezinde yer alır ve Eritre, Cibuti, Somali, " +
-      'Kenya, Güney Sudan ve Sudan ile komşudur. Ülke topraklarının büyük bölümü, ' +
-      '"Afrika\'nın Çatısı" olarak da anılan yüksek bir plato — Etiyopya Yaylaları — ' +
-      'üzerinde yer alır.',
+      "Afrika Boynuzu'nun merkezinde yükselen Etiyopya, kıtanın en geniş ve en yüksek dağlık kütlesi " +
+      "üzerinde kuruludur. 1993'te Eritre'nin bağımsızlığını ilan etmesiyle denizle doğrudan " +
+      'bağlantısını kaybeden ülke, topoğrafik yapısıyla kıtada benzersiz bir coğrafi ada niteliği ' +
+      "taşır. Topraklarını kuzeydoğudan güneybatıya yaran Büyük Rift Vadisi, 'Afrika'nın Çatısı' " +
+      'olarak anılan bu devasa bazalt yaylayı iki belirgin dağlık kütleye ayırır.',
     landformNoteTr:
-      'Etiyopya Yaylaları, kıtanın en geniş yüksek plato kütlesidir; yüzeyinin büyük ' +
-      'bölümü 1.500 metrenin üzerinde kalır ve zirveleri 4.500 metreyi aşar. Büyük Rift ' +
-      'Vadisi, bu yaylaları çapraz biçimde ikiye böler ve kuzeybatıdaki Abisinya, ' +
-      'güneydoğudaki Harar plato kütlelerini birbirinden ayırır. Kuzeydeki Simien ' +
-      "Dağları'nın en yüksek doruğu Ras Dashen, 4.550 metreyle ülkenin zirve noktasıdır. " +
-      'Ülkenin kuzeydoğusunda, Afar bölgesindeki Danakil Çukurluğu ise deniz seviyesinin ' +
-      'oldukça altına iner ve dünyanın en sıcak yerleşim yerlerinden biri kabul edilir.',
+      'Ortalama yüksekliği 2.000 metreyi aşan Etiyopya Yaylaları, tektonik yükselmeler ve yoğun ' +
+      'volkanik püskürmelerle biçimlenmiş derin kanyonlar ve aşınmış düzlüklerle karakterizedir. ' +
+      'Kuzeybatıdaki Habeşistan bloğunda yükselen Simien Dağları, uçurumlu sarp yamaçları ve 4.550 ' +
+      'metrelik zirvesi Ras Dashen ile ülkenin en yüksek noktasını barındırır. Güneydoğudaki Bale ' +
+      'Dağları ise daha yuvarlak hatlı volkanik platolar ve geniş afro-alpin tundralarla kaplıdır.' +
+      '\n\n' +
+      'İki yayla kütlesi arasında uzanan Büyük Rift Vadisi, kuzeydoğuda üç tektonik levhanın ' +
+      "birbirinden uzaklaştığı Afar Çöküntüsü'ne açılır. Bu yarığın kalbindeki Danakil Çukurluğu, " +
+      'deniz seviyesinin 125 metre altına inen tuz tavaları, aktif lav gölleri (Erta Ale) ve ' +
+      'hidrotermal bacalarıyla yeryüzünün en sıcak ve jeolojik olarak en hareketli noktalarından biridir.',
     climateNoteTr:
-      'Etiyopya, ekvatora yakın bir ülke olmasına rağmen, yüksek rakımı sayesinde ' +
-      'beklenenden çok daha serin bir iklime sahiptir. Yaylalarda ılıman, hatta soğuk bir ' +
-      "dağ iklimi görülür ve Haziran'dan Eylül ortasına kadar süren ana yağış mevsimi, " +
-      "Hint Okyanusu'ndan gelen muson rüzgarlarının yaylalara çarpmasıyla oluşur. Danakil " +
-      'Çukurluğu ve güneydoğudaki alçak ovalar ise yıl boyunca sıcak, kurak ve çoğu zaman ' +
-      'çöl koşullarındadır.',
+      "Etiyopya'da iklim koşullarını enlemden ziyade dikine basamaklanan rakım kuşakları belirler. " +
+      "Halk arasında 'Kolla' olarak bilinen 1.500 metrenin altındaki sıcak vadiler ve alçak ovalarda " +
+      "tropikal ve çöl koşulları egemenken, 1.500-2.400 metre arasındaki 'Voyna Dega' kuşağı ılıman " +
+      "ve bereketli bir yayla iklimi sunar. 2.400 metrenin üzerindeki 'Dega' ve alpin kuşaklarda ise " +
+      'sıcaklıklar belirgin şekilde düşer, geceleri don olayları görülür.' +
+      '\n\n' +
+      'Yıllık yağışın büyük bölümü, haziran ile eylül ayları arasında esen Hint Okyanusu musonlarının ' +
+      "dağ yamaçlarına çarpmasıyla oluşan 'Kiremt' mevsiminde düşer. Buna karşılık Rift tabanının alçak " +
+      'kesimleri ve doğudaki Ogaden düzlükleri dağların yağmur gölgesinde kalarak yıl boyu kurak ve ' +
+      'yarı kurak bir çehreye bürünür.',
     hydrographyNoteTr:
-      "Etiyopya Yaylaları'ndaki Tana Gölü, Mavi Nil'in kaynağıdır. Nehir, gölden çıktıktan " +
-      'kısa süre sonra yaklaşık 350 kilometrelik bir kesimde 1.450 metre alçalarak derin ' +
-      "bir kanyon — Mavi Nil Kanyonu — oyar; bu kanyondan sonra Hartum'a kadar akışına " +
-      "devam eder ve Nil'in toplam akışının yaklaşık %59'unu sağlar. Rift Vadisi'nin " +
-      'tabanında ise tamamen Etiyopya sınırları içinde kalan Awash Nehri akar; ' +
-      'kaynağından itibaren denize ulaşmadan, sırayla birbirine bağlı bir göller ' +
-      "zincirinde son bulur ve bu zincir Cibuti sınırındaki Abbe Gölü'nde sona erer.",
+      "Etiyopya Yaylaları, Doğu ve Kuzeydoğu Afrika'nın tartışmasız ana su kulesidir. 1.780 metre " +
+      "rakımdaki Tana Gölü'nden doğan Mavi Nil (Abay), derinliği yer yer 1.500 metreyi bulan devasa bir " +
+      "kanyon boyunca batıya kıvrılarak Sudan düzlüklerine iner ve Nil Nehri'nin ana akış hacminin " +
+      "yaklaşık yüzde 80'ini tek başına sağlar. Nehrin Sudan sınırına yakın kesiminde inşa edilen " +
+      'Büyük Etiyopya Rönesans Barajı (GERD), havzanın tüm hidrolojik ve siyasi dengelerini yeniden ' +
+      'belirleyen dev bir rezervuardır.' +
+      '\n\n' +
+      'Rift Vadisi tabanında ise drenaj sistemi kapalı havzalar biçiminde işler; yaylalardan doğan ' +
+      "Awash Nehri denize ulaşamadan Cibuti sınırındaki tuzlu Abbe Gölü'nde sönümlenir. Güneyde Omo " +
+      "Nehri ise derin vadilerden akarak Kenya sınırındaki Turkana Gölü'nü besler.",
   },
   {
     isoCode: 'KE',
@@ -2311,31 +2456,42 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "12 Aralık 1963'te Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      "Ekvator çizgisi Kenya'yı ortadan ikiye böler; ülke doğuda Hint Okyanusu'na açılır. " +
-      'Kuzeyde Etiyopya ve Güney Sudan, kuzeydoğuda Somali, batıda Uganda, güneyde ' +
-      'Tanzanya ile komşudur. Topraklarını, kuzeyden güneye kesen Büyük Rift Vadisi de ' +
-      "ikiye ayırır — bu vadi, Doğu Afrika Rift Sistemi'nin Kenya'daki uzantısıdır.",
+      'Ekvator çizgisi tarafından tam ortasından kesilen Kenya, Hint Okyanusu kıyılarından Orta ' +
+      "Afrika'nın yüksek platolarına basamak basamak yükselen bir coğrafyaya sahiptir. Doğu Afrika " +
+      "Yarığı'nın (Gregory Rift) ülkeyi boydan boya yarmasıyla ortaya çıkan sarp fay diklikleri, " +
+      'sönmüş yanardağlar ve tektonik göller dizisi, ülkenin hem fiziki dokusunu hem de nüfus ve ' +
+      'tarım yerleşimlerinin omurgasını çizer.',
     landformNoteTr:
-      "Rift Vadisi, Kenya'nın orta kesimindeki yüksek plato bölgesini, Kenya Yaylaları'nı, " +
-      'doğu ve batı olmak üzere iki parçaya böler. Vadinin hemen doğusunda, sönmüş bir ' +
-      "yanardağ olan Kenya Dağı yükselir; 5.199 metreyle ülkenin ve Kilimanjaro'dan sonra " +
-      "Afrika'nın en yüksek ikinci noktasıdır. Yaylalar bölgesinin dışında kalan " +
-      'topraklar, kuzey ve kuzeydoğuda alçak ve kurak ovalara, güneyde ve kıyı şeridinde ' +
-      'ise daha alçak tropikal arazilere dönüşür.',
+      'Hint Okyanusu boyunca uzanan mercan resifli kıyı şeridinin ardında, batıya doğru giderek ' +
+      'yükselen yarı kurak Nyika platosu başlar. Bu basamakların sonunda yükselen Orta Yaylalar, ' +
+      "Rift Vadisi tabanından aniden fışkıran volkanik devasa kütlelerle taçlanır. Rift'in doğu " +
+      'yamacında yükselen 5.199 metrelik Kenya Dağı (Batian), sönmüş bir stratovolkan olup ekvatorun ' +
+      'hemen altında buzul dilleri barındıran kıtanın en yüksek ikinci noktasıdır.' +
+      '\n\n' +
+      "Ülkeyi kuzey-güney ekseninde bölen Gregory Rift'in tabanı, ortalama 40 ila 60 kilometre " +
+      "genişliğinde derin bir çöküntü hendeğidir. Rift'in batısında uzanan Aberdare Sıradağları ve " +
+      'Mau Platosu zengin dağ ormanlarıyla kaplıyken, kuzeye doğru inildikçe arazi Chalbi Çölü ve ' +
+      'kurak lav platolarına dönüşür.',
     climateNoteTr:
-      "Kenya'da iklimi belirleyen temel etken rakımdır: yükseklik arttıkça sıcaklık düşer, " +
-      'yaylalar ortalama olarak ovalardan yaklaşık 11 santigrat derece daha serindir. ' +
-      'Güney, batı ve orta bölgelerde tropikal bir iklim görülürken, kuzey ve kuzeydoğuda ' +
-      'kurak ve yarı kurak koşullar hakimdir. Nairobi gibi yüksek rakımlı yerleşimler, ' +
-      'ekvator yakınında olmalarına rağmen ılıman bir iklime sahiptir.',
+      "Ekvator kuşağında bulunmasına karşın Kenya'nın iklimi yükseklik basamaklarına bağlı olarak " +
+      'büyük bir çeşitlilik gösterir. Kıyı şeridinde sıcak ve nemli tropikal iklim hüküm sürerken, ' +
+      '1.600 metrenin üzerinde kurulu başkent Nairobi ve çevresindeki yaylalarda yıl boyu ferah ve ' +
+      'ılıman bir ilkbahar havası yaşanır. Kuzey ve kuzeydoğudaki geniş düzlükler ise yılın büyük ' +
+      'kısmında kavurucu sıcak ve kurak çöl koşullarının etkisi altındadır.' +
+      '\n\n' +
+      "Yağış rejimi, Ekvatoral Alçak Basınç Kuşağı'nın yıllık salınımıyla belirlenen iki mevsimden " +
+      "oluşur: mart ile mayıs arasındaki 'uzun yağmurlar' tarımsal üretimin temelini atarken, " +
+      "ekim-aralık dönemindeki 'kısa yağmurlar' daha düzensiz aralıklarla toprağa can verir.",
     hydrographyNoteTr:
-      "Rift Vadisi'nin tabanında, kuzeyden güneye sıralanmış bir göller zinciri uzanır: " +
-      "dünyanın en büyük alkali gölü olan Turkana Gölü'nden başlayıp Baringo, Bogoria, " +
-      'Nakuru, Elmenteita, Naivasha ve Magadi göllerine kadar uzanan bu dizide, Baringo ve ' +
-      'Naivasha dışındakiler yüksek alkalinite nedeniyle tatlı su değildir. Rift ' +
-      "Vadisi'nin dışında, Tana Nehri orta yaylalardan doğar ve 1.000 kilometreden fazla " +
-      "akarak Hint Okyanusu'na ulaşır — ülkenin en uzun nehridir. Benzer bir güzergahı " +
-      'izleyen Athi-Galana-Sabaki Nehri ise ikinci sırada gelir.',
+      "Rift Vadisi'nin tabanı, kapalı havza özelliği gösteren ve her biri farklı kimyasal yapıya " +
+      'sahip tektonik göllerle sıralanmıştır. Kuzeyde çöllerle çevrili dünyanın en büyük alkali ' +
+      'gölü olan Turkana (Yeşim Denizi), güneye doğru zengin mikroalg örtüleriyle yüz binlerce ' +
+      'flamingoya ev sahipliği yapan Bogoria, Nakuru ve Elmenteita soda gölleriyle devam eder; bu ' +
+      'dizilimde Naivasha ve Baringo gölleri yeraltı sızıntıları sayesinde tatlı su karakterini korur.' +
+      '\n\n' +
+      'Açık drenaj sisteminde ise ülkenin en uzun iki akarsuyu olan Tana ve Athi-Galana nehirleri, ' +
+      "Orta Yaylalar'dan aldıkları suları Hint Okyanusu'na taşır. Batı yaylalarından çıkan nehirler " +
+      'ise Victoria Gölü havzasına dökülerek dolaylı biçimde Nil sistemine bağlanır.',
   },
   {
     isoCode: 'MG',
@@ -2360,42 +2516,41 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Yarı başkanlık cumhuriyeti',
     independenceNoteTr: "26 Haziran 1960'ta Fransa'dan bağımsız oldu.",
     introTr:
-      'Madagaskar, dünyanın dördüncü büyük adası ve eski bir Gondwana parçasıdır; önce ' +
-      "Afrika'dan yaklaşık 180 milyon yıl önce, ardından Hindistan alt kıtasından yaklaşık 90 " +
-      'milyon yıl önce koptu. Bu uzun izolasyon, adada dünyanın başka hiçbir yerinde bulunmayan ' +
-      "bir canlı çeşitliliği yarattı — bitki ve hayvan türlerinin yaklaşık %90'ı yalnızca " +
-      'burada yaşar. Fiziki olarak ada, kuzeyden güneye uzanan bir orta yayla omurgası ile bu ' +
-      'omurganın doğusundaki dar, yağmur ormanlarıyla kaplı kıyı şeridi ve batısındaki daha ' +
-      'geniş, kademeli alçalan düzlükler arasında keskin bir asimetri gösterir.',
+      'Afrika anakarasından yaklaşık 160 milyon yıl önce, Hindistan alt kıtasından ise yaklaşık 88 ' +
+      "milyon yıl önce koparak Hint Okyanusu'nda tek başına kalan Madagaskar, dünyanın dördüncü büyük " +
+      'adasıdır. On milyonlarca yıllık jeolojik tecrit, ada üzerinde evrimleşen canlı ve bitki ' +
+      "türlerinin yüzde 90'a yakınının gezegende sadece buraya özgü kalmasını sağlamıştır. Fiziki yapısı, " +
+      'kuzey-güney doğrultusunda uzanan kristalin bir dağ omurgası ile doğunun dik yağmur ormanı şevleri ' +
+      've batının geniş savan düzlükleri arasındaki çarpıcı asimetri üzerine kuruludur.',
     landformNoteTr:
-      'Orta yayla, 800-1.800 metre yükseklikte, yuvarlak tepeler, granit mostralar, sönmüş ' +
-      'volkanik koniler ve pirinç tarımına dönüştürülmüş alüvyal ovalardan oluşan karmaşık bir ' +
-      "topografyaya sahiptir. Kuzeydeki Tsaratanana Masifi'nde yer alan 2.876 metrelik " +
-      'Maromokotro, adanın en yüksek noktasıdır; ortada Ankaratra Masifi 2.666 metreye, güneyde ' +
-      'ise Ivakoany Masifi benzer yüksekliklere ulaşır.' +
+      'Adanın belkemiğini oluşturan Orta Yayla (Hauts-Plateaux), 800 ila 1.800 metre irtifada ' +
+      'dalgalanan granit masifler, eski volkanik koniler ve kırmızı laterit tepelerden meydana gelir. ' +
+      "Kuzeydeki Tsaratanana Masifi'nde yer alan 2.876 metrelik Maromokotro Zirvesi adanın en yüksek " +
+      'noktasıyken, orta kesimdeki Ankaratra volkanik kütlesi başkent platosunu çevreler.' +
       '\n\n' +
-      'Doğuya doğru arazi, dik bir şevle aniden düşerek dar bir kıyı ovasına ve onu kaplayan ' +
-      'yoğun yağmur ormanına ulaşır. Batıya doğru iniş çok daha kademelidir; burada geniş ' +
-      'yaprak döken orman ve savan görünümlü düzlükler, Mozambik Kanalı kıyısındaki geniş kıyı ' +
-      'ovalarına kadar uzanır. Ülkenin en güneyinde ise bu düzlükler kuraklaşarak baobab ' +
-      'ağaçları ve dikenli çalılıklarla kaplı kendine özgü bir bitki örtüsüne dönüşür.',
+      "Orta Yayla, doğu yönünde dik bir fay şeviyle (Falaise de l'Est) aniden kırılarak Hint Okyanusu " +
+      'kıyısındaki dar ve ormanlık kıyı şeridine düşer. Buna karşılık batıya doğru iniş çok daha tatlı ' +
+      've kademelidir; burada rüzgâr ve suyun kireçtaşlarını jilet gibi keskin kulelere dönüştürdüğü ' +
+      'karstik kanyonlar (Tsingy de Bemaraha) ve geniş kıyı ovaları yer alır. En güneyde ise arazi ' +
+      'baobap ağaçları ve dikenli çalılarla kaplı kurak bir ovaya dönüşür.',
     climateNoteTr:
-      "Madagaskar'ın iklimi, güneydoğu ticaret rüzgarlarının orta yaylaya ulaşmadan önce nemini " +
-      'doğu yamaçlarında bırakması yüzünden doğu-batı doğrultusunda keskin biçimde değişir. ' +
-      'Doğu kıyısı ve yağmur ormanı kuşağı yıl boyu yüksek nem ve bol yağış alır, siklonlara da ' +
-      'en açık bölgedir. Orta yayla daha serin ve nispeten kurak bir subtropikal iklime ' +
-      'sahiptir; burada Kasım-Nisan arası sıcak bir yağmur mevsimi, Mayıs-Ekim arası ise serin ' +
-      'bir kurak dönem yaşanır. Kuzeyde muson etkili sıcak ve nemli bir hava hakimken, güney ve ' +
-      'güneybatıda yağış 500 milimetrenin altına inerek yarı çöl görünümlü bir iklime dönüşür.',
+      "Madagaskar'ın iklim deseni, Hint Okyanusu'ndan esen nemli güneydoğu alizelerinin Orta Yayla " +
+      'şevine çarpmasıyla ikiye ayrılır. Doğu kıyıları ve dik dağ yamaçları yıl boyu kesintisiz ' +
+      'orografik yağış alır ve güney yarımküre yazında sık sık yıkıcı tropikal siklonların hedefi olur.' +
+      '\n\n' +
+      'Yaylaları aşan hava kütleleri kuruyarak fönleştiği için batı kesiminde belirgin bir kurak dönem ' +
+      'yaşanır; yağışlar kasım ile nisan arasındaki sıcak yaz aylarına sıkışır. Adanın güneybatı ucu ' +
+      'ise dağların tam yağmur gölgesinde kalması ve soğuk okyanus akıntılarının buharlaşmayı sınırlaması ' +
+      'yüzünden yarı çöl koşullarına sahip en kurak bölgedir.',
     hydrographyNoteTr:
-      "Madagaskar'ın nehirleri, adanın doğu-batı asimetrisini birebir yansıtır. Batıya akan " +
-      'nehirler — Betsiboka, Mangoky, Mahajamba, Sambirano gibi — orta yayladan daha kademeli ' +
-      'bir eğimle indiği için uzun ve yavaş akışlıdır; 564 kilometreyle ülkenin en uzun nehri ' +
-      "olan Mangoky, 58.000 kilometrekarelik bir havzayı Mozambik Kanalı'na boşaltır. Betsiboka " +
-      'ise yukarı havzadaki yoğun toprak erozyonu yüzünden taşıdığı kırmızı tortuyla tanınır ve ' +
-      "Bombetoka Körfezi'nde geniş bir delta oluşturur. Doğuya akan nehirler ise şevin dikliği " +
-      'yüzünden kısa ve hızlıdır; bu fark, ülkenin batı kıyısındaki geniş deltaların doğu ' +
-      'kıyısında neredeyse hiç görülmemesinin başlıca nedenidir.',
+      'Adanın topografik eğimi, akarsu ağında keskin bir batı-doğu zıtlığı yaratır. Batı şevlerinden ' +
+      "Mozambik Kanalı'na doğru akan Betsiboka, Mangoky ve Tsiribihina gibi nehirler, uzun yataklar " +
+      'boyunca ilerler ve yaylalardaki ormansızlaşmanın tetiklediği yoğun erozyon nedeniyle kıpkırmızı ' +
+      "bir balçık taşır; Betsiboka'nın deltası Bombetoka Körfezi'ni kızıla boyar." +
+      '\n\n' +
+      'Doğuya akan nehirler ise dik yamaçlardan hızla inen kısa, çağlayanlı ve taşkınlara yatkın ' +
+      'delişmen akarsulardır. Doğu kıyısı boyunca, dalgaların oluşturduğu kıyı kumullarının gerisinde ' +
+      'doğal lagünlerin birleştirilmesiyle inşa edilmiş yaklaşık 600 kilometrelik Pangalanes Kanalı uzanır.',
   },
   {
     isoCode: 'MW',
@@ -2420,35 +2575,35 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "6 Temmuz 1964'te Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      "Malavi, Büyük Rift Vadisi'ni kuzeyden güneye izleyen uzun ve dar bir ülkedir. Doğu " +
-      'sınırının büyük bölümünü oluşturan Malavi (Nyasa) Gölü, kuzeyde Tanzanya, güneydoğuda ' +
-      "ise Mozambik ile paylaşılır. Rift Vadisi'nin her iki yakasında, kuzeyde Nyika Platosu ve " +
-      'güneyde Mulanje Masifi gibi yüksek araziler yükselir.',
+      "Malavi, Doğu Afrika Kırık Sistemi'nin güney kolu boyunca kuzeyden güneye bir şerit gibi " +
+      'uzanan, fiziki coğrafyası derin fay hatları ve göl çanağıyla belirlenmiş bir iç ülkedir. ' +
+      'Doğu sınırının büyük kısmını kaplayan devasa Malavi (Nyasa) Gölü, ülkenin hidrolojik ve ' +
+      'ekonomik can damarıdır. Bu derin çöküntü çanağının iki yakasında yer alan Nyika Platosu ve ' +
+      'güneydeki tekil Mulanje Masifi, göl seviyesinden aniden göğe yükselen görkemli yükseltilerdir.',
     landformNoteTr:
-      "Ülkenin doğu kesimini, Rift Vadisi'nin tabanında yer alan Malavi Gölü havzası oluşturur; " +
-      'gölün güneyinden çıkan Shire Nehri vadisi, aynı rift hattını ülkenin güneyine doğru ' +
-      'sürdürür. Vadinin her iki yakasında arazi sert biçimde yükselerek platolara dönüşür.' +
+      'Ülke morfolojisi, rift grabeninin tabanında uzanan göl çanağı ve gölün sularını güneye ' +
+      'taşıyan Shire Nehri yarıntısı boyunca şekillenir. Fay dikliklerinin batısında arazi ' +
+      'kademelerle yükselir; kuzeyde 2.000 metreyi aşan ormanlık ve yayla çayırlarıyla örtülü ' +
+      'dalgalı Nyika Platosu yer alır.' +
       '\n\n' +
-      'Kuzeyde, gölün batısında yer alan Nyika Platosu, 2.000 metrenin üzerinde dağlık ' +
-      "çayırlarla kaplı geniş bir yayladır. Güneyde ise 2025'te UNESCO Dünya Mirası listesine " +
-      'giren dev bir inselberg olan Mulanje Masifi yükselir; masifin 3.002 metrelik Sapitwa ' +
-      "Zirvesi, ülkenin en yüksek noktasıdır. Mulanje'ye yakın Zomba Platosu da 2.100 metreye " +
-      'ulaşan bir başka yüksek arazidir.',
+      'Güney kesimde ise kurak ovaların ortasından aniden yükselen devasa bir granit-siyenit ' +
+      'kütlesi olan Mulanje Masifi yükselir; masifin 3.002 metrelik Sapitwa Zirvesi tüm güney-orta ' +
+      "Afrika'nın en yüksek doruğudur. Masifin hemen kuzeybatısında yer alan 2.100 metrelik dik " +
+      'yamaçlı Zomba Platosu da bu tektonik yükselimin parçasıdır.',
     climateNoteTr:
-      "Malavi'de subtropikal bir iklim görülür, ancak rakım sıcaklıkları büyük ölçüde " +
-      "yumuşatır. Yağışlı mevsim kasım-nisan arasına denk gelir ve Hint Okyanusu'ndan gelen " +
-      'nemli hava kütleleriyle beslenir. Yıllık yağış, alçak kesimlerde 800 milimetre ' +
-      'civarındayken, yüksek platolarda ve gölün kuzey kıyısında 1.600 milimetrenin üzerine ' +
-      'çıkar. Kuru mevsim olan mayıs-ağustos arasında gökyüzü açık, sıcaklıklar 15-25 santigrat ' +
-      'derece arasında ölçülü kalır; yüksek platolarda geceleri donma noktasına yakın ' +
-      'sıcaklıklar görülebilir.',
+      'Ülkede tropikal savan iklimi egemen olmakla birlikte belirgin yükselti basamakları ' +
+      'sıcaklık ve yağış koşullarını yumuşatır. Kasım ile nisan ayları arasındaki sıcak dönemde ' +
+      'Hint Okyanusu kökenli nemli hava kütleleri bol muson yağmurları bırakır. Yıllık yağış ' +
+      'miktarı alçak Shire vadisinde 800 milimetre civarındayken, Malavi Gölü kıyısında ve ' +
+      'dağ platolarının rüzgar alan yamaçlarında 1.600 milimetrenin üzerine çıkar. Mayıs-ağustos ' +
+      'arasındaki serin kuru dönemde yüksek dağ yaylalarında geceleri don olayları görülebilir.',
     hydrographyNoteTr:
-      'Malavi Gölü, dünyanın en büyük ve en derin rift gölleri arasında yer alır; kuzey-güney ' +
-      'doğrultusunda 560 kilometreden uzun bir alana yayılır ve ülkenin doğu sınırının büyük ' +
-      'bölümünü oluşturur. Gölden çıkan tek doğal çıkış olan Shire Nehri, Chigaru ile Chikwawa ' +
-      'arasındaki 80 kilometrelik bir bölümde art arda gelen çavlan ve hızlı akıntılarla ' +
-      "yaklaşık 400 metre alçalır, ardından Mozambik'te Zambezi Nehri'ne katılır. Kuzeyde, " +
-      'Songwe Nehri sınırın bir bölümünü Tanzanya ile paylaşılan biçimde çizer.',
+      "Afrika'nın en büyük üçüncü gölü olan Malavi Gölü, 560 kilometreyi aşan uzunluğu ve 700 " +
+      'metreyi bulan derinliğiyle ülkenin hidrolojik merkezidir. Gölün güney ucundan çıkan Shire ' +
+      'Nehri, gölün yegane doğal boşalım kanalıdır; Chigaru ile Chikwawa arasındaki 80 kilometrelik ' +
+      'dik kanyonda art arda gelen şelaleler ve çağlayanlarla yaklaşık 400 metre alçalarak ' +
+      "Mozambik sınırında Zambezi Nehri'ne katılır. Kuzeyde ise Songwe Nehri, Tanzanya ile " +
+      'doğal sınırı çizen önemli bir su yoludur.',
   },
   {
     isoCode: 'MU',
@@ -2473,39 +2628,38 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "12 Mart 1968'de Birleşik Krallık'tan bağımsız oldu (Cumhuriyet 1992).",
     introTr:
-      'Mauritius Cumhuriyeti, ana Mauritius adasının yanı sıra ondan çok daha eski ve aşınmış ' +
-      'bir volkanik ada olan Rodrigues ile Agalega ve Saint Brandon mercan adacıklarından ' +
-      'oluşur. Ana ada, Réunion sıcak noktasının yaklaşık 8 milyon yıl önce okyanus tabanından ' +
-      'yükselttiği bir kalkan yanardağının aşınmış kalıntısıdır. Adanın 300-600 metre ' +
-      'yükseklikteki merkezi platosunu, eski kraterin kenarını oluşturduğu düşünülen aşınmış ' +
-      'zirveler çevreler; bunların en yükseği 828 metrelik Piton de la Petite Rivière ' +
-      "Noire'dır.",
+      "Mauritius, Hint Okyanusu'nun güneybatısında, Réunion sıcak noktasının okyanus kabuğunu " +
+      'delmesiyle yaklaşık 8 milyon yıl önce şekillenmiş volkanik bir ada devletidir. Ana adanın ' +
+      'yanı sıra doğuda çok daha eski ve aşınmış Rodrigues Adası ile kuzeydeki Saint Brandon ve ' +
+      'Agalega mercan adacıklarını kapsar. Ana ada, sönmüş bir kalkan yanardağ kalıntısı olan ' +
+      '300-600 metre rakımlı merkezi platoyu kuşatan dik bazaltik zirveler ve çevresindeki sakin ' +
+      'lagünlerle özgün bir ada morfolojisi sunar.',
     landformNoteTr:
-      'Merkezi platonun çevresindeki aşınmış volkanik zirveler arasında, sivri silueti ile ' +
-      'tanınan Pieter Both ve deniz kıyısına dik inen Le Morne Brabant öne çıkar. Adanın ' +
-      'güneybatısındaki Kara Nehir (Black River) Vadileri, ormanlık kanyonları, şelaleleri ve ' +
-      'adayı bir zamanlar baştan başa kaplayan yerli abanoz ormanının kalıntılarını barındırır. ' +
-      'Ada, neredeyse kesintisiz bir bariyer resif ile çevrilidir; bu resif kıyı boyunca 1-2 ' +
-      'kilometre genişliğinde sakin bir lagün oluşturur.' +
+      'Adanın merkezi platosunu çevreleyen aşınmış volkanik dağ halkası, sivri iğne siluetiyle ' +
+      'bilinen Pieter Both, sarp bir bazalt monolit olan Le Morne Brabant ve ülkenin 828 metrelik ' +
+      'en yüksek zirvesi Piton de la Petite Rivière Noire gibi görkemli doruklarla süslüdür. ' +
+      'Güneybatıdaki Black River Gorges kanyonları, bazalt şelaleleri ve yerli abanoz ormanlarının ' +
+      'son sığınaklarını barındırır.' +
       '\n\n' +
-      'Merkezi platonun güneybatısında, 550 metre yükseklikte yer alan Grand Bassin (Ganga ' +
-      'Talao), 18 metre derinliğindeki bir krater gölüdür. Ana adadan çok daha eski olan ' +
-      'Rodrigues, benzer biçimde bazalt lav tabakalarından oluşur, ama aşınma çok daha ileri ' +
-      'düzeydedir; bu ada da kendi mercan resifiyle çevrilidir.',
+      'Ana adayı neredeyse kesintisiz kuşatan mercan bariyer resifi, açık okyanusun dalgalarını ' +
+      'kırarak kıyı boyunca turkuaz renkli sakin lagünler oluşturur. İç kesimlerde 550 metre ' +
+      'rakımdaki sönmüş bir kraterde yer alan Grand Bassin (Ganga Talao), adanın en bilinen ' +
+      'krater gölüdür; çok daha doğudaki Rodrigues Adası ise ileri derecede aşınmış bazalt ve ' +
+      'kalker platolarıyla farklılaşır.',
     climateNoteTr:
-      'Mauritius, yıl boyu esen güneydoğu ticaret rüzgarlarının etkisi altında tropikal deniz ' +
-      'iklimine sahiptir. Kasım-Nisan arası sıcak ve nemli bir dönem olup aynı zamanda siklon ' +
-      'mevsimidir; Mayıs-Ekim arası ise daha serin ve kuru geçer. Yıllık yağış, ticaret ' +
-      'rüzgarlarına kapalı kalan kuzeybatı kıyısında yaklaşık 1.200 milimetreyken, rüzgara açık ' +
-      'güneydoğu kıyısında 1.600 milimetreye çıkar; merkezi plato ise kıyıdan daha serin ' +
-      'olmasına karşın, rüzgar yamaçlarında yıllık 5.000 milimetreye ulaşan en yüksek yağışı ' +
-      'alır.',
+      'Ada, yıl boyu esen güneydoğu alizelerinin hakimiyeti altında nemli tropikal denizel iklime ' +
+      'sahiptir. Kasım-nisan arasındaki yaz dönemi sıcak, nemli ve tropikal siklonlara açık ' +
+      'geçerken, mayıs-ekim arasındaki kış dönemi alizelerin getirdiği serin ve ferahlatıcı ' +
+      'rüzgarlarla şekillenir. Yıllık yağış alizelere kapalı batı kıyısında 1.200 milimetre ' +
+      'dolayındayken, rüzgarı doğrudan karşılayan güneydoğu kıyısında 1.600 milimetreye, merkezi ' +
+      'platonun sisli yüksek yamaçlarında ise orografik etkiyle 4.000-5.000 milimetreye kadar ulaşır.',
     hydrographyNoteTr:
-      'Ülkenin nehirleri, merkezi platodan kıyıya doğru kısa ve dik bir güzergah izler; en ' +
-      'uzunu olan Grand River South East (Büyük Güneydoğu Nehri) yalnızca 40 kilometredir. ' +
-      'Hiçbiri gemi taşımacılığına elverişli değildir, ama pek çoğu şelale ve dar vadilerle ' +
-      'dikkat çeker. Ülkede doğal göl azdır; merkezi platodaki Grand Bassin krater gölü bu ' +
-      'bakımdan ada üzerindeki tek büyük durgun su kütlesidir.',
+      'Merkezi platodan doğarak radyal biçimde kıyılara inen akarsular kısa, hızlı akışlı ve ' +
+      'bol şelalelidir; 40 kilometrelik Grand River South East adanın en uzun nehridir. ' +
+      'Akarsuların hiçbiri deniz taşımacılığına elverişli olmamakla birlikte derin vadiler açarak ' +
+      'hidroelektrik üretimine ve sulamaya katkı sağlar. Kalıcı doğal göllerin az olduğu adada ' +
+      'su dengesi, krater gölleri, baraj göletleri ve mercan lagünlerinin koruduğu kıyı ' +
+      'akiferleri üzerinden yürütülür.',
   },
   {
     isoCode: 'MZ',
@@ -2530,38 +2684,40 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "25 Haziran 1975'te Portekiz'den bağımsız oldu.",
     introTr:
-      'Mozambik, Hint Okyanusu boyunca yaklaşık 2.470 kilometre uzunluğunda bir kıyı şeridine ' +
-      'sahiptir; bu kıyı, Zambezi deltasının kuzeyinde dar bir şerit halindeyken, deltanın ' +
-      'güneyinde geniş ovalara dönüşerek Güney Afrika sınırına kadar uzanır. Ülke topraklarının ' +
-      "yaklaşık %44'ünü oluşturan bu alçak kıyı ovasının ardında, kuzeye ve orta kesime doğru " +
-      "Büyük Rift Vadisi'nin güney ucunun etkisiyle şekillenmiş platolar ve yaylalar yükselir. " +
-      'Zimbabve sınırındaki Chimanimani sıradağları, ülkenin en yüksek arazisini oluşturur.',
+      "Güneydoğu Afrika'da Hint Okyanusu boyunca 2.400 kilometreyi aşan bir kıyı cephesine sahip " +
+      'olan Mozambik, kıtanın iç platolarından okyanusa inen dev nehirlerin doğal çıkış kapısıdır. ' +
+      "Zambezi Nehri'nin ikiye böldüğü ülke topoğrafyası; güneyde okyanus kıyısından içeriye " +
+      'yüzlerce kilometre uzanan geniş kumlu alüvyal ovalardan, kuzey ve batıda ise Doğu Afrika ' +
+      "Rifti'nin etkisiyle kademeli yükselen granit yaylalardan oluşur.",
     landformNoteTr:
-      'Kıyı ovası, Rovuma Nehri ağzından Zambezi deltasına kadar nispeten dar bir şerit ' +
-      'oluşturur; deltanın güneyinde ise ova belirgin biçimde genişler ve ülkenin güney ' +
-      "yarısının büyük bölümünü kaplar. Kıyı şeridinin %90'ından fazlası, bitki örtüsüyle " +
-      'tutulan kum ve balçık zeminli alçak bir arazidir.' +
+      'Ülke yüzölçümünün yaklaşık yarısını kaplayan kıyı ovaları, Zambezi deltasının güneyinde ' +
+      'olağanüstü genişleyerek Güney Afrika sınırına kadar uzanır; bu düzlükler lagünler, mangrov ' +
+      'bataklıkları ve kumul sistemleriyle kaplıdır. Deltanın kuzeyine geçildiğinde ise kıyı daralır ' +
+      've arazi iç kesimlere doğru basamaklar halinde yükselir.' +
       '\n\n' +
-      "İç kesimde, özellikle kuzey ve orta bölgelerde, Büyük Rift Vadisi'nin tektonik etkisi " +
-      'çanaklar, yükselmiş platolar ve tek başına duran kayalık tepeler (inselberg) biçiminde ' +
-      'izler bırakmıştır; bu etki Malavi Gölü çevresinde ve Zambezi vadisinde belirgindir. ' +
-      'Ülkenin en yüksek noktası, Zimbabve sınırındaki Chimanimani sıradağının bir parçası olan ' +
-      "ve 2.436 metreye ulaşan Binga Dağı'dır.",
+      'Kuzey ve kuzeybatı yaylaları, düzlüklerin ortasından birdenbire yükselen sarp granit ' +
+      'tepelerle (inselberg) karakterizedir; bu topoğrafya Malavi Gölü çöküntüsüne komşu dağlık ' +
+      'kütlelerle birleşir. Ülkenin en yüksek kesimi ise Zimbabve sınırı boyunca uzanan Chimanimani ' +
+      "Sıradağları'dır; buradaki 2.436 metrelik Binga Dağı Mozambik'in doruk noktasıdır.",
     climateNoteTr:
-      "Mozambik'in iklimi tropikaldir ve Hint Okyanusu'ndan gelen muson rüzgarlarıyla " +
-      'şekillenir; ekim-mart arası yağışlı, nisan-eylül arası kurak bir dönemdir. Yıllık yağış ' +
-      'ülke genelinde ortalama 800-1.200 milimetre arasındadır; kuzey ve orta kıyı bölgelerinde ' +
-      '(Nampula, Zambézia) bu miktar 1.500 milimetreyi aşarken, güneydeki Gaza bölgesinde 500 ' +
-      'milimetrenin altına iner. Kasım-mayıs arası tropikal siklon mevsimidir; siklonlar en sık ' +
-      'aralık-nisan arasında kıyıya ulaşarak yoğun yağış ve güçlü rüzgar getirir.',
+      "Mozambik'te egemen olan tropikal iklim, sıcak Hint Okyanusu akıntıları ve muson rüzgarlarıyla " +
+      'yönetilir. Yıl genelinde ekimden marta kadar süren sıcak ve yağışlı yaz mevsimi ile nisandan ' +
+      'eylüle kadar süren ılıman ve kurak bir kış dönemi görülür. Yıllık yağış kuzey ve orta kıyı ' +
+      'kesimlerinde 1.400 milimetreyi aşarken, güneydeki Limpopo havzasının iç vadilerinde 500 ' +
+      'milimetrenin altına kadar geriler.' +
+      '\n\n' +
+      "Ülke coğrafyasının en kırılgan yönü, güneybatı Hint Okyanusu'nda oluşan tropikal siklonların " +
+      'karaya çıkış hattında yer almasıdır. Kıyı ovalarına ve alçak vadi tabanlarına vuran siklonlar, ' +
+      'deniz kabarmaları ve nehir taşkınlarıyla birleşerek geniş çaplı sellere yol açar.',
     hydrographyNoteTr:
-      "Zambezi Nehri, Mozambik'in yenilenebilir yüzey suyunun yaklaşık %58'ini oluşturur; ülke " +
-      'sınırları içinde yaklaşık 820 kilometre akar ve kıyıya yaklaştığında birden fazla kola ' +
-      'ayrılarak geniş bir delta oluşturur. Kuzeyde Tanzanya sınırını çizen Rovuma Nehri, ' +
-      "ülkenin yüzey suyunun yaklaşık %13'ünü sağlar. Güneyde Limpopo, orta kesimde ise Save ve " +
-      "Lurio nehirleri diğer önemli su sistemleridir. Kuzeybatıda, Büyük Afrika Gölleri'nin en " +
-      "güneyindekisi olan Malavi (Niassa) Gölü'nün güney ucu Mozambik kıyısını oluşturur; gölün " +
-      'büyük bölümü kuzeyde Malavi ve Tanzanya ile paylaşılır.',
+      "Mozambik, Güney Afrika platolarının yüzey sularını Hint Okyanusu'na boşaltan 25'i aşkın ana " +
+      'nehir havzasına ev sahipliği yapar. Ülke sularının yarısından fazlasını tek başına temsil eden ' +
+      'Zambezi Nehri, üzerinde kıtanın en büyük hidroelektrik rezervuarlarından biri olan Cahora Bassa ' +
+      "Barajı'nı taşır ve denize dökülmeden önce devasa bir delta bataklığı meydana getirir." +
+      '\n\n' +
+      'Kuzeyde Tanzanya ile doğal sınırı çizen Rovuma Nehri, güneyde ise kurak ovalardan geçen ' +
+      'Limpopo Nehri diğer hayati koridorlardır. Kuzeybatı sınırında yer alan Niassa (Malavi) ' +
+      "Gölü'nün doğu kıyıları da Mozambik'in en önemli derin tatlı su rezervini oluşturur.",
   },
   {
     isoCode: 'RW',
@@ -2586,49 +2742,43 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "1 Temmuz 1962'de Belçika'dan bağımsız oldu.",
     introTr:
-      'Ruanda, ülke topraklarının neredeyse tamamı 1.000 metrenin üzerinde kalan, aralıksız ' +
-      "tepe dizileriyle kaplı bir yayla ülkesidir; bu görünüm ülkeye komşusu Burundi'yle " +
-      'paylaştığı "bin tepe ülkesi" adını kazandırır. Batı sınırı boyunca Afrika Rift ' +
-      "Vadisi'nin batı kolu geçer ve bu hat üzerinde, kuzeybatıda Kongo Demokratik Cumhuriyeti " +
-      'sınırına yakın Virunga Dağları yükselir. Sıradağın en yüksek zirvesi olan 4.507 metrelik ' +
-      'Karisimbi, aynı zamanda ülkenin en yüksek noktasıdır.',
+      "Afrika'nın kalbinde yer alan Ruanda, neredeyse bütün toprakları 1.000 metrenin üzerinde uzanan " +
+      "dalgalı tepe sıralarıyla örtülü, masalsı 'Bin Tepeler Ülkesi'dir (Pays des Mille Collines). " +
+      'Kıtanın en yüksek nüfus yoğunluğuna sahip ülkelerinden biri olmasına karşın yeşil dokusunu ' +
+      "koruyan bu yüksek yayla devleti, Büyük Rift Vadisi'nin batı kolu olan Albertine Rifti'nin dik " +
+      'kırıkları ve volkanik kütleleriyle biçimlenmiştir.',
     landformNoteTr:
-      'Ülkenin batısını doğusundan ayıran Kongo-Nil su bölümü çizgisi, kuzeyden güneye ortalama ' +
-      "2.743 metre yükseklikte uzanır; ülke sularının yaklaşık %80'i bu hattın doğusundan Nil " +
-      "havzasına, %20'si ise batısından Kongo havzasına akar. Hattın kuzey ucunda, Virunga " +
-      "Dağları'nın volkanik konileri — Karisimbi, Bisoke, Sabyinyo — art arda sıralanır; bu " +
-      "kütleler Kongo ve Uganda sınırlarına doğru uzanan geniş bir sıradağın Ruanda'ya düşen " +
-      'parçasıdır.' +
+      'Ülke coğrafyasının omurgasını, kuzeyden güneye uzanan ve ortalama yüksekliği 2.500 metreyi ' +
+      'bulan Kongo-Nil su bölümü dağ sırtı çizer. Bu sırtın kuzeybatı ucunda, Uganda ve Kongo ' +
+      'Demokratik Cumhuriyeti sınırlarını birleştiren Virunga Sıradağları yükselir. Sönmüş ve aktif ' +
+      'stratovolkanlardan oluşan bu zincirin Ruanda sınırındaki en yüksek zirvesi 4.507 metrelik Karisimbi ' +
+      "Dağı'dır; komşu Bisoke ve Sabyinyo tepeleriyle birlikte dağ gorillerinin yeryüzündeki son " +
+      'sığınaklarını barındırır.' +
       '\n\n' +
-      'Su bölümü çizgisinin doğusunda arazi, 1.500-2.000 metre yükseklikteki dalgalı orta ' +
-      'platoya kademeli olarak alçalır; ülke nüfusunun büyük bölümü bu bölgede yaşar. En ' +
-      'doğuda, Akagera Nehri çevresindeki düzlükler 1.000-1.500 metreye kadar iner ve savan ' +
-      'görünümü kazanır.',
+      'Su bölümü hattının doğusuna geçildiğinde arazi, özenle taraçalanmış tarım tepeleriyle bezeli ' +
+      '1.500-1.800 metre rakımlı orta platoya dönüşür. En doğuda, Tanzanya sınırına yaklaşıldıkça ' +
+      "yükselti 1.300 metrelere iner ve Akagera Milli Parkı'nın sığ göller, bataklıklar ve çalılık " +
+      'savanlardan oluşan tabanıyla son bulur.',
     climateNoteTr:
-      "Ruanda'da sıcaklık büyük ölçüde yükseltiyle belirlenir; her 1.000 metrelik tırmanışta " +
-      'ortalama sıcaklık yaklaşık 6,5 derece düşer. Bu nedenle 1.500 metredeki başkent ' +
-      "Kigali'de gündüz sıcaklıkları 26-28 derece civarındayken, batıdaki volkanik ve orman " +
-      "bölgelerinde bu rakam 16-21 dereceye iner; yalnızca en batıdaki Ruzizi Vadisi'nde arazi " +
-      '1.000 metrenin altına inerek 35 dereceye ulaşan sıcak bir hava kazanır. Yağış rejimi ' +
-      'dört mevsime ayrılır: Mart-Mayıs arası uzun ve şiddetli bir yağmur mevsimi, ' +
-      'Haziran-ortası Eylül arası uzun bir kurak dönem, Ekim-Kasım arası kısa bir yağmur ' +
-      'mevsimi ve Aralık-Şubat arası kısa bir kurak dönem.',
-    hydrographyNoteTr:
-      'Ülke sularının beşte dördü, Nyabarongo ve onun devamı olan Akagera nehirleri üzerinden ' +
-      'Nil sistemine akar; Akagera, ülkenin doğu sınırının bir bölümünü çizdikten sonra Uganda ' +
-      "topraklarındaki Victoria Gölü'ne dökülür. Nyabarongo'nun kollarından Rukarara, " +
-      "güneybatıdaki Nyungwe Ormanı içindeki Kamiranzovu Bataklığı'nda 2.430 metre yükseklikte " +
-      "doğar; 2005-2006'daki bir GPS ölçüm seferi burayı Nil'in denizden en uzak kaynağı olarak " +
-      'belirledi. Bu, Burundi\'deki Kasumo kaynağının "en güneydeki kaynak" tanımından ayrı, ' +
-      'farklı bir ölçüte dayanan bağımsız bir sonuçtur.' +
+      'Ekvatorun sadece iki derece güneyinde yer almasına karşın Ruanda, yüksek rakımın etkisiyle yıl ' +
+      'boyu ortalama 18-22 derece arasında seyreden daimi bir ilkbahar iklimine sahiptir. Sadece ' +
+      'batıdaki çöküntü tabanında sıcaklıklar 30 derecenin üzerine çıkabilir.' +
       '\n\n' +
-      'Su bölümü çizgisinin batısında kalan beşte birlik dilim ise Kivu Gölü ve onu güneyden ' +
-      'boşaltan Ruzizi Nehri üzerinden Kongo havzasına akar. Kivu, Ruanda ile Kongo Demokratik ' +
-      'Cumhuriyeti arasında paylaşılan ve 480 metre derinliğe ulaşan bir rift gölüdür; göl ' +
-      "tabanında büyük miktarda çözünmüş metan ve karbondioksit birikmiştir. Bu özellik Kivu'yu, " +
-      "geçmişte patlayarak yüzlerce can alan Kamerun'daki Nyos ve Monoun gölleriyle aynı, " +
-      'dünyada yalnızca birkaç örneği bilinen "limnik patlama" riski olan göller arasına sokar; ' +
-      'bugün gölün Ruanda kıyısında bu metan gazı elektrik üretimi için ticari olarak çekilir.',
+      'Yağış döngüsü yılda iki yağışlı ve iki kurak dönemden oluşan dörtlü bir ritim izler: ' +
+      "şubat-mayıs arası 'büyük yağmurlar' (Itumba) ve eylül-aralık arası 'küçük yağmurlar' (Umutobo) " +
+      'tarımsal takvimi belirler. Dik yamaçlarda yürütülen yoğun tarım, aşırı yağış dönemlerinde ' +
+      'şiddetli erozyon ve toprak kayması riskini tetikler.',
+    hydrographyNoteTr:
+      "Ruanda'nın suları iki dev Afrika havzasına bölünür: Toprakların yaklaşık yüzde 80'i Nil " +
+      "Havzası'na, batıdaki yüzde 20'si ise Kongo Havzası'na aittir. Güneybatıdaki bakir Nyungwe " +
+      "Ormanı'ndan doğan Rukarara ve Nyabarongo nehirleri, Akagera Nehri'ni oluşturarak Victoria " +
+      "Gölü'ne akar; bu akış Nil Nehri'nin Akdeniz'e en uzak membasını teşkil eder." +
+      '\n\n' +
+      "Batı sınırında yer alan Kivu Gölü ise Albertine Rifti'nin tektonik çukurluğunu dolduran 480 metre " +
+      'derinliğinde bir doğa harikasıdır. Dip katmanlarında yüksek oranda çözünmüş karbondioksit ve metan ' +
+      'gazı barındıran göl, limnik patlama riski taşımakla birlikte günümüzde çekilen metanın enerji ' +
+      "santrallerinde yakılmasıyla Ruanda'nın elektrik ihtiyacını karşılayan stratejik bir kaynağa " +
+      'dönüştürülmüştür.',
   },
   {
     isoCode: 'SC',
@@ -2653,38 +2803,40 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "29 Haziran 1976'da Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      'Seyşeller, dünyanın okyanus ortasındaki tek granit adalar topluluğuna sahip ülkesidir. ' +
-      'Ülkenin 155 adası iki tamamen farklı kökene ayrılır: kuzeydoğuda kümelenen 41 granit ' +
-      "ada, yaklaşık 750 milyon yıl önce oluşmuş ve Hindistan'ın Gondwana'dan ayrılması " +
-      'sırasında (yaklaşık 66 milyon yıl önce) okyanus ortasında yalıtılmış kalmış bir kıta ' +
-      'parçasıdır; geri kalan adalar ise güneybatıdaki alçak mercan atolleridir. Ülkenin en ' +
-      'büyük ve en kalabalık adası olan Mahé, granit adalar grubunun merkezinde yer alır.',
+      "Batı Hint Okyanusu'na dağılmış 115 adadan oluşan Seyşeller, yeryüzünün okyanus ortasındaki yegane " +
+      'granit ada takımına ev sahipliği yapan sıra dışı bir ada ülkesidir. Gondwana süperkıtasının ' +
+      'parçalanması sırasında Hindistan ve Madagaskar arasında sıkışıp okyanus tabanında kalan kadim ' +
+      'kıtasal granit kütleler (İç Adalar) ile geniş mercan atolleri (Dış Adalar), ülkenin iki temel ' +
+      'jeolojik kutbunu oluşturur.',
     landformNoteTr:
-      "Mahé'de, granit kütlelerin denize dik indiği sarp bir topografya hakimdir; adanın ve " +
-      'ülkenin en yüksek noktası olan 905 metrelik Morne Seychellois, dar kıyı düzlüğünün hemen ' +
-      "üzerinde yükselir. İkinci büyük granit ada olan Praslin'de, Vallée de Mai adlı eski " +
-      'palmiye ormanı, yalnızca burada yetişen ve bitkiler aleminin en büyük tohumuna sahip ' +
-      'coco de mer palmiyesini barındırır.' +
+      'Nüfusun ve ekonomik yaşamın merkez üssü olan Mahé, Praslin ve La Digue gibi granit adalar, ' +
+      'turkuaz suların içinden aniden fırlayan devasa aşınmış granit kayalıklar, yemyeşil tropikal ' +
+      'tepeler ve dar kıyı düzlükleriyle karakterizedir. Mahé adasındaki 905 metrelik Morne Seychellois ' +
+      'ülkenin en yüksek zirvesidir; Praslin adasındaki Vallée de Mai ise endemik ' +
+      'denizhindistancevizi (coco de mer) palmiyelerine ev sahipliği yapar.' +
       '\n\n' +
-      'Güneybatıdaki mercan adaları granit adalardan tamamen farklı bir yapıya sahiptir. ' +
-      "Bunların en büyüğü olan Aldabra, dünyanın Kiritimati'den sonraki en büyük ikinci " +
-      'atolüdür; deniz seviyesinden yalnızca 8 metre yükselen bu yükselmiş mercan resifi, ' +
-      'dünyanın en büyük yükselmiş atolü kabul edilir.',
+      'Bu iç kümenin yüzlerce kilometre güneybatısına yayılan Dış Adalar ise kireçtaşından oluşmuş ' +
+      'alçak mercan resifleri ve atollerdir. Bunların en büyüğü olan Aldabra Atolü, deniz seviyesinden ' +
+      'yalnızca birkaç metre yükselen sığ bir lagün halkası olup dünyanın en büyük yükselmiş mercan ' +
+      'atollerinden biridir ve dev kara kaplumbağalarının bozulmamış yaşam alanıdır.',
     climateNoteTr:
-      "Seyşeller'de iklim ekvatoral karakterde olup mevsimsel farklılık azdır; ülke, Hint " +
-      "Okyanusu'nun ana siklon kuşağının dışında kalır — kayıtlara geçmiş tek büyük fırtına " +
-      "1862'de Mahé'yi vurmuştur. Yağış miktarı adadan adaya büyük fark gösterir: Mahé'de deniz " +
-      'seviyesinde yıllık ortalama 2.880 milimetreyken, dağlık yamaçlarda bu rakam 3.550 ' +
-      'milimetreye çıkar. Güneybatıdaki mercan adalarında ise iklim çok daha kuraktır; Aldabra ' +
-      'gibi adalarda yıllık yağış 500 milimetreye kadar geriler.',
+      "Ekvatorun hemen güneyinde yer alan Seyşeller'de yıl boyu sıcak ve nemli tropikal okyanus iklimi " +
+      'hüküm sürer; ortalama sıcaklıklar 24 ile 30 derece arasında neredeyse hiç değişmez. İklimin ' +
+      'ritmini muson rüzgarları belirler: mayıs-ekim arasında esen güneydoğu musonu daha serin ve rüzgarlı ' +
+      'bir hava getirirken, aralık-mart arasındaki kuzeybatı musonu bol yağış ve durgun denizler sunar.' +
+      '\n\n' +
+      "Seyşeller, Hint Okyanusu'nun tropikal siklon kuşağının kuzey sınırında yer aldığı için ölümcül " +
+      'fırtınalardan büyük ölçüde uzaktır. Granit adaların dağlık sırtları yılda 3.000 milimetreyi ' +
+      'aşan orografik yağış alırken, alçak mercan atollerinde yağış miktarı yarı yarıya düşer.',
     hydrographyNoteTr:
-      'Ülkede önemli bir akarsu yoktur. Granit adalarda, dağ yamaçlarından inen kısa ve dik ' +
-      'dereler dışında kalıcı bir su ağı bulunmaz. Mercan adalarında ise durum daha da ' +
-      "keskindir: Aldabra'da hiç tatlı su kaynağı yoktur; adadaki tek su, kireçtaşı " +
-      'çukurlarında gelgitle birlikte yükselip alçalan, deniz suyunun üzerinde tatlı-tuzlu bir ' +
-      "mercek halinde duran sınırlı miktardaki sudur. Bu su yokluğu, Aldabra'nın tarih boyunca " +
-      'gemiler tarafından uğranmamasının ve bugün hâlâ el değmemiş kalmasının başlıca ' +
-      'nedenlerinden biridir.',
+      "Adaların jeolojik yapısı ve dar alanları nedeniyle Seyşeller'de kalıcı büyük bir akarsu veya " +
+      "nehir bulunmaz. Mahé ve Praslin'in granit yamaçlarından denize inen dik ve kısa dereler yalnızca " +
+      'şiddetli yağmurlar sırasında gürül gürül akar, ancak suyun büyük kısmı hızla okyanusa karışır.' +
+      '\n\n' +
+      'Yüzey sularının tutulamaması nedeniyle ülke içme suyunu ormanlık vadilerdeki baraj göletleri, ' +
+      'yağmur suyu hasadı ve kurak dönemlerde devreye giren deniz suyu arıtma (desalinizasyon) tesisleriyle ' +
+      'sağlar. Mercan atollerinde ise yüzey suyu tamamen yok denecek düzeydedir; tek kaynak gözenekli ' +
+      'kireçtaşı tabakasının üzerinde biriken ince tatlı su merceğidir.',
   },
   {
     isoCode: 'SO',
@@ -2710,33 +2862,43 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "1 Temmuz 1960'ta İngiliz ve İtalyan yönetimlerinden ayrı ayrı bağımsız olan bölgeler birleşerek Somali Cumhuriyeti'ni kurdu.",
     introTr:
-      "Afrika Boynuzu'nun doğu ucunda yer alan Somali, kıta anakarasının en uzun kıyı şeridine " +
-      "(yaklaşık 3.300 km) sahiptir; kuzeyde Aden Körfezi'ne, doğu ve güneyde Hint Okyanusu'na " +
-      'kıyısı vardır. Kuzeyde dar bir kıyı ovasının ardından yükselen bir dağlık kuşak, ülkenin ' +
-      'geri kalanını oluşturan geniş güney-orta platosundan belirgin biçimde farklıdır.',
+      "Afrika Boynuzu'nun uç noktasında, Aden Körfezi ile Hint Okyanusu'nun kesiştiği stratejik bir " +
+      'köşe başında yer alan Somali, 3.300 kilometreyi aşan uzunluğuyla Afrika anakarasının en uzun ' +
+      'kıyı şeridine sahiptir. Yüzyıllardır deniz ticaret rotalarını denetleyen bu kıyıların gerisinde, ' +
+      'kavurucu sıcaklıkların ve kuraklığın biçimlendirdiği geniş platolar, göçebe hayvancılık kültürünün ' +
+      'ana mekânıdır.',
     landformNoteTr:
-      "Kuzey kıyısı boyunca uzanan Guban, Aden Körfezi'ne paralel dar ve alçak bir kumul " +
-      "ovadır; genişliği batıda 56 kilometreden doğuda 6 kilometreye kadar daralır. Guban'ın " +
-      'hemen güneyinde, sarp bir yamaçla yükselen Ogo (Galgodon) Yaylası başlar; bu yaylanın ' +
-      'Cal Madow kesiminde, Erigavo yakınlarında yükselen Şimbiris Zirvesi, yaklaşık 2.416 ' +
-      'metreyle ülkenin en yüksek noktasıdır.' +
+      "Kuzey kıyısı boyunca, Aden Körfezi'ne paralel uzanan dar ve yakıcı Guban kıyı ovası yer alır. " +
+      'Bu sahil şeridinin hemen ardından bir duvar gibi yükselen Karkaar (Ogo) Sıradağları, kireçtaşı ' +
+      'uçurumları ve derin kanyonlarıyla yayla düzlüklerini sahilden ayırır; bu dağlık kuşağın Cal ' +
+      'Madow kesimindeki 2.416 metrelik Şimbiris Zirvesi ülkenin en yüksek noktasıdır.' +
       '\n\n' +
-      "Güney ve orta Somali'nin büyük bölümü, kıyıya doğru kademeli olarak alçalan geniş ve düz " +
-      'bir plato niteliğindedir; kıyı şeridi kumullarla kaplıdır ve güçlü dalgalar nedeniyle ' +
-      'denizden yaklaşımı zordur.',
+      "Dağların güneyine geçildiğinde arazi, Hint Okyanusu'na doğru tatlı bir eğimle alçalan geniş ve " +
+      'kurak Haud ve Mudug platolarına açılır. Kıyı şeridi güçlü okyanus rüzgarlarının yığdığı yüzlerce ' +
+      'kilometrelik kumul tepeleriyle kaplıdır; güneyde ise iki ana nehrin suladığı düz alüvyal tarım ' +
+      'ovaları başlar.',
     climateNoteTr:
-      "Somali'de kurak ve yarı kurak bir iklim hakimdir; yağış rejimi, Ekvatoral Yakınsama " +
-      "Kuşağı'nın kuzey-güney hareketine bağlı dört mevsimle belirlenir: mart-haziran arası ana " +
-      'yağmur mevsimi Gu, temmuz-eylül arası serin ve kurak Xagaa, ekim-kasım arası ikincil ' +
-      'yağmur mevsimi Deyr ve aralık-mart arası ana kurak dönem Jilaal. Yıllık yağışın 400-600 ' +
-      'milimetreye ulaştığı tek bölgeler, kuzeybatının bir kesimi ile Shabelle ve Jubba nehir ' +
-      'vadileridir; kuraklık ülke genelinde sık görülen bir risktir.',
+      'Ekvator kuşağına yakınlığına karşın Somali, kıyı boyunca esen kuru rüzgarlar ve denizel ' +
+      'yükselme (upwelling) nedeniyle nem taşımayan soğuk su akıntılarının etkisiyle son derece kurak ' +
+      'bir çöl ve yarı çöl iklimine sahiptir. Sıcaklıklar yıl boyu yüksek seyreder; kuzey kıyılarında ' +
+      'yaz aylarında 40 derecenin üzerine çıkması olağandır.' +
+      '\n\n' +
+      'Yağış düzeni göçebe hayatın tüm takvimini yöneten dört mevsime bölünmüştür: nisan-haziran ' +
+      "arasındaki ana yağmur mevsimi 'Gu', temmuz-eylül arasındaki rüzgarlı ve kuru 'Xagaa', " +
+      "ekim-kasım arasındaki ikincil yağmurlar 'Deyr' ve aralık-mart arasındaki kavurucu kurak kış " +
+      "dönemi 'Jilaal'. Yağışların dönemsel olarak kesilmesi ülkede tekrarlayan şiddetli kuraklıklara " +
+      'yol açar.',
     hydrographyNoteTr:
-      'Ülkenin kalıcı akan tek iki nehri olan Shabelle ve Jubba, Etiyopya yaylalarından doğar. ' +
-      "Jubba, Kismayo'nun kuzeyinden doğrudan Hint Okyanusu'na dökülür. Shabelle ise kıyıya " +
-      "paralel bir güzergah izler, ama çoğu yılda Jubba'nın ağzına ulaşamadan Kismayo'nun " +
-      'kuzeydoğusundaki bataklık ve kum düzlüklerinde kaybolur; yalnızca yağışlı yıllarda ' +
-      "Jubba'ya bağlanarak okyanusa ulaşır.",
+      "Somali'nin geniş toprakları üzerindeki kalıcı tek iki akarsu, sularını Etiyopya " +
+      "Yaylaları'ndan alan Jubba ve Shabelle nehirleridir. Ülkenin güneyini boydan boya geçen Jubba, " +
+      "Kismayo yakınlarında doğrudan Hint Okyanusu'na dökülür ve taşkın yatağıyla güneyin tarımsal " +
+      'omurgasını oluşturur.' +
+      '\n\n' +
+      "Shabelle Nehri ise başkent Mogadişu'nun kuzeyine kadar geldikten sonra kıyı kumullarının " +
+      'engeliyle karşılaşarak okyanusa paralel olarak güneye yönelir; kurak mevsimlerde sularını ' +
+      "kumullara ve bataklıklara kaptırarak Jubba'ya birleşemeden kurur. Ülkenin geri kalanında ise " +
+      "yalnızca şiddetli fırtınalarda taşan ve ardından hızla kuruyan 'tog' veya vadi adı verilen " +
+      'mevsimlik kuru dere yatakları uzanır.',
   },
   {
     isoCode: 'SS',
@@ -2762,31 +2924,43 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "9 Temmuz 2011'de Sudan'dan bağımsızlığını ilan etti (Ocak 2011 referandumu sonrası).",
     introTr:
-      "Uganda'dan gelen Beyaz Nil'in üst kolu, Güney Sudan topraklarına Dağ Nili (Bahr el " +
-      'Jebel) adıyla girer ve ülkenin ortasında dünyanın en büyük sulak alanlarından biri olan ' +
-      "Sudd'a yayılır. Güneydoğuda, Uganda sınırındaki İmatong Dağları ülkenin tek dağlık " +
-      'kesimidir; geri kalan toprakların büyük bölümü düz ova ve alçak platolardan oluşur.',
+      "2011 yılında bağımsızlığını kazanan Güney Sudan, Afrika anakarasında Nil Havzası'nın devasa " +
+      'çöküntü çanağı üzerine oturan kara ile çevrili genç bir devlettir. Kongo yağmur ormanları ' +
+      "kuşağı ile Sudan'ın kurak savanları arasında bir köprü oluşturan ülke, düzensiz yağış " +
+      'döngüleri ile dünyanın en büyük tatlı su bataklıklarından birinin yarattığı sulak düzlüklerin ' +
+      'tezadıyla tanımlanır.',
     landformNoteTr:
-      'Ülkenin ortasında yer alan Sudd, 30.000 kilometrekareyi aşan bir alana yayılan, papirüs ' +
-      "ve sazlıklarla kaplı mevsimsel bir bataklıktır; Beyaz Nil'in taşıdığı suyun yaklaşık " +
-      'yarısı burada bitki örtüsü tarafından emilerek ya da buharlaşarak kaybolur.' +
+      'Ülke coğrafyasının büyük bölümü, deniz seviyesinden ortalama 400 ila 500 metre yükseklikte ' +
+      'uzanan hafif eğimli, killi ve geniş bir havza düzlüğüdür. Bu çanağın tam merkezinde, yağışlı ' +
+      'dönemde yüzölçümü 30.000 ila 40.000 kilometrekareye kadar genişleyen devasa Sudd sulak alanı ' +
+      'yer alır; papirüs ormanları ve sazlık labirentleriyle kaplı bu bataklık havzası, ülkenin fiziki ' +
+      'bölünmüşlüğünün de temel nedenidir.' +
       '\n\n' +
-      "Güneydoğuda, Uganda sınırı boyunca uzanan İmatong Dağları'nın en yüksek noktası, 3.187 " +
-      "metrelik Kinyeti Dağı'dır — ülkenin de en yüksek noktasıdır; yamaçları nemli dağ " +
-      'ormanlarıyla kaplıdır. Ülkenin geri kalanı, kuzeyde alçalarak Sudan sınırına doğru ' +
-      'düzleşen geniş savan ovalarından oluşur.',
+      'Bu uçsuz bucaksız düzlüklerin yegane istisnası, Uganda sınırı boyunca dik bir duvar gibi ' +
+      "yükselen güneydoğudaki İmatong Dağları'dır. Sık dağ ormanlarıyla kaplı bu masifin doruğu olan " +
+      '3.187 metrelik Kinyeti Dağı, ülkenin en yüksek noktasıdır. Batı ve güney sınırlarında ise Orta ' +
+      "Afrika Cumhuriyeti ve Kongo Demokratik Cumhuriyeti'ne doğru yükselen granit platolar uzanır.",
     climateNoteTr:
-      "Güney Sudan'da tropikal bir iklim, Ekvatorun kuzey-güney salınımına bağlı yağışlı ve " +
-      'kurak dönemler halinde yaşanır. Güneydeki Ekvatorya bölgelerinde yıllık yağış 1.000 ' +
-      'milimetreyi aşabilir ve yağmur mevsimi sekiz aya kadar uzar. Kuzeyde, Sudan sınırına ' +
-      'yakın bölgelerde yağış 500 milimetrenin altına iner, yağmur mevsimi altı aya kısalır. ' +
-      'Aralık-mart arasında ülke geneli kuzeydoğu rüzgarlarının etkisi altında kalır ve yağış ' +
-      'neredeyse durur.',
+      "Güney Sudan'da nemli tropikal savan iklimi egemendir. Yıl genelinde Ekvatoral Düşük Basınç " +
+      "Kuşağı'nın kuzeye hareketiyle nisan ayından ekime kadar süren uzun ve şiddetli bir yağmur mevsimi " +
+      'yaşanır. Güneydeki Ekvatorya bölgesinde yıllık yağış 1.200 milimetreyi aşarken, kuzey sınırlarına ' +
+      'doğru kuraklaşan arazide 600 milimetreye kadar geriler.' +
+      '\n\n' +
+      'Kasım ile mart ayları arasında esen kuru kuzey rüzgarları (Harmattan), sıcaklıkları 35-40 derecenin ' +
+      'üzerine fırlatan sert bir kurak döneme yol açar. Bu kurak-yağışlı döngü, killi topraklarda yağmurda ' +
+      'geçit vermez bataklıklar, kuraklıkta ise çatlamış çorak araziler oluşturarak pastoralist toplulukların ' +
+      'mevsimlik göçlerini (transhümans) zorunlu kılar.',
     hydrographyNoteTr:
-      "Bahr el Jebel, Uganda'daki Albert Nili'nin devamı olarak ülkeye girer ve kısa süre sonra " +
-      'Sudd bataklığına dağılır; buradan çıkan su, batıdan gelen Bahr el Gazal ve doğudan, ' +
-      'Etiyopya yaylalarından inen Sobat nehirleriyle birleşerek Beyaz Nil adını alır ve ' +
-      'kuzeye, Sudan sınırına doğru akar.',
+      "Ülkenin can damarı, Uganda'dan Albert Nili'nin devamı olarak sınıra giren ve burada Dağ Nili " +
+      "(Bahr el Jebel) adını alan Beyaz Nil'dir. Nehir, Juba'yı geçtikten sonra Sudd bataklığının içine " +
+      'dağılır; devasa su yüzeyi ve yoğun bitki örtüsü nedeniyle taşınan suyun yaklaşık yarısı burada ' +
+      'buharlaşma ve terlemeyle atmosfere karışarak kaybedilir.' +
+      '\n\n' +
+      'Bataklığın kuzey çıkışında Bahr el Gazal ve Etiyopya yaylalarından inen Sobat Nehri ile ' +
+      'birleşen akarsu, tam anlamıyla Beyaz Nil kimliği kazanarak Sudan sınırına doğru kuzeye yönelir. ' +
+      "Sudd'daki buharlaşma kaybını azaltarak Mısır ve Sudan'a daha fazla su iletmek amacıyla 1970'lerde " +
+      'başlatılan Jonglei Kanalı projesi, bölgenin hassas ekolojisini ve yerel göçebe yaşamı tehdit ' +
+      'ettiği gerekçesiyle tamamlanamadan terk edilmiştir.',
   },
   {
     isoCode: 'TZ',
@@ -2812,35 +2986,41 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "Tanganyika 9 Aralık 1961'de, Zanzibar 10 Aralık 1963'te bağımsız oldu; 26 Nisan 1964'te birleşerek Tanzanya'yı oluşturdular.",
     introTr:
-      "Tanzanya'nın kuzeyinde, Afrika kıtasının en yüksek noktası olan Kilimanjaro yükselir. " +
-      "Ülke topraklarını kuzeyden güneye kesen Büyük Rift Vadisi'nin doğu kolu (Gregory Rift), " +
-      'yüksek volkanik arazi ile düz Serengeti platosunu birbirinden ayırır. Doğuda dar bir ' +
-      "kıyı ovası Hint Okyanusu'na uzanır; açığında Zanzibar takımadası yer alır.",
+      "Doğu Afrika'nın coğrafi ve ekolojik kalbi sayılan Tanzanya; kıtanın en yüksek zirvesi ile en " +
+      'derin gölünü aynı sınırlar içinde buluşturan eşsiz bir topoğrafyaya sahiptir. Büyük Rift ' +
+      "Vadisi'nin ikiye ayrılan kolları arasına sıkışmış geniş savan platoları, kuzeydeki volkanik " +
+      'masifler ve Hint Okyanusu kıyısındaki Swahili adaları, ülkeyi Afrika yaban hayatının ve insanlık ' +
+      'tarihinin en köklü yerleşim merkezlerinden birine dönüştürür.',
     landformNoteTr:
-      "Kibo ve Mawenzi adlı iki ana zirveden oluşan Kilimanjaro, 5.895 metreyle hem Tanzanya'nın " +
-      'hem de Afrika kıtasının en yüksek noktasıdır. Kibo, tepesinde hâlâ belirgin bir krater ' +
-      'bulunan sönmüş bir volkandır; Mawenzi ise çok daha eski ve aşınmış bir zirvedir. ' +
-      "Kilimanjaro'nun batısında, Gregory Rift'in tabanında Natron, Manyara ve Eyasi gibi sığ " +
-      "soda gölleri sıralanır; Rift'in batısında kalan geniş orta kesim, çimenlik ve savanlarla " +
-      'kaplı Serengeti platosudur.' +
+      'Kuzey sınırında göğe yükselen 5.895 metrelik Kilimanjaro Dağı, Kibo doruğundaki sönmüş krateri ' +
+      've ekvatoral buzullarıyla sadece ülkenin değil bütün Afrika kıtasının çatısıdır. Bu dev kütlenin ' +
+      'batısında sönmüş Meru stratovolkanı ve dünyanın en büyük bozulmamış kalderalarından biri olan ' +
+      '600 metre derinliğindeki Ngorongoro Çöküntüsü yer alır; bu havza, yaban hayatı göçlerinin beşiği ' +
+      "Serengeti Platosu'na açılır." +
       '\n\n' +
-      'Doğuda, Hint Okyanusu kıyısı boyunca alçak ve dar bir ova uzanır; kıyı şeridi yer yer ' +
-      'mangrov bataklıklarıyla kaplıdır. Kıyının açığındaki Zanzibar (Unguja) ve Pemba adaları ' +
-      'mercan kökenli, alçak rakımlı bir takımadadır ve anakaradan farklı bir coğrafi karaktere ' +
-      'sahiptir.',
+      'Ülke arazisi, doğu kolu (Gregory Rift) ve batı kolu (Albertine Rift) tarafından derin ' +
+      'grabenlerle kuşatılmıştır. Bu iki yarık hattı arasında denizden 1.000 ila 1.500 metre yükseklikte ' +
+      'dalgalanan yarı kurak geniş Orta Plato uzanır. Doğuda ise dar bir kıyı ovasının ardından Hint ' +
+      "Okyanusu'nda Unguja (Zanzibar), Pemba ve Mafia mercan adaları yükselir.",
     climateNoteTr:
-      "Tanzanya'da tropikal iklim hakimdir, ancak rakım ve konuma göre büyük farklılıklar " +
-      'görülür. Orta kesimdeki yüksek plato yarı kurak bozkır karakterinde bir iklime sahiptir; ' +
-      'kuzey ve güney bölgelerinde ise tropikal savan iklimi görülür. Kıyı şeridi ve Zanzibar, ' +
-      "Hint Okyanusu'nun etkisiyle daha nemli ve sıcaktır. Kilimanjaro'nun zirve bölgesinde, " +
-      'ekvatora yakınlığına rağmen buzullar bulunur.',
+      "Geniş yüzölçümü ve dik topoğrafyası nedeniyle Tanzanya'da iklim kuşakları belirgin farklılıklar " +
+      'gösterir. Kıyı şeridi ve Zanzibar adaları okyanusun etkisiyle yıl boyu sıcak, nemli ve ' +
+      'tropikalken; iç kesimdeki plato bozkır karakterinde, sıcak ve kuraktır. Dağlık yaylalar ferah bir ' +
+      "serinlik sunarken Kilimanjaro'nun doruklarında kutup altı buzul koşulları egemendir." +
+      '\n\n' +
+      "Kuzey ve doğu bölgelerinde ekim-aralık arasındaki 'kısa yağmurlar' (Vuli) ile mart-mayıs " +
+      "arasındaki 'uzun yağmurlar' (Masika) olmak üzere iki ayrı yağış dönemi görülür; buna karşılık " +
+      'güney ve batı bölgeleri kasımdan nisana kadar tek bir uzun yağmur mevsimi yaşar.',
     hydrographyNoteTr:
-      "Tanzanya, Afrika'nın büyük göllerinden üçüne kıyısı olan bir ülkedir: kuzeyde Viktorya " +
-      "Gölü'nün yaklaşık yarısı, batıda dünyanın Baykal'dan sonra en derin ikinci gölü olan " +
-      "Tanganyika Gölü'nün en büyük payı (yaklaşık %46) ve güneybatıda Malavi (Nyasa) Gölü'nün " +
-      'kuzey ucu ülke sınırları içinde kalır. Doğuya akan nehirlerin en büyüğü olan Rufiji, ' +
-      "orta ve güney yaylalardan beslenerek Hint Okyanusu'na dökülür. İç kesimdeki Malagarasi " +
-      "Nehri ise orta platodan doğup batıya akarak Tanganyika Gölü'ne ulaşır.",
+      "Tanzanya, Afrika'nın Büyük Göller kuşağındaki üç dev tatlı su kütlesine birden kıyısı olan " +
+      "yegane devlettir. Kuzeyde kıtanın en geniş gölü Victoria'nın yaklaşık yarısı, batıda 1.470 metre " +
+      "derinliğiyle dünyanın en derin ikinci gölü olan Tanganyika'nın neredeyse yarısı ve güneybatıda " +
+      "Nyasa (Malavi) Gölü'nün kuzey suları Tanzanya sınırları içindedir." +
+      '\n\n' +
+      'Doğu Afrika Yarığı tabanında ise dışa akışı olmayan sığ, sodalı ve alkali göller sıralanır; ' +
+      'bu göllerden Natron, aşırı tuzlu suyuna uyum sağlamış milyonlarca küçük flamingonun ana üreme ' +
+      'alanıdır. Ülkenin ana akarsu omurgasını oluşturan Rufiji Nehri, geniş bir havzadan topladığı ' +
+      "suları Hint Okyanusu'ndaki mangrov deltasına boşaltır.",
   },
   {
     isoCode: 'UG',
@@ -2865,32 +3045,41 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "9 Ekim 1962'de Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      'Uganda topraklarının büyük bölümü, güneyde yaklaşık 1.500 metreden kuzeyde 900 metreye ' +
-      'kadar yavaşça alçalan bir plato üzerinde yer alır. Ülkenin batı sınırını, Büyük Rift ' +
-      "Vadisi'nin batı kolu (Albertine Rift) çizer; bu hat boyunca Albert ve Edward gölleri " +
-      'uzanır. Güneydoğuda, sınırının yaklaşık yarısını Viktorya Gölü kıyısı oluşturur.',
+      'Winston Churchill tarafından doğasının göz kamaştırıcı yeşilliği ve canlılığı nedeniyle ' +
+      "'Afrika'nın İncisi' olarak adlandırılan Uganda, Ekvator çizgisi üzerinde yer almasına karşın " +
+      "yüksek rakımıyla benzersiz bir mikroklimaya sahiptir. Victoria Gölü'nün kuzey kıyılarından " +
+      "Büyük Rift Vadisi'nin sisli dağlarına uzanan bu bereketli plato ülkesi, Nil Nehri'nin ana doğum " +
+      "yeri ve Afrika'nın en zengin su rezervuarlarından biridir.",
     landformNoteTr:
-      'Batı sınırı boyunca, Albert ve Edward gölleri arasında 130 kilometre uzunluğunda ' +
-      'yükselen Rwenzori sıradağları, kıtanın ekvator kuşağındaki en sıra dışı dağ ' +
-      'kütlelerinden biridir: çoğu Afrika zirvesinin aksine volkanik kökenli değildir, yaklaşık ' +
-      'üç milyon yıl önce yükselmiş bir kristalin kaya bloğudur (horst). Sıradağın en yüksek ' +
-      'noktası olan Margherita Zirvesi 5.109 metreye ulaşır; ekvatora yakın konumuna rağmen ' +
-      'zirve buzullarla kaplıdır. Bu doruk, Uganda ile Kongo Demokratik Cumhuriyeti arasındaki ' +
-      "sınırın tam üzerinde bulunur ve iki ülkenin de en yüksek noktasıdır. Rwenzori'nin " +
-      'batısında arazi Rift Vadisi tabanına doğru sert biçimde alçalırken, doğusunda ülkenin iç ' +
-      'platosuna kadar daha kademeli bir iniş görülür.',
+      'Ülke arazisinin neredeyse tamamı, güneyde 1.500 metreden kuzeyde 900 metreye doğru tatlı bir ' +
+      "eğimle alçalan dalgalı bir plato yüzeyidir. Ancak ülkenin batı sınırında, Albertine Rift'in " +
+      "tektonik çukurluğundan birdenbire 5.109 metreye fırlayan Rwenzori Sıradağları ('Ay Dağları') " +
+      'yükselir. Volkanik kökenli olmayan, tektonik bir fay bloğu (horst) niteliğindeki bu sarp ' +
+      'sıradağın zirvesi Margherita, ekvatorun hemen altında buzul dilleri taşır.' +
+      '\n\n' +
+      'Doğu sınırında ise Kenya ile paylaşılan 4.321 metrelik sönmüş kalkan volkan Elgon Dağı devasa ' +
+      'bir kalderayla yükselir. Platoyu kaplayan yüzlerce alçak tepe ve bunların arasına sıkışmış ' +
+      'papirüs bataklıkları, ülkenin tipik morfolojik görüntüsünü oluşturur.',
     climateNoteTr:
-      "Uganda'da ekvatoral bir iklim görülür, ancak ülkenin büyük bölümünün yüksek bir plato " +
-      'üzerinde olması sıcaklıkları ekvator kuşağı için beklenenden daha ılıman tutar. Çoğu ' +
-      'bölgede yıllık yağış 1.400 milimetrenin üzerindedir; kuzeydoğuya doğru bu miktar 700 ' +
-      'milimetreye kadar düşer. Albert Gölü çevresindeki alçak Rift Vadisi tabanı, platonun ' +
-      'geri kalanına göre daha sıcak ve kurak bir mikroiklime sahiptir.',
+      'Ekvator kuşağında bulunmasına karşın ortalama 1.100 metreyi aşan rakım ve geniş su yüzeyleri, ' +
+      "Uganda'da yıl boyu ortalama 20-27 derece arasında değişen son derece ılıman ve dengeli bir " +
+      'yayla iklimi yaratır. Ülkenin büyük bölümü yılda iki kez (mart-mayıs ve eylül-kasım) bol ve ' +
+      'düzenli yağış alır.' +
+      '\n\n' +
+      'Sadece kuzeydoğudaki Karamoja bölgesi, dağların yağmur gölgesinde kalması ve kuru hava akımlarının ' +
+      'etkisiyle kurak ve yarı kurak bozkır iklimine sahiptir. Albert Gölü çevresindeki çöküntü vadisi ' +
+      'tabanı ise platoya oranla daha sıcak ve buharlaşması yüksek bir mikroiklim sergiler.',
     hydrographyNoteTr:
-      "Viktorya Gölü'nün yaklaşık yarısı Uganda sınırları içinde kalır ve gölün Jinja " +
-      "yakınındaki çıkışı, Nil Nehri'nin kaynağı kabul edilir. Buradan çıkan Viktorya Nili " +
-      "kuzeye doğru akarak sığ ve geniş bir göl olan Kyoga Gölü'nü besler, ardından Albert " +
-      "Gölü'ne dökülür. Albert Gölü'nden çıkan su Albert Nili adını alır ve Güney Sudan " +
-      "sınırına ulaşır. Uganda'nın su ağının neredeyse tamamı, sonuçta Nil havzasına bağlanır.",
+      'Yüzölçümünün yaklaşık beşte biri açık sular ve sulak alanlarla kaplı olan Uganda, bütünüyle ' +
+      "Nil drenaj havzasının kalbinde yer alır. Dünyanın en büyük tropikal gölü olan Victoria'nın kuzey " +
+      "yarısı ülke sınırları içindedir ve nehrin çıkış noktası Jinja'da kabul edilir; buradan doğan " +
+      'Victoria Nili kuzeye doğru akarak nilüferler ve sazlıklarla kaplı sığ Kyoga Gölü labirentine ' +
+      'yayılır.' +
+      '\n\n' +
+      'Nehir batıya yöneldiğinde sert bir fay basamağından 43 metrelik dar bir yarığa düşerek ' +
+      "görkemli Murchison Çağlayanı'nı oluşturur ve Albert Gölü'ne dökülür; buradan kuzeye, Güney Sudan " +
+      'sınırına yönelen akarsu Albert Nili adını alır. Batı sınırındaki Edward ve George gölleri ise su ' +
+      'aygırlarıyla ünlü doğal Kazinga Kanalı ile birbirine bağlanır.',
   },
   {
     isoCode: 'ZM',
@@ -2915,37 +3104,41 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "24 Ekim 1964'te Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      'Zambiya topraklarının yaklaşık dörtte üçünü, denizden 900-1.500 metre yükseklikte uzanan ' +
-      'geniş bir merkezi plato kaplar; bu plato aynı zamanda Kongo ve Zambezi nehir havzaları ' +
-      "arasındaki su bölümü çizgisini oluşturur. Platonun doğu kenarını, Luangwa Vadisi'ni " +
-      'sınırlayan sarp Muchinga Dağları çizer. Ülkenin güney sınırının büyük bölümünü Zambezi ' +
-      'Nehri oluşturur.',
+      "Güney-Orta Afrika'da karayla çevrili geniş bir yayla ülkesi olan Zambiya, kıtanın iki dev " +
+      'su havzası olan Kongo ve Zambezi nehirleri arasındaki kadim su bölümü platosu üzerinde kuruludur. ' +
+      'Deniz seviyesinden ortalama 1.000 ila 1.300 metre yükseklikte dalgalanan bu serin kristalin masa ' +
+      'arazisi; derin tektonik rift vadileri, devasa sulak alanlar ve zengin bakır kuşağı yataklarıyla ' +
+      'biçimlenmiştir.',
     landformNoteTr:
-      "Zambiya'nın merkezi platosu, prekambriyen kristalin kayaçlardan oluşan, hafif dalgalı ve " +
-      'yer yer inselberg denen yalnız kayalık tepelerle noktalanmış bir yüzeye sahiptir. ' +
-      'Platonun kuzey kesimleri 1.200 metrenin üzerine çıkarak ülkenin en yüksek arazilerini ' +
-      'oluşturur; Malavi sınırındaki Mafinga Tepeleri bölgenin en yüksek arazisidir. Buradaki ' +
-      'Mafinga Central zirvesi yaklaşık 2.339 metreye ulaşır, ancak hemen yakınındaki Mafinga ' +
-      'South ile hangisinin daha yüksek olduğu kesin olarak ölçülememiştir.' +
+      'Ülke topoğrafyasının omurgasını, hafif dalgalı ve yer yer tek başına duran granit kayalıklarla ' +
+      "(inselberg) kesilen merkezi plato oluşturur. Platonun doğu kenarı, Luangwa Grabeni'ne bakan " +
+      'sarp Muchinga Dağları ile birdenbire kesilir; derin bir yarık vadisi olan Luangwa, Doğu Afrika ' +
+      "Rift Sistemi'nin en güney uzantılarından biridir. Kuzeydoğuda Malavi sınırında yükselen Mafinga " +
+      "Tepeleri'ndeki Mafinga Central zirvesi (2.339 m) ülkenin en yüksek noktasıdır." +
       '\n\n' +
-      "Plato, doğuda sarp bir yamaçla, Muchinga Dağları'yla sona erer; bu dağlar Luangwa " +
-      "Nehri'nin aktığı derin ve geniş Luangwa Vadisi'ni platodan ayırır. Güneyde ise arazi, " +
-      "Zambezi Nehri'nin aktığı daha alçak Zambezi Vadisi'ne doğru alçalır.",
+      'Batıya doğru gidildikçe plato düzleşir ve Kalahari kumullarının etkisi altına girerek yağışlı ' +
+      "mevsimde devasa bir iç denize dönüşen Barotse Taşkın Ovası'na (Bulozi) açılır. Güneyde ise " +
+      "arazi Zambezi Nehri'nin aktığı derin bazalt kanyonlara doğru alçalır.",
     climateNoteTr:
-      "Zambiya'da tropikal iklim, rakımın etkisiyle yumuşatılmış biçimde görülür; kasım-nisan " +
-      'arası yağışlı, mayıs-ekim arası kurak bir dönem izlenir. Merkezi platonun büyük ' +
-      "bölümünde ılıman-nemli bir iklim hakimdir. Güneybatıda ve Zambezi Vadisi'nin alçak " +
-      'kesimlerinde ise yarı kurak bozkır koşulları görülür. Kuzeydeki yüksek arazilerde yıllık ' +
-      'yağış, güneye göre belirgin biçimde daha fazladır.',
+      "Zambiya'da tropikal plato iklimi hakimdir; yüksek rakım, sıcaklıkların ekvatoral Afrika'ya " +
+      'kıyasla çok daha ılıman seyretmesini sağlar. Ülkede belirgin üç mevsim yaşanır: mayıstan ağustosa ' +
+      'kadar süren serin ve kuru kış, eylül ve ekimde sıcaklıkların 35 dereceye tırmandığı sıcak ve ' +
+      'kuru bahar, kasımdan nisana kadar süren ılık ve yağışlı yaz dönemi.' +
+      '\n\n' +
+      'Yıllık yağış dağılımı kuzeyden güneye doğru keskin bir düşüş gösterir: Kongo havzasına komşu ' +
+      'kuzey yaylalarında yıllık yağış 1.400 milimetreyi aşarken, güneydeki alçak Zambezi ve Luangwa ' +
+      'vadilerinde 600 milimetreye kadar gerileyerek yarı kurak bozkır koşulları yaratır.',
     hydrographyNoteTr:
-      "Zambezi Nehri'nin kaynağı, ülkenin kuzeybatısındaki Kalene Tepeleri'ndedir; nehir " +
-      'buradan güneye ve doğuya doğru yaklaşık 2.600 kilometre akarak Mozambik kıyısında Hint ' +
-      "Okyanusu'na ulaşır. Zambezi'nin Zambiya-Zimbabve sınırındaki güzergahında, dünyanın en " +
-      'büyük su perdelerinden biri olan Victoria Şelalesi ve ardından, depolama kapasitesi ' +
-      'bakımından dünyanın en büyük yapay gölü sayılan Kariba Gölü yer alır. Kuzeyde, ' +
-      "Tanganyika Gölü'nün yalnızca güney ucu Zambiya sınırları içinde kalır. Kuzeydeki " +
-      'Bangweulu Gölü tamamen Zambiya topraklarındadır. Kuzeybatıdaki Mweru Gölü ise Demokratik ' +
-      'Kongo Cumhuriyeti ile paylaşılan bir sınır gölüdür.',
+      'Zambiya sularının dörtte üçünü toplayan ve ülkeye adını veren Zambezi Nehri, kuzeybatıdaki ' +
+      "Kalene Tepeleri'nden doğar; Angola topraklarına girip çıktıktan sonra güney sınırı boyunca doğuya " +
+      'akar. Zimbabve sınırında, nehrin 100 metreyi aşan sarp bir bazalt yarığına döküldüğü Victoria ' +
+      "Şelalesi (yerel dilde 'Gürleyen Duman' - Mosi-oa-Tunya) ve hemen ardındaki devasa Kariba Baraj " +
+      'Gölü, havzanın hidrolojik şaheserleridir; Kafue ve Luangwa kolları da bu ana arteri besler.' +
+      '\n\n' +
+      "Ülkenin kuzeyi ise Kongo havzasına bağlanır; Chambeshi Nehri'nin beslediği geniş Bangweulu " +
+      'Gölü ve çevresindeki sulak bataklıklar dünyanın en zengin tatlı su ekosistemlerindendir. Kuzey ' +
+      "sınırında Kongo DC ile paylaşılan Mweru Gölü ve Tanganyika Gölü'nün güney ucu da ülkenin diğer " +
+      'stratejik su kütleleridir.',
   },
   {
     isoCode: 'ZW',
@@ -2970,33 +3163,41 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "18 Nisan 1980'de Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      'Zimbabve topraklarının belkemiğini, ülkeyi kuzeydoğu-güneybatı yönünde bir sırt gibi kat ' +
-      'eden ve 1.200-1.500 metre yükseklikteki Highveld platosu oluşturur. Kuzeyde Zambezi, ' +
-      'güneyde ise Limpopo nehirleri ülkenin doğal sınırlarını çizer. Doğu sınırı boyunca, ' +
-      "Mozambik'e komşu daha sarp ve yüksek Doğu Yaylaları uzanır.",
+      "Güney Afrika'da iki büyük nehir — kuzeyde Zambezi, güneyde Limpopo — arasına yerleşmiş olan " +
+      'Zimbabve, kıtanın en eski yerleşim ve ticaret merkezlerinden birine ev sahipliği yapan yüksek ' +
+      'bir plato ülkesidir. Ülkeye adını veren taş anıtların (Büyük Zimbabve) yükseldiği bu bereketli ' +
+      'topraklar, serin yaylaları, zengin mineral damarları ve vahşi nehir kanyonlarıyla Doğu ve ' +
+      'Güney Afrika coğrafyalarının kesişim noktasıdır.',
     landformNoteTr:
-      'Highveld, ülkenin ortasından geçen ve genişliği 80-160 kilometre arasında değişen, ' +
-      'yaklaşık 650 kilometre uzunluğunda bir plato sırtıdır; savan bitki örtüsüyle kaplı bu ' +
-      "dalgalı arazide ülkenin tarım ve yerleşim ağırlığının büyük bölümü yer alır. Highveld'in " +
-      'kuzey ve güneyinde arazi kademeli olarak alçalarak Middleveld ve daha sıcak Lowveld ' +
-      'bölgelerine dönüşür.' +
+      'Ülke coğrafyasının belkemiği, güneybatıdan kuzeydoğuya doğru uzanan ve 1.200 ila 1.500 metre ' +
+      'irtifada seyreden Highveld (Yüksek Veld) sırtıdır. Bu granitik sırtı baştan başa kesen Great ' +
+      'Dyke (Büyük Set), 550 kilometre boyunca uzanan ve dünyanın en zengin platin, krom ve nikel ' +
+      "yataklarını barındıran jeolojik bir harikadır. Highveld'in her iki yanına doğru kademeli olarak " +
+      'alçalan arazide 900-1.200 metre arasındaki Middleveld ve 900 metrenin altındaki sıcak vadi ' +
+      'tabanları olan Lowveld uzanır.' +
       '\n\n' +
-      'Doğu sınırı boyunca uzanan Doğu Yaylaları (Manica Yaylaları), ülkenin geri kalanından ' +
-      'belirgin biçimde farklı, daha nemli ve ormanlık bir topografyaya sahiptir; Nyanga, Bvumba ' +
-      've Chimanimani sıradağlarından oluşan bu kuşağın en yüksek noktası, 2.592 metrelik ' +
-      "Nyangani Dağı'dır.",
+      'Doğu sınırı boyunca yükselen Doğu Yaylaları (Nyanga, Bvumba ve Chimanimani sıradağları), ' +
+      'ülkenin en engebeli ve nemli bölgesidir. Çam ormanları, şelaleler ve dik granit uçurumlarla ' +
+      "kaplı bu dağlık şeritte yer alan 2.592 metrelik Nyangani Dağı, Zimbabve'nin zirve noktasıdır.",
     climateNoteTr:
-      "Zimbabve'nin subtropikal ikliminde rakım belirleyici bir etkendir. Highveld'de " +
-      'sıcaklıklar yıl boyunca ölçülü kalır, kışın geceleri soğuk geçebilir. Kuzeydeki Zambezi ' +
-      've güneydeki Limpopo vadilerinin alçak kesimlerinde ise sıcaklıklar belirgin biçimde ' +
-      "daha yüksektir. Doğu Yaylaları ülkenin en yağışlı bölgesidir; Hint Okyanusu'ndan gelen " +
-      'nemli hava kütleleri buradaki yamaçlara çarparak yoğun yağış bırakır.',
+      "Zimbabve'de subtropikal iklim koşulları doğrudan rakım kademeleriyle kontrol edilir. Nüfusun " +
+      've tarımın yoğunlaştığı Highveld platosunda yazlar ılık ve yağışlı, kışlar ise berrak, kuru ve ' +
+      'geceleri don olaylarına kadar varabilen serinliktedir. Buna karşılık kuzeydeki Zambezi ve güneydeki ' +
+      'Limpopo vadilerinin alçak Lowveld kesimlerinde tropikal sıcaklıklar 40 dereceyi aşabilir ve ' +
+      'kuraklık baskındır.' +
+      '\n\n' +
+      "Yağışlar kasım ile mart arasındaki tek bir mevsimde toplanır; Hint Okyanusu'ndan gelen nemli " +
+      'hava kütlelerini ilk karşılayan Doğu Yaylaları yılda 2.000 milimetreyi aşan orografik yağış ' +
+      'alırken, güneybatıdaki kurak ovalarda yağış 400 milimetrenin altına düşer.',
     hydrographyNoteTr:
-      'Zambezi Nehri ülkenin kuzey sınırının büyük bölümünü çizer; Zambiya ile paylaşılan ' +
-      "Victoria Şelalesi'nin ardından, iki ülke arasında uzanan Kariba Gölü'nü besler. Kariba, " +
-      'en geniş noktasında 40 kilometreye ulaşan büyüklüğüyle dünyanın en büyük yapay ' +
-      'göllerinden biridir. Güneyde Limpopo Nehri, Güney Afrika ve Botsvana ile sınırı çizerek ' +
-      "Mozambik'e doğru akar. Highveld'in iç kesimlerindeki nehirlerin çoğu mevsimsel akışa " +
-      'sahiptir; yağmur mevsimi dışında su seviyeleri belirgin biçimde düşer.',
+      'Ülkenin su rejimini kuzey ve güney sınırlarını çizen iki büyük akarsu yönetir. Kuzeyde Zambezi ' +
+      "Nehri, Zambiya ile paylaşılan Victoria Şelalesi'nin ardından Kariba Boğazı'nda toplanarak dünyanın " +
+      "depolama hacmi bakımından en büyük baraj göllerinden biri olan Kariba Gölü'nü oluşturur. Güney " +
+      "sınırında ise kurak arazilerden kıvrılarak Mozambik'e doğru akan Limpopo Nehri uzanır." +
+      '\n\n' +
+      'Merkezi Highveld sırtı bir su bölümü çizgisi işlevi görerek iç nehirleri iki ana yöne dağıtır: ' +
+      "Manyame ve Mazowe kuzeye Zambezi'ye akarken, Save ve Runde nehirleri güneydoğuya Hint " +
+      "Okyanusu'na yönelir. Akarsuların çoğu kış aylarında kuruma noktasına geldiği için ülke tarımı ve " +
+      'kentleri, göl Mutirikwi (Kyle) ve Kariba gibi yapay su depolama rezervuarlarıyla ayakta tutulur.',
   },
 ];

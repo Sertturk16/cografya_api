@@ -91,52 +91,44 @@ export const TERRITORY_COUNTRIES: readonly CountrySeed[] = [
     // independenceNoteTr: null — S4 + guard 5 (territory'de kavram uygulanmaz).
     independenceNoteTr: null,
     introTr:
-      "Grönland, 2.166.086 kilometrekarelik yüzölçümüyle dünyanın en büyük adasıdır. Kanada'nın " +
-      'kuzeydoğusunda, Arktik Okyanusu ile Kuzey Atlantik arasında uzanır. Bu geniş alanın ' +
-      'yalnızca 410.449 kilometrekaresi buzsuzdur; kalanını iç buzul ve buzullar örter.' +
+      'Kuzey Atlantik ile Arktik Okyanusu arasında 2,1 milyon kilometrekareyi aşan yüzölçümüyle ' +
+      "dünyanın en büyük adası olan Grönland, yüzeyinin yüzde 80'inden fazlasını kaplayan devasa " +
+      "iç buz kalkanıyla tanımlanır. Adanın kuzey ucu Kuzey Kutbu'na yalnızca 700 kilometre " +
+      'mesafedeyken, güney burnu İskandinavya ile benzer enlemlere kadar uzanır.' +
       '\n\n' +
-      'Ada kuzeyden güneye 2.670 kilometre boyunca uzanır. Kuzey ucundaki Oodaap Qeqertaa, Kuzey ' +
-      "Kutbu'na yalnızca 706 kilometre uzaklıktadır. Güney ucu ise aşağı yukarı Oslo ile aynı " +
-      'enlemdedir.' +
-      '\n\n' +
-      '56.740 kişilik nüfus, buzsuz kıyı şeridine dizilmiş kasaba ve yerleşmelere dağılmıştır. ' +
-      "Grönland, Danimarka Krallığı içinde geniş özerkliğe sahiptir; başkenti Nuuk'tur.",
+      'Buz örtüsünün serbest bıraktığı sarp fiyort kıyılarında yaşayan 56 bini aşkın nüfus, ' +
+      'Danimarka Krallığı çatısı altında geniş özerkliğe sahip bir yönetim kurmuştur; halkın ' +
+      "üçte birinden fazlası başkent Nuuk'ta toplanmıştır.",
     landformNoteTr:
-      "Grönland'ın yer şekillerini tek bir yapı belirler: iç kesimi dolduran buz örtüsü. Buzun " +
-      'ağırlığı altında adanın ortası çanak gibi bastırılmıştır, yükseltiler ise kıyı kuşağında ' +
-      "toplanır. Adanın en yüksek noktası olan Gunnbjørn Fjeld doğu Grönland'dadır." +
+      'Adanın morfolojisini, iç kesimleri dolduran kilometrelerce kalınlıktaki buzul kütlesi ' +
+      'yönetir; buz kalkanının devasa ağırlığı (izostazi) adanın merkezini deniz seviyesinin ' +
+      'altına doğru bastırarak dev bir çanağa dönüştürmüştür. Yükseltiler ise kıyı şeridini bir ' +
+      "çerçeve gibi saran sarp dağ sıralarında toplanır; Doğu Grönland'daki 3.694 metrelik " +
+      'Gunnbjørn Fjeld tüm Arktik bölgesinin en yüksek doruğudur.' +
       '\n\n' +
-      'Buz örtüsünü delip yüzeye çıkan kayalık zirvelere nunatak denir. Sözcük Inuit dilindeki ' +
-      '"nunataq"tan gelir ve buradan bilim diline geçmiştir; buzul coğrafyasında dünyanın her ' +
-      'yerinde aynı adla anılır.' +
-      '\n\n' +
-      'Kıyı, buzul vadilerinin denizle dolmasıyla oluşmuş fiyortlarla derin derin yarılmıştır. ' +
-      'Girinti ve çıkıntılarıyla birlikte kıyı çizgisi 44.087 kilometreyi bulur.',
+      'Buz tabakasını delerek göğe yükselen çıplak kayalık zirveler, Inuit dilinden dünya ' +
+      'coğrafya literatürüne geçen "nunatak" adıyla anılır. Okyanus kıyıları ise binlerce yıllık ' +
+      'buzul aşındırmasının ve deniz istilasının biçimlendirdiği, girintileriyle 44 bin kilometreyi ' +
+      'aşan derin ve görkemli fiyort labirentleriyle parçalanmıştır.',
     climateNoteTr:
-      'Grönland kutup ve tundra ikliminin ders kitabı örneğidir. Kuzeyde iklim Yüksek Arktik ' +
-      'karakterdedir: yazlar serindir ve gece olmaz, kışın ise kutup gecesi bir aydan beş aya ' +
-      'kadar sürer. Orta ve güney kesimlerde Alçak Arktik koşullar egemendir.' +
+      'Kutup ve tundra ikliminin en sert koşullarını sergileyen adada, kuzey enlemlerde kışın ' +
+      'aylarca süren kutup gecesi, yazın ise batmayan kutup güneşi yaşanır. Kıyı fiyortlarında ' +
+      'okyanus akıntılarının etkisiyle nispeten yumuşayan Alçak Arktik koşullar görülürken, ' +
+      'korunaklı güney fiyortlarında sınırlı bodur huş ve söğüt toplulukları tutunabilir.' +
       '\n\n' +
-      "Güney Grönland'ın derin fiyortlarında iklim subarktiğe yaklaşır ve sınırlı da olsa ağaç " +
-      "yetişmesine izin verir. Nuuk'ta 2025 yılının ocak ortalaması −5,2 santigrat derece, " +
-      'temmuz ortalaması ise 7,9 santigrat derece olarak ölçüldü.' +
-      '\n\n' +
-      "Ölçülmüş en yüksek sıcaklık, temmuz 2013'te batı kıyısında görülen 25,9 santigrat " +
-      'derecedir. En düşük değer ise iç buzul üzerinde kaydedilen eksi 69,6 dereceye iner. Bu ' +
-      'iki uç, kıyı ile buz örtüsü arasındaki farkın ne kadar büyük olduğunu gösterir.',
+      'İç buz tabakası üzerinde hava sıcaklıkları kış aylarında eksi 60 derecenin altına inerek ' +
+      'aşırı kurak bir kutup çölü atmosferi yaratırken; yaz aylarında batı kıyılarında fön ' +
+      'etkisiyle sıcaklığın 20 derecenin üzerine çıkabildiği elverişli dönemler yaşanır.',
     hydrographyNoteTr:
-      "Grönland'da klasik anlamda büyük bir akarsu ağı yoktur. Adanın hidrografyasını buzul " +
-      'erime suları, fiyortlar ve her yıl denize bırakılan buzdağları belirler.' +
+      'Klasik bir drenaj ağı yerine adanın hidrografyasını buzul erime suları, derin fiyortlar ' +
+      've denize kopan devasa buzdağları yönetir. Kalınlığı yer yer 3 kilometreyi bulan ve 2,9 ' +
+      'milyon kilometreküp buz kütlesi barındıran Grönland buz örtüsü, dünya deniz seviyesini ' +
+      'yaklaşık 7,4 metre yükseltebilecek devasa bir tatlı su deposudur.' +
       '\n\n' +
-      'Adayı kaplayan buz örtüsünün kalınlığı yer yer 3 kilometreyi aşar. Yaklaşık 1,7 milyon ' +
-      'kilometrekarelik bir alana yayılan bu kütlenin hacmi 2,9 milyon kilometreküptür. Tamamı ' +
-      'erise dünya deniz seviyesi yaklaşık 7,4 metre yükselirdi.' +
-      '\n\n' +
-      "Batı kıyısındaki Ilulissat Buz Fiyordu 2004'te UNESCO Dünya Mirası Listesi'ne alındı. " +
-      'Fiyordu besleyen Sermeq Kujalleq, dünyanın en hızlı hareket eden ve en etkin ' +
-      'buzullarından biridir. Yılda 35 kilometreküpten fazla buzdağı üretir; Antarktika dışında ' +
-      'bu üretime ulaşan başka bir buzul yoktur. Doğu kıyısında ise kollarıyla birlikte karaya ' +
-      'derinlemesine sokulan Scoresby Sund fiyort sistemi bulunur.',
+      "Batı kıyısındaki Ilulissat Buz Fiyordu'nu besleyen Sermeq Kujalleq, yılda 35 kilometreküpten " +
+      'fazla buzdağını okyanusa bırakarak Antarktika dışındaki yeryüzünün en üretken buzul akışını ' +
+      'sağlar. Doğu kıyısında ise karaya yüzlerce kilometre sokulan Scoresby Sund dünyanın en ' +
+      'geniş fiyort sistemini oluşturur.',
     // sovereigntyNoteTr: null — DEC 2026-08-01q (statü tartışmalı değil).
     sovereigntyNoteTr: null,
     settlementNoteTr:
@@ -217,56 +209,46 @@ export const TERRITORY_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: null,
     independenceNoteTr: null,
     introTr:
-      "Antarktika, Güney Kutbu'nu çevreleyen ve yaklaşık 14,2 milyon kilometrekare yüzölçümüyle " +
-      'yeryüzünün en güneydeki kıtasıdır. Yüzeyinin yalnızca yüzde 0,4 kadarı kar ve buzdan ' +
-      'yoksundur; kalan her yerini buz örtüsü kaplar.' +
+      "Güney Kutbu'nu merkezine alan ve yaklaşık 14,2 milyon kilometrekarelik yüzölçümüyle " +
+      "yeryüzünün en güneyindeki kıtası olan Antarktika, yüzeyinin yüzde 99'undan fazlasını " +
+      'örten devasa buz kalkanıyla gezegenin en yalıtılmış coğrafyasıdır.' +
       '\n\n' +
-      'Kıtanın kalıcı nüfusu yoktur. Burada bulunanlar, araştırma istasyonlarında dönüşümlü ' +
-      'olarak görev yapan bilim insanları ve destek personelidir.' +
-      '\n\n' +
-      "Antarktika'nın hukuki düzeni de başka hiçbir kıtaya benzemez. 1959 tarihli Antarktika " +
-      'Antlaşması kıtayı barışa ve bilime ayırdı; askerî üsler, tatbikatlar ve silah denemeleri ' +
-      'yasaklandı.',
+      'Kalıcı bir yerli nüfusu bulunmayan kıta, yalnızca uluslararası araştırma istasyonlarında ' +
+      'dönüşümlü olarak çalışan bilim insanlarına ev sahipliği yapar. 1959 tarihli Antarktika ' +
+      'Antlaşması ile askeri faaliyetlerden arındırılan kıta; barışa, bilime ve uluslararası ' +
+      'işbirliğine adanmış yeryüzündeki tek tarafsız kara parçasıdır.',
     landformNoteTr:
-      "Antarktika'yı boydan boya kesen Transantarktik Dağları kıtayı ikiye ayırır: doğuda geniş " +
-      've yüksek bir buzul platosu, batıda daha alçak ve parçalı bir kesim. Kıtanın en yüksek ' +
-      "noktası yaklaşık 4.900 metrelik Vinson Massifi'dir." +
+      'Kıtayı baştan başa kat eden Transantarktik Dağları, coğrafyayı Doğu ve Batı Antarktika ' +
+      'olmak üzere iki ana kütleye ayırır; Doğu kesimi yüksek ve kadim bir buzul platosu iken ' +
+      "Batı kesimi parçalı bir buzul altı adalar morfolojisine sahiptir. Ellsworth Dağları'ndaki " +
+      '4.892 metrelik Vinson Masifi kıtanın zirve noktasıdır.' +
       '\n\n' +
-      'Buz örtüsünün kalınlığı nedeniyle Antarktika, ortalama yükseltisi en fazla olan kıtadır. ' +
-      "Güney Kutbu'nun kendisi de deniz seviyesinden 2.800 metre yukarıda, kutup platosunun " +
-      'üzerindedir ve en yakın kıyıdan 1.235 kilometre içeridedir.' +
-      '\n\n' +
-      'Kayanın yüzeye çıktığı yerler çok sınırlıdır. Bu buzsuz noktalardan biri, dünyanın en ' +
-      "güneydeki etkin yanardağı olan Erebus Dağı'dır; zirvesindeki lav gölü on yıllardır " +
-      'sönmeden durmaktadır.',
+      'Ortalama buz kalınlığının 2 kilometreyi aşması nedeniyle Antarktika, yeryüzünün ortalama ' +
+      'yükseltisi en fazla olan kıtasıdır; Güney Kutbu noktası da 2.800 metre rakımlı bu kutup ' +
+      'platosu üzerinde yer alır. Buz örtüsünü delerek yükselen az sayıdaki aktif volkandan biri ' +
+      "olan Ross Adası'ndaki Erebus Dağı, kalıcı lav gölüyle dünyanın en güneyindeki etkin " +
+      'yanardağdır.',
     climateNoteTr:
-      "Yeryüzünde ölçülmüş en düşük hava sıcaklığı Antarktika'da kaydedildi: 21 Temmuz 1983'te " +
-      "Vostok İstasyonu'nda eksi 89,2 santigrat derece. Bu değer Dünya Meteoroloji Örgütü'nün uç " +
-      'değer arşivinde hâlâ dünya rekoru olarak durur.' +
+      "Antarktika, yeryüzünün en soğuk, en fırtınalı ve en kurak kıtasıdır. 21 Temmuz 1983'te " +
+      "Vostok İstasyonu'nda ölçülen eksi 89,2 santigrat derece, standart meteorolojik ölçüm " +
+      'tarihindeki dünya rekoru olmayı sürdürür.' +
       '\n\n' +
-      'Uydu ölçümlerinde zaman zaman eksi 93 derecenin altına inen değerler görülür. Bunlar kar ' +
-      'yüzeyinin sıcaklığıdır, standart ölçüm yüksekliğindeki hava sıcaklığı değildir. İkisini ' +
-      'karıştırmak yaygın bir hatadır ve rekor listesini değiştirmez.' +
-      '\n\n' +
-      'İç kesimde yıllık yağış son derece azdır. Antarktika bu yüzden, buzla kaplı olmasına ' +
-      'rağmen bir çöl sayılır: yağan kar erimeden kaldığı ve binlerce yıl üst üste biriktiği ' +
-      'için buz örtüsü bugünkü kalınlığına ulaşmıştır.',
+      'İç platoya düşen yıllık yağış (kar eşdeğeri) yalnızca birkaç santimetre düzeyinde ' +
+      'kaldığı için kıta hidrolojik olarak devasa bir kutup çölüdür; yağan karın erimeden ' +
+      'milyonlarca yıl birikip sıkışması bugünkü buz kalkanını meydana getirmiştir. İç kesimden ' +
+      'kıyılara doğru dik yamaçlardan hızla boşalan katabatik fırtına rüzgarları saatte yüzlerce ' +
+      'kilometre hıza ulaşabilir.',
     hydrographyNoteTr:
-      'Antarktika buz örtüsü yaklaşık 14 milyon kilometrekare alan kaplar ve içinde yaklaşık 30 ' +
-      'milyon kilometreküp buz vardır. Kalınlığı yer yer 4,9 kilometreye yaklaşır. Bu buzun ' +
-      'tamamı erise deniz seviyesi yaklaşık 58 metre yükselirdi; Grönland buz örtüsü için aynı ' +
-      'hesap 7,4 metre verir.' +
+      "Gezegenin yüzey tatlı su rezervinin yaklaşık yüzde 90'ını buz halinde hapseden Antarktika " +
+      'buz kalkanı, yaklaşık 30 milyon kilometreküp buz hacmine sahiptir. Bu dev kütlenin ' +
+      'tamamının erimesi dünya deniz seviyesini yaklaşık 58 metre yükseltebilecek hidrolojik ' +
+      'potansiyel taşır.' +
       '\n\n' +
-      "Yeryüzündeki yüzey tatlı suyunun yaklaşık yüzde 90'ı bu buz örtüsünde tutulur. " +
-      "Grönland'la birlikte iki buz örtüsü, dünyadaki tatlı su buzunun yüzde 99'undan fazlasını " +
-      'barındırır.' +
-      '\n\n' +
-      'Buz örtüsü kıyıya vardığı yerlerde denizin üzerine taşarak buz sahanlıklarını oluşturur. ' +
-      'Bunların en büyüğü olan Ross Buz Sahanlığı yaklaşık yarım milyon kilometrekare kaplar ve ' +
-      'bir ucundan öbürüne 800 kilometre uzanır.' +
-      '\n\n' +
-      'Buzun altında sıvı su da vardır. Kilometrelerce buzun altında kalan Vostok Gölü, bilinen ' +
-      'en büyük buzul altı göldür.',
+      'Buz örtüsünün okyanusa taştığı kıyılarda Fransa büyüklüğündeki Ross Buz Sahanlığı gibi ' +
+      'devasa yüzen buz platformları oluşur. Kilometrelerce kalınlıktaki buz tabakasının tabanında ' +
+      'ise jeotermal ısı ve yüksek basınç altında sıvı kalan yüzlerce buzul altı göl keşfedilmiştir; ' +
+      'bunların en büyüğü olan Vostok Gölü, milyonlarca yıldır dış dünyadan tecrit edilmiş eşsiz ' +
+      'bir ekosistemdir.',
     sovereigntyNoteTr: null,
     settlementNoteTr:
       "Antarktika'da kimse kalıcı olarak yaşamaz. Kıtadaki insan varlığı, ülkelerin işlettiği " +

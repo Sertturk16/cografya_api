@@ -46,43 +46,56 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "Federasyon 1 Temmuz 1867'de kuruldu; tam bağımsızlık kademeli (1931 Westminster, 1982 Kanada Yasası).",
     introTr:
-      "Kanada, 8.788.700 kilometrekarelik yüzölçümüyle Rusya'dan sonra dünyanın ikinci büyük " +
-      'ülkesidir. Ülke, aynı anda Atlantik, Pasifik ve Arktik okyanuslarına kıyısı olan dünyadaki tek ' +
-      'ülkedir. Buna karşın nüfusun büyük bölümü güney kesimindeki dar bir kuşakta yoğunlaşır; kuzeye ' +
-      'doğru genişleyen topraklar seyrek nüfusludur ve büyük ölçüde donmuş toprakla (permafrost) ' +
-      "kaplıdır. Bu güney-kuzey karşıtlığı, Kanada'nın coğrafi kimliğinin temel eksenini oluşturur.",
-    landformNoteTr:
-      'Batıda, British Columbia-Alberta sınırı boyunca yaklaşık 1.400 kilometre uzanan Kayalık ' +
-      "Dağlar'ın (Rockies) en yüksek zirvesi, 3.954 metrelik Mount Robson'dır. Ülkenin gerçek en " +
-      "yüksek noktası ise Kayalık Dağlar'da değil, çok daha kuzeybatıda Yukon'daki Saint Elias " +
-      "Sıradağları'nda yükselen 5.959 metrelik Mount Logan'dır; bu sıradağ Kayalık Dağlar'ın bir " +
-      'parçası olmayıp Pasifik kıyı kordilyerasının ayrı bir kolunu oluşturur — ikisinin sık sık ' +
-      'karıştırılan iki ayrı dağ sistemi olduğu unutulmamalı.' +
+      "Kanada, 8.788.700 kilometrekarelik yüzölçümüyle Rusya'dan sonra dünyanın en geniş " +
+      'ikinci ülkesidir. Toprakları doğuda Atlas, batıda Büyük ve kuzeyde Arktik Okyanusu ' +
+      'ile kuşatılmıştır. ' +
       '\n\n' +
-      'Ülkenin doğu ve orta kesiminin büyük bölümünü, Hudson Körfezi çevresinde at nalı biçiminde ' +
-      'kıvrılan Kanada Kalkanı kaplar. Milyarlarca yıllık Prekambriyen kayaçlardan oluşan bu aşınmış ' +
-      'plato, dünyanın en eski ve en geniş kıta çekirdeklerinden biridir. Buzul çağlarının yonttuğu ' +
-      "arazi, sayısız göl ve bataklıkla noktalanır; kuzey Ontario ile Quebec'teki akarsuları önemli " +
-      'hidroelektrik kaynakları besler.',
+      'Bu engin coğrafyaya karşın yerleşim deseni son derece asimetriktir. Sert kış ' +
+      'şartları ve donmuş topraklar nedeniyle nüfusun ezici çoğunluğu, Amerika Birleşik ' +
+      'Devletleri sınırına paralel uzanan birkaç yüz kilometrelik dar güney şeridinde ' +
+      'yaşar; kuzeye uzanan milyonlarca kilometrekarelik arazi ise seyrek yerleşimli bir ' +
+      'tayga ve tundra kuşağından ibarettir.',
+    landformNoteTr:
+      'Ülkenin doğu ve orta kesimini, Hudson Körfezi çevresinde geniş bir yay çizen ' +
+      'Kanada Kalkanı şekillendirir. Milyarlarca yıllık Prekambriyen kayaçlardan oluşan ' +
+      'bu aşınmış plato, Pleistosen buzul çağlarında kalın buz örtüleri tarafından ' +
+      'kazınarak düzleştirilmiş; geride sayısız göl çanağı, bataklık ve hidroelektrik ' +
+      'potansiyeli yüksek nehirler bırakmıştır. ' +
+      '\n\n' +
+      "Batı kesiminde topoğrafya hızla dikleşir. Pasifik Kordilyerası'nın doğu kolunu " +
+      'oluşturan Kayalık Dağlar, Alberta ile British Columbia sınırı boyunca uzanır ve en ' +
+      'yüksek noktasına 3.954 metrelik Mount Robson ile erişir. ' +
+      '\n\n' +
+      'Ülkenin doruk noktası ise çok daha kuzeybatıda, Alaska sınırındaki Saint Elias ' +
+      "Sıradağları'nda yükselen 5.959 metrelik Mount Logan'dır. Bu dağ kütlesi, Pasifik " +
+      'kıyısındaki aktif levha hareketlerinin yükselttiği buzullarla kaplı devasa bir ' +
+      'kordilyera kuşağının parçasıdır.',
     climateNoteTr:
-      "Kanada'nın iklimi, güneydeki ılıman kesimlerden kuzeydeki kutup koşullarına kadar büyük bir " +
-      "çeşitlilik gösterir. Pasifik kıyısında, British Columbia'nın kıyı şeridinde ılık ve yağışlı bir " +
-      'deniz iklimi egemendir; kışlar ülkenin geri kalanına göre belirgin biçimde daha ılımandır. İç ' +
-      "kesimdeki Prairie eyaletlerinde sert bir karasal iklim görülür; kışın Kayalık Dağlar'dan inen " +
-      'sıcak ve kuru Chinook rüzgarları bazen sıcaklığı birkaç saat içinde onlarca derece yükseltir. ' +
-      'Kuzeye gidildikçe orman örtüsü seyrekleşir, tayga kuşağının ardından ağaç sınırının ötesinde ' +
-      'kalan geniş bir tundra ve sürekli donmuş toprak kuşağı başlar; bu bölgede tarım neredeyse ' +
-      'imkansızdır.',
+      'Kıtasal boyutlar ve açık topoğrafik koridorlar Kanada genelinde büyük bir iklim ' +
+      'çeşitliliği üretir. Sıcak Pasifik akıntılarının etkisindeki British Columbia ' +
+      'kıyıları, bol yağışlı ve kışları ılıman geçen bir okyanusal iklime sahiptir. ' +
+      '\n\n' +
+      "Kayalık Dağlar'ın gerisinde uzanan iç bozkırlarda (Prairieler) kışların dondurucu, " +
+      'yazların sıcak geçtiği sert bir karasal iklim egemendir. Burada kış ortasında ' +
+      'dağlardan aşağı fön karakteriyle inen Chinook rüzgarları, sıcaklığı birkaç saat ' +
+      'içinde onlarca derece yükselterek karları hızla eritebilir. ' +
+      '\n\n' +
+      'Kuzeye ilerledikçe iğne yapraklı boreal ormanlar yerini ağaçsız tundraya bırakır; ' +
+      'zemin metrelerce derinliğe kadar yıl boyu donmuş halde kalan permafrost ' +
+      'tabakasıyla kaplanır.',
     hydrographyNoteTr:
-      'Ülkenin güneydoğusunda, Amerika Birleşik Devletleri ile paylaşılan Büyük Göller, ' +
-      'yüzölçümü bakımından dünyanın en büyük tatlı su göl grubunu oluşturur; suları Saint ' +
-      "Lawrence Nehri aracılığıyla Atlas Okyanusu'na ulaşır. Kuzeyde ülkenin en uzun akarsuyu " +
-      "olan Mackenzie Nehri, Büyük Köle Gölü'nden çıkıp yaklaşık 1.738 kilometre boyunca " +
-      "kuzeybatıya akarak Arktik Okyanusu'na dökülür ve havzasıyla ülke topraklarının yaklaşık " +
-      'beşte birini sular. Doğuda 1.230.000 kilometrekarelik yüzeyiyle Hudson Körfezi, dünyanın ' +
-      "en büyük tuzlu su körfezlerinden biridir; drenaj havzası Kanada'nın altı eyalet ve " +
-      'bölgesine yayılır. Kanada, HydroLAKES veritabanına dayanan 2016 tarihli bir araştırmaya ' +
-      'göre, tek başına dünyadaki herhangi bir başka ülkeden daha fazla göle sahiptir.',
+      'Buzulların aşındırdığı zemin yapısı sayesinde Kanada, dünyada göl yüzeyi alanı en ' +
+      'geniş ülkedir. Güneydoğuda Amerika Birleşik Devletleri ile paylaşılan Büyük Göller ' +
+      "sistemi, sularını Saint Lawrence Nehri vasıtasıyla Atlas Okyanusu'na aktararak " +
+      'kıta içine dev bir deniz yolu koridoru açar. ' +
+      '\n\n' +
+      "Kuzey kesiminde ise Büyük Köle Gölü'nden doğan Mackenzie Nehri, Arktik Okyanusu'na " +
+      'yönelir ve yaklaşık 1.738 kilometrelik ana yatağıyla ülkenin en uzun akarsu ' +
+      'sistemini oluşturur. ' +
+      '\n\n' +
+      'Toprakların merkezinde dev bir deniz kulağı gibi açılan Hudson Körfezi, Kanada ' +
+      'topraklarının üçte birinden fazlasını toplayan devasa bir drenaj havzasına ' +
+      'merkezlik eder.',
   },
   {
     isoCode: 'US',
@@ -108,38 +121,56 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "4 Temmuz 1776'da bağımsızlığını ilan etti (İngiltere'nin tanıması 1783 Paris Antlaşması).",
     introTr:
-      'Kuzey Amerika kıtasının büyük bölümünü kaplayan Amerika Birleşik Devletleri, Atlantik ve ' +
-      'Pasifik okyanuslarına birden kıyısı olan, elli eyaletten oluşan federal bir ' +
-      "cumhuriyettir; kıtadaki tek iki kara komşusu Kanada ve Meksika'dır.",
-    landformNoteTr:
-      "Ülkenin batısına Kuzey Amerika'nın en büyük sıradağı olan Kayalık Dağları hakimdir; " +
-      "Alaska'daki 6.190 metrelik Denali, ülkenin ve kıtanın en yüksek noktasıdır (kıtasal 48 " +
-      "eyalette en yüksek nokta ise Kaliforniya'daki 4.421 metrelik Mount Whitney'dir). Pasifik " +
-      'kıyısı boyunca Cascade ve Kıyı Sıradağları uzanır. Ülkenin ortasını, ortalama 300 metre ' +
-      'yükseklikte, geniş prerilerden oluşan Büyük Ovalar kaplar; bu düzlük 2.000 kilometreden ' +
-      "uzun bir alana yayılır. Doğuda, Kanada'dan Alabama'ya kadar uzanan Appalaş Dağları, " +
-      'genellikle 1.800 metrenin altında kalan, yaşlı ve aşınmış bir sıradağdır.',
-    climateNoteTr:
-      'Enlem, denizden uzaklık ve dağların yarattığı yağış gölgesi etkisi, iklimi bölgeden ' +
-      'bölgeye keskin biçimde farklılaştırır. Doğu kıyısında ve iç kesimlerde (Orta Batı, Büyük ' +
-      'Göller, Yeni İngiltere) dört mevsimin belirgin yaşandığı nemli karasal bir iklim ' +
-      "egemendir; güneydoğuda, Florida'ya kadar uzanan kesimde ise sıcak-nemli subtropikal bir " +
-      "iklime geçilir. Büyük Ovalar'ın batı kesimi yarı-kurak bir karaktere sahiptir. " +
-      'Güneybatıda, Arizona ve Nevada gibi eyaletlerde sıcak ve düşük yağışlı bir çöl iklimi ' +
-      'görülür. Pasifik kıyısında ise kuzeyden güneye geçiş belirgindir — Oregon ve ' +
-      "Washington'da nemli bir deniz iklimi, Kaliforniya kıyısında ise yazı kurak, kışı yağışlı " +
-      'bir Akdeniz iklimi hakimdir. Alaska büyük ölçüde subarktik ve tundra iklimi altındayken, ' +
-      'Hawaii adaları tropikal bir iklime sahiptir.',
-    hydrographyNoteTr:
-      "Ülkenin en uzun nehri, Montana'da doğup Mississippi'ye katılan 3.767 kilometrelik " +
-      "Missouri'dir; Mississippi Nehri'yle birleşerek dünyanın dördüncü en büyük nehir " +
-      "sistemini oluşturur. Mississippi, Minnesota'dan Meksika Körfezi'ne kadar 3.766 kilometre " +
-      "boyunca ülkeyi kuzeyden güneye kat eder. Colorado Nehri, Kayalık Dağları'ndan doğarak " +
-      "2.334 kilometre boyunca güneybatıyı kat eder ve Kaliforniya Körfezi'ne ulaşır." +
+      'Kuzey Amerika kıtasının orta kuşağını baştan başa kaplayan Amerika Birleşik ' +
+      'Devletleri, Atlas ve Büyük Okyanus gibi iki küresel ticaret yolu arasında uzanan ' +
+      'elli eyaletli bir federal cumhuriyettir. ' +
       '\n\n' +
-      'Kuzeyde, Büyük Göller sistemi — Superior, Michigan, Huron, Erie ve Ontario — dünyanın en ' +
-      "büyük tatlı su kaynaklarından birini oluşturur; Michigan Gölü dışındaki dördü Kanada'yla " +
-      'paylaşılır.',
+      'Karasal çekirdeği kuzeyde Kanada, güneyde Meksika ile sınırlanırken; kuzeybatıdaki ' +
+      "buzul yarımadası Alaska ve Büyük Okyanus'un kalbindeki volkanik Hawaii adaları " +
+      'ülkenin fiziki sınırlarını kıta dışına taşır.',
+    landformNoteTr:
+      'Topoğrafik yapı, doğudan batıya belirgin üç ana kuşağa ayrılır. Doğuda Kanada ' +
+      "sınırından Alabama'ya kadar uzanan Appalaş Dağları, yüz milyonlarca yıllık " +
+      'erozyonla yuvarlaklaşmış, zengin kömür yatakları ve gür ormanlarla örtülü yaşlı ' +
+      'bir sıradağdır. ' +
+      '\n\n' +
+      "Bu dağların batısından itibaren Kayalık Dağlar'ın eteklerine kadar uzanan 2.000 " +
+      'kilometrelik geniş İç Düzlükler ve Büyük Ovalar, kıtanın tarımsal omurgasını ' +
+      'oluşturur. ' +
+      '\n\n' +
+      'Ülkenin batı üçte biri ise Pasifik levha hareketlerinin şekillendirdiği genç ve ' +
+      'sarp kordilyera sistemine ayrılmıştır. Kıtasal 48 eyaletin en yüksek doruğu Sierra ' +
+      'Nevada üzerindeki 4.421 metrelik Mount Whitney iken, ülkenin ve Kuzey Amerika ' +
+      "kıtasının zirvesi, Alaska Sıradağları'nda 6.190 metreye ulaşan karlı Denali " +
+      'kütlesidir.',
+    climateNoteTr:
+      'Doğu-batı doğrultusunda hiçbir yüksek sıradağın bulunmayışı, Kanada kaynaklı kuru ' +
+      "kutup havası ile Meksika Körfezi'nden gelen sıcak ve nemli tropikal havanın iç " +
+      'düzlüklerde doğrudan karşılaşmasına yol açar. Bu termodinamik çatışma, ilkbahar ' +
+      "aylarında Büyük Ovalar'da dünyada benzeri olmayan şiddette fırtına ve hortumlara " +
+      'zemin hazırlar. ' +
+      '\n\n' +
+      'Kıtanın doğu yarısında dört mevsimin belirgin yaşandığı nemli karasal ve ' +
+      'güneydoğuda subtropikal iklim görülürken, batıdaki sıradağların gerisinde kalan ' +
+      'havzalar yağış gölgesi nedeniyle yarı kurak bozkırlara ve çöllere dönüşür. ' +
+      '\n\n' +
+      'Büyük Okyanus kıyısında kuzeydeki yağışlı denizel rejim, güneye inildikçe ' +
+      "Kaliforniya'nın yazı kurak Akdeniz iklimine bağlanır; Alaska'da subarktik " +
+      "soğuklar, Hawaii'de ise tropikal alize yağmurları egemendir.",
+    hydrographyNoteTr:
+      'Kıtanın kalbini sulayan Mississippi-Missouri havzası, doğuda Appalaşlar ile batıda ' +
+      "Kayalık Dağlar arasındaki suları toplayarak güneyde Meksika Körfezi'ne boşaltan " +
+      'dünyanın en büyük nehir ağlarından biridir. ' +
+      '\n\n' +
+      'Batıdaki kurak ve yarı kurak platoları aşan Colorado Nehri, milyonlarca yılda ' +
+      "yonttuğu Büyük Kanyon gibi devasa vadilerden geçerek Kaliforniya Körfezi'ne " +
+      'yönelir ve kurak güneybatının tarım ve kentsel yaşamı için vazgeçilmez bir su ' +
+      'kaynağı işlevi görür. ' +
+      '\n\n' +
+      'Kuzey sınırında yer alan Superior, Michigan, Huron, Erie ve Ontario göllerinden ' +
+      'oluşan Büyük Göller sistemi, dünyadaki sıvı yüzey tatlı suyunun yaklaşık beşte ' +
+      'birini barındırarak hem devasa bir su rezervuarı hem de iç kesimleri okyanusa ' +
+      'bağlayan ticari bir su yoludur.',
   },
   {
     isoCode: 'MX',
@@ -165,38 +196,57 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "16 Eylül 1810'da bağımsızlık mücadelesi başladı (resmî millî gün); İspanya'nın tanıması 1821.",
     introTr:
-      "Kuzey Amerika'nın güneyinde yer alan Meksika, kuzeyde ABD, güneydoğuda Belize ve " +
-      "Guatemala ile komşudur. Batıda Büyük Okyanus'a, doğuda Meksika Körfezi ve Karayip " +
-      "Denizi'ne kıyısı vardır. Ülkenin kuzeybatısındaki Baja California ve " +
-      'güneydoğusundaki Yucatán, birbirinden çok farklı iki yarımadadır — biri kurak ve ' +
-      'dağlık, diğeri düz ve ormanlık kireçtaşı bir plato.',
+      "Kuzey Amerika'nın güney kıstağını oluşturan Meksika, kuzeyde Amerika Birleşik " +
+      'Devletleri, güneydoğuda ise Guatemala ve Belize ile komşudur. Batıda Büyük ' +
+      'Okyanus, doğuda ise Meksika Körfezi ve Karayip Denizi ile çevrilidir. ' +
+      '\n\n' +
+      'Ülkenin iki ucundaki yarımadalar derin bir tezat barındırır: Kuzeybatıda okyanus ' +
+      'ile körfezi ayıran sarp ve kurak Baja California Yarımadası uzanırken, güneydoğuda ' +
+      "yüzey akışı bulunmayan düz ve ormanlık Yucatán kireçtaşı platosu Karayip Denizi'ne " +
+      'uzanır.',
     landformNoteTr:
-      "Orta plato'yu doğu ve batıdan çevreleyen Sierra Madre Occidental (~1.250 km) ve " +
-      "Sierra Madre Oriental (~1.000 km), Meksika'nın ana dağ sistemini oluşturur. Bu iki " +
-      "sıradağ, Mexico City'nin doğusunda, doğu-batı doğrultulu Trans-Meksika Volkanik " +
-      "Kuşağı'yla birleşir; ülkenin en yüksek üç zirvesi de bu kuşaktadır. En yükseği, " +
-      "5.636 metreyle Kuzey Amerika'nın en yüksek volkanı olan Pico de Orizaba'dır; onu " +
-      '5.393 metrelik hâlâ aktif Popocatépetl ve 5.230 metrelik Iztaccíhuatl izler. ' +
-      'Güneydoğuda, Yucatán Yarımadası bunların hiçbirine benzemez: düz, alçak bir ' +
-      'kireçtaşı plato olan bu bölgede yüzey nehri neredeyse yoktur, su büyük ölçüde ' +
-      "yeraltından akar ve çökme çukurları olan cenote'leri besler.",
+      'Meksika arazisinin belkemiğini, ortalama 1.000 ila 2.000 metre yükseklikteki ' +
+      'devasa Meksika Platosu (Mesa Central) oluşturur. Bu plato batıdan Sierra Madre ' +
+      'Occidental, doğudan ise Sierra Madre Oriental sıradağları tarafından yüksek bir ' +
+      'kale duvarı gibi kuşatılmıştır. ' +
+      '\n\n' +
+      'Platonun güney sınırında, Büyük Okyanus tabanındaki Kokos levhasının kıtanın ' +
+      'altına dalmasıyla oluşan Trans-Meksika Volkanik Kuşağı uzanır. Ülkenin en yüksek ' +
+      'üç zirvesi bu aktif tektonik hat üzerindedir: 5.636 metrelik Pico de Orizaba, ' +
+      'daimi dumanıyla başkente komşu olan 5.393 metrelik Popocatépetl ve 5.230 metrelik ' +
+      'Iztaccíhuatl. ' +
+      '\n\n' +
+      'Güneydoğudaki Yucatán Yarımadası ise tamamen düz bir karstik kireçtaşı kalkanıdır; ' +
+      'zemin suyunun yüzeyde akmayıp derine süzülmesi nedeniyle nehir yatakları yerine ' +
+      'cenote adı verilen dairesel obruk ve mağara gölleri gelişmiştir.',
     climateNoteTr:
-      "Yengeç Dönencesi Meksika'yı kabaca iki iklim kuşağına böler; kuzey daha kurak, " +
-      'güney daha nemli ve tropikaldir. Baja California, batı Sonora ve orta platonun ' +
-      'kuzey kesimi çöl ya da yarı çöl iklimindedir, yıllık yağış çoğu yerde 250 ' +
-      'milimetrenin altında kalır. Rakım da en az enlem kadar belirleyicidir: 900 ' +
-      'metrenin altındaki tierra caliente sıcak ve nemli geçer, 900-1.800 metre ' +
-      'arasındaki tierra templada ılıman bir iklim sunar; 1.800 metrenin üzerindeki ' +
-      'tierra fría ise serin ve kurak geçer — 2.240 metre yükseklikteki Mexico City de ' +
-      'bu üst kuşaktadır.',
+      "Yengeç Dönencesi Meksika'yı enlemsel olarak subtropikal ve tropikal iki parçaya " +
+      'bölerken, yerleşim şartlarını asıl belirleyen etken dikey topoğrafyadır. Dağların ' +
+      "koruduğu kuzey bölgeleri ile Baja California'da yağışın 250 milimetrenin altına " +
+      'düştüğü şiddetli çöl iklimleri hüküm sürer. ' +
+      '\n\n' +
+      'Kıyı ovalarını kapsayan 900 metrenin altındaki sıcak kuşak (tierra caliente) ' +
+      'boğucu ve nemli bir tropikal rejime sahiptir. Rakımın 900 ila 1.800 metre arasında ' +
+      'olduğu ılıman kuşak (tierra templada) tarım için ideal bir serinlik sunar. ' +
+      '\n\n' +
+      '1.800 metrenin üzerindeki serin kuşak (tierra fría) ise kurak kışları ve serin ' +
+      'geceleriyle tanınır; 2.240 metre rakımdaki başkent Meksika Şehri dahil olmak üzere ' +
+      'nüfusun tarih boyunca bu yüksek yaylalarda toplanmasının başlıca nedeni bu ' +
+      'elverişli mikroklimadır.',
     hydrographyNoteTr:
-      "Kuzeyde Rio Bravo (ABD'de Rio Grande), yaklaşık 3.000 kilometrelik uzunluğunun " +
-      '2.000 kilometrelik bölümünde Meksika ile ABD arasındaki sınırı çizer ve Meksika ' +
-      "Körfezi'ne dökülür. Meksika platosunda doğan 750 kilometrelik Lerma Nehri, " +
-      "ülkenin en büyük gölü olan Chapala Gölü'ne akar. Güneydoğuda Usumacinta Nehri, " +
-      "Guatemala sınırından geçerek Meksika Körfezi'ne ulaşır; Guatemala'daki kaynak " +
-      "kollarıyla birlikte toplam uzunluğu yaklaşık 1.000 kilometredir. Yucatán'da ise " +
-      "yüzey nehri yerine cenote'ler ve yeraltı su sistemleri hakimdir.",
+      'Ülkenin en önemli sınır akarsuyu olan Rio Bravo (kuzeyde Rio Grande), yaklaşık ' +
+      '2.000 kilometre boyunca Amerika Birleşik Devletleri sınırını çizerek Meksika ' +
+      "Körfezi'ne dökülür; kurak kuzey topraklarının sulanmasında hayati bir kaynak " +
+      'oluşturur. ' +
+      '\n\n' +
+      "İç platodan doğan Lerma Nehri, Meksika'nın en geniş doğal tatlı su kütlesi olan " +
+      "Chapala Gölü'ne dökülerek yoğun nüfuslu orta havzanın içme ve sulama ihtiyacını " +
+      'destekler. ' +
+      '\n\n' +
+      'Bol yağış alan güney dağlarından doğan Usumacinta ve Grijalva nehirleri ise ' +
+      "Meksika Körfezi'ne doğru ülkenin en yüksek debili akarsu ağını kurar. Karstik " +
+      "Yucatán'da ise yüzey akışı hemen hemen sıfırdır; yağmur suları kireçtaşından " +
+      'süzülerek binlerce cenote ve yeraltı nehir kanalında toplanır.',
   },
   {
     isoCode: 'BZ',
@@ -221,41 +271,55 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
     independenceNoteTr: "21 Eylül 1981'de Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      "Belize, Orta Amerika'nın Karayip kıyısında, Yucatán Yarımadası'nın hemen güneyinde yer " +
-      "alır. Bölgenin resmi dili İngilizce olan tek ülkesidir; bu miras, 1981'e kadar Britanya " +
-      "Honduras'ı adıyla bir Birleşik Krallık sömürgesi olmasından gelir. Nüfusun büyük bölümü " +
-      'kıyı şeridinde ve güneydeki nehir vadilerinde toplanır, iç kesimlerin geniş bir bölümü ' +
-      'seyrek nüfusludur ve yağmur ormanıyla kaplıdır.',
-    landformNoteTr:
-      "Ülkenin güneyinde yükselen Maya Dağları, 1.124 metrelik Doyle's Delight zirvesiyle " +
-      "Belize'nin en yüksek noktasını oluşturur; daha uzun süre bu unvanı taşıdığı sanılan " +
-      'Victoria Peak (1.120 m), uydu ölçümleriyle ikinci sıraya inmiştir. Sıradağın granit ve ' +
-      "şist çekirdeği yaklaşık 300-400 milyon yıl önce şekillenmiştir ve Orta Amerika'nın " +
-      'bilinen en eski kayaçları arasında sayılır. Ülkenin geri kalanını kaplayan kireçtaşı ' +
-      'arazi çok daha genç bir dönemde, sığ bir denizin tortullarından oluşmuştur; bu jeolojik ' +
-      "fark, Maya Dağları'nın asidik ve besince fakir topraklarıyla çevresindeki kireçtaşı " +
-      'ovaların bitki örtüsü arasında belirgin bir ayrım yaratır.' +
+      "Belize, Orta Amerika'nın Karayip kıyısında, Yucatán Yarımadası'nın güney kökünde " +
+      'yer alan kompakt bir kıyı ülkesidir. Bölgede resmi dili İngilizce olan tek ' +
+      'devlettir; bu kültürel kimlik, 1981 yılına kadar Britanya Hondurası adıyla ' +
+      'Birleşik Krallık idaresinde kalmış olmasından kaynaklanır. ' +
       '\n\n' +
-      'Kıyı açıklarında uzanan Belize Bariyer Resifi, yaklaşık 300 kilometrelik uzunluğuyla ' +
-      "Büyük Set Resifi'nin ardından dünyanın en uzun ikinci kesintisiz bariyer resifidir. Resif " +
-      'içindeki Lighthouse Reef atolünde yer alan Büyük Mavi Delik, son buzul çağında oluşmuş ' +
-      'bir kireçtaşı mağaranın deniz seviyesi yükselişiyle sular altında kalmasından doğmuştur; ' +
-      'çapı 300 metreyi aşan bu neredeyse dairesel çukur dünya çapında tanınan bir dalış ' +
-      'noktasıdır.',
+      'Ülke arazisinin büyük bölümü yoğun tropikal yağmur ormanlarıyla kaplıdır. Nüfus ' +
+      'yoğunluğu bölge ortalamasının oldukça altındadır ve yerleşimler ağırlıklı olarak ' +
+      'Karayip kıyı şeridi ile nehir vadilerinde toplanmıştır.',
+    landformNoteTr:
+      'Ülke topoğrafyası iki farklı jeolojik yapıya ayrılır. Güneyde yükselen Maya ' +
+      "Dağları, 1.124 metrelik Doyle's Delight doruğuyla ülkenin en yüksek alanını " +
+      'oluşturur. Paleozoik döneme ait granit ve metamorfik şistlerden oluşan bu dağ ' +
+      "kütlesi, Orta Amerika'nın en yaşlı kara parçalarındandır ve asidik, geçirimsiz " +
+      'toprak yapısıyla çevresinden ayrışır. ' +
+      '\n\n' +
+      'Ülkenin kuzeyi ve kıyı kuşağı ise Mezozoyik ve Tersiyer tortullardan oluşan alçak, ' +
+      'düz bir kireçtaşı arazisidir; burada mağaralar, düdenler ve sulak bataklıklar ' +
+      'yaygındır. ' +
+      '\n\n' +
+      'Kıyı açıklarında boylu boyunca uzanan Belize Bariyer Resifi, yaklaşık 300 ' +
+      "kilometrelik uzunluğuyla Avustralya'daki Büyük Set Resifi'nin ardından dünyanın en " +
+      'uzun ikinci kesintisiz mercan resif sistemidir. Bu resif üzerinde yer alan Büyük ' +
+      'Mavi Delik (Great Blue Hole), buzul çağında oluşmuş karstik bir mağara tavanının ' +
+      'çöküp deniz suları altında kalmasıyla meydana gelen 300 metreyi aşkın çapa sahip ' +
+      'anıtsal bir sualtı obruğudur.',
     climateNoteTr:
-      "Belize'de tropikal bir iklim egemendir; Mayıs-Kasım arası yağışlı, Aralık-Nisan arası " +
-      'görece kurak bir mevsim izler. Ülke Karayip kasırga kuşağının içinde yer alır, kıyı ' +
-      'bölgeleri yaz sonu ve sonbahar aylarında tropikal fırtına riskiyle karşı karşıyadır. ' +
-      'Güneydeki dağlık kesimler kuzeydeki düz ovalara göre belirgin biçimde daha fazla yağış ' +
-      "alır; Maya Dağları'nın rüzgar alan yamaçları ülkenin en yağışlı bölgeleridir.",
+      "Belize'de ticaret rüzgarlarının yönlendirdiği sıcak ve nemli bir tropikal iklim " +
+      'egemendir. Yıl genelinde mayıs ile kasım arası bol yağışlı bir döneme sahne ' +
+      'olurken, aralık-nisan arası görece daha kuru geçer. ' +
+      '\n\n' +
+      "Topoğrafya yağış dağılımını doğrudan belirler: Maya Dağları'nın Karayip'ten gelen " +
+      'rüzgarlara açık doğu ve güney yamaçları yılda 4.000 milimetreyi aşan orografik ' +
+      'yağış alırken, kuzeydeki alçak düzlüklerde bu miktar yarı yarıya azalır. ' +
+      '\n\n' +
+      "Ülke, haziran ile kasım ayları arasında Karayip Denizi'nde oluşan tropikal siklon " +
+      've kasırgaların etki alanında yer alır; alçak kıyı şeridi fırtına kabarmalarına ' +
+      'karşı oldukça kırılgandır.',
     hydrographyNoteTr:
-      "Belize'nin en uzun nehri, Guatemala'da Mopán Nehri adıyla doğan ve 290 kilometre sonra " +
-      "Belize Kenti yakınında Karayip Denizi'ne dökülen Belize Nehri'dir; kollarıyla birlikte " +
-      'ülkenin en yoğun nüfuslu ve en verimli tarım bölgelerini sular. Kuzeyde Meksika sınırının ' +
-      'büyük bölümünü belirleyen Rio Hondo yaklaşık 150 kilometre, güneyde Guatemala sınırını ' +
-      'izleyen Sarstoon Nehri ise 111 kilometre uzunluğundadır. Kireçtaşı arazinin bulunduğu iç ' +
-      'kesimlerde çok sayıda yeraltı nehri ve mağara sistemi bulunur, yüzey suyunun önemli bir ' +
-      'bölümü bu mağaralardan beslenir.',
+      'Ülkenin en önemli hidrolojik omurgası, Guatemala sınırından doğup doğuya doğru 290 ' +
+      "kilometre aktıktan sonra Karayip Denizi'ne dökülen Belize Nehri'dir. Nehir " +
+      'havzası, tarih boyunca maun tomruklarının taşındığı ve bugün tarımsal ' +
+      'yerleşimlerin yoğunlaştığı en işlek vadidir. ' +
+      '\n\n' +
+      'Kuzeyde Meksika ile sınırı çizen Rio Hondo ve güneyde Guatemala sınırını oluşturan ' +
+      'Sarstoon Nehri diğer başlıca sınır aşan akarsulardır. ' +
+      '\n\n' +
+      'Kireçtaşı yapının egemen olduğu iç platolarda ise yağmur suları yüzeyde akmak ' +
+      'yerine yeraltına süzülerek Caves Branch gibi geniş yeraltı nehirlerini ve karstik ' +
+      'mağara drenaj ağlarını besler.',
   },
   {
     isoCode: 'CR',
@@ -281,35 +345,54 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "15 Eylül 1821'de İspanya'dan bağımsız oldu (ortak Orta Amerika bildirgesiyle).",
     introTr:
-      "Kosta Rika, kuzeyde Nikaragua, güneydoğuda Panama ile komşu, batıda Büyük Okyanus'a, " +
-      "doğuda ise Karayip Denizi'ne kıyısı olan dar bir Orta Amerika ülkesidir. Ülkenin " +
-      'ortasından geçen volkanik sıradağlar zinciri, kıyı ovalarını birbirinden ayırır ve ' +
-      "nüfusun büyük bölümünün yaşadığı Orta Vadi'yi (Valle Central) çevreler. 200'den " +
-      'fazla sönmüş ve etkin volkan barındıran ülke, dünyanın volkanik açıdan en yoğun ' +
-      'bölgelerinden biridir.',
+      'Orta Amerika kıstağının daralan güney kesiminde yer alan Kosta Rika, kuzeyde ' +
+      'Nikaragua, güneydoğuda Panama ile komşudur; batıda Büyük Okyanus, doğuda ise ' +
+      'Karayip Denizi ile çevrilidir. ' +
+      '\n\n' +
+      'Topraklarının dörtte birinden fazlasını milli park ve biyolojik koruma alanlarına ' +
+      'ayıran ülke, iki kıta ve iki okyanus arasındaki geçiş köprüsü konumu sayesinde ' +
+      'gezegenin en yoğun biyoçeşitlilik sığınaklarından birini barındırır. Nüfusun büyük ' +
+      "çoğunluğu, volkanik sıradağların kuşattığı serin Orta Vadi'de (Valle Central) " +
+      'toplanmıştır.',
     landformNoteTr:
-      'Kuzeyden güneye sırasıyla Guanacaste, Tilarán, Orta (Central) ve Talamanca ' +
-      'sıradağları ülkenin ana dağ dizisini oluşturur; ilk üçü büyük ölçüde volkanik ' +
-      'kökenlidir ve Poás, Irazú, Arenal ile Turrialba gibi hâlâ etkin yanardağları ' +
-      'barındırır. Ülkenin en yüksek noktası, volkanik olmayan Talamanca sıradağlarındaki ' +
-      "3.821 metrelik Cerro Chirripó'dur; açık havalarda zirveden aynı anda hem Büyük " +
-      'Okyanus hem de Karayip Denizi görülebilir. Kıyı ovaları dardır — Karayip kıyısında ' +
-      'düz ve bataklık, Pasifik kıyısında ise Nicoya ve Osa gibi yarımadalarla girintili ' +
-      'çıkıntılıdır.',
+      'Ülkeyi kuzeybatıdan güneydoğuya bir omurga gibi bölen sıradağlar zinciri, dört ana ' +
+      'kordilyeradan meydana gelir: Guanacaste, Tilarán, Central ve Talamanca. İlk üç ' +
+      'kordilyera aktif levha dalmasının beslediği volkanik konilerden oluşur; Arenal, ' +
+      'Poás, Irazú ve Turrialba gibi yanardağlar tarihsel ve güncel püskürmeleriyle çevre ' +
+      'toprakları verimli volkanik küllerle beslemiştir. ' +
+      '\n\n' +
+      'Güneydeki Talamanca Sıradağları ise volkanik kökenli olmayıp tektonik yükselmenin ' +
+      'ürünüdür; ülkenin en yüksek zirvesi olan 3.821 metrelik Cerro Chirripó bu kütle ' +
+      'üzerinde yükselir. ' +
+      '\n\n' +
+      'Kıyı morfolojisi de iki deniz arasında tezat sergiler: Karayip kıyısı düz, alçak ' +
+      've lagünlerle kaplı bir kıyı kordonu iken, Pasifik kıyısı Nicoya ve Osa ' +
+      'yarımadaları, dik burunlar ve derin koylarla son derece girintili bir yapı sunar.',
     climateNoteTr:
-      'Karayip kıyısında belirgin bir kurak mevsim yoktur; yağış yıl boyunca düşer ve ' +
-      'yıllık ortalama 3.500 milimetreyi bulur. Pasifik kıyısında ise durum tam tersidir — ' +
-      'kuzeydeki Guanacaste bölgesinde Kasım-Mayıs arasında altı ay süren belirgin bir ' +
-      'kurak mevsim yaşanır ve bölge ülkenin en az yağış alan kesimidir; güneye inildikçe ' +
-      "yağış artar. Orta Vadi'deki yükseklik sıcaklığı dengeler; başkent San José'de yıl " +
-      'boyunca sıcaklık dar bir aralıkta, genellikle 15-26 santigrat derece arasında kalır.',
+      'Orta kordilyera kuşağı, iki okyanusun hava kütlelerini keskin biçimde ayıran bir ' +
+      'iklim duvarı işlevi görür. Karayip yamacı yıl boyunca nem yüklü alize rüzgarlarını ' +
+      'doğrudan karşılar; bu nedenle belirgin bir kurak mevsim yaşamaksızın yıllık 3.500 ' +
+      'ila 5.000 milimetre yağış alır. ' +
+      '\n\n' +
+      'Buna karşılık Pasifik yamacı, özellikle kuzeybatıdaki Guanacaste bölgesi, kasım ' +
+      'ile nisan arasında dağların yağış gölgesinde kalarak sert bir kurak döneme girer ' +
+      've tropikal kuru orman örtüsü geliştirir. ' +
+      '\n\n' +
+      '1.000 ila 1.500 metre rakımda yer alan Valle Central ve başkent San José ise ' +
+      'serinletici ılıman bir mikroklimaya sahiptir; sıcaklık yıl boyu 18 ila 26 derece ' +
+      'arasında dengelenir.',
     hydrographyNoteTr:
-      'Ülkenin dar yapısı, nehirlerin kısa ve dik eğimli olmasına yol açar; dağlardan ' +
-      'kıyıya inen çok sayıda bağımsız akarsu sistemi bulunur, tek bir baskın ana nehir ' +
-      'yoktur. Karayip yamacındaki Reventazón ve Pacuare nehirleri, hızlı akışlarıyla ' +
-      'rafting güzergâhı olarak bilinir. Kuzeyde, Nikaragua sınırı boyunca akan San Juan ' +
-      "Nehri, Nikaragua Gölü'nün fazla suyunu Karayip Denizi'ne taşır ve sınırın büyük " +
-      'bölümünü oluşturur.',
+      'Kıstağın darlığı ve merkezi dağların dikliği nedeniyle akarsular genellikle kısa, ' +
+      'yüksek debili ve hızlı akışlıdır. Karayip yamacına inen Reventazón ve Pacuare ' +
+      'nehirleri, derin kanyonları aşarak genişleyen hidroelektrik santrallerine ve su ' +
+      'sporlarına zemin hazırlar. ' +
+      '\n\n' +
+      "Kuzey sınırında yer alan San Juan Nehri, Nikaragua Gölü'nün sularını Karayip " +
+      "Denizi'ne taşırken uzun bir hat boyunca Kosta Rika ile sınır oluşturur. " +
+      '\n\n' +
+      'Pasifik tarafında ise Tempisque ve Térraba nehirleri, yarımadalar arasındaki ' +
+      'alüvyal düzlükleri sulayarak kıyı mangrov ekosistemlerine temiz tatlı su girdisi ' +
+      'sağlar.',
   },
   {
     isoCode: 'SV',
@@ -335,34 +418,53 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "15 Eylül 1821'de İspanya'dan bağımsız oldu (ortak Orta Amerika bildirgesiyle).",
     introTr:
-      "El Salvador, Orta Amerika'da yalnızca Büyük Okyanus'a kıyısı olan tek ülkedir; kıtanın " +
-      'Karayip kıyısına hiç ulaşmayan bu konum, onu bölgedeki diğer altı ülkeden ayıran temel ' +
-      "özelliktir. Yüzölçümü 20.720 km² ile Orta Amerika'nın en küçük ülkesi olmasına karşın " +
-      "nüfus yoğunluğu bölgede en yüksek seviyededir. Ülke, Kokos Plakası'nın Karayip " +
-      "Plakası'nın altına daldığı aktif bir yitim kuşağı üzerinde yer alır ve bu nedenle sık " +
-      'depremle ve etkin volkanizmayla karşı karşıyadır.',
+      "El Salvador, Orta Amerika'da Karayip Denizi'ne kıyısı bulunmayan, yalnızca Büyük " +
+      "Okyanus'a açılan tek devlettir. 20.720 kilometrekarelik yüzölçümüyle kıta ana " +
+      'karasının en küçük ülkesi olmasına rağmen, kilometrekareye düşen üç yüzü aşkın ' +
+      'insanıyla bölgenin en yoğun nüfuslu coğrafyasıdır. ' +
+      '\n\n' +
+      'Kuzeyde Honduras, batıda Guatemala ile sınırlanan ülke, Kokos levhasının Karayip ' +
+      "levhası altına daldığı aktif Orta Amerika Çukuru'nun hemen gerisinde yer alır; bu " +
+      'jeodinamik konum ülkeyi sık depremler ve yoğun volkanizma ile tanımlar.',
     landformNoteTr:
-      "Ülkeyi doğu-batı doğrultusunda kesen bir volkanik sıradağ, El Salvador'un iç coğrafyasını " +
-      'belirler; bu hat üzerinde yirmiden fazla volkan sıralanır. Ülkenin en yüksek noktası, ' +
-      "batıda Guatemala sınırına yakın 2.381 metrelik Santa Ana Yanardağı'dır (Ilamatepec). " +
-      "Hemen yanı başındaki Izalco Yanardağı, 1770'ten bu yana 50'den fazla patlama geçirmiştir; " +
-      'geceleri gemilere yol gösteren düzenli kızıl parıltısı nedeniyle tarihte "Büyük ' +
-      'Okyanus\'un Feneri" adıyla anılmıştır.',
+      'Ülke arazisi kıyıya paralel uzanan iki dağ kuşağı ve aralarındaki merkezi plato ' +
+      'hendeğinden meydana gelir. Güneydeki volkanik eksen üzerinde yirmiden fazla ' +
+      'yanardağ sıralanır; batıda 2.381 metrelik zirvesiyle ülkenin en yüksek volkanı ' +
+      'olan Santa Ana (Ilamatepec) ve hemen yanında yüzyıllar boyunca geceleri ' +
+      "parıldayarak denizcilere yön veren 'Pasifik Feneri' lakaplı Izalco Yanardağı yer " +
+      'alır. ' +
+      '\n\n' +
+      'Kuzey sınırında yükselen Sierra Madre zinciri ise 2.730 metrelik El Pital ' +
+      'zirvesiyle ülkenin mutlak en yüksek noktasını oluşturur. ' +
+      '\n\n' +
+      'Volkanik püskürmelerin yaydığı bazaltik ve andezitik küller (andozol topraklar), ' +
+      'dik yamaçları tarımsal açıdan son derece verimli kılarak yüksek afet riskine rağmen ' +
+      'nüfusun yüzyıllardır bu yamaçlarda ve kaldera çevrelerinde yoğunlaşmasını sağlamıştır.',
     climateNoteTr:
-      "El Salvador'da tropikal bir iklim egemendir; Mayıs-Ekim arası yağışlı mevsim, Kasım-Nisan " +
-      'arası ise kurak mevsim olarak ayrılır. Kıyı ovaları ve iç vadiler yıl boyunca sıcak ' +
-      'kalırken, volkanik sıradağın yüksek kesimlerinde rakımın etkisiyle sıcaklıklar belirgin ' +
-      'biçimde düşer. Ülke, Karayip kıyısındaki komşularını düzenli vuran tropikal siklonlardan ' +
-      'büyük ölçüde uzak kalır; bunun yerine sık deprem ve volkanik patlama riskiyle karşı ' +
-      'karşıyadır.',
+      'Yalnızca Pasifik cephesine açık olması sebebiyle El Salvador, Karayip alizelerinin ' +
+      'doğrudan neminden dağ setleriyle yalıtılmıştır. Ülkede iki belirgin mevsim ' +
+      'yaşanır: Mayıs-ekim arası süren yağışlı dönem ve kasım-nisan arası devam eden ' +
+      'belirgin kurak dönem. ' +
+      '\n\n' +
+      'Kıyı ovalarında sıcak ve boğucu savan koşulları egemenken, plato ve volkanik ' +
+      'eteklerde rakımın yükselmesiyle sıcaklıklar ılımanlaşır. ' +
+      '\n\n' +
+      'Karayip kasırgaları ülkeyi doğrudan vurmasa da, komşu ülkeler üzerinden aşan ' +
+      'siklonik sistemler dik ve ormansızlaşmış volkanik yamaçlarda yıkıcı heyelanlara ve ' +
+      'vadi taşkınlarına neden olur.',
     hydrographyNoteTr:
-      "Ülkenin en önemli akarsuyu, Guatemala'da doğan, kuzey sıradağlarını kestikten sonra " +
-      "merkezi platoyu geçen ve güneydeki volkanik sıradağı da yararak Büyük Okyanus'a dökülen " +
-      "Lempa Nehri'dir; ülke topraklarının yaklaşık yarısı bu nehir ve kolları tarafından " +
-      'sulanır. Lempa, ülkenin gemi taşımacılığına elverişli tek akarsuyudur. İç kesimdeki ' +
-      'Coatepeque ve Ilopango gölleri, volkanik kalderaların su tutmasıyla oluşmuştur. Ilopango ' +
-      "kalderası 1879-1880'de yeniden püskürmüştür ve gölün ortasındaki Islas Quemadas " +
-      'adacıkları bu püskürmenin ürünüdür.',
+      'Ülkenin hidrolojik can damarı, Guatemala dağlarından doğup El Salvador ' +
+      "topraklarını boydan boya kat eden ve Büyük Okyanus'a dökülen Lempa Nehri'dir. Ülke " +
+      'yüzölçümünün yarısından fazlasını drene eden Lempa, kurulan baraj gölleriyle ' +
+      '(Cerrón Grande Rezervuarı) ulusal elektrik üretiminin ve tarımsal sulamanın ana ' +
+      'kaynağıdır. ' +
+      '\n\n' +
+      'Arazideki diğer kritik su kütleleri, dev patlamalar sonucu çöken kraterlerin su ' +
+      'tutmasıyla oluşan Coatepeque ve Ilopango kaldera gölleridir. ' +
+      '\n\n' +
+      'Özellikle milattan sonra beşinci yüzyılda patlayarak tüm bölgedeki Maya ' +
+      'yerleşimlerini kül altında bırakan dev Ilopango kalderası, bugün başkentin ' +
+      'doğusunda devasa bir tatlı su havzası olarak varlığını sürdürür.',
   },
   {
     isoCode: 'GT',
@@ -388,38 +490,56 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "15 Eylül 1821'de İspanya'dan bağımsız oldu (ortak Orta Amerika bildirgesiyle).",
     introTr:
-      'Guatemala, kuzey ve batıda Meksika, doğuda Belize ve Honduras, güneydoğuda El ' +
-      "Salvador ile komşudur; güneybatıda Büyük Okyanus'a, doğuda ise kısa bir Karayip " +
-      'Denizi kıyısına sahiptir. Ülke topraklarını doğu-batı doğrultusunda kat eden ' +
-      "volkanik dağ kuşağı, Guatemala'yı üç farklı bölgeye ayırır: ortadaki yüksek dağlık " +
-      'bölge (Highlands), güneyde dar bir Pasifik kıyı ovası ve kuzeyde geniş bir kireçtaşı ' +
-      "platosu olan Petén alçak ovaları. Orta Amerika'nın nüfusça en kalabalık ülkesi olan " +
-      "Guatemala'da halkın büyük bölümü dağlık bölgede yaşar.",
+      'Guatemala, Orta Amerika kıstağının en kalabalık ülkesidir; kuzey ve batıda ' +
+      'Meksika, doğuda Belize, güneydoğuda ise Honduras ve El Salvador ile çevrilidir. ' +
+      "Güneybatıda Büyük Okyanus'a geniş bir kıyıyla açılırken, doğuda Honduras Körfezi " +
+      'üzerinden dar bir Karayip çıkışına sahiptir. ' +
+      '\n\n' +
+      'Antik Maya uygarlığının beşiği olan ülke, kıstağın en sarp ve yüksek dağlık ' +
+      'kütlelerini barındırır. Nüfus ve ekonomik faaliyetler ağırlıklı olarak volkanik ' +
+      'yaylalarda toplanırken, kuzeydeki bakir orman ovaları tarihsel Maya kalıntılarına ' +
+      'ev sahipliği yapar.',
     landformNoteTr:
-      "Guatemala'nın dağlık bölgesinde 30'dan fazla volkanik zirve sıralanır; bunların en " +
-      "yükseği, Orta Amerika'nın da en yüksek noktası olan 4.220 metrelik Tajumulco " +
-      "Yanardağı'dır. Aynı volkanik kuşakta, yaklaşık 84.000 yıl önce büyük bir patlamayla " +
-      'oluşan kalderanın içini dolduran Atitlán Gölü yer alır; 340 metreyi bulan ' +
-      "derinliğiyle Orta Amerika'nın en derin gölüdür ve kenarında Atitlán, Tolimán ve San " +
-      "Pedro yanardağları yükselir. Kuzeyde, Meksika'daki Yucatán Platosu'nun uzantısı olan " +
-      'Petén bölgesi bunların tam tersidir: yüksekliği nadiren 200 metreyi aşan, düz ve ' +
-      'alçak bir kireçtaşı arazidir; yüzey suyu azdır, drenaj büyük ölçüde yeraltından ' +
-      'gerçekleşir.',
+      'Ülke arazisi üç belirgin jeomorfolojik kuşağa ayrılır. Güneyde Pasifik levhasının ' +
+      "dalma zonuna paralel uzanan Sierra Madre de Chiapas kuşağı, Orta Amerika'nın en " +
+      'yüksek noktası olan 4.220 metrelik Tajumulco Yanardağı dahil olmak üzere otuzdan ' +
+      'fazla volkana ev sahipliği yapar. Bu kuşakta, 84 bin yıl önceki süper patlamanın ' +
+      'oluşturduğu kalderada yer alan ve 340 metre derinliğiyle bölgenin en derin su ' +
+      'kütlesi olan Atitlán Gölü yükselir. ' +
+      '\n\n' +
+      'İç kesimde, Kuzey Amerika ve Karayip levhalarının sınırını çizen Motagua ve ' +
+      'Polochic fay vadileri boyunca kristalen kireçtaşı kütlesi Cuchumatanes Sıradağları ' +
+      'yükselir. ' +
+      '\n\n' +
+      "Kuzey kesimi ise Meksika'nın Yucatán Yarımadası ile bütünleşen Petén kireçtaşı " +
+      'platosudur; ortalama 200 metreyi aşmayan bu dalgalı karstik ova, yoğun yağmur ' +
+      'ormanlarıyla kaplıdır ve yüzey akışından büyük ölçüde yoksundur.',
     climateNoteTr:
-      'Pasifik kıyı ovası ve kuzeydeki Petén alçak ovaları yıl boyunca sıcak ve nemli bir ' +
-      'iklime sahiptir. Orta yükseklikteki dağlık bölge, "ebedi bahar" olarak tanımlanan ' +
-      "ılıman bir iklimle bilinir — başkent Guatemala Şehri'nde yıllık sıcaklık farkı " +
-      'azdır. Kuzeybatıdaki Cuchumatanes sıradağlarının yüksek kesimlerinde ise kışın ' +
-      'donlar ve hatta kar görülebilir. Ülkenin doğu uçlarında, Karayip nemi dağlarla ' +
-      'kesildiği için daha kurak ve sıcak bir iklim hakimdir.',
+      'Enlemden ziyade dikey yükselti basamakları iklimi şekillendirir. Pasifik kıyı ' +
+      'düzlüğü ile Petén yağmur ormanları, yıl boyu 30 dereceyi aşan sıcaklıkların ve ' +
+      'yüksek nemin hüküm sürdüğü sıcak kuşaktadır (tierra caliente). ' +
+      '\n\n' +
+      'Nüfusun ve kahve üretiminin yoğunlaştığı 1.500 ila 2.500 metre arasındaki orta ' +
+      'yaylalar, sıcaklığın yıl boyunca 15 ila 25 derece arasında seyrettiği ılıman bir ' +
+      'yayla iklimine (tierra templada) sahiptir. ' +
+      '\n\n' +
+      'Cuchumatanes ve volkanik dorukların yer aldığı 3.000 metrenin üzerindeki ' +
+      'yaylalarda (tierra fría) kış aylarında don olayları ve sert soğuklar yaşanır; ' +
+      'doğudaki Motagua Vadisi gibi dağ ardı ceplerinde ise yağış gölgesi sebebiyle ' +
+      'kaktüslü yarı kurak mikroklimlar gelişir.',
     hydrographyNoteTr:
-      'Batı dağlarından doğan Motagua, doğuya akarak yaklaşık 480 kilometre sonra Karayip ' +
-      "Denizi'ne ulaşır ve ülkenin en uzun nehridir; aşağı yatağında Honduras sınırının bir " +
-      "bölümünü de çizer. Kuzeydoğuda, Polochic Nehri'nin beslediği Izabal Gölü ülkenin en " +
-      "büyük gölüdür ve dar Río Dulce boğazı aracılığıyla Karayip Denizi'ne bağlanır. " +
-      "Kuzeyde, Petén'in düz kireçtaşı arazisinden geçen Usumacinta Nehri, aşağı yatağında " +
-      'Meksika sınırının önemli bir bölümünü oluşturur ve bölgenin en büyük akarsu ' +
-      'sistemlerinden biridir.',
+      'Tektonik fay oluğunu takip eden 480 kilometrelik Motagua Nehri, batı yaylalarından ' +
+      "doğup doğuya doğru akarak Karayip Denizi'ne ulaşır ve ülkenin en uzun iç akarsu " +
+      'omurgasını oluşturur. ' +
+      '\n\n' +
+      "Kuzeydoğuda Polochic Nehri, Guatemala'nın en büyük doğal su kütlesi olan 589 " +
+      "kilometrekarelik Izabal Gölü'nü besler; gölün suları kanyon benzeri Río Dulce " +
+      "boğazından geçerek Karayip'e boşalır. " +
+      '\n\n' +
+      'Kuzeydeki Petén ormanlarının sularını toplayan Pasión ve Salinas nehirleri ' +
+      "birleşerek Usumacinta Nehri'ni meydana getirir; Meksika sınırını çizerek Meksika " +
+      "Körfezi'ne dökülen bu nehir, Orta Amerika'nın hacimce en büyük akarsu ağlarından " +
+      'biridir.',
   },
   {
     isoCode: 'HN',
@@ -445,37 +565,53 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "15 Eylül 1821'de İspanya'dan bağımsız oldu (ortak Orta Amerika bildirgesiyle).",
     introTr:
-      "Honduras, Orta Amerika'da hem Karayip hem de Büyük Okyanus kıyısına sahip ülkelerden " +
-      'biridir: kuzeyde 700 kilometrelik bir Karayip kıyı şeridi uzanırken, güneyde Fonseka ' +
-      'Körfezi üzerinden yalnızca 153 kilometrelik dar bir Büyük Okyanus kıyısına açılır. Ülke ' +
-      'topraklarının büyük bölümü dağlık ve engebelidir, düzlükler yalnızca kıyı şeritlerinde ve ' +
-      'nehir vadilerinde görülür. Kuzey kıyısı açıklarındaki Bahía Adaları, ülkenin dalış ve ' +
-      'kıyı turizminin merkezidir.',
-    landformNoteTr:
-      "Ülkenin en yüksek noktası, batıdaki Lempira Departmanı'nda yükselen 2.870 metrelik Cerro " +
-      "Las Minas'tır; zirve ve çevresindeki 266 kilometrekarelik alan Celaque Ulusal Parkı " +
-      'sınırları içinde korunur. Dağlık iç kesim, rakıma göre üç farklı iklim-arazi kuşağına ' +
-      'ayrılır: 1.000 metrenin altında sıcak tierra caliente, 1.000-2.000 metre arası ılıman ' +
-      'tierra templada, 2.000 metrenin üzerinde ise serin tierra fría. Başkent Tegusigalpa, ' +
-      '1.000 metre rakımdaki bir vadide kurulu olması nedeniyle bu ılıman kuşağın tipik bir ' +
-      'örneğidir.' +
+      "Honduras, Orta Amerika kıstağında kuzeyde Karayip Denizi'ne uzanan yaklaşık 700 " +
+      'kilometrelik geniş bir sahil şeridine, güneyde ise Fonseka Körfezi üzerinden Büyük ' +
+      "Okyanus'a açılan 153 kilometrelik dar bir kıyı koridoruna sahiptir. Batıda " +
+      'Guatemala, güneybatıda El Salvador ve güneydoğuda Nikaragua ile komşudur. ' +
       '\n\n' +
-      'Kuzey kıyısı açıklarındaki Roatán, Utila ve Guanaja adalarından oluşan Bahía Adaları, ' +
-      "Mezoamerika Resif Sistemi'nin bir parçasıdır; bu sistem, Büyük Set Resifi'nden sonra " +
-      'dünyanın en büyük ikinci mercan resif ağıdır.',
+      'Ülke topraklarının yüzde sekseninden fazlası dik yamaçlı tepeler ve dağ ' +
+      'sıralarıyla kaplıdır. Bu engebeli yapı geniş tarım ovalarının oluşmasını ' +
+      'engellemiş; yerleşimi izole vadi tabanlarına ve kuzey kıyısındaki alüvyal ' +
+      'düzlüklere dağıtmıştır.',
+    landformNoteTr:
+      "Ülke arazisi, Orta Amerika Kordilyerası'nın en karmaşık ve aşınmış parçalarından " +
+      'birini barındırır. Batı kesimde yükselen Celaque Sıradağları, 2.870 metrelik ' +
+      'zirvesi Cerro Las Minas ile ülkenin en yüksek noktasını oluşturur ve bulut ' +
+      'ormanlarıyla kaplı bir sığınaktır. ' +
+      '\n\n' +
+      'Merkezi ve güney kesimler, derin yarılmış vadi şebekeleriyle birbirinden ayrılan ' +
+      '1.000 ila 2.000 metre rakımlı dağ bloklarından oluşur; başkent Tegusigalpa bu dağ ' +
+      'içi kanyon vadilerinden birinin tabanına kurulmuştur. ' +
+      '\n\n' +
+      'Kuzey kıyısında Karayip açıklarına saçılan Roatán, Utila ve Guanaja adalarından ' +
+      "oluşan Bahía Adaları grubu, Mezoamerika Resif Sistemi'nin güney ucunu meydana " +
+      'getiren biyolojik açıdan zengin mercan kireçtaşları üzerinde yükselir.',
     climateNoteTr:
-      "Honduras'ın iklimi kıyı ve iç kesimler arasında belirgin biçimde farklılaşır. Karayip " +
-      'kıyısı yıl boyunca sıcak ve nemli kalırken, Fonseka Körfezi çevresindeki Büyük Okyanus ' +
-      'kıyısında Kasım-Nisan arası belirgin bir kurak mevsim yaşanır. İç kesimlerdeki yüksek ' +
-      'vadiler, rakımın etkisiyle kıyı ovalarına göre çok daha ılımandır. Ülke Karayip kasırga ' +
-      'kuşağının içinde yer alır; kuzey kıyısı zaman zaman tropikal fırtına ve kasırga etkisi ' +
-      'altında kalır.',
+      'Dağ dizilimleri ve okyanus cepheleri iklimde belirgin bir bölünme yaratır. Kuzey ' +
+      'Karayip kıyısı ve dağların kuzeye bakan yamaçları, yıl boyu ticaret rüzgarlarının ' +
+      'taşıdığı nemi alarak yıllık 2.500 ila 3.000 milimetre yağışla sürekli sıcak ve ' +
+      'nemli kalır. ' +
+      '\n\n' +
+      'Fonseka Körfezi çevresindeki dar Pasifik havzası ise kasım ile nisan ayları ' +
+      'arasında kurak geçen belirgin bir savan iklimine sahiptir. ' +
+      '\n\n' +
+      'İç dağ vadilerinde rakım sıcaklığı törpüleyerek serin ve dengeli bir ortam sağlasa ' +
+      'da, ülke düzenli olarak Atlantik kökenli yıkıcı tropikal kasırgaların hedefi olur; ' +
+      'dik dağ yamaçları şiddetli yağışlarda devasa toprak kaymaları ve sel felaketleri ' +
+      'üretir.',
     hydrographyNoteTr:
-      'Ülkenin en uzun nehirlerinden Ulúa Nehri, kuzeydeki verimli ovaları sulayarak Karayip ' +
-      "Denizi'ne dökülür; kollarıyla birlikte ülke topraklarının yaklaşık üçte birini sular. " +
-      'Chamelecón, Aguán, Plátano ve Patuca gibi diğer büyük nehirler de kuzey kıyısına paralel ' +
-      'havzalarda akar. Doğudaki La Mosquitia bölgesinde, Patuca ve Plátano nehirlerinin ' +
-      'çevresinde geniş ve seyrek nüfuslu yağmur ormanı ile sulak alanlar uzanır.',
+      'Ülkenin en önemli ekonomik ve tarımsal akarsuyu, iç dağlardan beslenip kuzeydeki ' +
+      "geniş Sula Ovası'nı katederek Karayip Denizi'ne dökülen Ulúa Nehri'dir. Muz ve " +
+      'şeker kamışı plantasyonlarıyla çevrili bu havza, Chamelecón Nehri ile birlikte ' +
+      'ülkenin sanayi ve nüfus merkezini sular. ' +
+      '\n\n' +
+      'İç kesimde yer alan Yojoa Gölü, sönmüş volkanik arazilerin çevrelediği 79 ' +
+      'kilometrekarelik yüzölçümüyle ülkenin tek büyük doğal gölüdür. ' +
+      '\n\n' +
+      'Doğuda Nikaragua sınırına doğru uzanan La Mosquitia bölgesinde ise Patuca ve Coco ' +
+      'nehirleri balta girmemiş yağmur ormanları, bataklıklar ve lagünlerle örülü uçsuz ' +
+      'bucaksız, yolsuz bir taşkın havzası meydana getirir.',
   },
   {
     isoCode: 'NI',
@@ -501,34 +637,54 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "15 Eylül 1821'de İspanya'dan bağımsız oldu (ortak Orta Amerika bildirgesiyle).",
     introTr:
-      "Nikaragua, Orta Amerika'nın yüzölçümce en büyük ülkesidir; buna karşın nüfus yoğunluğu " +
-      'bölgede düşük seviyededir. Ülkenin batı yarısını volkanik bir sıradağ ve iki büyük göl — ' +
-      'Managua ve Nikaragua Gölleri — kaplarken, doğu yarısı seyrek nüfuslu, alçak ve ormanlık ' +
-      "Mosquito Kıyısı'ndan oluşur. Bu iki bölge arasındaki nüfus ve altyapı farkı, ülkenin " +
-      'coğrafi kimliğinin temel eksenini oluşturur.',
+      'Nikaragua, 120.340 kilometrekarelik yüzölçümüyle Orta Amerika kıstağının en geniş ' +
+      'ülkesidir. Kuzeyde Honduras, güneyde Kosta Rika ile komşu olan ülke; batıda Büyük ' +
+      'Okyanus, doğuda ise Karayip Denizi ile çevrilidir. ' +
+      '\n\n' +
+      'Ülke coğrafyası belirgin bir doğu-batı asimetrisi sergiler. Nüfusun, sanayinin ve ' +
+      'tarımın ezici kısmı batıdaki volkanik çöküntü havzasında ve dev göllerin ' +
+      'çevresinde toplanırken; yüzölçümünün yarısından fazlasını kaplayan doğudaki ' +
+      'Mosquito Kıyısı (Costa de Mosquitos), seyrek nüfuslu bakir yağmur ormanları ve ' +
+      'nehir bataklıklarından oluşur.',
     landformNoteTr:
-      "Ülkenin en yüksek noktası, kuzeyde Honduras sınırındaki Dipilto ve Jalapa Sıradağı'nda " +
-      "yükselen 2.085 metrelik Mogotón Tepesi'dir. Batı Nikaragua'yı boydan boya kateden " +
-      'volkanik hat üzerinde yirmiye yakın etkin ya da sönmüş volkan sıralanır. Nikaragua ' +
-      "Gölü'nün ortasında yükselen Ometepe Adası, biri hâlâ etkin olan 1.610 metrelik Concepción " +
-      've sönmüş 1.394 metrelik Maderas volkanlarının dar bir kıstakla birleşmesinden oluşur; ' +
-      'ada genellikle dünyanın bir tatlı su gölü içindeki en büyük volkanik ada toprağı olarak ' +
-      'anılır.',
+      'Topoğrafyanın belirleyici ekseni, Pasifik kıyısına paralel uzanan tektonik ' +
+      "Nikaragua Çöküntüsü'dür (graben). Bu çöküntü çanağı boyunca sıralanan Maribios " +
+      'volkanik zinciri, Momotombo, Telica ve Cerro Negro gibi son derece aktif ' +
+      'yanardağları barındırır. Ülkenin en yüksek noktası ise kuzeyde Honduras ' +
+      "sınırındaki granitik kütle üzerinde yükselen 2.085 metrelik Mogotón Tepesi'dir. " +
+      '\n\n' +
+      "Çöküntü tabanını kaplayan dev Nikaragua Gölü'nün (Cocibolca) ortasında, Concepción " +
+      '(1.610 m) ve Maderas (1.394 m) volkanlarının dar bir lav kıstağıyla birleşmesinden ' +
+      'doğan kum saati biçimindeki Ometepe Adası yükselir; bu oluşum dünyada tatlı su ' +
+      'gölü içindeki en büyük volkanik adalardan biridir. ' +
+      '\n\n' +
+      'Merkezi yaylaların doğusuna geçildikçe topoğrafya kademeli olarak alçalır ve ' +
+      "Karayip Denizi'ne doğru genişleyen sığ, ormanlık alüvyal ova kuşağına dönüşür.",
     climateNoteTr:
-      "Nikaragua'da tropikal iklim egemendir, ancak Karayip ve Büyük Okyanus kıyıları arasında " +
-      'belirgin bir yağış farkı vardır. Doğudaki Karayip kıyısı ve Mosquito Kıyısı yıl boyunca ' +
-      'bol yağış alır; Bluefields kenti yılda ortalama 2.700 milimetrenin üzerinde yağışla ' +
-      'ülkenin en yağışlı yerleşimlerinden biridir. Batıdaki Büyük Okyanus kıyısında ise ' +
-      'Kasım-Nisan arası belirgin bir kurak mevsim yaşanır, ticaret rüzgarları bu dönemde ' +
-      'serinletici bir etki yaratır.',
+      'İki kıyı arasındaki yağış farkı ülkenin en belirgin iklim karakteridir. Karayip ' +
+      'kıyısı ve doğu ormanları, Atlas Okyanusu alizelerinin taşıdığı nemi yıl boyu ' +
+      'kesintisiz alarak yıllık 3.000 ila 5.000 milimetreye varan aşırı yağışla beslenir; ' +
+      'Bluefields kenti bölgenin en nemli merkezlerindendir. ' +
+      '\n\n' +
+      'Buna karşılık merkezi sıradağların batısında kalan Pasifik havzası, kasım ile ' +
+      'nisan arasında altı ay süren kuru bir mevsime girer. ' +
+      '\n\n' +
+      'Bu kurak dönem tarımsal takvimi belirlerken, batı ovalarında yüksek sıcaklıklar ' +
+      'ticaret rüzgarlarının göl esintileriyle birleşmesi sayesinde kısmen hafifler.',
     hydrographyNoteTr:
-      'Ülkenin en büyük gölü olan Nikaragua Gölü (Cocibolca), 8.264 kilometrekarelik ' +
-      "yüzölçümüyle Orta Amerika'nın en büyük tatlı su gölüdür; gölde yaşayan boğa " +
-      'köpekbalıkları, okyanusla göl arasında haftalar içinde gidip gelebilen, tatlı suya uyum ' +
-      'sağlamış nadir popülasyonlardan biridir. Göl doğuda San Juan Nehri aracılığıyla Karayip ' +
-      "Denizi'ne boşalır; bu 192 kilometrelik nehir, uzun bir bölümünde Kosta Rika sınırını da " +
-      "belirler. Daha küçük Managua Gölü (Xolotlán), Tipitapa Nehri ile Nikaragua Gölü'ne " +
-      'bağlanır.',
+      "Ülke, Orta Amerika'nın en büyük iki tatlı su kütlesine ev sahipliği yapar: 8.264 " +
+      'kilometrekarelik Nikaragua Gölü (Cocibolca) ve ona Tipitapa Nehri ile bağlanan ' +
+      '1.024 kilometrekarelik Managua Gölü (Xolotlán). Nikaragua Gölü, okyanustan nehir ' +
+      'yoluyla göle tırmanıp tatlı suya adapte olan boğa köpekbalıkları ve testere ' +
+      'balıklarıyla biyolojik açıdan benzersizdir. ' +
+      '\n\n' +
+      "Nikaragua Gölü'nün fazla suları, güneydoğu ucundan çıkan 192 kilometrelik San Juan " +
+      "Nehri ile Karayip Denizi'ne boşalır; Kosta Rika sınırının büyük kısmını çizen bu " +
+      'nehir, Pasifik ile Atlas okyanusları arasında doğal bir su yolu oluşturduğu için ' +
+      'tarih boyunca kıtalararası kanal projelerinin odağında yer almıştır. ' +
+      '\n\n' +
+      'Kuzeyde Honduras sınırını çizen 750 kilometrelik Coco (Wangki) Nehri ve doğu ' +
+      "ovalarını yaran Grande de Matagalpa, Karayip'e dökülen diğer dev akarsulardır.",
   },
   {
     isoCode: 'PA',
@@ -554,38 +710,52 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "Kolombiya'dan 3 Kasım 1903'te ayrıldı (daha önce 28 Kasım 1821'de İspanya'dan bağımsızlık kazanıp Gran Kolombiya'ya katılmıştı).",
     introTr:
-      'Panama, Kuzey ve Güney Amerika kıtalarını birbirine bağlayan dar bir kara köprüsü ' +
-      '(kıstak) üzerinde yer alır; batıda Kosta Rika, doğuda Kolombiya ile komşudur. ' +
-      "Ülkenin ortasından geçen Panama Kanalı, Atlas ve Büyük Okyanus'u birbirine bağlar ve " +
-      'dünya deniz ticaretinin en önemli geçitlerinden biridir. Doğudaki Darién bölgesi, ' +
-      'yol ve köprü bulunmayan yoğun bir yağmur ormanıyla kaplıdır — Amerika kıtalarını ' +
-      "uçtan uca bağlayan Pan-Amerikan Otoyolu'nun tek kesintiye uğradığı yer burasıdır.",
+      'Panama, Kuzey ve Güney Amerika kıtalarını birbirine bağlayan, Atlas Okyanusu ile ' +
+      "Büyük Okyanus'u ise birbirinden ayıran dar ve kıvrımlı bir kara köprüsü (kıstak) " +
+      'üzerinde kuruludur. Batıda Kosta Rika, doğuda Kolombiya ile komşudur. ' +
+      '\n\n' +
+      'Ülkenin en dar ve alçak kesiminde inşa edilen Panama Kanalı, küresel deniz ' +
+      'ticaretinin en stratejik boğazlarından biri olarak işlev görür. Doğudaki Kolombiya ' +
+      'sınırını kapatan Darién Boşluğu (Tapón del Darién) ise yol geçit vermeyen balta ' +
+      'girmemiş yağmur ormanları ve bataklıklarıyla iki kıta arasındaki tek karayolu ' +
+      'kopukluğunu oluşturur.',
     landformNoteTr:
-      'Kosta Rika sınırından başlayıp ülkenin ortasına kadar uzanan Cordillera Central, Orta ' +
-      "Amerika'nın ana dağ sisteminin güney ucudur ve Panama'nın tek büyük sıradağıdır. Ülkenin " +
-      "en yüksek noktası, bu sıradağ üzerindeki 3.474 metrelik Volcán Barú'dur; son patlamasının " +
-      'üzerinden yüzyıllar geçmiş olsa da jeologlar onu hâlâ etkin bir stratovolkan olarak ' +
-      'sınıflandırır. Doğuda, Kolombiya sınırına kadar uzanan Darién bölgesi alçak, sarp ve ' +
-      'yoğun ormanlıktır; bu coğrafya bölgeyi kara yoluyla neredeyse geçilmez kılar. Ülke ' +
-      "boyunca 500'e yakın nehir, dar kıstağı kuzey ve güney kıyılarına bağlar.",
+      'Ülkenin omurgasını batıda Kosta Rika sınırından başlayarak uzanan volkanik ' +
+      'Cordillera Central dağ kuşağı oluşturur. Ülkenin zirvesi, bu kütle üzerinde 3.474 ' +
+      "metreye ulaşan uykudaki stratovolkan Volcán Barú'dur; zirvesinden açık günlerde " +
+      'aynı anda hem Pasifik hem de Karayip denizi ufku seçilebilir. ' +
+      '\n\n' +
+      'Orta kesime doğru dağlar alçalarak yerini kanalın geçtiği 100 metrenin altındaki ' +
+      'dalgalı tepelere ve eyer şeklindeki kıstak eşiğine bırakır. ' +
+      '\n\n' +
+      "Doğuya ilerledikçe topoğrafya yeniden yükselerek Darién Sıradağları'na ve San Blas " +
+      'kıyı tepelerine dönüşür; aşırı nemli ve dik bu coğrafya, insan yerleşimini ' +
+      'sınırlayan aşılmaz bir doğal duvar meydana getirir.',
     climateNoteTr:
-      "Panama'da yıl boyunca sıcaklık farkı azdır; iklimi asıl belirleyen unsur yağış " +
-      'rejimidir. Nisan-Aralık arasındaki yağışlı mevsimde neredeyse tüm yıllık yağış ' +
-      'düşer; Ocak-Nisan arasındaki kısa kurak dönem ise özellikle Pasifik kıyısında ' +
-      'belirgindir. Karayip kıyısında yağış daha bol ve daha az mevsimsel dağılımlıdır, ' +
-      "kurak dönem burada zayıf biçimde hissedilir. Panama Kanalı'nın işleyişi doğrudan bu " +
-      'yağış rejimine bağlıdır — kanaldaki gölleri besleyen suyun neredeyse tamamı ' +
-      'yağmurdan gelir.',
+      'Panama bütünüyle sıcak ve nemli tropikal iklim kuşağındadır; sıcaklıklar yıl ' +
+      'boyunca 24 ila 32 derece arasında hemen hemen sabit kalır. İklimin ritmini yağış ' +
+      'rejimi tayin eder: Mayıs ile aralık arasındaki sekiz aylık yağışlı mevsimde muson ' +
+      'benzeri sağanaklar görülür. ' +
+      '\n\n' +
+      'Karayip yamacı yıl boyu nemli ticaret rüzgarlarını doğrudan karşıladığı için yılda ' +
+      '3.000 milimetrenin üzerinde yağış alır ve belirgin bir kurak mevsim tanımaz. ' +
+      '\n\n' +
+      'Pasifik yamacı ise ocak ile nisan arasında dağların siperinde kalarak belirgin bir ' +
+      'kurak döneme girer; başkent Panama Şehri dahil olmak üzere nüfusun büyük kısmı bu ' +
+      'daha kuru Pasifik eteğinde toplanmıştır.',
     hydrographyNoteTr:
-      "Kanal havzasının en büyük nehri olan Chagres, Gatún Barajı ile setlenerek 1912'de " +
-      "Gatún Gölü'nü oluşturmuştur; bu göl kanal boyunca gemilerin geçişini sağlayan " +
-      'yükseltilmiş su yolunun büyük bölümünü kapsar ve halen ülkenin en büyük su ' +
-      'kütlesidir. Karayip kıyısına akan yaklaşık 150 nehrin en önemlisi Chagres iken, ' +
-      "Pasifik tarafında bu rolü, Darién'de doğup 230 kilometre boyunca güneye akan Tuira " +
-      'Nehri üstlenir; havza büyüklüğü ve debisiyle ülkenin en büyük nehri budur, ülkenin ' +
-      "en uzun akarsuyu ise Tuira'nın bir kolu olan Chucunaque'dir. İki kıyıya akan " +
-      "nehirlerin bu şekilde ayrışması, Cordillera Central'in su ayrım hattı olarak işlev " +
-      'görmesinden kaynaklanır.',
+      'Merkezi dağ omurgası ülkeyi iki ayrı drenaj havzasına ayırır; dağların denize ' +
+      'yakınlığı nedeniyle beş yüzü aşkın akarsu genellikle kısa, eğimli ve hızlı ' +
+      'akışlıdır. Karayip tarafının en kritik nehri olan Chagres, Gatún Barajı ile ' +
+      "setlenerek 1913'te insan yapımı Gatún Gölü'nü oluşturmuştur. " +
+      '\n\n' +
+      "Panama Kanalı'nın gemi geçiş havuzlarını yerçekimiyle besleyen tatlı suyun tamamı " +
+      'Chagres havzası ve Gatún Gölü rezervuarından karşılandığı için nehrin debisi ' +
+      'doğrudan küresel ticaretin sürekliliğini belirler. ' +
+      '\n\n' +
+      'Pasifik tarafında ise ülkenin en uzun nehri olan Chucunaque ve onun birleştiği ' +
+      'devasa debili Tuira Nehri, Darién bölgesinin vahşi yağmur ormanlarını drene ederek ' +
+      "San Miguel Körfezi'ne dökülür.",
   },
   {
     isoCode: 'AG',
@@ -610,37 +780,38 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
     independenceNoteTr: "1 Kasım 1981'de Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      'Antigua ve Barbuda, birbirinden tamamen farklı iki jeolojik kökene sahip adaların oluşturduğu ' +
-      "bir ikiz ada devletidir. Antigua'nın güneybatısında aşınmış bir volkanik krater kalıntısı, " +
-      'ortasında bir düzlük, doğusunda ise daha genç kireçtaşı tepeleri yer alır. Kuzeybatıda, ' +
-      'yaklaşık 50 kilometre uzaktaki Barbuda ise tamamen mercan kökenli, düz ve alçak bir kireçtaşı ' +
-      'platosudur. Antigua\'nın kıyı şeridinin girintili-çıkıntılı yapısı, geleneksel olarak "yılın her ' +
-      'günü için bir tane" denilerek 365 plaj sayısıyla anılır.',
+      "Antigua ve Barbuda, Küçük Antiller'in Rüzgaraltı Adaları grubunda yer alan ve jeolojik " +
+      'bakımdan birbirine zıt iki farklı adanın birleşmesinden doğan bir ada devletidir. ' +
+      'Güneydeki ana ada Antigua, aşınmış volkanik tepeler ile kireçtaşı düzlüklerinin ' +
+      'harmanlandığı girintili çıkıntılı koylara ve doğal limanlara sahiptir. Yaklaşık 50 ' +
+      'kilometre kuzeydeki Barbuda ise neredeyse tamamen düz, mercan resiflerinin ' +
+      'yükselmesiyle şekillenmiş alçak bir kireçtaşı kütlesidir. Kıyılarındaki sayısız doğal koy ' +
+      've mercan sığlıkları, adaları tarih boyunca denizciler için korunaklı bir sığınak kılmıştır.',
     landformNoteTr:
-      "Antigua'nın güneybatı köşesinde yükselen ve eski adıyla Boggy Peak olarak bilinen, 402 metrelik " +
-      'Mount Obama, adanın en yüksek noktasıdır; bu tepe, aşınmış bir volkanik kraterin kalıntısıdır ' +
-      've adanın en eski kayaçlarından oluşur. Bu volkanik kütlenin kuzeydoğusunda marn ve kilden ' +
-      'oluşan bir merkez düzlük uzanır, adanın doğu kesimi ise daha genç bir dönemde oluşmuş kireçtaşı ' +
-      'tepelerle kaplıdır.' +
+      'Antigua adası üç belirgin topoğrafik kuşağa ayrılır: Güneybatıda aşınmış eski bir ' +
+      'volkanik kalderanın kalıntısı olan ve 402 metreyle ülkenin en yüksek noktasını ' +
+      'oluşturan Mount Obama (eski adıyla Boggy Peak) kütlesi yükselir; orta kesimde killi ve ' +
+      'marnlı bir çöküntü düzlüğü uzanırken, kuzeydoğuda dalgalı kireçtaşı tepeleri yer alır.' +
       '\n\n' +
-      "Barbuda'da arazi bütünüyle farklıdır. Adanın en yüksek noktası olan Barbuda Highlands yalnızca " +
-      '44,5 metreye ulaşır, yüzey tamamen mercan kireçtaşından oluşur. Batı kıyısında, uzun bir kum ' +
-      'seti tarafından açık denizden ayrılan geniş Codrington Lagünü yer alır; bu sığ lagün, Batı ' +
-      "Yarımküre'nin en büyük fırkateyn kuşu kolonisine ev sahipliği yapar.",
+      'Kuzeydeki Barbuda adasında ise volkanik iz bulunmaz; en yüksek yeri olan Barbuda ' +
+      'Highlands yalnızca 44,5 metreye ulaşır. Adanın batı kıyısında açık denizden dar bir ' +
+      "kum setiyle ayrılan sığ Codrington Lagünü, Batı Yarımküre'nin en büyük fırkateyn kuşu " +
+      'kolonisine ev sahipliği yapan benzersiz bir sulak alan ekosistemidir.',
     climateNoteTr:
-      'Ülkede tropikal bir iklim egemendir; Aralık-Nisan arası kurak, Ağustos-Kasım arası ise daha ' +
-      'yağışlı bir dönem izler. Antigua ve Barbuda, Karayip kasırga kuşağının tam içinde yer alır ve ' +
-      "bu risk iki ada arasında eşit dağılmaz: 2017'de Kasırga Irma, Barbuda'daki yapıların yaklaşık " +
-      "%95'ini hasara uğratmış, ada 300 yılı aşkın kayıtlı tarihinde ilk kez tamamen boşaltılmıştır. " +
-      'Antigua aynı fırtınadan görece daha hafif etkilenmiştir. Düşük rakım ve sınırlı yağış, her iki ' +
-      'adada da yıl boyunca su sıkıntısına yol açar.',
+      'Ülkede kuzeydoğu alizelerinin yumuşattığı tropikal denizel bir iklim hüküm sürer; ' +
+      'aralık-nisan arası belirgin bir kurak dönem yaşanırken, ağustos-kasım arası yağışlar artar. ' +
+      'Dağ sıralarının yüksek olmaması orografik yağışların oluşmasını engeller; bu nedenle ada, ' +
+      'komşu volkanik Antil adalarına kıyasla çok daha az yağış alır ve kuraklık dönemlerine ' +
+      'açıktır. Karayip kasırga kuşağının tam yolunda bulunan adalar içinde özellikle alçak ' +
+      "Barbuda büyük risk taşır; nitekim 2017 yılındaki Kategori 5 Irma Kasırgası Barbuda'daki " +
+      'tüm altyapıyı yıkarak ada nüfusunun geçici olarak tamamen tahliye edilmesine yol açmıştır.',
     hydrographyNoteTr:
-      "Antigua ve Barbuda'da kalıcı akarsu bulunmaz; ülke, Karayipler'in en su sıkıntılı ülkelerinden " +
-      'biri sayılır. Tatlı su ihtiyacının büyük bölümü yağmur suyu toplama sistemleri ve iki büyük ' +
-      'tuzdan arındırma tesisiyle karşılanır; bazı yıllarda barajları dolduracak yağış yıllarca ' +
-      "gecikebilir. Antigua'nın birkaç küçük yapay barajı ve kuyu alanı tarım ve konut kullanımına " +
-      "destek olur. Barbuda'da yüzey suyu neredeyse hiç yoktur, ada nüfusunun su ihtiyacı da benzer " +
-      'şekilde yağmur ve ithal kaynaklarla karşılanır.',
+      'Yükseltinin azlığı ve kireçtaşı zeminin yüksek geçirgenliği sebebiyle her iki adada da ' +
+      'kalıcı akarsu ağı gelişmemiştir; yağış suları yüzeyde akışa geçemeden hızla yeraltına sızar. ' +
+      "Bu hidrolojik kısıt, Antigua ve Barbuda'yı Karayipler'in tatlı su sıkıntısını en derin " +
+      'hisseden ülkelerinden biri yapar. Su ihtiyacı tarihsel olarak yağmur sarnıçlarıyla ' +
+      'karşılanırken, günümüzde kentsel tüketim ve turizm tesisleri deniz suyunu arıtan ' +
+      'desalinasyon tesislerine ve yapay göletlerde toplanan yüzey sularına dayanır.',
   },
   {
     isoCode: 'BS',
@@ -665,35 +836,41 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
     independenceNoteTr: "10 Temmuz 1973'te Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      "Bahamalar, Karayip Denizi'nde değil Atlas Okyanusu'nda, Küba'nın ve Florida'nın kuzeyinde " +
-      "yer alan bir takımadadır; 700'den fazla ada ve 2.000'den fazla küçük kayalık adacıktan " +
-      '(cay) oluşur, bunların yalnızca otuz kadarı kalıcı olarak yerleşiktir. Ülke, karbonat ' +
-      'kayaçlardan oluşan sığ deniz platformları — Büyük ve Küçük Bahama Bankaları — üzerine ' +
-      'kuruludur. Adaların hiçbiri volkanik kökenli değildir; tamamı, milyonlarca yıl boyunca ' +
-      'sığ tropikal denizlerde birikmiş mercan ve kireçtaşı katmanlarından oluşur.',
+      "Bahamalar, Karayip Denizi'nde değil, Kuzey Atlantik Okyanusu'nda Florida Boğazı ile " +
+      "Küba'nın kuzeyi arasında 100.000 kilometrekareden geniş bir deniz alanına yayılan 700'ü " +
+      "aşkın ada ve 2.000'den fazla mercan kayalığından (cay) oluşur. Bu adaların yalnızca " +
+      'otuz kadarı yerleşime uygundur. Ülke, okyanus tabanından dik duvarlarla yükselen devasa ' +
+      'karbonat kireçtaşı platformları — Büyük ve Küçük Bahama Bankaları — üzerine kuruludur. ' +
+      'Turkuaz renkli sığ deniz düzlükleri ile hemen yanı başındaki binlerce metre derinlikteki ' +
+      'koyu mavi okyanus çukurları arasındaki tezat, takımadanın temel coğrafi kimliğini belirler.',
     landformNoteTr:
-      "Bahamalar'ın tamamı alçak ve düzdür; ülkenin en yüksek noktası, Cat Adası'ndaki yalnızca " +
-      "63 metrelik Mount Alvernia'dır — bu rakım, egemen bir ülkenin en yüksek noktası olarak " +
-      'dünyanın en düşük değerlerinden biridir. Kireçtaşı zemin, yağış suyunun kimyasal ' +
-      'aşınmasıyla yer yer çökerek adalar boyunca çok sayıda mavi delik (blue hole) ' +
-      "oluşturmuştur. Long Adası açıklarındaki Dean's Mavi Deliği 202 metre derinliğindedir; " +
-      "uzun yıllar dünyanın en derin mavi deliği kabul edilmiştir. 2018'de ölçülen Çin'deki 301 " +
-      "metrelik Dragon Hole ve 2024'te keşfedilen Meksika kıyısındaki 420 metreden derin Taam " +
-      "Ja', bu unvanı geride bırakmıştır. Dean's Mavi Deliği bugün de dünyanın önde gelen " +
-      'serbest dalış noktalarından biridir.',
+      'Bahamalar adalarının tamamı mercan ve biyojenik kireçtaşından oluşmuş son derece alçak, ' +
+      'düz rölyefli arazilerdir; volkanik ya da kıtasal kayaç yüzeyi bulunmaz. Ülkenin en ' +
+      'yüksek yeri Cat Adası üzerinde yükselen ve deniz seviyesinden yalnızca 63 metre ' +
+      "yüksekte bulunan Alvernia Tepesi'dir (Mount Alvernia)." +
+      '\n\n' +
+      'Buzul çağlarındaki deniz seviyesi değişimleri sırasında yağış sularının kireçtaşını ' +
+      'kimyasal olarak eritmesiyle geniş karstik obruklar ve mağara sistemleri gelişmiştir. ' +
+      'Son buzul erimesiyle sular altında kalan bu dik dikey mağaralar "mavi delik" (blue hole) ' +
+      "olarak adlandırılır. Long Adası kıyısındaki 202 metre derinliğindeki Dean's Mavi Deliği " +
+      "ile Andros Adası'nın iç kesimlerindeki sualtı labirentleri, yeryüzünün en zengin batık " +
+      'karst yapılarını oluşturur.',
     climateNoteTr:
-      "Bahamalar'da tropikal ve yarı tropikal iklim arasında bir geçiş yaşanır; kuzeydeki adalar " +
-      "Florida'ya yakınlığı nedeniyle güneydekilere göre biraz daha serin kışlar geçirir. Ülke " +
-      'Atlantik kasırga kuşağının tam merkezinde yer alır ve Haziran-Kasım arası kasırga ' +
-      'mevsiminde düzenli risk altındadır. Sığ banka suları çevredeki derin okyanus sularına ' +
-      'göre daha hızlı ısınıp soğur; bu fark adalar çevresindeki deniz yüzeyi sıcaklıklarını da ' +
-      'etkiler.',
+      'Takımadada kuzeyde subtropikal, güneyde tropikal deniz iklimi etkilidir; Kuzey Amerika ' +
+      'kıtasından kış aylarında sokulan soğuk hava dalgaları kuzey adalarında sıcaklıkları ' +
+      'kısa süreli düşürürken güney adaları yıl boyu sıcak kalır. Sığ bank sularının yaz ' +
+      'aylarında hızla aşırı ısınması, Atlantik kasırga koridorunda bulunan adalar için ' +
+      'şiddetli tropik siklonları besleyen bir enerji deposuna dönüşür. Adaların deniz ' +
+      'seviyesinden sadece birkaç metre yukarıda bulunması, fırtına kabarmalarında dev ' +
+      'dalgaların kıyıları ve yerleşimleri bütünüyle su altında bırakmasına zemin hazırlar.',
     hydrographyNoteTr:
-      "Bahamalar'da Andros Adası dışında akarsu bulunmaz; kireçtaşı zemin yağış suyunu hızla " +
-      'yeraltına geçirdiğinden yüzeyde kalıcı bir nehir ağı gelişmemiştir. Tatlı su ihtiyacı ' +
-      'büyük ölçüde yeraltı su mercekleri (freshwater lens) ve yağmur suyu toplama sistemleriyle ' +
-      "karşılanır. Andros Adası'nın iç kesimlerinde, dünyanın en yoğun mavi delik kümelerinden " +
-      'birine ev sahipliği yapan geniş sulak alanlar ve iç göller bulunur.',
+      'Gözenekli kireçtaşı zemin, yüzeye düşen yağmuru derhal derinlere sızdırdığı için ' +
+      'adaların ezici çoğunluğunda akarsu bulunmaz; istisna olarak yalnızca en büyük ada olan ' +
+      "Andros'un tatlı su bataklıkları ve küçük derecikleri öne çıkar. Tatlı su varlığı, " +
+      'kireçtaşı tabakalarının altında deniz suyunun üzerinde yüzerek biriken mercimek ' +
+      'biçimli yeraltı tatlı su lenslerine (Ghyben-Herzberg akiferleri) bağlıdır. Bu kırılgan ' +
+      'tatlı su rezervleri, aşırı su çekimi ve fırtına dalgalarının getirdiği deniz suyu ' +
+      'baskınları karşısında hızla tuzlanma tehdidiyle karşılaşır.',
   },
   {
     isoCode: 'BB',
@@ -719,30 +896,36 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "30 Kasım 1966'da Birleşik Krallık'tan bağımsız oldu (2021'de cumhuriyete geçti).",
     introTr:
-      "Barbados, Küçük Antiller'in çoğu adasından farklı olarak volkanik kökenli değildir; " +
-      "yüzeyinin %85'ten fazlası mercan kökenli kireçtaşından oluşur. Karayip ada yayının en " +
-      'doğusunda, diğer adalardan yaklaşık 160 kilometre uzakta, açık Atlantik sularına bakan ' +
-      'izole bir konumdadır. Ülke düz ve hafif dalgalı bir arazi yapısına sahiptir, iç ' +
-      'kesimlerdeki tepeler bile alçak kalır.',
+      'Barbados, Küçük Antiller ada yayındaki volkanik komşularından yaklaşık 160 kilometre ' +
+      "doğuda, Atlas Okyanusu'nun açık sularında tek başına yükselen izole bir ada devletidir. " +
+      'Bölgedeki volkanik ada zincirinden farklı olarak, Karayip levhası ile Atlantik okyanus ' +
+      'kabuğunun dalma-batma hattında deniz dibi tortullarının sıkışıp yükselmesiyle ' +
+      "(yığılma prizması) oluşmuştur. Topraklarının yüzde 85'inden fazlasını kaplayan " +
+      'mercan kireçtaşı örtüsü, adaya basamaklı teraslar ve hafif dalgalı bir plato görünümü verir.',
     landformNoteTr:
-      'Ülkenin en yüksek noktası, kuzey-orta kesimdeki Aziz Andrew bölgesinde yükselen 336 ' +
-      "metrelik Mount Hillaby'dir. Kireçtaşı zemin, yüzyıllar boyunca yağış suyunun " +
-      'aşındırmasıyla adanın ortasında Harrison Mağarası gibi geniş yeraltı boşlukları ' +
-      'oluşturmuştur; bu mağara sistemi sarkıt ve dikitlerle kaplı galerileri ve yeraltı ' +
-      'akarsularıyla tanınır. Kıyı boyunca uzanan mercan resif kalıntıları, adanın deniz kökenli ' +
-      'geçmişinin yüzeydeki izleridir.',
+      'Ada yüzeyi, tektonik yükselme dönemlerinde dalgaların yonttuğu mercan kireçtaşı ' +
+      'terasları halinde kıyıdan iç kesimlere doğru kademeli olarak yükselir. Ülkenin en yüksek ' +
+      "noktası, orta-kuzey kesimde 336 metreye ulaşan Hillaby Dağı'dır (Mount Hillaby)." +
+      '\n\n' +
+      'Hillaby çevresindeki Scotland District adı verilen doğu bölgesinde kireçtaşı örtü ' +
+      'aşınmış, alttaki yumuşak kil ve kumtaşı katmanları açığa çıkarak sarp vadiler ve heyelanlı ' +
+      'bir engebe alanı doğurmuştur. Kireçtaşı tabakasının derinliklerinde ise yağmur sularının ' +
+      'çözünmesiyle oluşan ve yeraltı nehirleri ile sarkıt-dikit galerilerini barındıran Harrison ' +
+      'Mağarası gibi zengin karstik boşluklar gelişmiştir.',
     climateNoteTr:
-      "Barbados'ta tropikal bir iklim egemendir; Aralık-Mayıs arası kurak, Haziran-Kasım arası " +
-      'ise yağışlı mevsim olarak ayrılır. Ada, Karayip kasırga kuşağının doğu ucunda yer ' +
-      "almasına karşın komşu adalara göre çarpıcı biçimde az kasırga alır: 1955'teki Kasırga " +
-      "Janet'in ardından, 2021'de Kasırga Elsa vurana kadar 66 yıl boyunca adaya doğrudan bir " +
-      'kasırga kaydedilmemiştir. Kuzeydoğu ticaret rüzgarları yıl boyunca eserek adanın ' +
-      'sıcaklığını dengeler.',
+      'Kuzeydoğu alizelerinin kesintisiz esintisiyle serinleyen tropikal denizel bir iklim ' +
+      'hüküm sürer; aralık-mayıs arası kurak ve güneşli, haziran-kasım arası ise yağışlı ' +
+      'geçer. Karayip ada yayının oldukça doğusunda yer alması, adayı ana kasırga rotalarının ' +
+      'bir nebze dışında bırakır; bu sayede Barbados komşularına kıyasla doğrudan kasırga ' +
+      'vuruşlarına daha seyrek maruz kalır. Buna karşın kurak mevsimde azalan yağışlar, adanın ' +
+      'tarım ve yerleşim alanlarında su stresinin belirginleşmesine yol açar.',
     hydrographyNoteTr:
-      "Barbados'ta kalıcı akarsu bulunmaz; kireçtaşı zemin yağış suyunu hızla yeraltına " +
-      'geçirdiğinden yüzey akışı gelişmemiştir. Bunun yerine adayı boydan boya kesen derin ' +
-      'vadiler (gully), yağmur sularını kıyıya doğru yönlendirir. Yeraltına sızan su, adanın ' +
-      'içme suyu ihtiyacının neredeyse tamamını karşılayan geniş bir kireçtaşı akiferini besler.',
+      'Mercan kireçtaşının süngerimsi ve geçirimli dokusu, yüzey sularını hızla tabana ' +
+      'geçirdiği için adada kalıcı bir akarsu şebekesi oluşmamıştır. Yalnızca şiddetli sağanak ' +
+      'anlarında geçici akışa sahne olan ve "gully" adı verilen derin kuru kanyonlar suları ' +
+      'denize iletir. Yeraltına süzülen yağmur suları, geçirimsiz kil tabakalarının üzerinde ' +
+      'doğal filtrelerden geçerek geniş kireçtaşı akiferlerinde toplanır; Barbados halkının ' +
+      'içme ve sulama suyu ihtiyacının tamamına yakını bu yeraltı rezervlerinden karşılanır.',
   },
   {
     isoCode: 'CU',
@@ -768,30 +951,39 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "İspanya egemenliğinin ardından 20 Mayıs 1902'de bağımsız cumhuriyet ilan edildi.",
     introTr:
-      "Karayipler'in yüzölçümce en büyük adası olan Küba'nın kara sınırı yoktur. Kuzeyinde " +
-      'Florida Boğazı, kuzeybatısında Meksika Körfezi, güneyinde ise Karayip Denizi yer ' +
-      'alır. Ülke toprağının yaklaşık üçte ikisi düz ya da hafif dalgalı ovalardan oluşur, ' +
-      'dağlık kesimler adanın belirli bölgelerinde toplanmıştır.',
+      "Küba, Meksika Körfezi'nin girişini kilitleyen 1.200 kilometrelik yay biçimli gövdesiyle " +
+      "Büyük Antiller'in ve tüm Karayipler'in yüzölçümü bakımından en büyük ada ülkesidir. " +
+      'Kuzeyinde Florida Boğazı, doğusunda Rüzgarüstü Boğazı, güneyinde ise Karayip Denizi ' +
+      'uzanır. Ülke topraklarının yaklaşık üçte ikisi hafif dalgalı verimli ovalardan oluşurken, ' +
+      'dağlık kütleler adanın doğu, orta ve batı uçlarında birbirinden bağımsız öbekler ' +
+      "halinde yükselir. Bu geniş ova yapısı, Küba'yı tarih boyunca büyük ölçekli şeker kamışı " +
+      've tütün tarımının merkezi yapmıştır.',
     landformNoteTr:
-      "Küba'nın dağlık arazisi üç ayrı kümede toplanır: güneydoğuda, ülkenin en yüksek " +
-      "noktası olan 1.974 metrelik Pico Turquino'yu barındıran Sierra Maestra; orta " +
-      'kesimde Sierra del Escambray; batıda ise Sierra del Rosario. Batıdaki Viñales ' +
-      "Vadisi, dik yamaçlı kireçtaşı tepeleri olan mogote'leriyle Küba'nın en tanınmış " +
-      'karst manzarasını oluşturur.',
+      'Adanın orografik omurgası üç ana grupta toplanır: Güneydoğuda Karayip levhası sınırı ' +
+      'boyunca dik falezlerle denize inen ve 1.974 metrelik zirvesi Pico Turquino ile ülkenin en ' +
+      'yüksek noktasını oluşturan Sierra Maestra; adanın ortasında yükselen Sierra del ' +
+      'Escambray; batıda ise Sierra del Rosario ve Sierra de los Órganos dağları.' +
+      '\n\n' +
+      'Batıdaki Viñales Vadisi, dikey duvarlarla yükselen kule karst tepeleri ("mogote") ve ' +
+      'geniş mağara labirentleriyle dünyanın en tanınmış tropikal karst manzaralarından ' +
+      'birini sunar. Kıyı şeritlerinde ise zengin mercan resifleri, mangrov bataklıkları ve ' +
+      'adayı çevreleyen yüzlerce alçak mercan adacığı (cayo) yer alır.',
     climateNoteTr:
-      "Köppen sınıflandırmasında Aw kodlu tropikal savan iklimi, Küba'nın büyük bölümünde " +
-      "görülür. Sierra Maestra ve Sierra del Rosario'nun rüzgar alan yamaçlarında bu iklim, " +
-      'daha nemli bir muson ya da yağmur ormanı karakterine yaklaşır. Buna karşılık ' +
-      "Guantánamo Körfezi çevresi, Sierra Maestra'nın yağış gölgesinde kaldığı için yarı " +
-      'kurak bir iklime sahiptir. Kasım-Nisan arasında kurak, Mayıs-Ekim arasında yağışlı ' +
-      'mevsim yaşanır; Haziran-Kasım kasırga sezonu adayı düzenli olarak etkiler.',
+      'Ülke genelinde tropikal savan iklimi hüküm sürer; mayıs-ekim arası bol yağışlı ve nemli, ' +
+      'kasım-nisan arası ise daha kurak geçer. Kuzeydoğu alizelerine bakan kuzey ve doğu dağ ' +
+      "yamaçları gür ormanları besleyen yoğun yağışlar alırken, Sierra Maestra'nın güney " +
+      'yamaçlarında kalan Guantánamo havzası rüzgar gölgesi sebebiyle kaktüslerin yetiştiği ' +
+      'yarı kurak bir mikroiklim sergiler. Haziran-kasım döneminde Atlantik ve Karayip kökenli ' +
+      'yıkıcı kasırgalar adayı düzenli olarak boydan boya etkiler.',
     hydrographyNoteTr:
-      "Sierra Maestra'da doğan Cauto Nehri, kuzeybatıya akarak 370 kilometre sonra denize " +
-      'ulaşır — ülkenin en uzun nehridir. Debi bakımından en yüksek ve en bakir ' +
-      "nehirlerden biri olan Toa Nehri de yine doğu Küba'da yer alır. Adanın dar ve uzun " +
-      "biçimi yüzünden Küba'nın nehirleri genellikle kısa kalır, çoğu da gemi " +
-      'taşımacılığına elverişli değildir. Batıdaki karst bölgelerinde ise yüzey nehirleri ' +
-      'yerine yeraltı nehir ve mağara sistemleri yaygındır.',
+      "Küba'nın ince ve uzun ada morfolojisi, suların hızla kuzey ya da güney kıyılarına " +
+      'ulaşmasına neden olduğu için akarsuların ezici çoğunluğu kısa boyludur. Bu kuralın en ' +
+      'büyük istisnası, Sierra Maestra eteklerinden doğup batıya doğru tektonik bir oluk boyunca ' +
+      "370 kilometre akarak Guacanayabo Körfezi'ne dökülen Cauto Nehri'dir. Doğu dağlarının " +
+      'gür ormanlarından doğan Toa Nehri ise bozulmamış havzasıyla ülkenin debisi en yüksek ' +
+      'akarsuyudur. Batıdaki karstik alanlarda sular yer altına çekilerek mağara nehirleri ' +
+      "oluştururken, güney kıyısındaki Zapata Yarımadası Karayipler'in en geniş sulak alan " +
+      've bataklık ekosistemini barındırır.',
   },
   {
     isoCode: 'DM',
@@ -816,34 +1008,38 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "3 Kasım 1978'de Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      "Dominika, Küçük Antiller'in en genç ve jeolojik olarak en etkin adasıdır; dokuz etkin volkanik " +
-      "merkeziyle Karayipler'de en yoğun volkanizmaya sahip ülke kabul edilir. Fransız adaları " +
-      'Martinik ile Guadeloupe arasında yer alan ada, kuzey-güney doğrultusunda uzanan sarp ve ' +
-      'ormanlık bir sırtla kaplıdır. Yerleşim dar kıyı şeritleri ve birkaç nehir vadisiyle sınırlıdır, ' +
-      'iç kesimlerin büyük bölümü hâlâ el değmemiş yağmur ormanıdır. Bu özellikleri nedeniyle ülke ' +
-      'turizm pazarlamasında "Doğa Adası" olarak tanıtılır.',
+      'Dominika, Küçük Antiller yayının merkezinde, Fransız denizaşırı adaları Martinik ile ' +
+      "Guadeloupe arasında yükselen ve jeolojik bakımdan Karayipler'in en genç, en sarp " +
+      'adasıdır. Dokuz aktif volkanik merkeziyle bölgenin en yoğun jeotermal enerjisini ' +
+      'barındırır. Kıyıdan itibaren aniden duvar gibi yükselen sarp volkanik dağlar, adanın ' +
+      'iç kesimlerinde geniş tarım arazilerine ve yerleşime geçit vermemiştir. Bu engebeli ' +
+      'yapı sayesinde balta girmemiş yağmur ormanlarını korumayı başaran ada, haklı olarak ' +
+      '"Karayipler\'in Doğa Adası" unvanıyla tanınır.',
     landformNoteTr:
-      "Ülkenin en yüksek noktası, 1.447 metrelik Morne Diablotins'tir; onu 1.342 metrelik Morne Trois " +
-      "Pitons izler. Morne Trois Pitons Ulusal Parkı 1997'de UNESCO Dünya Mirası Listesi'ne " +
-      'alınmıştır; park içindeki Umutsuzluk Vadisi, kaynayan çamur gölcükleri ve küçük gayzerleriyle ' +
-      'tanınır.' +
+      'Kuzey-güney doğrultusunda uzanan sarp volkanik omurga üzerinde iki büyük masif ' +
+      'yükselir: 1.447 metreyle adanın zirvesi olan Morne Diablotins ve UNESCO Dünya Mirası ' +
+      "Listesi'ndeki 1.342 metrelik Morne Trois Pitons." +
       '\n\n' +
-      'Aynı parkın içindeki Kaynayan Göl, bir fümarolün sular altında kalmasıyla oluşmuştur; çapı ' +
-      "60-75 metre arasında değişen göl, Yeni Zelanda'daki Frying Pan Gölü'nden sonra dünyanın bilinen " +
-      'ikinci büyük kaynayan gölüdür.',
+      'Morne Trois Pitons Ulusal Parkı içinde yer alan Desolation Vadisi (Umutsuzluk Vadisi), ' +
+      'kaynayan çamur göletleri, kükürt bacaları ve fümarollerle aktif bir volkanik cehennem ' +
+      'manzarası sunar. Bu vadideki batık bir fümarol kraterinde oluşan Kaynayan Göl ' +
+      '(Boiling Lake), yaklaşık 60 metre çapındaki sürekli fokurdayan gri-mavi sularıyla ' +
+      "Yeni Zelanda'daki Frying Pan Gölü'nün ardından dünyanın ikinci en büyük termal gölüdür.",
     climateNoteTr:
-      "Dominika, Karayipler'in en yağışlı adalarından biridir. Rüzgar alan doğu kıyısında yıllık yağış " +
-      'düzenli olarak 5.000 milimetreyi aşar, dağlık iç kesimin bazı yamaçlarında bu rakam 9.000 ' +
-      'milimetreye kadar çıkar. Batı kıyısı, dağların rüzgar gölgesinde kaldığı için belirgin biçimde ' +
-      'daha kuru kalır. Ülke Karayip kasırga kuşağı içinde yer alır; sarp arazi, şiddetli yağışlarla ' +
-      'birleştiğinde sel ve heyelan riskini artırır.',
+      "Dominika, Küçük Antiller'in en yüksek yağış miktarına sahip coğrafyasıdır. Atlas " +
+      "Okyanusu'ndan nem taşıyan kuzeydoğu alizeleri dik dağ yamaçlarına çarparak muazzam bir " +
+      'orografik yükselime yol açar; bu mekanizma iç kesimlerdeki dağ sırtlarında yıllık ' +
+      'yağış miktarını 7.000 ila 9.000 milimetre gibi olağanüstü düzeylere ulaştırır. Buna ' +
+      'karşılık dağların rüzgar gölgesinde kalan batı Karayip kıyısı belirgin biçimde daha az ' +
+      'yağış alır. Aşırı yağışlar ve sarp eğimler, kasırga mevsiminde adayı toprak kaymaları ' +
+      've sel felaketlerine karşı son derece savunmasız kılar.',
     hydrographyNoteTr:
-      'Dominika, "365 nehir ülkesi" olarak anılır; bu sayı ırmak, dere ve çayı bir arada saydığı için ' +
-      'sembolik kabul edilir, resmi kayıtlar adada 83 önemli akarsu sayar. Batıya akan başlıca ' +
-      "nehirler Layou ve Roseau'dur, doğuya dökülen büyük akarsu ise Toulaman'dır. Adanın dört " +
-      "gölünden en büyüğü olan Freshwater Gölü, aynı zamanda Roseau Nehri'nin kaynağıdır. Morne Trois " +
-      'Pitons Ulusal Parkı, adanın güney yarısındaki akarsuların neredeyse tamamının doğduğu bölgedir ' +
-      've yerel su şebekesi ile hidroelektrik üretiminin temel kaynağıdır.',
+      'Gür yağış rejimi ve sarp dağ yapısı, adada halk arasında "yılın her gününe bir nehir" ' +
+      "sözüyle anılan zengin bir akarsu şebekesi doğurmuştur; resmi olarak adada 80'den fazla " +
+      'hızlı ve gür dağ ırmağı akar. Batı kıyısına yönelen Layou ve Roseau nehirleri, derin ' +
+      'kanyonlardan geçerek denize ulaşan en büyük akarsulardır. Volkanik kalderalarda ' +
+      'oluşan Freshwater Gölü ve Boeri Gölü gibi yüksek krater gölleri, hem adanın içme ' +
+      'suyu havzasını besler hem de hidroelektrik türbinlerine temiz enerji sağlar.',
   },
   {
     isoCode: 'DO',
@@ -868,33 +1064,38 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "27 Şubat 1844'te Haiti'den bağımsız oldu.",
     introTr:
-      "Dominik Cumhuriyeti, Büyük Antiller'deki Hispaniola adasının doğu üçte ikisini " +
-      "kaplar; adanın batı kesimini Haiti ile paylaşır ve bu, Karayipler'deki 13 ada " +
-      'devleti arasında kara sınırı bulunan tek çifttir. Ülkenin kuzeyinde Atlas Okyanusu, ' +
-      'güneyinde ise Karayip Denizi yer alır. Topraklarının ortasından geçen dağ sıraları, ' +
-      'adayı ve ülkeyi birbirinden farklı iklim ve arazi bölgelerine ayırır.',
+      "Dominik Cumhuriyeti, Büyük Antiller'in ikinci büyük adası Hispaniola'nın doğudaki " +
+      'üçte ikilik kesimini kaplar ve batı komşusu Haiti ile paylaştığı hat, Karayip ada ' +
+      'devletleri arasındaki tek kara sınırıdır. Kuzeyinde Atlas Okyanusu, güneyinde ise Karayip ' +
+      "Denizi yer alır. Ülke, Karayipler'in en yüksek dağ zirvelerinden deniz seviyesinin " +
+      'altındaki tektonik tuz göllerine ve bereketli alüvyal vadilere kadar uzanan olağanüstü ' +
+      'bir morfolojik çeşitliliğe sahiptir.',
     landformNoteTr:
-      "Ülkenin ortasından geçen Cordillera Central, yalnızca Dominik Cumhuriyeti'nin değil, " +
-      "tüm Karayipler'in en yüksek dağ sırasıdır; 3.101 metrelik Pico Duarte, adanın ve " +
-      "Karayipler'in en yüksek noktasıdır. Bu zirveden yalnızca 85 kilometre uzaklıkta, " +
-      'adanın en alçak noktası olan Enriquillo Gölü bulunur — deniz seviyesinin 46 metre ' +
-      'altında kalan, tuzlu sulu kapalı bir göl. Kuzeyde, Cordillera Central ile kıyı ' +
-      'boyunca uzanan Cordillera Septentrional arasında, verimli ve geniş Cibao Vadisi yer ' +
-      'alır; ülkenin en önemli tarım bölgesidir.',
+      'Ülke arazisi birbirine paralel uzanan dört büyük sıradağ kuşağıyla engebelenmiştir. ' +
+      "Bunların merkezinde yer alan Cordillera Central, tüm Antil Adaları'nın çatısı sayılır; " +
+      "bu sıradağ üzerinde yükselen 3.098 metrelik Pico Duarte, Karayipler'in en yüksek " +
+      'noktasıdır. Kuzeydeki Cordillera Septentrional ile Cordillera Central arasında, ülkenin ' +
+      'en bereketli tarım havzası olan geniş Cibao Vadisi uzanır.' +
+      '\n\n' +
+      'Bu yüksek kütlelerin güneybatısında ise tam bir jeolojik tezat yer alır: Neiba Graben ' +
+      'çöküntüsü içinde, deniz seviyesinin 44 metre altında bulunan Enriquillo Gölü, ' +
+      "Karayipler'in en alçak noktasını oluşturan aşırı tuzlu bir kapalı havzadır.",
     climateNoteTr:
-      'Ülke genelinde tropikal bir iklim hakimdir; Aralık-Nisan arasında görece kurak, ' +
-      'Mayıs-Kasım arasında ise yağışlı bir dönem yaşanır. Kuzeydoğudan esen ticaret ' +
-      'rüzgarları adanın kuzey ve doğu kesimlerine bol yağış taşır — buralarda yıllık yağış ' +
-      '1.350 milimetreye ulaşabilirken, dağların rüzgar gölgesinde kalan batı kesiminde 430 ' +
-      'milimetrenin altına iner. Haziran-Kasım arasındaki kasırga mevsiminde, özellikle ' +
-      'Ağustos-Ekim döneminde, Atlas Okyanusu kökenli tropik fırtınalar ülkeyi ' +
-      'etkileyebilir.',
+      'Dağ sıralarının uzanışı ve yükselti basamakları, ülkede birbirine komşu zıt ' +
+      'mikroklimatik alanlar yaratmıştır. Kuzeydoğu alizelerinin doğrudan ulaştığı Samaná ' +
+      'Yarımadası ve Cordillera Septentrional yamaçları yılda 2.000 milimetreyi aşan yağışlarla ' +
+      "tropikal nemli ormanlarla kaplıdır. Buna karşılık Cordillera Central'ın rüzgar " +
+      'gölgesinde kalan güneybatı ovaları ve Enriquillo havzası, yılda 500 milimetrenin ' +
+      'altına inen yağış miktarıyla kaktüslü kurak step iklimi sergiler. Yüksek dağ platolarında ' +
+      'ise kış aylarında don olaylarının görüldüğü serin bir yayla iklimi yaşanır.',
     hydrographyNoteTr:
-      'Cordillera Central, ülkenin üç ana nehir sisteminin de kaynağını oluşturur: kuzeye ' +
-      "akan Yaque del Norte, kuzeydoğuya akıp Cibao Vadisi'ni sulayan Yuna ve güneye akan " +
-      "Yaque del Sur. Yuna Nehri, Samaná Körfezi'ne dökülmeden önce Cibao Vadisi'nin " +
-      "verimli topraklarını besler. Enriquillo Gölü'ne akan akarsular ise denize ulaşamaz; " +
-      'havza, adanın diğer nehir sistemlerinden bağımsız, kapalı bir drenaj sistemidir.',
+      'Cordillera Central masifi, Hispaniola adasının ana su kulesidir ve ülkenin başlıca üç ' +
+      "büyük nehir sistemini besler: Kuzeybatıya akıp Monte Cristi Körfezi'ne dökülen Yaque del " +
+      "Norte, doğuya doğru Cibao Ovası'nı baştan başa sulayarak Samaná Körfezi'ne ulaşan " +
+      "Yuna Nehri ve güney ovalarından Karayip Denizi'ne inen Yaque del Sur. Dağ nehirleri " +
+      'üzerine kurulan barajlar hem tarımsal sulamayı güvenceye alır hem de elektrik üretir. ' +
+      'Güneybatıdaki Enriquillo Gölü ise denize çıkışı olmayan kapalı havzasıyla Amerikan ' +
+      'timsahları ve flamingolar için benzersiz bir hipersalin sulak alan barındırır.',
   },
   {
     isoCode: 'GD',
@@ -919,38 +1120,40 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
     independenceNoteTr: "7 Şubat 1974'te Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      'Grenada, Küçük Antiller yayının en güneyindeki büyük adalardan biridir ve "Baharat Adası" ' +
-      'unvanıyla tanınır; küresel muskat (nutmeg) üretiminin önemli bir bölümü bu adada yapılır. Ülke, ' +
-      'Grenada adasının yanı sıra Grenadinler zincirinin güney ucundaki Carriacou ve Petite Martinique ' +
-      'adalarını da kapsar. Adanın iç kesimi, yoğun yağmur ormanıyla kaplı volkanik bir kütleden ' +
-      'oluşur; nüfus büyük ölçüde kıyı düzlüklerinde yaşar.',
+      'Grenada, Küçük Antiller ada yayının güney ucunda yer alan ana ada ile Grenadinler ' +
+      'zincirinin güney parçaları olan Carriacou ve Petite Martinique adalarından oluşan bir ada ' +
+      'devletidir. Sarp volkanik dağları örten tropikal yağmur ormanları ve mineralce zengin ' +
+      'volkanik toprakları, adayı dünyanın önde gelen muskat cevizi, karanfil ve kakao ' +
+      'üreticilerinden biri yapmış; bu niteliğiyle ülke "Baharat Adası" olarak anılmıştır. ' +
+      "Başkent Saint George's, sönmüş bir volkan kraterinin deniz tarafından işgaliyle oluşan " +
+      'korunaklı doğal bir at nalı liman etrafında kurulmuştur.',
     landformNoteTr:
-      "Ülkenin en yüksek noktası, 840 metrelik Mount Saint Catherine'dir; adanın en genç volkanik " +
-      'merkezidir ve buzul çağından bu yana patlamamış olmasına karşın, beş volkanik merkez arasında ' +
-      'jeolojik olarak hâlâ "canlı" kabul edilen tek yapıdır. Bu volkanik kütlenin güneyinde, sönmüş ' +
-      'bir volkanın kraterinde oluşan Grand Etang Gölü 530 metre rakımda yer alır; çevresindeki orman ' +
-      'rezervi adanın başlıca su havzalarından birini oluşturur.' +
+      'Ana adanın bel kemiğini kuzey-güney yönünde uzanan sarp volkanik dağ sırtı oluşturur. ' +
+      'Adanın kuzeyinde yükselen 840 metrelik Mount Saint Catherine, ülkenin en yüksek zirvesi ' +
+      've jeolojik olarak en genç volkanik kütlesidir. Bu dağ sırtının orta kesiminde, sönmüş bir ' +
+      'krater çanağında deniz seviyesinden 530 metre yüksekte yer alan Grand Etang krater gölü ' +
+      've çevresindeki orman rezervi uzanır.' +
       '\n\n' +
-      "Grenada'nın kuzeyinde, açık denizde kalan Kick 'em Jenny, Doğu Karayipler'in bilinen tek etkin " +
-      'sualtı volkanıdır; zirvesi deniz yüzeyinin yaklaşık 180 metre altında kalır ve deniz tabanından ' +
-      "yaklaşık 1.300 metre yükselir. Kick 'em Jenny etkinleştiğinde Grand Etang Gölü'nün suyunun " +
-      'çalkalandığı gözlemlenmiştir; bu durum iki oluşum arasında bir yeraltı bağlantısı olabileceğine ' +
-      'işaret eder.',
+      'Grenada anakarasının yaklaşık 8 kilometre kuzeyinde deniz tabanından 1.300 metre yükselen ' +
+      "ve zirvesi suyun 180 metre altında kalan Kick 'em Jenny, Doğu Karayipler'in bilinen tek " +
+      'aktif denizaltı volkanıdır; oluşturduğu sismik hareketlilik bölge için düzenli olarak ' +
+      'izlenen bir jeolojik süreçtir.',
     climateNoteTr:
-      "Grenada'da tropikal bir iklim egemendir; Ocak-Mayıs arası kurak, Haziran-Aralık arası ise " +
-      'yağışlı bir dönem yaşanır. Ada, kasırga kuşağının güney sınırına yakın konumu nedeniyle tarihte ' +
-      "görece az sayıda doğrudan kasırga darbesi almıştır; ancak 2004'te Kasırga Ivan bu geleneksel " +
-      "güvenli algıyı kırarak adanın güney yarısında evlerin yaklaşık %90'ını hasara uğratmış, 37 " +
-      'kişinin ölümüne yol açmıştır. İç kesimdeki dağlık ve ormanlık alanlar, kıyı düzlüklerine göre ' +
-      'belirgin biçimde daha fazla yağış alır; bu yağış rejimi adanın baharat tarımı için gerekli nemi ' +
-      'sağlar.',
+      'Kuzeydoğu alizelerinin serinlettiği tropikal denizel iklimde haziran-aralık dönemi ' +
+      'yağışlı, ocak-mayıs dönemi ise daha kurak geçer. Orografik yükselmenin etkisiyle ' +
+      'merkezi ormanlık dağ yamaçları yılda 4.000 milimetreyi aşan bol yağış alarak baharat ' +
+      'plantasyonlarının ihtiyaç duyduğu nemi sağlarken, kıyı ovalarında bu miktar 1.500 ' +
+      'milimetreye kadar iner. Geleneksel olarak kasırga kuşağının güney sınırında yer alıp ' +
+      'güvenli kabul edilen ada, 2004 yılındaki Kategori 3 Ivan Kasırgası ile doğrudan ' +
+      'vurulmuş; fırtına ada tarımını ve muskat ağacı varlığını uzun yıllar sekteye uğratmıştır.',
     hydrographyNoteTr:
-      "Grenada'nın volkanik iç kesimi ve bol yağışı, adayı çok sayıda kısa ve hızlı akan akarsuyla " +
-      'donatır; bu akarsular merkezi yüksek kesimlerden radyal biçimde kıyıya doğru akar. Grand Etang ' +
-      'ormanı ve çevresindeki yüksek kesimler bu akarsu ağının başlıca besleme alanıdır ve adanın içme ' +
-      'suyu kaynaklarının büyük bölümünü oluşturur. Akarsuların kısa mesafede denize ulaşması, yağışlı ' +
-      'dönemlerde ani sel riskini artırır. Bu akarsulardan beslenen Annandale ve Concord şelaleleri, ' +
-      'adanın iç kesimindeki yükseklik farkının somut bir görüntüsünü sunar.',
+      'Yoğun yağışlar ve sarp volkanik eğim, Grenada anakarasında merkezi dağ masifinden her ' +
+      'yöne radyal düzende inen gür bir akarsu şebekesi oluşturmuştur. Bu kısa ve dik debili dağ ' +
+      'dereleri, Annandale ve Concord şelaleleri gibi çağlayanlar üzerinden basamaklar halinde ' +
+      'kıyıya iner. Adanın kentsel içme suyu şebekesi büyük ölçüde Grand Etang yağmur ormanı ' +
+      'havzasındaki bu kaynaklardan beslenir. Buna karşılık kuzeydeki alçak kireçtaşı adaları ' +
+      "Carriacou ve Petite Martinique'te sürekli yüzey akışı bulunmaz; su ihtiyacı sarnıçlar ve " +
+      'desalinasyonla çözülür.',
   },
   {
     isoCode: 'HT',
@@ -961,7 +1164,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     slugEn: 'haiti',
     continent: Continent.NorthAmerica,
     unSubregionTr: 'Karayipler',
-    population: 11_906_095,
+    population: 11_867_030,
     populationYear: null,
     areaKm2: 27_560,
     capitalNameTr: 'Port-au-Prince',
@@ -972,35 +1175,41 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     officialLanguagesTr: ['Fransızca', 'Haiti Kreyolu'],
     currencyNameTr: 'Haiti Gurdu',
     currencyCode: 'HTG',
-    governmentFormTr: null,
-    independenceNoteTr:
-      "1 Ocak 1804'te Fransa'dan bağımsız oldu (dünyanın ilk bağımsız siyah cumhuriyeti).",
+    governmentFormTr: 'Yarı başkanlık cumhuriyeti',
+    independenceNoteTr: "1 Ocak 1804'te Fransa'dan bağımsız oldu.",
     introTr:
-      'Haiti, adını Taino dilinde "dağlık toprak" anlamına gelen "Ayiti" sözcüğünden alır; ülke ' +
-      "topraklarının %80'den fazlası dağlık veya tepeliktir. Hispaniola adasının batı üçte " +
-      'birini kaplar, adanın kalan kesimini Dominik Cumhuriyeti oluşturur; iki ülke arasındaki ' +
-      "391 kilometrelik kara sınırı, Karayipler'deki 13 ada devleti arasında tek kara sınırı " +
-      'örneğidir. Ülkenin dağlık yapısı tarih boyunca ulaşımı güçleştirmiş, kıyı ovalarındaki ' +
-      'yerleşimlerin birbirinden görece izole gelişmesine yol açmıştır.',
+      "Haiti, Büyük Antiller'deki Hispaniola adasının batıdaki üçte birlik bölümünü kaplar ve " +
+      'doğuda Dominik Cumhuriyeti ile sınır komşusudur. Yerli Taíno dilinde "dağlık ülke" ' +
+      'anlamına gelen adının işaret ettiği gibi, topraklarının dörtte üçünden fazlası dik ' +
+      'dağ silsileleriyle kaplıdır. Ülke coğrafyası, batıya doğru bir kıskaç gibi açılarak ' +
+      "Gonâve Körfezi'ni kucaklayan iki uzun dağlık yarımada — kuzeyde Kuzey Yarımadası, " +
+      'güneyde ise Tiburon Yarımadası — etrafında şekillenmiştir.',
     landformNoteTr:
-      "Ülkenin güneyindeki yarımadayı boydan boya kateden Selle Sıradağı'nda yükselen 2.680 " +
-      "metrelik Pic la Selle, Haiti'nin en yüksek noktasıdır. Kuzeyde Massif du Nord, orta " +
-      "kesimde ise Karayip Denizi'ne doğru daralan bir dizi paralel sıradağ uzanır; bu dağ " +
-      'dizileri arasında Cul-de-Sac ve Artibonite gibi dar ovalar yer alır. Ülkenin başlıca ' +
-      'tarım alanları, bu dağlar arasındaki alüvyal ovalarda ve nehir vadilerinde toplanır.',
+      'Ülke arazisi, Karayip ile Kuzey Amerika levhalarının sınırındaki doğrultu atımlı aktif fay ' +
+      'hatları boyunca parçalanmış son derece sarp bir jeomorfolojiye sahiptir. Güneydeki Tiburon ' +
+      'Yarımadası boyunca uzanan Massif de la Selle üzerindeki 2.680 metrelik Pic la Selle, ' +
+      "Haiti'nin en yüksek zirvesidir. Kuzeyde Massif du Nord dağları yükselirken, bu sıradağlar " +
+      'arasında tektonik kökenli Cul-de-Sac Çöküntüsü ve verimli Artibonite Ovası yer alır.' +
+      '\n\n' +
+      'Enriquillo-Plantain Garden fay sistemi, ülke tarihinin en yıkıcı depremlerine sahne ' +
+      'olmuştur. Dağlık yamaçlardaki aşırı ormansızlaşma, çıplak kalan dik arazide şiddetli ' +
+      'toprak erozyonuna ve derin karstik yarıntılara yol açmıştır.',
     climateNoteTr:
-      "Haiti'de tropikal bir iklim egemendir, ancak dağlık arazi yerel iklimde büyük " +
-      'farklılıklara yol açar. Kıyı ovaları yıl boyunca sıcak ve nemli kalırken, yüksek dağlık ' +
-      'kesimlerde rakımın etkisiyle sıcaklıklar belirgin biçimde düşer. Ülke Karayip kasırga ' +
-      'kuşağı içinde yer alır; Mayıs-Kasım arası kasırga mevsiminde şiddetli yağışlar, dağlık ' +
-      'arazinin dik yamaçlarında sel ve heyelan riskini artırır.',
+      'Topografik engellerin rüzgar yönüne göre farklılaşması, tropikal iklim içinde keskin ' +
+      'yağış tezatları doğurmuştur. Kuzeydoğu alizelerine bakan kuzey kıyıları ve yüksek dağ ' +
+      'yamaçları yılda 1.500 ila 2.000 milimetre yağış alırken, dağ sıralarının rüzgar gölgesinde ' +
+      'kalan Cul-de-Sac çöküntüsü gibi iç havzalarda yıllık yağış 600 milimetrenin altına düşerek ' +
+      'yarı kurak bir ortama dönüşür. Karayip kasırga koridorunda yer alan ülkede orman örtüsünün ' +
+      'tahrip edilmiş olması, şiddetli fırtınalarda ani taşkınlara, çamur sellerine ve kitlesel ' +
+      'toprak kaymalarına neden olarak doğal riskleri ağırlaştırır.',
     hydrographyNoteTr:
-      "Ülkenin en uzun nehri olan Artibonite Nehri, kaynağını komşu Dominik Cumhuriyeti'ndeki " +
-      "Cordillera Central'dan alır; toplam yaklaşık 320 kilometrelik akışının büyük bölümünü " +
-      "Haiti topraklarında tamamladıktan sonra Gonâve Körfezi'ne dökülür ve Hispaniola adasının " +
-      'en uzun akarsuyu sayılır. Nehir üzerindeki Péligre Barajı ülkenin başlıca hidroelektrik ' +
-      "kaynaklarından birini oluşturur ve aşağı Artibonite Vadisi'ndeki geniş pirinç tarımını " +
-      'sular.',
+      'Ülkenin en önemli can damarı, kaynağını komşu Dominik Cumhuriyeti dağlarından alıp batıya ' +
+      "doğru akarak Gonâve Körfezi'ne dökülen yaklaşık 320 kilometrelik Artibonite Nehri'dir; " +
+      'bu akarsu aynı zamanda tüm Hispaniola adasının en uzun nehridir. Nehir üzerindeki Péligre ' +
+      "Barajı, Haiti'nin en büyük hidroelektrik santralini barındırır ve aşağı ovadaki pirinç " +
+      'tarlalarını sular. Cul-de-Sac çöküntüsünde yer alan 170 kilometrekarelik Saumâtre Gölü ' +
+      '(Étang Saumâtre), denize çıkışı olmayan acı sulu kapalı bir havza olup Amerikan ' +
+      'timsahları için önemli bir yaşam alanıdır.',
   },
   {
     isoCode: 'JM',
@@ -1025,31 +1234,42 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
     independenceNoteTr: "6 Ağustos 1962'de Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      "Jamaika, Karayipler'in Küba ve Hispaniola'dan sonra üçüncü büyük adasıdır. Ülkenin iç " +
-      'kesimi büyük ölçüde dağlık ve kireçtaşı araziyle kaplıdır, düzlükler yalnızca dar kıyı ' +
-      'şeritlerinde bulunur. Ada Karayip kasırga kuşağının tam ortasında yer alır ve tarihi ' +
-      'boyunca birçok büyük kasırgadan etkilenmiştir.',
+      "Jamaika, Büyük Antiller yayında Küba ve Hispaniola'nın güneybatısında tek başına " +
+      "uzanan, Karayipler'in yüzölçümü bakımından üçüncü büyük ada devletidir. Yerli dilinde " +
+      '"ağaç ve su ülkesi" anlamına gelen Xaymaca kökünden türeyen adıyla uyumlu olarak, ' +
+      'sarp dağları, ormanlarla örtülü kireçtaşı platoları ve kıyı ovalarıyla çevrilidir. ' +
+      'Adanın jeolojik yapısı, dünyanın en zengin boksit madeni yataklarından birine ev sahipliği ' +
+      'yapar; düzlükler ve verimli kıyı şeritleri ise tarihsel şeker kamışı plantasyonlarının ' +
+      'merkezidir.',
     landformNoteTr:
-      "Ülkenin doğusunda yükselen Mavi Dağlar, 2.256 metrelik Blue Mountain Peak ile Jamaika'nın " +
-      'en yüksek noktasını oluşturur; bu sıradağın yüksek ve bulutlu yamaçlarında yetiştirilen ' +
-      'kahve dünya çapında tanınır. Adanın batı-orta kesimini kaplayan Cockpit Country, dünyanın ' +
-      'en dramatik karst arazi örneklerinden biridir; yüzlerce huni biçimli çukur ve tepecik ' +
-      'birbirini izler, aralarındaki vadi ve çöküntüler yer yer onlarca metre derinliğe ulaşır. ' +
-      'Bu engebeli ve erişimi güç arazi, tarihte kaçak köle topluluklarının (Maroon) sığındığı ' +
-      'bir bölge olmuştur.',
+      'Adanın doğu kesimini sarp kristalen kayaçlardan oluşan ve 2.256 metre yüksekliğindeki ' +
+      'Blue Mountain Peak ile ülkenin en yüksek noktasını barındıran Mavi Dağlar (Blue Mountains) ' +
+      'kaplar. Orta ve batı kesimlerde ise kalın beyaz kireçtaşı katmanlarının oluşturduğu ' +
+      'geniş bir plato uzanır.' +
+      '\n\n' +
+      'Bu platonun merkezinde yer alan Cockpit Country, huni biçimli yüzlerce kireçtaşı çukuru ' +
+      '(dolin) ve dik koni tepeciklerin birbirini izlediği, dünyadaki en görkemli tropikal kule ' +
+      've koni karst arazilerinden biridir. Yarıklarla dolu bu geçit vermez topoğrafya, sömürge ' +
+      'döneminde kaçak köle topluluklarının (Maroonlar) kurduğu bağımsız yerleşimlere doğal bir ' +
+      'kale koruması sağlamıştır.',
     climateNoteTr:
-      "Jamaika'da tropikal deniz iklimi egemendir; kıyı ovaları yıl boyunca sıcak kalırken, Mavi " +
-      "Dağlar'ın yüksek kesimlerinde geceleri serin bir hava hâkimdir. Ülke Haziran-Kasım " +
-      "kasırga mevsiminde düzenli risk altındadır: 1988'de adayı vuran Kasırga Gilbert, kategori " +
-      "beşe ulaşan rüzgarlarıyla evlerin yaklaşık %80'ini hasara uğratmış, 500 bin kişiyi evsiz " +
-      'bırakmıştır. Kuzey kıyısı, ticaret rüzgarlarına daha açık olduğundan güney kıyısına göre ' +
-      'genellikle daha fazla yağış alır.',
+      'Ülkede kuzeydoğu alizelerinin yönlendirdiği tropikal deniz iklimi egemendir; kıyı ovaları ' +
+      "yıl boyu sıcak ve nemli kalırken, Mavi Dağlar'ın doruklarında serin bir yayla iklimi " +
+      "hüküm sürer. Alizelerin çarptığı Mavi Dağlar'ın kuzey yamaçları yılda 5.000 milimetreyi " +
+      'aşan yağış alarak dağları saran yoğun bir sis kuşağı yaratır; dünyaca ünlü Blue Mountain ' +
+      'kahvesi bu serin ve nemli mikroklimada yetişir. Dağların gerisinde kalan güney kıyıları ' +
+      'ise belirgin biçimde daha kuraktır. Karayip kasırga kuşağının merkezindeki ada, ' +
+      "özellikle 1988'deki Gilbert gibi süper kasırgaların hedefi olmuştur.",
     hydrographyNoteTr:
-      "Jamaika'nın en uzun nehri, orta kesimden güneye akan 93 kilometrelik Rio Minho'dur. " +
-      'Güneybatıdaki Black Nehri ise 53 kilometrelik akışıyla adanın en geniş sulak alanlarından ' +
-      'birini besler ve teknelerle gezilebilen bataklık kesimleriyle tanınır. Cockpit ' +
-      "Country'nin yaygın kireçtaşı arazisinde yüzey suları büyük ölçüde yeraltına sızar, bu " +
-      'nedenle bölgede belirgin bir yüzey akarsu ağı gelişmemiştir.',
+      'Cockpit Country ve orta kireçtaşı platosunda yüzeye düşen yağmur suları gözenekli ' +
+      'kayalardan hızla yeraltına sızarak uçsuz bucaksız mağara nehirleri ve yeraltı galerileri ' +
+      'oluşturur; bu nedenle platonun üzerinde belirgin bir nehir ağı gelişmemiştir. Yüzey ' +
+      'akışı daha çok geçirimsiz tabakaların bulunduğu vadilerde toplanır: Adanın güneyinde ' +
+      'akan 93 kilometrelik Rio Minho en uzun nehirken, batıdaki 53 kilometrelik Black River ' +
+      '(Kara Nehir) mangrov bataklıkları ve tatlı su sulak alanlarıyla adanın en geniş iç su ' +
+      'ekosistemini oluşturur. Kuzey sahilinde ise basamaklı kireçtaşı taraçalarından doğrudan ' +
+      "denize dökülen Dunn's River Şelalesi, adanın karstik hidrolojisinin denize ulaştığı " +
+      'simgesel bir çağlayandır.',
   },
   {
     isoCode: 'KN',
@@ -1074,34 +1294,38 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal parlamenter monarşi (Commonwealth realm)',
     independenceNoteTr: "19 Eylül 1983'te Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      'Saint Kitts ve Nevis, ikisi de birer volkanik koniden oluşan iki adanın bir araya gelmesiyle ' +
-      'kurulmuş bir federasyondur; nüfus ve yüzölçümü bakımından Amerika kıtalarının en küçük bağımsız ' +
-      'devletidir. St. Kitts kuzeybatı-güneydoğu doğrultusunda uzanan, ortasında dağlık bir omurga ' +
-      'taşıyan uzunca bir ada iken, Nevis ortasında tek bir volkanik koninin yükseldiği neredeyse ' +
-      'dairesel bir biçime sahiptir. İki adayı The Narrows adlı dar bir boğaz birbirinden ayırır.',
+      "Saint Kitts ve Nevis, Küçük Antiller'in Rüzgaraltı Adaları zincirinde yer alan iki " +
+      'volkanik adanın oluşturduğu federal bir devlettir; yüzölçümü ve nüfus bakımından hem ' +
+      "Amerika kıtalarının hem de tüm Batı Yarımküre'nin en küçük bağımsız ülkesidir. Kuzeydeki " +
+      'büyük ada Saint Kitts, güneydoğuya doğru incelen uzun bir sap biçiminde uzanırken, güneydeki ' +
+      'Nevis neredeyse dairesel bir simetriye sahip tek bir volkan konisinden oluşur. Bu iki adayı ' +
+      'birbirinden The Narrows (Boğaz) adı verilen yaklaşık üç kilometre genişliğindeki sığ bir ' +
+      'deniz kanalı ayırır.',
     landformNoteTr:
-      "St. Kitts'in kuzeybatı ucunda yükselen 1.156 metrelik Mount Liamuiga, adanın en yüksek " +
-      "noktasıdır ve aynı zamanda Britanya Rüzgaraltı Adaları'nın tamamındaki en yüksek zirvedir. " +
-      "Zirvedeki bir kilometre genişliğindeki krater 1959'a kadar sığ bir göl barındırmış, 2006 " +
-      "itibarıyla göl yeniden oluşmuştur. Nevis'in ortasında yükselen 985 metrelik Nevis Peak ise " +
-      'adanın tek başına hakim volkanik kütlesidir, genellikle bulutlarla örtülü kalır.' +
+      "Saint Kitts'in dağlık omurgasında yükselen 1.156 metrelik Mount Liamuiga, ülkenin en " +
+      'yüksek doruğudur ve kraterinde yağışlarla beslenen küçük bir krater gölü barındırır. ' +
+      'Adanın güneydoğusuna uzanan dar yarımada ise dik dağların aksine alçak tepeler, tuzlu lagünler ' +
+      've kumsal kıstaklarla kaplıdır.' +
       '\n\n' +
-      'İki adayı ayıran The Narrows, en dar noktasında yaklaşık 3 kilometre genişliğindedir; günlük ' +
-      "feribot seferleri bu boğazı St. Kitts'teki Basseterre ile Nevis'teki Charlestown arasında kısa " +
-      'sürede geçer.',
+      'Nevis adasının merkezinde ise denizden itibaren piramit gibi yükselen ve doruğu ' +
+      'çoğunlukla bulutlarla örtülü olan 985 metrelik Nevis Peak konisi yer alır. Her iki adada da ' +
+      'arazi dik yamaçlarla kıyı ovalarına iner ve zengin volkanik andozol toprakları geçmişte ' +
+      'yoğun şeker kamışı tarımına zemin hazırlamıştır.',
     climateNoteTr:
-      'Ülkede tropikal bir iklim egemendir, Mayıs-Kasım arası yağışlı mevsim izlenir. Yağış rejimi ' +
-      'büyük ölçüde rakıma bağlıdır: kıyı kesimlerinde yıllık ortalama yağış yaklaşık 1.200 milimetre ' +
-      "iken, dağlık iç kesimin en yüksek noktalarında bu rakam 3.000 milimetreyi aşar. St. Kitts'in " +
-      'güneydoğusundaki dar yarımada, adanın geri kalanına göre belirgin biçimde daha kuraktır. Ülke ' +
-      'Karayip kasırga kuşağı içinde yer alır ve düzenli tropikal fırtına riskiyle karşı karşıyadır.',
+      'Kuzeydoğu alizelerinin egemenliğindeki tropikal denizel iklim, yükselti basamaklarına ' +
+      'bağlı olarak keskin yerel farklılıklar gösterir. Kıyı ovalarında yıllık yağış 1.000 ila ' +
+      '1.200 milimetre arasında kalırken, bulut ormanlarıyla kaplı volkanik doruklarda bu miktar ' +
+      "3.000 milimetreyi aşar; buna karşılık Saint Kitts'in güneydoğusundaki alçak yarımada " +
+      'kaktüslerin yetiştiği yarı kurak bir mikroiklime sahiptir. Karayip kasırga kuşağının ' +
+      'doğrudan geçiş güzergahında bulunan adalar, yaz sonu ve sonbahar aylarında şiddetli ' +
+      'tropikal siklon tehdidi altındadır.',
     hydrographyNoteTr:
-      'Her iki adada da kalıcı akarsu sınırlıdır; merkezi sıradağlardan kıyıya inen su yolları, yerel ' +
-      'olarak "ghaut" adıyla anılan derin ve dar vadilerden akar, bunların çoğu yalnızca yağışlı ' +
-      "dönemlerde ya da şiddetli sağanaklarda dolar. St. Kitts'teki Wingfield ve Cayon dereleri, yılın " +
-      "yağışlı bölümünde kıyıya kadar akan az sayıdaki istisnadır. Nevis Peak'ten radyal biçimde inen " +
-      'on ana drenaj havzası, adayı volkanik konilerle kesintiye uğrayan bir yelpaze gibi kıyıya ' +
-      'bağlar. Bol yağış ve volkanik toprak, yüksek kesimlerde yağmur ormanının gelişmesini sağlar.',
+      'Geçirgen volkanik tüf ve kül tabakaları sebebiyle adalarda sürekli akış gösteren büyük ' +
+      'nehirler bulunmaz. Merkezi dağ doruklarından kıyıya doğru radyal olarak inen sarp ' +
+      'yamaçlar, yerel dilde "ghaut" (veya gut) olarak adlandırılan derin kanyon-dere yataklarıyla ' +
+      'yarılmıştır. Bu yataklar yalnızca şiddetli yağışlar ve kasırgalar sırasında coşkun sel ' +
+      'sularıyla dolarak kıyıya ulaşır. Yerleşimlerin tatlı su ihtiyacı, dağ eteklerindeki ' +
+      'doğal tatlı su pınarları ile volkanik akiferlerden pompalanan yeraltı sularından sağlanır.',
   },
   {
     isoCode: 'LC',
@@ -1112,7 +1336,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     slugEn: 'saint-lucia',
     continent: Continent.NorthAmerica,
     unSubregionTr: 'Karayipler',
-    population: 180_149,
+    population: 180_805,
     populationYear: null,
     areaKm2: 610,
     capitalNameTr: 'Castries',
@@ -1126,32 +1350,38 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
     independenceNoteTr: "22 Şubat 1979'da Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      'Saint Lucia, kuzeyden güneye dağlık ve ormanlık bir volkanik kütleyle kaplıdır. Adanın ' +
-      'güneybatısında, Soufrière kasabası yakınında yükselen ikiz volkanik kayalar Gros Piton ve Petit ' +
-      "Piton, ülkenin en tanınan coğrafi simgesidir ve 2004'te UNESCO Dünya Mirası Listesi'ne " +
-      'alınmıştır. İç kesimdeki yüksek ve yağışlı ormanların aksine, kıyı düzlükleri tarımsal ' +
-      'yerleşime elverişlidir.',
+      "Saint Lucia, Küçük Antiller'in Rüzgarüstü Adaları grubunda, Martinik ile Saint Vincent " +
+      "arasında uzanan ve topoğrafik siluetiyle Karayipler'in en ikonik manzaralarına sahip " +
+      'volkanik bir ada devletidir. Adanın güneybatı sahilinde turkuaz denizden dikey birer ' +
+      'duvar gibi yükselen orman kaplı ikiz lav tıkaçları (Pitonlar), ülkenin ulusal simgesidir. ' +
+      'İç kesimlerini saran sarp dağ sıraları, bol yağışlı bulut ormanları ve aktif jeotermal ' +
+      'vadiler, adaya vahşi ve engebeli bir doğa karakteri kazandırır.',
     landformNoteTr:
-      "Piton'lar, ayrı ayrı yükselen iki volkanik tıkaçtır: 798 metrelik Gros Piton ile 743 metrelik " +
-      'Petit Piton, aralarındaki Piton Mitan sırtıyla birbirine bağlanır. Adanın gerçek en yüksek ' +
-      "noktası ise Piton'lar değil, iç kesimdeki dağ sırasında yükselen 950 metrelik Mount Gimie'dir." +
+      'Adanın orta kesiminde kuzey-güney doğrultusunda uzanan sarp sırt üzerinde yükselen ' +
+      "950 metrelik Mount Gimie, Saint Lucia'nın en yüksek noktasıdır. Güneybatı kıyısında " +
+      "UNESCO Dünya Mirası Listesi'nde yer alan meşhur Pitonlar yükselir: 798 metrelik Gros " +
+      'Piton ve hemen yanındaki daha dik 743 metrelik Petit Piton, eski volkanik bacaların ' +
+      'aşınmaya dirençli lav tıkaçlarıdır.' +
       '\n\n' +
-      'Soufrière kasabasının güneyinde yer alan Sulphur Springs, aracın içinden geçilebilen kükürtlü ' +
-      'kaynaklar ve fümaroller nedeniyle "sürüşle görülebilen volkan" olarak tanıtılır; bölge, adanın ' +
-      "en güncel volkanik etkinliğinin odaklandığı Soufrière Volkanik Merkezi'nin bir parçasıdır.",
+      'Pitonların hemen gerisinde, Soufrière Volkanik Merkezi içinde yer alan Qualibou ' +
+      'kalderası uzanır. Burada bulunan Sulphur Springs (Kükürt Pınarları), kaynayan çamur ' +
+      'havuzları ve kükürtlü gaz bacalarıyla dünyanın motorlu araçla içine kadar girilebilen ' +
+      'ender aktif hidrotermal alanlarından biridir.',
     climateNoteTr:
-      "Saint Lucia'da tropikal bir iklim egemendir; Haziran-Eylül arası yağışlı, Şubat-Mayıs arası ise " +
-      'görece kurak bir dönem yaşanır. Kıyı kesimlerinde yıllık yağış yaklaşık 127 santimetre iken, ' +
-      'dağlık iç kesimde bu rakam 380 santimetreye kadar çıkar; adanın kuzey ve güney uçları iç kesime ' +
-      'göre belirgin biçimde daha az yağış alır. Ülke Karayip kasırga kuşağı içindedir ve yaz ' +
-      'sonu-sonbahar döneminde tropikal fırtına riskiyle karşılaşır.',
+      'Ülkede kuzeydoğu alizelerinin şekillendirdiği nemli tropikal iklim hüküm sürer; ' +
+      'haziran-kasım arası bol yağışlı ve fırtınalı, aralık-mayıs arası ise daha kurak geçer. ' +
+      "Atlas Okyanusu'ndan gelen nemli hava kütlelerinin dağlık iç kesimlere çarpıp yükselmesi, " +
+      'merkezi ormanlık alanda yıllık yağış miktarını 3.800 milimetreye kadar tırmandırırken, ' +
+      'adanın alçak kuzey ve güney burunlarında bu miktar 1.300 milimetre civarında kalır. ' +
+      'Sonbahar kasırgalarının tetiklediği şiddetli sağanaklar, dik dağ yamaçlarında yıkıcı ' +
+      'heyelanlara yol açabilir.',
     hydrographyNoteTr:
-      'Adanın merkezi yüksek kesimlerinden kıyıya inen çok sayıda kısa nehir arasında en uzunu, 48 ' +
-      "kilometrekarelik bir havzayı süzen Roseau Nehri'dir. Roseau Nehri üzerinde 1995'te tamamlanan, " +
-      'resmi adıyla John Compton Barajı (eski adıyla Roseau Barajı), 45 metre yüksekliğinde olup 2,6 ' +
-      "milyar litreden fazla su tutma kapasitesine sahiptir. Cul de Sac, Fond D'Or ve Marquis gibi " +
-      'diğer nehir vadileri, adanın alüvyal ovalarını ve en geniş tropikal nemli orman alanlarını ' +
-      'barındırır.',
+      'Merkezi dağ omurgasından radyal olarak her yöne inen çok sayıda nehir adanın ' +
+      'vadilerini aşındırmıştır. Bu akarsuların en uzunu, adanın orta-batı kesimini drene ' +
+      "eden Roseau Nehri'dir. Bu nehir üzerinde inşa edilen John Compton Barajı, başkent " +
+      'Castries ve adanın kuzey yerleşimlerinin tatlı su güvencesini oluşturan ana içme ' +
+      "suyu rezervuarıdır. Cul de Sac, Roseau ve Fond d'Or gibi alüvyon tabanlı geniş nehir " +
+      'vadileri ise adanın başlıca muz tarımı ve yerleşim alanlarını barındırır.',
   },
   {
     isoCode: 'VC',
@@ -1176,34 +1406,38 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
     independenceNoteTr: "27 Ekim 1979'da Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      "Saint Vincent ve Grenadinler, tek büyük ada olan Saint Vincent ile bunun güneyinde Grenada'ya " +
-      'kadar uzanan, yaklaşık 600 adacık ve kayalıktan oluşan Grenadinler zincirinin kuzey üçte ikilik ' +
-      "bölümünü kapsar. Saint Vincent'ın tamamı, adanın kuzeyinde yükselen etkin bir volkan olan La " +
-      "Soufrière'in egemenliğindeki dağlık ve ormanlık bir arazidir. Grenadinler'in çoğu düşük " +
-      'profilli, kuru ve seyrek nüfuslu küçük adalardır; bunlardan Bequia en büyüğü, Union Adası ise ' +
-      'Tobago Cays deniz parkına yakınlığıyla tanınır.',
+      "Saint Vincent ve Grenadinler, Windward Adaları'nın güney yayında yer alan büyük anakara " +
+      "Saint Vincent ile bunun güneyinde Grenada'ya doğru uzanan 32 küçük ada ve mercan kayalığından " +
+      '(Grenadinler) oluşan iki parçalı bir ada devletidir. Ülkenin ana karası Saint Vincent, ' +
+      'kuzeyinde yükselen son derece aktif bir stratovolkanın şekillendirdiği sarp, yoğun ormanlık ' +
+      've dağlık bir yapıya sahiptir. Buna karşılık Bequia, Mustique ve Union gibi güneydeki ' +
+      'Grenadin adaları ise alçak tepeleri, beyaz kumsalları ve sığ mercan lagünleriyle anakaraya ' +
+      'tam bir tezat oluşturur.',
     landformNoteTr:
-      "Saint Vincent'ın kuzeyinde yükselen 1.235 metrelik La Soufrière, ülkenin en yüksek noktasıdır " +
-      "ve tepesinde bir krater gölü barındırır. Volkan 1718'den bu yana kayıtlı sekiz kez patlamıştır; " +
-      "en son patlaması Aralık 2020'de başlamış, 9 Nisan 2021'deki patlayıcı evrede kül bulutu " +
-      'yaklaşık 10 kilometre yüksekliğe ulaşmış ve yaklaşık 16 bin kişi tahliye edilmiştir.' +
+      "Saint Vincent'ın kuzey kesimini bütünüyle kaplayan 1.234 metrelik La Soufrière volkanı, " +
+      "ülkenin en yüksek zirvesidir ve Karayipler'in en aktif yanardağlarından biridir. Zirvesinde " +
+      'geniş bir krater barındıran volkan, 1902 ve 1979 patlamalarının ardından en son Nisan ' +
+      "2021'de şiddetle patlayarak adanın kuzey üçte birlik bölümünü kalın kül katmanlarıyla " +
+      'örtmüş ve kitlesel tahliyelere yol açmıştır.' +
       '\n\n' +
-      "Grenadinler'de yaklaşık 32 ada ve kayalık Saint Vincent ve Grenadinler'e, geri kalan güney " +
-      "kesim ise Grenada'ya aittir. Zincirin güney kesimindeki Tobago Cays, beş küçük adacığı ve " +
-      "çevresindeki Horseshoe Resifi'ni kapsayan geniş bir kumluk lagünle tanınır.",
+      'Güneydeki Grenadinler zincirinde ise sarp volkanik dağlar yerini alçak kireçtaşı ve ' +
+      'aşınmış tepe sırtlarına bırakır. Bu zincirin en güneyinde yer alan Tobago Cays, beş ' +
+      'ıssız adacığı çevreleyen devasa Horseshoe mercan resifiyle korunan sığ turkuaz ' +
+      'lagünleri kapsayan ünlü bir deniz koruma alanıdır.',
     climateNoteTr:
-      "Saint Vincent ve Grenadinler'de yıl boyunca sıcak ve nemli tropikal koşullar hakimdir; Saint " +
-      "Vincent'ın dağlık iç kesimi, düşük ve düz Grenadinler adacıklarına göre belirgin biçimde daha " +
-      'fazla yağış alır. Ülke Karayip kasırga kuşağı içinde yer alır ve yaz sonu-sonbahar döneminde ' +
-      "düzenli tropikal fırtına riskiyle karşılaşır. La Soufrière'in etkin olması, ülkeyi bölgedeki " +
-      'komşularının çoğunun maruz kalmadığı ayrı bir doğal tehlikeyle — volkanik kül ve piroklastik ' +
-      'akıntı riskiyle — karşı karşıya bırakır.',
+      "Ülkede yıl boyunca sıcak ve nemli tropikal denizel koşullar etkilidir. Saint Vincent'ın " +
+      'yüksek volkanik dağları kuzeydoğu alizelerinden muazzam miktarda orografik yağış ' +
+      'çekerek yıllık 4.000 milimetrenin üzerine çıkarken, güneydeki basık Grenadin adaları ' +
+      'yılda 1.000 milimetre civarında yağışla kurak çalı ve kuru orman biyomuna bürünür. ' +
+      'Karayip kasırga koridorunda bulunan ülke, hem tropik fırtına ve kasırgaların hem de ' +
+      "La Soufrière'in havaya savurduğu piroklastik kül bulutlarının çifte doğal afet riskini taşır.",
     hydrographyNoteTr:
-      "Saint Vincent'ın merkezi volkanik sırtından kıyıya inen çok sayıda kısa ve hızlı akan dere, " +
-      'adanın başlıca yüzey suyu ağını oluşturur. Volkanik kökenli koyu renkli kumlar, özellikle ' +
-      'adanın batı kıyısındaki plajlarda belirgindir ve arazinin volkanik kökenini görsel olarak ele ' +
-      'verir. Küçük ve düşük profilli Grenadinler adacıklarında ise kalıcı akarsu bulunmaz; tatlı su ' +
-      'ihtiyacı büyük ölçüde yağmur suyu toplama ve sınırlı yeraltı kaynaklarıyla karşılanır.',
+      'Saint Vincent anakarasında merkezi sırttan doğup derin vadiler boyunca kıyıya hızla ' +
+      'ulaşan çok sayıda gür debili dağ deresi akar; volkanik aşınma sebebiyle adanın batı ' +
+      'kıyısındaki plajlar karakteristik siyah bazalt kumlarıyla kaplıdır. Buna karşılık ' +
+      'küçük ve alçak Grenadin adalarında kalıcı akarsu bulunmaz; bu adalarda tatlı su ' +
+      'ihtiyacı tamamen yağmur suyu sarnıçları, yerel desalinasyon üniteleri ve anakaradan ' +
+      'gemilerle taşınan sularla karşılanır.',
   },
   {
     isoCode: 'TT',
@@ -1228,34 +1462,39 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "31 Ağustos 1962'de Birleşik Krallık'tan bağımsız oldu (Cumhuriyet 1976).",
     introTr:
-      "Trinidad ve Tobago, Karayipler'deki diğer adaların çoğundan farklı olarak volkanik " +
-      'kökenli değildir; Trinidad adası jeolojik olarak Venezuela kıyısındaki Güney Amerika ' +
-      'kıtasal sahanlığının bir parçasıdır ve yalnızca yaklaşık 11 kilometrelik dar bir su ' +
-      'yoluyla anakaradan ayrılır. İki ana adadan oluşan ülkenin nüfusunun büyük bölümü, ' +
-      "güneybatıda Port of Spain çevresinde yoğunlaşan Trinidad'da yaşar; Tobago ise " +
-      'kuzeydoğuda, daha küçük ve seyrek nüfusludur.',
+      "Trinidad ve Tobago, Karayipler'in en güney ucunda, Venezuela'nın Orinoco Deltası'na " +
+      'yalnızca 11 kilometre mesafede yer alan iki adalı bir devlettir. Bölgedeki diğer ada ' +
+      'ülkelerinden farklı olarak volkanik yay sistemine değil, doğrudan Güney Amerika kıtasal ' +
+      'kalkanına ve şelfine aittir. Bu kıtasal jeoloji, ülkeye zengin petrol, doğal gaz ve ' +
+      'doğal asfalt yatakları kazandırmış; bitki ve hayvan varlığını da Antil adalarından ' +
+      'ziyade Amazon ve Orinoco havzalarıyla akraba kılmıştır. Nüfusun ve sanayinin ezici ' +
+      "çoğunluğu büyük ada Trinidad'da toplanmıştır.",
     landformNoteTr:
-      "Trinidad'ın kuzeyinde kıyıya paralel uzanan Kuzey Sıradağları, Venezuela'daki And " +
-      "Dağları'nın bir uzantısıdır; sıradağın 940 metrelik El Cerro del Aripo zirvesi ülkenin en " +
-      'yüksek noktasıdır. Adanın güneybatısındaki La Brea kasabası yakınında bulunan Katran Gölü ' +
-      '(Pitch Lake), dünyanın en büyük doğal asfalt yatağıdır; yaklaşık 40 hektarlık yüzeyi ' +
-      'altında binlerce yıldır sürekli yenilenen katran, 19. yüzyıldan bu yana ticari olarak ' +
-      "çıkarılır. Tobago'nun iç kesimini kaplayan Ana Sıradağ (Main Ridge), 1776'da koruma " +
-      "altına alınmıştır ve Batı Yarımküre'nin resmi olarak korunan en eski yağmur ormanı " +
-      'rezervidir.',
+      "Trinidad'ın kuzey kıyısı boyunca uzanan Kuzey Sıradağları (Northern Range), jeolojik " +
+      "olarak Venezuela Kıyı Andları'nın doğrudan deniz aşırı uzantısıdır; bu sıradağ üzerinde " +
+      'yükselen 940 metrelik El Cerro del Aripo ülkenin en yüksek zirvesidir. Adanın orta ve ' +
+      'güney kesimleri ise dalgalı ovalar ve alçak petrol havzalarıyla kaplıdır.' +
+      '\n\n' +
+      'Adanın güneybatısındaki La Brea kasabasında yer alan Katran Gölü (Pitch Lake), yaklaşık ' +
+      '40 hektarlık alanıyla yeryüzünün en büyük doğal asfalt rezervuarıdır ve derin faylardan ' +
+      'sızan petrol hidrokarbonlarının yüzeyde ağırlaşmasıyla oluşmuştur. Kuzeydoğudaki küçük ada ' +
+      "Tobago'nun bel kemiğini ise 1776 yılında Batı Yarımküre'nin ilk yasal orman koruma alanı " +
+      'ilan edilen sarp Ana Sıradağ (Main Ridge) oluşturur.',
     climateNoteTr:
-      'Trinidad ve Tobago, kuzeye 10-11 derece enlemde ve Güney Amerika kıyısına yakın konumu ' +
-      'nedeniyle Karayip kasırga kuşağının büyük ölçüde dışında kalır; bölgeye ulaşan tropikal ' +
-      'sistemler bu enlemde güçlenme fırsatı bulamadan geçer. Bu konum ülkeyi kuzeydeki ' +
-      'komşularına göre doğrudan kasırga vuruşlarına karşı belirgin biçimde daha az savunmasız ' +
-      'kılar. Ülkede yıl boyunca sıcak ve nemli tropikal bir iklim egemendir; Haziran-Aralık ' +
-      'arası yağışlı, Ocak-Mayıs arası ise görece kurak bir mevsim yaşanır.',
+      "Ülke, 10 derece kuzey enleminde Ekvator'a ve Güney Amerika ana karasına çok yakın bir " +
+      'konumda yer alması sayesinde Karayip kasırga kuşağının güney sınırının altında kalır. ' +
+      "Bu korunaklı coğrafi konum, Trinidad ve Tobago'yu kuzeydeki komşularını düzenli yıkan " +
+      'yıkıcı kasırgalardan büyük ölçüde muaf tutar. Yıl boyu sıcak ve nemli tropikal iklimde ' +
+      "haziran-aralık arası yağışlı, ocak-mayıs arası ise kurak mevsim yaşanır; Kuzey Sıradağları'nda " +
+      'yağışlar 3.800 milimetreyi bulurken batı düzlüklerinde 1.200 milimetreye kadar geriler.',
     hydrographyNoteTr:
-      "Trinidad'ın en uzun nehirlerinden Ortoire Nehri, adanın doğusunda Atlantik kıyısına " +
-      'dökülür. Hacim bakımından adanın en büyük nehri olan Caroni Nehri ise başkent Port of ' +
-      "Spain yakınında Caroni Bataklığı'nı besler; bu bataklık, ülkenin ulusal kuşu allık ibisin " +
-      "dünyadaki en büyük tünekleme alanlarından biridir. Dağlık ve dar Tobago'da ise kısa, " +
-      'hızlı akan dereler dışında büyük bir akarsu sistemi bulunmaz.',
+      'Kıtasal şelf kökeni sayesinde Trinidad, Karayip adaları içinde en olgun ve geniş nehir ' +
+      "ağlarına sahiptir. Kuzey Sıradağları eteklerinden doğup batıdaki Paria Körfezi'ne akan " +
+      'Caroni Nehri, başkentin güneyinde devasa Caroni Bataklığı mangrov ekosistemini besler; ' +
+      'bu sulak alan ülkenin ulusal simgesi olan kızıl ibisin (Scarlet Ibis) dünyadaki en önemli ' +
+      'tünekleme sahasıdır. Doğu sahiline dökülen 50 kilometrelik Ortoire Nehri ise adanın en ' +
+      'uzun su yoludur. Dağlık Tobago adasında ise daha kısa, hızlı akan temiz dereler ve ' +
+      'çağlayanlar baskındır.',
   },
   {
     isoCode: 'AR',
@@ -1281,30 +1520,61 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "9 Temmuz 1816'da İspanya'dan bağımsızlığını ilan etti (süreç 25 Mayıs 1810'da başladı).",
     introTr:
-      "Güney Amerika'nın (Brezilya'dan sonra) yüzölçümce ikinci büyük ülkesi olan Arjantin, " +
-      'batıda And Dağları boyunca Şili ile sınırlanır. Ülke kuzeyden güneye yaklaşık 3.700 ' +
-      'kilometre uzanır ve üç farklı bölgeye ayrılır: kuzeyde Gran Chaco, orta kesimde ' +
-      'Pampalar, güneyde ise Patagonya.',
+      "Güney Amerika'nın Brezilya'dan sonraki en geniş ülkesi olan Arjantin, kıtanın " +
+      'güney konisinde 3.700 kilometreyi aşan boylamsal bir yay çizerek uzanır. ' +
+      "Batıda And Dağları'nın sarp zirveleriyle Pasifik'ten yalıtılan ülke, doğuda " +
+      "Atlas Okyanusu'na boydan boya açılır." +
+      '\n\n' +
+      'Bu olağanüstü kuzey-güney uzanımı, tropikal orman ve kurak çalılıklardan ılıman ' +
+      'otlaklara ve buzullarla oyulmuş subantarktik bozkırlara kadar uzanan derin bir ' +
+      "bölgesel çeşitlilik doğurur. Nüfus ve ekonomik faaliyet, başkent Buenos Aires'i " +
+      'çevreleyen verimli Pampa düzlüklerinde toplanmıştır.',
     landformNoteTr:
-      'And Dağları, ülkenin batı sınırı boyunca uzanır ve en yüksek noktasını, 6.961 ' +
-      "metrelik Aconcagua'da bulur — yalnızca Arjantin'in değil, Amerika kıtalarının ve tüm " +
-      'Batı ile Güney yarımkürenin en yüksek zirvesidir. Merkezde, yaklaşık 760.000 ' +
-      'kilometrekarelik geniş ve düz bir çayır olan Pampalar uzanır; batıdaki kurak Pampa ' +
-      'ile doğudaki nemli Pampa arasındaki fark, bölgeyi tarım ve hayvancılığın kalbi ' +
-      'haline getirir. Güneyde ise Patagonya başlar: doğusu rüzgarlı ve kurak bir ' +
-      'yayla-step, batısındaki Andine kesimi ise buzullarla kaplıdır.',
+      'Ülkenin batı sınırını baştan başa kaplayan And Dağları, kıtanın omurgasını oluşturur ' +
+      "ve 6.961 metrelik Aconcagua ile doruğa ulaşır. Aconcagua, yalnızca Arjantin'in " +
+      'değil, Asya dışındaki tüm yeryüzünün ve Batı ile Güney yarımkürenin en yüksek ' +
+      'zirvesidir. Kuzeybatı kesiminde dağlar, ortalama 3.800 metre rakımlı kurak ve ' +
+      "tuzlu Puna Platosu'na basamak teşkil eder." +
+      '\n\n' +
+      'Ülkenin kalbinde yaklaşık 760.000 kilometrekarelik bir alanı kaplayan Pampalar uzanır. ' +
+      'Bu uçsuz bucaksız çayır arazisi, rüzgarlarla taşınmış kalın lös topraklarıyla örtülü ' +
+      'olup doğuda nemli Pampa, batıda ise kurak Pampa adıyla ikiye ayrılır; yeryüzünün en ' +
+      'verimli tarım ve sığır yetiştiriciliği sahalarından biridir.' +
+      '\n\n' +
+      "Colorado Nehri'nin güneyinde ise Patagonya başlar. Doğuda Atlas Okyanusu'na doğru " +
+      'basamaklar halinde alçalan rüzgarlı ve kurak yayla platoları yer alırken, batıda ' +
+      'And Dağları devasa göller ve Güney Patagonya Buz Tarlası gibi buzul örtüleriyle ' +
+      'kaplanır; bu sistem en güneyde Ateş Ülkesi (Tierra del Fuego) takımadalarıyla son bulur.',
     climateNoteTr:
-      'Kuzeyde neredeyse tropikal bir iklim görülürken, Buenos Aires ve Pampalar bölgesinde ' +
-      'ılıman bir iklim hakimdir. Daha güneyde, Patagonya soğuk ve sürekli rüzgarlı bir ' +
-      "iklime sahiptir; ülkenin en güneyindeki Ateş Ülkesi'nde ise subpolar koşullar " +
-      "yaşanır. Kuzeyden güneye 3.700 kilometreyi bulan bu uzunluk, Arjantin'e kıtanın en " +
-      'geniş iklim yelpazelerinden birini kazandırır.',
+      'Kuzeyden güneye uzanan geniş enlem kuşağı ve batıdaki devasa dağ barikatı, ' +
+      "Arjantin'de çok çeşitli iklim tipleri üretir. Gran Chaco'nun yer aldığı kuzey " +
+      'kesimlerde yazları aşırı sıcak ve yağışlı, kışları ılık geçen subtropikal bir ' +
+      'iklim etkilidir.' +
+      '\n\n' +
+      'Pampalar kuşağında ılıman ve dört mevsimi belirgin nemli bir rejim egemendir. ' +
+      'Burada kuzeyden gelen sıcak nemli hava ile Antarktika kökenli soğuk cephelerin ' +
+      'karşılaşması, güneybatıdan esen sert ve soğuk pampero fırtınalarına yol açar; ' +
+      'güneydoğudan esen sudestada ise kıyı boylarında şiddetli yağış ve su taşkınları üretir.' +
+      '\n\n' +
+      "And Dağları'nın Pasifik nemini bütünüyle kesmesi sonucunda Patagonya, dağların " +
+      'yağmur gölgesinde kalan soğuk ve yarı kurak bir step iklimine bürünür. Yıl boyu ' +
+      'batıdan esen kesintisiz fırtınalı rüzgarlar bu platoları kuruturken, en güneydeki ' +
+      "Ateş Ülkesi'nde serin, fırtınalı ve subpolar denizel şartlar hakimdir.",
     hydrographyNoteTr:
-      "Ülkenin en uzun nehri, Brezilya'da doğup güneye akan ve toplamda yaklaşık 4.880 " +
-      "kilometreye ulaşan Paraná'dır; Uruguay Nehri ile birleştiği noktada geniş bir haliç " +
-      "olan Río de la Plata'yı oluşturur. Gran Chaco'da, Paraguay ve Paraná'nın kolları " +
-      "olan Pilcomayo ve Bermejo nehirleri akar. Patagonya'da ise Colorado ve Negro " +
-      "nehirleri, And Dağları'ndan doğup Atlantik'e ulaşan başlıca su yollarıdır.",
+      "Ülkenin en önemli hidrolojik arteri, Brezilya'dan doğup güneye inen ve yaklaşık " +
+      "4.880 kilometre uzunluğa sahip olan Paraná Nehri'dir. Paraná, Uruguay Nehri ile " +
+      "birleşerek Atlas Okyanusu'na açılan devasa huni biçimli Río de la Plata halicini " +
+      "oluşturur; bu havza Arjantin'in tahıl ve sanayi taşımacılığının can damarıdır." +
+      '\n\n' +
+      'Kuzeydeki Gran Chaco düzlüklerinden geçen Pilcomayo ve Bermejo nehirleri, And ' +
+      'eteklerinden topladıkları bol killi tortuyu Paraná sistemine aktarır. Orta kesimde ' +
+      "ise Arjantin'in en büyük doğal gölü olan devasa tuzlu bataklık lagünü Mar Chiquita " +
+      '(Ansenuza) kapalı bir havza oluşturur.' +
+      '\n\n' +
+      "Patagonya boyunca uzanan Colorado, Negro ve Santa Cruz nehirleri, And Dağları'ndaki " +
+      "buzul erimeleri ve dağ gölleriyle beslenerek kurak platoları aşar ve Atlas Okyanusu'na " +
+      'dökülür; bu kesimdeki Nahuel Huapi, Argentino ve Viedma gibi göller kıtanın en ' +
+      'büyük buzul tatlı su rezervleridir.',
   },
   {
     isoCode: 'BO',
@@ -1329,46 +1599,60 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "6 Ağustos 1825'te İspanya'dan bağımsız oldu.",
     introTr:
-      "Bolivya, Güney Amerika'nın ortasında, Peru, Şili, Arjantin, Paraguay ve Brezilya ile " +
-      'komşu, kıtanın denize kıyısı olmayan iki ülkesinden biridir. Ülke toprakları üç ana ' +
-      "coğrafi bölgeye ayrılır: batıda And Dağları'nın yüksek platosu Altiplano, ortada " +
-      "nemli geçiş bölgesi Yungas, doğuda ise alçak ovalar (Llanos) ile Gran Chaco'nun " +
-      'kuzey ucu. Nüfusun büyük bölümü, deniz seviyesinden ortalama 3.700 metre ' +
-      "yükseklikteki Altiplano'da ve çevresindeki vadilerde yaşar.",
-    landformNoteTr:
-      'Bolivya toprakları, birbirine paralel uzanan iki And Dağları sırası arasında ' +
-      'sıkışmıştır: batıda, Şili sınırını izleyen ve volkanik zirveler barındıran ' +
-      'Cordillera Occidental; doğuda ise daha eski kristalen kayaçlardan oluşan Cordillera ' +
-      'Oriental. Ülkenin en yüksek noktası, Cordillera Occidental üzerindeki 6.542 metrelik ' +
-      "Sajama Yanardağı'dır. İki sıradağ arasında, ortalama 3.700 metre yükseklikte uzanan " +
-      'geniş bir plato olan Altiplano yer alır; platonun güneyinde, eski göllerin ' +
-      'kurumasıyla oluşan ve 10.000 kilometrekareyi aşan, dünyanın en büyük tuz düzlüğü ' +
-      'Salar de Uyuni bulunur.' +
+      "Güney Amerika'nın kalbinde yer alan Bolivya, Paraguay ile birlikte kıtanın " +
+      'denize doğrudan çıkışı bulunmayan iki ülkesinden biridir. Ülke, batıda 4.000 metre ' +
+      'rakımlı And zirvelerinden doğuda Amazon ve Paraguay havzalarının tropikal ' +
+      'alçak düzlüklerine hızla alçalan baş döndürücü bir topoğrafik eğime sahiptir.' +
       '\n\n' +
-      "Altiplano'nun kuzeyinde, Peru ile paylaşılan Titicaca Gölü'nün Bolivya kıyısı " +
-      'uzanır; 3.812 metre yükseklikteki bu göl dünyanın seyrüsefere elverişli en yüksek ' +
-      "gölüdür ve yüzeyinin yaklaşık %40'ı Bolivya sınırları içinde kalır. Cordillera " +
-      "Oriental'in doğu yamaçlarında nemli ve ormanlık Yungas bölgesi başlar; ülkenin " +
-      "doğusundaki geniş ovalar (Llanos) Amazon Havzası'na, güneydeki Gran Chaco'nun kuzey " +
-      'ucu ise yarı-kurak bir düzlüğe açılır.',
+      'Nüfus ve idari merkezler tarih boyunca batıdaki yüksek dağ platoları ve vadi ' +
+      'oluklarında yoğunlaşmış olsa da, doğudaki ovalar tarım, hayvancılık ve doğal gaz ' +
+      'zenginliğiyle ülkenin ekonomik ağırlık merkezini giderek kendi tarafına çekmektedir.',
+    landformNoteTr:
+      'Bolivya topraklarının batı yarısı, birbirine paralel uzanan iki devasa dağ ' +
+      'kordonu tarafından şekillendirilir: Şili sınırını izleyen volkanik Cordillera ' +
+      'Occidental ve doğuda karlı zirveleriyle yükselen Cordillera Oriental. Ülkenin ' +
+      "en yüksek noktası, 6.542 metrelik sönmüş volkan konisi Nevado Sajama'dır." +
+      '\n\n' +
+      'Bu iki sıradağ arasında ortalama 3.700 metre rakımda uzanan Altiplano, dünyanın ' +
+      "Tibet'ten sonraki en geniş yüksek platosudur. Platonun güneyinde, Pleistosen " +
+      'çağı göllerinin buharlaşmasıyla geriye kalan ve 10.000 kilometrekareyi aşan ' +
+      'alanıyla yeryüzünün en büyük tuz çölü olan Salar de Uyuni yer alır; bu devasa tuz ' +
+      'tabakası aynı zamanda dünyanın en zengin lityum rezervlerini barındırır.' +
+      '\n\n' +
+      "Cordillera Oriental'in doğu yamaçları, derin kanyonlar ve sis ormanlarıyla " +
+      'örülü dik bir geçiş kuşağı olan Yungas vadilerine açılır. Buradan itibaren ' +
+      'arazi düzleşerek kuzey ve doğuda Amazon ormanlarına bağlanan Llanos düzlüklerine, ' +
+      'güneydoğuda ise kuru çalılıklarla kaplı Gran Chaco alüvyon ovalarına dönüşür.',
     climateNoteTr:
-      "Altiplano'da rakımın da etkisiyle serin ve yarı-kurak bir iklim hakimdir; yıllık " +
-      'ortalama sıcaklık 5-15 santigrat derece arasında değişir, yağış çoğunlukla ' +
-      "Aralık-Mart döneminde düşer ve yılda 500 milimetreyi geçmez. Cordillera Oriental'in " +
-      "doğu yamaçlarındaki Yungas'a Amazon Havzası'ndan gelen nemli hava kütleleri ulaşır; " +
-      'sis sık görülür, yağış yılda 1.500 milimetreye kadar çıkabilir. Doğudaki alçak ' +
-      'Llanos bölgesinde ise sıcaklık yıl boyunca 25-30 santigrat derece bandında seyreder, ' +
-      'yağış birçok kesimde 2.000 milimetreyi aşar ve yağmur ormanı sektörlerinde 4.000 ' +
-      'milimetreye ulaşabilir.',
+      'Bolivya bütünüyle tropikal enlemlerde yer almasına karşın, iklim rejimini neredeyse ' +
+      'tamamen dikey rakım basamakları belirler. Altiplano kuşağında gündüzleri yakıcı ' +
+      'güneş, geceleri ise sıfırın altına inen dondurucu ayazların görüldüğü sert ve ' +
+      'yarı kurak bir dağ iklimi hüküm sürer; yıllık ortalama sıcaklık 5 ila 15 derece ' +
+      'arasında seyrederken yıllık yağış 500 milimetreyi aşmaz.' +
+      '\n\n' +
+      "Doğu yamaçlarındaki Yungas kuşağında, Amazon'dan yükselen sıcak ve nemli hava " +
+      'kütlelerinin yoğuşması sonucu yoğun sisler ve yılda 1.500 milimetreyi bulan bol ' +
+      'orografik yağışlar görülür.' +
+      '\n\n' +
+      'Doğudaki alçak Llanos ve Amazon ovalarında ise yıl boyu 25-30 derece civarında ' +
+      'sıcaklık ve bazı kesimlerde 2.000 ila 4.000 milimetreye varan bol yağışlı tropikal ' +
+      "orman iklimi egemendir. Güneydoğudaki Chaco'da ise yazlar kavurucu geçerken, kış " +
+      'aylarında güneyden esen "surazo" adlı kutup rüzgarları sıcaklığı saatler içinde ' +
+      'aniden düşürebilir.',
     hydrographyNoteTr:
-      "Titicaca Gölü'nün fazla suyu, Desaguadero Nehri aracılığıyla güneye, sığ ve tuzlu " +
-      "Poopó Gölü'ne akar; bu havza denize bağlantısı olmayan kapalı bir drenaj sistemidir. " +
-      'Poopó son derece sığ olduğu için yüzey alanı yıldan yıla büyük ölçüde değişir — göl ' +
-      "2015-2016'da tamamen kurumuş, o tarihten bu yana ancak kısmi ve kırılgan bir düzeyde " +
-      "su tutabiliyor. Doğudaki Llanos'ta Mamoré ve Beni nehirleri, And Dağları'ndan inen " +
-      "suları toplayarak kuzeye, Brezilya'daki Madeira Nehri üzerinden Amazon sistemine " +
-      "taşır. Güneydoğuda, Gran Chaco'nun kuzey ucundan geçen Pilcomayo Nehri Bolivya And " +
-      "Dağları'nda doğar ve güneydoğuya akarak Paraguay Nehri'ne katılır.",
+      'Bolivya hidrolojik olarak üç ana drenaj havzasına ayrılır. Altiplano üzerindeki ' +
+      'kapalı havzanın merkezinde, Peru ile paylaşılan 3.812 metre rakımlı Titicaca ' +
+      'Gölü yer alır; dünyanın ticari seyrüsefere elverişli en yüksek gölü olan bu su ' +
+      "kütlesinin yaklaşık %40'ı Bolivya sınırları içindedir. Gölün suları Desaguadero " +
+      "Nehri ile güneydeki sığ Poopó Gölü'ne akar; aşırı buharlaşma ve su çekilmesi " +
+      'nedeniyle Poopó Gölü periyodik olarak tamamen kuruma noktasına gelmektedir.' +
+      '\n\n' +
+      'Ülke topraklarının üçte ikisini toplayan Amazon havzası, Mamoré ve Beni gibi dev ' +
+      "akarsularla And Dağları'nın sularını kuzeye taşır; bu nehirler Brezilya sınırında " +
+      "birleşerek Amazon'un en büyük kollarından Madeira Nehri'ni meydana getirir." +
+      '\n\n' +
+      'Güneydoğu kesimindeki Gran Chaco suları ise Pilcomayo ve Bermejo nehirleri ' +
+      'aracılığıyla güneye yönelerek Río de la Plata sistemine katılır.',
   },
   {
     isoCode: 'BR',
@@ -1393,38 +1677,60 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal başkanlık cumhuriyeti',
     independenceNoteTr: "7 Eylül 1822'de Portekiz'den bağımsız oldu.",
     introTr:
-      "Güney Amerika kıtasının yaklaşık %47'sini kaplayan Brezilya, kıtanın yüzölçümce en büyük " +
-      'ülkesidir. Şili ve Ekvador dışındaki her Güney Amerika ülkesiyle kara sınırı paylaşır. ' +
-      "Doğuda Atlas Okyanusu'na kıyısı vardır; kuzeyini Amazon Havzası, güney ve orta kesimini " +
-      'ise geniş bir yayla kaplar.',
+      "Güney Amerika kıtasının yaklaşık %47'sini kaplayan Brezilya, Rusya, Kanada, " +
+      "Çin ve ABD'den sonra yeryüzünün beşinci en geniş ülkesidir. Şili ve Ekvador " +
+      'dışında kıtadaki tüm bağımsız devletler ve Fransız Guyanası ile kara sınırı ' +
+      'paylaşırken, doğuda Atlas Okyanusu boyunca 7.400 kilometreyi aşan bir kıyı şeridine sahiptir.' +
+      '\n\n' +
+      'Kuzeydeki uçsuz bucaksız Amazon yağmur ormanlarından merkezdeki savan platolarına, ' +
+      'kurak kuzeydoğu bozkırlarından güneydeki ılıman çayırlara uzanan ülke, barındırdığı ' +
+      'muazzam biyolojik çeşitlilik ve tatlı su rezervleriyle yeryüzünün en kritik ' +
+      'ekolojik dengelerinden birini barındırır.',
     landformNoteTr:
-      'Ülkenin güney ve orta kesimini, ortalama 1.000 metre yükseklikteki Brezilya Yaylası ' +
-      '(Planalto Brasileiro) kaplar; bu yaylanın karakteristik bitki örtüsü, geniş bir ' +
-      "savan ekosistemi olan Cerrado'dur. Kuzeyde ise düz ve alçak Amazon Havzası uzanır, " +
-      "dünyanın en büyük yağmur ormanına ev sahipliği yapar. Brezilya'nın en yüksek " +
-      "noktası, Amazonas eyaletindeki İmeri Dağları'nda yükselen 2.995 metrelik Pico da " +
-      "Neblina'dır; bu zirve, ülkenin en dağlık bölgesi olan güneydoğu değil, Amazon " +
-      'ormanının derinlikleri içinde yer alır. Ülkenin batı-orta kesiminde, Paraguay ' +
-      "Nehri'nin taşkın ovasında yer alan Pantanal, dünyanın en büyük tropikal sulak " +
-      'alanlarından biridir.',
+      'Ülke topoğrafyası iki baskın jeolojik birim üzerinde yükselir: Kuzeydeki alçak ' +
+      'Amazon Havzası ve güney ile orta kesimi kaplayan Prekambriyen yaşlı Brezilya ' +
+      'Yaylası (Planalto Brasileiro). Ortalama 1.000 metre rakımlı bu yayla, Cerrado ' +
+      'adı verilen geniş çalı ve savan kuşağıyla örtülüdür; Atlas Okyanusu kıyısına ' +
+      'paralel uzanan Serra do Mar ve Serra da Mantiqueira gibi dik falezlerle kıyı ' +
+      'ovasına iner.' +
+      '\n\n' +
+      "Brezilya'nın en yüksek noktası, yaylalarda değil, Venezuela sınırına yakın " +
+      "kuzey ormanlarının derinliklerindeki İmeri Dağları'nda yükselen 2.995 metrelik " +
+      "Pico da Neblina'dır." +
+      '\n\n' +
+      "Ülkenin batı-orta sınırında, Paraguay Nehri'nin taşkın tabanında yer alan Pantanal, " +
+      'yaklaşık 150.000 kilometrekarelik alanıyla dünyanın en büyük tropikal sulak alan ' +
+      'ekosistemidir; yağışlı mevsimde sular altında kalan bu dev düzlük yeryüzünün en ' +
+      'zengin yaban hayatı yoğunluklarından birine ev sahipliği yapar.',
     climateNoteTr:
-      "Brezilya beş farklı iklim bölgesine ayrılır. Amazon Havzası'nda yıl boyunca sıcak " +
-      've nemli kalan ekvatoral iklim egemendir. Kuzeydoğu kıyısı boyunca, belirgin ' +
-      'yağışlı ve kurak dönemleri olan tropikal iklim görülür; kıyının hemen iç kesiminde, ' +
-      'Sertão olarak bilinen bölgede ise yarı kurak bir iklim hakimdir. Brezilya ' +
-      "Yaylası'nın iç kesimlerinde Cerrado'nun tropikal yükseklik iklimi, güneyde ise dört " +
-      'mevsimin belirgin olduğu ılıman subtropikal iklim yaşanır.',
+      "Geniş yüzölçümü ve topoğrafik çeşitlilik Brezilya'da beş ana iklim kuşağı " +
+      "oluşturur. Amazon Havzası'nda sıcaklığın yıl boyu 25-28 derecede kaldığı, bol " +
+      'yağışlı ve yüksek nemli ekvatoral iklim hakimdir.' +
+      '\n\n' +
+      'Merkezdeki Brezilya Yaylası ve Cerrado sahasında, yazları bol yağışlı kışları ' +
+      'ise belirgin kurak geçen tropikal yükseklik iklimi görülür. Kuzeydoğunun iç ' +
+      'kesimlerinde Sertão olarak bilinen yarı kurak bölgede, yağışların hem az hem de ' +
+      'yıllara göre düzensiz düştüğü şiddetli kuraklık döngüleri yaşanır.' +
+      '\n\n' +
+      "Oğlak Dönencesi'nin güneyinde kalan Paraná ve Santa Catarina gibi güney " +
+      'eyaletlerinde ise dört mevsimin belirginleştiği, kış aylarında yüksek kesimlere ' +
+      'don ve ender kar düşebilen ılıman subtropikal iklim etkilidir.',
     hydrographyNoteTr:
-      'Amazon Nehri, debi bakımından dünyanın en büyük nehridir; saniyede yaklaşık 209.000 ' +
-      "metreküp su Atlantik'e boşalır, bu da dünya okyanuslarına giren nehir suyunun " +
-      "yaklaşık beşte biri anlamına gelir. 1.100'den fazla kolu vardır, bunlardan 17'si " +
-      '1.500 kilometreden uzundur. En büyük kollarından biri olan 2.230 kilometrelik Rio ' +
-      "Negro, Manaus yakınlarında Solimões Nehri'yle birleşir — bu birleşmeden sonra nehir " +
-      "Brezilya'da Amazon adını alır. İki kolun farklı renkteki suları, birleşme " +
-      'noktasından sonra uzun süre karışmadan yan yana akar; bu görüntü ' +
-      '"Encontro das Águas" (suların buluşması) adıyla bilinir. Güneyde Paraná, Paraguay ' +
-      "ve Uruguay nehirleri, Brezilya Yaylası'nda doğup güneye akarak Río de la Plata " +
-      'havzasını besler.',
+      'Amazon Nehri, saniyede ortalama 209.000 metreküplük boşaltımıyla dünya denizlerine ' +
+      'dökülen nehir sularının yaklaşık beşte birini tek başına sağlar ve debi bakımından ' +
+      "yeryüzünün en büyük akarsuyudur. 1.100'ü aşkın kolu bulunan bu dev sistemde, 17 kolun " +
+      'uzunluğu 1.500 kilometreyi aşar.' +
+      '\n\n' +
+      'En büyük kollarından 2.230 kilometrelik Rio Negro, taşıdığı organik asitlerden ötürü ' +
+      'koyu çay rengindedir; Manaus yakınlarında açık renkli ve silt yüklü Solimões Nehri ile ' +
+      'birleşir. Yoğunluk, sıcaklık ve akış hızı farkları nedeniyle iki akarsuyun suları ' +
+      'kilometrelerce karışmadan yan yana akar; bu doğa harikası "Encontro das Águas" ' +
+      "(Suların Buluşması) adıyla anılır ve birleşmenin ardından nehir Atlas Okyanusu'na " +
+      'kadar Amazon adını alır.' +
+      '\n\n' +
+      "Güneye doğru akan Paraná, Paraguay ve Uruguay nehirleri Brezilya Yaylası'ndan " +
+      'doğarak Río de la Plata havzasına yönelir; Paraná üzerindeki Itaipu Barajı ve ' +
+      "Iguaçu Nehri'nin döküldüğü devasa Iguaçu Şelaleleri bu havzanın kilit odaklarıdır.",
   },
   {
     isoCode: 'CL',
@@ -1450,31 +1756,56 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       '18 Şubat 1818\'de bağımsızlık ilan edildi (millî gün "Fiestas Patrias" ise mücadelenin başladığı 18 Eylül 1810\'da kutlanır).',
     introTr:
-      "Güney Amerika'nın batı kıyısında, kuzeyden güneye yaklaşık 4.300 kilometre uzanan " +
-      'ama ortalama yalnızca 180 kilometre genişliğinde olan Şili, dünyanın en uzun ve dar ' +
-      "ülkelerinden biridir. Doğuda And Dağları boyunca Arjantin'e, kuzeyde Peru ve " +
-      "Bolivya'ya komşudur.",
+      "Güney Amerika'nın güneybatı kıyısı boyunca kuzeyden güneye yaklaşık 4.300 " +
+      'kilometre boyunca uzanan Şili, buna karşılık ortalama yalnızca 175-180 kilometre ' +
+      'genişliğiyle yeryüzünün en sıra dışı şerit geometrisine sahip ülkesidir. ' +
+      "Doğuda And Dağları'nın yüksek duvarıyla Arjantin ve Bolivya'dan ayrılırken, " +
+      "batıda Büyük Okyanus'a boylu boyunca cephe verir." +
+      '\n\n' +
+      'Ülke, 38 derecelik enlem farkı boyunca gezegenin en kurak çölünden ılıman Akdeniz ' +
+      'vadilerine, fırtınalı yağmur ormanlarından fiyortlar ve dev buzullarla parçalanmış ' +
+      'subantarktik takımadalara kadar kesintisiz bir coğrafi tezatlar zinciridir.',
     landformNoteTr:
-      'Ülke, kuzeyden güneye üç paralel kuşaktan oluşur: doğuda kıtanın omurgası olan And ' +
-      'Dağları, batıda genellikle 2.000 metrenin altında kalan Kıyı Sıradağları, ikisinin ' +
-      'arasında ise yaklaşık 965 kilometre uzunluğundaki Orta Vadi — ülke nüfusunun ve ' +
-      'tarımının büyük bölümü bu vadide yoğunlaşır. Kuzeyde, And Dağları ile Kıyı ' +
-      "Sıradağları'nın iki yönden kapattığı Atakama Çölü, dünyanın kutup dışındaki en kurak " +
-      'çölüdür. Güneye inildikçe Kıyı Sıradağları parçalanıp adalara dönüşür; bu bölgede ' +
-      'Kuzey ve Güney Patagonya Buz Tarlaları ile derin fiyortlar yer alır.',
+      'Şili morfolojisi, kuzeyden güneye paralel uzanan üç ana yapısal şerit üzerinde ' +
+      'gelişmiştir: Doğuda kıtanın çatısını kuran And Dağları, batıda kıyı boyunca uzanan ' +
+      'Kıyı Sıradağları (Cordillera de la Costa) ve iki dağ sistemi arasına sıkışan tektonik ' +
+      'çöküntü alanı Orta Vadi (Valle Central).' +
+      '\n\n' +
+      'Kuzey kesimde iki dağ sırasının arasına hapsolan Atakama Çölü, kutup dışı ' +
+      'yeryüzünün en kurak sahasıdır. And Dağları bu kesimde 6.893 metrelik Ojos del Salado ' +
+      'gibi dünyanın en yüksek aktif volkanlarına ev sahipliği yapar.' +
+      '\n\n' +
+      "Santiago'nun yer aldığı yaklaşık 965 kilometrelik Orta Vadi, alüvyon dolgulu verimli " +
+      'topraklarıyla ülke nüfusunun ve tarımsal üretiminin ezici çoğunluğunu barındırır. ' +
+      "Puerto Montt'un güneyinde ise Orta Vadi deniz seviyesinin altına gömülür; Kıyı " +
+      'Sıradağları parçalanarak Chiloé dahil binlerce adaya dönüşürken, kıyı kesimi Kuzey ' +
+      "ve Güney Patagonya Buz Tarlaları'nın beslediği derin fiyortlarla yarılır.",
     climateNoteTr:
-      "Kuzeydeki Atakama'da yıllarca hiç yağış görmeyen alanlar bulunan hiper-kurak bir çöl " +
-      "iklimi hakimdir. Orta kesimde, başkent Santiago'nun da bulunduğu bölgede Akdeniz " +
-      'iklimi görülür — yazlar sıcak ve kurak, kışlar ılık ve yağışlıdır. Güneye doğru ' +
-      "iklim giderek soğur ve nemlenir; Patagonya'ya yakın kesimlerde okyanusal, soğuk ve " +
-      'yağışlı bir iklim egemen olur. Kıyı boyunca kuzeyden güneye akan soğuk Humboldt ' +
-      'Akıntısı, bu iklim çeşitliliğinin başlıca belirleyicilerinden biridir.',
+      "Şili'nin iklim mozaiğini, enlemsel uzanımın yanı sıra kıyı boyunca kuzeye doğru " +
+      'akan soğuk Humboldt Akıntısı ile yarı kalıcı Güney Pasifik yüksek basınç merkezi ' +
+      "şekillendirir. Kuzeydeki Atakama Çölü'nde, soğuk deniz suyunun buharlaşmayı " +
+      "engellemesi ve And Dağları'nın doğudan gelen nemi tamamen kesmesi nedeniyle " +
+      'yıllarca tek damla yağış almayan hiper-kurak koşullar hüküm sürer.' +
+      '\n\n' +
+      "Orta Şili'de yazları ılık ve kurak, kışları serin ve yağışlı geçen ideal bir Akdeniz " +
+      'iklimi görülür; bu iklimsel kararlılık bölgeyi küresel bir meyve ve şarap üretim ' +
+      'merkezine dönüştürmüştür.' +
+      '\n\n' +
+      "Güneye inildikçe Pasifik'ten esen fırtınalı batı rüzgarlarının etkisiyle iklim " +
+      'soğuk, sert ve aşırı yağışlı bir okyanusal karaktere bürünür; Patagonya fiyortlarında ' +
+      'yıllık yağış yer yer 4.000-5.000 milimetreyi aşar.',
     hydrographyNoteTr:
-      "Şili'nin dar yapısı nehirlerin genellikle kısa olmasına yol açar; neredeyse tamamı " +
-      "And Dağları'nda doğup batıya, Pasifik Okyanusu'na akar. Ülkenin en uzun nehri, " +
-      'kuzeyde Antofagasta bölgesinde U biçiminde bir yörünge izleyen 440 kilometrelik Loa ' +
-      "Nehri'dir. Orta-güney kesimdeki 380 kilometrelik Biobío Nehri ise ülkenin en geniş " +
-      'nehridir, ortalama genişliği 1 kilometreyi bulur.',
+      'Ülkenin dar ve dik yapısı gereği akarsular genellikle kısa, hızlı akışlı ve ' +
+      'yüksek aşındırma gücüne sahip dağ dereleri niteliğindedir; tamamına yakını And ' +
+      "zirvelerindeki kar ve buzul erimeleriyle beslenerek batıya, Pasifik'e dökülür." +
+      '\n\n' +
+      "Kuzeyin kurak sahasında Atakama Çölü'nü baştan başa geçerek denize ulaşmayı başaran " +
+      "tek akarsu, U biçiminde 440 kilometrelik bir yay çizen Loa Nehri'dir." +
+      '\n\n' +
+      'Orta ve güney kesimlerdeki Maipo, Maule ve Biobío nehirleri sulama ve hidroelektrik ' +
+      'açısından hayati önem taşır; 380 kilometrelik Biobío, geniş vadi tabanıyla ülkenin en ' +
+      'büyük akarsularındandır. En güneyde ise Baker ve Pascua gibi gür debili fiyort ' +
+      'nehirleri ile General Carrera gibi buzul gölleri dikkat çeker.',
   },
   {
     isoCode: 'CO',
@@ -1500,33 +1831,59 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "20 Temmuz 1810'da İspanya'ya karşı mücadele başladı (resmî millî gün); tam bağımsızlık 1819.",
     introTr:
-      "And Dağları, Ekvador sınırından Kolombiya'ya girer girmez üçe ayrılır — kıtadaki " +
-      "hiçbir başka ülkede görülmeyen bu yapı, Kolombiya'nın coğrafyasını baştan sona " +
-      "şekillendirir. Ülke, kuzeyde Karayip Denizi'ne, batıda ise Büyük Okyanus'a kıyısı " +
-      'olan tek Güney Amerika ülkesidir.',
+      "Güney Amerika'nın kuzeybatı köşesinde yer alan Kolombiya, kıtada hem Karayip " +
+      "Denizi'ne hem de Büyük Okyanus'a kıyısı olan tek ülkedir. Ülke, Ekvador " +
+      "sınırından giren And Dağları'nın üçe çatallanarak oluşturduğu sarp kordilyeralar " +
+      'ile doğudaki uçsuz bucaksız ova ve ormanlar arasında çarpıcı bir coğrafi bölünme gösterir.' +
+      '\n\n' +
+      "Bu keskin topoğrafik yapı, Kolombiya'yı beş belirgin doğal bölgeye ayırır: And " +
+      'dağlık kuşağı, Karayip kıyı düzlükleri, Pasifik yağmur ormanları, doğudaki Orinoco ' +
+      'savanları (Llanos) ve güneydeki Amazon havzası. Nüfusun ve ekonomik üretimin büyük ' +
+      'bölümü, elverişli iklim sunan yüksek And vadilerinde yoğunlaşmıştır.',
     landformNoteTr:
-      'And Dağları, Kolombiya sınırları içinde Batı, Orta ve Doğu Kordilyera olmak üzere üç ' +
-      "paralel sıradağa ayrılır; bunların en yükseği Orta Kordilyera'dır. Magdalena ve " +
-      'Cauca nehirlerinin vadileri, bu üç sıradağı birbirinden ayırır. Doğuda, Orinoco ' +
-      "Havzası'nın bir parçası olan Llanos düzlükleri geniş bir savan örtüsüyle uzanır; " +
-      'güneyde ise Amazon yağmur ormanı başlar. Batı kıyısındaki Chocó bölgesi, yılda ' +
-      '7.000 ila 13.000 milimetre arasında yağış alarak dünyanın en yağışlı yerlerinden ' +
-      'biri sayılır.',
+      'Kolombiya Andları; Batı (Occidental), Orta (Central) ve Doğu (Oriental) olmak ' +
+      'üzere üç paralel kordilyera halinde kuzeye uzanır. Bunların en yükseği ve volkanik ' +
+      'açıdan en aktifi olan Orta Kordilyera, 5.364 metrelik Nevado del Huila ve 5.321 ' +
+      'metrelik Nevado del Ruiz gibi buzullarla taçlanmış aktif volkanları barındırır.' +
+      '\n\n' +
+      'Bu sıradağları birbirinden ayıran tektonik çöküntü oluklarında, ülkenin can damarı ' +
+      'olan Magdalena ve Cauca nehir vadileri akar. Karayip kıyısında ise ana And zincirinden ' +
+      'tamamen bağımsız biçimde doğrudan denizden yükselen Sierra Nevada de Santa Marta kütlesi ' +
+      'yer alır; 5.700 metreyi aşan Cristóbal Colón ve Simón Bolívar ikiz zirveleriyle ' +
+      'dünyanın denize en yakın en yüksek kıyı sıradağıdır.' +
+      '\n\n' +
+      "Doğu Kordilyera'nın ardında Orinoco Havzası'na ait Llanos savan düzlükleri başlar; " +
+      'güney kesim ise yoğun Amazon yağmur ormanlarıyla kaplıdır. Batıda Büyük Okyanus ' +
+      'kıyısı boyunca uzanan Chocó alçak arazisi ise sık bataklık ve orman örtüsüyle kaplıdır.',
     climateNoteTr:
-      "Ekvator'a yakınlığı nedeniyle Kolombiya'da mevsimsel sıcaklık farkı azdır; iklimi " +
-      'büyük ölçüde rakım belirler. Deniz seviyesinden 900 metreye kadar tierra caliente ' +
-      'kuşağında sıcak ve nemli bir iklim görülür. 900-1.980 metre arasındaki tierra ' +
-      "templada'da ılıman koşullar hakimdir — Medellín bu kuşaktadır. 1.980-3.500 metre " +
-      'arasındaki tierra fría serindir; 2.640 metre yükseklikteki başkent Bogotá bu ' +
-      'kuşağın içinde yer alır. 3.000 metrenin üzerinde başlayan páramo kuşağında ise ' +
-      'sıcaklık 10 santigrat derecenin altına düşer, kar yağışı sık görülür.',
+      "Ekvator çizgisine çok yakın konumu nedeniyle Kolombiya'da yıllık sıcaklık farkları " +
+      'son derece düşüktür; iklimi belirleyen ana mekanizma dikey yükseklik basamaklarıdır. ' +
+      'Deniz seviyesinden 900 metreye kadar olan sıcak kuşakta (tierra caliente) tropikal ' +
+      'sıcaklık ve nem egemendir.' +
+      '\n\n' +
+      "900 ila 1.980 metre arasındaki ılıman kuşak (tierra templada), Medellín'in de yer " +
+      'aldığı dünyaca ünlü Kolombiya kahve kuşağını barındırır. 1.980 ila 3.500 metre ' +
+      'arasındaki serin kuşakta (tierra fría) ise 2.640 metre rakımlı başkent Bogotá yer ' +
+      'alır. 3.000 metrenin üzerinde ağaç sınırının sona erdiği páramo kuşağı başlar; ' +
+      'bu sisli ve soğuk yüksek çayırlar devasa su tutma kapasiteleriyle kentsel içme suyu ' +
+      'ağlarının doğal sigortasıdır.' +
+      '\n\n' +
+      'Yağış dağılımı olağanüstü tezatlar barındırır: Pasifik kıyısındaki Chocó bölgesi, ' +
+      'nemli okyanus rüzgarlarının dağlara çarpmasıyla yılda 7.000 ila 13.000 milimetre ' +
+      'yağış alarak gezegenin en ıslak sahalarından biri olurken, kuzeydoğudaki La Guajira ' +
+      'Yarımadası kaktüslerle kaplı yarı kurak bir çöldür.',
     hydrographyNoteTr:
-      "Ülkenin ana nehri Magdalena, And Dağları'nda doğar ve yaklaşık 1.528 kilometre " +
-      "boyunca kuzeye akarak Karayip Denizi'ne dökülür; kolu Cauca ile birlikte Batı ve " +
-      "Orta Kordilyera arasındaki vadiyi oluşturur. Pasifik kıyısında, Chocó'nun yoğun " +
-      'yağmur ormanından geçen Atrato ve San Juan nehirleri kısa ama hızlı akışlıdır. ' +
-      "Güneyde ise Putumayo ve Caquetá nehirleri, Kolombiya topraklarını Amazon Havzası'na " +
-      'bağlar.',
+      "Ülkenin ana su yolu olan Magdalena Nehri, And Dağları'ndan doğup yaklaşık 1.528 " +
+      "kilometre boyunca kuzeye akar ve Karayip Denizi'ne dökülür; Batı ile Orta kordilyeralar " +
+      'arasından süzülen en büyük kolu Cauca ile birlikte Kolombiya tarihinin ve ticaretinin ' +
+      'geleneksel omurgasını oluşturur.' +
+      '\n\n' +
+      "Pasifik havzasında, Chocó'nun aşırı yağışlarıyla beslenen Atrato ve San Juan " +
+      'nehirleri, uzunluklarına kıyasla şaşırtıcı derecede devasa su hacimleri taşır.' +
+      '\n\n' +
+      'Doğu ve güneyde ise Guaviare ve Meta nehirleri Orinoco sistemine, güneydeki ' +
+      "Caquetá ve Putumayo nehirleri ise Amazon Havzası'na bol su taşıyan sınır aşan " +
+      'akarsulardır.',
   },
   {
     isoCode: 'EC',
@@ -1552,38 +1909,58 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "24 Mayıs 1822'de İspanya'dan bağımsız oldu; Büyük Kolombiya'dan ayrılış 1830.",
     introTr:
-      'Ekvador, adını üzerinden geçtiği ekvator çizgisinden alır; başkent Kito, ekvatora ' +
-      'dünyanın en yakın başkentlerinden biridir. Kuzeyde Kolombiya, güney ve doğuda Peru ' +
-      'ile komşu olan ülkenin batısında Büyük Okyanus kıyısı uzanır. And Dağları, ülke ' +
-      'topraklarını kuzeyden güneye boydan boya keserek üç farklı bölgeye ayırır: dar bir ' +
-      'kıyı ovası olan Costa, volkanik And sırtı Sierra ve doğuda Amazon ormanına açılan ' +
-      'Oriente. Kıyıdan yaklaşık 1.000 kilometre açıktaki Galápagos Adaları da ülke ' +
-      'topraklarının bir parçasıdır.',
+      'Adını topraklarını kuzeyden kesen ekvator çizgisinden alan Ekvador, yüzölçümü ' +
+      'küçük olmasına karşın yeryüzünün birim alana düşen biyolojik ve coğrafi çeşitliliği ' +
+      'en zengin ülkelerinden biridir. Kuzeyde Kolombiya, güney ve doğuda Peru ile sınır ' +
+      "paylaşırken batıda Büyük Okyanus'a açılır." +
+      '\n\n' +
+      'Ülke coğrafyası birbirine bütünüyle zıt dört ayrı dünyadan oluşur: Verimli kıyı ' +
+      'ovası Costa, volkanik And dağlık kuşağı Sierra, Amazon yağmur ormanlarını kapsayan ' +
+      'Oriente ve anakaradan yaklaşık 1.000 kilometre batıda yer alan volkanik Galápagos Adaları.',
     landformNoteTr:
-      "And Dağları, Ekvador'da iki paralel sırt halinde uzanır ve aralarındaki vadi, " +
-      'onlarca yüksek volkanik zirve barındırdığı için "Volkanlar Bulvarı" olarak anılır. ' +
-      "Bu bulvarın en yükseği, 6.263 metrelik Chimborazo'dur; ekvatora yakınlığı ve " +
-      "Dünya'nın ekvator çevresindeki şişkinliği nedeniyle zirvesi, gezegen merkezinden en " +
-      'uzak nokta kabul edilir. Hâlâ etkin bir volkan olan Cotopaxi, 5.897 metreyle ülkenin ' +
-      "ikinci yüksek zirvesidir. Batıda, And Dağları'ndan Büyük Okyanus'a inen dar Costa " +
-      "ovası tarımsal açıdan verimlidir; doğuda ise Oriente, Amazon Havzası'nın bir parçası " +
-      'olan alçak ve yoğun yağmur ormanıyla kaplıdır.',
+      'And Dağları, Ekvador topraklarında birbirine paralel uzanan Doğu ve Batı Kordilyera ' +
+      'olarak ikiye ayrılır. Bu iki sırtın arasında uzanan yüksek vadi oluğu, onlarca dev ' +
+      'volkan konisiyle çevrili olduğu için Alman doğa bilimci Alexander von Humboldt ' +
+      'tarafından "Volkanlar Bulvarı" olarak adlandırılmıştır.' +
+      '\n\n' +
+      "Bu kuşağın en yüksek zirvesi 6.263 metrelik Chimborazo Yanardağı'dır. Gezegenimizin " +
+      "kutuplardan basık, ekvatordan şişkin elips biçimi nedeniyle Chimborazo'nun zirvesi, " +
+      "Dünya'nın merkezinden ölçüldüğünde yeryüzünün uzaya en yakın noktası unvanını taşır. " +
+      '5.897 metrelik mükemmel simetrili konisiyle Cotopaxi ise dünyanın en yüksek aktif ' +
+      'strato-volkanları arasındadır.' +
+      '\n\n' +
+      "Andlar'ın batısında Guayas Nehri'nin beslediği alüvyon zengini Costa ovası, doğusunda " +
+      'ise Amazon ormanlarının alçak tabanı Oriente uzanır. Pasifik açıklarındaki Galápagos ' +
+      'Takımadaları ise aktif bir okyanusal sıcak nokta üzerinde yükselen bazaltik kalkan ' +
+      'volkanlarından oluşur.',
     climateNoteTr:
-      "Kıyı boyunca esen soğuk Humboldt Akıntısı, Ekvador'un güney ve orta Pasifik " +
-      'kıyısında serin ve nispeten kurak bir iklim yaratır; bazı güneybatı kesimlerinde ' +
-      'yıllık yağış 250 milimetrenin altına iner. Kuzey kıyıda akıntının etkisi zayıflar ve ' +
-      "yağış Kolombiya sınırına yaklaştıkça 3.000 milimetreyi aşabilir. And Dağları'ndaki " +
-      'Sierra bölgesinde iklimi büyük ölçüde rakım belirler; Kito gibi yüksek vadilerde ' +
-      'gündüz ile gece sıcaklığı arasındaki fark, mevsimler arasındaki farktan daha ' +
-      "belirgindir. Doğudaki Oriente'de ise yıl boyunca sıcak, nemli ve yağışlı tropikal " +
-      'bir iklim hakimdir.',
+      'Ekvador kıyılarında iklimi belirleyen başlıca dinamik, deniz akıntılarının mevsimsel ' +
+      'mücadelesidir. Güneyden gelen soğuk Humboldt Akıntısı, kıyının güney ve orta kesimlerini ' +
+      'serinleterek yağışı engeller ve yer yer 250 milimetrenin altına düşen yarı kurak ' +
+      'koşullar yaratır. Kuzeye doğru akıntının etkisi azalıp sıcak ekvatoral sular devreye ' +
+      'girince yağış Kolombiya sınırında 3.000 milimetrenin üzerine çıkar.' +
+      '\n\n' +
+      'Sierra bölgesinde iklimi doğrudan yükseklik yönetir; 2.850 metredeki başkent Kito ' +
+      'gibi dağ vadilerinde yıl boyunca gündüz ile gece sıcaklık farkının mevsimler arası ' +
+      'farktan daha belirgin olduğu "ebedi ilkbahar" şartları yaşanır.' +
+      '\n\n' +
+      'Doğudaki Oriente kesiminde ise yıl boyu bol yağışlı ve yüksek nemli klasik ekvatoral ' +
+      'yağmur ormanı iklimi hüküm sürer. Galápagos Adaları ise tropikal enlemde yer almasına ' +
+      'rağmen soğuk okyanus akıntıları sebebiyle kıyılarda şaşırtıcı derecede kurak, yüksek ' +
+      'kesimlerde ise sisli ve nemlidir.',
     hydrographyNoteTr:
-      'Kıyı bölgesinin en büyük akarsu sistemi, Daule ve Babahoyo nehirlerinin Guayaquil ' +
-      "yakınında birleşmesiyle oluşan Guayas Nehri'dir; bu nehir Guayaquil Körfezi'ne " +
-      "dökülür ve havzası kıyı ovasının tarımsal can damarıdır. Doğuda, And Dağları'ndan " +
-      "inen Napo Nehri, Oriente'yi boydan boya geçerek Peru topraklarında Amazon Nehri'ne " +
-      "katılır. Sierra'daki yüksek vadilerde ise nehirler kısa ve dik yataklıdır, çoğu " +
-      'zaman derin kanyonlar oyar.',
+      'Ekvador akarsuları And Dağları omurgasından iki ana yöne dağılır. Pasifik yönünde ' +
+      'ülkenin ve Güney Amerika Pasifik kıyısının en büyük akarsu havzası olan Guayas Nehri ' +
+      'sistemi yer alır; Daule ve Babahoyo nehirlerinin Guayaquil yakınında birleşmesiyle ' +
+      "oluşan Guayas, Guayaquil Körfezi'ne dökülür ve suladığı geniş taşkın ovaları ülkenin " +
+      'muz, kakao ve pirinç üretiminin temelini oluşturur.' +
+      '\n\n' +
+      "Andlar'ın doğu yamaçlarından inen sular ise Napo, Pastaza ve Curaray nehirleri " +
+      "aracılığıyla Amazon Havzası'na katılır; özellikle Napo Nehri, Peru sınırını aşarak " +
+      'Amazon ana gövdesini besleyen en gür kollardan biridir.' +
+      '\n\n' +
+      'Yüksek Sierra havzalarında ise buzul ve páramo kaynaklı dağ nehirleri dik kanyonlar ' +
+      'oyarak hidroelektrik santrallerini ve kentlerin içme suyu rezervuarlarını besler.',
   },
   {
     isoCode: 'GY',
@@ -1608,36 +1985,60 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "26 Mayıs 1966'da Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      "Guyana, Güney Amerika'nın kuzeydoğu kıyısında, dünyanın en eski kıta çekirdeklerinden biri olan " +
-      'Guyana Kalkanı üzerinde yer alır. Ülke toprakları üç ana kuşağa ayrılır: dar ve alçak bir kıyı ' +
-      'ovası, bunun ardından gelen kumlu-killi bir orta kuşak ve güneyde yükselen ormanlık yaylalar ' +
-      'ile savanlar. Nüfusun büyük bölümü deniz seviyesinin altında kalan ve setlerle korunan kıyı ' +
-      'ovasında yaşarken, iç kesimlerin büyük bölümü seyrek nüfuslu yağmur ormanıdır.',
-    landformNoteTr:
-      "Ülkenin batısındaki Pakaraima Dağları, Guyana'nın en yüksek noktası olan 2.772 metrelik Roraima " +
-      "Dağı'nda son bulur; bu düz tepeli, dik yamaçlı tepui, Guyana, Venezuela ve Brezilya " +
-      'sınırlarının kesiştiği bölgede yer alır. Güneyde Rupununi bölgesini ikiye bölen Kanuku Dağları ' +
-      'ile en güneydeki Acarai Dağları, ülkenin diğer başlıca sıradağlarıdır.' +
+      "Güney Amerika'nın kuzeydoğu omzunda yer alan Guyana, batıda Venezuela, güneyde " +
+      "Brezilya ve doğuda Surinam ile çevrilidir; kuzeyde Atlas Okyanusu'na bakar. Ülke, " +
+      'jeolojik olarak kıtanın en eski ve aşınmaya dirençli kayaç kütlelerinden biri olan ' +
+      'Prekambriyen yaşlı Guyana Kalkanı üzerinde konumlanmıştır.' +
       '\n\n' +
-      'Potaro Nehri üzerindeki 226 metrelik Kaieteur Şelalesi, saniyede yaklaşık 663 metreküplük akış ' +
-      'debisiyle dünyanın hacimce en güçlü tek düşüşlü şelalelerinden biri kabul edilir; yüksekliği ' +
-      "Angel Şelalesi'nin dörtte biri kadar olsa da akıttığı su hacmi onu bambaşka bir ölçekte bir " +
-      'doğa olayı yapar.',
+      'Ülke, deniz seviyesinin altında kalan ve bentlerle korunan dar bir kıyı ovası, ' +
+      'kumlu-ormanlık bir orta plato ve güneydeki sarp dağlık yaylalar ile savanlar ' +
+      'arasında kademelenir. Nüfusun ve tarımın neredeyse tamamı kıyı şeridinde toplanmışken, ' +
+      'iç kesimler el değmemiş tropikal yağmur ormanlarıyla örtülüdür.',
+    landformNoteTr:
+      "Guyana'nın kıyı şeridi, deniz seviyesinin yaklaşık 1 ila 1,5 metre altında kalan " +
+      'alçak ve bataklık bir alüvyon düzlüğüdür. Kıyıdan güneye doğru beyaz kum tepeleriyle ' +
+      "kaplı dalgalı bir boksit kuşağı uzanır; bu kuşağın ardından Guyana Kalkanı'nın " +
+      'balta girmemiş ormanlık yaylaları yükselir.' +
+      '\n\n' +
+      'Batı sınırında yükselen Pakaraima Dağları, dik duvarlı ve düz tepeli karakteristik ' +
+      'masa dağları (tepui) barındırır. Bu dağların en ünlüsü olan 2.772 metrelik Roraima ' +
+      'Dağı, Guyana, Venezuela ve Brezilya sınırlarının kesiştiği noktada yükselen ' +
+      'ülkenin en yüksek zirvesidir.' +
+      '\n\n' +
+      "Güneybatıda Kanuku Dağları'nın ikiye böldüğü geniş Rupununi savanları uzanır; " +
+      'Potaro Nehri üzerinde 226 metrelik tek bir dikey kırıktan dökülen Kaieteur Şelalesi ' +
+      'ise saniyede yaklaşık 663 metreküplük su hacmiyle dünyanın tek düşüşlü en güçlü ' +
+      'çağlayanlarından biridir.',
     climateNoteTr:
-      "Guyana'da ekvatoral bir iklim egemendir; sıcaklık ve nem yıl boyunca yüksek kalır, mevsimsel " +
-      'farklar küçüktür. Ülke, çoğu tropikal ülkeden farklı olarak iki yağışlı ve iki kurak dönem ' +
-      "yaşar: Mayıs'tan Ağustos ortasına kadar süren dönemde yıllık yağışın yaklaşık %40'ı, Aralık'tan " +
-      "Ocak ortasına kadar süren daha kısa ikinci dönemde ise yaklaşık %20'si düşer; Şubat-Nisan ile " +
-      'Eylül-Ekim arası kurak mevsimlerdir. Kıyı ovasında yıllık yağış 2.000 milimetreyi aşarken, iç ' +
-      'kesimdeki Rupununi savanında bu rakam yaklaşık 1.800 milimetreye iner.',
+      "Guyana'da yıl boyu yüksek sıcaklık ve nemle tanımlanan ekvatoral bir rejim " +
+      'hüküm sürer. Ülkeyi diğer birçok tropikal bölgeden ayıran temel özellik, Tropikal ' +
+      "Yakınsama Kuşağı'nın (ITCZ) mevsimsel göçüne bağlı olarak yılda iki yağışlı ve " +
+      'iki kurak dönem yaşamasıdır.' +
+      '\n\n' +
+      "Birincil yağışlı mevsim Mayıs'tan Ağustos ortasına kadar sürerek yıllık yağışın " +
+      "yaklaşık %40'ını getirir; ikincil yağışlı dönem ise Aralık ve Ocak aylarında " +
+      "yağışın yaklaşık %20'sini bırakır. Şubat-Nisan ve Eylül-Ekim dönemleri ise kurak " +
+      'geçer.' +
+      '\n\n' +
+      "Kıyı ovasında yıllık yağış Atlas Okyanusu'ndan gelen nemli alizelerle 2.000 " +
+      'milimetreyi aşarken, kuzeydoğu alizeleri kıyıdaki bunaltıcı sıcağı yumuşatır; ' +
+      'iç kesimdeki Rupununi savanlarında ise yağış yaklaşık 1.800 milimetreye geriler ' +
+      've kurak mevsimde savanlar kururken yağışlı mevsimde geniş taşkın düzlüklerine dönüşür.',
     hydrographyNoteTr:
-      "Ülkenin en uzun akarsuyu olan Essequibo Nehri, güneydeki Acarai Dağları'nda doğar ve " +
-      "yaklaşık 1.014 kilometre boyunca kuzeye akarak Atlas Okyanusu'na dökülür; havzasıyla ülke " +
-      "topraklarının yaklaşık %73'ünü sular. Demerara ve Berbice nehirleri kıyı ovasındaki diğer " +
-      "büyük akarsulardır ve adlarını başkent Georgetown'ın da içinde bulunduğu bölgelere " +
-      'vermiştir. Kıyı ovası, yüksek gelgit sırasında deniz seviyesinin yaklaşık 1,7 metre ' +
-      'altında kalır; bu düşük kesim beton ve toprak setlerle korunur, kanallar ve savaklar ' +
-      'yağış sularının alçak gelgitte denize boşaltılmasını sağlar.',
+      "Guyana'nın ana drenaj omurgasını, güneydeki Acarai Dağları'ndan doğup 1.014 " +
+      "kilometre boyunca kuzeye akan ve ülke topraklarının yaklaşık %73'ünü sulayan " +
+      'Essequibo Nehri oluşturur; ağzında 20 kilometreyi aşan bir haliç ve sayısız adacık ' +
+      "kurarak Atlas Okyanusu'na dökülür." +
+      '\n\n' +
+      'Kıyı boyunca uzanan Demerara ve Berbice nehirleri, boksit taşımacılığı ve tarımsal ' +
+      "yerleşim açısından hayati su yollarıdır; başkent Georgetown, Demerara Nehri'nin " +
+      'okyanusa kavuştuğu haliçte kuruludur.' +
+      '\n\n' +
+      'Kıyı ovası yüksek gelgitte deniz seviyesinin altında kaldığından, su yönetimi ' +
+      'Hollanda sömürge döneminden miras kalan karmaşık bir polder, deniz duvarı ve ' +
+      '"koker" adı verilen gelgit kapakları sistemiyle sağlanır; yağmur suları alçak ' +
+      'gelgitte yerçekimiyle okyanusa tahliye edilirken yüksek gelgitte kapaklar kapatılarak ' +
+      'deniz suyunun tarım arazilerini basması önlenir.',
   },
   {
     isoCode: 'PY',
@@ -1662,38 +2063,56 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Üniter başkanlık cumhuriyeti',
     independenceNoteTr: "14-15 Mayıs 1811'de İspanya'dan bağımsız oldu.",
     introTr:
-      'Paraguay Nehri, ülke topraklarını iki farklı bölgeye ayırır: doğuda daha yoğun ' +
-      'nüfuslu, ova ve tepelerden oluşan Región Oriental; batıda ise ülke yüzölçümünün ' +
-      "yaklaşık %60'ını kaplayan ama nüfusun çok küçük bir bölümünü barındıran Gran " +
-      "Chaco'nun bir parçası, Región Occidental. Kuzeyde Bolivya, doğu ve güneyde Brezilya " +
-      "ile Arjantin ile komşu olan Paraguay, Bolivya ile birlikte Güney Amerika'nın denize " +
-      'kıyısı olmayan iki ülkesinden biridir. Oğlak Dönencesi ülkenin ortasından geçer; bu ' +
-      "nedenle Región Oriental'in büyük bölümü subtropikal, kuzeydeki Chaco Boreal ise " +
-      'tropikale yakın bir iklim kuşağında kalır.',
+      "Güney Amerika'nın merkezinde Bolivya, Brezilya ve Arjantin arasına yerleşen " +
+      'Paraguay, kıtanın denize kıyısı bulunmayan iki devletinden biridir. Ülke, ' +
+      'kuzeyden güneye akan Paraguay Nehri tarafından fiziki ve beşeri açıdan ' +
+      'birbirine zıt iki ana coğrafi bölgeye ayrılır.' +
+      '\n\n' +
+      'Nehrin doğusunda kalan Región Oriental (Paraneña), zengin toprakları ve ' +
+      "ormanlık tepeleriyle nüfusun %95'ten fazlasını barındırır. Batıda uzanan ve ülke " +
+      "yüzölçümünün yaklaşık %60'ını kaplayan Región Occidental (Gran Chaco) ise " +
+      'seyrek nüfuslu, dikenli ormanlar ve bataklıklarla kaplı yarı kurak devasa bir düzlüktür.',
     landformNoteTr:
-      'Región Oriental, platolar, dalgalı tepeler ve verimli vadilerden oluşan bir arazi ' +
-      'yapısına sahiptir; ülkenin en yüksek noktası da bu bölgede, Ybytyruzú sıradağı ' +
-      "üzerindeki 842 metrelik Cerro Tres Kandú'dur. Región Occidental ise Gran Chaco'nun " +
-      'doğu ucunu oluşturur — Bolivya ve Arjantin topraklarına da yayılan, neredeyse düz, ' +
-      'ağaçlık ve çalılık bitki örtüsüyle kaplı geniş bir alüvyal düzlüktür; arazi Paraguay ' +
-      "Nehri'ne doğru hafifçe eğimlidir. Chaco'nun toprağı, mevsimsel taşkınlar ve yeraltı " +
-      'suyunun tuzluluğu nedeniyle tarıma Región Oriental kadar elverişli değildir.',
+      "Región Oriental, Brezilya Yaylası'nın uzantısı olan dalgalı bazalt platoları, " +
+      'verimli kırmızı toprakları (terra roxa) ve alçak tepe sıralarını kapsar. Ülkenin ' +
+      'en yüksek noktası da bu bölgede, Ybytyruzú sıradağları üzerinde yükselen 842 ' +
+      'metrelik Cerro Tres Kandú tepesidir.' +
+      '\n\n' +
+      "Paraguay Nehri'nin batısında başlayan Región Occidental ise And Dağları'ndan " +
+      'aşınarak birikmiş kalın alüvyon katmanlarından oluşan ve neredeyse tamamen düz ' +
+      'uzanan Gran Chaco havzasının parçasıdır. Arazi doğuya, nehir yatağına doğru ' +
+      'çok hafif bir eğim gösterir.' +
+      '\n\n' +
+      'Chaco zemininde killi ve tuzlu katmanların yaygın olması, drenaj yetersizliğiyle ' +
+      'birleştiğinde yağışlı mevsimde geniş alanların bataklığa dönüşmesine, kurak dönemde ' +
+      'ise toprağın çatlayıp tuz birikintilerine bürünmesine yol açar; bu nedenle bölge ' +
+      'tarıma doğu kesimi kadar elverişli değildir.',
     climateNoteTr:
-      "Región Oriental'de subtropikal nemli bir iklim hakimdir; yağış yıl boyunca dağılır " +
-      've belirgin bir kurak mevsim yoktur, yıllık ortalama 1.400-1.800 milimetre arasında ' +
-      "değişir. Batıya doğru yağış hızla azalır — Chaco'nun kuzey kesimi olan Chaco " +
-      "Boreal'de yıllık yağış 500-1.000 milimetreye kadar düşer, bu da bölgeyi ülkenin en " +
-      'kurak kesimi haline getirir. Yaz ayları ülkenin büyük bölümünde sıcak ve nemli ' +
-      'geçer, sıcaklıklar sık sık 35 santigrat dereceyi aşar; kışın ise güneyden esen soğuk ' +
-      'pampero rüzgarı, sıcaklığı birkaç gün içinde keskin biçimde düşürebilir.',
+      "Oğlak Dönencesi'nin ülkeyi tam ortadan kesmesi, Paraguay'da subtropikal ile " +
+      'tropikal iklim kuşakları arasında belirgin bir geçiş karakteri yaratır. Región ' +
+      "Oriental'de yıl boyunca düzenli dağılan, belirgin bir kurak dönemi olmayan ve " +
+      'yıllık 1.400 ila 1.800 milimetreye ulaşan nemli subtropikal bir rejim etkilidir.' +
+      '\n\n' +
+      'Batıya doğru ilerledikçe yağış hızla azalır; Chaco Boreal kesiminde yıllık yağış ' +
+      '500 ila 1.000 milimetreye kadar düşerek yarı kurak çalı biyomuna zemin hazırlar.' +
+      '\n\n' +
+      'Yaz aylarında Amazon ve Chaco üzerinden gelen sıcak hava kütleleri sıcaklıkları ' +
+      'sık sık 35-40 derecenin üzerine çıkararak ülkeyi kıtanın en sıcak bölgelerinden ' +
+      'biri yapar. Kış aylarında ise güney kutup dairesinden esen fırtınalı pampero ' +
+      'rüzgarları, sıcaklığın saatler içinde 15-20 derece birden düşmesine neden olur.',
     hydrographyNoteTr:
-      "Paraguay Nehri, kuzeyden güneye ülkeyi ikiye bölerek başkent Asunción'un yanından " +
-      "geçer ve güneyde Paraná Nehri'yle birleşir. Paraná, ülkenin doğu ve güney sınırının " +
-      'büyük bölümünü çizer; Brezilya sınırındaki bu nehir üzerinde kurulu Itaipu Barajı, ' +
-      "yıllık ortalama enerji üretimi bakımından Çin'deki Üç Boğaz Barajı'ndan sonra " +
-      "dünyanın ikinci büyük hidroelektrik santralidir. Batıda, Gran Chaco'yu And " +
-      "Dağları'ndan güneydoğuya kat eden Pilcomayo Nehri, ülkenin Arjantin ile olan " +
-      "sınırının bir bölümünü oluşturarak Paraguay Nehri'ne katılır.",
+      'Ülkenin can damarı olan Paraguay Nehri, kuzey sınırından girip başkent Asunción ' +
+      "önlerinden geçerek güneyde Paraná Nehri'yle birleşir; denize çıkışı olmayan ülkenin " +
+      'okyanusa açılan temel seyrüsefer ve dış ticaret koridorudur.' +
+      '\n\n' +
+      'Doğu ve güney sınırını çizen heybetli Paraná Nehri, ülkenin hidroelektrik gücünün ' +
+      'temelini kurar. Brezilya sınırındaki bu nehir üzerinde yer alan Itaipu Barajı, yıllık ' +
+      "enerji üretimi bakımından Çin'deki Üç Boğaz Barajı'ndan sonra dünyanın en büyük " +
+      'ikinci hidroelektrik santralidir; Arjantin sınırındaki Yacyretá Barajı ile birlikte ' +
+      "Paraguay'ı dünyanın en büyük temiz elektrik ihracatçılarından biri yapar." +
+      '\n\n' +
+      "Batıda And eteklerinden doğup Gran Chaco'yu boydan boya kat eden Pilcomayo Nehri " +
+      "ise Arjantin sınırının bir bölümünü oluşturarak sularını Paraguay Nehri'ne ulaştırır.",
   },
   {
     isoCode: 'PE',
@@ -1718,32 +2137,56 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Üniter başkanlık cumhuriyeti',
     independenceNoteTr: "28 Temmuz 1821'de İspanya'dan bağımsızlığını ilan etti.",
     introTr:
-      'Peru, birbirinden çok farklı üç boylamsal bölgeye ayrılır: batıda kurak kıyı ' +
-      '(Costa), ortada And Dağları (Sierra), doğuda ise Amazon ormanı (Selva). Bu üç bölge ' +
-      "içinde en büyüğü Selva'dır — ülke topraklarının %60'ından fazlasını kaplar, ama " +
-      "nüfusun büyük kısmı Costa ve Sierra'da yaşar.",
+      "Güney Amerika'nın batı kıyısında yer alan Peru, And Dağları'nın heybetli omurgası " +
+      'ile Büyük Okyanus arasına kurulmuştur. Ülke coğrafyası geleneksel olarak üç ' +
+      'boylamsal kuşağa ayrılır: Batıdaki kurak kıyı şeridi (Costa), ortadaki yüksek And ' +
+      'sıradağları (Sierra) ve doğudaki tropikal yağmur ormanları (Selva).' +
+      '\n\n' +
+      "Toprakların %60'ından fazlasını kaplayan Amazon yağmur ormanları yüzölçümce en " +
+      'geniş bölge olsa da, nüfus ve ekonomik faaliyetin ezici çoğunluğu kıyı vahaları ile ' +
+      "And vadilerinde toplanmıştır. Ülke, İnka İmparatorluğu'nun kadim mirası ile " +
+      'biyolojik çeşitliliğin zirveye ulaştığı ekolojik basamakları bir arada barındırır.',
     landformNoteTr:
-      'And Dağları, Peru topraklarını kuzeyden güneye boydan boya kat eder; ülkenin en ' +
-      "yüksek noktası, 6.768 metrelik Huascarán'dır. And Dağları'nın içinde, Bolivya ile " +
-      'paylaşılan Titicaca Gölü yer alır — 3.812 metre yükseklikteki bu göl, dünyanın ' +
-      'seyrüsefere elverişli en yüksek gölüdür. Kıyı boyunca dar bir çöl şeridi uzanır; ' +
-      "And Dağları'ndan inen birkaç nehrin oluşturduğu vadiler bu kurak şeritte tarıma " +
-      "elverişli cepler yaratır. Doğuda başlayan Selva, Amazon Havzası'nın bir parçasıdır " +
-      've alçak, yoğun ormanla kaplıdır.',
+      'Batıda Büyük Okyanus boyunca uzanan Costa, 2.500 kilometrelik dar ve kesintisiz ' +
+      "bir çöl şerididir; bu kurak araziyi yalnızca Andlar'dan inen yaklaşık 50 dağ deresinin " +
+      'açtığı verimli vadi vahaları böler.' +
+      '\n\n' +
+      'Ortada yükselen Sierra kuşağını, kıtanın en yüksek sıradağ düğümleri oluşturur. ' +
+      "Cordillera Blanca üzerinde yükselen 6.768 metrelik Huascarán, Peru'nun en yüksek " +
+      "zirvesi olup tropikal kuşağın dünyadaki en yüksek dağıdır. Güney Sierra'da ise " +
+      'Bolivya ile paylaşılan ve 3.812 metre rakımıyla dünyanın seyrüsefere elverişli en ' +
+      'yüksek gölü olan Titicaca Gölü yer alır.' +
+      '\n\n' +
+      "And Dağları'nın doğu yamaçları önce derin kanyonlar ve sis ormanlarıyla örülü " +
+      'Selva Alta (Yüksek Orman) kuşağına, ardından kıtanın en zengin biyomunu barındıran ' +
+      'düz ve uçsuz bucaksız Selva Baja (Alçak Orman) Amazon ovalarına alçalır.',
     climateNoteTr:
-      "Kıyı boyunca, soğuk Humboldt Akıntısı'nın etkisiyle nemli ama neredeyse yağışsız bir " +
-      'çöl iklimi hakimdir; başkent Lima yılda ortalama yalnızca 10 milimetre yağış alır ' +
-      "ve Mayıs-Kasım arasında sık sık yoğun sis (garúa) örter. And Dağları'nda rakım " +
-      'arttıkça sıcaklık düşer; Mayıs-Eylül arasındaki kuru mevsimde gökyüzü açık ve ' +
-      'geceler soğuk geçerken, Ekim-Nisan yağışlı mevsiminde öğleden sonraları sağanak ' +
-      "yağış görülür. Doğudaki Selva'da ise yıl boyunca sıcak ve nemli, yılda 2.000-3.000 " +
-      'milimetre yağış alan tropikal bir iklim egemendir.',
+      'Peru kıyılarında iklimi belirleyen başlıca etken, Antarktika yönünden kıyıya paralel ' +
+      "akan soğuk Humboldt (Peru) Akıntısı'dır. Soğuk deniz suyu atmosferik sıcaklık terselmesi " +
+      'yaratarak dikey hava hareketlerini ve bulut gelişimini engeller; bu durum kıyıyı ' +
+      'dünyanın en kurak çöllerinden biri yapar. Başkent Lima yılda ortalama yalnızca 10 ' +
+      'milimetre civarında yağış alırken, kış aylarında "garúa" adı verilen yoğun ve yapışkan ' +
+      'bir deniz sisiyle örtülür.' +
+      '\n\n' +
+      'Sierra bölgesinde iklimi doğrudan yükseklik yönetir; Mayıs-Eylül arasındaki kurak ' +
+      'dönemde açık gökyüzü ve dondurucu gece ayazları yaşanırken, Ekim-Nisan arasındaki ' +
+      'yağışlı dönemde öğleden sonraları şiddetli sağanaklar görülür.' +
+      '\n\n' +
+      'Doğudaki Selva bölgesinde ise yıl boyu 2.000 ila 3.000 milimetre arasında yağış ' +
+      'alan, yüksek sıcaklık ve neme sahip ekvatoral bir iklim hüküm sürer.',
     hydrographyNoteTr:
-      "Amazon Nehri'nin en uzak kaynağı, onlarca yıl boyunca Peru'daki Apurímac Nehri'nin " +
-      "başlangıç noktası olarak kabul edildi; 2014'te yapılan bir çalışma bu kaynağı, yine " +
-      "Peru'da bulunan Cordillera Rumi Cruz'daki Mantaro Nehri'nin başlangıcına taşıdı — " +
-      "Mantaro, Apurímac'tan yaklaşık 75 kilometre daha uzun çıktı. Doğuda, Marañón ve " +
-      "Ucayali nehirleri Peru topraklarında birleşerek Amazon'un ana gövdesini başlatır.",
+      "Yeryüzünün en büyük nehir sistemi olan Amazon, doğuşunu bütünüyle Peru Andları'ndaki " +
+      'buzul kaynaklarına borçludur. Uzun yıllar Apurímac Nehri ana kaynak kabul edilmişken, ' +
+      "2014 yılında yapılan ölçümler kaynağı Cordillera Rumi Cruz'daki Mantaro Nehri'nin " +
+      'çıkışına taşımış ve bu kolun yaklaşık 75 kilometre daha uzun olduğunu belgelemiştir.' +
+      '\n\n' +
+      'And vadilerini derin kanyonlarla yaran Marañón ve Ucayali nehirleri, Nauta yakınlarında ' +
+      "birleşerek Amazon Nehri'nin ana gövdesini başlatır ve doğuya, Brezilya'ya doğru akar." +
+      '\n\n' +
+      'Pasifik yamacındaki nehirler ise dik eğimli, kısa ve mevsimliktir; buna karşın ' +
+      'çöl kıyısında kurulan Lima gibi dev metropollerin ve tarım vahalarının yegane tatlı ' +
+      "su kaynağıdır. Güneydoğudaki Titicaca Gölü ise Altiplano'nun kapalı hidrolojik " +
+      'sistemini besler.',
   },
   {
     isoCode: 'SR',
@@ -1768,37 +2211,59 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "25 Kasım 1975'te Hollanda'dan bağımsız oldu.",
     introTr:
-      "Surinam, Güney Amerika'nın en küçük egemen ülkesidir ve topraklarının yaklaşık %94'ü ormanla " +
-      'kaplıdır; bu oran, dünyada bir ülkenin toplam yüzölçümüne oranla sahip olduğu en yüksek orman ' +
-      "örtüsü kabul edilir. Ülke, komşusu Guyana gibi Guyana Kalkanı'nın bir parçası üzerinde yer " +
-      "alır. Guyana'nın basamaklı yaylalarının aksine, Surinam'ın iç kesimi büyük ölçüde aşınmış ve " +
-      'düşük eğimli bir peneplendir. Nüfus neredeyse tamamen kıyı şeridinde, başkent Paramaribo ' +
-      'çevresinde toplanır; güneydeki geniş iç kesim neredeyse tamamen yağmur ormanıyla kaplıdır ve ' +
-      'son derece seyrek nüfusludur.',
-    landformNoteTr:
-      "Ülkenin güneyinde yükselen Wilhelmina Dağları'ndaki 1.280 metrelik Julianatop, Surinam'ın en " +
-      "yüksek noktasıdır. Kuzeyde, Brokopondo Rezervuarı'na bakan tepeleriyle Brownsberg Platosu, " +
-      'ülkenin en bilinen doğa parklarından birini barındırır.' +
+      "Güney Amerika'nın kuzeydoğusunda Atlas Okyanusu kıyısında yer alan Surinam, " +
+      'yüzölçümü bakımından kıtanın en küçük bağımsız devletidir. Topraklarının yaklaşık ' +
+      "%94'ünü kaplayan bakir yağmur ormanlarıyla yeryüzünde yüzölçümüne oranla en yüksek " +
+      'orman örtüsüne sahip ülkesi konumundadır.' +
       '\n\n' +
-      'Ülke topraklarının yaklaşık dörtte biri, 1,6 milyon hektarlık el değmemiş tropikal ormanı ' +
-      "koruma altına alan Merkez Surinam Doğa Rezervi'nde yer alır; bu alan 2000'de UNESCO Dünya " +
-      "Mirası Listesi'ne alınmış olup Guyana Kalkanı'ndaki en geniş korunan orman parçalarından " +
-      'biridir.',
+      'Ülke, jeolojik olarak komşusu Guyana ile birlikte aşınmaya dirençli Prekambriyen ' +
+      "Guyana Kalkanı üzerinde oturur. Basamaklı yüksek tepuilerin aksine Surinam'ın iç " +
+      'kesimleri büyük ölçüde alçak bir peneplendir. Nüfusun ve yerleşimlerin neredeyse ' +
+      'tamamı başkent Paramaribo çevresindeki dar kıyı şeridinde toplanırken, güneydeki ' +
+      'engin ormanlık alanlar neredeyse bütünüyle boştur.',
+    landformNoteTr:
+      'Surinam morfolojisi iki ana yapısal kuşağa ayrılır: Kuzeydeki alçak ve bataklık ' +
+      'kıyı düzlüğü ile güneyde yükselen eski kristalen yaylalar. Kıyı kuşağı, mangrov ' +
+      'bataklıkları ve "ritsen" adı verilen eski kum-kavuk sırtlarıyla örtülüdür; başkent ' +
+      've tarım arazileri bu sağlam kum setleri üzerinde kurulmuştur.' +
+      '\n\n' +
+      'İç kesimlere doğru arazi, granitik kalıntı tepelerin (inselberg) orman denizinden ' +
+      'tek başına yükseldiği aşınmış bir platoya dönüşür. Ülkenin orta-güney kesiminde ' +
+      "uzanan Wilhelmina Dağları üzerindeki 1.280 metrelik Julianatop, Surinam'ın en " +
+      'yüksek zirvesidir.' +
+      '\n\n' +
+      'Ülke topraklarının yaklaşık dörtte biri, 1,6 milyon hektarlık el değmemiş ormanı ' +
+      "koruyan Merkez Surinam Doğa Rezervi'ni oluşturur; 2000 yılında UNESCO Dünya " +
+      "Mirası Listesi'ne alınan bu alan, Guyana Kalkanı'ndaki en bozulmamış ekosistemlerden biridir.",
     climateNoteTr:
-      "Surinam'ın neredeyse tamamını kaplayan yağmur ormanı, ülkenin ekvatoral iklimiyle doğrudan " +
-      'bağlantılıdır; sıcaklık ve nem yıl boyunca yüksek kalır, mevsimsel sıcaklık farkı azdır. Ülke, ' +
-      'Nisan-Ağustos arası uzun bir yağışlı dönemin ardından Ağustos-Kasım arası uzun bir kurak dönem ' +
-      'yaşar; Aralık-Şubat arasında ise daha kısa ve daha az yağışlı ikinci bir yağışlı dönem görülür. ' +
-      'Yıllık yağış, ülkenin batısında yaklaşık 1.700 milimetreden doğusunda 2.500 milimetreye kadar ' +
-      "artar; başkent Paramaribo'da yılda ortalama 200 civarı yağışlı gün kaydedilir.",
+      "Ekvator'a yalnızca birkaç derece mesafede yer alan Surinam, yıl boyunca yüksek nem " +
+      've 26-28 derece bandında değişmeyen sıcaklıklarla tam bir ekvatoral iklim yaşar. ' +
+      "Tropikal Yakınsama Kuşağı'nın yıllık salınımı ülkeye dört mevsimlik bir yağış " +
+      'ritmi kazandırır.' +
+      '\n\n' +
+      "Nisan'dan Ağustos'a kadar süren birincil yağışlı mevsimi (Grote Regentijd), " +
+      "Ağustos'tan Kasım'a kadar süren ana kurak dönem (Grote Drogetijd) izler. Aralık " +
+      'ile Şubat arasında kısa bir yağışlı dönem, ardından Şubat-Nisan arasında kısa bir ' +
+      'kurak dönem görülür.' +
+      '\n\n' +
+      'Yıllık yağış batı kesimlerde yaklaşık 1.700 milimetre iken doğuda ve iç kesimlerde ' +
+      '2.500 milimetreye kadar yükselir; başkent Paramaribo yılda ortalama 200 yağışlı gün ' +
+      "kaydeder. Atlas Okyanusu'ndan esen kuzeydoğu alizeleri kıyıdaki yoğun nemi yumuşatırken, " +
+      'ülke Karayip kasırga rotasının tamamen güneyinde kaldığından fırtına felaketlerinden uzaktır.',
     hydrographyNoteTr:
-      'Batıda Guyana ile sınırı belirleyen Corantijn Nehri ve doğuda Fransız Guyanası ile sınırı çizen ' +
-      "Marowijne (Maroni) Nehri, ülkenin en uzun akarsularıdır; ikisi de Guyana Kalkanı'nın iç " +
-      'kesimlerinde doğar ve yukarı çığırlarında çok sayıda çağlayan ve hızlı akıntı barındırır. ' +
-      "Ülkenin ortasından geçen Surinam Nehri, başkenti de sulayarak Atlantik'e ulaşır; nehir üzerinde " +
-      "1964'te tamamlanan Afobaka Barajı'nın oluşturduğu Brokopondo Rezervuarı, inşa edildiğinde " +
-      'dünyanın en büyük yapay göllerinden biriydi. İç kesimdeki altın madenciliği, özellikle Lawa ve ' +
-      'Marowijne nehirleri boyunca cıva kirliliği yoluyla su kalitesini olumsuz etkiler.',
+      "Surinam, Guyana Kalkanı'nın iç kesimlerinden doğup kuzeye Atlas Okyanusu'na doğru " +
+      'paralel akan çok sayıda gür debili akarsuyla örülüdür. Batıda Guyana sınırını çizen ' +
+      'Corantijn Nehri ile doğuda Fransız Guyanası sınırını belirleyen Marowijne (Maroni) ' +
+      'Nehri ülkenin en büyük sınır akarsularıdır; yatakları çok sayıda sula adı verilen ' +
+      'çağlayan ve akıntıyla bölünmüştür.' +
+      '\n\n' +
+      "Ülkenin merkezinden geçen Surinam Nehri başkente ulaşır; bu nehir üzerinde 1964'te " +
+      'inşa edilen Afobaka Barajı, boksit eritme tesislerine enerji sağlamak amacıyla ' +
+      "devasa Brokopondo Rezervuarı'nı (Van Blommestein Gölü) meydana getirmiştir." +
+      '\n\n' +
+      'İç kesimlerde özellikle Lawa ve Marowijne nehir havzalarında yürütülen kayıt dışı ' +
+      'altın madenciliği, su yataklarına karışan cıva atıkları nedeniyle su kalitesini ve ' +
+      'yerli toplulukların yaşamını tehdit eden başlıca çevre sorunudur.',
   },
   {
     isoCode: 'UY',
@@ -1824,38 +2289,56 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "25 Ağustos 1825'te bağımsızlığını ilan etti; uluslararası tanınma 1828 Montevideo Antlaşması ile.",
     introTr:
-      "Güney Amerika'nın (Surinam'dan sonra) yüzölçümce en küçük ikinci ülkesi olan " +
-      'Uruguay, kuzeyde ve doğuda Brezilya, batıda Arjantin ile komşudur; güneyde Río de la ' +
-      "Plata halici, güneydoğuda ise doğrudan Atlas Okyanusu'na kıyısı vardır. Ülke " +
-      "toprakları, kıtanın büyük çayır kuşağı Pampalar'ın doğu ucunu oluşturur ve neredeyse " +
-      "hiç dağ barındırmaz — Güney Amerika'nın en düz ülkelerinden biridir. Yüzölçümünün " +
-      'büyük bölümü, tarım ve hayvancılığa elverişli dalgalı otlaklardan oluşur.',
+      "Güney Amerika'nın güneydoğu kıyısında yer alan Uruguay, Surinam'dan sonra kıtanın " +
+      'yüzölçümce en küçük ikinci bağımsız devletidir. Kuzey ve doğuda Brezilya, batıda ' +
+      'Arjantin ile komşudur; güneyde devasa Río de la Plata halici, güneydoğuda ise Atlas ' +
+      'Okyanusu ile kuşatılmıştır.' +
+      '\n\n' +
+      "Kıtanın engin çayır kuşağı Pampalar'ın doğu uzantısını oluşturan ülke, neredeyse " +
+      "hiç engebeli dağ barındırmayan topoğrafyasıyla Güney Amerika'nın en düz ve yumuşak " +
+      'arazisine sahiptir. Topraklarının ezici çoğunluğu, tarih boyunca zengin sığır ve ' +
+      'koyun yetiştiriciliğine zemin hazırlamış dalgalı doğal otlaklardan oluşur.',
     landformNoteTr:
-      "Uruguay'ın iç kesimlerinde, kuzeyden güneye uzanan alçak ve yumuşak tepe sıraları — " +
-      'cuchillalar — araziye hafif bir dalgalanma katar; bunların en belirgini, ülkeyi ' +
-      "ortadan geçen Cuchilla Grande'dir, ona batıda paralel uzanan Cuchilla de Haedo eşlik " +
-      'eder. Bu sıralar gerçek dağ zincirleri oluşturmaz, çimenli tepelerin art arda ' +
-      'dizilmesinden ibarettir; aralarında Cerro Pan de Azúcar ve Cerro Arequita gibi tek ' +
-      'başına yükselen tepeler bulunur. Ülkenin en yüksek noktası, Maldonado bölgesindeki ' +
-      "Sierra Carapé'de yer alan 513,66 metrelik Cerro Catedral'dir — Güney Amerika'nın en " +
-      'alçak ulusal zirvelerinden biri. Güney ve güneybatı kıyı şeridi boyunca, Río de la ' +
-      "Plata'nın kenarında alçak ve düz kıyı ovaları uzanır.",
+      'Uruguay arazisi, kadim kristalen kalkanın milyonlarca yıllık aşınmasıyla oluşmuş ' +
+      'dalgalı bir peneplen karakteri sergiler. Bu yumuşak çayır topoğrafyasını ' +
+      '"cuchilla" adı verilen alçak, yassı sırtlar böler; bunların en önemlileri ülkeyi ' +
+      "boydan boya kat eden Cuchilla Grande ile batıdaki Cuchilla de Haedo'dur." +
+      '\n\n' +
+      'Bu sırtlar gerçek dağ zincirleri olmayıp mera arazisini hafifçe dalgalandıran ' +
+      'taşlık tepelerden ibarettir; aralarında Cerro Pan de Azúcar ve Cerro Arequita gibi ' +
+      'tekil granit tepeler yükselir. Ülkenin en yüksek noktası, Maldonado bölgesindeki ' +
+      "Sierra Carapé üzerinde yer alan 513,66 metrelik Cerro Catedral'dir ve kıtanın en " +
+      'alçak ulusal zirveleri arasındadır.' +
+      '\n\n' +
+      'Güneydoğu kıyısında Atlas Okyanusu boyunca kumul şeritleri ve Laguna Merín ile ' +
+      'Laguna de Rocha gibi geniş kıyı lagünleri ve sulak alan sistemleri (bañados) uzanır.',
     climateNoteTr:
-      'Uruguay, ülke genelinde oldukça tekdüze bir nemli subtropikal iklime (Köppen Cfa) ' +
-      'sahiptir; belirgin bir kurak mevsim yoktur, yağış kışın soğuk cephelerle, yazın ise ' +
-      'gök gürültülü sağanaklarla yıl boyunca dağılır. Yıllık yağış güneyden kuzeye artar — ' +
-      'Montevideo çevresinde 1.100-1.200 milimetre iken, ülkenin kuzeyinde 1.600 ' +
-      'milimetreye ulaşabilir. Mevsimler belirgin biçimde ayrışır: ilkbahar nemli ve ' +
-      'rüzgarlı, yaz ılık, sonbahar mutedil, kış ise nemli ve serin geçer.',
+      'Uruguay bütünüyle ılıman subtropikal kuşakta (Köppen Cfa) yer alır ve ülke genelinde ' +
+      'son derece dengeli, homojen bir iklim yapısı sergiler. Belirgin bir kurak mevsim ' +
+      'bulunmaz; yağış kışın kutup cepheleriyle, yazın ise konvektif fırtınalarla yıl ' +
+      'boyunca düzenli dağılır.' +
+      '\n\n' +
+      'Yıllık yağış güney kıyılarında ve Montevideo çevresinde 1.100-1.200 milimetre iken, ' +
+      'kuzeye Brezilya sınırına yaklaştıkça 1.600 milimetreye kadar yükselir.' +
+      '\n\n' +
+      'Dağ sıralarının bulunmaması hava kütlelerinin engelsizce hareket etmesine olanak tanır. ' +
+      'Kuzeyden esen sıcak tropikal hava ile Antarktika kökenli soğuk pampero rüzgarlarının ' +
+      'karşılaşması, birkaç gün içinde keskin sıcaklık dalgalanmalarına yol açabilir; buna ' +
+      'karşın ilkbahar nemli ve rüzgarlı, yazlar ılık, sonbahar mutedil ve kışlar ılıman-serin geçer.',
     hydrographyNoteTr:
-      'Batı sınırı boyunca, güney Brezilya dağlarından doğan Río Uruguay güneye akar ve ' +
-      '1.800 kilometreden fazla bir mesafenin ardından Río de la Plata halicine ulaşır. Río ' +
-      "de la Plata, Uruguay ve Paraná nehirlerinin birleşerek Atlas Okyanusu'na açıldığı " +
-      'huni biçimli bir halic olup dünyanın en geniş nehir ağızlarından biridir. Ülke ' +
-      "içinde ise Río Negro doğudan batıya akarak Río Uruguay'a katılır; üzerindeki Rincón " +
-      "del Bonete Barajı'nın oluşturduğu gölet, ülkenin en büyük tatlı su kütlesidir ve Río " +
-      "Negro üzerindeki üç büyük baraj birlikte Uruguay'ın elektriğinin yaklaşık %60'ını " +
-      'üretir.',
+      'Ülkenin batı sınırını baştan başa çizen Uruguay Nehri, güney Brezilya yaylalarından ' +
+      'doğarak 1.800 kilometreyi aşan bir yolculuğun ardından Paraná Nehri ile birleşir ve ' +
+      "Río de la Plata halicini oluşturur. Huni biçimli Río de la Plata, Atlas Okyanusu'na " +
+      'açılan dünyanın en geniş nehir ağızlarından biridir ve Montevideo limanına doğal ' +
+      'bir korunak sağlar.' +
+      '\n\n' +
+      "Ülke içindeki en önemli akarsu, doğudan batıya akarak Uruguay Nehri'ne dökülen Río " +
+      "Negro'dur. Nehir üzerindeki Rincón del Bonete Barajı ile oluşturulan dev yapay göl, " +
+      'ülkenin en büyük iç tatlı su rezervuarıdır.' +
+      '\n\n' +
+      "Río Negro üzerindeki üç büyük hidroelektrik santrali, Uruguay'ın elektrik " +
+      "üretiminin yaklaşık %60'ını karşılayarak ülkenin yeşil enerji dönüşümünün temel " +
+      'dayanağını kurmuştur.',
   },
   {
     isoCode: 'VE',
@@ -1880,29 +2363,59 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal başkanlık cumhuriyeti',
     independenceNoteTr: "5 Temmuz 1811'de İspanya'dan bağımsızlığını ilan etti.",
     introTr:
-      "Venezuela, kuzeyde Karayip Denizi'ne kıyısı olan ve dört farklı coğrafi bölgeye " +
-      "ayrılan bir ülkedir: kuzeybatıda Maracaibo alçak arazisi, kuzeyde And Dağları'nın " +
-      'uzantısı olan kıyı sıradağları, orta kesimde geniş Orinoco düzlükleri (Llanos) ve ' +
-      'güneydoğuda Guyana Yaylası.',
+      "Güney Amerika'nın kuzey kıyısında Karayip Denizi ve Atlas Okyanusu'na cephe " +
+      'veren Venezuela; batıda Kolombiya, güneyde Brezilya ve doğuda Guyana ile komşudur. ' +
+      'Ülke, kıtanın neredeyse tüm karakteristik ekosistemlerini sınırları içinde toplayan ' +
+      'dört temel fizyografik bölgeye ayrılır.' +
+      '\n\n' +
+      'Kuzeybatıdaki petrol zengini Maracaibo alçak havzası, kuzeyi kuşatan sarp Kıyı Andları, ' +
+      'ülkenin merkezini kaplayan geniş Orinoco savanları (Llanos) ve güneydoğudaki kadim ' +
+      "Guyana Yaylası, Venezuela'ya olağanüstü bir peyzaj ve doğal kaynak zenginliği kazandırır.",
     landformNoteTr:
-      "And Dağları'nın Venezuela'ya uzanan kolu, ülkenin kuzeybatısını kaplar; en yüksek " +
-      "noktası, Mérida yakınlarındaki 4.978 metrelik Pico Bolívar'dır. Maracaibo Gölü, " +
-      "Karayip Denizi'ne açık olduğu için teknik olarak bir göl sayılmasa da, Güney " +
-      "Amerika'nın en büyük iç su kütlesi kabul edilir. Ülkenin yaklaşık üçte birini " +
-      'kaplayan Llanos, Orinoco Nehri havzasının parçası olan geniş bir çayır-savan ' +
-      "düzlüğüdür. Güneydoğuda ise Guyana Yaylası'nda, dik yamaçlı ve düz tepeli tepui'ler " +
-      "yükselir; bunlardan Auyán-tepui'nin kenarından dökülen Angel Şelalesi, 979 metre " +
-      'yükseklikle dünyanın en yüksek şelalesidir.',
+      "And Dağları'nın kuzeydoğu kolu olan Cordillera de Mérida, ülkenin batısında yükselir " +
+      "ve 4.978 metrelik Pico Bolívar ile Venezuela'nın en yüksek doruğunu oluşturur. Bu dağ " +
+      'zinciri kıyı boyunca Karakas vadisini çevreleyen Kıyı Sıradağları (Cordillera de la ' +
+      'Costa) olarak devam eder.' +
+      '\n\n' +
+      "Dağların batısında yer alan Maracaibo Gölü, dar bir boğazla Karayip Denizi'ne bağlı " +
+      'olduğundan hidrolojik olarak bir iç körfez niteliği taşısa da yaklaşık 13.200 ' +
+      "kilometrekarelik yüzeyiyle Güney Amerika'nın en büyük su kütlesi kabul edilir ve " +
+      'altındaki devasa hidrokarbon yataklarıyla ülkenin enerji kalbidir. Ülkenin merkezini ' +
+      "kaplayan Llanos ise Orinoco Havzası'nın parçası olan uçsuz bucaksız bir çayır-savan düzlüğüdür." +
+      '\n\n' +
+      "Güneydoğudaki Guyana Yaylası'nda (Gran Sabana), yeryüzünün en eski Prekambriyen kumtaşı " +
+      'tabakalarının aşınmasıyla oluşmuş dik uçurumlu masa dağları (tepui) yükselir. Bu ' +
+      "tepuilerin en büyüğü olan Auyán-tepui'nin zirvesinden dökülen Angel Şelalesi " +
+      '(Kerepakupai Merú), 979 metrelik toplam düşüşüyle dünyanın en yüksek şelalesidir.',
     climateNoteTr:
-      "Llanos'ta, belirgin yağışlı ve kurak dönemleri olan tropikal savan iklimi hakimdir. " +
-      'Maracaibo Gölü çevresi ise ülkenin en sıcak bölgesidir; bazı yerleşimlerde sıcaklık ' +
-      "46-47 santigrat dereceye kadar çıkabilir. And Dağları'nın yüksek vadilerinde, Mérida " +
-      've Karakas çevresinde ise ılıman bir dağ iklimi görülür — Mérida eyaletindeki en ' +
-      'yüksek kesimlerde sıcaklık eksi 11 santigrat dereceye kadar düşebilir.',
+      'Venezuela bütünüyle tropikal kuşakta yer alsa da iklim koşulları rakıma ve yerel ' +
+      'hava akımlarına göre derin tezatlar sergiler. Maracaibo Havzası ve kıyı şeridi ' +
+      'yıl boyu süren boğucu sıcağıyla ülkenin en sıcak kesimidir; Maracaibo çevresinde ' +
+      'sıcaklıklar 40 derecenin üzerine çıkabilir.' +
+      '\n\n' +
+      'Orinoco Llanos düzlüklerinde, belirgin biçimde ayrılan yağışlı (Mayıs-Kasım) ve kurak ' +
+      '(Aralık-Nisan) dönemlere sahip klasik bir tropikal savan iklimi hüküm sürer; yağışlı ' +
+      'mevsimde nehirlerin taşmasıyla savanlar sığ göllere dönüşür.' +
+      '\n\n' +
+      'And Dağları vadilerinde ve 900 metre rakımdaki başkent Karakas çevresinde mutedil ' +
+      "bir dağ iklimi görülürken, Mérida'nın 4.000 metreyi aşan páramo ve buzul " +
+      'zirvelerinde sıcaklık sıfırın altına düşer. Güneydoğudaki Guyana Yaylası ise yıl boyu ' +
+      'nemli, sisli ve bol yağışlı bir rejimle beslenir.',
     hydrographyNoteTr:
-      "Debi bakımından Güney Amerika'da Amazon'dan sonra en büyük, dünya genelinde ise üçüncü " +
-      "büyük nehir olan Orinoco, Guyana Yaylası'nda doğar ve yaklaşık 2.140 kilometre sonra " +
-      "Atlas Okyanusu'na ulaşır. Guyana Yaylası'ndan inen Caroní Nehri de Orinoco'ya katılır; " +
-      'güzergahı boyunca Angel Şelalesi dahil çok sayıda şelale barındırır.',
+      "Güney Amerika'nın Amazon'dan sonraki en büyük, dünya genelinde ise debi bakımından " +
+      'üçüncü büyük nehri olan Orinoco, yaklaşık 2.140 kilometre boyunca akarak ülke ' +
+      "topraklarının beşte dördünden fazlasını drene eder. Orinoco'nun yukarı çığırında yer " +
+      'alan Casiquiare Kanalı, nehrin sularının bir kısmını Amazon sistemine (Rio Negro) ' +
+      'aktararak iki dev kıtasal havza arasında dünyada eşi görülmemiş doğal bir su yolu ' +
+      'bağlantısı kurar.' +
+      '\n\n' +
+      "Guyana Yaylası'ndan inen Caroní Nehri, taşıdığı yüksek debi ve dik yatak eğimiyle " +
+      "Orinoco'ya katılır; üzerinde kurulu Guri Barajı, elektrik üretimi bakımından " +
+      'dünyanın en büyük hidroelektrik santrallerinden biridir.' +
+      '\n\n' +
+      "Maracaibo Gölü'ne dökülen Catatumbo Nehri ağzı ise yeryüzünün en benzersiz " +
+      'elektromanyetik doğa olayına sahne olur; "Catatumbo Yıldırımları" olarak bilinen bu ' +
+      'olayda, bataklık gazları ile dağ rüzgarlarının karşılaşması sonucu yılda 160 ila 260 ' +
+      'gece boyunca aralıksız şimşek fırtınaları parıldar.',
   },
 ];

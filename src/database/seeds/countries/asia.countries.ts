@@ -66,41 +66,65 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Tek parti sosyalist cumhuriyet',
     independenceNoteTr: null,
     introTr:
-      'Batıda dünyanın en yüksek platosundan doğuda Pasifik kıyısına uzanan Çin, nüfus ' +
-      'bakımından dünyanın en kalabalık ülkelerinden biridir ve on dört ülkeyle kara sınırı ' +
-      "paylaşarak Rusya'yla birlikte dünyanın en fazla kara komşusuna sahip ülkesi unvanını " +
-      'taşır.',
+      "Doğu Asya'nın devasa kara kütlesini kaplayan Çin, batıda Orta Asya'nın " +
+      'yüksek dağ düğümlerinden doğuda Pasifik Okyanusu kıyılarına kadar uzanır. ' +
+      'Rusya ile birlikte dünyanın en fazla kara komşusuna sahip ülkesi olup on ' +
+      'dört farklı devletle sınır paylaşır. Toprakları, batıdaki buzullarla kaplı ' +
+      'yaylalardan doğudaki alüvyal kıyı ovalarına doğru üç devasa basamak halinde ' +
+      'alçalan bir topoğrafya sergiler.' +
+      '\n\n' +
+      'Ülkenin kuzeyindeki verimli ova kuşağında kurulan başkent Pekin, yüzyıllar ' +
+      'boyunca kuzey bozkırları ile güneyin tarım havzaları arasındaki stratejik ' +
+      'geçiş noktasını denetlemiştir. Nüfusun ve ekonomik üretimin ezici ' +
+      'çoğunluğu, muson yağışlarının beslediği doğu nehir havzalarında ve sahil ' +
+      'şeridinde kümelenirken, devasa batı içleri çok daha seyrek bir yerleşim ' +
+      'dokusuna sahiptir.',
     landformNoteTr:
-      'Ülkenin batısını, dünyanın en büyük ve en yüksek platosu olan Tibet Platosu kaplar — bu ' +
-      'yükseklik nedeniyle "dünyanın çatısı" olarak da anılır. Platonun güneyinde yükselen ' +
-      "Himalayalar'da, Nepal sınırındaki 8.848 metrelik Everest Dağı, hem Çin'in hem dünyanın " +
-      'en yüksek noktasıdır; Pakistan sınırındaki K2 (8.611 m) dünyanın ikinci en yüksek ' +
-      "zirvesidir. Dünyanın en yüksek 17 zirvesinden 11'i Çin'in batı sınırlarında yer alır." +
+      "Çin'in yer şekilleri, Hint levhasının Avrasya levhasına çarpmasıyla " +
+      'yükselen genç dağ kuşakları ile kadim kratonik havzaların birlikteliğiyle ' +
+      'şekillenmiştir. Ülkenin güneybatısını kaplayan ve "dünyanın çatısı" olarak ' +
+      'anılan ortalama 4.500 metre rakımlı Tibet Platosu, güney kenarında Nepal ' +
+      'sınırındaki 8.848 metrelik Everest ile doruğa ulaşır. Platonun kuzey ve ' +
+      'batı sınırlarında yükselen Karakurum ve Tanrı Dağları hattı, Pakistan ' +
+      'sınırındaki 8.611 metrelik K2 Zirvesi de dahil olmak üzere gezegenin en ' +
+      'sarp buzul kütlelerini barındırır.' +
       '\n\n' +
-      "Kuzeybatıda, Himalayalar'ın yağış gölgesinde kalan Taklamakan Çölü, dünyanın en büyük " +
-      'ikinci hareketli kum çölüdür. Doğuya doğru inildikçe arazi alçalır; ülkenin ' +
-      "kuzeydoğusunda Mançurya Ovası, güneydoğusunda ise Yangtze ve Sarı Nehir'in taşıdığı " +
-      'alüvyonlarla oluşan geniş ve verimli Kuzey Çin Ovası uzanır — ülkenin en yoğun nüfuslu ' +
-      'kesimleri bu düzlüklerdedir.',
+      'Yüksek dağların yağış gölgesinde kalan batı içlerinde, dünyanın en büyük ' +
+      'hareketli kum çöllerinden Taklamakan ile Tarım Havzası uzanır. İç Asya ' +
+      'platolarından doğuya doğru inildikçe arazi belirgin biçimde alçalır; ' +
+      "kuzeydoğudaki Mançurya Ovası ile Yangtze ve Sarı Nehir'in bin yıllar " +
+      'boyunca biriktirdiği lös ve alüvyonlarla dolan geniş Kuzey Çin Ovası, ' +
+      'ülkenin en geniş tarım alanlarını ve yerleşim merkezlerini oluşturur.',
     climateNoteTr:
-      'Kuzey-güney doğrultusunda geniş bir enlem açıklığı ve doğu-batı yönünde okyanustan iç ' +
-      "kesimlere uzanan devasa bir derinlik, Çin'i dünyanın en çok iklim çeşitliliğine sahip " +
-      "ülkelerinden biri yapar. Güneydoğu kıyıları ve Hainan Adası'nda tropikal ve subtropikal " +
-      'muson iklimi egemendir, yazlar sıcak ve yağışlı geçer. Kuzeye doğru bu muson etkisi ' +
-      'zayıflar, Pekin ve çevresinde karasal bir iklim görülür, kışlar soğuk ve kurak geçer. ' +
-      'Kuzeybatıda, Taklamakan ve çevresinde nemden büyük ölçüde yoksun kurak bir iç Asya ' +
-      "iklimi hakimdir. Tibet Platosu'nda ise yükseklik belirleyicidir — kısa ve serin yazlar, " +
-      'uzun ve sert kışlarla karakterize soğuk bir yayla iklimi egemendir, kış sıcaklıkları sık ' +
-      'sık eksi 10 derecenin altına iner.',
-    hydrographyNoteTr:
-      "Çin'in en uzun nehri, dünyanın üçüncü en uzun nehri olan 6.300 kilometrelik Yangtze'dir " +
-      "(Chang Jiang); kaynağı Tibet Platosu'ndaki Qinghai bölgesindedir, ülkeyi batıdan doğuya " +
-      "kat ederek Şangay yakınlarında Doğu Çin Denizi'ne dökülür. Sarı Nehir (Huang He), 5.464 " +
-      'kilometreyle ülkenin ikinci en uzun nehridir, adını taşıdığı sarımsı alüvyonlardan alır ' +
-      "ve Kuzey Çin Ovası'nın oluşumunda belirleyici rol oynamıştır." +
+      'Kuzey-güney ekseninde 35 dereceden fazla enlem farkı ve okyanustan iç ' +
+      'çöllere uzanan derin mesafe, ülkede tropikal kuşaktan soğuk karasal iklime ' +
+      'uzanan çok geniş bir atmosferik çeşitlilik yaratır. Güneydoğu kıyıları ve ' +
+      'Hainan Adası, yaz aylarında Pasifik ve Hint okyanuslarından bol nem taşıyan ' +
+      'yaz musonunun etkisiyle yüksek sıcaklık ve şiddetli yağış alır. Kış ' +
+      'aylarında ise karasal kökenli Sibirya yüksek basıncı tüm kuzey ve iç ' +
+      'kesimlere kuru, dondurucu rüzgarlar yayar.' +
       '\n\n' +
-      "Ülkenin en büyük tatlı su gölü Poyang Gölü, Yangtze'nin orta-alt havzasında yer alır; " +
-      "Tibet Platosu'ndaki Qinghai Gölü ise Çin'in en büyük tuzlu su gölüdür.",
+      'Kuzeydoğuda kışlar kar örtüsü altında ve çok sert geçerken, güney ' +
+      'havzalarında subtropikal nem yıl boyunca hissedilir. Yüksek dağların nemli ' +
+      'hava kütlelerini engellediği kuzeybatı havzalarında yıllık yağış 100 ' +
+      'milimetrenin altına inerek kurak çöl koşullarını hakim kılar. Tibet ' +
+      "Platosu'nda ise seyrek atmosfer ve yüksek irtifa nedeniyle yılın büyük " +
+      'bölümünde sıfırın altında seyreden sert bir alpin yayla iklimi hüküm sürer.',
+    hydrographyNoteTr:
+      "Tibet Platosu'nun eriyen buzulları, Çin'i ve tüm Doğu Asya'yı besleyen " +
+      'devasa nehir sistemlerinin ana su kulesidir. Kaynağını Qinghai bölgesinden ' +
+      'alan 6.300 kilometrelik Yangtze (Chang Jiang), ülkeyi batıdan doğuya boydan ' +
+      "boya geçerek Şanghay yakınlarında Doğu Çin Denizi'ne dökülür ve dünyanın " +
+      "üçüncü en uzun akarsuyudur. Lös Platosu'ndan kopardığı yoğun sarı tortuyu " +
+      "taşıyan 5.464 kilometrelik Sarı Nehir (Huang He) ise Kuzey Çin Ovası'nı " +
+      "biçimlendirerek Bohai Denizi'ne ulaşır." +
+      '\n\n' +
+      'Yangtze havzası boyunca uzanan taşkın düzlükleri, ülkenin en geniş tatlı ' +
+      'su gölleri olan Poyang ve Dongting göllerini barındırır; bu göller muson ' +
+      'taşkınlarını emen doğal rezervuarlar işlevi görür. Batıdaki kurak kapalı ' +
+      'havzalarda ise tuzlu karakterdeki Qinghai Gölü en geniş su yüzeyini ' +
+      'oluştururken, tarımsal aşırı tüketim nedeniyle kurumuş olan Lop Nur gibi ' +
+      'kadim göl yatakları çölleşmenin izlerini taşır.',
   },
   {
     isoCode: 'JP',
@@ -125,42 +149,66 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter anayasal monarşi',
     independenceNoteTr: null,
     introTr:
-      'Kuzeydoğu Asya kıyısı boyunca kuzeyden güneye yaklaşık 3.000 kilometre uzanan Japonya, ' +
-      'dört ana ada — Hokkaido, Honshu, Şikoku ve Kyushu — ile bunlara bağlı binlerce küçük ' +
-      "adadan oluşan bir takımadadır; kara sınırı yoktur. Batıda Japon Denizi'ne, doğuda " +
-      "Büyük Okyanus'a kıyısı vardır. Bu geniş enlem açıklığı, kuzeyde subarktik Hokkaido'dan " +
-      "güneyde subtropikal Ryukyu Adaları'na kadar uzanan gerçek bir iklim çeşitliliğine yol " +
-      'açar.',
-    landformNoteTr:
-      "Japonya topraklarının yaklaşık %73'ü dağlıktır. Honshu'nun ortasında yükselen Hida, " +
-      "Kiso ve Akaishi sıradağları birlikte Japon Alpleri'ni oluşturur; bu üçlünün en yüksek " +
-      "noktası, Akaishi sıradağına ait 3.193 metrelik Kita Dağı'dır. Ülkenin en yüksek noktası " +
-      "ise Şizuoka ve Yamanaşi illeri sınırında yükselen 3.776 metrelik Fuji Dağı'dır " +
-      "(Fujisan); 1707'den bu yana patlamamış olsa da jeologlar onu hâlâ aktif bir " +
-      'stratovolkan olarak sınıflandırır.' +
+      'Kuzeydoğu Asya kıyıları açığında hilal biçiminde uzanan Japonya, Büyük ' +
+      'Okyanus ile Japon Denizi arasında yer alan bir volkanik ada yay ülkesidir. ' +
+      'Kara sınırı bulunmayan takımada; kuzeyden güneye Hokkaido, Honshu, Şikoku ' +
+      've Kyushu olmak üzere dört ana adadan ve bunları çevreleyen yedi binden ' +
+      'fazla küçük adadan oluşur.' +
       '\n\n' +
-      'Japon Takımadaları, Pasifik, Filipin Denizi, Avrasya ve Kuzey Amerika levhalarının ' +
-      'kesiştiği noktada yer alır; bu levha hareketleri ülkeyi dünyanın en depremsel ' +
-      "bölgelerinden birine dönüştürür, yılda 1.500'e yakın deprem kaydedilir. Aynı levha " +
-      'sınırları, dünyadaki aktif volkanların yaklaşık onda birini Japonya topraklarında ' +
-      'toplar.',
+      "Ülkenin kalbi, Honshu Adası'nın doğusunda en geniş alüvyal düzlük olan " +
+      "Kanto Ovası'nda kurulu başkent Tokyo ve çevresindeki kentsel " +
+      'aglomerasyondur. Geniş enlem farkı ve dağlık omurga nedeniyle Japonya, ' +
+      "kuzeydeki serin iğne yapraklı tayga kuşağından güneydeki Ryukyu Adaları'nın " +
+      'mercan resifli subtropikal iklimine kadar uzanan zengin bir coğrafi ' +
+      'çeşitlilik barındırır.',
+    landformNoteTr:
+      'Japon Takımadaları; Pasifik, Filipin Denizi, Avrasya ve Kuzey Amerika ' +
+      'levhalarının birbiri altına daldığı son derece hareketli bir tektonik ' +
+      'çöküntü ve çarpışma kuşağında yer alır. Yüzölçümünün yaklaşık dörtte üçü ' +
+      "dağlık ve tepelik arazilerden oluşur. Honshu'nun merkezinde yükselen Hida, " +
+      'Kiso ve Akaishi sıradağları "Japon Alpleri"ni oluştururken, 3.193 metrelik ' +
+      'Kita Dağı bu kuşağın en yüksek doruğudur. Ülkenin en yüksek noktası ise ' +
+      '3.776 metreye ulaşan kusursuz konik silüetiyle Şizuoka ve Yamanaşi illeri ' +
+      "sınırındaki stratovolkan Fuji Dağı'dır (Fujisan)." +
+      '\n\n' +
+      'Levha hareketlerinin yarattığı yoğun sıkışma, ülkeyi dünyada sismik ve ' +
+      'volkanik etkinliğin en sık görüldüğü yerlerden biri kılar; yüzü aşkın aktif ' +
+      'volkan ve her yıl kaydedilen bini aşkın hissedilir deprem yer şekillerini ' +
+      'sürekli tazeler. Düzlükler yalnızca dağ eteklerindeki tektonik çöküntülerde ' +
+      've akarsuların denize döküldüğü dar kıyı ovalarında gelişebilmiştir; bu dar ' +
+      'düzlükler ülkenin tarım, sanayi ve yerleşim baskısını neredeyse bütünüyle ' +
+      'sırtlar.',
     climateNoteTr:
-      'Hokkaido, uzun ve çok soğuk kışlarla ılık yazların görüldüğü nemli karasal bir iklime ' +
-      'sahiptir; kışın Sibirya kaynaklı soğuk rüzgârlar Japon Denizi üzerinden nem toplayarak ' +
-      "Sapporo gibi kentlere yoğun kar yağışı taşır. Honshu, Şikoku ve Kyushu'nun büyük " +
-      'bölümünde nemli subtropikal iklim egemendir; yazlar sıcak ve nemlidir, Haziran-Ekim ' +
-      'arasında tayfunlar kıyı kesimlerini etkiler. Bu adaların kendi içinde bile Japon Denizi ' +
-      'kıyısı ile Büyük Okyanus kıyısı farklı bir kış yaşar: Japon Denizi tarafı kalın kar ' +
-      'örtüsüyle kaplanırken, Büyük Okyanus tarafı görece kuru ve güneşli geçer. Güneyde, ' +
-      "Ryukyu Adaları'nda kışlar ılık geçer; subtropikal iklimde nem ve sıcaklık yıl boyunca " +
-      'yüksek kalır.',
+      "Japonya'nın iklim rejimini kışın Sibirya yüksek basıncı, yazın ise " +
+      'tropikal Pasifik hava kütleleri yönlendirir. Hokkaido Adası, kışları çok ' +
+      'soğuk ve karlı, yazları ise serin geçen nemli karasal iklim etkisi ' +
+      'altındadır. Honshu, Şikoku ve Kyushu adalarında ise yazları sıcak ve yüksek ' +
+      'nemli subtropikal iklim egemendir; haziran ve temmuz aylarında yaşanan ' +
+      '"baiu" yağış mevsimini, yaz sonu ve sonbahar aylarında Büyük Okyanus\'tan ' +
+      'gelen yıkıcı tayfunlar izler.' +
+      '\n\n' +
+      'Adaların ortasındaki dağlık omurga, kış mevsiminde belirgin bir iklimsel ' +
+      "ayrım üretir: Sibirya üzerinden gelen dondurucu hava Japon Denizi'nden nem " +
+      'yüklenerek batı kıyılarına çarpar ve buralarda dünyanın en kalın kar ' +
+      'örtülerinden birini oluşturur. Dağları aşarken nemini bırakan hava akımları ' +
+      'doğu kıyılarına ve Tokyo havzasına kuru, açık ve güneşli bir kış havası ' +
+      'olarak iner. En güneydeki Ryukyu ve Okinawa adalarında ise don olayı ' +
+      'yaşanmayan nemli bir denizel subtropikal rejim hüküm sürer.',
     hydrographyNoteTr:
-      "Japonya'nın dağlık topografyası nehirlerin kısa ve dik akmasına yol açar; ülkenin en " +
-      "uzun nehri bile 367 kilometrelik Şinano Nehri'dir — Japon Alpleri'nde doğar, Nagano'daki " +
-      "üst akımında Chikuma adıyla anılır ve Niigata yakınlarında Japon Denizi'ne dökülür. " +
-      "Ülkenin en büyük gölü, Şiga ilinde, Kyoto'nun kuzeydoğusunda yer alan Biwa Gölü'dür; " +
-      '670 kilometrekarelik yüzölçümüyle ve dört milyon yıldan uzun jeolojik geçmişiyle ' +
-      'dünyanın en eski göllerinden sayılır.',
+      "Dar ve dağlık ada yapısı nedeniyle Japonya'daki akarsular, kıtadaki " +
+      'nehirlere kıyasla son derece kısa, dik eğimli ve hızlı akışlıdır. Japon ' +
+      "Alpleri'nden doğup Niigata'da Japon Denizi'ne dökülen 367 kilometrelik " +
+      'Şinano Nehri, ülkenin en uzun akarsuyudur; dağlık kesimlerde derin ' +
+      'kanyonlar oyan nehirler, şiddetli muson veya tayfun dönemlerinde ani ' +
+      'taşkınlar oluşturur.' +
+      '\n\n' +
+      'Tektonik ve volkanik hareketler sonucu oluşan krater ve çöküntü gölleri ' +
+      "ülkenin tatlı su dengesinde kilit bir işleve sahiptir. Kyoto'nun " +
+      'kuzeydoğusundaki Şiga ilinde yer alan 670 kilometrekarelik Biwa Gölü, dört ' +
+      'milyon yılı aşan jeolojik yaşıyla dünyanın en kadim göllerinden biridir ve ' +
+      'Kansai bölgesinin içme suyu rezervuarıdır. Volkanik kuşaklar boyunca ' +
+      'görülen binlerce jeotermal kaynak ve onsen havzası, ada hidrolojisinin ' +
+      'karakteristik bir parçasını oluşturur.',
   },
   {
     isoCode: 'MN',
@@ -186,33 +234,57 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "1921'de Çin'den fiili bağımsızlık kazandı; 1945 referandumunun ardından uluslararası tanınma geldi.",
     introTr:
-      'Kuzeyde Rusya, güneyde Çin ile komşu olan Moğolistan, denize kıyısı olmayan bir iç ' +
-      'Asya ülkesidir; ortalama 1.580 metre yükseklikteki geniş bir plato üzerinde yer alır. ' +
-      'Toprakların büyük bölümünü step (bozkır) örtüsü kaplar; batıda yüksek dağlar, güneyde ' +
-      'ise Gobi Çölü ülkenin manzarasını belirler.',
+      'Kuzeyde Rusya, güneyde Çin ile çevrili olan Moğolistan, denizlerden ' +
+      'binlerce kilometre uzakta yer alan bir İç Asya yayla ülkesidir. Ortalama ' +
+      '1.580 metre rakıma sahip devasa bir plato üzerinde uzanan ülke toprakları, ' +
+      'dünyanın en düşük nüfus yoğunluklarından birine sahiptir.' +
+      '\n\n' +
+      'Ülkenin kuzey orta kesiminde, Tuul Nehri vadisinde kurulu başkent Ulan ' +
+      'Batur, toplam nüfusun neredeyse yarısını barındırarak kırsaldaki göçebe ' +
+      'bozkır yaşamı ile kentsel doku arasındaki tezatı yansıtır. Topraklar ' +
+      'kuzeydeki Sibirya taygasından ortadaki sonsuz bozkırlara ve güneydeki ' +
+      "taşlık Gobi Çölü'ne doğru kesintisiz bir geçiş sergiler.",
     landformNoteTr:
-      'Ülkenin batısında, kuzeybatı-güneydoğu doğrultusunda uzanan Altay Dağları yükselir; ' +
-      'bu sıradağın Moğolistan sınırları içindeki en yüksek noktası 4.374 metrelik Höyten ' +
-      "Zirvesi'dir (Khüiten). Altay Tavan Bogd bölgesi, ülkedeki tek güncel buzullaşmanın " +
-      'görüldüğü kesimdir. Daha doğuda, orta kesimde yükselen Hangay Dağları geniş bir step ' +
-      'kuşağıyla çevrilidir. Güneyde, ülke yüzölçümünün yaklaşık üçte birini kaplayan Gobi ' +
-      'Çölü uzanır. Gobi, kum tepelerinden çok kayalık ve sarp arazi ile kaplıdır; kum ' +
-      'tepeleri yalnızca güney kesimlerinde belirginleşir.',
+      'Moğolistan topoğrafyası, batıdaki yüksek orojenik dağ sıraları ile doğuya ' +
+      've güneye doğru genişleyen dalgalı peneplen platolarından meydana gelir. ' +
+      'Batıda kuzeybatı-güneydoğu doğrultusunda uzanan sarp Altay Dağları, ' +
+      'Moğolistan, Rusya ve Çin sınırlarının birleştiği kavşakta yer alan 4.374 ' +
+      'metrelik Höyten Zirvesi (Khüiten) ile ülkenin en yüksek doruğunu oluşturur; ' +
+      'Altay Tavan Bogd masifi ülkedeki dağ buzullarının ana merkezidir.' +
+      '\n\n' +
+      'Ülkenin orta kesiminde volkanik plato kalıntılarıyla çevrili Hangay ' +
+      'Dağları, daha kuzeyde ise Rusya sınırına uzanan Hentiy Sıradağları ' +
+      'yükselir. Güney kesimde ülke alanının üçte birini kaplayan Gobi Çölü ' +
+      'uzanır; Gobi, kumullardan ziyade şiddetli rüzgar erozyonunun soyduğu ' +
+      'çakıllı, taşlık platolar ve killi çöküntü havzalarından meydana gelir.',
     climateNoteTr:
-      "Uzun ve çok soğuk kışlar, kısa yazlarla birlikte Moğolistan'a aşırı karasal bir iklim " +
-      'kazandırır; yıllık yağışın büyük bölümü bu kısa yaz döneminde düşer. Başkent Ulan ' +
-      'Batur, yıllık ortalama sıcaklığı eksi 1,3 santigrat derece ile dünyanın en soğuk ' +
-      'başkenti kabul edilir; kış geceleri sıklıkla eksi 35 santigrat derecenin altına iner. ' +
-      "Yağış kuzeyde yılda 200-350 milimetreye ulaşırken güneydeki Gobi Çölü'nde 100-200 " +
-      'milimetreye kadar düşer. Şiddetli kış koşullarının hayvancılığı vurduğu bu duruma ' +
-      'Moğolca "zud" denir ve ülkenin kırsal ekonomisini düzenli aralıklarla sarsar.',
+      "Deniz etkisine bütünüyle kapalı konumu ve yüksek rakımı, Moğolistan'da " +
+      'yeryüzünün en sert aşırı karasal iklimlerinden birini üretir. Kış aylarında ' +
+      'Orta Asya üzerinde yerleşen yüksek basınç alanı nedeniyle hava son derece ' +
+      'kuru, durgun ve dondurucudur; Ulan Batur, eksi 1,3 derecelik yıllık ' +
+      'sıcaklık ortalamasıyla dünyanın en soğuk başkenti unvanını taşır ve kış ' +
+      'geceleri eksi 40 derecenin altına inebilir.' +
+      '\n\n' +
+      'Yıllık yağış kuzeydeki dağlık ve ormanlık alanlarda 300-350 milimetre ' +
+      "civarındayken, güneydeki Gobi Çölü'nde 100 milimetrenin altına düşer ve bu " +
+      'yağışın neredeyse tamamı kısa süren yaz aylarında konvektif fırtınalarla ' +
+      'gelir. Kışın dondurucu ayazın kuraklık ve kalın buz tabakasıyla birleştiği ' +
+      've hayvanların otlaklara ulaşmasını engelleyen "zud" afetleri, kırsal ' +
+      'göçebe hayvancılık ekonomisini dönemsel olarak yıkıma uğratır.',
     hydrographyNoteTr:
-      "Moğolistan sınırları içinde tamamen akan en uzun nehir, Hangay Dağları'nda doğan ve " +
-      "1.124 kilometre sonra Selenge Nehri'ne katılan Orkun Nehri'dir. Selenge, Orkun'un da " +
-      "içinde bulunduğu kolları toplayarak kuzeye, Rusya topraklarındaki Baykal Gölü'ne akar. " +
-      'Ülkenin en büyük tatlı su gölü, kuzeyde Rusya sınırına yakın yer alan Hövsgöl ' +
-      "Gölü'dür; 262 metreye varan derinliğiyle Moğolistan'ın tatlı su rezervinin yaklaşık " +
-      "%70'ini tek başına barındırır.",
+      "Moğolistan'ın akarsuları iki ana drenaj sistemine ayrılır: Kuzey Buz " +
+      "Denizi'ne yönelen açık havza ve İç Asya'nın kapalı kurak havzaları. Hangay " +
+      "Dağları'ndan doğup kuzeye yönelen 1.124 kilometrelik Orkun Nehri, Selenge " +
+      "Nehri ile birleşerek Rusya'ya geçer ve Baykal Gölü'nü besleyen en büyük su " +
+      'kaynağını oluşturur. Doğu platolarından doğan Kerulen ve Onon nehirleri ise ' +
+      "Amur Havzası üzerinden Pasifik'e ulaşır." +
+      '\n\n' +
+      'Ülkenin kuzeybatısındaki tektonik çöküntüde yer alan Hövsgöl Gölü, 262 ' +
+      "metreye varan derinliğiyle Moğolistan'ın yüzey tatlı su rezervinin yaklaşık " +
+      "yüzde yetmişini barındırır ve Baykal Gölü'nün kardeşi sayılır. Buna " +
+      "karşılık batıdaki Göller Çöküntüsü'nde yer alan Uvs Gölü gibi kapalı " +
+      'çanaklar, yüksek buharlaşma nedeniyle sığ ve tuzlu sular barındırır; ' +
+      "güneydeki Gobi Çölü'nde ise akarsular kuma batarak sonlanır.",
   },
   {
     isoCode: 'KR',
@@ -238,29 +310,57 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "Japon işgalinden kurtuluş 15 Ağustos 1945'te gerçekleşti (resmî olarak kutlanır); Kore Cumhuriyeti 15 Ağustos 1948'de ilan edildi.",
     introTr:
-      "Kore Yarımadası'nın güney yarısını kaplayan Güney Kore'nin, batıda Sarı Deniz'e, doğuda " +
-      "Japon Denizi'ne, güneyde ise Japonya'yı ayıran Kore Boğazı'na kıyısı vardır. Tek kara " +
-      'sınırı, kuzeyde Kuzey Kore ile paylaştığı hattır. Dağlar ve tepeler, ülke topraklarının ' +
-      'yaklaşık dörtte üçünü oluşturur.',
+      "Kore Yarımadası'nın güney yarısında yer alan Güney Kore; batıda Sarı " +
+      'Deniz, doğuda Japon Denizi (Doğu Denizi) ve güneyde Kore Boğazı ile çevrili ' +
+      'bir kıyı devletidir. Tek kara sınırını kuzeyde, yarımadayı ikiye bölen ' +
+      'askerden arındırılmış bölge boyunca Kuzey Kore ile paylaşır.' +
+      '\n\n' +
+      'Ülkenin kuzeybatısında Han Nehri havzasında kurulu başkent Seul ve ' +
+      'çevresindeki metropoliten alan, ülke nüfusunun yaklaşık yarısını ve sanayi ' +
+      'gücünü barındırır. Toprakların yaklaşık dörtte üçü engebeli tepeler ve ' +
+      'dağlarla kaplı olmasına karşın, nüfus ve tarımsal faaliyet batı ve ' +
+      'güneydeki kıyı ovalarında toplanmıştır.',
     landformNoteTr:
-      'Ülkenin doğu kıyısı boyunca, yaklaşık 500 kilometre uzunluğunda bir sırt oluşturan ' +
-      "Taebaek Dağları uzanır; bu sıradağın doğu yamacı Japon Denizi'ne dik bir fay hattıyla " +
-      'iner, batı yamacı ise çok daha kademelidir. Seorak Dağı (1.708 m) bu sıradağın en ' +
-      'tanınmış zirvelerindendir. Ülkenin en yüksek noktası ise anakaradan ayrı, Kore ' +
-      "Boğazı'ndaki Jeju Adası'nı oluşturan bir kalkan volkanı olan 1.950 metrelik Halla " +
-      "Dağı'dır (Hallasan). Batı ve güney kıyılarında, nüfusun ve tarımın yoğunlaştığı geniş " +
-      've alçak ovalar yer alır.',
+      "Güney Kore'nin morfolojik omurgasını, doğu kıyısı boyunca kuzey-güney " +
+      'ekseninde 500 kilometre uzanan Taebaek Dağları belirler. Bu sıradağ ' +
+      'yarımadaya belirgin bir asimetri kazandırır: doğu yamaçları derin fay ' +
+      "hatlarıyla Japon Denizi'ne dik bir şekilde inerken, batı yamaçları kademeli " +
+      'olarak alçalarak geniş vadilere ve kıyı düzlüklerine açılır. Seorak Dağı ' +
+      '(1.708 m), granitik kuleleri ve sarp kanyonlarıyla bu sıradağın en belirgin ' +
+      'kesimidir.' +
+      '\n\n' +
+      'Ülkenin en yüksek doruğu ana karada değil, güney açıklarındaki volkanik ' +
+      "Jeju Adası'nda yükselen 1.950 metrelik kalkan volkanı Halla Dağı'dır " +
+      '(Hallasan). Sarı Deniz ve güney kıyıları ise binlerce girinti, koy, ada ve ' +
+      'geniş gelgit düzlüğü (getbol) barındıran son derece girintili çıkıntılı bir ' +
+      'ria tipi kıyı yapısına sahiptir; tarımsal üretimin omurgasını oluşturan ' +
+      'geniş pirinç ovaları bu batı havzalarındadır.',
     climateNoteTr:
-      "Seul'ün de içinde bulunduğu orta ve kuzey kesimde, kışın kuru ve soğuk, yazın sıcak ve " +
-      "nemli geçtiği nemli karasal iklim görülür. Güney kıyısı ve Jeju Adası'nda ise kışları " +
-      'daha ılıman, nemli subtropikal iklim egemendir. Ülke genelinde dört mevsim belirgindir; ' +
-      'Haziran sonu ile Temmuz sonu arasında Doğu Asya musonunun getirdiği yoğun yağışlı ' +
-      'döneme "jangma" denir, yaz sonuna doğru ise tayfunlar etkili olur.',
+      'Kıta Asyası ile Pasifik Okyanusu arasındaki geçiş konumunda yer alan ' +
+      'ülkede belirgin dört mevsim yaşanır. Kış mevsiminde Sibirya antisiklonunun ' +
+      'getirdiği kuru ve soğuk kuzeybatı rüzgarları Seul ve iç kesimlerde ' +
+      "sıcaklıkları sıfırın altına çekerken, kar yağışları Taebaek Dağları'nın " +
+      'yükseklerinde yoğunlaşır.' +
+      '\n\n' +
+      'Yazlar Doğu Asya musonunun etkisiyle sıcak ve yoğun nemli geçer; haziran ' +
+      'sonundan temmuz sonuna kadar süren ve "jangma" adı verilen muson cephesi ' +
+      'yıllık yağışın büyük kısmını getirir. Güney kıyıları ve Jeju Adası kışları ' +
+      'çok daha ılıman geçen nemli subtropikal iklim özellikleri sergilerken, yaz ' +
+      'sonu ve erken sonbaharda güneyden sokulan tropikal tayfunlar kıyı ' +
+      'kesimlerinde şiddetli fırtına ve taşkınlara neden olur.',
     hydrographyNoteTr:
-      "Güney Kore'nin en uzun nehri, Taebaek Dağları'ndan doğup Kore Boğazı'na dökülen 506 " +
-      "kilometrelik Nakdong Nehri'dir; Daegu ve Busan kentlerinden geçer. Kollarından biri " +
-      "Taebaek Dağları'na yakın bir kaynaktan doğan 494 kilometrelik Han Nehri ise başkent " +
-      "Seul'ün içinden akarak Sarı Deniz'e ulaşır.",
+      'Yarımadanın doğudan batıya alçalan topoğrafik eğimi nedeniyle ana ' +
+      "akarsuların neredeyse tamamı batıya Sarı Deniz'e veya güneye Kore Boğazı'na " +
+      "doğru akar. Taebaek Dağları'ndan doğup güneye yönelen 506 kilometrelik " +
+      'Nakdong Nehri, ülkenin en uzun akarsuyu olup Daegu ve Busan sanayi ' +
+      'havzalarını besler.' +
+      '\n\n' +
+      "Başkent Seul'ün kalbinden geçen 494 kilometrelik Han Nehri, Kuzey ve Güney " +
+      'kollarının birleşmesiyle oluşur ve yoğun nüfuslu başkent bölgesinin içme ve ' +
+      'sanayi suyu ihtiyacını karşılar. Ülke genelinde akarsu rejimleri muson ' +
+      'yağışlarına bağlı olarak yüksek debi dalgalanmaları gösterdiğinden, su ' +
+      'yönetimini sağlamak ve taşkınları önlemek amacıyla nehir havzalarında çok ' +
+      'sayıda baraj ve bent inşa edilmiştir.',
   },
   {
     isoCode: 'KP',
@@ -285,37 +385,54 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Tek parti sosyalist cumhuriyet',
     independenceNoteTr: "9 Eylül 1948'de kuruldu (Japon işgalinden kurtuluş 1945).",
     introTr:
-      "Kore Yarımadası'nın kuzey yarısını kaplayan Kuzey Kore, kuzeybatıda Yalu Nehri boyunca " +
-      "Çin'e, kuzeydoğuda kısa bir hatta Tuman Nehri boyunca Rusya'ya komşudur; güneyde ise " +
-      'Güney Kore ile 250 kilometre uzunluğunda, yaklaşık 4 kilometre genişliğindeki ' +
-      "askerden arındırılmış bölge (DMZ) ile ayrılır — 1953 Kore Ateşkes Anlaşması'yla " +
-      "kurulan bu hat, 38. paralele açılı biçimde kesişir. Batıda Kore Körfezi'ne (Sarı " +
-      "Deniz'in bir kolu), doğuda Japon Denizi'ne kıyısı vardır. Yüzölçümünün yaklaşık %80'i " +
-      'dağlık ve tepeliktir.',
+      "Kore Yarımadası'nın kuzey bölümünü kaplayan Kuzey Kore; kuzeybatıda Yalu " +
+      'Nehri boyunca Çin ile, kuzeydoğuda Tuman Nehri üzerinde Rusya ile komşudur. ' +
+      'Güneyde ise 1953 ateşkesiyle oluşturulan yaklaşık 250 kilometre uzunluğunda ' +
+      've 4 kilometre genişliğindeki Askerden Arındırılmış Bölge (DMZ) ile Güney ' +
+      "Kore'den ayrılır." +
+      '\n\n' +
+      "Batıda Kore Körfezi'ne, doğuda Japon Denizi'ne bakan ülkenin başkenti " +
+      'Pyongyang, batı kıyı ovalarını sulayan Taedong Nehri havzasında kuruludur. ' +
+      'Yüzölçümünün yaklaşık yüzde sekseni dağlık ve sarp arazilerden oluştuğu ' +
+      'için yerleşim alanları ve kısıtlı tarım arazileri dar kıyı şeritleri ile ' +
+      'nehir vadilerinde sıkışmıştır.',
     landformNoteTr:
-      'Ülkenin en yüksek noktası, Çin sınırında yükselen aktif bir stratovolkan olan 2.744 ' +
-      "metrelik Paektu Dağı'dır (Baekdu); zirvesindeki kalderada, Songhua, Tuman ve Yalu " +
-      "nehirlerinin kaynağını oluşturan Cennet Gölü yer alır. Paektu'nun güneyinde, Kore'nin " +
-      'en geniş yaylası olan ve "Kore\'nin çatısı" diye anılan Kaema Platosu uzanır; 700-2.000 ' +
-      'metre yükseklikte, yaklaşık 40.000 kilometrekarelik bir alanı kaplar. Platonun batısını, ' +
-      'ülkenin ortasından kuzey-güney doğrultusunda uzanan ve yarımadanın doğu ve batı ' +
-      'yamaçlarını birbirinden ayıran Rangnim Dağları (güney lehçesinde Nangnim olarak da ' +
-      'telaffuz edilir) çevreler; doğusunu ise Hamgyong Dağları sınırlar. Kıyı ovaları ' +
-      "dardır; en geniş düzlükler batıda, Sarı Deniz'e bakan kesimdedir.",
+      'Kuzey Kore topoğrafyasının çatısını, Çin sınırında yükselen aktif ' +
+      'stratovolkan Paektu Dağı (2.744 m) oluşturur; zirvesindeki derin kalderada ' +
+      'yer alan Cennet Gölü, hem tarihi-kültürel bir sembol hem de bölgedeki büyük ' +
+      "akarsuların kaynağıdır. Paektu'nun güneyinde uzanan 700 ila 2.000 metre " +
+      'rakımlı bazaltik Kaema Platosu, sert iklimi ve yoğun ormanlarıyla ' +
+      'yarımadanın en yüksek yaylasıdır.' +
+      '\n\n' +
+      'Ülkenin iç kesimini kuzeyden güneye kesen Rangnim Dağları, yarımadanın ' +
+      'doğu ve batı drenaj havzalarını birbirinden ayıran ana su bölümü çizgisini ' +
+      'çizer. Doğu kıyısında sarp Hamgyong Sıradağları denize dik inerken, batıda ' +
+      "Sarı Deniz'e açılan geniş alüvyal düzlükler ve alçak tepeler ülkenin temel " +
+      'tahıl üretim kuşağını meydana getirir.',
     climateNoteTr:
-      "Kuzey Kore'de yazları ılık, kışları soğuk ve kurak geçen nemli karasal iklim egemendir. " +
-      'Sibirya kaynaklı kuzey ve kuzeybatı rüzgârları kışın uzun süreli soğuk dalgaları ' +
-      'getirir; kış sıcaklıkları güneyde yaklaşık eksi 7, Kaema Platosu gibi yüksek kuzey ' +
-      'kesimlerinde ise eksi 23 santigrat dereceye kadar düşebilir. Yaz yağışlarının büyük ' +
-      'bölümü Haziran-Eylül arasında, Doğu Asya musonuyla birlikte gelir.',
+      'Kuzey Kore iklimi, Sibirya kara kütlesine yakınlığı nedeniyle güneye ' +
+      'kıyasla çok daha sert ve karasaldır. Kış aylarında kuzeybatıdan esen ' +
+      'dondurucu Sibirya rüzgarları sıcaklıkları belirgin biçimde düşürür; iç ' +
+      "kesimlerdeki Kaema Platosu'nda termometreler sıklıkla eksi 20 derecenin " +
+      'altına inerken, kıyılarda deniz etkisiyle soğuklar bir nebze yumuşar.' +
+      '\n\n' +
+      'Yaz mevsimi Doğu Asya musonunun getirdiği sıcak ve nemli hava kütlelerinin ' +
+      'etkisi altındadır; yıllık yağışın yarısından fazlası haziran ile eylül ' +
+      'ayları arasındaki yoğun sağanaklarla düşer. Kısa süren büyüme mevsimi, kış ' +
+      'donları ve yaz aylarındaki ani taşkınlar, ülkenin dağlık morfolojisiyle ' +
+      'birleşerek tarımsal verimlilik üzerinde belirleyici bir baskı kurar.',
     hydrographyNoteTr:
-      "Çin sınırını çizen Yalu Nehri (Amnok), Paektu Dağı'nda doğar ve yaklaşık 790 kilometre " +
-      "sonra Kore Körfezi'ne dökülür; kışın dört ay boyunca donarak gemi trafiğine kapanır. " +
-      'Rusya sınırının bir bölümünü oluşturan 521 kilometrelik Tuman Nehri de kaynağını ' +
-      "Paektu'nun eteklerinden alır ve Japon Denizi'ne ulaşır. Ülke sınırları içinde tamamen " +
-      "akan en önemli nehir, Rangnim Dağları'nda doğup başkent Pyongyang'ın içinden geçerek " +
-      "Nampo'da Kore Körfezi'ne dökülen 439 kilometrelik Taedong Nehri'dir; derinliği " +
-      'sayesinde iç kesimlere kadar gemi taşımacılığına elverişlidir.',
+      'Ülkenin kuzey sınırlarını çizen iki büyük akarsu Paektu Dağı eteklerinden ' +
+      "doğar: 790 kilometrelik Yalu (Amnok) Nehri batıya akarak Kore Körfezi'ne " +
+      'dökülürken kış aylarında donarak hidroelektrik barajlarıyla enerji üretir; ' +
+      "521 kilometrelik Tuman Nehri ise doğuya yönelip Japon Denizi'ne ulaşır." +
+      '\n\n' +
+      "Ülke sınırları içinde tamamen akan en hayati nehir, Rangnim Dağları'ndan " +
+      "doğup başkent Pyongyang'ın içinden geçerek Nampo'da denize dökülen 439 " +
+      "kilometrelik Taedong Nehri'dir. Nehrin Nampo ağzındaki Batı Denizi Barajı " +
+      '(Nampo Barajı), deniz suyu girişini engelleyerek arkasındaki geniş havzaya ' +
+      'sulama ve içme suyu temin eder; nehir yatağı iç kesimlere kadar mavna ' +
+      'taşımacılığına olanak tanır.',
   },
   {
     isoCode: 'KZ',
@@ -340,40 +457,58 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "16 Aralık 1991'de Sovyetler Birliği'nden bağımsız oldu.",
     introTr:
-      'Kazakistan, dünyanın kıyısı olmayan en büyük ülkesidir — bu unvanı, batı sınırını ' +
-      "oluşturan Hazar Denizi'nin kapalı bir iç deniz sayılmasına borçludur. Ülke " +
-      'toprakları batıdan doğuya üç farklı coğrafi kuşağa ayrılır: Hazar Çukurluğu, ' +
-      'ortadaki geniş bozkır ve çöller, doğudaki yüksek dağlar. Rusya, Çin, Kırgızistan, ' +
-      'Özbekistan ve Türkmenistan ile sınır komşusudur.',
+      "Avrasya'nın kalbinde yer alan Kazakistan, dünyanın açık denizlere kıyısı " +
+      'olmayan en geniş ülkesidir; batı sınırını kapalı bir havza olan Hazar ' +
+      'Denizi belirler. Rusya, Çin, Kırgızistan, Özbekistan ve Türkmenistan ile ' +
+      "çevrili olan ülke, batıda Doğu Avrupa ovalarından doğuda Altay Dağları'na " +
+      'kadar uzanan devasa bir coğrafyayı kaplar.' +
+      '\n\n' +
+      'Ülkenin kuzeyindeki rüzgarlı İşim Nehri bozkırlarında kurulan modern ' +
+      "başkent Astana, 1997'de güneydeki Almatı'dan taşınarak ülkenin Avrasya " +
+      'eksenindeki jeopolitik merkez üssü haline gelmiştir. Nüfusun büyük bölümü, ' +
+      'tarıma elverişli kuzey bozkır kuşağında ve güneydeki dağ etekleri boyunca ' +
+      'uzanan verimli vaha şeritlerinde yerleşiktir.',
     landformNoteTr:
-      "Hazar Çukurluğu'ndaki Karagiye Çöküntüsü, ülkenin en alçak kesimidir; çöküntünün " +
-      'Kaundı adı verilen en derin noktası deniz seviyesinin yaklaşık 132 metre altına ' +
-      "iner. Orta Kazakistan'ı, dünyanın en büyük kurak bozkır bölgesi olan Kazak Bozkırı " +
-      'kaplar — ülke yüzölçümünün üçte birinden fazlasını oluşturan bu düzlüğün güneyinde, ' +
-      'Balkaş Gölü ile Sarısu Nehri arasında Betpak-Dala (Aç Bozkır) çölü uzanır. Doğuda ' +
-      'arazi hızla yükselir: Kırgızistan ve Çin sınırının kesiştiği noktada Tanrı ' +
-      "Dağları'nda (Tien Shan) yükselen 7.010 metrelik Han Tengri, ülkenin en yüksek " +
-      'noktasıdır ve dünyanın en kuzeydeki 7.000 metre üzeri zirvesi kabul edilir.' +
+      'Kazakistan topoğrafyası, batıdaki derin tektonik çöküntülerden doğudaki ' +
+      '7.000 metrelik sarp orojenik zirvelere kadar büyük tezatlar barındırır. ' +
+      'Hazar kıyısındaki Karagiye Çöküntüsü, deniz seviyesinin 132 metre altına ' +
+      'inerek kıtanın en alçak noktalarından birini oluşturur. Ülkenin orta ' +
+      'kuşağını, batıdan doğuya binlerce kilometre uzanan ve gezegenin en geniş ' +
+      'kurak otlak alanını oluşturan Kazak Bozkırı ile güneyindeki Betpak-Dala (Aç ' +
+      'Bozkır) çölü kaplar.' +
       '\n\n' +
-      "Kuzeydoğuda, Rusya sınırındaki Altay Dağları'nın en yüksek noktası 4.506 metrelik " +
-      "Beluha Dağı'dır; bu iki dağ kuşağı, ortadaki bozkır ve çöllerle keskin bir yükselti " +
-      'farkı oluşturur.',
+      'Doğu ve güneydoğu sınırlarında yeryüzü hızla dikleşir: Kırgızistan ve Çin ' +
+      "sınırında yükselen Tanrı Dağları'nın (Tien Shan) 7.010 metrelik piramidal " +
+      'zirvesi Han Tengri, ülkenin en yüksek doruğudur. Kuzeydoğuda ise Rusya ' +
+      'sınırındaki Altay Dağları ve 4.506 metrelik Beluha Dağı masifi, geniş ' +
+      'bozkırların ardından sarp buzul vadileri ve tayga ormanlarıyla yükselir.',
     climateNoteTr:
-      "Yaz aylarında güneyde 49°C'ye ulaşabilen sıcaklıklar, kışın kuzeyde -57°C'ye kadar " +
-      "düşebilir — Kazakistan'ın iklimi, dünyanın denizden en uzak bölgelerinden birine " +
-      'özgü, aşırı karasaldır. Yağış bölgeye göre büyük farklılık gösterir: dağ eteklerinde ' +
-      'yılda 500-1.600 milimetreye ulaşırken, bozkırlarda 200-500 milimetreye, çöllerde ise ' +
-      '100-200 milimetreye kadar düşer. Kısa ve sıcak geçen yazların ardından, kar örtülü ' +
-      'uzun kışlar gelir.',
-    hydrographyNoteTr:
-      "Kazakistan'ın en uzun akarsuyu, Rusya'ya geçerek Ob Nehri'ne katılan 4.248 " +
-      "kilometrelik İrtiş'tir. Çin'de doğup ülkenin güneydoğusundan geçen İli Nehri ise " +
-      "Balkaş Gölü'ne dökülür; Balkaş, dünyanın nadir göllerinden biridir — bir boğazla " +
-      'ayrılan batı yarısı tatlı su, doğu yarısı ise tuzludur.' +
+      'Okyanuslardan binlerce kilometre uzakta yer alması ve açık topoğrafik ' +
+      "yapısı, Kazakistan'a ekstrem bir karasal iklim kazandırır. Kış aylarında " +
+      'kuzeyden serbestçe giren arktik hava kütleleri nedeniyle sıcaklıklar ' +
+      'kuzeyde eksi 50 derecelere kadar gerilerken, güney çöllerinde yaz ' +
+      'sıcaklıkları gölgede 45 derecenin üzerine çıkabilir.' +
       '\n\n' +
-      "Kuzey Aral Denizi'nin Kazakistan sınırları içinde kalan bölümü, 2005'te tamamlanan " +
-      'Kokaral Barajı sayesinde kısmen geri kazanıldı; baraj, kuzeydeki suyu güneydeki daha ' +
-      'tuzlu ve kirli bölümden ayırarak su hacminde belirgin bir artışa yol açtı.',
+      'Yağış dağılımı coğrafi kuşaklara göre keskin biçimde ayrışır: Kuzeydeki ' +
+      'tahıl kuşağı bozkırlarında yıllık 300-400 milimetre olan yağış, güneydeki ' +
+      'çöl alanlarında 100 milimetrenin altına inerken, güneydoğudaki yüksek dağ ' +
+      'eteklerinde 1.000 milimetreyi aşabilir. İlkbaharda karların hızla ' +
+      'erimesiyle nehirlerde taşkınlar görülür; bozkırlarda yıl boyu esen sert ' +
+      'rüzgarlar kışın tipiye, yazın ise toz fırtınalarına dönüşür.',
+    hydrographyNoteTr:
+      'Ülkenin ana akarsuları farklı okyanus ve kapalı havzalara dağılır. ' +
+      "Kaynağını Çin'deki Altay eteklerinden alan ve kuzeye yönelerek Ob Nehri " +
+      "üzerinden Kuzey Buz Denizi'ne ulaşan 4.248 kilometrelik İrtiş Nehri, " +
+      "Kazakistan'ın en uzun ve debisi en yüksek akarsuyudur. Güneydoğuda Çin'den " +
+      "gelen İli Nehri ise sığ ve tuzlu deltalar oluşturarak Balkaş Gölü'ne " +
+      'dökülür.' +
+      '\n\n' +
+      "Orta Asya'nın en özgün su kütlelerinden Balkaş Gölü, dar bir boğazla " +
+      'ayrılan batı yarısında tatlı, doğu yarısında ise tuzlu su barındıran ikili ' +
+      'kimyasal yapısıyla dünyada nadir bir örnektir. Güneybatıda Sovyet dönemi ' +
+      "sulama projeleri yüzünden kuruyan Aral Denizi'nin Kazakistan sınırlarında " +
+      'kalan kuzey parçası, 2005 yılında tamamlanan Kokaral Barajı sayesinde ' +
+      'toparlanmış ve su seviyesi korunarak balıkçılık yeniden canlandırılmıştır.',
   },
   {
     isoCode: 'KG',
@@ -398,36 +533,60 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "31 Ağustos 1991'de Sovyetler Birliği'nden bağımsız oldu.",
     introTr:
-      'Kırgızistan yüzölçümünün büyük bölümü 1.000 metrenin üzerinde yer alır; ülkenin ' +
-      "ortalama yükseltisi 2.750 metreye ulaşır ve bu, Kırgızistan'ı dünyanın en dağlık " +
-      'ülkelerinden biri yapar. Kazakistan, Özbekistan, Tacikistan ve Çin ile komşu olan ' +
-      "ülke, doğusunda Tanrı Dağları'nın (Tien Shan), güneyinde ise Pamir-Alay sisteminin " +
-      'bir parçasıdır.',
+      "Orta Asya'nın kalbinde yükselen Kırgızistan; topraklarının yüzde " +
+      'doksanından fazlası deniz seviyesinden bin metre yukarıda yer alan, ' +
+      'ortalama 2.750 metre rakımıyla dünyanın en yüksek ülkelerinden biridir. ' +
+      'Kuzeyde Kazakistan, batıda Özbekistan, güneyde Tacikistan ve doğuda Çin ile ' +
+      'çevrili olup Tanrı Dağları (Tien Shan) ve Pamir-Alay sistemlerinin ' +
+      'kavşağında konumlanır.' +
+      '\n\n' +
+      "Kuzeyde Kazakistan sınırına yakın Çuy Vadisi'nde kurulu başkent Bişkek, " +
+      'ülkenin idari ve kültürel merkezidir. Dağ silsileleriyle birbirinden ' +
+      'ayrılan derin vadiler ve tektonik çöküntüler, yerleşimi parçalı bir yapıya ' +
+      'kavuşturmuş; geleneksel yaylacılık ve vaha tarımı nüfusun mekânsal ' +
+      'dağılımını belirlemiştir.',
     landformNoteTr:
-      'Tanrı Dağları, ülke topraklarının büyük bölümünü kaplar ve doğuda Çin sınırındaki ' +
-      "Kakşaal-Too sırasında, 7.439 metrelik Cengiş Çokusu'nda (Pobeda Zirvesi) doruğa " +
-      "ulaşır — bu zirve Kırgızistan'ın ve tüm Tanrı Dağları sisteminin en yüksek " +
-      'noktasıdır. Güneyde, Pamir-Alay sistemine bağlı Alay Vadisi çevresinde, 7.134 ' +
-      'metrelik Lenin Zirvesi yükselir.' +
+      "Kırgızistan'ın yer şekillerini, Avrasya ile Hindistan levhalarının " +
+      'tektonik sıkışmasıyla yükselen genç ve sarp Tanrı Dağları belirler. Doğuda ' +
+      'Çin sınırındaki Kakşaal-Too sırasında yükselen 7.439 metrelik Cengiş Çokusu ' +
+      '(Pobeda Zirvesi), ülkenin ve tüm Tanrı Dağları sisteminin en yüksek ' +
+      'doruğudur. Bu dev masifin hemen kuzeyinde, mermer piramidi andıran 7.010 ' +
+      'metrelik kutsal Han Tengri yükselir; güneyde ise Pamir sınırındaki Alay ' +
+      'Vadisi boyunca 7.134 metrelik Lenin Zirvesi uzanır.' +
       '\n\n' +
-      "Batıda, Fergana Vadisi'nin Oş çevresindeki uzantısında yükselti 400 metrenin " +
-      "altına düşer — Kırgızistan'ın en alçak ve tarımsal açıdan en yoğun kullanılan " +
-      'bölgesi burasıdır.',
+      'Yüksek zirveleri çevreleyen buzul vadileri ve yüksek yaylalar (sırtlar), ' +
+      'batıya doğru alçalarak vadi tabanlarına açılır. Batı sınırında yer alan ve ' +
+      'deniz seviyesinden yaklaşık 400 metreye kadar inen Fergana Vadisi uzantısı ' +
+      'ile Oş çevresi, engebeli dağ ülkesinin en alçak, en ılıman ve tarımsal ' +
+      'açıdan en yoğun nüfuslu havzasıdır.',
     climateNoteTr:
-      'Herhangi bir büyük su kütlesinin ılımanlaştırıcı etkisinden yoksun olan ' +
-      "Kırgızistan'da iklimi belirleyen temel etken yükseltidir. Vadi tabanlarında yazlar " +
-      'sıcak ve kurak geçerken, yüksek dağ kesimlerinde yıl boyu kar ve buzul örtüsü ' +
-      'kalıcıdır. Kışlar, özellikle iç kesimlerdeki yüksek platolarda uzun ve şiddetli ' +
-      'olabilir; ilkbahar ve sonbahar geçişleri kısa sürer.',
-    hydrographyNoteTr:
-      "Orta Tanrı Dağları'ndaki buzullardan beslenen Narın Nehri, ülkeyi doğudan batıya " +
-      "kat ederek Fergana Vadisi'ne yönelir ve burada Özbekistan topraklarına geçerek " +
-      "Sirderya'yı oluşturur; 535 kilometrelik uzunluğuyla ülkenin sulama ve hidroelektrik " +
-      'üretiminin omurgasını oluşturur.' +
+      'Denizlerden uzak kapalı konumu ve dik irtifa basamakları, ülkede sert ' +
+      'karasal iklim koşullarını hakim kılar. Sıcaklık ve nem değerleri vadilerden ' +
+      'zirvelere doğru hızla değişir; alçak vadi tabanlarında yazlar sıcak ve ' +
+      'kurak geçerken, 3.000 metrenin üzerindeki yaylalarda yaz aylarında dahi ' +
+      'gece donları yaşanır ve yüksek doruklar yıl boyu kalıcı buzullarla kaplı ' +
+      'kalır.' +
       '\n\n' +
-      'Doğuda, deniz seviyesinden yaklaşık 1.600 metre yükseklikte yer alan Isık-Göl, ' +
-      'dünyanın en büyük ikinci dağ gölüdür. Tuzlu suyu nedeniyle kışın donmaz — adı da ' +
-      'Kırgızcada "sıcak göl" anlamına gelir.',
+      'Kış mevsimi özellikle iç çöküntü havzalarında ve yüksek platolarda ' +
+      'dondurucu soğuklar ve yoğun kar örtüsüyle geçer; vadilerde sıcaklık ' +
+      'terselmesi (enversiyon) sıkça görülür. Batıdan gelen hava kütlelerine açık ' +
+      'dağ yamaçları yılda 1.000 milimetreye varan yağış alırken, yüksek dağların ' +
+      'kuytusunda kalan kapalı çanaklar yıllık 200 milimetrenin altında kalarak ' +
+      'yarı kurak bozkır niteliği kazanır.',
+    hydrographyNoteTr:
+      "Kırgızistan'ın yüksek dağ buzulları, tüm Orta Asya için hayati birer doğal " +
+      'tatlı su deposu ve hidrolojik güç kaynağıdır. Orta Tanrı Dağları ' +
+      'buzullarından beslenen 535 kilometrelik Narın Nehri, ülkeyi doğudan batıya ' +
+      "derin kanyonlar boyunca geçerek Fergana Vadisi'ne iner ve Kara Derya ile " +
+      "birleşip Sirderya'yı oluşturur; nehir üzerindeki Toktogul Barajı ülkenin " +
+      'elektrik üretiminin merkezidir.' +
+      '\n\n' +
+      'Ülkenin kuzeydoğusunda, 1.607 metre irtifada görkemli karlı dağlarla ' +
+      'çevrili Isık-Göl, dünyanın en büyük ikinci yüksek irtifa dağ gölüdür. 668 ' +
+      'metre derinliğe ulaşan bu tektonik kapalı göl, hafif tuzlu yapısı ve ' +
+      'tabandaki termal hareketlilik sayesinde dondurucu kış aylarında bile asla ' +
+      'donmaz; Kırgızcada "sıcak göl" anlamına gelen adını da bu özelliğinden ' +
+      'alır.',
   },
   {
     isoCode: 'TJ',
@@ -452,39 +611,60 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "9 Eylül 1991'de Sovyetler Birliği'nden bağımsız oldu.",
     introTr:
-      'Tacikistan topraklarının neredeyse tamamı Pamir ve Alay dağ sistemlerinin bir ' +
-      'parçasıdır; yüzeyin yarısından fazlası 3.000 metrenin üzerinde yer alır. Bu dağlık ' +
-      "yapı, Orta Asya'nın en yüksek ortalama rakımına sahip ülkesini oluşturur. " +
-      'Kuzeyde Kırgızistan, batıda Özbekistan, güneyde Afganistan, doğuda ise Çin ile ' +
-      'komşudur.',
+      "Orta Asya'nın güneydoğusunda yer alan Tacikistan; topraklarının yüzde " +
+      'doksan üçü dağlarla kaplı, yarısından fazlası ise 3.000 metrenin üzerinde ' +
+      'bulunan son derece sarp bir yayla devletidir. Kuzeyde Kırgızistan, batıda ' +
+      'Özbekistan, güneyde Afganistan ve doğuda Çin ile sınır komşusudur.' +
+      '\n\n' +
+      "Ülkenin batısında, Hissar Sıradağları'nın güney eteklerindeki verimli " +
+      'vadide kurulu başkent Duşanbe, nüfusun ve ekonomik üretimin ana merkezidir. ' +
+      'Sarp dağ sıraları kış aylarında bölgeler arasındaki kara ulaşımını ' +
+      'güçleştirirken, nüfus güneybatıdaki nehir vadilerinde ve kuzeyde Fergana ' +
+      "Havzası'na açılan Sugd bölgesinde yoğunlaşmıştır.",
     landformNoteTr:
-      'Ülkenin doğu yarısını kaplayan Pamir Dağları, sivri zirvelerden çok, 4.000-4.500 ' +
-      'metre yükseklikte geniş platolardan oluşur — bu özelliği nedeniyle bölgeye ' +
-      '"Dünyanın Damı" da denir. ' +
-      "Pamir'in kuzeybatı ucunda 7.495 metreye yükselen İsmail " +
-      "Somoni Zirvesi (eski adlarıyla Stalin ve Komünizm Zirvesi), Tacikistan'ın en " +
-      'yüksek noktasıdır; bu yükseklik, eski Sovyetler Birliği topraklarının tamamında ' +
-      'da aşılmamıştır.' +
+      'Tacikistan yeryüzü şekilleri, Avrasya levhasının en yüksek düğüm noktası ' +
+      'olan Pamir ve Alay dağ sistemlerinin hakimiyeti altındadır. Ülkenin doğu ' +
+      'yarısını kaplayan ve "Dünyanın Çatısı" olarak bilinen Pamir Dağları, ' +
+      'ortalama 4.000 metrenin üzerindeki yüksek ve rüzgarlı soğuk platolardan ' +
+      'meydana gelir. Bu sistemin kuzeybatısında yükselen 7.495 metrelik İsmail ' +
+      "Somoni Zirvesi (eski Komünizm Zirvesi), hem Tacikistan'ın hem de eski " +
+      'Sovyetler Birliği coğrafyasının en yüksek doruğudur.' +
       '\n\n' +
-      'Pamir, dünyanın kutup bölgeleri dışındaki en büyük buzulu olan, 77 kilometre ' +
-      "uzunluğundaki Fedçenko Buzulu'na ev sahipliği yapar. Ülkenin batısında, dağlar " +
-      'arasındaki dar vadiler boyunca nüfusun büyük bölümü yaşar; bu vadilerin en genişi, ' +
-      'güneybatıdaki Vahş ve Hisor ovalarıdır.',
+      'Pamir masifi, kutup bölgeleri haricinde dünyanın en uzun vadi buzulu olan ' +
+      '77 kilometrelik Fedçenko Buzulu da dahil olmak üzere binlerce buzul ' +
+      'kütlesine ev sahipliği yapar. Ülkenin batısına doğru dağlar kollara ' +
+      'ayrılarak derin kanyonlar açar; güneybatıdaki Vahş ve Hissar vadileri ile ' +
+      'kuzeydeki Soğd düzlükleri, dik yamaçlar arasında sıkışmış en önemli alüvyal ' +
+      'tarım sahalarını oluşturur.',
     climateNoteTr:
-      "Tacikistan'da iklim, birkaç on kilometrelik mesafede subtropikalden kutup benzeri " +
-      'koşullara geçebilecek kadar keskin bir yükselti gradyanı izler. Dağlık kesimler ' +
-      'yılda 1.500 milimetreyi bulan bir yağış alır; ovalarda bu rakam 100 milimetrenin ' +
-      'bile altındadır. Batıdaki alçak vadilerde yazlar sıcak ve uzun sürerken, yüksek ' +
-      'Pamir platolarında yıl boyu don ve kar hakimdir.',
-    hydrographyNoteTr:
-      "Pamir'in doğusundan gelen Pyanc (Panj) ile kuzeyden inen Vahş nehirleri, ülkenin " +
-      "güneyinde birleşerek Amu Derya'yı oluşturur; Vahş tek başına Amu Derya'nın toplam " +
-      'akışının yaklaşık dörtte birini sağlar. Vahş üzerindeki Nurek Barajı, dünyanın en ' +
-      'yüksek barajlarından biridir ve ülke elektriğinin büyük bölümünü üretir.' +
+      "Tacikistan'da iklim, kısa mesafelerde yüzlerce metre değişen irtifaya " +
+      'bağlı olarak dramatik farklılıklar gösterir. Güneybatıdaki alçak nehir ' +
+      'vadilerinde yazlar uzun, kurak ve kavurucu geçerken, sıcaklıklar sıklıkla ' +
+      '40 derecenin üzerine çıkar. Doğu Pamir platolarında ise neredeyse hiç yaz ' +
+      'yaşanmaz; yıl boyu sert ayazların ve don olaylarının hüküm sürdüğü kutup ' +
+      'benzeri soğuk çöl koşulları egemendir.' +
       '\n\n' +
-      "Tacikistan'ın binlerce buzulu, Amu Derya ve Sirderya havzalarının en önemli su " +
-      'kaynağıdır — bu buzullar, kurak ovalara mevsimsel olarak su sağlayan doğal birer ' +
-      'rezervuar işlevi görür.',
+      'Yağış dağılımı da dağların bakı ve konumuna göre şekillenir: Akdeniz ' +
+      'kökenli nemli hava akımlarına açık batı yamaçları yılda 1.000 ila 1.500 ' +
+      'milimetreye varan bol kar ve yağmur alırken, yüksek duvarların ardında ' +
+      'kalan kapalı Doğu Pamir havzalarında yıllık yağış 100 milimetrenin altına ' +
+      'düşer. İlkbahar ve yaz aylarında eriyen karlar ile şiddetli sağanaklar dağ ' +
+      'yamaçlarında yıkıcı çamur akıntılarına (sel) ve heyelanlara yol açar.',
+    hydrographyNoteTr:
+      "Tacikistan, zengin buzul kaynakları sayesinde Orta Asya'nın ana su kulesi " +
+      'konumundadır ve bölgenin akarsu akışının yarısından fazlasını üretir. ' +
+      'Afganistan sınırını çizen Pyanc (Panj) Nehri ile Pamir buzullarından ' +
+      "beslenen sarp Vahş Nehri güneybatıda birleşerek Aral Havzası'nın can damarı " +
+      "olan Amu Derya'yı meydana getirir. Vahş Nehri üzerinde kurulu 300 metre " +
+      'yüksekliğindeki Nurek Barajı, dünyanın en yüksek dolgu barajlarından biri ' +
+      'olup ülke elektriğinin temelini sağlar.' +
+      '\n\n' +
+      'Kuzeyde Zerefşan Nehri vadisi boyunca batıya akan sular Özbekistan ' +
+      'vahalarına hayat verirken, Sirderya Nehri kuzeydeki Soğd bölgesini kateder. ' +
+      'Dağlar arasında yer alan tektonik ve buzul kökenli göllerden en bilineni, ' +
+      "1911 yılındaki büyük depremde bir dağın çökerek Murgab Nehri'ni tıkamasıyla " +
+      "oluşan doğal set gölü Sarez Gölü'dür; gölün devasa su kütlesi Usoy Doğal " +
+      "Barajı'nın arkasında hassas bir dengede durur.",
   },
   {
     isoCode: 'TM',
@@ -509,36 +689,58 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "27 Ekim 1991'de Sovyetler Birliği'nden bağımsız oldu.",
     introTr:
-      'Ülke adını da veren Karakum (Kara Kum) Çölü, Türkmenistan yüzölçümünün büyük ' +
-      "çoğunluğunu kaplar. Batıda Hazar Denizi'ne kıyısı vardır, güneyde İran ve " +
-      'Afganistan, kuzeyde Kazakistan, doğu ve kuzeydoğuda ise Özbekistan ile komşudur.',
+      "Orta Asya'nın güneybatısında yer alan Türkmenistan, batıda Hazar Denizi'ne " +
+      'geniş bir kıyı şeridiyle açılan bir çöl ve vaha ülkesidir. Kuzeyde ' +
+      'Kazakistan ve Özbekistan, güneyde İran ve güneydoğuda Afganistan ile sınır ' +
+      'komşusudur. Yüzölçümünün yaklaşık yüzde sekseni kurak kum çölleriyle ' +
+      'kaplıdır.' +
+      '\n\n' +
+      "Güneyde İran sınırını oluşturan Köpetdağ'ın eteklerindeki bereketli vaha " +
+      'şeridinde kurulu başkent Aşkabat, çöl ile dağ arasındaki jeomorfolojik ' +
+      'temas noktasında yer alır. Nüfus ve yerleşim alanları, nehir boyları ile ' +
+      'dağ eteklerinden beslenen yapay su kanalları boyunca uzanan dar tarım ' +
+      'kuşaklarında toplanmıştır.',
     landformNoteTr:
-      'Karakum, rüzgarın şekillendirdiği hareketli kum tepeleriyle kaplı bir çöldür; bazı ' +
-      'kesimlerde bu tepeler 20 metre yüksekliğe ve birkaç kilometre uzunluğa ulaşır. ' +
-      "Çölün güneyinde, İran sınırı boyunca Köpetdağ Dağları yükselir; başkent Aşkabat'ın " +
-      "güneybatısındaki 2.912 metrelik Şahşah (Rizeh) Tepesi, Köpetdağ'ın Türkmenistan " +
-      'sınırları içindeki en yüksek noktasıdır.' +
+      'Türkmenistan yer şekillerinin ezici bölümünü, ülkenin iç ve kuzey ' +
+      'kesimlerini kaplayan devasa Karakum (Kara Kum) Çölü oluşturur. Karakum; ' +
+      'rüzgarın süpürdüğü hareketli kum tepeleri, barkanlar, killi çöküntüler ' +
+      '(takırlar) ve tuz tavalarından meydana gelen dalgalı bir plato ' +
+      'görünümündedir. Batıda Hazar Denizi kıyısına doğru çöl alçalarak deniz ' +
+      "seviyesinin altındaki çöküntülere ve sığ Garaboğazköl Lagünü'ne bağlanır." +
       '\n\n' +
-      'Ülkenin gerçek en yüksek noktası ise güneydoğu ucunda, Özbekistan ve Afganistan ' +
-      'sınırlarının kesiştiği yerdeki Köýtendag (Kugitang) sırasında bulunan 3.139 ' +
-      "metrelik Ayrıbaba Dağı'dır — bu sıradağ, Pamir-Alay dağ sisteminin en batı " +
-      'uzantısını oluşturur.',
+      'Ülkenin güney sınırında, tektonik açıdan hareketli Alp-Himalaya kuşağına ' +
+      "bağlı Köpetdağ Sıradağları sarp duvarlar halinde yükselir; Aşkabat'ın " +
+      'güneyindeki 2.912 metrelik Şahşah (Rizeh) Tepesi bu sıranın ülkedeki en ' +
+      'yüksek doruğudur. Gerçek en yüksek nokta ise doğuda, Özbekistan sınırındaki ' +
+      'Köýtendag (Kugitang) sırasında 3.139 metreye ulaşan ve zengin karstik ' +
+      "mağara sistemleri barındıran Ayrıbaba Dağı'dır.",
     climateNoteTr:
-      "Türkmenistan'da sert bir çöl iklimi egemendir: yazlar uzun, sıcak ve kurak " +
-      "geçerken, kışlar kısa ama seyri tahmin edilmesi güç geçer. Karakum'un iç " +
-      "kesimlerinde yaz sıcaklıkları gölgede 50°C'ye yaklaşabilir; kışın donlar " +
-      'görülebilir, ancak kar örtüsü nadir ve kısa ömürlüdür. Hazar kıyısı ve Köpetdağ ' +
-      'eteklerinde, denizin ve yükseltinin ılımanlaştırıcı etkisiyle sıcaklık farkları ' +
-      'biraz daha az keskindir.',
-    hydrographyNoteTr:
-      'Amu Derya, ülkenin kuzeydoğu ve doğu kesiminden geçerek Özbekistan ve Tacikistan ' +
-      "sınırlarının bir bölümünü çizer. Bu nehrin sularının bir kısmı, 1950'lerden " +
-      'itibaren aşamalı olarak inşa edilen ve çölü doğu-batı yönünde yaklaşık 1.350 ' +
-      'kilometre boyunca kat eden Karakum Kanalı ile başkent Aşkabat çevresindeki tarım ' +
-      'alanlarına taşınır — kanal, dünyanın en uzun sulama kanallarından biridir.' +
+      "Deniz etkisinden yalıtılmış konumu ve geniş çöl örtüsü, Türkmenistan'da " +
+      'son derece sert ve kurak bir subtropikal çöl iklimi yaratır. Yaz mevsimi ' +
+      "uzun, bulutsuz ve kavurucudur; Karakum Çölü'nün içlerinde gündüz " +
+      'sıcaklıkları gölgede 50 dereceye yaklaşır ve şiddetli buharlaşma nemi ' +
+      'tamamen tüketir.' +
       '\n\n' +
-      'Batıda, ülke sınırının en uzun kesimini oluşturan Hazar Denizi kıyısı yaklaşık ' +
-      '1.200 kilometre uzunluğundadır.',
+      'Kış ayları güney enlemlere rağmen kuzeyden inen Sibirya hava kütlelerine ' +
+      'açıktır; bu nedenle hava koşulları değişkendir ve sıcaklıklar zaman zaman ' +
+      'sıfırın altına düşerek don yaratabilir. Yıllık yağış ülke genelinde 80 ila ' +
+      '150 milimetre arasında kalarak son derece yetersizdir; yalnızca Köpetdağ ' +
+      'yamaçlarında 300 milimetreye yaklaşır. Çöl içlerinden esen sıcak ve tozlu ' +
+      '"garmsil" rüzgarları yaz aylarında tarım alanlarını kurutucu bir etki ' +
+      'yapar.',
+    hydrographyNoteTr:
+      'Ülkenin hidrolojik dengesi, neredeyse bütünüyle sınır boylarından geçen ' +
+      'dış kaynaklı nehir akımlarına bağımlıdır. Doğu sınırını izleyen Amu Derya ' +
+      "Nehri, ülkenin en büyük tatlı su kaynağıdır; güneyde Afganistan'dan gelen " +
+      'Murğap ve Tecen nehirleri ise çöl içlerine doğru akarak kumlar arasında ' +
+      'vaha deltaları oluşturur ve sonlanır.' +
+      '\n\n' +
+      "1950'lerden itibaren inşa edilen ve Amu Derya'dan aldığı suyu çölü doğudan " +
+      "batıya boydan boya geçerek Aşkabat'a ve Hazar kıyısına kadar taşıyan 1.350 " +
+      'kilometrelik Karakum Kanalı, dünyanın en uzun sulama kanallarından biridir. ' +
+      'Batıda Hazar Denizi kıyısında yer alan devasa Garaboğazköl Lagünü, dar bir ' +
+      'boğazla denizden su çekerek aşırı buharlaşma sayesinde dünyanın en zengin ' +
+      'doğal sodyum sülfat ve tuz yataklarını oluşturur.',
   },
   {
     isoCode: 'UZ',
@@ -563,36 +765,60 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "1 Eylül 1991'de Sovyetler Birliği'nden bağımsız oldu.",
     introTr:
-      'Özbekistan, dünyada yalnızca Lihtenştayn ile paylaştığı nadir bir konuma sahiptir: ' +
-      'topraklarının tamamı, kendileri de kıyısı olmayan ülkelerle çevrilidir — Kazakistan, ' +
-      'Kırgızistan, Tacikistan, Türkmenistan ve Afganistan. Ülke topraklarının yaklaşık ' +
-      'dörtte üçü çöldür; nüfusun büyük bölümü, doğudaki Fergana Vadisi ile güneybatıdaki ' +
-      'nehir vadilerinde yoğunlaşır.',
-    landformNoteTr:
-      "Ülkenin en büyük çölü olan Kızılkum Çölü, kuzeyde Kazakistan'la paylaşılan geniş " +
-      "bir kumul ve bozkır alanıdır. Kızılkum'un hemen doğusunda, üç yandan dağlarla " +
-      "çevrili verimli bir çöküntü ovası olan Fergana Vadisi uzanır — Özbekistan'ın en " +
-      "yoğun tarım ve yerleşim alanıdır. Ülkenin güneydoğusunda, Tanrı Dağları'nın " +
-      '(Tien Shan) alçalan eteklerinin ardından Hisar Sırası yükselir; bu sırada, ' +
-      "Tacikistan sınırında, Özbekistan'ın en yüksek noktası olan 4.643 metrelik " +
-      'Hazret-i Sultan Tepesi bulunur.',
-    climateNoteTr:
-      "Özbekistan'ın iklimi, yazın buharlaşmanın düşen yağışın on ila on beş katına " +
-      'ulaştığı kurak ve karasaldır. Çöl ve bozkır kesimlerinde yazlar uzun, sıcak ve ' +
-      'kurak geçer; kışlar ise özellikle kuzeyde sert ve dondurucu olabilir. Fergana ' +
-      'Vadisi ve güneydeki nehir vadilerinde, dağlardan gelen sulama suyu sayesinde bu ' +
-      'kurak karakter büyük ölçüde yumuşar.',
-    hydrographyNoteTr:
-      'Özbekistan topraklarının büyük bölümü, Amu Derya ve Sirderya nehirlerinin arasında ' +
-      "kalır; her iki nehir de kaynağını Pamir ve Tanrı Dağları'ndaki buzullardan alır. " +
-      "Tacikistan'dan gelen Zerefşan Nehri ise Amu Derya'ya hiç ulaşmaz — Buhara " +
-      "yakınlarında Kızılkum Çölü'nün kumlarında tükenir, suyu tamamen sulama için " +
-      'kullanılır.' +
+      "Orta Asya'nın merkezinde yer alan Özbekistan, dünyada denize çıkışı " +
+      'bulunmayan ülkelerle çevrili iki ülkeden biridir (çift karasal / doubly ' +
+      'landlocked); Lihtenştayn ile paylaştığı bu coğrafi konum nedeniyle açık ' +
+      'denizlere ulaşmak için en az iki bağımsız devletin topraklarından geçmek ' +
+      'gerekir. Kazakistan, Kırgızistan, Tacikistan, Türkmenistan ve Afganistan ' +
+      'ile çevrilidir.' +
       '\n\n' +
-      'Sovyet döneminde pamuk tarımı için yönlendirilen bu iki nehrin akışı, dünyanın ' +
-      "dördüncü büyük iç gölü olan Aral Denizi'nin büyük ölçüde kurumasına yol açtı; " +
-      'gölün güney havzasının çoğu bugün Aralkum adı verilen genç bir çöle dönüşmüş ' +
-      'durumdadır.',
+      'Ülkenin kuzeydoğusunda, Tanrı Dağları eteklerindeki Çirçik Nehri vahası ' +
+      "üzerinde kurulu başkent Taşkent, Orta Asya'nın en kalabalık metropolüdür. " +
+      'Topraklarının dörtte üçü kurak düzlükler ve çöllerden oluşmasına rağmen ' +
+      'nüfus, doğudaki kapalı Fergana Vadisi ile güneybatıdaki kadim vaha ' +
+      'nehirleri boyunca yoğunlaşmıştır.',
+    landformNoteTr:
+      'Özbekistan morfolojisi batıdaki düz çöl platoları ile doğudaki sarp dağ ' +
+      'silsileleri arasında bölünür. Ülkenin orta ve kuzeybatı kesimini kaplayan ' +
+      '300 bin kilometrekarelik geniş Kızılkum Çölü, Kazakistan ile paylaşılır ve ' +
+      'kumul sırtları ile alçak aşınım platolarından oluşur. Batı ucunda ise Hazar ' +
+      'ile Aral havzaları arasında yükselen kireçtaşlı Ustyurt Platosu uzanır.' +
+      '\n\n' +
+      'Doğuya doğru Tanrı Dağları (Tien Shan) ve Pamir-Alay sistemlerinin ' +
+      'etekleri yükselir. Bu dağların kollarından Hisar Sıradağları üzerinde, ' +
+      'Tacikistan sınırında yer alan 4.643 metrelik Hazret-i Sultan Zirvesi ' +
+      'ülkenin en yüksek noktasıdır. Dağların arasında sıkışan tektonik kökenli ' +
+      'Fergana Vadisi; alüvyal dolgusu, korunaklı yapısı ve verimli topraklarıyla ' +
+      "tüm Orta Asya'nın en yoğun tarım ve yerleşim havzasını meydana getirir.",
+    climateNoteTr:
+      "Açık denizlerden aşırı uzaklık ve yüksek dağ bariyerleri, Özbekistan'da " +
+      'buharlaşmanın yağışı katbekat aştığı belirgin bir kurak karasal iklim ' +
+      'üretir. Yaz mevsimi uzun, bulutsuz ve kavurucudur; çöl kesimlerinde ' +
+      'sıcaklıklar düzenli olarak 40 derecenin üzerine çıkar. Kış ayları ise ' +
+      'kuzeyden sarkan Sibirya antisiklonunun etkisiyle özellikle Kızılkum ve ' +
+      'Karakalpakistan düzlüklerinde sert donlara ve keskin soğuklara sahne olur.' +
+      '\n\n' +
+      'Yağış miktarı son derece düşüktür; batıdaki çöllerde ve Aral çanağında ' +
+      'yıllık 100 milimetrenin altında seyrederken, yalnızca doğudaki dağ ' +
+      "eteklerinde ve Fergana Vadisi'nde 300 ila 400 milimetreye ulaşır. Yağışın " +
+      'büyük kısmı kış sonu ve ilkbaharda düşer; tarımsal üretimin devamlılığı ' +
+      'bütünüyle karların erimesiyle dağlardan inen nehirlerin sağladığı sulama ' +
+      'şebekesine dayanır.',
+    hydrographyNoteTr:
+      'Özbekistan toprakları, kadim Maveraünnehir havzasını oluşturan iki büyük ' +
+      "akarsu sisteminin, Amu Derya ve Sirderya'nın orta ve aşağı çığırları " +
+      'arasında uzanır. Dağ buzullarından doğan bu ırmaklar çölü yararak ilerler; ' +
+      "Tacikistan'dan gelen Zerefşan Nehri ise Semerkant ve Buhara vahalarını " +
+      "suladıktan sonra Amu Derya'ya kavuşamadan Kızılkum kumullarında kuruyup " +
+      'sonlanır.' +
+      '\n\n' +
+      'Sovyet döneminde pamuk üretimi uğruna nehir sularının aşırı derecede ' +
+      'sulama kanallarına yönlendirilmesi, yirminci yüzyılın en büyük çevre ' +
+      "felaketlerinden birine yol açarak Aral Denizi'nin neredeyse tamamen " +
+      'kurumasına neden olmuştur. Özbekistan sınırlarında kalan Güney Aral havzası ' +
+      'sularını kaybederek tuzlu ve tozlu bir çöl olan "Aralkum"a dönüşmüş; ' +
+      'bölgedeki göller küçülerek yerini Aydar Gölü gibi yapay drenaj ' +
+      'birikintilerine bırakmıştır.',
   },
   {
     isoCode: 'BN',
@@ -617,33 +843,57 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Mutlak monarşi (Sultanlık)',
     independenceNoteTr: "1 Ocak 1984'te İngiltere'den bağımsız oldu.",
     introTr:
-      "Borneo adasının kuzey kıyısında, Malezya'nın Sarawak eyaletiyle çevrili küçük bir " +
-      "sultanlık olan Brunei, güneyde Güney Çin Denizi'ne kıyısı vardır. Ülke toprakları " +
-      "Sarawak'ın Limbang bölgesi tarafından ikiye bölünür: batıdaki büyük kesimde başkent " +
-      'Bandar Seri Begawan, doğudaki küçük Temburong bölgesi ise anakaradan tamamen ayrı ' +
-      'kalır. Kıyı boyunca alçak ve bataklık bir düzlük uzanır, bu düzlük doğuya doğru ' +
-      'tepelere ve dağlara yükselir.',
+      "Borneo Adası'nın kuzeybatı kıyısında, Güney Çin Denizi'ne bakan Brunei, " +
+      "bütünüyle Malezya'nın Sarawak eyaleti tarafından kuşatılmış zengin bir " +
+      "petrol ve gaz sultanlığıdır. Ülke arazisi, Sarawak'a ait Limbang Vadi " +
+      'koridoru nedeniyle coğrafi olarak iki ayrı parçaya bölünmüştür: Nüfusun ' +
+      've idari merkezin toplandığı batı yakası ile doğuda bozulmamış yağmur ' +
+      'ormanlarıyla örtülü Temburong eksklavı.' +
+      '\n\n' +
+      'Ekonomisi ve kentsel omurgası bütünüyle kıyı şeridinde ve açık denizdeki ' +
+      "hidrokarbon sahalarında odaklanan ülke, Güneydoğu Asya'nın en iyi " +
+      "korunmuş birincil yağmur ormanlarına ev sahipliği yapar. 2020'de açılan " +
+      'Sultan Hacı Ömer Ali Seyfeddin Köprüsü, iki yakayı Brunei Körfezi ' +
+      'üzerinden birleştirerek kara yolu kopukluğunu ortadan kaldırmıştır.',
     landformNoteTr:
-      'Brunei topraklarının büyük bölümü, kıyıdan içeriye doğru yükselen alçak tepeler ve ' +
-      'ovalık arazidir; mangrov bataklıkları kıyı şeridinin büyük kesimini kaplar. Ülkenin ' +
-      "tek dağlık bölgesi, anakaradan Limbang koridoruyla ayrılan Temburong'dur. Buradaki " +
-      "Pagon Dağları'nın en yüksek noktası Bukit Pagon, Malezya sınırında 1.850 metreye " +
-      "ulaşır ve Brunei'nin en yüksek noktasıdır. Temburong'un iç kesimleri, ülkenin geri " +
-      'kalanına göre çok daha az nüfuslu ve neredeyse tamamen yağmur ormanıyla kaplıdır.',
+      "Brunei'nin batı kanadı, kıyı boyunca uzanan mangrov bataklıkları, " +
+      'alüvyal düzlükler ve iç kesimlere doğru hafifçe yükselen dalgalı kumtaşı ' +
+      'tepelerinden meydana gelir. Bu kesimdeki kıyı ovaları, ülkenin yerleşim ' +
+      've petrol altyapısının ana taşıyıcısıdır.' +
+      '\n\n' +
+      'Doğudaki Temburong bölgesi ise batıdan tamamen farklı, sarp ve engebeli ' +
+      'bir orografi sunar. Güneye doğru yükselen sıradağların uzantısında, ' +
+      'Malezya sınırında yer alan 1.850 metrelik Bukit Pagon ülkenin en yüksek ' +
+      "zirvesidir. Ulu Temburong Milli Parkı'nı da içine alan bu dağlık kesim, " +
+      'aşırı eğimli yamaçları sayesinde insan yerleşiminden uzak kalarak adanın ' +
+      'en bakir dipterokarp yağmur ormanı ekosistemini barındırır.',
     climateNoteTr:
-      "Brunei'de sıcaklık yıl boyunca 31-33 santigrat derece bandında neredeyse sabit kalır, " +
-      'nem oranı ise ortalama %80 civarındadır. Ülkenin belirgin bir kurak mevsimi yoktur; ' +
-      "yağış Ekim-Ocak arasında Güney Çin Denizi'nden gelen kuzeydoğu musonuyla, Mayıs-Temmuz " +
-      'arasında ise güneybatı musonuyla iki ayrı dönemde yoğunlaşır. Yağış miktarı bölgeden ' +
-      "bölgeye büyük farklılık gösterir: Temburong'un yağmur ormanlarında yıllık yağış 400 " +
-      'santimetreyi bulurken, kıyı kesiminde bu rakam 275 santimetre civarındadır.',
+      "Ekvatorun yalnızca birkaç derece kuzeyinde yer alan Brunei'de, yıl boyu " +
+      'sıcaklık ve bağıl nemin yüksek seyrettiği tipik bir ekvatoral tropikal ' +
+      'iklim hüküm sürer. Yıllık ortalama sıcaklık 27-28 derece civarında ' +
+      'seyrederken gündüz ile gece arasındaki sıcaklık farkı dahi oldukça ' +
+      'kısıtlıdır.' +
+      '\n\n' +
+      'Ülke belirgin bir kurak mevsime sahip değildir; yağış iki ayrı muson ' +
+      'dalgasıyla yıla dağılır. Ekim ile ocak ayları arasında Güney Çin Denizi ' +
+      'üzerinden gelen kuzeydoğu musonu en şiddetli sağanakları bırakır; ' +
+      'mayıs-temmuz arasındaki güneybatı musonu ise görece hafif yağış getirir. ' +
+      "Kıyı kesimlerinde 2.500-3.000 milimetre olan yıllık yağış, Temburong'un " +
+      'iç dağlık yamaçlarında 4.000 milimetrenin üzerine çıkarak kesintisiz bir ' +
+      'buharlaşma ve yoğunlaşma döngüsü yaratır.',
     hydrographyNoteTr:
-      "Brunei'nin dört ana nehri — Brunei, Tutong, Belait ve Temburong — hepsi kuzeye doğru " +
-      "akarak Güney Çin Denizi'ne dökülür. Brunei Nehri, başkent Bandar Seri Begawan'ın " +
-      'kurulduğu haliç etrafında geniş bir sulak alan oluşturur; nehrin ağzındaki Kampong ' +
-      'Ayer, dünyanın en büyük su üstü yerleşimlerinden biri kabul edilir. Belait Nehri, ' +
-      'ülkenin batısındaki petrol ve doğal gaz sahalarının bulunduğu bölgeyi kat eder. ' +
-      'Temburong Nehri ise anakaradan ayrı kalan doğu bölgesinin ana su yoludur.',
+      "Ülkenin hidrolojik ağını, Borneo'nun iç tepelerinden doğup kuzeye doğru " +
+      "akarak Güney Çin Denizi'ne ve Brunei Körfezi'ne dökülen dört ana akarsu " +
+      'sistemi oluşturur: Belait, Tutong, Brunei ve Temburong nehirleri.' +
+      '\n\n' +
+      '209 kilometre uzunluğundaki Belait Nehri, ülkenin en uzun akarsuyu olup ' +
+      'batıdaki petrol sahalarının kalbinden geçerken geniş turba ' +
+      'bataklıklarını drene eder. Başkente hayat veren Brunei Nehri ise ağzında ' +
+      'geniş bir gelgit halici oluşturur; burada kazıklar üzerine inşa edilen ' +
+      'kadim su şehri Kampong Ayer, akarsuyun sağladığı korunaklı liman ' +
+      'ortamında yüzyıllardır yaşamını sürdürür. Temburong Nehri ise el ' +
+      'değmemiş kanyonları ve şelaleleri aşarak doğu havzasının ekolojik can ' +
+      'damarını meydana getirir.',
   },
   {
     isoCode: 'KH',
@@ -668,39 +918,55 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter monarşi',
     independenceNoteTr: "9 Kasım 1953'te Fransa'dan bağımsız oldu.",
     introTr:
-      "Hint-Çin Yarımadası'nın güneyinde yer alan Kamboçya, kuzeyde ve kuzeybatıda Tayland, " +
-      'kuzeydoğuda Laos, doğuda ve güneydoğuda Vietnam ile komşudur. Güneybatıda Tayland ' +
-      "Körfezi'ne kıyısı vardır. Ülke topraklarının dörtte üçünden fazlası, ortadaki geniş " +
-      'Tonle Sap-Mekong ovasından oluşur; bu alçak ova, kuzeyde Dangrek Dağları, güneybatıda ' +
-      'ise Kardamom ve Fil Dağları tarafından çevrelenir.',
-    landformNoteTr:
-      "Kamboçya topraklarının yaklaşık %75'ini, Tonle Sap Gölü havzası ile Mekong ve Bassac " +
-      'nehirlerinin taşkın ovaları oluşturur. Bu geniş merkezi ova, kuzeyde Tayland ve Laos ' +
-      "sınırındaki Dangrek Dağları, doğuda Annam Sıradağları'nın uzantıları, güneybatıda ise " +
-      'kuzeybatı-güneydoğu doğrultusunda uzanan Kardamom Dağları ve Fil Dağları ile ' +
-      "çevrilidir. Ülkenin en yüksek noktası, Kardamom Dağları'nın doğu kesiminde, " +
-      "Kampong Speu ilinde yükselen 1.810 metrelik Phnom Aural'dır. Kardamom Dağları aynı " +
-      "zamanda Kamboçya'nın en yoğun yağış alan ve en az nüfuslu bölgesidir.",
-    climateNoteTr:
-      'Kasım-Nisan arasındaki kurak mevsimde kuzeydoğu musonu hakimdir ve bu dönemde hava ' +
-      'daha serin ve kuru kalır. Mayıs-Ekim arasındaki yağışlı mevsimde ise güneybatı ' +
-      "musonu, yıllık yağışın yaklaşık dörtte üçünü (%75'ini) getirir. Tonle Sap havzası ve " +
-      "Mekong ovasında sıcaklık yıl boyunca yüksek seyreder, Kardamom Dağları'nın rüzgar alan " +
-      'yamaçları ülkenin en yağışlı kesimidir.',
-    hydrographyNoteTr:
-      "Mekong Nehri, Laos'tan Stung Treng ilinden girip ülkeyi kuzeyden güneye yaklaşık 500 " +
-      'kilometre boyunca kat eder. Phnom Penh yakınında Mekong, Tonle Sap Nehri ve Bassac ' +
-      'Nehri ile "dört yüz" anlamına gelen Chaktomuk adı verilen geniş bir kavşakta buluşur. ' +
-      'Sen, Sreng, Sangkae ve Pursat gibi ikincil nehirler, çevredeki platoları Tonle Sap ' +
-      "Gölü'ne ya da Mekong'a bağlar." +
+      "Hint-Çin Yarımadası'nın güney kesiminde yer alan Kamboçya; kuzey ve " +
+      'batıda Tayland, kuzeydoğuda Laos, doğu ve güneydoğuda Vietnam ile ' +
+      "çevrilidir; güneybatıda ise Tayland Körfezi'ne kıyısı uzanır. Ülke " +
+      'topoğrafik olarak, etrafı dağ ve platolarla çevrili sığ ve devasa bir ' +
+      'kaseyi andırır.' +
       '\n\n' +
-      "Tonle Sap Nehri, yılın altı ayında Mekong'a doğru güneydoğuya akar; ancak yağışlı " +
-      "mevsimde Mekong'un su seviyesi yükseldiğinde bu akış tersine döner ve nehir suyu " +
-      'göle doğru geri iter. Bu tersine akışla Tonle Sap Gölü, kurak mevsimdeki yaklaşık ' +
-      '2.500 kilometrekarelik yüzölçümünden yağışlı mevsim sonunda 16.000 kilometrekareye ' +
-      "kadar genişler — Güneydoğu Asya'nın en büyük tatlı su gölünü, dünyanın en üretken " +
-      'iç su ekosistemlerinden birine dönüştüren bu döngü, göldeki balıkçılığın da temelini ' +
-      'oluşturur.',
+      'Bu doğal çanağın merkezinde yer alan Tonle Sap Gölü ile Mekong Nehri ' +
+      'taşkın ovaları, Kamboçya nüfusunun ezici çoğunluğuna, bin yıllık pirinç ' +
+      'tarımı kültürüne ve Angkor medeniyetinin tarihsel mirasına hayat veren ' +
+      'coğrafi omurgadır.',
+    landformNoteTr:
+      'Kamboçya arazisinin neredeyse dörtte üçü deniz seviyesinden yalnızca 5 ' +
+      'ila 30 metre yüksekteki alüvyal çöküntü ovalarından ibarettir. Bu ' +
+      'merkezi ova kuşağını kuzeyde Tayland sınırını belirleyen dik basamaklı ' +
+      "Dangrek Dağları, doğuda Annam Sıradağları'nın plato uzantıları sınırlar." +
+      '\n\n' +
+      'Güneybatıda ise Tayland Körfezi kıyısını iç kesimlerden koparan Kardamom ' +
+      've Fil dağları yükselir. Bu dağ kuşağındaki 1.810 metrelik Phnom Aural, ' +
+      'ülkenin en yüksek zirvesidir. Sarp yapısı ve yoğun orman örtüsü ' +
+      "nedeniyle Kardamom Dağları, Kamboçya'nın insan yerleşiminden en uzak, " +
+      'biyoçeşitliliği en zengin doğal sığınağıdır.',
+    climateNoteTr:
+      'Ülke iklimi, yıllık ritmini bütünüyle tropikal muson döngüsüne ' +
+      "borçludur. Mayıs ayından ekime kadar Hint Okyanusu'ndan esen güneybatı " +
+      'musonu, yüksek sıcaklık ve yoğun nem getirerek yıllık toplam yağışın ' +
+      "yaklaşık yüzde 80'ini bırakır." +
+      '\n\n' +
+      'Kasım ile nisan ayları arasında Asya anakarasından esen kuzeydoğu musonu ' +
+      'ise kuru ve görece serin bir dönemi başlatır; mart ve nisan aylarında ' +
+      'kuraklık zirveye ulaşırken sıcaklıklar 38-40 dereceye tırmanır. Kardamom ' +
+      "Dağları'nın denize bakan güneybatı yamaçları yılda 4.000 milimetreyi " +
+      'aşan rekor yağış alırken, dağların yağış gölgesinde kalan merkezi ovada ' +
+      'yıllık yağış 1.200-1.500 milimetre seviyesinde kalır.',
+    hydrographyNoteTr:
+      "Kamboçya'nın hidrolojisi, dünya üzerinde eşi benzeri bulunmayan " +
+      'hidrolojik bir tersinme mekanizmasıyla çalışır. Laos sınırından ülkeye ' +
+      'giren Mekong Nehri güneye akar ve başkent Phnom Penh önlerinde Tonle Sap ' +
+      've Bassac nehirleriyle buluşarak "Chaktomuk" (Dört Yüz) kavşağını ' +
+      'meydana getirir.' +
+      '\n\n' +
+      "Muson yağmurları ve Himalayalar'dan gelen kar erimeleriyle haziran " +
+      "ayında Mekong'un debisi olağanüstü kabardığında, nehrin suları Tonle Sap " +
+      "Nehri'ni geriye doğru iter. Akış yönü tersine dönen su, Tonle Sap " +
+      "Gölü'nü doldurarak yüzeyini kurak mevsimdeki 2.500 kilometrekareden " +
+      '16.000 kilometrekareye çıkarır. Bu devasa doğal taşkın havuzu, nehir ' +
+      'sularını regüle ederek Kamboçya ve Vietnam deltalarını yıkıcı sellerden ' +
+      "korur; sular kasım ayında tekrar Mekong'a geri çekilirken geride " +
+      'bıraktığı verimli alüvyon ve zengin balık popülasyonu ülke beslenmesinin ' +
+      'temel direğini oluşturur.',
   },
   {
     isoCode: 'ID',
@@ -726,39 +992,64 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "17 Ağustos 1945'te bağımsızlığını ilan etti (Hollanda'nın resmî tanıması 27 Aralık 1949); ülke 17 Ağustos'u Bağımsızlık Günü olarak kutlar.",
     introTr:
-      "Dünyanın en büyük takımadası olan Endonezya, 17.000'i aşkın adadan oluşur ve Hint " +
-      'Okyanusu ile Büyük Okyanus arasında, Asya ile Avustralya kıtaları arasındaki denizler ' +
-      "boyunca yayılır. Kara sınırları yalnızca üç adada — Malezya ile Borneo'da, Papua Yeni " +
-      "Gine ile Papua'da, Doğu Timor ile Timor'da — paylaşılır, kalan tüm komşuluklar denizden " +
-      'geçer. Sumatra, Cava, Kalimantan, Sulawesi ve Papua, ülkenin nüfus ve yüzölçümce en ' +
-      'büyük beş adasıdır.',
+      'Hint Okyanusu ile Büyük Okyanus arasında 5.000 kilometreyi aşan bir yay ' +
+      'çizen Endonezya, 17 binden fazla adasıyla gezegenin en büyük ada ' +
+      'devletidir. Asya ile Avustralya kıtalarını birbirine bağlayan bu devasa ' +
+      'takımada; batıda Sumatra ve Cava, merkezde Kalimantan (Borneo) ve ' +
+      "Sulawesi, doğuda ise Moluk Adaları ile Papua'ya kadar uzanır." +
+      '\n\n' +
+      "Kara sınırlarını yalnızca Borneo'da Malezya, Timor'da Doğu Timor ve Yeni " +
+      "Gine'de Papua Yeni Gine ile paylaşan ülke, Malakka ve Sunda boğazları " +
+      'gibi dünya deniz ticaretinin kilit geçitlerini denetler. Yüzölçümünün ' +
+      'yalnızca küçük bir bölümünü kaplamasına rağmen Cava Adası, volkanik ' +
+      'topraklarının olağanüstü verimi sayesinde ülke nüfusunun yarıdan ' +
+      'fazlasını barındırır.',
     landformNoteTr:
-      "Endonezya, Pasifik Ateş Çemberi üzerinde yer alır ve 120'den fazla aktif yanardağa ev " +
-      'sahipliği yapar; Cava adasındaki Merapi ve Kelud, tarih boyunca en sık patlayan ' +
-      "yanardağlar arasındadır. Ülkenin en yüksek noktası, Papua'daki Sudirman Sıradağları'nda " +
-      "yükselen 4.884 metrelik Puncak Jaya'dır — aynı zamanda dünyanın en yüksek ada zirvesi " +
-      "kabul edilir. Sumatra ve Cava'nın omurgasını, Hint-Avustralya ve Avrasya levhalarının " +
-      'çarpışmasıyla oluşan volkanik sıradağlar oluşturur; bu adaların verimli toprakları ' +
-      "büyük ölçüde volkanik küle borçludur. Kalimantan — Borneo'nun Endonezya kesimi — ise " +
-      'daha alçak ve yaşlı bir arazi yapısına sahiptir, adanın büyük bölümünü yağmur ormanı ' +
-      'kaplar.',
+      'Endonezya; Hint-Avustralya, Pasifik ve Avrasya levhalarının çarpışma ' +
+      "sahasında, Pasifik Ateş Çemberi'nin en aktif kuşağında yer alır. " +
+      "Sumatra'daki Barisan Dağları'ndan başlayıp Cava, Bali ve Küçük Sunda " +
+      "adaları boyunca doğuya uzanan volkanik yay, 130'a yakın aktif " +
+      "stratovolkan barındırır; Cava'daki Merapi ve Semeru ile Sumatra'daki " +
+      'Sinabung bu dinamizmin canlı örnekleridir. Düzenli aralıklarla püsküren ' +
+      "volkanik küller, Cava ve Bali topraklarını Güneydoğu Asya'nın en verimli " +
+      'tarım havzalarına dönüştürmüştür.' +
+      '\n\n' +
+      'Buna karşılık Sunda sahanlığında oturan Kalimantan, genç volkanizmadan ' +
+      'yoksun, aşınmış yaylalar ve devasa turba bataklıklarıyla kaplıdır. ' +
+      'Ülkenin ve Okyanusya ada dünyasının en yüksek doruğu ise doğuda, ' +
+      "Papua'daki Sudirman Sıradağları üzerinde 4.884 metreye ulaşan ve " +
+      "zirvesinde ekvatoral buzullar barındıran Puncak Jaya'dır (Carstensz " +
+      'Piramidi).',
     climateNoteTr:
-      "Ekvator üzerinde konumlanan Endonezya'da mevsimsel sıcaklık farkı azdır, yıl boyunca " +
-      'ortalama sıcaklık 25-26 santigrat derece civarında seyreder. İklimi asıl belirleyen, ' +
-      "iki zıt yönlü muson rüzgarıdır: Mayıs-Eylül arasında Avustralya'dan esen kuru muson, " +
-      'güney adalarında (Cava, Bali, Nusa Tenggara) belirgin bir kurak mevsim yaratır; ' +
-      'Ekim-Nisan arasında ise Asya kıtasından esen nemli muson, ülke genelinde yoğun yağış ' +
-      'getirir. Sumatra, Kalimantan ve Papua gibi ekvatora yakın adalarda ise yıl boyunca ' +
-      'yağış görülür, belirgin bir kurak mevsim yaşanmaz.',
+      'Ekvator çizgisinin tam ortasından geçtiği takımadada, yıl boyunca ' +
+      'ortalama sıcaklık 26-28 derece civarında sabit kalan ekvatoral deniz ' +
+      'iklimi egemendir. Yıllık ritim sıcaklık değişimleriyle değil, Asya ve ' +
+      'Avustralya kıtaları arasındaki atmosferik basınç farklarının ' +
+      'yönlendirdiği muson döngüleriyle belirlenir.' +
+      '\n\n' +
+      "Ekim ile nisan ayları arasında Asya'dan gelen batı musonu takımadanın " +
+      'geneline şiddetli yağışlar getirir. Mayıs-eylül döneminde ise Avustralya ' +
+      'çölleri üzerinden esen güneydoğu musonu, ekvatorun güneyinde kalan Cava, ' +
+      'Bali ve Nusa Tenggara adalarında belirgin bir kurak mevsime yol açar. ' +
+      "Sumatra, Kalimantan ve Batı Papua'nın yağmur ormanları havzalarında ise " +
+      'yıllık yağış 3.000 ila 4.000 milimetreyi bularak mevsimsiz, kesintisiz ' +
+      'bir nem kuşağı oluşturur.',
     hydrographyNoteTr:
-      "Kalimantan'ın merkezindeki Müller Dağları'ndan doğan Kapuas Nehri, batıya doğru 1.143 " +
-      "kilometre akarak Güney Çin Denizi'ne ulaşır — Endonezya'nın en uzun nehridir. Aynı " +
-      "adada, Kapuas'tan sonra 1.090 kilometrelik Barito Nehri ikinci sırada gelir; doğuya " +
-      "akan 980 kilometrelik Mahakam Nehri ise üçüncü sıradadır. Cava ve Sumatra'daki " +
-      'nehirler, adaların dar ve dağlık yapısı nedeniyle genellikle daha kısa ve hızlı ' +
-      "akışlıdır, ama yoğun nüfus ve tarım için hayati önemdedir. Papua'nın alçak güney " +
-      'kesiminde ise geniş bataklık ve nehir ağları, kıtasal Avustralya sahanlığının bir ' +
-      'parçası olan düz araziyi kat eder.',
+      "Endonezya'nın akarsu rejimleri adalara göre köklü farklılıklar gösterir. " +
+      'Geniş drenaj havzalarına sahip Kalimantan ve Papua adalarında nehirler, ' +
+      "kıta boyutunda uzunluklara ve yüksek debilere ulaşır. Borneo'nun iç " +
+      'dağlarından doğup batıya akan 1.143 kilometrelik Kapuas, ülkenin en uzun ' +
+      'nehridir; onu adanın güneyine ve doğusuna akan Barito ve Mahakam ' +
+      'nehirleri izler. Bu nehirler iç kesimlerdeki yağmur ormanlarının başlıca ' +
+      'ulaşım hatlarıdır.' +
+      '\n\n' +
+      'Cava ve Sumatra adalarında ise nehirler omurga dağlardan denize doğru ' +
+      'kısa, dik eğimli ve çok yüksek aşındırma gücüne sahip akışlar sergiler. ' +
+      "Cava'daki 548 kilometrelik Solo Nehri ile Brantas Nehri, adanın yoğun " +
+      "çeltik tarımını besleyen can damarlarıdır. Kuzey Sumatra'da yer alan 100 " +
+      'kilometre uzunluğundaki Toba Gölü ise, 74 bin yıl önce yaşanan süper ' +
+      'volkan patlamasının kalderasında oluşmuş dünyanın en büyük volkanik ' +
+      'gölüdür.',
   },
   {
     isoCode: 'LA',
@@ -784,33 +1075,53 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "22 Ekim 1953'te Fransa'dan tam bağımsızlığını kazandı (1949'da kısmi özerklik tanınmıştı).",
     introTr:
-      "Güneydoğu Asya'nın kara ile çevrili tek ülkesi olan Laos, kuzeyde Çin, kuzeydoğu ve " +
-      'doğuda Vietnam, güneyde Kamboçya, batıda Tayland, kuzeybatıda ise Myanmar ile ' +
-      'komşudur. Ülke toprakları büyük ölçüde Mekong Nehri havzasının içinde kalır; nehrin ' +
-      'kendisi, batı sınırının önemli bir bölümünü çizer. Kuzey ve doğudaki dağlık arazi, ' +
-      'ülkenin arazisinin büyük kısmını kaplar.',
+      'Güneydoğu Asya anakarasının denize kıyısı olmayan tek devleti olan Laos; ' +
+      'kuzeyde Çin, kuzeybatıda Myanmar, batıda Tayland, güneyde Kamboçya ve ' +
+      'doğuda Vietnam ile çevrilidir. Ülke coğrafyası, derin vadilerle yarılmış ' +
+      'sarp dağ kütleleri ile Mekong Nehri boyunca uzanan dar ova ' +
+      'koridorlarından meydana gelir.' +
+      '\n\n' +
+      'Nüfusun ve ekilebilir arazilerin ezici çoğunluğu, batı sınırını çizen ' +
+      'Mekong kıyısındaki alüvyal düzlüklerde ve başkent Vientiane çevresinde ' +
+      'yoğunlaşmıştır. Dağlık iç kesimler ise etnik çeşitliliğin yüksek olduğu ' +
+      'seyrek bir yerleşim dokusu barındırır.',
     landformNoteTr:
-      "Laos, özellikle kuzeyde ve Vietnam sınırı boyunca uzanan Annam Sıradağları'nda sarp ve " +
-      "dağlıktır. Ülkenin en yüksek noktası, Xiangkhoang Platosu'nun güney ucunda, Annam " +
-      "Sıradağları'nın bir parçası olarak yükselen 2.819 metrelik Phou Bia'dır. Ülke toprakları " +
-      'neredeyse tamamen Mekong havzasının batısında kalır; yalnızca Houaphan ilinin büyük ' +
-      "bölümü ile Xiangkhoang'ın bir kesimi bu havzanın doğusundadır. Mekong'un batı sınırını " +
-      'çizdiği kesimde nehir, Tayland ile aralarında 800 kilometreyi aşan doğal bir sınır ' +
-      'oluşturur.',
+      "Laos arazisinin yüzde 70'ten fazlasını ormanlarla kaplı engebeli " +
+      'platolar ve dik dağ sıraları oluşturur. Ülkenin doğu omurgası boyunca ' +
+      'uzanan Annam Sıradağları (Trường Sơn), Vietnam ile doğal bir sınır ' +
+      'oluştururken muson rüzgarlarına karşı aşılmaz bir set çeker.' +
+      '\n\n' +
+      'Kuzey kesimde yer alan karstik kireçtaşı kütleleri ve derin kanyonlar ' +
+      "topoğrafyaya egemendir; Xiangkhoang Platosu'nun güneyinde yükselen 2.819 " +
+      'metrelik Phou Bia ülkenin en yüksek zirvesidir. Güney kesimde ise ' +
+      'verimli bazaltik topraklara sahip Bolaven Platosu yükselir; kahve ' +
+      'tarımının merkezi olan bu plato dik şelalelerle Mekong çanağına kavuşur.',
     climateNoteTr:
-      "Laos'ta üç mevsim yaşanır: Kasım-Şubat arasında serin ve kurak bir kış, Mart-Nisan " +
-      'arasında sıcak ve kurak bir geçiş dönemi, Mayıs-Ekim arasında ise güneybatı musonunun ' +
-      'getirdiği yağışlı bir yaz. Ovalık kesimlerde yıllık yağış 1.300-2.300 milimetre ' +
-      'arasında değişir, dağların rüzgar alan yamaçlarında ise bu rakam 3.000 milimetreyi ' +
-      'aşabilir. Temmuz ve Ağustos ayları en yoğun yağışın görüldüğü dönemdir, bu aylarda ' +
-      'günler boyunca kesintisiz yağmur yağabilir.',
+      'Tropikal muson ikliminin hüküm sürdüğü ülkede yıl, iki zıt rüzgar ' +
+      'rejimine bağlı üç belirgin evreye ayrılır. Mayıs ayından ekime kadar ' +
+      'süren güneybatı musonu, bol nem ve şiddetli sağanaklar getirerek yıllık ' +
+      'yağışın büyük kısmını bırakır; bu dönemde nehirler taşar ve çeltik ' +
+      'tarlaları suyla dolar.' +
+      '\n\n' +
+      'Kasım ile şubat ayları arasındaki kuzeydoğu musonu kuru, berrak ve ' +
+      'yüksek dağlarda hissedilir derecede serin bir kış dönemi yaratır. Mart ' +
+      've nisan ayları ise sıcaklığın 40 dereceye ulaştığı bunaltıcı bir kurak ' +
+      'geçiş mevsimidir. Vientiane ve alçak ovalarda yıllık yağış 1.500-2.000 ' +
+      "milimetre civarındayken, Annam Dağları ve Bolaven Platosu'nun rüzgar " +
+      'tutan yamaçlarında 3.500 milimetreyi aşar.',
     hydrographyNoteTr:
-      'Mekong Nehri, Laos topraklarını kuzeyden güneye yaklaşık 1.900 kilometre boyunca kat ' +
-      'eder ve ülkenin en önemli coğrafi eksenini oluşturur. Nam Ou, Nam Khan ve Xe Don gibi ' +
-      "çok sayıda kol, dağlık bölgelerden inerek Mekong'a katılır. Bunlar arasında en büyüğü " +
-      "olan Nam Ngum, Mekong'un yıllık akışının yaklaşık %14'ünü tek başına sağlar. Mekong'un " +
-      'mevsimsel taşkın rejimi, ülkenin tarım takvimini ve nehir kıyısındaki yerleşim ' +
-      'düzenini büyük ölçüde belirler.',
+      "Laos'un can damarı, ülkeyi kuzeyden güneye yaklaşık 1.800 kilometre " +
+      'boyunca kat eden ve batı sınırının büyük bölümünü oluşturan Mekong ' +
+      "Nehri'dir. Ülke arazisinin neredeyse onda dokuzu Mekong drenaj havzası " +
+      'içerisinde yer alır; Nam Ou, Nam Khan, Nam Ngum ve Xe Don gibi yüzlerce ' +
+      'dağ nehri bu ana artere dökülür.' +
+      '\n\n' +
+      "Yüksek eğimli dağ vadilerinden inen bu akarsular Laos'a olağanüstü bir " +
+      'hidroelektrik potansiyeli kazandırmış, ülkeyi "Güneydoğu Asya\'nın ' +
+      'bataryası" haline getiren baraj projelerinin temelini oluşturmuştur. ' +
+      'Nehrin güneyinde Kamboçya sınırındaki Si Phan Don (Dört Bin Ada) ' +
+      "bölgesinde yer alan Khone Şelaleleri, Mekong'un kesintisiz gemiciliğe " +
+      'izin vermeyen en haşmetli doğal basamağıdır.',
   },
   {
     isoCode: 'MY',
@@ -836,37 +1147,58 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "31 Ağustos 1957'de Malaya Federasyonu İngiltere'den bağımsız oldu; bugünkü Malezya Federasyonu 16 Eylül 1963'te kuruldu.",
     introTr:
-      "Malezya, Güney Çin Denizi'yle birbirinden ayrılan iki ayrı parçadan oluşur: Malay " +
-      "Yarımadası'nın güney ucundaki Yarımada Malezyası (Batı Malezya) ve Borneo adasının " +
-      'kuzeyindeki Sabah ile Sarawak eyaletlerinden oluşan Doğu Malezya. Yarımada Malezyası ' +
-      "kuzeyde Tayland'a komşuyken, Doğu Malezya güneyde Endonezya'ya, kuzeyde ise Brunei'ye " +
-      'komşudur. İki parça birbirine kara ile değil, yalnızca deniz ve hava yoluyla bağlıdır.',
+      "Güney Çin Denizi'nin ikiye ayırdığı Malezya; Malay Yarımadası'nın " +
+      "güneyini kaplayan Batı Malezya ile Borneo Adası'nın kuzeyindeki Sabah ve " +
+      "Sarawak eyaletlerini kapsayan Doğu Malezya'dan oluşur. Batı kanadı " +
+      'kuzeyde Tayland, güneyde ise dar Johor Boğazı üzerinden Singapur ile ' +
+      'komşudur; Doğu Malezya ise güneyde Endonezya ve kıyı kuşağında Brunei ' +
+      'ile sınır paylaşır.' +
+      '\n\n' +
+      "Nüfusun, sanayinin ve başkent Kuala Lumpur'un yer aldığı Yarımada " +
+      'Malezyası, küresel deniz ticaretinin en işlek koridoru olan Malakka ' +
+      "Boğazı'na hakimdir. Ülke topraklarının yüzde 60'ından fazlasını kaplayan " +
+      'Doğu Malezya ise geniş yağmur ormanları, zengin biyolojik çeşitlilik ve ' +
+      'doğal kaynak havzalarıyla ülkenin ekolojik kalbini teşkil eder.',
     landformNoteTr:
-      "Sabah'taki Crocker Sıradağları'nda yükselen 4.095 metrelik Kinabalu Dağı, Malezya'nın " +
-      "ve adalar/deniz Güneydoğu Asya'sının (Maritime Southeast Asia) en yüksek noktasıdır; " +
-      "anakara Güneydoğu Asya'da bundan daha yüksek zirveler bulunur (Myanmar'daki Hkakabo " +
-      "Razi gibi). Yarımada Malezyası'nın omurgasını kuzeyden güneye uzanan Titiwangsa " +
-      'Sıradağları oluşturur; kıyı ovaları bu merkezi sıradağın her iki yanında yer alır. ' +
-      "Sarawak'ta kıyı boyunca bataklık alçak araziler, iç kesimlere doğru ise Endonezya " +
-      'sınırına kadar uzanan sarp yaylalar bulunur — bu yaylalardaki en yüksek nokta, 2.424 ' +
-      "metrelik Murud Dağı'dır. Ülke topraklarının yaklaşık %58'i, dipterokarp ormanları, " +
-      'bataklık ormanları ve mangrovlardan oluşan tropikal yağmur ormanlarıyla kaplıdır.',
+      "Yarımada Malezyası'nın topoğrafik omurgasını, kuzeyden güneye uzanarak " +
+      'yarımadayı doğu ve batı kıyı ovalarına bölen granit yapılı Titiwangsa ' +
+      'Dağları oluşturur. Dağların her iki yakasında uzanan alüvyal kıyı ' +
+      'düzlükleri, ülkenin en yoğun kentleşme ve tarım alanlarıdır.' +
+      '\n\n' +
+      'Doğu Malezya çok daha engebeli ve sarp bir orografiye sahiptir. Sabah ' +
+      "eyaletindeki Crocker Sıradağları'nda yükselen 4.095 metrelik granit " +
+      "kütle Kinabalu Dağı, hem Malezya'nın hem de Güneydoğu Asya ada " +
+      'dünyasının en yüksek noktasıdır. Sarawak içlerinde ise Endonezya ' +
+      "sınırına uzanan dağlık yaylalar ve Gunung Mulu'daki devasa karstik " +
+      'mağara sistemleri yer alır; kıyıya yaklaşıldıkça arazi geniş mangrov ve ' +
+      'turba bataklıklarına dönüşür.',
     climateNoteTr:
-      "Malezya'nın iklimi, ekvatora yakınlığının bir sonucu olarak yıl boyunca sıcak ve nemli " +
-      'geçer; sıcaklık ortalama 27 santigrat derece civarında sabit kalır, mevsimsel fark ' +
-      'azdır. İklimi asıl şekillendiren, yılda iki kez yön değiştiren muson rüzgarlarıdır: ' +
-      "Kasım-Mart arasında Çin ve Kuzey Pasifik'ten esen kuzeydoğu musonu daha bol yağış " +
-      'getirirken, Mayıs-Eylül arasındaki güneybatı musonu görece daha kuru geçer. Yıllık ' +
-      'ortalama yağış yaklaşık 2.500 milimetredir; bu yüksek nem ve yağış rejimi, ülkenin ' +
-      'yoğun yağmur ormanı örtüsünü besler.',
+      "Ekvatoral kuşakta yer alan Malezya'da, yıl boyu 26-28 derece civarında " +
+      'seyreden yüksek sıcaklık ve yoğun bağıl nemle karakterize klasik bir ' +
+      'tropikal yağmur ormanı iklimi egemendir. Belirgin bir kurak dönem ' +
+      'bulunmaz; iklimsel ritmi iki muson rüzgarı belirler.' +
+      '\n\n' +
+      'Kasım ile mart ayları arasında esen kuzeydoğu musonu, Güney Çin Denizi ' +
+      "üzerinden topladığı nemi Yarımada'nın doğu kıyılarına ve Borneo'nun " +
+      'kuzeyine boşaltarak şiddetli yağış ve sellere neden olur. Mayıs-eylül ' +
+      "arasındaki güneybatı musonu ise Sumatra Adası'nın rüzgarı kesmesi " +
+      'nedeniyle yarımadanın batı kıyısında görece daha ılımlı sağanaklar ' +
+      'bırakır. Yıllık yağış ortalaması yarımadada 2.500 milimetre iken, ' +
+      "Sarawak ve Sabah'ın dağlık yamaçlarında 4.000 milimetrenin üzerine " +
+      'çıkar.',
     hydrographyNoteTr:
-      "Sarawak'taki Iran Dağları'nda doğan Rajang Nehri, Güney Çin Denizi'ne ulaşana kadar " +
-      "yaklaşık 565 kilometre akar. Malezya'nın en uzun nehri budur. Sabah'taki Kinabatangan " +
-      "Nehri, kaynağını güneybatı Sabah'ın dağlarından alıp Sulu Denizi'ne dökülür ve yaklaşık " +
-      "560 kilometreyle ülkenin ikinci en uzun nehridir. Yarımada Malezyası'nın en uzun nehri " +
-      "ise, Pahang eyaletinden geçip Güney Çin Denizi'ne ulaşan yaklaşık 459 kilometrelik " +
-      "Pahang Nehri'dir. Doğu Malezya'daki nehirler, yoğun yağmur ormanı örtüsü nedeniyle hem " +
-      'taşımacılık hem de ekosistem açısından bölgenin ana can damarlarıdır.',
+      "Malezya'nın akarsuları yağış rejimine bağlı olarak yıl boyu bol su " +
+      'taşır; ancak akarsuların yapısı coğrafi bölgelere göre ayrışır. Batı ' +
+      "Malezya'da akarsular Titiwangsa Dağları'ndan doğarak batıya Malakka " +
+      "Boğazı'na ya da doğuya Güney Çin Denizi'ne dökülür; 459 kilometrelik " +
+      'Pahang Nehri yarımadanın en uzun akarsuyudur.' +
+      '\n\n' +
+      "Doğu Malezya'da ise yağmur ormanlarının iç kesimlerini kıyıya bağlayan " +
+      "çok daha uzun ve yüksek debili nehir sistemleri uzanır. Sarawak'taki 563 " +
+      'kilometrelik Rajang Nehri ülkenin en uzun akarsuyu olup iç kesimlerdeki ' +
+      "yerleşim taşımacılığının can damarıdır. Sabah'taki 560 kilometrelik " +
+      'Kinabatangan Nehri ise zengin taşkın ovaları ve oxbow gölleriyle zengin ' +
+      'bir yaban hayatı sığınağı oluşturur.',
   },
   {
     isoCode: 'MM',
@@ -891,39 +1223,55 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: null,
     independenceNoteTr: "4 Ocak 1948'de İngiltere'den bağımsız oldu.",
     introTr:
-      "Hint-Çin Yarımadası'nın en büyük ülkesi olan Myanmar, kuzeyde ve kuzeydoğuda Çin, " +
-      'batıda Hindistan ve Bangladeş, güneydoğuda Tayland ve Laos ile komşudur. Batıda Bengal ' +
-      'Körfezi ve Andaman Denizi boyunca uzun bir kıyı şeridi vardır. Ülke topraklarını ' +
-      'kuzeyden güneye U biçiminde çevreleyen dağ sıraları, ortada Irrawaddy ve Sittaung ' +
-      'nehirlerinin oluşturduğu geniş bir ova bırakır.',
+      'Güneydoğu Asya anakarasının yüzölçümü bakımından en geniş ülkesi olan ' +
+      'Myanmar; kuzey ve kuzeydoğuda Çin, doğuda Laos ve Tayland, batıda ise ' +
+      'Hindistan ve Bangladeş ile çevrilidir. Güneybatıda Bengal Körfezi ve ' +
+      "güneyde Andaman Denizi'ne açılan geniş bir kıyı kuşağına sahiptir." +
+      '\n\n' +
+      'Ülke topoğrafik olarak, kuzey, batı ve doğudan yüksek dağ sıralarıyla ' +
+      'kuşatılmış devasa bir merkezi nehir havzası karakterindedir. Nüfusun, ' +
+      'Budist tapınak kentlerinin ve tarımsal üretimin yoğunlaştığı bu alüvyal ' +
+      'çanak, tarihi krallıkların ve modern devletin çekirdeğini teşkil eder.',
     landformNoteTr:
-      'Myanmar beş coğrafi bölgeye ayrılır: kuzeydeki yüksek dağlar, batıdaki sıradağlar, ' +
-      'doğudaki Shan Platosu, ortadaki alçak ova ve güneydeki kıyı şeridi. Kuzeyde, Kachin ' +
-      'eyaletinde Çin sınırına yakın yükselen 5.881 metrelik Hkakabo Razi, Himalayaların ' +
-      "güneydoğu uzantısı olarak hem Myanmar'ın hem de tüm Güneydoğu Asya'nın en yüksek " +
-      'noktasıdır. Batıda, Hindistan ve Bangladeş sınırı boyunca Patkai Sıradağları, Naga ' +
-      'Tepeleri, Chin Tepeleri ve Rakhine Dağları kuzeyden güneye sıralanır. Doğuda, orta ' +
-      'ovadan 600 metrelik tek bir basamakla yükselen Shan Platosu, kristalin bir kütle ' +
-      "olarak Myanmar'ın doğu yarısını oluşturur. Irrawaddy ile Sittaung nehirleri arasında, " +
-      'nispeten alçak Bago Dağları uzanır.',
+      "Myanmar'ın yer şekilleri, kuzeyden güneye uzanan paralel dağ yayları ve " +
+      'bunların arasına sıkışmış çöküntü ovalarıyla belirlenir. Kuzeyde ' +
+      "Himalayalar'ın doğu uzantısında, Çin sınırına yakın yükselen 5.881 " +
+      'metrelik buzullarla kaplı Hkakabo Razi, hem ülkenin hem de tüm Güneydoğu ' +
+      "Asya'nın en yüksek zirvesidir." +
+      '\n\n' +
+      'Batı sınırını Hindistan ve Bengal kıyısından ayıran sarp Patkai, Chin ve ' +
+      'Arakan (Rakhine) Yoma sıradağları aşılması güç doğal bir barikat ' +
+      'oluşturur. Doğuda ise derin yarıklarla parçalanmış kireçtaşı ' +
+      'kütlelerinden oluşan 1.000 metre rakımlı Shan Platosu uzanır. Bu iki ' +
+      'yüksek kütlenin ortasında uzanan geniş Irrawaddy ve Sittaung ovaları, ' +
+      'ülkenin can damarı olan verimli çeltik alanlarını barındırır.',
     climateNoteTr:
-      'Myanmar muson kuşağında yer alsa da, iklimi ülkenin kendi topografyasıyla büyük ' +
-      'ölçüde şekillenir: dağ sıraları ve vadilerin kuzey-güney doğrultusunda uzanması, hem ' +
-      'güneybatı hem de kuzeydoğu musonu sırasında bol ve az yağışlı bölgelerin yan yana ' +
-      'ortaya çıkmasına yol açar. Haziran-Eylül arasındaki güneybatı musonu sıcak, nemli ve ' +
-      'bulutlu bir yaz getirir; bu dönem yıllık yağışın büyük bölümünü oluşturur. Aralık-' +
-      'Nisan arasındaki kuzeydoğu musonu ise daha serin, kuru ve az bulutlu bir kış ' +
-      'dönemidir. İki muson arasındaki geçiş, kısa ve sıcak bir ara mevsim oluşturur.',
+      "Tropikal muson ikliminin egemen olduğu Myanmar'da yağışın mekansal " +
+      'dağılımını, kuzey-güney uzanışlı sıradağların oluşturduğu orografik ' +
+      "engeller yönlendirir. Mayıs ile ekim ayları arasında Bengal Körfezi'nden " +
+      'esen güneybatı musonu, kıyı şeritlerine ve batı yamaçlarına olağanüstü ' +
+      'miktarda yağış bırakır; Rakhine kıyılarında yıllık yağış 5.000 ' +
+      'milimetreyi aşar.' +
+      '\n\n' +
+      "Buna karşılık Arakan Dağları'nı aşarken nemini bırakan hava akımları, " +
+      "Mandalay ve Pagan'ı içine alan merkezi ovaya fön etkisiyle kuru olarak " +
+      'iner. "Kuru Bölge" (Dry Zone) olarak adlandırılan bu iç havzada yıllık ' +
+      'yağış 700-1.000 milimetreye kadar gerileyerek yarı kurak savan koşulları ' +
+      'üretir. Kış aylarındaki kuzeydoğu musonu ise ülke geneline kuru ve serin ' +
+      'hava taşır.',
     hydrographyNoteTr:
-      "Irrawaddy Nehri, kuzeydeki N'mai ve Mali nehirlerinin birleşmesiyle doğar ve ülkeyi " +
-      "kuzeyden güneye yaklaşık 2.170 kilometre boyunca kat ederek Andaman Denizi'ne " +
-      "dökülür; Myanmar'ın en önemli ticari su yoludur. Ana kolu Chindwin, yaklaşık 1.200 " +
-      "kilometre sonra Mandalay yakınında Irrawaddy'ye katılır. Nehrin taşıdığı alüvyonla " +
-      'oluşan Irrawaddy Deltası, kimi kesimlerde deniz seviyesinden yalnızca 3 metre ' +
-      'yükseklikte olmasına rağmen ülkenin başlıca pirinç üretim bölgesidir. Doğuda, ' +
-      "Tibet Platosu'nda doğan Salween Nehri, Myanmar sınırları içinde yaklaşık 1.200 " +
-      'kilometre akar; Sittaung ise yaklaşık 420 kilometreyle daha kısa ama ağzındaki güçlü ' +
-      'gelgit dalgası nedeniyle seyrüsefer açısından zorlu bir nehirdir.',
+      'Kuzeydeki dağlardan doğup ülkeyi baştan başa kat ederek Andaman ' +
+      "Denizi'ne dökülen 2.210 kilometrelik Irrawaddy (Ayeyarwady) Nehri, " +
+      "Myanmar'ın tarihini, ticaretini ve coğrafyasını şekillendiren ana " +
+      'nehirdir. En büyük kolu olan Chindwin ile birleşen nehir, ağzında 30 bin ' +
+      'kilometrekarelik devasa bir delta oluşturarak ülkenin pirinç ambarına ' +
+      'hayat verir.' +
+      '\n\n' +
+      "Doğudaki Shan Platosu'nu derin kanyonlarla yaran 2.800 kilometrelik " +
+      'Salween (Thanlwin) Nehri ise hırçın debisiyle ulaşıma elverişsiz, bakir ' +
+      'bir hidroelektrik havzasıdır. Shan Platosu üzerinde 900 metre rakımda ' +
+      'yer alan karstik Inle Gölü ise, yüzen bahçeleri ve sığ sularıyla ülkenin ' +
+      'en özgün tatlı su ekosistemini oluşturur.',
   },
   {
     isoCode: 'PH',
@@ -949,36 +1297,57 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "12 Haziran 1898'de İspanya'dan bağımsızlık ilan edildi (resmî kutlanan tarih); ABD'den fiilî egemenlik devri 4 Temmuz 1946'da gerçekleşti.",
     introTr:
-      "Filipinler, Güneydoğu Asya'nın kuzeydoğusunda, 7.000'i aşkın adadan oluşan bir " +
-      'takımadadır ve dünyanın beşinci en büyük ada ülkesidir. Kara sınırı olmayan ülke, ' +
-      "kuzeyde Luzon Boğazı ile Tayvan'dan, batıda Güney Çin Denizi ile anakara Asya'dan, " +
-      "doğuda ise Filipin Denizi ile Büyük Okyanus'un açığından ayrılır. Adalar üç ana grupta " +
-      'toplanır: kuzeydeki Luzon, ortadaki Visayas takımadaları ve güneydeki Mindanao.',
+      "Büyük Okyanus'un batı kenarında 7.600'den fazla adadan oluşan " +
+      "Filipinler, Güneydoğu Asya'nın kuzeydoğu ucundaki volkanik ada yay " +
+      'ülkesidir. Kara sınırı bulunmayan takımada; kuzeyde Luzon Boğazı ile ' +
+      "Tayvan'dan, batıda Güney Çin Denizi ile Asya anakarasından ayrılırken " +
+      "doğuda doğrudan Filipin Denizi'nin derin çukurlarına açılır." +
+      '\n\n' +
+      'Ülke coğrafyası geleneksel olarak üç ana bölgeye ayrılır: Başkent ' +
+      "Manila'nın ve geniş tarım ovalarının bulunduğu kuzeydeki Luzon; mercan " +
+      'denizleriyle çevrili adacıklardan oluşan merkezdeki Visayas; güneyde ise ' +
+      'zengin doğal kaynakları ve platolarıyla öne çıkan Mindanao.',
     landformNoteTr:
-      "Filipin takımadası, Büyük Okyanus'un batı kıyısındaki volkanik yay sisteminin bir " +
-      'parçasıdır ve çok sayıda aktif yanardağ barındırır. Ülkenin en yüksek noktası, ' +
-      "Mindanao'daki üç zirveli stratovolkan Mount Apo'dur (2.954 metre). En büyük ada olan " +
-      'Luzon, yaklaşık 105.000 kilometrekarelik yüzölçümüyle ülke nüfusunun ve başkent ' +
-      "Manila'nın da bulunduğu bölgedir; ikinci büyük ada Mindanao ise yaklaşık 95.000 " +
-      'kilometrekaredir. Visayas takımadaları arasında Panay, Negros, Cebu, Bohol ve Leyte ' +
-      "gibi orta büyüklükte adalar yer alır; on bir büyük ada, ülke topraklarının %95'ini " +
-      'oluşturur.',
+      'Filipinler, Avrasya levhası ile Filipin Denizi levhasının çarpışma ' +
+      'hattında, dünyanın en sismik ve volkanik kuşaklarından birinde yer alır. ' +
+      'Ülkenin doğu kıyısı boyunca uzanan Filipin Çukuru, 10.500 metreyi aşan ' +
+      'derinliğiyle gezegenin en derin okyanus çöküntülerindendir. Adaların ' +
+      'topoğrafik omurgasını sarp dağ sıraları ve onlarca aktif yanardağ ' +
+      "oluşturur; güneydeki Mindanao Adası'nda yükselen 2.954 metrelik Apo " +
+      'Yanardağı ülkenin en yüksek zirvesidir.' +
+      '\n\n' +
+      "Luzon Adası'ndaki kusursuz konik yapısıyla ünlü Mayon Yanardağı ile göl " +
+      'içindeki kalderasıyla Taal Yanardağı, yer şekillerini sürekli yenileyen ' +
+      'aktif merkezlerdir. Geniş düzlükler yalnızca nehir vadilerinde ve ' +
+      "Luzon'un merkezindeki çeltik havzasında görülür; kıyı şeritleri ise son " +
+      'derece girintili çıkıntılı ve dar bir yapıya sahiptir.',
     climateNoteTr:
-      'Ocaktaki 25,5 santigrat dereceden mayıstaki 28,3 santigrat dereceye kadar dar bir ' +
-      "aralıkta değişen sıcaklıklarıyla Filipinler'de tropikal deniz iklimi görülür. " +
-      "PAGASA'nın (ulusal meteoroloji kurumu) sınıflandırmasına göre ülke dört yağış tipine " +
-      'ayrılır — belirgin kurak/yağışlı mevsimi olan bölgelerden yıl boyunca yağış alan ' +
-      'bölgelere kadar. Haziran-Ekim arasında yılda ortalama 20 tropikal siklon ülkenin ' +
-      "sorumluluk alanına girer, bunlardan 8-9'u karaya çıkar; kuzey Filipinler'deki yıllık " +
-      "yağışın en az %30'u bu fırtınalardan gelir. Dağların rüzgar alan yamaçlarında yıllık " +
-      'yağış 4.000-5.000 milimetreyi bulabilir.',
+      'Takımadada yıl boyunca 26-28 derece civarında seyreden tropikal deniz ' +
+      'iklimi egemendir. İklimin mekansal yapısını, kasım-nisan dönemindeki ' +
+      'serin ve kuru kuzeydoğu musonu (Amihan) ile mayıs-ekim dönemindeki sıcak ' +
+      've yağışlı güneybatı musonu (Habagat) biçimlendirir.' +
+      '\n\n' +
+      'Ülkenin iklimsel ve beşeri kaderini belirleyen en kritik doğa olayı ' +
+      'tropikal siklonlardır (tayfunlar). Sıcak Pasifik suları üzerinde oluşan ' +
+      'tayfunlar yılda ortalama 20 kez ülkeyi etkiler ve özellikle Luzon ile ' +
+      'doğu Visayas kıyılarına olağanüstü yağışlar, heyelanlar ve fırtına ' +
+      'dalgaları taşır. Doğuya bakan dağ yamaçlarında yıllık yağış 4.000 ' +
+      'milimetreyi aşarken, dağların koruduğu batı vadilerinde belirgin bir ' +
+      'kurak dönem yaşanır.',
     hydrographyNoteTr:
-      "Kuzey Luzon'daki Cagayan Vadisi boyunca akan 505 kilometrelik Cagayan Nehri (Río Grande " +
-      "de Cagayán), hem uzunluk hem de debi bakımından Filipinler'in en büyük nehridir. " +
-      "Mindanao'da, Bukidnon Platosu'ndan inip Cotabato Ovası'ndan geçerek Illana Körfezi'ne " +
-      'dökülen 373 kilometrelik Rio Grande de Mindanao, ülkenin ikinci en uzun nehridir. Ada ' +
-      'yapısı nedeniyle Filipin nehirlerinin çoğu kısa ve dik eğimlidir, denize ulaşmadan önce ' +
-      'uzun bir mesafe kat etmez.',
+      "Parçalı ada yapısı ve sarp orografisi nedeniyle Filipinler'deki " +
+      'akarsular genellikle kısa, dik eğimli ve sel rejimli akış gösterir. En ' +
+      "büyük istisna, Kuzey Luzon'da Cordillera Central ile Sierra Madre " +
+      "dağları arasındaki geniş vadiden geçerek Babuyan Kanalı'na dökülen 505 " +
+      "kilometrelik Cagayan Nehri'dir; nehir ülkenin en uzun ve en geniş " +
+      'havzalı akarsuyudur.' +
+      '\n\n' +
+      "Mindanao Adası'ndaki Rio Grande de Mindanao ve Agusan nehirleri ise " +
+      'güneyin en geniş bataklık ve taşkın ovalarını drene eder. Başkent ' +
+      "Manila'nın doğusunda yer alan 900 kilometrekarelik Laguna de Bay, " +
+      'ülkenin en büyük tatlı su gölü olup Pasig Nehri aracılığıyla Manila ' +
+      "Körfezi'ne bağlanır; göl hem balıkçılık hem de kentsel su temini " +
+      'açısından stratejik bir işleve sahiptir.',
   },
   {
     isoCode: 'SG',
@@ -1003,33 +1372,54 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "9 Ağustos 1965'te Malezya Federasyonu'ndan ayrılarak bağımsız oldu.",
     introTr:
-      "Malay Yarımadası'nın güney ucunda, ana ada Singapur ile çevresindeki 60'tan fazla " +
-      "küçük adadan oluşan Singapur, Johor Boğazı ile Malezya'dan ayrılır; iki ülke bir " +
-      'karayolu köprüsüyle bağlıdır ama kara sınırı yoktur. Güneyde Singapur Boğazı, ' +
-      "ülkeyi Endonezya'nın Riau Adaları'ndan ayırır. Bölgedeki diğer ülkelerin aksine " +
-      "Singapur'un kırsal bir iç bölgesi yoktur — ada neredeyse tamamen kentleşmiştir.",
+      "Malay Yarımadası'nın en güney ucunda yer alan Singapur; ana ada ile onu " +
+      "çevreleyen 60'ı aşkın adacıktan meydana gelen son derece yoğun bir ada " +
+      "şehir devletidir. Kuzeyde dar Johor Boğazı ile Malezya'dan, güneyde ise " +
+      'küresel deniz ticaretinin ana arterlerinden Singapur Boğazı ile ' +
+      "Endonezya'nın Riau Adaları'ndan ayrılır." +
+      '\n\n' +
+      'Kırsal bir hinterlandı bulunmayan ve topraklarının neredeyse tamamı ' +
+      "kentsel dokuyla kaplı olan ada, Hint Okyanusu ile Güney Çin Denizi'ni " +
+      'bağlayan stratejik boğaz konumu sayesinde dünyanın en işlek liman ve ' +
+      'lojistik merkezlerinden birine dönüşmüştür.',
     landformNoteTr:
-      'Singapur genel olarak alçak bir arazi yapısına sahiptir, ortalama yükseklik yaklaşık ' +
-      "11 metredir. Ada'nın en yüksek noktası, granit kayadan oluşan 164 metrelik Bukit Timah " +
-      "Tepesi'dir. Kuzeybatı, tortul kayalardan oluşan tepeler ve vadilerle şekillenirken, " +
-      "doğu bölgesi kumlu ve düz bir arazi sunar. 1819'daki İngiliz kolonizasyonundan bu " +
-      'yana yürütülen arazi doldurma çalışmaları, ülke topraklarını orijinal büyüklüğünün ' +
-      'yaklaşık %25 üzerine çıkarmıştır — dolgu malzemesi kendi tepelerinden, deniz ' +
-      'tabanından ve komşu ülkelerden temin edilmiştir.',
+      'Singapur genel hatlarıyla dalgalı, alçak bir topoğrafyaya sahiptir; ' +
+      'arazinin ortalama rakımı yalnızca 15 metre civarındadır. Ülkenin ' +
+      'merkezinde yükselen granit yapılı 163 metrelik Bukit Timah Tepesi, ' +
+      'adanın en yüksek noktası olup son bakir yağmur ormanı kalıntısını ' +
+      'barındırır. Adanın batısı tortul kayaçlardan oluşan alçak sırtlarla ' +
+      'engebeliyken, doğusu alüvyal kumlu düzlüklerden oluşur.' +
+      '\n\n' +
+      'Ülke topoğrafyasının en belirleyici özelliği, insan eliyle yürütülen ' +
+      'kıyı dolgu çalışmalarıdır. Bağımsızlığından bu yana denizden toprak ' +
+      "kazanılarak yüzölçümü yüzde 25'ten fazla genişletilmiş; Jurong Sanayi " +
+      'Bölgesi, Changi Havalimanı ve Marina Bay gibi stratejik ekonomik ' +
+      'merkezler bütünüyle doldurulan deniz tabanı üzerinde yükselmiştir.',
     climateNoteTr:
-      "Singapur'da belirgin mevsimler yoktur; ekvatora yakın konumu nedeniyle sıcaklık yıl " +
-      'boyunca neredeyse sabit kalır. Yağış yılın her ayında görülür ve genellikle kısa ' +
-      'süreli ama şiddetli sağanaklar biçimindedir; büyük tropikal siklonlar bölgeyi ' +
-      'vurmaz. Yıllık ortalama yağış yaklaşık 2.100 milimetredir, en yoğun yağış Kasım-Ocak ' +
-      'arasındaki muson döneminde düşer.',
+      "Ekvatorun yalnızca bir derece kuzeyinde yer alan Singapur'da, mevsimsel " +
+      'sıcaklık salınımı neredeyse bulunmayan, yıl boyu sıcak ve nemli ' +
+      'ekvatoral iklim hüküm sürer. Günlük ortalama sıcaklık 27-28 derece ' +
+      "civarında sabit kalırken bağıl nem nadiren yüzde 70'in altına iner." +
+      '\n\n' +
+      'Yılın her ayında konvektif öğleden sonra fırtınaları şeklinde yoğun ' +
+      'yağış görülür; yıllık yağış ortalaması 2.300 milimetreyi aşar. Yağışlar ' +
+      'kasım ile ocak ayları arasındaki kuzeydoğu musonu döneminde en şiddetli ' +
+      'seviyeye ulaşır. Tayfun kuşağının güneyinde kaldığı için tropikal ' +
+      'siklonlardan doğrudan etkilenmeyen ada, ani yağış anlarında şehir içi su ' +
+      'baskınlarını önlemek için devasa yeraltı drenaj tünelleri ' +
+      'geliştirmiştir.',
     hydrographyNoteTr:
-      "Küçük yüzölçümü nedeniyle Singapur'da doğal göl ya da büyük nehir yoktur; su " +
-      'ihtiyacı büyük ölçüde yağış toplama ve depolama altyapısına dayanır. Ülke ' +
-      'topraklarının üçte ikisi su toplama alanı olarak tasarlanmıştır, toplanan yağmur ' +
-      'suyu adadaki 17 rezervuarda depolanır. Singapur, Geylang ve Kallang nehirlerinin ' +
-      'birleştiği haliçte inşa edilen Marina Barajı, bu üç nehrin ağzını denizden ayırarak ' +
-      'tatlı su rezervuarına (Marina Rezervuarı) dönüştürmüştür; 1977-1987 arasındaki on ' +
-      'yıllık bir temizlik çalışması bu dönüşümü mümkün kılmıştır.',
+      "Kısıtlı yüzölçümü ve dağlık havzaların yokluğu nedeniyle Singapur'da " +
+      'doğal büyük nehirler ya da göller bulunmaz. Ancak ülke, mühendislik ' +
+      'harikası entegre bir kentsel su toplama sistemiyle topraklarının üçte ' +
+      'ikisini kapalı tatlı su havzasına dönüştürmüştür.' +
+      '\n\n' +
+      'Kallang, Geylang ve Singapur nehirlerinin denize döküldüğü körfez ağzına ' +
+      'inşa edilen Marina Barajı, deniz suyunu keserek kentin merkezinde devasa ' +
+      'bir tatlı su rezervuarı oluşturmuştur. Adadaki 17 baraj gölünde toplanan ' +
+      'yağmur suları, ileri arıtma teknolojileri (NEWater) ve deniz suyu arıtma ' +
+      'tesisleriyle birleştirilerek ülkenin tarihsel su bağımlılığı stratejik ' +
+      'olarak kırılmıştır.',
   },
   {
     isoCode: 'TH',
@@ -1054,36 +1444,55 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter anayasal monarşi',
     independenceNoteTr: null,
     introTr:
-      "Güneydoğu Asya'nın ortasında yer alan Tayland, kuzeyde ve batıda Myanmar, kuzeydoğuda " +
-      'Laos, güneydoğuda Kamboçya, güneyde ise Malay Yarımadası boyunca Malezya ile komşudur. ' +
-      'Ülke kabaca bir fil başı biçiminde tanımlanır: geniş kuzey ve orta kesim "baş", güneye ' +
-      'doğru uzayan dar Malay Yarımadası şeridi ise "hortum"dur. Bu uzun güney şeridi, ' +
-      "batıdaki Andaman Denizi ile doğudaki Tayland Körfezi'ni birbirinden ayırır.",
+      'Güneydoğu Asya anakarasının coğrafi kalbinde yer alan Tayland; batı ve ' +
+      'kuzeybatıda Myanmar, kuzeydoğuda Laos, güneydoğuda Kamboçya ve güneyde ' +
+      'Malay Yarımadası üzerinden Malezya ile komşudur. Ülke arazisi, kuzeydeki ' +
+      'dağlık ve ovalık gövde ile güneye doğru bir koridor gibi uzanan dar ' +
+      'yarımada şeridiyle ayırt edilir.' +
+      '\n\n' +
+      "Güney uzantısı batıda Andaman Denizi ile doğuda Tayland Körfezi'ni " +
+      'birbirinden ayırır. Ülkenin beşeri, ekonomik ve kültürel ağırlık ' +
+      "merkezi, Chao Phraya Nehri'nin taşıdığı verimli alüvyonlarla beslenen ve " +
+      "başkent Bangkok'u barındıran bereketli orta ovadır.",
     landformNoteTr:
-      'Ülke beş coğrafi bölgeye ayrılır: kuzey ve batıdaki katlanmış dağlar, kuzeydoğudaki ' +
-      'Khorat Platosu, ortadaki Chao Phraya Havzası, güneydoğudaki kıyı şeridi ve güneydeki ' +
-      "dar yarımada. Kuzeydeki dağlar, Himalayaların güneydoğu uzantısı sayılır ve Tayland'ın " +
-      "en yüksek noktası olan 2.565 metrelik Doi Inthanon'u barındırır. Khorat Platosu, kuzey " +
-      've doğudan Mekong Nehri ile sınırlanan geniş bir tablalık olup yükseklik kuzeybatıdan ' +
-      'güneydoğuya doğru 200 metreden 90 metreye kadar azalır. Ortadaki Chao Phraya Havzası, ' +
-      'ülkenin tarımsal ve nüfus çekirdeğini oluşturan alüvyonlu bir ovadır. Güneyde, Kra ' +
-      "Kıstağı'nda kara en dar noktasında yalnızca birkaç on kilometreye kadar daralır.",
+      'Tayland belirgin jeomorfolojik bölgelere ayrılır. Kuzeyde Myanmar ' +
+      'sınırından sarkan dağ sıraları uzanır; Thanon Thong Chai kuşağında yer ' +
+      'alan 2.565 metrelik granit kütle Doi Inthanon ülkenin en yüksek ' +
+      'zirvesidir. Kuzeydoğuda ise kumtaşından oluşan ve kuzey ile doğudan ' +
+      'Mekong Nehri ile kuşatılan yarı kurak Khorat Platosu uzanır.' +
+      '\n\n' +
+      'Ülkenin kalbi sayılan Merkez Ovası, Chao Phraya ve kolları tarafından ' +
+      'doldurulmuş sığ, son derece verimli bir taşkın düzlüğüdür. Güneye doğru ' +
+      "inildikçe Malay Yarımadası daralır; Kra Kıstağı'nda genişliği yalnızca " +
+      '44 kilometreye inen bu dağlık şerit, kireçtaşı karst kuleleri ve mercan ' +
+      'adalarıyla Andaman kıyılarını şekillendirir.',
     climateNoteTr:
-      'Tayland, Köppen sınıflandırmasında büyük ölçüde tropikal savan iklimine (Aw) girer; ' +
-      'güney yarımadada ise yıl boyunca yağışın sürdüğü tropikal muson iklimi (Am) görülür. ' +
-      'Ülke genelinde üç mevsim yaşanır: Mart-Mayıs arasında sıcak yaz, Mayıs-Ekim arasında ' +
-      'güneybatı musonunun getirdiği yağışlı dönem, Kasım-Şubat arasında ise serin ve kurak ' +
-      "kış. Eylül, Bangkok'ta en yağışlı ay olup ortalama 336 milimetre yağış alır. Güneydeki " +
-      'Phuket ve Krabi gibi bölgeler, muson rüzgarının yönüne bağlı olarak yıl boyunca değişen ' +
-      'ama hiçbir zaman tamamen kesilmeyen bir yağış rejimine sahiptir.',
+      'Tayland genelinde tropikal muson ve savan iklimi hüküm sürer. Yıl, ' +
+      'atmosferik hava kütlelerinin yön değiştirmesiyle üç mevsimsel döngüye ' +
+      "ayrılır: Mayıs ile ekim arasında Hint Okyanusu'ndan esen güneybatı " +
+      'musonu sağanak yağışlar ve yüksek nem getirir; kasım-şubat döneminde ' +
+      'Asya anakarasından gelen kuru kuzeydoğu musonu serin ve açık bir kış ' +
+      'yaratır; mart-mayıs ayları ise sıcaklıkların 40 dereceyi aştığı ' +
+      'bunaltıcı sıcak dönemdir.' +
+      '\n\n' +
+      'Bölgesel topoğrafya yağış miktarını keskin biçimde farklılaştırır. ' +
+      'Khorat Platosu batıdaki dağların yağış gölgesinde kaldığı için kuraklık ' +
+      'çekerken, güneydeki yarımada şeridi her iki yönden gelen denizel hava ' +
+      'kütlelerinin etkisiyle yılda 2.500 milimetreyi aşan yağış alır ve kurak ' +
+      'mevsim yaşamayan tropikal yağmur ormanı iklimine yaklaşır.',
     hydrographyNoteTr:
-      "Chao Phraya Nehri, kuzeydeki Ping ve Nan nehirlerinin Nakhon Sawan'da birleşmesiyle " +
-      "oluşur ve buradan Bangkok'u geçerek Tayland Körfezi'ne ulaşana kadar 372 kilometre " +
-      "akar; kaynağı olan Nan Nehri'nin en uzak başlangıç noktasından itibaren ölçüldüğünde " +
-      "toplam uzunluk yaklaşık 1.112 kilometreyi bulur. Mekong Nehri, Altın Üçgen'den itibaren " +
-      'önce Laos ile 920 kilometrelik, ardından güneye dönerek yaklaşık 850 kilometrelik ' +
-      "ikinci bir sınır hattı boyunca Tayland'ın kuzey ve kuzeydoğu sınırını çizer; ülke " +
-      'nehirlerinin üçte biri Mekong havzasına akar.',
+      "Tayland'ın milli nehri, kuzey dağlarından inen Ping, Wang, Yom ve Nan " +
+      "nehirlerinin Nakhon Sawan'da birleşmesiyle doğan 372 kilometrelik Chao " +
+      "Phraya'dır (kollarıyla 1.100 km). Başkent Bangkok'un içinden geçerek " +
+      "Tayland Körfezi'ne dökülen nehir, oluşturduğu geniş kanal (khlong) ve " +
+      'delta ağıyla ülkenin çeltik ambarını sular ve iç su taşımacılığını ' +
+      'sırtlar.' +
+      '\n\n' +
+      'Kuzey ve kuzeydoğu sınırının yaklaşık 900 kilometresini çizen Mekong ' +
+      "Nehri ise Khorat Platosu'nu drene eden Mun ve Chi nehirlerini sularına " +
+      'katar. Ülkenin en büyük doğal tatlı su gölü kuzeydeki 225 ' +
+      'kilometrekarelik Bueng Boraphet iken, güney yarımadada yer alan Songkhla ' +
+      'Gölü denize lagün kanalıyla bağlanan geniş bir acı su havzasıdır.',
   },
   {
     isoCode: 'TL',
@@ -1109,39 +1518,57 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "28 Kasım 1975'te Portekiz'den bağımsızlık ilan edildi; fiilî bağımsızlık, BM geçici yönetiminin ardından 20 Mayıs 2002'de gerçekleşti.",
     introTr:
-      'Timor adasının doğu yarısında yer alan Doğu Timor, adanın batı yarısını Endonezya ' +
-      'ile paylaşır; ülkenin Oecusse bölgesi ise Endonezya toprakları içinde kalan bir ' +
-      'kara parçasıdır (eksklav). Kuzeyde Wetar Boğazı ve Banda Denizi, güneyde ise Timor ' +
-      'Denizi ile çevrilidir. Arazinin neredeyse tamamı dağlıktır; kıyıdan başlayan dar ' +
-      'düzlükler kısa mesafede sarp yamaçlara dönüşür.',
+      "Küçük Sunda Adaları'nın en doğusundaki Timor Adası'nın doğu yarısını " +
+      "kaplayan Doğu Timor (Timor-Leste); batıda Endonezya'nın Doğu Nusa " +
+      'Tenggara eyaletiyle kara sınırı paylaşır. Ülke ayrıca Batı Timor ' +
+      'kıyısında yer alan Oecusse eksklavı ile kuzey açıklarındaki Atauro ve ' +
+      'Jaco adalarını da içerir.' +
+      '\n\n' +
+      'Kuzeyinde Ombai ve Wetar boğazları ile Banda Denizi, güneyinde ise ' +
+      'Avustralya kıtasına bakan Timor Denizi uzanır. Kıyı şeridinden itibaren ' +
+      'aniden yükselen son derece sarp ve dağlık topoğrafyası, yerleşim ' +
+      'merkezlerinin ve ulaşım ağlarının gelişimini belirleyen temel coğrafi ' +
+      'unsurdur.',
     landformNoteTr:
-      'Ülke topraklarının yaklaşık yarısı 40 dereceyi aşan eğime sahiptir — bu durum ' +
-      'araziyi tarım ve yol yapımı açısından son derece zorlu kılar. Ülkenin merkezini ' +
-      'boydan boya kat eden Ramelau Sıradağları, Avustralya ve Avrasya levhalarının ' +
-      "çarpışmasıyla oluşmuştur. Başkent Dili'nin yaklaşık 70 kilometre güneyinde, " +
-      'Ainaro bölgesinde yükselen 2.963 metrelik Tatamailau (Ramelau Dağı), hem ülkenin ' +
-      'hem de tüm Timor adasının en yüksek noktasıdır. Ülke genelinde 2.000 metreyi aşan ' +
-      'birkaç zirve daha bulunur (Matebian, Maubohilau, Kablaki gibi), ancak bunlar ' +
-      "Ramelau'dan ayrı, farklı belediyelerdeki başka sıradağlara aittir. Kuzey kıyısı " +
-      'denize dik biçimde iner ve dar düzlüklerin ardından hemen dağlara geçilirken, ' +
-      'güney kıyısı daha geniş düzlükler ve bataklık alçak arazi sunar.',
+      'Doğu Timor; Hint-Avustralya levhasının Avrasya levhasının altına daldığı ' +
+      'genç ve hareketli bir tektonik sıkışma kuşağında yer alır. Ülke ' +
+      'arazisinin neredeyse yarısı 40 derecenin üzerinde eğime sahip dik ' +
+      'yamaçlardan meydana gelir. Adanın belkemiğini oluşturan Ramelau ' +
+      'Sıradağları, batıdan doğuya uzanarak adayı ikiye böler; 2.963 metreye ' +
+      "ulaşan Tatamailau Dağı (Mount Ramelau), hem Doğu Timor'un hem de tüm " +
+      "Timor Adası'nın en yüksek zirvesidir." +
+      '\n\n' +
+      'Topoğrafya kuzey ve güney kıyılarında asimetrik bir yapı gösterir. Kuzey ' +
+      'kıyıları denize dik inen sarp falezler, basamaklı mercan terasları ve ' +
+      'son derece dar kıyı düzlüklerinden oluşurken; güney kıyısı alüvyal ' +
+      'çökellerle dolmuş daha geniş ovalar ve bataklık kıyı kuşağı barındırır.',
     climateNoteTr:
-      "Doğu Timor'da yağış dağılımı kuzeyden güneye keskin biçimde değişir: kuzey kıyısı, " +
-      'merkezi dağların yağış gölgesinde kalarak yarı kurak bir savan iklimi yaşarken, ' +
-      'güney kıyısı ve orta dağlık kesim çok daha yağışlı bir muson ikliminin etkisi ' +
-      'altındadır. Kasım-Mart arasındaki kuzeybatı musonu nemli ve sıcak bir dönem ' +
-      'getirirken, Nisan-Ekim arasındaki güneydoğu musonu daha kurudur. Bu asimetri ' +
-      "yıllık yağış rakamlarına da yansır: kuzey kıyısındaki Manatuto'da yıllık yağış 565 " +
-      "milimetre kadar düşükken, orta-batı dağlık bölgedeki Lolotai'de 2.837 milimetreye " +
-      'ulaşır; kuzeyde yılın neredeyse sekiz ayı boyunca hemen hiç yağış görülmez.',
+      "Doğu Timor'un iklimi, Avustralya kıtasına yakınlığı ve merkezi " +
+      'sıradağlarının orografik etkisiyle şekillenen tropikal savan ve muson ' +
+      'rejimidir. Yıl, aralık ile mart ayları arasındaki nemli kuzeybatı musonu ' +
+      'ile mayıs-ekim dönemindeki kuru güneydoğu alizeleri arasında bölünür.' +
+      '\n\n' +
+      'Merkezi dağ omurgası, ada üzerinde dramatik bir yağış karşıtlığı üretir. ' +
+      "Avustralya'dan esen kuru rüzgarların dağları aşarken nemini yitirmesi " +
+      "sonucu başkent Dili'nin de yer aldığı kuzey kıyısı yağış gölgesinde " +
+      'kalır; burada yıllık yağış 600-1.000 milimetre arasında kalarak kaktüslü ' +
+      'kurak savan bitki örtüsü oluşturur. Buna karşılık güney yamaçları ve iç ' +
+      'yaylalar yılda 2.000 ila 2.800 milimetre yağış alarak yemyeşil tropikal ' +
+      'ormanları besler.',
     hydrographyNoteTr:
-      "Dağlık ve sarp arazi yapısı nedeniyle Doğu Timor'un nehirleri genellikle kısa ve " +
-      'mevsimsel akışlıdır: yağışlı mevsimde sellenebilirken, kurak mevsimde su seviyeleri ' +
-      'büyük ölçüde düşer. En uzun nehir olan Loes, yaklaşık 80 kilometre uzunluğunda ve ' +
-      '2.184 kilometrekarelik bir havzayı besler. Laclo ve Seical gibi diğer önemli ' +
-      'nehirler, merkezi sıradağlardan inerken derin vadiler ve kanyonlar oyar; bu ' +
-      'nehirlerin çoğu, kaynaklandıkları dağ omurgasına göre kuzeye ya da güneye akarak ' +
-      'kıyıya ulaşır.',
+      'Arazinin aşırı dik eğimi ve belirgin kurak dönemi nedeniyle Doğu ' +
+      "Timor'daki akarsular, mevsimsel akışlı ve sel rejimli tipik sel " +
+      'yatakları karakterindedir. Yağışlı mevsimde dağlardan devasa tortu ' +
+      'kütleleri taşıyarak taşan nehirler, kurak mevsimde neredeyse tamamen ' +
+      'kuruyarak çakıllı yataklara dönüşür.' +
+      '\n\n' +
+      'Ülkenin en uzun akarsuyu olan 80 kilometrelik Loes Nehri, merkezi ' +
+      'yaylaları drene ederek kuzeybatı kıyısından denize dökülür; Laclo ve ' +
+      'Seical nehirleri de derin kanyonlar oyarak kuzeye akar. Ülkenin doğu ' +
+      'ucundaki Nino Konis Santana Milli Parkı içinde yer alan 22 ' +
+      "kilometrekarelik Ira Lalaro Gölü, Doğu Timor'un en büyük tatlı su gölü " +
+      'olup karstik çöküntü havzasında mevsimsel olarak genişleyip daralan ' +
+      'benzersiz bir sulak alandır.',
   },
   {
     isoCode: 'VN',
@@ -1166,39 +1593,58 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Tek parti sosyalist cumhuriyet',
     independenceNoteTr: "2 Eylül 1945'te bağımsızlığını ilan etti (kuzey-güney birleşme 1976).",
     introTr:
-      'Kuzeyden güneye 1.650 kilometre uzanan, en dar noktasında yalnızca yaklaşık 50 ' +
-      'kilometre genişliğindeki Vietnam, karakteristik S biçimiyle tanınır. Kuzeyde ve ' +
-      'kuzeybatıda Çin, batıda Laos ve Kamboçya ile komşudur; doğu ve güney boyunca Güney Çin ' +
-      "Denizi'ne (Vietnam'da Doğu Denizi) uzun bir kıyı şeridiyle açılır. Ülke, kuzeydeki " +
-      'Kızıl Nehir Deltası, ortadaki dar kıyı şeridi ve Annam Sıradağları, güneydeki Mekong ' +
-      'Deltası olmak üzere üç ana bölgeye ayrılır.',
+      "Hint-Çin Yarımadası'nın doğu kıyısı boyunca kuzeyden güneye 1.650 " +
+      'kilometre boyunca zarif bir "S" harfi çizerek uzanan Vietnam; kuzeyde ' +
+      'Çin, batıda Laos ve Kamboçya ile komşudur. Doğu ve güneyde 3.200 ' +
+      "kilometreyi aşan kıyı şeridiyle Güney Çin Denizi'ne (ülkedeki adıyla " +
+      'Doğu Denizi) açılır.' +
+      '\n\n' +
+      'Ülke geleneksel olarak "bir sırığın iki ucundaki iki pirinç sepeti" ' +
+      "metaforuyla tasvir edilir: Kuzeyde başkent Hanoi'nin merkezinde olduğu " +
+      "Kızıl Nehir Deltası ile güneyde Ho Chi Minh Kenti'nin ticaretini " +
+      'besleyen Mekong Deltası, ortadaki sarp Annam Sıradağları ve dar kıyı ' +
+      'koridoruyla birbirine bağlanır.',
     landformNoteTr:
-      "Annam Sıradağları (Trường Sơn), Çin'in Yünnan bölgesinden başlayıp Vietnam-Laos sınırı " +
-      "boyunca güneye uzanır ve Mekong Deltası'nın kuzeyinde sona erer; ülkenin orta kesimini " +
-      "boydan boya kat eden bu sıradağ, kıyı ovasını içeriden kuşatır. Vietnam'ın en yüksek " +
-      'noktası, kuzeybatıdaki Hoàng Liên Sơn sıradağında yükselen ve Hint-Çin yarımadasının en ' +
-      "yüksek zirvesi olan Fansipan'dır (yaklaşık 3.143 metre). Düz arazi ülke topraklarının " +
-      'beşte birinden azını oluşturur, geri kalanı tepelik ve dağlık arazidir. Kuzeyde Kızıl ' +
-      "Nehir'in, güneyde ise Mekong'un taşıdığı alüvyonla oluşan iki büyük delta, ülkenin en " +
-      'verimli ve en yoğun nüfuslu kesimleridir.',
+      'Vietnam topraklarının dörtte üçü dağlık ve tepelik arazilerden oluşur; ' +
+      'ovalar yalnızca iki ana deltada ve kıyı boyunca uzanan ince şeritte ' +
+      "toplanmıştır. Kuzeybatıda yükselen Hoàng Liên Sơn Sıradağları'ndaki " +
+      "3.147 metrelik Fansipan Zirvesi, hem Vietnam'ın hem de tüm Hint-Çin " +
+      "Yarımadası'nın en yüksek noktasıdır." +
+      '\n\n' +
+      'Laos sınırı boyunca güneye inen Annam Sıradağları (Trường Sơn), ülkenin ' +
+      'omurgasını oluşturarak kıyı şeridini iç platolardan ayırır. Dağların ' +
+      'güney ucunda yer alan Tay Nguyen (Merkezi Yaylalar) verimli bazaltik ' +
+      'topraklarıyla ülkenin kahve ve kauçuk kalbidir. Kuzeydoğudaki Tonkin ' +
+      "Körfezi'nde ise kireçtaşlarının deniz sularıyla aşınmasıyla oluşmuş " +
+      'binlerce karstik kule adayı barındıran ünlü Ha Long Körfezi uzanır.',
     climateNoteTr:
-      'Vietnam tamamen tropik kuşakta yer almasına rağmen, kuzeyden güneye üç farklı iklim ' +
-      'bölgesine ayrılır. Kuzeyde, sıcak ve yağışlı yazların soğuk ve kurak kışlarla değiştiği ' +
-      'nemli subtropikal bir muson iklimi görülür — dört mevsim burada belirgindir. Orta ' +
-      "Vietnam'da tropikal muson iklimi hakim olsa da yağışlı ve kurak dönemler kuzey ve " +
-      'güneyle örtüşmez; bölge yazın daha az, kışın ise daha fazla yağış alır. Güneyde ise yıl ' +
-      'boyunca yüksek sıcaklıklarla (ortalama 27 santigrat derece) birlikte yalnızca iki ' +
-      'mevsim yaşanır: Mayıs-Kasım arasındaki yağışlı dönem ve Aralık-Nisan arasındaki kurak ' +
-      'dönem.',
+      'Geniş enlem farkı ve engebeli topoğrafyası nedeniyle Vietnam, tropikal ' +
+      'kuşakta yer almasına rağmen belirgin bölgesel iklim farklılıkları ' +
+      'sergiler. Kuzey kesiminde, kış aylarında Çin üzerinden inen soğuk ' +
+      'Sibirya hava kütlelerinin etkisiyle sıcaklıkların 10 derecenin altına ' +
+      'indiği, yazları ise sıcak ve yağışlı geçen dört mevsimli nemli ' +
+      'subtropikal iklim egemendir.' +
+      '\n\n' +
+      'Orta kesimde Annam Dağları muson döngüsünü tersine çevirir; kış musonu ' +
+      'denizden topladığı nemi bu dağların yamaçlarına bırakarak eylül-aralık ' +
+      'aylarında Da Nang ve Hue çevresinde rekor yağışlara, sel ve tayfun ' +
+      'felaketlerine yol açar. Güney Vietnam ise yıl boyu 27-29 derece ' +
+      'civarında seyreden sıcaklıkları, mayıs-ekim yağışlı dönemi ve ' +
+      'kasım-nisan kurak dönemiyle klasik bir ekvatoral savan iklimi yaşar.',
     hydrographyNoteTr:
-      "Kızıl Nehir (Sông Hồng), Çin'in Yünnan bölgesinde doğar ve toplamda yaklaşık 1.149 " +
-      'kilometre uzunluğundadır; bu mesafenin yaklaşık 510 kilometresi Vietnam topraklarından ' +
-      "geçer. Việt Trì'den sonra Đuống, Kinh Thầy ve Thái Bình gibi kollara ayrılarak Kızıl " +
-      "Nehir Deltası'nı besler ve Tonkin Körfezi'ne ulaşır. Güneyde Mekong, Phnom Penh " +
-      'yakınlarında Mekong ve Bassac adlı iki ana kola ayrıldıktan sonra Vietnam topraklarında ' +
-      'dokuz ayrı ağızdan denize dökülür; bu ağ yerel dilde "Dokuz Ejderha Nehri" (Sông Cửu ' +
-      'Long) olarak anılır. Delta boyunca yoğun kanal ağı, hem tarımı sular hem de ana ulaşım ' +
-      'güzergahını oluşturur.',
+      'Vietnam medeniyeti ve tarımı, iki devasa nehir sisteminin oluşturduğu ' +
+      "taşkın deltaları üzerinde yükselmiştir. Çin'in Yünnan Platosu'ndan doğup " +
+      "Tonkin Körfezi'ne dökülen Kızıl Nehir (Sông Hồng), taşıdığı yoğun kızıl " +
+      'silt sayesinde deltayı sürekli besler; taşkınları önlemek için inşa ' +
+      'edilen bin yıllık seddeler nehri delta ovalarının seviyesinin üzerinde ' +
+      'tutar.' +
+      '\n\n' +
+      "Güneyde ise Tibet'ten gelen Mekong Nehri, Kamboçya'dan geçtikten sonra " +
+      'Vietnam topraklarında dokuz kola ayrılarak denize döküldüğü için yerel ' +
+      'dilde "Dokuz Ejderha Nehri" (Sông Cửu Long) adını alır. 40 bin ' +
+      'kilometrekareyi aşan Mekong Deltası, birbirine bağlı binlerce ' +
+      'kilometrelik doğal kanal ve kollarıyla ülkenin pirinç ambarını ve yüzen ' +
+      'pazarlarını besler.',
   },
   {
     isoCode: 'AF',
@@ -1224,34 +1670,64 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "19 Ağustos 1919'da İngiltere'den bağımsız oldu (III. Anglo-Afgan Savaşı sonrası).",
     introTr:
-      'Hiçbir denize kıyısı olmayan Afganistan, toprağının büyük bölümünü kaplayan dağlarla ' +
-      'tanımlanır. Kuzeyde Türkmenistan, Özbekistan ve Tacikistan, batıda İran, güney ve doğuda ' +
-      'Pakistan ile komşudur; kuzeydoğuda dar bir şerit halinde uzanan Vahan Koridoru, ülkeyi ' +
-      "Çin'e bağlayan tek kara bağlantısıdır. Toprakların yaklaşık dörtte üçünü, orta ve " +
-      'kuzeydoğu kesimini kaplayan Hindukuş sıradağları ile bunun uzantıları oluşturur.',
-    landformNoteTr:
-      'Himalayaların batı ucu sayılan Hindukuş, Vahan Koridoru boyunca Çin sınırına kadar ' +
-      "uzanır; sıradağın en yüksek noktası, Pakistan sınırındaki 7.492 metrelik Noshaq'tır. " +
-      'Kabil, Kandahar ve Herat gibi büyük şehirler, bu dağlık kütlenin çevresindeki nehir ' +
-      'vadilerinde ve platolarda kurulmuştur.' +
+      "Güney Asya ile Orta Asya'nın kesişim noktasında yer alan Afganistan, " +
+      'bütünüyle kara içine kilitlenmiş, sarp ve engebeli bir yayla ülkesidir. ' +
+      'Doğudan batıya doğru uzanarak ülkeyi ortadan bölen Hindukuş Dağları, hem ' +
+      'yerleşim dokusunu hem de tarih boyunca kıtayı kateden ticaret ve göç ' +
+      "yollarını biçimlendirmiştir. Kuzeydoğuda Pamir Düğümü'ne doğru bir " +
+      'parmak gibi uzanan dar Vahan Koridoru, ülkeye Çin ile doğrudan bir temas ' +
+      'hattı sağlar. ' +
       '\n\n' +
-      "Ülkenin güneybatısında, Hindukuş'tan inen sular Sistan Havzası'ndaki tuzlu göllerde son " +
-      "bulur; bu kapalı havzanın dışarıya akışı yoktur. Kuzeyde, Amu Derya'nın güneyinde kalan " +
-      'bölge, Türkmenistan sınırına kadar uzanan geniş bir bozkır ve çöl kuşağıdır.',
+      'Yerleşimlerin ezici çoğunluğu, sert dağ kütlelerinin arasına sıkışmış ' +
+      'nehir vadilerinde ve alüvyal vahalar boyunca toplanmıştır. Başkent Kabil ' +
+      'de dahil olmak üzere büyük kentler, merkezi dağlık kütlenin etrafını ' +
+      'çevreleyen halka biçimli bir güzergah üzerinde dizilir; bu topoğrafik ' +
+      'tecrit, tarihsel olarak bölgesel kimliklerin güçlenmesine ve dağlık iç ' +
+      'kesimlerin merkezi denetimden uzak kalmasına yol açmıştır.',
+    landformNoteTr:
+      'Toprakların yaklaşık dörtte üçünü kaplayan dağlık kütlenin omurgasını, ' +
+      'Himalayaların batı uzantısı niteliğindeki Hindukuş Dağları oluşturur. ' +
+      "Pakistan sınırında 7.492 metreye ulaşan Noşak (Noshaq) Zirvesi'nden " +
+      'batıya doğru kademeli olarak alçalan bu silsile, ülkenin iç kesimlerinde ' +
+      'derin kanyonlar ve yüksek yaylalar meydana getirir. Dağ kütlesini aşan ' +
+      'Hayber ve Salang gibi tarihi geçitler, vadiler arası geçişi sağlayan ' +
+      'yegane doğal koridorlardır. ' +
+      '\n\n' +
+      'Dağlık çekirdeğin çevresinde arazi belirgin biçimde alçalır. Kuzeyde ' +
+      'Amu Derya kıyılarına doğru uzanan Baktriya düzlükleri verimli bir lös ve ' +
+      'bozkır kuşağı sunarken; güney ve güneybatıda Deşt-i Margov ve Registan ' +
+      'çölleriyle kaplı kurak platolar uzanır. Bu çöl düzlükleri, güneybatı ' +
+      "sınırındaki kapalı Sistan Çöküntüsü'nde son bulur.",
     climateNoteTr:
-      "Afganistan'da sert bir karasal iklim egemendir: yazlar çöl kesimlerinde 49 santigrat " +
-      'dereceye kadar çıkarken, yüksek dağlarda kışın sıcaklık -25 santigrat dereceye kadar ' +
-      'düşer. Yıl boyunca yağış azdır ve büyük ölçüde kışın düşen kardan oluşur. Güneydoğuda, ' +
-      'Pakistan sınırına yakın Nuristan ve Kunar bölgelerine Hint muson sisteminin uç etkisi ' +
-      'ulaşır; bu iki bölgede yıllık yağış 1.000 milimetreye kadar çıkarken, ülkenin geri kalanı ' +
-      'bu yağıştan büyük ölçüde yoksun kalır.',
+      'Deniz etkisinden bütünüyle yoksun olan ülkede aşırı sıcaklık ' +
+      'farklarıyla tanımlanan sert bir yarı kurak ve karasal iklim hüküm sürer. ' +
+      'Yaz aylarında alçak çöl havzalarında termometreler 49 dereceye kadar ' +
+      'tırmanırken, kışın yüksek dağlık vadilerde dondurucu soğuklar sıfırın ' +
+      'altında 25 derecenin altına iner. Gece ile gündüz arasındaki keskin ' +
+      'sıcaklık salınımları, dağlık topoğrafyanın mekanik ufalanmasını ' +
+      'hızlandırır. ' +
+      '\n\n' +
+      'Yağışlar genel olarak yetersizdir ve büyük ölçüde kış sonu ile ilkbahar ' +
+      'başında düşen kar ve sağanaklardan ibarettir; yıllık ortalama yağış çoğu ' +
+      'bölgede 300 milimetrenin altında kalır. Yalnızca güneydoğudaki Nuristan ' +
+      've Kunar vadileri, Hint musonunun nemli kollarına açık kaldığı için ' +
+      '1.000 milimetreyi bulan yağış alır ve zengin iğne yapraklı orman ' +
+      'örtüsünü besler.',
     hydrographyNoteTr:
-      "Amu Derya, Hindukuş'un kuzey yamaçlarından beslenir ve yaklaşık 1.000 kilometre boyunca " +
-      "Afganistan'ın Tacikistan, Özbekistan ve Türkmenistan ile olan sınırını çizer. Ülke " +
-      "sınırları içinde tamamen akan en uzun nehir olan Helmand, Hindukuş'ta doğar ve yaklaşık " +
-      "1.150 kilometre sonra güneybatıdaki Sistan Havzası'nın tuzlu göllerinde son bulur; bu " +
-      'nehir hiçbir denize ulaşmaz. Kabil Nehri ise başkentten geçtikten sonra doğuya akarak ' +
-      "Pakistan'da İndus Nehri'ne katılır — ülkenin denize ulaşan tek büyük su yolu budur.",
+      'Ülkedeki akarsuların can damarı, kışın Hindukuş doruklarında biriken ' +
+      'karlar ve kalıcı buzul kütleleridir. İlkbahar ve yaz başındaki kar ' +
+      'erimeleriyle coşan nehirler, kurak topraklara hayat veren vahaları ' +
+      'sulayarak akar. Ülke içinde tamamen doğup akan en uzun akarsu olan ' +
+      'yaklaşık 1.150 kilometrelik Helmand Nehri, kurak güney çöllerini kat ' +
+      "ederek güneybatıdaki kapalı Sistan Havzası'nda yer alan Hamun göllerinde " +
+      'son bulur ve hiçbir denize ulaşamaz. ' +
+      '\n\n' +
+      'Kuzey yamaçlardan inen sular, Türkmenistan, Özbekistan ve Tacikistan ' +
+      'sınırını yaklaşık 1.000 kilometre boyunca çizen Amu Derya üzerinden Aral ' +
+      "Havzası'na yönelir. Başkent Kabil'in içinden geçen Kabil Nehri ise " +
+      "doğuya doğru akıp Hayber Boğazı'nı aşarak Pakistan topraklarında İndus " +
+      "Nehri'ne katılır; böylece okyanusa ve açık denizlere ulaşabilen tek " +
+      'Afgan su havzasını oluşturur.',
   },
   {
     isoCode: 'BD',
@@ -1277,37 +1753,57 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "26 Mart 1971'de Pakistan'dan bağımsızlığını ilan etti (Bangladeş Kurtuluş Savaşı).",
     introTr:
-      "Güney Asya'nın kuzeydoğusunda, Ganj, Brahmaputra ve Meghna nehirlerinin oluşturduğu " +
-      'deltanın büyük bölümü üzerinde kurulu olan Bangladeş, batı, kuzey ve doğuda Hindistan, ' +
-      "güneydoğuda ise kısa bir sınır boyunca Myanmar ile komşudur. Güneyde Bengal Körfezi'ne " +
-      'kıyısı vardır. Ülke topraklarının neredeyse tamamı, güneydoğudaki Chittagong Tepeleri ' +
-      'dışında, deniz seviyesine yakın alçak bir ova görünümündedir.',
+      "Güney Asya'nın doğu ucunda, Bengal Körfezi'nin kuzey kıyısına oturan " +
+      'Bangladeş; batı, kuzey ve doğuda Hindistan, güneydoğuda ise kısa bir hat ' +
+      'boyunca Myanmar ile çevrilidir. Ülke neredeyse bütünüyle, Himalayalardan ' +
+      'süzülen devasa nehir sistemlerinin taşıdığı alüvyonlarla oluşmuş, deniz ' +
+      'seviyesine çok yakın engin bir taşkın ovası niteliğindedir. ' +
+      '\n\n' +
+      "Dünyanın nüfus yoğunluğu en yüksek ülkelerinden biri olan Bangladeş'te " +
+      "yaşam, suyun ritmine sıkı sıkıya bağlıdır. Başkent Dakka'nın da yer " +
+      'aldığı merkezi alüvyal düzlükler, son derece verimli çeltik tarlalarını ' +
+      'barındırırken; suların yükseldiği ve çekildiği dönemler hem tarımsal ' +
+      'üretimi hem de toplumsal yerleşim dokusunu temelden belirler.',
     landformNoteTr:
-      'Ganj, Brahmaputra ve Meghna nehirlerinin taşıdığı tortularla oluşan ' +
-      'Ganj-Brahmaputra-Meghna Deltası, yaklaşık 105.000 kilometrekarelik yüzölçümüyle dünyanın ' +
-      'en büyük nehir deltasıdır ve Bangladeş topraklarının büyük bölümünü kaplar. Deltanın ' +
-      'güneyinde, Hindistan ile paylaşılan Sundarbans, dünyanın en büyük mangrov ormanıdır. ' +
-      "Ülkenin tek dağlık bölgesi, güneydoğudaki Chittagong Tepeleri'dir; burada sıradağlar " +
-      "200-1.000 metre arasında paralel sırtlar halinde uzanır. Bangladeş'in en yüksek noktası " +
-      'konusunda kaynaklar tam örtüşmez: resmi olarak uzun süre Tazing Dong kabul edilmişti, ama ' +
-      "güncel ölçümler bu unvanı Saka Haphong'a (yaklaşık 1.063 metre) verir.",
+      'Ülke yüzölçümünün yaklaşık yüzde sekseni, yaklaşık 105.000 ' +
+      'kilometrekarelik yayılımıyla gezegenin en büyük delta sistemini ' +
+      "oluşturan Bengal Havzası'nın çöküntü düzlüklerinden meydana gelir. Kıyı " +
+      'kesiminde denizden yüksekliği yalnızca birkaç metreyi bulan bu bataklık ' +
+      've delta topraklarının güneybatısında, Bengal kaplanına da ev sahipliği ' +
+      'yapan dünyanın en geniş kesintisiz mangrov ekosistemi Sundarbans uzanır. ' +
+      '\n\n' +
+      'Monoton delta topoğrafyasının yegane istisnası, güneydoğuda Myanmar ' +
+      "sınırına paralel uzanan Chittagong Tepeleri'dir. Karstik ve kireçtaşılı " +
+      'katmanların oluşturduğu 200 ila 1.000 metre rakımlı bu ormanlık sırtlar ' +
+      'kuşağında yer alan yaklaşık 1.063 metrelik Saka Haphong zirvesi, ülkenin ' +
+      'en yüksek noktasıdır.',
     climateNoteTr:
-      'Bangladeş tropikal bir muson iklimine sahiptir ve üç mevsim yaşanır: Ekim-Mart arasında ' +
-      'serin ve kurak kış, Mart-Mayıs arasında sıcak ve nemli bir geçiş dönemi, Haziran-Eylül ' +
-      'arasında ise güneybatı musonunun getirdiği yoğun yağışlı yaz. Yıllık yağışın yaklaşık ' +
-      "%80'i bu son dönemde düşer. Ekim-Aralık ve Nisan-Mayıs aylarında Bengal Körfezi'nden " +
-      'gelen tropikal siklonlar kıyı bölgelerini düzenli olarak vurur; körfezin kuzeye doğru ' +
-      'daralan huni biçimi, fırtına dalgalarının etkisini artırır. Delta düzlüğünün alçaklığı, ' +
-      'muson yağmurlarıyla birleşince ülkenin büyük bölümünü yıllık taşkınlara açık hale ' +
-      'getirir.',
+      'Yıl boyu yüksek sıcaklıkların egemen olduğu ülkede yaşamı tropikal ' +
+      'muson döngüsü yönetir. Haziran ile eylül ayları arasındaki güneybatı ' +
+      "musonu, Hint Okyanusu'ndan taşıdığı muazzam nemi boşaltarak yıllık " +
+      'yağışın yüzde seksenini bu döneme yığar. Nehir debilerinin kabarması ve ' +
+      'sığ yataklardan taşmasıyla her yıl ülke topraklarının üçte biri sular ' +
+      'altında kalır; bu taşkınlar felaketlere yol açabildiği gibi tarlalara ' +
+      'taze ve verimli silt tabakaları da kazandırır. ' +
+      '\n\n' +
+      'Mevsim geçişlerinde, özellikle nisan-mayıs ve ekim-kasım aylarında ' +
+      "Bengal Körfezi'nde oluşan tropikal siklonlar kıyı şeridini vurur. " +
+      'Körfezin kuzeye doğru daralan huni biçimli morfolojisi, fırtına ' +
+      'kabarmalarını metrelerce yükselterek alçak kıyı yerleşimlerinde ve açık ' +
+      'deniz adacıklarında şiddetli su baskınlarına neden olur.',
     hydrographyNoteTr:
-      "Ülkenin batısından giren Ganj, Bangladeş'te Padma adını alır; kuzeydoğudan gelen " +
-      'Brahmaputra ise Jamuna adıyla akar. Bu iki büyük nehir, Goalanda yakınlarında birleşir ' +
-      "ve güneydoğudan gelen Meghna ile birlikte Bengal Körfezi'ne dökülür. Delta boyunca " +
-      'sayısız kol ve dağıtım kanalı bulunur; bu yoğun su ağı hem tarımı besler hem de ülkenin ' +
-      "başlıca iç ulaşım güzergahını oluşturur. Hindistan'ın Mizoram eyaletindeki Lushai " +
-      "Tepeleri'nde doğan Karnaphuli Nehri, Chittagong Tepeleri'ni geçerek Bengal Körfezi'ne " +
-      'hızlı akışıyla ulaşır.',
+      "Bangladeş'in hidrografik omurgasını üç ana nehir damarı belirler: " +
+      'Ülkeye batıdan giren Ganj burada Padma, kuzeyden inen Brahmaputra ise ' +
+      'Jamuna adını alır. Bu iki devasa su kütlesi Goalanda yakınlarında ' +
+      'birleştikten sonra güneydoğudan gelen Meghna ile kucaklaşarak genişleyen ' +
+      "nehir ağızlarıyla Bengal Körfezi'ne dökülür. " +
+      '\n\n' +
+      'Ana kollardan ayrılan ve birbirine bağlanan yüzlerce dağıtım kanalı, ' +
+      'ülkeyi adeta dev bir su labirentine çevirir. Karayolu ulaşımının güç ' +
+      'olduğu taşkın düzlüklerinde bu nehirler hem ana taşımacılık arterlerini ' +
+      'meydana getirir hem de ülkenin zengin tatlı su balıkçılığını besler. ' +
+      'Doğu tepeliklerinden inen ve hızlı akışıyla bilinen Karnaphuli Nehri ise ' +
+      "ülkenin en büyük liman kenti Chittagong'u denize bağlar.",
   },
   {
     isoCode: 'BT',
@@ -1332,32 +1828,59 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter anayasal monarşi',
     independenceNoteTr: null,
     introTr:
-      "Doğu Himalayalar'da, Çin ile Hindistan arasında sıkışmış küçük bir krallık olan Butan, " +
-      'toprağının neredeyse tamamı dağlık bir arazi üzerinde kuruludur. Kuzeyde Tibet platosuna ' +
-      "komşu olan ülke, güneyde Hindistan'ın Assam, Batı Bengal, Arunaçal Pradeş ve Sikkim " +
-      'eyaletleriyle sınır komşusudur. Rakım, güneydeki sıcak ova şeridinden kuzeydeki buzullu ' +
-      'zirvelere kadar birkaç bin metrelik bir yelpazede değişir.',
+      'Doğu Himalayaların güney yamaçlarında kurulu olan Butan, kuzeyde Tibet ' +
+      'Platosu (Çin), güney, doğu ve batıda ise Hindistan ile çevrili bir dağ ' +
+      'krallığıdır. Okyanusa kıyısı olmayan ülke, güneydeki subtropikal orman ' +
+      'ovalarından kuzeydeki daimi karlı kutup benzeri doruklara kadar yalnızca ' +
+      '150 kilometrelik bir mesafede 7.000 metreyi aşan olağanüstü bir dikey ' +
+      'basamaklanma sergiler. ' +
+      '\n\n' +
+      'Yerleşim dokusu, yüksek sıradağların arasına oyulmuş korunaklı iç ' +
+      'vadilerde kümelenmiştir. Başkent Thimphu da dahil olmak üzere ülkenin ' +
+      'tarihi manastır-kaleleri (dzong), nehir yataklarının teraslarında ve ' +
+      'yamaçlarda yer alır; orman örtüsünü ve kültürel mirası korumayı esas ' +
+      "alan sıkı çevre politikaları, Butan'ı dünyada karbon negatif olan ender " +
+      'ülkelerden biri haline getirmiştir.',
     landformNoteTr:
-      'Butan üç paralel kuşağa ayrılır: güneyde Hindistan sınırına bitişik, alçak ve ormanlık ' +
-      'Duars ovası; ortada 1.500-2.700 metre rakımlı vadi ve tepelerden oluşan İç Himalaya ' +
-      'kuşağı — başkent Thimphu da bu kuşakta yer alır; kuzeyde ise buzul ve karla kaplı Büyük ' +
-      'Himalaya. Tibet sınırına yakın 7.570 metrelik Gangkhar Puensum, ülkenin en yüksek noktası ' +
-      've aynı zamanda dünyanın tırmanılmamış en yüksek zirvesi kabul edilir.',
+      'Ülke topoğrafyası güneyden kuzeye yükselen üç belirgin morfolojik ' +
+      'kuşaktan oluşur. En güneyde Hindistan sınırını izleyen dar Duars Ovası, ' +
+      'kalın ormanlar ve alüvyal konilerle kaplıdır. Orta kesimi oluşturan ' +
+      '1.500 ila 2.700 metre irtifadaki İç Himalayalar; derin vadileri, teraslı ' +
+      'tarım alanları ve ormanlık sırtlarıyla ülke nüfusunun ve tarihi ' +
+      'yerleşimlerinin ağırlık merkezidir. ' +
+      '\n\n' +
+      'Kuzey kuşağında ise Büyük Himalayaların sarp, buzul aşındırmalı granit ' +
+      'kütleleri göğe yükselir. Tibet sınır hattında yükselen 7.570 metrelik ' +
+      "Gangkhar Puensum, Butan'ın en yüksek noktası olup yerel inançlar " +
+      'uyarınca kutsal sayılan dağlara tırmanışın yasaklanması nedeniyle ' +
+      'gezegenin fethedilmemiş en yüksek doruğu kabul edilir.',
     climateNoteTr:
-      'Güney kuşaktaki Duars ovasında nemli subtropikal bir iklim görülür. Orta vadilerde bu ' +
-      'sıcaklık ılımanlaşır, kuzeydeki yüksek Himalaya kesiminde ise yerini alpin bir iklime ' +
-      'bırakır — aynı ülke sınırları içinde birkaç bin metrelik rakım farkının yarattığı bu ' +
-      "çeşitlilik, Butan'ın iklimini tanımlayan temel özelliktir. Haziran-Eylül arasındaki " +
-      "güneybatı musonu, Bengal Körfezi'nden gelen nemi ülkeye taşır ve yıllık yağışın büyük " +
-      'bölümünü getirir; kışlar kuzeyde kurak ve dondurucu, güneyde ise ılık geçer.',
+      'Butan iklimi bütünüyle rakım ve bakı koşullarının kontrolü altındadır. ' +
+      'Güneydeki Duars düzlüklerinde sıcak ve yoğun nemli bir subtropikal rejim ' +
+      'hüküm sürerken, orta vadi kuşağında ılıman ve dört mevsimli koşullar ' +
+      'yaşanır; 3.500 metrenin üzerindeki yaylalarda ve kuzey sırtlarında ise ' +
+      'dondurucu alpin tundralar ve kutup iklimi egemendir. ' +
+      '\n\n' +
+      'Yağış düzenini Bengal Körfezi üzerinden sokulan güneybatı musonu ' +
+      'yönetir. Haziran-eylül döneminde güney yamaçlara çarparak yükselen nemli ' +
+      'hava kütleleri dağ eteklerine yılda 5.000 milimetreyi aşabilen ' +
+      'sağanaklar bırakırken, daha kuzeydeki iç vadiler yağış gölgesi etkisiyle ' +
+      'yılda 1.000 milimetre civarında daha mutedil yağış alır. Kışlar kuzey ' +
+      'doruklarında kuru ve aşırı soğuk geçer.',
     hydrographyNoteTr:
-      'Ülke toprakları, kuzeydeki buzullardan inen dört büyük nehir havzasıyla (Amoçu, Wangçu, ' +
-      "Punatsangçu ve Manas) güneye, Hindistan topraklarındaki Brahmaputra'ya doğru drene olur; " +
-      "bunlardan Manas, orta ve doğu Butan'ın neredeyse tamamını toplayan en büyük havzadır. " +
-      "Başkent Thimphu'nun da içinde bulunduğu Wangçu havzası, Thimphu, Paro ve Ha vadilerinden " +
-      "gelen kolların birleşmesiyle oluşur. Ülke genelinde, Butan'ın kendi 2021 buzul gölü " +
-      'envanterine göre 567 buzul gölü bulunur; bunlardan bir kısmı, ısınan iklimle birlikte ' +
-      'büyüyerek aşağı vadilerdeki yerleşimler için taşkın riski oluşturuyor.',
+      'Kuzeydeki yüksek buzul alanlarından doğan sular, dağ kütlelerini enine ' +
+      "yarıp güneye yönelerek Hindistan topraklarındaki Brahmaputra Nehri'ne " +
+      'kavuşur. Batıdan doğuya doğru Torsa (Amoçu), Raidak (Wangçu), Sankosh ' +
+      '(Punatsangçu) ve ülkenin en geniş drenaj alanına sahip Manas nehir ' +
+      "havzaları, hızlı akışları ve dik düşümleriyle Butan'ın en değerli " +
+      'ekonomik kaynağı olan hidroelektrik potansiyelini yaratır. ' +
+      '\n\n' +
+      "Başkent Thimphu'dan süzülen Wangçu'nun yanı sıra, yüksek zirvelerin " +
+      "eteklerinde eriyen buzulların gerisinde tutulan 500'ü aşkın buzul gölü " +
+      'yer alır. Küresel sıcaklık artışıyla hacmi genişleyen bu doğal set ' +
+      'gölleri, setlerin aniden patlamasıyla aşağı vadilerdeki yerleşimler için ' +
+      'yıkıcı taşkınlara (GLOF) yol açma riski taşıdığından sürekli gözetim ' +
+      'altında tutulur.',
   },
   {
     isoCode: 'IN',
@@ -1382,37 +1905,63 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal parlamenter cumhuriyet',
     independenceNoteTr: "15 Ağustos 1947'de İngiltere'den bağımsız oldu.",
     introTr:
-      "Güney Asya'nın en büyük ülkesi olan Hindistan, kuzeyde Himalayalar boyunca Pakistan, " +
-      'Çin, Nepal ve Bhutan ile, doğuda ise Bangladeş ve Myanmar ile komşudur. Batıda Arap ' +
-      "Denizi'ne, doğuda Bengal Körfezi'ne kıyısı olan ülke, güneyde Hint Okyanusu'na doğru " +
-      'bir yarımada halinde uzanır. Kuzeydeki karla kaplı Keşmir vadilerinden güneydeki ' +
-      'tropikal Kerala kıyılarına kadar geniş bir yer şekli ve iklim yelpazesi barındırır.',
+      "Hint Yarımadası'nın devasa gövdesini kaplayan Hindistan; kuzeyde " +
+      'Himalayaların karlı duvarları boyunca Pakistan, Çin, Nepal ve Butan ile, ' +
+      'doğuda ise Bangladeş ve Myanmar ile sınır paylaşır. Batıda Umman Denizi, ' +
+      'doğuda Bengal Körfezi ve güneyde Hint Okyanusu ile kuşatılan ülke, 7.500 ' +
+      "kilometreyi aşan sahil şeridiyle Asya'nın en kritik deniz ticaret " +
+      'yollarının merkezinde yer alır. ' +
+      '\n\n' +
+      'Ülkenin beşeri ve siyasi kalbi, kuzeyin verimli nehir vadileri üzerinde ' +
+      "kurulmuştur. Başkent Yeni Delhi'nin de odak noktasında bulunduğu " +
+      'Indo-Ganj Ovası, yüz milyonlarca insanın yaşadığı dünyanın en yoğun ' +
+      'kırsal ve kentsel nüfus kümelenmelerine ev sahipliği yapar; güneye ' +
+      'inildikçe ise kadim kalkan kütleleri ve tropikal kıyılar devreye girer.',
     landformNoteTr:
-      "Ülkenin kuzeyini boydan boya kateden Himalayalar, Hindistan'ın en yüksek noktası olan " +
-      "8.586 metrelik Kanchenjunga'yı barındırır; dünyanın en yüksek zirvesi Everest ise " +
-      'sınırın Nepal tarafında kalır. Himalayaların güneyinde, İndus, Ganj ve Brahmaputra ' +
-      'nehirlerinin taşıdığı alüvyonla oluşan Indo-Gangetik Ovası, ülkenin kuzey ve doğusunu ' +
-      'bir uçtan diğerine kat eder. Ovanın güneyinde, ortalama 300-700 metre yükseklikteki ' +
-      'üçgen biçimli Dekkan Platosu yükselir; platoyu batıdan Batı Ghatlar, doğudan Doğu ' +
-      'Ghatlar çevreler. Ülkenin kuzeybatısında, Pakistan sınırına yayılan Thar Çölü yer alır. ' +
-      'Himalayaların batı ucundaki Keşmir Vadisi ise Pir Panjal ve Büyük Himalaya sıradağları ' +
-      "arasında sıkışan, Jhelum Nehri'nin suladığı yüksek bir çöküntü ovasıdır.",
+      'Ülke topoğrafyası üç ana jeomorfolojik birime ayrılır: Kuzeyde Hint ' +
+      'levhasının Asya levhasına bindirmesiyle yükselen genç kıvrım dağları ' +
+      'Himalayalar, Sikkim sınırında 8.586 metreye erişen Kançencunga ' +
+      '(Kangchenjunga) Zirvesi ile ülkenin en yüksek noktasına ulaşır. Bu dev ' +
+      'dağ setinin eteklerinde, dağlardan aşınan siltlerin birikmesiyle oluşan ' +
+      've batıda İndus kollarından doğuda Ganj deltasına kadar uzanan devasa ' +
+      'Indo-Ganj Çöküntü Ovası uzanır. ' +
+      '\n\n' +
+      'Ovanın güneyinde, tektonik olarak yerkürenin en eski kara parçalarından ' +
+      'biri sayılan üçgen biçimli Dekkan Platosu yükselir. Bu bazaltik yaylayı ' +
+      'batıdan dik bir basamak halinde kuşatan Batı Gat Dağları ile daha ' +
+      'aşınmış ve parçalı Doğu Gatlar, platoyu kıyı ovalarından ayırır. ' +
+      'Kuzeybatıda ise Pakistan sınırına doğru sokulan kurak kumullarıyla Büyük ' +
+      'Hint Çölü (Thar) uzanır.',
     climateNoteTr:
-      "Hindistan'ın iklimini büyük ölçüde güneybatı musonu belirler; Haziran'dan Ekim'e kadar " +
-      'süren bu mevsim ülkenin yıllık yağışının büyük bölümünü getirir. Kuzeybatıdaki Thar ' +
-      'Çölü çevresinde kurak ve yarı kurak koşullar hakimdir, güneydeki Kerala ve Tamil Nadu ' +
-      'kıyılarında ise nemli tropikal bir iklim görülür. Himalayalarda rakım arttıkça iklim de ' +
-      'değişir: dağ eteklerinde ılıman koşullar görülürken, zirvelere yaklaştıkça kar ve buzul ' +
-      'iklimi başlar. Köppen sınıflandırmasında Hindistan toprakları tropikal, kurak, ılıman ' +
-      've dağlık iklim tiplerinin neredeyse tamamını kapsar.',
+      "Hindistan'ın atmosferik dinamiklerini ve tarım takvimini bütünüyle " +
+      'muson döngüsü yönetir. Haziran ile eylül ayları arasında Hint ' +
+      "Okyanusu'ndan karaya doğru esen nem yüklü güneybatı musonu, yıllık " +
+      'yağışın yüzde yetmişinden fazlasını getirir. Nemli hava akımlarının ilk ' +
+      'çarptığı Batı Gatlar ve kuzeydoğudaki Meghalaya Yaylası dünyanın en ' +
+      'yüksek yağış rekorlarını kırarken, batıya doğru ilerleyen hava kütleleri ' +
+      "kuruyarak Thar Çölü'nde yağış bırakmaz. " +
+      '\n\n' +
+      'Ekim ayından itibaren kıta içi soğuyup yüksek basınç alanına ' +
+      'dönüştüğünde kuzeydoğu musonu devreye girer; bu rüzgarlar ülkenin büyük ' +
+      'bölümünü kurak bir kışa sokarken Bengal Körfezi üzerinden nem toplayarak ' +
+      'güneydoğudaki Tamil Nadu kıyılarına kış yağmurlarını bırakır. Kuzeydeki ' +
+      'yüksek dağ vadilerinde alpin ve kutup koşulları görülürken, yarımada ' +
+      'genelinde sıcak subtropikal ve tropikal savan rejimleri belirleyicidir.',
     hydrographyNoteTr:
-      "Ganj Nehri, Himalayalar'daki Gangotri buzulundan doğar ve yaklaşık 2.525 kilometre " +
-      "boyunca doğuya akarak Bangladeş'te Brahmaputra ile birleşir. Yalnızca Hindistan " +
-      "toprakları içinde akan en uzun nehir ise Godavari'dir; Deccan Platosu'nda doğar ve " +
-      "yaklaşık 1.465 kilometre sonra Bengal Körfezi'ne ulaşır. İndus Nehri, kaynağını " +
-      "Tibet'te alıp önce Hindistan'ın kuzeyinden, ardından Pakistan topraklarından geçerek " +
-      "Arap Denizi'ne ulaşır. Yamuna, Ganj'ın en büyük kolu olarak Himalayalar'dan iner ve " +
-      "Allahabad'da (Prayagraj) ana nehirle birleşir.",
+      'Ülkenin hidrografik sisteminde iki farklı rejim çarpışır: Kuzeyde ' +
+      'Himalayalardaki buzul erimeleri ve muson yağmurlarıyla beslenen sürekli ' +
+      've yüksek debili nehirler ile güneyde yalnızca yağmurlara bağımlı ' +
+      'mevsimlik yarımada nehirleri. Himalayalardaki Gangotri buzulundan doğan ' +
+      "kutsal Ganj (Ganga) Nehri, en büyük kolu Yamuna'yı Prayagraj'da " +
+      'bünyesine katarak 2.500 kilometreyi aşan bir yolculukla doğuya akar ve ' +
+      "Bengal Körfezi'ne yönelir. " +
+      '\n\n' +
+      "Tibet'ten doğan İndus Nehri ve kollarının üst çığırları ile kuzeydoğuda " +
+      'dev kanyonlardan süzülen Brahmaputra, ülkenin diğer büyük Himalaya ' +
+      'sistemleridir. Yarımada içinde doğup bütünüyle Hindistan topraklarında ' +
+      "kalan en uzun nehir ise 1.465 kilometrelik Godavari'dir; Krishna ve " +
+      "Cauvery ile birlikte Dekkan Platosu'nu batıdan doğuya katederek delta " +
+      "ağızlarıyla Bengal Körfezi'ne dökülür.",
   },
   {
     isoCode: 'IR',
@@ -1440,32 +1989,61 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     // independenceNoteTr: NULL — the field is conceptually inapplicable to a continuous
     //   ancient state (no colonial/Soviet exit date). Systemic open item (data-dictionary §6).
     introTr:
-      "Kuzeyde Hazar Denizi'ne, güneyde Basra Körfezi ve Umman Denizi'ne kıyısı olan İran, " +
-      "Güneybatı Asya'nın en büyük ülkelerinden biridir. Ermenistan, Azerbaycan, Türkmenistan, " +
-      'Afganistan, Pakistan, Irak ve Türkiye ile toplam yedi ülkeyle kara sınırı paylaşır.',
-    landformNoteTr:
-      'İran topraklarının büyük bölümü, yüksek kenar dağlarıyla çevrili bir iç plato ' +
-      'karakterindedir. Ülkeyi kuzeybatıdan güneydoğuya kat eden Zagros Dağları birbirine ' +
-      'paralel sıralardan oluşur; güney-orta kesimde birçok zirve 4.000 metrenin üzerine çıkar. ' +
-      "Hazar Denizi kıyısını izleyen dar ama yüksek Elburz Dağları'nın ortasında 5.610 metrelik " +
-      "Damavend yükselir. Bu stratovolkan İran'ın en yüksek noktasıdır ve Hindukuş'un batısında " +
-      "Avrasya'nın en yüksek ikinci zirvesidir. Tarihsel kayıtlara geçmiş bir püskürmesi yoktur. " +
-      'En genç lav akıntıları yaklaşık 7.000 yıl öncesine tarihlenir, zirve kraterinde bugün de ' +
-      'fümaroller görülür.' +
+      'Batı Asya ile Güney Asya arasındaki geçiş koridorunu oluşturan İran; ' +
+      "kuzeyde Hazar Denizi'ne, güneyde ise Basra Körfezi ve Umman Denizi'ne " +
+      'açılan stratejik konumuyla kadim bir kavşak noktasıdır. Karada Türkiye, ' +
+      'Ermenistan, Azerbaycan, Türkmenistan, Afganistan, Pakistan ve Irak ile ' +
+      'çevrili olan ülke, yüksek kenar dağlarının ortasında yer alan devasa bir ' +
+      'kapalı yayla kütlesidir. ' +
       '\n\n' +
-      'Bu dağ kuşaklarının içinde kalan Merkezi Plato, birbirinden ayrık kapalı havzalardan ' +
-      'oluşur. Bunların en bilineni, yaz aylarında dünyanın en sıcak yerlerinden biri haline ' +
-      'gelen tuzlu-kumlu Deşt-i Kevir çölüdür.',
+      'Şehirleşme ve tarım alanları, dağ eteklerindeki alüvyal yelpazeler ve ' +
+      'nehir vadileri boyunca dizilmiştir. Başkent Tahran, kuzeyi kapatan ' +
+      "yalçın dağ duvarının eteklerinde kurulmuş olup tarihi İpek Yolu'nun " +
+      'güzergahındaki su vahaları üzerine inşa edilen kadim yerleşim ağının ' +
+      'merkezini temsil eder.',
+    landformNoteTr:
+      'Toprakların morfolojik omurgasını, iç yaylayı bir kale suru gibi ' +
+      'kuşatan iki büyük sıradağ silsilesi çizer: Batı ve güneybatı boyunca ' +
+      "Basra Körfezi'ne paralel uzanan kıvrımlı Zagros Dağları ile Hazar " +
+      'kıyısını güneyden saran dik Elburz Dağları. Elburz zincirinde göğe ' +
+      'yükselen 5.610 metrelik uykudaki stratovolkan Demavent (Damavand), hem ' +
+      "İran'ın en yüksek doruğu hem de Hindukuş'un batısındaki tüm Avrasya'nın " +
+      'en yüksek zirvesidir. ' +
+      '\n\n' +
+      'Bu sıradağların ardında kalan ve deniz etkisinden yalıtılan Merkezi ' +
+      'İran Platosu, ortalama 900 ila 1.500 metre rakımlı kurak havzalardan ' +
+      'oluşur. Platonun merkez ve doğusunu, yeryüzünün en yüksek yüzey ' +
+      'sıcaklıklarının ölçüldüğü kızgın kum çölü Deşt-i Lut ile tuz ' +
+      'kabuklarıyla kaplı ıssız Deşt-i Kevir kaplar; bu kurak iç çöküntüler ' +
+      'dışarıya akışı olmayan kapalı drenaj alanlarıdır.',
     climateNoteTr:
-      'İklim, dağ-plato-kıyı üçlüsüne göre keskin biçimde değişir. Hazar kıyısı şeridinde ' +
-      "nemli, yıl boyu yağışlı bir iklim görülür. Merkezi Plato'da kurak ve yarı-kurak çöl " +
-      'iklimi egemendir, yaz-kış ve gündüz-gece sıcaklık farkları büyüktür. Batıdaki Zagros ' +
-      'yüksek kesimlerinde ise karasal-dağlık iklim, soğuk ve karlı kışlarla kendini gösterir.',
+      'Coğrafi yapının dağ, plato ve kıyı kuşakları halinde ayrışması, ülkede ' +
+      "zıt iklim tiplerini yan yana getirir. Hazar Denizi'ne bakan kuzey " +
+      'yamaçlar, denizden gelen nemli hava kütlelerinin dağlara çarpmasıyla yıl ' +
+      'boyu bol yağış alan ılıman ve nemli bir subtropikal iklime sahiptir. ' +
+      'Buna karşılık, dağların yağışını kestiği iç platoda aşırı yaz ' +
+      'sıcaklıkları, dondurucu kış geceleri ve şiddetli buharlaşmayla ' +
+      'karakterize çöl iklimi hüküm sürer. ' +
+      '\n\n' +
+      "Zagros Dağları'nın yüksek vadilerinde kışlar sert ve kar yağışlı " +
+      'geçerken, güneydeki Basra Körfezi ve Umman Denizi kıyılarında kavurucu ' +
+      'çöl sıcağı yüksek deniz nemiyle birleşerek yaz aylarında son derece ' +
+      'boğucu ve aşırı hissedilen sıcaklıklara yol açar. Ülke genelinde yıllık ' +
+      'yağış ortalaması 250 milimetrenin altında kalsa da kuzey kıyılarında bu ' +
+      'değer 1.500 milimetreyi aşar.',
     hydrographyNoteTr:
-      "İran'ın çoğu akarsuyu kısa ve mevsimsel rejime sahiptir; ülkenin gemilerle ulaşılabilen " +
-      "tek nehri, güneybatıdaki 830 kilometrelik Karun'dur. Hazar Denizi, dünyanın en büyük " +
-      "kapalı su kütlesi olarak İran'ın kuzey sınırını oluşturur; ülkenin güneyinde ise Basra " +
-      'Körfezi ve Umman Denizi kıyıları uzanır.',
+      "Geniş kurak alanlar ve kapalı havzalar nedeniyle İran'ın akarsu ağı " +
+      'seyrektir; nehirlerin büyük bölümü mevsimlik akış gösterir veya iç ' +
+      'çöllerin tuzlu bataklıklarında kurur. Ülkenin seyrüsefere elverişli ' +
+      "yegane akarsuyu olan 830 kilometrelik Karun Nehri, Zagros Dağları'ndan " +
+      "toplanan suları Basra Körfezi'ne dökülen Şattülarap'a taşır. " +
+      '\n\n' +
+      'Dağ eteklerindeki kurak araziler, bin yıllardır yer altı su seviyesini ' +
+      'yerçekimiyle yüzeye taşıyan geleneksel kehriz (kanat) su tünelleri ' +
+      'sistemiyle sulanmıştır. Ülkenin kuzey sınırını çizen dünyanın en büyük ' +
+      "kapalı su kütlesi Hazar Denizi'nin yanı sıra, kuzeybatıda aşırı " +
+      "buharlaşma ve barajlar nedeniyle küçülen tuzlu Urmiye Gölü, İran'ın en " +
+      'önemli iç su ekosistemleri arasında yer alır.',
   },
   {
     isoCode: 'MV',
@@ -1490,34 +2068,62 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "26 Temmuz 1965'te İngiltere'den bağımsız oldu.",
     introTr:
-      "Dünyanın en alçak ülkesi olan Maldivler, Hint Okyanusu'nda ekvatorun az kuzeyinde, 26 " +
-      'mercan atolü içinde dağılmış yaklaşık 1.200 adacıktan oluşur. Kara sınırı olmayan ülke ' +
-      'toprakları, kuzeyden güneye yaklaşık 820 kilometrelik bir şerit boyunca yayılır; adaların ' +
-      'hiçbiri sekiz kilometreden uzun değildir.',
+      "Hint Okyanusu'nun ekvatoral sularında, Hindistan ve Sri Lanka'nın " +
+      'güneybatısında uzanan Maldivler; 26 doğal atol grubu içerisinde ' +
+      'toplanmış yaklaşık 1.200 alçak mercan adasından oluşan bir ada ' +
+      'devletidir. Kuzeyden güneye yaklaşık 820 kilometre boyunca dar bir çift ' +
+      'zincir halinde uzanan ülkenin hiçbir kara sınırı bulunmaz; toplam kara ' +
+      'yüzölçümü 300 kilometrekareyi bile bulmazken, deniz yetki alanı yüz ' +
+      'binlerce kilometrekarelik okyanus yüzeyini kaplar. ' +
+      '\n\n' +
+      'Ülke nüfusunun ve ticari faaliyetlerinin büyük bölümü, dünyanın ' +
+      'metrekare başına en kalabalık yerleşimlerinden biri olan küçücük başkent ' +
+      'Male adasında ve çevresindeki ıslah edilmiş adalarda yoğunlaşmıştır. ' +
+      'Adaların çoğunun uzunluğu birkaç yüz metreyi geçmez ve hiçbiri sekiz ' +
+      'kilometreden uzun değildir; yerleşim adaları ile lüks turizm adaları ' +
+      'birbirinden ayrı tutulur.',
     landformNoteTr:
-      "Maldivler'in atolleri, milyonlarca yıl önce sönmüş volkanik zirvelerin üzerinde büyüyen " +
-      'mercan resiflerinin, zirveler denize battıkça yukarı doğru büyümeye devam etmesiyle ' +
-      'oluşmuştur; sonuçta ortaya, her biri sığ bir lagünü çevreleyen halka biçimli ada ' +
-      "zincirleri çıkmıştır. Adaların yüzde 80'inden fazlası deniz seviyesinden bir metreden " +
-      'daha az yükseklikte kalır; ülkenin ortalama doğal zemin yüksekliği yalnızca 1,5 metre, en ' +
-      'yüksek noktası ise 2,4 metredir. Bazı büyük atoller kuzey-güney doğrultusunda 50 ' +
-      'kilometreye kadar uzansa da, bunları oluşturan tek tek adaların her biri küçük ve ' +
-      'alçaktır.',
+      'Maldivler, ortalama 1,5 metrelik doğal zemin yüksekliğiyle gezegenin en ' +
+      'alçak topoğrafyasına sahip ülkesidir. Adaların yüzde sekseninden fazlası ' +
+      'deniz seviyesinden bir metre ya da daha az yükseklikte kalırken, tüm ' +
+      "ülkenin en yüksek doğal noktası Addu Atolü'nde yalnızca 2,4 metreye " +
+      'ulaşır. Bu morfoloji, ülkeyi küresel deniz seviyesi yükselmesi ve ' +
+      'fırtına kabarmaları karşısında yeryüzünün en kırılgan coğrafyası yapar. ' +
+      '\n\n' +
+      'Atoller, milyonlarca yıl önce çöken denizaltı volkanik kütlelerinin ' +
+      'çevresinde mercan poliplerinin kireçli iskeletler biriktirmesiyle ' +
+      'yükselmiştir. Zirveler sulara gömüldükçe yukarıya doğru büyümeyi ' +
+      'sürdüren resifler, ortasında sığ lagünlerin yer aldığı halka biçimli ' +
+      'mercan adacıkları zincirlerine dönüşmüştür. Adaların zeminini bütünüyle ' +
+      'beyaz kalsiyum karbonatlı mercan kumları oluşturur.',
     climateNoteTr:
-      "Maldivler'de yıl boyunca sıcaklık 25-31 santigrat derece bandında neredeyse sabit kalır, " +
-      'mevsimleri asıl belirleyen muson rüzgarlarının yönüdür. Aralık-Nisan arasında ' +
-      'kuzeydoğudan esen kurak "iruvai" musonu, güneşli ve sakin bir dönem getirir; Mayıs-Kasım ' +
-      'arasında ise güneybatıdan esen nemli "hulhangu" musonu, kısa ama yoğun sağanaklarla ' +
-      'birlikte yılın çoğu yağışını yağdırır. En kurak aylar Şubat ile Mart, en yağışlı aylar ' +
-      "ise Kasım ile Mayıs'tır.",
+      'Ekvator kuşağında yer alması nedeniyle ülkede yıl boyunca sıcaklıklar ' +
+      '25 ila 31 santigrat derece gibi çok dar bir aralıkta neredeyse sabit ' +
+      'kalır; gerçek anlamda mevsimleri sıcaklık farkları değil, yön değiştiren ' +
+      'muson rüzgarları tayin eder. Yıl boyu yüksek bağıl nem oranı ve yoğun ' +
+      'tropikal güneşlenme süreklidir. ' +
+      '\n\n' +
+      'Aralık ile nisan ayları arasında Asya kıtasından esen kuzeydoğu musonu ' +
+      '(iruvai), kuru hava kütleleri ve sakin denizlerle karakterize güneşli ' +
+      'dönemi getirir. Mayıs ayından kasıma kadar etkili olan güneybatı musonu ' +
+      "(hulhangu) ise Hint Okyanusu'ndan taşıdığı şiddetli sağanaklar, " +
+      'fırtınalar ve kuvvetli rüzgarlarla yıllık yağışın büyük bölümünü ' +
+      'yağdırır. Yılın en kurak ayları şubat ve mart iken, en yağışlı dönem ' +
+      'mayıs ve kasım aylarıdır.',
     hydrographyNoteTr:
-      "Adaların hiçbiri bir akarsu barındıracak büyüklükte değildir; Maldivler'de kalıcı nehir " +
-      'ya da göl yoktur. Tatlı su, yağmur suyunun kumlu toprağa süzülmesiyle oluşan ve deniz ' +
-      'suyunun üzerinde ince bir tabaka halinde yüzen yeraltı "tatlı su merceği"nden sağlanır — ' +
-      'bu mercek genellikle yüzeyin birkaç metre altında kalır ve kalınlığı birkaç metreyi ' +
-      'geçmez. Kurak mevsim sonunda meskun adaların yaklaşık yarısında bu mercek neredeyse ' +
-      'tükenir; aşırı çekim tuzlu su sızmasına yol açarak kaynağı daha da kırılganlaştırır. ' +
-      'Yağmur suyu toplama, yüzyıllardır bu adalarda içme suyunun başlıca kaynağı olmuştur.',
+      'Adaların daracık yüzeyleri ve son derece geçirgen kumlu zemin yapısı ' +
+      "nedeniyle Maldivler'de tek bir kalıcı akarsu ya da vadi bulunmaz; birkaç " +
+      'adadaki küçük gölcükler dışında göl de yoktur. Yağan yağmur suları ' +
+      'yüzeyde tutunamadan hızla tabana süzülerek gözenekli mercan kayalarının ' +
+      'arasına sızar. ' +
+      '\n\n' +
+      'Tatlı su ihtiyacı tarih boyunca, kum tabakasının altında tuzlu deniz ' +
+      'suyunun üzerinde yüzen ince tatlı su lensinden (Ghyben-Herzberg merceği) ' +
+      've çatılardan toplanan yağmur sularından karşılanmıştır. Yüzeyin ' +
+      'yalnızca bir-iki metre altında asılı duran bu kırılgan tatlı su ' +
+      'tabakası, aşırı çekim ve nüfus baskısıyla tuzlanma tehlikesi altında ' +
+      'olduğundan, günümüzde ada halkının içme suyu büyük oranda deniz suyunu ' +
+      'tuzdan arındıran ters osmoz tesisleriyle üretilmektedir.',
   },
   {
     isoCode: 'NP',
@@ -1542,38 +2148,64 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal parlamenter cumhuriyet',
     independenceNoteTr: null,
     introTr:
-      'Dünyanın 8.000 metreyi aşan on dört zirvesinden sekizi Nepal sınırları içinde ya da ' +
-      'üzerinde yükselir. Himalayaların güney yamacında dar ve uzun bir şerit halinde uzanan ' +
-      'ülke, kuzeyde Çin, doğu, batı ve güneyde ise Hindistan ile komşudur. Toprakları, ' +
-      "güneydeki alçak Terai ovasından kuzeydeki Everest'e kadar yalnızca 200 kilometrelik bir " +
-      'mesafede sekiz bin metreye yakın bir rakım farkı kat eder.',
-    landformNoteTr:
-      'Nepal, güneyden kuzeye üç paralel kuşağa ayrılır: Hindistan sınırındaki alçak ve verimli ' +
-      'Terai ovası, ülke yüzölçümünün yaklaşık üçte ikisini oluşturan orta yükseklikteki Tepe ' +
-      '(Pahad) bölgesi ve kuzeydeki Himalaya kuşağı. Himalaya kuşağında yükselen 8.849 metrelik ' +
-      "Everest (Sagarmatha), Nepal'in ve dünyanın en yüksek noktasıdır; Hindistan sınırındaki " +
-      '8.586 metrelik Kanchenjunga ise ülkenin ikinci yüksek zirvesidir.' +
+      'Doğu ve Orta Himalayaların güney basamaklarında yer alan Nepal; kuzeyde ' +
+      "Çin'in Tibet Özerk Bölgesi, doğu, batı ve güneyde ise Hindistan ile " +
+      'kuşatılmış bir kara ülkesidir. Ülke, güneydeki deniz seviyesine yakın ' +
+      'alüvyal Terai düzlüklerinden kuzeydeki buzullarla kaplı Everest doruğuna ' +
+      'kadar yalnızca 150 ila 200 kilometrelik bir enine mesafede 8.000 metreyi ' +
+      'aşan olağanüstü bir irtifa farkını barındırır. ' +
       '\n\n' +
-      "Batı Nepal'de, Dhaulagiri ve Annapurna zirveleri arasından geçen Kali Gandaki Vadisi, " +
-      'dünyanın en derin kanyonlarından biri kabul edilir: iki zirve ile vadi tabanındaki nehir ' +
-      "arasındaki rakım farkı 5.571 metreye ulaşır. Kali Gandaki'nin Himalayalar yükselmeye " +
-      'başlamadan önce var olduğu, dağlar etrafında yükselirken nehrin kendi yatağını koruduğu ' +
-      'düşünülür — bu süreç jeolojide "öncül drenaj" olarak adlandırılır.',
+      'Yerleşim dokusu, sarp yamaçlar arasına gömülmüş tektonik çöküntü ' +
+      "havzalarında yoğunlaşmıştır. Başkent Katmandu'nun içinde yer aldığı " +
+      'geniş vadi, yüzyıllar boyunca Tibet ile Hindistan ovaları arasındaki ' +
+      'ticaret kervanlarının dinlenme ve kültür alışverişi merkezi olmuş; kadim ' +
+      'tapınak mimarisiyle ülkenin siyasi ve demografik çekirdeğini meydana ' +
+      'getirmiştir.',
+    landformNoteTr:
+      'Ülke güneyden kuzeye doğru birbirine paralel uzanan üç ana morfolojik ' +
+      "kuşağa ayrılır: Hindistan sınırında Ganj Havzası'nın devamı olan " +
+      'bataklık ve ormanlık Terai Ovası; 1.000 ila 3.000 metre irtifalardaki ' +
+      'derin kanyonlar ve teraslı tepelerden oluşan Pahad (Orta Dağlık) kuşağı; ' +
+      've nihayet yeryüzünün en görkemli kıvrım hattını çizen Büyük ' +
+      'Himalayalar. Çin sınırında 8.849 metreye ulaşan Everest (Sagarmatha) ' +
+      'yeryüzünün doruk noktasını oluştururken, 8.000 metreyi aşan 14 zirveden ' +
+      'sekizi Nepal topraklarında yükselir. ' +
+      '\n\n' +
+      'Bölgenin olağanüstü bir diğer jeomorfolojik harikası, Dhaulagiri ve ' +
+      "Annapurna dev kütleleri arasından yaran Kali Gandaki Boğazı'dır. Vadi " +
+      'tabanı ile çevre zirveler arasındaki 5.500 metreyi aşan düşey yarılma, ' +
+      'burayı dünyanın en derin kanyonlarından biri yapar; nehrin dağlar ' +
+      'yükselmeden önce de aktığını ve tektonik yükselmeyle eşzamanlı olarak ' +
+      'yatağını kazımayı sürdürdüğünü kanıtlayan bu yapı, öncül (antesedan) ' +
+      'drenajın ders kitabı örneğidir.',
     climateNoteTr:
-      "Nepal'in iklimi, Terai'nin tropikal sıcaklığından Himalaya zirvelerinin kalıcı buzuluna " +
-      'kadar rakımla birlikte değişir. Haziran-Eylül arasındaki güneybatı musonu, yıllık yağışın ' +
-      'büyük bölümünü getirir; bu dönemde Terai ve orta kesim yoğun yağış alırken, Himalayaların ' +
-      'Tibet platosuna bakan kuzey yamaçları — Mustang ve Dolpo gibi bölgeler — sıradağın yağış ' +
-      'gölgesinde kalarak yarı kurak bir karaktere bürünür. Kışın, yüksek kesimlerde kar ' +
-      'egemenken, Terai ılıman ve kurak bir mevsim yaşar.',
+      'Dik topoğrafik basamaklanma, ülkede tropikal ormanlardan kutup ' +
+      'tundralarına uzanan bütün iklim kuşaklarını tek bir hat üzerinde toplar. ' +
+      'Güneydeki Terai düzlüklerinde nemli subtropikal ve tropikal savan iklimi ' +
+      'hüküm sürerken, orta vadilerde ılıman dağ iklimi, 4.000 metrenin ' +
+      'üzerindeki yaylalarda ise sert dağ çayırları ve kalıcı karlı alpin rejim ' +
+      'egemendir. ' +
+      '\n\n' +
+      "Yağış mevsimini Bengal Körfezi'nden esen güneybatı musonu belirler; " +
+      'haziran ile eylül ayları arasında Himalayaların güney yamaçlarına çarpan ' +
+      'bu rüzgarlar olağanüstü şiddette yağışlara ve heyelanlara yol açar. Buna ' +
+      'karşın, dağ silsilesinin kuzey yamaçlarında ve Tibet sınırında kalan ' +
+      'Mustang ve Dolpo vadileri yağış gölgesinde hapsolarak yılda 200 ' +
+      'milimetrenin altında yağış alan kurak, soğuk çöl manzaralarına bürünür.',
     hydrographyNoteTr:
-      'Koshi, Gandaki (Narayani) ve Karnali gibi büyük nehirler, kaynaklarını Himalayaların ' +
-      'kuzeyinde ya da içinde alır ve dağ sırasını enine keserek güneye, Hindistan üzerinden ' +
-      "Ganj'a akar; bu nehirlerin çoğu, dağlar yükselmeden önce var olan yataklarını koruduğu " +
-      'için sıradağı boydan boya yarar. Terai ovası, bu nehirlerin taşıdığı alüvyonla beslenir ' +
-      've dağlardan inen sularla düzenli olarak sulanır. Himalaya kuşağındaki nehirler büyük ' +
-      'ölçüde buzul ve kar erimesiyle beslenir, bu da yaz aylarında akışlarını belirgin biçimde ' +
-      'artırır.',
+      "Nepal'in su rejimini, kışın biriken karlar ve kalıcı buzul " +
+      'kütlelerinden beslenen üç devasa nehir sistemi taşır: Doğuda Koshi ' +
+      '(Saptakoshi), ortada Gandaki (Narayani) ve batıda Karnali. Himalayaların ' +
+      'gerisinden veya doruklarından kaynaklanıp dağ sırasını derin boğazlarla ' +
+      'enine yaran bu coşkun nehirler, güneye akarak Hindistan topraklarında ' +
+      "Ganj Nehri'ne kavuşur. " +
+      '\n\n' +
+      'Yaz aylarında hem eriyen buzul suları hem de şiddetli muson ' +
+      'sağanaklarıyla nehirlerin debisi katlanarak artar; bu sular Terai ' +
+      'düzlüklerine hayat veren alüvyonları taşırken sık sık yıkıcı taşkınlara ' +
+      'sebep olur. Yüksek rakımlarda buzulların gerilemesiyle oluşan yüzlerce ' +
+      'buzul gölü (Gokyo ve Tsho Rolpa gibi) ülkenin önemli tatlı su rezervleri ' +
+      'arasında yer almakla birlikte patlama taşkınları riski taşır.',
   },
   {
     isoCode: 'PK',
@@ -1599,34 +2231,61 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "14 Ağustos 1947'de İngiltere'den bağımsız oldu (Hindistan'ın bölünmesiyle).",
     introTr:
-      "Güney Asya'nın kuzeybatı ucunda yer alan Pakistan, doğuda Hindistan, kuzeyde Çin, " +
-      "batıda Afganistan ve İran ile komşudur. Güneyde Arap Denizi'ne kıyısı vardır. Ülke " +
-      'toprakları, kuzeyde 8.611 metreye ulaşan Karakoram zirvelerinden güneyde deniz ' +
-      'seviyesindeki İndus Nehri deltasına kadar uzanır.',
+      "Güney Asya ile Orta Doğu ve Orta Asya'nın kavşağında yer alan Pakistan; " +
+      'doğuda Hindistan, batıda Afganistan ve İran, kuzeyde ise Çin ile sınır ' +
+      'komşusudur. Güneyde Umman Denizi (Arap Denizi) kıyıları boyunca uzanan ' +
+      'ülke, kuzeydeki 8.600 metreyi aşan buzul kütlelerinden güneydeki deniz ' +
+      'seviyesinde uzanan bataklık deltaya kadar muazzam bir fiziki çeşitlilik ' +
+      'sunar. ' +
+      '\n\n' +
+      'Ülkenin can damarı ve beşeri omurgası, kuzeyden güneye boydan boya ' +
+      "uzanan İndus Nehri boyunca şekillenmiştir. Başkent İslamabad'ın " +
+      "eteklerinde kurulduğu Potohar Platosu'ndan başlayarak Pencap ve Sind " +
+      'ovalarına yayılan bu koridor, tarımsal üretimin, sanayinin ve nüfusun ' +
+      'ezici çoğunluğunu barındıran temel yaşam alanıdır.',
     landformNoteTr:
-      "Kuzey Pakistan'da Karakoram, Himalaya ve Hindukuş sıradağları kesişir; dünyanın en " +
-      "yüksek ikinci zirvesi olan 8.611 metrelik K2, Çin sınırına yakın Karakoram'da yükselir. " +
-      'Bu üç sıradağ aynı zamanda kutup bölgeleri dışındaki en büyük buzul kütlesini ' +
-      "barındırır. Ülkenin ortasını, İndus Nehri'nin taşıdığı alüvyonla oluşan geniş ve " +
-      'verimli İndus Ovası kaplar; Pencap ve Sind eyaletlerinin tarımı bu ovaya dayanır. ' +
-      'Güneybatıda, 600-3.000 metre yükseklikteki Beluçistan Platosu kurak ve dağlık bir arazi ' +
-      "sunar. Doğuda, Hindistan sınırına yayılan Thar Çölü'nün Pakistan tarafı Cholistan " +
-      'olarak bilinir.',
+      "Pakistan'ın kuzeyi, yeryüzünün en sarp üç büyük dağ silsilesi olan " +
+      "Karakurum, Himalaya ve Hindukuş'un düğümlendiği eşsiz bir tektonik " +
+      'yükselim merkezidir. Çin sınırındaki 8.611 metrelik K2 Zirvesi, dünyanın ' +
+      'en yüksek ikinci noktasıdır; bu dağlık bölge kutup daireleri dışındaki ' +
+      'gezegenin en uzun vadi buzullarını (Siaçen, Baltoro ve Batura) ' +
+      'barındırır. ' +
+      '\n\n' +
+      'Kuzeydeki dağ kütlesinin güneyinde, İndus Nehri ve kollarının bin ' +
+      'yıllar boyunca taşıdığı alüvyonlarla dolan engin İndus Ovası uzanır; bu ' +
+      "düzlükler Pencap'ın bereketli tarım arazilerini oluşturur. Ülkenin batı " +
+      've güneybatısını kaplayan Beluçistan Platosu ise kurak dağ sıraları ve ' +
+      'tuzlu çöküntü havzalarıyla sarp bir plato görünümündedir; doğuda ise ' +
+      'Hindistan sınırına sokulan Cholistan ve Thar çöllerinin kumulları yer ' +
+      'alır.',
     climateNoteTr:
-      'Pakistan topraklarının yaklaşık dörtte üçünde kurak ve yarı kurak iklim hakimdir; bu ' +
-      "kuşak İndus Ovası'nın büyük bölümünü ve Beluçistan Platosu'nu kapsar. Pencap ve Sind'de " +
-      'Temmuz-Eylül arasındaki güneybatı musonu yılın esas yağış dönemidir. Kuzeydeki ' +
-      'Karakoram ve Himalaya yükseltilerinde soğuk, karlı bir dağ iklimi görülür, buzullar yıl ' +
-      "boyunca erimez. Kıyı şeridi boyunca Arap Denizi'nden gelen deniz esintisi sıcaklığı bir " +
-      'miktar yumuşatır.',
+      'Toprakların dörtte üçünden fazlasında kurak ve yarı kurak çöl ve bozkır ' +
+      'iklimi egemendir. Yaz aylarında İndus Ovası ve Beluçistan içlerinde ' +
+      'sıcaklıklar düzenli olarak 45 derecenin üzerine çıkar, Yakubabad kenti ' +
+      'dünyanın en sıcak yerleşimlerinden biri haline gelir; kışlar ise iç ' +
+      'ovalarda serin ve ılıman seyreder. ' +
+      '\n\n' +
+      'Yağış rejimini büyük ölçüde temmuz ile eylül ayları arasında etkili ' +
+      'olan güneybatı musonu belirler; muson neminin ulaştığı doğu ve kuzey ' +
+      'ovaları yoğun sağanaklar alırken, batıdaki Beluçistan Platosu ve güney ' +
+      'kıyıları bu yağışlardan çok az pay alır. Kuzeydeki yüksek dağlık ' +
+      'kesimlerde ise yıl boyu donma noktasında seyreden sert alpin iklim ve ' +
+      'yoğun kış kar yağışları hüküm sürer.',
     hydrographyNoteTr:
-      "Tibet'te doğan İndus Nehri, Pakistan topraklarında yaklaşık 2.750 kilometre kat ederek " +
-      'Arap Denizi\'ne dökülür. Pencap — "beş nehir ülkesi" — adını, İndus\'a katılan Jhelum, ' +
-      'Chenab, Ravi, Beas ve Sutlej nehirlerinden alır; bu kolların dördü (Beas hariç) ' +
-      'Pakistan topraklarından geçer. Mithankot yakınlarında bu nehirler Panjnad adı altında ' +
-      "birleşip İndus'a katılır. 1960 tarihli Indus Suları Antlaşması, batı kollarının (İndus, " +
-      "Jhelum, Chenab) sularını Pakistan'a, doğu kollarının (Ravi, Beas, Sutlej) sularını ise " +
-      "Hindistan'a tahsis eder.",
+      "Pakistan'ın hidrografik varlığı bütünüyle İndus Nehri sistemine " +
+      "endekslidir. Kaynağını Tibet Platosu'ndan alıp Himalayaları yaran İndus, " +
+      'Pakistan topraklarında yaklaşık 2.750 kilometre yol kat ederek Umman ' +
+      'Denizi\'ne dökülür. Ülkenin tarım kalbi Pencap ("Beş Nehir Ülkesi"), ' +
+      "adını İndus'un başlıca doğu kolları olan Jhelum, Chenab, Ravi, Beas ve " +
+      "Sutlej'den alır; bu nehirler Panjnad'da birleştikten sonra ana İndus " +
+      'yatağına kavuşur. ' +
+      '\n\n' +
+      'İndus ve kollarından ayrılan binlerce kilometrelik sulama kanalları ve ' +
+      'barajlar (Tarbela ve Mangla gibi), dünyanın en büyük entegre yerçekimli ' +
+      'kanal sulama ağını meydana getirir. 1960 tarihli İndus Suları Antlaşması ' +
+      "ile batı nehirlerinin (İndus, Jhelum, Chenab) kullanım hakkı Pakistan'a " +
+      'bırakılmıştır; kar ve buzul erimesiyle muson sağanaklarının aynı döneme ' +
+      'denk gelmesi yaz aylarında havzada yıkıcı taşkınlara yol açabilmektedir.',
   },
   {
     isoCode: 'LK',
@@ -1651,32 +2310,57 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "4 Şubat 1948'de İngiltere'den bağımsız oldu.",
     introTr:
-      "Hindistan'ın güneydoğusunda, Palk Boğazı ile anakaradan ayrılan gözyaşı damlası " +
-      'biçimindeki Sri Lanka, ortasında yükselen bir dağlık kütle ile çevresini saran alçak ' +
-      "ovalardan oluşur. Kuzeyde Hindistan'a doğru uzanan sığ mercan ve kum sığlıkları zinciri " +
-      'Adem Köprüsü, iki ülke arasındaki en yakın noktayı işaret eder.',
+      "Hint Yarımadası'nın güneydoğu ucunda, Hint Okyanusu'nun kuzeyinde yer " +
+      'alan Sri Lanka; sığ Palk Boğazı ile Hindistan anakarasından ayrılan ' +
+      'gözyaşı damlası biçiminde bir ada devletidir. Kara sınırı bulunmayan ' +
+      'ülkenin kuzeybatı kıyısıyla Hindistan arasında, geçmişte karasal bir ' +
+      'köprü oluşturan sığ resif ve adacıklar zinciri (Adem Köprüsü) uzanır. ' +
+      '\n\n' +
+      'Adanın yerleşim ve üretim dokusu, ortadaki engebeli dağlık düğüm ile ' +
+      'bunu çevreleyen alçak kıyı ovaları arasında bölünmüştür. İdari başkent ' +
+      'Sri Jayewardenepura Kotte ve bitişiğindeki ekonomik merkez Kolombo, ' +
+      'adanın güneybatı kıyısındaki nemli sahil şeridinde yer alırken, antik ' +
+      'krallıkların kalıntıları adanın daha kurak kuzey ve iç düzlüklerinde ' +
+      'yayılır.',
     landformNoteTr:
-      'Ülkenin güney-orta kesiminde yükselen Merkez Yaylalar, platolar, sırtlar ve dik ' +
-      'yamaçlarla parçalanmış engebeli bir arazi sunar; yaylaların batı ve güneybatı kenarları, ' +
-      '"Dünyanın Sonu" (World\'s End) olarak bilinen yaklaşık 1.200 metrelik dik bir uçurumla ' +
-      'aniden son bulur. 2.524 metrelik Pidurutalagala, ülkenin en yüksek noktasıdır; onu ' +
-      'Kirigalpotta ve hac yeri olarak da bilinen Adem Zirvesi (Sri Pada) izler. Yaylaların ' +
-      'çevresini, kıyıya kadar kademeli olarak alçalan geniş ovalar sarar.',
+      "Sri Lanka'nın fiziki omurgasını, güney-orta kesimde dik bir kale gibi " +
+      'yükselen Merkez Yaylalar oluşturur. Derin vadiler, sarp platolar ve fay ' +
+      'basamaklarıyla yarılan bu dağlık kütlenin en yüksek noktası 2.524 ' +
+      "metrelik Pidurutalagala Zirvesi'dir; onu kutsal hac merkezi Adem Tepesi " +
+      "(Sri Pada) ile dik uçurumuyla ünlü Dünyanın Sonu (World's End) kayalığı " +
+      'izler. ' +
+      '\n\n' +
+      'Merkez Yaylaların eteklerinden başlayarak kıyıya doğru her yönde ' +
+      'kademeli olarak alçalan geniş ve dalgalı alçak ovalar, ada topraklarının ' +
+      'büyük bölümünü kaplar. Kıyı şeridi boyunca sığ lagünler, kumluk kıyı ' +
+      'dilleri ve mercan resifleriyle çevrili korunaklı koylar sıralanır.',
     climateNoteTr:
-      'Adanın güneybatı çeyreğini kaplayan Islak Bölge ile kuzey ve doğudaki Kurak Bölge ' +
-      'arasında, yağış miktarı ve düzenliliği bakımından keskin bir ayrım vardır. Mayıs-Eylül ' +
-      "arasındaki güneybatı musonu, Islak Bölge'ye ve yaylalara yılda 2.500 milimetreyi aşan " +
-      'yoğun ve düzenli yağış getirir; Aralık-Mart arasındaki kuzeydoğu musonu ise esas olarak ' +
-      "Kurak Bölge'yi besler ve buradaki yağış hem daha az hem de yıldan yıla daha değişkendir.",
+      'Ekvatorun hemen kuzeyindeki tropikal kuşakta yer alan adada sıcaklıklar ' +
+      'alçak kesimlerde yıl boyu 26 ila 30 santigrat derece arasında ' +
+      'seyrederken, merkez yaylalarda rakımın etkisiyle 15 derece civarına ' +
+      'kadar iner. İklimsel yapıyı adayı ikiye bölen orografik engel ve ' +
+      'mevsimlik muson rüzgarları şekillendirir. ' +
+      '\n\n' +
+      'Mayıs ile eylül ayları arasındaki güneybatı musonu, güneybatı çeyreğine ' +
+      '("Islak Bölge") ve yaylaların batı yamaçlarına 2.500 milimetreyi aşan ' +
+      'rekor yağışlar bırakır. Buna karşılık adanın kuzey ve doğusunda kalan ' +
+      '"Kurak Bölge", aralık ile mart ayları arasındaki kuzeydoğu musonundan ' +
+      'daha mütevazı ve düzensiz yağış alır; bu da yılın geri kalanında ' +
+      'kuraklık koşullarının yaşanmasına yol açar.',
     hydrographyNoteTr:
-      'Ülkenin en uzun nehri olan 335 kilometrelik Mahaweli dışında, büyük nehirlerin tamamı ' +
-      "Merkez Yaylalar'dan kıyıya doğru ışınsal biçimde akar; Mahaweli ise yaylaların batı " +
-      'yamaçlarında doğduktan sonra dolambaçlı bir güzergahla kuzeydoğu kıyısına ulaşır. Yağışın ' +
-      "düzensiz olduğu Kurak Bölge'de, MÖ 3. yüzyıldan itibaren inşa edilen binlerce yapay " +
-      'göletten ("wewa") oluşan basamaklı bir rezervuar ağı, mevsimlik akışları depolayarak ' +
-      'kuraklık dönemlerinde tarımı sürdürülebilir kılmıştır. Bugün ülke genelinde bu ağdan ' +
-      'kalan yaklaşık 18.000 rezervuar hâlâ işlevini sürdürür; tarihi zirvesinde toplam gölet ' +
-      "sayısının 30.000'e ulaştığı tahmin edilir.",
+      'Merkez Yaylaların yüksek yamaçlarından kaynaklanan nehirler, adanın her ' +
+      'yönündeki kıyılara doğru ışınsal bir drenaj deseni çizerek dökülür. Bu ' +
+      'sistemin en büyük istisnası ve adanın en uzun nehri olan 335 ' +
+      "kilometrelik Mahaweli Nehri'dir; yaylaların batısından doğup dolambaçlı " +
+      "bir yay çizerek adanın kurak kuzeydoğusundaki Trincomalee Körfezi'ne " +
+      'ulaşır. ' +
+      '\n\n' +
+      "Kurak Bölge'deki mevsimlik akışları ve taşkınları depolamak amacıyla MÖ " +
+      '3. yüzyıldan itibaren geliştirilen antik basamaklı gölet ve kanal ' +
+      'sistemi ("wewa"), geleneksel sulu çeltik tarımının temelini ' +
+      'oluşturmuştur. Binlerce yıldır işlevini koruyan yaklaşık 18.000 yapay ' +
+      'gölet, hem yeraltı su tablasını dengeler hem de kurak dönemlerde ' +
+      'tarımsal sürdürülebilirliği güvenceye alır.',
   },
   {
     isoCode: 'AM',
@@ -1703,27 +2387,53 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "21 Eylül 1991'de Sovyetler Birliği'nden bağımsızlığını ilan etti.",
     introTr:
-      "Güney Kafkasya'nın dağlık iç kesiminde yer alan Ermenistan, bölgenin denize kıyısı " +
-      'olmayan tek ülkesidir. Kuzeyde Gürcistan, doğuda Azerbaycan, güneyde İran, batıda ' +
-      'Türkiye ile sınır komşusudur.',
-    landformNoteTr:
-      "Ermenistan'ın coğrafyasına Küçük Kafkas Dağları hakimdir; bu sıradağ ülkenin kuzeyinden " +
-      'geçerek Sevan Gölü ile Azerbaycan sınırı arasında güneydoğuya uzanır ve İran sınırına ' +
-      "kadar devam eder. Ülkenin en yüksek noktası, 4.090 metrelik Aragats Dağı'dır. Buzullarla " +
-      'yarılmış bu stratovolkanın ana kütlesi Pliyosen-Pleistosen yaşlıdır ve Smithsonian, ' +
-      "Aragats'ı Holosen'de etkinlik göstermiş volkanlar arasında listeler." +
+      "Güney Kafkasya'nın engebeli iç yaylalarında yer alan Ermenistan; " +
+      'kuzeyde Gürcistan, doğuda Azerbaycan, güneyde İran ve batıda Türkiye ile ' +
+      'çevrilidir. Bölgenin denize doğrudan çıkışı olmayan tek devleti olup ' +
+      'topraklarının ortalama rakımı 1.800 metreyi aşar; ülke bütünüyle sarp ' +
+      'dağlar, derin kanyonlar ve volkanik platolar kuşağında kuruludur. ' +
       '\n\n' +
-      'Ülke topraklarının neredeyse tamamı engebeli dağlar ve derin vadilerden oluşur; düzlük ' +
-      "alanlar sınırlıdır, en genişi güneybatıdaki Ararat Ovası'dır.",
+      'Nüfusun ve ekonomik üretimin en yoğun kümelendiği kesim, güneybatıda ' +
+      "Türkiye sınırı boyunca uzanan yarı kurak Ararat Ovası'dır. Başkent " +
+      'Erivan da bu alüvyal havzanın kuzey ucunda, Hrazdan Nehri kanyonunun ' +
+      'yamaçlarında basamaklanarak yer alır ve ülkenin kentsel dokusunun ' +
+      'çekirdeğini meydana getirir.',
+    landformNoteTr:
+      'Toprakların morfolojisini Küçük Kafkas Dağları silsilesi ve ' +
+      'Neojen-Kuvaterner dönemine ait volkanik kalkanlar belirler. Kuzeybatıda ' +
+      'yükselen ve dört ayrı doruğa sahip olan 4.090 metrelik sönmüş ' +
+      'stratovolkan Alagöz (Aragats) Dağı, krater çöküntüsü ve eteklerindeki ' +
+      'moren setleriyle ülkenin en yüksek noktasıdır. Volkanik kökenli bazalt, ' +
+      'tüf ve obsidyen kayaçları ülkenin hem yapı malzemesi kültürünü hem de ' +
+      'sarp kanyon topoğrafyasını şekillendirmiştir. ' +
+      '\n\n' +
+      'Ülke yüzölçümünün yalnızca onda biri tarıma elverişli düzlüklerden ' +
+      "oluşur; bunların en büyüğü Aras Nehri'nin suladığı Ararat (Ağrı) " +
+      "Ovası'dır. Geri kalan araziler, derin yarıklarla parçalanmış lav " +
+      'platoları, 2.000 metreyi aşan dağ sırtları ve tektonik çöküntülerden ' +
+      'meydana gelir.',
     climateNoteTr:
-      'Yükseklik, Ermenistan ikliminin belirleyici unsurudur. Yayla ve dağlık kesimlerde ' +
-      'sert, kar yağışlı kışlar ve serin yazlar görülür. Ararat Ovası gibi daha alçak ' +
-      'kesimlerde ise yaz sıcaklıkları yükselir, yarı-kurak ve bozkır karakterli bir iklim ' +
-      'egemen olur.',
+      'Denize uzaklık ve yüksek irtifa nedeniyle ülkede keskin sıcaklık ' +
+      'farklarına sahip kuru karasal bir yayla iklimi egemendir. Yaylalarda ve ' +
+      'dağlık kesimlerde kışlar uzun, dondurucu ve yoğun kar yağışlı geçer; kar ' +
+      'örtüsü yüksek kesimlerde yılın yarısına yakın süre yerde kalır. ' +
+      '\n\n' +
+      "Buna karşılık alçak Ararat Ovası'nda yazlar son derece sıcak ve " +
+      'kuraktır; temmuz ve ağustos aylarında termometreler 40 dereceyi ' +
+      'aşabilir. Yıllık yağış dağ eteklerinde 300-400 milimetre civarında ' +
+      'kalırken, yüksek volkanik kütlelerde 800 milimetrenin üzerine çıkar; ' +
+      'tarımsal üretim ova tabanlarında bütünüyle yapay sulamaya bağımlıdır.',
     hydrographyNoteTr:
-      'Ülkenin en büyük su kütlesi, deniz seviyesinden yaklaşık 2.000 metre yükseklikte yer ' +
-      "alan Sevan Gölü'dür. Aras Nehri, güneyde Türkiye ve İran ile doğal sınır oluşturur; " +
-      'Debed Nehri ülkenin kuzeyindeki başlıca akarsulardandır.',
+      "Ermenistan'ın en görkemli su varlığı, deniz seviyesinden yaklaşık 1.900 " +
+      'metre yükseklikte dağlarla çevrili bir tektonik çanakta yer alan Sevan ' +
+      "Gölü'dür. Kafkasya'nın en büyük tatlı su gölü olan Sevan, ülkenin hem " +
+      'balıkçılık hem hidroelektrik hem de sulama suyu rezervuarı olarak hayati ' +
+      'bir role sahiptir. ' +
+      '\n\n' +
+      "Gölden doğup Erivan'dan geçen Hrazdan Nehri, güneybatıya akarak Türkiye " +
+      "ve İran sınırını çizen Aras Nehri'ne katılır; Aras, ülkenin en büyük ve " +
+      'en kritik sulama koridorudur. Ülkenin kuzey dağlarını derin boğazlarla ' +
+      "yaran Debed Nehri ise Gürcistan'a doğru akarak Kura Havzası'na katılır.",
   },
   {
     isoCode: 'AZ',
@@ -1757,28 +2467,61 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       "Sovyetler Birliği'nin dağılma sürecinde bağımsızlık, 30 Ağustos 1991 Bağımsızlık " +
       'Bildirgesi ve 18 Ekim 1991 Devlet Bağımsızlığı Anayasal Kanunu ile yeniden kazanıldı.',
     introTr:
-      "Hazar Denizi'nin batı kıyısında uzanan Azerbaycan, kuzeyde Rusya, kuzeybatıda " +
-      'Gürcistan, batıda Ermenistan, güneyde İran ile komşudur; ülkenin Nahçıvan Özerk ' +
-      'Cumhuriyeti ise ayrı bir toprak parçası olarak Türkiye ve Ermenistan ile sınır ' +
-      'oluşturur.',
-    landformNoteTr:
-      "Kuzeydoğuda, Rusya'nın Dağıstan bölgesiyle sınırda Büyük Kafkas Dağları yükselir; " +
-      'ülkenin en yüksek noktası olan 4.485 metrelik Bazardüzü de bu sırada, Rusya sınırında ' +
-      'yer alır. Batıda, Ermenistan sınırında Küçük Kafkas Dağları uzanır; güneydoğu ucunda ' +
-      'ise İran sınırını izleyen Talış Dağları bulunur. Bu dağlık kuşakların arasında kalan ' +
-      'ülke merkezini geniş ovalar kaplar.' +
+      "Güney Kafkasya'nın en geniş ülkesi olan Azerbaycan, batıda Hazar " +
+      "Denizi'nin kıyı havzası ile Kafkas Dağları'nın arasına kuruludur. " +
+      'Kuzeyde Rusya, kuzeybatıda Gürcistan, batıda Ermenistan ve güneyde İran ' +
+      'ile komşu olan ülkenin, ana gövdeden ayrı konumlanan Nahçıvan Özerk ' +
+      'Cumhuriyeti eksklavı ise batıda Türkiye ve güneyde İran ile sınır ' +
+      'oluşturur. ' +
       '\n\n' +
-      'Hazar kıyısındaki bazı kesimler deniz seviyesinin altında kalır. Başkent Bakü, deniz ' +
-      'seviyesinin altında kurulu dünyanın en büyük şehri ve en alçak konumdaki başkenttir.',
+      "Ülkenin ekonomik ve demografik merkezi, Hazar Denizi'ne doğru bir kanca " +
+      "gibi uzanan Abşeron Yarımadası'dır. Deniz seviyesinden 28 metre aşağıda " +
+      'yer alarak dünyanın en alçak irtifalı başkenti unvanını taşıyan Bakü, ' +
+      'zengin petrol ve doğal gaz yataklarının çevrelediği bu yarımadada ' +
+      "kurulmuş olup Kafkasya'nın en büyük liman ve sanayi merkezidir.",
+    landformNoteTr:
+      'Azerbaycan topoğrafyası, yüksek dağ kuşakları ile bunların arasında ' +
+      'çöken geniş alüvyal çöküntü ovalarının tezatıyla şekillenmiştir. Kuzey ' +
+      'sınırını bir duvar gibi kapatan Büyük Kafkas Dağları üzerinde, Rusya ' +
+      'sınırında 4.485 metreye ulaşan Bazardüzü Zirvesi ülkenin doruk noktasını ' +
+      'oluşturur. Batıda Karabağ volkanik yaylasını da içeren Küçük Kafkas ' +
+      'Dağları, güneydoğuda ise İran sınırını izleyen ormanlık Talış Dağları ' +
+      'yükselir. ' +
+      '\n\n' +
+      'Bu sıradağların kollarının çevrelediği orta kesimde, Kura ve Aras ' +
+      'nehirlerinin oluşturduğu geniş Kura-Aras Ovaları uzanır. Hazar ' +
+      "Denizi'nin negatif irtifası nedeniyle kıyı şeridindeki düzlüklerin " +
+      'önemli bir bölümü deniz seviyesinin altında seyreder; Abşeron ve ' +
+      'Gobustan çevrelerinde tektonik gaz çıkışlarıyla beslenen yüzlerce çamur ' +
+      'volkanı, bölgeye özgü eşsiz bir jeolojik peyzaj oluşturur.',
     climateNoteTr:
-      'Coğrafi çeşitlilik iklime de yansır: Hazar kıyısı ovalarında yarı-kurak, bozkır ' +
-      'karakterli bir iklim görülür; güneydoğudaki Talış bölgesinde nemli subtropikal iklim ' +
-      "egemendir; Büyük Kafkas'ın yüksek kesimlerinde ise alp iklimi ve kalıcı kar örtüsü " +
-      'hakimdir.',
+      "Hazar Denizi'nin yumuşatıcı etkisi, yüksek dağ setleri ve enlem " +
+      "farklılığı sayesinde dünyadaki 11 ana iklim kuşağından 9'u Azerbaycan " +
+      'topraklarında temsil edilir. Kura-Aras ovaları ile Abşeron ' +
+      "Yarımadası'nda sıcak, kurak yazlar ve ılıman kışlarla tanımlanan yarı " +
+      'çöl ve bozkır iklimi egemendir; bu alanlarda tarım tamamen sulama ' +
+      'kanallarıyla yürütülür. ' +
+      '\n\n' +
+      'Güneydoğuda Hazar kıyısına yaslanan Lenkeran Ovası ve Talış Dağları ' +
+      'etekleri, denizden gelen nemli rüzgarların dağlara çarpmasıyla yıllık ' +
+      '1.600 milimetreyi aşan bol yağış alan nemli subtropikal bir cennettir. ' +
+      'Büyük ve Küçük Kafkasların 2.000 metreyi aşan sırtlarında ise dondurucu ' +
+      'dağ tundrası ve kalıcı kar örtüsü hüküm sürer.',
     hydrographyNoteTr:
-      "Kafkasya'nın en büyük akarsuyu olan Kura Nehri, Gürcistan'dan Azerbaycan'a geçer; " +
-      "ülkenin ikinci büyük nehri Aras, Kura'nın başlıca kolu olup ikisi birleşerek Hazar " +
-      "Denizi'ne dökülür. Ülkenin Hazar kıyısı 713 kilometre uzunluğundadır.",
+      "Azerbaycan'ın su omurgasını, Kafkasya'nın en büyük akarsu sistemi olan " +
+      "Kura-Aras Havzası çizer. Türkiye'den doğup Gürcistan'ı geçerek ülkeye " +
+      'giren Kura Nehri, batıdan gelen en büyük kolu Aras ile Sabirabad ' +
+      "yakınlarında birleşir ve geniş bir delta ile Hazar Denizi'ne dökülür. " +
+      "Kura üzerinde kurulan ve Güney Kafkasya'nın en büyük su kütlesi olan dev " +
+      'Mingeçevir Baraj Gölü, hem enerji üretimi hem de Kura-Aras ovasının ' +
+      'sulanması için stratejik bir rezervuardır. ' +
+      '\n\n' +
+      'Ülkenin doğu kıyısı boyunca 700 kilometreyi aşan bir şeritle uzanan ' +
+      'dünyanın en büyük kapalı gölü Hazar Denizi, dış okyanuslara doğrudan ' +
+      "bağlantısı bulunmayan kapalı bir havzadır. Hazar'a dökülen nehirler, " +
+      'mersin balığı popülasyonu ve zengin kıyı hidrolojisi açısından hayati ' +
+      'önem taşırken, son yıllarda göl su seviyesindeki çekilme kıyı ' +
+      'ekosistemlerini yakından etkilemektedir.',
   },
   {
     isoCode: 'BH',
@@ -1803,31 +2546,46 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Anayasal monarşi',
     independenceNoteTr: "15 Ağustos 1971'de İngiltere'den bağımsız oldu.",
     introTr:
-      "Ülke topraklarının sekizde yedisi tek bir adada, ana ada Bahreyn Adası'nda toplanır. " +
-      "Basra Körfezi'nde, Suudi Arabistan ile Katar Yarımadası arasında yer alan bu takımada " +
-      "otuzdan fazla doğal adadan oluşur; kara sınırı bulunmayan ülke, Suudi Arabistan'a " +
-      "yalnızca King Fahd Köprüsü'yle bağlıdır.",
+      "Basra Körfezi'nin sığ sularında, Suudi Arabistan'ın doğu kıyıları ile Katar " +
+      'Yarımadası arasına sokulan Bahreyn, ana adanın çevresine serpiştirilmiş otuzdan ' +
+      'fazla adadan oluşan küçük bir ada ülkesidir. Topraklarının büyük kısmı ana adada ' +
+      'toplanırken, anakarayla olan tek fiziki bağlantı batıdaki sığlığı aşan Kral Fehd ' +
+      'Köprüsü üzerinden sağlanır.',
     landformNoteTr:
-      'Ana ada büyük ölçüde alçak ve düz bir arazi yapısına sahiptir; kıyı şeridi boyunca tuzlu ' +
-      'bataklıklar ve gelgit düzlükleri uzanır. Ülkenin ortasında yükselen Cebel ed-Dühan, adına ' +
-      "ismini veren pus benzeri sisiyle bilinir ve 134 metreyle Bahreyn'in en yüksek noktasını " +
-      'oluşturur. Ana adanın güneyinde, çoğu ıssız ve düz olan Havar Adaları takımadası yer ' +
-      'alır; bu adalar kıyı kuşlarının önemli üreme alanlarındandır.',
+      'Ada arazisi genel hatlarıyla tabaka yapısını koruyan alçak bir kireçtaşı ' +
+      'kubbesidir; kıyı şeridini geniş gelgit düzlükleri, sığ lagünler ve tuzlu ' +
+      'bataklıklar kuşatır. İç kesimlere doğru zemin hafifçe kabararak yerini çıplak ' +
+      'kayalık sırtlara bırakır ve merkezde yükselen Cebel ed-Dühan çevresinde ülkenin en ' +
+      'yüksek noktası olan 134 metreye ulaşır. Bu alçak tepe, sıcak aylarda çevre ' +
+      'vadilerden yükselen yoğun sis ve pus örtüsüyle tanınır. ' +
+      '\n\n' +
+      'Ana adanın güneyinde ve güneydoğusunda uzanan Havar Adaları, sığ deniz tabanının ' +
+      'hafifçe yükselmesiyle beliren düz ve ıssız kireçtaşı düzlükleridir. Aşırı tuzluluk ' +
+      've çıplak topoğrafya insan yerleşimini kısıtlasa da bu sığ sular ve ıssız kıyılar, ' +
+      "Basra Körfezi'nin en büyük karabatak kolonilerine ve zengin deniz kaplumbağası " +
+      'popülasyonlarına doğal bir sığınak sunar.',
     climateNoteTr:
-      "Bahreyn'de kısa ve ılık bir kış ile Nisan'dan Ekim'e uzanan uzun ve aşırı sıcak bir yaz " +
-      'görülür; Haziran-Eylül arasında gündüz sıcaklıkları düzenli olarak 38-40 santigrat ' +
-      "dereceyi bulur, ülkenin resmi sıcaklık rekoru 2021'de ölçülen 48,7 santigrat derecedir. " +
-      "Basra Körfezi'nin sığ ve sıcak suları, yaz aylarında havaya yüzde 80'i aşan bir nem " +
-      "katar; bu birleşim, özellikle Ağustos ve Eylül'de hissedilen sıcaklığı ölçülen değerin " +
-      'belirgin biçimde üzerine çıkarır. Yağış, neredeyse tamamen Kasım-Nisan arasındaki seyrek ' +
-      've düzensiz sağanaklara sıkışır.',
+      'Ülkede kurak çöl iklimi egemendir; nisan ayından ekime kadar süren uzun yazlar ' +
+      "boyunca termometreler sıklıkla 40 derecenin üzerine tırmanır. Basra Körfezi'nin " +
+      'sığ ve aşırı ısınan sularından buharlaşan yoğun nem, özellikle ağustos ve eylül ' +
+      'aylarında kıyı havasını doygunluğa ulaştırarak hissedilen sıcaklığı boğucu ' +
+      'boyutlara taşır. ' +
+      '\n\n' +
+      'Kış ayları kısa, serin ve ılımandır. Yıllık yağış miktarı son derece düşüktür ve ' +
+      'neredeyse tamamı kasım ile nisan arasına rastlayan düzensiz kış sağanaklarıyla ' +
+      'sınırlı kalır. Yağışın yetersizliği, bitki örtüsünün yalnızca tuzcul çalılardan ve ' +
+      'kıyı vaha ceplerinden ibaret kalmasına yol açar.',
     hydrographyNoteTr:
-      "Kuzey ve kuzeybatı kıyısındaki tatlı su kaynakları, yüzyıllar boyunca Bahreyn'e yerleşimi " +
-      'çeken artezyen kaynaklarından beslenmiştir; bu kaynaklar hurma bahçelerini ve sebze ' +
-      'tarlalarını sulamış, inci dalgıçlığı döneminde gemilere tatlı su sağlamıştır. Aşırı çekim ' +
-      've deniz suyu sızması nedeniyle bu kaynaklar bugün büyük ölçüde tuzlanmış durumdadır. ' +
-      'Ülkede kalıcı akan bir nehir yoktur; günümüzde tatlı su ihtiyacının yaklaşık beşte üçü, ' +
-      'doğal gazla çalışan deniz suyu arıtma tesislerinden karşılanır.',
+      "Bahreyn'de akışı sürekli olan hiçbir akarsu bulunmaz. Tarih boyunca adaya hayat " +
+      'veren ve antik Dilmun uygarlığının gelişmesini sağlayan etmen, Arap ' +
+      "Yarımadası'ndaki akiferlerden deniz tabanına ve kıyı şeridine basınçla sızan tatlı " +
+      'su artezyenleridir. ' +
+      '\n\n' +
+      'Son yüzyılda hızlanan kentleşme ve aşırı su çekimi, yeraltı tatlı su lenslerinin ' +
+      'tükenmesine ve deniz suyunun tatlı su akiferlerine sızarak kaynakları tuzlamasına ' +
+      'neden oldu. Geleneksel hurma vahalarını besleyen tatlı pınarların kurumasıyla ' +
+      'birlikte ülke, içme ve sulama suyu ihtiyacının neredeyse tamamını doğal gazla ' +
+      'çalışan deniz suyu arıtma tesisleriyle karşılar hale geldi.',
   },
   {
     isoCode: 'GE',
@@ -1868,26 +2626,59 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "9 Nisan 1991'de Sovyetler Birliği'nden bağımsızlığını ilan etti.",
     introTr:
-      "Kafkas Dağları'nın güney eteklerinden Karadeniz kıyısına uzanan Gürcistan, kuzeyde " +
-      'Rusya, güneyde Türkiye ve Ermenistan, güneydoğuda ise Azerbaycan ile komşudur.',
+      "Büyük Kafkas Sıradağları'nın güney yamaçları ile Karadeniz'in doğu " +
+      'kıyıları arasında yer alan Gürcistan; kuzeyde Rusya, güneydoğuda ' +
+      'Azerbaycan, güneyde Ermenistan ve güneybatıda Türkiye ile çevrilidir. ' +
+      'Doğu Avrupa ile Batı Asya arasındaki Avrasya köprüsünün kilit geçiş ' +
+      'kapısını oluşturan ülke, batıdaki nemli kıyı ovalarından doğudaki dağlık ' +
+      'bozkır havzalarına uzanan zengin bir coğrafi mozaik barındırır. ' +
+      '\n\n' +
+      "Ülkenin tarihi ve siyasi omurgası, Doğu ve Batı Gürcistan'ı birbirine " +
+      'bağlayan dağ geçitlerinin ve vadi koridorlarının eteklerinde ' +
+      "kurulmuştur. Başkent Tiflis, Kura Nehri'nin iki yakasında dik yamaçlar " +
+      'arasına gömülmüş boğazda yer alır; antik dönemden bu yana İpek Yolu ve ' +
+      'Transkafkasya ticaret yollarını denetleyen korunaklı jeopolitik ' +
+      'konumuyla öne çıkar.',
     landformNoteTr:
-      "Ülke topraklarının yaklaşık %85'i dağlıktır. Kuzey sınırını çizen Büyük Kafkas " +
-      "Dağları, Gürcistan'ın en yüksek zirvelerini barındırır: Rusya sınırındaki 5.193 " +
-      'metrelik Şhara ülkenin en yüksek noktasıdır, tamamıyla Gürcistan sınırları içinde ' +
-      "kalan en yüksek zirve ise 5.054 metrelik Kazbek'tir. Ülkenin batısında, Karadeniz " +
-      'kıyısında Kolhis Ovası uzanır; bu alçak ve nemli ova, dağlık iç kesimlerle keskin bir ' +
-      'kontrast oluşturur.',
+      'Gürcistan topraklarının yaklaşık yüzde seksen beşi dağlık ve engebeli ' +
+      'arazilerden oluşur. Kuzey sınırını boydan boya kaplayan Büyük Kafkas ' +
+      "Dağları, Avrupa'nın en yüksek dorukları arasında sayılan sarp buzul " +
+      'kütlelerini barındırır: Rusya sınırında 5.193 metreye ulaşan Şhara ' +
+      '(Shkhara) Zirvesi ülkenin en yüksek noktasıdır; volkanik kökenli ' +
+      'görkemli Kazbek (5.054 m) ise Kafkas geçitlerini taçlandırır. ' +
+      '\n\n' +
+      'Ülkeyi doğu-batı ekseninde ikiye bölen Likhi Sıradağları, batıdaki ' +
+      'alüvyal Kolhis (Rioni) Ovası ile doğudaki Kartli ve Kaheti plato ' +
+      "havzalarını birbirinden ayırır. Karadeniz'e açılan batı kesiminde " +
+      'karstik kireçtaşlarının erimesiyle oluşmuş yeryüzünün en derin mağara ' +
+      'sistemleri (Veryovkina ve Krubera-Voronya gibi) Abhazya kıvrımlarında ' +
+      'yer alır; güneyde ise Türkiye ve Ermenistan sınırına doğru volkanik ' +
+      'Küçük Kafkas kütleleri uzanır.',
     climateNoteTr:
-      'Bu yükselti ve konum farkı iklime doğrudan yansır. Batıda, Kolhis Ovası ve Karadeniz ' +
-      'kıyısında nemli subtropikal bir iklim egemendir, yıl boyu bol yağış düşer. Doğuda, ' +
-      'başkent Tiflis ve İç Kartli bölgesinde dağların yağış gölgesi etkisiyle daha kurak ve ' +
-      'karasal bir iklim görülür. Yüksek Kafkas kesimlerinde ise alp iklimi ve yıl boyu kar ' +
-      'örtüsü hakimdir.',
+      'Ülkenin iklim haritası Likhi Sıradağları tarafından keskin biçimde ' +
+      'ikiye ayrılır. Batıda yer alan Kolhis Ovası ve Karadeniz kıyı şeridi ' +
+      '(Acara ve Samegrelo), denizden gelen nemli hava kütlelerinin dağlara ' +
+      'hapsolması sayesinde yıllık yağışın 2.500-3.000 milimetreyi aştığı ılık ' +
+      've olağanüstü nemli bir subtropikal iklime sahiptir. ' +
+      '\n\n' +
+      "Likhi Dağları'nın bariyer oluşturması nedeniyle doğuya geçildiğinde nem " +
+      'hızla azalır; başkent Tiflis ve Kaheti vadilerinde sıcak yazlar ve soğuk ' +
+      'kışlarla tanımlanan kuru subtropikal ve ılıman karasal koşullar egemen ' +
+      'olur. 2.000 metrenin üzerindeki yüksek Kafkas yamaçlarında ise uzun ' +
+      'süren kışları ve kalıcı karlarıyla sert bir alpin dağ iklimi hüküm ' +
+      'sürer.',
     hydrographyNoteTr:
-      "Ülkenin en uzun akarsuyu, Türkiye'de doğup Gürcistan'ın doğu ovalarından geçen ve " +
-      "başkent Tiflis'in ortasından akan Kura (Mtkvari) Nehri'dir; nehir Azerbaycan " +
-      "topraklarına geçerek Hazar Denizi'ne dökülür. Karadeniz kıyısındaki başlıca limanlar " +
-      "Poti ve Batum'dur.",
+      "Gürcistan'ın akarsu ağı, Karadeniz Havzası ile Hazar Denizi Havzası " +
+      'arasında doğal bir su bölümü çizgisiyle ikiye ayrılır. Ülkenin doğu ' +
+      "yarısını kateden ve Türkiye'den doğan Kura (Mtkvari) Nehri, Tiflis'ten " +
+      'geçip Alazani ve Aragvi gibi kolları bünyesine katarak Azerbaycan ' +
+      "üzerinden Hazar'a yönelir. " +
+      '\n\n' +
+      'Batı yarısında ise Büyük Kafkas buzullarından doğan sular, antik Altın ' +
+      'Post efsanesine konu olan gür debili Rioni Nehri ile toplanarak Kolhis ' +
+      "Ovası'nı sular ve Karadeniz'e dökülür. Karadeniz kıyısındaki Poti ve " +
+      'Batum limanları, Kafkasya ve Orta Asya yüklerinin dünyaya açıldığı ' +
+      'başlıca deniz terminallerini oluşturur.',
   },
   {
     isoCode: 'IQ',
@@ -1916,29 +2707,48 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       "3 Ekim 1932'de İngiliz manda yönetiminden bağımsız oldu (Milletler Cemiyeti " +
       'üyeliğiyle).',
     introTr:
-      'Dicle ve Fırat nehirlerinin birleştiği Mezopotamya ovası üzerinde kurulu Irak, ' +
-      'kuzeyde Türkiye, doğuda İran, güneydoğuda Kuveyt, güneyde Suudi Arabistan, güneybatıda ' +
-      'Ürdün, batıda ise Suriye ile komşudur.',
+      'Tarihin en eski tarım ve kent kültürlerine beşiklik eden Irak, Fırat ve Dicle ' +
+      'nehirlerinin hayat verdiği geniş alüvyal çöküntü ovası ile bu ovayı çevreleyen ' +
+      "dağlar ve çöller arasında konumlanır. Basra Körfezi'ne yalnızca Fao Yarımadası " +
+      "üzerinden dar bir kıyı şeridiyle açılan ülke, kuzeyde Anadolu'nun yüksek dağ " +
+      'silsileleri, doğuda İran yaylası, batı ve güneyde ise uçsuz bucaksız çöl ' +
+      'platolarıyla çevrilidir.',
     landformNoteTr:
-      'Ülkenin kuzeydoğusunda, Musul ve Kerkük arasındaki kesimde Hamrin ve Zagros ' +
-      "dağlarının uzantıları yer alır; bu bölge Irak'ın en engebeli kesimidir. Ülkenin en " +
-      'yüksek noktası, İran sınırındaki 3.611 metrelik Çeyxa Dar bu dağ kuşağındadır. Batı ve ' +
-      "güneybatıda, Suudi Arabistan ve Ürdün sınırları boyunca Arap Yarımadası'nın devamı " +
-      'niteliğindeki geniş bir çöl uzanır.' +
+      'Ülke topoğrafyası kuzeydoğudan güneybatıya doğru keskin bir kademelenme gösterir. ' +
+      "Kuzeydoğuda Zagros Dağları'nın batı uzantıları sert ve sarp vadilerle yükselir; " +
+      'İran sınırındaki Çeyxa Dar doruğu 3.611 metreyle ülkenin zirvesini oluşturur. Bu ' +
+      'dağ kuşağının eteklerinde yer alan dalgalı tepeler ve kireçtaşı sırtlar, güneye ' +
+      "inildikçe yerini Fırat ile Dicle'nin binlerce yıldır taşıdığı alüvyonlarla dolan " +
+      "Aşağı Mezopotamya Ovası'na bırakır. " +
       '\n\n' +
-      'Ülkenin kalbini, Dicle ve Fırat nehirlerinin arasında kalan Mezopotamya Ovası ' +
-      "oluşturur. Bağdat'ın kuzeyinden Basra Körfezi'ne kadar uzanan Aşağı Mezopotamya " +
-      "kesimi, geniş bataklıklar ve Irak'ın en büyük gölü olan Tharthar Gölü'nü barındıran " +
-      'alüvyal bir ovadır.',
+      "Bağdat'ın güneyinden denize kadar uzanan delta ovası, eğimi son derece düşük ve " +
+      "taban suyu yüksek bataklık ve göl labirentlerinden oluşur. Fırat'ın batısında ve " +
+      'güneyinde ise arazi aniden yükselerek Suriye ve Arabistan çöllerinin uzantısı olan ' +
+      'taşlık, çakıllı Bâdiye platosuna kavuşur; bu çöl kuşağı yüzey şekillerini ' +
+      'aşındıran kuru dere yataklarıyla parçalanmıştır.',
     climateNoteTr:
-      'İklim, kuzeydeki dağlık bölgede daha soğuk kışlı, yarı-kurak bir karakterdedir; orta ' +
-      've güney Mezopotamya ovasında ise yazları aşırı sıcak, kışları ılık geçen kurak bir ' +
-      'çöl iklimi egemendir.',
+      "Irak'ta kuzeydeki dağlık kuşak ile güneydeki alüvyal çöl ovası arasında belirgin " +
+      'bir iklim tezatı yaşanır. Kuzeydoğu dağlarında kışlar sert ve kar yağışlı ' +
+      'geçerken, yıllık yağış 600-1.000 milimetreyi bularak meşe ormanlarını ve zengin ' +
+      'otlakları besler. ' +
+      '\n\n' +
+      'Buna karşılık orta ve güney kesimlerde sert bir çöl iklimi hüküm sürer. Yaz ayları ' +
+      "Basra Körfezi'nden Basra ve Bağdat'a uzanan hatta son derece kavurucu geçer; " +
+      'sıcaklıklar düzenli olarak 50 derecenin üzerine çıkar. Yaz aylarında kuzeybatıdan ' +
+      'esen kuru ve kavurucu Şamal rüzgarları, güney çöllerinden kaldırdığı toz ve kumu ' +
+      'ovaya taşıyarak günlerce görüşü kısıtlayan toz fırtınalarına neden olur.',
     hydrographyNoteTr:
-      "Dicle (1.900 km) ve Fırat (2.800 km) nehirleri, Irak'ın en uzun ve coğrafi kimliğini " +
-      'belirleyen akarsularıdır; başkent Bağdat dahil büyük şehirlerin çoğu bu iki nehrin ' +
-      'kıyısında kuruludur. Nehirlerin arasında kalan toprakların "iki nehir arası" anlamına ' +
-      'gelen Mezopotamya adını taşıması, bu coğrafyanın en eski yerleşim izlerine kadar uzanır.',
+      "Fırat ve Dicle nehirleri, Irak'ın hem fiziki omurgasını hem de beşeri varlığını " +
+      "belirler. Türkiye ve İran'ın dağlık alanlarından eriyen karlar ve yağmurlarla " +
+      'beslenen bu iki ana akarsu, ülkeyi boydan boya geçerek güneyde Kurna yakınlarında ' +
+      "birleşir ve Şattülarap adıyla Basra Körfezi'ne dökülür. " +
+      '\n\n' +
+      'Nehirlerin aşağı çığırında oluşan Ahvar (Mezopotamya bataklıkları), zengin ' +
+      'sazlıkları, su bufaloları ve bin yıllık saz evleriyle benzersiz bir sulak alan ' +
+      'ekosistemidir. Ancak yukarı havzada kurulan barajlar, iklim krizine bağlı kuraklık ' +
+      've drenaj kanalları nedeniyle nehir debileri tarihi seviyelerin altına inmiş, bu ' +
+      'akış zayıflığı körfezdeki tuzlu suyun nehir yatağına sokularak güney tarımını ve ' +
+      'içme suyunu tehdit etmesine yol açmıştır.',
   },
   {
     isoCode: 'JO',
@@ -1963,38 +2773,48 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Üniter parlamenter anayasal monarşi',
     independenceNoteTr: "25 Mayıs 1946'da İngiliz manda yönetiminden bağımsız oldu.",
     introTr:
-      "Ürdün Çöküntü Vadisi'nin doğu yamacında kurulu Ürdün, denize yalnızca güneybatı ucundaki " +
-      'Akabe Körfezi üzerinden kısa bir şeritle açılır. Kuzeyde Suriye, doğuda Irak, güneyde ve ' +
-      'doğuda Suudi Arabistan, batıda İsrail ile komşudur. Batı sınırının orta kesiminde ise ' +
-      "komşu Filistin'dir; Şeria (Ürdün) Nehri, Ürdün'ü Batı Şeria'dan ayırır. Bu hat güneyde " +
-      "Lut Gölü'nün (Ölü Deniz) kuzey kesimi boyunca sürer.",
+      'Doğu Akdeniz hinterlandında yer alan Ürdün, dünyanın en derin tektonik yarığı ile ' +
+      'doğudaki uçsuz bucaksız çöl platosu arasında yükselen dağlık bir eşik üzerinde ' +
+      'kuruludur. Ülkenin denize tek çıkışı, güney ucunda Akabe Körfezi üzerinden ' +
+      "Kızıldeniz'e bağlanan dar bir kıyı koridorudur.",
     landformNoteTr:
-      'Ülkenin batı sınırını, Büyük Rift Vadisi sisteminin bir parçası olan Ürdün Çöküntü Vadisi ' +
-      'çizer; bu derin çöküntü, çevresindeki platolardan 1.200-2.000 metre aşağıda kalır ve dip ' +
-      "noktasında, Dünya'nın kara yüzeyindeki en alçak noktası olan Lut Gölü'ne ulaşır. Lut " +
-      "Gölü'nün su seviyesi yılda yaklaşık 1 metre düşmeye devam ediyor; bugün deniz seviyesinin " +
-      'yaklaşık 440 metre altındadır.' +
+      'Ülke fizyografyası üç belirgin şeride ayrılır. Batı sınırını boydan boya kesen ' +
+      'Ürdün Çöküntü Vadisi, Ölü Deniz Transform Fayı boyunca çöken devasa bir grabendir; ' +
+      'tabanında deniz seviyesinin yaklaşık 430 metre altında yer alan ve yerkürenin ' +
+      'karadaki en alçak noktası olan Lut Gölü uzanır. Vadinin tabanı ile hemen doğusunda ' +
+      'duvar gibi yükselen platolar arasında 1.000 metreyi aşan dik fay basamakları ' +
+      'sıralanır. ' +
       '\n\n' +
-      'Çöküntü vadisinin doğusunda, 600-1.000 metre rakımlı kıvrımlı kireçtaşı sırtlardan oluşan ' +
-      'Aclun ve Belka yaylaları yükselir; Vadi Mucib ve Vadi Hasa gibi vadiler bu yaylaları ' +
-      'derin kanyonlarla yarar. Ülkenin en yüksek noktası, güneydeki ıssız bir kesimde yer alan ' +
-      "1.854 metrelik Jabal Umm ad-Dami'dir. Doğuda, Suudi Arabistan ve Irak sınırlarına kadar " +
-      'uzanan Bâdiye, yaylalara yakın kesimde 900 metreden sınıra doğru 600 metreye alçalan, yer ' +
-      'yer bazalt kütleleriyle kaplı bir çöl platosudur.',
+      'Bu fay dikliğinin gerisinde Aclun, Belka ve Şara dağlarını oluşturan yüksek ' +
+      'kireçtaşı yaylaları uzanır; güneyde kırmızı kumtaşı kuleleri ve monolitleriyle ' +
+      'ünlü Vadi Rum yer alır ve Suudi sınırına yakın Cebel Ümmü ed-Dami 1.854 metreyle ' +
+      'ülkenin en yüksek zirvesi olarak yükselir. Bu dağlık omurganın doğusuna ' +
+      'geçildiğinde zemin hafifçe alçalarak bazaltik lav akıntıları ve çakıllı ' +
+      'düzlüklerden oluşan geniş Bâdiye çöl platosuna dönüşür.',
     climateNoteTr:
-      'Çöküntü vadisinin doğusundaki yaylalarda Akdeniz iklimi görülür; yıllık yağış kuzeyde 500 ' +
-      'milimetreyi bulurken güneye doğru 300 milimetreye iner. Lut Gölü ve Şeria Nehri ' +
-      'çevresindeki çöküntü vadisi tabanında, yaz sıcaklarının ve düşük rakımın (deniz ' +
-      'seviyesinin altında) birleşiminden doğan subtropikal bir iklim hakimdir, yıllık yağış ' +
-      "yaklaşık 200 milimetredir. Ülkenin yaklaşık %90'ını oluşturan doğu ve güney kesimlerinde " +
-      'ise yıllık yağış 100 milimetrenin altına düşen bir çöl iklimi egemendir.',
+      'Farklı topoğrafik kuşaklar, kısa mesafelerde çarpıcı iklim farklılıkları yaratır. ' +
+      'Batıdaki yüksek yaylalarda kışları serin, yağışlı ve zaman zaman kar yağışlı geçen ' +
+      'Akdeniz dağ iklimi egemendir; kuzeydeki tepelerde yıllık yağış 500 milimetreye ' +
+      'yaklaşarak zeytinlikleri ve çam ormanı kalıntılarını destekler. ' +
+      '\n\n' +
+      'Buna karşılık Lut Gölü çanağında ve Ürdün Vadisi tabanında deniz seviyesinin ' +
+      'altında olmanın getirdiği yüksek atmosferik basınç ve sıkışma nedeniyle kışlar ' +
+      'ılık, yazlar ise boğucu ve kuraktır. Ülke topraklarının yüzde sekseninden ' +
+      'fazlasını kaplayan doğudaki Bâdiye platosunda ise sıcaklık farklarının yüksek ' +
+      'olduğu, yıllık yağışın 100 milimetrenin altına düştüğü tam kurak çöl koşulları ' +
+      'hüküm sürer.',
     hydrographyNoteTr:
-      'Ülkenin batı sınırını izleyen Şeria Nehri, Yarmuk ve Zerka nehirlerinden beslenir; ' +
-      'Suriye-Ürdün sınırının bir bölümünü çizen Yarmuk, nehrin en büyük kolu ve Ürdün ' +
-      "Vadisi'ndeki tarımın ana su kaynağıdır. Amman yakınlarındaki kaynaklardan doğan Zerka, " +
-      "derin bir vadiden geçerek Şeria Nehri'ne katılır. Nehir, güneyde kapalı bir havza olan " +
-      "Lut Gölü'nde son bulur; yukarı havzadaki yoğun su kullanımı nedeniyle nehrin yıllık " +
-      'debisi geçmiş dönemlere kıyasla büyük ölçüde azalmıştır.',
+      'Ürdün, dünyanın su stresi en yüksek ülkelerinden biridir. Batı sınırını çizen ' +
+      'Şeria (Ürdün) Nehri, en büyük kolu olan Yarmuk ve Amman yaylalarından doğup derin ' +
+      'kanyonlardan geçen Zerka Nehri ile beslenir; akışını nihayetinde dışa akışı ' +
+      "olmayan kapalı havza Lut Gölü'nde noktalar. " +
+      '\n\n' +
+      "Yukarı havzadaki barajlar ve yoğun tarımsal su tüketimi nedeniyle Şeria Nehri'nin " +
+      "Lut Gölü'ne ulaştırdığı su miktarı kritik derecede azalmıştır. Bu beslenme açığı, " +
+      "Lut Gölü'nün su yüzeyinin yılda yaklaşık bir metre çekilmesine ve kıyı şeridinde " +
+      'tehlikeli tuz çöküntü obruklarının oluşmasına yol açar. Ülke, büyük kentlerin ve ' +
+      'tarımın su ihtiyacını karşılamak için güney çölündeki fosil akiferlerden (Disi) ' +
+      'yüzlerce kilometrelik boru hatlarıyla su taşımaktadır.',
   },
   {
     isoCode: 'KW',
@@ -2019,33 +2839,47 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Anayasal monarşi (Emirlik)',
     independenceNoteTr: "19 Haziran 1961'de İngiltere'den bağımsız oldu.",
     introTr:
-      "Basra Körfezi'nin kuzeybatı köşesinde, kıyısını Kuveyt Körfezi'nin derin bir " +
-      'girintisiyle paylaşan Kuveyt, neredeyse tamamen düz bir çöl ülkesidir. Kuzeyde ve ' +
-      'batıda Irak, güneyde Suudi Arabistan ile komşudur.',
+      "Basra Körfezi'nin kuzeybatı köşesinde, sığ Kuveyt Körfezi'nin hilal biçimli " +
+      'girintisi etrafında gelişen Kuveyt, neredeyse tamamen düz ve kumlu-çakıllı bir çöl ' +
+      'arazisine yayılır. Körfez girişini kontrol eden konumu ve korunaklı doğal limanı, ' +
+      'ülkeyi tarih boyunca Arabistan içleri ile Hint Okyanusu ticaretini bağlayan önemli ' +
+      'bir deniz kapısına dönüştürmüştür.',
     landformNoteTr:
-      'Ülke arazisi, Basra Körfezi kıyısındaki deniz seviyesinden kuzeybatıdaki Mutla ' +
-      "Sırtı'na kadar kademeli olarak yükselir; ülkenin en yüksek noktası olan bu sırt 306 " +
-      "metreye ulaşır. Kuveyt Körfezi'nin kuzey kıyısına hakim Cal ez-Zor sırtı 145 " +
-      'metreyi, güneydeki Ahmedi tepesi ise 137 metreyi bulur — bunların dışında arazi ' +
-      'büyük ölçüde düzdür.' +
+      'Topoğrafya, körfez kıyısındaki sıfır seviyesinden batıya ve kuzeybatıya doğru ' +
+      'neredeyse hissedilmeyecek bir eğimle yükselen dalgalı bir çöl düzlüğüdür. Kıyı ' +
+      'boyunca uzanan Cal ez-Zor kireçtaşı ve kumtaşı falezleri ile iç kesimdeki Mutla ' +
+      'Sırtı arazinin başlıca morfolojik kırılma hatlarını oluşturur; batı sınırına yakın ' +
+      'çakıllı sırtlarda rakım en çok 300 metre dolayına ulaşır. ' +
       '\n\n' +
-      'Kuveyt Körfezi, kıyı şeridine yaklaşık 40 kilometre sokularak ülkenin 195 ' +
-      'kilometrelik toplam kıyı uzunluğunun yaklaşık üçte birini oluşturur; başkent Kuveyt ' +
-      "Şehri'nin limanını doğal olarak korur. Ülkeye bağlı dokuz adadan en büyüğü, 863 " +
-      "kilometrekarelik yüzölçümüyle Kuveyt topraklarının yaklaşık %5'ini oluşturan " +
-      "Bubiyan'dır — tuz düzlükleri, gelgit çamurları ve mangrovlarla kaplı bu bataklık ada, " +
-      'askeri bir köprüyle karaya bağlıdır.',
+      'Körfez kıyıları son derece sığdır; gelgit hareketleri geniş çamur düzlükleri ve ' +
+      'tuz bataklıkları (sebhalar) oluşturur. Şattülarap deltasının hemen güneyinde yer ' +
+      'alan Bubiyan ve Varba adaları, nehir taşkın çökelleri ve körfez gelgitlerinin ' +
+      'yığdığı alüvyonlardan meydana gelen, yerleşimin olmadığı bataklık kütleleridir; ' +
+      'buna karşılık Kuveyt Körfezi ağzındaki Feyleke Adası antik çağlardan bu yana tatlı ' +
+      'su tutabilen kireçtaşı yapısıyla iskân görmüştür.',
     climateNoteTr:
-      'Kuveyt, beş aydan uzun süren yazlarında sıcaklığın sık sık 50 santigrat dereceyi ' +
-      "aştığı, aşırı kurak bir çöl iklimine sahiptir. 2016'da Mitriba'da ölçülen 54,0 " +
-      'santigrat derece, Asya kıtasında ölçülmüş en yüksek sıcaklık kaydıdır. Kışlar kısa ve ' +
-      'ılımlıdır; sınırlı ve düzensiz yağış Kasım-Şubat arasına yoğunlaşır, toz fırtınaları ' +
-      'yılın büyük bölümünde görülür.',
+      'Kuveyt, dünya üzerinde ölçülen en şiddetli ve uzun süreli yaz sıcaklıklarına sahne ' +
+      'olan aşırı kurak çöl iklimi kuşağında yer alır. Mayıs ayından ekim ayına kadar ' +
+      'aralıksız süren yaz mevsiminde gölgede sıcaklıklar sıklıkla 50 dereceyi geçer; ' +
+      'Mitriba meteoroloji istasyonunda kaydedilen 54,0 derece, kıtada ölçülmüş en yüksek ' +
+      'sıcaklık kayıtları arasındadır. ' +
+      '\n\n' +
+      'Kış ayları kısa, serin ve ılımandır; gece ile gündüz arasında keskin sıcaklık ' +
+      'farkları oluşur. Yıllık yağış ortalaması 100 milimetrenin biraz üzerindedir ve ' +
+      'yalnızca kış aylarında ani, düzensiz sağanaklar halinde düşer. Yaz aylarında esen ' +
+      'kuzeybatı yönlü tozlu Şamal rüzgarları, havayı yoğun kum zerreleriyle doldurarak ' +
+      'hayatı felce uğratan toz fırtınalarına neden olur.',
     hydrographyNoteTr:
-      'Ülkede doğal göl ya da nehir yoktur; tek yerel su kaynağı, denize yakınlığı ve aşırı ' +
-      'çekim nedeniyle giderek tuzlanan acı yeraltı sularıdır. Kuveyt, tatlı su ihtiyacının ' +
-      'büyük bölümünü deniz suyu arıtma tesislerinden karşılar — 2023 yılında 0,8 milyar ' +
-      'metreküp arıtılmış su üretildi.',
+      'Ülke sınırları dahilinde tek bir sürekli akarsu, doğal göl ya da daimi tatlı su ' +
+      "kaynağı bulunmaz. Yağmur sonrasında kısa süreliğine su taşıyan ve Basra Körfezi'ne " +
+      'doğru hafif meyil çizen kuru çöl vadileri (özellikle Vadi el-Bâtın) yüzey ' +
+      'drenajının yegâne izleridir. ' +
+      '\n\n' +
+      'Yeraltında bulunan sınırlı su rezervleri yüksek oranda kükürtlü ve tuzlu ' +
+      'olduğundan doğrudan tüketime uygun değildir. Bu mutlak su yokluğu nedeniyle ' +
+      "Kuveyt, 1950'li yıllardan itibaren deniz suyu arıtma teknolojisine öncülük etmiş, " +
+      'kentsel ve sınai tatlı su ihtiyacının tamamına yakınını devasa desalinasyon ' +
+      'tesislerinden sağlamıştır.',
   },
   {
     isoCode: 'LB',
@@ -2070,36 +2904,47 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "22 Kasım 1943'te Fransız manda yönetiminden bağımsız oldu.",
     introTr:
-      'Lübnan, kıyıdan iç kesime doğru birbirine paralel dört kuşaktan oluşur: dar bir kıyı ' +
-      'ovası, Lübnan Dağları, Bekaa Vadisi ve Anti-Lübnan Dağları. Küçük yüzölçümüne karşın ' +
-      'bu dört kuşak arasında büyük bir rakım farkı vardır. Kuzeyde ve doğuda Suriye, ' +
-      'güneyde İsrail ile komşudur.',
+      'Doğu Akdeniz kıyısında dar bir kıyı şeridinden yükselen Lübnan, birbirine paralel ' +
+      'uzanan iki yüksek sıradağ ve aralarındaki tektonik çöküntü oluğundan oluşan ' +
+      "engebeli bir Levant ülkesidir. Akdeniz'in nemli hava kütlelerini ilk karşılayan " +
+      'yüksek duvar niteliğindeki dağları, ülkeyi çevre çöl kuşağının ortasında bir su ve ' +
+      'bitki vahasına dönüştürür.',
     landformNoteTr:
-      'Akdeniz kıyısına paralel uzanan Lübnan Dağları, yaklaşık 170 kilometre boyunca ' +
-      'ülkeyi kuzeyden güneye kat eder; genişliği Trablus yakınında 56,5 kilometreye ' +
-      'ulaşırken güneyde 9,5 kilometreye kadar daralır. Sıradağın en yüksek noktası, 3.088 ' +
-      "metrelik Kurnet es Sevda'dır." +
+      'Fiziki yapı kıyıdan içe doğru dört morfolojik kuşağa ayrılır. Kıyıda portakal ' +
+      'bahçeleri ve falezlerle kesintiye uğrayan dar kıyı düzlüğü uzanır; bu düzlüğün ' +
+      'hemen ardından duvar gibi yükselen Lübnan Dağları (Cebel-i Lübnan) başlar. Kuzeyde ' +
+      '3.088 metreye ulaşan Kurnet es-Sevda doruğuyla Akdeniz kıyısındaki en yüksek ' +
+      'yükseltiyi oluşturan bu silsile, kireçtaşı yapısı nedeniyle derin kanyonlar, ' +
+      'mağaralar ve düdenlerle yarılmıştır. ' +
       '\n\n' +
-      "Lübnan Dağları'nın doğusunda, Doğu Afrika Rift Sistemi'nin bir uzantısı sayılan Bekaa " +
-      'Vadisi yer alır; 800-1.100 metre rakımlı, yaklaşık 120 kilometre uzunluğunda ve ' +
-      '10-20 kilometre genişliğindeki bu çöküntü, kalın alüvyon dolgusuyla ülkenin en verimli ' +
-      "tarım alanını oluşturur. Vadinin doğusunda, Lübnan Dağları'na paralel uzanan " +
-      'Anti-Lübnan Dağları, güney ucunda 2.814 metreye kadar yükselir.',
+      "Lübnan Dağları'nın doğusunda, Doğu Afrika Rift Sistemi'nin kuzey uzantısını " +
+      'oluşturan verimli Bekaa Çöküntü Vadisi uzanır. Deniz seviyesinden 900-1.000 metre ' +
+      'yükseklikte asılı duran bu çöküntü hendeğinin doğu sınırını ise Suriye ile sınırı ' +
+      "çizen Anti-Lübnan Sıradağları (Cebelü'ş-Şarki) ve onun güney ucundaki karlı Hermon " +
+      'Dağı kütlesi kapatır.',
     climateNoteTr:
-      'Kıyı şeridinde sıcak-kurak yaz ve ılık-yağışlı kışın görüldüğü tipik bir Akdeniz ' +
-      "iklimi hakimdir. Lübnan Dağları'nın yüksek kesimleri kışın kalıcı kar örtüsüyle " +
-      'kaplanır; bu yükseklik, kıyıdan yalnızca birkaç saat mesafede kayak turizmine imkan ' +
-      'tanır. Bekaa Vadisi, iki paralel sıradağ arasında kaldığı için deniz etkisinden büyük ' +
-      'ölçüde uzaktır — kışları daha soğuk, yazları ise daha sıcak ve kurak bir karasal iklim ' +
-      'burada egemendir.',
+      'Küçük yüzölçümüne karşın topoğrafyadaki sert eğimler belirgin mikroklimatik ' +
+      'katmanlar oluşturur. Kıyı kuşağında kışları ılık ve bol yağışlı, yazları sıcak ve ' +
+      'nemli tipik bir Doğu Akdeniz iklimi hüküm sürer. Denizden gelen nemli hava ' +
+      "kütleleri Lübnan Dağları'nın batı yamaçlarına çarparak yükselir ve orografik " +
+      'yağışlarla yıllık 1.000-1.400 milimetreye varan yağış bırakır. ' +
+      '\n\n' +
+      'Dağların zirveleri aralık ayından mayıs ayına kadar kalın bir kar örtüsü altında ' +
+      'kalır; ülkenin adı da bu parıldayan kireçtaşı ve kar beyazlığından gelir. Buna ' +
+      "karşılık, Lübnan Dağları'nın arkasında kalan Bekaa Vadisi ve Anti-Lübnan Dağları " +
+      'yağış gölgesinde kalır; deniz etkisinden yalıtılan vadide kışları dondurucu ' +
+      'soğuklar, yazları ise kurak ve sıcak bozkır koşulları yaşanır.',
     hydrographyNoteTr:
-      "Tamamen Lübnan sınırları içinde akan en uzun nehir, Bekaa Vadisi'nde Baalbek'in " +
-      "batısından doğan ve Sur kentinin kuzeyinde Akdeniz'e dökülen 140 kilometreden uzun " +
-      "Litani'dir; 2.110 kilometrekarelik havzası ülke topraklarının yaklaşık beşte birini " +
-      'kaplar ve ülkenin toplam akarsu debisinin yaklaşık üçte birini sağlar, sulama ve ' +
-      "hidroelektrik üretiminde kullanılır. Kuzey Bekaa'da, Hermel yakınlarında doğan Asi " +
-      "(Orontes) Nehri ise kuzeye, Suriye üzerinden Türkiye'ye akarak Akdeniz'e ulaşır. " +
-      "Ülkede toplam 40 nehir sayılır, bunlardan 16'sı yıl boyu akar.",
+      'Lübnan, karstik kireçtaşı dağlarının tuttuğu kar ve yağmur suları sayesinde Orta ' +
+      "Doğu'nun en zengin su kaynaklarına ev sahipliği yapar. Kar erimeleriyle beslenen " +
+      'yüzlerce karstik gür kaynak (vaucluse kaynakları), yeraltından fışkırarak dağ ' +
+      'nehirlerini ve kıyı derelerini besler. ' +
+      '\n\n' +
+      "Ülkenin en önemli akarsuyu, Bekaa Vadisi'nden doğup vadiyi güneye doğru boydan " +
+      "boya kateden ve ardından batıya kıvrılarak Akdeniz'e dökülen Litani Nehri'dir; " +
+      'üzerinde kurulu Karaun Baraj Gölü tarımsal sulama ve enerji üretiminin merkezidir. ' +
+      "Bekaa'nın kuzeyinden doğan Asi (Orontes) Nehri ise kuzeye akarak Suriye ve Türkiye " +
+      'üzerinden denize ulaşır.',
   },
   {
     isoCode: 'OM',
@@ -2124,36 +2969,48 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Mutlak monarşi (Sultanlık)',
     independenceNoteTr: null,
     introTr:
-      'Arap Denizi ve Umman Körfezi boyunca 3.000 kilometreyi aşan kıyı şeridiyle Umman, ' +
-      'kümedeki sekiz ülke arasında kıyısı en uzun olanıdır. Ülkenin kuzeyindeki Musandam ' +
-      'Yarımadası, Birleşik Arap Emirlikleri topraklarıyla ana kara parçasından ayrılmış bir ' +
-      'eksklavdır. Suudi Arabistan, BAE ve Yemen ile komşudur.',
+      "Arap Yarımadası'nın güneydoğu köşesinde yer alan Umman; Arap Denizi, Umman Körfezi " +
+      've Hürmüz Boğazı boyunca uzanan stratejik ve upuzun bir kıyı şeridine sahiptir. ' +
+      'Ülkenin kuzeyindeki Musandam Yarımadası, Birleşik Arap Emirlikleri topraklarıyla ' +
+      "anakaradan kopuk bir eksklav olarak Basra Körfezi'nin girişini gözetlerken, iç " +
+      "kesimler Arabistan'ın boş çöllerine yaslanır.",
     landformNoteTr:
-      "Musandam'dan ülkenin doğu kıyısına kadar yaklaşık 700 kilometre uzanan Hacer Dağları, " +
-      "Arap Yarımadası'nın en yüksek sıradağlarından biridir; yaklaşık 100 kilometre " +
-      'genişliğindeki bu kuşağın en yüksek noktası, Jabal Ahdar kütlesinin bir parçası olan ' +
-      "3.009 metrelik Jabal Şems'tir. Ülke topraklarının yaklaşık %82'sini vadiler ve çöl, " +
-      "%15'ini dağlar, yalnızca %3'ünü ise dar kıyı ovası (Batına) oluşturur." +
+      'Ülkenin kuzeyini, kıyı boyunca kavis çizerek yükselen Hacer Dağları taçlandırır. ' +
+      'Yer kabuğunun derinliklerinden itilmiş ofiyolit kayaçları ve kireçtaşı ' +
+      'kanyonlarıyla jeolojik açıdan dünyada eşsiz olan bu sıradağ, Cebel Ahdar kütlesi ' +
+      'üzerindeki Cebel Şems doruğunda 3.009 metreye ulaşır. Dağların denize bakan dar ' +
+      'eteğinde verimli Batına kıyı ovası, içe bakan eteğinde ise çakıllı vadi tabanları ' +
+      'yer alır. ' +
       '\n\n' +
-      "Batıda ve iç kesimde ülke toprakları, dünyanın en büyük kum çölü olan Rubalhali'nin bir " +
-      "uzantısıyla birleşir. Musandam Yarımadası'nın kıyısı ise ülkenin geri kalanından tamamen " +
-      "farklı bir karakter taşır: Arap Levhası'nın bu kesimde Avrasya Levhası'nın altına dalması " +
-      'nedeniyle kıyı çizgisi çöküyor, bu da "Arabistan\'ın Norveç\'i" olarak anılan fiyort ' +
-      'benzeri girintili bir kıyı oluşturur.',
+      "Hacer Dağları'nın güneyinde arazi birdenbire düzleşerek taşlık düzlükler ve çakıl " +
+      'çöllerine dönüşür; batıda ise dünyanın en büyük kesintisiz kum çölü olan ' +
+      "Rubalhali'nin uçsuz bucaksız kumullarıyla birleşir. Ülkenin en güneyinde yer alan " +
+      'Zufar bölgesi ise kireçtaşı yaylaları ve kıyı düzlükleriyle kuzeyden ayrılır; ' +
+      'kuzeydeki Musandam burnu ise batık vadilerin oluşturduğu derin fiyort benzeri ' +
+      'boğazlarıyla ayırt edilir.',
     climateNoteTr:
-      "Jabal Ahdar'ın 2.000 metreyi aşan kesimleri dışında, ülke genelinde sıcak ve kurak " +
-      'bir çöl iklimi hakimdir. Bu yükseklerde iklim tamamen değişir: yıllık yağış 500 ' +
-      'milimetreye ulaşır, serin hava gül bahçelerinin ve meyve teraslarının yetişmesine ' +
-      'imkan tanır — Nisan ayındaki gül hasadı, bu serin yükseklik sayesinde mümkün olur. ' +
-      "Güneydeki Zufar bölgesi ise Umman'a özgü bir başka iklim istisnasıdır: Haziran-Eylül " +
-      'arasında Hint Okyanusu\'ndan gelen "khareef" musonu, Salalah çevresindeki kahverengi ' +
-      'tepeleri yemyeşile çevirir ve mevsimlik şelaleler oluşturur.',
+      "Umman'ın büyük bölümünde aşırı sıcak ve kurak çöl iklimi hüküm sürer; yaz " +
+      'aylarında iç çöllerde sıcaklıklar 45 derecenin üzerine fırlar. Ancak iki bölge bu ' +
+      'çöl kuraklığının tamamen dışına çıkarak olağanüstü mikroklimatik alanlar ' +
+      'oluşturur: ' +
+      '\n\n' +
+      'Kuzeydeki Cebel Ahdar yaylaları, 2.000 metreyi aşan rakımı sayesinde serin dağ ' +
+      'havasına ve nar ile ceviz yetiştiriciliğine imkân tanıyan yağışlara kavuşur. En ' +
+      'güneydeki Zufar bölgesi ise haziran ve eylül ayları arasında Hint Okyanusu ' +
+      'musonunun (Harif) etki alanına girer. Bu mevsimde Salalah tepeleri yoğun sis, ' +
+      'çisenti ve serin hava dalgasıyla kaplanarak bütünüyle yemyeşil bir subtropikal ' +
+      'orman örtüsüne bürünür.',
     hydrographyNoteTr:
-      "Umman'da kalıcı akan bir nehir yoktur; yağış sonrası dolan vadiler ülkenin başlıca " +
-      'yüzey suyu kaynağıdır. Yüzyıllardır kullanılan eflec sulama kanalları, yeraltı suyunu ' +
-      'yükseklerden yerçekimiyle taşıyarak özellikle Jabal Ahdar ve Batına kıyısındaki ' +
-      'teraslı tarımı besler. Zufar bölgesi ise musonun etkisiyle yıl boyu akan derelere ' +
-      'sahiptir — bu özellik, bölgeyi ülkenin en verimli tarım alanı haline getirir.',
+      'Ülkede yıl boyu sürekli akan kalıcı bir nehir yoktur; yüzeysel akış yağışlar ' +
+      'sonrasında aniden dolup taşan ve ardından kuruyan derin vadilerle (Vadi Şab, Vadi ' +
+      'Tiwi, Vadi Beni Halid) sağlanır. Dağlardan gelen bu taşkın suları, yer altına ' +
+      'sızarak piedmont akiferlerini besler. ' +
+      '\n\n' +
+      'Umman medeniyetinin ve vaha yerleşimlerinin can damarı, UNESCO Dünya Mirası ' +
+      "Listesi'nde yer alan bin yıllık 'eflec' (aflaj) sulama sistemidir. Bu yerçekimli " +
+      'yeraltı kanal şebekesi, dağ eteklerindeki su kaynaklarını kilometrelerce uzaktaki ' +
+      'hurma bahçelerine ve köylere buharlaşmadan ulaştırır. Modern kıyı kentlerinin su ' +
+      'güvenliği ise büyük oranda deniz suyu arıtma tesislerine dayanır.',
   },
   {
     isoCode: 'QA',
@@ -2178,33 +3035,47 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Mutlak monarşi (Emirlik)',
     independenceNoteTr: "3 Eylül 1971'de İngiltere'den bağımsız oldu.",
     introTr:
-      "Arap Yarımadası'ndan Basra Körfezi'ne yaklaşık 160 kilometre boyunca uzanan dar bir " +
-      'yarımada üzerinde kurulu Katar, kara sınırında yalnızca Suudi Arabistan ile komşudur; ' +
-      'kümedeki sekiz ülke arasında tek kara komşusu bulunan tek ülkesidir.',
+      "Arap Yarımadası'nın doğusundan Basra Körfezi'nin sığ sularına doğru kuzey yönünde " +
+      'uzanan alçak kireçtaşı yarımadası üzerinde kurulu Katar, kara sınırında yalnızca ' +
+      'güneydeki Suudi Arabistan ile komşudur. Üç tarafı körfez sularıyla kuşatılmış olan ' +
+      'ülke, sığ mercan resifleri, kum setleri ve zengin denizaltı hidrokarbon ' +
+      'yataklarıyla çevrilidir.',
     landformNoteTr:
-      'Yarımadanın genişliği 55 ile 90 kilometre arasında değişir, arazi genel olarak ' +
-      'düzdür. Doğu kesiminde ince kum ve tozla kaplı geniş düzlükler, güney ve güneybatıda ' +
-      'ise kum tepeleri ve sebha adı verilen tuz düzlükleri yer alır; bu özellik özellikle ' +
-      'Mesaid ve Hor el-Adid çevresinde belirginleşir. Ülkenin arazisine serpilmiş, yatay ' +
-      'tabakalı ve sert kayaçla kaplı düz tepeli tepecikler ile daha geniş mesa benzeri ' +
-      'yükseltiler de görülür.' +
+      'Yarımada arazisi, hafif dalgalı ve tabaka yapısı bozulmamış aşınmış bir kireçtaşı ' +
+      'platosudur; ortalama yükseltisi deniz seviyesinden sadece birkaç on metre ' +
+      'yukarıdadır. Kuzey ve orta kesimlerde zemin, rüzgâr aşındırmasıyla incelmiş ' +
+      'çakıllı çöl örtüsü ve karstik çöküntülerden (ravda) oluşur. Ülkenin güney sınırına ' +
+      "yakın kesiminde yükselen Kurayn Ebü'l-Bevl, yalnızca 103 metrelik yüksekliğiyle " +
+      'ülkenin zirvesini temsil eder. ' +
       '\n\n' +
-      "Ülkenin en yüksek noktası, güneydeki Kurayn Ebü'l-Bevl'dir ve deniz seviyesinden " +
-      "yalnızca 103 metre yükseklikte kalır. Abu Samra'dan Hor el-Adid'e kadar yaklaşık " +
-      '650 kilometre uzanan kıyı şeridi, "İç Deniz" olarak da bilinen Hor el-Adid gelgit ' +
-      'koyuyla güneyde sona erer.',
+      'Yarımadanın güney ve güneydoğu kıyılarında topoğrafyayı barkan adı verilen ' +
+      'hareketli hilal kumulları ile geniş kıyı sebhaları (tuz bataklıkları) belirler. ' +
+      "Ülkenin güneydoğu ucunda yer alan ve 'İç Deniz' olarak anılan Hor el-Adid, çöl " +
+      'kumullarının doğrudan sığ deniz suyu kanallarıyla birleştiği ender gelgit lagünü ' +
+      'ekosistemlerinden birini oluşturur.',
     climateNoteTr:
-      "Katar, Basra Körfezi'nin sığ ve sıcak sularının etkisiyle yaz aylarında hem " +
-      'sıcaklığın hem de nemin aynı anda çok yüksek seyrettiği bir çöl iklimine sahiptir; bu ' +
-      'birleşim, kıyı kesimlerinde hissedilen sıcaklığı ölçülen değerin belirgin biçimde ' +
-      'üzerine çıkarır. Yıllık yağış oldukça düşüktür ve neredeyse tamamı kış aylarındaki ' +
-      'kısa, düzensiz sağanaklardan oluşur.',
+      "Katar'da aşırı sıcak ve nemli bir çöl iklimi hüküm sürer. Mayıs ayından ekime " +
+      'kadar uzanan uzun yaz döneminde gölgede sıcaklıklar düzenli olarak 40-45 derecenin ' +
+      'üzerinde seyreder. Körfezin kapalı ve sığ sularının aşırı ısınması sonucu ' +
+      'atmosfere karışan yoğun su buharı, kıyı boyunca bağıl nemi yüzde 80-90 ' +
+      'seviyelerine çıkararak hissedilen sıcaklığı son derece yıpratıcı bir noktaya ' +
+      'taşır. ' +
+      '\n\n' +
+      'Kış ayları kısa, güneşli ve ılımandır; sıcaklıklar gündüzleri 20-25 derece ' +
+      'civarında seyreder. Yıllık ortalama yağış miktarı 80 milimetrenin altında kalır ve ' +
+      'çoğunlukla kış ve ilkbahar aylarında aniden patlak veren kısa süreli yerel ' +
+      'sağanaklar şeklinde toprağa düşer.',
     hydrographyNoteTr:
-      "Katar'da kalıcı nehir ya da doğal tatlı su gölü bulunmaz; sınırlı yeraltı suyu kaynakları " +
-      'aşırı çekim nedeniyle tükenme eğilimindedir. İçme suyunun neredeyse tamamı deniz suyu ' +
-      "arıtmasıyla karşılanır; 2023'te üretilen 0,7 milyar metreküp arıtılmış su, bu " +
-      'bağımlılığın ölçüsünü gösterir. Güneydeki Hor el-Adid, çölün ortasında denizle birleşen ' +
-      'gelgit koyu yapısıyla ülkenin en ayırt edici su kütlesidir.',
+      'Katar topraklarında hiçbir akarsu, tatlı su gölü veya kalıcı açık yüzey suyu ' +
+      'kaynağı bulunmaz. Yağış suları yüzeyde akışa geçmek yerine zemindeki karstik ' +
+      'çöküntülerde toplanır veya hızla buharlaşır. ' +
+      '\n\n' +
+      'Kuzeydeki sığ akiferlerde biriken tatlı yeraltı su lensleri, tarih boyunca sınırlı ' +
+      'vaha tarımını ve kuyu yerleşimlerini beslemiş olsa da modern dönemdeki aşırı ' +
+      'tüketim yeraltı su seviyesini düşürmüş ve deniz suyunun tatlı su katmanlarına ' +
+      'karışmasına yol açmıştır. Günümüzde kentsel, endüstriyel ve tarımsal tatlı su ' +
+      'ihtiyacının tamamına yakını ileri teknolojiye sahip deniz suyu arıtma ' +
+      '(desalinasyon) tesisleriyle temin edilmektedir.',
   },
   {
     isoCode: 'SA',
@@ -2229,36 +3100,50 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Mutlak monarşi',
     independenceNoteTr: null,
     introTr:
-      "Arap Yarımadası'nın büyük bölümünü kaplayan Suudi Arabistan, batıda Kızıldeniz'e, " +
-      "doğuda ise Basra Körfezi'ne kıyısı olan bir ülkedir. Ürdün, Irak, Kuveyt, Katar, " +
-      'Birleşik Arap Emirlikleri, Umman ve Yemen ile toplam yedi ülkeyle kara sınırı ' +
-      'paylaşır — bu kümedeki en fazla kara komşusuna sahip ülkedir.',
+      "Arap Yarımadası'nın yaklaşık beşte dördünü kaplayan Suudi Arabistan; batıda " +
+      'Kızıldeniz yarığı, doğuda ise sığ Basra Körfezi tortul havzası arasında yükselen ' +
+      'devasa bir kıtasal kalkan üzerinde yer alır. Kuzeyde Levant bozkırlarından güneyde ' +
+      "Yemen ve Umman'ın dağlık kıyılarına kadar yedi ülkeyle kara sınırı paylaşan ülke, " +
+      'bölgenin coğrafi omurgasını oluşturur.',
     landformNoteTr:
-      'Ülkenin batısında, Kızıldeniz kıyısı boyunca kuzeyde Hicaz, güneyde ise Asir dağları ' +
-      "uzanır; bu dağlık kuşak dar bir kıyı ovasının hemen ardından yükselir. Asir'de, Ebha " +
-      'yakınlarında yükselen, resmi olarak 3.015 metre kabul edilen Jabal Sawda, ülkenin en ' +
-      'yüksek noktasıdır. Dağların doğusunda, ülkenin ortasını geniş bir plato olan Necid ' +
-      'kaplar.' +
+      'Ülke topoğrafyası batıdan doğuya doğru alçalan devasa bir eğik kütle ' +
+      'niteliğindedir. Kızıldeniz kıyısını izleyen dar ve sıcak Tihame sahil ovasının ' +
+      'hemen ardından fay diklikleriyle duvar gibi yükselen Hicaz ve Asir dağları başlar. ' +
+      'Asir bölgesinde 3.000 metreyi aşan Cebel Sevda ülkenin zirvesidir. Bu yüksek dağ ' +
+      'omurgası, kıtasal riftleşmenin doğurduğu sert bir morfolojik sınırdır. ' +
       '\n\n' +
-      "Necid'in kuzeyinde An-Nefud, güneyinde ise dünyanın en büyük kum çölü olan Rubalhali " +
-      "uzanır; Rubalhali'nin 650.000 kilometrekarelik alanı Suudi Arabistan'ın yanı sıra " +
-      'Umman, BAE ve Yemen topraklarına da taşar, kimi kum tepeleri 250 metreyi bulur. İki ' +
-      'çölü birbirine bağlayan Ed-Dehna kum koridoru, ülkenin doğu-batı ekseninde bir hilal ' +
-      'çizer.',
+      'Dağların doğu yamaçlarından itibaren zemin yumuşak bir eğimle alçalarak kireçtaşı ' +
+      "ve kumtaşı kuestalarından oluşan geniş Necid Platosu'na kavuşur. Platonun kuzeyini " +
+      'kırmızı kumullarıyla ünlü Büyük Nefud Çölü, doğusunu hilal biçimli Ed-Dehna kum ' +
+      'koridoru, güneyini ise 650.000 kilometrekarelik yüzölçümüyle yeryüzünün en büyük ' +
+      'kesintisiz kum denizi olan Rubalhali kaplar; Basra Körfezi kıyıları ise geniş tuz ' +
+      'düzlükleri ve sığ resiflerle nihayetlenir.',
     climateNoteTr:
-      'Ülkenin büyük bölümünde, yıllık yağışın 100 milimetrenin altında kaldığı tam kurak ' +
-      'bir çöl iklimi egemendir; yazlar aşırı sıcak, kışlar iç kesimlerde soğuk geçer. Asir ' +
-      'dağları bu genel tabloyu bozan tek bölgedir: Hint Okyanusu kaynaklı yaz musonunun ' +
-      'etkisiyle, yükseklere doğru yıllık yağış 600-1.000 milimetreye çıkar, bulutlu ve serin ' +
-      'bir dağ iklimi oluşur. Bu nem, teraslanmış tarım alanlarını ve dağ ormanlarını besler ' +
-      '— ülkenin geri kalanında görülmeyen bir yeşillik kuşağıdır.',
+      'Ülke genelinde aşırı sıcak ve kurak çöl iklimi egemendir. İç kesimlerde yaz ' +
+      'sıcaklıkları 45-50 derecelere tırmanırken, gece ile gündüz ve yaz ile kış ' +
+      'arasındaki sıcaklık farkları çok keskindir; kış aylarında Necid yaylalarında ve ' +
+      'kuzey çöllerinde gece donları görülür. Basra Körfezi ve Kızıldeniz kıyılarında ise ' +
+      'yüksek sıcaklığa boğucu nem eşlik eder. ' +
+      '\n\n' +
+      'Bu genel çöl tablosunun en çarpıcı istisnası güneybatıdaki Asir dağlarıdır. Hint ' +
+      'Okyanusu musonunun uzantılarını ve Kızıldeniz nemini yakalayan bu yüksek yamaçlar, ' +
+      'yıllık 600-800 milimetreye varan yağış alır. Serin dağ havası, yemyeşil ardıç ' +
+      'ormanları ve teraslı tarım alanları, burayı çöl ülkesinin yeşil vahasına ' +
+      'dönüştürür.',
     hydrographyNoteTr:
-      "Suudi Arabistan'da kalıcı akan bir nehir yoktur; yüzey suyu, nadir yağmurlarda dolan " +
-      "vadilerle taşınır. En uzun vadi, Nefud Çölü'nden Dibdibe ovasına kadar " +
-      "yaklaşık 600 kilometre uzanan Vadi er-Rumme'dir; Riyad'ı kuzeybatıdan güneydoğuya kat " +
-      'eden 120 kilometrelik Vadi Hanife ise başkentin coğrafi omurgasını oluşturur. Tatlı ' +
-      'su ihtiyacının büyük bölümü, vadi yataklarındaki yeraltı akiferlerinden ve kıyı ' +
-      'kentlerinde deniz suyu arıtma tesislerinden karşılanır.',
+      'Suudi Arabistan, sınırları içinde tek bir daimi nehir veya doğal tatlı su gölü ' +
+      'bulunmayan dünyanın en büyük ülkesidir. Yüzey drenajı, jeolojik çağlardaki nemli ' +
+      'dönemlerin yadigârı olan ve günümüzde yalnızca nadir yağmurlar sonrasında sel ' +
+      'sularıyla dolan devasa fosil vadi ağlarıyla (Vadi er-Rumme, Vadi Hanife, Vadi ed- ' +
+      'Devasir) temsil edilir. ' +
+      '\n\n' +
+      'Geleneksel vaha tarımı, bu vadilerin tabanındaki sığ alüvyon sularına dayanmıştır. ' +
+      '20. yüzyılın ikinci yarısında derin çöl tabakalarındaki fosil akiferlerin ' +
+      'çekilmesiyle büyük buğday tarlaları sulanmışsa da bu yenilenemeyen su rezervleri ' +
+      'tükenme tehlikesiyle karşı karşıya kalmıştır. Günümüzde ülke, dünyanın en büyük ' +
+      'deniz suyu arıtma (desalinasyon) kapasitesine sahiptir ve körfez kentlerinin yanı ' +
+      "sıra yüzlerce kilometre içerideki başkent Riyad'ın suyu da boru hatlarıyla kıyı " +
+      'arıtma tesislerinden taşınmaktadır.',
   },
   {
     isoCode: 'SY',
@@ -2286,29 +3171,46 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     //   explicitly out of scope of the fact-check round (data-dictionary §8).
     independenceNoteTr: "17 Nisan 1946'da Fransız manda yönetiminden bağımsız oldu.",
     introTr:
-      'Doğu Akdeniz kıyısında dar bir şeritle denize açılan Suriye, kuzeyde Türkiye, doğuda ' +
-      'Irak, güneyde Ürdün, güneybatıda İsrail, batıda Lübnan ile komşudur.',
+      "Doğu Akdeniz kıyılarından Mezopotamya havzasına ve Suriye Çölü'ne uzanan Suriye, " +
+      'Anadolu dağları ile Arap Yarımadası kalkanı arasında yer alan kadim bir coğrafi ' +
+      "kavşaktır. Akdeniz'e açılan dar kıyı koridoru, dağlık batı bariyeri ve doğuya " +
+      "doğru genişleyen yarı kurak bozkırları, ülkeyi Levant'ın en kritik geçiş sahası " +
+      'kılar.',
     landformNoteTr:
-      'Akdeniz kıyısı boyunca dar bir kıyı ovasının ardından Suriye Kıyı Sıradağları ' +
-      'yükselir; bu sıradağ, kıyı bölgesini iç kesimlerden ayıran doğal bir set oluşturur. ' +
-      'Ülkenin güneybatısında, Lübnan sınırında Anti-Lübnan Dağları uzanır. Bu kütlenin ' +
-      'Suriye-Lübnan-İsrail sınır bölgesine yakın kesiminde yükselen Hermon Dağı (2.814 m) ' +
-      'bölgenin bilinen zirvelerindendir; tamamen Suriye idaresindeki Anti-Lübnan kesiminde ' +
-      'ise Talat Musa Tepesi (2.613 m) ülkenin tartışmasız yüksek noktalarından biridir.' +
+      'Batıdan doğuya gidildikçe arazi belirgin basamaklar halinde değişir. Akdeniz ' +
+      'kıyısında uzanan dar sahil şeridini, kıyıya paralel yükselen ve kıyı ile iç kesimi ' +
+      'birbirinden ayıran Ensariye (Kıyı) Sıradağları sınırlar. Bu dağların doğusunda, ' +
+      "Asi Nehri'nin aktığı verimli tektonik Ghab Çöküntü Hendeği yer alır. Güneybatıda " +
+      'ise Lübnan sınırını oluşturan Anti-Lübnan Dağları ve güneydeki karlı Hermon Dağı ' +
+      'kütlesi yükselir. ' +
       '\n\n' +
-      'Ülkenin doğusu, Ürdün ve Irak sınırlarına kadar uzanan Bâdiye (Suriye Çölü) ile ' +
-      'kaplıdır; bu geniş çöl-bozkır kuşağı ülke topraklarının yarısından fazlasını oluşturur.',
+      'Bu batı dağ dizisinin gerisinde Halep, Hama, Humus ve Şam şehirlerinin dizildiği ' +
+      'verimli iç ova ve plato kuşağı uzanır. Daha doğuya ve güneye gidildikçe arazi, ' +
+      'ülke yüzölçümünün yarısından fazlasını kaplayan, taşlık ve kireçtaşı sırtlarıyla ' +
+      'bölünmüş kurak Bâdiye (Suriye Çölü) platosuna dönüşür.',
     climateNoteTr:
-      'İklim de bu batı-doğu kademelenmesini izler: kıyı şeridinde ılık-yağışlı kış ve ' +
-      'sıcak-kurak yazın görüldüğü tipik Akdeniz iklimi hakimdir; Şam ve Halep gibi iç kesim ' +
-      "şehirlerinde yarı-kurak bozkır iklimi egemendir; doğudaki Bâdiye'de ise tam kurak çöl " +
-      'iklimi görülür, yıllık yağış çok düşük seviyelerde kalır.',
+      'İklim, morfolojik kademelenmeye kusursuz bir uyum gösterir. Kıyı şeridinde ve Kıyı ' +
+      "Sıradağları'nın batı yamaçlarında ılık, yağışlı kışlar ve nemli, sıcak yazlarla " +
+      'belirgin tipik Akdeniz iklimi hüküm sürer; burada yıllık yağış 800-1.000 ' +
+      'milimetreyi aşar. ' +
+      '\n\n' +
+      'Kıyı dağlarını aştıktan hemen sonra yağış belirgin biçimde düşer; iç kesimdeki ' +
+      'tarım vadilerinde kışları soğuk ve yazları sıcak yarı-kurak bozkır iklimi etkili ' +
+      "olur. Fırat'ın doğusuna ve Bâdiye'ye geçildiğinde ise yıllık yağışın 150 " +
+      'milimetrenin altına indiği, gece-gündüz sıcaklık farklarının keskinleştiği sert ' +
+      'çöl iklimi egemen hale gelir.',
     hydrographyNoteTr:
-      "Ülkenin en önemli ve gemilerle ulaşılabilen tek nehri, Türkiye'de doğup ülkenin " +
-      "doğusunu güneydoğu yönünde kat eden Fırat Nehri'dir. Kıyı şeridindeki dar ovalar " +
-      "dışında, Suriye'nin büyük bölümünde kalıcı yüzey suyu kaynağı sınırlıdır — bu da iç " +
-      'kesim ve doğu bölgelerindeki yerleşimlerin tarih boyunca nehir vadilerine ve vahalara ' +
-      'yoğunlaşmasının başlıca nedenidir.',
+      "Suriye'nin en önemli hidrolojik arteri ve can damarı, Türkiye dağlarında doğup " +
+      "ülkeyi kuzeybatıdan güneydoğuya kat eden Fırat Nehri'dir. Nehir üzerinde inşa " +
+      "edilen Tabka Barajı'nın gerisinde oluşan devasa Esed Gölü, ülkenin en büyük tatlı " +
+      'su rezervuarı olup tarımsal sulama ve elektrik üretiminin merkezidir; nehre ' +
+      'katılan Habur ve Balih kolları ise Cezire bölgesini sular. ' +
+      '\n\n' +
+      "Batıda Lübnan'dan doğup Ghab çöküntüsünü sulayarak Türkiye'ye geçen Asi (Orontes) " +
+      "Nehri ile Anti-Lübnan Dağları'nın karstik kaynaklarından beslenip Şam Vahası'nı " +
+      '(Guta) binlerce yıldır yeşerten Barada Nehri diğer hayati su yollarıdır. Doğu ve ' +
+      'güney çöl alanlarında ise yüzey suyu bulunmaz; tarımsal üretim bütünüyle nehir ' +
+      'vadilerine ve yeraltı kuyularına bağımlıdır.',
   },
   {
     isoCode: 'AE',
@@ -2333,30 +3235,49 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Federal mutlak monarşi',
     independenceNoteTr: "2 Aralık 1971'de İngiltere'den bağımsız oldu (7 emirliğin federasyonu).",
     introTr:
-      'Yedi emirliğin federasyonu olan Birleşik Arap Emirlikleri, batıda uzun bir Basra ' +
-      "Körfezi kıyısına, doğuda ise Umman Körfezi'ne açılan kısa bir şeride sahiptir. Kara " +
-      'sınırında yalnızca Suudi Arabistan ve Umman ile komşudur.',
+      "Arap Yarımadası'nın doğusunda, Basra Körfezi'nin güney kıyıları boyunca uzanan ve " +
+      "doğuda Umman Körfezi'ne kısa bir cephesi bulunan Birleşik Arap Emirlikleri, yedi " +
+      'emirliğin bir araya gelmesiyle oluşan bir kıyı ve çöl federasyonudur. Körfez deniz ' +
+      'ticaretini kontrol eden stratejik konumu, sığ lagünleri ve çöl hinterlandı ülkenin ' +
+      'coğrafi yapısını tanımlar.',
     landformNoteTr:
-      "Ülkenin doğusunda, Ras Al Khaimah'tan Fujayra'ya uzanan Batı Hacer Dağları yükselir; " +
-      'bu sıradağ ülkeyi kıyı kesimi ile iç kesimden ayırır. Sıradağın en yüksek noktası ' +
-      "olarak anılan 1.934 metrelik Jebel Jais, Ras Al Khaimah'ta yer alır." +
+      'Ülke topoğrafyasının yüzde sekseninden fazlası düz veya dalgalı kum çölleriyle ' +
+      'kaplıdır. Güneyde ve batıda çöl manzarası, dünyanın en yüksek kumul sırtlarına ' +
+      "sahip Rubalhali'nin uzantısıyla birleşir; Liva Vahası çevresinde yükselen dev " +
+      'barkanlar yüzlerce metrelik irtifalar kazanır. Basra Körfezi kıyısı ise son derece ' +
+      'sığ, labirentimsi kanallar, mangrov adacıkları ve geniş tuz düzlükleriyle (sebha) ' +
+      'çevrilidir. ' +
       '\n\n' +
-      'Ülke topraklarının büyük bölümünü kaplayan çölde, Liva vahası çevresindeki kum ' +
-      "tepeleri dünyanın en büyüklerinden sayılır — bu bölge, güneyde Rubalhali'nin bir " +
-      'uzantısıdır. Basra Körfezi kıyısı, çok sayıda koy ve adayla girintili-çıkıntılıdır; ' +
-      "Umman Körfezi'ndeki Batina kıyısı ise dar bir şerit halinde yaklaşık 90 kilometre " +
-      'uzanır.',
+      'Bu kurak düzlük tablosu ülkenin doğusunda köklü bir kırılmaya uğrar. Ras Al ' +
+      "Khaimah'tan Fujayra'ya uzanan Hacer Dağları kütlesi, çıplak ofiyolit ve kireçtaşı " +
+      'kayalıklarıyla yükselir; silsilenin en yüksek zirvelerinden olan 1.934 metrelik ' +
+      "Cebel Jais bu dağlık kuşakta yer alır. Dağların doğu eteğinde Umman Körfezi'ne " +
+      'bakan dar Batına kıyı şeridi uzanır.',
     climateNoteTr:
-      'Ülke genelinde, yazın 45 santigrat dereceyi aşan sıcaklıklarla tam kurak bir çöl ' +
-      'iklimi görülür. Basra Körfezi kıyısında sıcaklığa yüksek nem eşlik eder; iç ' +
-      'kesimlerde ve çölde ise hava daha kuru, gece-gündüz sıcaklık farkı daha belirgindir. ' +
-      "Hacer Dağları'nın yüksek kesimlerinde rakım etkisiyle sıcaklıklar bir ölçüde düşer.",
+      'Ülke genelinde yıl boyu yüksek sıcaklıkların hüküm sürdüğü aşırı kurak çöl iklimi ' +
+      'egemendir. Mayıs-eylül arasındaki yaz aylarında sıcaklıklar kıyı kentlerinde 45 ' +
+      "dereceyi aşarken, Basra Körfezi'nin sığ sularından buharlaşan yoğun nem havayı " +
+      'doygunluğa ulaştırarak kıyılarda aşırı boğucu bir ortam yaratır. İç kesimlerdeki ' +
+      'çöllerde ise gündüzleri kavurucu sıcaklık, geceleri ise belirgin bir serinliğe ' +
+      'evrilir. ' +
+      '\n\n' +
+      'Yıllık yağış miktarı 100 milimetrenin altında kalır ve kış ile erken ilkbahardaki ' +
+      "seyrek sağanaklardan ibarettir. Yalnızca Hacer Dağları'nın yüksek zirveleri " +
+      'orografik yükselme sayesinde kışın daha fazla yağış alır ve yaz aylarında çöl ' +
+      'ovalarına kıyasla 10-15 derece daha serin bir mikroklima sunar.',
     hydrographyNoteTr:
-      "Ülkede kalıcı akan bir nehir ya da doğal göl yoktur; Hacer Dağları'nın eteklerinde yer " +
-      'yer yağmur sonrası dolan vadiler bulunur. Yüzyıllardır kullanılan eflec sistemi, yeraltı ' +
-      'suyunu yükseklerden yerçekimiyle kilometrelerce taşıyarak vaha tarımını besler. Bugün Al ' +
-      'Ain ve Liva gibi iç vahaların içme suyu ihtiyacı tamamen deniz suyu arıtma tesislerinden ' +
-      'karşılanır.',
+      "Birleşik Arap Emirlikleri'nde akışı sürekli olan hiçbir doğal nehir veya daimi " +
+      'tatlı su gölü bulunmaz. Dağlık doğu kesimindeki kuru vadiler (vadi), yalnızca kış ' +
+      'aylarındaki ani yağışlar sonrasında coşkun seller taşıyarak kıyı ovalarına ve ' +
+      'yeraltı akiferlerine su ulaştırır. ' +
+      '\n\n' +
+      'Tarihsel süreçte Al Ain ve Liva vahalarındaki hurma bahçeleri, dağ sularını ' +
+      "yeraltından toplayan kadim 'eflec' kanalları ve sığ kuyularla sulanmıştır. Ancak " +
+      'çağdaş dönemde nüfusun ve kentleşmenin katlanmasıyla birlikte doğal yeraltı suları ' +
+      'hızla tuzlanmış ve tükenmiştir. Ülke, içme suyu ve kentsel kullanımın neredeyse ' +
+      'yüzde yüzünü yüksek kapasiteli deniz suyu arıtma (desalinasyon) tesislerinden ' +
+      'temin eder; arıtılmış atık sular ise kentsel yeşil alanların sulanmasında geri ' +
+      'dönüştürülür.',
   },
   {
     isoCode: 'YE',
@@ -2382,36 +3303,49 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "22 Mayıs 1990'da Kuzey ve Güney Yemen birleşerek Yemen Cumhuriyeti'ni kurdu.",
     introTr:
-      "Arap Yarımadası'nın güneybatı köşesinde yer alan Yemen, batıda Kızıldeniz'e, güneyde " +
-      "ise Aden Körfezi ve Arap Denizi'ne kıyısı olan dağlık bir ülkedir. Hint " +
-      "Okyanusu'nda, ana kara parçasından yaklaşık 380 kilometre güneyde yer alan Sokotra " +
-      'Adası da ülke topraklarına dahildir. Kuzeyde Suudi Arabistan, doğuda Umman ile ' +
-      'komşudur.',
+      "Arap Yarımadası'nın güneybatı köşesinde, Kızıldeniz ile Hint Okyanusu'nu (Aden " +
+      "Körfezi) birbirine bağlayan stratejik Babülmendep Boğazı'nın kıyısında yer alan " +
+      'Yemen, yarımadanın en dağlık ve en yüksek ülkesidir. Anakarasının yanı sıra, ' +
+      'Afrika Boynuzu açıklarında eşsiz biyocoğrafik izolasyonuyla tanınan Sokotra ' +
+      'Takımadası da Yemen topraklarının ayrılmaz bir parçasıdır.',
     landformNoteTr:
-      'Kızıldeniz kıyısı boyunca dar bir kıyı ovası olan Tihame uzanır; bu ova, iç kesime ' +
-      'doğru dik bir yamaçla merkezi yaylalara yükselir. 2.000-3.200 metre rakımlı bu yayla, ' +
-      'tepeler ve küçük dağlardan oluşur; yaylanın üzerinde yükselen 3.666 metrelik Jabal ' +
-      "en-Nebi Şuayb, hem Yemen'in hem de tüm Arap Yarımadası'nın en yüksek noktasıdır. " +
-      "Yaylalar doğuya doğru alçalarak ülkenin kuzeydoğusunda Rubalhali'nin bir uzantısına " +
-      'dönüşür.' +
+      'Kızıldeniz kıyısı boyunca uzanan sıcak ve kumlu Tihame sahil ovasının hemen ' +
+      'ardından fay diklikleriyle duvar gibi yükselen batı yaylaları başlar. Tektonik ' +
+      'kalkan yükselmesi ve volkanik kütlelerle şekillenen bu yaylalar, 2.000 ile 3.000 ' +
+      'metre irtifada asılı duran derin kanyonlar ve aşınmış platolardan oluşur; 3.666 ' +
+      "metre yüksekliğindeki Cebel en-Nebi Şuayb, yalnızca Yemen'in değil tüm Arap " +
+      "Yarımadası'nın en yüksek doruğudur. " +
       '\n\n' +
-      'Ülkenin doğusunda, üst kesimi alüvyal toprak ve sel sularıyla beslenen, alt kesimi ' +
-      'ise ıssız ve çorak Vadi Hadramut yer alır — bölgenin en büyük vadi sistemidir. Hint ' +
-      "Okyanusu'ndaki Sokotra Adası'nın iç kesimini Hacir Dağları kaplar; kuzeyde dar, " +
-      'güneyde ise daha geniş kıyı ovaları bulunur, kıyı çizgisi kumsallar, kayalık burunlar ' +
-      've korunaklı lagünler arasında değişir.',
+      'Yüksek dağ silsilesi doğuya doğru kademeli olarak alçalarak kireçtaşı ' +
+      "kanyonlarıyla yarılan Hadramut Platosu'na ve nihayetinde Rubalhali Çölü'nün kum " +
+      "denizine kavuşur. Hint Okyanusu'ndaki Sokotra Adası ise anakaradan milyonlarca yıl " +
+      'önce kopmuş kireçtaşı platoları, sarp Hacir Dağları ve endemik ejder kanadı ' +
+      'ağaçlarıyla kaplı eşsiz bir paleo-coğrafik sığınaktır.',
     climateNoteTr:
-      'Kızıldeniz kıyısındaki Tihame ovası, yıl boyu yüksek sıcaklık ve nemin bir arada ' +
-      "görüldüğü sıcak bir iklime sahiptir. Yaklaşık 2.200 metre rakımlı başkent Sana'a " +
-      'başta olmak üzere merkezi yaylalarda iklim belirgin biçimde serinler; yazın gündüz ' +
-      'sıcaklıkları 20 santigrat derece civarında kalır, kışın gece sıcaklıkları eksiye ' +
-      'düşer. Bu serinlik, yüzyıllardır süren teraslı buğday, arpa, kahve ve kat tarımını ' +
-      'mümkün kılar. Doğudaki Hadramut ve kuzeydoğudaki çöl kesimlerinde ise yıl boyu sıcak ' +
-      've kurak bir iklim egemendir, kimi bölgelerde yıllarca yağış düşmez.',
+      "Yemen'in iklimi, topoğrafyadaki devasa irtifa farklarına bağlı olarak olağanüstü " +
+      'bir çeşitlilik sergiler. Kıyıdaki Tihame ovasında ve Aden kıyılarında yıl boyu ' +
+      'boğucu sıcaklık ve yüksek nem egemendir; buna karşılık 2.200 metre rakımdaki ' +
+      'başkent Sana ve yüksek batı yaylalarında ılıman ve serin bir dağ iklimi hüküm ' +
+      'sürer, kış gecelerinde yüksek kesimlerde don olayları görülür. ' +
+      '\n\n' +
+      "Yemen, Arap Yarımadası'nda düzenli muson yağışları alan ender coğrafyalardandır. " +
+      "Hint Okyanusu'ndan gelen nemli hava kütlelerinin dağ yamaçlarına çarpmasıyla " +
+      'ilkbahar ve yaz aylarında iki ayrı yağış dönemi yaşanır; batı yamaçlarında yıllık ' +
+      'yağış 600-1.000 milimetreyi bularak bin yıllık teraslı tarımı besler. Doğuya, ' +
+      "Hadramut'a ve iç çöllere inildikçe yağış aniden kesilir ve aşırı kurak çöl " +
+      'koşulları başlar.',
     hydrographyNoteTr:
-      "Yemen'de kalıcı akan bir nehir yoktur; yaylalardan inen mevsimsel vadiler, yağmur " +
-      'sonrası kısa süreliğine dolar. Tarım, büyük ölçüde bu vadi tabanlarına, yamaçlara ve ' +
-      'akarsu kanallarına bitişik teraslara yoğunlaşmıştır. Ülkenin doğusundaki Vadi ' +
-      'Hadramut, tarih boyunca yerleşimin ve tarımın yoğunlaştığı en geniş vadi sistemidir.',
+      "Yemen'de denize sürekli su ulaştıran daimi bir nehir yoktur; hidrolojik hayat, " +
+      "yüksek yaylalardan doğarak derin kanyonlar boyunca Tihame'ye veya doğudaki " +
+      'vadilere boşalan mevsimlik sellerle (seyyiller) şekillenir. Vadi Hadramut, Vadi ' +
+      'Bana ve Vadi Siham bu taşkın vadilerinin en görkemlileridir. ' +
+      '\n\n' +
+      'Yüzyıllar boyunca Yemenliler, bu ani taşkın sularını yakalamak için dik dağ ' +
+      'yamaçlarını basamak basamak taş teraslarla donatmış ve antik Marib Barajı gibi ' +
+      'bentlerle suyu vadi tabanlarına yönlendirmiştir. Ancak günümüzde derin kuyu ' +
+      'sondajlarıyla yeraltı su seviyelerinin kritik eşiklerin altına inmesi, özellikle ' +
+      'yüksek su tüketen kat (qat) tarımı ve kentsel talepler nedeniyle başkent Sana ' +
+      'havzası dahil olmak üzere ülkeyi ağır bir su tükenme kriziyle karşı karşıya ' +
+      'bırakmıştır.',
   },
 ];

@@ -987,41 +987,17 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     //    pilot set, and the corpus itself carries Gümüşhane -42,80 / Bayburt -35,16 /
     //    Siirt -33,96. Do not reintroduce a superlative here without a national-set check.
     landformNoteTr:
-      'Van, jeolojik olarak genç bir volkanik ve tektonik bölgede yer alır. İlin batısındaki Van ' +
-      "Gölü, yaklaşık 200 bin yıl önce Nemrut Dağı'nın patlayıp lav akıntılarıyla bölgenin " +
-      'drenajını tıkaması sonucu oluşmuş bir volkanik set gölüdür. Nemrut Dağı, tepesinde 6 ' +
-      'kilometre çapında bir kalderası olan 2.935 metrelik bir yanardağdır. Uyuyan aktif bir ' +
-      'volkan olarak sınıflandırılır; bilinen son lav çıkışı 1441 yılında gerçekleşmiştir.' +
+      "Van'ın morfolojisi genç volkanizma ve yoğun tektonizma ile şekillenmiştir. İlin batısındaki Van Gölü, yaklaşık 200 bin yıl önce Nemrut Dağı'nın patlayarak püskürttüğü lavların Muş Havzası'na giden doğal drenaj yolunu tıkamasıyla oluşmuş dünyanın en büyük volkanik set gölüdür. Tepesinde 6 kilometre çapında geniş bir kaldera barındıran 2.935 metrelik Nemrut Dağı, son lav akıntısı 1441'de kaydedilmiş uyuyan aktif bir volkandır." +
       '\n\n' +
-      "Gölün kuzeyinde yükselen Süphan Dağı ise 4.058 metreyle Ağrı Dağı ve Cilo Dağı'nın " +
-      "ardından Anadolu'nun üçüncü en yüksek zirvesidir; tepesi yıl boyunca buzulla kaplıdır. Bu " +
-      "iki volkanik kütle, Van Gölü Kapalı Havzası'nı çevreleyen dağ sınırının bir parçasını " +
-      'oluşturur. Havza güneyden Bitlis Masifi, doğu ve kuzeyden Tendürek ve diğer volkanik ' +
-      'kütlelerle çevrilidir.' +
+      "Göl çanağının kuzeyinde yükselen 4.058 metrelik Süphan Dağı, zirvesindeki buzul kalıntılarıyla Ağrı ve Cilo'nun ardından Türkiye'nin üçüncü yüksek doruğudur. Havza güneyden dik ve parçalı Bitlis Masifi, kuzey ve doğudan ise Aladağ ve Tendürek volkanik dizilimleriyle kuşatılmıştır." +
       '\n\n' +
-      "İl, karmaşık bir fay sistemi üzerinde bulunur. 23 Ekim 2011'de merkez üssü Tabanlı köyü " +
-      'olan, büyüklüğü 7,2 olarak ölçülen bir deprem meydana geldi; 604 kişi hayatını kaybetti. ' +
-      "En ağır yıkım Erciş ilçesinde yaşandı. Aynı yılın 9 Kasım'ında Edremit'te 5,6 " +
-      'büyüklüğünde ikinci bir deprem oldu.',
+      "Kuzey ve Doğu Anadolu fay sistemlerinin karmaşık gerilme alanında yer alan ilde, 23 Ekim 2011'de merkez üssü Tabanlı olan 7,2 büyüklüğünde bir deprem yaşanmış, 604 kişi yaşamını yitirmiş ve en ağır yıkım Erciş ilçesinde meydana gelmiştir. Aynı yılın 9 Kasım'ında Edremit merkezli 5,6 büyüklüğündeki sarsıntı da yapı stokunda ilave hasar oluşturmuştur.",
     introTr:
-      "Van, Doğu Anadolu Bölgesi'nin en doğusunda, Türkiye'nin en büyük gölü olan Van " +
-      "Gölü'nün doğu kıyısında kuruludur. İl toprakları, denize akışı olmayan bir kapalı " +
-      'havzanın parçasıdır. 2011 yılındaki iki büyük depremin ardından kent merkezi büyük ' +
-      'ölçüde yeniden inşa edilmiştir.',
+      "Van, Doğu Anadolu'nun en büyük kenti olup Urartu Krallığı'nın kadim başkenti Tuşba'dan bu yana Van Gölü Kapalı Havzası'nın ana yerleşim ve ticaret merkezidir. Deniz seviyesinden 1.646 metre yüksekteki geniş göl kıyısında kurulu olan kent, etrafını saran volkanik dağlar ve su kütlesinin yarattığı ılımanlaştırıcı etkiyle Doğu Anadolu'nun en canlı tarım, hayvancılık ve lojistik kavşaklarından biri olarak öne çıkar.",
     hydrographyNoteTr:
-      "Van Gölü, 3.713 km² yüzölçümüyle Türkiye'nin en büyük gölü ve dünyanın en büyük " +
-      'sodalı gölüdür. Ortalama derinliği 171 metre, en derin noktası 451 metredir; deniz ' +
-      'seviyesinden yüksekliği yaklaşık 1.646 metredir. Suyu tuzlu ve sodalıdır (binde 19 ' +
-      'tuzluluk, pH 9,8); bu yüksek alkalinite, yüksek rakımına ve sert kış iklimine rağmen ' +
-      'gölün donmasını engeller.\n\n' +
-      "Van Gölü'nün bir çıkışı yoktur — havzaya giren tüm sular buharlaşma dışında bir yolla " +
-      'denize ulaşamaz. Gölü besleyen başlıca akarsular Bendimahi, Karasu, Zilan, Deliçay ve ' +
-      'Engil çaylarıdır; bunlardan Bendimahi, debisi bakımından en büyük koldur. Havzada Van ' +
-      'Gölü dışında Erçek, Nazik ve Nemrut (Nemrut Dağı kalderası içinde) gölleri de yer ' +
-      'alır.\n\n' +
-      'DSİ tarafından işletilen Koçköprü, Sarımehmet, Morgedik ve Zernek barajları ilin ' +
-      'sulama suyu ihtiyacının büyük bölümünü karşılar; Sarımehmet Barajı, Erciş ilçesinde ' +
-      "Karasu Çayı üzerinde 1991'de tamamlanmıştır.",
+      "Van Gölü, 3.713 km² yüzölçümü ve 451 metreye ulaşan derinliğiyle Türkiye'nin en büyük gölü ve dünyanın en geniş sodalı gölüdür. Sularının yüksek alkalinitesi (pH 9,8) ve tuzluluğu (binde 19), sert kış koşullarına rağmen göl yüzeyinin donmasını engeller ve göle endemik inci kefali türüne ev sahipliği sağlar." +
+      '\n\n' +
+      'Kapalı havza özelliği nedeniyle dış drenajı bulunmayan göl, Bendimahi, Zilan, Karasu, Deliçay ve Engil çaylarıyla beslenir. Havza tabanında ayrıca tektonik kökenli tuzlu Erçek Gölü yer alır. DSİ tarafından işletilen sulama barajları ve hidroelektrik tesisleri, akarsu rejimlerinin ilkbahar kar erimeleriyle kabaran debisini düzenleyerek Erciş ve Van ovalarındaki tarımsal sulamayı güvenceye alır.',
     hydrographyFeatures: [
       { name: 'Van Gölü', type: HydrographyFeatureType.Gol },
       { name: 'Erçek Gölü', type: HydrographyFeatureType.Gol },
@@ -1252,22 +1228,22 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     //    (Tier-B scope, DEC 2026-07-11). urbanizationRate=69.04 is a REAL rate (Adıyaman is not a
     //    büyükşehir — no 6360 note). GSYH share %0,5.
     landformNoteTr:
-      "Adıyaman, kuzeyde Toros Dağları'nın uzantısı olan dağlarla çevrilidir; başlıca " +
-      "yükseltileri Akdağ, Dibek, Ulubaba, Gördük, Nemrut, Bozdağ ve Karadağ'dır. Kuzeydoğudaki " +
-      "Nemrut Dağı, 2.150 metre yüksekliğiyle UNESCO Dünya Mirası Listesi'nde yer alan bir açık " +
-      "hava anıt mezara ev sahipliği yapar; UNESCO'nun kayıtlarına göre zirvedeki tümülüs 50 " +
-      'metre yükseklikte, 145 metre çapındadır. İlin genel yüksekliği deniz seviyesinden 669 ' +
-      'metredir; başlıca ovaları Kahta, Samsat, Keysun ve İnekli ovalarıdır.',
+      "Adıyaman topoğrafyası, kuzeydeki Güneydoğu Toroslar'ın yüksek kütlelerinden güneydeki Fırat " +
+      'vadisine doğru basamaklar halinde alçalır. Akdağ, Dibek ve Ulubaba gibi sarp dağ sıraları ' +
+      "kuzey sınırını kuşatırken, kuzeydoğuda 2.150 metreye yükselen Nemrut Dağı yer alır. Nemrut'un " +
+      "zirvesinde Kommagene Krallığı'ndan kalan ve 1987'de UNESCO Dünya Mirası Listesi'ne alınan anıt " +
+      'mezar ile 50 metre yüksekliğinde, 145 metre çapında kırma taş tümülüs bulunur. Dağlık kuşağın ' +
+      'güneyinde Kahta, Samsat, Keysun ve İnekli ovaları ilin başlıca tarım düzlüklerini oluşturur.',
     introTr:
-      "İl sınırları içindeki Nemrut Dağı, 1987'de UNESCO Dünya Mirası Listesi'ne alınan, " +
-      "Kommagene Krallığı'na ait bir açık hava anıt mezara ev sahipliği yapar. Adıyaman, " +
-      "Güneydoğu Toroslar'ın güney eteklerinde, Fırat Nehri'nin batı kıyısında kuruludur; " +
-      "617.821 kişilik nüfusuyla Türkiye'nin otuz dördüncü kalabalık ilidir.",
+      "Zirvesindeki Kommagene Krallığı anıt mezarıyla 1987'de UNESCO Dünya Mirası Listesi'ne giren " +
+      "Nemrut Dağı, Adıyaman'ın simgesidir. İl, Güneydoğu Toroslar'ın güney yamaçları ile Fırat Nehri " +
+      'arasındaki verimli topraklarda kuruludur; 617.821 kişilik nüfusuyla Türkiye genelinde otuz ' +
+      'dördüncü sırada yer alır.',
     hydrographyNoteTr:
-      "İlin en önemli akarsuyu, Şanlıurfa ve Diyarbakır sınırlarını da çizen Fırat Nehri'dir; " +
-      'il topraklarından 180 kilometre boyunca geçer. Çelikhan yakınlarında doğan Kahta Çayı, ' +
-      "45,5 kilometrelik bir akıştan sonra Fırat'a karışır. İlin doğu ve güneydoğu sınırının " +
-      'büyük bölümünü, Fırat üzerindeki Atatürk Baraj Gölü oluşturur.',
+      'İlin doğu ve güneydoğu sınırını 180 kilometre boyunca Fırat Nehri ile nehir üzerindeki devasa ' +
+      'Atatürk Baraj Gölü çizer. Çelikhan dağlarından doğan 45,5 kilometre uzunluğundaki Kahta Çayı, ' +
+      'derin vadilerden geçerek sularını baraj gölüne boşaltır. Baraj gölü, ilin güney ovalarının ' +
+      'sulama imkânlarını ve mikroklimasını derinden dönüştürmüştür.',
     urbanizationRate: 69.04,
     netMigrationRate: 1.86,
     economyIndicator: {
@@ -1302,20 +1278,20 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     //    (non-büyükşehir — no 6360 note). GSYH share %0,4. The idiomatic "adını taşıyan Batman
     //    Çayı" (a place-name origin, not the §15 bureaucratic "taşımak") is intentional.
     landformNoteTr:
-      "Batman ili, Batman Çayı, Dicle Nehri ve İluh Deresi'nin biriktirdiği tortullarla " +
-      'şekillenmiş bir çöküntü alanıdır. Bölgenin en belirgin yükseltisi, kalkerli ve engebeli ' +
-      'yapısıyla mağaralar, derin vadiler ve sarp kayalıklar barındıran 1.288 metrelik Raman ' +
-      "Dağı'dır. Aynı dağın adını taşıyan Raman sahası, Türkiye'nin ilk petrol üretiminin " +
-      "yapıldığı yerdir: 1940'ta açılan Raman-1 kuyusunda petrol tespit edilmiş, 1948'de Raman-8 " +
-      'kuyusundan ekonomik ölçekte üretime geçilmiştir.',
+      'Batman, Batman Çayı ile Dicle Nehri vadilerinin birleştiği geniş alüvyal çöküntü havzasında ' +
+      'yer alır. İlin güneyinde kireçtaşı yapısıyla yükselen 1.288 metrelik Raman Dağı, mağaraları ve ' +
+      "sarp yarıklarıyla dikkat çeker. Raman Dağı antiklinali aynı zamanda Türkiye'nin modern petrol " +
+      "tarihinin başladığı sahadır: 1940'ta Raman-1 kuyusunda petrol keşfedilmiş, 1948'de Raman-8 " +
+      'kuyusuyla ekonomik ölçekte üretime geçilmiştir.',
     introTr:
-      "1955'te açılan Tüpraş Batman Rafinerisi, Türkiye'nin ilk modern petrol rafinerisidir. " +
-      "Batman, Güneydoğu Anadolu Bölgesi'nde, Dicle Nehri'ne katılan Batman Çayı'nın aşağı " +
-      "havzasında kuruludur; 662.626 kişilik nüfusuyla Türkiye'nin otuz ikinci kalabalık ilidir.",
+      "1955'te üretime başlayan Tüpraş Batman Rafinerisi ile Türkiye'nin ilk modern petrol kenti " +
+      "kimliğini kazanan Batman, Dicle Nehri'ne kavuşan Batman Çayı vadisinde kuruludur. 662.626 " +
+      "kişilik nüfusuyla Türkiye'nin en kalabalık otuz ikinci ilidir.",
     hydrographyNoteTr:
-      "İlin adını taşıyan Batman Çayı, kuzeydeki dağlardan doğup güneye akarak Dicle Nehri'ne " +
-      'karışır; bu havza, ilin tarımsal sulama ve yerleşim düzenini büyük ölçüde belirler. İlin ' +
-      'güney sınırının bir bölümünü Dicle Nehri oluşturur.',
+      'Kuzeydeki yüksek dağlardan doğup güneye akan Batman Çayı, il merkezinin batısından geçerek ' +
+      "güney sınırını çizen Dicle Nehri'ne katılır. Bu iki akarsuyun taşıdığı alüvyonlar ilin tarımsal " +
+      'üretim alanlarını beslerken, akarsu taşkın tabanları kentsel ve kırsal yerleşim aksını ' +
+      'belirler.',
     urbanizationRate: 84.12,
     netMigrationRate: -2.95,
     economyIndicator: {
@@ -1351,32 +1327,27 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     //    framed in settlementNoteTr; GSYH share %1,0. The UNESCO sur length is the fact-check's
     //    CORRECTION (5.700 → 5.800 m, whc.unesco.org/en/list/1488).
     landformNoteTr:
-      'Diyarbakır, dağlarla çevrili, ortası hafif çukurlaşmış bir arazi yapısına sahiptir; bu ' +
-      'çukur alanın eksenini batı-doğu doğrultulu geniş Dicle Vadisi oluşturur. Vadi tabanı, ' +
-      'kent merkezinin bulunduğu kesimde deniz seviyesinden yaklaşık 600 metreye iner.' +
-      '\n\n' +
-      'İlin batısında, Diyarbakır ile Şanlıurfa arasında yükselen Karacadağ, Kolubaba zirvesiyle ' +
-      "1.957 metreye ulaşan bir kalkan volkanıdır. Volkanik faaliyet Geç Miyosen'de başlar, Geç " +
-      "Pliyosen ve Kuvaterner'de de sürer. MTA, bazı lavların Holosen'e ait olduğunu " +
-      "değerlendirir ve Karacadağ'ı Türkiye'nin aktif volkanları arasında sayar. Yaklaşık 10.000 " +
-      "km²'lik bazalt lav örtüsü, dağı Akdeniz çevresindeki en geniş taban alanına sahip " +
-      "volkanlardan biri yapar. Bu örtü doğu yönünde Dicle Vadisi'ne kadar uzanır ve kent " +
-      'merkezindeki tarihi surların yapı malzemesini oluşturur.',
+      'Diyarbakır havzası, kuzeydeki Güneydoğu Toroslar ile güneydeki Mardin Eşiği arasında hafifçe ' +
+      'çukurlaşmış geniş bir plato oluğudur; bu oluğun ana eksenini batı-doğu yönünde uzanan Dicle ' +
+      'Vadisi meydana getirir. Kent merkezinin bulunduğu sahanlık deniz seviyesinden yaklaşık 600 ' +
+      'metre yüksekliktedir.\n\n' +
+      'İlin batısında Şanlıurfa sınırına yayılan Karacadağ, Kolubaba doruğunda 1.957 metreye ulaşan dev ' +
+      "bir kalkan volkandır. Geç Miyosen'den Holosen'e kadar süren akıcı bazalt lavları, yaklaşık " +
+      "10.000 km²'lik bir örtüyle Akdeniz havzasının en geniş tabanlı volkanik sahalarından birini " +
+      'oluşturmuştur. Bu lav örtüsü Dicle kıyılarına kadar uzanarak kentin tarihi surlarına sağlam ' +
+      'siyah bazalt yapı taşını sağlamıştır.',
     introTr:
-      "Diyarbakır'ın kent merkezini çevreleyen 5.800 metre uzunluğundaki bazalt sur, Dicle " +
-      "kıyısındaki Hevsel Bahçeleri ile birlikte 2015'te UNESCO Dünya Mirası Listesi'ne " +
-      "alınmıştır. İl, Güneydoğu Anadolu Bölgesi'nin ortasında, Dicle Nehri vadisinin batı " +
-      "kıyısında kuruludur. 1.852.356 kişilik nüfusuyla Türkiye'nin on ikinci kalabalık ilidir.",
+      'Karacadağ bazaltlarından örülen 5.800 metre uzunluğundaki tarihi surları ve Dicle taşkın ' +
+      "tabanındaki Hevsel Bahçeleri'yle 2015'te UNESCO Dünya Mirası Listesi'ne kabul edilen Diyarbakır, " +
+      "Güneydoğu Anadolu'nun merkezinde kuruludur. 1.852.356 kişilik nüfusuyla Türkiye'nin on ikinci " +
+      'büyük metropolüdür.',
     hydrographyNoteTr:
-      "İlin en önemli akarsuyu, Elazığ sınırları içinden doğan Dicle Nehri'dir. Toplam uzunluğu " +
-      '1.900 kilometre olan nehrin 523 kilometresi Türkiye topraklarından geçer; Diyarbakır kent ' +
-      'merkezinin bulunduğu bazalt sahanlığın doğu kesimine paralel akar. Nehir üzerindeki ' +
-      'Kralkızı ve Dicle barajları, Güneydoğu Anadolu Projesi (GAP) kapsamında sulama ve enerji ' +
-      'üretimi amacıyla işletilir; Dicle Barajı, Kralkızı baraj ekseninin 22 kilometre mansabında ' +
-      'yer alır.\n\n' +
-      'Kentin içme ve sulama suyu ihtiyacının bir bölümü, Devegeçidi Çayı üzerindeki Devegeçidi ' +
-      "Barajı'ndan karşılanır. Kar sularının eridiği ilkbahar aylarında, Dicle ve Kralkızı " +
-      "barajlarındaki su DİSKİ tarafından Devegeçidi Barajı'na aktarılır.",
+      'İlin can damarı, kaynağını Hazar Gölü çevresinden alan ve Türkiye sınırlarında 523 kilometre ' +
+      'akan Dicle Nehri’dir. GAP kapsamında nehir üzerine kurulan Kralkızı Barajı ile 22 kilometre ' +
+      'aşağısındaki Dicle Barajı hidroelektrik enerji üretirken geniş tarım arazilerini sular.\n\n' +
+      'Kentin içme ve tarımsal sulama ihtiyacında Devegeçidi Çayı üzerindeki baraj da önemli yer ' +
+      'tutar; karların eridiği taşkın mevsimlerinde barajlar arasında su aktarımı yapılarak rezervuar ' +
+      'dengesi korunur.',
     hydrographyFeatures: [
       { name: 'Dicle Nehri', type: HydrographyFeatureType.Nehir },
       { name: 'Kralkızı Barajı', type: HydrographyFeatureType.Baraj },
@@ -1429,32 +1400,26 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     //    (hydrography). urbanizationRate=100 is the 6360 büyükşehir artifact; netMigrationRate is
     //    the sole POSITIVE of the wave's Tier-A (+3,09); GSYH share %1,9 (highest of the nine il).
     landformNoteTr:
-      "Gaziantep topraklarının yaklaşık %52'si dağlarla, %27'si ovalarla kaplıdır. İlin batı " +
-      "sınırını Amanos (Nur) Dağları çizer; ilin geri kalanı, Güneydoğu Toroslar'ın uzantısı olan " +
-      'Sof Dağları ile Dülükbaba, Sam, Ganibaba ve Sarıkaya tepelerinin sınırladığı, ' +
-      'Pliyo-Kuvaterner volkanizması ve akarsu aşındırmasıyla şekillenmiş geniş ve hafif eğimli ' +
-      'bir plato — Gaziantep Platosu — üzerinde yer alır.\n\n' +
-      "İlin başlıca ovaları İslahiye, Barak, Araban, Yavuzeli ve Oğuzeli'dir; Barak Ovası, Nizip " +
-      "ve Karkamış ilçeleri arasında, Fırat'a yakın kesimde uzanır.\n\n" +
-      "Gaziantep, 6 Şubat 2023'te merkez üssü komşu Kahramanmaraş olan büyük depremlerden " +
-      "etkilenen illerden biridir. Cumhurbaşkanı Yardımcısı Fuat Oktay'ın aynı gün yaptığı " +
-      'açıklamaya göre depremlerde ilde 309 kişi hayatını kaybetti, 1.597 kişi yaralandı ve 581 ' +
-      'bina yıkıldı; hasar en çok Nurdağı ve İslahiye ilçelerinde yoğunlaştı.',
+      "Gaziantep arazisinin %52'sini platolar ve dağlık kütleler, %27'sini ise tektonik kökenli " +
+      'verimli ovalar kaplar. İlin batısını Amanos Dağları sınırlandırırken, kuzeyde Sof Dağları ile ' +
+      'Dülükbaba, Sam ve Ganibaba tepeleriyle çevrelenen Gaziantep Platosu, kireçtaşı ve bazalt örtülü ' +
+      'dalgalı yapısıyla doğuya doğru eğimlenir.\n\n' +
+      'İslahiye, Araban, Yavuzeli, Oğuzeli ve Fırat kıyısındaki Barak ovaları tarımsal üretimin ana ' +
+      'eksenleridir. Batıdaki graben hattında yer alan Nurdağı ve İslahiye koridoru, Doğu Anadolu Fay ' +
+      "Sistemi'nin hareketli bir parçasıdır. Nitekim 6 Şubat 2023 Kahramanmaraş merkezli depremlerde il " +
+      'genelinde 309 kişi yaşamını yitirmiş, 1.597 kişi yaralanmış ve 581 bina yıkılmıştır.',
     introTr:
-      "TÜİK'in 2025 verilerine göre Gaziantep'in Şahinbey ilçesi, 957.792 kişiyle Türkiye'nin en " +
-      'kalabalık ikinci ilçesidir; Şehitkamil ilçesi de 905.880 kişiyle beşinci sırada yer alır. ' +
-      "İl, Güneydoğu Anadolu Bölgesi'nin batı ucunda, Fırat Nehri'nin batısındaki Gaziantep " +
-      "Platosu üzerinde kuruludur ve 2.222.415 kişilik nüfusuyla Türkiye'nin dokuzuncu kalabalık " +
-      'ilidir.',
+      'TÜİK verilerine göre 957.792 nüfuslu Şahinbey ve 905.880 nüfuslu Şehitkamil ilçeleriyle ' +
+      "Türkiye'nin en kalabalık metropol ilçelerinden ikisine ev sahipliği yapan Gaziantep, Mezopotamya " +
+      'ile Akdeniz havzalarının kesiştiği kilit ticaret ve sanayi eşiğinde kuruludur. 2.222.415 kişilik ' +
+      "nüfusuyla Türkiye'nin dokuzuncu büyük ilidir.",
     hydrographyNoteTr:
-      "İlin doğu sınırını Fırat Nehri çizer; nehir, Gaziantep'i Şanlıurfa'dan ayırır. İl " +
-      "topraklarından çıkmadan Fırat'a karışan son önemli akarsu Nizip Çayı'dır; Karasu ise Araban " +
-      "Ovası'ndan geçtikten sonra batıdan Fırat'a katılır. Bunların dışında ilde çok sayıda pınar " +
-      'bulunmasına karşın doğal göl yoktur.\n\n' +
-      'Oğuzeli ilçesinde Ayfinar Çayı üzerindeki Kayacık Barajı, 13.680 hektarlık bir alanı ' +
-      "sulamanın yanı sıra Gaziantep ile Kilis'in bir bölümüne su sağlar. Kentin içme suyu " +
-      "ihtiyacının önemli bir kısmı ise, Kahramanmaraş'ın Pazarcık ilçesindeki Kartalkaya " +
-      "Barajı'ndan 53,7 kilometrelik bir isale hattıyla aktarılır.",
+      "İlin doğu sınırını Fırat Nehri çizerken batıdan nehre katılan Nizip Çayı ve Araban Ovası'nı " +
+      'sulayan Karasu, Fırat havzasının ildeki başlıca damarlarıdır. Doğal gölü bulunmayan kentte ' +
+      'Oğuzeli kesimindeki Kayacık Barajı 13.680 hektarlık tarım arazisini sulayarak komşu Kilis ile ' +
+      'paylaşılır.\n\n' +
+      "Hızla büyüyen sanayi ve kent nüfusunun içme suyu gereksinimi ise Kahramanmaraş Pazarcık'taki " +
+      "Kartalkaya Barajı'ndan çekilen 53,7 kilometrelik isale hattıyla havza dışından karşılanır.",
     hydrographyFeatures: [
       { name: 'Fırat Nehri', type: HydrographyFeatureType.Nehir },
       { name: 'Nizip Çayı', type: HydrographyFeatureType.Nehir },
@@ -1507,18 +1472,20 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     //    (non-büyükşehir — no 6360 note). GSYH share %0,1 (lowest of the nine il — pure scale, a
     //    non-sensitive figure). All landform/hydrography numbers from the Kilis Valiliği page.
     landformNoteTr:
-      'Kilis, kuzeyde daha sarp bir dağlık alanın, güneyde Suriye sınırına doğru alçalan bir ' +
-      'platonun üzerinde yer alır; ilin ortalama yüksekliği 680 metredir. Sınır boyunca Darmik ' +
-      "Dağı'ndan başlayıp kuzeye Hazil, Karruca, Kartal, Büyük Arapdede ve Sof Dağları'yla devam " +
-      "eden kuşağın en yüksek noktası, 1.496 metrelik Sof Dağı'dır.",
+      'Kilis toprakları, kuzeydeki engebeli dağ kuşağından güneydeki Suriye sınır düzlüklerine doğru ' +
+      'alçalan plato basamakları üzerinde yer alır; ortalama rakım 680 metredir. Sınır boyunca Darmik ' +
+      "Dağı'ndan başlayıp Hazil ve Karruca kütleleriyle devam eden zincir, 1.496 metreyle ilin en yüksek " +
+      "noktası olan Sof Dağı'na ulaşır. Güneye doğru kireçtaşından oluşan dalgalı platolar verimli zeytin " +
+      've bağ alanlarına dönüşür.',
     introTr:
-      "Kilis, Güneydoğu Anadolu Bölgesi'nin batısında, Gaziantep Platosu'nun güneybatı ucunda, " +
-      "Türkiye-Suriye sınırı boyunca kuruludur. 157.363 kişilik nüfusuyla Türkiye'nin nüfus " +
-      'bakımından en küçük beşinci ilidir; Gaziantep, ilin Türkiye içindeki tek sınır komşusudur.',
+      "Gaziantep Platosu'nun güney ucunda, Türkiye-Suriye sınır hattı boyunca uzanan Kilis, 157.363 " +
+      'kişilik nüfusuyla ülkenin nüfus büyüklüğü açısından yetmiş yedinci ilidir. Türkiye sınırları ' +
+      'içinde yalnızca Gaziantep ile komşudur.',
     hydrographyNoteTr:
-      'İlin su ağı ikiye ayrılır: batı kesimi, Afrin Çayı ve kolları aracılığıyla Amik Ovası ' +
-      "üzerinden Asi Nehri'ne ve oradan Akdeniz'e bağlanırken; doğu kesimindeki küçük akarsular " +
-      "Halep'in güneyindeki kapalı bir havzaya boşalır. İlde doğal göl bulunmaz.",
+      'İlin su ağı iki ana havzaya ayrılır: Batı kesimi Afrin Çayı ve kollarıyla Amik Ovası üzerinden ' +
+      "Asi Nehri'ne ve Akdeniz'e ulaşırken, doğu kesimindeki dönemsel dereler güneyde Halep kapalı " +
+      'havzasına boşalır. İlde doğal göl bulunmaz; sulama ihtiyacı küçük göletler ve yeraltı kuyularıyla ' +
+      'sağlanır.',
     urbanizationRate: 79.93,
     netMigrationRate: -3.43,
     economyIndicator: {
@@ -1558,20 +1525,19 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     //    comparator handles it unchanged. GSYH share %0,5. LOCKED rule for future Tier-B-but-
     //    büyükşehir il.
     landformNoteTr:
-      'İlin kuzey kesimini kaplayan Mardin Dağları, güneydeki Mezopotamya ovasından 600-1.000 ' +
-      'metre, yer yer 1.200 metreye varan bir yükseklikle ayrılan, doğu-batı doğrultulu geniş bir ' +
-      "kütledir; bu yükselti, Güneydoğu Anadolu Bölgesi'nin belirgin coğrafi eşiklerinden biri " +
-      "olan Mardin Eşiği'ni oluşturur. Dağların kalkerli kesimleri aşınarak platolara dönüşmüş; " +
-      'bu platolar güneyde Mardin, Nusaybin ve Kızıltepe ovalarına doğru alçalır.',
+      'Mardin Dağları, güneydeki geniş Mezopotamya Ovası’ndan aniden 600 ila 1.000 metre, yer yer 1.200 ' +
+      'metre dik bir yamaçla ayrılan masif bir kireçtaşı kütlesidir. Bu jeomorfolojik eşik, bölgede ' +
+      "'Mardin Eşiği' olarak adlandırılır. Aşınmış kalker platoları güneye doğru basamaklar halinde " +
+      'alçalarak Kızıltepe, Nusaybin ve Mardin tarım ovalarına açılır.',
     introTr:
-      "Mardin, Mezopotamya ovasına kuzeyden egemen bir konumda, Mardin Dağları'nın (Mardin Eşiği) " +
-      "üzerinde kuruludur. Nüfus bakımından Türkiye'nin yirmi altıncı büyük ilidir. Kentin tarihi " +
-      'merkezi, ovadan 600-1.000 metre yükseklikteki bu sırtın üzerine kuruludur.',
+      "Mardin Dağları'nın Mezopotamya düzlüklerine egemen güney yamaçlarına basamaklar halinde kurulan " +
+      'Mardin, özgün kalker taş mimarisi ve zengin kültürel mirasıyla tanınır. 903.576 kişilik nüfusuyla ' +
+      "Türkiye'nin yirmi altıncı büyük ilidir.",
     hydrographyNoteTr:
-      "İlin en büyük akarsuyu, Batman ile aradaki sınırın bir bölümünü çizen Dicle Nehri'dir. " +
-      'Nusaybin ilçesinden geçen Çağçağ suyu ile Savur Çayı, ildeki diğer önemli akarsulardır. ' +
-      "Mardin'de doğal göl bulunmaz; Buğur Çayı üzerindeki küçük bir gölet sulama amacıyla " +
-      'işletilir.',
+      'İlin doğu kesiminde Batman sınırının bir bölümünü çizen Dicle Nehri, derin kanyonlardan ' +
+      'akar. Nusaybin ilçesinden geçen Çağçağ Suyu ile Savur Çayı, karstik vadileri aşarak güneydeki ' +
+      'tarım arazilerine can suyu verir. İlde doğal göl bulunmamakta, tarımsal sulamada Buğur Çayı ' +
+      'göleti ve yeraltı akiferlerinden yararlanılmaktadır.',
     urbanizationRate: 100.0,
     netMigrationRate: -5.65,
     settlementNoteTr:
@@ -1611,19 +1577,20 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     //    in ANY deep-content wave (prev record Van -20.02) — read straight from the raw TÜİK 54082
     //    table and PRIORITY-reverified by the independent fact-check, NOT a calc error. GSYH %0,2.
     landformNoteTr:
-      "İl topraklarının büyük bölümünü, doğuda Hakkari dağlarına bağlanan Güneydoğu Toroslar'ın " +
-      "uzantıları kaplar; ilin en yüksek noktası, 2.838 metrelik Yazlıca (Herekul) Dağı'dır. Botan " +
-      "Çayı, Doğruyol, Koran ve Kapılı dağları arasında, Türkiye'nin en sarp ve derin vadilerinden " +
-      "biri olan Botan Vadisi'ni oluşturur; vadinin bir bölümü 2019'da millî park ilan edilmiştir.",
+      "Siirt arazisi, Güneydoğu Toroslar'ın Hakkari dağ sistemine bağlandığı yüksek ve engebeli " +
+      'dağ sıralarıyla kaplıdır; 2.838 metrelik Yazlıca (Herekul) Dağı ilin en yüksek zirvesini ' +
+      'oluşturur. Kireçtaşı ve killi formasyonları yaran Botan Çayı, Doğruyol ve Kapılı dağları ' +
+      "arasında Türkiye'nin en sarp kanyon vadilerinden birini meydana getirir; vadinin ekolojik ve " +
+      "jeomorfolojik değeri 2019'da ilan edilen Botan Vadisi Milli Parkı ile korunmaya alınmıştır.",
     introTr:
-      "İlin güneyinden geçen Botan Çayı, Türkiye'nin en sarp ve derin vadilerinden birini oyar. " +
-      "Siirt, Güneydoğu Toroslar'ın Hakkari dağlarına bağlandığı, doğuya doğru yükselen dağlık bir " +
-      "arazi üzerinde kuruludur; 332.369 kişilik nüfusuyla Türkiye'nin elli sekizinci kalabalık " +
-      'ilidir.',
+      "Botan Çayı'nın kireçtaşı kütleleri derinlemesine yararak oluşturduğu görkemli kanyon vadisiyle " +
+      "tanınan Siirt, Güneydoğu Toroslar'ın sarp yamaçlarında kuruludur. 332.369 kişilik nüfusuyla " +
+      "Türkiye'nin elli sekizinci kalabalık ilidir.",
     hydrographyNoteTr:
-      "İlin başlıca akarsuyu, Bitlis güneyindeki yüksek dağlardan doğan Botan Çayı'dır; Kezer ve " +
-      "Başur çaylarıyla birleştikten sonra batıya, ardından kuzeybatıya yönelerek Dicle Nehri'ne " +
-      'katılır. İlin düzlük alanları sınırlıdır; Kurtalan Ovası bunların başında gelir.',
+      'İlin ana hidrolojik omurgasını, yüksek dağlardan doğup Kezer ve Başur çaylarıyla birleşen Botan ' +
+      "Çayı oluşturur; nehir batıya yönelerek Dicle Nehri'ne katılır. Sarp dağlık alanların baskın " +
+      'olduğu ilde sınırlı alüvyal düzlüklerden biri olan Kurtalan Ovası, tarımsal üretimin ' +
+      'yoğunlaştığı alandır.',
     urbanizationRate: 69.56,
     netMigrationRate: -33.96,
     economyIndicator: {
@@ -1660,32 +1627,28 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     //    artifact; settlementNoteTr also carries the pure-demographic "en genç nüfuslu il" (21,8
     //    ortanca yaş) TÜİK figure. GSYH share %1,1. Slug stays LOCKED "sanliurfa" (DEC 2026-07-10).
     landformNoteTr:
-      "Şanlıurfa, kuzeyde Arap Platformu'nun kuzey kesimleri ile Güneydoğu Toroslar'ın orta " +
-      'bölümünün güney eteklerinde, genel olarak plato görünümünde bir arazi üzerinde yer alır. ' +
-      'Karacadağ ile Fırat Nehri arasında uzanan Şanlıurfa Platosu, güneyde Suriye sınırına doğru ' +
-      'alçalır; Hilvan-Viranşehir çizgisinin doğusunda kalan kesimi Karacadağ kaynaklı bazalt ' +
-      'lavlarla, batı kesimi ise kireçtaşıyla kaplıdır.\n\n' +
-      'Kireçtaşı örtülü kesimlerde geniş bir karstik arazi gelişmiştir; Çaykuyu, Arat, Tektek ve ' +
-      "Baziki platoları bu yapının en belirgin örnekleridir. Tektek Dağları'nda geniş bir alana " +
-      'yayılan yabani fıstık ağaçları, bölgenin doğal bitki örtüsünün en dikkat çekici ' +
-      'unsurudur.\n\n' +
-      'İlin başlıca ovaları Harran, Suruç, Viranşehir, Hilvan, Ceylanpınar, Bozova ve Siverek ' +
-      "ovalarıdır; bunlardan Harran Ovası, GAP'ın sulama yatırımlarıyla tarımsal üretimin en " +
-      'yoğunlaştığı alandır.',
+      "Şanlıurfa, Arap Platformu'nun kuzey basamağını oluşturan ve ortalama 500-600 metre rakımda uzanan " +
+      'geniş bir plato üzerinde yer alır. Karacadağ volkanik kütlesi ile Fırat Nehri arasında kalan ' +
+      'plato sahası güneye doğru hafif bir eğimle alçalır; Hilvan-Viranşehir hattının doğusu bazalt ' +
+      'lavlarıyla, batı kesimi ise kireçtaşı tabakalarıyla kaplıdır.\n\n' +
+      'Kireçtaşı arazilerinde gelişen Çaykuyu, Arat ve Tektek karstik platoları yer alır; Tektek ' +
+      'Dağları yabani fıstık topluluklarıyla ilin doğal vejetasyonunu yansıtır. Harran, Suruç, ' +
+      'Viranşehir, Ceylanpınar, Bozova ve Siverek ovaları bölgenin en geniş tarımsal üretim ' +
+      'havzalarını meydana getirir.',
     introTr:
-      "Güneydoğu Anadolu Projesi'nin (GAP) en büyük barajı olan Atatürk Barajı'nın gövdesi, " +
-      "Şanlıurfa sınırları içinde yer alır. İl, Güneydoğu Anadolu Bölgesi'nin güneyinde, Fırat " +
-      'Nehri ile Suriye sınırı arasında geniş bir plato üzerinde kuruludur; 2.265.800 kişilik ' +
-      "nüfusuyla Türkiye'nin sekizinci kalabalık ilidir.",
+      "Güneydoğu Anadolu Projesi'nin (GAP) can damarı Atatürk Barajı'na ev sahipliği yapan Şanlıurfa, " +
+      'Fırat Nehri ile Suriye sınırı arasındaki verimli platolarda kuruludur. 2.265.800 kişilik ' +
+      "nüfusuyla Türkiye'nin sekizinci büyük ilidir.",
     hydrographyNoteTr:
-      "İlin en önemli akarsuyu, batı sınırını çizen Fırat Nehri'dir. Nehir üzerindeki Atatürk " +
-      "Barajı, 817 km²'lik göl alanı ve 48,5 milyar m³'lük su hacmiyle GAP'ın en büyük barajıdır; " +
-      "gövdesinin temelden yüksekliği 169 metre, toplam kurulu gücü 2.400 MW'tır. İl sınırları " +
-      'içinde, Gaziantep sınırına yakın kesimde ayrıca Birecik ve Karkamış barajları yer alır.\n\n' +
-      "Atatürk Barajı'ndan çıkan su, 26,4 kilometre uzunluğundaki iki paralel Urfa Tüneli " +
-      "aracılığıyla Harran Ovası'na ulaştırılır. 9 Kasım 1994'te suyla buluşan tüneller, cazibeyle " +
-      '358.000 hektar, pompajla 118.000 hektar olmak üzere toplam 476.000 hektar araziyi ' +
-      'sulamaktadır.',
+      "İlin batı sınırını çizen Fırat Nehri, GAP yatırımlarıyla Türkiye'nin en büyük enerji ve " +
+      'sulama havzasına dönüştürülmüştür. Nehir üzerindeki 817 km² göl alanı ve 48,5 milyar m³ su ' +
+      'hacmine sahip Atatürk Barajı, 169 metre gövde yüksekliği ve 2.400 MW kurulu gücüyle sistemin ' +
+      'merkezidir. Baraj gölünün aşağısında Fırat vadisi boyunca Birecik ve Karkamış barajları ' +
+      'akışı kademeli olarak düzenler.\n\n' +
+      'Atatürk Barajı rezervuarından alınan su, 26,4 kilometre uzunluğundaki ikiz Urfa Tünelleri ile ' +
+      "Harran Ovası'na akıtılmaktadır. 9 Kasım 1994'te işletmeye alınan tünel sistemi, 358.000 hektarı " +
+      'cazibeyle, 118.000 hektarı pompajla olmak üzere toplam 476.000 hektar tarım arazisini suyla ' +
+      'buluşturur.',
     hydrographyFeatures: [
       { name: 'Fırat Nehri', type: HydrographyFeatureType.Nehir },
       { name: 'Atatürk Barajı', type: HydrographyFeatureType.Baraj },
@@ -1734,21 +1697,19 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
     //    havzası framed strictly as infrastructure/geography (task's geography-angle-only note).
     //    GSYH share %0,4.
     landformNoteTr:
-      'Şırnak toprakları batıdan doğuya belirgin bir yükselme gösterir. Batıdaki Cizre ve Silopi ' +
-      'ilçeleri 400-550 metre dolayında alçak ovalarla kaplıdır. Merkez ilçe ve doğudaki ' +
-      'Uludere-Beytüşşebap kesimi ise 1.000 metrenin üzerinde, sarp ve dağlık bir arazi ' +
-      'yapısındadır. İlin başlıca dağları Cudi, Gabar, Namaz ve Altın dağlarıdır. Elips ' +
-      "biçimindeki Cudi Dağı'nın üzerinde 2.000 metreyi aşan dört doruk bulunur; en yükseği " +
-      '2.114 metredir.',
+      'Şırnak yeryüzü şekilleri batıdan doğuya doğru keskin bir morfolojik tezat sergiler. Batıdaki ' +
+      'Cizre ve Silopi çöküntü alanları 400-550 metre rakımlı alçak düzlüklerden oluşurken, merkezden ' +
+      'itibaren doğuya doğru Uludere ve Beytüşşebap kesimi 1.000 metreyi aşan sarp ve kayalık dağ ' +
+      'kütlelerine dönüşür. Elips biçimindeki Cudi Dağı, 2.000 metrenin üzerinde dört doruğa sahip olup ' +
+      '2.114 metreye ulaşır; Gabar, Namaz ve Altın dağları bu engebeli kuşağı tamamlar.',
     introTr:
-      "İlin güneyindeki Habur Sınır Kapısı, Türkiye'nin Irak'a açılan başlıca kara sınır " +
-      "kapısıdır. Şırnak, Güneydoğu Toroslar'ın en dağlık kesiminde, Türkiye'nin Irak ve Suriye " +
-      "ile sınır komşusu olduğu bölgede kuruludur; 573.666 kişilik nüfusuyla Türkiye'nin otuz " +
-      'dokuzuncu kalabalık ilidir.',
+      "Türkiye'nin Irak ile olan ana karayolu ticaret koridorunu oluşturan Habur Sınır Kapısı'na ev " +
+      "sahipliği yapan Şırnak, Güneydoğu Toroslar'ın sarp kıvrımları üzerinde kuruludur. 573.666 kişilik " +
+      "nüfusuyla Türkiye'nin otuz dokuzuncu kalabalık ilidir.",
     hydrographyNoteTr:
-      "İlin akarsuları, Türkiye'nin dördüncü büyük su toplama havzası olan Dicle havzasının bir " +
-      'parçasıdır; Kızılsu, Hezil ve Habur çayları bu havzanın Şırnak sınırları içindeki başlıca ' +
-      'kollarıdır. Habur Çayı, aynı zamanda Türkiye-Irak sınırının bir bölümünü de çizer.',
+      'İlin tüm akarsu şebekesi Dicle Nehri havzasına boşalır. Kızılsu, Hezil ve sınır çizen Habur ' +
+      'çayı yüksek dağlık vadilerden hızla akarak güneydeki ovalarda Dicle ile birleşir. Sarp topoğrafya ' +
+      've derin kanyonlar, hidroelektrik potansiyeli yüksek taşkın rejimli akarsu vadileri oluşturur.',
     urbanizationRate: 68.33,
     netMigrationRate: -14.08,
     economyIndicator: {
@@ -4246,19 +4207,11 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     //    OMITTED). urbanizationRate=62.76 is a REAL rate (non-büyükşehir). netMigrationRate
     //    -32.59 is among the wave's most-negative (near Siirt's -33.96 record). GSYH share %0,2.
     landformNoteTr:
-      'Ağrı Dağı, ana zirve Büyük Ağrı ile güneydoğusundaki 3.896 metrelik Küçük ' +
-      "Ağrı'dan oluşan bir volkanik kütledir. Zirvede yaklaşık 10 km²'lik bir buzul örtüsü " +
-      'bulunur; kalıcı kar sınırı 4.300 metre civarındadır. İlin batısında Aras vadisine ' +
-      'açılan düzlükler, doğusunda ise Tendürek volkanik kütlesinin uzantıları yer alır.',
+      "İlin yeryüzü şekillerini Doğu Anadolu'nun genç volkanik kütleleri belirler. Kuzeydoğuda yükselen Ağrı Dağı, ana zirve Büyük Ağrı ile güneydoğusundaki 3.896 metrelik Küçük Ağrı konisinden oluşan bileşik bir stratovolkandır. Büyük Ağrı doruğunda yaklaşık 10 km²'lik takke buzulu yer alır ve kalıcı kar sınırı 4.300 metreden başlar. İlin güneyinde Tendürek Dağı volkanik kalkanı uzanırken, batıda Murat Nehri boyunca açılan geniş vadi düzlükleri ve çöküntü alanları yer alır.",
     introTr:
-      "Türkiye'nin en yüksek zirvesi olan 5.137 metrelik Ağrı Dağı, ilin kuzeydoğusunda " +
-      'yükselir. Bileşik bir stratovolkan olan dağ, ülkenin sürekli buzul örtüsü bulunan tek ' +
-      "zirvesidir. İl, Murat ve Aras nehir havzaları arasında, Doğu Anadolu Bölgesi'nin " +
-      'doğusunda yer alır.',
+      "Ağrı, 5.137 metrelik doruğuyla Türkiye'nin ve Avrupa kıtasının çatısı sayılan Ağrı Dağı'nın gölgesinde, Murat ve Aras havzalarının su bölümü çizgisinde kuruludur. Doğubayazıt'taki tarihi İshak Paşa Sarayı ve Gürbulak Sınır Kapısı ile Kafkaslar ve Orta Asya'ya açılan il, kış turizmi, yüksek irtifa dağcılığı ve sınır ticareti açısından stratejik bir konumdadır.",
     hydrographyNoteTr:
-      "Murat Nehri'nin kaynak kollarından biri, ilin Diyadin ilçesi yakınlarından doğar; " +
-      'nehir buradan batıya, Muş yönüne akar. İlin kuzeyinde Aras Nehri, Doğubayazıt ve ' +
-      "Tuzluca arasındaki vadiyi izleyerek Iğdır'a geçer.",
+      "Fırat Nehri'nin en uzun kolu olan Murat Nehri, Diyadin ilçesi sınırlarındaki Aladağ eteklerinden doğarak ovayı batı yönünde kat eder; Diyadin kanyonu ve jeotermal kaplıca kaynakları bu vadi boyunca uzanır. İlin kuzey kesimindeki sular ise Doğubayazıt sazlıkları üzerinden Aras Nehri havzasına ulaşarak Hazar Denizi'ne yönelir.",
     urbanizationRate: 62.76,
     netMigrationRate: -32.59,
     economyIndicator: {
@@ -4291,18 +4244,11 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     // ── Ardahan deep content (wave-6b Tier-B). 6-field set. urbanizationRate=45.19 is the
     //    wave's LOWEST — a REAL (non-büyükşehir) rate, not a legal artifact. GSYH share %0,1.
     landformNoteTr:
-      "İlin en yüksek noktası, Çıldır Gölü'nün güneybatısında yer alan 3.197 metrelik Kısır " +
-      "Dağı'dır. Gölün kuzeydoğusunda 3.033 metrelik Keldağ, doğusunda ise 3.026 metrelik " +
-      'Akbaba Dağı yükselir. Çıldır Gölü, bir lav akıntısı ile moloz konisinin birlikte ' +
-      'oluşturduğu doğal bir set gölüdür; en derin noktası 42 metredir.',
+      "Ardahan arazisi, volkanik bazalt ve andezit lavlarının oluşturduğu yüksek plato düzlükleri ile bu düzlükleri çevreleyen dağ sıralarından meydana gelir. İlin en yüksek noktasını Çıldır Gölü'nün güneybatısında 3.197 metreye ulaşan Kısır Dağı oluşturur; göl çevresinde ayrıca Keldağ (3.033 m) ve Akbaba Dağı (3.026 m) yükselir. Kuzeyde Yalnızçam Dağları, ili Karadeniz iklim kuşağından ayırarak sert karasal iklimin egemen olmasına yol açar.",
     introTr:
-      "Ardahan, 90.392 kişilik nüfusuyla Türkiye'nin en az nüfuslu üçüncü ilidir. İlin " +
-      "doğusunda yer alan Çıldır Gölü, 123 km² yüzölçümüyle Doğu Anadolu Bölgesi'nin en büyük " +
-      'tatlı su gölüdür. İl, Gürcistan ve Ermenistan sınırına yakın, yüksek bir plato üzerinde ' +
-      'kuruludur.',
+      "Ardahan, ortalama 1.800 metreyi aşan rakımıyla Türkiye'nin kuzeydoğu sınırında, Gürcistan ve Ermenistan ile komşu yüksek bir plato kentidir. 90.392 kişilik nüfusuyla ülkenin en az nüfuslu üçüncü ili olan Ardahan; kışın yüzeyi tamamen buz tutan Çıldır Gölü, geleneksel kaşar peyniri üretimi ve zengin mera hayvancılığıyla tanınır.",
     hydrographyNoteTr:
-      "İl toprakları, kuzeyde Kura, güneyde Aras nehir havzaları arasında kalır. Çıldır Gölü'nü " +
-      "besleyen sular, Arpaçayı aracılığıyla Aras Irmağı'na ulaşır.",
+      "İlin doğusunda yer alan 123 km² yüzölçümlü Çıldır Gölü, lav akıntılarının vadiyi tıkamasıyla oluşmuş Doğu Anadolu'nun en büyük tatlı su gölüdür. 42 metre derinliğe ulaşan gölün fazla suları Telek Çayı ve Arpaçay üzerinden Aras'a kavuşur. Ardahan Ovası'nı baştan başa geçen Kura Nehri ise Gürcistan ve Azerbaycan topraklarını aşarak sularını Hazar Denizi'ne ulaştırır.",
     urbanizationRate: 45.19,
     netMigrationRate: -20.27,
     economyIndicator: {
@@ -4336,19 +4282,11 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     //    junction, framed strictly as geology (Erzincan/İzmir/Kocaeli precedent). urbanizationRate
     //    70.55 is a REAL rate (non-büyükşehir). GSYH share %0,2.
     landformNoteTr:
-      'İlin doğusunda Bingöl Dağları, batısında Şerafettin Dağları yükselir. Karlıova Havzası, ' +
-      'Kuzey Anadolu, Doğu Anadolu ve Varto fay zonlarının kesiştiği bölgede, yoğun tektonik ' +
-      'hareketlilikle oluşmuş yükselti ve çöküntü alanlarından oluşur.',
+      "İlin topoğrafyasını doğuda Bingöl Dağları (3.250 m), batıda ise Şerafettin Dağları ile Akçakara Dağları kuşatır. Karlıova Havzası, KAF, DAF ve Varto fay zonlarının kesiştiği tektonik bir çöküntü alanıdır. Yüksek platolarda buzul aşındırması sonucu oluşmuş çok sayıda sirk gölü bulunurken, Solhan ilçesindeki Turnalar Gölü'nde rüzgârla yer değiştiren doğal yüzen adalar morfolojik bir nadirliğe işaret eder.",
     introTr:
-      "Bingöl'ün Karlıova ilçesi, Türkiye'nin en aktif iki fay hattı olan Kuzey Anadolu Fayı " +
-      "ile Doğu Anadolu Fayı'nın kesiştiği noktada yer alır; dünyada benzerine az rastlanan bir " +
-      "tektonik kavşaktır. İl, Doğu Anadolu Bölgesi'nin batısında, Bingöl ve Şerafettin dağları " +
-      'arasında kuruludur.',
+      "Bingöl, Doğu Anadolu Bölgesi'nin Yukarı Fırat Havzası'nda, sarp dağ sıraları arasına sıkışmış zengin su kaynakları ve yaylalarıyla öne çıkar. İlin Karlıova ilçesi, Türkiye'nin iki ana fay hattı olan Kuzey Anadolu Fayı ile Doğu Anadolu Fayı'nın birleştiği yeryüzünün en hareketli tektonik kavşak noktalarından biridir.",
     hydrographyNoteTr:
-      'Peri Suyu, Karagöl ve Bingöl dağlarındaki kaynak sularının ' +
-      "Karlıova'nın kuzeybatısında birleşmesiyle oluşur; vadisi, Bingöl ile Tunceli arasındaki " +
-      'doğal sınırı çizer. Karlıova çevresindeki göllerin en büyüğü, Kargapazar köyü ' +
-      "yakınındaki Gölbahri Gölü'dür.",
+      "Bingöl Dağları'ndan beslenen Peri Suyu, Karlıova'nın kuzeybatısından çıkarak Bingöl ile Tunceli arasındaki doğal il sınırını çizer ve Fırat sistemine katılır. İlin güneyini drene eden Göynük Suyu ve Murat Nehri kolları üzerinde kurulan hidroelektrik barajları, derin vadiler boyunca hem taşkın kontrolü sağlar hem de bölgesel enerji üretimine yüksek katkı sunar.",
     urbanizationRate: 70.55,
     netMigrationRate: -13.2,
     economyIndicator: {
@@ -4382,18 +4320,11 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     //    crater-lake volcano — a DIFFERENT, homonymous mountain from Adıyaman's UNESCO Nemrut
     //    (wave-5). urbanizationRate 66.88 is a REAL rate. GSYH share %0,2.
     landformNoteTr:
-      'İl toprakları dört coğrafi bölüme ayrılır: kuzeyde Ahlat Düzlüğü, onun güneyinde Nemrut ' +
-      'Stratovolkanı, ortada Van-Muş havzasının bir kesimi ve güneyde Bitlis Masifi. ' +
-      "Nemrut'un krater gölü ile kuzeyindeki Nazik Gölü, bu volkanik kütlenin iki gölüdür.",
+      "Bitlis toprakları dört ana jeomorfolojik birimden oluşur: kuzeyde Ahlat volkanik tüf platosu, hemen güneyinde 2.935 metrelik Nemrut Stratovolkanı, ortada Muş-Tatvan çöküntü oluğu ve güneyde paleozoik şistlerden oluşan sarp Bitlis Masifi. Nemrut kalderası, 1441'deki son püskürme ürünü lav ve tüf setleriyle Van Gölü ile Muş Ovası arasındaki doğal su havzalarını birbirinden kalıcı olarak ayırmıştır.",
     introTr:
-      "Nemrut Dağı'nın krater gölü, Ahlat, Güroymak ve Tatvan ilçe sınırları içinde, Van " +
-      "Gölü'nün batısında yer alır. Uykuda bir yanardağ olan Nemrut, son olarak 1441'de lav " +
-      "çıkarmıştır. İl, Van Gölü'nün güneybatı kıyısından güneye, Bitlis Masifi'ne uzanan " +
-      'dağlık bir arazi üzerinde kuruludur.',
+      "Bitlis, Doğu Anadolu'yu Mezopotamya ovalarına bağlayan tarihi Bitlis Boğazı üzerinde, sarp bir vadi içinde kuruludur. Ahlat ilçesindeki UNESCO Dünya Mirası Geçici Listesi'nde yer alan Selçuklu meydan mezarlığı ve kümbetleriyle kadim bir kültür havzası olan il, kuzeydoğusundaki Van Gölü kıyıları ve uyuyan Nemrut Stratovolkanı ile benzersiz bir coğrafi kimlik taşır.",
     hydrographyNoteTr:
-      "İlin kuzeyinde Van Gölü'nün bir kesimi yer alır; göl suyu tuzlu ve sodalıdır. Bitlis " +
-      'kent merkezinden geçen Bitlis Çayı ise güneye akarak Dicle Nehri sistemine katılır. İl ' +
-      "toprakları böylece hem Van'ın kapalı havzasına hem Dicle'nin açık havzasına su verir.",
+      "Nemrut volkanik kütlesinin zirve kalderasında, dünyanın ikinci büyük kaldera gölü olan tatlı sulu Nemrut Gölü ile sıcak su kaynakları içeren Ilıgöl yer alır; volkanın kuzeyinde ise lav setti gölü Nazik Gölü uzanır. İl toprakları hidrografik bir su bölümü hattıdır: kuzeydeki akarsular sodalı Van Gölü Kapalı Havzası'na yönelirken, merkezden güneye süzülen Bitlis Çayı Dicle Nehri aracılığıyla Basra Körfezi'ne dökülür.",
     urbanizationRate: 66.88,
     netMigrationRate: -12.42,
     economyIndicator: {
@@ -4427,19 +4358,11 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     //    fact-check CORRECTION (1.330 MW / 6,6 milyar kWh per EÜAŞ — the Belediye source's
     //    134 MW / 7,5 milyar kWh were both wrong). urbanizationRate 80.09 is a REAL rate. GSYH %0,5.
     landformNoteTr:
-      'İl merkezinin güneydoğusunda, yaklaşık 25 kilometre uzaklıktaki Hazar Gölü, tektonik ' +
-      "kökenli bir göldür. Gölün güneydoğusundan süzülen sular, Behremaz Deresi'yle " +
-      "birleşerek Dicle Nehri'nin kaynak kollarından birini oluşturur — Elazığ toprakları " +
-      'böylece hem Fırat hem Dicle havzalarına su verir.',
+      "İl topoğrafyası, Güneydoğu Toroslar'ın kolları olan Mastar, Hasan Dağı ve Kömürhan sırtları ile bu kütleler arasına yerleşmiş Uluova, Palu ve Karakoçan çöküntü ovalarından oluşur. İl merkezinin güneydoğusundaki 1.248 metre rakımlı Hazar Gölü, Doğu Anadolu Fayı'nın açılma havzasında oluşmuş 22 kilometre uzunluğunda tektonik bir çanaktır.",
     introTr:
-      "Keban Baraj Gölü, Murat vadisi boyunca 125 kilometre uzunluğuyla Türkiye'nin en büyük " +
-      "yapay gölüdür. İlin güney kesimi dışında tamamı Fırat Havzası'nda kalan Elazığ, " +
-      "Doğu Anadolu Bölgesi'nin batı ucunda kuruludur.",
+      "Elazığ, tarihi Harput Kalesi'nin eteklerindeki verimli Uluova'da kurulan, Fırat ve Murat nehirlerinin kavşağında yer alan bir sanayi, kültür ve lojistik merkezidir. Keban Baraj Gölü ile Hazar Gölü'nün çevrelediği yarımada görünümündeki il toprakları, zengin su ürünleri yetiştiriciliği ve hidroelektrik üretimiyle Doğu Anadolu'nun enerji üssü niteliğindedir.",
     hydrographyNoteTr:
-      "Fırat Nehri, ilk kaynaklarını Van Gölü'nün kuzeyindeki Aladağ'ın kuzey eteklerinden alır " +
-      "ve batıya akarak Palu ilçesinden geçtikten sonra Keban Baraj Gölü'ne dökülür. " +
-      "1965'te inşasına başlanan Keban Barajı, 1974-1981 arasında kademeli olarak devreye " +
-      "girmiş; kurulu gücü 1.330 MW, yıllık ortalama enerji üretimi 6,6 milyar kWh'tir.",
+      "Fırat Nehri'nin ana gövdesi üzerinde 1974-1981 arasında devreye alınan Keban Barajı, 1.330 MW kurulu gücü ve yıllık 6,6 milyar kWh elektrik üretimiyle Türkiye'nin en stratejik enerji kaynaklarındandır; Murat vadisi boyunca 125 kilometre uzanan yapay rezervuarı bölgenin mikroklimasını yumuşatmıştır. Hazar Gölü'nden çıkan sular ise Behremaz Deresi üzerinden Dicle Nehri'nin ana kollarından birini besleyerek ilin hem Fırat hem Dicle havzasıyla hidrografik bağ kurmasını sağlar.",
     urbanizationRate: 80.09,
     netMigrationRate: -5.42,
     economyIndicator: {
@@ -4473,20 +4396,11 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     //    short (Kandilli/AFAD-sourced, KAF context — Kocaeli/İzmir precedent). urbanizationRate
     //    75.99 is a REAL rate (non-büyükşehir). GSYH share %0,2.
     landformNoteTr:
-      'Erzincan, Kuzey Anadolu Fay Hattı üzerinde yer alan tektonik bir çöküntü ovasında ' +
-      'kuruludur; ova, deniz seviyesinden yaklaşık 1.200 metre yükseklikte, kuzeyde ve güneyde ' +
-      "yüksek dağ sıralarıyla çevrilidir. Batıda Munzur Dağları, güneyde Bingöl Dağları'nın " +
-      'uzantıları ilin dağlık kesimlerini oluşturur.',
+      "Ortalama 1.200 metre irtifadaki Erzincan Ovası, kuzeyden Spikör ve Keşiş dağları (3.549 m), güneyden ise kireçtaşından sarp Munzur Dağları (3.300 m) ile çevrelenmiş kapalı bir çöküntü çanağıdır. KAF'ın ana segmentinde yer alan bu zonda, 27 Aralık 1939'da Kandilli Rasathanesi kayıtlarına göre 7,9 büyüklüğünde Türkiye'nin en yıkıcı depremlerinden biri yaşanmış, 32.968 kişi yaşamını yitirmiştir. Dağların ovaya kavuştuğu kesimlerde eğim kırıklıkları nedeniyle zengin traverten ve kaynak çıkışları bulunur.",
     introTr:
-      "27 Aralık 1939'da merkez üssü Erzincan olan, Kandilli Rasathanesi kayıtlarına göre 7,9 " +
-      "büyüklüğündeki deprem, Türkiye'nin 20. yüzyılda yaşadığı en yıkıcı doğal afetlerden " +
-      'biridir; resmi kayıtlara göre 32.968 kişi hayatını kaybetmiştir. İl, Kuzey Anadolu Fay ' +
-      "Hattı'nın doğu ucuna yakın bir tektonik çöküntü ovasında kuruludur. TÜİK'in 2025 " +
-      "verilerine göre kilometrekareye 21 kişi düşen Erzincan, Türkiye'nin en düşük nüfus " +
-      'yoğunluğuna sahip illerinden biridir.',
+      "Erzincan, Kuzey Anadolu Fay Hattı'nın belirlediği derin bir tektonik çöküntü oluğunda, Fırat'ın ana kolu Karasu'nun bereketlendirdiği verimli ovada yer alır. Tarih boyunca yaşadığı büyük depremlerle biçimlenen kent, geniş caddeleri ve ızgara planlı mimarisiyle yeniden kurulmuş olup tulum peyniri, bakırcılık zanaatı ve Munzur eteklerindeki doğa sporlarıyla tanınır.",
     hydrographyNoteTr:
-      "İlin ortasından geçen Karasu, Fırat Nehri'nin iki ana kaynak kolundan biridir; Erzincan " +
-      'Ovası boyunca batıya akar.',
+      "Fırat Nehri'nin en büyük kaynak kolu olan Karasu, Erzurum platolarından gelerek Erzincan Ovası'nı doğudan batıya sular ve Kemah Boğazı'nda kanyonlar yararak güneye yönelir. Çayırlı Ovası ile Tercan Baraj Gölü çevresindeki sulama ağları, ova tabanındaki tahıl, şekerpancarı ve bağcılık üretiminin kesintisiz sürmesini temin eder.",
     urbanizationRate: 75.99,
     netMigrationRate: -11.95,
     economyIndicator: {
@@ -4521,22 +4435,11 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     //    urbanizationRate=100 is the 6360 legal artifact carrying ONLY the single-sentence
     //    settlementNoteTr (no migration narrative). Türkiye's most-neighboured il (9). GSYH %0,5.
     landformNoteTr:
-      'Erzurum, ortalama yüksekliği 2.000 metreyi bulan geniş platolar üzerinde yer alır; bu ' +
-      'platoların üzerinde yükselen dağların çoğu 3.000 metreyi aşar. Kentin güneyinde uzanan ' +
-      'Palandöken Dağları, 3.176 metrelik Büyük Ejder Tepesi ile ilin en yüksek noktalarından ' +
-      'birini oluşturur; doğu-batı doğrultusunda yaklaşık 70 kilometre uzanır. İlin ' +
-      'kuzeydoğusunda Allahuekber Dağları, doğusunda Kargapazarı Dağı yükselir; bu dağlık ' +
-      'çevrenin ortasında Erzurum ve Pasinler ovaları kalır.',
+      'Erzurum arazisi, ortalama 2.000 metre yükseltideki geniş bazalt platolar ile bu platoları yaran Erzurum ve Pasinler tektonik çöküntü ovalarından meydana gelir. Kentin hemen güneyinde 70 kilometre boyunca uzanan Palandöken Dağları, 3.176 metrelik Büyük Ejder Tepesi ile uluslararası kış turizminin merkezidir. Kuzeyde Kargapazarı, Dumlu ve Mescit dağları, kuzeydoğuda ise Allahuekber Dağları ilin morfolojik sınırlarını belirler.',
     introTr:
-      "Erzurum kent merkezi, 1.860 metre rakımıyla Türkiye'nin en yüksek rakımlı büyük " +
-      "şehirlerinden biridir. İl, Doğu Anadolu Bölgesi'nin kuzeydoğusunda, geniş platolar " +
-      'üzerinde kuruludur. Dokuz ayrı ille sınır komşusu olan Erzurum, bu özelliğiyle ' +
-      "Türkiye'nin en çok komşuya sahip ilidir.",
+      "Erzurum, 1.860 metreyi bulan şehir merkezi irtifasıyla Türkiye'nin en yüksek rakımlı büyükşehiridir. Kuzeydoğu Anadolu'nun tarihi ipek yolu kavşağında yer alan kent, dokuz ayrı ille komşu olarak ülkenin en çok komşuya sahip ili konumundadır. Palandöken Dağları'ndaki kış sporları merkezleri, Atatürk Üniversitesi ile gelişen eğitim altyapısı ve yayla hayvancılığı ilin temel sosyoekonomik omurgasını oluşturur.",
     hydrographyNoteTr:
-      "Aras Nehri'nin başlıca kaynak kollarından biri, ilin Tekman ilçesi yaylalarından doğar; " +
-      "nehir buradan Pasinler Ovası'nı geçerek kuzeydoğuya, Kars-Erzurum platosuna yönelir. " +
-      'İlin kuzeyinde, İspir ve Tortum ilçeleri çevresinde doğan Çoruh Nehri ise ' +
-      "Karadeniz'e ulaşan ayrı bir akarsu sistemidir.",
+      "İl toprakları üç ayrı deniz havzasına su gönderen kritik bir hidrografik su bölümü merkezidir. Dumlu Dağları'ndan doğan Karasu batıya yönelerek Fırat Nehri üzerinden Basra Körfezi'ne, Tekman yaylalarından çıkan Aras Nehri doğuya akarak Hazar Denizi'ne, İspir ve Tortum vadilerini aşan sular ise Çoruh Nehri aracılığıyla Karadeniz'e ulaşır. Tortum Çayı üzerindeki Tortum Gölü ve 48 metreden dökülen doğal çağlayan, heyelan set oluşumuyla bölgenin önemli bir peyzaj unsurudur.",
     urbanizationRate: 100.0,
     netMigrationRate: -15.86,
     settlementNoteTr:
@@ -4574,20 +4477,11 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     //    Şırnak — both symmetric). Cilo-Sat is stated as "one of the highest massifs", no exact
     //    ranking claim (deliberate). urbanizationRate 66.55 is a REAL rate. GSYH share %0,2.
     landformNoteTr:
-      'Cilo kütlesinin güneybatısına doğru uzanan engebeli arazide 3.000 metreyi aşan çok ' +
-      'sayıda doruk yer alır; bunların başlıcaları 3.250 metrelik Beridalo ve Yekboy dağları ' +
-      "ile 3.460 metrelik Gare Dağı'dır. Sat Dağları kütlesinde ise 3.540 metrelik Sat Dağı ve " +
-      '3.356 metrelik Gevaroki Dağı öne çıkar.',
+      "Güneydoğu Toroslar'ın en sarp kesimini oluşturan Hakkari morfolojisinde, 4.168 metreyle Türkiye'nin ikinci en yüksek doruğu olan Uludoruk'un (Reşko) yer aldığı Cilo-Sat Dağları kütlesi egemendir. Buzul Çağı'ndan kalan aktif vadi buzulları, sirk gölleri ve moren setleriyle biçimlenen dağ silsilesi; Gare (3.460 m), Beridalo (3.250 m) ve Sat dağlarıyla çevrilidir. Yüksek dağların arasına sıkışan dar çöküntü koridorları, yerleşme ve ulaşımı zorunlu olarak vadilere hapsetmiştir.",
     introTr:
-      "Hakkari, il geneli ortalama yükseklik bakımından Türkiye'nin en yüksek rakımlı " +
-      'illerinden biridir; toprakların neredeyse tamamı 1.500 metrenin üzerindedir. İlin ' +
-      'kuzeyindeki Cilo-Sat ' +
-      "Dağları, 4.168 metreye ulaşan zirveleriyle Türkiye'nin en yüksek dağ kütlelerinden " +
-      "biridir. İl, Güneydoğu Toroslar'ın en sarp bölümünde, Irak ve İran sınırına bitişik " +
-      'kuruludur.',
+      "Hakkari, Türkiye'nin güneydoğu sınır köşesinde, Irak ve İran ile sınır komşusu olan ve il arazisinin neredeyse tamamı 1.500 metrenin üzerinde yer alan en engebeli sınır ilidir. Yalnızca Van ve Şırnak ile yurt içi bağlantısı bulunan kent; 4.000 metreyi aşan heybetli dorukları, derin kanyon vadileri ve otantik yayla kültürüyle ülkenin en özgün dağlık coğrafyasına sahiptir.",
     hydrographyNoteTr:
-      "İlin akarsuları, Dicle Nehri'nin önemli bir kolu olan Büyük Zap'ı besler; bu akarsular " +
-      'Cilo-Sat kütlesinin buzul ve kar sularıyla beslenir, güneye Irak topraklarına doğru akar.',
+      "Cilo ve Sat dağlarının eriyen buzul ve kar sularıyla beslenen akarsu ağı, Dicle Nehri'nin ana kolu olan Büyük Zap Suyu'nda toplanır. Sarp kireçtaşı katmanlarını yararak kilometrelerce uzanan kanyonlar oluşturan Zap Suyu güneye akarak Irak topraklarına geçer; vadinin alçak ve korunaklı tabanlarındaki dar düzlüklerde oluşan mikroklima şartları, sınırlı da olsa çeltik, ceviz ve meyve yetiştiriciliğine imkân sağlar.",
     urbanizationRate: 66.55,
     netMigrationRate: -19.77,
     economyIndicator: {
@@ -4621,19 +4515,11 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     //    symmetric). The Iğdır Ovası microclimate makes it Doğu Anadolu's lowest plain.
     //    urbanizationRate 59.56 is a REAL rate (non-büyükşehir). GSYH share %0,1.
     landformNoteTr:
-      'Tarihte Sürmeli Çukuru olarak da anılan Iğdır Ovası, Batı Iğdır, Doğu Iğdır ve Dil ' +
-      'Ovası olmak üzere üç kesimden oluşur; batıda Çalpala köyü dolaylarında 910 metreye çıkan ' +
-      "yükseklik, doğuda Dil Ucu'nda 795 metreye iner. Ovanın güneyinde, Türkiye'nin en yüksek " +
-      "zirvesi Ağrı Dağı'nın kuzey yamaçları yükselir.",
+      'Tarihte Sürmeli Çukuru adıyla bilinen Iğdır Ovası; Batı Iğdır, Doğu Iğdır ve Dil Ovası olmak üzere üç morfolojik alt kesimden oluşur. Batıda 910 metre civarındaki yükseklik doğuda Dilucu mevkiinde 795 metreye kadar iner. Ovanın hemen güneyinde gökyüzüne dikilen 5.137 metrelik Ağrı Dağı kütlesi, ovaya ulaşan kuzey ve güney rüzgârlarına karşı dev bir set oluşturarak kışların ılık, yazların kurak ve sıcak geçtiği fön etkili bir çanak iklimi doğurur.',
     introTr:
-      'Iğdır Ovası, çevresini saran yüksek dağlara karşın 850 metre ortalama yükseklikle Doğu ' +
-      "Anadolu Bölgesi'nin en alçak düzlüğüdür. Aras Nehri'nin ikiye ayırdığı ova, bölgenin " +
-      'diğer illerine kıyasla daha ılıman bir mikroklimaya sahiptir; bu iklim kayısı, şeftali ' +
-      've üzüm gibi meyve yetiştiriciliğine imkân tanır.',
+      "Iğdır, Doğu Anadolu'nun yüksek platoları arasında 850 metre ortalama rakımıyla derin bir çöküntü oluğunda yer alan ve çevresindeki sert iklime zıt olarak pamuk, kayısı ve şeftali yetişen bir mikroklima vahasıdır. Ermenistan, Azerbaycan (Nahçıvan) ve İran ile sınır komşusu olarak üç ülkeye kapısı olan il, stratejik Dilucu Sınır Kapısı ile Kafkaslar ticaretinde kilit bir eşiktir.",
     hydrographyNoteTr:
-      "İlin tek büyük akarsuyu Aras Nehri'dir; ovayı ikiye bölerek doğuya akar ve verimli " +
-      'alüvyonlu topraklar bırakır. Tarım arazilerinin yarısından fazlasında tahıl, özellikle ' +
-      'buğday ve arpa yetiştirilir.',
+      "İlin ana can damarı olan Aras Nehri, ovayı ikiye bölerek doğuya doğru akar ve verimli alüvyon çökelleri bırakır. Ağrı Dağı'ndan ve güneydeki sönmüş volkanik yamaçlardan inen mevsimlik dereler ova tabanında toplanır. Doğu Anadolu'nun 'Çukurova'sı olarak nitelenen ovada, Aras'tan ayrılan sulama kanalları sayesinde buğday, arpa, mısır, kayısı, karpuz ve yem bitkileri yoğun olarak yetiştirilir.",
     urbanizationRate: 59.56,
     netMigrationRate: -18.1,
     economyIndicator: {
@@ -4667,19 +4553,11 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     //    İl Kültür ve Turizm Müdürlüğü "Akarsular" page. urbanizationRate 55.19 is a REAL rate.
     //    GSYH share %0,2.
     landformNoteTr:
-      "Kars'ın dağları, kuzeyde Kuzey Anadolu kıvrım sistemine, güneyde Güney Anadolu kıvrım " +
-      "sistemine bağlı kütlelerden oluşur; Kars Ovası'nın temelini volkanik malzemeler " +
-      'oluşturur. İlin güneybatısında, Sarıkamış çevresinde geniş çam ormanları yer alır.',
+      "Kars topoğrafyası, Tersiyer volkanizması ürünü lav örtüleriyle düzleşmiş geniş platolar ve bu platoları kuşatan dağ dizilerinden oluşur. Kuzeyde Allahuekber Dağları ve Soğanlı Dağları, güneyde ise volkanik Aladağ uzantıları yer alır. Sarıkamış çevresinde yüksekliğin ve kar kalitesinin sağladığı elverişli zemin, Türkiye'nin en uzun kış turizmi sezonlarından birine ev sahipliği yapar.",
     introTr:
-      "Kars Ovası, 1.750 metre ortalama yüksekliğiyle Doğu Anadolu Bölgesi'nin en geniş " +
-      'ovasıdır. İl, Allahuekber Dağları ile Sarıkamış-Kars Platosu arasında, doğuya açılan bir ' +
-      'çöküntü oluğu üzerinde kuruludur. Yüksek rakımı nedeniyle kışları uzun ve sert geçer.',
+      "Kars, 1.750 metre rakımlı bazalt platosu üzerinde, Türkiye'nin Ermenistan sınırında yükselen köklü bir serhat ve kültür kentidir. UNESCO Dünya Mirası Listesi'ndeki Ani Arkeolojik Alanı, Baltık mimari tarzı tarihi taş yapıları, Sarıkamış sarıçam ormanları ve dünya çapında tescilli gravyer ve kaşar peynirleriyle Doğu Anadolu'nun en belirgin kültürel ve turistik merkezlerindendir.",
     hydrographyNoteTr:
-      "İlin başlıca akarsuları Kars Çayı, Arpaçayı ve Aras Irmağı'dır. Kars Çayı, Soğanlı " +
-      'Dağı geçidindeki Yaycı ve Kırkpınar yaylalarından doğar; Arpaçayı ile birleştikten sonra ' +
-      "Tekelibağ yakınlarında Aras'a katılır. Aras Irmağı, kışın donmayan tek akarsu olma " +
-      'özelliğiyle diğerlerinden ayrılır; debisi nisanda 180-200 m³/saniyeye çıkarken ' +
-      'temmuz-ağustosta 20-25 m³/saniyeye düşer.',
+      'İlin sularını Kars Çayı, Arpaçay ve Aras Nehri toplar. Soğanlı yaylalarından doğan Kars Çayı, kenti ikiye bölerek akar ve derin kanyonlar oluşturduğu Arpaçay ile birleşir. Türkiye-Ermenistan sınırını çizen Arpaçay üzerindeki Arpaçay Baraj Gölü, sınır boyunca tarımsal sulama ve taşkın önleme işlevi görür. Yaz başlarına kadar süren kar erimeleri, platolardaki alpin çayırları gürleştirerek ilin büyükbaş süt ve besi hayvancılığındaki liderliğini pekiştirir.',
     urbanizationRate: 55.19,
     netMigrationRate: -25.28,
     economyIndicator: {
@@ -4715,19 +4593,11 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     //    positive net migration (+6.88 ‰). introTr kayısı stat = fact-check CORRECTION ("dünya
     //    kuru kayısı üretiminin ~%85'i", not "Türkiye"). GSYH share %0,6 (wave's highest).
     landformNoteTr:
-      "Güneydoğu Toroslar'ın bir kolu olan Malatya Dağları, ilin batı-doğu doğrultusundaki " +
-      "omurgasını oluşturur; bunların en yükseği, kenti gören 2.544 metrelik Beydağı'dır. " +
-      "Sultansuyu Vadisi'nin batısındaki Nurhak Dağları'nda ise en yüksek nokta 2.428 metrelik " +
-      "Derbent Dağı'dır. Malatya Ovası, bu dağlık çevrenin ortasında tarımsal üretimin " +
-      'merkezidir.',
+      "Güneydoğu Toroslar'ın uzantısı olan Malatya Dağları ve 2.544 metrelik Beydağı kütlesi kentin güney silüetini belirler; batıda ise Nurhak Dağları'nın uzantısı olan Derbent Dağı (2.428 m) yükselir. Bu dağ sıraları arasında yer alan 900 metre ortalama rakımlı Malatya Ovası, Fırat Nehri'nin taşıdığı verimli alüvyonlarla zenginleşmiş tektonik bir çöküntü alanıdır. Sultansuyu ve Sürgü vadileri güneye Akdeniz'e, Tohma Çayı Kanyonu ise batıya İç Anadolu'ya doğal ulaşım koridorları açar.",
     introTr:
-      "Malatya, dünya kuru kayısı üretiminin yaklaşık %85'ini karşılar. İl, Fırat Nehri " +
-      "vadisinin doğusunda, Doğu Anadolu Bölgesi'nin batı ucunda kuruludur; Akdeniz'e Sultansuyu " +
-      "ve Sürgü vadileriyle, İç Anadolu'ya Tohma Vadisi'yle açılan bir geçiş bölgesidir.",
+      "Malatya, Doğu Anadolu'nun batı eşiğinde, Yukarı Fırat Havzası'nın bereketli çöküntü ovasında kurulu büyükşehiridir. Dünya kuru kayısı üretiminin yaklaşık %85'ini karşılayan devasa kayısı bahçeleri, organize sanayi bölgeleri ve İnönü Üniversitesi ile bölgenin en gelişmiş imalat ve ticaret merkezlerinden biri olan kent, Güneydoğu Toroslar'ın vadileriyle Akdeniz ve İç Anadolu'yu birbirine bağlayan doğal bir geçittir.",
     hydrographyNoteTr:
-      'İlin su kaynaklarının büyük bölümünü Fırat Nehri ve kolları oluşturur. Kayısı ' +
-      "yetiştiriciliğine elverişli iklim koşulları, 900 metre rakımdaki Malatya Ovası'nda " +
-      'en yağışlı mevsim olan ilkbaharla birlikte şekillenir.',
+      "İlin hidrografik can damarı Fırat Nehri ve kolları olan Tohma Çayı, Sultansuyu ve Kuruçay'dır. Fırat üzerinde kurulu dev Karakaya Baraj Gölü, ilin doğu sınırını çizerken bölgenin iklimini yumuşatır ve tatlı su balıkçılığına olanak tanır. İlkbahar aylarında eriyen dağ karlarıyla beslenen akarsu ağı, sulama kanalları vasıtasıyla ovadaki yüz binlerce dekar kayısı bahçesinin su ihtiyacını kesintisiz karşılar.",
     urbanizationRate: 100.0,
     netMigrationRate: 6.88,
     settlementNoteTr:
@@ -4765,20 +4635,11 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     //    the mountain itself is administratively in Bitlis (not presented as Muş's landform).
     //    urbanizationRate 51.26 is a REAL rate (non-büyükşehir). GSYH share %0,2.
     landformNoteTr:
-      'Muş Ovası, jeolojik olarak Miyosen döneminde bir çöküntü alanına dönüşmüş, sonraki ' +
-      'dönemlerde alüvyonlarla dolarak verimli bir düzlük halini almıştır. Ovanın doğu ucuna ' +
-      "Nemrut Dağı'nın batı yamaçları uzanır; batı ucu ise dağlık bir araziyle sınırlanır. İlin " +
-      'doğusunda Bulanık ve Malazgirt ovaları, Murat Irmağı boyunca uzanan dar şeritler ' +
-      'oluşturur.',
+      "Muş Ovası, Miyosen döneminde oluşmuş tektonik bir çöküntünün akarsu alüvyonlarıyla dolması sonucu meydana gelmiştir. Ovanın doğu sınırını Bitlis idari sınırındaki Nemrut Stratovolkanı'nın lav akıntıları çizerken, kuzeyde Şerafettin Dağları, güneyde ise Güneydoğu Toroslar'ın devamı olan Haçreş (Kurtik) Dağları (2.650 m) uzanır. İlin doğusunda ise Murat Nehri boyunca açılan Bulanık ve tarihi Malazgirt ovaları yer alır.",
     introTr:
-      "Muş Ovası, 80 kilometre uzunluğu ve 30 kilometre genişliğiyle Türkiye'nin en büyük " +
-      'ovalarından biridir. İlin ortasından geçen Murat Irmağı, ovanın kuzey kesimini sular. ' +
-      "İl, Doğu Anadolu Bölgesi'nin güneybatısında, dağlarla çevrili bir çöküntü alanında yer " +
-      'alır.',
+      "Muş, 80 kilometre uzunluk ve 30 kilometre genişliğiyle Türkiye'nin en büyük alüvyal çöküntü düzlüklerinden olan Muş Ovası'nın eteklerinde kuruludur. Tarihi Murat Köprüsü, Malazgirt Ovası'nın milli tarihteki dönüm noktası kimliği ve geniş tarım arazileriyle il, Doğu Anadolu'nun tahıl ambarı ve yayla hayvancılığı merkezlerindendir.",
     hydrographyNoteTr:
-      'Murat Irmağı, ilin kuzeydoğusundan girer ve ovayı kuzeyden güneye kat ederek birkaç ' +
-      "küçük dereyle birleşir. Irmak, Muş'tan sonra batıya yönelerek Bingöl ve Elazığ üzerinden " +
-      'Fırat sistemine katılır.',
+      'İlin hidrografik omurgasını oluşturan Murat Irmağı, ovayı boydan boya geçerek Karasu Çayı ve diğer yan dereleri toplar; batıya yönelerek Bingöl ve Elazığ üzerinden Fırat ana gövdesine kavuşur. İlkbaharda dağlardaki kar erimeleriyle taşan Murat Nehri, taban arazide doğal bir alüvyon gübrelemesi sağlarken; kurulan tahliye ve sulama kanalları ovanın tahıl, şekerpancarı, tütün ve yem bitkileri potansiyelini besler.',
     urbanizationRate: 51.26,
     netMigrationRate: -27.33,
     economyIndicator: {
@@ -4812,20 +4673,11 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     //    Bayburt (85.083). neighborPlateCodes is 3 (Sivas 58 removed by the fact-check — geojson +
     //    both il's own Wikipedia pages disagree). urbanizationRate 67.04 is a REAL rate. GSYH %0,1.
     landformNoteTr:
-      'Kuzeyde 3.300 metreye ulaşan Munzur Dağları, Mercan ve Munzur suyu vadileriyle ' +
-      'parçalanmış, metamorfik, volkanik ve tortul kayaçlardan oluşan bir kütledir. İlin ' +
-      'ortasında yükselen Bağırpaşa Dağı, batıdan Pülümür Çayı, kuzeyden Karasu, güneyden Peri ' +
-      'Suyu vadileriyle çevrilidir.',
+      "İl topoğrafyasını kuzeyde 3.300 metreye tırmanan kireçtaşından sarp Munzur Dağları ile ortada yükselen Bağırpaşa Dağı (3.298 m) belirler. Kırılma ve akarsu aşındırmasının yarattığı derin kanyon vadileri araziyi parçalamıştır. Munzur Dağları'nın yüksek doruklarında buzul gölleri (sirk gölleri) bulunurken, Ovacık çöküntü havzası tabanında karstik kaynaklardan fışkıran devasa su çıkışları yer alır.",
     introTr:
-      'İl merkezinin 8 kilometre kuzeyinden başlayan Munzur Vadisi Milli Parkı, 42.674 ' +
-      "hektarlık alanıyla Munzur Dağları'na kadar uzanır. Tunceli, 85.083 kişilik nüfusuyla " +
-      "Türkiye'nin en az nüfuslu ikinci ilidir. İl, Fırat Nehri'nin yukarı havzasında, dağlık " +
-      'bir arazi üzerinde kuruludur.',
+      "Tunceli, Yukarı Fırat Havzası'nda Munzur ve Pülümür nehirlerinin kestiği sarp kanyonlar, meşe ormanları ve zengin endemik yaban hayatıyla çevrili dağlık bir ildir. 85.083 kişilik nüfusuyla Bayburt'un ardından Türkiye'nin en az nüfuslu ikinci ili olan Tunceli; Ovacık gözeleri, Munzur Vadisi Milli Parkı ve el değmemiş ekosistemiyle ekoturizmin Doğu Anadolu'daki merkezidir.",
     hydrographyNoteTr:
-      "Munzur Dağları'nın 2.000-3.000 metrelik zirvelerinde krater gölleri, Ovacık düzlüğünde " +
-      'ise kaynayan gözeler bulunur. Peri Suyu vadisi, Tunceli ile Bingöl arasındaki doğal ' +
-      'sınırı oluşturur; ilin sularının büyük bölümü Munzur Suyu ve Peri Suyu aracılığıyla ' +
-      "Fırat'a katılır.",
+      'İlin can damarları olan Munzur Suyu ve Pülümür Çayı, sarp boğazları aşarak kent merkezinde birleşir ve güneye akarak Keban Baraj Gölü fiyortlarına dökülür. Doğuda Bingöl sınırını çizen Peri Suyu da Fırat havzasına katılır. Soğuk ve berrak debisiyle Munzur Suyu, dünyaca ünlü Munzur alabalığına yaşam alanı sunarken, Ovacık Gözeleri ilin en önemli hidrolojik ve inanç turizmi kaynağıdır.',
     urbanizationRate: 67.04,
     netMigrationRate: -24.28,
     economyIndicator: {

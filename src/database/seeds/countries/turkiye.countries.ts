@@ -107,68 +107,52 @@ export const TURKIYE_COUNTRY: readonly CountrySeed[] = [
     independenceNoteTr:
       "29 Ekim 1923'te cumhuriyet ilan edildi; Ankara 13 Ekim 1923'te başkent olmuştu.",
     introTr:
-      'Türkiye, 36-42 kuzey enlemleri ile 26-45 doğu boylamları arasında yer alır. Topraklarının ' +
-      "yaklaşık yüzde 3'ü Avrupa kıtasındaki Trakya'da, geri kalanı Asya kıtasındaki Anadolu " +
-      "Yarımadası'ndadır. Bu iki parçayı İstanbul ve Çanakkale boğazları birbirinden ayırır." +
+      'Türkiye, Asya ile Avrupa kıtalarını birbirine bağlayan Anadolu ve Trakya toprakları ' +
+      'üzerinde, Karadeniz, Ege ve Akdeniz ile kuşatılmış stratejik bir kavşakta yer alır. ' +
+      'İstanbul ve Çanakkale boğazları yalnızca iki kıtayı birbirinden ayırmakla kalmaz; ' +
+      'Karadeniz havzasını açık denizlere bağlayan yegane su yolu olarak binlerce yıllık beşeri ' +
+      've ticari hareketliliği yönetir.' +
       '\n\n' +
-      'Ülke üç yanından denizle çevrilidir: kuzeyde Karadeniz, batıda Ege Denizi, güneyde ' +
-      'Akdeniz. Marmara Denizi ise bütünüyle Türkiye sınırları içinde kalır. İki boğaz, ' +
-      "Karadeniz'i Akdeniz'e bağlayan tek deniz yolunu oluşturur." +
-      '\n\n' +
-      'Sekiz ülkeyle kara sınırı vardır. 31 Aralık 2025 itibarıyla nüfus 86.092.168 kişidir; bu, ' +
-      "Türkiye'yi dünyanın en kalabalık yirmi ülkesi arasına koyar." +
-      '\n\n' +
-      "Türkiye'nin coğrafi bağlantıları kendi bölgesiyle sınırlı değildir. 1996'dan bu yana " +
-      "Antarktika Antlaşması'na taraf olan ülkeler arasındadır ve Horseshoe Adası'ndaki geçici " +
-      "Türk Bilimsel Araştırma Kampı'nda bilim seferleri yürütür.",
+      'Üç yanını çevreleyen denizler, kıyı ovaları ve komşu havzalarla kurduğu kara bağlantıları, ' +
+      'ülkeyi Avrasya ve Akdeniz jeopolitiğinin merkezine taşır. Aynı zamanda Antarktika ' +
+      'Antlaşması çerçevesinde kutup bölgelerinde yürüttüğü bilimsel seferlerle coğrafi araştırma ' +
+      'ufkunu küresel ölçeğe genişletir.',
     landformNoteTr:
-      'Türkiye, Alp-Himalaya orojenik kuşağı üzerinde yer alır. Ülkenin genel yapısı batıdan ' +
-      'doğuya yükselen bir eşiğe benzer: kıyı ovalarından iç platolara, oradan da doğudaki ' +
-      'yüksek dağlık kütlelere geçilir.' +
+      'Alp-Himalaya kıvrım kuşağında yer alan Türkiye morfolojisi, Avrasya ile Afrika-Arap ' +
+      'levhalarının sıkışma rejiminde batıdan doğuya doğru kademeli yükselen genç ve dinamik ' +
+      'bir topoğrafyaya sahiptir. Kuzeyde kıyıya paralel uzanan Kuzey Anadolu Dağları ile güneyde ' +
+      "Akdeniz'i kuşatan Toros Sıradağları, iç kesimlerdeki plato basamaklarını denizel " +
+      'etkilerden yalıtır.' +
       '\n\n' +
-      'Kuzeyde Kuzey Anadolu Dağları, güneyde Toros Dağları kıyıya paralel uzanır. İki sıradağ ' +
-      'kuşağının arasında İç Anadolu ve Doğu Anadolu platoları kalır. Ülkenin en yüksek noktası, ' +
-      "doğudaki volkanik kütlelerden biri olan Ağrı Dağı'dır." +
-      '\n\n' +
-      "Kuzey Anadolu Fayı ülkenin kuzeyini batıdan doğuya boydan boya kat eder. Türkiye'nin " +
-      'deprem coğrafyasını büyük ölçüde bu hat ile güneydoğuda uzanan Doğu Anadolu Fayı ' +
-      'belirler.',
+      'Doğuya doğru gidildikçe dağ sıraları birbirine yaklaşarak daralır ve yerini ortalama ' +
+      '2.000 metreyi aşan volkanik yaylalar ile Ağrı Dağı gibi görkemli dorukların yükseldiği sarp ' +
+      "bir dağlık kütleye bırakır. Batı Anadolu'da ise gerilme tektoniğinin açtığı graben vadileri " +
+      've horst blokları kıyıya dik uzanır. Bu genç jeolojik yapı, ülkeyi baştan başa kat eden ' +
+      'Kuzey Anadolu ve Doğu Anadolu fay hatlarıyla dinamik bir sismik karakter kazanır.',
     climateNoteTr:
-      "Türkiye'de üç ana iklim tipi görülür: kıyılarda Akdeniz ve Karadeniz iklimleri, iç " +
-      'kesimlerde karasal iklim. Bu çeşitliliği üreten şey, ülkenin denize göre konumu ile dağ ' +
-      'sıralarının kıyıya paralel uzanmasıdır; dağlar deniz etkisinin iç bölgelere geçmesini ' +
-      'büyük ölçüde engeller.' +
+      'Dağ sıralarının kıyılara paralel uzanışı ve ani yükselti basamakları, kıyı kuşakları ile ' +
+      'iç bölgeler arasında keskin iklim zıtlıkları üretir. Kıyılarda denizel etkilerin belirlediği ' +
+      'ılıman Akdeniz ve her mevsim nemli Karadeniz iklimleri hüküm sürerken; dağların yağmur ' +
+      'gölgesinde kalan iç platolarda sıcaklık farklarının belirginleştiği karasal iklim egemendir.' +
       '\n\n' +
-      'Uzun yıllar ortalamasına göre yıllık yağış 574 milimetredir. En çok yağış alan yer, yılda ' +
-      "1.200 ile 2.500 milimetre arasında yağış alan Doğu Karadeniz'dir. En kurak kesim ise Tuz " +
-      'Gölü çevresidir; buradaki yıllık yağış 250-300 milimetrede kalır.' +
-      '\n\n' +
-      'Akdeniz ve Güney Ege kıyı yerleşmeleri dışında ülkenin her yerinde kışın kar yağar. ' +
-      'Yükselti bu tabloyu ayrıca keskinleştirir: aynı enlemdeki iki yerden biri deniz ' +
-      'kıyısında, öbürü yaylada olduğunda kış sıcaklıkları belirgin biçimde ayrışır.',
+      "Doğu Karadeniz'in dik yamaçları denizden gelen nemli hava kütlelerini yakalayarak orografik " +
+      'etkiyle ülkenin en yüksek yağışını toplarken; etrafı dağlarla çevrili kapalı Tuz Gölü havzası ' +
+      'yılda 300 milimetrenin altında yağış alarak kurak bozkır çehresine bürünür. Yükseltinin doğuya ' +
+      'doğru artması kış sıcaklıklarını dondurucu seviyelere çekerken kar örtüsünün yerde kalma ' +
+      'süresini uzatır.',
     hydrographyNoteTr:
-      'Türkiye 25 akarsu havzasına ayrılır. Akarsuların çoğu ülke sınırları içinde doğar ve yine ' +
-      "Türkiye kıyılarından denize dökülür; bunların en uzunu Kızılırmak'tır." +
+      "Yüksek ve engebeli topoğrafya, Türkiye'yi çevre denizlere ve komşu havzalara su sağlayan " +
+      "stratejik bir hidrolojik kavşak konumuna getirir. Ülke içinden doğarak Karadeniz'e dökülen " +
+      "Kızılırmak ve Yeşilırmak ile Ege'ye inen akarsular kıyılarda geniş tarımsal deltalar kurar. " +
+      'Anadolu yaylalarından beslenen Fırat ve Dicle nehirleri ise Mezopotamya düzlüklerine can ' +
+      "vererek Basra Körfezi'ne ulaşır; doğuda Aras Nehri Hazar Denizi kapalı havzasına yönelir. " +
+      'Meriç ve Asi nehirleri ise sınır aşarak Türkiye kıyılarından denize dökülür.' +
       '\n\n' +
-      "Bir bölümü ise Türkiye'de doğar ama denize başka ülkelerin kıyılarından ulaşır. Fırat'ın " +
-      "Türkiye sınırları içinde kalan bölümü 1.263 kilometre, Dicle'ninki 512 kilometredir; " +
-      'ikisi de güneye, Mezopotamya ovasına doğru akar. Doğuda Aras Nehri 548 kilometrelik bir ' +
-      'kesimi Türkiye içinde kat eder. Bu kesimin bir bölümünde nehir, doğu sınırı boyunca akar.' +
-      '\n\n' +
-      "Tersi de olur. Meriç Nehri Türkiye dışında doğar ve son 187 kilometresini Türkiye'de " +
-      "tamamlayarak Ege Denizi'ne dökülür. Bu son kesimin bir bölümünde nehir, Türkiye ile " +
-      'Yunanistan arasındaki sınırı çizer. Asi Nehri de güneyden ülkeye girer ve 88 kilometre ' +
-      "sonra Akdeniz'e ulaşır." +
-      '\n\n' +
-      'Ülkede 320 doğal göl bulunur. Bunların bir bölümü mevsimliktir: kış yağışlarıyla dolar, ' +
-      "yaz kuraklığında çekilir. Göllerin en büyüğü 3.713 kilometrekarelik Van Gölü'dür. Sığ ve " +
-      'tuzlu bir kapalı havza gölü olan Tuz Gölü yaklaşık 1.300 kilometrekareyle ikinci ' +
-      'sıradadır, ama kapladığı alan mevsime göre belirgin biçimde değişir.' +
-      '\n\n' +
-      'Karadeniz, Marmara, Ege ve Akdeniz kıyıları ülkenin su coğrafyasını tamamlar. Marmara, ' +
-      "İstanbul ve Çanakkale boğazları arasında kalan bir iç denizdir; Karadeniz'in daha az " +
-      "tuzlu suyu ile Akdeniz'in daha tuzlu suyu bu dar geçitlerde üst üste iki katman hâlinde " +
-      'akar.',
+      'Tektonik ve volkanik çöküntüler zengin bir göl varlığı barındırır: Ülkenin en büyük su ' +
+      'kütlesi olan sodalı Van Gölü ile kurak dönemlerde alanı daralan sığ Tuz Gölü iki dev kapalı ' +
+      'havza oluşturur. Karadeniz ile Akdeniz arasındaki tuzluluk ve yoğunluk farkı ise Marmara ' +
+      "Denizi ve Türk Boğazları boyunca üstte Karadeniz'den Akdeniz'e, dipte ise Akdeniz'den " +
+      "Karadeniz'e akan kesintisiz bir çift katmanlı akıntı sistemi işletir.",
     // sovereigntyNoteTr: null — statü tartışmalı değil (korpusun olağan hâli; GL/AQ'nun
     //   null'ını karara bağlayan DEC 2026-08-01q bu satırı kapsamaz).
     sovereigntyNoteTr: null,
