@@ -1078,7 +1078,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'en bereketli tarım havzası olan geniş Cibao Vadisi uzanır.' +
       '\n\n' +
       'Bu yüksek kütlelerin güneybatısında ise tam bir jeolojik tezat yer alır: Neiba Graben ' +
-      'çöküntüsü içinde, deniz seviyesinin 44 metre altında bulunan Enriquillo Gölü, ' +
+      'çöküntüsü içinde, deniz seviyesinin 46 metre altında bulunan Enriquillo Gölü, ' +
       "Karayipler'in en alçak noktasını oluşturan aşırı tuzlu bir kapalı havzadır.",
     climateNoteTr:
       'Dağ sıralarının uzanışı ve yükselti basamakları, ülkede birbirine komşu zıt ' +
@@ -1336,7 +1336,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     slugEn: 'saint-lucia',
     continent: Continent.NorthAmerica,
     unSubregionTr: 'Karayipler',
-    population: 180_805,
+    population: 180_149,
     populationYear: null,
     areaKm2: 610,
     capitalNameTr: 'Castries',
