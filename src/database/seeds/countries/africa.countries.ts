@@ -1449,7 +1449,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'ovaları başlar.',
     climateNoteTr:
       "Çad'da iklim, kuzeyden güneye uzanan enlem derecelerine bağlı olarak üç ana kuşağa " +
-      'ayrılır. Sahra kesiminde yıllık yağış 50 milimetrenin altında kalırken gündüz ile gece ' +
+      'ayrılır. Sahra kesiminde yıllık yağış 200 milimetrenin altında kalırken gündüz ile gece ' +
       'sıcaklıkları arasında 30 dereceyi bulan termal tezatlar yaşanır; orta Sahel kuşağında ' +
       'yağışlar haziran-ağustos arasına sıkışarak 200-500 milimetre arasında seyreder. ' +
       '\n\n' +

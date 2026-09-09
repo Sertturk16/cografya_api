@@ -1926,14 +1926,14 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       'Kayalık omurganın eteklerinde zemin hafifçe eğimlenerek tarımsal amaçla işlenen ' +
       "tepelik sırtlara dönüşür. Ülkenin en alçak noktası, Ausa Deresi'nin İtalya sınırına " +
-      'ulaştığı 53 metrelik Rovereta mevkisidir.',
+      'ulaştığı 55 metrelik Rovereta mevkisidir.',
     climateNoteTr:
       "San Marino'da ılıman Akdeniz iklimi ile Apenin dağ eteği koşulları birleşir. Deniz " +
       'seviyesinden 700 metre yukarıdaki Titano sırtı, kıyıdaki Rimini ovasına kıyasla yaz ' +
       'aylarında çok daha serin, kuru ve ferahlatıcı esintilere sahiptir.' +
       '\n\n' +
       'Kış aylarında ise sıcaklıklar düzenli olarak sıfırın altına iner; kireçtaşı kütlesi ' +
-      'kış aylarında kar yağışlarına ve yoğun sis tabakalarına sahne olur. Yıllık yağış 600 ' +
+      'kış aylarında kar yağışlarına ve yoğun sis tabakalarına sahne olur. Yıllık yağış 560 ' +
       'ile 800 milimetre arasında dengeli bir dağılım gösterir.',
     hydrographyNoteTr:
       'Yüzölçümünün küçüklüğü ve kireçtaşı zemin nedeniyle ülkede doğal göl veya büyük bir ' +
@@ -2452,7 +2452,11 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'Moldova hidrolojisi iki büyük sınır nehrinin kontrolündedir. Batı sınırının tamamını boydan ' +
       "boya çizen Prut Nehri, Romanya ile doğal bir ayrım oluşturarak güneyde Tuna'ya katılır; " +
       'doğuda ise Ukrayna sınırını ve Transdinyester bölgesini kat eden Dinyester (Nistru), ülkenin ' +
-      'en gür debili iç su yoludur.' +
+      'en gür debili iç su yoludur.\n\nTransdinyester, uluslararası hukukta ' +
+      "tartışmasız biçimde Moldova toprağıdır. 1990-92 Dinyester Savaşı'nın " +
+      'ardından bölgeyi fiilen ayrı bir yönetim idare eder; bu yönetimin ' +
+      'bağımsızlığını Rusya dahil hiçbir ülke tanımaz. Bölgede konuşlu Rus ' +
+      'askerî birlikleri, Moldova tarafından hukuka aykırı sayılır.' +
       '\n\n' +
       "Ülkenin güney ucunda Tuna Nehri ile Prut'un birleştiği noktada yer alan Giurgiuleşti Limanı, " +
       "Moldova'nın açık denizlere açılan yegane uluslararası liman kapısıdır. Derin vadiler boyunca " +

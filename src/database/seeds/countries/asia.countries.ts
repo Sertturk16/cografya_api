@@ -1110,7 +1110,7 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       "milimetre civarındayken, Annam Dağları ve Bolaven Platosu'nun rüzgar " +
       'tutan yamaçlarında 3.500 milimetreyi aşar.',
     hydrographyNoteTr:
-      "Laos'un can damarı, ülkeyi kuzeyden güneye yaklaşık 1.800 kilometre " +
+      "Laos'un can damarı, ülkeyi kuzeyden güneye yaklaşık 1.900 kilometre " +
       'boyunca kat eden ve batı sınırının büyük bölümünü oluşturan Mekong ' +
       "Nehri'dir. Ülke arazisinin neredeyse onda dokuzu Mekong drenaj havzası " +
       'içerisinde yer alır; Nam Ou, Nam Khan, Nam Ngum ve Xe Don gibi yüzlerce ' +
@@ -2486,7 +2486,13 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'sınırında 4.485 metreye ulaşan Bazardüzü Zirvesi ülkenin doruk noktasını ' +
       'oluşturur. Batıda Karabağ volkanik yaylasını da içeren Küçük Kafkas ' +
       'Dağları, güneydoğuda ise İran sınırını izleyen ormanlık Talış Dağları ' +
-      'yükselir. ' +
+      'yükselir.\n\nKarabağ, uluslararası hukukta hep Azerbaycan toprağı ' +
+      "sayılmıştır. Bölgeyi 1990'lardan 2023'e kadar, Ermenistan dahil " +
+      'hiçbir ülke tarafından tanınmayan bir Ermeni yönetimi fiilen ayrı ' +
+      "yönetti; Azerbaycan'ın Eylül 2023'teki askeri harekâtı sonrasında bu " +
+      'yönetim dağıldı; bölgenin yaklaşık 120.000 kişilik Ermeni ' +
+      "nüfusunun 100.000'i aşkını, birkaç gün içinde bölgeyi terk edip " +
+      "Ermenistan'a geçti. Bölge bugün Azerbaycan idaresindedir. " +
       '\n\n' +
       'Bu sıradağların kollarının çevrelediği orta kesimde, Kura ve Aras ' +
       'nehirlerinin oluşturduğu geniş Kura-Aras Ovaları uzanır. Hazar ' +
@@ -2653,7 +2659,13 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'karstik kireçtaşlarının erimesiyle oluşmuş yeryüzünün en derin mağara ' +
       'sistemleri (Veryovkina ve Krubera-Voronya gibi) Abhazya kıvrımlarında ' +
       'yer alır; güneyde ise Türkiye ve Ermenistan sınırına doğru volkanik ' +
-      'Küçük Kafkas kütleleri uzanır.',
+      'Küçük Kafkas kütleleri uzanır.\n\nAbhazya, uluslararası hukukta ' +
+      'Gürcistan toprağı sayılır. 1992-93 Gürcü-Abhaz savaşının ardından ' +
+      'bölgeyi fiilen ayrı bir yönetim idare eder; bu yönetimin ' +
+      "bağımsızlığını bugün yalnızca Rusya'nın da aralarında bulunduğu " +
+      "dört ülke tanır. Gürcistan ise bölgeyi Rusya'nın askeri " +
+      'varlığıyla desteklenen, fiilen işgal altındaki bir toprağı olarak ' +
+      'görür.',
     climateNoteTr:
       'Ülkenin iklim haritası Likhi Sıradağları tarafından keskin biçimde ' +
       'ikiye ayrılır. Batıda yer alan Kolhis Ovası ve Karadeniz kıyı şeridi ' +
@@ -2780,7 +2792,7 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     landformNoteTr:
       'Ülke fizyografyası üç belirgin şeride ayrılır. Batı sınırını boydan boya kesen ' +
       'Ürdün Çöküntü Vadisi, Ölü Deniz Transform Fayı boyunca çöken devasa bir grabendir; ' +
-      'tabanında deniz seviyesinin yaklaşık 430 metre altında yer alan ve yerkürenin ' +
+      'tabanında deniz seviyesinin yaklaşık 440 metre altında yer alan ve yerkürenin ' +
       'karadaki en alçak noktası olan Lut Gölü uzanır. Vadinin tabanı ile hemen doğusunda ' +
       'duvar gibi yükselen platolar arasında 1.000 metreyi aşan dik fay basamakları ' +
       'sıralanır. ' +
