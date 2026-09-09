@@ -2486,7 +2486,7 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'sınırında 4.485 metreye ulaşan Bazardüzü Zirvesi ülkenin doruk noktasını ' +
       'oluşturur. Batıda Karabağ volkanik yaylasını da içeren Küçük Kafkas ' +
       'Dağları, güneydoğuda ise İran sınırını izleyen ormanlık Talış Dağları ' +
-      'yükselir. Karabağ, uluslararası hukukta hep Azerbaycan toprağı ' +
+      'yükselir.\n\nKarabağ, uluslararası hukukta hep Azerbaycan toprağı ' +
       "sayılmıştır. Bölgeyi 1990'lardan 2023'e kadar, Ermenistan dahil " +
       'hiçbir ülke tarafından tanınmayan bir Ermeni yönetimi fiilen ayrı ' +
       "yönetti; Azerbaycan'ın Eylül 2023'teki askeri harekâtı sonrasında bu " +
@@ -2659,7 +2659,7 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'karstik kireçtaşlarının erimesiyle oluşmuş yeryüzünün en derin mağara ' +
       'sistemleri (Veryovkina ve Krubera-Voronya gibi) Abhazya kıvrımlarında ' +
       'yer alır; güneyde ise Türkiye ve Ermenistan sınırına doğru volkanik ' +
-      'Küçük Kafkas kütleleri uzanır. Abhazya, uluslararası hukukta ' +
+      'Küçük Kafkas kütleleri uzanır.\n\nAbhazya, uluslararası hukukta ' +
       'Gürcistan toprağı sayılır. 1992-93 Gürcü-Abhaz savaşının ardından ' +
       'bölgeyi fiilen ayrı bir yönetim idare eder; bu yönetimin ' +
       "bağımsızlığını bugün yalnızca Rusya'nın da aralarında bulunduğu " +

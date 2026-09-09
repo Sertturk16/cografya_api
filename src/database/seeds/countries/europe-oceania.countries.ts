@@ -2452,7 +2452,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'Moldova hidrolojisi iki büyük sınır nehrinin kontrolündedir. Batı sınırının tamamını boydan ' +
       "boya çizen Prut Nehri, Romanya ile doğal bir ayrım oluşturarak güneyde Tuna'ya katılır; " +
       'doğuda ise Ukrayna sınırını ve Transdinyester bölgesini kat eden Dinyester (Nistru), ülkenin ' +
-      'en gür debili iç su yoludur. Transdinyester, uluslararası hukukta ' +
+      'en gür debili iç su yoludur.\n\nTransdinyester, uluslararası hukukta ' +
       "tartışmasız biçimde Moldova toprağıdır. 1990-92 Dinyester Savaşı'nın " +
       'ardından bölgeyi fiilen ayrı bir yönetim idare eder; bu yönetimin ' +
       'bağımsızlığını Rusya dahil hiçbir ülke tanımaz. Bölgede konuşlu Rus ' +
