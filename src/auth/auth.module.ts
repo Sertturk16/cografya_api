@@ -19,6 +19,7 @@ import { PasswordHasherService } from './password-hasher.service';
 import { PasswordResetService } from './password-reset.service';
 import { RegistrationService } from './registration.service';
 import { SessionService } from './session.service';
+import { ProfileService } from './profile.service';
 
 /**
  * `Repository<User>` as its OWN dynamic module — internal wiring only, never exported. Every
@@ -80,6 +81,7 @@ const UserRepositoryModule = TypeOrmModule.forFeature([User]);
     EmailVerificationService,
     SessionService,
     PasswordResetService,
+    ProfileService,
   ],
   exports: [
     PasswordHasherService,

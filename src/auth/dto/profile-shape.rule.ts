@@ -72,6 +72,28 @@ export function isProfileShapeValid(candidate: ProfileShapeCandidate): boolean {
   return false;
 }
 
+export const PROFILE_SHAPE_MESSAGE =
+  'profile fields do not match the required combination for the declared accountRole/' +
+  'educationLevel (teacher/minimal student: no education fields; secondary: gradeLevel+studyStream only; ' +
+  'undergraduate: university+department only; graduate: university required, department optional)';
+
+/**
+ * Returns whether the profile is complete for the given role and education level
+ * (`plan-api.md` §5.3.5, `DEC 2026-09-04a` md.1, `GLOSSARY.md` §7.1).
+ *
+ * - TEACHER: always true. A teacher declaration carries no additional education fields ("ek eğitim alanı taşımaz").
+ * - STUDENT: true if and only if educationLevel !== null.
+ */
+export function isProfileComplete(
+  accountRole: AccountRole,
+  educationLevel: EducationLevel | null,
+): boolean {
+  if (accountRole === AccountRole.Teacher) {
+    return true;
+  }
+  return educationLevel !== null;
+}
+
 @ValidatorConstraint({ name: 'profileShapeValid', async: false })
 class ProfileShapeConstraint implements ValidatorConstraintInterface {
   validate(_value: unknown, args: ValidationArguments): boolean {
@@ -79,11 +101,7 @@ class ProfileShapeConstraint implements ValidatorConstraintInterface {
   }
 
   defaultMessage(): string {
-    return (
-      'profile fields do not match the required combination for the declared accountRole/' +
-      'educationLevel (teacher/minimal student: no education fields; secondary: gradeLevel+studyStream only; ' +
-      'undergraduate: university+department only; graduate: university required, department optional)'
-    );
+    return PROFILE_SHAPE_MESSAGE;
   }
 }
 

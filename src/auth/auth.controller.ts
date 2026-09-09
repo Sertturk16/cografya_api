@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Put, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import {
   ApiBadRequestResponse,
@@ -25,13 +25,16 @@ import { LoginRequestDto } from './dto/login-request.dto';
 import { LogoutRequestDto } from './dto/logout-request.dto';
 import { PasswordResetConfirmDto } from './dto/password-reset-confirm.dto';
 import { PasswordResetRequestDto } from './dto/password-reset-request.dto';
+import { ProfileDto } from './dto/profile.dto';
 import { RefreshRequestDto } from './dto/refresh-request.dto';
 import { RegisterRequestDto } from './dto/register-request.dto';
 import { ResendVerificationRequestDto } from './dto/resend-verification-request.dto';
 import { SessionDto } from './dto/session.dto';
+import { UpdateProfileRequestDto } from './dto/update-profile-request.dto';
 import { VerifyEmailRequestDto } from './dto/verify-email-request.dto';
 import { EmailVerificationService } from './email-verification.service';
 import { PasswordResetService } from './password-reset.service';
+import { ProfileService } from './profile.service';
 import { RegistrationService } from './registration.service';
 import { SessionService } from './session.service';
 
@@ -65,7 +68,7 @@ export const AUTH_ROUTE_THROTTLES = {
 } as const;
 
 /**
- * The nine auth endpoints (§6.1).
+ * The eleven auth endpoints (ten paths, eleven operations; §6.1, plan-api.md §5.2).
  *
  * **D13, AMENDED — `Cache-Control: no-store` is written by `AuthNoStoreMiddleware`, not by nine
  * `@Header` decorators.** D13's original mechanism claimed to cover "every response, success or
@@ -118,6 +121,7 @@ export class AuthController {
     private readonly emailVerification: EmailVerificationService,
     private readonly sessions: SessionService,
     private readonly passwordReset: PasswordResetService,
+    private readonly profile: ProfileService,
   ) {}
 
   @Post('register')
@@ -291,5 +295,45 @@ export class AuthController {
   @ApiUnauthorizedResponse({ type: ApiErrorDto, description: 'errors.auth.unauthenticated.' })
   async session(@CurrentUser() user: AuthenticatedUser): Promise<SessionDto> {
     return this.sessions.getCurrentSession(user.id);
+  }
+
+  @Get('profile')
+  @UseGuards(AccessTokenGuard)
+  @NoTrustedClientExemption()
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: 'Read the declared education profile of the authenticated caller.',
+    description:
+      'Returns the caller’s declared education profile fields and isComplete derivation ' +
+      '(`plan-api.md` §5.3.1, §5.3.2).',
+  })
+  @ApiOkResponse({ type: ProfileDto })
+  @ApiUnauthorizedResponse({ type: ApiErrorDto, description: 'errors.auth.unauthenticated.' })
+  async getProfile(@CurrentUser() user: AuthenticatedUser): Promise<ProfileDto> {
+    return this.profile.getProfile(user.id);
+  }
+
+  @Put('profile')
+  @UseGuards(AccessTokenGuard)
+  @NoTrustedClientExemption()
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary:
+      'Replace the declared education profile of the authenticated caller (full replacement).',
+    description:
+      'Replaces the caller’s entire declared education profile (`plan-api.md` §5.3.1, §5.3.3). ' +
+      'All five keys are required; explicit null clears a field. Idempotent.',
+  })
+  @ApiOkResponse({ type: ProfileDto })
+  @ApiBadRequestResponse({
+    type: ApiErrorDto,
+    description: 'Missing required key, unknown property, or profile matrix violation.',
+  })
+  @ApiUnauthorizedResponse({ type: ApiErrorDto, description: 'errors.auth.unauthenticated.' })
+  async replaceProfile(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: UpdateProfileRequestDto,
+  ): Promise<ProfileDto> {
+    return this.profile.replaceProfile(user.id, dto);
   }
 }
