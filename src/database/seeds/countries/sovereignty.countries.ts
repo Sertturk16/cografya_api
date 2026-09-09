@@ -333,9 +333,9 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
       "Vadisi'nin bir parçası olan Şeria (Ürdün) çöküntüsü; ve ülke alanının yarısından " +
       'fazlasını örten üçgen biçimli Necef Çölü.' +
       '\n\n' +
-      'Rift yarığının tabanında yer alan Lut Gölü (Ölü Deniz) kıyıları, deniz seviyesinin yaklaşık ' +
-      '430 metre altındaki rakımıyla yeryüzü karalarının en alçak noktasıdır; Necef Platosu ise ' +
-      'derin erozyon kraterleri (makhtesh) ile yarılmıştır.',
+      'Rift yarığının tabanında yer alan Lut Gölü (Ölü Deniz) kıyıları, deniz seviyesinin ' +
+      'yaklaşık 440 metre altındaki rakımıyla yeryüzü karalarının en alçak noktasıdır; Necef ' +
+      'Platosu ise derin erozyon kraterleri (makhtesh) ile yarılmıştır.',
     climateNoteTr:
       'Kuzeyden güneye ve batıdan doğuya doğru keskin bir iklim derecelenmesi görülür. Kıyı ' +
       'şeridi ve kuzey yaylalarında yazları sıcak ve kurak, kışları ılık ve yağışlı tipik Akdeniz ' +
@@ -414,11 +414,11 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     hydrographyNoteTr:
       'Filistin topraklarında yıl boyu kesintisiz akan iç nehir bulunmaz; vadiler (vadi ' +
       "yatakları) yalnızca kış sellerinde su taşır. Batı Şeria'nın doğu sınırını çizen Şeria " +
-      "Nehri, deniz seviyesinin 430 metre altındaki Lut Gölü'ne (Ölü Deniz) dökülür." +
+      "Nehri, deniz seviyesinin yaklaşık 440 metre altındaki Lut Gölü'ne (Ölü Deniz) dökülür." +
       '\n\n' +
-      "Yüzey sularının yok denecek düzeyde olduğu Gazze Şeridi'nde nüfus ve tarım kıyı " +
-      'akiferine (yeraltı suyu) bağımlıdır; aşırı çekim nedeniyle deniz suyunun karıştığı bu ' +
-      'yeraltı su tablası ciddi tuzlanma ve kirlilik baskısı altındadır.',
+      "Yüzey sularının yok denecek düzeyde olduğu Gazze Şeridi'nde nüfus ve tarım kıyı akiferine " +
+      '(yeraltı suyu) bağımlıdır; aşırı çekim nedeniyle deniz suyunun karıştığı bu yeraltı su ' +
+      'tablası ciddi tuzlanma ve kirlilik baskısı altındadır.',
     // Owner'ın başkent-notu + yönetim-notu tek alanda birleştirildi (verbatim; başkent
     //   etiketi owner'ın büyük harfli "(İlan edilen)/(Fiili idari merkez)" formunda).
     sovereigntyNoteTr:
