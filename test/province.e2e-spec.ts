@@ -216,6 +216,9 @@ describe('Province (e2e)', () => {
       // P0 PR-1: catalogue-only rename, no new table and no new foreign key — no ordering
       // constraint beyond "after the tables it renames" (`InitBookCatalogue`, already above).
       'RenameBookCatalogueGeneric1788300000000',
+      // P0 PR-2: adds four nullable columns to existing tables, no new table and no new foreign
+      // key — no ordering constraint beyond "after the tables it adds columns to" (already above).
+      'AddGenericBookCatalogueFields1788300060000',
     ]);
   });
 

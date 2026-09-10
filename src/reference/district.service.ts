@@ -78,7 +78,7 @@ export class DistrictService {
    * `plateCode` because that is the only province key this api publishes (→ `DEC 2026-08-21c`).
    * Translating between them is precisely a service's job, and doing it in ONE query keeps that
    * translation from costing a round trip: an inner join against `provinces` resolves the key and
-   * filters in the same statement (the `book.service.ts` `leftJoin(BookVideoQuestion, …)`
+   * filters in the same statement (the `book.service.ts` `leftJoin(BookVideoTag, …)`
    * precedent). It also keeps this module's `forFeature` at a single entity, which matters because
    * the plan's PR-2 hangs two repository-less constant lists off the same module.
    *

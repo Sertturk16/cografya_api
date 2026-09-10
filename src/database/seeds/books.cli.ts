@@ -82,7 +82,7 @@ async function runCheck(): Promise<void> {
   printNotes(books);
   console.log(
     `[db:seed:books] check passed — books=${String(books.length)} ` +
-      `videos=${String(artifact.videos.length)} questions=${String(artifact.questionCount)}. ` +
+      `videos=${String(artifact.videos.length)} tags=${String(artifact.tagCount)}. ` +
       `Nothing was written and no connection was opened.`,
   );
 }
@@ -106,20 +106,20 @@ async function runSeed(allowRemovals: boolean): Promise<void> {
         `updated=${String(result.books.updated)} unchanged=${String(result.books.unchanged)}; ` +
         `videos: inserted=${String(result.videos.inserted)} updated=${String(result.videos.updated)} ` +
         `unchanged=${String(result.videos.unchanged)} removed=${String(result.videos.removed)}; ` +
-        `questions: inserted=${String(result.questions.inserted)} ` +
-        `updated=${String(result.questions.updated)} ` +
-        `unchanged=${String(result.questions.unchanged)} removed=${String(result.questions.removed)}`,
+        `tags: inserted=${String(result.tags.inserted)} ` +
+        `updated=${String(result.tags.updated)} ` +
+        `unchanged=${String(result.tags.unchanged)} removed=${String(result.tags.removed)}`,
     );
 
     // A destructive run must not be readable as an ordinary one. The counts above are a line an
     // operator scans; this is a sentence they cannot scan past, and it is printed only when rows
     // actually left the published index.
-    const removedRows = result.videos.removed + result.questions.removed;
+    const removedRows = result.videos.removed + result.tags.removed;
     if (removedRows > 0) {
       console.log(
         `[db:seed:books] THIS RUN DELETED PUBLISHED ROWS — ` +
-          `${String(result.videos.removed)} deneme video(s) and ` +
-          `${String(result.questions.removed)} question(s) are gone from the index, authorised by ` +
+          `${String(result.videos.removed)} video(s) and ` +
+          `${String(result.tags.removed)} tag(s) are gone from the index, authorised by ` +
           `--allow-removals. If that was not intended, restore the artefact and re-seed.`,
       );
     }

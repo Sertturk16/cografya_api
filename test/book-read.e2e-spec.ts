@@ -12,7 +12,7 @@ import {
   BOOK_LIST_MAX_PAGE,
   BOOK_LIST_MAX_PAGE_SIZE,
 } from '../src/book/dto/book-list-query.dto';
-import { BookVideoQuestion } from '../src/book/entities/book-video-question.entity';
+import { BookVideoTag } from '../src/book/entities/book-video-tag.entity';
 import { BookVideo } from '../src/book/entities/book-video.entity';
 import { Book } from '../src/book/entities/book.entity';
 import { applyGlobalPrefix } from '../src/common/bootstrap';
@@ -306,7 +306,7 @@ describe('Book read path (e2e, real Postgres)', () => {
         );
         const entityRow = await dataSource
           .getRepository(BookVideo)
-          .findOneOrFail({ where: { bookId: bookRow.id, denemeNo: video.denemeNo } });
+          .findOneOrFail({ where: { bookId: bookRow.id, orderNo: video.denemeNo } });
         expect(video.bookVideoId).toBe(entityRow.id);
       }
       // Distinct per video within one book — a mapping bug that served the same id twice would
@@ -476,15 +476,15 @@ describe('Book read path (e2e, real Postgres)', () => {
       // `books.updated_at` alone, so a service reading only the book row would report "unchanged"
       // on the day the entire question index changed. Asserting the before-state too is what makes
       // this a real control rather than a coincidence.
-      const questionRepo = dataSource.getRepository(BookVideoQuestion);
+      const questionRepo = dataSource.getRepository(BookVideoTag);
       const videoRow = await dataSource
         .getRepository(BookVideo)
-        .findOneOrFail({ where: { bookId: bookRow.id }, order: { denemeNo: 'ASC' } });
+        .findOneOrFail({ where: { bookId: bookRow.id }, order: { orderNo: 'ASC' } });
       // The LAST question of that video: incrementing its second cannot collide with a following
       // one, so the strictly-ascending invariant this suite also asserts stays true throughout.
       const question = await questionRepo.findOneOrFail({
         where: { bookVideoId: videoRow.id },
-        order: { questionNo: 'DESC' },
+        order: { orderNo: 'DESC' },
       });
       question.startSecond += 1;
       await questionRepo.save(question);

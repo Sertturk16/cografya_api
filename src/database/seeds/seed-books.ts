@@ -1,5 +1,5 @@
 import { In, type DataSource, type EntityManager } from 'typeorm';
-import { BookVideoQuestion } from '../../book/entities/book-video-question.entity';
+import { BookVideoTag } from '../../book/entities/book-video-tag.entity';
 import { BookVideo } from '../../book/entities/book-video.entity';
 import { Book } from '../../book/entities/book.entity';
 import { BookSeedInvariantError, validateBookSeedCorpus } from './book-seed-invariants';
@@ -24,13 +24,13 @@ import type { BookSeed } from './books.seed-data';
  * it a thing to remember.
  *
  * **The converse is B3's, and it is stated here so B3 does not have to guess.** A re-measurement
- * that shifts 180 start seconds updates 180 `book_video_questions` rows and leaves `books.updated_at
- * ` untouched — the page's visible index changed while `Book.updatedAt` says it did not. This seed
+ * that shifts 180 start seconds updates 180 `book_video_tags` rows and leaves `books.updated_at`
+ * untouched — the page's visible index changed while `Book.updatedAt` says it did not. This seed
  * deliberately does NOT touch the book row for that (writing a row whose own columns did not change
  * is the very lie the paragraph above prevents, and it would move `dateModified` for a book-row
  * edit that never happened). Instead **B3 derives `dateModified` and sitemap `lastmod` as
- * `GREATEST(books.updated_at, MAX(book_videos.updated_at), MAX(book_video_questions.updated_at))`**
- * — both child tables carry `@UpdateDateColumn`, so the value exists; it just has to be read.
+ * `GREATEST(books.updated_at, MAX(book_videos.updated_at), MAX(book_video_tags.updated_at))`** —
+ * both child tables carry `@UpdateDateColumn`, so the value exists; it just has to be read.
  *
  * ## All-or-nothing
  * Every validation runs BEFORE the transaction opens, and the writes are one transaction. A
@@ -38,11 +38,11 @@ import type { BookSeed } from './books.seed-data';
  * "tek bir ihlalde hiçbir şey yazmaz", and the same posture as the ERA5 load phase.
  *
  * ## What this seed will DELETE, and what it will never delete
- * Within the book the artefact belongs to, a `book_videos` row whose deneme is no longer in the
- * artefact is removed (its questions follow by `ON DELETE CASCADE`), and so is a question whose
- * number is gone. Leaving them would publish a deneme we no longer have measurements for. It never
- * deletes a `books` row, including one absent from {@link SEED_BOOKS}: the seed owns the rows it
- * declares, not the table.
+ * Within the book the artefact belongs to, a `book_videos` row whose position is no longer in the
+ * artefact is removed (its etiketler follow by `ON DELETE CASCADE`), and so is an etiket whose
+ * order number is gone. Leaving them would publish a video we no longer have measurements for. It
+ * never deletes a `books` row, including one absent from {@link SEED_BOOKS}: the seed owns the rows
+ * it declares, not the table.
  */
 
 /** Per-table outcome. `removed` exists only where this seed is allowed to delete. */
@@ -57,7 +57,7 @@ export interface SeedBooksTableResult {
 export interface SeedBooksResult {
   books: Omit<SeedBooksTableResult, 'removed'>;
   videos: SeedBooksTableResult;
-  questions: SeedBooksTableResult;
+  tags: SeedBooksTableResult;
 }
 
 export interface SeedBooksOptions {
@@ -68,10 +68,11 @@ export interface SeedBooksOptions {
    *
    * **What an injected artefact SKIPS, stated so a fixture author knows what they own:** the
    * SHA-256 pin, the coverage floor, and the four cross-row refusals that live in
-   * `assertArtifactIsSeedable` — uniqueness of `denemeNo` and `youtubeVideoId`, strictly ascending
-   * seconds, and the tag/position witness. Those run inside `parseBookTimestampsArtifact`, which
-   * only the file-reading path calls. What an injected artefact does NOT skip is
-   * `assertArtifactMatchesBook`, including its emptiness refusal — the destructive half.
+   * `assertArtifactIsSeedable` — uniqueness of the video's position and of `youtubeVideoId`,
+   * strictly ascending seconds, and the tag/position witness. Those run inside
+   * `parseBookTimestampsArtifact`, which only the file-reading path calls. What an injected
+   * artefact does NOT skip is `assertArtifactMatchesBook`, including its emptiness refusal — the
+   * destructive half.
    */
   artifact?: BookTimestampsArtifact;
   /** Which book the artefact belongs to. */
@@ -79,11 +80,11 @@ export interface SeedBooksOptions {
   /**
    * Authorises the run to DELETE published rows. Default `false`, and the default is the point.
    *
-   * A run that removes 27 of 30 denemeler prints its counts and would otherwise exit 0 — the same
+   * A run that removes 27 of 30 videos prints its counts and would otherwise exit 0 — the same
    * exit code as a run that changed nothing, while playbook §8 makes the exit code what a run is
    * judged by. So a removal is an operator DECISION (`--allow-removals`) rather than a number in a
    * log line: the seed refuses and names every row it was about to delete, and the whole
-   * transaction rolls back. Re-running with the flag is cheap; a deleted deneme index is not.
+   * transaction rolls back. Re-running with the flag is cheap; a deleted video's index is not.
    */
   allowRemovals?: boolean;
 }
@@ -112,6 +113,13 @@ function stringArraysEqual(a: readonly string[], b: readonly string[]): boolean 
  * per-field and heterogeneous (`authorNames` is order-sensitive, everything else is `===`). A
  * mapped type demands one entry per key and refuses a key that is not one — omit a field and the
  * build fails naming it, add a stray one and it fails naming that.
+ *
+ * **This is the `books` table's own gate and is UNTOUCHED by P0 PR-2**: `BookSeed` carries no
+ * `orderNo`/`titleTr` (video-level)/`nameTr` (etiket-level) field, and `denemeCount` stays on this
+ * table until PR-3 drops it (plan §5.9). The equivalent safety net for `book_videos`/
+ * `book_video_tags` is the entity property rename itself — every reference to the OLD property
+ * name below this point is a compile error, which is the mechanism `atlas-approval.md` §3.2 calls
+ * "a mismatched rename fails typecheck".
  */
 const BOOK_FIELD_MATCHERS: { [K in keyof BookSeed]: (row: Book, seed: BookSeed) => boolean } = {
   slugTr: (row, seed) => row.slugTr === seed.slugTr,
@@ -217,57 +225,57 @@ function removalRefusal(detail: string): BookSeedInvariantError {
   );
 }
 
-async function seedQuestionRows(
+async function seedTagRows(
   manager: EntityManager,
   videoRow: BookVideo,
-  questions: BookTimestampsArtifact['videos'][number]['questions'],
+  tags: BookTimestampsArtifact['videos'][number]['tags'],
   result: SeedBooksResult,
   allowRemovals: boolean,
 ): Promise<void> {
-  const repo = manager.getRepository(BookVideoQuestion);
+  const repo = manager.getRepository(BookVideoTag);
   const existing = await repo.find({ where: { bookVideoId: videoRow.id } });
-  const existingByNumber = new Map(existing.map((row) => [row.questionNo, row]));
-  const seededNumbers = new Set(questions.map((question) => question.questionNo));
+  const existingByOrderNo = new Map(existing.map((row) => [row.orderNo, row]));
+  const seededOrderNumbers = new Set(tags.map((tag) => tag.orderNo));
 
-  // Removals first: a question number the artefact no longer carries would keep occupying its
-  // `(video, question_no)` slot and keep appearing in the index.
-  const staleQuestions = existing.filter((row) => !seededNumbers.has(row.questionNo));
+  // Removals first: an order number the artefact no longer carries would keep occupying its
+  // `(book_video_id, order_no)` slot and keep appearing in the index.
+  const staleTags = existing.filter((row) => !seededOrderNumbers.has(row.orderNo));
 
-  if (staleQuestions.length > 0 && !allowRemovals) {
+  if (staleTags.length > 0 && !allowRemovals) {
     throw removalRefusal(
-      `deneme ${String(videoRow.denemeNo)}: the artefact no longer carries question(s) ` +
-        `${staleQuestions.map((row) => String(row.questionNo)).join(', ')}.`,
+      `video ${String(videoRow.orderNo)}: the artefact no longer carries tag(s) ` +
+        `${staleTags.map((row) => String(row.orderNo)).join(', ')}.`,
     );
   }
 
-  for (const row of staleQuestions) {
+  for (const row of staleTags) {
     await repo.remove(row);
-    result.questions.removed += 1;
+    result.tags.removed += 1;
   }
 
-  for (const question of questions) {
-    const row = existingByNumber.get(question.questionNo);
+  for (const tag of tags) {
+    const row = existingByOrderNo.get(tag.orderNo);
 
     if (row === undefined) {
       await repo.save(
         repo.create({
           bookVideoId: videoRow.id,
-          questionNo: question.questionNo,
-          startSecond: question.startSecond,
+          orderNo: tag.orderNo,
+          startSecond: tag.startSecond,
         }),
       );
-      result.questions.inserted += 1;
+      result.tags.inserted += 1;
       continue;
     }
 
-    if (row.startSecond === question.startSecond) {
-      result.questions.unchanged += 1;
+    if (row.startSecond === tag.startSecond) {
+      result.tags.unchanged += 1;
       continue;
     }
 
-    row.startSecond = question.startSecond;
+    row.startSecond = tag.startSecond;
     await repo.save(row);
-    result.questions.updated += 1;
+    result.tags.updated += 1;
   }
 }
 
@@ -288,66 +296,67 @@ async function seedVideoRows(
 ): Promise<void> {
   const repo = manager.getRepository(BookVideo);
   const existing = await repo.find({ where: { bookId: bookRow.id } });
-  const seededDenemeler = new Set(artifact.videos.map((video) => video.denemeNo));
+  const seededOrderNumbers = new Set(artifact.videos.map((video) => video.orderNo));
 
-  // Removals first, and inside the same transaction. A deneme dropped from the artefact must not
+  // Removals first, and inside the same transaction. A video dropped from the artefact must not
   // linger — it would keep publishing start seconds nobody re-measured, and it would keep holding
-  // its `(book_id, deneme_no)` slot against a replacement. `ON DELETE CASCADE` takes its questions.
-  const staleVideos = existing.filter((row) => !seededDenemeler.has(row.denemeNo));
+  // its `(book_id, order_no)` slot against a replacement. `ON DELETE CASCADE` takes its tags.
+  const staleVideos = existing.filter((row) => !seededOrderNumbers.has(row.orderNo));
 
   if (staleVideos.length > 0 && !allowRemovals) {
     const cascading = await manager
-      .getRepository(BookVideoQuestion)
+      .getRepository(BookVideoTag)
       .count({ where: { bookVideoId: In(staleVideos.map((row) => row.id)) } });
 
     throw removalRefusal(
-      `the artefact no longer carries deneme(s) ` +
-        `${staleVideos.map((row) => String(row.denemeNo)).join(', ')} — ` +
-        `${String(staleVideos.length)} video row(s), taking ${String(cascading)} question row(s) ` +
-        `with them by ON DELETE CASCADE.`,
+      `the artefact no longer carries video(s) ` +
+        `${staleVideos.map((row) => String(row.orderNo)).join(', ')} — ` +
+        `${String(staleVideos.length)} video row(s), taking ${String(cascading)} tag row(s) with ` +
+        `them by ON DELETE CASCADE.`,
     );
   }
 
   for (const row of staleVideos) {
     const cascaded = await manager
-      .getRepository(BookVideoQuestion)
+      .getRepository(BookVideoTag)
       .count({ where: { bookVideoId: row.id } });
     await repo.remove(row);
     result.videos.removed += 1;
-    result.questions.removed += cascaded;
+    result.tags.removed += cascaded;
   }
 
-  const surviving = existing.filter((row) => seededDenemeler.has(row.denemeNo));
-  const existingByDeneme = new Map(surviving.map((row) => [row.denemeNo, row]));
+  const surviving = existing.filter((row) => seededOrderNumbers.has(row.orderNo));
+  const existingByOrderNo = new Map(surviving.map((row) => [row.orderNo, row]));
 
   // ── Free the OTHER unique slot, the one the removal pass above does not touch ──
   // `book_videos` carries two unique constraints and the same reasoning covers both:
-  // `UQ_book_videos_book_deneme`, freed above, and `UQ_book_videos_youtube_video_id`, which is
+  // `UQ_book_videos_book_order`, freed above, and `UQ_book_videos_youtube_video_id`, which is
   // GLOBAL across the table rather than scoped to a book. A re-measurement that moves a video to a
-  // different deneme (SPEC §17 R2 keeps hand correction open, and deneme number and playlist
-  // position already diverge) leaves both denemeler in the artefact, so nothing is removed — and
-  // the update loop below then assigns an id another surviving row still holds. Postgres raises the
-  // unique violation, the transaction rolls back, and it does so on EVERY run: the seed's stated
-  // idempotency does not hold for that input, and the only recovery is hand-written SQL against the
-  // live table. Which direction the move goes decides whether it happens, so it can be tested once
-  // and believed correct (PR #109 review, `SFH109-I2` = `CODE109-M8`).
+  // different position (SPEC §17 R2 keeps hand correction open, and the video's position and its
+  // playlist position already diverge) leaves both positions in the artefact, so nothing is
+  // removed — and the update loop below then assigns an id another surviving row still holds.
+  // Postgres raises the unique violation, the transaction rolls back, and it does so on EVERY run:
+  // the seed's stated idempotency does not hold for that input, and the only recovery is
+  // hand-written SQL against the live table. Which direction the move goes decides whether it
+  // happens, so it can be tested once and believed correct (PR #109 review, `SFH109-I2` =
+  // `CODE109-M8`).
   //
   // Parking rather than deleting: a moved video loses nothing, so deleting its row would churn its
-  // question rows through a cascade, reset their `created_at`, and — worse — make a run that
-  // removes nothing trip the `--allow-removals` refusal. Every parked row is guaranteed to be
-  // rewritten before the transaction commits, because a surviving row's deneme is by definition
-  // still in the artefact and the loop below assigns it its incoming id.
+  // tag rows through a cascade, reset their `created_at`, and — worse — make a run that removes
+  // nothing trip the `--allow-removals` refusal. Every parked row is guaranteed to be rewritten
+  // before the transaction commits, because a surviving row's position is by definition still in
+  // the artefact and the loop below assigns it its incoming id.
   //
   // Out of scope by measurement, not by oversight: a video id held by ANOTHER book cannot be parked
   // from here (this candidate set is scoped to one book), and it is a different defect — two books
   // claiming one video, which the global constraint exists to refuse. It surfaces as a named
   // constraint violation inside the per-book wrapper below.
-  const incomingDenemeByVideoId = new Map(
-    artifact.videos.map((video) => [video.youtubeVideoId, video.denemeNo]),
+  const incomingOrderNoByVideoId = new Map(
+    artifact.videos.map((video) => [video.youtubeVideoId, video.orderNo]),
   );
   const movers = surviving.filter((row) => {
-    const incomingDeneme = incomingDenemeByVideoId.get(row.youtubeVideoId);
-    return incomingDeneme !== undefined && incomingDeneme !== row.denemeNo;
+    const incomingOrderNo = incomingOrderNoByVideoId.get(row.youtubeVideoId);
+    return incomingOrderNo !== undefined && incomingOrderNo !== row.orderNo;
   });
 
   if (movers.length > 0) {
@@ -368,18 +377,18 @@ async function seedVideoRows(
   }
 
   for (const video of artifact.videos) {
-    const row = existingByDeneme.get(video.denemeNo);
+    const row = existingByOrderNo.get(video.orderNo);
 
     if (row === undefined) {
       const saved = await repo.save(
         repo.create({
           bookId: bookRow.id,
-          denemeNo: video.denemeNo,
+          orderNo: video.orderNo,
           youtubeVideoId: video.youtubeVideoId,
         }),
       );
       result.videos.inserted += 1;
-      await seedQuestionRows(manager, saved, video.questions, result, allowRemovals);
+      await seedTagRows(manager, saved, video.tags, result, allowRemovals);
       continue;
     }
 
@@ -391,7 +400,7 @@ async function seedVideoRows(
       result.videos.updated += 1;
     }
 
-    await seedQuestionRows(manager, row, video.questions, result, allowRemovals);
+    await seedTagRows(manager, row, video.tags, result, allowRemovals);
   }
 }
 
@@ -416,7 +425,7 @@ export async function seedBooks(
   const result: SeedBooksResult = {
     books: { inserted: 0, updated: 0, unchanged: 0 },
     videos: { inserted: 0, updated: 0, unchanged: 0, removed: 0 },
-    questions: { inserted: 0, updated: 0, unchanged: 0, removed: 0 },
+    tags: { inserted: 0, updated: 0, unchanged: 0, removed: 0 },
   };
 
   await dataSource.transaction(async (manager) => {

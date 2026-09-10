@@ -26,7 +26,7 @@ describe('latestUpdatedAt', () => {
   });
 
   it('takes the CHILD stamp when a child is newer — the case the GREATEST exists for', () => {
-    // A re-measurement updates `book_video_questions` and deliberately leaves `books` untouched, so
+    // A re-measurement updates `book_video_tags` and deliberately leaves `books` untouched, so
     // this branch is what stops the sitemap reporting "unchanged" on the day the whole question
     // index moved.
     const childStamp = new Date('2026-06-01T00:00:00.000Z');
