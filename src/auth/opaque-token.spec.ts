@@ -91,4 +91,27 @@ describe('mintVerificationCode', () => {
       expect(randomIntMock).toHaveBeenCalledWith(0, 1_000_000);
     },
   );
+
+  /**
+   * The regression this whole signature change exists to make impossible: the parked stash
+   * version read `process.env.NODE_ENV` directly, so a deployment where SOMETHING ELSE in the
+   * process later touched that raw variable (this repo already does exactly that —
+   * `src/openapi/preview-env.ts` sets `process.env.NODE_ENV ??= 'development'`) could flip this
+   * function's branch with no code change here at all. Setting `process.env.NODE_ENV =
+   * 'development'` while passing a DIFFERENT `nodeEnv` argument and asserting the fixed code is
+   * NOT produced is what would turn red if `mintVerificationCode` ever went back to reading the
+   * raw variable instead of trusting only its parameter — reverting the implementation to the
+   * parked stash's `process.env.NODE_ENV === 'development'` check reproduces exactly that
+   * failure (measured locally against this test before this commit).
+   */
+  it('ignores process.env.NODE_ENV entirely — only the nodeEnv parameter decides the branch', () => {
+    const previousProcessEnv = process.env.NODE_ENV;
+    try {
+      process.env.NODE_ENV = 'development';
+      randomIntMock.mockReturnValueOnce(42);
+      expect(mintVerificationCode('production')).toBe('000042');
+    } finally {
+      process.env.NODE_ENV = previousProcessEnv;
+    }
+  });
 });
