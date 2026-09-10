@@ -5,10 +5,11 @@ import type { NextFunction, Request, Response } from 'express';
 export const FAVORITES_NO_STORE_CACHE_CONTROL = 'no-store';
 
 /**
- * `Cache-Control: no-store` on every response `FavoritesController`'s five routes produce — all
- * five return or persist per-user data behind auth (plan §5.7's personal-data flag: "which places
- * a specific user favorited" is a KVKK-adjacent personal-data surface), so a shared or
- * intermediary cache must never retain any of them.
+ * `Cache-Control: no-store` on every response `FavoritesController`'s three routes produce (P1
+ * PR-A widened the original five routes to three, folding province/country add-remove into one
+ * polymorphic pair) — all three return or persist per-user data behind auth (plan §5.7's
+ * personal-data flag: "which places a specific user favorited" is a KVKK-adjacent personal-data
+ * surface), so a shared or intermediary cache must never retain any of them.
  *
  * Registered as MIDDLEWARE, not a `@Header()` decorator, for the exact reason
  * `VideoProgressNoStoreMiddleware`/`AuthNoStoreMiddleware` are (`CODE136-I2`/`TA136-I1`, PR #136):
