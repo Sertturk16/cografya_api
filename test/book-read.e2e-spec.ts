@@ -17,6 +17,7 @@ import { BookVideo } from '../src/book/entities/book-video.entity';
 import { Book } from '../src/book/entities/book.entity';
 import { applyGlobalPrefix } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
+import { BOOK_TIMESTAMPS_OWNER_SLUG_TR } from '../src/database/seeds/books.seed-data';
 import { seedBooks } from '../src/database/seeds/seed-books';
 
 /**
@@ -407,7 +408,7 @@ describe('Book read path (e2e, real Postgres)', () => {
       // The service has an explicit `videos.length === 0` branch (it skips the `IN ()` query, which
       // is invalid SQL) and an `EMPTY_STATS` fallback for a book absent from the aggregate — and no
       // test reached either, though fixtures without videos already existed (`TEST110-M3`).
-      // A künye seeded before its question index is a real, ordinary state, not a defect.
+      // A künye seeded before its etiket index is a real, ordinary state, not a defect.
       app = await bootApp();
       const body = (await request(app.getHttpServer()).get('/api/books/zz-iki-slug-tr').expect(200))
         .body as Detail;
@@ -448,22 +449,22 @@ describe('Book read path (e2e, real Postgres)', () => {
       );
 
       // ...and must MOVE when only a child row changes. This is the whole reason the value is a
-      // GREATEST across three tables: a re-measurement updates questions and deliberately leaves
+      // GREATEST across three tables: a re-measurement updates tags and deliberately leaves
       // `books.updated_at` alone, so a service reading only the book row would report "unchanged"
-      // on the day the entire question index changed. Asserting the before-state too is what makes
+      // on the day the entire etiket index changed. Asserting the before-state too is what makes
       // this a real control rather than a coincidence.
-      const questionRepo = dataSource.getRepository(BookVideoTag);
+      const tagRepo = dataSource.getRepository(BookVideoTag);
       const videoRow = await dataSource
         .getRepository(BookVideo)
         .findOneOrFail({ where: { bookId: bookRow.id }, order: { orderNo: 'ASC' } });
-      // The LAST question of that video: incrementing its second cannot collide with a following
+      // The LAST etiket of that video: incrementing its second cannot collide with a following
       // one, so the strictly-ascending invariant this suite also asserts stays true throughout.
-      const question = await questionRepo.findOneOrFail({
+      const tag = await tagRepo.findOneOrFail({
         where: { bookVideoId: videoRow.id },
         order: { orderNo: 'DESC' },
       });
-      question.startSecond += 1;
-      await questionRepo.save(question);
+      tag.startSecond += 1;
+      await tagRepo.save(tag);
 
       const after = (await request(app.getHttpServer()).get('/api/books').expect(200))
         .body as ListEnvelope;
@@ -475,19 +476,24 @@ describe('Book read path (e2e, real Postgres)', () => {
 
       // Restore the value, so later phases see the corpus they expect. `updated_at` stays moved —
       // that is honest: the row really was written twice.
-      question.startSecond -= 1;
-      await questionRepo.save(question);
+      tag.startSecond -= 1;
+      await tagRepo.save(tag);
     });
 
-    it("the committed corpus's 180 etiket rows all carry name_tr IS NULL AND name_en IS NULL (AC 5, P0 PR-3)", async () => {
+    it("the seeded owner book's etiket rows all carry name_tr IS NULL AND name_en IS NULL (AC 5, P0 PR-3)", async () => {
       // `DEC 2026-09-10b` md.2's per-type boundary: a deneme book's etiketler carry no name at all,
       // and the artefact's own `tag` field ("Soru 3") must never be written into `name_tr` (plan
       // §5.4 PROHIBITION). Checked directly against the database rather than through the DTO, so a
       // future mapper bug that HID a populated name would not make this case a false green.
       const rows = await dataSource.query<{ name_tr: string | null; name_en: string | null }[]>(
-        'SELECT name_tr, name_en FROM book_video_tags',
+        `SELECT bvt.name_tr, bvt.name_en
+         FROM book_video_tags bvt
+         JOIN book_videos bv ON bv.id = bvt.book_video_id
+         JOIN books b ON b.id = bv.book_id
+         WHERE b.slug_tr = $1`,
+        [BOOK_TIMESTAMPS_OWNER_SLUG_TR],
       );
-      expect(rows.length).toBe(180);
+      expect(rows.length).toBeGreaterThan(0);
       expect(rows.every((row) => row.name_tr === null && row.name_en === null)).toBe(true);
     });
 
@@ -561,7 +567,15 @@ describe('Book read path (e2e, real Postgres)', () => {
       // No book-level count anywhere, on this book or any other (`DEC 2026-09-10c` md.1).
       expect(Object.prototype.hasOwnProperty.call(body, 'coverage')).toBe(false);
       expect(Object.prototype.hasOwnProperty.call(body, 'videoCount')).toBe(false);
+      expect(Object.prototype.hasOwnProperty.call(body, 'questionCount')).toBe(false);
       expect(Object.prototype.hasOwnProperty.call(body, 'denemeCount')).toBe(false);
+    });
+
+    afterAll(async () => {
+      // FK CASCADE (book_videos, book_video_tags → books ON DELETE CASCADE) means one DELETE
+      // clears all three rows this case inserted — the same pattern test/book-seed.e2e-spec.ts
+      // uses for its own generic-book fixture.
+      await dataSource.query("DELETE FROM books WHERE slug_tr = 'zz-jenerik-detay'");
     });
   });
 

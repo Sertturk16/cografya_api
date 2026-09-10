@@ -26,12 +26,15 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * pins the same asymmetry as a gate (step 7) rather than trusting the throwaway measurement alone.
  *
  * ## `down()` is practically forward-only, and that is written here rather than discovered later
- * Re-adding the column as `integer NOT NULL` with no `DEFAULT` succeeds only while `books` is
- * empty or every existing row can take a value with nothing to backfill it — plan §10 risk 7. On
- * an empty table (every e2e that exercises this migration's revert path) it succeeds cleanly; on a
- * `books` table already carrying a row seeded without a declared count it fails LOUDLY inside its
- * own transaction, which is the correct failure rather than a silent corruption. `down()` exists
- * for the revert-to-red discipline in dev, not as a production rollback path.
+ * Re-adding the column as `integer NOT NULL` with no `DEFAULT` succeeds ONLY while `books` is
+ * EMPTY — plan §10 risk 7. There is no backfill source for the dropped values, so a `books`
+ * table already carrying even one row cannot take this statement: PostgreSQL rejects `ADD
+ * COLUMN ... NOT NULL` with no `DEFAULT` against any non-empty table (`23502`, not-null
+ * violation), inside its own transaction, which is the correct failure rather than a silent
+ * corruption. That failure mode is not exercised by any test in this PR — unlike the `up()`
+ * half above, it follows directly from documented Postgres `ALTER TABLE` semantics rather than
+ * from a measurement here. `down()` exists for the revert-to-red discipline in dev, not as a
+ * production rollback path.
  *
  * ## The guard this migration is built to satisfy (plan §5.6a)
  * The single statement below is exported as its own `readonly string[]`, exactly as PR-1's rename
@@ -53,8 +56,10 @@ export class DropBookDenemeCount1788300120000 implements MigrationInterface {
   }
 
   /**
-   * The exact inverse in the ordinary case (an empty or fully-backfillable `books` table) — see
-   * the class docblock for the one way this can fail instead of corrupt.
+   * The best available inverse, and ONLY on an EMPTY `books` table — see the class docblock; it
+   * is not a full inverse even then (the column lands at the end of the table rather than its
+   * original position, and the dropped catalog entry is not restored), and it cannot run at all
+   * against a table already carrying a row.
    */
   async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`ALTER TABLE "books" ADD COLUMN "deneme_count" integer NOT NULL`);

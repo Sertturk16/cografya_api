@@ -30,7 +30,7 @@ import {
 interface BookStatsRow {
   bookId: string;
   videosUpdatedAt: Date | null;
-  questionsUpdatedAt: Date | null;
+  tagsUpdatedAt: Date | null;
 }
 
 /** The same aggregate after conversion — what the mappers actually read. */
@@ -50,7 +50,7 @@ const EMPTY_STATS: BookStats = { childrenUpdatedAt: null };
  * way on purpose: a re-measurement that shifts 180 start seconds updates the child rows and
  * deliberately does NOT touch the book row, because writing a row whose own columns did not change
  * is the exact lie the seed's row-level idempotency exists to prevent. Reading only the book row
- * would therefore tell search engines the page had not changed on the day its whole question index
+ * would therefore tell search engines the page had not changed on the day its whole etiket index
  * did (`SEO-POLICY.md` §B5 5.9, §B6 6.9 — build time is refused by name).
  *
  * Exported for direct unit testing of the null-collapse branch, the `computePopulationDensity`
@@ -135,7 +135,7 @@ export class BookService {
   }
 
   /**
-   * One book by either slug, with its whole question index.
+   * One book by either slug, with its whole etiket index.
    *
    * The web repo routes both locales and asks with the locale's own slug, so both columns are
    * matched (the `ProvinceController.findBySlug` precedent). Unknown slug → 404 with a stable
@@ -145,7 +145,7 @@ export class BookService {
    * ## One REPEATABLE READ snapshot across all three reads, and why READ COMMITTED is not enough
    * This payload is assembled from three queries. Under the default READ COMMITTED, each statement
    * takes its OWN snapshot, so a seed committing between them yields a response that is internally
-   * consistent and externally wrong — künye from before the write, question index from after, with
+   * consistent and externally wrong — künye from before the write, etiket index from after, with
    * nothing in the payload marking it. Wrapping the three in one transaction does not fix that on
    * its own; the ISOLATION LEVEL is the part that does, because REPEATABLE READ pins one snapshot
    * for the whole transaction.
@@ -313,7 +313,7 @@ export class BookService {
       .leftJoin(BookVideoTag, 't', 't.bookVideoId = v.id')
       .select('v.bookId', 'bookId')
       .addSelect('MAX(v.updatedAt)', 'videosUpdatedAt')
-      .addSelect('MAX(t.updatedAt)', 'questionsUpdatedAt')
+      .addSelect('MAX(t.updatedAt)', 'tagsUpdatedAt')
       .where('v.bookId IN (:...bookIds)', { bookIds })
       .groupBy('v.bookId')
       .getRawMany<BookStatsRow>();
@@ -322,7 +322,7 @@ export class BookService {
       rows.map((row) => [
         row.bookId,
         {
-          childrenUpdatedAt: newerOf(row.videosUpdatedAt, row.questionsUpdatedAt),
+          childrenUpdatedAt: newerOf(row.videosUpdatedAt, row.tagsUpdatedAt),
         },
       ]),
     );

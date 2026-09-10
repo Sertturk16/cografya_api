@@ -469,7 +469,7 @@ export function assertArtifactMatchesBook(book: BookSeed, artifact: BookTimestam
 
   if (problems.length > 0) {
     throw new BookSeedInvariantError(
-      `the question index does not fit ${book.slugTr}:\n  ${problems.join('\n  ')}`,
+      `the etiket index does not fit ${book.slugTr}:\n  ${problems.join('\n  ')}`,
     );
   }
 }
@@ -478,7 +478,7 @@ export function assertArtifactMatchesBook(book: BookSeed, artifact: BookTimestam
 export interface ValidatedBookSeedCorpus {
   readonly books: readonly BookSeed[];
   readonly artifact: BookTimestampsArtifact;
-  /** The row the question index belongs to — resolved here so no caller re-derives it. */
+  /** The row the etiket index belongs to — resolved here so no caller re-derives it. */
   readonly owner: BookSeed;
 }
 
@@ -529,7 +529,7 @@ export async function validateBookSeedCorpus(
   const owner = books.find((book) => book.slugTr === ownerSlugTr);
   if (owner === undefined) {
     throw new BookSeedInvariantError(
-      `the question index belongs to ${ownerSlugTr}, which is not in the seed corpus. The artefact ` +
+      `the etiket index belongs to ${ownerSlugTr}, which is not in the seed corpus. The artefact ` +
         `and the künye row land together or not at all.`,
     );
   }

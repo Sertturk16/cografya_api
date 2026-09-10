@@ -565,7 +565,7 @@
     },
     "/api/books/{slug}": {
       "get": {
-        "description": "One request carries the whole page: künye, coverage, every deneme and all its questions. There is deliberately no separate videos endpoint — the SSG build makes one round trip.",
+        "description": "One request carries the whole page: künye, every video and every tag on it. There is no book-level count anywhere in the payload — what a book offers is said by its own editorial text (introTr, metaDescriptionTr), not a number. There is deliberately no separate videos endpoint — the SSG build makes one round trip.",
         "operationId": "BookController_findBySlug",
         "parameters": [
           {
@@ -600,7 +600,7 @@
             "description": "No book matches the given slug."
           }
         },
-        "summary": "Get one book by its TR or EN slug, with its full question index.",
+        "summary": "Get one book by its TR or EN slug, with every video and its tags.",
         "tags": [
           "books"
         ]

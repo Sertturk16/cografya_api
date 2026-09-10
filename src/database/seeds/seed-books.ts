@@ -405,7 +405,7 @@ async function seedVideoRows(
 }
 
 /**
- * Seeds the book catalogue and its question index.
+ * Seeds the book catalogue and its etiket index.
  *
  * The parameters exist for the same reason `seedWorld` takes its corpus: the e2e suite (B3) drives
  * the real insert/update/no-op/remove paths with synthetic fixtures, so no real künye fact or

@@ -16,9 +16,12 @@ import { SEED_BOOKS, type BookSeed } from './books.seed-data';
  * — plus §13 invariant 16 for the strings this seed publishes.
  *
  * ## What these tests assert, and what they refuse to assert
- * They assert RULES: `CONTENT-STYLE.md`'s §2/§16/§17/§20 ceilings, the künye shapes the schema
- * cannot express, and the artefact↔künye join the migration hands to B2 by name. Every one of them
- * binds book #2 exactly as it binds book #1.
+ * They assert RULES: `CONTENT-STYLE.md`'s §2/§16/§17/§20 ceilings and the künye shapes the
+ * schema cannot express. (Through P0 PR-2 this list also included the artefact↔künye join the
+ * migration hands to B2 by name; `DEC 2026-09-10c` md.1/md.2 dropped `books.deneme_count`
+ * outright in P0 PR-3, so there is no künye figure left to join against — see
+ * `book-seed-invariants.ts`'s own header for the retired comparisons.) Every one of them binds
+ * book #2 exactly as it binds book #1.
  *
  * They assert no FACT. Nothing here pins what the prose says, how long it is, or which second a
  * question starts at — a spec that did would freeze an editorial decision the owner already ruled

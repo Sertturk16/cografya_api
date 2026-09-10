@@ -27,7 +27,7 @@ import { ExamTrack } from '../book.types';
  * is enforced by review, not by the schema.
  *
  * The consequence worth stating: the page is COMPLETE without the API. The künye, the denemeler,
- * the questions and the 180 start seconds are all ours; a total YouTube outage costs the
+ * the etiketler and the 180 start seconds are all ours; a total YouTube outage costs the
  * `VideoObject` structured data and the thumbnail, nothing else.
  *
  * ## No price, no stock, no offer — and one outbound link

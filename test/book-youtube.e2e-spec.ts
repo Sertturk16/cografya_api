@@ -23,7 +23,7 @@ import { seedBooks } from '../src/database/seeds/seed-books';
  * `videos.list` answer — a committed fixture holding real API Data would be stored API Data, and the
  * 30-day retention rule this whole leg exists to honour is not something a file in git can honour.
  * What is asserted is the RULE: at which age a row is served, at which age it is deleted, and that
- * neither ever costs the page its question index.
+ * neither ever costs the page its etiket index.
  *
  * ## The clock is not faked; the ROW's age is
  * SPEC §13 item 9 says "with a fake clock". Writing `fetched_at_utc` in the past is the same
@@ -307,7 +307,7 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
       expect(body.videos.find((video) => video.youtubeVideoId === first)?.youtube).toBeNull();
     });
 
-    it('keeps the deneme and its questions when the video is MISSING (SPEC §13 item 11)', async () => {
+    it('keeps the deneme and its tags when the video is MISSING (SPEC §13 item 11)', async () => {
       const [first] = videoIds;
       if (first === undefined) throw new Error('no seeded video');
       // Freshly fetched AND missing: age alone would serve it, so this case can only pass if the

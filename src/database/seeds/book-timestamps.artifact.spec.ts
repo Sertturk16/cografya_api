@@ -158,7 +158,7 @@ describe('parseBookTimestampsArtifact', () => {
   });
 
   it('refuses a video carrying more marks than a question number can hold', () => {
-    // `CHK_book_video_questions_question_no CHECK (question_no BETWEEN 1 AND 99)`, mirrored in the
+    // `CHK_book_video_tags_order_no CHECK (order_no BETWEEN 1 AND 99)`, mirrored in the
     // loader: without it the hundredth mark is a value the database refuses mid-transaction.
     const hundred = marks(
       Array.from({ length: 100 }, (_value, index) => [`Soru ${String(index + 1)}`, index] as const),
