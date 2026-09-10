@@ -12,9 +12,13 @@ import { BOOK_TIMESTAMPS_OWNER_SLUG_TR, SEED_BOOKS, type BookSeed } from './book
  * ## Why these live here rather than in a CHECK constraint or a comment
  * Three different reasons, and they do not overlap:
  *
- * 1. **Some are cross-table and a CHECK cannot see them.** `book_videos.deneme_no <=
- *    books.deneme_count` needs a trigger, and `1786752000000-InitBookCatalogue.ts` records it as a
- *    B2 seed obligation by name rather than growing machinery this catalogue has not earned.
+ * 1. **Some are cross-table and a CHECK cannot see them.** Through P0 PR-2, `book_videos.order_no
+ *    <= books.deneme_count` was exactly such a rule — a trigger cannot see two tables, and
+ *    `1786752000000-InitBookCatalogue.ts` recorded it as a B2 seed obligation by name rather than
+ *    growing machinery this catalogue has not earned. `DEC 2026-09-10c` md.1/md.2 then dropped
+ *    `books.deneme_count` outright (P0 PR-3, plan §5.9): there is no künye figure left to
+ *    cross-check an artefact against, so `assertArtifactMatchesBook` below narrows to the one
+ *    check that was never about that column — the injected-seam emptiness refusal.
  * 2. **Some the database deliberately declines to chase.** `CHK_books_author_names` rejects `'{}'`
  *    and nothing else — `{''}` and `{'   '}` are ACCEPTED, measured on Postgres 16.15 — because a
  *    content guard would have no precedent in that schema. The migration calls a blank credit "a
@@ -305,9 +309,6 @@ function collectKunyeProblems(book: BookSeed): string[] {
   if (!Number.isInteger(book.pageCount) || book.pageCount <= 0) {
     problems.push(`${label}: pageCount must be a positive integer.`);
   }
-  if (!Number.isInteger(book.denemeCount) || book.denemeCount <= 0) {
-    problems.push(`${label}: denemeCount must be a positive integer.`);
-  }
   if (!Number.isInteger(book.displayOrder)) {
     problems.push(`${label}: displayOrder must be an integer.`);
   }
@@ -440,44 +441,29 @@ export function assertBookSeedInvariants(books: readonly BookSeed[]): void {
 }
 
 /**
- * The artefact↔künye join — the check `1786752000000-InitBookCatalogue.ts` hands to B2 by name.
+ * The destructive-half guard on the injected `seedBooks(ds, { artifact })` seam.
  *
- * `book_videos.deneme_no <= books.deneme_count` cannot be a CHECK (a CHECK sees one row of one
- * table) and does not justify a trigger. Both numbers are hand-read from the same künye, so a
- * disagreement means one of the two readings is wrong — and the failure it prevents is a page
- * offering "deneme 41" of a forty-deneme book, which no structural test would catch.
+ * **P0 PR-3 removed its other two checks.** `book_videos.deneme_no <= books.deneme_count` and the
+ * matching coverage-cannot-exceed-the-book refusal both compared against `books.deneme_count`
+ * (the check `1786752000000-InitBookCatalogue.ts` hands to B2 by name), and that column is DROPPED
+ * — not renamed — once the owner ruled no count is rendered to the reader on the book surface
+ * (`DEC 2026-09-10c` md.1/md.4, plan §5.9). Nothing replaces them: there is no künye figure left to
+ * cross-check an artefact against.
+ *
+ * **What survives, and why deleting the function outright would be wrong.** The emptiness refusal
+ * below is not a fact check — it is the guard on the injected seam where an EMPTY artefact means
+ * "every video is stale": the whole index would be deleted and the run would report it as a
+ * successful removal. `parseBookTimestampsArtifact` refuses an empty artefact by schema on the
+ * file-reading path, but `seedBooks(ds, { artifact })` bypasses the parser entirely, so this is
+ * the only place BOTH paths are covered (plan §5.9 risk 6).
  */
 export function assertArtifactMatchesBook(book: BookSeed, artifact: BookTimestampsArtifact): void {
   const problems: string[] = [];
 
-  // Playbook §8 refusal 1 on the INJECTED path. `parseBookTimestampsArtifact` refuses an empty
-  // artefact by schema, but `seedBooks(ds, { artifact })` bypasses the parser entirely, and an
-  // empty artefact down that seam means "every deneme is stale": the whole index is deleted and
-  // the run reports it as a successful removal. B3 drives that seam with fixtures, so the refusal
-  // lives here, where BOTH paths reach it.
+  // Playbook §8 refusal 1 on the INJECTED path — see the function docblock.
   if (artifact.videos.length === 0) {
     problems.push(
       'the artefact carries no videos at all — nothing to seed, and that is a failure.',
-    );
-  }
-
-  for (const video of artifact.videos) {
-    if (video.orderNo > book.denemeCount) {
-      problems.push(
-        `video ${String(video.orderNo)} is greater than the book's denemeCount ` +
-          `(${String(book.denemeCount)}). One of the two readings of the künye is wrong.`,
-      );
-    }
-  }
-
-  // Unreachable on a PARSED artefact and deliberately kept: refusal 3 makes `deneme` unique and
-  // the loop above bounds each one by `denemeCount`, so at most `denemeCount` distinct values can
-  // exist. What it still guards is the injected seam, where no uniqueness refusal ran — which is
-  // also why its spec case has to construct a duplicate deneme the parser would refuse.
-  if (artifact.videos.length > book.denemeCount) {
-    problems.push(
-      `${String(artifact.videos.length)} videos for a book with ${String(book.denemeCount)} ` +
-        `denemeler — coverage cannot exceed the book.`,
     );
   }
 

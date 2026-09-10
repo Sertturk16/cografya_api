@@ -1,12 +1,17 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from '@jest/globals';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { DataSource } from 'typeorm';
+import { ExamTrack } from '../src/book/book.types';
 import { BookVideoTag } from '../src/book/entities/book-video-tag.entity';
 import { BookVideo } from '../src/book/entities/book-video.entity';
 import { Book } from '../src/book/entities/book.entity';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import type { BookTimestampsArtifact } from '../src/database/seeds/book-timestamps.artifact';
-import { BOOK_TIMESTAMPS_OWNER_SLUG_TR, SEED_BOOKS } from '../src/database/seeds/books.seed-data';
+import {
+  BOOK_TIMESTAMPS_OWNER_SLUG_TR,
+  SEED_BOOKS,
+  type BookSeed,
+} from '../src/database/seeds/books.seed-data';
 import { seedBooks } from '../src/database/seeds/seed-books';
 
 /**
@@ -436,8 +441,8 @@ describe('Book seed write path (e2e, real Postgres)', () => {
     beforeEach(async () => {
       await dataSource.query(
         `UPDATE books SET cover_image_path = NULL, purchase_url = NULL, isbn13 = $2,
-           page_count = $3, deneme_count = $4, author_names = $5 WHERE id = $1`,
-        [bookId, OWNER.isbn13, OWNER.pageCount, OWNER.denemeCount, [...OWNER.authorNames]],
+           page_count = $3, author_names = $4 WHERE id = $1`,
+        [bookId, OWNER.isbn13, OWNER.pageCount, [...OWNER.authorNames]],
       );
       await dataSource.query('DELETE FROM book_videos WHERE order_no >= 700');
       await dataSource.query('DELETE FROM book_video_tags WHERE order_no >= 50');
@@ -522,14 +527,23 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       expect(await accepts('author_names', ['Fixture'])).toBe(true);
     });
 
-    it('isbn13, page_count and deneme_count hold their shape', async () => {
+    it('isbn13 and page_count hold their shape', async () => {
+      // The `deneme_count` half of this case's original title is gone with the column itself
+      // (P0 PR-3, `DEC 2026-09-10c` md.2) — deleted rather than renamed, per plan §7.2.
       expect(await accepts('isbn13', '978625949006')).toBe(false); // 12 digits, blank-padded
       expect(await accepts('isbn13', '97862594900AB')).toBe(false);
       expect(await accepts('isbn13', '9780000000001')).toBe(true);
       expect(await accepts('page_count', 0)).toBe(false);
       expect(await accepts('page_count', 144)).toBe(true);
-      expect(await accepts('deneme_count', 0)).toBe(false);
-      expect(await accepts('deneme_count', 40)).toBe(true);
+    });
+
+    it('deneme_count no longer exists as a column on books (P0 PR-3)', async () => {
+      // The negative-shape proof for the drop: the database refuses to reference a column that is
+      // not there, which is a different failure mode from a CHECK violation and worth its own case
+      // rather than being silently absorbed into "accepts" returning false for the wrong reason.
+      await expect(dataSource.query('SELECT deneme_count FROM books LIMIT 1')).rejects.toThrow(
+        /column .*deneme_count.* does not exist/i,
+      );
     });
 
     it('book_videos pins the 11-character id alphabet and one video per book', async () => {
@@ -583,6 +597,94 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       expect(await insert(50, 99)).toBe(false);
 
       await dataSource.query('DELETE FROM book_video_tags WHERE order_no >= 50');
+    });
+  });
+
+  /**
+   * AC 1 (P0 PR-3, `DEC 2026-09-10c`, plan §5.7) — a book with no book-level count is representable
+   * and seedable, proved through the shipped `seedBooks`, not asserted in prose.
+   *
+   * **The proof is shorter than revision 0's.** `DEC 2026-09-10c` md.1/md.2 dropped
+   * `books.deneme_count` outright rather than relaxing it to nullable, so there is no book-level
+   * count column left on ANY `BookSeed` to leave null — every book this seed loader writes,
+   * including the committed one, already satisfies AC 1 by construction. This case demonstrates it
+   * on a second, synthetic book rather than only asserting it from the type signature.
+   */
+  describe('a generic book carries no book-level count (AC 1, P0 PR-3)', () => {
+    function genericBook(): BookSeed {
+      return {
+        slugTr: 'zz-jenerik-kitap',
+        slugEn: 'zz-generic-book',
+        titleTr: 'Jenerik Kitap',
+        titleEn: null,
+        publisherName: 'Fixture Publisher',
+        authorNames: ['Fixture Author'],
+        isbn13: '9999999999994',
+        pageCount: 10,
+        examTrack: ExamTrack.Ayt,
+        coverImagePath: null,
+        purchaseUrl: null,
+        introTr: 'Bu, deneme numarası taşımayan jenerik bir kitap kaydıdır.',
+        introEn: null,
+        metaTitleTr: 'Jenerik Kitap Fixture',
+        metaDescriptionTr:
+          'Bu açıklama yalnız bu e2e senaryosu için yazılmıştır ve yüz on karakterden uzun olacak biçimde tutulmuştur şimdi.',
+        youtubePlaylistId: null,
+        // Exactly `UC` + 22 characters — `assertBookSeedInvariants` runs on THIS path (unlike the
+        // direct-repository fixtures in `book-read.e2e-spec.ts`), so the shape has to be real.
+        youtubeChannelId: 'UCgeneric_fixture_000000',
+        displayOrder: 9997,
+      };
+    }
+
+    afterAll(async () => {
+      await dataSource.query("DELETE FROM books WHERE slug_tr = 'zz-jenerik-kitap'");
+    });
+
+    it('seeds three videos with three etiketler each, storing order numbers rather than deriving them', async () => {
+      const seed = genericBook();
+      const generic = artifact([
+        { orderNo: 1, youtubeVideoId: 'gen00000001', tags: [10, 30, 90] },
+        { orderNo: 2, youtubeVideoId: 'gen00000002', tags: [10, 30, 90] },
+        { orderNo: 3, youtubeVideoId: 'gen00000003', tags: [10, 30, 90] },
+      ]);
+
+      const result = await seedBooks(dataSource, {
+        books: [seed],
+        artifact: generic,
+        ownerSlugTr: seed.slugTr,
+      });
+
+      expect(result.books.inserted).toBe(1);
+      expect(result.videos.inserted).toBe(3);
+      expect(result.tags.inserted).toBe(9);
+
+      const bookRow = await dataSource.getRepository(Book).findOneByOrFail({ slugTr: seed.slugTr });
+      const videoRows = await dataSource
+        .getRepository(BookVideo)
+        .find({ where: { bookId: bookRow.id }, order: { orderNo: 'ASC' } });
+      expect(videoRows.map((row) => row.orderNo)).toEqual([1, 2, 3]);
+
+      for (const video of videoRows) {
+        const tagRows = await dataSource
+          .getRepository(BookVideoTag)
+          .find({ where: { bookVideoId: video.id }, order: { orderNo: 'ASC' } });
+        expect(tagRows.map((row) => row.orderNo)).toEqual([1, 2, 3]);
+        expect(tagRows.map((row) => row.startSecond)).toEqual([10, 30, 90]);
+      }
+
+      // The two UNIQUE constraints hold: a second run over the SAME corpus writes nothing new
+      // rather than raising a duplicate-key error, which is what a broken `(book_id, order_no)` or
+      // `(book_video_id, order_no)` uniqueness would instead surface as.
+      const secondRun = await seedBooks(dataSource, {
+        books: [seed],
+        artifact: generic,
+        ownerSlugTr: seed.slugTr,
+      });
+      expect(secondRun.videos.inserted).toBe(0);
+      expect(secondRun.tags.inserted).toBe(0);
+      expect(secondRun.videos.unchanged).toBe(3);
+      expect(secondRun.tags.unchanged).toBe(9);
     });
   });
 });

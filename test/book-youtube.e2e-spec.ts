@@ -54,9 +54,9 @@ interface ServedYoutube {
 interface Detail {
   slugTr: string;
   videos: {
-    denemeNo: number;
+    orderNo: number;
     youtubeVideoId: string;
-    questions: { questionNo: number; startSecond: number }[];
+    tags: { orderNo: number; startSecond: number }[];
     youtube: ServedYoutube | null;
   }[];
   attribution: { providerId: string }[];
@@ -320,8 +320,8 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
 
       expect(served?.youtube).toBeNull();
       // The half that matters: a dead video costs the embed and nothing else. The index survives.
-      expect(served?.questions.length).toBeGreaterThan(0);
-      expect(served?.denemeNo).toBeGreaterThan(0);
+      expect(served?.tags.length).toBeGreaterThan(0);
+      expect(served?.orderNo).toBeGreaterThan(0);
       expect(body.videos.length).toBeGreaterThan(1);
       // And the credit is unaffected — it never depended on provider data existing.
       expect(body.attribution.map((row) => row.providerId).sort()).toEqual(['partner', 'youtube']);

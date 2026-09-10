@@ -397,24 +397,26 @@ describe('Auth core schema (e2e)', () => {
     expect(instanceToPlain(explicitlySelected)).toEqual({});
   });
 
-  it('reverts and reapplies the latest migration (AddGenericBookCatalogueFields) on empty synthetic tables', async () => {
+  it('reverts and reapplies the latest migration (DropBookDenemeCount) on empty synthetic tables', async () => {
     // The authority for "which migration is latest" is the explicit `migrations` array in
     // `src/database/data-source-options.ts`, never a directory listing or a timestamp sort
     // (`ENGINEERING.md` §5: "no globs — every migration is registered on purpose"). Its last
-    // entry is now `AddGenericBookCatalogueFields1788300060000` (P0 PR-2), which pushed
-    // `RenameBookCatalogueGeneric` — the migration this test previously exercised — one place
+    // entry is now `DropBookDenemeCount1788300120000` (P0 PR-3), which pushed
+    // `AddGenericBookCatalogueFields` — the migration this test previously exercised — one place
     // up. This is the same living-test pattern `province.e2e-spec.ts`/`country.e2e-spec.ts` name
     // explicitly ("adding a migration means editing" the lists that pin it); this file is the
     // third pin of that class, and the one that exercises the up/down path rather than the order.
     //
-    // Unlike the migration this test previously exercised, the new latest one renames nothing —
-    // it is a pure ADD COLUMN, four nullable columns with no default (P0 plan §7.2 PR-2). So the
-    // probe is no longer a table-name or column-RENAME check: it is a column-EXISTENCE check on
-    // the four columns this migration's `up()` adds and its `down()` drops —
-    // `book_videos.title_tr`/`title_en` and `book_video_tags.name_tr`/`name_en`. Table identity
-    // (`book_video_tags` vs the old `book_video_questions`) is now an UNRELATED CONTROL, settled
-    // by the PREVIOUS migration and expected to stay fixed across this one's revert/reapply —
-    // proving `undoLastMigration()` unwinds only the LATEST entry, never the one before it.
+    // Unlike the migration this test previously exercised, the new latest one neither renames nor
+    // adds a column — it DROPS one, on `books` rather than on `book_videos`/`book_video_tags`
+    // (P0 plan §7.2 PR-3). So the probe is a column-EXISTENCE check on `books.deneme_count` (and
+    // its `CHK_books_deneme_count` constraint) that this migration's `up()` drops and its `down()`
+    // re-adds — safely, because this suite never seeds a `books` row, and `ADD COLUMN … NOT NULL`
+    // on an EMPTY table has nothing to violate (plan §10 risk 7 names the one way this fails on a
+    // non-empty table). The four `AddGenericBookCatalogueFields` columns are now an UNRELATED
+    // CONTROL, settled by the PREVIOUS migration and expected to stay fixed across this one's
+    // revert/reapply — proving `undoLastMigration()` unwinds only the LATEST entry, never the one
+    // before it.
     const relationSnapshot = async (): Promise<Record<string, string | null> | undefined> => {
       const rows = await dataSource.query<
         {
@@ -495,7 +497,9 @@ describe('Auth core schema (e2e)', () => {
     };
     expect(await bookVideoOrderColumn()).toBe('order_no');
 
-    // The four columns THIS migration's up() adds — the actual probe.
+    // Unrelated control from the PREVIOUS migration (P0 PR-2): the four generic-field columns
+    // already exist before THIS migration ever runs, and must stay exactly as unaffected by it as
+    // `book_videos.order_no`, `regions` and `measurements` are.
     const genericFieldColumns = async (): Promise<Record<string, string | null>> => {
       const rows = await dataSource.query<{ table_name: string; column_name: string }[]>(`
         SELECT table_name, column_name FROM information_schema.columns
@@ -521,27 +525,51 @@ describe('Auth core schema (e2e)', () => {
     };
     expect(await genericFieldColumns()).toEqual(presentFieldColumns);
 
+    // The column and the constraint THIS migration's up() drops — the actual probe.
+    const denemeCountColumn = async (): Promise<{
+      column: string | null;
+      check: string | null;
+    }> => {
+      const columnRows = await dataSource.query<{ column_name: string }[]>(`
+        SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'books' AND column_name = 'deneme_count'
+      `);
+      const checkRows = await dataSource.query<{ conname: string }[]>(`
+        SELECT conname FROM pg_constraint
+        WHERE conrelid = 'books'::regclass AND conname = 'CHK_books_deneme_count'
+      `);
+      return {
+        column: columnRows[0]?.column_name ?? null,
+        check: checkRows[0]?.conname ?? null,
+      };
+    };
+    // `runMigrations()` in `beforeAll` already ran `up()`, so the column and its CHECK are ABSENT
+    // before this test touches anything — the opposite of PR-2's probe, whose latest migration
+    // ADDED columns instead of dropping one.
+    expect(await denemeCountColumn()).toEqual({ column: null, check: null });
+
     await dataSource.undoLastMigration();
 
-    // ONLY the four generic-field columns unwind — every table, including the previous
-    // migration's own table rename, and the unrelated `sessions.rotation_grace_used_at` and
-    // `book_videos.order_no` controls, stays intact.
-    expect(await relationSnapshot()).toEqual(expectedRelations);
-    expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
-    expect(await bookVideoOrderColumn()).toBe('order_no');
-    expect(await genericFieldColumns()).toEqual({
-      'book_videos.title_tr': null,
-      'book_videos.title_en': null,
-      'book_video_tags.name_tr': null,
-      'book_video_tags.name_en': null,
-    });
-
-    await dataSource.runMigrations();
-
-    // Reapply returns the columns to their NEW state.
+    // The revert brings `books.deneme_count` and its CHECK BACK — `down()`'s `ADD COLUMN …
+    // NOT NULL` succeeds here because this suite never seeds a `books` row (plan §10 risk 7).
+    // Every table, the previous migration's own four columns, and the unrelated
+    // `sessions.rotation_grace_used_at` and `book_videos.order_no` controls, all stay intact.
     expect(await relationSnapshot()).toEqual(expectedRelations);
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
     expect(await bookVideoOrderColumn()).toBe('order_no');
     expect(await genericFieldColumns()).toEqual(presentFieldColumns);
+    expect(await denemeCountColumn()).toEqual({
+      column: 'deneme_count',
+      check: 'CHK_books_deneme_count',
+    });
+
+    await dataSource.runMigrations();
+
+    // Reapply drops the column and its CHECK again, returning to the ORIGINAL (post-`up()`) state.
+    expect(await relationSnapshot()).toEqual(expectedRelations);
+    expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
+    expect(await bookVideoOrderColumn()).toBe('order_no');
+    expect(await genericFieldColumns()).toEqual(presentFieldColumns);
+    expect(await denemeCountColumn()).toEqual({ column: null, check: null });
   });
 });

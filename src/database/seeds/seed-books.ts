@@ -114,12 +114,14 @@ function stringArraysEqual(a: readonly string[], b: readonly string[]): boolean 
  * mapped type demands one entry per key and refuses a key that is not one — omit a field and the
  * build fails naming it, add a stray one and it fails naming that.
  *
- * **This is the `books` table's own gate and is UNTOUCHED by P0 PR-2**: `BookSeed` carries no
- * `orderNo`/`titleTr` (video-level)/`nameTr` (etiket-level) field, and `denemeCount` stays on this
- * table until PR-3 drops it (plan §5.9). The equivalent safety net for `book_videos`/
- * `book_video_tags` is the entity property rename itself — every reference to the OLD property
- * name below this point is a compile error, which is the mechanism `atlas-approval.md` §3.2 calls
- * "a mismatched rename fails typecheck".
+ * **This is the `books` table's own gate.** `BookSeed` carries no `orderNo`/`titleTr` (video-level)
+ * or `nameTr` (etiket-level) field — those live on `book_videos`/`book_video_tags` and are guarded
+ * by the entity property rename itself, the mechanism `atlas-approval.md` §3.2 calls "a mismatched
+ * rename fails typecheck". **`denemeCount` left `BookSeed` in P0 PR-3** (`DEC 2026-09-10c` md.1/
+ * md.2, plan §5.9): the mapped type below is exactly why removing it from the interface without
+ * removing its entry here would be a compile error, not a silent gap — this file is part of that
+ * PR's manifest by construction, the same way the three sentinel e2e files are part of any PR that
+ * registers a migration (`atlas-approval.md` §7.1 item 3).
  */
 const BOOK_FIELD_MATCHERS: { [K in keyof BookSeed]: (row: Book, seed: BookSeed) => boolean } = {
   slugTr: (row, seed) => row.slugTr === seed.slugTr,
@@ -131,7 +133,6 @@ const BOOK_FIELD_MATCHERS: { [K in keyof BookSeed]: (row: Book, seed: BookSeed) 
   isbn13: (row, seed) => row.isbn13 === seed.isbn13,
   pageCount: (row, seed) => row.pageCount === seed.pageCount,
   examTrack: (row, seed) => row.examTrack === seed.examTrack,
-  denemeCount: (row, seed) => row.denemeCount === seed.denemeCount,
   coverImagePath: (row, seed) => row.coverImagePath === seed.coverImagePath,
   purchaseUrl: (row, seed) => row.purchaseUrl === seed.purchaseUrl,
   introTr: (row, seed) => row.introTr === seed.introTr,
@@ -176,7 +177,6 @@ function toEntityShape(seed: BookSeed): Required<Pick<Book, keyof BookSeed>> {
     isbn13: seed.isbn13,
     pageCount: seed.pageCount,
     examTrack: seed.examTrack,
-    denemeCount: seed.denemeCount,
     coverImagePath: seed.coverImagePath,
     purchaseUrl: seed.purchaseUrl,
     introTr: seed.introTr,

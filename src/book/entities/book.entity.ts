@@ -136,28 +136,6 @@ export class Book {
   examTrack!: ExamTrack;
 
   /**
-   * How many denemeler the BOOK contains — not how many we have video solutions for.
-   *
-   * **NOT NULL, and that is the K-E ruling** (→ DEC 2026-08-15c §1). SPEC §5.1 left it nullable
-   * only because the number was unverified at writing time; the owner checked the book and the
-   * answer is 40, with denemeler 14 and 22 present in the book and only their SOLUTION VIDEOS
-   * missing. A nullable column would now mean "we might publish a book without knowing its size",
-   * which is not a state this catalogue can honestly be in — every row here is hand-seeded from a
-   * künye somebody read.
-   *
-   * The trade-off is recorded rather than hidden: if a future book in this catalogue has no
-   * denemeler at all (a topic-summary title), this column needs a migration to relax and the
-   * published field goes from `number` to `number | null`, which is a BREAKING contract change.
-   * That is the cost of refusing to publish an unknown; a nullable column would have bought the
-   * flexibility by making "unknown" and "known" indistinguishable in the contract on day one.
-   *
-   * The count is a fact about the book. What we cover is `book_videos`, and the two are read
-   * together by the interface, never merged into one number.
-   */
-  @Column({ name: 'deneme_count', type: 'integer' })
-  denemeCount!: number;
-
-  /**
    * Path to the cover image **inside the web repo's `public/`** — a relative path and nothing else.
    *
    * The check constraint is the point of the column rather than decoration: an allowlist

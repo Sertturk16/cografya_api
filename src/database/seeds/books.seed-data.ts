@@ -44,8 +44,6 @@ export interface BookSeed {
   readonly isbn13: string;
   readonly pageCount: number;
   readonly examTrack: ExamTrack;
-  /** How many denemeler the BOOK has — a künye fact, not a coverage figure. */
-  readonly denemeCount: number;
   readonly coverImagePath: string | null;
   readonly purchaseUrl: string | null;
   readonly introTr: string;
@@ -62,8 +60,12 @@ export interface BookSeed {
  *
  * Künye facts (title, publisher, authors in printed order, 144 pages, ISBN 9786259490069) come from
  * the seller's `schema.org/Product` JSON-LD, re-read 2026-08-15, with the owner confirming the
- * künye the same day; `denemeCount = 40` is the owner's own reading of the book (K-E, → DEC
- * 2026-08-15c §1). The ISBN's check digit was verified independently (13th digit 9, computed 9).
+ * künye the same day. The ISBN's check digit was verified independently (13th digit 9, computed 9).
+ *
+ * **The book's deneme count is not seeded here any more.** The owner's own reading of the book was
+ * 40 (K-E, → DEC 2026-08-15c §1), and that künye fact stayed in `books.deneme_count` through P0
+ * PR-1/PR-2; `DEC 2026-09-10c` md.1/md.2 then ruled that no count is rendered to the reader on the
+ * book surface at all, so the column is DROPPED rather than carried forward (P0 PR-3, plan §5.9).
  *
  * **No price, currency, availability or stock code.** `CONVENTIONS.md` §4 bars pricing and the
  * ruling that authorised {@link BookSeed.purchaseUrl} authorised a bare address and nothing else —
@@ -109,7 +111,6 @@ export const SEED_BOOKS: readonly BookSeed[] = [
     isbn13: '9786259490069',
     pageCount: 144,
     examTrack: ExamTrack.Ayt,
-    denemeCount: 40,
     // The published address of the cover, inside `cografya_web`'s `public/` — a data change on a
     // nullable column, NOT a contract change (`Owner's Inbox/kitap-video-web/SPEC.md` §6 E3).
     //

@@ -58,6 +58,7 @@ import { AllowStudentMinimalRegistrationProfileShape1788100000000 } from './migr
 import { InitRegions1788200000000 } from './migrations/1788200000000-InitRegions';
 import { RenameBookCatalogueGeneric1788300000000 } from './migrations/1788300000000-RenameBookCatalogueGeneric';
 import { AddGenericBookCatalogueFields1788300060000 } from './migrations/1788300060000-AddGenericBookCatalogueFields';
+import { DropBookDenemeCount1788300120000 } from './migrations/1788300120000-DropBookDenemeCount';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -283,6 +284,7 @@ export function buildDataSourceOptions(
       InitRegions1788200000000,
       RenameBookCatalogueGeneric1788300000000,
       AddGenericBookCatalogueFields1788300060000,
+      DropBookDenemeCount1788300120000,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,

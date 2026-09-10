@@ -300,13 +300,15 @@ When the image-upload / vision endpoint lands, all of these are mandatory:
     - `earthquake_events` (E1). `DEC 2026-08-12k` D-E rules there is **no per-event page** —
       ~33 000 near-identical thin pages a year is the shape `SEO-POLICY.md` §12.1 (scaled
       content abuse) targets, and that penalty lands site-wide rather than page-by-page.
-    - `book_videos` and `book_video_questions` (B1). `Owner's Inbox/kitap-video-cozumler/SPEC.md`
-      §4.3 rules there is **no per-deneme and no per-question page** — 30 near-identical thin
-      pages PER BOOK on a tier with no ceiling (`DEC 2026-08-15e`) is the same §12.1 shape, and
-      the exposure grows with every book rather than stopping at a total. Deep links
-      into a deneme or a question are served by **fragments** (`#deneme-12`,
-      `#deneme-12-soru-3`), the pattern `DEC 2026-08-04i` §2 already set with `#iller` /
-      `#ulkeler`. The book itself DOES have a page and carries both slugs.
+    - `book_videos` and `book_video_tags` (B1; renamed from `book_video_questions` in P0 PR-1,
+      → `DEC 2026-09-10b` md.1). `Owner's Inbox/kitap-video-cozumler/SPEC.md` §4.3 rules there is
+      **no per-video and no per-etiket page** — 30 near-identical thin pages PER BOOK on a tier
+      with no ceiling (`DEC 2026-08-15e`) is the same §12.1 shape, and the exposure grows with
+      every book rather than stopping at a total. Deep links into a video or an etiket are served
+      by **fragments** (`#video-12-iklim`, `#video-12-etiket-3` — the generic prefix+name scheme
+      of `DEC 2026-09-10b` md.5, replacing the retired `#deneme-12` / `#deneme-12-soru-3`), the
+      pattern `DEC 2026-08-04i` §2 already set with `#iller` / `#ulkeler`. The book itself DOES
+      have a page and carries both slugs.
 - **External data imports are TWO-PHASE, and the phases are not interchangeable.** `fetch`/`probe`
   is the only thing that touches the network: run BY HAND, polite by construction (serial, spaced,
   timed out, identifying UA), and it writes committed, reviewable artifacts. `load` is offline,

@@ -1,5 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 import { ADD_GENERIC_BOOK_CATALOGUE_FIELDS_STATEMENTS } from './1788300060000-AddGenericBookCatalogueFields';
+import { DROP_BOOK_DENEME_COUNT_STATEMENTS } from './1788300120000-DropBookDenemeCount';
 import { RENAME_BOOK_CATALOGUE_STATEMENTS } from './1788300000000-RenameBookCatalogueGeneric';
 
 /**
@@ -98,6 +99,44 @@ describe('ADD_GENERIC_BOOK_CATALOGUE_FIELDS_STATEMENTS — positive allowlist ov
   it('never carries a destructive or data-moving verb, stated directly rather than only implied', () => {
     const forbidden = /\b(INSERT|UPDATE|DELETE|TRUNCATE|CREATE TABLE|DROP TABLE|USING)\b/i;
     for (const statement of ADD_GENERIC_BOOK_CATALOGUE_FIELDS_STATEMENTS) {
+      expect(statement).not.toMatch(forbidden);
+    }
+  });
+});
+
+/**
+ * `DROP_BOOK_DENEME_COUNT_STATEMENTS` — the same three cases, PR-3's own single-element array.
+ *
+ * **The allowlist did NOT need to grow for this PR** (measured, not assumed — `atlas-approval.md`
+ * §7.3 item 3's question, answered here): `DROP COLUMN` was already a member of `ALLOWED` from
+ * PR-1 on, anticipating exactly this shape, so `ALTER TABLE "books" DROP COLUMN "deneme_count"`
+ * matches it unchanged.
+ *
+ * Revert-to-red, observed by hand before this file was committed: temporarily appending
+ * `UPDATE "books" SET deneme_count = 1` as a second array element turned the second case below
+ * red, naming index 1 and that exact statement as the non-matching element; removing it turned the
+ * suite green again.
+ */
+describe('DROP_BOOK_DENEME_COUNT_STATEMENTS — positive allowlist over executed statements', () => {
+  const ALLOWED = /^ALTER TABLE "[a-z_]+" (RENAME (TO|COLUMN|CONSTRAINT)|ADD COLUMN|DROP COLUMN)\b/;
+
+  it('is non-empty', () => {
+    expect(DROP_BOOK_DENEME_COUNT_STATEMENTS.length).toBeGreaterThan(0);
+  });
+
+  it('every executed statement matches the positive allowlist', () => {
+    DROP_BOOK_DENEME_COUNT_STATEMENTS.forEach((statement, index) => {
+      expect({ index, statement, matchesAllowlist: ALLOWED.test(statement) }).toEqual({
+        index,
+        statement,
+        matchesAllowlist: true,
+      });
+    });
+  });
+
+  it('never carries a destructive or data-moving verb, stated directly rather than only implied', () => {
+    const forbidden = /\b(INSERT|UPDATE|DELETE|TRUNCATE|CREATE TABLE|DROP TABLE|USING)\b/i;
+    for (const statement of DROP_BOOK_DENEME_COUNT_STATEMENTS) {
       expect(statement).not.toMatch(forbidden);
     }
   });
