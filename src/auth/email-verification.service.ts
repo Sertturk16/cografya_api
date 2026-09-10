@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { DataSource, QueryFailedError } from 'typeorm';
+import type { Env } from '../config/env.schema';
 import { AccountStatus } from './account.types';
 import { AUTH_ERROR_KEYS } from './auth-error-keys';
 import {
@@ -177,6 +179,7 @@ export class EmailVerificationService {
     private readonly secrets: AuthSecretsProvider,
     @Inject(MAILER_PORT) private readonly mailer: MailerPort,
     private readonly sessions: SessionService,
+    private readonly config: ConfigService<Env, true>,
   ) {}
 
   /**
@@ -422,7 +425,10 @@ export class EmailVerificationService {
   ): Promise<CandidateOutcome> {
     const email = typeof source === 'string' ? source : source.email;
     const id = randomUUID();
-    const code = mintVerificationCode();
+    // The validated `NODE_ENV` snapshot, never a raw `process.env` read — see
+    // `mintVerificationCode`'s own docblock (`opaque-token.ts`) for why that distinction is the
+    // whole point of this call.
+    const code = mintVerificationCode(this.config.get('NODE_ENV', { infer: true }));
     const codeHash = hmacSha256(this.secrets.getHmacPepper(), `pending:${id}:${code}`);
 
     try {
