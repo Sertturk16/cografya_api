@@ -283,6 +283,10 @@ describe('Country (e2e)', () => {
       // P0 PR-3: drops `books.deneme_count`, catalogue-only, no new table and no new foreign key —
       // no ordering constraint beyond "after the table it drops a column from" (already above).
       'DropBookDenemeCount1788300120000',
+      // P1 PR-A: widens `favorites` with `region_id` (FK to `regions(id)`) and `continent` (no
+      // FK — Continent is an enum type, not a table). `region_id`'s FK means this migration MUST
+      // stay ordered after `InitRegions1788200000000`.
+      'AddFavoriteRegionAndContinent1788310000000',
     ]);
   });
 

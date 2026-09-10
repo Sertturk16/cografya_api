@@ -397,26 +397,27 @@ describe('Auth core schema (e2e)', () => {
     expect(instanceToPlain(explicitlySelected)).toEqual({});
   });
 
-  it('reverts and reapplies the latest migration (DropBookDenemeCount) on empty synthetic tables', async () => {
+  it('reverts and reapplies the latest migration (AddFavoriteRegionAndContinent) on empty synthetic tables', async () => {
     // The authority for "which migration is latest" is the explicit `migrations` array in
     // `src/database/data-source-options.ts`, never a directory listing or a timestamp sort
     // (`ENGINEERING.md` §5: "no globs — every migration is registered on purpose"). Its last
-    // entry is now `DropBookDenemeCount1788300120000` (P0 PR-3), which pushed
-    // `AddGenericBookCatalogueFields` — the migration this test previously exercised — one place
-    // up. This is the same living-test pattern `province.e2e-spec.ts`/`country.e2e-spec.ts` name
-    // explicitly ("adding a migration means editing" the lists that pin it); this file is the
-    // third pin of that class, and the one that exercises the up/down path rather than the order.
+    // entry is now `AddFavoriteRegionAndContinent1788310000000` (P1 PR-A), which pushed
+    // `DropBookDenemeCount` — the migration this test previously exercised — one place up. This
+    // is the same living-test pattern `province.e2e-spec.ts`/`country.e2e-spec.ts` name explicitly
+    // ("adding a migration means editing" the lists that pin it); this file is the third pin of
+    // that class, and the one that exercises the up/down path rather than the order.
     //
-    // Unlike the migration this test previously exercised, the new latest one neither renames nor
-    // adds a column — it DROPS one, on `books` rather than on `book_videos`/`book_video_tags`
-    // (P0 plan §7.2 PR-3). So the probe is a column-EXISTENCE check on `books.deneme_count` (and
-    // its `CHK_books_deneme_count` constraint) that this migration's `up()` drops and its `down()`
-    // re-adds — safely, because this suite never seeds a `books` row, and `ADD COLUMN … NOT NULL`
-    // on an EMPTY table has nothing to violate (plan §10 risk 7 names the one way this fails on a
-    // non-empty table). The four `AddGenericBookCatalogueFields` columns are now an UNRELATED
-    // CONTROL, settled by the PREVIOUS migration and expected to stay fixed across this one's
-    // revert/reapply — proving `undoLastMigration()` unwinds only the LATEST entry, never the one
-    // before it.
+    // The new latest migration widens `favorites` with two NULLABLE columns (`region_id`,
+    // `continent`) and replaces its exclusive-arc CHECK (plan §5.1.1). So the probe is a
+    // column-EXISTENCE check on `favorites.region_id`/`favorites.continent`, plus the literal
+    // definition of `CHK_favorites_exactly_one_target` (to tell the two-branch form `down()`
+    // restores apart from the four-branch `num_nonnulls(...)` form `up()` installs) — this
+    // migration's `up()` adds both and its `down()` removes them again, safely, because this
+    // suite never seeds a `favorites` row (empty-table revert never trips the migration's own
+    // fail-closed stray-row guard). `books.deneme_count`/`CHK_books_deneme_count` — this test's
+    // OWN probe two PRs ago — is now an UNRELATED CONTROL, settled by an EARLIER migration and
+    // expected to stay fixed (absent, per `DropBookDenemeCount`) across this one's revert/reapply
+    // — proving `undoLastMigration()` unwinds only the LATEST entry, never an earlier one.
     const relationSnapshot = async (): Promise<Record<string, string | null> | undefined> => {
       const rows = await dataSource.query<
         {
@@ -525,7 +526,10 @@ describe('Auth core schema (e2e)', () => {
     };
     expect(await genericFieldColumns()).toEqual(presentFieldColumns);
 
-    // The column and the constraint THIS migration's up() drops — the actual probe.
+    // Unrelated control from an EARLIER migration (P0 PR-3, `DropBookDenemeCount` — this test's
+    // OWN probe two PRs ago): `books.deneme_count` and its CHECK are already absent before THIS
+    // migration ever runs, and must stay exactly as unaffected by it as `book_videos.order_no`,
+    // `regions` and `measurements` are.
     const denemeCountColumn = async (): Promise<{
       column: string | null;
       check: string | null;
@@ -543,33 +547,71 @@ describe('Auth core schema (e2e)', () => {
         check: checkRows[0]?.conname ?? null,
       };
     };
-    // `runMigrations()` in `beforeAll` already ran `up()`, so the column and its CHECK are ABSENT
-    // before this test touches anything — the opposite of PR-2's probe, whose latest migration
-    // ADDED columns instead of dropping one.
     expect(await denemeCountColumn()).toEqual({ column: null, check: null });
+
+    // The two columns THIS migration's up() adds, and the literal definition of the CHECK it
+    // replaces — the actual probe. The definition text (not just the constraint's presence) is
+    // what tells the four-branch `num_nonnulls(...)` form apart from the two-branch form
+    // `down()` restores.
+    const favoritesTargetShape = async (): Promise<{
+      regionId: string | null;
+      continent: string | null;
+      checkDefinition: string | null;
+    }> => {
+      const columnRows = await dataSource.query<{ column_name: string }[]>(`
+        SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'favorites'
+          AND column_name IN ('region_id', 'continent')
+      `);
+      const present = new Set(columnRows.map((row) => row.column_name));
+      const checkRows = await dataSource.query<{ definition: string }[]>(`
+        SELECT pg_get_constraintdef(oid) AS definition FROM pg_constraint
+        WHERE conrelid = 'favorites'::regclass AND conname = 'CHK_favorites_exactly_one_target'
+      `);
+      return {
+        regionId: present.has('region_id') ? 'region_id' : null,
+        continent: present.has('continent') ? 'continent' : null,
+        checkDefinition: checkRows[0]?.definition ?? null,
+      };
+    };
+    // `runMigrations()` in `beforeAll` already ran `up()`, so both columns are present and the
+    // CHECK is the four-branch `num_nonnulls(...)` form before this test touches anything.
+    const shapeAfterUp = await favoritesTargetShape();
+    expect(shapeAfterUp.regionId).toBe('region_id');
+    expect(shapeAfterUp.continent).toBe('continent');
+    expect(shapeAfterUp.checkDefinition).toContain('num_nonnulls');
 
     await dataSource.undoLastMigration();
 
-    // The revert brings `books.deneme_count` and its CHECK BACK — `down()`'s `ADD COLUMN …
-    // NOT NULL` succeeds here because this suite never seeds a `books` row (plan §10 risk 7).
-    // Every table, the previous migration's own four columns, and the unrelated
-    // `sessions.rotation_grace_used_at` and `book_videos.order_no` controls, all stay intact.
-    expect(await relationSnapshot()).toEqual(expectedRelations);
-    expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
-    expect(await bookVideoOrderColumn()).toBe('order_no');
-    expect(await genericFieldColumns()).toEqual(presentFieldColumns);
-    expect(await denemeCountColumn()).toEqual({
-      column: 'deneme_count',
-      check: 'CHK_books_deneme_count',
-    });
-
-    await dataSource.runMigrations();
-
-    // Reapply drops the column and its CHECK again, returning to the ORIGINAL (post-`up()`) state.
+    // The revert removes `favorites.region_id`/`favorites.continent` and restores the original
+    // two-branch CHECK — `down()` succeeds here because this suite never seeds a `favorites` row,
+    // so the migration's own fail-closed stray-row guard finds nothing to refuse (plan §5.1.1).
+    // Every table, the previous migrations' own columns, and the unrelated
+    // `sessions.rotation_grace_used_at`, `book_videos.order_no` and `books.deneme_count` controls,
+    // all stay intact.
     expect(await relationSnapshot()).toEqual(expectedRelations);
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
     expect(await bookVideoOrderColumn()).toBe('order_no');
     expect(await genericFieldColumns()).toEqual(presentFieldColumns);
     expect(await denemeCountColumn()).toEqual({ column: null, check: null });
+    const shapeAfterDown = await favoritesTargetShape();
+    expect(shapeAfterDown.regionId).toBeNull();
+    expect(shapeAfterDown.continent).toBeNull();
+    expect(shapeAfterDown.checkDefinition).not.toContain('num_nonnulls');
+    expect(shapeAfterDown.checkDefinition).toContain('province_id');
+
+    await dataSource.runMigrations();
+
+    // Reapply adds the two columns and the four-branch CHECK again, returning to the ORIGINAL
+    // (post-`up()`) state.
+    expect(await relationSnapshot()).toEqual(expectedRelations);
+    expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
+    expect(await bookVideoOrderColumn()).toBe('order_no');
+    expect(await genericFieldColumns()).toEqual(presentFieldColumns);
+    expect(await denemeCountColumn()).toEqual({ column: null, check: null });
+    const shapeAfterReapply = await favoritesTargetShape();
+    expect(shapeAfterReapply.regionId).toBe('region_id');
+    expect(shapeAfterReapply.continent).toBe('continent');
+    expect(shapeAfterReapply.checkDefinition).toContain('num_nonnulls');
   });
 });

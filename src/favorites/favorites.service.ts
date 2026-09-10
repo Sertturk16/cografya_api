@@ -1,18 +1,52 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository } from 'typeorm';
+import { Continent } from '../common/continent.enum';
 import { Country } from '../country/entities/country.entity';
 import { Province } from '../province/entities/province.entity';
+import { Region } from '../region/entities/region.entity';
 import type { FavoriteDto } from './dto/favorite.dto';
-import { FavoriteTargetType } from './dto/favorite.dto';
+import { FavoriteEntityType } from './dto/favorite.dto';
 import { Favorite } from './entities/favorite.entity';
-import { FAVORITES_ERROR_KEYS } from './favorites-error-keys';
+import { FAVORITES_ERROR_KEYS, type FavoritesErrorKey } from './favorites-error-keys';
+
+/** One of the four persisted columns a favorite row's target lives in. */
+type FavoriteColumnProperty = 'provinceId' | 'countryId' | 'regionId' | 'continent';
+
+/** A resolved target: the persisted column it belongs in (both spellings) and its internal value. */
+interface ResolvedFavoriteTarget {
+  readonly property: FavoriteColumnProperty;
+  readonly sqlColumn: string;
+  /** The province/country/region internal uuid, or the continent enum label verbatim. */
+  readonly value: string;
+}
+
+/** `entityType` → its persisted column, in both the TypeORM property spelling and the raw SQL spelling. */
+const FAVORITE_COLUMN_BY_TYPE: Record<
+  FavoriteEntityType,
+  Pick<ResolvedFavoriteTarget, 'property' | 'sqlColumn'>
+> = {
+  [FavoriteEntityType.Province]: { property: 'provinceId', sqlColumn: 'province_id' },
+  [FavoriteEntityType.Country]: { property: 'countryId', sqlColumn: 'country_id' },
+  [FavoriteEntityType.Region]: { property: 'regionId', sqlColumn: 'region_id' },
+  [FavoriteEntityType.Continent]: { property: 'continent', sqlColumn: 'continent' },
+};
+
+/** `entityType` → the 404 key thrown when `entityId` is well-formed but names nothing real. */
+const FAVORITES_NOT_FOUND_KEY_BY_TYPE: Record<FavoriteEntityType, FavoritesErrorKey> = {
+  [FavoriteEntityType.Province]: FAVORITES_ERROR_KEYS.provinceNotFound,
+  [FavoriteEntityType.Country]: FAVORITES_ERROR_KEYS.countryNotFound,
+  [FavoriteEntityType.Region]: FAVORITES_ERROR_KEYS.regionNotFound,
+  [FavoriteEntityType.Continent]: FAVORITES_ERROR_KEYS.continentNotFound,
+};
 
 /**
  * List / idempotent-add / idempotent-remove for `favorites`, scoped to the caller's own rows
- * throughout (plan §5.5). Every method takes `userId` from `@CurrentUser()` only — no request
- * shape (body, param or query) anywhere in this module carries a `userId` field, so there is no
- * field a caller could override (the cross-user-isolation invariant).
+ * throughout, now polymorphic over all four entity types (P1 PR-A plan §5.1.2, widening
+ * UYELIK-07's original province/country-only shape). Every method takes `userId` from
+ * `@CurrentUser()` only — no request shape (body, param or query) anywhere in this module carries
+ * a `userId` field, so there is no field a caller could override (the cross-user-isolation
+ * invariant).
  */
 @Injectable()
 export class FavoritesService {
@@ -25,14 +59,18 @@ export class FavoritesService {
     private readonly provinces: Repository<Province>,
     @InjectRepository(Country)
     private readonly countries: Repository<Country>,
+    @InjectRepository(Region)
+    private readonly regions: Repository<Region>,
     private readonly dataSource: DataSource,
   ) {}
 
   /**
    * `GET /api/favorites` — a plain, unpaginated array (`ENGINEERING.md` §2's "bounded and small"
-   * rule; bounded at <= 81 provinces + ~199 countries = 280 rows, ever, per user). Resolves each
-   * row's internal `province_id`/`country_id` back to its published `plateCode`/`isoCode` via two
-   * batched lookups — the favorites table never stores the business key itself (plan §5.1/§5.2).
+   * rule; bounded at <= 81 provinces + ~199 countries + 7 regions + 7 continents = 294 rows,
+   * ever, per user). Resolves each row's internal `province_id`/`country_id`/`region_id` back to
+   * its published `plateCode`/`isoCode`/`slug` via three batched lookups (`continent` needs no
+   * lookup — the stored value already IS the published label) — the favorites table never stores
+   * the business key itself for the three FK-backed types (plan §5.1/§5.1.2).
    */
   async listMine(userId: string): Promise<FavoriteDto[]> {
     const rows = await this.favorites.find({ where: { userId }, order: { createdAt: 'ASC' } });
@@ -40,171 +78,205 @@ export class FavoritesService {
 
     const provinceIds = rows.map((row) => row.provinceId).filter((id): id is string => id !== null);
     const countryIds = rows.map((row) => row.countryId).filter((id): id is string => id !== null);
+    const regionIds = rows.map((row) => row.regionId).filter((id): id is string => id !== null);
 
-    const [provinces, countries] = await Promise.all([
+    const [provinces, countries, regions] = await Promise.all([
       provinceIds.length > 0
         ? this.provinces.find({ where: { id: In(provinceIds) } })
         : Promise.resolve([]),
       countryIds.length > 0
         ? this.countries.find({ where: { id: In(countryIds) } })
         : Promise.resolve([]),
+      regionIds.length > 0
+        ? this.regions.find({ where: { id: In(regionIds) } })
+        : Promise.resolve([]),
     ]);
     const plateCodeById = new Map(provinces.map((province) => [province.id, province.plateCode]));
     const isoCodeById = new Map(countries.map((country) => [country.id, country.isoCode]));
+    const slugById = new Map(regions.map((region) => [region.id, region.slug]));
 
-    return rows.map((row) => {
-      // `province_id`/`country_id` are `ON DELETE RESTRICT` (favorite.entity.ts), and neither
-      // `seedGeography` nor `seedWorld` ever deletes a row (plan §2) — so a dangling reference
-      // here should be structurally impossible via this API surface today. It is handled
-      // defensively anyway (SFH144-M1): a lookup miss falls back to `null` rather than throwing,
-      // but that fallback is now LOUD, matching `ProvinceClimate`'s own "this should never happen,
-      // serve null and log" convention (`province.service.ts`) rather than silently minting a
-      // `FavoriteDto` that violates its own documented contract with no signal anywhere.
-      const plateCode =
-        row.provinceId === null ? null : (plateCodeById.get(row.provinceId) ?? null);
-      if (row.provinceId !== null && plateCode === null) {
-        this.logger.warn(
-          `favorites row ${row.id} references province_id ${row.provinceId}, which no longer ` +
-            `resolves to a provinces row (province_id is ON DELETE RESTRICT — this should never ` +
-            `happen). Serving plateCode: null rather than throwing.`,
-        );
+    const dtos: FavoriteDto[] = [];
+    for (const row of rows) {
+      const resolved = this.resolveRowBusinessKey(row, plateCodeById, isoCodeById, slugById);
+      // `province_id`/`country_id`/`region_id` are `ON DELETE RESTRICT` (favorite.entity.ts), and
+      // no seed ever deletes a row (plan §2) — so a dangling reference here should be
+      // structurally impossible via this API surface today. Handled defensively anyway
+      // (SFH144-M1, extended to `region` per plan §5.1.2): a lookup miss is logged LOUDLY and the
+      // row is OMITTED from the list rather than served with a fabricated `entityId` — unlike the
+      // old two-field shape, `FavoriteDto.entityId` is a single non-nullable string with no "null
+      // means unresolved" escape hatch, so silently minting one would violate the published
+      // contract with no signal anywhere.
+      if (resolved === null) continue;
+      dtos.push(toDto(resolved.entityType, resolved.entityId, row.createdAt));
+    }
+    return dtos;
+  }
+
+  private resolveRowBusinessKey(
+    row: Favorite,
+    plateCodeById: Map<string, string>,
+    isoCodeById: Map<string, string>,
+    slugById: Map<string, string>,
+  ): { entityType: FavoriteEntityType; entityId: string } | null {
+    if (row.provinceId !== null) {
+      const plateCode = plateCodeById.get(row.provinceId);
+      if (plateCode === undefined) {
+        this.warnUnresolvable(row.id, 'province_id', row.provinceId);
+        return null;
       }
-      const isoCode = row.countryId === null ? null : (isoCodeById.get(row.countryId) ?? null);
-      if (row.countryId !== null && isoCode === null) {
-        this.logger.warn(
-          `favorites row ${row.id} references country_id ${row.countryId}, which no longer ` +
-            `resolves to a countries row (country_id is ON DELETE RESTRICT — this should never ` +
-            `happen). Serving isoCode: null rather than throwing.`,
-        );
+      return { entityType: FavoriteEntityType.Province, entityId: plateCode };
+    }
+    if (row.countryId !== null) {
+      const isoCode = isoCodeById.get(row.countryId);
+      if (isoCode === undefined) {
+        this.warnUnresolvable(row.id, 'country_id', row.countryId);
+        return null;
       }
-      return toDto(
-        row.provinceId !== null ? FavoriteTargetType.Province : FavoriteTargetType.Country,
-        plateCode,
-        isoCode,
-        row.createdAt,
-      );
-    });
+      return { entityType: FavoriteEntityType.Country, entityId: isoCode };
+    }
+    if (row.regionId !== null) {
+      const slug = slugById.get(row.regionId);
+      if (slug === undefined) {
+        this.warnUnresolvable(row.id, 'region_id', row.regionId);
+        return null;
+      }
+      return { entityType: FavoriteEntityType.Region, entityId: slug };
+    }
+    if (row.continent !== null) {
+      return { entityType: FavoriteEntityType.Continent, entityId: row.continent };
+    }
+    // `CHK_favorites_exactly_one_target` guarantees exactly one of the four columns is non-null
+    // for every persisted row — this branch exists only to satisfy the return type and to fail
+    // loudly rather than silently if that guarantee is ever violated.
+    this.logger.warn(
+      `favorites row ${row.id} has no non-null target column, which ` +
+        `CHK_favorites_exactly_one_target should make impossible. Omitting it from the list.`,
+    );
+    return null;
+  }
+
+  private warnUnresolvable(rowId: string, sqlColumn: string, targetId: string): void {
+    this.logger.warn(
+      `favorites row ${rowId} references ${sqlColumn} ${targetId}, which no longer resolves to a ` +
+        `row (${sqlColumn} is ON DELETE RESTRICT — this should never happen). Omitting this row ` +
+        `from the list.`,
+    );
   }
 
   /**
-   * `PUT .../provinces/{plateCode}` — idempotent add. Resolves `plateCode` to the real row BEFORE
-   * any write touches `favorites` (404 if unknown), then a SINGLE atomic `INSERT … ON CONFLICT
-   * (user_id, province_id) DO UPDATE … RETURNING` (plan §5.3, race fix `SFH144-I1`/round 2).
-   *
-   * This used to be `DO NOTHING` followed by a separate re-read (`findOneOrFail`) to fetch the
-   * row for the echoed `FavoriteDto`, on the reasoning that `DO NOTHING` returns no row on
-   * conflict. That reasoning was correct but incomplete: the window between the INSERT committing
-   * and the follow-up SELECT running was NOT safe here the way it is in
-   * `VideoProgressService.upsert` (which this was copied from) — `video_progress` has no
-   * `@Delete()` route, so no concurrent request can ever remove the row in that window, while
-   * `removeProvince` below is exactly such a route for the exact same `(user_id, province_id)`
-   * pair. A concurrent add + remove could land the DELETE inside that window, so the re-read found
-   * no row and threw an uncaught `EntityNotFoundError` — surfacing as a bogus 500 on a request
-   * that had, in fact, already been satisfied.
-   *
-   * `DO UPDATE SET "user_id" = EXCLUDED."user_id"` is a no-op write on conflict (every column that
-   * matters — `created_at` — is left untouched, so a repeat add still echoes the ORIGINAL creation
-   * timestamp) whose only purpose is making `RETURNING` fire on both branches: the statement now
-   * always inserts-or-updates and returns exactly one row in one round trip, so there is no window
-   * left for a concurrent `DELETE` on the same pair to land in between two separate statements —
-   * this is the same atomic upsert-and-return idiom `AuthRateLimitService.consume` already uses
-   * (`auth-rate-limit.service.ts`), not a new pattern.
+   * Resolves `(entityType, entityId)` — the published business key pair — to the internal target
+   * a `favorites` row would store, or `null` if `entityId` is well-formed but names nothing real.
+   * For `province`/`country`/`region` this is a lookup by the entity's own business-key column;
+   * for `continent` it is pure in-memory membership in the `Continent` enum, no query at all
+   * (plan §5.1.2's "batches its lookups per type … resolves continents from the in-memory enum
+   * with no query at all").
    */
-  async addProvince(userId: string, plateCode: string): Promise<FavoriteDto> {
-    const province = await this.provinces.findOne({ where: { plateCode } });
-    if (province === null) throw new NotFoundException(FAVORITES_ERROR_KEYS.provinceNotFound);
+  private async resolveTarget(
+    entityType: FavoriteEntityType,
+    entityId: string,
+  ): Promise<ResolvedFavoriteTarget | null> {
+    const column = FAVORITE_COLUMN_BY_TYPE[entityType];
+    switch (entityType) {
+      case FavoriteEntityType.Province: {
+        const province = await this.provinces.findOne({ where: { plateCode: entityId } });
+        return province === null ? null : { ...column, value: province.id };
+      }
+      case FavoriteEntityType.Country: {
+        const country = await this.countries.findOne({ where: { isoCode: entityId } });
+        return country === null ? null : { ...column, value: country.id };
+      }
+      case FavoriteEntityType.Region: {
+        const region = await this.regions.findOne({ where: { slug: entityId } });
+        return region === null ? null : { ...column, value: region.id };
+      }
+      case FavoriteEntityType.Continent: {
+        const isKnownContinent = (Object.values(Continent) as string[]).includes(entityId);
+        return isKnownContinent ? { ...column, value: entityId } : null;
+      }
+    }
+  }
+
+  /**
+   * `PUT /api/favorites/{entityType}/{entityId}` — idempotent add. Resolves `entityId` to the
+   * real target BEFORE any write touches `favorites` (404 if unknown), then a SINGLE atomic
+   * `INSERT … ON CONFLICT (user_id, <column>) DO UPDATE … RETURNING` (plan §5.1.2, race fix
+   * `SFH144-I1`/round 2, unchanged in shape from the original two-type implementation — only the
+   * column and value are now selected per `entityType`).
+   *
+   * `DO UPDATE SET "user_id" = EXCLUDED."user_id"` is a no-op write on conflict (every column
+   * that matters — `created_at` — is left untouched, so a repeat add still echoes the ORIGINAL
+   * creation timestamp) whose only purpose is making `RETURNING` fire on both branches: the
+   * statement always inserts-or-updates and returns exactly one row in one round trip, so there
+   * is no window left for a concurrent `DELETE` on the same pair to land between two separate
+   * statements — the same atomic upsert-and-return idiom `AuthRateLimitService.consume` already
+   * uses. **This idiom must not be "simplified" back to `DO NOTHING` + a re-read** — see the
+   * entity/plan history this docblock inherits for exactly the bogus-500 regression that would
+   * reopen.
+   *
+   * `column.sqlColumn` is interpolated into the SQL text rather than bound as a parameter (column
+   * identifiers cannot be bound parameters in Postgres), but it is never attacker-controlled: it
+   * comes only from {@link FAVORITE_COLUMN_BY_TYPE}, a fixed internal map keyed by the validated
+   * `FavoriteEntityType` enum, never from the request body or any user-supplied string.
+   */
+  async addTarget(
+    userId: string,
+    entityType: FavoriteEntityType,
+    entityId: string,
+  ): Promise<FavoriteDto> {
+    const target = await this.resolveTarget(entityType, entityId);
+    if (target === null) {
+      throw new NotFoundException(FAVORITES_NOT_FOUND_KEY_BY_TYPE[entityType]);
+    }
 
     const rows = await this.dataSource.query<{ created_at: Date }[]>(
-      `INSERT INTO "favorites" ("user_id", "province_id")
+      `INSERT INTO "favorites" ("user_id", "${target.sqlColumn}")
        VALUES ($1, $2)
-       ON CONFLICT ("user_id", "province_id") DO UPDATE SET "user_id" = EXCLUDED."user_id"
+       ON CONFLICT ("user_id", "${target.sqlColumn}") DO UPDATE SET "user_id" = EXCLUDED."user_id"
        RETURNING "created_at"`,
-      [userId, province.id],
+      [userId, target.value],
     );
     const [row] = rows;
     if (row === undefined) {
-      // Cannot happen for an `INSERT … ON CONFLICT DO UPDATE` (unlike the plain-INSERT
-      // `AuthRateLimitService` case this mirrors, there is no DO-NOTHING branch here that could
-      // legitimately return zero rows) — kept as a fail-closed guard against
-      // `noUncheckedIndexedAccess`, not a reachable runtime path.
-      throw new Error('favorites: province upsert returned no row');
+      // Cannot happen for an `INSERT … ON CONFLICT DO UPDATE` — kept as a fail-closed guard
+      // against `noUncheckedIndexedAccess`, not a reachable runtime path.
+      throw new Error(`favorites: ${entityType} upsert returned no row`);
     }
-    return toDto(FavoriteTargetType.Province, province.plateCode, null, row.created_at);
+    return toDto(entityType, entityId, row.created_at);
   }
 
   /**
-   * `DELETE .../provinces/{plateCode}` — unconditionally idempotent (plan §5.6): 0 rows deleted
-   * and 1 row deleted are both success, and a well-formed but unknown `plateCode` is ALSO a no-op
-   * rather than a 404 — the caller never needs to distinguish "never favorited" from "unknown
-   * province" from "just removed". Every delete filters by `userId` — never `WHERE province_id =
-   * ?` alone — so this can never remove another user's row (the cross-user-isolation invariant,
-   * sharpened for the delete surface per plan §10).
+   * `DELETE /api/favorites/{entityType}/{entityId}` — unconditionally idempotent (plan §5.1.2):
+   * 0 rows deleted and 1 row deleted are both success, and a well-formed but unknown `entityId`
+   * is ALSO a no-op rather than a 404 — the caller never needs to distinguish "never favorited"
+   * from "unknown target" from "just removed". Every delete filters by `userId` — never by the
+   * target column alone — so this can never remove another user's row (the cross-user-isolation
+   * invariant).
    */
-  async removeProvince(userId: string, plateCode: string): Promise<void> {
-    const province = await this.provinces.findOne({ where: { plateCode } });
-    if (province === null) return;
-    await this.favorites.delete({ userId, provinceId: province.id });
-  }
+  async removeTarget(
+    userId: string,
+    entityType: FavoriteEntityType,
+    entityId: string,
+  ): Promise<void> {
+    const target = await this.resolveTarget(entityType, entityId);
+    if (target === null) return;
 
-  /**
-   * `PUT .../countries/{isoCode}` — idempotent add. Resolves `isoCode` to the real row BEFORE any
-   * write touches `favorites` (404 if unknown), then a SINGLE atomic `INSERT … ON CONFLICT
-   * (user_id, country_id) DO UPDATE … RETURNING` (plan §5.3, race fix `SFH144-I1`/round 2).
-   *
-   * This used to be `DO NOTHING` followed by a separate re-read (`findOneOrFail`) to fetch the
-   * row for the echoed `FavoriteDto`, on the reasoning that `DO NOTHING` returns no row on
-   * conflict. That reasoning was correct but incomplete: the window between the INSERT committing
-   * and the follow-up SELECT running was NOT safe here the way it is in
-   * `VideoProgressService.upsert` (which this was copied from) — `video_progress` has no
-   * `@Delete()` route, so no concurrent request can ever remove the row in that window, while
-   * `removeCountry` below is exactly such a route for the exact same `(user_id, country_id)` pair.
-   * A concurrent add + remove could land the DELETE inside that window, so the re-read found no
-   * row and threw an uncaught `EntityNotFoundError` — surfacing as a bogus 500 on a request that
-   * had, in fact, already been satisfied.
-   *
-   * `DO UPDATE SET "user_id" = EXCLUDED."user_id"` is a no-op write on conflict (every column that
-   * matters — `created_at` — is left untouched, so a repeat add still echoes the ORIGINAL creation
-   * timestamp) whose only purpose is making `RETURNING` fire on both branches: the statement now
-   * always inserts-or-updates and returns exactly one row in one round trip, so there is no window
-   * left for a concurrent `DELETE` on the same pair to land in between two separate statements —
-   * this is the same atomic upsert-and-return idiom `AuthRateLimitService.consume` already uses
-   * (`auth-rate-limit.service.ts`), not a new pattern.
-   */
-  async addCountry(userId: string, isoCode: string): Promise<FavoriteDto> {
-    const country = await this.countries.findOne({ where: { isoCode } });
-    if (country === null) throw new NotFoundException(FAVORITES_ERROR_KEYS.countryNotFound);
-
-    const rows = await this.dataSource.query<{ created_at: Date }[]>(
-      `INSERT INTO "favorites" ("user_id", "country_id")
-       VALUES ($1, $2)
-       ON CONFLICT ("user_id", "country_id") DO UPDATE SET "user_id" = EXCLUDED."user_id"
-       RETURNING "created_at"`,
-      [userId, country.id],
-    );
-    const [row] = rows;
-    if (row === undefined) {
-      // Cannot happen for an `INSERT … ON CONFLICT DO UPDATE` (unlike the plain-INSERT
-      // `AuthRateLimitService` case this mirrors, there is no DO-NOTHING branch here that could
-      // legitimately return zero rows) — kept as a fail-closed guard against
-      // `noUncheckedIndexedAccess`, not a reachable runtime path.
-      throw new Error('favorites: country upsert returned no row');
+    switch (target.property) {
+      case 'provinceId':
+        await this.favorites.delete({ userId, provinceId: target.value });
+        return;
+      case 'countryId':
+        await this.favorites.delete({ userId, countryId: target.value });
+        return;
+      case 'regionId':
+        await this.favorites.delete({ userId, regionId: target.value });
+        return;
+      case 'continent':
+        await this.favorites.delete({ userId, continent: target.value as Continent });
+        return;
     }
-    return toDto(FavoriteTargetType.Country, null, country.isoCode, row.created_at);
-  }
-
-  /** `DELETE .../countries/{isoCode}` — unconditionally idempotent, mirroring {@link removeProvince}. */
-  async removeCountry(userId: string, isoCode: string): Promise<void> {
-    const country = await this.countries.findOne({ where: { isoCode } });
-    if (country === null) return;
-    await this.favorites.delete({ userId, countryId: country.id });
   }
 }
 
-function toDto(
-  type: FavoriteTargetType,
-  plateCode: string | null,
-  isoCode: string | null,
-  createdAt: Date,
-): FavoriteDto {
-  return { type, plateCode, isoCode, createdAt: createdAt.toISOString() };
+function toDto(entityType: FavoriteEntityType, entityId: string, createdAt: Date): FavoriteDto {
+  return { entityType, entityId, createdAt: createdAt.toISOString() };
 }
