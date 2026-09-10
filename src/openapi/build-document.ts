@@ -26,8 +26,11 @@ import {
  * **This list shrinks as endpoints land, and B3 is the first time it did.** `BookListDto` and
  * `BookDetailDto` left it when `GET /api/books` and `GET /api/books/{slug}` started serving them:
  * the scanner now reaches both through `@ApiOkResponse`, and every book schema below them arrives
- * transitively — `BookListItemDto` through `BookListDto.items`, and `BookCoverageDto`,
- * `BookVideoDto`, `BookVideoQuestionDto` and `BookVideoYoutubeDto` through `BookDetailDto`. A
+ * transitively — `BookListItemDto` through `BookListDto.items`, and `BookVideoDto`,
+ * `BookVideoTagDto` (renamed from `BookVideoQuestionDto`, P0 PR-3) and `BookVideoYoutubeDto`
+ * through `BookDetailDto`. `BookCoverageDto` is gone from this sentence because P0 PR-3 deleted
+ * the schema outright — every one of its fields lost its last consumer once the owner ruled that
+ * no count is rendered to the reader on the book surface (`DEC 2026-09-10c` md.1). A
  * permanent extra-model list would quietly hide a DTO that no longer has a route at all, which is
  * the whole reason entries are removed rather than left as insurance.
  *

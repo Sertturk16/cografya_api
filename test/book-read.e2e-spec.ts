@@ -17,6 +17,7 @@ import { BookVideo } from '../src/book/entities/book-video.entity';
 import { Book } from '../src/book/entities/book.entity';
 import { applyGlobalPrefix } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
+import { BOOK_TIMESTAMPS_OWNER_SLUG_TR } from '../src/database/seeds/books.seed-data';
 import { seedBooks } from '../src/database/seeds/seed-books';
 
 /**
@@ -50,8 +51,6 @@ interface ListItem {
   publisherName: string;
   examTrack: string;
   coverImagePath: string | null;
-  videoCount: number;
-  questionCount: number;
   displayOrder: number;
   updatedAt: string;
 }
@@ -69,7 +68,6 @@ interface Detail extends ListItem {
   authorNames: string[];
   isbn13: string;
   pageCount: number;
-  denemeCount: number;
   introTr: string;
   introEn: string | null;
   metaTitleTr: string;
@@ -77,17 +75,13 @@ interface Detail extends ListItem {
   youtubeChannelId: string;
   youtubePlaylistId: string | null;
   purchaseUrl: string | null;
-  coverage: {
-    videoCount: number;
-    questionCount: number;
-    denemeNumbers: number[];
-    denemeCount: number;
-  };
   videos: {
     bookVideoId: string;
-    denemeNo: number;
+    orderNo: number;
+    titleTr: string | null;
+    titleEn: string | null;
     youtubeVideoId: string;
-    questions: { questionNo: number; startSecond: number }[];
+    tags: { orderNo: number; startSecond: number; nameTr: string | null; nameEn: string | null }[];
     youtube: unknown;
   }[];
   attribution: {
@@ -208,7 +202,11 @@ describe('Book read path (e2e, real Postgres)', () => {
       expect(response.headers['cache-control']).toBe(BOOK_CACHE_CONTROL);
     });
 
-    it('serves a detail payload whose counts agree with the arrays it just served', async () => {
+    it('serves a detail payload whose video array agrees with the list item it summarises', async () => {
+      // P0 PR-3 removed every count from this contract (`DEC 2026-09-10c` md.1) — `videoCount`,
+      // `questionCount` and the whole `coverage` object are gone, so the count-agreement case this
+      // replaces has no field left to assert. What remains worth asserting here is that the two
+      // published views of one book (the list item and the detail) still describe the SAME row.
       app = await bootApp();
       const list = await request(app.getHttpServer()).get('/api/books').expect(200);
       const first = (list.body as ListEnvelope).items[0];
@@ -219,29 +217,19 @@ describe('Book read path (e2e, real Postgres)', () => {
         .expect(200);
       const body = response.body as Detail;
 
-      // The count agreement is the real assertion: `videoCount` and `questionCount` are published
-      // TWICE (inherited at the top level and inside `coverage`) and the DTO requires both to come
-      // from ONE computation. Comparing them against the served arrays catches the drift AND the
-      // pg `bigint`-as-string trap in one case — `"30" === 30` is false.
       expect(body.videos.length).toBeGreaterThan(0);
-      expect(body.videoCount).toBe(body.videos.length);
-      expect(body.coverage.videoCount).toBe(body.videos.length);
-      const questionTotal = body.videos.reduce((sum, video) => sum + video.questions.length, 0);
-      expect(questionTotal).toBeGreaterThan(0);
-      expect(body.questionCount).toBe(questionTotal);
-      expect(body.coverage.questionCount).toBe(questionTotal);
-      // Types, not just values: a string that happens to compare equal would still break the web
-      // repo's generated `number` type.
-      expect(typeof body.videoCount).toBe('number');
-      expect(typeof body.questionCount).toBe('number');
-
-      // The list item for the same book must agree with the detail it summarises.
-      expect(first.videoCount).toBe(body.videoCount);
-      expect(first.questionCount).toBe(body.questionCount);
+      expect(body.slugTr).toBe(first.slugTr);
+      expect(body.updatedAt).toBe(first.updatedAt);
+      // Structural, not a count: the DTO does not publish `videoCount`/`questionCount`/`coverage`
+      // any more.
+      expect(Object.prototype.hasOwnProperty.call(body, 'coverage')).toBe(false);
+      expect(Object.prototype.hasOwnProperty.call(body, 'videoCount')).toBe(false);
+      expect(Object.prototype.hasOwnProperty.call(body, 'questionCount')).toBe(false);
+      expect(Object.prototype.hasOwnProperty.call(body, 'denemeCount')).toBe(false);
       expect(response.headers['cache-control']).toBe(BOOK_CACHE_CONTROL);
     });
 
-    it('orders denemeler ascending and every question index gaplessly ascending', async () => {
+    it('orders videos ascending and every etiket index gaplessly ascending', async () => {
       app = await bootApp();
       const list = await request(app.getHttpServer()).get('/api/books').expect(200);
       const first = (list.body as ListEnvelope).items[0];
@@ -252,34 +240,32 @@ describe('Book read path (e2e, real Postgres)', () => {
 
       // SPEC §13 invariant 3, asserted on the SERVED payload. The service orders in SQL and does
       // not re-sort in the mapper, precisely so this case can fail when the ordering breaks.
-      const denemeNumbers = body.videos.map((video) => video.denemeNo);
-      expect(denemeNumbers.length).toBeGreaterThan(0);
-      expect([...denemeNumbers].sort((a, b) => a - b)).toEqual(denemeNumbers);
-      // `coverage.denemeNumbers` publishes the same set, in the same order.
-      expect(body.coverage.denemeNumbers).toEqual(denemeNumbers);
+      const orderNumbers = body.videos.map((video) => video.orderNo);
+      expect(orderNumbers.length).toBeGreaterThan(0);
+      expect([...orderNumbers].sort((a, b) => a - b)).toEqual(orderNumbers);
 
       for (const video of body.videos) {
-        expect(video.questions.length).toBeGreaterThan(0);
+        expect(video.tags.length).toBeGreaterThan(0);
 
-        // Gapless FROM 1 — a missing question number is a silent hole in the index. The whole
+        // Gapless FROM 1 — a missing etiket number is a silent hole in the index. The whole
         // sequence is compared at once so a failure prints the actual series, not just "false".
         expect(
-          `deneme ${String(video.denemeNo)}: ${video.questions.map((q) => q.questionNo).join(',')}`,
+          `video ${String(video.orderNo)}: ${video.tags.map((tag) => tag.orderNo).join(',')}`,
         ).toBe(
-          `deneme ${String(video.denemeNo)}: ${video.questions.map((_q, index) => index + 1).join(',')}`,
+          `video ${String(video.orderNo)}: ${video.tags.map((_tag, index) => index + 1).join(',')}`,
         );
 
-        // STRICTLY ascending start seconds. Not `>=`: two questions sharing a second means one of
+        // STRICTLY ascending start seconds. Not `>=`: two etiketler sharing a second means one of
         // them jumps the reader to the wrong solution, and every range check still passes.
-        const seconds = video.questions.map((question) => question.startSecond);
+        const seconds = video.tags.map((tag) => tag.startSecond);
         const ascending = seconds.every(
           (second, index) => index === 0 || second > (seconds[index - 1] ?? -1),
         );
         expect(
-          `deneme ${String(video.denemeNo)} ascending=${String(ascending)} [${seconds.join(',')}]`,
-        ).toBe(`deneme ${String(video.denemeNo)} ascending=true [${seconds.join(',')}]`);
+          `video ${String(video.orderNo)} ascending=${String(ascending)} [${seconds.join(',')}]`,
+        ).toBe(`video ${String(video.orderNo)} ascending=true [${seconds.join(',')}]`);
 
-        // DO NOT assume the first question starts at 0 — the measured set is {0, 2, 6, 11, 94}, so
+        // DO NOT assume the first etiket starts at 0 — the measured set is {0, 2, 6, 11, 94}, so
         // 0 is an ordinary value rather than a sentinel. Only non-negativity is an invariant.
         expect(seconds.every((second) => Number.isInteger(second) && second >= 0)).toBe(true);
         // SPEC §13 invariant 4, on the served id rather than on the column.
@@ -306,7 +292,7 @@ describe('Book read path (e2e, real Postgres)', () => {
         );
         const entityRow = await dataSource
           .getRepository(BookVideo)
-          .findOneOrFail({ where: { bookId: bookRow.id, orderNo: video.denemeNo } });
+          .findOneOrFail({ where: { bookId: bookRow.id, orderNo: video.orderNo } });
         expect(video.bookVideoId).toBe(entityRow.id);
       }
       // Distinct per video within one book — a mapping bug that served the same id twice would
@@ -392,7 +378,6 @@ describe('Book read path (e2e, real Postgres)', () => {
           isbn13: '9999999999993',
           pageCount: 1,
           examTrack: ExamTrack.Ayt,
-          denemeCount: 1,
           coverImagePath: null,
           purchaseUrl: null,
           introTr: 'Fixture.',
@@ -423,20 +408,12 @@ describe('Book read path (e2e, real Postgres)', () => {
       // The service has an explicit `videos.length === 0` branch (it skips the `IN ()` query, which
       // is invalid SQL) and an `EMPTY_STATS` fallback for a book absent from the aggregate — and no
       // test reached either, though fixtures without videos already existed (`TEST110-M3`).
-      // A künye seeded before its question index is a real, ordinary state, not a defect.
+      // A künye seeded before its etiket index is a real, ordinary state, not a defect.
       app = await bootApp();
       const body = (await request(app.getHttpServer()).get('/api/books/zz-iki-slug-tr').expect(200))
         .body as Detail;
 
       expect(body.videos).toEqual([]);
-      expect(body.videoCount).toBe(0);
-      expect(body.questionCount).toBe(0);
-      expect(body.coverage.videoCount).toBe(0);
-      expect(body.coverage.questionCount).toBe(0);
-      expect(body.coverage.denemeNumbers).toEqual([]);
-      // `denemeCount` is a künye fact and must NOT collapse with coverage: the book still has its
-      // denemeler, we simply index none of their solutions.
-      expect(body.coverage.denemeCount).toBeGreaterThan(0);
       // The credit does not depend on there being videos to credit.
       expect(body.attribution.map((row) => row.providerId).sort()).toEqual(['partner', 'youtube']);
       // With no child rows, `updatedAt` collapses to the book row's own stamp — still a real
@@ -472,22 +449,22 @@ describe('Book read path (e2e, real Postgres)', () => {
       );
 
       // ...and must MOVE when only a child row changes. This is the whole reason the value is a
-      // GREATEST across three tables: a re-measurement updates questions and deliberately leaves
+      // GREATEST across three tables: a re-measurement updates tags and deliberately leaves
       // `books.updated_at` alone, so a service reading only the book row would report "unchanged"
-      // on the day the entire question index changed. Asserting the before-state too is what makes
+      // on the day the entire etiket index changed. Asserting the before-state too is what makes
       // this a real control rather than a coincidence.
-      const questionRepo = dataSource.getRepository(BookVideoTag);
+      const tagRepo = dataSource.getRepository(BookVideoTag);
       const videoRow = await dataSource
         .getRepository(BookVideo)
         .findOneOrFail({ where: { bookId: bookRow.id }, order: { orderNo: 'ASC' } });
-      // The LAST question of that video: incrementing its second cannot collide with a following
+      // The LAST etiket of that video: incrementing its second cannot collide with a following
       // one, so the strictly-ascending invariant this suite also asserts stays true throughout.
-      const question = await questionRepo.findOneOrFail({
+      const tag = await tagRepo.findOneOrFail({
         where: { bookVideoId: videoRow.id },
         order: { orderNo: 'DESC' },
       });
-      question.startSecond += 1;
-      await questionRepo.save(question);
+      tag.startSecond += 1;
+      await tagRepo.save(tag);
 
       const after = (await request(app.getHttpServer()).get('/api/books').expect(200))
         .body as ListEnvelope;
@@ -499,8 +476,106 @@ describe('Book read path (e2e, real Postgres)', () => {
 
       // Restore the value, so later phases see the corpus they expect. `updated_at` stays moved —
       // that is honest: the row really was written twice.
-      question.startSecond -= 1;
-      await questionRepo.save(question);
+      tag.startSecond -= 1;
+      await tagRepo.save(tag);
+    });
+
+    it("the seeded owner book's etiket rows all carry name_tr IS NULL AND name_en IS NULL (AC 5, P0 PR-3)", async () => {
+      // `DEC 2026-09-10b` md.2's per-type boundary: a deneme book's etiketler carry no name at all,
+      // and the artefact's own `tag` field ("Soru 3") must never be written into `name_tr` (plan
+      // §5.4 PROHIBITION). Checked directly against the database rather than through the DTO, so a
+      // future mapper bug that HID a populated name would not make this case a false green.
+      const rows = await dataSource.query<{ name_tr: string | null; name_en: string | null }[]>(
+        `SELECT bvt.name_tr, bvt.name_en
+         FROM book_video_tags bvt
+         JOIN book_videos bv ON bv.id = bvt.book_video_id
+         JOIN books b ON b.id = bv.book_id
+         WHERE b.slug_tr = $1`,
+        [BOOK_TIMESTAMPS_OWNER_SLUG_TR],
+      );
+      expect(rows.length).toBeGreaterThan(0);
+      expect(rows.every((row) => row.name_tr === null && row.name_en === null)).toBe(true);
+    });
+
+    it("publishes a generic book's orderNo/titleTr/tags/nameTr, with no count anywhere (AC 1, P0 PR-3)", async () => {
+      // Direct repository writes rather than `seedBooks`: the shipped seed loader's artefact type
+      // (`BookVideoSeed`/`BookTagSeed`) carries no `titleTr`/`nameTr` channel at all — those columns
+      // are deliberately un-seeded by production data until a real book needs them (plan §3,
+      // "Deliberately deferred"). This case proves the columns publish correctly once populated,
+      // which is a repo-level fixture choice rather than a change to the shipped seed loader.
+      const bookRepo = dataSource.getRepository(Book);
+      const videoRepo = dataSource.getRepository(BookVideo);
+      const tagRepo = dataSource.getRepository(BookVideoTag);
+
+      const genericBook = await bookRepo.save(
+        bookRepo.create({
+          slugTr: 'zz-jenerik-detay',
+          slugEn: 'zz-generic-detail',
+          titleTr: 'Jenerik Detay Kitabı',
+          titleEn: null,
+          publisherName: 'Fixture',
+          authorNames: ['Fixture Author'],
+          isbn13: '9999999999995',
+          pageCount: 1,
+          examTrack: ExamTrack.Ayt,
+          coverImagePath: null,
+          purchaseUrl: null,
+          introTr: 'Fixture.',
+          introEn: null,
+          metaTitleTr: 'Fixture',
+          metaDescriptionTr: 'Fixture',
+          youtubePlaylistId: null,
+          youtubeChannelId: 'UC_fixture_channel',
+          displayOrder: 9996,
+        }),
+      );
+
+      const genericVideo = await videoRepo.save(
+        videoRepo.create({
+          bookId: genericBook.id,
+          orderNo: 1,
+          titleTr: 'İklim',
+          titleEn: null,
+          youtubeVideoId: 'gdt00000001',
+        }),
+      );
+
+      await tagRepo.save(
+        tagRepo.create({
+          bookVideoId: genericVideo.id,
+          orderNo: 1,
+          startSecond: 5,
+          nameTr: 'Sıcaklık',
+          nameEn: null,
+        }),
+      );
+
+      app = await bootApp();
+      const body = (
+        await request(app.getHttpServer()).get('/api/books/zz-jenerik-detay').expect(200)
+      ).body as Detail;
+
+      expect(body.videos.length).toBe(1);
+      const [servedVideo] = body.videos;
+      if (servedVideo === undefined) throw new Error('generic video vanished');
+      expect(servedVideo.orderNo).toBe(1);
+      expect(servedVideo.titleTr).toBe('İklim');
+      expect(servedVideo.titleEn).toBeNull();
+      expect(servedVideo.tags).toEqual([
+        { orderNo: 1, startSecond: 5, nameTr: 'Sıcaklık', nameEn: null },
+      ]);
+      // No book-level count anywhere, on this book or any other (`DEC 2026-09-10c` md.1).
+      expect(Object.prototype.hasOwnProperty.call(body, 'coverage')).toBe(false);
+      expect(Object.prototype.hasOwnProperty.call(body, 'videoCount')).toBe(false);
+      expect(Object.prototype.hasOwnProperty.call(body, 'questionCount')).toBe(false);
+      expect(Object.prototype.hasOwnProperty.call(body, 'denemeCount')).toBe(false);
+    });
+
+    afterAll(async () => {
+      // FK CASCADE (book_videos, book_video_tags → books ON DELETE CASCADE) means one DELETE
+      // clears all three rows this case inserted — the same pattern test/book-seed.e2e-spec.ts
+      // uses for its own generic-book fixture.
+      await dataSource.query("DELETE FROM books WHERE slug_tr = 'zz-jenerik-detay'");
     });
   });
 
@@ -528,7 +603,6 @@ describe('Book read path (e2e, real Postgres)', () => {
             isbn13: suffix === 'alpha' ? '9999999999991' : '9999999999992',
             pageCount: 1,
             examTrack: ExamTrack.Ayt,
-            denemeCount: 1,
             coverImagePath: null,
             purchaseUrl: null,
             introTr: 'Fixture.',

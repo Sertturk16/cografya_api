@@ -19,31 +19,28 @@ import {
 } from './youtube/youtube-sync.config';
 
 /**
- * Per-book aggregates, as they come back from the grouped query.
+ * Per-book timestamp aggregate, as it comes back from the grouped query.
  *
- * `COUNT` arrives as a STRING and `MAX(timestamptz)` as `Date | null`, and both are stated in the
- * type rather than discovered at runtime: pg returns `bigint` as a string to avoid a lossy
- * conversion through a JS number, so a `videoCount` handed to the DTO unconverted would serialise
- * as `"30"` and satisfy every structural test that only checks presence.
+ * **P0 PR-3 narrowed this from a counts-plus-timestamp row to a timestamp-only one.** The owner
+ * ruled that no count is rendered to the reader on the book surface (`DEC 2026-09-10c` md.1), so
+ * `videoCount`/`questionCount` have no consumer left — but the query and its `leftJoin` to the
+ * etiket table survive unchanged (plan §5.9b): `MAX(v.updatedAt)`/`MAX(t.updatedAt)` is what feeds
+ * {@link latestUpdatedAt}, and that is still published as `updatedAt`.
  */
 interface BookStatsRow {
   bookId: string;
-  videoCount: string;
-  questionCount: string;
   videosUpdatedAt: Date | null;
-  questionsUpdatedAt: Date | null;
+  tagsUpdatedAt: Date | null;
 }
 
-/** The same aggregates after conversion — what the mappers actually read. */
+/** The same aggregate after conversion — what the mappers actually read. */
 interface BookStats {
-  videoCount: number;
-  questionCount: number;
   /** Newest child-row timestamp, or null when the book has no videos yet. */
   childrenUpdatedAt: Date | null;
 }
 
 /** A book with no videos produces no aggregate row at all; this is that book's stats. */
-const EMPTY_STATS: BookStats = { videoCount: 0, questionCount: 0, childrenUpdatedAt: null };
+const EMPTY_STATS: BookStats = { childrenUpdatedAt: null };
 
 /**
  * The published `dateModified` / sitemap `lastmod` value for one book.
@@ -53,7 +50,7 @@ const EMPTY_STATS: BookStats = { videoCount: 0, questionCount: 0, childrenUpdate
  * way on purpose: a re-measurement that shifts 180 start seconds updates the child rows and
  * deliberately does NOT touch the book row, because writing a row whose own columns did not change
  * is the exact lie the seed's row-level idempotency exists to prevent. Reading only the book row
- * would therefore tell search engines the page had not changed on the day its whole question index
+ * would therefore tell search engines the page had not changed on the day its whole etiket index
  * did (`SEO-POLICY.md` §B5 5.9, §B6 6.9 — build time is refused by name).
  *
  * Exported for direct unit testing of the null-collapse branch, the `computePopulationDensity`
@@ -138,7 +135,7 @@ export class BookService {
   }
 
   /**
-   * One book by either slug, with its whole question index.
+   * One book by either slug, with its whole etiket index.
    *
    * The web repo routes both locales and asks with the locale's own slug, so both columns are
    * matched (the `ProvinceController.findBySlug` precedent). Unknown slug → 404 with a stable
@@ -148,7 +145,7 @@ export class BookService {
    * ## One REPEATABLE READ snapshot across all three reads, and why READ COMMITTED is not enough
    * This payload is assembled from three queries. Under the default READ COMMITTED, each statement
    * takes its OWN snapshot, so a seed committing between them yields a response that is internally
-   * consistent and externally wrong — künye from before the write, question index from after, with
+   * consistent and externally wrong — künye from before the write, etiket index from after, with
    * nothing in the payload marking it. Wrapping the three in one transaction does not fix that on
    * its own; the ISOLATION LEVEL is the part that does, because REPEATABLE READ pins one snapshot
    * for the whole transaction.
@@ -220,26 +217,20 @@ export class BookService {
 
     const videoDtos: BookVideoDto[] = videos.map((video) => ({
       bookVideoId: video.id,
-      // Temporary DTO-name adapter, for exactly the length of this PR (P0 plan §7.2 PR-2): the
-      // entity property is `orderNo` from here on, and the published DTO field stays `denemeNo`
-      // until PR-3 lands the rest of the breaking contract change alongside it —
-      // `openapi/openapi.json` must come out of THIS PR byte-unchanged, and this line is why it
-      // does.
-      denemeNo: video.orderNo,
+      orderNo: video.orderNo,
+      titleTr: video.titleTr,
+      titleEn: video.titleEn,
       youtubeVideoId: video.youtubeVideoId,
-      questions: (tagsByVideo.get(video.id) ?? []).map((tag) => ({
-        questionNo: tag.orderNo,
+      tags: (tagsByVideo.get(video.id) ?? []).map((tag) => ({
+        orderNo: tag.orderNo,
         startSecond: tag.startSecond,
+        nameTr: tag.nameTr,
+        nameEn: tag.nameEn,
       })),
       youtube: this.toYoutubeDto(snapshotsByVideoId.get(video.youtubeVideoId), nowMs),
     }));
 
-    // ONE computation feeding both the inherited top-level counts and `coverage`. Two queries for
-    // one number is this repo's named drift class, so the numbers below are derived from the arrays
-    // that were actually served, never recounted.
     const stats: BookStats = {
-      videoCount: videoDtos.length,
-      questionCount: videoDtos.reduce((sum, video) => sum + video.questions.length, 0),
       childrenUpdatedAt: latestChildTimestamp(videos, tags),
     };
 
@@ -249,7 +240,6 @@ export class BookService {
       authorNames: book.authorNames,
       isbn13: book.isbn13,
       pageCount: book.pageCount,
-      denemeCount: book.denemeCount,
       introTr: book.introTr,
       introEn: book.introEn,
       metaTitleTr: book.metaTitleTr,
@@ -257,14 +247,6 @@ export class BookService {
       youtubeChannelId: book.youtubeChannelId,
       youtubePlaylistId: book.youtubePlaylistId,
       purchaseUrl: book.purchaseUrl,
-      coverage: {
-        videoCount: stats.videoCount,
-        questionCount: stats.questionCount,
-        // The SET, ascending — never a formatted range string. Turning [1,2,3] into "1–3" is the
-        // web layer's decision and its locale's punctuation.
-        denemeNumbers: videoDtos.map((video) => video.denemeNo),
-        denemeCount: book.denemeCount,
-      },
       videos: videoDtos,
       // Populated on EVERY response, in every data state — an empty array would be a breach of the
       // attribution obligation rather than a degraded widget, which is why the rows are compiled
@@ -311,10 +293,12 @@ export class BookService {
   }
 
   /**
-   * Per-book counts and child timestamps for a page of books, in one grouped query.
+   * Per-book child timestamps for a page of books, in one grouped query.
    *
-   * `COUNT(DISTINCT v.id)` rather than `COUNT(v.id)`: the join to tags multiplies each video row by
-   * its tag count, so the plain count would report 180 videos for 30.
+   * **The join survives P0 PR-3; only the two `COUNT` selects it used to carry are gone** (plan
+   * §5.9b): `MAX(v.updatedAt)`/`MAX(t.updatedAt)` is still what {@link latestUpdatedAt} needs, and
+   * dropping the join instead of the counts would silently stop `updatedAt` from moving when only
+   * an etiket changed.
    */
   private async loadStats(bookIds: string[]): Promise<Map<string, BookStats>> {
     // An empty `IN ()` is invalid SQL, and an empty page is an ordinary state (a book set smaller
@@ -328,10 +312,8 @@ export class BookService {
       .createQueryBuilder('v')
       .leftJoin(BookVideoTag, 't', 't.bookVideoId = v.id')
       .select('v.bookId', 'bookId')
-      .addSelect('COUNT(DISTINCT v.id)', 'videoCount')
-      .addSelect('COUNT(t.id)', 'questionCount')
       .addSelect('MAX(v.updatedAt)', 'videosUpdatedAt')
-      .addSelect('MAX(t.updatedAt)', 'questionsUpdatedAt')
+      .addSelect('MAX(t.updatedAt)', 'tagsUpdatedAt')
       .where('v.bookId IN (:...bookIds)', { bookIds })
       .groupBy('v.bookId')
       .getRawMany<BookStatsRow>();
@@ -340,10 +322,7 @@ export class BookService {
       rows.map((row) => [
         row.bookId,
         {
-          // `Number(...)` because pg hands back `bigint` as a string — see `BookStatsRow`.
-          videoCount: Number(row.videoCount),
-          questionCount: Number(row.questionCount),
-          childrenUpdatedAt: newerOf(row.videosUpdatedAt, row.questionsUpdatedAt),
+          childrenUpdatedAt: newerOf(row.videosUpdatedAt, row.tagsUpdatedAt),
         },
       ]),
     );
@@ -357,8 +336,6 @@ export class BookService {
       publisherName: row.publisherName,
       examTrack: row.examTrack,
       coverImagePath: row.coverImagePath,
-      videoCount: stats.videoCount,
-      questionCount: stats.questionCount,
       displayOrder: row.displayOrder,
       updatedAt: latestUpdatedAt(row.updatedAt, stats.childrenUpdatedAt).toISOString(),
     };

@@ -219,6 +219,9 @@ describe('Province (e2e)', () => {
       // P0 PR-2: adds four nullable columns to existing tables, no new table and no new foreign
       // key — no ordering constraint beyond "after the tables it adds columns to" (already above).
       'AddGenericBookCatalogueFields1788300060000',
+      // P0 PR-3: drops `books.deneme_count`, catalogue-only, no new table and no new foreign key —
+      // no ordering constraint beyond "after the table it drops a column from" (already above).
+      'DropBookDenemeCount1788300120000',
     ]);
   });
 

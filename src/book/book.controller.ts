@@ -17,7 +17,7 @@ import { BookSlugParams } from './dto/book-slug.params';
  * The `Cache-Control` both book reads publish.
  *
  * The same value the province and country content reads carry. **Most of these responses are
- * seed-derived** — künye, denemeler, questions and start seconds are written only by a
+ * seed-derived** — künye, denemeler, etiketler and start seconds are written only by a
  * `pnpm db:seed:books` run — but since B4 the nested `youtube` object carries YouTube API Data held
  * under a retention cap, so this is no longer a purely seed-derived body and the value cannot be
  * inherited on that argument alone. `no-store` would still be wrong for the opposite reason — an
@@ -88,10 +88,12 @@ export class BookController {
   @Get(':slug')
   @CacheControl(BOOK_CACHE_CONTROL)
   @ApiOperation({
-    summary: 'Get one book by its TR or EN slug, with its full question index.',
+    summary: 'Get one book by its TR or EN slug, with every video and its tags.',
     description:
-      'One request carries the whole page: künye, coverage, every deneme and all its questions. ' +
-      'There is deliberately no separate videos endpoint — the SSG build makes one round trip.',
+      'One request carries the whole page: künye, every video and every tag on it. There is no ' +
+      'book-level count anywhere in the payload — what a book offers is said by its own ' +
+      'editorial text (introTr, metaDescriptionTr), not a number. There is deliberately no ' +
+      'separate videos endpoint — the SSG build makes one round trip.',
   })
   @ApiOkResponse({ type: BookDetailDto })
   @ApiNotFoundResponse({ description: 'No book matches the given slug.' })

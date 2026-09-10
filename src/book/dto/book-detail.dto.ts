@@ -1,11 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BookAttributionDto } from './book-attribution.dto';
-import { BookCoverageDto } from './book-coverage.dto';
 import { BookListItemDto } from './book-list-item.dto';
 import { BookVideoDto } from './book-video.dto';
 
 /**
- * The whole book page in one payload — künye, coverage, 30 videos, 180 questions, attribution.
+ * The whole book page in one payload — künye, 30 videos, 180 etiketler, attribution.
  *
  * `GET /api/books/{slug}` accepts **either** slug (the `ProvinceController.findBySlug` precedent)
  * and answers an unknown one with 404, never a soft 200. There is no separate videos endpoint: the
@@ -17,10 +16,12 @@ import { BookVideoDto } from './book-video.dto';
  * sees one complete object. `BookListItemDto` is registered separately so its own schema exists
  * for the list endpoint.
  *
- * The consequence is a small, deliberate redundancy: `videoCount` and `questionCount` appear both
- * at the top level (inherited, for a card rendered from a detail response) and inside
- * {@link coverage}. **B3 obligation:** both are filled from ONE computation, never from two
- * queries — two paths to the same number is this repo's named drift class.
+ * ## No count anywhere on this payload, and that is the P0 PR-3 change
+ * `denemeCount` and the whole `coverage` object (`videoCount`, `questionCount`, `denemeNumbers`,
+ * `denemeCount`) are gone: the owner ruled that no number is rendered to the reader on the book
+ * surface (`DEC 2026-09-10c` md.1) — what a book offers is said by its own editorial text
+ * (`introTr`, `metaDescriptionTr`), not by a count. `books.deneme_count` is DROPPED with it, not
+ * renamed (`DEC 2026-09-10c` md.2).
  *
  * ## What this payload deliberately does NOT carry
  * - **No price, currency, availability or offer** — `CONVENTIONS.md` §4, reaffirmed by the ruling
@@ -33,13 +34,13 @@ import { BookVideoDto } from './book-video.dto';
  *   carries "no personal data at all" was true until B3 served this DTO and is retired here rather
  *   than left standing; playbook §3.6 binds anything added after those two names.
  * - **No reader-facing sentence.** The api carries numbers, tokens and the two editorial strings
- *   it owns; question labels, duration formats, the "video unavailable" state and the coverage
- *   sentence are all `messages/*.json` under `CONTENT-STYLE.md` §22 (SPEC §10).
+ *   it owns; etiket labels, duration formats and the "video unavailable" state are all
+ *   `messages/*.json` under `CONTENT-STYLE.md` §22 (SPEC §10).
  *
  * Served by `GET /api/books/{slug}` since B3. **`videos[].youtube` is `null` on every video today**
  * and that is the designed path rather than a gap (`DEC 2026-08-15h` item 2): the snapshot serving
  * path and its age thresholds are B4's, and the page is complete without them — the künye, the
- * denemeler, the questions and the start seconds are all ours.
+ * videos, the etiketler and the start seconds are all ours.
  */
 export class BookDetailDto extends BookListItemDto {
   @ApiProperty({
@@ -89,16 +90,6 @@ export class BookDetailDto extends BookListItemDto {
     description: 'Printed page count. Feeds Book.numberOfPages.',
   })
   pageCount!: number;
-
-  @ApiProperty({
-    type: Number,
-    minimum: 1,
-    example: 40,
-    description:
-      'How many denemeler the BOOK contains — a künye fact, distinct from how many have video ' +
-      'solutions. Also present inside coverage; both come from the same value.',
-  })
-  denemeCount!: number;
 
   @ApiProperty({
     type: String,
@@ -168,18 +159,10 @@ export class BookDetailDto extends BookListItemDto {
   purchaseUrl!: string | null;
 
   @ApiProperty({
-    type: BookCoverageDto,
-    description:
-      'What this index actually covers, as numbers. The counts belong to the interface rather ' +
-      'than to the prose (owner ruling); the editorial text asserts nothing about them.',
-  })
-  coverage!: BookCoverageDto;
-
-  @ApiProperty({
     type: [BookVideoDto],
     description:
-      'Every indexed deneme with its question index, ascending by denemeNo. The 180-row index ' +
-      'must be readable and clickable without JavaScript — that is what keeps this page clear of ' +
+      'Every indexed video with its etiket index, ascending by orderNo. The 180-row index must ' +
+      'be readable and clickable without JavaScript — that is what keeps this page clear of ' +
       'SEO-POLICY §12.2.b.',
   })
   videos!: BookVideoDto[];

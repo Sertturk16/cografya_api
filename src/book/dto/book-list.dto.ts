@@ -19,9 +19,11 @@ import { BookListItemDto } from './book-list-item.dto';
  *
  * ## No `meta`, and that is the rule rather than an omission
  * Playbook §2: endpoint-specific fields live in one `meta` object, and a list with none carries no
- * `meta` at all. The book hub has none today — `videoCount` and `questionCount` are ours and sit
- * on the item, and the attribution belongs to the detail response, not to the list. If B3 finds it
- * needs one, adding `meta` is additive.
+ * `meta` at all. The book hub has none today — `DEC 2026-09-10c` md.1 retired the item-level
+ * counts (`videoCount`/`questionCount`) this paragraph used to point at, and nothing replaced
+ * them: a book publishes no count anywhere, list or detail. The list item carries only per-book
+ * fields, and none of them needs a shared wrapper. If B3 finds it needs one, adding `meta` is
+ * additive.
  *
  * **B3 obligation:** the query DTO and its `pageSize` ceiling are B3's, exactly as the earthquake
  * list's are E3's — a contract PR publishes no request DTO, so no default is invented here.

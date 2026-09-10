@@ -35,17 +35,24 @@ describe('openapi/openapi.json — book contract', () => {
     document.components.schemas[name] as SchemaObject;
 
   /**
-   * Every field the eight schemas publish, by schema — the FIELD-level half of this guard.
+   * Every field the seven schemas publish, by schema — the FIELD-level half of this guard.
+   *
+   * **P0 PR-3 dropped the set from eight schemas to seven.** `BookCoverageDto` is DELETED outright
+   * — every one of its four fields (`videoCount`, `questionCount`, `denemeNumbers`, `denemeCount`)
+   * lost its last consumer once the owner ruled that no count is rendered to the reader on the book
+   * surface (`DEC 2026-09-10c` md.1, plan §5.9b), so the object has nothing left to carry.
+   * `BookVideoQuestionDto` is renamed to `BookVideoTagDto`, published with `orderNo` (never
+   * `questionNo`, never derived from `startSecond`) and the two new nullable name fields.
    *
    * The case below pins whole SCHEMAS, which leaves almost every field open: emptying
-   * `BookVideoQuestionDto` to `{"type": "object"}` keeps the schema in `components.schemas` and
-   * that case stays green. The same holds for a dropped FIELD whose type is registered separately —
+   * `BookVideoTagDto` to `{"type": "object"}` keeps the schema in `components.schemas` and that
+   * case stays green. The same holds for a dropped FIELD whose type is registered separately —
    * `BookDetailDto.attribution` can disappear while `BookAttributionDto` stays in the artifact,
    * because `ROUTELESS_CONTRACT_MODELS` registers it independently.
    *
    * Every entry here is pinned on purpose: B1's deliverable is a FROZEN contract, so removing a
    * field is a breaking change that goes to Atlas (playbook §4). ADDING a field is additive and
-   * needs no edit here. `BookDetailDto` repeats the nine inherited keys because swagger emits the
+   * needs no edit here. `BookDetailDto` repeats the inherited keys because swagger emits the
    * subclass FLAT — the artifact records no inheritance, so the published schema really does
    * declare them itself.
    */
@@ -60,8 +67,6 @@ describe('openapi/openapi.json — book contract', () => {
       'publisherName',
       'examTrack',
       'coverImagePath',
-      'videoCount',
-      'questionCount',
       'displayOrder',
       'updatedAt',
     ],
@@ -72,15 +77,12 @@ describe('openapi/openapi.json — book contract', () => {
       'publisherName',
       'examTrack',
       'coverImagePath',
-      'videoCount',
-      'questionCount',
       'displayOrder',
       'updatedAt',
       'titleEn',
       'authorNames',
       'isbn13',
       'pageCount',
-      'denemeCount',
       'introTr',
       'introEn',
       'metaTitleTr',
@@ -88,13 +90,19 @@ describe('openapi/openapi.json — book contract', () => {
       'youtubeChannelId',
       'youtubePlaylistId',
       'purchaseUrl',
-      'coverage',
       'videos',
       'attribution',
     ],
-    BookCoverageDto: ['videoCount', 'questionCount', 'denemeNumbers', 'denemeCount'],
-    BookVideoDto: ['bookVideoId', 'denemeNo', 'youtubeVideoId', 'questions', 'youtube'],
-    BookVideoQuestionDto: ['questionNo', 'startSecond'],
+    BookVideoDto: [
+      'bookVideoId',
+      'orderNo',
+      'titleTr',
+      'titleEn',
+      'youtubeVideoId',
+      'tags',
+      'youtube',
+    ],
+    BookVideoTagDto: ['orderNo', 'startSecond', 'nameTr', 'nameEn'],
     BookVideoYoutubeDto: [
       'thumbnailUrl',
       'thumbnailWidth',
@@ -122,11 +130,12 @@ describe('openapi/openapi.json — book contract', () => {
   const PUBLISHED_NULLABLE: Record<string, readonly string[]> = {
     BookListItemDto: ['coverImagePath'],
     BookDetailDto: ['coverImagePath', 'titleEn', 'introEn', 'youtubePlaylistId', 'purchaseUrl'],
-    BookVideoDto: ['youtube'],
+    BookVideoDto: ['titleTr', 'titleEn', 'youtube'],
+    BookVideoTagDto: ['nameTr', 'nameEn'],
     BookAttributionDto: ['licenceUrl', 'channelUrl'],
   };
 
-  it('publishes all 8 book schemas (the B1 frozen set)', () => {
+  it('publishes all 7 book schemas (the B1 frozen set, narrowed 8→7 in P0 PR-3)', () => {
     // B1 registers three of these through `ROUTELESS_CONTRACT_MODELS` and reaches the rest
     // transitively. A refactor that drops an `extraModels` entry, or that stops a nested DTO from
     // being referenced, removes a schema from the artifact while every other gate stays green.
@@ -137,9 +146,8 @@ describe('openapi/openapi.json — book contract', () => {
       'BookListDto',
       'BookListItemDto',
       'BookDetailDto',
-      'BookCoverageDto',
       'BookVideoDto',
-      'BookVideoQuestionDto',
+      'BookVideoTagDto',
       'BookVideoYoutubeDto',
       'BookAttributionDto',
     ]) {
@@ -147,6 +155,11 @@ describe('openapi/openapi.json — book contract', () => {
         `${schema}:true`,
       );
     }
+    // The deleted schema is asserted ABSENT, not merely unlisted above — a positive control that
+    // the drop actually reached the artifact rather than the schema surviving as an orphan nothing
+    // references (`ROUTELESS_CONTRACT_MODELS` is empty, so nothing keeps it in on purpose).
+    expect(document.components.schemas.BookCoverageDto).toBeUndefined();
+    expect(document.components.schemas.BookVideoQuestionDto).toBeUndefined();
   });
 
   it('publishes both book paths, with the list query contract on the hub', () => {
@@ -191,8 +204,8 @@ describe('openapi/openapi.json — book contract', () => {
 
   it('every published FIELD is still present, required and nullable exactly as frozen', () => {
     // The case above is satisfied by `null`, `{}` or a schema whose properties were emptied, so on
-    // its own it pins presence and nothing else. This one closes that: 61 published entries across
-    // the eight schemas, each asserted for presence, required-ness and nullability.
+    // its own it pins presence and nothing else. This one closes that: 58 published entries across
+    // the seven schemas, each asserted for presence, required-ness and nullability.
     const entries = Object.entries(PUBLISHED_FIELDS);
     // The "nothing expected" refusal (playbook §8): an emptied table must FAIL, never report that
     // it checked zero fields and pass.

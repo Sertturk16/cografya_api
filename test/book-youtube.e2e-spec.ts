@@ -23,7 +23,7 @@ import { seedBooks } from '../src/database/seeds/seed-books';
  * `videos.list` answer — a committed fixture holding real API Data would be stored API Data, and the
  * 30-day retention rule this whole leg exists to honour is not something a file in git can honour.
  * What is asserted is the RULE: at which age a row is served, at which age it is deleted, and that
- * neither ever costs the page its question index.
+ * neither ever costs the page its etiket index.
  *
  * ## The clock is not faked; the ROW's age is
  * SPEC §13 item 9 says "with a fake clock". Writing `fetched_at_utc` in the past is the same
@@ -54,9 +54,9 @@ interface ServedYoutube {
 interface Detail {
   slugTr: string;
   videos: {
-    denemeNo: number;
+    orderNo: number;
     youtubeVideoId: string;
-    questions: { questionNo: number; startSecond: number }[];
+    tags: { orderNo: number; startSecond: number }[];
     youtube: ServedYoutube | null;
   }[];
   attribution: { providerId: string }[];
@@ -307,7 +307,7 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
       expect(body.videos.find((video) => video.youtubeVideoId === first)?.youtube).toBeNull();
     });
 
-    it('keeps the deneme and its questions when the video is MISSING (SPEC §13 item 11)', async () => {
+    it('keeps the deneme and its tags when the video is MISSING (SPEC §13 item 11)', async () => {
       const [first] = videoIds;
       if (first === undefined) throw new Error('no seeded video');
       // Freshly fetched AND missing: age alone would serve it, so this case can only pass if the
@@ -320,8 +320,8 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
 
       expect(served?.youtube).toBeNull();
       // The half that matters: a dead video costs the embed and nothing else. The index survives.
-      expect(served?.questions.length).toBeGreaterThan(0);
-      expect(served?.denemeNo).toBeGreaterThan(0);
+      expect(served?.tags.length).toBeGreaterThan(0);
+      expect(served?.orderNo).toBeGreaterThan(0);
       expect(body.videos.length).toBeGreaterThan(1);
       // And the credit is unaffected — it never depended on provider data existing.
       expect(body.attribution.map((row) => row.providerId).sort()).toEqual(['partner', 'youtube']);

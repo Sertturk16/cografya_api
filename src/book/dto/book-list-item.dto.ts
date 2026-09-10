@@ -83,24 +83,6 @@ export class BookListItemDto {
 
   @ApiProperty({
     type: Number,
-    minimum: 0,
-    example: 30,
-    description:
-      'How many denemeler of this book have an indexed video solution. Present on the card so ' +
-      'the hub carries real content of its own rather than being a bare list of links.',
-  })
-  videoCount!: number;
-
-  @ApiProperty({
-    type: Number,
-    minimum: 0,
-    example: 180,
-    description: 'How many individual question solutions are indexed, across every video.',
-  })
-  questionCount!: number;
-
-  @ApiProperty({
-    type: Number,
     example: 1,
     description:
       'Hub ordering. Read with a deterministic secondary sort — equal values must not leave the ' +
@@ -112,11 +94,11 @@ export class BookListItemDto {
    * When this book last changed, as a whole.
    *
    * ## It is a GREATEST across three tables, not `books.updated_at`
-   * `GREATEST(books.updated_at, MAX(book_videos.updated_at), MAX(book_video_questions.updated_at))`.
+   * `GREATEST(books.updated_at, MAX(book_videos.updated_at), MAX(book_video_tags.updated_at))`.
    * The book row alone would be wrong, and the seed is why: a re-measurement that shifts 180 start
    * seconds updates the child rows and deliberately leaves the book row untouched, because writing
    * a row whose own columns did not change is the lie the seed's row-level idempotency exists to
-   * prevent. Reading only the book row would report "unchanged" on the day the question index
+   * prevent. Reading only the book row would report "unchanged" on the day the etiket index
    * changed completely.
    *
    * ## Why it is on the LIST item and not only on the detail
@@ -133,7 +115,7 @@ export class BookListItemDto {
     example: '2026-08-15T09:12:33.000Z',
     description:
       'ISO 8601 UTC instant this book last changed, across its own row AND its videos and ' +
-      'questions. Feeds sitemap lastmod and Book.dateModified — use it directly, never the build ' +
+      'etiketler. Feeds sitemap lastmod and Book.dateModified — use it directly, never the build ' +
       'time.',
   })
   updatedAt!: string;

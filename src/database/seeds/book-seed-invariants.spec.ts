@@ -16,9 +16,12 @@ import { SEED_BOOKS, type BookSeed } from './books.seed-data';
  * — plus §13 invariant 16 for the strings this seed publishes.
  *
  * ## What these tests assert, and what they refuse to assert
- * They assert RULES: `CONTENT-STYLE.md`'s §2/§16/§17/§20 ceilings, the künye shapes the schema
- * cannot express, and the artefact↔künye join the migration hands to B2 by name. Every one of them
- * binds book #2 exactly as it binds book #1.
+ * They assert RULES: `CONTENT-STYLE.md`'s §2/§16/§17/§20 ceilings and the künye shapes the
+ * schema cannot express. (Through P0 PR-2 this list also included the artefact↔künye join the
+ * migration hands to B2 by name; `DEC 2026-09-10c` md.1/md.2 dropped `books.deneme_count`
+ * outright in P0 PR-3, so there is no künye figure left to join against — see
+ * `book-seed-invariants.ts`'s own header for the retired comparisons.) Every one of them binds
+ * book #2 exactly as it binds book #1.
  *
  * They assert no FACT. Nothing here pins what the prose says, how long it is, or which second a
  * question starts at — a spec that did would freeze an editorial decision the owner already ruled
@@ -38,7 +41,6 @@ function book(overrides: Partial<BookSeed> = {}): BookSeed {
     isbn13: '1234567890123',
     pageCount: 100,
     examTrack: ExamTrack.Ayt,
-    denemeCount: 10,
     coverImagePath: null,
     purchaseUrl: null,
     introTr: 'Bu bir örnek anlatıdır. İkinci cümle biraz daha uzun olsun diye buraya kondu.',
@@ -393,33 +395,25 @@ describe('assertBookSeedInvariants — CONTENT-STYLE ceilings', () => {
 });
 
 describe('assertArtifactMatchesBook', () => {
-  it('accepts an index that fits inside the book (positive control)', () => {
+  // P0 PR-3 removed the function's two `denemeCount`-bound comparisons ("beyond the book's deneme
+  // count" and "coverage cannot exceed the book") along with the `books.deneme_count` column they
+  // compared against (`DEC 2026-09-10c` md.1/md.2, plan §5.9) — there is no künye figure left to
+  // cross-check an artefact against, so their test cases are deleted rather than retargeted.
+
+  it('accepts a non-empty index (positive control)', () => {
     expect(() => {
-      assertArtifactMatchesBook(book({ denemeCount: 10 }), artifact([1, 5, 10]));
+      assertArtifactMatchesBook(book(), artifact([1, 5, 10]));
     }).not.toThrow();
-  });
-
-  // The check `1786752000000-InitBookCatalogue.ts` hands to B2 by name: a CHECK constraint sees one
-  // row of one table, so the cross-table bound lives here.
-  it("refuses a deneme number beyond the book's deneme count", () => {
-    expect(() => {
-      assertArtifactMatchesBook(book({ denemeCount: 10 }), artifact([1, 11]));
-    }).toThrow(/greater than the book's denemeCount/);
-  });
-
-  it('refuses more videos than the book has denemeler', () => {
-    // Reachable only through the INJECTED-artefact seam: a duplicate deneme is refused earlier on
-    // the parsed path, which is why this fixture has to carry one.
-    expect(() => {
-      assertArtifactMatchesBook(book({ denemeCount: 2 }), artifact([1, 2, 2]));
-    }).toThrow(/coverage cannot exceed the book/);
   });
 
   it('refuses an artefact carrying no videos, because that means "delete the whole index"', () => {
     // `parseBookTimestampsArtifact` refuses an empty artefact by schema, but the injected seam
-    // bypasses the parser — and down that seam an empty artefact makes every deneme stale.
+    // bypasses the parser — and down that seam an empty artefact makes every deneme stale. This is
+    // the ONE refusal `assertArtifactMatchesBook` still carries, and it must survive P0 PR-3
+    // unchanged (plan §5.9 risk 6): it is the destructive-half guard on the injected
+    // `seedBooks(ds, { artifact })` seam, not a künye cross-check.
     expect(() => {
-      assertArtifactMatchesBook(book({ denemeCount: 10 }), artifact([]));
+      assertArtifactMatchesBook(book(), artifact([]));
     }).toThrow(/no videos at all/);
   });
 });
@@ -447,14 +441,17 @@ describe('validateBookSeedCorpus — one list for `--check` and the write path',
     ).rejects.toThrow(/which is not in the seed corpus/);
   });
 
-  it('refuses an artefact that does not fit the owner it belongs to', async () => {
+  it('refuses an artefact that is empty for the owner it belongs to', async () => {
+    // The counterpart of the retired "does not fit" case (P0 PR-3 removed the denemeCount-bound
+    // comparison it drove): the one refusal `assertArtifactMatchesBook` still carries is the
+    // injected-seam emptiness guard, driven here through the full `validateBookSeedCorpus` path.
     await expect(
       validateBookSeedCorpus({
-        books: [book({ denemeCount: 2 })],
+        books: [book()],
         ownerSlugTr: 'ornek-kitap',
-        artifact: artifact([1, 5]),
+        artifact: artifact([]),
       }),
-    ).rejects.toThrow(/greater than the book's denemeCount/);
+    ).rejects.toThrow(/no videos at all/);
   });
 
   it('refuses a defective corpus before it ever reaches the artefact', async () => {

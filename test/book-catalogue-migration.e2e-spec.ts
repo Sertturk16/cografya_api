@@ -21,10 +21,10 @@ import { RenameBookCatalogueGeneric1788300000000 } from '../src/database/migrati
  * pinned in this file. The real 180 seconds are reconciled separately, once, by hand, per the
  * plan's §11 (a disclosed local run, `DEC 2026-08-26u`).
  *
- * ## What this file does NOT yet assert (plan §7.2 PR-1 manifest)
- * The `books.deneme_count` / `CHK_books_deneme_count` half of step 7 — that column is not dropped
- * until PR-3, and arrives in this same file then. The `name_tr`/`title_tr` half of step 5 landed
- * here in PR-2 (below), alongside `AddGenericBookCatalogueFields1788300060000`.
+ * ## Grown across all three PRs of the series (plan §7.2)
+ * Steps 1–6 are PR-1's own contribution. Step 5's `name_tr`/`title_tr` half and its own
+ * `AddGenericBookCatalogueFields1788300060000` migration landed in PR-2. Step 7 — the
+ * `books.deneme_count` / `CHK_books_deneme_count` drop — is P0 PR-3's own contribution, below.
  */
 describe('Book-catalogue rename migration — round-trip fidelity (e2e, real Postgres)', () => {
   let container: StartedPostgreSqlContainer;
@@ -286,6 +286,31 @@ describe('Book-catalogue rename migration — round-trip fidelity (e2e, real Pos
     );
     expect(nullTagFields.length).toBe(180);
     expect(nullTagFields.every((row) => row.name_tr === null && row.name_en === null)).toBe(true);
+
+    // Step 7 (P0 PR-3, this migration's own contribution to this file): `DropBookDenemeCount` has
+    // now run as part of "the remaining migrations" in step 4, so `books.deneme_count` and its
+    // `CHK_books_deneme_count` are gone. The other nine `books` constraints are the POSITIVE
+    // CONTROL — §2.8 measured this exact asymmetry on a throwaway database (targeted drop, not
+    // indiscriminate); this pins it as a gate on the real migration path rather than trusting the
+    // throwaway measurement alone.
+    const bookConstraints = await fullDataSource.query<{ conname: string }[]>(
+      `SELECT conname FROM pg_constraint WHERE conrelid = 'books'::regclass ORDER BY conname`,
+    );
+    const bookConstraintNames = bookConstraints.map((row) => row.conname);
+    expect(bookConstraintNames).not.toContain('CHK_books_deneme_count');
+    expect(bookConstraintNames).toEqual(
+      expect.arrayContaining([
+        'CHK_books_author_names',
+        'CHK_books_cover_image_path',
+        'CHK_books_isbn13',
+        'CHK_books_page_count',
+        'CHK_books_purchase_url',
+        'PK_books',
+        'UQ_books_isbn13',
+        'UQ_books_slug_en',
+        'UQ_books_slug_tr',
+      ]),
+    );
 
     await fullDataSource.query('DELETE FROM "books" WHERE "id" = $1', [bookId]);
     await fullDataSource.destroy();
