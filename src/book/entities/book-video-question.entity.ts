@@ -35,11 +35,11 @@ import {
  * this surface — we do not hold the question texts, so a cross-link would have to be invented
  * (SPEC §11.3).
  */
-@Entity('book_video_questions')
+@Entity('book_video_tags')
 // The MIGRATION is the truth for these constraints. As on `book_videos`, SPEC §5.3's
 // `INDEX (book_video_id, question_no)` is satisfied by this UNIQUE constraint's own index rather
 // than by a second, identical one.
-@Unique('UQ_book_video_questions_video_question', ['bookVideoId', 'questionNo'])
+@Unique('UQ_book_video_tags_video_order', ['bookVideoId', 'questionNo'])
 export class BookVideoQuestion {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
@@ -52,7 +52,7 @@ export class BookVideoQuestion {
    * The question's position inside its deneme, from 1. Gapless ascending within a video — a
    * missing number would be a silent hole in the index, so B2 refuses the whole artefact over it.
    */
-  @Column({ name: 'question_no', type: 'integer' })
+  @Column({ name: 'order_no', type: 'integer' })
   questionNo!: number;
 
   /**

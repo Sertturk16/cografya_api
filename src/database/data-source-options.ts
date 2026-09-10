@@ -56,6 +56,7 @@ import { InitGameRoundSubmitRateLimits1788003600000 } from './migrations/1788003
 import { InitMeasurements1788007200000 } from './migrations/1788007200000-InitMeasurements';
 import { AllowStudentMinimalRegistrationProfileShape1788100000000 } from './migrations/1788100000000-AllowStudentMinimalRegistrationProfileShape';
 import { InitRegions1788200000000 } from './migrations/1788200000000-InitRegions';
+import { RenameBookCatalogueGeneric1788300000000 } from './migrations/1788300000000-RenameBookCatalogueGeneric';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -279,6 +280,7 @@ export function buildDataSourceOptions(
       InitMeasurements1788007200000,
       AllowStudentMinimalRegistrationProfileShape1788100000000,
       InitRegions1788200000000,
+      RenameBookCatalogueGeneric1788300000000,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,

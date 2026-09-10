@@ -397,16 +397,21 @@ describe('Auth core schema (e2e)', () => {
     expect(instanceToPlain(explicitlySelected)).toEqual({});
   });
 
-  it('reverts and reapplies the latest migration (InitRegions) on empty synthetic tables', async () => {
+  it('reverts and reapplies the latest migration (RenameBookCatalogueGeneric) on empty synthetic tables', async () => {
     // The authority for "which migration is latest" is the explicit `migrations` array in
     // `src/database/data-source-options.ts`, never a directory listing or a timestamp sort
     // (`ENGINEERING.md` §5: "no globs — every migration is registered on purpose"). Its last
-    // entry is now `InitRegions1788200000000`, which pushed
-    // `AllowStudentMinimalRegistrationProfileShape` — the migration this test previously
-    // exercised — one place up. This is the same living-test pattern
-    // `province.e2e-spec.ts`/`country.e2e-spec.ts` name explicitly ("adding a migration means
-    // editing" the lists that pin it); this file is the third pin of that class, and the one
-    // that exercises the up/down path rather than the order.
+    // entry is now `RenameBookCatalogueGeneric1788300000000` (P0 PR-1), which pushed
+    // `InitRegions` — the migration this test previously exercised — one place up. This is the
+    // same living-test pattern `province.e2e-spec.ts`/`country.e2e-spec.ts` name explicitly
+    // ("adding a migration means editing" the lists that pin it); this file is the third pin of
+    // that class, and the one that exercises the up/down path rather than the order.
+    //
+    // Unlike every migration this test has exercised so far, the new latest one creates and
+    // drops no table — it is a pure RENAME (P0 plan §5.3). So `regions` is no longer the probe:
+    // it stays present on both sides of the revert now, and the probe becomes a table-NAME check
+    // (`book_video_tags` vs the old `book_video_questions`) plus a column-NAME check
+    // (`book_videos.order_no` vs the old `deneme_no`) rather than a table-existence check.
     const relationSnapshot = async (): Promise<Record<string, string | null> | undefined> => {
       const rows = await dataSource.query<
         {
@@ -421,6 +426,8 @@ describe('Auth core schema (e2e)', () => {
           game_round_submit_rate_limits: string | null;
           measurements: string | null;
           regions: string | null;
+          book_video_tags: string | null;
+          book_video_questions: string | null;
         }[]
       >(`
         SELECT
@@ -434,7 +441,9 @@ describe('Auth core schema (e2e)', () => {
           to_regclass('public.game_rounds')::text AS game_rounds,
           to_regclass('public.game_round_submit_rate_limits')::text AS game_round_submit_rate_limits,
           to_regclass('public.measurements')::text AS measurements,
-          to_regclass('public.regions')::text AS regions
+          to_regclass('public.regions')::text AS regions,
+          to_regclass('public.book_video_tags')::text AS book_video_tags,
+          to_regclass('public.book_video_questions')::text AS book_video_questions
       `);
       return rows[0];
     };
@@ -451,6 +460,8 @@ describe('Auth core schema (e2e)', () => {
       game_round_submit_rate_limits: 'game_round_submit_rate_limits',
       measurements: 'measurements',
       regions: 'regions',
+      book_video_tags: 'book_video_tags',
+      book_video_questions: null,
     };
 
     expect(await relationSnapshot()).toEqual(expectedRelations);
@@ -465,19 +476,33 @@ describe('Auth core schema (e2e)', () => {
     };
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
 
+    const bookVideoOrderColumn = async (): Promise<string | null> => {
+      const rows = await dataSource.query<{ column_name: string }[]>(`
+        SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'book_videos'
+          AND column_name = 'order_no'
+      `);
+      return rows[0]?.column_name ?? null;
+    };
+    expect(await bookVideoOrderColumn()).toBe('order_no');
+
     await dataSource.undoLastMigration();
 
-    // ONLY `regions` disappears — every other table, including `measurements`, stays intact.
+    // ONLY the book-catalogue rename unwinds — every other table, including `regions` and
+    // `measurements`, and the unrelated `sessions.rotation_grace_used_at` control, stays intact.
     expect(await relationSnapshot()).toEqual({
       ...expectedRelations,
-      regions: null,
+      book_video_tags: null,
+      book_video_questions: 'book_video_questions',
     });
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
+    expect(await bookVideoOrderColumn()).toBeNull();
 
     await dataSource.runMigrations();
 
-    // Reapply returns `regions` to present.
+    // Reapply returns the rename to its NEW state.
     expect(await relationSnapshot()).toEqual(expectedRelations);
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
+    expect(await bookVideoOrderColumn()).toBe('order_no');
   });
 });
