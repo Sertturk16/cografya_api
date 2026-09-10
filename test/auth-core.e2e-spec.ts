@@ -397,21 +397,24 @@ describe('Auth core schema (e2e)', () => {
     expect(instanceToPlain(explicitlySelected)).toEqual({});
   });
 
-  it('reverts and reapplies the latest migration (RenameBookCatalogueGeneric) on empty synthetic tables', async () => {
+  it('reverts and reapplies the latest migration (AddGenericBookCatalogueFields) on empty synthetic tables', async () => {
     // The authority for "which migration is latest" is the explicit `migrations` array in
     // `src/database/data-source-options.ts`, never a directory listing or a timestamp sort
     // (`ENGINEERING.md` §5: "no globs — every migration is registered on purpose"). Its last
-    // entry is now `RenameBookCatalogueGeneric1788300000000` (P0 PR-1), which pushed
-    // `InitRegions` — the migration this test previously exercised — one place up. This is the
-    // same living-test pattern `province.e2e-spec.ts`/`country.e2e-spec.ts` name explicitly
-    // ("adding a migration means editing" the lists that pin it); this file is the third pin of
-    // that class, and the one that exercises the up/down path rather than the order.
+    // entry is now `AddGenericBookCatalogueFields1788300060000` (P0 PR-2), which pushed
+    // `RenameBookCatalogueGeneric` — the migration this test previously exercised — one place
+    // up. This is the same living-test pattern `province.e2e-spec.ts`/`country.e2e-spec.ts` name
+    // explicitly ("adding a migration means editing" the lists that pin it); this file is the
+    // third pin of that class, and the one that exercises the up/down path rather than the order.
     //
-    // Unlike every migration this test has exercised so far, the new latest one creates and
-    // drops no table — it is a pure RENAME (P0 plan §5.3). So `regions` is no longer the probe:
-    // it stays present on both sides of the revert now, and the probe becomes a table-NAME check
-    // (`book_video_tags` vs the old `book_video_questions`) plus a column-NAME check
-    // (`book_videos.order_no` vs the old `deneme_no`) rather than a table-existence check.
+    // Unlike the migration this test previously exercised, the new latest one renames nothing —
+    // it is a pure ADD COLUMN, four nullable columns with no default (P0 plan §7.2 PR-2). So the
+    // probe is no longer a table-name or column-RENAME check: it is a column-EXISTENCE check on
+    // the four columns this migration's `up()` adds and its `down()` drops —
+    // `book_videos.title_tr`/`title_en` and `book_video_tags.name_tr`/`name_en`. Table identity
+    // (`book_video_tags` vs the old `book_video_questions`) is now an UNRELATED CONTROL, settled
+    // by the PREVIOUS migration and expected to stay fixed across this one's revert/reapply —
+    // proving `undoLastMigration()` unwinds only the LATEST entry, never the one before it.
     const relationSnapshot = async (): Promise<Record<string, string | null> | undefined> => {
       const rows = await dataSource.query<
         {
@@ -464,6 +467,9 @@ describe('Auth core schema (e2e)', () => {
       book_video_questions: null,
     };
 
+    // Table identity is unaffected by this migration in either direction — asserted BEFORE the
+    // revert so a regression that made this migration touch table identity would be caught here
+    // rather than laundered through the "unchanged" assertions below.
     expect(await relationSnapshot()).toEqual(expectedRelations);
 
     const rotationGraceColumn = async (): Promise<string | null> => {
@@ -476,6 +482,9 @@ describe('Auth core schema (e2e)', () => {
     };
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
 
+    // Unrelated control from the PREVIOUS migration: `order_no` already exists before this
+    // migration ever runs, and must stay exactly as unaffected by this one as `regions` and
+    // `measurements` are.
     const bookVideoOrderColumn = async (): Promise<string | null> => {
       const rows = await dataSource.query<{ column_name: string }[]>(`
         SELECT column_name FROM information_schema.columns
@@ -486,23 +495,53 @@ describe('Auth core schema (e2e)', () => {
     };
     expect(await bookVideoOrderColumn()).toBe('order_no');
 
+    // The four columns THIS migration's up() adds — the actual probe.
+    const genericFieldColumns = async (): Promise<Record<string, string | null>> => {
+      const rows = await dataSource.query<{ table_name: string; column_name: string }[]>(`
+        SELECT table_name, column_name FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND (
+            (table_name = 'book_videos' AND column_name IN ('title_tr', 'title_en'))
+            OR (table_name = 'book_video_tags' AND column_name IN ('name_tr', 'name_en'))
+          )
+      `);
+      const present = new Set(rows.map((row) => `${row.table_name}.${row.column_name}`));
+      return {
+        'book_videos.title_tr': present.has('book_videos.title_tr') ? 'title_tr' : null,
+        'book_videos.title_en': present.has('book_videos.title_en') ? 'title_en' : null,
+        'book_video_tags.name_tr': present.has('book_video_tags.name_tr') ? 'name_tr' : null,
+        'book_video_tags.name_en': present.has('book_video_tags.name_en') ? 'name_en' : null,
+      };
+    };
+    const presentFieldColumns = {
+      'book_videos.title_tr': 'title_tr',
+      'book_videos.title_en': 'title_en',
+      'book_video_tags.name_tr': 'name_tr',
+      'book_video_tags.name_en': 'name_en',
+    };
+    expect(await genericFieldColumns()).toEqual(presentFieldColumns);
+
     await dataSource.undoLastMigration();
 
-    // ONLY the book-catalogue rename unwinds — every other table, including `regions` and
-    // `measurements`, and the unrelated `sessions.rotation_grace_used_at` control, stays intact.
-    expect(await relationSnapshot()).toEqual({
-      ...expectedRelations,
-      book_video_tags: null,
-      book_video_questions: 'book_video_questions',
-    });
-    expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
-    expect(await bookVideoOrderColumn()).toBeNull();
-
-    await dataSource.runMigrations();
-
-    // Reapply returns the rename to its NEW state.
+    // ONLY the four generic-field columns unwind — every table, including the previous
+    // migration's own table rename, and the unrelated `sessions.rotation_grace_used_at` and
+    // `book_videos.order_no` controls, stays intact.
     expect(await relationSnapshot()).toEqual(expectedRelations);
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
     expect(await bookVideoOrderColumn()).toBe('order_no');
+    expect(await genericFieldColumns()).toEqual({
+      'book_videos.title_tr': null,
+      'book_videos.title_en': null,
+      'book_video_tags.name_tr': null,
+      'book_video_tags.name_en': null,
+    });
+
+    await dataSource.runMigrations();
+
+    // Reapply returns the columns to their NEW state.
+    expect(await relationSnapshot()).toEqual(expectedRelations);
+    expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
+    expect(await bookVideoOrderColumn()).toBe('order_no');
+    expect(await genericFieldColumns()).toEqual(presentFieldColumns);
   });
 });

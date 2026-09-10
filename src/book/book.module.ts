@@ -14,7 +14,7 @@ import { UpstreamMetrics } from '../upstream/upstream-metrics';
 import { UpstreamModule } from '../upstream/upstream.module';
 import { BookController } from './book.controller';
 import { BookService } from './book.service';
-import { BookVideoQuestion } from './entities/book-video-question.entity';
+import { BookVideoTag } from './entities/book-video-tag.entity';
 import { BookVideo } from './entities/book-video.entity';
 import { Book } from './entities/book.entity';
 import { YoutubeVideoSnapshot } from './entities/youtube-video-snapshot.entity';
@@ -93,7 +93,7 @@ const PURGE_TOUR_DEADLINE_MS = 60_000;
  */
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Book, BookVideo, BookVideoQuestion, YoutubeVideoSnapshot]),
+    TypeOrmModule.forFeature([Book, BookVideo, BookVideoTag, YoutubeVideoSnapshot]),
     UpstreamModule,
   ],
   controllers: [BookController],

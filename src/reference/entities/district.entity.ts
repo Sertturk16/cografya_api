@@ -20,7 +20,7 @@ import {
  * rules there is no ilçe page, no ilçe route and nothing that resolves an ilçe slug, so a slug
  * column here would be a column nothing looks up. Each member of that class dies with its premise:
  * if the ruling is reopened, the two slug columns and their migration land in the PR that reopens
- * it. The sibling members are `earthquake_events` (E1), `book_videos` and `book_video_questions`
+ * it. The sibling members are `earthquake_events` (E1), `book_videos` and `book_video_tags`
  * (B1).
  *
  * ## No `name_en`, for a different reason than the missing slugs

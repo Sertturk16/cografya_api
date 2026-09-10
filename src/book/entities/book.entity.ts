@@ -14,7 +14,7 @@ import { ExamTrack } from '../book.types';
  * SPEC §4.2 is the one architectural decision this leg has: fields WE own are permanent, fields
  * the YouTube Data API returns may be kept for at most 30 calendar days (Developer Policies
  * III.E.4.d). That boundary is written into the SCHEMA rather than into a comment — this table,
- * `book_videos` and `book_video_questions` are ours and never expire, while every API-sourced
+ * `book_videos` and `book_video_tags` are ours and never expire, while every API-sourced
  * field lives in `youtube_video_snapshots` and is deleted unconditionally. The payoff is
  * mechanical: "delete what is older than 30 days" is a `DELETE FROM`, so no column added to the
  * SNAPSHOT table can weaken the purge. Had the API fields been nullable columns on these rows, the

@@ -9,7 +9,7 @@ import type { YoutubeSnapshotInput } from './youtube-videos.parse';
  * Four methods, each one step of SPEC §8.2/§8.3. The port exists so the refresh tour can be unit
  * tested without Postgres AND so the leg's authority is legible in one place: it reads ids, writes
  * snapshots, marks absences and deletes expired rows. It cannot touch `books`,
- * `book_video_questions` or any column of `book_videos`.
+ * `book_video_tags` or any column of `book_videos`.
  */
 export interface YoutubeSnapshotStorePort {
   /** Every video id the catalogue holds — the set the tour asks the provider about. */

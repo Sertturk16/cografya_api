@@ -462,9 +462,9 @@ export function assertArtifactMatchesBook(book: BookSeed, artifact: BookTimestam
   }
 
   for (const video of artifact.videos) {
-    if (video.denemeNo > book.denemeCount) {
+    if (video.orderNo > book.denemeCount) {
       problems.push(
-        `deneme ${String(video.denemeNo)} is greater than the book's denemeCount ` +
+        `video ${String(video.orderNo)} is greater than the book's denemeCount ` +
           `(${String(book.denemeCount)}). One of the two readings of the künye is wrong.`,
       );
     }

@@ -15,6 +15,15 @@ import { z } from 'zod';
  * transcription against — which is why this leg has no fifth `seed-transcription` lane (Atlas
  * ruling, B2 plan §4).
  *
+ * ## The artefact's own vocabulary is untouched by the generic-model rename (P0 plan §5.4)
+ * `deneme`, `videoId`, `title` and `tag` are the SOURCE JSON's own field names — a byte copy of a
+ * measured source outside this repo — and stay exactly as they are. Only the OUTPUT this module
+ * reduces to follows the generic model: {@link BookVideoSeed}/{@link BookTagSeed} carry `orderNo`,
+ * not `denemeNo`/`questionNo`. **PROHIBITION, stated because it is the single most likely mistake
+ * here:** the artefact's `tag` field (`"Soru 3"`) is the POSITION WITNESS refusal 6 checks — it is
+ * NOT {@link BookTagSeed.nameTr} and must never be written to it. A deneme book's etiketler carry
+ * no name (`DEC 2026-09-10b` md.2).
+ *
  * ## What the SHA-256 pin below does, and what it deliberately does NOT do
  * {@link EXPECTED_ARTIFACT_SHA256} is compared against the file this module actually reads, and a
  * mismatch refuses the whole run. **It catches exactly one thing:** somebody editing the committed
@@ -70,7 +79,7 @@ export const EXPECTED_ARTIFACT_SHA256 =
 /** The two counts {@link assertArtifactMeetsCoverageFloor} refuses to see the artefact fall below. */
 export interface ArtifactCoverageFloor {
   readonly videos: number;
-  readonly questions: number;
+  readonly tags: number;
 }
 
 /**
@@ -81,15 +90,15 @@ export interface ArtifactCoverageFloor {
  * constant move together in one PR". So a truncated artefact — three records instead of thirty,
  * from a partial export or an interrupted copy — turns the pin red, and the author then updates the
  * pin, which is the CORRECT procedure applied to a defective input. Every one of the seven refusals
- * passes on the remainder (three valid records, unique ids, unique denemeler, ascending seconds,
- * tags agreeing with positions), the seed deletes the other twenty-seven videos, `ON DELETE
- * CASCADE` takes their questions, and the run exits 0 — the same exit code as a run that changed
+ * passes on the remainder (three valid records, unique ids, unique video numbers, ascending
+ * seconds, tags agreeing with positions), the seed deletes the other twenty-seven videos, `ON
+ * DELETE CASCADE` takes their tags, and the run exits 0 — the same exit code as a run that changed
  * nothing, while playbook §8 makes the exit code what the run is judged by.
  *
  * A FLOOR is the one thing in that chain that cannot be discharged by recomputation. Lowering it is
- * a deliberate line in a diff that says "this book now publishes fewer denemeler", which is exactly
+ * a deliberate line in a diff that says "this book now publishes fewer videos", which is exactly
  * the sentence a reviewer needs to see. It is a floor rather than an equality so that ADDING a
- * re-measured deneme — the growth direction, which loses nothing — stays a one-constant change.
+ * re-measured video — the growth direction, which loses nothing — stays a one-constant change.
  *
  * Playbook §5 states the strong form of this for the ERA5 line ("Completeness is absolute — 81 of
  * 81, or nothing is written"). This is the same idea for a corpus whose true size is a künye
@@ -97,7 +106,7 @@ export interface ArtifactCoverageFloor {
  */
 export const COMMITTED_ARTIFACT_COVERAGE_FLOOR: ArtifactCoverageFloor = {
   videos: 30,
-  questions: 180,
+  tags: 180,
 };
 
 /**
@@ -117,10 +126,9 @@ export function assertArtifactMeetsCoverageFloor(
       `${String(artifact.videos.length)} videos, below the pinned floor of ${String(floor.videos)}.`,
     );
   }
-  if (artifact.questionCount < floor.questions) {
+  if (artifact.tagCount < floor.tags) {
     problems.push(
-      `${String(artifact.questionCount)} marks, below the pinned floor of ` +
-        `${String(floor.questions)}.`,
+      `${String(artifact.tagCount)} marks, below the pinned floor of ${String(floor.tags)}.`,
     );
   }
 
@@ -128,10 +136,9 @@ export function assertArtifactMeetsCoverageFloor(
     throw new BookTimestampsArtifactError(
       `the committed artefact covers LESS than it did when the floor was pinned:\n  ` +
         `${problems.join('\n  ')}\n` +
-        `Seeding it would DELETE the difference from the published index, and cascade the ` +
-        `questions with it. If the coverage genuinely shrank, lower ` +
-        `COMMITTED_ARTIFACT_COVERAGE_FLOOR in the same PR and say why; if it did not, the ` +
-        `artefact you are holding is truncated.`,
+        `Seeding it would DELETE the difference from the published index, and cascade the tags ` +
+        `with it. If the coverage genuinely shrank, lower COMMITTED_ARTIFACT_COVERAGE_FLOOR in ` +
+        `the same PR and say why; if it did not, the artefact you are holding is truncated.`,
     );
   }
 }
@@ -178,11 +185,11 @@ const recordSchema = z.strictObject({
   videoId: z.string().regex(YOUTUBE_VIDEO_ID_PATTERN),
   deneme: z.number().int().min(1).max(999),
   title: z.string(),
-  // `.max(99)` mirrors `CHK_book_video_questions_question_no CHECK (question_no BETWEEN 1 AND 99)`,
-  // the same way the `videoId` pattern above mirrors `CHK_book_videos_youtube_video_id`.
-  // `questionNo` is derived from array position, so a 100th mark is a value the database refuses
-  // and this loader would otherwise hand it — and a CHECK violation surfaces mid-transaction as raw
-  // SQL rather than as a refusal naming the rule.
+  // `.max(99)` mirrors `CHK_book_video_tags_order_no CHECK (order_no BETWEEN 1 AND 99)`, the same
+  // way the `videoId` pattern above mirrors `CHK_book_videos_youtube_video_id`. The etiket's order
+  // number is derived from array position, so a 100th mark is a value the database refuses and
+  // this loader would otherwise hand it — and a CHECK violation surfaces mid-transaction as raw SQL
+  // rather than as a refusal naming the rule.
   timestamps: z.array(markSchema).min(1).max(99),
 });
 
@@ -197,27 +204,31 @@ const recordSchema = z.strictObject({
  */
 const artifactSchema = z.array(recordSchema).min(1);
 
-/** One question's jump target, keyed by its position in the deneme. */
-export interface BookQuestionSeed {
+/** One etiket's jump target, keyed by its position in the video. */
+export interface BookTagSeed {
   /** 1-based, gapless within its video — DERIVED from array position, corroborated by `tag`. */
-  readonly questionNo: number;
+  readonly orderNo: number;
   /** Whole seconds from the start of the video. */
   readonly startSecond: number;
 }
 
-/** One deneme's video and its question index. */
+/** One video's record and its etiket index. */
 export interface BookVideoSeed {
-  /** The deneme's number IN THE BOOK — never the playlist position (→ DEC 2026-08-12p md.5). */
-  readonly denemeNo: number;
+  /**
+   * The video's position IN THE BOOK — never the playlist position (→ DEC 2026-08-12p md.5). For
+   * this artefact's denemeler, the divergence from the playlist position (+1 after 14, +2 after 21)
+   * is a fact about THIS corpus, not a general rule (`GLOSSARY.md` §4.2, `video sırası (orderNo)`).
+   */
+  readonly orderNo: number;
   readonly youtubeVideoId: string;
-  readonly questions: readonly BookQuestionSeed[];
+  readonly tags: readonly BookTagSeed[];
 }
 
 /** What a validated artefact reduces to: exactly the values the three tables store. */
 export interface BookTimestampsArtifact {
   readonly videos: readonly BookVideoSeed[];
-  /** Mark total across every video — carried so the CLI can print a count it actually computed. */
-  readonly questionCount: number;
+  /** Etiket total across every video — carried so the CLI can print a count it actually computed. */
+  readonly tagCount: number;
 }
 
 function formatIssues(error: z.ZodError): string {
@@ -235,7 +246,7 @@ function formatIssues(error: z.ZodError): string {
  * violation and nothing is written).
  *
  * ## Why the `tag` check is the fidelity rule of this line, not a formality
- * The artefact carries no question number. `questionNo` is DERIVED from array position, which by
+ * The artefact carries no order number. `orderNo` is DERIVED from array position, which by
  * construction is gapless and ascending from 1 — so refusal 4 could never fail on its own and
  * would be a gate that cannot go red. What makes the derivation meaningful is that each record
  * carries an INDEPENDENT witness of the same fact: the human-readable `Soru {n}` tag measured
@@ -247,57 +258,57 @@ function formatIssues(error: z.ZodError): string {
 function assertArtifactIsSeedable(records: readonly z.infer<typeof recordSchema>[]): void {
   const problems: string[] = [];
   const seenVideoIds = new Map<string, number>();
-  const seenDenemeler = new Map<number, string>();
+  const seenVideoNumbers = new Map<number, string>();
   let markTotal = 0;
 
   for (const record of records) {
-    // Refusal 2: a repeated id would mean two denemeler publishing one video's seconds, and
+    // Refusal 2: a repeated id would mean two videos publishing one video's seconds, and
     // `UQ_book_videos_youtube_video_id` would reject the second row mid-transaction anyway —
-    // failing here names both denemeler instead of surfacing a constraint violation.
-    const previousDeneme = seenVideoIds.get(record.videoId);
-    if (previousDeneme !== undefined) {
+    // failing here names both videos instead of surfacing a constraint violation.
+    const previousVideo = seenVideoIds.get(record.videoId);
+    if (previousVideo !== undefined) {
       problems.push(
-        `videoId ${record.videoId} appears on deneme ${String(previousDeneme)} and deneme ` +
-          `${String(record.deneme)} — one video belongs to exactly one deneme.`,
+        `videoId ${record.videoId} appears on video ${String(previousVideo)} and video ` +
+          `${String(record.deneme)} — one YouTube video belongs to exactly one book video.`,
       );
     } else {
       seenVideoIds.set(record.videoId, record.deneme);
     }
 
-    // Refusal 3: seeding one deneme twice is two blocks on the page, and only one can be right.
-    const previousVideoId = seenDenemeler.get(record.deneme);
+    // Refusal 3: seeding one video twice is two blocks on the page, and only one can be right.
+    const previousVideoId = seenVideoNumbers.get(record.deneme);
     if (previousVideoId !== undefined) {
       problems.push(
-        `deneme ${String(record.deneme)} appears twice — first with videoId ${previousVideoId}, ` +
+        `video ${String(record.deneme)} appears twice — first with videoId ${previousVideoId}, ` +
           `then with ${record.videoId}.`,
       );
     } else {
-      seenDenemeler.set(record.deneme, record.videoId);
+      seenVideoNumbers.set(record.deneme, record.videoId);
     }
 
     let previousSecond: number | null = null;
     record.timestamps.forEach((mark, index) => {
-      const questionNo = index + 1;
+      const orderNo = index + 1;
       markTotal += 1;
 
       // Refusal 6: the tag is the witness described in this function's note. A tag that stops
       // agreeing with its position means the marks moved under us, and the reader would then be
-      // sent to the wrong question — the one defect a reader sees instantly (SPEC §17 R2).
-      const expectedTag = `Soru ${String(questionNo)}`;
+      // sent to the wrong etiket — the one defect a reader sees instantly (SPEC §17 R2).
+      const expectedTag = `Soru ${String(orderNo)}`;
       if (mark.tag !== expectedTag) {
         problems.push(
-          `deneme ${String(record.deneme)}, position ${String(questionNo)}: tag is ` +
+          `video ${String(record.deneme)}, position ${String(orderNo)}: tag is ` +
             `${JSON.stringify(mark.tag)} but the position says ${JSON.stringify(expectedTag)}. ` +
             `The mark order and the measured labels disagree — do not seed either reading.`,
         );
       }
 
-      // Refusal 5: strictly ascending within a video. `book_video_questions` cannot express this
-      // (a CHECK sees one row), so SPEC §5.3 puts it on the write path — here — and on the read
-      // path as an e2e invariant (§13 item 3, B3).
+      // Refusal 5: strictly ascending within a video. `book_video_tags` cannot express this (a
+      // CHECK sees one row), so SPEC §5.3 puts it on the write path — here — and on the read path
+      // as an e2e invariant (§13 item 3, B3).
       if (previousSecond !== null && mark.startingSecond <= previousSecond) {
         problems.push(
-          `deneme ${String(record.deneme)}, question ${String(questionNo)}: startingSecond ` +
+          `video ${String(record.deneme)}, tag ${String(orderNo)}: startingSecond ` +
             `${String(mark.startingSecond)} does not come after ${String(previousSecond)}.`,
         );
       }
@@ -325,24 +336,25 @@ function assertArtifactIsSeedable(records: readonly z.infer<typeof recordSchema>
 /**
  * Reduces a validated artefact to exactly what the three tables store.
  *
- * This is where `title` is dropped (SPEC §5.2) and where `questionNo` comes into existence, derived
- * from array position after {@link assertArtifactIsSeedable} has proven position and tag agree.
+ * This is where `title` is dropped (SPEC §5.2) and where `orderNo` (the etiket's) comes into
+ * existence, derived from array position after {@link assertArtifactIsSeedable} has proven position
+ * and tag agree.
  */
 function normalizeArtifact(
   records: readonly z.infer<typeof recordSchema>[],
 ): BookTimestampsArtifact {
   const videos = records.map((record) => ({
-    denemeNo: record.deneme,
+    orderNo: record.deneme,
     youtubeVideoId: record.videoId,
-    questions: record.timestamps.map((mark, index) => ({
-      questionNo: index + 1,
+    tags: record.timestamps.map((mark, index) => ({
+      orderNo: index + 1,
       startSecond: mark.startingSecond,
     })),
   }));
 
   return {
     videos,
-    questionCount: videos.reduce((total, video) => total + video.questions.length, 0),
+    tagCount: videos.reduce((total, video) => total + video.tags.length, 0),
   };
 }
 

@@ -25,7 +25,7 @@ import {
  * ## The two FKs are deliberately ASYMMETRIC
  * `user_id` is `ON DELETE CASCADE` (a progress row has no meaning without its user, and an account
  * deletion is the data owner's own act). `book_video_id` is `ON DELETE RESTRICT`, governed by the
- * `users.district_id` precedent rather than `book_video_questions.book_video_id`: progress rows are
+ * `users.district_id` precedent rather than `book_video_tags.book_video_id`: progress rows are
  * user-produced and derivable from nothing, so `pnpm db:seed:books --allow-removals` retiring a
  * `book_videos` row must fail loudly and roll back rather than silently cascade away another user's
  * saved position (full reasoning: the migration's own docblock).

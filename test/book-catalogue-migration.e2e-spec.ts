@@ -22,9 +22,9 @@ import { RenameBookCatalogueGeneric1788300000000 } from '../src/database/migrati
  * plan's §11 (a disclosed local run, `DEC 2026-08-26u`).
  *
  * ## What this file does NOT yet assert (plan §7.2 PR-1 manifest)
- * `name_tr IS NULL` on every row (that column does not exist until PR-2's own migration) and the
- * `books.deneme_count` / `CHK_books_deneme_count` half of step 7 (that column is not dropped
- * until PR-3). Both arrive in this same file in their respective PRs.
+ * The `books.deneme_count` / `CHK_books_deneme_count` half of step 7 — that column is not dropped
+ * until PR-3, and arrives in this same file then. The `name_tr`/`title_tr` half of step 5 landed
+ * here in PR-2 (below), alongside `AddGenericBookCatalogueFields1788300060000`.
  */
 describe('Book-catalogue rename migration — round-trip fidelity (e2e, real Postgres)', () => {
   let container: StartedPostgreSqlContainer;
@@ -208,8 +208,11 @@ describe('Book-catalogue rename migration — round-trip fidelity (e2e, real Pos
 
     await oldDataSource.destroy();
 
-    // Step 4 — run the remaining migration (in PR-1, this is the ONE rename migration; the
-    // `migrations` bookkeeping table already records everything before it as applied).
+    // Step 4 — run the remaining migration(s) (in PR-1 this was the ONE rename migration; from
+    // PR-2 on it also includes `AddGenericBookCatalogueFields`, since `fullOptions.migrations` is
+    // the COMPLETE array and `runMigrations()` applies everything not yet in the bookkeeping
+    // table). The `migrations` table already records everything before `NEW_MIGRATION_NAME` as
+    // applied.
     const fullDataSource = new DataSource(fullOptions);
     await fullDataSource.initialize();
     await fullDataSource.runMigrations();
@@ -257,6 +260,32 @@ describe('Book-catalogue rename migration — round-trip fidelity (e2e, real Pos
     expect(await constraintDef('book_videos', 'CHK_book_videos_order_no')).toBe(
       'CHECK (((order_no >= 1) AND (order_no <= 999)))',
     );
+
+    // Step 5's name_tr/title_tr half (P0 PR-2, this migration's own contribution to this file):
+    // `AddGenericBookCatalogueFields` has now run as part of "the remaining migrations" in step 4,
+    // so `book_videos.title_tr`/`title_en` and `book_video_tags.name_tr`/`name_en` all exist and
+    // are NULL for this fixture's rows — nothing in the seed/migration path writes them, which
+    // `GLOSSARY.md` §4.2's "a deneme book's etiketler carry no name" ruling requires.
+    const nullGenericFields = await fullDataSource.query<
+      { title_tr: string | null; title_en: string | null }[]
+    >(`SELECT title_tr, title_en FROM "book_videos" WHERE "book_id" = $1`, [bookId]);
+    expect(nullGenericFields.length).toBe(30);
+    expect(nullGenericFields.every((row) => row.title_tr === null && row.title_en === null)).toBe(
+      true,
+    );
+
+    const nullTagFields = await fullDataSource.query<
+      { name_tr: string | null; name_en: string | null }[]
+    >(
+      `
+        SELECT t.name_tr, t.name_en FROM "book_video_tags" t
+        JOIN "book_videos" v ON v."id" = t."book_video_id"
+        WHERE v."book_id" = $1
+      `,
+      [bookId],
+    );
+    expect(nullTagFields.length).toBe(180);
+    expect(nullTagFields.every((row) => row.name_tr === null && row.name_en === null)).toBe(true);
 
     await fullDataSource.query('DELETE FROM "books" WHERE "id" = $1', [bookId]);
     await fullDataSource.destroy();

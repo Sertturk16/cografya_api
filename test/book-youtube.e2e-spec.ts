@@ -216,7 +216,7 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
     await seedBooks(dataSource);
     store = new YoutubeSnapshotStore(dataSource);
 
-    const videos = await dataSource.getRepository(BookVideo).find({ order: { denemeNo: 'ASC' } });
+    const videos = await dataSource.getRepository(BookVideo).find({ order: { orderNo: 'ASC' } });
     videoIds = videos.map((video) => video.youtubeVideoId);
     expect(videoIds.length).toBeGreaterThan(1);
 

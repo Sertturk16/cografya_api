@@ -77,14 +77,14 @@ function secondBook(overrides: Partial<BookSeed> = {}): BookSeed {
   });
 }
 
-function artifact(denemeNumbers: readonly number[]): BookTimestampsArtifact {
-  const videos = denemeNumbers.map((denemeNo) => ({
-    denemeNo,
+function artifact(orderNumbers: readonly number[]): BookTimestampsArtifact {
+  const videos = orderNumbers.map((orderNo) => ({
+    orderNo,
     youtubeVideoId: 'aaaaaaaaaaa',
-    questions: [{ questionNo: 1, startSecond: 0 }],
+    tags: [{ orderNo: 1, startSecond: 0 }],
   }));
 
-  return { videos, questionCount: videos.length };
+  return { videos, tagCount: videos.length };
 }
 
 describe('assertBookSeedInvariants — positive controls', () => {

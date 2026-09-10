@@ -93,18 +93,56 @@ describe('parseBookTimestampsArtifact', () => {
     const artifact = parseBookTimestampsArtifact([record(), secondRecord()], 'fixture');
 
     expect(artifact.videos).toHaveLength(2);
-    expect(artifact.questionCount).toBe(5);
-    // `questionNo` is DERIVED from position, and `title` is not carried at all (SPEC §5.2).
+    expect(artifact.tagCount).toBe(5);
+    // `orderNo` is DERIVED from position, and `title` is not carried at all (SPEC §5.2).
     expect(artifact.videos).toContainEqual({
-      denemeNo: 1,
+      orderNo: 1,
       youtubeVideoId: 'aaaaaaaaaaa',
-      questions: [
-        { questionNo: 1, startSecond: 0 },
-        { questionNo: 2, startSecond: 30 },
-        { questionNo: 3, startSecond: 61 },
+      tags: [
+        { orderNo: 1, startSecond: 0 },
+        { orderNo: 2, startSecond: 30 },
+        { orderNo: 3, startSecond: 61 },
       ],
     });
     expect(JSON.stringify(artifact)).not.toContain('never read');
+  });
+
+  /**
+   * AC 4 (P0 plan §5.5): `orderNo` is stored, derived from array POSITION, and never from
+   * `startSecond`. A single valid video cannot distinguish "position" from "sorted by second"
+   * because refusal 5 already forces its own seconds strictly ascending — sorting a strictly
+   * ascending sequence returns itself. The distinguishing fixture has to look ACROSS videos: this
+   * one puts the video with the LATER seconds FIRST in the artefact array and the video with the
+   * EARLIER seconds second, so a "simplification" that flattened every mark and derived order by a
+   * chronological (second-based) sort across the WHOLE artefact — rather than by each video's own
+   * array position — would renumber them and this case would go red.
+   */
+  it('derives orderNo from array position, never from a chronological sort by startSecond', () => {
+    const laterSeconds = record({
+      deneme: 1,
+      videoId: 'aaaaaaaaaaa',
+      timestamps: marks([
+        ['Soru 1', 500],
+        ['Soru 2', 600],
+      ]),
+    });
+    const earlierSeconds = record({
+      deneme: 2,
+      videoId: 'bbbbbbbbbbb',
+      timestamps: marks([
+        ['Soru 1', 10],
+        ['Soru 2', 20],
+      ]),
+    });
+
+    const artifact = parseBookTimestampsArtifact([laterSeconds, earlierSeconds], 'fixture');
+
+    const video1 = artifact.videos.find((video) => video.orderNo === 1);
+    const video2 = artifact.videos.find((video) => video.orderNo === 2);
+    // Each video's own tags are numbered 1..n by ITS OWN array position — video 2's earlier-in-time
+    // marks do not inherit any numbering from a whole-artefact chronological ranking.
+    expect(video1?.tags.map((tag) => tag.orderNo)).toEqual([1, 2]);
+    expect(video2?.tags.map((tag) => tag.orderNo)).toEqual([1, 2]);
   });
 
   // ── Refusal 1: "nothing expected" FAILS; it never reports a green count of zero ──
@@ -189,7 +227,7 @@ describe('parseBookTimestampsArtifact', () => {
   });
 
   // ── Refusals 4 + 6: position and tag are two independent readings of one fact ──
-  // `questionNo` derives from position, so position alone can never disagree with itself. The tag
+  // `orderNo` derives from position, so position alone can never disagree with itself. The tag
   // is the only witness that a mark was dropped, duplicated or reordered — playbook §5's fidelity
   // rule in the form this line needs.
   it('refuses a tag that disagrees with its position', () => {
@@ -295,7 +333,7 @@ describe('readBookTimestampsArtifact', () => {
     const path = await writeTempArtifact(contents);
 
     await expect(readBookTimestampsArtifact(path, sha256(contents))).resolves.toMatchObject({
-      questionCount: 5,
+      tagCount: 5,
     });
   });
 
@@ -329,42 +367,42 @@ describe('readBookTimestampsArtifact', () => {
     const artifact = await readBookTimestampsArtifact();
 
     expect(artifact.videos.length).toBeGreaterThan(0);
-    expect(new Set(artifact.videos.map((video) => video.denemeNo)).size).toBe(
+    expect(new Set(artifact.videos.map((video) => video.orderNo)).size).toBe(
       artifact.videos.length,
     );
     expect(new Set(artifact.videos.map((video) => video.youtubeVideoId)).size).toBe(
       artifact.videos.length,
     );
-    expect(artifact.questionCount).toBe(
-      artifact.videos.reduce((total, video) => total + video.questions.length, 0),
+    expect(artifact.tagCount).toBe(
+      artifact.videos.reduce((total, video) => total + video.tags.length, 0),
     );
-    expect(artifact.questionCount).toBeGreaterThan(0);
+    expect(artifact.tagCount).toBeGreaterThan(0);
   });
 });
 
 describe('assertArtifactMeetsCoverageFloor', () => {
-  function artifactOf(videoCount: number, questionsPerVideo: number): BookTimestampsArtifact {
+  function artifactOf(videoCount: number, tagsPerVideo: number): BookTimestampsArtifact {
     const videos = Array.from({ length: videoCount }, (_value, index) => ({
-      denemeNo: index + 1,
+      orderNo: index + 1,
       youtubeVideoId: 'aaaaaaaaaaa',
-      questions: Array.from({ length: questionsPerVideo }, (_mark, position) => ({
-        questionNo: position + 1,
+      tags: Array.from({ length: tagsPerVideo }, (_mark, position) => ({
+        orderNo: position + 1,
         startSecond: position,
       })),
     }));
 
-    return { videos, questionCount: videoCount * questionsPerVideo };
+    return { videos, tagCount: videoCount * tagsPerVideo };
   }
 
   it('accepts an artefact that meets its floor exactly (positive control)', () => {
     expect(() => {
-      assertArtifactMeetsCoverageFloor(artifactOf(3, 2), { videos: 3, questions: 6 });
+      assertArtifactMeetsCoverageFloor(artifactOf(3, 2), { videos: 3, tags: 6 });
     }).not.toThrow();
   });
 
   it('accepts an artefact that grew past its floor', () => {
     expect(() => {
-      assertArtifactMeetsCoverageFloor(artifactOf(4, 2), { videos: 3, questions: 6 });
+      assertArtifactMeetsCoverageFloor(artifactOf(4, 2), { videos: 3, tags: 6 });
     }).not.toThrow();
   });
 
@@ -372,13 +410,13 @@ describe('assertArtifactMeetsCoverageFloor', () => {
     // The truncation case in full: fewer records, each of them perfectly valid. The hash pin cannot
     // catch it, because updating the pin is the DOCUMENTED procedure for a re-measurement.
     expect(() => {
-      assertArtifactMeetsCoverageFloor(artifactOf(1, 2), { videos: 3, questions: 6 });
+      assertArtifactMeetsCoverageFloor(artifactOf(1, 2), { videos: 3, tags: 6 });
     }).toThrow(/below the pinned floor/);
   });
 
   it('refuses an artefact that kept its videos and lost marks', () => {
     expect(() => {
-      assertArtifactMeetsCoverageFloor(artifactOf(3, 1), { videos: 3, questions: 6 });
+      assertArtifactMeetsCoverageFloor(artifactOf(3, 1), { videos: 3, tags: 6 });
     }).toThrow(/marks, below the pinned floor/);
   });
 

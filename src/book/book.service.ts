@@ -2,7 +2,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, In, Repository } from 'typeorm';
 import { buildBookAttribution } from './book-attribution.catalogue';
-import { BookVideoQuestion } from './entities/book-video-question.entity';
+import { BookVideoTag } from './entities/book-video-tag.entity';
 import { BookVideo } from './entities/book-video.entity';
 import { Book } from './entities/book.entity';
 import { YoutubeVideoSnapshot } from './entities/youtube-video-snapshot.entity';
@@ -48,7 +48,7 @@ const EMPTY_STATS: BookStats = { videoCount: 0, questionCount: 0, childrenUpdate
 /**
  * The published `dateModified` / sitemap `lastmod` value for one book.
  *
- * **`GREATEST(books.updated_at, MAX(book_videos.updated_at), MAX(book_video_questions.updated_at))`,
+ * **`GREATEST(books.updated_at, MAX(book_videos.updated_at), MAX(book_video_tags.updated_at))`,
  * and the widening is the point.** `Book.updatedAt` alone is wrong here, and B2 designed it that
  * way on purpose: a re-measurement that shifts 180 start seconds updates the child rows and
  * deliberately does NOT touch the book row, because writing a row whose own columns did not change
@@ -89,9 +89,9 @@ export class BookService {
   /**
    * Only two repositories are injected, and the third is deliberately absent: since the detail path
    * moved inside a transaction it reaches every table through that transaction's `EntityManager`,
-   * so a `BookVideoQuestion` repository bound to the default connection would be a dependency
-   * nothing uses — and one a later edit could reach for by reflex, silently stepping outside the
-   * snapshot {@link findBySlug} exists to hold. `BookModule` still registers all three entities.
+   * so a `BookVideoTag` repository bound to the default connection would be a dependency nothing
+   * uses — and one a later edit could reach for by reflex, silently stepping outside the snapshot
+   * {@link findBySlug} exists to hold. `BookModule` still registers all three entities.
    */
   constructor(
     @InjectRepository(Book)
@@ -181,23 +181,23 @@ export class BookService {
     // one that cannot fire. Order is established once, here, and the test checks the result.
     const videos = await manager.getRepository(BookVideo).find({
       where: { bookId: book.id },
-      order: { denemeNo: 'ASC' },
+      order: { orderNo: 'ASC' },
     });
-    const questions =
+    const tags =
       videos.length === 0
         ? []
-        : await manager.getRepository(BookVideoQuestion).find({
+        : await manager.getRepository(BookVideoTag).find({
             where: { bookVideoId: In(videos.map((video) => video.id)) },
-            order: { bookVideoId: 'ASC', questionNo: 'ASC' },
+            order: { bookVideoId: 'ASC', orderNo: 'ASC' },
           });
 
-    const questionsByVideo = new Map<string, BookVideoQuestion[]>();
-    for (const question of questions) {
-      const bucket = questionsByVideo.get(question.bookVideoId);
+    const tagsByVideo = new Map<string, BookVideoTag[]>();
+    for (const tag of tags) {
+      const bucket = tagsByVideo.get(tag.bookVideoId);
       if (bucket === undefined) {
-        questionsByVideo.set(question.bookVideoId, [question]);
+        tagsByVideo.set(tag.bookVideoId, [tag]);
       } else {
-        bucket.push(question);
+        bucket.push(tag);
       }
     }
 
@@ -220,11 +220,16 @@ export class BookService {
 
     const videoDtos: BookVideoDto[] = videos.map((video) => ({
       bookVideoId: video.id,
-      denemeNo: video.denemeNo,
+      // Temporary DTO-name adapter, for exactly the length of this PR (P0 plan §7.2 PR-2): the
+      // entity property is `orderNo` from here on, and the published DTO field stays `denemeNo`
+      // until PR-3 lands the rest of the breaking contract change alongside it —
+      // `openapi/openapi.json` must come out of THIS PR byte-unchanged, and this line is why it
+      // does.
+      denemeNo: video.orderNo,
       youtubeVideoId: video.youtubeVideoId,
-      questions: (questionsByVideo.get(video.id) ?? []).map((question) => ({
-        questionNo: question.questionNo,
-        startSecond: question.startSecond,
+      questions: (tagsByVideo.get(video.id) ?? []).map((tag) => ({
+        questionNo: tag.orderNo,
+        startSecond: tag.startSecond,
       })),
       youtube: this.toYoutubeDto(snapshotsByVideoId.get(video.youtubeVideoId), nowMs),
     }));
@@ -235,7 +240,7 @@ export class BookService {
     const stats: BookStats = {
       videoCount: videoDtos.length,
       questionCount: videoDtos.reduce((sum, video) => sum + video.questions.length, 0),
-      childrenUpdatedAt: latestChildTimestamp(videos, questions),
+      childrenUpdatedAt: latestChildTimestamp(videos, tags),
     };
 
     return {
@@ -308,8 +313,8 @@ export class BookService {
   /**
    * Per-book counts and child timestamps for a page of books, in one grouped query.
    *
-   * `COUNT(DISTINCT v.id)` rather than `COUNT(v.id)`: the join to questions multiplies each video
-   * row by its question count, so the plain count would report 180 videos for 30.
+   * `COUNT(DISTINCT v.id)` rather than `COUNT(v.id)`: the join to tags multiplies each video row by
+   * its tag count, so the plain count would report 180 videos for 30.
    */
   private async loadStats(bookIds: string[]): Promise<Map<string, BookStats>> {
     // An empty `IN ()` is invalid SQL, and an empty page is an ordinary state (a book set smaller
@@ -321,12 +326,12 @@ export class BookService {
 
     const rows = await this.videos
       .createQueryBuilder('v')
-      .leftJoin(BookVideoQuestion, 'q', 'q.bookVideoId = v.id')
+      .leftJoin(BookVideoTag, 't', 't.bookVideoId = v.id')
       .select('v.bookId', 'bookId')
       .addSelect('COUNT(DISTINCT v.id)', 'videoCount')
-      .addSelect('COUNT(q.id)', 'questionCount')
+      .addSelect('COUNT(t.id)', 'questionCount')
       .addSelect('MAX(v.updatedAt)', 'videosUpdatedAt')
-      .addSelect('MAX(q.updatedAt)', 'questionsUpdatedAt')
+      .addSelect('MAX(t.updatedAt)', 'questionsUpdatedAt')
       .where('v.bookId IN (:...bookIds)', { bookIds })
       .groupBy('v.bookId')
       .getRawMany<BookStatsRow>();
@@ -370,10 +375,10 @@ function newerOf(left: Date | null, right: Date | null): Date | null {
 /** The newest `updated_at` across a book's loaded child rows — the detail path's half of GREATEST. */
 function latestChildTimestamp(
   videos: readonly BookVideo[],
-  questions: readonly BookVideoQuestion[],
+  tags: readonly BookVideoTag[],
 ): Date | null {
   let latest: Date | null = null;
-  for (const row of [...videos, ...questions]) {
+  for (const row of [...videos, ...tags]) {
     latest = newerOf(latest, row.updatedAt);
   }
   return latest;

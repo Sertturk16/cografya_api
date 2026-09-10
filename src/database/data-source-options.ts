@@ -6,7 +6,7 @@ import { PasswordResetToken } from '../auth/entities/password-reset-token.entity
 import { PendingRegistration } from '../auth/entities/pending-registration.entity';
 import { Session } from '../auth/entities/session.entity';
 import { User } from '../auth/entities/user.entity';
-import { BookVideoQuestion } from '../book/entities/book-video-question.entity';
+import { BookVideoTag } from '../book/entities/book-video-tag.entity';
 import { BookVideo } from '../book/entities/book-video.entity';
 import { Book } from '../book/entities/book.entity';
 import { YoutubeVideoSnapshot } from '../book/entities/youtube-video-snapshot.entity';
@@ -57,6 +57,7 @@ import { InitMeasurements1788007200000 } from './migrations/1788007200000-InitMe
 import { AllowStudentMinimalRegistrationProfileShape1788100000000 } from './migrations/1788100000000-AllowStudentMinimalRegistrationProfileShape';
 import { InitRegions1788200000000 } from './migrations/1788200000000-InitRegions';
 import { RenameBookCatalogueGeneric1788300000000 } from './migrations/1788300000000-RenameBookCatalogueGeneric';
+import { AddGenericBookCatalogueFields1788300060000 } from './migrations/1788300060000-AddGenericBookCatalogueFields';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -232,7 +233,7 @@ export function buildDataSourceOptions(
       EarthquakeIngestRun,
       Book,
       BookVideo,
-      BookVideoQuestion,
+      BookVideoTag,
       YoutubeVideoSnapshot,
       District,
       User,
@@ -281,6 +282,7 @@ export function buildDataSourceOptions(
       AllowStudentMinimalRegistrationProfileShape1788100000000,
       InitRegions1788200000000,
       RenameBookCatalogueGeneric1788300000000,
+      AddGenericBookCatalogueFields1788300060000,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,

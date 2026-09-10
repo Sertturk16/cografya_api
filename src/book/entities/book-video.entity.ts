@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 
 /**
- * One deneme's video solution — the join between a book's deneme number and a YouTube video id.
+ * One video's row — the join between a book's video position and a YouTube video id.
  *
  * ## What this row deliberately does NOT store
  * **The video's title.** `timestamps.json` carries YouTube's title on every record and the seed
@@ -16,16 +16,18 @@ import {
  * the heading the reader sees is OURS ("Deneme 12"), not the channel's; a stored title would be
  * API Data and would drag a 30-day retention obligation onto a permanent row for no benefit; and
  * the API can return a machine-translated title under `hl`, which `SEO-POLICY.md` §B14 bars from
- * publication. Not storing it means none of the three ever arises.
+ * publication. Not storing it means none of the three ever arises. {@link titleTr}/{@link titleEn}
+ * are a DIFFERENT thing — our own display title, added generic-model-wide in P0 PR-2 — never the
+ * API's (plan §5.1).
  *
  * ## No `slug_tr` / `slug_en`, and that is a RULING not an omission
  * Playbook §5 requires localized slugs on public entities because the web repo routes on them.
- * There is **no per-deneme page and no per-question page** (SPEC §4.3): a book yields 30
+ * There is **no per-video page and no per-etiket page** (SPEC §4.3): a book yields 30
  * near-identical thin pages and four books yield 120, which is the shape `SEO-POLICY.md` §12.1
- * targets, and deep links are served by fragments (`#deneme-12`, `#deneme-12-soru-3`) exactly as
- * `#iller`/`#ulkeler` are (→ DEC 2026-08-04i §2). With no page there is no route, and with no
- * route a slug would be a column nothing resolves. Playbook §5 records the exception, which this
- * PR widens from `earthquake_events` to the class those three tables share.
+ * targets, and deep links are served by fragments (`#video-12-etiket-3`, `DEC 2026-09-10b` md.5)
+ * exactly as `#iller`/`#ulkeler` are (→ DEC 2026-08-04i §2). With no page there is no route, and
+ * with no route a slug would be a column nothing resolves. Playbook §5 records the exception,
+ * which this PR widens from `earthquake_events` to the class those three tables share.
  *
  * ## B1 scope
  * Schema and contract only — rows arrive with the B2 seed (SPEC §16).
@@ -34,36 +36,55 @@ import {
 // The MIGRATION is the truth for these constraints; the decorators are declared so the access
 // paths read beside the columns (the `EarthquakeEvent` precedent).
 //
-// There is no separate `INDEX (book_id, deneme_no)`: this UNIQUE constraint IS a unique B-tree
+// There is no separate `INDEX (book_id, order_no)`: this UNIQUE constraint IS a unique B-tree
 // index on exactly those columns in exactly that order, so SPEC §5.2's index line is satisfied by
 // it. Creating both would be one physical index paying for two.
-@Unique('UQ_book_videos_book_order', ['bookId', 'denemeNo'])
+@Unique('UQ_book_videos_book_order', ['bookId', 'orderNo'])
 // A video belongs to ONE book. Two books claiming the same video would mean the same 6 start
-// seconds published under two different denemeler, and only one of them could be right.
+// seconds published under two different videos, and only one of them could be right.
 @Unique('UQ_book_videos_youtube_video_id', ['youtubeVideoId'])
 export class BookVideo {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  /** Owning book. `ON DELETE CASCADE`: a deneme has no meaning without its book. */
+  /** Owning book. `ON DELETE CASCADE`: a video has no meaning without its book. */
   @Column({ name: 'book_id', type: 'uuid' })
   bookId!: string;
 
   /**
-   * The deneme's number **in the book** (`GLOSSARY.md` §4.2, `deneme numarası (denemeNo)`).
+   * The video's position **in the book** (`GLOSSARY.md` §4.2, `video sırası (orderNo)`).
    *
-   * **Not the playlist position** — the two diverge, by +1 after 14 and by +2 after 21 (→ DEC
-   * 2026-08-12p md.5), because denemeler 14 and 22 exist in the book while their solution videos
-   * do not. The playlist position is stored NOWHERE, so no code path can accidentally reach for
-   * the wrong one.
-   *
-   * The Turkish name is a `GLOSSARY.md` §4.2 ruling, not a lapse: NOVA declined to mint an English
-   * equivalent because "deneme" splits across *practice test* / *mock exam* / *trial exam* with no
-   * authority behind any of them, so the Turkish term is preserved in the field name — the same
-   * class as `plaka kodu`.
+   * The generic successor to the retired `deneme_no`/`denemeNo` (P0 plan §5.2, `DEC 2026-09-10b`
+   * md.1/md.4). For today's only seeded book — a deneme book — this is the deneme's number, and it
+   * is **not the playlist position**: the two diverge, by +1 after 14 and by +2 after 21 (→ DEC
+   * 2026-08-12p md.5), because denemeler 14 and 22 exist in the book while their solution videos do
+   * not. The playlist position is stored NOWHERE, so no code path can accidentally reach for the
+   * wrong one. It is also the anchor prefix on the book page (`#video-{orderNo}-…`, `DEC
+   * 2026-09-10b` md.5); uniqueness within the book is what guarantees the served HTML `id`s are
+   * unique across the whole page.
    */
   @Column({ name: 'order_no', type: 'integer' })
-  denemeNo!: number;
+  orderNo!: number;
+
+  /**
+   * Our own display title for this video — generic-model addition, P0 PR-2
+   * (`GLOSSARY.md` §4.2, `video başlığı (titleTr/titleEn)`).
+   *
+   * **Not the YouTube title.** The artefact's own `title` field stays declared-and-discarded
+   * exactly as today (`recordSchema` declares it so `z.strictObject` still refuses unknown keys;
+   * `normalizeArtifact` drops it) — this column is authored by us, never API-sourced, so nothing it
+   * holds ever moves outside the purge's reach (plan §5.1).
+   *
+   * NULL for a deneme book: the reader-facing "Deneme 12" label is still composed in the web repo
+   * from i18n + {@link orderNo} (`DEC 2026-09-10b` md.4), never from this column. A future
+   * topic-summary/soru-bankası book may set it.
+   */
+  @Column({ name: 'title_tr', type: 'varchar', length: 200, nullable: true })
+  titleTr!: string | null;
+
+  /** EN counterpart of {@link titleTr}. Same nullability and the same reason it is null today. */
+  @Column({ name: 'title_en', type: 'varchar', length: 200, nullable: true })
+  titleEn!: string | null;
 
   /**
    * The YouTube video id, exactly 11 characters of `[A-Za-z0-9_-]`.
