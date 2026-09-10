@@ -213,6 +213,9 @@ describe('Province (e2e)', () => {
       'InitMeasurements1788007200000',
       'AllowStudentMinimalRegistrationProfileShape1788100000000',
       'InitRegions1788200000000',
+      // P0 PR-1: catalogue-only rename, no new table and no new foreign key — no ordering
+      // constraint beyond "after the tables it renames" (`InitBookCatalogue`, already above).
+      'RenameBookCatalogueGeneric1788300000000',
     ]);
   });
 

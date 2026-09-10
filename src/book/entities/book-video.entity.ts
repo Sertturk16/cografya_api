@@ -37,7 +37,7 @@ import {
 // There is no separate `INDEX (book_id, deneme_no)`: this UNIQUE constraint IS a unique B-tree
 // index on exactly those columns in exactly that order, so SPEC §5.2's index line is satisfied by
 // it. Creating both would be one physical index paying for two.
-@Unique('UQ_book_videos_book_deneme', ['bookId', 'denemeNo'])
+@Unique('UQ_book_videos_book_order', ['bookId', 'denemeNo'])
 // A video belongs to ONE book. Two books claiming the same video would mean the same 6 start
 // seconds published under two different denemeler, and only one of them could be right.
 @Unique('UQ_book_videos_youtube_video_id', ['youtubeVideoId'])
@@ -62,7 +62,7 @@ export class BookVideo {
    * authority behind any of them, so the Turkish term is preserved in the field name — the same
    * class as `plaka kodu`.
    */
-  @Column({ name: 'deneme_no', type: 'integer' })
+  @Column({ name: 'order_no', type: 'integer' })
   denemeNo!: number;
 
   /**

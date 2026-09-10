@@ -439,8 +439,8 @@ describe('Book seed write path (e2e, real Postgres)', () => {
            page_count = $3, deneme_count = $4, author_names = $5 WHERE id = $1`,
         [bookId, OWNER.isbn13, OWNER.pageCount, OWNER.denemeCount, [...OWNER.authorNames]],
       );
-      await dataSource.query('DELETE FROM book_videos WHERE deneme_no >= 700');
-      await dataSource.query('DELETE FROM book_video_questions WHERE question_no >= 50');
+      await dataSource.query('DELETE FROM book_videos WHERE order_no >= 700');
+      await dataSource.query('DELETE FROM book_video_tags WHERE order_no >= 50');
     });
 
     /** Sets one column on the seeded book row; resolves true when Postgres accepted the value. */
@@ -536,7 +536,7 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       const insert = async (denemeNo: number, videoId: string): Promise<boolean> => {
         try {
           await dataSource.query(
-            'INSERT INTO book_videos (book_id, deneme_no, youtube_video_id) VALUES ($1, $2, $3)',
+            'INSERT INTO book_videos (book_id, order_no, youtube_video_id) VALUES ($1, $2, $3)',
             [bookId, denemeNo, videoId],
           );
           return true;
@@ -556,17 +556,17 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       expect(await insert(1000, 'okvideoid02')).toBe(false);
       expect(await insert(0, 'okvideoid03')).toBe(false);
 
-      await dataSource.query('DELETE FROM book_videos WHERE deneme_no >= 700');
+      await dataSource.query('DELETE FROM book_videos WHERE order_no >= 700');
     });
 
-    it('book_video_questions refuses a negative second and a zero question number', async () => {
+    it('book_video_tags refuses a negative second and a zero question number', async () => {
       const video = await dataSource
         .getRepository(BookVideo)
         .findOneOrFail({ where: { bookId }, order: { denemeNo: 'ASC' } });
       const insert = async (questionNo: number, startSecond: number): Promise<boolean> => {
         try {
           await dataSource.query(
-            'INSERT INTO book_video_questions (book_video_id, question_no, start_second) VALUES ($1, $2, $3)',
+            'INSERT INTO book_video_tags (book_video_id, order_no, start_second) VALUES ($1, $2, $3)',
             [video.id, questionNo, startSecond],
           );
           return true;
@@ -582,7 +582,7 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       // The same question number twice on one video.
       expect(await insert(50, 99)).toBe(false);
 
-      await dataSource.query('DELETE FROM book_video_questions WHERE question_no >= 50');
+      await dataSource.query('DELETE FROM book_video_tags WHERE order_no >= 50');
     });
   });
 });
