@@ -1730,6 +1730,75 @@
         ]
       }
     },
+    "/api/video-identity/{bookVideoId}": {
+      "get": {
+        "description": "The anonymous book payload never carries this value (P2) — a member fetches it through this guarded route instead, keyed on the same public bookVideoId the anonymous payload already carries.",
+        "operationId": "VideoIdentityController_getIdentity",
+        "parameters": [
+          {
+            "name": "bookVideoId",
+            "required": true,
+            "in": "path",
+            "description": "book_videos.id.",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoIdentityDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed (non-UUID) bookVideoId.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "errors.auth.unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "errors.videoIdentity.notFound",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "A signed-in member's own way to fetch one video's identity.",
+        "tags": [
+          "video-identity"
+        ]
+      }
+    },
     "/api/favorites": {
       "get": {
         "description": "A plain, unpaginated array — bounded at at most 81 provinces + ~199 countries + 7 regions + 7 continents = 294 rows per user, ever, the same \"bounded and small\" shape `ENGINEERING.md` §2 already uses for the province/country lists themselves.",
@@ -5755,11 +5824,6 @@
             "example": null,
             "description": "EN counterpart of titleTr, null on the same SEO-POLICY §B14 14.2 grounds every other EN twin uses: a field with no counterpart is omitted, never machine-filled."
           },
-          "youtubeVideoId": {
-            "type": "string",
-            "example": "dQw4w9WgXcQ",
-            "description": "The YouTube video id, 11 characters — the identifier the embed is built from. Load the player only on a click or key press, never on hover, and place nothing on top of it once it is in. Moving between etiketler happens INSIDE the loaded player through the IFrame Player API, not by rebuilding the embed URL per etiket (owner ruling DEC 2026-08-15d): six etiketler per video would otherwise cost six full player reloads."
-          },
           "tags": {
             "description": "The etiket index for this video, ascending by orderNo and by startSecond. It must be readable and clickable WITHOUT JavaScript: SEO-POLICY §12.2.b treats a page whose body exists to send the visitor elsewhere as a BLOCKER, and this index is what keeps the page on the right side of that line. Renamed from `questions` (P0 PR-3, `DEC 2026-09-10b` md.1).",
             "type": "array",
@@ -5783,7 +5847,6 @@
           "orderNo",
           "titleTr",
           "titleEn",
-          "youtubeVideoId",
           "tags",
           "youtube"
         ]
@@ -7264,6 +7327,19 @@
         "required": [
           "lastPositionSeconds",
           "watched"
+        ]
+      },
+      "VideoIdentityDto": {
+        "type": "object",
+        "properties": {
+          "youtubeVideoId": {
+            "type": "string",
+            "example": "dQw4w9WgXcQ",
+            "description": "The YouTube video id, 11 characters — the identifier the embed is built from."
+          }
+        },
+        "required": [
+          "youtubeVideoId"
         ]
       },
       "FavoriteDto": {

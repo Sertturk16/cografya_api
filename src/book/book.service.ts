@@ -220,7 +220,6 @@ export class BookService {
       orderNo: video.orderNo,
       titleTr: video.titleTr,
       titleEn: video.titleEn,
-      youtubeVideoId: video.youtubeVideoId,
       tags: (tagsByVideo.get(video.id) ?? []).map((tag) => ({
         orderNo: tag.orderNo,
         startSecond: tag.startSecond,

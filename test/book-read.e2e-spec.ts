@@ -80,7 +80,6 @@ interface Detail extends ListItem {
     orderNo: number;
     titleTr: string | null;
     titleEn: string | null;
-    youtubeVideoId: string;
     tags: { orderNo: number; startSecond: number; nameTr: string | null; nameEn: string | null }[];
     youtube: unknown;
   }[];
@@ -268,8 +267,28 @@ describe('Book read path (e2e, real Postgres)', () => {
         // DO NOT assume the first etiket starts at 0 — the measured set is {0, 2, 6, 11, 94}, so
         // 0 is an ordinary value rather than a sentinel. Only non-negativity is an invariant.
         expect(seconds.every((second) => Number.isInteger(second) && second >= 0)).toBe(true);
-        // SPEC §13 invariant 4, on the served id rather than on the column.
-        expect(video.youtubeVideoId).toMatch(/^[A-Za-z0-9_-]{11}$/);
+      }
+    });
+
+    it('never serves a video identity on the anonymous detail payload (P2)', async () => {
+      // The gate this whole PR exists to prove: an anonymous visitor never receives the field the
+      // guarded /api/video-identity/{bookVideoId} route now serves instead. Checked with
+      // hasOwnProperty rather than a falsy check — a nulled field would still be a leak of the
+      // key's existence, and this asserts the key is ABSENT, not merely empty. There is no
+      // separate embedUrl/contentUrl field on this side either (measured: no such field is ever
+      // published), so both are asserted here even though only one has ever existed.
+      app = await bootApp();
+      const list = await request(app.getHttpServer()).get('/api/books').expect(200);
+      const first = (list.body as ListEnvelope).items[0];
+      if (first === undefined) throw new Error('no book seeded');
+      const body = (
+        await request(app.getHttpServer()).get(`/api/books/${first.slugTr}`).expect(200)
+      ).body as Detail;
+
+      expect(body.videos.length).toBeGreaterThan(0);
+      for (const video of body.videos) {
+        expect(Object.prototype.hasOwnProperty.call(video, 'youtubeVideoId')).toBe(false);
+        expect(Object.prototype.hasOwnProperty.call(video, 'embedUrl')).toBe(false);
       }
     });
 

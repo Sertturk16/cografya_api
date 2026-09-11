@@ -55,7 +55,7 @@ interface Detail {
   slugTr: string;
   videos: {
     orderNo: number;
-    youtubeVideoId: string;
+    bookVideoId: string;
     tags: { orderNo: number; startSecond: number }[];
     youtube: ServedYoutube | null;
   }[];
@@ -69,6 +69,12 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
   let fetchSpy: jest.SpiedFunction<typeof fetch> | null = null;
   let bookSlug: string;
   let videoIds: string[];
+  /**
+   * Parallel to {@link videoIds}, same order, from the SAME query — `book_videos.id`, the field
+   * the served `Detail` payload now carries instead of `youtubeVideoId` (P2 removed the latter from
+   * the anonymous DTO). A second `.map()` over the already-loaded entity array, not a second query.
+   */
+  let bookVideoIds: string[];
   /**
    * The PRODUCTION store, against the container's Postgres.
    *
@@ -218,6 +224,7 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
 
     const videos = await dataSource.getRepository(BookVideo).find({ order: { orderNo: 'ASC' } });
     videoIds = videos.map((video) => video.youtubeVideoId);
+    bookVideoIds = videos.map((video) => video.id);
     expect(videoIds.length).toBeGreaterThan(1);
 
     const book = await dataSource.query<{ slug_tr: string }[]>(
@@ -243,12 +250,15 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
   describe('the ageing rule at the point of publication (SPEC §8.3)', () => {
     it('serves a FRESH snapshot, with exactly the fields the contract declares', async () => {
       const [first] = videoIds;
-      if (first === undefined) throw new Error('no seeded video');
+      const [firstBookVideoId] = bookVideoIds;
+      if (first === undefined || firstBookVideoId === undefined) {
+        throw new Error('no seeded video');
+      }
       await writeSnapshot(first, 1);
 
       ({ app } = await bootApp());
       const body = await fetchDetail();
-      const served = body.videos.find((video) => video.youtubeVideoId === first);
+      const served = body.videos.find((video) => video.bookVideoId === firstBookVideoId);
 
       expect(served?.youtube).not.toBeNull();
       // The key set as a WHOLE: a field added to the served object without a contract change would
@@ -278,14 +288,17 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
 
     it('does NOT serve a snapshot past the soft threshold (SPEC §13 item 9)', async () => {
       const [first] = videoIds;
-      if (first === undefined) throw new Error('no seeded video');
+      const [firstBookVideoId] = bookVideoIds;
+      if (first === undefined || firstBookVideoId === undefined) {
+        throw new Error('no seeded video');
+      }
       // 700 h: past the soft threshold (600) and still below the hard one (720), so the row
       // EXISTS and is deliberately not served. That middle state is why there are two numbers.
       await writeSnapshot(first, 700);
 
       ({ app } = await bootApp());
       const body = await fetchDetail();
-      const served = body.videos.find((video) => video.youtubeVideoId === first);
+      const served = body.videos.find((video) => video.bookVideoId === firstBookVideoId);
 
       expect(served?.youtube).toBeNull();
       // The row was not deleted by the READ — serving and deleting are different obligations with
@@ -296,7 +309,10 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
 
     it('reads the CONFIGURED threshold, so the same row flips with the env', async () => {
       const [first] = videoIds;
-      if (first === undefined) throw new Error('no seeded video');
+      const [firstBookVideoId] = bookVideoIds;
+      if (first === undefined || firstBookVideoId === undefined) {
+        throw new Error('no seeded video');
+      }
       await writeSnapshot(first, 100);
 
       ({ app } = await bootApp({ YOUTUBE_API_DATA_SOFT_MAX_AGE_HOURS: '24' }));
@@ -304,19 +320,24 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
 
       // The identical row was served in the first case of this block at one hour old; at 100 hours
       // under a 24-hour ceiling it is not. Same row, same code, different configured age.
-      expect(body.videos.find((video) => video.youtubeVideoId === first)?.youtube).toBeNull();
+      expect(
+        body.videos.find((video) => video.bookVideoId === firstBookVideoId)?.youtube,
+      ).toBeNull();
     });
 
     it('keeps the deneme and its tags when the video is MISSING (SPEC §13 item 11)', async () => {
       const [first] = videoIds;
-      if (first === undefined) throw new Error('no seeded video');
+      const [firstBookVideoId] = bookVideoIds;
+      if (first === undefined || firstBookVideoId === undefined) {
+        throw new Error('no seeded video');
+      }
       // Freshly fetched AND missing: age alone would serve it, so this case can only pass if the
       // absence stamp is what stops it.
       await writeSnapshot(first, 1, 1);
 
       ({ app } = await bootApp());
       const body = await fetchDetail();
-      const served = body.videos.find((video) => video.youtubeVideoId === first);
+      const served = body.videos.find((video) => video.bookVideoId === firstBookVideoId);
 
       expect(served?.youtube).toBeNull();
       // The half that matters: a dead video costs the embed and nothing else. The index survives.
@@ -390,7 +411,10 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
   describe('the snapshot store against the real schema (ENGINEERING.md §8)', () => {
     it('lists, upserts, marks an absence exactly once, and lets a re-write undo it', async () => {
       const [first] = videoIds;
-      if (first === undefined) throw new Error('no seeded video');
+      const [firstBookVideoId] = bookVideoIds;
+      if (first === undefined || firstBookVideoId === undefined) {
+        throw new Error('no seeded video');
+      }
       await writeSnapshot(first, 1);
 
       const booted = await bootApp({ BOOKS_ENABLED: 'true' });
@@ -409,7 +433,7 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
       // column names in the `orUpdate` conflict target are the ones the table has.
       const beforeMarking = await fetchDetail();
       expect(
-        beforeMarking.videos.find((video) => video.youtubeVideoId === first)?.youtube,
+        beforeMarking.videos.find((video) => video.bookVideoId === firstBookVideoId)?.youtube,
       ).not.toBeNull();
 
       // `markMissing` returns rows AFFECTED, and the WHERE carries `missing_since_utc IS NULL`:
@@ -423,7 +447,7 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
 
       const afterMarking = await fetchDetail();
       expect(
-        afterMarking.videos.find((video) => video.youtubeVideoId === first)?.youtube,
+        afterMarking.videos.find((video) => video.bookVideoId === firstBookVideoId)?.youtube,
       ).toBeNull();
 
       // The id came back, so the absence is over (SPEC §8.2 step 4): the conflict path must reset
@@ -431,7 +455,7 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
       await writeSnapshot(first, 1);
       const afterRewrite = await fetchDetail();
       expect(
-        afterRewrite.videos.find((video) => video.youtubeVideoId === first)?.youtube,
+        afterRewrite.videos.find((video) => video.bookVideoId === firstBookVideoId)?.youtube,
       ).not.toBeNull();
       expect(await dataSource.getRepository(YoutubeVideoSnapshot).count()).toBe(1);
     });
@@ -440,7 +464,10 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
   describe('the request path (SPEC §8.5, §13 item 6)', () => {
     it('makes ZERO external calls with the sync leg fully wired and snapshots present', async () => {
       const [first] = videoIds;
-      if (first === undefined) throw new Error('no seeded video');
+      const [firstBookVideoId] = bookVideoIds;
+      if (first === undefined || firstBookVideoId === undefined) {
+        throw new Error('no seeded video');
+      }
       await writeSnapshot(first, 1);
 
       // The strongest configuration available: both switches ON, a key present, the client and both
@@ -459,7 +486,9 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
       await request(app.getHttpServer()).get('/api/books').expect(200);
       const body = await fetchDetail();
 
-      expect(body.videos.find((video) => video.youtubeVideoId === first)?.youtube).not.toBeNull();
+      expect(
+        body.videos.find((video) => video.bookVideoId === firstBookVideoId)?.youtube,
+      ).not.toBeNull();
       expect(fetchSpy).not.toHaveBeenCalled();
     });
   });
