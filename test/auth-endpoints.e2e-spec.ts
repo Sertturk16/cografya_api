@@ -13,6 +13,8 @@ import { PasswordResetToken } from '../src/auth/entities/password-reset-token.en
 import { Session } from '../src/auth/entities/session.entity';
 import { User } from '../src/auth/entities/user.entity';
 import { MAILER_PORT } from '../src/auth/mail/mailer.port';
+import { mintOpaqueToken } from '../src/auth/opaque-token';
+import { sha256 } from '../src/auth/token-digest';
 import { seedGeography } from '../src/database/seeds/seed-geography';
 import { seedReference } from '../src/database/seeds/seed-reference';
 import { District } from '../src/reference/entities/district.entity';
@@ -335,6 +337,63 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
         .post('/api/auth/login')
         .send({ email, password: 'Synthetic-Pass1' })
         .expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('N6b — password-reset verify: a live token answers 204 and stays usable by confirm afterwards (non-consumption)', async () => {
+      const tokenPlain = mintOpaqueToken();
+      await dataSource.getRepository(PasswordResetToken).insert({
+        userId,
+        tokenHash: sha256(tokenPlain),
+        expiresAt: new Date(Date.now() + 30 * 60_000),
+        consumedAt: null,
+      });
+
+      const verifyResponse = await request(app.getHttpServer())
+        .post('/api/auth/password-reset/verify')
+        .send({ resetToken: tokenPlain })
+        .expect(HttpStatus.NO_CONTENT);
+      expect(verifyResponse.headers['cache-control']).toBe('no-store');
+
+      // The whole point: verify did not consume it, so confirm still accepts the same token.
+      await request(app.getHttpServer())
+        .post('/api/auth/password-reset/confirm')
+        .send({ resetToken: tokenPlain, password: 'Third-Synthetic-Pass3' })
+        .expect(HttpStatus.NO_CONTENT);
+
+      await request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send({ email, password: 'Third-Synthetic-Pass3' })
+        .expect(HttpStatus.OK);
+    });
+
+    it('N6c — password-reset verify: an expired, a consumed and an unknown token all answer the same 400', async () => {
+      const expiredPlain = mintOpaqueToken();
+      await dataSource.getRepository(PasswordResetToken).insert({
+        userId,
+        tokenHash: sha256(expiredPlain),
+        expiresAt: new Date(Date.now() - 60_000),
+        consumedAt: null,
+      });
+
+      const consumedPlain = mintOpaqueToken();
+      await dataSource.getRepository(PasswordResetToken).insert({
+        userId,
+        tokenHash: sha256(consumedPlain),
+        expiresAt: new Date(Date.now() + 30 * 60_000),
+        consumedAt: new Date(),
+      });
+
+      const unknownPlain = mintOpaqueToken();
+
+      for (const resetToken of [expiredPlain, consumedPlain, unknownPlain]) {
+        const response = await request(app.getHttpServer())
+          .post('/api/auth/password-reset/verify')
+          .send({ resetToken })
+          .expect(HttpStatus.BAD_REQUEST);
+        expect(response.headers['cache-control']).toBe('no-store');
+        const body = response.body as { message: string };
+        expect(body.message).toBe('errors.password.resetTokenInvalid');
+      }
     });
   });
 

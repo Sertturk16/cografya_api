@@ -66,6 +66,25 @@ export class PasswordResetService {
   }
 
   /**
+   * §5.4 — read-only. Jeton mevcut, tüketilmemiş ve süresi geçmemiş bir satırın hash'ine
+   * eşleşiyorsa döner (hiçbir şey yazmadan); aksi halde 400 `errors.password.resetTokenInvalid`
+   * fırlatır — `confirmReset`'in AYNI mesajı, çünkü web tarafında zaten yazılı olan tek metin bu.
+   *
+   * Hiçbir `UPDATE`/`INSERT`/`DELETE` çalıştırmaz: `consumedAt` yazılmaz, `token_version`
+   * artmaz, hiçbir oturum iptal edilmez. Bu yüzden `verify` sonrası aynı jeton `confirmReset`
+   * tarafından hâlâ kullanılabilir olmalıdır (non-consumption property, §5.4).
+   */
+  async verifyResetToken(presentedToken: string): Promise<void> {
+    const tokenHash = sha256(presentedToken);
+    const token = await this.resetTokens.findOne({
+      where: { tokenHash, consumedAt: IsNull() },
+    });
+    if (!token || token.expiresAt.getTime() <= Date.now()) {
+      throw new BadRequestException(AUTH_ERROR_KEYS.resetTokenInvalid);
+    }
+  }
+
+  /**
    * §6.1 #8, §5.4.3's transaction. Jeton geçersizse ya da süresi geçmişse 400
    * `errors.password.resetTokenInvalid` — bilinen/bilinmeyen adres ayrımı yoktur, çünkü jeton
    * zaten adresi taşımaz.
