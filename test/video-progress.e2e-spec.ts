@@ -7,7 +7,7 @@ import { DataSource, QueryFailedError } from 'typeorm';
 import { AccountRole, AccountStatus } from '../src/auth/account.types';
 import { AccessTokenService } from '../src/auth/access-token.service';
 import { User } from '../src/auth/entities/user.entity';
-import { YoutubeThumbnailKey } from '../src/book/book.types';
+import { ExamTrack, YoutubeThumbnailKey } from '../src/book/book.types';
 import { BookVideo } from '../src/book/entities/book-video.entity';
 import { Book } from '../src/book/entities/book.entity';
 import { applyGlobalPrefix } from '../src/common/bootstrap';
@@ -614,6 +614,80 @@ describe('Video progress (e2e, real Postgres)', () => {
         watchedCount: 0,
         startedCount: 0,
         resume: null,
+      });
+    });
+
+    describe('cross-book isolation (CODE169-I1 fix)', () => {
+      let otherBookVideo: BookVideo;
+      let userGToken: string;
+
+      beforeAll(async () => {
+        const otherBook = await dataSource.getRepository(Book).save(
+          dataSource.getRepository(Book).create({
+            slugTr: 'ikinci-kitap',
+            slugEn: 'ikinci-kitap',
+            titleTr: 'İkinci Örnek Kitap',
+            titleEn: null,
+            publisherName: 'Örnek Yayınları',
+            authorNames: ['Ada Lovelace'],
+            isbn13: '9999999999999',
+            pageCount: 100,
+            examTrack: ExamTrack.Ayt,
+            coverImagePath: null,
+            purchaseUrl: null,
+            introTr: 'Bu ikinci örnek anlatıdır ve ilkinden başka sözcüklerle yazılmıştır.',
+            introEn: null,
+            metaTitleTr: 'İkinci Örnek Kitap Video Çözümleri',
+            metaDescriptionTr: 'İkinci yayınevinin 120 sayfalık örnek deneme kitabı.',
+            youtubePlaylistId: null,
+            youtubeChannelId: 'UC0000000000000000000000',
+            displayOrder: 999,
+          }),
+        );
+        otherBookVideo = await dataSource.getRepository(BookVideo).save(
+          dataSource.getRepository(BookVideo).create({
+            bookId: otherBook.id,
+            orderNo: 1,
+            titleTr: null,
+            titleEn: null,
+            youtubeVideoId: 'zzcrossbook',
+          }),
+        );
+
+        const accessTokens = app.get(AccessTokenService);
+        const userG = await createUser('video-progress-g@example.test', districtId);
+        userGToken = await accessTokens.mint(userG.id, userG.tokenVersion);
+      });
+
+      it("a progress row on a second book never inflates the first book's aggregate or resume", async () => {
+        const first = bookVideos[0];
+        if (first === undefined) throw new Error('need at least 1 seeded video for this book');
+
+        // userG has never touched book 1 — a fresh user, so this write is book 1's only row for it.
+        await request(app.getHttpServer())
+          .put(`/api/video-progress/${first.id}`)
+          .set(bearer(userGToken))
+          .send({ lastPositionSeconds: 3, watched: true })
+          .expect(200);
+        // The second book's video, same caller.
+        await request(app.getHttpServer())
+          .put(`/api/video-progress/${otherBookVideo.id}`)
+          .set(bearer(userGToken))
+          .send({ lastPositionSeconds: 5, watched: true })
+          .expect(200);
+
+        const response = await request(app.getHttpServer())
+          .get(`/api/video-progress/books/${book.slugTr}`)
+          .set(bearer(userGToken))
+          .expect(200);
+        const body = response.body as {
+          watchedCount: number;
+          startedCount: number;
+          resume: { bookVideoId: string } | null;
+        };
+        expect(body.watchedCount).toBe(1);
+        expect(body.startedCount).toBe(1);
+        expect(body.resume?.bookVideoId).toBe(first.id);
       });
     });
   });

@@ -127,54 +127,88 @@ export class VideoProgressService {
    * Two aggregate queries against the caller's own `video_progress` rows joined to this book's
    * `book_videos` — never a per-video loop — plus one `COUNT` for the denominator (the
    * `earthquake-read.store.ts` `.getRawOne()` precedent).
+   *
+   * ## One REPEATABLE READ snapshot across all four reads, mirroring `BookService.findBySlug`
+   * exactly (CODE169-M2 fix, round 1). Under the default READ COMMITTED, each of the four
+   * statements below would take its own snapshot, so a write landing between them (today only
+   * `pnpm db:seed:books --allow-removals` adding a video mid-request — `FK_video_progress_book_video`
+   * `ON DELETE RESTRICT` already rules out a mid-request delete of a video with existing progress)
+   * could yield a `videoCount` that undercounts against the aggregate/resume rows it is reported
+   * beside. `findBySlug`'s own docblock is the fuller argument for why the isolation level, not
+   * just the transaction wrapper, is the part that closes this.
    */
   async getBookProgress(userId: string, slug: string): Promise<BookProgressDto> {
-    const book = await this.books.findOne({ where: [{ slugTr: slug }, { slugEn: slug }] });
-    if (book === null) throw new NotFoundException(VIDEO_PROGRESS_ERROR_KEYS.bookNotFound);
+    return this.books.manager.transaction('REPEATABLE READ', async (manager) => {
+      const book = await manager
+        .getRepository(Book)
+        .findOne({ where: [{ slugTr: slug }, { slugEn: slug }] });
+      if (book === null) throw new NotFoundException(VIDEO_PROGRESS_ERROR_KEYS.bookNotFound);
 
-    const videoCount = await this.videos.count({ where: { bookId: book.id } });
+      const videoCount = await manager
+        .getRepository(BookVideo)
+        .count({ where: { bookId: book.id } });
 
-    const aggregate = await this.progress
-      .createQueryBuilder('progress')
-      .innerJoin(BookVideo, 'video', 'video.id = progress.bookVideoId AND video.bookId = :bookId', {
-        bookId: book.id,
-      })
-      .where('progress.userId = :userId', { userId })
-      .select('COUNT(*) FILTER (WHERE progress.watched)', 'watchedCount')
-      .addSelect('COUNT(*)', 'startedCount')
-      .getRawOne<BookProgressAggregateRow>();
+      const aggregate = await manager
+        .getRepository(VideoProgress)
+        .createQueryBuilder('progress')
+        .innerJoin(
+          BookVideo,
+          'video',
+          'video.id = progress.bookVideoId AND video.bookId = :bookId',
+          {
+            bookId: book.id,
+          },
+        )
+        .where('progress.userId = :userId', { userId })
+        .select('COUNT(*) FILTER (WHERE progress.watched)', 'watchedCount')
+        .addSelect('COUNT(*)', 'startedCount')
+        .getRawOne<BookProgressAggregateRow>();
 
-    const resumeRow = await this.progress
-      .createQueryBuilder('progress')
-      .innerJoin(BookVideo, 'video', 'video.id = progress.bookVideoId AND video.bookId = :bookId', {
-        bookId: book.id,
-      })
-      .where('progress.userId = :userId', { userId })
-      .select('progress.bookVideoId', 'bookVideoId')
-      .addSelect('video.orderNo', 'orderNo')
-      .addSelect('progress.lastPositionSeconds', 'lastPositionSeconds')
-      .addSelect('progress.watched', 'watched')
-      .addSelect('progress.updatedAt', 'updatedAt')
-      .orderBy('progress.updatedAt', 'DESC')
-      .limit(1)
-      .getRawOne<BookProgressResumeRow>();
+      // `.addOrderBy('progress.id', 'DESC')` (CODE169-M1 fix, round 1): the primary sort key alone
+      // is not a total order — on a genuine `updated_at` tie (possible: no transaction wraps the
+      // read-then-write in `upsert`, so two concurrent PUTs can land on the same microsecond-
+      // resolution timestamp) Postgres's row choice on `LIMIT 1` is otherwise plan-dependent rather
+      // than deterministic. `id` carries no chronological meaning of its own (`gen_random_uuid()`);
+      // it exists here only to make the ordering total.
+      const resumeRow = await manager
+        .getRepository(VideoProgress)
+        .createQueryBuilder('progress')
+        .innerJoin(
+          BookVideo,
+          'video',
+          'video.id = progress.bookVideoId AND video.bookId = :bookId',
+          {
+            bookId: book.id,
+          },
+        )
+        .where('progress.userId = :userId', { userId })
+        .select('progress.bookVideoId', 'bookVideoId')
+        .addSelect('video.orderNo', 'orderNo')
+        .addSelect('progress.lastPositionSeconds', 'lastPositionSeconds')
+        .addSelect('progress.watched', 'watched')
+        .addSelect('progress.updatedAt', 'updatedAt')
+        .orderBy('progress.updatedAt', 'DESC')
+        .addOrderBy('progress.id', 'DESC')
+        .limit(1)
+        .getRawOne<BookProgressResumeRow>();
 
-    return {
-      bookSlugTr: book.slugTr,
-      videoCount,
-      watchedCount: Number(aggregate?.watchedCount ?? 0),
-      startedCount: Number(aggregate?.startedCount ?? 0),
-      resume:
-        resumeRow === undefined
-          ? null
-          : {
-              bookVideoId: resumeRow.bookVideoId,
-              orderNo: resumeRow.orderNo,
-              lastPositionSeconds: resumeRow.lastPositionSeconds,
-              watched: resumeRow.watched,
-              updatedAt: resumeRow.updatedAt.toISOString(),
-            },
-    };
+      return {
+        bookSlugTr: book.slugTr,
+        videoCount,
+        watchedCount: Number(aggregate?.watchedCount ?? 0),
+        startedCount: Number(aggregate?.startedCount ?? 0),
+        resume:
+          resumeRow === undefined
+            ? null
+            : {
+                bookVideoId: resumeRow.bookVideoId,
+                orderNo: resumeRow.orderNo,
+                lastPositionSeconds: resumeRow.lastPositionSeconds,
+                watched: resumeRow.watched,
+                updatedAt: resumeRow.updatedAt.toISOString(),
+              },
+      };
+    });
   }
 }
 
