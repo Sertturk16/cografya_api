@@ -1486,6 +1486,78 @@
         ]
       }
     },
+    "/api/video-progress/books/{slug}": {
+      "get": {
+        "description": "A caller with no progress at all for this book still gets 200: videoCount is the book's own video-row count (the denominator), watchedCount/startedCount default to zero and resume is null — this route answers \"how far am I\", which has a valid zero, unlike the single-video GET's \"do I have a row here\" 404.",
+        "operationId": "VideoProgressController_getBookProgress",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "description": "TR or EN slug of the book — the same slug space as GET /api/books/{slug}.",
+            "schema": {
+              "minLength": 1,
+              "maxLength": 140,
+              "pattern": "^[a-z0-9-]+$",
+              "example": "ayt-cografya-konu-ozetli-brans-denemeleri",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookProgressDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed slug.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "errors.auth.unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "errors.videoProgress.bookNotFound",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "The caller's own reading progress on one book.",
+        "tags": [
+          "video-progress"
+        ]
+      }
+    },
     "/api/video-progress/{bookVideoId}": {
       "get": {
         "description": "One undifferentiated 404 whether bookVideoId names no video at all or the caller simply has no saved progress for a valid one — a client asking \"do I have progress here\" gets the same actionable answer (no) regardless of which is true.",
@@ -6924,6 +6996,88 @@
           "studyStream",
           "universityName",
           "departmentName"
+        ]
+      },
+      "BookProgressResumeDto": {
+        "type": "object",
+        "properties": {
+          "bookVideoId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "book_videos.id of the resume video — feeds GET/PUT /api/video-progress/{bookVideoId}."
+          },
+          "orderNo": {
+            "type": "number",
+            "minimum": 1,
+            "example": 12,
+            "description": "The resume video's position IN THE BOOK (`BookVideoDto.orderNo`'s own field, never the retired denemeNo) — the anchor prefix on the book page (`#video-{orderNo}-…`)."
+          },
+          "lastPositionSeconds": {
+            "type": "number",
+            "example": 245,
+            "description": "Last playback position on the resume video, in seconds."
+          },
+          "watched": {
+            "type": "boolean",
+            "description": "The caller's declared watched signal on this video."
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When this progress row was last written, UTC — the ordering key that selects the resume row among the caller's progress rows for this book."
+          }
+        },
+        "required": [
+          "bookVideoId",
+          "orderNo",
+          "lastPositionSeconds",
+          "watched",
+          "updatedAt"
+        ]
+      },
+      "BookProgressDto": {
+        "type": "object",
+        "properties": {
+          "bookSlugTr": {
+            "type": "string",
+            "example": "ayt-cografya-konu-ozetli-brans-denemeleri",
+            "description": "The resolved book's canonical TR slug (`books.slug_tr`), regardless of which locale slug the request named."
+          },
+          "videoCount": {
+            "type": "number",
+            "minimum": 0,
+            "example": 30,
+            "description": "The book's own video-row count — the progress denominator. A live COUNT, never a stored/declared column."
+          },
+          "watchedCount": {
+            "type": "number",
+            "minimum": 0,
+            "example": 4,
+            "description": "The caller's progress rows among this book's videos with watched = true — declared marks only, never inferred from position."
+          },
+          "startedCount": {
+            "type": "number",
+            "minimum": 0,
+            "example": 6,
+            "description": "The caller's progress rows among this book's videos, whatever their watched state — every video the caller has ever saved a position for."
+          },
+          "resume": {
+            "nullable": true,
+            "description": "The caller's most-recently-updated progress row among this book's videos, or null when the caller has none.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BookProgressResumeDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "bookSlugTr",
+          "videoCount",
+          "watchedCount",
+          "startedCount",
+          "resume"
         ]
       },
       "VideoProgressDto": {
