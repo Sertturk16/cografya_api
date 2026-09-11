@@ -409,11 +409,14 @@ describe('Auth core schema (e2e)', () => {
     // The authority for "which migration is latest" is the explicit `migrations` array in
     // `src/database/data-source-options.ts`, never a directory listing or a timestamp sort
     // (`ENGINEERING.md` §5: "no globs — every migration is registered on purpose"). Its last
-    // entry is now `AddSchoolNameAndParentAccountRole1789125265639` (UYE-P1E), which pushed
-    // `AddFavoriteRegionAndContinent` — the migration this test previously exercised — one place
-    // up. This is the same living-test pattern `province.e2e-spec.ts`/`country.e2e-spec.ts` name
-    // explicitly ("adding a migration means editing" the lists that pin it); this file is the
-    // fourth pin of that class, and the one that exercises the up/down path rather than the order.
+    // entry is now `AddSchoolNameAndParentAccountRole1789125265639` (UYE-P1E). Between this
+    // integration and the previous round, P1 PR-C's `AddGameRoundsLeaderboardIndex1788400000000`
+    // landed on `dev` and now sits between `AddFavoriteRegionAndContinent` — the migration this
+    // test exercised two PRs ago — and this migration, so BOTH are now earlier, settled
+    // migrations rather than the one under test. This is the same living-test pattern
+    // `province.e2e-spec.ts`/`country.e2e-spec.ts` name explicitly ("adding a migration means
+    // editing" the lists that pin it); this file is the fourth pin of that class, and the one
+    // that exercises the up/down path rather than the order.
     //
     // The new latest migration adds a NULLABLE `school_name` column to `users` AND
     // `pending_registrations`, widens both tables' `..._account_role` CHECK to admit `PARENT`,
@@ -424,11 +427,11 @@ describe('Auth core schema (e2e)', () => {
     // narrower original) — this migration's `up()` adds all of it and its `down()` removes it
     // again, safely, because this suite never seeds a `users`/`pending_registrations` row with a
     // non-null `school_name` (empty-table revert never trips the migration's own fail-closed
-    // stray-row guard). `favorites.region_id`/`continent`/`CHK_favorites_exactly_one_target` —
-    // this test's OWN probe one PR ago — is now an UNRELATED CONTROL, settled by an EARLIER
-    // migration and expected to stay fixed (present, four-branch `num_nonnulls(...)` form) across
-    // this one's revert/reapply — proving `undoLastMigration()` unwinds only the LATEST entry,
-    // never an earlier one.
+    // stray-row guard). `favorites.region_id`/`continent`/`CHK_favorites_exactly_one_target` and
+    // `game_rounds`' `IDX_game_rounds_leaderboard` index — this test's own probes two and one PRs
+    // ago, respectively — are now UNRELATED CONTROLS, settled by earlier migrations and expected
+    // to stay fixed across this one's revert/reapply — proving `undoLastMigration()` unwinds only
+    // the LATEST entry, never an earlier one.
     const relationSnapshot = async (): Promise<Record<string, string | null> | undefined> => {
       const rows = await dataSource.query<
         {
@@ -560,10 +563,13 @@ describe('Auth core schema (e2e)', () => {
     };
     expect(await denemeCountColumn()).toEqual({ column: null, check: null });
 
-    // Unrelated control from the PREVIOUS latest migration (P1 PR-A, `AddFavoriteRegionAndContinent`
-    // — this test's OWN probe one PR ago): both columns and the four-branch CHECK already exist
-    // before THIS migration ever runs, and must stay exactly as unaffected by it as
-    // `book_videos.order_no`, `regions` and `measurements` are.
+    // Unrelated control from an EARLIER migration (P1 PR-A, `AddFavoriteRegionAndContinent` —
+    // this test's own probe two PRs ago): the two columns it added and the four-branch
+    // `num_nonnulls(...)` CHECK it installed already exist before THIS migration ever runs, and
+    // must stay exactly as unaffected by it as `book_videos.order_no`, `regions` and
+    // `measurements` are. The CHECK's literal definition text (not just its presence) is kept in
+    // the assertion so a regression that silently reverted it back to the two-branch form would
+    // be caught here even though this test no longer exercises that migration's own up/down.
     const favoritesTargetShape = async (): Promise<{
       regionId: string | null;
       continent: string | null;
@@ -597,6 +603,20 @@ describe('Auth core schema (e2e)', () => {
       expect(shape.checkDefinition).toContain('num_nonnulls');
     };
     await assertFavoritesControlUnchanged();
+
+    // Unrelated control from the PREVIOUS migration (P1 PR-C, `AddGameRoundsLeaderboardIndex` —
+    // this test's own probe one PR ago): the plain index it created on `game_rounds` already
+    // exists before THIS migration ever runs, and must stay exactly as unaffected by it as
+    // `book_videos.order_no`, `regions`, `measurements` and the favourites shape are.
+    const leaderboardIndexExists = async (): Promise<boolean> => {
+      const rows = await dataSource.query<{ indexname: string }[]>(`
+        SELECT indexname FROM pg_indexes
+        WHERE schemaname = 'public' AND tablename = 'game_rounds'
+          AND indexname = 'IDX_game_rounds_leaderboard'
+      `);
+      return rows.length > 0;
+    };
+    expect(await leaderboardIndexExists()).toBe(true);
 
     // The columns and CHECKs THIS migration's up() adds/widens — the actual probe. `school_name`
     // is checked on BOTH tables (the migration touches `users` and `pending_registrations`
@@ -656,14 +676,15 @@ describe('Auth core schema (e2e)', () => {
     // the migration's own fail-closed guards (the explicit stray-`school_name` guard, the natural
     // CHECK-violation guard on a live `PARENT` row) finds anything to refuse. Every table, the
     // previous migrations' own columns, and the unrelated `sessions.rotation_grace_used_at`,
-    // `book_videos.order_no`, `books.deneme_count` and `favorites` region/continent controls, all
-    // stay intact.
+    // `book_videos.order_no`, `books.deneme_count`, favourites region/continent and game-rounds
+    // leaderboard-index controls, all stay intact.
     expect(await relationSnapshot()).toEqual(expectedRelations);
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
     expect(await bookVideoOrderColumn()).toBe('order_no');
     expect(await genericFieldColumns()).toEqual(presentFieldColumns);
     expect(await denemeCountColumn()).toEqual({ column: null, check: null });
     await assertFavoritesControlUnchanged();
+    expect(await leaderboardIndexExists()).toBe(true);
     const shapeAfterDown = await authSchoolNameShape();
     expect(shapeAfterDown.usersSchoolName).toBeNull();
     expect(shapeAfterDown.pendingSchoolName).toBeNull();
@@ -687,6 +708,7 @@ describe('Auth core schema (e2e)', () => {
     expect(await genericFieldColumns()).toEqual(presentFieldColumns);
     expect(await denemeCountColumn()).toEqual({ column: null, check: null });
     await assertFavoritesControlUnchanged();
+    expect(await leaderboardIndexExists()).toBe(true);
     const shapeAfterReapply = await authSchoolNameShape();
     expect(shapeAfterReapply.usersSchoolName).toBe('school_name');
     expect(shapeAfterReapply.pendingSchoolName).toBe('school_name');

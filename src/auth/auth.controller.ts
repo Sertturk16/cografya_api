@@ -25,6 +25,7 @@ import { LoginRequestDto } from './dto/login-request.dto';
 import { LogoutRequestDto } from './dto/logout-request.dto';
 import { PasswordResetConfirmDto } from './dto/password-reset-confirm.dto';
 import { PasswordResetRequestDto } from './dto/password-reset-request.dto';
+import { PasswordResetVerifyDto } from './dto/password-reset-verify.dto';
 import { ProfileDto } from './dto/profile.dto';
 import { RefreshRequestDto } from './dto/refresh-request.dto';
 import { RegisterRequestDto } from './dto/register-request.dto';
@@ -65,10 +66,15 @@ export const AUTH_ROUTE_THROTTLES = {
   logout: { limit: 60, ttl: 15 * 60 * 1000 },
   passwordResetRequest: { limit: 10, ttl: 60 * 60 * 1000 },
   passwordResetConfirm: { limit: 10, ttl: 60 * 60 * 1000 },
+  // Not keyed by AuthRateLimitScope — a verify request carries no e-mail address, so the
+  // identity axis has nothing to key on; this ceiling bounds abuse of a 256-bit token, not
+  // enumeration (plan-api.md §5.4). Generous enough a member reopening the link a few times
+  // is never refused, tight enough the route is not an unbounded oracle.
+  passwordResetVerify: { limit: 30, ttl: 60 * 60 * 1000 },
 } as const;
 
 /**
- * The eleven auth endpoints (ten paths, eleven operations; §6.1, plan-api.md §5.2).
+ * The twelve auth endpoints (eleven paths, twelve operations; §6.1, plan-api.md §5.2, §5.4).
  *
  * **D13, AMENDED — `Cache-Control: no-store` is written by `AuthNoStoreMiddleware`, not by nine
  * `@Header` decorators.** D13's original mechanism claimed to cover "every response, success or
@@ -276,6 +282,24 @@ export class AuthController {
   })
   async confirmPasswordReset(@Body() dto: PasswordResetConfirmDto): Promise<void> {
     await this.passwordReset.confirmReset(dto.resetToken, dto.password);
+  }
+
+  @Post('password-reset/verify')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Throttle({ default: AUTH_ROUTE_THROTTLES.passwordResetVerify })
+  @ApiOperation({
+    summary: 'Check whether a password-reset token is still usable, without consuming it.',
+    description:
+      'Read-only: no consumedAt write, no token_version bump, no session revocation. The ' +
+      'presented token stays fully usable by password-reset/confirm afterwards.',
+  })
+  @ApiNoContentResponse()
+  @ApiBadRequestResponse({
+    type: ApiErrorDto,
+    description: 'errors.password.resetTokenInvalid — unknown, consumed or expired token.',
+  })
+  async verifyPasswordReset(@Body() dto: PasswordResetVerifyDto): Promise<void> {
+    await this.passwordReset.verifyResetToken(dto.resetToken);
   }
 
   @Get('session')

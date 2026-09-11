@@ -7,8 +7,9 @@ import { DataSource, QueryFailedError } from 'typeorm';
 import { AccountRole, AccountStatus } from '../src/auth/account.types';
 import { AccessTokenService } from '../src/auth/access-token.service';
 import { User } from '../src/auth/entities/user.entity';
-import { YoutubeThumbnailKey } from '../src/book/book.types';
+import { ExamTrack, YoutubeThumbnailKey } from '../src/book/book.types';
 import { BookVideo } from '../src/book/entities/book-video.entity';
+import { Book } from '../src/book/entities/book.entity';
 import { applyGlobalPrefix } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { seedBooks } from '../src/database/seeds/seed-books';
@@ -43,6 +44,7 @@ describe('Video progress (e2e, real Postgres)', () => {
   let userBId: string;
   let userAToken: string;
   let userBToken: string;
+  let districtId: string;
 
   /** The next UNUSED seeded video — guarantees every case gets its own row. */
   function nextVideo(): BookVideo {
@@ -102,6 +104,7 @@ describe('Video progress (e2e, real Postgres)', () => {
     const district = await dataSource
       .getRepository(District)
       .findOneOrFail({ where: { provinceId: istanbul.id } });
+    districtId = district.id;
 
     videos = await dataSource.getRepository(BookVideo).find({ order: { id: 'ASC' } });
     // One dedicated slot per case below (15 today) — a book seed with 40 denemeler across even
@@ -454,5 +457,238 @@ describe('Video progress (e2e, real Postgres)', () => {
     const secondBody = second.body as { watched: boolean; watchedAt: string | null };
     expect(secondBody.watched).toBe(false);
     expect(secondBody.watchedAt).toBeNull();
+  });
+
+  describe('book-level progress — GET /api/video-progress/books/:slug (PR-B plan §5/§11)', () => {
+    let book: Book;
+    let bookVideos: BookVideo[];
+    let bookVideoCount: number;
+    let userCToken: string;
+    let userDToken: string;
+    let userEToken: string;
+    let userFToken: string;
+
+    beforeAll(async () => {
+      // Exactly one seeded book on this corpus (`ENGINEERING.md` §8 seed discipline) — no filter
+      // needed to pick it out uniquely.
+      book = await dataSource.getRepository(Book).findOneOrFail({ where: {} });
+      bookVideos = await dataSource
+        .getRepository(BookVideo)
+        .find({ where: { bookId: book.id }, order: { orderNo: 'ASC' } });
+      bookVideoCount = bookVideos.length;
+      expect(bookVideoCount).toBeGreaterThan(3);
+
+      const accessTokens = app.get(AccessTokenService);
+      const userC = await createUser('video-progress-c@example.test', districtId);
+      const userD = await createUser('video-progress-d@example.test', districtId);
+      const userE = await createUser('video-progress-e@example.test', districtId);
+      const userF = await createUser('video-progress-f@example.test', districtId);
+      userCToken = await accessTokens.mint(userC.id, userC.tokenVersion);
+      userDToken = await accessTokens.mint(userD.id, userD.tokenVersion);
+      userEToken = await accessTokens.mint(userE.id, userE.tokenVersion);
+      userFToken = await accessTokens.mint(userF.id, userF.tokenVersion);
+    });
+
+    it('unauthenticated -> 401, and it still carries Cache-Control: no-store', async () => {
+      const response = await request(app.getHttpServer())
+        .get(`/api/video-progress/books/${book.slugTr}`)
+        .expect(401);
+      expect(response.headers['cache-control']).toBe('no-store');
+    });
+
+    it('a caller with no progress at all -> 200; videoCount from the book, watchedCount/startedCount 0, resume null', async () => {
+      const response = await request(app.getHttpServer())
+        .get(`/api/video-progress/books/${book.slugTr}`)
+        .set(bearer(userCToken))
+        .expect(200);
+      expect(response.body).toEqual({
+        bookSlugTr: book.slugTr,
+        videoCount: bookVideoCount,
+        watchedCount: 0,
+        startedCount: 0,
+        resume: null,
+      });
+    });
+
+    it('a well-formed but unknown slug -> 404 errors.videoProgress.bookNotFound', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/api/video-progress/books/does-not-exist-book-slug')
+        .set(bearer(userCToken))
+        .expect(404);
+      expect((response.body as { message: string }).message).toBe(
+        'errors.videoProgress.bookNotFound',
+      );
+    });
+
+    it('a malformed slug -> 400', async () => {
+      await request(app.getHttpServer())
+        .get('/api/video-progress/books/Not-A-Valid-Slug')
+        .set(bearer(userCToken))
+        .expect(400);
+    });
+
+    it('watchedCount counts only watched:true rows; startedCount counts every progress row regardless of state', async () => {
+      const first = bookVideos[0];
+      const second = bookVideos[1];
+      if (first === undefined || second === undefined) {
+        throw new Error('need at least 2 seeded videos for this book');
+      }
+
+      await request(app.getHttpServer())
+        .put(`/api/video-progress/${first.id}`)
+        .set(bearer(userDToken))
+        .send({ lastPositionSeconds: 10, watched: true })
+        .expect(200);
+      await request(app.getHttpServer())
+        .put(`/api/video-progress/${second.id}`)
+        .set(bearer(userDToken))
+        .send({ lastPositionSeconds: 5, watched: false })
+        .expect(200);
+
+      const response = await request(app.getHttpServer())
+        .get(`/api/video-progress/books/${book.slugTr}`)
+        .set(bearer(userDToken))
+        .expect(200);
+      const body = response.body as { watchedCount: number; startedCount: number };
+      expect(body.watchedCount).toBe(1);
+      expect(body.startedCount).toBe(2);
+    });
+
+    it('resume carries the most-recently-updated progress row, keyed by orderNo (never the retired denemeNo)', async () => {
+      const first = bookVideos[2];
+      const second = bookVideos[3];
+      if (first === undefined || second === undefined) {
+        throw new Error('need at least 4 seeded videos for this book');
+      }
+
+      // Sequential, awaited PUTs — each is its own real-time Postgres statement, so the second
+      // row's updated_at is strictly later than the first's; no concurrency race is involved.
+      await request(app.getHttpServer())
+        .put(`/api/video-progress/${first.id}`)
+        .set(bearer(userEToken))
+        .send({ lastPositionSeconds: 1, watched: false })
+        .expect(200);
+      await request(app.getHttpServer())
+        .put(`/api/video-progress/${second.id}`)
+        .set(bearer(userEToken))
+        .send({ lastPositionSeconds: 2, watched: true })
+        .expect(200);
+
+      const response = await request(app.getHttpServer())
+        .get(`/api/video-progress/books/${book.slugTr}`)
+        .set(bearer(userEToken))
+        .expect(200);
+      const body = response.body as {
+        resume: {
+          bookVideoId: string;
+          orderNo: number;
+          lastPositionSeconds: number;
+          watched: boolean;
+          updatedAt: string;
+        } | null;
+      };
+      expect(body.resume).not.toBeNull();
+      expect(Object.keys(body.resume ?? {}).sort()).toEqual([
+        'bookVideoId',
+        'lastPositionSeconds',
+        'orderNo',
+        'updatedAt',
+        'watched',
+      ]);
+      expect(body.resume?.bookVideoId).toBe(second.id);
+      expect(body.resume?.orderNo).toBe(second.orderNo);
+      expect(body.resume?.lastPositionSeconds).toBe(2);
+      expect(body.resume?.watched).toBe(true);
+      expect(typeof body.resume?.updatedAt).toBe('string');
+    });
+
+    it("cross-user isolation — caller F's aggregate is unaffected by caller E's progress rows on the same book", async () => {
+      // userE wrote two rows above; userF has never touched this book.
+      const response = await request(app.getHttpServer())
+        .get(`/api/video-progress/books/${book.slugTr}`)
+        .set(bearer(userFToken))
+        .expect(200);
+      expect(response.body).toEqual({
+        bookSlugTr: book.slugTr,
+        videoCount: bookVideoCount,
+        watchedCount: 0,
+        startedCount: 0,
+        resume: null,
+      });
+    });
+
+    describe('cross-book isolation (CODE169-I1 fix)', () => {
+      let otherBookVideo: BookVideo;
+      let userGToken: string;
+
+      beforeAll(async () => {
+        const otherBook = await dataSource.getRepository(Book).save(
+          dataSource.getRepository(Book).create({
+            slugTr: 'ikinci-kitap',
+            slugEn: 'ikinci-kitap',
+            titleTr: 'İkinci Örnek Kitap',
+            titleEn: null,
+            publisherName: 'Örnek Yayınları',
+            authorNames: ['Ada Lovelace'],
+            isbn13: '9999999999999',
+            pageCount: 100,
+            examTrack: ExamTrack.Ayt,
+            coverImagePath: null,
+            purchaseUrl: null,
+            introTr: 'Bu ikinci örnek anlatıdır ve ilkinden başka sözcüklerle yazılmıştır.',
+            introEn: null,
+            metaTitleTr: 'İkinci Örnek Kitap Video Çözümleri',
+            metaDescriptionTr: 'İkinci yayınevinin 120 sayfalık örnek deneme kitabı.',
+            youtubePlaylistId: null,
+            youtubeChannelId: 'UC0000000000000000000000',
+            displayOrder: 999,
+          }),
+        );
+        otherBookVideo = await dataSource.getRepository(BookVideo).save(
+          dataSource.getRepository(BookVideo).create({
+            bookId: otherBook.id,
+            orderNo: 1,
+            titleTr: null,
+            titleEn: null,
+            youtubeVideoId: 'zzcrossbook',
+          }),
+        );
+
+        const accessTokens = app.get(AccessTokenService);
+        const userG = await createUser('video-progress-g@example.test', districtId);
+        userGToken = await accessTokens.mint(userG.id, userG.tokenVersion);
+      });
+
+      it("a progress row on a second book never inflates the first book's aggregate or resume", async () => {
+        const first = bookVideos[0];
+        if (first === undefined) throw new Error('need at least 1 seeded video for this book');
+
+        // userG has never touched book 1 — a fresh user, so this write is book 1's only row for it.
+        await request(app.getHttpServer())
+          .put(`/api/video-progress/${first.id}`)
+          .set(bearer(userGToken))
+          .send({ lastPositionSeconds: 3, watched: true })
+          .expect(200);
+        // The second book's video, same caller.
+        await request(app.getHttpServer())
+          .put(`/api/video-progress/${otherBookVideo.id}`)
+          .set(bearer(userGToken))
+          .send({ lastPositionSeconds: 5, watched: true })
+          .expect(200);
+
+        const response = await request(app.getHttpServer())
+          .get(`/api/video-progress/books/${book.slugTr}`)
+          .set(bearer(userGToken))
+          .expect(200);
+        const body = response.body as {
+          watchedCount: number;
+          startedCount: number;
+          resume: { bookVideoId: string } | null;
+        };
+        expect(body.watchedCount).toBe(1);
+        expect(body.startedCount).toBe(1);
+        expect(body.resume?.bookVideoId).toBe(first.id);
+      });
+    });
   });
 });

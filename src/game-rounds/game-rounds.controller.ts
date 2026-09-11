@@ -26,34 +26,40 @@ import { NoTrustedClientExemption } from '../common/throttler/throttler-metadata
 import { GameRoundListQueryDto } from './dto/game-round-list-query.dto';
 import { GameRoundListDto } from './dto/game-round-list.dto';
 import { GameRoundDto } from './dto/game-round.dto';
+import { LeaderboardQueryDto } from './dto/leaderboard-query.dto';
+import { LeaderboardDto } from './dto/leaderboard.dto';
 import { SubmitGameRoundRequestDto } from './dto/submit-game-round-request.dto';
 import { GameRoundSubmitRateLimitGuard } from './game-round-submit-rate-limit.guard';
 import { GAME_ROUNDS_ERROR_KEYS } from './game-rounds-error-keys';
 import { GameRoundsService } from './game-rounds.service';
 
 /**
- * `/api/game-rounds…` — one caller's own submitted game-round results (UYELIK-09, plan §5.7).
+ * `/api/game-rounds…` — submit/list a caller's own game-round results, plus the per-mode
+ * leaderboard (UYELIK-09, plan §5.7; leaderboard added by P1 PR-C plan §5.3).
  *
- * Both routes: `@UseGuards(AccessTokenGuard)` + `@NoTrustedClientExemption()` — the SEC136-I3
- * reasoning applies verbatim: both return or persist per-user data behind auth. No route-level
- * `@Throttle` override, for the same reasoning video-progress/favorites already recorded: the
- * global ceiling (120/min per resolved identity) already applies once
- * `@NoTrustedClientExemption()` is present, each write touches only the caller's own row, is
- * idempotent, makes no external call, and has no fan-out cost.
+ * Every route: `@UseGuards(AccessTokenGuard)` + `@NoTrustedClientExemption()` — the SEC136-I3
+ * reasoning applies verbatim: every route returns or persists per-user data behind auth. No
+ * route-level `@Throttle` override, for the same reasoning video-progress/favorites already
+ * recorded: the global ceiling (120/min per resolved identity) already applies once
+ * `@NoTrustedClientExemption()` is present, each read/write touches at most one user's own
+ * writable row, is idempotent where it writes, makes no external call, and has no fan-out cost.
  *
  * **`submit` ALSO carries `GameRoundSubmitRateLimitGuard`, chained AFTER `AccessTokenGuard`
- * (UYELIK-09 fix-round-2, `SEC145-I1`/`VAL145-I1`) — `listMine` does not.** The global
+ * (UYELIK-09 fix-round-2, `SEC145-I1`/`VAL145-I1`) — the two read routes do not.** The global
  * IP-derived throttle above bounds request RATE per resolved identity, but not per
  * AUTHENTICATED user — a single account fanned out across many IPs could otherwise grow
  * `game_rounds` (the first genuinely unbounded per-user table in this repo) at an effectively
- * unbounded rate. `listMine` is a read that creates no row, so it is out of that finding's
- * scope and carries no second guard. See {@link GameRoundSubmitRateLimitGuard}'s own docblock
- * for why the ordering is load-bearing and what it does and does not overlap with.
+ * unbounded rate. `listMine`/`leaderboard` are reads that create no row, so both are out of that
+ * finding's scope and carry no second guard. See {@link GameRoundSubmitRateLimitGuard}'s own
+ * docblock for why the ordering is load-bearing and what it does and does not overlap with.
  *
- * Every query in {@link GameRoundsService} filters by the `userId` taken from `@CurrentUser()`,
- * never from a client-supplied field — no DTO's request shape carries a `userId` at all, so
- * there is no field a caller could even attempt to override (the cross-user-isolation
- * invariant).
+ * **`leaderboard` is this repo's first route that returns another user's personal data by
+ * design** (`ENGINEERING.md` §3.6's mandatory flag) — `submit`/`listMine` filter every query by
+ * the `userId` taken from `@CurrentUser()` and touch only the caller's own row (no DTO's request
+ * shape carries a `userId` at all, so there is no field a caller could even attempt to
+ * override); `leaderboard` deliberately does NOT filter by caller, and instead bounds what it
+ * publishes about anyone else to `firstName` + a one-grapheme `lastNameInitial` — see
+ * {@link GameRoundsService.getLeaderboard}'s own docblock.
  */
 @ApiTags('game-rounds')
 @Controller('game-rounds')
@@ -108,5 +114,27 @@ export class GameRoundsController {
     @Query() query: GameRoundListQueryDto,
   ): Promise<GameRoundListDto> {
     return this.gameRounds.listMine(user.id, query);
+  }
+
+  @Get('leaderboard')
+  @UseGuards(AccessTokenGuard)
+  @NoTrustedClientExemption()
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: 'The ranked per-mode leaderboard — every player, one row each, best round first.',
+    description:
+      'One row per user (their single best qualifying round in the requested mode), ranked ' +
+      'over the FULL filtered set so rank stays stable across pages. Each row carries only ' +
+      "the row owner's first name plus their surname's initial — never a full surname, an " +
+      'id, an e-mail or any other profile field. An unknown or never-played mode answers 200 ' +
+      'with an empty page, never 404.',
+  })
+  @ApiOkResponse({ type: LeaderboardDto })
+  @ApiUnauthorizedResponse({ type: ApiErrorDto, description: AUTH_ERROR_KEYS.unauthenticated })
+  async leaderboard(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: LeaderboardQueryDto,
+  ): Promise<LeaderboardDto> {
+    return this.gameRounds.getLeaderboard(user.id, query);
   }
 }

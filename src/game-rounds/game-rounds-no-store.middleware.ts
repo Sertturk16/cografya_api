@@ -5,10 +5,10 @@ import type { NextFunction, Request, Response } from 'express';
 export const GAME_ROUNDS_NO_STORE_CACHE_CONTROL = 'no-store';
 
 /**
- * `Cache-Control: no-store` on every response `GameRoundsController`'s two routes produce — both
- * return or persist per-user data behind auth (plan §5.8's personal-data flag: "which game modes
- * a specific user played, when, and how they scored" is a KVKK-adjacent personal-data surface),
- * so a shared or intermediary cache must never retain either of them.
+ * `Cache-Control: no-store` on every response `GameRoundsController`'s three routes produce —
+ * each returns or persists per-user data behind auth (plan §5.8's personal-data flag: "which
+ * game modes a specific user played, when, and how they scored" is a KVKK-adjacent personal-data
+ * surface), so a shared or intermediary cache must never retain any of them.
  *
  * Registered as MIDDLEWARE, not a `@Header()` decorator, for the exact reason
  * `FavoritesNoStoreMiddleware`/`VideoProgressNoStoreMiddleware` are: Nest awaits every guard's

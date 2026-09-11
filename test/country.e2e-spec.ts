@@ -287,6 +287,9 @@ describe('Country (e2e)', () => {
       // FK — Continent is an enum type, not a table). `region_id`'s FK means this migration MUST
       // stay ordered after `InitRegions1788200000000`.
       'AddFavoriteRegionAndContinent1788310000000',
+      // P1 PR-C: one plain index on the existing `game_rounds` table for the leaderboard read —
+      // no FK, no ordering constraint against any other migration here.
+      'AddGameRoundsLeaderboardIndex1788400000000',
       // UYE-P1E: adds `school_name` to `users`/`pending_registrations` and widens both tables'
       // `..._account_role`/`..._profile_shape` CHECKs to admit `PARENT` — no new table and no new
       // foreign key, so no ordering constraint beyond "after the tables it alters" (both already
