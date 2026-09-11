@@ -1,4 +1,12 @@
-import { Check, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import {
+  Check,
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
 
 /**
  * One row per submitted game round result (UYELIK-09, `UYELIK-09-plan.md` §5.2).
@@ -40,6 +48,14 @@ import { Check, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, Unique
  */
 @Entity('game_rounds')
 @Unique('UQ_game_rounds_user_client_round', ['userId', 'clientRoundId'])
+// The MIGRATION is the truth for this index, not this decorator: `synchronize` is off and the
+// DDL is hand-authored in AddGameRoundsLeaderboardIndex1788400000000, which the decorator form
+// cannot express `score DESC`. Declared anyway, mirroring `EarthquakeEvent`'s own precedent, so
+// a future `migration:generate` sees an entity-side index to diff against instead of proposing
+// to drop an index no entity metadata knows about. When the two disagree, the SQL that already
+// ran is what governs — `ENGINEERING.md` §5's mandatory hand-review is the real safety net for
+// that residual gap, not this decorator.
+@Index('IDX_game_rounds_leaderboard', ['mode', 'userId', 'score'])
 @Check('CHK_game_rounds_score', '"score" >= 0 AND "score" <= 100')
 @Check(
   'CHK_game_rounds_counts',

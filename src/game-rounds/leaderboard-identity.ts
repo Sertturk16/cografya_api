@@ -15,6 +15,13 @@
  *    special-cases the dotted/dotless "i" pair (`i` upper-cases to `İ` in Turkish, to the
  *    plain `I` under the invariant/default mapping), so the invariant form can silently drop
  *    the dot on a real Turkish surname's initial.
+ *
+ * In production this function's one caller (`GameRoundsService.getLeaderboard`) now already
+ * passes an already-narrowed one-character value — the page query itself applies
+ * `LEFT(u."last_name", 1)` in SQL, so the full surname never reaches this process. The
+ * extraction/casing contract below is unchanged and is still exercised directly against full
+ * multi-character strings by this file's own unit spec, which remains where that behaviour is
+ * pinned in isolation.
  */
 export function toLastNameInitial(lastName: string): string {
   const [firstGrapheme] = Array.from(lastName);

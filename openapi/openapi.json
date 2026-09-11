@@ -7290,12 +7290,12 @@
           },
           "firstName": {
             "type": "string",
-            "example": "Ömer Can",
+            "example": "Ayşe",
             "description": "This row's `users.first_name`, verbatim."
           },
           "lastNameInitial": {
             "type": "string",
-            "example": "S",
+            "example": "Y",
             "description": "Exactly one grapheme: this row's surname, truncated to its first letter and Turkish-locale upper-cased. The full surname never leaves the api."
           },
           "score": {

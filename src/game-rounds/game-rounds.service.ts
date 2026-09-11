@@ -40,6 +40,8 @@ interface LeaderboardPageRow {
   created_at: Date;
   user_id: string;
   first_name: string;
+  /** Already narrowed to one grapheme by the page query's own `LEFT(u."last_name", 1)` — this
+   * row shape never carries a full surname. */
   last_name: string;
 }
 
@@ -206,8 +208,12 @@ export class GameRoundsService {
   /**
    * `GET /api/game-rounds/leaderboard` — one row per user, that user's best qualifying round in
    * `query.mode` (plan §5.3). The `users` join selects ONLY `first_name`/`last_name` — no other
-   * column is read, and `last_name` never reaches the DTO as a full value: it is reduced to
-   * {@link toLastNameInitial} before it does.
+   * column is read, and the page query narrows `last_name` to `LEFT(u."last_name", 1)` in SQL
+   * itself, mirroring `AuthUserLookupService`'s "narrow at the query, not in application code"
+   * discipline (`src/auth/auth-user-lookup.service.ts`) — the full surname never leaves Postgres.
+   * `toLastNameInitial` (`{@link toLastNameInitial}`) then only Turkish-uppercases the
+   * already-one-grapheme value it receives; it no longer performs the narrowing itself for this
+   * caller.
    *
    * Three independent round trips against the SAME ranked set (`RANKED_CTE`), run concurrently.
    * The total is counted SEPARATELY from the page query rather than folded into it as a
@@ -229,7 +235,7 @@ export class GameRoundsService {
          SELECT
            r."rank", r."score", r."found", r."first_try", r."total_wrongs",
            r."completion_time_seconds", r."created_at", r."user_id",
-           u."first_name", u."last_name"
+           u."first_name", LEFT(u."last_name", 1) AS "last_name"
          FROM "ranked" r
          JOIN "users" u ON u."id" = r."user_id"
          ORDER BY r."rank" ASC

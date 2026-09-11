@@ -27,14 +27,14 @@ export class LeaderboardEntryDto {
 
   @ApiProperty({
     type: String,
-    example: 'Ömer Can',
+    example: 'Ayşe',
     description: "This row's `users.first_name`, verbatim.",
   })
   firstName!: string;
 
   @ApiProperty({
     type: String,
-    example: 'S',
+    example: 'Y',
     description:
       "Exactly one grapheme: this row's surname, truncated to its first letter and " +
       'Turkish-locale upper-cased. The full surname never leaves the api.',

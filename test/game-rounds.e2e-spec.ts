@@ -19,6 +19,10 @@ import {
 import { GameRound } from '../src/game-rounds/entities/game-round.entity';
 import { GAME_ROUND_SUBMIT_RATE_LIMIT } from '../src/game-rounds/game-round-submit-rate-limit.service';
 import { GAME_ROUNDS_ERROR_KEYS } from '../src/game-rounds/game-rounds-error-keys';
+import {
+  LEADERBOARD_MAX_PAGE,
+  LEADERBOARD_MAX_PAGE_SIZE,
+} from '../src/game-rounds/dto/leaderboard-query.dto';
 import { Province } from '../src/province/entities/province.entity';
 import { District } from '../src/reference/entities/district.entity';
 
@@ -655,8 +659,8 @@ describe('Game rounds (e2e, real Postgres)', () => {
     it('response items carry no field beyond the ruled identity shape — no lastName, no userId, no e-mail anywhere (structural scan, not an eyeball)', async () => {
       const mode = uniqueMode('scan');
       const scanUser = await createUser('game-rounds-lb-scan@example.test', {
-        firstName: 'Ömer Can',
-        lastName: 'Serttürk',
+        firstName: 'Zeynep Nur',
+        lastName: 'Kaya',
       });
       await insertRound({ userId: scanUser.id, mode, score: 80 });
       const scanToken = await mintFor(scanUser);
@@ -683,8 +687,8 @@ describe('Game rounds (e2e, real Postgres)', () => {
         ].sort(),
       );
       expect(items[0]).toMatchObject({
-        firstName: 'Ömer Can',
-        lastNameInitial: 'S',
+        firstName: 'Zeynep Nur',
+        lastNameInitial: 'K',
         isCurrentUser: true,
       });
 
@@ -692,7 +696,7 @@ describe('Game rounds (e2e, real Postgres)', () => {
       // surname or e-mail address, under whichever key it might have travelled.
       const rawBody = JSON.stringify(response.body);
       expect(rawBody).not.toContain(scanUser.id);
-      expect(rawBody).not.toContain('Serttürk');
+      expect(rawBody).not.toContain('Kaya');
       expect(rawBody).not.toContain('game-rounds-lb-scan@example.test');
       expect(rawBody).not.toMatch(/"userId"/);
       expect(rawBody).not.toMatch(/"lastName"/);
@@ -786,6 +790,93 @@ describe('Game rounds (e2e, real Postgres)', () => {
       expect(
         (noRoundResponse.body as { meta: { currentUserRank: number | null } }).meta.currentUserRank,
       ).toBeNull();
+    });
+
+    it('rank stays stable and correct across pages: page 2 holds ranks 3-4, never the page-1 ranks — the exact regression a windowed ROW_NUMBER() would produce', async () => {
+      const mode = uniqueMode('multi-page');
+      const ROW_COUNT = 5;
+      const users: User[] = [];
+      for (let i = 0; i < ROW_COUNT; i += 1) {
+        const user = await createUser(`game-rounds-lb-multipage-${String(i)}@example.test`);
+        users.push(user);
+        await insertRound({ userId: user.id, mode, score: 100 - i * 10 });
+      }
+      // The THIRD user (i=2, score 80) is the expected rank-3 row — make them the caller so
+      // `meta.currentUserRank` can be cross-checked against that same user's own row on the
+      // page it lands on.
+      const caller = users[2];
+      if (caller === undefined) throw new Error('test setup: expected users[2] to exist');
+      const callerToken = await mintFor(caller);
+
+      const page1 = await request(app.getHttpServer())
+        .get(`/api/game-rounds/leaderboard?mode=${mode}&page=1&pageSize=2`)
+        .set(bearer(callerToken))
+        .expect(200);
+      const page1Body = page1.body as {
+        items: { rank: number }[];
+        total: number;
+        hasMore: boolean;
+      };
+      expect(page1Body.items.map((item) => item.rank)).toEqual([1, 2]);
+      expect(page1Body.total).toBe(ROW_COUNT);
+      expect(page1Body.hasMore).toBe(true);
+
+      const page2 = await request(app.getHttpServer())
+        .get(`/api/game-rounds/leaderboard?mode=${mode}&page=2&pageSize=2`)
+        .set(bearer(callerToken))
+        .expect(200);
+      const page2Body = page2.body as {
+        items: { rank: number; isCurrentUser: boolean }[];
+        total: number;
+        hasMore: boolean;
+        meta: { currentUserRank: number | null };
+      };
+      // The exact regression this finding names: `ROW_NUMBER()` moving inside the
+      // `LIMIT`/`OFFSET` window would report [1, 2] again here instead of [3, 4].
+      expect(page2Body.items.map((item) => item.rank)).toEqual([3, 4]);
+      expect(page2Body.total).toBe(ROW_COUNT);
+      expect(page2Body.hasMore).toBe(true);
+      expect(page2Body.items[0]?.isCurrentUser).toBe(true);
+      expect(page2Body.meta.currentUserRank).toBe(page2Body.items[0]?.rank);
+
+      const page3 = await request(app.getHttpServer())
+        .get(`/api/game-rounds/leaderboard?mode=${mode}&page=3&pageSize=2`)
+        .set(bearer(callerToken))
+        .expect(200);
+      const page3Body = page3.body as { items: { rank: number }[]; hasMore: boolean };
+      expect(page3Body.items.map((item) => item.rank)).toEqual([5]);
+      expect(page3Body.hasMore).toBe(false);
+    });
+
+    it('rejects every out-of-contract leaderboard query, and unknown parameters too', async () => {
+      const mode = uniqueMode('bounds');
+      const overLengthMode = 'a'.repeat(41);
+      const rejected: [string, string][] = [
+        ['?page=1', 'missing mode'],
+        ['?mode=&page=1', 'empty mode'],
+        [`?mode=${overLengthMode}`, 'mode over 40 characters'],
+        ['?mode=Abc', 'mode starting uppercase'],
+        [`?mode=${mode}&page=0`, 'page below 1'],
+        [`?mode=${mode}&pageSize=0`, 'pageSize below 1'],
+        [`?mode=${mode}&page=${String(LEADERBOARD_MAX_PAGE + 1)}`, 'page above the ceiling'],
+        [
+          `?mode=${mode}&pageSize=${String(LEADERBOARD_MAX_PAGE_SIZE + 1)}`,
+          'pageSize above the ceiling',
+        ],
+        [`?mode=${mode}&utm_source=newsletter`, 'unknown parameter'],
+      ];
+      for (const [query, label] of rejected) {
+        const response = await request(app.getHttpServer())
+          .get(`/api/game-rounds/leaderboard${query}`)
+          .set(bearer(userAToken));
+        expect(`${label} → ${String(response.status)}`).toBe(`${label} → 400`);
+      }
+
+      // The positive control: the SAME endpoint, in-contract, must still pass — without it, a
+      // route that 400s unconditionally would satisfy every case above.
+      const inContract = `/api/game-rounds/leaderboard?mode=${mode}&page=1&pageSize=${String(LEADERBOARD_MAX_PAGE_SIZE)}`;
+      const ok = await request(app.getHttpServer()).get(inContract).set(bearer(userAToken));
+      expect(`control ${inContract} → ${String(ok.status)}`).toBe(`control ${inContract} → 200`);
     });
   });
 
