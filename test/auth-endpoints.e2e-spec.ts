@@ -13,6 +13,8 @@ import { PasswordResetToken } from '../src/auth/entities/password-reset-token.en
 import { Session } from '../src/auth/entities/session.entity';
 import { User } from '../src/auth/entities/user.entity';
 import { MAILER_PORT } from '../src/auth/mail/mailer.port';
+import { mintOpaqueToken } from '../src/auth/opaque-token';
+import { sha256 } from '../src/auth/token-digest';
 import { seedGeography } from '../src/database/seeds/seed-geography';
 import { seedReference } from '../src/database/seeds/seed-reference';
 import { District } from '../src/reference/entities/district.entity';
@@ -335,6 +337,112 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
         .post('/api/auth/login')
         .send({ email, password: 'Synthetic-Pass1' })
         .expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('N6b — password-reset verify: a live token answers 204 and stays usable by confirm afterwards (non-consumption)', async () => {
+      const tokenPlain = mintOpaqueToken();
+      await dataSource.getRepository(PasswordResetToken).insert({
+        userId,
+        tokenHash: sha256(tokenPlain),
+        expiresAt: new Date(Date.now() + 30 * 60_000),
+        consumedAt: null,
+      });
+
+      const beforeUser = await dataSource
+        .getRepository(User)
+        .findOneOrFail({ where: { id: userId } });
+      const tokenVersionBefore = beforeUser.tokenVersion;
+
+      const liveLogin = await request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send({ email, password: 'New-Synthetic-Pass2' })
+        .expect(HttpStatus.OK);
+      const liveLoginBody = liveLogin.body as { accessToken: string; refreshToken: string };
+      const liveAccessToken = liveLoginBody.accessToken;
+      await request(app.getHttpServer())
+        .get('/api/auth/session')
+        .set('Authorization', `Bearer ${liveAccessToken}`)
+        .expect(HttpStatus.OK);
+
+      // SEC167R2-NEW-I1: the two checks above only ever read `users` (tokenVersion, then the
+      // same value again through the guarded route) — neither can observe `sessions`, so
+      // neither proves the docblock's third promise ("hiçbir oturum iptal edilmez"). This reads
+      // the live family's OWN Session row directly, the same idiom N4/N5 already use in this
+      // file, and pins a concrete value rather than an "unchanged" delta: a regression that
+      // copies confirmReset's Session-revocation step into verifyResetToken sets both fields
+      // below to a non-null value, which is the only way this specific expectation can fail.
+      const liveSessionHash = createHash('sha256').update(liveLoginBody.refreshToken).digest();
+      const liveSessionRow = await dataSource
+        .getRepository(Session)
+        .findOneOrFail({ where: { tokenHash: liveSessionHash } });
+      expect(liveSessionRow.revokedAt).toBeNull();
+      expect(liveSessionRow.revokedReason).toBeNull();
+
+      const verifyResponse = await request(app.getHttpServer())
+        .post('/api/auth/password-reset/verify')
+        .send({ resetToken: tokenPlain })
+        .expect(HttpStatus.NO_CONTENT);
+      expect(verifyResponse.headers['cache-control']).toBe('no-store');
+
+      const afterUser = await dataSource
+        .getRepository(User)
+        .findOneOrFail({ where: { id: userId } });
+      expect(afterUser.tokenVersion).toBe(tokenVersionBefore);
+
+      await request(app.getHttpServer())
+        .get('/api/auth/session')
+        .set('Authorization', `Bearer ${liveAccessToken}`)
+        .expect(HttpStatus.OK);
+
+      const afterSessionRow = await dataSource
+        .getRepository(Session)
+        .findOneOrFail({ where: { id: liveSessionRow.id } });
+      expect(afterSessionRow.revokedAt).toBeNull();
+      expect(afterSessionRow.revokedReason).toBeNull();
+
+      // The whole point: verify did not consume it, so confirm still accepts the same token.
+      await request(app.getHttpServer())
+        .post('/api/auth/password-reset/confirm')
+        .send({ resetToken: tokenPlain, password: 'Third-Synthetic-Pass3' })
+        .expect(HttpStatus.NO_CONTENT);
+
+      await request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send({ email, password: 'Third-Synthetic-Pass3' })
+        .expect(HttpStatus.OK);
+    });
+
+    it('N6c — password-reset verify: an expired, a consumed and an unknown token all answer the same 400', async () => {
+      const expiredPlain = mintOpaqueToken();
+      await dataSource.getRepository(PasswordResetToken).insert({
+        userId,
+        tokenHash: sha256(expiredPlain),
+        expiresAt: new Date(Date.now() - 60_000),
+        consumedAt: null,
+      });
+
+      const consumedPlain = mintOpaqueToken();
+      await dataSource.getRepository(PasswordResetToken).insert({
+        userId,
+        tokenHash: sha256(consumedPlain),
+        expiresAt: new Date(Date.now() + 30 * 60_000),
+        consumedAt: new Date(),
+      });
+
+      const unknownPlain = mintOpaqueToken();
+
+      // The consumed-token row is never returned by verifyResetToken's own query
+      // (`consumedAt: IsNull()`), so it exercises the same `!token` branch as the unknown-token
+      // case, not a third distinct runtime path — this loop still guards the query filter itself.
+      for (const resetToken of [expiredPlain, consumedPlain, unknownPlain]) {
+        const response = await request(app.getHttpServer())
+          .post('/api/auth/password-reset/verify')
+          .send({ resetToken })
+          .expect(HttpStatus.BAD_REQUEST);
+        expect(response.headers['cache-control']).toBe('no-store');
+        const body = response.body as { message: string };
+        expect(body.message).toBe('errors.password.resetTokenInvalid');
+      }
     });
   });
 

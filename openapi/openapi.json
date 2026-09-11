@@ -1354,6 +1354,42 @@
         ]
       }
     },
+    "/api/auth/password-reset/verify": {
+      "post": {
+        "description": "Read-only: no consumedAt write, no token_version bump, no session revocation. The presented token stays fully usable by password-reset/confirm afterwards.",
+        "operationId": "AuthController_verifyPasswordReset",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetVerifyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "errors.password.resetTokenInvalid — unknown, consumed or expired token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Check whether a password-reset token is still usable, without consuming it.",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/api/auth/session": {
       "get": {
         "description": "id, firstName, accountRole ONLY. No e-posta, telefon, soyad or education fields.",
@@ -6812,6 +6848,19 @@
         "required": [
           "resetToken",
           "password"
+        ]
+      },
+      "PasswordResetVerifyDto": {
+        "type": "object",
+        "properties": {
+          "resetToken": {
+            "type": "string",
+            "writeOnly": true,
+            "description": "Opak şifre sıfırlama jetonu (§5.4). Hiçbir yanıtta, örnekte ya da logda dönmez."
+          }
+        },
+        "required": [
+          "resetToken"
         ]
       },
       "SessionDto": {
