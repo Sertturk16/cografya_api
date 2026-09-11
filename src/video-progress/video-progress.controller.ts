@@ -50,9 +50,11 @@ export class VideoProgressController {
   /**
    * `GET /api/video-progress/books/{slug}` — the caller's own progress on one BOOK (PR-B plan §5).
    *
-   * Two path segments, so this never collides with the one-segment `:bookVideoId` route below
-   * regardless of declaration order — Express/Nest match on segment count, not just on literal-vs-
-   * param precedence (plan §5).
+   * Two path segments against the one-segment `:bookVideoId` route below (plan §5: "differing
+   * path-segment counts"). Both routes are exercised in the same running app instance by
+   * `test/video-progress.e2e-spec.ts`'s book-level and single-video describe blocks, and every
+   * case in both passes with the expected status/shape — the concrete evidence that this route is
+   * actually reached rather than silently swallowed by the older one.
    */
   @Get('books/:slug')
   @UseGuards(AccessTokenGuard)
