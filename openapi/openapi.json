@@ -1799,6 +1799,42 @@
         ]
       }
     },
+    "/api/video-cover/{bookVideoId}": {
+      "get": {
+        "description": "Proxies the video's cover bytes from the api's own address, keyed on the video's own already-public bookVideoId. No response this route can produce — success, 404, or any unexpected error — ever carries the provider's own video identity, in a field value or embedded in an address path segment. Every failure state (an unknown id, a non-servable snapshot, a disallowed upstream host, or any upstream failure) answers the identical 404 — nothing distinguishes WHY a cover is unavailable.",
+        "operationId": "VideoCoverController_getCover",
+        "parameters": [
+          {
+            "name": "bookVideoId",
+            "required": true,
+            "in": "path",
+            "description": "book_videos.id.",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The cover image bytes. Content-Type: image/jpeg."
+          },
+          "400": {
+            "description": "bookVideoId is not a well-formed UUID."
+          },
+          "404": {
+            "description": "No cover is available for this id, for any reason."
+          },
+          "429": {
+            "description": "The per-client rate limit for this route was exceeded. Tighter than the global limit because this route can reach an external provider."
+          }
+        },
+        "summary": "The api's own cover proxy for one book video — never the provider's own address.",
+        "tags": [
+          "video-cover"
+        ]
+      }
+    },
     "/api/favorites": {
       "get": {
         "description": "A plain, unpaginated array — bounded at at most 81 provinces + ~199 countries + 7 regions + 7 continents = 294 rows per user, ever, the same \"bounded and small\" shape `ENGINEERING.md` §2 already uses for the province/country lists themselves.",
@@ -5749,7 +5785,7 @@
         "properties": {
           "thumbnailUrl": {
             "type": "string",
-            "description": "Thumbnail URL exactly as the provider returned it. NEVER construct this address from the video id — replacing API Data with independently computed data is barred (Developer Policies III.E.5). Hotlink it; do not copy, cache or optimise the bytes (III.E.1), which is why image optimisation is off on this surface."
+            "description": "The address of the api's OWN cover proxy for this video, keyed on the video's own already-public bookVideoId — never the provider's own address (closes VAL137-NEW-C1/VAL137-C1). Render it exactly like any other image; treat an unavailable cover as a normal degraded state, because the proxy route's own 404 carries no information about why. The field name, type and required/non-nullable status are unchanged; only the VALUE changed. The retired warning (\"never construct this address from the video id\") governed building the PROVIDER's address from the id (Developer Policies III.E.5) and still holds: the proxy fetches through the STORED, API-verified snapshot server-side only, never reconstructing the provider's address — the PUBLISHED address here is simply now deliberately ours. Do not copy, cache or optimise the bytes client-side (III.E.1); the proxy itself holds no byte durably either (no Redis, no disk) — it relays them per request."
           },
           "thumbnailWidth": {
             "type": "number",

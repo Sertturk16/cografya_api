@@ -588,6 +588,49 @@ export const envSchema = z
     // the hard ceiling — otherwise "at most 30 days" is really 30 days plus one purge interval.
     BOOKS_PURGE_INTERVAL_SECONDS: z.coerce.number().int().positive().default(3_600),
 
+    // ── Video cover proxy: the api's own address for a book video's cover ───────
+    // Closes VAL137-NEW-C1/VAL137-C1's api half: `GET /api/video-cover/{bookVideoId}` fetches the
+    // cover SERVER-SIDE and republishes it from the api's own address, so `thumbnailUrl` never
+    // again carries the provider's own hotlink. The write-time guard on the stored column
+    // (`isPublishableThumbnailUrl`, `youtube-videos.parse.ts`) checks only scheme and length, never
+    // the hostname — safe while the only consumer was a reader's own browser, an SSRF vector the
+    // moment THIS process fetches it instead. Mirrors `ADS_OBJECT_STORE_HOSTS`'s own shape and
+    // non-empty-after-split refinement; always checked, because unlike the sync leg this route
+    // carries no ENABLED switch of its own — it is exactly as unconditional as the book reads it
+    // enriches.
+    VIDEO_COVER_UPSTREAM_HOSTS: z
+      .string()
+      .default('i.ytimg.com')
+      .refine(
+        (value) =>
+          value
+            .split(',')
+            .map((host) => host.trim())
+            .filter((host) => host.length > 0).length > 0,
+        'VIDEO_COVER_UPSTREAM_HOSTS must list at least one host',
+      ),
+    // Cap on the ONE live fetch this route may make, and the total upstream budget for the ONE
+    // incoming request it runs inside — equal by design, not merely by default. This is a
+    // single-call-per-operation shape (never a fan-out across one shared deadline the way the
+    // elevation leg's tile queue is), so `OperationDeadline.cutsCallShort`'s own docblock states
+    // equality is the CORRECT reading here, not merely tolerated — the same reading the shipped
+    // `CMEMS_SINGLE_CALL_TIMEOUT_MS == MARINE_UPSTREAM_DEADLINE_MS` (6 000/6 000) pair already
+    // relies on. One accepted consequence, stated rather than hidden: at these equal defaults the
+    // shared client's own built-in single retry becomes practically unreachable in the ordinary
+    // case — exactly as it already is for `cmems` today.
+    VIDEO_COVER_SINGLE_CALL_TIMEOUT_MS: z.coerce.number().int().positive().default(4_000),
+    VIDEO_COVER_REQUEST_DEADLINE_MS: z.coerce.number().int().positive().default(4_000),
+    // The route's own throttle ceiling is DELIBERATELY a code literal in `video-cover.controller.ts`
+    // (`VIDEO_COVER_THROTTLE_LIMIT`/`VIDEO_COVER_THROTTLE_TTL_MS`), not an env var here — a plan
+    // deviation, recorded rather than silently made. `@Throttle(...)`'s argument is evaluated at
+    // module-DECORATION time (when this file is first imported), which happens before
+    // `ConfigModule.forRoot`'s dotenv loading runs at bootstrap; a value sourced from HERE would
+    // either read `undefined`/a stale OS-only env var, or require an unvalidated raw `process.env`
+    // read at decoration time — both `ENGINEERING.md` §1 and this repo's own persona rule forbid the
+    // latter ("No unvalidated `process.env` reads, ever"). `ElevationController.PROFILE_THROTTLE_LIMIT`
+    // is the existing precedent for exactly this constraint: a decorator-consumed throttle number is
+    // a code literal everywhere in this repo today, never env-driven.
+
     // ── Elevation profile: the AWS terrain-tile leg (CBS-P2, plan-api.md §7) ────
     // Master switch. `false` by default so a fresh deployment reaches no provider until somebody
     // decides it should — and here the switch also removes the ROUTE (404), because unlike the

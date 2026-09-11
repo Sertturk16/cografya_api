@@ -22,6 +22,7 @@ import { MeasurementsModule } from './measurements/measurements.module';
 import { ProvinceModule } from './province/province.module';
 import { ReferenceModule } from './reference/reference.module';
 import { RegionModule } from './region/region.module';
+import { VideoCoverModule } from './video-cover/video-cover.module';
 import { VideoIdentityModule } from './video-identity/video-identity.module';
 import { VideoProgressModule } from './video-progress/video-progress.module';
 
@@ -105,6 +106,10 @@ export const THROTTLE_LIMIT = 120;
     // no external provider, no new env key, no migration — the anonymous BookVideoDto no longer
     // carries youtubeVideoId at all (this same PR), and this is where a signed-in member fetches it.
     VideoIdentityModule,
+    // Closes VAL137-NEW-C1/VAL137-C1's api half (P2 kapak-adresi): the public, unauthenticated
+    // GET /api/video-cover/{bookVideoId} cover proxy, keyed on the video's own already-public
+    // bookVideoId — no auth, no migration, its own provider id/budget, distinct from the sync leg's.
+    VideoCoverModule,
     // UYELIK-07: protected list/add/remove favorites endpoints (province + country). No scheduled
     // work, no external provider, no new env key, and no change to any Province/Country DTO —
     // the favorites API is keyed externally on plateCode/isoCode and never surfaces either

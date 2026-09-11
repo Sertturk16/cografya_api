@@ -17,6 +17,11 @@ import {
   BOOK_YOUTUBE_SERVE_CONFIG,
   type BookYoutubeServeConfig,
 } from './youtube/youtube-sync.config';
+// One directory up, deliberately: `buildVideoCoverPath` is the SINGLE source both this mapper and
+// `VideoCoverController`'s own route must agree with (plan §5.3) — a plain exported function, no
+// Nest-level coupling to `VideoCoverModule` either way, the same treatment `isSnapshotServable`
+// above already gets from `BookModule`'s side of this exact relationship.
+import { buildVideoCoverPath } from '../video-cover/video-cover-address';
 
 /**
  * Per-book timestamp aggregate, as it comes back from the grouped query.
@@ -226,7 +231,7 @@ export class BookService {
         nameTr: tag.nameTr,
         nameEn: tag.nameEn,
       })),
-      youtube: this.toYoutubeDto(snapshotsByVideoId.get(video.youtubeVideoId), nowMs),
+      youtube: this.toYoutubeDto(video.id, snapshotsByVideoId.get(video.youtubeVideoId), nowMs),
     }));
 
     const stats: BookStats = {
@@ -266,11 +271,15 @@ export class BookService {
    * fields (`SEO-POLICY.md` §B5 5.8 makes a fabricated structured-data field a BLOCKER, while
    * omitting the block is only a lost enrichment).
    *
-   * **Nothing is computed here.** `thumbnailUrl` is republished exactly as the provider returned it
-   * and is never rebuilt from the video id (Developer Policies III.E.5); the duration is served in
-   * both stored forms, whose agreement the write path already proved.
+   * **`thumbnailUrl` is no longer the provider's own address (closes VAL137-NEW-C1/VAL137-C1's api
+   * half).** It is now `buildVideoCoverPath(bookVideoId)` — the api's own cover-proxy address,
+   * which `VideoCoverService` fetches THROUGH the stored `snapshot.thumbnailUrl` server-side, never
+   * republishing that stored value itself. Every other field here is unchanged: republished exactly
+   * as the provider returned it, never rebuilt from the video id (Developer Policies III.E.5); the
+   * duration is served in both stored forms, whose agreement the write path already proved.
    */
   private toYoutubeDto(
+    bookVideoId: string,
     snapshot: YoutubeVideoSnapshot | undefined,
     nowMs: number,
   ): BookVideoYoutubeDto | null {
@@ -278,7 +287,7 @@ export class BookService {
     if (!isSnapshotServable(snapshot, nowMs, this.youtubeServeConfig.softMaxAgeHours)) return null;
 
     return {
-      thumbnailUrl: snapshot.thumbnailUrl,
+      thumbnailUrl: buildVideoCoverPath(bookVideoId),
       thumbnailWidth: snapshot.thumbnailWidth,
       thumbnailHeight: snapshot.thumbnailHeight,
       publishedAtUtc: snapshot.publishedAtUtc.toISOString(),
