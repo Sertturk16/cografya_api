@@ -43,3 +43,40 @@ See the file's own header for the full reasoning, including why it duplicates ra
 imports the app's Argon2 profile and password policy (`credential-fixture.ts`'s header) and why
 the local-only check is DNS-resolved rather than string-only (`local-database-guard.ts`'s
 header).
+
+## `password-reset-fixture.ts`
+
+Inserts ONE `password_reset_tokens` row for ONE dedicated, idempotently-reset fixture account
+(`password-reset-audit@local.test` — deliberately not the `iris-audit-account.ts` account, to
+keep the two fixtures' blast radii independent) directly in the local dev Postgres, and prints
+the plaintext token once to this run's own stdout. It exists because no plaintext password-reset
+token is obtainable anywhere else in this system by design: only the token's SHA-256 digest is
+ever persisted, the mailer never logs it, and `mintOpaqueToken()` — unlike the email-verification
+code next to it — carries no development shortcut
+(`Owner's Inbox/uyelik-uyum-denetimi/p4-sifirlama-ekranlari/atlas-karar.md` §3, board item
+`UYE-P4-FIKSTUR`).
+
+```
+PASSWORD_RESET_FIXTURE_CONFIRM='i-know-this-database-is-not-a-tunnel' \
+DATABASE_URL=postgresql://cografya:cografya_dev@localhost:5433/cografya \
+  node tools/dev-fixtures/password-reset-fixture.ts
+```
+
+Reuses this directory's `assertLocalDatabaseUrl`/`NonLocalDatabaseError` (the loopback guard,
+unmodified), `pickDistrict` and the Argon2 password helpers unchanged; mirrors the token mint and
+SHA-256 digest by hand rather than importing `src/auth/opaque-token.ts` / `token-digest.ts`, for
+the same `src/`-independence reason `credential-fixture.ts` and `local-database-guard.ts` already
+state. See the file's own header for exactly what is reused vs. mirrored, and for the loopback
+guard's real, honest guarantee (it proves the socket is loopback, not the process behind it —
+`API-FIXTURE-TUNNEL-GAP`, already boarded and deliberately not fixed by this file).
+
+**A second, independent gate on top of the loopback guard, unlike `iris-audit-account.ts`.**
+Unlike that precedent, this fixture mints a USABLE credential (a live reset token that changes a
+password and revokes every session on consumption), so it additionally refuses — before any
+connection opens — unless `PASSWORD_RESET_FIXTURE_CONFIRM` is set to the exact phrase above. This
+check is deliberately blind to `DATABASE_URL`: the loopback guard already covers the socket
+address, and that is exactly the axis an `ssh -L`/`kubectl port-forward` tunnel defeats
+(`API-FIXTURE-TUNNEL-GAP`) — a tunnelled `DATABASE_URL` still resolves as loopback, so a second
+condition that does not look at `DATABASE_URL` at all is what catches the case the first one
+cannot. See the file's own header for why a bespoke confirmation phrase was chosen over an
+`NODE_ENV` check.
