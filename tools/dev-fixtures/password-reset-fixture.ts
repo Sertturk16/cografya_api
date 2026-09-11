@@ -6,7 +6,7 @@ import {
   isPasswordPolicyCompliant,
 } from './credential-fixture.ts';
 import { assertLocalDatabaseUrl, NonLocalDatabaseError } from './local-database-guard.ts';
-import { pickDistrict } from './iris-audit-account-runner.ts';
+import { isDirectInvocation, pickDistrict } from './iris-audit-account-runner.ts';
 
 /**
  * `tools/dev-fixtures/password-reset-fixture.ts` — inserts ONE `password_reset_tokens` row for
@@ -71,9 +71,14 @@ import { pickDistrict } from './iris-audit-account-runner.ts';
  * `iris-audit-account-runner.ts`. That split exists solely so a ts-jest spec can import the
  * runner half without tripping the CLI's direct-invocation guard. This fixture carries no
  * companion spec by design — the board item's Scope-out forbids adding this fixture to the test
- * suite — so there is nothing that would ever import this file, and a single file keeps the
- * change smaller. `main()` therefore just runs at module load; there is no `isDirectInvocation`
- * gate here to bypass.
+ * suite — so the split buys nothing here, and a single file keeps the change smaller. **It is,
+ * however, guarded by the SAME idiom every sibling tool of its class uses** (PR #172 review,
+ * FIX172-M1 — this file used to run `main()` unconditionally at module load, which meant an
+ * accidental future `import` of it, not just a direct run, would have minted a real credential):
+ * `main()` below runs only inside an `isDirectInvocation(import.meta.filename, process.argv[1])`
+ * check, reusing the helper already imported from `iris-audit-account-runner.ts` for
+ * `pickDistrict` — no new module, no duplicated logic. Importing this file now performs no work
+ * and opens no connection, exactly like every sibling tool, even without the runner split.
  *
  * ## Its own account is a NEW, separate fixture identity — not `iris-audit@local.test`
  * `password-reset-audit@local.test` (RFC 2606 reserved `.test` TLD, same convention
@@ -303,7 +308,18 @@ async function main(): Promise<void> {
       token = await insertResetToken(client, { userId: user.id, tokenHash });
       await client.query('COMMIT');
     } catch (error) {
-      await client.query('ROLLBACK');
+      // ROLLBACK can itself throw (e.g. the connection already dropped) — that failure must
+      // never replace `error` as what reaches the operator (PR #172 review, FIX172-M2). It is
+      // reported separately, on its own stderr line; the ORIGINAL cause is always what is
+      // thrown and printed by main().catch() below.
+      try {
+        await client.query('ROLLBACK');
+      } catch (rollbackError) {
+        process.stderr.write(
+          `[password-reset-fixture] ROLLBACK itself failed — the error below is still the real ` +
+            `cause, not this one: ${rollbackError instanceof Error ? (rollbackError.stack ?? rollbackError.message) : String(rollbackError)}\n`,
+        );
+      }
       throw error;
     }
 
@@ -330,13 +346,18 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((error: unknown) => {
-  if (error instanceof NonLocalDatabaseError || error instanceof NotConfirmedLocalError) {
-    process.stderr.write(`[password-reset-fixture] REFUSED: ${error.message}\n`);
-  } else {
-    process.stderr.write(
-      `[password-reset-fixture] failed: ${error instanceof Error ? (error.stack ?? error.message) : String(error)}\n`,
-    );
-  }
-  process.exitCode = 1;
-});
+// Guards every sibling tool of this class carries (PR #172 review, FIX172-M1): importing this
+// module must never run it, only a direct `node tools/dev-fixtures/password-reset-fixture.ts`
+// may. `isDirectInvocation` is reused, unmodified, from `iris-audit-account-runner.ts`.
+if (isDirectInvocation(import.meta.filename, process.argv[1])) {
+  main().catch((error: unknown) => {
+    if (error instanceof NonLocalDatabaseError || error instanceof NotConfirmedLocalError) {
+      process.stderr.write(`[password-reset-fixture] REFUSED: ${error.message}\n`);
+    } else {
+      process.stderr.write(
+        `[password-reset-fixture] failed: ${error instanceof Error ? (error.stack ?? error.message) : String(error)}\n`,
+      );
+    }
+    process.exitCode = 1;
+  });
+}
