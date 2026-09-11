@@ -1,4 +1,4 @@
-import { Controller, Get, Param, StreamableFile } from '@nestjs/common';
+import { Controller, Get, Header, Param, StreamableFile } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import {
   ApiBadRequestResponse,
@@ -34,6 +34,29 @@ const VIDEO_COVER_THROTTLE_LIMIT = 60;
 const VIDEO_COVER_THROTTLE_TTL_MS = 60_000;
 
 /**
+ * Overrides helmet's global `Cross-Origin-Resource-Policy: same-origin` default (`src/main.ts`,
+ * `helmet@8.2.0`'s own default) for THIS route only. That default was harmless until this route
+ * existed — no prior route ever served bytes a browser embeds via `<img src>` from another
+ * origin — and stays the correct default for every other route, which this constant does not
+ * touch. `cross-origin`, not `same-site`, because the web app's own origin relative to this api's
+ * is a deploy-time question this PR does not settle (`video-cover-address.ts`'s own docblock: no
+ * configured public base URL for this api exists yet); `cross-origin` is the one value that does
+ * not depend on that answer. `@Header()` (not the `@CacheControl`/`CacheControlInterceptor`
+ * success-only pattern) is deliberate here: unlike `Cache-Control`, a stale CORP header cannot
+ * make an intermediary re-serve a resolved outage, so there is no reason to gate it on a 2xx
+ * response — and `@Header()` still applies to this route's own business-logic 404 (thrown inside
+ * the handler, after Nest's guards already ran; `router-execution-context.js` sets `@Header()`
+ * headers before the handler executes). The one gap, documented rather than silently accepted: a
+ * guard-rejected response (this route's global-`ThrottlerGuard` 429) is not covered, because Nest
+ * evaluates guards before applying `@Header()` metadata — the same gap
+ * `VideoProgressNoStoreMiddleware`'s docblock names for `Cache-Control: no-store`. It is not
+ * closed here: a 429 carries no image bytes for a browser to embed either way, so nothing this
+ * route needs to prove is affected.
+ */
+const VIDEO_COVER_RESOURCE_POLICY_HEADER = 'Cross-Origin-Resource-Policy';
+const VIDEO_COVER_RESOURCE_POLICY_VALUE = 'cross-origin';
+
+/**
  * The public, unauthenticated cover-proxy route — plan §5.2.
  *
  * **No auth guard, by design**: this content is exactly as public as `GET /api/books/{slug}`
@@ -49,6 +72,7 @@ export class VideoCoverController {
 
   @Get(':bookVideoId')
   @CacheControl(VIDEO_COVER_CACHE_CONTROL)
+  @Header(VIDEO_COVER_RESOURCE_POLICY_HEADER, VIDEO_COVER_RESOURCE_POLICY_VALUE)
   @Throttle({ default: { limit: VIDEO_COVER_THROTTLE_LIMIT, ttl: VIDEO_COVER_THROTTLE_TTL_MS } })
   @ApiParam({ name: 'bookVideoId', format: 'uuid', description: 'book_videos.id.' })
   @ApiOperation({
