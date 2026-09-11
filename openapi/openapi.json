@@ -1929,6 +1929,86 @@
         ]
       }
     },
+    "/api/game-rounds/leaderboard": {
+      "get": {
+        "description": "One row per user (their single best qualifying round in the requested mode), ranked over the FULL filtered set so rank stays stable across pages. Each row carries only the row owner's first name plus their surname's initial — never a full surname, an id, an e-mail or any other profile field. An unknown or never-played mode answers 200 with an empty page, never 404.",
+        "operationId": "GameRoundsController_leaderboard",
+        "parameters": [
+          {
+            "name": "mode",
+            "required": true,
+            "in": "query",
+            "description": "The game mode to rank. Never validated against a closed set; an unknown mode answers 200 with an empty page, not 404.",
+            "schema": {
+              "minLength": 1,
+              "maxLength": 40,
+              "pattern": "^[a-z][a-z0-9-]{0,39}$",
+              "example": "provinces",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page to read, 1-based. A page past the end answers 200 with an empty items array.",
+            "schema": {
+              "minimum": 1,
+              "maximum": 10000,
+              "format": "int32",
+              "default": 1,
+              "example": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "description": "Rows per page, ranked best-first.",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "format": "int32",
+              "default": 20,
+              "example": 20,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaderboardDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "errors.auth.unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "The ranked per-mode leaderboard — every player, one row each, best round first.",
+        "tags": [
+          "game-rounds"
+        ]
+      }
+    },
     "/api/measurements": {
       "post": {
         "description": "Always 200, never 201 — the resource's final state is identical whether this call created or found the row, matching this repo's established idempotent-write convention. Resubmitting the same clientMeasurementId for the same caller returns the ORIGINAL recorded values, even if the resubmitted body differs.",
@@ -7197,6 +7277,143 @@
           "total",
           "hasMore",
           "items"
+        ]
+      },
+      "LeaderboardEntryDto": {
+        "type": "object",
+        "properties": {
+          "rank": {
+            "type": "number",
+            "minimum": 1,
+            "example": 1,
+            "description": "Position in the FULL ranked set for this mode, 1-based and stable across pages (computed once over every qualifying round, not per page)."
+          },
+          "firstName": {
+            "type": "string",
+            "example": "Ömer Can",
+            "description": "This row's `users.first_name`, verbatim."
+          },
+          "lastNameInitial": {
+            "type": "string",
+            "example": "S",
+            "description": "Exactly one grapheme: this row's surname, truncated to its first letter and Turkish-locale upper-cased. The full surname never leaves the api."
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "example": 96
+          },
+          "found": {
+            "type": "number",
+            "minimum": 0,
+            "example": 79
+          },
+          "firstTry": {
+            "type": "number",
+            "minimum": 0,
+            "example": 74
+          },
+          "totalWrongs": {
+            "type": "number",
+            "minimum": 0,
+            "example": 5
+          },
+          "completionTimeSeconds": {
+            "type": "number",
+            "nullable": true,
+            "example": null,
+            "description": "Elapsed seconds for this best round, or null when the client sent none."
+          },
+          "achievedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-08T19:22:11.000Z",
+            "description": "When this row's best round was recorded (`game_rounds.created_at`)."
+          },
+          "isCurrentUser": {
+            "type": "boolean",
+            "example": true,
+            "description": "Whether this row is the calling user's own row."
+          }
+        },
+        "required": [
+          "rank",
+          "firstName",
+          "lastNameInitial",
+          "score",
+          "found",
+          "firstTry",
+          "totalWrongs",
+          "completionTimeSeconds",
+          "achievedAt",
+          "isCurrentUser"
+        ]
+      },
+      "LeaderboardMetaDto": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "example": "provinces",
+            "description": "The mode this page ranks — echoes the request query."
+          },
+          "currentUserRank": {
+            "type": "number",
+            "nullable": true,
+            "example": 1,
+            "description": "The caller's own rank in this mode's FULL ranking (comparable to items[].rank across pages), or null when the caller has no qualifying round in this mode."
+          }
+        },
+        "required": [
+          "mode",
+          "currentUserRank"
+        ]
+      },
+      "LeaderboardDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number",
+            "minimum": 1,
+            "example": 1,
+            "description": "Requested page, 1-based."
+          },
+          "pageSize": {
+            "type": "number",
+            "minimum": 1,
+            "example": 50,
+            "description": "Requested page size. Each endpoint documents its own ceiling."
+          },
+          "total": {
+            "type": "number",
+            "minimum": 0,
+            "example": 630,
+            "description": "Total rows matching the applied filter, across all pages."
+          },
+          "hasMore": {
+            "type": "boolean",
+            "example": true,
+            "description": "Whether a further page exists after this one."
+          },
+          "items": {
+            "description": "The page of ranked rows, best-first.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LeaderboardEntryDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/LeaderboardMetaDto"
+          }
+        },
+        "required": [
+          "page",
+          "pageSize",
+          "total",
+          "hasMore",
+          "items",
+          "meta"
         ]
       },
       "MeasurementPointDto": {

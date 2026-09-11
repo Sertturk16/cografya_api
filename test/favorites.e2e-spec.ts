@@ -988,6 +988,14 @@ describe('Favorites (e2e, real Postgres)', () => {
       );
       expect(Number(strayRows[0]?.count ?? 0)).toBeGreaterThan(0);
 
+      // `AddFavoriteRegionAndContinent` is no longer the literal tip of the registered
+      // `migrations` array — P1 PR-C's `AddGameRoundsLeaderboardIndex` landed after it. The
+      // first `undoLastMigration()` therefore reverts THAT one (a plain, unconditional
+      // `DROP INDEX` on `game_rounds` — nothing about favourites, and nothing to refuse); the
+      // SECOND call is the one that actually reaches `AddFavoriteRegionAndContinent.down()` and
+      // is the one this test is about.
+      await dataSource.undoLastMigration();
+
       await expect(dataSource.undoLastMigration()).rejects.toThrow(
         /AddFavoriteRegionAndContinent\.down\(\) refuses/,
       );

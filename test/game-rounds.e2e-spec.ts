@@ -43,7 +43,16 @@ describe('Game rounds (e2e, real Postgres)', () => {
     return { Authorization: `Bearer ${token}` };
   }
 
-  async function createUser(email: string): Promise<User> {
+  /**
+   * `overrides` exists for the leaderboard suite (P1 PR-C): it needs users with a REAL,
+   * distinguishing `firstName`/`lastName` to assert the published identity shape against,
+   * where every earlier test in this file only ever needed the fixed
+   * `firstName: 'GameRounds', lastName: 'Test'` default.
+   */
+  async function createUser(
+    email: string,
+    overrides: Partial<Pick<User, 'firstName' | 'lastName'>> = {},
+  ): Promise<User> {
     return dataSource.getRepository(User).save(
       dataSource.getRepository(User).create({
         firstName: 'GameRounds',
@@ -64,6 +73,7 @@ describe('Game rounds (e2e, real Postgres)', () => {
         districtId,
         status: AccountStatus.Active,
         emailVerifiedAt: new Date(),
+        ...overrides,
       }),
     );
   }
@@ -146,6 +156,13 @@ describe('Game rounds (e2e, real Postgres)', () => {
 
     it('GET /api/game-rounds with no Authorization header -> 401, Cache-Control: no-store', async () => {
       const response = await request(app.getHttpServer()).get('/api/game-rounds').expect(401);
+      expect(response.headers['cache-control']).toBe('no-store');
+    });
+
+    it('GET /api/game-rounds/leaderboard with no Authorization header -> 401, Cache-Control: no-store', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/api/game-rounds/leaderboard?mode=provinces')
+        .expect(401);
       expect(response.headers['cache-control']).toBe('no-store');
     });
   });
@@ -549,6 +566,226 @@ describe('Game rounds (e2e, real Postgres)', () => {
         .expect(200);
       const bItems = (bResponse.body as { items: { clientRoundId: string }[] }).items;
       expect(bItems.some((item) => item.clientRoundId === clientRoundId)).toBe(false);
+    });
+  });
+
+  describe('leaderboard — GET /api/game-rounds/leaderboard (P1 PR-C)', () => {
+    /**
+     * Every leaderboard test uses a FRESH, unique mode string — unlike the rest of this file,
+     * which shares `mode: 'provinces'` across cases because `GET /api/game-rounds` is scoped
+     * to one caller's own rows. The leaderboard aggregates ACROSS every user for one mode, so
+     * two tests sharing a mode would see each other's rows.
+     */
+    function uniqueMode(label: string): string {
+      return `lb-${label}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+    }
+
+    /**
+     * Inserts a `game_rounds` row directly via SQL — bypassing `submit()`'s cross-field
+     * validation and the per-user rate limit entirely, mirroring this file's own "schema —
+     * CHECK constraints" section below. Needed here because the ranking tests need exact,
+     * independently-controlled `score`/`totalWrongs`/`firstTry`/`createdAt` combinations that
+     * `validBody()`'s single internally-consistent shape cannot produce.
+     */
+    async function insertRound(overrides: {
+      userId: string;
+      mode: string;
+      score?: number;
+      found?: number;
+      firstTry?: number;
+      total?: number;
+      poolTotal?: number;
+      totalWrongs?: number;
+      endedEarly?: boolean;
+      completionTimeSeconds?: number | null;
+      createdAt?: Date;
+    }): Promise<void> {
+      const {
+        userId,
+        mode,
+        score = 50,
+        found = 40,
+        firstTry = 30,
+        total = 81,
+        poolTotal = 81,
+        totalWrongs = 5,
+        endedEarly = false,
+        completionTimeSeconds = null,
+        createdAt = new Date(),
+      } = overrides;
+      await dataSource.query(
+        `INSERT INTO "game_rounds"
+           ("user_id", "client_round_id", "mode", "score", "found", "first_try", "total",
+            "pool_total", "total_wrongs", "ended_early", "completion_time_seconds", "created_at")
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+        [
+          userId,
+          `lb-insert-${Math.random().toString(36).slice(2)}-${Date.now()}`,
+          mode,
+          score,
+          found,
+          firstTry,
+          total,
+          poolTotal,
+          totalWrongs,
+          endedEarly,
+          completionTimeSeconds,
+          createdAt,
+        ],
+      );
+    }
+
+    it('an unknown/never-played mode -> 200, an empty page (not 404)', async () => {
+      const mode = uniqueMode('empty');
+      const response = await request(app.getHttpServer())
+        .get(`/api/game-rounds/leaderboard?mode=${mode}`)
+        .set(bearer(userAToken))
+        .expect(200);
+      expect(response.headers['cache-control']).toBe('no-store');
+      expect(response.body).toEqual({
+        items: [],
+        page: 1,
+        pageSize: 20,
+        total: 0,
+        hasMore: false,
+        meta: { mode, currentUserRank: null },
+      });
+    });
+
+    it('response items carry no field beyond the ruled identity shape — no lastName, no userId, no e-mail anywhere (structural scan, not an eyeball)', async () => {
+      const mode = uniqueMode('scan');
+      const scanUser = await createUser('game-rounds-lb-scan@example.test', {
+        firstName: 'Ömer Can',
+        lastName: 'Serttürk',
+      });
+      await insertRound({ userId: scanUser.id, mode, score: 80 });
+      const scanToken = await mintFor(scanUser);
+
+      const response = await request(app.getHttpServer())
+        .get(`/api/game-rounds/leaderboard?mode=${mode}`)
+        .set(bearer(scanToken))
+        .expect(200);
+
+      const items = (response.body as { items: Record<string, unknown>[] }).items;
+      expect(items).toHaveLength(1);
+      expect(Object.keys(items[0] as Record<string, unknown>).sort()).toEqual(
+        [
+          'rank',
+          'firstName',
+          'lastNameInitial',
+          'score',
+          'found',
+          'firstTry',
+          'totalWrongs',
+          'completionTimeSeconds',
+          'achievedAt',
+          'isCurrentUser',
+        ].sort(),
+      );
+      expect(items[0]).toMatchObject({
+        firstName: 'Ömer Can',
+        lastNameInitial: 'S',
+        isCurrentUser: true,
+      });
+
+      // Full-body structural scan: the raw JSON must never carry this row's userId, full
+      // surname or e-mail address, under whichever key it might have travelled.
+      const rawBody = JSON.stringify(response.body);
+      expect(rawBody).not.toContain(scanUser.id);
+      expect(rawBody).not.toContain('Serttürk');
+      expect(rawBody).not.toContain('game-rounds-lb-scan@example.test');
+      expect(rawBody).not.toMatch(/"userId"/);
+      expect(rawBody).not.toMatch(/"lastName"/);
+      expect(rawBody).not.toMatch(/"email"/i);
+    });
+
+    it('ended_early rounds are excluded: a high-score abandoned round never becomes a leaderboard entry', async () => {
+      const mode = uniqueMode('ended-early');
+      const abandonedUser = await createUser('game-rounds-lb-abandoned@example.test');
+      await insertRound({ userId: abandonedUser.id, mode, score: 99, endedEarly: true });
+
+      const response = await request(app.getHttpServer())
+        .get(`/api/game-rounds/leaderboard?mode=${mode}`)
+        .set(bearer(userAToken))
+        .expect(200);
+      expect(response.body).toMatchObject({ items: [], total: 0 });
+    });
+
+    it("one user's best round wins over their own worse ones — exactly one row per user, holding the best score", async () => {
+      const mode = uniqueMode('best-round');
+      const bestUser = await createUser('game-rounds-lb-best@example.test');
+      await insertRound({ userId: bestUser.id, mode, score: 40 });
+      await insertRound({ userId: bestUser.id, mode, score: 90 });
+      await insertRound({ userId: bestUser.id, mode, score: 65 });
+
+      const response = await request(app.getHttpServer())
+        .get(`/api/game-rounds/leaderboard?mode=${mode}`)
+        .set(bearer(userAToken))
+        .expect(200);
+      const items = (response.body as { items: { rank: number; score: number }[] }).items;
+      expect(items).toHaveLength(1);
+      expect(items[0]).toMatchObject({ rank: 1, score: 90 });
+    });
+
+    it('the tie-break order is deterministic: equal score/totalWrongs/firstTry -> the EARLIEST achievement wins the tie', async () => {
+      const mode = uniqueMode('tie-break');
+      const earlyUser = await createUser('game-rounds-lb-tie-early@example.test');
+      const lateUser = await createUser('game-rounds-lb-tie-late@example.test');
+      const tieShape = { score: 70, found: 50, firstTry: 40, totalWrongs: 3 };
+      await insertRound({
+        userId: earlyUser.id,
+        mode,
+        ...tieShape,
+        createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      });
+      await insertRound({
+        userId: lateUser.id,
+        mode,
+        ...tieShape,
+        createdAt: new Date('2026-01-02T00:00:00.000Z'),
+      });
+
+      const response = await request(app.getHttpServer())
+        .get(`/api/game-rounds/leaderboard?mode=${mode}`)
+        .set(bearer(userAToken))
+        .expect(200);
+      const items = (response.body as { items: { rank: number; achievedAt: string }[] }).items
+        .slice()
+        .sort((a, b) => a.rank - b.rank);
+      expect(items).toHaveLength(2);
+      expect(items[0]?.rank).toBe(1);
+      expect(items[1]?.rank).toBe(2);
+      // Independently: the WINNER's achievedAt sorts strictly before the loser's — confirming
+      // rank 1 went to the earlier achievement, not merely to an arbitrary equal-score order.
+      expect(Date.parse(items[0]?.achievedAt ?? '')).toBeLessThan(
+        Date.parse(items[1]?.achievedAt ?? ''),
+      );
+    });
+
+    it("meta.currentUserRank reflects the CALLER's own rank in the full ranking, and is null when the caller has no qualifying round", async () => {
+      const mode = uniqueMode('current-rank');
+      const higherUser = await createUser('game-rounds-lb-rank-higher@example.test');
+      const callerUser = await createUser('game-rounds-lb-rank-caller@example.test');
+      const callerToken = await mintFor(callerUser);
+      await insertRound({ userId: higherUser.id, mode, score: 95 });
+      await insertRound({ userId: callerUser.id, mode, score: 60 });
+
+      const withRound = await request(app.getHttpServer())
+        .get(`/api/game-rounds/leaderboard?mode=${mode}`)
+        .set(bearer(callerToken))
+        .expect(200);
+      expect(
+        (withRound.body as { meta: { currentUserRank: number | null } }).meta.currentUserRank,
+      ).toBe(2);
+
+      const emptyMode = uniqueMode('current-rank-none');
+      const noRoundResponse = await request(app.getHttpServer())
+        .get(`/api/game-rounds/leaderboard?mode=${emptyMode}`)
+        .set(bearer(callerToken))
+        .expect(200);
+      expect(
+        (noRoundResponse.body as { meta: { currentUserRank: number | null } }).meta.currentUserRank,
+      ).toBeNull();
     });
   });
 
