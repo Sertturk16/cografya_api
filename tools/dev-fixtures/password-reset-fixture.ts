@@ -89,10 +89,32 @@ import { pickDistrict } from './iris-audit-account-runner.ts';
  * `ssh -L` or `kubectl port-forward` tunnel binds a remote database to a loopback-looking socket
  * and passes this guard unchanged. This is a measured, already-boarded finding
  * (`API-FIXTURE-TUNNEL-GAP`, `TASKS.md`, found against this exact module by PR #131's remedy
- * validator) — it is the ONLY production-safety guard this fixture has, no second gate, exactly
- * as the validator measured for `iris-audit-account-runner.ts`. This file does not fix that gap
- * (board Scope-deferred) and does not pretend the gap is closed: do not run this script with such
- * a tunnel open.
+ * validator) — it is the ONLY production-safety guard `iris-audit-account-runner.ts` has, no
+ * second gate. This file does NOT fix that shared gap (board Scope-deferred, and it stays a
+ * `local-database-guard.ts`-owned weakness, not this file's to close) — but it does not build on
+ * top of it unguarded either, per the ruling that commissioned this fixture (`atlas-karar.md`
+ * §3) and Atlas's own follow-up on this exact PR: unlike `iris-audit-account.ts`, this tool
+ * mints a USABLE credential (a live reset token that changes a password and revokes every
+ * session the moment it is consumed), so a tunnelled run does not merely read production — it
+ * writes a real account and a real live reset token there.
+ *
+ * ## The second, independent gate — `assertOperatorConfirmedLocal` below
+ * A second condition must ALSO hold before any connection opens, chosen specifically to be
+ * blind to `DATABASE_URL` and everything network-shaped about it — the exact axis the loopback
+ * guard already covers and the exact axis a tunnel defeats. It is a single-purpose environment
+ * variable, `PASSWORD_RESET_FIXTURE_CONFIRM`, that must equal an exact, deliberate phrase (not
+ * merely be truthy) and exists nowhere else in this codebase for any other purpose. Two
+ * candidate designs were weighed and one was rejected, recorded rather than silently dropped:
+ * an `NODE_ENV !== 'production'` check (this repo's own established idiom, `docs-gate.ts`'s
+ * `resolveDocsExposure`) was considered and NOT used here, because it provides close to no
+ * independent protection for THIS threat — a developer's shell very commonly already carries
+ * `NODE_ENV=development` ambiently, set once for unrelated work, so it would already be
+ * satisfied in the exact tunnelled-session scenario this gate exists to catch (the operator
+ * debugging a production issue through a tunnel, in the same shell they do ordinary local dev
+ * work in). A bespoke, single-purpose confirmation variable has no such ambient-collision risk:
+ * nothing sets it except a person reading this file (or the printed refusal below) and
+ * deliberately choosing to. It is checked BEFORE the loopback guard, so the operator sees the
+ * more fundamental "did you mean to run this at all" refusal first.
  */
 
 const FIXTURE_EMAIL = 'password-reset-audit@local.test';
@@ -108,6 +130,42 @@ const FIXTURE_STUDY_STREAM = 'DIGER';
 
 /** Mirrors `PASSWORD_RESET_TTL_MINUTES` in `src/auth/auth.constants.ts` — see this file's header. */
 const PASSWORD_RESET_TTL_MINUTES = 30;
+
+/** The second, independent gate's env var + required exact value — see this file's header for
+ * why it is a bespoke phrase rather than any truthy value, and why it is checked before, not
+ * instead of, the loopback guard. */
+const CONFIRM_ENV_VAR = 'PASSWORD_RESET_FIXTURE_CONFIRM';
+const CONFIRM_VALUE = 'i-know-this-database-is-not-a-tunnel';
+
+export class NotConfirmedLocalError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'NotConfirmedLocalError';
+  }
+}
+
+/**
+ * Refuses unless `PASSWORD_RESET_FIXTURE_CONFIRM` is set to the exact required phrase — a check
+ * that reads nothing from `DATABASE_URL` and performs no I/O, so it cannot be coincidentally
+ * satisfied by anything about the target socket. This is deliberately NOT a replacement for
+ * `assertLocalDatabaseUrl` and does not claim to detect a tunnel itself; it exists so a tunnelled
+ * run still needs a second, separate, conscious act from the operator, on top of whatever
+ * `DATABASE_URL` happens to be set to in their shell.
+ */
+function assertOperatorConfirmedLocal(): void {
+  const presented = process.env[CONFIRM_ENV_VAR];
+  if (presented === CONFIRM_VALUE) return;
+  throw new NotConfirmedLocalError(
+    `${CONFIRM_ENV_VAR} is not set to the required value. This fixture mints a USABLE ` +
+      `password-reset credential (a live token that changes a password and revokes every ` +
+      `session on consumption) — the loopback guard alone cannot tell a real local database ` +
+      `from one reached through an ssh -L / kubectl port-forward tunnel ` +
+      `(API-FIXTURE-TUNNEL-GAP), so this refuses until you deliberately confirm, independently ` +
+      `of DATABASE_URL, that this run really targets your own local database:\n` +
+      `  ${CONFIRM_ENV_VAR}='${CONFIRM_VALUE}' DATABASE_URL=... ` +
+      `node tools/dev-fixtures/password-reset-fixture.ts`,
+  );
+}
 
 /** Mirrors `mintOpaqueToken` in `src/auth/opaque-token.ts` — see this file's header. */
 function mintResetToken(): string {
@@ -206,8 +264,13 @@ async function main(): Promise<void> {
     throw new Error('DATABASE_URL is required (read script-locally; no default — fail-fast).');
   }
 
-  // The loopback guard — see this file's header for its real, honest guarantee and its recorded,
-  // deferred gap. No connection is opened, no write happens, before this resolves.
+  // Gate 1/2 — the second, independent gate (see this file's header). Blind to DATABASE_URL by
+  // construction; checked first because it is the cheaper, more fundamental "did you mean this"
+  // refusal.
+  assertOperatorConfirmedLocal();
+
+  // Gate 2/2 — the loopback guard — see this file's header for its real, honest guarantee and
+  // its recorded, deferred gap. No connection is opened, no write happens, before this resolves.
   const target = await assertLocalDatabaseUrl(databaseUrl);
   process.stdout.write(
     `[password-reset-fixture] DATABASE_URL resolved host is loopback: ${target.host}:${target.port} — proceeding.\n`,
@@ -268,7 +331,7 @@ async function main(): Promise<void> {
 }
 
 main().catch((error: unknown) => {
-  if (error instanceof NonLocalDatabaseError) {
+  if (error instanceof NonLocalDatabaseError || error instanceof NotConfirmedLocalError) {
     process.stderr.write(`[password-reset-fixture] REFUSED: ${error.message}\n`);
   } else {
     process.stderr.write(
