@@ -7,12 +7,23 @@ import { toLastNameInitial } from './leaderboard-identity';
  * this is the only place either property is actually pinned.
  */
 describe('toLastNameInitial', () => {
-  it('İnce -> İ (Turkish-locale upper-casing keeps the dotted capital I)', () => {
+  it('İnce -> İ (already dotted-capital; correct under Turkish locale)', () => {
     expect(toLastNameInitial('İnce')).toBe('İ');
   });
 
-  it('Işık -> I (Turkish-locale upper-casing keeps the dotless capital I)', () => {
+  it('Işık -> I (already dotless-capital; correct under Turkish locale)', () => {
     expect(toLastNameInitial('Işık')).toBe('I');
+  });
+
+  it('the Turkish locale is load-bearing, not decorative: a lowercase-starting surname upper-cases differently under tr than under the invariant mapping', () => {
+    // 'İnce'/'Işık' above already START uppercase, so upper-casing them is a no-op under EITHER
+    // mapping and cannot by itself prove `toLocaleUpperCase('tr')` matters (measured: both cases
+    // above pass unchanged if the implementation is edited to plain `.toUpperCase()`). A
+    // lowercase-starting surname is the genuinely discriminating case: the Turkish locale maps
+    // 'i' to the DOTTED capital 'İ' (U+0130), while the invariant/default mapping maps it to the
+    // plain ASCII 'I' (U+0049) — dropping the dot.
+    expect(toLastNameInitial('ince')).toBe('İ');
+    expect(toLastNameInitial('ince')).not.toBe('i'.toUpperCase());
   });
 
   it('a non-BMP first character is read as one whole grapheme via Array.from, not split by index', () => {
