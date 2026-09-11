@@ -22,6 +22,7 @@ import { MeasurementsModule } from './measurements/measurements.module';
 import { ProvinceModule } from './province/province.module';
 import { ReferenceModule } from './reference/reference.module';
 import { RegionModule } from './region/region.module';
+import { VideoIdentityModule } from './video-identity/video-identity.module';
 import { VideoProgressModule } from './video-progress/video-progress.module';
 
 /**
@@ -100,6 +101,10 @@ export const THROTTLE_LIMIT = 120;
     // UYELIK-05: protected read-one/upsert-one video-progress endpoints. No scheduled work, no
     // external provider, no new env key — a plain guarded CRUD-shaped surface over its own table.
     VideoProgressModule,
+    // P2 (UYE-VIDEO-KIMLIK-UCU): the guarded read-one video-identity endpoint. No scheduled work,
+    // no external provider, no new env key, no migration — the anonymous BookVideoDto no longer
+    // carries youtubeVideoId at all (this same PR), and this is where a signed-in member fetches it.
+    VideoIdentityModule,
     // UYELIK-07: protected list/add/remove favorites endpoints (province + country). No scheduled
     // work, no external provider, no new env key, and no change to any Province/Country DTO —
     // the favorites API is keyed externally on plateCode/isoCode and never surfaces either

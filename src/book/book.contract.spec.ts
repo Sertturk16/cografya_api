@@ -93,15 +93,7 @@ describe('openapi/openapi.json — book contract', () => {
       'videos',
       'attribution',
     ],
-    BookVideoDto: [
-      'bookVideoId',
-      'orderNo',
-      'titleTr',
-      'titleEn',
-      'youtubeVideoId',
-      'tags',
-      'youtube',
-    ],
+    BookVideoDto: ['bookVideoId', 'orderNo', 'titleTr', 'titleEn', 'tags', 'youtube'],
     BookVideoTagDto: ['orderNo', 'startSecond', 'nameTr', 'nameEn'],
     BookVideoYoutubeDto: [
       'thumbnailUrl',
@@ -160,6 +152,15 @@ describe('openapi/openapi.json — book contract', () => {
     // references (`ROUTELESS_CONTRACT_MODELS` is empty, so nothing keeps it in on purpose).
     expect(document.components.schemas.BookCoverageDto).toBeUndefined();
     expect(document.components.schemas.BookVideoQuestionDto).toBeUndefined();
+  });
+
+  it('BookVideoDto no longer publishes youtubeVideoId — P2 removed it from the anonymous payload', () => {
+    // Removing it from PUBLISHED_FIELDS above only stops asserting its PRESENCE; it does not
+    // assert its ABSENCE — a schema that still published it would pass a table that simply stopped
+    // checking. This is the positive control that the removal actually reached the artifact.
+    const video = schemaOf('BookVideoDto');
+    expect(video.properties?.youtubeVideoId).toBeUndefined();
+    expect(video.required).not.toContain('youtubeVideoId');
   });
 
   it('publishes both book paths, with the list query contract on the hub', () => {
