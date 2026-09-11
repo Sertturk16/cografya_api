@@ -6465,7 +6465,8 @@
           "accountRole": {
             "enum": [
               "STUDENT",
-              "TEACHER"
+              "TEACHER",
+              "PARENT"
             ],
             "type": "string",
             "example": "STUDENT",
@@ -6479,7 +6480,7 @@
             ],
             "type": "string",
             "example": "SECONDARY",
-            "description": "Yalnız accountRole=STUDENT gönderir; TEACHER bu alanı hiç göndermez (profil matrisi, §6.4)."
+            "description": "Yalnız accountRole=STUDENT|PARENT gönderir; TEACHER bu alanı hiç göndermez (profil matrisi, §6.4)."
           },
           "gradeLevel": {
             "enum": [
@@ -6515,6 +6516,12 @@
             "type": "string",
             "example": "SAYISAL",
             "description": "Yalnız educationLevel=SECONDARY gönderir."
+          },
+          "schoolName": {
+            "type": "string",
+            "maxLength": 200,
+            "example": "Synthetic Lisesi",
+            "description": "Okul adı — yalnız educationLevel=SECONDARY dalında anlamlıdır (öğrenci veya veli); isteğe bağlıdır, kapalı küme değildir, serbest metindir (`GLOSSARY.md` §7.1 `schoolName` alt bloğu, `DEC 2026-09-11g`)."
           },
           "universityName": {
             "type": "string",
@@ -6758,7 +6765,8 @@
           "accountRole": {
             "enum": [
               "STUDENT",
-              "TEACHER"
+              "TEACHER",
+              "PARENT"
             ],
             "type": "string",
             "example": "STUDENT",
@@ -6777,7 +6785,8 @@
           "accountRole": {
             "enum": [
               "STUDENT",
-              "TEACHER"
+              "TEACHER",
+              "PARENT"
             ],
             "type": "string",
             "example": "STUDENT",
@@ -6831,6 +6840,12 @@
             "example": "SAYISAL",
             "description": "Öğrenim alanı / kolu — yalnızca educationLevel = SECONDARY iken geçerlidir."
           },
+          "schoolName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Synthetic Lisesi",
+            "description": "Okul adı — yalnızca educationLevel = SECONDARY iken anlamlıdır, isteğe bağlıdır, kapalı küme değildir (`GLOSSARY.md` §7.1 `schoolName` alt bloğu, `DEC 2026-09-11g`)."
+          },
           "universityName": {
             "type": "string",
             "nullable": true,
@@ -6854,6 +6869,7 @@
           "educationLevel",
           "gradeLevel",
           "studyStream",
+          "schoolName",
           "universityName",
           "departmentName",
           "isComplete"
@@ -6907,6 +6923,12 @@
             "type": "string",
             "description": "Öğrenim alanı (SECONDARY için). null değeri alanı temizlemek için kullanılır."
           },
+          "schoolName": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 200,
+            "description": "Okul adı (SECONDARY için, isteğe bağlı, kapalı küme değil — `GLOSSARY.md` §7.1 `schoolName` alt bloğu, `DEC 2026-09-11g`). null değeri alanı temizlemek için kullanılır."
+          },
           "universityName": {
             "type": "string",
             "nullable": true,
@@ -6922,6 +6944,7 @@
           "educationLevel",
           "gradeLevel",
           "studyStream",
+          "schoolName",
           "universityName",
           "departmentName"
         ]

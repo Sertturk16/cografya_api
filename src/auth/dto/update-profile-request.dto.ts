@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsString, ValidateIf } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsString, MaxLength, ValidateIf } from 'class-validator';
 import { EducationLevel, GradeLevel, StudyStream } from '../account.types';
 import { IsKnownDepartmentName, IsKnownUniversityName } from '../reference-membership';
 
 /**
  * `PUT /api/auth/profile`'s request body (`plan-api.md` §5.3.3, §10.4).
  *
- * Full replacement semantics: all five properties are REQUIRED-but-nullable.
+ * Full replacement semantics: all six properties are REQUIRED-but-nullable.
  * Every key must be present on every request (either a valid value or explicit `null`).
  * An omitted key fails validation with a 400 naming the missing property.
  *
@@ -41,6 +41,19 @@ export class UpdateProfileRequestDto {
   @ValidateIf((_, value: unknown) => value !== null)
   @IsEnum(StudyStream)
   studyStream!: StudyStream | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description:
+      'Okul adı (SECONDARY için, isteğe bağlı, kapalı küme değil — `GLOSSARY.md` §7.1 ' +
+      '`schoolName` alt bloğu, `DEC 2026-09-11g`). null değeri alanı temizlemek için kullanılır.',
+  })
+  @ValidateIf((_, value: unknown) => value !== null)
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(200)
+  schoolName!: string | null;
 
   @ApiProperty({
     type: String,

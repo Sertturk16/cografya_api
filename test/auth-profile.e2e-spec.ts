@@ -53,6 +53,7 @@ describe('Auth Profile (e2e, real Postgres)', () => {
     studyStream: StudyStream | null;
     universityName: string | null;
     departmentName: string | null;
+    schoolName: string | null;
   }
 
   const CLEARED_AXIS: AxisPayload = {
@@ -61,6 +62,7 @@ describe('Auth Profile (e2e, real Postgres)', () => {
     studyStream: null,
     universityName: null,
     departmentName: null,
+    schoolName: null,
   };
 
   const axis = (overrides: Partial<AxisPayload> = {}): AxisPayload => ({

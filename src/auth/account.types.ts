@@ -5,6 +5,11 @@
 export enum AccountRole {
   Student = 'STUDENT',
   Teacher = 'TEACHER',
+  /**
+   * "Veli" (`GLOSSARY.md` §7.1, `DEC 2026-09-10j`). Reuses the STUDENT education axis in full —
+   * this is a declaration, not an authorization, exactly as STUDENT/TEACHER are.
+   */
+  Parent = 'PARENT',
 }
 
 /** Education axis for student accounts; teacher profiles keep it null. */

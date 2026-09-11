@@ -36,7 +36,7 @@ import {
   `"email" <> '' AND "email" = btrim("email") AND "email" = lower("email")`,
 )
 @Check('CHK_users_password_hash', `"password_hash" ~ '^\\$argon2id\\$'`)
-@Check('CHK_users_account_role', `"account_role" IN ('STUDENT', 'TEACHER')`)
+@Check('CHK_users_account_role', `"account_role" IN ('STUDENT', 'TEACHER', 'PARENT')`)
 @Check(
   'CHK_users_education_level',
   `"education_level" IS NULL OR "education_level" IN ('SECONDARY', 'UNDERGRADUATE', 'GRADUATE')`,
@@ -63,33 +63,41 @@ import {
   `"department_name" IS NULL OR (` +
     `"department_name" <> '' AND "department_name" = btrim("department_name"))`,
 )
+@Check(
+  'CHK_users_school_name',
+  `"school_name" IS NULL OR ("school_name" <> '' AND "school_name" = btrim("school_name"))`,
+)
 @Check('CHK_users_status', `"status" IN ('UNVERIFIED', 'ACTIVE', 'DISABLED', 'PENDING_DELETION')`)
-// The outer `IS TRUE` is load-bearing: with `education_level` NULL the STUDENT branch
+// The outer `IS TRUE` is load-bearing: with `education_level` NULL the STUDENT/PARENT branch
 // evaluates to UNKNOWN and a Postgres CHECK accepts UNKNOWN, so the matrix would admit a
-// student carrying branch fields but no declared education level. Folding UNKNOWN to FALSE
-// keeps it fail-closed. Mirrored token for token in
+// student/parent carrying branch fields but no declared education level. Folding UNKNOWN to
+// FALSE keeps it fail-closed. Mirrored token for token in
 // `src/database/migrations/1787562000000-InitUsers.ts`; nothing machine-compares the two.
+// `PARENT` (UYE-P1E, `GLOSSARY.md` §7.1) reuses the STUDENT branches in full via the widened
+// role predicate below — it is not a sixth branch. `school_name` is constrained to IS NULL on
+// every branch except SECONDARY, where it is deliberately left unconstrained (optional,
+// `DEC 2026-09-11g`).
 @Check(
   'CHK_users_profile_shape',
   `((` +
     `"account_role" = 'TEACHER' AND ` +
     `"education_level" IS NULL AND "grade_level" IS NULL AND "study_stream" IS NULL AND ` +
-    `"university_name" IS NULL AND "department_name" IS NULL` +
+    `"university_name" IS NULL AND "department_name" IS NULL AND "school_name" IS NULL` +
     `) OR (` +
-    `"account_role" = 'STUDENT' AND (` +
+    `"account_role" IN ('STUDENT', 'PARENT') AND (` +
     `(` +
     `"education_level" IS NULL AND "grade_level" IS NULL AND "study_stream" IS NULL AND ` +
-    `"university_name" IS NULL AND "department_name" IS NULL` +
+    `"university_name" IS NULL AND "department_name" IS NULL AND "school_name" IS NULL` +
     `) OR (` +
     `"education_level" = 'SECONDARY' AND "grade_level" IS NOT NULL AND ` +
     `"study_stream" IS NOT NULL AND "university_name" IS NULL AND "department_name" IS NULL` +
     `) OR (` +
     `"education_level" = 'UNDERGRADUATE' AND "grade_level" IS NULL AND ` +
     `"study_stream" IS NULL AND "university_name" IS NOT NULL AND ` +
-    `"department_name" IS NOT NULL` +
+    `"department_name" IS NOT NULL AND "school_name" IS NULL` +
     `) OR (` +
     `"education_level" = 'GRADUATE' AND "grade_level" IS NULL AND ` +
-    `"study_stream" IS NULL AND "university_name" IS NOT NULL` +
+    `"study_stream" IS NULL AND "university_name" IS NOT NULL AND "school_name" IS NULL` +
     `)` +
     `)` +
     `)) IS TRUE`,
@@ -137,6 +145,15 @@ export class User {
 
   @Column({ name: 'study_stream', type: 'varchar', length: 20, nullable: true })
   studyStream!: StudyStream | null;
+
+  /**
+   * Free text, not a closed set (`GLOSSARY.md` §7.1 `schoolName` sub-block). Meaningful only
+   * within `education_level = SECONDARY`; optional there and NULL on every other branch
+   * (`CHK_users_profile_shape`). No consuming feature reads it yet, and it must never become
+   * the basis for a school-scoped grouping/ranking (`DEC 2026-09-11g`).
+   */
+  @Column({ name: 'school_name', type: 'varchar', length: 200, nullable: true })
+  schoolName!: string | null;
 
   /** Canonical name from the compile-time reference list, validated in UYELIK-02. */
   @Column({ name: 'university_name', type: 'varchar', length: 200, nullable: true })

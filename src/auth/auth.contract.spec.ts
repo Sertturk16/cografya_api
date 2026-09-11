@@ -177,7 +177,7 @@ describe('openapi/openapi.json — auth contract (AUTH-C1)', () => {
       Record<string, EnumProperty> | undefined;
 
     const expectedMembers: Record<string, string[]> = {
-      accountRole: ['STUDENT', 'TEACHER'],
+      accountRole: ['STUDENT', 'TEACHER', 'PARENT'],
       educationLevel: ['SECONDARY', 'UNDERGRADUATE', 'GRADUATE'],
       gradeLevel: [
         'GRADE_5',

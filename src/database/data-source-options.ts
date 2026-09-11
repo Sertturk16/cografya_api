@@ -60,6 +60,7 @@ import { RenameBookCatalogueGeneric1788300000000 } from './migrations/1788300000
 import { AddGenericBookCatalogueFields1788300060000 } from './migrations/1788300060000-AddGenericBookCatalogueFields';
 import { DropBookDenemeCount1788300120000 } from './migrations/1788300120000-DropBookDenemeCount';
 import { AddFavoriteRegionAndContinent1788310000000 } from './migrations/1788310000000-AddFavoriteRegionAndContinent';
+import { AddSchoolNameAndParentAccountRole1789125265639 } from './migrations/1789125265639-AddSchoolNameAndParentAccountRole';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -287,6 +288,7 @@ export function buildDataSourceOptions(
       AddGenericBookCatalogueFields1788300060000,
       DropBookDenemeCount1788300120000,
       AddFavoriteRegionAndContinent1788310000000,
+      AddSchoolNameAndParentAccountRole1789125265639,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,

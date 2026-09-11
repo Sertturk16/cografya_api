@@ -988,6 +988,16 @@ describe('Favorites (e2e, real Postgres)', () => {
       );
       expect(Number(strayRows[0]?.count ?? 0)).toBeGreaterThan(0);
 
+      // `AddFavoriteRegionAndContinent` is no longer the chain's tail: UYE-P1E's
+      // `AddSchoolNameAndParentAccountRole` was registered after it. `undoLastMigration()` only
+      // ever pops the SINGLE most recent entry, so reaching the migration under test now takes
+      // two pops. The first is expected to succeed cleanly and is asserted as a precondition, not
+      // the property under test — this suite never sets `schoolName` and never registers a
+      // `PARENT` account, so neither of that migration's own down() guards (the explicit
+      // stray-`school_name` guard, the natural CHECK-violation guard on a live `PARENT` row) finds
+      // anything to refuse.
+      await dataSource.undoLastMigration();
+
       await expect(dataSource.undoLastMigration()).rejects.toThrow(
         /AddFavoriteRegionAndContinent\.down\(\) refuses/,
       );

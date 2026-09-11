@@ -226,6 +226,11 @@ describe('Province (e2e)', () => {
       // FK — Continent is an enum type, not a table). `region_id`'s FK means this migration MUST
       // stay ordered after `InitRegions1788200000000`.
       'AddFavoriteRegionAndContinent1788310000000',
+      // UYE-P1E: adds `school_name` to `users`/`pending_registrations` and widens both tables'
+      // `..._account_role`/`..._profile_shape` CHECKs to admit `PARENT` — no new table and no new
+      // foreign key, so no ordering constraint beyond "after the tables it alters" (both already
+      // above).
+      'AddSchoolNameAndParentAccountRole1789125265639',
     ]);
   });
 

@@ -232,6 +232,7 @@ describe('Auth core schema (e2e)', () => {
       'created_at',
       'updated_at',
       'token_version',
+      'school_name',
     ]);
 
     const constraints = await dataSource.query<{ conname: string }[]>(`
@@ -252,6 +253,7 @@ describe('Auth core schema (e2e)', () => {
         'CHK_users_password_hash',
         'CHK_users_phone',
         'CHK_users_profile_shape',
+        'CHK_users_school_name',
         'CHK_users_status',
         'CHK_users_study_stream',
         'CHK_users_university_name',
@@ -397,27 +399,30 @@ describe('Auth core schema (e2e)', () => {
     expect(instanceToPlain(explicitlySelected)).toEqual({});
   });
 
-  it('reverts and reapplies the latest migration (AddFavoriteRegionAndContinent) on empty synthetic tables', async () => {
+  it('reverts and reapplies the latest migration (AddSchoolNameAndParentAccountRole) on empty synthetic tables', async () => {
     // The authority for "which migration is latest" is the explicit `migrations` array in
     // `src/database/data-source-options.ts`, never a directory listing or a timestamp sort
     // (`ENGINEERING.md` §5: "no globs — every migration is registered on purpose"). Its last
-    // entry is now `AddFavoriteRegionAndContinent1788310000000` (P1 PR-A), which pushed
-    // `DropBookDenemeCount` — the migration this test previously exercised — one place up. This
-    // is the same living-test pattern `province.e2e-spec.ts`/`country.e2e-spec.ts` name explicitly
-    // ("adding a migration means editing" the lists that pin it); this file is the third pin of
-    // that class, and the one that exercises the up/down path rather than the order.
+    // entry is now `AddSchoolNameAndParentAccountRole1789125265639` (UYE-P1E), which pushed
+    // `AddFavoriteRegionAndContinent` — the migration this test previously exercised — one place
+    // up. This is the same living-test pattern `province.e2e-spec.ts`/`country.e2e-spec.ts` name
+    // explicitly ("adding a migration means editing" the lists that pin it); this file is the
+    // fourth pin of that class, and the one that exercises the up/down path rather than the order.
     //
-    // The new latest migration widens `favorites` with two NULLABLE columns (`region_id`,
-    // `continent`) and replaces its exclusive-arc CHECK (plan §5.1.1). So the probe is a
-    // column-EXISTENCE check on `favorites.region_id`/`favorites.continent`, plus the literal
-    // definition of `CHK_favorites_exactly_one_target` (to tell the two-branch form `down()`
-    // restores apart from the four-branch `num_nonnulls(...)` form `up()` installs) — this
-    // migration's `up()` adds both and its `down()` removes them again, safely, because this
-    // suite never seeds a `favorites` row (empty-table revert never trips the migration's own
-    // fail-closed stray-row guard). `books.deneme_count`/`CHK_books_deneme_count` — this test's
-    // OWN probe two PRs ago — is now an UNRELATED CONTROL, settled by an EARLIER migration and
-    // expected to stay fixed (absent, per `DropBookDenemeCount`) across this one's revert/reapply
-    // — proving `undoLastMigration()` unwinds only the LATEST entry, never an earlier one.
+    // The new latest migration adds a NULLABLE `school_name` column to `users` AND
+    // `pending_registrations`, widens both tables' `..._account_role` CHECK to admit `PARENT`,
+    // and widens both `..._profile_shape` CHECKs to constrain `school_name` on every branch
+    // except SECONDARY (`plan.md` §5.4). So the probe is a column-EXISTENCE check on
+    // `users.school_name`/`pending_registrations.school_name`, plus the literal definition of
+    // all four widened CHECKs (to tell the widened form `down()` restores apart from the
+    // narrower original) — this migration's `up()` adds all of it and its `down()` removes it
+    // again, safely, because this suite never seeds a `users`/`pending_registrations` row with a
+    // non-null `school_name` (empty-table revert never trips the migration's own fail-closed
+    // stray-row guard). `favorites.region_id`/`continent`/`CHK_favorites_exactly_one_target` —
+    // this test's OWN probe one PR ago — is now an UNRELATED CONTROL, settled by an EARLIER
+    // migration and expected to stay fixed (present, four-branch `num_nonnulls(...)` form) across
+    // this one's revert/reapply — proving `undoLastMigration()` unwinds only the LATEST entry,
+    // never an earlier one.
     const relationSnapshot = async (): Promise<Record<string, string | null> | undefined> => {
       const rows = await dataSource.query<
         {
@@ -549,10 +554,10 @@ describe('Auth core schema (e2e)', () => {
     };
     expect(await denemeCountColumn()).toEqual({ column: null, check: null });
 
-    // The two columns THIS migration's up() adds, and the literal definition of the CHECK it
-    // replaces — the actual probe. The definition text (not just the constraint's presence) is
-    // what tells the four-branch `num_nonnulls(...)` form apart from the two-branch form
-    // `down()` restores.
+    // Unrelated control from the PREVIOUS latest migration (P1 PR-A, `AddFavoriteRegionAndContinent`
+    // — this test's OWN probe one PR ago): both columns and the four-branch CHECK already exist
+    // before THIS migration ever runs, and must stay exactly as unaffected by it as
+    // `book_videos.order_no`, `regions` and `measurements` are.
     const favoritesTargetShape = async (): Promise<{
       regionId: string | null;
       continent: string | null;
@@ -574,44 +579,109 @@ describe('Auth core schema (e2e)', () => {
         checkDefinition: checkRows[0]?.definition ?? null,
       };
     };
-    // `runMigrations()` in `beforeAll` already ran `up()`, so both columns are present and the
-    // CHECK is the four-branch `num_nonnulls(...)` form before this test touches anything.
-    const shapeAfterUp = await favoritesTargetShape();
-    expect(shapeAfterUp.regionId).toBe('region_id');
-    expect(shapeAfterUp.continent).toBe('continent');
-    expect(shapeAfterUp.checkDefinition).toContain('num_nonnulls');
+    const favoritesControlShape = {
+      regionId: 'region_id',
+      continent: 'continent',
+      checkDefinitionContainsNumNonnulls: true,
+    };
+    const assertFavoritesControlUnchanged = async (): Promise<void> => {
+      const shape = await favoritesTargetShape();
+      expect(shape.regionId).toBe(favoritesControlShape.regionId);
+      expect(shape.continent).toBe(favoritesControlShape.continent);
+      expect(shape.checkDefinition).toContain('num_nonnulls');
+    };
+    await assertFavoritesControlUnchanged();
+
+    // The columns and CHECKs THIS migration's up() adds/widens — the actual probe. `school_name`
+    // is checked on BOTH tables (the migration touches `users` and `pending_registrations`
+    // alike), and the CHECK definition text (not just presence) is what tells the widened form
+    // `down()` restores apart from the original, narrower one.
+    const authSchoolNameShape = async (): Promise<{
+      usersSchoolName: string | null;
+      pendingSchoolName: string | null;
+      usersAccountRoleCheck: string | null;
+      usersProfileShapeCheck: string | null;
+      pendingAccountRoleCheck: string | null;
+      pendingProfileShapeCheck: string | null;
+    }> => {
+      const columnRows = await dataSource.query<{ table_name: string; column_name: string }[]>(`
+        SELECT table_name, column_name FROM information_schema.columns
+        WHERE table_schema = 'public' AND column_name = 'school_name'
+          AND table_name IN ('users', 'pending_registrations')
+      `);
+      const presentColumns = new Set(
+        columnRows.map((row) => `${row.table_name}.${row.column_name}`),
+      );
+      const checkRows = await dataSource.query<{ conname: string; definition: string }[]>(`
+        SELECT conname, pg_get_constraintdef(oid) AS definition FROM pg_constraint
+        WHERE conname IN (
+          'CHK_users_account_role', 'CHK_users_profile_shape',
+          'CHK_pending_registrations_account_role', 'CHK_pending_registrations_profile_shape'
+        )
+      `);
+      const checks = new Map(checkRows.map((row) => [row.conname, row.definition]));
+      return {
+        usersSchoolName: presentColumns.has('users.school_name') ? 'school_name' : null,
+        pendingSchoolName: presentColumns.has('pending_registrations.school_name')
+          ? 'school_name'
+          : null,
+        usersAccountRoleCheck: checks.get('CHK_users_account_role') ?? null,
+        usersProfileShapeCheck: checks.get('CHK_users_profile_shape') ?? null,
+        pendingAccountRoleCheck: checks.get('CHK_pending_registrations_account_role') ?? null,
+        pendingProfileShapeCheck: checks.get('CHK_pending_registrations_profile_shape') ?? null,
+      };
+    };
+
+    // `runMigrations()` in `beforeAll` already ran `up()`, so both columns exist and both CHECK
+    // pairs are the widened form before this test touches anything.
+    const shapeAfterUp = await authSchoolNameShape();
+    expect(shapeAfterUp.usersSchoolName).toBe('school_name');
+    expect(shapeAfterUp.pendingSchoolName).toBe('school_name');
+    expect(shapeAfterUp.usersAccountRoleCheck).toContain('PARENT');
+    expect(shapeAfterUp.usersProfileShapeCheck).toContain('school_name');
+    expect(shapeAfterUp.pendingAccountRoleCheck).toContain('PARENT');
+    expect(shapeAfterUp.pendingProfileShapeCheck).toContain('school_name');
 
     await dataSource.undoLastMigration();
 
-    // The revert removes `favorites.region_id`/`favorites.continent` and restores the original
-    // two-branch CHECK — `down()` succeeds here because this suite never seeds a `favorites` row,
-    // so the migration's own fail-closed stray-row guard finds nothing to refuse (plan §5.1.1).
-    // Every table, the previous migrations' own columns, and the unrelated
-    // `sessions.rotation_grace_used_at`, `book_videos.order_no` and `books.deneme_count` controls,
-    // all stay intact.
+    // The revert removes `users.school_name`/`pending_registrations.school_name` and restores the
+    // original, narrower CHECKs on both tables — `down()` succeeds here because this suite never
+    // seeds a row with a non-null `school_name` and never seeds a `PARENT` account, so neither of
+    // the migration's own fail-closed guards (the explicit stray-`school_name` guard, the natural
+    // CHECK-violation guard on a live `PARENT` row) finds anything to refuse. Every table, the
+    // previous migrations' own columns, and the unrelated `sessions.rotation_grace_used_at`,
+    // `book_videos.order_no`, `books.deneme_count` and `favorites` region/continent controls, all
+    // stay intact.
     expect(await relationSnapshot()).toEqual(expectedRelations);
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
     expect(await bookVideoOrderColumn()).toBe('order_no');
     expect(await genericFieldColumns()).toEqual(presentFieldColumns);
     expect(await denemeCountColumn()).toEqual({ column: null, check: null });
-    const shapeAfterDown = await favoritesTargetShape();
-    expect(shapeAfterDown.regionId).toBeNull();
-    expect(shapeAfterDown.continent).toBeNull();
-    expect(shapeAfterDown.checkDefinition).not.toContain('num_nonnulls');
-    expect(shapeAfterDown.checkDefinition).toContain('province_id');
+    await assertFavoritesControlUnchanged();
+    const shapeAfterDown = await authSchoolNameShape();
+    expect(shapeAfterDown.usersSchoolName).toBeNull();
+    expect(shapeAfterDown.pendingSchoolName).toBeNull();
+    expect(shapeAfterDown.usersAccountRoleCheck).not.toContain('PARENT');
+    expect(shapeAfterDown.usersProfileShapeCheck).not.toContain('school_name');
+    expect(shapeAfterDown.pendingAccountRoleCheck).not.toContain('PARENT');
+    expect(shapeAfterDown.pendingProfileShapeCheck).not.toContain('school_name');
 
     await dataSource.runMigrations();
 
-    // Reapply adds the two columns and the four-branch CHECK again, returning to the ORIGINAL
+    // Reapply adds the columns and widens all four CHECKs again, returning to the ORIGINAL
     // (post-`up()`) state.
     expect(await relationSnapshot()).toEqual(expectedRelations);
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
     expect(await bookVideoOrderColumn()).toBe('order_no');
     expect(await genericFieldColumns()).toEqual(presentFieldColumns);
     expect(await denemeCountColumn()).toEqual({ column: null, check: null });
-    const shapeAfterReapply = await favoritesTargetShape();
-    expect(shapeAfterReapply.regionId).toBe('region_id');
-    expect(shapeAfterReapply.continent).toBe('continent');
-    expect(shapeAfterReapply.checkDefinition).toContain('num_nonnulls');
+    await assertFavoritesControlUnchanged();
+    const shapeAfterReapply = await authSchoolNameShape();
+    expect(shapeAfterReapply.usersSchoolName).toBe('school_name');
+    expect(shapeAfterReapply.pendingSchoolName).toBe('school_name');
+    expect(shapeAfterReapply.usersAccountRoleCheck).toContain('PARENT');
+    expect(shapeAfterReapply.usersProfileShapeCheck).toContain('school_name');
+    expect(shapeAfterReapply.pendingAccountRoleCheck).toContain('PARENT');
+    expect(shapeAfterReapply.pendingProfileShapeCheck).toContain('school_name');
   });
 });

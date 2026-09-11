@@ -5,7 +5,7 @@ import { AccountRole, EducationLevel, GradeLevel, StudyStream } from '../account
  * `GET /api/auth/profile` and `PUT /api/auth/profile` response representation
  * (`plan-api.md` §5.3.2, `DEC 2026-09-03a` md.1, `GLOSSARY.md` §7.1).
  *
- * All seven properties are required in the published schema. Nullable properties
+ * All eight properties are required in the published schema. Nullable properties
  * use explicit `null` when undeclared or not applicable to the role/branch.
  */
 export class ProfileDto {
@@ -39,6 +39,16 @@ export class ProfileDto {
     description: 'Öğrenim alanı / kolu — yalnızca educationLevel = SECONDARY iken geçerlidir.',
   })
   studyStream!: StudyStream | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: 'Synthetic Lisesi',
+    description:
+      'Okul adı — yalnızca educationLevel = SECONDARY iken anlamlıdır, isteğe bağlıdır, ' +
+      'kapalı küme değildir (`GLOSSARY.md` §7.1 `schoolName` alt bloğu, `DEC 2026-09-11g`).',
+  })
+  schoolName!: string | null;
 
   @ApiProperty({
     type: String,

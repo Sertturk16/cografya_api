@@ -112,6 +112,7 @@ export type PendingRegistrationDraft = Pick<
   | 'studyStream'
   | 'universityName'
   | 'departmentName'
+  | 'schoolName'
   | 'districtId'
   | 'locale'
 >;
@@ -286,6 +287,7 @@ export class EmailVerificationService {
           studyStream: matched.studyStream,
           universityName: matched.universityName,
           departmentName: matched.departmentName,
+          schoolName: matched.schoolName,
           districtId: matched.districtId,
           status: AccountStatus.Active,
           emailVerifiedAt: now,
@@ -506,6 +508,7 @@ export class EmailVerificationService {
             studyStream: newest.studyStream,
             universityName: newest.universityName,
             departmentName: newest.departmentName,
+            schoolName: newest.schoolName,
             districtId: newest.districtId,
             locale: newest.locale,
           };
