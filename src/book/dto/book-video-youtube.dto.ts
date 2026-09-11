@@ -32,10 +32,17 @@ export class BookVideoYoutubeDto {
   @ApiProperty({
     type: String,
     description:
-      'Thumbnail URL exactly as the provider returned it. NEVER construct this address from the ' +
-      'video id — replacing API Data with independently computed data is barred (Developer ' +
-      'Policies III.E.5). Hotlink it; do not copy, cache or optimise the bytes (III.E.1), which ' +
-      'is why image optimisation is off on this surface.',
+      "The address of the api's OWN cover proxy for this video, keyed on the video's own " +
+      "already-public bookVideoId — never the provider's own address (closes VAL137-NEW-C1/" +
+      'VAL137-C1). Render it exactly like any other image; treat an unavailable cover as a normal ' +
+      "degraded state, because the proxy route's own 404 carries no information about why. The " +
+      'field name, type and required/non-nullable status are unchanged; only the VALUE changed. ' +
+      'The retired warning ("never construct this address from the video id") governed building ' +
+      "the PROVIDER's address from the id (Developer Policies III.E.5) and still holds: the proxy " +
+      'fetches through the STORED, API-verified snapshot server-side only, never reconstructing ' +
+      "the provider's address — the PUBLISHED address here is simply now deliberately ours. Do " +
+      'not copy, cache or optimise the bytes client-side (III.E.1); the proxy itself holds no byte ' +
+      'durably either (no Redis, no disk) — it relays them per request.',
   })
   thumbnailUrl!: string;
 

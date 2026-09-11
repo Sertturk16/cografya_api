@@ -13,6 +13,7 @@ import {
 } from '../src/book/youtube/youtube-snapshot.store';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { seedBooks } from '../src/database/seeds/seed-books';
+import { buildVideoCoverPath } from '../src/video-cover/video-cover-address';
 
 /**
  * B4 e2e — the ageing rule, the purge and the request path, against a REAL Postgres.
@@ -273,9 +274,11 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
         'thumbnailUrl',
         'thumbnailWidth',
       ]);
-      // Republished exactly as stored — never rebuilt from the video id (Developer Policies
-      // III.E.5), which is also why the URL below is one this file wrote rather than one derived.
-      expect(served?.youtube?.thumbnailUrl).toBe('https://example.invalid/thumb.jpg');
+      // P2 (kapak-adresi): the served address is now the api's OWN cover-proxy address, keyed on
+      // bookVideoId — never the raw stored provider-shaped value this file wrote above. Every OTHER
+      // field is still republished exactly as stored (asserted below), which is what proves the
+      // proxy address is the ONLY thing that changed on this object.
+      expect(served?.youtube?.thumbnailUrl).toBe(buildVideoCoverPath(firstBookVideoId));
       expect(served?.youtube?.durationSeconds).toBe(476);
       expect(typeof served?.youtube?.dataFetchedAtUtc).toBe('string');
 
