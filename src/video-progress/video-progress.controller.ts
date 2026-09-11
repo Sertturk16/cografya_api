@@ -13,8 +13,10 @@ import { AccessTokenGuard } from '../auth/access-token.guard';
 import { AUTH_ERROR_KEYS } from '../auth/auth-error-keys';
 import { AuthenticatedUser } from '../auth/authenticated-user';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { BookSlugParams } from '../book/dto/book-slug.params';
 import { ApiErrorDto } from '../common/dto/api-error.dto';
 import { NoTrustedClientExemption } from '../common/throttler/throttler-metadata';
+import { BookProgressDto } from './dto/book-progress.dto';
 import { UpsertVideoProgressRequestDto } from './dto/upsert-video-progress-request.dto';
 import { VideoProgressDto } from './dto/video-progress.dto';
 import { VideoProgressParams } from './dto/video-progress-params.dto';
@@ -44,6 +46,46 @@ import { VideoProgressService } from './video-progress.service';
 @Controller('video-progress')
 export class VideoProgressController {
   constructor(private readonly videoProgress: VideoProgressService) {}
+
+  /**
+   * `GET /api/video-progress/books/{slug}` — the caller's own progress on one BOOK (PR-B plan §5).
+   *
+   * Two path segments, so this never collides with the one-segment `:bookVideoId` route below
+   * regardless of declaration order — Express/Nest match on segment count, not just on literal-vs-
+   * param precedence (plan §5).
+   */
+  @Get('books/:slug')
+  @UseGuards(AccessTokenGuard)
+  @NoTrustedClientExemption()
+  @ApiBearerAuth('access-token')
+  @ApiParam({
+    name: 'slug',
+    description: 'TR or EN slug of the book — the same slug space as GET /api/books/{slug}.',
+  })
+  @ApiOperation({
+    summary: "The caller's own reading progress on one book.",
+    description:
+      "A caller with no progress at all for this book still gets 200: videoCount is the book's " +
+      'own video-row count (the denominator), watchedCount/startedCount default to zero and ' +
+      'resume is null — this route answers "how far am I", which has a valid zero, unlike the ' +
+      'single-video GET\'s "do I have a row here" 404.',
+  })
+  @ApiOkResponse({ type: BookProgressDto })
+  @ApiUnauthorizedResponse({ type: ApiErrorDto, description: AUTH_ERROR_KEYS.unauthenticated })
+  @ApiNotFoundResponse({
+    type: ApiErrorDto,
+    description: VIDEO_PROGRESS_ERROR_KEYS.bookNotFound,
+  })
+  @ApiBadRequestResponse({
+    type: ApiErrorDto,
+    description: 'A malformed slug.',
+  })
+  async getBookProgress(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param() params: BookSlugParams,
+  ): Promise<BookProgressDto> {
+    return this.videoProgress.getBookProgress(user.id, params.slug);
+  }
 
   @Get(':bookVideoId')
   @UseGuards(AccessTokenGuard)

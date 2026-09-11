@@ -2,7 +2,9 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { BookVideo } from '../book/entities/book-video.entity';
+import { Book } from '../book/entities/book.entity';
 import { YoutubeVideoSnapshot } from '../book/entities/youtube-video-snapshot.entity';
+import type { BookProgressDto } from './dto/book-progress.dto';
 import type { VideoProgressDto } from './dto/video-progress.dto';
 import { VideoProgress } from './entities/video-progress.entity';
 import { resolveMaxAllowedPosition } from './video-progress-duration';
@@ -11,8 +13,24 @@ import { VIDEO_PROGRESS_ERROR_KEYS } from './video-progress-error-keys';
 /** Columns an existing row hands over to the incoming one. `created_at` deliberately survives. */
 const UPSERT_OVERWRITE_COLUMNS = ['last_position_seconds', 'watched', 'watched_at', 'updated_at'];
 
+/** Raw shape of the aggregate query in {@link VideoProgressService.getBookProgress}. */
+interface BookProgressAggregateRow {
+  watchedCount: string;
+  startedCount: string;
+}
+
+/** Raw shape of the resume-row query in {@link VideoProgressService.getBookProgress}. */
+interface BookProgressResumeRow {
+  bookVideoId: string;
+  orderNo: number;
+  lastPositionSeconds: number;
+  watched: boolean;
+  updatedAt: Date;
+}
+
 /**
- * Read-one / upsert-one for `video_progress` — both scoped to the caller's own row (plan §5).
+ * Read-one / upsert-one for `video_progress` — both scoped to the caller's own row (plan §5) —
+ * plus the book-level progress aggregate (PR-B plan §5).
  */
 @Injectable()
 export class VideoProgressService {
@@ -23,6 +41,8 @@ export class VideoProgressService {
     private readonly videos: Repository<BookVideo>,
     @InjectRepository(YoutubeVideoSnapshot)
     private readonly snapshots: Repository<YoutubeVideoSnapshot>,
+    @InjectRepository(Book)
+    private readonly books: Repository<Book>,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -91,6 +111,70 @@ export class VideoProgressService {
 
     const row = await this.progress.findOneOrFail({ where: { userId, bookVideoId } });
     return toDto(row);
+  }
+
+  /**
+   * `GET books/{slug}` — the caller's own reading progress on one book (PR-B plan §5).
+   *
+   * `slug` resolves TR-or-Either exactly like `BookService.findBySlug`: an unknown, well-formed
+   * slug is a genuine 404 (`bookNotFound`), never folded into the zero-progress 200 below. Once the
+   * book is resolved, EVERY remaining query is filtered by `userId` — the same cross-user isolation
+   * invariant {@link getOne}/{@link upsert} already carry — so a caller with no progress at all still
+   * gets 200 with `videoCount` from the book's own video rows and `watchedCount`/`startedCount: 0`,
+   * `resume: null`: this route answers "how far am I", which has a valid zero, unlike the
+   * single-video `GET`'s "do I have a row here" 404.
+   *
+   * Two aggregate queries against the caller's own `video_progress` rows joined to this book's
+   * `book_videos` — never a per-video loop — plus one `COUNT` for the denominator (the
+   * `earthquake-read.store.ts` `.getRawOne()` precedent).
+   */
+  async getBookProgress(userId: string, slug: string): Promise<BookProgressDto> {
+    const book = await this.books.findOne({ where: [{ slugTr: slug }, { slugEn: slug }] });
+    if (book === null) throw new NotFoundException(VIDEO_PROGRESS_ERROR_KEYS.bookNotFound);
+
+    const videoCount = await this.videos.count({ where: { bookId: book.id } });
+
+    const aggregate = await this.progress
+      .createQueryBuilder('progress')
+      .innerJoin(BookVideo, 'video', 'video.id = progress.bookVideoId AND video.bookId = :bookId', {
+        bookId: book.id,
+      })
+      .where('progress.userId = :userId', { userId })
+      .select('COUNT(*) FILTER (WHERE progress.watched)', 'watchedCount')
+      .addSelect('COUNT(*)', 'startedCount')
+      .getRawOne<BookProgressAggregateRow>();
+
+    const resumeRow = await this.progress
+      .createQueryBuilder('progress')
+      .innerJoin(BookVideo, 'video', 'video.id = progress.bookVideoId AND video.bookId = :bookId', {
+        bookId: book.id,
+      })
+      .where('progress.userId = :userId', { userId })
+      .select('progress.bookVideoId', 'bookVideoId')
+      .addSelect('video.orderNo', 'orderNo')
+      .addSelect('progress.lastPositionSeconds', 'lastPositionSeconds')
+      .addSelect('progress.watched', 'watched')
+      .addSelect('progress.updatedAt', 'updatedAt')
+      .orderBy('progress.updatedAt', 'DESC')
+      .limit(1)
+      .getRawOne<BookProgressResumeRow>();
+
+    return {
+      bookSlugTr: book.slugTr,
+      videoCount,
+      watchedCount: Number(aggregate?.watchedCount ?? 0),
+      startedCount: Number(aggregate?.startedCount ?? 0),
+      resume:
+        resumeRow === undefined
+          ? null
+          : {
+              bookVideoId: resumeRow.bookVideoId,
+              orderNo: resumeRow.orderNo,
+              lastPositionSeconds: resumeRow.lastPositionSeconds,
+              watched: resumeRow.watched,
+              updatedAt: resumeRow.updatedAt.toISOString(),
+            },
+    };
   }
 }
 

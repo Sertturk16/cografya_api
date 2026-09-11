@@ -2,6 +2,7 @@ import { MiddlewareConsumer, Module, type NestModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { BookVideo } from '../book/entities/book-video.entity';
+import { Book } from '../book/entities/book.entity';
 import { YoutubeVideoSnapshot } from '../book/entities/youtube-video-snapshot.entity';
 import { VideoProgress } from './entities/video-progress.entity';
 import { VideoProgressController } from './video-progress.controller';
@@ -16,9 +17,18 @@ import { VideoProgressService } from './video-progress.service';
  * dependency is `AuthUserLookupService`, not a raw `Repository<User>` — this module only needs
  * `AuthModule`'s export surface (`AccessTokenGuard` + `AuthUserLookupService`) usable, not any
  * repository underneath it.
+ *
+ * `Book` joins `forFeature` here rather than via `BookModule` (PR-B plan §2.3/§5): `BookModule`'s
+ * own `exports` carries no `Book` repository (`[BOOK_YOUTUBE_REFRESH_WARMUP,
+ * BOOK_YOUTUBE_PURGE_WARMUP, YOUTUBE_SNAPSHOT_STORE]`), and importing that whole module would also
+ * pull in its YouTube sync providers and scheduled tours for the sake of one repository this
+ * module needs to resolve a book slug for the new `GET books/{slug}` progress aggregate.
  */
 @Module({
-  imports: [TypeOrmModule.forFeature([VideoProgress, BookVideo, YoutubeVideoSnapshot]), AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([VideoProgress, BookVideo, YoutubeVideoSnapshot, Book]),
+    AuthModule,
+  ],
   controllers: [VideoProgressController],
   providers: [VideoProgressService],
 })
