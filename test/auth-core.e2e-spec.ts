@@ -10,6 +10,7 @@ import {
   StudyStream,
 } from '../src/auth/account.types';
 import { canonicalizeEmail } from '../src/auth/email-canonicalization';
+import { PendingRegistration } from '../src/auth/entities/pending-registration.entity';
 import { User } from '../src/auth/entities/user.entity';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 
@@ -27,6 +28,7 @@ interface UserInsert {
   studyStream: string | null;
   universityName: string | null;
   departmentName: string | null;
+  schoolName: string | null;
   districtId: string;
   status: string;
   emailVerifiedAt: Date | null;
@@ -61,6 +63,7 @@ describe('Auth core schema (e2e)', () => {
     studyStream: null,
     universityName: null,
     departmentName: null,
+    schoolName: null,
     districtId,
     status: AccountStatus.Unverified,
     emailVerifiedAt: null,
@@ -102,9 +105,9 @@ describe('Auth core schema (e2e)', () => {
         INSERT INTO users (
           first_name, last_name, phone, email, password_hash, account_role,
           education_level, grade_level, study_stream, university_name, department_name,
-          district_id, status, email_verified_at
+          school_name, district_id, status, email_verified_at
         ) VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
         )
         RETURNING id, created_at, updated_at
       `,
@@ -120,6 +123,7 @@ describe('Auth core schema (e2e)', () => {
         input.studyStream,
         input.universityName,
         input.departmentName,
+        input.schoolName,
         input.districtId,
         input.status,
         input.emailVerifiedAt,
@@ -162,10 +166,12 @@ describe('Auth core schema (e2e)', () => {
   }, 300_000);
 
   afterEach(async () => {
-    const rows = await dataSource.query<{ relation: string | null }[]>(
-      `SELECT to_regclass('public.users')::text AS relation`,
+    const rows = await dataSource.query<{ users: string | null; pending: string | null }[]>(
+      `SELECT to_regclass('public.users')::text AS users,
+              to_regclass('public.pending_registrations')::text AS pending`,
     );
-    if (rows[0]?.relation !== null) await dataSource.query(`DELETE FROM users`);
+    if (rows[0]?.users !== null) await dataSource.query(`DELETE FROM users`);
+    if (rows[0]?.pending !== null) await dataSource.query(`DELETE FROM pending_registrations`);
   });
 
   afterAll(async () => {
@@ -232,6 +238,7 @@ describe('Auth core schema (e2e)', () => {
       'created_at',
       'updated_at',
       'token_version',
+      'school_name',
     ]);
 
     const constraints = await dataSource.query<{ conname: string }[]>(`
@@ -252,6 +259,7 @@ describe('Auth core schema (e2e)', () => {
         'CHK_users_password_hash',
         'CHK_users_phone',
         'CHK_users_profile_shape',
+        'CHK_users_school_name',
         'CHK_users_status',
         'CHK_users_study_stream',
         'CHK_users_university_name',
@@ -397,28 +405,33 @@ describe('Auth core schema (e2e)', () => {
     expect(instanceToPlain(explicitlySelected)).toEqual({});
   });
 
-  it('reverts and reapplies the latest migration (AddGameRoundsLeaderboardIndex) on empty synthetic tables', async () => {
+  it('reverts and reapplies the latest migration (AddSchoolNameAndParentAccountRole) on empty synthetic tables', async () => {
     // The authority for "which migration is latest" is the explicit `migrations` array in
     // `src/database/data-source-options.ts`, never a directory listing or a timestamp sort
     // (`ENGINEERING.md` §5: "no globs — every migration is registered on purpose"). Its last
-    // entry is now `AddGameRoundsLeaderboardIndex1788400000000` (P1 PR-C), which pushed
-    // `AddFavoriteRegionAndContinent` — the migration this test previously exercised — one place
-    // up. This is the same living-test pattern `province.e2e-spec.ts`/`country.e2e-spec.ts` name
-    // explicitly ("adding a migration means editing" the lists that pin it); this file is the
-    // fourth pin of that class, and the one that exercises the up/down path rather than the
-    // order.
+    // entry is now `AddSchoolNameAndParentAccountRole1789125265639` (UYE-P1E). Between this
+    // integration and the previous round, P1 PR-C's `AddGameRoundsLeaderboardIndex1788400000000`
+    // landed on `dev` and now sits between `AddFavoriteRegionAndContinent` — the migration this
+    // test exercised two PRs ago — and this migration, so BOTH are now earlier, settled
+    // migrations rather than the one under test. This is the same living-test pattern
+    // `province.e2e-spec.ts`/`country.e2e-spec.ts` name explicitly ("adding a migration means
+    // editing" the lists that pin it); this file is the fourth pin of that class, and the one
+    // that exercises the up/down path rather than the order.
     //
-    // The new latest migration adds exactly ONE plain index, `IDX_game_rounds_leaderboard` on
-    // `game_rounds ("mode", "user_id", "score" DESC)` (plan §5.3) — no column, no CHECK, no FK.
-    // So the probe is an index-EXISTENCE check on `game_rounds`: this migration's `up()` creates
-    // it and its `down()` drops it again, unconditionally (a plain `DROP INDEX`, never
-    // fail-closed — there is no row to lose). `favorites.region_id`/`continent` and
-    // `CHK_favorites_exactly_one_target`'s four-branch `num_nonnulls(...)` form — this test's OWN
-    // probe one PR ago — are now an UNRELATED CONTROL, settled by an EARLIER migration
-    // (`AddFavoriteRegionAndContinent`, P1 PR-A) and expected to stay fixed across this one's
-    // revert/reapply — proving `undoLastMigration()` unwinds only the LATEST entry, never an
-    // earlier one. `books.deneme_count`/`CHK_books_deneme_count` stays exactly what it already
-    // was: a second, older unrelated control.
+    // The new latest migration adds a NULLABLE `school_name` column to `users` AND
+    // `pending_registrations`, widens both tables' `..._account_role` CHECK to admit `PARENT`,
+    // and widens both `..._profile_shape` CHECKs to constrain `school_name` on every branch
+    // except SECONDARY (`plan.md` §5.4). So the probe is a column-EXISTENCE check on
+    // `users.school_name`/`pending_registrations.school_name`, plus the literal definition of
+    // all four widened CHECKs (to tell the widened form `down()` restores apart from the
+    // narrower original) — this migration's `up()` adds all of it and its `down()` removes it
+    // again, safely, because this suite never seeds a `users`/`pending_registrations` row with a
+    // non-null `school_name` (empty-table revert never trips the migration's own fail-closed
+    // stray-row guard). `favorites.region_id`/`continent`/`CHK_favorites_exactly_one_target` and
+    // `game_rounds`' `IDX_game_rounds_leaderboard` index — this test's own probes two and one PRs
+    // ago, respectively — are now UNRELATED CONTROLS, settled by earlier migrations and expected
+    // to stay fixed across this one's revert/reapply — proving `undoLastMigration()` unwinds only
+    // the LATEST entry, never an earlier one.
     const relationSnapshot = async (): Promise<Record<string, string | null> | undefined> => {
       const rows = await dataSource.query<
         {
@@ -550,8 +563,8 @@ describe('Auth core schema (e2e)', () => {
     };
     expect(await denemeCountColumn()).toEqual({ column: null, check: null });
 
-    // Unrelated control from the PREVIOUS migration (P1 PR-A, `AddFavoriteRegionAndContinent`
-    // — this test's OWN probe one PR ago): the two columns it added and the four-branch
+    // Unrelated control from an EARLIER migration (P1 PR-A, `AddFavoriteRegionAndContinent` —
+    // this test's own probe two PRs ago): the two columns it added and the four-branch
     // `num_nonnulls(...)` CHECK it installed already exist before THIS migration ever runs, and
     // must stay exactly as unaffected by it as `book_videos.order_no`, `regions` and
     // `measurements` are. The CHECK's literal definition text (not just its presence) is kept in
@@ -578,14 +591,23 @@ describe('Auth core schema (e2e)', () => {
         checkDefinition: checkRows[0]?.definition ?? null,
       };
     };
-    const favoritesShapeUnaffected = {
+    const favoritesControlShape = {
       regionId: 'region_id',
       continent: 'continent',
-      checkDefinition: expect.stringContaining('num_nonnulls'),
+      checkDefinitionContainsNumNonnulls: true,
     };
-    expect(await favoritesTargetShape()).toEqual(favoritesShapeUnaffected);
+    const assertFavoritesControlUnchanged = async (): Promise<void> => {
+      const shape = await favoritesTargetShape();
+      expect(shape.regionId).toBe(favoritesControlShape.regionId);
+      expect(shape.continent).toBe(favoritesControlShape.continent);
+      expect(shape.checkDefinition).toContain('num_nonnulls');
+    };
+    await assertFavoritesControlUnchanged();
 
-    // The index THIS migration's up() creates — the actual probe.
+    // Unrelated control from the PREVIOUS migration (P1 PR-C, `AddGameRoundsLeaderboardIndex` —
+    // this test's own probe one PR ago): the plain index it created on `game_rounds` already
+    // exists before THIS migration ever runs, and must stay exactly as unaffected by it as
+    // `book_videos.order_no`, `regions`, `measurements` and the favourites shape are.
     const leaderboardIndexExists = async (): Promise<boolean> => {
       const rows = await dataSource.query<{ indexname: string }[]>(`
         SELECT indexname FROM pg_indexes
@@ -594,34 +616,161 @@ describe('Auth core schema (e2e)', () => {
       `);
       return rows.length > 0;
     };
-    // `runMigrations()` in `beforeAll` already ran `up()`, so the index is present before this
-    // test touches anything.
     expect(await leaderboardIndexExists()).toBe(true);
+
+    // The columns and CHECKs THIS migration's up() adds/widens — the actual probe. `school_name`
+    // is checked on BOTH tables (the migration touches `users` and `pending_registrations`
+    // alike), and the CHECK definition text (not just presence) is what tells the widened form
+    // `down()` restores apart from the original, narrower one.
+    const authSchoolNameShape = async (): Promise<{
+      usersSchoolName: string | null;
+      pendingSchoolName: string | null;
+      usersAccountRoleCheck: string | null;
+      usersProfileShapeCheck: string | null;
+      pendingAccountRoleCheck: string | null;
+      pendingProfileShapeCheck: string | null;
+    }> => {
+      const columnRows = await dataSource.query<{ table_name: string; column_name: string }[]>(`
+        SELECT table_name, column_name FROM information_schema.columns
+        WHERE table_schema = 'public' AND column_name = 'school_name'
+          AND table_name IN ('users', 'pending_registrations')
+      `);
+      const presentColumns = new Set(
+        columnRows.map((row) => `${row.table_name}.${row.column_name}`),
+      );
+      const checkRows = await dataSource.query<{ conname: string; definition: string }[]>(`
+        SELECT conname, pg_get_constraintdef(oid) AS definition FROM pg_constraint
+        WHERE conname IN (
+          'CHK_users_account_role', 'CHK_users_profile_shape',
+          'CHK_pending_registrations_account_role', 'CHK_pending_registrations_profile_shape'
+        )
+      `);
+      const checks = new Map(checkRows.map((row) => [row.conname, row.definition]));
+      return {
+        usersSchoolName: presentColumns.has('users.school_name') ? 'school_name' : null,
+        pendingSchoolName: presentColumns.has('pending_registrations.school_name')
+          ? 'school_name'
+          : null,
+        usersAccountRoleCheck: checks.get('CHK_users_account_role') ?? null,
+        usersProfileShapeCheck: checks.get('CHK_users_profile_shape') ?? null,
+        pendingAccountRoleCheck: checks.get('CHK_pending_registrations_account_role') ?? null,
+        pendingProfileShapeCheck: checks.get('CHK_pending_registrations_profile_shape') ?? null,
+      };
+    };
+
+    // `runMigrations()` in `beforeAll` already ran `up()`, so both columns exist and both CHECK
+    // pairs are the widened form before this test touches anything.
+    const shapeAfterUp = await authSchoolNameShape();
+    expect(shapeAfterUp.usersSchoolName).toBe('school_name');
+    expect(shapeAfterUp.pendingSchoolName).toBe('school_name');
+    expect(shapeAfterUp.usersAccountRoleCheck).toContain('PARENT');
+    expect(shapeAfterUp.usersProfileShapeCheck).toContain('school_name');
+    expect(shapeAfterUp.pendingAccountRoleCheck).toContain('PARENT');
+    expect(shapeAfterUp.pendingProfileShapeCheck).toContain('school_name');
 
     await dataSource.undoLastMigration();
 
-    // The revert drops `IDX_game_rounds_leaderboard` — unconditionally, per this migration's own
-    // `down()` (there is no row to lose, so there is nothing to refuse). Every table, the
+    // The revert removes `users.school_name`/`pending_registrations.school_name` and restores the
+    // original, narrower CHECKs on both tables — `down()` succeeds here because this suite never
+    // seeds a row with a non-null `school_name` and never seeds a `PARENT` account, so neither of
+    // the migration's own fail-closed guards (the explicit stray-`school_name` guard, the natural
+    // CHECK-violation guard on a live `PARENT` row) finds anything to refuse. Every table, the
     // previous migrations' own columns, and the unrelated `sessions.rotation_grace_used_at`,
-    // `book_videos.order_no`, `books.deneme_count` and favourites-shape controls, all stay
-    // intact.
+    // `book_videos.order_no`, `books.deneme_count`, favourites region/continent and game-rounds
+    // leaderboard-index controls, all stay intact.
     expect(await relationSnapshot()).toEqual(expectedRelations);
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
     expect(await bookVideoOrderColumn()).toBe('order_no');
     expect(await genericFieldColumns()).toEqual(presentFieldColumns);
     expect(await denemeCountColumn()).toEqual({ column: null, check: null });
-    expect(await favoritesTargetShape()).toEqual(favoritesShapeUnaffected);
-    expect(await leaderboardIndexExists()).toBe(false);
+    await assertFavoritesControlUnchanged();
+    expect(await leaderboardIndexExists()).toBe(true);
+    const shapeAfterDown = await authSchoolNameShape();
+    expect(shapeAfterDown.usersSchoolName).toBeNull();
+    expect(shapeAfterDown.pendingSchoolName).toBeNull();
+    expect(shapeAfterDown.usersAccountRoleCheck).not.toContain('PARENT');
+    expect(shapeAfterDown.usersProfileShapeCheck).not.toContain('school_name');
+    expect(shapeAfterDown.pendingAccountRoleCheck).not.toContain('PARENT');
+    expect(shapeAfterDown.pendingProfileShapeCheck).not.toContain('school_name');
+    // SCH170-NEW-M2: `up()` also widens the PROFILE-SHAPE check's own role predicate (not only
+    // `..._account_role`) to `IN ('STUDENT', 'PARENT')` — the four assertions above never probed
+    // that predicate for `PARENT`, only for `school_name`.
+    expect(shapeAfterDown.usersProfileShapeCheck).not.toContain('PARENT');
+    expect(shapeAfterDown.pendingProfileShapeCheck).not.toContain('PARENT');
 
     await dataSource.runMigrations();
 
-    // Reapply creates the index again, returning to the ORIGINAL (post-`up()`) state.
+    // Reapply adds the columns and widens all four CHECKs again, returning to the ORIGINAL
+    // (post-`up()`) state.
     expect(await relationSnapshot()).toEqual(expectedRelations);
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
     expect(await bookVideoOrderColumn()).toBe('order_no');
     expect(await genericFieldColumns()).toEqual(presentFieldColumns);
     expect(await denemeCountColumn()).toEqual({ column: null, check: null });
-    expect(await favoritesTargetShape()).toEqual(favoritesShapeUnaffected);
+    await assertFavoritesControlUnchanged();
     expect(await leaderboardIndexExists()).toBe(true);
+    const shapeAfterReapply = await authSchoolNameShape();
+    expect(shapeAfterReapply.usersSchoolName).toBe('school_name');
+    expect(shapeAfterReapply.pendingSchoolName).toBe('school_name');
+    expect(shapeAfterReapply.usersAccountRoleCheck).toContain('PARENT');
+    expect(shapeAfterReapply.usersProfileShapeCheck).toContain('school_name');
+    expect(shapeAfterReapply.pendingAccountRoleCheck).toContain('PARENT');
+    expect(shapeAfterReapply.pendingProfileShapeCheck).toContain('school_name');
+  });
+
+  describe('migration down() — fail-closed once a non-null school_name value exists (SEC170-NEW-I1/SCH170-NEW-M1)', () => {
+    it('refuses to revert once a school_name value exists, and drops nothing', async () => {
+      await insertUser(secondary({ schoolName: 'Synthetic Guard Lisesi' }));
+
+      await expect(dataSource.undoLastMigration()).rejects.toThrow(
+        /AddSchoolNameAndParentAccountRole\.down\(\) refuses/,
+      );
+
+      const columns = await dataSource.query<{ column_name: string }[]>(`
+        SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'users' AND column_name = 'school_name'
+      `);
+      expect(columns).toHaveLength(1);
+    });
+
+    // The guard sums non-null `school_name` rows across BOTH `users` AND `pending_registrations`
+    // in one query. The case above seeds only `users` — a regression that dropped or broke the
+    // `pending_registrations` half of that sum would still pass it. The realistic hazard is
+    // exactly a candidate that WAS never verified, so its `school_name` never reached `users` at
+    // all; this case seeds `pending_registrations` alone (no `users` row at all) to prove that
+    // half independently, via the same `PendingRegistration` repository `auth-security.e2e-spec.ts`
+    // and `auth-endpoints.e2e-spec.ts` already use for direct candidate fixtures.
+    it('refuses to revert once a school_name value exists only on a pending registration, and drops nothing', async () => {
+      await dataSource.getRepository(PendingRegistration).insert({
+        email: 'synthetic.pending.guard@example.test',
+        passwordHash: SYNTHETIC_PASSWORD_HASH,
+        firstName: 'Synthetic',
+        lastName: 'PendingGuard',
+        phone: '+905000000098',
+        accountRole: AccountRole.Student,
+        educationLevel: EducationLevel.Secondary,
+        gradeLevel: GradeLevel.Grade12,
+        studyStream: StudyStream.Sayisal,
+        universityName: null,
+        departmentName: null,
+        schoolName: 'Synthetic Pending Guard Lisesi',
+        districtId,
+        locale: 'tr',
+        codeHash: Buffer.alloc(32, 7),
+        expiresAt: new Date(Date.now() + 10 * 60_000),
+        attemptCount: 0,
+      });
+
+      await expect(dataSource.undoLastMigration()).rejects.toThrow(
+        /AddSchoolNameAndParentAccountRole\.down\(\) refuses/,
+      );
+
+      const columns = await dataSource.query<{ column_name: string }[]>(`
+        SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'pending_registrations'
+          AND column_name = 'school_name'
+      `);
+      expect(columns).toHaveLength(1);
+    });
   });
 });

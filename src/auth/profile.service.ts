@@ -39,6 +39,7 @@ export class ProfileService {
         studyStream: true,
         universityName: true,
         departmentName: true,
+        schoolName: true,
       },
     });
 
@@ -53,6 +54,7 @@ export class ProfileService {
       studyStream: user.studyStream,
       universityName: user.universityName,
       departmentName: user.departmentName,
+      schoolName: user.schoolName,
       isComplete: isProfileComplete(user.accountRole, user.educationLevel),
     };
   }
@@ -61,9 +63,9 @@ export class ProfileService {
    * Replaces the caller's entire declared education profile (idempotent full replacement).
    *
    * 1. Loads user `{ id, accountRole }`.
-   * 2. Normalizes the 5 fields into local constants (defaulting undefined to null for defensive coding).
+   * 2. Normalizes the 6 fields into local constants (defaulting undefined to null for defensive coding).
    * 3. Validates candidate shape against persisted accountRole (NEVER from request).
-   * 4. Updates exactly the five education columns.
+   * 4. Updates exactly the six education columns.
    * 5. Returns the updated representation with derived `isComplete`.
    */
   async replaceProfile(userId: string, dto: UpdateProfileRequestDto): Promise<ProfileDto> {
@@ -84,6 +86,7 @@ export class ProfileService {
     const studyStream = dto.studyStream ?? null;
     const universityName = dto.universityName ?? null;
     const departmentName = dto.departmentName ?? null;
+    const schoolName = dto.schoolName ?? null;
 
     const valid = isProfileShapeValid({
       accountRole: user.accountRole, // from DB, NEVER from request
@@ -92,6 +95,7 @@ export class ProfileService {
       studyStream,
       universityName,
       departmentName,
+      schoolName,
     });
 
     if (!valid) {
@@ -106,6 +110,7 @@ export class ProfileService {
         studyStream,
         universityName,
         departmentName,
+        schoolName,
       },
     );
 
@@ -120,6 +125,7 @@ export class ProfileService {
       studyStream,
       universityName,
       departmentName,
+      schoolName,
       isComplete: isProfileComplete(user.accountRole, educationLevel),
     };
   }

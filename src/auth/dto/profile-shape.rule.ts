@@ -15,6 +15,7 @@ export interface ProfileShapeCandidate {
   readonly studyStream?: unknown;
   readonly universityName?: unknown;
   readonly departmentName?: unknown;
+  readonly schoolName?: unknown;
 }
 
 const isNil = (value: unknown): boolean => value === undefined || value === null;
@@ -24,16 +25,28 @@ const isNil = (value: unknown): boolean => value === undefined || value === null
  * `CHK_users_profile_shape` (`../entities/user.entity.ts`) enforces in SQL. Two independent
  * enforcements of one rule is deliberate (the DB CHECK is the backstop this class cannot
  * bypass even if it has a bug), so this function's five branches must never diverge from that
- * CHECK's five branches:
- *  - TEACHER: no education field at all.
- *  - STUDENT (minimal): no education field at all (educationLevel absent/null).
- *  - STUDENT + SECONDARY: gradeLevel + studyStream required; university/department forbidden.
- *  - STUDENT + UNDERGRADUATE: university + department required; grade/stream forbidden.
- *  - STUDENT + GRADUATE: university required, department OPTIONAL; grade/stream forbidden.
+ * CHECK's five branches. `PARENT` (`GLOSSARY.md` §7.1, `DEC 2026-09-10j`) reuses the STUDENT
+ * branches in full — the role predicate below admits both roles, not a sixth branch:
+ *  - TEACHER: no education field at all, including `schoolName`.
+ *  - STUDENT/PARENT (minimal): no education field at all (educationLevel absent/null).
+ *  - STUDENT/PARENT + SECONDARY: gradeLevel + studyStream required; university/department
+ *    forbidden; `schoolName` unconstrained (optional, `GLOSSARY.md` §7.1 `schoolName` sub-block,
+ *    `DEC 2026-09-11g`) — the only branch that does not pin it either way.
+ *  - STUDENT/PARENT + UNDERGRADUATE: university + department required; grade/stream/schoolName
+ *    forbidden.
+ *  - STUDENT/PARENT + GRADUATE: university required, department OPTIONAL; grade/stream/
+ *    schoolName forbidden.
  */
 export function isProfileShapeValid(candidate: ProfileShapeCandidate): boolean {
-  const { accountRole, educationLevel, gradeLevel, studyStream, universityName, departmentName } =
-    candidate;
+  const {
+    accountRole,
+    educationLevel,
+    gradeLevel,
+    studyStream,
+    universityName,
+    departmentName,
+    schoolName,
+  } = candidate;
 
   if (accountRole === AccountRole.Teacher) {
     return (
@@ -41,30 +54,41 @@ export function isProfileShapeValid(candidate: ProfileShapeCandidate): boolean {
       isNil(gradeLevel) &&
       isNil(studyStream) &&
       isNil(universityName) &&
-      isNil(departmentName)
+      isNil(departmentName) &&
+      isNil(schoolName)
     );
   }
 
-  if (accountRole === AccountRole.Student) {
-    // Minimal registration (Decision 2-B, DEC 2026-09-03a md.1): student can register
+  if (accountRole === AccountRole.Student || accountRole === AccountRole.Parent) {
+    // Minimal registration (Decision 2-B, DEC 2026-09-03a md.1): student/parent can register
     // without education fields pending post-registration profile onboarding.
     if (isNil(educationLevel)) {
       return (
-        isNil(gradeLevel) && isNil(studyStream) && isNil(universityName) && isNil(departmentName)
+        isNil(gradeLevel) &&
+        isNil(studyStream) &&
+        isNil(universityName) &&
+        isNil(departmentName) &&
+        isNil(schoolName)
       );
     }
     if (educationLevel === EducationLevel.Secondary) {
+      // `schoolName` is deliberately NOT checked here — present or absent, either is valid
+      // (§5.1, `DEC 2026-09-11g`: optional, no consuming feature yet).
       return (
         !isNil(gradeLevel) && !isNil(studyStream) && isNil(universityName) && isNil(departmentName)
       );
     }
     if (educationLevel === EducationLevel.Undergraduate) {
       return (
-        isNil(gradeLevel) && isNil(studyStream) && !isNil(universityName) && !isNil(departmentName)
+        isNil(gradeLevel) &&
+        isNil(studyStream) &&
+        !isNil(universityName) &&
+        !isNil(departmentName) &&
+        isNil(schoolName)
       );
     }
     if (educationLevel === EducationLevel.Graduate) {
-      return isNil(gradeLevel) && isNil(studyStream) && !isNil(universityName);
+      return isNil(gradeLevel) && isNil(studyStream) && !isNil(universityName) && isNil(schoolName);
     }
     return false;
   }
@@ -74,8 +98,10 @@ export function isProfileShapeValid(candidate: ProfileShapeCandidate): boolean {
 
 export const PROFILE_SHAPE_MESSAGE =
   'profile fields do not match the required combination for the declared accountRole/' +
-  'educationLevel (teacher/minimal student: no education fields; secondary: gradeLevel+studyStream only; ' +
-  'undergraduate: university+department only; graduate: university required, department optional)';
+  'educationLevel (teacher/minimal student or parent: no education fields; secondary: ' +
+  'gradeLevel+studyStream required, schoolName optional; undergraduate: university+department ' +
+  'only; graduate: university required, department optional; schoolName only allowed within ' +
+  'the secondary branch)';
 
 /**
  * Returns whether the profile is complete for the given role and education level

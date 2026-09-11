@@ -103,7 +103,8 @@ export class RegisterRequestDto {
     enum: EducationLevel,
     example: EducationLevel.Secondary,
     description:
-      'Yalnız accountRole=STUDENT gönderir; TEACHER bu alanı hiç göndermez (profil matrisi, §6.4).',
+      'Yalnız accountRole=STUDENT|PARENT gönderir; TEACHER bu alanı hiç göndermez (profil ' +
+      'matrisi, §6.4).',
   })
   @IsOptional()
   @IsEnum(EducationLevel)
@@ -126,6 +127,21 @@ export class RegisterRequestDto {
   @IsOptional()
   @IsEnum(StudyStream)
   studyStream?: StudyStream;
+
+  @ApiPropertyOptional({
+    example: 'Synthetic Lisesi',
+    maxLength: 200,
+    description:
+      'Okul adı — yalnız educationLevel=SECONDARY dalında anlamlıdır (öğrenci veya veli); ' +
+      'isteğe bağlıdır, kapalı küme değildir, serbest metindir (`GLOSSARY.md` §7.1 `schoolName` ' +
+      'alt bloğu, `DEC 2026-09-11g`).',
+  })
+  @Transform(({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value))
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(200)
+  schoolName?: string;
 
   @ApiPropertyOptional({
     example: 'Boğaziçi Üniversitesi',

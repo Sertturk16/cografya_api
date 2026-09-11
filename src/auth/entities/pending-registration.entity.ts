@@ -96,7 +96,10 @@ import type { MailLocale } from '../mail/mailer.port';
   `"email" <> '' AND "email" = btrim("email") AND "email" = lower("email")`,
 )
 @Check('CHK_pending_registrations_password_hash', `"password_hash" ~ '^\\$argon2id\\$'`)
-@Check('CHK_pending_registrations_account_role', `"account_role" IN ('STUDENT', 'TEACHER')`)
+@Check(
+  'CHK_pending_registrations_account_role',
+  `"account_role" IN ('STUDENT', 'TEACHER', 'PARENT')`,
+)
 @Check(
   'CHK_pending_registrations_education_level',
   `"education_level" IS NULL OR "education_level" IN ('SECONDARY', 'UNDERGRADUATE', 'GRADUATE')`,
@@ -123,30 +126,35 @@ import type { MailLocale } from '../mail/mailer.port';
   `"department_name" IS NULL OR (` +
     `"department_name" <> '' AND "department_name" = btrim("department_name"))`,
 )
+@Check(
+  'CHK_pending_registrations_school_name',
+  `"school_name" IS NULL OR ("school_name" <> '' AND "school_name" = btrim("school_name"))`,
+)
 // The outer `IS TRUE` is load-bearing for the same reason it is on `users`: with
-// `education_level` NULL the STUDENT branch evaluates to UNKNOWN and a Postgres CHECK accepts
-// UNKNOWN. Mirrored token for token from `user.entity.ts`'s `CHK_users_profile_shape`.
+// `education_level` NULL the STUDENT/PARENT branch evaluates to UNKNOWN and a Postgres CHECK
+// accepts UNKNOWN. Mirrored token for token from `user.entity.ts`'s `CHK_users_profile_shape`,
+// `PARENT` widening and `school_name` predicates included (`GLOSSARY.md` §7.1, `DEC 2026-09-11g`).
 @Check(
   'CHK_pending_registrations_profile_shape',
   `((` +
     `"account_role" = 'TEACHER' AND ` +
     `"education_level" IS NULL AND "grade_level" IS NULL AND "study_stream" IS NULL AND ` +
-    `"university_name" IS NULL AND "department_name" IS NULL` +
+    `"university_name" IS NULL AND "department_name" IS NULL AND "school_name" IS NULL` +
     `) OR (` +
-    `"account_role" = 'STUDENT' AND (` +
+    `"account_role" IN ('STUDENT', 'PARENT') AND (` +
     `(` +
     `"education_level" IS NULL AND "grade_level" IS NULL AND "study_stream" IS NULL AND ` +
-    `"university_name" IS NULL AND "department_name" IS NULL` +
+    `"university_name" IS NULL AND "department_name" IS NULL AND "school_name" IS NULL` +
     `) OR (` +
     `"education_level" = 'SECONDARY' AND "grade_level" IS NOT NULL AND ` +
     `"study_stream" IS NOT NULL AND "university_name" IS NULL AND "department_name" IS NULL` +
     `) OR (` +
     `"education_level" = 'UNDERGRADUATE' AND "grade_level" IS NULL AND ` +
     `"study_stream" IS NULL AND "university_name" IS NOT NULL AND ` +
-    `"department_name" IS NOT NULL` +
+    `"department_name" IS NOT NULL AND "school_name" IS NULL` +
     `) OR (` +
     `"education_level" = 'GRADUATE' AND "grade_level" IS NULL AND ` +
-    `"study_stream" IS NULL AND "university_name" IS NOT NULL` +
+    `"study_stream" IS NULL AND "university_name" IS NOT NULL AND "school_name" IS NULL` +
     `)` +
     `)` +
     `)) IS TRUE`,
@@ -189,6 +197,11 @@ export class PendingRegistration {
 
   @Column({ name: 'study_stream', type: 'varchar', length: 20, nullable: true })
   studyStream!: StudyStream | null;
+
+  /** Free text, not a closed set — see `user.entity.ts`'s `schoolName` docblock; copied verbatim
+   * on materialization like every other profile column here. */
+  @Column({ name: 'school_name', type: 'varchar', length: 200, nullable: true })
+  schoolName!: string | null;
 
   @Column({ name: 'university_name', type: 'varchar', length: 200, nullable: true })
   universityName!: string | null;

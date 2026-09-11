@@ -290,6 +290,11 @@ describe('Country (e2e)', () => {
       // P1 PR-C: one plain index on the existing `game_rounds` table for the leaderboard read —
       // no FK, no ordering constraint against any other migration here.
       'AddGameRoundsLeaderboardIndex1788400000000',
+      // UYE-P1E: adds `school_name` to `users`/`pending_registrations` and widens both tables'
+      // `..._account_role`/`..._profile_shape` CHECKs to admit `PARENT` — no new table and no new
+      // foreign key, so no ordering constraint beyond "after the tables it alters" (both already
+      // above).
+      'AddSchoolNameAndParentAccountRole1789125265639',
     ]);
   });
 

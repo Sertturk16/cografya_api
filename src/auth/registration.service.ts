@@ -97,6 +97,7 @@ export class RegistrationService {
       studyStream: dto.studyStream ?? null,
       universityName: dto.universityName ?? null,
       departmentName: dto.departmentName ?? null,
+      schoolName: dto.schoolName ?? null,
       districtId: dto.districtId,
       locale: dto.locale,
     });

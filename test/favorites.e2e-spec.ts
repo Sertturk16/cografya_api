@@ -989,11 +989,20 @@ describe('Favorites (e2e, real Postgres)', () => {
       expect(Number(strayRows[0]?.count ?? 0)).toBeGreaterThan(0);
 
       // `AddFavoriteRegionAndContinent` is no longer the literal tip of the registered
-      // `migrations` array — P1 PR-C's `AddGameRoundsLeaderboardIndex` landed after it. The
-      // first `undoLastMigration()` therefore reverts THAT one (a plain, unconditional
-      // `DROP INDEX` on `game_rounds` — nothing about favourites, and nothing to refuse); the
-      // SECOND call is the one that actually reaches `AddFavoriteRegionAndContinent.down()` and
-      // is the one this test is about.
+      // `migrations` array — TWO migrations landed after it since this suite last checked:
+      // UYE-P1E's `AddSchoolNameAndParentAccountRole` (the current tail) and, before it, P1 PR-C's
+      // `AddGameRoundsLeaderboardIndex`. `undoLastMigration()` only ever pops the SINGLE most
+      // recent entry, so reaching the migration under test now takes THREE pops. The first
+      // reverts `AddSchoolNameAndParentAccountRole` — awaited but not independently asserted (an
+      // unhandled rejection here would still fail the test, but nothing below checks its outcome
+      // directly); it is expected to succeed cleanly since this suite never sets `schoolName` and
+      // never registers a `PARENT` account, so neither of that migration's own down() guards (the
+      // explicit stray-`school_name` guard, the natural CHECK-violation guard on a live `PARENT`
+      // row) finds anything to refuse. The second reverts `AddGameRoundsLeaderboardIndex` (a
+      // plain, unconditional `DROP INDEX` on `game_rounds` — nothing about favourites, and nothing
+      // to refuse); also awaited but not independently asserted. The THIRD call is the one that
+      // actually reaches `AddFavoriteRegionAndContinent.down()` and is the one this test is about.
+      await dataSource.undoLastMigration();
       await dataSource.undoLastMigration();
 
       await expect(dataSource.undoLastMigration()).rejects.toThrow(
