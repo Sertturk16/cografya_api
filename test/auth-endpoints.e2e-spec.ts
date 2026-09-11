@@ -348,11 +348,36 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
         consumedAt: null,
       });
 
+      const beforeUser = await dataSource
+        .getRepository(User)
+        .findOneOrFail({ where: { id: userId } });
+      const tokenVersionBefore = beforeUser.tokenVersion;
+
+      const liveLogin = await request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send({ email, password: 'New-Synthetic-Pass2' })
+        .expect(HttpStatus.OK);
+      const liveAccessToken = (liveLogin.body as { accessToken: string }).accessToken;
+      await request(app.getHttpServer())
+        .get('/api/auth/session')
+        .set('Authorization', `Bearer ${liveAccessToken}`)
+        .expect(HttpStatus.OK);
+
       const verifyResponse = await request(app.getHttpServer())
         .post('/api/auth/password-reset/verify')
         .send({ resetToken: tokenPlain })
         .expect(HttpStatus.NO_CONTENT);
       expect(verifyResponse.headers['cache-control']).toBe('no-store');
+
+      const afterUser = await dataSource
+        .getRepository(User)
+        .findOneOrFail({ where: { id: userId } });
+      expect(afterUser.tokenVersion).toBe(tokenVersionBefore);
+
+      await request(app.getHttpServer())
+        .get('/api/auth/session')
+        .set('Authorization', `Bearer ${liveAccessToken}`)
+        .expect(HttpStatus.OK);
 
       // The whole point: verify did not consume it, so confirm still accepts the same token.
       await request(app.getHttpServer())
@@ -385,6 +410,9 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
 
       const unknownPlain = mintOpaqueToken();
 
+      // The consumed-token row is never returned by verifyResetToken's own query
+      // (`consumedAt: IsNull()`), so it exercises the same `!token` branch as the unknown-token
+      // case, not a third distinct runtime path — this loop still guards the query filter itself.
       for (const resetToken of [expiredPlain, consumedPlain, unknownPlain]) {
         const response = await request(app.getHttpServer())
           .post('/api/auth/password-reset/verify')

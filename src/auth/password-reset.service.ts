@@ -73,15 +73,16 @@ export class PasswordResetService {
    * Hiçbir `UPDATE`/`INSERT`/`DELETE` çalıştırmaz: `consumedAt` yazılmaz, `token_version`
    * artmaz, hiçbir oturum iptal edilmez. Bu yüzden `verify` sonrası aynı jeton `confirmReset`
    * tarafından hâlâ kullanılabilir olmalıdır (non-consumption property, §5.4).
+   *
+   * Bu uç, önceden var olmayan sessiz ve tekrarlanabilir bir kontrol kanalı açar; bu, jetonun
+   * 256 bit entropisine ve `PASSWORD_RESET_TTL_MINUTES` ömrüne dayanarak bilinçli olarak kabul
+   * edilmiş bir artık risktir (`atlas-karar.md`, `SEC167-I1`) — jetonun ömrü belirgin biçimde
+   * uzarsa ya da jeton bir günlüğe/analitiğe/yönlendirme başlığına sızabilir hale gelirse bu
+   * karar yeniden açılır.
    */
   async verifyResetToken(presentedToken: string): Promise<void> {
-    const tokenHash = sha256(presentedToken);
-    const token = await this.resetTokens.findOne({
-      where: { tokenHash, consumedAt: IsNull() },
-    });
-    if (!token || token.expiresAt.getTime() <= Date.now()) {
-      throw new BadRequestException(AUTH_ERROR_KEYS.resetTokenInvalid);
-    }
+    const token = await this.resolveValidToken(presentedToken);
+    if (!token) throw new BadRequestException(AUTH_ERROR_KEYS.resetTokenInvalid);
   }
 
   /**
@@ -90,13 +91,8 @@ export class PasswordResetService {
    * zaten adresi taşımaz.
    */
   async confirmReset(presentedToken: string, newPassword: string): Promise<void> {
-    const tokenHash = sha256(presentedToken);
-    const token = await this.resetTokens.findOne({
-      where: { tokenHash, consumedAt: IsNull() },
-    });
-    if (!token || token.expiresAt.getTime() <= Date.now()) {
-      throw new BadRequestException(AUTH_ERROR_KEYS.resetTokenInvalid);
-    }
+    const token = await this.resolveValidToken(presentedToken);
+    if (!token) throw new BadRequestException(AUTH_ERROR_KEYS.resetTokenInvalid);
 
     const passwordHash = await this.passwordHasher.hash(newPassword);
     const now = new Date();
@@ -121,6 +117,18 @@ export class PasswordResetService {
       );
     });
     // 204, no body: reset does NOT open a session — the user logs in again (§5.4.3).
+  }
+
+  /**
+   * `verifyResetToken` ve `confirmReset`'in paylaştığı geçerlilik denetimi (`CODE167-NEW-M1`):
+   * jeton mevcut, tüketilmemiş ve süresi geçmemiş bir satırın hash'ine eşleşiyorsa o satırı
+   * döner, aksi halde `null` — çağıran taraf hata mesajını kendi bağlamına göre fırlatır.
+   */
+  private async resolveValidToken(presentedToken: string): Promise<PasswordResetToken | null> {
+    const tokenHash = sha256(presentedToken);
+    const token = await this.resetTokens.findOne({ where: { tokenHash, consumedAt: IsNull() } });
+    if (!token || token.expiresAt.getTime() <= Date.now()) return null;
+    return token;
   }
 
   /** §8's fail-soft envelope: a 10s timeout, never a 5xx, one address/code/token-free log line. */
