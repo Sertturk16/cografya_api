@@ -357,11 +357,26 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
         .post('/api/auth/login')
         .send({ email, password: 'New-Synthetic-Pass2' })
         .expect(HttpStatus.OK);
-      const liveAccessToken = (liveLogin.body as { accessToken: string }).accessToken;
+      const liveLoginBody = liveLogin.body as { accessToken: string; refreshToken: string };
+      const liveAccessToken = liveLoginBody.accessToken;
       await request(app.getHttpServer())
         .get('/api/auth/session')
         .set('Authorization', `Bearer ${liveAccessToken}`)
         .expect(HttpStatus.OK);
+
+      // SEC167R2-NEW-I1: the two checks above only ever read `users` (tokenVersion, then the
+      // same value again through the guarded route) — neither can observe `sessions`, so
+      // neither proves the docblock's third promise ("hiçbir oturum iptal edilmez"). This reads
+      // the live family's OWN Session row directly, the same idiom N4/N5 already use in this
+      // file, and pins a concrete value rather than an "unchanged" delta: a regression that
+      // copies confirmReset's Session-revocation step into verifyResetToken sets both fields
+      // below to a non-null value, which is the only way this specific expectation can fail.
+      const liveSessionHash = createHash('sha256').update(liveLoginBody.refreshToken).digest();
+      const liveSessionRow = await dataSource
+        .getRepository(Session)
+        .findOneOrFail({ where: { tokenHash: liveSessionHash } });
+      expect(liveSessionRow.revokedAt).toBeNull();
+      expect(liveSessionRow.revokedReason).toBeNull();
 
       const verifyResponse = await request(app.getHttpServer())
         .post('/api/auth/password-reset/verify')
@@ -378,6 +393,12 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
         .get('/api/auth/session')
         .set('Authorization', `Bearer ${liveAccessToken}`)
         .expect(HttpStatus.OK);
+
+      const afterSessionRow = await dataSource
+        .getRepository(Session)
+        .findOneOrFail({ where: { id: liveSessionRow.id } });
+      expect(afterSessionRow.revokedAt).toBeNull();
+      expect(afterSessionRow.revokedReason).toBeNull();
 
       // The whole point: verify did not consume it, so confirm still accepts the same token.
       await request(app.getHttpServer())
