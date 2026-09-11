@@ -30,8 +30,9 @@ import { GameRoundsService } from './game-rounds.service';
 })
 export class GameRoundsModule implements NestModule {
   /**
-   * `Cache-Control: no-store` on both routes this module registers — see
-   * {@link GameRoundsNoStoreMiddleware}'s own docblock for the full mechanism.
+   * `Cache-Control: no-store` on every route this module registers (three, since P1 PR-C added
+   * `leaderboard`) — see {@link GameRoundsNoStoreMiddleware}'s own docblock for the full
+   * mechanism.
    */
   configure(consumer: MiddlewareConsumer): void {
     consumer.apply(GameRoundsNoStoreMiddleware).forRoutes(GameRoundsController);

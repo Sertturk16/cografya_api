@@ -397,27 +397,28 @@ describe('Auth core schema (e2e)', () => {
     expect(instanceToPlain(explicitlySelected)).toEqual({});
   });
 
-  it('reverts and reapplies the latest migration (AddFavoriteRegionAndContinent) on empty synthetic tables', async () => {
+  it('reverts and reapplies the latest migration (AddGameRoundsLeaderboardIndex) on empty synthetic tables', async () => {
     // The authority for "which migration is latest" is the explicit `migrations` array in
     // `src/database/data-source-options.ts`, never a directory listing or a timestamp sort
     // (`ENGINEERING.md` §5: "no globs — every migration is registered on purpose"). Its last
-    // entry is now `AddFavoriteRegionAndContinent1788310000000` (P1 PR-A), which pushed
-    // `DropBookDenemeCount` — the migration this test previously exercised — one place up. This
-    // is the same living-test pattern `province.e2e-spec.ts`/`country.e2e-spec.ts` name explicitly
-    // ("adding a migration means editing" the lists that pin it); this file is the third pin of
-    // that class, and the one that exercises the up/down path rather than the order.
+    // entry is now `AddGameRoundsLeaderboardIndex1788400000000` (P1 PR-C), which pushed
+    // `AddFavoriteRegionAndContinent` — the migration this test previously exercised — one place
+    // up. This is the same living-test pattern `province.e2e-spec.ts`/`country.e2e-spec.ts` name
+    // explicitly ("adding a migration means editing" the lists that pin it); this file is the
+    // fourth pin of that class, and the one that exercises the up/down path rather than the
+    // order.
     //
-    // The new latest migration widens `favorites` with two NULLABLE columns (`region_id`,
-    // `continent`) and replaces its exclusive-arc CHECK (plan §5.1.1). So the probe is a
-    // column-EXISTENCE check on `favorites.region_id`/`favorites.continent`, plus the literal
-    // definition of `CHK_favorites_exactly_one_target` (to tell the two-branch form `down()`
-    // restores apart from the four-branch `num_nonnulls(...)` form `up()` installs) — this
-    // migration's `up()` adds both and its `down()` removes them again, safely, because this
-    // suite never seeds a `favorites` row (empty-table revert never trips the migration's own
-    // fail-closed stray-row guard). `books.deneme_count`/`CHK_books_deneme_count` — this test's
-    // OWN probe two PRs ago — is now an UNRELATED CONTROL, settled by an EARLIER migration and
-    // expected to stay fixed (absent, per `DropBookDenemeCount`) across this one's revert/reapply
-    // — proving `undoLastMigration()` unwinds only the LATEST entry, never an earlier one.
+    // The new latest migration adds exactly ONE plain index, `IDX_game_rounds_leaderboard` on
+    // `game_rounds ("mode", "user_id", "score" DESC)` (plan §5.3) — no column, no CHECK, no FK.
+    // So the probe is an index-EXISTENCE check on `game_rounds`: this migration's `up()` creates
+    // it and its `down()` drops it again, unconditionally (a plain `DROP INDEX`, never
+    // fail-closed — there is no row to lose). `favorites.region_id`/`continent` and
+    // `CHK_favorites_exactly_one_target`'s four-branch `num_nonnulls(...)` form — this test's OWN
+    // probe one PR ago — are now an UNRELATED CONTROL, settled by an EARLIER migration
+    // (`AddFavoriteRegionAndContinent`, P1 PR-A) and expected to stay fixed across this one's
+    // revert/reapply — proving `undoLastMigration()` unwinds only the LATEST entry, never an
+    // earlier one. `books.deneme_count`/`CHK_books_deneme_count` stays exactly what it already
+    // was: a second, older unrelated control.
     const relationSnapshot = async (): Promise<Record<string, string | null> | undefined> => {
       const rows = await dataSource.query<
         {
@@ -549,10 +550,13 @@ describe('Auth core schema (e2e)', () => {
     };
     expect(await denemeCountColumn()).toEqual({ column: null, check: null });
 
-    // The two columns THIS migration's up() adds, and the literal definition of the CHECK it
-    // replaces — the actual probe. The definition text (not just the constraint's presence) is
-    // what tells the four-branch `num_nonnulls(...)` form apart from the two-branch form
-    // `down()` restores.
+    // Unrelated control from the PREVIOUS migration (P1 PR-A, `AddFavoriteRegionAndContinent`
+    // — this test's OWN probe one PR ago): the two columns it added and the four-branch
+    // `num_nonnulls(...)` CHECK it installed already exist before THIS migration ever runs, and
+    // must stay exactly as unaffected by it as `book_videos.order_no`, `regions` and
+    // `measurements` are. The CHECK's literal definition text (not just its presence) is kept in
+    // the assertion so a regression that silently reverted it back to the two-branch form would
+    // be caught here even though this test no longer exercises that migration's own up/down.
     const favoritesTargetShape = async (): Promise<{
       regionId: string | null;
       continent: string | null;
@@ -574,44 +578,50 @@ describe('Auth core schema (e2e)', () => {
         checkDefinition: checkRows[0]?.definition ?? null,
       };
     };
-    // `runMigrations()` in `beforeAll` already ran `up()`, so both columns are present and the
-    // CHECK is the four-branch `num_nonnulls(...)` form before this test touches anything.
-    const shapeAfterUp = await favoritesTargetShape();
-    expect(shapeAfterUp.regionId).toBe('region_id');
-    expect(shapeAfterUp.continent).toBe('continent');
-    expect(shapeAfterUp.checkDefinition).toContain('num_nonnulls');
+    const favoritesShapeUnaffected = {
+      regionId: 'region_id',
+      continent: 'continent',
+      checkDefinition: expect.stringContaining('num_nonnulls'),
+    };
+    expect(await favoritesTargetShape()).toEqual(favoritesShapeUnaffected);
+
+    // The index THIS migration's up() creates — the actual probe.
+    const leaderboardIndexExists = async (): Promise<boolean> => {
+      const rows = await dataSource.query<{ indexname: string }[]>(`
+        SELECT indexname FROM pg_indexes
+        WHERE schemaname = 'public' AND tablename = 'game_rounds'
+          AND indexname = 'IDX_game_rounds_leaderboard'
+      `);
+      return rows.length > 0;
+    };
+    // `runMigrations()` in `beforeAll` already ran `up()`, so the index is present before this
+    // test touches anything.
+    expect(await leaderboardIndexExists()).toBe(true);
 
     await dataSource.undoLastMigration();
 
-    // The revert removes `favorites.region_id`/`favorites.continent` and restores the original
-    // two-branch CHECK — `down()` succeeds here because this suite never seeds a `favorites` row,
-    // so the migration's own fail-closed stray-row guard finds nothing to refuse (plan §5.1.1).
-    // Every table, the previous migrations' own columns, and the unrelated
-    // `sessions.rotation_grace_used_at`, `book_videos.order_no` and `books.deneme_count` controls,
-    // all stay intact.
+    // The revert drops `IDX_game_rounds_leaderboard` — unconditionally, per this migration's own
+    // `down()` (there is no row to lose, so there is nothing to refuse). Every table, the
+    // previous migrations' own columns, and the unrelated `sessions.rotation_grace_used_at`,
+    // `book_videos.order_no`, `books.deneme_count` and favourites-shape controls, all stay
+    // intact.
     expect(await relationSnapshot()).toEqual(expectedRelations);
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
     expect(await bookVideoOrderColumn()).toBe('order_no');
     expect(await genericFieldColumns()).toEqual(presentFieldColumns);
     expect(await denemeCountColumn()).toEqual({ column: null, check: null });
-    const shapeAfterDown = await favoritesTargetShape();
-    expect(shapeAfterDown.regionId).toBeNull();
-    expect(shapeAfterDown.continent).toBeNull();
-    expect(shapeAfterDown.checkDefinition).not.toContain('num_nonnulls');
-    expect(shapeAfterDown.checkDefinition).toContain('province_id');
+    expect(await favoritesTargetShape()).toEqual(favoritesShapeUnaffected);
+    expect(await leaderboardIndexExists()).toBe(false);
 
     await dataSource.runMigrations();
 
-    // Reapply adds the two columns and the four-branch CHECK again, returning to the ORIGINAL
-    // (post-`up()`) state.
+    // Reapply creates the index again, returning to the ORIGINAL (post-`up()`) state.
     expect(await relationSnapshot()).toEqual(expectedRelations);
     expect(await rotationGraceColumn()).toBe('rotation_grace_used_at');
     expect(await bookVideoOrderColumn()).toBe('order_no');
     expect(await genericFieldColumns()).toEqual(presentFieldColumns);
     expect(await denemeCountColumn()).toEqual({ column: null, check: null });
-    const shapeAfterReapply = await favoritesTargetShape();
-    expect(shapeAfterReapply.regionId).toBe('region_id');
-    expect(shapeAfterReapply.continent).toBe('continent');
-    expect(shapeAfterReapply.checkDefinition).toContain('num_nonnulls');
+    expect(await favoritesTargetShape()).toEqual(favoritesShapeUnaffected);
+    expect(await leaderboardIndexExists()).toBe(true);
   });
 });
