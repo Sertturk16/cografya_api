@@ -10,6 +10,7 @@ import {
 } from '@jest/globals';
 import { type INestApplication } from '@nestjs/common';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
+import helmet from 'helmet';
 import request from 'supertest';
 import type { Response as SuperagentResponse } from 'supertest';
 import { DataSource } from 'typeorm';
@@ -178,6 +179,15 @@ describe('Video cover proxy (e2e, real Postgres) — closes VAL137-NEW-C1/VAL137
       .compile();
 
     const created = moduleRef.createNestApplication();
+    // Installs ONLY the one helmet sub-middleware whose default this suite needs to prove is
+    // still in force on an unrelated route (`src/main.ts`'s own `app.use(helmet({
+    // contentSecurityPolicy: false }))` carries this same sub-middleware, at its same default
+    // options, per helmet@8.2.0's own composition — measured in `node_modules/helmet/index.cjs`).
+    // NOT the full `helmet(...)` call: this suite has no CSP/HSTS/etc. concern, and per the
+    // `buildCorsOptions` docblock's own CODE136-I5 lesson a few lines up in this repo's history,
+    // an e2e app that never installs the real middleware turns an assertion about its default
+    // into a check that cannot fail.
+    created.use(helmet.crossOriginResourcePolicy());
     freshApplyGlobalPrefix(created);
     created.useGlobalPipes(
       new FreshValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
@@ -290,12 +300,22 @@ describe('Video cover proxy (e2e, real Postgres) — closes VAL137-NEW-C1/VAL137
       expect(response.headers['cache-control']).toBe(
         'public, max-age=3600, stale-while-revalidate=604800',
       );
+      // Overrides helmet's global `same-origin` default so a browser on the web app's origin can
+      // embed this route's bytes via `<img src>` (VideoCoverController's own docblock).
+      expect(response.headers['cross-origin-resource-policy']).toBe('cross-origin');
       expect(Buffer.compare(response.body as Buffer, Buffer.from(bytes))).toBe(0);
 
       // The spied fetch is asserted CALLED with the stored thumbnailUrl and never with any other
       // address (plan §5.8).
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock.mock.calls[0]?.[0]).toBe(ALLOWED_THUMBNAIL_URL);
+    });
+
+    it("does not relax helmet's global Cross-Origin-Resource-Policy default on a different route", async () => {
+      app = await bootApp();
+      const response = await request(app.getHttpServer()).get(`/api/books/${bookSlug}`).expect(200);
+
+      expect(response.headers['cross-origin-resource-policy']).toBe('same-origin');
     });
   });
 
