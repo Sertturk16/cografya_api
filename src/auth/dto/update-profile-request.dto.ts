@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import { IsEnum, IsNotEmpty, IsString, MaxLength, ValidateIf } from 'class-validator';
 import { EducationLevel, GradeLevel, StudyStream } from '../account.types';
 import { IsKnownDepartmentName, IsKnownUniversityName } from '../reference-membership';
@@ -49,6 +50,7 @@ export class UpdateProfileRequestDto {
       'Okul adı (SECONDARY için, isteğe bağlı, kapalı küme değil — `GLOSSARY.md` §7.1 ' +
       '`schoolName` alt bloğu, `DEC 2026-09-11g`). null değeri alanı temizlemek için kullanılır.',
   })
+  @Transform(({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value))
   @ValidateIf((_, value: unknown) => value !== null)
   @IsString()
   @IsNotEmpty()

@@ -380,7 +380,7 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
       expect(user.departmentName).toBeNull();
     });
 
-    it('registers a STUDENT/SECONDARY (gradeLevel + studyStream)', async () => {
+    it('registers a PARENT/SECONDARY with schoolName (gradeLevel + studyStream + schoolName, CODE170-I1)', async () => {
       const email = nextEmail();
       await request(app.getHttpServer())
         .post('/api/auth/register')
@@ -390,17 +390,20 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
           phone: '0532 111 22 44',
           email,
           password: 'Synthetic-Pass1',
-          accountRole: 'STUDENT',
+          accountRole: 'PARENT',
           educationLevel: 'SECONDARY',
           gradeLevel: 'GRADE_9',
           studyStream: 'SAYISAL',
+          schoolName: 'Synthetic Lisesi',
           districtId: istanbulDistrictId,
           provincePlateCode: '34',
         })
         .expect(HttpStatus.ACCEPTED);
       const user = await verifyLatestCode(email);
+      expect(user.accountRole).toBe('PARENT');
       expect(user.gradeLevel).toBe('GRADE_9');
       expect(user.studyStream).toBe('SAYISAL');
+      expect(user.schoolName).toBe('Synthetic Lisesi');
     });
 
     it('registers a STUDENT/UNDERGRADUATE (university + department)', async () => {

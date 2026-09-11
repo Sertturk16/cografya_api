@@ -291,6 +291,7 @@ describe('Auth Profile (e2e, real Postgres)', () => {
         studyStream: null,
         universityName: null,
         departmentName: null,
+        schoolName: null,
       },
     );
 
@@ -308,6 +309,7 @@ describe('Auth Profile (e2e, real Postgres)', () => {
           educationLevel: EducationLevel.Secondary,
           gradeLevel: GradeLevel.Grade12,
           studyStream: StudyStream.Sayisal,
+          schoolName: '  Kadıköy Anadolu Lisesi  ',
         }),
       );
     expect(putRes.status).toBe(200);
@@ -318,6 +320,7 @@ describe('Auth Profile (e2e, real Postgres)', () => {
       studyStream: 'SAYISAL',
       universityName: null,
       departmentName: null,
+      schoolName: 'Kadıköy Anadolu Lisesi',
       isComplete: true,
     });
 
@@ -331,6 +334,7 @@ describe('Auth Profile (e2e, real Postgres)', () => {
     expect(dbRow.educationLevel).toBe(EducationLevel.Secondary);
     expect(dbRow.gradeLevel).toBe(GradeLevel.Grade12);
     expect(dbRow.studyStream).toBe(StudyStream.Sayisal);
+    expect(dbRow.schoolName).toBe('Kadıköy Anadolu Lisesi');
   });
 
   // P-B2: Teacher role branch

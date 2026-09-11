@@ -10,6 +10,7 @@ import {
   StudyStream,
 } from '../src/auth/account.types';
 import { canonicalizeEmail } from '../src/auth/email-canonicalization';
+import { PendingRegistration } from '../src/auth/entities/pending-registration.entity';
 import { User } from '../src/auth/entities/user.entity';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 
@@ -27,6 +28,7 @@ interface UserInsert {
   studyStream: string | null;
   universityName: string | null;
   departmentName: string | null;
+  schoolName: string | null;
   districtId: string;
   status: string;
   emailVerifiedAt: Date | null;
@@ -61,6 +63,7 @@ describe('Auth core schema (e2e)', () => {
     studyStream: null,
     universityName: null,
     departmentName: null,
+    schoolName: null,
     districtId,
     status: AccountStatus.Unverified,
     emailVerifiedAt: null,
@@ -102,9 +105,9 @@ describe('Auth core schema (e2e)', () => {
         INSERT INTO users (
           first_name, last_name, phone, email, password_hash, account_role,
           education_level, grade_level, study_stream, university_name, department_name,
-          district_id, status, email_verified_at
+          school_name, district_id, status, email_verified_at
         ) VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
         )
         RETURNING id, created_at, updated_at
       `,
@@ -120,6 +123,7 @@ describe('Auth core schema (e2e)', () => {
         input.studyStream,
         input.universityName,
         input.departmentName,
+        input.schoolName,
         input.districtId,
         input.status,
         input.emailVerifiedAt,
@@ -162,10 +166,12 @@ describe('Auth core schema (e2e)', () => {
   }, 300_000);
 
   afterEach(async () => {
-    const rows = await dataSource.query<{ relation: string | null }[]>(
-      `SELECT to_regclass('public.users')::text AS relation`,
+    const rows = await dataSource.query<{ users: string | null; pending: string | null }[]>(
+      `SELECT to_regclass('public.users')::text AS users,
+              to_regclass('public.pending_registrations')::text AS pending`,
     );
-    if (rows[0]?.relation !== null) await dataSource.query(`DELETE FROM users`);
+    if (rows[0]?.users !== null) await dataSource.query(`DELETE FROM users`);
+    if (rows[0]?.pending !== null) await dataSource.query(`DELETE FROM pending_registrations`);
   });
 
   afterAll(async () => {
@@ -665,6 +671,11 @@ describe('Auth core schema (e2e)', () => {
     expect(shapeAfterDown.usersProfileShapeCheck).not.toContain('school_name');
     expect(shapeAfterDown.pendingAccountRoleCheck).not.toContain('PARENT');
     expect(shapeAfterDown.pendingProfileShapeCheck).not.toContain('school_name');
+    // SCH170-NEW-M2: `up()` also widens the PROFILE-SHAPE check's own role predicate (not only
+    // `..._account_role`) to `IN ('STUDENT', 'PARENT')` — the four assertions above never probed
+    // that predicate for `PARENT`, only for `school_name`.
+    expect(shapeAfterDown.usersProfileShapeCheck).not.toContain('PARENT');
+    expect(shapeAfterDown.pendingProfileShapeCheck).not.toContain('PARENT');
 
     await dataSource.runMigrations();
 
@@ -683,5 +694,61 @@ describe('Auth core schema (e2e)', () => {
     expect(shapeAfterReapply.usersProfileShapeCheck).toContain('school_name');
     expect(shapeAfterReapply.pendingAccountRoleCheck).toContain('PARENT');
     expect(shapeAfterReapply.pendingProfileShapeCheck).toContain('school_name');
+  });
+
+  describe('migration down() — fail-closed once a non-null school_name value exists (SEC170-NEW-I1/SCH170-NEW-M1)', () => {
+    it('refuses to revert once a school_name value exists, and drops nothing', async () => {
+      await insertUser(secondary({ schoolName: 'Synthetic Guard Lisesi' }));
+
+      await expect(dataSource.undoLastMigration()).rejects.toThrow(
+        /AddSchoolNameAndParentAccountRole\.down\(\) refuses/,
+      );
+
+      const columns = await dataSource.query<{ column_name: string }[]>(`
+        SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'users' AND column_name = 'school_name'
+      `);
+      expect(columns).toHaveLength(1);
+    });
+
+    // The guard sums non-null `school_name` rows across BOTH `users` AND `pending_registrations`
+    // in one query. The case above seeds only `users` — a regression that dropped or broke the
+    // `pending_registrations` half of that sum would still pass it. The realistic hazard is
+    // exactly a candidate that WAS never verified, so its `school_name` never reached `users` at
+    // all; this case seeds `pending_registrations` alone (no `users` row at all) to prove that
+    // half independently, via the same `PendingRegistration` repository `auth-security.e2e-spec.ts`
+    // and `auth-endpoints.e2e-spec.ts` already use for direct candidate fixtures.
+    it('refuses to revert once a school_name value exists only on a pending registration, and drops nothing', async () => {
+      await dataSource.getRepository(PendingRegistration).insert({
+        email: 'synthetic.pending.guard@example.test',
+        passwordHash: SYNTHETIC_PASSWORD_HASH,
+        firstName: 'Synthetic',
+        lastName: 'PendingGuard',
+        phone: '+905000000098',
+        accountRole: AccountRole.Student,
+        educationLevel: EducationLevel.Secondary,
+        gradeLevel: GradeLevel.Grade12,
+        studyStream: StudyStream.Sayisal,
+        universityName: null,
+        departmentName: null,
+        schoolName: 'Synthetic Pending Guard Lisesi',
+        districtId,
+        locale: 'tr',
+        codeHash: Buffer.alloc(32, 7),
+        expiresAt: new Date(Date.now() + 10 * 60_000),
+        attemptCount: 0,
+      });
+
+      await expect(dataSource.undoLastMigration()).rejects.toThrow(
+        /AddSchoolNameAndParentAccountRole\.down\(\) refuses/,
+      );
+
+      const columns = await dataSource.query<{ column_name: string }[]>(`
+        SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'pending_registrations'
+          AND column_name = 'school_name'
+      `);
+      expect(columns).toHaveLength(1);
+    });
   });
 });
