@@ -1,0 +1,80 @@
+name: Deploy API & Run Migrations
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: deploy-api-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  ci-gate:
+    name: CI Quality Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Unit Tests
+        run: pnpm run test:unit
+
+  deploy-and-migrate:
+    name: Deploy to Production & Run Migrations
+    needs: [ci-gate]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        env:
+          SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          HOST: ${{ secrets.SERVER_HOST }}
+          USER: ${{ secrets.SERVER_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key "$USER@$HOST" << 'EOF'
+            set -euo pipefail
+            echo "==> Pulling latest API code on production server..."
+            cd /opt/cografya/cografya_api
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "==> Building API container..."
+            cd /opt/cografya
+            docker compose -f docker-compose.prod.yml build api
+
+            echo "==> Restarting API container..."
+            docker compose -f docker-compose.prod.yml up -d --no-deps api
+
+            echo "==> Waiting for container readiness..."
+            sleep 5
+
+            echo "==> Running database migrations..."
+            docker compose -f docker-compose.prod.yml exec -T api node run-migrations.cjs
+
+            echo "==> Verifying API container status..."
+            docker compose -f docker-compose.prod.yml ps api
+            echo "==> API Deployment and Migration completed successfully! 🚀"
+          EOF
