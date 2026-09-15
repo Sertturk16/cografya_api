@@ -131,7 +131,9 @@ describe('runCli — the shared refusals', () => {
       seedDir: writeSeedDir(SEED_ROWS),
     });
     expect(code).toBe(1);
-    expect(stderr).toContain(empty);
+    // The CLI labels drafts relative to cwd; the absolute path only matched by accident when
+    // os.tmpdir() sat outside the repo's ancestor chain.
+    expect(stderr).toContain(path.relative(process.cwd(), empty));
     expect(stderr).not.toContain('Alfa');
   });
 
