@@ -1,6 +1,8 @@
 import { MiddlewareConsumer, Module, type NestModule } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import type { Env } from '../config/env.schema';
 import { AccessTokenGuard } from './access-token.guard';
 import { AccessTokenService } from './access-token.service';
 import { AuthNoStoreMiddleware } from './auth-no-store.middleware';
@@ -13,8 +15,10 @@ import { PasswordResetToken } from './entities/password-reset-token.entity';
 import { Session } from './entities/session.entity';
 import { User } from './entities/user.entity';
 import { EmailVerificationService } from './email-verification.service';
+import type { MailerPort } from './mail/mailer.port';
 import { MAILER_PORT } from './mail/mailer.port';
 import { NoopMailerAdapter } from './mail/noop-mailer.adapter';
+import { SesMailerAdapter } from './mail/ses-mailer.adapter';
 import { PasswordHasherService } from './password-hasher.service';
 import { PasswordResetService } from './password-reset.service';
 import { RegistrationService } from './registration.service';
@@ -53,10 +57,10 @@ const UserRepositoryModule = TypeOrmModule.forFeature([User]);
  * That entity is registered in `data-source-options.ts` rather than in `forFeature` below — see
  * the comment at the import.
  *
- * **`MAILER_PORT` resolves to `NoopMailerAdapter`, the only adapter this turn** —
- * `MAIL_TRANSPORT` (§11) has exactly one valid value (`'noop'`) until a real provider is
- * chosen; the factory shape (a `switch` keyed on the env value) is what a second transport
- * extends, not a class swap here.
+ * **`MAILER_PORT` resolves through a factory keyed on `MAIL_TRANSPORT`** (§8, §11):
+ * `'noop'` → `NoopMailerAdapter` (dev/test default, sends nothing), `'ses'` → `SesMailerAdapter`
+ * (AWS SESv2, required in production — `env.schema.ts`'s superRefine refuses to boot on
+ * `'noop'` there). A third transport extends this same `switch`, not a class swap.
  */
 @Module({
   imports: [
@@ -74,7 +78,19 @@ const UserRepositoryModule = TypeOrmModule.forFeature([User]);
     AuthSecretsProvider,
     AccessTokenService,
     AuthRateLimitService,
-    { provide: MAILER_PORT, useClass: NoopMailerAdapter },
+    {
+      provide: MAILER_PORT,
+      useFactory: (config: ConfigService<Env, true>): MailerPort => {
+        const transport = config.get('MAIL_TRANSPORT', { infer: true });
+        switch (transport) {
+          case 'noop':
+            return new NoopMailerAdapter();
+          case 'ses':
+            return new SesMailerAdapter(config);
+        }
+      },
+      inject: [ConfigService],
+    },
     AccessTokenGuard,
     AuthUserLookupService,
     RegistrationService,

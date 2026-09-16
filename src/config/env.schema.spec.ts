@@ -35,6 +35,21 @@ const PRODUCTION_AUTH_SECRETS = {
  */
 const PRODUCTION_WEB_ORIGIN = { WEB_ORIGIN: 'https://api.cografya.example' };
 
+/**
+ * Closing the `MAIL_TRANSPORT` TODO (`SFH135-I3`) added a FOURTH production precondition:
+ * `MAIL_TRANSPORT` must not be `noop` in production (`BASE` carries no `MAIL_TRANSPORT`, so it
+ * defaults to `'noop'`). Every pre-existing "boots in production" assertion below needed this
+ * spread in alongside the other three, for the same reason each of those comments names —
+ * production boot now has one more precondition, not because any assertion's own point moved.
+ */
+const PRODUCTION_MAIL_CONFIG = {
+  MAIL_TRANSPORT: 'ses',
+  AWS_REGION: 'eu-central-1',
+  AWS_ACCESS_KEY_ID: 'AKIAEXAMPLE',
+  AWS_SECRET_ACCESS_KEY: 'example-secret-key',
+  MAIL_FROM_ADDRESS: 'no-reply@cografya.example',
+};
+
 describe('validateEnv — defaults', () => {
   it('boots on NODE_ENV + DATABASE_URL alone, with the marine feature OFF', () => {
     const env = validateEnv({ ...BASE });
@@ -268,6 +283,7 @@ describe('validateEnv — JWT_SECRET / AUTH_HMAC_PEPPER (üyelik UYELIK-02, plan
       validateEnv({
         ...BASE,
         ...PRODUCTION_WEB_ORIGIN,
+        ...PRODUCTION_MAIL_CONFIG,
         NODE_ENV: 'production',
         JWT_SECRET: VALID_SECRET,
         AUTH_HMAC_PEPPER: VALID_PEPPER,
@@ -519,6 +535,7 @@ describe('validateEnv — WEB_ORIGIN must not be a loopback host in production (
         ...BASE,
         ...PRODUCTION_AUTH_SECRETS,
         ...PRODUCTION_WEB_ORIGIN,
+        ...PRODUCTION_MAIL_CONFIG,
         NODE_ENV: 'production',
       }),
     ).not.toThrow();
@@ -530,14 +547,96 @@ describe('validateEnv — MAIL_TRANSPORT (üyelik UYELIK-02, plan §11)', () => 
     expect(validateEnv({ ...BASE }).MAIL_TRANSPORT).toBe('noop');
   });
 
-  it('accepts the only declared value explicitly', () => {
-    expect(validateEnv({ ...BASE, MAIL_TRANSPORT: 'noop' }).MAIL_TRANSPORT).toBe('noop');
+  it('accepts "noop" explicitly, with the SES vars left unset', () => {
+    const env = validateEnv({ ...BASE, MAIL_TRANSPORT: 'noop' });
+    expect(env.MAIL_TRANSPORT).toBe('noop');
+    expect(env.AWS_REGION).toBeUndefined();
+    expect(env.MAIL_FROM_ADDRESS).toBeUndefined();
+    expect(env.MAIL_FROM_NAME).toBe('Coğrafya Gurmesi');
   });
 
-  it('refuses any value outside the closed enum — there is no real provider yet', () => {
+  it('refuses any value outside the closed enum', () => {
     expect(() => validateEnv({ ...BASE, MAIL_TRANSPORT: 'smtp' })).toThrow(
       /Invalid environment configuration/,
     );
+  });
+
+  it('accepts "ses" once all four SES vars are present', () => {
+    const env = validateEnv({ ...BASE, ...PRODUCTION_MAIL_CONFIG });
+    expect(env.MAIL_TRANSPORT).toBe('ses');
+    expect(env.AWS_REGION).toBe('eu-central-1');
+    expect(env.MAIL_FROM_ADDRESS).toBe('no-reply@cografya.example');
+  });
+
+  it('rejects a malformed MAIL_FROM_ADDRESS', () => {
+    expect(() =>
+      validateEnv({ ...BASE, ...PRODUCTION_MAIL_CONFIG, MAIL_FROM_ADDRESS: 'not-an-email' }),
+    ).toThrow(/Invalid environment configuration/);
+  });
+
+  it('REQUIRES each SES var independently once MAIL_TRANSPORT=ses — one bullet per missing var', () => {
+    expect(() => validateEnv({ ...BASE, MAIL_TRANSPORT: 'ses' })).toThrow(/AWS_REGION/);
+    expect(() => validateEnv({ ...BASE, MAIL_TRANSPORT: 'ses' })).toThrow(/AWS_ACCESS_KEY_ID/);
+    expect(() => validateEnv({ ...BASE, MAIL_TRANSPORT: 'ses' })).toThrow(/AWS_SECRET_ACCESS_KEY/);
+    expect(() => validateEnv({ ...BASE, MAIL_TRANSPORT: 'ses' })).toThrow(/MAIL_FROM_ADDRESS/);
+
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        MAIL_TRANSPORT: 'ses',
+        AWS_REGION: 'eu-central-1',
+        AWS_ACCESS_KEY_ID: 'AKIAEXAMPLE',
+        AWS_SECRET_ACCESS_KEY: 'example-secret-key',
+      }),
+    ).toThrow(/MAIL_FROM_ADDRESS/);
+
+    expect(() => validateEnv({ ...BASE, ...PRODUCTION_MAIL_CONFIG })).not.toThrow();
+  });
+
+  it('leaves the SES vars optional while MAIL_TRANSPORT stays "noop" — dev/CI need none of them', () => {
+    expect(() => validateEnv({ ...BASE })).not.toThrow();
+  });
+});
+
+describe('validateEnv — MAIL_TRANSPORT=noop is refused in production (closes SFH135-I3)', () => {
+  it('REFUSES TO BOOT in production on the "noop" default', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        ...PRODUCTION_AUTH_SECRETS,
+        ...PRODUCTION_WEB_ORIGIN,
+        NODE_ENV: 'production',
+      }),
+    ).toThrow(/MAIL_TRANSPORT=noop is not allowed in production/);
+  });
+
+  it('REFUSES TO BOOT in production with MAIL_TRANSPORT explicitly set to "noop"', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        ...PRODUCTION_AUTH_SECRETS,
+        ...PRODUCTION_WEB_ORIGIN,
+        NODE_ENV: 'production',
+        MAIL_TRANSPORT: 'noop',
+      }),
+    ).toThrow(/MAIL_TRANSPORT=noop is not allowed in production/);
+  });
+
+  it('boots in production once MAIL_TRANSPORT=ses and its vars are all present', () => {
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        ...PRODUCTION_AUTH_SECRETS,
+        ...PRODUCTION_WEB_ORIGIN,
+        ...PRODUCTION_MAIL_CONFIG,
+        NODE_ENV: 'production',
+      }),
+    ).not.toThrow();
+  });
+
+  it('leaves "noop" accepted outside production — local dev is unaffected', () => {
+    expect(() => validateEnv({ ...BASE, NODE_ENV: 'development' })).not.toThrow();
+    expect(() => validateEnv({ ...BASE, NODE_ENV: 'test' })).not.toThrow();
   });
 });
 
@@ -553,6 +652,7 @@ describe('validateEnv — E1: Redis is mandatory in production (DEC 2026-07-29b)
       ...BASE,
       ...PRODUCTION_AUTH_SECRETS,
       ...PRODUCTION_WEB_ORIGIN,
+      ...PRODUCTION_MAIL_CONFIG,
       NODE_ENV: 'production',
       MARINE_ENABLED: 'true',
       REDIS_URL: 'redis://cache:6379',
@@ -566,6 +666,7 @@ describe('validateEnv — E1: Redis is mandatory in production (DEC 2026-07-29b)
         ...BASE,
         ...PRODUCTION_AUTH_SECRETS,
         ...PRODUCTION_WEB_ORIGIN,
+        ...PRODUCTION_MAIL_CONFIG,
         NODE_ENV: 'production',
       }),
     ).not.toThrow();
@@ -800,6 +901,7 @@ describe('validateEnv — the air-quality (CAMS/ADS) block', () => {
         ...BASE,
         ...PRODUCTION_AUTH_SECRETS,
         ...PRODUCTION_WEB_ORIGIN,
+        ...PRODUCTION_MAIL_CONFIG,
         NODE_ENV: 'production',
         AIR_QUALITY_ENABLED: 'true',
         ADS_API_KEY: 'a-key',
@@ -965,6 +1067,7 @@ describe('validateEnv — the book video-solution (YouTube Data API) block', () 
         ...BASE,
         ...PRODUCTION_AUTH_SECRETS,
         ...PRODUCTION_WEB_ORIGIN,
+        ...PRODUCTION_MAIL_CONFIG,
         NODE_ENV: 'production',
         BOOKS_YOUTUBE_SYNC_ENABLED: 'true',
         YOUTUBE_API_KEY: 'a-key',
@@ -1028,6 +1131,7 @@ describe('validateEnv — the earthquake (AFAD TDVMS) block', () => {
         ...BASE,
         ...PRODUCTION_AUTH_SECRETS,
         ...PRODUCTION_WEB_ORIGIN,
+        ...PRODUCTION_MAIL_CONFIG,
         NODE_ENV: 'production',
         EARTHQUAKE_ENABLED: 'true',
         REDIS_URL: 'redis://cache:6379',
@@ -1138,6 +1242,7 @@ describe('validateEnv — the elevation (AWS terrain tiles) block', () => {
         ...BASE,
         ...PRODUCTION_AUTH_SECRETS,
         ...PRODUCTION_WEB_ORIGIN,
+        ...PRODUCTION_MAIL_CONFIG,
         NODE_ENV: 'production',
         ELEVATION_ENABLED: 'true',
         REDIS_URL: 'redis://cache:6379',
