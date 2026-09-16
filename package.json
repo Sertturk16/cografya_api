@@ -47,6 +47,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.1132.0",
     "@mattnucc/gribberish": "1.6.0",
     "@nestjs/common": "11.1.27",
     "@nestjs/config": "4.0.4",

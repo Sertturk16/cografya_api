@@ -194,16 +194,24 @@ export const envSchema = z
           'or non-ASCII characters) when set',
       )
       .optional(),
-    // The mail transport selector (§8, §11). `'noop'` is the only valid value this turn —
-    // `NoopMailerAdapter` sends nothing anywhere, and says so loudly at boot
-    // (`NoopMailerAdapter`'s own constructor). A real provider adds a new enum member here
-    // plus its own `optional()` + feature-gated cross-check (the `ADS_API_KEY` precedent), never
-    // a silent default swap.
-    // TODO(first-deploy): production must not boot on `noop`. No hard cross-check exists today
-    // because `'noop'` is currently the ONLY valid enum value (a hard check would make the api
-    // entirely undeployable) — add the cross-check in the SAME PR that adds the second, real
-    // enum member (SFH135-I3).
-    MAIL_TRANSPORT: z.enum(['noop']).default('noop'),
+    // The mail transport selector (§8, §11). `'noop'` (`NoopMailerAdapter`, sends nothing,
+    // warns loudly at boot) is the DEV/TEST default; `'ses'` (`SesMailerAdapter`, AWS SESv2)
+    // is the real transport and is REQUIRED in production — see the superRefine cross-checks
+    // below, both the AWS_*/MAIL_FROM_ADDRESS-required-when-ses check (the `ADS_API_KEY`
+    // shape) and the noop-refused-in-production check (the `REDIS_URL` shape). A THIRD
+    // transport repeats this same pattern: new enum member, its own `optional()` fields, its
+    // own feature-gated cross-check.
+    MAIL_TRANSPORT: z.enum(['noop', 'ses']).default('noop'),
+    // ── SES mail transport (used only when MAIL_TRANSPORT=ses; required then, see below) ──
+    // SECRETS — never logged, never in an artifact, never in the OpenAPI spec.
+    AWS_REGION: z.string().min(1).optional(),
+    AWS_ACCESS_KEY_ID: z.string().min(1).optional(),
+    AWS_SECRET_ACCESS_KEY: z.string().min(1).optional(),
+    // The verified SES sender identity (SES refuses to send From an unverified address/domain
+    // regardless of what this schema allows, so a typo here surfaces as an SES error at send
+    // time, not at boot — the boot-time check below only confirms the var is PRESENT).
+    MAIL_FROM_ADDRESS: z.email().optional(),
+    MAIL_FROM_NAME: z.string().min(1).optional().default('Coğrafya Gurmesi'),
 
     // ── Cache infrastructure ────────────────────────────────────────────────────
     // Redis connection string for the upstream cache, the single-flight lock and the shared
@@ -732,6 +740,63 @@ export const envSchema = z
         message:
           'AUTH_HMAC_PEPPER is REQUIRED when NODE_ENV=production (üyelik UYELIK-02 plan §11, ' +
           'D6). The ephemeral per-process fallback is a development/test-only mode.',
+      });
+    }
+
+    // ── Mail transport: SES config required when selected, noop refused in production ──────
+    // 1. The `ADS_API_KEY` shape: the four SES-only vars are OPTIONAL at the schema level (a
+    //    noop deployment must still boot with none of them set) and REQUIRED the moment
+    //    MAIL_TRANSPORT=ses is chosen — checked independently per var so a deployment missing
+    //    more than one gets a message naming each.
+    if (env.MAIL_TRANSPORT === 'ses' && env.AWS_REGION === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['AWS_REGION'],
+        message:
+          'AWS_REGION is REQUIRED when MAIL_TRANSPORT=ses — SESv2Client cannot be built without it.',
+      });
+    }
+    if (env.MAIL_TRANSPORT === 'ses' && env.AWS_ACCESS_KEY_ID === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['AWS_ACCESS_KEY_ID'],
+        message:
+          'AWS_ACCESS_KEY_ID is REQUIRED when MAIL_TRANSPORT=ses — every SendEmailCommand is a ' +
+          'signed AWS request.',
+      });
+    }
+    if (env.MAIL_TRANSPORT === 'ses' && env.AWS_SECRET_ACCESS_KEY === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['AWS_SECRET_ACCESS_KEY'],
+        message:
+          'AWS_SECRET_ACCESS_KEY is REQUIRED when MAIL_TRANSPORT=ses — every SendEmailCommand is ' +
+          'a signed AWS request.',
+      });
+    }
+    if (env.MAIL_TRANSPORT === 'ses' && env.MAIL_FROM_ADDRESS === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['MAIL_FROM_ADDRESS'],
+        message:
+          'MAIL_FROM_ADDRESS is REQUIRED when MAIL_TRANSPORT=ses — SES refuses to send without a ' +
+          'From address, and it must be a verified SES sender identity.',
+      });
+    }
+    // 2. The `REDIS_URL` shape, closing the TODO `MAIL_TRANSPORT`'s own comment named
+    //    (SFH135-I3): now that a second, real transport exists, a production boot on the noop
+    //    default is a configuration mistake, not a valid choice — it would silently drop every
+    //    verification code and password reset. Unlike the marine/air-quality/earthquake/
+    //    elevation legs above, this has no "start with the flag off" escape hatch: outbound
+    //    mail is not an optional leg, it is core to the registration/reset flows.
+    if (env.NODE_ENV === 'production' && env.MAIL_TRANSPORT === 'noop') {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['MAIL_TRANSPORT'],
+        message:
+          'MAIL_TRANSPORT=noop is not allowed in production — outbound mail (verification ' +
+          'codes, password resets) would be silently dropped. Configure MAIL_TRANSPORT=ses and ' +
+          'its AWS_*/MAIL_FROM_ADDRESS vars.',
       });
     }
 

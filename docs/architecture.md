@@ -35,7 +35,7 @@ Global providers registered in `app.module.ts`: `APP_GUARD` = `TrustedClientThro
 | `favorites` | list / put / delete | guarded; keyed on business keys (plateCode, isoCode), never uuids |
 | `game-rounds` | `POST`, `GET`, `GET /leaderboard` | guarded; DB-backed submit rate limit |
 | `measurements` | CRUD | guarded |
-| `auth` | 12 ops under `/api/auth` | Argon2id, JWT access, opaque refresh sessions, pending registration, password reset, noop mailer |
+| `auth` | 12 ops under `/api/auth` | Argon2id, JWT access, opaque refresh sessions, pending registration, password reset, `MAILER_PORT` (noop or AWS SES) |
 | `marine` | points/layers + conditions | ECMWF Open Data + CMEMS ingest behind `MARINE_ENABLED` |
 | `air-quality` | two province reads | CAMS via Copernicus ADS, EAQI constants, `AIR_QUALITY_ENABLED` |
 | `earthquake` | `/api/earthquakes`, `/meta`, `/provinces/:plateCode` | AFAD ingest behind `EARTHQUAKE_ENABLED` |
@@ -55,12 +55,14 @@ Unknown keys stripped, missing/mistyped abort boot. `.env.example` documents eve
 Groups: core (`NODE_ENV`, `PORT`=3001, `DATABASE_URL` required, `WEB_ORIGIN`), security
 (`TRUSTED_PROXY_HOPS`, `INTERNAL_REQUEST_TOKEN`, `VISITOR_FORWARD_TOKEN`, `DOCS_ACCESS_TOKEN`,
 `JWT_SECRET`, `AUTH_HMAC_PEPPER` — min 32 printable ASCII), `REDIS_URL` (optional, must have a
-host), `MAIL_TRANSPORT` (`noop` only), then one block per leg (`MARINE_*`, `ECMWF_*`, `CMEMS_*`,
-`AIR_QUALITY_*`/`ADS_*`, `EARTHQUAKE_*`/`AFAD_*`, `BOOKS_*`/`YOUTUBE_*`, `VIDEO_COVER_*`,
-`ELEVATION_*`).
+host), `MAIL_TRANSPORT` (`noop` or `ses`, plus `AWS_REGION`/`AWS_ACCESS_KEY_ID`/
+`AWS_SECRET_ACCESS_KEY`/`MAIL_FROM_ADDRESS`/`MAIL_FROM_NAME` when `ses`), then one block per leg
+(`MARINE_*`, `ECMWF_*`, `CMEMS_*`, `AIR_QUALITY_*`/`ADS_*`, `EARTHQUAKE_*`/`AFAD_*`,
+`BOOKS_*`/`YOUTUBE_*`, `VIDEO_COVER_*`, `ELEVATION_*`).
 
 Production rules enforced by the schema: `JWT_SECRET` and `AUTH_HMAC_PEPPER` required
-(otherwise ephemeral keys per process); `MARINE_ENABLED=true` requires `REDIS_URL`.
+(otherwise ephemeral keys per process); `MARINE_ENABLED=true` requires `REDIS_URL`;
+`MAIL_TRANSPORT` must not be `noop` (outbound mail would be silently dropped).
 
 Because validation is eager at import, the OpenAPI generator imports
 `src/openapi/preview-env.ts` before `AppModule`, and e2e specs import `AppModule` dynamically
