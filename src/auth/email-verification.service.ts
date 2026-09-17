@@ -427,10 +427,9 @@ export class EmailVerificationService {
   ): Promise<CandidateOutcome> {
     const email = typeof source === 'string' ? source : source.email;
     const id = randomUUID();
-    // Both from the validated snapshot, never a raw `process.env` read — see
+    // The validated `NODE_ENV` snapshot, never a raw `process.env` read — see
     // `mintVerificationCode`'s own docblock (`opaque-token.ts`) for why that distinction is the
-    // whole point of this call. `MAIL_TRANSPORT` is what decides the fixed code now: a
-    // deployment sending no mail cannot deliver a random one.
+    // whole point of this call.
     const code = mintVerificationCode(
       this.config.get('NODE_ENV', { infer: true }),
       this.config.get('MAIL_TRANSPORT', { infer: true }),

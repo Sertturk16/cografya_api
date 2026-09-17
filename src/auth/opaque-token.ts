@@ -39,47 +39,55 @@ export function mintOpaqueToken(): string {
  * anywhere in this process is not a value one module can trust stays what boot decided — the
  * validated `ConfigService` snapshot is the only read that does.
  *
- * ## What decides the fixed code, and why it is the transport rather than the environment
+ * Two independent guarantees compose to make the fixed `'123456'` path unreachable by accident:
+ * (1) `NODE_ENV` carries no default in `env.schema.ts` — a deployment that forgets to set it
+ * fails to boot at all, before this function is ever reachable, rather than silently landing on
+ * either branch; (2) once booted, this function only ever sees the validated snapshot value, so
+ * nothing that mutates the live `process.env.NODE_ENV` afterward can flip which branch a running
+ * process takes. `opaque-token.spec.ts` pins both the positive case (`nodeEnv === 'development'`
+ * returns the fixed code) and the negative one (`'test'`/`'production'` take the `randomInt`
+ * branch, proven by observing the mocked `randomInt`'s return value flow through — not merely
+ * that the result differs from `'123456'`, which a 1-in-10^6 coincidence could still pass).
  *
- * This used to branch on `nodeEnv === 'development'`, with `env.schema.ts` refusing to boot a
- * production deployment on `MAIL_TRANSPORT=noop` so the two could never meet. That refusal is
- * gone (owner, 2026-09-17): AWS SES is sandboxed pending a verified sending domain, so `ses`
- * cannot deliver from this deployment at all, and the rule's only remaining effect was stopping
- * the API from booting.
+ * ## ⚠️ TEMPORARY: the fixed code is live on any noop deployment (owner, 2026-09-17)
  *
- * So the decision moved to the thing it was always really about. **A deployment that sends no
- * mail has no way to deliver a random code** — the code exists only in an email nobody receives,
- * and every registration is stuck at the same step. A fixed code is not a weakening of that
- * setup, it is the only thing that makes it usable.
+ * AWS SES is sandboxed pending a verified sending domain (T-019), so production runs
+ * `MAIL_TRANSPORT=noop` and a random code is delivered nowhere — every registration stalls at
+ * the same step. The owner accepted a fixed code to unblock that, KNOWING what it costs, with
+ * the restoration written to be one deletion and one uncomment.
  *
- * Reading `MAIL_TRANSPORT` instead of `NODE_ENV` also means there is nothing to remember. The
- * fixed path cannot outlive the condition that justifies it: the moment this deployment is
- * pointed at a real transport, codes are random again, with no flag to unset and no line to
- * delete. Gating on an environment name, or on a separate `ALLOW_FIXED_CODE`-style switch, both
- * leave a fixed code that survives the day mail starts working.
+ * **What it costs, precisely.** `test/auth-security.e2e-spec.ts`'s `C1` pins a finding this repo
+ * classified CRITICAL and fixed: before that rework, whoever registered an address FIRST owned
+ * its credentials, and the victim who later confirmed their own mailbox activated the attacker's
+ * password on their own verified address. The fix was that each candidate carries its OWN code,
+ * so consuming the victim's code materialises the victim's account. **A shared fixed code undoes
+ * exactly that** — two candidates for one address hold the same code, so the victim's own code
+ * matches the attacker's candidate and the attacker's password becomes the account.
  *
- * **This is a real reduction in assurance, and it is bounded.** On a noop deployment anyone who
- * knows an address can register with it and clear `emailVerifiedAt` without holding the mailbox.
- * It does NOT reach password reset: that mints `randomBytes(32)` through {@link mintOpaqueToken},
- * which this branch does not touch, so on noop that flow is unusable rather than guessable.
+ * It is a loaded gun, and today there is nobody to shoot: the deployment is on a bare IP, is not
+ * announced and has no users (the recorded risk posture). That is the whole of the argument for
+ * accepting it, and it expires the day the domain lands.
  *
- * `nodeEnv` stays in the signature and stays validated-snapshot-only. It no longer decides this
- * branch, but the reasoning it carried is the reason `transport` is passed the same way: from
- * `ConfigService<Env, true>.get(…, { infer: true })`, the object `env.schema.ts`'s `validate`
- * produced ONCE at boot — never a live `process.env` read, which `src/openapi/preview-env.ts`
- * already mutates as a side effect of spec generation.
- *
- * `opaque-token.spec.ts` pins both directions: `noop` returns the fixed code in every
- * environment including production, and `ses` takes the `randomInt` branch — proven by observing
- * the mocked `randomInt`'s value flow through, not merely that the result differs from
- * `'123456'`, which a 1-in-10^6 coincidence could pass.
+ * **`nodeEnv !== 'test'` is not a way of hiding this from CI.** It is what keeps `C1` honest: the
+ * e2e suite keeps minting DISTINCT codes, so it keeps proving the property it was written for
+ * instead of being loosened to accommodate a temporary branch. The consequence to be clear about
+ * is that C1 therefore does NOT cover the production configuration while this block exists —
+ * the protection is knowingly absent there, not verified there.
  */
 export function mintVerificationCode(
   nodeEnv: Env['NODE_ENV'],
   transport: Env['MAIL_TRANSPORT'],
 ): string {
-  if (transport === 'noop') {
+  // ── TODO(T-019): DELETE THIS BLOCK when the domain lands and MAIL_TRANSPORT=ses delivers ──
+  // Then uncomment the original condition below and the secure behaviour is back with no other
+  // edit anywhere. Deleting this block alone is a complete, correct restoration: the `randomInt`
+  // fallthrough is the original's own else-path.
+  if (nodeEnv !== 'test' && transport === 'noop') {
     return '123456';
   }
+  // ── The original, kept verbatim rather than rewritten from memory later ──
+  // if (nodeEnv === 'development') {
+  //   return '123456';
+  // }
   return randomInt(0, 1_000_000).toString().padStart(6, '0');
 }
