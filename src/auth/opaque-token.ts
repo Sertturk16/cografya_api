@@ -48,10 +48,46 @@ export function mintOpaqueToken(): string {
  * returns the fixed code) and the negative one (`'test'`/`'production'` take the `randomInt`
  * branch, proven by observing the mocked `randomInt`'s return value flow through — not merely
  * that the result differs from `'123456'`, which a 1-in-10^6 coincidence could still pass).
+ *
+ * ## ⚠️ TEMPORARY: the fixed code is live on any noop deployment (owner, 2026-09-17)
+ *
+ * AWS SES is sandboxed pending a verified sending domain (T-019), so production runs
+ * `MAIL_TRANSPORT=noop` and a random code is delivered nowhere — every registration stalls at
+ * the same step. The owner accepted a fixed code to unblock that, KNOWING what it costs, with
+ * the restoration written to be one deletion and one uncomment.
+ *
+ * **What it costs, precisely.** `test/auth-security.e2e-spec.ts`'s `C1` pins a finding this repo
+ * classified CRITICAL and fixed: before that rework, whoever registered an address FIRST owned
+ * its credentials, and the victim who later confirmed their own mailbox activated the attacker's
+ * password on their own verified address. The fix was that each candidate carries its OWN code,
+ * so consuming the victim's code materialises the victim's account. **A shared fixed code undoes
+ * exactly that** — two candidates for one address hold the same code, so the victim's own code
+ * matches the attacker's candidate and the attacker's password becomes the account.
+ *
+ * It is a loaded gun, and today there is nobody to shoot: the deployment is on a bare IP, is not
+ * announced and has no users (the recorded risk posture). That is the whole of the argument for
+ * accepting it, and it expires the day the domain lands.
+ *
+ * **`nodeEnv !== 'test'` is not a way of hiding this from CI.** It is what keeps `C1` honest: the
+ * e2e suite keeps minting DISTINCT codes, so it keeps proving the property it was written for
+ * instead of being loosened to accommodate a temporary branch. The consequence to be clear about
+ * is that C1 therefore does NOT cover the production configuration while this block exists —
+ * the protection is knowingly absent there, not verified there.
  */
-export function mintVerificationCode(nodeEnv: Env['NODE_ENV']): string {
-  if (nodeEnv === 'development') {
+export function mintVerificationCode(
+  nodeEnv: Env['NODE_ENV'],
+  transport: Env['MAIL_TRANSPORT'],
+): string {
+  // ── TODO(T-019): DELETE THIS BLOCK when the domain lands and MAIL_TRANSPORT=ses delivers ──
+  // Then uncomment the original condition below and the secure behaviour is back with no other
+  // edit anywhere. Deleting this block alone is a complete, correct restoration: the `randomInt`
+  // fallthrough is the original's own else-path.
+  if (nodeEnv !== 'test' && transport === 'noop') {
     return '123456';
   }
+  // ── The original, kept verbatim rather than rewritten from memory later ──
+  // if (nodeEnv === 'development') {
+  //   return '123456';
+  // }
   return randomInt(0, 1_000_000).toString().padStart(6, '0');
 }

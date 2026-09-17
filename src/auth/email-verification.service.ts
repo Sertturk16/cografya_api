@@ -430,7 +430,10 @@ export class EmailVerificationService {
     // The validated `NODE_ENV` snapshot, never a raw `process.env` read — see
     // `mintVerificationCode`'s own docblock (`opaque-token.ts`) for why that distinction is the
     // whole point of this call.
-    const code = mintVerificationCode(this.config.get('NODE_ENV', { infer: true }));
+    const code = mintVerificationCode(
+      this.config.get('NODE_ENV', { infer: true }),
+      this.config.get('MAIL_TRANSPORT', { infer: true }),
+    );
     const codeHash = hmacSha256(this.secrets.getHmacPepper(), `pending:${id}:${code}`);
 
     try {

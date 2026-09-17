@@ -598,8 +598,24 @@ describe('validateEnv — MAIL_TRANSPORT (üyelik UYELIK-02, plan §11)', () => 
   });
 });
 
-describe('validateEnv — MAIL_TRANSPORT=noop is refused in production (closes SFH135-I3)', () => {
-  it('REFUSES TO BOOT in production on the "noop" default', () => {
+describe('validateEnv — MAIL_TRANSPORT=noop boots everywhere, production included', () => {
+  /**
+   * THIS DESCRIBE BLOCK USED TO ASSERT THE OPPOSITE, and the reversal is deliberate (owner,
+   * 2026-09-17). The old rule refused a production boot on `noop`, reasoning that it "would
+   * silently drop every verification code and password reset".
+   *
+   * What made that right was the assumption that choosing `noop` in production is a mistake. It
+   * is not the situation now: AWS SES is sandboxed pending a verified sending domain (T-019), so
+   * `ses` cannot deliver from this deployment either — and the rule's only remaining effect was
+   * that the API would not start. A check whose sole outcome is a dead service protects nothing.
+   *
+   * The guarantee did not disappear, it moved somewhere narrower:
+   * `mintVerificationCode` reads `MAIL_TRANSPORT`, so a noop deployment issues the fixed
+   * `123456` — the only way to finish a flow whose mail goes nowhere — and returns to
+   * `randomInt` the moment the transport is `ses`, with nothing to remember to undo.
+   * `src/auth/opaque-token.spec.ts` pins both directions.
+   */
+  it('boots in production on the "noop" default', () => {
     expect(() =>
       validateEnv({
         ...BASE,
@@ -607,10 +623,10 @@ describe('validateEnv — MAIL_TRANSPORT=noop is refused in production (closes S
         ...PRODUCTION_WEB_ORIGIN,
         NODE_ENV: 'production',
       }),
-    ).toThrow(/MAIL_TRANSPORT=noop is not allowed in production/);
+    ).not.toThrow();
   });
 
-  it('REFUSES TO BOOT in production with MAIL_TRANSPORT explicitly set to "noop"', () => {
+  it('boots in production with MAIL_TRANSPORT explicitly set to "noop"', () => {
     expect(() =>
       validateEnv({
         ...BASE,
@@ -619,7 +635,22 @@ describe('validateEnv — MAIL_TRANSPORT=noop is refused in production (closes S
         NODE_ENV: 'production',
         MAIL_TRANSPORT: 'noop',
       }),
-    ).toThrow(/MAIL_TRANSPORT=noop is not allowed in production/);
+    ).not.toThrow();
+  });
+
+  it('still refuses production on MAIL_TRANSPORT=ses with its vars missing', () => {
+    // The half of this rule that survives, and the reason dropping the noop refusal is not the
+    // same as dropping mail validation: choosing a real transport and not configuring it is
+    // still a mistake, and still fails at boot rather than at the first send.
+    expect(() =>
+      validateEnv({
+        ...BASE,
+        ...PRODUCTION_AUTH_SECRETS,
+        ...PRODUCTION_WEB_ORIGIN,
+        NODE_ENV: 'production',
+        MAIL_TRANSPORT: 'ses',
+      }),
+    ).toThrow(/AWS_REGION is REQUIRED when MAIL_TRANSPORT=ses/);
   });
 
   it('boots in production once MAIL_TRANSPORT=ses and its vars are all present', () => {

@@ -743,7 +743,7 @@ export const envSchema = z
       });
     }
 
-    // ── Mail transport: SES config required when selected, noop refused in production ──────
+    // ── Mail transport: SES config required when selected ──────────────────────────────────
     // 1. The `ADS_API_KEY` shape: the four SES-only vars are OPTIONAL at the schema level (a
     //    noop deployment must still boot with none of them set) and REQUIRED the moment
     //    MAIL_TRANSPORT=ses is chosen — checked independently per var so a deployment missing
@@ -783,22 +783,26 @@ export const envSchema = z
           'From address, and it must be a verified SES sender identity.',
       });
     }
-    // 2. The `REDIS_URL` shape, closing the TODO `MAIL_TRANSPORT`'s own comment named
-    //    (SFH135-I3): now that a second, real transport exists, a production boot on the noop
-    //    default is a configuration mistake, not a valid choice — it would silently drop every
-    //    verification code and password reset. Unlike the marine/air-quality/earthquake/
-    //    elevation legs above, this has no "start with the flag off" escape hatch: outbound
-    //    mail is not an optional leg, it is core to the registration/reset flows.
-    if (env.NODE_ENV === 'production' && env.MAIL_TRANSPORT === 'noop') {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['MAIL_TRANSPORT'],
-        message:
-          'MAIL_TRANSPORT=noop is not allowed in production — outbound mail (verification ' +
-          'codes, password resets) would be silently dropped. Configure MAIL_TRANSPORT=ses and ' +
-          'its AWS_*/MAIL_FROM_ADDRESS vars.',
-      });
-    }
+    // 2. THE PRODUCTION `noop` REFUSAL IS GONE (owner, 2026-09-17), and it is worth saying why
+    //    rather than leaving a deleted rule to be re-derived.
+    //
+    //    It read: "a production boot on the noop default is a configuration mistake, not a valid
+    //    choice — it would silently drop every verification code and password reset". That was
+    //    right when the only reason to run noop in production was forgetting to configure SES.
+    //    It is not the situation now: AWS SES is still sandboxed pending a verified sending
+    //    domain (T-019), so `ses` CANNOT deliver mail from this deployment, and refusing `noop`
+    //    only meant the API would not boot at all. A rule whose sole effect is preventing the
+    //    service from starting is not protecting anything.
+    //
+    //    What replaces the guarantee is narrower and lives closer to the risk:
+    //    `mintVerificationCode` (`src/auth/opaque-token.ts`) reads MAIL_TRANSPORT, so on a noop
+    //    deployment the verification code is the fixed `123456` — the only way to finish a flow
+    //    whose mail is going nowhere — and it returns to `randomInt` the moment this is `ses`.
+    //    No separate flag to set, and nothing to remember to undo at launch.
+    //
+    //    Password resets are NOT affected in the same way: they mint `randomBytes(32)` through
+    //    `mintOpaqueToken`, which this change does not touch. On noop that flow is unusable
+    //    (the token only ever existed in an email that is not sent), not guessable.
 
     // ── SEC84-P1: VISITOR_FORWARD_TOKEN must not collide with any existing secret ───────────
     // A shared value cannot mean what it says: against INTERNAL_REQUEST_TOKEN it silently
