@@ -21,11 +21,11 @@ import { type Env } from '../config/env.schema';
 import { mintOpaqueToken, mintVerificationCode } from './opaque-token';
 
 /**
- * Every non-development enum member `env.schema.ts` allows. Iterated rather than picking one, so
- * a THIRD environment value added to the schema later is exercised by this negative case too,
- * not silently skipped.
+ * EVERY environment `env.schema.ts` allows, production included. Iterated rather than picking
+ * one, so a fourth value added later is exercised too — and, since `MAIL_TRANSPORT` is what
+ * decides the branch now, each case asserts the environment does NOT.
  */
-const NON_DEVELOPMENT_ENVS: Env['NODE_ENV'][] = ['test', 'production'];
+const ALL_ENVS: Env['NODE_ENV'][] = ['development', 'test', 'production'];
 
 describe('mintOpaqueToken', () => {
   it('decodes to exactly 32 bytes of entropy', () => {
@@ -48,22 +48,20 @@ describe('mintOpaqueToken', () => {
 describe('mintVerificationCode', () => {
   it('is always exactly 6 digits, zero-padded', () => {
     for (let i = 0; i < 500; i += 1) {
-      const code = mintVerificationCode('test');
-      expect(code).toMatch(/^[0-9]{6}$/);
+      expect(mintVerificationCode('test', 'ses')).toMatch(/^[0-9]{6}$/);
     }
   });
 
   it('produces "000000" when the underlying randomInt draws zero — a leading-zero code is a valid code, not an empty one', () => {
     randomIntMock.mockReturnValueOnce(0);
-    expect(mintVerificationCode('test')).toBe('000000');
+    expect(mintVerificationCode('test', 'ses')).toBe('000000');
   });
 
   it('shows no modulo bias across the leading digit in 100k draws', () => {
     const leadingDigitCounts = new Array<number>(10).fill(0);
     const samples = 100_000;
     for (let i = 0; i < samples; i += 1) {
-      const code = mintVerificationCode('test');
-      const leadingDigit = Number(code[0]);
+      const leadingDigit = Number(mintVerificationCode('test', 'ses')[0]);
       leadingDigitCounts[leadingDigit] = (leadingDigitCounts[leadingDigit] ?? 0) + 1;
     }
     for (const count of leadingDigitCounts) {
@@ -72,46 +70,52 @@ describe('mintVerificationCode', () => {
     }
   });
 
-  it('returns "123456" deterministically when nodeEnv is "development"', () => {
-    expect(mintVerificationCode('development')).toBe('123456');
+  /**
+   * The decision this function exists to make, and the direction that changed.
+   *
+   * It used to read `nodeEnv === 'development'`, with `env.schema.ts` refusing to boot
+   * production on `MAIL_TRANSPORT=noop` so the fixed code could never reach it. That refusal is
+   * gone, so the branch reads the transport instead: a deployment that sends no mail cannot
+   * deliver a random code, and every environment on `noop` is in that position — production
+   * MOST of all, which is why it is named here rather than left out of the list.
+   */
+  it.each(ALL_ENVS)('returns the fixed code on a noop transport, including in %s', (nodeEnv) => {
+    expect(mintVerificationCode(nodeEnv, 'noop')).toBe('123456');
   });
 
   /**
-   * The property the config decision exists for: the fixed code is unreachable for any
-   * `nodeEnv` other than `'development'` — proven by observing the mocked `randomInt`'s return
-   * value flow all the way through, not merely that the result happens to differ from
-   * `'123456'` (a bare inequality check would still pass on a 1-in-10^6 coincidence where
-   * `randomInt` itself drew 123456, and would prove nothing about WHICH branch ran).
+   * The other half, and the one that keeps the fixed path from outliving its justification:
+   * pointing the deployment at a real transport restores randomness on its own, with no flag to
+   * unset. Proven by watching the mocked `randomInt`'s value flow all the way through — a bare
+   * `not.toBe('123456')` would still pass on the 1-in-10^6 draw of 123456 and would prove
+   * nothing about WHICH branch ran.
    */
-  it.each(NON_DEVELOPMENT_ENVS)(
-    'takes the randomInt branch, never the fixed one, when nodeEnv is %s',
-    (nodeEnv) => {
-      randomIntMock.mockReturnValueOnce(42);
-      expect(mintVerificationCode(nodeEnv)).toBe('000042');
-      expect(randomIntMock).toHaveBeenCalledWith(0, 1_000_000);
-    },
-  );
+  it.each(ALL_ENVS)('takes the randomInt branch on a ses transport, in %s', (nodeEnv) => {
+    randomIntMock.mockReturnValueOnce(42);
+    expect(mintVerificationCode(nodeEnv, 'ses')).toBe('000042');
+    expect(randomIntMock).toHaveBeenCalledWith(0, 1_000_000);
+  });
 
   /**
-   * The regression this whole signature change exists to make impossible: the parked stash
-   * version read `process.env.NODE_ENV` directly, so a deployment where SOMETHING ELSE in the
-   * process later touched that raw variable (this repo already does exactly that —
-   * `src/openapi/preview-env.ts` sets `process.env.NODE_ENV ??= 'development'`) could flip this
-   * function's branch with no code change here at all. Setting `process.env.NODE_ENV =
-   * 'development'` while passing a DIFFERENT `nodeEnv` argument and asserting the fixed code is
-   * NOT produced is what would turn red if `mintVerificationCode` ever went back to reading the
-   * raw variable instead of trusting only its parameter — reverting the implementation to the
-   * parked stash's `process.env.NODE_ENV === 'development'` check reproduces exactly that
-   * failure (measured locally against this test before this commit).
+   * The regression the signature exists to make impossible, now covering both parameters: the
+   * parked stash version read `process.env.NODE_ENV` directly, and this repo already mutates
+   * that variable as a side effect (`src/openapi/preview-env.ts` does
+   * `process.env.NODE_ENV ??= 'development'` during spec generation). Setting BOTH raw variables
+   * to the values that would flip the branch, while passing arguments that say otherwise, is
+   * what turns red if this function ever goes back to reading the environment instead of
+   * trusting only what it was handed.
    */
-  it('ignores process.env.NODE_ENV entirely — only the nodeEnv parameter decides the branch', () => {
-    const previousProcessEnv = process.env.NODE_ENV;
+  it('ignores process.env entirely — only the parameters decide the branch', () => {
+    const previousNodeEnv = process.env.NODE_ENV;
+    const previousTransport = process.env.MAIL_TRANSPORT;
     try {
       process.env.NODE_ENV = 'development';
+      process.env.MAIL_TRANSPORT = 'noop';
       randomIntMock.mockReturnValueOnce(42);
-      expect(mintVerificationCode('production')).toBe('000042');
+      expect(mintVerificationCode('production', 'ses')).toBe('000042');
     } finally {
-      process.env.NODE_ENV = previousProcessEnv;
+      process.env.NODE_ENV = previousNodeEnv;
+      process.env.MAIL_TRANSPORT = previousTransport;
     }
   });
 });
