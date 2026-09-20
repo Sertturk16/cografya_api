@@ -405,6 +405,29 @@ describe('Auth core schema (e2e)', () => {
     expect(instanceToPlain(explicitlySelected)).toEqual({});
   });
 
+  /**
+   * Rewinds until the named migration is the one `undoLastMigration()` would revert next.
+   *
+   * T-061 registered `AddPasswordChangeRateLimitScope` AFTER `AddSchoolNameAndParentAccountRole`,
+   * so the three cases below — every one of them about the LATTER's `down()` — stopped reaching
+   * their subject in a single step. This walks back to it instead of hardcoding "revert once",
+   * so the next migration added after them costs nothing here and the cases keep testing what
+   * their names say. It is bounded: a runaway loop throws rather than unwinding the schema.
+   */
+  const rewindUntilNextRevertIs = async (migrationClassName: string): Promise<void> => {
+    for (let guard = 0; guard < 20; guard += 1) {
+      const rows = await dataSource.query<{ name: string }[]>(
+        `SELECT name FROM migrations ORDER BY timestamp DESC LIMIT 1`,
+      );
+      const last = rows[0];
+      if (!last)
+        throw new Error(`rewound past every migration without reaching ${migrationClassName}`);
+      if (last.name.startsWith(migrationClassName)) return;
+      await dataSource.undoLastMigration();
+    }
+    throw new Error(`did not reach ${migrationClassName} within 20 reverts`);
+  };
+
   it('reverts and reapplies the latest migration (AddSchoolNameAndParentAccountRole) on empty synthetic tables', async () => {
     // The authority for "which migration is latest" is the explicit `migrations` array in
     // `src/database/data-source-options.ts`, never a directory listing or a timestamp sort
@@ -668,6 +691,7 @@ describe('Auth core schema (e2e)', () => {
     expect(shapeAfterUp.pendingAccountRoleCheck).toContain('PARENT');
     expect(shapeAfterUp.pendingProfileShapeCheck).toContain('school_name');
 
+    await rewindUntilNextRevertIs('AddSchoolNameAndParentAccountRole');
     await dataSource.undoLastMigration();
 
     // The revert removes `users.school_name`/`pending_registrations.school_name` and restores the
@@ -722,6 +746,7 @@ describe('Auth core schema (e2e)', () => {
     it('refuses to revert once a school_name value exists, and drops nothing', async () => {
       await insertUser(secondary({ schoolName: 'Synthetic Guard Lisesi' }));
 
+      await rewindUntilNextRevertIs('AddSchoolNameAndParentAccountRole');
       await expect(dataSource.undoLastMigration()).rejects.toThrow(
         /AddSchoolNameAndParentAccountRole\.down\(\) refuses/,
       );
@@ -731,6 +756,9 @@ describe('Auth core schema (e2e)', () => {
         WHERE table_schema = 'public' AND table_name = 'users' AND column_name = 'school_name'
       `);
       expect(columns).toHaveLength(1);
+
+      // Put back what the rewind unwound, so this case leaves the schema as it found it.
+      await dataSource.runMigrations();
     });
 
     // The guard sums non-null `school_name` rows across BOTH `users` AND `pending_registrations`
@@ -761,6 +789,7 @@ describe('Auth core schema (e2e)', () => {
         attemptCount: 0,
       });
 
+      await rewindUntilNextRevertIs('AddSchoolNameAndParentAccountRole');
       await expect(dataSource.undoLastMigration()).rejects.toThrow(
         /AddSchoolNameAndParentAccountRole\.down\(\) refuses/,
       );
@@ -771,6 +800,56 @@ describe('Auth core schema (e2e)', () => {
           AND column_name = 'school_name'
       `);
       expect(columns).toHaveLength(1);
+
+      await dataSource.runMigrations();
+    });
+  });
+  describe('AddPasswordChangeRateLimitScope — the scope CHECK widens and narrows (T-061)', () => {
+    const scopeCheck = async (): Promise<string> => {
+      const rows = await dataSource.query<{ definition: string }[]>(`
+        SELECT pg_get_constraintdef(c.oid) AS definition
+          FROM pg_constraint c
+          JOIN pg_class t ON t.oid = c.conrelid
+         WHERE t.relname = 'auth_rate_limits' AND c.conname = 'CHK_auth_rate_limits_scope'
+      `);
+      const row = rows[0];
+      if (!row) throw new Error('CHK_auth_rate_limits_scope is missing');
+      return row.definition;
+    };
+
+    it('admits PASSWORD_CHANGE_USER after up() and refuses it after down()', async () => {
+      expect(await scopeCheck()).toContain('PASSWORD_CHANGE_USER');
+      // The five it already admitted are still admitted — widening, not replacing.
+      expect(await scopeCheck()).toContain('LOGIN_EMAIL');
+      expect(await scopeCheck()).toContain('PASSWORD_RESET_EMAIL');
+
+      await dataSource.undoLastMigration();
+
+      expect(await scopeCheck()).not.toContain('PASSWORD_CHANGE_USER');
+      expect(await scopeCheck()).toContain('LOGIN_EMAIL');
+
+      await dataSource.runMigrations();
+      expect(await scopeCheck()).toContain('PASSWORD_CHANGE_USER');
+    });
+
+    it('down() fails rather than deleting a live bucket carrying the new scope', async () => {
+      await dataSource.query(
+        `INSERT INTO auth_rate_limits (scope, subject_hash, window_start, attempt_count)
+         VALUES ('PASSWORD_CHANGE_USER', $1, now(), 1)`,
+        [Buffer.alloc(32, 9)],
+      );
+
+      // Postgres refuses to validate the narrowed CHECK against the existing row. That refusal
+      // is the desired behaviour: making a rollback succeed by deleting a rate-limit bucket
+      // would hand an attacker a fresh guessing budget by reverting a migration.
+      await expect(dataSource.undoLastMigration()).rejects.toThrow();
+
+      const rows = await dataSource.query<{ count: string }[]>(
+        `SELECT count(*)::text AS count FROM auth_rate_limits WHERE scope = 'PASSWORD_CHANGE_USER'`,
+      );
+      expect(rows[0]?.count).toBe('1');
+
+      await dataSource.query(`DELETE FROM auth_rate_limits WHERE scope = 'PASSWORD_CHANGE_USER'`);
     });
   });
 });

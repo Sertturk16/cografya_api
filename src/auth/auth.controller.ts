@@ -23,6 +23,7 @@ import { CurrentUser } from './current-user.decorator';
 import { AuthResultDto } from './dto/auth-result.dto';
 import { LoginRequestDto } from './dto/login-request.dto';
 import { LogoutRequestDto } from './dto/logout-request.dto';
+import { PasswordChangeRequestDto } from './dto/password-change-request.dto';
 import { PasswordResetConfirmDto } from './dto/password-reset-confirm.dto';
 import { PasswordResetRequestDto } from './dto/password-reset-request.dto';
 import { PasswordResetVerifyDto } from './dto/password-reset-verify.dto';
@@ -35,6 +36,7 @@ import { UpdateAccountRequestDto } from './dto/update-account-request.dto';
 import { UpdateProfileRequestDto } from './dto/update-profile-request.dto';
 import { VerifyEmailRequestDto } from './dto/verify-email-request.dto';
 import { EmailVerificationService } from './email-verification.service';
+import { PasswordChangeService } from './password-change.service';
 import { PasswordResetService } from './password-reset.service';
 import { ProfileService } from './profile.service';
 import { RegistrationService } from './registration.service';
@@ -135,6 +137,7 @@ export class AuthController {
     private readonly emailVerification: EmailVerificationService,
     private readonly sessions: SessionService,
     private readonly passwordReset: PasswordResetService,
+    private readonly passwordChange: PasswordChangeService,
     private readonly profile: ProfileService,
   ) {}
 
@@ -367,6 +370,41 @@ export class AuthController {
     @Body() dto: UpdateProfileRequestDto,
   ): Promise<ProfileDto> {
     return this.profile.replaceProfile(user.id, dto);
+  }
+
+  @Post('password/change')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AccessTokenGuard)
+  @NoTrustedClientExemption()
+  @Throttle({ default: AUTH_ROUTE_THROTTLES.passwordChange })
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: "Change the authenticated caller's password (T-061).",
+    description:
+      'Mevcut şifre doğrulanır, yeni şifre politikadan geçer. Başarıda üyenin DİĞER tüm ' +
+      'oturumları düşer (token_version artar, canlı refresh aileleri iptal edilir) ve çağırana ' +
+      'yeni bir token çifti döner — yani kendi oturumu hayatta kalır. Bu, posta kutusu ' +
+      'kanıtına dayanan `password-reset/*` ile karıştırılmamalıdır.',
+  })
+  @ApiOkResponse({ type: AuthResultDto })
+  @ApiBadRequestResponse({
+    type: ApiErrorDto,
+    description: 'errors.register.weakPassword ya da errors.password.unchanged.',
+  })
+  @ApiUnauthorizedResponse({
+    type: ApiErrorDto,
+    description: 'errors.auth.unauthenticated ya da errors.password.currentInvalid.',
+  })
+  @ApiTooManyRequestsResponse({
+    type: ApiErrorDto,
+    description:
+      'errors.auth.rateLimited (IP ekseni) ya da errors.auth.tooManyAttempts (kimlik ekseni).',
+  })
+  async changePassword(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: PasswordChangeRequestDto,
+  ): Promise<AuthResultDto> {
+    return this.passwordChange.change(user.id, dto.currentPassword, dto.newPassword);
   }
 
   @Put('account')

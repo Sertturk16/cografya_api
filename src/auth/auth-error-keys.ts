@@ -1,5 +1,5 @@
 /**
- * The single home of every i18n error key this package publishes (§6.3) — ten keys, no more.
+ * The single home of every i18n error key this package publishes (§6.3) — twelve keys, no more.
  * `ApiErrorDto.message` carries one of these; the api never writes user-facing prose (`ENGINEERING.md`
  * §6, Y12) — the sentence a reader sees is `cografya_web`'s (`messages/{tr,en}.json`).
  *
@@ -19,6 +19,13 @@ export const AUTH_ERROR_KEYS = {
   weakPassword: 'errors.register.weakPassword',
   verifyCodeInvalid: 'errors.verify.codeInvalid',
   resetTokenInvalid: 'errors.password.resetTokenInvalid',
+  // T-061, `POST /api/auth/password/change`. Two keys rather than one because the two answers
+  // are genuinely different actions for the member: re-enter the password you have, versus
+  // choose a different new one. Neither is an enumeration oracle — the route is behind
+  // `AccessTokenGuard`, so the caller already holds a session for the account in question and
+  // learns nothing about anyone else's.
+  passwordCurrentInvalid: 'errors.password.currentInvalid',
+  passwordUnchanged: 'errors.password.unchanged',
 } as const;
 
 export type AuthErrorKey = (typeof AUTH_ERROR_KEYS)[keyof typeof AUTH_ERROR_KEYS];

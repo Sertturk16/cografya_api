@@ -62,6 +62,7 @@ import { DropBookDenemeCount1788300120000 } from './migrations/1788300120000-Dro
 import { AddFavoriteRegionAndContinent1788310000000 } from './migrations/1788310000000-AddFavoriteRegionAndContinent';
 import { AddGameRoundsLeaderboardIndex1788400000000 } from './migrations/1788400000000-AddGameRoundsLeaderboardIndex';
 import { AddSchoolNameAndParentAccountRole1789125265639 } from './migrations/1789125265639-AddSchoolNameAndParentAccountRole';
+import { AddPasswordChangeRateLimitScope1789862400000 } from './migrations/1789862400000-AddPasswordChangeRateLimitScope';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -291,6 +292,7 @@ export function buildDataSourceOptions(
       AddFavoriteRegionAndContinent1788310000000,
       AddGameRoundsLeaderboardIndex1788400000000,
       AddSchoolNameAndParentAccountRole1789125265639,
+      AddPasswordChangeRateLimitScope1789862400000,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,

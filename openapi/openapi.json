@@ -1522,6 +1522,142 @@
         ]
       }
     },
+    "/api/auth/password/change": {
+      "post": {
+        "description": "Mevcut şifre doğrulanır, yeni şifre politikadan geçer. Başarıda üyenin DİĞER tüm oturumları düşer (token_version artar, canlı refresh aileleri iptal edilir) ve çağırana yeni bir token çifti döner — yani kendi oturumu hayatta kalır. Bu, posta kutusu kanıtına dayanan `password-reset/*` ile karıştırılmamalıdır.",
+        "operationId": "AuthController_changePassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordChangeRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResultDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "errors.register.weakPassword ya da errors.password.unchanged.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "errors.auth.unauthenticated ya da errors.password.currentInvalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "errors.auth.rateLimited (IP ekseni) ya da errors.auth.tooManyAttempts (kimlik ekseni).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Change the authenticated caller's password (T-061).",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/account": {
+      "put": {
+        "description": "Ad, soyad, telefon ve ilçe/il — hepsi zorunlu, kısmi güncelleme yoktur (T-061). accountRole ve email bilerek dışarıdadır; ikisi de bu uçtan değiştirilemez.",
+        "operationId": "AuthController_replaceAccount",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAccountRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing required key, unknown property, or districtId not in the named province.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "errors.auth.unauthenticated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "errors.auth.rateLimited — IP ekseni tavanı aşıldı.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Replace the personal block of the authenticated caller (full replacement).",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/api/video-progress/books/{slug}": {
       "get": {
         "description": "A caller with no progress at all for this book still gets 200: videoCount is the book's own video-row count (the denominator), watchedCount/startedCount default to zero and resume is null — this route answers \"how far am I\", which has a valid zero, unlike the single-video GET's \"do I have a row here\" 404.",
@@ -7082,6 +7218,56 @@
       "ProfileDto": {
         "type": "object",
         "properties": {
+          "firstName": {
+            "type": "string",
+            "example": "Ayşe",
+            "maxLength": 100,
+            "description": "Ad."
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Yılmaz",
+            "maxLength": 100,
+            "description": "Soyad."
+          },
+          "email": {
+            "type": "string",
+            "example": "reader@example.test",
+            "maxLength": 254,
+            "description": "E-posta — canonical (trim + küçük harf) biçimde. Bu uçtan salt-okunurdur."
+          },
+          "phone": {
+            "type": "string",
+            "example": "+905551234567",
+            "description": "Türkiye cep telefonu, E.164 biçiminde."
+          },
+          "districtId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "6b3f6f5a-6f5a-4f5a-8f5a-6f5a6f5a6f5a",
+            "description": "Üyenin ilçesi — `GET /api/reference/districts?plateCode=…`'ün döndürdüğü id."
+          },
+          "districtName": {
+            "type": "string",
+            "example": "Kadıköy",
+            "description": "İlçenin adı — districtId üzerinden çözülür."
+          },
+          "provincePlateCode": {
+            "type": "string",
+            "example": "34",
+            "description": "İlin plaka kodu — ilçenin bağlı olduğu ilden türetilir, ayrıca saklanmaz."
+          },
+          "provinceName": {
+            "type": "string",
+            "example": "İstanbul",
+            "description": "İlin adı."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-01-02T03:04:05.000Z",
+            "description": "Üyeliğin oluşturulma anı (ISO 8601, UTC)."
+          },
           "accountRole": {
             "enum": [
               "STUDENT",
@@ -7165,6 +7351,15 @@
           }
         },
         "required": [
+          "firstName",
+          "lastName",
+          "email",
+          "phone",
+          "districtId",
+          "districtName",
+          "provincePlateCode",
+          "provinceName",
+          "createdAt",
           "accountRole",
           "educationLevel",
           "gradeLevel",
@@ -7247,6 +7442,68 @@
           "schoolName",
           "universityName",
           "departmentName"
+        ]
+      },
+      "PasswordChangeRequestDto": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string",
+            "writeOnly": true,
+            "description": "Üyenin bugünkü şifresi. Politika denetiminden GEÇMEZ — bugünkü politikadan eski bir şifre de sunulabilmelidir. Hiçbir yanıtta, örnekte ya da logda dönmez."
+          },
+          "newPassword": {
+            "type": "string",
+            "writeOnly": true,
+            "minLength": 6,
+            "maxLength": 128,
+            "description": "En az bir küçük harf, bir büyük harf ve bir rakam içermeli (`DEC 2026-08-20g` md.1 #5). Hiçbir yanıtta, örnekte ya da logda dönmez."
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ]
+      },
+      "UpdateAccountRequestDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Ayşe",
+            "description": "Ad — trim edilir, boş olamaz."
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Yılmaz",
+            "description": "Soyad — trim edilir, boş olamaz."
+          },
+          "phone": {
+            "type": "string",
+            "example": "+905551234567",
+            "description": "Türkiye cep telefonu, E.164. Yaygın yazımlar (0532…, 90532…, boşluk/tire/parantezli) kabul edilip +90 biçimine katlanır; sonuç bu biçime uymuyorsa 400."
+          },
+          "provincePlateCode": {
+            "type": "string",
+            "example": "34",
+            "pattern": "^[0-9]{2}$",
+            "description": "İlin plaka kodu, iki hane ve başı sıfırla dolgulu — districtId ile birlikte doğrulanır."
+          },
+          "districtId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "6b3f6f5a-6f5a-4f5a-8f5a-6f5a6f5a6f5a",
+            "description": "`GET /api/reference/districts?plateCode=…`'ün döndürdüğü id. Var olduğu ve provincePlateCode ile ait olduğu tek sorguyla doğrulanır (D15)."
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "phone",
+          "provincePlateCode",
+          "districtId"
         ]
       },
       "BookProgressResumeDto": {

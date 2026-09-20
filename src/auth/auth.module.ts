@@ -19,6 +19,7 @@ import type { MailerPort } from './mail/mailer.port';
 import { MAILER_PORT } from './mail/mailer.port';
 import { NoopMailerAdapter } from './mail/noop-mailer.adapter';
 import { SesMailerAdapter } from './mail/ses-mailer.adapter';
+import { PasswordChangeService } from './password-change.service';
 import { PasswordHasherService } from './password-hasher.service';
 import { PasswordResetService } from './password-reset.service';
 import { RegistrationService } from './registration.service';
@@ -75,6 +76,7 @@ const UserRepositoryModule = TypeOrmModule.forFeature([User]);
   controllers: [AuthController],
   providers: [
     PasswordHasherService,
+    PasswordChangeService,
     AuthSecretsProvider,
     AccessTokenService,
     AuthRateLimitService,

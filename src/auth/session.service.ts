@@ -127,7 +127,7 @@ export class SessionService {
       throw new ForbiddenException(AUTH_ERROR_KEYS.accountDisabled);
     }
 
-    return this.mintTokenPairAndSession(user.id, user.tokenVersion);
+    return this.issueSession(user.id, user.tokenVersion);
   }
 
   /**
@@ -315,13 +315,22 @@ export class SessionService {
     if (!user) {
       throw new UnauthorizedException(AUTH_ERROR_KEYS.unauthenticated);
     }
-    return this.mintTokenPairAndSession(user.id, user.tokenVersion);
+    return this.issueSession(user.id, user.tokenVersion);
   }
 
-  private async mintTokenPairAndSession(
-    userId: string,
-    tokenVersion: number,
-  ): Promise<AuthResultDto> {
+  /**
+   * Opens a new session row and mints the pair that names it.
+   *
+   * **Public, and narrowly so (T-061).** It stopped being private when
+   * `PasswordChangeService` needed to hand a member a fresh pair after revoking every live
+   * family — the alternative was a second copy of the insert-plus-mint pair, and two spellings
+   * of "what a session is" is how the two drift. It is public to this MODULE's services, not
+   * an exported capability: `AuthModule` does not export `SessionService`, so nothing outside
+   * this module can reach it. Callers must pass the tokenVersion they want the access token to
+   * carry — the CURRENT one, which after a bump is the incremented value, never the value read
+   * before the bump.
+   */
+  async issueSession(userId: string, tokenVersion: number): Promise<AuthResultDto> {
     const refreshTokenPlain = mintOpaqueToken();
     const issuedAt = new Date();
 
