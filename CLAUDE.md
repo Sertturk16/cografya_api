@@ -20,6 +20,8 @@ pnpm typecheck && pnpm lint          # gate before every commit (no --fix in rev
 pnpm test:unit                       # jest, specs next to source in src/ and tools/
 pnpm test:e2e                        # jest + Testcontainers Postgres, needs Docker, slow
 pnpm openapi:generate                # after ANY DTO/route change; commit openapi/openapi.json
+# ^ EACCES on dist/? The dev container built it as root:
+#   docker exec -u 0 cografya-api-dev sh -lc 'chown -R 1000:1000 /app/dist'
 pnpm migration:generate src/database/migrations/<Name>   # then register it (see below)
 ```
 
@@ -31,6 +33,9 @@ reading `DATABASE_URL` from the shell (no `.env` loading).
 - `synchronize` is off forever. Entity change → generate migration → **read the SQL** →
   add the class to the explicit `migrations` array in `src/database/data-source-options.ts`
   (entities are listed explicitly there too, no globs). Never commit an unread migration.
+- A new migration breaks suites that never mention it: `province`/`country` e2e each assert
+  the FULL ordered migration list (two copies, on purpose). Run the whole `pnpm test:e2e`
+  lane before pushing a migration, not just the module you touched.
 - Every env var the app reads is declared in the zod schema `src/config/env.schema.ts`.
   Booleans use `envBoolean()` (`'true'`/`'false'` only). Validation runs at import time:
   anything that imports `AppModule` validates `process.env` immediately.
