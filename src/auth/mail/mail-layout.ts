@@ -24,6 +24,20 @@ import type { MailLocale } from './mailer.port';
  *      Georgia carries the display voice when Fraunces does not arrive, and both cover the
  *      Turkish İ ı ğ ş ç ö ü.
  *
+ * ## Dark mode: what is handled, and what is not
+ *
+ * The `color-scheme` / `supported-color-schemes` pair asks the client not to recolour the
+ * message, and Apple Mail and iOS obey it — verified by rendering this shell under an
+ * emulated dark scheme, where it stays on the parchment field. Gmail on Android and
+ * Outlook.com run their OWN inversion on some platforms and ignore that declaration, and
+ * nothing here can stop them. Writing `prefers-color-scheme` overrides would not help: the
+ * clients that honour the media query are the ones already honouring the declaration, and the
+ * clients that invert are the ones that strip the `<style>` block it would live in. So the
+ * defence is structural instead — every surface carries an explicit `bgcolor` AND a `style`
+ * background, which is what keeps an inverting client from compositing text onto a colour it
+ * never chose. It is NOT a claim that the result is pretty in Gmail's dark mode; no test in
+ * this repo opens Gmail, and neither did anyone before shipping this.
+ *
  * ## The design
  *
  * Direction C ("Mutfak") of the three put to the owner on 2026-09-20, chosen with the logo
