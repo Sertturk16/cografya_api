@@ -988,22 +988,22 @@ describe('Favorites (e2e, real Postgres)', () => {
       );
       expect(Number(strayRows[0]?.count ?? 0)).toBeGreaterThan(0);
 
-      // `AddFavoriteRegionAndContinent` is no longer the literal tip of the registered
-      // `migrations` array — TWO migrations landed after it since this suite last checked:
-      // UYE-P1E's `AddSchoolNameAndParentAccountRole` (the current tail) and, before it, P1 PR-C's
-      // `AddGameRoundsLeaderboardIndex`. `undoLastMigration()` only ever pops the SINGLE most
-      // recent entry, so reaching the migration under test now takes THREE pops. The first
-      // reverts `AddSchoolNameAndParentAccountRole` — awaited but not independently asserted (an
-      // unhandled rejection here would still fail the test, but nothing below checks its outcome
-      // directly); it is expected to succeed cleanly since this suite never sets `schoolName` and
-      // never registers a `PARENT` account, so neither of that migration's own down() guards (the
-      // explicit stray-`school_name` guard, the natural CHECK-violation guard on a live `PARENT`
-      // row) finds anything to refuse. The second reverts `AddGameRoundsLeaderboardIndex` (a
-      // plain, unconditional `DROP INDEX` on `game_rounds` — nothing about favourites, and nothing
-      // to refuse); also awaited but not independently asserted. The THIRD call is the one that
-      // actually reaches `AddFavoriteRegionAndContinent.down()` and is the one this test is about.
-      await dataSource.undoLastMigration();
-      await dataSource.undoLastMigration();
+      // `AddFavoriteRegionAndContinent` is not the tip of the registered `migrations` array,
+      // and the list of what landed after it keeps growing — it was two, then three, and a
+      // hand-counted number of `undoLastMigration()` pops had to be edited every time. It is
+      // now walked BY NAME instead, so the next migration registered after it costs this suite
+      // nothing and the case keeps testing what its name says. Each intermediate revert is
+      // awaited but not independently asserted; an unhandled rejection would still fail the
+      // test. The pop that follows the rewind is the one this case is about.
+      for (let guard = 0; guard < 20; guard += 1) {
+        const rows = await dataSource.query<{ name: string }[]>(
+          `SELECT name FROM migrations ORDER BY timestamp DESC LIMIT 1`,
+        );
+        const last = rows[0];
+        if (!last) throw new Error('rewound past every migration without reaching the subject');
+        if (last.name.startsWith('AddFavoriteRegionAndContinent')) break;
+        await dataSource.undoLastMigration();
+      }
 
       await expect(dataSource.undoLastMigration()).rejects.toThrow(
         /AddFavoriteRegionAndContinent\.down\(\) refuses/,
