@@ -234,6 +234,7 @@ describe('Province (e2e)', () => {
       // foreign key, so no ordering constraint beyond "after the tables it alters" (both already
       // above).
       'AddSchoolNameAndParentAccountRole1789125265639',
+      'AddPasswordChangeRateLimitScope1789862400000',
     ]);
   });
 

@@ -1,6 +1,7 @@
-import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
+import { assertDistrictBelongsToProvince } from './district-membership';
 import { AccountStatus } from './account.types';
 import { AuthRateLimitScope } from './auth.types';
 import { AuthRateLimitService } from './auth-rate-limit.service';
@@ -53,7 +54,7 @@ export class RegistrationService {
   async register(dto: RegisterRequestDto): Promise<void> {
     // D15: districtId must exist and belong to provincePlateCode — one query, no class-validator
     // DB constraint (src/main.ts is frozen, Y1; no `useContainer` is wired).
-    await this.assertDistrictBelongsToProvince(dto.districtId, dto.provincePlateCode);
+    await assertDistrictBelongsToProvince(this.dataSource, dto.districtId, dto.provincePlateCode);
 
     // Timing normalization (§6.2): the password is hashed on EVERY branch, known address or not,
     // so an attacker cannot distinguish the two paths by response latency.
@@ -166,24 +167,6 @@ export class RegistrationService {
       } catch {
         this.logger.warn('pending.resend outcome=refund-failed');
       }
-    }
-  }
-
-  private async assertDistrictBelongsToProvince(
-    districtId: string,
-    provincePlateCode: string,
-  ): Promise<void> {
-    const rows = await this.dataSource.query<{ id: string }[]>(
-      `SELECT d.id
-         FROM districts d
-         INNER JOIN provinces p ON p.id = d.province_id
-        WHERE d.id = $1 AND p.plate_code = $2`,
-      [districtId, provincePlateCode],
-    );
-    if (rows.length === 0) {
-      throw new BadRequestException([
-        'districtId must exist and belong to the province named by provincePlateCode',
-      ]);
     }
   }
 

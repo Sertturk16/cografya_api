@@ -2,13 +2,63 @@ import { ApiProperty } from '@nestjs/swagger';
 import { AccountRole, EducationLevel, GradeLevel, StudyStream } from '../account.types';
 
 /**
- * `GET /api/auth/profile` and `PUT /api/auth/profile` response representation
- * (`plan-api.md` §5.3.2, `DEC 2026-09-03a` md.1, `GLOSSARY.md` §7.1).
+ * `GET /api/auth/profile`, `PUT /api/auth/profile` and `PUT /api/auth/account` response
+ * representation (`plan-api.md` §5.3.2, `DEC 2026-09-03a` md.1, `GLOSSARY.md` §7.1, T-061).
  *
- * All eight properties are required in the published schema. Nullable properties
+ * All seventeen properties are required in the published schema. Nullable properties
  * use explicit `null` when undeclared or not applicable to the role/branch.
+ *
+ * **This is the ONLY route that publishes the personal block.** `GET /api/auth/session` stays
+ * the minimum-PII set — id, firstName, accountRole and nothing else (§7.3) — because it is read
+ * on ordinary navigation; the personal block travels only here, behind `AccessTokenGuard`,
+ * `@NoTrustedClientExemption()` and `AuthNoStoreMiddleware`.
  */
 export class ProfileDto {
+  @ApiProperty({ example: 'Ayşe', maxLength: 100, description: 'Ad.' })
+  firstName!: string;
+
+  @ApiProperty({ example: 'Yılmaz', maxLength: 100, description: 'Soyad.' })
+  lastName!: string;
+
+  @ApiProperty({
+    example: 'reader@example.test',
+    maxLength: 254,
+    description: 'E-posta — canonical (trim + küçük harf) biçimde. Bu uçtan salt-okunurdur.',
+  })
+  email!: string;
+
+  @ApiProperty({
+    example: '+905551234567',
+    description: 'Türkiye cep telefonu, E.164 biçiminde.',
+  })
+  phone!: string;
+
+  @ApiProperty({
+    format: 'uuid',
+    example: '6b3f6f5a-6f5a-4f5a-8f5a-6f5a6f5a6f5a',
+    description: "Üyenin ilçesi — `GET /api/reference/districts?plateCode=…`'ün döndürdüğü id.",
+  })
+  districtId!: string;
+
+  @ApiProperty({ example: 'Kadıköy', description: 'İlçenin adı — districtId üzerinden çözülür.' })
+  districtName!: string;
+
+  @ApiProperty({
+    example: '34',
+    description: 'İlin plaka kodu — ilçenin bağlı olduğu ilden türetilir, ayrıca saklanmaz.',
+  })
+  provincePlateCode!: string;
+
+  @ApiProperty({ example: 'İstanbul', description: 'İlin adı.' })
+  provinceName!: string;
+
+  @ApiProperty({
+    format: 'date-time',
+    example: '2026-01-02T03:04:05.000Z',
+    description: 'Üyeliğin oluşturulma anı (ISO 8601, UTC).',
+  })
+  createdAt!: string;
+
   @ApiProperty({
     enum: AccountRole,
     example: AccountRole.Student,

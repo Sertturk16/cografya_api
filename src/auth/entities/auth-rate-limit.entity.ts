@@ -27,7 +27,7 @@ import type { AuthRateLimitScope } from '../auth.types';
   'CHK_auth_rate_limits_scope',
   `"scope" IN (` +
     `'REGISTER_EMAIL', 'VERIFY_RESEND_COOLDOWN', 'VERIFY_RESEND_DAILY', 'LOGIN_EMAIL', ` +
-    `'PASSWORD_RESET_EMAIL')`,
+    `'PASSWORD_RESET_EMAIL', 'PASSWORD_CHANGE_USER')`,
 )
 export class AuthRateLimit {
   @PrimaryGeneratedColumn('uuid', { primaryKeyConstraintName: 'PK_auth_rate_limits' })

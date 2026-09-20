@@ -28,6 +28,13 @@ export enum AuthRateLimitScope {
   VerifyResendDaily = 'VERIFY_RESEND_DAILY',
   LoginEmail = 'LOGIN_EMAIL',
   PasswordResetEmail = 'PASSWORD_RESET_EMAIL',
+  /**
+   * T-061. Keyed by USER ID, not an address: the route is authenticated, and what needs
+   * bounding is how many wrong current-password guesses one ACCOUNT absorbs. Deliberately not
+   * `LoginEmail` — spending that here would let a failed change lock the member out of login,
+   * the self-DoS shape `VAL136-I1` already had to be closed once.
+   */
+  PasswordChange = 'PASSWORD_CHANGE_USER',
 }
 
 /** One scope's cap and window, in milliseconds. */
@@ -52,4 +59,5 @@ export const AUTH_RATE_LIMIT_RULES: Readonly<Record<AuthRateLimitScope, AuthRate
   [AuthRateLimitScope.VerifyResendDaily]: { limit: 5, windowMs: ONE_DAY_MS },
   [AuthRateLimitScope.LoginEmail]: { limit: 10, windowMs: 15 * ONE_MINUTE_MS },
   [AuthRateLimitScope.PasswordResetEmail]: { limit: 3, windowMs: ONE_HOUR_MS },
+  [AuthRateLimitScope.PasswordChange]: { limit: 5, windowMs: 15 * ONE_MINUTE_MS },
 };

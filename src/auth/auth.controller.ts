@@ -23,6 +23,7 @@ import { CurrentUser } from './current-user.decorator';
 import { AuthResultDto } from './dto/auth-result.dto';
 import { LoginRequestDto } from './dto/login-request.dto';
 import { LogoutRequestDto } from './dto/logout-request.dto';
+import { PasswordChangeRequestDto } from './dto/password-change-request.dto';
 import { PasswordResetConfirmDto } from './dto/password-reset-confirm.dto';
 import { PasswordResetRequestDto } from './dto/password-reset-request.dto';
 import { PasswordResetVerifyDto } from './dto/password-reset-verify.dto';
@@ -31,9 +32,11 @@ import { RefreshRequestDto } from './dto/refresh-request.dto';
 import { RegisterRequestDto } from './dto/register-request.dto';
 import { ResendVerificationRequestDto } from './dto/resend-verification-request.dto';
 import { SessionDto } from './dto/session.dto';
+import { UpdateAccountRequestDto } from './dto/update-account-request.dto';
 import { UpdateProfileRequestDto } from './dto/update-profile-request.dto';
 import { VerifyEmailRequestDto } from './dto/verify-email-request.dto';
 import { EmailVerificationService } from './email-verification.service';
+import { PasswordChangeService } from './password-change.service';
 import { PasswordResetService } from './password-reset.service';
 import { ProfileService } from './profile.service';
 import { RegistrationService } from './registration.service';
@@ -71,6 +74,13 @@ export const AUTH_ROUTE_THROTTLES = {
   // enumeration (plan-api.md §5.4). Generous enough a member reopening the link a few times
   // is never refused, tight enough the route is not an unbounded oracle.
   passwordResetVerify: { limit: 30, ttl: 60 * 60 * 1000 },
+  // T-061. `updateAccount` is an ordinary authenticated write, so it sits at the refresh/logout
+  // tier. `passwordChange` does NOT: it accepts a password GUESS, so it is the one authenticated
+  // route on this controller that is an online-guessing surface, and it gets login's shape
+  // tightened — a member changes their password a handful of times a year, never ten times in
+  // fifteen minutes.
+  updateAccount: { limit: 30, ttl: 15 * 60 * 1000 },
+  passwordChange: { limit: 10, ttl: 15 * 60 * 1000 },
 } as const;
 
 /**
@@ -127,6 +137,7 @@ export class AuthController {
     private readonly emailVerification: EmailVerificationService,
     private readonly sessions: SessionService,
     private readonly passwordReset: PasswordResetService,
+    private readonly passwordChange: PasswordChangeService,
     private readonly profile: ProfileService,
   ) {}
 
@@ -359,5 +370,68 @@ export class AuthController {
     @Body() dto: UpdateProfileRequestDto,
   ): Promise<ProfileDto> {
     return this.profile.replaceProfile(user.id, dto);
+  }
+
+  @Post('password/change')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AccessTokenGuard)
+  @NoTrustedClientExemption()
+  @Throttle({ default: AUTH_ROUTE_THROTTLES.passwordChange })
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: "Change the authenticated caller's password (T-061).",
+    description:
+      'Mevcut şifre doğrulanır, yeni şifre politikadan geçer. Başarıda üyenin DİĞER tüm ' +
+      'oturumları düşer (token_version artar, canlı refresh aileleri iptal edilir) ve çağırana ' +
+      'yeni bir token çifti döner — yani kendi oturumu hayatta kalır. Bu, posta kutusu ' +
+      'kanıtına dayanan `password-reset/*` ile karıştırılmamalıdır.',
+  })
+  @ApiOkResponse({ type: AuthResultDto })
+  @ApiBadRequestResponse({
+    type: ApiErrorDto,
+    description: 'errors.register.weakPassword ya da errors.password.unchanged.',
+  })
+  @ApiUnauthorizedResponse({
+    type: ApiErrorDto,
+    description: 'errors.auth.unauthenticated ya da errors.password.currentInvalid.',
+  })
+  @ApiTooManyRequestsResponse({
+    type: ApiErrorDto,
+    description:
+      'errors.auth.rateLimited (IP ekseni) ya da errors.auth.tooManyAttempts (kimlik ekseni).',
+  })
+  async changePassword(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: PasswordChangeRequestDto,
+  ): Promise<AuthResultDto> {
+    return this.passwordChange.change(user.id, dto.currentPassword, dto.newPassword);
+  }
+
+  @Put('account')
+  @UseGuards(AccessTokenGuard)
+  @NoTrustedClientExemption()
+  @Throttle({ default: AUTH_ROUTE_THROTTLES.updateAccount })
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: 'Replace the personal block of the authenticated caller (full replacement).',
+    description:
+      'Ad, soyad, telefon ve ilçe/il — hepsi zorunlu, kısmi güncelleme yoktur (T-061). ' +
+      'accountRole ve email bilerek dışarıdadır; ikisi de bu uçtan değiştirilemez.',
+  })
+  @ApiOkResponse({ type: ProfileDto })
+  @ApiBadRequestResponse({
+    type: ApiErrorDto,
+    description: 'Missing required key, unknown property, or districtId not in the named province.',
+  })
+  @ApiUnauthorizedResponse({ type: ApiErrorDto, description: 'errors.auth.unauthenticated.' })
+  @ApiTooManyRequestsResponse({
+    type: ApiErrorDto,
+    description: 'errors.auth.rateLimited — IP ekseni tavanı aşıldı.',
+  })
+  async replaceAccount(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: UpdateAccountRequestDto,
+  ): Promise<ProfileDto> {
+    return this.profile.replaceAccount(user.id, dto);
   }
 }

@@ -15,6 +15,7 @@ import { AccessTokenService } from '../src/auth/access-token.service';
 import { AUTH_ERROR_KEYS } from '../src/auth/auth-error-keys';
 import { PROFILE_SHAPE_MESSAGE } from '../src/auth/dto/profile-shape.rule';
 import { User } from '../src/auth/entities/user.entity';
+import { PasswordHasherService } from '../src/auth/password-hasher.service';
 import { ProfileService } from '../src/auth/profile.service';
 import { applyGlobalPrefix } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
@@ -449,5 +450,274 @@ describe('Auth Profile (e2e, real Postgres)', () => {
     expect(res.status).toBe(401);
     expect(res.body.message).toBe(AUTH_ERROR_KEYS.unauthenticated);
     updateSpy.mockRestore();
+  });
+  // ── T-061: the personal block and the signed-in password change ────────────────────────
+
+  // T61-A1: the personal block is published by GET /api/auth/profile, resolved through the
+  // district → province join rather than stored on `users`.
+  it('T61-A1: GET /api/auth/profile carries the personal block and the resolved province', async () => {
+    const res = await request(app.getHttpServer()).get('/api/auth/profile').set(bearer(tokenA));
+
+    expect(res.status).toBe(200);
+    expect(res.body.firstName).toBe('Profile');
+    expect(res.body.lastName).toBe('Test');
+    expect(res.body.email).toBe('student-a@example.test');
+    expect(res.body.phone).toBe('+905000000010');
+    expect(res.body.provincePlateCode).toBe('34');
+    expect(res.body.provinceName).toBe('İstanbul');
+    expect(typeof res.body.districtName).toBe('string');
+    expect(res.body.districtName.length).toBeGreaterThan(0);
+    expect(typeof res.body.createdAt).toBe('string');
+    // The read is behind the no-store middleware like every other PII route here.
+    expect(res.headers['cache-control']).toBe('no-store');
+  });
+
+  // T61-A2: the personal block never leaks the hash, on any route that returns a profile.
+  it('T61-A2: no profile response carries passwordHash under any spelling', async () => {
+    const res = await request(app.getHttpServer()).get('/api/auth/profile').set(bearer(tokenA));
+
+    const serialized = JSON.stringify(res.body);
+    expect(serialized).not.toContain('passwordHash');
+    expect(serialized).not.toContain('password_hash');
+    expect(serialized).not.toContain('$argon2');
+  });
+
+  // T61-A3: PUT /api/auth/account is guarded and no-store, like its profile sibling.
+  it('T61-A3: rejects unauthenticated PUT /api/auth/account with 401 and no-store', async () => {
+    const res = await request(app.getHttpServer()).put('/api/auth/account').send({
+      firstName: 'Ayşe',
+      lastName: 'Yılmaz',
+      phone: '+905551112233',
+      provincePlateCode: '34',
+      districtId: studentA.districtId,
+    });
+
+    expect(res.status).toBe(401);
+    expect(res.headers['cache-control']).toBe('no-store');
+  });
+
+  // T61-A4: the route takes the subject from the TOKEN. A body naming another user's id is
+  // rejected outright by the global pipe's forbidNonWhitelisted, so there is no id to honour.
+  it('T61-A4: a body carrying id or email is a 400, not a silent mass assignment', async () => {
+    const res = await request(app.getHttpServer())
+      .put('/api/auth/account')
+      .set(bearer(tokenA))
+      .send({
+        id: studentB.id,
+        email: 'attacker@example.test',
+        firstName: 'Ayşe',
+        lastName: 'Yılmaz',
+        phone: '+905551112233',
+        provincePlateCode: '34',
+        districtId: studentA.districtId,
+      });
+
+    expect(res.status).toBe(400);
+
+    const untouched = await dataSource.getRepository(User).findOneByOrFail({ id: studentB.id });
+    expect(untouched.email).toBe('student-b@example.test');
+  });
+
+  // T61-A5: a district that exists but belongs to a DIFFERENT province is refused, and the
+  // refusal happens before any write.
+  it('T61-A5: refuses a districtId outside the named province and writes nothing', async () => {
+    const ankara = await dataSource
+      .getRepository(Province)
+      .findOneOrFail({ where: { plateCode: '06' } });
+    const ankaraDistrict = await dataSource
+      .getRepository(District)
+      .findOneOrFail({ where: { provinceId: ankara.id } });
+
+    const before = await dataSource.getRepository(User).findOneByOrFail({ id: studentA.id });
+
+    const res = await request(app.getHttpServer())
+      .put('/api/auth/account')
+      .set(bearer(tokenA))
+      .send({
+        firstName: 'Değişti',
+        lastName: 'Değişti',
+        phone: '+905551112233',
+        provincePlateCode: '34',
+        districtId: ankaraDistrict.id,
+      });
+
+    expect(res.status).toBe(400);
+
+    const after = await dataSource.getRepository(User).findOneByOrFail({ id: studentA.id });
+    expect(after.firstName).toBe(before.firstName);
+    expect(after.districtId).toBe(before.districtId);
+  });
+
+  // T61-A6: a valid replacement lands, canonicalises the phone, and answers with the province
+  // the NEW district resolves to — a value the request never sent.
+  it('T61-A6: replaces the personal block and canonicalises the phone', async () => {
+    const ankara = await dataSource
+      .getRepository(Province)
+      .findOneOrFail({ where: { plateCode: '06' } });
+    const ankaraDistrict = await dataSource
+      .getRepository(District)
+      .findOneOrFail({ where: { provinceId: ankara.id } });
+
+    const res = await request(app.getHttpServer())
+      .put('/api/auth/account')
+      .set(bearer(tokenA))
+      .send({
+        firstName: '  Ayşe  ',
+        lastName: 'Yılmaz',
+        phone: '0555 111 22 33',
+        provincePlateCode: '06',
+        districtId: ankaraDistrict.id,
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.firstName).toBe('Ayşe');
+    expect(res.body.phone).toBe('+905551112233');
+    expect(res.body.provincePlateCode).toBe('06');
+    expect(res.body.provinceName).toBe('Ankara');
+
+    const persisted = await dataSource.getRepository(User).findOneByOrFail({ id: studentA.id });
+    expect(persisted.firstName).toBe('Ayşe');
+    expect(persisted.districtId).toBe(ankaraDistrict.id);
+    // accountRole is not a field on this route and could not have moved.
+    expect(persisted.accountRole).toBe(AccountRole.Student);
+  });
+
+  // T61-A7: the education block is untouched by a personal-block write — the two endpoints
+  // are separate precisely so one cannot clear the other.
+  it('T61-A7: writing the personal block leaves the education block alone', async () => {
+    const before = await dataSource.getRepository(User).findOneByOrFail({ id: studentLegacy.id });
+
+    const res = await request(app.getHttpServer())
+      .put('/api/auth/account')
+      .set(bearer(tokenLegacy))
+      .send({
+        firstName: 'Legacy',
+        lastName: 'Renamed',
+        phone: '+905551119988',
+        provincePlateCode: '34',
+        districtId: before.districtId,
+      });
+
+    expect(res.status).toBe(200);
+    // Compared against the row as it stood a moment ago, NOT against the seed: earlier cases
+    // in this file deliberately rewrite this user's education block, so a hardcoded seed value
+    // would be asserting the order tests happen to run in rather than the property under test.
+    expect(res.body.educationLevel).toBe(before.educationLevel);
+    expect(res.body.universityName).toBe(before.universityName);
+
+    const after = await dataSource.getRepository(User).findOneByOrFail({ id: studentLegacy.id });
+    expect(after.educationLevel).toBe(before.educationLevel);
+    expect(after.universityName).toBe(before.universityName);
+    expect(after.departmentName).toBe(before.departmentName);
+  });
+
+  // T61-P1: the password route is guarded and no-store.
+  it('T61-P1: rejects an unauthenticated password change with 401 and no-store', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/api/auth/password/change')
+      .send({ currentPassword: 'Whatever1', newPassword: 'Another1' });
+
+    expect(res.status).toBe(401);
+    expect(res.headers['cache-control']).toBe('no-store');
+  });
+
+  describe('T61-P: password change against a real hash', () => {
+    let changer: User;
+    let changerToken: string;
+    const ORIGINAL = 'Original1';
+    const REPLACEMENT = 'Replacement2';
+
+    beforeAll(async () => {
+      const hasher = app.get(PasswordHasherService);
+      const istanbul = await dataSource
+        .getRepository(Province)
+        .findOneOrFail({ where: { plateCode: '34' } });
+      const district = await dataSource
+        .getRepository(District)
+        .findOneOrFail({ where: { provinceId: istanbul.id } });
+
+      changer = await createUser('changer@example.test', district.id, AccountRole.Student, {
+        passwordHash: await hasher.hash(ORIGINAL),
+      });
+      changerToken = await mintFor(changer);
+    }, 60_000);
+
+    it('T61-P2: refuses a wrong current password and changes nothing', async () => {
+      const before = await dataSource.getRepository(User).findOneOrFail({
+        where: { id: changer.id },
+        select: { id: true, tokenVersion: true },
+      });
+
+      const res = await request(app.getHttpServer())
+        .post('/api/auth/password/change')
+        .set(bearer(changerToken))
+        .send({ currentPassword: 'NotTheOne9', newPassword: REPLACEMENT });
+
+      expect(res.status).toBe(401);
+      expect(res.body.message).toBe(AUTH_ERROR_KEYS.passwordCurrentInvalid);
+
+      const after = await dataSource.getRepository(User).findOneOrFail({
+        where: { id: changer.id },
+        select: { id: true, tokenVersion: true },
+      });
+      expect(after.tokenVersion).toBe(before.tokenVersion);
+    });
+
+    it('T61-P3: refuses a new password identical to the current one', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/api/auth/password/change')
+        .set(bearer(changerToken))
+        .send({ currentPassword: ORIGINAL, newPassword: ORIGINAL });
+
+      expect(res.status).toBe(400);
+      expect(res.body.message).toBe(AUTH_ERROR_KEYS.passwordUnchanged);
+    });
+
+    it('T61-P4: refuses a new password the policy rejects', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/api/auth/password/change')
+        .set(bearer(changerToken))
+        .send({ currentPassword: ORIGINAL, newPassword: 'short' });
+
+      expect(res.status).toBe(400);
+    });
+
+    it('T61-P5: succeeds, kills the OLD access token, and hands back a working one', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/api/auth/password/change')
+        .set(bearer(changerToken))
+        .send({ currentPassword: ORIGINAL, newPassword: REPLACEMENT });
+
+      expect(res.status).toBe(200);
+      expect(typeof res.body.accessToken).toBe('string');
+      expect(typeof res.body.refreshToken).toBe('string');
+
+      // The token the caller arrived with was minted against the pre-bump tokenVersion.
+      const withOldToken = await request(app.getHttpServer())
+        .get('/api/auth/profile')
+        .set(bearer(changerToken));
+      expect(withOldToken.status).toBe(401);
+
+      // The one the change handed back works — the caller is not signed out by their own
+      // password change, which is the whole difference from the reset flow.
+      const withNewToken = await request(app.getHttpServer())
+        .get('/api/auth/profile')
+        .set(bearer(res.body.accessToken as string));
+      expect(withNewToken.status).toBe(200);
+      expect(withNewToken.body.email).toBe('changer@example.test');
+    });
+
+    it('T61-P6: the old password no longer logs in and the new one does', async () => {
+      const withOld = await request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send({ email: 'changer@example.test', password: ORIGINAL });
+      expect(withOld.status).toBe(401);
+
+      const withNew = await request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send({ email: 'changer@example.test', password: REPLACEMENT });
+      expect(withNew.status).toBe(200);
+      expect(typeof withNew.body.accessToken).toBe('string');
+    });
   });
 });

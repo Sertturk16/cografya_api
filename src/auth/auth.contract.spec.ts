@@ -125,22 +125,30 @@ describe('openapi/openapi.json — auth contract (AUTH-C1)', () => {
    * that produces them across the endpoint and security suites. This case keeps its narrower job,
    * which is a contract-publication check, and now says so instead of implying the wider one.
    */
-  it('DECLARES every one of the ten i18n error keys (§6.3) somewhere in the contract', () => {
+  it('DECLARES every one of the twelve i18n error keys (§6.3) somewhere in the contract', () => {
     const values = Object.values(AUTH_ERROR_KEYS);
-    expect(values.length).toBe(10);
+    // Ten until T-061, which added `errors.password.currentInvalid` and
+    // `errors.password.unchanged` for `POST /api/auth/password/change`. The number is pinned
+    // rather than derived so that ADDING a key is a deliberate edit here, not a silent one.
+    expect(values.length).toBe(12);
     for (const key of values) {
       expect(`${key}:published=${String(raw.includes(key))}`).toBe(`${key}:published=true`);
     }
   });
 
-  it('publishes the access-token bearer security scheme, used only by the three authenticated auth operations', () => {
+  it('publishes the access-token bearer security scheme, used only by the five authenticated auth operations', () => {
     const scheme = document.components.securitySchemes?.['access-token'];
     expect(scheme).toEqual({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' });
 
+    // Three until T-061, which added the personal-block write and the signed-in password
+    // change. Both are guarded; both are listed here, so a route that quietly LOSES its guard
+    // fails this case by name.
     const AUTHENTICATED_AUTH_OPERATIONS = new Set([
       '/api/auth/session:get',
       '/api/auth/profile:get',
       '/api/auth/profile:put',
+      '/api/auth/account:put',
+      '/api/auth/password/change:post',
     ]);
 
     for (const opKey of AUTHENTICATED_AUTH_OPERATIONS) {
