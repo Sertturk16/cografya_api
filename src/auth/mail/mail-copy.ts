@@ -1,4 +1,5 @@
 import type { MailLocale } from './mailer.port';
+import { renderEmailHtml, renderEmailText, type EmailBody } from './mail-layout';
 
 // This file is the ONE place in `cografya_api` allowed to carry reader-facing prose. The
 // repo-wide "user-facing text does not exist in this repo" rule (`../../../CLAUDE.md`) targets
@@ -36,19 +37,6 @@ const LOGIN_PATH: Record<MailLocale, string> = {
 /** The reset-confirm page reads the token from `?token=` (`password-reset-confirm-form.tsx`). */
 const PASSWORD_RESET_TOKEN_PARAM = 'token';
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-function linkHtml(url: string): string {
-  const safeUrl = escapeHtml(url);
-  return `<a href="${safeUrl}">${safeUrl}</a>`;
-}
-
 export function buildPasswordResetUrl(
   webOrigin: string,
   locale: MailLocale,
@@ -78,6 +66,21 @@ type CopyBuilder<Variables> = (
  * single call shape (`MAIL_COPY[message.template][message.locale](...)`) that a fourth locale
  * or template would extend without touching the adapter's own switch logic.
  */
+/**
+ * Turns one message's content into the rendered pair. Every template goes through here, so the
+ * HTML and the text part can never describe different links or a different code — they are two
+ * readings of the same {@link EmailBody}. The shell itself is `mail-layout.ts`.
+ */
+function render(subject: string, body: EmailBody): RenderedMail {
+  return { subject, text: renderEmailText(body), html: renderEmailHtml(body) };
+}
+
+/**
+ * The typed lookup every template+locale combination renders through — six blocks total. Kept
+ * as one object (rather than six standalone exported functions) so `SesMailerAdapter` has a
+ * single call shape (`MAIL_COPY[message.template][message.locale](...)`) that a fourth locale
+ * or template would extend without touching the adapter's own switch logic.
+ */
 export const MAIL_COPY: {
   'verify-email': Record<MailLocale, CopyBuilder<{ code: string; expiresInMinutes: number }>>;
   'password-reset': Record<
@@ -87,109 +90,97 @@ export const MAIL_COPY: {
   'account-exists': Record<MailLocale, CopyBuilder<Record<string, never>>>;
 } = {
   'verify-email': {
-    tr: ({ code, expiresInMinutes }) => ({
-      subject: 'Coğrafya Gurmesi doğrulama kodunuz',
-      text:
-        `Hesabınızı doğrulamak için kullanacağınız kod: ${code}\n\n` +
-        `Bu kod ${expiresInMinutes} dakika içinde geçerliliğini yitirecek.\n\n` +
-        'Bu isteği siz yapmadıysanız bu e-postayı görmezden gelebilirsiniz.',
-      html:
-        `<p>Hesabınızı doğrulamak için kullanacağınız kod: <strong>${escapeHtml(code)}</strong></p>` +
-        `<p>Bu kod ${expiresInMinutes} dakika içinde geçerliliğini yitirecek.</p>` +
-        '<p>Bu isteği siz yapmadıysanız bu e-postayı görmezden gelebilirsiniz.</p>',
-    }),
-    en: ({ code, expiresInMinutes }) => ({
-      subject: 'Your Coğrafya Gurmesi verification code',
-      text:
-        `Here's the code to verify your account: ${code}\n\n` +
-        `It expires in ${expiresInMinutes} minutes.\n\n` +
-        "If you didn't request this, you can safely ignore this email.",
-      html:
-        `<p>Here's the code to verify your account: <strong>${escapeHtml(code)}</strong></p>` +
-        `<p>It expires in ${expiresInMinutes} minutes.</p>` +
-        "<p>If you didn't request this, you can safely ignore this email.</p>",
-    }),
+    tr: ({ code, expiresInMinutes }) =>
+      render('Coğrafya Gurmesi doğrulama kodunuz', {
+        locale: 'tr',
+        preheader: `Kodunuz ${expiresInMinutes} dakika geçerli.`,
+        heading: 'Hesabınızı doğrulayın',
+        lede: 'Kaydınızı tamamlamak için bu kodu doğrulama ekranına girin.',
+        payload: { kind: 'code', code },
+        meta: `${expiresInMinutes} dakika geçerli`,
+        reassurance: 'Bu isteği siz yapmadıysanız bu e-postayı yok sayabilirsiniz.',
+      }),
+    en: ({ code, expiresInMinutes }) =>
+      render('Your Coğrafya Gurmesi verification code', {
+        locale: 'en',
+        preheader: `Your code expires in ${expiresInMinutes} minutes.`,
+        heading: 'Verify your account',
+        lede: 'Enter this code on the verification screen to finish signing up.',
+        payload: { kind: 'code', code },
+        meta: `Expires in ${expiresInMinutes} minutes`,
+        reassurance: "If you didn't request this, you can safely ignore this email.",
+      }),
   },
   'password-reset': {
-    tr: ({ resetToken, expiresInMinutes }, { webOrigin }) => {
-      const url = buildPasswordResetUrl(webOrigin, 'tr', resetToken);
-      return {
-        subject: 'Şifre sıfırlama isteğiniz',
-        text:
-          'Hesabınız için bir şifre sıfırlama isteği aldık. Yeni bir şifre belirlemek için ' +
-          `aşağıdaki bağlantıyı açın:\n\n${url}\n\n` +
-          `Bu bağlantı ${expiresInMinutes} dakika içinde geçerliliğini yitirecek.\n\n` +
-          'Bu isteği siz yapmadıysanız bu e-postayı yok sayabilirsiniz; hesabınızda herhangi ' +
-          'bir değişiklik yapılmayacaktır.',
-        html:
-          '<p>Hesabınız için bir şifre sıfırlama isteği aldık. Yeni bir şifre belirlemek için ' +
-          `aşağıdaki bağlantıyı açın:</p><p>${linkHtml(url)}</p>` +
-          `<p>Bu bağlantı ${expiresInMinutes} dakika içinde geçerliliğini yitirecek.</p>` +
-          '<p>Bu isteği siz yapmadıysanız bu e-postayı yok sayabilirsiniz; hesabınızda herhangi ' +
-          'bir değişiklik yapılmayacaktır.</p>',
-      };
-    },
-    en: ({ resetToken, expiresInMinutes }, { webOrigin }) => {
-      const url = buildPasswordResetUrl(webOrigin, 'en', resetToken);
-      return {
-        subject: 'Reset your password',
-        text:
-          'We received a request to reset your password. Open the link below to choose a new ' +
-          `one:\n\n${url}\n\n` +
-          `This link expires in ${expiresInMinutes} minutes.\n\n` +
-          "If you didn't request this, you can ignore this email — your account will not be " +
-          'changed.',
-        html:
-          '<p>We received a request to reset your password. Open the link below to choose a ' +
-          `new one:</p><p>${linkHtml(url)}</p>` +
-          `<p>This link expires in ${expiresInMinutes} minutes.</p>` +
-          "<p>If you didn't request this, you can ignore this email — your account will not " +
-          'be changed.</p>',
-      };
-    },
+    tr: ({ resetToken, expiresInMinutes }, { webOrigin }) =>
+      render('Şifre sıfırlama isteğiniz', {
+        locale: 'tr',
+        preheader: `Bağlantı ${expiresInMinutes} dakika geçerli.`,
+        heading: 'Yeni şifre belirleyin',
+        lede: 'Hesabınız için şifre sıfırlama isteği aldık. Yeni bir şifre belirlemek için aşağıdaki bağlantıyı kullanın.',
+        payload: {
+          kind: 'action',
+          primary: {
+            label: 'Yeni şifre belirle',
+            url: buildPasswordResetUrl(webOrigin, 'tr', resetToken),
+          },
+          fallbackNote: 'Düğme çalışmazsa bu adresi tarayıcınıza yapıştırın:',
+        },
+        meta: `Bağlantı ${expiresInMinutes} dakika geçerli`,
+        reassurance:
+          'Bu isteği siz yapmadıysanız bu e-postayı yok sayın; hesabınızda hiçbir şey değişmez.',
+      }),
+    en: ({ resetToken, expiresInMinutes }, { webOrigin }) =>
+      render('Reset your password', {
+        locale: 'en',
+        preheader: `The link expires in ${expiresInMinutes} minutes.`,
+        heading: 'Choose a new password',
+        lede: 'We received a request to reset your password. Use the link below to choose a new one.',
+        payload: {
+          kind: 'action',
+          primary: {
+            label: 'Choose a new password',
+            url: buildPasswordResetUrl(webOrigin, 'en', resetToken),
+          },
+          fallbackNote: "If the button doesn't work, paste this address into your browser:",
+        },
+        meta: `The link expires in ${expiresInMinutes} minutes`,
+        reassurance:
+          "If you didn't request this, ignore this email — nothing about your account changes.",
+      }),
   },
   'account-exists': {
-    tr: (_variables, { webOrigin }) => {
-      const loginUrl = buildLoginUrl(webOrigin, 'tr');
-      const resetUrl = buildPasswordResetRequestUrl(webOrigin, 'tr');
-      return {
-        subject: 'Bu e-posta adresiyle zaten bir hesabınız var',
-        text:
-          'Biri bu e-posta adresiyle yeni bir hesap oluşturmaya çalıştı, ancak bu adresle ' +
-          'zaten bir hesabınız var.\n\n' +
-          `Bu işlemi siz yaptıysanız giriş yapabilir (${loginUrl}) veya şifrenizi unuttuysanız ` +
-          `sıfırlayabilirsiniz (${resetUrl}).\n\n` +
-          'Bu isteği siz yapmadıysanız hiçbir şey yapmanıza gerek yok: kimse hesabınıza ' +
-          'erişmedi, bu e-postayı yok sayabilirsiniz.',
-        html:
-          '<p>Biri bu e-posta adresiyle yeni bir hesap oluşturmaya çalıştı, ancak bu adresle ' +
-          'zaten bir hesabınız var.</p>' +
-          `<p>Bu işlemi siz yaptıysanız giriş yapabilir (${linkHtml(loginUrl)}) veya şifrenizi ` +
-          `unuttuysanız sıfırlayabilirsiniz (${linkHtml(resetUrl)}).</p>` +
-          '<p>Bu isteği siz yapmadıysanız hiçbir şey yapmanıza gerek yok: kimse hesabınıza ' +
-          'erişmedi, bu e-postayı yok sayabilirsiniz.</p>',
-      };
-    },
-    en: (_variables, { webOrigin }) => {
-      const loginUrl = buildLoginUrl(webOrigin, 'en');
-      const resetUrl = buildPasswordResetRequestUrl(webOrigin, 'en');
-      return {
-        subject: 'You already have an account with this email',
-        text:
-          'Someone tried to create a new account with this email address, but you already ' +
-          'have one.\n\n' +
-          `If this was you, you can log in (${loginUrl}) or reset your password ` +
-          `(${resetUrl}) if you've forgotten it.\n\n` +
-          "If it wasn't you, no action is needed — no one gained access to your account, and " +
-          'you can safely ignore this email.',
-        html:
-          '<p>Someone tried to create a new account with this email address, but you already ' +
-          'have one.</p>' +
-          `<p>If this was you, you can log in (${linkHtml(loginUrl)}) or reset your password ` +
-          `(${linkHtml(resetUrl)}) if you've forgotten it.</p>` +
-          "<p>If it wasn't you, no action is needed — no one gained access to your account, " +
-          'and you can safely ignore this email.</p>',
-      };
-    },
+    tr: (_variables, { webOrigin }) =>
+      render('Bu e-posta adresiyle zaten bir hesabınız var', {
+        locale: 'tr',
+        preheader: 'Yeni bir hesap oluşturulmadı.',
+        heading: 'Bu adresle zaten bir hesabınız var',
+        lede: 'Biri bu e-posta adresiyle yeni bir hesap açmaya çalıştı. Adres kayıtlı olduğu için ikinci bir hesap oluşturulmadı.',
+        payload: {
+          kind: 'action',
+          primary: { label: 'Giriş yap', url: buildLoginUrl(webOrigin, 'tr') },
+          secondary: {
+            label: 'Şifremi unuttum',
+            url: buildPasswordResetRequestUrl(webOrigin, 'tr'),
+          },
+        },
+        reassurance: 'Bu siz değilseniz yapmanız gereken bir şey yok. Kimse hesabınıza erişmedi.',
+      }),
+    en: (_variables, { webOrigin }) =>
+      render('You already have an account with this email', {
+        locale: 'en',
+        preheader: 'No new account was created.',
+        heading: 'You already have an account with this email',
+        lede: 'Someone tried to create a new account with this address. It is already registered, so no second account was made.',
+        payload: {
+          kind: 'action',
+          primary: { label: 'Log in', url: buildLoginUrl(webOrigin, 'en') },
+          secondary: {
+            label: 'I forgot my password',
+            url: buildPasswordResetRequestUrl(webOrigin, 'en'),
+          },
+        },
+        reassurance: "If this wasn't you, there's nothing to do. Nobody reached your account.",
+      }),
   },
 };
