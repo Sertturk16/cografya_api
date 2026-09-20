@@ -31,6 +31,7 @@ import { RefreshRequestDto } from './dto/refresh-request.dto';
 import { RegisterRequestDto } from './dto/register-request.dto';
 import { ResendVerificationRequestDto } from './dto/resend-verification-request.dto';
 import { SessionDto } from './dto/session.dto';
+import { UpdateAccountRequestDto } from './dto/update-account-request.dto';
 import { UpdateProfileRequestDto } from './dto/update-profile-request.dto';
 import { VerifyEmailRequestDto } from './dto/verify-email-request.dto';
 import { EmailVerificationService } from './email-verification.service';
@@ -71,6 +72,13 @@ export const AUTH_ROUTE_THROTTLES = {
   // enumeration (plan-api.md §5.4). Generous enough a member reopening the link a few times
   // is never refused, tight enough the route is not an unbounded oracle.
   passwordResetVerify: { limit: 30, ttl: 60 * 60 * 1000 },
+  // T-061. `updateAccount` is an ordinary authenticated write, so it sits at the refresh/logout
+  // tier. `passwordChange` does NOT: it accepts a password GUESS, so it is the one authenticated
+  // route on this controller that is an online-guessing surface, and it gets login's shape
+  // tightened — a member changes their password a handful of times a year, never ten times in
+  // fifteen minutes.
+  updateAccount: { limit: 30, ttl: 15 * 60 * 1000 },
+  passwordChange: { limit: 10, ttl: 15 * 60 * 1000 },
 } as const;
 
 /**
@@ -359,5 +367,33 @@ export class AuthController {
     @Body() dto: UpdateProfileRequestDto,
   ): Promise<ProfileDto> {
     return this.profile.replaceProfile(user.id, dto);
+  }
+
+  @Put('account')
+  @UseGuards(AccessTokenGuard)
+  @NoTrustedClientExemption()
+  @Throttle({ default: AUTH_ROUTE_THROTTLES.updateAccount })
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: 'Replace the personal block of the authenticated caller (full replacement).',
+    description:
+      'Ad, soyad, telefon ve ilçe/il — hepsi zorunlu, kısmi güncelleme yoktur (T-061). ' +
+      'accountRole ve email bilerek dışarıdadır; ikisi de bu uçtan değiştirilemez.',
+  })
+  @ApiOkResponse({ type: ProfileDto })
+  @ApiBadRequestResponse({
+    type: ApiErrorDto,
+    description: 'Missing required key, unknown property, or districtId not in the named province.',
+  })
+  @ApiUnauthorizedResponse({ type: ApiErrorDto, description: 'errors.auth.unauthenticated.' })
+  @ApiTooManyRequestsResponse({
+    type: ApiErrorDto,
+    description: 'errors.auth.rateLimited — IP ekseni tavanı aşıldı.',
+  })
+  async replaceAccount(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: UpdateAccountRequestDto,
+  ): Promise<ProfileDto> {
+    return this.profile.replaceAccount(user.id, dto);
   }
 }
