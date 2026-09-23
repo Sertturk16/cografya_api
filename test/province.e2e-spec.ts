@@ -235,6 +235,8 @@ describe('Province (e2e)', () => {
       // above).
       'AddSchoolNameAndParentAccountRole1789125265639',
       'AddPasswordChangeRateLimitScope1789862400000',
+      // T-097: data-only, rewrites seed prose on rows seeded before it; no schema change.
+      'UpdateSeedProseCopy1790208000000',
     ]);
   });
 
