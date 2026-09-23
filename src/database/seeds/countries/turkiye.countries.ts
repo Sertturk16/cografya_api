@@ -118,16 +118,16 @@ export const TURKIYE_COUNTRY: readonly CountrySeed[] = [
       'Antlaşması çerçevesinde kutup bölgelerinde yürüttüğü bilimsel seferlerle coğrafi araştırma ' +
       'ufkunu küresel ölçeğe genişletir.',
     landformNoteTr:
-      'Alp-Himalaya kıvrım kuşağında yer alan Türkiye morfolojisi, Avrasya ile Afrika-Arap ' +
-      'levhalarının sıkışma rejiminde batıdan doğuya doğru kademeli yükselen genç ve dinamik ' +
-      'bir topoğrafyaya sahiptir. Kuzeyde kıyıya paralel uzanan Kuzey Anadolu Dağları ile güneyde ' +
+      'Alp-Himalaya kıvrım kuşağında yer alan Türkiye, Avrasya ile Afrika-Arap levhalarının ' +
+      'birbirine sıkışmasıyla batıdan doğuya doğru kademeli yükselen genç ve hareketli ' +
+      'bir yer şekline sahiptir. Kuzeyde kıyıya paralel uzanan Kuzey Anadolu Dağları ile güneyde ' +
       "Akdeniz'i kuşatan Toros Sıradağları, iç kesimlerdeki plato basamaklarını denizel " +
       'etkilerden yalıtır.' +
       '\n\n' +
       'Doğuya doğru gidildikçe dağ sıraları birbirine yaklaşarak daralır ve yerini ortalama ' +
       '2.000 metreyi aşan volkanik yaylalar ile Ağrı Dağı gibi görkemli dorukların yükseldiği sarp ' +
-      "bir dağlık kütleye bırakır. Batı Anadolu'da ise gerilme tektoniğinin açtığı graben vadileri " +
-      've horst blokları kıyıya dik uzanır. Bu genç jeolojik yapı, ülkeyi baştan başa kat eden ' +
+      "bir dağlık kütleye bırakır. Batı Anadolu'da ise yer kabuğunun gerilip kırılmasıyla oluşan " +
+      'çöküntü ovaları (graben) ve yükselen bloklar (horst) kıyıya dik uzanır. Bu genç jeolojik yapı, ülkeyi baştan başa kat eden ' +
       'Kuzey Anadolu ve Doğu Anadolu fay hatlarıyla dinamik bir sismik karakter kazanır.',
     climateNoteTr:
       'Dağ sıralarının kıyılara paralel uzanışı ve ani yükselti basamakları, kıyı kuşakları ile ' +
@@ -135,14 +135,14 @@ export const TURKIYE_COUNTRY: readonly CountrySeed[] = [
       'ılıman Akdeniz ve her mevsim nemli Karadeniz iklimleri hüküm sürerken; dağların yağmur ' +
       'gölgesinde kalan iç platolarda sıcaklık farklarının belirginleştiği karasal iklim egemendir.' +
       '\n\n' +
-      "Doğu Karadeniz'in dik yamaçları denizden gelen nemli hava kütlelerini yakalayarak orografik " +
-      'etkiyle ülkenin en yüksek yağışını toplarken; etrafı dağlarla çevrili kapalı Tuz Gölü havzası ' +
+      "Doğu Karadeniz'in dik yamaçları denizden gelen nemli hava kütlelerini yükselmeye zorlayarak " +
+      'yamaç yağışıyla ülkenin en yüksek yağışını toplarken; etrafı dağlarla çevrili kapalı Tuz Gölü havzası ' +
       'yılda 300 milimetrenin altında yağış alarak kurak bozkır çehresine bürünür. Yükseltinin doğuya ' +
       'doğru artması kış sıcaklıklarını dondurucu seviyelere çekerken kar örtüsünün yerde kalma ' +
       'süresini uzatır.',
     hydrographyNoteTr:
       "Yüksek ve engebeli topoğrafya, Türkiye'yi çevre denizlere ve komşu havzalara su sağlayan " +
-      "stratejik bir hidrolojik kavşak konumuna getirir. Ülke içinden doğarak Karadeniz'e dökülen " +
+      "önemli bir su kavşağı konumuna getirir. Ülke içinden doğarak Karadeniz'e dökülen " +
       "Kızılırmak ve Yeşilırmak ile Ege'ye inen akarsular kıyılarda geniş tarımsal deltalar kurar. " +
       'Anadolu yaylalarından beslenen Fırat ve Dicle nehirleri ise Mezopotamya düzlüklerine can ' +
       "vererek Basra Körfezi'ne ulaşır; doğuda Aras Nehri Hazar Denizi kapalı havzasına yönelir. " +

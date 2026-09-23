@@ -42,7 +42,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     officialLanguagesTr: ['İngilizce', 'Fransızca'],
     currencyNameTr: 'Kanada Doları',
     currencyCode: 'CAD',
-    governmentFormTr: 'Federal parlamenter monarşi (Commonwealth realm)',
+    governmentFormTr: 'Federal parlamenter monarşi (İngiliz Milletler Topluluğu krallığı)',
     independenceNoteTr:
       "Federasyon 1 Temmuz 1867'de kuruldu; tam bağımsızlık kademeli (1931 Westminster, 1982 Kanada Yasası).",
     introTr:
@@ -50,7 +50,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'ikinci ülkesidir. Toprakları doğuda Atlas, batıda Büyük ve kuzeyde Arktik Okyanusu ' +
       'ile kuşatılmıştır. ' +
       '\n\n' +
-      'Bu engin coğrafyaya karşın yerleşim deseni son derece asimetriktir. Sert kış ' +
+      'Bu engin coğrafyaya karşın nüfus son derece dengesiz dağılmıştır. Sert kış ' +
       'şartları ve donmuş topraklar nedeniyle nüfusun ezici çoğunluğu, Amerika Birleşik ' +
       'Devletleri sınırına paralel uzanan birkaç yüz kilometrelik dar güney şeridinde ' +
       'yaşar; kuzeye uzanan milyonlarca kilometrekarelik arazi ise seyrek yerleşimli bir ' +
@@ -71,13 +71,13 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'kıyısındaki aktif levha hareketlerinin yükselttiği buzullarla kaplı devasa bir ' +
       'kordilyera kuşağının parçasıdır.',
     climateNoteTr:
-      'Kıtasal boyutlar ve açık topoğrafik koridorlar Kanada genelinde büyük bir iklim ' +
-      'çeşitliliği üretir. Sıcak Pasifik akıntılarının etkisindeki British Columbia ' +
+      'Kıta ölçeğindeki genişlik ve hava kütlelerine açık geniş koridorlar Kanada genelinde büyük bir iklim ' +
+      'çeşitliliği yaratır. Sıcak Pasifik akıntılarının etkisindeki British Columbia ' +
       'kıyıları, bol yağışlı ve kışları ılıman geçen bir okyanusal iklime sahiptir. ' +
       '\n\n' +
       "Kayalık Dağlar'ın gerisinde uzanan iç bozkırlarda (Prairieler) kışların dondurucu, " +
       'yazların sıcak geçtiği sert bir karasal iklim egemendir. Burada kış ortasında ' +
-      'dağlardan aşağı fön karakteriyle inen Chinook rüzgarları, sıcaklığı birkaç saat ' +
+      'dağlardan inerken ısınıp kuruyan (fön) Chinook rüzgarları, sıcaklığı birkaç saat ' +
       'içinde onlarca derece yükselterek karları hızla eritebilir. ' +
       '\n\n' +
       'Kuzeye ilerledikçe iğne yapraklı boreal ormanlar yerini ağaçsız tundraya bırakır; ' +
@@ -94,8 +94,8 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'sistemini oluşturur. ' +
       '\n\n' +
       'Toprakların merkezinde dev bir deniz kulağı gibi açılan Hudson Körfezi, Kanada ' +
-      'topraklarının üçte birinden fazlasını toplayan devasa bir drenaj havzasına ' +
-      'merkezlik eder.',
+      'topraklarının üçte birinden fazlasını toplayan devasa bir su toplama havzasının ' +
+      'merkezidir.',
   },
   {
     isoCode: 'US',
@@ -129,7 +129,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       "buzul yarımadası Alaska ve Büyük Okyanus'un kalbindeki volkanik Hawaii adaları " +
       'ülkenin fiziki sınırlarını kıta dışına taşır.',
     landformNoteTr:
-      'Topoğrafik yapı, doğudan batıya belirgin üç ana kuşağa ayrılır. Doğuda Kanada ' +
+      'Yer şekilleri, doğudan batıya belirgin üç ana kuşağa ayrılır. Doğuda Kanada ' +
       "sınırından Alabama'ya kadar uzanan Appalaş Dağları, yüz milyonlarca yıllık " +
       'erozyonla yuvarlaklaşmış, zengin kömür yatakları ve gür ormanlarla örtülü yaşlı ' +
       'bir sıradağdır. ' +
@@ -146,7 +146,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     climateNoteTr:
       'Doğu-batı doğrultusunda hiçbir yüksek sıradağın bulunmayışı, Kanada kaynaklı kuru ' +
       "kutup havası ile Meksika Körfezi'nden gelen sıcak ve nemli tropikal havanın iç " +
-      'düzlüklerde doğrudan karşılaşmasına yol açar. Bu termodinamik çatışma, ilkbahar ' +
+      'düzlüklerde doğrudan karşılaşmasına yol açar. Bu iki hava kütlesinin çarpışması, ilkbahar ' +
       "aylarında Büyük Ovalar'da dünyada benzeri olmayan şiddette fırtına ve hortumlara " +
       'zemin hazırlar. ' +
       '\n\n' +
@@ -221,7 +221,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'cenote adı verilen dairesel obruk ve mağara gölleri gelişmiştir.',
     climateNoteTr:
       "Yengeç Dönencesi Meksika'yı enlemsel olarak subtropikal ve tropikal iki parçaya " +
-      'bölerken, yerleşim şartlarını asıl belirleyen etken dikey topoğrafyadır. Dağların ' +
+      'bölerken, yerleşim şartlarını asıl belirleyen etken yükseltidir. Dağların ' +
       "koruduğu kuzey bölgeleri ile Baja California'da yağışın 250 milimetrenin altına " +
       'düştüğü şiddetli çöl iklimleri hüküm sürer. ' +
       '\n\n' +
@@ -232,7 +232,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       '1.800 metrenin üzerindeki serin kuşak (tierra fría) ise kurak kışları ve serin ' +
       'geceleriyle tanınır; 2.240 metre rakımdaki başkent Meksika Şehri dahil olmak üzere ' +
       'nüfusun tarih boyunca bu yüksek yaylalarda toplanmasının başlıca nedeni bu ' +
-      'elverişli mikroklimadır.',
+      'elverişli iklimdir.',
     hydrographyNoteTr:
       'Ülkenin en önemli sınır akarsuyu olan Rio Bravo (kuzeyde Rio Grande), yaklaşık ' +
       '2.000 kilometre boyunca Amerika Birleşik Devletleri sınırını çizerek Meksika ' +
@@ -268,7 +268,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     officialLanguagesTr: ['İngilizce'],
     currencyNameTr: 'Belize Doları',
     currencyCode: 'BZD',
-    governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
+    governmentFormTr: 'Parlamenter monarşi (İngiliz Milletler Topluluğu krallığı)',
     independenceNoteTr: "21 Eylül 1981'de Birleşik Krallık'tan bağımsız oldu.",
     introTr:
       "Belize, Orta Amerika'nın Karayip kıyısında, Yucatán Yarımadası'nın güney kökünde " +
@@ -293,7 +293,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'Kıyı açıklarında boylu boyunca uzanan Belize Bariyer Resifi, yaklaşık 300 ' +
       "kilometrelik uzunluğuyla Avustralya'daki Büyük Set Resifi'nin ardından dünyanın en " +
       'uzun ikinci kesintisiz mercan resif sistemidir. Bu resif üzerinde yer alan Büyük ' +
-      'Mavi Delik (Great Blue Hole), buzul çağında oluşmuş karstik bir mağara tavanının ' +
+      'Mavi Delik, buzul çağında oluşmuş karstik bir mağara tavanının ' +
       'çöküp deniz suları altında kalmasıyla meydana gelen 300 metreyi aşkın çapa sahip ' +
       'anıtsal bir sualtı obruğudur.',
     climateNoteTr:
@@ -309,7 +309,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       've kasırgaların etki alanında yer alır; alçak kıyı şeridi fırtına kabarmalarına ' +
       'karşı oldukça kırılgandır.',
     hydrographyNoteTr:
-      'Ülkenin en önemli hidrolojik omurgası, Guatemala sınırından doğup doğuya doğru 290 ' +
+      'Ülkenin en önemli akarsu omurgası, Guatemala sınırından doğup doğuya doğru 290 ' +
       "kilometre aktıktan sonra Karayip Denizi'ne dökülen Belize Nehri'dir. Nehir " +
       'havzası, tarih boyunca maun tomruklarının taşındığı ve bugün tarımsal ' +
       'yerleşimlerin yoğunlaştığı en işlek vadidir. ' +
@@ -319,7 +319,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       'Kireçtaşı yapının egemen olduğu iç platolarda ise yağmur suları yüzeyde akmak ' +
       'yerine yeraltına süzülerek Caves Branch gibi geniş yeraltı nehirlerini ve karstik ' +
-      'mağara drenaj ağlarını besler.',
+      'mağaralardaki su yollarını besler.',
   },
   {
     isoCode: 'CR',
@@ -357,7 +357,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     landformNoteTr:
       'Ülkeyi kuzeybatıdan güneydoğuya bir omurga gibi bölen sıradağlar zinciri, dört ana ' +
       'kordilyeradan meydana gelir: Guanacaste, Tilarán, Central ve Talamanca. İlk üç ' +
-      'kordilyera aktif levha dalmasının beslediği volkanik konilerden oluşur; Arenal, ' +
+      'kordilyera bir levhanın diğerinin altına dalmasıyla beslenen volkanik konilerden oluşur; Arenal, ' +
       'Poás, Irazú ve Turrialba gibi yanardağlar tarihsel ve güncel püskürmeleriyle çevre ' +
       'toprakları verimli volkanik küllerle beslemiştir. ' +
       '\n\n' +
@@ -365,7 +365,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'ürünüdür; ülkenin en yüksek zirvesi olan 3.821 metrelik Cerro Chirripó bu kütle ' +
       'üzerinde yükselir. ' +
       '\n\n' +
-      'Kıyı morfolojisi de iki deniz arasında tezat sergiler: Karayip kıyısı düz, alçak ' +
+      'Kıyıların biçimi de iki deniz arasında tezat oluşturur: Karayip kıyısı düz, alçak ' +
       've lagünlerle kaplı bir kıyı kordonu iken, Pasifik kıyısı Nicoya ve Osa ' +
       'yarımadaları, dik burunlar ve derin koylarla son derece girintili bir yapı sunar.',
     climateNoteTr:
@@ -379,7 +379,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       've tropikal kuru orman örtüsü geliştirir. ' +
       '\n\n' +
       '1.000 ila 1.500 metre rakımda yer alan Valle Central ve başkent San José ise ' +
-      'serinletici ılıman bir mikroklimaya sahiptir; sıcaklık yıl boyu 18 ila 26 derece ' +
+      'serinletici ılıman bir iklime sahiptir; sıcaklık yıl boyu 18 ila 26 derece ' +
       'arasında dengelenir.',
     hydrographyNoteTr:
       'Kıstağın darlığı ve merkezi dağların dikliği nedeniyle akarsular genellikle kısa, ' +
@@ -425,7 +425,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       'Kuzeyde Honduras, batıda Guatemala ile sınırlanan ülke, Kokos levhasının Karayip ' +
       "levhası altına daldığı aktif Orta Amerika Çukuru'nun hemen gerisinde yer alır; bu " +
-      'jeodinamik konum ülkeyi sık depremler ve yoğun volkanizma ile tanımlar.',
+      'konum nedeniyle ülkede sık depremler ve yoğun volkanik etkinlik görülür.',
     landformNoteTr:
       'Ülke arazisi kıyıya paralel uzanan iki dağ kuşağı ve aralarındaki merkezi plato ' +
       'hendeğinden meydana gelir. Güneydeki volkanik eksen üzerinde yirmiden fazla ' +
@@ -453,9 +453,9 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'siklonik sistemler dik ve ormansızlaşmış volkanik yamaçlarda yıkıcı heyelanlara ve ' +
       'vadi taşkınlarına neden olur.',
     hydrographyNoteTr:
-      'Ülkenin hidrolojik can damarı, Guatemala dağlarından doğup El Salvador ' +
+      'Ülkenin can damarı, Guatemala dağlarından doğup El Salvador ' +
       "topraklarını boydan boya kat eden ve Büyük Okyanus'a dökülen Lempa Nehri'dir. Ülke " +
-      'yüzölçümünün yarısından fazlasını drene eden Lempa, kurulan baraj gölleriyle ' +
+      'yüzölçümünün yarısından fazlasının sularını toplayan Lempa, kurulan baraj gölleriyle ' +
       '(Cerrón Grande Rezervuarı) ulusal elektrik üretiminin ve tarımsal sulamanın ana ' +
       'kaynağıdır. ' +
       '\n\n' +
@@ -500,7 +500,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'yaylalarda toplanırken, kuzeydeki bakir orman ovaları tarihsel Maya kalıntılarına ' +
       'ev sahipliği yapar.',
     landformNoteTr:
-      'Ülke arazisi üç belirgin jeomorfolojik kuşağa ayrılır. Güneyde Pasifik levhasının ' +
+      'Ülke arazisi üç belirgin yer şekli kuşağına ayrılır. Güneyde Pasifik levhasının ' +
       "dalma zonuna paralel uzanan Sierra Madre de Chiapas kuşağı, Orta Amerika'nın en " +
       'yüksek noktası olan 4.220 metrelik Tajumulco Yanardağı dahil olmak üzere otuzdan ' +
       'fazla volkana ev sahipliği yapar. Bu kuşakta, 84 bin yıl önceki süper patlamanın ' +
@@ -526,7 +526,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'Cuchumatanes ve volkanik dorukların yer aldığı 3.000 metrenin üzerindeki ' +
       'yaylalarda (tierra fría) kış aylarında don olayları ve sert soğuklar yaşanır; ' +
       'doğudaki Motagua Vadisi gibi dağ ardı ceplerinde ise yağış gölgesi sebebiyle ' +
-      'kaktüslü yarı kurak mikroklimlar gelişir.',
+      'kaktüslü yarı kurak yerel iklimler görülür.',
     hydrographyNoteTr:
       'Tektonik fay oluğunu takip eden 480 kilometrelik Motagua Nehri, batı yaylalarından ' +
       "doğup doğuya doğru akarak Karayip Denizi'ne ulaşır ve ülkenin en uzun iç akarsu " +
@@ -641,7 +641,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'ülkesidir. Kuzeyde Honduras, güneyde Kosta Rika ile komşu olan ülke; batıda Büyük ' +
       'Okyanus, doğuda ise Karayip Denizi ile çevrilidir. ' +
       '\n\n' +
-      'Ülke coğrafyası belirgin bir doğu-batı asimetrisi sergiler. Nüfusun, sanayinin ve ' +
+      'Ülkenin doğusu ile batısı arasında belirgin bir karşıtlık vardır. Nüfusun, sanayinin ve ' +
       'tarımın ezici kısmı batıdaki volkanik çöküntü havzasında ve dev göllerin ' +
       'çevresinde toplanırken; yüzölçümünün yarısından fazlasını kaplayan doğudaki ' +
       'Mosquito Kıyısı (Costa de Mosquitos), seyrek nüfuslu bakir yağmur ormanları ve ' +
@@ -722,7 +722,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     landformNoteTr:
       'Ülkenin omurgasını batıda Kosta Rika sınırından başlayarak uzanan volkanik ' +
       'Cordillera Central dağ kuşağı oluşturur. Ülkenin zirvesi, bu kütle üzerinde 3.474 ' +
-      "metreye ulaşan uykudaki stratovolkan Volcán Barú'dur; zirvesinden açık günlerde " +
+      "metreye ulaşan uykudaki tabakalı volkan Volcán Barú'dur; zirvesinden açık günlerde " +
       'aynı anda hem Pasifik hem de Karayip denizi ufku seçilebilir. ' +
       '\n\n' +
       'Orta kesime doğru dağlar alçalarak yerini kanalın geçtiği 100 metrenin altındaki ' +
@@ -744,7 +744,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'kurak döneme girer; başkent Panama Şehri dahil olmak üzere nüfusun büyük kısmı bu ' +
       'daha kuru Pasifik eteğinde toplanmıştır.',
     hydrographyNoteTr:
-      'Merkezi dağ omurgası ülkeyi iki ayrı drenaj havzasına ayırır; dağların denize ' +
+      'Merkezi dağ omurgası ülkeyi iki ayrı su toplama havzasına ayırır; dağların denize ' +
       'yakınlığı nedeniyle beş yüzü aşkın akarsu genellikle kısa, eğimli ve hızlı ' +
       'akışlıdır. Karayip tarafının en kritik nehri olan Chagres, Gatún Barajı ile ' +
       "setlenerek 1913'te insan yapımı Gatún Gölü'nü oluşturmuştur. " +
@@ -754,7 +754,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'doğrudan küresel ticaretin sürekliliğini belirler. ' +
       '\n\n' +
       'Pasifik tarafında ise ülkenin en uzun nehri olan Chucunaque ve onun birleştiği ' +
-      'devasa debili Tuira Nehri, Darién bölgesinin vahşi yağmur ormanlarını drene ederek ' +
+      'devasa debili Tuira Nehri, Darién bölgesinin vahşi yağmur ormanlarının sularını toplayarak ' +
       "San Miguel Körfezi'ne dökülür.",
   },
   {
@@ -777,7 +777,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     officialLanguagesTr: ['İngilizce'],
     currencyNameTr: 'Doğu Karayip Doları',
     currencyCode: 'XCD',
-    governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
+    governmentFormTr: 'Parlamenter monarşi (İngiliz Milletler Topluluğu krallığı)',
     independenceNoteTr: "1 Kasım 1981'de Birleşik Krallık'tan bağımsız oldu.",
     introTr:
       "Antigua ve Barbuda, Küçük Antiller'in Rüzgaraltı Adaları grubunda yer alan ve jeolojik " +
@@ -788,7 +788,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'yükselmesiyle şekillenmiş alçak bir kireçtaşı kütlesidir. Kıyılarındaki sayısız doğal koy ' +
       've mercan sığlıkları, adaları tarih boyunca denizciler için korunaklı bir sığınak kılmıştır.',
     landformNoteTr:
-      'Antigua adası üç belirgin topoğrafik kuşağa ayrılır: Güneybatıda aşınmış eski bir ' +
+      'Antigua adası üç belirgin yer şekli kuşağına ayrılır: Güneybatıda aşınmış eski bir ' +
       'volkanik kalderanın kalıntısı olan ve 402 metreyle ülkenin en yüksek noktasını ' +
       'oluşturan Mount Obama (eski adıyla Boggy Peak) kütlesi yükselir; orta kesimde killi ve ' +
       'marnlı bir çöküntü düzlüğü uzanırken, kuzeydoğuda dalgalı kireçtaşı tepeleri yer alır.' +
@@ -800,7 +800,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     climateNoteTr:
       'Ülkede kuzeydoğu alizelerinin yumuşattığı tropikal denizel bir iklim hüküm sürer; ' +
       'aralık-nisan arası belirgin bir kurak dönem yaşanırken, ağustos-kasım arası yağışlar artar. ' +
-      'Dağ sıralarının yüksek olmaması orografik yağışların oluşmasını engeller; bu nedenle ada, ' +
+      'Dağ sıralarının yüksek olmaması yamaç yağışlarının oluşmasını engeller; bu nedenle ada, ' +
       'komşu volkanik Antil adalarına kıyasla çok daha az yağış alır ve kuraklık dönemlerine ' +
       'açıktır. Karayip kasırga kuşağının tam yolunda bulunan adalar içinde özellikle alçak ' +
       "Barbuda büyük risk taşır; nitekim 2017 yılındaki Kategori 5 Irma Kasırgası Barbuda'daki " +
@@ -808,10 +808,10 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     hydrographyNoteTr:
       'Yükseltinin azlığı ve kireçtaşı zeminin yüksek geçirgenliği sebebiyle her iki adada da ' +
       'kalıcı akarsu ağı gelişmemiştir; yağış suları yüzeyde akışa geçemeden hızla yeraltına sızar. ' +
-      "Bu hidrolojik kısıt, Antigua ve Barbuda'yı Karayipler'in tatlı su sıkıntısını en derin " +
+      "Bu durum, Antigua ve Barbuda'yı Karayipler'in tatlı su sıkıntısını en derin " +
       'hisseden ülkelerinden biri yapar. Su ihtiyacı tarihsel olarak yağmur sarnıçlarıyla ' +
-      'karşılanırken, günümüzde kentsel tüketim ve turizm tesisleri deniz suyunu arıtan ' +
-      'desalinasyon tesislerine ve yapay göletlerde toplanan yüzey sularına dayanır.',
+      'karşılanırken, günümüzde kentsel tüketim ve turizm tesisleri deniz suyunu ' +
+      'arıtan tesislere ve yapay göletlerde toplanan yüzey sularına dayanır.',
   },
   {
     isoCode: 'BS',
@@ -833,25 +833,25 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     officialLanguagesTr: ['İngilizce'],
     currencyNameTr: 'Bahama Doları',
     currencyCode: 'BSD',
-    governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
+    governmentFormTr: 'Parlamenter monarşi (İngiliz Milletler Topluluğu krallığı)',
     independenceNoteTr: "10 Temmuz 1973'te Birleşik Krallık'tan bağımsız oldu.",
     introTr:
       "Bahamalar, Karayip Denizi'nde değil, Kuzey Atlantik Okyanusu'nda Florida Boğazı ile " +
       "Küba'nın kuzeyi arasında 100.000 kilometrekareden geniş bir deniz alanına yayılan 700'ü " +
-      "aşkın ada ve 2.000'den fazla mercan kayalığından (cay) oluşur. Bu adaların yalnızca " +
+      "aşkın ada ve 2.000'den fazla mercan kayalığından oluşur. Bu adaların yalnızca " +
       'otuz kadarı yerleşime uygundur. Ülke, okyanus tabanından dik duvarlarla yükselen devasa ' +
       'karbonat kireçtaşı platformları — Büyük ve Küçük Bahama Bankaları — üzerine kuruludur. ' +
       'Turkuaz renkli sığ deniz düzlükleri ile hemen yanı başındaki binlerce metre derinlikteki ' +
       'koyu mavi okyanus çukurları arasındaki tezat, takımadanın temel coğrafi kimliğini belirler.',
     landformNoteTr:
-      'Bahamalar adalarının tamamı mercan ve biyojenik kireçtaşından oluşmuş son derece alçak, ' +
-      'düz rölyefli arazilerdir; volkanik ya da kıtasal kayaç yüzeyi bulunmaz. Ülkenin en ' +
+      'Bahamalar adalarının tamamı mercan ve canlı kalıntısı kireçtaşından oluşmuş son derece ' +
+      'alçak ve düz arazilerdir; volkanik ya da kıtasal kayaç yüzeyi bulunmaz. Ülkenin en ' +
       'yüksek yeri Cat Adası üzerinde yükselen ve deniz seviyesinden yalnızca 63 metre ' +
-      "yüksekte bulunan Alvernia Tepesi'dir (Mount Alvernia)." +
+      "yüksekte bulunan Alvernia Tepesi'dir." +
       '\n\n' +
       'Buzul çağlarındaki deniz seviyesi değişimleri sırasında yağış sularının kireçtaşını ' +
       'kimyasal olarak eritmesiyle geniş karstik obruklar ve mağara sistemleri gelişmiştir. ' +
-      'Son buzul erimesiyle sular altında kalan bu dik dikey mağaralar "mavi delik" (blue hole) ' +
+      'Son buzul erimesiyle sular altında kalan bu dik dikey mağaralar "mavi delik" ' +
       "olarak adlandırılır. Long Adası kıyısındaki 202 metre derinliğindeki Dean's Mavi Deliği " +
       "ile Andros Adası'nın iç kesimlerindeki sualtı labirentleri, yeryüzünün en zengin batık " +
       'karst yapılarını oluşturur.',
@@ -905,7 +905,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     landformNoteTr:
       'Ada yüzeyi, tektonik yükselme dönemlerinde dalgaların yonttuğu mercan kireçtaşı ' +
       'terasları halinde kıyıdan iç kesimlere doğru kademeli olarak yükselir. Ülkenin en yüksek ' +
-      "noktası, orta-kuzey kesimde 336 metreye ulaşan Hillaby Dağı'dır (Mount Hillaby)." +
+      "noktası, orta-kuzey kesimde 336 metreye ulaşan Hillaby Dağı'dır." +
       '\n\n' +
       'Hillaby çevresindeki Scotland District adı verilen doğu bölgesinde kireçtaşı örtü ' +
       'aşınmış, alttaki yumuşak kil ve kumtaşı katmanları açığa çıkarak sarp vadiler ve heyelanlı ' +
@@ -918,7 +918,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'geçer. Karayip ada yayının oldukça doğusunda yer alması, adayı ana kasırga rotalarının ' +
       'bir nebze dışında bırakır; bu sayede Barbados komşularına kıyasla doğrudan kasırga ' +
       'vuruşlarına daha seyrek maruz kalır. Buna karşın kurak mevsimde azalan yağışlar, adanın ' +
-      'tarım ve yerleşim alanlarında su stresinin belirginleşmesine yol açar.',
+      'tarım ve yerleşim alanlarında su sıkıntısının belirginleşmesine yol açar.',
     hydrographyNoteTr:
       'Mercan kireçtaşının süngerimsi ve geçirimli dokusu, yüzey sularını hızla tabana ' +
       'geçirdiği için adada kalıcı bir akarsu şebekesi oluşmamıştır. Yalnızca şiddetli sağanak ' +
@@ -959,7 +959,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       "halinde yükselir. Bu geniş ova yapısı, Küba'yı tarih boyunca büyük ölçekli şeker kamışı " +
       've tütün tarımının merkezi yapmıştır.',
     landformNoteTr:
-      'Adanın orografik omurgası üç ana grupta toplanır: Güneydoğuda Karayip levhası sınırı ' +
+      'Adanın dağlık omurgası üç ana grupta toplanır: Güneydoğuda Karayip levhası sınırı ' +
       'boyunca dik falezlerle denize inen ve 1.974 metrelik zirvesi Pico Turquino ile ülkenin en ' +
       'yüksek noktasını oluşturan Sierra Maestra; adanın ortasında yükselen Sierra del ' +
       'Escambray; batıda ise Sierra del Rosario ve Sierra de los Órganos dağları.' +
@@ -973,10 +973,10 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'kasım-nisan arası ise daha kurak geçer. Kuzeydoğu alizelerine bakan kuzey ve doğu dağ ' +
       "yamaçları gür ormanları besleyen yoğun yağışlar alırken, Sierra Maestra'nın güney " +
       'yamaçlarında kalan Guantánamo havzası rüzgar gölgesi sebebiyle kaktüslerin yetiştiği ' +
-      'yarı kurak bir mikroiklim sergiler. Haziran-kasım döneminde Atlantik ve Karayip kökenli ' +
+      'yarı kurak bir yerel iklime sahiptir. Haziran-kasım döneminde Atlantik ve Karayip kökenli ' +
       'yıkıcı kasırgalar adayı düzenli olarak boydan boya etkiler.',
     hydrographyNoteTr:
-      "Küba'nın ince ve uzun ada morfolojisi, suların hızla kuzey ya da güney kıyılarına " +
+      "Küba'nın ince ve uzun ada biçimi, suların hızla kuzey ya da güney kıyılarına " +
       'ulaşmasına neden olduğu için akarsuların ezici çoğunluğu kısa boyludur. Bu kuralın en ' +
       'büyük istisnası, Sierra Maestra eteklerinden doğup batıya doğru tektonik bir oluk boyunca ' +
       "370 kilometre akarak Guacanayabo Körfezi'ne dökülen Cauto Nehri'dir. Doğu dağlarının " +
@@ -1021,14 +1021,14 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       "Listesi'ndeki 1.342 metrelik Morne Trois Pitons." +
       '\n\n' +
       'Morne Trois Pitons Ulusal Parkı içinde yer alan Desolation Vadisi (Umutsuzluk Vadisi), ' +
-      'kaynayan çamur göletleri, kükürt bacaları ve fümarollerle aktif bir volkanik cehennem ' +
-      'manzarası sunar. Bu vadideki batık bir fümarol kraterinde oluşan Kaynayan Göl ' +
-      '(Boiling Lake), yaklaşık 60 metre çapındaki sürekli fokurdayan gri-mavi sularıyla ' +
+      'kaynayan çamur göletleri, kükürt bacaları ve gaz çıkışlarıyla (fümarol) aktif bir volkanik cehennem ' +
+      'manzarası sunar. Bu vadideki batık bir fümarol kraterinde oluşan Kaynayan ' +
+      'Göl, yaklaşık 60 metre çapındaki sürekli fokurdayan gri-mavi sularıyla ' +
       "Yeni Zelanda'daki Frying Pan Gölü'nün ardından dünyanın ikinci en büyük termal gölüdür.",
     climateNoteTr:
       "Dominika, Küçük Antiller'in en yüksek yağış miktarına sahip coğrafyasıdır. Atlas " +
-      "Okyanusu'ndan nem taşıyan kuzeydoğu alizeleri dik dağ yamaçlarına çarparak muazzam bir " +
-      'orografik yükselime yol açar; bu mekanizma iç kesimlerdeki dağ sırtlarında yıllık ' +
+      "Okyanusu'ndan nem taşıyan kuzeydoğu alizeleri dik dağ yamaçlarına çarparak havanın yamaç " +
+      'boyunca muazzam ölçüde yükselmesine yol açar; bu durum iç kesimlerdeki dağ sırtlarında yıllık ' +
       'yağış miktarını 7.000 ila 9.000 milimetre gibi olağanüstü düzeylere ulaştırır. Buna ' +
       'karşılık dağların rüzgar gölgesinde kalan batı Karayip kıyısı belirgin biçimde daha az ' +
       'yağış alır. Aşırı yağışlar ve sarp eğimler, kasırga mevsiminde adayı toprak kaymaları ' +
@@ -1069,7 +1069,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'devletleri arasındaki tek kara sınırıdır. Kuzeyinde Atlas Okyanusu, güneyinde ise Karayip ' +
       "Denizi yer alır. Ülke, Karayipler'in en yüksek dağ zirvelerinden deniz seviyesinin " +
       'altındaki tektonik tuz göllerine ve bereketli alüvyal vadilere kadar uzanan olağanüstü ' +
-      'bir morfolojik çeşitliliğe sahiptir.',
+      'bir yer şekli çeşitliliğine sahiptir.',
     landformNoteTr:
       'Ülke arazisi birbirine paralel uzanan dört büyük sıradağ kuşağıyla engebelenmiştir. ' +
       "Bunların merkezinde yer alan Cordillera Central, tüm Antil Adaları'nın çatısı sayılır; " +
@@ -1081,8 +1081,8 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'çöküntüsü içinde, deniz seviyesinin 46 metre altında bulunan Enriquillo Gölü, ' +
       "Karayipler'in en alçak noktasını oluşturan aşırı tuzlu bir kapalı havzadır.",
     climateNoteTr:
-      'Dağ sıralarının uzanışı ve yükselti basamakları, ülkede birbirine komşu zıt ' +
-      'mikroklimatik alanlar yaratmıştır. Kuzeydoğu alizelerinin doğrudan ulaştığı Samaná ' +
+      'Dağ sıralarının uzanışı ve yükselti basamakları, ülkede birbirine komşu ama ' +
+      'birbirine zıt yerel iklimler yaratmıştır. Kuzeydoğu alizelerinin doğrudan ulaştığı Samaná ' +
       'Yarımadası ve Cordillera Septentrional yamaçları yılda 2.000 milimetreyi aşan yağışlarla ' +
       "tropikal nemli ormanlarla kaplıdır. Buna karşılık Cordillera Central'ın rüzgar " +
       'gölgesinde kalan güneybatı ovaları ve Enriquillo havzası, yılda 500 milimetrenin ' +
@@ -1095,7 +1095,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       "Yuna Nehri ve güney ovalarından Karayip Denizi'ne inen Yaque del Sur. Dağ nehirleri " +
       'üzerine kurulan barajlar hem tarımsal sulamayı güvenceye alır hem de elektrik üretir. ' +
       'Güneybatıdaki Enriquillo Gölü ise denize çıkışı olmayan kapalı havzasıyla Amerikan ' +
-      'timsahları ve flamingolar için benzersiz bir hipersalin sulak alan barındırır.',
+      'timsahları ve flamingolar için benzersiz, aşırı tuzlu bir sulak alan barındırır.',
   },
   {
     isoCode: 'GD',
@@ -1117,7 +1117,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     officialLanguagesTr: ['İngilizce'],
     currencyNameTr: 'Doğu Karayip Doları',
     currencyCode: 'XCD',
-    governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
+    governmentFormTr: 'Parlamenter monarşi (İngiliz Milletler Topluluğu krallığı)',
     independenceNoteTr: "7 Şubat 1974'te Birleşik Krallık'tan bağımsız oldu.",
     introTr:
       'Grenada, Küçük Antiller ada yayının güney ucunda yer alan ana ada ile Grenadinler ' +
@@ -1140,7 +1140,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'izlenen bir jeolojik süreçtir.',
     climateNoteTr:
       'Kuzeydoğu alizelerinin serinlettiği tropikal denizel iklimde haziran-aralık dönemi ' +
-      'yağışlı, ocak-mayıs dönemi ise daha kurak geçer. Orografik yükselmenin etkisiyle ' +
+      'yağışlı, ocak-mayıs dönemi ise daha kurak geçer. Nemli havanın dağlara tırmanmasıyla ' +
       'merkezi ormanlık dağ yamaçları yılda 4.000 milimetreyi aşan bol yağış alarak baharat ' +
       'plantasyonlarının ihtiyaç duyduğu nemi sağlarken, kıyı ovalarında bu miktar 1.500 ' +
       'milimetreye kadar iner. Geleneksel olarak kasırga kuşağının güney sınırında yer alıp ' +
@@ -1148,12 +1148,12 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'vurulmuş; fırtına ada tarımını ve muskat ağacı varlığını uzun yıllar sekteye uğratmıştır.',
     hydrographyNoteTr:
       'Yoğun yağışlar ve sarp volkanik eğim, Grenada anakarasında merkezi dağ masifinden her ' +
-      'yöne radyal düzende inen gür bir akarsu şebekesi oluşturmuştur. Bu kısa ve dik debili dağ ' +
+      'yöne yayılarak inen gür bir akarsu şebekesi oluşturmuştur. Bu kısa ve dik debili dağ ' +
       'dereleri, Annandale ve Concord şelaleleri gibi çağlayanlar üzerinden basamaklar halinde ' +
       'kıyıya iner. Adanın kentsel içme suyu şebekesi büyük ölçüde Grand Etang yağmur ormanı ' +
       'havzasındaki bu kaynaklardan beslenir. Buna karşılık kuzeydeki alçak kireçtaşı adaları ' +
-      "Carriacou ve Petite Martinique'te sürekli yüzey akışı bulunmaz; su ihtiyacı sarnıçlar ve " +
-      'desalinasyonla çözülür.',
+      "Carriacou ve Petite Martinique'te sürekli yüzey akışı bulunmaz; su ihtiyacı sarnıçlar ve deniz " +
+      'suyu arıtmasıyla çözülür.',
   },
   {
     isoCode: 'HT',
@@ -1185,8 +1185,8 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       "Gonâve Körfezi'ni kucaklayan iki uzun dağlık yarımada — kuzeyde Kuzey Yarımadası, " +
       'güneyde ise Tiburon Yarımadası — etrafında şekillenmiştir.',
     landformNoteTr:
-      'Ülke arazisi, Karayip ile Kuzey Amerika levhalarının sınırındaki doğrultu atımlı aktif fay ' +
-      'hatları boyunca parçalanmış son derece sarp bir jeomorfolojiye sahiptir. Güneydeki Tiburon ' +
+      'Ülke arazisi, Karayip ile Kuzey Amerika levhalarının sınırındaki yatay yönde kayan (doğrultu atımlı) aktif ' +
+      'fay hatları boyunca parçalanmış son derece sarp bir araziye sahiptir. Güneydeki Tiburon ' +
       'Yarımadası boyunca uzanan Massif de la Selle üzerindeki 2.680 metrelik Pic la Selle, ' +
       "Haiti'nin en yüksek zirvesidir. Kuzeyde Massif du Nord dağları yükselirken, bu sıradağlar " +
       'arasında tektonik kökenli Cul-de-Sac Çöküntüsü ve verimli Artibonite Ovası yer alır.' +
@@ -1195,7 +1195,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'olmuştur. Dağlık yamaçlardaki aşırı ormansızlaşma, çıplak kalan dik arazide şiddetli ' +
       'toprak erozyonuna ve derin karstik yarıntılara yol açmıştır.',
     climateNoteTr:
-      'Topografik engellerin rüzgar yönüne göre farklılaşması, tropikal iklim içinde keskin ' +
+      'Dağların rüzgar yönüne göre farklı konumlanması, tropikal iklim içinde keskin ' +
       'yağış tezatları doğurmuştur. Kuzeydoğu alizelerine bakan kuzey kıyıları ve yüksek dağ ' +
       'yamaçları yılda 1.500 ila 2.000 milimetre yağış alırken, dağ sıralarının rüzgar gölgesinde ' +
       'kalan Cul-de-Sac çöküntüsü gibi iç havzalarda yıllık yağış 600 milimetrenin altına düşerek ' +
@@ -1231,7 +1231,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     officialLanguagesTr: ['İngilizce'],
     currencyNameTr: 'Jamaika Doları',
     currencyCode: 'JMD',
-    governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
+    governmentFormTr: 'Parlamenter monarşi (İngiliz Milletler Topluluğu krallığı)',
     independenceNoteTr: "6 Ağustos 1962'de Birleşik Krallık'tan bağımsız oldu.",
     introTr:
       "Jamaika, Büyük Antiller yayında Küba ve Hispaniola'nın güneybatısında tek başına " +
@@ -1243,7 +1243,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'merkezidir.',
     landformNoteTr:
       'Adanın doğu kesimini sarp kristalen kayaçlardan oluşan ve 2.256 metre yüksekliğindeki ' +
-      'Blue Mountain Peak ile ülkenin en yüksek noktasını barındıran Mavi Dağlar (Blue Mountains) ' +
+      'Blue Mountain Peak ile ülkenin en yüksek noktasını barındıran Mavi Dağlar ' +
       'kaplar. Orta ve batı kesimlerde ise kalın beyaz kireçtaşı katmanlarının oluşturduğu ' +
       'geniş bir plato uzanır.' +
       '\n\n' +
@@ -1257,7 +1257,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       "yıl boyu sıcak ve nemli kalırken, Mavi Dağlar'ın doruklarında serin bir yayla iklimi " +
       "hüküm sürer. Alizelerin çarptığı Mavi Dağlar'ın kuzey yamaçları yılda 5.000 milimetreyi " +
       'aşan yağış alarak dağları saran yoğun bir sis kuşağı yaratır; dünyaca ünlü Blue Mountain ' +
-      'kahvesi bu serin ve nemli mikroklimada yetişir. Dağların gerisinde kalan güney kıyıları ' +
+      'kahvesi bu serin ve nemli iklimde yetişir. Dağların gerisinde kalan güney kıyıları ' +
       'ise belirgin biçimde daha kuraktır. Karayip kasırga kuşağının merkezindeki ada, ' +
       "özellikle 1988'deki Gilbert gibi süper kasırgaların hedefi olmuştur.",
     hydrographyNoteTr:
@@ -1268,7 +1268,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'akan 93 kilometrelik Rio Minho en uzun nehirken, batıdaki 53 kilometrelik Black River ' +
       '(Kara Nehir) mangrov bataklıkları ve tatlı su sulak alanlarıyla adanın en geniş iç su ' +
       'ekosistemini oluşturur. Kuzey sahilinde ise basamaklı kireçtaşı taraçalarından doğrudan ' +
-      "denize dökülen Dunn's River Şelalesi, adanın karstik hidrolojisinin denize ulaştığı " +
+      "denize dökülen Dunn's River Şelalesi, adanın kireçtaşı içinden akan sularının denize ulaştığı " +
       'simgesel bir çağlayandır.',
   },
   {
@@ -1291,7 +1291,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     officialLanguagesTr: ['İngilizce'],
     currencyNameTr: 'Doğu Karayip Doları',
     currencyCode: 'XCD',
-    governmentFormTr: 'Federal parlamenter monarşi (Commonwealth realm)',
+    governmentFormTr: 'Federal parlamenter monarşi (İngiliz Milletler Topluluğu krallığı)',
     independenceNoteTr: "19 Eylül 1983'te Birleşik Krallık'tan bağımsız oldu.",
     introTr:
       "Saint Kitts ve Nevis, Küçük Antiller'in Rüzgaraltı Adaları zincirinde yer alan iki " +
@@ -1316,7 +1316,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'bağlı olarak keskin yerel farklılıklar gösterir. Kıyı ovalarında yıllık yağış 1.000 ila ' +
       '1.200 milimetre arasında kalırken, bulut ormanlarıyla kaplı volkanik doruklarda bu miktar ' +
       "3.000 milimetreyi aşar; buna karşılık Saint Kitts'in güneydoğusundaki alçak yarımada " +
-      'kaktüslerin yetiştiği yarı kurak bir mikroiklime sahiptir. Karayip kasırga kuşağının ' +
+      'kaktüslerin yetiştiği yarı kurak bir yerel iklime sahiptir. Karayip kasırga kuşağının ' +
       'doğrudan geçiş güzergahında bulunan adalar, yaz sonu ve sonbahar aylarında şiddetli ' +
       'tropikal siklon tehdidi altındadır.',
     hydrographyNoteTr:
@@ -1347,11 +1347,11 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     officialLanguagesTr: ['İngilizce'],
     currencyNameTr: 'Doğu Karayip Doları',
     currencyCode: 'XCD',
-    governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
+    governmentFormTr: 'Parlamenter monarşi (İngiliz Milletler Topluluğu krallığı)',
     independenceNoteTr: "22 Şubat 1979'da Birleşik Krallık'tan bağımsız oldu.",
     introTr:
       "Saint Lucia, Küçük Antiller'in Rüzgarüstü Adaları grubunda, Martinik ile Saint Vincent " +
-      "arasında uzanan ve topoğrafik siluetiyle Karayipler'in en ikonik manzaralarına sahip " +
+      "arasında uzanan ve dağ siluetiyle Karayipler'in en ikonik manzaralarına sahip " +
       'volkanik bir ada devletidir. Adanın güneybatı sahilinde turkuaz denizden dikey birer ' +
       'duvar gibi yükselen orman kaplı ikiz lav tıkaçları (Pitonlar), ülkenin ulusal simgesidir. ' +
       'İç kesimlerini saran sarp dağ sıraları, bol yağışlı bulut ormanları ve aktif jeotermal ' +
@@ -1377,8 +1377,8 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'heyelanlara yol açabilir.',
     hydrographyNoteTr:
       'Merkezi dağ omurgasından radyal olarak her yöne inen çok sayıda nehir adanın ' +
-      'vadilerini aşındırmıştır. Bu akarsuların en uzunu, adanın orta-batı kesimini drene ' +
-      "eden Roseau Nehri'dir. Bu nehir üzerinde inşa edilen John Compton Barajı, başkent " +
+      'vadilerini aşındırmıştır. Bu akarsuların en uzunu, adanın orta-batı kesiminin sularını ' +
+      "toplayan Roseau Nehri'dir. Bu nehir üzerinde inşa edilen John Compton Barajı, başkent " +
       'Castries ve adanın kuzey yerleşimlerinin tatlı su güvencesini oluşturan ana içme ' +
       "suyu rezervuarıdır. Cul de Sac, Roseau ve Fond d'Or gibi alüvyon tabanlı geniş nehir " +
       'vadileri ise adanın başlıca muz tarımı ve yerleşim alanlarını barındırır.',
@@ -1403,13 +1403,13 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     officialLanguagesTr: ['İngilizce'],
     currencyNameTr: 'Doğu Karayip Doları',
     currencyCode: 'XCD',
-    governmentFormTr: 'Parlamenter monarşi (Commonwealth realm)',
+    governmentFormTr: 'Parlamenter monarşi (İngiliz Milletler Topluluğu krallığı)',
     independenceNoteTr: "27 Ekim 1979'da Birleşik Krallık'tan bağımsız oldu.",
     introTr:
       "Saint Vincent ve Grenadinler, Windward Adaları'nın güney yayında yer alan büyük anakara " +
       "Saint Vincent ile bunun güneyinde Grenada'ya doğru uzanan 32 küçük ada ve mercan kayalığından " +
       '(Grenadinler) oluşan iki parçalı bir ada devletidir. Ülkenin ana karası Saint Vincent, ' +
-      'kuzeyinde yükselen son derece aktif bir stratovolkanın şekillendirdiği sarp, yoğun ormanlık ' +
+      'kuzeyinde yükselen son derece aktif bir tabakalı volkanın şekillendirdiği sarp, yoğun ormanlık ' +
       've dağlık bir yapıya sahiptir. Buna karşılık Bequia, Mustique ve Union gibi güneydeki ' +
       'Grenadin adaları ise alçak tepeleri, beyaz kumsalları ve sığ mercan lagünleriyle anakaraya ' +
       'tam bir tezat oluşturur.',
@@ -1426,17 +1426,17 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'lagünleri kapsayan ünlü bir deniz koruma alanıdır.',
     climateNoteTr:
       "Ülkede yıl boyunca sıcak ve nemli tropikal denizel koşullar etkilidir. Saint Vincent'ın " +
-      'yüksek volkanik dağları kuzeydoğu alizelerinden muazzam miktarda orografik yağış ' +
-      'çekerek yıllık 4.000 milimetrenin üzerine çıkarken, güneydeki basık Grenadin adaları ' +
-      'yılda 1.000 milimetre civarında yağışla kurak çalı ve kuru orman biyomuna bürünür. ' +
+      'yüksek volkanik dağları kuzeydoğu alizelerinden muazzam miktarda yamaç yağışı ' +
+      'alarak yıllık 4.000 milimetrenin üzerine çıkarken, güneydeki basık Grenadin adaları ' +
+      'yılda 1.000 milimetre civarında yağışla kurak çalılık ve kuru ormanlarla kaplanır. ' +
       'Karayip kasırga koridorunda bulunan ülke, hem tropik fırtına ve kasırgaların hem de ' +
-      "La Soufrière'in havaya savurduğu piroklastik kül bulutlarının çifte doğal afet riskini taşır.",
+      "La Soufrière'in havaya savurduğu kızgın kül bulutlarının çifte doğal afet riskini taşır.",
     hydrographyNoteTr:
       'Saint Vincent anakarasında merkezi sırttan doğup derin vadiler boyunca kıyıya hızla ' +
       'ulaşan çok sayıda gür debili dağ deresi akar; volkanik aşınma sebebiyle adanın batı ' +
       'kıyısındaki plajlar karakteristik siyah bazalt kumlarıyla kaplıdır. Buna karşılık ' +
       'küçük ve alçak Grenadin adalarında kalıcı akarsu bulunmaz; bu adalarda tatlı su ' +
-      'ihtiyacı tamamen yağmur suyu sarnıçları, yerel desalinasyon üniteleri ve anakaradan ' +
+      'ihtiyacı tamamen yağmur suyu sarnıçları, yerel deniz suyu arıtma üniteleri ve anakaradan ' +
       'gemilerle taşınan sularla karşılanır.',
   },
   {
@@ -1465,21 +1465,21 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       "Trinidad ve Tobago, Karayipler'in en güney ucunda, Venezuela'nın Orinoco Deltası'na " +
       'yalnızca 11 kilometre mesafede yer alan iki adalı bir devlettir. Bölgedeki diğer ada ' +
       'ülkelerinden farklı olarak volkanik yay sistemine değil, doğrudan Güney Amerika kıtasal ' +
-      'kalkanına ve şelfine aittir. Bu kıtasal jeoloji, ülkeye zengin petrol, doğal gaz ve ' +
+      'kalkanına ve kıta sahanlığına aittir. Bu kıtasal jeoloji, ülkeye zengin petrol, doğal gaz ve ' +
       'doğal asfalt yatakları kazandırmış; bitki ve hayvan varlığını da Antil adalarından ' +
       'ziyade Amazon ve Orinoco havzalarıyla akraba kılmıştır. Nüfusun ve sanayinin ezici ' +
       "çoğunluğu büyük ada Trinidad'da toplanmıştır.",
     landformNoteTr:
-      "Trinidad'ın kuzey kıyısı boyunca uzanan Kuzey Sıradağları (Northern Range), jeolojik " +
+      "Trinidad'ın kuzey kıyısı boyunca uzanan Kuzey Sıradağları, jeolojik " +
       "olarak Venezuela Kıyı Andları'nın doğrudan deniz aşırı uzantısıdır; bu sıradağ üzerinde " +
       'yükselen 940 metrelik El Cerro del Aripo ülkenin en yüksek zirvesidir. Adanın orta ve ' +
       'güney kesimleri ise dalgalı ovalar ve alçak petrol havzalarıyla kaplıdır.' +
       '\n\n' +
-      'Adanın güneybatısındaki La Brea kasabasında yer alan Katran Gölü (Pitch Lake), yaklaşık ' +
+      'Adanın güneybatısındaki La Brea kasabasında yer alan Katran Gölü, yaklaşık ' +
       '40 hektarlık alanıyla yeryüzünün en büyük doğal asfalt rezervuarıdır ve derin faylardan ' +
       'sızan petrol hidrokarbonlarının yüzeyde ağırlaşmasıyla oluşmuştur. Kuzeydoğudaki küçük ada ' +
       "Tobago'nun bel kemiğini ise 1776 yılında Batı Yarımküre'nin ilk yasal orman koruma alanı " +
-      'ilan edilen sarp Ana Sıradağ (Main Ridge) oluşturur.',
+      'ilan edilen sarp Ana Sıradağ oluşturur.',
     climateNoteTr:
       "Ülke, 10 derece kuzey enleminde Ekvator'a ve Güney Amerika ana karasına çok yakın bir " +
       'konumda yer alması sayesinde Karayip kasırga kuşağının güney sınırının altında kalır. ' +
@@ -1488,10 +1488,10 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       "haziran-aralık arası yağışlı, ocak-mayıs arası ise kurak mevsim yaşanır; Kuzey Sıradağları'nda " +
       'yağışlar 3.800 milimetreyi bulurken batı düzlüklerinde 1.200 milimetreye kadar geriler.',
     hydrographyNoteTr:
-      'Kıtasal şelf kökeni sayesinde Trinidad, Karayip adaları içinde en olgun ve geniş nehir ' +
+      'Kıta sahanlığı kökeni sayesinde Trinidad, Karayip adaları içinde en olgun ve geniş nehir ' +
       "ağlarına sahiptir. Kuzey Sıradağları eteklerinden doğup batıdaki Paria Körfezi'ne akan " +
       'Caroni Nehri, başkentin güneyinde devasa Caroni Bataklığı mangrov ekosistemini besler; ' +
-      'bu sulak alan ülkenin ulusal simgesi olan kızıl ibisin (Scarlet Ibis) dünyadaki en önemli ' +
+      'bu sulak alan ülkenin ulusal simgesi olan kızıl ibisin dünyadaki en önemli ' +
       'tünekleme sahasıdır. Doğu sahiline dökülen 50 kilometrelik Ortoire Nehri ise adanın en ' +
       'uzun su yoludur. Dağlık Tobago adasında ise daha kısa, hızlı akan temiz dereler ve ' +
       'çağlayanlar baskındır.',
@@ -1561,7 +1561,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'batıdan esen kesintisiz fırtınalı rüzgarlar bu platoları kuruturken, en güneydeki ' +
       "Ateş Ülkesi'nde serin, fırtınalı ve subpolar denizel şartlar hakimdir.",
     hydrographyNoteTr:
-      "Ülkenin en önemli hidrolojik arteri, Brezilya'dan doğup güneye inen ve yaklaşık " +
+      "Ülkenin en önemli akarsuyu, Brezilya'dan doğup güneye inen ve yaklaşık " +
       "4.880 kilometre uzunluğa sahip olan Paraná Nehri'dir. Paraná, Uruguay Nehri ile " +
       "birleşerek Atlas Okyanusu'na açılan devasa huni biçimli Río de la Plata halicini " +
       "oluşturur; bu havza Arjantin'in tahıl ve sanayi taşımacılığının can damarıdır." +
@@ -1602,7 +1602,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       "Güney Amerika'nın kalbinde yer alan Bolivya, Paraguay ile birlikte kıtanın " +
       'denize doğrudan çıkışı bulunmayan iki ülkesinden biridir. Ülke, batıda 4.000 metre ' +
       'rakımlı And zirvelerinden doğuda Amazon ve Paraguay havzalarının tropikal ' +
-      'alçak düzlüklerine hızla alçalan baş döndürücü bir topoğrafik eğime sahiptir.' +
+      'alçak düzlüklerine hızla alçalan baş döndürücü bir arazi eğimine sahiptir.' +
       '\n\n' +
       'Nüfus ve idari merkezler tarih boyunca batıdaki yüksek dağ platoları ve vadi ' +
       'oluklarında yoğunlaşmış olsa da, doğudaki ovalar tarım, hayvancılık ve doğal gaz ' +
@@ -1640,7 +1640,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'aylarında güneyden esen "surazo" adlı kutup rüzgarları sıcaklığı saatler içinde ' +
       'aniden düşürebilir.',
     hydrographyNoteTr:
-      'Bolivya hidrolojik olarak üç ana drenaj havzasına ayrılır. Altiplano üzerindeki ' +
+      "Bolivya'nın suları üç ana havzaya ayrılır. Altiplano üzerindeki " +
       'kapalı havzanın merkezinde, Peru ile paylaşılan 3.812 metre rakımlı Titicaca ' +
       'Gölü yer alır; dünyanın ticari seyrüsefere elverişli en yüksek gölü olan bu su ' +
       "kütlesinin yaklaşık %40'ı Bolivya sınırları içindedir. Gölün suları Desaguadero " +
@@ -1703,7 +1703,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'ekosistemidir; yağışlı mevsimde sular altında kalan bu dev düzlük yeryüzünün en ' +
       'zengin yaban hayatı yoğunluklarından birine ev sahipliği yapar.',
     climateNoteTr:
-      "Geniş yüzölçümü ve topoğrafik çeşitlilik Brezilya'da beş ana iklim kuşağı " +
+      "Geniş yüzölçümü ve yer şekli çeşitliliği Brezilya'da beş ana iklim kuşağı " +
       "oluşturur. Amazon Havzası'nda sıcaklığın yıl boyu 25-28 derecede kaldığı, bol " +
       'yağışlı ve yüksek nemli ekvatoral iklim hakimdir.' +
       '\n\n' +
@@ -1758,7 +1758,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     introTr:
       "Güney Amerika'nın güneybatı kıyısı boyunca kuzeyden güneye yaklaşık 4.300 " +
       'kilometre boyunca uzanan Şili, buna karşılık ortalama yalnızca 175-180 kilometre ' +
-      'genişliğiyle yeryüzünün en sıra dışı şerit geometrisine sahip ülkesidir. ' +
+      'genişliğiyle yeryüzünün en sıra dışı şerit biçimli ülkesidir. ' +
       "Doğuda And Dağları'nın yüksek duvarıyla Arjantin ve Bolivya'dan ayrılırken, " +
       "batıda Büyük Okyanus'a boylu boyunca cephe verir." +
       '\n\n' +
@@ -1766,7 +1766,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'vadilerine, fırtınalı yağmur ormanlarından fiyortlar ve dev buzullarla parçalanmış ' +
       'subantarktik takımadalara kadar kesintisiz bir coğrafi tezatlar zinciridir.',
     landformNoteTr:
-      'Şili morfolojisi, kuzeyden güneye paralel uzanan üç ana yapısal şerit üzerinde ' +
+      "Şili'nin yer şekilleri, kuzeyden güneye paralel uzanan üç ana şerit üzerinde " +
       'gelişmiştir: Doğuda kıtanın çatısını kuran And Dağları, batıda kıyı boyunca uzanan ' +
       'Kıyı Sıradağları (Cordillera de la Costa) ve iki dağ sistemi arasına sıkışan tektonik ' +
       'çöküntü alanı Orta Vadi (Valle Central).' +
@@ -1785,7 +1785,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'akan soğuk Humboldt Akıntısı ile yarı kalıcı Güney Pasifik yüksek basınç merkezi ' +
       "şekillendirir. Kuzeydeki Atakama Çölü'nde, soğuk deniz suyunun buharlaşmayı " +
       "engellemesi ve And Dağları'nın doğudan gelen nemi tamamen kesmesi nedeniyle " +
-      'yıllarca tek damla yağış almayan hiper-kurak koşullar hüküm sürer.' +
+      'yıllarca tek damla yağış almayan aşırı kurak koşullar hüküm sürer.' +
       '\n\n' +
       "Orta Şili'de yazları ılık ve kurak, kışları serin ve yağışlı geçen ideal bir Akdeniz " +
       'iklimi görülür; bu iklimsel kararlılık bölgeyi küresel bir meyve ve şarap üretim ' +
@@ -1836,7 +1836,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       "sınırından giren And Dağları'nın üçe çatallanarak oluşturduğu sarp kordilyeralar " +
       'ile doğudaki uçsuz bucaksız ova ve ormanlar arasında çarpıcı bir coğrafi bölünme gösterir.' +
       '\n\n' +
-      "Bu keskin topoğrafik yapı, Kolombiya'yı beş belirgin doğal bölgeye ayırır: And " +
+      "Bu keskin yer şekli yapısı, Kolombiya'yı beş belirgin doğal bölgeye ayırır: And " +
       'dağlık kuşağı, Karayip kıyı düzlükleri, Pasifik yağmur ormanları, doğudaki Orinoco ' +
       'savanları (Llanos) ve güneydeki Amazon havzası. Nüfusun ve ekonomik üretimin büyük ' +
       'bölümü, elverişli iklim sunan yüksek And vadilerinde yoğunlaşmıştır.',
@@ -1927,7 +1927,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       "kutuplardan basık, ekvatordan şişkin elips biçimi nedeniyle Chimborazo'nun zirvesi, " +
       "Dünya'nın merkezinden ölçüldüğünde yeryüzünün uzaya en yakın noktası unvanını taşır. " +
       '5.897 metrelik mükemmel simetrili konisiyle Cotopaxi ise dünyanın en yüksek aktif ' +
-      'strato-volkanları arasındadır.' +
+      'tabakalı volkanları arasındadır.' +
       '\n\n' +
       "Andlar'ın batısında Guayas Nehri'nin beslediği alüvyon zengini Costa ovası, doğusunda " +
       'ise Amazon ormanlarının alçak tabanı Oriente uzanır. Pasifik açıklarındaki Galápagos ' +
@@ -2012,7 +2012,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     climateNoteTr:
       "Guyana'da yıl boyu yüksek sıcaklık ve nemle tanımlanan ekvatoral bir rejim " +
       'hüküm sürer. Ülkeyi diğer birçok tropikal bölgeden ayıran temel özellik, Tropikal ' +
-      "Yakınsama Kuşağı'nın (ITCZ) mevsimsel göçüne bağlı olarak yılda iki yağışlı ve " +
+      "Yakınsama Kuşağı'nın mevsimsel göçüne bağlı olarak yılda iki yağışlı ve " +
       'iki kurak dönem yaşamasıdır.' +
       '\n\n' +
       "Birincil yağışlı mevsim Mayıs'tan Ağustos ortasına kadar sürerek yıllık yağışın " +
@@ -2025,7 +2025,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'iç kesimdeki Rupununi savanlarında ise yağış yaklaşık 1.800 milimetreye geriler ' +
       've kurak mevsimde savanlar kururken yağışlı mevsimde geniş taşkın düzlüklerine dönüşür.',
     hydrographyNoteTr:
-      "Guyana'nın ana drenaj omurgasını, güneydeki Acarai Dağları'ndan doğup 1.014 " +
+      "Guyana'nın ana akarsu omurgasını, güneydeki Acarai Dağları'ndan doğup 1.014 " +
       "kilometre boyunca kuzeye akan ve ülke topraklarının yaklaşık %73'ünü sulayan " +
       'Essequibo Nehri oluşturur; ağzında 20 kilometreyi aşan bir haliç ve sayısız adacık ' +
       "kurarak Atlas Okyanusu'na dökülür." +
@@ -2035,7 +2035,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'okyanusa kavuştuğu haliçte kuruludur.' +
       '\n\n' +
       'Kıyı ovası yüksek gelgitte deniz seviyesinin altında kaldığından, su yönetimi ' +
-      'Hollanda sömürge döneminden miras kalan karmaşık bir polder, deniz duvarı ve ' +
+      'Hollanda sömürge döneminden miras kalan karmaşık bir set içi arazi (polder), deniz duvarı ve ' +
       '"koker" adı verilen gelgit kapakları sistemiyle sağlanır; yağmur suları alçak ' +
       'gelgitte yerçekimiyle okyanusa tahliye edilirken yüksek gelgitte kapaklar kapatılarak ' +
       'deniz suyunun tarım arazilerini basması önlenir.',
@@ -2083,7 +2083,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'uzanan Gran Chaco havzasının parçasıdır. Arazi doğuya, nehir yatağına doğru ' +
       'çok hafif bir eğim gösterir.' +
       '\n\n' +
-      'Chaco zemininde killi ve tuzlu katmanların yaygın olması, drenaj yetersizliğiyle ' +
+      'Chaco zemininde killi ve tuzlu katmanların yaygın olması, suyun akıp gidememesiyle ' +
       'birleştiğinde yağışlı mevsimde geniş alanların bataklığa dönüşmesine, kurak dönemde ' +
       'ise toprağın çatlayıp tuz birikintilerine bürünmesine yol açar; bu nedenle bölge ' +
       'tarıma doğu kesimi kadar elverişli değildir.',
@@ -2094,7 +2094,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'yıllık 1.400 ila 1.800 milimetreye ulaşan nemli subtropikal bir rejim etkilidir.' +
       '\n\n' +
       'Batıya doğru ilerledikçe yağış hızla azalır; Chaco Boreal kesiminde yıllık yağış ' +
-      '500 ila 1.000 milimetreye kadar düşerek yarı kurak çalı biyomuna zemin hazırlar.' +
+      '500 ila 1.000 milimetreye kadar düşerek yarı kurak çalılıklara zemin hazırlar.' +
       '\n\n' +
       'Yaz aylarında Amazon ve Chaco üzerinden gelen sıcak hava kütleleri sıcaklıkları ' +
       'sık sık 35-40 derecenin üzerine çıkararak ülkeyi kıtanın en sıcak bölgelerinden ' +
@@ -2185,8 +2185,8 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       'Pasifik yamacındaki nehirler ise dik eğimli, kısa ve mevsimliktir; buna karşın ' +
       'çöl kıyısında kurulan Lima gibi dev metropollerin ve tarım vahalarının yegane tatlı ' +
-      "su kaynağıdır. Güneydoğudaki Titicaca Gölü ise Altiplano'nun kapalı hidrolojik " +
-      'sistemini besler.',
+      "su kaynağıdır. Güneydoğudaki Titicaca Gölü ise Altiplano'nun kapalı su " +
+      'havzasını besler.',
   },
   {
     isoCode: 'SR',
@@ -2218,13 +2218,13 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       'Ülke, jeolojik olarak komşusu Guyana ile birlikte aşınmaya dirençli Prekambriyen ' +
       "Guyana Kalkanı üzerinde oturur. Basamaklı yüksek tepuilerin aksine Surinam'ın iç " +
-      'kesimleri büyük ölçüde alçak bir peneplendir. Nüfusun ve yerleşimlerin neredeyse ' +
+      'kesimleri büyük ölçüde alçak bir aşınım düzlüğüdür (peneplen). Nüfusun ve yerleşimlerin neredeyse ' +
       'tamamı başkent Paramaribo çevresindeki dar kıyı şeridinde toplanırken, güneydeki ' +
       'engin ormanlık alanlar neredeyse bütünüyle boştur.',
     landformNoteTr:
-      'Surinam morfolojisi iki ana yapısal kuşağa ayrılır: Kuzeydeki alçak ve bataklık ' +
+      "Surinam'ın yer şekilleri iki ana kuşağa ayrılır: Kuzeydeki alçak ve bataklık " +
       'kıyı düzlüğü ile güneyde yükselen eski kristalen yaylalar. Kıyı kuşağı, mangrov ' +
-      'bataklıkları ve "ritsen" adı verilen eski kum-kavuk sırtlarıyla örtülüdür; başkent ' +
+      'bataklıkları ve "ritsen" adı verilen eski kum ve kavkı sırtlarıyla örtülüdür; başkent ' +
       've tarım arazileri bu sağlam kum setleri üzerinde kurulmuştur.' +
       '\n\n' +
       'İç kesimlere doğru arazi, granitik kalıntı tepelerin (inselberg) orman denizinden ' +
@@ -2300,7 +2300,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'koyun yetiştiriciliğine zemin hazırlamış dalgalı doğal otlaklardan oluşur.',
     landformNoteTr:
       'Uruguay arazisi, kadim kristalen kalkanın milyonlarca yıllık aşınmasıyla oluşmuş ' +
-      'dalgalı bir peneplen karakteri sergiler. Bu yumuşak çayır topoğrafyasını ' +
+      'dalgalı bir aşınım düzlüğü (peneplen) görünümündedir. Bu yumuşak çayır topoğrafyasını ' +
       '"cuchilla" adı verilen alçak, yassı sırtlar böler; bunların en önemlileri ülkeyi ' +
       "boydan boya kat eden Cuchilla Grande ile batıdaki Cuchilla de Haedo'dur." +
       '\n\n' +
@@ -2314,8 +2314,8 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'Laguna de Rocha gibi geniş kıyı lagünleri ve sulak alan sistemleri (bañados) uzanır.',
     climateNoteTr:
       'Uruguay bütünüyle ılıman subtropikal kuşakta (Köppen Cfa) yer alır ve ülke genelinde ' +
-      'son derece dengeli, homojen bir iklim yapısı sergiler. Belirgin bir kurak mevsim ' +
-      'bulunmaz; yağış kışın kutup cepheleriyle, yazın ise konvektif fırtınalarla yıl ' +
+      'son derece dengeli ve her yerde benzer bir iklime sahiptir. Belirgin bir kurak mevsim ' +
+      'bulunmaz; yağış kışın kutup cepheleriyle, yazın ise ısınan havanın yükselmesiyle oluşan fırtınalarla yıl ' +
       'boyunca düzenli dağılır.' +
       '\n\n' +
       'Yıllık yağış güney kıyılarında ve Montevideo çevresinde 1.100-1.200 milimetre iken, ' +
@@ -2366,11 +2366,11 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       "Güney Amerika'nın kuzey kıyısında Karayip Denizi ve Atlas Okyanusu'na cephe " +
       'veren Venezuela; batıda Kolombiya, güneyde Brezilya ve doğuda Guyana ile komşudur. ' +
       'Ülke, kıtanın neredeyse tüm karakteristik ekosistemlerini sınırları içinde toplayan ' +
-      'dört temel fizyografik bölgeye ayrılır.' +
+      'dört temel doğal bölgeye ayrılır.' +
       '\n\n' +
       'Kuzeybatıdaki petrol zengini Maracaibo alçak havzası, kuzeyi kuşatan sarp Kıyı Andları, ' +
       'ülkenin merkezini kaplayan geniş Orinoco savanları (Llanos) ve güneydoğudaki kadim ' +
-      "Guyana Yaylası, Venezuela'ya olağanüstü bir peyzaj ve doğal kaynak zenginliği kazandırır.",
+      "Guyana Yaylası, Venezuela'ya olağanüstü bir manzara ve doğal kaynak zenginliği kazandırır.",
     landformNoteTr:
       "And Dağları'nın kuzeydoğu kolu olan Cordillera de Mérida, ülkenin batısında yükselir " +
       "ve 4.978 metrelik Pico Bolívar ile Venezuela'nın en yüksek doruğunu oluşturur. Bu dağ " +
@@ -2378,9 +2378,9 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'Costa) olarak devam eder.' +
       '\n\n' +
       "Dağların batısında yer alan Maracaibo Gölü, dar bir boğazla Karayip Denizi'ne bağlı " +
-      'olduğundan hidrolojik olarak bir iç körfez niteliği taşısa da yaklaşık 13.200 ' +
+      'olduğundan aslında bir iç körfez niteliği taşısa da yaklaşık 13.200 ' +
       "kilometrekarelik yüzeyiyle Güney Amerika'nın en büyük su kütlesi kabul edilir ve " +
-      'altındaki devasa hidrokarbon yataklarıyla ülkenin enerji kalbidir. Ülkenin merkezini ' +
+      'altındaki devasa petrol ve doğal gaz yataklarıyla ülkenin enerji kalbidir. Ülkenin merkezini ' +
       "kaplayan Llanos ise Orinoco Havzası'nın parçası olan uçsuz bucaksız bir çayır-savan düzlüğüdür." +
       '\n\n' +
       "Güneydoğudaki Guyana Yaylası'nda (Gran Sabana), yeryüzünün en eski Prekambriyen kumtaşı " +
@@ -2404,7 +2404,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     hydrographyNoteTr:
       "Güney Amerika'nın Amazon'dan sonraki en büyük, dünya genelinde ise debi bakımından " +
       'üçüncü büyük nehri olan Orinoco, yaklaşık 2.140 kilometre boyunca akarak ülke ' +
-      "topraklarının beşte dördünden fazlasını drene eder. Orinoco'nun yukarı çığırında yer " +
+      "topraklarının beşte dördünden fazlasının sularını toplar. Orinoco'nun yukarı çığırında yer " +
       'alan Casiquiare Kanalı, nehrin sularının bir kısmını Amazon sistemine (Rio Negro) ' +
       'aktararak iki dev kıtasal havza arasında dünyada eşi görülmemiş doğal bir su yolu ' +
       'bağlantısı kurar.' +

@@ -144,14 +144,14 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     introTr:
       "Kıbrıs adasının güney yarısını kaplayan Güney Kıbrıs Rum Yönetimi, Akdeniz'in doğu " +
       'havzasında yükselen Troodos Dağları ve verimli güney sahil ovaları üzerinde kuruludur. ' +
-      'Adanın morfolojik omurgasını oluşturan bu dağlık kütle, hem adanın mikroklimasını hem ' +
+      'Adanın omurgasını oluşturan bu dağlık kütle, hem adanın yerel iklimini hem ' +
       'de yerleşim ve su kaynaklarının dağılımını belirler.' +
       '\n\n' +
       'Kıyı şeridinde Limasol, Larnaka ve Baf gibi liman kentleri uzanırken, iç kesimde ' +
       "başkent Lefkoşa'nın güney mahalleleri ile ada içi tarım alanları yer alır.",
     landformNoteTr:
-      'Troodos Dağları, jeoloji biliminde okyanus kabuğunun ve üst mantonun aşınarak yüzeyde ' +
-      'kusursuz biçimde korunduğu dünyanın en ünlü ofiyolit komplekslerinden biridir; adada ' +
+      'Troodos Dağları, okyanus kabuğunun ve üst mantonun aşınarak yüzeyde kusursuz biçimde ' +
+      'korunduğu, jeolojide ofiyolit denen yapının dünyadaki en ünlü örneklerinden biridir; adada ' +
       'antik çağlardan bu yana işletilen zengin bakır yatakları da bu magmatik yükselimin ' +
       'ürünüdür. Masifin kalbinde yükselen 1.952 metrelik Olimpos Dağı (Hionistra), kışın karla ' +
       "kaplanan kubbesiyle tüm Kıbrıs'ın doruk noktasıdır." +
@@ -163,11 +163,11 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
       'Yazları uzun, kurak ve sıcak, kışları ise ılık ve yağışlı geçen tipik bir Akdeniz ' +
       'iklimi egemendir. İç kesimdeki Mesarya düzlüğü ve kıyı ovalarında yaz sıcaklıkları ' +
       'düzenli olarak 35 derecenin üzerine tırmanırken, yüksek Troodos yamaçları denizden ' +
-      'gelen esintiler ve orografik etkiyle serinler.' +
+      'gelen esintiler ve yükseltinin etkisiyle serinler.' +
       '\n\n' +
       'Yıllık yağışın ezici bölümü kasım-mart arasına toplanır ve yağmur bulutları doğrudan ' +
       'Troodos kütlesine çarparak doruklarda kışın kar örtüsü bırakır; bu durum kurak kıyılar ' +
-      'ile serin dağ yaylaları arasında belirgin bir mikroklima karşıtlığı üretir.',
+      'ile serin dağ yaylaları arasında belirgin bir yerel iklim karşıtlığı üretir.',
     hydrographyNoteTr:
       'Adada yıl boyu kesintisiz akan kalıcı bir akarsu ağı bulunmaz; akarsuların tamamı ' +
       "yaz kuraklığında yatağı kuruyan mevsimlik derelerdir. Troodos Dağları'ndaki Makheras " +
@@ -251,14 +251,14 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     introTr:
       'Kuzey Kıbrıs Türk Cumhuriyeti, Kıbrıs adasının kuzeyini kaplayan; kıyı boyunca bir set ' +
       "gibi uzanan Beşparmak Dağları, güneydeki geniş Mesarya Ovası ve Akdeniz'e bir kılıç gibi " +
-      'uzanan ince Karpaz Yarımadası ile ayırt edici bir morfolojiye sahiptir.' +
+      'uzanan ince Karpaz Yarımadası ile ayırt edici bir yer şekline sahiptir.' +
       '\n\n' +
       "Başkent Lefkoşa'nın kuzey yarısı ile Girne ve Gazimağusa gibi tarihi liman kentleri " +
       'bu coğrafi omurga üzerinde yer alır; dağlar ile ova arasındaki topoğrafik ayrım adanın ' +
       'yerleşim desenini doğrudan belirler.',
     landformNoteTr:
-      'Kuzey kıyı şeridine paralel uzanan Beşparmak (Girne) Dağları, Mesozoik kalkerlerden ' +
-      "oluşan dik ve sarp kireçtaşı sırtlarıyla Akdeniz'e duvar çeker. Adını beş parmağı " +
+      'Kuzey kıyı şeridine paralel uzanan Beşparmak (Girne) Dağları, II. jeolojik zamanda ' +
+      "(Mesozoik) oluşmuş dik ve sarp kireçtaşı sırtlarıyla Akdeniz'e duvar çeker. Adını beş parmağı " +
       'andıran kayalık kulelerinden alan sıradağın en yüksek noktası 1.024 metrelik Selvili ' +
       "Tepe'dir; bu kireçtaşı kütle güneydeki volkanik Troodos'tan jeolojik açıdan tamamen " +
       'farklı bir yapı sergiler.' +
@@ -266,7 +266,7 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
       'Dağların güneyinde uzanan geniş ve düz Mesarya Ovası ile batıdaki Güzelyurt havzası, ' +
       "adanın tahıl ve narenciye üretim merkezidir. Kuzeydoğuda ise Akdeniz'in derinliklerine " +
       'sokulan 80 kilometrelik Karpaz Yarımadası, el değmemiş kumulları ve falezli burunlarıyla ' +
-      'adanın en bakir kıyı peyzajını sunar.',
+      'adanın en bakir kıyı manzarasını sunar.',
     climateNoteTr:
       'Yazları sıcak ve kurak, kışları ılık ve az yağışlı Akdeniz iklimi hakimdir. Beşparmak ' +
       "Dağları'nın kuzey yamaçları ve Girne sahil şeridi denizel esintilerle bir nebze " +
@@ -322,7 +322,7 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     introTr:
       'Doğu Akdeniz çanağının güneydoğu kıyısında yer alan İsrail; batıda Akdeniz kıyı ' +
       'ovalarından başlayıp iç kesimlerdeki tepelik yaylalara, doğudaki derin Rift çöküntüsüne ' +
-      've güneydeki kurak çöl düzlüklerine kadar uzanan çok katmanlı bir fiziki dokuya sahiptir.' +
+      've güneydeki kurak çöl düzlüklerine kadar uzanan çok çeşitli bir araziye sahiptir.' +
       '\n\n' +
       'Bu topoğrafik çeşitlilik, çok dar bir coğrafi şerit içerisinde kıyı Akdeniz yaşantısı ile ' +
       'sert çöl koşullarını ve derin tektonik çukurlukları bir arada barındırır.',
@@ -353,7 +353,7 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       'Aşırı buharlaşma ve tatlı suyun tarımda kullanılması nedeniyle Lut Gölü seviyesi her yıl ' +
       'yaklaşık bir metre alçalırken, ülke içme suyu ihtiyacının ezici çoğunluğunu Akdeniz ' +
-      'kıyısına kurduğu modern deniz suyu arıtma (desalinizasyon) tesislerinden karşılar.',
+      'kıyısına kurduğu modern deniz suyu arıtma tesislerinden karşılar.',
     // Owner'ın başkent-notu, kelimesi kelimesine (verbatim).
     sovereigntyNoteTr:
       "İsrail Kudüs'ü 'bölünmez başkenti' ilan etmiş olsa da, Birleşmiş Milletler ve " +
@@ -392,7 +392,7 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
       "sahil şeridi Gazze'den — meydana gelir." +
       '\n\n' +
       'Bu iki bölge, topoğrafik yapılarından iklim ve su kaynaklarına kadar tümüyle farklı fiziki ' +
-      've beşeri dinamikler taşır; Batı Şeria bir iç yayla niteliğindeyken Gazze yoğun nüfuslu ' +
+      've beşeri özellikler taşır; Batı Şeria bir iç yayla niteliğindeyken Gazze yoğun nüfuslu ' +
       'alçak bir kıyı koridorudur.',
     landformNoteTr:
       "Batı Şeria'nın omurgasını, kuzey-güney ekseninde uzanan kireçtaşlı Samariye ve Yahudiye " +
@@ -548,7 +548,7 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
       'Ortalama 500 ila 800 metre rakıma sahip bu bereketli havzalar, tarih boyunca bölgenin ana ' +
       'tarım ve yerleşim alanları ile stratejik geçit yollarını oluşturmuştur.',
     landformNoteTr:
-      'Ülke morfolojisi iki ana havza etrafında şekillenir: Batıdaki Metohija Havzası ve ' +
+      'Ülkenin arazisi iki ana havza etrafında şekillenir: Batıdaki Metohija Havzası ve ' +
       'doğudaki Kosova Ovası. Bu ovaları güneyden ve batıdan kuşatan sıradağlar ülkenin doğal ' +
       'sınırlarını çizer: Güneyde Kuzey Makedonya sınırında yükselen Šar (Şar) Dağları ile ' +
       'güneybatıda Arnavutluk ve Karadağ sınırını oluşturan kireçtaşlı Prokletije (Arnavut ' +
@@ -558,7 +558,7 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
       'ülkenin en yüksek noktalarıdır; bu dağlar kış sporları ve dağ ekosistemleri açısından ' +
       'zengin bir topoğrafya sunar.',
     climateNoteTr:
-      'Ilıman karasal iklimin hüküm sürdüğü ülkede topoğrafik koridorlar yerel iklim desenlerini ' +
+      'Ilıman karasal iklimin hüküm sürdüğü ülkede vadilerin açtığı koridorlar yerel iklimi ' +
       "belirler. Batıdaki Metohija Havzası, Ak Drin vadisi boyunca Adriyatik Denizi'nden sokulan " +
       'ılıman hava akımları sayesinde daha yumuşak ve Akdeniz etkisine açık bir karaktere ' +
       'sahiptir.' +
@@ -568,7 +568,7 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
       'örtüsü aylarca yerde kalır.',
     hydrographyNoteTr:
       "Kosova, sularını üç ayrı denize (Adriyatik, Karadeniz ve Ege) ulaştıran Balkanlar'ın " +
-      "nadir hidrolojik kavşaklarından biridir. Žleb Dağı yamaçlarından doğup Metohija'yı " +
+      "nadir su kavşaklarından biridir. Žleb Dağı yamaçlarından doğup Metohija'yı " +
       "geçen Ak Drin (Drini i Bardhë), Arnavutluk'ta Kara Drin ile birleşerek Adriyatik " +
       "Denizi'ne dökülür." +
       '\n\n' +
