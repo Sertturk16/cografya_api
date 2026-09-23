@@ -17,8 +17,9 @@ Read on demand, not every session:
 docker compose up -d                 # local Postgres + Redis
 pnpm start:dev                       # http://localhost:3001, Swagger at /docs
 pnpm typecheck && pnpm lint          # gate before every commit (no --fix in review)
-pnpm test:unit                       # jest, specs next to source in src/ and tools/
-pnpm test:e2e                        # jest + Testcontainers Postgres, needs Docker, slow
+pnpm test:unit [path]                # jest, specs next to source; bare `jest` lacks the config
+pnpm test:e2e                        # Testcontainers, slow; a local .env with *_ENABLED=true
+                                     # fails 6 upstream suites, CI has no .env
 pnpm openapi:generate                # after ANY DTO/route change; commit openapi/openapi.json
 # ^ EACCES on dist/? The dev container built it as root:
 #   docker exec -u 0 cografya-api-dev sh -lc 'chown -R 1000:1000 /app/dist'
