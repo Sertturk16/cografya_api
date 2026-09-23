@@ -104,7 +104,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "aşarak Akdeniz'e dökülen yaklaşık 700 kilometrelik Chelif Nehri'dir. Chelif Vadisi, " +
       "kuzey Cezayir'in en verimli tahıl ve meyve üretim havzalarından birini sular. " +
       '\n\n' +
-      'Güneydeki Sahra kesiminde ise daimi akarsu bulunmaz. Drenaj, yalnızca ani ve şiddetli ' +
+      'Güneydeki Sahra kesiminde ise daimi akarsu bulunmaz. Buradaki su akışı, yalnızca ani ve şiddetli ' +
       'sağanaklardan sonra sel sularıyla dolup hızla kuruyan vadi yatakları (oued) ile suların ' +
       'buharlaşarak tuz kristalleri bıraktığı kapalı havza çukurluklarından (şat) ibarettir.',
   },
@@ -139,10 +139,10 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'Vadisi ve Deltası, ülke nüfusunun neredeyse tamamının sıkıştığı son derece yoğun bir ' +
       'yaşam ve tarım koridoru oluşturur.',
     landformNoteTr:
-      'Ülke arazisi Nil Nehri tarafından belirgin jeomorfolojik ünitelere ayrılır. Nehrin ' +
+      'Nil Nehri, ülke arazisini birbirinden belirgin biçimde ayrılan yer şekli bölgelerine böler. Nehrin ' +
       'batısında uzanan Batı (Libya) Çölü, rüzgar aşındırmasıyla oyulmuş devasa kum denizleri ' +
-      've deniz seviyesinin 133 metre altına inen Kattara Çukurluğu gibi derin tektonik ' +
-      'depresyonları barındırır. ' +
+      've deniz seviyesinin 133 metre altına inen Kattara Çukurluğu gibi rüzgar aşındırması ve tuz ' +
+      'ayrışmasıyla oyulmuş derin çöküntüleri barındırır. ' +
       '\n\n' +
       'Nil ile Kızıldeniz arasında uzanan Doğu Çölü ise dik ve kayalık Kızıldeniz Dağları ile ' +
       "yükselir. İki kıta kavşağındaki Sina Yarımadası'nda yükselen 2.642 metrelik Katerina " +
@@ -194,7 +194,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'yüzde doksanından fazlası Sahra Çölü tarafından yutulmuş devasa bir kuraklık ' +
       'coğrafyasıdır. ' +
       '\n\n' +
-      'Ülke geleneksel ve morfolojik olarak üç ana bölgeye ayrılır: Kıyıdaki Trablusgarp ' +
+      'Ülke hem geleneksel olarak hem de yer şekillerine göre üç ana bölgeye ayrılır: Kıyıdaki Trablusgarp ' +
       '(Tripolitanya), doğudaki kireçtaşı platosuyla yağış alan Sirenayka (Barka) ve güneydeki ' +
       'derin çöl vahalarından oluşan Fizan.',
     landformNoteTr:
@@ -217,7 +217,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'rüzgarı, sıcaklığı saatler içinde 15-20 derece yükseltebilir.',
     hydrographyNoteTr:
       'Libya sınırları içinde yıl boyunca sürekli akış gösteren tek bir nehir dahi ' +
-      'bulunmaz; yüzey hidrografyası yalnızca yağış dönemlerinde kısa süreli su toplayan kuru ' +
+      'bulunmaz; yerüstü suları yalnızca yağış dönemlerinde kısa süreli su toplayan kuru ' +
       'vadi yataklarından ibarettir. ' +
       '\n\n' +
       "Ülkenin su ihtiyacının ezici çoğunluğu, Sahra'nın derinliklerindeki Nubya Kumtaşı " +
@@ -319,10 +319,10 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'Batıda dalgalı Kordofan kumlu platoları yer alırken, Darfur bölgesinde volkanik ' +
       'kökenli Marra Dağları yükselir. Bu kütlenin doruğunda yer alan ve içinde iki krater gölü ' +
       "bulunduran 3.042 metrelik Deriba Kalderası, Sudan'ın en yüksek noktasıdır ve " +
-      'çevresine göre serin bir mikro-klima alanı yaratır.',
+      'çevresine göre serin bir yerel iklim alanı yaratır.',
     climateNoteTr:
-      'Sudan iklimi, kuzeydeki kavurucu Sahra çölünden güneydeki yağışlı savan kuşağına kadar ' +
-      'belirgin bir enlemsel kademelenme gösterir. Mısır sınırında neredeyse hiç yağış ' +
+      "Sudan'da iklim, kuzeydeki kavurucu Sahra çölünden güneydeki yağışlı savan kuşağına kadar " +
+      'enleme bağlı olarak kademe kademe değişir. Mısır sınırında neredeyse hiç yağış ' +
       'görülmezken, güneye doğru inildikçe muson yağışlarının süresi ve miktarı kademeli olarak ' +
       'artar. ' +
       '\n\n' +
@@ -330,9 +330,9 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'sıcak başkentlerinden biridir; yaz başlangıcında Habub adı verilen şiddetli kum ve toz ' +
       'fırtınaları kenti saatler içinde karanlığa gömebilir.',
     hydrographyNoteTr:
-      "Sudan hidrolojisi, Mavi ve Beyaz Nil'in zıt akış rejimleriyle şekillenir. Mavi Nil, " +
+      "Sudan'ın suları, Mavi ve Beyaz Nil'in birbirine zıt akış düzenleriyle şekillenir. Mavi Nil, " +
       "Etiyopya'daki Tana Gölü'nden doğar; yaz musonlarıyla kabaran volkanik alüvyon yüklü " +
-      'sularıyla Nil sisteminin debisinin ve bereketli tortusunun yaklaşık yüzde seksenini ' +
+      'sularıyla Nil sisteminin yıllık debisinin yaklaşık üçte ikisini ve bereketli tortusunun büyük kısmını ' +
       'taşır. Ekvatoral göllerden gelen Beyaz Nil ise yıl boyu daha dengeli ve berrak akar. ' +
       '\n\n' +
       "Hartum'da birleştikten sonra kuzeye yönelen nehir, Mısır sınırına kadar altı büyük " +
@@ -368,8 +368,8 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'bu topraklarda yer alır. ' +
       '\n\n' +
       'Küçük yüzölçümüne karşın ülke, kuzeydeki ormanlık Akdeniz tepelerinden orta kesimdeki ' +
-      'bozkırlara ve güneydeki Sahra kumullarına kadar kademelenen zengin bir topoğrafik ' +
-      'çeşitlilik sergiler.',
+      'bozkırlara ve güneydeki Sahra kumullarına kadar kademelenen zengin bir yer şekli ' +
+      'çeşitliliği gösterir.',
     landformNoteTr:
       "Ülkenin dağlık omurgasını, Cezayir'deki Sahra Atlasları'nın bir devamı olarak " +
       'güneybatıdan kuzeydoğuya uzanan Tunus Sırtı (Dorsali) oluşturur; sıradağın doruğu olan ' +
@@ -382,9 +382,9 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'Djerid), deniz seviyesinin 17 metre altındaki tabanıyla ülkenin en alçak sahasıdır; bu ' +
       "çanağın güneyinde Büyük Doğu Erg'i kumulları yükselir.",
     climateNoteTr:
-      "Tunus'ta iklim kuzeyden güneye Akdeniz ile Sahra dinamikleri arasında keskin biçimde " +
+      "Tunus'ta iklim kuzeyden güneye Akdeniz ile Sahra etkileri arasında keskin biçimde " +
       'değişir. Kuzey kıyılarında ve Kroumirie tepelerinde kışları ılık ve bol yağışlı ' +
-      'Akdeniz iklimi görülür; orografik etkiyle yıllık yağış burada 1.000-1.500 milimetreye ' +
+      'Akdeniz iklimi görülür; nemli hava tepelere tırmanırken yağış bıraktığı için yıllık yağış burada 1.000-1.500 milimetreye ' +
       'ulaşır. ' +
       '\n\n' +
       'Orta bozkırlarda yıllık yağış 300 milimetrenin altına inerken, güneydeki Sahra ' +
@@ -433,7 +433,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'Kıyı şeridi, deniz dalgalarının yığdığı kum setleri, mangrovlar ve Nokoué gibi sığ ' +
       'lagünlerle kaplı alçak bir kıyı ovasıdır. Kıyının hemen ardında, Couffo, Zou ve Ouémé ' +
       'nehirlerinin yardığı killi ve verimli güney platoları uzanır; orta kesimde arazi granit ' +
-      'kayalık tepelerle (inselberg) çeşitlenen dalgalı bir peneplen halini alır. ' +
+      'kayalık tepelerle (inselberg) çeşitlenen dalgalı bir aşınım düzlüğü (peneplen) halini alır. ' +
       '\n\n' +
       'Kuzeybatıda, Togo sınırına paralel uzanan Atakora Sıradağları ülkenin en engebeli ' +
       'topoğrafyasını oluşturur; kuvarsit ve kumtaşından oluşan bu kütle üzerindeki 658 ' +
@@ -482,14 +482,14 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "Batı Afrika'nın kalbinde yer alan ve denize kıyısı bulunmayan Burkina Faso, kurak Sahel " +
       'ile daha nemli Sudan savanları arasında uzanan bir geçiş ülkesidir. ' +
       '\n\n' +
-      'Eski Prekambriyen kristalin kalkanı üzerinde yer alan toprakları, şiddetli aşınma ' +
-      'süreçleriyle düzleşmiş, deniz seviyesinden ortalama 250-350 metre yüksekte dalgalanan ' +
+      'Yerkabuğunun çok eski ve sert kayaçlarından oluşan Prekambriyen kalkanı üzerinde yer alan toprakları, ' +
+      'şiddetli aşınmayla düzleşmiş, deniz seviyesinden ortalama 250-350 metre yüksekte dalgalanan ' +
       'geniş platolardan oluşur.',
     landformNoteTr:
-      'Ülke topoğrafyasının ezici çoğunluğu, yer yer aşınmaya dirençli lateritik sert kabuklar ' +
-      '(zırhlar) ve izole granit tepelerle kesintiye uğrayan geniş bir peneplendir. ' +
+      'Ülke topoğrafyasının ezici çoğunluğu, yer yer aşınmaya dirençli sert laterit kabukları (zırhlar) ' +
+      've tek başına yükselen granit tepelerle kesintiye uğrayan geniş bir aşınım düzlüğüdür (peneplen). ' +
       '\n\n' +
-      'En belirgin jeomorfolojik hareketlilik güneybatı kesiminde görülür; burada yükselen ' +
+      'Yer şekillerinin en çok çeşitlendiği yer güneybatı kesimidir; burada yükselen ' +
       "kumtaşı masifi, dik yamaçlı Banfora Falezleri'ni ve ülkenin en yüksek noktası olan 749 " +
       "metrelik Tenakourou Tepesi'ni meydana getirir.",
     climateNoteTr:
@@ -541,13 +541,13 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'Adalar hâkim alize rüzgarlarına göre kuzeydeki Rüzgarüstü (Barlavento) ve güneydeki ' +
       'Rüzgaraltı (Sotavento) olmak üzere iki ana gruba ayrılır.',
     landformNoteTr:
-      'Takımadada jeolojik yaşa ve aşınma derecesine göre iki zıt ada morfolojisi görülür: Doğu ' +
+      'Takımadada jeolojik yaşa ve aşınma derecesine göre iki zıt ada tipi görülür: Doğu ' +
       'grubundaki Sal, Boa Vista ve Maio adaları milyonlarca yıllık aşınmayla düzleşmiş, ' +
       'kireçtaşları ve kumullarla kaplı alçak çöl adalarıdır. Batıdaki Santo Antão, Santiago ve ' +
       'Fogo gibi adalar ise derin kanyonlar ve sarp falezlerle yarılmış yüksek dağlık ' +
       'kütlelerdir. ' +
       '\n\n' +
-      'Fogo adası bütünüyle devasa bir stratovolkan konisidir; adanın kalderasından yükselen ' +
+      'Fogo adası bütünüyle devasa bir tabakalı volkan konisidir; adanın kalderasından yükselen ' +
       '2.829 metrelik Pico do Fogo, ülkenin en yüksek zirvesidir ve 2014 yılındaki patlamasında ' +
       'kaldera tabanındaki köyleri lav örtüsü altında bırakmıştır.',
     climateNoteTr:
@@ -557,7 +557,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       'Yağışlar son derece düzensizdir ve yalnızca ağustos-ekim arasındaki kısa fırtınalarla ' +
       "düşer; Sal ve Boa Vista'da yıllık yağış 100 milimetrenin altındayken, yüksek dağ " +
-      'adalarının rüzgar karşılayan yamaçlarında orografik sisler sayesinde yağış 250 ' +
+      'adalarının rüzgar karşılayan yamaçlarında, yükselen nemli havanın oluşturduğu sisler sayesinde yağış 250 ' +
       'milimetreye kadar çıkabilir.',
     hydrographyNoteTr:
       'Geçirimli volkanik bazalt zemin ve kurak iklim nedeniyle takımadada kalıcı akış ' +
@@ -567,7 +567,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       'Yeraltı sularının aşırı çekim nedeniyle tuzlanması yüzünden başta turizmin ' +
       "yoğunlaştığı Sal ve Boa Vista olmak üzere ülke genelinde içme suyunun yüzde 85'inden " +
-      'fazlası deniz suyu arıtma (desalinizasyon) tesislerinden temin edilir.',
+      'fazlası deniz suyu arıtma tesislerinden temin edilir.',
   },
   {
     isoCode: 'CI',
@@ -599,7 +599,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "Ülke, Batı Afrika'nın en üretken tarımsal ekonomilerinden birini besleyen zengin toprak " +
       'yapısı ve su kaynaklarıyla bölgenin ekonomik merkezlerinden biridir.',
     landformNoteTr:
-      'Kıyı kuşağı iki farklı jeomorfolojik yapı sergiler: Batıda dalgaların aşındırdığı dik ' +
+      'Kıyı kuşağında iki farklı yer şekli görülür: Batıda dalgaların aşındırdığı dik ' +
       'falezler yer alırken, doğuda kum setleriyle açık denizden ayrılan ve 300 kilometre ' +
       'boyunca uzanan Ebrié gibi sığ kıyı lagünleri sıralanır. Kıyının ardında yükselen ' +
       "dalgalı platolar kuşağı, güneybatıda Taï Milli Parkı'nın koruduğu bakir yağmur " +
@@ -619,8 +619,8 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "miktar 1.000 milimetre civarına düşer; kış aylarında ise Sahra'dan esen tozlu Harmattan " +
       'rüzgarı kuzey savanlarını kurutucu etkisi altına alır.',
     hydrographyNoteTr:
-      "Ülke toprakları, kuzey platolarından doğup güneye Atlas Okyanusu'na doğru birbirine " +
-      'paralel akan dört büyük akarsu ile drene edilir: Comoé, Bandama, Sassandra ve Cavally. ' +
+      "Ülkenin sularını, kuzey platolarından doğup güneye Atlas Okyanusu'na doğru birbirine " +
+      'paralel akan dört büyük akarsu taşır: Comoé, Bandama, Sassandra ve Cavally. ' +
       '\n\n' +
       'Bu nehirlerin yatakları basamaklı plato eşiklerinde sık sık çağlayan ve şelalelerle ' +
       'kesintiye uğradığı için iç kesimlere deniz ulaşımına elverişli değildir; ancak ' +
@@ -652,7 +652,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     introTr:
       "Gambiya, Atlas Okyanusu kıyısından başlayarak Gambiya Nehri'nin iki yakası boyunca " +
       'doğuya doğru kıtanın içine sokulan, okyanus kıyısı hariç tamamen Senegal topraklarıyla ' +
-      'kuşatılmış dar bir kıyı-enklav devletidir. ' +
+      'kuşatılmış dar bir kıyı ülkesidir. ' +
       '\n\n' +
       'Genişliği çoğu noktada 25 ila 50 kilometreyi aşmayan bu şerit biçimli ülke, sınırlarını ' +
       'bütünüyle nehir vadisinin jeopolitik geçmişinden alır.',
@@ -674,7 +674,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'çıkarken, doğu iç kesimlerinde 900 milimetreye kadar düşer. Kurak mevsim boyunca iç ' +
       'kesimlerden esen kuru ve toz yüklü Harmattan rüzgarı nem oranını hızla düşürür.',
     hydrographyNoteTr:
-      "Ülkenin varlık sebebi ve tek ana drenaj ekseni Gambiya Nehri'dir; Gine'deki Fouta " +
+      "Ülkenin varlık sebebi ve tek ana akarsuyu Gambiya Nehri'dir; Gine'deki Fouta " +
       'Djallon yaylalarından doğan nehir, ülke toprakları içinde menderesler çizerek yaklaşık ' +
       '480 kilometre boyunca akar ve okyanusa kavuşur. ' +
       '\n\n' +
@@ -711,7 +711,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'kuzeydeki kurak savan platolarına kadar uzanan zengin bir Batı Afrika coğrafyasıdır. ' +
       '\n\n' +
       'Ülke yüzölçümünün neredeyse yarısını kaplayan devasa Volta Nehri Havzası ve havzanın ' +
-      "kalbinde yer alan yapay Volta Baraj Gölü, Gana'nın hidrolojik ve ekonomik can damarını " +
+      "kalbinde yer alan yapay Volta Baraj Gölü, Gana'nın su kaynaklarının ve ekonomisinin can damarını " +
       'oluşturur.',
     landformNoteTr:
       'Ülkenin orta ve doğu kesimlerini, kase biçimli sığ bir çöküntü sahası oluşturan kumtaşı ' +
@@ -722,8 +722,8 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'üzerindeki 885 metrelik Afadjato Dağı geleneksel olarak ülkenin en yüksek noktası kabul ' +
       'edilir. Güney kıyısı boyunca kumluk falezler, lagünler ve mangrov ormanları sıralanır.',
     climateNoteTr:
-      'Gana genelinde tropikal iklim hakimdir; ancak yağış dağılımı topoğrafya ve kıyı ' +
-      'morfolojisine bağlı olarak belirgin karşıtlıklar sergiler. Ülkenin güneybatı köşesi ' +
+      'Gana genelinde tropikal iklim hakimdir; ancak yağış dağılımı yer şekillerine ve ' +
+      'kıyının biçimine bağlı olarak belirgin karşıtlıklar sergiler. Ülkenin güneybatı köşesi ' +
       'yılda 2.000 milimetreyi aşan bol yağışıyla yoğun yağmur ormanlarını besler. ' +
       '\n\n' +
       "Buna karşılık başkent Akra'nın da yer aldığı güneydoğu kıyı şeridi, serin kıyı " +
@@ -790,7 +790,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'mevsim kısalır ve kış aylarında esen kuru Harmattan rüzgarı egemen olur.',
     hydrographyNoteTr:
       'Fouta Djallon ve Gine Yaylaları, Batı Afrika kıtasının ana nehir sistemlerinin ' +
-      'doğduğu devasa bir hidrolojik dağıtım merkezidir. Kıtayı binlerce kilometre kat eden ' +
+      'doğduğu devasa bir su dağıtım merkezidir. Kıtayı binlerce kilometre kat eden ' +
       "Nijer Nehri kaynaklarını güneydoğudaki Gine Yaylaları'ndan alırken, Senegal Nehri'nin " +
       'ana kolu Bafing ile Gambiya Nehri Fouta Djallon platolarından fışkırır. ' +
       '\n\n' +
@@ -822,8 +822,8 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "24 Eylül 1973'te Portekiz'den bağımsızlık ilan edildi (Portekiz'in resmî tanıması 10 Eylül 1974).",
     introTr:
       "Batı Afrika'nın en parçalı kıyı şeridine sahip ülkelerinden biri olan Gine-Bissau; " +
-      'derin nehir halicileri, kıyı bataklıkları ve açıkta yer alan 88 adalı Bijagós ' +
-      'Takımadası ile kara ve denizin iç içe geçtiği amfibik bir coğrafyadır. ' +
+      'derin nehir haliçleri, kıyı bataklıkları ve açıkta yer alan 88 adalı Bijagós ' +
+      'Takımadası ile kara ve denizin iç içe geçtiği bir coğrafyadır. ' +
       '\n\n' +
       'Ülke toprakları okyanus kıyısındaki çamur düzlüklerinden doğudaki savan platolarına ' +
       'doğru yumuşak bir eğimle yükselir.',
@@ -888,7 +888,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "nehirlerle birleşerek Batı Afrika'nın en iyi korunmuş kesintisiz orman örtülerinden " +
       'birine zemin hazırlar.',
     landformNoteTr:
-      'Ülke topoğrafyası kıyıdan içeriye doğru dört paralel jeomorfolojik kademe izler: ' +
+      'Ülke arazisi kıyıdan içeriye doğru dört paralel basamak halinde yükselir: ' +
       'Yaklaşık 560 kilometre boyunca uzanan, lagünler ve kum setleriyle çevrili dar ve alçak ' +
       'kıyı ovası; hemen ardından başlayan ve ortalama 90 metre yükseltideki dalgalı tepelik ' +
       'orman kuşağı; iç kesimlerde 300-450 metreye çıkan aşınmış plato sahası; ve en kuzeyde ' +
@@ -909,7 +909,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     hydrographyNoteTr:
       "Gine Yaylaları'ndan doğan sular, Liberya topraklarını birbirine paralel hatlar " +
       "boyunca kuzeydoğudan güneybatıya doğru keserek Atlas Okyanusu'na dökülen altı ana " +
-      'nehir sistemiyle drene edilir: Mano, Lofa, Saint Paul, Saint John, Cestos ve Cavalla. ' +
+      'nehir sistemiyle denize ulaşır: Mano, Lofa, Saint Paul, Saint John, Cestos ve Cavalla. ' +
       '\n\n' +
       'Batıda Mano Nehri Sierra Leone ile, doğuda ise 515 kilometrelik uzunluğuyla ülkenin en ' +
       'uzun akarsuyu olan Cavalla Nehri Fildişi Sahili ile doğal sınır oluşturur. Nehir ' +
@@ -956,7 +956,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "bu kütlenin doruğu olan 1.155 metrelik Hombori Tondo masası, Mali'nin en yüksek " +
       'noktasıdır.',
     climateNoteTr:
-      'Mali iklimi güneyden kuzeye doğru sertleşen keskin bir kuraklık gradyanı sergiler. En ' +
+      "Mali'de güneyden kuzeye doğru gidildikçe kuraklık keskin biçimde artar. En " +
       'güneydeki Sudan savanı kuşağı yılda 1.000 milimetreyi aşan yağış alırken, başkent ' +
       "Bamako'nun yer aldığı Sahel geçiş sahasında yağış 500-700 milimetreye iner; " +
       "Timbuktu'nun kuzeyindeki Sahra kuşağında ise yağış neredeyse sıfırlanır. " +
@@ -965,7 +965,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'tüm ülkeyi etkisi altına alır; yağışlar ise haziran-eylül arasında Atlas Okyanusu ' +
       'musonunun kuzeye sokulmasıyla kısa süreli fırtınalar şeklinde gerçekleşir.',
     hydrographyNoteTr:
-      "Ülke hidrolojisinin kalbi Nijer Nehri'dir; Gine Dağları'ndan doğup Mali'ye giren " +
+      "Ülkenin sularının kalbi Nijer Nehri'dir; Gine Dağları'ndan doğup Mali'ye giren " +
       'nehir, kurak arazinin ortasında kanallar, göller ve mevsimlik bataklıklardan oluşan ' +
       'yaklaşık 400 kilometrelik devasa bir iç taşkın deltası (İç Nijer Deltası) meydana ' +
       "getirir. Bu iç delta; kurak Sahel'in ortasında balıkçılık, pirinç tarımı ve göçebe " +
@@ -1021,7 +1021,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     climateNoteTr:
       'Moritanya iklimi, aşırı sıcaklık farkları ve düzensiz yağış rejimiyle belirlenir. ' +
       'Ülkenin üçte ikisini kaplayan kuzeydeki Sahra bölgesinde mayıs-temmuz aylarında gündüz ' +
-      'sıcaklıkları 49 dereceyi aşarken gece ile gündüz arasındaki termal uçurum belirgindir. ' +
+      'sıcaklıkları 49 dereceyi aşarken gece ile gündüz arasındaki sıcaklık farkı çok büyüktür. ' +
       'Güneydeki Sahel kuşağında yağışlar haziran-ekim arasına toplanır ve yıllık 300 milimetreyi ' +
       'aşarak kısa süreli yeşermelere olanak tanır. ' +
       '\n\n' +
@@ -1085,7 +1085,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'çizdiği çift dirsekli W kıvrımları, kurak mevsimde yaban hayatını barındıran zengin ' +
       'sulak taşkın düzlükleri meydana getirir.',
     climateNoteTr:
-      "Nijer'de iklim, kuzeyden güneye keskinleşen bir kuraklık gradyanı izler. Kuzeydeki " +
+      "Nijer'de güneyden kuzeye doğru kuraklık keskin biçimde artar. Kuzeydeki " +
       'Ténéré Çölü ve Bilma vahalarında yıllık yağış 20 milimetrenin altında seyrederken, ' +
       'orta kuşaktaki Agadez çevresinde 110 milimetre civarında düzensiz yaz yağışları görülür. ' +
       'Güneydeki Sahel-Sudan tarım kuşağında ise başkent Niamey yıllık yaklaşık 540 milimetre, ' +
@@ -1138,7 +1138,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'havzalarını sular hem de nüfus dağılımının doğal eksenini belirler.',
     landformNoteTr:
       "Orta Nijerya'da taban araziden dik basamaklarla yükselen ve ortalama 1.280 metre rakıma " +
-      'sahip olan Jos Platosu, aşınmış granit tepeleri ve serin mikro-klimasıyla çevre ovalardan ' +
+      'sahip olan Jos Platosu, aşınmış granit tepeleri ve serin yerel iklimiyle çevre ovalardan ' +
       'keskin biçimde ayrılır. Ülkenin en yüksek kesimi, doğuda Kamerun sınırı boyunca uzanan ' +
       'Adamawa sıradağlarıdır; bu dağlık kütlenin doruğu olan 2.419 metrelik Chappal Waddi ' +
       "(Gangirwal), Nijerya'nın en yüksek noktasıdır. " +
@@ -1214,7 +1214,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'haziran-ekim arasında 1.500 milimetrenin üzerine çıkar. ' +
       '\n\n' +
       'Kıyı kesimlerinde soğuk Kanarya Akıntısı ve okyanus meltemleri Dakar yarımadasında ılıman ve ' +
-      'ferahlatıcı bir mikro-klima yaratır; ancak iç kesimlerde kasım-mayıs arasında esen kuru ' +
+      'ferahlatıcı bir yerel iklim yaratır; ancak iç kesimlerde kasım-mayıs arasında esen kuru ' +
       'Harmattan rüzgarı sıcaklığı 40 derecenin üzerine taşır.',
     hydrographyNoteTr:
       'Ülkenin kuzey sınırını oluşturan Senegal Nehri, Bafing ve Bakoye kollarının birleşmesiyle ' +
@@ -1259,8 +1259,8 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     landformNoteTr:
       'Kıyı boyunca genişliği 8 ila 40 kilometre arasında değişen, sık sık deniz gelgitleriyle ' +
       'sular altında kalan bataklıklar, geniş haliçler ve mangrov şeritleri uzanır. Freetown ' +
-      'Yarımadası ise bu alçak kıyıdan aniden fışkıran ve 888 metreye erişen dağlık bir gabro ' +
-      'masifidir. ' +
+      'Yarımadası ise bu alçak kıyıdan aniden fışkıran ve 888 metreye erişen gabro kayacından oluşan dağlık ' +
+      'bir kütledir. ' +
       '\n\n' +
       'İç kesimlere doğru arazi ormanlık tepelik kuşağı aşarak 300-600 metre rakımlı geniş bir ' +
       "granit platoya dönüşür. Kuzeydoğuda yükselen Loma Dağları'nın zirvesi olan 1.945 metrelik " +
@@ -1277,7 +1277,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'sıcaklıklarını düşürür.',
     hydrographyNoteTr:
       "Gine Yaylaları'ndan doğan ve Sierra Leone arazisini kuzeydoğudan güneybatıya kateden " +
-      'beş ana nehir sistemi ülkeyi drene eder: Küçük Scarcies, Büyük Scarcies, Rokel (Seli), ' +
+      'beş ana nehir sistemi ülkenin sularını taşır: Küçük Scarcies, Büyük Scarcies, Rokel (Seli), ' +
       'Jong ve Moa. Güneydoğuda Mano Nehri ise Liberya sınırını çizer. ' +
       '\n\n' +
       'Yukarı çığırlarında sarp kanyonlar ve çağlayanlar üzerinden akan nehirler, kıyı düzlüğüne ' +
@@ -1313,19 +1313,19 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'kadar uzanan belirgin beş coğrafi basamağa ayrılır. ' +
       '\n\n' +
       'Ülkeyi güneybatı-kuzeydoğu ekseninde boydan boya kesen Togo Dağları, hem yer şekillerinin ' +
-      'omurgasını hem de iklimsel ve hidrolojik sınırları belirleyen temel yükseltidir.',
+      'omurgasını hem de iklim ve akarsu sınırlarını belirleyen temel yükseltidir.',
     landformNoteTr:
       'Yalnızca 56 kilometrelik dar kıyı şeridinin hemen ardında, verimli kırmızı topraklara ' +
       'sahip 60-90 metre rakımlı alçak Ouatchi Platosu uzanır; bunun kuzeydoğusunda ise Mono Nehri ' +
       'kollarıyla yarılan 400 metre yüksekliğinde bir tabla arazi başlar. ' +
       '\n\n' +
       "Ülkeyi çaprazlamasına kateden Togo Dağları, Gana'daki Akwapim Tepeleri ile Benin'deki " +
-      "Atakora Sıradağları'nı bağlayan antik kristalin zincirin merkezidir. Bu dağ kuşağının " +
+      "Atakora Sıradağları'nı bağlayan çok eski ve sert kayaçlardan oluşan zincirin merkezidir. Bu dağ kuşağının " +
       "doruğu olan 986 metrelik Agou Dağı (Mont Agou), Togo'nun en yüksek noktasıdır; kuzeye " +
       "doğru gidildikçe dağlar alçalarak Oti Nehri'nin kumtaşı savan düzlüklerine açılır.",
     climateNoteTr:
       'Togo, Batı Afrika kıyısındaki nemli yağmur ormanı kuşağını kesintiye uğratan "Dahomey ' +
-      'Boşluğu" (Dahomey Gap) koridorunda yer alır. Bu özel atmosferik mekanizma nedeniyle Lomé ' +
+      'Boşluğu" adı verilen koridorda yer alır. Bu özel hava dolaşımı nedeniyle Lomé ' +
       'kıyısı yılda iki yağış dönemi yaşamasına karşın yalnızca 800 milimetre civarında yağış alır ' +
       've orman yerine kıyı savanına bürünür. ' +
       '\n\n' +
@@ -1369,7 +1369,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'dik basamaklarla yükselen devasa iç platolarıyla (planalto) kıtanın en stratejik su ' +
       'kulelerinden biridir. ' +
       '\n\n' +
-      'Kuzeydeki petrol ve orman zengini Cabinda ekslavından güneydeki Namib Çölü uzantılarına ' +
+      "Kuzeyde anakaradan ayrı duran, petrol ve orman zengini Cabinda'dan güneydeki Namib Çölü uzantılarına " +
       'kadar uzanan ülke; soğuk okyanus akıntıları, basamaklı yükseltiler ve tropikal enlemlerin ' +
       'şekillendirdiği çok yönlü bir coğrafyaya sahiptir.',
     landformNoteTr:
@@ -1381,7 +1381,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       'Bié Platosu kıtanın ana su bölümü çizgisi konumundadır; buradan doğan akarsular farklı ' +
       'yönlere dağılarak Kongo Havzası, Zambezi sistemi, Okavango Deltası ve Atlas Okyanusu ' +
-      'arasında hayati bir hidrolojik dağıtım merkezi oluşturur.',
+      'arasında hayati bir su dağıtım merkezi oluşturur.',
     climateNoteTr:
       'Angola iklimi, güneyden kuzeye sokulan soğuk Benguela Akıntısı ile iç kesimlerin yüksek ' +
       'rakımı arasında dengelenir. Soğuk akıntı kıyı boyunca buharlaşmayı engelleyerek Luanda ve ' +
@@ -1450,7 +1450,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     climateNoteTr:
       "Çad'da iklim, kuzeyden güneye uzanan enlem derecelerine bağlı olarak üç ana kuşağa " +
       'ayrılır. Sahra kesiminde yıllık yağış 200 milimetrenin altında kalırken gündüz ile gece ' +
-      'sıcaklıkları arasında 30 dereceyi bulan termal tezatlar yaşanır; orta Sahel kuşağında ' +
+      'sıcaklıkları arasında 30 dereceyi bulan sıcaklık farkları yaşanır; orta Sahel kuşağında ' +
       'yağışlar haziran-ağustos arasına sıkışarak 200-500 milimetre arasında seyreder. ' +
       '\n\n' +
       'Nüfusun ve tarımın yoğunlaştığı güneydeki Sudan savanlarında ise yağmur mevsimi beş aya ' +
@@ -1462,7 +1462,8 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "alan sığ ve kapalı bir tatlı su havzasıdır; göle ulaşan suyun yaklaşık yüzde 80'i güneyden " +
       "gelen Chari-Logone nehir sistemi tarafından taşınır. 1970 ve 80'lerdeki şiddetli Sahel " +
       'kuraklıklarında alanı 2.000 kilometrekareye kadar gerileyen göl, son yıllarda artan ' +
-      'muson yağışlarıyla toparlanarak 2024 uydu verilerine göre 24.500 kilometrekare ' +
+      'muson yağışlarıyla toparlanarak 2024 uydu verilerine göre, sazlık ve bitki örtüsü altındaki ' +
+      'sular dahil 24.500 kilometrekare ' +
       'seviyesine ulaşmıştır. ' +
       '\n\n' +
       "Orta Afrika Cumhuriyeti platolarından doğup Çad'a giren Chari Nehri, başkent Encemine " +
@@ -1523,8 +1524,8 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'Çad Gölü sınırında yıllık yağış 500 milimetrenin altına iner ve kış aylarında Sahra ' +
       'kökenli kuru Harmattan rüzgarlarının etkisi altına girer.',
     hydrographyNoteTr:
-      'Kamerun, sularını dört farklı büyük su toplama havzasına gönderen istisnai bir ' +
-      'hidrolojik düğüm noktasıdır. Ülkenin en uzun ve yüksek debili akarsuyu olan Sanaga Nehri, ' +
+      'Kamerun, sularını dört farklı büyük su toplama havzasına gönderen istisnai ' +
+      'bir su kavşağıdır. Ülkenin en uzun ve yüksek debili akarsuyu olan Sanaga Nehri, ' +
       "Wouri ve Nyong nehirleriyle birlikte doğrudan Atlas Okyanusu'na dökülür ve zengin hidroelektrik " +
       'enerji üretir. ' +
       '\n\n' +
@@ -1572,8 +1573,8 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'Masifi yer alır. Güneybatıya inildikçe platolar alçalır ve Sangha Nehri havzası boyunca ' +
       "Kongo Havzası'nın yoğun ve bataklık yağmur ormanları ülke sınırlarına sokulur.",
     climateNoteTr:
-      "Orta Afrika Cumhuriyeti'nde iklim, kuzeyden güneye belirginleşen tropikal bir yağış " +
-      'gradyanına sahiptir. En kuzeydeki Sahel geçiş kuşağında yağışlı mevsim kısa sürer ve ' +
+      "Orta Afrika Cumhuriyeti'nde tropikal yağışlar kuzeyden güneye doğru belirgin " +
+      'biçimde artar. En kuzeydeki Sahel geçiş kuşağında yağışlı mevsim kısa sürer ve ' +
       'yıllık toplam 700 milimetre civarında kalırken; güneye inildikçe yağmur mevsimi sekiz ' +
       'aya uzar ve yıllık yağış 1.700 milimetreyi aşar. ' +
       '\n\n' +
@@ -1692,7 +1693,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'yanardağlarını barındırır.',
     climateNoteTr:
       "Kongo Demokratik Cumhuriyeti'nin ekvator çizgisinin her iki yakasına geniş bir alanda " +
-      'yayılması, dünyada eşine az rastlanan bir hidro-klimatik denge yaratır; ekvatorun kuzeyi ' +
+      'yayılması, dünyada eşine az rastlanan bir yağış dengesi yaratır; ekvatorun kuzeyi ' +
       'ile güneyinde yağışlı mevsimler birbirini tamamlar ve yılın her ayı havzanın en az bir ' +
       'yarısında şiddetli yağış görülür. ' +
       '\n\n' +
@@ -1702,7 +1703,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     hydrographyNoteTr:
       'Katanga platolarından doğan Lualaba koluyla beslenen ulu Kongo Nehri, 4.700 kilometrelik ' +
       "bir yay çizerek Atlas Okyanusu'na dökülür; saniyede ortalama 41.000 metreküplük debisiyle " +
-      "Amazon'dan sonra dünyanın en yüksek akımına sahip nehridir ve çift yarımküreli yağış " +
+      "Amazon'dan sonra dünyanın en yüksek akımına sahip nehridir ve iki yarımküreye birden düşen yağış " +
       'sayesinde debisi yıl boyunca inanılmaz bir denge sergiler. ' +
       '\n\n' +
       'Doğu sınırında sıralanan Tanganyika, Kivu, Edward ve Albert gölleri Büyük Afrika ' +
@@ -1761,8 +1762,8 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "yağışıyla tüm Afrika kıtasının en fazla yağış alan noktalarından biridir; başkent Malabo'da " +
       'ise yıllık yağış 1.900 milimetre civarındadır.',
     hydrographyNoteTr:
-      "Anakara Río Muni'nin suları, yoğun yağmur ormanlarını yararak Atlas Okyanusu'na dökülen " +
-      "Mbini (Benito) ve Muni nehirleri tarafından drene edilir; Muni Nehri'nin geniş halici " +
+      "Anakara Río Muni'nin sularını, yoğun yağmur ormanlarını yararak Atlas Okyanusu'na dökülen " +
+      "Mbini (Benito) ve Muni nehirleri taşır; Muni Nehri'nin geniş halici " +
       'Gabon ile güney sınırını oluşturur. ' +
       '\n\n' +
       'Bioko ve Annobón adalarında ise kalıcı büyük nehirler bulunmaz; volkanik yamaçlardan inen ' +
@@ -1820,7 +1821,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'bulutlu fakat yağışsız ve serin bir kurak dönem yaratır.',
     hydrographyNoteTr:
       'Yaklaşık 1.200 kilometre uzunluğundaki Ogooué Nehri, Ngounié ve İvindo gibi ulu kollarıyla ' +
-      'birlikte Gabon topraklarının dörtte üçünden fazlasını drene eder; İvindo kolu üzerindeki ' +
+      'birlikte Gabon topraklarının dörtte üçünden fazlasının sularını toplar; İvindo kolu üzerindeki ' +
       'Kougui ve Mingouli çağlayanları yağmur ormanı içinde muazzam su manzaraları oluşturur. ' +
       'Nehir, Port-Gentil açıklarında geniş mangrov adalarından oluşan bir deltayla okyanusa kavuşur. ' +
       '\n\n' +
@@ -1857,13 +1858,13 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       "Kamerun Volkanik Hattı'nın okyanustaki halkaları olan bu adalar; bulut ormanlarıyla örtülü " +
       'dik bazalt zirveleri, kanyonları, zengin volkanik toprakları ve kıyı falezleriyle daracık ' +
-      'bir alanda olağanüstü bir peyzaj çeşitliliği sunar.',
+      'bir alanda olağanüstü bir manzara çeşitliliği sunar.',
     landformNoteTr:
       "São Tomé Adası'nın güney ve batı kesimlerinde volkanik kütleler doğrudan denize dik " +
       'falezler halinde iner; adanın merkezi doruğu olan 2.024 metrelik São Tomé Zirvesi ' +
       '(Pico de São Tomé), sürekli bulutlarla kaplıdır. Adanın güneyinde eski bir yanardağ ' +
       'bacasının lav tıkacı olarak aşınmayla açığa çıkmış olan 663 metrelik iğne biçimli Cão Grande ' +
-      'kayası, kıtanın en çarpıcı jeomorfolojik anıtlarındandır. ' +
+      'kayası, kıtanın en çarpıcı doğal anıtlarındandır. ' +
       '\n\n' +
       'Kuzeydoğuya doğru arazi kademeli olarak alçalarak başkentin kurulu olduğu kıyı düzlüklerine ' +
       'dönüşür. Yaklaşık 31 milyon yıllık daha yaşlı bir volkanik geçmişe sahip olan Príncipe ' +
@@ -1871,16 +1872,16 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "metrelik Pico Príncipe'dir.",
     climateNoteTr:
       'Adalarda deniz etkili nemli tropikal iklim hüküm sürer; ancak sarp topografya çok kısa ' +
-      'mesafelerde dramatik mikro-iklim zıtlıkları üretir. Güneybatıdan esen nem yüklü okyanus ' +
+      'mesafelerde birbirinden çok farklı yerel iklimler ortaya çıkarır. Güneybatıdan esen nem yüklü okyanus ' +
       "rüzgarları dik dağ yamaçlarına çarptığında São Tomé'nin güneybatısında yıllık 5.000 " +
-      'milimetreyi aşan orografik yağışlara yol açar. ' +
+      'milimetreyi aşan yamaç yağışlarına yol açar. ' +
       '\n\n' +
       'Buna karşılık dağların yağmur gölgesinde kalan kuzeydoğu kıyıları ve başkent çevresinde ' +
       'yıllık yağış 1.000 milimetrenin altına kadar geriler. Yıl boyu yüksek seyreden sıcaklıklar, ' +
       'dağların sisli yamaçlarına tırmandıkça yerini ferahlatıcı bir serinliğe bırakır.',
     hydrographyNoteTr:
       'Adaların dairesel ve dik volkanik yapısı, dağ doruklarından her yöne denize doğru ' +
-      'ışınsal olarak inen yüzlerce kısa ve delişmen dereden oluşan bir drenaj ağı ortaya çıkarır. ' +
+      'ışınsal olarak inen yüzlerce kısa ve delişmen dereden oluşan bir akarsu ağı ortaya çıkarır. ' +
       '\n\n' +
       "São Tomé Adası'nda 200'e yakın akarsu sayılmasına karşın hiçbiri taşımacılığa elverişli " +
       'büyüklükte değildir; sular dik kanyonlar ve çağlayanlar üzerinden çok kısa mesafede ' +
@@ -1920,7 +1921,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'Ülke coğrafyasının omurgasını oluşturan Kalahari Platosu, ortalama 1.000 metre yükseklikte ' +
       'hafif dalgalı kumullar ve kireçli tortullarla örtülüdür; kalın kum tabakası yüzey suyunu ' +
       'derhal tabana geçirdiği için arazide kalıcı akarsu vadileri gelişemez. Platonun güneydoğu ' +
-      'sınırında yükselen 1.491 metrelik Monalanong Tepesi, GNSS ölçümleriyle komşusu Otse ' +
+      'sınırında yükselen 1.491 metrelik Monalanong Tepesi, uydu konum ölçümleriyle komşusu Otse ' +
       "Tepesi'ni geride bırakarak ülkenin en yüksek doruğu olarak tescillenmiştir." +
       '\n\n' +
       "Kuzeybatıdaki tektonik çöküntü alanı, Okavango Nehri'nin akışını keserek suları binlerce " +
@@ -1932,9 +1933,9 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'ayları arasındaki yaz döneminde düzensiz sağanaklar halinde düşer; kuzey ve doğuda yıllık ' +
       "500-700 milimetreyi bulan yağış miktarı, güneybatı Kalahari'ye doğru 250 milimetrenin " +
       'altına kadar geriler. Yüksek buharlaşma ve tekrarlayan kuraklık dönemleri, tarım ve ' +
-      'hayvancılık üzerinde sürekli bir su stresi yaratır.',
+      'hayvancılık üzerinde sürekli bir su sıkıntısı yaratır.',
     hydrographyNoteTr:
-      'Yüzey suları bakımından son derece kısıtlı olan ülkede hidrolojik yaşam dört ayrı sisteme ' +
+      'Yüzey suları bakımından son derece kısıtlı olan ülkede sular dört ayrı sisteme ' +
       "dağılır. Okavango Deltası'ndan taşan mevsimlik sular, Boteti Nehri üzerinden doğudaki " +
       'Makgadikgadi çanağına akarak kurak tuz tavalarını kısa süreli sığ göllere dönüştürür. ' +
       'Kuzey sınırında Kwando, Linyanti ve Chobe adlarıyla kıvrılan nehir sistemi Kazungula ' +
@@ -1977,7 +1978,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'Başkent Mbabane bu serin ve sisli dağ basamağında kuruludur.' +
       '\n\n' +
       'Arazi doğuya doğru basamaklar halinde alçalır; 700 metre ortalama rakımlı Middleveld ' +
-      "verimli topraklarıyla ticaret merkezi Manzini'ye ve nüfusun çoğuna yurtluk eder. Yaklaşık " +
+      "verimli topraklarıyla ticaret merkezi Manzini'ye ve nüfusun çoğuna yurt olur. Yaklaşık " +
       '250 metre rakımdaki Lowveld ise geniş akasya savanlarıyla sıcak bir çöküntüyü andırır. ' +
       'Doğu sınırında bu ovayı aniden kesen Lubombo volkanik sırtı, yaklaşık 600 metrelik sarp ' +
       'duvarlarıyla Mozambik kıyı düzlüklerine set çeker.',
@@ -1985,7 +1986,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'Ülkede batıdan doğuya gidildikçe yükseltinin azalmasına bağlı olarak subtropikal iklim ' +
       'belirgin biçimde sertleşir ve kuraklaşır. Yıllık yağışların büyük bölümü ekim-nisan ' +
       'dönemindeki sıcak yaz aylarında şiddetli fırtınalarla düşer. Highveld platolarında yıllık ' +
-      'yağış orografik etkiyle 700-1.500 milimetreye çıkıp ortalama sıcaklık 17 derece civarında ' +
+      'yağış yamaç yağışlarıyla 700-1.500 milimetreye çıkıp ortalama sıcaklık 17 derece civarında ' +
       'kalırken, Lowveld ovalarında yağış 500 milimetrenin altına iner, yaz sıcaklıkları düzenli ' +
       'olarak 30 derecenin üzerine tırmanır.',
     hydrographyNoteTr:
@@ -1993,7 +1994,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "derin kanyonlarla yararak Mozambik'e geçen güçlü nehirlerle beslenir. Komati, Mbuluzi, " +
       'Büyük Usutu (Lusutfu) ve Ngwavuma nehirleri Güney Afrika yaylalarından doğar. Bu sınır ' +
       'aşan akarsu havzaları, Komati üzerindeki Maguga Barajı örneğinde olduğu gibi ortak su ' +
-      'yönetimi protokolleriyle işletilerek kurak Lowveld tarımına can suyu sağlar.',
+      'yönetimi anlaşmalarıyla işletilerek kurak Lowveld tarımına can suyu sağlar.',
   },
   {
     isoCode: 'LS',
@@ -2030,8 +2031,8 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'gelir. Bu kütlenin doruğunda yükselen 3.482 metrelik Thabana Ntlenyana, yalnızca ' +
       "Lesotho'nun değil, Kilimanjaro'nun güneyinde kalan tüm Afrika kıtasının en yüksek zirvesidir." +
       '\n\n' +
-      'Ülkenin en alçak noktasının dahi güneybatı sınırında 1.400 metre rakımda bulunması, küresel ' +
-      'ölçekte eşi olmayan bir morfolojik tabandır. Nüfusun ve ekilebilir alanların toplandığı ' +
+      'Ülkenin en alçak noktasının dahi güneybatı sınırında 1.400 metre rakımda bulunması, dünyada ' +
+      'eşi olmayan bir durumdur. Nüfusun ve ekilebilir alanların toplandığı ' +
       'başkent Maseru ve batı şeridi, 1.500-1.700 metre bandındaki kumtaşı platoları üzerinde yer alır.',
     climateNoteTr:
       'Yüksek rakım nedeniyle ülkede Afrika kıtasının geneline tezat oluşturan ılıman ve dağlık ' +
@@ -2045,7 +2046,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'sebebiyle bölgenin "su kulesi" niteliğindedir. Senqu (Orange) Nehri ve kolları olan ' +
       'Malibamatso, Matsoku ile Senqunyane, 3.000 metreyi aşan bazalt yaylalarından doğar. Bu bol ' +
       've berrak kaynakları Johannesburg sanayi havzasına aktarmak üzere inşa edilen Lesotho ' +
-      'Yaylaları Su Projesi ve Katse Barajı, tünel sistemleriyle çalışan dev bir transfer hattı ' +
+      'Yaylaları Su Projesi ve Katse Barajı, tünel sistemleriyle çalışan dev bir su aktarım hattı ' +
       'oluşturarak ülke ekonomisine hidroelektrik ve düzenli gelir sağlar.',
   },
   {
@@ -2071,9 +2072,9 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "21 Mart 1990'da Güney Afrika'dan bağımsız oldu.",
     introTr:
-      'Namibya, Atlas Okyanusu boyunca uzanan hiper-kurak kıyı çölü ile iç kısımdaki yüksek ' +
+      'Namibya, Atlas Okyanusu boyunca uzanan aşırı kurak kıyı çölü ile iç kısımdaki yüksek ' +
       'platolar arasında keskin bir zıtlığa sahiptir. Kıyıdaki Namib Çölü ile iç kesimdeki ' +
-      "Merkezi Plato'yu birbirinden ayıran Büyük Sarp (Great Escarpment), Gondwana kıtasının " +
+      "Merkezi Plato'yu birbirinden ayıran Büyük Sarp, Gondwana kıtasının " +
       'parçalanışından kalan tektonik bir basamaktır. Kuzeydoğuda dar bir koridor gibi uzanan ' +
       'Caprivi (Zambezi) Şeridi ise nehirleri ve taşkın ovalarıyla ülkenin kurak karakterine ' +
       'bütünüyle aykırı, sulak bir coğrafya sunar.',
@@ -2085,7 +2086,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'ülkenin en yüksek zirvesidir.' +
       '\n\n' +
       "Güneyde Fish Nehri'nin aşındırdığı 160 kilometre uzunluğundaki Fish Nehri Kanyonu, kıtanın " +
-      'en derin ve görkemli kanyon vadisidir. Kuzeydeki 4.800 kilometrekarelik Etoşa Çanağı ise ' +
+      'en büyük ve görkemli kanyon vadisidir. Kuzeydeki 4.800 kilometrekarelik Etoşa Çanağı ise ' +
       'kuru mevsimde kireçli beyaz bir tuz tavasıyken, yağışlı dönemlerde sığ bir iç göle dönüşerek ' +
       'büyük yaban hayatı sürülerini çeker.',
     climateNoteTr:
@@ -2134,7 +2135,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'Topraklarının içine gömülü bağımsız Lesotho krallığıyla birlikte bölgenin fiziki ve ' +
       'ekonomik çekim merkezidir.',
     landformNoteTr:
-      'Ülke topoğrafyasını, kenarları Büyük Sarp (Great Escarpment) adı verilen dik dağ duvarlarıyla ' +
+      'Ülke topoğrafyasını, kenarları Büyük Sarp adı verilen dik dağ duvarlarıyla ' +
       'çevrili yüksek bir iç plato biçimlendirir. Bu sarpın doğudaki en görkemli kesimini oluşturan ' +
       "Drakensberg Sıradağları'nda yükselen 3.446 metrelik Mafadi Zirvesi, Güney Afrika'nın en " +
       'yüksek noktasıdır.' +
@@ -2188,7 +2189,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "Havzası'na su taşır. Sırtın doğusunda birbirini izleyen binlerce dik tepe ve derin vadi " +
       'dizisi, ülkeye "bin tepe diyarı" unvanını kazandırmıştır.',
     landformNoteTr:
-      'Batı sınırında Tanganyika Gölü boyunca uzanan 770 metre rakımlı dar Imbo grabeni, Rift ' +
+      'Batı sınırında Tanganyika Gölü boyunca uzanan 770 metre rakımlı dar Imbo çöküntü ovası (graben), Rift ' +
       "Vadisi'nin tabanıdır. Ovanın hemen doğusunda Mumirwa sarp yamaçları dik bir basamak " +
       "halinde yükselerek 2.684 metrelik Heha Dağı'nı da barındıran Kongo-Nil Dağ Sırtı'na ulaşır." +
       '\n\n' +
@@ -2199,15 +2200,15 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     climateNoteTr:
       'Ekvatora yakın konumuna karşın iklim dikey yükselti basamaklarıyla yumuşar. Göl kıyısındaki ' +
       "Imbo Ovası'nda yıllık yağış 800-950 milimetre civarında kalıp hava sıcak ve boğucuyken, " +
-      '2.000 metreyi aşan Kongo-Nil dağ sırtında orografik bulutlar yıllık yağışı 1.500-2.000 ' +
+      '2.000 metreyi aşan Kongo-Nil dağ sırtında yamaç boyunca yükselen nemli havanın oluşturduğu bulutlar yıllık yağışı 1.500-2.000 ' +
       'milimetreye çıkarır ve sıcaklıkları 15 dereceye kadar düşürür. Orta platolar 1.200-1.500 ' +
       'milimetre yağışla tarım için elverişli bir serinliğe sahiptir; yağışlar ekim ile mayıs ' +
       'arasına yayılırken haziran-eylül arası kurak bir soluklanma dönemidir.',
     hydrographyNoteTr:
-      "Burundi, hidrolojik açıdan Nil Nehri'nin en güneydeki kaynaklarına ev sahipliği yapar. " +
+      "Burundi, Nil Nehri'nin en güneydeki kaynaklarına ev sahipliği yapar. " +
       'Ülkenin en uzun akarsuyu olan Ruvubu Nehri ve kolu Ruvyironza, Kongo-Nil sırtının doğu ' +
       "yamaçlarından doğar; Rutovu yakınlarındaki Kasumo kaynağı Nil sisteminin Akdeniz'e en " +
-      'uzak memba noktası kabul edilir. Batı sınırında yer alan ve dünyanın en derin ikinci ' +
+      'uzak kaynak noktası kabul edilir. Batı sınırında yer alan ve dünyanın en derin ikinci ' +
       'tatlı su çanağı olan Tanganyika Gölü ise balıkçılığı ve ulaşım imkanlarıyla ülkenin batı ' +
       'sınırını şekillendirir.',
   },
@@ -2235,10 +2236,10 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr: "6 Temmuz 1975'te Fransa'dan bağımsız oldu.",
     introTr:
       "Komorlar, Mozambik Kanalı'nın kuzey girişinde, Madagaskar ile Doğu Afrika kıyıları arasında " +
-      'yay biçiminde dizilmiş volkanik takımadalardan oluşur. Adalar jeolojik yaş bakımından ' +
-      'belirgin bir kronoloji sergiler: Kuzeybatıdaki Grande Comore hâlâ faal bir kalkan yanardağa ' +
+      'yay biçiminde dizilmiş volkanik takımadalardan oluşur. Adalar yaş bakımından ' +
+      'belirgin bir sıra izler: Kuzeybatıdaki Grande Comore hâlâ faal bir kalkan yanardağa ' +
       'sahip en genç adayken, güneydoğuya doğru Anjouan, Moheli ve Fransa idaresindeki Mayotte ' +
-      'giderek daha yaşlı ve aşınmış morfolojileriyle sıralanır. Bu volkanik geçmiş adalara dik ' +
+      'giderek daha yaşlı ve aşınmış görünümleriyle sıralanır. Bu volkanik geçmiş adalara dik ' +
       'kıyılar, siyah bazalt kayalıkları ve derin deniz çukurları kazandırmıştır.',
     landformNoteTr:
       "Takımadanın en büyük adası olan Grande Comore'un güneyini, 2.361 metre yüksekliğindeki " +
@@ -2254,7 +2255,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'aylarında kuzeybatı musonunun (kashkazi) getirdiği sıcak ve nemli hava kütleleri şiddetli ' +
       'sağanaklara yol açar; mayıs-kasım döneminde ise güneydoğu alizeleri (kusi) daha serin ve ' +
       'kuru koşullar taşır. Yıllık yağış yamaçlarda 2.000 milimetrenin üzerine çıkarken ocak ayı ' +
-      'yağışın en yoğun olduğu dönemdir; ada mikroklimaları dağların rüzgar tutan cephelerine ' +
+      'yağışın en yoğun olduğu dönemdir; adaların yerel iklimleri dağların rüzgar tutan cephelerine ' +
       'göre büyük farklılıklar gösterir.',
     hydrographyNoteTr:
       'Adaların genç ve son derece gözenekli bazaltik lav örtüsü, düşen yoğun yağış sularını bir ' +
@@ -2294,7 +2295,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'çanağı, deniz seviyesinin 155 metre altına inerek Afrika kıtasının en alçak noktasını oluşturur.',
     landformNoteTr:
       "Assal Gölü, Tadjoura Körfezi'nden yalnızca 10 kilometre içeride, levha kırılmalarıyla " +
-      'oluşmuş derin bir tektonik grabenin tabanında yer alır. Deniz seviyesinin 155 metre ' +
+      'oluşmuş derin bir çöküntü hendeğinin (graben) tabanında yer alır. Deniz seviyesinin 155 metre ' +
       "altındaki rakımıyla Ölü Deniz ve Taberiye Gölü'nün ardından yeryüzünün en alçak üçüncü " +
       'karasal çanağıdır; kavurucu buharlaşma nedeniyle göl yüzeyinde kalın beyaz bir tuz tabakası ' +
       'birikmiştir.' +
@@ -2353,17 +2354,17 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'en yüksek zirvesidir. Bu yayla doğu kenarında sarp fay duvarlarıyla yarılarak çok kısa ' +
       'mesafede kıyıdaki Massava düzlüklerine iner.' +
       '\n\n' +
-      'Güneydoğuda arazi, deniz seviyesinin 120 metre altına kadar inen tektonik Danakil ' +
+      'Güneydoğuda arazi, ülke sınırları içinde deniz seviyesinin 75 metre altına kadar inen tektonik Danakil ' +
       "Çukurluğu'na gömülür; aktif volkanik bacalar ve tuz katmanlarıyla kaplı bu alan kıtanın " +
       'en ıssız coğrafyalarındandır. Kıyı açıklarındaki Dahlak Takımadaları ise fosilleşmiş mercan ' +
       'kalkerinden oluşan alçak ada platformlarıdır.',
     climateNoteTr:
-      'Topoğrafik kademelenme iklimi birbirinden bütünüyle kopuk iki zıt dünyaya ayırır. 2.300 ' +
+      'Yükselti farkı iklimi birbirinden bütünüyle kopuk iki zıt dünyaya ayırır. 2.300 ' +
       'metredeki Asmara ve çevre platolarda ılıman bir yayla iklimi hakimdir; sıcaklıklar yıl ' +
       'boyu 20-25 derece bandında kalırken temmuz-ağustos aylarında bereketli yaz yağmurları ' +
       'düşer. Buna karşılık Kızıldeniz kıyısındaki Massava ve Danakil havzalarında yaz ' +
       'sıcaklıkları düzenli olarak 45 derecenin üzerine fırlar; bu kesim yeryüzünün yıllık ortalama ' +
-      'sıcaklığı en yüksek hiper-kurak kıyı kuşaklarındandır.',
+      'sıcaklığı en yüksek aşırı kurak kıyı kuşaklarındandır.',
     hydrographyNoteTr:
       'Eritre topraklarında yıl boyu kesintisiz denize ulaşan büyük bir akarsu bulunmaz. Yaylalardan ' +
       'doğarak batıya, Sudan ovalarına doğru yönelen Barka ve Gash (Mareb) nehirleri, yalnızca yaz ' +
@@ -2401,7 +2402,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'olarak anılan bu devasa bazalt yaylayı iki belirgin dağlık kütleye ayırır.',
     landformNoteTr:
       'Ortalama yüksekliği 2.000 metreyi aşan Etiyopya Yaylaları, tektonik yükselmeler ve yoğun ' +
-      'volkanik püskürmelerle biçimlenmiş derin kanyonlar ve aşınmış düzlüklerle karakterizedir. ' +
+      'volkanik püskürmelerle biçimlenmiş derin kanyonlar ve aşınmış düzlüklerle öne çıkar. ' +
       'Kuzeybatıdaki Habeşistan bloğunda yükselen Simien Dağları, uçurumlu sarp yamaçları ve 4.550 ' +
       'metrelik zirvesi Ras Dashen ile ülkenin en yüksek noktasını barındırır. Güneydoğudaki Bale ' +
       'Dağları ise daha yuvarlak hatlı volkanik platolar ve geniş afro-alpin tundralarla kaplıdır.' +
@@ -2425,11 +2426,11 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "Etiyopya Yaylaları, Doğu ve Kuzeydoğu Afrika'nın tartışmasız ana su kulesidir. 1.780 metre " +
       "rakımdaki Tana Gölü'nden doğan Mavi Nil (Abay), derinliği yer yer 1.500 metreyi bulan devasa bir " +
       "kanyon boyunca batıya kıvrılarak Sudan düzlüklerine iner ve Nil Nehri'nin ana akış hacminin " +
-      "yaklaşık yüzde 80'ini tek başına sağlar. Nehrin Sudan sınırına yakın kesiminde inşa edilen " +
-      'Büyük Etiyopya Rönesans Barajı (GERD), havzanın tüm hidrolojik ve siyasi dengelerini yeniden ' +
+      'yaklaşık üçte ikisini tek başına sağlar. Nehrin Sudan sınırına yakın kesiminde inşa edilen ' +
+      'Büyük Etiyopya Rönesans Barajı, havzanın tüm su ve siyaset dengelerini yeniden ' +
       'belirleyen dev bir rezervuardır.' +
       '\n\n' +
-      'Rift Vadisi tabanında ise drenaj sistemi kapalı havzalar biçiminde işler; yaylalardan doğan ' +
+      'Rift Vadisi tabanında ise sular kapalı havzalarda toplanır; yaylalardan doğan ' +
       "Awash Nehri denize ulaşamadan Cibuti sınırındaki tuzlu Abbe Gölü'nde sönümlenir. Güneyde Omo " +
       "Nehri ise derin vadilerden akarak Kenya sınırındaki Turkana Gölü'nü besler.",
   },
@@ -2465,7 +2466,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'Hint Okyanusu boyunca uzanan mercan resifli kıyı şeridinin ardında, batıya doğru giderek ' +
       'yükselen yarı kurak Nyika platosu başlar. Bu basamakların sonunda yükselen Orta Yaylalar, ' +
       "Rift Vadisi tabanından aniden fışkıran volkanik devasa kütlelerle taçlanır. Rift'in doğu " +
-      'yamacında yükselen 5.199 metrelik Kenya Dağı (Batian), sönmüş bir stratovolkan olup ekvatorun ' +
+      'yamacında yükselen 5.199 metrelik Kenya Dağı (Batian), sönmüş bir tabakalı volkan olup ekvatorun ' +
       'hemen altında buzul dilleri barındıran kıtanın en yüksek ikinci noktasıdır.' +
       '\n\n' +
       "Ülkeyi kuzey-güney ekseninde bölen Gregory Rift'in tabanı, ortalama 40 ila 60 kilometre " +
@@ -2484,12 +2485,12 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "ekim-aralık dönemindeki 'kısa yağmurlar' daha düzensiz aralıklarla toprağa can verir.",
     hydrographyNoteTr:
       "Rift Vadisi'nin tabanı, kapalı havza özelliği gösteren ve her biri farklı kimyasal yapıya " +
-      'sahip tektonik göllerle sıralanmıştır. Kuzeyde çöllerle çevrili dünyanın en büyük alkali ' +
-      'gölü olan Turkana (Yeşim Denizi), güneye doğru zengin mikroalg örtüleriyle yüz binlerce ' +
+      'sahip tektonik göllerle sıralanmıştır. Kuzeyde dünyanın en büyük kalıcı çöl gölü ve alan ' +
+      'bakımından en büyük alkali gölü olan Turkana (Yeşim Denizi), güneye doğru zengin mikroalg örtüleriyle yüz binlerce ' +
       'flamingoya ev sahipliği yapan Bogoria, Nakuru ve Elmenteita soda gölleriyle devam eder; bu ' +
       'dizilimde Naivasha ve Baringo gölleri yeraltı sızıntıları sayesinde tatlı su karakterini korur.' +
       '\n\n' +
-      'Açık drenaj sisteminde ise ülkenin en uzun iki akarsuyu olan Tana ve Athi-Galana nehirleri, ' +
+      'Denize ulaşan akarsulardan ise ülkenin en uzun iki akarsuyu olan Tana ve Athi-Galana nehirleri, ' +
       "Orta Yaylalar'dan aldıkları suları Hint Okyanusu'na taşır. Batı yaylalarından çıkan nehirler " +
       'ise Victoria Gölü havzasına dökülerek dolaylı biçimde Nil sistemine bağlanır.',
   },
@@ -2518,32 +2519,32 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     introTr:
       'Afrika anakarasından yaklaşık 160 milyon yıl önce, Hindistan alt kıtasından ise yaklaşık 88 ' +
       "milyon yıl önce koparak Hint Okyanusu'nda tek başına kalan Madagaskar, dünyanın dördüncü büyük " +
-      'adasıdır. On milyonlarca yıllık jeolojik tecrit, ada üzerinde evrimleşen canlı ve bitki ' +
+      'adasıdır. On milyonlarca yıl boyunca diğer karalardan ayrı kalması, ada üzerinde evrimleşen canlı ve bitki ' +
       "türlerinin yüzde 90'a yakınının gezegende sadece buraya özgü kalmasını sağlamıştır. Fiziki yapısı, " +
-      'kuzey-güney doğrultusunda uzanan kristalin bir dağ omurgası ile doğunun dik yağmur ormanı şevleri ' +
-      've batının geniş savan düzlükleri arasındaki çarpıcı asimetri üzerine kuruludur.',
+      'kuzey-güney doğrultusunda uzanan kristalin bir dağ omurgası ile doğunun dik yağmur ormanı yamaçları ' +
+      've batının geniş savan düzlükleri arasındaki çarpıcı karşıtlık üzerine kuruludur.',
     landformNoteTr:
       'Adanın belkemiğini oluşturan Orta Yayla (Hauts-Plateaux), 800 ila 1.800 metre irtifada ' +
       'dalgalanan granit masifler, eski volkanik koniler ve kırmızı laterit tepelerden meydana gelir. ' +
       "Kuzeydeki Tsaratanana Masifi'nde yer alan 2.876 metrelik Maromokotro Zirvesi adanın en yüksek " +
       'noktasıyken, orta kesimdeki Ankaratra volkanik kütlesi başkent platosunu çevreler.' +
       '\n\n' +
-      "Orta Yayla, doğu yönünde dik bir fay şeviyle (Falaise de l'Est) aniden kırılarak Hint Okyanusu " +
+      "Orta Yayla, doğu yönünde dik bir fay yamacıyla (Falaise de l'Est) aniden kırılarak Hint Okyanusu " +
       'kıyısındaki dar ve ormanlık kıyı şeridine düşer. Buna karşılık batıya doğru iniş çok daha tatlı ' +
       've kademelidir; burada rüzgâr ve suyun kireçtaşlarını jilet gibi keskin kulelere dönüştürdüğü ' +
       'karstik kanyonlar (Tsingy de Bemaraha) ve geniş kıyı ovaları yer alır. En güneyde ise arazi ' +
       'baobap ağaçları ve dikenli çalılarla kaplı kurak bir ovaya dönüşür.',
     climateNoteTr:
-      "Madagaskar'ın iklim deseni, Hint Okyanusu'ndan esen nemli güneydoğu alizelerinin Orta Yayla " +
-      'şevine çarpmasıyla ikiye ayrılır. Doğu kıyıları ve dik dağ yamaçları yıl boyu kesintisiz ' +
-      'orografik yağış alır ve güney yarımküre yazında sık sık yıkıcı tropikal siklonların hedefi olur.' +
+      "Madagaskar'ın iklim deseni, Hint Okyanusu'ndan esen nemli güneydoğu alizelerinin Orta Yayla'nın " +
+      'dik yamacına çarpmasıyla ikiye ayrılır. Doğu kıyıları ve dik dağ yamaçları yıl boyu kesintisiz ' +
+      'yamaç yağışı alır ve güney yarımküre yazında sık sık yıkıcı tropikal siklonların hedefi olur.' +
       '\n\n' +
-      'Yaylaları aşan hava kütleleri kuruyarak fönleştiği için batı kesiminde belirgin bir kurak dönem ' +
+      'Yaylaları aşan hava kütleleri alçalırken ısınıp kuruduğu (fön etkisi) için batı kesiminde belirgin bir kurak dönem ' +
       'yaşanır; yağışlar kasım ile nisan arasındaki sıcak yaz aylarına sıkışır. Adanın güneybatı ucu ' +
       'ise dağların tam yağmur gölgesinde kalması ve soğuk okyanus akıntılarının buharlaşmayı sınırlaması ' +
       'yüzünden yarı çöl koşullarına sahip en kurak bölgedir.',
     hydrographyNoteTr:
-      'Adanın topografik eğimi, akarsu ağında keskin bir batı-doğu zıtlığı yaratır. Batı şevlerinden ' +
+      'Adanın topografik eğimi, akarsu ağında keskin bir batı-doğu zıtlığı yaratır. Batı yamaçlarından ' +
       "Mozambik Kanalı'na doğru akan Betsiboka, Mangoky ve Tsiribihina gibi nehirler, uzun yataklar " +
       'boyunca ilerler ve yaylalardaki ormansızlaşmanın tetiklediği yoğun erozyon nedeniyle kıpkırmızı ' +
       "bir balçık taşır; Betsiboka'nın deltası Bombetoka Körfezi'ni kızıla boyar." +
@@ -2577,12 +2578,12 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     introTr:
       "Malavi, Doğu Afrika Kırık Sistemi'nin güney kolu boyunca kuzeyden güneye bir şerit gibi " +
       'uzanan, fiziki coğrafyası derin fay hatları ve göl çanağıyla belirlenmiş bir iç ülkedir. ' +
-      'Doğu sınırının büyük kısmını kaplayan devasa Malavi (Nyasa) Gölü, ülkenin hidrolojik ve ' +
-      'ekonomik can damarıdır. Bu derin çöküntü çanağının iki yakasında yer alan Nyika Platosu ve ' +
+      'Doğu sınırının büyük kısmını kaplayan devasa Malavi (Nyasa) Gölü, ülkenin su kaynaklarının ve ' +
+      'ekonomisinin can damarıdır. Bu derin çöküntü çanağının iki yakasında yer alan Nyika Platosu ve ' +
       'güneydeki tekil Mulanje Masifi, göl seviyesinden aniden göğe yükselen görkemli yükseltilerdir.',
     landformNoteTr:
-      'Ülke morfolojisi, rift grabeninin tabanında uzanan göl çanağı ve gölün sularını güneye ' +
-      'taşıyan Shire Nehri yarıntısı boyunca şekillenir. Fay dikliklerinin batısında arazi ' +
+      'Ülkenin yer şekilleri, yarık vadisinin çöküntü tabanında uzanan göl çanağı ve gölün sularını güneye ' +
+      'taşıyan Shire Nehri vadisi boyunca şekillenir. Fay dikliklerinin batısında arazi ' +
       'kademelerle yükselir; kuzeyde 2.000 metreyi aşan ormanlık ve yayla çayırlarıyla örtülü ' +
       'dalgalı Nyika Platosu yer alır.' +
       '\n\n' +
@@ -2599,8 +2600,8 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'arasındaki serin kuru dönemde yüksek dağ yaylalarında geceleri don olayları görülebilir.',
     hydrographyNoteTr:
       "Afrika'nın en büyük üçüncü gölü olan Malavi Gölü, 560 kilometreyi aşan uzunluğu ve 700 " +
-      'metreyi bulan derinliğiyle ülkenin hidrolojik merkezidir. Gölün güney ucundan çıkan Shire ' +
-      'Nehri, gölün yegane doğal boşalım kanalıdır; Chigaru ile Chikwawa arasındaki 80 kilometrelik ' +
+      'metreyi bulan derinliğiyle ülkenin su merkezidir. Gölün güney ucundan çıkan Shire ' +
+      'Nehri, gölün tek doğal çıkış yoludur; Chigaru ile Chikwawa arasındaki 80 kilometrelik ' +
       'dik kanyonda art arda gelen şelaleler ve çağlayanlarla yaklaşık 400 metre alçalarak ' +
       "Mozambik sınırında Zambezi Nehri'ne katılır. Kuzeyde ise Songwe Nehri, Tanzanya ile " +
       'doğal sınırı çizen önemli bir su yoludur.',
@@ -2633,7 +2634,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'yanı sıra doğuda çok daha eski ve aşınmış Rodrigues Adası ile kuzeydeki Saint Brandon ve ' +
       'Agalega mercan adacıklarını kapsar. Ana ada, sönmüş bir kalkan yanardağ kalıntısı olan ' +
       '300-600 metre rakımlı merkezi platoyu kuşatan dik bazaltik zirveler ve çevresindeki sakin ' +
-      'lagünlerle özgün bir ada morfolojisi sunar.',
+      'lagünlerle özgün bir ada görünümü sunar.',
     landformNoteTr:
       'Adanın merkezi platosunu çevreleyen aşınmış volkanik dağ halkası, sivri iğne siluetiyle ' +
       'bilinen Pieter Both, sarp bir bazalt monolit olan Le Morne Brabant ve ülkenin 828 metrelik ' +
@@ -2652,14 +2653,14 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'geçerken, mayıs-ekim arasındaki kış dönemi alizelerin getirdiği serin ve ferahlatıcı ' +
       'rüzgarlarla şekillenir. Yıllık yağış alizelere kapalı batı kıyısında 1.200 milimetre ' +
       'dolayındayken, rüzgarı doğrudan karşılayan güneydoğu kıyısında 1.600 milimetreye, merkezi ' +
-      'platonun sisli yüksek yamaçlarında ise orografik etkiyle 4.000-5.000 milimetreye kadar ulaşır.',
+      'platonun sisli yüksek yamaçlarında ise yamaç yağışlarıyla 4.000-5.000 milimetreye kadar ulaşır.',
     hydrographyNoteTr:
-      'Merkezi platodan doğarak radyal biçimde kıyılara inen akarsular kısa, hızlı akışlı ve ' +
+      'Merkezi platodan doğarak her yöne yayılarak kıyılara inen akarsular kısa, hızlı akışlı ve ' +
       'bol şelalelidir; 40 kilometrelik Grand River South East adanın en uzun nehridir. ' +
       'Akarsuların hiçbiri deniz taşımacılığına elverişli olmamakla birlikte derin vadiler açarak ' +
       'hidroelektrik üretimine ve sulamaya katkı sağlar. Kalıcı doğal göllerin az olduğu adada ' +
-      'su dengesi, krater gölleri, baraj göletleri ve mercan lagünlerinin koruduğu kıyı ' +
-      'akiferleri üzerinden yürütülür.',
+      'su dengesi, krater gölleri, baraj göletleri ve mercan lagünlerinin koruduğu kıyıdaki ' +
+      'yer altı suları üzerinden sağlanır.',
   },
   {
     isoCode: 'MZ',
@@ -2696,7 +2697,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       've arazi iç kesimlere doğru basamaklar halinde yükselir.' +
       '\n\n' +
       'Kuzey ve kuzeybatı yaylaları, düzlüklerin ortasından birdenbire yükselen sarp granit ' +
-      'tepelerle (inselberg) karakterizedir; bu topoğrafya Malavi Gölü çöküntüsüne komşu dağlık ' +
+      'tepelerle (inselberg) öne çıkar; bu topoğrafya Malavi Gölü çöküntüsüne komşu dağlık ' +
       'kütlelerle birleşir. Ülkenin en yüksek kesimi ise Zimbabve sınırı boyunca uzanan Chimanimani ' +
       "Sıradağları'dır; buradaki 2.436 metrelik Binga Dağı Mozambik'in doruk noktasıdır.",
     climateNoteTr:
@@ -2751,7 +2752,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'Ülke coğrafyasının omurgasını, kuzeyden güneye uzanan ve ortalama yüksekliği 2.500 metreyi ' +
       'bulan Kongo-Nil su bölümü dağ sırtı çizer. Bu sırtın kuzeybatı ucunda, Uganda ve Kongo ' +
       'Demokratik Cumhuriyeti sınırlarını birleştiren Virunga Sıradağları yükselir. Sönmüş ve aktif ' +
-      'stratovolkanlardan oluşan bu zincirin Ruanda sınırındaki en yüksek zirvesi 4.507 metrelik Karisimbi ' +
+      'tabakalı volkanlardan oluşan bu zincirin Ruanda sınırındaki en yüksek zirvesi 4.507 metrelik Karisimbi ' +
       "Dağı'dır; komşu Bisoke ve Sabyinyo tepeleriyle birlikte dağ gorillerinin yeryüzündeki son " +
       'sığınaklarını barındırır.' +
       '\n\n' +
@@ -2765,18 +2766,18 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'batıdaki çöküntü tabanında sıcaklıklar 30 derecenin üzerine çıkabilir.' +
       '\n\n' +
       'Yağış döngüsü yılda iki yağışlı ve iki kurak dönemden oluşan dörtlü bir ritim izler: ' +
-      "şubat-mayıs arası 'büyük yağmurlar' (Itumba) ve eylül-aralık arası 'küçük yağmurlar' (Umutobo) " +
+      "şubat-mayıs arası 'büyük yağmurlar' (Itumba) ve eylül-aralık arası 'küçük yağmurlar' (Umuhindo) " +
       'tarımsal takvimi belirler. Dik yamaçlarda yürütülen yoğun tarım, aşırı yağış dönemlerinde ' +
       'şiddetli erozyon ve toprak kayması riskini tetikler.',
     hydrographyNoteTr:
       "Ruanda'nın suları iki dev Afrika havzasına bölünür: Toprakların yaklaşık yüzde 80'i Nil " +
       "Havzası'na, batıdaki yüzde 20'si ise Kongo Havzası'na aittir. Güneybatıdaki bakir Nyungwe " +
       "Ormanı'ndan doğan Rukarara ve Nyabarongo nehirleri, Akagera Nehri'ni oluşturarak Victoria " +
-      "Gölü'ne akar; bu akış Nil Nehri'nin Akdeniz'e en uzak membasını teşkil eder." +
+      "Gölü'ne akar; bu akış Nil Nehri'nin Akdeniz'e en uzak kaynağını oluşturur." +
       '\n\n' +
       "Batı sınırında yer alan Kivu Gölü ise Albertine Rifti'nin tektonik çukurluğunu dolduran 480 metre " +
       'derinliğinde bir doğa harikasıdır. Dip katmanlarında yüksek oranda çözünmüş karbondioksit ve metan ' +
-      'gazı barındıran göl, limnik patlama riski taşımakla birlikte günümüzde çekilen metanın enerji ' +
+      'gazı barındıran göl, biriken gazı aniden salma (limnik patlama) riski taşımakla birlikte günümüzde çekilen metanın enerji ' +
       "santrallerinde yakılmasıyla Ruanda'nın elektrik ihtiyacını karşılayan stratejik bir kaynağa " +
       'dönüştürülmüştür.',
   },
@@ -2811,7 +2812,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     landformNoteTr:
       'Nüfusun ve ekonomik yaşamın merkez üssü olan Mahé, Praslin ve La Digue gibi granit adalar, ' +
       'turkuaz suların içinden aniden fırlayan devasa aşınmış granit kayalıklar, yemyeşil tropikal ' +
-      'tepeler ve dar kıyı düzlükleriyle karakterizedir. Mahé adasındaki 905 metrelik Morne Seychellois ' +
+      'tepeler ve dar kıyı düzlükleriyle öne çıkar. Mahé adasındaki 905 metrelik Morne Seychellois ' +
       'ülkenin en yüksek zirvesidir; Praslin adasındaki Vallée de Mai ise endemik ' +
       'denizhindistancevizi (coco de mer) palmiyelerine ev sahipliği yapar.' +
       '\n\n' +
@@ -2834,7 +2835,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'şiddetli yağmurlar sırasında gürül gürül akar, ancak suyun büyük kısmı hızla okyanusa karışır.' +
       '\n\n' +
       'Yüzey sularının tutulamaması nedeniyle ülke içme suyunu ormanlık vadilerdeki baraj göletleri, ' +
-      'yağmur suyu hasadı ve kurak dönemlerde devreye giren deniz suyu arıtma (desalinizasyon) tesisleriyle ' +
+      'yağmur suyu hasadı ve kurak dönemlerde devreye giren deniz suyu arıtma tesisleriyle ' +
       'sağlar. Mercan atollerinde ise yüzey suyu tamamen yok denecek düzeydedir; tek kaynak gözenekli ' +
       'kireçtaşı tabakasının üzerinde biriken ince tatlı su merceğidir.',
   },
@@ -2878,8 +2879,8 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'kilometrelik kumul tepeleriyle kaplıdır; güneyde ise iki ana nehrin suladığı düz alüvyal tarım ' +
       'ovaları başlar.',
     climateNoteTr:
-      'Ekvator kuşağına yakınlığına karşın Somali, kıyı boyunca esen kuru rüzgarlar ve denizel ' +
-      'yükselme (upwelling) nedeniyle nem taşımayan soğuk su akıntılarının etkisiyle son derece kurak ' +
+      'Ekvator kuşağına yakınlığına karşın Somali, kıyı boyunca esen kuru rüzgarlar ve derindeki soğuk ' +
+      'suyun yüzeye çıkması (denizel yükselme) nedeniyle nem taşımayan soğuk su akıntılarının etkisiyle son derece kurak ' +
       'bir çöl ve yarı çöl iklimine sahiptir. Sıcaklıklar yıl boyu yüksek seyreder; kuzey kıyılarında ' +
       'yaz aylarında 40 derecenin üzerine çıkması olağandır.' +
       '\n\n' +
@@ -2948,8 +2949,8 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       'Kasım ile mart ayları arasında esen kuru kuzey rüzgarları (Harmattan), sıcaklıkları 35-40 derecenin ' +
       'üzerine fırlatan sert bir kurak döneme yol açar. Bu kurak-yağışlı döngü, killi topraklarda yağmurda ' +
-      'geçit vermez bataklıklar, kuraklıkta ise çatlamış çorak araziler oluşturarak pastoralist toplulukların ' +
-      'mevsimlik göçlerini (transhümans) zorunlu kılar.',
+      'geçit vermez bataklıklar, kuraklıkta ise çatlamış çorak araziler oluşturarak hayvancılıkla geçinen ' +
+      'toplulukların mevsimlik göçlerini zorunlu kılar.',
     hydrographyNoteTr:
       "Ülkenin can damarı, Uganda'dan Albert Nili'nin devamı olarak sınıra giren ve burada Dağ Nili " +
       "(Bahr el Jebel) adını alan Beyaz Nil'dir. Nehir, Juba'yı geçtikten sonra Sudd bataklığının içine " +
@@ -2992,14 +2993,15 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'masifler ve Hint Okyanusu kıyısındaki Swahili adaları, ülkeyi Afrika yaban hayatının ve insanlık ' +
       'tarihinin en köklü yerleşim merkezlerinden birine dönüştürür.',
     landformNoteTr:
-      'Kuzey sınırında göğe yükselen 5.895 metrelik Kilimanjaro Dağı, Kibo doruğundaki sönmüş krateri ' +
+      'Kuzey sınırında göğe yükselen 5.895 metrelik Kilimanjaro Dağı, Kibo doruğundaki uykuda olan krateri ' +
       've ekvatoral buzullarıyla sadece ülkenin değil bütün Afrika kıtasının çatısıdır. Bu dev kütlenin ' +
-      'batısında sönmüş Meru stratovolkanı ve dünyanın en büyük bozulmamış kalderalarından biri olan ' +
+      "batısında son olarak 1910'da küçük bir püskürme yapan Meru tabakalı volkanı ve " +
+      'dünyanın en büyük bozulmamış kalderalarından biri olan ' +
       '600 metre derinliğindeki Ngorongoro Çöküntüsü yer alır; bu havza, yaban hayatı göçlerinin beşiği ' +
       "Serengeti Platosu'na açılır." +
       '\n\n' +
-      'Ülke arazisi, doğu kolu (Gregory Rift) ve batı kolu (Albertine Rift) tarafından derin ' +
-      'grabenlerle kuşatılmıştır. Bu iki yarık hattı arasında denizden 1.000 ila 1.500 metre yükseklikte ' +
+      'Ülke arazisi, doğu kolu (Gregory Rift) ve batı kolu (Albertine Rift) tarafından derin çöküntü ' +
+      'hendekleriyle (graben) kuşatılmıştır. Bu iki yarık hattı arasında denizden 1.000 ila 1.500 metre yükseklikte ' +
       'dalgalanan yarı kurak geniş Orta Plato uzanır. Doğuda ise dar bir kıyı ovasının ardından Hint ' +
       "Okyanusu'nda Unguja (Zanzibar), Pemba ve Mafia mercan adaları yükselir.",
     climateNoteTr:
@@ -3047,7 +3049,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     introTr:
       'Winston Churchill tarafından doğasının göz kamaştırıcı yeşilliği ve canlılığı nedeniyle ' +
       "'Afrika'nın İncisi' olarak adlandırılan Uganda, Ekvator çizgisi üzerinde yer almasına karşın " +
-      "yüksek rakımıyla benzersiz bir mikroklimaya sahiptir. Victoria Gölü'nün kuzey kıyılarından " +
+      "yüksek rakımıyla benzersiz bir iklime sahiptir. Victoria Gölü'nün kuzey kıyılarından " +
       "Büyük Rift Vadisi'nin sisli dağlarına uzanan bu bereketli plato ülkesi, Nil Nehri'nin ana doğum " +
       "yeri ve Afrika'nın en zengin su rezervuarlarından biridir.",
     landformNoteTr:
@@ -3059,7 +3061,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       'Doğu sınırında ise Kenya ile paylaşılan 4.321 metrelik sönmüş kalkan volkan Elgon Dağı devasa ' +
       'bir kalderayla yükselir. Platoyu kaplayan yüzlerce alçak tepe ve bunların arasına sıkışmış ' +
-      'papirüs bataklıkları, ülkenin tipik morfolojik görüntüsünü oluşturur.',
+      'papirüs bataklıkları, ülkenin tipik görüntüsünü oluşturur.',
     climateNoteTr:
       'Ekvator kuşağında bulunmasına karşın ortalama 1.100 metreyi aşan rakım ve geniş su yüzeyleri, ' +
       "Uganda'da yıl boyu ortalama 20-27 derece arasında değişen son derece ılıman ve dengeli bir " +
@@ -3068,10 +3070,10 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       'Sadece kuzeydoğudaki Karamoja bölgesi, dağların yağmur gölgesinde kalması ve kuru hava akımlarının ' +
       'etkisiyle kurak ve yarı kurak bozkır iklimine sahiptir. Albert Gölü çevresindeki çöküntü vadisi ' +
-      'tabanı ise platoya oranla daha sıcak ve buharlaşması yüksek bir mikroiklim sergiler.',
+      'tabanı ise platoya oranla daha sıcak ve buharlaşması yüksek bir yerel iklime sahiptir.',
     hydrographyNoteTr:
       'Yüzölçümünün yaklaşık beşte biri açık sular ve sulak alanlarla kaplı olan Uganda, bütünüyle ' +
-      "Nil drenaj havzasının kalbinde yer alır. Dünyanın en büyük tropikal gölü olan Victoria'nın kuzey " +
+      "Nil havzasının kalbinde yer alır. Dünyanın en büyük tropikal gölü olan Victoria'nın kuzey " +
       "yarısı ülke sınırları içindedir ve nehrin çıkış noktası Jinja'da kabul edilir; buradan doğan " +
       'Victoria Nili kuzeye doğru akarak nilüferler ve sazlıklarla kaplı sığ Kyoga Gölü labirentine ' +
       'yayılır.' +
@@ -3106,8 +3108,8 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     introTr:
       "Güney-Orta Afrika'da karayla çevrili geniş bir yayla ülkesi olan Zambiya, kıtanın iki dev " +
       'su havzası olan Kongo ve Zambezi nehirleri arasındaki kadim su bölümü platosu üzerinde kuruludur. ' +
-      'Deniz seviyesinden ortalama 1.000 ila 1.300 metre yükseklikte dalgalanan bu serin kristalin masa ' +
-      'arazisi; derin tektonik rift vadileri, devasa sulak alanlar ve zengin bakır kuşağı yataklarıyla ' +
+      'Deniz seviyesinden ortalama 1.000 ila 1.300 metre yükseklikte dalgalanan sert ve eski kayaçlardan oluşan bu serin ' +
+      'masa arazisi; derin tektonik rift vadileri, devasa sulak alanlar ve zengin bakır kuşağı yataklarıyla ' +
       'biçimlenmiştir.',
     landformNoteTr:
       'Ülke topoğrafyasının omurgasını, hafif dalgalı ve yer yer tek başına duran granit kayalıklarla ' +
@@ -3133,7 +3135,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "Kalene Tepeleri'nden doğar; Angola topraklarına girip çıktıktan sonra güney sınırı boyunca doğuya " +
       'akar. Zimbabve sınırında, nehrin 100 metreyi aşan sarp bir bazalt yarığına döküldüğü Victoria ' +
       "Şelalesi (yerel dilde 'Gürleyen Duman' - Mosi-oa-Tunya) ve hemen ardındaki devasa Kariba Baraj " +
-      'Gölü, havzanın hidrolojik şaheserleridir; Kafue ve Luangwa kolları da bu ana arteri besler.' +
+      'Gölü, havzanın su harikalarıdır; Kafue ve Luangwa kolları da bu ana arteri besler.' +
       '\n\n' +
       "Ülkenin kuzeyi ise Kongo havzasına bağlanır; Chambeshi Nehri'nin beslediği geniş Bangweulu " +
       'Gölü ve çevresindeki sulak bataklıklar dünyanın en zengin tatlı su ekosistemlerindendir. Kuzey ' +

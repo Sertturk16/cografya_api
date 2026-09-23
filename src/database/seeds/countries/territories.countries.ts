@@ -100,8 +100,8 @@ export const TERRITORY_COUNTRIES: readonly CountrySeed[] = [
       'Danimarka Krallığı çatısı altında geniş özerkliğe sahip bir yönetim kurmuştur; halkın ' +
       "üçte birinden fazlası başkent Nuuk'ta toplanmıştır.",
     landformNoteTr:
-      'Adanın morfolojisini, iç kesimleri dolduran kilometrelerce kalınlıktaki buzul kütlesi ' +
-      'yönetir; buz kalkanının devasa ağırlığı (izostazi) adanın merkezini deniz seviyesinin ' +
+      'Adanın yer şekillerini, iç kesimleri dolduran kilometrelerce kalınlıktaki buzul kütlesi ' +
+      'belirler; buz kalkanının devasa ağırlığı (izostazi) adanın merkezini deniz seviyesinin ' +
       'altına doğru bastırarak dev bir çanağa dönüştürmüştür. Yükseltiler ise kıyı şeridini bir ' +
       "çerçeve gibi saran sarp dağ sıralarında toplanır; Doğu Grönland'daki 3.694 metrelik " +
       'Gunnbjørn Fjeld tüm Arktik bölgesinin en yüksek doruğudur.' +
@@ -120,8 +120,8 @@ export const TERRITORY_COUNTRIES: readonly CountrySeed[] = [
       'aşırı kurak bir kutup çölü atmosferi yaratırken; yaz aylarında batı kıyılarında fön ' +
       'etkisiyle sıcaklığın 20 derecenin üzerine çıkabildiği elverişli dönemler yaşanır.',
     hydrographyNoteTr:
-      'Klasik bir drenaj ağı yerine adanın hidrografyasını buzul erime suları, derin fiyortlar ' +
-      've denize kopan devasa buzdağları yönetir. Kalınlığı yer yer 3 kilometreyi bulan ve 2,9 ' +
+      'Adanın sularını klasik bir akarsu ağı yerine buzul erime suları, derin fiyortlar ' +
+      've denize kopan devasa buzdağları belirler. Kalınlığı yer yer 3 kilometreyi bulan ve 2,9 ' +
       'milyon kilometreküp buz kütlesi barındıran Grönland buz örtüsü, dünya deniz seviyesini ' +
       'yaklaşık 7,4 metre yükseltebilecek devasa bir tatlı su deposudur.' +
       '\n\n' +
@@ -161,7 +161,7 @@ export const TERRITORY_COUNTRIES: readonly CountrySeed[] = [
       'hâlâ tamamen fosil yakıtlara bağlıdır.',
     governanceNoteTr:
       'Grönland, Danimarka Krallığı içinde özerk bir yönetime sahiptir. Bugünkü düzenin temeli, ' +
-      "1979'da kurulan Home Rule yönetiminin yerini alan 2009 tarihli Özerklik Yasası'dır. Yasa, " +
+      "1979'da kurulan iç yönetim düzeninin yerini alan 2009 tarihli Özerklik Yasası'dır. Yasa, " +
       "25 Kasım 2008'de yapılan halk oylamasında yüzde 75,5 evet oyu çıktıktan sonra kabul " +
       "edildi ve 21 Haziran 2009'da yürürlüğe girdi." +
       '\n\n' +
@@ -220,7 +220,7 @@ export const TERRITORY_COUNTRIES: readonly CountrySeed[] = [
     landformNoteTr:
       'Kıtayı baştan başa kat eden Transantarktik Dağları, coğrafyayı Doğu ve Batı Antarktika ' +
       'olmak üzere iki ana kütleye ayırır; Doğu kesimi yüksek ve kadim bir buzul platosu iken ' +
-      "Batı kesimi parçalı bir buzul altı adalar morfolojisine sahiptir. Ellsworth Dağları'ndaki " +
+      "Batı kesimi ise buzun altında parçalı adalardan oluşur. Ellsworth Dağları'ndaki " +
       '4.892 metrelik Vinson Masifi kıtanın zirve noktasıdır.' +
       '\n\n' +
       'Ortalama buz kalınlığının 2 kilometreyi aşması nedeniyle Antarktika, yeryüzünün ortalama ' +
@@ -234,15 +234,14 @@ export const TERRITORY_COUNTRIES: readonly CountrySeed[] = [
       'tarihindeki dünya rekoru olmayı sürdürür.' +
       '\n\n' +
       'İç platoya düşen yıllık yağış (kar eşdeğeri) yalnızca birkaç santimetre düzeyinde ' +
-      'kaldığı için kıta hidrolojik olarak devasa bir kutup çölüdür; yağan karın erimeden ' +
+      'kaldığı için kıta devasa bir kutup çölüdür; yağan karın erimeden ' +
       'milyonlarca yıl birikip sıkışması bugünkü buz kalkanını meydana getirmiştir. İç kesimden ' +
       'kıyılara doğru dik yamaçlardan hızla boşalan katabatik fırtına rüzgarları saatte yüzlerce ' +
       'kilometre hıza ulaşabilir.',
     hydrographyNoteTr:
       "Gezegenin yüzey tatlı su rezervinin yaklaşık yüzde 90'ını buz halinde hapseden Antarktika " +
       'buz kalkanı, yaklaşık 30 milyon kilometreküp buz hacmine sahiptir. Bu dev kütlenin ' +
-      'tamamının erimesi dünya deniz seviyesini yaklaşık 58 metre yükseltebilecek hidrolojik ' +
-      'potansiyel taşır.' +
+      'tamamı eriseydi dünya deniz seviyesi yaklaşık 58 metre yükselebilirdi.' +
       '\n\n' +
       'Buz örtüsünün okyanusa taştığı kıyılarda Fransa büyüklüğündeki Ross Buz Sahanlığı gibi ' +
       'devasa yüzen buz platformları oluşur. Kilometrelerce kalınlıktaki buz tabakasının tabanında ' +

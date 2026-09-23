@@ -204,7 +204,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter cumhuriyet',
     independenceNoteTr: "6 Aralık 1917'de Rusya'dan bağımsız oldu.",
     introTr:
-      'Finlandiya, Baltık Kalkanı’nın masif kristalen kayaçları üzerine yerleşen, yüz binden ' +
+      'Finlandiya, Baltık Kalkanı’nın sert ve kristalli eski kayaçları üzerine yerleşen, yüz binden ' +
       'fazla göl ve adadan oluşan geniş bir kuzey coğrafyasıdır. Batıda Botni Körfezi, güneyde ' +
       'Finlandiya Körfezi ile çevrili olan ülke, doğuda Rusya ile 1.340 kilometrelik kesintisiz ' +
       'bir tayga sınırı paylaşır.' +
@@ -214,7 +214,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'yükselmesiyle her yıl denizden biraz daha yükselen dünyanın en yoğun ada labirentlerinden ' +
       'biridir.',
     landformNoteTr:
-      "Finlandiya'nın jeomorfolojisi, son buzul çağında anakarayı kaplayan buzulların granit ve " +
+      "Finlandiya'nın yer şekilleri, son buzul çağında anakarayı kaplayan buzulların granit ve " +
       'gnays temel kayayı törpülemesiyle oluşmuştur. Ülkenin güneyini ve ortasını kuşatan ' +
       'Salpausselkä moren sırtları, buzul dillerinin önünde birikmiş çakıl ve kumlardan oluşur; ' +
       'bu sırtlar güneydeki su akışını engelleyerek iç kesimde devasa bir göller platosu meydana ' +
@@ -276,7 +276,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       '(Hálendið), sert iklimi ve lav örtüsü nedeniyle yerleşime kapalı bir kutup çölü ' +
       'durumundadır.',
     landformNoteTr:
-      'İzlanda morfolojisi, aktif volkanizma ile buzul aşındırmasının bir arada çalıştığı ' +
+      'İzlanda’nın yer şekilleri, aktif volkanizma ile buzul aşındırmasının bir arada çalıştığı ' +
       'istisnai bir yapı sergiler. Ülke genelinde 30’u aşkın faal volkanik sistem yer alır; çatlak ' +
       'püskürmeleri, gayzerler, lav tüpleri ve bazalt platoları araziyi kaplar. UNESCO Dünya Mirası ' +
       'listesindeki Þingvellir, iki kıtasal levhanın yüzeyde çıplak gözle izlenebilen yarık vadisini ' +
@@ -340,9 +340,9 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'kurulmuştur. Açık okyanusa bakan engebeli batı kıyısı ile iç ticaret yollarına açık doğu ' +
       'kıyısı arasındaki coğrafi tezat, ülkenin yerleşim ve iktisat dengesini biçimlendirmiştir.',
     landformNoteTr:
-      "İrlanda'nın yer şekilleri klasik bir çanak morfolojisi sunar: Kireçtaşı temelli, alçak " +
+      "İrlanda'nın yer şekilleri klasik bir çanak görünümü sunar: Kireçtaşı temelli, alçak " +
       've hafif dalgalı iç ova, kıyı boyunca dizilen dağlık kütlelerle çepeçevre sarılmıştır. ' +
-      'İç ovalarda buzul çökelleri ve drenaj tıkanıklıkları nedeniyle geniş turbalıklar (bog) ' +
+      'İç ovalarda buzul çökelleri ve suyun akamaması nedeniyle geniş turbalıklar ' +
       'oluşmuştur.' +
       '\n\n' +
       "Ülkenin en yüksek noktası, güneybatıdaki Kerry Kontluğu'nda yükselen MacGillycuddy’s " +
@@ -367,8 +367,8 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       'Cumhuriyet topraklarındaki en geniş göl, batıda Galway açıklarında uzanan 176 kilometrekarelik ' +
       'Lough Corrib’dir. Karstik Burren sahasında yüzey suları hızla çatlaklardan yer altına sızarak ' +
-      'mağara kanallarına karışır; kış yağışlarıyla dolup yazın kuruyan geçici karst gölleri ' +
-      '(turlough), adanın özgün hidrolojik peyzajını yansıtır.',
+      'mağara kanallarına karışır; kış yağışlarıyla dolup yazın kuruyan geçici karst gölleri, ' +
+      'adanın kendine özgü su manzarasını yansıtır.',
   },
   {
     isoCode: 'LV',
@@ -481,9 +481,9 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'İç kesimlere ve özellikle doğu sınırındaki tepelik alanlara geçildikçe karasal rejim ' +
       'güçlenir; kış donları uzar ve kar örtüsü yerde ortalama üç ay boyunca kalır. Yaz ayları ' +
       'genellikle ılık geçer, Temmuz sıcaklıkları 18 derece civarındadır; en fazla yağış yaz ' +
-      'aylarındaki konvektif fırtınalarla düşer.',
+      'aylarındaki sağanak ve gök gürültülü fırtınalarla düşer.',
     hydrographyNoteTr:
-      "Litvanya topraklarının üçte ikisinden fazlasını drene eden Nemunas Nehri, Belarus'ta doğup " +
+      "Litvanya topraklarının üçte ikisinden fazlasının sularını toplayan Nemunas Nehri, Belarus'ta doğup " +
       "ülkeyi baştan başa geçtikten sonra Kaunas'ta en büyük kolu olan Neris ile birleşir. Nehir, " +
       'Klaipėda güneyinde geniş ve verimli bir delta oluşturarak sığ Kuron Lagünü’ne dökülür.' +
       '\n\n' +
@@ -536,11 +536,11 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     climateNoteTr:
       "Norveç, 58 ile 71 derece kuzey enlemleri arasında yer almasına karşın, Atlas Okyanusu'ndan " +
       'kıyı boyunca kuzeye ilerleyen ılık Norveç Akıntısı (Golfstrim uzantısı) sayesinde olağanüstü ' +
-      'bir termal anomaliye sahiptir. Bu akıntı sayesinde Kutup Dairesi ötesindeki Narvik ve Tromsø ' +
+      'enlemine göre olağanüstü ılık bir iklime sahiptir. Bu akıntı sayesinde Kutup Dairesi ötesindeki Narvik ve Tromsø ' +
       'gibi limanlar kışın bile buz tutmaz.' +
       '\n\n' +
       'Atlantik fırtınalarına dik duran batı yamaçları, yıllık 2.500-3.000 milimetreyi aşan şiddetli ' +
-      'orografik yağış alır. Buna karşılık dağ sırasının doğusundaki vadiler yağmur gölgesinde kalarak ' +
+      'yamaç yağışı (orografik yağış) alır. Buna karşılık dağ sırasının doğusundaki vadiler yağmur gölgesinde kalarak ' +
       'çok daha kurak ve sert karasal kış koşulları yaşar. En kuzeydeki Finnmark bölgesinde kışın ' +
       'aylarca süren kutup gecesi, yazın ise batmayan gece güneşi gözlenir.',
     hydrographyNoteTr:
@@ -603,7 +603,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       'Güney ve orta İsveç (Svealand ve Götaland) ise Baltık ve Kattegat etkileriyle daha ılıman, ' +
       'dört mevsimin belirgin yaşandığı nemli karasal bir rejime sahiptir. Kış yağışları kuzeyde ' +
-      'aylarca erimeyen kalın bir kar örtüsü bırakırken güneyde tarımsal vegetasyon süresi daha ' +
+      'aylarca erimeyen kalın bir kar örtüsü bırakırken güneyde ekinlerin büyüme süresi daha ' +
       'uzundur.',
     hydrographyNoteTr:
       'İsveç topraklarında büyüklü küçüklü 95 binden fazla doğal göl yer alır. Yaklaşık 5.650 ' +
@@ -656,7 +656,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       "İngiltere’nin kuzey omurgasını Pennine Dağları kurarken, Göller Bölgesi'ndeki Scafell Pike " +
       "(978 m) İngiltere'nin, Galler'deki Snowdonia masifinde yükselen Snowdon (Yr Wyddfa, 1.085 m) " +
-      'ise Galler’in en yüksek noktalarıdır. Güneydoğuya doğru topografya tebeşir tepeleri (downs), ' +
+      'ise Galler’in en yüksek noktalarıdır. Güneydoğuya doğru topografya tebeşir tepeleri, ' +
       'verimli kireçtaşı düzlükleri ve sığ kıyı vadileriyle yatışır.',
     climateNoteTr:
       'Ülke iklimi bütünüyle, Kuzey Atlantik Akıntısı’nın ılıtıcı suları ve batıdan gelen alçak ' +
@@ -664,7 +664,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'oldukça yumuşak, yazlar ise serin ve nemli geçer; aşırı sıcaklık dalgalanmaları seyrektir.' +
       '\n\n' +
       'Topografik yükselti belirgin bir yağış ayrımı üretir: Batı İskoçya dağları, Göller Bölgesi ' +
-      've Galler yamaçları yılda 2.500-3.000 milimetreyi aşan şiddetli orografik yağış alırken, ' +
+      've Galler yamaçları yılda 2.500-3.000 milimetreyi aşan şiddetli yamaç yağışı alırken, ' +
       'dağların yağmur gölgesinde kalan doğu İngiltere ve Londra havzasında yıllık yağış 600-700 ' +
       'milimetreye kadar geriler.',
     hydrographyNoteTr:
@@ -719,11 +719,11 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'koridorunu denetleyen bir noktada kuruludur. Denize kıyısı bulunmayan ülke, ' +
       'sekiz komşusunu birbirine bağlayan kritik bir transit kavşağı niteliğindedir.',
     landformNoteTr:
-      'Avusturya rölyefinin ana gövdesini batıdan doğuya uzanan Doğu Alpleri meydana ' +
+      'Avusturya’nın yer şekillerinin ana gövdesini batıdan doğuya uzanan Doğu Alpleri meydana ' +
       'getirir. Kuzey Kireçtaşı Alpleri, Hohe Tauern ve Merkez Doğu Alpleri boyunca ' +
       'yükselen yüzlerce zirve 3.000 metreyi aşar; ülkenin en yüksek noktası olan 3.798 ' +
       'metrelik Grossglockner bu kristalin kuşakta yer alır. Buzul vadileri, sarp ' +
-      'kornişler ve moren setleri bu dağlık kesimin temel morfolojisini belirler.' +
+      'kornişler ve moren setleri bu dağlık kesimin temel görünümünü belirler.' +
       '\n\n' +
       "Buna karşılık Tuna'nın kuzeyinde kalan Waldviertel ve Mühlviertel platoları, " +
       "Alpler'den çok daha yaşlı olan Bohemya Masifi'nin aşınmış granit tepelerinden " +
@@ -739,7 +739,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'Alp vadilerinde dikey iklim kademelenmesi baskındır; yükseklikle birlikte ' +
       'sıcaklıklar hızla düşer ve kış aylarında çanak vadilerde sıcaklık terselmesi ' +
       '(enversiyon) gelişir. Güneyden dağları aşıp vadilere inen sıcak ve kuru fön ' +
-      '(Föhn) rüzgarları, kış ortasında bile hızlı kar erimelerine ve ani çığ ' +
+      'rüzgarları, kış ortasında bile hızlı kar erimelerine ve ani çığ ' +
       'risklerine yol açar.',
     hydrographyNoteTr:
       'Tuna Nehri, batıdan doğuya yaklaşık 357 kilometre boyunca ülkeyi kat ederek ' +
@@ -749,7 +749,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       "Karadeniz'e ulaştırır." +
       '\n\n' +
       'Salzkammergut yöresindeki derin buzul gölleri ve batıda Vorarlberg sınırındaki ' +
-      'Konstanz Gölü (Bodensee), Alp drenajının temiz tatlı su rezervleridir. Buna ' +
+      'Konstanz Gölü (Bodensee), Alplerden inen suların oluşturduğu temiz tatlı su rezervleridir. Buna ' +
       'taban tabana zıt olarak doğudaki Neusiedler Gölü, derinliği bir metreyi güçlükle ' +
       'bulan, sazlıklarla çevrili tipik bir sığ bozkır gölü niteliği taşır.',
   },
@@ -870,7 +870,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'Güneydoğuya ve Ardenler yaylasına doğru yükseldikçe iklim koşulları belirgin ' +
       'biçimde sertleşir. Yıllık yağış miktarı 1.200 milimetreyi aşarak ülkenin en ' +
       'yüksek seviyesine ulaşır; kış aylarında kar örtüsü platolarda haftalarca ' +
-      'erimeden kalarak mikro-karasal bir özellik sergiler.',
+      'erimeden kalarak küçük ölçekte karasal bir özellik sergiler.',
     hydrographyNoteTr:
       'Ülke hidrografyası Schelde ve Maas nehir havzaları tarafından şekillendirilir. ' +
       "Fransa'dan gelen Schelde (Escaut), Flandre düzlüklerini geçip geniş ve gelgitli " +
@@ -909,7 +909,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       "(L'Hexagone) olarak anılan anakarasının yanı sıra, Güney Amerika ve okyanuslara " +
       'dağılmış denizaşırı topraklarıyla küresel bir coğrafi yayılıma sahiptir. ' +
       'Anakara, denizel kıyılar ile yüksek dağ silsilelerini buluşturan zengin bir ' +
-      'jeomorfolojik mozaik sunar.' +
+      'yer şekli çeşitliliği sunar.' +
       '\n\n' +
       'Fransız Guyanası üzerinden Brezilya ve Surinam ile kara sınırı paylaşan ülke, bu ' +
       'özelliğiyle kıtalar arası nadir bir sınır yapısına sahiptir. Başkent Paris, ' +
@@ -935,14 +935,14 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       "Güney kıyılarında ve Korsika'da sıcak ve kurak yazlar ile ılık kışların " +
       'görüldüğü Akdeniz iklimi egemendir; Rhône vadisinden güneye esen sert ve soğuk ' +
-      'Mistral rüzgarı kıyı mikroklimasını derinden etkiler. Alpler, Pireneler ve Jura ' +
+      'Mistral rüzgarı kıyıdaki yerel iklimi derinden etkiler. Alpler, Pireneler ve Jura ' +
       'dağlarında ise yoğun kış karlarıyla belirginleşen dağ iklimi hüküm sürer.',
     hydrographyNoteTr:
       "Fransa'nın akarsu ağı ülkeyi dört farklı su havzasına boşaltır. Merkez " +
       "Masifi'nden doğup Atlas Okyanusu'na yönelen 1.013 kilometrelik Loire, ülkenin en " +
       "uzun nehridir. Paris Havzası'nı kat ederek Manş Denizi'ne dökülen Sen Nehri ile " +
       'Pireneler eteklerinden beslenip Gironde haliciyle okyanusa ulaşan Garonne, ' +
-      'ülkenin batı drenajını tamamlar.' +
+      'ülkenin batıdaki akarsu ağını tamamlar.' +
       '\n\n' +
       "İsviçre Alpleri'nden doğup güneye akan Rhône Nehri ise Akdeniz'e dökülen en " +
       'debili akarsudur. Doğal göller Alp eteklerindeki buzul çanaklarında (Bourget ve ' +
@@ -978,7 +978,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'dağ silsilesinin yamaçlarına yaslanır.' +
       '\n\n' +
       'Komşularının da açık denizlere kıyısı bulunmaması nedeniyle Lihtenştayn, dünyada ' +
-      "Özbekistan ile birlikte yalnızca iki 'çift karasal' (doubly landlocked) ülkeden " +
+      "Özbekistan ile birlikte yalnızca iki 'çift karasal' ülkeden " +
       'biridir. Başkent Vaduz, Ren Vadisi tabanında, dağ yamacına kurulu tarihi prens ' +
       'kalesinin eteklerinde yer alır.',
     landformNoteTr:
@@ -987,12 +987,12 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'eğim profiline sahiptir. Nüfusun ve tarım alanlarının toplandığı batı şeridi, ' +
       'alüvyal dolgularla kaplı düz bir vadi tabanından ibarettir.' +
       '\n\n' +
-      'Ülke yüzölçümünün üçte ikisini oluşturan doğu kesimi ise Alp orojenezine ait ' +
+      'Ülke yüzölçümünün üçte ikisini oluşturan doğu kesimi ise Alp dağ oluşumuna ait ' +
       'sarp kireçtaşı kayalıklar, derin buzul çentikleri ve yüksek yaylalardan meydana ' +
       'gelir. Bu keskin eğim farkı, yerleşimi neredeyse tamamen vadi tabanındaki dar ' +
       'koridora zorlar.',
     climateNoteTr:
-      'Dar yüzölçümüne rağmen arazinin dikey basamaklanması zengin mikroklimalar ' +
+      'Dar yüzölçümüne rağmen arazinin dikey basamaklanması birbirinden farklı yerel iklimler ' +
       'doğurur. Vadi tabanında yıllık ortalama sıcaklık 9-10 derece civarında seyreder; ' +
       'yaz ayları serin-ılık, kışlar ise çevre Alp vadilerine kıyasla daha yumuşak ' +
       'geçer.' +
@@ -1069,12 +1069,12 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       "Lüksemburg'un doğu sınırını çizen Moselle (Mosel) Nehri, dik yamaçlarındaki bağ " +
       'teraslarıyla ünlü geniş bir vadi oluşturur ve Ren havzasına bağlanır. Ülkeyi ' +
       'batıdan doğuya kat eden 172 kilometrelik Sûre (Sauer) Nehri ise Our, Alzette ve ' +
-      'Wiltz kollarını toplayarak ülkenin ana iç drenaj sistemini kurar.' +
+      'Wiltz kollarını toplayarak ülkenin ana akarsu ağını kurar.' +
       '\n\n' +
       'Kuzeybatıda Sûre üzerinde kurulan Haute-Sûre baraj gölü, ülkenin en büyük tatlı ' +
       'su rezervuarı olup içme suyu ihtiyacının önemli bir bölümünü karşılar. Başkenti ' +
       'ikiye bölen Alzette Nehri ise tarihi surların eteklerindeki kanyon vadiyi ' +
-      'derinleştirerek şehre özgün morfolojisini kazandırmıştır.',
+      'derinleştirerek şehre kendine özgü görünümünü kazandırmıştır.',
   },
   {
     isoCode: 'MC',
@@ -1131,7 +1131,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     hydrographyNoteTr:
       'Monako topraklarında sürekli akışa sahip doğal bir nehir veya göl bulunmaz. Dik ' +
       'yamaçlardan denize inen dar sel yatakları kentsel gelişim sürecinde bütünüyle ' +
-      'yer altına alınmış ve kapalı drenaj hatlarına dönüştürülmüştür; Saint-Jean ' +
+      'yer altına alınmış ve kapalı kanallara dönüştürülmüştür; Saint-Jean ' +
       'vadisi bu hatların en bilinenidir.' +
       '\n\n' +
       'Kentsel tatlı su ihtiyacının tamamı komşu Fransa’daki akiferlerden ve kaynak ' +
@@ -1297,10 +1297,10 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'Makedonya, güneyde ise Yunanistan ile çevrilidir.' +
       '\n\n' +
       'Batıdaki alçak ve alüvyal kıyı ovaları ile doğudaki aşılması güç sarp dağ silsileleri ' +
-      'arasında çarpıcı bir morfolojik tezat uzanır. Başkent Tiran, bu iki dünyanın kesiştiği ' +
+      'arasında yer şekilleri bakımından çarpıcı bir karşıtlık uzanır. Başkent Tiran, bu iki dünyanın kesiştiği ' +
       "verimli iç ovada, Dajti Dağı'nın eteklerinde kuruludur.",
     landformNoteTr:
-      'Ülke arazisinin yüzde yetmişinden fazlasını kaplayan dağlık kütleler, Dinar orojenezinin ' +
+      'Ülke arazisinin yüzde yetmişinden fazlasını kaplayan dağlık kütleler, Dinar dağ oluşumunun ' +
       'güney uzantısı olan Helenid kıvrım kuşağına aittir. Kuzeyde yer alan Arnavut Alpleri ' +
       '(Prokletije), buzul vadileri, keskin sirkler ve karstik kanyonlarla örülü vahşi bir ' +
       'topoğrafya sunar. Kuzey Makedonya sınırında yükselen 2.764 metrelik Korab Dağı, iki ' +
@@ -1325,7 +1325,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       "oluşturur. Seman, Shkumbin ve Avrupa'nın yatağı bozulmamış son vahşi akarsularından " +
       "sayılan Vjosë, batı ovalarını aşarak Adriyatik'e dökülür." +
       '\n\n' +
-      "Arnavutluk'un göl hidrografyası tektonik sınır gölleriyle öne çıkar: Karadağ sınırındaki " +
+      "Arnavutluk'un gölleri arasında tektonik kökenli sınır gölleri öne çıkar: Karadağ sınırındaki " +
       'sığ İşkodra Gölü ile Kuzey Makedonya sınırındaki kadim ve derin Ohri Gölü ile Prespa ' +
       'gölleri, zengin biyolojik çeşitliliğe sahip uluslararası sulak alanlardır.',
   },
@@ -1368,7 +1368,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'aşındırmasının bıraktığı sirk çanakları, moren setleri ve çığ kulvarlarıyla kaplıdır; ' +
       'yerleşimler ve ulaşım hatları bu dar koridorlara tutunmuştur.',
     climateNoteTr:
-      'Yüksek dağ morfolojisi ülkenin iklim rejimini bütünüyle belirler. Kışlar uzun, ' +
+      'Yüksek dağlık yapı ülkenin iklimini bütünüyle belirler. Kışlar uzun, ' +
       'dondurucu ve yoğun kar yağışlı geçer; yamaçlarda aylarca korunan kaliteli kar ' +
       'örtüsü, ülkeyi kış sporları ve kayak turizminin önde gelen merkezlerinden biri haline ' +
       'getirmiştir.' +
@@ -1377,7 +1377,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'kütleleri ani dağ fırtınalarına ve sağanaklara neden olur; geceler en sıcak aylarda ' +
       'dahi serinliğini korur.',
     hydrographyNoteTr:
-      'Ülke suları Valira nehir sistemi tarafından drene edilir. Kuzeydoğudan inen Valira ' +
+      'Ülkenin sularını Valira nehir sistemi toplar. Kuzeydoğudan inen Valira ' +
       "d'Orient ile kuzeybatıdan gelen Valira del Nord dereleri Escaldes-Engordany'de birleşerek " +
       "Gran Valira'yı oluşturur; bu nehir güneye akıp İspanya sınırında Segre Nehri'ne kavuşur." +
       '\n\n' +
@@ -1480,7 +1480,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       "Kıyı kuşağı boyunca set çeken Velebit ve Biokovo dağları, Dinar Alpleri'nin kireçtaşı " +
       've dolomitlerden oluşan klasik karst topoğrafyasını sergiler. Bosna-Hersek sınırındaki ' +
       'Dinara Dağı (1.831 m), ülkenin en yüksek zirvesidir. Kıyıya paralel uzanan bu dik ' +
-      'sıradağlar, iç kesimlerle kıyı arasında aşılması güç bir orografik duvar oluşturur.' +
+      'sıradağlar, iç kesimlerle kıyı arasında aşılması güç bir dağ duvarı oluşturur.' +
       '\n\n' +
       'Kuzeydoğuya doğru ilerledikçe zemin hızla alçalır; Slavonya bölgesi, Sava, Drava ve Tuna ' +
       "nehirlerinin taşıdığı kalın alüvyonlarla örtülü, Pannon Havzası'nın son derece verimli, " +
@@ -1503,7 +1503,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'yaran Krka Nehri, traverten setleri ve şelaleleriyle doğrudan denize ulaşır. Dağlık iç ' +
       'kesimde yer alan dünyaca ünlü Plitvice Gölleri ise doğal traverten basamakları ve ' +
       'çağlayanlarla birbirine bağlanan 16 turkuaz karst gölünden oluşan anıtsal bir ' +
-      'hidrolojik sistemdir.',
+      'su sistemidir.',
   },
   {
     isoCode: 'GR',
@@ -1610,9 +1610,9 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'tarihi tepeleri üzerinde, bin yıllardır Akdeniz havzasının siyasi ve kültürel kavşağı ' +
       'konumundadır.',
     landformNoteTr:
-      'Ülke jeomorfolojisi iki büyük orojenik kuşak tarafından yönetilir. Kuzey sınırını 1.200 ' +
+      'Ülkenin yer şekillerini iki büyük dağ kuşağı belirler. Kuzey sınırını 1.200 ' +
       'kilometre boyunca çizen Alpler, Fransa sınırındaki 4.810 metrelik Mont Blanc (Monte ' +
-      "Bianco) ile Avrupa'nın en yüksek zirvesine ev sahipliği yapar; doğudaki Dolomitler ise " +
+      "Bianco) ile Alpler'in ve Batı Avrupa'nın en yüksek zirvesine ev sahipliği yapar; doğudaki Dolomitler ise " +
       'kireçtaşı kuleleriyle dikleşir. Yarımadanın omurgasını oluşturan Apenin Dağları ise ' +
       "Ligurya'dan güney ucuna kadar 1.350 kilometre uzanarak yarımadayı doğu ve batı havzalarına " +
       'böler; Gran Sasso kütlesindeki Corno Grande (2.912 m) bu hattın doruğudur.' +
@@ -1639,7 +1639,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       'Kuzeydeki Alp eteklerinde buzul aşındırmasıyla oluşmuş fiyort benzeri derin göller —Garda ' +
       '(370 km²), Maggiore ve Como— hem taşkın düzenleyici birer su deposu hem de yumuşak ' +
-      'mikroklimaya sahip cazibe havzalarıdır.',
+      'yerel iklimleriyle birer çekim merkezidir.',
   },
   {
     isoCode: 'MT',
@@ -1680,7 +1680,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       "Malta Adası'nın güneybatı kıyısı boyunca tektonik faylanmayla oluşmuş Dingli Kayalıkları " +
       '(Dingli Cliffs), 253 metrelik yüksekliğiyle takımadanın doruk noktasıdır. Karstik ' +
       'erime ve dalga aşındırması, kıyılarda Mavi Mağara (Blue Grotto) ve batık vadi koyları ' +
-      '(wied) gibi zengin jeomorfolojik yapılar meydana getirmiştir.',
+      '(wied) gibi zengin yer şekilleri meydana getirmiştir.',
     climateNoteTr:
       'Takımadada denizel etkilerin yön verdiği belirgin bir Akdeniz iklimi hüküm sürer. ' +
       'Yazlar son derece sıcak, güneşli ve bütünüyle kuraktır; Temmuz ve Ağustos aylarında ' +
@@ -1729,7 +1729,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'Arnavutluk ile çevrilidir.' +
       '\n\n' +
       "Ülke, Adriyatik'in derin fiyort benzeri körfezi Boka Kotorska'dan 2.500 metrelik buzul " +
-      'zirvelerine birkaç on kilometrede tırmanan olağanüstü dik bir kabartıya sahiptir. Başkent ' +
+      'zirvelerine birkaç on kilometrede tırmanan olağanüstü dik bir araziye sahiptir. Başkent ' +
       "Podgoritsa, İşkodra Gölü'nün kuzeyindeki verimli alüvyal çöküntü ovasında kuruludur.",
     landformNoteTr:
       "Karadağ topoğrafyası Avrupa'nın en sarp ve karmaşık karst platoları arasında yer alır. " +
@@ -1744,7 +1744,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     climateNoteTr:
       "Kıyı kuşağı ve Zeta Vadisi'nde sıcak, kurak yazlar ve ılık, bol yağışlı kışlarla " +
       'belirginleşen Akdeniz iklimi hüküm sürer. Kıyı dağlarının denize adeta bir duvar gibi ' +
-      "dikilmesi, denizel nemi hapsederek Avrupa'nın en olağanüstü orografik yağışlarına neden " +
+      "dikilmesi, denizel nemi hapsederek Avrupa'nın en olağanüstü yamaç yağışlarına neden " +
       'olur; Kotor Körfezi yamacındaki Crkvice mevkii, yıllık 4.500-5.000 milimetreyi bulan ' +
       'yağışıyla kıtanın en çok yağış alan noktasıdır.' +
       '\n\n' +
@@ -1793,7 +1793,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'eden Vardar Nehri vadisinin geniş çanağında, kadim ulaşım yollarının düğüm noktasında ' +
       'kuruludur.',
     landformNoteTr:
-      'Ülke arazisi sarp dağ sıraları ile bunların arasına çökmüş tektonik graben havzalarından ' +
+      'Ülke arazisi sarp dağ sıraları ile bunların arasına çökmüş tektonik çöküntü havzalarından ' +
       'meydana gelir. Batı sınırında Arnavutluk ile paylaşılan 2.764 metrelik Korab Dağı ile ' +
       'kuzeybatıdaki heybetli Şar Dağları ülkenin en yüksek zirvelerini barındırır; doğuda ise ' +
       'Osogovo ve Plačkovica masifleri daha yuvarlak hatlı eski dağ kütleleridir.' +
@@ -1811,7 +1811,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'geçer. Çanaklaşmış vadiler kışın sıcaklık terselmesine (enversiyon) uğrayarak soğuk ' +
       'havanın tabanda hapsolmasına yol açar.',
     hydrographyNoteTr:
-      'Ülke topraklarının yaklaşık beşte dördünü drene eden Vardar Nehri, Gostivar ' +
+      'Ülke topraklarının yaklaşık beşte dördünün sularını toplayan Vardar Nehri, Gostivar ' +
       'yakınlarındaki karst kaynaklarından doğup ülke içinde 301 kilometre akarak Selanik ' +
       "Körfezi'nden Ege'ye dökülür; Treska, Pčinja ve Bregalnica başlıca kollarıdır." +
       '\n\n' +
@@ -1860,12 +1860,12 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'şist yamaçları, insan emeğiyle şekillendirilmiş anıtsal bir kültürel peyzaj sunar.' +
       '\n\n' +
       "Tejo'nun güneyinde arazi alçalarak Alentejo'nun mantar meşesi ve zeytinliklerle kaplı " +
-      'dalgalı peneplenlerine dönüşür. En güneydeki Algarve ise kireçtaşı falezleri ve ' +
+      'dalgalı aşınım düzlüklerine (peneplen) dönüşür. En güneydeki Algarve ise kireçtaşı falezleri ve ' +
       'kumsallarıyla okyanusa kavuşur. Ülkenin mutlak en yüksek zirvesi ise anakarada değil, ' +
       "Azorlar'daki Pico Adası'nda denizden dimdik 2.351 metreye fırlayan volkan konisidir " +
       '(Ponta do Pico).',
     climateNoteTr:
-      'Ülke iklimi Atlas Okyanusu ile Akdeniz dinamiklerinin dengesine dayanır. Kuzeybatı ' +
+      'Ülke iklimi Atlas Okyanusu ile Akdeniz etkilerinin dengesine dayanır. Kuzeybatı ' +
       'kesimi (Minho), okyanusal nemli hava kütlelerinin etkisiyle bol yağış alır; bazı dağ ' +
       "yamaçlarında yıllık yağış 2.500-3.000 milimetreyi aşarak Avrupa'nın en nemli " +
       'köşelerinden birini oluşturur.' +
@@ -1937,7 +1937,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'ile 800 milimetre arasında dengeli bir dağılım gösterir.',
     hydrographyNoteTr:
       'Yüzölçümünün küçüklüğü ve kireçtaşı zemin nedeniyle ülkede doğal göl veya büyük bir ' +
-      'nehir bulunmaz; sular Titano yamaçlarından doğan derelerle drene edilir.' +
+      'nehir bulunmaz; suları Titano yamaçlarından doğan dereler taşır.' +
       '\n\n' +
       "Ausa Deresi kuzeye yönelerek Adriyatik'e dökülürken, San Marino Deresi batı sınırını " +
       "takip edip Marecchia Nehri'ne karışır; doğudaki Marano Deresi ise doğrudan denize akar. " +
@@ -1974,8 +1974,8 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'Karadağ, Bosna-Hersek ve Hırvatistan ile çevrilidir.' +
       '\n\n' +
       'Ülke, kuzeydeki uçsuz bucaksız alüvyal ovalar ile güneydeki dağlık ve ormanlık yaylalar ' +
-      'arasında belirgin bir morfolojik tezat sergiler. Başkent Belgrad, Sava ve Tuna ' +
-      'nehirlerinin kavuştuğu stratejik platoda, bu iki jeomorfolojik dünyanın tam eşiğinde ' +
+      'arasında belirgin bir yer şekli karşıtlığı sergiler. Başkent Belgrad, Sava ve Tuna ' +
+      'nehirlerinin kavuştuğu stratejik platoda, bu iki farklı arazinin tam eşiğinde ' +
       'kuruludur.',
     landformNoteTr:
       'Ülkenin kuzey yarısını oluşturan Voyvodina, eski Pannon Gölü tabanında birikmiş kalın ' +
@@ -2164,7 +2164,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'batı arasında doğal bir geçiş koridoru niteliği kazandırmıştır. Başkent Minsk, ülkenin ' +
       'coğrafi merkezindeki hafif engebeli plato eşiğinde kuruludur.',
     landformNoteTr:
-      'Belarus rölyefinin ana hatları, Pleistosen döneminde kuzeyden ilerleyen devasa İskandinav ' +
+      'Belarus’un yer şekillerinin ana hatları, Pleistosen döneminde kuzeyden ilerleyen devasa İskandinav ' +
       'buzullarının aşındırma ve biriktirme süreçleriyle şekillenmiştir. Buzulların erirken geride ' +
       "bıraktığı moren yığınları, ülkeyi güneybatıdan kuzeydoğuya çapraz kesen Belarus Sırtı'nı " +
       "meydana getirir; Minsk'in batısında yükselen 345 metrelik Dzyarzhynskaya Hara, ülkenin " +
@@ -2184,7 +2184,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       'Kar yerde kalma süresi güneybatıdaki 70-80 günden, Sibirya yüksek basıncının etkisine daha ' +
       'açık olan kuzeydoğuda 120 günün üzerine çıkar. Yaz mevsimi ise ılık, nemli ve sağanak ' +
-      'yağışlıdır; yıllık toplam yağışın yaklaşık üçte ikisi tarımsal vejetasyonun en canlı olduğu ' +
+      'yağışlıdır; yıllık toplam yağışın yaklaşık üçte ikisi ekinlerin en hızlı büyüdüğü ' +
       'nisan-ekim döneminde düşer.',
     hydrographyNoteTr:
       'Belarus, Baltık Denizi ile Karadeniz arasındaki ana kıtasal su bölümü çizgisine ev sahipliği ' +
@@ -2230,7 +2230,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       "Karadeniz'e açılır." +
       '\n\n' +
       'Ülke, kuzeydeki bereketli lös platolarından güneydeki sarp buzul zirvelerine kadar ' +
-      'basamaklar halinde yükselen belirgin bir morfolojik çeşitlilik sunar. Başkent Sofya, ' +
+      'basamaklar halinde yükselen belirgin bir yer şekli çeşitliliği sunar. Başkent Sofya, ' +
       'batıda dağ sıralarıyla çevrili korunaklı bir havzada, stratejik geçiş yollarının kesişim ' +
       'noktasında kuruludur.',
     landformNoteTr:
@@ -2241,12 +2241,12 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       "Güneybatıya doğru yükselti keskin biçimde artar; Balkan Yarımadası'nın en yüksek doruğu " +
       "olan 2.925 metrelik Musala Zirvesi'ni barındıran Rila Dağları ile komşusu Pirin, buzul " +
-      'aşındırmasıyla yontulmuş sarp sirkleri ve kristal buzul gölleriyle görkemli bir alp ' +
-      'morfolojisi sergiler. Daha güneyde ise Türkiye ve Yunanistan sınırına yaslanan, karstik ' +
+      'aşındırmasıyla yontulmuş sarp sirkleri ve kristal buzul gölleriyle görkemli bir yüksek ' +
+      'dağ görünümü sergiler. Daha güneyde ise Türkiye ve Yunanistan sınırına yaslanan, karstik ' +
       'mağaraları, derin kanyonları ve geniş ormanlarıyla tanınan eski masif kütlesi Rodop ' +
       'Dağları uzanır.',
     climateNoteTr:
-      'Ülkede iklim, Stara Planina sıradağlarının oluşturduğu orografik bariyer nedeniyle iki ' +
+      'Ülkede iklim, Stara Planina sıradağlarının oluşturduğu dağ engeli nedeniyle iki ' +
       'belirgin karaktere ayrılır. Dağların kuzeyinde kalan Tuna Ovası, Rusya üzerinden sokulan ' +
       'dondurucu rüzgarlara açık olduğundan sert karasal koşullar yaşar; kışlar çok soğuk ve karlı, ' +
       'yazlar ise sıcak geçer.' +
@@ -2257,7 +2257,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'koşullar doğar. Karadeniz kıyı kuşağında ise denizel etki kışları yumuşatırken sonbahar ' +
       'aylarını daha ılık hale getirir.',
     hydrographyNoteTr:
-      'Bulgaristan toprakları Karadeniz ve Ege Denizi olmak üzere iki büyük hidrolojik havzaya ' +
+      'Bulgaristan toprakları Karadeniz ve Ege Denizi olmak üzere iki büyük su havzasına ' +
       'bölünür. Kuzey sınırının büyük bölümünü çizen Tuna Nehri, İskır (Iskar) gibi nehirlerle ' +
       "beslenir; Balkan Dağları'nı derin bir kanyonla boydan boya yaran tek akarsu olan İskır, " +
       "Sofya Havzası'nın sularını Tuna'ya taşır." +
@@ -2319,7 +2319,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'uzun süre seyreder ve kalın bir kar örtüsü aylarca erimez. Yaz mevsimi genel olarak ılık ve yer ' +
       'yer sağanak yağışlı geçerken, iç havzaların korunaklı yapısı tarımsal olgunlaşmayı hızlandırır.',
     hydrographyNoteTr:
-      'Çekya, sularını üç farklı açık denize gönderen benzersiz bir hidrolojik kavşaktır; Kralický ' +
+      'Çekya, sularını üç farklı açık denize gönderen benzersiz bir su kavşağıdır; Kralický ' +
       'Sněžník dağındaki tek bir doruk noktası bile Kuzey Denizi, Baltık ve Karadeniz havzalarını ' +
       "birbirinden ayırır. Şumava'dan doğarak Prag'ın kalbinden geçen 430 kilometrelik Vltava, " +
       "Mělník'te Elbe (Labe) ile birleşir ve Kuzey Denizi'ne yönelen ana su yolunu kurar." +
@@ -2449,7 +2449,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'buharlaşma riski, ülkenin en büyük zenginliği olan bağcılık ve meyvecilik tarımında sulama ' +
       'altyapısını zorunlu kılar.',
     hydrographyNoteTr:
-      'Moldova hidrolojisi iki büyük sınır nehrinin kontrolündedir. Batı sınırının tamamını boydan ' +
+      'Moldova’nın akarsuları iki büyük sınır nehrine bağlıdır. Batı sınırının tamamını boydan ' +
       "boya çizen Prut Nehri, Romanya ile doğal bir ayrım oluşturarak güneyde Tuna'ya katılır; " +
       'doğuda ise Ukrayna sınırını ve Transdinyester bölgesini kat eden Dinyester (Nistru), ülkenin ' +
       'en gür debili iç su yoludur.\n\nTransdinyester, uluslararası hukukta ' +
@@ -2461,8 +2461,8 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       "Ülkenin güney ucunda Tuna Nehri ile Prut'un birleştiği noktada yer alan Giurgiuleşti Limanı, " +
       "Moldova'nın açık denizlere açılan yegane uluslararası liman kapısıdır. Derin vadiler boyunca " +
       'açılmış küçük göletler ve baraj rezervuarları yerel sulama ihtiyacını karşılarken, geniş ' +
-      'kireçtaşı akiferleri ülkenin maden ve artezyen suları açısından zengin bir yeraltı ' +
-      'hidrolojisine sahip olmasını sağlar.',
+      'kireçtaşı akiferleri ülkenin maden ve artezyen suları açısından zengin yeraltı ' +
+      'sularına sahip olmasını sağlar.',
   },
   {
     isoCode: 'PL',
@@ -2496,7 +2496,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'arasında açık bir jeopolitik koridor yaratmıştır. Başkent Varşova, bu düzlük kuşağının ' +
       "kalbinde, Vistül Nehri'nin iki yakasına yayılmış geniş vadi tabanında kuruludur.",
     landformNoteTr:
-      'Polonya rölyefi güneyden kuzeye doğru birbirine paralel uzanan belirgin jeomorfolojik kuşaklar ' +
+      'Polonya’nın yer şekilleri güneyden kuzeye doğru birbirine paralel uzanan belirgin kuşaklar ' +
       'sergiler. En kuzeydeki Baltık kıyı şeridi; fırtınalarla sürüklenen kumların oluşturduğu Hel ' +
       'Yarımadası, kıyı kordonları, lagünler ve hareketli kumullarla örtülüdür. Kıyının hemen güneyinde, ' +
       "Son Buzul Çağı'nın erimesiyle biçimlenmiş binlerce moren gölünü barındıran Pomeranya ve Mazurya " +
@@ -2504,7 +2504,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       'Ülkenin orta kesimini verimli tarım topraklarıyla kaplı geniş Mazovya ve Büyük Polonya ovaları ' +
       'doldurur. Güneye inildikçe kireçtaşı platolarıyla yükselen arazi, Slovakya sınırında görkemli bir ' +
-      'alp morfolojisine bürünür; granit dorukları ve buzul sirkleriyle yükselen Yüksek Tatra kütlesindeki ' +
+      'yüksek dağ görünümüne bürünür; granit dorukları ve buzul sirkleriyle yükselen Yüksek Tatra kütlesindeki ' +
       "2.499 metrelik Rysy zirvesi, Polonya'nın en yüksek noktasını oluşturur. Güneybatıda ise daha yaşlı, " +
       'aşınmış ve zengin kömür havzalarına sahip Sudetler yer alır.',
     climateNoteTr:
@@ -2517,8 +2517,8 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'yazlar daha sıcak hale gelir. Yüksek Tatra ve Sudetler silsilesinde ise kışlar yarım yıla yakın ' +
       'bir süre boyunca sıfırın altındaki sıcaklıklarla ve yoğun kar yağışıyla devam eder.',
     hydrographyNoteTr:
-      'Polonya topraklarının neredeyse tamamı Baltık Denizi havzasına aittir ve ülke hidrolojisi iki dev ' +
-      "akarsu arteri tarafından kontrol edilir. Karpatlar'ın yamaçlarından doğup Kraków ve Varşova'yı " +
+      'Polonya topraklarının neredeyse tamamı Baltık Denizi havzasına aittir ve ülkenin sularını iki dev ' +
+      "akarsu toplar. Karpatlar'ın yamaçlarından doğup Kraków ve Varşova'yı " +
       "geçerek Gdańsk Körfezi'nde Baltık'a dökülen 1.047 kilometrelik Vistül (Wisła), ülkenin tarihsel " +
       've coğrafi omurgasıdır.' +
       '\n\n' +
@@ -2639,7 +2639,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       "Tarihsel ve iktisadi kalbi olan Avrupa Rusyası'nın merkezinde, Moskova Nehri havzasında " +
       'başkent Moskova yükselir.',
     landformNoteTr:
-      'Rusya topoğrafyası batıdan doğuya basamaklanan devasa morfolojik kuşaklardan meydana gelir. ' +
+      'Rusya topoğrafyası batıdan doğuya basamaklanan devasa yer şekli kuşaklarından meydana gelir. ' +
       "Avrupa kesimini kaplayan dalgalı Doğu Avrupa Ovası, doğuda Avrupa ile Asya'nın geleneksel " +
       'sınırı kabul edilen ve 1.895 metrelik Narodnaya doruğuna ulaşan aşınmış Ural Dağları ile ' +
       "kesilir. Ural'ın ötesinde, dünyanın en geniş ve kesintisiz alüvyal düzlüğü olan, bataklık " +
@@ -2698,8 +2698,8 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr: "1 Ocak 1993'te Çekoslovakya'nın ayrılmasıyla kuruldu.",
     introTr:
       "Batı Karpatlar'ın sarp dağ kütleleri ile Pannon Havzası'nın kuzey eşiği arasında sıkışan " +
-      'Slovakya; dağlık peyzajı, derin kanyonları ve zengin yeraltı mağara sistemleriyle karakterize ' +
-      'olan bir Orta Avrupa ülkesidir. Denize çıkışı bulunmayan ülke; Çekya, Polonya, Ukrayna, ' +
+      'Slovakya; dağlık manzarası, derin kanyonları ve zengin yeraltı mağara sistemleriyle öne çıkan ' +
+      'bir Orta Avrupa ülkesidir. Denize çıkışı bulunmayan ülke; Çekya, Polonya, Ukrayna, ' +
       'Macaristan ve Avusturya ile çevrilidir.' +
       '\n\n' +
       'Ülke, kuzeydeki heybetli alp doruklarından güneydeki verimli Tuna ovalarına doğru basamak ' +
@@ -2707,11 +2707,11 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'Tuna Nehri kıyısında Avusturya ve Macaristan sınırlarının kesiştiği noktada kurulu olup iki ' +
       'bağımsız ülkeyle doğrudan komşu olan dünyadaki yegane başkenttir.',
     landformNoteTr:
-      'Slovakya topraklarının büyük bölümünü kaplayan Karpat yayı, kuzey sınırında kıtanın en kompakt ' +
+      'Slovakya topraklarının büyük bölümünü kaplayan Karpat yayı, kuzey sınırında kıtanın en toplu ' +
       'yüksek dağ arazisi olan Yüksek Tatra (Vysoké Tatry) ile zirveye ulaşır. Tüm Karpat dağ sisteminin ' +
       'de en yüksek doruğu olan 2.655 metrelik Gerlachovský štít; buzul aşındırmasıyla bilenmiş sivri ' +
-      'granit kuleleri, sarp buzul çanakları ve yüzü aşkın buzul dağ gölüyle (pleso) gerçek bir alp ' +
-      'morfolojisi sergiler.' +
+      'granit kuleleri, sarp buzul çanakları ve yüzü aşkın buzul dağ gölüyle (pleso) gerçek bir ' +
+      'yüksek dağ görünümü sergiler.' +
       '\n\n' +
       'Dağların güneyine doğru uzanan Alçak Tatra ve tarihi madencilik geçmişiyle bilinen Slovak Cevher ' +
       'Dağları (Slovenské rudohorie) dalgalı yaylalar oluştururken, Slovak Cenneti (Slovenský raj) ' +
@@ -2726,7 +2726,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       "Güneye, Pannon Havzası'nın etkisi altındaki Tuna Ovası'na inildikçe ılıman karasal koşullar " +
       'egemen olur; yaz mevsimi uzun, güneşli ve sıcak geçerken, kış donları çok daha kısa sürer. ' +
       'Yıllık yağış miktarı yüksek Tatra yamaçlarında 1.400 milimetreyi aşarken güneydeki alçak ' +
-      'ovalarda 550-600 milimetre dolayına kadar gerileyerek belirgin bir orografik tezat oluşturur.',
+      'ovalarda 550-600 milimetre dolayına kadar gerileyerek dağlarla ovalar arasında belirgin bir karşıtlık oluşturur.',
     hydrographyNoteTr:
       "Slovakya sularının ezici çoğunluğu Tuna Nehri aracılığıyla Karadeniz'e dökülür. Ülkenin ana " +
       'iç omurgasını, Yüksek ve Alçak Tatra kaynaklarının birleşmesiyle doğan, sanayi ve yerleşim ' +
@@ -2736,7 +2736,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       "Buna karşılık kuzeydeki Tatra yamaçlarından doğan Poprad ve Dunajec nehirleri, Karpatlar'ı " +
       'aşarak Polonya üzerinden Baltık Denizi havzasına akar ve ülkenin küçük bir kesimini kıtasal ' +
       'su ayrımının kuzeyine bağlar. Yüksek vadilerde yer alan Štrbské Pleso ve Veľké Hincovo Pleso ' +
-      'gibi kristal berraklığındaki buzul gölleri ise ülkenin en değerli dağ hidrolojisi rezervleridir.',
+      'gibi kristal berraklığındaki buzul gölleri ise ülkenin en değerli dağ suyu rezervleridir.',
   },
   {
     isoCode: 'UA',
@@ -2771,7 +2771,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'dünyanın en bereketli kara toprak (çernozyom) kuşağına ev sahipliği yapar. Başkent Kiev, ' +
       "ülkeyi ortadan ikiye bölen ulu Dinyeper Nehri'nin yüksek sağ kıyı yamaçlarında kuruludur.",
     landformNoteTr:
-      'Ukrayna rölyefinin yüzde doksanından fazlasını, akarsu vadileriyle hafifçe dalgalanan geniş ' +
+      'Ukrayna’nın yer şekillerinin yüzde doksanından fazlasını, akarsu vadileriyle hafifçe dalgalanan geniş ' +
       'ovalar ve alçak platolar oluşturur. Batıda Podolya ve Dinyeper yaylaları yükselirken, ülkenin ' +
       "engebeli yegane dağ kuşağı güneybatı sınırındaki Karpatlar'dır; sık kayın ve ladin " +
       'ormanlarıyla örtülü bu silsile üzerindeki 2.061 metrelik Hoverla Dağı, geniş alpin ' +
@@ -2794,8 +2794,8 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     hydrographyNoteTr:
       "Ukrayna hidrolojisinin ana arteri, ülkeyi kuzeyden güneye ikiye bölerek Karadeniz'e akan " +
       "2.200 kilometrelik Dinyeper (Dnipro) Nehri'dir. Nehrin yüksek ve sarp sağ kıyısı ile alçak " +
-      'alüvyal sol kıyısı arasındaki morfolojik tezat, vadi boyunca inşa edilen devasa baraj ' +
-      'gölleri ve hidroelektrik kaskatlarıyla tarihi bir su omurgasına dönüştürülmüştür.' +
+      'alüvyal sol kıyısı arasındaki yükselti farkı, vadi boyunca inşa edilen devasa baraj ' +
+      'gölleri ve basamak basamak dizilmiş hidroelektrik santralleriyle tarihi bir su omurgasına dönüştürülmüştür.' +
       '\n\n' +
       "Batıda Dinyester (Nistru) ve Güney Bug nehirleri Karadeniz'e, doğuda Siverskyi Donets ise " +
       "Don havzasına akar; güneybatı ucunda Tuna Nehri'nin Kiliya kolu delta ağzıyla Karadeniz'e " +
@@ -2836,7 +2836,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'nüfusun büyük bölümü doğu ve güneydoğu kıyılarındaki dar ve ılıman sahil şeridinde ' +
       'toplanır.',
     landformNoteTr:
-      'Kıta topografyası üç ana morfolojik kuşaktan oluşur: Batıda Prekambriyen yaşlı ' +
+      'Kıta topografyası üç ana yer şekli kuşağından oluşur: Batıda Prekambriyen yaşlı ' +
       'aşınmış kayaçlardan meydana gelen eski Batı Platosu (kızıl kumtaşı monolit Uluru bu ' +
       'arazinin kalbinde yükselir), ortada tektonik çöküntü alanlarını kapsayan alçak Orta ' +
       'Ovalar ve doğu sahilini boydan boya kuşatan Büyük Ayırıcı Sıradağlar (Great Dividing ' +
@@ -2859,7 +2859,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       "gösterirken, Karlı Dağlar'ın yüksek kesimleri kışın kar yağışı alır ve kayak " +
       'merkezlerine ev sahipliği yapar.',
     hydrographyNoteTr:
-      'Kıtanın yüzey hidrolojisi son derece sınırlı ve dengesizdir. 2.508 kilometrelik ' +
+      'Kıtanın yüzey suları son derece sınırlıdır ve dengesiz dağılır. 2.508 kilometrelik ' +
       'Murray Nehri ile Darling kolunun oluşturduğu Murray-Darling Havzası, kıtanın ' +
       'güneydoğusundaki en önemli tarımsal su kaynağıdır; bu havza dışındaki iç nehirlerin ' +
       'çoğu yalnızca mevsimlik akış gösterir.' +
@@ -2893,7 +2893,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     currencyCode: 'NZD',
     governmentFormTr: 'Parlamenter anayasal monarşi',
     independenceNoteTr:
-      'Dominyon statüsü 1907; tam bağımsızlık kademeli Commonwealth sürecinde kazanıldı.',
+      'Dominyon statüsü 1907; tam bağımsızlık İngiliz Milletler Topluluğu içinde kademeli bir süreçle kazanıldı.',
     introTr:
       "Pasifik Okyanusu'nun güneybatısında, Avustralya anakarasından yaklaşık 2.000 " +
       'kilometre uzakta izole bir ada ülkesi olan Yeni Zelanda; Cook Boğazı ile ayrılan ' +
@@ -2911,12 +2911,12 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'sarp fiyort sıralanır; 1.500-2.000 metrelik dik yalıyarlar doğrudan derin sulara ' +
       'dalar.' +
       '\n\n' +
-      'Kuzey Adası ise volkanik yay sistemlerinin şekillendirdiği bambaşka bir morfolojiye ' +
+      'Kuzey Adası ise volkanik yay sistemlerinin şekillendirdiği bambaşka bir yer şekline ' +
       "sahiptir. Taupo Volkanik Bölgesi'nde yükselen 2.797 metrelik aktif stratovolkan " +
       'Ruapehu Dağı adanın en yüksek noktasıdır; çevresindeki Tongariro ve Ngauruhoe ile ' +
       'birlikte zengin krater gölleri ve jeotermal alanlar barındırır.',
     climateNoteTr:
-      'Hakim batı rüzgarları ve yüksek sıradağlar ülkede keskin bir iklimsel tezat doğurur. ' +
+      'Hakim batı rüzgarları ve yüksek sıradağlar ülkede keskin bir iklim karşıtlığı doğurur. ' +
       "Tasman Denizi'nden gelen nemli hava kütleleri Güney Alpleri'nin batı yamaçlarına " +
       'çarparak yoğun yağış bırakır; Fiordland ve batı kıyıları dünyanın en çok yağış alan ' +
       'alanları arasındadır. Dağ silsilesini aşarak fön etkisiyle kuruyan hava ise doğudaki ' +
@@ -2926,10 +2926,10 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       "kuzey kesimleri ılıman-subtropikal özellikler taşırken, Güney Adası'nın güneyi " +
       'serin, rüzgarlı ve okyanusal karakterdedir.',
     hydrographyNoteTr:
-      "Kuzey Adası'nın hidrolojik arteri, Ruapehu yamaçlarından doğup 425 kilometre sonra " +
+      "Kuzey Adası'nın ana akarsuyu, Ruapehu yamaçlarından doğup 425 kilometre sonra " +
       "Tasman Denizi'ne dökülen Waikato Nehri'dir. Nehir, devasa bir volkanik kalderada " +
       "toplanan ülkenin en büyük gölü Taupo'yu besler; göl çıkışındaki Huka Şelalesi'nin " +
-      'ardından kurulan hidroelektrik santral kaskatlarıyla ulusal elektrik üretimine büyük ' +
+      'ardından basamak basamak kurulan hidroelektrik santralleriyle ulusal elektrik üretimine büyük ' +
       'katkı sağlar.' +
       '\n\n' +
       "Güney Adası'nda ise debisi en yüksek akarsu Clutha Nehri'dir; dağ eteklerinde " +
@@ -2978,8 +2978,8 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'karşı doğal bir kalkan oluşturur.',
     climateNoteTr:
       'Güneydoğu alize rüzgarlarının yönlendirdiği tropikal deniz iklimi, adalarda belirgin ' +
-      "bir ekolojik iki kutupluluk yaratır. Viti Levu'nun güneydoğuya bakan rüzgar üstü " +
-      'yamaçları yıl boyunca bol orografik yağış alıp gür yağmur ormanlarıyla örtülürken, ' +
+      "bir ikilik yaratır. Viti Levu'nun güneydoğuya bakan rüzgar üstü " +
+      'yamaçları yıl boyunca bol yamaç yağışı alıp gür yağmur ormanlarıyla örtülürken, ' +
       'dağların arkasında kalan kuzeybatı kesimleri yağış gölgesi nedeniyle çok daha ' +
       'kuraktır; bu tezat adayı yerel dilde "ıslak taraf" ve "kuru taraf" olarak ikiye ' +
       'böler.' +
@@ -3086,8 +3086,8 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'aktif denizaltı yanardağları ve derin okyanus çukurlarıyla çevrilidir.',
     landformNoteTr:
       "Büyük adaların iç kesimlerini sarp volkanik dağ silsileleri kaplar. Guadalcanal'ın " +
-      'güneyinde yükselen 2.335 metrelik Popomanaseu Dağı, Yeni Gine ana karası haricinde ' +
-      'Güney Pasifik ada dünyasının en yüksek doruğudur ve sisli bulut ormanlarıyla ' +
+      'güneyinde yükselen 2.335 metrelik Popomanaseu Dağı, ülkenin en yüksek doruğudur ve ' +
+      'sisli bulut ormanlarıyla ' +
       'örtülüdür.' +
       '\n\n' +
       'Takımadanın güneyinde, deniz yüzeyinin yaklaşık 20 metre altında zirve yapan ' +
@@ -3206,7 +3206,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'Adaların neredeyse tamamı deniz seviyesinden 2-3 metreden fazla yükselmeyen alçak ' +
       'mercan atolleridir.' +
       '\n\n' +
-      'Bu düzlüğün tek morfolojik istisnası, batıda tek başına yükselen Banaba adasıdır; ' +
+      'Bu düzlüğün tek istisnası, batıda tek başına yükselen Banaba adasıdır; ' +
       'yükselmiş bir mercan kireçtaşı kütlesi olan ada, 81 metrelik rakımıyla ülkenin en ' +
       'yüksek yeridir ve zengin fosfat madenciliği geçmişiyle tanınır.',
     climateNoteTr:
@@ -3261,7 +3261,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'geniş lagünlü bir atoldür.' +
       '\n\n' +
       '2 milyon kilometrekarelik deniz alanına yayılan adalar, kadim Polinezya-Mikronezya ' +
-      'okyanus denizciliğinin sopa haritalarıyla (stick charts) simgeleşen seyrüsefer ' +
+      'okyanus denizciliğinin sopa haritalarıyla simgeleşen denizde yön bulma ' +
       'mirasını yaşatır.',
     landformNoteTr:
       'Yalnızca 180 kilometrekarelik toplam kara parçasına sahip olan ülke, okyanus ' +
@@ -3322,7 +3322,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       'Toplam 607 ada ve atolü kapsayan bu geniş denizel ülkede federal başkent Palikir, en ' +
       'büyük tekil kara parçası olan Pohnpei adasında yer alır. Yüksek volkanik dağlar ile ' +
-      'alçak mercan adalarının birleşimi, ülkeye zengin bir morfolojik ve kültürel ' +
+      'alçak mercan adalarının birleşimi, ülkeye zengin bir doğal ve kültürel ' +
       'çeşitlilik kazandırır.',
     landformNoteTr:
       'Dört eyalet birbirinden çok farklı jeolojik karakterler sergiler: Doğudaki Pohnpei ' +
@@ -3392,11 +3392,11 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       'Yüzyıllar boyunca biriken guano kökenli zengin fosfat yataklarının bir asrı aşkın ' +
       'süre açık ocaklarla kazılması, iç platonun yaklaşık yüzde seksenini 15-20 metreye ' +
-      'varan sivri kireçtaşı pinakıllarından oluşan ay benzeri çorak bir topoğrafyaya ' +
+      'varan sivri kireçtaşı kulelerinden oluşan ay benzeri çorak bir topoğrafyaya ' +
       'çevirmiştir.',
     climateNoteTr:
       'Ekvatoral kuşaktaki konumuyla yıl boyu sıcak ve nemli bir iklime sahip olan adada ' +
-      "yağış rejimi, Pasifik'teki El Niño-Güney Salınımı (ENSO) döngülerine son derece " +
+      "yağış rejimi, Pasifik'teki El Niño-Güney Salınımı döngülerine son derece " +
       'duyarlıdır. Yıllık ortalama yağış 2.000 milimetre civarında seyretse de, kurak La ' +
       'Niña dönemlerinde aylar süren susuzluklar yaşanırken El Niño yıllarında şiddetli ' +
       'sağanaklar görülür.' +
@@ -3410,7 +3410,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'çevresindeki tropikal bitki örtüsüyle vaha niteliğindedir.' +
       '\n\n' +
       'İçme suyu ihtiyacı, yer altı su tablasının madencilikle kirlenmesi ve tuzlanması ' +
-      'nedeniyle büyük ölçüde deniz suyu arıtma (desalinizasyon) tesislerinden ve çatılardan ' +
+      'nedeniyle büyük ölçüde deniz suyu arıtma tesislerinden ve çatılardan ' +
       'toplanan yağmur suyu tanklarından karşılanır.',
   },
   {
@@ -3445,7 +3445,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'turkuaz lagünleriyle dünyanın su altı biyoçeşitliliği en yüksek ekosistemlerinden ' +
       'birini barındırır.',
     landformNoteTr:
-      'Palau topoğrafyası iki keskin morfolojik tezat sergiler: Toplam kara alanının büyük ' +
+      'Palau topoğrafyası keskin bir karşıtlık sergiler: Toplam kara alanının büyük ' +
       'kısmını oluşturan Babeldaob volkanik kökenlidir; dağlık vadileri, şelaleleri, mangrov ' +
       'bataklıkları ve 242 metrelik zirvesiyle ülkenin en yüksek noktası olan Ngerchelchuus ' +
       "Dağı'na ev sahipliği yapar." +
@@ -3468,8 +3468,8 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       "dökülen Ngerdorch Nehri'ni besler." +
       '\n\n' +
       "Kayalık Adalar'da ise akarsu yerine, okyanusla bağlantısı karstik çatlaklarla " +
-      'sınırlı izole deniz suyu gölleri (marine lakes) yer alır; bunların en ünlüsü, ' +
-      'milyonlarca yıldır avcılardan uzak kalarak yakıcı hücrelerini yitirmiş altın ' +
+      'sınırlı izole deniz suyu gölleri yer alır; bunların en ünlüsü, ' +
+      'yaklaşık 12.000 yıldır avcılardan uzak kalarak yakıcı hücrelerini yitirmiş altın ' +
       "denizanalarına ev sahipliği yapan Denizanası Gölü'dür (Jellyfish Lake).",
   },
   {
@@ -3509,7 +3509,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'merkezinde yükselen 1.858 metrelik Silisili Dağı ülkenin çatısıdır ve sık dağ ' +
       'ormanlarıyla kaplıdır. Adanın kuzeyinde 1905-1911 yılları arasında püsküren Matavanu ' +
       "Yanardağı'nın lav tarlaları yaklaşık 75 kilometrekarelik bir alanı kaplayarak " +
-      'kıyıdaki köyleri gömmüş ve morfolojiyi dönüştürmüştür.' +
+      'kıyıdaki köyleri gömmüş ve araziyi dönüştürmüştür.' +
       '\n\n' +
       'Daha yaşlı olan Upolu ise sönmüş krater gölleri, çağlayanlarla yarılan vadileri ve ' +
       'kıyı ovalarıyla daha yumuşak hatlara sahiptir.',
@@ -3522,7 +3522,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'Samoa, Güney Pasifik siklon kuşağının içinde yer alır; dönemsel kasırgalar kıyı ' +
       'resiflerini ve yerleşimleri şiddetli fırtına dalgalarıyla etkiler.',
     hydrographyNoteTr:
-      'İki ada arasında belirgin bir hidrolojik farklılık gözlenir. Jeolojik açıdan daha ' +
+      'İki ada arasında sular bakımından belirgin bir farklılık gözlenir. Jeolojik açıdan daha ' +
       "eski olan Upolu'da aşınmış volkanik taban suyu tutar; dağlardan kıyıya dökülen çok " +
       'sayıda berrak dere, vadi çağlayanları ve derin kireçtaşı-bazalt obruklarında toplanan ' +
       'tatlı su havuzları (To Sua Okyanus Çukuru) gelişmiştir.' +
@@ -3586,7 +3586,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     hydrographyNoteTr:
       'Tongatapu gibi yükselmiş mercan kireçtaşı adalarında hiçbir kalıcı yüzey akarsuyu ' +
       'bulunmaz; gözenekli kireçtaşı zemin yağan yağmuru hızla yeraltına geçirir. Tatlı su ' +
-      'ihtiyacı, tuzlu suyun üzerinde yüzen sığ tatlı su lensi katmanından ve çatılarda ' +
+      'ihtiyacı, tuzlu suyun üzerinde yüzen sığ tatlı su merceğinden ve çatılarda ' +
       'kurulan sarnıçlardan karşılanır.' +
       '\n\n' +
       'Batıdaki dik volkanik adalarda ise yalnızca yağış sonrası akan kısa ve geçici ' +
@@ -3633,7 +3633,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       'Kara parçaları ile lagünler arasındaki bu muazzam orantısızlık ülkenin tüm ' +
       'adalarında belirgindir; küresel ısınmayla yükselen okyanus seviyesi ve kıyı erozyonu ' +
-      'adaların varoluşsal jeolojik tehdididir.',
+      'adaların varlığını doğrudan tehdit eder.',
     climateNoteTr:
       'Ekvatoral okyanus ikliminin hakim olduğu adalarda sıcaklıklar yıl boyu 25-32 derece ' +
       'bandında seyreder ve nem oranı yüksektir. Yıllık ortalama 3.000 milimetreyi aşan ' +
@@ -3650,7 +3650,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'altında biriken incecik yeraltı tatlı su merceğidir.' +
       '\n\n' +
       'Yüksek gelgit dönemlerinde deniz suyunun gözenekli mercan kireçtaşının altından ' +
-      'yukarı kaynayarak toprağı basması (kral gelgitleri), bu hassas tatlı su lensini ' +
+      'yukarı kaynayarak toprağı basması (kral gelgitleri), bu hassas tatlı su merceğini ' +
       'tuzlandırarak geleneksel pulaka (bataklık tarosu) tarımını ve içme suyu güvenliğini ' +
       'doğrudan tehdit eder.',
   },

@@ -11,6 +11,10 @@ import { seedGeography } from '../src/database/seeds/seed-geography';
 import { seedRegions } from '../src/database/seeds/seed-regions';
 import { SEED_REGIONS } from '../src/database/seeds/region.seed-data';
 import { Region } from '../src/region/entities/region.entity';
+import {
+  SEED_COPY_CHANGES,
+  UpdateSeedProseCopy1790208000000,
+} from '../src/database/migrations/1790208000000-UpdateSeedProseCopy';
 import { INTERNAL_REQUEST_HEADER } from '../src/common/throttler/trusted-client';
 
 const TEST_INTERNAL_TOKEN = 'e2e-trusted-client-token-0123456789-abcdefgh';
@@ -71,6 +75,61 @@ describe('Geographic Region endpoints (e2e)', () => {
       expect(result.updated).toBe(0);
       expect(result.unchanged).toBe(7);
       expect(result.total).toBe(7);
+    });
+  });
+
+  // T-097: the prose migration must land on rows seeded before it, reverse cleanly, and leave a
+  // column alone once it holds anything other than the exact text it expects to replace.
+  describe('UpdateSeedProseCopy migration', () => {
+    const readColumn = async (ds: DataSource, change: (typeof SEED_COPY_CHANGES)[number]) => {
+      const rows: Record<string, unknown>[] = await ds.query(
+        `SELECT "${change.column}" AS value FROM "${change.table}" WHERE "${change.keyColumn}" = $1`,
+        [change.key],
+      );
+      return rows[0]?.value;
+    };
+    // Countries are not seeded in this suite, so only region and province rows are exercised.
+    const seeded = SEED_COPY_CHANGES.filter((c) => c.table !== 'countries');
+
+    it('down() restores the old prose and up() brings back the seed prose', async () => {
+      if (!dataSource) throw new Error('dataSource not initialized');
+      const migration = new UpdateSeedProseCopy1790208000000();
+      const runner = dataSource.createQueryRunner();
+      try {
+        await migration.down(runner);
+        for (const change of seeded) {
+          expect(await readColumn(dataSource, change)).toEqual(change.before);
+        }
+        await migration.up(runner);
+        for (const change of seeded) {
+          expect(await readColumn(dataSource, change)).toEqual(change.after);
+        }
+      } finally {
+        await runner.release();
+      }
+      const reseed = await seedRegions(dataSource);
+      expect(reseed.unchanged).toBe(7);
+    });
+
+    it('leaves a column untouched when it no longer holds the expected text', async () => {
+      if (!dataSource) throw new Error('dataSource not initialized');
+      const change = seeded.find((c) => c.table === 'regions' && c.kind === 'scalar');
+      if (!change) throw new Error('no scalar region change to exercise');
+      const edited = 'edited by hand';
+      await dataSource.query(
+        `UPDATE "${change.table}" SET "${change.column}" = $1 WHERE "${change.keyColumn}" = $2`,
+        [edited, change.key],
+      );
+      const runner = dataSource.createQueryRunner();
+      try {
+        await new UpdateSeedProseCopy1790208000000().down(runner);
+        expect(await readColumn(dataSource, change)).toBe(edited);
+        await new UpdateSeedProseCopy1790208000000().up(runner);
+        expect(await readColumn(dataSource, change)).toBe(edited);
+      } finally {
+        await runner.release();
+      }
+      await seedRegions(dataSource);
     });
   });
 

@@ -823,6 +823,7 @@ describe('Auth core schema (e2e)', () => {
       expect(await scopeCheck()).toContain('LOGIN_EMAIL');
       expect(await scopeCheck()).toContain('PASSWORD_RESET_EMAIL');
 
+      await rewindUntilNextRevertIs('AddPasswordChangeRateLimitScope');
       await dataSource.undoLastMigration();
 
       expect(await scopeCheck()).not.toContain('PASSWORD_CHANGE_USER');
@@ -842,6 +843,7 @@ describe('Auth core schema (e2e)', () => {
       // Postgres refuses to validate the narrowed CHECK against the existing row. That refusal
       // is the desired behaviour: making a rollback succeed by deleting a rate-limit bucket
       // would hand an attacker a fresh guessing budget by reverting a migration.
+      await rewindUntilNextRevertIs('AddPasswordChangeRateLimitScope');
       await expect(dataSource.undoLastMigration()).rejects.toThrow();
 
       const rows = await dataSource.query<{ count: string }[]>(
@@ -850,6 +852,7 @@ describe('Auth core schema (e2e)', () => {
       expect(rows[0]?.count).toBe('1');
 
       await dataSource.query(`DELETE FROM auth_rate_limits WHERE scope = 'PASSWORD_CHANGE_USER'`);
+      await dataSource.runMigrations();
     });
   });
 });
