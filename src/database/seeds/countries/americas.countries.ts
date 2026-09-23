@@ -500,7 +500,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'yaylalarda toplanırken, kuzeydeki bakir orman ovaları tarihsel Maya kalıntılarına ' +
       'ev sahipliği yapar.',
     landformNoteTr:
-      'Ülke arazisi üç belirgin yer şekli kuşağına ayrılır. Güneyde Pasifik levhasının ' +
+      'Ülke arazisi üç belirgin yer şekli kuşağına ayrılır. Güneyde Kokos levhasının ' +
       "dalma zonuna paralel uzanan Sierra Madre de Chiapas kuşağı, Orta Amerika'nın en " +
       'yüksek noktası olan 4.220 metrelik Tajumulco Yanardağı dahil olmak üzere otuzdan ' +
       'fazla volkana ev sahipliği yapar. Bu kuşakta, 84 bin yıl önceki süper patlamanın ' +
@@ -1235,7 +1235,7 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr: "6 Ağustos 1962'de Birleşik Krallık'tan bağımsız oldu.",
     introTr:
       "Jamaika, Büyük Antiller yayında Küba ve Hispaniola'nın güneybatısında tek başına " +
-      "uzanan, Karayipler'in yüzölçümü bakımından üçüncü büyük ada devletidir. Yerli dilinde " +
+      "uzanan, Karayipler'in yüzölçümü bakımından üçüncü büyük adası olan bir ada devletidir. Yerli dilinde " +
       '"ağaç ve su ülkesi" anlamına gelen Xaymaca kökünden türeyen adıyla uyumlu olarak, ' +
       'sarp dağları, ormanlarla örtülü kireçtaşı platoları ve kıyı ovalarıyla çevrilidir. ' +
       'Adanın jeolojik yapısı, dünyanın en zengin boksit madeni yataklarından birine ev sahipliği ' +

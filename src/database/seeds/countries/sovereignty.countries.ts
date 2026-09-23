@@ -150,8 +150,8 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
       'Kıyı şeridinde Limasol, Larnaka ve Baf gibi liman kentleri uzanırken, iç kesimde ' +
       "başkent Lefkoşa'nın güney mahalleleri ile ada içi tarım alanları yer alır.",
     landformNoteTr:
-      'Troodos Dağları, okyanus kabuğunun ve üst mantonun aşınarak yüzeyde kusursuz biçimde ' +
-      'korunduğu, jeolojide ofiyolit denen yapının dünyadaki en ünlü örneklerinden biridir; adada ' +
+      'Troodos Dağları, okyanus kabuğunun ve üst mantonun yükselip aşınmayla yüzeye çıktığı ve ' +
+      'kusursuz biçimde izlenebildiği, jeolojide ofiyolit denen yapının dünyadaki en ünlü örneklerinden biridir; adada ' +
       'antik çağlardan bu yana işletilen zengin bakır yatakları da bu magmatik yükselimin ' +
       'ürünüdür. Masifin kalbinde yükselen 1.952 metrelik Olimpos Dağı (Hionistra), kışın karla ' +
       "kaplanan kubbesiyle tüm Kıbrıs'ın doruk noktasıdır." +

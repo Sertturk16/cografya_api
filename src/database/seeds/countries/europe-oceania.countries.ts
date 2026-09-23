@@ -1612,7 +1612,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
     landformNoteTr:
       'Ülkenin yer şekillerini iki büyük dağ kuşağı belirler. Kuzey sınırını 1.200 ' +
       'kilometre boyunca çizen Alpler, Fransa sınırındaki 4.810 metrelik Mont Blanc (Monte ' +
-      "Bianco) ile Avrupa'nın en yüksek zirvesine ev sahipliği yapar; doğudaki Dolomitler ise " +
+      "Bianco) ile Alpler'in ve Batı Avrupa'nın en yüksek zirvesine ev sahipliği yapar; doğudaki Dolomitler ise " +
       'kireçtaşı kuleleriyle dikleşir. Yarımadanın omurgasını oluşturan Apenin Dağları ise ' +
       "Ligurya'dan güney ucuna kadar 1.350 kilometre uzanarak yarımadayı doğu ve batı havzalarına " +
       'böler; Gran Sasso kütlesindeki Corno Grande (2.912 m) bu hattın doruğudur.' +
@@ -3086,8 +3086,8 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'aktif denizaltı yanardağları ve derin okyanus çukurlarıyla çevrilidir.',
     landformNoteTr:
       "Büyük adaların iç kesimlerini sarp volkanik dağ silsileleri kaplar. Guadalcanal'ın " +
-      'güneyinde yükselen 2.335 metrelik Popomanaseu Dağı, Yeni Gine ana karası haricinde ' +
-      'Güney Pasifik ada dünyasının en yüksek doruğudur ve sisli bulut ormanlarıyla ' +
+      'güneyinde yükselen 2.335 metrelik Popomanaseu Dağı, ülkenin en yüksek doruğudur ve ' +
+      'sisli bulut ormanlarıyla ' +
       'örtülüdür.' +
       '\n\n' +
       'Takımadanın güneyinde, deniz yüzeyinin yaklaşık 20 metre altında zirve yapan ' +
@@ -3469,7 +3469,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       '\n\n' +
       "Kayalık Adalar'da ise akarsu yerine, okyanusla bağlantısı karstik çatlaklarla " +
       'sınırlı izole deniz suyu gölleri yer alır; bunların en ünlüsü, ' +
-      'milyonlarca yıldır avcılardan uzak kalarak yakıcı hücrelerini yitirmiş altın ' +
+      'yaklaşık 12.000 yıldır avcılardan uzak kalarak yakıcı hücrelerini yitirmiş altın ' +
       "denizanalarına ev sahipliği yapan Denizanası Gölü'dür (Jellyfish Lake).",
   },
   {

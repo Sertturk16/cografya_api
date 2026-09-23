@@ -141,8 +141,8 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     landformNoteTr:
       'Nil Nehri, ülke arazisini birbirinden belirgin biçimde ayrılan yer şekli bölgelerine böler. Nehrin ' +
       'batısında uzanan Batı (Libya) Çölü, rüzgar aşındırmasıyla oyulmuş devasa kum denizleri ' +
-      've deniz seviyesinin 133 metre altına inen Kattara Çukurluğu gibi derin tektonik ' +
-      'çöküntüleri barındırır. ' +
+      've deniz seviyesinin 133 metre altına inen Kattara Çukurluğu gibi rüzgar aşındırması ve tuz ' +
+      'ayrışmasıyla oyulmuş derin çöküntüleri barındırır. ' +
       '\n\n' +
       'Nil ile Kızıldeniz arasında uzanan Doğu Çölü ise dik ve kayalık Kızıldeniz Dağları ile ' +
       "yükselir. İki kıta kavşağındaki Sina Yarımadası'nda yükselen 2.642 metrelik Katerina " +
@@ -332,7 +332,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     hydrographyNoteTr:
       "Sudan'ın suları, Mavi ve Beyaz Nil'in birbirine zıt akış düzenleriyle şekillenir. Mavi Nil, " +
       "Etiyopya'daki Tana Gölü'nden doğar; yaz musonlarıyla kabaran volkanik alüvyon yüklü " +
-      'sularıyla Nil sisteminin debisinin ve bereketli tortusunun yaklaşık yüzde seksenini ' +
+      'sularıyla Nil sisteminin yıllık debisinin yaklaşık üçte ikisini ve bereketli tortusunun büyük kısmını ' +
       'taşır. Ekvatoral göllerden gelen Beyaz Nil ise yıl boyu daha dengeli ve berrak akar. ' +
       '\n\n' +
       "Hartum'da birleştikten sonra kuzeye yönelen nehir, Mısır sınırına kadar altı büyük " +
@@ -1462,7 +1462,8 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "alan sığ ve kapalı bir tatlı su havzasıdır; göle ulaşan suyun yaklaşık yüzde 80'i güneyden " +
       "gelen Chari-Logone nehir sistemi tarafından taşınır. 1970 ve 80'lerdeki şiddetli Sahel " +
       'kuraklıklarında alanı 2.000 kilometrekareye kadar gerileyen göl, son yıllarda artan ' +
-      'muson yağışlarıyla toparlanarak 2024 uydu verilerine göre 24.500 kilometrekare ' +
+      'muson yağışlarıyla toparlanarak 2024 uydu verilerine göre, sazlık ve bitki örtüsü altındaki ' +
+      'sular dahil 24.500 kilometrekare ' +
       'seviyesine ulaşmıştır. ' +
       '\n\n' +
       "Orta Afrika Cumhuriyeti platolarından doğup Çad'a giren Chari Nehri, başkent Encemine " +
@@ -2085,7 +2086,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'ülkenin en yüksek zirvesidir.' +
       '\n\n' +
       "Güneyde Fish Nehri'nin aşındırdığı 160 kilometre uzunluğundaki Fish Nehri Kanyonu, kıtanın " +
-      'en derin ve görkemli kanyon vadisidir. Kuzeydeki 4.800 kilometrekarelik Etoşa Çanağı ise ' +
+      'en büyük ve görkemli kanyon vadisidir. Kuzeydeki 4.800 kilometrekarelik Etoşa Çanağı ise ' +
       'kuru mevsimde kireçli beyaz bir tuz tavasıyken, yağışlı dönemlerde sığ bir iç göle dönüşerek ' +
       'büyük yaban hayatı sürülerini çeker.',
     climateNoteTr:
@@ -2353,7 +2354,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'en yüksek zirvesidir. Bu yayla doğu kenarında sarp fay duvarlarıyla yarılarak çok kısa ' +
       'mesafede kıyıdaki Massava düzlüklerine iner.' +
       '\n\n' +
-      'Güneydoğuda arazi, deniz seviyesinin 120 metre altına kadar inen tektonik Danakil ' +
+      'Güneydoğuda arazi, ülke sınırları içinde deniz seviyesinin 75 metre altına kadar inen tektonik Danakil ' +
       "Çukurluğu'na gömülür; aktif volkanik bacalar ve tuz katmanlarıyla kaplı bu alan kıtanın " +
       'en ıssız coğrafyalarındandır. Kıyı açıklarındaki Dahlak Takımadaları ise fosilleşmiş mercan ' +
       'kalkerinden oluşan alçak ada platformlarıdır.',
@@ -2425,7 +2426,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "Etiyopya Yaylaları, Doğu ve Kuzeydoğu Afrika'nın tartışmasız ana su kulesidir. 1.780 metre " +
       "rakımdaki Tana Gölü'nden doğan Mavi Nil (Abay), derinliği yer yer 1.500 metreyi bulan devasa bir " +
       "kanyon boyunca batıya kıvrılarak Sudan düzlüklerine iner ve Nil Nehri'nin ana akış hacminin " +
-      "yaklaşık yüzde 80'ini tek başına sağlar. Nehrin Sudan sınırına yakın kesiminde inşa edilen " +
+      'yaklaşık üçte ikisini tek başına sağlar. Nehrin Sudan sınırına yakın kesiminde inşa edilen ' +
       'Büyük Etiyopya Rönesans Barajı, havzanın tüm su ve siyaset dengelerini yeniden ' +
       'belirleyen dev bir rezervuardır.' +
       '\n\n' +
@@ -2484,8 +2485,8 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "ekim-aralık dönemindeki 'kısa yağmurlar' daha düzensiz aralıklarla toprağa can verir.",
     hydrographyNoteTr:
       "Rift Vadisi'nin tabanı, kapalı havza özelliği gösteren ve her biri farklı kimyasal yapıya " +
-      'sahip tektonik göllerle sıralanmıştır. Kuzeyde çöllerle çevrili dünyanın en büyük alkali ' +
-      'gölü olan Turkana (Yeşim Denizi), güneye doğru zengin mikroalg örtüleriyle yüz binlerce ' +
+      'sahip tektonik göllerle sıralanmıştır. Kuzeyde dünyanın en büyük kalıcı çöl gölü ve alan ' +
+      'bakımından en büyük alkali gölü olan Turkana (Yeşim Denizi), güneye doğru zengin mikroalg örtüleriyle yüz binlerce ' +
       'flamingoya ev sahipliği yapan Bogoria, Nakuru ve Elmenteita soda gölleriyle devam eder; bu ' +
       'dizilimde Naivasha ve Baringo gölleri yeraltı sızıntıları sayesinde tatlı su karakterini korur.' +
       '\n\n' +
@@ -2765,7 +2766,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'batıdaki çöküntü tabanında sıcaklıklar 30 derecenin üzerine çıkabilir.' +
       '\n\n' +
       'Yağış döngüsü yılda iki yağışlı ve iki kurak dönemden oluşan dörtlü bir ritim izler: ' +
-      "şubat-mayıs arası 'büyük yağmurlar' (Itumba) ve eylül-aralık arası 'küçük yağmurlar' (Umutobo) " +
+      "şubat-mayıs arası 'büyük yağmurlar' (Itumba) ve eylül-aralık arası 'küçük yağmurlar' (Umuhindo) " +
       'tarımsal takvimi belirler. Dik yamaçlarda yürütülen yoğun tarım, aşırı yağış dönemlerinde ' +
       'şiddetli erozyon ve toprak kayması riskini tetikler.',
     hydrographyNoteTr:
@@ -2992,9 +2993,10 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'masifler ve Hint Okyanusu kıyısındaki Swahili adaları, ülkeyi Afrika yaban hayatının ve insanlık ' +
       'tarihinin en köklü yerleşim merkezlerinden birine dönüştürür.',
     landformNoteTr:
-      'Kuzey sınırında göğe yükselen 5.895 metrelik Kilimanjaro Dağı, Kibo doruğundaki sönmüş krateri ' +
+      'Kuzey sınırında göğe yükselen 5.895 metrelik Kilimanjaro Dağı, Kibo doruğundaki uykuda olan krateri ' +
       've ekvatoral buzullarıyla sadece ülkenin değil bütün Afrika kıtasının çatısıdır. Bu dev kütlenin ' +
-      'batısında sönmüş Meru tabakalı volkanı ve dünyanın en büyük bozulmamış kalderalarından biri olan ' +
+      "batısında son olarak 1910'da küçük bir püskürme yapan Meru tabakalı volkanı ve " +
+      'dünyanın en büyük bozulmamış kalderalarından biri olan ' +
       '600 metre derinliğindeki Ngorongoro Çöküntüsü yer alır; bu havza, yaban hayatı göçlerinin beşiği ' +
       "Serengeti Platosu'na açılır." +
       '\n\n' +

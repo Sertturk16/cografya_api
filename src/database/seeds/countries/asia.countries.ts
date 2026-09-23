@@ -85,7 +85,7 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'üzerindeki (kratonik) havzaların birlikteliğiyle ' +
       'şekillenmiştir. Ülkenin güneybatısını kaplayan ve "dünyanın çatısı" olarak ' +
       'anılan ortalama 4.500 metre rakımlı Tibet Platosu, güney kenarında Nepal ' +
-      'sınırındaki 8.848 metrelik Everest ile doruğa ulaşır. Platonun kuzey ve ' +
+      'sınırındaki 8.849 metrelik Everest ile doruğa ulaşır. Platonun kuzey ve ' +
       'batı sınırlarında yükselen Karakurum ve Tanrı Dağları hattı, Pakistan ' +
       'sınırındaki 8.611 metrelik K2 Zirvesi de dahil olmak üzere gezegenin en ' +
       'sarp buzul kütlelerini barındırır.' +
@@ -153,8 +153,8 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'Kuzeydoğu Asya kıyıları açığında hilal biçiminde uzanan Japonya, Büyük ' +
       'Okyanus ile Japon Denizi arasında yer alan bir volkanik ada yay ülkesidir. ' +
       'Kara sınırı bulunmayan takımada; kuzeyden güneye Hokkaido, Honshu, Şikoku ' +
-      've Kyushu olmak üzere dört ana adadan ve bunları çevreleyen yedi binden ' +
-      'fazla küçük adadan oluşur.' +
+      've Kyushu olmak üzere dört ana adadan ve bunları çevreleyen 14 binden ' +
+      'fazla küçük adadan oluşur (2023 resmi sayımına göre toplam 14.125 ada).' +
       '\n\n' +
       "Ülkenin kalbi, Honshu Adası'nın doğusunda en geniş alüvyal düzlük olan " +
       "Kanto Ovası'nda kurulu başkent Tokyo ve onunla iç içe büyümüş çevre " +
@@ -1614,8 +1614,8 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'Vietnam topraklarının dörtte üçü dağlık ve tepelik arazilerden oluşur; ' +
       'ovalar yalnızca iki ana deltada ve kıyı boyunca uzanan ince şeritte ' +
       "toplanmıştır. Kuzeybatıda yükselen Hoàng Liên Sơn Sıradağları'ndaki " +
-      "3.147 metrelik Fansipan Zirvesi, hem Vietnam'ın hem de tüm Hint-Çin " +
-      "Yarımadası'nın en yüksek noktasıdır." +
+      "3.147 metrelik Fansipan Zirvesi, hem Vietnam'ın hem de Vietnam, Laos ve " +
+      "Kamboçya'yı kapsayan Hint-Çin'in en yüksek noktasıdır." +
       '\n\n' +
       'Laos sınırı boyunca güneye inen Annam Sıradağları (Trường Sơn), ülkenin ' +
       'omurgasını oluşturarak kıyı şeridini iç platolardan ayırır. Dağların ' +
@@ -1780,8 +1780,8 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'yapan dünyanın en geniş kesintisiz mangrov ekosistemi Sundarbans uzanır. ' +
       '\n\n' +
       'Düz ve tekdüze delta arazisinin tek istisnası, güneydoğuda Myanmar ' +
-      "sınırına paralel uzanan Chittagong Tepeleri'dir. Karstik ve kireçtaşılı " +
-      'katmanların oluşturduğu 200 ila 1.000 metre rakımlı bu ormanlık sırtlar ' +
+      "sınırına paralel uzanan Chittagong Tepeleri'dir. Kıvrılmış kumtaşı ve şeyl " +
+      'katmanlarının oluşturduğu 200 ila 1.000 metre rakımlı bu ormanlık sırtlar ' +
       'kuşağında yer alan yaklaşık 1.063 metrelik Saka Haphong zirvesi, ülkenin ' +
       'en yüksek noktasıdır.',
     climateNoteTr:
@@ -2015,7 +2015,7 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       "Basra Körfezi'ne paralel uzanan kıvrımlı Zagros Dağları ile Hazar " +
       'kıyısını güneyden saran dik Elburz Dağları. Elburz zincirinde göğe ' +
       'yükselen 5.610 metrelik uykudaki stratovolkan Demavent (Damavand), hem ' +
-      "İran'ın en yüksek doruğu hem de Hindukuş'un batısındaki tüm Avrasya'nın " +
+      "İran'ın en yüksek doruğu hem de Orta Doğu'nun " +
       'en yüksek zirvesidir. ' +
       '\n\n' +
       'Bu sıradağların ardında kalan ve deniz etkisinden yalıtılan Merkezi ' +
@@ -2398,7 +2398,7 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     introTr:
       "Güney Kafkasya'nın engebeli iç yaylalarında yer alan Ermenistan; " +
       'kuzeyde Gürcistan, doğuda Azerbaycan, güneyde İran ve batıda Türkiye ile ' +
-      'çevrilidir. Bölgenin denize doğrudan çıkışı olmayan tek devleti olup ' +
+      "çevrilidir. Bölgenin Karadeniz'e ya da Hazar'a kıyısı olmayan tek devleti olup " +
       'topraklarının ortalama rakımı 1.800 metreyi aşar; ülke bütünüyle sarp ' +
       'dağlar, derin kanyonlar ve volkanik platolar kuşağında kuruludur. ' +
       '\n\n' +
@@ -2476,7 +2476,7 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       "Sovyetler Birliği'nin dağılma sürecinde bağımsızlık, 30 Ağustos 1991 Bağımsızlık " +
       'Bildirgesi ve 18 Ekim 1991 Devlet Bağımsızlığı Anayasal Kanunu ile yeniden kazanıldı.',
     introTr:
-      "Güney Kafkasya'nın en geniş ülkesi olan Azerbaycan, batıda Hazar " +
+      "Güney Kafkasya'nın en geniş ülkesi olan Azerbaycan, doğuda Hazar " +
       "Denizi'nin kıyı havzası ile Kafkas Dağları'nın arasına kuruludur. " +
       'Kuzeyde Rusya, kuzeybatıda Gürcistan, batıda Ermenistan ve güneyde İran ' +
       'ile komşu olan ülkenin, ana gövdeden ayrı konumlanan Nahçıvan Özerk ' +
@@ -2939,7 +2939,7 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'Arazi kıyıdan içe doğru dört yer şekli kuşağına ayrılır. Kıyıda portakal ' +
       'bahçeleri ve falezlerle kesintiye uğrayan dar kıyı düzlüğü uzanır; bu düzlüğün ' +
       'hemen ardından duvar gibi yükselen Lübnan Dağları (Cebel-i Lübnan) başlar. Kuzeyde ' +
-      '3.088 metreye ulaşan Kurnet es-Sevda doruğuyla Akdeniz kıyısındaki en yüksek ' +
+      "3.088 metreye ulaşan Kurnet es-Sevda doruğuyla Levant'ın en yüksek " +
       'yükseltiyi oluşturan bu silsile, kireçtaşı yapısı nedeniyle derin kanyonlar, ' +
       'mağaralar ve düdenlerle yarılmıştır. ' +
       '\n\n' +

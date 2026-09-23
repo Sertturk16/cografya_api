@@ -3190,9 +3190,9 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
       'hâline getirir.',
     hydrographyNoteTr:
       "Adana'nın su ağı, ilin ortasından geçerek Akdeniz'e dökülen Seyhan ve Ceyhan " +
-      "nehirlerine dayanır. Seyhan Nehri, Kayseri'nin Uzunyayla bölgesinde doğar ve son 30 " +
+      "nehirlerine dayanır. 560 kilometrelik Seyhan Nehri, Kayseri'nin Uzunyayla bölgesinde doğar ve son 30 " +
       'kilometrelik bölümünde Adana-Mersin il sınırını çizer. Ceyhan Nehri ise 509 ' +
-      "kilometre uzunluğuyla bölgenin en uzun akarsuyudur; Kahramanmaraş'ta doğar, " +
+      "kilometre uzunluğuyla bölgenin Seyhan'dan sonra en uzun ikinci akarsuyudur; Kahramanmaraş'ta doğar, " +
       "Adana'nın doğusundan geçerek Akdeniz'e ulaşır.\n\n" +
       "Şehir merkezinin hemen kuzeyinde yer alan Seyhan Barajı, 8 Nisan 1956'da hizmete " +
       'giren ve yaklaşık 850 bin dekar araziyi sulayan bir toprak dolgu barajdır; aynı ' +
@@ -4210,7 +4210,7 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     landformNoteTr:
       "İlin yeryüzü şekillerini Doğu Anadolu'nun genç volkanik kütleleri belirler. Kuzeydoğuda yükselen Ağrı Dağı, ana zirve Büyük Ağrı ile güneydoğusundaki 3.896 metrelik Küçük Ağrı konisinden oluşan bileşik bir tabakalı volkandır. Büyük Ağrı doruğunda yaklaşık 10 km²'lik takke buzulu yer alır ve kalıcı kar sınırı 4.300 metreden başlar. İlin güneyinde Tendürek Dağı kalkan volkanı uzanırken, batıda Murat Nehri boyunca açılan geniş vadi düzlükleri ve çöküntü alanları yer alır.",
     introTr:
-      "Ağrı, 5.137 metrelik doruğuyla Türkiye'nin ve Avrupa kıtasının çatısı sayılan Ağrı Dağı'nın gölgesinde, Murat ve Aras havzalarının su bölümü çizgisinde kuruludur. Doğubayazıt'taki tarihi İshak Paşa Sarayı ve Gürbulak Sınır Kapısı ile Kafkaslar ve Orta Asya'ya açılan il, kış turizmi, yüksek irtifa dağcılığı ve sınır ticareti açısından stratejik bir konumdadır.",
+      "Ağrı, 5.137 metrelik doruğuyla Türkiye'nin çatısı sayılan Ağrı Dağı'nın gölgesinde, Murat ve Aras havzalarının su bölümü çizgisinde kuruludur. Doğubayazıt'taki tarihi İshak Paşa Sarayı ve Gürbulak Sınır Kapısı ile Kafkaslar ve Orta Asya'ya açılan il, kış turizmi, yüksek irtifa dağcılığı ve sınır ticareti açısından stratejik bir konumdadır.",
     hydrographyNoteTr:
       "Fırat Nehri'nin en uzun kolu olan Murat Nehri, Diyadin ilçesi sınırlarındaki Aladağ eteklerinden doğarak ovayı batı yönünde kat eder; Diyadin kanyonu ve jeotermal kaplıca kaynakları bu vadi boyunca uzanır. İlin kuzey kesimindeki sular ise Doğubayazıt sazlıkları üzerinden Aras Nehri havzasına ulaşarak Hazar Denizi'ne yönelir.",
     urbanizationRate: 62.76,
@@ -4438,7 +4438,7 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     landformNoteTr:
       'Erzurum arazisi, ortalama 2.000 metre yükseltideki geniş bazalt platolar ile bu platoları yaran Erzurum ve Pasinler tektonik çöküntü ovalarından meydana gelir. Kentin hemen güneyinde 70 kilometre boyunca uzanan Palandöken Dağları, 3.176 metrelik Büyük Ejder Tepesi ile uluslararası kış turizminin merkezidir. Kuzeyde Kargapazarı, Dumlu ve Mescit dağları, kuzeydoğuda ise Allahuekber Dağları ilin doğal sınırlarını çizer.',
     introTr:
-      "Erzurum, 1.860 metreyi bulan şehir merkezi irtifasıyla Türkiye'nin en yüksek rakımlı büyükşehiridir. Kuzeydoğu Anadolu'nun tarihi ipek yolu kavşağında yer alan kent, dokuz ayrı ille komşu olarak ülkenin en çok komşuya sahip ili konumundadır. Palandöken Dağları'ndaki kış sporları merkezleri, Atatürk Üniversitesi ile gelişen eğitim altyapısı ve yayla hayvancılığı ilin ekonomik ve toplumsal omurgasını oluşturur.",
+      "Erzurum, 1.860 metreyi bulan şehir merkezi irtifasıyla Türkiye'nin en yüksek rakımlı büyükşehiridir. Kuzeydoğu Anadolu'nun tarihi ipek yolu kavşağında yer alan kent, dokuz ayrı ille komşu olarak Konya ve Erzincan ile birlikte ülkenin en çok komşuya sahip illerindendir. Palandöken Dağları'ndaki kış sporları merkezleri, Atatürk Üniversitesi ile gelişen eğitim altyapısı ve yayla hayvancılığı ilin ekonomik ve toplumsal omurgasını oluşturur.",
     hydrographyNoteTr:
       "İl toprakları üç ayrı deniz havzasına su gönderen kritik bir su bölümü merkezidir. Dumlu Dağları'ndan doğan Karasu batıya yönelerek Fırat Nehri üzerinden Basra Körfezi'ne, Tekman yaylalarından çıkan Aras Nehri doğuya akarak Hazar Denizi'ne, İspir ve Tortum vadilerini aşan sular ise Çoruh Nehri aracılığıyla Karadeniz'e ulaşır. Tortum Çayı üzerindeki Tortum Gölü ve 48 metreden dökülen doğal çağlayan, heyelan set oluşumuyla bölgenin önemli doğal manzaralarındandır.",
     urbanizationRate: 100.0,
