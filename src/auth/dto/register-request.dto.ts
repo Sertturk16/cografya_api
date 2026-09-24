@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
+  IsBoolean,
   IsEmail,
   IsEnum,
   IsIn,
@@ -194,4 +195,16 @@ export class RegisterRequestDto {
   @IsOptional()
   @IsIn(['tr', 'en'])
   locale: MailLocale = 'tr';
+
+  @ApiPropertyOptional({
+    type: Boolean,
+    default: false,
+    description:
+      'Ticari elektronik ileti (kampanya, yenilik, duyuru) için ayrı ve isteğe bağlı açık rıza ' +
+      '(T-101). Kullanım şartlarından bağımsızdır; false ya da hiç gönderilmemesi kaydı ' +
+      'engellemez. true ise onay anı saklanır ve doğrulamada hesaba taşınır.',
+  })
+  @IsOptional()
+  @IsBoolean()
+  marketingConsent: boolean = false;
 }

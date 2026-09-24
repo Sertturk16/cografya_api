@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import type { Env } from '../config/env.schema';
 import { AccessTokenGuard } from './access-token.guard';
+import { AccountDeletionService } from './account-deletion.service';
 import { AccessTokenService } from './access-token.service';
 import { AuthNoStoreMiddleware } from './auth-no-store.middleware';
 import { AuthController } from './auth.controller';
@@ -77,6 +78,7 @@ const UserRepositoryModule = TypeOrmModule.forFeature([User]);
   providers: [
     PasswordHasherService,
     PasswordChangeService,
+    AccountDeletionService,
     AuthSecretsProvider,
     AccessTokenService,
     AuthRateLimitService,

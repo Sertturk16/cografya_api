@@ -36,6 +36,23 @@ export interface ProfileRow {
   district_name: string;
   province_plate_code: string;
   province_name: string;
+  marketing_consent_at: Date | null;
+}
+
+/**
+ * The `marketing_consent_at` write for `PUT /api/auth/account` (T-101), or nothing.
+ *
+ * - absent: no key at all, so the column is untouched (consent is never changed by omission).
+ * - `true`: `COALESCE(existing, now())` — re-granting an already-granted consent keeps the
+ *   ORIGINAL instant, which is the one an İYS audit asks about.
+ * - `false`: `NULL` — withdrawn.
+ */
+export function marketingConsentPatch(marketingConsent: boolean | undefined): {
+  marketingConsentAt?: Date | null | (() => string);
+} {
+  if (marketingConsent === undefined) return {};
+  if (!marketingConsent) return { marketingConsentAt: null };
+  return { marketingConsentAt: () => 'COALESCE("marketing_consent_at", now())' };
 }
 
 /**
@@ -89,6 +106,7 @@ export class ProfileService {
         lastName: dto.lastName,
         phone: dto.phone,
         districtId: dto.districtId,
+        ...marketingConsentPatch(dto.marketingConsent),
       },
     );
 
@@ -177,7 +195,8 @@ export class ProfileService {
               u.district_id,
               d.name_tr    AS district_name,
               p.plate_code AS province_plate_code,
-              p.name_tr    AS province_name
+              p.name_tr    AS province_name,
+              u.marketing_consent_at
          FROM users u
          INNER JOIN districts d ON d.id = u.district_id
          INNER JOIN provinces p ON p.id = d.province_id
@@ -211,6 +230,7 @@ export class ProfileService {
       provinceName: row.province_name,
       createdAt: new Date(row.created_at).toISOString(),
       isComplete: isProfileComplete(row.account_role, row.education_level),
+      marketingConsent: row.marketing_consent_at !== null,
     };
   }
 }

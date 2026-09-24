@@ -5,7 +5,7 @@ import { AccountRole, EducationLevel, GradeLevel, StudyStream } from '../account
  * `GET /api/auth/profile`, `PUT /api/auth/profile` and `PUT /api/auth/account` response
  * representation (`plan-api.md` §5.3.2, `DEC 2026-09-03a` md.1, `GLOSSARY.md` §7.1, T-061).
  *
- * All seventeen properties are required in the published schema. Nullable properties
+ * All eighteen properties are required in the published schema. Nullable properties
  * use explicit `null` when undeclared or not applicable to the role/branch.
  *
  * **This is the ONLY route that publishes the personal block.** `GET /api/auth/session` stays
@@ -123,4 +123,12 @@ export class ProfileDto {
       'Profilin tamamlanma durumu — TEACHER için true, STUDENT için educationLevel !== null.',
   })
   isComplete!: boolean;
+  @ApiProperty({
+    type: Boolean,
+    example: false,
+    description:
+      'Ticari elektronik ileti onayı var mı (T-101). Kayıtta ayrı kutuyla verilir, ' +
+      '`PUT /api/auth/account` ile verilip geri alınır.',
+  })
+  marketingConsent!: boolean;
 }

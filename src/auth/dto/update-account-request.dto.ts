@@ -1,6 +1,14 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsString, IsUUID, Matches, MaxLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Matches,
+  MaxLength,
+} from 'class-validator';
 import { canonicalizePhone } from '../phone-canonicalization';
 
 const TURKISH_MOBILE_E164 = /^\+905[0-9]{9}$/;
@@ -12,7 +20,8 @@ const PROVINCE_PLATE_CODE = /^[0-9]{2}$/;
  * The personal block a member may change about themselves. **Full replacement semantics**, the
  * same contract `UpdateProfileRequestDto` already uses for the education block: every key must
  * be present on every request, and an omitted key is a 400 naming the property. Nothing here is
- * nullable — a member always has a name, a phone and a district.
+ * nullable — a member always has a name, a phone and a district. The one exception is
+ * `marketingConsent` (T-101), optional with absent = unchanged; see its own docblock.
  *
  * Three fields deliberately absent, each for its own reason:
  * - `email` — changing it needs a proof-of-mailbox round trip to the NEW address, which is its
@@ -77,4 +86,18 @@ export class UpdateAccountRequestDto {
   })
   @IsUUID('4')
   districtId!: string;
+  /**
+   * The one OPTIONAL key on this full-replacement body (T-101), and optional on purpose: consent
+   * is a separate decision from the personal block, so a client that only edits a name must not
+   * be able to withdraw or grant it by omission. Absent = unchanged.
+   */
+  @ApiPropertyOptional({
+    type: Boolean,
+    description:
+      'Ticari elektronik ileti onayı (T-101). true: onay verilir (zaten varsa ilk onay anı ' +
+      'korunur). false: onay geri alınır. Gönderilmezse mevcut durum değişmez.',
+  })
+  @IsOptional()
+  @IsBoolean()
+  marketingConsent?: boolean;
 }

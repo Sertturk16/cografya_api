@@ -1656,6 +1656,65 @@
         "tags": [
           "auth"
         ]
+      },
+      "delete": {
+        "description": "Mevcut şifre doğrulanır; doğruysa kullanıcı satırı ve ona bağlı her kayıt (oturumlar, şifre sıfırlama bağlantıları, favoriler, video ilerlemesi, oyun turları ve dolayısıyla liderlik tablosu girdileri, ölçümler) tek işlemde, geri alınamaz biçimde silinir. Yanıt gövdesizdir; çağıran kendi oturum çerezini temizler.",
+        "operationId": "AuthController_deleteAccount",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteAccountRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "Eksik ya da boş currentPassword.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "errors.auth.unauthenticated ya da errors.password.currentInvalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "errors.auth.rateLimited (IP ekseni) ya da errors.auth.tooManyAttempts (kimlik ekseni, şifre değiştirme ile ortak bütçe).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Permanently delete the authenticated caller's account (T-101).",
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/api/video-progress/books/{slug}": {
@@ -6976,6 +7035,11 @@
             ],
             "type": "string",
             "description": "Form alanı değil — doğrulama e-postasının dili. Belirtilmezse tr."
+          },
+          "marketingConsent": {
+            "type": "boolean",
+            "default": false,
+            "description": "Ticari elektronik ileti (kampanya, yenilik, duyuru) için ayrı ve isteğe bağlı açık rıza (T-101). Kullanım şartlarından bağımsızdır; false ya da hiç gönderilmemesi kaydı engellemez. true ise onay anı saklanır ve doğrulamada hesaba taşınır."
           }
         },
         "required": [
@@ -7348,6 +7412,11 @@
             "type": "boolean",
             "example": true,
             "description": "Profilin tamamlanma durumu — TEACHER için true, STUDENT için educationLevel !== null."
+          },
+          "marketingConsent": {
+            "type": "boolean",
+            "example": false,
+            "description": "Ticari elektronik ileti onayı var mı (T-101). Kayıtta ayrı kutuyla verilir, `PUT /api/auth/account` ile verilip geri alınır."
           }
         },
         "required": [
@@ -7367,7 +7436,8 @@
           "schoolName",
           "universityName",
           "departmentName",
-          "isComplete"
+          "isComplete",
+          "marketingConsent"
         ]
       },
       "UpdateProfileRequestDto": {
@@ -7496,6 +7566,10 @@
             "format": "uuid",
             "example": "6b3f6f5a-6f5a-4f5a-8f5a-6f5a6f5a6f5a",
             "description": "`GET /api/reference/districts?plateCode=…`'ün döndürdüğü id. Var olduğu ve provincePlateCode ile ait olduğu tek sorguyla doğrulanır (D15)."
+          },
+          "marketingConsent": {
+            "type": "boolean",
+            "description": "Ticari elektronik ileti onayı (T-101). true: onay verilir (zaten varsa ilk onay anı korunur). false: onay geri alınır. Gönderilmezse mevcut durum değişmez."
           }
         },
         "required": [
@@ -7504,6 +7578,19 @@
           "phone",
           "provincePlateCode",
           "districtId"
+        ]
+      },
+      "DeleteAccountRequestDto": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string",
+            "writeOnly": true,
+            "description": "Üyenin bugünkü şifresi — hesabın gerçekten sahibinin isteğiyle silindiğinin kanıtı. Hiçbir yanıtta, örnekte ya da logda dönmez."
+          }
+        },
+        "required": [
+          "currentPassword"
         ]
       },
       "BookProgressResumeDto": {

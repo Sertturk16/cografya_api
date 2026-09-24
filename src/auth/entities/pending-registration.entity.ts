@@ -213,6 +213,13 @@ export class PendingRegistration {
   @Column({ name: 'district_id', type: 'uuid' })
   districtId!: string;
 
+  /**
+   * Instant the marketing-consent box was ticked on the form (T-101), or `null`. Copied onto the
+   * `users` row on verification; a resend clone inherits it like every other field.
+   */
+  @Column({ name: 'marketing_consent_at', type: 'timestamptz', nullable: true })
+  marketingConsentAt!: Date | null;
+
   /** Language of THIS candidate's verification e-mail; a resend clone inherits it. */
   @Column({ name: 'locale', type: 'varchar', length: 2, default: 'tr' })
   locale!: MailLocale;

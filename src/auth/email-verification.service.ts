@@ -115,6 +115,7 @@ export type PendingRegistrationDraft = Pick<
   | 'schoolName'
   | 'districtId'
   | 'locale'
+  | 'marketingConsentAt'
 >;
 
 /** `verify`'s transaction result — deliberately NOT an exception, see `verify`'s docblock. */
@@ -291,6 +292,8 @@ export class EmailVerificationService {
           districtId: matched.districtId,
           status: AccountStatus.Active,
           emailVerifiedAt: now,
+          // T-101: the consent instant recorded on the form travels as-is; `null` stays `null`.
+          marketingConsentAt: matched.marketingConsentAt,
         });
 
         // The address now has an account, so every sibling candidate this transaction LOCKED is
@@ -514,6 +517,7 @@ export class EmailVerificationService {
             schoolName: newest.schoolName,
             districtId: newest.districtId,
             locale: newest.locale,
+            marketingConsentAt: newest.marketingConsentAt,
           };
         } else {
           draft = source;

@@ -1,4 +1,14 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Put, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import {
   ApiBadRequestResponse,
@@ -12,6 +22,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { AccessTokenGuard } from './access-token.guard';
+import { AccountDeletionService } from './account-deletion.service';
 import { ApiErrorDto } from '../common/dto/api-error.dto';
 import { AUTH_ERROR_KEYS } from './auth-error-keys';
 import {
@@ -21,6 +32,7 @@ import {
 import { AuthenticatedUser } from './authenticated-user';
 import { CurrentUser } from './current-user.decorator';
 import { AuthResultDto } from './dto/auth-result.dto';
+import { DeleteAccountRequestDto } from './dto/delete-account-request.dto';
 import { LoginRequestDto } from './dto/login-request.dto';
 import { LogoutRequestDto } from './dto/logout-request.dto';
 import { PasswordChangeRequestDto } from './dto/password-change-request.dto';
@@ -81,10 +93,13 @@ export const AUTH_ROUTE_THROTTLES = {
   // fifteen minutes.
   updateAccount: { limit: 30, ttl: 15 * 60 * 1000 },
   passwordChange: { limit: 10, ttl: 15 * 60 * 1000 },
+  // T-101. Also a password-guess surface, so it gets password change's IP ceiling (and shares
+  // its identity-axis budget inside `AccountDeletionService`).
+  deleteAccount: { limit: 10, ttl: 15 * 60 * 1000 },
 } as const;
 
 /**
- * The twelve auth endpoints (eleven paths, twelve operations; §6.1, plan-api.md §5.2, §5.4).
+ * The auth endpoints (twelve at first, eleven paths; T-061 and T-101 added more; §6.1, plan-api.md §5.2, §5.4).
  *
  * **D13, AMENDED — `Cache-Control: no-store` is written by `AuthNoStoreMiddleware`, not by nine
  * `@Header` decorators.** D13's original mechanism claimed to cover "every response, success or
@@ -139,6 +154,7 @@ export class AuthController {
     private readonly passwordReset: PasswordResetService,
     private readonly passwordChange: PasswordChangeService,
     private readonly profile: ProfileService,
+    private readonly accountDeletion: AccountDeletionService,
   ) {}
 
   @Post('register')
@@ -433,5 +449,38 @@ export class AuthController {
     @Body() dto: UpdateAccountRequestDto,
   ): Promise<ProfileDto> {
     return this.profile.replaceAccount(user.id, dto);
+  }
+
+  @Delete('account')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(AccessTokenGuard)
+  @NoTrustedClientExemption()
+  @Throttle({ default: AUTH_ROUTE_THROTTLES.deleteAccount })
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: "Permanently delete the authenticated caller's account (T-101).",
+    description:
+      'Mevcut şifre doğrulanır; doğruysa kullanıcı satırı ve ona bağlı her kayıt (oturumlar, ' +
+      'şifre sıfırlama bağlantıları, favoriler, video ilerlemesi, oyun turları ve dolayısıyla ' +
+      'liderlik tablosu girdileri, ölçümler) tek işlemde, geri alınamaz biçimde silinir. ' +
+      'Yanıt gövdesizdir; çağıran kendi oturum çerezini temizler.',
+  })
+  @ApiNoContentResponse()
+  @ApiBadRequestResponse({ type: ApiErrorDto, description: 'Eksik ya da boş currentPassword.' })
+  @ApiUnauthorizedResponse({
+    type: ApiErrorDto,
+    description: 'errors.auth.unauthenticated ya da errors.password.currentInvalid.',
+  })
+  @ApiTooManyRequestsResponse({
+    type: ApiErrorDto,
+    description:
+      'errors.auth.rateLimited (IP ekseni) ya da errors.auth.tooManyAttempts (kimlik ekseni, ' +
+      'şifre değiştirme ile ortak bütçe).',
+  })
+  async deleteAccount(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: DeleteAccountRequestDto,
+  ): Promise<void> {
+    await this.accountDeletion.deleteAccount(user.id, dto.currentPassword);
   }
 }
