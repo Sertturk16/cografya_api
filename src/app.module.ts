@@ -22,6 +22,7 @@ import { MeasurementsModule } from './measurements/measurements.module';
 import { ProvinceModule } from './province/province.module';
 import { ReferenceModule } from './reference/reference.module';
 import { RegionModule } from './region/region.module';
+import { RetentionModule } from './retention/retention.module';
 import { VideoCoverModule } from './video-cover/video-cover.module';
 import { VideoIdentityModule } from './video-identity/video-identity.module';
 import { VideoProgressModule } from './video-progress/video-progress.module';
@@ -126,6 +127,9 @@ export const THROTTLE_LIMIT = 120;
     // never resolves against a second table (plan §5.1). The OpenAPI precondition for UYELIK-12
     // (cografya_web consumption, a separate future task).
     MeasurementsModule,
+    // T-101: hourly deletion of expired pending registrations, reset tokens and rate-limit
+    // windows. No route, no env key; periods in `docs/architecture.md` "Data retention".
+    RetentionModule,
   ],
   providers: [
     // Rate limit every route by default; opt out per-route with @SkipThrottle,

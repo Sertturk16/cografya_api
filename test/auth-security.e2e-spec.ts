@@ -1220,6 +1220,7 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
         districtId,
         provincePlateCode: '34',
         locale: 'tr',
+        marketingConsent: false,
       };
     }
 

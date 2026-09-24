@@ -2,7 +2,7 @@ import type { DataSource, Repository } from 'typeorm';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { AccountRole, EducationLevel, GradeLevel, StudyStream } from './account.types';
-import { ProfileService, type ProfileRow } from './profile.service';
+import { marketingConsentPatch, ProfileService, type ProfileRow } from './profile.service';
 import { User } from './entities/user.entity';
 
 const USER_ID = '11111111-1111-4111-8111-111111111111';
@@ -31,6 +31,7 @@ function row(overrides: Partial<ProfileRow> = {}): ProfileRow {
     district_name: 'Kadıköy',
     province_plate_code: '34',
     province_name: 'İstanbul',
+    marketing_consent_at: null,
     ...overrides,
   };
 }
@@ -173,6 +174,54 @@ describe('ProfileService.replaceAccount', () => {
 
     await expect(service.replaceAccount(USER_ID, dto)).rejects.toBeInstanceOf(
       UnauthorizedException,
+    );
+  });
+});
+
+describe('marketing consent (T-101)', () => {
+  const dto = {
+    firstName: 'Ayşe',
+    lastName: 'Demir',
+    phone: '+905551112233',
+    provincePlateCode: '34',
+    districtId: DISTRICT_ID,
+  };
+
+  it('reads marketingConsent as false when the column is null', async () => {
+    const { service } = harness([[row()]]);
+    expect((await service.getProfile(USER_ID)).marketingConsent).toBe(false);
+  });
+
+  it('reads marketingConsent as true when a consent instant is stored', async () => {
+    const { service } = harness([
+      [row({ marketing_consent_at: new Date('2026-09-24T10:00:00.000Z') })],
+    ]);
+    expect((await service.getProfile(USER_ID)).marketingConsent).toBe(true);
+  });
+
+  it('leaves the consent column untouched when the key is absent', () => {
+    expect(marketingConsentPatch(undefined)).toEqual({});
+  });
+
+  it('withdraws consent with an explicit null', () => {
+    expect(marketingConsentPatch(false)).toEqual({ marketingConsentAt: null });
+  });
+
+  it('grants consent while keeping an earlier grant instant', () => {
+    const patch = marketingConsentPatch(true);
+    expect(typeof patch.marketingConsentAt).toBe('function');
+    const sql = (patch.marketingConsentAt as () => string)();
+    expect(sql).toBe('COALESCE("marketing_consent_at", now())');
+  });
+
+  it('passes the consent patch through replaceAccount', async () => {
+    const { service, updateMock } = harness([[{ id: DISTRICT_ID }], [row()]]);
+
+    await service.replaceAccount(USER_ID, { ...dto, marketingConsent: false });
+
+    expect(updateMock).toHaveBeenCalledWith(
+      { id: USER_ID },
+      expect.objectContaining({ marketingConsentAt: null }),
     );
   });
 });

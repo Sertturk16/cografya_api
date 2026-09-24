@@ -35,11 +35,12 @@ Global providers registered in `app.module.ts`: `APP_GUARD` = `TrustedClientThro
 | `favorites` | list / put / delete | guarded; keyed on business keys (plateCode, isoCode), never uuids |
 | `game-rounds` | `POST`, `GET`, `GET /leaderboard` | guarded; DB-backed submit rate limit |
 | `measurements` | CRUD | guarded |
-| `auth` | 12 ops under `/api/auth` | Argon2id, JWT access, opaque refresh sessions, pending registration, password reset, `MAILER_PORT` (noop or AWS SES) |
+| `auth` | 15 ops under `/api/auth` | Argon2id, JWT access, opaque refresh sessions, pending registration, password reset/change, marketing consent, account deletion, `MAILER_PORT` (noop or AWS SES) |
 | `marine` | points/layers + conditions | ECMWF Open Data + CMEMS ingest behind `MARINE_ENABLED` |
 | `air-quality` | two province reads | CAMS via Copernicus ADS, EAQI constants, `AIR_QUALITY_ENABLED` |
 | `earthquake` | `/api/earthquakes`, `/meta`, `/provinces/:plateCode` | AFAD ingest behind `EARTHQUAKE_ENABLED` |
 | `elevation` | `GET /api/elevation/profile` | AWS Terrarium tiles; `ELEVATION_ENABLED=false` → 404 |
+| `retention` | (no routes) | hourly cleanup tour for expired auth records, see Data retention |
 | `upstream` | (library) | imported by provider legs, not by AppModule |
 
 File layout per module: flat `*.controller.ts` / `*.service.ts` / `*.module.ts`, plus `dto/`,
@@ -72,7 +73,7 @@ inside `beforeAll` after setting `DATABASE_URL`.
 
 - `src/database/data-source-options.ts` → `buildDataSourceOptions(url, overrides?)`, shared by
   app, tests and CLI. `synchronize: false`, `migrationsRun: false`. Entities (25) and migrations
-  (38) are explicit arrays.
+  (40) are explicit arrays.
 - `src/database/data-source.ts` default-exports the CLI `DataSource` (reads `DATABASE_URL`).
 - Migrations: `src/database/migrations/<epochMillis>-<PascalName>.ts`, class
   `<PascalName><epochMillis> implements MigrationInterface`.
@@ -110,6 +111,8 @@ inside `beforeAll` after setting `DATABASE_URL`.
 
 - `AccessTokenGuard` (`src/auth/access-token.guard.ts`), opt-in per route. Bearer JWT only.
   All reject branches throw the same 401 `errors.auth.unauthenticated`.
+- Account deletion (`DELETE /api/auth/account`) requires the current password and spends the
+  same `PASSWORD_CHANGE_USER` identity budget as password change.
 - Refresh tokens opaque and digest-stored (`token-digest.ts`, `opaque-token.ts`). Passwords
   Argon2id. Verification codes HMAC-peppered with domain tags (`verify:`, `rate:`).
 - Throttling: global `TrustedClientThrottlerGuard` over `ThrottlerModule` (120 / 60 s, per
@@ -119,6 +122,22 @@ inside `beforeAll` after setting `DATABASE_URL`.
   and `@ThrottlerErrorMessage(key)` in `src/common/throttler/throttler-metadata.ts`.
 - Visitor identity (`visitor-tracker.ts`): PEER axis (`req.ip`) and FORWARDED axis
   (`x-visitor-address`, trusted only with a valid `x-visitor-forward-token`).
+
+## Data retention
+
+The web's privacy page (`/gizlilik`) quotes this table; change both together.
+`RetentionModule` runs `RetentionCleanupTarget` every hour (`ScheduledWarmupService`, no flag,
+no Redis lock); constants in `src/retention/retention.constants.ts`.
+
+| Data | Kept until |
+| --- | --- |
+| Account (`users`) and everything keyed to it: sessions, reset tokens, favorites, video progress, game rounds (leaderboard), measurements | the member deletes the account (`DELETE /api/auth/account`, every FK to `users` is `ON DELETE CASCADE`) |
+| Marketing consent (`users.marketing_consent_at`) | withdrawn in settings (set to NULL) or account deleted |
+| Unverified registration (`pending_registrations`) | code expires after 10 min; row deleted within 1 day after that |
+| Password-reset token | expires after 30 min; row deleted within 1 day after that |
+| Auth rate-limit windows (`auth_rate_limits`, HMAC of address or user id, never the address) | deleted once the window ends (1 min to 1 day by scope, up to 1 h cleanup lag) |
+| Game-round submit windows | deleted once the 1 h window ends |
+| HTTP access logs (IP, time, request line) | not written by the API; the root `Caddyfile` keeps them 2 years (`roll_keep_for 17520h`, 5651 sayılı Kanun) |
 
 ## OpenAPI
 

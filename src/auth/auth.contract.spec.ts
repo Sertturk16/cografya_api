@@ -136,7 +136,7 @@ describe('openapi/openapi.json — auth contract (AUTH-C1)', () => {
     }
   });
 
-  it('publishes the access-token bearer security scheme, used only by the five authenticated auth operations', () => {
+  it('publishes the access-token bearer security scheme, used only by the six authenticated auth operations', () => {
     const scheme = document.components.securitySchemes?.['access-token'];
     expect(scheme).toEqual({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' });
 
@@ -149,6 +149,8 @@ describe('openapi/openapi.json — auth contract (AUTH-C1)', () => {
       '/api/auth/profile:put',
       '/api/auth/account:put',
       '/api/auth/password/change:post',
+      // T-101: permanent account deletion.
+      '/api/auth/account:delete',
     ]);
 
     for (const opKey of AUTHENTICATED_AUTH_OPERATIONS) {

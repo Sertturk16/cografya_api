@@ -64,6 +64,7 @@ import { AddGameRoundsLeaderboardIndex1788400000000 } from './migrations/1788400
 import { AddSchoolNameAndParentAccountRole1789125265639 } from './migrations/1789125265639-AddSchoolNameAndParentAccountRole';
 import { AddPasswordChangeRateLimitScope1789862400000 } from './migrations/1789862400000-AddPasswordChangeRateLimitScope';
 import { UpdateSeedProseCopy1790208000000 } from './migrations/1790208000000-UpdateSeedProseCopy';
+import { AddMarketingConsent1790294400000 } from './migrations/1790294400000-AddMarketingConsent';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -295,6 +296,7 @@ export function buildDataSourceOptions(
       AddSchoolNameAndParentAccountRole1789125265639,
       AddPasswordChangeRateLimitScope1789862400000,
       UpdateSeedProseCopy1790208000000,
+      AddMarketingConsent1790294400000,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,

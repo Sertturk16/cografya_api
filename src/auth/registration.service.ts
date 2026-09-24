@@ -101,6 +101,8 @@ export class RegistrationService {
       schoolName: dto.schoolName ?? null,
       districtId: dto.districtId,
       locale: dto.locale,
+      // T-101: consent is recorded as the instant the form was submitted, or not at all.
+      marketingConsentAt: dto.marketingConsent ? new Date() : null,
     });
   }
 

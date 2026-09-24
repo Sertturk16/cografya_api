@@ -239,6 +239,7 @@ describe('Auth core schema (e2e)', () => {
       'updated_at',
       'token_version',
       'school_name',
+      'marketing_consent_at',
     ]);
 
     const constraints = await dataSource.query<{ conname: string }[]>(`

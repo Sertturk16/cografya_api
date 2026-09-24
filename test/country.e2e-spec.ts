@@ -298,6 +298,7 @@ describe('Country (e2e)', () => {
       'AddPasswordChangeRateLimitScope1789862400000',
       // T-097: data-only, rewrites seed prose on rows seeded before it; no schema change.
       'UpdateSeedProseCopy1790208000000',
+      'AddMarketingConsent1790294400000',
     ]);
   });
 

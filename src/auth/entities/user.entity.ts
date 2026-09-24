@@ -187,4 +187,13 @@ export class User {
    */
   @Column({ name: 'token_version', type: 'integer', default: 0 })
   tokenVersion!: number;
+
+  /**
+   * When the member consented to commercial electronic messages (T-101); `null` = no consent or
+   * withdrawn. Optional and separate from the terms, so it is never a condition of the service.
+   * Set from the pending registration on verification, then granted/withdrawn on
+   * `PUT /api/auth/account`.
+   */
+  @Column({ name: 'marketing_consent_at', type: 'timestamptz', nullable: true })
+  marketingConsentAt!: Date | null;
 }

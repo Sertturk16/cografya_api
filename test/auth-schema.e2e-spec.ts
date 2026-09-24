@@ -334,6 +334,7 @@ describe('Auth-primitives schema (e2e)', () => {
       'attempt_count',
       'created_at',
       'school_name',
+      'marketing_consent_at',
     ]);
     // The table this one replaced is GONE, not merely unused — a dead table with a live FK and a
     // one-slot unique index is exactly the debt the rework existed to remove.
