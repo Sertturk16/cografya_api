@@ -1,15 +1,17 @@
 /**
- * The declared account profile. This is not an authorization role: a teacher
- * declaration grants no permission by itself (`GLOSSARY.md` §7.1).
+ * The declared account profile. This is not an authorization role: no value grants a
+ * permission. Collected so the owners can read their audience (T-103).
  */
 export enum AccountRole {
   Student = 'STUDENT',
   Teacher = 'TEACHER',
   /**
-   * "Veli" (`GLOSSARY.md` §7.1, `DEC 2026-09-10j`). Reuses the STUDENT education axis in full —
-   * this is a declaration, not an authorization, exactly as STUDENT/TEACHER are.
+   * "Veli". The education columns of a PARENT describe their CHILD: one secondary-school grade
+   * and stream, never a university or a school name (T-103).
    */
   Parent = 'PARENT',
+  /** "Coğrafya meraklısı": carries no education or teacher field (T-103). */
+  Enthusiast = 'ENTHUSIAST',
 }
 
 /** Education axis for student accounts; teacher profiles keep it null. */
@@ -45,6 +47,32 @@ export enum StudyStream {
   Msu = 'MSU',
   AraSinif = 'ARA_SINIF',
   Kpss = 'KPSS',
+  Diger = 'DIGER',
+}
+
+/** Teacher's branch (T-103). Present only on a TEACHER, together with `InstitutionType`. */
+export enum TeacherSubject {
+  Cografya = 'COGRAFYA',
+  SosyalBilgiler = 'SOSYAL_BILGILER',
+  Diger = 'DIGER',
+}
+
+/** Where a teacher works (T-103). Present only on a TEACHER, together with `TeacherSubject`. */
+export enum InstitutionType {
+  DevletOkulu = 'DEVLET_OKULU',
+  OzelOkul = 'OZEL_OKUL',
+  DershaneKurs = 'DERSHANE_KURS',
+  Diger = 'DIGER',
+}
+
+/** "Bizi nereden duydun?" (T-103). Optional for every role, collected at registration only. */
+export enum ReferralSource {
+  Ogretmen = 'OGRETMEN',
+  Arkadas = 'ARKADAS',
+  Youtube = 'YOUTUBE',
+  Instagram = 'INSTAGRAM',
+  Google = 'GOOGLE',
+  Kitap = 'KITAP',
   Diger = 'DIGER',
 }
 

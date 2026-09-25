@@ -229,7 +229,12 @@ export class ProfileService {
       provincePlateCode: row.province_plate_code,
       provinceName: row.province_name,
       createdAt: new Date(row.created_at).toISOString(),
-      isComplete: isProfileComplete(row.account_role, row.education_level),
+      isComplete: isProfileComplete({
+        accountRole: row.account_role,
+        educationLevel: row.education_level,
+        teacherSubject: null,
+        institutionType: null,
+      }),
       marketingConsent: row.marketing_consent_at !== null,
     };
   }
