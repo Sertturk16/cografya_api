@@ -128,6 +128,10 @@ describe('Auth-primitives schema (e2e)', () => {
     departmentName: string | null;
     locale: string;
     passwordHash: string;
+    schoolName: string | null;
+    teacherSubject: string | null;
+    institutionType: string | null;
+    referralSource: string | null;
   }
 
   /**
@@ -154,6 +158,10 @@ describe('Auth-primitives schema (e2e)', () => {
       departmentName: null,
       locale: 'tr',
       passwordHash: SYNTHETIC_PASSWORD_HASH,
+      schoolName: null,
+      teacherSubject: null,
+      institutionType: null,
+      referralSource: null,
       ...overrides,
     };
     const rows = await dataSource.query<{ id: string }[]>(
@@ -161,8 +169,9 @@ describe('Auth-primitives schema (e2e)', () => {
         INSERT INTO pending_registrations (
           email, password_hash, first_name, last_name, phone, account_role, education_level,
           grade_level, study_stream, university_name, department_name, district_id, locale,
-          code_hash, expires_at, attempt_count
-        ) VALUES ($1, $2, 'Synthetic', 'Pending', '+905000000000', $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+          code_hash, expires_at, attempt_count, school_name, teacher_subject, institution_type,
+          referral_source
+        ) VALUES ($1, $2, 'Synthetic', 'Pending', '+905000000000', $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
         RETURNING id
       `,
       [
@@ -179,6 +188,10 @@ describe('Auth-primitives schema (e2e)', () => {
         input.codeHash,
         input.expiresAt,
         input.attemptCount,
+        input.schoolName,
+        input.teacherSubject,
+        input.institutionType,
+        input.referralSource,
       ],
     );
     const row = rows[0];
@@ -335,6 +348,9 @@ describe('Auth-primitives schema (e2e)', () => {
       'created_at',
       'school_name',
       'marketing_consent_at',
+      'teacher_subject',
+      'institution_type',
+      'referral_source',
     ]);
     // The table this one replaced is GONE, not merely unused — a dead table with a live FK and a
     // one-slot unique index is exactly the debt the rework existed to remove.
@@ -463,6 +479,44 @@ describe('Auth-primitives schema (e2e)', () => {
     await expect(insertRateLimit({ scope: 'MADE_UP_SCOPE' })).rejects.toThrow(
       /CHK_auth_rate_limits_scope/,
     );
+
+    // T-103: the new closed sets and the rewritten matrix, on the pending mirror.
+    // R1: Postgres evaluates CHECK constraints in alphabetical order by name, so
+    // `..._profile_shape` (p) is checked before `..._teacher_subject` (t). A default TEACHER row
+    // carrying only `teacherSubject` would trip `..._profile_shape` first (teacher fields must be
+    // both-or-neither); `institutionType: 'DIGER'` keeps the pair complete so `..._profile_shape`
+    // passes and the bad `teacherSubject` value is what actually isolates
+    // `..._teacher_subject` here.
+    await expect(
+      insertPendingRegistration({ teacherSubject: 'MATEMATIK', institutionType: 'DIGER' }),
+    ).rejects.toThrow(/CHK_pending_registrations_teacher_subject/);
+    await expect(insertPendingRegistration({ referralSource: 'TIKTOK' })).rejects.toThrow(
+      /CHK_pending_registrations_referral_source/,
+    );
+    await expect(
+      insertPendingRegistration({ accountRole: 'TEACHER', teacherSubject: 'COGRAFYA' }),
+    ).rejects.toThrow(/CHK_pending_registrations_profile_shape/);
+    await expect(
+      insertPendingRegistration({
+        accountRole: 'PARENT',
+        educationLevel: 'SECONDARY',
+        gradeLevel: 'GRADE_9',
+        studyStream: 'SAYISAL',
+        schoolName: 'Synthetic Lisesi',
+      }),
+    ).rejects.toThrow(/CHK_pending_registrations_profile_shape/);
+    await expect(
+      insertPendingRegistration({ accountRole: 'ENTHUSIAST', gradeLevel: 'GRADE_9' }),
+    ).rejects.toThrow(/CHK_pending_registrations_profile_shape/);
+    await expect(
+      insertPendingRegistration({
+        accountRole: 'TEACHER',
+        teacherSubject: 'COGRAFYA',
+        institutionType: 'DERSHANE_KURS',
+        referralSource: 'YOUTUBE',
+      }),
+    ).resolves.toBeDefined();
+    await expect(insertPendingRegistration({ accountRole: 'ENTHUSIAST' })).resolves.toBeDefined();
   });
 
   it('E2E-SC4: one address may hold SEVERAL live candidates, but two rows may never share a digest', async () => {

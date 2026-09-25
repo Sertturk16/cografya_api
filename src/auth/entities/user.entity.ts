@@ -14,8 +14,18 @@ import {
   AccountStatus,
   EducationLevel,
   GradeLevel,
+  InstitutionType,
+  ReferralSource,
   StudyStream,
+  TeacherSubject,
 } from '../account.types';
+import {
+  ACCOUNT_ROLE_VALUES,
+  INSTITUTION_TYPE_VALUES,
+  PROFILE_SHAPE_CHECK,
+  REFERRAL_SOURCE_VALUES,
+  TEACHER_SUBJECT_VALUES,
+} from './profile-shape-check';
 
 /**
  * Persistent identity and declared education profile.
@@ -36,7 +46,7 @@ import {
   `"email" <> '' AND "email" = btrim("email") AND "email" = lower("email")`,
 )
 @Check('CHK_users_password_hash', `"password_hash" ~ '^\\$argon2id\\$'`)
-@Check('CHK_users_account_role', `"account_role" IN ('STUDENT', 'TEACHER', 'PARENT')`)
+@Check('CHK_users_account_role', `"account_role" IN (${ACCOUNT_ROLE_VALUES})`)
 @Check(
   'CHK_users_education_level',
   `"education_level" IS NULL OR "education_level" IN ('SECONDARY', 'UNDERGRADUATE', 'GRADUATE')`,
@@ -68,39 +78,19 @@ import {
   `"school_name" IS NULL OR ("school_name" <> '' AND "school_name" = btrim("school_name"))`,
 )
 @Check('CHK_users_status', `"status" IN ('UNVERIFIED', 'ACTIVE', 'DISABLED', 'PENDING_DELETION')`)
-// The outer `IS TRUE` is load-bearing: with `education_level` NULL the STUDENT/PARENT branch
-// evaluates to UNKNOWN and a Postgres CHECK accepts UNKNOWN, so the matrix would admit a
-// student/parent carrying branch fields but no declared education level. Folding UNKNOWN to
-// FALSE keeps it fail-closed. Mirrored token for token in
-// `src/database/migrations/1787562000000-InitUsers.ts`; nothing machine-compares the two.
-// `PARENT` (UYE-P1E, `GLOSSARY.md` §7.1) reuses the STUDENT branches in full via the widened
-// role predicate below — it is not a sixth branch. `school_name` is constrained to IS NULL on
-// every branch except SECONDARY, where it is deliberately left unconstrained (optional,
-// `DEC 2026-09-11g`).
+// Spec §5.2 (T-103); the expression is shared with `pending_registrations`.
+@Check('CHK_users_profile_shape', PROFILE_SHAPE_CHECK)
 @Check(
-  'CHK_users_profile_shape',
-  `((` +
-    `"account_role" = 'TEACHER' AND ` +
-    `"education_level" IS NULL AND "grade_level" IS NULL AND "study_stream" IS NULL AND ` +
-    `"university_name" IS NULL AND "department_name" IS NULL AND "school_name" IS NULL` +
-    `) OR (` +
-    `"account_role" IN ('STUDENT', 'PARENT') AND (` +
-    `(` +
-    `"education_level" IS NULL AND "grade_level" IS NULL AND "study_stream" IS NULL AND ` +
-    `"university_name" IS NULL AND "department_name" IS NULL AND "school_name" IS NULL` +
-    `) OR (` +
-    `"education_level" = 'SECONDARY' AND "grade_level" IS NOT NULL AND ` +
-    `"study_stream" IS NOT NULL AND "university_name" IS NULL AND "department_name" IS NULL` +
-    `) OR (` +
-    `"education_level" = 'UNDERGRADUATE' AND "grade_level" IS NULL AND ` +
-    `"study_stream" IS NULL AND "university_name" IS NOT NULL AND ` +
-    `"department_name" IS NOT NULL AND "school_name" IS NULL` +
-    `) OR (` +
-    `"education_level" = 'GRADUATE' AND "grade_level" IS NULL AND ` +
-    `"study_stream" IS NULL AND "university_name" IS NOT NULL AND "school_name" IS NULL` +
-    `)` +
-    `)` +
-    `)) IS TRUE`,
+  'CHK_users_teacher_subject',
+  `"teacher_subject" IS NULL OR "teacher_subject" IN (${TEACHER_SUBJECT_VALUES})`,
+)
+@Check(
+  'CHK_users_institution_type',
+  `"institution_type" IS NULL OR "institution_type" IN (${INSTITUTION_TYPE_VALUES})`,
+)
+@Check(
+  'CHK_users_referral_source',
+  `"referral_source" IS NULL OR "referral_source" IN (${REFERRAL_SOURCE_VALUES})`,
 )
 @Check(
   'CHK_users_verification_state',
@@ -147,10 +137,10 @@ export class User {
   studyStream!: StudyStream | null;
 
   /**
-   * Free text, not a closed set (`GLOSSARY.md` §7.1 `schoolName` sub-block). Meaningful only
-   * within `education_level = SECONDARY`; optional there and NULL on every other branch
-   * (`CHK_users_profile_shape`). No consuming feature reads it yet, and it must never become
-   * the basis for a school-scoped grouping/ranking (`DEC 2026-09-11g`).
+   * Free text, not a closed set (`GLOSSARY.md` §7.1 `schoolName` sub-block). Meaningful only for
+   * a STUDENT on `education_level = SECONDARY`; NULL everywhere else, including a PARENT
+   * (T-103). No consuming feature reads it yet, and it must never become the basis for a
+   * school-scoped grouping/ranking (`DEC 2026-09-11g`).
    */
   @Column({ name: 'school_name', type: 'varchar', length: 200, nullable: true })
   schoolName!: string | null;
@@ -162,6 +152,21 @@ export class User {
   /** Canonical name from the compile-time reference list, validated in UYELIK-02. */
   @Column({ name: 'department_name', type: 'varchar', length: 200, nullable: true })
   departmentName!: string | null;
+
+  /** Teacher's branch (T-103); set together with `institutionType`, NULL on every other role. */
+  @Column({ name: 'teacher_subject', type: 'varchar', length: 16, nullable: true })
+  teacherSubject!: TeacherSubject | null;
+
+  /** Where a teacher works (T-103); set together with `teacherSubject`. */
+  @Column({ name: 'institution_type', type: 'varchar', length: 16, nullable: true })
+  institutionType!: InstitutionType | null;
+
+  /**
+   * "Bizi nereden duydun?" (T-103). Answered once at registration, never edited and never
+   * returned by any endpoint: it exists for the owners' audience reports.
+   */
+  @Column({ name: 'referral_source', type: 'varchar', length: 16, nullable: true })
+  referralSource!: ReferralSource | null;
 
   /** Province is derived through `districts.province_id`; it is not duplicated here. */
   @Column({ name: 'district_id', type: 'uuid' })

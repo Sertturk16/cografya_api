@@ -1,6 +1,21 @@
 import { Check, Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
-import { AccountRole, EducationLevel, GradeLevel, StudyStream } from '../account.types';
+import {
+  AccountRole,
+  EducationLevel,
+  GradeLevel,
+  InstitutionType,
+  ReferralSource,
+  StudyStream,
+  TeacherSubject,
+} from '../account.types';
 import type { MailLocale } from '../mail/mailer.port';
+import {
+  ACCOUNT_ROLE_VALUES,
+  INSTITUTION_TYPE_VALUES,
+  PROFILE_SHAPE_CHECK,
+  REFERRAL_SOURCE_VALUES,
+  TEACHER_SUBJECT_VALUES,
+} from './profile-shape-check';
 
 /**
  * ONE candidate registration for an address that has no `users` row yet: the submitted profile,
@@ -96,10 +111,7 @@ import type { MailLocale } from '../mail/mailer.port';
   `"email" <> '' AND "email" = btrim("email") AND "email" = lower("email")`,
 )
 @Check('CHK_pending_registrations_password_hash', `"password_hash" ~ '^\\$argon2id\\$'`)
-@Check(
-  'CHK_pending_registrations_account_role',
-  `"account_role" IN ('STUDENT', 'TEACHER', 'PARENT')`,
-)
+@Check('CHK_pending_registrations_account_role', `"account_role" IN (${ACCOUNT_ROLE_VALUES})`)
 @Check(
   'CHK_pending_registrations_education_level',
   `"education_level" IS NULL OR "education_level" IN ('SECONDARY', 'UNDERGRADUATE', 'GRADUATE')`,
@@ -130,34 +142,19 @@ import type { MailLocale } from '../mail/mailer.port';
   'CHK_pending_registrations_school_name',
   `"school_name" IS NULL OR ("school_name" <> '' AND "school_name" = btrim("school_name"))`,
 )
-// The outer `IS TRUE` is load-bearing for the same reason it is on `users`: with
-// `education_level` NULL the STUDENT/PARENT branch evaluates to UNKNOWN and a Postgres CHECK
-// accepts UNKNOWN. Mirrored token for token from `user.entity.ts`'s `CHK_users_profile_shape`,
-// `PARENT` widening and `school_name` predicates included (`GLOSSARY.md` §7.1, `DEC 2026-09-11g`).
+// Spec §5.2 (T-103); the expression is shared with `users`.
+@Check('CHK_pending_registrations_profile_shape', PROFILE_SHAPE_CHECK)
 @Check(
-  'CHK_pending_registrations_profile_shape',
-  `((` +
-    `"account_role" = 'TEACHER' AND ` +
-    `"education_level" IS NULL AND "grade_level" IS NULL AND "study_stream" IS NULL AND ` +
-    `"university_name" IS NULL AND "department_name" IS NULL AND "school_name" IS NULL` +
-    `) OR (` +
-    `"account_role" IN ('STUDENT', 'PARENT') AND (` +
-    `(` +
-    `"education_level" IS NULL AND "grade_level" IS NULL AND "study_stream" IS NULL AND ` +
-    `"university_name" IS NULL AND "department_name" IS NULL AND "school_name" IS NULL` +
-    `) OR (` +
-    `"education_level" = 'SECONDARY' AND "grade_level" IS NOT NULL AND ` +
-    `"study_stream" IS NOT NULL AND "university_name" IS NULL AND "department_name" IS NULL` +
-    `) OR (` +
-    `"education_level" = 'UNDERGRADUATE' AND "grade_level" IS NULL AND ` +
-    `"study_stream" IS NULL AND "university_name" IS NOT NULL AND ` +
-    `"department_name" IS NOT NULL AND "school_name" IS NULL` +
-    `) OR (` +
-    `"education_level" = 'GRADUATE' AND "grade_level" IS NULL AND ` +
-    `"study_stream" IS NULL AND "university_name" IS NOT NULL AND "school_name" IS NULL` +
-    `)` +
-    `)` +
-    `)) IS TRUE`,
+  'CHK_pending_registrations_teacher_subject',
+  `"teacher_subject" IS NULL OR "teacher_subject" IN (${TEACHER_SUBJECT_VALUES})`,
+)
+@Check(
+  'CHK_pending_registrations_institution_type',
+  `"institution_type" IS NULL OR "institution_type" IN (${INSTITUTION_TYPE_VALUES})`,
+)
+@Check(
+  'CHK_pending_registrations_referral_source',
+  `"referral_source" IS NULL OR "referral_source" IN (${REFERRAL_SOURCE_VALUES})`,
 )
 export class PendingRegistration {
   /**
@@ -208,6 +205,18 @@ export class PendingRegistration {
 
   @Column({ name: 'department_name', type: 'varchar', length: 200, nullable: true })
   departmentName!: string | null;
+
+  /** Copied verbatim to `users` on verification (T-103). */
+  @Column({ name: 'teacher_subject', type: 'varchar', length: 16, nullable: true })
+  teacherSubject!: TeacherSubject | null;
+
+  /** Copied verbatim to `users` on verification (T-103). */
+  @Column({ name: 'institution_type', type: 'varchar', length: 16, nullable: true })
+  institutionType!: InstitutionType | null;
+
+  /** Copied verbatim to `users` on verification (T-103). */
+  @Column({ name: 'referral_source', type: 'varchar', length: 16, nullable: true })
+  referralSource!: ReferralSource | null;
 
   /** `ON DELETE CASCADE` — a candidate pointing at a removed ilçe could never materialize. */
   @Column({ name: 'district_id', type: 'uuid' })

@@ -238,6 +238,7 @@ describe('Province (e2e)', () => {
       // T-097: data-only, rewrites seed prose on rows seeded before it; no schema change.
       'UpdateSeedProseCopy1790208000000',
       'AddMarketingConsent1790294400000',
+      'AddAccountTypesAndAudienceFields1790380800000',
     ]);
   });
 

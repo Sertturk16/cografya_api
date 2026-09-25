@@ -240,6 +240,9 @@ describe('Auth core schema (e2e)', () => {
       'token_version',
       'school_name',
       'marketing_consent_at',
+      'teacher_subject',
+      'institution_type',
+      'referral_source',
     ]);
 
     const constraints = await dataSource.query<{ conname: string }[]>(`
@@ -256,13 +259,16 @@ describe('Auth core schema (e2e)', () => {
         'CHK_users_email_canonical',
         'CHK_users_first_name',
         'CHK_users_grade_level',
+        'CHK_users_institution_type',
         'CHK_users_last_name',
         'CHK_users_password_hash',
         'CHK_users_phone',
         'CHK_users_profile_shape',
+        'CHK_users_referral_source',
         'CHK_users_school_name',
         'CHK_users_status',
         'CHK_users_study_stream',
+        'CHK_users_teacher_subject',
         'CHK_users_university_name',
         'CHK_users_verification_state',
         'CHK_users_token_version',
@@ -433,7 +439,12 @@ describe('Auth core schema (e2e)', () => {
     // The authority for "which migration is latest" is the explicit `migrations` array in
     // `src/database/data-source-options.ts`, never a directory listing or a timestamp sort
     // (`ENGINEERING.md` §5: "no globs — every migration is registered on purpose"). Its last
-    // entry is now `AddSchoolNameAndParentAccountRole1789125265639` (UYE-P1E). Between this
+    // entry is now `AddSchoolNameAndParentAccountRole1789125265639` (UYE-P1E) — that migration's
+    // OWN `down()` is this test's subject, not the array's current tail. Several further
+    // migrations, including `AddMarketingConsent1790294400000` and T-103's
+    // `AddAccountTypesAndAudienceFields1790380800000`, now sit after it in that array;
+    // `rewindUntilNextRevertIs` above walks the schema back past all of them before this test's
+    // subject is the one `undoLastMigration()` would revert next. Between this
     // integration and the previous round, P1 PR-C's `AddGameRoundsLeaderboardIndex1788400000000`
     // landed on `dev` and now sits between `AddFavoriteRegionAndContinent` — the migration this
     // test exercised two PRs ago — and this migration, so BOTH are now earlier, settled
