@@ -1,15 +1,10 @@
 # cografya_api
 
-NestJS 11 + TypeORM + PostgreSQL 16 + Redis 7. TypeScript `strict` + `noUncheckedIndexedAccess`.
-Node 24, pnpm (pinned via `packageManager`). Single source of truth for the OpenAPI contract
-that `../cografya_web` codegens from. Parent workspace rules: `../CLAUDE.md`.
-
 Read on demand, not every session:
 - `docs/architecture.md` — module map, request pipeline, env, cache/upstream, auth, data ingest.
   Read before adding a module, endpoint, guard, migration or env var.
 - `docs/conventions.md` — code style, DTO/pagination shape, test lanes, commit/PR rules.
   Read before writing a DTO, a test, or a migration.
-- `README.md` — human onboarding (setup, seeds, script table).
 
 ## Commands
 
@@ -47,8 +42,7 @@ reading `DATABASE_URL` from the shell (no `.env` loading).
 - Public reads set headers via `@CacheControl(...)`, never `@Header`. Routes with PII use
   the module's `*-no-store.middleware.ts` (runs before guards, so 401/429 are covered).
 - No global exception filter. Error bodies carry i18n keys (`errors.auth.unauthenticated`,
-  from `*-error-keys.ts`), never prose. The web renders them.
-- User-facing text does not exist in this repo; do not add hardcoded strings.
+  from `*-error-keys.ts`), never prose; the web renders them. No user-facing strings here.
 - Route order: `@Get('map-summary')` stays above `@Get(':slug')` in province/country
   controllers.
 - Feature flags (`MARINE_ENABLED` etc.) gate only the upstream/ingest leg; routes stay up
