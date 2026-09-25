@@ -1,13 +1,22 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsEnum, IsNotEmpty, IsString, MaxLength, ValidateIf } from 'class-validator';
-import { EducationLevel, GradeLevel, StudyStream } from '../account.types';
+import {
+  AccountRole,
+  EducationLevel,
+  GradeLevel,
+  InstitutionType,
+  StudyStream,
+  TeacherSubject,
+} from '../account.types';
 import { IsKnownDepartmentName, IsKnownUniversityName } from '../reference-membership';
 
 /**
  * `PUT /api/auth/profile`'s request body (`plan-api.md` §5.3.3, §10.4).
  *
- * Full replacement semantics: all six properties are REQUIRED-but-nullable.
+ * Full replacement semantics: all nine properties are REQUIRED-but-nullable, except
+ * `accountRole`, which is required and never null. The role is a declaration with no
+ * permission attached, so the member may change it here (T-103).
  * Every key must be present on every request (either a valid value or explicit `null`).
  * An omitted key fails validation with a 400 naming the missing property.
  *
@@ -16,6 +25,32 @@ import { IsKnownDepartmentName, IsKnownUniversityName } from '../reference-membe
  * - `undefined` triggers the type validator and fails with 400.
  */
 export class UpdateProfileRequestDto {
+  @ApiProperty({
+    enum: AccountRole,
+    description: 'Beyan edilen hesap türü; bu uçla değiştirilebilir. Yetki değildir (T-103).',
+  })
+  @IsEnum(AccountRole)
+  accountRole!: AccountRole;
+
+  @ApiProperty({
+    enum: TeacherSubject,
+    nullable: true,
+    description: 'Öğretmenin branşı (TEACHER için). null değeri alanı temizlemek için kullanılır.',
+  })
+  @ValidateIf((_, value: unknown) => value !== null)
+  @IsEnum(TeacherSubject)
+  teacherSubject!: TeacherSubject | null;
+
+  @ApiProperty({
+    enum: InstitutionType,
+    nullable: true,
+    description:
+      'Öğretmenin kurum türü (TEACHER için). null değeri alanı temizlemek için kullanılır.',
+  })
+  @ValidateIf((_, value: unknown) => value !== null)
+  @IsEnum(InstitutionType)
+  institutionType!: InstitutionType | null;
+
   @ApiProperty({
     enum: EducationLevel,
     nullable: true,

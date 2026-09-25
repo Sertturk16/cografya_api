@@ -1,11 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { AccountRole, EducationLevel, GradeLevel, StudyStream } from '../account.types';
+import {
+  AccountRole,
+  EducationLevel,
+  GradeLevel,
+  InstitutionType,
+  StudyStream,
+  TeacherSubject,
+} from '../account.types';
 
 /**
  * `GET /api/auth/profile`, `PUT /api/auth/profile` and `PUT /api/auth/account` response
  * representation (`plan-api.md` §5.3.2, `DEC 2026-09-03a` md.1, `GLOSSARY.md` §7.1, T-061).
  *
- * All eighteen properties are required in the published schema. Nullable properties
+ * All twenty properties are required in the published schema. Nullable properties
  * use explicit `null` when undeclared or not applicable to the role/branch.
  *
  * **This is the ONLY route that publishes the personal block.** `GET /api/auth/session` stays
@@ -117,10 +124,27 @@ export class ProfileDto {
   departmentName!: string | null;
 
   @ApiProperty({
+    enum: TeacherSubject,
+    nullable: true,
+    example: TeacherSubject.Cografya,
+    description: 'Öğretmenin branşı — yalnız TEACHER için, aksi halde null (T-103).',
+  })
+  teacherSubject!: TeacherSubject | null;
+
+  @ApiProperty({
+    enum: InstitutionType,
+    nullable: true,
+    example: InstitutionType.DevletOkulu,
+    description: 'Öğretmenin kurum türü — yalnız TEACHER için, aksi halde null (T-103).',
+  })
+  institutionType!: InstitutionType | null;
+
+  @ApiProperty({
     type: Boolean,
     example: true,
     description:
-      'Profilin tamamlanma durumu — TEACHER için true, STUDENT için educationLevel !== null.',
+      'Profilin tamamlanma durumu — STUDENT/PARENT: educationLevel !== null; TEACHER: branş ve ' +
+      'kurum dolu; ENTHUSIAST: her zaman true (T-103).',
   })
   isComplete!: boolean;
   @ApiProperty({

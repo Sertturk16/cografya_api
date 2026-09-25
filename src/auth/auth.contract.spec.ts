@@ -182,12 +182,12 @@ describe('openapi/openapi.json — auth contract (AUTH-C1)', () => {
    * `components.schemas`), and `openapi-typescript` turns an inline enum into the same
    * string-literal union a named schema would, so Vera's generated type is unaffected either way.
    */
-  it('publishes all four registration enums with their exact, closed member sets, inline', () => {
+  it('publishes all seven registration enums with their exact, closed member sets, inline', () => {
     const registerProperties = document.components.schemas.RegisterRequestDto?.properties as
       Record<string, EnumProperty> | undefined;
 
     const expectedMembers: Record<string, string[]> = {
-      accountRole: ['STUDENT', 'TEACHER', 'PARENT'],
+      accountRole: ['STUDENT', 'TEACHER', 'PARENT', 'ENTHUSIAST'],
       educationLevel: ['SECONDARY', 'UNDERGRADUATE', 'GRADUATE'],
       gradeLevel: [
         'GRADE_5',
@@ -214,6 +214,9 @@ describe('openapi/openapi.json — auth contract (AUTH-C1)', () => {
         'KPSS',
         'DIGER',
       ],
+      teacherSubject: ['COGRAFYA', 'SOSYAL_BILGILER', 'DIGER'],
+      institutionType: ['DEVLET_OKULU', 'OZEL_OKUL', 'DERSHANE_KURS', 'DIGER'],
+      referralSource: ['OGRETMEN', 'ARKADAS', 'YOUTUBE', 'INSTAGRAM', 'GOOGLE', 'KITAP', 'DIGER'],
     };
 
     for (const [field, members] of Object.entries(expectedMembers)) {
@@ -222,10 +225,25 @@ describe('openapi/openapi.json — auth contract (AUTH-C1)', () => {
       expect([...(property?.enum ?? [])].sort()).toEqual([...members].sort());
     }
 
-    // D17's negative half: no named enum schema was minted for any of the four.
-    for (const named of ['AccountRole', 'EducationLevel', 'GradeLevel', 'StudyStream']) {
+    // D17's negative half: no named enum schema was minted for any of the seven.
+    for (const named of [
+      'AccountRole',
+      'EducationLevel',
+      'GradeLevel',
+      'StudyStream',
+      'TeacherSubject',
+      'InstitutionType',
+      'ReferralSource',
+    ]) {
       expect(document.components.schemas[named]).toBeUndefined();
     }
+  });
+
+  it('never publishes referralSource on a response (T-103)', () => {
+    expect(document.components.schemas.ProfileDto?.properties?.referralSource).toBeUndefined();
+    expect(
+      document.components.schemas.UpdateProfileRequestDto?.properties?.referralSource,
+    ).toBeUndefined();
   });
 
   /**

@@ -12,7 +12,15 @@ import {
   Matches,
   MaxLength,
 } from 'class-validator';
-import { AccountRole, EducationLevel, GradeLevel, StudyStream } from '../account.types';
+import {
+  AccountRole,
+  EducationLevel,
+  GradeLevel,
+  InstitutionType,
+  ReferralSource,
+  StudyStream,
+  TeacherSubject,
+} from '../account.types';
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from '../auth.constants';
 import { canonicalizeEmail } from '../email-canonicalization';
 import type { MailLocale } from '../mail/mailer.port';
@@ -104,8 +112,8 @@ export class RegisterRequestDto {
     enum: EducationLevel,
     example: EducationLevel.Secondary,
     description:
-      'Yalnız accountRole=STUDENT|PARENT gönderir; TEACHER bu alanı hiç göndermez (profil ' +
-      'matrisi, §6.4).',
+      'Yalnız STUDENT ve PARENT gönderir. PARENT için yalnız SECONDARY: alanlar çocuğun ' +
+      'sınıfını ve alanını anlatır (T-103).',
   })
   @IsOptional()
   @IsEnum(EducationLevel)
@@ -133,7 +141,7 @@ export class RegisterRequestDto {
     example: 'Synthetic Lisesi',
     maxLength: 200,
     description:
-      'Okul adı — yalnız educationLevel=SECONDARY dalında anlamlıdır (öğrenci veya veli); ' +
+      'Okul adı — yalnız educationLevel=SECONDARY dalında anlamlıdır (yalnız öğrenci); ' +
       'isteğe bağlıdır, kapalı küme değildir, serbest metindir (`GLOSSARY.md` §7.1 `schoolName` ' +
       'alt bloğu, `DEC 2026-09-11g`).',
   })
@@ -165,6 +173,36 @@ export class RegisterRequestDto {
   @IsString()
   @IsKnownDepartmentName()
   departmentName?: string;
+
+  @ApiPropertyOptional({
+    enum: TeacherSubject,
+    example: TeacherSubject.Cografya,
+    description:
+      'Öğretmenin branşı. Yalnız TEACHER gönderir, institutionType ile birlikte (T-103).',
+  })
+  @IsOptional()
+  @IsEnum(TeacherSubject)
+  teacherSubject?: TeacherSubject;
+
+  @ApiPropertyOptional({
+    enum: InstitutionType,
+    example: InstitutionType.DevletOkulu,
+    description:
+      'Öğretmenin çalıştığı kurum türü. Yalnız TEACHER gönderir, teacherSubject ile birlikte (T-103).',
+  })
+  @IsOptional()
+  @IsEnum(InstitutionType)
+  institutionType?: InstitutionType;
+
+  @ApiPropertyOptional({
+    enum: ReferralSource,
+    example: ReferralSource.Youtube,
+    description:
+      '"Bizi nereden duydun?" İsteğe bağlı, her rol için. Yalnız kayıtta alınır, hiçbir yanıtta dönmez (T-103).',
+  })
+  @IsOptional()
+  @IsEnum(ReferralSource)
+  referralSource?: ReferralSource;
 
   @ApiProperty({
     format: 'uuid',

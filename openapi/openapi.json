@@ -6948,7 +6948,8 @@
             "enum": [
               "STUDENT",
               "TEACHER",
-              "PARENT"
+              "PARENT",
+              "ENTHUSIAST"
             ],
             "type": "string",
             "example": "STUDENT",
@@ -6962,7 +6963,7 @@
             ],
             "type": "string",
             "example": "SECONDARY",
-            "description": "Yalnız accountRole=STUDENT|PARENT gönderir; TEACHER bu alanı hiç göndermez (profil matrisi, §6.4)."
+            "description": "Yalnız STUDENT ve PARENT gönderir. PARENT için yalnız SECONDARY: alanlar çocuğun sınıfını ve alanını anlatır (T-103)."
           },
           "gradeLevel": {
             "enum": [
@@ -7003,7 +7004,7 @@
             "type": "string",
             "maxLength": 200,
             "example": "Synthetic Lisesi",
-            "description": "Okul adı — yalnız educationLevel=SECONDARY dalında anlamlıdır (öğrenci veya veli); isteğe bağlıdır, kapalı küme değildir, serbest metindir (`GLOSSARY.md` §7.1 `schoolName` alt bloğu, `DEC 2026-09-11g`)."
+            "description": "Okul adı — yalnız educationLevel=SECONDARY dalında anlamlıdır (yalnız öğrenci); isteğe bağlıdır, kapalı küme değildir, serbest metindir (`GLOSSARY.md` §7.1 `schoolName` alt bloğu, `DEC 2026-09-11g`)."
           },
           "universityName": {
             "type": "string",
@@ -7014,6 +7015,41 @@
             "type": "string",
             "example": "Coğrafya Öğretmenliği",
             "description": "Yalnız educationLevel=UNDERGRADUATE gönderir (GRADUATE için opsiyonel); `GET /api/reference/departments`'ın nameTr kümesinde olmak zorunda."
+          },
+          "teacherSubject": {
+            "enum": [
+              "COGRAFYA",
+              "SOSYAL_BILGILER",
+              "DIGER"
+            ],
+            "type": "string",
+            "example": "COGRAFYA",
+            "description": "Öğretmenin branşı. Yalnız TEACHER gönderir, institutionType ile birlikte (T-103)."
+          },
+          "institutionType": {
+            "enum": [
+              "DEVLET_OKULU",
+              "OZEL_OKUL",
+              "DERSHANE_KURS",
+              "DIGER"
+            ],
+            "type": "string",
+            "example": "DEVLET_OKULU",
+            "description": "Öğretmenin çalıştığı kurum türü. Yalnız TEACHER gönderir, teacherSubject ile birlikte (T-103)."
+          },
+          "referralSource": {
+            "enum": [
+              "OGRETMEN",
+              "ARKADAS",
+              "YOUTUBE",
+              "INSTAGRAM",
+              "GOOGLE",
+              "KITAP",
+              "DIGER"
+            ],
+            "type": "string",
+            "example": "YOUTUBE",
+            "description": "\"Bizi nereden duydun?\" İsteğe bağlı, her rol için. Yalnız kayıtta alınır, hiçbir yanıtta dönmez (T-103)."
           },
           "districtId": {
             "type": "string",
@@ -7266,7 +7302,8 @@
             "enum": [
               "STUDENT",
               "TEACHER",
-              "PARENT"
+              "PARENT",
+              "ENTHUSIAST"
             ],
             "type": "string",
             "example": "STUDENT",
@@ -7336,7 +7373,8 @@
             "enum": [
               "STUDENT",
               "TEACHER",
-              "PARENT"
+              "PARENT",
+              "ENTHUSIAST"
             ],
             "type": "string",
             "example": "STUDENT",
@@ -7408,10 +7446,33 @@
             "example": "Coğrafya Öğretmenliği",
             "description": "Bölüm / program adı — UNDERGRADUATE için zorunlu, GRADUATE için isteğe bağlıdır."
           },
+          "teacherSubject": {
+            "nullable": true,
+            "enum": [
+              "COGRAFYA",
+              "SOSYAL_BILGILER",
+              "DIGER"
+            ],
+            "type": "string",
+            "example": "COGRAFYA",
+            "description": "Öğretmenin branşı — yalnız TEACHER için, aksi halde null (T-103)."
+          },
+          "institutionType": {
+            "nullable": true,
+            "enum": [
+              "DEVLET_OKULU",
+              "OZEL_OKUL",
+              "DERSHANE_KURS",
+              "DIGER"
+            ],
+            "type": "string",
+            "example": "DEVLET_OKULU",
+            "description": "Öğretmenin kurum türü — yalnız TEACHER için, aksi halde null (T-103)."
+          },
           "isComplete": {
             "type": "boolean",
             "example": true,
-            "description": "Profilin tamamlanma durumu — TEACHER için true, STUDENT için educationLevel !== null."
+            "description": "Profilin tamamlanma durumu — STUDENT/PARENT: educationLevel !== null; TEACHER: branş ve kurum dolu; ENTHUSIAST: her zaman true (T-103)."
           },
           "marketingConsent": {
             "type": "boolean",
@@ -7436,6 +7497,8 @@
           "schoolName",
           "universityName",
           "departmentName",
+          "teacherSubject",
+          "institutionType",
           "isComplete",
           "marketingConsent"
         ]
@@ -7443,6 +7506,37 @@
       "UpdateProfileRequestDto": {
         "type": "object",
         "properties": {
+          "accountRole": {
+            "enum": [
+              "STUDENT",
+              "TEACHER",
+              "PARENT",
+              "ENTHUSIAST"
+            ],
+            "type": "string",
+            "description": "Beyan edilen hesap türü; bu uçla değiştirilebilir. Yetki değildir (T-103)."
+          },
+          "teacherSubject": {
+            "nullable": true,
+            "enum": [
+              "COGRAFYA",
+              "SOSYAL_BILGILER",
+              "DIGER"
+            ],
+            "type": "string",
+            "description": "Öğretmenin branşı (TEACHER için). null değeri alanı temizlemek için kullanılır."
+          },
+          "institutionType": {
+            "nullable": true,
+            "enum": [
+              "DEVLET_OKULU",
+              "OZEL_OKUL",
+              "DERSHANE_KURS",
+              "DIGER"
+            ],
+            "type": "string",
+            "description": "Öğretmenin kurum türü (TEACHER için). null değeri alanı temizlemek için kullanılır."
+          },
           "educationLevel": {
             "nullable": true,
             "enum": [
@@ -7506,6 +7600,9 @@
           }
         },
         "required": [
+          "accountRole",
+          "teacherSubject",
+          "institutionType",
           "educationLevel",
           "gradeLevel",
           "studyStream",

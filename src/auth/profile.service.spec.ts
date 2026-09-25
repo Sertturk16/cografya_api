@@ -1,7 +1,14 @@
 import type { DataSource, Repository } from 'typeorm';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { AccountRole, EducationLevel, GradeLevel, StudyStream } from './account.types';
+import {
+  AccountRole,
+  EducationLevel,
+  GradeLevel,
+  InstitutionType,
+  StudyStream,
+  TeacherSubject,
+} from './account.types';
 import { marketingConsentPatch, ProfileService, type ProfileRow } from './profile.service';
 import { User } from './entities/user.entity';
 
@@ -26,6 +33,8 @@ function row(overrides: Partial<ProfileRow> = {}): ProfileRow {
     school_name: null,
     university_name: 'Boğaziçi Üniversitesi',
     department_name: 'Coğrafya Öğretmenliği',
+    teacher_subject: null,
+    institution_type: null,
     created_at: new Date('2026-01-02T03:04:05.000Z'),
     district_id: DISTRICT_ID,
     district_name: 'Kadıköy',
@@ -116,6 +125,27 @@ describe('ProfileService.getProfile', () => {
     const { service } = harness([[]]);
 
     await expect(service.getProfile(USER_ID)).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  it('maps a TEACHER row with one teacher field set to isComplete: false', async () => {
+    const { service } = harness([
+      [
+        row({
+          account_role: AccountRole.Teacher,
+          education_level: null,
+          university_name: null,
+          department_name: null,
+          teacher_subject: TeacherSubject.Cografya,
+          institution_type: null,
+        }),
+      ],
+    ]);
+
+    const dto = await service.getProfile(USER_ID);
+
+    expect(dto.teacherSubject).toBe(TeacherSubject.Cografya);
+    expect(dto.institutionType).toBeNull();
+    expect(dto.isComplete).toBe(false);
   });
 });
 
@@ -226,7 +256,7 @@ describe('marketing consent (T-101)', () => {
   });
 });
 
-describe('ProfileService.replaceProfile (education block, unchanged behaviour)', () => {
+describe('ProfileService.replaceProfile (declared profile, T-103)', () => {
   let studentRow: ProfileRow;
 
   beforeEach(() => {
@@ -234,45 +264,79 @@ describe('ProfileService.replaceProfile (education block, unchanged behaviour)',
   });
 
   it('writes the six education columns and derives isComplete', async () => {
-    const { service, updateMock } = harness([
-      [{ account_role: AccountRole.Student }],
-      [studentRow],
-    ]);
+    const { service, updateMock } = harness([[studentRow]]);
 
     const result = await service.replaceProfile(USER_ID, {
+      accountRole: AccountRole.Student,
       educationLevel: EducationLevel.Undergraduate,
       gradeLevel: null,
       studyStream: null,
       schoolName: null,
       universityName: 'Boğaziçi Üniversitesi',
       departmentName: 'Coğrafya Öğretmenliği',
+      teacherSubject: null,
+      institutionType: null,
     });
 
     expect(updateMock).toHaveBeenCalledWith(
       { id: USER_ID },
       {
+        accountRole: AccountRole.Student,
         educationLevel: EducationLevel.Undergraduate,
         gradeLevel: null,
         studyStream: null,
-        schoolName: null,
         universityName: 'Boğaziçi Üniversitesi',
         departmentName: 'Coğrafya Öğretmenliği',
+        schoolName: null,
+        teacherSubject: null,
+        institutionType: null,
       },
     );
     expect(result.isComplete).toBe(true);
   });
 
-  it('validates the shape against the PERSISTED role, never the request', async () => {
-    const { service, updateMock } = harness([[{ account_role: AccountRole.Teacher }]]);
+  it('validates against the REQUESTED role and writes the role with the fields (T-103)', async () => {
+    const { service, updateMock } = harness([[row()]]);
+    await service.replaceProfile(USER_ID, {
+      accountRole: AccountRole.Teacher,
+      educationLevel: null,
+      gradeLevel: null,
+      studyStream: null,
+      schoolName: null,
+      universityName: null,
+      departmentName: null,
+      teacherSubject: TeacherSubject.Cografya,
+      institutionType: InstitutionType.OzelOkul,
+    });
+    expect(updateMock).toHaveBeenCalledWith(
+      { id: USER_ID },
+      {
+        accountRole: AccountRole.Teacher,
+        educationLevel: null,
+        gradeLevel: null,
+        studyStream: null,
+        universityName: null,
+        departmentName: null,
+        schoolName: null,
+        teacherSubject: TeacherSubject.Cografya,
+        institutionType: InstitutionType.OzelOkul,
+      },
+    );
+  });
 
+  it('rejects a shape that does not fit the requested role, and writes nothing', async () => {
+    const { service, updateMock } = harness([]);
     await expect(
       service.replaceProfile(USER_ID, {
+        accountRole: AccountRole.Enthusiast,
         educationLevel: EducationLevel.Secondary,
         gradeLevel: GradeLevel.Grade9,
         studyStream: StudyStream.Sayisal,
         schoolName: null,
         universityName: null,
         departmentName: null,
+        teacherSubject: null,
+        institutionType: null,
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
     expect(updateMock).not.toHaveBeenCalled();
