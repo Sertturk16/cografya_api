@@ -435,7 +435,7 @@ describe('Auth core schema (e2e)', () => {
     throw new Error(`did not reach ${migrationClassName} within 20 reverts`);
   };
 
-  it('reverts and reapplies the latest migration (AddSchoolNameAndParentAccountRole) on empty synthetic tables', async () => {
+  it('reverts and reapplies AddSchoolNameAndParentAccountRole on empty synthetic tables', async () => {
     // The authority for "which migration is latest" is the explicit `migrations` array in
     // `src/database/data-source-options.ts`, never a directory listing or a timestamp sort
     // (`ENGINEERING.md` §5: "no globs — every migration is registered on purpose"). Its last
@@ -453,7 +453,9 @@ describe('Auth core schema (e2e)', () => {
     // editing" the lists that pin it); this file is the fourth pin of that class, and the one
     // that exercises the up/down path rather than the order.
     //
-    // The new latest migration adds a NULLABLE `school_name` column to `users` AND
+    // This is the migration under test — `AddMarketingConsent` and T-103's
+    // `AddAccountTypesAndAudienceFields` come after it in the array and are rewound first by
+    // `rewindUntilNextRevertIs` above. It adds a NULLABLE `school_name` column to `users` AND
     // `pending_registrations`, widens both tables' `..._account_role` CHECK to admit `PARENT`,
     // and widens both `..._profile_shape` CHECKs to constrain `school_name` on every branch
     // except SECONDARY (`plan.md` §5.4). So the probe is a column-EXISTENCE check on

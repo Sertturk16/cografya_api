@@ -9,7 +9,9 @@ import {
   AccountStatus,
   EducationLevel,
   GradeLevel,
+  InstitutionType,
   StudyStream,
+  TeacherSubject,
 } from '../src/auth/account.types';
 import { AccessTokenService } from '../src/auth/access-token.service';
 import { AUTH_ERROR_KEYS } from '../src/auth/auth-error-keys';
@@ -49,15 +51,18 @@ describe('Auth Profile (e2e, real Postgres)', () => {
   let tokenLegacy: string;
 
   interface AxisPayload {
+    accountRole: AccountRole;
     educationLevel: EducationLevel | null;
     gradeLevel: GradeLevel | null;
     studyStream: StudyStream | null;
     universityName: string | null;
     departmentName: string | null;
     schoolName: string | null;
+    teacherSubject: TeacherSubject | null;
+    institutionType: InstitutionType | null;
   }
 
-  const CLEARED_AXIS: AxisPayload = {
+  const CLEARED_AXIS: Omit<AxisPayload, 'accountRole' | 'teacherSubject' | 'institutionType'> = {
     educationLevel: null,
     gradeLevel: null,
     studyStream: null,
@@ -66,8 +71,11 @@ describe('Auth Profile (e2e, real Postgres)', () => {
     schoolName: null,
   };
 
-  const axis = (overrides: Partial<AxisPayload> = {}): AxisPayload => ({
+  const axis = (accountRole: AccountRole, overrides: Partial<AxisPayload> = {}): AxisPayload => ({
     ...CLEARED_AXIS,
+    teacherSubject: null,
+    institutionType: null,
+    accountRole,
     ...overrides,
   });
 
@@ -177,7 +185,7 @@ describe('Auth Profile (e2e, real Postgres)', () => {
     const res = await request(app.getHttpServer())
       .put('/api/auth/profile')
       .send(
-        axis({
+        axis(AccountRole.Student, {
           educationLevel: EducationLevel.Secondary,
           gradeLevel: GradeLevel.Grade12,
           studyStream: StudyStream.Sayisal,
@@ -193,7 +201,7 @@ describe('Auth Profile (e2e, real Postgres)', () => {
       .put('/api/auth/profile')
       .set(bearer(tokenA))
       .send(
-        axis({
+        axis(AccountRole.Student, {
           educationLevel: EducationLevel.Secondary,
           gradeLevel: GradeLevel.Grade12,
           studyStream: StudyStream.Sayisal,
@@ -230,7 +238,7 @@ describe('Auth Profile (e2e, real Postgres)', () => {
         .put('/api/auth/profile')
         .set(bearer(tokenA))
         .send({
-          ...axis({
+          ...axis(AccountRole.Student, {
             educationLevel: EducationLevel.Secondary,
             gradeLevel: GradeLevel.Grade12,
             studyStream: StudyStream.Sayisal,
@@ -306,7 +314,7 @@ describe('Auth Profile (e2e, real Postgres)', () => {
       .put('/api/auth/profile')
       .set(bearer(tokenA))
       .send(
-        axis({
+        axis(AccountRole.Student, {
           educationLevel: EducationLevel.Secondary,
           gradeLevel: GradeLevel.Grade12,
           studyStream: StudyStream.Sayisal,
@@ -339,7 +347,7 @@ describe('Auth Profile (e2e, real Postgres)', () => {
   });
 
   // P-B2: Teacher role branch
-  it('P-B2: teacher GET reports isComplete: true, all-null PUT is accepted, and education fields 400', async () => {
+  it('P-B2: teacher GET reports isComplete: false until branch and institution are set', async () => {
     const getRes = await request(app.getHttpServer())
       .get('/api/auth/profile')
       .set(bearer(tokenTeacher));
@@ -351,23 +359,38 @@ describe('Auth Profile (e2e, real Postgres)', () => {
       studyStream: null,
       universityName: null,
       departmentName: null,
-      isComplete: true,
+      teacherSubject: null,
+      institutionType: null,
+      isComplete: false,
     });
 
-    // Valid teacher no-op PUT carries explicit all-null axis()
-    const putOk = await request(app.getHttpServer())
+    // All-null teacher PUT (no branch/institution yet) is accepted but incomplete.
+    const putStillIncomplete = await request(app.getHttpServer())
       .put('/api/auth/profile')
       .set(bearer(tokenTeacher))
-      .send(axis());
-    expect(putOk.status).toBe(200);
-    expect(putOk.body.isComplete).toBe(true);
+      .send(axis(AccountRole.Teacher));
+    expect(putStillIncomplete.status).toBe(200);
+    expect(putStillIncomplete.body.isComplete).toBe(false);
+
+    // Setting both teacher fields completes the profile.
+    const putComplete = await request(app.getHttpServer())
+      .put('/api/auth/profile')
+      .set(bearer(tokenTeacher))
+      .send(
+        axis(AccountRole.Teacher, {
+          teacherSubject: TeacherSubject.Cografya,
+          institutionType: InstitutionType.DevletOkulu,
+        }),
+      );
+    expect(putComplete.status).toBe(200);
+    expect(putComplete.body.isComplete).toBe(true);
 
     // Attempting to supply education fields for teacher returns 400
     const putBad = await request(app.getHttpServer())
       .put('/api/auth/profile')
       .set(bearer(tokenTeacher))
       .send(
-        axis({
+        axis(AccountRole.Teacher, {
           educationLevel: EducationLevel.Secondary,
           gradeLevel: GradeLevel.Grade9,
           studyStream: StudyStream.Sayisal,
@@ -390,7 +413,7 @@ describe('Auth Profile (e2e, real Postgres)', () => {
       .put('/api/auth/profile')
       .set(bearer(tokenLegacy))
       .send(
-        axis({
+        axis(AccountRole.Student, {
           educationLevel: EducationLevel.Secondary,
           gradeLevel: GradeLevel.Grade11,
           studyStream: StudyStream.Sozel,
@@ -419,7 +442,7 @@ describe('Auth Profile (e2e, real Postgres)', () => {
     const res = await request(app.getHttpServer())
       .put('/api/auth/profile')
       .set(bearer(tokenA))
-      .send(axis({ educationLevel: EducationLevel.Secondary })); // Missing gradeLevel and studyStream
+      .send(axis(AccountRole.Student, { educationLevel: EducationLevel.Secondary })); // Missing gradeLevel and studyStream
 
     expect(res.status).toBe(400);
     expect(res.body.message).toBe(PROFILE_SHAPE_MESSAGE);
@@ -439,7 +462,7 @@ describe('Auth Profile (e2e, real Postgres)', () => {
       .put('/api/auth/profile')
       .set(bearer(tokenA))
       .send(
-        axis({
+        axis(AccountRole.Student, {
           educationLevel: EducationLevel.Secondary,
           gradeLevel: GradeLevel.Grade12,
           studyStream: StudyStream.Sayisal,

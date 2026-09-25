@@ -481,7 +481,7 @@ describe('Auth-primitives schema (e2e)', () => {
     );
 
     // T-103: the new closed sets and the rewritten matrix, on the pending mirror.
-    // R1: Postgres evaluates CHECK constraints in alphabetical order by name, so
+    // Postgres evaluates CHECK constraints in alphabetical order by name, so
     // `..._profile_shape` (p) is checked before `..._teacher_subject` (t). A default TEACHER row
     // carrying only `teacherSubject` would trip `..._profile_shape` first (teacher fields must be
     // both-or-neither); `institutionType: 'DIGER'` keeps the pair complete so `..._profile_shape`
@@ -507,6 +507,35 @@ describe('Auth-primitives schema (e2e)', () => {
     ).rejects.toThrow(/CHK_pending_registrations_profile_shape/);
     await expect(
       insertPendingRegistration({ accountRole: 'ENTHUSIAST', gradeLevel: 'GRADE_9' }),
+    ).rejects.toThrow(/CHK_pending_registrations_profile_shape/);
+    // E2E-SC3: a PARENT never declares higher education — UNDERGRADUATE and GRADUATE are both
+    // rejected, not only the SECONDARY+schoolName shape already pinned above.
+    await expect(
+      insertPendingRegistration({
+        accountRole: 'PARENT',
+        educationLevel: 'UNDERGRADUATE',
+        universityName: 'Boğaziçi Üniversitesi',
+        departmentName: 'Coğrafya Öğretmenliği',
+      }),
+    ).rejects.toThrow(/CHK_pending_registrations_profile_shape/);
+    await expect(
+      insertPendingRegistration({
+        accountRole: 'PARENT',
+        educationLevel: 'GRADUATE',
+        universityName: 'Boğaziçi Üniversitesi',
+      }),
+    ).rejects.toThrow(/CHK_pending_registrations_profile_shape/);
+    // E2E-SC3: a TEACHER with only one of the two teacher fields — both or neither.
+    await expect(
+      insertPendingRegistration({ accountRole: 'TEACHER', institutionType: 'DEVLET_OKULU' }),
+    ).rejects.toThrow(/CHK_pending_registrations_profile_shape/);
+    // E2E-SC3: a minimal STUDENT carrying teacher fields — teacher fields are TEACHER-only.
+    await expect(
+      insertPendingRegistration({
+        accountRole: 'STUDENT',
+        teacherSubject: 'COGRAFYA',
+        institutionType: 'DEVLET_OKULU',
+      }),
     ).rejects.toThrow(/CHK_pending_registrations_profile_shape/);
     await expect(
       insertPendingRegistration({
