@@ -225,7 +225,6 @@ describe('Auth Profile (e2e, real Postgres)', () => {
   // P-A4: Mass-assignment protection
   it('P-A4: rejects forbidden properties on PUT and leaves persisted identity/security columns unchanged', async () => {
     const forbiddenProps = [
-      { accountRole: 'TEACHER' },
       { email: 'hacked@example.test' },
       { status: 'SUSPENDED' },
       { tokenVersion: 999 },

@@ -14,8 +14,8 @@ import {
 } from './profile-shape.rule';
 
 /**
- * U-PS1: the five branches' full positive matrix, plus every missing/extra-field negative per
- * branch — mirrors `CHK_users_profile_shape` (`../entities/user.entity.ts`) case for case.
+ * U-PS1: the four-role matrix's full positive matrix, plus every missing/extra-field negative
+ * per branch — mirrors `CHK_users_profile_shape` (`../entities/user.entity.ts`) case for case.
  *
  * `PARENT` (T-103) is its own branch: minimal, or SECONDARY with grade + stream and no school;
  * UNDERGRADUATE/GRADUATE are rejected. TEACHER carries both teacher fields or neither;

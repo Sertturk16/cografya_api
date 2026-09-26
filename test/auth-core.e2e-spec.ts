@@ -438,9 +438,9 @@ describe('Auth core schema (e2e)', () => {
   it('reverts and reapplies AddSchoolNameAndParentAccountRole on empty synthetic tables', async () => {
     // The authority for "which migration is latest" is the explicit `migrations` array in
     // `src/database/data-source-options.ts`, never a directory listing or a timestamp sort
-    // (`ENGINEERING.md` §5: "no globs — every migration is registered on purpose"). Its last
-    // entry is now `AddSchoolNameAndParentAccountRole1789125265639` (UYE-P1E) — that migration's
-    // OWN `down()` is this test's subject, not the array's current tail. Several further
+    // (`ENGINEERING.md` §5: "no globs — every migration is registered on purpose").
+    // `AddSchoolNameAndParentAccountRole1789125265639`'s (UYE-P1E) OWN `down()` is this test's
+    // subject, not the array's current tail. Several further
     // migrations, including `AddMarketingConsent1790294400000` and T-103's
     // `AddAccountTypesAndAudienceFields1790380800000`, now sit after it in that array;
     // `rewindUntilNextRevertIs` above walks the schema back past all of them before this test's

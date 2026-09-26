@@ -372,8 +372,10 @@ export class AuthController {
     summary:
       'Replace the declared education profile of the authenticated caller (full replacement).',
     description:
-      'Replaces the caller’s entire declared education profile (`plan-api.md` §5.3.1, §5.3.3). ' +
-      'All five keys are required; explicit null clears a field. Idempotent.',
+      'Replaces the caller’s declared profile — the account role plus every role-dependent ' +
+      'field (`plan-api.md` §5.3.1, §5.3.3). All nine keys are required (`accountRole` never ' +
+      'null, the other eight nullable); explicit null clears a field. The role may change here, ' +
+      'and fields the new role does not use must be null. Idempotent.',
   })
   @ApiOkResponse({ type: ProfileDto })
   @ApiBadRequestResponse({
