@@ -507,6 +507,7 @@ describe('Video progress (e2e, real Postgres)', () => {
         watchedCount: 0,
         startedCount: 0,
         resume: null,
+        videos: [],
       });
     });
 
@@ -552,6 +553,11 @@ describe('Video progress (e2e, real Postgres)', () => {
       const body = response.body as { watchedCount: number; startedCount: number };
       expect(body.watchedCount).toBe(1);
       expect(body.startedCount).toBe(2);
+      // T-128: one row per started video, in book order, for the list's status icons.
+      expect((response.body as { videos: unknown[] }).videos).toEqual([
+        { bookVideoId: first.id, lastPositionSeconds: 10, watched: true },
+        { bookVideoId: second.id, lastPositionSeconds: 5, watched: false },
+      ]);
     });
 
     it('resume carries the most-recently-updated progress row, keyed by orderNo (never the retired denemeNo)', async () => {
@@ -614,6 +620,7 @@ describe('Video progress (e2e, real Postgres)', () => {
         watchedCount: 0,
         startedCount: 0,
         resume: null,
+        videos: [],
       });
     });
 
@@ -685,10 +692,12 @@ describe('Video progress (e2e, real Postgres)', () => {
           watchedCount: number;
           startedCount: number;
           resume: { bookVideoId: string } | null;
+          videos: { bookVideoId: string }[];
         };
         expect(body.watchedCount).toBe(1);
         expect(body.startedCount).toBe(1);
         expect(body.resume?.bookVideoId).toBe(first.id);
+        expect(body.videos.map((row) => row.bookVideoId)).toEqual([first.id]);
       });
     });
   });

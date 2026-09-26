@@ -64,6 +64,26 @@ export class BookProgressResumeDto {
  * startedCount: 0, resume: null }` is a real, useful answer — this route answers "how far am I",
  * which has a valid zero, unlike the single-video `GET`'s "do I have a row here".
  */
+/** One of the caller's progress rows for this book (T-128) — the book page's per-row status. */
+export class BookProgressVideoDto {
+  @ApiProperty({ format: 'uuid', description: 'book_videos.id this progress row belongs to.' })
+  bookVideoId!: string;
+
+  @ApiProperty({
+    type: Number,
+    minimum: 0,
+    example: 245,
+    description: 'Last playback position on this video, in seconds.',
+  })
+  lastPositionSeconds!: number;
+
+  @ApiProperty({
+    type: Boolean,
+    description: "The caller's declared watched signal on this video.",
+  })
+  watched!: boolean;
+}
+
 export class BookProgressDto {
   @ApiProperty({
     type: String,
@@ -112,4 +132,12 @@ export class BookProgressDto {
       'the caller has none.',
   })
   resume!: BookProgressResumeDto | null;
+
+  @ApiProperty({
+    type: [BookProgressVideoDto],
+    description:
+      "The caller's progress rows among this book's videos, ordered by the video's orderNo — one " +
+      'per started video; empty when the caller has none. Feeds per-video status on the book page.',
+  })
+  videos!: BookProgressVideoDto[];
 }

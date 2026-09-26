@@ -7767,6 +7767,31 @@
           "updatedAt"
         ]
       },
+      "BookProgressVideoDto": {
+        "type": "object",
+        "properties": {
+          "bookVideoId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "book_videos.id this progress row belongs to."
+          },
+          "lastPositionSeconds": {
+            "type": "number",
+            "minimum": 0,
+            "example": 245,
+            "description": "Last playback position on this video, in seconds."
+          },
+          "watched": {
+            "type": "boolean",
+            "description": "The caller's declared watched signal on this video."
+          }
+        },
+        "required": [
+          "bookVideoId",
+          "lastPositionSeconds",
+          "watched"
+        ]
+      },
       "BookProgressDto": {
         "type": "object",
         "properties": {
@@ -7802,6 +7827,13 @@
                 "$ref": "#/components/schemas/BookProgressResumeDto"
               }
             ]
+          },
+          "videos": {
+            "description": "The caller's progress rows among this book's videos, ordered by the video's orderNo — one per started video; empty when the caller has none. Feeds per-video status on the book page.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookProgressVideoDto"
+            }
           }
         },
         "required": [
@@ -7809,7 +7841,8 @@
           "videoCount",
           "watchedCount",
           "startedCount",
-          "resume"
+          "resume",
+          "videos"
         ]
       },
       "VideoProgressDto": {
