@@ -237,6 +237,9 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
       .find({ where: { email }, order: { createdAt: 'ASC' } });
   }
 
+  /** Backend pid of the connection {@link withHeldRowLock} holds its locks on, while it holds them. */
+  let lockHolderPid: number | undefined;
+
   /** Holds a row lock from a SEPARATE connection — the stand-in for a concurrent `verify`. */
   async function withHeldRowLock<T>(
     ids: readonly string[],
@@ -246,6 +249,8 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
     await runner.connect();
     await runner.startTransaction();
     try {
+      const holder = (await runner.query('SELECT pg_backend_pid() AS pid')) as { pid: number }[];
+      lockHolderPid = holder[0]?.pid;
       for (const id of ids) {
         await runner.query('SELECT id FROM pending_registrations WHERE id = $1 FOR UPDATE', [id]);
       }
@@ -253,6 +258,7 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
         await runner.query('SELECT id FROM pending_registrations WHERE id = $1 FOR UPDATE', [id]);
       });
     } finally {
+      lockHolderPid = undefined;
       await runner.rollbackTransaction();
       await runner.release();
     }
@@ -267,19 +273,22 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
    * lock — that lock (`RowShareLock`) is a table-level intent lock and is granted immediately,
    * whatever row it targets. The wait itself is a `transactionid`-type lock on the HOLDING
    * transaction's own xid, and `pg_locks.relation` is NULL for that row — so
-   * `WHERE NOT granted AND relation = 'pending_registrations'::regclass` can never match. Joined
-   * against `pg_stat_activity` on `pid` to keep the check scoped to a backend whose own query
-   * names this table, rather than any ungranted lock anywhere in the instance.
+   * `WHERE NOT granted AND relation = 'pending_registrations'::regclass` can never match.
+   *
+   * The check is therefore "some backend is blocked by the connection {@link withHeldRowLock}
+   * holds its row locks on" (`pg_blocking_pids`), which is scoped to exactly this test's lock.
+   * It must not match on `pg_stat_activity.query` text: Postgres truncates that column at
+   * `track_activity_query_size` (1 kB by default), and the ORM's locking `SELECT` lists every
+   * entity column before its `FROM`, so a wide enough entity pushes the table name out of view.
    */
   async function waitForBlockedWaiter(): Promise<void> {
+    if (lockHolderPid === undefined) {
+      throw new Error('waitForBlockedWaiter must run inside withHeldRowLock');
+    }
     for (let attempt = 0; attempt < 200; attempt += 1) {
       const rows = await dataSource.query<{ n: string }[]>(
-        `SELECT count(*)::int AS n
-           FROM pg_locks l
-           JOIN pg_stat_activity a ON a.pid = l.pid
-          WHERE NOT l.granted
-            AND l.locktype = 'transactionid'
-            AND a.query ILIKE '%pending_registrations%'`,
+        `SELECT count(*)::int AS n FROM pg_stat_activity WHERE $1 = ANY(pg_blocking_pids(pid))`,
+        [lockHolderPid],
       );
       if (Number(rows[0]?.n ?? 0) > 0) return;
       await new Promise((resolve) => setTimeout(resolve, 25));
