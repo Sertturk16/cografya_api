@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from '@jest/globals';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { DataSource } from 'typeorm';
-import { ExamTrack } from '../src/book/book.types';
+import { BookContentKind, ExamTrack } from '../src/book/book.types';
 import { BookVideoTag } from '../src/book/entities/book-video-tag.entity';
 import { BookVideo } from '../src/book/entities/book-video.entity';
 import { Book } from '../src/book/entities/book.entity';
@@ -622,6 +622,7 @@ describe('Book seed write path (e2e, real Postgres)', () => {
         isbn13: '9999999999994',
         pageCount: 10,
         examTrack: ExamTrack.Ayt,
+        contentKind: BookContentKind.Deneme,
         coverImagePath: null,
         purchaseUrl: null,
         introTr: 'Bu, deneme numarası taşımayan jenerik bir kitap kaydıdır.',

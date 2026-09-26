@@ -7,7 +7,7 @@ import { DataSource, QueryFailedError } from 'typeorm';
 import { AccountRole, AccountStatus } from '../src/auth/account.types';
 import { AccessTokenService } from '../src/auth/access-token.service';
 import { User } from '../src/auth/entities/user.entity';
-import { ExamTrack, YoutubeThumbnailKey } from '../src/book/book.types';
+import { BookContentKind, ExamTrack, YoutubeThumbnailKey } from '../src/book/book.types';
 import { BookVideo } from '../src/book/entities/book-video.entity';
 import { Book } from '../src/book/entities/book.entity';
 import { applyGlobalPrefix } from '../src/common/bootstrap';
@@ -633,6 +633,7 @@ describe('Video progress (e2e, real Postgres)', () => {
             isbn13: '9999999999999',
             pageCount: 100,
             examTrack: ExamTrack.Ayt,
+            contentKind: BookContentKind.Deneme,
             coverImagePath: null,
             purchaseUrl: null,
             introTr: 'Bu ikinci örnek anlatıdır ve ilkinden başka sözcüklerle yazılmıştır.',

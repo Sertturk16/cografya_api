@@ -5,7 +5,7 @@ import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testconta
 import request from 'supertest';
 import { DataSource } from 'typeorm';
 import { YOUTUBE_CHANNEL_URL } from '../src/book/book-attribution.catalogue';
-import { ExamTrack } from '../src/book/book.types';
+import { BookContentKind, ExamTrack } from '../src/book/book.types';
 import {
   BOOK_LIST_DEFAULT_PAGE,
   BOOK_LIST_DEFAULT_PAGE_SIZE,
@@ -397,6 +397,7 @@ describe('Book read path (e2e, real Postgres)', () => {
           isbn13: '9999999999993',
           pageCount: 1,
           examTrack: ExamTrack.Ayt,
+          contentKind: BookContentKind.Deneme,
           coverImagePath: null,
           purchaseUrl: null,
           introTr: 'Fixture.',
@@ -537,6 +538,7 @@ describe('Book read path (e2e, real Postgres)', () => {
           isbn13: '9999999999995',
           pageCount: 1,
           examTrack: ExamTrack.Ayt,
+          contentKind: BookContentKind.Deneme,
           coverImagePath: null,
           purchaseUrl: null,
           introTr: 'Fixture.',
@@ -622,6 +624,7 @@ describe('Book read path (e2e, real Postgres)', () => {
             isbn13: suffix === 'alpha' ? '9999999999991' : '9999999999992',
             pageCount: 1,
             examTrack: ExamTrack.Ayt,
+            contentKind: BookContentKind.Deneme,
             coverImagePath: null,
             purchaseUrl: null,
             introTr: 'Fixture.',

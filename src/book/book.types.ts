@@ -54,6 +54,19 @@ export enum ExamTrack {
 }
 
 /**
+ * How a book's videos are organised — drives the reader-facing nouns on the book page
+ * ("30 deneme", "Önceki test") and whether video titles are composed or authored.
+ * Closed set: adding a member is a breaking contract change, same as {@link ExamTrack}.
+ */
+export enum BookContentKind {
+  Deneme = 'deneme',
+  SoruBankasi = 'soru_bankasi',
+  KonuAnlatimi = 'konu_anlatimi',
+  Kamp = 'kamp',
+  TekVideo = 'tek_video',
+}
+
+/**
  * Who an attribution row credits.
  *
  * Two rows, always both, on every response (SPEC §6.2 item 3). They are NOT interchangeable and
