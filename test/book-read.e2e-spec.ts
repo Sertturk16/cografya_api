@@ -50,6 +50,7 @@ interface ListItem {
   titleTr: string;
   publisherName: string;
   examTrack: string;
+  contentKind: string;
   coverImagePath: string | null;
   displayOrder: number;
   updatedAt: string;
@@ -80,6 +81,8 @@ interface Detail extends ListItem {
     orderNo: number;
     titleTr: string | null;
     titleEn: string | null;
+    groupTitleTr: string | null;
+    groupTitleEn: string | null;
     tags: { orderNo: number; startSecond: number; nameTr: string | null; nameEn: string | null }[];
     youtube: unknown;
   }[];
@@ -219,6 +222,10 @@ describe('Book read path (e2e, real Postgres)', () => {
       expect(body.videos.length).toBeGreaterThan(0);
       expect(body.slugTr).toBe(first.slugTr);
       expect(body.updatedAt).toBe(first.updatedAt);
+      // T-128: the seeded book is a deneme book and has no video groups.
+      expect(first.contentKind).toBe('deneme');
+      expect(body.contentKind).toBe('deneme');
+      expect(body.videos[0]).toMatchObject({ groupTitleTr: null, groupTitleEn: null });
       // Structural, not a count: the DTO does not publish `videoCount`/`questionCount`/`coverage`
       // any more.
       expect(Object.prototype.hasOwnProperty.call(body, 'coverage')).toBe(false);

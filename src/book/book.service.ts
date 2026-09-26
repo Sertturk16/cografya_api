@@ -225,6 +225,8 @@ export class BookService {
       orderNo: video.orderNo,
       titleTr: video.titleTr,
       titleEn: video.titleEn,
+      groupTitleTr: video.groupTitleTr,
+      groupTitleEn: video.groupTitleEn,
       tags: (tagsByVideo.get(video.id) ?? []).map((tag) => ({
         orderNo: tag.orderNo,
         startSecond: tag.startSecond,
@@ -343,6 +345,7 @@ export class BookService {
       titleTr: row.titleTr,
       publisherName: row.publisherName,
       examTrack: row.examTrack,
+      contentKind: row.contentKind,
       coverImagePath: row.coverImagePath,
       displayOrder: row.displayOrder,
       updatedAt: latestUpdatedAt(row.updatedAt, stats.childrenUpdatedAt).toISOString(),

@@ -66,6 +66,7 @@ describe('openapi/openapi.json — book contract', () => {
       'titleTr',
       'publisherName',
       'examTrack',
+      'contentKind',
       'coverImagePath',
       'displayOrder',
       'updatedAt',
@@ -76,6 +77,7 @@ describe('openapi/openapi.json — book contract', () => {
       'titleTr',
       'publisherName',
       'examTrack',
+      'contentKind',
       'coverImagePath',
       'displayOrder',
       'updatedAt',
@@ -93,7 +95,16 @@ describe('openapi/openapi.json — book contract', () => {
       'videos',
       'attribution',
     ],
-    BookVideoDto: ['bookVideoId', 'orderNo', 'titleTr', 'titleEn', 'tags', 'youtube'],
+    BookVideoDto: [
+      'bookVideoId',
+      'orderNo',
+      'titleTr',
+      'titleEn',
+      'groupTitleTr',
+      'groupTitleEn',
+      'tags',
+      'youtube',
+    ],
     BookVideoTagDto: ['orderNo', 'startSecond', 'nameTr', 'nameEn'],
     BookVideoYoutubeDto: [
       'thumbnailUrl',
@@ -122,10 +133,22 @@ describe('openapi/openapi.json — book contract', () => {
   const PUBLISHED_NULLABLE: Record<string, readonly string[]> = {
     BookListItemDto: ['coverImagePath'],
     BookDetailDto: ['coverImagePath', 'titleEn', 'introEn', 'youtubePlaylistId', 'purchaseUrl'],
-    BookVideoDto: ['titleTr', 'titleEn', 'youtube'],
+    BookVideoDto: ['titleTr', 'titleEn', 'groupTitleTr', 'groupTitleEn', 'youtube'],
     BookVideoTagDto: ['nameTr', 'nameEn'],
     BookAttributionDto: ['licenceUrl', 'channelUrl'],
   };
+
+  it('publishes contentKind as the closed five-member enum', () => {
+    const property = schemaOf('BookListItemDto').properties?.contentKind as
+      { enum?: string[] } | undefined;
+    expect(property?.enum).toEqual([
+      'deneme',
+      'soru_bankasi',
+      'konu_anlatimi',
+      'kamp',
+      'tek_video',
+    ]);
+  });
 
   it('publishes all 7 book schemas (the B1 frozen set, narrowed 8→7 in P0 PR-3)', () => {
     // B1 registers three of these through `ROUTELESS_CONTRACT_MODELS` and reaches the rest

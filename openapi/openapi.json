@@ -5869,6 +5869,18 @@
             "example": "AYT",
             "description": "Which exam this book prepares for. A closed set — adding a member is a breaking contract change, because it can break an exhaustive switch in the consumer."
           },
+          "contentKind": {
+            "enum": [
+              "deneme",
+              "soru_bankasi",
+              "konu_anlatimi",
+              "kamp",
+              "tek_video"
+            ],
+            "type": "string",
+            "example": "deneme",
+            "description": "How the book organises its videos — drives the reader-facing nouns (deneme, test, ders, fasikül, video). A closed set: adding a member is a breaking contract change."
+          },
           "coverImagePath": {
             "type": "string",
             "nullable": true,
@@ -5893,6 +5905,7 @@
           "titleTr",
           "publisherName",
           "examTrack",
+          "contentKind",
           "coverImagePath",
           "displayOrder",
           "updatedAt"
@@ -6055,6 +6068,18 @@
             "example": null,
             "description": "EN counterpart of titleTr, null on the same SEO-POLICY §B14 14.2 grounds every other EN twin uses: a field with no counterpart is omitted, never machine-filled."
           },
+          "groupTitleTr": {
+            "type": "string",
+            "nullable": true,
+            "example": null,
+            "description": "Group heading this video sits under (\"1. Ünite · Doğal Sistemler\", \"1. GÜN\"). Consecutive videos sharing a value form one group; null is an untitled group. Null for a deneme book."
+          },
+          "groupTitleEn": {
+            "type": "string",
+            "nullable": true,
+            "example": null,
+            "description": "EN counterpart of groupTitleTr; null when there is no counterpart."
+          },
           "tags": {
             "description": "The etiket index for this video, ascending by orderNo and by startSecond. It must be readable and clickable WITHOUT JavaScript: SEO-POLICY §12.2.b treats a page whose body exists to send the visitor elsewhere as a BLOCKER, and this index is what keeps the page on the right side of that line. Renamed from `questions` (P0 PR-3, `DEC 2026-09-10b` md.1).",
             "type": "array",
@@ -6078,6 +6103,8 @@
           "orderNo",
           "titleTr",
           "titleEn",
+          "groupTitleTr",
+          "groupTitleEn",
           "tags",
           "youtube"
         ]
@@ -6154,6 +6181,18 @@
             "type": "string",
             "example": "AYT",
             "description": "Which exam this book prepares for. A closed set — adding a member is a breaking contract change, because it can break an exhaustive switch in the consumer."
+          },
+          "contentKind": {
+            "enum": [
+              "deneme",
+              "soru_bankasi",
+              "konu_anlatimi",
+              "kamp",
+              "tek_video"
+            ],
+            "type": "string",
+            "example": "deneme",
+            "description": "How the book organises its videos — drives the reader-facing nouns (deneme, test, ders, fasikül, video). A closed set: adding a member is a breaking contract change."
           },
           "coverImagePath": {
             "type": "string",
@@ -6253,6 +6292,7 @@
           "titleTr",
           "publisherName",
           "examTrack",
+          "contentKind",
           "coverImagePath",
           "displayOrder",
           "updatedAt",
