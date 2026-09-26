@@ -1,7 +1,14 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { AccountRole, EducationLevel, GradeLevel, StudyStream } from './account.types';
+import {
+  AccountRole,
+  EducationLevel,
+  GradeLevel,
+  InstitutionType,
+  StudyStream,
+  TeacherSubject,
+} from './account.types';
 import { AUTH_ERROR_KEYS } from './auth-error-keys';
 import { assertDistrictBelongsToProvince } from './district-membership';
 import type { ProfileDto } from './dto/profile.dto';
@@ -31,6 +38,8 @@ export interface ProfileRow {
   school_name: string | null;
   university_name: string | null;
   department_name: string | null;
+  teacher_subject: TeacherSubject | null;
+  institution_type: InstitutionType | null;
   created_at: Date;
   district_id: string;
   district_name: string;
@@ -120,57 +129,30 @@ export class ProfileService {
   }
 
   /**
-   * Replaces the caller's entire declared education profile (idempotent full replacement).
-   *
-   * 1. Reads the persisted `accountRole`.
-   * 2. Normalizes the 6 fields into local constants (defaulting undefined to null defensively).
-   * 3. Validates candidate shape against the persisted accountRole (NEVER from the request).
-   * 4. Updates exactly the six education columns.
-   * 5. Returns the re-read representation with derived `isComplete`.
+   * Replaces the caller's declared profile: the role and every role-dependent field, in one
+   * idempotent write (T-103). The shape is validated against the REQUESTED role; the role is
+   * a declaration with no permission attached, so the member may change it. Fields the new
+   * role does not use arrive as `null` and are written as `null`, which is what clears a
+   * previous role's data.
    */
   async replaceProfile(userId: string, dto: UpdateProfileRequestDto): Promise<ProfileDto> {
-    const rows = await this.dataSource.query<{ account_role: AccountRole }[]>(
-      `SELECT u.account_role FROM users u WHERE u.id = $1`,
-      [userId],
-    );
-    const persisted = rows[0];
-    if (!persisted) {
-      throw new UnauthorizedException(AUTH_ERROR_KEYS.unauthenticated);
-    }
+    const fields = {
+      accountRole: dto.accountRole,
+      educationLevel: dto.educationLevel ?? null,
+      gradeLevel: dto.gradeLevel ?? null,
+      studyStream: dto.studyStream ?? null,
+      universityName: dto.universityName ?? null,
+      departmentName: dto.departmentName ?? null,
+      schoolName: dto.schoolName ?? null,
+      teacherSubject: dto.teacherSubject ?? null,
+      institutionType: dto.institutionType ?? null,
+    };
 
-    const educationLevel = dto.educationLevel ?? null;
-    const gradeLevel = dto.gradeLevel ?? null;
-    const studyStream = dto.studyStream ?? null;
-    const universityName = dto.universityName ?? null;
-    const departmentName = dto.departmentName ?? null;
-    const schoolName = dto.schoolName ?? null;
-
-    const valid = isProfileShapeValid({
-      accountRole: persisted.account_role, // from DB, NEVER from request
-      educationLevel,
-      gradeLevel,
-      studyStream,
-      universityName,
-      departmentName,
-      schoolName,
-    });
-
-    if (!valid) {
+    if (!isProfileShapeValid(fields)) {
       throw new BadRequestException(PROFILE_SHAPE_MESSAGE);
     }
 
-    const result = await this.users.update(
-      { id: userId },
-      {
-        educationLevel,
-        gradeLevel,
-        studyStream,
-        universityName,
-        departmentName,
-        schoolName,
-      },
-    );
-
+    const result = await this.users.update({ id: userId }, fields);
     if (!result.affected) {
       throw new UnauthorizedException(AUTH_ERROR_KEYS.unauthenticated);
     }
@@ -191,6 +173,8 @@ export class ProfileService {
               u.school_name,
               u.university_name,
               u.department_name,
+              u.teacher_subject,
+              u.institution_type,
               u.created_at,
               u.district_id,
               d.name_tr    AS district_name,
@@ -224,12 +208,19 @@ export class ProfileService {
       schoolName: row.school_name,
       universityName: row.university_name,
       departmentName: row.department_name,
+      teacherSubject: row.teacher_subject,
+      institutionType: row.institution_type,
       districtId: row.district_id,
       districtName: row.district_name,
       provincePlateCode: row.province_plate_code,
       provinceName: row.province_name,
       createdAt: new Date(row.created_at).toISOString(),
-      isComplete: isProfileComplete(row.account_role, row.education_level),
+      isComplete: isProfileComplete({
+        accountRole: row.account_role,
+        educationLevel: row.education_level,
+        teacherSubject: row.teacher_subject,
+        institutionType: row.institution_type,
+      }),
       marketingConsent: row.marketing_consent_at !== null,
     };
   }

@@ -113,6 +113,9 @@ export type PendingRegistrationDraft = Pick<
   | 'universityName'
   | 'departmentName'
   | 'schoolName'
+  | 'teacherSubject'
+  | 'institutionType'
+  | 'referralSource'
   | 'districtId'
   | 'locale'
   | 'marketingConsentAt'
@@ -289,6 +292,9 @@ export class EmailVerificationService {
           universityName: matched.universityName,
           departmentName: matched.departmentName,
           schoolName: matched.schoolName,
+          teacherSubject: matched.teacherSubject,
+          institutionType: matched.institutionType,
+          referralSource: matched.referralSource,
           districtId: matched.districtId,
           status: AccountStatus.Active,
           emailVerifiedAt: now,
@@ -515,6 +521,9 @@ export class EmailVerificationService {
             universityName: newest.universityName,
             departmentName: newest.departmentName,
             schoolName: newest.schoolName,
+            teacherSubject: newest.teacherSubject,
+            institutionType: newest.institutionType,
+            referralSource: newest.referralSource,
             districtId: newest.districtId,
             locale: newest.locale,
             marketingConsentAt: newest.marketingConsentAt,

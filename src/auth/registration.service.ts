@@ -99,6 +99,9 @@ export class RegistrationService {
       universityName: dto.universityName ?? null,
       departmentName: dto.departmentName ?? null,
       schoolName: dto.schoolName ?? null,
+      teacherSubject: dto.teacherSubject ?? null,
+      institutionType: dto.institutionType ?? null,
+      referralSource: dto.referralSource ?? null,
       districtId: dto.districtId,
       locale: dto.locale,
       // T-101: consent is recorded as the instant the form was submitted, or not at all.

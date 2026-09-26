@@ -240,6 +240,9 @@ describe('Auth core schema (e2e)', () => {
       'token_version',
       'school_name',
       'marketing_consent_at',
+      'teacher_subject',
+      'institution_type',
+      'referral_source',
     ]);
 
     const constraints = await dataSource.query<{ conname: string }[]>(`
@@ -256,13 +259,16 @@ describe('Auth core schema (e2e)', () => {
         'CHK_users_email_canonical',
         'CHK_users_first_name',
         'CHK_users_grade_level',
+        'CHK_users_institution_type',
         'CHK_users_last_name',
         'CHK_users_password_hash',
         'CHK_users_phone',
         'CHK_users_profile_shape',
+        'CHK_users_referral_source',
         'CHK_users_school_name',
         'CHK_users_status',
         'CHK_users_study_stream',
+        'CHK_users_teacher_subject',
         'CHK_users_university_name',
         'CHK_users_verification_state',
         'CHK_users_token_version',
@@ -429,11 +435,16 @@ describe('Auth core schema (e2e)', () => {
     throw new Error(`did not reach ${migrationClassName} within 20 reverts`);
   };
 
-  it('reverts and reapplies the latest migration (AddSchoolNameAndParentAccountRole) on empty synthetic tables', async () => {
+  it('reverts and reapplies AddSchoolNameAndParentAccountRole on empty synthetic tables', async () => {
     // The authority for "which migration is latest" is the explicit `migrations` array in
     // `src/database/data-source-options.ts`, never a directory listing or a timestamp sort
-    // (`ENGINEERING.md` §5: "no globs — every migration is registered on purpose"). Its last
-    // entry is now `AddSchoolNameAndParentAccountRole1789125265639` (UYE-P1E). Between this
+    // (`ENGINEERING.md` §5: "no globs — every migration is registered on purpose").
+    // `AddSchoolNameAndParentAccountRole1789125265639`'s (UYE-P1E) OWN `down()` is this test's
+    // subject, not the array's current tail. Several further
+    // migrations, including `AddMarketingConsent1790294400000` and T-103's
+    // `AddAccountTypesAndAudienceFields1790380800000`, now sit after it in that array;
+    // `rewindUntilNextRevertIs` above walks the schema back past all of them before this test's
+    // subject is the one `undoLastMigration()` would revert next. Between this
     // integration and the previous round, P1 PR-C's `AddGameRoundsLeaderboardIndex1788400000000`
     // landed on `dev` and now sits between `AddFavoriteRegionAndContinent` — the migration this
     // test exercised two PRs ago — and this migration, so BOTH are now earlier, settled
@@ -442,7 +453,9 @@ describe('Auth core schema (e2e)', () => {
     // editing" the lists that pin it); this file is the fourth pin of that class, and the one
     // that exercises the up/down path rather than the order.
     //
-    // The new latest migration adds a NULLABLE `school_name` column to `users` AND
+    // This is the migration under test — `AddMarketingConsent` and T-103's
+    // `AddAccountTypesAndAudienceFields` come after it in the array and are rewound first by
+    // `rewindUntilNextRevertIs` above. It adds a NULLABLE `school_name` column to `users` AND
     // `pending_registrations`, widens both tables' `..._account_role` CHECK to admit `PARENT`,
     // and widens both `..._profile_shape` CHECKs to constrain `school_name` on every branch
     // except SECONDARY (`plan.md` §5.4). So the probe is a column-EXISTENCE check on
