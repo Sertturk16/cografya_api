@@ -974,14 +974,14 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'yarı kurak bir yerel iklime sahiptir. Haziran-kasım döneminde Atlantik ve Karayip kökenli ' +
       'yıkıcı kasırgalar adayı düzenli olarak boydan boya etkiler.',
     hydrographyNoteTr:
-      "Küba'nın ince ve uzun ada biçimi, suların hızla kuzey ya da güney kıyılarına " +
-      'ulaşmasına neden olduğu için akarsuların ezici çoğunluğu kısa boyludur. Bu kuralın en ' +
-      'büyük istisnası, Sierra Maestra eteklerinden doğup batıya doğru tektonik bir oluk boyunca ' +
-      "370 kilometre akarak Guacanayabo Körfezi'ne dökülen Cauto Nehri'dir. Doğu dağlarının " +
-      'gür ormanlarından doğan Toa Nehri ise bozulmamış havzasıyla ülkenin debisi en yüksek ' +
+      "Küba'nın ince ve uzun ada biçimi, suların hızla kuzey ya da güney kıyılarına ulaşmasına " +
+      'neden olduğu için akarsuların ezici çoğunluğu kısa boyludur. Bu kuralın en büyük ' +
+      'istisnası, Sierra Maestra eteklerinden doğup batıya doğru tektonik bir oluk boyunca 343 ' +
+      "kilometre akarak Guacanayabo Körfezi'ne dökülen Cauto Nehri'dir. Doğu dağlarının gür " +
+      'ormanlarından doğan Toa Nehri ise bozulmamış havzasıyla ülkenin debisi en yüksek ' +
       'akarsuyudur. Batıdaki karstik alanlarda sular yer altına çekilerek mağara nehirleri ' +
-      "oluştururken, güney kıyısındaki Zapata Yarımadası Karayipler'in en geniş sulak alan " +
-      've bataklık ekosistemini barındırır.',
+      "oluştururken, güney kıyısındaki Zapata Yarımadası Karayipler'in en geniş sulak alan ve " +
+      'bataklık ekosistemini barındırır.',
   },
   {
     isoCode: 'DM',

@@ -433,11 +433,13 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       'Kıyı şeridi, deniz dalgalarının yığdığı kum setleri, mangrovlar ve Nokoué gibi sığ ' +
       'lagünlerle kaplı alçak bir kıyı ovasıdır. Kıyının hemen ardında, Couffo, Zou ve Ouémé ' +
       'nehirlerinin yardığı killi ve verimli güney platoları uzanır; orta kesimde arazi granit ' +
-      'kayalık tepelerle (inselberg) çeşitlenen dalgalı bir aşınım düzlüğü (peneplen) halini alır. ' +
+      'kayalık tepelerle (inselberg) çeşitlenen dalgalı bir aşınım düzlüğü (peneplen) halini ' +
+      'alır. ' +
       '\n\n' +
       'Kuzeybatıda, Togo sınırına paralel uzanan Atakora Sıradağları ülkenin en engebeli ' +
-      'topoğrafyasını oluşturur; kuvarsit ve kumtaşından oluşan bu kütle üzerindeki 658 ' +
-      "metrelik Sokbaro Dağı, Benin'in en yüksek noktasıdır.",
+      'topoğrafyasını oluşturur; kuvarsit ve kumtaşından oluşan bu kütlede uzun süre ülkenin en ' +
+      'yüksek noktası sayılan 658 metrelik Sokbaro Dağı yükselir; güncel ölçümler ise Kotopounga ' +
+      'yakınındaki yaklaşık 670 metrelik isimsiz bir tepenin daha yüksek olduğunu göstermiştir.',
     climateNoteTr:
       "Benin'de iklim, güneydeki nemli tropikal kuşaktan kuzeydeki kurak Sudan savanına doğru " +
       'kademelenir. Güney kıyılarında nisan-haziran ve eylül-kasım aylarında olmak üzere iki ' +

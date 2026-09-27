@@ -745,7 +745,7 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'rüzgarları, kış ortasında bile hızlı kar erimelerine ve ani çığ ' +
       'risklerine yol açar.',
     hydrographyNoteTr:
-      'Tuna Nehri, batıdan doğuya yaklaşık 349 kilometre boyunca ülkeyi kat ederek Avusturya ' +
+      'Tuna Nehri, batıdan doğuya yaklaşık 350 kilometre boyunca ülkeyi kat ederek Avusturya ' +
       "hidrografyasının ana omurgasını çizer. İnn, Salzach, Enns ve Traun nehirleri Alpler'deki " +
       'buzul ve kar erimelerinden beslenerek Tuna havzasına katılır; böylece ülke topraklarının ' +
       "neredeyse tamamı sularını doğrudan Karadeniz'e ulaştırır." +
@@ -2124,15 +2124,15 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       "çanaklarında Avrupa kıtasının yegane çölü olan Tabernas Çölü'nün yer aldığı yarı-kurak " +
       've kurak step iklimi hüküm sürer.',
     hydrographyNoteTr:
-      "Meseta'nın batıya doğru hafif eğimli jeolojik yapısı nedeniyle İspanya nehirlerinin " +
-      "büyük kısmı Atlas Okyanusu'na yönelir. Ülkenin ve İber'in en uzun akarsuyu olan 1.007 " +
+      "Meseta'nın batıya doğru hafif eğimli jeolojik yapısı nedeniyle İspanya nehirlerinin büyük " +
+      "kısmı Atlas Okyanusu'na yönelir. Ülkenin ve İber'in en uzun akarsuyu olan 1.007 " +
       "kilometrelik Tajo (Tagus), Portekiz'e geçerek Lizbon'da okyanusa ulaşır; Duero ve " +
       'Guadiana da benzer şekilde batıya akar.' +
       '\n\n' +
-      "Akdeniz'e dökülen en büyük nehir ise Kantabria Dağları'ndan doğup kuzeydoğuyu kat eden " +
-      "ve İspanya'nın su debisi en yüksek akarsuyu olan 910 kilometrelik Ebro'dur. Tamamen " +
-      "İspanya içinde kalarak Endülüs ovalarını sulayan Guadalquivir ise Sevilla'ya kadar gemi " +
-      'trafiğine elverişli tek nehirdir.',
+      "Akdeniz'e dökülen en büyük nehir ise Kantabria Dağları'ndan doğup kuzeydoğuyu kat eden ve " +
+      "İspanya'nın su debisi en yüksek akarsuyu olan 930 kilometrelik Ebro'dur. Tamamen İspanya " +
+      "içinde kalarak Endülüs ovalarını sulayan Guadalquivir ise Sevilla'ya kadar gemi trafiğine " +
+      'elverişli tek nehirdir.',
   },
   {
     isoCode: 'BY',

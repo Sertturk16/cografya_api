@@ -138,17 +138,6 @@ export const SEED_FACT_CHANGES: readonly SeedFactChange[] = [
   {
     table: 'provinces',
     keyColumn: 'plate_code',
-    key: '58',
-    property: 'hydrographyNoteTr',
-    column: 'hydrography_note_tr',
-    before:
-      "Kızılırmak, İmranlı ilçesinde Kızıldağ'ın 2.000 metreyi aşan yükseltilerinden doğar. Sivas topraklarından geçtikten sonra Kayseri, Kırşehir, Kırıkkale, Ankara, Aksaray, Nevşehir, Çorum ve Samsun'dan geçerek Karadeniz'e dökülür. Millî Eğitim Bakanlığı müfredat kaynakları nehrin toplam uzunluğu için 1.355 kilometre rakamını kullanır.",
-    after:
-      "Kızılırmak, İmranlı ilçesinde Kızıldağ'ın 2.000 metreyi aşan yükseltilerinden doğar. Sivas topraklarından geçtikten sonra Kayseri, Kırşehir, Kırıkkale, Ankara, Aksaray, Nevşehir, Çankırı, Çorum ve Samsun'dan geçerek Karadeniz'e dökülür. Millî Eğitim Bakanlığı müfredat kaynakları nehrin toplam uzunluğu için 1.355 kilometre rakamını kullanır.",
-  },
-  {
-    table: 'provinces',
-    keyColumn: 'plate_code',
     key: '61',
     property: 'landformNoteTr',
     column: 'landform_note_tr',
@@ -188,7 +177,7 @@ export const SEED_FACT_CHANGES: readonly SeedFactChange[] = [
     before:
       "Van'ın yer şekillerini jeolojik açıdan genç volkanik faaliyetler ve yoğun yer kabuğu hareketleri biçimlendirmiştir. İlin batısındaki Van Gölü, yaklaşık 200 bin yıl önce Nemrut Dağı'nın patlayarak püskürttüğü lavların Muş Havzası'na giden doğal akış yolunu tıkamasıyla oluşmuş dünyanın en büyük volkanik set gölüdür. Tepesinde 6 kilometre çapında geniş bir kaldera barındıran 2.935 metrelik Nemrut Dağı, son lav akıntısı 1441'de kaydedilmiş uyuyan aktif bir volkandır.\n\nGöl çanağının kuzeyinde yükselen 4.058 metrelik Süphan Dağı, zirvesindeki buzul kalıntılarıyla Ağrı ve Cilo'nun ardından Türkiye'nin üçüncü yüksek doruğudur. Havza güneyden dik ve parçalı Bitlis Masifi, kuzey ve doğudan ise Aladağ ve Tendürek volkanik dizilimleriyle kuşatılmıştır.\n\nKuzey ve Doğu Anadolu fay sistemlerinin karmaşık gerilme alanında yer alan ilde, 23 Ekim 2011'de merkez üssü Tabanlı olan 7,2 büyüklüğünde bir deprem yaşanmış, 604 kişi yaşamını yitirmiş ve en ağır yıkım Erciş ilçesinde meydana gelmiştir. Aynı yılın 9 Kasım'ında Edremit merkezli 5,6 büyüklüğündeki sarsıntı da binalarda ek hasara yol açmıştır.",
     after:
-      "Van'ın yer şekillerini jeolojik açıdan genç volkanik faaliyetler ve yoğun yer kabuğu hareketleri biçimlendirmiştir. İlin batısındaki Van Gölü, yaklaşık 200 bin yıl önce Nemrut Dağı'nın patlayarak püskürttüğü lavların Muş Havzası'na giden doğal akış yolunu tıkamasıyla oluşmuş dünyanın en büyük volkanik set gölüdür. Gölün batısında, komşu Bitlis sınırları içinde yükselen ve tepesinde 6 kilometre çapında geniş bir kaldera barındıran 2.935 metrelik Nemrut Dağı, son lav akıntısı 1441'de kaydedilmiş uyuyan aktif bir volkandır.\n\nGöl çanağının kuzeyinde yükselen 4.058 metrelik Süphan Dağı, zirvesindeki buzul kalıntılarıyla Ağrı ve Cilo'nun ardından Türkiye'nin üçüncü yüksek doruğudur. Havza güneyden dik ve parçalı Bitlis Masifi, kuzey ve doğudan ise Aladağ ve Tendürek volkanik dizilimleriyle kuşatılmıştır.\n\nKuzey ve Doğu Anadolu fay sistemlerinin karmaşık gerilme alanında yer alan ilde, 23 Ekim 2011'de merkez üssü Tabanlı olan 7,2 büyüklüğünde bir deprem yaşanmış, 604 kişi yaşamını yitirmiş ve en ağır yıkım Erciş ilçesinde meydana gelmiştir. Aynı yılın 9 Kasım'ında Edremit merkezli 5,6 büyüklüğündeki sarsıntı da binalarda ek hasara yol açmıştır.",
+      "Van'ın yer şekillerini jeolojik açıdan genç volkanik faaliyetler ve yoğun yer kabuğu hareketleri biçimlendirmiştir. İlin batısındaki Van Gölü, yaklaşık 200 bin yıl önce Nemrut Dağı'nın patlayarak püskürttüğü lavların Muş Havzası'na giden doğal akış yolunu tıkamasıyla oluşmuş dünyanın en büyük volkanik set gölüdür. Gölün batısında, komşu Bitlis sınırları içinde yükselen ve tepesinde 6 kilometre çapında geniş bir kaldera barındıran 2.935 metrelik Nemrut Dağı, tarihsel dönemde 1441, 1597 ve 1650 yıllarında püskürdüğü kaydedilen uyuyan aktif bir volkandır.\n\nGöl çanağının kuzeyinde yükselen 4.058 metrelik Süphan Dağı, zirvesindeki buzul kalıntılarıyla Ağrı ve Cilo'nun ardından Türkiye'nin üçüncü yüksek doruğudur. Havza güneyden dik ve parçalı Bitlis Masifi, kuzey ve doğudan ise Aladağ ve Tendürek volkanik dizilimleriyle kuşatılmıştır.\n\nKuzey ve Doğu Anadolu fay sistemlerinin karmaşık gerilme alanında yer alan ilde, 23 Ekim 2011'de merkez üssü Tabanlı olan 7,2 büyüklüğünde bir deprem yaşanmış, 604 kişi yaşamını yitirmiş ve en ağır yıkım Erciş ilçesinde meydana gelmiştir. Aynı yılın 9 Kasım'ında Edremit merkezli 5,6 büyüklüğündeki sarsıntı da binalarda ek hasara yol açmıştır.",
   },
   {
     table: 'provinces',
@@ -603,7 +592,7 @@ export const SEED_FACT_CHANGES: readonly SeedFactChange[] = [
     before:
       "Aksaray, Kapadokya'nın en uzun kanyonlarından biri olan Ihlara Vadisi'ne ev sahipliği yapar. İlin kuzeydoğu ucu, Türkiye'nin ikinci büyük gölü Tuz Gölü'nün güneybatı kıyısına kadar uzanır.",
     after:
-      "Aksaray, Kapadokya'nın en uzun kanyonlarından biri olan Ihlara Vadisi'ne ev sahipliği yapar. İlin kuzeybatı ucu, Türkiye'nin ikinci büyük gölü Tuz Gölü'nün güneybatı kıyısına kadar uzanır.",
+      "Aksaray, Kapadokya'nın en uzun kanyonlarından biri olan Ihlara Vadisi'ne ev sahipliği yapar. İlin kuzeybatı ucu, Türkiye'nin ikinci büyük gölü Tuz Gölü'nün güneydoğu kıyısına kadar uzanır.",
   },
   {
     table: 'provinces',
@@ -759,24 +748,13 @@ export const SEED_FACT_CHANGES: readonly SeedFactChange[] = [
   {
     table: 'provinces',
     keyColumn: 'plate_code',
-    key: '20',
-    property: 'hydrographyNoteTr',
-    column: 'hydrography_note_tr',
-    before:
-      "Büyük Menderes Nehri, Afyonkarahisar'ın Dinar ilçesindeki Suçıkan kaynağından doğduktan sonra Denizli topraklarına girer ve Çivril, Çal ve Baklan ovalarını sular. İlin kendi kolu Çürüksu Çayı, Honaz Dağı ve çevresindeki kaynaklardan beslenerek Sarayköy yakınlarında Büyük Menderes'e katılır.\n\nDSİ 21. Bölge Müdürlüğü'nün işlettiği barajların en büyüğü, Büyük Menderes üzerinde 1990'da tamamlanan Adıgüzel Barajı'dır; sulama, taşkın koruması ve enerji üretimi amacıyla kullanılır. Güney ilçesindeki Cindere Barajı ise aynı nehir üzerinde 2007'de tamamlanmış, hidroelektrik enerji üretimine ayrılmış bir başka büyük yapıdır.\n\nÇivril ilçesindeki Işıklı Gölü, DSİ tarafından 1953'te bir bent inşa edilerek rezervuara dönüştürülmüş doğal bir göldür; Büyük Menderes'i Işıklı ve Kufi dereleri aracılığıyla besler ve önemli bir kuş alanı olarak korunur. İlin Afyonkarahisar sınırındaki Acıgöl ise Türkiye'nin büyük tuz göllerinden biridir.",
-    after:
-      "Büyük Menderes Nehri, Afyonkarahisar'ın Dinar ilçesindeki Suçıkan kaynağından doğduktan sonra Denizli topraklarına girer ve Çivril, Çal ve Baklan ovalarını sular. İlin kendi kolu Çürüksu Çayı, Honaz Dağı ve çevresindeki kaynaklardan beslenerek Sarayköy yakınlarında Büyük Menderes'e katılır.\n\nDSİ 21. Bölge Müdürlüğü'nün işlettiği barajların en büyüğü, Büyük Menderes üzerinde 1989'da tamamlanan Adıgüzel Barajı'dır; sulama, taşkın koruması ve enerji üretimi amacıyla kullanılır. Güney ilçesindeki Cindere Barajı ise aynı nehir üzerinde 2007'de tamamlanmış, hidroelektrik enerji üretimine ayrılmış bir başka büyük yapıdır.\n\nÇivril ilçesindeki Işıklı Gölü, DSİ tarafından 1953'te bir bent inşa edilerek rezervuara dönüştürülmüş doğal bir göldür; Büyük Menderes'i Işıklı ve Kufi dereleri aracılığıyla besler ve önemli bir kuş alanı olarak korunur. İlin Afyonkarahisar sınırındaki Acıgöl ise Türkiye'nin büyük tuz göllerinden biridir.",
-  },
-  {
-    table: 'provinces',
-    keyColumn: 'plate_code',
     key: '77',
     property: 'hydrographyNoteTr',
     column: 'hydrography_note_tr',
     before:
       "İlin en büyük akarsuyu, Samanlı Dağları'ndan doğan ve yıllık yaklaşık 120 milyon metreküp su taşıyan 40 kilometrelik Sellimandıra Deresi'dir. Altınova ilçesinde Yalakdere, Hersek Deltası'nı oluşturarak denize ulaşır. Çınarcık'taki Delmece Yaylası yakınında yer alan Dipsiz Göl, ilin doğal gölüdür.\n\nİçme suyu, 1988'de tamamlanan Gökçe Barajı'ndan karşılanır; barajın suyu Termal beldesi yakınından alınır. Armutlu'daki Sarpdere Barajı ise 2017'de tamamlanmış, öncelikli olarak sulama amacıyla işletilen küçük bir barajdır.",
     after:
-      "İlin en büyük akarsuyu, Samanlı Dağları'ndan doğan ve yıllık yaklaşık 120 milyon metreküp su taşıyan 40 kilometrelik Sellimandıra Deresi'dir. Altınova ilçesinde Yalakdere, Hersek Deltası'nı oluşturarak denize ulaşır. Çınarcık'taki Delmece Yaylası yakınında yer alan Dipsiz Göl, ilin doğal gölüdür.\n\nİçme suyu, 1989'da tamamlanan Gökçe Barajı'ndan karşılanır; barajın suyu Termal beldesi yakınından alınır. Armutlu'daki Sarpdere Barajı ise 2017'de tamamlanmış, öncelikli olarak sulama amacıyla işletilen küçük bir barajdır.",
+      "İlin en büyük akarsuyu, Samanlı Dağları'ndan doğan ve yıllık yaklaşık 120 milyon metreküp su taşıyan 40 kilometrelik Sellimandıra Deresi'dir. Altınova ilçesinde Yalakdere, Hersek Deltası'nı oluşturarak denize ulaşır. Çınarcık'taki Erikli Yaylası'nda yer alan Büyük ve Küçük Dipsiz göller, ilin doğal gölleridir.\n\nİçme suyu, 1989'da tamamlanan Gökçe Barajı'ndan karşılanır; barajın suyu Termal beldesi yakınından alınır. Armutlu'daki Sarpdere Barajı ise 2017'de tamamlanmış, öncelikli olarak sulama amacıyla işletilen küçük bir barajdır.",
   },
   {
     table: 'countries',
@@ -809,7 +787,150 @@ export const SEED_FACT_CHANGES: readonly SeedFactChange[] = [
     before:
       "Türkmenistan yer şekillerinin ezici bölümünü, ülkenin iç ve kuzey kesimlerini kaplayan devasa Karakum (Kara Kum) Çölü oluşturur. Karakum; rüzgarın süpürdüğü hareketli kum tepeleri, hilal biçimli kumullar (barkanlar), killi çöküntüler (takırlar) ve tuz tavalarından meydana gelen dalgalı bir plato görünümündedir. Batıda Hazar Denizi kıyısına doğru çöl alçalarak deniz seviyesinin altındaki çöküntülere ve sığ Garaboğazköl Lagünü'ne bağlanır.\n\nÜlkenin güney sınırında, tektonik açıdan hareketli Alp-Himalaya kuşağına bağlı Köpetdağ Sıradağları sarp duvarlar halinde yükselir; Aşkabat'ın güneyindeki 2.912 metrelik Şahşah (Rizeh) Tepesi bu sıranın ülkedeki en yüksek doruğudur. Gerçek en yüksek nokta ise doğuda, Özbekistan sınırındaki Köýtendag (Kugitang) sırasında 3.139 metreye ulaşan ve zengin karstik mağara sistemleri barındıran Ayrıbaba Dağı'dır.",
     after:
-      "Türkmenistan yer şekillerinin ezici bölümünü, ülkenin iç ve kuzey kesimlerini kaplayan devasa Karakum (Kara Kum) Çölü oluşturur. Karakum; rüzgarın süpürdüğü hareketli kum tepeleri, hilal biçimli kumullar (barkanlar), killi çöküntüler (takırlar) ve tuz tavalarından meydana gelen dalgalı bir plato görünümündedir. Batıda Hazar Denizi kıyısına doğru çöl alçalarak deniz seviyesinin altındaki çöküntülere ve sığ Garaboğazköl Lagünü'ne bağlanır.\n\nÜlkenin güney sınırında, tektonik açıdan hareketli Alp-Himalaya kuşağına bağlı Köpetdağ Sıradağları sarp duvarlar halinde yükselir; Aşkabat'ın güneybatısındaki 2.940 metrelik Şahşah (Rizeh) Tepesi bu sıranın ülkedeki en yüksek doruğudur. Gerçek en yüksek nokta ise doğuda, Özbekistan sınırındaki Köýtendag (Kugitang) sırasında 3.139 metreye ulaşan ve zengin karstik mağara sistemleri barındıran Ayrıbaba Dağı'dır.",
+      "Türkmenistan yer şekillerinin ezici bölümünü, ülkenin iç ve kuzey kesimlerini kaplayan devasa Karakum (Kara Kum) Çölü oluşturur. Karakum; rüzgarın süpürdüğü hareketli kum tepeleri, hilal biçimli kumullar (barkanlar), killi çöküntüler (takırlar) ve tuz tavalarından meydana gelen dalgalı bir plato görünümündedir. Batıda Hazar Denizi kıyısına doğru çöl alçalarak deniz seviyesinin altındaki çöküntülere ve sığ Garaboğazköl Lagünü'ne bağlanır.\n\nÜlkenin güney sınırında, tektonik açıdan hareketli Alp-Himalaya kuşağına bağlı Köpetdağ Sıradağları sarp duvarlar halinde yükselir; Aşkabat'ın güneybatısındaki 2.940 metrelik Şahşah (Rizeh) Tepesi bu sıranın ülkedeki en yüksek doruğudur. Gerçek en yüksek nokta ise doğuda, Özbekistan sınırındaki Köýtendag (Kugitang) sırasında 3.119 metreye ulaşan ve zengin karstik mağara sistemleri barındıran Ayrıbaba Dağı'dır.",
+  },
+  {
+    table: 'provinces',
+    keyColumn: 'plate_code',
+    key: '14',
+    property: 'hydrographyNoteTr',
+    column: 'hydrography_note_tr',
+    before:
+      "Abant Gölü'nün dışında ilin su varlığı, Köroğlu ve Abant dağlarından inen kısa akarsu ağıyla sınırlıdır; bu dereler Sakarya Nehri havzasına bağlanır. Gölün kendisi dışa akışı olmayan kapalı bir havzadır.",
+    after:
+      "Abant Gölü'nün dışında ilin su varlığı, Köroğlu ve Abant dağlarından inen kısa akarsu ağıyla sınırlıdır; bu dereler Sakarya Nehri havzasına bağlanır. Gölden çıkan Abant Suyu ise Büyüksu Çayı'nın kaynağını oluşturur.",
+  },
+  {
+    table: 'provinces',
+    keyColumn: 'plate_code',
+    key: '24',
+    property: 'landformNoteTr',
+    column: 'landform_note_tr',
+    before:
+      "Ortalama 1.200 metre irtifadaki Erzincan Ovası, kuzeyden Spikör ve Keşiş dağları (3.549 m), güneyden ise kireçtaşından sarp Munzur Dağları (3.300 m) ile çevrelenmiş kapalı bir çöküntü çanağıdır. KAF'ın ana kesiminde yer alan bu kuşakta, 27 Aralık 1939'da Kandilli Rasathanesi kayıtlarına göre 7,9 büyüklüğünde Türkiye'nin en yıkıcı depremlerinden biri yaşanmış, 32.968 kişi yaşamını yitirmiştir. Dağların ovaya kavuştuğu kesimlerde eğim kırıklıkları nedeniyle zengin traverten ve kaynak çıkışları bulunur.",
+    after:
+      "Ortalama 1.200 metre irtifadaki Erzincan Ovası, kuzeyden Spikör ve Keşiş dağları (3.549 m), güneyden ise kireçtaşından sarp 3.400 metreyi aşan Munzur Dağları ile çevrelenmiş, içinden Fırat'ın geçtiği bir çöküntü ovasıdır. KAF'ın ana kesiminde yer alan bu kuşakta, 27 Aralık 1939'da Kandilli Rasathanesi kayıtlarına göre 7,9 büyüklüğünde Türkiye'nin en yıkıcı depremlerinden biri yaşanmış, 32.968 kişi yaşamını yitirmiştir. Dağların ovaya kavuştuğu kesimlerde eğim kırıklıkları nedeniyle zengin traverten ve kaynak çıkışları bulunur.",
+  },
+  {
+    table: 'provinces',
+    keyColumn: 'plate_code',
+    key: '13',
+    property: 'landformNoteTr',
+    column: 'landform_note_tr',
+    before:
+      "Bitlis toprakları dört ana yer şekli biriminden oluşur: kuzeyde Ahlat volkanik tüf platosu, hemen güneyinde 2.935 metrelik Nemrut Stratovolkanı, ortada Muş-Tatvan çöküntü oluğu ve güneyde Paleozoik (Birinci Zaman) şistlerden oluşan sarp Bitlis Masifi. Nemrut kalderası, 1441'deki son püskürme ürünü lav ve tüf setleriyle Van Gölü ile Muş Ovası arasındaki doğal su havzalarını birbirinden kalıcı olarak ayırmıştır.",
+    after:
+      'Bitlis toprakları dört ana yer şekli biriminden oluşur: kuzeyde Ahlat volkanik tüf platosu, hemen güneyinde 2.935 metrelik Nemrut Stratovolkanı, ortada Muş-Tatvan çöküntü oluğu ve güneyde Paleozoik (Birinci Zaman) şistlerden oluşan sarp Bitlis Masifi. Nemrut kalderası, püskürmelerinin ürünü olan lav ve tüf setleriyle Van Gölü ile Muş Ovası arasındaki doğal su havzalarını birbirinden kalıcı olarak ayırmıştır.',
+  },
+  {
+    table: 'provinces',
+    keyColumn: 'plate_code',
+    key: '63',
+    property: 'hydrographyNoteTr',
+    column: 'hydrography_note_tr',
+    before:
+      "İlin batı sınırını çizen Fırat Nehri, GAP yatırımlarıyla Türkiye'nin en büyük enerji ve sulama havzasına dönüştürülmüştür. Nehir üzerindeki 817 km² göl alanı ve 48,5 milyar m³ su hacmine sahip Atatürk Barajı, 169 metre gövde yüksekliği ve 2.400 MW kurulu gücüyle sistemin merkezidir. Baraj gölünün aşağısında Fırat vadisi boyunca Birecik ve Karkamış barajları akışı kademeli olarak düzenler.\n\nAtatürk Barajı rezervuarından alınan su, 26,4 kilometre uzunluğundaki ikiz Urfa Tünelleri ile Harran Ovası'na akıtılmaktadır. 9 Kasım 1994'te işletmeye alınan tünel sistemi, 358.000 hektarı kendi akışıyla (cazibeyle), 118.000 hektarı pompayla olmak üzere toplam 476.000 hektar tarım arazisini suyla buluşturur.",
+    after:
+      "İlin batı sınırını çizen Fırat Nehri, GAP yatırımlarıyla Türkiye'nin en büyük enerji ve sulama havzasına dönüştürülmüştür. Nehir üzerindeki 817 km² göl alanı ve 48,5 milyar m³ su hacmine sahip Atatürk Barajı, 169 metre gövde yüksekliği ve 2.400 MW kurulu gücüyle sistemin merkezidir. Baraj gölünün aşağısında Fırat vadisi boyunca Birecik ve Karkamış barajları akışı kademeli olarak düzenler.\n\nAtatürk Barajı rezervuarından alınan su, 26,4 kilometre uzunluğundaki ikiz Urfa Tünelleri ile Harran Ovası'na akıtılmaktadır. 9 Kasım 1994'te işletmeye alınan tünel sistemi, yaklaşık 328.000 hektarı kendi akışıyla (cazibeyle), 148.000 hektarı pompayla olmak üzere toplam yaklaşık 476.000 hektar tarım arazisini suyla buluşturur.",
+  },
+  {
+    table: 'provinces',
+    keyColumn: 'plate_code',
+    key: '31',
+    property: 'hydrographyNoteTr',
+    column: 'hydrography_note_tr',
+    before:
+      "İlin ana akarsuyu Asi Nehri'dir. Nehir Lübnan'daki Bekaa Vadisi'nde doğar, Suriye topraklarından geçtikten sonra bir süre Türkiye-Suriye sınırını çizer, ardından yön değiştirip Türkiye'ye girer; Antakya'dan geçtikten sonra Samandağ'da bir delta oluşturarak Akdeniz'e dökülür. Toplam uzunluğu 556 kilometredir.\n\nAmik Ovası'nın ortasında bulunan Amik Gölü, 1954'te başlayıp 1966-1975 arasında Devlet Su İşleri tarafından yürütülen bir kurutma projesiyle tarım alanı kazanmak, taşkınları önlemek ve sıtmayı ortadan kaldırmak amacıyla tamamen kurutulmuştur; göl artık mevcut değildir.\n\nİlin sulama ve içme suyu ihtiyacı DSİ'nin işlettiği barajlardan karşılanır: Antakya, Defne ve Samandağ'ın içme suyunu sağlayan 54 milyon m³ kapasiteli Karaçay Barajı, Gaziantep'in İslahiye ile Hatay'ın Hassa ve Kırıkhan ilçelerini ve Amik Ovası'nı sulayan 454 milyon m³ kapasiteli Tahtaköprü Barajı ve Altınözü'nde tarımsal sulamada kullanılan 55 milyon m³ kapasiteli Yarseli Barajı.",
+    after:
+      "İlin ana akarsuyu Asi Nehri'dir. Nehir Lübnan'daki Bekaa Vadisi'nde doğar, Suriye topraklarından geçtikten sonra bir süre Türkiye-Suriye sınırını çizer, ardından yön değiştirip Türkiye'ye girer; Antakya'dan geçtikten sonra Samandağ'da bir delta oluşturarak Akdeniz'e dökülür. Toplam uzunluğu 556 kilometredir.\n\nAmik Ovası'nın ortasında bulunan Amik Gölü, 1954'te başlayıp asıl aşaması 1973-1975 arasında Devlet Su İşleri tarafından yürütülen bir kurutma projesiyle tarım alanı kazanmak, taşkınları önlemek ve sıtmayı ortadan kaldırmak amacıyla tamamen kurutulmuştur; göl artık mevcut değildir.\n\nİlin sulama ve içme suyu ihtiyacı DSİ'nin işlettiği barajlardan karşılanır: Antakya, Defne ve Samandağ'ın içme suyunu sağlayan 54 milyon m³ kapasiteli Karaçay Barajı, Gaziantep'in İslahiye ile Hatay'ın Hassa ve Kırıkhan ilçelerini ve Amik Ovası'nı sulayan 454 milyon m³ kapasiteli Tahtaköprü Barajı ve Altınözü'nde tarımsal sulamada kullanılan 55 milyon m³ kapasiteli Yarseli Barajı.",
+  },
+  {
+    table: 'provinces',
+    keyColumn: 'plate_code',
+    key: '11',
+    property: 'introTr',
+    column: 'intro_tr',
+    before:
+      "Bilecik'e bağlı Söğüt, Osmanlı Beyliği'nin geleneksel olarak ilk yurdu kabul edilir; TDV İslam Ansiklopedisi'nin Ertuğrul Gazi maddesi, döneme dair bilgilerin büyük ölçüde sonraki yüzyıllarda yazılmış, efsanevi unsurlar taşıyan kaynaklara dayandığını, çağdaş bir Bizans ya da İslam kroniğinde Ertuğrul'dan söz edilmediğini belirtir. İl, bu ilçelerin bulunduğu bölgede nüfus bakımından küçük kalır — 2025 sonu itibarıyla 228.995 kişi, komşusu Bursa'nın nüfusunun onda birinden azdır — ve Marmara Bölgesi'nde denize kıyısı olmayan tek ildir. TÜİK'in 2024 verilerine göre, gayrisafi yurt içi hasılası bir önceki yıla göre reel olarak %2,4 gerileyen tek il de Bilecik'tir; bu, 81 il arasındaki en yüksek düşüş oranıdır.",
+    after:
+      "Bilecik'e bağlı Söğüt, Osmanlı Beyliği'nin geleneksel olarak ilk yurdu kabul edilir; TDV İslam Ansiklopedisi'nin Ertuğrul Gazi maddesi, döneme dair bilgilerin büyük ölçüde sonraki yüzyıllarda yazılmış, efsanevi unsurlar taşıyan kaynaklara dayandığını, çağdaş bir Bizans ya da İslam kroniğinde Ertuğrul'dan söz edilmediğini belirtir. İl, bu ilçelerin bulunduğu bölgede nüfus bakımından küçük kalır — 2025 sonu itibarıyla 228.995 kişi, komşusu Bursa'nın nüfusunun onda birinden azdır — ve Marmara Bölgesi'nde denize kıyısı olmayan tek ildir. TÜİK'in 2024 verilerine göre Bilecik, gayrisafi yurt içi hasılası bir önceki yıla göre reel olarak en çok gerileyen üç ilden biridir (%2,4); en büyük düşüş %7,9 ile Erzincan'da görülmüştür.",
+  },
+  {
+    table: 'provinces',
+    keyColumn: 'plate_code',
+    key: '04',
+    property: 'hydrographyNoteTr',
+    column: 'hydrography_note_tr',
+    before:
+      "Fırat Nehri'nin en uzun kolu olan Murat Nehri, Diyadin ilçesi sınırlarındaki Aladağ eteklerinden doğarak ovayı batı yönünde kat eder; Diyadin kanyonu ve jeotermal kaplıca kaynakları bu vadi boyunca uzanır. İlin kuzey kesimindeki sular ise Doğubayazıt sazlıkları üzerinden Aras Nehri havzasına ulaşarak Hazar Denizi'ne yönelir.",
+    after:
+      "Fırat Nehri'nin en uzun kolu olan Murat Nehri, Diyadin ilçesi sınırlarındaki Aladağ eteklerinden doğarak ovayı batı yönünde kat eder; Diyadin kanyonu ve jeotermal kaplıca kaynakları bu vadi boyunca uzanır. Doğubayazıt çevresindeki sular ise sazlıklar üzerinden Aras Nehri havzasına ulaşarak Hazar Denizi'ne yönelir.",
+  },
+  {
+    table: 'provinces',
+    keyColumn: 'plate_code',
+    key: '40',
+    property: 'hydrographyNoteTr',
+    column: 'hydrography_note_tr',
+    before:
+      "Kızılırmak, ilin güney sınırından geçer; Kaman ve Kırşehir Merkez ilçeleri arasında kalan bölümü Hirfanlı Baraj Gölü'nün su kütlesine dahildir. İlin kuzeydoğusundaki Seyfe Gölü, sığ ve tuzlu bir step gölüdür; 1994'te Ramsar Sözleşmesi listesine alınmış, dönem dönem 300 binin üzerinde flamingoya ev sahipliği yapan önemli bir kuş alanıdır.",
+    after:
+      "Kızılırmak, ilin güney sınırından geçer; Kırşehir sınırları içindeki kesiminin bir bölümü Hirfanlı Baraj Gölü'ne dönüşmüştür. İlin kuzeydoğusundaki Seyfe Gölü, sığ ve tuzlu bir step gölüdür; 1994'te Ramsar Sözleşmesi listesine alınmış, dönem dönem 300 binin üzerinde flamingoya ev sahipliği yapan önemli bir kuş alanıdır.",
+  },
+  {
+    table: 'provinces',
+    keyColumn: 'plate_code',
+    key: '72',
+    property: 'hydrographyNoteTr',
+    column: 'hydrography_note_tr',
+    before:
+      "Kuzeydeki yüksek dağlardan doğup güneye akan Batman Çayı, il merkezinin batısından geçerek güney sınırını çizen Dicle Nehri'ne katılır. Bu iki akarsuyun taşıdığı alüvyonlar ilin tarımsal üretim alanlarını beslerken, akarsuların taşkın düzlükleri kentteki ve kırdaki yerleşmelerin uzandığı hattı belirler.",
+    after:
+      "Kuzeydeki yüksek dağlardan doğup güneye akan Batman Çayı, Diyarbakır ile arasında doğal sınır çizerek güneydeki Dicle Nehri'ne katılır. Bu iki akarsuyun taşıdığı alüvyonlar ilin tarımsal üretim alanlarını beslerken, akarsuların taşkın düzlükleri kentteki ve kırdaki yerleşmelerin uzandığı hattı belirler.",
+  },
+  {
+    table: 'provinces',
+    keyColumn: 'plate_code',
+    key: '47',
+    property: 'hydrographyNoteTr',
+    column: 'hydrography_note_tr',
+    before:
+      'İlin doğu kesiminde Batman sınırının bir bölümünü çizen Dicle Nehri, derin kanyonlardan akar. Nusaybin ilçesinden geçen Çağçağ Suyu ile Savur Çayı, karstik vadileri aşarak güneydeki tarım arazilerine can suyu verir. İlde doğal göl bulunmamakta, tarımsal sulamada Buğur Çayı göleti ve yeraltı suyu katmanlarından yararlanılmaktadır.',
+    after:
+      'İlin doğu kesiminde Batman sınırının bir bölümünü çizen Dicle Nehri, derin kanyonlardan akar. Nusaybin ilçesinden geçen Çağçağ Suyu ile Savur Çayı, karstik vadileri aşarak güneydeki tarım arazilerine can suyu verir. İlde doğal göl bulunmamakta, tarımsal sulamada Buğur Çayı üzerindeki Dumluca Barajı ve yeraltı suyu katmanlarından yararlanılmaktadır.',
+  },
+  {
+    table: 'countries',
+    keyColumn: 'iso_code',
+    key: 'BJ',
+    property: 'landformNoteTr',
+    column: 'landform_note_tr',
+    before:
+      "Kıyı şeridi, deniz dalgalarının yığdığı kum setleri, mangrovlar ve Nokoué gibi sığ lagünlerle kaplı alçak bir kıyı ovasıdır. Kıyının hemen ardında, Couffo, Zou ve Ouémé nehirlerinin yardığı killi ve verimli güney platoları uzanır; orta kesimde arazi granit kayalık tepelerle (inselberg) çeşitlenen dalgalı bir aşınım düzlüğü (peneplen) halini alır. \n\nKuzeybatıda, Togo sınırına paralel uzanan Atakora Sıradağları ülkenin en engebeli topoğrafyasını oluşturur; kuvarsit ve kumtaşından oluşan bu kütle üzerindeki 658 metrelik Sokbaro Dağı, Benin'in en yüksek noktasıdır.",
+    after:
+      'Kıyı şeridi, deniz dalgalarının yığdığı kum setleri, mangrovlar ve Nokoué gibi sığ lagünlerle kaplı alçak bir kıyı ovasıdır. Kıyının hemen ardında, Couffo, Zou ve Ouémé nehirlerinin yardığı killi ve verimli güney platoları uzanır; orta kesimde arazi granit kayalık tepelerle (inselberg) çeşitlenen dalgalı bir aşınım düzlüğü (peneplen) halini alır. \n\nKuzeybatıda, Togo sınırına paralel uzanan Atakora Sıradağları ülkenin en engebeli topoğrafyasını oluşturur; kuvarsit ve kumtaşından oluşan bu kütlede uzun süre ülkenin en yüksek noktası sayılan 658 metrelik Sokbaro Dağı yükselir; güncel ölçümler ise Kotopounga yakınındaki yaklaşık 670 metrelik isimsiz bir tepenin daha yüksek olduğunu göstermiştir.',
+  },
+  {
+    table: 'provinces',
+    keyColumn: 'plate_code',
+    key: '20',
+    property: 'hydrographyNoteTr',
+    column: 'hydrography_note_tr',
+    before:
+      "Büyük Menderes Nehri, Afyonkarahisar'ın Dinar ilçesindeki Suçıkan kaynağından doğduktan sonra Denizli topraklarına girer ve Çivril, Çal ve Baklan ovalarını sular. İlin kendi kolu Çürüksu Çayı, Honaz Dağı ve çevresindeki kaynaklardan beslenerek Sarayköy yakınlarında Büyük Menderes'e katılır.\n\nDSİ 21. Bölge Müdürlüğü'nün işlettiği barajların en büyüğü, Büyük Menderes üzerinde 1990'da tamamlanan Adıgüzel Barajı'dır; sulama, taşkın koruması ve enerji üretimi amacıyla kullanılır. Güney ilçesindeki Cindere Barajı ise aynı nehir üzerinde 2007'de tamamlanmış, hidroelektrik enerji üretimine ayrılmış bir başka büyük yapıdır.\n\nÇivril ilçesindeki Işıklı Gölü, DSİ tarafından 1953'te bir bent inşa edilerek rezervuara dönüştürülmüş doğal bir göldür; Büyük Menderes'i Işıklı ve Kufi dereleri aracılığıyla besler ve önemli bir kuş alanı olarak korunur. İlin Afyonkarahisar sınırındaki Acıgöl ise Türkiye'nin büyük tuz göllerinden biridir.",
+    after:
+      "Büyük Menderes Nehri, Afyonkarahisar'ın Dinar ilçesindeki Suçıkan kaynağından doğduktan sonra Denizli topraklarına girer ve Çivril, Çal ve Baklan ovalarını sular. İlin kendi kolu Çürüksu Çayı, Honaz Dağı ve çevresindeki kaynaklardan beslenerek Sarayköy yakınlarında Büyük Menderes'e katılır.\n\nDSİ 21. Bölge Müdürlüğü'nün işlettiği barajların en büyüğü, Büyük Menderes üzerinde 1989'da su tutmaya başlayan Adıgüzel Barajı'dır; sulama, taşkın koruması ve enerji üretimi amacıyla kullanılır. Güney ilçesindeki Cindere Barajı ise aynı nehir üzerinde 2007'de tamamlanmış, hidroelektrik enerji üretimine ayrılmış bir başka büyük yapıdır.\n\nÇivril ilçesindeki Işıklı Gölü, DSİ tarafından 1953'te bir bent inşa edilerek rezervuara dönüştürülmüş doğal bir göldür; Büyük Menderes'i Işıklı ve Kufi dereleri aracılığıyla besler ve önemli bir kuş alanı olarak korunur. İlin Afyonkarahisar sınırındaki Acıgöl ise Türkiye'nin büyük tuz göllerinden biridir.",
+  },
+  {
+    table: 'provinces',
+    keyColumn: 'plate_code',
+    key: '58',
+    property: 'hydrographyNoteTr',
+    column: 'hydrography_note_tr',
+    before:
+      "Kızılırmak, İmranlı ilçesinde Kızıldağ'ın 2.000 metreyi aşan yükseltilerinden doğar. Sivas topraklarından geçtikten sonra Kayseri, Kırşehir, Kırıkkale, Ankara, Aksaray, Nevşehir, Çorum ve Samsun'dan geçerek Karadeniz'e dökülür. Millî Eğitim Bakanlığı müfredat kaynakları nehrin toplam uzunluğu için 1.355 kilometre rakamını kullanır.",
+    after:
+      "Kızılırmak, İmranlı ilçesinde Kızıldağ'ın 2.000 metreyi aşan yükseltilerinden doğar. Sivas topraklarından geçtikten sonra Kayseri, Nevşehir, Kırşehir, Kırıkkale, Ankara, Aksaray, Çankırı, Çorum, Sinop ve Samsun'dan geçerek Karadeniz'e dökülür. Millî Eğitim Bakanlığı müfredat kaynakları nehrin toplam uzunluğu için 1.355 kilometre rakamını kullanır.",
   },
   {
     table: 'countries',
@@ -820,7 +941,29 @@ export const SEED_FACT_CHANGES: readonly SeedFactChange[] = [
     before:
       "Tuna Nehri, batıdan doğuya yaklaşık 357 kilometre boyunca ülkeyi kat ederek Avusturya hidrografyasının ana omurgasını çizer. İnn, Salzach, Enns ve Traun nehirleri Alpler'deki buzul ve kar erimelerinden beslenerek Tuna havzasına katılır; böylece ülke topraklarının neredeyse tamamı sularını doğrudan Karadeniz'e ulaştırır.\n\nSalzkammergut yöresindeki derin buzul gölleri ve batıda Vorarlberg sınırındaki Konstanz Gölü (Bodensee), Alplerden inen suların oluşturduğu temiz tatlı su rezervleridir. Buna taban tabana zıt olarak doğudaki Neusiedler Gölü, derinliği bir metreyi güçlükle bulan, sazlıklarla çevrili tipik bir sığ bozkır gölü niteliği taşır.",
     after:
-      "Tuna Nehri, batıdan doğuya yaklaşık 349 kilometre boyunca ülkeyi kat ederek Avusturya hidrografyasının ana omurgasını çizer. İnn, Salzach, Enns ve Traun nehirleri Alpler'deki buzul ve kar erimelerinden beslenerek Tuna havzasına katılır; böylece ülke topraklarının neredeyse tamamı sularını doğrudan Karadeniz'e ulaştırır.\n\nSalzkammergut yöresindeki derin buzul gölleri ve batıda Vorarlberg sınırındaki Konstanz Gölü (Bodensee), Alplerden inen suların oluşturduğu temiz tatlı su rezervleridir. Buna taban tabana zıt olarak doğudaki Neusiedler Gölü, derinliği bir metreyi güçlükle bulan, sazlıklarla çevrili tipik bir sığ bozkır gölü niteliği taşır.",
+      "Tuna Nehri, batıdan doğuya yaklaşık 350 kilometre boyunca ülkeyi kat ederek Avusturya hidrografyasının ana omurgasını çizer. İnn, Salzach, Enns ve Traun nehirleri Alpler'deki buzul ve kar erimelerinden beslenerek Tuna havzasına katılır; böylece ülke topraklarının neredeyse tamamı sularını doğrudan Karadeniz'e ulaştırır.\n\nSalzkammergut yöresindeki derin buzul gölleri ve batıda Vorarlberg sınırındaki Konstanz Gölü (Bodensee), Alplerden inen suların oluşturduğu temiz tatlı su rezervleridir. Buna taban tabana zıt olarak doğudaki Neusiedler Gölü, derinliği bir metreyi güçlükle bulan, sazlıklarla çevrili tipik bir sığ bozkır gölü niteliği taşır.",
+  },
+  {
+    table: 'countries',
+    keyColumn: 'iso_code',
+    key: 'ES',
+    property: 'hydrographyNoteTr',
+    column: 'hydrography_note_tr',
+    before:
+      "Meseta'nın batıya doğru hafif eğimli jeolojik yapısı nedeniyle İspanya nehirlerinin büyük kısmı Atlas Okyanusu'na yönelir. Ülkenin ve İber'in en uzun akarsuyu olan 1.007 kilometrelik Tajo (Tagus), Portekiz'e geçerek Lizbon'da okyanusa ulaşır; Duero ve Guadiana da benzer şekilde batıya akar.\n\nAkdeniz'e dökülen en büyük nehir ise Kantabria Dağları'ndan doğup kuzeydoğuyu kat eden ve İspanya'nın su debisi en yüksek akarsuyu olan 910 kilometrelik Ebro'dur. Tamamen İspanya içinde kalarak Endülüs ovalarını sulayan Guadalquivir ise Sevilla'ya kadar gemi trafiğine elverişli tek nehirdir.",
+    after:
+      "Meseta'nın batıya doğru hafif eğimli jeolojik yapısı nedeniyle İspanya nehirlerinin büyük kısmı Atlas Okyanusu'na yönelir. Ülkenin ve İber'in en uzun akarsuyu olan 1.007 kilometrelik Tajo (Tagus), Portekiz'e geçerek Lizbon'da okyanusa ulaşır; Duero ve Guadiana da benzer şekilde batıya akar.\n\nAkdeniz'e dökülen en büyük nehir ise Kantabria Dağları'ndan doğup kuzeydoğuyu kat eden ve İspanya'nın su debisi en yüksek akarsuyu olan 930 kilometrelik Ebro'dur. Tamamen İspanya içinde kalarak Endülüs ovalarını sulayan Guadalquivir ise Sevilla'ya kadar gemi trafiğine elverişli tek nehirdir.",
+  },
+  {
+    table: 'countries',
+    keyColumn: 'iso_code',
+    key: 'CU',
+    property: 'hydrographyNoteTr',
+    column: 'hydrography_note_tr',
+    before:
+      "Küba'nın ince ve uzun ada biçimi, suların hızla kuzey ya da güney kıyılarına ulaşmasına neden olduğu için akarsuların ezici çoğunluğu kısa boyludur. Bu kuralın en büyük istisnası, Sierra Maestra eteklerinden doğup batıya doğru tektonik bir oluk boyunca 370 kilometre akarak Guacanayabo Körfezi'ne dökülen Cauto Nehri'dir. Doğu dağlarının gür ormanlarından doğan Toa Nehri ise bozulmamış havzasıyla ülkenin debisi en yüksek akarsuyudur. Batıdaki karstik alanlarda sular yer altına çekilerek mağara nehirleri oluştururken, güney kıyısındaki Zapata Yarımadası Karayipler'in en geniş sulak alan ve bataklık ekosistemini barındırır.",
+    after:
+      "Küba'nın ince ve uzun ada biçimi, suların hızla kuzey ya da güney kıyılarına ulaşmasına neden olduğu için akarsuların ezici çoğunluğu kısa boyludur. Bu kuralın en büyük istisnası, Sierra Maestra eteklerinden doğup batıya doğru tektonik bir oluk boyunca 343 kilometre akarak Guacanayabo Körfezi'ne dökülen Cauto Nehri'dir. Doğu dağlarının gür ormanlarından doğan Toa Nehri ise bozulmamış havzasıyla ülkenin debisi en yüksek akarsuyudur. Batıdaki karstik alanlarda sular yer altına çekilerek mağara nehirleri oluştururken, güney kıyısındaki Zapata Yarımadası Karayipler'in en geniş sulak alan ve bataklık ekosistemini barındırır.",
   },
 ];
 

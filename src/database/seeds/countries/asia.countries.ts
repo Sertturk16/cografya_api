@@ -713,7 +713,7 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'Ülkenin güney sınırında, tektonik açıdan hareketli Alp-Himalaya kuşağına bağlı Köpetdağ ' +
       "Sıradağları sarp duvarlar halinde yükselir; Aşkabat'ın güneybatısındaki 2.940 metrelik " +
       'Şahşah (Rizeh) Tepesi bu sıranın ülkedeki en yüksek doruğudur. Gerçek en yüksek nokta ise ' +
-      'doğuda, Özbekistan sınırındaki Köýtendag (Kugitang) sırasında 3.139 metreye ulaşan ve ' +
+      'doğuda, Özbekistan sınırındaki Köýtendag (Kugitang) sırasında 3.119 metreye ulaşan ve ' +
       "zengin karstik mağara sistemleri barındıran Ayrıbaba Dağı'dır.",
     climateNoteTr:
       "Deniz etkisinden yalıtılmış konumu ve geniş çöl örtüsü, Türkmenistan'da " +

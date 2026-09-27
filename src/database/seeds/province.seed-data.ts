@@ -993,8 +993,8 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
       "Nemrut Dağı'nın patlayarak püskürttüğü lavların Muş Havzası'na giden doğal akış yolunu " +
       'tıkamasıyla oluşmuş dünyanın en büyük volkanik set gölüdür. Gölün batısında, komşu Bitlis ' +
       'sınırları içinde yükselen ve tepesinde 6 kilometre çapında geniş bir kaldera barındıran ' +
-      "2.935 metrelik Nemrut Dağı, son lav akıntısı 1441'de kaydedilmiş uyuyan aktif bir " +
-      'volkandır.' +
+      '2.935 metrelik Nemrut Dağı, tarihsel dönemde 1441, 1597 ve 1650 yıllarında püskürdüğü ' +
+      'kaydedilen uyuyan aktif bir volkandır.' +
       '\n\n' +
       'Göl çanağının kuzeyinde yükselen 4.058 metrelik Süphan Dağı, zirvesindeki buzul ' +
       "kalıntılarıyla Ağrı ve Cilo'nun ardından Türkiye'nin üçüncü yüksek doruğudur. Havza " +
@@ -1305,10 +1305,10 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
       "kimliğini kazanan Batman, Dicle Nehri'ne kavuşan Batman Çayı vadisinde kuruludur. 662.626 " +
       "kişilik nüfusuyla Türkiye'nin en kalabalık otuz ikinci ilidir.",
     hydrographyNoteTr:
-      'Kuzeydeki yüksek dağlardan doğup güneye akan Batman Çayı, il merkezinin batısından geçerek ' +
-      "güney sınırını çizen Dicle Nehri'ne katılır. Bu iki akarsuyun taşıdığı alüvyonlar ilin tarımsal " +
-      'üretim alanlarını beslerken, akarsuların taşkın düzlükleri kentteki ve kırdaki yerleşmelerin ' +
-      'uzandığı hattı belirler.',
+      'Kuzeydeki yüksek dağlardan doğup güneye akan Batman Çayı, Diyarbakır ile arasında doğal ' +
+      "sınır çizerek güneydeki Dicle Nehri'ne katılır. Bu iki akarsuyun taşıdığı alüvyonlar ilin " +
+      'tarımsal üretim alanlarını beslerken, akarsuların taşkın düzlükleri kentteki ve kırdaki ' +
+      'yerleşmelerin uzandığı hattı belirler.',
     urbanizationRate: 84.12,
     netMigrationRate: -2.95,
     economyIndicator: {
@@ -1552,9 +1552,10 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
       "Türkiye'nin yirmi altıncı büyük ilidir.",
     hydrographyNoteTr:
       'İlin doğu kesiminde Batman sınırının bir bölümünü çizen Dicle Nehri, derin kanyonlardan ' +
-      'akar. Nusaybin ilçesinden geçen Çağçağ Suyu ile Savur Çayı, karstik vadileri aşarak güneydeki ' +
-      'tarım arazilerine can suyu verir. İlde doğal göl bulunmamakta, tarımsal sulamada Buğur Çayı ' +
-      'göleti ve yeraltı suyu katmanlarından yararlanılmaktadır.',
+      'akar. Nusaybin ilçesinden geçen Çağçağ Suyu ile Savur Çayı, karstik vadileri aşarak ' +
+      'güneydeki tarım arazilerine can suyu verir. İlde doğal göl bulunmamakta, tarımsal ' +
+      'sulamada Buğur Çayı üzerindeki Dumluca Barajı ve yeraltı suyu katmanlarından ' +
+      'yararlanılmaktadır.',
     urbanizationRate: 100.0,
     netMigrationRate: -5.65,
     settlementNoteTr:
@@ -1658,14 +1659,15 @@ export const BATCH2_WAVE1_PROVINCES: readonly ProvinceSeed[] = [
       "nüfusuyla Türkiye'nin sekizinci büyük ilidir.",
     hydrographyNoteTr:
       "İlin batı sınırını çizen Fırat Nehri, GAP yatırımlarıyla Türkiye'nin en büyük enerji ve " +
-      'sulama havzasına dönüştürülmüştür. Nehir üzerindeki 817 km² göl alanı ve 48,5 milyar m³ su ' +
-      'hacmine sahip Atatürk Barajı, 169 metre gövde yüksekliği ve 2.400 MW kurulu gücüyle sistemin ' +
-      'merkezidir. Baraj gölünün aşağısında Fırat vadisi boyunca Birecik ve Karkamış barajları ' +
-      'akışı kademeli olarak düzenler.\n\n' +
-      'Atatürk Barajı rezervuarından alınan su, 26,4 kilometre uzunluğundaki ikiz Urfa Tünelleri ile ' +
-      "Harran Ovası'na akıtılmaktadır. 9 Kasım 1994'te işletmeye alınan tünel sistemi, 358.000 hektarı " +
-      'kendi akışıyla (cazibeyle), 118.000 hektarı pompayla olmak üzere toplam 476.000 hektar tarım arazisini suyla ' +
-      'buluşturur.',
+      'sulama havzasına dönüştürülmüştür. Nehir üzerindeki 817 km² göl alanı ve 48,5 milyar m³ ' +
+      'su hacmine sahip Atatürk Barajı, 169 metre gövde yüksekliği ve 2.400 MW kurulu gücüyle ' +
+      'sistemin merkezidir. Baraj gölünün aşağısında Fırat vadisi boyunca Birecik ve Karkamış ' +
+      'barajları akışı kademeli olarak düzenler.' +
+      '\n\n' +
+      'Atatürk Barajı rezervuarından alınan su, 26,4 kilometre uzunluğundaki ikiz Urfa Tünelleri ' +
+      "ile Harran Ovası'na akıtılmaktadır. 9 Kasım 1994'te işletmeye alınan tünel sistemi, " +
+      'yaklaşık 328.000 hektarı kendi akışıyla (cazibeyle), 148.000 hektarı pompayla olmak üzere ' +
+      'toplam yaklaşık 476.000 hektar tarım arazisini suyla buluşturur.',
     hydrographyFeatures: [
       { name: 'Fırat Nehri', type: HydrographyFeatureType.Nehir },
       { name: 'Atatürk Barajı', type: HydrographyFeatureType.Baraj },
@@ -1907,15 +1909,15 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
       've 1999 Kocaeli depremlerinden etkilenmiş, ama bu iki depremin merkez üssü Bilecik ' +
       'sınırları dışında kalmıştır.',
     introTr:
-      "Bilecik'e bağlı Söğüt, Osmanlı Beyliği'nin geleneksel olarak ilk yurdu kabul edilir; " +
-      "TDV İslam Ansiklopedisi'nin Ertuğrul Gazi maddesi, döneme dair bilgilerin büyük ölçüde " +
+      "Bilecik'e bağlı Söğüt, Osmanlı Beyliği'nin geleneksel olarak ilk yurdu kabul edilir; TDV " +
+      "İslam Ansiklopedisi'nin Ertuğrul Gazi maddesi, döneme dair bilgilerin büyük ölçüde " +
       'sonraki yüzyıllarda yazılmış, efsanevi unsurlar taşıyan kaynaklara dayandığını, çağdaş ' +
       "bir Bizans ya da İslam kroniğinde Ertuğrul'dan söz edilmediğini belirtir. İl, bu " +
       'ilçelerin bulunduğu bölgede nüfus bakımından küçük kalır — 2025 sonu itibarıyla 228.995 ' +
       "kişi, komşusu Bursa'nın nüfusunun onda birinden azdır — ve Marmara Bölgesi'nde denize " +
-      "kıyısı olmayan tek ildir. TÜİK'in 2024 verilerine göre, gayrisafi yurt içi hasılası bir " +
-      "önceki yıla göre reel olarak %2,4 gerileyen tek il de Bilecik'tir; bu, 81 il arasındaki " +
-      'en yüksek düşüş oranıdır.',
+      "kıyısı olmayan tek ildir. TÜİK'in 2024 verilerine göre Bilecik, gayrisafi yurt içi " +
+      'hasılası bir önceki yıla göre reel olarak en çok gerileyen üç ilden biridir (%2,4); en ' +
+      "büyük düşüş %7,9 ile Erzincan'da görülmüştür.",
     hydrographyNoteTr:
       "Sakarya Nehri'nin yanı sıra, Bozüyük çevresinde Karasu adlı bir kol nehre katılır. " +
       'Söğüt ilçesinde, Söğüt Çayı üzerinde 1994-2000 arasında inşa edilen Kızıldamlar ' +
@@ -2476,8 +2478,8 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     hydrographyNoteTr:
       "İlin en büyük akarsuyu, Samanlı Dağları'ndan doğan ve yıllık yaklaşık 120 milyon metreküp " +
       "su taşıyan 40 kilometrelik Sellimandıra Deresi'dir. Altınova ilçesinde Yalakdere, Hersek " +
-      "Deltası'nı oluşturarak denize ulaşır. Çınarcık'taki Delmece Yaylası yakınında yer alan " +
-      'Dipsiz Göl, ilin doğal gölüdür.' +
+      "Deltası'nı oluşturarak denize ulaşır. Çınarcık'taki Erikli Yaylası'nda yer alan Büyük ve " +
+      'Küçük Dipsiz göller, ilin doğal gölleridir.' +
       '\n\n' +
       "İçme suyu, 1989'da tamamlanan Gökçe Barajı'ndan karşılanır; barajın suyu Termal beldesi " +
       "yakınından alınır. Armutlu'daki Sarpdere Barajı ise 2017'de tamamlanmış, öncelikli olarak " +
@@ -2785,9 +2787,9 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
       "yakınlarında Büyük Menderes'e katılır." +
       '\n\n' +
       "DSİ 21. Bölge Müdürlüğü'nün işlettiği barajların en büyüğü, Büyük Menderes üzerinde " +
-      "1989'da tamamlanan Adıgüzel Barajı'dır; sulama, taşkın koruması ve enerji üretimi " +
-      "amacıyla kullanılır. Güney ilçesindeki Cindere Barajı ise aynı nehir üzerinde 2007'de " +
-      'tamamlanmış, hidroelektrik enerji üretimine ayrılmış bir başka büyük yapıdır.' +
+      "1989'da su tutmaya başlayan Adıgüzel Barajı'dır; sulama, taşkın koruması ve enerji " +
+      'üretimi amacıyla kullanılır. Güney ilçesindeki Cindere Barajı ise aynı nehir üzerinde ' +
+      "2007'de tamamlanmış, hidroelektrik enerji üretimine ayrılmış bir başka büyük yapıdır." +
       '\n\n' +
       "Çivril ilçesindeki Işıklı Gölü, DSİ tarafından 1953'te bir bent inşa edilerek rezervuara " +
       "dönüştürülmüş doğal bir göldür; Büyük Menderes'i Işıklı ve Kufi dereleri aracılığıyla " +
@@ -3359,16 +3361,18 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
       "İlin ana akarsuyu Asi Nehri'dir. Nehir Lübnan'daki Bekaa Vadisi'nde doğar, Suriye " +
       'topraklarından geçtikten sonra bir süre Türkiye-Suriye sınırını çizer, ardından yön ' +
       "değiştirip Türkiye'ye girer; Antakya'dan geçtikten sonra Samandağ'da bir delta " +
-      "oluşturarak Akdeniz'e dökülür. Toplam uzunluğu 556 kilometredir.\n\n" +
-      "Amik Ovası'nın ortasında bulunan Amik Gölü, 1954'te başlayıp 1966-1975 arasında " +
-      'Devlet Su İşleri tarafından yürütülen bir kurutma projesiyle tarım alanı kazanmak, ' +
-      'taşkınları önlemek ve sıtmayı ortadan kaldırmak amacıyla tamamen kurutulmuştur; göl ' +
-      'artık mevcut değildir.\n\n' +
+      "oluşturarak Akdeniz'e dökülür. Toplam uzunluğu 556 kilometredir." +
+      '\n\n' +
+      "Amik Ovası'nın ortasında bulunan Amik Gölü, 1954'te başlayıp asıl aşaması 1973-1975 " +
+      'arasında Devlet Su İşleri tarafından yürütülen bir kurutma projesiyle tarım alanı ' +
+      'kazanmak, taşkınları önlemek ve sıtmayı ortadan kaldırmak amacıyla tamamen kurutulmuştur; ' +
+      'göl artık mevcut değildir.' +
+      '\n\n' +
       "İlin sulama ve içme suyu ihtiyacı DSİ'nin işlettiği barajlardan karşılanır: Antakya, " +
       "Defne ve Samandağ'ın içme suyunu sağlayan 54 milyon m³ kapasiteli Karaçay Barajı, " +
-      "Gaziantep'in İslahiye ile Hatay'ın Hassa ve Kırıkhan ilçelerini ve Amik Ovası'nı " +
-      'sulayan 454 milyon m³ kapasiteli Tahtaköprü Barajı ve ' +
-      "Altınözü'nde tarımsal sulamada kullanılan 55 milyon m³ kapasiteli Yarseli Barajı.",
+      "Gaziantep'in İslahiye ile Hatay'ın Hassa ve Kırıkhan ilçelerini ve Amik Ovası'nı sulayan " +
+      "454 milyon m³ kapasiteli Tahtaköprü Barajı ve Altınözü'nde tarımsal sulamada kullanılan " +
+      '55 milyon m³ kapasiteli Yarseli Barajı.',
     hydrographyFeatures: [
       { name: 'Asi Nehri', type: HydrographyFeatureType.Nehir },
       { name: 'Karaçay Barajı', type: HydrographyFeatureType.Baraj },
@@ -4138,9 +4142,9 @@ export const WAVE6D_KARADENIZ_B_PROVINCES: readonly ProvinceSeed[] = [
       "yüzölçümüyle ilin en tanınan doğal alanıdır. İl, sekiz komşusuyla Türkiye'deki illerin " +
       'çoğundan daha fazla komşuya sahiptir.',
     hydrographyNoteTr:
-      "Abant Gölü'nün dışında ilin su varlığı, Köroğlu ve Abant dağlarından inen kısa akarsu ağıyla " +
-      'sınırlıdır; bu dereler Sakarya Nehri havzasına bağlanır. Gölün kendisi dışa akışı olmayan ' +
-      'kapalı bir havzadır.',
+      "Abant Gölü'nün dışında ilin su varlığı, Köroğlu ve Abant dağlarından inen kısa akarsu " +
+      'ağıyla sınırlıdır; bu dereler Sakarya Nehri havzasına bağlanır. Gölden çıkan Abant Suyu ' +
+      "ise Büyüksu Çayı'nın kaynağını oluşturur.",
     urbanizationRate: 74.19,
     netMigrationRate: 1.55,
     economyIndicator: {
@@ -4235,7 +4239,10 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     introTr:
       "Ağrı, 5.137 metrelik doruğuyla Türkiye'nin çatısı sayılan Ağrı Dağı'nın gölgesinde, Murat ve Aras havzalarının su bölümü çizgisinde kuruludur. Doğubayazıt'taki tarihi İshak Paşa Sarayı ve Gürbulak Sınır Kapısı ile Kafkaslar ve Orta Asya'ya açılan il, kış turizmi, yüksek irtifa dağcılığı ve sınır ticareti açısından stratejik bir konumdadır.",
     hydrographyNoteTr:
-      "Fırat Nehri'nin en uzun kolu olan Murat Nehri, Diyadin ilçesi sınırlarındaki Aladağ eteklerinden doğarak ovayı batı yönünde kat eder; Diyadin kanyonu ve jeotermal kaplıca kaynakları bu vadi boyunca uzanır. İlin kuzey kesimindeki sular ise Doğubayazıt sazlıkları üzerinden Aras Nehri havzasına ulaşarak Hazar Denizi'ne yönelir.",
+      "Fırat Nehri'nin en uzun kolu olan Murat Nehri, Diyadin ilçesi sınırlarındaki Aladağ " +
+      'eteklerinden doğarak ovayı batı yönünde kat eder; Diyadin kanyonu ve jeotermal kaplıca ' +
+      'kaynakları bu vadi boyunca uzanır. Doğubayazıt çevresindeki sular ise sazlıklar üzerinden ' +
+      "Aras Nehri havzasına ulaşarak Hazar Denizi'ne yönelir.",
     urbanizationRate: 62.76,
     netMigrationRate: -32.59,
     economyIndicator: {
@@ -4344,7 +4351,11 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     //    crater-lake volcano — a DIFFERENT, homonymous mountain from Adıyaman's UNESCO Nemrut
     //    (wave-5). urbanizationRate 66.88 is a REAL rate. GSYH share %0,2.
     landformNoteTr:
-      "Bitlis toprakları dört ana yer şekli biriminden oluşur: kuzeyde Ahlat volkanik tüf platosu, hemen güneyinde 2.935 metrelik Nemrut Stratovolkanı, ortada Muş-Tatvan çöküntü oluğu ve güneyde Paleozoik (Birinci Zaman) şistlerden oluşan sarp Bitlis Masifi. Nemrut kalderası, 1441'deki son püskürme ürünü lav ve tüf setleriyle Van Gölü ile Muş Ovası arasındaki doğal su havzalarını birbirinden kalıcı olarak ayırmıştır.",
+      'Bitlis toprakları dört ana yer şekli biriminden oluşur: kuzeyde Ahlat volkanik tüf ' +
+      'platosu, hemen güneyinde 2.935 metrelik Nemrut Stratovolkanı, ortada Muş-Tatvan çöküntü ' +
+      'oluğu ve güneyde Paleozoik (Birinci Zaman) şistlerden oluşan sarp Bitlis Masifi. Nemrut ' +
+      'kalderası, püskürmelerinin ürünü olan lav ve tüf setleriyle Van Gölü ile Muş Ovası ' +
+      'arasındaki doğal su havzalarını birbirinden kalıcı olarak ayırmıştır.',
     introTr:
       "Bitlis, Doğu Anadolu'yu Mezopotamya ovalarına bağlayan tarihi Bitlis Boğazı üzerinde, sarp bir vadi içinde kuruludur. Ahlat ilçesindeki UNESCO Dünya Mirası Geçici Listesi'nde yer alan Selçuklu meydan mezarlığı ve kümbetleriyle kadim bir kültür havzası olan il, kuzeydoğusundaki Van Gölü kıyıları ve uyuyan Nemrut Stratovolkanı ile benzersiz bir coğrafi kimlik taşır.",
     hydrographyNoteTr:
@@ -4424,7 +4435,13 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     //    short (Kandilli/AFAD-sourced, KAF context — Kocaeli/İzmir precedent). urbanizationRate
     //    75.99 is a REAL rate (non-büyükşehir). GSYH share %0,2.
     landformNoteTr:
-      "Ortalama 1.200 metre irtifadaki Erzincan Ovası, kuzeyden Spikör ve Keşiş dağları (3.549 m), güneyden ise kireçtaşından sarp Munzur Dağları (3.300 m) ile çevrelenmiş kapalı bir çöküntü çanağıdır. KAF'ın ana kesiminde yer alan bu kuşakta, 27 Aralık 1939'da Kandilli Rasathanesi kayıtlarına göre 7,9 büyüklüğünde Türkiye'nin en yıkıcı depremlerinden biri yaşanmış, 32.968 kişi yaşamını yitirmiştir. Dağların ovaya kavuştuğu kesimlerde eğim kırıklıkları nedeniyle zengin traverten ve kaynak çıkışları bulunur.",
+      'Ortalama 1.200 metre irtifadaki Erzincan Ovası, kuzeyden Spikör ve Keşiş dağları (3.549 ' +
+      'm), güneyden ise kireçtaşından sarp 3.400 metreyi aşan Munzur Dağları ile çevrelenmiş, ' +
+      "içinden Fırat'ın geçtiği bir çöküntü ovasıdır. KAF'ın ana kesiminde yer alan bu kuşakta, " +
+      "27 Aralık 1939'da Kandilli Rasathanesi kayıtlarına göre 7,9 büyüklüğünde Türkiye'nin en " +
+      'yıkıcı depremlerinden biri yaşanmış, 32.968 kişi yaşamını yitirmiştir. Dağların ovaya ' +
+      'kavuştuğu kesimlerde eğim kırıklıkları nedeniyle zengin traverten ve kaynak çıkışları ' +
+      'bulunur.',
     introTr:
       "Erzincan, Kuzey Anadolu Fay Hattı'nın belirlediği derin bir tektonik çöküntü oluğunda, Fırat'ın ana kolu Karasu'nun bereketlendirdiği verimli ovada yer alır. Tarih boyunca yaşadığı büyük depremlerle biçimlenen kent, geniş caddeleri ve ızgara planlı mimarisiyle yeniden kurulmuş olup tulum peyniri, bakırcılık zanaatı ve Munzur eteklerindeki doğa sporlarıyla tanınır.",
     hydrographyNoteTr:
@@ -5028,8 +5045,8 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
       "Listesi'ne giren ilk mimari eserdir.",
     hydrographyNoteTr:
       "Kızılırmak, İmranlı ilçesinde Kızıldağ'ın 2.000 metreyi aşan yükseltilerinden doğar. " +
-      'Sivas topraklarından geçtikten sonra Kayseri, Kırşehir, Kırıkkale, Ankara, Aksaray, ' +
-      "Nevşehir, Çankırı, Çorum ve Samsun'dan geçerek Karadeniz'e dökülür. Millî Eğitim " +
+      'Sivas topraklarından geçtikten sonra Kayseri, Nevşehir, Kırşehir, Kırıkkale, Ankara, ' +
+      "Aksaray, Çankırı, Çorum, Sinop ve Samsun'dan geçerek Karadeniz'e dökülür. Millî Eğitim " +
       'Bakanlığı müfredat kaynakları nehrin toplam uzunluğu için 1.355 kilometre rakamını ' +
       'kullanır.',
     urbanizationRate: 77.38,
@@ -5122,11 +5139,10 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
       'Merkezi tarafından yürütülen uzun soluklu bir arkeolojik araştırmaya ev sahipliği ' +
       'yapmaktadır.',
     hydrographyNoteTr:
-      'Kızılırmak, ilin güney sınırından geçer; Kaman ve Kırşehir Merkez ilçeleri arasında ' +
-      "kalan bölümü Hirfanlı Baraj Gölü'nün su kütlesine dahildir. İlin " +
-      "kuzeydoğusundaki Seyfe Gölü, sığ ve tuzlu bir step gölüdür; 1994'te Ramsar " +
-      'Sözleşmesi listesine alınmış, dönem dönem 300 binin üzerinde flamingoya ev sahipliği ' +
-      'yapan önemli bir kuş alanıdır.',
+      'Kızılırmak, ilin güney sınırından geçer; Kırşehir sınırları içindeki kesiminin bir bölümü ' +
+      "Hirfanlı Baraj Gölü'ne dönüşmüştür. İlin kuzeydoğusundaki Seyfe Gölü, sığ ve tuzlu bir " +
+      "step gölüdür; 1994'te Ramsar Sözleşmesi listesine alınmış, dönem dönem 300 binin üzerinde " +
+      'flamingoya ev sahipliği yapan önemli bir kuş alanıdır.',
     urbanizationRate: 81.81,
     netMigrationRate: -4.57,
     economyIndicator: {
@@ -5262,7 +5278,7 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
       "Çayı'nın aşındırdığı kanyonlarla kaplıdır.",
     introTr:
       "Aksaray, Kapadokya'nın en uzun kanyonlarından biri olan Ihlara Vadisi'ne ev sahipliği " +
-      "yapar. İlin kuzeybatı ucu, Türkiye'nin ikinci büyük gölü Tuz Gölü'nün güneybatı kıyısına " +
+      "yapar. İlin kuzeybatı ucu, Türkiye'nin ikinci büyük gölü Tuz Gölü'nün güneydoğu kıyısına " +
       'kadar uzanır.',
     hydrographyNoteTr:
       "Melendiz Çayı, Ihlara Vadisi'ni 18 kilometre boyunca, ortalama 150 metre derinlik " +
