@@ -26,6 +26,7 @@ reading `DATABASE_URL` from the shell (no `.env` loading).
 
 ## Hard rules
 
+- Entity, column or migration change: invoke the `changing-the-schema` skill before editing.
 - `synchronize` is off forever. Entity change → generate migration → **read the SQL** →
   add the class to the explicit `migrations` array in `src/database/data-source-options.ts`
   (entities are listed explicitly there too, no globs). Never commit an unread migration.
