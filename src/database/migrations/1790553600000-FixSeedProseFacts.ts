@@ -965,6 +965,28 @@ export const SEED_FACT_CHANGES: readonly SeedFactChange[] = [
     after:
       "Küba'nın ince ve uzun ada biçimi, suların hızla kuzey ya da güney kıyılarına ulaşmasına neden olduğu için akarsuların ezici çoğunluğu kısa boyludur. Bu kuralın en büyük istisnası, Sierra Maestra eteklerinden doğup batıya doğru tektonik bir oluk boyunca 343 kilometre akarak Guacanayabo Körfezi'ne dökülen Cauto Nehri'dir. Doğu dağlarının gür ormanlarından doğan Toa Nehri ise bozulmamış havzasıyla ülkenin debisi en yüksek akarsuyudur. Batıdaki karstik alanlarda sular yer altına çekilerek mağara nehirleri oluştururken, güney kıyısındaki Zapata Yarımadası Karayipler'in en geniş sulak alan ve bataklık ekosistemini barındırır.",
   },
+  {
+    table: 'provinces',
+    keyColumn: 'plate_code',
+    key: '05',
+    property: 'landformNoteTr',
+    column: 'landform_note_tr',
+    before:
+      "İlin arazisi, Yeşilırmak'ın vadisi boyunca uzanan dar bir koridor ile bu koridoru çevreleyen daha yüksek platolardan oluşur. Harşena Dağı, vadinin kuzeyinde yaklaşık 300 metre yükselen kalker bir kütledir; kayalıklara oyulmuş mezarlar bu kütlenin güney yamacında yer alır.",
+    after:
+      "İlin arazisi, Yeşilırmak'ın vadisi boyunca uzanan dar bir koridor ile bu koridoru çevreleyen daha yüksek platolardan oluşur. Harşena Dağı, vadinin kuzeyinde 272 metre yükselen kalker bir kütledir; kayalıklara oyulmuş mezarlar bu kütlenin güney yamacında yer alır.",
+  },
+  {
+    table: 'provinces',
+    keyColumn: 'plate_code',
+    key: '53',
+    property: 'landformNoteTr',
+    column: 'landform_note_tr',
+    before:
+      "İlin güneyi, Kaçkar Dağları'nın kuzeybatı uzantılarıyla hızla yükselir; kıyı ile dağlık kesim arasındaki düzlük neredeyse yok denecek kadar dardır. Çamlıhemşin ilçesindeki Fırtına Deresi, Kaçkar Dağları'ndan inen çok sayıda derenin birleşmesiyle oluşur ve yaklaşık 57 kilometre sonra Ardeşen yakınlarında Karadeniz'e ulaşır; derin ve dar kanyonuyla bölgenin dik topografyasının tipik bir örneğidir.",
+    after:
+      "İlin güneyi, Kaçkar Dağları'nın kuzeybatı uzantılarıyla hızla yükselir; kıyı ile dağlık kesim arasındaki düzlük neredeyse yok denecek kadar dardır. Çamlıhemşin ilçesindeki Fırtına Deresi, Kaçkar Dağları'ndan inen çok sayıda derenin birleşmesiyle oluşur ve yaklaşık 68 kilometre sonra Ardeşen yakınlarında Karadeniz'e ulaşır; derin ve dar kanyonuyla bölgenin dik topografyasının tipik bir örneğidir.",
+  },
 ];
 
 async function apply(queryRunner: QueryRunner, from: 'before' | 'after', to: 'before' | 'after') {

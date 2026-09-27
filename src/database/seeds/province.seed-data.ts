@@ -5540,9 +5540,9 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
     //    the batch's smallest-magnitude negative. GSYH share %0,3.
     landformNoteTr:
       "İlin arazisi, Yeşilırmak'ın vadisi boyunca uzanan dar bir koridor ile bu koridoru " +
-      'çevreleyen daha yüksek platolardan oluşur. Harşena Dağı, vadinin kuzeyinde yaklaşık 300 ' +
-      'metre yükselen kalker bir kütledir; kayalıklara oyulmuş mezarlar bu kütlenin güney ' +
-      'yamacında yer alır.',
+      'çevreleyen daha yüksek platolardan oluşur. Harşena Dağı, vadinin kuzeyinde 272 metre ' +
+      'yükselen kalker bir kütledir; kayalıklara oyulmuş mezarlar bu kütlenin güney yamacında ' +
+      'yer alır.',
     introTr:
       "Amasya, Yeşilırmak'ın açtığı dar ve derin bir vadide kuruludur; kent merkezi, nehrin iki " +
       'yakasını dik kayalıklar arasında birbirine bağlar. Vadinin kuzey yamacındaki Harşena ' +
@@ -5866,7 +5866,7 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
       "İlin güneyi, Kaçkar Dağları'nın kuzeybatı uzantılarıyla hızla yükselir; kıyı ile dağlık " +
       'kesim arasındaki düzlük neredeyse yok denecek kadar dardır. Çamlıhemşin ilçesindeki ' +
       "Fırtına Deresi, Kaçkar Dağları'ndan inen çok sayıda derenin birleşmesiyle oluşur ve " +
-      "yaklaşık 57 kilometre sonra Ardeşen yakınlarında Karadeniz'e ulaşır; derin ve dar " +
+      "yaklaşık 68 kilometre sonra Ardeşen yakınlarında Karadeniz'e ulaşır; derin ve dar " +
       'kanyonuyla bölgenin dik topografyasının tipik bir örneğidir.',
     introTr:
       "Rize, Türkiye'nin en yağışlı ilidir. Yıllık yağış yılın her mevsimine dağılır ve kurak " +
