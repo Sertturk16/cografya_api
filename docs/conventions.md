@@ -69,6 +69,8 @@ required), default only when a safe default exists. Cross-field constraints go t
 `pnpm migration:generate src/database/migrations/<PascalName>` → open the file, read every
 statement → add the class to `migrations` in `data-source-options.ts` → commit both. Never
 edit an applied migration; write a new one. `migration:revert` is for local only.
+`src/database/migration-registry.spec.ts` (unit lane) fails when a migration file, an entity
+class, the `migrations`/`entities` arrays and the province/country e2e lists disagree.
 
 ## Git
 
