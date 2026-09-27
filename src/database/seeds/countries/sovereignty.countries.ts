@@ -314,7 +314,7 @@ export const SOVEREIGNTY_COUNTRIES: readonly CountrySeed[] = [
     capitalLongitude: 34.7818,
     // Mısır, Ürdün, Lübnan, Suriye (4) — egemen devlet temelinde. Filistin BİLİNÇLİ olarak
     //   hariç (data dictionary §7).
-    neighborIsoCodes: ['EG', 'JO', 'LB', 'SY'],
+    neighborIsoCodes: ['EG', 'JO', 'LB', 'SY', 'PS'],
     officialLanguagesTr: ['İbranice'],
     currencyNameTr: 'Yeni İsrail Şekeli',
     currencyCode: 'ILS',

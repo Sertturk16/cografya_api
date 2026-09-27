@@ -46,15 +46,15 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     independenceNoteTr:
       "Federasyon 1 Temmuz 1867'de kuruldu; tam bağımsızlık kademeli (1931 Westminster, 1982 Kanada Yasası).",
     introTr:
-      "Kanada, 8.788.700 kilometrekarelik yüzölçümüyle Rusya'dan sonra dünyanın en geniş " +
-      'ikinci ülkesidir. Toprakları doğuda Atlas, batıda Büyük ve kuzeyde Arktik Okyanusu ' +
-      'ile kuşatılmıştır. ' +
+      "Kanada, 9.984.670 kilometrekarelik yüzölçümüyle Rusya'dan sonra dünyanın en geniş ikinci " +
+      'ülkesidir. Toprakları doğuda Atlas, batıda Büyük ve kuzeyde Arktik Okyanusu ile ' +
+      'kuşatılmıştır. ' +
       '\n\n' +
-      'Bu engin coğrafyaya karşın nüfus son derece dengesiz dağılmıştır. Sert kış ' +
-      'şartları ve donmuş topraklar nedeniyle nüfusun ezici çoğunluğu, Amerika Birleşik ' +
-      'Devletleri sınırına paralel uzanan birkaç yüz kilometrelik dar güney şeridinde ' +
-      'yaşar; kuzeye uzanan milyonlarca kilometrekarelik arazi ise seyrek yerleşimli bir ' +
-      'tayga ve tundra kuşağından ibarettir.',
+      'Bu engin coğrafyaya karşın nüfus son derece dengesiz dağılmıştır. Sert kış şartları ve ' +
+      'donmuş topraklar nedeniyle nüfusun ezici çoğunluğu, Amerika Birleşik Devletleri sınırına ' +
+      'paralel uzanan birkaç yüz kilometrelik dar güney şeridinde yaşar; kuzeye uzanan ' +
+      'milyonlarca kilometrekarelik arazi ise seyrek yerleşimli bir tayga ve tundra kuşağından ' +
+      'ibarettir.',
     landformNoteTr:
       'Ülkenin doğu ve orta kesimini, Hudson Körfezi çevresinde geniş bir yay çizen ' +
       'Kanada Kalkanı şekillendirir. Milyarlarca yıllık Prekambriyen kayaçlardan oluşan ' +
@@ -271,14 +271,14 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     governmentFormTr: 'Parlamenter monarşi (İngiliz Milletler Topluluğu krallığı)',
     independenceNoteTr: "21 Eylül 1981'de Birleşik Krallık'tan bağımsız oldu.",
     introTr:
-      "Belize, Orta Amerika'nın Karayip kıyısında, Yucatán Yarımadası'nın güney kökünde " +
-      'yer alan kompakt bir kıyı ülkesidir. Bölgede resmi dili İngilizce olan tek ' +
-      'devlettir; bu kültürel kimlik, 1981 yılına kadar Britanya Hondurası adıyla ' +
-      'Birleşik Krallık idaresinde kalmış olmasından kaynaklanır. ' +
+      "Belize, Orta Amerika'nın Karayip kıyısında, Yucatán Yarımadası'nın güney kökünde yer alan " +
+      'kompakt bir kıyı ülkesidir. Bölgede resmi dili İngilizce olan tek devlettir; bu kültürel ' +
+      "kimlik, 1973'e kadar Britanya Hondurası adını taşıyıp 1981'e kadar Birleşik Krallık " +
+      'idaresinde kalmış olmasından kaynaklanır. ' +
       '\n\n' +
-      'Ülke arazisinin büyük bölümü yoğun tropikal yağmur ormanlarıyla kaplıdır. Nüfus ' +
-      'yoğunluğu bölge ortalamasının oldukça altındadır ve yerleşimler ağırlıklı olarak ' +
-      'Karayip kıyı şeridi ile nehir vadilerinde toplanmıştır.',
+      'Ülke arazisinin büyük bölümü yoğun tropikal yağmur ormanlarıyla kaplıdır. Nüfus yoğunluğu ' +
+      'bölge ortalamasının oldukça altındadır ve yerleşimler ağırlıklı olarak Karayip kıyı ' +
+      'şeridi ile nehir vadilerinde toplanmıştır.',
     landformNoteTr:
       'Ülke topoğrafyası iki farklı jeolojik yapıya ayrılır. Güneyde yükselen Maya ' +
       "Dağları, 1.124 metrelik Doyle's Delight doruğuyla ülkenin en yüksek alanını " +
@@ -500,16 +500,14 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'yaylalarda toplanırken, kuzeydeki bakir orman ovaları tarihsel Maya kalıntılarına ' +
       'ev sahipliği yapar.',
     landformNoteTr:
-      'Ülke arazisi üç belirgin yer şekli kuşağına ayrılır. Güneyde Kokos levhasının ' +
-      "dalma zonuna paralel uzanan Sierra Madre de Chiapas kuşağı, Orta Amerika'nın en " +
-      'yüksek noktası olan 4.220 metrelik Tajumulco Yanardağı dahil olmak üzere otuzdan ' +
-      'fazla volkana ev sahipliği yapar. Bu kuşakta, 84 bin yıl önceki süper patlamanın ' +
-      'oluşturduğu kalderada yer alan ve 340 metre derinliğiyle bölgenin en derin su ' +
-      'kütlesi olan Atitlán Gölü yükselir. ' +
+      'Ülke arazisi üç belirgin yer şekli kuşağına ayrılır. Güneyde Kokos levhasının dalma ' +
+      "zonuna paralel uzanan Sierra Madre de Chiapas kuşağı, Orta Amerika'nın en yüksek noktası " +
+      'olan 4.220 metrelik Tajumulco Yanardağı dahil olmak üzere otuzdan fazla volkana ev ' +
+      'sahipliği yapar. Bu kuşakta, 84 bin yıl önceki süper patlamanın oluşturduğu kalderada yer ' +
+      'alan ve 340 metre derinliğiyle bölgenin en derin su kütlesi olan Atitlán Gölü yer alır. ' +
       '\n\n' +
-      'İç kesimde, Kuzey Amerika ve Karayip levhalarının sınırını çizen Motagua ve ' +
-      'Polochic fay vadileri boyunca kristalen kireçtaşı kütlesi Cuchumatanes Sıradağları ' +
-      'yükselir. ' +
+      'İç kesimde, Kuzey Amerika ve Karayip levhalarının sınırını çizen Motagua ve Polochic fay ' +
+      'vadileri boyunca kristalen kireçtaşı kütlesi Cuchumatanes Sıradağları yükselir. ' +
       '\n\n' +
       "Kuzey kesimi ise Meksika'nın Yucatán Yarımadası ile bütünleşen Petén kireçtaşı " +
       'platosudur; ortalama 200 metreyi aşmayan bu dalgalı karstik ova, yoğun yağmur ' +
@@ -976,14 +974,14 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
       'yarı kurak bir yerel iklime sahiptir. Haziran-kasım döneminde Atlantik ve Karayip kökenli ' +
       'yıkıcı kasırgalar adayı düzenli olarak boydan boya etkiler.',
     hydrographyNoteTr:
-      "Küba'nın ince ve uzun ada biçimi, suların hızla kuzey ya da güney kıyılarına " +
-      'ulaşmasına neden olduğu için akarsuların ezici çoğunluğu kısa boyludur. Bu kuralın en ' +
-      'büyük istisnası, Sierra Maestra eteklerinden doğup batıya doğru tektonik bir oluk boyunca ' +
-      "370 kilometre akarak Guacanayabo Körfezi'ne dökülen Cauto Nehri'dir. Doğu dağlarının " +
-      'gür ormanlarından doğan Toa Nehri ise bozulmamış havzasıyla ülkenin debisi en yüksek ' +
+      "Küba'nın ince ve uzun ada biçimi, suların hızla kuzey ya da güney kıyılarına ulaşmasına " +
+      'neden olduğu için akarsuların ezici çoğunluğu kısa boyludur. Bu kuralın en büyük ' +
+      'istisnası, Sierra Maestra eteklerinden doğup batıya doğru tektonik bir oluk boyunca 343 ' +
+      "kilometre akarak Guacanayabo Körfezi'ne dökülen Cauto Nehri'dir. Doğu dağlarının gür " +
+      'ormanlarından doğan Toa Nehri ise bozulmamış havzasıyla ülkenin debisi en yüksek ' +
       'akarsuyudur. Batıdaki karstik alanlarda sular yer altına çekilerek mağara nehirleri ' +
-      "oluştururken, güney kıyısındaki Zapata Yarımadası Karayipler'in en geniş sulak alan " +
-      've bataklık ekosistemini barındırır.',
+      "oluştururken, güney kıyısındaki Zapata Yarımadası Karayipler'in en geniş sulak alan ve " +
+      'bataklık ekosistemini barındırır.',
   },
   {
     isoCode: 'DM',
@@ -1490,9 +1488,9 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     hydrographyNoteTr:
       'Kıta sahanlığı kökeni sayesinde Trinidad, Karayip adaları içinde en olgun ve geniş nehir ' +
       "ağlarına sahiptir. Kuzey Sıradağları eteklerinden doğup batıdaki Paria Körfezi'ne akan " +
-      'Caroni Nehri, başkentin güneyinde devasa Caroni Bataklığı mangrov ekosistemini besler; ' +
-      'bu sulak alan ülkenin ulusal simgesi olan kızıl ibisin dünyadaki en önemli ' +
-      'tünekleme sahasıdır. Doğu sahiline dökülen 50 kilometrelik Ortoire Nehri ise adanın en ' +
+      'Caroni Nehri, başkentin güneyinde devasa Caroni Bataklığı mangrov ekosistemini besler; bu ' +
+      'sulak alan ülkenin ulusal simgesi olan kızıl ibisin dünyadaki en önemli tünekleme ' +
+      'sahasıdır. Doğu sahiline dökülen yaklaşık 55 kilometrelik Ortoire Nehri ise adanın en ' +
       'uzun su yoludur. Dağlık Tobago adasında ise daha kısa, hızlı akan temiz dereler ve ' +
       'çağlayanlar baskındır.',
   },
