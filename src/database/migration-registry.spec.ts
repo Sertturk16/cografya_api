@@ -72,7 +72,16 @@ function e2eMigrationList(file: string): string[] {
   const start = source.indexOf('expect(appliedMigrationNames).toEqual([');
   if (start === -1) throw new Error(`${file} no longer asserts appliedMigrationNames`);
   const body = source.slice(start, source.indexOf(']);', start));
-  return [...body.matchAll(/^\s*'([A-Za-z0-9]+)',/gm)].map((m) => m[1] ?? '');
+  // Every quoted line must be a plain `'Name1234567890123',` entry: a line the pattern skipped
+  // would otherwise be reported as missing from a file that does contain it.
+  return body
+    .split('\n')
+    .filter((line) => line.includes("'") && !line.trim().startsWith('//'))
+    .map((line) => {
+      const [, name] = /^\s*'([A-Za-z0-9]+)',\s*$/.exec(line) ?? [];
+      if (!name) throw new Error(`${file}: unexpected line in the migration list: ${line.trim()}`);
+      return name;
+    });
 }
 
 describe('migration and entity registry', () => {

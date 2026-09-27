@@ -21,15 +21,16 @@ file disagrees, they win. `synchronize` is off, so nothing reaches Postgres with
    (drift from another branch), check `down()` undoes `up()` in reverse order, and check that
    a `NOT NULL` on an existing table has a default or a backfill. Never edit a migration that
    is already on `dev`; write a new one.
-5. **Register** the class at the end of `migrations` in `data-source-options.ts` and append its
-   name to BOTH ordered lists (`test/province.e2e-spec.ts`, `test/country.e2e-spec.ts`).
+5. **Register** the class in `migrations` in `data-source-options.ts` in timestamp order
+   (normally last; not after a rebase onto a newer migration) and add its name at the same
+   position in BOTH ordered lists (`test/province.e2e-spec.ts`, `test/country.e2e-spec.ts`).
    `pnpm test:unit src/database/migration-registry.spec.ts` fails until the file, the array
    and both lists agree.
 6. **Whole e2e lane.** `pnpm test:e2e`, not only the module you touched: a new migration breaks
    suites that never mention it. A local `.env` with `*_ENABLED=true` fails six upstream suites
    (see `CLAUDE.md` Commands); CI has none.
-7. **Contract.** If a DTO changed too: `pnpm openapi:generate`, then `pnpm contract:sync` from
-   `cografya_web` (root `CLAUDE.md`).
+7. **Contract.** If a DTO changed too: `pnpm contract:sync` from `cografya_web` (it runs
+   `openapi:generate` here; root `CLAUDE.md`).
 
 ## Report
 
