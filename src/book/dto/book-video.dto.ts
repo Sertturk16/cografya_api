@@ -58,6 +58,24 @@ export class BookVideoDto {
   titleEn!: string | null;
 
   @ApiProperty({
+    type: String,
+    nullable: true,
+    example: null,
+    description:
+      'Group heading this video sits under ("1. Ünite · Doğal Sistemler", "1. GÜN"). Consecutive ' +
+      'videos sharing a value form one group; null is an untitled group. Null for a deneme book.',
+  })
+  groupTitleTr!: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: null,
+    description: 'EN counterpart of groupTitleTr; null when there is no counterpart.',
+  })
+  groupTitleEn!: string | null;
+
+  @ApiProperty({
     type: [BookVideoTagDto],
     description:
       'The etiket index for this video, ascending by orderNo and by startSecond. It must be ' +

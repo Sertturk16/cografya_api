@@ -300,6 +300,7 @@ describe('Country (e2e)', () => {
       'UpdateSeedProseCopy1790208000000',
       'AddMarketingConsent1790294400000',
       'AddAccountTypesAndAudienceFields1790380800000',
+      'AddBookContentKindAndVideoGroup1790467200000',
     ]);
   });
 

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ExamTrack } from '../book.types';
+import { BookContentKind, ExamTrack } from '../book.types';
 
 /**
  * Lean list payload for the `/kitaplar` hub — one card.
@@ -69,6 +69,15 @@ export class BookListItemDto {
       'change, because it can break an exhaustive switch in the consumer.',
   })
   examTrack!: ExamTrack;
+
+  @ApiProperty({
+    enum: BookContentKind,
+    example: BookContentKind.Deneme,
+    description:
+      'How the book organises its videos — drives the reader-facing nouns (deneme, test, ders, ' +
+      'fasikül, video). A closed set: adding a member is a breaking contract change.',
+  })
+  contentKind!: BookContentKind;
 
   @ApiProperty({
     type: String,

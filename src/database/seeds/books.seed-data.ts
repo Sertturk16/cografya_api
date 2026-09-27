@@ -1,4 +1,4 @@
-import { ExamTrack } from '../../book/book.types';
+import { BookContentKind, ExamTrack } from '../../book/book.types';
 
 /**
  * The book künye rows — one today, hand-seeded from a künye somebody read (SPEC §7.3, PR B2).
@@ -44,6 +44,7 @@ export interface BookSeed {
   readonly isbn13: string;
   readonly pageCount: number;
   readonly examTrack: ExamTrack;
+  readonly contentKind: BookContentKind;
   readonly coverImagePath: string | null;
   readonly purchaseUrl: string | null;
   readonly introTr: string;
@@ -111,6 +112,7 @@ export const SEED_BOOKS: readonly BookSeed[] = [
     isbn13: '9786259490069',
     pageCount: 144,
     examTrack: ExamTrack.Ayt,
+    contentKind: BookContentKind.Deneme,
     // The published address of the cover, inside `cografya_web`'s `public/` — a data change on a
     // nullable column, NOT a contract change (`Owner's Inbox/kitap-video-web/SPEC.md` §6 E3).
     //

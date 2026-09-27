@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { ExamTrack } from '../../book/book.types';
+import { BookContentKind, ExamTrack } from '../../book/book.types';
 import { isEndorsementClaim } from '../../common/attribution/endorsement-guard';
 import {
   assertArtifactMatchesBook,
@@ -41,6 +41,7 @@ function book(overrides: Partial<BookSeed> = {}): BookSeed {
     isbn13: '1234567890123',
     pageCount: 100,
     examTrack: ExamTrack.Ayt,
+    contentKind: BookContentKind.Deneme,
     coverImagePath: null,
     purchaseUrl: null,
     introTr: 'Bu bir örnek anlatıdır. İkinci cümle biraz daha uzun olsun diye buraya kondu.',

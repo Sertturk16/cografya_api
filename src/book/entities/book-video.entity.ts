@@ -87,6 +87,17 @@ export class BookVideo {
   titleEn!: string | null;
 
   /**
+   * The group heading this video sits under on the book page ("1. Ünite · Doğal Sistemler",
+   * "1. GÜN"). Consecutive videos with the same value form one group. NULL for a deneme book.
+   */
+  @Column({ name: 'group_title_tr', type: 'varchar', length: 120, nullable: true })
+  groupTitleTr!: string | null;
+
+  /** EN counterpart of {@link groupTitleTr}; null on the same EN-twin rule as {@link titleEn}. */
+  @Column({ name: 'group_title_en', type: 'varchar', length: 120, nullable: true })
+  groupTitleEn!: string | null;
+
+  /**
    * The YouTube video id, exactly 11 characters of `[A-Za-z0-9_-]`.
    *
    * The check constraint is worth its cost because the failure it prevents is invisible: an id one

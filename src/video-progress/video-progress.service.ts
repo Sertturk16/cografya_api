@@ -19,6 +19,13 @@ interface BookProgressAggregateRow {
   startedCount: string;
 }
 
+/** Raw shape of the per-video query in {@link VideoProgressService.getBookProgress} (T-128). */
+interface BookProgressVideoRow {
+  bookVideoId: string;
+  lastPositionSeconds: number;
+  watched: boolean;
+}
+
 /** Raw shape of the resume-row query in {@link VideoProgressService.getBookProgress}. */
 interface BookProgressResumeRow {
   bookVideoId: string;
@@ -192,6 +199,26 @@ export class VideoProgressService {
         .limit(1)
         .getRawOne<BookProgressResumeRow>();
 
+      // T-128: every started video of this book for this caller, in book order — the list's
+      // status icons. Same join as the aggregate above, so it cannot count another book's rows.
+      const videoRows = await manager
+        .getRepository(VideoProgress)
+        .createQueryBuilder('progress')
+        .innerJoin(
+          BookVideo,
+          'video',
+          'video.id = progress.bookVideoId AND video.bookId = :bookId',
+          {
+            bookId: book.id,
+          },
+        )
+        .where('progress.userId = :userId', { userId })
+        .select('progress.bookVideoId', 'bookVideoId')
+        .addSelect('progress.lastPositionSeconds', 'lastPositionSeconds')
+        .addSelect('progress.watched', 'watched')
+        .orderBy('video.orderNo', 'ASC')
+        .getRawMany<BookProgressVideoRow>();
+
       return {
         bookSlugTr: book.slugTr,
         videoCount,
@@ -207,6 +234,11 @@ export class VideoProgressService {
                 watched: resumeRow.watched,
                 updatedAt: resumeRow.updatedAt.toISOString(),
               },
+        videos: videoRows.map((row) => ({
+          bookVideoId: row.bookVideoId,
+          lastPositionSeconds: Number(row.lastPositionSeconds),
+          watched: row.watched,
+        })),
       };
     });
   }

@@ -5,7 +5,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { ExamTrack } from '../book.types';
+import { BookContentKind, ExamTrack } from '../book.types';
 
 /**
  * One book whose video solutions we index — the künye row behind `/kitaplar/{slug_tr}`.
@@ -134,6 +134,10 @@ export class Book {
   /** Which exam this book prepares for. Closed set — see {@link ExamTrack}. */
   @Column({ name: 'exam_track', type: 'varchar', length: 8 })
   examTrack!: ExamTrack;
+
+  /** Which kind of book this is. Closed set — see {@link BookContentKind}. */
+  @Column({ name: 'content_kind', type: 'varchar', length: 16 })
+  contentKind!: BookContentKind;
 
   /**
    * Path to the cover image **inside the web repo's `public/`** — a relative path and nothing else.

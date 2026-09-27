@@ -7,7 +7,7 @@ import { DataSource, QueryFailedError } from 'typeorm';
 import { AccountRole, AccountStatus } from '../src/auth/account.types';
 import { AccessTokenService } from '../src/auth/access-token.service';
 import { User } from '../src/auth/entities/user.entity';
-import { ExamTrack, YoutubeThumbnailKey } from '../src/book/book.types';
+import { BookContentKind, ExamTrack, YoutubeThumbnailKey } from '../src/book/book.types';
 import { BookVideo } from '../src/book/entities/book-video.entity';
 import { Book } from '../src/book/entities/book.entity';
 import { applyGlobalPrefix } from '../src/common/bootstrap';
@@ -507,6 +507,7 @@ describe('Video progress (e2e, real Postgres)', () => {
         watchedCount: 0,
         startedCount: 0,
         resume: null,
+        videos: [],
       });
     });
 
@@ -552,6 +553,11 @@ describe('Video progress (e2e, real Postgres)', () => {
       const body = response.body as { watchedCount: number; startedCount: number };
       expect(body.watchedCount).toBe(1);
       expect(body.startedCount).toBe(2);
+      // T-128: one row per started video, in book order, for the list's status icons.
+      expect((response.body as { videos: unknown[] }).videos).toEqual([
+        { bookVideoId: first.id, lastPositionSeconds: 10, watched: true },
+        { bookVideoId: second.id, lastPositionSeconds: 5, watched: false },
+      ]);
     });
 
     it('resume carries the most-recently-updated progress row, keyed by orderNo (never the retired denemeNo)', async () => {
@@ -614,6 +620,7 @@ describe('Video progress (e2e, real Postgres)', () => {
         watchedCount: 0,
         startedCount: 0,
         resume: null,
+        videos: [],
       });
     });
 
@@ -633,6 +640,7 @@ describe('Video progress (e2e, real Postgres)', () => {
             isbn13: '9999999999999',
             pageCount: 100,
             examTrack: ExamTrack.Ayt,
+            contentKind: BookContentKind.Deneme,
             coverImagePath: null,
             purchaseUrl: null,
             introTr: 'Bu ikinci örnek anlatıdır ve ilkinden başka sözcüklerle yazılmıştır.',
@@ -684,10 +692,12 @@ describe('Video progress (e2e, real Postgres)', () => {
           watchedCount: number;
           startedCount: number;
           resume: { bookVideoId: string } | null;
+          videos: { bookVideoId: string }[];
         };
         expect(body.watchedCount).toBe(1);
         expect(body.startedCount).toBe(1);
         expect(body.resume?.bookVideoId).toBe(first.id);
+        expect(body.videos.map((row) => row.bookVideoId)).toEqual([first.id]);
       });
     });
   });

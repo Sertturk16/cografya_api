@@ -66,6 +66,7 @@ import { AddPasswordChangeRateLimitScope1789862400000 } from './migrations/17898
 import { UpdateSeedProseCopy1790208000000 } from './migrations/1790208000000-UpdateSeedProseCopy';
 import { AddMarketingConsent1790294400000 } from './migrations/1790294400000-AddMarketingConsent';
 import { AddAccountTypesAndAudienceFields1790380800000 } from './migrations/1790380800000-AddAccountTypesAndAudienceFields';
+import { AddBookContentKindAndVideoGroup1790467200000 } from './migrations/1790467200000-AddBookContentKindAndVideoGroup';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -299,6 +300,7 @@ export function buildDataSourceOptions(
       UpdateSeedProseCopy1790208000000,
       AddMarketingConsent1790294400000,
       AddAccountTypesAndAudienceFields1790380800000,
+      AddBookContentKindAndVideoGroup1790467200000,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,
