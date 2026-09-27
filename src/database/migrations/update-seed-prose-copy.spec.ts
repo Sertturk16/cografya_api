@@ -3,11 +3,29 @@ import { SEED_COUNTRIES } from '../seeds/country.seed-data';
 import { SEED_PROVINCES } from '../seeds/province.seed-data';
 import { SEED_REGIONS } from '../seeds/region.seed-data';
 import { SEED_COPY_CHANGES } from './1790208000000-UpdateSeedProseCopy';
+import { SEED_FACT_CHANGES } from './1790553600000-FixSeedProseFacts';
 
 /**
- * The migration and the seed files carry the same prose twice: the migration for databases
- * seeded earlier, the seeds for fresh ones. This keeps the two copies from drifting apart.
+ * The prose migrations and the seed files carry the same prose twice: the migrations for
+ * databases seeded earlier, the seeds for fresh ones. This keeps the copies from drifting apart.
+ * A later migration may rewrite a column an earlier one already rewrote; then it must start from
+ * the earlier one's `after`, and only the last `after` has to match the seed.
  */
+type ProseChange = {
+  readonly table: keyof typeof KEY_PROPERTY;
+  readonly key: string | number;
+  readonly property: string;
+  readonly column: string;
+  readonly before: unknown;
+  readonly after: unknown;
+};
+
+/** Every data migration that rewrites seed prose, oldest first. */
+const PROSE_MIGRATIONS: ReadonlyArray<readonly [string, readonly ProseChange[]]> = [
+  ['UpdateSeedProseCopy', SEED_COPY_CHANGES],
+  ['FixSeedProseFacts', SEED_FACT_CHANGES],
+];
+
 const KEY_PROPERTY = { regions: 'region', provinces: 'plateCode', countries: 'isoCode' } as const;
 const CORPUS: Record<keyof typeof KEY_PROPERTY, readonly object[]> = {
   regions: SEED_REGIONS,
@@ -22,26 +40,45 @@ function seedRow(table: keyof typeof KEY_PROPERTY, key: string | number): Record
   return row as Record<string, unknown>;
 }
 
-describe('UpdateSeedProseCopy', () => {
-  it('writes exactly what the seed files now hold', () => {
-    for (const change of SEED_COPY_CHANGES) {
+const id = (change: ProseChange) => `${change.table}/${String(change.key)}/${change.column}`;
+
+describe('seed prose migrations', () => {
+  it('end on exactly what the seed files now hold', () => {
+    const last = new Map<string, ProseChange>();
+    for (const [, changes] of PROSE_MIGRATIONS) for (const c of changes) last.set(id(c), c);
+    for (const change of last.values()) {
       expect({
-        change: `${change.table}/${String(change.key)}/${change.property}`,
+        change: id(change),
         value: seedRow(change.table, change.key)[change.property] ?? null,
-      }).toEqual({
-        change: `${change.table}/${String(change.key)}/${change.property}`,
-        value: change.after,
-      });
+      }).toEqual({ change: id(change), value: change.after });
     }
   });
 
-  it('changes each column of each row at most once, and only to a different value', () => {
-    const seen = new Set<string>();
-    for (const change of SEED_COPY_CHANGES) {
-      const id = `${change.table}/${String(change.key)}/${change.column}`;
-      expect(seen.has(id)).toBe(false);
-      seen.add(id);
-      expect(change.after).not.toEqual(change.before);
+  it('start each rewrite from the text the previous migration left', () => {
+    const current = new Map<string, unknown>();
+    for (const [name, changes] of PROSE_MIGRATIONS) {
+      for (const change of changes) {
+        if (current.has(id(change))) {
+          expect({ migration: name, change: id(change), before: change.before }).toEqual({
+            migration: name,
+            change: id(change),
+            before: current.get(id(change)),
+          });
+        }
+        current.set(id(change), change.after);
+      }
     }
   });
+
+  it.each(PROSE_MIGRATIONS)(
+    '%s changes each column of each row at most once, and only to a different value',
+    (_name, changes) => {
+      const seen = new Set<string>();
+      for (const change of changes) {
+        expect(seen.has(id(change))).toBe(false);
+        seen.add(id(change));
+        expect(change.after).not.toEqual(change.before);
+      }
+    },
+  );
 });

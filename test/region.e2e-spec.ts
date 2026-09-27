@@ -15,6 +15,10 @@ import {
   SEED_COPY_CHANGES,
   UpdateSeedProseCopy1790208000000,
 } from '../src/database/migrations/1790208000000-UpdateSeedProseCopy';
+import {
+  FixSeedProseFacts1790553600000,
+  SEED_FACT_CHANGES,
+} from '../src/database/migrations/1790553600000-FixSeedProseFacts';
 import { INTERNAL_REQUEST_HEADER } from '../src/common/throttler/trusted-client';
 
 const TEST_INTERNAL_TOKEN = 'e2e-trusted-client-token-0123456789-abcdefgh';
@@ -78,10 +82,19 @@ describe('Geographic Region endpoints (e2e)', () => {
     });
   });
 
-  // T-097: the prose migration must land on rows seeded before it, reverse cleanly, and leave a
-  // column alone once it holds anything other than the exact text it expects to replace.
-  describe('UpdateSeedProseCopy migration', () => {
-    const readColumn = async (ds: DataSource, change: (typeof SEED_COPY_CHANGES)[number]) => {
+  // T-097: the prose migrations must land on rows seeded before them, reverse cleanly, and
+  // leave a column alone once it holds anything other than the exact text it expects to replace.
+  // A later prose migration may rewrite a column an earlier one rewrote, so they run as a chain.
+  describe('seed prose migrations', () => {
+    type ProseChange = {
+      readonly table: string;
+      readonly keyColumn: string;
+      readonly key: string | number;
+      readonly column: string;
+      readonly before: unknown;
+      readonly after: unknown;
+    };
+    const readColumn = async (ds: DataSource, change: ProseChange) => {
       const rows: Record<string, unknown>[] = await ds.query(
         `SELECT "${change.column}" AS value FROM "${change.table}" WHERE "${change.keyColumn}" = $1`,
         [change.key],
@@ -89,19 +102,33 @@ describe('Geographic Region endpoints (e2e)', () => {
       return rows[0]?.value;
     };
     // Countries are not seeded in this suite, so only region and province rows are exercised.
+    const chain: ReadonlyArray<readonly ProseChange[]> = [SEED_COPY_CHANGES, SEED_FACT_CHANGES];
+    const id = (c: ProseChange) => `${c.table}/${String(c.key)}/${c.column}`;
+    const oldest = new Map<string, ProseChange>();
+    const newest = new Map<string, ProseChange>();
+    for (const changes of chain) {
+      for (const c of changes) {
+        if (c.table === 'countries') continue;
+        if (!oldest.has(id(c))) oldest.set(id(c), c);
+        newest.set(id(c), c);
+      }
+    }
     const seeded = SEED_COPY_CHANGES.filter((c) => c.table !== 'countries');
 
     it('down() restores the old prose and up() brings back the seed prose', async () => {
       if (!dataSource) throw new Error('dataSource not initialized');
-      const migration = new UpdateSeedProseCopy1790208000000();
+      const migrations = [
+        new UpdateSeedProseCopy1790208000000(),
+        new FixSeedProseFacts1790553600000(),
+      ];
       const runner = dataSource.createQueryRunner();
       try {
-        await migration.down(runner);
-        for (const change of seeded) {
+        for (const migration of [...migrations].reverse()) await migration.down(runner);
+        for (const change of oldest.values()) {
           expect(await readColumn(dataSource, change)).toEqual(change.before);
         }
-        await migration.up(runner);
-        for (const change of seeded) {
+        for (const migration of migrations) await migration.up(runner);
+        for (const change of newest.values()) {
           expect(await readColumn(dataSource, change)).toEqual(change.after);
         }
       } finally {

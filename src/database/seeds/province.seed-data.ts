@@ -476,15 +476,14 @@ const CLIMATE_CLASS_CFB_TR = 'Karadeniz iklimi';
  */
 const MGM_KOPPEN_CAVEAT_CFB_TR =
   "MGM'nin 2023 Köppen sınıflandırması bu ili Cfb (Karadeniz iklimi, her mevsim yağışlı, " +
-  'yazı serin) olarak verir. ' +
-  "Ancak MGM'nin kendi raporu, bu basitleştirilmiş yöntemin (üçüncü-harf kuralı) " +
-  "Türkiye'deki 254 istasyonun yaklaşık %65'ini 'Cs' (Akdeniz tipi) çıkardığını ve " +
-  'İç Anadolu ile Doğu Anadolu gibi bölgelerde ayırt ediciliğinin sınırlı kaldığını ' +
-  'belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer sınıflandırmalarda ' +
-  'bu iller farklı iklim tiplerine ayrışabilir. ' +
-  'Köppen sınıflandırması ile ders kitaplarındaki bölgesel iklim adları iki ayrı sistemdir ve ' +
-  'illerin çoğunda örtüşmez. Bir ilin Köppen kodu Akdeniz tipini gösterirken ders kitabı aynı ' +
-  'ili karasal ya da Karadeniz iklimi alanında gösterebilir, tersi de görülür.';
+  "yazı sıcak) olarak verir. Ancak MGM'nin kendi raporu, bu basitleştirilmiş yöntemin " +
+  "(üçüncü-harf kuralı) Türkiye'deki 254 istasyonun yaklaşık %65'ini 'Cs' (Akdeniz tipi) " +
+  'çıkardığını ve İç Anadolu ile Doğu Anadolu gibi bölgelerde ayırt ediciliğinin sınırlı ' +
+  'kaldığını belirtir; Thornthwaite, Erinç, De Martonne ve Aydeniz gibi diğer ' +
+  'sınıflandırmalarda bu iller farklı iklim tiplerine ayrışabilir. Köppen sınıflandırması ' +
+  'ile ders kitaplarındaki bölgesel iklim adları iki ayrı sistemdir ve illerin çoğunda ' +
+  'örtüşmez. Bir ilin Köppen kodu Akdeniz tipini gösterirken ders kitabı aynı ili karasal ' +
+  'ya da Karadeniz iklimi alanında gösterebilir, tersi de görülür.';
 
 /**
  * ── D-group + BSk (Batch 2 wave-6b, Doğu Anadolu) ─────────────────────────────
@@ -691,11 +690,11 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     //    paragraph are byte-identical. The hydrography field is still one long block —
     //    splitting it into `\n\n` paragraphs is AÇIK-7, deliberately NOT done here.
     landformNoteTr:
-      "İstanbul, yer şekilleri bakımından Çatalca-Kocaeli Bölümü'nde yer alır. İlin büyük bölümünü " +
-      'dağlar ya da ovalar değil, aşınım yüzeyleri üzerinde gelişmiş bir plato oluşturur; bu ' +
-      "plato Kocaeli Platosu'nun bir parçasıdır. İlin en yüksek noktası, Kartal, Pendik, " +
-      "Sultanbeyli ve Sancaktepe sınırında yer alan 538 metrelik Aydos Dağı'dır. Onu 438 " +
-      'metreyle Kayış Dağı ve 409 metreyle Alem Dağı izler.' +
+      "İstanbul, yer şekilleri bakımından Çatalca-Kocaeli Bölümü'nde yer alır. İlin büyük " +
+      'bölümünü dağlar ya da ovalar değil, aşınım yüzeyleri üzerinde gelişmiş bir plato ' +
+      "oluşturur; bu plato Kocaeli Platosu'nun bir parçasıdır. İlin en yüksek noktası, Kartal, " +
+      "Pendik, Sultanbeyli ve Sancaktepe sınırında yer alan 538 metrelik Aydos Dağı'dır. Onu 442 " +
+      'metreyle Alem Dağı ve 438 metreyle Kayış Dağı izler.' +
       '\n\n' +
       'İstanbul Boğazı, 17 deniz mili (yaklaşık 31,5 km) uzunluğundadır. Üzerinde, güneyden ' +
       "kuzeye doğru üç asma köprü iki yakayı birbirine bağlar: 1973'te açılan 15 Temmuz Şehitler " +
@@ -712,9 +711,9 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
       '\n\n' +
       "İstanbul'un yaklaşık 20 km güneyinden Kuzey Anadolu Fayı (KAF) geçer. Dünyanın en aktif " +
       'fay sistemlerinden biri olan KAF, toplam 1.500 km uzunluğunda, sağ yanal doğrultu atımlı, ' +
-      'yani iki yakası birbirine göre yatay kayan bir kırık hattıdır. Fayın Marmara Denizi içinden ' +
-      'geçen kolu — Adalar, Silivri, Marmaraereğlisi ve Tekirdağ arasındaki kesim — büyük deprem ' +
-      'üretme olasılığı yüksek bir kuşak olarak izlenir.',
+      'yani iki yakası birbirine göre yatay kayan bir kırık hattıdır. Fayın Marmara Denizi ' +
+      'içinden geçen kolu — Adalar, Silivri, Marmaraereğlisi ve Tekirdağ arasındaki kesim — ' +
+      'büyük deprem üretme olasılığı yüksek bir kuşak olarak izlenir.',
     introTr:
       "İstanbul, Karadeniz'i Marmara Denizi'ne bağlayan İstanbul Boğazı'nın iki yakasında, hem " +
       'Avrupa hem de Asya kıtası üzerinde kuruludur. Roma, Bizans ve Osmanlı imparatorluklarına ' +
@@ -815,16 +814,18 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
       "Şehir, 13 Ekim 1923'te başkent ilan edilmesinin ardından küçük bir Anadolu " +
       'kasabasından bugünkü büyüklüğüne ulaşmıştır.',
     hydrographyNoteTr:
-      "Ankara'nın su ağı, kuzeybatısında doğan Sakarya Nehri ile ilin güneydoğusundan geçen " +
-      "Kızılırmak'a dayanır. Sakarya Nehri'nin kaynağı Çamlıdere ilçesindedir; nehir buradan " +
-      'kuzeybatıya akarak Sakarya iline geçer. Kızılırmak ise ilin güneydoğu kesiminden ' +
+      "Ankara'nın su ağı, kuzeybatısından geçen Sakarya Nehri ile ilin güneydoğusundan geçen " +
+      "Kızılırmak'a dayanır. Sakarya Nehri ise il sınırları dışında, Eskişehir'in Çifteler " +
+      'ilçesindeki Sakaryabaşı kaynaklarından doğar. Kızılırmak ise ilin güneydoğu kesiminden ' +
       'yaklaşık 256 kilometre boyunca geçer. Şehir merkezinden geçen Çubuk, İncesu ve Ova ' +
-      "çayları birleşerek Ankara Çayı'nı oluşturur; bu çay da Sakarya Nehri'ne katılır.\n\n" +
+      "çayları birleşerek Ankara Çayı'nı oluşturur; bu çay da Sakarya Nehri'ne katılır." +
+      '\n\n' +
       'İlin içme suyu ihtiyacı ASKİ tarafından işletilen barajlardan karşılanır: Çamlıdere, ' +
-      'Kurtboğazı, Bayındır ile Çubuk I ve Çubuk II. Çamlıdere Barajı, yaklaşık 1,2 milyar ' +
-      "m³ kapasitesiyle bu barajların en büyüğüdür. Çubuk I, 1936'da tamamlanan Cumhuriyet " +
-      'döneminin ilk barajıdır. Kesikköprü ve Sarıyar barajları Kızılırmak ve Sakarya ' +
-      'üzerinde enerji üretimi amacıyla işletilir.\n\n' +
+      'Kurtboğazı, Bayındır ile Çubuk I ve Çubuk II. Çamlıdere Barajı, yaklaşık 1,2 milyar m³ ' +
+      "kapasitesiyle bu barajların en büyüğüdür. Çubuk I, 1936'da tamamlanan Cumhuriyet " +
+      'döneminin ilk barajıdır. Kesikköprü ve Sarıyar barajları Kızılırmak ve Sakarya üzerinde ' +
+      'enerji üretimi amacıyla işletilir.' +
+      '\n\n' +
       'İlin güneyinde, Gölbaşı ilçesinde yer alan Mogan ve Eymir gölleri başlıca doğal ' +
       'gölleridir. Mogan Gölü yaklaşık 5 km uzunluğunda, 4 metreyi geçmeyen bir derinliğe ' +
       "sahiptir. Eymir Gölü, Mogan Gölü'nden beslenir.",
@@ -987,13 +988,29 @@ export const PILOT_PROVINCES: readonly ProvinceSeed[] = [
     //    pilot set, and the corpus itself carries Gümüşhane -42,80 / Bayburt -35,16 /
     //    Siirt -33,96. Do not reintroduce a superlative here without a national-set check.
     landformNoteTr:
-      "Van'ın yer şekillerini jeolojik açıdan genç volkanik faaliyetler ve yoğun yer kabuğu hareketleri biçimlendirmiştir. İlin batısındaki Van Gölü, yaklaşık 200 bin yıl önce Nemrut Dağı'nın patlayarak püskürttüğü lavların Muş Havzası'na giden doğal akış yolunu tıkamasıyla oluşmuş dünyanın en büyük volkanik set gölüdür. Tepesinde 6 kilometre çapında geniş bir kaldera barındıran 2.935 metrelik Nemrut Dağı, son lav akıntısı 1441'de kaydedilmiş uyuyan aktif bir volkandır." +
+      "Van'ın yer şekillerini jeolojik açıdan genç volkanik faaliyetler ve yoğun yer kabuğu " +
+      'hareketleri biçimlendirmiştir. İlin batısındaki Van Gölü, yaklaşık 200 bin yıl önce ' +
+      "Nemrut Dağı'nın patlayarak püskürttüğü lavların Muş Havzası'na giden doğal akış yolunu " +
+      'tıkamasıyla oluşmuş dünyanın en büyük volkanik set gölüdür. Gölün batısında, komşu Bitlis ' +
+      'sınırları içinde yükselen ve tepesinde 6 kilometre çapında geniş bir kaldera barındıran ' +
+      "2.935 metrelik Nemrut Dağı, son lav akıntısı 1441'de kaydedilmiş uyuyan aktif bir " +
+      'volkandır.' +
       '\n\n' +
-      "Göl çanağının kuzeyinde yükselen 4.058 metrelik Süphan Dağı, zirvesindeki buzul kalıntılarıyla Ağrı ve Cilo'nun ardından Türkiye'nin üçüncü yüksek doruğudur. Havza güneyden dik ve parçalı Bitlis Masifi, kuzey ve doğudan ise Aladağ ve Tendürek volkanik dizilimleriyle kuşatılmıştır." +
+      'Göl çanağının kuzeyinde yükselen 4.058 metrelik Süphan Dağı, zirvesindeki buzul ' +
+      "kalıntılarıyla Ağrı ve Cilo'nun ardından Türkiye'nin üçüncü yüksek doruğudur. Havza " +
+      'güneyden dik ve parçalı Bitlis Masifi, kuzey ve doğudan ise Aladağ ve Tendürek volkanik ' +
+      'dizilimleriyle kuşatılmıştır.' +
       '\n\n' +
-      "Kuzey ve Doğu Anadolu fay sistemlerinin karmaşık gerilme alanında yer alan ilde, 23 Ekim 2011'de merkez üssü Tabanlı olan 7,2 büyüklüğünde bir deprem yaşanmış, 604 kişi yaşamını yitirmiş ve en ağır yıkım Erciş ilçesinde meydana gelmiştir. Aynı yılın 9 Kasım'ında Edremit merkezli 5,6 büyüklüğündeki sarsıntı da binalarda ek hasara yol açmıştır.",
+      'Kuzey ve Doğu Anadolu fay sistemlerinin karmaşık gerilme alanında yer alan ilde, 23 Ekim ' +
+      "2011'de merkez üssü Tabanlı olan 7,2 büyüklüğünde bir deprem yaşanmış, 604 kişi yaşamını " +
+      "yitirmiş ve en ağır yıkım Erciş ilçesinde meydana gelmiştir. Aynı yılın 9 Kasım'ında " +
+      'Edremit merkezli 5,6 büyüklüğündeki sarsıntı da binalarda ek hasara yol açmıştır.',
     introTr:
-      "Van, Doğu Anadolu'nun en büyük kenti olup Urartu Krallığı'nın kadim başkenti Tuşba'dan bu yana Van Gölü Kapalı Havzası'nın ana yerleşim ve ticaret merkezidir. Deniz seviyesinden 1.646 metre yüksekteki geniş göl kıyısında kurulu olan kent, etrafını saran volkanik dağlar ve su kütlesinin yarattığı ılımanlaştırıcı etkiyle Doğu Anadolu'nun en canlı tarım, hayvancılık ve lojistik kavşaklarından biri olarak öne çıkar.",
+      "Van, Doğu Anadolu'nun en büyük kenti olup Urartu Krallığı'nın kadim başkenti Tuşpa'dan bu " +
+      "yana Van Gölü Kapalı Havzası'nın ana yerleşim ve ticaret merkezidir. Deniz seviyesinden " +
+      '1.646 metre yüksekteki geniş göl kıyısında kurulu olan kent, etrafını saran volkanik ' +
+      "dağlar ve su kütlesinin yarattığı ılımanlaştırıcı etkiyle Doğu Anadolu'nun en canlı " +
+      'tarım, hayvancılık ve lojistik kavşaklarından biri olarak öne çıkar.',
     hydrographyNoteTr:
       "Van Gölü, 3.713 km² yüzölçümü ve 451 metreye ulaşan derinliğiyle Türkiye'nin en büyük gölü ve dünyanın en geniş sodalı gölüdür. Suyunun çok bazik (pH 9,8) ve tuzlu (binde 19) olması, sert kış koşullarına rağmen göl yüzeyinin donmasını engeller ve yalnızca bu gölde yaşayan (endemik) inci kefali türüne ev sahipliği sağlar." +
       '\n\n' +
@@ -1821,9 +1838,9 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
       'Balıkesir, 2025 yılı boyunca Sındırgı ilçesi çevresinde art arda yaşanan depremlerle ' +
       "sismik olarak gündeme geldi: 10 Ağustos'ta büyüklüğü 6,1, 27 Ekim'de ise 6,0 olan iki " +
       "ayrı deprem kaydedildi. İl, kuzeyde Marmara Denizi'ne, güney ve batıda Ege Denizi'ne " +
-      "kıyısı olan, iki denizi birden kucaklayan Türkiye'nin az sayıdaki ilinden biridir; " +
-      'toplam kıyı uzunluğu 290,5 kilometredir. Marmara kıyısında Bandırma 60, Ege kıyısında ' +
-      'ise Ayvalık 54 kilometrelik bir kıyı şeridine sahiptir.',
+      "kıyısı olan, iki denizi birden kucaklayan Türkiye'nin az sayıdaki illerinden biridir; " +
+      'toplam kıyı uzunluğu 290,5 kilometredir. Marmara kıyısında Bandırma 60, Ege kıyısında ise ' +
+      'Ayvalık 54 kilometrelik bir kıyı şeridine sahiptir.',
     hydrographyNoteTr:
       "İlin kuzeyindeki Manyas Gölü (Kuş Gölü), 13 Temmuz 1994'te Ramsar Sözleşmesi kapsamına " +
       "alınmış, 15 Nisan 1998'de koruma alanı 20.400 hektara genişletilmiştir; göl " +
@@ -1912,10 +1929,10 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     urbanizationRate: 84.11,
     netMigrationRate: -0.07,
     settlementNoteTr:
-      "Bilecik'te büyükşehir statüsü bulunmadığından TÜİK'in il/ilçe merkezi nüfus oranı " +
-      "gerçek bir kentleşme düzeyi gösterir: 2025 verilerine göre nüfusun %84,11'i il ve ilçe " +
-      'merkezlerinde yaşar. 2024 yılında 10.023 kişi aldı, 10.038 kişi verdi; net göç hızı ' +
-      'binde -0,07 ile aradaki 15 kişilik farkla aldığından hafifçe daha fazla göç verdi.',
+      "Bilecik'te büyükşehir statüsü bulunmadığından TÜİK'in il/ilçe merkezi nüfus oranı gerçek " +
+      "bir kentleşme düzeyi gösterir: 2025 verilerine göre nüfusun %84,11'i il ve ilçe " +
+      'merkezlerinde yaşar. 2024 yılında 10.023 kişi aldı, 10.038 kişi verdi; net göç hızı binde ' +
+      "-0,07'dir; aradaki 15 kişilik farkla, aldığından hafifçe daha fazla göç verdi.",
     economyIndicator: {
       label: 'Türkiye gayrisafi yurt içi hasılasından (GSYH) aldığı pay',
       value: '%0,3',
@@ -1965,15 +1982,15 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
       "olmuştur; başkentlik unvanı 1363'te Edirne'ye taşınana kadar sürmüştür. Bugün nüfus " +
       "bakımından Türkiye'nin dördüncü büyük ilidir.",
     hydrographyNoteTr:
-      "İznik Gölü, 298 kilometrekarelik yüzölçümüyle Türkiye'nin doğal gölleri arasında " +
-      "beşinci, Marmara Bölgesi'nde ise en büyüğüdür; tektonik kökenli bir çöküntü gölü olup " +
-      "en derin noktası 65 metreye ulaşır. Antik adı Ascania Limne olan göl, Homeros'un " +
-      "İlyada'sında da anılır. İlin batısındaki Uluabat Gölü ise sığdır — derinliği 2-4 " +
-      'metreyi geçmez — ve nilüfer yataklarıyla kaplı, tümüyle koruma altındaki bir sulak ' +
-      'alandır.\n\n' +
-      "Nilüfer Çayı, Uludağ'daki Aras Şelalesi'nden doğar, Bursa Ovası'nı geçerek Susurluk " +
-      "Çayı'na katılır ve Karacabey üzerinden Marmara Denizi'ne ulaşır; adını Orhan Gazi'nin " +
-      "eşi Nilüfer Hatun'dan alır. İçme suyu ihtiyacının büyük bölümü, birlikte ilin su " +
+      "İznik Gölü, 298 kilometrekarelik yüzölçümüyle Türkiye'nin doğal gölleri arasında beşinci, " +
+      "Marmara Bölgesi'nde ise en büyüğüdür; tektonik kökenli bir çöküntü gölü olup en derin " +
+      "noktası 65 metreye ulaşır. Antik adı Ascania Limne olan göl, Homeros'un İlyada'sında da " +
+      'anılır. İlin batısındaki Uluabat Gölü ise sığdır — derinliği 2-4 metreyi geçmez — ve ' +
+      'nilüfer yataklarıyla kaplı, tümüyle koruma altındaki bir sulak alandır.' +
+      '\n\n' +
+      "Nilüfer Çayı, Uludağ'ın güney yamaçlarında Aras Suyu adıyla doğar, Bursa Ovası'nı geçerek " +
+      "Susurluk Çayı'na katılır ve Karacabey üzerinden Marmara Denizi'ne ulaşır; adını Orhan " +
+      "Gazi'nin eşi Nilüfer Hatun'dan alır. İçme suyu ihtiyacının büyük bölümü, birlikte ilin su " +
       "ihtiyacının yaklaşık %85'ini karşılayan Doğancı ve Nilüfer barajlarından sağlanır.",
     hydrographyFeatures: [
       { name: 'İznik Gölü', type: HydrographyFeatureType.Gol },
@@ -2037,11 +2054,11 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     introTr:
       "Çanakkale, Ege Denizi'ni Marmara Denizi'ne bağlayan Çanakkale Boğazı'nın iki yakasına " +
       "kuruludur; il toprakları Avrupa'daki Gelibolu Yarımadası ile Anadolu'daki Biga " +
-      "Yarımadası'ndan oluşur. İlin güneyinde, kent merkezinin yaklaşık 30 kilometre " +
-      "içerisinde, 1998'de UNESCO Dünya Mirası Listesi'ne alınan Truva Ören Yeri bulunur; " +
-      'kesintisiz 3.000 yılı aşkın bir süreye yayılan 10 yerleşim katmanı taşır. Boğazın ' +
-      "Avrupa yakasındaki Gelibolu Yarımadası'nın büyük bölümü, 1915 Çanakkale Savaşları'nın " +
-      'anı ve mezarlık alanlarına ayrılmıştır.',
+      "Yarımadası'ndan oluşur. İlin güneyinde, kent merkezinin yaklaşık 30 kilometre içerisinde, " +
+      "1998'de UNESCO Dünya Mirası Listesi'ne alınan Truva Ören Yeri bulunur; kesintisiz 3.000 " +
+      'yılı aşkın bir süreye yayılan 9 yerleşim katmanı taşır. Boğazın Avrupa yakasındaki ' +
+      "Gelibolu Yarımadası'nın büyük bölümü, 1915 Çanakkale Savaşları'nın anı ve mezarlık " +
+      'alanlarına ayrılmıştır.',
     hydrographyNoteTr:
       'Kent merkezinden geçen Sarıçay, boğaza ulaştığı ağızda kıyı şeridini şekillendirir. ' +
       "Gelibolu Yarımadası'nda Tuzla Gölü, Biga ilçesinde ise Hoyrat ve Ece gölleri ilin " +
@@ -2451,10 +2468,10 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
       'hasarlı bulundu, en ağır yıkım kent merkezindeki Bahçelievler ile Çiftlikköy ve ' +
       "Çınarcık'taki yazlık yerleşimlerde yaşandı.",
     introTr:
-      "Yalova, 798 kilometrekarelik yüzölçümüyle Türkiye'nin en küçük ilidir. İl, 5 Haziran " +
-      "1995'te yürürlüğe giren bir kanun hükmünde kararnameyle 77. il olarak kuruldu; o " +
-      "tarihe kadar 1930'dan beri İstanbul'un bir ilçesiydi. Kuruluşla birlikte Armutlu " +
-      "ilçesi Bursa'dan, Altınova ise Kocaeli'nden Yalova'ya bağlandı.",
+      "Yalova, 798 kilometrekarelik yüzölçümüyle Türkiye'nin en küçük ilidir. İl, 6 Haziran " +
+      "1995'te yürürlüğe giren bir kanun hükmünde kararnameyle 77. il olarak kuruldu; o tarihe " +
+      "kadar 1930'dan beri İstanbul'un bir ilçesiydi. Kuruluşla birlikte Armutlu ilçesi " +
+      "Bursa'dan, Altınova ise Kocaeli'nden Yalova'ya bağlandı.",
     hydrographyNoteTr:
       "İlin en büyük akarsuyu, Samanlı Dağları'ndan doğan ve yıllık yaklaşık 120 milyon " +
       "metreküp su taşıyan 40 kilometrelik Sellimandıra Deresi'dir. Altınova ilçesinde " +
@@ -2976,17 +2993,19 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
       "1.480 kilometreyle Türkiye'nin en uzun il kıyısını oluşturur. Bu parçalı kıyı yapısı, " +
       "Muğla'nın kıyı turizminin coğrafi temelidir.",
     hydrographyNoteTr:
-      'İl topraklarının kalkerli, karstik yapısı yüzeydeki akarsu ağının gelişimini sınırlar; Muğla ' +
-      "İl Çevre Durum Raporu'na göre ilin başlıca üç akarsuyu Çine Çayı, Eşen Çayı ve Dalaman " +
-      "Çayı'dır. Boncuk Dağları'nın kuzey yamaçlarından doğan Dalaman Çayı, 190 kilometrelik toplam " +
-      "uzunluğunun 65 kilometresini Muğla sınırları içinde kat eder; Akdağlar'dan beslenen Eşen " +
-      'Çayı ise 128 kilometrelik uzunluğunun 80 kilometresini il topraklarında geçirir ve Saklıkent ' +
-      "Kanyonu'ndaki karstik kaynaklarla beslenir.\n\n" +
+      'İl topraklarının kalkerli, karstik yapısı yüzeydeki akarsu ağının gelişimini sınırlar; ' +
+      "Muğla İl Çevre Durum Raporu'na göre ilin başlıca üç akarsuyu Çine Çayı, Eşen Çayı ve " +
+      "Dalaman Çayı'dır. Boncuk Dağları'nın kuzey yamaçlarından doğan Dalaman Çayı, 190 " +
+      'kilometrelik toplam uzunluğunun 65 kilometresini Muğla sınırları içinde kat eder; ' +
+      "Akdağlar'dan beslenen Eşen Çayı ise 128 kilometrelik uzunluğunun 80 kilometresini il " +
+      "topraklarında geçirir ve Saklıkent Kanyonu'ndaki karstik kaynaklarla beslenir." +
+      '\n\n' +
       'Dalaman Çayı üzerindeki Akköprü Barajı, 1995-2012 arasında inşa edilmiş, 384,5 milyon m³ ' +
-      "baraj gölü hacmiyle, elektrik üretim kapasitesi bakımından Türkiye'nin altıncı büyük " +
-      'barajıdır; sulama, enerji üretimi ve taşkın koruması amacıyla işletilir. Milas ilçesindeki ' +
-      "Geyik Barajı ise Yeniköy Termik Santrali'ne soğutma suyu sağlamanın yanında Bodrum " +
-      "Yarımadası'nın içme suyu ihtiyacının bir bölümünü karşılar.\n\n" +
+      'baraj gölü hacmi ve 115 megavatlık kurulu gücüyle bölgenin başlıca hidroelektrik ' +
+      'barajlarından biridir; sulama, enerji üretimi ve taşkın koruması amacıyla işletilir. ' +
+      "Milas ilçesindeki Geyik Barajı ise Yeniköy Termik Santrali'ne soğutma suyu sağlamanın " +
+      "yanında Bodrum Yarımadası'nın içme suyu ihtiyacının bir bölümünü karşılar." +
+      '\n\n' +
       "İlin en büyük doğal gölü olan Köyceğiz Gölü, dar bir kanalla Akdeniz'e bağlı bir haliç " +
       "gölüdür; 1988'de özel çevre koruma bölgesi ilan edilmiştir. Gölü denize bağlayan Dalyan " +
       'Kanalı kıyısındaki İztuzu Kumsalı, deniz kaplumbağalarının (Caretta caretta) önemli ' +
@@ -3402,9 +3421,9 @@ export const BATCH2_WAVE4_PROVINCES: readonly ProvinceSeed[] = [
     //    -3,31 ‰; GSYH share %0,4.
     landformNoteTr:
       "Isparta, Batı Toroslar'ın Isparta uzantıları üzerinde, 3.000 metreye yaklaşan yüksek " +
-      'dağlarla çevrilidir. İlin en yüksek noktası, hem Anamas (Dedegöl) ' +
-      "Dağları'nın hem de Batı Toroslar'ın en yüksek zirvesi olan 2.992 metrelik Dedegöl " +
-      "Dağı'dır. Doğuda Sultan Dağları, Konya sınırını oluşturur.",
+      "dağlarla çevrilidir. İlin en yüksek noktası, Anamas (Dedegöl) Dağları'nın en yüksek " +
+      "zirvesi olan 2.992 metrelik Dedegöl Dağı'dır. Doğuda Sultan Dağları, Konya sınırını " +
+      'oluşturur.',
     introTr:
       "Isparta, Göller Bölgesi'nin merkezinde, Eğirdir Gölü'nün güney kıyısında kuruludur. " +
       "Nüfus bakımından Türkiye'nin kırk beşinci ilidir. İl, Türkiye'nin yağ gülü " +
@@ -3918,11 +3937,11 @@ export const WAVE6D_KARADENIZ_B_PROVINCES: readonly ProvinceSeed[] = [
       'topografya, kömür damarlarının yüzeye yakın noktalarda ortaya çıkmasını da kolaylaştırmıştır. ' +
       'Kıyı şeridi dar ve kayalıktır, iç kesimlere doğru rakım hızla artar.',
     introTr:
-      "Zonguldak, Türkiye'nin taşkömürü yataklarına sahip tek ilidir; Ereğli ilçesinde 1829'da " +
+      "Zonguldak, Türkiye'nin başlıca taşkömürü havzasının merkezidir; Ereğli ilçesinde 1829'da " +
       'bulunan kömür damarları, ilin ekonomik kimliğini belirlemiştir. Kestaneci köyünden Uzun ' +
-      "Mehmet'in bulduğu kabul edilen bu yataklar, Karbonifer döneminde göllerde biriken bitki " +
-      'kalıntılarından oluşmuştur. Kok kömürüyle beslenen Ereğli Demir Çelik Fabrikaları, bu ' +
-      'jeolojik mirasın sanayiye dönüşmüş hâlidir.',
+      "Mehmet'in bulduğu kabul edilen bu yataklar, Karbonifer döneminde bataklıklarda biriken " +
+      'bitki kalıntılarından oluşmuştur. Kok kömürüyle beslenen Ereğli Demir Çelik Fabrikaları, ' +
+      'bu jeolojik mirasın sanayiye dönüşmüş hâlidir.',
     hydrographyNoteTr:
       'İlin en önemli akarsuyu Filyos Çayı, Karabük sınırından gelerek Zonguldak topraklarında ' +
       "Karadeniz'e ulaşır. Bol yağış alan yeşil doğa örtüsü, ilin vadilerle parçalanmış dağlık " +
@@ -3967,10 +3986,10 @@ export const WAVE6D_KARADENIZ_B_PROVINCES: readonly ProvinceSeed[] = [
       'bir vadi tabanında kuruludur.',
     introTr:
       'Bartın, kimliğini büyük ölçüde aynı adı taşıyan çayın oluşturduğu vadiden alır. Yüzölçümü ' +
-      "bakımından Türkiye'nin üçüncü en küçük ilidir; bu sıralamada yalnızca Yalova ve Kilis daha " +
-      "küçüktür. Amasra ilçesi, dik yamaçların Karadeniz'le buluştuğu yedi tepe ve beş yarımada " +
-      'üzerinde kurulu tarihî bir liman kentidir. Kurucaşile ise antik dönemden bu yana geleneksel ' +
-      'ahşap tekne yapımıyla tanınır.',
+      "bakımından Türkiye'nin üçüncü en küçük ilidir; bu sıralamada yalnızca Yalova ve Kilis " +
+      "daha küçüktür. Amasra ilçesi, dik yamaçların Karadeniz'le buluştuğu denize uzanan bir " +
+      'burun ile bu burnun iki yanındaki koylar üzerinde kurulu tarihî bir liman kentidir. ' +
+      'Kurucaşile ise antik dönemden bu yana geleneksel ahşap tekne yapımıyla tanınır.',
     hydrographyNoteTr:
       "Bartın Çayı, havzasının genel eğim yönü olan kuzeybatıya doğru akarak Karadeniz'e dökülür; 8 " +
       "alt havzadan beslenir. Amasra kıyısındaki koylar ve Kurucaşile'nin zeytin ile sandal " +
@@ -4109,9 +4128,9 @@ export const WAVE6D_KARADENIZ_B_PROVINCES: readonly ProvinceSeed[] = [
       "öksin flora ile İç Anadolu'ya bağlı İran-Turan step florası arasında bir geçiş sınırı " +
       'oluşturur.',
     introTr:
-      "Bolu, İstanbul ile Ankara'yı bağlayan D-100 karayolu ve TEM otoyolunun geçtiği, Marmara ile " +
-      'Karadeniz bölgeleri arasındaki en işlek geçiş kuşaklarından birinde yer alır. Abant Dağları ' +
-      'üzerindeki krater/birikinti kökenli Abant Gölü, 1.325 metre rakımda, 125 hektarlık ' +
+      "Bolu, İstanbul ile Ankara'yı bağlayan D-100 karayolu ve TEM otoyolunun geçtiği, Marmara " +
+      'ile Karadeniz bölgeleri arasındaki en işlek geçiş kuşaklarından birinde yer alır. Abant ' +
+      'Dağları üzerindeki heyelan set gölü Abant Gölü, 1.325 metre rakımda, 125 hektarlık ' +
       "yüzölçümüyle ilin en tanınan doğal alanıdır. İl, sekiz komşusuyla Türkiye'deki illerin " +
       'çoğundan daha fazla komşuya sahiptir.',
     hydrographyNoteTr:
@@ -4325,7 +4344,11 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     introTr:
       "Bitlis, Doğu Anadolu'yu Mezopotamya ovalarına bağlayan tarihi Bitlis Boğazı üzerinde, sarp bir vadi içinde kuruludur. Ahlat ilçesindeki UNESCO Dünya Mirası Geçici Listesi'nde yer alan Selçuklu meydan mezarlığı ve kümbetleriyle kadim bir kültür havzası olan il, kuzeydoğusundaki Van Gölü kıyıları ve uyuyan Nemrut Stratovolkanı ile benzersiz bir coğrafi kimlik taşır.",
     hydrographyNoteTr:
-      "Nemrut volkanik kütlesinin zirve kalderasında, dünyanın ikinci büyük kaldera gölü olan tatlı sulu Nemrut Gölü ile sıcak su kaynakları içeren Ilıgöl yer alır; volkanın kuzeyinde ise lav setti gölü Nazik Gölü uzanır. İl toprakları, suları iki ayrı yöne ayıran bir su bölümü hattıdır: kuzeydeki akarsular sodalı Van Gölü Kapalı Havzası'na yönelirken, merkezden güneye süzülen Bitlis Çayı Dicle Nehri aracılığıyla Basra Körfezi'ne dökülür.",
+      "Nemrut volkanik kütlesinin zirve kalderasında, Türkiye'nin en büyük kaldera gölü olan " +
+      'tatlı sulu Nemrut Gölü ile sıcak su kaynakları içeren Ilıgöl yer alır; volkanın kuzeyinde ' +
+      'ise lav setti gölü Nazik Gölü uzanır. İl toprakları, suları iki ayrı yöne ayıran bir su ' +
+      "bölümü hattıdır: kuzeydeki akarsular sodalı Van Gölü Kapalı Havzası'na yönelirken, " +
+      "merkezden güneye süzülen Bitlis Çayı Dicle Nehri aracılığıyla Basra Körfezi'ne dökülür.",
     urbanizationRate: 66.88,
     netMigrationRate: -12.42,
     economyIndicator: {
@@ -4478,7 +4501,12 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     //    Şırnak — both symmetric). Cilo-Sat is stated as "one of the highest massifs", no exact
     //    ranking claim (deliberate). urbanizationRate 66.55 is a REAL rate. GSYH share %0,2.
     landformNoteTr:
-      "Güneydoğu Toroslar'ın en sarp kesimini oluşturan Hakkari'nin yer şekillerinde, 4.168 metreyle Türkiye'nin ikinci en yüksek doruğu olan Uludoruk'un (Reşko) yer aldığı Cilo-Sat Dağları kütlesi egemendir. Buzul Çağı'ndan kalan aktif vadi buzulları, sirk gölleri ve moren setleriyle biçimlenen dağ silsilesi; Gare (3.460 m), Beridalo (3.250 m) ve Sat dağlarıyla çevrilidir. Yüksek dağların arasına sıkışan dar çöküntü koridorları, yerleşme ve ulaşımı zorunlu olarak vadilere hapsetmiştir.",
+      "Güneydoğu Toroslar'ın en sarp kesimini oluşturan Hakkari'nin yer şekillerinde, 4.135 " +
+      "metreyle Türkiye'nin ikinci en yüksek doruğu olan Uludoruk'un (Reşko) yer aldığı Cilo-Sat " +
+      "Dağları kütlesi egemendir. Buzul Çağı'ndan kalan aktif vadi buzulları, sirk gölleri ve " +
+      'moren setleriyle biçimlenen dağ silsilesi; Gare (3.460 m), Beridalo (3.250 m) ve Sat ' +
+      'dağlarıyla çevrilidir. Yüksek dağların arasına sıkışan dar çöküntü koridorları, yerleşme ' +
+      've ulaşımı zorunlu olarak vadilere hapsetmiştir.',
     introTr:
       "Hakkari, Türkiye'nin güneydoğu sınır köşesinde, Irak ve İran ile sınır komşusu olan ve il arazisinin neredeyse tamamı 1.500 metrenin üzerinde yer alan en engebeli sınır ilidir. Yalnızca Van ve Şırnak ile yurt içi bağlantısı bulunan kent; 4.000 metreyi aşan heybetli dorukları, derin kanyon vadileri ve otantik yayla kültürüyle ülkenin en özgün dağlık coğrafyasına sahiptir.",
     hydrographyNoteTr:
@@ -4556,7 +4584,11 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     landformNoteTr:
       "Kars'ın yer şekilleri, Tersiyer'de (Üçüncü Zaman) volkanik faaliyetlerle oluşan lav örtüleriyle düzleşmiş geniş platolar ve bu platoları kuşatan dağ dizilerinden oluşur. Kuzeyde Allahuekber Dağları ve Soğanlı Dağları, güneyde ise volkanik Aladağ uzantıları yer alır. Sarıkamış çevresinde yüksekliğin ve kar kalitesinin sağladığı elverişli zemin, Türkiye'nin en uzun kış turizmi sezonlarından birine ev sahipliği yapar.",
     introTr:
-      "Kars, 1.750 metre rakımlı bazalt platosu üzerinde, Türkiye'nin Ermenistan sınırında yükselen köklü bir serhat ve kültür kentidir. UNESCO Dünya Mirası Listesi'ndeki Ani Arkeolojik Alanı, Baltık mimari tarzı tarihi taş yapıları, Sarıkamış sarıçam ormanları ve dünya çapında tescilli gravyer ve kaşar peynirleriyle Doğu Anadolu'nun en belirgin kültürel ve turistik merkezlerindendir.",
+      "Kars, 1.750 metre rakımlı bazalt platosu üzerinde, Türkiye'nin Ermenistan sınırında " +
+      "yükselen köklü bir serhat ve kültür kentidir. UNESCO Dünya Mirası Listesi'ndeki Ani " +
+      'Arkeolojik Alanı, Baltık mimari tarzı tarihi taş yapıları, Sarıkamış sarıçam ormanları ve ' +
+      "coğrafi işaret tescilli gravyer ve kaşar peynirleriyle Doğu Anadolu'nun en belirgin " +
+      'kültürel ve turistik merkezlerindendir.',
     hydrographyNoteTr:
       'İlin sularını Kars Çayı, Arpaçay ve Aras Nehri toplar. Soğanlı yaylalarından doğan Kars Çayı, kenti ikiye bölerek akar ve derin kanyonlar oluşturduğu Arpaçay ile birleşir. Türkiye-Ermenistan sınırını çizen Arpaçay üzerindeki Arpaçay Baraj Gölü, sınır boyunca tarımsal sulama ve taşkın önleme işlevi görür. Yaz başlarına kadar süren kar erimeleri, platolardaki yüksek dağ çayırlarını gürleştirerek ilin büyükbaş süt ve besi hayvancılığındaki liderliğini pekiştirir.',
     urbanizationRate: 55.19,
@@ -4674,7 +4706,11 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     //    Bayburt (85.083). neighborPlateCodes is 3 (Sivas 58 removed by the fact-check — geojson +
     //    both il's own Wikipedia pages disagree). urbanizationRate 67.04 is a REAL rate. GSYH %0,1.
     landformNoteTr:
-      "İl topoğrafyasını kuzeyde 3.300 metreye tırmanan kireçtaşından sarp Munzur Dağları ile ortada yükselen Bağırpaşa Dağı (3.298 m) belirler. Kırılma ve akarsu aşındırmasının yarattığı derin kanyon vadileri araziyi parçalamıştır. Munzur Dağları'nın yüksek doruklarında buzul gölleri (sirk gölleri) bulunurken, Ovacık çöküntü havzası tabanında karstik kaynaklardan fışkıran devasa su çıkışları yer alır.",
+      "İl topoğrafyasını kuzeyde Akbaba Tepesi'nde 3.463 metreye tırmanan kireçtaşından sarp " +
+      'Munzur Dağları ile kuzeydoğu ucunda yükselen Bağırpaşa Dağı (3.298 m) belirler. Kırılma ' +
+      've akarsu aşındırmasının yarattığı derin kanyon vadileri araziyi parçalamıştır. Munzur ' +
+      "Dağları'nın yüksek doruklarında buzul gölleri (sirk gölleri) bulunurken, Ovacık çöküntü " +
+      'havzası tabanında karstik kaynaklardan fışkıran devasa su çıkışları yer alır.',
     introTr:
       "Tunceli, Yukarı Fırat Havzası'nda Munzur ve Pülümür nehirlerinin kestiği sarp kanyonlar, meşe ormanları ve zengin endemik yaban hayatıyla çevrili dağlık bir ildir. 85.083 kişilik nüfusuyla Bayburt'un ardından Türkiye'nin en az nüfuslu ikinci ili olan Tunceli; Ovacık gözeleri, Munzur Vadisi Milli Parkı ve el değmemiş ekosistemiyle ekoturizmin Doğu Anadolu'daki merkezidir.",
     hydrographyNoteTr:
@@ -4784,9 +4820,9 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
       'kökenli gaz çıkışları vardır.',
     introTr:
       "Konya, 40.838 kilometrekarelik yüzölçümüyle Türkiye'nin en büyük ilidir. İç Anadolu " +
-      "Bölgesi'nin güneyinde, geniş bir bozkır platosu üzerinde kuruludur. İl merkezindeki " +
-      "Çumra ilçesi sınırlarında yer alan Çatalhöyük, MÖ 7.400'lere uzanan tarihiyle 2012'de " +
-      "UNESCO Dünya Mirası Listesi'ne girmiştir.",
+      "Bölgesi'nin güneyinde, geniş bir bozkır platosu üzerinde kuruludur. Kent merkezinin " +
+      'yaklaşık 52 kilometre güneydoğusundaki Çumra ilçesi sınırlarında yer alan Çatalhöyük, MÖ ' +
+      "7.400'lere uzanan tarihiyle 2012'de UNESCO Dünya Mirası Listesi'ne girmiştir.",
     hydrographyNoteTr:
       "Konya, Türkiye'nin en büyük kapalı havzalarından birinin merkezindedir; ilin " +
       'akarsuları denize ulaşmaz, iç göllerde ya da sulama kanallarında sonlanır. Çarşamba ' +
@@ -4984,8 +5020,9 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     hydrographyNoteTr:
       "Kızılırmak, İmranlı ilçesinde Kızıldağ'ın 2.000 metreyi aşan yükseltilerinden doğar. " +
       'Sivas topraklarından geçtikten sonra Kayseri, Kırşehir, Kırıkkale, Ankara, Aksaray, ' +
-      "Nevşehir, Çorum ve Samsun'dan geçerek Karadeniz'e dökülür. Millî Eğitim Bakanlığı " +
-      'müfredat kaynakları nehrin toplam uzunluğu için 1.355 kilometre rakamını kullanır.',
+      "Nevşehir, Çankırı, Çorum ve Samsun'dan geçerek Karadeniz'e dökülür. Millî Eğitim " +
+      'Bakanlığı müfredat kaynakları nehrin toplam uzunluğu için 1.355 kilometre rakamını ' +
+      'kullanır.',
     urbanizationRate: 77.38,
     netMigrationRate: -21.14,
     economyIndicator: {
@@ -5216,8 +5253,8 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
       "Çayı'nın aşındırdığı kanyonlarla kaplıdır.",
     introTr:
       "Aksaray, Kapadokya'nın en uzun kanyonlarından biri olan Ihlara Vadisi'ne ev sahipliği " +
-      "yapar. İlin kuzeydoğu ucu, Türkiye'nin ikinci büyük gölü Tuz Gölü'nün güneybatı " +
-      'kıyısına kadar uzanır.',
+      "yapar. İlin kuzeybatı ucu, Türkiye'nin ikinci büyük gölü Tuz Gölü'nün güneybatı kıyısına " +
+      'kadar uzanır.',
     hydrographyNoteTr:
       "Melendiz Çayı, Ihlara Vadisi'ni 18 kilometre boyunca, ortalama 150 metre derinlik " +
       "ve 200 metre genişlikte bir kanyon halinde oyarak akar; vadi boyunca 30'a yakın " +
@@ -5264,10 +5301,10 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
       "güneydeki Ermenek ve Sarıveliler ilçelerinde ise Toros'un dik, ormanlık dağlık arazisi " +
       'başlar.',
     introTr:
-      "Karaman, 1989'da Konya'dan ayrılarak ayrı bir il olmuştur; 13-16. yüzyıllar arasında " +
-      "Anadolu'nun güçlü beyliklerinden Karamanoğulları'na başkentlik yapmıştır. İlin " +
-      "kuzeyinde yükselen Karadağ'daki Binbirkilise ören yeri, Bizans döneminden kalma " +
-      'yüzlerce kilise ve manastır kalıntısını barındırır.',
+      "Karaman, 1989'da Konya'dan ayrılarak ayrı bir il olmuştur; 13-15. yüzyıllar arasında " +
+      "Anadolu'nun güçlü beyliklerinden Karamanoğulları'na başkentlik yapmıştır. İlin kuzeyinde " +
+      "yükselen Karadağ'daki Binbirkilise ören yeri, Bizans döneminden kalma yüzlerce kilise ve " +
+      'manastır kalıntısını barındırır.',
     hydrographyNoteTr:
       "Karaman'ın yüzey suyu kaynakları sınırlıdır; ilin kuzey kesimi denize akışı olmayan kapalı bir " +
       "iç havzadır. Güneydeki Ermenek ilçesinden doğan Ermenek Çayı, Toros'un derin " +
@@ -5309,8 +5346,8 @@ export const WAVE6A_IC_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
     //    GSYH share %0,3.
     landformNoteTr:
       "Kırıkkale, Kızılırmak'ın Ankara'ya yakın kesiminden geçtiği, ortalama 700-850 metre " +
-      "yükseklikteki dar bir plato şeridi üzerindedir. İl, İç Anadolu Bölgesi'nin bu " +
-      'platformda seed edilmiş illeri arasında en küçük yüzölçümüne sahiptir.',
+      "yükseklikteki dar bir plato şeridi üzerindedir. İl, İç Anadolu Bölgesi'nin illeri " +
+      'arasında en küçük yüzölçümüne sahiptir.',
     introTr:
       "Kırıkkale, 1925'te Top ve Tüfek Fabrikası'nın temellerinin atılmasıyla kurulan, planlı " +
       'bir savunma sanayii şehridir. Bugün MKE (Makine ve Kimya Endüstrisi) fabrikaları, ilin ' +
@@ -5812,11 +5849,11 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
       'doğrudan doğal koşuludur. Kıyı şeridinden iç kesimlere doğru dik yamaçlar boyunca ' +
       'sıralanan çay bahçeleri, ilin en tanınan manzarasını oluşturur.',
     hydrographyNoteTr:
-      'Yıl boyunca süren yüksek yağış, ile yoğun bir akarsu ağı ve bol yeraltı suyu kazandırır; ' +
-      "Fırtına Deresi'nin yanı sıra çok sayıda küçük dere kıyı boyunca doğrudan Karadeniz'e " +
-      'dökülür. Bu bol su kaynağı, çay ve fındık tarımının yanında ilin başlıca geçim ' +
-      'kaynaklarından birini oluşturan küçük ölçekli hidroelektrik ve içme suyu tesislerinin de ' +
-      'altyapısını oluşturur.',
+      "Yıl boyunca süren yüksek yağış, Rize'ye yoğun bir akarsu ağı ve bol yeraltı suyu " +
+      "kazandırır; Fırtına Deresi'nin yanı sıra çok sayıda küçük dere kıyı boyunca doğrudan " +
+      "Karadeniz'e dökülür. Bu bol su kaynağı, çay ve fındık tarımının yanında ilin başlıca " +
+      'geçim kaynaklarından birini oluşturan küçük ölçekli hidroelektrik ve içme suyu ' +
+      'tesislerinin de altyapısını oluşturur.',
     urbanizationRate: 68.02,
     netMigrationRate: -11.87,
     economyIndicator: {
@@ -5874,7 +5911,8 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
       '\n\n' +
       'İlin doğusunda Yeşilırmak, Çarşamba ilçesi yakınlarında kendi deltasını oluşturarak ' +
       'denize ulaşır. İçme suyu ihtiyacının büyük bölümü, Abdal Deresi üzerinde 1985-1988 ' +
-      "arasında inşa edilen ve yaklaşık 580 milyon m³ kapasiteli Çakmak Barajı'ndan karşılanır.",
+      "arasında inşa edilen ve yaklaşık 106,5 milyon m³ kapasiteli Çakmak Barajı'ndan " +
+      'karşılanır.',
     hydrographyFeatures: [
       { name: 'Kızılırmak', type: HydrographyFeatureType.Nehir },
       { name: 'Yeşilırmak', type: HydrographyFeatureType.Nehir },
@@ -5923,7 +5961,7 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
       'İlin yüzölçümünün büyük bölümünü dağlar oluşturur; kıyı düzlükleri yalnızca akarsu ' +
       "ağızlarında dar şeritler halinde genişler. Güneydoğuda Soğanlı Dağları'nın en yüksek " +
       "noktası olan Çakırgöl Dağı 3.063 metreye, güneybatıda Zigana Dağları'ndaki Zigana Geçidi " +
-      "2.356 metreye ulaşır. İlin en yüksek kesimi ise güneydoğu ucundaki Haldizen Dağları'dır, " +
+      "2.032 metreye ulaşır. İlin en yüksek kesimi ise güneydoğu ucundaki Haldizen Dağları'dır, " +
       '3.000 metrenin üzerinde zirvelere sahiptir.',
     introTr:
       'Trabzon, Doğu Karadeniz kıyı şeridinin en kalabalık ilidir; dar bir sahil şeridiyle ' +

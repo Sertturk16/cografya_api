@@ -72,6 +72,14 @@ edit an applied migration; write a new one. `migration:revert` is for local only
 `src/database/migration-registry.spec.ts` (unit lane) fails when a migration file, an entity
 class, the `migrations`/`entities` arrays and the province/country e2e lists disagree.
 
+## Seed prose
+
+- Deploys run migrations, never the seed CLIs: a seed prose edit ships with a data migration
+  shaped like `FixSeedProseFacts1790553600000` (guarded `before` → `after` per column), listed
+  in `PROSE_MIGRATIONS` of `src/database/migrations/update-seed-prose-copy.spec.ts`.
+- Foreign place names use the TDK Turkish spelling (Ottava, Vaşington, Tegusigalpa, Baster,
+  Brazilya, Tarava, Fonseka Körfezi), not the local spelling; that is not a typo.
+
 ## Git
 
 - Conventional Commits, scope = module (`feat(auth):`, `fix(video-cover):`, `chore(deploy):`).

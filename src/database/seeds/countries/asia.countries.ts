@@ -246,19 +246,17 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'kuzeydeki Sibirya taygasından ortadaki sonsuz bozkırlara ve güneydeki ' +
       "taşlık Gobi Çölü'ne doğru kesintisiz bir geçiş sergiler.",
     landformNoteTr:
-      'Moğolistan topoğrafyası, batıdaki yüksek sıradağlar ile doğuya ve güneye ' +
-      'doğru genişleyen, uzun süre aşınarak düzleşmiş dalgalı platolardan ' +
-      '(peneplen) meydana gelir. Batıda kuzeybatı-güneydoğu doğrultusunda ' +
-      'uzanan sarp Altay Dağları, Moğolistan, Rusya ve Çin sınırlarının ' +
-      'birleştiği kavşakta yer alan 4.374 metrelik Höyten Zirvesi (Khüiten) ile ' +
-      'ülkenin en yüksek doruğunu oluşturur; Altay Tavan Bogd masifi ülkedeki ' +
-      'dağ buzullarının ana merkezidir.' +
+      'Moğolistan topoğrafyası, batıdaki yüksek sıradağlar ile doğuya ve güneye doğru ' +
+      'genişleyen, uzun süre aşınarak düzleşmiş dalgalı platolardan (peneplen) meydana gelir. ' +
+      'Batıda kuzeybatı-güneydoğu doğrultusunda uzanan sarp Altay Dağları, Moğolistan-Çin sınırı ' +
+      'üzerinde, üç ülkenin sınırlarının kesiştiği noktaya yalnızca birkaç kilometre uzaklıkta ' +
+      'yer alan 4.374 metrelik Höyten Zirvesi (Khüiten) ile ülkenin en yüksek doruğunu ' +
+      'oluşturur; Altay Tavan Bogd masifi ülkedeki dağ buzullarının ana merkezidir.' +
       '\n\n' +
-      'Ülkenin orta kesiminde volkanik plato kalıntılarıyla çevrili Hangay ' +
-      'Dağları, daha kuzeyde ise Rusya sınırına uzanan Hentiy Sıradağları ' +
-      'yükselir. Güney kesimde ülke alanının üçte birini kaplayan Gobi Çölü ' +
-      'uzanır; Gobi, kumullardan ziyade şiddetli rüzgar erozyonunun soyduğu ' +
-      'çakıllı, taşlık platolar ve killi çöküntü havzalarından meydana gelir.',
+      'Ülkenin orta kesiminde volkanik plato kalıntılarıyla çevrili Hangay Dağları, daha kuzeyde ' +
+      'ise Rusya sınırına uzanan Hentiy Sıradağları yükselir. Güney kesimde ülke alanının üçte ' +
+      'birini kaplayan Gobi Çölü uzanır; Gobi, kumullardan ziyade şiddetli rüzgar erozyonunun ' +
+      'soyduğu çakıllı, taşlık platolar ve killi çöküntü havzalarından meydana gelir.',
     climateNoteTr:
       "Deniz etkisine bütünüyle kapalı konumu ve yüksek rakımı, Moğolistan'da " +
       'yeryüzünün en sert aşırı karasal iklimlerinden birini üretir. Kış aylarında ' +
@@ -533,7 +531,7 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     officialLanguagesTr: ['Kırgızca', 'Rusça'],
     currencyNameTr: 'Som',
     currencyCode: 'KGS',
-    governmentFormTr: 'Parlamenter cumhuriyet',
+    governmentFormTr: 'Başkanlık cumhuriyeti',
     independenceNoteTr: "31 Ağustos 1991'de Sovyetler Birliği'nden bağımsız oldu.",
     introTr:
       "Orta Asya'nın kalbinde yükselen Kırgızistan; topraklarının yüzde " +
@@ -1012,20 +1010,17 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'topraklarının olağanüstü verimi sayesinde ülke nüfusunun yarıdan ' +
       'fazlasını barındırır.',
     landformNoteTr:
-      'Endonezya; Hint-Avustralya, Pasifik ve Avrasya levhalarının çarpışma ' +
-      "sahasında, Pasifik Ateş Çemberi'nin en aktif kuşağında yer alır. " +
-      "Sumatra'daki Barisan Dağları'ndan başlayıp Cava, Bali ve Küçük Sunda " +
-      "adaları boyunca doğuya uzanan volkanik yay, 130'a yakın aktif " +
-      "stratovolkan barındırır; Cava'daki Merapi ve Semeru ile Sumatra'daki " +
-      'Sinabung bu hareketliliğin canlı örnekleridir. Düzenli aralıklarla ' +
-      "püsküren volkanik küller, Cava ve Bali topraklarını Güneydoğu Asya'nın " +
-      'en verimli tarım havzalarına dönüştürmüştür.' +
+      'Endonezya; Hint-Avustralya, Pasifik ve Avrasya levhalarının çarpışma sahasında, Pasifik ' +
+      "Ateş Çemberi'nin en aktif kuşağında yer alır. Sumatra'daki Barisan Dağları'ndan başlayıp " +
+      "Cava, Bali ve Küçük Sunda adaları boyunca doğuya uzanan volkanik yay, 130'a yakın aktif " +
+      "stratovolkan barındırır; Cava'daki Merapi ve Semeru ile Sumatra'daki Sinabung bu " +
+      'hareketliliğin canlı örnekleridir. Düzenli aralıklarla püsküren volkanik küller, Cava ve ' +
+      "Bali topraklarını Güneydoğu Asya'nın en verimli tarım havzalarına dönüştürmüştür." +
       '\n\n' +
-      'Buna karşılık Sunda sahanlığında oturan Kalimantan, genç volkanizmadan ' +
-      'yoksun, aşınmış yaylalar ve devasa turba bataklıklarıyla kaplıdır. ' +
-      'Ülkenin ve Okyanusya ada dünyasının en yüksek doruğu ise doğuda, ' +
-      "Papua'daki Sudirman Sıradağları üzerinde 4.884 metreye ulaşan ve " +
-      "zirvesinde ekvatoral buzullar barındıran Puncak Jaya'dır (Carstensz " +
+      'Buna karşılık Sunda sahanlığında oturan Kalimantan, genç volkanizmadan yoksun, aşınmış ' +
+      'yaylalar ve devasa turba bataklıklarıyla kaplıdır. Ülkenin ve Okyanusya ada dünyasının en ' +
+      "yüksek doruğu ise doğuda, Papua'daki Sudirman Sıradağları üzerinde 4.884 metreye ulaşan " +
+      "ve yamaçlarında hızla eriyen ekvatoral buzullar barındıran Puncak Jaya'dır (Carstensz " +
       'Piramidi).',
     climateNoteTr:
       'Ekvator çizgisinin tam ortasından geçtiği takımadada, yıl boyunca ' +
@@ -2267,18 +2262,16 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'Hindistan sınırına sokulan Cholistan ve Thar çöllerinin kumulları yer ' +
       'alır.',
     climateNoteTr:
-      'Toprakların dörtte üçünden fazlasında kurak ve yarı kurak çöl ve bozkır ' +
-      'iklimi egemendir. Yaz aylarında İndus Ovası ve Beluçistan içlerinde ' +
-      'sıcaklıklar düzenli olarak 45 derecenin üzerine çıkar, Yakubabad kenti ' +
-      'dünyanın en sıcak yerleşimlerinden biri haline gelir; kışlar ise iç ' +
-      'ovalarda serin ve ılıman seyreder. ' +
+      'Toprakların dörtte üçünden fazlasında kurak ve yarı kurak çöl ve bozkır iklimi egemendir. ' +
+      'Yaz aylarında İndus Ovası ve Beluçistan içlerinde sıcaklıklar düzenli olarak 45 derecenin ' +
+      'üzerine çıkar, Jacobabad kenti dünyanın en sıcak yerleşimlerinden biri haline gelir; ' +
+      'kışlar ise iç ovalarda serin ve ılıman seyreder. ' +
       '\n\n' +
-      'Yağış rejimini büyük ölçüde temmuz ile eylül ayları arasında etkili ' +
-      'olan güneybatı musonu belirler; muson neminin ulaştığı doğu ve kuzey ' +
-      'ovaları yoğun sağanaklar alırken, batıdaki Beluçistan Platosu ve güney ' +
-      'kıyıları bu yağışlardan çok az pay alır. Kuzeydeki yüksek dağlık ' +
-      'kesimlerde ise yıl boyu donma noktasında seyreden sert alpin iklim ve ' +
-      'yoğun kış kar yağışları hüküm sürer.',
+      'Yağış rejimini büyük ölçüde temmuz ile eylül ayları arasında etkili olan güneybatı musonu ' +
+      'belirler; muson neminin ulaştığı doğu ve kuzey ovaları yoğun sağanaklar alırken, batıdaki ' +
+      'Beluçistan Platosu ve güney kıyıları bu yağışlardan çok az pay alır. Kuzeydeki yüksek ' +
+      'dağlık kesimlerde ise yıl boyu donma noktasında seyreden sert alpin iklim ve yoğun kış ' +
+      'kar yağışları hüküm sürer.',
     hydrographyNoteTr:
       "Pakistan'ın akarsu varlığı bütünüyle İndus Nehri sistemine bağlıdır. " +
       "Kaynağını Tibet Platosu'ndan alıp Himalayaları yaran İndus, " +
@@ -2489,27 +2482,23 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'zengin petrol ve doğal gaz yataklarının çevrelediği bu yarımadada ' +
       "kurulmuş olup Kafkasya'nın en büyük liman ve sanayi merkezidir.",
     landformNoteTr:
-      'Azerbaycan topoğrafyası, yüksek dağ kuşakları ile bunların arasında ' +
-      'çöken geniş alüvyal çöküntü ovalarının tezatıyla şekillenmiştir. Kuzey ' +
-      'sınırını bir duvar gibi kapatan Büyük Kafkas Dağları üzerinde, Rusya ' +
-      'sınırında 4.485 metreye ulaşan Bazardüzü Zirvesi ülkenin doruk noktasını ' +
-      'oluşturur. Batıda Karabağ volkanik yaylasını da içeren Küçük Kafkas ' +
-      'Dağları, güneydoğuda ise İran sınırını izleyen ormanlık Talış Dağları ' +
-      'yükselir.\n\nKarabağ, uluslararası hukukta hep Azerbaycan toprağı ' +
-      "sayılmıştır. Bölgeyi 1990'lardan 2023'e kadar, Ermenistan dahil " +
-      'hiçbir ülke tarafından tanınmayan bir Ermeni yönetimi fiilen ayrı ' +
-      "yönetti; Azerbaycan'ın Eylül 2023'teki askeri harekâtı sonrasında bu " +
-      'yönetim dağıldı; bölgenin yaklaşık 120.000 kişilik Ermeni ' +
-      "nüfusunun 100.000'i aşkını, birkaç gün içinde bölgeyi terk edip " +
-      "Ermenistan'a geçti. Bölge bugün Azerbaycan idaresindedir. " +
+      'Azerbaycan topoğrafyası, yüksek dağ kuşakları ile bunların arasında çöken geniş alüvyal ' +
+      'çöküntü ovalarının tezatıyla şekillenmiştir. Kuzey sınırını bir duvar gibi kapatan Büyük ' +
+      'Kafkas Dağları üzerinde, Rusya sınırında 4.466 metreye ulaşan Bazardüzü Zirvesi ülkenin ' +
+      'doruk noktasını oluşturur. Batıda Karabağ volkanik yaylasını da içeren Küçük Kafkas ' +
+      'Dağları, güneydoğuda ise İran sınırını izleyen ormanlık Talış Dağları yükselir.' +
       '\n\n' +
-      'Bu sıradağların kollarının çevrelediği orta kesimde, Kura ve Aras ' +
-      'nehirlerinin oluşturduğu geniş Kura-Aras Ovaları uzanır. Hazar ' +
-      "Denizi'nin yüzeyi okyanus seviyesinin altında olduğundan kıyı " +
-      'şeridindeki düzlüklerin önemli bir bölümü deniz seviyesinin altında ' +
-      'seyreder; Abşeron ve Gobustan çevrelerinde tektonik gaz çıkışlarıyla ' +
-      'beslenen yüzlerce çamur volkanı, bölgeye özgü eşsiz bir jeolojik görünüm ' +
-      'oluşturur.',
+      "Karabağ, uluslararası hukukta hep Azerbaycan toprağı sayılmıştır. Bölgeyi 1990'lardan " +
+      "2023'e kadar, Ermenistan dahil hiçbir ülke tarafından tanınmayan bir Ermeni yönetimi " +
+      "fiilen ayrı yönetti; Azerbaycan'ın Eylül 2023'teki askeri harekâtı sonrasında bu yönetim " +
+      "dağıldı; bölgenin yaklaşık 120.000 kişilik Ermeni nüfusunun 100.000'i aşkını, birkaç gün " +
+      "içinde bölgeyi terk edip Ermenistan'a geçti. Bölge bugün Azerbaycan idaresindedir. " +
+      '\n\n' +
+      'Bu sıradağların kollarının çevrelediği orta kesimde, Kura ve Aras nehirlerinin ' +
+      "oluşturduğu geniş Kura-Aras Ovaları uzanır. Hazar Denizi'nin yüzeyi okyanus seviyesinin " +
+      'altında olduğundan kıyı şeridindeki düzlüklerin önemli bir bölümü deniz seviyesinin ' +
+      'altında seyreder; Abşeron ve Gobustan çevrelerinde tektonik gaz çıkışlarıyla beslenen ' +
+      'yüzlerce çamur volkanı, bölgeye özgü eşsiz bir jeolojik görünüm oluşturur.',
     climateNoteTr:
       "Hazar Denizi'nin yumuşatıcı etkisi, yüksek dağ setleri ve enlem " +
       "farklılığı sayesinde dünyadaki 11 ana iklim kuşağından 9'u Azerbaycan " +
@@ -3266,7 +3255,9 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
     currencyNameTr: 'BAE Dirhemi',
     currencyCode: 'AED',
     governmentFormTr: 'Federal mutlak monarşi',
-    independenceNoteTr: "2 Aralık 1971'de İngiltere'den bağımsız oldu (7 emirliğin federasyonu).",
+    independenceNoteTr:
+      "2 Aralık 1971'de İngiltere'den bağımsız oldu (6 emirlikle kuruldu; Ras el-Hayme 10 Şubat " +
+      "1972'de katılarak federasyonu yediye tamamladı).",
     introTr:
       "Arap Yarımadası'nın doğusunda, Basra Körfezi'nin güney kıyıları boyunca uzanan ve " +
       "doğuda Umman Körfezi'ne kısa bir cephesi bulunan Birleşik Arap Emirlikleri, yedi " +
@@ -3274,18 +3265,17 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'ticaretini kontrol eden stratejik konumu, sığ lagünleri ve iç ' +
       'kesimlerdeki çölleri ülkenin coğrafi yapısını tanımlar.',
     landformNoteTr:
-      'Ülke topoğrafyasının yüzde sekseninden fazlası düz veya dalgalı kum çölleriyle ' +
-      'kaplıdır. Güneyde ve batıda çöl manzarası, dünyanın en yüksek kumul sırtlarına ' +
-      "sahip Rubalhali'nin uzantısıyla birleşir; Liva Vahası çevresinde yükselen dev " +
-      'barkanlar yüzlerce metrelik irtifalar kazanır. Basra Körfezi kıyısı ise son derece ' +
-      'sığ, labirentimsi kanallar, mangrov adacıkları ve geniş tuz düzlükleriyle (sebha) ' +
-      'çevrilidir. ' +
+      'Ülke topoğrafyasının yüzde sekseninden fazlası düz veya dalgalı kum çölleriyle kaplıdır. ' +
+      "Güneyde ve batıda çöl manzarası, dünyanın en büyük kum çölü olan Rubalhali'nin " +
+      'uzantısıyla birleşir; Liva Vahası çevresinde yükselen dev barkanlar yüzlerce metrelik ' +
+      'irtifalar kazanır. Basra Körfezi kıyısı ise son derece sığ, labirentimsi kanallar, ' +
+      'mangrov adacıkları ve geniş tuz düzlükleriyle (sebha) çevrilidir. ' +
       '\n\n' +
-      'Bu kurak düzlük tablosu ülkenin doğusunda köklü bir kırılmaya uğrar. Ras Al ' +
-      "Khaimah'tan Fujayra'ya uzanan Hacer Dağları kütlesi, çıplak ofiyolit ve kireçtaşı " +
-      'kayalıklarıyla yükselir; silsilenin en yüksek zirvelerinden olan 1.934 metrelik ' +
-      "Cebel Jais bu dağlık kuşakta yer alır. Dağların doğu eteğinde Umman Körfezi'ne " +
-      'bakan dar Batına kıyı şeridi uzanır.',
+      "Bu kurak düzlük tablosu ülkenin doğusunda köklü bir kırılmaya uğrar. Ras Al Khaimah'tan " +
+      "Fujayra'ya uzanan Hacer Dağları kütlesi, çıplak ofiyolit ve kireçtaşı kayalıklarıyla " +
+      'yükselir; silsilenin en yüksek zirvelerinden olan 1.934 metrelik Cebel Jais bu dağlık ' +
+      "kuşakta yer alır. Dağların doğu eteğinde Umman Körfezi'ne bakan dar Batına kıyı şeridi " +
+      'uzanır.',
     climateNoteTr:
       'Ülke genelinde yıl boyu yüksek sıcaklıkların hüküm sürdüğü aşırı kurak çöl iklimi ' +
       'egemendir. Mayıs-eylül arasındaki yaz aylarında sıcaklıklar kıyı kentlerinde 45 ' +
