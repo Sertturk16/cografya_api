@@ -1,8 +1,9 @@
 # cografya_api
 
-Backend API for the **Coğrafya platform** — an SEO-first, free, TR+EN geography
-education site. Built with **NestJS + TypeScript** (full `strict` mode), **TypeORM +
-PostgreSQL**, and **Redis** for caching.
+Backend API for the **Coğrafya platform** — an SEO-first, free geography education site.
+The web ships Turkish only; the API still carries English fields (`nameEn`, `slugEn`, ...)
+and an `en` locale for account emails. Built with **NestJS + TypeScript** (full `strict`
+mode), **TypeORM + PostgreSQL**, and **Redis** for caching.
 
 This repo is the **single source of truth for the OpenAPI contract**: DTOs are
 documented with `@nestjs/swagger`, and the web repo codegens its types from the
@@ -20,10 +21,11 @@ separate [`cografya_web`](https://github.com/Sertturk16/cografya_web) repo.
   hand-reviewed migrations.
 - **Redis** backs upstream response caching, a single-flight refresh lock and shared
   provider-budget counters; development falls back to an in-process LRU.
-- **Geoscience data ingestion** — a two-phase (`fetch` → `load`) import pipeline for
-  Copernicus ERA5-Land climate normals: the network phase runs by hand and commits
-  reviewable artifacts, the offline `load` phase is deterministic, transactional and
-  the only phase CI may run.
+- **Geoscience data ingestion** — one `pnpm db:import:*` CLI per source (`era5`, `acag`,
+  `air-quality`, `earthquakes`, `marine-points`, `marine-ecmwf`, `marine-cmems`, `terrain`),
+  each with a mandatory `--phase`: network phases run by hand and commit reviewable
+  artifacts; where an offline `load` phase exists (`era5`, `acag`, `marine-points`) it is
+  deterministic and the only phase CI or a deploy may run.
 - **OpenAPI as the cross-repo contract** — the committed spec is regenerated on every
   DTO change, the web repo generates its TypeScript client types from it, and CI fails
   on spec drift.
@@ -104,6 +106,7 @@ all hang off province rows):
 
 ```bash
 pnpm db:seed:geography          # the 81 provinces
+pnpm db:seed:regions            # the 7 geographic regions
 pnpm db:seed:world              # the country corpus
 pnpm db:seed:books              # books + their video-solution rows
 pnpm db:seed:reference          # the 973 ilçe the registration form reads
@@ -135,6 +138,7 @@ fails the build. Prettier ignores `openapi/`; the generator is its sole authorit
 | `pnpm typecheck`       | `tsc --noEmit` (type gate)                     |
 | `pnpm lint`            | ESLint (flat config; includes Prettier)        |
 | `pnpm format`          | Prettier write                                 |
+| `pnpm test:unit`       | Jest unit specs next to source (no Docker)     |
 | `pnpm test:e2e`        | Jest + Testcontainers e2e (needs Docker; CI)   |
 | `pnpm migration:run`   | Apply DB migrations (see Database & migrations) |
 | `pnpm db:seed:*`       | Seed one corpus (see Seeding a fresh database) |
@@ -143,8 +147,8 @@ fails the build. Prettier ignores `openapi/`; the generator is its sole authorit
 ## Quality gates
 
 - **CI is the only test gate.** Locally, run `pnpm typecheck` + `pnpm lint` on your
-  changes; the authoritative check is CI on the PR (typecheck+lint, build, e2e tests on a
-  real Postgres via Testcontainers, and the OpenAPI drift check).
+  changes; the authoritative check is CI on the PR (typecheck+lint, build, unit tests, e2e
+  tests on a real Postgres via Testcontainers, and the OpenAPI drift check).
 - Commits follow **Conventional Commits** (enforced by commitlint via a git hook).
 - `pre-commit` runs `lint-staged` (ESLint `--fix` + a project-wide typecheck) on staged
   TypeScript.

@@ -1,5 +1,8 @@
 # Data provenance — Pilot 5 provinces (seed snapshot)
 
+> **Status.** The root `data-provenance.md` ledger cited below no longer exists. This file is
+> now the provenance record for this seed data; read "root ledger wins" as historical rationale.
+
 **Purpose.** A repo-local, read-only snapshot of the provenance for the data loaded
 by `pnpm db:seed:geography` (`src/database/seeds/province.seed-data.ts`). The **live,
 writable ledger** lives at the orchestrator root — `data-provenance.md` (outside this

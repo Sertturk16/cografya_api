@@ -57,8 +57,11 @@ required), default only when a safe default exists. Cross-field constraints go t
   `beforeAll`. Apps are built with `Test.createTestingModule` and call `applyGlobalPrefix`,
   `buildCorsOptions`, `applyProxyTrust` by hand (`main.ts` never runs in tests).
 - Helpers: `test/support/fake-redis-client.ts`, `test/support/recording-mailer.ts`. Binary
-  fixtures under `test/fixtures/{cams,cmems,ecmwf,era5}` with golden `reference.json`.
-- Guarded routes: assert both the unauthenticated path and the role-forbidden path.
+  fixtures under `test/fixtures/{cams,cmems,ecmwf,era5}`; golden references are
+  `cams/reference.json`, `era5/reference.json` and `ecmwf/eccodes-reference.json` (`cmems/`
+  holds an upstream error XML only).
+- Guarded routes: assert the unauthenticated (401) path. There is no role guard (`accountRole`
+  is a declared profile, not a permission); assert a 403 only where the route throws one.
 - ts-jest is transpile-only (`isolatedModules`); types of tests are checked by `pnpm typecheck`.
 
 ## Migrations

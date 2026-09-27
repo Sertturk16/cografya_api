@@ -1,5 +1,9 @@
 # Data provenance — Batch 2, wave 2 (Marmara, 10 provinces) — seed snapshot
 
+> **Status.** The root `data-provenance.md` ledger and `GLOSSARY.md` cited below no longer
+> exist. This file is now the provenance record for this seed data; read "root ledger wins" and
+> the `GLOSSARY §N` references as historical rationale.
+
 **Purpose.** A repo-local, read-only snapshot of the provenance for the wave-2 data loaded
 by `pnpm db:seed:geography` (`src/database/seeds/province.seed-data.ts`, the
 `BATCH2_WAVE2_PROVINCES` array). The **live, writable ledger** lives at the orchestrator

@@ -50,7 +50,7 @@ siblings next to every source file.
 ## Config
 
 `ConfigModule.forRoot({ isGlobal, cache, validate: validateEnv })`. Schema:
-`src/config/env.schema.ts` (zod, ~113 vars, cross-field checks via `src/config/env-bounds.ts`).
+`src/config/env.schema.ts` (zod, cross-field checks via `src/config/env-bounds.ts`).
 Unknown keys stripped, missing/mistyped abort boot. `.env.example` documents every var.
 
 Groups: core (`NODE_ENV`, `PORT`=3001, `DATABASE_URL` required, `WEB_ORIGIN`), security
@@ -72,8 +72,8 @@ inside `beforeAll` after setting `DATABASE_URL`.
 ## Database
 
 - `src/database/data-source-options.ts` → `buildDataSourceOptions(url, overrides?)`, shared by
-  app, tests and CLI. `synchronize: false`, `migrationsRun: false`. Entities (25) and migrations
-  (40) are explicit arrays.
+  app, tests and CLI. `synchronize: false`, `migrationsRun: false`. Entities and
+  migrations are explicit arrays (`pnpm migration:show` lists the registered migrations).
 - `src/database/data-source.ts` default-exports the CLI `DataSource` (reads `DATABASE_URL`).
 - Migrations: `src/database/migrations/<epochMillis>-<PascalName>.ts`, class
   `<PascalName><epochMillis> implements MigrationInterface`.
@@ -141,7 +141,7 @@ no Redis lock); constants in `src/retention/retention.constants.ts`.
 
 ## OpenAPI
 
-`openapi/openapi.json` (committed, ~47 paths, ~90 schemas, bearer scheme `access-token`).
+`openapi/openapi.json` (committed, bearer scheme `access-token`).
 `pnpm openapi:generate` builds and runs `dist/openapi/generate-openapi.js`, which boots
 `NestFactory.create(AppModule, { preview: true })` — full module graph, no providers, no DB.
 Document built once in `src/openapi/build-document.ts`, shared with `main.ts`.
