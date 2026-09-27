@@ -703,20 +703,18 @@ export const ASIA_COUNTRIES: readonly CountrySeed[] = [
       'dağ eteklerinden beslenen yapay su kanalları boyunca uzanan dar tarım ' +
       'kuşaklarında toplanmıştır.',
     landformNoteTr:
-      'Türkmenistan yer şekillerinin ezici bölümünü, ülkenin iç ve kuzey ' +
-      'kesimlerini kaplayan devasa Karakum (Kara Kum) Çölü oluşturur. Karakum; ' +
-      'rüzgarın süpürdüğü hareketli kum tepeleri, hilal biçimli kumullar ' +
-      '(barkanlar), killi çöküntüler (takırlar) ve tuz tavalarından meydana ' +
-      'gelen dalgalı bir plato görünümündedir. Batıda Hazar Denizi kıyısına ' +
-      'doğru çöl alçalarak deniz seviyesinin altındaki çöküntülere ve sığ ' +
-      "Garaboğazköl Lagünü'ne bağlanır." +
+      'Türkmenistan yer şekillerinin ezici bölümünü, ülkenin iç ve kuzey kesimlerini kaplayan ' +
+      'devasa Karakum (Kara Kum) Çölü oluşturur. Karakum; rüzgarın süpürdüğü hareketli kum ' +
+      'tepeleri, hilal biçimli kumullar (barkanlar), killi çöküntüler (takırlar) ve tuz ' +
+      'tavalarından meydana gelen dalgalı bir plato görünümündedir. Batıda Hazar Denizi kıyısına ' +
+      "doğru çöl alçalarak deniz seviyesinin altındaki çöküntülere ve sığ Garaboğazköl Lagünü'ne " +
+      'bağlanır.' +
       '\n\n' +
-      'Ülkenin güney sınırında, tektonik açıdan hareketli Alp-Himalaya kuşağına ' +
-      "bağlı Köpetdağ Sıradağları sarp duvarlar halinde yükselir; Aşkabat'ın " +
-      'güneyindeki 2.912 metrelik Şahşah (Rizeh) Tepesi bu sıranın ülkedeki en ' +
-      'yüksek doruğudur. Gerçek en yüksek nokta ise doğuda, Özbekistan sınırındaki ' +
-      'Köýtendag (Kugitang) sırasında 3.139 metreye ulaşan ve zengin karstik ' +
-      "mağara sistemleri barındıran Ayrıbaba Dağı'dır.",
+      'Ülkenin güney sınırında, tektonik açıdan hareketli Alp-Himalaya kuşağına bağlı Köpetdağ ' +
+      "Sıradağları sarp duvarlar halinde yükselir; Aşkabat'ın güneybatısındaki 2.940 metrelik " +
+      'Şahşah (Rizeh) Tepesi bu sıranın ülkedeki en yüksek doruğudur. Gerçek en yüksek nokta ise ' +
+      'doğuda, Özbekistan sınırındaki Köýtendag (Kugitang) sırasında 3.139 metreye ulaşan ve ' +
+      "zengin karstik mağara sistemleri barındıran Ayrıbaba Dağı'dır.",
     climateNoteTr:
       "Deniz etkisinden yalıtılmış konumu ve geniş çöl örtüsü, Türkmenistan'da " +
       'son derece sert ve kurak bir subtropikal çöl iklimi yaratır. Yaz mevsimi ' +

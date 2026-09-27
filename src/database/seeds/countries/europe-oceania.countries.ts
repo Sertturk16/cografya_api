@@ -745,16 +745,15 @@ export const EUROPE_OCEANIA_COUNTRIES: readonly CountrySeed[] = [
       'rüzgarları, kış ortasında bile hızlı kar erimelerine ve ani çığ ' +
       'risklerine yol açar.',
     hydrographyNoteTr:
-      'Tuna Nehri, batıdan doğuya yaklaşık 357 kilometre boyunca ülkeyi kat ederek ' +
-      'Avusturya hidrografyasının ana omurgasını çizer. İnn, Salzach, Enns ve Traun ' +
-      "nehirleri Alpler'deki buzul ve kar erimelerinden beslenerek Tuna havzasına " +
-      'katılır; böylece ülke topraklarının neredeyse tamamı sularını doğrudan ' +
-      "Karadeniz'e ulaştırır." +
+      'Tuna Nehri, batıdan doğuya yaklaşık 349 kilometre boyunca ülkeyi kat ederek Avusturya ' +
+      "hidrografyasının ana omurgasını çizer. İnn, Salzach, Enns ve Traun nehirleri Alpler'deki " +
+      'buzul ve kar erimelerinden beslenerek Tuna havzasına katılır; böylece ülke topraklarının ' +
+      "neredeyse tamamı sularını doğrudan Karadeniz'e ulaştırır." +
       '\n\n' +
-      'Salzkammergut yöresindeki derin buzul gölleri ve batıda Vorarlberg sınırındaki ' +
-      'Konstanz Gölü (Bodensee), Alplerden inen suların oluşturduğu temiz tatlı su rezervleridir. Buna ' +
-      'taban tabana zıt olarak doğudaki Neusiedler Gölü, derinliği bir metreyi güçlükle ' +
-      'bulan, sazlıklarla çevrili tipik bir sığ bozkır gölü niteliği taşır.',
+      'Salzkammergut yöresindeki derin buzul gölleri ve batıda Vorarlberg sınırındaki Konstanz ' +
+      'Gölü (Bodensee), Alplerden inen suların oluşturduğu temiz tatlı su rezervleridir. Buna ' +
+      'taban tabana zıt olarak doğudaki Neusiedler Gölü, derinliği bir metreyi güçlükle bulan, ' +
+      'sazlıklarla çevrili tipik bir sığ bozkır gölü niteliği taşır.',
   },
   {
     isoCode: 'DE',

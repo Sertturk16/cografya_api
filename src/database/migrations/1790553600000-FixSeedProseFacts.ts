@@ -1,8 +1,9 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 /**
- * Data-only migration: carries the seed prose fact and grammar fixes of this change into
- * databases that were seeded before it (deploys run migrations, never the seed CLIs).
+ * Data-only migration: carries the seed fact and grammar fixes of this change (prose, plus a
+ * few neighbour and official-language lists) into databases that were seeded before it
+ * (deploys run migrations, never the seed CLIs).
  *
  * Same guard as `UpdateSeedProseCopy1790208000000`: each change rewrites ONE column of ONE
  * row, and only while that column still holds exactly the old text, so a row edited some
@@ -15,9 +16,13 @@ type SeedFactChange = {
   readonly key: string;
   readonly property: string;
   readonly column: string;
-  readonly before: string;
-  readonly after: string;
+  /** Array columns need a cast; omitted for plain text. */
+  readonly kind?: 'textarray' | 'varchararray';
+  readonly before: string | readonly string[];
+  readonly after: string | readonly string[];
 };
+
+const CAST = { textarray: '::text[]', varchararray: '::varchar[]' } as const;
 
 export const SEED_FACT_CHANGES: readonly SeedFactChange[] = [
   {
@@ -644,12 +649,186 @@ export const SEED_FACT_CHANGES: readonly SeedFactChange[] = [
     after:
       "Büyük adaların iç kesimlerini sarp volkanik dağ silsileleri kaplar. Guadalcanal'ın güneyinde yükselen 2.335 metrelik Popomanaseu Dağı, ülkenin en yüksek doruğudur ve sisli bulut ormanlarıyla örtülüdür.\n\nVangunu Adası'nın güneyinde, deniz yüzeyinin yaklaşık 20 metre altında zirve yapan Kavachi, bölgenin en aktif denizaltı yanardağlarındandır; sık tekrarlanan püskürmeleri okyanus yüzeyinde zaman zaman kısa ömürlü lav adacıkları oluşturur.",
   },
+  {
+    table: 'countries',
+    keyColumn: 'iso_code',
+    key: 'CD',
+    property: 'neighborIsoCodes',
+    column: 'neighbor_iso_codes',
+    kind: 'varchararray',
+    before: ['CG', 'CF', 'SS', 'UG', 'RW', 'BI', 'ZM', 'AO'],
+    after: ['CG', 'CF', 'SS', 'UG', 'RW', 'BI', 'ZM', 'AO', 'TZ'],
+  },
+  {
+    table: 'countries',
+    keyColumn: 'iso_code',
+    key: 'TZ',
+    property: 'neighborIsoCodes',
+    column: 'neighbor_iso_codes',
+    kind: 'varchararray',
+    before: ['KE', 'UG', 'RW', 'BI', 'ZM', 'MW', 'MZ'],
+    after: ['KE', 'UG', 'RW', 'BI', 'ZM', 'MW', 'MZ', 'CD'],
+  },
+  {
+    table: 'countries',
+    keyColumn: 'iso_code',
+    key: 'IL',
+    property: 'neighborIsoCodes',
+    column: 'neighbor_iso_codes',
+    kind: 'varchararray',
+    before: ['EG', 'JO', 'LB', 'SY'],
+    after: ['EG', 'JO', 'LB', 'SY', 'PS'],
+  },
+  {
+    table: 'countries',
+    keyColumn: 'iso_code',
+    key: 'ZA',
+    property: 'officialLanguagesTr',
+    column: 'official_languages_tr',
+    kind: 'textarray',
+    before: ['İngilizce', 'isiZulu', 'isiXhosa', 'Afrikaanca'],
+    after: [
+      'İngilizce',
+      'isiZulu',
+      'isiXhosa',
+      'Afrikaanca',
+      'Sepedi',
+      'Sesotho',
+      'Setswana',
+      'Swazi (siSwati)',
+      'Tshivenda',
+      'Xitsonga',
+      'Ndebele',
+      'Güney Afrika İşaret Dili',
+    ],
+  },
+  {
+    table: 'countries',
+    keyColumn: 'iso_code',
+    key: 'ET',
+    property: 'officialLanguagesTr',
+    column: 'official_languages_tr',
+    kind: 'textarray',
+    before: ['Amharca'],
+    after: ['Amharca', 'Oromoca', 'Tigrinya', 'Somalice', 'Afarca'],
+  },
+  {
+    table: 'provinces',
+    keyColumn: 'plate_code',
+    key: '17',
+    property: 'hydrographyNoteTr',
+    column: 'hydrography_note_tr',
+    before:
+      "Kent merkezinden geçen Sarıçay, boğaza ulaştığı ağızda kıyı şeridini şekillendirir. Gelibolu Yarımadası'nda Tuzla Gölü, Biga ilçesinde ise Hoyrat ve Ece gölleri ilin başlıca göletleridir. İlin tek içme suyu kaynağı Atikhisar Barajı'dır; sulama amaçlı işletilen Bayramiç Barajı ise ilin bir diğer önemli su yapısıdır.",
+    after:
+      "Kent merkezinden geçen Sarıçay, boğaza ulaştığı ağızda kıyı şeridini şekillendirir. Gelibolu Yarımadası'nda Tuzla Gölü, Biga ilçesinde ise Hoyrat ve Ece gölleri ilin başlıca gölleridir. İlin tek içme suyu kaynağı Atikhisar Barajı'dır; sulama amaçlı işletilen Bayramiç Barajı ise ilin bir diğer önemli su yapısıdır.",
+  },
+  {
+    table: 'provinces',
+    keyColumn: 'plate_code',
+    key: '36',
+    property: 'hydrographyNoteTr',
+    column: 'hydrography_note_tr',
+    before:
+      'İlin sularını Kars Çayı, Arpaçay ve Aras Nehri toplar. Soğanlı yaylalarından doğan Kars Çayı, kenti ikiye bölerek akar ve derin kanyonlar oluşturduğu Arpaçay ile birleşir. Türkiye-Ermenistan sınırını çizen Arpaçay üzerindeki Arpaçay Baraj Gölü, sınır boyunca tarımsal sulama ve taşkın önleme işlevi görür. Yaz başlarına kadar süren kar erimeleri, platolardaki yüksek dağ çayırlarını gürleştirerek ilin büyükbaş süt ve besi hayvancılığındaki liderliğini pekiştirir.',
+    after:
+      "İlin sularını Kars Çayı, Arpaçay ve Aras Nehri toplar. Soğanlı yaylalarından doğan Kars Çayı, kenti ikiye bölerek akar ve derin kanyonlar oluşturduğu Arpaçay ile birleşir. Türkiye-Ermenistan sınırını çizen Arpaçay üzerindeki Arpaçay Baraj Gölü, sınır boyunca tarımsal sulama ve taşkın önleme işlevi görür. Yaz başlarına kadar süren kar erimeleri, platolardaki yüksek dağ çayırlarını gürleştirerek ilin Türkiye'nin büyükbaş süt ve besi hayvancılığında önde gelen illerinden biri olmasını sağlar.",
+  },
+  {
+    table: 'provinces',
+    keyColumn: 'plate_code',
+    key: '55',
+    property: 'landformNoteTr',
+    column: 'landform_note_tr',
+    before:
+      "İlin kıyı kesimi, batıda Kızılırmak'ın oluşturduğu Bafra Ovası ile doğuda Yeşilırmak'ın oluşturduğu Çarşamba Ovası arasında geniş bir düzlük oluşturur; Bafra Ovası'nın kıyı boyunca uzunluğu 69 kilometreye, Çarşamba Ovası'nınki 88 kilometreye ulaşır. Bu iki delta ovası, Anadolu'nun kıyı ovaları arasında en büyükler arasında sayılır.\n\nİlin güneyi, Canik Dağları'nın kuzey yamaçlarıyla kıyı ovasından iç kesimlere doğru yükselir; kıyıdan güneye gidildikçe arazi giderek daha engebeli bir yapıya bürünür.",
+    after:
+      "İlin kıyı kesimi, batıda Kızılırmak'ın oluşturduğu Bafra Ovası ile doğuda Yeşilırmak'ın oluşturduğu Çarşamba Ovası arasında geniş bir düzlük oluşturur; Bafra Ovası'nın kıyı boyunca uzunluğu yaklaşık 32 kilometreye, Çarşamba Ovası'nınki 88 kilometreye ulaşır. Bu iki delta ovası, Anadolu'nun kıyı ovaları arasında en büyükler arasında sayılır.\n\nİlin güneyi, Canik Dağları'nın kuzey yamaçlarıyla kıyı ovasından iç kesimlere doğru yükselir; kıyıdan güneye gidildikçe arazi giderek daha engebeli bir yapıya bürünür.",
+  },
+  {
+    table: 'provinces',
+    keyColumn: 'plate_code',
+    key: '16',
+    property: 'landformNoteTr',
+    column: 'landform_note_tr',
+    before:
+      "Uludağ, kuzey yamaçlarında sirk vadileri ve sirk gölleriyle (Karagöl, Aynalıgöl, Kilimligöl, Buzlu Göl) Türkiye'de buzul döneminin izlerinin görüldüğü ilk yerlerden biridir; dağın 12.762 hektarlık bölümü 1961'de milli park ilan edilmiştir. İlin dağlık kesimini Uludağ'ın yanı sıra Samanlı, Mudanya ve Katırlı dağları oluşturur; Bursa, İnegöl, Karacabey, Orhangazi, İznik ve Yenişehir ovaları ise il topraklarının önemli bir bölümünü kaplar.\n\n28 Şubat 1855'te, merkez üssü Mustafakemalpaşa yakınlarında olan ve büyüklüğü yaklaşık 7,0 olarak kaydedilen bir deprem meydana geldi; yaklaşık 300 kişi hayatını kaybetti. Altı hafta sonra, 11 Nisan 1855'te Gemlik-Mudanya yakınlarında merkezlenen ikinci bir deprem (6,7 büyüklüğünde) yaklaşık 1.300 kişinin daha ölümüne yol açtı. 1999 İzmit depreminde Bursa'nın kendisi merkez üssünden uzak kaldı; bölgeden nakledilen çok sayıda yaralı, kentteki hastanelerde tedavi gördü.",
+    after:
+      "Uludağ, kuzey yamaçlarında sirk vadileri ve sirk gölleriyle (Karagöl, Aynalıgöl, Kilimligöl, Buzlu Göl) Türkiye'de buzul döneminin izlerinin görüldüğü ilk yerlerden biridir; dağın 11.338 hektarlık bölümü 1961'de milli park ilan edilmiş, alan 1996'da 12.762 hektara genişletilmiştir. İlin dağlık kesimini Uludağ'ın yanı sıra Samanlı, Mudanya ve Katırlı dağları oluşturur; Bursa, İnegöl, Karacabey, Orhangazi, İznik ve Yenişehir ovaları ise il topraklarının önemli bir bölümünü kaplar.\n\n28 Şubat 1855'te, merkez üssü Mustafakemalpaşa yakınlarında olan ve büyüklüğü yaklaşık 7,0 olarak kaydedilen bir deprem meydana geldi; yaklaşık 300 kişi hayatını kaybetti. Altı hafta sonra, 11 Nisan 1855'te Gemlik-Mudanya yakınlarında merkezlenen ikinci bir deprem (6,7 büyüklüğünde) yaklaşık 1.300 kişinin daha ölümüne yol açtı. 1999 İzmit depreminde Bursa'nın kendisi merkez üssünden uzak kaldı; bölgeden nakledilen çok sayıda yaralı, kentteki hastanelerde tedavi gördü.",
+  },
+  {
+    table: 'provinces',
+    keyColumn: 'plate_code',
+    key: '20',
+    property: 'hydrographyNoteTr',
+    column: 'hydrography_note_tr',
+    before:
+      "Büyük Menderes Nehri, Afyonkarahisar'ın Dinar ilçesindeki Suçıkan kaynağından doğduktan sonra Denizli topraklarına girer ve Çivril, Çal ve Baklan ovalarını sular. İlin kendi kolu Çürüksu Çayı, Honaz Dağı ve çevresindeki kaynaklardan beslenerek Sarayköy yakınlarında Büyük Menderes'e katılır.\n\nDSİ 21. Bölge Müdürlüğü'nün işlettiği barajların en büyüğü, Büyük Menderes üzerinde 1990'da tamamlanan Adıgüzel Barajı'dır; sulama, taşkın koruması ve enerji üretimi amacıyla kullanılır. Güney ilçesindeki Cindere Barajı ise aynı nehir üzerinde 2007'de tamamlanmış, hidroelektrik enerji üretimine ayrılmış bir başka büyük yapıdır.\n\nÇivril ilçesindeki Işıklı Gölü, DSİ tarafından 1953'te bir bent inşa edilerek rezervuara dönüştürülmüş doğal bir göldür; Büyük Menderes'i Işıklı ve Kufi dereleri aracılığıyla besler ve önemli bir kuş alanı olarak korunur. İlin Afyonkarahisar sınırındaki Acıgöl ise Türkiye'nin büyük tuz göllerinden biridir.",
+    after:
+      "Büyük Menderes Nehri, Afyonkarahisar'ın Dinar ilçesindeki Suçıkan kaynağından doğduktan sonra Denizli topraklarına girer ve Çivril, Çal ve Baklan ovalarını sular. İlin kendi kolu Çürüksu Çayı, Honaz Dağı ve çevresindeki kaynaklardan beslenerek Sarayköy yakınlarında Büyük Menderes'e katılır.\n\nDSİ 21. Bölge Müdürlüğü'nün işlettiği barajların en büyüğü, Büyük Menderes üzerinde 1989'da tamamlanan Adıgüzel Barajı'dır; sulama, taşkın koruması ve enerji üretimi amacıyla kullanılır. Güney ilçesindeki Cindere Barajı ise aynı nehir üzerinde 2007'de tamamlanmış, hidroelektrik enerji üretimine ayrılmış bir başka büyük yapıdır.\n\nÇivril ilçesindeki Işıklı Gölü, DSİ tarafından 1953'te bir bent inşa edilerek rezervuara dönüştürülmüş doğal bir göldür; Büyük Menderes'i Işıklı ve Kufi dereleri aracılığıyla besler ve önemli bir kuş alanı olarak korunur. İlin Afyonkarahisar sınırındaki Acıgöl ise Türkiye'nin büyük tuz göllerinden biridir.",
+  },
+  {
+    table: 'provinces',
+    keyColumn: 'plate_code',
+    key: '77',
+    property: 'hydrographyNoteTr',
+    column: 'hydrography_note_tr',
+    before:
+      "İlin en büyük akarsuyu, Samanlı Dağları'ndan doğan ve yıllık yaklaşık 120 milyon metreküp su taşıyan 40 kilometrelik Sellimandıra Deresi'dir. Altınova ilçesinde Yalakdere, Hersek Deltası'nı oluşturarak denize ulaşır. Çınarcık'taki Delmece Yaylası yakınında yer alan Dipsiz Göl, ilin doğal gölüdür.\n\nİçme suyu, 1988'de tamamlanan Gökçe Barajı'ndan karşılanır; barajın suyu Termal beldesi yakınından alınır. Armutlu'daki Sarpdere Barajı ise 2017'de tamamlanmış, öncelikli olarak sulama amacıyla işletilen küçük bir barajdır.",
+    after:
+      "İlin en büyük akarsuyu, Samanlı Dağları'ndan doğan ve yıllık yaklaşık 120 milyon metreküp su taşıyan 40 kilometrelik Sellimandıra Deresi'dir. Altınova ilçesinde Yalakdere, Hersek Deltası'nı oluşturarak denize ulaşır. Çınarcık'taki Delmece Yaylası yakınında yer alan Dipsiz Göl, ilin doğal gölüdür.\n\nİçme suyu, 1989'da tamamlanan Gökçe Barajı'ndan karşılanır; barajın suyu Termal beldesi yakınından alınır. Armutlu'daki Sarpdere Barajı ise 2017'de tamamlanmış, öncelikli olarak sulama amacıyla işletilen küçük bir barajdır.",
+  },
+  {
+    table: 'countries',
+    keyColumn: 'iso_code',
+    key: 'MR',
+    property: 'hydrographyNoteTr',
+    column: 'hydrography_note_tr',
+    before:
+      "Ülkenin güney sınırını Senegal ile paylaşarak çizen Senegal Nehri, Moritanya'nın tek kalıcı yüzey suyu eksenidir ve taşkın yatağındaki tarımsal üretimi besler. Nehir havzası altında uzanan 335.000 kilometrekarelik Senegalo-Moritanya Akiferi, Batı Afrika'nın en büyük sınır aşan yer altı suyu sistemidir ve ülke yüzölçümünün yüzde 80'inden fazlasının tabanında yer alır; kıyıdaki Trarza akifer kuyuları ise başkent Nouakchott'un içme suyunu karşılar. \n\nSenegal vadisi dışındaki güney Sahel kesiminde yağmur sularını toplayan küçük tepe göletleri ve bentler mevsimlik hayvancılığı destekler. Geniş Sahra kesiminde ise yüzey akışı bulunmaz; vahalar ve yerleşimler yalnızca Adrar ile Tagant platolarının derin çatlaklarından çıkan kaynak ve kuyularla ayakta kalır.",
+    after:
+      "Ülkenin güney sınırını Senegal ile paylaşarak çizen Senegal Nehri, Moritanya'nın tek kalıcı yüzey suyu eksenidir ve taşkın yatağındaki tarımsal üretimi besler. Nehir havzası altında uzanan 335.000 kilometrekarelik Senegalo-Moritanya Akiferi, Batı Afrika'nın en büyük sınır aşan yer altı suyu sistemidir ve ülkenin güneybatısındaki kıyı ovalarının tabanında yer alır; kıyıdaki Trarza akifer kuyuları ise başkent Nouakchott'un içme suyunu karşılar. \n\nSenegal vadisi dışındaki güney Sahel kesiminde yağmur sularını toplayan küçük tepe göletleri ve bentler mevsimlik hayvancılığı destekler. Geniş Sahra kesiminde ise yüzey akışı bulunmaz; vahalar ve yerleşimler yalnızca Adrar ile Tagant platolarının derin çatlaklarından çıkan kaynak ve kuyularla ayakta kalır.",
+  },
+  {
+    table: 'countries',
+    keyColumn: 'iso_code',
+    key: 'TT',
+    property: 'hydrographyNoteTr',
+    column: 'hydrography_note_tr',
+    before:
+      "Kıta sahanlığı kökeni sayesinde Trinidad, Karayip adaları içinde en olgun ve geniş nehir ağlarına sahiptir. Kuzey Sıradağları eteklerinden doğup batıdaki Paria Körfezi'ne akan Caroni Nehri, başkentin güneyinde devasa Caroni Bataklığı mangrov ekosistemini besler; bu sulak alan ülkenin ulusal simgesi olan kızıl ibisin dünyadaki en önemli tünekleme sahasıdır. Doğu sahiline dökülen 50 kilometrelik Ortoire Nehri ise adanın en uzun su yoludur. Dağlık Tobago adasında ise daha kısa, hızlı akan temiz dereler ve çağlayanlar baskındır.",
+    after:
+      "Kıta sahanlığı kökeni sayesinde Trinidad, Karayip adaları içinde en olgun ve geniş nehir ağlarına sahiptir. Kuzey Sıradağları eteklerinden doğup batıdaki Paria Körfezi'ne akan Caroni Nehri, başkentin güneyinde devasa Caroni Bataklığı mangrov ekosistemini besler; bu sulak alan ülkenin ulusal simgesi olan kızıl ibisin dünyadaki en önemli tünekleme sahasıdır. Doğu sahiline dökülen yaklaşık 55 kilometrelik Ortoire Nehri ise adanın en uzun su yoludur. Dağlık Tobago adasında ise daha kısa, hızlı akan temiz dereler ve çağlayanlar baskındır.",
+  },
+  {
+    table: 'countries',
+    keyColumn: 'iso_code',
+    key: 'TM',
+    property: 'landformNoteTr',
+    column: 'landform_note_tr',
+    before:
+      "Türkmenistan yer şekillerinin ezici bölümünü, ülkenin iç ve kuzey kesimlerini kaplayan devasa Karakum (Kara Kum) Çölü oluşturur. Karakum; rüzgarın süpürdüğü hareketli kum tepeleri, hilal biçimli kumullar (barkanlar), killi çöküntüler (takırlar) ve tuz tavalarından meydana gelen dalgalı bir plato görünümündedir. Batıda Hazar Denizi kıyısına doğru çöl alçalarak deniz seviyesinin altındaki çöküntülere ve sığ Garaboğazköl Lagünü'ne bağlanır.\n\nÜlkenin güney sınırında, tektonik açıdan hareketli Alp-Himalaya kuşağına bağlı Köpetdağ Sıradağları sarp duvarlar halinde yükselir; Aşkabat'ın güneyindeki 2.912 metrelik Şahşah (Rizeh) Tepesi bu sıranın ülkedeki en yüksek doruğudur. Gerçek en yüksek nokta ise doğuda, Özbekistan sınırındaki Köýtendag (Kugitang) sırasında 3.139 metreye ulaşan ve zengin karstik mağara sistemleri barındıran Ayrıbaba Dağı'dır.",
+    after:
+      "Türkmenistan yer şekillerinin ezici bölümünü, ülkenin iç ve kuzey kesimlerini kaplayan devasa Karakum (Kara Kum) Çölü oluşturur. Karakum; rüzgarın süpürdüğü hareketli kum tepeleri, hilal biçimli kumullar (barkanlar), killi çöküntüler (takırlar) ve tuz tavalarından meydana gelen dalgalı bir plato görünümündedir. Batıda Hazar Denizi kıyısına doğru çöl alçalarak deniz seviyesinin altındaki çöküntülere ve sığ Garaboğazköl Lagünü'ne bağlanır.\n\nÜlkenin güney sınırında, tektonik açıdan hareketli Alp-Himalaya kuşağına bağlı Köpetdağ Sıradağları sarp duvarlar halinde yükselir; Aşkabat'ın güneybatısındaki 2.940 metrelik Şahşah (Rizeh) Tepesi bu sıranın ülkedeki en yüksek doruğudur. Gerçek en yüksek nokta ise doğuda, Özbekistan sınırındaki Köýtendag (Kugitang) sırasında 3.139 metreye ulaşan ve zengin karstik mağara sistemleri barındıran Ayrıbaba Dağı'dır.",
+  },
+  {
+    table: 'countries',
+    keyColumn: 'iso_code',
+    key: 'AT',
+    property: 'hydrographyNoteTr',
+    column: 'hydrography_note_tr',
+    before:
+      "Tuna Nehri, batıdan doğuya yaklaşık 357 kilometre boyunca ülkeyi kat ederek Avusturya hidrografyasının ana omurgasını çizer. İnn, Salzach, Enns ve Traun nehirleri Alpler'deki buzul ve kar erimelerinden beslenerek Tuna havzasına katılır; böylece ülke topraklarının neredeyse tamamı sularını doğrudan Karadeniz'e ulaştırır.\n\nSalzkammergut yöresindeki derin buzul gölleri ve batıda Vorarlberg sınırındaki Konstanz Gölü (Bodensee), Alplerden inen suların oluşturduğu temiz tatlı su rezervleridir. Buna taban tabana zıt olarak doğudaki Neusiedler Gölü, derinliği bir metreyi güçlükle bulan, sazlıklarla çevrili tipik bir sığ bozkır gölü niteliği taşır.",
+    after:
+      "Tuna Nehri, batıdan doğuya yaklaşık 349 kilometre boyunca ülkeyi kat ederek Avusturya hidrografyasının ana omurgasını çizer. İnn, Salzach, Enns ve Traun nehirleri Alpler'deki buzul ve kar erimelerinden beslenerek Tuna havzasına katılır; böylece ülke topraklarının neredeyse tamamı sularını doğrudan Karadeniz'e ulaştırır.\n\nSalzkammergut yöresindeki derin buzul gölleri ve batıda Vorarlberg sınırındaki Konstanz Gölü (Bodensee), Alplerden inen suların oluşturduğu temiz tatlı su rezervleridir. Buna taban tabana zıt olarak doğudaki Neusiedler Gölü, derinliği bir metreyi güçlükle bulan, sazlıklarla çevrili tipik bir sığ bozkır gölü niteliği taşır.",
+  },
 ];
 
 async function apply(queryRunner: QueryRunner, from: 'before' | 'after', to: 'before' | 'after') {
   for (const change of SEED_FACT_CHANGES) {
+    const cast = change.kind ? CAST[change.kind] : '';
     await queryRunner.query(
-      `UPDATE "${change.table}" SET "${change.column}" = $1, "updated_at" = now() WHERE "${change.keyColumn}" = $2 AND "${change.column}" IS NOT DISTINCT FROM $3`,
+      `UPDATE "${change.table}" SET "${change.column}" = $1${cast}, "updated_at" = now() WHERE "${change.keyColumn}" = $2 AND "${change.column}" IS NOT DISTINCT FROM $3${cast}`,
       [change[to], change.key, change[from]],
     );
   }

@@ -1966,16 +1966,17 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
     landformNoteTr:
       'Uludağ, kuzey yamaçlarında sirk vadileri ve sirk gölleriyle (Karagöl, Aynalıgöl, ' +
       "Kilimligöl, Buzlu Göl) Türkiye'de buzul döneminin izlerinin görüldüğü ilk yerlerden " +
-      "biridir; dağın 12.762 hektarlık bölümü 1961'de milli park ilan edilmiştir. İlin " +
-      "dağlık kesimini Uludağ'ın yanı sıra Samanlı, Mudanya ve Katırlı dağları oluşturur; " +
-      'Bursa, İnegöl, Karacabey, Orhangazi, İznik ve Yenişehir ovaları ise il topraklarının ' +
-      'önemli bir bölümünü kaplar.\n\n' +
-      "28 Şubat 1855'te, merkez üssü Mustafakemalpaşa yakınlarında olan ve büyüklüğü " +
-      'yaklaşık 7,0 olarak kaydedilen bir deprem meydana geldi; yaklaşık 300 kişi hayatını ' +
-      "kaybetti. Altı hafta sonra, 11 Nisan 1855'te Gemlik-Mudanya yakınlarında merkezlenen " +
-      'ikinci bir deprem (6,7 büyüklüğünde) yaklaşık 1.300 kişinin daha ölümüne yol açtı. ' +
-      "1999 İzmit depreminde Bursa'nın kendisi merkez üssünden uzak kaldı; bölgeden nakledilen " +
-      'çok sayıda yaralı, kentteki hastanelerde tedavi gördü.',
+      "biridir; dağın 11.338 hektarlık bölümü 1961'de milli park ilan edilmiş, alan 1996'da " +
+      "12.762 hektara genişletilmiştir. İlin dağlık kesimini Uludağ'ın yanı sıra Samanlı, " +
+      'Mudanya ve Katırlı dağları oluşturur; Bursa, İnegöl, Karacabey, Orhangazi, İznik ve ' +
+      'Yenişehir ovaları ise il topraklarının önemli bir bölümünü kaplar.' +
+      '\n\n' +
+      "28 Şubat 1855'te, merkez üssü Mustafakemalpaşa yakınlarında olan ve büyüklüğü yaklaşık " +
+      '7,0 olarak kaydedilen bir deprem meydana geldi; yaklaşık 300 kişi hayatını kaybetti. Altı ' +
+      "hafta sonra, 11 Nisan 1855'te Gemlik-Mudanya yakınlarında merkezlenen ikinci bir deprem " +
+      '(6,7 büyüklüğünde) yaklaşık 1.300 kişinin daha ölümüne yol açtı. 1999 İzmit depreminde ' +
+      "Bursa'nın kendisi merkez üssünden uzak kaldı; bölgeden nakledilen çok sayıda yaralı, " +
+      'kentteki hastanelerde tedavi gördü.',
     introTr:
       "Bursa, 2.543 metrelik Uludağ ile Marmara Bölgesi'nin en yüksek noktasına sahiptir. " +
       "Kent, 1326'da Orhan Gazi tarafından fethedilmiş ve kısa süre sonra ilk Osmanlı başkenti " +
@@ -2061,9 +2062,9 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
       'alanlarına ayrılmıştır.',
     hydrographyNoteTr:
       'Kent merkezinden geçen Sarıçay, boğaza ulaştığı ağızda kıyı şeridini şekillendirir. ' +
-      "Gelibolu Yarımadası'nda Tuzla Gölü, Biga ilçesinde ise Hoyrat ve Ece gölleri ilin " +
-      "başlıca göletleridir. İlin tek içme suyu kaynağı Atikhisar Barajı'dır; sulama amaçlı " +
-      'işletilen Bayramiç Barajı ise ilin bir diğer önemli su yapısıdır.',
+      "Gelibolu Yarımadası'nda Tuzla Gölü, Biga ilçesinde ise Hoyrat ve Ece gölleri ilin başlıca " +
+      "gölleridir. İlin tek içme suyu kaynağı Atikhisar Barajı'dır; sulama amaçlı işletilen " +
+      'Bayramiç Barajı ise ilin bir diğer önemli su yapısıdır.',
     hydrographyFeatures: [
       { name: 'Atikhisar Barajı', type: HydrographyFeatureType.Baraj },
       { name: 'Bayramiç Barajı', type: HydrographyFeatureType.Baraj },
@@ -2473,13 +2474,14 @@ export const BATCH2_WAVE2_PROVINCES: readonly ProvinceSeed[] = [
       "kadar 1930'dan beri İstanbul'un bir ilçesiydi. Kuruluşla birlikte Armutlu ilçesi " +
       "Bursa'dan, Altınova ise Kocaeli'nden Yalova'ya bağlandı.",
     hydrographyNoteTr:
-      "İlin en büyük akarsuyu, Samanlı Dağları'ndan doğan ve yıllık yaklaşık 120 milyon " +
-      "metreküp su taşıyan 40 kilometrelik Sellimandıra Deresi'dir. Altınova ilçesinde " +
-      "Yalakdere, Hersek Deltası'nı oluşturarak denize ulaşır. Çınarcık'taki Delmece Yaylası " +
-      'yakınında yer alan Dipsiz Göl, ilin doğal gölüdür.\n\n' +
-      "İçme suyu, 1988'de tamamlanan Gökçe Barajı'ndan karşılanır; barajın suyu Termal " +
-      "beldesi yakınından alınır. Armutlu'daki Sarpdere Barajı ise 2017'de tamamlanmış, " +
-      'öncelikli olarak sulama amacıyla işletilen küçük bir barajdır.',
+      "İlin en büyük akarsuyu, Samanlı Dağları'ndan doğan ve yıllık yaklaşık 120 milyon metreküp " +
+      "su taşıyan 40 kilometrelik Sellimandıra Deresi'dir. Altınova ilçesinde Yalakdere, Hersek " +
+      "Deltası'nı oluşturarak denize ulaşır. Çınarcık'taki Delmece Yaylası yakınında yer alan " +
+      'Dipsiz Göl, ilin doğal gölüdür.' +
+      '\n\n' +
+      "İçme suyu, 1989'da tamamlanan Gökçe Barajı'ndan karşılanır; barajın suyu Termal beldesi " +
+      "yakınından alınır. Armutlu'daki Sarpdere Barajı ise 2017'de tamamlanmış, öncelikli olarak " +
+      'sulama amacıyla işletilen küçük bir barajdır.',
     hydrographyFeatures: [
       { name: 'Gökçe Barajı', type: HydrographyFeatureType.Baraj },
       { name: 'Sarpdere Barajı', type: HydrographyFeatureType.Baraj },
@@ -2778,16 +2780,18 @@ export const BATCH2_WAVE3_PROVINCES: readonly ProvinceSeed[] = [
       'en yüksek noktasını oluşturur.',
     hydrographyNoteTr:
       "Büyük Menderes Nehri, Afyonkarahisar'ın Dinar ilçesindeki Suçıkan kaynağından doğduktan " +
-      'sonra Denizli topraklarına girer ve Çivril, Çal ve Baklan ovalarını sular. İlin kendi kolu ' +
-      'Çürüksu Çayı, Honaz Dağı ve çevresindeki kaynaklardan beslenerek Sarayköy yakınlarında ' +
-      "Büyük Menderes'e katılır.\n\n" +
-      "DSİ 21. Bölge Müdürlüğü'nün işlettiği barajların en büyüğü, Büyük Menderes üzerinde 1990'da " +
-      "tamamlanan Adıgüzel Barajı'dır; sulama, taşkın koruması ve enerji üretimi amacıyla " +
-      "kullanılır. Güney ilçesindeki Cindere Barajı ise aynı nehir üzerinde 2007'de tamamlanmış, " +
-      'hidroelektrik enerji üretimine ayrılmış bir başka büyük yapıdır.\n\n' +
+      'sonra Denizli topraklarına girer ve Çivril, Çal ve Baklan ovalarını sular. İlin kendi ' +
+      'kolu Çürüksu Çayı, Honaz Dağı ve çevresindeki kaynaklardan beslenerek Sarayköy ' +
+      "yakınlarında Büyük Menderes'e katılır." +
+      '\n\n' +
+      "DSİ 21. Bölge Müdürlüğü'nün işlettiği barajların en büyüğü, Büyük Menderes üzerinde " +
+      "1989'da tamamlanan Adıgüzel Barajı'dır; sulama, taşkın koruması ve enerji üretimi " +
+      "amacıyla kullanılır. Güney ilçesindeki Cindere Barajı ise aynı nehir üzerinde 2007'de " +
+      'tamamlanmış, hidroelektrik enerji üretimine ayrılmış bir başka büyük yapıdır.' +
+      '\n\n' +
       "Çivril ilçesindeki Işıklı Gölü, DSİ tarafından 1953'te bir bent inşa edilerek rezervuara " +
-      "dönüştürülmüş doğal bir göldür; Büyük Menderes'i Işıklı ve Kufi dereleri aracılığıyla besler " +
-      've önemli bir kuş alanı olarak korunur. İlin Afyonkarahisar sınırındaki Acıgöl ise ' +
+      "dönüştürülmüş doğal bir göldür; Büyük Menderes'i Işıklı ve Kufi dereleri aracılığıyla " +
+      'besler ve önemli bir kuş alanı olarak korunur. İlin Afyonkarahisar sınırındaki Acıgöl ise ' +
       "Türkiye'nin büyük tuz göllerinden biridir.",
     hydrographyFeatures: [
       { name: 'Büyük Menderes Nehri', type: HydrographyFeatureType.Nehir },
@@ -4590,7 +4594,12 @@ export const WAVE6B_DOGU_ANADOLU_PROVINCES: readonly ProvinceSeed[] = [
       "coğrafi işaret tescilli gravyer ve kaşar peynirleriyle Doğu Anadolu'nun en belirgin " +
       'kültürel ve turistik merkezlerindendir.',
     hydrographyNoteTr:
-      'İlin sularını Kars Çayı, Arpaçay ve Aras Nehri toplar. Soğanlı yaylalarından doğan Kars Çayı, kenti ikiye bölerek akar ve derin kanyonlar oluşturduğu Arpaçay ile birleşir. Türkiye-Ermenistan sınırını çizen Arpaçay üzerindeki Arpaçay Baraj Gölü, sınır boyunca tarımsal sulama ve taşkın önleme işlevi görür. Yaz başlarına kadar süren kar erimeleri, platolardaki yüksek dağ çayırlarını gürleştirerek ilin büyükbaş süt ve besi hayvancılığındaki liderliğini pekiştirir.',
+      'İlin sularını Kars Çayı, Arpaçay ve Aras Nehri toplar. Soğanlı yaylalarından doğan Kars ' +
+      'Çayı, kenti ikiye bölerek akar ve derin kanyonlar oluşturduğu Arpaçay ile birleşir. ' +
+      'Türkiye-Ermenistan sınırını çizen Arpaçay üzerindeki Arpaçay Baraj Gölü, sınır boyunca ' +
+      'tarımsal sulama ve taşkın önleme işlevi görür. Yaz başlarına kadar süren kar erimeleri, ' +
+      "platolardaki yüksek dağ çayırlarını gürleştirerek ilin Türkiye'nin büyükbaş süt ve besi " +
+      'hayvancılığında önde gelen illerinden biri olmasını sağlar.',
     urbanizationRate: 55.19,
     netMigrationRate: -25.28,
     economyIndicator: {
@@ -5892,8 +5901,9 @@ export const WAVE6C_KARADENIZ_A_PROVINCES: readonly ProvinceSeed[] = [
     landformNoteTr:
       "İlin kıyı kesimi, batıda Kızılırmak'ın oluşturduğu Bafra Ovası ile doğuda Yeşilırmak'ın " +
       "oluşturduğu Çarşamba Ovası arasında geniş bir düzlük oluşturur; Bafra Ovası'nın kıyı " +
-      "boyunca uzunluğu 69 kilometreye, Çarşamba Ovası'nınki 88 kilometreye ulaşır. Bu iki delta " +
-      "ovası, Anadolu'nun kıyı ovaları arasında en büyükler arasında sayılır.\n\n" +
+      "boyunca uzunluğu yaklaşık 32 kilometreye, Çarşamba Ovası'nınki 88 kilometreye ulaşır. Bu " +
+      "iki delta ovası, Anadolu'nun kıyı ovaları arasında en büyükler arasında sayılır." +
+      '\n\n' +
       "İlin güneyi, Canik Dağları'nın kuzey yamaçlarıyla kıyı ovasından iç kesimlere doğru " +
       'yükselir; kıyıdan güneye gidildikçe arazi giderek daha engebeli bir yapıya bürünür.',
     introTr:

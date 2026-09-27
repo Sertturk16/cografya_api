@@ -1034,14 +1034,14 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
       "Ülkenin güney sınırını Senegal ile paylaşarak çizen Senegal Nehri, Moritanya'nın tek " +
       'kalıcı yüzey suyu eksenidir ve taşkın yatağındaki tarımsal üretimi besler. Nehir havzası ' +
       "altında uzanan 335.000 kilometrekarelik Senegalo-Moritanya Akiferi, Batı Afrika'nın en " +
-      "büyük sınır aşan yer altı suyu sistemidir ve ülke yüzölçümünün yüzde 80'inden fazlasının " +
-      "tabanında yer alır; kıyıdaki Trarza akifer kuyuları ise başkent Nouakchott'un içme " +
-      'suyunu karşılar. ' +
+      'büyük sınır aşan yer altı suyu sistemidir ve ülkenin güneybatısındaki kıyı ovalarının ' +
+      "tabanında yer alır; kıyıdaki Trarza akifer kuyuları ise başkent Nouakchott'un içme suyunu " +
+      'karşılar. ' +
       '\n\n' +
-      'Senegal vadisi dışındaki güney Sahel kesiminde yağmur sularını toplayan küçük tepe göletleri ' +
-      've bentler mevsimlik hayvancılığı destekler. Geniş Sahra kesiminde ise yüzey akışı ' +
-      'bulunmaz; vahalar ve yerleşimler yalnızca Adrar ile Tagant platolarının derin çatlaklarından ' +
-      'çıkan kaynak ve kuyularla ayakta kalır.',
+      'Senegal vadisi dışındaki güney Sahel kesiminde yağmur sularını toplayan küçük tepe ' +
+      'göletleri ve bentler mevsimlik hayvancılığı destekler. Geniş Sahra kesiminde ise yüzey ' +
+      'akışı bulunmaz; vahalar ve yerleşimler yalnızca Adrar ile Tagant platolarının derin ' +
+      'çatlaklarından çıkan kaynak ve kuyularla ayakta kalır.',
   },
   {
     isoCode: 'NE',
@@ -1667,7 +1667,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     capitalNameEn: 'Kinshasa',
     capitalLatitude: -4.4419,
     capitalLongitude: 15.2663,
-    neighborIsoCodes: ['CG', 'CF', 'SS', 'UG', 'RW', 'BI', 'ZM', 'AO'],
+    neighborIsoCodes: ['CG', 'CF', 'SS', 'UG', 'RW', 'BI', 'ZM', 'AO', 'TZ'],
     officialLanguagesTr: ['Fransızca'],
     currencyNameTr: 'Kongo Frangı',
     currencyCode: 'CDF',
@@ -2123,7 +2123,20 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     capitalLatitude: -25.7479,
     capitalLongitude: 28.2293,
     neighborIsoCodes: ['NA', 'BW', 'ZW', 'MZ', 'SZ', 'LS'],
-    officialLanguagesTr: ['İngilizce', 'isiZulu', 'isiXhosa', 'Afrikaanca'],
+    officialLanguagesTr: [
+      'İngilizce',
+      'isiZulu',
+      'isiXhosa',
+      'Afrikaanca',
+      'Sepedi',
+      'Sesotho',
+      'Setswana',
+      'Swazi (siSwati)',
+      'Tshivenda',
+      'Xitsonga',
+      'Ndebele',
+      'Güney Afrika İşaret Dili',
+    ],
     currencyNameTr: 'Güney Afrika Randı',
     currencyCode: 'ZAR',
     governmentFormTr: 'Parlamenter cumhuriyet',
@@ -2391,7 +2404,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     capitalLatitude: 9.025,
     capitalLongitude: 38.7469,
     neighborIsoCodes: ['ER', 'DJ', 'SO', 'KE', 'SS', 'SD'],
-    officialLanguagesTr: ['Amharca'],
+    officialLanguagesTr: ['Amharca', 'Oromoca', 'Tigrinya', 'Somalice', 'Afarca'],
     currencyNameTr: 'Etiyopya Birri',
     currencyCode: 'ETB',
     governmentFormTr: 'Federal parlamenter cumhuriyet',
@@ -2981,7 +2994,7 @@ export const AFRICA_COUNTRIES: readonly CountrySeed[] = [
     capitalNameEn: 'Dodoma',
     capitalLatitude: -6.163,
     capitalLongitude: 35.7516,
-    neighborIsoCodes: ['KE', 'UG', 'RW', 'BI', 'ZM', 'MW', 'MZ'],
+    neighborIsoCodes: ['KE', 'UG', 'RW', 'BI', 'ZM', 'MW', 'MZ', 'CD'],
     officialLanguagesTr: ['Swahili', 'İngilizce'],
     currencyNameTr: 'Tanzanya Şilini',
     currencyCode: 'TZS',

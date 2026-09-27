@@ -1488,9 +1488,9 @@ export const AMERICAS_COUNTRIES: readonly CountrySeed[] = [
     hydrographyNoteTr:
       'Kıta sahanlığı kökeni sayesinde Trinidad, Karayip adaları içinde en olgun ve geniş nehir ' +
       "ağlarına sahiptir. Kuzey Sıradağları eteklerinden doğup batıdaki Paria Körfezi'ne akan " +
-      'Caroni Nehri, başkentin güneyinde devasa Caroni Bataklığı mangrov ekosistemini besler; ' +
-      'bu sulak alan ülkenin ulusal simgesi olan kızıl ibisin dünyadaki en önemli ' +
-      'tünekleme sahasıdır. Doğu sahiline dökülen 50 kilometrelik Ortoire Nehri ise adanın en ' +
+      'Caroni Nehri, başkentin güneyinde devasa Caroni Bataklığı mangrov ekosistemini besler; bu ' +
+      'sulak alan ülkenin ulusal simgesi olan kızıl ibisin dünyadaki en önemli tünekleme ' +
+      'sahasıdır. Doğu sahiline dökülen yaklaşık 55 kilometrelik Ortoire Nehri ise adanın en ' +
       'uzun su yoludur. Dağlık Tobago adasında ise daha kısa, hızlı akan temiz dereler ve ' +
       'çağlayanlar baskındır.',
   },

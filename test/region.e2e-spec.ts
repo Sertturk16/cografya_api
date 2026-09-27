@@ -9,6 +9,8 @@ import { applyGlobalPrefix } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { seedGeography } from '../src/database/seeds/seed-geography';
 import { seedRegions } from '../src/database/seeds/seed-regions';
+import { seedWorld } from '../src/database/seeds/seed-world';
+import { SEED_COUNTRIES } from '../src/database/seeds/country.seed-data';
 import { SEED_REGIONS } from '../src/database/seeds/region.seed-data';
 import { Region } from '../src/region/entities/region.entity';
 import {
@@ -101,19 +103,30 @@ describe('Geographic Region endpoints (e2e)', () => {
       );
       return rows[0]?.value;
     };
-    // Countries are not seeded in this suite, so only region and province rows are exercised.
     const chain: ReadonlyArray<readonly ProseChange[]> = [SEED_COPY_CHANGES, SEED_FACT_CHANGES];
     const id = (c: ProseChange) => `${c.table}/${String(c.key)}/${c.column}`;
     const oldest = new Map<string, ProseChange>();
     const newest = new Map<string, ProseChange>();
     for (const changes of chain) {
       for (const c of changes) {
-        if (c.table === 'countries') continue;
         if (!oldest.has(id(c))) oldest.set(id(c), c);
         newest.set(id(c), c);
       }
     }
     const seeded = SEED_COPY_CHANGES.filter((c) => c.table !== 'countries');
+
+    // This suite does not seed countries otherwise; load only the rows the migrations touch,
+    // so their text and array columns are exercised against real Postgres too.
+    beforeAll(async () => {
+      if (!dataSource) throw new Error('dataSource not initialized');
+      const touched = new Set(
+        [...newest.values()].filter((c) => c.table === 'countries').map((c) => c.key),
+      );
+      await seedWorld(
+        dataSource,
+        SEED_COUNTRIES.filter((c) => touched.has(c.isoCode)),
+      );
+    });
 
     it('down() restores the old prose and up() brings back the seed prose', async () => {
       if (!dataSource) throw new Error('dataSource not initialized');
