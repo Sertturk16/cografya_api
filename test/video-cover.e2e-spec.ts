@@ -143,10 +143,10 @@ describe('Video cover proxy (e2e, real Postgres) — closes VAL137-NEW-C1/VAL137
     /* eslint-disable @typescript-eslint/no-require-imports */
     const { AppModule } = require('../src/app.module') as typeof import('../src/app.module');
     const { Test: FreshTest } = require('@nestjs/testing') as typeof import('@nestjs/testing');
-    const { ValidationPipe: FreshValidationPipe } =
-      require('@nestjs/common') as typeof import('@nestjs/common');
-    const { applyGlobalPrefix: freshApplyGlobalPrefix } =
-      require('../src/common/bootstrap') as typeof import('../src/common/bootstrap');
+    const {
+      applyGlobalPrefix: freshApplyGlobalPrefix,
+      buildValidationPipe: freshBuildValidationPipe,
+    } = require('../src/common/bootstrap') as typeof import('../src/common/bootstrap');
     const { VIDEO_COVER_UPSTREAM_CLIENT: FreshToken } =
       require('../src/video-cover/video-cover.service') as typeof import('../src/video-cover/video-cover.service');
     const { UpstreamHttpClient: FreshUpstreamHttpClient } =
@@ -189,9 +189,7 @@ describe('Video cover proxy (e2e, real Postgres) — closes VAL137-NEW-C1/VAL137
     // into a check that cannot fail.
     created.use(helmet.crossOriginResourcePolicy());
     freshApplyGlobalPrefix(created);
-    created.useGlobalPipes(
-      new FreshValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
-    );
+    created.useGlobalPipes(freshBuildValidationPipe());
     await created.init();
     return created;
   }

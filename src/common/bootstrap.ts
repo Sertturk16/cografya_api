@@ -1,4 +1,4 @@
-import { type INestApplication, RequestMethod } from '@nestjs/common';
+import { type INestApplication, RequestMethod, ValidationPipe } from '@nestjs/common';
 import type { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { type NestExpressApplication } from '@nestjs/platform-express';
 import { MARINE_CACHE_AGE_HEADER } from '../marine/marine-cache-age.interceptor';
@@ -41,6 +41,26 @@ export function buildCorsOptions(webOrigin: string): CorsOptions {
     // comment), so this closes a pre-existing, harmless gap ahead of the day one does.
     exposedHeaders: [MARINE_CACHE_AGE_HEADER, 'Retry-After'],
   };
+}
+
+/**
+ * The global request-validation pipe: whitelist DTO properties, reject unknown ones (400), and
+ * transform payloads to their DTO types. One definition read by `main.ts` and by every e2e app
+ * (`main.ts` never runs in tests), so an e2e suite always exercises the pipe that ships: a suite
+ * built without it answers a malformed parameter with whatever the handler does instead of the
+ * 400 production returns. `bootstrap.spec.ts` fails on an e2e spec that creates an app without
+ * installing it.
+ *
+ * A spec that resets the module registry (`jest.resetModules()`) must call the copy it re-requires
+ * from that registry, not its static import: the pipe validates with the `class-validator` that
+ * loaded alongside it, and DTO metadata lives in the registry the fresh `AppModule` loaded.
+ */
+export function buildValidationPipe(): ValidationPipe {
+  return new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,
+  });
 }
 
 /**

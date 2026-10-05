@@ -1,12 +1,12 @@
 import { createHash } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
-import { HttpStatus, ValidationPipe, type INestApplication } from '@nestjs/common';
+import { HttpStatus, type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
 import { AccountStatus } from '../src/auth/account.types';
-import { applyGlobalPrefix } from '../src/common/bootstrap';
+import { applyGlobalPrefix, buildValidationPipe } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { PendingRegistration } from '../src/auth/entities/pending-registration.entity';
 import { PasswordResetToken } from '../src/auth/entities/password-reset-token.entity';
@@ -103,9 +103,7 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
       .compile();
     app = moduleRef.createNestApplication();
     applyGlobalPrefix(app);
-    app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
-    );
+    app.useGlobalPipes(buildValidationPipe());
     await app.init();
   }, 300_000);
 

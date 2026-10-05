@@ -1,5 +1,5 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it, jest } from '@jest/globals';
-import { ValidationPipe, type INestApplication } from '@nestjs/common';
+import { type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
@@ -15,7 +15,7 @@ import type {
   AirQualityStoredConcentrations,
   AirQualityStoredSupport,
 } from '../src/air-quality/entities/air-quality-run.entity';
-import { applyGlobalPrefix } from '../src/common/bootstrap';
+import { applyGlobalPrefix, buildValidationPipe } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { seedGeography } from '../src/database/seeds/seed-geography';
 import { Province } from '../src/province/entities/province.entity';
@@ -159,9 +159,7 @@ describe('Air quality read path (e2e, real Postgres)', () => {
     const moduleRef = await Test.createTestingModule({ imports: [appModule.AppModule] }).compile();
     const created = moduleRef.createNestApplication();
     applyGlobalPrefix(created);
-    created.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
-    );
+    created.useGlobalPipes(buildValidationPipe());
     await created.init();
     fetchSpy = jest.spyOn(globalThis, 'fetch');
     fetchSpy.mockClear();

@@ -5,7 +5,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
-import { applyGlobalPrefix } from '../src/common/bootstrap';
+import { applyGlobalPrefix, buildValidationPipe } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { seedWorld, type SeedWorldResult } from '../src/database/seeds/seed-world';
 import { SEED_COUNTRIES, type CountrySeed } from '../src/database/seeds/country.seed-data';
@@ -200,6 +200,7 @@ describe('Country (e2e)', () => {
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
     app = moduleRef.createNestApplication();
     applyGlobalPrefix(app);
+    app.useGlobalPipes(buildValidationPipe());
     app.use((req: Request, _res: Response, next: NextFunction) => {
       req.headers[INTERNAL_REQUEST_HEADER] = TEST_INTERNAL_TOKEN;
       next();

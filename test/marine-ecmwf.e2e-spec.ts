@@ -6,7 +6,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
-import { applyGlobalPrefix } from '../src/common/bootstrap';
+import { applyGlobalPrefix, buildValidationPipe } from '../src/common/bootstrap';
 import { INTERNAL_REQUEST_HEADER } from '../src/common/throttler/trusted-client';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { loadMarinePoints } from '../src/database/marine/load-marine-points';
@@ -81,6 +81,7 @@ describe('Marine ECMWF store + read path (e2e)', () => {
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
     app = moduleRef.createNestApplication();
     applyGlobalPrefix(app);
+    app.useGlobalPipes(buildValidationPipe());
     app.use((req: Request, _res: Response, next: NextFunction) => {
       req.headers[INTERNAL_REQUEST_HEADER] = TEST_INTERNAL_TOKEN;
       next();

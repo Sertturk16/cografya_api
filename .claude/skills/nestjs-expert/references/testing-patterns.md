@@ -102,13 +102,13 @@ describe('openapi/openapi.json — notes contract', () => {
 
 ```typescript
 import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
-import { ValidationPipe, type INestApplication } from '@nestjs/common';
+import { type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
 import { AccessTokenService } from '../src/auth/access-token.service';
-import { applyGlobalPrefix } from '../src/common/bootstrap';
+import { applyGlobalPrefix, buildValidationPipe } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 
 describe('Notes (e2e, real Postgres)', () => {
@@ -132,9 +132,7 @@ describe('Notes (e2e, real Postgres)', () => {
 
     app = moduleFixture.createNestApplication();
     applyGlobalPrefix(app);
-    app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
-    );
+    app.useGlobalPipes(buildValidationPipe()); // the pipe main.ts installs
     await app.init();
 
     // Get auth token
