@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it, jest } from '@jest/globals';
-import { ValidationPipe, type INestApplication } from '@nestjs/common';
+import { type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
@@ -20,7 +20,7 @@ import { PROFILE_SHAPE_MESSAGE } from '../src/auth/dto/profile-shape.rule';
 import { User } from '../src/auth/entities/user.entity';
 import { PasswordHasherService } from '../src/auth/password-hasher.service';
 import { ProfileService } from '../src/auth/profile.service';
-import { applyGlobalPrefix } from '../src/common/bootstrap';
+import { applyGlobalPrefix, buildValidationPipe } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { seedGeography } from '../src/database/seeds/seed-geography';
 import { seedReference } from '../src/database/seeds/seed-reference';
@@ -143,9 +143,7 @@ describe('Auth Profile (e2e, real Postgres)', () => {
     const moduleRef = await Test.createTestingModule({ imports: [appModule.AppModule] }).compile();
     app = moduleRef.createNestApplication();
     applyGlobalPrefix(app);
-    app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
-    );
+    app.useGlobalPipes(buildValidationPipe());
     await app.init();
 
     studentA = await createUser('student-a@example.test', district.id, AccountRole.Student);

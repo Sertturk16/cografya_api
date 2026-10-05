@@ -5,11 +5,11 @@ import {
   Controller,
   Get,
   NotFoundException,
-  ValidationPipe,
 } from '@nestjs/common';
 import { ApiOkResponse, DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Test } from '@nestjs/testing';
 import { IsString, Matches } from 'class-validator';
+import { buildValidationPipe } from '../bootstrap';
 import { ApiErrorDto } from './api-error.dto';
 
 /**
@@ -98,7 +98,7 @@ describe('ApiErrorDto', () => {
   });
 
   it('types `message` as a union because ValidationPipe really produces an ARRAY', async () => {
-    // Measured through the pipe itself, configured as `main.ts` configures it, rather than
+    // Measured through the pipe itself, the one `main.ts` installs, rather than
     // asserted from memory. This is the case that makes a plain `message: string` a lie.
     //
     // The DTO is declared HERE rather than imported from `route-params.dto.ts`. What this case
@@ -115,11 +115,7 @@ describe('ApiErrorDto', () => {
       second!: string;
     }
 
-    const pipe = new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    });
+    const pipe = buildValidationPipe();
     const metadata: ArgumentMetadata = { type: 'param', metatype: TwoFailingFields };
 
     const rejection: unknown = await pipe

@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
-import { HttpStatus, ValidationPipe, type INestApplication } from '@nestjs/common';
+import { HttpStatus, type INestApplication } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
@@ -19,7 +19,7 @@ import {
 } from '../src/auth/auth.constants';
 import { AuthRateLimitScope, SessionRevocationReason } from '../src/auth/auth.types';
 import { AuthSecretsProvider } from '../src/auth/auth-secrets.provider';
-import { applyGlobalPrefix, buildCorsOptions } from '../src/common/bootstrap';
+import { applyGlobalPrefix, buildCorsOptions, buildValidationPipe } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { MARINE_CACHE_AGE_HEADER } from '../src/marine/marine-cache-age.interceptor';
 import { PendingRegistration } from '../src/auth/entities/pending-registration.entity';
@@ -142,9 +142,7 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
     // layer — built from the shared option shape, not from a hand-copied literal.
     app.enableCors(buildCorsOptions('http://localhost:3000'));
     applyGlobalPrefix(app);
-    app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
-    );
+    app.useGlobalPipes(buildValidationPipe());
     await app.init();
 
     sessionService = app.get(SessionService);

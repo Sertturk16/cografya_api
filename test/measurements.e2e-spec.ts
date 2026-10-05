@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
-import { ValidationPipe, type INestApplication } from '@nestjs/common';
+import { type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
@@ -7,7 +7,7 @@ import { DataSource, QueryFailedError } from 'typeorm';
 import { AccountRole, AccountStatus } from '../src/auth/account.types';
 import { AccessTokenService } from '../src/auth/access-token.service';
 import { User } from '../src/auth/entities/user.entity';
-import { applyGlobalPrefix } from '../src/common/bootstrap';
+import { applyGlobalPrefix, buildValidationPipe } from '../src/common/bootstrap';
 import { buildDataSourceOptions, DATABASE_POOL_SIZE } from '../src/database/data-source-options';
 import { seedGeography } from '../src/database/seeds/seed-geography';
 import { seedReference } from '../src/database/seeds/seed-reference';
@@ -165,9 +165,7 @@ describe('Measurements (e2e, real Postgres)', () => {
     const moduleRef = await Test.createTestingModule({ imports: [appModule.AppModule] }).compile();
     app = moduleRef.createNestApplication();
     applyGlobalPrefix(app);
-    app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
-    );
+    app.useGlobalPipes(buildValidationPipe());
     await app.init();
 
     const userA = await createUser('measurements-a@example.test');

@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
-import { HttpStatus, ValidationPipe, type INestApplication } from '@nestjs/common';
+import { HttpStatus, type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
@@ -8,7 +8,7 @@ import { AUTH_ERROR_KEYS } from '../src/auth/auth-error-keys';
 import { PendingRegistration } from '../src/auth/entities/pending-registration.entity';
 import { User } from '../src/auth/entities/user.entity';
 import { MAILER_PORT } from '../src/auth/mail/mailer.port';
-import { applyGlobalPrefix } from '../src/common/bootstrap';
+import { applyGlobalPrefix, buildValidationPipe } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { seedGeography } from '../src/database/seeds/seed-geography';
 import { seedReference } from '../src/database/seeds/seed-reference';
@@ -100,9 +100,7 @@ describe('Auth account lifecycle — consent, deletion, retention (e2e, T-101)',
       .compile();
     app = moduleRef.createNestApplication();
     applyGlobalPrefix(app);
-    app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
-    );
+    app.useGlobalPipes(buildValidationPipe());
     await app.init();
   }, 300_000);
 

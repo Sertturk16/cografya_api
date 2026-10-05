@@ -32,12 +32,12 @@ import { FavoritesService } from './favorites.service';
  * `/api/favorites…` — one caller's own province/country/region/continent favorites (UYELIK-07,
  * widened to four entity types by P1 PR-A, plan §5.1.2).
  *
- * All three routes: `@UseGuards(AccessTokenGuard)` + `@NoTrustedClientExemption()` — the
- * SEC136-I3 reasoning applies verbatim to all three, exactly as it did to the original five:
+ * All three routes, via class-level `@UseGuards(AccessTokenGuard)` + `@NoTrustedClientExemption()`
+ * — the SEC136-I3 reasoning applies verbatim to all three, exactly as it did to the original five:
  * every one returns or persists per-user data behind auth, and the trusted-client throttle
- * exemption is scoped by HTTP method, not by auth presence, so none may be silently waved
- * through. No route-level `@Throttle` override, for the same reasoning `video_progress` already
- * recorded: the global ceiling (120/min per resolved identity) already applies once
+ * exemption is scoped by HTTP method, not by auth presence, so none may be silently waved through.
+ * No route-level `@Throttle` override, for the same reasoning `video_progress` already recorded:
+ * the global ceiling (120/min per resolved identity) already applies once
  * `@NoTrustedClientExemption()` is present, each write touches only the caller's own row, is
  * idempotent, makes no external call, and has no fan-out cost.
  *
@@ -51,13 +51,13 @@ import { FavoritesService } from './favorites.service';
  */
 @ApiTags('favorites')
 @Controller('favorites')
+@UseGuards(AccessTokenGuard)
+@NoTrustedClientExemption()
+@ApiBearerAuth('access-token')
 export class FavoritesController {
   constructor(private readonly favorites: FavoritesService) {}
 
   @Get()
-  @UseGuards(AccessTokenGuard)
-  @NoTrustedClientExemption()
-  @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: "The caller's own favorited provinces, countries, regions and continents.",
     description:
@@ -72,9 +72,6 @@ export class FavoritesController {
   }
 
   @Put(':entityType/:entityId')
-  @UseGuards(AccessTokenGuard)
-  @NoTrustedClientExemption()
-  @ApiBearerAuth('access-token')
   @ApiParam({
     name: 'entityType',
     enum: FavoriteEntityType,
@@ -111,9 +108,6 @@ export class FavoritesController {
 
   @Delete(':entityType/:entityId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(AccessTokenGuard)
-  @NoTrustedClientExemption()
-  @ApiBearerAuth('access-token')
   @ApiParam({
     name: 'entityType',
     enum: FavoriteEntityType,

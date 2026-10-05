@@ -1,10 +1,10 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { ValidationPipe, type INestApplication } from '@nestjs/common';
+import { type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
-import { applyGlobalPrefix } from '../src/common/bootstrap';
+import { applyGlobalPrefix, buildValidationPipe } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { seedGeography } from '../src/database/seeds/seed-geography';
 import {
@@ -246,9 +246,7 @@ describe('Earthquake public endpoints (e2e, real Postgres)', () => {
     const moduleRef = await Test.createTestingModule({ imports: [appModule.AppModule] }).compile();
     app = moduleRef.createNestApplication();
     applyGlobalPrefix(app);
-    app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
-    );
+    app.useGlobalPipes(buildValidationPipe());
     await app.init();
 
     // The suite's central premise, asserted rather than assumed: every case below is also a

@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
 import { JwtService } from '@nestjs/jwt';
-import { ValidationPipe, type INestApplication } from '@nestjs/common';
+import { type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
@@ -12,7 +12,7 @@ import { AuthSecretsProvider } from '../src/auth/auth-secrets.provider';
 import { AUTH_TOKEN_AUDIENCE, AUTH_TOKEN_ISSUER } from '../src/auth/auth.constants';
 import { User } from '../src/auth/entities/user.entity';
 import { BookVideo } from '../src/book/entities/book-video.entity';
-import { applyGlobalPrefix } from '../src/common/bootstrap';
+import { applyGlobalPrefix, buildValidationPipe } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { seedBooks } from '../src/database/seeds/seed-books';
 import { seedGeography } from '../src/database/seeds/seed-geography';
@@ -82,9 +82,7 @@ describe('Video identity (e2e, real Postgres)', () => {
     const moduleRef = await Test.createTestingModule({ imports: [appModule.AppModule] }).compile();
     app = moduleRef.createNestApplication();
     applyGlobalPrefix(app);
-    app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
-    );
+    app.useGlobalPipes(buildValidationPipe());
     await app.init();
 
     const accessTokens = app.get(AccessTokenService);
