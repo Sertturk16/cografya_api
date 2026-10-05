@@ -25,7 +25,7 @@ export const PASSWORD_HASH_OPTIONS = Object.freeze({
   hashLength: 32,
 });
 
-export const PASSWORD_MIN_LENGTH = 6;
+export const PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_MAX_LENGTH = 128;
 
 /** Mirrors `isPasswordPolicyCompliant` in `src/auth/password-policy.ts` — see this file's header. */
