@@ -17,6 +17,7 @@ export default tseslint.config(
       'commitlint.config.mjs',
       'lint-staged.config.mjs',
       'run-migrations.cjs',
+      'healthcheck.mjs',
     ],
   },
   eslint.configs.recommended,
