@@ -6980,7 +6980,7 @@
           "password": {
             "type": "string",
             "writeOnly": true,
-            "minLength": 6,
+            "minLength": 8,
             "maxLength": 128,
             "description": "En az bir küçük harf, bir büyük harf ve bir rakam içermeli (`DEC 2026-08-20g` md.1 #5). Hiçbir yanıtta, örnekte ya da logda dönmez."
           },
@@ -7302,7 +7302,7 @@
           "password": {
             "type": "string",
             "writeOnly": true,
-            "minLength": 6,
+            "minLength": 8,
             "maxLength": 128,
             "description": "Yeni şifre — aynı politika register ile paylaşılır (`DEC 2026-08-20g` md.1 #5). Hiçbir yanıtta, örnekte ya da logda dönmez."
           }
@@ -7662,7 +7662,7 @@
           "newPassword": {
             "type": "string",
             "writeOnly": true,
-            "minLength": 6,
+            "minLength": 8,
             "maxLength": 128,
             "description": "En az bir küçük harf, bir büyük harf ve bir rakam içermeli (`DEC 2026-08-20g` md.1 #5). Hiçbir yanıtta, örnekte ya da logda dönmez."
           }

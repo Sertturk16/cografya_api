@@ -78,8 +78,17 @@ export const AUTH_TOKEN_ISSUER = 'cografya-api';
 /** Fixed JWT `aud` claim (§5.1). */
 export const AUTH_TOKEN_AUDIENCE = 'cografya-web';
 
-/** `RegisterRequestDto.password` lower bound (`DEC 2026-08-20g` md.1 #5). */
-export const PASSWORD_MIN_LENGTH = 6;
+/**
+ * Lower bound on every NEW password — `RegisterRequestDto.password`,
+ * `PasswordChangeRequestDto.newPassword` and `PasswordResetConfirmDto.password`, all through
+ * `isPasswordPolicyCompliant`. Owner decision: raised from 6 to 8, the minimum NIST SP 800-63B
+ * sets for a memorized secret the user chooses.
+ *
+ * Deliberately NOT applied to a password the account already has: `LoginRequestDto.password` and
+ * `PasswordChangeRequestDto.currentPassword` carry no policy validator, so a password set under
+ * the old floor keeps logging in until its owner changes it (`auth-endpoints.e2e-spec.ts` N11).
+ */
+export const PASSWORD_MIN_LENGTH = 8;
 
 /**
  * `RegisterRequestDto.password` upper bound. Not an owner ruling — an engineering ceiling so

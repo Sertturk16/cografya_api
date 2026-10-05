@@ -15,6 +15,7 @@ import {
 } from '../src/auth/account.types';
 import { AccessTokenService } from '../src/auth/access-token.service';
 import { AUTH_ERROR_KEYS } from '../src/auth/auth-error-keys';
+import { PASSWORD_MIN_LENGTH } from '../src/auth/auth.constants';
 import { PROFILE_SHAPE_MESSAGE } from '../src/auth/dto/profile-shape.rule';
 import { User } from '../src/auth/entities/user.entity';
 import { PasswordHasherService } from '../src/auth/password-hasher.service';
@@ -647,7 +648,10 @@ describe('Auth Profile (e2e, real Postgres)', () => {
     let changer: User;
     let changerToken: string;
     const ORIGINAL = 'Original1';
-    const REPLACEMENT = 'Replacement2';
+    // Exactly at the length floor, so T61-P5 proves the shortest allowed new password is taken;
+    // T61-P4 sends one character fewer. Both carry every character class, so only length decides.
+    const REPLACEMENT = 'Replace2'.padEnd(PASSWORD_MIN_LENGTH, 'x');
+    const BELOW_FLOOR = 'Short1'.padEnd(PASSWORD_MIN_LENGTH - 1, 'x');
 
     beforeAll(async () => {
       const hasher = app.get(PasswordHasherService);
@@ -695,16 +699,19 @@ describe('Auth Profile (e2e, real Postgres)', () => {
       expect(res.body.message).toBe(AUTH_ERROR_KEYS.passwordUnchanged);
     });
 
-    it('T61-P4: refuses a new password the policy rejects', async () => {
+    it('T61-P4: refuses a new password one character below the length floor', async () => {
+      expect(BELOW_FLOOR).toHaveLength(PASSWORD_MIN_LENGTH - 1);
       const res = await request(app.getHttpServer())
         .post('/api/auth/password/change')
         .set(bearer(changerToken))
-        .send({ currentPassword: ORIGINAL, newPassword: 'short' });
+        .send({ currentPassword: ORIGINAL, newPassword: BELOW_FLOOR });
 
       expect(res.status).toBe(400);
+      expect(res.body.message).toEqual([AUTH_ERROR_KEYS.weakPassword]);
     });
 
     it('T61-P5: succeeds, kills the OLD access token, and hands back a working one', async () => {
+      expect(REPLACEMENT).toHaveLength(PASSWORD_MIN_LENGTH);
       const res = await request(app.getHttpServer())
         .post('/api/auth/password/change')
         .set(bearer(changerToken))
