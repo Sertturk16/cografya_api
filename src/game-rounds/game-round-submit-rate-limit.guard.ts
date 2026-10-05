@@ -18,16 +18,18 @@ type RequestWithAuthenticatedUser = Request &
  * Route-level guard on `POST /api/game-rounds` ONLY (UYELIK-09 fix-round-2, `SEC145-I1`/
  * `VAL145-I1`) — never registered on `GET /api/game-rounds`, which is a read and creates no row.
  *
- * **Must be chained AFTER `AccessTokenGuard`: `@UseGuards(AccessTokenGuard,
- * GameRoundSubmitRateLimitGuard)`, in that exact order.** `GuardsConsumer.tryActivate` runs
- * guards sequentially, in declaration order, awaiting each one before the next runs (measured
- * directly against the installed `@nestjs/core` source — `145-remedy-validation-SEC145-I1.json`,
- * REMEDY QUESTION 2) — so `AccessTokenGuard` has fully populated
- * `request[AUTHENTICATED_USER_REQUEST_KEY]` (or already thrown 401 and short-circuited the chain)
- * by the time this guard's `canActivate` runs. This is NOT true of the global `APP_GUARD`
- * throttler (`TrustedClientThrottlerGuard`), which is keyed on IP-derived identity precisely
- * because it runs with no authenticated user in scope at all — the reason a second, userId-keyed
- * guard is needed here rather than tightening that one (`SEC145-I1`'s own finding).
+ * **Must run AFTER `AccessTokenGuard`: class-level `@UseGuards(AccessTokenGuard)` on
+ * `GameRoundsController`, method-level `@UseGuards(GameRoundSubmitRateLimitGuard)` on `submit`.**
+ * Nest concatenates global, then class, then method guards (`ContextCreator.createContext`), so the
+ * class guard always runs first. `GuardsConsumer.tryActivate` runs guards sequentially, in that
+ * order, awaiting each one before the next runs (measured directly against the installed
+ * `@nestjs/core` source — `145-remedy-validation-SEC145-I1.json`, REMEDY QUESTION 2) — so
+ * `AccessTokenGuard` has fully populated `request[AUTHENTICATED_USER_REQUEST_KEY]` (or already
+ * thrown 401 and short-circuited the chain) by the time this guard's `canActivate` runs. This is
+ * NOT true of the global `APP_GUARD` throttler (`TrustedClientThrottlerGuard`), which is keyed on
+ * IP-derived identity precisely because it runs with no authenticated user in scope at all — the
+ * reason a second, userId-keyed guard is needed here rather than tightening that one (`SEC145-I1`'s
+ * own finding).
  *
  * No interaction with `@NoTrustedClientExemption()` (read only by `TrustedClientThrottlerGuard`,
  * a different, independent guard on a different axis) or with `GameRoundsNoStoreMiddleware`

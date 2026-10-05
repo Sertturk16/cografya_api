@@ -27,13 +27,13 @@ import { VideoProgressService } from './video-progress.service';
  * `GET`/`PUT /api/video-progress/{bookVideoId}` — one caller's own resume position on one video
  * (UYELIK-05, plan §5.6).
  *
- * Both routes: `@UseGuards(AccessTokenGuard)` + `@NoTrustedClientExemption()` — the SEC136-I3
- * reasoning applies verbatim here: both return or persist per-user data behind auth, so the
- * trusted-client throttle exemption (scoped by HTTP method, not by auth-presence) must not
+ * Both routes, via class-level `@UseGuards(AccessTokenGuard)` + `@NoTrustedClientExemption()` — the
+ * SEC136-I3 reasoning applies verbatim here: both return or persist per-user data behind auth, so
+ * the trusted-client throttle exemption (scoped by HTTP method, not by auth-presence) must not
  * silently wave either of them through. No route-level `@Throttle` override — the global
  * `ThrottlerGuard` ceiling (120/min per resolved identity) already applies once
- * `@NoTrustedClientExemption()` is present, and this write path touches only the caller's own
- * row, is idempotent, makes no external call and has no fan-out cost (plan §5.6, YAGNI —
+ * `@NoTrustedClientExemption()` is present, and this write path touches only the caller's own row,
+ * is idempotent, makes no external call and has no fan-out cost (plan §5.6, YAGNI —
  * `ENGINEERING.md` §3.1's "per-user/upload endpoints get their own tighter throttle when they
  * land").
  *
@@ -44,6 +44,9 @@ import { VideoProgressService } from './video-progress.service';
  */
 @ApiTags('video-progress')
 @Controller('video-progress')
+@UseGuards(AccessTokenGuard)
+@NoTrustedClientExemption()
+@ApiBearerAuth('access-token')
 export class VideoProgressController {
   constructor(private readonly videoProgress: VideoProgressService) {}
 
@@ -57,9 +60,6 @@ export class VideoProgressController {
    * actually reached rather than silently swallowed by the older one.
    */
   @Get('books/:slug')
-  @UseGuards(AccessTokenGuard)
-  @NoTrustedClientExemption()
-  @ApiBearerAuth('access-token')
   @ApiParam({
     name: 'slug',
     description: 'TR or EN slug of the book — the same slug space as GET /api/books/{slug}.',
@@ -90,9 +90,6 @@ export class VideoProgressController {
   }
 
   @Get(':bookVideoId')
-  @UseGuards(AccessTokenGuard)
-  @NoTrustedClientExemption()
-  @ApiBearerAuth('access-token')
   @ApiParam({ name: 'bookVideoId', format: 'uuid', description: 'book_videos.id.' })
   @ApiOperation({
     summary: "The caller's own saved progress on one video.",
@@ -115,9 +112,6 @@ export class VideoProgressController {
   }
 
   @Put(':bookVideoId')
-  @UseGuards(AccessTokenGuard)
-  @NoTrustedClientExemption()
-  @ApiBearerAuth('access-token')
   @ApiParam({ name: 'bookVideoId', format: 'uuid', description: 'book_videos.id.' })
   @ApiOperation({
     summary: "Upsert the caller's own progress on one video (idempotent full-state replace).",

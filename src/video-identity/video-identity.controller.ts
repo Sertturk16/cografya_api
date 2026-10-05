@@ -22,7 +22,7 @@ import { VideoIdentityService } from './video-identity.service';
  * `GET /api/video-identity/{bookVideoId}` — a signed-in member's own way to fetch one video's
  * identity, which the anonymous book payload no longer carries at all (plan §5.3).
  *
- * `@UseGuards(AccessTokenGuard)` + `@NoTrustedClientExemption()` — the same reasoning
+ * Class-level `@UseGuards(AccessTokenGuard)` + `@NoTrustedClientExemption()` — the same reasoning
  * `VideoProgressController` carries: this route is gated on `Authorization`, so the trusted-client
  * throttle exemption (scoped by HTTP method, not by auth-presence) must not silently wave it
  * through. No route-level `@Throttle` override — the global `ThrottlerGuard` ceiling already
@@ -38,13 +38,13 @@ import { VideoIdentityService } from './video-identity.service';
  */
 @ApiTags('video-identity')
 @Controller('video-identity')
+@UseGuards(AccessTokenGuard)
+@NoTrustedClientExemption()
+@ApiBearerAuth('access-token')
 export class VideoIdentityController {
   constructor(private readonly videoIdentity: VideoIdentityService) {}
 
   @Get(':bookVideoId')
-  @UseGuards(AccessTokenGuard)
-  @NoTrustedClientExemption()
-  @ApiBearerAuth('access-token')
   @ApiParam({ name: 'bookVideoId', format: 'uuid', description: 'book_videos.id.' })
   @ApiOperation({
     summary: "A signed-in member's own way to fetch one video's identity.",
