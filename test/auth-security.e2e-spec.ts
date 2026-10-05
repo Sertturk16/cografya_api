@@ -298,6 +298,87 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
     );
   }
 
+  /** Polls `sql` (a one-row `ok` boolean) until it is true; `what` names the condition on timeout. */
+  async function waitUntil(sql: string, params: unknown[], what: string): Promise<void> {
+    for (let attempt = 0; attempt < 400; attempt += 1) {
+      const rows = await dataSource.query<{ ok: boolean }[]>(sql, params);
+      if (rows[0]?.ok === true) return;
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+    throw new Error(`timed out waiting until ${what}`);
+  }
+
+  /**
+   * Builds a two-party deadlock between the APP and this test in which the APP is always the side
+   * Postgres kills, however slowly the test runs.
+   *
+   * Why the plain construction was flaky (T-143): Postgres does not kill "the first waiter". Each
+   * waiting backend runs ONE deadlock check, `deadlock_timeout` (1 s) after it starts waiting, and
+   * if it finds a cycle it aborts ITSELF. Holding `second` and then locking `first` once the app
+   * was seen blocked only made the app the victim when the test closed the cycle within that 1 s;
+   * on a loaded CI runner it did not, the app's single check found no cycle yet, and the test's
+   * own lock request became the victim instead (`deadlock detected` in the test, the app call
+   * succeeding).
+   *
+   * Here the cycle is complete the moment the app starts its LAST wait, so the app's check always
+   * finds it, and the test's side can never check first:
+   *   1. `holder` locks `second`, with `deadlock_timeout` raised for its own transaction only.
+   *   2. `gate` locks `first`; the app (started by `startApp`) queues on `first` behind it.
+   *   3. `holder` requests `first` and queues BEHIND the app (row-lock waiters are served in order).
+   *   4. `gate` rolls back: the app takes `first`, requests `second` and waits on `holder`, which is
+   *      already waiting on the app. The app's check, 1 s later, finds the cycle and kills the app.
+   * `holder` then gets `first`; its request resolving (not rejecting) is the proof it was not the
+   * victim. `first` must be the row the app locks first (`created_at ASC`).
+   */
+  async function withAppDeadlockVictim(
+    first: string,
+    second: string,
+    startApp: () => void,
+  ): Promise<void> {
+    const holder = dataSource.createQueryRunner();
+    const gate = dataSource.createQueryRunner();
+    await holder.connect();
+    await gate.connect();
+    try {
+      await holder.startTransaction();
+      await holder.query(`SET LOCAL deadlock_timeout = '1min'`);
+      const [holderRow] = (await holder.query('SELECT pg_backend_pid() AS pid')) as {
+        pid: number;
+      }[];
+      await holder.query('SELECT id FROM pending_registrations WHERE id = $1 FOR UPDATE', [second]);
+
+      await gate.startTransaction();
+      const [gateRow] = (await gate.query('SELECT pg_backend_pid() AS pid')) as { pid: number }[];
+      await gate.query('SELECT id FROM pending_registrations WHERE id = $1 FOR UPDATE', [first]);
+
+      startApp();
+      await waitUntil(
+        `SELECT count(*) > 0 AS ok FROM pg_stat_activity WHERE pid <> $2 AND $1 = ANY(pg_blocking_pids(pid))`,
+        [gateRow?.pid, holderRow?.pid],
+        'the app is queued on the first row behind the gate',
+      );
+
+      const holderLocksFirst = holder.query(
+        'SELECT id FROM pending_registrations WHERE id = $1 FOR UPDATE',
+        [first],
+      );
+      await waitUntil(
+        `SELECT cardinality(pg_blocking_pids($1)) > 0 AS ok`,
+        [holderRow?.pid],
+        'the holder is queued on the first row behind the app',
+      );
+
+      await gate.rollbackTransaction();
+      // Rejects only if Postgres chose the holder as the victim: the property this helper exists for.
+      await holderLocksFirst;
+    } finally {
+      if (gate.isTransactionActive) await gate.rollbackTransaction();
+      if (holder.isTransactionActive) await holder.rollbackTransaction();
+      await gate.release();
+      await holder.release();
+    }
+  }
+
   async function mintAccessTokenVariant(overrides: {
     secret?: string;
     algorithm?: 'HS256' | 'HS512';
@@ -1461,28 +1542,17 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
       expect(beforeCount).toBe(2);
 
       let resendPromise: Promise<request.Response> | undefined;
-      await withHeldRowLock([r2.id], async (lockNext) => {
+      await withAppDeadlockVictim(r1.id, r2.id, () => {
         // `supertest`'s `Test` object is LAZY: it does not actually dispatch the HTTP request
         // until something invokes `.then()`/`.end()` on it. Wrapping it in a `new Promise` whose
-        // executor runs SYNCHRONOUSLY is what forces dispatch to happen NOW, inside this body,
-        // rather than only once the outer test finally awaits `resendPromise` below — by which
-        // point `withHeldRowLock`'s own rollback would already have released every lock and there
-        // would be nothing left to contend with.
+        // executor runs SYNCHRONOUSLY is what forces dispatch to happen NOW, while the helper
+        // still holds its locks.
         resendPromise = new Promise<request.Response>((resolve, reject) => {
           request(app.getHttpServer())
             .post('/api/auth/verify-email/resend')
             .send({ email })
             .then(resolve, reject);
         });
-
-        // Positive control: the app is really BLOCKED — it already holds `r1`'s lock (`created_at
-        // ASC`'s first row) and is waiting on `r2`, which this transaction holds.
-        await waitForBlockedWaiter();
-
-        // Locking `r1` FROM HERE closes the cycle: the app waits on this transaction's `r2`, this
-        // transaction now waits on the app's `r1`. Postgres's own deadlock detector breaks it —
-        // measured 8/8 in Faz 1 as killing the FIRST waiter, i.e. the app.
-        await lockNext(r1.id);
       });
 
       if (!resendPromise) throw new Error('resend route call was never captured');
@@ -1553,20 +1623,12 @@ describe('Auth security — reuse, reset, verify, anti-enumeration, guard, throt
       expect(beforeCount).toBe(2);
 
       let verifyPromise: Promise<unknown> | undefined;
-      await withHeldRowLock([r2.id], async (lockNext) => {
+      await withAppDeadlockVictim(r1.id, r2.id, () => {
         // The CORRECT code for `r1` — the point is that contention, not a wrong code, is what
         // swallows this call.
         verifyPromise = expect(emailVerification.verify(email, '717172')).rejects.toMatchObject({
           message: 'errors.verify.codeInvalid',
         });
-
-        // Positive control: the app is really BLOCKED — it already holds `r1`'s lock (`created_at
-        // ASC`'s first row, the same lock order `verify` and `insertCandidate` share) and is
-        // waiting on `r2`, which this transaction holds.
-        await waitForBlockedWaiter();
-
-        // Locking `r1` FROM HERE closes the cycle, exactly as in C5.
-        await lockNext(r1.id);
       });
 
       if (!verifyPromise) throw new Error('verify was never triggered');
