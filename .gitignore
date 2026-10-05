@@ -84,3 +84,6 @@ yarn-error.log*
 # beside a manifest whose `seriesSha256` no longer describes it. The `.part` remains are by
 # definition incomplete, so they must never be committable.
 /data/acag-pm25/*.json.part
+
+# The dev container compiles here (tsconfig.container.json), never into the host's dist/.
+/.dist-container
