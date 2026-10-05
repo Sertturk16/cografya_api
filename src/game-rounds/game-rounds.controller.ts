@@ -37,12 +37,12 @@ import { GameRoundsService } from './game-rounds.service';
  * `/api/game-rounds…` — submit/list a caller's own game-round results, plus the per-mode
  * leaderboard (UYELIK-09, plan §5.7; leaderboard added by P1 PR-C plan §5.3).
  *
- * Every route: `@UseGuards(AccessTokenGuard)` + `@NoTrustedClientExemption()` — the SEC136-I3
- * reasoning applies verbatim: every route returns or persists per-user data behind auth. No
- * route-level `@Throttle` override, for the same reasoning video-progress/favorites already
+ * Every route, via class-level `@UseGuards(AccessTokenGuard)` + `@NoTrustedClientExemption()` — the
+ * SEC136-I3 reasoning applies verbatim: every route returns or persists per-user data behind auth.
+ * No route-level `@Throttle` override, for the same reasoning video-progress/favorites already
  * recorded: the global ceiling (120/min per resolved identity) already applies once
- * `@NoTrustedClientExemption()` is present, each read/write touches at most one user's own
- * writable row, is idempotent where it writes, makes no external call, and has no fan-out cost.
+ * `@NoTrustedClientExemption()` is present, each read/write touches at most one user's own writable
+ * row, is idempotent where it writes, makes no external call, and has no fan-out cost.
  *
  * **`submit` ALSO carries `GameRoundSubmitRateLimitGuard`, chained AFTER `AccessTokenGuard`
  * (UYELIK-09 fix-round-2, `SEC145-I1`/`VAL145-I1`) — the two read routes do not.** The global
@@ -63,14 +63,15 @@ import { GameRoundsService } from './game-rounds.service';
  */
 @ApiTags('game-rounds')
 @Controller('game-rounds')
+@UseGuards(AccessTokenGuard)
+@NoTrustedClientExemption()
+@ApiBearerAuth('access-token')
 export class GameRoundsController {
   constructor(private readonly gameRounds: GameRoundsService) {}
 
   @Post()
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AccessTokenGuard, GameRoundSubmitRateLimitGuard)
-  @NoTrustedClientExemption()
-  @ApiBearerAuth('access-token')
+  @UseGuards(GameRoundSubmitRateLimitGuard)
   @ApiOperation({
     summary: 'Idempotent submit — record the result of a completed or player-ended-early round.',
     description:
@@ -97,9 +98,6 @@ export class GameRoundsController {
   }
 
   @Get()
-  @UseGuards(AccessTokenGuard)
-  @NoTrustedClientExemption()
-  @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: "The caller's own round history, paginated, most-recent-first.",
     description:
@@ -117,9 +115,6 @@ export class GameRoundsController {
   }
 
   @Get('leaderboard')
-  @UseGuards(AccessTokenGuard)
-  @NoTrustedClientExemption()
-  @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: 'The ranked per-mode leaderboard — every player, one row each, best round first.',
     description:

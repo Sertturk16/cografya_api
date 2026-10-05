@@ -1,6 +1,7 @@
 # cografya_api
 
 Read on demand, not every session:
+
 - `docs/architecture.md` — module map, request pipeline, env, cache/upstream, auth, data ingest.
   Read before adding a module, endpoint, guard, migration or env var.
 - `docs/conventions.md` — code style, DTO/pagination shape, test lanes, commit/PR rules.
@@ -39,7 +40,10 @@ reading `DATABASE_URL` from the shell (no `.env` loading).
   anything that imports `AppModule` validates `process.env` immediately.
 - Every request DTO: `class-validator` + `@nestjs/swagger` decorators. Global pipe is
   `whitelist + forbidNonWhitelisted + transform`, so unknown query/body keys are 400.
-- Auth is opt-in: `@UseGuards(AccessTokenGuard)` per route, never a global guard.
+- Auth is opt-in, never a global guard. A controller whose routes are all protected puts
+  `@UseGuards(AccessTokenGuard)` + `@NoTrustedClientExemption()` + `@ApiBearerAuth('access-token')`
+  on the class; a mixed one (auth) on each guarded route. A new public route goes in
+  `PUBLIC_ROUTES` of `src/auth/access-token-guard-coverage.spec.ts`, which fails otherwise.
   `@CurrentUser()` throws 500 if the guard is missing (intended). Bearer JWT only.
 - Public reads set headers via `@CacheControl(...)`, never `@Header`. Routes with PII use
   the module's `*-no-store.middleware.ts` (runs before guards, so 401/429 are covered).

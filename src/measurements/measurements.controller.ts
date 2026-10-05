@@ -38,7 +38,7 @@ import { MeasurementsService } from './measurements.service';
 /**
  * `/api/measurements…` — one caller's own saved map measurements (UYELIK-11, plan §5.10).
  *
- * All five routes: `@UseGuards(AccessTokenGuard)` + `@NoTrustedClientExemption()` +
+ * All five routes, via class-level `@UseGuards(AccessTokenGuard)` + `@NoTrustedClientExemption()` +
  * `@ApiBearerAuth('access-token')` — the same SEC136-I3 reasoning every sibling controller states
  * verbatim: each write touches only the caller's own row, each is idempotent or unconditionally
  * idempotent, none makes an external call or has fan-out cost, so the global throttle ceiling
@@ -53,14 +53,14 @@ import { MeasurementsService } from './measurements.service';
  */
 @ApiTags('measurements')
 @Controller('measurements')
+@UseGuards(AccessTokenGuard)
+@NoTrustedClientExemption()
+@ApiBearerAuth('access-token')
 export class MeasurementsController {
   constructor(private readonly measurements: MeasurementsService) {}
 
   @Post()
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AccessTokenGuard)
-  @NoTrustedClientExemption()
-  @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: 'Idempotent create — save a measurement, quota-gated.',
     description:
@@ -81,9 +81,6 @@ export class MeasurementsController {
   }
 
   @Get()
-  @UseGuards(AccessTokenGuard)
-  @NoTrustedClientExemption()
-  @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: "The caller's own saved measurements.",
     description:
@@ -98,9 +95,6 @@ export class MeasurementsController {
   }
 
   @Get(':id')
-  @UseGuards(AccessTokenGuard)
-  @NoTrustedClientExemption()
-  @ApiBearerAuth('access-token')
   @ApiParam({ name: 'id', format: 'uuid', description: 'measurements.id.' })
   @ApiOperation({
     summary: "One of the caller's own saved measurements.",
@@ -119,9 +113,6 @@ export class MeasurementsController {
   }
 
   @Patch(':id')
-  @UseGuards(AccessTokenGuard)
-  @NoTrustedClientExemption()
-  @ApiBearerAuth('access-token')
   @ApiParam({ name: 'id', format: 'uuid', description: 'measurements.id.' })
   @ApiOperation({
     summary: "Rename (or clear) a saved measurement's title. Geometry is immutable.",
@@ -146,9 +137,6 @@ export class MeasurementsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(AccessTokenGuard)
-  @NoTrustedClientExemption()
-  @ApiBearerAuth('access-token')
   @ApiParam({ name: 'id', format: 'uuid', description: 'measurements.id.' })
   @ApiOperation({
     summary: 'Unconditionally idempotent delete.',
