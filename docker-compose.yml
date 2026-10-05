@@ -44,5 +44,38 @@ services:
       timeout: 5s
       retries: 5
 
+  # The API itself, for the web dev server on :3000 (`docker compose --profile app up -d api`).
+  # In the `app` profile so a bare `docker compose up -d` still starts only Postgres + Redis.
+  #
+  # IT COMPILES TO .dist-container/, NOT dist/ (tsconfig.container.json). The container runs as
+  # root on the bind-mounted tree; writing dist/ left it root-owned and every host `pnpm build`
+  # / `openapi:generate` / `migration:*` failed with EACCES. A volume over /app/dist does not
+  # work: `deleteOutDir` cannot remove a mount point (EBUSY).
+  #
+  # Env comes from the local .env (git-ignored; see .env.example), except MAIL_TRANSPORT: the
+  # dev container never sends real mail, whatever .env sets for host-side runs.
+  api:
+    profiles: [app]
+    image: node:24
+    container_name: cografya-api-dev
+    restart: unless-stopped
+    network_mode: host
+    working_dir: /app
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      MAIL_TRANSPORT: noop
+    volumes:
+      - .:/app
+      - api_node_modules:/app/node_modules
+    command: >-
+      sh -c "corepack enable && corepack prepare pnpm@11.2.2 --activate &&
+      pnpm install --frozen-lockfile &&
+      pnpm exec nest start --watch --path tsconfig.container.json"
+
 volumes:
   postgres_data:
+  # Fixed name: the volume the hand-run container used, so an existing install is reused.
+  api_node_modules:
+    name: cografya_api_node_modules

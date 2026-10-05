@@ -1,0 +1,8 @@
+{
+  // The dev container's build (docker-compose.yml, service `api`): the same as tsconfig.build.json
+  // but into .dist-container/, so the container never writes the host's dist/.
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "outDir": "./.dist-container"
+  }
+}

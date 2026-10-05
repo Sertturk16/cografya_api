@@ -10,6 +10,7 @@ export default tseslint.config(
     // typed program — keep them out of the type-aware lint pass.
     ignores: [
       'dist',
+      '.dist-container',
       'node_modules',
       'coverage',
       'eslint.config.mjs',
