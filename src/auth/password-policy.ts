@@ -16,8 +16,8 @@ export function isPasswordPolicyCompliant(value: unknown): boolean {
 }
 
 /**
- * `RegisterRequestDto.password` and `PasswordResetConfirmDto.password` both carry this decorator
- * — the one shared password policy (§6.4, §5.4). Its default message is the i18n key §6.3 names
+ * `RegisterRequestDto.password`, `PasswordChangeRequestDto.newPassword` and
+ * `PasswordResetConfirmDto.password` carry this decorator — the one shared password policy. Its default message is the i18n key §6.3 names
  * for a weak password (`errors.register.weakPassword`, reused verbatim by the reset-confirm path
  * per the endpoint table — no second key was minted for the same rule under a different name).
  */

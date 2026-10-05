@@ -4,6 +4,12 @@ import { isPasswordPolicyCompliant } from './password-policy';
 
 /** U-P1: boundary cases. The ceiling/floor are IMPORTED, never retyped as a literal number. */
 describe('isPasswordPolicyCompliant', () => {
+  // A floor, not a pinned value: raising the minimum stays free, dropping it below the
+  // NIST SP 800-63B minimum for a user-chosen password does not.
+  it('keeps the minimum length at or above 8', () => {
+    expect(PASSWORD_MIN_LENGTH).toBeGreaterThanOrEqual(8);
+  });
+
   it('accepts a password with lower + upper + digit at exactly the minimum length', () => {
     const value = `Aa1${'a'.repeat(Math.max(0, PASSWORD_MIN_LENGTH - 3))}`;
     expect(value).toHaveLength(PASSWORD_MIN_LENGTH);

@@ -5,7 +5,9 @@ import { Test } from '@nestjs/testing';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
-import { AccountStatus } from '../src/auth/account.types';
+import { AccountRole, AccountStatus } from '../src/auth/account.types';
+import { AUTH_ERROR_KEYS } from '../src/auth/auth-error-keys';
+import { PASSWORD_MIN_LENGTH } from '../src/auth/auth.constants';
 import { applyGlobalPrefix, buildValidationPipe } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { PendingRegistration } from '../src/auth/entities/pending-registration.entity';
@@ -14,6 +16,8 @@ import { Session } from '../src/auth/entities/session.entity';
 import { User } from '../src/auth/entities/user.entity';
 import { MAILER_PORT } from '../src/auth/mail/mailer.port';
 import { mintOpaqueToken } from '../src/auth/opaque-token';
+import { PasswordHasherService } from '../src/auth/password-hasher.service';
+import { isPasswordPolicyCompliant } from '../src/auth/password-policy';
 import { sha256 } from '../src/auth/token-digest';
 import { seedGeography } from '../src/database/seeds/seed-geography';
 import { seedReference } from '../src/database/seeds/seed-reference';
@@ -24,8 +28,9 @@ import { UNIVERSITIES } from '../src/reference/university.data';
 import { RecordingMailer } from './support/recording-mailer';
 
 /**
- * E2E-N1..N9 (D16 moves N10, the sözleşme guard, to the UNIT lane as `AUTH-C1`) — happy paths,
- * DTO/validation wiring, and the guard's 200/401 boundary, against a REAL Postgres.
+ * E2E-N1..N9 (D16 moves N10, the sözleşme guard, to the UNIT lane as `AUTH-C1`) plus N11 (the
+ * password length floor) — happy paths, DTO/validation wiring, and the guard's 200/401 boundary,
+ * against a REAL Postgres.
  *
  * **`register` no longer creates the account** (`SEC136-C1`): it creates a
  * `pending_registrations` candidate, and `verify-email` materializes the `users` row from the
@@ -617,6 +622,89 @@ describe('Auth endpoints — happy paths + DTO/validation + guard wiring (e2e)',
         .expect(HttpStatus.BAD_REQUEST);
       const body = response.body as { message: string[] };
       expect(body.message.some((entry) => entry.includes('passwordConfirm'))).toBe(true);
+    });
+  });
+
+  /**
+   * The floor is a rule for CHOOSING a password, not for presenting one: an account whose
+   * password predates the current `PASSWORD_MIN_LENGTH` must keep logging in, and a reset must
+   * refuse a new password under the floor. The account is created straight from the repository
+   * with a real Argon2 hash, because `/register` would refuse that password and this file has no
+   * register budget left. Route calls here: login 2, password-reset/confirm 2.
+   */
+  describe('N11 — the password length floor binds new passwords, never an existing one', () => {
+    const email = 'legacy-short-password@example.test';
+    const LEGACY = 'Legacy1'.padEnd(PASSWORD_MIN_LENGTH - 1, 'x');
+    const AT_FLOOR = 'Renewed2'.padEnd(PASSWORD_MIN_LENGTH, 'x');
+    let userId: string;
+
+    beforeAll(async () => {
+      const hasher = app.get(PasswordHasherService);
+      const users = dataSource.getRepository(User);
+      const user = await users.save(
+        users.create({
+          firstName: 'Eski',
+          lastName: 'Şifre',
+          phone: '+905000000099',
+          email,
+          passwordHash: await hasher.hash(LEGACY),
+          accountRole: AccountRole.Teacher,
+          educationLevel: null,
+          gradeLevel: null,
+          studyStream: null,
+          universityName: null,
+          departmentName: null,
+          districtId: istanbulDistrictId,
+          status: AccountStatus.Active,
+          emailVerifiedAt: new Date(),
+        }),
+      );
+      userId = user.id;
+    }, 60_000);
+
+    it('N11a — a stored password one character below the floor still logs in', async () => {
+      // The fixture is a password today's policy refuses ONLY for its length.
+      expect(LEGACY).toHaveLength(PASSWORD_MIN_LENGTH - 1);
+      expect(isPasswordPolicyCompliant(LEGACY)).toBe(false);
+      expect(isPasswordPolicyCompliant(LEGACY.padEnd(PASSWORD_MIN_LENGTH, 'x'))).toBe(true);
+
+      const response = await request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send({ email, password: LEGACY })
+        .expect(HttpStatus.OK);
+      const body = response.body as { accessToken: string; refreshToken: string };
+      expect(typeof body.accessToken).toBe('string');
+      expect(typeof body.refreshToken).toBe('string');
+    });
+
+    it('N11b — reset confirm refuses a new password below the floor and takes one exactly at it', async () => {
+      const tokenPlain = mintOpaqueToken();
+      await dataSource.getRepository(PasswordResetToken).insert({
+        userId,
+        tokenHash: sha256(tokenPlain),
+        expiresAt: new Date(Date.now() + 30 * 60_000),
+        consumedAt: null,
+      });
+
+      const refused = await request(app.getHttpServer())
+        .post('/api/auth/password-reset/confirm')
+        .send({ resetToken: tokenPlain, password: LEGACY })
+        .expect(HttpStatus.BAD_REQUEST);
+      expect((refused.body as { message: string[] }).message).toEqual([
+        AUTH_ERROR_KEYS.weakPassword,
+      ]);
+
+      // The refusal happened in the DTO, before the token was looked at, so it is still live.
+      expect(AT_FLOOR).toHaveLength(PASSWORD_MIN_LENGTH);
+      await request(app.getHttpServer())
+        .post('/api/auth/password-reset/confirm')
+        .send({ resetToken: tokenPlain, password: AT_FLOOR })
+        .expect(HttpStatus.NO_CONTENT);
+
+      await request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send({ email, password: AT_FLOOR })
+        .expect(HttpStatus.OK);
     });
   });
 });

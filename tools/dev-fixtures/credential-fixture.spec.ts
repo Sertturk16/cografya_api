@@ -8,24 +8,24 @@ import {
 
 describe('isPasswordPolicyCompliant', () => {
   it('accepts a password carrying lower + upper + digit within range', () => {
-    expect(isPasswordPolicyCompliant('Abcdef1')).toBe(true);
+    expect(isPasswordPolicyCompliant('Abcdefg1')).toBe(true);
   });
 
   it('rejects missing a class or out-of-range length', () => {
-    expect(isPasswordPolicyCompliant('abcdef1')).toBe(false); // no uppercase
-    expect(isPasswordPolicyCompliant('ABCDEF1')).toBe(false); // no lowercase
-    expect(isPasswordPolicyCompliant('Abcdefg')).toBe(false); // no digit
+    expect(isPasswordPolicyCompliant('abcdefg1')).toBe(false); // no uppercase
+    expect(isPasswordPolicyCompliant('ABCDEFG1')).toBe(false); // no lowercase
+    expect(isPasswordPolicyCompliant('Abcdefgh')).toBe(false); // no digit
     expect(isPasswordPolicyCompliant('Ab1')).toBe(false); // too short
     expect(isPasswordPolicyCompliant(`Ab1${'a'.repeat(PASSWORD_MAX_LENGTH)}`)).toBe(false); // too long
   });
 
   it('accepts exactly at the boundary lengths', () => {
-    expect(isPasswordPolicyCompliant('Ab1defg'.slice(0, PASSWORD_MIN_LENGTH))).toBe(true);
+    expect(isPasswordPolicyCompliant('Ab1' + 'a'.repeat(PASSWORD_MIN_LENGTH - 3))).toBe(true);
     expect(isPasswordPolicyCompliant('Ab1' + 'a'.repeat(PASSWORD_MAX_LENGTH - 3))).toBe(true);
   });
 
   it('rejects exactly one character short of the minimum length', () => {
-    expect(isPasswordPolicyCompliant('Ab1defg'.slice(0, PASSWORD_MIN_LENGTH - 1))).toBe(false);
+    expect(isPasswordPolicyCompliant('Ab1' + 'a'.repeat(PASSWORD_MIN_LENGTH - 4))).toBe(false);
   });
 });
 
