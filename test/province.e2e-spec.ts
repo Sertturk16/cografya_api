@@ -725,11 +725,11 @@ describe('Province (e2e)', () => {
     // deleted, so the boundary stays asserted in whichever direction it currently runs.
     expect(body[0]).toHaveProperty('latitude');
     expect(body[0]).toHaveProperty('longitude');
-    // The müfredat fields are DETAIL-ONLY (Atlas ruling AK-2): the il hub renders no climate
-    // header, so adding them here would widen a projection PR #67 deliberately kept lean. If a
-    // later product decision puts the name on the hub, this line is where the decision is made
-    // visible — not a place to delete quietly.
-    expect(body[0]).not.toHaveProperty('climateCurriculumNameTr');
+    // The müfredat NAME is now part of the list contract: the province page's "İklimi Benzeyen
+    // İller" block groups provinces by it (a Köppen class spans several curriculum climate
+    // types). The müfredat NOTE stays DETAIL-ONLY: nothing on a list consumer renders it, and it
+    // is long prose that would widen a projection PR #67 deliberately kept lean.
+    expect(body[0]).toHaveProperty('climateCurriculumNameTr');
     expect(body[0]).not.toHaveProperty('climateCurriculumNoteTr');
     // The W2.1 derived field is PRESENT on every row and, since this suite seeds geography
     // WITHOUT loading any climate series, is null for all 81 — the genuine "seeded, no

@@ -32,7 +32,8 @@ const TEST_INTERNAL_TOKEN = 'e2e-trusted-client-token-0123456789-abcdefgh';
  * It seeds all 81 provinces, LOADS the committed ERA5-Land artifacts (so `climate_normals` is
  * real, exactly what a deploy runs — `db:import:era5 --phase=load`), boots the app, and asserts
  * the SERVED payload's invariants:
- *   - the list DTO carries `climateKoppen` (the "benzer iklimli iller" contract);
+ *   - the list DTO carries `climateKoppen` and `climateCurriculumNameTr` (the latter groups the
+ *     "iklimi benzeyen iller" block);
  *   - every province WITH a series serves a non-null `climate` whose seasonal percentages sum to
  *     EXACTLY 100 and whose derived block is well-formed;
  *   - a province WITHOUT a series serves `climate: null` and does NOT crash (graceful
@@ -138,6 +139,24 @@ describe('Climate contract (e2e)', () => {
       // … and it projects faithfully from the row (string or null), cross-checked against the DB
       // rather than a hardcoded table, so this scales to any content revision with zero edits.
       expect(item.climateKoppen).toBe(stored?.climateKoppen ?? null);
+    }
+  });
+
+  it('list DTO carries climateCurriculumNameTr for every province, matching the stored value', async () => {
+    // The similar-climate block groups provinces by the curriculum climate name, so the list
+    // item must carry it. Cross-checked against the DB like `climateKoppen` above.
+    const res = await request(app.getHttpServer()).get('/api/provinces').expect(200);
+    const body = res.body as Array<Record<string, unknown>>;
+    expect(body).toHaveLength(81);
+
+    const storedByPlate = new Map(
+      (await dataSource.getRepository(Province).find()).map((p) => [p.plateCode, p]),
+    );
+    for (const item of body) {
+      expect(item).toHaveProperty('climateCurriculumNameTr');
+      const stored = storedByPlate.get(item.plateCode as string);
+      expect(stored).toBeDefined();
+      expect(item.climateCurriculumNameTr).toBe(stored?.climateCurriculumNameTr ?? null);
     }
   });
 

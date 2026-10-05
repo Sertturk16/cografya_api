@@ -270,6 +270,7 @@ export class ProvinceService {
         slugTr: true,
         slugEn: true,
         climateKoppen: true,
+        climateCurriculumNameTr: true,
         climateNormals: true,
         // Two numeric(9,6) scalars — the il-merkezi point. Added for the CBS measurement
         // tools' province picker (CBS-P2 PR-E0); they cost nothing next to `climateNormals`
@@ -338,6 +339,7 @@ export class ProvinceService {
       slugTr: row.slugTr,
       slugEn: row.slugEn,
       climateKoppen: row.climateKoppen,
+      climateCurriculumNameTr: row.climateCurriculumNameTr,
       // The SAME derived value the detail DTO exposes: both read
       // `buildClimate(...)?.derived.annualMeanTempC`, so the list and the detail can never
       // round or null it differently (one source of truth — climate-derivations.ts). Null
