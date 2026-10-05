@@ -49,21 +49,6 @@ export class BookProgressResumeDto {
   updatedAt!: string;
 }
 
-/**
- * The caller's own reading progress on one book (plan §5). `videoCount`/`watchedCount`/
- * `startedCount` are kept on this authenticated, per-user surface deliberately: `DEC 2026-09-10c`
- * md.1 bars a reader-visible count from the PUBLIC book surface's own marketing claim, and this is
- * a different surface in kind — a signed-in member's own progress answer, not the book's promise
- * (`atlas-approval.md` §1). The denominator is a live `COUNT(book_videos)`, never a stored/declared
- * column, so the removed `books.deneme_count` signal is not reintroduced.
- *
- * **No `completionRatio` field** — `watchedCount / videoCount` is derivable by the caller from two
- * published integers, and a published float invites two surfaces rounding it differently.
- *
- * A caller with no progress at all still gets a 200, not a 404: `{ videoCount, watchedCount: 0,
- * startedCount: 0, resume: null }` is a real, useful answer — this route answers "how far am I",
- * which has a valid zero, unlike the single-video `GET`'s "do I have a row here".
- */
 /** One of the caller's progress rows for this book (T-128) — the book page's per-row status. */
 export class BookProgressVideoDto {
   @ApiProperty({ format: 'uuid', description: 'book_videos.id this progress row belongs to.' })
@@ -84,6 +69,21 @@ export class BookProgressVideoDto {
   watched!: boolean;
 }
 
+/**
+ * The caller's own reading progress on one book (plan §5). `videoCount`/`watchedCount`/
+ * `startedCount` are kept on this authenticated, per-user surface deliberately: `DEC 2026-09-10c`
+ * md.1 bars a reader-visible count from the PUBLIC book surface's own marketing claim, and this is
+ * a different surface in kind — a signed-in member's own progress answer, not the book's promise
+ * (`atlas-approval.md` §1). The denominator is a live `COUNT(book_videos)`, never a stored/declared
+ * column, so the removed `books.deneme_count` signal is not reintroduced.
+ *
+ * **No `completionRatio` field** — `watchedCount / videoCount` is derivable by the caller from two
+ * published integers, and a published float invites two surfaces rounding it differently.
+ *
+ * A caller with no progress at all still gets a 200, not a 404: `{ videoCount, watchedCount: 0,
+ * startedCount: 0, resume: null }` is a real, useful answer — this route answers "how far am I",
+ * which has a valid zero, unlike the single-video `GET`'s "do I have a row here".
+ */
 export class BookProgressDto {
   @ApiProperty({
     type: String,
