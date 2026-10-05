@@ -31,12 +31,21 @@ export class ProvinceListItemDto {
     type: String,
     nullable: true,
     example: 'Csa',
-    description:
-      'Köppen iklim kısa kodu (MGM 2023). Liste DTO’suna bilinçli eklendi: "benzer iklime sahip ' +
-      'iller" bloğu bu alan olmadan kurulamaz (aynı Köppen kodlu illere çapraz link). Saf toplama, ' +
-      'kırıcı değil.',
+    description: 'Köppen iklim kısa kodu (MGM 2023). Saf toplama, kırıcı değil.',
   })
   climateKoppen!: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: 'Akdeniz iklimi',
+    description:
+      'Müfredat iklim adı (MEB Coğrafya 9) — detay DTO’sundaki `climateCurriculumNameTr` ile AYNI ' +
+      'sütun, türetme yok. "İklimi benzeyen iller" bloğu illeri bu ada göre gruplar (Köppen kodu ' +
+      'müfredat iklim tiplerinden geniş: Csa sekiz tipin hepsine yayılır). EN karşılığı yok. Saf ' +
+      'toplama, kırıcı değil.',
+  })
+  climateCurriculumNameTr!: string | null;
 
   @ApiProperty({
     type: Number,
