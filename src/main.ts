@@ -1,9 +1,13 @@
-import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
-import { applyGlobalPrefix, applyProxyTrust, buildCorsOptions } from './common/bootstrap';
+import {
+  applyGlobalPrefix,
+  applyProxyTrust,
+  buildCorsOptions,
+  buildValidationPipe,
+} from './common/bootstrap';
 import { AppModule } from './app.module';
 import { type Env } from './config/env.schema';
 import { buildOpenApiDocument } from './openapi/build-document';
@@ -115,13 +119,7 @@ async function bootstrap(): Promise<void> {
   // Baseline input safety: whitelist DTO properties, reject unknown ones, and
   // transform payloads to their DTO types. Applied globally from day one so
   // every future write endpoint is guarded by default.
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+  app.useGlobalPipes(buildValidationPipe());
 
   // OpenAPI document — the api is the single source of truth for the shared
   // DTO/type contract; the web repo codegens its types from the committed

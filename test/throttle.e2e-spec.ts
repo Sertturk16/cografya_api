@@ -4,7 +4,7 @@ import { Test } from '@nestjs/testing';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
-import { applyGlobalPrefix, applyProxyTrust } from '../src/common/bootstrap';
+import { applyGlobalPrefix, applyProxyTrust, buildValidationPipe } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { INTERNAL_REQUEST_HEADER } from '../src/common/throttler/trusted-client';
 import {
@@ -94,6 +94,7 @@ describe('Rate limiting (e2e)', () => {
     const moduleRef = await Test.createTestingModule({ imports: [appModule.AppModule] }).compile();
     app = moduleRef.createNestApplication();
     applyGlobalPrefix(app);
+    app.useGlobalPipes(buildValidationPipe());
     // SEC84-P1 — the shared, runtime-used proxy-trust setup, applied here so E-3a/E-3b can
     // measure it: an assertion against a layer the test application never installed cannot go
     // red (the `CODE136-I5` lesson this repo already paid for). In this harness supertest is the

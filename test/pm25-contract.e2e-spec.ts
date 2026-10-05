@@ -6,7 +6,7 @@ import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testconta
 import { join } from 'node:path';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
-import { applyGlobalPrefix } from '../src/common/bootstrap';
+import { applyGlobalPrefix, buildValidationPipe } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { loadAcagPm25 } from '../src/database/acag/acag-load';
 import {
@@ -106,6 +106,7 @@ describe('Long-term PM2.5 contract (e2e)', () => {
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
     app = moduleRef.createNestApplication();
     applyGlobalPrefix(app);
+    app.useGlobalPipes(buildValidationPipe());
     app.use((req: Request, _res: Response, next: NextFunction) => {
       req.headers[INTERNAL_REQUEST_HEADER] = TEST_INTERNAL_TOKEN;
       next();

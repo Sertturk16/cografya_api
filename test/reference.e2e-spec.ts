@@ -1,11 +1,11 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from '@jest/globals';
-import { ValidationPipe, type INestApplication } from '@nestjs/common';
+import { type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import type { NextFunction, Request, Response } from 'express';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
 import { DataSource, QueryFailedError } from 'typeorm';
-import { applyGlobalPrefix } from '../src/common/bootstrap';
+import { applyGlobalPrefix, buildValidationPipe } from '../src/common/bootstrap';
 import { INTERNAL_REQUEST_HEADER } from '../src/common/throttler/trusted-client';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import {
@@ -152,9 +152,7 @@ describe('Reference — districts (e2e)', () => {
     applyGlobalPrefix(app);
     // `main.ts` is not run in tests, so the global pipe is applied here with the SAME options —
     // every 400 asserted below is that pipe doing its job, not a hand-written check.
-    app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
-    );
+    app.useGlobalPipes(buildValidationPipe());
     // Every request presents the internal token exactly as the web SSG build will, so the
     // PRODUCTION guard path is what this suite covers — not a fake ThrottlerStorage.
     //

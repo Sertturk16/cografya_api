@@ -136,10 +136,10 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
     /* eslint-disable @typescript-eslint/no-require-imports */
     const { AppModule } = require('../src/app.module') as typeof import('../src/app.module');
     const { Test: FreshTest } = require('@nestjs/testing') as typeof import('@nestjs/testing');
-    const { ValidationPipe: FreshValidationPipe } =
-      require('@nestjs/common') as typeof import('@nestjs/common');
-    const { applyGlobalPrefix: freshApplyGlobalPrefix } =
-      require('../src/common/bootstrap') as typeof import('../src/common/bootstrap');
+    const {
+      applyGlobalPrefix: freshApplyGlobalPrefix,
+      buildValidationPipe: freshBuildValidationPipe,
+    } = require('../src/common/bootstrap') as typeof import('../src/common/bootstrap');
     const { YoutubePurgeTarget: FreshPurgeTarget } =
       require('../src/book/youtube/youtube-purge.target') as typeof import('../src/book/youtube/youtube-purge.target');
     // The token is a `Symbol`, so after a registry reset the statically imported one is a different
@@ -151,9 +151,7 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
     const moduleRef = await FreshTest.createTestingModule({ imports: [AppModule] }).compile();
     const created = moduleRef.createNestApplication();
     freshApplyGlobalPrefix(created);
-    created.useGlobalPipes(
-      new FreshValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
-    );
+    created.useGlobalPipes(freshBuildValidationPipe());
     await created.init();
     fetchSpy = jest.spyOn(globalThis, 'fetch');
     fetchSpy.mockClear();

@@ -1,5 +1,5 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it, jest } from '@jest/globals';
-import { ValidationPipe, type INestApplication } from '@nestjs/common';
+import { type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
@@ -15,7 +15,7 @@ import {
 import { BookVideoTag } from '../src/book/entities/book-video-tag.entity';
 import { BookVideo } from '../src/book/entities/book-video.entity';
 import { Book } from '../src/book/entities/book.entity';
-import { applyGlobalPrefix } from '../src/common/bootstrap';
+import { applyGlobalPrefix, buildValidationPipe } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import { BOOK_TIMESTAMPS_OWNER_SLUG_TR } from '../src/database/seeds/books.seed-data';
 import { seedBooks } from '../src/database/seeds/seed-books';
@@ -108,9 +108,7 @@ describe('Book read path (e2e, real Postgres)', () => {
     const moduleRef = await Test.createTestingModule({ imports: [appModule.AppModule] }).compile();
     const created = moduleRef.createNestApplication();
     applyGlobalPrefix(created);
-    created.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
-    );
+    created.useGlobalPipes(buildValidationPipe());
     await created.init();
     fetchSpy = jest.spyOn(globalThis, 'fetch');
     fetchSpy.mockClear();

@@ -55,7 +55,9 @@ required), default only when a safe default exists. Cross-field constraints go t
   Each spec starts a Testcontainers Postgres, builds a `DataSource` via
   `buildDataSourceOptions`, runs migrations, then `await import('../src/app.module')` inside
   `beforeAll`. Apps are built with `Test.createTestingModule` and call `applyGlobalPrefix`,
-  `buildCorsOptions`, `applyProxyTrust` by hand (`main.ts` never runs in tests).
+  `buildCorsOptions`, `applyProxyTrust` and `useGlobalPipes(buildValidationPipe())` by hand
+  (`main.ts` never runs in tests). Every app installs the pipe before `init()`, never a
+  hand-built `ValidationPipe`; `src/common/bootstrap.spec.ts` fails otherwise.
 - Helpers: `test/support/fake-redis-client.ts`, `test/support/recording-mailer.ts`. Binary
   fixtures under `test/fixtures/{cams,cmems,ecmwf,era5}`; golden references are
   `cams/reference.json`, `era5/reference.json` and `ecmwf/eccodes-reference.json` (`cmems/`

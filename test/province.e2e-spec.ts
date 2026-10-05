@@ -5,7 +5,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
-import { applyGlobalPrefix } from '../src/common/bootstrap';
+import { applyGlobalPrefix, buildValidationPipe } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import {
   assertCurriculumMappingInvariant,
@@ -126,6 +126,7 @@ describe('Province (e2e)', () => {
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
     app = moduleRef.createNestApplication();
     applyGlobalPrefix(app);
+    app.useGlobalPipes(buildValidationPipe());
     // Exercise the REAL trusted-client throttle exemption instead of stubbing the limiter:
     // every request here presents the internal token exactly as the web SSG build will, so the
     // PRODUCTION guard path (config read + safe-method scope + constant-time compare + skip) is
