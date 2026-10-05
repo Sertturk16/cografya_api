@@ -68,11 +68,37 @@ jobs:
             echo "==> Restarting API container..."
             docker compose -f docker-compose.prod.yml up -d --no-deps api
 
-            echo "==> Waiting for container readiness..."
-            sleep 5
+            # Readiness, not a fixed wait. `up -d` returns once the container STARTS; an API that
+            # crashes or hangs on boot used to finish this deploy green after `sleep 5`. The probe
+            # is the image's own `healthcheck.mjs` (also the Dockerfile HEALTHCHECK) against the
+            # bare `/health`, run inside the NEW container. Bounded by wall-clock time, not
+            # attempts. Migrations run only after it answers.
+            #
+            # `</dev/null` ON EVERY `exec` IS LOAD-BEARING. This whole script reaches the host as
+            # ssh's stdin, and `docker compose exec` forwards its stdin into the container: without
+            # the redirect an `exec` swallows the rest of the script, bash hits EOF and the deploy
+            # ends on that exec's exit code with every later step skipped (the migration `exec`
+            # did exactly that). `src/health/deploy-health.spec.ts` fails on an `exec` without it.
+            echo "==> Waiting for the API container to answer /health (up to 120 s)..."
+            HEALTH=""
+            DEADLINE=$((SECONDS + 120))
+            while [ "$SECONDS" -lt "$DEADLINE" ]; do
+              if HEALTH="$(docker compose -f docker-compose.prod.yml exec -T api node healthcheck.mjs </dev/null 2>/dev/null)"; then
+                break
+              fi
+              HEALTH=""
+              sleep 2
+            done
+            if [ -z "$HEALTH" ]; then
+              echo "ERROR: the API container never answered /health. Last log lines:" >&2
+              docker compose -f docker-compose.prod.yml ps api >&2 || true
+              docker compose -f docker-compose.prod.yml logs --tail 50 api >&2 || true
+              exit 1
+            fi
+            echo "    $HEALTH"
 
             echo "==> Running database migrations..."
-            docker compose -f docker-compose.prod.yml exec -T api node run-migrations.cjs
+            docker compose -f docker-compose.prod.yml exec -T api node run-migrations.cjs </dev/null
 
             echo "==> Verifying API container status..."
             docker compose -f docker-compose.prod.yml ps api

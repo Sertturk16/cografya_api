@@ -87,7 +87,9 @@ inside `beforeAll` after setting `DATABASE_URL`.
   behind `pnpm db:import:*`. Network fetch phases are run by hand and commit reviewable
   artifacts under `data/`; the `load` phase is deterministic and is the only phase CI runs.
 - Production migrations: `deploy.yml` runs `node run-migrations.cjs` inside the api container
-  after `up -d`.
+  after `up -d` and after the new container answers `/health` (`healthcheck.mjs`, polled from
+  inside for up to 120 s; no answer fails the deploy). Every `docker compose exec` there takes
+  `</dev/null` (`src/health/deploy-health.spec.ts`).
 
 ## Cache and upstream (`src/upstream/`)
 
