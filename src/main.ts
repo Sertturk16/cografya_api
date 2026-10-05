@@ -143,6 +143,12 @@ async function bootstrap(): Promise<void> {
     SwaggerModule.setup('docs', app, document);
   });
 
+  // SIGTERM (`docker stop`, so every deploy's recreate) runs the shutdown lifecycle: the
+  // `onModuleDestroy` hooks (Redis `quit()`, warmup timers), TypeORM and the HTTP server close.
+  // Without it node is PID 1 with no handler, the kernel drops SIGTERM and Docker SIGKILLs the API
+  // after 10 s. `main.spec.ts` pins the call.
+  app.enableShutdownHooks();
+
   const port = configService.get('PORT', { infer: true });
   await app.listen(port);
 }
