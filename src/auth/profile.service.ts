@@ -149,7 +149,8 @@ export class ProfileService {
     };
 
     if (!isProfileShapeValid(fields)) {
-      throw new BadRequestException(PROFILE_SHAPE_MESSAGE);
+      // The pipe's own shape (`string[]`), as `POST register` answers the same rule.
+      throw new BadRequestException([PROFILE_SHAPE_MESSAGE]);
     }
 
     const result = await this.users.update({ id: userId }, fields);

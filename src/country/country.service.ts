@@ -6,6 +6,7 @@ import { CountryDetailDto } from './dto/country-detail.dto';
 import { CountryListItemDto } from './dto/country-list-item.dto';
 import { CountryMapSummaryDto } from './dto/country-map-summary.dto';
 import { resolvePopulationSourceName } from './population-source';
+import { COUNTRY_ERROR_KEYS } from './country-error-keys';
 
 /**
  * Komşu ülke sayısı — the count of neighbouring countries, DERIVED from the stored
@@ -66,7 +67,7 @@ export class CountryService {
 
     if (!row) {
       // Stable message key (not a localized literal), same posture as ProvinceService.
-      throw new NotFoundException('errors.country.notFound');
+      throw new NotFoundException(COUNTRY_ERROR_KEYS.notFound);
     }
 
     return this.toDetail(row);

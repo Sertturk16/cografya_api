@@ -22,6 +22,7 @@ import {
   type EarthquakeListQueryDto,
 } from './dto/earthquake-list-query.dto';
 import type { EarthquakeMetaDto } from './dto/earthquake-meta.dto';
+import { EARTHQUAKE_ERROR_KEYS } from './earthquake-error-keys';
 
 const MS_PER_DAY = 86_400_000;
 
@@ -91,8 +92,8 @@ export class EarthquakeReadService {
    *
    * A plate code naming no province is the leg's SINGLE 404 (SPEC §12) and is answered before the
    * query runs — a well-formed-but-unknown code must not look like "this province had no
-   * earthquakes". The exception carries no message: reporting the miss on an unauthenticated route
-   * would describe caller behaviour rather than our data (the air-quality precedent).
+   * earthquakes". The miss is not logged: reporting it on an unauthenticated route would describe
+   * caller behaviour rather than our data (the air-quality precedent).
    *
    * All three `bindingKind` values are served here. That is the point of the token: an event across
    * the border is shown ON the province page, labelled as across the border, and the API never
@@ -103,7 +104,7 @@ export class EarthquakeReadService {
     query: EarthquakeListQueryDto,
   ): Promise<EarthquakeListDto> {
     if (!(await this.store.provinceExists(plateCode))) {
-      throw new NotFoundException();
+      throw new NotFoundException(EARTHQUAKE_ERROR_KEYS.provinceNotFound);
     }
     return this.buildList(query, plateCode);
   }
@@ -245,17 +246,15 @@ export class EarthquakeReadService {
     // only fire if that guard is ever loosened — at which point an Invalid Date would otherwise
     // reach SQL as `NaN` and match nothing, silently.
     if (Number.isNaN(fromUtc.getTime()) || Number.isNaN(toUtc.getTime())) {
-      throw new BadRequestException('fromUtc and toUtc must be valid ISO-8601 instants');
+      throw new BadRequestException(EARTHQUAKE_ERROR_KEYS.windowInvalid);
     }
 
     if (fromUtc.getTime() > toUtc.getTime()) {
-      throw new BadRequestException('fromUtc must not be later than toUtc');
+      throw new BadRequestException(EARTHQUAKE_ERROR_KEYS.windowReversed);
     }
 
     if (toUtc.getTime() - fromUtc.getTime() > EARTHQUAKE_MAX_WINDOW_DAYS * MS_PER_DAY) {
-      throw new BadRequestException(
-        `the window may span at most ${String(EARTHQUAKE_MAX_WINDOW_DAYS)} days`,
-      );
+      throw new BadRequestException(EARTHQUAKE_ERROR_KEYS.windowTooLong);
     }
 
     return { fromUtc, toUtc };

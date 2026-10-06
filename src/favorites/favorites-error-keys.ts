@@ -1,3 +1,5 @@
+import { FavoriteEntityType } from './dto/favorite.dto';
+
 /**
  * The four i18n error keys this module publishes (`ENGINEERING.md` §6 — the api never writes
  * user-facing prose; the sentence a reader sees is `cografya_web`'s). `provinceNotFound` and
@@ -17,3 +19,11 @@ export const FAVORITES_ERROR_KEYS = {
 } as const;
 
 export type FavoritesErrorKey = (typeof FAVORITES_ERROR_KEYS)[keyof typeof FAVORITES_ERROR_KEYS];
+
+/** `entityType` → the 404 key thrown when `entityId` is well-formed but names nothing real. */
+export const FAVORITES_NOT_FOUND_KEY_BY_TYPE: Record<FavoriteEntityType, FavoritesErrorKey> = {
+  [FavoriteEntityType.Province]: FAVORITES_ERROR_KEYS.provinceNotFound,
+  [FavoriteEntityType.Country]: FAVORITES_ERROR_KEYS.countryNotFound,
+  [FavoriteEntityType.Region]: FAVORITES_ERROR_KEYS.regionNotFound,
+  [FavoriteEntityType.Continent]: FAVORITES_ERROR_KEYS.continentNotFound,
+};

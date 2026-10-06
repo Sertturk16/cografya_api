@@ -46,8 +46,12 @@ reading `DATABASE_URL` from the shell (no `.env` loading).
   `@CurrentUser()` throws 500 if the guard is missing (intended). Bearer JWT only.
 - Public reads set headers via `@CacheControl(...)`, never `@Header`. Routes with PII use
   the module's `*-no-store.middleware.ts` (runs before guards, so 401/429 are covered).
-- No global exception filter. Error bodies carry i18n keys (`errors.auth.unauthenticated`,
-  from `*-error-keys.ts`), never prose; the web renders them. No user-facing strings here.
+- No global exception filter. Every 4xx a handler, guard or service throws carries a key from
+  its module's `*-error-keys.ts` (`errors.auth.unauthenticated`), never prose; the web renders
+  it. Only validation 400s (class-validator `message:`, `BadRequestException([...])`) may be
+  developer text; a deliberate 5xx is argless, its diagnostic goes to the log. Every error
+  response is declared `type: ApiErrorDto`. Enforced by `src/common/error-keys.spec.ts` and
+  `src/openapi/openapi-responses.spec.ts`. No user-facing strings here.
 - Route order: `@Get('map-summary')` stays above `@Get(':slug')` in province/country
   controllers.
 - Feature flags (`MARINE_ENABLED` etc.) gate only the upstream/ingest leg; routes stay up

@@ -443,7 +443,8 @@ describe('Auth Profile (e2e, real Postgres)', () => {
       .send(axis(AccountRole.Student, { educationLevel: EducationLevel.Secondary })); // Missing gradeLevel and studyStream
 
     expect(res.status).toBe(400);
-    expect(res.body.message).toBe(PROFILE_SHAPE_MESSAGE);
+    // The pipe's own `string[]` shape, as POST register answers the same rule.
+    expect(res.body.message).toEqual([PROFILE_SHAPE_MESSAGE]);
   });
 
   // SFH156-I1: Zero rows affected throws 401 unauthenticated

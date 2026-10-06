@@ -11,6 +11,8 @@ import { CountryDetailDto } from './dto/country-detail.dto';
 import { CountryListItemDto } from './dto/country-list-item.dto';
 import { CountryMapSummaryDto } from './dto/country-map-summary.dto';
 import { CountryService } from './country.service';
+import { ApiErrorDto } from '../common/dto/api-error.dto';
+import { COUNTRY_ERROR_KEYS } from './country-error-keys';
 
 /**
  * Public, read-only country endpoints (the source for the SSG /dunya pages + hub).
@@ -51,7 +53,10 @@ export class CountryController {
   @ApiOperation({ summary: 'Get one country by its TR or EN slug (full detail).' })
   @ApiParam({ name: 'slug', example: 'turkiye', description: 'TR or EN slug of the country.' })
   @ApiOkResponse({ type: CountryDetailDto })
-  @ApiNotFoundResponse({ description: 'No country matches the given slug.' })
+  @ApiNotFoundResponse({
+    type: ApiErrorDto,
+    description: `${COUNTRY_ERROR_KEYS.notFound}: no country matches the given slug.`,
+  })
   findBySlug(@Param('slug') slug: string): Promise<CountryDetailDto> {
     return this.countryService.findBySlug(slug);
   }

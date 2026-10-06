@@ -13,6 +13,7 @@ import { RegionDetailDto } from './dto/region-detail.dto';
 import { RegionListItemDto } from './dto/region-list-item.dto';
 import { RegionProvinceItemDto } from './dto/region-province-item.dto';
 import { Region } from './entities/region.entity';
+import { REGION_ERROR_KEYS } from './region-error-keys';
 
 @Injectable()
 export class RegionService {
@@ -90,7 +91,7 @@ export class RegionService {
     ]);
 
     if (!region) {
-      throw new NotFoundException('errors.region.notFound');
+      throw new NotFoundException(REGION_ERROR_KEYS.notFound);
     }
 
     const { totalTurkeyPopulation, totalTurkeyArea } = this.calculateTurkeyTotals(allProvinces);

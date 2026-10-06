@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, type CanActivate } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Env } from '../config/env.schema';
+import { MARINE_ERROR_KEYS } from './marine-error-keys';
 
 /**
  * Gates the three marine VALUE endpoints on `MARINE_ENABLED` — with a 404, deliberately
@@ -14,7 +15,7 @@ import type { Env } from '../config/env.schema';
  * second registration topology to keep correct. `/points` and `/layers` stay ungated (their
  * documented always-on posture: a Postgres read and a constant, no upstream on any branch).
  *
- * The 404 body is the framework's default — no authored prose, per the i18n rule.
+ * The 404 carries the same key as an unknown point, so "disabled" and "absent" read alike.
  */
 @Injectable()
 export class MarineEnabledGuard implements CanActivate {
@@ -22,7 +23,7 @@ export class MarineEnabledGuard implements CanActivate {
 
   canActivate(): boolean {
     if (!this.config.getOrThrow('MARINE_ENABLED', { infer: true })) {
-      throw new NotFoundException();
+      throw new NotFoundException(MARINE_ERROR_KEYS.notFound);
     }
     return true;
   }

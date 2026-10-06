@@ -1,10 +1,13 @@
 import {
   createParamDecorator,
   InternalServerErrorException,
+  Logger,
   type ExecutionContext,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { AUTHENTICATED_USER_REQUEST_KEY, type AuthenticatedUser } from './authenticated-user';
+
+const logger = new Logger('CurrentUser');
 
 type RequestWithAuthenticatedUser = Request &
   Partial<Record<typeof AUTHENTICATED_USER_REQUEST_KEY, AuthenticatedUser>>;
@@ -23,9 +26,11 @@ export const CurrentUser = createParamDecorator(
     const request = ctx.switchToHttp().getRequest<RequestWithAuthenticatedUser>();
     const user = request[AUTHENTICATED_USER_REQUEST_KEY];
     if (!user) {
-      throw new InternalServerErrorException(
+      // The diagnostic goes to the log; a 500 body is the framework default, never prose.
+      logger.error(
         '@CurrentUser() was used on a route with no AccessTokenGuard — request.authenticatedUser is unset.',
       );
+      throw new InternalServerErrorException();
     }
     return user;
   },

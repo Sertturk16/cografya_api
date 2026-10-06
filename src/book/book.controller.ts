@@ -12,6 +12,8 @@ import { BookDetailDto } from './dto/book-detail.dto';
 import { BookListQueryDto } from './dto/book-list-query.dto';
 import { BookListDto } from './dto/book-list.dto';
 import { BookSlugParams } from './dto/book-slug.params';
+import { ApiErrorDto } from '../common/dto/api-error.dto';
+import { BOOK_ERROR_KEYS } from './book-error-keys';
 
 /**
  * The `Cache-Control` both book reads publish.
@@ -77,6 +79,7 @@ export class BookController {
   })
   @ApiOkResponse({ type: BookListDto })
   @ApiBadRequestResponse({
+    type: ApiErrorDto,
     description:
       'A query parameter is out of range, not an integer, or not recognised. Unknown parameters ' +
       'are rejected rather than ignored.',
@@ -96,8 +99,12 @@ export class BookController {
       'separate videos endpoint — the SSG build makes one round trip.',
   })
   @ApiOkResponse({ type: BookDetailDto })
-  @ApiNotFoundResponse({ description: 'No book matches the given slug.' })
+  @ApiNotFoundResponse({
+    type: ApiErrorDto,
+    description: `${BOOK_ERROR_KEYS.notFound}: no book matches the given slug.`,
+  })
   @ApiBadRequestResponse({
+    type: ApiErrorDto,
     description:
       'The slug is not a well-formed slug (lowercase ASCII letters, digits and hyphens, 1-140 ' +
       'characters). Distinct from 404, which means the slug is well-formed and matches no book; ' +

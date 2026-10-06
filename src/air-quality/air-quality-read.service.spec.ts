@@ -11,6 +11,7 @@ import { readAirQualityCacheAge } from './air-quality-cache-age.interceptor';
 import type { AirQualitySeriesReader } from './air-quality-series.reader';
 import type { AirQualityProvinceListItemDto } from './dto/air-quality-province-list-item.dto';
 import { AirQualityFreshness, AirQualityPollutant, AirQualityStatus } from './air-quality.types';
+import { AIR_QUALITY_ERROR_KEYS } from './air-quality-error-keys';
 
 /**
  * The read service's own decisions, against fakes: the cold degradation, the plate-code 404
@@ -259,7 +260,9 @@ describe('AirQualityReadService — the detail endpoint', () => {
 
   it('404s a well-formed plate code that names no province — and reports NOTHING', async () => {
     const service = buildService({ provinces: [province('06')], read: COLD_READ });
-    await expect(service.getProvince('99')).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.getProvince('99')).rejects.toThrow(
+      new NotFoundException(AIR_QUALITY_ERROR_KEYS.provinceNotFound),
+    );
     // The silence is as deliberate as the report in the next test, so it is pinned with the same
     // weight: 19 of the 100 well-formed two-digit codes name no province (`/^\d{2}$/` admits
     // `00`), and this route is
@@ -277,7 +280,9 @@ describe('AirQualityReadService — the detail endpoint', () => {
       provinces: [province('06', { latitude: null, longitude: null })],
       read: COLD_READ,
     });
-    await expect(service.getProvince('06')).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.getProvince('06')).rejects.toThrow(
+      new NotFoundException(AIR_QUALITY_ERROR_KEYS.provinceNotFound),
+    );
   });
 
   it('reports the Q3 404 as an ERROR and counts it — the half that shipped missing', async () => {

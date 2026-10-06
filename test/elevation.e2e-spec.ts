@@ -25,6 +25,7 @@ import {
 import { IMAGERY_SOURCES_HEADER } from '../src/elevation/terrain/tile.client';
 import { buildTerrariumTilePng } from '../src/elevation/terrain/terrarium-fixture.builder';
 import { TERRAIN_SAMPLE_ZOOM } from '../src/elevation/terrain/tile-math';
+import { ELEVATION_ERROR_KEYS } from '../src/elevation/elevation-error-keys';
 
 /**
  * Elevation profile e2e — against a REAL Postgres (Testcontainers) and a FAKE tile bucket (a
@@ -296,7 +297,10 @@ describe('Elevation profile (e2e)', () => {
 
     it('refuses a line whose endpoints collapse under quantisation', async () => {
       tileCalls = [];
-      await profile('fromLat=39.9201&fromLon=32.8541&toLat=39.9199&toLon=32.8539').expect(400);
+      const response = await profile(
+        'fromLat=39.9201&fromLon=32.8541&toLat=39.9199&toLon=32.8539',
+      ).expect(400);
+      expect(response.body.message).toBe(ELEVATION_ERROR_KEYS.endpointsCoincide);
       expect(tileCalls).toEqual([]);
     });
   });
@@ -416,9 +420,10 @@ describe('Elevation profile (e2e)', () => {
 
     it('answers 404 — the feature "does not exist" — and reaches no provider', async () => {
       tileCalls = [];
-      await request(disabledApp.getHttpServer())
+      const response = await request(disabledApp.getHttpServer())
         .get(`/api/elevation/profile?fromLat=40.100&fromLon=33.100&toLat=40.200&toLon=33.200`)
         .expect(404);
+      expect(response.body.message).toBe(ELEVATION_ERROR_KEYS.notFound);
       expect(tileCalls).toEqual([]);
     });
 

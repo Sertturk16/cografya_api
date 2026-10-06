@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, type CanActivate } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Env } from '../config/env.schema';
+import { ELEVATION_ERROR_KEYS } from './elevation-error-keys';
 
 /**
  * Gates the profile endpoint on `ELEVATION_ENABLED` — with a 404, following `MarineEnabledGuard`.
@@ -15,7 +16,7 @@ import type { Env } from '../config/env.schema';
  * guarantee checkable — with the flag off the guard throws BEFORE the handler, so no branch
  * reaches a provider.
  *
- * The 404 body is the framework's default: no authored prose, per the i18n rule.
+ * The 404 body carries an i18n key, never prose.
  */
 @Injectable()
 export class ElevationEnabledGuard implements CanActivate {
@@ -23,7 +24,7 @@ export class ElevationEnabledGuard implements CanActivate {
 
   canActivate(): boolean {
     if (!this.config.getOrThrow('ELEVATION_ENABLED', { infer: true })) {
-      throw new NotFoundException();
+      throw new NotFoundException(ELEVATION_ERROR_KEYS.notFound);
     }
     return true;
   }

@@ -13,6 +13,8 @@ import { CacheControl } from '../common/http-cache/cache-control.decorator';
 import { VideoCoverParams } from './dto/video-cover-params.dto';
 import { VIDEO_COVER_ROUTE_SEGMENT } from './video-cover-address';
 import { VideoCoverService } from './video-cover.service';
+import { ApiErrorDto } from '../common/dto/api-error.dto';
+import { VIDEO_COVER_ERROR_KEYS } from './video-cover-error-keys';
 
 /**
  * Long, mirroring the elevation `PROFILE_CACHE_CONTROL` reasoning: an aged-out or purged snapshot
@@ -86,9 +88,16 @@ export class VideoCoverController {
       'nothing distinguishes WHY a cover is unavailable.',
   })
   @ApiOkResponse({ description: 'The cover image bytes. Content-Type: image/jpeg.' })
-  @ApiBadRequestResponse({ description: 'bookVideoId is not a well-formed UUID.' })
-  @ApiNotFoundResponse({ description: 'No cover is available for this id, for any reason.' })
+  @ApiBadRequestResponse({
+    type: ApiErrorDto,
+    description: 'bookVideoId is not a well-formed UUID.',
+  })
+  @ApiNotFoundResponse({
+    type: ApiErrorDto,
+    description: `${VIDEO_COVER_ERROR_KEYS.notFound}: no cover is available for this id, for any reason.`,
+  })
   @ApiTooManyRequestsResponse({
+    type: ApiErrorDto,
     description:
       'The per-client rate limit for this route was exceeded. Tighter than the global limit ' +
       'because this route can reach an external provider.',

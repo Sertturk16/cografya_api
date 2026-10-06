@@ -4,6 +4,7 @@ import { CacheControl } from '../common/http-cache/cache-control.decorator';
 import { DistrictService } from './district.service';
 import { DistrictListQueryDto } from './dto/district-list-query.dto';
 import { DistrictDto } from './dto/district.dto';
+import { ApiErrorDto } from '../common/dto/api-error.dto';
 
 /**
  * `Cache-Control` for the ilçe list.
@@ -61,6 +62,7 @@ export class DistrictController {
   })
   @ApiOkResponse({ type: DistrictDto, isArray: true })
   @ApiBadRequestResponse({
+    type: ApiErrorDto,
     description:
       'plateCode is missing or is not exactly two zero-padded digits, or an unrecognised query ' +
       'parameter was sent — unknown parameters are rejected rather than ignored, and that ' +

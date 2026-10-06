@@ -20,6 +20,7 @@ import { sampleGreatCircleLine, type GeoPoint } from './terrain/great-circle';
 import { TerrainTileCache } from './terrain/tile-cache';
 import { TerrainTileClient, type TerrainTileGrid } from './terrain/tile.client';
 import { lonLatToTilePixel, TERRAIN_SAMPLE_ZOOM, tileKey } from './terrain/tile-math';
+import { ELEVATION_ERROR_KEYS } from './elevation-error-keys';
 
 /**
  * Cache-key version segment.
@@ -139,12 +140,8 @@ export class ElevationProfileService {
     if (from.lat === to.lat && from.lon === to.lon) {
       // A zero-length line has no cross-section to draw. The distance tool's "0 km is an answer,
       // not an error" contract (SPEC §6.1) does not carry over: there the zero IS the result,
-      // here there is nothing to plot. The message names the quantisation, because two endpoints
-      // 40 m apart look different to the caller and identical to this service.
-      throw new BadRequestException(
-        `the two endpoints collapse to the same point once rounded to ` +
-          `${String(ELEVATION_COORDINATE_DECIMALS)} decimals`,
-      );
+      // here there is nothing to plot.
+      throw new BadRequestException(ELEVATION_ERROR_KEYS.endpointsCoincide);
     }
 
     const key = profileCacheKey(from, to);

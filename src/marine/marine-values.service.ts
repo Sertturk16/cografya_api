@@ -34,6 +34,7 @@ import { ecmwfDataYear, newestOkFetchedAt, oldestOkCacheAge } from './marine-rea
 import { toMarinePointListItem } from './marine-point.mapper';
 import { MARINE_UPSTREAM_CONFIG, type MarineUpstreamConfig } from './marine-upstream.config';
 import { MarineSource } from './marine.types';
+import { MARINE_ERROR_KEYS } from './marine-error-keys';
 
 const logger = new Logger('MarineValues');
 
@@ -134,7 +135,7 @@ export class MarineValuesService {
     });
     if (point === null) {
       await this.refuseWhenImportNeverRan(`conditions:${slug}`);
-      throw new NotFoundException();
+      throw new NotFoundException(MARINE_ERROR_KEYS.notFound);
     }
 
     const deadline = new OperationDeadline(this.config.requestDeadlineMs);
@@ -153,7 +154,7 @@ export class MarineValuesService {
       await this.refuseWhenImportNeverRan(`provinces:${plateCode}`);
       // A well-formed plate with no marine point is an INLAND province: an honest 404 (§7.9),
       // exactly like an unknown slug — the resource "sea conditions of Ankara" does not exist.
-      throw new NotFoundException();
+      throw new NotFoundException(MARINE_ERROR_KEYS.notFound);
     }
 
     // ONE deadline across both points (İstanbul: ≤6 CMEMS keys) — §6.4's whole purpose.

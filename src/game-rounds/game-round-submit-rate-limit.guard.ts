@@ -3,6 +3,7 @@ import {
   HttpStatus,
   Injectable,
   InternalServerErrorException,
+  Logger,
   type CanActivate,
   type ExecutionContext,
 } from '@nestjs/common';
@@ -10,6 +11,8 @@ import type { Request, Response } from 'express';
 import { AUTHENTICATED_USER_REQUEST_KEY, type AuthenticatedUser } from '../auth/authenticated-user';
 import { GAME_ROUNDS_ERROR_KEYS } from './game-rounds-error-keys';
 import { GameRoundSubmitRateLimitService } from './game-round-submit-rate-limit.service';
+
+const logger = new Logger('GameRoundSubmitRateLimitGuard');
 
 type RequestWithAuthenticatedUser = Request &
   Partial<Record<typeof AUTHENTICATED_USER_REQUEST_KEY, AuthenticatedUser>>;
@@ -49,10 +52,12 @@ export class GameRoundSubmitRateLimitGuard implements CanActivate {
       // AccessTokenGuard, which always populates this or throws first) — a fail-closed guard
       // against a future miswiring, mirroring `@CurrentUser()`'s own posture for the identical
       // situation rather than silently treating a missing user as "not yet rate-limited".
-      throw new InternalServerErrorException(
+      // The diagnostic goes to the log; a 500 body is the framework default, never prose.
+      logger.error(
         'GameRoundSubmitRateLimitGuard ran with no authenticatedUser — check guard order ' +
           '(AccessTokenGuard must run first).',
       );
+      throw new InternalServerErrorException();
     }
 
     const outcome = await this.rateLimiter.consume(user.id);

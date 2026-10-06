@@ -21,6 +21,7 @@ import type { EcmwfIngestStorePort } from '../src/marine/ecmwf/ecmwf-ingest.stor
 import { MarinePoint } from '../src/marine/entities/marine-point.entity';
 import { SeaBasin } from '../src/marine/marine.types';
 import { OperationDeadline } from '../src/upstream/operation-deadline';
+import { MARINE_ERROR_KEYS } from '../src/marine/marine-error-keys';
 
 /**
  * Marine M4b e2e — the COLD-BEHAVIOR machine checks (plan §8), against a REAL Postgres
@@ -709,7 +710,8 @@ describe('Marine M4b value endpoints (e2e)', () => {
 
   describe('phase G — the §7.9 error table', () => {
     it('unknown slug → 404; malformed slug → 400', async () => {
-      await http().get('/api/marine/points/no-such-point/conditions').expect(404);
+      const unknown = await http().get('/api/marine/points/no-such-point/conditions').expect(404);
+      expect(unknown.body.message).toBe(MARINE_ERROR_KEYS.notFound);
       await http().get('/api/marine/points/Not_A_Slug/conditions').expect(400);
     });
 
@@ -717,7 +719,8 @@ describe('Marine M4b value endpoints (e2e)', () => {
       await http().get('/api/marine/provinces/999/conditions').expect(400);
       await http().get('/api/marine/provinces/6/conditions').expect(400);
       // Ankara: a perfectly valid province with no sea — the resource does not exist.
-      await http().get('/api/marine/provinces/06/conditions').expect(404);
+      const inland = await http().get('/api/marine/provinces/06/conditions').expect(404);
+      expect(inland.body.message).toBe(MARINE_ERROR_KEYS.notFound);
     });
   });
 
@@ -758,11 +761,17 @@ describe('Marine M4b value endpoints (e2e)', () => {
 
     it('the three value endpoints answer 404 — the feature "does not exist" (§7.9), never 503', async () => {
       const server = disabledApp.getHttpServer();
-      await request(server).get('/api/marine/overview').expect(404);
-      await request(server)
-        .get('/api/marine/points/istanbul-marmara-aciklari/conditions')
-        .expect(404);
-      await request(server).get('/api/marine/provinces/34/conditions').expect(404);
+      const responses = [
+        await request(server).get('/api/marine/overview').expect(404),
+        await request(server)
+          .get('/api/marine/points/istanbul-marmara-aciklari/conditions')
+          .expect(404),
+        await request(server).get('/api/marine/provinces/34/conditions').expect(404),
+      ];
+      // The same key as an unknown point: "disabled" must read like "absent".
+      for (const response of responses) {
+        expect(response.body.message).toBe(MARINE_ERROR_KEYS.notFound);
+      }
     });
 
     it('points and layers keep their documented always-on posture', async () => {

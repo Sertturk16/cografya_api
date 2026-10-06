@@ -22,6 +22,7 @@ import {
 import { AIR_QUALITY_READ_DEADLINE_MS, AirQualitySeriesReader } from './air-quality-series.reader';
 import type { AirQualityProvinceDto } from './dto/air-quality-province.dto';
 import type { AirQualityProvinceListItemDto } from './dto/air-quality-province-list-item.dto';
+import { AIR_QUALITY_ERROR_KEYS } from './air-quality-error-keys';
 
 /** Everything one request needs about the run it is publishing from. */
 interface ResolvedRun {
@@ -162,7 +163,7 @@ export class AirQualityReadService {
     // name no province — reporting this on an unauthenticated
     // route would count caller behaviour — and hand anyone a log-inflation lever — while saying
     // nothing about our data. The branch below is the opposite case and is reported.
-    if (province === null) throw new NotFoundException();
+    if (province === null) throw new NotFoundException(AIR_QUALITY_ERROR_KEYS.provinceNotFound);
     // Atlas ruling Q3: a province with no reference point is EXCLUDED from the detail endpoint
     // rather than served with fabricated coordinates. The DTO's `latitude`/`longitude` are
     // non-nullable, and publishing 0/0 — or any invented pair — would be a data-honesty breach on
@@ -191,7 +192,7 @@ export class AirQualityReadService {
       if (emitted) {
         this.metrics.increment('airq.province_coordinates_missing', CAMS_ADS_PROVIDER);
       }
-      throw new NotFoundException();
+      throw new NotFoundException(AIR_QUALITY_ERROR_KEYS.provinceNotFound);
     }
 
     const resolved = await this.resolveRun();
