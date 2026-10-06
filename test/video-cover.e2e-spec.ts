@@ -397,6 +397,31 @@ describe('Video cover proxy (e2e, real Postgres) — closes VAL137-NEW-C1/VAL137
     });
   });
 
+  describe('the route’s own rate limit', () => {
+    it('answers 429 with the route key once an anonymous caller passes the per-route ceiling', async () => {
+      app = await bootApp();
+      // Read after `bootApp` (fresh module registry), like every other `src` value in this suite.
+      /* eslint-disable @typescript-eslint/no-require-imports */
+      const { VIDEO_COVER_THROTTLE_LIMIT } =
+        require('../src/video-cover/video-cover.controller') as typeof import('../src/video-cover/video-cover.controller');
+      /* eslint-enable @typescript-eslint/no-require-imports */
+
+      // An unknown id answers 404 without touching the provider, so the loop costs no fetch.
+      for (let i = 1; i <= VIDEO_COVER_THROTTLE_LIMIT; i += 1) {
+        const allowed = await getVideoCover(UNKNOWN_BOOK_VIDEO_ID);
+        expect({ request: i, status: allowed.status }).toEqual({ request: i, status: 404 });
+      }
+      const denied = await getVideoCover(UNKNOWN_BOOK_VIDEO_ID);
+
+      expect(denied.status).toBe(429);
+      expect(jsonBody(denied)).toEqual({
+        statusCode: 429,
+        message: VIDEO_COVER_ERROR_KEYS.tooManyRequests,
+      });
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+  });
+
   describe('the named regression guard (PR #137 validator VAL137-C1 / VAL137-NEW-C1)', () => {
     it("never republishes the provider's own thumbnail address", async () => {
       const [first] = videoIds;

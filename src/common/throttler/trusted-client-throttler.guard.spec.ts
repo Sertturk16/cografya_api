@@ -3,12 +3,9 @@ import { performance } from 'node:perf_hooks';
 import { type ExecutionContext, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
-import {
-  type ThrottlerLimitDetail,
-  type ThrottlerModuleOptions,
-  type ThrottlerStorage,
-} from '@nestjs/throttler';
+import { type ThrottlerModuleOptions, type ThrottlerStorage } from '@nestjs/throttler';
 import { type Env } from '../../config/env.schema';
+import { COMMON_ERROR_KEYS } from '../common-error-keys';
 import { NoTrustedClientExemption, ThrottlerErrorMessage } from './throttler-metadata';
 import { INTERNAL_REQUEST_HEADER } from './trusted-client';
 import {
@@ -61,7 +58,7 @@ describe('TrustedClientThrottlerGuard.shouldSkip (glue + deny paths)', () => {
     }
 
     runGetErrorMessage(context: ExecutionContext): Promise<string> {
-      return this.getErrorMessage(context, {} as ThrottlerLimitDetail);
+      return this.getErrorMessage(context);
     }
 
     runGetTracker(req: TrackerTestRequest): Promise<string> {
@@ -243,13 +240,13 @@ describe('TrustedClientThrottlerGuard.shouldSkip (glue + deny paths)', () => {
       expect(message).toBe('errors.auth.rateLimited');
     });
 
-    it('POSITIVE CONTROL: a route declaring nothing keeps the framework default untouched', async () => {
-      // The additive half of the finding's fix: no existing 429 body may change. The expected
-      // value is @nestjs/throttler's own `throttlerMessage` constant.
+    it('a route declaring nothing answers the common key, never the framework prose', async () => {
+      // The global window's 429 is keyed too, so no 429 body in the app is English prose
+      // (`@nestjs/throttler`'s own `throttlerMessage` is "ThrottlerException: Too Many Requests").
       const message = await makeGuard(SECRET).runGetErrorMessage(
         makeContext('POST', {}, undecoratedTargets()),
       );
-      expect(message).toBe('ThrottlerException: Too Many Requests');
+      expect(message).toBe(COMMON_ERROR_KEYS.tooManyRequests);
     });
   });
 

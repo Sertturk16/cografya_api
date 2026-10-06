@@ -7,11 +7,11 @@ import {
   InjectThrottlerOptions,
   InjectThrottlerStorage,
   ThrottlerGuard,
-  type ThrottlerLimitDetail,
   type ThrottlerModuleOptions,
   type ThrottlerStorage,
 } from '@nestjs/throttler';
 import { type Env } from '../../config/env.schema';
+import { COMMON_ERROR_KEYS } from '../common-error-keys';
 import { NO_TRUSTED_CLIENT_EXEMPTION, THROTTLER_ERROR_MESSAGE } from './throttler-metadata';
 import { INTERNAL_REQUEST_HEADER, isTrustedClientRequest } from './trusted-client';
 import {
@@ -255,23 +255,21 @@ export class TrustedClientThrottlerGuard extends ThrottlerGuard implements OnMod
   }
 
   /**
-   * Lets a route (or a whole controller) declare the i18n key its 429 body carries, instead of
-   * `@nestjs/throttler`'s built-in English prose (`CODE136-I1`/`SEC136-I4`).
-   *
-   * Falls through to `super` — i.e. the framework default — for every route that declares
-   * nothing, so this is additive: no existing 429 body changes.
+   * The i18n key a 429 body carries, never `@nestjs/throttler`'s English prose
+   * (`ThrottlerException: Too Many Requests`): the route's (or controller's) own
+   * `@ThrottlerErrorMessage` key, else {@link COMMON_ERROR_KEYS.tooManyRequests}. The base
+   * implementation is not consulted: it only returns `ThrottlerModule`'s `errorMessage` option
+   * (unset here) or that prose.
    */
-  protected async getErrorMessage(
-    context: ExecutionContext,
-    throttlerLimitDetail: ThrottlerLimitDetail,
-  ): Promise<string> {
+  protected getErrorMessage(context: ExecutionContext): Promise<string> {
     const declared = this.reflector.getAllAndOverride<string | undefined>(THROTTLER_ERROR_MESSAGE, [
       context.getHandler(),
       context.getClass(),
     ]);
-    if (typeof declared === 'string' && declared.length > 0) {
-      return declared;
-    }
-    return super.getErrorMessage(context, throttlerLimitDetail);
+    return Promise.resolve(
+      typeof declared === 'string' && declared.length > 0
+        ? declared
+        : COMMON_ERROR_KEYS.tooManyRequests,
+    );
   }
 }

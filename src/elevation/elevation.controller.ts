@@ -14,6 +14,7 @@ import { ElevationProfileService } from './elevation-profile.service';
 import { ElevationProfileQueryDto } from './dto/elevation-profile-query.dto';
 import { ElevationProfileDto } from './dto/elevation-profile.dto';
 import { ApiErrorDto } from '../common/dto/api-error.dto';
+import { ThrottlerErrorMessage } from '../common/throttler/throttler-metadata';
 import { ELEVATION_ERROR_KEYS } from './elevation-error-keys';
 
 /**
@@ -107,6 +108,7 @@ export class ElevationController {
   @Get('profile')
   @UseGuards(ElevationEnabledGuard)
   @Throttle({ default: { limit: PROFILE_THROTTLE_LIMIT, ttl: PROFILE_THROTTLE_TTL_MS } })
+  @ThrottlerErrorMessage(ELEVATION_ERROR_KEYS.tooManyRequests)
   @ApiOperation({
     summary: 'Elevation profile along a line inside the Türkiye frame.',
     description:
@@ -137,8 +139,8 @@ export class ElevationController {
   @ApiTooManyRequestsResponse({
     type: ApiErrorDto,
     description:
-      'The per-client rate limit for this route was exceeded. Tighter than the global limit ' +
-      'because this route can reach an external provider.',
+      `${ELEVATION_ERROR_KEYS.tooManyRequests}: the per-client rate limit for this route was ` +
+      'exceeded. Tighter than the global limit because this route can reach an external provider.',
   })
   async getProfile(
     @Query() query: ElevationProfileQueryDto,

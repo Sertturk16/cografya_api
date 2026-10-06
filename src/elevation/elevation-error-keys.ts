@@ -8,6 +8,8 @@ export const ELEVATION_ERROR_KEYS = {
    * and identical to the service, which is why the key names the rounding, not the input.
    */
   endpointsCoincide: 'errors.elevation.endpointsCoincide',
+  /** The route's own `@Throttle` ceiling (`PROFILE_THROTTLE_LIMIT`), tighter than the global one. */
+  tooManyRequests: 'errors.elevation.tooManyRequests',
 } as const;
 
 export type ElevationErrorKey = (typeof ELEVATION_ERROR_KEYS)[keyof typeof ELEVATION_ERROR_KEYS];

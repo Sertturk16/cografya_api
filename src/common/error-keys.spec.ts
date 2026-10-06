@@ -108,6 +108,45 @@ function scanThrowSites(): ThrowSiteScan {
   return scan;
 }
 
+/**
+ * Every `@ThrottlerErrorMessage(...)` argument: the 429 body of that route, so the same rule as a
+ * thrown 4xx (a key imported from a `*-error-keys.ts` module).
+ */
+function scanThrottlerMessages(): ThrowSiteScan {
+  const scan: ThrowSiteScan = { sites: 0, violations: [] };
+  for (const path of sourceFiles(SRC_ROOT, isProductionSource)) {
+    const file = ts.createSourceFile(
+      path,
+      readFileSync(path, 'utf8'),
+      ts.ScriptTarget.ES2023,
+      true,
+    );
+    const imports = importsOf(file);
+    const visit = (node: ts.Node): void => {
+      if (
+        ts.isCallExpression(node) &&
+        ts.isIdentifier(node.expression) &&
+        node.expression.text === 'ThrottlerErrorMessage' &&
+        imports.has('ThrottlerErrorMessage')
+      ) {
+        scan.sites += 1;
+        const first = node.arguments[0];
+        const root = first === undefined ? undefined : rootIdentifier(first);
+        const from = root === undefined ? undefined : imports.get(root.text);
+        if (from === undefined || !ERROR_KEY_MODULE.test(from)) {
+          const { line } = file.getLineAndCharacterOfPosition(node.getStart());
+          scan.violations.push(
+            `${relative(SRC_ROOT, path)}:${String(line + 1)} ${node.getText()} is not a *-error-keys.ts key`,
+          );
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(file);
+  }
+  return scan;
+}
+
 function problemWith(
   exception: string,
   args: readonly ts.Expression[],
@@ -138,6 +177,14 @@ describe('error bodies carry i18n keys', () => {
 
     // A walker that silently matched nothing would pass vacuously; src has ~70 sites today.
     expect(sites).toBeGreaterThan(50);
+    expect(violations).toEqual([]);
+  });
+
+  it('every @ThrottlerErrorMessage names a *-error-keys.ts key', () => {
+    const { sites, violations } = scanThrottlerMessages();
+
+    // auth (class), elevation and video-cover (route): a walker matching nothing passes vacuously.
+    expect(sites).toBeGreaterThanOrEqual(3);
     expect(violations).toEqual([]);
   });
 
