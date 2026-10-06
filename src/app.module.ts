@@ -10,7 +10,8 @@ import { BookModule } from './book/book.module';
 import { CacheControlInterceptor } from './common/http-cache/cache-control.interceptor';
 import { TrustedClientThrottlerGuard } from './common/throttler/trusted-client-throttler.guard';
 import { buildDataSourceOptions } from './database/data-source-options';
-import { type Env, validateEnv } from './config/env.schema';
+import { buildConfigModuleOptions } from './config/config-module-options';
+import { type Env } from './config/env.schema';
 import { CountryModule } from './country/country.module';
 import { EarthquakeModule } from './earthquake/earthquake.module';
 import { ElevationModule } from './elevation/elevation.module';
@@ -62,12 +63,8 @@ export const THROTTLE_LIMIT = 120;
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      cache: true,
-      // Zod validation at boot — missing/mistyped env aborts startup.
-      validate: validateEnv,
-    }),
+    // Zod validation at boot; `.env` is not read under NODE_ENV=test (see the builder).
+    ConfigModule.forRoot(buildConfigModuleOptions(process.env.NODE_ENV)),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService<Env, true>) =>
