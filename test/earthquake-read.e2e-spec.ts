@@ -35,6 +35,7 @@ import {
 import { AFAD_UPSTREAM_CLIENT } from '../src/earthquake/earthquake.module';
 import { OperationDeadline } from '../src/upstream/operation-deadline';
 import type { UpstreamHttpClient } from '../src/upstream/upstream-http.client';
+import { EARTHQUAKE_ERROR_KEYS } from '../src/earthquake/earthquake-error-keys';
 
 /**
  * E3 e2e: the three public endpoints against a REAL Postgres, through E1's migrations.
@@ -650,9 +651,10 @@ describe('Earthquake public endpoints (e2e, real Postgres)', () => {
 
   describe('phase 2 — the error matrix (SPEC §12)', () => {
     it('404s a well-formed plate code that names no province', async () => {
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .get(`/api/earthquakes/provinces/${PLATE_UNASSIGNED}`)
         .expect(404);
+      expect(response.body.message).toBe(EARTHQUAKE_ERROR_KEYS.provinceNotFound);
     });
 
     it('400s a malformed plate code — a different answer from 404 on purpose', async () => {
@@ -786,21 +788,23 @@ describe('Earthquake public endpoints (e2e, real Postgres)', () => {
     });
 
     it('400s an inverted window and one wider than the ceiling', async () => {
-      await request(app.getHttpServer())
+      const inverted = await request(app.getHttpServer())
         .get('/api/earthquakes')
         .query({
           fromUtc: new Date(NOW).toISOString(),
           toUtc: new Date(NOW - MS_PER_DAY).toISOString(),
         })
         .expect(400);
+      expect(inverted.body.message).toBe(EARTHQUAKE_ERROR_KEYS.windowReversed);
 
-      await request(app.getHttpServer())
+      const tooWide = await request(app.getHttpServer())
         .get('/api/earthquakes')
         .query({
           fromUtc: new Date(NOW - (EARTHQUAKE_MAX_WINDOW_DAYS + 1) * MS_PER_DAY).toISOString(),
           toUtc: new Date(NOW).toISOString(),
         })
         .expect(400);
+      expect(tooWide.body.message).toBe(EARTHQUAKE_ERROR_KEYS.windowTooLong);
 
       // Exactly the ceiling is allowed — the boundary belongs to the accepting side.
       await request(app.getHttpServer())

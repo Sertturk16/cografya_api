@@ -4,10 +4,9 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
  * The error body this API already returns — DESCRIBED, never redesigned.
  *
  * ## What problem this solves
- * `openapi/openapi.json` declares nine error responses across seven paths and gives none of them
- * a body schema, so the web repo's generated types have nothing to say about an error and Vera has
- * to hand-write the shape. Every 200 response in the same artifact has a schema, so this is a gap
- * rather than a convention.
+ * Without it an error response in `openapi/openapi.json` has no body schema and the web's
+ * generated types say nothing about errors. Every non-2xx response is declared with it
+ * (`src/openapi/openapi-responses.spec.ts`).
  *
  * ## Why declaring is allowed here and reshaping is not
  * `ENGINEERING.md` §6: "keep error responses to framework defaults and structural fields, not
@@ -29,12 +28,9 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
  * ```
  *
  * That measurement decides two fields. `error` is OPTIONAL because the argument-less form omits it
- * entirely — and FIVE THROW SITES (`marine-values.service.ts:137,156`,
- * `air-quality-read.service.ts:165,194`, `marine-enabled.guard.ts:25`) reach FOUR of the nine
- * declared responses that way: the three marine 404s, which the guard alone can produce, and the
- * air-quality 404. The two counts are not the same number and the distinction matters here,
- * because a required `error` would be a false declaration for every one of those four —
- * one would be enough. `message` is
+ * entirely. Every 4xx this code throws now carries a key (`src/common/error-keys.spec.ts`), but
+ * a deliberate 5xx is thrown argument-less on purpose (diagnostics go to the log, not the body),
+ * so a required `error` would still be a false declaration for those. `message` is
  * `string | string[]` because that is what `ValidationPipe` actually produces when several fields
  * fail at once. A DTO that hid either would be worse than no DTO: a wrong type is trusted, a
  * missing one is at least known to be missing.

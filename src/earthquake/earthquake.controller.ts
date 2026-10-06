@@ -14,6 +14,8 @@ import { EarthquakeDataStatus } from './earthquake.types';
 import { EarthquakeListQueryDto } from './dto/earthquake-list-query.dto';
 import { EarthquakeListDto } from './dto/earthquake-list.dto';
 import { EarthquakeMetaDto } from './dto/earthquake-meta.dto';
+import { ApiErrorDto } from '../common/dto/api-error.dto';
+import { EARTHQUAKE_ERROR_KEYS } from './earthquake-error-keys';
 
 /** `Cache-Control` of the two list endpoints (SPEC §6.1, verbatim). */
 const LIST_CACHE_CONTROL = 'public, max-age=60, s-maxage=120, stale-while-revalidate=600';
@@ -96,10 +98,12 @@ export class EarthquakeController {
   })
   @ApiOkResponse({ type: EarthquakeListDto })
   @ApiBadRequestResponse({
+    type: ApiErrorDto,
     description:
       'A query parameter is out of range, malformed, or not recognised — unknown parameters are ' +
-      'rejected rather than ignored. Also returned when fromUtc is later than toUtc, when either ' +
-      'omits its timezone, or when the window spans more than 366 days.',
+      'rejected rather than ignored; or either of fromUtc/toUtc omits its timezone. Also ' +
+      `${EARTHQUAKE_ERROR_KEYS.windowReversed} (fromUtc is later than toUtc) and ` +
+      `${EARTHQUAKE_ERROR_KEYS.windowTooLong} (the window spans more than 366 days).`,
   })
   async listEvents(
     @Query() query: EarthquakeListQueryDto,
@@ -152,11 +156,16 @@ export class EarthquakeController {
     description: 'Two-digit zero-padded province plate code.',
   })
   @ApiOkResponse({ type: EarthquakeListDto })
-  @ApiNotFoundResponse({ description: 'No province carries this plate code.' })
+  @ApiNotFoundResponse({
+    type: ApiErrorDto,
+    description: `${EARTHQUAKE_ERROR_KEYS.provinceNotFound}: no province carries this plate code.`,
+  })
   @ApiBadRequestResponse({
+    type: ApiErrorDto,
     description:
       'plateCode is not exactly two digits, or a query parameter is out of range, malformed or ' +
-      'not recognised.',
+      `not recognised; or ${EARTHQUAKE_ERROR_KEYS.windowReversed} / ` +
+      `${EARTHQUAKE_ERROR_KEYS.windowTooLong} as on the hub list.`,
   })
   async listProvinceEvents(
     @Param() params: PlateCodeParams,

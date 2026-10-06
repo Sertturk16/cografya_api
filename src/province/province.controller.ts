@@ -11,6 +11,8 @@ import { ProvinceDetailDto } from './dto/province-detail.dto';
 import { ProvinceListItemDto } from './dto/province-list-item.dto';
 import { ProvinceMapSummaryDto } from './dto/province-map-summary.dto';
 import { ProvinceService } from './province.service';
+import { ApiErrorDto } from '../common/dto/api-error.dto';
+import { PROVINCE_ERROR_KEYS } from './province-error-keys';
 
 /**
  * Public, read-only province endpoints (the source for the SSG il pages + hub).
@@ -51,7 +53,10 @@ export class ProvinceController {
   @ApiOperation({ summary: 'Get one province by its TR or EN slug (full detail).' })
   @ApiParam({ name: 'slug', example: 'istanbul', description: 'TR or EN slug of the province.' })
   @ApiOkResponse({ type: ProvinceDetailDto })
-  @ApiNotFoundResponse({ description: 'No province matches the given slug.' })
+  @ApiNotFoundResponse({
+    type: ApiErrorDto,
+    description: `${PROVINCE_ERROR_KEYS.notFound}: no province matches the given slug.`,
+  })
   findBySlug(@Param('slug') slug: string): Promise<ProvinceDetailDto> {
     return this.provinceService.findBySlug(slug);
   }

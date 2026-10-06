@@ -11,6 +11,7 @@ import {
   AirQualityIndexSystem,
   AirQualityPollutant,
 } from '../src/air-quality/air-quality.types';
+import { AIR_QUALITY_ERROR_KEYS } from '../src/air-quality/air-quality-error-keys';
 
 /**
  * e2e for the COLD half of the air-quality surface: an empty database, nothing ingested.
@@ -141,7 +142,10 @@ describe('Air quality (e2e) — the cold contract slice', () => {
 
   it('404s an unknown plate code and 400s a malformed one (the parameter error table)', async () => {
     // A well-formed plate naming no province: the resource does not exist → 404.
-    await request(app.getHttpServer()).get('/api/air-quality/provinces/06').expect(404);
+    const unknown = await request(app.getHttpServer())
+      .get('/api/air-quality/provinces/06')
+      .expect(404);
+    expect(unknown.body.message).toBe(AIR_QUALITY_ERROR_KEYS.provinceNotFound);
     // Malformed parameters are refused by the global ValidationPipe before the handler runs.
     await request(app.getHttpServer()).get('/api/air-quality/provinces/6').expect(400);
     await request(app.getHttpServer()).get('/api/air-quality/provinces/abc').expect(400);

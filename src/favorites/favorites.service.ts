@@ -8,7 +8,7 @@ import { Region } from '../region/entities/region.entity';
 import type { FavoriteDto } from './dto/favorite.dto';
 import { FavoriteEntityType } from './dto/favorite.dto';
 import { Favorite } from './entities/favorite.entity';
-import { FAVORITES_ERROR_KEYS, type FavoritesErrorKey } from './favorites-error-keys';
+import { FAVORITES_NOT_FOUND_KEY_BY_TYPE } from './favorites-error-keys';
 
 /** One of the four persisted columns a favorite row's target lives in. */
 type FavoriteColumnProperty = 'provinceId' | 'countryId' | 'regionId' | 'continent';
@@ -30,14 +30,6 @@ const FAVORITE_COLUMN_BY_TYPE: Record<
   [FavoriteEntityType.Country]: { property: 'countryId', sqlColumn: 'country_id' },
   [FavoriteEntityType.Region]: { property: 'regionId', sqlColumn: 'region_id' },
   [FavoriteEntityType.Continent]: { property: 'continent', sqlColumn: 'continent' },
-};
-
-/** `entityType` → the 404 key thrown when `entityId` is well-formed but names nothing real. */
-const FAVORITES_NOT_FOUND_KEY_BY_TYPE: Record<FavoriteEntityType, FavoritesErrorKey> = {
-  [FavoriteEntityType.Province]: FAVORITES_ERROR_KEYS.provinceNotFound,
-  [FavoriteEntityType.Country]: FAVORITES_ERROR_KEYS.countryNotFound,
-  [FavoriteEntityType.Region]: FAVORITES_ERROR_KEYS.regionNotFound,
-  [FavoriteEntityType.Continent]: FAVORITES_ERROR_KEYS.continentNotFound,
 };
 
 /**

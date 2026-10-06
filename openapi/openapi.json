@@ -100,7 +100,14 @@
             }
           },
           "404": {
-            "description": "No province matches the given slug."
+            "description": "errors.province.notFound: no province matches the given slug.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           }
         },
         "summary": "Get one province by its TR or EN slug (full detail).",
@@ -186,7 +193,14 @@
             }
           },
           "404": {
-            "description": "No country matches the given slug."
+            "description": "errors.country.notFound: no country matches the given slug.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           }
         },
         "summary": "Get one country by its TR or EN slug (full detail).",
@@ -247,7 +261,14 @@
             }
           },
           "404": {
-            "description": "No region matches the given slug."
+            "description": "errors.region.notFound: no region matches the given slug.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           }
         },
         "summary": "Get one geographic region by its canonical URL slug (full 15-section detail).",
@@ -325,7 +346,14 @@
             }
           },
           "404": {
-            "description": "The marine feature is not enabled on this deployment."
+            "description": "errors.marine.notFound: the marine feature is not enabled on this deployment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           }
         },
         "summary": "Instant marine values for every reference point (the /deniz hub payload).",
@@ -365,10 +393,24 @@
             }
           },
           "400": {
-            "description": "The slug is not a well-formed kebab-case identifier."
+            "description": "The slug is not a well-formed kebab-case identifier.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           },
           "404": {
-            "description": "No marine point matches the slug, or the marine feature is disabled."
+            "description": "errors.marine.notFound: no marine point matches the slug, or the marine feature is disabled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           }
         },
         "summary": "Instant values and the 5-day series for one marine reference point.",
@@ -406,10 +448,24 @@
             }
           },
           "400": {
-            "description": "plateCode is not exactly two digits."
+            "description": "plateCode is not exactly two digits.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           },
           "404": {
-            "description": "The province has no marine reference point (inland), or the marine feature is disabled."
+            "description": "errors.marine.notFound: the province has no marine reference point (inland), or the marine feature is disabled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           }
         },
         "summary": "Marine conditions of every reference point published under one province.",
@@ -496,10 +552,24 @@
             }
           },
           "400": {
-            "description": "plateCode is not exactly two digits."
+            "description": "plateCode is not exactly two digits.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           },
           "404": {
-            "description": "No province carries this plate code."
+            "description": "errors.airQuality.provinceNotFound: no province carries this plate code.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           }
         },
         "summary": "Full air-quality state and the hourly series for one province.",
@@ -554,7 +624,14 @@
             }
           },
           "400": {
-            "description": "A query parameter is out of range, not an integer, or not recognised. Unknown parameters are rejected rather than ignored."
+            "description": "A query parameter is out of range, not an integer, or not recognised. Unknown parameters are rejected rather than ignored.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           }
         },
         "summary": "List books, paginated (lean payload for the /kitaplar hub).",
@@ -594,10 +671,24 @@
             }
           },
           "400": {
-            "description": "The slug is not a well-formed slug (lowercase ASCII letters, digits and hyphens, 1-140 characters). Distinct from 404, which means the slug is well-formed and matches no book; a client rendering a page should treat both as \"not found\"."
+            "description": "The slug is not a well-formed slug (lowercase ASCII letters, digits and hyphens, 1-140 characters). Distinct from 404, which means the slug is well-formed and matches no book; a client rendering a page should treat both as \"not found\".",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           },
           "404": {
-            "description": "No book matches the given slug."
+            "description": "errors.book.notFound: no book matches the given slug.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           }
         },
         "summary": "Get one book by its TR or EN slug, with every video and its tags.",
@@ -691,7 +782,14 @@
             }
           },
           "400": {
-            "description": "A query parameter is out of range, malformed, or not recognised — unknown parameters are rejected rather than ignored. Also returned when fromUtc is later than toUtc, when either omits its timezone, or when the window spans more than 366 days."
+            "description": "A query parameter is out of range, malformed, or not recognised — unknown parameters are rejected rather than ignored; or either of fromUtc/toUtc omits its timezone. Also errors.earthquake.windowReversed (fromUtc is later than toUtc) and errors.earthquake.windowTooLong (the window spans more than 366 days).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           }
         },
         "summary": "Recent earthquakes in Türkiye and its surroundings, paginated (the /deprem hub).",
@@ -819,10 +917,24 @@
             }
           },
           "400": {
-            "description": "plateCode is not exactly two digits, or a query parameter is out of range, malformed or not recognised."
+            "description": "plateCode is not exactly two digits, or a query parameter is out of range, malformed or not recognised; or errors.earthquake.windowReversed / errors.earthquake.windowTooLong as on the hub list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           },
           "404": {
-            "description": "No province carries this plate code."
+            "description": "errors.earthquake.provinceNotFound: no province carries this plate code.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           }
         },
         "summary": "Recent earthquakes bound to one province.",
@@ -897,13 +1009,34 @@
             }
           },
           "400": {
-            "description": "A coordinate is outside the Türkiye frame, missing or malformed; a query parameter is not recognised (unknown parameters are rejected, not ignored); or the two endpoints collapse to the same point once rounded."
+            "description": "A coordinate is outside the Türkiye frame, missing or malformed; a query parameter is not recognised (unknown parameters are rejected, not ignored); or errors.elevation.endpointsCoincide: the two endpoints collapse to the same point once rounded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           },
           "404": {
-            "description": "The elevation feature is not enabled on this deployment."
+            "description": "errors.elevation.notFound: the elevation feature is not enabled on this deployment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           },
           "429": {
-            "description": "The per-client rate limit for this route was exceeded. Tighter than the global limit because this route can reach an external provider."
+            "description": "The per-client rate limit for this route was exceeded. Tighter than the global limit because this route can reach an external provider.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           }
         },
         "summary": "Elevation profile along a line inside the Türkiye frame.",
@@ -944,7 +1077,14 @@
             }
           },
           "400": {
-            "description": "plateCode is missing or is not exactly two zero-padded digits, or an unrecognised query parameter was sent — unknown parameters are rejected rather than ignored, and that includes the retired provinceId. Distinct from an empty array, which means the parameter was well-formed and matched no ilçe."
+            "description": "plateCode is missing or is not exactly two zero-padded digits, or an unrecognised query parameter was sent — unknown parameters are rejected rather than ignored, and that includes the retired provinceId. Distinct from an empty array, which means the parameter was well-formed and matched no ilçe.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           }
         },
         "summary": "List one province's districts (ilçe) by plate code, Turkish-alphabetical.",
@@ -1022,7 +1162,7 @@
         },
         "responses": {
           "202": {
-            "description": ""
+            "description": "Accepted, no body; the same answer whether or not the address already existed."
           },
           "400": {
             "description": "DTO şekli, profil matrisi, şifre veya ilçe↔il uyuşmazlığı.",
@@ -1121,7 +1261,7 @@
         },
         "responses": {
           "202": {
-            "description": ""
+            "description": "Accepted, no body; the same answer for any address."
           },
           "400": {
             "description": "",
@@ -1263,7 +1403,7 @@
         },
         "responses": {
           "204": {
-            "description": ""
+            "description": "Logged out, or the token was not recognised."
           },
           "400": {
             "description": "",
@@ -1299,7 +1439,7 @@
         },
         "responses": {
           "202": {
-            "description": ""
+            "description": "Accepted, no body; the same answer for any address."
           },
           "400": {
             "description": "",
@@ -1335,7 +1475,7 @@
         },
         "responses": {
           "204": {
-            "description": ""
+            "description": "Password replaced; every session was revoked."
           },
           "400": {
             "description": "errors.register.weakPassword (checked first) ya da errors.password.resetTokenInvalid.",
@@ -1371,7 +1511,7 @@
         },
         "responses": {
           "204": {
-            "description": ""
+            "description": "The token is still usable."
           },
           "400": {
             "description": "errors.password.resetTokenInvalid — unknown, consumed or expired token.",
@@ -1673,7 +1813,7 @@
         },
         "responses": {
           "204": {
-            "description": ""
+            "description": "The account and every row tied to it were deleted."
           },
           "400": {
             "description": "Eksik ya da boş currentPassword.",
@@ -2015,13 +2155,34 @@
             "description": "The cover image bytes. Content-Type: image/jpeg."
           },
           "400": {
-            "description": "bookVideoId is not a well-formed UUID."
+            "description": "bookVideoId is not a well-formed UUID.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           },
           "404": {
-            "description": "No cover is available for this id, for any reason."
+            "description": "errors.videoCover.notFound: no cover is available for this id, for any reason.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           },
           "429": {
-            "description": "The per-client rate limit for this route was exceeded. Tighter than the global limit because this route can reach an external provider."
+            "description": "The per-client rate limit for this route was exceeded. Tighter than the global limit because this route can reach an external provider.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
           }
         },
         "summary": "The api's own cover proxy for one book video — never the provider's own address.",
@@ -3534,6 +3695,40 @@
           "economyIndicator",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "ApiErrorDto": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "number",
+            "example": 404,
+            "description": "HTTP status code, repeated in the body by the framework default error shape."
+          },
+          "message": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ],
+            "example": "Not Found",
+            "description": "A single message, or one message per failed field when request validation rejects several at once."
+          },
+          "error": {
+            "type": "string",
+            "example": "Not Found",
+            "description": "The status reason phrase. Present only when the exception was raised with an explicit message; an argument-less `NotFoundException` omits this key entirely."
+          }
+        },
+        "required": [
+          "statusCode",
+          "message"
         ]
       },
       "CountryListItemDto": {
@@ -7134,40 +7329,6 @@
           "accountRole",
           "districtId",
           "provincePlateCode"
-        ]
-      },
-      "ApiErrorDto": {
-        "type": "object",
-        "properties": {
-          "statusCode": {
-            "type": "number",
-            "example": 404,
-            "description": "HTTP status code, repeated in the body by the framework default error shape."
-          },
-          "message": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            ],
-            "example": "Not Found",
-            "description": "A single message, or one message per failed field when request validation rejects several at once."
-          },
-          "error": {
-            "type": "string",
-            "example": "Not Found",
-            "description": "The status reason phrase. Present only when the exception was raised with an explicit message; an argument-less `NotFoundException` omits this key entirely."
-          }
-        },
-        "required": [
-          "statusCode",
-          "message"
         ]
       },
       "VerifyEmailRequestDto": {

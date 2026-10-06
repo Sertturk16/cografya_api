@@ -37,7 +37,16 @@ unit specs beside the source → e2e in `test/` if it touches Postgres → `pnpm
   Each number is one exported constant reused by the e2e. No shared base query DTO: validator
   decorators accumulate through inheritance, so a subclass can only tighten a base `@Max`.
 - Error bodies are NestJS defaults with i18n keys as `message`; `ApiErrorDto` only describes
-  that shape.
+  that shape, and every error response decorator names it (`type: ApiErrorDto`, key in the
+  `description`). A body-less 2xx is declared too (`@ApiAcceptedResponse`/`@ApiNoContentResponse`
+  with a description), not left to `@HttpCode` inference.
+- Error keys: a 4xx thrown by our code passes a key imported from the module's
+  `*-error-keys.ts` (`errors.<area>.<name>`, a value never reused by another module; maps of keys
+  live in that file too). Validation messages are the exception: a class-validator `message:`, or
+  a `BadRequestException([...])` thrown in the pipe's `string[]` shape for a rule the pipe cannot
+  run, may be English developer text. A deliberate 5xx is thrown with no argument and logs its
+  diagnostic. Framework-made errors (pipe 400, throttler 429 without `@ThrottlerErrorMessage`,
+  unhandled 500) keep the framework body.
 
 ## Env vars
 
@@ -53,10 +62,12 @@ required), default only when a safe default exists. Cross-field constraints go t
   `tsconfig.build.json`.
 - e2e lane `pnpm test:e2e`: `test/*.e2e-spec.ts`, `test/jest-e2e.json`, 120 s timeout.
   Each spec starts a Testcontainers Postgres, builds a `DataSource` via
-  `buildDataSourceOptions`, runs migrations, then `await import('../src/app.module')` inside
-  `beforeAll`. Apps are built with `Test.createTestingModule` and call `applyGlobalPrefix`,
-  `buildCorsOptions`, `applyProxyTrust` and `useGlobalPipes(buildValidationPipe())` by hand
-  (`main.ts` never runs in tests). Every app installs the pipe before `init()`, never a
+  `buildDataSourceOptions`, runs migrations, then loads `AppModule` inside `beforeAll` with a
+  typed `require('../src/app.module') as typeof import('../src/app.module')` (after the env is
+  set, because importing it validates `process.env`). Suites that never boot the app (migration,
+  ingest, seed) skip that step. Apps are built with `Test.createTestingModule` and call
+  `applyGlobalPrefix`, `buildCorsOptions`, `applyProxyTrust` and
+  `useGlobalPipes(buildValidationPipe())` by hand (`main.ts` never runs in tests). Every app installs the pipe before `init()`, never a
   hand-built `ValidationPipe`; `src/common/bootstrap.spec.ts` fails otherwise.
 - Helpers: `test/support/fake-redis-client.ts`, `test/support/recording-mailer.ts`. Binary
   fixtures under `test/fixtures/{cams,cmems,ecmwf,era5}`; golden references are

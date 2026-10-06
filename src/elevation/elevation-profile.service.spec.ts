@@ -19,6 +19,7 @@ import type { ElevationProfileQueryDto } from './dto/elevation-profile-query.dto
 import { TerrainTileCache } from './terrain/tile-cache';
 import type { TerrainTileClient, TerrainTileGrid } from './terrain/tile.client';
 import { TERRAIN_SAMPLE_ZOOM, TILE_SIZE } from './terrain/tile-math';
+import { ELEVATION_ERROR_KEYS } from './elevation-error-keys';
 
 const CONFIG: ElevationUpstreamConfig = {
   enabled: true,
@@ -169,7 +170,7 @@ describe('ElevationProfileService', () => {
     const { service } = serviceWith(client);
     await expect(
       service.getProfile({ fromLat: 39.9201, fromLon: 32.8541, toLat: 39.9199, toLon: 32.8539 }),
-    ).rejects.toBeInstanceOf(BadRequestException);
+    ).rejects.toThrow(new BadRequestException(ELEVATION_ERROR_KEYS.endpointsCoincide));
     // And it refuses BEFORE reaching the provider — the point of validating first.
     expect(client.requested).toHaveLength(0);
   });

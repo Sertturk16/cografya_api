@@ -10,6 +10,8 @@ import { CacheControl } from '../common/http-cache/cache-control.decorator';
 import { RegionDetailDto } from './dto/region-detail.dto';
 import { RegionListItemDto } from './dto/region-list-item.dto';
 import { RegionService } from './region.service';
+import { ApiErrorDto } from '../common/dto/api-error.dto';
+import { REGION_ERROR_KEYS } from './region-error-keys';
 
 /**
  * Public, read-only geographic region endpoints.
@@ -41,7 +43,10 @@ export class RegionController {
     description: 'URL slug of the region (e.g. marmara, ege, akdeniz).',
   })
   @ApiOkResponse({ type: RegionDetailDto })
-  @ApiNotFoundResponse({ description: 'No region matches the given slug.' })
+  @ApiNotFoundResponse({
+    type: ApiErrorDto,
+    description: `${REGION_ERROR_KEYS.notFound}: no region matches the given slug.`,
+  })
   findBySlug(@Param('slug') slug: string): Promise<RegionDetailDto> {
     return this.regionService.findBySlug(slug);
   }

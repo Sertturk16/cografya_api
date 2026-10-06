@@ -16,6 +16,7 @@ import {
 } from './province.types';
 import { Pm25AnnualDto } from './dto/pm25-annual.dto';
 import { buildAcagAttribution } from './acag-attribution.constant';
+import { PROVINCE_ERROR_KEYS } from './province-error-keys';
 
 /**
  * Nüfus yoğunluğu (kişi/km²) from two verified values. A single source of truth
@@ -325,7 +326,7 @@ export class ProvinceService {
     if (!row) {
       // Stable message key (not a localized literal). Full i18n wiring lands
       // when the first end-user-facing API messages appear (auth/panels, Faz 3).
-      throw new NotFoundException('errors.province.notFound');
+      throw new NotFoundException(PROVINCE_ERROR_KEYS.notFound);
     }
 
     return this.toDetail(row);

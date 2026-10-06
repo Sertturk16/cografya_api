@@ -13,6 +13,8 @@ import { ElevationEnabledGuard } from './elevation-enabled.guard';
 import { ElevationProfileService } from './elevation-profile.service';
 import { ElevationProfileQueryDto } from './dto/elevation-profile-query.dto';
 import { ElevationProfileDto } from './dto/elevation-profile.dto';
+import { ApiErrorDto } from '../common/dto/api-error.dto';
+import { ELEVATION_ERROR_KEYS } from './elevation-error-keys';
 
 /**
  * What a COMPLETE profile may be cached for.
@@ -121,13 +123,19 @@ export class ElevationController {
   })
   @ApiOkResponse({ type: ElevationProfileDto })
   @ApiBadRequestResponse({
+    type: ApiErrorDto,
     description:
       'A coordinate is outside the Türkiye frame, missing or malformed; a query parameter is not ' +
-      'recognised (unknown parameters are rejected, not ignored); or the two endpoints collapse ' +
-      'to the same point once rounded.',
+      'recognised (unknown parameters are rejected, not ignored); or ' +
+      `${ELEVATION_ERROR_KEYS.endpointsCoincide}: the two endpoints collapse to the same point ` +
+      'once rounded.',
   })
-  @ApiNotFoundResponse({ description: 'The elevation feature is not enabled on this deployment.' })
+  @ApiNotFoundResponse({
+    type: ApiErrorDto,
+    description: `${ELEVATION_ERROR_KEYS.notFound}: the elevation feature is not enabled on this deployment.`,
+  })
   @ApiTooManyRequestsResponse({
+    type: ApiErrorDto,
     description:
       'The per-client rate limit for this route was exceeded. Tighter than the global limit ' +
       'because this route can reach an external provider.',

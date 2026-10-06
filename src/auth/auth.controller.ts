@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import {
+  ApiAcceptedResponse,
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiForbiddenResponse,
@@ -170,6 +171,9 @@ export class AuthController {
       'and never activates one. A known ACTIVE address gets an "account exists" notice instead; ' +
       'a disabled account sends nothing.',
   })
+  @ApiAcceptedResponse({
+    description: 'Accepted, no body; the same answer whether or not the address already existed.',
+  })
   @ApiBadRequestResponse({
     type: ApiErrorDto,
     description: 'DTO şekli, profil matrisi, şifre veya ilçe↔il uyuşmazlığı.',
@@ -215,6 +219,7 @@ export class AuthController {
       'limits allow it. Codes already in flight stay valid — a resend ADDS one, it never ' +
       'cancels an earlier one.',
   })
+  @ApiAcceptedResponse({ description: 'Accepted, no body; the same answer for any address.' })
   @ApiBadRequestResponse({ type: ApiErrorDto })
   async resendVerification(@Body() dto: ResendVerificationRequestDto): Promise<void> {
     await this.registration.resendVerification(dto);
@@ -272,7 +277,7 @@ export class AuthController {
     summary: 'Log out — revoke the presented refresh token’s whole family.',
     description: 'Always 204, even for a token this api does not recognise (indistinguishable).',
   })
-  @ApiNoContentResponse()
+  @ApiNoContentResponse({ description: 'Logged out, or the token was not recognised.' })
   @ApiBadRequestResponse({ type: ApiErrorDto })
   async logout(@Body() dto: LogoutRequestDto): Promise<void> {
     await this.sessions.logout(dto.refreshToken);
@@ -285,6 +290,7 @@ export class AuthController {
     summary: 'Request a password-reset e-posta ("forgot password").',
     description: 'Always 202, body-less — a known and an unknown address are indistinguishable.',
   })
+  @ApiAcceptedResponse({ description: 'Accepted, no body; the same answer for any address.' })
   @ApiBadRequestResponse({ type: ApiErrorDto })
   async requestPasswordReset(@Body() dto: PasswordResetRequestDto): Promise<void> {
     await this.passwordReset.requestReset(dto.email);
@@ -301,7 +307,7 @@ export class AuthController {
       'confirms or denies the token. Success revokes every live session and does NOT open a new ' +
       'one — the user logs in again.',
   })
-  @ApiNoContentResponse()
+  @ApiNoContentResponse({ description: 'Password replaced; every session was revoked.' })
   @ApiBadRequestResponse({
     type: ApiErrorDto,
     description:
@@ -320,7 +326,7 @@ export class AuthController {
       'Read-only: no consumedAt write, no token_version bump, no session revocation. The ' +
       'presented token stays fully usable by password-reset/confirm afterwards.',
   })
-  @ApiNoContentResponse()
+  @ApiNoContentResponse({ description: 'The token is still usable.' })
   @ApiBadRequestResponse({
     type: ApiErrorDto,
     description: 'errors.password.resetTokenInvalid — unknown, consumed or expired token.',
@@ -467,7 +473,7 @@ export class AuthController {
       'liderlik tablosu girdileri, ölçümler) tek işlemde, geri alınamaz biçimde silinir. ' +
       'Yanıt gövdesizdir; çağıran kendi oturum çerezini temizler.',
   })
-  @ApiNoContentResponse()
+  @ApiNoContentResponse({ description: 'The account and every row tied to it were deleted.' })
   @ApiBadRequestResponse({ type: ApiErrorDto, description: 'Eksik ya da boş currentPassword.' })
   @ApiUnauthorizedResponse({
     type: ApiErrorDto,

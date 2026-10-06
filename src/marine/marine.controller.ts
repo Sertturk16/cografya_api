@@ -23,6 +23,8 @@ import { MarineValueDto } from './dto/marine-value.dto';
 import { MarineEnabledGuard } from './marine-enabled.guard';
 import { MarineService } from './marine.service';
 import { MarineValuesService } from './marine-values.service';
+import { ApiErrorDto } from '../common/dto/api-error.dto';
+import { MARINE_ERROR_KEYS } from './marine-error-keys';
 
 /**
  * `Cache-Control` of the three value endpoints (SPEC-ADDENDUM §7.8, verbatim). The overview
@@ -148,7 +150,10 @@ export class MarineController {
       'MUST NOT be committed by ISR/SSG. Returns 404 while the marine feature is disabled.',
   })
   @ApiOkResponse({ type: MarineOverviewDto })
-  @ApiNotFoundResponse({ description: 'The marine feature is not enabled on this deployment.' })
+  @ApiNotFoundResponse({
+    type: ApiErrorDto,
+    description: `${MARINE_ERROR_KEYS.notFound}: the marine feature is not enabled on this deployment.`,
+  })
   async getOverview(@Res({ passthrough: true }) response: Response): Promise<MarineOverviewDto> {
     const overview = await this.marineValuesService.getOverview();
     response.setHeader('Cache-Control', overview.dataAvailable ? VALUE_CACHE_CONTROL : 'no-store');
@@ -169,9 +174,13 @@ export class MarineController {
   @ApiParam({ name: 'slug', example: 'istanbul-marmara-aciklari', description: 'TR or EN slug.' })
   @ApiOkResponse({ type: MarineConditionsDto })
   @ApiNotFoundResponse({
-    description: 'No marine point matches the slug, or the marine feature is disabled.',
+    type: ApiErrorDto,
+    description: `${MARINE_ERROR_KEYS.notFound}: no marine point matches the slug, or the marine feature is disabled.`,
   })
-  @ApiBadRequestResponse({ description: 'The slug is not a well-formed kebab-case identifier.' })
+  @ApiBadRequestResponse({
+    type: ApiErrorDto,
+    description: 'The slug is not a well-formed kebab-case identifier.',
+  })
   getConditions(@Param() params: MarinePointSlugParams): Promise<MarineConditionsDto> {
     return this.marineValuesService.getConditions(params.slug);
   }
@@ -190,10 +199,12 @@ export class MarineController {
   @ApiParam({ name: 'plateCode', example: '34', description: 'Plaka kodu, zero-padded.' })
   @ApiOkResponse({ type: MarineProvinceConditionsDto })
   @ApiNotFoundResponse({
+    type: ApiErrorDto,
     description:
-      'The province has no marine reference point (inland), or the marine feature is disabled.',
+      `${MARINE_ERROR_KEYS.notFound}: the province has no marine reference point (inland), ` +
+      'or the marine feature is disabled.',
   })
-  @ApiBadRequestResponse({ description: 'plateCode is not exactly two digits.' })
+  @ApiBadRequestResponse({ type: ApiErrorDto, description: 'plateCode is not exactly two digits.' })
   getProvinceConditions(
     @Param() params: MarineProvincePlateParams,
   ): Promise<MarineProvinceConditionsDto> {

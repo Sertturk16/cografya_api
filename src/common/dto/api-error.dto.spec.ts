@@ -73,9 +73,8 @@ async function emittedSchema(): Promise<{
 
 describe('ApiErrorDto', () => {
   it('declares `error` as OPTIONAL, because the argument-less 404 omits it entirely', () => {
-    // Five of the nine responses this describes are thrown this way: `marine-values.service.ts`,
-    // `air-quality-read.service.ts` and `marine-enabled.guard.ts` all throw `new
-    // NotFoundException()`. A required `error` would be a false declaration for all of them.
+    // Deliberate 5xx are thrown argument-less (`marine.service.ts`, `current-user.decorator.ts`),
+    // so a required `error` would be a false declaration for them.
     const body = bodyOf(new NotFoundException());
 
     expect(body).toEqual({ message: 'Not Found', statusCode: 404 });
@@ -87,7 +86,7 @@ describe('ApiErrorDto', () => {
   });
 
   it('carries `error` when the exception was raised WITH a message', () => {
-    // The other four: `province.service.ts` and `country.service.ts` pass an i18n key.
+    // Every 4xx this code throws passes an i18n key (`src/common/error-keys.spec.ts`).
     const body = bodyOf(new NotFoundException('errors.province.notFound'));
 
     expect(body).toEqual({

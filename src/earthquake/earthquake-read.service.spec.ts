@@ -18,6 +18,7 @@ import {
   EARTHQUAKE_MAX_WINDOW_DAYS,
   EarthquakeListQueryDto,
 } from './dto/earthquake-list-query.dto';
+import { EARTHQUAKE_ERROR_KEYS } from './earthquake-error-keys';
 
 const MS_PER_DAY = 86_400_000;
 const CLOCK_SKEW_SECONDS = 300;
@@ -222,7 +223,7 @@ describe('EarthquakeReadService', () => {
         service.listEvents(
           query({ fromUtc: '2026-08-08T00:00:00.000Z', toUtc: '2026-08-01T00:00:00.000Z' }),
         ),
-      ).rejects.toBeInstanceOf(BadRequestException);
+      ).rejects.toThrow(new BadRequestException(EARTHQUAKE_ERROR_KEYS.windowReversed));
     });
 
     it('refuses a window wider than the ceiling, and accepts exactly the ceiling', async () => {
@@ -234,7 +235,7 @@ describe('EarthquakeReadService', () => {
         service.listEvents(
           query({ fromUtc: pastCeiling.toISOString(), toUtc: toUtc.toISOString() }),
         ),
-      ).rejects.toBeInstanceOf(BadRequestException);
+      ).rejects.toThrow(new BadRequestException(EARTHQUAKE_ERROR_KEYS.windowTooLong));
 
       await expect(
         service.listEvents(query({ fromUtc: atCeiling.toISOString(), toUtc: toUtc.toISOString() })),
@@ -299,8 +300,8 @@ describe('EarthquakeReadService', () => {
     it('404s an unknown plate code BEFORE querying for a page', async () => {
       store.provinceKnown = false;
 
-      await expect(service.listProvinceEvents('99', query())).rejects.toBeInstanceOf(
-        NotFoundException,
+      await expect(service.listProvinceEvents('99', query())).rejects.toThrow(
+        new NotFoundException(EARTHQUAKE_ERROR_KEYS.provinceNotFound),
       );
       // A well-formed but unknown code must not be answerable as "this province had no
       // earthquakes", which is what a page query returning empty would have produced.

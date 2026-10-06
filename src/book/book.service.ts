@@ -22,6 +22,7 @@ import {
 // Nest-level coupling to `VideoCoverModule` either way, the same treatment `isSnapshotServable`
 // above already gets from `BookModule`'s side of this exact relationship.
 import { buildVideoCoverPath } from '../video-cover/video-cover-address';
+import { BOOK_ERROR_KEYS } from './book-error-keys';
 
 /**
  * Per-book timestamp aggregate, as it comes back from the grouped query.
@@ -169,7 +170,7 @@ export class BookService {
       if (book === null) {
         // Thrown inside the transaction: TypeORM rolls back and rethrows, and a read-only
         // transaction has nothing to undo. The 404 reaches the client unchanged.
-        throw new NotFoundException('errors.book.notFound');
+        throw new NotFoundException(BOOK_ERROR_KEYS.notFound);
       }
 
       return this.buildDetail(manager, book);

@@ -22,6 +22,8 @@ import { AirQualityProvincePlateParams } from './dto/air-quality-params.dto';
 import { AirQualityProvinceDto } from './dto/air-quality-province.dto';
 import { AirQualityProvinceListItemDto } from './dto/air-quality-province-list-item.dto';
 import { AirQualitySeriesDto } from './dto/air-quality-series.dto';
+import { ApiErrorDto } from '../common/dto/api-error.dto';
+import { AIR_QUALITY_ERROR_KEYS } from './air-quality-error-keys';
 
 /**
  * `Cache-Control` of the two province endpoints (SPEC §11.1, verbatim). Applied BY HAND because
@@ -152,8 +154,11 @@ export class AirQualityController {
     description: 'Two-digit zero-padded province plate code.',
   })
   @ApiOkResponse({ type: AirQualityProvinceDto })
-  @ApiNotFoundResponse({ description: 'No province carries this plate code.' })
-  @ApiBadRequestResponse({ description: 'plateCode is not exactly two digits.' })
+  @ApiNotFoundResponse({
+    type: ApiErrorDto,
+    description: `${AIR_QUALITY_ERROR_KEYS.provinceNotFound}: no province carries this plate code.`,
+  })
+  @ApiBadRequestResponse({ type: ApiErrorDto, description: 'plateCode is not exactly two digits.' })
   async getProvince(
     @Param() params: AirQualityProvincePlateParams,
     @Res({ passthrough: true }) response: Response,
