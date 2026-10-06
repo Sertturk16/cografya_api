@@ -6,6 +6,7 @@ import request from 'supertest';
 import { DataSource } from 'typeorm';
 import { applyGlobalPrefix, applyProxyTrust, buildValidationPipe } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
+import { COMMON_ERROR_KEYS } from '../src/common/common-error-keys';
 import { INTERNAL_REQUEST_HEADER } from '../src/common/throttler/trusted-client';
 import {
   VISITOR_ADDRESS_HEADER,
@@ -146,6 +147,8 @@ describe('Rate limiting (e2e)', () => {
       status: denied.status,
       insideOneWindow: Date.now() - startedAt < throttleTtlMs,
     }).toEqual({ status: 429, insideOneWindow: true });
+    // A route that declares no key of its own still answers a key, never the throttler's prose.
+    expect(denied.body).toEqual({ statusCode: 429, message: COMMON_ERROR_KEYS.tooManyRequests });
   }, 120_000);
 
   it('does NOT throttle the trusted first-party client, from the same exhausted client', async () => {

@@ -48,7 +48,8 @@ reading `DATABASE_URL` from the shell (no `.env` loading).
   the module's `*-no-store.middleware.ts` (runs before guards, so 401/429 are covered).
 - No global exception filter. Every 4xx a handler, guard or service throws carries a key from
   its module's `*-error-keys.ts` (`errors.auth.unauthenticated`), never prose; the web renders
-  it. Only validation 400s (class-validator `message:`, `BadRequestException([...])`) may be
+  it. A 429 carries the route's `@ThrottlerErrorMessage` key, else `errors.common.tooManyRequests`.
+  Only validation 400s (class-validator `message:`, `BadRequestException([...])`) may be
   developer text; a deliberate 5xx is argless, its diagnostic goes to the log. Every error
   response is declared `type: ApiErrorDto`. Enforced by `src/common/error-keys.spec.ts` and
   `src/openapi/openapi-responses.spec.ts`. No user-facing strings here.

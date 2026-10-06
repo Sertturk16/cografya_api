@@ -373,12 +373,19 @@ describe('Elevation profile (e2e)', () => {
         http().get(`/api/elevation/profile?${SHORT_LINE}`).set(ANONYMOUS_MARKER, '1');
 
       const statuses: number[] = [];
+      const deniedBodies: unknown[] = [];
       for (let attempt = 0; attempt < 12; attempt += 1) {
         const res = await anonymous();
         statuses.push(res.status);
+        if (res.status === 429) deniedBodies.push(res.body);
       }
 
       expect(statuses).toContain(429);
+      // The body is this route's i18n key, not the throttler's English prose.
+      expect(deniedBodies[0]).toEqual({
+        statusCode: 429,
+        message: ELEVATION_ERROR_KEYS.tooManyRequests,
+      });
       // And the ceiling is the ROUTE's, not the global one: the global limit is far higher, so a
       // 429 inside twelve requests can only have come from the tighter per-route ceiling.
       expect(statuses.filter((status) => status === 200).length).toBeLessThan(12);

@@ -45,8 +45,11 @@ unit specs beside the source → e2e in `test/` if it touches Postgres → `pnpm
   live in that file too). Validation messages are the exception: a class-validator `message:`, or
   a `BadRequestException([...])` thrown in the pipe's `string[]` shape for a rule the pipe cannot
   run, may be English developer text. A deliberate 5xx is thrown with no argument and logs its
-  diagnostic. Framework-made errors (pipe 400, throttler 429 without `@ThrottlerErrorMessage`,
-  unhandled 500) keep the framework body.
+  diagnostic. Framework-made errors (pipe 400, unhandled 500) keep the framework body.
+- 429s: `TrustedClientThrottlerGuard` answers `errors.common.tooManyRequests`
+  (`src/common/common-error-keys.ts`). A route with its own `@Throttle` ceiling declares
+  `@ThrottlerErrorMessage(<MODULE>_ERROR_KEYS.<key>)` and names that key in its
+  `@ApiTooManyRequestsResponse` description; the argument must be a `*-error-keys.ts` key.
 
 ## Env vars
 

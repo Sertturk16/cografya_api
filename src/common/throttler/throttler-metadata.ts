@@ -17,18 +17,14 @@ export const THROTTLER_ERROR_MESSAGE = 'throttler:error-message';
 export const NO_TRUSTED_CLIENT_EXEMPTION = 'throttler:no-trusted-client-exemption';
 
 /**
- * Declares the body message a 429 from this route (or every route of this controller) carries,
- * replacing `@nestjs/throttler`'s built-in English prose `ThrottlerException: Too Many Requests`
- * (`throttler.exception.js`) — `CODE136-I1`/`SEC136-I4`.
+ * Declares the i18n key a 429 from this route (or every route of this controller) carries.
+ * A route that declares nothing answers `COMMON_ERROR_KEYS.tooManyRequests` instead
+ * (`TrustedClientThrottlerGuard.getErrorMessage`); neither ever answers `@nestjs/throttler`'s
+ * English prose. Declare one where the web should be able to say something route-specific (a
+ * tighter `@Throttle` ceiling, the auth IP axis).
  *
- * **Scope is deliberately per-route/per-controller, not module-wide.** `ThrottlerModule.forRoot`
- * accepts an `errorMessage`, but that value applies to EVERY route in the app, so a single auth
- * i18n key would start appearing in the 429 body of every public content endpoint too — a
- * contract change far wider than the finding. Routes that declare nothing keep the framework
- * default, unchanged.
- *
- * The value is an i18n KEY, never reader-facing prose (`ENGINEERING.md` §6): the sentence a
- * reader sees is `cografya_web`'s.
+ * The value is a key imported from the module's `*-error-keys.ts`, never reader-facing prose
+ * (`src/common/error-keys.spec.ts` enforces it): the sentence a reader sees is `cografya_web`'s.
  */
 export const ThrottlerErrorMessage = (message: string): MethodDecorator & ClassDecorator =>
   SetMetadata(THROTTLER_ERROR_MESSAGE, message);

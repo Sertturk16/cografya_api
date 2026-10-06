@@ -1029,7 +1029,7 @@
             }
           },
           "429": {
-            "description": "The per-client rate limit for this route was exceeded. Tighter than the global limit because this route can reach an external provider.",
+            "description": "errors.elevation.tooManyRequests: the per-client rate limit for this route was exceeded. Tighter than the global limit because this route can reach an external provider.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2175,7 +2175,7 @@
             }
           },
           "429": {
-            "description": "The per-client rate limit for this route was exceeded. Tighter than the global limit because this route can reach an external provider.",
+            "description": "errors.videoCover.tooManyRequests: the per-client rate limit for this route was exceeded. Tighter than the global limit because this route can reach an external provider.",
             "content": {
               "application/json": {
                 "schema": {

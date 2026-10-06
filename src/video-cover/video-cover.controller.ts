@@ -14,6 +14,7 @@ import { VideoCoverParams } from './dto/video-cover-params.dto';
 import { VIDEO_COVER_ROUTE_SEGMENT } from './video-cover-address';
 import { VideoCoverService } from './video-cover.service';
 import { ApiErrorDto } from '../common/dto/api-error.dto';
+import { ThrottlerErrorMessage } from '../common/throttler/throttler-metadata';
 import { VIDEO_COVER_ERROR_KEYS } from './video-cover-error-keys';
 
 /**
@@ -30,9 +31,9 @@ const VIDEO_COVER_CACHE_CONTROL = 'public, max-age=3600, stale-while-revalidate=
  * book-page thumbnail, and a single shared IP (a school's NAT, a classroom) can legitimately
  * generate many requests quickly, sized for "many thumbnails, one visitor" rather than elevation's
  * "one action, one visitor" (plan §5.7). A first-cut default, flagged for confirmation before real
- * production traffic (plan §13).
+ * production traffic (plan §13). Exported so the e2e's 429 case reads the real ceiling.
  */
-const VIDEO_COVER_THROTTLE_LIMIT = 60;
+export const VIDEO_COVER_THROTTLE_LIMIT = 60;
 const VIDEO_COVER_THROTTLE_TTL_MS = 60_000;
 
 /**
@@ -76,6 +77,7 @@ export class VideoCoverController {
   @CacheControl(VIDEO_COVER_CACHE_CONTROL)
   @Header(VIDEO_COVER_RESOURCE_POLICY_HEADER, VIDEO_COVER_RESOURCE_POLICY_VALUE)
   @Throttle({ default: { limit: VIDEO_COVER_THROTTLE_LIMIT, ttl: VIDEO_COVER_THROTTLE_TTL_MS } })
+  @ThrottlerErrorMessage(VIDEO_COVER_ERROR_KEYS.tooManyRequests)
   @ApiParam({ name: 'bookVideoId', format: 'uuid', description: 'book_videos.id.' })
   @ApiOperation({
     summary: "The api's own cover proxy for one book video — never the provider's own address.",
@@ -99,8 +101,8 @@ export class VideoCoverController {
   @ApiTooManyRequestsResponse({
     type: ApiErrorDto,
     description:
-      'The per-client rate limit for this route was exceeded. Tighter than the global limit ' +
-      'because this route can reach an external provider.',
+      `${VIDEO_COVER_ERROR_KEYS.tooManyRequests}: the per-client rate limit for this route was ` +
+      'exceeded. Tighter than the global limit because this route can reach an external provider.',
   })
   async getCover(@Param() params: VideoCoverParams): Promise<StreamableFile> {
     return this.videoCover.getCover(params.bookVideoId);
