@@ -350,7 +350,10 @@ export interface FetchedBody {
  *    `ENGINEERING.md` §5 says polite *by construction*, which cannot mean "polite while
  *    nothing goes wrong".
  */
-export async function politeGet(url: string): Promise<FetchedBody> {
+export async function politeGet(
+  url: string,
+  sleepImpl: (ms: number) => Promise<void> = sleep,
+): Promise<FetchedBody> {
   const startedAt = Date.now();
   try {
     const response = await fetch(url, {
@@ -383,7 +386,7 @@ export async function politeGet(url: string): Promise<FetchedBody> {
     return { status: response.status, bytes, elapsedMs, headers: response.headers };
   } finally {
     // Every exit path pays the gap, including the failing ones.
-    await sleep(REQUEST_SPACING_MS);
+    await sleepImpl(REQUEST_SPACING_MS);
   }
 }
 
@@ -547,7 +550,10 @@ export function percentile(sorted: readonly number[], fraction: number): number 
  * Run the probe and return the artifact. Exported so the entry point stays a thin shell and
  * the shape can be inspected without executing a network run.
  */
-export async function runTerrainProbe(baseUrl: string): Promise<TerrainProbeArtifact> {
+export async function runTerrainProbe(
+  baseUrl: string,
+  sleepImpl: (ms: number) => Promise<void> = sleep,
+): Promise<TerrainProbeArtifact> {
   const tiles: TileFetchRecord[] = [];
   const points: PointRecord[] = [];
   const bathymetryByZoom: TerrainProbeArtifact['bathymetryByZoom'][number][] = [];
@@ -566,7 +572,7 @@ export async function runTerrainProbe(baseUrl: string): Promise<TerrainProbeArti
     // exactly when requests are failing makes the artifact wrong about its own behaviour in
     // the one case a reviewer needs it right (review #122, CODE122-M2 / SFH122-M3).
     requestCount += 1;
-    const response = await politeGet(tileUrl(baseUrl, zoom, x, y));
+    const response = await politeGet(tileUrl(baseUrl, zoom, x, y), sleepImpl);
 
     const sources = response.headers.get('x-amz-meta-x-imagery-sources');
     tiles.push({
@@ -718,7 +724,7 @@ export async function runTerrainProbe(baseUrl: string): Promise<TerrainProbeArti
   let attributionError: string | null = null;
   try {
     requestCount += 1;
-    const response = await politeGet(ATTRIBUTION_DOC_URL);
+    const response = await politeGet(ATTRIBUTION_DOC_URL, sleepImpl);
     // A non-200 body is an ERROR PAGE, and hashing it reports `matchesPin: false` — i.e. "the
     // licence document changed" — for a routine 429 from raw.githubusercontent.com. That is
     // exactly the collapse the comment above forbids, in the direction that cries wolf until
@@ -817,12 +823,14 @@ export const TERRAIN_DEFAULT_BASE_URL = DEFAULT_BASE_URL;
 export async function runTerrainProbePhase(options: {
   readonly outputPath: string;
   readonly baseUrl?: string;
+  /** Injected for tests; defaults to real timers. Receives every politeness gap. */
+  readonly sleepImpl?: (ms: number) => Promise<void>;
 }): Promise<TerrainProbeArtifact> {
   if (!isAbsolute(options.outputPath)) {
     throw new Error(`outputPath must be absolute, received "${options.outputPath}"`);
   }
 
-  const artifact = await runTerrainProbe(options.baseUrl ?? DEFAULT_BASE_URL);
+  const artifact = await runTerrainProbe(options.baseUrl ?? DEFAULT_BASE_URL, options.sleepImpl);
 
   // Written FIRST, and unconditionally: a failed run's evidence is exactly what a human needs
   // to diagnose it.

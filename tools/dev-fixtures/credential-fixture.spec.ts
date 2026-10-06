@@ -43,14 +43,22 @@ describe('generateCompliantPassword', () => {
   });
 });
 
-describe('hashPassword', () => {
-  it('produces an argon2id PHC string the real login verify path accepts', async () => {
-    const password = generateCompliantPassword();
-    const hash = await hashPassword(password);
-    expect(hash).toMatch(/^\$argon2id\$/);
+// Real Argon2id, one hash plus two verifies: sized like the real-hash tests in
+// `src/auth/password-hasher.service.spec.ts`, which record the measurement.
+const REAL_ARGON2_TIMEOUT_MS = 30_000;
 
-    const argon2 = await import('argon2');
-    await expect(argon2.verify(hash, password)).resolves.toBe(true);
-    await expect(argon2.verify(hash, 'definitely-wrong')).resolves.toBe(false);
-  });
+describe('hashPassword', () => {
+  it(
+    'produces an argon2id PHC string the real login verify path accepts',
+    async () => {
+      const password = generateCompliantPassword();
+      const hash = await hashPassword(password);
+      expect(hash).toMatch(/^\$argon2id\$/);
+
+      const argon2 = await import('argon2');
+      await expect(argon2.verify(hash, password)).resolves.toBe(true);
+      await expect(argon2.verify(hash, 'definitely-wrong')).resolves.toBe(false);
+    },
+    REAL_ARGON2_TIMEOUT_MS,
+  );
 });

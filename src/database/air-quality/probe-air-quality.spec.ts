@@ -1,4 +1,4 @@
-import { describe, expect, it } from '@jest/globals';
+import { beforeAll, describe, expect, it } from '@jest/globals';
 import { createHash } from 'node:crypto';
 import { mkdtemp, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -197,6 +197,37 @@ function buildArchive(
   return buildZipArchive([{ name: entryName, bytes: buildNetcdf3(spec) }]);
 }
 
+type JobArchives = Readonly<Record<'job-production' | 'job-analysis' | 'job-fixture', Uint8Array>>;
+
+let jobArchivesCache: JobArchives | null = null;
+
+/**
+ * The three archives the fake ADS serves, built once per file. They are a pure function of
+ * constants, and building them is seconds of CPU and ~150 MB of heap (the production archive
+ * alone is 5 × 97 × 13 650 values): rebuilding them inside every faked run spent that inside
+ * each test's wall-clock budget, which a loaded machine stretched past the 30 s timeout.
+ * Never mutated — the fake hands out a hash of each and a COPY as the response body.
+ */
+function jobArchives(): JobArchives {
+  if (jobArchivesCache === null) {
+    // 97 records: the evidence gate BINDS the production step count (SF-77-2) — a 2-step fake
+    // would now fail the probe's own assertions, which is exactly the point. The analysis
+    // archive is the D−1 shape: 24 records, ANALYSIS product word, the SAME grid (which is what
+    // the grid-identity gate reads).
+    jobArchivesCache = {
+      'job-production': buildArchive(POLLUTANT_FILE_VARIABLES, 97),
+      'job-analysis': buildArchive(
+        POLLUTANT_FILE_VARIABLES,
+        24,
+        'ANALYSIS time from 20260731',
+        'ENS_ANALYSIS.nc',
+      ),
+      'job-fixture': buildArchive(['pm2p5_conc'], 1),
+    };
+  }
+  return jobArchivesCache;
+}
+
 interface RecordedCall {
   method: string;
   url: string;
@@ -207,23 +238,7 @@ function fakeAds(options: { failExecutionWithKeyEcho?: boolean; hostileJobId?: b
   fetchImpl: typeof fetch;
   calls: RecordedCall[];
 } {
-  // 97 records: the evidence gate BINDS the production step count (SF-77-2) — a 2-step fake
-  // would now fail the probe's own assertions, which is exactly the point. The analysis archive
-  // is the D−1 shape: 24 records, ANALYSIS product word, the SAME grid (which is what the
-  // grid-identity gate reads).
-  const productionArchive = buildArchive(POLLUTANT_FILE_VARIABLES, 97);
-  const analysisArchive = buildArchive(
-    POLLUTANT_FILE_VARIABLES,
-    24,
-    'ANALYSIS time from 20260731',
-    'ENS_ANALYSIS.nc',
-  );
-  const fixtureArchive = buildArchive(['pm2p5_conc'], 1);
-  const archives: Record<string, Uint8Array> = {
-    'job-production': productionArchive,
-    'job-analysis': analysisArchive,
-    'job-fixture': fixtureArchive,
-  };
+  const archives: Readonly<Record<string, Uint8Array>> = jobArchives();
   const calls: RecordedCall[] = [];
   const submittedJobIds: string[] = [];
   let submissions = 0;
@@ -324,6 +339,11 @@ function fakeAds(options: { failExecutionWithKeyEcho?: boolean; hostileJobId?: b
 }
 
 describe('runAirQualityProbePhase — faked end-to-end', () => {
+  // Synchronous, so it holds no timer: the one-off build cost stays out of every test's budget.
+  beforeAll(() => {
+    jobArchives();
+  });
+
   const runProbe = async (): Promise<{
     calls: RecordedCall[];
     outputDir: string;

@@ -112,6 +112,19 @@ export function syntheticMonths(monthCount: number, firstYear: number): Era5Mont
   });
 }
 
+/** One flag per grid cell, set for each `"latIndex,lonIndex"` key in `cells`. */
+function cellFlags(cells: ReadonlySet<string>, latCount: number, lonCount: number): Uint8Array {
+  const flags = new Uint8Array(latCount * lonCount);
+  for (let latIndex = 0; latIndex < latCount; latIndex += 1) {
+    for (let lonIndex = 0; lonIndex < lonCount; lonIndex += 1) {
+      if (cells.has(`${String(latIndex)},${String(lonIndex)}`)) {
+        flags[latIndex * lonCount + lonIndex] = 1;
+      }
+    }
+  }
+  return flags;
+}
+
 /**
  * A smooth, plausible field: temperature falls with latitude and wobbles with the month;
  * precipitation is a small positive m/day value. Masked cells read NaN.
@@ -119,15 +132,20 @@ export function syntheticMonths(monthCount: number, firstYear: number): Era5Mont
 function generateValues(name: string, resolved: ResolvedOptions): Float64Array {
   const latCount = resolved.latitudeAxis.length;
   const lonCount = resolved.longitudeAxis.length;
+  // The mask is a property of the CELL, so it is resolved once per cell rather than once per
+  // cell per month: a 360-month file is 5M cells, and building a string key for each of them
+  // made this builder the slowest thing in the ERA5 specs.
+  const maskedAlways = cellFlags(resolved.maskedCells, latCount, lonCount);
+  const maskedAfterFirstMonth = cellFlags(resolved.flickeringCells, latCount, lonCount);
   const out = new Float64Array(resolved.monthCount * latCount * lonCount);
   let cursor = 0;
   for (let timeIndex = 0; timeIndex < resolved.monthCount; timeIndex += 1) {
     for (let latIndex = 0; latIndex < latCount; latIndex += 1) {
       const latitude = resolved.latitudeAxis[latIndex] ?? 0;
       for (let lonIndex = 0; lonIndex < lonCount; lonIndex += 1) {
-        const key = `${String(latIndex)},${String(lonIndex)}`;
+        const cell = latIndex * lonCount + lonIndex;
         const masked =
-          resolved.maskedCells.has(key) || (resolved.flickeringCells.has(key) && timeIndex > 0);
+          maskedAlways[cell] === 1 || (maskedAfterFirstMonth[cell] === 1 && timeIndex > 0);
         if (masked) {
           out[cursor] = Number.NaN;
         } else if (name === 'tp') {

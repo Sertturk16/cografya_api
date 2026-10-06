@@ -60,8 +60,14 @@ required), default only when a safe default exists. Cross-field constraints go t
 ## Tests
 
 - Unit lane `pnpm test:unit`: `test/jest-unit.json`, regex `(tools|src)/.*\.spec\.ts$`,
-  `TZ=Europe/Istanbul`. Spec sits next to its source. Anything that needs no database
-  belongs here. Fixture builders that exist only for specs are excluded from
+  `TZ=Europe/Istanbul`, workers capped at 50% of cores: one per core (each 250-650 MB with
+  ts-jest) swapped the 20-core dev box under other load and timed out tests that await a
+  timer, fs or the thread pool. Spec sits next to its source. Anything that needs no database
+  belongs here.
+- A unit test keeps waiting and setup out of its timeout: politeness sleeps go through the
+  runner's `sleepImpl`, a clock-based assertion drives a fake clock, a heavy constant fixture
+  is built once in a synchronous `beforeAll`; real heavy work that is the point of the test
+  (production Argon2id) gets an explicit, measured timeout. Never `jest.retryTimes`. Fixture builders that exist only for specs are excluded from
   `tsconfig.build.json`.
 - e2e lane `pnpm test:e2e`: `test/*.e2e-spec.ts`, `test/jest-e2e.json`, 120 s timeout,
   `NODE_ENV=test` (no `.env`: a suite sets every variable it needs), at most 6 workers: each

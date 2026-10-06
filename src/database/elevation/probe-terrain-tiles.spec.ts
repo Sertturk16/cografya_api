@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from '@jest/globals';
+import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -240,6 +240,7 @@ describe('terrain probe', () => {
 
     afterEach(() => {
       globalThis.fetch = realFetch;
+      jest.restoreAllMocks();
     });
 
     it('identifies itself, refuses redirects and bounds the call', async () => {
@@ -263,9 +264,19 @@ describe('terrain probe', () => {
       // The defect this replaced: `elapsedMs` was computed after the 400 ms gap, so every
       // published latency carried a fixed offset and PR-E2 would size a deadline off a median
       // 2.7× too large (review #122, CODE122-I2).
+      //
+      // The clock is driven by hand and only the injected sleep advances it, by one full gap.
+      // A real clock made this a race: a stall of 400 ms anywhere in the fake request, which a
+      // loaded machine produces, read as "the sleep is inside the measurement".
+      let now = 1_000_000;
+      jest.spyOn(Date, 'now').mockImplementation(() => now);
       stubFetch(() => new Response(new Uint8Array([1]), { status: 200 }));
-      const result = await politeGet('https://example.test/tile.png');
-      expect(result.elapsedMs).toBeLessThan(REQUEST_SPACING_MS);
+      const result = await politeGet('https://example.test/tile.png', (ms) => {
+        now += ms;
+        return Promise.resolve();
+      });
+      expect(now).toBe(1_000_000 + REQUEST_SPACING_MS);
+      expect(result.elapsedMs).toBe(0);
     });
 
     it('waits the spacing gap even when the request FAILS', async () => {
@@ -300,7 +311,9 @@ describe('terrain probe', () => {
     //
     // Driven end to end against a fake provider, because that is the only way to prove the
     // WRITE-then-REFUSE order: the artifact must exist for diagnosis, and the promise must
-    // still reject. The run makes ~16 spaced requests, hence the raised timeout.
+    // still reject. The run makes ~16 spaced requests; the spacing goes through an injected
+    // sleep, because ~16 real 400 ms gaps spent a fixed ~6 s of the test's wall-clock budget
+    // and, on a loaded machine, pushed the decode work past the timeout.
     const realFetch = globalThis.fetch;
 
     afterEach(() => {
@@ -318,13 +331,26 @@ describe('terrain probe', () => {
         Promise.resolve(new Response(tile.slice().buffer, { status: 200 }));
 
       const outputPath = join(mkdtempSync(join(tmpdir(), 'terrain-probe-')), 'probe.json');
+      const sleeps: number[] = [];
+      const sleepImpl = (ms: number): Promise<void> => {
+        sleeps.push(ms);
+        return Promise.resolve();
+      };
 
-      await expect(runTerrainProbePhase({ outputPath })).rejects.toThrow(TerrainProbeGateError);
+      await expect(runTerrainProbePhase({ outputPath, sleepImpl })).rejects.toThrow(
+        TerrainProbeGateError,
+      );
 
       // The evidence is on disk anyway — a failed run's artifact is what a human diagnoses
       // from — and it records the failure rather than hiding it.
       const written = JSON.parse(readFileSync(outputPath, 'utf8')) as TerrainProbeArtifact;
       expect(written.assertions.some((assertion) => !assertion.passed)).toBe(true);
+      // The injected sleep is still the politeness contract: one full gap per request the run
+      // counted, so a seam that let a request skip its gap would fail here.
+      expect(written.requestCount).toBeGreaterThan(0);
+      expect(sleeps).toEqual(
+        Array.from({ length: written.requestCount }, () => REQUEST_SPACING_MS),
+      );
     }, 30_000);
   });
 

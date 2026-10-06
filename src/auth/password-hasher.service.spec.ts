@@ -6,6 +6,16 @@ import {
   PasswordHashVerificationError,
 } from './password-hasher.service';
 
+/**
+ * Budget for a test that runs REAL Argon2id at the production profile. One hash is
+ * memory-hard by design (19 MiB, t=2): ~50 ms on an idle dev box, measured at 2.6 s for one
+ * hash plus two verifies while the box ran two unit lanes at load ~75 and was swapping, and
+ * past Jest's 5 s default at load 40-55. The work runs on libuv's thread pool while the test
+ * awaits it, so a stall is a timeout rather than a slow pass. The parameters are what these
+ * tests prove, so the cost stays and the budget is sized to it.
+ */
+const REAL_ARGON2_TIMEOUT_MS = 30_000;
+
 describe('PasswordHasherService', () => {
   const service = new PasswordHasherService();
 
@@ -13,28 +23,40 @@ describe('PasswordHasherService', () => {
     jest.restoreAllMocks();
   });
 
-  it('writes an Argon2id PHC string carrying the reviewed parameters', async () => {
-    const encoded = await service.hash('Synthetic-Password-1');
+  it(
+    'writes an Argon2id PHC string carrying the reviewed parameters',
+    async () => {
+      const encoded = await service.hash('Synthetic-Password-1');
 
-    expect(encoded).toMatch(/^\$argon2id\$v=19\$/);
-    expect(encoded).toContain(`m=${PASSWORD_HASH_OPTIONS.memoryCost}`);
-    expect(encoded).toContain(`t=${PASSWORD_HASH_OPTIONS.timeCost}`);
-    expect(encoded).toContain(`p=${PASSWORD_HASH_OPTIONS.parallelism}`);
-  });
+      expect(encoded).toMatch(/^\$argon2id\$v=19\$/);
+      expect(encoded).toContain(`m=${PASSWORD_HASH_OPTIONS.memoryCost}`);
+      expect(encoded).toContain(`t=${PASSWORD_HASH_OPTIONS.timeCost}`);
+      expect(encoded).toContain(`p=${PASSWORD_HASH_OPTIONS.parallelism}`);
+    },
+    REAL_ARGON2_TIMEOUT_MS,
+  );
 
-  it('accepts the matching password and rejects a different password', async () => {
-    const encoded = await service.hash('Synthetic-Password-2');
+  it(
+    'accepts the matching password and rejects a different password',
+    async () => {
+      const encoded = await service.hash('Synthetic-Password-2');
 
-    await expect(service.verify(encoded, 'Synthetic-Password-2')).resolves.toBe(true);
-    await expect(service.verify(encoded, 'Different-Password-2')).resolves.toBe(false);
-  });
+      await expect(service.verify(encoded, 'Synthetic-Password-2')).resolves.toBe(true);
+      await expect(service.verify(encoded, 'Different-Password-2')).resolves.toBe(false);
+    },
+    REAL_ARGON2_TIMEOUT_MS,
+  );
 
-  it('uses a fresh salt for each hash', async () => {
-    const first = await service.hash('Synthetic-Password-3');
-    const second = await service.hash('Synthetic-Password-3');
+  it(
+    'uses a fresh salt for each hash',
+    async () => {
+      const first = await service.hash('Synthetic-Password-3');
+      const second = await service.hash('Synthetic-Password-3');
 
-    expect(first).not.toBe(second);
-  });
+      expect(first).not.toBe(second);
+    },
+    REAL_ARGON2_TIMEOUT_MS,
+  );
 
   it('fails closed on a malformed hash without echoing either input', async () => {
     const malformed = 'not-a-phc-string';
