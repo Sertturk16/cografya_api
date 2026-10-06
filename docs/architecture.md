@@ -49,7 +49,9 @@ siblings next to every source file.
 
 ## Config
 
-`ConfigModule.forRoot({ isGlobal, cache, validate: validateEnv })`. Schema:
+`ConfigModule.forRoot(buildConfigModuleOptions(NODE_ENV))` (`src/config/config-module-options.ts`):
+`isGlobal`, `cache`, `validate: validateEnv`, and `.env` is not read under `NODE_ENV=test` (Jest's
+default, pinned by `pnpm test:e2e`), so tests see only what the shell and the suite set. Schema:
 `src/config/env.schema.ts` (zod, cross-field checks via `src/config/env-bounds.ts`).
 Unknown keys stripped, missing/mistyped abort boot. `.env.example` documents every var.
 

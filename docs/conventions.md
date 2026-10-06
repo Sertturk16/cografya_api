@@ -63,7 +63,10 @@ required), default only when a safe default exists. Cross-field constraints go t
   `TZ=Europe/Istanbul`. Spec sits next to its source. Anything that needs no database
   belongs here. Fixture builders that exist only for specs are excluded from
   `tsconfig.build.json`.
-- e2e lane `pnpm test:e2e`: `test/*.e2e-spec.ts`, `test/jest-e2e.json`, 120 s timeout.
+- e2e lane `pnpm test:e2e`: `test/*.e2e-spec.ts`, `test/jest-e2e.json`, 120 s timeout,
+  `NODE_ENV=test` (no `.env`: a suite sets every variable it needs), at most 6 workers: each
+  suite boots its own Postgres container, and one per core on a 20-core dev box timed out
+  `beforeAll` hooks (CI's runner has fewer cores, so the cap does not change it).
   Each spec starts a Testcontainers Postgres, builds a `DataSource` via
   `buildDataSourceOptions`, runs migrations, then loads `AppModule` inside `beforeAll` with a
   typed `require('../src/app.module') as typeof import('../src/app.module')` (after the env is

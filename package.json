@@ -22,7 +22,7 @@
     "test:unit": "TZ=Europe/Istanbul jest --config test/jest-unit.json",
     "seed:transcribe": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tools/seed-transcription/cli.ts",
     "test": "jest --config test/jest-e2e.json",
-    "test:e2e": "jest --config test/jest-e2e.json",
+    "test:e2e": "NODE_ENV=test jest --config test/jest-e2e.json",
     "typeorm": "typeorm",
     "migration:run": "pnpm build && typeorm migration:run -d dist/database/data-source.js",
     "migration:revert": "pnpm build && typeorm migration:revert -d dist/database/data-source.js",

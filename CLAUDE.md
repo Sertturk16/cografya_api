@@ -15,8 +15,7 @@ docker compose --profile app up -d api   # the dev API (cografya-api-dev) on :30
 pnpm start:dev                       # same API on the host instead (stop the container first)
 pnpm typecheck && pnpm lint          # gate before every commit (no --fix in review)
 pnpm test:unit [path]                # jest, specs next to source; bare `jest` lacks the config
-pnpm test:e2e                        # Testcontainers, slow; a local .env with *_ENABLED=true
-                                     # fails 6 upstream suites, CI has no .env
+pnpm test:e2e                        # Testcontainers, slow; NODE_ENV=test, so .env is not read
 pnpm openapi:generate                # after ANY DTO/route change; commit openapi/openapi.json
 pnpm migration:generate src/database/migrations/<Name>   # then register it (see below)
 ```
