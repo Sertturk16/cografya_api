@@ -27,8 +27,8 @@ file disagrees, they win. `synchronize` is off, so nothing reaches Postgres with
    `pnpm test:unit src/database/migration-registry.spec.ts` fails until the file, the array
    and both lists agree.
 6. **Whole e2e lane.** `pnpm test:e2e`, not only the module you touched: a new migration breaks
-   suites that never mention it. A local `.env` with `*_ENABLED=true` fails six upstream suites
-   (see `CLAUDE.md` Commands); CI has none.
+   suites that never mention it. The lane runs with `NODE_ENV=test` and does not read `.env`
+   (`CLAUDE.md` Commands), so local feature flags do not change its result.
 7. **Contract.** If a DTO changed too: `pnpm contract:sync` from `cografya_web` (it runs
    `openapi:generate` here; root `CLAUDE.md`).
 

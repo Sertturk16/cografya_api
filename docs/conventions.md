@@ -11,7 +11,7 @@ Read before writing a DTO, a test, a migration or a commit.
 - `tsconfig`: `nodenext`, ES2023, decorators + metadata, `strict`, `noUncheckedIndexedAccess`.
   No path aliases; all imports are relative.
 - Comments carry rationale and measurements, not restatements of the code. Keep that
-  culture but do not cite documents that no longer exist (see `../CLAUDE.md`).
+  culture but do not cite documents that no longer exist.
 - Constants that are policy (timeouts, pool size, throttle limits) are exported named
   constants, not env vars, unless an operator genuinely needs to tune them per deploy.
 

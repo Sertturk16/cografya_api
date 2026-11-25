@@ -13,7 +13,7 @@ import { isDirectInvocation, pickDistrict } from './iris-audit-account-runner.ts
  * ONE pre-verified, idempotently-reset fixture account directly in the LOCAL DEV Postgres, and
  * prints the plaintext token to THIS run's own stdout, once.
  *
- *   DATABASE_URL=postgresql://cografya:cografya_dev@localhost:5433/cografya \
+ *   DATABASE_URL=postgresql://cografya:cografya_dev@localhost:5432/cografya \
  *     node tools/dev-fixtures/password-reset-fixture.ts
  *
  * ## Why this exists (`Owner's Inbox/uyelik-uyum-denetimi/p4-sifirlama-ekranlari/atlas-karar.md`
