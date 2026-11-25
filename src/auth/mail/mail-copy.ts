@@ -1,5 +1,5 @@
 import type { MailLocale } from './mailer.port';
-import { renderEmailHtml, renderEmailText, type EmailBody } from './mail-layout';
+import { BRAND_NAME, renderEmailHtml, renderEmailText, type EmailBody } from './mail-layout';
 
 // This file is the ONE place in `cografya_api` allowed to carry reader-facing prose. The
 // repo-wide "user-facing text does not exist in this repo" rule (`../../../CLAUDE.md`) targets
@@ -91,7 +91,7 @@ export const MAIL_COPY: {
 } = {
   'verify-email': {
     tr: ({ code, expiresInMinutes }) =>
-      render('Coğrafya Gurmesi doğrulama kodunuz', {
+      render(`${BRAND_NAME} doğrulama kodunuz`, {
         locale: 'tr',
         preheader: `Kodunuz ${expiresInMinutes} dakika geçerli.`,
         heading: 'Hesabınızı doğrulayın',
@@ -101,7 +101,7 @@ export const MAIL_COPY: {
         reassurance: 'Bu isteği siz yapmadıysanız bu e-postayı yok sayabilirsiniz.',
       }),
     en: ({ code, expiresInMinutes }) =>
-      render('Your Coğrafya Gurmesi verification code', {
+      render(`Your ${BRAND_NAME} verification code`, {
         locale: 'en',
         preheader: `Your code expires in ${expiresInMinutes} minutes.`,
         heading: 'Verify your account',

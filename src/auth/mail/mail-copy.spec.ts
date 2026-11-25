@@ -24,7 +24,7 @@ import type { MailLocale } from './mailer.port';
  * pins the rendered URLs as a tripwire, not as proof the web still serves them.
  */
 
-const WEB_ORIGIN = 'https://cografyagurmesi.test';
+const WEB_ORIGIN = 'https://geograp.test';
 const CTX = { webOrigin: WEB_ORIGIN };
 const LOCALES: readonly MailLocale[] = ['tr', 'en'];
 
