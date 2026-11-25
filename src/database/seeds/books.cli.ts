@@ -1,7 +1,11 @@
 import { DataSource } from 'typeorm';
 import { buildDataSourceOptions } from '../data-source-options';
-import { collectBookSeedNotes, validateBookSeedCorpus } from './book-seed-invariants';
-import { SEED_BOOKS, type BookSeed } from './books.seed-data';
+import {
+  collectBookSeedNotes,
+  validateBookSeedCorpus,
+  type ValidateBookSeedCorpusOptions,
+} from './book-seed-invariants';
+import type { BookSeed } from './books.seed-data';
 import { seedBooks } from './seed-books';
 
 /**
@@ -34,6 +38,12 @@ import { seedBooks } from './seed-books';
  * What `--check` still cannot see is anything that depends on DATABASE STATE: whether this run
  * would delete rows is not knowable without the rows, which is why `--allow-removals` exists on the
  * write path only.
+ *
+ * ## An empty corpus exits 0
+ * `SEED_BOOKS` is empty today, and both modes say so ("0 books, nothing to seed") and exit 0 — the
+ * seed run without opening a connection, because there is nothing to write. A book added to the
+ * corpus must also be wired into {@link corpusOptions} with its committed etiket index, or both
+ * modes refuse it.
  *
  * ## Why an unrecognised argument is refused rather than ignored
  * `--chek` would otherwise mean "write to the database" to somebody who typed "validate only".
@@ -69,6 +79,19 @@ export function parseBooksSeedCliArgs(argv: readonly string[]): BooksSeedCliArgs
   };
 }
 
+/**
+ * The committed etiket index and its owner, handed to both modes.
+ *
+ * Empty while the corpus is. A book lands with `artifact` (read by
+ * `readBookTimestampsArtifact(path, sha256)` and checked by `assertArtifactMeetsCoverageFloor`)
+ * and `ownerSlugTr` here, in the same PR as its `SEED_BOOKS` row.
+ */
+function corpusOptions(): ValidateBookSeedCorpusOptions {
+  return {};
+}
+
+const NOTHING_TO_SEED = '0 books in the seed corpus, nothing to seed.';
+
 function printNotes(books: readonly BookSeed[]): void {
   // Editorial length bands (SEO-POLICY A1/A2) are NOTES by rule, never failures — printed on every
   // run so they are seen by whoever edits a string, not by an auditor months later.
@@ -77,30 +100,45 @@ function printNotes(books: readonly BookSeed[]): void {
   }
 }
 
-async function runCheck(): Promise<void> {
-  const { books, artifact } = await validateBookSeedCorpus();
-  printNotes(books);
+function runCheck(): void {
+  const corpus = validateBookSeedCorpus(corpusOptions());
+  if (corpus.owner === null) {
+    console.log(`[db:seed:books] check passed — ${NOTHING_TO_SEED}`);
+    return;
+  }
+
+  printNotes(corpus.books);
   console.log(
-    `[db:seed:books] check passed — books=${String(books.length)} ` +
-      `videos=${String(artifact.videos.length)} tags=${String(artifact.tagCount)}. ` +
+    `[db:seed:books] check passed — books=${String(corpus.books.length)} ` +
+      `videos=${String(corpus.artifact.videos.length)} tags=${String(corpus.artifact.tagCount)}. ` +
       `Nothing was written and no connection was opened.`,
   );
 }
 
 async function runSeed(allowRemovals: boolean): Promise<void> {
+  // Validated before the connection: an empty corpus needs no database, and a defective one should
+  // fail naming its rule rather than after a connect. `seedBooks` validates again — the same
+  // function, so the two cannot disagree.
+  const options = corpusOptions();
+  const corpus = validateBookSeedCorpus(options);
+  if (corpus.owner === null) {
+    console.log(`[db:seed:books] done — ${NOTHING_TO_SEED}`);
+    return;
+  }
+
   const databaseUrl = process.env.DATABASE_URL;
 
   if (!databaseUrl) {
     throw new Error('DATABASE_URL must be set to run db:seed:books.');
   }
 
-  printNotes(SEED_BOOKS);
+  printNotes(corpus.books);
 
   const dataSource = new DataSource(buildDataSourceOptions(databaseUrl));
   await dataSource.initialize();
 
   try {
-    const result = await seedBooks(dataSource, { allowRemovals });
+    const result = await seedBooks(dataSource, { ...options, allowRemovals });
     console.log(
       `[db:seed:books] done — books: inserted=${String(result.books.inserted)} ` +
         `updated=${String(result.books.updated)} unchanged=${String(result.books.unchanged)}; ` +
@@ -138,7 +176,7 @@ async function main(): Promise<void> {
   const args = parseBooksSeedCliArgs(process.argv.slice(2));
 
   if (args.checkOnly) {
-    await runCheck();
+    runCheck();
     return;
   }
 

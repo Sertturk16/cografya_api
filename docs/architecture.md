@@ -85,7 +85,9 @@ inside `beforeAll` after setting `DATABASE_URL`.
 - Public entities carry `slug_tr` + `slug_en` (indexed) because the web routes on them. Only
   an entity with no page of its own (e.g. `earthquake_events`) may skip slugs.
 - Seeds (`src/database/seeds/*.cli.ts`), order: geography → world → books → reference
-  (`regions` separately). `--check` on books/reference validates without a DB.
+  (`regions` separately). `--check` on books/reference validates without a DB. The book corpus
+  is empty (an empty catalogue is a supported state); a book lands with its committed etiket
+  index, wired into `books.cli.ts`. Specs seed the fictional book in `test/fixtures/books/`.
 - Offline importers `src/database/{acag,air-quality,earthquake,elevation,era5,marine}/*.cli.ts`
   behind `pnpm db:import:*`. Network fetch phases are run by hand and commit reviewable
   artifacts under `data/`; the `load` phase is deterministic and is the only phase CI runs.
@@ -164,7 +166,7 @@ Document built once in `src/openapi/build-document.ts`, shared with `main.ts`.
 - `tools/dev-fixtures/` — hand-run local fixtures (credentials, password-reset token, audit
   accounts) guarded by `local-database-guard.ts`.
 - `data/` — committed provenance artifacts and probes per source (acag-pm25, air-quality,
-  books, earthquake, elevation, era5-land, marine, reference). Copied into the prod image.
+  earthquake, elevation, era5-land, marine, reference). Copied into the prod image.
 - `docs/data-provenance-*.md` — snapshot ledgers for the province seed waves.
 
 ## Known gaps (recorded, not fixed)

@@ -12,7 +12,6 @@ import { BookVideo } from '../src/book/entities/book-video.entity';
 import { Book } from '../src/book/entities/book.entity';
 import { applyGlobalPrefix, buildValidationPipe } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
-import { seedBooks } from '../src/database/seeds/seed-books';
 import { seedGeography } from '../src/database/seeds/seed-geography';
 import { seedReference } from '../src/database/seeds/seed-reference';
 import { Province } from '../src/province/entities/province.entity';
@@ -20,12 +19,13 @@ import { District } from '../src/reference/entities/district.entity';
 import { VideoProgress } from '../src/video-progress/entities/video-progress.entity';
 import { VIDEO_PROGRESS_MAX_POSITION_SECONDS } from '../src/video-progress/video-progress-duration';
 import { YoutubeSnapshotStore } from '../src/book/youtube/youtube-snapshot.store';
+import { seedFixtureBooks } from './fixtures/books/fixture-books';
 
 /**
  * UYELIK-05 e2e — the two protected `video-progress` endpoints against a REAL Postgres
  * (`UYELIK-05-plan.md` §11). One container, one migration run; geography + reference are seeded
- * only because `users.district_id` needs a real row to point at, and the book corpus is seeded so
- * real `BookVideo` fixtures exist to progress against.
+ * only because `users.district_id` needs a real row to point at, and the fixture book is seeded so
+ * real `BookVideo` rows exist to progress against.
  *
  * A DEDICATED book video per case (never reused across two `it()` blocks) so the unique
  * `(user_id, book_video_id)` constraint never makes one case's write interfere with another's —
@@ -96,7 +96,7 @@ describe('Video progress (e2e, real Postgres)', () => {
     // Districts hang off provinces (the reference seed's own precondition).
     await seedGeography(dataSource);
     await seedReference(dataSource);
-    await seedBooks(dataSource);
+    await seedFixtureBooks(dataSource);
 
     const istanbul = await dataSource
       .getRepository(Province)
@@ -107,9 +107,9 @@ describe('Video progress (e2e, real Postgres)', () => {
     districtId = district.id;
 
     videos = await dataSource.getRepository(BookVideo).find({ order: { id: 'ASC' } });
-    // One dedicated slot per case below (15 today) — a book seed with 40 denemeler across even
-    // one book already exceeds this by a wide margin.
-    expect(videos.length).toBeGreaterThanOrEqual(15);
+    // One dedicated slot per case below (16 `nextVideo()` calls today); the fixture book carries
+    // more than that.
+    expect(videos.length).toBeGreaterThanOrEqual(16);
 
     store = new YoutubeSnapshotStore(dataSource);
 

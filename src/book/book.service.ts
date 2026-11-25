@@ -257,8 +257,8 @@ export class BookService {
       videos: videoDtos,
       // Populated on EVERY response, in every data state — an empty array would be a breach of the
       // attribution obligation rather than a degraded widget, which is why the rows are compiled
-      // constants and not seed data.
-      attribution: buildBookAttribution(),
+      // constants and not seed data. Only the channel link is per book.
+      attribution: buildBookAttribution(book.youtubeChannelId),
     };
   }
 

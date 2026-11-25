@@ -654,7 +654,7 @@
               "minLength": 1,
               "maxLength": 140,
               "pattern": "^[a-z0-9-]+$",
-              "example": "ayt-cografya-konu-ozetli-brans-denemeleri",
+              "example": "ornek-kitap",
               "type": "string"
             }
           }
@@ -1871,7 +1871,7 @@
               "minLength": 1,
               "maxLength": 140,
               "pattern": "^[a-z0-9-]+$",
-              "example": "ayt-cografya-konu-ozetli-brans-denemeleri",
+              "example": "ornek-kitap",
               "type": "string"
             }
           }
@@ -6041,22 +6041,22 @@
         "properties": {
           "slugTr": {
             "type": "string",
-            "example": "ayt-cografya-konu-ozetli-brans-denemeleri",
+            "example": "ornek-kitap",
             "description": "TR routing key — /kitaplar/{slugTr}."
           },
           "slugEn": {
             "type": "string",
-            "example": "ayt-cografya-konu-ozetli-brans-denemeleri",
-            "description": "EN routing key — /en/books/{slugEn}. Equal to slugTr for this book because a product name is not translated; that is a consequence, not a rule, and the two are separate columns. The EN twin is permanently noindex by owner ruling and still needs exactly one URL."
+            "example": "ornek-kitap",
+            "description": "EN routing key — /en/books/{slugEn}. Often equal to slugTr because a product name is not translated; that is a consequence, not a rule, and the two are separate columns. The EN twin is permanently noindex by owner ruling and still needs exactly one URL."
           },
           "titleTr": {
             "type": "string",
-            "example": "AYT Coğrafya Konu Özetli Branş Denemeleri",
+            "example": "Örnek Kitap",
             "description": "The book's full title as printed on the cover."
           },
           "publisherName": {
             "type": "string",
-            "example": "Coğrafya Gurmesi Yayınları",
+            "example": "Örnek Yayınları",
             "description": "Publisher, as credited. Feeds Book.publisher in the structured data."
           },
           "examTrack": {
@@ -6086,7 +6086,7 @@
           "coverImagePath": {
             "type": "string",
             "nullable": true,
-            "example": "/kitaplar/ayt-cografya-konu-ozetli-brans-denemeleri.jpg",
+            "example": "/kitaplar/ornek-kitap.webp",
             "description": "A path inside the web repo's own public/ directory — never a remote URL, enforced by a database constraint. The api neither receives nor serves image bytes on this leg. Null means there is no cover to render."
           },
           "displayOrder": {
@@ -6315,12 +6315,11 @@
         "type": "object",
         "properties": {
           "providerId": {
-            "enum": [
-              "youtube",
-              "partner"
-            ],
             "type": "string",
-            "description": "Machine token for whom this row credits. Both rows are always present; the reader-facing grouping is the web layer's decision, not a reason to drop one."
+            "enum": [
+              "youtube"
+            ],
+            "description": "Machine token for whom this row credits. A closed set: adding a member is a breaking contract change."
           },
           "providerName": {
             "type": "string",
@@ -6338,7 +6337,7 @@
           "channelUrl": {
             "type": "string",
             "nullable": true,
-            "description": "Link the credit should point at — the channel or the publisher — or null. The Branding Guidelines require a YouTube logo used for attribution to link back to YouTube content or to a YouTube component."
+            "description": "The channel page of the book's solutions channel, https://www.youtube.com/channel/{youtubeChannelId}, or null when the book has no channel. The Branding Guidelines require a YouTube logo used for attribution to link back to YouTube content or to a YouTube component."
           }
         },
         "required": [
@@ -6354,22 +6353,22 @@
         "properties": {
           "slugTr": {
             "type": "string",
-            "example": "ayt-cografya-konu-ozetli-brans-denemeleri",
+            "example": "ornek-kitap",
             "description": "TR routing key — /kitaplar/{slugTr}."
           },
           "slugEn": {
             "type": "string",
-            "example": "ayt-cografya-konu-ozetli-brans-denemeleri",
-            "description": "EN routing key — /en/books/{slugEn}. Equal to slugTr for this book because a product name is not translated; that is a consequence, not a rule, and the two are separate columns. The EN twin is permanently noindex by owner ruling and still needs exactly one URL."
+            "example": "ornek-kitap",
+            "description": "EN routing key — /en/books/{slugEn}. Often equal to slugTr because a product name is not translated; that is a consequence, not a rule, and the two are separate columns. The EN twin is permanently noindex by owner ruling and still needs exactly one URL."
           },
           "titleTr": {
             "type": "string",
-            "example": "AYT Coğrafya Konu Özetli Branş Denemeleri",
+            "example": "Örnek Kitap",
             "description": "The book's full title as printed on the cover."
           },
           "publisherName": {
             "type": "string",
-            "example": "Coğrafya Gurmesi Yayınları",
+            "example": "Örnek Yayınları",
             "description": "Publisher, as credited. Feeds Book.publisher in the structured data."
           },
           "examTrack": {
@@ -6399,7 +6398,7 @@
           "coverImagePath": {
             "type": "string",
             "nullable": true,
-            "example": "/kitaplar/ayt-cografya-konu-ozetli-brans-denemeleri.jpg",
+            "example": "/kitaplar/ornek-kitap.webp",
             "description": "A path inside the web repo's own public/ directory — never a remote URL, enforced by a database constraint. The api neither receives nor serves image bytes on this leg. Null means there is no cover to render."
           },
           "displayOrder": {
@@ -6431,7 +6430,7 @@
           },
           "isbn13": {
             "type": "string",
-            "example": "9786259490069",
+            "example": "9780000000002",
             "description": "ISBN-13, exactly 13 digits, no hyphens. Feeds Book.isbn."
           },
           "pageCount": {
@@ -6459,8 +6458,8 @@
           },
           "youtubeChannelId": {
             "type": "string",
-            "example": "UCH7D1zOgHykrHfx5Q7WERmw",
-            "description": "The channel the solutions are published on. The attribution rows carry the channel address themselves in channelUrl; it is not composed from this id, so do not build a link out of it."
+            "example": "UCOrnek_Kanal_1234567890",
+            "description": "The channel the solutions are published on. The attribution row carries the channel address built from this id in channelUrl; link from there rather than composing it again."
           },
           "youtubePlaylistId": {
             "type": "string",
@@ -6470,18 +6469,18 @@
           "purchaseUrl": {
             "type": "string",
             "nullable": true,
-            "example": "https://www.kitapisler.com/cografya-gurmesi-yayinlari-ayt-cografya-konu-ozetli-brans-denemeleri_106636.html",
+            "example": "https://example.com/kitap/ornek-kitap",
             "description": "Outbound \"Satın Al\" link to the seller, or null when there is none — render no button on null. **No price is published anywhere, by rule**: CONVENTIONS §4 bars pricing, and a price on a page we do not control goes stale. Always https, enforced by a database constraint, because this value becomes an href on a public page."
           },
           "videos": {
-            "description": "Every indexed video with its etiket index, ascending by orderNo. The 180-row index must be readable and clickable without JavaScript — that is what keeps this page clear of SEO-POLICY §12.2.b.",
+            "description": "Every indexed video with its etiket index, ascending by orderNo. The index must be readable and clickable without JavaScript — that is what keeps this page clear of SEO-POLICY §12.2.b.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/BookVideoDto"
             }
           },
           "attribution": {
-            "description": "Never empty, on any response, in any data state — an empty array would be a breach of the attribution obligation rather than a degraded widget. Two rows: the YouTube source credit and the content partner credit; neither substitutes for the other.",
+            "description": "Never empty, on any response, in any data state — an empty array would be a breach of the attribution obligation rather than a degraded widget. One row today: the YouTube source credit, linking to the book's channel.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/BookAttributionDto"
@@ -7965,7 +7964,7 @@
         "properties": {
           "bookSlugTr": {
             "type": "string",
-            "example": "ayt-cografya-konu-ozetli-brans-denemeleri",
+            "example": "ornek-kitap",
             "description": "The resolved book's canonical TR slug (`books.slug_tr`), regardless of which locale slug the request named."
           },
           "videoCount": {

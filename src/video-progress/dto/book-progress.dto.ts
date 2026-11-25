@@ -87,7 +87,7 @@ export class BookProgressVideoDto {
 export class BookProgressDto {
   @ApiProperty({
     type: String,
-    example: 'ayt-cografya-konu-ozetli-brans-denemeleri',
+    example: 'ornek-kitap',
     description:
       "The resolved book's canonical TR slug (`books.slug_tr`), regardless of which locale " +
       'slug the request named.',

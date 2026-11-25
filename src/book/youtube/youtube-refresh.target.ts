@@ -48,8 +48,8 @@ export interface YoutubeRefreshTargetDeps {
  * ## It asks about OUR ids, never about a playlist
  * `playlistItems.list` is a non-goal (SPEC §4.2). The video set is fixed by the seed, so the tour
  * asks the provider about exactly the ids we already publish. Two consequences, both deliberate: a
- * partner adding or removing a playlist entry cannot silently change our page, and the daily cost
- * is one quota unit.
+ * channel owner adding or removing a playlist entry cannot silently change our page, and the daily
+ * cost is one quota unit.
  *
  * ## The absence rule only fires after a SUCCESSFUL call
  * "Asked and not returned" is only meaningful when the provider actually answered. A tour that

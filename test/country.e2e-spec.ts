@@ -303,6 +303,7 @@ describe('Country (e2e)', () => {
       'AddAccountTypesAndAudienceFields1790380800000',
       'AddBookContentKindAndVideoGroup1790467200000',
       'FixSeedProseFacts1790553600000',
+      'RemovePartnerBook1790640000000',
     ]);
   });
 

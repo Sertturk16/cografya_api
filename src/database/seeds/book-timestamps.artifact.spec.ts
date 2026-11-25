@@ -10,6 +10,10 @@ import {
   readBookTimestampsArtifact,
   type BookTimestampsArtifact,
 } from './book-timestamps.artifact';
+import {
+  buildFixtureArtifact,
+  fixtureArtifactRecords,
+} from '../../../test/fixtures/books/fixture-books';
 
 /**
  * The seven refusals of SPEC §7.2, one test each (§13 invariant 1).
@@ -347,36 +351,26 @@ describe('readBookTimestampsArtifact', () => {
   });
 
   /**
-   * The one case that drives the COMMITTED file, and the reason it exists.
+   * The shared fixture's etiket index as a FILE, through the loader, the pin and every refusal.
    *
-   * Every case above writes a synthetic temp file and passes a hash computed from that same file,
-   * so the pin under test is always the fixture's own hash and the file under test is never
-   * `data/books/…timestamps.json`. Neither `bookTimestampsArtifactPath()` nor
-   * `EXPECTED_ARTIFACT_SHA256` was referenced by any spec, so the committed artefact passed through
-   * none of the seven refusals in CI: a PR moving the artefact without the constant, or carrying a
-   * tag/position disagreement, stayed green on all five jobs (PR #109 review, `TA109-I1` =
-   * `SFH109-M7`). B3 does not close it — `seedBooks` takes `options.artifact` and the e2e drives
-   * synthetic fixtures through that seam.
-   *
-   * STRUCTURE ONLY. No literal second, video id or total appears below: every expectation is a
-   * property the artefact must have whatever it says, so a legitimate re-measurement does not turn
-   * this red. The counts are compared against THEMSELVES; the facts were closed by the measurement
-   * round (→ DEC 2026-08-12p) and re-asserting them here would freeze them.
+   * The e2e suites seed that index through `seedBooks`, which does not re-run the file-reading
+   * refusals, so this is where the fixture is proved to be a valid artefact in the shape a
+   * committed `timestamps.json` has. Structure only: the counts are compared against themselves.
    */
-  it('drives the COMMITTED artefact through its own loader, pin and refusals', async () => {
-    const artifact = await readBookTimestampsArtifact();
+  it('reads the shared fixture artefact from disk into exactly what the e2e suites seed', async () => {
+    const contents = JSON.stringify(fixtureArtifactRecords());
+    const path = await writeTempArtifact(contents);
 
+    const artifact = await readBookTimestampsArtifact(path, sha256(contents));
+
+    expect(artifact).toEqual(buildFixtureArtifact());
     expect(artifact.videos.length).toBeGreaterThan(0);
-    expect(new Set(artifact.videos.map((video) => video.orderNo)).size).toBe(
-      artifact.videos.length,
-    );
     expect(new Set(artifact.videos.map((video) => video.youtubeVideoId)).size).toBe(
       artifact.videos.length,
     );
     expect(artifact.tagCount).toBe(
       artifact.videos.reduce((total, video) => total + video.tags.length, 0),
     );
-    expect(artifact.tagCount).toBeGreaterThan(0);
   });
 });
 
@@ -418,15 +412,5 @@ describe('assertArtifactMeetsCoverageFloor', () => {
     expect(() => {
       assertArtifactMeetsCoverageFloor(artifactOf(3, 1), { videos: 3, tags: 6 });
     }).toThrow(/marks, below the pinned floor/);
-  });
-
-  it('applies the committed floor by default, and the committed artefact meets it', async () => {
-    // The default argument is what production uses, so it is what a test must exercise — a floor
-    // proved only against a hand-passed value proves nothing about the run.
-    const artifact = await readBookTimestampsArtifact();
-
-    expect(() => {
-      assertArtifactMeetsCoverageFloor(artifact);
-    }).not.toThrow();
   });
 });

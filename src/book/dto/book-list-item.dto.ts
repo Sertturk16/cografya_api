@@ -32,16 +32,16 @@ import { BookContentKind, ExamTrack } from '../book.types';
 export class BookListItemDto {
   @ApiProperty({
     type: String,
-    example: 'ayt-cografya-konu-ozetli-brans-denemeleri',
+    example: 'ornek-kitap',
     description: 'TR routing key — /kitaplar/{slugTr}.',
   })
   slugTr!: string;
 
   @ApiProperty({
     type: String,
-    example: 'ayt-cografya-konu-ozetli-brans-denemeleri',
+    example: 'ornek-kitap',
     description:
-      'EN routing key — /en/books/{slugEn}. Equal to slugTr for this book because a product name ' +
+      'EN routing key — /en/books/{slugEn}. Often equal to slugTr because a product name ' +
       'is not translated; that is a consequence, not a rule, and the two are separate columns. ' +
       'The EN twin is permanently noindex by owner ruling and still needs exactly one URL.',
   })
@@ -49,14 +49,14 @@ export class BookListItemDto {
 
   @ApiProperty({
     type: String,
-    example: 'AYT Coğrafya Konu Özetli Branş Denemeleri',
+    example: 'Örnek Kitap',
     description: "The book's full title as printed on the cover.",
   })
   titleTr!: string;
 
   @ApiProperty({
     type: String,
-    example: 'Coğrafya Gurmesi Yayınları',
+    example: 'Örnek Yayınları',
     description: 'Publisher, as credited. Feeds Book.publisher in the structured data.',
   })
   publisherName!: string;
@@ -82,7 +82,7 @@ export class BookListItemDto {
   @ApiProperty({
     type: String,
     nullable: true,
-    example: '/kitaplar/ayt-cografya-konu-ozetli-brans-denemeleri.jpg',
+    example: '/kitaplar/ornek-kitap.webp',
     description:
       "A path inside the web repo's own public/ directory — never a remote URL, enforced by a " +
       'database constraint. The api neither receives nor serves image bytes on this leg. Null ' +

@@ -1,9 +1,5 @@
-import {
-  assertArtifactMeetsCoverageFloor,
-  readBookTimestampsArtifact,
-  type BookTimestampsArtifact,
-} from './book-timestamps.artifact';
-import { BOOK_TIMESTAMPS_OWNER_SLUG_TR, SEED_BOOKS, type BookSeed } from './books.seed-data';
+import type { BookTimestampsArtifact } from './book-timestamps.artifact';
+import { SEED_BOOKS, type BookSeed } from './books.seed-data';
 
 /**
  * The structural rules a book row must satisfy BEFORE anything is written — the seed-side half of
@@ -27,7 +23,7 @@ import { BOOK_TIMESTAMPS_OWNER_SLUG_TR, SEED_BOOKS, type BookSeed } from './book
  *    numeric ceilings, and pinning a ceiling is asserting a RULE — not a fact. Nothing here
  *    hardcodes what the prose says; a different book with different text passes exactly the same
  *    gate. This is what stands in place of a fifth transcription lane (Atlas ruling, B2 plan §4),
- *    together with the single-literal form of the strings and the hashes in `data/books/README.md`.
+ *    together with the single-literal form of the strings.
  *
  * ## What is deliberately NOT enforced
  * The `SEO-POLICY.md` A1 (25–60) and A2 (110–165) length bands. SPEC §5.1 is explicit that those
@@ -83,13 +79,11 @@ const SHOUTED_WORD_PATTERN = /[A-ZÇĞİÖŞÜ]{4,}/;
  * value is REQUIRED in the published contract (`BookDetailDto.youtubeChannelId`), so an id one
  * character short ships to every consumer of that field and every other check passes it.
  *
- * **Its older justification — that this value builds the reader-facing attribution link — is no
- * longer true and the pattern outlives it.** `DEC 2026-08-17b` made the served address the handle
- * constant in `book/book-attribution.catalogue.ts`, so nothing composes a link from this id any
- * more. The `^UC` half is what now earns its keep on its own: the channel's RSS feed prints
- * `<yt:channelId>` with the `UC` prefix DROPPED (22 characters instead of 24), so an id copied from
- * there looks entirely plausible and is refused here — the trap recorded in
- * `Owner's Inbox/kitap-video-web/channelurl-verification.md` K3.
+ * It also builds the attribution row's channel link (`youtubeChannelUrl` in
+ * `book/book-attribution.catalogue.ts`), so a malformed id would publish a link to nothing. The
+ * `^UC` half earns its keep on its own: a channel's RSS feed prints `<yt:channelId>` with the `UC`
+ * prefix DROPPED (22 characters instead of 24), so an id copied from there looks entirely
+ * plausible and is refused here.
  *
  * `youtubePlaylistId` deliberately gets NO pattern: playlist ids come in several families (`PL`,
  * `UU`, `OL`, `RD`, …) of differing lengths, so a pattern would refuse legitimate values, and the
@@ -474,20 +468,36 @@ export function assertArtifactMatchesBook(book: BookSeed, artifact: BookTimestam
   }
 }
 
-/** What a corpus reduces to once every refusal has passed. */
-export interface ValidatedBookSeedCorpus {
-  readonly books: readonly BookSeed[];
-  readonly artifact: BookTimestampsArtifact;
-  /** The row the etiket index belongs to — resolved here so no caller re-derives it. */
-  readonly owner: BookSeed;
-}
+/**
+ * What a corpus reduces to once every refusal has passed.
+ *
+ * Two shapes, discriminated on `owner`: an EMPTY corpus is a success with nothing to seed (no
+ * artefact, no owner), and a non-empty one always carries the etiket index and the row it belongs
+ * to. Typed as a union so a caller cannot reach for an artefact an empty corpus does not have.
+ */
+export type ValidatedBookSeedCorpus =
+  | {
+      readonly books: readonly [];
+      readonly artifact: null;
+      readonly owner: null;
+    }
+  | {
+      readonly books: readonly BookSeed[];
+      readonly artifact: BookTimestampsArtifact;
+      /** The row the etiket index belongs to — resolved here so no caller re-derives it. */
+      readonly owner: BookSeed;
+    };
 
 export interface ValidateBookSeedCorpusOptions {
-  /** Defaults to the committed corpus. */
+  /** Defaults to the committed corpus, {@link SEED_BOOKS}. */
   books?: readonly BookSeed[];
-  /** Defaults to reading, hash-checking and floor-checking the committed artefact. */
+  /**
+   * The etiket index of the owner book. Required whenever the corpus is non-empty; a committed one
+   * is read with `readBookTimestampsArtifact(path, sha256)` and checked with
+   * `assertArtifactMeetsCoverageFloor` before it is passed here.
+   */
   artifact?: BookTimestampsArtifact;
-  /** Which book the artefact belongs to. */
+  /** Which book the artefact belongs to. Required whenever the corpus is non-empty. */
   ownerSlugTr?: string;
 }
 
@@ -497,33 +507,43 @@ export interface ValidateBookSeedCorpusOptions {
  * ## Why this is one exported function and not two call sites that "do the same thing"
  * They did not do the same thing. `--check` used to run the corpus invariants and the artefact
  * read, while the write path additionally ran the owner-existence refusal and
- * {@link assertArtifactMatchesBook} — so a künye whose `denemeCount` disagreed with the artefact
- * passed `--check` with exit 0 and was refused by the write, and three documents claimed the
- * opposite (PR #109 review, `CODE109-I1` = `TA109-I2` = `SFH109-I1`; measured at `denemeCount=25`).
- * The two lists were hand-duplicated, which is how they could diverge at all. One list cannot.
+ * {@link assertArtifactMatchesBook} — so a künye that disagreed with the artefact passed `--check`
+ * with exit 0 and was refused by the write. The two lists were
+ * hand-duplicated, which is how they could diverge at all. One list cannot.
  *
  * Nothing here opens a connection, imports an entity or touches TypeORM — which is what makes
  * "`--check` needs no database" a structural property of this module rather than a promise in a
  * comment. Adding a refusal here adds it to both paths by construction.
  *
- * The floor and the hash pin apply to the COMMITTED artefact only. An injected artefact is a
- * caller's fixture (B3's e2e drives insert/update/no-op/remove through it), and its size and bytes
- * are the caller's business — but every CROSS-ROW refusal in this module still binds it.
+ * ## An empty corpus is a success
+ * No book is a real, supported state of the catalogue, so it validates to "nothing to seed" rather
+ * than failing. {@link assertBookSeedInvariants} still refuses `[]` for a direct caller — this
+ * function answers the empty case before it gets there.
+ *
+ * ## A non-empty corpus must bring its etiket index
+ * There is no default artefact: a book lands together with its committed index, and the caller
+ * (the CLI, or a test fixture) passes both `artifact` and `ownerSlugTr`. A corpus with books and no
+ * index is refused rather than seeded without videos.
  */
-export async function validateBookSeedCorpus(
+export function validateBookSeedCorpus(
   options: ValidateBookSeedCorpusOptions = {},
-): Promise<ValidatedBookSeedCorpus> {
+): ValidatedBookSeedCorpus {
   const books = options.books ?? SEED_BOOKS;
-  const ownerSlugTr = options.ownerSlugTr ?? BOOK_TIMESTAMPS_OWNER_SLUG_TR;
+
+  if (books.length === 0) {
+    return { books: [], artifact: null, owner: null };
+  }
 
   assertBookSeedInvariants(books);
 
-  let artifact: BookTimestampsArtifact;
-  if (options.artifact === undefined) {
-    artifact = await readBookTimestampsArtifact();
-    assertArtifactMeetsCoverageFloor(artifact);
-  } else {
-    artifact = options.artifact;
+  const { artifact, ownerSlugTr } = options;
+  if (artifact === undefined || ownerSlugTr === undefined) {
+    throw new BookSeedInvariantError(
+      `the book seed corpus has ${String(books.length)} book(s) but no etiket index was supplied. ` +
+        `A book lands together with its committed timestamps artefact: commit it, read it with ` +
+        `readBookTimestampsArtifact(path, sha256) and assertArtifactMeetsCoverageFloor(...), and ` +
+        `pass it as \`artifact\` with the owner's \`ownerSlugTr\` (wired in books.cli.ts).`,
+    );
   }
 
   const owner = books.find((book) => book.slugTr === ownerSlugTr);

@@ -108,7 +108,7 @@ all hang off province rows):
 pnpm db:seed:geography          # the 81 provinces
 pnpm db:seed:regions            # the 7 geographic regions
 pnpm db:seed:world              # the country corpus
-pnpm db:seed:books              # books + their video-solution rows
+pnpm db:seed:books              # books + their video-solution rows (none today: exits 0)
 pnpm db:seed:reference          # the 973 ilçe the registration form reads
 ```
 

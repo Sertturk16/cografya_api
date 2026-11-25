@@ -68,6 +68,7 @@ import { AddMarketingConsent1790294400000 } from './migrations/1790294400000-Add
 import { AddAccountTypesAndAudienceFields1790380800000 } from './migrations/1790380800000-AddAccountTypesAndAudienceFields';
 import { AddBookContentKindAndVideoGroup1790467200000 } from './migrations/1790467200000-AddBookContentKindAndVideoGroup';
 import { FixSeedProseFacts1790553600000 } from './migrations/1790553600000-FixSeedProseFacts';
+import { RemovePartnerBook1790640000000 } from './migrations/1790640000000-RemovePartnerBook';
 import { SlowQueryLogger } from './slow-query.logger';
 
 /**
@@ -303,6 +304,7 @@ export function buildDataSourceOptions(
       AddAccountTypesAndAudienceFields1790380800000,
       AddBookContentKindAndVideoGroup1790467200000,
       FixSeedProseFacts1790553600000,
+      RemovePartnerBook1790640000000,
     ],
     extra: {
       statement_timeout: statementTimeoutMs,

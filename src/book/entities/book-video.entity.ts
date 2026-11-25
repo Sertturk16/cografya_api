@@ -55,11 +55,10 @@ export class BookVideo {
    * The video's position **in the book** (`GLOSSARY.md` §4.2, `video sırası (orderNo)`).
    *
    * The generic successor to the retired `deneme_no`/`denemeNo` (P0 plan §5.2, `DEC 2026-09-10b`
-   * md.1/md.4). For today's only seeded book — a deneme book — this is the deneme's number, and it
-   * is **not the playlist position**: the two diverge, by +1 after 14 and by +2 after 21 (→ DEC
-   * 2026-08-12p md.5), because denemeler 14 and 22 exist in the book while their solution videos do
-   * not. The playlist position is stored NOWHERE, so no code path can accidentally reach for the
-   * wrong one. It is also the anchor prefix on the book page (`#video-{orderNo}-…`, `DEC
+   * md.1/md.4). For a deneme book this is the deneme's number, and it is **not the playlist
+   * position**: the two diverge as soon as a deneme in the book has no solution video (→ DEC
+   * 2026-08-12p md.5). The playlist position is stored NOWHERE, so no code path can accidentally
+   * reach for the wrong one. It is also the anchor prefix on the book page (`#video-{orderNo}-…`, `DEC
    * 2026-09-10b` md.5); uniqueness within the book is what guarantees the served HTML `id`s are
    * unique across the whole page.
    */

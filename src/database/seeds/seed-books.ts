@@ -24,7 +24,7 @@ import type { BookSeed } from './books.seed-data';
  * it a thing to remember.
  *
  * **The converse is B3's, and it is stated here so B3 does not have to guess.** A re-measurement
- * that shifts 180 start seconds updates 180 `book_video_tags` rows and leaves `books.updated_at`
+ * that shifts every start second updates every `book_video_tags` row and leaves `books.updated_at`
  * untouched — the page's visible index changed while `Book.updatedAt` says it did not. This seed
  * deliberately does NOT touch the book row for that (writing a row whose own columns did not change
  * is the very lie the paragraph above prevents, and it would move `dateModified` for a book-row
@@ -41,8 +41,8 @@ import type { BookSeed } from './books.seed-data';
  * Within the book the artefact belongs to, a `book_videos` row whose position is no longer in the
  * artefact is removed (its etiketler follow by `ON DELETE CASCADE`), and so is an etiket whose
  * order number is gone. Leaving them would publish a video we no longer have measurements for. It
- * never deletes a `books` row, including one absent from {@link SEED_BOOKS}: the seed owns the rows
- * it declares, not the table.
+ * never deletes a `books` row, including one absent from the corpus: the seed owns the rows it
+ * declares, not the table. Retiring a published book is a data migration, not a seed run.
  */
 
 /** Per-table outcome. `removed` exists only where this seed is allowed to delete. */
@@ -64,18 +64,19 @@ export interface SeedBooksOptions {
   /** Defaults to the committed corpus. The e2e suite passes synthetic rows through this same path. */
   books?: readonly BookSeed[];
   /**
-   * Defaults to reading, hash-checking and floor-checking the committed artefact.
+   * The owner book's etiket index. Required whenever the corpus is non-empty — there is no default
+   * artefact (see `validateBookSeedCorpus`).
    *
-   * **What an injected artefact SKIPS, stated so a fixture author knows what they own:** the
-   * SHA-256 pin, the coverage floor, and the four cross-row refusals that live in
-   * `assertArtifactIsSeedable` — uniqueness of the video's position and of `youtubeVideoId`,
-   * strictly ascending seconds, and the tag/position witness. Those run inside
-   * `parseBookTimestampsArtifact`, which only the file-reading path calls. What an injected
-   * artefact does NOT skip is `assertArtifactMatchesBook`, including its emptiness refusal — the
-   * destructive half.
+   * **What this seam does NOT check, stated so a caller knows what they own:** the SHA-256 pin, the
+   * coverage floor, and the four cross-row refusals that live in `assertArtifactIsSeedable` —
+   * uniqueness of the video's position and of `youtubeVideoId`, strictly ascending seconds, and the
+   * tag/position witness. Those run inside `readBookTimestampsArtifact` /
+   * `parseBookTimestampsArtifact`, which the caller runs before handing the result here. What it
+   * does NOT skip is `assertArtifactMatchesBook`, including its emptiness refusal — the destructive
+   * half.
    */
   artifact?: BookTimestampsArtifact;
-  /** Which book the artefact belongs to. */
+  /** Which book the artefact belongs to. Required whenever the corpus is non-empty. */
   ownerSlugTr?: string;
   /**
    * Authorises the run to DELETE published rows. Default `false`, and the default is the point.
@@ -421,7 +422,7 @@ export async function seedBooks(
   // so a defective corpus costs no database round trip and fails naming the rule rather than
   // surfacing later as a constraint violation. It is the SAME function `--check` runs, which is
   // the whole point: the two lists cannot diverge if there is one list.
-  const { books, artifact, owner } = await validateBookSeedCorpus(options);
+  const corpus = validateBookSeedCorpus(options);
   const allowRemovals = options.allowRemovals ?? false;
 
   const result: SeedBooksResult = {
@@ -429,6 +430,12 @@ export async function seedBooks(
     videos: { inserted: 0, updated: 0, unchanged: 0, removed: 0 },
     tags: { inserted: 0, updated: 0, unchanged: 0, removed: 0 },
   };
+
+  // An empty corpus has nothing to write, so it opens no transaction at all.
+  if (corpus.owner === null) {
+    return result;
+  }
+  const { books, artifact, owner } = corpus;
 
   await dataSource.transaction(async (manager) => {
     for (const seed of books) {

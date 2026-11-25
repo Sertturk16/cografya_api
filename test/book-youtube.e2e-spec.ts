@@ -12,8 +12,8 @@ import {
   type YoutubeSnapshotStorePort,
 } from '../src/book/youtube/youtube-snapshot.store';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
-import { seedBooks } from '../src/database/seeds/seed-books';
 import { buildVideoCoverPath } from '../src/video-cover/video-cover-address';
+import { seedFixtureBooks } from './fixtures/books/fixture-books';
 
 /**
  * B4 e2e — the ageing rule, the purge and the request path, against a REAL Postgres.
@@ -218,7 +218,7 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
     dataSource = new DataSource(buildDataSourceOptions(url));
     await dataSource.initialize();
     await dataSource.runMigrations();
-    await seedBooks(dataSource);
+    await seedFixtureBooks(dataSource);
     store = new YoutubeSnapshotStore(dataSource);
 
     const videos = await dataSource.getRepository(BookVideo).find({ order: { orderNo: 'ASC' } });
@@ -346,7 +346,7 @@ describe('Book YouTube sync leg (e2e, real Postgres)', () => {
       expect(served?.orderNo).toBeGreaterThan(0);
       expect(body.videos.length).toBeGreaterThan(1);
       // And the credit is unaffected — it never depended on provider data existing.
-      expect(body.attribution.map((row) => row.providerId).sort()).toEqual(['partner', 'youtube']);
+      expect(body.attribution.map((row) => row.providerId)).toEqual(['youtube']);
     });
   });
 
