@@ -22,9 +22,7 @@ yarn-error.log*
 /coverage
 /.nyc_output
 
-# PR-review run workspace — reviewers write pr-reviews/{PR#}-{role}.md here per run;
-# Atlas archives the consolidated file to Owner's Inbox/pr-review-archive/. Transient,
-# never committed (workflow: the orchestration-root REVIEW-POLICY.md; rubrics: .claude/reviewers/).
+# Local PR-review notes. Never committed.
 /pr-reviews/
 
 # ERA5-Land raw downloads — a BELT, not the primary control.

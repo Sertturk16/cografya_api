@@ -108,7 +108,7 @@ export class CommentsController {
 }
 ```
 
-## Global Prefix, CORS & Versioning
+## Global Prefix & CORS
 
 ```typescript
 // main.ts
@@ -117,15 +117,14 @@ const configService = app.get<ConfigService<Env, true>>(ConfigService);
 // CORS: one origin (WEB_ORIGIN), credentials: false
 app.enableCors(buildCorsOptions(configService.get('WEB_ORIGIN', { infer: true })));
 applyGlobalPrefix(app); // setGlobalPrefix('api'), GET /health excluded
-app.enableVersioning({ type: VersioningType.URI });
 
 // controller.ts
-@Controller({ path: 'users', version: '1' })  // /api/v1/users
-export class UsersV1Controller {}
-
-@Controller({ path: 'users', version: '2' })  // /api/v2/users
-export class UsersV2Controller {}
+@Controller('provinces') // /api/provinces
+export class ProvinceController {}
 ```
+
+There is no URI versioning (`docs/architecture.md`): routes live at `/api/<path>`. Do not add
+`enableVersioning`; a breaking change goes through the OpenAPI contract and the web sync instead.
 
 ## Quick Reference
 

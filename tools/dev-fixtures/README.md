@@ -20,7 +20,7 @@ owner chose this "pre-verified seed account" approach over a dev-only mailer ada
 skipping the audit.
 
 ```
-DATABASE_URL=postgresql://cografya:cografya_dev@localhost:5433/cografya \
+DATABASE_URL=postgresql://cografya:cografya_dev@localhost:5432/cografya \
   node tools/dev-fixtures/iris-audit-account.ts
 ```
 
@@ -58,7 +58,7 @@ code next to it — carries no development shortcut
 
 ```
 PASSWORD_RESET_FIXTURE_CONFIRM='i-know-this-database-is-not-a-tunnel' \
-DATABASE_URL=postgresql://cografya:cografya_dev@localhost:5433/cografya \
+DATABASE_URL=postgresql://cografya:cografya_dev@localhost:5432/cografya \
   node tools/dev-fixtures/password-reset-fixture.ts
 ```
 

@@ -6,7 +6,7 @@ import { isDirectInvocation, main, NonLocalDatabaseError } from './iris-audit-ac
  * verification flow entirely. Infrastructure for İRİS's own login-gated design audits (e.g.
  * UYELIK-06's video-wall), reused across her sessions.
  *
- *   DATABASE_URL=postgresql://cografya:cografya_dev@localhost:5433/cografya \
+ *   DATABASE_URL=postgresql://cografya:cografya_dev@localhost:5432/cografya \
  *     node tools/dev-fixtures/iris-audit-account.ts
  *
  *   # supply your own password instead of letting the tool generate one:

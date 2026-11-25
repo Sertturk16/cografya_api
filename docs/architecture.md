@@ -45,7 +45,8 @@ Global providers registered in `app.module.ts`: `APP_GUARD` = `TrustedClientThro
 
 File layout per module: flat `*.controller.ts` / `*.service.ts` / `*.module.ts`, plus `dto/`,
 `entities/`, provider subfolders (`marine/ecmwf/`, `air-quality/cams/`, ...), and `.spec.ts`
-siblings next to every source file.
+siblings next to the source they test. Not every file has one yet; a new service method or
+route gets one.
 
 ## Config
 
