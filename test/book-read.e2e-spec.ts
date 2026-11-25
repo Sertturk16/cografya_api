@@ -4,7 +4,6 @@ import { Test } from '@nestjs/testing';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
-import { YOUTUBE_CHANNEL_URL } from '../src/book/book-attribution.catalogue';
 import { BookContentKind, ExamTrack } from '../src/book/book.types';
 import {
   BOOK_LIST_DEFAULT_PAGE,
@@ -17,8 +16,7 @@ import { BookVideo } from '../src/book/entities/book-video.entity';
 import { Book } from '../src/book/entities/book.entity';
 import { applyGlobalPrefix, buildValidationPipe } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
-import { BOOK_TIMESTAMPS_OWNER_SLUG_TR } from '../src/database/seeds/books.seed-data';
-import { seedBooks } from '../src/database/seeds/seed-books';
+import { FIXTURE_BOOK, seedFixtureBooks } from './fixtures/books/fixture-books';
 
 /**
  * B3 read-path e2e — the two public book endpoints against a REAL Postgres.
@@ -37,7 +35,7 @@ import { seedBooks } from '../src/database/seeds/seed-books';
  *
  * ## Phase order is state, and it only moves forward
  * One container, one migration run. Phase 0 needs the EMPTY store and is the only phase that can
- * ever see it; phase 1 seeds the committed corpus; phase 2 adds synthetic rows for pagination and
+ * ever see it; phase 1 seeds the shared fixture book; phase 2 adds synthetic rows for pagination and
  * never removes them, so it runs last.
  */
 
@@ -165,7 +163,7 @@ describe('Book read path (e2e, real Postgres)', () => {
     it('answers 404 for any slug, and does NOT let that 404 be cached', async () => {
       app = await bootApp();
       const response = await request(app.getHttpServer())
-        .get('/api/books/ayt-cografya-konu-ozetli-brans-denemeleri')
+        .get(`/api/books/${FIXTURE_BOOK.slugTr}`)
         .expect(404);
 
       // The whole reason `@CacheControl` exists instead of `@Header`: a 404 for a book that has not
@@ -176,9 +174,9 @@ describe('Book read path (e2e, real Postgres)', () => {
     });
   });
 
-  describe('phase 1 — the committed corpus seeded', () => {
+  describe('phase 1 — the fixture book seeded', () => {
     beforeAll(async () => {
-      await seedBooks(dataSource);
+      await seedFixtureBooks(dataSource);
     }, 120_000);
 
     it('serves the hub envelope with exactly the core five and no meta', async () => {
@@ -269,8 +267,8 @@ describe('Book read path (e2e, real Postgres)', () => {
           `video ${String(video.orderNo)} ascending=${String(ascending)} [${seconds.join(',')}]`,
         ).toBe(`video ${String(video.orderNo)} ascending=true [${seconds.join(',')}]`);
 
-        // DO NOT assume the first etiket starts at 0 — the measured set is {0, 2, 6, 11, 94}, so
-        // 0 is an ordinary value rather than a sentinel. Only non-negativity is an invariant.
+        // DO NOT assume the first etiket starts at 0 — a measured index can start anywhere, and 0
+        // is an ordinary value rather than a sentinel. Only non-negativity is an invariant.
         expect(seconds.every((second) => Number.isInteger(second) && second >= 0)).toBe(true);
       }
     });
@@ -365,9 +363,8 @@ describe('Book read path (e2e, real Postgres)', () => {
       ).body as Detail;
 
       expect(body.attribution.length).toBeGreaterThan(0);
-      // Both duties, always both: the YouTube source credit and the content-partner credit. Neither
-      // substitutes for the other, so a response carrying one is a breach and not a degradation.
-      expect(body.attribution.map((row) => row.providerId).sort()).toEqual(['partner', 'youtube']);
+      // The YouTube source credit, the one duty every book page carries.
+      expect(body.attribution.map((row) => row.providerId)).toEqual(['youtube']);
       for (const row of body.attribution) {
         expect(`${row.providerId}.notice=${String(row.requiredNoticeTr.length > 0)}`).toBe(
           `${row.providerId}.notice=true`,
@@ -375,21 +372,17 @@ describe('Book read path (e2e, real Postgres)', () => {
         expect(`${row.providerId}.name=${String(row.providerName.length > 0)}`).toBe(
           `${row.providerId}.name=true`,
         );
-        // The ONE ruled channel address (`DEC 2026-08-17b`), imported rather than retyped for the
-        // reason the four pagination numbers are: a copy here would keep passing the day the
-        // served constant changed. It is no longer composed from `youtubeChannelId`, so asserting
-        // containment of that id would now be asserting the retired form.
-        expect(row.channelUrl).toBe(YOUTUBE_CHANNEL_URL);
+        // The book's OWN channel, built from the id the same response publishes — so a second
+        // book on another channel links to that channel, not to this one.
+        expect(row.channelUrl).toBe(`https://www.youtube.com/channel/${body.youtubeChannelId}`);
       }
     });
 
     it('resolves the TR slug and the EN slug to the same book', async () => {
-      // **This case needs a book whose two slugs DIFFER, and the seeded one does not have that.**
-      // The committed book carries `slugTr === slugEn` deliberately (a product name is not
-      // translated), so asking twice with `first.slugTr` and `first.slugEn` sent the identical
-      // string twice: the EN branch of the `where: [{slugTr}, {slugEn}]` lookup was never
-      // exercised and the case could not fail (PR #110 review, `SFH110-M3`). A dedicated fixture
-      // is what makes it a test.
+      // **This case needs a book whose two slugs DIFFER, and it owns that fixture.** A book with
+      // `slugTr === slugEn` (common, since a product name is not translated) would send the
+      // identical string twice: the EN branch of the `where: [{slugTr}, {slugEn}]` lookup would go
+      // unexercised and the case could not fail.
       const repo = dataSource.getRepository(Book);
       await repo.save(
         repo.create({
@@ -439,8 +432,12 @@ describe('Book read path (e2e, real Postgres)', () => {
         .body as Detail;
 
       expect(body.videos).toEqual([]);
-      // The credit does not depend on there being videos to credit.
-      expect(body.attribution.map((row) => row.providerId).sort()).toEqual(['partner', 'youtube']);
+      // The credit does not depend on there being videos to credit, and it links to THIS book's
+      // channel rather than to the fixture book's.
+      expect(body.attribution.map((row) => row.providerId)).toEqual(['youtube']);
+      expect(body.attribution[0]?.channelUrl).toBe(
+        'https://www.youtube.com/channel/UC_fixture_channel',
+      );
       // With no child rows, `updatedAt` collapses to the book row's own stamp — still a real
       // instant, never null or a build time.
       expect(Number.isNaN(new Date(body.updatedAt).getTime())).toBe(false);
@@ -505,7 +502,7 @@ describe('Book read path (e2e, real Postgres)', () => {
       await tagRepo.save(tag);
     });
 
-    it("the seeded owner book's etiket rows all carry name_tr IS NULL AND name_en IS NULL (AC 5, P0 PR-3)", async () => {
+    it("the seeded fixture book's etiket rows all carry name_tr IS NULL AND name_en IS NULL (AC 5, P0 PR-3)", async () => {
       // `DEC 2026-09-10b` md.2's per-type boundary: a deneme book's etiketler carry no name at all,
       // and the artefact's own `tag` field ("Soru 3") must never be written into `name_tr` (plan
       // §5.4 PROHIBITION). Checked directly against the database rather than through the DTO, so a
@@ -516,7 +513,7 @@ describe('Book read path (e2e, real Postgres)', () => {
          JOIN book_videos bv ON bv.id = bvt.book_video_id
          JOIN books b ON b.id = bv.book_id
          WHERE b.slug_tr = $1`,
-        [BOOK_TIMESTAMPS_OWNER_SLUG_TR],
+        [FIXTURE_BOOK.slugTr],
       );
       expect(rows.length).toBeGreaterThan(0);
       expect(rows.every((row) => row.name_tr === null && row.name_en === null)).toBe(true);

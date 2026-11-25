@@ -7,12 +7,9 @@ import { BookVideo } from '../src/book/entities/book-video.entity';
 import { Book } from '../src/book/entities/book.entity';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
 import type { BookTimestampsArtifact } from '../src/database/seeds/book-timestamps.artifact';
-import {
-  BOOK_TIMESTAMPS_OWNER_SLUG_TR,
-  SEED_BOOKS,
-  type BookSeed,
-} from '../src/database/seeds/books.seed-data';
+import type { BookSeed } from '../src/database/seeds/books.seed-data';
 import { seedBooks } from '../src/database/seeds/seed-books';
+import { FIXTURE_BOOK } from './fixtures/books/fixture-books';
 
 /**
  * B3 write-path e2e — seed idempotency, the REMOVAL path, and the schema's own refusals.
@@ -34,9 +31,9 @@ import { seedBooks } from '../src/database/seeds/seed-books';
  *
  * ## Structural only, and no Nest app
  * These cases need Postgres and the seed function, not an HTTP surface, so no application is
- * booted. Nothing here asserts a book fact: the synthetic fixtures carry invented ids and seconds,
- * and the committed-corpus cases assert relationships (row counts before vs after, which rows moved)
- * rather than values.
+ * booted. Nothing here asserts a book fact: the fixtures carry an invented künye, ids and seconds,
+ * and the cases assert relationships (row counts before vs after, which rows moved) rather than
+ * values.
  */
 
 /** A synthetic artefact — invented ids and seconds, so no measured fact is pinned in a test. */
@@ -56,21 +53,8 @@ function artifact(
   };
 }
 
-/**
- * The künye row the artefact belongs to.
- *
- * Resolved through a function so a missing owner throws at import with a message that names the
- * slug, rather than being carried as a `!` assertion that would fail later as a null dereference.
- */
-function ownerBook(): (typeof SEED_BOOKS)[number] {
-  const found = SEED_BOOKS.find((book) => book.slugTr === BOOK_TIMESTAMPS_OWNER_SLUG_TR);
-  if (found === undefined) {
-    throw new Error(`no seed book owns the artefact slug ${BOOK_TIMESTAMPS_OWNER_SLUG_TR}`);
-  }
-  return found;
-}
-
-const OWNER = ownerBook();
+/** The künye row the artefact belongs to — the shared fictional fixture book. */
+const OWNER = FIXTURE_BOOK;
 
 /** Three videos, two tags each — enough to exercise removal, cascade and re-keying. */
 const BASE = artifact([
@@ -143,7 +127,7 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       await seedBooks(dataSource, {
         books: [OWNER],
         artifact: BASE,
-        ownerSlugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR,
+        ownerSlugTr: OWNER.slugTr,
       });
     });
 
@@ -156,12 +140,12 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       // before the run so the comparison below is against a value this test observed, not inferred.
       const bookBefore = await dataSource
         .getRepository(Book)
-        .findOneByOrFail({ slugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR });
+        .findOneByOrFail({ slugTr: OWNER.slugTr });
 
       const result = await seedBooks(dataSource, {
         books: [OWNER],
         artifact: BASE,
-        ownerSlugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR,
+        ownerSlugTr: OWNER.slugTr,
       });
 
       // **The `books` counters, not only the children.** This case is NAMED for invariant 2 and
@@ -184,7 +168,7 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       // anybody ran it.
       const bookAfter = await dataSource
         .getRepository(Book)
-        .findOneByOrFail({ slugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR });
+        .findOneByOrFail({ slugTr: OWNER.slugTr });
       expect(bookAfter.updatedAt.toISOString()).toBe(bookBefore.updatedAt.toISOString());
 
       const after = await dataSource
@@ -205,7 +189,7 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       const result = await seedBooks(dataSource, {
         books: [OWNER],
         artifact: changed,
-        ownerSlugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR,
+        ownerSlugTr: OWNER.slugTr,
       });
       expect(result.tags.updated).toBe(1);
       expect(result.tags.removed).toBe(0);
@@ -220,19 +204,19 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       // stopped comparing the book row at all — the exact failure `TEST110-I1` describes.
       const bookBefore = await dataSource
         .getRepository(Book)
-        .findOneByOrFail({ slugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR });
+        .findOneByOrFail({ slugTr: OWNER.slugTr });
 
       const result = await seedBooks(dataSource, {
         books: [{ ...OWNER, pageCount: OWNER.pageCount + 1 }],
         artifact: BASE,
-        ownerSlugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR,
+        ownerSlugTr: OWNER.slugTr,
       });
 
       expect(result.books.updated).toBe(1);
       expect(result.books.unchanged).toBe(0);
       const bookAfter = await dataSource
         .getRepository(Book)
-        .findOneByOrFail({ slugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR });
+        .findOneByOrFail({ slugTr: OWNER.slugTr });
       expect(bookAfter.pageCount).toBe(OWNER.pageCount + 1);
       expect(bookAfter.updatedAt.getTime()).toBeGreaterThan(bookBefore.updatedAt.getTime());
     });
@@ -252,7 +236,7 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       const { cause } = await seedRefusal({
         books: [OWNER],
         artifact: shorter,
-        ownerSlugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR,
+        ownerSlugTr: OWNER.slugTr,
       });
 
       // The refusal has to name the video AND the cascade, or an operator cannot tell how much a
@@ -279,7 +263,7 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       const result = await seedBooks(dataSource, {
         books: [OWNER],
         artifact: shorter,
-        ownerSlugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR,
+        ownerSlugTr: OWNER.slugTr,
         allowRemovals: true,
       });
 
@@ -304,7 +288,7 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       const { cause } = await seedRefusal({
         books: [OWNER],
         artifact: trimmed,
-        ownerSlugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR,
+        ownerSlugTr: OWNER.slugTr,
       });
       expect(cause.message).toMatch(/allow-removals/);
       expect(cause.message).toMatch(/tag\(s\)/);
@@ -313,7 +297,7 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       const result = await seedBooks(dataSource, {
         books: [OWNER],
         artifact: trimmed,
-        ownerSlugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR,
+        ownerSlugTr: OWNER.slugTr,
         allowRemovals: true,
       });
       expect(result.tags.removed).toBe(1);
@@ -334,7 +318,7 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       const result = await seedBooks(dataSource, {
         books: [OWNER],
         artifact: swapped,
-        ownerSlugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR,
+        ownerSlugTr: OWNER.slugTr,
       });
 
       expect(result.videos.updated).toBe(2);
@@ -355,9 +339,7 @@ describe('Book seed write path (e2e, real Postgres)', () => {
 
     it('refuses to re-key when a leftover row already holds a parking id', async () => {
       const repo = dataSource.getRepository(BookVideo);
-      const book = await dataSource
-        .getRepository(Book)
-        .findOneByOrFail({ slugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR });
+      const book = await dataSource.getRepository(Book).findOneByOrFail({ slugTr: OWNER.slugTr });
       // A row left over from an interrupted run. Parking ids are reserved and never seeded, so a
       // row holding one must be inspected rather than silently overwritten.
       //
@@ -384,7 +366,7 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       const { cause } = await seedRefusal({
         books: [OWNER],
         artifact: swapped,
-        ownerSlugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR,
+        ownerSlugTr: OWNER.slugTr,
       });
       expect(cause.message).toMatch(/parking id/);
       // It must name the ids it refused to use, or "inspect the leftover row" is an instruction
@@ -421,11 +403,9 @@ describe('Book seed write path (e2e, real Postgres)', () => {
       await seedBooks(dataSource, {
         books: [OWNER],
         artifact: BASE,
-        ownerSlugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR,
+        ownerSlugTr: OWNER.slugTr,
       });
-      const book = await dataSource
-        .getRepository(Book)
-        .findOneByOrFail({ slugTr: BOOK_TIMESTAMPS_OWNER_SLUG_TR });
+      const book = await dataSource.getRepository(Book).findOneByOrFail({ slugTr: OWNER.slugTr });
       bookId = book.id;
     }, 120_000);
 
@@ -530,7 +510,7 @@ describe('Book seed write path (e2e, real Postgres)', () => {
     it('isbn13 and page_count hold their shape', async () => {
       // The `deneme_count` half of this case's original title is gone with the column itself
       // (P0 PR-3, `DEC 2026-09-10c` md.2) — deleted rather than renamed, per plan §7.2.
-      expect(await accepts('isbn13', '978625949006')).toBe(false); // 12 digits, blank-padded
+      expect(await accepts('isbn13', '978000000000')).toBe(false); // 12 digits, blank-padded
       expect(await accepts('isbn13', '97862594900AB')).toBe(false);
       expect(await accepts('isbn13', '9780000000001')).toBe(true);
       expect(await accepts('page_count', 0)).toBe(false);
@@ -606,8 +586,8 @@ describe('Book seed write path (e2e, real Postgres)', () => {
    *
    * **The proof is shorter than revision 0's.** `DEC 2026-09-10c` md.1/md.2 dropped
    * `books.deneme_count` outright rather than relaxing it to nullable, so there is no book-level
-   * count column left on ANY `BookSeed` to leave null — every book this seed loader writes,
-   * including the committed one, already satisfies AC 1 by construction. This case demonstrates it
+   * count column left on ANY `BookSeed` to leave null — every book this seed loader writes
+   * already satisfies AC 1 by construction. This case demonstrates it
    * on a second, synthetic book rather than only asserting it from the type signature.
    */
   describe('a generic book carries no book-level count (AC 1, P0 PR-3)', () => {

@@ -15,8 +15,8 @@ const SLUG_PATTERN = /^[a-z0-9-]+$/;
  * deviation) — but reproducing it in new code would be a choice, and this is the choice not to.
  *
  * ## What the two rules are anchored to
- * - The alphabet is `GLOSSARY.md` §5 rule 4's output (`a-z0-9-`) — the same folding that produced
- *   the book's own slug, positive-controlled there against seven locked province examples.
+ * - The alphabet is `GLOSSARY.md` §5 rule 4's output (`a-z0-9-`) — the same folding every book
+ *   slug goes through, positive-controlled there against seven locked province examples.
  *   **It is a deliberate SUPERSET of the seed's shape gate, and the two are not interchangeable.**
  *   `book-seed-invariants.ts` uses `/^[a-z0-9]+(?:-[a-z0-9]+)*$/`, which additionally refuses a
  *   leading, trailing or doubled hyphen — correct there, because that gate decides what may be
@@ -42,7 +42,7 @@ export class BookSlugParams {
     pattern: SLUG_PATTERN.source,
     minLength: 1,
     maxLength: 140,
-    example: 'ayt-cografya-konu-ozetli-brans-denemeleri',
+    example: 'ornek-kitap',
     description:
       'TR or EN slug of the book — both resolve to the same row, so each locale asks with its ' +
       'own. Lowercase ASCII letters, digits and hyphens only.',

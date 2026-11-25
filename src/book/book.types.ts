@@ -67,29 +67,18 @@ export enum BookContentKind {
 }
 
 /**
- * Who an attribution row credits.
+ * Who an attribution row credits — a closed set, published in the contract.
  *
- * Two rows, always both, on every response (SPEC §6.2 item 3). They are NOT interchangeable and
- * neither can be dropped in favour of the other:
- *  - `youtube` discharges Developer Policies III.E.4 — the page must make clear that YouTube is
- *    the source. The ledger records that a text credit alone may not be sufficient (the Branding
- *    Guidelines require the logo too) and leaves that question open as `[SAĞLAYICIYA SOR]`; we
- *    carry both, which is strictly safer than either alone.
- *  - `partner` credits the content owner — the channel and the publisher. That obligation comes
- *    from `QUESTIONS.md` V-2 and `CONVENTIONS.md` §7, not from YouTube.
+ * `youtube` is the only member: it discharges Developer Policies III.E.4, which requires a page
+ * displaying YouTube content to make clear that YouTube is the source. Adding a member (a content
+ * owner's own credit, say) is a breaking contract change, the same as {@link ExamTrack}.
  *
- * The STRINGS are not here and are not minted in code: their canonical home is
- * `provenance/integrations.md`, "YouTube attribution — canonical strings". See
- * {@link BookAttributionDto}.
+ * The strings are not here: they are compiled constants in `book-attribution.catalogue.ts`.
  */
 export const BOOK_ATTRIBUTION_PROVIDER_YOUTUBE = 'youtube';
 
 /** @see BOOK_ATTRIBUTION_PROVIDER_YOUTUBE */
-export const BOOK_ATTRIBUTION_PROVIDER_PARTNER = 'partner';
-
-/** @see BOOK_ATTRIBUTION_PROVIDER_YOUTUBE */
-export type BookAttributionProviderId =
-  typeof BOOK_ATTRIBUTION_PROVIDER_YOUTUBE | typeof BOOK_ATTRIBUTION_PROVIDER_PARTNER;
+export type BookAttributionProviderId = typeof BOOK_ATTRIBUTION_PROVIDER_YOUTUBE;
 
 /**
  * Which key of the provider's thumbnail map a snapshot took its image from.

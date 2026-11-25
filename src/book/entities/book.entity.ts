@@ -54,13 +54,13 @@ export class Book {
   /**
    * TR routing key — `/kitaplar/{slug_tr}` (`CONVENTIONS.md` §5).
    *
-   * `ayt-cografya-konu-ozetli-brans-denemeleri` for the first book, confirmed against
-   * `GLOSSARY.md` §5's four folding rules with the folding function positive-controlled against
-   * all seven locked province/region examples (K-B, → DEC 2026-08-15c). The publisher name is
-   * deliberately NOT in the slug: `publisher_name` is its own column and an address is permanent.
+   * Folded from the title by `GLOSSARY.md` §5's four rules, whose folding function is
+   * positive-controlled against all seven locked province/region examples (K-B, → DEC
+   * 2026-08-15c). The publisher name is deliberately NOT in the slug: `publisher_name` is its own
+   * column and an address is permanent.
    *
-   * 140 rather than the province table's 120: this book's slug is already 41 characters and a
-   * book title is not bounded the way a province name is.
+   * 140 rather than the province table's 120: a book title is not bounded the way a province name
+   * is, and a slug folded from a full title easily passes 40 characters.
    */
   @Column({ name: 'slug_tr', type: 'varchar', length: 140, unique: true })
   slugTr!: string;
@@ -68,7 +68,7 @@ export class Book {
   /**
    * EN routing key — `/en/books/{slug_en}`.
    *
-   * The same string as {@link slugTr} for this book, and that is a CONSEQUENCE rather than a rule:
+   * Usually the same string as {@link slugTr}, and that is a CONSEQUENCE rather than a rule:
    * a product name is not translated (`SEO-POLICY.md` §B14 14.2), so there is nothing to fold
    * differently. The column stays separate and separately unique because the next book might have
    * a title that does translate.
@@ -103,10 +103,8 @@ export class Book {
    *
    * The same discipline as `Country.neighborIsoCodes` (playbook §5): this array is a PUBLISHED
    * render order, the consumer iterates it unsorted, and alphabetising it as a "tidy-up" changes
-   * what the credit says. For this book the printed order is **Murat Karagöz, then Murat Çakır** —
-   * the cover's order, ruled published by `DEC 2026-08-15i` md.1. (This sentence named the reverse
-   * until 2026-08-15; the cover scan refuted it. Playbook §5 makes the entity the canonical home
-   * for seed discipline notes, so a stale one here is the first wrong answer the next reader gets.)
+   * what the credit says. The order is the cover's, which a re-read of the cover settles rather
+   * than a decision log.
    *
    * At least one entry, enforced by `CHK_books_author_names`: the credit is an attribution
    * obligation, so a row with nobody credited is a seeding defect rather than a state. A
@@ -237,8 +235,8 @@ export class Book {
   /**
    * The channel the solutions are published on, published as-is on the detail response.
    *
-   * It does NOT build the reader-facing channel link: `DEC 2026-08-17b` made that address the
-   * handle constant in `book/book-attribution.catalogue.ts`, which a channel id cannot compose.
+   * It also builds the attribution row's channel link (`youtubeChannelUrl` in
+   * `book/book-attribution.catalogue.ts`), so each book credits its own channel.
    */
   @Column({ name: 'youtube_channel_id', type: 'varchar', length: 32 })
   youtubeChannelId!: string;

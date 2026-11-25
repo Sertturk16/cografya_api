@@ -12,7 +12,7 @@ import { z } from 'zod';
  * from disk at runtime. Nobody retypes 973 Turkish place names into a `.ts` file, so the failure
  * class playbook §8 was written for cannot occur here: `Şarkışla` mistyped as `Şarkişla` is a
  * defect no structural test can see, and it would be published on a form 973 users pick from. The
- * `data/books/` artefact established this shape; this is the second lane to use it.
+ * book timestamps artefact (`book-timestamps.artifact.ts`) established this shape.
  *
  * The consequence worth stating: there is no transcription step, so there is nothing to verify a
  * transcription against, and this leg adds no `tools/seed-transcription/` lane. What it adds
@@ -65,7 +65,7 @@ import { z } from 'zod';
  *   is one JSON scalar. With no join heuristic there is nothing that could agree with itself.
  */
 
-/** Where the committed artefact lives, relative to the repo root (the `data/books` pattern). */
+/** Where the committed artefact lives, relative to the repo root (the `data/era5-land` pattern). */
 export const DISTRICTS_ARTIFACT_FILENAME = 'districts.tuik.json';
 
 /** Absolute path of the committed artefact, resolved from the process working directory. */
@@ -566,7 +566,7 @@ export async function readDistrictsArtifact(
   // document, because Node substitutes U+FFFD for an invalid UTF-8 sequence on decode — so two
   // distinct byte files can share one text hash. On a file whose whole content is Turkish place
   // names that is not a corner case: a corrupted `ğ` is exactly the byte a hand-edit produces.
-  // (The `data/books` lane's reasoning, which applies here with more force.)
+  // (The book timestamps lane's reasoning, which applies here with more force.)
   let bytes: Buffer;
   try {
     bytes = await readFile(path);

@@ -14,11 +14,11 @@ import { User } from '../src/auth/entities/user.entity';
 import { BookVideo } from '../src/book/entities/book-video.entity';
 import { applyGlobalPrefix, buildValidationPipe } from '../src/common/bootstrap';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
-import { seedBooks } from '../src/database/seeds/seed-books';
 import { seedGeography } from '../src/database/seeds/seed-geography';
 import { seedReference } from '../src/database/seeds/seed-reference';
 import { Province } from '../src/province/entities/province.entity';
 import { District } from '../src/reference/entities/district.entity';
+import { seedFixtureBooks } from './fixtures/books/fixture-books';
 
 /**
  * P2 (`UYE-VIDEO-KIMLIK-UCU`) e2e — the one guarded `video-identity` endpoint against a REAL
@@ -64,7 +64,7 @@ describe('Video identity (e2e, real Postgres)', () => {
 
     await seedGeography(dataSource);
     await seedReference(dataSource);
-    await seedBooks(dataSource);
+    await seedFixtureBooks(dataSource);
 
     const istanbul = await dataSource
       .getRepository(Province)

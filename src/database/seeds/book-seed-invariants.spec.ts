@@ -8,6 +8,7 @@ import {
   collectBookSeedNotes,
   validateBookSeedCorpus,
 } from './book-seed-invariants';
+import { buildFixtureArtifact, FIXTURE_BOOK } from '../../../test/fixtures/books/fixture-books';
 import type { BookTimestampsArtifact } from './book-timestamps.artifact';
 import { SEED_BOOKS, type BookSeed } from './books.seed-data';
 
@@ -26,7 +27,7 @@ import { SEED_BOOKS, type BookSeed } from './books.seed-data';
  * They assert no FACT. Nothing here pins what the prose says, how long it is, or which second a
  * question starts at — a spec that did would freeze an editorial decision the owner already ruled
  * on, and would go red the day the text is legitimately revised. The one deliberate exception is
- * "the committed corpus passes", which is a positive control rather than a fact: without it every
+ * "the fixture book passes", which is a positive control rather than a fact: without it every
  * refusal below would be satisfied by a gate that rejects everything.
  */
 
@@ -97,9 +98,19 @@ describe('assertBookSeedInvariants — positive controls', () => {
     }).not.toThrow();
   });
 
-  it('accepts the COMMITTED corpus — the gate is not one that rejects everything', () => {
+  it('accepts the shared fixture book — the gate is not one that rejects everything', () => {
     expect(() => {
-      assertBookSeedInvariants(SEED_BOOKS);
+      assertBookSeedInvariants([FIXTURE_BOOK]);
+    }).not.toThrow();
+  });
+
+  it('accepts the COMMITTED corpus whenever it carries a book', () => {
+    // Empty is the shipped state and is answered by `validateBookSeedCorpus` before this gate runs
+    // (this gate refuses `[]`, below). A book added to `SEED_BOOKS` must pass the same rules.
+    expect(() => {
+      if (SEED_BOOKS.length > 0) {
+        assertBookSeedInvariants(SEED_BOOKS);
+      }
     }).not.toThrow();
   });
 });
@@ -273,7 +284,7 @@ describe('assertBookSeedInvariants — required strings and column lengths', () 
   it.each([
     ['too short', 'UC000000000000000000000'],
     ['too long', 'UC00000000000000000000000'],
-    ['not a channel id at all', 'PLeiAoU-22Kr8em2axwmDvHB48pqxQL2Po'],
+    ['not a channel id at all', 'PLOrnek_Liste_00000000000000000'],
   ])('refuses a youtubeChannelId that is %s', (_label, youtubeChannelId) => {
     expect(() => {
       assertBookSeedInvariants([book({ youtubeChannelId })]);
@@ -282,7 +293,7 @@ describe('assertBookSeedInvariants — required strings and column lengths', () 
 
   it('accepts a playlist id of any family, which is why no pattern is pinned on it', () => {
     expect(() => {
-      assertBookSeedInvariants([book({ youtubePlaylistId: 'UUH7D1zOgHykrHfx5Q7WERmw' })]);
+      assertBookSeedInvariants([book({ youtubePlaylistId: 'UUOrnek_Kanal_1234567890' })]);
     }).not.toThrow();
   });
 });
@@ -423,40 +434,68 @@ describe('validateBookSeedCorpus — one list for `--check` and the write path',
   /**
    * The refusals this function composes were two hand-written lists that had already diverged:
    * `--check` ran the corpus invariants and the artefact read, and the write path additionally ran
-   * the owner lookup and the artefact↔künye join. The cases below drive the two refusals that used
-   * to be write-path-only, through the function BOTH paths now call.
+   * the owner lookup and the artefact↔künye join. The cases below drive the refusals through the
+   * function BOTH paths now call.
    */
-  it('accepts the committed corpus against the committed artefact', async () => {
-    await expect(validateBookSeedCorpus()).resolves.toMatchObject({
-      owner: { slugTr: SEED_BOOKS[0]?.slugTr },
+  it('validates an EMPTY corpus as a success with nothing to seed', () => {
+    expect(validateBookSeedCorpus({ books: [] })).toEqual({
+      books: [],
+      artifact: null,
+      owner: null,
     });
   });
 
-  it('refuses a corpus that does not contain the artefact owner', async () => {
-    await expect(
+  it('refuses a non-empty corpus that brings no etiket index', () => {
+    expect(() => validateBookSeedCorpus({ books: [book()] })).toThrow(BookSeedInvariantError);
+    expect(() => validateBookSeedCorpus({ books: [book()] })).toThrow(
+      /no etiket index was supplied/,
+    );
+    // Half the wiring is no wiring: an artefact without its owner, or an owner without its artefact.
+    expect(() => validateBookSeedCorpus({ books: [book()], artifact: artifact([1]) })).toThrow(
+      /no etiket index was supplied/,
+    );
+    expect(() => validateBookSeedCorpus({ books: [book()], ownerSlugTr: 'ornek-kitap' })).toThrow(
+      /no etiket index was supplied/,
+    );
+  });
+
+  it('accepts the fixture book against the fixture artefact (positive control)', () => {
+    const artifactOfFixture = buildFixtureArtifact();
+    expect(
+      validateBookSeedCorpus({
+        books: [FIXTURE_BOOK],
+        artifact: artifactOfFixture,
+        ownerSlugTr: FIXTURE_BOOK.slugTr,
+      }),
+    ).toEqual({ books: [FIXTURE_BOOK], artifact: artifactOfFixture, owner: FIXTURE_BOOK });
+  });
+
+  it('refuses a corpus that does not contain the artefact owner', () => {
+    expect(() =>
       validateBookSeedCorpus({
         books: [book()],
         ownerSlugTr: 'baska-kitap',
         artifact: artifact([1]),
       }),
-    ).rejects.toThrow(/which is not in the seed corpus/);
+    ).toThrow(/which is not in the seed corpus/);
   });
 
-  it('refuses an artefact that is empty for the owner it belongs to', async () => {
-    // The counterpart of the retired "does not fit" case (P0 PR-3 removed the denemeCount-bound
-    // comparison it drove): the one refusal `assertArtifactMatchesBook` still carries is the
-    // injected-seam emptiness guard, driven here through the full `validateBookSeedCorpus` path.
-    await expect(
+  it('refuses an artefact that is empty for the owner it belongs to', () => {
+    // The one refusal `assertArtifactMatchesBook` still carries is the injected-seam emptiness
+    // guard, driven here through the full `validateBookSeedCorpus` path.
+    expect(() =>
       validateBookSeedCorpus({
         books: [book()],
         ownerSlugTr: 'ornek-kitap',
         artifact: artifact([]),
       }),
-    ).rejects.toThrow(/no videos at all/);
+    ).toThrow(/no videos at all/);
   });
 
-  it('refuses a defective corpus before it ever reaches the artefact', async () => {
-    await expect(validateBookSeedCorpus({ books: [] })).rejects.toThrow(/corpus is empty/);
+  it('refuses a defective corpus before it ever reaches the artefact', () => {
+    expect(() => validateBookSeedCorpus({ books: [book({ slugTr: 'Not A Slug' })] })).toThrow(
+      /is not a slug/,
+    );
   });
 });
 
@@ -490,7 +529,9 @@ describe('collectBookSeedNotes', () => {
 });
 
 describe('the No-Endorsement guard over every string this seed publishes (§13 invariant 16)', () => {
-  const publishedStrings = SEED_BOOKS.flatMap((seed) => [
+  // The fixture rides along so the table is never empty (`it.each([])` is an error) and the guard
+  // keeps running over a real-shaped book while the committed corpus has none.
+  const publishedStrings = [...SEED_BOOKS, FIXTURE_BOOK].flatMap((seed) => [
     seed.titleTr,
     seed.publisherName,
     seed.introTr,

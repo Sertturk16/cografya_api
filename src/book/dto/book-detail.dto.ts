@@ -4,7 +4,7 @@ import { BookListItemDto } from './book-list-item.dto';
 import { BookVideoDto } from './book-video.dto';
 
 /**
- * The whole book page in one payload — künye, 30 videos, 180 etiketler, attribution.
+ * The whole book page in one payload — künye, videos, their etiket index, attribution.
  *
  * `GET /api/books/{slug}` accepts **either** slug (the `ProvinceController.findBySlug` precedent)
  * and answers an unknown one with 404, never a soft 200. There is no separate videos endpoint: the
@@ -54,17 +54,9 @@ export class BookDetailDto extends BookListItemDto {
   titleEn!: string | null;
 
   /**
-   * The example is a PLACEHOLDER, and deliberately not the real authors.
-   *
-   * It used to carry the seeded pair, in an order a later ruling made false (`DEC 2026-08-15i`
-   * md.1 — the published order is the cover's). The seed was corrected and the example was not, so
-   * the artifact contradicted itself and served a false claim about two named living people from
-   * an ungated `/docs` on a PUBLIC repository (PR #110 review, `FID110-I1`/`SEC110-I1`).
-   *
-   * Fixing the order would have fixed this instance; using non-real names fixes the CLASS. An
-   * example's job is to show an ordered array of strings — it does not need to be these people, and
-   * a placeholder cannot drift out of step with a ruling about them again. Same shape
-   * `book-seed-invariants.spec.ts` already uses for its fixtures.
+   * The example is a PLACEHOLDER, never real seeded authors: an example published from an ungated
+   * `/docs` must not make claims about named living people, and a placeholder cannot drift out of
+   * step with the seed.
    */
   @ApiProperty({
     type: [String],
@@ -78,7 +70,7 @@ export class BookDetailDto extends BookListItemDto {
 
   @ApiProperty({
     type: String,
-    example: '9786259490069',
+    example: '9780000000002',
     description: 'ISBN-13, exactly 13 digits, no hyphens. Feeds Book.isbn.',
   })
   isbn13!: string;
@@ -128,11 +120,10 @@ export class BookDetailDto extends BookListItemDto {
 
   @ApiProperty({
     type: String,
-    example: 'UCH7D1zOgHykrHfx5Q7WERmw',
+    example: 'UCOrnek_Kanal_1234567890',
     description:
-      'The channel the solutions are published on. The attribution rows carry the channel ' +
-      'address themselves in channelUrl; it is not composed from this id, so do not build a ' +
-      'link out of it.',
+      'The channel the solutions are published on. The attribution row carries the channel ' +
+      'address built from this id in channelUrl; link from there rather than composing it again.',
   })
   youtubeChannelId!: string;
 
@@ -148,8 +139,7 @@ export class BookDetailDto extends BookListItemDto {
   @ApiProperty({
     type: String,
     nullable: true,
-    example:
-      'https://www.kitapisler.com/cografya-gurmesi-yayinlari-ayt-cografya-konu-ozetli-brans-denemeleri_106636.html',
+    example: 'https://example.com/kitap/ornek-kitap',
     description:
       'Outbound "Satın Al" link to the seller, or null when there is none — render no button on ' +
       'null. **No price is published anywhere, by rule**: CONVENTIONS §4 bars pricing, and a ' +
@@ -161,8 +151,8 @@ export class BookDetailDto extends BookListItemDto {
   @ApiProperty({
     type: [BookVideoDto],
     description:
-      'Every indexed video with its etiket index, ascending by orderNo. The 180-row index must ' +
-      'be readable and clickable without JavaScript — that is what keeps this page clear of ' +
+      'Every indexed video with its etiket index, ascending by orderNo. The index must be ' +
+      'readable and clickable without JavaScript — that is what keeps this page clear of ' +
       'SEO-POLICY §12.2.b.',
   })
   videos!: BookVideoDto[];
@@ -171,8 +161,8 @@ export class BookDetailDto extends BookListItemDto {
     type: [BookAttributionDto],
     description:
       'Never empty, on any response, in any data state — an empty array would be a breach of the ' +
-      'attribution obligation rather than a degraded widget. Two rows: the YouTube source credit ' +
-      'and the content partner credit; neither substitutes for the other.',
+      'attribution obligation rather than a degraded widget. One row today: the YouTube source ' +
+      "credit, linking to the book's channel.",
   })
   attribution!: BookAttributionDto[];
 }

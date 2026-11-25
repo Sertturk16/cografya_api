@@ -22,9 +22,9 @@ import {
   type YoutubeSnapshotStorePort,
 } from '../src/book/youtube/youtube-snapshot.store';
 import { buildDataSourceOptions } from '../src/database/data-source-options';
-import { seedBooks } from '../src/database/seeds/seed-books';
 import { buildVideoCoverPath } from '../src/video-cover/video-cover-address';
 import { VIDEO_COVER_ERROR_KEYS } from '../src/video-cover/video-cover-error-keys';
+import { seedFixtureBooks } from './fixtures/books/fixture-books';
 
 /**
  * P2 (kapak-adresi) e2e — the SSRF guard, the uniform-404 collapse and the named regression guard
@@ -251,7 +251,7 @@ describe('Video cover proxy (e2e, real Postgres) — closes VAL137-NEW-C1/VAL137
     dataSource = new DataSource(buildDataSourceOptions(url));
     await dataSource.initialize();
     await dataSource.runMigrations();
-    await seedBooks(dataSource);
+    await seedFixtureBooks(dataSource);
     store = new YoutubeSnapshotStore(dataSource);
 
     const videos = await dataSource.getRepository(BookVideo).find({ order: { orderNo: 'ASC' } });
