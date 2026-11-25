@@ -42,7 +42,7 @@ return value
  * pointed at the same URL takes the same warmup lock as production and suppresses its tour, and a
  * lost lock is a normal `debug` line — nothing would look wrong (review #73 MINOR).
  */
-const KEY_PREFIX = 'cografya:api:';
+export const KEY_PREFIX = 'cografya:api:';
 
 /**
  * Connection timings.
