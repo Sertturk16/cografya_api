@@ -2,11 +2,12 @@ import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
 import { Global, Module, type DynamicModule } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
+import Redis from 'ioredis';
 import { GenericContainer, type StartedTestContainer } from 'testcontainers';
 import { UpstreamCacheService } from '../src/upstream/cache/upstream-cache.service';
 import { RedisSingleFlight } from '../src/upstream/cache/single-flight';
 import { RedisCacheStore } from '../src/upstream/cache/upstream-cache.store';
-import { IoredisAdapter } from '../src/upstream/redis/ioredis.adapter';
+import { IoredisAdapter, KEY_PREFIX } from '../src/upstream/redis/ioredis.adapter';
 import { REDIS_CLIENT, type RedisClientPort } from '../src/upstream/redis/redis-client.port';
 import { UpstreamModule } from '../src/upstream/upstream.module';
 import { UpstreamMetrics } from '../src/upstream/upstream-metrics';
@@ -56,18 +57,34 @@ function stubConfigModule(redisUrl: string | undefined): DynamicModule {
 describe('IoredisAdapter against a real Redis', () => {
   let container: StartedTestContainer;
   let redis: RedisClientPort;
+  // A plain driver connection for reading what the adapter left behind (the key's remaining
+  // TTL). The port has no TTL read on purpose: nothing in the app needs one.
+  let inspector: Redis;
 
   beforeAll(async () => {
     container = await new GenericContainer('redis:7-alpine').withExposedPorts(6379).start();
-    redis = new IoredisAdapter(
-      `redis://${container.getHost()}:${String(container.getMappedPort(6379))}`,
-    );
+    const url = `redis://${container.getHost()}:${String(container.getMappedPort(6379))}`;
+    redis = new IoredisAdapter(url);
+    inspector = new Redis(url);
   }, 120_000);
 
   afterAll(async () => {
     await redis.quit();
+    await inspector.quit();
     await container.stop();
   });
+
+  /** Remaining TTL in ms; -1 = no expiry, -2 = no key. */
+  const remainingTtlMs = (key: string): Promise<number> => inspector.pttl(`${KEY_PREFIX}${key}`);
+
+  /** Resolves once Redis has expired the key; polls instead of guessing how long that takes. */
+  async function waitUntilExpired(key: string, deadlineMs: number): Promise<void> {
+    const giveUpAt = Date.now() + deadlineMs;
+    while ((await remainingTtlMs(key)) !== -2) {
+      if (Date.now() > giveUpAt) throw new Error(`${key} still exists after ${deadlineMs} ms`);
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+  }
 
   describe('values and expiry', () => {
     it('stores and reads a value back', async () => {
@@ -111,26 +128,44 @@ describe('IoredisAdapter against a real Redis', () => {
   });
 
   describe('the quota counter', () => {
+    // The window assertions read the key's TTL from Redis instead of racing a 1 s window with
+    // fixed sleeps: on a loaded CI runner more than a second once passed between two back-to-back
+    // increments, and the second one opened a fresh window (got 1, expected 2).
+    // GAP_MS separates the two TTL reads: a correct counter loses at least that much, while a
+    // re-armed expiry would read near the full TTL again (one run measured 2 998 ms then 2 999 ms).
+    const GAP_MS = 300;
     it('increments and keeps a FIXED window — traffic inside it cannot push the reset back', async () => {
-      await expect(redis.incrementWithTtl('e2e:quota', 1)).resolves.toBe(1);
-      await new Promise((resolve) => setTimeout(resolve, 400));
-      await expect(redis.incrementWithTtl('e2e:quota', 1)).resolves.toBe(2);
+      await expect(redis.incrementWithTtl('e2e:quota', 3)).resolves.toBe(1);
+      const ttlAfterFirstMs = await remainingTtlMs('e2e:quota');
+      expect(ttlAfterFirstMs).toBeGreaterThan(0);
 
-      // The second increment must NOT have extended the window: after the original second the
-      // counter is gone, whatever happened inside it.
-      await new Promise((resolve) => setTimeout(resolve, 900));
+      await new Promise((resolve) => setTimeout(resolve, GAP_MS));
+      await expect(redis.incrementWithTtl('e2e:quota', 3)).resolves.toBe(2);
+
+      // Re-running EXPIRE would have put the TTL back to the full 3 s; a fixed window only
+      // counts down, by at least the gap between the two reads.
+      const ttlAfterSecondMs = await remainingTtlMs('e2e:quota');
+      expect(ttlAfterSecondMs).toBeGreaterThan(0);
+      expect(ttlAfterSecondMs).toBeLessThanOrEqual(ttlAfterFirstMs - GAP_MS);
+
+      // When the original window ends the counter starts over, whatever happened inside it.
+      await waitUntilExpired('e2e:quota', 10_000);
       await expect(redis.incrementWithTtl('e2e:quota', 5)).resolves.toBe(1);
     });
 
     it('adds WEIGHT, and still sets the expiry only on the first write', async () => {
-      // The quota unit is a location, not a request (Atlas ruling, review #73 I5), so the counter
-      // has to accept a weight — and the first-write-only EXPIRE must key off that weight rather
-      // than off the literal 1 the earlier script compared against.
-      await expect(redis.incrementWithTtl('e2e:weighted', 1, 31)).resolves.toBe(31);
-      await expect(redis.incrementWithTtl('e2e:weighted', 1, 31)).resolves.toBe(62);
+      // The quota unit is a location, not a request, so the counter has to accept a weight — and
+      // the first-write-only EXPIRE must key off that weight rather than off the literal 1 the
+      // earlier script compared against (which left a weighted counter with no expiry at all).
+      await expect(redis.incrementWithTtl('e2e:weighted', 60, 31)).resolves.toBe(31);
+      const ttlAfterFirstMs = await remainingTtlMs('e2e:weighted');
+      expect(ttlAfterFirstMs).toBeGreaterThan(0);
 
-      await new Promise((resolve) => setTimeout(resolve, 1_300));
-      await expect(redis.incrementWithTtl('e2e:weighted', 60, 5)).resolves.toBe(5);
+      await new Promise((resolve) => setTimeout(resolve, GAP_MS));
+      await expect(redis.incrementWithTtl('e2e:weighted', 60, 31)).resolves.toBe(62);
+      const ttlAfterSecondMs = await remainingTtlMs('e2e:weighted');
+      expect(ttlAfterSecondMs).toBeGreaterThan(0);
+      expect(ttlAfterSecondMs).toBeLessThanOrEqual(ttlAfterFirstMs - GAP_MS);
     });
 
     it('is atomic under genuine concurrency', async () => {
