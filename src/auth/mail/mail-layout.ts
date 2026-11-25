@@ -49,6 +49,7 @@ import type { MailLocale } from './mailer.port';
 /** Terra, flattened. Mirrors `cografya_web/app/globals.css` `:root`; see rule 2 above. */
 const TERRA = {
   primary: '#b0522e',
+  accent: '#276b70',
   primaryDark: '#7e3a1e',
   ink: '#2b2622',
   slate: '#57504a',
@@ -92,9 +93,12 @@ export interface EmailBody {
   readonly reassurance: string;
 }
 
+/** The site's name, as the logo's wordmark spells it (lowercase). */
+export const BRAND_NAME = 'geograp';
+
 const FOOTER: Record<MailLocale, readonly [string, string]> = {
-  tr: ['Coğrafya Gurmesi Yayınları', 'Bu e-posta hesap güvenliğiniz için gönderildi.'],
-  en: ['Coğrafya Gurmesi Yayınları', 'This email was sent for the security of your account.'],
+  tr: [BRAND_NAME, 'Bu e-posta hesap güvenliğiniz için gönderildi.'],
+  en: [BRAND_NAME, 'This email was sent for the security of your account.'],
 };
 
 const TAGLINE: Record<MailLocale, string> = {
@@ -120,7 +124,7 @@ function wordmark(locale: MailLocale): string {
   return `
             <tr>
               <td align="center" style="padding:0 0 26px 0;">
-                <div style="font-family:${DISPLAY_FONT};font-size:23px;font-weight:700;color:${TERRA.primary};letter-spacing:-0.01em;line-height:1.2;">Coğrafya Gurmesi</div>
+                <div style="font-family:${BODY_FONT};font-size:24px;font-weight:700;color:${TERRA.accent};letter-spacing:-0.01em;line-height:1.2;">${BRAND_NAME}</div>
                 <div style="font-family:${BODY_FONT};font-size:11px;color:${TERRA.taupe};padding-top:5px;">${escapeHtml(TAGLINE[locale])}</div>
               </td>
             </tr>`;

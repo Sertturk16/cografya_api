@@ -552,7 +552,7 @@ describe('validateEnv — MAIL_TRANSPORT (üyelik UYELIK-02, plan §11)', () => 
     expect(env.MAIL_TRANSPORT).toBe('noop');
     expect(env.AWS_REGION).toBeUndefined();
     expect(env.MAIL_FROM_ADDRESS).toBeUndefined();
-    expect(env.MAIL_FROM_NAME).toBe('Coğrafya Gurmesi');
+    expect(env.MAIL_FROM_NAME).toBe('geograp');
   });
 
   it('refuses any value outside the closed enum', () => {

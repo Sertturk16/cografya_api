@@ -21,8 +21,8 @@ function configFrom(raw: Record<string, string>): ConfigService<Env, true> {
     AWS_REGION: 'eu-central-1',
     AWS_ACCESS_KEY_ID: 'AKIAEXAMPLE',
     AWS_SECRET_ACCESS_KEY: 'example-secret-key',
-    MAIL_FROM_ADDRESS: 'no-reply@cografyagurmesi.example',
-    WEB_ORIGIN: 'https://cografyagurmesi.example',
+    MAIL_FROM_ADDRESS: 'no-reply@geograp.example',
+    WEB_ORIGIN: 'https://geograp.example',
     ...raw,
   });
   return { get: (key: keyof Env) => env[key] } as unknown as ConfigService<Env, true>;
@@ -85,7 +85,7 @@ describe('SesMailerAdapter', () => {
           expect(input.Content?.Simple?.Body?.Html?.Data).toContain(SECRET_TOKEN);
           // The link is a real, absolute URL off WEB_ORIGIN carrying the token as `?token=`.
           expect(input.Content?.Simple?.Body?.Text?.Data).toMatch(
-            /https:\/\/cografyagurmesi\.example\/.*[?&]token=super-secret-reset-token/,
+            /https:\/\/geograp\.example\/.*[?&]token=super-secret-reset-token/,
           );
         }
       });
@@ -170,7 +170,7 @@ describe('SesMailerAdapter', () => {
           AWS_ACCESS_KEY_ID: 'AKIAEXAMPLE',
           AWS_SECRET_ACCESS_KEY: 'secret',
           MAIL_FROM_ADDRESS: 'no-reply@example.test',
-          MAIL_FROM_NAME: 'Coğrafya Gurmesi',
+          MAIL_FROM_NAME: 'geograp',
           WEB_ORIGIN: 'https://example.test',
         };
         return values[key];

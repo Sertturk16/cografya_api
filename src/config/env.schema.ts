@@ -211,7 +211,7 @@ export const envSchema = z
     // regardless of what this schema allows, so a typo here surfaces as an SES error at send
     // time, not at boot — the boot-time check below only confirms the var is PRESENT).
     MAIL_FROM_ADDRESS: z.email().optional(),
-    MAIL_FROM_NAME: z.string().min(1).optional().default('Coğrafya Gurmesi'),
+    MAIL_FROM_NAME: z.string().min(1).optional().default('geograp'),
 
     // ── Cache infrastructure ────────────────────────────────────────────────────
     // Redis connection string for the upstream cache, the single-flight lock and the shared
